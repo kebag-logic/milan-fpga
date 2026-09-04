@@ -83,9 +83,11 @@ class PortGroup:
     patterns: tuple[str, ...]
 
     def matches(self, port: str) -> bool:
+        """Whether this group claims one RTL boundary port by name."""
         return any(re.fullmatch(pattern, port) for pattern in self.patterns)
 
     def row(self) -> str:
+        """The group as the one Markdown table row the docs must carry."""
         return (
             f"| {self.label} | {self.rtl_names} | {self.duty} | "
             f"{self.safe_start} |"
@@ -204,6 +206,8 @@ STALE_CLOCK = re.compile(r"\b(?:100\s*mhz|100e6)\b", re.IGNORECASE)
 
 
 def scalar(value: object) -> str:
+    """One argparse or shell default as the docs spell it: an absent value is
+    the word "unset", and a whole float is written without its ".0"."""
     if value is None:
         return "unset"
     if isinstance(value, float) and value.is_integer():
@@ -313,6 +317,8 @@ def deploy_options(path: Path) -> dict[str, str]:
 
 
 def clock_label(value: str) -> str:
+    """A frequency in the docs' own units - MHz when it divides evenly, Hz
+    otherwise - so the table and the recipe cannot disagree by notation."""
     if value == "unset":
         return value
     frequency = int(value)
@@ -322,7 +328,11 @@ def clock_label(value: str) -> str:
 
 
 def product_table(cli: dict[str, str], deploy: dict[str, str]) -> str:
+    """The CPU-contract block the docs must carry verbatim: CLI defaults and
+    the deployment recipe side by side, generated from what the tree says."""
+
     def row(label: str, values: dict[str, str]) -> str:
+        """One invocation as a table row."""
         return (
             f"| {label} | `{values['--cpu']}` | `{values['--cpu-count']}` | "
             f"`{values['--xlen']}` | `{values['--software-profile']}` | "
@@ -343,6 +353,8 @@ def product_table(cli: dict[str, str], deploy: dict[str, str]) -> str:
 
 
 def interface_table() -> str:
+    """The interface-group block the docs must carry: one row per PORT_GROUPS
+    entry, so a new boundary group reaches the document by regeneration."""
     return "\n".join(
         (
             INTERFACE_START,
@@ -355,6 +367,11 @@ def interface_table() -> str:
 
 
 def marked(text: str, start: str, end: str) -> str:
+    """The generated block between its two markers, markers included.
+
+    Ambiguity is refused rather than resolved: a marker appearing twice means
+    the document has two blocks claiming to be the generated one.
+    """
     if text.count(start) != 1 or text.count(end) != 1:
         raise ValueError(f"markers must appear exactly once: {start}, {end}")
     _before, remainder = text.split(start, 1)
@@ -363,6 +380,8 @@ def marked(text: str, start: str, end: str) -> str:
 
 
 def without_marked(text: str, start: str, end: str) -> str:
+    """The document with a generated block blanked to its own line count, so
+    prose can be searched for a stale claim the block legitimately repeats."""
     try:
         section = marked(text, start, end)
     except ValueError:
@@ -371,6 +390,8 @@ def without_marked(text: str, start: str, end: str) -> str:
 
 
 def table_rows(text: str) -> list[list[str]]:
+    """The Markdown table's data rows as stripped fields - header and the
+    `---` separator dropped, backticks removed so a cell compares as text."""
     rows: list[list[str]] = []
     for line in text.splitlines():
         stripped = line.strip()
@@ -386,6 +407,8 @@ def table_rows(text: str) -> list[list[str]]:
 
 
 def validate_memory_table(path: Path, text: str) -> list[str]:
+    """Findings against the memory-face table: a face missing, a face claimed
+    twice, or a face naming a signal prefix the RTL does not use."""
     errors: list[str] = []
     try:
         section = marked(text, MEMORY_START, MEMORY_END)
@@ -412,6 +435,11 @@ def validate_memory_table(path: Path, text: str) -> list[str]:
 
 
 def datapath_ports(text: str) -> dict[str, str]:
+    """{port: "input"|"output"} for the whole milan_datapath boundary.
+
+    A declaration line the regex did not parse is an error rather than a port
+    silently absent: the group check downstream is only exhaustive if this is.
+    """
     start = text.find("\n)(\n")
     if start < 0:
         raise ValueError("cannot locate module port-list start")
@@ -440,6 +468,8 @@ def datapath_ports(text: str) -> dict[str, str]:
 
 
 def validate_port_groups(ports: dict[str, str]) -> list[str]:
+    """Findings against the group partition: every RTL port must land in
+    exactly one documented group, and no group may be left with none."""
     errors: list[str] = []
     members: dict[str, list[str]] = {group.label: [] for group in PORT_GROUPS}
     for port in sorted(ports):
@@ -459,23 +489,19 @@ def validate_port_groups(ports: dict[str, str]) -> list[str]:
 
 
 def normalized(text: str) -> str:
+    """Prose flattened for phrase matching: Markdown emphasis dropped and the
+    case folded, so a stale claim cannot hide behind bold or a code span."""
     return re.sub(r"[*_`]", "", text).lower()
 
 
-def validate(root: Path) -> list[str]:
+def _contract_errors(
+    cli: dict[str, str],
+    deploy: dict[str, str],
+    system_cli: str,
+    system_deploy: str,
+) -> list[str]:
+    """Where the source facts read out of the tree differ from the contract."""
     errors: list[str] = []
-    try:
-        cli = argparse_defaults(root / SOC)
-        system_cli = argparse_defaults(
-            root / SOC,
-            (SYSTEM_CLOCK_OPTION,),
-        )[SYSTEM_CLOCK_OPTION]
-        deploy = deploy_options(root / DEPLOY)
-        system_override = deploy_override(root / DEPLOY, SYSTEM_CLOCK_OPTION)
-        system_deploy = system_override or system_cli
-    except (OSError, SyntaxError, ValueError) as error:
-        return [f"solution source facts unavailable: {error}"]
-
     if cli != PRODUCT_CLI:
         errors.append(f"{SOC}: CLI defaults differ from product contract: {cli}")
     if deploy != PRODUCT_DEPLOY:
@@ -492,6 +518,12 @@ def validate(root: Path) -> list[str]:
             f"{DEPLOY}: deployment system clock differs from product contract: "
             f"{system_deploy}"
         )
+    return errors
+
+
+def _read_documents(root: Path) -> tuple[dict[Path, str], list[str]]:
+    """The documents the contract is restated in, and the ones that would not read."""
+    errors: list[str] = []
     document_paths = (
         LITEX_DOC,
         SOLUTION_DOC,
@@ -507,7 +539,14 @@ def validate(root: Path) -> list[str]:
             documents[path] = (root / path).read_text(encoding="utf-8")
         except OSError as error:
             errors.append(f"{path}: unreadable: {error}")
+    return documents, errors
 
+
+def _table_errors(
+    documents: dict[Path, str], cli: dict[str, str], deploy: dict[str, str]
+) -> list[str]:
+    """Where a generated table or a source-derived sentence has drifted."""
+    errors: list[str] = []
     expected_product = product_table(cli, deploy)
     for path in (LITEX_DOC, SOLUTION_DOC, BUILD_DOC):
         text = documents.get(path)
@@ -553,7 +592,12 @@ def validate(root: Path) -> list[str]:
         else:
             if actual.strip() != expected_interfaces:
                 errors.append(f"{path}: interface contract table differs from source map")
+    return errors
 
+
+def _boundary_errors(root: Path) -> list[str]:
+    """Where the datapath's port boundary no longer answers the contract."""
+    errors: list[str] = []
     try:
         rtl_text = (root / DATAPATH).read_text(encoding="utf-8")
         ports = datapath_ports(rtl_text)
@@ -565,7 +609,13 @@ def validate(root: Path) -> list[str]:
             for port in required_ports:
                 if port not in ports:
                     errors.append(f"{DATAPATH}: missing RTL port {port}")
+    return errors
 
+
+def _stale_claim_errors(documents: dict[Path, str]) -> list[str]:
+    """Superseded prose: a stale default, cache, clock, command or boundary."""
+    errors: list[str] = []
+    solution = documents.get(SOLUTION_DOC)
     for path in (
         LITEX_DOC,
         SOLUTION_DOC,
@@ -604,7 +654,33 @@ def validate(root: Path) -> list[str]:
     return errors
 
 
+def validate(root: Path) -> list[str]:
+    """Every finding against one tree - source facts, generated blocks, the
+    boundary contract and the stale claims. Empty means the docs agree."""
+    try:
+        cli = argparse_defaults(root / SOC)
+        system_cli = argparse_defaults(
+            root / SOC,
+            (SYSTEM_CLOCK_OPTION,),
+        )[SYSTEM_CLOCK_OPTION]
+        deploy = deploy_options(root / DEPLOY)
+        system_override = deploy_override(root / DEPLOY, SYSTEM_CLOCK_OPTION)
+        system_deploy = system_override or system_cli
+    except (OSError, SyntaxError, ValueError) as error:
+        return [f"solution source facts unavailable: {error}"]
+
+    errors = _contract_errors(cli, deploy, system_cli, system_deploy)
+    documents, unreadable = _read_documents(root)
+    errors.extend(unreadable)
+    errors.extend(_table_errors(documents, cli, deploy))
+    errors.extend(_boundary_errors(root))
+    errors.extend(_stale_claim_errors(documents))
+    return errors
+
+
 def copy_fixture(destination: Path) -> None:
+    """Copy the sources and documents this gate reads into a scratch tree, so
+    the self-test mutates a copy and never the working tree."""
     for relative in (
         SOC,
         DEPLOY,
@@ -623,130 +699,141 @@ def copy_fixture(destination: Path) -> None:
         shutil.copy2(source, target)
 
 
-def selftest() -> int:
-    baseline = validate(ROOT)
-    if baseline:
-        print("solution documentation selftest: baseline failed")
-        for error in baseline:
-            print(error)
-        return 1
-
-    mutations = [
-        (
-            "CLI CPU default",
-            SOC,
-            'default="vexiiriscv"',
-            'default="naxriscv"',
-            "CLI defaults differ",
-        ),
-        (
-            "deployment CPU",
-            DEPLOY,
-            "--cpu vexiiriscv",
-            "--cpu naxriscv",
-            "deployment values differ",
-        ),
-        (
-            "deployment clock",
-            DEPLOY,
-            "--milan-clk-freq 50e6",
-            "--milan-clk-freq 100e6",
-            "deployment values differ",
-        ),
-        (
-            "system clock default",
-            SOC,
-            'ap.add_argument("--sys-clk-freq", default=100e6, type=float)',
-            'ap.add_argument("--sys-clk-freq", default=80e6, type=float)',
-            "system clock default differs",
-        ),
-        (
-            "deployment system clock override",
-            DEPLOY,
-            "--milan-clk-freq 50e6",
-            "--sys-clk-freq 80e6 --milan-clk-freq 50e6",
-            "deployment system clock differs",
-        ),
-        (
-            "stale shipping cache prose",
-            LITEX_DOC,
-            CPU_END,
-            CPU_END + "\n\nThe current ship uses 32 KiB.",
-            "stale shipping cache claim",
-        ),
-        (
-            "stale shipping clock prose",
-            LITEX_DOC,
-            CPU_END,
-            CPU_END + "\n\nThe current ship uses 100 MHz.",
-            "stale shipping clock claim",
-        ),
-        (
-            "integration shipping clock",
-            INTEGRATION_DOC,
-            "Shipping deployment selects 50 MHz for `axis_clk`.",
-            "Shipping deployment selects 25 MHz for `axis_clk`.",
-            "source-derived shipping clock is missing",
-        ),
-        (
-            "implementation-path deployed clock",
-            FPGA_DOC,
-            "`axis_clk` (`cd_milan`: 50 MHz deployed;",
-            "`axis_clk` (`cd_milan`: 100 MHz deployed;",
-            "source-derived deployed clock is missing",
-        ),
-        (
-            "product clock table",
-            SOLUTION_DOC,
-            "| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |",
-            "| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `100 MHz` |",
-            "product contract table differs",
-        ),
-        (
-            "solution response row",
-            SOLUTION_DOC,
-            "| Response memory | `resp_mem_*` | Read-write | Build AECP responses |\n",
-            "",
-            "missing memory faces: Response memory",
-        ),
-        (
-            "response write port",
-            DATAPATH,
-            "output wire        o_resp_mem_wr_valid,",
-            "output wire        o_resp_mem_wr_removed,",
-            "missing RTL port o_resp_mem_wr_valid",
-        ),
-        (
-            "unclassified future port",
-            DATAPATH,
-            "\n);",
-            "\n  input wire future_unclassified_i\n);",
-            "unclassified RTL port future_unclassified_i",
-        ),
-        (
-            "boundary count claim",
-            SOLUTION_DOC,
-            MEMORY_END,
-            MEMORY_END + "\n\nThe wrapper exposes exactly three interfaces.",
-            "stale boundary phrase: exactly three",
-        ),
-        (
-            "canonical build command",
-            LITEX_DOC,
-            "./deploy.sh build --dry-run\n"
-            "./deploy.sh build",
-            "./deploy.sh compile --dry-run\n"
-            "./deploy.sh compile",
-            "canonical deploy build command is missing",
-        ),
-        (
-            "system guide response row",
-            INTEGRATOR_DOC,
-            next(group.row() for group in PORT_GROUPS if group.label == "Response memory") + "\n",
-            "",
-            "interface contract table differs",
-        ),
+def _source_fact_mutations() -> list[tuple[str, Path, str, str, str]]:
+    """Mutations of the two source files the product contract is read from."""
+    return [
+    (
+        "CLI CPU default",
+        SOC,
+        'default="vexiiriscv"',
+        'default="naxriscv"',
+        "CLI defaults differ",
+    ),
+    (
+        "deployment CPU",
+        DEPLOY,
+        "--cpu vexiiriscv",
+        "--cpu naxriscv",
+        "deployment values differ",
+    ),
+    (
+        "deployment clock",
+        DEPLOY,
+        "--milan-clk-freq 50e6",
+        "--milan-clk-freq 100e6",
+        "deployment values differ",
+    ),
+    (
+        "system clock default",
+        SOC,
+        'ap.add_argument("--sys-clk-freq", default=100e6, type=float)',
+        'ap.add_argument("--sys-clk-freq", default=80e6, type=float)',
+        "system clock default differs",
+    ),
+    (
+        "deployment system clock override",
+        DEPLOY,
+        "--milan-clk-freq 50e6",
+        "--sys-clk-freq 80e6 --milan-clk-freq 50e6",
+        "deployment system clock differs",
+    ),
     ]
+
+
+def _document_claim_mutations() -> list[tuple[str, Path, str, str, str]]:
+    """Mutations of the prose and tables the documents restate those facts in."""
+    return [
+    (
+        "stale shipping cache prose",
+        LITEX_DOC,
+        CPU_END,
+        CPU_END + "\n\nThe current ship uses 32 KiB.",
+        "stale shipping cache claim",
+    ),
+    (
+        "stale shipping clock prose",
+        LITEX_DOC,
+        CPU_END,
+        CPU_END + "\n\nThe current ship uses 100 MHz.",
+        "stale shipping clock claim",
+    ),
+    (
+        "integration shipping clock",
+        INTEGRATION_DOC,
+        "Shipping deployment selects 50 MHz for `axis_clk`.",
+        "Shipping deployment selects 25 MHz for `axis_clk`.",
+        "source-derived shipping clock is missing",
+    ),
+    (
+        "implementation-path deployed clock",
+        FPGA_DOC,
+        "`axis_clk` (`cd_milan`: 50 MHz deployed;",
+        "`axis_clk` (`cd_milan`: 100 MHz deployed;",
+        "source-derived deployed clock is missing",
+    ),
+    (
+        "product clock table",
+        SOLUTION_DOC,
+        "| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `50 MHz` |",
+        "| `deploy.sh` | `vexiiriscv` | `1` | `32` | `baremetal` | `0` | `100 MHz` |",
+        "product contract table differs",
+    ),
+    ]
+
+
+def _boundary_contract_mutations() -> list[tuple[str, Path, str, str, str]]:
+    """Mutations of the RTL boundary and of the contract rows describing it."""
+    return [
+    (
+        "solution response row",
+        SOLUTION_DOC,
+        "| Response memory | `resp_mem_*` | Read-write | Build AECP responses |\n",
+        "",
+        "missing memory faces: Response memory",
+    ),
+    (
+        "response write port",
+        DATAPATH,
+        "output wire        o_resp_mem_wr_valid,",
+        "output wire        o_resp_mem_wr_removed,",
+        "missing RTL port o_resp_mem_wr_valid",
+    ),
+    (
+        "unclassified future port",
+        DATAPATH,
+        "\n);",
+        "\n  input wire future_unclassified_i\n);",
+        "unclassified RTL port future_unclassified_i",
+    ),
+    (
+        "boundary count claim",
+        SOLUTION_DOC,
+        MEMORY_END,
+        MEMORY_END + "\n\nThe wrapper exposes exactly three interfaces.",
+        "stale boundary phrase: exactly three",
+    ),
+    (
+        "canonical build command",
+        LITEX_DOC,
+        "./deploy.sh build --dry-run\n"
+        "./deploy.sh build",
+        "./deploy.sh compile --dry-run\n"
+        "./deploy.sh compile",
+        "canonical deploy build command is missing",
+    ),
+    (
+        "system guide response row",
+        INTEGRATOR_DOC,
+        next(group.row() for group in PORT_GROUPS if group.label == "Response memory") + "\n",
+        "",
+        "interface contract table differs",
+    ),
+    ]
+
+
+def _port_group_mutations() -> list[tuple[str, Path, str, str, str]]:
+    """One row-removal and one safe-start mutation for every port group."""
+    mutations: list[tuple[str, Path, str, str, str]] = []
     for group in PORT_GROUPS:
         mutations.append(
             (
@@ -766,7 +853,27 @@ def selftest() -> int:
                 "interface contract table differs",
             )
         )
+    return mutations
 
+
+def _mutations() -> list[tuple[str, Path, str, str, str]]:
+    """Every mutation control, in the order the self-test applies them."""
+    return (_source_fact_mutations() + _document_claim_mutations()
+            + _boundary_contract_mutations() + _port_group_mutations())
+
+
+def selftest() -> int:
+    """Grade the gate itself: the live tree must be clean, and every mutation
+    control must be caught - an arm that escapes is a check that has stopped
+    being able to say no."""
+    baseline = validate(ROOT)
+    if baseline:
+        print("solution documentation selftest: baseline failed")
+        for error in baseline:
+            print(error)
+        return 1
+
+    mutations = _mutations()
     with tempfile.TemporaryDirectory(prefix="solution-doc-selftest-") as directory:
         fixture = Path(directory)
         copy_fixture(fixture)
@@ -793,6 +900,8 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """The gate: 0 when the documents agree with the tree, 1 on findings,
+    2 when the invocation was not one this script offers."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     if sys.argv[1:]:

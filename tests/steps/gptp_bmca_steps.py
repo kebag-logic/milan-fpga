@@ -16,7 +16,14 @@
 # The hardware acceptance procedure that produced those numbers is in
 # docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md.
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from behave import given, when, then
+
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
 
 
 # --- IEEE 802.1AS-2020 defaults (Clause 10.6 intervals, Clause 10.3 BMCA) ---
@@ -41,7 +48,13 @@ class Claimant:
         self.priority1 = priority1
         self.last_announce = None   # None = never announced
 
-    def alive_at(self, now, timeout_time):
+    def alive_at(self, now: float, timeout_time: float) -> bool:
+        """Whether this claimant's announce information is still valid at `now`.
+
+        A device that has never announced is not a candidate at all, which is
+        why the never-announced case is False rather than an age comparison
+        against a missing timestamp.
+        """
         if self.last_announce is None:
             return False
         return (now - self.last_announce) < timeout_time
@@ -67,20 +80,23 @@ class GptpDomain:
         self.changes = 0
 
     @property
-    def timeout_time(self):
+    def timeout_time(self) -> float:
         """announceReceiptTimeoutTime = announceReceiptTimeout x announceInterval."""
         return self.announce_receipt_timeout * self.announce_interval
 
-    def add(self, ident, priority1):
+    def add(self, ident: str, priority1: int) -> None:
+        """Admit a claimant to the domain, silent until it first announces."""
         self.claimants[ident] = Claimant(ident, priority1)
 
-    def announce_from(self, ident):
+    def announce_from(self, ident: str) -> None:
+        """Stamp an Announce receipt from `ident` at the current domain time."""
         self.claimants[ident].last_announce = self.now
 
-    def advance(self, seconds):
+    def advance(self, seconds: float) -> None:
+        """Move the domain clock forward; nothing expires until `reselect`."""
         self.now += seconds
 
-    def reselect(self):
+    def reselect(self) -> None:
         """Re-run the selection over claimants whose announce info has not
         expired. Transitioning to a different master counts as a change; the
         FIRST acquisition does not (there was no previous master to change
@@ -99,14 +115,20 @@ class GptpDomain:
 # ----------------------------------------------------------------- steps --
 
 @given('a gPTP port with the 802.1AS default intervals')
-def step_default_port(context):
+def step_default_port(context: Context) -> None:
+    """Open a domain at the spec defaults, asserting them so a silent change
+    to the constants at the top of this file fails here rather than skewing
+    every later verdict."""
     context.gptp = GptpDomain()
     assert context.gptp.announce_interval == 1.0
     assert context.gptp.timeout_time == 3.0
 
 
 @given('grandmaster "{ident}" with priority1 {prio:d}')
-def step_grandmaster(context, ident, prio):
+def step_grandmaster(context: Context, ident: str, prio: int) -> None:
+    """Seat `ident` as the master the scenario opens with - it announces once
+    and is selected immediately, so a later switch away from it is a change
+    and not a first acquisition."""
     context.gptp.add(ident, prio)
     context.gptp_gm = ident
     # it is already the master when the scenario opens
@@ -115,7 +137,9 @@ def step_grandmaster(context, ident, prio):
 
 
 @given('a competing claimant "{ident}" with priority1 {prio:d}')
-def step_claimant(context, ident, prio):
+def step_claimant(context: Context, ident: str, prio: int) -> None:
+    """Add the rival that makes the takeover observable: without a second
+    announcing device a lost grandmaster leaves nobody to select."""
     context.gptp.add(ident, prio)
     context.gptp_other = ident
     context.gptp.announce_from(ident)
@@ -123,7 +147,7 @@ def step_claimant(context, ident, prio):
 
 
 @when('the grandmaster announces every {period:g} s for {span:g} s')
-def step_announce_normally(context, period, span):
+def step_announce_normally(context: Context, period: float, span: float) -> None:
     """Both devices keep announcing - a competing claimant on a real segment
     does not go quiet just because it lost."""
     steps = int(round(span / period))
@@ -136,7 +160,7 @@ def step_announce_normally(context, period, span):
 
 
 @when('the grandmaster stops announcing for {span:g} s')
-def step_announce_gap(context, span):
+def step_announce_gap(context: Context, span: float) -> None:
     """Only the grandmaster goes silent. This is what a saturating RX flood
     does to the board: the control loop never runs, so nothing is transmitted."""
     period = context.gptp.announce_interval
@@ -151,13 +175,17 @@ def step_announce_gap(context, span):
 
 
 @then('the selected grandmaster is "{ident}"')
-def step_check_selected(context, ident):
+def step_check_selected(context: Context, ident: str) -> None:
+    """Name the device the domain should be locked to at the end of the run."""
     assert context.gptp.selected == ident, \
         f"selected grandmaster {context.gptp.selected!r}, expected {ident!r}"
 
 
 @then('the grandmaster changed {n:d} times')
-def step_check_changes(context, n):
+def step_check_changes(context: Context, n: int) -> None:
+    """Pin the number of grandmaster transitions, which is the quantity defect
+    D7 was reported against: a domain that ends on the right device having
+    flapped on the way there is still a failure."""
     assert context.gptp.changes == n, \
         f"grandmaster changed {context.gptp.changes} times, expected {n}"
 
@@ -195,35 +223,48 @@ def _check(context, kind, interval_s, timeout, verdict):
 
 
 @when('{sent:d} Announce messages are observed over {window:g} s')
-def step_obs_announce(context, sent, window):
+def step_obs_announce(context: Context, sent: int, window: float) -> None:
+    """Record a measured Announce count and its window. Recording is all a
+    When does here - the budget rule that turns it into a verdict is the Then,
+    so one measurement can be asked to hold or to break."""
     context.gptp_observed, context.gptp_window = sent, window
 
 
 @when('{sent:d} Sync messages are observed over {window:g} s')
-def step_obs_sync(context, sent, window):
+def step_obs_sync(context: Context, sent: int, window: float) -> None:
+    """Record a measured Sync count and its window; Sync is due eight times
+    per second, so the same shortfall costs far more of its budget."""
     context.gptp_observed, context.gptp_window = sent, window
 
 
 @when('{sent:d} Pdelay_Req messages are observed over {window:g} s')
-def step_obs_pdelay(context, sent, window):
+def step_obs_pdelay(context: Context, sent: int, window: float) -> None:
+    """Record a measured Pdelay_Req count and its window - the exchange whose
+    starvation costs the port asCapable rather than the grandmaster."""
     context.gptp_observed, context.gptp_window = sent, window
 
 
 @then('the announce cadence budget {verdict}')
-def step_budget_announce(context, verdict):
+def step_budget_announce(context: Context, verdict: str) -> None:
+    """Grade the recorded Announce count against announceReceiptTimeout: a
+    shortfall under the timeout cannot have produced a receipt timeout."""
     _check(context, 'announce', _interval(DEFAULT_LOG_ANNOUNCE_INTERVAL),
            ANNOUNCE_RECEIPT_TIMEOUT, verdict)
 
 
 @then('the sync cadence budget {verdict}')
-def step_budget_sync(context, verdict):
+def step_budget_sync(context: Context, verdict: str) -> None:
+    """Grade the recorded Sync count against syncReceiptTimeout, at the 8/s
+    interval that makes the same absolute loss a much larger shortfall."""
     _check(context, 'sync', _interval(DEFAULT_LOG_SYNC_INTERVAL),
            SYNC_RECEIPT_TIMEOUT, verdict)
 
 
 @then('the pdelay cadence budget {verdict}')
-def step_budget_pdelay(context, verdict):
-        # asCapable depends on the pdelay exchange continuing; the peer drops
+def step_budget_pdelay(context: Context, verdict: str) -> None:
+    """Grade the recorded Pdelay_Req count; the failure it guards is the port
+    losing asCapable, not the domain choosing a different grandmaster."""
+    # asCapable depends on the pdelay exchange continuing; the peer drops
     # asCapable after `neighborPropDelayThresh`/missed-response handling, and
     # a port that is not asCapable leaves the domain (Clause 11.2 / AS-8).
     _check(context, 'pdelay', _interval(DEFAULT_LOG_PDELAY_REQ_INTERVAL),

@@ -47,15 +47,25 @@ def submodule_paths(gitmodules: pathlib.Path = GITMODULES) -> tuple[str, ...]:
                  for m in re.finditer(r"^\s*path\s*=\s*(\S+)", text, re.M))
 
 
-SUBMODULE_PATHS = submodule_paths() + (".gitmodules",)
+#: The rule table `is_submodule_path` consults. A LIST, not a tuple, so the
+#: selftest's mutation arm can edit the real table in place: rebinding a
+#: module global from inside a function needs a `global` statement, and the
+#: arm binds nothing at all if it mutates a copy instead.
+SUBMODULE_PATHS = list(submodule_paths()) + [".gitmodules"]
 
 
 def is_submodule_path(clean: str) -> bool:
+    """Whether a path is a gitlink or lives under one, checked before any doc rule."""
     return (clean in SUBMODULE_PATHS
             or clean.startswith(tuple(p + "/" for p in SUBMODULE_PATHS)))
 
 
 def is_doc_only_path(path: str) -> bool:
+    """Whether one changed path carries documentation and nothing a build reads.
+
+    A submodule pointer is excluded first: it names no suffix of its own, so
+    the documentation rules alone would let a moved gitlink pass as prose.
+    """
     clean = path.strip()
     while clean.startswith("./"):
         clean = clean[2:]
@@ -71,6 +81,7 @@ def is_doc_only_path(path: str) -> bool:
 
 
 def is_rtl_relevant(paths: Iterable[str]) -> bool:
+    """Whether a changed-file list can move the RTL, so the heavy jobs must run."""
     changed = [path.strip() for path in paths if path.strip()]
     # An empty diff is treated conservatively. A broken base selection must not
     # turn a real change into a docs-only green.
@@ -78,7 +89,8 @@ def is_rtl_relevant(paths: Iterable[str]) -> bool:
 
 
 def selftest() -> int:
-    global SUBMODULE_PATHS
+    """Prove the classification table, and that dropping any one submodule
+    pointer from the rules is caught by a case; 0 when every arm holds."""
     cases = [
         (["docs/testing/CI_WORKFLOWS.md"], False),
         (["README.md", "AGENTS.md"], False),
@@ -116,11 +128,11 @@ def selftest() -> int:
     # Mutation arm: a classifier whose rules file any one pointer as
     # documentation must be caught by the cases above, or they bind nothing.
     # The mutation edits the real rule tables, not a copy of the logic.
-    pristine_paths, pristine_files = SUBMODULE_PATHS, set(DOC_FILES)
+    pristine_paths, pristine_files = list(SUBMODULE_PATHS), set(DOC_FILES)
     try:
         for victim in ("gptp-processor", "protocol-processor", "external",
                        "third_party/verilog-axis", ".gitmodules"):
-            SUBMODULE_PATHS = tuple(x for x in pristine_paths if x != victim)
+            SUBMODULE_PATHS[:] = [x for x in pristine_paths if x != victim]
             DOC_FILES.add(victim)
             caught = any(is_rtl_relevant(paths) != expected
                          for paths, expected in cases)
@@ -129,7 +141,7 @@ def selftest() -> int:
                   "as docs-only is rejected")
             failures += 0 if caught else 1
     finally:
-        SUBMODULE_PATHS = pristine_paths
+        SUBMODULE_PATHS[:] = pristine_paths
         DOC_FILES.clear()
         DOC_FILES.update(pristine_files)
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
@@ -137,6 +149,7 @@ def selftest() -> int:
 
 
 def main(argv: Sequence[str]) -> int:
+    """Classify the paths given on argv or read from stdin, printing true/false."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="*")
     parser.add_argument("--selftest", action="store_true")

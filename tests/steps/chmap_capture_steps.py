@@ -34,23 +34,29 @@
 #                         both map RAMs; the CSR 0x900 window is the debug
 #                         override (Section 6/Section 7).
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 from behave import given, when, then     # noqa: F401  (behave step decorators)
+
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
 
 
 # --- the Section 5 capture map word -------------------------------------------------
 SRC_ZERO, SRC_I2S, SRC_TDM, SRC_RING, SRC_TONE, SRC_LOOP = range(6)
 
 
-def csr_word(en, src, idx_hi, idx_lo):
+def csr_word(en: int, src: int, idx_hi: int, idx_lo: int) -> int:
     """The Section 5 CHMAP_WORD as typed at the bench:
     {EN[15], SRC[14:12], rsvd[11:8], IDX_HI[7:4], IDX_LO[3:0]}."""
     return (((en & 1) << 15) | ((src & 7) << 12)
             | ((idx_hi & 0xF) << 4) | (idx_lo & 0xF))
 
 
-def cmap_entry(word):
+def cmap_entry(word: int) -> int:
     """What the CMAP RAM receives from that word:
     {idxh[11:8], en[7], src[6:4], idx[3:0]} - bits [7:0] are bit-for-bit the
     pre-loopback byte, so a word written before the loopback existed keeps its
@@ -82,14 +88,18 @@ class CaptureMuxModel:
         self.aem_channels = {}
 
     # -- map programming (CSR 0x900 window / AEM projector) ------------------
-    def write_word(self, slot, word):
+    def write_word(self, slot: int, word: int) -> None:
+        """Program one slot from a CSR 0x900 word, storing what the CMAP RAM
+        would hold and not the word, so the packing is exercised every time."""
         self.cmap[slot] = cmap_entry(word)
 
-    def entry(self, slot):
+    def entry(self, slot: int) -> int:
+        """The 12-bit entry a slot holds. An unwritten slot reads 0, which is
+        EN clear - a fresh fabric emits nothing rather than silence."""
         return self.cmap.get(slot, 0)
 
     # -- the received payload (depacketizer clone) ---------------------------
-    def deliver_pdu(self, stream, wire_channels, samples):
+    def deliver_pdu(self, stream: int, wire_channels: int, samples: list[int]) -> int:
         """One AAF-PCM PDU of `stream`.  `samples` is the payload in wire
         order.  7.3.5: sample k is channel k mod channels_per_frame; 7.3.3:
         channels_per_frame is the WIRE's, and the pre-first-accept value 0
@@ -102,7 +112,7 @@ class CaptureMuxModel:
         return chans
 
     # -- one media tick: walk the slots low to high -------------------------
-    def emit(self):
+    def emit(self) -> dict[int, tuple[int, int] | None]:
         """slot -> (L, R) for every ENABLED slot.  A disabled slot is ABSENT
         from the result (it emits no pulse at all, Section 4: that is what stops a
         dead slot from skewing its stream's other channels); an enabled slot
@@ -143,55 +153,74 @@ def _pdu(stream, chans, events, e0):
 # --- steps ------------------------------------------------------------------
 @given('a fabric capture mux with {slots:d} pair slots over {streams:d}'
        ' RX streams of {channels:d} channels')
-def step_capture_mux(context, slots, streams, channels):
+def step_capture_mux(context: Context, slots: int, streams: int,
+                     channels: int) -> None:
+    """Build the fabric under test and drop anything an earlier step captured."""
     context.cap = CaptureMuxModel(slots=slots, streams=streams,
                                   channels=channels)
     context.captures = {}
 
 
 @given('the AEM store believes RX stream {s:d} carries {n:d} channels')
-def step_aem_belief(context, s, n):
+def step_aem_belief(context: Context, s: int, n: int) -> None:
+    """Record what the AEM store believes, so a scenario can prove it is never
+    consulted: 7.3.3 gives the de-interleave the WIRE's count, not this one."""
     context.cap.aem_channels[s] = n
 
 
 @when('RX stream {s:d} delivers a {chans:d}-channel PDU of {events:d}'
       ' sample events from event {e0:d}')
-def step_deliver(context, s, chans, events, e0):
+def step_deliver(context: Context, s: int, chans: int, events: int, e0: int) -> None:
+    """Deliver one PDU in which every (stream, channel, event) carries a
+    DISTINCT value, and keep its shape so a Then step knows which event is
+    latest - a test driving one value everywhere cannot detect a swap."""
     context.cap.deliver_pdu(s, chans, _pdu(s, chans, events, e0))
     context.last_pdu = (s, chans, events, e0)
 
 
 @when('RX stream {s:d} delivers a PDU carrying {chans:d} channels of samples'
       ' but declaring {wire:d} on the wire')
-def step_deliver_mismatch(context, s, chans, wire):
+def step_deliver_mismatch(context: Context, s: int, chans: int, wire: int) -> None:
+    """A payload that LOOKS `chans`-channel against a header declaring `wire`.
+    7.3.3 gives the wire the last word, and this is where that is graded."""
     # the payload LOOKS 8-channel; 7.3.3 says the wire's count decides
     context.cap.deliver_pdu(s, wire, _pdu(s, chans, 2, 1))
     context.last_pdu = (s, chans, 2, 1)
 
 
 @when('I map capture slot {slot:d} to RX stream {s:d} pair {p:d}')
-def step_map_loop(context, slot, s, p):
+def step_map_loop(context: Context, slot: int, s: int, p: int) -> None:
+    """Point one enabled capture slot at an RX stream's channel pair."""
     context.cap.write_word(slot, csr_word(1, SRC_LOOP, s, p))
 
 
 @when('I map capture slot {slot:d} to RX stream {s:d} pair {p:d} DISABLED')
-def step_map_loop_dis(context, slot, s, p):
+def step_map_loop_dis(context: Context, slot: int, s: int, p: int) -> None:
+    """The same mapping with EN clear - the slot that must emit no pulse at
+    all, which is Section 4's other, and quieter, way to be silent."""
     context.cap.write_word(slot, csr_word(0, SRC_LOOP, s, p))
 
 
 @when('I map capture slot {slot:d} to the pilot tone')
-def step_map_tone(context, slot):
+def step_map_tone(context: Context, slot: int) -> None:
+    """Point a slot at the pilot tone: a source this loopback model does not
+    resolve, so the slot reads as present-but-not-a-loopback-slot."""
     context.cap.write_word(slot, csr_word(1, SRC_TONE, 0, 0))
 
 
 @when('the media tick walks the capture slots')
-def step_tick(context):
+def step_tick(context: Context) -> None:
+    """One media tick: walk the slots low to high and keep what each emitted."""
     context.emitted = context.cap.emit()
 
 
 @then('capture slot {slot:d} carries RX stream {s:d} wire channels'
       ' {cl:d} and {cr:d}')
-def step_slot_carries(context, slot, s, cl, cr):
+def step_slot_carries(context: Context, slot: int, s: int, cl: int, cr: int) -> None:
+    """THE identity assertion: the slot carries the latest sample event of
+    exactly those two wire channels of that stream. 7.3.5 is the whole of the
+    expectation - payload sample k is wire channel k mod channels_per_frame -
+    so a swapped, duplicated or dropped channel reads as a wrong value here."""
     got = context.emitted.get(slot)
     assert got is not None, f'slot {slot} emitted nothing'
     _, chans, events, e0 = context.last_pdu
@@ -201,7 +230,9 @@ def step_slot_carries(context, slot, s, cl, cr):
 
 
 @then('capture slot {slot:d} L and R are different')
-def step_slot_distinct(context, slot):
+def step_slot_distinct(context: Context, slot: int) -> None:
+    """L and R differ, which is what separates a real stereo pair from one
+    channel duplicated over its neighbour."""
     got = context.emitted.get(slot)
     assert got is not None, f'slot {slot} emitted nothing'
     assert got[0] != got[1], (f'slot {slot}: L == R == 0x{got[0]:06X} - a '
@@ -211,21 +242,26 @@ def step_slot_distinct(context, slot):
 
 
 @then('capture slot {slot:d} is silent')
-def step_slot_silent(context, slot):
+def step_slot_silent(context: Context, slot: int) -> None:
+    """The slot pulses zeros: enabled, but its entry cannot be resolved."""
     got = context.emitted.get(slot)
     assert got is not None, f'slot {slot} emitted nothing (expected silence)'
     assert got == (0, 0), f'slot {slot}: expected silence, got {got}'
 
 
 @then('capture slot {slot:d} emits nothing at all')
-def step_slot_absent(context, slot):
+def step_slot_absent(context: Context, slot: int) -> None:
+    """The slot does not pulse at all. That is what keeps a dead slot from
+    skewing the rest of its stream, and it is not the same as silence."""
     assert slot not in context.emitted, (
         f'slot {slot} pulsed; a DISABLED slot must be absent from the walk, '
         f'not silent - Section 4 "two ways to be silent"')
 
 
 @then('every emitted capture channel is distinct')
-def step_all_distinct(context):
+def step_all_distinct(context: Context) -> None:
+    """No sample value repeats anywhere in the walk, so no two capture
+    channels are carrying the same source."""
     vals = []
     for slot, pair in sorted(context.emitted.items()):
         assert pair is not None, f'slot {slot} is not a loopback slot'
@@ -236,7 +272,9 @@ def step_all_distinct(context):
 
 
 @then('no emitted capture channel is silent')
-def step_none_silent(context):
+def step_none_silent(context: Context) -> None:
+    """No emitted half is zero: a dropped channel is precisely the failure a
+    presence-shaped test reports as a pass."""
     for slot, pair in sorted(context.emitted.items()):
         assert pair is not None and pair[0] != 0 and pair[1] != 0, (
             f'slot {slot} has a silent half: {pair} - a dropped channel is '
@@ -244,13 +282,17 @@ def step_none_silent(context):
 
 
 @then('the capture entry at slot {slot:d} reads 0x{val:x}')
-def step_entry_reads(context, slot, val):
+def step_entry_reads(context: Context, slot: int, val: int) -> None:
+    """The CMAP RAM entry, pinned by value, so the word-to-entry packing is
+    graded on its own and bits [7:0] keep their pre-loopback meaning."""
     got = context.cap.entry(slot)
     assert got == val, f'slot {slot}: entry 0x{got:03X}, expected 0x{val:03X}'
 
 
 @then('the CSR word for RX stream {s:d} pair {p:d} is 0x{val:x}')
-def step_word_is(context, s, p, val):
+def step_word_is(context: Context, s: int, p: int, val: int) -> None:
+    """The Section 5 CSR word as typed at the bench, pinned by value: a
+    re-packing of the register shows up here rather than at the mux."""
     got = csr_word(1, SRC_LOOP, s, p)
     assert got == val, f'0x{got:04X} != 0x{val:04X}'
 
@@ -258,7 +300,7 @@ def step_word_is(context, s, p, val):
 # --- the binary walking tone -------------------------------------------------
 @when('I run a binary walking-tone identification over {n:d} channels'
       ' of RX stream {s:d}')
-def step_walking_tone(context, n, s):
+def step_walking_tone(context: Context, n: int, s: int) -> None:
     """Channel N is driven ON in capture round b iff bit b of N is set, so
     ceil(log2(n)) captures identify all n channels instead of n sweeps.  The
     identity read back per channel is the bit pattern of ITS OWN index - any
@@ -288,7 +330,9 @@ def step_walking_tone(context, n, s):
 
 
 @then('every channel reports its own index')
-def step_walk_identity(context):
+def step_walk_identity(context: Context) -> None:
+    """Every channel reported the bit pattern of its OWN index. A foreign one
+    is a swap, a repeated one a duplication, and 0 a dead channel."""
     bad = {c: v for c, v in context.walk_observed.items() if v != c}
     assert not bad, (f'walking tone: channels reporting a foreign index '
                      f'{ {c: hex(v) for c, v in bad.items()} } - a swap, a '
@@ -296,6 +340,7 @@ def step_walk_identity(context):
 
 
 @then('it took {n:d} captures')
-def step_walk_rounds(context, n):
+def step_walk_rounds(context: Context, n: int) -> None:
+    """The identification cost: ceil(log2(n)) captures rather than n sweeps."""
     assert context.walk_rounds == n, (
         f'{context.walk_rounds} captures, expected {n}')

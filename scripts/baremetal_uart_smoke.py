@@ -34,7 +34,13 @@ BAUDS = {
 }
 
 
-def parse_status(text):
+def parse_status(text: str) -> dict[str, int | str]:
+    """Every field of one `milan_status` line, or a refusal.
+
+    The regex demands the WHOLE publication - a status printed by firmware from
+    before the gPTP fields existed matches nothing and raises, rather than
+    parsing the part it recognises and grading a device on absent evidence.
+    """
     match = STATUS_RE.search(text)
     if match is None:
         raise ValueError("milan_status response is missing or malformed")
@@ -58,14 +64,22 @@ def parse_status(text):
     }
 
 
-def parse_tai(text):
+def parse_tai(text: str) -> int:
+    """The PHC reading out of one `milan_gettime` response, in nanoseconds."""
     match = TAI_RE.search(text)
     if match is None:
         raise ValueError("milan_gettime response has no TAI_NS word")
     return int(match.group(1), 16)
 
 
-def grade(status_text, first_time_text, second_time_text):
+def grade(status_text: str, first_time_text: str,
+          second_time_text: str) -> list[tuple[str, bool, str]]:
+    """The named verdicts a flashed board has to pass, each with its evidence.
+
+    Every check is decided here and none of them exits early, so a failing
+    board reports all of its symptoms in one transcript instead of one per
+    re-run. The detail string is what gets pasted into a bug report.
+    """
     status = parse_status(status_text)
     first = parse_tai(first_time_text)
     second = parse_tai(second_time_text)
@@ -124,13 +138,26 @@ class Console:
         attrs[5] = BAUDS[baud]
         termios.tcsetattr(self.fd, termios.TCSANOW, attrs)
 
-    def close(self):
+    def close(self) -> None:
+        """Give the port back the terminal settings it had before raw mode.
+
+        Idempotent, because `__exit__` and an explicit close both reach it and
+        a second `tcsetattr` on a closed descriptor would raise over whatever
+        error was already being reported.
+        """
         if self.fd is not None:
             termios.tcsetattr(self.fd, termios.TCSANOW, self.saved)
             os.close(self.fd)
             self.fd = None
 
-    def command(self, command, pattern, timeout):
+    def command(self, command: str, pattern: re.Pattern[str],
+                timeout: float) -> str:
+        """Send one console line and return the text once `pattern` appears in it.
+
+        The input queue is flushed first: the console echoes, and a reply left
+        over from the previous command would otherwise satisfy this one's
+        pattern and let the test grade a stale reading.
+        """
         termios.tcflush(self.fd, termios.TCIFLUSH)
         os.write(self.fd, (command + "\r").encode("ascii"))
         deadline = time.monotonic() + timeout
@@ -157,7 +184,13 @@ class Console:
         self.close()
 
 
-def self_test():
+def self_test() -> None:
+    """Grade the grader against a known-good transcript and 12 broken ones.
+
+    Every arm mutates ONE field of a passing status and asserts that exactly
+    the check owning that field turns red, so a check cannot silently stop
+    discriminating and still report PASS on a real board.
+    """
     status = ("ID=4d494c4e VERSION=00020056 PTP_CTRL=00000001 "
               "ADP_CTRL=00000001 PP_CTRL=00000001 PP_STAT=5b000010 "
               "AEM=loaded\n"
@@ -175,7 +208,9 @@ def self_test():
                    "TAI_NS=0x0000000100002000\n")
     assert all(ok for _name, ok, _detail in checks)
 
-    def verdict(candidate, name, first=0x1000, second=0x2000):
+    def verdict(candidate: str, name: str, first: int = 0x1000,
+                second: int = 0x2000) -> bool:
+        """The pass/fail of one named check over a candidate status text."""
         results = grade(candidate, f"TAI_NS=0x{first:016X}\n",
                         f"TAI_NS=0x{second:016X}\n")
         return {check_name: ok for check_name, ok, _detail in results}[name]
@@ -217,7 +252,13 @@ def self_test():
     print("BAREMETAL UART SMOKE SELF-TEST: PASS (12 negative arms)")
 
 
-def main():
+def main() -> int:
+    """Drive a flashed board over its console and print one line per check.
+
+    A port that cannot be opened, a malformed reply and a timed-out one all
+    exit 1 the same way a failed check does: for a post-flash smoke test,
+    "the board did not answer" is a failure, not an error to be distinguished.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", help="UART device, for example /dev/ttyUSB0")
     parser.add_argument("--baud", type=int, default=115200)

@@ -9,16 +9,22 @@
 # MSRPDU captured from the certified bench bridge (ProfiShark inline tap on the
 # ALINX <-> bridge link, 2026-07-28) - FCS stripped, nothing else touched.
 
-import os
+from __future__ import annotations
+
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from behave import given, when, then
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
-_DATAPATH = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
-_PACKETIZER = os.path.join(_ROOT, "hdl", "ieee1722", "aaf",
-                           "KL_aaf_packetizer.sv")
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
+
+_HERE = Path(__file__).resolve().parent
+_ROOT = _HERE.parent.parent
+_DATAPATH = _ROOT / "hdl" / "milan" / "milan_datapath.sv"
+_PACKETIZER = _ROOT / "hdl" / "ieee1722" / "aaf" / "KL_aaf_packetizer.sv"
+_MILAN_AUDIT = _ROOT / "docs" / "testing" / "MILAN_V12_AUDIT_2026-08-16.md"
 
 # ---------------------------------------------------------------------------
 # The capture. MSRP payload only: ProtocolVersion .. message-list EndMark.
@@ -43,9 +49,8 @@ DECL_NAMES = {0: "Ignore", 1: "AskingFailed", 2: "Ready", 3: "ReadyFailed"}
 EVT_NAMES = {0: "New", 1: "JoinIn", 2: "In", 3: "JoinMt", 4: "Mt", 5: "Lv"}
 
 
-def _read(path):
-    with open(path, "r", encoding="utf-8") as fh:
-        return fh.read()
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
 
 
 def _strip_comments(text):
@@ -94,21 +99,28 @@ def _decode(pdu):
 # Background
 # ---------------------------------------------------------------------------
 @given("the Milan datapath and AAF talker RTL sources")
-def step_rtl_sources(context):
+def step_rtl_sources(context: Context) -> None:
+    """Refuse to grade a clause against a source that is not there: every
+    later step resolves the RTL by regex, and a regex over a missing file
+    would report the absence of the defect it was meant to find."""
     for path in (_DATAPATH, _PACKETIZER):
-        assert os.path.isfile(path), "missing %s" % path
+        assert path.is_file(), "missing %s" % path
 
 
 # ---------------------------------------------------------------------------
 # Structure scenario - the admission composition and its one escape hatch
 # ---------------------------------------------------------------------------
 @when("I read the aaf_gate expression from milan_datapath")
-def step_read_aaf_gate(context):
+def step_read_aaf_gate(context: Context) -> None:
+    """Resolve the aaf_gate right-hand side as it ships, so the scenario
+    grades the expression that admits the talker and not a copy of it."""
     context.expr = _assign(_read(_DATAPATH), "aaf_gate")
 
 
 @then("the gate has exactly one escape hatch and it is named cfg_aaf_bypass")
-def step_one_escape_hatch(context):
+def step_one_escape_hatch(context: Context) -> None:
+    """Pin the whole identifier set of the admission composition: exactly one
+    bypass, spelled cfg_aaf_bypass, sitting on the left of the escape OR."""
     # The whole point of this scenario is that a SECOND silent bypass must not
     # appear. So pin the identifier set, not the shape: any new signal in the
     # admission composition has to be argued for here first.
@@ -134,16 +146,19 @@ def step_one_escape_hatch(context):
 
 
 @then("with the escape hatch clear the gate requires the lwSRP stream gate")
-def step_gate_requires_lwsrp(context):
+def step_gate_requires_lwsrp(context: Context) -> None:
+    """With the hatch clear, admission still depends on the Milan 5.3.7.3
+    licence terms - the engine enable, its stream gate and the talker SM."""
     assert "lwsrp_stream_gate" in context.expr, context.expr
     assert "cfg_lwsrp_enable" in context.expr, context.expr
     assert "acmp_talker_active" in context.expr, context.expr
 
 
 @then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")
-def step_escape_hatch_recorded(context):
-    gaps = _read(os.path.join(
-        _ROOT, "docs", "testing", "MILAN_V12_AUDIT_2026-08-16.md"))
+def step_escape_hatch_recorded(context: Context) -> None:
+    """A bypass that can still be set has to stay named, with its clause, in
+    the current Milan audit; an undocumented escape hatch is the defect."""
+    gaps = _read(_MILAN_AUDIT)
     assert "AAF_CTRL[1]" in gaps and "5.3.7.3" in gaps, (
         "the bypass must stay named in the current Milan audit with its clause "
         "for as long as it can be set")
@@ -153,7 +168,9 @@ def step_escape_hatch_recorded(context):
 # Wire scenarios - the byte-exact capture
 # ---------------------------------------------------------------------------
 @given("the MSRPDU captured from the bench bridge on 2026-07-28")
-def step_capture(context):
+def step_capture(context: Context) -> None:
+    """Decode the bench capture once for the scenario, and fail here rather
+    than let an empty walk make every later wire assertion vacuously true."""
     context.pdu = BRIDGE_LEAVEALL_PDU
     context.msgs = _decode(context.pdu)
     assert context.msgs, "capture did not decode"
@@ -161,7 +178,10 @@ def step_capture(context):
 
 @then("it is a well-formed MRPDU whose every AttributeLength matches 802.1Q "
       "Table 35-1")
-def step_wellformed(context):
+def step_wellformed(context: Context) -> None:
+    """Grade the PDU as a whole: ProtocolVersion, the message ORDER (which is
+    evidence that the bridge does not sort by type), the Table 35-1 length of
+    every attribute, and LeaveAll in every vector header."""
     assert context.pdu[0] == 0, "ProtocolVersion must be 0"
     seen = [m[0] for m in context.msgs]
     assert seen == [1, 3, 4, 2], (
@@ -172,7 +192,9 @@ def step_wellformed(context):
 
 
 @then("it declares a Listener attribute for StreamID {sid}")
-def step_listener_sid(context, sid):
+def step_listener_sid(context: Context, sid: str) -> None:
+    """Select, by byte-exact StreamID, the Listener attribute the remaining
+    steps grade - and bind it so they all speak about the same one."""
     lis = [m for m in context.msgs if m[0] == 3 and m[3] > 0]
     assert lis, "no Listener attribute with NumberOfValues > 0"
     context.listener = lis[0]
@@ -180,13 +202,18 @@ def step_listener_sid(context, sid):
 
 
 @then("that Listener declaration is {want}")
-def step_listener_decl(context, want):
+def step_listener_decl(context: Context, want: str) -> None:
+    """Name the Listener's four-packed declaration type: Ready and
+    ReadyFailed license a talker, AskingFailed and Ignore do not."""
     decls = context.listener[7]
     assert decls and DECL_NAMES[decls[0]] == want, decls
 
 
 @then("the SR class A domain is present as the +1 value of a B-first packed pair")
-def step_domain_plus_one(context):
+def step_domain_plus_one(context: Context) -> None:
+    """SR class A is present ONLY as the incremented second value of a
+    B-first packed pair, so a decoder that reads FirstValue alone concludes
+    the bridge never offered class A."""
     dom = [m for m in context.msgs if m[0] == 4]
     assert dom, "no Domain message"
     at, alen, _all, nv, _lva, fv, evts, _d = dom[0]
@@ -201,7 +228,9 @@ def step_domain_plus_one(context):
 
 
 @when("the Listener three-packed event is changed to Lv")
-def step_mutate_to_lv(context):
+def step_mutate_to_lv(context: Context) -> None:
+    """Rewrite one event byte of the real capture to Lv - the negative
+    control that proves these wire assertions can fail (methodology R2)."""
     # message @35, +4 header, +2 vector header, +8 FirstValue = payload offset 49
     body = bytearray(context.pdu)
     assert body[49] == 3 * 36, "mutation targets the wrong byte: 0x%02x" % body[49]
@@ -211,7 +240,9 @@ def step_mutate_to_lv(context):
 
 
 @then("the Listener declaration is a withdrawal and licenses nothing")
-def step_withdrawal(context):
+def step_withdrawal(context: Context) -> None:
+    """The mutated attribute decodes as a Leave, which withdraws the
+    registration and therefore licenses nothing."""
     lis = [m for m in context.msgs if m[0] == 3 and m[3] > 0][0]
     assert EVT_NAMES[lis[6][0]] == "Lv", lis[6]
 
@@ -220,7 +251,9 @@ def step_withdrawal(context):
 # 0x001F - the t>0 admission and the t>0 wire identity
 # ---------------------------------------------------------------------------
 @when("I read the t>0 AAF admission expression from milan_datapath")
-def step_read_tgt0_admission(context):
+def step_read_tgt0_admission(context: Context) -> None:
+    """Resolve the per-stream admission arm out of the g_aaf_stream_en
+    generate block - the t>0 twin of the flat t0 aaf_gate."""
     src = _strip_comments(_read(_DATAPATH))
     m = re.search(r"g_aaf_stream_en(.*?)endgenerate", src, flags=re.S)
     assert m, "no g_aaf_stream_en branch in milan_datapath"
@@ -231,7 +264,10 @@ def step_read_tgt0_admission(context):
 
 
 @then("the t>0 admission does NOT require a per-context runtime enable")
-def step_tgt0_no_ctx_enable(context):
+def step_tgt0_no_ctx_enable(context: Context) -> None:
+    """The deleted per-context runtime enable has not come back under either
+    polarity, and the one enable t>0 may use is the same AAF_CTRL[0] t0
+    already answers to."""
     # The deleted term. Named both ways it has existed so a revival under
     # either polarity is caught.
     for forbidden in ("tctx_en_r", "tctx_dis_r"):
@@ -242,7 +278,9 @@ def step_tgt0_no_ctx_enable(context):
 
 
 @then("the t>0 admission requires the lwSRP stream gate unconditionally")
-def step_tgt0_gate_unconditional(context):
+def step_tgt0_gate_unconditional(context: Context) -> None:
+    """t>0 admits nothing without the lwSRP stream gate and gets no
+    engine-off escape, because LWSRP_CTRL resets to engine-OFF."""
     assert "lwsrp_stream_gate" in context.expr, context.expr
     # no engine-off escape for t>0: LWSRP_CTRL resets to engine-OFF, so an
     # escape here would admit unpaced streams out of reset.
@@ -251,13 +289,17 @@ def step_tgt0_gate_unconditional(context):
 
 
 @then("the effective t>0 admission is masked by output mapping reservations")
-def step_tgt0_mapping_reservation(context):
+def step_tgt0_mapping_reservation(context: Context) -> None:
+    """The raw t>0 admission reaches the fabric masked by the output-mapping
+    reservation, and by nothing else - the term is pinned verbatim."""
     effective = _assign(_read(_DATAPATH), "aaf_stream_en_w")
     assert effective == "aaf_stream_en_raw_w & ~amap_edit_out_resv_r", effective
 
 
 @when("I read the t>0 wire identity from KL_aaf_packetizer")
-def step_read_tgt0_identity(context):
+def step_read_tgt0_identity(context: Context) -> None:
+    """Resolve the three effective identity wires - destination MAC, VID and
+    unique_id - that a t>0 stream actually puts on the wire."""
     src = _strip_comments(_read(_PACKETIZER))
     context.ident = {}
     for name in ("eff_dmac_w", "eff_vid_w", "eff_uid_w"):
@@ -268,7 +310,10 @@ def step_read_tgt0_identity(context):
 
 
 @then("the t>0 identity is derived from the same roots the declaration uses")
-def step_tgt0_identity_derived(context):
+def step_tgt0_identity_derived(context: Context) -> None:
+    """Each identity field is derived from the root the SRP declaration and
+    the ACMP answer already use, so the three cannot describe different
+    streams."""
     # dmac = the MAAP block base + t, vid = the engine VID, unique_id = t -
     # literally the wires acmp_src_dmac_w and srp_fab_sid_w/dmac_w carry, so
     # advertisement, ACMP answer and wire cannot disagree.
@@ -280,7 +325,9 @@ def step_tgt0_identity_derived(context):
 
 
 @then("software may still name each identity field explicitly")
-def step_tgt0_identity_override(context):
+def step_tgt0_identity_override(context: Context) -> None:
+    """A non-zero staged register still wins per field, so an identity a
+    controller named explicitly is never overwritten by the derivation."""
     # the CRFT_SID precedent, per field: a NON-ZERO staged value wins over
     # the derived one, so a controller-named identity is never overwritten.
     for name, reg in (("eff_dmac_w", "edmac_r"), ("eff_vid_w", "evid_r"),

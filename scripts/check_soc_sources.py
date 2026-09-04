@@ -95,12 +95,13 @@ _COMMENT_OR_STRING_RE = re.compile(
 _SOURCE_PATH_RE = re.compile(r"^(?:[\w.-]+/)+[\w.-]+\.(?:sv|v)$")
 
 
-def strip_comments(text):
+def strip_comments(text: str) -> str:
     """Blank every comment, keeping the line structure so line-anchored
     patterns still see the same lines. String literals are stepped over, not
     blanked: a `//` inside one is not a comment, and an `include names its
     file in one."""
-    def blank(match):
+    def blank(match: re.Match[str]) -> str:
+        """A comment token replaced by spaces; a string literal kept whole."""
         token = match.group(0)
         if token.startswith('"'):
             return token
@@ -109,7 +110,7 @@ def strip_comments(text):
 
 
 @lru_cache(maxsize=None)
-def _under_roots(name):
+def _under_roots(name: str) -> Path | None:
     """The first file under SEARCH_ROOTS whose path ends with `name`, so an
     include with a directory part (`gen/x.svh`) finds a `gen/` directory."""
     for root in SEARCH_ROOTS:
@@ -122,7 +123,7 @@ def _under_roots(name):
     return None
 
 
-def resolve_include(name, includer):
+def resolve_include(name: str, includer: Path) -> Path | None:
     """The file `include "name"` opens: beside the includer first, then the
     search roots. None when no file answers."""
     beside = includer.parent / name
@@ -131,7 +132,8 @@ def resolve_include(name, includer):
     return _under_roots(name)
 
 
-def spliced(path, _seen=None):
+def spliced(path: Path,
+            _seen: set[Path] | None = None) -> tuple[str, list[Path], list[str]]:
     """(text, included, unresolved): the unit's text as the front end sees it.
 
     Every `include body is spliced in at its line, recursively, each file at
@@ -143,7 +145,9 @@ def spliced(path, _seen=None):
     seen.add(path.resolve())
     included, unresolved = [], []
 
-    def splice(match):
+    def splice(match: re.Match[str]) -> str:
+        """One `include replaced by the body it names - empty when the file is
+        unresolved or already spliced into this unit."""
         name = match.group(1)
         target = resolve_include(name, path)
         if target is None:
@@ -161,18 +165,22 @@ def spliced(path, _seen=None):
     return text, included, unresolved
 
 
-def instantiations(path):
+def instantiations(path: str | Path) -> set[str]:
     """Module names instantiated by the unit in `path` - includes followed,
     comments ignored. The FIRST HOP; check_rtl_source_lists.py walks it."""
     text, _included, _unresolved = spliced(Path(path))
     return set(INST_RE.findall(text))
 
 
-def instantiated(datapath=DATAPATH):
+def instantiated(datapath: str | Path = DATAPATH) -> set[str]:
+    """The first hop narrowed to the modules this project owns: a name a
+    PREFIXES entry claims is one a source list has to carry."""
     return {m for m in instantiations(datapath) if m.startswith(PREFIXES)}
 
 
-def vivado_sources(soc=SOC):
+def vivado_sources(
+        soc: str | Path = SOC
+) -> tuple[list[str] | None, list[str] | None, str | None]:
     """(paths, derived, why): the source paths milan_soc.py registers, read the
     way Python reads the file.
 
@@ -213,7 +221,7 @@ def vivado_sources(soc=SOC):
     return paths, derived, None
 
 
-def registered(soc=SOC):
+def registered(soc: str | Path = SOC) -> tuple[dict[str, str] | None, str | None]:
     """({module-name-by-stem: path}, None), or (None, why)."""
     paths, _derived, why = vivado_sources(soc)
     if paths is None:
@@ -221,7 +229,9 @@ def registered(soc=SOC):
     return {Path(p).stem: p for p in paths}, None
 
 
-def audit(datapath=DATAPATH, soc=SOC):
+def audit(
+        datapath: str | Path = DATAPATH, soc: str | Path = SOC
+) -> tuple[set[str], dict[str, str], list[str], list[str], str | None]:
     """(inst, reg, missing, gone, why) - the whole comparison, injectable so
     the self-test grades copies rather than editing the tree."""
     inst = instantiated(datapath)
@@ -235,12 +245,144 @@ def audit(datapath=DATAPATH, soc=SOC):
     return inst, reg, missing, gone, None
 
 
-def selftest():
+def _instantiation_shape_arms(ck, d):
+    """The arms over the instantiation shapes the front ends accept, and over
+    the lines that share the shape without being one."""
+    # 1. the instantiation shapes the front ends accept, and the lines
+    #    that share the shape without being one
+    (d / "shapes.sv").write_text(
+        "module KL_top #(parameter W = 1) (\n  input logic clk\n);\n"
+        "  KL_two u_two (.clk(clk));\n"
+        "KL_col0 u_col0 (.clk(clk));\n"
+        "\tKL_tab u_tab (.clk(clk));\n"
+        "  KL_param #(.W(W)) u_p (.clk(clk));\n"
+        "  KL_tight#(.W(W)) u_t (.clk(clk));\n"
+        "  KL_arr u_arr [1:0] (.clk(clk));\n"
+        "  KL_arr2 u_arr2[3:0](.clk(clk));\n"
+        "  KL_split\n    #(.W(W)) u_s (.clk(clk));\n"
+        "  // KL_ghost u_g (.clk(clk));\n"
+        "  /* KL_ghost2 u_g2 (.clk(clk)); */\n"
+        "  /*\n  KL_ghost3 u_g3 (.clk(clk));\n  */\n"
+        "  assign x = KL_func(clk);\n"
+        "  KL_task(clk);\n"
+        "  initial $display(\"KL_str u_s (\");\n"
+        "endmodule\n")
+    got = instantiations(d / "shapes.sv")
+    ck("a two-space instantiation is seen", "KL_two" in got, f"got {sorted(got)}")
+    ck("a column-0 instantiation is seen", "KL_col0" in got, f"got {sorted(got)}")
+    ck("a tab-indented instantiation is seen", "KL_tab" in got, f"got {sorted(got)}")
+    ck("a parameterised instantiation is seen with or without the space before #",
+       {"KL_param", "KL_tight"} <= got, f"got {sorted(got)}")
+    ck("an arrayed instance is seen", {"KL_arr", "KL_arr2"} <= got, f"got {sorted(got)}")
+    ck("an instantiation whose #( starts on the next line is seen", "KL_split" in got,
+       f"got {sorted(got)}")
+    ck("a commented-out instantiation is not one",
+       not {"KL_ghost", "KL_ghost2", "KL_ghost3"} & got, f"got {sorted(got)}")
+    ck("a function call, a task call and a string are not instantiations",
+       not {"KL_func", "KL_task", "KL_str", "KL_top"} & got, f"got {sorted(got)}")
+
+
+def _include_splice_arms(ck, d):
+    """The arms over `include: the body is part of the unit, recursively, once."""
+    # 2. `include: the body is part of the unit, recursively, once
+    (d / "gen").mkdir()
+    (d / "top.sv").write_text(
+        "module KL_t;\n`include \"body.svh\"\n`include \"gen/shape.svh\"\n"
+        "`include \"missing.svh\"\nendmodule\n")
+    (d / "body.svh").write_text(
+        "`include \"nested.svh\"\nKL_inc u_inc (.a(a));\n")
+    (d / "nested.svh").write_text(
+        "`include \"body.svh\"\n  KL_nested u_n (.a(a));\n")
+    (d / "gen" / "shape.svh").write_text("  KL_gen u_g (.a(a));\n")
+    got = instantiations(d / "top.sv")
+    _text, included, unresolved = spliced(d / "top.sv")
+    ck("an instantiation inside an included body is seen", "KL_inc" in got,
+       f"got {sorted(got)}")
+    ck("a nested include is followed and a header including itself ends",
+       "KL_nested" in got and len(included) == 3,
+       f"got {sorted(got)}, spliced {[p.name for p in included]}")
+    ck("an include with a directory part resolves beside the includer",
+       "KL_gen" in got, f"got {sorted(got)}")
+    ck("an include no file answers to is reported by name",
+       unresolved == ["missing.svh"], f"got {unresolved}")
+    ck("a header under the search roots resolves from anywhere",
+       resolve_include("gen/adp_shape_defaults.svh", d / "top.sv") is not None
+       and resolve_include("ethernet_events.svh", d / "top.sv") is not None)
+
+
+def _vivado_list_arms(ck, d):
+    """The arms that hold the Vivado source list to being read as Python reads
+    it, not as a text regex reads it."""
+    # 3. the Vivado list is read as Python reads it
+    (d / "soc.py").write_text(
+        '"""Not a list: hdl/a/KL_doc.sv is prose."""\n'
+        "def _pp_sources():\n    return []\n"
+        f"{SOC_LIST} = [\n"
+        "    *_pp_sources(),\n"
+        '    "hdl/a/KL_live.sv",  # "hdl/a/KL_trailing.sv"\n'
+        '    # "hdl/a/KL_dead.sv",\n'
+        '    "third_party/verilog-axis/rtl/axis_fifo.v",\n'
+        "]\n"
+        "def add(platform, cond):\n"
+        f"    srcs = list({SOC_LIST})\n"
+        "    if cond:\n"
+        '        srcs.append("hdl/a/KL_cond.sv")\n'
+        '    print("see hdl/a/KL_msg.sv for details")\n'
+        "    return srcs\n")
+    paths, derived, why = vivado_sources(d / "soc.py")
+    ck("a live row is a row", paths is not None and "hdl/a/KL_live.sv" in paths, f"{paths} {why}")
+    ck("a commented-out row is not a row",
+       paths is not None and "hdl/a/KL_dead.sv" not in paths, f"{paths}")
+    ck("a path in a trailing comment or a docstring is not a row",
+       paths is not None and not {"hdl/a/KL_trailing.sv", "hdl/a/KL_doc.sv"} & set(paths),
+       f"{paths}")
+    ck("a conditional registration beside the list is read",
+       paths is not None and "hdl/a/KL_cond.sv" in paths, f"{paths}")
+    ck("a path inside a message string is not a registration",
+       paths is not None and not any("KL_msg" in p for p in paths), f"{paths}")
+    ck("the derived half is reported as the starred call, not guessed from syntax",
+       derived == ["_pp_sources"], f"{derived}")
+    ck("a vendored .v entry counts as a source", paths is not None
+       and "third_party/verilog-axis/rtl/axis_fifo.v" in paths, f"{paths}")
+    (d / "nolist.py").write_text("x = 1\n")
+    ck("a file without the list is refused, not read as empty",
+       vivado_sources(d / "nolist.py")[0] is None)
+    (d / "badrow.py").write_text(f"{SOC_LIST} = ['hdl/a/b.sv', 42]\n")
+    ck("a row that is neither a path nor a derived expansion is refused",
+       vivado_sources(d / "badrow.py")[0] is None)
+
+
+def _live_tree_arms(ck, d):
+    """The arms over the live tree, plus the two mutations the round-2 review
+    ran against it."""
+    # 4. the live tree, then the two mutations the round-2 review ran
+    inst, reg, missing, gone, why = audit()
+    ck("the live datapath's first hop is registered and present",
+       why is None and not missing and not gone and len(inst) >= 30,
+       f"missing {missing} gone {gone} why {why} ({len(inst)} modules)")
+    soc_text = SOC.read_text()
+    row = next((l for l in soc_text.splitlines()
+                if '"hdl/common/cdc_pulse.sv"' in l), None)
+    mutated = soc_text.replace(row, "#" + row, 1) if row else soc_text
+    (d / "milan_soc.py").write_text(mutated)
+    _i, _r, m2, _g, w2 = audit(soc=d / "milan_soc.py")
+    ck("commenting out the live row that carries cdc_pulse.sv is a MISSING SOURCE",
+       row is not None and w2 is None and "cdc_pulse" in m2,
+       f"row {row!r} missing {m2} why {w2}")
+    dp = DATAPATH.read_text()
+    end = dp.rfind("endmodule")
+    (d / "milan_datapath.sv").write_text(
+        dp[:end] + "\nKL_zz_col0 u_zz_col0 ();\n" + dp[end:])
+    ck("a column-0 instantiation added to the live datapath reaches the first hop",
+       "KL_zz_col0" in instantiated(d / "milan_datapath.sv"))
+
+def selftest() -> int:
     """Fixture arms, each known by construction and each red when the defect
     it guards is put back (the two-space regex, the text-regex list reader)."""
     failures = checks = 0
 
-    def ck(name, ok, detail=""):
+    def ck(name: str, ok: bool, detail: str = "") -> None:
+        """Record one arm, printing the detail only when it went red."""
         nonlocal failures, checks
         checks += 1
         if ok:
@@ -251,128 +393,19 @@ def selftest():
 
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
-        # 1. the instantiation shapes the front ends accept, and the lines
-        #    that share the shape without being one
-        (d / "shapes.sv").write_text(
-            "module KL_top #(parameter W = 1) (\n  input logic clk\n);\n"
-            "  KL_two u_two (.clk(clk));\n"
-            "KL_col0 u_col0 (.clk(clk));\n"
-            "\tKL_tab u_tab (.clk(clk));\n"
-            "  KL_param #(.W(W)) u_p (.clk(clk));\n"
-            "  KL_tight#(.W(W)) u_t (.clk(clk));\n"
-            "  KL_arr u_arr [1:0] (.clk(clk));\n"
-            "  KL_arr2 u_arr2[3:0](.clk(clk));\n"
-            "  KL_split\n    #(.W(W)) u_s (.clk(clk));\n"
-            "  // KL_ghost u_g (.clk(clk));\n"
-            "  /* KL_ghost2 u_g2 (.clk(clk)); */\n"
-            "  /*\n  KL_ghost3 u_g3 (.clk(clk));\n  */\n"
-            "  assign x = KL_func(clk);\n"
-            "  KL_task(clk);\n"
-            "  initial $display(\"KL_str u_s (\");\n"
-            "endmodule\n")
-        got = instantiations(d / "shapes.sv")
-        ck("a two-space instantiation is seen", "KL_two" in got, f"got {sorted(got)}")
-        ck("a column-0 instantiation is seen", "KL_col0" in got, f"got {sorted(got)}")
-        ck("a tab-indented instantiation is seen", "KL_tab" in got, f"got {sorted(got)}")
-        ck("a parameterised instantiation is seen with or without the space before #",
-           {"KL_param", "KL_tight"} <= got, f"got {sorted(got)}")
-        ck("an arrayed instance is seen", {"KL_arr", "KL_arr2"} <= got, f"got {sorted(got)}")
-        ck("an instantiation whose #( starts on the next line is seen", "KL_split" in got,
-           f"got {sorted(got)}")
-        ck("a commented-out instantiation is not one",
-           not {"KL_ghost", "KL_ghost2", "KL_ghost3"} & got, f"got {sorted(got)}")
-        ck("a function call, a task call and a string are not instantiations",
-           not {"KL_func", "KL_task", "KL_str", "KL_top"} & got, f"got {sorted(got)}")
-
-        # 2. `include: the body is part of the unit, recursively, once
-        (d / "gen").mkdir()
-        (d / "top.sv").write_text(
-            "module KL_t;\n`include \"body.svh\"\n`include \"gen/shape.svh\"\n"
-            "`include \"missing.svh\"\nendmodule\n")
-        (d / "body.svh").write_text(
-            "`include \"nested.svh\"\nKL_inc u_inc (.a(a));\n")
-        (d / "nested.svh").write_text(
-            "`include \"body.svh\"\n  KL_nested u_n (.a(a));\n")
-        (d / "gen" / "shape.svh").write_text("  KL_gen u_g (.a(a));\n")
-        got = instantiations(d / "top.sv")
-        _text, included, unresolved = spliced(d / "top.sv")
-        ck("an instantiation inside an included body is seen", "KL_inc" in got,
-           f"got {sorted(got)}")
-        ck("a nested include is followed and a header including itself ends",
-           "KL_nested" in got and len(included) == 3,
-           f"got {sorted(got)}, spliced {[p.name for p in included]}")
-        ck("an include with a directory part resolves beside the includer",
-           "KL_gen" in got, f"got {sorted(got)}")
-        ck("an include no file answers to is reported by name",
-           unresolved == ["missing.svh"], f"got {unresolved}")
-        ck("a header under the search roots resolves from anywhere",
-           resolve_include("gen/adp_shape_defaults.svh", d / "top.sv") is not None
-           and resolve_include("ethernet_events.svh", d / "top.sv") is not None)
-
-        # 3. the Vivado list is read as Python reads it
-        (d / "soc.py").write_text(
-            '"""Not a list: hdl/a/KL_doc.sv is prose."""\n'
-            "def _pp_sources():\n    return []\n"
-            f"{SOC_LIST} = [\n"
-            "    *_pp_sources(),\n"
-            '    "hdl/a/KL_live.sv",  # "hdl/a/KL_trailing.sv"\n'
-            '    # "hdl/a/KL_dead.sv",\n'
-            '    "third_party/verilog-axis/rtl/axis_fifo.v",\n'
-            "]\n"
-            "def add(platform, cond):\n"
-            f"    srcs = list({SOC_LIST})\n"
-            "    if cond:\n"
-            '        srcs.append("hdl/a/KL_cond.sv")\n'
-            '    print("see hdl/a/KL_msg.sv for details")\n'
-            "    return srcs\n")
-        paths, derived, why = vivado_sources(d / "soc.py")
-        ck("a live row is a row", paths is not None and "hdl/a/KL_live.sv" in paths, f"{paths} {why}")
-        ck("a commented-out row is not a row",
-           paths is not None and "hdl/a/KL_dead.sv" not in paths, f"{paths}")
-        ck("a path in a trailing comment or a docstring is not a row",
-           paths is not None and not {"hdl/a/KL_trailing.sv", "hdl/a/KL_doc.sv"} & set(paths),
-           f"{paths}")
-        ck("a conditional registration beside the list is read",
-           paths is not None and "hdl/a/KL_cond.sv" in paths, f"{paths}")
-        ck("a path inside a message string is not a registration",
-           paths is not None and not any("KL_msg" in p for p in paths), f"{paths}")
-        ck("the derived half is reported as the starred call, not guessed from syntax",
-           derived == ["_pp_sources"], f"{derived}")
-        ck("a vendored .v entry counts as a source", paths is not None
-           and "third_party/verilog-axis/rtl/axis_fifo.v" in paths, f"{paths}")
-        (d / "nolist.py").write_text("x = 1\n")
-        ck("a file without the list is refused, not read as empty",
-           vivado_sources(d / "nolist.py")[0] is None)
-        (d / "badrow.py").write_text(f"{SOC_LIST} = ['hdl/a/b.sv', 42]\n")
-        ck("a row that is neither a path nor a derived expansion is refused",
-           vivado_sources(d / "badrow.py")[0] is None)
-
-        # 4. the live tree, then the two mutations the round-2 review ran
-        inst, reg, missing, gone, why = audit()
-        ck("the live datapath's first hop is registered and present",
-           why is None and not missing and not gone and len(inst) >= 30,
-           f"missing {missing} gone {gone} why {why} ({len(inst)} modules)")
-        soc_text = SOC.read_text()
-        row = next((l for l in soc_text.splitlines()
-                    if '"hdl/common/cdc_pulse.sv"' in l), None)
-        mutated = soc_text.replace(row, "#" + row, 1) if row else soc_text
-        (d / "milan_soc.py").write_text(mutated)
-        _i, _r, m2, _g, w2 = audit(soc=d / "milan_soc.py")
-        ck("commenting out the live row that carries cdc_pulse.sv is a MISSING SOURCE",
-           row is not None and w2 is None and "cdc_pulse" in m2,
-           f"row {row!r} missing {m2} why {w2}")
-        dp = DATAPATH.read_text()
-        end = dp.rfind("endmodule")
-        (d / "milan_datapath.sv").write_text(
-            dp[:end] + "\nKL_zz_col0 u_zz_col0 ();\n" + dp[end:])
-        ck("a column-0 instantiation added to the live datapath reaches the first hop",
-           "KL_zz_col0" in instantiated(d / "milan_datapath.sv"))
+        _instantiation_shape_arms(ck, d)
+        _include_splice_arms(ck, d)
+        _vivado_list_arms(ck, d)
+        _live_tree_arms(ck, d)
 
     print(f"\n{checks} checks: {checks - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
 
-def main():
+def main() -> int:
+    """The gate: 0 when every instantiated module is registered and every
+    registered source exists, 1 on a finding, 2 when a side could not be
+    read - which no caller may mistake for a clean comparison."""
     args = sys.argv[1:]
     if "--selftest" in args:
         return selftest()

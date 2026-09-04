@@ -119,6 +119,8 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
+from typing import Any
 
 try:
     import yaml
@@ -441,7 +443,7 @@ OPT_RE = re.compile(r"--sound-card\b|--flashboot[ =\t]+(?:full|kernel)\b")
 DOOR_RE = re.compile(r"--no-fabric-gptp\b")
 
 
-def git_env():
+def git_env() -> dict[str, str]:
     """`git -C <root>` must mean the repo AT root, never an inherited one.
 
     Every hook, ``git rebase --exec`` and ``git bisect run`` exports GIT_DIR /
@@ -454,7 +456,7 @@ def git_env():
                                  "GIT_OBJECT", "GIT_COMMON_DIR"))}
 
 
-def inventory(root):
+def inventory(root: pathlib.Path) -> tuple[list[str], list[str]]:
     """Return tracked first-party text files and all eligible path names."""
     try:
         # -z: NUL-separated and UNQUOTED. Without it git C-quotes any path
@@ -497,7 +499,7 @@ class InventoryError(RuntimeError):
     pass
 
 
-def scan_path(path):
+def scan_path(path: str) -> list[str]:
     """Reject retired product path families without reading their payload."""
     findings = []
     probe = TRIPLET_RE.sub("", path)
@@ -510,7 +512,10 @@ def scan_path(path):
     return findings
 
 
-def scan_file(root, path):
+def scan_file(root: pathlib.Path, path: str) -> list[str]:
+    """Every policy class judged against one tracked file, or the single
+    finding an unreadable file earns - skipping it would certify text the
+    gate never managed to read."""
     findings = []
     try:
         candidate = root / path
@@ -607,7 +612,9 @@ _YAML_SUFFIXES = (".yaml", ".yml", ".yaml.in", ".yml.in")
 _JSON_SUFFIXES = (".json", ".json.in")
 
 
-def config_kind(path):
+def config_kind(path: str) -> str | None:
+    """Which parser owns this path - "yaml", "json", or None for a file the
+    class-Y ownership scan does not parse at all."""
     lowered = path.lower()
     if lowered.endswith(_YAML_SUFFIXES):
         return "yaml"
@@ -635,8 +642,13 @@ def _is_false(value):
             and value.strip().lower() in _FALSE_SCALARS)
 
 
-def scan_config(path, text, kind):
-    def walk(node, crumb, seen):
+def scan_config(path: str, text: str, kind: str) -> list[str]:
+    """Class-Y findings from PARSING the config, so neither the spelling nor
+    the case of a key can hide a false-like `fabric_gptp`. An unparseable
+    file is a finding: the scan fails closed rather than certifying it."""
+    def walk(node: Any, crumb: str, seen: frozenset[int]) -> list[str]:
+        """Class-Y hits under one parsed node, `crumb` naming where it sat
+        and `seen` breaking the cycles a self-referential anchor builds."""
         # Aliases can make a genuinely cyclic container; without this guard a
         # self-referential anchor is a RecursionError no handler catches, and
         # CI reads the resulting rc as "the gate found violations".
@@ -686,7 +698,10 @@ def scan_config(path, text, kind):
     return hits
 
 
-def check(root=ROOT):
+def check(root: pathlib.Path = ROOT) -> tuple[list[str], int]:
+    """Every finding across the tree, and how many files produced them.
+    The count comes back with the findings because zero findings over zero
+    files is a broken scan, not a clean tree."""
     files, paths = inventory(root)
     findings = []
     present = set(files)
@@ -702,16 +717,30 @@ def check(root=ROOT):
     return findings, len(files)
 
 
-def selftest():
-    problems, arms = [], 0
+class _Bench:
+    """The fixture driver: plant a defect in a scratch tree, then judge it.
 
-    _GIT_ENV = git_env()
+    Every arm builds a throwaway git repository holding the clean control,
+    runs the real `check()` over it, and records a problem when the verdict is
+    not the one the arm was written for.
+    """
 
-    def scratch_tree(build, control=True):
+    def __init__(self):
+        self.problems = []
+        self.arms = 0
+        #: `git -C <root>` must mean the repo AT root, never an inherited one.
+        self.env = git_env()
+
+    def scratch_tree(
+        self,
+        build: Callable[[pathlib.Path], object],
+        control: bool = True,
+    ) -> tuple[tempfile.TemporaryDirectory, pathlib.Path]:
+        """A throwaway git tree carrying the control files and `build`'s plant."""
         d = tempfile.TemporaryDirectory(prefix="bmonly.")
         root = pathlib.Path(d.name)
         subprocess.run(["git", "-C", str(root), "init", "-q"],
-                       check=True, env=_GIT_ENV)
+                       check=True, env=self.env)
         if control:
             (root / "clean.md").write_text("The bare-metal firmware owns boot "
                                            "policy and identity.\n")
@@ -721,14 +750,21 @@ def selftest():
                 "The full FPGA solution uses bare-metal firmware.\n")
         build(root)
         subprocess.run(["git", "-C", str(root), "add", "-A"],
-                       check=True, env=_GIT_ENV)
+                       check=True, env=self.env)
         return d, root
 
-    def arm(name, build, expect_hit, needle=None, control=True):
-        nonlocal arms
-        arms += 1
+    def arm(
+        self,
+        name: str,
+        build: Callable[[pathlib.Path], object],
+        expect_hit: bool,
+        needle: str | None = None,
+        control: bool = True,
+    ) -> None:
+        """Run one fixture arm and record how its verdict differed."""
+        self.arms += 1
         findings = []
-        d, root = scratch_tree(build, control)
+        d, root = self.scratch_tree(build, control)
         try:
             findings, _ = check(root)
         except InventoryError as exc:
@@ -738,13 +774,16 @@ def selftest():
         hit = bool(findings)
         text = "\n".join(findings)
         if expect_hit and not hit:
-            problems.append(f"[{name}] planted defect not caught")
+            self.problems.append(f"[{name}] planted defect not caught")
         elif expect_hit and needle and needle not in text:
-            problems.append(f"[{name}] caught, but not by the right class: "
-                            f"wanted {needle!r} in\n{text}")
+            self.problems.append(f"[{name}] caught, but not by the right class: "
+                                 f"wanted {needle!r} in\n{text}")
         elif not expect_hit and hit:
-            problems.append(f"[{name}] clean fixture flagged:\n{text}")
+            self.problems.append(f"[{name}] clean fixture flagged:\n{text}")
 
+
+def _arms_control_and_terms(arm):
+    """The clean control, then every class-T term and the device-tree phrase."""
     # the clean control
     arm("clean-control", lambda r: None, False)
 
@@ -757,6 +796,9 @@ def selftest():
         lambda r: (r / "page.md").write_text(
             "boot is described by a device tree blob\n"), True, "[T]")
 
+
+def _arms_target_runtime(arm):
+    """Class R: each retired runtime token, target-OS path and remote shell."""
     # R: every newly named runtime/service token and exact target-OS path
     # bites independently. Near-miss words and longer non-path strings stay
     # clean, so this is not an unbounded substring search.
@@ -795,7 +837,8 @@ def selftest():
             lambda r, p=punctuation: (r / "page.md").write_text(
                 f"the target reads /proc{p}\n"), True, "[R]")
 
-    def plant_host_phc(r, payload):
+    def plant_host_phc(r: pathlib.Path, payload: str) -> None:
+        """Write `payload` at the one host-PHC tool file the mask covers."""
         target = r / "tb" / "tools" / "crf_vs_phc.py"
         target.parent.mkdir(parents=True)
         target.write_text(payload)
@@ -815,7 +858,8 @@ def selftest():
             r, "compare /dev/ptp0 after reading /proc/status\n"),
         True, "[R]")
 
-    def plant_host_malloc(r, payload):
+    def plant_host_malloc(r: pathlib.Path, payload: str) -> None:
+        """Write `payload` at the one loader-test file the mask covers."""
         target = r / "syn" / "yosys" / "malloc.sh"
         target.parent.mkdir(parents=True)
         target.write_text(payload)
@@ -841,6 +885,9 @@ def selftest():
         lambda r: (r / "page.md").write_text(
             "ssh build-host make lint\n"), False)
 
+
+def _arms_retired_surfaces(arm):
+    """Classes S and H: the retired sound-card lane and target host plane."""
     # S: every semantic carrier of the retired sound-card lane bites on its
     # own. Near-miss identifiers stay clean; this is not a substring policy.
     for token in RETIRED_SOUND_SURFACES:
@@ -881,6 +928,9 @@ def selftest():
         lambda r: (r / "page.md").write_text(
             "TOP = KL_eth_tx_reset_model\n"), False)
 
+
+def _arms_host_tooling_masks(arm):
+    """Generated outputs are scanned, and each host-tooling mask is exact."""
     # generated outputs are scanned: a term planted in an .svg text node
     arm("term-in-generated-svg",
         lambda r: (r / "diagram.svg").write_text(
@@ -933,6 +983,9 @@ def selftest():
             '<svg content="agent=&quot;Mozilla/5.0 (X11; Linux x86_64)&quot;">'
             '<text>rootfs</text></svg>\n'), True, "[T]")
 
+
+def _arms_product_and_paths(arm):
+    """Class P: the protected product page, then every retired path class."""
     # P: the product page rejects embedded spellings and host-tool masks
     arm("product-doc-embedded-term",
         lambda r: (r / PRODUCT_DOCS[0]).write_text(
@@ -957,7 +1010,8 @@ def selftest():
         ("deleted-tree", "harness/run.sh"),
     )
     for path_class, fixture_path in path_class_fixtures:
-        def plant_path(r, path=fixture_path):
+        def plant_path(r: pathlib.Path, path: str = fixture_path) -> None:
+            """Plant clean contents at a retired product-path family."""
             target = r / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text("bare-metal fixture payload\n")
@@ -975,7 +1029,8 @@ def selftest():
     arm("path-sv2v-asset-allowed",
         lambda r: (r / "sv2v-Linux.zip").write_bytes(b"PK\x03\x04"), False)
 
-    def plant_laundered_path(r):
+    def plant_laundered_path(r: pathlib.Path) -> None:
+        """Plant a retired name UNDER an allowed host-triplet directory."""
         target = r / "riscv32-linux-gcc" / "kernel-notes.md"
         target.parent.mkdir(parents=True)
         target.write_text("bare-metal fixture payload\n")
@@ -994,14 +1049,16 @@ def selftest():
             ("board.dtbo", "target-os-tree"),
             ("tools/snd-kl-milan/Kbuild.clean", "host-audio-plane"),
             ("tb/verilator/milan_nic/fixture.clean", "target-host-plane")):
-        def plant_named_path(r, path=fixture_path):
+        def plant_named_path(r: pathlib.Path, path: str = fixture_path) -> None:
+            """Plant clean contents at one exact retired path."""
             target = r / path
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text("bare-metal fixture payload\n")
         arm("path-" + re.sub(r"[^a-z0-9]+", "-", fixture_path.lower()),
             plant_named_path, True, f"[P] retired {path_class}")
 
-    def plant_deleted_tree_near_misses(r):
+    def plant_deleted_tree_near_misses(r: pathlib.Path) -> None:
+        """Plant paths that only resemble the deleted trees."""
         for path in ("tb/verilator/pcmlpf/Makefile", "docs/harnesses/bdd.md",
                      "hdl/eth/KL_eth_tx_reset_model.sv"):
             target = r / path
@@ -1010,13 +1067,17 @@ def selftest():
     arm("path-deleted-tree-near-misses-clean",
         plant_deleted_tree_near_misses, False)
 
-    def plant_near_miss_path(r):
+    def plant_near_miss_path(r: pathlib.Path) -> None:
+        """Plant a path whose every segment merely embeds a retired word."""
         target = (r / "microkernel" / "buildrooted" / "statdaemon" /
                   "alsacean" / "driver-guide.md")
         target.parent.mkdir(parents=True)
         target.write_text("bare-metal fixture payload\n")
     arm("path-near-misses-clean", plant_near_miss_path, False)
 
+
+def _arms_build_configuration(arm):
+    """Class K: the retired stack's Kconfig and Buildroot symbol namespaces."""
     # K: the retired stack's build-configuration vocabulary. A defconfig is a
     # target-Linux artifact whose own text need not name the stack, so the
     # symbol namespaces are the finding - on ANY path, and on the name alone.
@@ -1053,6 +1114,9 @@ def selftest():
             "CONFIGURE_ME is a placeholder; CONFIG_NAME is documented\n"),
         False)
 
+
+def _arms_image_mask_and_options(arm):
+    """The one masked container image, then class O's retired option tokens."""
     # T: the one generic container-image fixture is masked in its own file,
     # and the mask cannot launder the term anywhere else - not in another
     # file, and not on another line of the same file.
@@ -1102,6 +1166,9 @@ def selftest():
             'ap.add_argument("--no-fabric-gptp", action="store_true")\n'),
         False)
 
+
+def _arms_parsed_configs(arm):
+    """Class Y: the parsed YAML and JSON spellings of the disabled door."""
     # Y: parsed YAML, spacing and case cannot hide it - in the KEY as well as
     # the value, and a custom application tag is not a certificate of health
     arm("yaml-fabric-gptp-false",
@@ -1150,6 +1217,10 @@ def selftest():
             lambda r, v=value: (r / "c.yaml").write_text(
                 f"board:\n  fabric_gptp: {v}\n"), True, "[Y]")
 
+
+def _arms_symlinks_and_inventory(bench):
+    """Tracked symlinks, then the inventory failure modes that fail closed."""
+    arm = bench.arm
     # A tracked symlink is a blob too: inspect its link text without following
     # it, including when the destination does not exist or leaves the tree.
     arm("symlink-target-term",
@@ -1165,18 +1236,20 @@ def selftest():
     arm("empty-inventory-no-tracked-files", lambda r: None, True,
         "the inventory is empty", control=False)
 
-    def plant_all_excluded(r):
+    def plant_all_excluded(r: pathlib.Path) -> None:
+        """Track only files the content scan excludes, so the inventory is
+        empty without the tree being empty."""
         (r / "third_party").mkdir()
         (r / "third_party" / "vendor.md").write_text("vendored text\n")
         (r / "logo.png").write_bytes(b"\x89PNG")
     arm("empty-inventory-all-excluded", plant_all_excluded, True,
         "the inventory is empty", control=False)
-    arms += 1
+    bench.arms += 1
     with tempfile.TemporaryDirectory(prefix="bmonly.") as d:
         try:
             check(pathlib.Path(d))
-            problems.append("[missing-inventory] a non-git directory "
-                            "scanned as zero findings")
+            bench.problems.append("[missing-inventory] a non-git directory "
+                                  "scanned as zero findings")
         except InventoryError:
             pass
     # root holds CAP_DAC_OVERRIDE, so mode 0 does not deny it the read and
@@ -1187,22 +1260,35 @@ def selftest():
         print("baremetal-only selftest: [unreadable-file] LOUD SKIP - running "
               "as root, where mode 0 does not deny a read", file=sys.stderr)
     else:
-        arms += 1
-        d, root = scratch_tree(lambda r: (r / "page.md").write_text("clean\n"))
+        bench.arms += 1
+        d, root = bench.scratch_tree(lambda r: (r / "page.md").write_text("clean\n"))
         try:
             (root / "page.md").chmod(0)
             findings, _ = check(root)
             if not any("[inventory] unreadable" in f for f in findings):
-                problems.append("[unreadable-file] an unreadable file scanned "
-                                "as clean")
+                bench.problems.append("[unreadable-file] an unreadable file "
+                                      "scanned as clean")
         finally:
             (root / "page.md").chmod(0o644)
             d.cleanup()
 
-    return problems, arms
+
+def selftest() -> tuple[list[str], int]:
+    """Run every fixture arm: the arms whose verdict was not the one they
+    were written for, and how many ran."""
+    bench = _Bench()
+    for group in (_arms_control_and_terms, _arms_target_runtime,
+                  _arms_retired_surfaces, _arms_host_tooling_masks,
+                  _arms_product_and_paths, _arms_build_configuration,
+                  _arms_image_mask_and_options, _arms_parsed_configs):
+        group(bench.arm)
+    _arms_symlinks_and_inventory(bench)
+    return bench.problems, bench.arms
 
 
-def main():
+def main() -> int:
+    """Exit status for the CLI: 0 clean, 1 findings, 2 the gate could not
+    run (no mode, no pyyaml, or an inventory it could not trust)."""
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--selftest", action="store_true")

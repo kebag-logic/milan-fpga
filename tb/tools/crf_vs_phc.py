@@ -9,11 +9,13 @@ ETH_P_ALL = 0x0003
 ETHERTYPE_AVTP = 0x22F0
 
 
-def phc_clockid(fd):
+def phc_clockid(fd: int) -> int:
+    """The POSIX clock id for an already-open PHC character device."""
     return (~fd << 3) | 3
 
 
-def strip_vlan(pkt):
+def strip_vlan(pkt: bytes) -> tuple[bytes, bytes, int, bytes]:
+    """(dst, src, ethertype, payload) with any stack of VLAN tags peeled off."""
     et = struct.unpack('!H', pkt[12:14])[0]
     off = 14
     while et in (0x8100, 0x88A8):
@@ -22,7 +24,8 @@ def strip_vlan(pkt):
     return pkt[0:6], pkt[6:12], et, pkt[off:]
 
 
-def main():
+def main() -> None:
+    """Print each CRF frame's timestamp beside the PHC reading and their gap."""
     ap = argparse.ArgumentParser()
     ap.add_argument('--iface', default='enp6s0')
     ap.add_argument('--phc', default='/dev/ptp0')

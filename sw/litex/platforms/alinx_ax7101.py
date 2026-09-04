@@ -11,6 +11,8 @@
 #
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 
+from typing import Any
+
 from litex.build.generic_platform import Pins, Subsignal, IOStandard, Misc
 from litex.build.xilinx import Xilinx7SeriesPlatform
 from litex.build.openfpgaloader import OpenFPGALoader
@@ -243,13 +245,26 @@ class Platform(Xilinx7SeriesPlatform):
             "set_property CONFIG_VOLTAGE 3.3 [current_design]",
         ]
 
-    def create_programmer(self):
+    def create_programmer(self) -> OpenFPGALoader:
+        """The loader that reaches this board's JTAG, which is not a choice.
+
+        The AX7101 has one onboard programmer and openFPGALoader has one
+        cable name for it; naming any other cable finds no device at all.
+        """
         # AX7101 JTAG = onboard Digilent FT232H (USB 0403:6014). Verified on hardware:
         # `openFPGALoader -c ft232 --detect` reads IDCODE = xc7a100t. `--load` SRAM-loads
         # the bitstream over JTAG.
         return OpenFPGALoader(cable="ft232")
 
-    def do_finalize(self, fragment):
+    def do_finalize(self, fragment: Any) -> None:
+        """Constrain the 200 MHz system clock once the SoC has stopped adding to it.
+
+        `fragment` is whatever migen fragment LiteX's finalize hands down; it
+        is only forwarded. The period constraint has to live here rather than
+        in the SoC because the clock is a property of the board's siT9102,
+        and it is requested loosely so a design that never asks for clk200
+        still finalizes.
+        """
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9 / 200e6)
         # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which

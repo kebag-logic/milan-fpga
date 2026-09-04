@@ -54,6 +54,13 @@ class Finding:
 
 
 def prose_blocks(text: str) -> list[Block]:
+    """Every block the word limits apply to, in the order a reader meets them.
+
+    Fenced code, HTML comments, headings, tables, block quotes, indented code
+    and a line that is only an image are flushed rather than measured. None of
+    them is prose, and counting them would have the gate demand that a table
+    row or a command line be rewritten shorter.
+    """
     blocks: list[Block] = []
     paragraph: list[str] = []
     paragraph_line = 0
@@ -61,6 +68,7 @@ def prose_blocks(text: str) -> list[Block]:
     comment = False
 
     def flush() -> None:
+        """Emit the paragraph accumulated so far; anything non-prose ends one."""
         nonlocal paragraph, paragraph_line
         if paragraph:
             blocks.append(Block(paragraph_line, " ".join(paragraph), True))
@@ -105,6 +113,8 @@ def prose_blocks(text: str) -> list[Block]:
 
 
 def normalized_prose(text: str) -> str:
+    """Prose with code spans, link targets, raw URLs and emphasis removed, so
+    that a long path or a long URL cannot read as a long sentence."""
     text = INLINE_CODE.sub("", text)
     text = LINK.sub(r"\1", text)
     text = REFERENCE_LINK.sub(r"\1", text)
@@ -113,6 +123,7 @@ def normalized_prose(text: str) -> str:
 
 
 def sentences(text: str) -> list[str]:
+    """One block's sentences; empty when nothing prose-like survives normalisation."""
     normalized = normalized_prose(text)
     if not normalized:
         return []
@@ -120,6 +131,8 @@ def sentences(text: str) -> list[str]:
 
 
 def analyze(text: str) -> list[Finding]:
+    """Every limit one document breaks: sentence words, then paragraph words
+    and paragraph sentences, which only whole paragraphs are held to."""
     findings: list[Finding] = []
     for block in prose_blocks(text):
         block_sentences = sentences(block.text)
@@ -156,6 +169,7 @@ def analyze(text: str) -> list[Finding]:
 
 
 def selftest() -> int:
+    """Prove the limits fire at eleven words and never on exempt material."""
     ten_words = "One two three four five six seven eight nine ten."
     eleven_words = ten_words[:-1] + " eleven."
     exemptions = """# Heading words never count here
@@ -179,7 +193,9 @@ one very long command line remains exempt from prose policy checks
     if analyze(exemptions):
         print("selftest: exempt material failed")
         return 1
-    long_paragraph = "One two three four five six seven. Eight nine ten eleven twelve thirteen fourteen. Fifteen sixteen seventeen eighteen nineteen twenty twenty-one."
+    long_paragraph = ("One two three four five six seven. "
+                      "Eight nine ten eleven twelve thirteen fourteen. "
+                      "Fifteen sixteen seventeen eighteen nineteen twenty twenty-one.")
     reasons = {item.reason for item in analyze(long_paragraph)}
     if "paragraph has too many sentences" not in reasons:
         print("selftest: long paragraph escaped")
@@ -189,6 +205,7 @@ one very long command line remains exempt from prose policy checks
 
 
 def main() -> int:
+    """Judge every current audience document; 1 on any finding, 2 on a bad argument."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     if sys.argv[1:]:

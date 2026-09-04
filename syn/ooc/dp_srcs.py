@@ -70,19 +70,20 @@ read set, and listed in README.md's tool table.
 Used by syn/ooc/milan_datapath_ooc.tcl and syn/ooc/pp_shadow_ooc.tcl.
 """
 import argparse
-import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
 
 #: The authority, and the flag that makes it hand over one top's record. Named
 #: once: a second spelling of either is a second authority.
-RUN_SH = os.path.join(REPO, "syn", "yosys", "run.sh")
+RUN_SH = REPO / "syn" / "yosys" / "run.sh"
 EMIT = "--emit"
 
 #: Every key the record may carry. A line whose key is not here is a hard error
@@ -111,34 +112,95 @@ LINKED = ("hdl", "scripts", "protocol-processor", "gptp-processor",
 #: prints a pass, so the count is declared and checked rather than counted.
 ARMS = 35
 
+#: One `--emit` record: the authority's own values, one list per modelled key.
+#:
+#: THE VALUES ARE STRINGS AND STAY STRINGS. Every path this file OWNS is a
+#: `Path` -- REPO, RUN_SH, the self-test's shadow roots -- but a record value is
+#: not this file's path, it is the authority's own token, printed back verbatim
+#: on stdout and handed to `sv2v` and to `read_verilog` exactly as bash spelled
+#: it. `Path` would normalise it (`./x.sv` and `a//b.sv` are what bash emits and
+#: not what a Path prints), and the checks below ask a source token whether it
+#: `endswith` a suffix, which a Path cannot answer. The conversion happens where
+#: a token is USED as a path -- `_on_disk()`, `_under()` -- and nowhere else.
+Record = dict[str, list[str]]
 
-def _reader(path):
-    with open(path) as fh:
-        return fh.read()
+#: What ask_authority() and parse_record() answer: (record, problems, exit
+#: status). The record is None exactly when the problems are fatal.
+Answer = tuple[Record | None, list[str], int]
+
+#: What build() answers: (sources, problems, exit status).
+Expansion = tuple[list[str], list[str], int]
+
+#: What a front end answers: (does the top resolve, diagnostic). None is "no
+#: verdict at all", which is a refusal here and not a weaker pass.
+Verdict = tuple[bool | None, str]
+
+
+def _on_disk(token: str) -> bool:
+    """Does the authority's source token name a file that is there?"""
+    return Path(token).exists()
+
+
+def _named(path: Path | str) -> str:
+    """How a finding spells `path`: repo-relative when it is under the repo.
+
+    `Path.relative_to` refuses a path outside its argument where the old
+    `os.path.relpath` answered with a chain of `..`, so the outside case
+    answers with the path itself -- the self-test drives this file from
+    shadow roots in /tmp, and `../../../tmp/authority-xxxx/...` named nothing
+    a reader could act on anyway.
+
+    `str` is accepted as well as `Path` because this only ever runs on the
+    REFUSAL path: `ask_authority()`'s `run_sh` is a `Path` now, and a caller
+    still passing the old spelling must get that caller's diagnostic and not
+    an `AttributeError` raised while producing it.
+    """
+    try:
+        return str(Path(path).relative_to(REPO))
+    except ValueError:
+        return str(path)
+
+
+def _under(root: Path, token: str) -> str:
+    """The authority's source token as `root`'s own tree spells it.
+
+    Same refusal, same answer: arms 32-34 point run.sh at a file OUTSIDE the
+    shadow root on purpose, and those arms compare how MANY sources came back,
+    so an unrelatable one keeps its own spelling instead of raising.
+    """
+    try:
+        return str(Path(token).relative_to(root))
+    except ValueError:
+        return token
 
 
 # --------------------------------------------------------------------------
 # the authority
 
 
-def ask_authority(top, run_sh=RUN_SH, runner=subprocess.run):
+def ask_authority(top: str, run_sh: Path = RUN_SH,
+                  runner: Callable[..., object] = subprocess.run) -> Answer:
     """Run `run_sh --emit <top>` and parse its record. Returns (rec, bad, rc).
 
     `bash` explicitly, not the executable bit: a checkout that lost the mode
     bit would otherwise turn one authority back into none.
+
+    `runner` need only answer like `subprocess.run` - `returncode`, `stdout`,
+    `stderr` - which is how the self-test plants a refusal without a shell.
     """
-    out = runner(["bash", run_sh, EMIT, top], capture_output=True, text=True)
+    out = runner(["bash", str(run_sh), EMIT, top], capture_output=True,
+                 text=True)
     if out.returncode != 0:
         err = (out.stderr or out.stdout or "").strip() or "(no diagnostic)"
         return None, ["dp_srcs: %s %s %s exited %d, so there is no read set to "
                       "emit. That script is the authority for what this top is "
                       "built from; its refusal is this flow's refusal.\n  %s"
-                      % (os.path.relpath(run_sh, REPO), EMIT, top,
+                      % (_named(run_sh), EMIT, top,
                          out.returncode, err.replace("\n", "\n  "))], 2
     return parse_record(out.stdout, top, run_sh)
 
 
-def parse_record(text, top, run_sh=RUN_SH):
+def parse_record(text: str, top: str, run_sh: Path = RUN_SH) -> Answer:
     """The `--emit` record, fully modelled. Returns (rec, problems, rc).
 
     NOTHING IS SKIPPED. The escape this replaces filtered every token it did
@@ -155,7 +217,7 @@ def parse_record(text, top, run_sh=RUN_SH):
                           "the modelled %s lines:\n  %r\nIt is refused rather "
                           "than skipped: skipping an input the authority named "
                           "is how a source list goes short at exit 0."
-                          % (n, os.path.relpath(run_sh, REPO), EMIT,
+                          % (n, _named(run_sh), EMIT,
                              "/".join(KEYS), line)], 2
         rec[key].append(value)
 
@@ -175,8 +237,9 @@ def parse_record(text, top, run_sh=RUN_SH):
 # does the read set declare the top -- asked of the front end, of nothing else
 
 
-def sv2v_verdict(files, top, incdirs, defines,
-                 which=shutil.which, runner=subprocess.run):
+def sv2v_verdict(files: list[str], top: str, incdirs: list[str], defines: list[str],
+                 which: Callable[[str], str | None] = shutil.which,
+                 runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run) -> Verdict:
     """Ask the front end whether it resolves `top` in `files`.
 
     Returns (verdict, note): True, False, or None when the front end gave no
@@ -212,7 +275,8 @@ def sv2v_verdict(files, top, incdirs, defines,
 # the checks
 
 
-def build(top, rec, exists=os.path.exists, front_end=sv2v_verdict):
+def build(top: str, rec: Record, exists: Callable[[str], bool] = _on_disk,
+          front_end: Callable[..., Verdict] = sv2v_verdict) -> Expansion:
     """Check the authority's record for `top`. Returns (files, problems, rc)."""
     files = rec["src"]
 
@@ -256,7 +320,7 @@ def build(top, rec, exists=os.path.exists, front_end=sv2v_verdict):
                            "source(s) run.sh derived, not all of them. Missing:"
                            "\n  %s" % (top, len(kept), len(rec["derived"]),
                                        "\n  ".join(lost))], 2
-        if not any(os.path.basename(f) == PLANE for f in files):
+        if not any(Path(f).name == PLANE for f in files):
             return files, ["dp_srcs: the %s entry carries the generated half "
                            "but not %s (the control plane itself), so the "
                            "generator returned a truncated list."
@@ -306,68 +370,58 @@ def _shadow(text, tmp):
     run.sh's text into a parser, so the parser's disagreement with bash was
     invisible by construction, which is what round two of [R0] measured.
     """
-    root = tempfile.mkdtemp(dir=tmp, prefix="authority-")
-    os.makedirs(os.path.join(root, "syn", "yosys"))
+    root = Path(tempfile.mkdtemp(dir=tmp, prefix="authority-"))
+    (root / "syn" / "yosys").mkdir(parents=True)
     for name in LINKED:
-        target = os.path.join(REPO, name)
-        if os.path.exists(target):
-            os.symlink(target, os.path.join(root, name))
-    path = os.path.join(root, "syn", "yosys", "run.sh")
-    with open(path, "w") as fh:
-        fh.write(text)
+        target = REPO / name
+        if target.exists():
+            (root / name).symlink_to(target)
+    path = root / "syn" / "yosys" / "run.sh"
+    path.write_text(text)
     return root, path
 
 
-def selftest(top="faketop", real_top="KL_pp_shadow"):
-    """Prove every check bites. Returns (problems, arms run).
+def _relative(root, rec):
+    """The record's sources as the authority's own tree spells them.
+    Each arm gets its own shadow root, so absolute paths differ by
+    construction and only the tree-relative set is comparable."""
+    return [] if rec is None else [_under(root, f) for f in rec["src"]]
 
-    CONTRIBUTING.md section 3 states the bar: a checker carries a self-test that
-    runs in a gate "so the tool cannot rot into a green that means nothing".
-    Every arm drives the real `build()`, `parse_record()` or `ask_authority()`,
-    so stubbing any of them to return no problems fails this.
 
-    Three groups, and the middle one CHANGED SHAPE in round three. The record
-    arms inject a synthetic record and stub the front end, because they are
-    about the record. The front-end arms used to assert what a model of the
-    directive layer believed about a construct; they now put each construct in a
-    one-file read set and ask the REAL `sv2v`, so what is asserted is the
-    toolchain's answer and not a belief about the language. Two of them run the
-    other way -- a plain declaration and a macro-EXPANDED one must both expand
-    clean -- so this group cannot be passing on a front end that refuses
-    everything. The authority arms run REAL BASH over a mutated copy of the real
-    syn/yosys/run.sh from a link farm.
+def _record_arms(top, problems):
+    """Arms 0-10: the RECORD model, with the front end stubbed out.
 
-    The front-end and authority arms need `sv2v` and the protocol-processor and
-    verilog-axis submodules, and they refuse rather than skip when either is
-    absent: every escape this file has had lived in the gap between something
-    modelled here and what bash and the front end actually do.
+    A synthetic record goes in and `build()` judges it, so what these arms
+    measure is the record model alone. Findings are appended to `problems`;
+    the return value is how many arms ran.
     """
-    problems, ran = [], 0
+    ran = 0
     src = ["/r/a.sv", "/r/b.sv", "/r/" + PLANE, "/r/top.sv"]
     derived = ["/r/a.sv", "/r/" + PLANE]
+    gone = set()
 
-    def record(**over):
+    def record(**over: list[str]) -> Record:
+        """A well-formed record, with `over` replacing the field an arm mutates."""
         rec = {"top": [top], "define": ["SYNTHESIS"], "incdir": ["/r/inc"],
                "derived": list(derived), "src": list(src)}
         rec.update(over)
         return rec
 
-    gone = set()
-
-    def stub_front_end(verdict, note=""):
+    def stub_front_end(verdict: bool | None, note: str = "") -> Callable[..., Verdict]:
+        """A front end that always answers `verdict`: these arms judge the record."""
         return lambda *a, **k: (verdict, note)
 
-    def run(rec, fe=None):
-        return build(top, rec, exists=lambda f: f not in gone,
-                     front_end=fe or stub_front_end(True))
+    def run(rec: Record, fe: Callable[..., Verdict] | None = None) -> Expansion:
+        """`build()` over a synthetic record, with `gone` standing in for the tree."""
+        return build(top, rec, exists=lambda f: f not in gone, front_end=fe or stub_front_end(True))
 
-    def arm(name, want, rec=None, fe=None, call=None):
+    def arm(name: str, want: str, rec: Record | None = None,
+            fe: Callable[..., Verdict] | None = None, call: Callable[[], Answer] | None = None) -> None:
+        """One arm: the finding must name `want` at rc!=0, because an arm that
+        passes at rc=0 is the escape this self-test exists to catch."""
         nonlocal ran
         ran += 1
-        if call:
-            _rec, bad, rc = call()
-        else:
-            _files, bad, rc = run(rec, fe)
+        _emitted, bad, rc = call() if call else run(rec, fe)
         if not any(want in b for b in bad) or rc == 0:
             problems.append("SELF-TEST FAILED [%s]: expected a finding naming "
                             "%r at rc!=0, got rc=%d %s"
@@ -388,7 +442,8 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
         returncode, stdout, stderr = 2, "", "planted authority refusal\n"
 
     arm("authority-refuses", "so there is no read set to emit",
-        call=lambda: ask_authority(top, "/r/run.sh", lambda *a, **k: _Refused))
+        call=lambda: ask_authority(top, Path("/r/run.sh"),
+                                   lambda *a, **k: _Refused))
 
     # Arm 2. A line the record model does not know. Refused, NOT skipped: the
     # skip is how a positional ghost.svh stayed invisible ([R0] round two).
@@ -432,265 +487,353 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
     # the tool-absent mode used to be.
     arm("no-front-end-is-a-refusal", "no front end resolved",
         record(), stub_front_end(None, "sv2v is not on PATH"))
+    return ran
+
+
+def _tooling_refusal():
+    """Why arms 11-34 may not run, or None when everything they need is here.
+
+    They refuse rather than skip: every escape this file has had lived in the
+    gap between something modelled here and what bash and the front end
+    actually do, so a skipped arm is a skipped finding.
+    """
+    if not (RUN_SH.exists() and shutil.which("bash")
+            and (REPO / "protocol-processor" / "hdl").exists()
+            and (REPO / "third_party" / "verilog-axis" / "rtl").exists()):
+        return ("SELF-TEST FAILED [front-end-and-authority-arms]: "
+                "syn/yosys/run.sh, bash and the protocol-processor and "
+                "verilog-axis submodules are all required. The "
+                "round-two escapes were all disagreements between a "
+                "parser and bash, so skipping these arms is skipping "
+                "the finding.")
+    if shutil.which(FRONT_END) is None:
+        return ("SELF-TEST FAILED [front-end-and-authority-arms]: %s is "
+                "not on PATH. It is the only answerer for the "
+                "declaration question, and the Yosys gate already "
+                "requires it." % FRONT_END)
+    return None
+
+
+def _front_end_arms(top, tmp, problems):
+    """Arms 11-23: one synthetic source, the REAL front end, nothing between.
+
+    Each arm puts a construct in a one-file read set and asks sv2v, so what is
+    asserted is the toolchain's answer and not a belief about the language.
+    Returns how many arms ran.
+    """
+    ran = 0
+    def one_file(name: str, body: str, want: str = "does not resolve", clean: bool = False) -> None:
+        """One synthetic source, the real front end, nothing in between.
+
+        `clean=True` is the other direction: the front end resolves the top
+        and the flow must emit. Two arms use it, because a group of arms
+        that only ever expects a refusal passes on a front end that refuses
+        everything.
+        """
+        nonlocal ran
+        ran += 1
+        path = tmp / (name + ".sv")
+        path.write_text(body)
+        # `str(path)`: a record value is the authority's own token, and every
+        # check below asks it a string question.
+        _files, bad, rc = build(top, {"top": [top], "define": [],
+                                      "incdir": [], "derived": [],
+                                      "src": [str(path)]})
+        if clean:
+            if rc or bad:
+                problems.append("SELF-TEST FAILED [%s]: %s resolves this "
+                                "declaration, so the list must expand "
+                                "clean; got rc=%d %s"
+                                % (name, FRONT_END, rc, bad))
+            return
+        if rc == 0 or not any(want in b for b in bad):
+            problems.append("SELF-TEST FAILED [%s]: expected a finding "
+                            "naming %r at rc!=0, got rc=%d %s"
+                            % (name, want, rc, bad or "no findings"))
+
+    # Arm 11. ANTI-VACUITY for this group: a plain declaration expands
+    # clean through the real front end.
+    one_file("plain-declaration", "module %s;\nendmodule\n" % top,
+             clean=True)
+
+    # Arm 12. ISSUE #235 itself: sources present and correct, none of them
+    # declaring the top. This is the list Vivado answers `module not found`.
+    one_file("top-not-in-read-set", "module something_else;\nendmodule\n")
+
+    # Arm 13. One step subtler: a file NAMED after the top that does not
+    # declare it, which a file-name check would pass.
+    one_file("named-not-declared", "// %s lives here\n" % top)
+
+    # Arms 14-18. THE DECLARATION IS TEXT, NOT CODE ([R0] round one).
+    one_file("block-commented-declaration",
+             "/*\nmodule %s;\nendmodule\n*/\n" % top)
+    one_file("line-commented-declaration",
+             "// module %s;\n// endmodule\n" % top)
+    one_file("inactive-conditional-declaration",
+             "`ifdef SOME_DEFINE\nmodule %s;\nendmodule\n`endif\n" % top)
+    one_file("declaration-inside-a-string",
+             'module other;\n'
+             '  localparam string S = "module %s; endmodule";\n'
+             'endmodule\n' % top)
+    one_file("prefix-of-the-top-declared",
+             "module %s_shim;\nendmodule\n" % top)
+
+    # Arms 19-21. THE DECLARATION IS TEXT, NOT PREPROCESSED CODE ([R0]
+    # round two): an unexpanded macro BODY, in its three spellings.
+    one_file("macro-body-declaration",
+             "`define UNUSED \\\nmodule %s; \\\nendmodule\n" % top)
+    one_file("macro-body-one-line",
+             "`define UNUSED module %s; endmodule\n" % top)
+    one_file("macro-body-after-a-comment",
+             "`define UNUSED /* keep */ \\\nmodule %s; \\\nendmodule\n"
+             % top)
+
+    # Arm 22. [R0] ROUND THREE, the construct that closed the model: the
+    # declaration is the ACTUAL ARGUMENT of a multiline macro invocation,
+    # so it is argument text the expansion discards. The round-two model
+    # dropped the invocation line and read the argument as code.
+    one_file("macro-argument-declaration",
+             "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
+             % top)
+
+    # Arm 23. The OTHER direction, and the reason a model cannot stand in
+    # for the front end even conservatively: here the text carries no
+    # declaration at all and the expansion produces one. The front end
+    # resolves it, so the flow must emit -- the deleted model refused this.
+    one_file("macro-expanded-declaration",
+             "`define D module %s; endmodule\n`D\n" % top, clean=True)
+    return ran
+
+
+def _authority_baseline(real_top, real, tmp, problems):
+    """Arm 24: ANTI-VACUITY over the REAL authority.
+
+    Returns (arms run, the untouched read set as the authority's own tree
+    spells it) - the mutation arms below compare against that set.
+    """
+    ran = 0
+    # Arm 24. ANTI-VACUITY over the REAL authority: the untouched run.sh
+    # expands clean through real bash and the real front end.
+    ran += 1
+    base_root, base_path = _shadow(real, tmp)
+    base, bad, rc = ask_authority(real_top, base_path)
+    base_src = _relative(base_root, base) if rc == 0 else []
+    if rc == 0:
+        _f, bad, rc = build(real_top, base)
+    if rc or bad or len(base_src) < 2:
+        problems.append("SELF-TEST FAILED [real-authority-clean]: the "
+                        "untouched run.sh must expand clean, got rc=%d %s, "
+                        "%d source(s)" % (rc, bad, len(base_src)))
+    return ran, base_src
+
+
+def _authority_mutation_arms(real_top, real, tmp, base_src, problems):
+    """Arms 25-31: REAL BASH over a mutated real run.sh.
+
+    The reviewer's four round-two counterexamples are four of them. Returns
+    how many arms ran.
+    """
+    ran = 0
+    def authority(name: str, mutate: Callable[[str], str], want: str | None,
+                  expect_src: list[str] | None = None) -> None:
+        """One mutation of the real run.sh, through real bash. `expect_src` is
+        the other direction: bash ignores the mutation, so the read set may not
+        move - which is what proves this consumer follows bash and not text."""
+        nonlocal ran
+        ran += 1
+        root, path = _shadow(mutate(real), tmp)
+        rec, bad, rc = ask_authority(real_top, path)
+        if rc == 0:
+            _files, bad, rc = build(real_top, rec)
+        if expect_src is not None:
+            if rc != 0 or _relative(root, rec) != expect_src:
+                problems.append("SELF-TEST FAILED [%s]: bash ignores this "
+                                "mutation, so the read set must be "
+                                "unchanged; got rc=%d, %d source(s) %s"
+                                % (name, rc, len(_relative(root, rec)), bad))
+            return
+        if rc == 0 or not any(want in b for b in bad):
+            problems.append("SELF-TEST FAILED [%s]: expected a finding "
+                            "naming %r at rc!=0, got rc=%d %s"
+                            % (name, want, rc, bad or "no findings"))
+    # Arm 25. [R0] round two, mutation 1: the generator token is suffixed.
+    # The old recogniser accepted the expected path as a SUBSTRING and
+    # returned rc=0 with 43 files; bash executes a nonexistent file and
+    # takes run.sh's own `|| exit 2`.
+    authority("generator-token-suffixed",
+              lambda t: t.replace('"$R/scripts/pp_srcs.py"',
+                                  '"$R/scripts/pp_srcs.py.broken"'),
+              "so there is no read set to emit")
+
+    # Arm 26. Mutation 2: the generator's --prefix points at a tree that
+    # does not exist. The old recogniser ignored the invocation it claimed
+    # to validate and ran its own; bash hands sv2v paths that are not there.
+    authority("generator-prefix-diverted",
+              lambda t: t.replace('--prefix "$PP"',
+                                  '--prefix "$PP/not-the-tree"'),
+              "missing sources")
+
+    # Arm 27. Mutation 3: a valid shell COMMENT above the live row, spelt
+    # so a text selector prefers it. The old recogniser emitted 42 files and
+    # dropped axis_fifo.v; bash ignores the line entirely, so the correct
+    # answer is the unchanged read set -- which is the property that proves
+    # this consumer follows bash rather than the text.
+    authority("commented-decoy-row",
+              lambda t: t.replace(
+                  '  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"\n',
+                  '  # "KL_pp_shadow|$PP_SRCS"\n'
+                  '  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"\n'),
+              None, expect_src=base_src)
+
+    # Arm 28. Mutation 4: a positional that is not a source. The old
+    # recogniser filtered it out before the missing-source check.
+    authority("unaccounted-positional",
+              lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
+                                  'PP_SRCS="$PP_DERIVED $PP/ghost.svh '),
+              "are not .sv/.v sources")
+
+    # Arm 29. The same positional spelt as a source that is not on disk.
+    authority("missing-positional",
+              lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
+                                  'PP_SRCS="$PP_DERIVED $PP/ghost.sv '),
+              "missing sources")
+
+    # Arm 30. [R0] round one, mutation D2, now through real bash: run.sh
+    # drops the wrapper that declares the top. It stayed green at
+    # 16,547 LUT when this file composed the parent half itself.
+    authority("run-sh-drops-the-top",
+              lambda t: t.replace(" $R/hdl/milan/KL_pp_shadow.sv", ""),
+              "does not resolve `%s`" % real_top)
+
+    # Arm 31. A top no row defines. run.sh answers, this flow reports it.
+    ran += 1
+    _rec, bad, rc = ask_authority("othertop", _shadow(real, tmp)[1])
+    if rc == 0 or not any("unknown top: othertop" in b for b in bad):
+        problems.append("SELF-TEST FAILED [unknown-top]: expected the "
+                        "authority's own refusal, got rc=%d %s" % (rc, bad))
+    return ran
+
+
+def _real_text_arms(real_top, real, tmp, base_src, problems):
+    """Arms 32-34: the two reopened escapes, end to end, on the real read set.
+
+    Only the top's TEXT moves, which each arm asserts by comparing the source
+    count with the baseline arm's. Returns how many arms ran.
+    """
+    ran = 0
+    # Arms 32-34. THE TWO REOPENED ESCAPES, END TO END, ON THE REAL READ
+    # SET. The file that declares the top is replaced on disk by the
+    # round-two construct and then by the round-three one, and the whole
+    # real record is driven through real bash. Only the top's TEXT moves,
+    # which each arm asserts by comparing the source count with arm 24's.
+    def real_set_with(name: str, body: str) -> tuple[Path, Path]:
+        """A shadow root whose run.sh reads `body` where the file declaring the
+        top used to be, so the mutation moves the top's TEXT and nothing else."""
+        path = tmp / (name + ".sv")
+        path.write_text(body)
+        # run.sh is shell TEXT, so the substitution is a string one: this is
+        # the one place a Path has to be spelled out before it goes in.
+        return _shadow(
+            real.replace("$R/hdl/milan/KL_pp_shadow.sv", str(path)), tmp)
+
+    def real_text_arm(name: str, root: Path, path: Path,
+                      fe: Callable[..., Verdict], want: str) -> None:
+        """Drive the whole real record through bash with `fe` answering: the
+        finding must name `want`, and the read set must still be arm 24's."""
+        nonlocal ran
+        ran += 1
+        rec, bad, rc = ask_authority(real_top, path)
+        if rc == 0:
+            _f, bad, rc = build(real_top, rec, front_end=fe)
+        if rc == 0 or not any(want in b for b in bad):
+            problems.append("SELF-TEST FAILED [%s]: expected a finding "
+                            "naming %r at rc!=0, got rc=%d %s"
+                            % (name, want, rc, bad or "no findings"))
+        if len(_relative(root, rec)) != len(base_src):
+            problems.append("SELF-TEST FAILED [%s]: the mutation must "
+                            "change only the top's TEXT, and it changed "
+                            "the read set (%d vs %d source(s))"
+                            % (name, len(_relative(root, rec)),
+                               len(base_src)))
+
+    macro_root, macro_path = real_set_with(
+        "round2_body", "`define UNUSED \\\nmodule %s; \\\nendmodule\n"
+        % real_top)
+    arg_root, arg_path = real_set_with(
+        "round3_argument",
+        "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
+        % real_top)
+
+    # Arm 32. Round two's unexpanded macro body, real front end.
+    real_text_arm("macro-body-real-front-end", macro_root, macro_path,
+                  sv2v_verdict, "does not resolve")
+
+    # Arm 33. ROUND THREE's macro argument, real front end. At the previous
+    # head this same input reached `build()` and the front end refused it
+    # there too; what had to change is the arm below.
+    real_text_arm("macro-argument-real-front-end", arg_root, arg_path,
+                  sv2v_verdict, "does not resolve")
+
+    # Arm 34. ROUND THREE with NO FRONT END -- the path a Vivado host that
+    # has not installed sv2v takes. At the previous head this returned rc=0
+    # with no findings, because a model of the directive layer answered in
+    # the front end's place; there is no such model now, so the answer is a
+    # refusal naming the missing tool. Restoring the `verdict is None` pass
+    # is what reddens here.
+    real_text_arm("macro-argument-no-front-end", arg_root, arg_path,
+                  lambda *a, **k: (None, "no front end"),
+                  "no front end resolved")
+    return ran
+
+
+def selftest(top: str = "faketop", real_top: str = "KL_pp_shadow") -> tuple[list[str], int]:
+    """Prove every check bites. Returns (problems, arms run).
+
+    CONTRIBUTING.md section 3 states the bar: a checker carries a self-test that
+    runs in a gate "so the tool cannot rot into a green that means nothing".
+    Every arm drives the real `build()`, `parse_record()` or `ask_authority()`,
+    so stubbing any of them to return no problems fails this.
+
+    Three groups, and the middle one CHANGED SHAPE in round three. The record
+    arms inject a synthetic record and stub the front end, because they are
+    about the record. The front-end arms used to assert what a model of the
+    directive layer believed about a construct; they now put each construct in a
+    one-file read set and ask the REAL `sv2v`, so what is asserted is the
+    toolchain's answer and not a belief about the language. Two of them run the
+    other way -- a plain declaration and a macro-EXPANDED one must both expand
+    clean -- so this group cannot be passing on a front end that refuses
+    everything. The authority arms run REAL BASH over a mutated copy of the real
+    syn/yosys/run.sh from a link farm.
+
+    The front-end and authority arms need `sv2v` and the protocol-processor and
+    verilog-axis submodules, and they refuse rather than skip when either is
+    absent: every escape this file has had lived in the gap between something
+    modelled here and what bash and the front end actually do.
+    """
+    problems = []
+    ran = _record_arms(top, problems)
 
     # ---- front-end arms --------------------------------------------------
     # From here the REAL front end runs, so its absence is a failure and not a
     # skip: these arms ARE the top-resolution check now.
-    if not (os.path.exists(RUN_SH) and shutil.which("bash")
-            and os.path.exists(os.path.join(REPO, "protocol-processor", "hdl"))
-            and os.path.exists(os.path.join(REPO, "third_party",
-                                            "verilog-axis", "rtl"))):
-        problems.append("SELF-TEST FAILED [front-end-and-authority-arms]: "
-                        "syn/yosys/run.sh, bash and the protocol-processor and "
-                        "verilog-axis submodules are all required. The "
-                        "round-two escapes were all disagreements between a "
-                        "parser and bash, so skipping these arms is skipping "
-                        "the finding.")
-        return problems, ran
-    if shutil.which(FRONT_END) is None:
-        problems.append("SELF-TEST FAILED [front-end-and-authority-arms]: %s is "
-                        "not on PATH. It is the only answerer for the "
-                        "declaration question, and the Yosys gate already "
-                        "requires it." % FRONT_END)
+    refusal = _tooling_refusal()
+    if refusal:
+        problems.append(refusal)
         return problems, ran
 
-    real = _reader(RUN_SH)
-    tmp = tempfile.mkdtemp(prefix="dp-srcs-selftest-")
+    real = RUN_SH.read_text()
+    tmp = Path(tempfile.mkdtemp(prefix="dp-srcs-selftest-"))
     try:
-        def one_file(name, body, want="does not resolve", clean=False):
-            """One synthetic source, the real front end, nothing in between.
-
-            `clean=True` is the other direction: the front end resolves the top
-            and the flow must emit. Two arms use it, because a group of arms
-            that only ever expects a refusal passes on a front end that refuses
-            everything.
-            """
-            nonlocal ran
-            ran += 1
-            path = os.path.join(tmp, name + ".sv")
-            with open(path, "w") as fh:
-                fh.write(body)
-            _files, bad, rc = build(top, {"top": [top], "define": [],
-                                          "incdir": [], "derived": [],
-                                          "src": [path]})
-            if clean:
-                if rc or bad:
-                    problems.append("SELF-TEST FAILED [%s]: %s resolves this "
-                                    "declaration, so the list must expand "
-                                    "clean; got rc=%d %s"
-                                    % (name, FRONT_END, rc, bad))
-                return
-            if rc == 0 or not any(want in b for b in bad):
-                problems.append("SELF-TEST FAILED [%s]: expected a finding "
-                                "naming %r at rc!=0, got rc=%d %s"
-                                % (name, want, rc, bad or "no findings"))
-
-        # Arm 11. ANTI-VACUITY for this group: a plain declaration expands
-        # clean through the real front end.
-        one_file("plain-declaration", "module %s;\nendmodule\n" % top,
-                 clean=True)
-
-        # Arm 12. ISSUE #235 itself: sources present and correct, none of them
-        # declaring the top. This is the list Vivado answers `module not found`.
-        one_file("top-not-in-read-set", "module something_else;\nendmodule\n")
-
-        # Arm 13. One step subtler: a file NAMED after the top that does not
-        # declare it, which a file-name check would pass.
-        one_file("named-not-declared", "// %s lives here\n" % top)
-
-        # Arms 14-18. THE DECLARATION IS TEXT, NOT CODE ([R0] round one).
-        one_file("block-commented-declaration",
-                 "/*\nmodule %s;\nendmodule\n*/\n" % top)
-        one_file("line-commented-declaration",
-                 "// module %s;\n// endmodule\n" % top)
-        one_file("inactive-conditional-declaration",
-                 "`ifdef SOME_DEFINE\nmodule %s;\nendmodule\n`endif\n" % top)
-        one_file("declaration-inside-a-string",
-                 'module other;\n'
-                 '  localparam string S = "module %s; endmodule";\n'
-                 'endmodule\n' % top)
-        one_file("prefix-of-the-top-declared",
-                 "module %s_shim;\nendmodule\n" % top)
-
-        # Arms 19-21. THE DECLARATION IS TEXT, NOT PREPROCESSED CODE ([R0]
-        # round two): an unexpanded macro BODY, in its three spellings.
-        one_file("macro-body-declaration",
-                 "`define UNUSED \\\nmodule %s; \\\nendmodule\n" % top)
-        one_file("macro-body-one-line",
-                 "`define UNUSED module %s; endmodule\n" % top)
-        one_file("macro-body-after-a-comment",
-                 "`define UNUSED /* keep */ \\\nmodule %s; \\\nendmodule\n"
-                 % top)
-
-        # Arm 22. [R0] ROUND THREE, the construct that closed the model: the
-        # declaration is the ACTUAL ARGUMENT of a multiline macro invocation,
-        # so it is argument text the expansion discards. The round-two model
-        # dropped the invocation line and read the argument as code.
-        one_file("macro-argument-declaration",
-                 "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
-                 % top)
-
-        # Arm 23. The OTHER direction, and the reason a model cannot stand in
-        # for the front end even conservatively: here the text carries no
-        # declaration at all and the expansion produces one. The front end
-        # resolves it, so the flow must emit -- the deleted model refused this.
-        one_file("macro-expanded-declaration",
-                 "`define D module %s; endmodule\n`D\n" % top, clean=True)
-
+        ran += _front_end_arms(top, tmp, problems)
         # ---- authority arms ----------------------------------------------
         # These run REAL BASH over a mutated real run.sh, and the reviewer's
         # four round-two counterexamples are four of them.
-        def relative(root, rec):
-            """The record's sources as the authority's own tree spells them.
-            Each arm gets its own shadow root, so absolute paths differ by
-            construction and only the tree-relative set is comparable."""
-            return [] if rec is None else [os.path.relpath(f, root)
-                                           for f in rec["src"]]
-
-        def authority(name, mutate, want, expect_src=None):
-            nonlocal ran
-            ran += 1
-            root, path = _shadow(mutate(real), tmp)
-            rec, bad, rc = ask_authority(real_top, path)
-            if rc == 0:
-                _files, bad, rc = build(real_top, rec)
-            if expect_src is not None:
-                if rc != 0 or relative(root, rec) != expect_src:
-                    problems.append("SELF-TEST FAILED [%s]: bash ignores this "
-                                    "mutation, so the read set must be "
-                                    "unchanged; got rc=%d, %d source(s) %s"
-                                    % (name, rc, len(relative(root, rec)), bad))
-                return
-            if rc == 0 or not any(want in b for b in bad):
-                problems.append("SELF-TEST FAILED [%s]: expected a finding "
-                                "naming %r at rc!=0, got rc=%d %s"
-                                % (name, want, rc, bad or "no findings"))
-
-        # Arm 24. ANTI-VACUITY over the REAL authority: the untouched run.sh
-        # expands clean through real bash and the real front end.
-        ran += 1
-        base_root, base_path = _shadow(real, tmp)
-        base, bad, rc = ask_authority(real_top, base_path)
-        base_src = relative(base_root, base) if rc == 0 else []
-        if rc == 0:
-            _f, bad, rc = build(real_top, base)
-        if rc or bad or len(base_src) < 2:
-            problems.append("SELF-TEST FAILED [real-authority-clean]: the "
-                            "untouched run.sh must expand clean, got rc=%d %s, "
-                            "%d source(s)" % (rc, bad, len(base_src)))
-
-        # Arm 25. [R0] round two, mutation 1: the generator token is suffixed.
-        # The old recogniser accepted the expected path as a SUBSTRING and
-        # returned rc=0 with 43 files; bash executes a nonexistent file and
-        # takes run.sh's own `|| exit 2`.
-        authority("generator-token-suffixed",
-                  lambda t: t.replace('"$R/scripts/pp_srcs.py"',
-                                      '"$R/scripts/pp_srcs.py.broken"'),
-                  "so there is no read set to emit")
-
-        # Arm 26. Mutation 2: the generator's --prefix points at a tree that
-        # does not exist. The old recogniser ignored the invocation it claimed
-        # to validate and ran its own; bash hands sv2v paths that are not there.
-        authority("generator-prefix-diverted",
-                  lambda t: t.replace('--prefix "$PP"',
-                                      '--prefix "$PP/not-the-tree"'),
-                  "missing sources")
-
-        # Arm 27. Mutation 3: a valid shell COMMENT above the live row, spelt
-        # so a text selector prefers it. The old recogniser emitted 42 files and
-        # dropped axis_fifo.v; bash ignores the line entirely, so the correct
-        # answer is the unchanged read set -- which is the property that proves
-        # this consumer follows bash rather than the text.
-        authority("commented-decoy-row",
-                  lambda t: t.replace(
-                      '  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"\n',
-                      '  # "KL_pp_shadow|$PP_SRCS"\n'
-                      '  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"\n'),
-                  None, expect_src=base_src)
-
-        # Arm 28. Mutation 4: a positional that is not a source. The old
-        # recogniser filtered it out before the missing-source check.
-        authority("unaccounted-positional",
-                  lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
-                                      'PP_SRCS="$PP_DERIVED $PP/ghost.svh '),
-                  "are not .sv/.v sources")
-
-        # Arm 29. The same positional spelt as a source that is not on disk.
-        authority("missing-positional",
-                  lambda t: t.replace('PP_SRCS="$PP_DERIVED ',
-                                      'PP_SRCS="$PP_DERIVED $PP/ghost.sv '),
-                  "missing sources")
-
-        # Arm 30. [R0] round one, mutation D2, now through real bash: run.sh
-        # drops the wrapper that declares the top. It stayed green at
-        # 16,547 LUT when this file composed the parent half itself.
-        authority("run-sh-drops-the-top",
-                  lambda t: t.replace(" $R/hdl/milan/KL_pp_shadow.sv", ""),
-                  "does not resolve `%s`" % real_top)
-
-        # Arm 31. A top no row defines. run.sh answers, this flow reports it.
-        ran += 1
-        _rec, bad, rc = ask_authority("othertop", _shadow(real, tmp)[1])
-        if rc == 0 or not any("unknown top: othertop" in b for b in bad):
-            problems.append("SELF-TEST FAILED [unknown-top]: expected the "
-                            "authority's own refusal, got rc=%d %s" % (rc, bad))
-
-        # Arms 32-34. THE TWO REOPENED ESCAPES, END TO END, ON THE REAL READ
-        # SET. The file that declares the top is replaced on disk by the
-        # round-two construct and then by the round-three one, and the whole
-        # real record is driven through real bash. Only the top's TEXT moves,
-        # which each arm asserts by comparing the source count with arm 24's.
-        def real_set_with(name, body):
-            path = os.path.join(tmp, name + ".sv")
-            with open(path, "w") as fh:
-                fh.write(body)
-            return _shadow(
-                real.replace("$R/hdl/milan/KL_pp_shadow.sv", path), tmp)
-
-        def real_text_arm(name, root, path, fe, want):
-            nonlocal ran
-            ran += 1
-            rec, bad, rc = ask_authority(real_top, path)
-            if rc == 0:
-                _f, bad, rc = build(real_top, rec, front_end=fe)
-            if rc == 0 or not any(want in b for b in bad):
-                problems.append("SELF-TEST FAILED [%s]: expected a finding "
-                                "naming %r at rc!=0, got rc=%d %s"
-                                % (name, want, rc, bad or "no findings"))
-            if len(relative(root, rec)) != len(base_src):
-                problems.append("SELF-TEST FAILED [%s]: the mutation must "
-                                "change only the top's TEXT, and it changed "
-                                "the read set (%d vs %d source(s))"
-                                % (name, len(relative(root, rec)),
-                                   len(base_src)))
-
-        macro_root, macro_path = real_set_with(
-            "round2_body", "`define UNUSED \\\nmodule %s; \\\nendmodule\n"
-            % real_top)
-        arg_root, arg_path = real_set_with(
-            "round3_argument",
-            "`define DISCARD(x)\n`DISCARD(\nmodule %s;\nendmodule\n)\n"
-            % real_top)
-
-        # Arm 32. Round two's unexpanded macro body, real front end.
-        real_text_arm("macro-body-real-front-end", macro_root, macro_path,
-                      sv2v_verdict, "does not resolve")
-
-        # Arm 33. ROUND THREE's macro argument, real front end. At the previous
-        # head this same input reached `build()` and the front end refused it
-        # there too; what had to change is the arm below.
-        real_text_arm("macro-argument-real-front-end", arg_root, arg_path,
-                      sv2v_verdict, "does not resolve")
-
-        # Arm 34. ROUND THREE with NO FRONT END -- the path a Vivado host that
-        # has not installed sv2v takes. At the previous head this returned rc=0
-        # with no findings, because a model of the directive layer answered in
-        # the front end's place; there is no such model now, so the answer is a
-        # refusal naming the missing tool. Restoring the `verdict is None` pass
-        # is what reddens here.
-        real_text_arm("macro-argument-no-front-end", arg_root, arg_path,
-                      lambda *a, **k: (None, "no front end"),
-                      "no front end resolved")
+        base_ran, base_src = _authority_baseline(real_top, real, tmp,
+                                                 problems)
+        ran += base_ran
+        ran += _authority_mutation_arms(real_top, real, tmp, base_src,
+                                        problems)
+        ran += _real_text_arms(real_top, real, tmp, base_src, problems)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -702,6 +845,9 @@ def selftest(top="faketop", real_top="KL_pp_shadow"):
 
 
 def main() -> int:
+    """Emit one top's source list, or its whole record, or run the self-test.
+    The authority's refusal and the front end's silence are both this flow's
+    exit status: there is no mode in which a list is printed unchecked."""
     ap = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)

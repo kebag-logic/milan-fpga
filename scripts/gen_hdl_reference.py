@@ -3,6 +3,15 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Generate one validated, self-contained first-party HDL reference."""
 
+# TWO HALVES LIVE ELSEWHERE, and this file stays the only entry point for
+# both. `gen_hdl_reference_comments` is the lexical `//!` reader: pure text,
+# no parser, no filesystem, so it can be read and exercised on a machine where
+# the pinned wheel is not installed, and it is imported below.
+# `gen_hdl_reference_selftest` holds the `--selftest` arms and is imported only
+# when that flag is passed, which is also why this docstring is one line: it is
+# argparse's description, and `--help` says what the tool does, not how it is
+# laid out.
+
 import argparse
 import html
 import os
@@ -11,13 +20,33 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import textwrap
 import xml.etree.ElementTree as ET
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from unittest import mock
+from types import ModuleType
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from gen_hdl_reference_comments import (  # noqa: E402
+    declaration_docs,
+    description_paragraphs,
+    doc_comments,
+    item_description,
+    strip_comments,
+)
 
 
+#: `(path, kind, name)`: the identity `Declaration.key` returns, and the shape
+#: the exception inventory and every coverage comparison are keyed by.
+DeclarationKey = tuple[str, str, str]
+#: Parser objects - `pyslang` syntax nodes, tokens, trees and source managers -
+#: are annotated `Any` on purpose. The wheel is an optional dependency imported
+#: inside `load_parser`, and Python evaluates an annotation at `def` time, so
+#: naming one of its classes in a signature would make importing this module
+#: fail wherever the parser is not installed - which is every caller of the
+#: pure-text half, and the self-test's own missing-parser arm.
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT = Path("/tmp/milan-hdl-reference")
 DOCUMENT_TITLE = "Milan FPGA HDL reference"
@@ -117,7 +146,8 @@ class Declaration:
     name: str
 
     @property
-    def key(self):
+    def key(self) -> DeclarationKey:
+        """The identity two independent front ends are compared on."""
         return (self.path, self.kind, self.name)
 
 
@@ -174,129 +204,7 @@ class Section:
     body: str
 
 
-def strip_comments(source):
-    """Blank comments while preserving lines and quoted strings."""
-    result = []
-    index = 0
-    state = "code"
-    while index < len(source):
-        char = source[index]
-        following = source[index + 1] if index + 1 < len(source) else ""
-        if state == "line":
-            if char == "\n":
-                result.append(char)
-                state = "code"
-            else:
-                result.append(" ")
-        elif state == "block":
-            if char == "*" and following == "/":
-                result.extend((" ", " "))
-                index += 1
-                state = "code"
-            else:
-                result.append("\n" if char == "\n" else " ")
-        elif state == "string":
-            result.append(char)
-            if char == "\\" and following:
-                result.append(following)
-                index += 1
-            elif char == '"':
-                state = "code"
-        elif char == "/" and following == "/":
-            result.extend((" ", " "))
-            index += 1
-            state = "line"
-        elif char == "/" and following == "*":
-            result.extend((" ", " "))
-            index += 1
-            state = "block"
-        else:
-            result.append(char)
-            if char == '"':
-                state = "string"
-        index += 1
-    return "".join(result)
-
-
-def doc_comments(source):
-    """Map line numbers to documentation comments outside strings.
-
-    Returns {line: (owns_line, text)} for every `//!` comment, where
-    owns_line is True when no code precedes the comment on its line.
-    """
-    stripped = strip_comments(source)
-    comments = {}
-    for number, (raw, bare) in enumerate(
-            zip(source.splitlines(), stripped.splitlines()), start=1):
-        start = None
-        for index in range(len(raw) - 1):
-            if (raw[index:index + 2] == "//"
-                    and bare[index:index + 2] == "  "):
-                start = index
-                break
-        if start is None or raw[start:start + 3] != "//!":
-            continue
-        comments[number] = (not bare[:start].strip(),
-                           raw[start + 3:].strip())
-    return comments
-
-
-def leading_docs(comments, line):
-    """Collect the contiguous documentation block above one line."""
-    collected = []
-    cursor = line - 1
-    while cursor in comments and comments[cursor][0]:
-        collected.append(comments[cursor][1])
-        cursor -= 1
-    return tuple(reversed(collected))
-
-
-PREAMBLE_RE = re.compile(r"^(?:`.*|import\s[^;]*;)$")
-
-
-def declaration_docs(comments, bare_lines, line):
-    """Find the description block above one declaration.
-
-    Blank lines, compiler directives, and package imports may
-    separate the block; any other code ends the search.
-    """
-    cursor = line - 1
-    while cursor >= 1:
-        entry = comments.get(cursor)
-        if entry is not None and entry[0]:
-            return leading_docs(comments, cursor + 1)
-        bare = bare_lines[cursor - 1].strip() if cursor <= len(bare_lines) else ""
-        if bare and not PREAMBLE_RE.fullmatch(bare):
-            return ()
-        cursor -= 1
-    return ()
-
-
-def description_paragraphs(lines):
-    """Join documentation lines into blank-line-split paragraphs."""
-    paragraphs = []
-    current = []
-    for line in lines:
-        if line:
-            current.append(line)
-        elif current:
-            paragraphs.append(" ".join(current))
-            current = []
-    if current:
-        paragraphs.append(" ".join(current))
-    return tuple(paragraphs)
-
-
-def item_description(comments, first_line, name_line):
-    """Prefer a same-line comment, then the block above the item."""
-    trailing = comments.get(name_line)
-    if trailing is not None and not trailing[0]:
-        return trailing[1]
-    above = leading_docs(comments, first_line)
-    return " ".join(part for part in above if part)
-
-
-def declarations_in(root, path):
+def declarations_in(root: Path, path: Path) -> tuple[Declaration, ...]:
     """Return declarations found outside source comments."""
     try:
         source = path.read_text(encoding="utf-8", errors="replace")
@@ -307,7 +215,8 @@ def declarations_in(root, path):
                  for match in DECLARATION_RE.finditer(strip_comments(source)))
 
 
-def source_census(root, known_omissions=KNOWN_OMISSIONS):
+def source_census(root: Path,
+                  known_omissions: frozenset[DeclarationKey] = KNOWN_OMISSIONS) -> Census:
     """Derive supported declarations and enforce known exceptions."""
     hdl_root = root / "hdl"
     if not hdl_root.is_dir():
@@ -357,7 +266,7 @@ def source_census(root, known_omissions=KNOWN_OMISSIONS):
     )
 
 
-def load_parser():
+def load_parser() -> ModuleType:
     """Import the pinned parser or refuse with its install path."""
     try:
         import pyslang
@@ -368,7 +277,7 @@ def load_parser():
     return verify_parser(pyslang)
 
 
-def verify_parser(module):
+def verify_parser(module: ModuleType) -> ModuleType:
     """Require the parser release locked by this repository."""
     version = getattr(module, "__version__", None)
     if version != PARSER_VERSION:
@@ -378,7 +287,7 @@ def verify_parser(module):
     return module
 
 
-def include_directories(root):
+def include_directories(root: Path) -> tuple[str, ...]:
     """Return every directory holding HDL sources or headers."""
     hdl_root = root / "hdl"
     return tuple(sorted({str(path.parent) for path in hdl_root.rglob("*")
@@ -386,7 +295,8 @@ def include_directories(root):
                          and path.suffix.lower() in SOURCE_SUFFIXES}))
 
 
-def parse_file(parser, root, incdirs, path):
+def parse_file(parser: ModuleType, root: Path,
+               incdirs: Sequence[str], path: Path) -> tuple[Any, Any]:
     """Parse one file and refuse on any reported syntax error."""
     manager = parser.SourceManager()
     for directory in incdirs:
@@ -400,7 +310,7 @@ def parse_file(parser, root, incdirs, path):
     return tree, manager
 
 
-def node_text(source_bytes, node):
+def node_text(source_bytes: bytes, node: Any) -> str:
     """Return one node's exact source text without any trivia.
 
     Parser offsets count bytes, so slicing happens on bytes and
@@ -411,24 +321,26 @@ def node_text(source_bytes, node):
     return " ".join(raw.decode("utf-8", errors="replace").split())
 
 
-def node_line(manager, node):
+def node_line(manager: Any, node: Any) -> int:
     """Return the line of one node's first token."""
     return manager.getLineNumber(node.getFirstToken().location)
 
 
-def syntax_items(parser, node):
+def syntax_items(parser: ModuleType, node: Any) -> Iterator[Any]:
     """Iterate syntax children, skipping separator tokens."""
     return (item for item in node
             if isinstance(item, parser.syntax.SyntaxNode))
 
 
-def declared_here(manager, path, node):
+def declared_here(manager: Any, path: Path, node: Any) -> bool:
     """Report whether one member truly lives in the parsed file."""
     name = manager.getFileName(node.getFirstToken().location)
     return Path(name).resolve() == path.resolve()
 
 
-def parameter_rows(parser, source_bytes, comments, manager, nodes):
+def parameter_rows(parser: ModuleType, source_bytes: bytes,
+                   comments: dict[int, tuple[bool, str]], manager: Any,
+                   nodes: Iterable[Any]) -> tuple[Row, ...]:
     """Render parameter declarations into table rows."""
     rows = []
     for node in nodes:
@@ -450,7 +362,7 @@ def parameter_rows(parser, source_bytes, comments, manager, nodes):
     return tuple(rows)
 
 
-def dimensions_text(source_bytes, declarator):
+def dimensions_text(source_bytes: bytes, declarator: Any) -> str:
     """Render one declarator's unpacked dimensions, if any."""
     dimensions = getattr(declarator, "dimensions", None)
     if not dimensions:
@@ -460,7 +372,7 @@ def dimensions_text(source_bytes, declarator):
     return " ".join(part for part in parts if part)
 
 
-def port_type_text(source_bytes, header, declarator):
+def port_type_text(source_bytes: bytes, header: Any, declarator: Any) -> str:
     """Render one ANSI port type from its header and dimensions."""
     header_text = node_text(source_bytes, header)
     trimmed = re.sub(r"^(?:input|output|inout|ref)\b", "", header_text).strip()
@@ -470,7 +382,9 @@ def port_type_text(source_bytes, header, declarator):
     return trimmed
 
 
-def module_ports(parser, source_bytes, comments, manager, header):
+def module_ports(parser: ModuleType, source_bytes: bytes,
+                 comments: dict[int, tuple[bool, str]], manager: Any,
+                 header: Any) -> tuple[Port, ...]:
     """Extract ANSI ports; refuse shapes the reference cannot render."""
     port_list = header.ports
     if port_list is None:
@@ -511,7 +425,9 @@ def module_ports(parser, source_bytes, comments, manager, header):
     return tuple(ports)
 
 
-def declarator_rows(parser, source_bytes, comments, manager, node, type_text):
+def declarator_rows(parser: ModuleType, source_bytes: bytes,
+                    comments: dict[int, tuple[bool, str]], manager: Any,
+                    node: Any, type_text: str) -> tuple[Row, ...]:
     """Render one declaration's declarators into table rows."""
     rows = []
     for declarator in syntax_items(parser, node.declarators):
@@ -526,7 +442,12 @@ def declarator_rows(parser, source_bytes, comments, manager, node, type_text):
     return tuple(rows)
 
 
-def member_content(parser, source_bytes, comments, manager, path, members):
+def member_content(
+        parser: ModuleType, source_bytes: bytes,
+        comments: dict[int, tuple[bool, str]], manager: Any, path: Path,
+        members: Iterable[Any],
+) -> tuple[tuple[Row, ...], tuple[Row, ...], tuple[Row, ...],
+           tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     """Collect table and list rows from one declaration body.
 
     Members pulled in by `include directives belong to another
@@ -588,7 +509,8 @@ def member_content(parser, source_bytes, comments, manager, path, members):
             tuple(processes), tuple(functions), tuple(instantiations))
 
 
-def extract_file(parser, root, incdirs, path):
+def extract_file(parser: ModuleType, root: Path,
+                 incdirs: Sequence[str], path: Path) -> tuple[Content, ...]:
     """Extract every top-level declaration one file truly holds."""
     tree, manager = parse_file(parser, root, incdirs, path)
     source_bytes = path.read_bytes()
@@ -627,7 +549,9 @@ def extract_file(parser, root, incdirs, path):
     return tuple(contents)
 
 
-def extract_reference(parser, root, census):
+def extract_reference(
+        parser: ModuleType, root: Path, census: Census,
+) -> tuple[tuple[Content, ...], set[DeclarationKey]]:
     """Extract content and prove both front ends agree exactly."""
     hdl_root = root / "hdl"
     incdirs = include_directories(root)
@@ -650,13 +574,13 @@ def extract_reference(parser, root, census):
     return tuple(by_key[item.key] for item in census.supported), supported
 
 
-def diagram_marker(name):
+def diagram_marker(name: str) -> str:
     """Return one section's exact diagram heading."""
     return (f'<h2 class="diagram" id="diagram-{html.escape(name)}">'
             "Diagram</h2>")
 
 
-def module_svg(name, ports):
+def module_svg(name: str, ports: Sequence[Port]) -> str:
     """Render an accessible structural SVG from extracted ports."""
     inputs = [port.name for port in ports if port.direction == "input"]
     outputs = [port.name for port in ports if port.direction != "input"]
@@ -695,7 +619,8 @@ def module_svg(name, ports):
     return "".join(parts)
 
 
-def emit_table(name, heading, columns, rows):
+def emit_table(name: str, heading: str, columns: Sequence[str],
+               rows: Sequence[Row]) -> str:
     """Render one facts table beneath its own heading."""
     if not rows:
         return ""
@@ -712,7 +637,7 @@ def emit_table(name, heading, columns, rows):
     return "\n".join(parts)
 
 
-def emit_list(name, heading, entries):
+def emit_list(name: str, heading: str, entries: Sequence[str]) -> str:
     """Render one facts list beneath its own heading."""
     if not entries:
         return ""
@@ -724,7 +649,7 @@ def emit_list(name, heading, entries):
     return "\n".join(parts)
 
 
-def emit_section(content):
+def emit_section(content: Content) -> str:
     """Render one declaration section from extracted facts."""
     declaration = content.declaration
     name = declaration.name
@@ -766,7 +691,7 @@ def emit_section(content):
     return "\n".join(part for part in parts if part)
 
 
-def emit_document(contents, revision):
+def emit_document(contents: Sequence[Content], revision: str) -> str:
     """Render the complete self-contained reference document."""
     if not SHA_RE.fullmatch(revision):
         raise GenerationError(f"invalid source revision: {revision!r}")
@@ -801,7 +726,7 @@ def emit_document(contents, revision):
     return "\n".join(parts) + "\n"
 
 
-def parsed_sections(source):
+def parsed_sections(source: str) -> dict[tuple[str, str], Section]:
     """Return generated declaration sections."""
     matches = tuple(SECTION_RE.finditer(source))
     sections = {}
@@ -816,7 +741,7 @@ def parsed_sections(source):
     return sections
 
 
-def validate_svg(name, source):
+def validate_svg(name: str, source: str) -> None:
     """Require one parseable SVG containing graphical content."""
     try:
         root = ET.fromstring(source)
@@ -833,7 +758,7 @@ def validate_svg(name, source):
             f"HTML module {name} SVG lacks graphical content")
 
 
-def svg_blocks(source):
+def svg_blocks(source: str) -> tuple[str, ...]:
     """Extract balanced SVG elements, including nested SVGs."""
     blocks = []
     depth = 0
@@ -860,7 +785,7 @@ def svg_blocks(source):
     return tuple(blocks)
 
 
-def validate_module_diagram(section):
+def validate_module_diagram(section: Section) -> None:
     """Require one structural diagram beneath one heading."""
     marker = diagram_marker(section.name)
     heading_count = section.body.count(marker)
@@ -878,7 +803,8 @@ def validate_module_diagram(section):
     validate_svg(section.name, svgs[0])
 
 
-def validate_html(source, census, revision, forbidden_paths=()):
+def validate_html(source: str, census: Census, revision: str,
+                  forbidden_paths: Sequence[Path] = ()) -> None:
     """Prove title, provenance, privacy, sections, and diagrams."""
     if f"<h1>{DOCUMENT_TITLE}</h1>" not in source:
         raise GenerationError("generated HTML lacks its visible title")
@@ -914,7 +840,7 @@ def validate_html(source, census, revision, forbidden_paths=()):
             validate_module_diagram(section)
 
 
-def output_target(path, root):
+def output_target(path: Path, root: Path) -> Path:
     """Resolve a safe, empty destination outside the repository."""
     expanded = path.expanduser().absolute()
     if expanded.is_symlink():
@@ -932,7 +858,8 @@ def output_target(path, root):
     return target
 
 
-def generate(root, target_path, revision, known_omissions=KNOWN_OMISSIONS):
+def generate(root: Path, target_path: Path, revision: str,
+             known_omissions: frozenset[DeclarationKey] = KNOWN_OMISSIONS) -> Census:
     """Generate, validate, then atomically publish one reference."""
     target = output_target(target_path, root)
     census = source_census(root, known_omissions)
@@ -971,7 +898,8 @@ def generate(root, target_path, revision, known_omissions=KNOWN_OMISSIONS):
     return census
 
 
-def run_process(command, root, environment):
+def run_process(command: Sequence[str], root: Path,
+                environment: dict[str, str]) -> str:
     """Run one command and return combined diagnostics."""
     try:
         completed = subprocess.run(
@@ -987,7 +915,7 @@ def run_process(command, root, environment):
     return diagnostics
 
 
-def git_revision(root):
+def git_revision(root: Path) -> str:
     """Return HEAD only when the documented HDL matches it."""
     environment = os.environ.copy()
     dirty = run_process(
@@ -1001,447 +929,8 @@ def git_revision(root):
     return revision
 
 
-def fixture_tree(base):
-    """Create representative HDL declarations for self-tests."""
-    root = base / "repo"
-    hdl = root / "hdl"
-    hdl.mkdir(parents=True)
-    (hdl / "one.sv").write_text(textwrap.dedent('''\
-        // module ignored_line;
-        //! Collects one pulse per grant.
-        //! It also mirrors the request stream.
-
-        `default_nettype none
-
-        module alpha #(
-          //! synchroniser depth
-          parameter int DEPTH = 2
-        ) (
-          input  wire  clk_i,
-          //! request strobe
-          input  wire  req_i,
-          output logic ready_o //! grant strobe
-        );
-          //! grant shift register
-          logic [DEPTH-1:0] grant_r;
-          wire idle_w;
-          localparam int WIDE = DEPTH * 2; //! doubled depth
-          typedef logic [DEPTH-1:0] lane_t;
-          // timing budget: 5 µs of settling
-          string note = "module ignored_string;";
-          function automatic logic mirror(input logic v);
-            mirror = ~v;
-          endfunction
-          always_ff @(posedge clk_i) begin : grant_seq
-            grant_r <= {grant_r[DEPTH-2:0], req_i};
-          end
-          always_comb ready_o = grant_r[DEPTH-1];
-          `include "included.svh"
-        endmodule
-    '''), encoding="utf-8")
-    (hdl / "included.svh").write_text(
-        "localparam int FROM_INCLUDE = 9;\n", encoding="utf-8")
-    (hdl / "defs.sv").write_text(
-        "/* package ignored_block; */\npackage config_pkg; "
-        "localparam int LANES = 4; endpackage\n",
-        encoding="utf-8")
-    (hdl / "bus.sv").write_text(
-        "interface sample_if; endinterface\n", encoding="utf-8")
-    (hdl / "double.sv").write_text(
-        "module first (input wire a_i, output wire b_o);\n"
-        "  first_child u_child (.a_i(a_i), .b_o(b_o));\n"
-        "endmodule\n"
-        "module second; endmodule\n",
-        encoding="utf-8")
-    (hdl / "legacy.v").write_text(
-        "module legacy (input wire tick_i, output wire tock_o);\n"
-        "  assign tock_o = tick_i;\n"
-        "endmodule\n", encoding="utf-8")
-    (hdl / "shared.svh").write_text(
-        "`define SHARED 1\n", encoding="utf-8")
-    known = frozenset({
-        ("hdl/bus.sv", "interface", "sample_if"),
-        ("hdl/double.sv", "module", "second"),
-    })
-    return root, known
-
-
-def expect_error(name, action, phrase):
-    """Require one mutation arm to produce its named refusal."""
-    try:
-        action()
-    except GenerationError as exc:
-        if phrase not in str(exc):
-            raise AssertionError(
-                f"{name}: wrong refusal: {exc}; expected {phrase!r}") from exc
-        return
-    raise AssertionError(f"{name}: mutation was accepted")
-
-
-def _unreadable_source(root):
-    """Inject one source-read failure."""
-    with mock.patch.object(Path, "read_text", side_effect=OSError("injected")):
-        declarations_in(root, root / "hdl" / "one.sv")
-
-
-def _failed_publication(root, target, revision, known):
-    """Inject an atomic publication failure."""
-    with mock.patch.object(os, "replace", side_effect=OSError("injected")):
-        generate(root, target, revision, known)
-
-
-def _mocked_git_revision(root, outputs):
-    """Run provenance logic against controlled Git answers."""
-    module = sys.modules[__name__]
-    with mock.patch.object(module, "run_process", side_effect=outputs):
-        git_revision(root)
-
-
-def _missing_parser():
-    """Import the parser while its module is unavailable."""
-    with mock.patch.dict(sys.modules, {"pyslang": None}):
-        load_parser()
-
-
-def _disagreeing_extraction(root, target, revision, known):
-    """Drop one extracted declaration behind the census's back."""
-    module = sys.modules[__name__]
-    original = extract_file
-
-    def dropping(parser, tree_root, incdirs, path):
-        contents = original(parser, tree_root, incdirs, path)
-        return tuple(item for item in contents
-                     if item.declaration.name != "legacy")
-
-    with mock.patch.object(module, "extract_file", dropping):
-        generate(root, target, revision, known)
-
-
-def run_selftest():
-    """Exercise positive generation and independent refusal arms."""
-    revision = "1" * 40
-    arms = []
-    with tempfile.TemporaryDirectory(prefix="hdl-reference-selftest-") as raw:
-        base = Path(raw)
-        root, known = fixture_tree(base)
-
-        def rejects(name, action, phrase):
-            expect_error(name, action, phrase)
-            arms.append(name)
-
-        positive = base / "positive"
-        census = generate(root, positive, revision, known)
-        assert len(census.supported) == 4
-        positive_html = (positive / "index.html").read_text(encoding="utf-8")
-        assert DOCUMENT_TITLE in positive_html
-        assert 'data-diagram-source="source-ports"' in positive_html
-        assert ("Collects one pulse per grant. "
-                "It also mirrors the request stream.") in positive_html
-        assert "grant strobe" in positive_html
-        assert "synchroniser depth" in positive_html
-        assert "doubled depth" in positive_html
-        assert "<td>WIDE</td><td>int</td><td>DEPTH * 2</td>" in positive_html
-        assert "u_child: first_child" in positive_html
-        assert "always_ff : grant_seq ( @(posedge clk_i) )" in positive_html
-        #: the UTF-8 byte-slicing tooth ([R1] on PR #331: the first cut's
-        #: fixture carried the multibyte character but asserted nothing
-        #: PAST it, so reverting byte-slicing to code-point slicing kept
-        #: the selftest green while corrupting every later span). These
-        #: two sit AFTER the fixture's micro-sign and are byte-exact:
-        #: under the revert they read "tring" and "unction ...".
-        assert "<td>note</td><td>string</td>" in positive_html
-        assert "function automatic logic mirror(input logic v)" in positive_html
-        assert "FROM_INCLUDE" not in positive_html
-        arms.append("valid generation")
-
-        rejects(
-            "unreadable source",
-            lambda: _unreadable_source(root),
-            "cannot read")
-
-        missing_root = base / "missing-root"
-        rejects(
-            "missing HDL directory",
-            lambda: source_census(missing_root, frozenset()),
-            "missing HDL source directory")
-
-        empty_root = base / "empty-root"
-        (empty_root / "hdl").mkdir(parents=True)
-        (empty_root / "hdl" / "only.svh").write_text(
-            "`define ONLY 1\n", encoding="utf-8")
-        rejects(
-            "empty parsed inventory",
-            lambda: source_census(empty_root, frozenset()),
-            "inventory is empty")
-
-        blank = root / "hdl" / "blank.sv"
-        blank.write_text("`default_nettype none\n", encoding="utf-8")
-        rejects(
-            "source without declaration",
-            lambda: source_census(root, known),
-            "contains no declaration")
-        blank.unlink()
-
-        rejects(
-            "missing parser",
-            _missing_parser,
-            "parser is unavailable")
-        rejects(
-            "wrong parser version",
-            lambda: verify_parser(type("Stub", (), {"__version__": "9.9.9"})),
-            "version must be")
-
-        parser = load_parser()
-        incdirs = include_directories(root)
-
-        broken = root / "hdl" / "broken.sv"
-        broken.write_text("module broken (\n", encoding="utf-8")
-        rejects(
-            "unparseable source",
-            lambda: parse_file(parser, root, incdirs, broken),
-            "cannot parse")
-        broken.unlink()
-
-        nonansi = root / "hdl" / "nonansi.sv"
-        nonansi.write_text(
-            "module nonansi (clk);\ninput clk;\nendmodule\n",
-            encoding="utf-8")
-        rejects(
-            "non-ANSI port list",
-            lambda: extract_file(parser, root, incdirs, nonansi),
-            "unsupported port list")
-        nonansi.unlink()
-
-        explicit = root / "hdl" / "explicit.sv"
-        explicit.write_text(
-            "module explicit (input .p(sig));\nwire sig;\nendmodule\n",
-            encoding="utf-8")
-        rejects(
-            "explicit port shape",
-            lambda: extract_file(parser, root, incdirs, explicit),
-            "unsupported port shape")
-        explicit.unlink()
-
-        undirected = root / "hdl" / "undirected.sv"
-        undirected.write_text(
-            "module undirected (wire stray);\nendmodule\n",
-            encoding="utf-8")
-        rejects(
-            "port without direction",
-            lambda: extract_file(parser, root, incdirs, undirected),
-            "without a direction")
-        undirected.unlink()
-
-        duplicates = root / "hdl" / "duplicates.sv"
-        duplicates.write_text(
-            "module duplicates (input wire same, output logic same);\n"
-            "endmodule\n", encoding="utf-8")
-        rejects(
-            "duplicate ports",
-            lambda: extract_file(parser, root, incdirs, duplicates),
-            "duplicate ports")
-        duplicates.unlink()
-
-        rejects(
-            "parser and census disagreement",
-            lambda: _disagreeing_extraction(
-                root, base / "disagree", revision, known),
-            "parser and census disagree")
-
-        rejects(
-            "invalid requested revision",
-            lambda: emit_document((), "not-a-revision"),
-            "invalid source revision")
-
-        contents, _ = extract_reference(parser, root, source_census(root, known))
-        emitted = emit_document(contents, revision)
-
-        def validates(document, forbidden_paths=()):
-            return validate_html(document, census, revision, forbidden_paths)
-
-        alpha_marker = diagram_marker("alpha")
-        duplicate = emitted + (
-            '<h1 id="module-alpha">Module: alpha</h1>' + alpha_marker
-            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
-              '<rect width="1" height="1"/></svg>')
-        rejects("duplicate section", lambda: validates(duplicate),
-                "duplicate HTML section")
-        rejects(
-            "missing visible title",
-            lambda: validates(emitted.replace(
-                f"<h1>{DOCUMENT_TITLE}</h1>", "<h1>Missing</h1>")),
-            "lacks its visible title")
-        rejects(
-            "missing browser title",
-            lambda: validates(emitted.replace(
-                f"<title>{DOCUMENT_TITLE}</title>", "<title>Missing</title>")),
-            "lacks its browser title")
-        rejects(
-            "missing provenance",
-            lambda: validates(emitted.replace(revision, "2" * 40)),
-            "lacks exact source provenance")
-        rejects(
-            "render safeguard",
-            lambda: validates(emitted.replace(PRINT_STYLE, "")),
-            "lacks rendering safeguards")
-        rejects(
-            "generated timestamp",
-            lambda: validates(emitted + "Generated on a build host"),
-            "generated timestamp")
-        rejects(
-            "legacy revision boilerplate",
-            lambda: validates(emitted + "Project revision stale"),
-            "generated timestamp")
-        rejects(
-            "absolute path leak",
-            lambda: validates(emitted + "file:///tmp/private/source.sv"),
-            "absolute build path")
-        sealed = Path("/sealed/generation")
-        rejects(
-            "generation directory leak",
-            lambda: validates(emitted + str(sealed), (sealed,)),
-            "generation directory")
-        private_name = "".join(chr(code) for code in (68, 83, 50, 48, 68))
-        rejects(
-            "private name",
-            lambda: validates(emitted + private_name),
-            "private device name")
-        rejects(
-            "active content",
-            lambda: validates(emitted + "<script>alert(1)</script>"),
-            "active content")
-
-        legacy_start = emitted.index('<h1 id="module-legacy">')
-        alpha_start = emitted.index('<h1 id="module-alpha">')
-        body_end = emitted.index("</body>")
-        rejects(
-            "missing section",
-            lambda: validates(
-                emitted[:legacy_start] + emitted[alpha_start:]),
-            "declaration coverage changed")
-        extra_section = (
-            '<h1 id="module-surprise">Module: surprise</h1>'
-            + diagram_marker("surprise")
-            + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
-              '<rect width="1" height="1"/></svg>')
-        rejects(
-            "extra section",
-            lambda: validates(emitted + extra_section),
-            "declaration coverage changed")
-
-        legacy_section = emitted[legacy_start:alpha_start]
-        legacy_svg = svg_blocks(legacy_section)[0]
-        rejects(
-            "heading without SVG",
-            lambda: validates(emitted.replace(legacy_svg, "", 1)),
-            "has 0 SVG diagrams")
-        rejects(
-            "duplicate diagram heading",
-            lambda: validates(emitted.replace(
-                alpha_marker, alpha_marker + alpha_marker, 1)),
-            "has 2 diagram headings")
-        alpha_svg = svg_blocks(emitted[alpha_start:body_end])[0]
-        rejects(
-            "malformed SVG",
-            lambda: validates(emitted.replace(
-                alpha_svg,
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
-                '<rect></svg>', 1)),
-            "malformed SVG")
-        rejects(
-            "SVG without viewBox",
-            lambda: validates(emitted.replace(
-                alpha_svg, re.sub(r' viewBox="[^"]*"', "", alpha_svg, count=1), 1)),
-            "SVG lacks a viewBox")
-        rejects(
-            "empty SVG",
-            lambda: validate_svg(
-                "alpha",
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">'
-                "<metadata/></svg>"),
-            "lacks graphical content")
-        rejects(
-            "non-SVG root",
-            lambda: validate_svg(
-                "alpha", '<g viewBox="0 0 1 1"><rect/></g>'),
-            "lacks an SVG root")
-        rejects(
-            "unmatched SVG close",
-            lambda: svg_blocks("</svg>"),
-            "unmatched SVG close")
-        rejects(
-            "unclosed SVG",
-            lambda: svg_blocks('<svg viewBox="0 0 1 1">'),
-            "unclosed SVG element")
-
-        rejects(
-            "inside repository",
-            lambda: generate(root, root / "generated", revision, known),
-            "outside the repository")
-
-        symlink = base / "output-symlink"
-        symlink.symlink_to(base / "symlink-target")
-        rejects(
-            "symbolic output",
-            lambda: output_target(symlink, root),
-            "symbolic link")
-
-        nondirectory = base / "output-file"
-        nondirectory.write_text("preserve", encoding="utf-8")
-        rejects(
-            "nondirectory output",
-            lambda: output_target(nondirectory, root),
-            "not a directory")
-
-        nonempty = base / "nonempty"
-        nonempty.mkdir()
-        marker = nonempty / "keep.txt"
-        marker.write_text("keep", encoding="utf-8")
-        rejects(
-            "non-empty preservation",
-            lambda: generate(root, nonempty, revision, known),
-            "not empty")
-        assert marker.read_text(encoding="utf-8") == "keep"
-
-        failed_target = base / "failed-publish"
-        rejects(
-            "failed publication",
-            lambda: _failed_publication(root, failed_target, revision, known),
-            "cannot publish generated documentation")
-        assert not failed_target.exists()
-
-        new_interface = root / "hdl" / "new_interface.sv"
-        new_interface.write_text(
-            "interface surprise_if; endinterface\n", encoding="utf-8")
-        rejects(
-            "exception growth",
-            lambda: source_census(root, known),
-            "new exceptions")
-        new_interface.unlink()
-
-        interface = root / "hdl" / "bus.sv"
-        original = interface.read_text(encoding="utf-8")
-        interface.write_text(
-            "interface renamed_if; endinterface\n", encoding="utf-8")
-        rejects(
-            "changed exception",
-            lambda: source_census(root, known),
-            "changed exceptions")
-        interface.write_text(original, encoding="utf-8")
-
-        rejects(
-            "dirty HDL provenance",
-            lambda: _mocked_git_revision(root, [" M hdl/one.sv\n"]),
-            "HDL sources are dirty")
-        rejects(
-            "invalid Git revision",
-            lambda: _mocked_git_revision(root, ["", "not-a-revision\n"]),
-            "git returned an invalid revision")
-
-    print(f"HDL reference self-test: {len(arms)}/{len(arms)} arms passed")
-
-
-def parse_args(argv):
+def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    """Parse the destination and the self-test switch."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output", type=Path, default=DEFAULT_OUTPUT,
@@ -1452,10 +941,17 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def main(argv=None):
+def main(argv: Sequence[str] | None = None) -> int:
+    """Generate or self-test, turning every refusal into exit 2."""
     args = parse_args(argv)
     try:
         if args.selftest:
+            # Registered under the import name FIRST, and only then imported
+            # from: two arms patch a binding this module owns, so the arms and
+            # this `except` clause have to be looking at the object running
+            # here rather than at a second copy imported beside `__main__`.
+            sys.modules.setdefault("gen_hdl_reference", sys.modules[__name__])
+            from gen_hdl_reference_selftest import run_selftest
             run_selftest()
             return 0
         revision = git_revision(ROOT)

@@ -32,6 +32,7 @@ import html
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple, NoReturn
 
 import yaml
 
@@ -41,11 +42,23 @@ BUILDER = REPO / "sw" / "builder" / "endstation_builder.py"
 CONFIGS = sorted((REPO / "configs").glob("endstation_*.yaml"))
 
 
-def esc(s):
+class Box(NamedTuple):
+    """One drawio vertex's geometry, in diagram user units."""
+
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+def esc(s: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
     return html.escape(str(s), quote=True)
 
 
-def die(what):
+def die(what: str) -> NoReturn:
+    """Abandon the render. Every fact here is read out of a source file, so a
+    source whose shape no longer matches makes the picture unsafe to draw."""
     raise SystemExit(f"nxn_window_map.gen.py: cannot confirm {what} — the source "
                      f"shape changed; fix this generator, do not hand-draw it.")
 
@@ -77,7 +90,7 @@ if not SHAPES:
     die("any configs/endstation_*.yaml")
 
 
-def ctx_row(kind, i, L):
+def ctx_row(kind: str, i: int, L: int) -> int:
     """The lwSRP ctx row a `0x800` selection reaches (milan_datapath comment).
 
     row 0            = the legacy talker+listener pair (LWSRP_* 0x680 group)
@@ -104,12 +117,9 @@ W = max(1500, MARGIN_X * 2 + (2 * max(s[2] for s in SHAPES) - 1) * (CELL_W + CEL
 H = 250 + SHAPE_H * len(SHAPES) + 150
 
 
-def svg():
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
-         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>',
-         '<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3.5" '
-         'orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#546E7A"/></marker></defs>']
+def _svg_titles():
+    """The heading, the provenance note and the arithmetic the map encodes."""
+    o = []
     o.append('<text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">'
              'The 0x800 window row map - which lwSRP attribute row a selection '
              'really reaches</text>')
@@ -125,83 +135,91 @@ def svg():
              f'So the top row an LxT shape can name is (L-1)+(T-1) and the table must '
              f'be L+T-1 rows - NOT max(L,T). ctx_idx is {IDX_BITS} bits, so '
              f'L+T-1 &lt;= {ROW_CEILING} caps the fabric.</text>')
+    return o
 
-    y = 190
-    for label, board, L, T in SHAPES:
-        rows = L + T - 1
-        o.append(f'<text x="{MARGIN_X}" y="{y}" font-size="19" font-weight="bold" '
-                 f'fill="#263238">{esc(label)} - board {esc(board)}, L={L} listeners, '
-                 f'T={T} talkers  =&gt;  {rows} attribute row{"s" if rows != 1 else ""}</text>')
-        fits = rows <= ROW_CEILING
-        o.append(f'<text x="{MARGIN_X}" y="{y+22}" font-size="13" '
-                 f'fill="{"#2E7D32" if fits else "#C62828"}">'
-                 f'{esc(f"L+T-1 = {rows} <= {ROW_CEILING}: fits the ctx_idx width" if fits else f"L+T-1 = {rows} > {ROW_CEILING}: the builder REFUSES this shape")}'
-                 f'</text>')
 
-        # --- listener selections (above the strip) ---
-        ly = y + 46
-        for k in range(L):
-            x = MARGIN_X + ctx_row("listener", k, L) * (CELL_W + CELL_GAP)
-            fill, stroke = (GOLD if k == 0 else BLUE)
-            o.append(f'<rect x="{x}" y="{ly}" width="{CELL_W}" height="40" rx="7" '
-                     f'fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
-            o.append(f'<text x="{x+CELL_W/2}" y="{ly+17}" font-size="11.5" '
-                     f'fill="#37474F" text-anchor="middle">dir=0 (listener)</text>')
-            o.append(f'<text x="{x+CELL_W/2}" y="{ly+32}" font-size="13.5" '
-                     f'font-weight="bold" fill="#212121" text-anchor="middle">'
-                     f'idx {k}</text>')
+def _svg_shape(shape, y):
+    """One shipping shape's band: its selections, its row strip and its ticks."""
+    o = []
+    label, board, L, T = shape
+    rows = L + T - 1
+    o.append(f'<text x="{MARGIN_X}" y="{y}" font-size="19" font-weight="bold" '
+             f'fill="#263238">{esc(label)} - board {esc(board)}, L={L} listeners, '
+             f'T={T} talkers  =&gt;  {rows} attribute row{"s" if rows != 1 else ""}</text>')
+    fits = rows <= ROW_CEILING
+    verdict = (f"L+T-1 = {rows} <= {ROW_CEILING}: fits the ctx_idx width"
+               if fits else
+               f"L+T-1 = {rows} > {ROW_CEILING}: the builder REFUSES this shape")
+    o.append(f'<text x="{MARGIN_X}" y="{y+22}" font-size="13" '
+             f'fill="{"#2E7D32" if fits else "#C62828"}">'
+             f'{esc(verdict)}'
+             f'</text>')
 
-        # --- the ctx row strip ---
-        sy = ly + 62
-        for r in range(rows):
-            x = MARGIN_X + r * (CELL_W + CELL_GAP)
-            fill, stroke = (GOLD if r == 0 else GREY)
-            o.append(f'<rect x="{x}" y="{sy}" width="{CELL_W}" height="{CELL_H}" rx="7" '
-                     f'fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
-            o.append(f'<text x="{x+CELL_W/2}" y="{sy+24}" font-size="15" '
-                     f'font-weight="bold" fill="#212121" text-anchor="middle">'
-                     f'row {r}</text>')
-            note = "legacy pair" if r == 0 else ("listener" if r < L else "talker")
-            o.append(f'<text x="{x+CELL_W/2}" y="{sy+43}" font-size="11" fill="#546E7A" '
-                     f'text-anchor="middle">{esc(note)}</text>')
+    # --- listener selections (above the strip) ---
+    ly = y + 46
+    for k in range(L):
+        x = MARGIN_X + ctx_row("listener", k, L) * (CELL_W + CELL_GAP)
+        fill, stroke = (GOLD if k == 0 else BLUE)
+        o.append(f'<rect x="{x}" y="{ly}" width="{CELL_W}" height="40" rx="7" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
+        o.append(f'<text x="{x+CELL_W/2}" y="{ly+17}" font-size="11.5" '
+                 f'fill="#37474F" text-anchor="middle">dir=0 (listener)</text>')
+        o.append(f'<text x="{x+CELL_W/2}" y="{ly+32}" font-size="13.5" '
+                 f'font-weight="bold" fill="#212121" text-anchor="middle">'
+                 f'idx {k}</text>')
 
-        # the row the OLD max(L,T) sizing stopped at — the shipped bug, to scale
-        old = max(L, T)
-        if old < rows:
-            bx = MARGIN_X + old * (CELL_W + CELL_GAP) - CELL_GAP / 2
-            o.append(f'<path d="M{bx},{sy-8} L{bx},{sy+CELL_H+8}" stroke="#C62828" '
-                     f'stroke-width="2.6" stroke-dasharray="7,5"/>')
-            o.append(f'<text x="{bx+8}" y="{sy-14}" font-size="12" font-weight="bold" '
-                     f'fill="#C62828">the old max(L,T)={old} table ended here - rows '
-                     f'{old}..{rows-1} were refused SILENTLY and aliased row 0</text>')
+    # --- the ctx row strip ---
+    sy = ly + 62
+    for r in range(rows):
+        x = MARGIN_X + r * (CELL_W + CELL_GAP)
+        fill, stroke = (GOLD if r == 0 else GREY)
+        o.append(f'<rect x="{x}" y="{sy}" width="{CELL_W}" height="{CELL_H}" rx="7" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
+        o.append(f'<text x="{x+CELL_W/2}" y="{sy+24}" font-size="15" '
+                 f'font-weight="bold" fill="#212121" text-anchor="middle">'
+                 f'row {r}</text>')
+        note = "legacy pair" if r == 0 else ("listener" if r < L else "talker")
+        o.append(f'<text x="{x+CELL_W/2}" y="{sy+43}" font-size="11" fill="#546E7A" '
+                 f'text-anchor="middle">{esc(note)}</text>')
 
-        # --- talker selections (below the strip) ---
-        ty = sy + CELL_H + 22
-        for t in range(T):
-            x = MARGIN_X + ctx_row("talker", t, L) * (CELL_W + CELL_GAP)
-            fill, stroke = (GOLD if t == 0 else GREEN)
-            o.append(f'<rect x="{x}" y="{ty}" width="{CELL_W}" height="40" rx="7" '
-                     f'fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
-            o.append(f'<text x="{x+CELL_W/2}" y="{ty+17}" font-size="11.5" '
-                     f'fill="#37474F" text-anchor="middle">dir=1 (talker)</text>')
-            o.append(f'<text x="{x+CELL_W/2}" y="{ty+32}" font-size="13.5" '
-                     f'font-weight="bold" fill="#212121" text-anchor="middle">'
-                     f'idx {t}</text>')
+    # the row the OLD max(L,T) sizing stopped at — the shipped bug, to scale
+    old = max(L, T)
+    if old < rows:
+        bx = MARGIN_X + old * (CELL_W + CELL_GAP) - CELL_GAP / 2
+        o.append(f'<path d="M{bx},{sy-8} L{bx},{sy+CELL_H+8}" stroke="#C62828" '
+                 f'stroke-width="2.6" stroke-dasharray="7,5"/>')
+        o.append(f'<text x="{bx+8}" y="{sy-14}" font-size="12" font-weight="bold" '
+                 f'fill="#C62828">the old max(L,T)={old} table ended here - rows '
+                 f'{old}..{rows-1} were refused SILENTLY and aliased row 0</text>')
 
-        # connector ticks
-        for k in range(L):
-            x = MARGIN_X + ctx_row("listener", k, L) * (CELL_W + CELL_GAP) + CELL_W / 2
-            o.append(f'<path d="M{x},{ly+40} L{x},{sy}" stroke="#546E7A" '
-                     f'stroke-width="1.6" marker-end="url(#arr)"/>')
-        for t in range(T):
-            x = MARGIN_X + ctx_row("talker", t, L) * (CELL_W + CELL_GAP) + CELL_W / 2
-            o.append(f'<path d="M{x},{ty} L{x},{sy+CELL_H}" stroke="#546E7A" '
-                     f'stroke-width="1.6" marker-end="url(#arr)"/>')
+    # --- talker selections (below the strip) ---
+    ty = sy + CELL_H + 22
+    for t in range(T):
+        x = MARGIN_X + ctx_row("talker", t, L) * (CELL_W + CELL_GAP)
+        fill, stroke = (GOLD if t == 0 else GREEN)
+        o.append(f'<rect x="{x}" y="{ty}" width="{CELL_W}" height="40" rx="7" '
+                 f'fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
+        o.append(f'<text x="{x+CELL_W/2}" y="{ty+17}" font-size="11.5" '
+                 f'fill="#37474F" text-anchor="middle">dir=1 (talker)</text>')
+        o.append(f'<text x="{x+CELL_W/2}" y="{ty+32}" font-size="13.5" '
+                 f'font-weight="bold" fill="#212121" text-anchor="middle">'
+                 f'idx {t}</text>')
 
-        y += SHAPE_H
+    # connector ticks
+    for k in range(L):
+        x = MARGIN_X + ctx_row("listener", k, L) * (CELL_W + CELL_GAP) + CELL_W / 2
+        o.append(f'<path d="M{x},{ly+40} L{x},{sy}" stroke="#546E7A" '
+                 f'stroke-width="1.6" marker-end="url(#arr)"/>')
+    for t in range(T):
+        x = MARGIN_X + ctx_row("talker", t, L) * (CELL_W + CELL_GAP) + CELL_W / 2
+        o.append(f'<path d="M{x},{ty} L{x},{sy+CELL_H}" stroke="#546E7A" '
+                 f'stroke-width="1.6" marker-end="url(#arr)"/>')
+    return o
 
-    # the loud-refusal note
-    ny = y - SHAPE_H + 250
+
+def _svg_refusal_note(ny):
+    """The red panel: what an out-of-range row now does instead of aliasing."""
+    o = []
     o.append(f'<rect x="{MARGIN_X}" y="{ny}" width="{W-2*MARGIN_X}" height="112" rx="9" '
              f'fill="{RED[0]}" stroke="{RED[1]}" stroke-width="2"/>')
     o.append(f'<text x="{MARGIN_X+18}" y="{ny+26}" font-size="15" font-weight="bold" '
@@ -217,44 +235,64 @@ def svg():
             "invisible from every counter in the design."]):
         o.append(f'<text x="{MARGIN_X+18}" y="{ny+50+i*18}" font-size="12" fill="#B71C1C">'
                  f'{esc(s)}</text>')
+    return o
 
+
+def svg() -> str:
+    """The whole rendered map, in the order the reader meets it."""
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
+         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>',
+         '<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3.5" '
+         'orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#546E7A"/></marker></defs>']
+    o += _svg_titles()
+    y = 190
+    for shape in SHAPES:
+        o += _svg_shape(shape, y)
+        y += SHAPE_H
+    o += _svg_refusal_note(y - SHAPE_H + 250)
     o.append('</svg>')
     return "\n".join(o)
 
 
-def drawio():
+def drawio() -> str:
+    """The same map as an editable .drawio: a header and a row of vertices per
+    shipping shape, with one edge per talker or listener selection."""
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
 
-    def vertex(nid, x, y, w, h, label, fill, stroke, fs=12, bold=False):
+    def vertex(nid: str, box: Box, label: str, palette: tuple[str, str],
+               fs: int = 12, bold: bool = False) -> None:
+        """One styled drawio box; `palette` is the (fill, stroke) pair the SVG uses."""
+        fill, stroke = palette
         style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
                  f"fontSize={fs};align=center;verticalAlign=middle;"
                  + ("fontStyle=1;" if bold else ""))
         cells.append(f'<mxCell id="{nid}" value="{esc(label)}" style="{style}" vertex="1" '
-                     f'parent="1"><mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" '
-                     f'as="geometry"/></mxCell>')
+                     f'parent="1"><mxGeometry x="{box.x}" y="{box.y}" width="{box.w}" '
+                     f'height="{box.h}" as="geometry"/></mxCell>')
 
-    vertex("title", 40, 20, 1400, 40,
+    vertex("title", Box(40, 20, 1400, 40),
            "The 0x800 window row map - listener k -> row k, talker t -> row (L-1)+t "
-           "(GENERATED)", "none", "none", 20, True)
+           "(GENERATED)", ("none", "none"), 20, True)
     y = 190
     for si, (label, board, L, T) in enumerate(SHAPES):
         rows = L + T - 1
-        vertex(f"h{si}", MARGIN_X, y - 34, 900, 28,
+        vertex(f"h{si}", Box(MARGIN_X, y - 34, 900, 28),
                f"{label} - board {board}, L={L}, T={T} => {rows} attribute rows "
-               f"(ceiling {ROW_CEILING})", "none", "none", 15, True)
+               f"(ceiling {ROW_CEILING})", ("none", "none"), 15, True)
         for k in range(L):
             x = MARGIN_X + ctx_row("listener", k, L) * (CELL_W + CELL_GAP)
-            f_, s_ = (GOLD if k == 0 else BLUE)
-            vertex(f"l{si}_{k}", x, y + 46, CELL_W, 40, f"dir=0 idx {k}", f_, s_)
+            vertex(f"l{si}_{k}", Box(x, y + 46, CELL_W, 40), f"dir=0 idx {k}",
+                   GOLD if k == 0 else BLUE)
         for r in range(rows):
             x = MARGIN_X + r * (CELL_W + CELL_GAP)
-            f_, s_ = (GOLD if r == 0 else GREY)
             note = "legacy pair" if r == 0 else ("listener" if r < L else "talker")
-            vertex(f"r{si}_{r}", x, y + 108, CELL_W, CELL_H, f"row {r}\n{note}", f_, s_)
+            vertex(f"r{si}_{r}", Box(x, y + 108, CELL_W, CELL_H), f"row {r}\n{note}",
+                   GOLD if r == 0 else GREY)
         for t in range(T):
             x = MARGIN_X + ctx_row("talker", t, L) * (CELL_W + CELL_GAP)
-            f_, s_ = (GOLD if t == 0 else GREEN)
-            vertex(f"t{si}_{t}", x, y + 188, CELL_W, 40, f"dir=1 idx {t}", f_, s_)
+            vertex(f"t{si}_{t}", Box(x, y + 188, CELL_W, 40), f"dir=1 idx {t}",
+                   GOLD if t == 0 else GREEN)
         for k in range(L):
             cells.append(f'<mxCell id="el{si}_{k}" style="edgeStyle=orthogonalEdgeStyle;'
                          f'html=1;strokeColor=#546E7A;" edge="1" parent="1" '

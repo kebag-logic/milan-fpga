@@ -134,6 +134,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 
@@ -193,7 +194,7 @@ def counters_valid_bit_ieee(block_offset: int) -> int:
     return 31 - slot
 
 
-def counters_valid_mask(names, block) -> int:
+def counters_valid_mask(names: Iterable[str], block: Sequence[str]) -> int:
     """The on-the-wire counters_valid mask for `names` within `block`."""
     m = 0
     for n in names:
@@ -201,7 +202,8 @@ def counters_valid_mask(names, block) -> int:
     return m
 
 
-def decode_counters_arrays(counters_valid: int, raw, block) -> dict:
+def decode_counters_arrays(counters_valid: int, raw: Sequence[int],
+                           block: Sequence[str]) -> dict[str, object]:
     """The same decode from an already-parsed mask + 32-quadlet array.
 
     avdecc_l2.py hands a runner `counters_valid` and `raw` out of its JSON, so
@@ -220,7 +222,8 @@ def decode_counters_arrays(counters_valid: int, raw, block) -> dict:
             "claimed_but_unnamed_slots": unnamed, "raw": vals}
 
 
-def decode_counters_payload(payload: bytes, block) -> dict:
+def decode_counters_payload(payload: bytes,
+                            block: Sequence[str]) -> dict[str, object]:
     """A GET_COUNTERS response payload -> {name: value} for the claimed slots.
 
     Layout, IEEE 1722.1-2021 7.4.42.2: descriptor_type(2) descriptor_index(2)
@@ -590,6 +593,73 @@ def check_interval_ceiling(before: dict, after: dict, *,
     return ("PASS", detail)
 
 
+def _grade_per_frame(base, rate, nominal_frame_rate, stream_flowing):
+    """A per-frame counter's rate: the 1722.1 Table 7-157 reading, or the
+    wrong conversion to Milan's interval semantics that no clause licenses."""
+    name, clause = base["counter"], base["clause"]
+    if rate >= 0.5 * nominal_frame_rate:
+        return ("PASS", dict(base, reading="per-frame"))
+    if stream_flowing:
+        return ("FAIL", dict(base, reading="interval",
+                             why=f"{clause} defines {name} per frame, but "
+                                 f"it moved at {rate:.4g}/s while the "
+                                 f"stream was flowing at about "
+                                 f"{nominal_frame_rate:g} frames/s - the "
+                                 f"shape of a per-frame counter wrongly "
+                                 f"converted to interval semantics; Milan "
+                                 f"Table 5.6 does not define this counter "
+                                 f"and so cannot license that conversion"))
+    return ("INFO", dict(base, reading="below-frame-rate",
+                         why="the frame rate in the window is unknown, so "
+                             "a below-nominal rate cannot be graded"))
+
+
+def _grade_per_interval(base, rate, nominal_frame_rate, stream_flowing):
+    """A Milan Table 5.6 per-interval counter, graded against the observation
+    interval its rate implies - and only FRAMES_RX's rate can imply one."""
+    name, clause, trigger = base["counter"], base["clause"], base["trigger"]
+    window_s = base["window_s"]
+    reading = frames_rate_reading(rate, nominal_frame_rate, window_s=window_s)
+    base["implied_interval_s"] = reading["implied_interval_s"]
+    if reading["band"] == "per-frame":
+        return ("INFO", dict(base, reading="per-frame",
+                             why=f"{name} moved at {rate:.4g}/s, the 1722.1 "
+                                 f"per-frame reading; {clause} makes it an "
+                                 f"observation-interval count, and only an "
+                                 f"interval shorter than the frame period "
+                                 f"makes the two agree"))
+    #! ONLY FRAMES_RX's RATE CAN IMPLY THE OBSERVATION INTERVAL.  Table 5.6
+    #! increments each of these "at the end of every observation interval
+    #! DURING WHICH <condition>", so a counter ticks only in the intervals
+    #! where its own condition held.  FRAMES_RX's condition - "at least one
+    #! Stream Data AVTPDU has been received" - is the only one that holds in
+    #! EVERY interval of a continuously flowing stream, which is what makes
+    #! its rate the interval clock.  The other six are intermittent BY
+    #! DEFINITION: a sink that saw a late timestamp in 74 of 7545 intervals
+    #! reads 0.0098 ticks/s, and reading that as a 102 s observation interval
+    #! files a perfectly conformant error counter as a ceiling violation.
+    #! (Measured on the AX7101 sink 0, 2026-08-03: TIMESTAMP_UNCERTAIN 23 and
+    #! LATE_TIMESTAMP 74 against FRAMES_RX 7545 - this branch used to FAIL
+    #! both.)  The sound bound for those six is the interval CEILING, which is
+    #! check_interval_ceiling(), not a rate.
+    if name != "FRAMES_RX":
+        return ("PASS", dict(base, reading="interval",
+                             implied_interval_s=None,
+                             why=f"{name} ticks only in the intervals during "
+                                 f"which its condition ({trigger}) held, so "
+                                 f"its rate bounds how often that happened - "
+                                 f"NOT the observation interval; use the "
+                                 f"FRAMES_RX ceiling to grade the interval"))
+    if reading["band"] == "neither":
+        if not stream_flowing:
+            return ("INFO", dict(base, reading="neither",
+                                 why="the stream was not known to be flowing, "
+                                     "so a slow FRAMES_RX may just be a quiet "
+                                     "link rather than an over-long interval"))
+        return ("FAIL", dict(base, reading="neither", why=reading["why"]))
+    return ("PASS", dict(base, reading="interval", why=reading["why"]))
+
+
 def grade_counter_semantics(name: str, delta: int, window_s: float, *,
                             nominal_frame_rate: float = 8000.0,
                             stream_flowing: Optional[bool] = None) -> tuple:
@@ -651,67 +721,15 @@ def grade_counter_semantics(name: str, delta: int, window_s: float, *,
                              why=f"the counter did not move, and its trigger "
                                  f"({trigger}) may simply not have occurred"))
     if kind == "per-frame":
-        if rate >= 0.5 * nominal_frame_rate:
-            return ("PASS", dict(base, reading="per-frame"))
-        if stream_flowing:
-            return ("FAIL", dict(base, reading="interval",
-                                 why=f"{clause} defines {name} per frame, but "
-                                     f"it moved at {rate:.4g}/s while the "
-                                     f"stream was flowing at about "
-                                     f"{nominal_frame_rate:g} frames/s - the "
-                                     f"shape of a per-frame counter wrongly "
-                                     f"converted to interval semantics; Milan "
-                                     f"Table 5.6 does not define this counter "
-                                     f"and so cannot license that conversion"))
-        return ("INFO", dict(base, reading="below-frame-rate",
-                             why="the frame rate in the window is unknown, so "
-                                 "a below-nominal rate cannot be graded"))
+        return _grade_per_frame(base, rate, nominal_frame_rate, stream_flowing)
     if kind == "per-event":
         return ("PASS", dict(base, reading="per-event"))
-    # per-interval
-    reading = frames_rate_reading(rate, nominal_frame_rate, window_s=window_s)
-    base["implied_interval_s"] = reading["implied_interval_s"]
-    if reading["band"] == "per-frame":
-        return ("INFO", dict(base, reading="per-frame",
-                             why=f"{name} moved at {rate:.4g}/s, the 1722.1 "
-                                 f"per-frame reading; {clause} makes it an "
-                                 f"observation-interval count, and only an "
-                                 f"interval shorter than the frame period "
-                                 f"makes the two agree"))
-    #! ONLY FRAMES_RX's RATE CAN IMPLY THE OBSERVATION INTERVAL.  Table 5.6
-    #! increments each of these "at the end of every observation interval
-    #! DURING WHICH <condition>", so a counter ticks only in the intervals
-    #! where its own condition held.  FRAMES_RX's condition - "at least one
-    #! Stream Data AVTPDU has been received" - is the only one that holds in
-    #! EVERY interval of a continuously flowing stream, which is what makes
-    #! its rate the interval clock.  The other six are intermittent BY
-    #! DEFINITION: a sink that saw a late timestamp in 74 of 7545 intervals
-    #! reads 0.0098 ticks/s, and reading that as a 102 s observation interval
-    #! files a perfectly conformant error counter as a ceiling violation.
-    #! (Measured on the AX7101 sink 0, 2026-08-03: TIMESTAMP_UNCERTAIN 23 and
-    #! LATE_TIMESTAMP 74 against FRAMES_RX 7545 - this branch used to FAIL
-    #! both.)  The sound bound for those six is the interval CEILING, which is
-    #! check_interval_ceiling(), not a rate.
-    if name != "FRAMES_RX":
-        return ("PASS", dict(base, reading="interval",
-                             implied_interval_s=None,
-                             why=f"{name} ticks only in the intervals during "
-                                 f"which its condition ({trigger}) held, so "
-                                 f"its rate bounds how often that happened - "
-                                 f"NOT the observation interval; use the "
-                                 f"FRAMES_RX ceiling to grade the interval"))
-    if reading["band"] == "neither":
-        if not stream_flowing:
-            return ("INFO", dict(base, reading="neither",
-                                 why="the stream was not known to be flowing, "
-                                     "so a slow FRAMES_RX may just be a quiet "
-                                     "link rather than an over-long interval"))
-        return ("FAIL", dict(base, reading="neither", why=reading["why"]))
-    return ("PASS", dict(base, reading="interval", why=reading["why"]))
+    return _grade_per_interval(base, rate, nominal_frame_rate, stream_flowing)
 
 
-def check_no_growth(before: dict, after: dict, keys, *,
-                    window_s: Optional[float] = None) -> tuple:
+def check_no_growth(before: dict, after: dict, keys: Sequence[str], *,
+                    window_s: Optional[float] = None
+                    ) -> tuple[str, dict[str, object]]:
     """The GROWTH verdict for the error counters, as a verdict and not as INFO.
 
     Milan v1.2 Table 5.6 defines LATE_TIMESTAMP, EARLY_TIMESTAMP,
@@ -904,77 +922,32 @@ XSIDE_TOLERANCE = {
 }
 
 
-def interval_ticks_agree(talker_delta: Optional[int],
-                         listener_delta: Optional[int], *,
-                         tolerance: int = None,
-                         window_s: float = None,
-                         self_loop: bool = False) -> tuple:
-    """Do the talker's and the listener's OBSERVATION-INTERVAL ticks agree?
-
-    Named for what it is: this compares INTERVAL TICKS and never frames.  While
-    one stream runs continuously both sides tick once per interval, so the two
-    deltas are the same order (~1 per second at a 1 s interval); when it does not
-    run BOTH must be static.  Milan v1.2 Table 5.4/5.6 leave the interval
-    implementation-specific, so the two sides may legitimately differ in
-    interval LENGTH - which is why this asserts agreement about MOVEMENT and a
-    small tick difference, not equality of counts.
-
-    EVERY PARTICIPANT IS A MEASURED PARTY.  A side whose delta exceeds what any
-    sub-second observation interval could tick over the window is not keeping
-    the Milan interval semantics at all - it is counting per frame (the IEEE
-    1722.1-2021 Table 7-157 reading; the peer device's known deviation, settled
-    2026-07-30).  That is a finding AGAINST THAT SIDE, returned in
-    d["peer_findings"] for the caller to attribute by name as
-    xside.peer-counter-semantics, while the pair verdict PASSes for the
-    interval-conformant side instead of smearing it with a FAIL it did not
-    earn.  Movement still binds both sides regardless of semantics: one side
-    moving while the other is static stays the original FAIL.  Two per-frame
-    sides leave no interval-conformant baseline, so that is a SKIP plus one
-    finding per side - never a silent pass for either.
-
-    `window_s` is the MEASURED span the deltas accumulated over, never the
-    requested sleep: it scales the per-frame floor and divides the deviant
-    side's ticks into the ticks_per_s it is accused with.  Dividing a real
-    ~9 s span's ticks by the 4 s request is how ax-rv32-f recorded a peer
-    moving 7,982/s as "18,048.00/s" - an accusation the run's own
-    streaming-rate PASS on the same counter refuted in the same step (H1).
-    """
-    tol = XSIDE_TOLERANCE["interval_ticks"] if tolerance is None else tolerance
-    if talker_delta is None or listener_delta is None:
-        return ("SKIP", {"why": "one side's interval counter was unreadable",
-                         "talker_interval_ticks": talker_delta,
-                         "listener_interval_ticks": listener_delta})
-    floor = XSIDE_TOLERANCE["perframe_floor_ticks"]
-    if window_s:
-        floor = max(floor,
-                    XSIDE_TOLERANCE["perframe_min_ticks_per_s"] * window_s)
-    ticks = {"talker": talker_delta, "listener": listener_delta}
+def _perframe_deviant_sides(ticks, floor):
+    """Which side is keeping 1722.1 per-frame semantics rather than Milan's."""
     sem = {r: ("per-frame" if ticks[r] > floor else "interval")
            for r in ("talker", "listener")}
-    deviant = [r for r in ("talker", "listener") if sem[r] == "per-frame"]
-    d = {"talker_interval_ticks": talker_delta,
-         "listener_interval_ticks": listener_delta,
-         "tolerance_ticks": tol,
-         "tolerance_reason": XSIDE_TOLERANCE["interval_ticks_reason"],
-         "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), NOT frames",
-         "talker_semantics": sem["talker"],
-         "listener_semantics": sem["listener"],
-         "perframe_bound_ticks": floor}
-    if window_s:
-        d["window_s"] = window_s
-    if deviant:
-        d["peer_findings"] = [
-            {"role": r, "ticks": ticks[r],
-             "ticks_per_s": (round(ticks[r] / window_s, 1)
-                             if window_s else None),
-             "perframe_bound_ticks": floor,
-             "counter": {"talker": "FRAMES_TX (Milan v1.2 Table 5.4)",
-                         "listener": "FRAMES_RX (Milan v1.2 Table 5.6)"}[r],
-             "why": "this side's counter advanced far beyond what any <= 1 s "
-                    "observation interval can tick over the window, so it is "
-                    "keeping the IEEE 1722.1-2021 Table 7-157 per-frame "
-                    "reading, not the Milan interval one"}
-            for r in deviant]
+    return sem, [r for r in ("talker", "listener") if sem[r] == "per-frame"]
+
+
+def _perframe_findings(ticks, deviant, floor, window_s):
+    """One finding per side counting per frame, attributed to that side."""
+    return [
+        {"role": r, "ticks": ticks[r],
+         "ticks_per_s": (round(ticks[r] / window_s, 1)
+                         if window_s else None),
+         "perframe_bound_ticks": floor,
+         "counter": {"talker": "FRAMES_TX (Milan v1.2 Table 5.4)",
+                     "listener": "FRAMES_RX (Milan v1.2 Table 5.6)"}[r],
+         "why": "this side's counter advanced far beyond what any <= 1 s "
+                "observation interval can tick over the window, so it is "
+                "keeping the IEEE 1722.1-2021 Table 7-157 per-frame "
+                "reading, not the Milan interval one"}
+        for r in deviant]
+
+
+def _interval_ticks_verdict(d, ticks, deviant, tol, self_loop):
+    """The pair verdict once both sides' ticks and their semantics are known."""
+    talker_delta, listener_delta = ticks["talker"], ticks["listener"]
     if (talker_delta > 0) != (listener_delta > 0):
         if self_loop and talker_delta > 0:
             # A single-port device bound to ITS OWN stream: the frames egress
@@ -1023,8 +996,70 @@ def interval_ticks_agree(talker_delta: Optional[int],
     return ("PASS", d)
 
 
-def check_concurrent_flowing(pair_ticks, *, licensed=None, torn_down=None,
-                             under_load=None) -> tuple:
+def interval_ticks_agree(talker_delta: Optional[int],
+                         listener_delta: Optional[int], *,
+                         tolerance: int = None,
+                         window_s: float = None,
+                         self_loop: bool = False) -> tuple:
+    """Do the talker's and the listener's OBSERVATION-INTERVAL ticks agree?
+
+    Named for what it is: this compares INTERVAL TICKS and never frames.  While
+    one stream runs continuously both sides tick once per interval, so the two
+    deltas are the same order (~1 per second at a 1 s interval); when it does not
+    run BOTH must be static.  Milan v1.2 Table 5.4/5.6 leave the interval
+    implementation-specific, so the two sides may legitimately differ in
+    interval LENGTH - which is why this asserts agreement about MOVEMENT and a
+    small tick difference, not equality of counts.
+
+    EVERY PARTICIPANT IS A MEASURED PARTY.  A side whose delta exceeds what any
+    sub-second observation interval could tick over the window is not keeping
+    the Milan interval semantics at all - it is counting per frame (the IEEE
+    1722.1-2021 Table 7-157 reading; the peer device's known deviation, settled
+    2026-07-30).  That is a finding AGAINST THAT SIDE, returned in
+    d["peer_findings"] for the caller to attribute by name as
+    xside.peer-counter-semantics, while the pair verdict PASSes for the
+    interval-conformant side instead of smearing it with a FAIL it did not
+    earn.  Movement still binds both sides regardless of semantics: one side
+    moving while the other is static stays the original FAIL.  Two per-frame
+    sides leave no interval-conformant baseline, so that is a SKIP plus one
+    finding per side - never a silent pass for either.
+
+    `window_s` is the MEASURED span the deltas accumulated over, never the
+    requested sleep: it scales the per-frame floor and divides the deviant
+    side's ticks into the ticks_per_s it is accused with.  Dividing a real
+    ~9 s span's ticks by the 4 s request is how ax-rv32-f recorded a peer
+    moving 7,982/s as "18,048.00/s" - an accusation the run's own
+    streaming-rate PASS on the same counter refuted in the same step (H1).
+    """
+    tol = XSIDE_TOLERANCE["interval_ticks"] if tolerance is None else tolerance
+    if talker_delta is None or listener_delta is None:
+        return ("SKIP", {"why": "one side's interval counter was unreadable",
+                         "talker_interval_ticks": talker_delta,
+                         "listener_interval_ticks": listener_delta})
+    floor = XSIDE_TOLERANCE["perframe_floor_ticks"]
+    if window_s:
+        floor = max(floor,
+                    XSIDE_TOLERANCE["perframe_min_ticks_per_s"] * window_s)
+    ticks = {"talker": talker_delta, "listener": listener_delta}
+    sem, deviant = _perframe_deviant_sides(ticks, floor)
+    d = {"talker_interval_ticks": talker_delta,
+         "listener_interval_ticks": listener_delta,
+         "tolerance_ticks": tol,
+         "tolerance_reason": XSIDE_TOLERANCE["interval_ticks_reason"],
+         "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), NOT frames",
+         "talker_semantics": sem["talker"],
+         "listener_semantics": sem["listener"],
+         "perframe_bound_ticks": floor}
+    if window_s:
+        d["window_s"] = window_s
+    if deviant:
+        d["peer_findings"] = _perframe_findings(ticks, deviant, floor, window_s)
+    return _interval_ticks_verdict(d, ticks, deviant, tol, self_loop)
+
+
+def check_concurrent_flowing(pair_ticks: dict[str, dict[str, int | None]], *,
+                             licensed: bool | None = None, torn_down: str | None = None,
+                             under_load: str | None = None) -> tuple[str, dict[str, object]]:
     """Do ALL concurrently bound pairs move TOGETHER, in INTERVAL terms?
 
     `pair_ticks` maps a pair label to {"tx_ticks": d, "rx_ticks": d} - the
@@ -1124,7 +1159,8 @@ def check_concurrent_flowing(pair_ticks, *, licensed=None, torn_down=None,
     return ("PASS", detail)
 
 
-def check_unbound_static(deltas) -> tuple:
+def check_unbound_static(deltas: dict[str, dict[str, int | None]]
+                         ) -> tuple[str, dict[str, object]]:
     """Per-index counter ISOLATION: the UNBOUND Stream Inputs stay static while
     their bound neighbours stream.
 
@@ -1242,79 +1278,51 @@ def downgrade_for_instrument(verdict: str, instrument: str) -> str:
     return verdict
 
 
-def cross_side_growth(sides: dict, *, licensed: Optional[bool] = None,
-                      registered_sides=None) -> list:
-    """The cross-participant invariants, as (assertion, verdict, detail) triples.
+def _triple(name, verdict, **detail):
+    """One (assertion, verdict, detail) triple, before the shared side keys."""
+    return (name, verdict, detail)
 
-    `sides` maps a side label to
-        {"role": "talker"|"listener"|"wire"|"bystander",
-         "source": one of FRAME_ACCURATE_SOURCES,
-         "frames": <frame-accurate delta over the window, or None>,
-         "device": "<name>"}
-    Every triple names EVERY side it used, so a morning review can see at a
-    glance whether a green line was one-sided or corroborated.  A side that could
-    not be read contributes a SKIP that NAMES it, never a FAIL of another side.
 
-    `licensed` is the LWSRP_STATUS bit 8 answer (None = unknown).
-    `registered_sides` is the set of side labels that DID register as a listener
-    for this stream; any other side carrying frames is the pruning defect.
-    """
-    out = []
-    for _label, s in sides.items():
-        assert_frame_accurate(s["source"])      # refuses an interval counter
-    named = sorted(sides)
-    unreadable = sorted(l for l, s in sides.items() if s.get("frames") is None)
-    tol = XSIDE_TOLERANCE["snapshot_skew_frames"]
-
-    def rec(name, verdict, **detail):
-        detail.setdefault("sides_used", named)
-        detail.setdefault("sides_unreadable", unreadable)
-        detail.setdefault("sources", {l: sides[l]["source"] for l in named})
-        detail.setdefault("devices", {l: sides[l].get("device") for l in named})
-        detail.setdefault("frames", {l: sides[l].get("frames") for l in named})
-        out.append((name, verdict, detail))
-
-    talkers = {l: s for l, s in sides.items() if s["role"] == "talker"}
-    listeners = {l: s for l, s in sides.items() if s["role"] == "listener"}
-    wires = {l: s for l, s in sides.items() if s["role"] == "wire"}
-
-    # (1) a one-sided claim of streaming is a defect in itself
+def _xside_corroborated(sides, talkers, listeners, wires, unreadable, tol):
+    """(1) a one-sided claim of streaming is a defect in itself."""
     if unreadable:
-        rec("xside.growth-corroborated", "SKIP",
-            why=f"{unreadable} could not be read, so corroboration is "
-                f"impossible; this is NOT a failure of the sides that answered")
+        return _triple("xside.growth-corroborated", "SKIP",
+                       why=f"{unreadable} could not be read, so corroboration is "
+                           f"impossible; this is NOT a failure of the sides that answered")
     elif not talkers or not (listeners or wires):
-        rec("xside.growth-corroborated", "SKIP",
-            why="fewer than two independent sides were supplied, so there is "
-                "nothing to corroborate against")
+        return _triple("xside.growth-corroborated", "SKIP",
+                       why="fewer than two independent sides were supplied, so there is "
+                           "nothing to corroborate against")
     else:
         moving = {l: s["frames"] > 0 for l, s in sides.items()
                   if s["role"] in ("talker", "listener", "wire")}
         agree = len(set(moving.values())) == 1
-        rec("xside.growth-corroborated", "PASS" if agree else "FAIL",
-            moving=moving, tolerance_frames=tol,
-            tolerance_reason=XSIDE_TOLERANCE["snapshot_skew_reason"],
-            why=None if agree else
-            "the sides disagree about whether this stream is running.  Milan "
-            "v1.2 5.3.7.3 ties the talker's streaming to the listener's "
-            "declaration, so a talker that says it is streaming while the "
-            "listener and the wire see nothing is the defect - and so is the "
-            "reverse")
+        return _triple("xside.growth-corroborated", "PASS" if agree else "FAIL",
+                       moving=moving, tolerance_frames=tol,
+                       tolerance_reason=XSIDE_TOLERANCE["snapshot_skew_reason"],
+                       why=None if agree else
+                       "the sides disagree about whether this stream is running.  Milan "
+                       "v1.2 5.3.7.3 ties the talker's streaming to the listener's "
+                       "declaration, so a talker that says it is streaming while the "
+                       "listener and the wire see nothing is the defect - and so is the "
+                       "reverse")
 
-    # (2) an unlicensed stream must move on NO side
+
+def _xside_unlicensed_silent(sides, licensed):
+    """(2) an unlicensed stream must move on NO side."""
     if licensed is None:
-        rec("xside.unlicensed-silent-everywhere", "SKIP",
-            why="the streaming licence (LWSRP_STATUS bit 8) is unknown, so "
-                "'must be silent everywhere' has no premise")
+        return _triple("xside.unlicensed-silent-everywhere", "SKIP",
+                       why="the streaming licence (LWSRP_STATUS bit 8) is unknown, so "
+                           "'must be silent everywhere' has no premise")
     elif licensed:
-        rec("xside.unlicensed-silent-everywhere", "SKIP",
-            why="the stream IS licensed, so this invariant does not apply")
+        return _triple("xside.unlicensed-silent-everywhere", "SKIP",
+                       why="the stream IS licensed, so this invariant does not apply")
     elif not any(s.get("frames") is not None for s in sides.values()
                  if s["role"] in ("talker", "listener")):
-        rec("xside.unlicensed-silent-everywhere", "SKIP",
-            why="no device side could be read, so frames on the wire cannot "
-                "be attributed to this stream's gate - the test host's own "
-                "capture carries its own traffic too")
+        return _triple("xside.unlicensed-silent-everywhere", "SKIP",
+                       why="no device side could be read, so frames on the wire cannot "
+                           "be attributed to this stream's gate - the test host's own "
+                           "capture carries its own traffic too")
     else:
         movers = {l: s["frames"] for l, s in sides.items()
                   if s["role"] in ("talker", "listener", "wire")
@@ -1330,55 +1338,100 @@ def cross_side_growth(sides: dict, *, licensed: Optional[bool] = None,
                         if sides[l]["role"] in ("talker", "listener")
                         or sides[l].get("source") == "pcap"}
         if movers and not attributable:
-            rec("xside.unlicensed-silent-everywhere", "INFO", movers=movers,
-                why="only the interface-global wire counter moved while every "
-                    "readable device side was silent: ambient traffic on the "
-                    "test host's port cannot be attributed to this stream's "
-                    "gate, so this is not admissible evidence either way")
+            return _triple("xside.unlicensed-silent-everywhere", "INFO", movers=movers,
+                           why="only the interface-global wire counter moved while every "
+                               "readable device side was silent: ambient traffic on the "
+                               "test host's port cannot be attributed to this stream's "
+                               "gate, so this is not admissible evidence either way")
         else:
-            rec("xside.unlicensed-silent-everywhere",
-                "PASS" if not attributable else "FAIL", movers=movers,
-                why=None if not attributable else
-                "frames moved with the stream gate SHUT: Milan v1.2 5.3.7.3 "
-                "licenses streaming only while a Listener Ready or Listener "
-                "Ready Failed is being received, so these frames are "
-                "unreserved")
+            return _triple("xside.unlicensed-silent-everywhere",
+                           "PASS" if not attributable else "FAIL", movers=movers,
+                           why=None if not attributable else
+                           "frames moved with the stream gate SHUT: Milan v1.2 5.3.7.3 "
+                           "licenses streaming only while a Listener Ready or Listener "
+                           "Ready Failed is being received, so these frames are "
+                           "unreserved")
 
-    # (3) a listener that counts more than was sent
+
+def _xside_listener_not_more(talkers, listeners, unreadable, tol):
+    """(3) a listener that counts more than was sent."""
     if talkers and listeners and not unreadable:
         t = max(s["frames"] for s in talkers.values())
         worst = max(listeners.items(), key=lambda kv: kv[1]["frames"])
         ok = worst[1]["frames"] <= t + tol
-        rec("xside.listener-not-more-than-talker", "PASS" if ok else "FAIL",
-            talker_frames=t, listener=worst[0],
-            listener_frames=worst[1]["frames"], tolerance_frames=tol,
-            tolerance_reason=XSIDE_TOLERANCE["snapshot_skew_reason"],
-            why=None if ok else
-            "a listener counted more frames than the talker sent, beyond the "
-            "snapshot skew: either a second talker shares this stream_id (a "
-            "DMAC/stream_id collision) or one of the two counters is wrong")
+        return _triple("xside.listener-not-more-than-talker", "PASS" if ok else "FAIL",
+                       talker_frames=t, listener=worst[0],
+                       listener_frames=worst[1]["frames"], tolerance_frames=tol,
+                       tolerance_reason=XSIDE_TOLERANCE["snapshot_skew_reason"],
+                       why=None if ok else
+                       "a listener counted more frames than the talker sent, beyond the "
+                       "snapshot skew: either a second talker shares this stream_id (a "
+                       "DMAC/stream_id collision) or one of the two counters is wrong")
     else:
-        rec("xside.listener-not-more-than-talker", "SKIP",
-            why="needs a readable talker side and a readable listener side")
+        return _triple("xside.listener-not-more-than-talker", "SKIP",
+                       why="needs a readable talker side and a readable listener side")
 
-    # (4) PRUNING: frames must be ABSENT where nothing registered
+
+def _xside_absent_where_unregistered(sides, registered_sides):
+    """(4) PRUNING: frames must be ABSENT where nothing registered."""
     if registered_sides is None:
-        rec("xside.absent-where-not-registered", "SKIP",
-            why="no registration set supplied, so where traffic must be ABSENT "
-                "is unknown; pass the sides that declared a Listener attribute")
+        return _triple("xside.absent-where-not-registered", "SKIP",
+                       why="no registration set supplied, so where traffic must be ABSENT "
+                           "is unknown; pass the sides that declared a Listener attribute")
     else:
         reg = set(registered_sides)
         leaks = {l: s["frames"] for l, s in sides.items()
                  if l not in reg and s["role"] in ("listener", "bystander")
                  and (s.get("frames") or 0) > 0}
-        rec("xside.absent-where-not-registered",
-            "PASS" if not leaks else "FAIL", registered=sorted(reg),
-            leaks=leaks,
-            why=None if not leaks else
-            "stream frames reached an interface that never registered as a "
-            "listener for them; this bench has measured untagged frames "
-            "flooding every port at 500 pps, so absence is asserted and never "
-            "assumed")
+        return _triple("xside.absent-where-not-registered",
+                       "PASS" if not leaks else "FAIL", registered=sorted(reg),
+                       leaks=leaks,
+                       why=None if not leaks else
+                       "stream frames reached an interface that never registered as a "
+                       "listener for them; this bench has measured untagged frames "
+                       "flooding every port at 500 pps, so absence is asserted and never "
+                       "assumed")
+
+
+def cross_side_growth(sides: dict, *, licensed: Optional[bool] = None,
+                      registered_sides: Iterable[str] | None = None
+                      ) -> list[tuple[str, str, dict[str, object]]]:
+    """The cross-participant invariants, as (assertion, verdict, detail) triples.
+
+    `sides` maps a side label to
+        {"role": "talker"|"listener"|"wire"|"bystander",
+         "source": one of FRAME_ACCURATE_SOURCES,
+         "frames": <frame-accurate delta over the window, or None>,
+         "device": "<name>"}
+    Every triple names EVERY side it used, so a morning review can see at a
+    glance whether a green line was one-sided or corroborated.  A side that could
+    not be read contributes a SKIP that NAMES it, never a FAIL of another side.
+
+    `licensed` is the LWSRP_STATUS bit 8 answer (None = unknown).
+    `registered_sides` is the set of side labels that DID register as a listener
+    for this stream; any other side carrying frames is the pruning defect.
+    """
+    for _label, s in sides.items():
+        assert_frame_accurate(s["source"])      # refuses an interval counter
+    named = sorted(sides)
+    unreadable = sorted(l for l, s in sides.items() if s.get("frames") is None)
+    tol = XSIDE_TOLERANCE["snapshot_skew_frames"]
+    talkers = {l: s for l, s in sides.items() if s["role"] == "talker"}
+    listeners = {l: s for l, s in sides.items() if s["role"] == "listener"}
+    wires = {l: s for l, s in sides.items() if s["role"] == "wire"}
+    out = []
+    for name, verdict, detail in (
+            _xside_corroborated(sides, talkers, listeners, wires, unreadable,
+                                tol),
+            _xside_unlicensed_silent(sides, licensed),
+            _xside_listener_not_more(talkers, listeners, unreadable, tol),
+            _xside_absent_where_unregistered(sides, registered_sides)):
+        detail.setdefault("sides_used", named)
+        detail.setdefault("sides_unreadable", unreadable)
+        detail.setdefault("sources", {l: sides[l]["source"] for l in named})
+        detail.setdefault("devices", {l: sides[l].get("device") for l in named})
+        detail.setdefault("frames", {l: sides[l].get("frames") for l in named})
+        out.append((name, verdict, detail))
     return out
 
 
@@ -1785,7 +1838,14 @@ class Device:
     talker_index_set: Optional[tuple] = None
     listener_index_set: Optional[tuple] = None
 
-    def talker_indices(self, include_crf=True) -> list:
+    def talker_indices(self, include_crf: bool = True) -> list[int]:
+        """The STREAM_OUTPUT indices this device really serves, CRF last.
+
+        `talker_index_set` overrides the `talkers` count because a count
+        cannot express a gap, and `include_crf=False` means AAF-only: a
+        selector that leaves the Media Clock Output in picks the one talker
+        whose format no audio sink will ever accept.
+        """
         if self.talker_index_set is not None:
             idx = list(self.talker_index_set)
             if include_crf and self.crf_out is not None \
@@ -1797,7 +1857,15 @@ class Device:
             idx.append(self.crf_out)
         return idx
 
-    def listener_indices(self, include_crf=True) -> list:
+    def listener_indices(self, include_crf: bool = True) -> list[int]:
+        """The STREAM_INPUT indices this device really serves, CRF last.
+
+        The gap is the normal case here: the reference peer declares five
+        interleaved redundancy pairs and this bench has one network, so only
+        the even primaries can ever carry a stream.  `include_crf=False`
+        additionally drops the Media Clock Input, which answers ACMP and then
+        refuses every AAF format.
+        """
         if self.listener_index_set is not None:
             idx = list(self.listener_index_set)
             if include_crf and self.crf_in is not None \
@@ -1818,13 +1886,21 @@ class Device:
         declared a Talker Advertise" - the question that found a real defect."""
         return f"{self.mac}{talker_index:04x}"
 
-    def stream_ids(self, include_crf=True) -> list:
+    def stream_ids(self, include_crf: bool = True) -> list[str]:
+        """Every StreamID this device sources, as the wire analyser wants them.
+
+        Passing the WHOLE set rather than one id is what lets a capture answer
+        "which of my Stream Outputs never declared a Talker Advertise" - the
+        question a per-stream lookup cannot even be asked.
+        """
         return [self.stream_id(i) for i in self.talker_indices(include_crf)]
 
     def is_crf_talker(self, i: int) -> bool:
+        """True when Stream Output `i` is the CRF media clock, not an AAF talker."""
         return self.crf_out is not None and i == self.crf_out
 
     def is_crf_listener(self, i: int) -> bool:
+        """True when Stream Input `i` is the CRF media clock sink, not an AAF one."""
         return self.crf_in is not None and i == self.crf_in
 
 
@@ -1941,6 +2017,19 @@ def participants(dut: Device, peer: Device,
 
 
 # --------------------------------------------------------------------- steps --
+@dataclass(frozen=True)
+class Endpoint:
+    """One end of a stream: a device and the descriptor index on it.
+
+    A talker index means nothing without the device that carries it, and the
+    two are passed together everywhere - which is what turned every plan
+    builder into a four-argument (tk, ti, ls, li) call a reader had to count
+    out.  As one value the order is a type, not a convention.
+    """
+    device: Device
+    index: int
+
+
 @dataclass
 class Step:
     """One plan step.  `op` names what a runner does; `asserts` is what it owes.
@@ -1960,6 +2049,12 @@ class Step:
     note: str = ""
 
     def as_dict(self) -> dict:
+        """The JSON-serialisable form a runner consumes, clauses included.
+
+        `asdict()` alone would emit the AssertSpec objects; a runner needs the
+        assertion NAMES plus the clause and severity behind each, so a verdict
+        line can cite the requirement without importing this module.
+        """
         d = asdict(self)
         d["asserts"] = [a.name for a in self.asserts]
         d["assert_clauses"] = {a.name: a.clause for a in self.asserts}
@@ -1967,10 +2062,11 @@ class Step:
         return d
 
 
-def _pair_steps(prefix, area, tk: Device, ti: int, ls: Device, li: int,
+def _pair_steps(prefix, area, talker: Endpoint, listener: Endpoint,
                 fmt: Optional[str]) -> list:
     """One talker index into one listener index: set the format, bind, verify,
     unbind.  The CRF pair carries its own format expectation."""
+    tk, ti, ls, li = talker.device, talker.index, listener.device, listener.index
     sid = f"{prefix}.{tk.name}t{ti}-{ls.name}l{li}"
     steps = []
     crf = tk.is_crf_talker(ti) or ls.is_crf_listener(li)
@@ -2008,7 +2104,7 @@ def _pair_steps(prefix, area, tk: Device, ti: int, ls: Device, li: int,
         clause="Milan v1.2 5.5.3.5 BIND_RX + 5.3.8.10 counter reset on "
                "not-bound -> bound",
         note="CRF media-clock pair" if crf else ""))
-    steps.append(_start_if_needed_step(sid, area, tk, ti, ls, li))
+    steps.append(_start_if_needed_step(sid, area, talker, listener))
     steps.append(Step(
         sid + ".disconnect", area, "disconnect",
         {"talker": tk.entity_id, "talker_index": ti, "talker_mac": tk.mac,
@@ -2027,8 +2123,8 @@ def _pair_steps(prefix, area, tk: Device, ti: int, ls: Device, li: int,
     return steps
 
 
-def _start_if_needed_step(sid: str, area: str, tk: Device, ti: int,
-                          ls: Device, li: int) -> "Step":
+def _start_if_needed_step(sid: str, area: str, talker: Endpoint,
+                          listener: Endpoint) -> "Step":
     """The step that OWNS the Milan 5.3.7.3 licence question.
 
     It is a separate step from the bind on purpose.  The bind can only ask
@@ -2039,6 +2135,7 @@ def _start_if_needed_step(sid: str, area: str, tk: Device, ti: int,
     verdict is cross-participant: the talker's claim is corroborated on the
     listener and on the test machine or it is not a fact.
     """
+    tk, ti, ls, li = talker.device, talker.index, listener.device, listener.index
     return Step(
         sid + ".start-if-needed", area, "start_stream_if_needed",
         {"talker": tk.entity_id, "talker_mac": tk.mac, "talker_index": ti,
@@ -2067,22 +2164,26 @@ def plan_matrix(dut: Device = ARTY, peer: Device = PEER,
     fmt = dut.formats[0] if dut.formats else None
     for ti in dut.talker_indices():
         for li in peer.listener_indices():
-            steps += _pair_steps("out", "matrix", dut, ti, peer, li, fmt)
+            steps += _pair_steps("out", "matrix", Endpoint(dut, ti),
+                                 Endpoint(peer, li), fmt)
     if both_directions:
         for ti in peer.talker_indices():
             for li in dut.listener_indices():
-                steps += _pair_steps("ret", "matrix", peer, ti, dut, li, fmt)
+                steps += _pair_steps("ret", "matrix", Endpoint(peer, ti),
+                                     Endpoint(dut, li), fmt)
     # ---- intra-DUT loopback: the DUT's own talkers into its own listeners.
     # This is the only pair set that needs no peer at all, so it is what keeps
     # the campaign meaningful while the reference device is out of the rack.
     for ti in dut.talker_indices():
         for li in dut.listener_indices():
-            steps += _pair_steps("loop", "matrix", dut, ti, dut, li, fmt)
+            steps += _pair_steps("loop", "matrix", Endpoint(dut, ti),
+                                 Endpoint(dut, li), fmt)
     return steps
 
 
-def _multi_pair(tk: Device, ti: int, ls: Device, li: int,
+def _multi_pair(talker: Endpoint, listener: Endpoint,
                 fmt: Optional[str]) -> dict:
+    tk, ti, ls, li = talker.device, talker.index, listener.device, listener.index
     p = {"talker": tk.entity_id, "talker_index": ti, "talker_mac": tk.mac,
          "listener": ls.entity_id, "listener_index": li,
          "listener_mac": ls.mac, "label": f"{tk.name}t{ti}-{ls.name}l{li}"}
@@ -2108,7 +2209,7 @@ def _multi_pairs_primaries(dut: Device, peer: Device, fmt) -> list:
     lss = peer.listener_indices(include_crf=False)
     if not tks or not lss:
         return []
-    return [_multi_pair(dut, tks[i % len(tks)], peer, li, fmt)
+    return [_multi_pair(Endpoint(dut, tks[i % len(tks)]), Endpoint(peer, li), fmt)
             for i, li in enumerate(lss)]
 
 
@@ -2121,7 +2222,8 @@ def _multi_pairs_selfloop(dut: Device, fmt) -> list:
     """
     tks = dut.talker_indices(include_crf=False)
     lss = dut.listener_indices(include_crf=False)
-    return [_multi_pair(dut, t, dut, li, fmt) for t, li in zip(tks, lss)]
+    return [_multi_pair(Endpoint(dut, t), Endpoint(dut, li), fmt)
+            for t, li in zip(tks, lss)]
 
 
 def _multi_pairs_mixed(dut: Device, peer: Device, fmt) -> list:
@@ -2137,10 +2239,10 @@ def _multi_pairs_mixed(dut: Device, peer: Device, fmt) -> list:
     out, pi, di = [], 0, 0
     for n, ti in enumerate(tks):
         if n % 2 == 0 and pi < len(plss):
-            out.append(_multi_pair(dut, ti, peer, plss[pi], fmt))
+            out.append(_multi_pair(Endpoint(dut, ti), Endpoint(peer, plss[pi]), fmt))
             pi += 1
         elif di < len(dlss):
-            out.append(_multi_pair(dut, ti, dut, dlss[di], fmt))
+            out.append(_multi_pair(Endpoint(dut, ti), Endpoint(dut, dlss[di]), fmt))
             di += 1
     return out
 
@@ -2166,17 +2268,18 @@ def _multi_pairs_stress(dut: Device, peer: Device, fmt) -> list:
     dlss = dut.listener_indices(include_crf=False)
     out = []
     if tks and plss:
-        out += [_multi_pair(dut, tks[i % len(tks)], peer, li, fmt)
+        out += [_multi_pair(Endpoint(dut, tks[i % len(tks)]), Endpoint(peer, li),
+                            fmt)
                 for i, li in enumerate(plss)]
     free = list(dlss)
     for ti in tks[len(plss):]:
         if not free:
             break
-        out.append(_multi_pair(dut, ti, dut, free.pop(0), fmt))
+        out.append(_multi_pair(Endpoint(dut, ti), Endpoint(dut, free.pop(0)), fmt))
     for ti in peer.talker_indices(include_crf=False):
         if not free:
             break
-        out.append(_multi_pair(peer, ti, dut, free.pop(0), fmt))
+        out.append(_multi_pair(Endpoint(peer, ti), Endpoint(dut, free.pop(0)), fmt))
     return out
 
 
@@ -2195,6 +2298,51 @@ def _multi_single_listener_pair(pairs: list) -> dict:
         if counts[(p["talker"], p["talker_index"])] == 1:
             return p
     return pairs[-1]
+
+
+def _multi_stress_steps(sid, name, pairs, unbound):
+    """The best-effort load sandwich: load RX, load TX, verify with it OFF.
+
+    802.1Q-2018 8.6.8.2 puts an admitted class A stream in a reserved,
+    credit-shaped queue, so best-effort load must not disturb it - and
+    only the before/during/after sandwich can attribute a wound to the
+    load rather than to the run.
+    """
+    steps = []
+    for direction, what in (
+            ("rx", "external peer -> DUT best-effort traffic: inbound "
+                   "wire stress"),
+            ("tx", "DUT -> host best-effort TCP: TX stress against the "
+                   "shaped egress queues")):
+        steps.append(Step(
+            sid + f".load-{direction}", "multi", "multi_stress_load",
+            {"set": name, "pairs": pairs, "direction": direction,
+             "measure_s": 4.0, "load_seconds": 16.0},
+            asserts=MULTI_STRESS_LOAD_ASSERTS,
+            clause="802.1Q-2018 8.6.8.2/34: admitted SR class A streams "
+                   "travel in a reserved, credit-shaped queue, so "
+                   "best-effort load SHALL NOT disturb them; Milan "
+                   "Table 5.4/5.6 interval terms for the measurement",
+            note=what + ".  iperf3 on the board is PROBED, never assumed "
+                        "(the board image need not carry it); the RX "
+                        "fallback is a blind "
+                        "UDP blast from the controller host, named as "
+                        "such in every record; TX with no board tooling "
+                        "cannot be generated from the host and SKIPs "
+                        "naming what to supply"))
+    steps.append(Step(
+        sid + ".verify-after-load", "multi", "multi_verify",
+        {"set": name, "pairs": pairs, "unbound": unbound,
+         "measure_s": 4.0},
+        asserts=MULTI_VERIFY_ASSERTS,
+        clause="Milan v1.2 5.3.7.3 + Table 5.4/5.6: load OFF, the same "
+               "full verification - a wound that persists past the load "
+               "is a different finding from transient interference, and "
+               "only the before/during/after sandwich can tell them "
+               "apart",
+        note="identical machinery to verify-concurrent on purpose, so "
+             "the two windows diff line for line"))
+    return steps
 
 
 def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
@@ -2241,39 +2389,7 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
                   "never frames"),
     ]
     if stress:
-        for direction, what in (
-                ("rx", "external peer -> DUT best-effort traffic: inbound "
-                       "wire stress"),
-                ("tx", "DUT -> host best-effort TCP: TX stress against the "
-                       "shaped egress queues")):
-            steps.append(Step(
-                sid + f".load-{direction}", "multi", "multi_stress_load",
-                {"set": name, "pairs": pairs, "direction": direction,
-                 "measure_s": 4.0, "load_seconds": 16.0},
-                asserts=MULTI_STRESS_LOAD_ASSERTS,
-                clause="802.1Q-2018 8.6.8.2/34: admitted SR class A streams "
-                       "travel in a reserved, credit-shaped queue, so "
-                       "best-effort load SHALL NOT disturb them; Milan "
-                       "Table 5.4/5.6 interval terms for the measurement",
-                note=what + ".  iperf3 on the board is PROBED, never assumed "
-                            "(the board image need not carry it); the RX "
-                            "fallback is a blind "
-                            "UDP blast from the controller host, named as "
-                            "such in every record; TX with no board tooling "
-                            "cannot be generated from the host and SKIPs "
-                            "naming what to supply"))
-        steps.append(Step(
-            sid + ".verify-after-load", "multi", "multi_verify",
-            {"set": name, "pairs": pairs, "unbound": unbound,
-             "measure_s": 4.0},
-            asserts=MULTI_VERIFY_ASSERTS,
-            clause="Milan v1.2 5.3.7.3 + Table 5.4/5.6: load OFF, the same "
-                   "full verification - a wound that persists past the load "
-                   "is a different finding from transient interference, and "
-                   "only the before/during/after sandwich can tell them "
-                   "apart",
-            note="identical machinery to verify-concurrent on purpose, so "
-                 "the two windows diff line for line"))
+        steps += _multi_stress_steps(sid, name, pairs, unbound)
     steps += [
         Step(sid + ".teardown-one", "multi", "multi_teardown_one",
              {"set": name, "unbind": tear, "survivors": survivors,
@@ -2381,7 +2497,8 @@ def plan_churn(dut: Device = ARTY, peer: Device = PEER) -> list:
             asserts=BOUND_STREAMING_ASSERTS,
             clause="Milan v1.2 5.5.3.5.43 - the first bind of the pair"))
         steps.append(_start_if_needed_step(
-            f"churn.implicit-rebind.l{li}", "churn", peer, t0, dut, li))
+            f"churn.implicit-rebind.l{li}", "churn",
+            Endpoint(peer, t0), Endpoint(dut, li)))
         steps.append(Step(
             f"churn.implicit-rebind.l{li}.rebind", "churn", "connect",
             {"talker": peer.entity_id, "talker_index": t1,
@@ -2402,7 +2519,8 @@ def plan_churn(dut: Device = ARTY, peer: Device = PEER) -> list:
             note="a refusal here is a known open finding on this fabric, and "
                  "the runner records the status rather than stopping"))
         steps.append(_start_if_needed_step(
-            f"churn.implicit-rebind.l{li}.rebind", "churn", peer, t1, dut, li))
+            f"churn.implicit-rebind.l{li}.rebind", "churn",
+            Endpoint(peer, t1), Endpoint(dut, li)))
         steps.append(Step(
             f"churn.implicit-rebind.l{li}.unbind", "churn", "disconnect",
             {"talker": peer.entity_id, "talker_index": t1,
@@ -2424,7 +2542,8 @@ def plan_churn(dut: Device = ARTY, peer: Device = PEER) -> list:
                        "max_supported_streams; the second bind must not "
                        "interrupt the first (Milan v1.2 5.3.7.3)"))
             steps.append(_start_if_needed_step(
-                f"churn.bind-while-streaming.{i}", "churn", dut, 0, peer, li))
+                f"churn.bind-while-streaming.{i}", "churn",
+                Endpoint(dut, 0), Endpoint(peer, li)))
     # (d) rebind storm
     steps.append(Step(
         "churn.rebind-storm", "churn", "rebind_storm",
@@ -2594,22 +2713,9 @@ def plan_audio(dut: Device = ARTY, peer: Device = PEER) -> list:
 
 
 # ------------------------------------------------------- adverse conditions --
-def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
-    """The adverse-conditions matrix.
-
-    SOURCING, stated plainly because it decides what a failure MEANS.  The
-    Milan adverse-network-conditions recommended practice covers exactly ONE
-    condition - sustained high rate traffic, in four traffic classes - and it is
-    a RECOMMENDATION: "It is not a current requirement for a Milan device to
-    support the features mentioned."  It says nothing about malformed packets.
-    So:
-      * storm entries cite that document and carry severity RECOMMENDED;
-      * malformed/truncated-frame entries cite 1722.1-2021 instead;
-      * link/gPTP/MAAP/VLAN entries cite 802.1AS, 1722.1 and 802.1Q.
-    Anything with no clause in reach is marked INFO and recorded, never failed.
-    """
+def _torture_storm_steps(dut):
+    """1. Sustained high-rate traffic, one entry per traffic class."""
     S = []
-
     # --- 1. sustained high rate traffic, per traffic class -----------------
     for cls, desc, dst in (
             ("non-priority-broadcast",
@@ -2639,7 +2745,13 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
                         "with a cost/benefit decision attached, and AVDECC "
                         "unresponsiveness under storm is EXPECTED by the same "
                         "clause"))
+    return S
 
+
+def _torture_link_steps(dut):
+    """2. Link bounces: the CSR-driven one a runner can drive alone, and
+    the cable pull that is the honest version of the same test."""
+    S = []
     # --- 2. link bounces ---------------------------------------------------
     S.append(Step(
         "torture.link.bounce-software", "torture", "link_bounce",
@@ -2675,18 +2787,12 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
         clause="802.1AS-2020 10.2.4 / 802.1Q-2018 35.2.4",
         note="a real PHY link loss exercises the link guard, the MAC and the "
              "reservation together; a CSR-driven reset does not"))
+    return S
 
-    # --- 3. gPTP grandmaster changes and loss ------------------------------
-    #  MOVED to the `physical` area (plan_physical): powering the switch off
-    #  and back on IS the grandmaster loss (each end station becomes its own
-    #  island GM) and the re-join IS the grandmaster change (BMCA re-elects
-    #  with priority1 untouched - the USER standing rule that recovery must be
-    #  automatic, never a forced win).  The physical area runs LAST because a
-    #  partition mid-campaign would pollute every later verdict.
 
-    # --- 4. malformed / truncated control frames --------------------------
-    #  NOT from the adverse-conditions recommended practice, which covers only
-    #  sustained high rate traffic, so each entry names its own 1722.1 clause.
+def _torture_malformed_steps():
+    """4. Malformed and truncated control frames, each citing its own clause."""
+    S = []
     for name, mutation, clause in (
             ("cdl-overstated",
              "control_data_length larger than the frame that carries it",
@@ -2747,7 +2853,12 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
                                 "command; a responder wedged by a bad frame is "
                                 "the worst outcome and the easiest to miss")),
             clause=clause, note=mutation))
+    return S
 
+
+def _torture_maap_steps(dut):
+    """5. MAAP conflicts."""
+    S = []
     # --- 5. MAAP conflicts --------------------------------------------------
     S.append(Step(
         "torture.maap.conflict", "torture", "maap_conflict",
@@ -2768,7 +2879,12 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
         clause="Milan v1.2 5.3.7.5 Table 5.3 + IEEE 1722-2016 Annex B",
         note="the 2 LeaveAll wait is part of the requirement: an immediate "
              "re-claim is a different behaviour"))
+    return S
 
+
+def _torture_vlan_steps():
+    """6. VLAN misconfiguration."""
+    S = []
     # --- 6. VLAN misconfiguration -----------------------------------------
     S.append(Step(
         "torture.vlan.wrong-sr-vid", "torture", "vlan_misconfig",
@@ -2798,7 +2914,12 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
         clause="802.1Q-2018 9.6",
         note="measured on this bench: an undeclared multicast DMAC reached a "
              "port with no listener at 500 pps while AAF was pruned correctly"))
+    return S
 
+
+def _torture_starvation_steps():
+    """7. Starvation and restart, on either side of the stream."""
+    S = []
     # --- 7. starvation and restart ----------------------------------------
     S.append(Step(
         "torture.starve.talker-source-removed", "torture", "starve_source",
@@ -2825,10 +2946,39 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
                             "invariant: losing the stream unlocks the media "
                             "clock, so MEDIA_LOCKED == MEDIA_UNLOCKED again")),
         clause="Milan v1.2 Table 5.6"))
-    #  The DUT power cycle MOVED to the `physical` area (plan_physical), where
-    #  it is powerstrip-automatable; its non-volatile assertions
-    #  (A_STATE_RESTORED / A_COUNTERS_ZEROED) travelled with it.
     return S
+
+
+def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
+    """The adverse-conditions matrix.
+
+    SOURCING, stated plainly because it decides what a failure MEANS.  The
+    Milan adverse-network-conditions recommended practice covers exactly ONE
+    condition - sustained high rate traffic, in four traffic classes - and it is
+    a RECOMMENDATION: "It is not a current requirement for a Milan device to
+    support the features mentioned."  It says nothing about malformed packets.
+    So:
+      * storm entries cite that document and carry severity RECOMMENDED;
+      * malformed/truncated-frame entries cite 1722.1-2021 instead;
+      * link/gPTP/MAAP/VLAN entries cite 802.1AS, 1722.1 and 802.1Q.
+    Anything with no clause in reach is marked INFO and recorded, never failed.
+    """
+    # --- 3. gPTP grandmaster changes and loss, and the DUT power cycle -----
+    #  MOVED to the `physical` area (plan_physical): powering the switch off
+    #  and back on IS the grandmaster loss (each end station becomes its own
+    #  island GM) and the re-join IS the grandmaster change (BMCA re-elects
+    #  with priority1 untouched - the USER standing rule that recovery must be
+    #  automatic, never a forced win).  The physical area runs LAST because a
+    #  partition mid-campaign would pollute every later verdict.  The DUT
+    #  power cycle went the same way, where it is powerstrip-automatable, and
+    #  its non-volatile assertions (A_STATE_RESTORED / A_COUNTERS_ZEROED)
+    #  travelled with it.
+    return (_torture_storm_steps(dut)
+            + _torture_link_steps(dut)
+            + _torture_malformed_steps()
+            + _torture_maap_steps(dut)
+            + _torture_vlan_steps()
+            + _torture_starvation_steps())
 
 
 # ---------------------------------------------- the physical (power) family --
@@ -3013,6 +3163,102 @@ A_COUNTERS_ZEROED = AssertSpec(
     "block straight after a power cycle is a restored-counter bug")
 
 
+def _physical_switch_cycle_steps(dut, peer, fmt, ti, li, dli):
+    """The switch power cycle: the partition, the re-join, and the proof
+    that a bind still works across it."""
+    S = []
+    # ---- family 1: the switch cycle (partition + re-join) -----------------
+    S.append(Step(
+        "phys.switch-cycle.pre-snapshot", "physical", "phys_snapshot",
+        {"family": "switch-cycle", "version_addr": VERSION_ADDR,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        asserts=(A_PHYS_SNAPSHOT,),
+        clause="IEEE 1722.1-2021 Table 7-153 (the GM_CHANGED baseline) + the "
+               "standing measure-before-and-after rule",
+        note="GM identity on BOTH sides (ADPDU gptp_grandmaster_id), the "
+             "AVB_INTERFACE counters, the licence word, the board uptime and "
+             "the VERSION word - everything the retroactive verdicts need"))
+    S.append(Step(
+        "phys.switch-cycle.gm-partition", "physical", "switch_power_cycle",
+        {"outlet_role": "switch", "family": "switch-cycle",
+         "hold_s": 20, "link_budget_s": 240, "gptp_budget_s": 180,
+         "settle_gap_s": 10, "gm_changes_max": 8,
+         "clkv_stat_addr": CLKV_STAT_ADDR},
+        needs_human=True,
+        human_action="Power off the AVB switch (DN-1) at the powerstrip for "
+                     "~20 s, then power it back on and wait for links and "
+                     "gPTP to recover. AUTOMATED when the runner is "
+                     "given --powerstrip-cmd and --switch-outlet (bench: "
+                     "the powerstrip host, outlet 4).",
+        asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
+                 A_PEER_GM_CHANGED, A_LINK_EVENT_SEEN, A_GM_ID_FOLLOWS,
+                 A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
+                 A_TU_VALIDITY_RESTORED, A_NO_REBOOT, A_ADP_ALIVE),
+        clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 Table 7-153 "
+               "GPTP_GM_CHANGED",
+        note="the partition IS the GM loss and the re-join IS the GM change: "
+             "priority1 is never touched (USER standing rule - recovery must "
+             "be automatic).  Mid-partition nothing is verifiable from the "
+             "controller host - it is inside the partition - so the "
+             "own-island-GM claim is verified retroactively from the "
+             "GM_CHANGED counters, and timeouts during the off-window are "
+             "the expected condition, never failures.  WHICH counter tells "
+             "the story is a TOPOLOGY question the runner answers from the "
+             "pre-snapshot GM view, not a constant: the permanent GM owes "
+             "CONTINUITY (zero delta, same id) and only a FOLLOWER owes an "
+             "ADVANCE, so on this bench the DUT is graded for continuity "
+             "and the peer - which does lose its GM - carries the advance"))
+    S += _pair_steps("phys.switch-cycle.proof", "physical",
+                     Endpoint(dut, ti), Endpoint(peer, li), fmt)
+    return S
+
+
+def _physical_dut_cycle_steps(dut, peer, fmt, ti, li, dli):
+    """The DUT power cycle: what non-volatile state owes to survive it,
+    and the proof that a bind still works after it."""
+    S = []
+    # ---- family 2: the DUT power cycle (the persistence story) ------------
+    S.append(Step(
+        "phys.dut-cycle.pre-snapshot", "physical", "phys_snapshot",
+        {"family": "dut-cycle", "version_addr": VERSION_ADDR,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        asserts=(A_PHYS_SNAPSHOT,),
+        clause="Milan v1.2 5.3.10.1 / 5.3.8.1 (what must survive the cycle "
+               "is defined by what was set BEFORE it) + the standing "
+               "measure-before-and-after rule"))
+    S.append(Step(
+        "phys.dut-cycle.power-cycle", "physical", "dut_power_cycle",
+        {"outlet_role": "dut", "family": "dut-cycle",
+         "off_s": 8, "net_budget_s": 360, "gptp_budget_s": 120,
+         "settle_gap_s": 10, "version_addr": VERSION_ADDR,
+         "clkv_stat_addr": CLKV_STAT_ADDR,
+         "mac_ctrl_addr": MAC_CTRL_ADDR,
+         "mac_ctrl": DUT_RX_FILTER_HEALTHY_CTRL,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        needs_human=True,
+        human_action="Power-cycle the DUT at the outlet (off for at least "
+                     "8 s - the SRAM gateware is lost, QSPI boots it back), "
+                     "then wait for the network to come up with NO manual "
+                     "intervention.  AUTOMATED when the runner is given "
+                     "--powerstrip-cmd and --dut-outlet (bench: the "
+                     "powerstrip host, outlet 0).",
+        asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
+                 A_SHIELD_POSTURE, A_STATE_RESTORED, A_STATE_SELF_CONSISTENT,
+                 A_STATE_DEFAULTED, A_COUNTERS_ZEROED,
+                 A_ONE_GM_RESTORED, A_TU_VALIDITY_RESTORED),
+        clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
+        note="the only test that can see the non-volatile requirements at "
+             "all - and the zero-touch boot ladder (network, VERSION, shield "
+             "posture, discovery, gPTP, clock validity) is the persistence story "
+             "the flash rounds keep re-earning.  Milan 5.3.8.1 is a SHALL, "
+             "so the restore assertion is never deleted; on a build with no "
+             "writable flash it grades KNOWN-PENDING naming the missing "
+             "store while the SELF-CONSISTENCY half stays a live SHALL"))
+    S += _pair_steps("phys.dut-cycle.proof", "physical",
+                     Endpoint(dut, ti), Endpoint(peer, li), fmt)
+    return S
+
+
 def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
     """The powerstrip-driven physical family - LAST, always, and never faked.
 
@@ -3059,7 +3305,6 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
         it back, which is what makes it a true cold boot), a conservative
         360 s to a network-ready bare-metal image, then 120 s more for gPTP.
     """
-    S = []
     fmt = dut.formats[0] if dut.formats else None
     # the proof-pair indices: highest AAF (non-CRF) on each side - never 0
     tis = dut.talker_indices(include_crf=False)
@@ -3068,91 +3313,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
     li = lis[-1] if lis else 0
     dlis = dut.listener_indices(include_crf=False)
     dli = dlis[-1] if dlis else 0
-
-    # ---- family 1: the switch cycle (partition + re-join) -----------------
-    S.append(Step(
-        "phys.switch-cycle.pre-snapshot", "physical", "phys_snapshot",
-        {"family": "switch-cycle", "version_addr": VERSION_ADDR,
-         "fmt_out_index": ti, "fmt_in_index": dli},
-        asserts=(A_PHYS_SNAPSHOT,),
-        clause="IEEE 1722.1-2021 Table 7-153 (the GM_CHANGED baseline) + the "
-               "standing measure-before-and-after rule",
-        note="GM identity on BOTH sides (ADPDU gptp_grandmaster_id), the "
-             "AVB_INTERFACE counters, the licence word, the board uptime and "
-             "the VERSION word - everything the retroactive verdicts need"))
-    S.append(Step(
-        "phys.switch-cycle.gm-partition", "physical", "switch_power_cycle",
-        {"outlet_role": "switch", "family": "switch-cycle",
-         "hold_s": 20, "link_budget_s": 240, "gptp_budget_s": 180,
-         "settle_gap_s": 10, "gm_changes_max": 8,
-         "clkv_stat_addr": CLKV_STAT_ADDR},
-        needs_human=True,
-        human_action="Power off the AVB switch (DN-1) at the powerstrip for "
-                     "~20 s, then power it back on and wait for links and "
-                     "gPTP to recover. AUTOMATED when the runner is "
-                     "given --powerstrip-cmd and --switch-outlet (bench: "
-                     "the powerstrip host, outlet 4).",
-        asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
-                 A_PEER_GM_CHANGED, A_LINK_EVENT_SEEN, A_GM_ID_FOLLOWS,
-                 A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
-                 A_TU_VALIDITY_RESTORED, A_NO_REBOOT, A_ADP_ALIVE),
-        clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 Table 7-153 "
-               "GPTP_GM_CHANGED",
-        note="the partition IS the GM loss and the re-join IS the GM change: "
-             "priority1 is never touched (USER standing rule - recovery must "
-             "be automatic).  Mid-partition nothing is verifiable from the "
-             "controller host - it is inside the partition - so the "
-             "own-island-GM claim is verified retroactively from the "
-             "GM_CHANGED counters, and timeouts during the off-window are "
-             "the expected condition, never failures.  WHICH counter tells "
-             "the story is a TOPOLOGY question the runner answers from the "
-             "pre-snapshot GM view, not a constant: the permanent GM owes "
-             "CONTINUITY (zero delta, same id) and only a FOLLOWER owes an "
-             "ADVANCE, so on this bench the DUT is graded for continuity "
-             "and the peer - which does lose its GM - carries the advance"))
-    S += _pair_steps("phys.switch-cycle.proof", "physical", dut, ti, peer, li,
-                     fmt)
-
-    # ---- family 2: the DUT power cycle (the persistence story) ------------
-    S.append(Step(
-        "phys.dut-cycle.pre-snapshot", "physical", "phys_snapshot",
-        {"family": "dut-cycle", "version_addr": VERSION_ADDR,
-         "fmt_out_index": ti, "fmt_in_index": dli},
-        asserts=(A_PHYS_SNAPSHOT,),
-        clause="Milan v1.2 5.3.10.1 / 5.3.8.1 (what must survive the cycle "
-               "is defined by what was set BEFORE it) + the standing "
-               "measure-before-and-after rule"))
-    S.append(Step(
-        "phys.dut-cycle.power-cycle", "physical", "dut_power_cycle",
-        {"outlet_role": "dut", "family": "dut-cycle",
-         "off_s": 8, "net_budget_s": 360, "gptp_budget_s": 120,
-         "settle_gap_s": 10, "version_addr": VERSION_ADDR,
-         "clkv_stat_addr": CLKV_STAT_ADDR,
-         "mac_ctrl_addr": MAC_CTRL_ADDR,
-         "mac_ctrl": DUT_RX_FILTER_HEALTHY_CTRL,
-         "fmt_out_index": ti, "fmt_in_index": dli},
-        needs_human=True,
-        human_action="Power-cycle the DUT at the outlet (off for at least "
-                     "8 s - the SRAM gateware is lost, QSPI boots it back), "
-                     "then wait for the network to come up with NO manual "
-                     "intervention.  AUTOMATED when the runner is given "
-                     "--powerstrip-cmd and --dut-outlet (bench: the "
-                     "powerstrip host, outlet 0).",
-        asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
-                 A_SHIELD_POSTURE, A_STATE_RESTORED, A_STATE_SELF_CONSISTENT,
-                 A_STATE_DEFAULTED, A_COUNTERS_ZEROED,
-                 A_ONE_GM_RESTORED, A_TU_VALIDITY_RESTORED),
-        clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
-        note="the only test that can see the non-volatile requirements at "
-             "all - and the zero-touch boot ladder (network, VERSION, shield "
-             "posture, discovery, gPTP, clock validity) is the persistence story "
-             "the flash rounds keep re-earning.  Milan 5.3.8.1 is a SHALL, "
-             "so the restore assertion is never deleted; on a build with no "
-             "writable flash it grades KNOWN-PENDING naming the missing "
-             "store while the SELF-CONSISTENCY half stays a live SHALL"))
-    S += _pair_steps("phys.dut-cycle.proof", "physical", dut, ti, peer, li,
-                     fmt)
-    return S
+    return (_physical_switch_cycle_steps(dut, peer, fmt, ti, li, dli)
+            + _physical_dut_cycle_steps(dut, peer, fmt, ti, li, dli))
 
 
 AREAS = {
@@ -3170,7 +3332,8 @@ AREAS = {
 }
 
 
-def build_plan(areas=None, dut: Device = ARTY, peer: Device = PEER) -> list:
+def build_plan(areas: Iterable[str] | None = None, dut: Device = ARTY,
+               peer: Device = PEER) -> list[Step]:
     """The whole campaign, or the named areas, in execution order."""
     want = list(AREAS) if not areas else list(areas)
     bad = [a for a in want if a not in AREAS]
@@ -3187,8 +3350,8 @@ def build_plan(areas=None, dut: Device = ARTY, peer: Device = PEER) -> list:
 
 
 # ------------------------------------------------------------- plan auditing --
-def plan_covers_every_index(plan, dut: Device = ARTY,
-                            peer: Device = PEER) -> dict:
+def plan_covers_every_index(plan: Iterable[Step], dut: Device = ARTY,
+                            peer: Device = PEER) -> dict[str, list[int]]:
     """Which talker/listener indices the plan actually touches.
 
     This is the audit that makes the standing "never index 0 only" rule
@@ -3231,8 +3394,9 @@ def plan_covers_every_index(plan, dut: Device = ARTY,
     return {k: sorted(v) for k, v in seen.items()}
 
 
-def plan_coverage_by_area(plan, dut: Device = ARTY,
-                          peer: Device = PEER) -> dict:
+def plan_coverage_by_area(plan: Iterable[Step], dut: Device = ARTY,
+                          peer: Device = PEER
+                          ) -> dict[str, dict[str, list[int]]]:
     """The same audit, PER AREA - which is the only form that can say no.
 
     plan_covers_every_index() over the WHOLE plan is structurally blind: the
@@ -3308,8 +3472,10 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
     }
 
 
-def area_covers_every_index(plan, area: str, dut: Device = ARTY,
-                            peer: Device = PEER, *, expect=None) -> tuple:
+def area_covers_every_index(plan: Iterable[Step], area: str,
+                            dut: Device = ARTY, peer: Device = PEER, *,
+                            expect: dict[str, list[int]] | None = None
+                            ) -> tuple[bool, dict[str, object]]:
     """(ok, detail) for ONE area against that area's own expectation."""
     cov = plan_coverage_by_area(plan, dut, peer).get(area, {})
     want = expect if expect is not None else \
@@ -3320,11 +3486,14 @@ def area_covers_every_index(plan, area: str, dut: Device = ARTY,
                           "missing": missing})
 
 
-def human_steps(plan) -> list:
+def human_steps(plan: Iterable[Step]) -> list[Step]:
+    """The steps no runner can execute: a cable moved, an outlet cut, a box
+    reconfigured.  They stay IN the plan so a bench without the powerstrip
+    hook hands them back as NEEDS-HUMAN instead of dropping them."""
     return [s for s in plan if s.needs_human]
 
 
-def checklist_text(plan) -> str:
+def checklist_text(plan: Iterable[Step]) -> str:
     """The printable checklist for the entries a human has to perform.
 
     These are emitted rather than silently skipped: a skipped adverse-condition
@@ -3357,25 +3526,36 @@ def checklist_text(plan) -> str:
 
 
 # ------------------------------------------------------------------ verdicts --
-def verdict_record(step_id: str, assertion: str, verdict: str, *,
-                   clause: str = "", severity: str = "SHALL",
-                   area: str = "", run: str = "", **detail) -> dict:
+#: Every field of a verdict line beyond the three that identify it, with the
+#: value a line carries when the caller says nothing.  A keyword that is NOT
+#: one of these is the caller's own evidence and lands in `detail`, which is
+#: what lets a runner attach whatever it measured without this shape growing a
+#: parameter per measurement.
+VERDICT_FIELDS = {"clause": "", "severity": "SHALL", "area": "", "run": ""}
+
+
+def verdict_record(step_id: str, assertion: str, verdict: str, **fields) -> dict:
     """The JSONL verdict shape every consumer emits.
 
     One line per ASSERTION, not per step: a step that emits one line can only
     report its worst outcome, and a morning diff then cannot tell which
     assertion changed.  `run` is a caller-supplied run id so two mornings sort.
+    Named fields are the keywords in `VERDICT_FIELDS`; every other keyword is
+    evidence and goes to `detail`.
     """
-    return {"schema": "milan-torture/1", "run": run, "step": step_id,
-            "area": area, "assertion": assertion, "verdict": verdict,
-            "severity": severity, "clause": clause, "detail": detail}
+    named = {k: fields.get(k, d) for k, d in VERDICT_FIELDS.items()}
+    detail = {k: v for k, v in fields.items() if k not in VERDICT_FIELDS}
+    return {"schema": "milan-torture/1", "run": named["run"], "step": step_id,
+            "area": named["area"], "assertion": assertion, "verdict": verdict,
+            "severity": named["severity"], "clause": named["clause"],
+            "detail": detail}
 
 
 VERDICTS = ("PASS", "FAIL", "SKIP", "INFO", "KNOWN-PENDING",
             "CONFORMANT-REFUSAL", "NEEDS-HUMAN", INSTRUMENT_SUSPECT)
 
 
-def exit_code(records) -> int:
+def exit_code(records: Sequence[dict[str, object]]) -> int:
     """0 all good; 1 a SHALL-severity FAIL; 2 only RECOMMENDED failures or
     NEEDS-HUMAN entries outstanding.  A SKIP alone never fails the run - it is
     honest - but it is counted in the summary so it cannot hide.
@@ -3391,7 +3571,13 @@ def exit_code(records) -> int:
     return 1 if hard else (2 if soft else 0)
 
 
-def summarise(records) -> dict:
+def summarise(records: Sequence[dict[str, object]]) -> dict[str, int]:
+    """One count per verdict, plus the total and the exit code the run earns.
+
+    EVERY verdict gets a key, including the ones that never fail a run: a SKIP
+    or an INSTRUMENT-SUSPECT that is invisible in the summary is how a run
+    that measured nothing reads as a clean one.
+    """
     out = {v: 0 for v in VERDICTS}
     for r in records:
         out[r["verdict"]] = out.get(r["verdict"], 0) + 1
@@ -3401,977 +3587,1128 @@ def summarise(records) -> dict:
 
 
 # ------------------------------------------------------------------ self test --
+class _CounterLawChecks:
+    """The counter tables, their payload decode and their per-counter update laws.
+
+    A mixin, not a TestCase: `self_test` combines the five into the one
+    `T` whose name the report prints, so the arms can be read apart
+    without a single line of that report changing.
+    """
+    def test_counter_tables_match_the_standards(self) -> None:
+        """The four counter tables still hold what the two standards define, and
+        the Milan ten still fold to the 0xF3F wire mask the graders compare."""
+        self.assertEqual(len(MILAN_TABLE_56), 10)
+        self.assertEqual(len(MILAN_TABLE_54), 5)
+        self.assertEqual(len(IEEE_STREAM_INPUT_BLOCK), 12)
+        self.assertEqual(len(IEEE_STREAM_OUTPUT_BLOCK), 8)
+        # the Milan ten, as a wire mask, is 0xF3F: bits 6/7 (the two tv
+        # tallies) are the only holes
+        self.assertEqual(
+            counters_valid_mask(MILAN_TABLE_56, IEEE_STREAM_INPUT_BLOCK),
+            MILAN_INPUT_MANDATORY_MASK)
+        self.assertEqual(
+            counters_valid_mask(IEEE_STREAM_INPUT_BLOCK,
+                                IEEE_STREAM_INPUT_BLOCK),
+            MILAN_INPUT_FULL_MASK)
+        self.assertEqual(
+            counters_valid_mask(MILAN_TABLE_54, MILAN_TABLE_54),
+            MILAN_OUTPUT_MASK)
+
+    def test_counters_payload_decode_and_unnamed_slots(self) -> None:
+        """A GET_COUNTERS payload decodes BY NAME: an unclaimed slot is absent
+        rather than reported as 0, and a slot the layout cannot name is
+        reported rather than dropped - it means device and reader disagree."""
+        pay = bytearray(8 + 128)
+        pay[0:2] = (0x0005).to_bytes(2, "big")
+        pay[2:4] = (0x0003).to_bytes(2, "big")
+        pay[4:8] = MILAN_INPUT_FULL_MASK.to_bytes(4, "big")
+        for i, v in enumerate(range(1, 13)):
+            pay[8 + 4 * i:12 + 4 * i] = v.to_bytes(4, "big")
+        d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
+        self.assertEqual(d["descriptor_index"], 3)
+        self.assertEqual(d["decoded"]["MEDIA_LOCKED"], 1)
+        self.assertEqual(d["decoded"]["FRAMES_RX"], 12)
+        self.assertEqual(d["claimed_but_unnamed_slots"], [])
+        # a mask claiming a slot the layout does not name is REPORTED, not
+        # dropped: it means the device and the reader disagree on layout
+        pay[4:8] = (MILAN_INPUT_FULL_MASK | (1 << 20)).to_bytes(4, "big")
+        d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
+        self.assertEqual(d["claimed_but_unnamed_slots"], [20])
+        # an unclaimed slot is ABSENT, never reported as 0 (methodology R5)
+        pay[4:8] = (0x001).to_bytes(4, "big")
+        d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
+        self.assertEqual(list(d["decoded"]), ["MEDIA_LOCKED"])
+        with self.assertRaises(ValueError):
+            decode_counters_payload(b"\x00" * 12, IEEE_STREAM_INPUT_BLOCK)
+
+    def test_lock_and_talker_invariants(self) -> None:
+        """Both Milan state invariants grade their legal shapes AND their illegal
+        ones, and an unread counter pair SKIPs instead of passing."""
+        self.assertEqual(check_lock_invariant(
+            {"MEDIA_LOCKED": 5, "MEDIA_UNLOCKED": 4})[0], "PASS")
+        self.assertEqual(check_lock_invariant(
+            {"MEDIA_LOCKED": 4, "MEDIA_UNLOCKED": 4})[0], "PASS")
+        self.assertEqual(check_lock_invariant(
+            {"MEDIA_LOCKED": 6, "MEDIA_UNLOCKED": 4})[0], "FAIL")
+        self.assertEqual(check_lock_invariant(
+            {"MEDIA_LOCKED": 3, "MEDIA_UNLOCKED": 4})[0], "FAIL")
+        self.assertEqual(check_lock_invariant({})[0], "SKIP")
+        self.assertEqual(check_talker_invariant(
+            {"STREAM_START": 3, "STREAM_STOP": 2})[0], "PASS")
+        self.assertEqual(check_talker_invariant(
+            {"STREAM_START": 3, "STREAM_STOP": 1})[0], "FAIL")
+
+    def test_tv_tnv_distinguishes_the_two_frames_rx_readings(self) -> None:
+        """TIMESTAMP_VALID + NOT_VALID against FRAMES_RX separates the 1722.1
+        per-frame reading from the Milan interval one, and neither permits
+        FRAMES_RX above their sum."""
+        # 1722.1 per-frame reading: the identity is exact
+        v, d = check_tv_tnv({"TIMESTAMP_VALID": 1000,
+                             "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1000})
+        self.assertEqual((v, d["reading"]), ("PASS", "1722.1-per-frame"))
+        # Milan interval reading: 8000 frames in 1 s, FRAMES_RX ticks once
+        v, d = check_tv_tnv({"TIMESTAMP_VALID": 8000,
+                             "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1})
+        self.assertEqual((v, d["reading"]), ("INFO", "milan-interval"))
+        # neither reading permits FRAMES_RX above TV+TNV
+        self.assertEqual(check_tv_tnv({"TIMESTAMP_VALID": 5,
+                                       "TIMESTAMP_NOT_VALID": 0,
+                                       "FRAMES_RX": 99})[0], "FAIL")
+        self.assertEqual(check_tv_tnv({})[0], "SKIP")
+
+    def test_every_stream_input_counter_has_an_update_law(self) -> None:
+        """Every counter in the 1722.1 Stream Input block has an update law, so no
+        grader silently falls back to one reading for a counter the two tables
+        define differently."""
+        # The law table is the oracle the RTL, the behave feature and the
+        # bench grader all answer to, so it must cover the whole block.
+        for n in IEEE_STREAM_INPUT_BLOCK:
+            self.assertIsNotNone(counter_law(n), n)
+        # Milan Table 5.6 defines TEN of the twelve; the two it does NOT
+        # define keep 1722.1's per-frame reading, which is exactly why a
+        # conformant device shows TIMESTAMP_VALID ~8000x FRAMES_RX.
+        self.assertEqual(
+            {n for n, (k, _, _) in STREAM_INPUT_COUNTER_LAW.items()
+             if k == "per-frame"},
+            {"TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID"})
+        self.assertEqual(set(MILAN_INTERVAL_COUNTERS),
+                         set(MILAN_TABLE_56) - {"MEDIA_LOCKED",
+                                                "MEDIA_UNLOCKED",
+                                                "STREAM_INTERRUPTED"})
+        for n in MILAN_INTERVAL_COUNTERS:
+            self.assertEqual(counter_law(n)[1], "Milan v1.2 Table 5.6", n)
+
+    def test_interval_ceiling_catches_a_half_converted_counter(self) -> None:
+        """Nothing whose trigger arrives in a frame may out-tick FRAMES_RX - except
+        the two tv tallies Milan never defined, which are exempt.  That is what
+        a half-converted counter looks like from outside."""
+        # FRAMES_RX is the interval clock: nothing whose trigger arrives in
+        # a frame may out-tick it.
+        b = {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0, "LATE_TIMESTAMP": 0}
+        self.assertEqual(check_interval_ceiling(
+            b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 30,
+                "LATE_TIMESTAMP": 2})[0], "PASS")
+        v, d = check_interval_ceiling(
+            b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 240060,
+                "LATE_TIMESTAMP": 2})
+        self.assertEqual(v, "FAIL")
+        self.assertEqual([o["counter"] for o in d["offenders"]],
+                         ["TIMESTAMP_UNCERTAIN"])
+        # the two tv tallies are EXEMPT - Milan never defined them, so they
+        # are supposed to out-tick an interval FRAMES_RX
+        self.assertEqual(check_interval_ceiling(
+            {"FRAMES_RX": 0, "TIMESTAMP_VALID": 0, "LATE_TIMESTAMP": 0},
+            {"FRAMES_RX": 30, "TIMESTAMP_VALID": 240060,
+             "LATE_TIMESTAMP": 2})[0], "PASS")
+        # a window with no frames grades nothing
+        self.assertEqual(check_interval_ceiling(
+            b, {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0,
+                "LATE_TIMESTAMP": 0})[0], "SKIP")
+        # a reset inside the window is not a backwards counter finding
+        self.assertEqual(check_interval_ceiling(
+            {"FRAMES_RX": 500}, {"FRAMES_RX": 3})[0], "SKIP")
+
+    def test_counter_semantics_grades_both_ways_round(self) -> None:
+        """The grader passes the mandated per-frame/per-interval split in BOTH
+        directions, and no longer fails the intermittent counters that an
+        earlier cut read as ceiling violations against real silicon."""
+        # the mandated split at class A: TV per frame, FRAMES_RX per
+        # interval - both PASS, which is the whole point
+        self.assertEqual(grade_counter_semantics(
+            "TIMESTAMP_VALID", 240060, 30.0, stream_flowing=True)[0], "PASS")
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 30, 30.0, stream_flowing=True)[0], "PASS")
+        # OVER-conversion: a per-frame counter dragged onto the interval
+        # tick alongside the Milan seven
+        v, d = grade_counter_semantics("TIMESTAMP_VALID", 30, 30.0,
+                                       stream_flowing=True)
+        self.assertEqual((v, d["reading"]), ("FAIL", "interval"))
+        # an interval longer than the 1 s ceiling, which only FRAMES_RX's
+        # rate can ever imply
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 15, 30.0, stream_flowing=True)[0], "FAIL")
+        # more ticks than frames: impossible under every reading
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 900000, 30.0, stream_flowing=True)[0], "FAIL")
+        # AND THE TRAP THIS GRADER ITSELF FELL INTO, caught by running it
+        # against real silicon: the AX7101's sink 0 on 2026-08-03 read
+        # TIMESTAMP_UNCERTAIN 23 and LATE_TIMESTAMP 74 over ~7531 s beside
+        # FRAMES_RX 7545 (a 0.998 s interval).  Those two tick only in the
+        # intervals during which their own condition held, so dividing them
+        # by the window implies intervals of minutes - and an earlier cut
+        # of this function failed both as ceiling violations.
+        for name, delta in (("TIMESTAMP_UNCERTAIN", 23),
+                            ("LATE_TIMESTAMP", 74),
+                            ("SEQ_NUM_MISMATCH", 1)):
+            v, d = grade_counter_semantics(name, delta, 7531.0,
+                                           stream_flowing=True)
+            self.assertEqual((v, d["reading"]), ("PASS", "interval"),
+                             f"{name} is intermittent by definition")
+        self.assertEqual(grade_counter_semantics(
+            "FRAMES_RX", 7545, 7531.0, stream_flowing=True)[0], "PASS")
+        # nothing measured, nothing concluded
+        self.assertEqual(grade_counter_semantics(
+            "UNSUPPORTED_FORMAT", 0, 30.0)[0], "SKIP")
+        self.assertEqual(grade_counter_semantics("NOT_A_COUNTER", 1, 1.0)[0],
+                         "SKIP")
+
+    def test_frames_rate_band(self) -> None:
+        """Milan bounds the observation interval from ABOVE only, so 200 ticks/s is
+        a conformant 5 ms interval; only an implied interval past the 1 s
+        ceiling is not.  Calling 200/s 'neither' once failed a good device."""
+        self.assertEqual(frames_rate_band(7995.7), "per-frame")
+        self.assertEqual(frames_rate_band(1.0), "interval")
+        self.assertEqual(frames_rate_band(0.0), "neither")
+        # Milan Table 5.4/5.6 bound the observation interval from ABOVE
+        # ONLY ("shall be less than or equal to 1 second"), so a 5 ms
+        # interval ticking 200/s is CONFORMANT.  Calling it "neither" - as
+        # the first version of this band table did - failed a conformant
+        # device, and a unit test asserting 200.0 was "the defect" cemented
+        # it.
+        self.assertEqual(frames_rate_band(200.0), "interval")
+        self.assertEqual(frames_rate_band(3999.0), "interval")
+        self.assertAlmostEqual(
+            frames_rate_reading(200.0)["implied_interval_s"], 0.005)
+        # the ONE way an interval reading is non-conformant: the implied
+        # interval exceeds the 1 s ceiling
+        self.assertEqual(frames_rate_band(0.4), "neither")
+        self.assertIn("less than or equal to 1 s",
+                      frames_rate_reading(0.4)["why"])
+        # and the ceiling is a real parameter now, not a dead one
+        self.assertEqual(frames_rate_band(0.4, max_interval_s=5.0),
+                         "interval")
+
+    def test_no_growth_is_a_verdict_and_not_a_note(self) -> None:
+        """One tick of an error counter is one bad observation interval and FAILS.
+        The two real escapes were emitted as INFO, so they graded nothing."""
+        keys = ("LATE_TIMESTAMP", "EARLY_TIMESTAMP")
+        v, d = check_no_growth({"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
+                               {"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
+                               keys)
+        self.assertEqual(v, "PASS")
+        # ONE tick is one bad observation interval, and it FAILS - the two
+        # real escapes (296,294/296,294 UNSUPPORTED_FORMAT and 5.1 M LATE +
+        # 4.8 M EARLY) were emitted as INFO and so could not fail anything
+        v, d = check_no_growth({"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
+                               {"LATE_TIMESTAMP": 8, "EARLY_TIMESTAMP": 3},
+                               keys)
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["delta"]["LATE_TIMESTAMP"], 1)
+        v, _ = check_no_growth({"UNSUPPORTED_FORMAT": 0},
+                               {"UNSUPPORTED_FORMAT": 296294},
+                               ("UNSUPPORTED_FORMAT",))
+        self.assertEqual(v, "FAIL")
+        # a counter that went DOWN measured nothing: reset or wrap
+        v, _ = check_no_growth({"LATE_TIMESTAMP": 9},
+                               {"LATE_TIMESTAMP": 0}, ("LATE_TIMESTAMP",))
+        self.assertEqual(v, "INFO")
+        # and an unclaimed counter is SKIP, never a pass
+        self.assertEqual(check_no_growth({}, {}, keys)[0], "SKIP")
+
+class _StreamingLicenceChecks:
+    """The streaming licence and the cross-participant readings it gates.
+
+    A mixin, not a TestCase: `self_test` combines the five into the one
+    `T` whose name the report prints, so the arms can be read apart
+    without a single line of that report changing.
+    """
+    def test_licence_decode_and_the_shut_gate(self) -> None:
+        """LWSRP_STATUS decodes to OPEN, SHUT or UNKNOWN, and an absent reading
+        stays UNKNOWN naming the flag to supply - never a violation verdict."""
+        # 0x30 = talker declared + domain ok, gate SHUT: the reading a
+        # CORRECTLY silent bound talker gives (Milan v1.2 5.3.7.3 needs a
+        # Listener Ready too, and there is none)
+        st, d = licence_state(0x30)
+        self.assertEqual(st, "SHUT")
+        self.assertTrue(d["talker_declared"])
+        self.assertTrue(d["domain_ok"])
+        self.assertFalse(d["stream_gate_open"])
+        self.assertEqual(d["listener_declaration"], "none/ignore")
+        st, d = licence_state(0x1FE)
+        self.assertEqual(st, "OPEN")
+        self.assertTrue(d["stream_gate_open"])
+        self.assertTrue(d["reservation_active"])
+        # a missing reading is UNKNOWN and says what to supply - it must
+        # NEVER become a violation verdict
+        st, d = licence_state(None)
+        self.assertEqual(st, "UNKNOWN")
+        self.assertIn("--licence-status", d["why"])
+        self.assertEqual(d["register"], "0x694 LWSRP_STATUS")
+        # the sticky shortfall and the MSRP failure code are decoded, not
+        # swallowed
+        self.assertTrue(decode_lwsrp_status(1 << 11)
+                        ["attribute_row_shortfall"])
+        self.assertEqual(decode_lwsrp_status(5 << 16)
+                         ["msrp_failure_code"], 5)
+
+    def test_the_frame_versus_interval_semantic_trap_cannot_be_expressed(self) -> None:
+        """Comparing a frame-accurate source against an interval counter RAISES
+        instead of returning a number: the two share their names and sit about
+        8000:1 apart, so the mistake has to be unwritable rather than caught."""
+        # AVB_INTERFACE FRAMES_TX/RX are TOTALS (1722.1 Table 7-153); the
+        # stream-descriptor ones are <= 1 s interval TICKS (Milan Table
+        # 5.4/5.6).  Same name, ~8000:1 apart.  A frame-accurate comparison
+        # against the interval counters must be IMPOSSIBLE TO WRITE.
+        for good in FRAME_ACCURATE_SOURCES:
+            self.assertEqual(assert_frame_accurate(good), good)
+        for bad in INTERVAL_SOURCES:
+            with self.assertRaises(CounterSemanticError):
+                assert_frame_accurate(bad)
+        with self.assertRaises(CounterSemanticError):
+            assert_frame_accurate("vibes")
+        # and the interval comparison is named for what it compares
+        v, d = interval_ticks_agree(4, 4)
+        self.assertEqual(v, "PASS")
+        self.assertIn("OBSERVATION INTERVALS", d["compares"])
+        self.assertEqual(interval_ticks_agree(4, 0)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(0, 0)[0], "PASS")
+        self.assertEqual(interval_ticks_agree(9, 4)[0], "FAIL")
+        self.assertEqual(interval_ticks_agree(None, 4)[0], "SKIP")
+
+    def test_interval_agreement_attributes_a_per_frame_side(self) -> None:
+        """A side counting per frame is named as the deviant and the conformant
+        side still passes, while a genuine movement disagreement outranks the
+        attribution and two deviant sides leave no baseline at all."""
+        # EVERY PARTICIPANT IS A MEASURED PARTY.  The three shapes:
+        # (1) both interval-conformant and agreeing -> PASS, no finding
+        v, d = interval_ticks_agree(4, 4, window_s=4.0)
+        self.assertEqual(v, "PASS")
+        self.assertNotIn("peer_findings", d)
+        # (2) both interval-conformant and genuinely disagreeing -> the
+        #     ORIGINAL pair FAIL, untouched by attribution
+        v, d = interval_ticks_agree(9, 4, window_s=4.0)
+        self.assertEqual(v, "FAIL")
+        self.assertNotIn("peer_findings", d)
+        # (3) one side per-frame (the peer's deviation, ~8000/s): the pair
+        #     verdict PASSes FOR THE CONFORMANT SIDE and the deviation is
+        #     an attributed finding naming the deviant ROLE and its rate
+        v, d = interval_ticks_agree(4, 31982, window_s=4.0)
+        self.assertEqual(v, "PASS")
+        self.assertTrue(d["attributed"])
+        self.assertEqual(d["conformant_role"], "talker")
+        self.assertEqual(d["listener_semantics"], "per-frame")
+        pf = d["peer_findings"]
+        self.assertEqual([f["role"] for f in pf], ["listener"])
+        self.assertGreater(pf[0]["ticks_per_s"], 150)
+        self.assertIn("Table 7-157", pf[0]["why"])
+        # ... and mirrored, the talker can be the deviant
+        v, d = interval_ticks_agree(72880, 9, window_s=8.0)
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["conformant_role"], "listener")
+        self.assertEqual(d["peer_findings"][0]["role"], "talker")
+        # movement disagreement OUTRANKS attribution: a deviant side
+        # pumping frames while the conformant side saw nothing is the
+        # original one-sided-streaming FAIL, with the finding kept
+        v, d = interval_ticks_agree(0, 31982, window_s=4.0)
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["peer_findings"][0]["role"], "listener")
+        # two per-frame sides leave no baseline: SKIP + one finding EACH,
+        # never a silent pass for either
+        v, d = interval_ticks_agree(31982, 31982, window_s=4.0)
+        self.assertEqual(v, "SKIP")
+        self.assertEqual(len(d["peer_findings"]), 2)
+        # without a window the absolute floor still catches wire rate
+        v, d = interval_ticks_agree(4, 31982)
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["peer_findings"][0]["role"], "listener")
+        self.assertIsNone(d["peer_findings"][0]["ticks_per_s"])
+        # and a fast-but-plausible interval implementation is NOT deviant:
+        # 40 ticks over 4 s (a legal 100 ms interval) stays an interval
+        # reading, so the disagreement with a 1/s peer is the pair's
+        v, d = interval_ticks_agree(4, 40, window_s=4.0)
+        self.assertEqual(v, "FAIL")
+        self.assertNotIn("peer_findings", d)
+
+    def test_cross_side_growth_bites_every_way(self) -> None:
+        """Each cross-participant invariant fails on its own defect - one-sided
+        streaming, an over-counting listener, frames with the gate shut, a leak
+        to an unregistered port - and SKIPs, never convicts, on a side it could
+        not read."""
+
+        def sides(t: int | None, l: int | None, w: int | None = None,
+                  **kw) -> dict[str, dict[str, object]]:
+            """A reading set: a DUT talker, a peer listener, an optional
+            wire witness, and any extra side passed as a keyword."""
+            s = {"dut": {"role": "talker", "source": "avb_interface",
+                         "frames": t, "device": "arty"},
+                 "peer": {"role": "listener", "source": "avb_interface",
+                          "frames": l, "device": "peer"}}
+            if w is not None:
+                s["testhost"] = {"role": "wire", "source": "nic",
+                                 "frames": w, "device": "testhost"}
+            s.update(kw)
+            return s
+
+        def one(res: list[tuple[str, str, dict[str, object]]],
+                name: str) -> tuple[str, dict[str, object]]:
+            """The (verdict, detail) of the one named triple in `res`."""
+            return [(v, d) for n, v, d in res if n == name][0]
+
+        # corroborated on three sides
+        r = cross_side_growth(sides(8000, 8000, 8000), licensed=True,
+                              registered_sides={"peer"})
+        v, d = one(r, "xside.growth-corroborated")
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["sides_used"], ["dut", "peer", "testhost"])
+        # a ONE-SIDED claim of streaming FAILS
+        v, d = one(cross_side_growth(sides(8000, 0, 0), licensed=True,
+                                     registered_sides={"peer"}),
+                   "xside.growth-corroborated")
+        self.assertEqual(v, "FAIL")
+        self.assertFalse(d["moving"]["peer"])
+        # a listener counting MORE than the talker sent, beyond the skew
+        v, _ = one(cross_side_growth(sides(1000, 1000 + 8001),
+                                     licensed=True),
+                   "xside.listener-not-more-than-talker")
+        self.assertEqual(v, "FAIL")
+        # inside the skew it is the snapshot, not a defect
+        v, _ = one(cross_side_growth(sides(1000, 1000 + 10),
+                                     licensed=True),
+                   "xside.listener-not-more-than-talker")
+        self.assertEqual(v, "PASS")
+        # frames with the gate SHUT are unreserved traffic
+        v, _ = one(cross_side_growth(sides(8000, 8000), licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "FAIL")
+        v, _ = one(cross_side_growth(sides(0, 0), licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "PASS")
+        # both device sides unreadable: wire-only frames are the test
+        # host's own traffic, not evidence against the gate
+        v, d = one(cross_side_growth(sides(None, None, 42),
+                                     licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "SKIP")
+        self.assertEqual(d["sides_unreadable"], ["dut", "peer"])
+        # but ONE readable device side keeps the invariant armed
+        v, _ = one(cross_side_growth(sides(7, None, 42), licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "FAIL")
+        # ambient wire-only movement (interface-global 'nic' source) with
+        # every readable device side SILENT is unattributable: INFO, not
+        # FAIL (373 campaign-chatter frames fired a false FAIL on silicon)
+        v, d = one(cross_side_growth(sides(None, 0, 373), licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "INFO")
+        self.assertEqual(d["movers"], {"testhost": 373})
+        # a stream-scoped pcap wire source still convicts alone
+        pc = sides(None, 0)
+        pc["tap"] = {"role": "wire", "source": "pcap", "frames": 99,
+                     "device": "profishark"}
+        v, _ = one(cross_side_growth(pc, licensed=False),
+                   "xside.unlicensed-silent-everywhere")
+        self.assertEqual(v, "FAIL")
+        # PRUNING: a bystander that never registered must see nothing
+        byst = sides(8000, 8000, bystander={"role": "bystander",
+                                            "source": "pcap", "frames": 42,
+                                            "device": "tap-port-3"})
+        v, d = one(cross_side_growth(byst, licensed=True,
+                                     registered_sides={"peer"}),
+                   "xside.absent-where-not-registered")
+        self.assertEqual(v, "FAIL")
+        self.assertIn("bystander", d["leaks"])
+        # an unreadable side SKIPs and NAMES itself, never fails the others
+        v, d = one(cross_side_growth(sides(8000, None), licensed=True),
+                   "xside.growth-corroborated")
+        self.assertEqual(v, "SKIP")
+        self.assertEqual(d["sides_unreadable"], ["peer"])
+        # and the semantic guard applies to the cross-check too
+        with self.assertRaises(CounterSemanticError):
+            cross_side_growth({"x": {"role": "talker",
+                                     "source": "stream_output",
+                                     "frames": 1}})
+
+    def test_the_test_machine_is_an_instrument_before_a_witness(self) -> None:
+        """Host NIC loss DOWNGRADES a device verdict to INSTRUMENT-SUSPECT instead
+        of failing the device, host demux drops are recorded and never graded,
+        and a suspect verdict does not decide the run's exit code."""
+        base = {k: 0 for k in
+                NIC_LOSS_KEYS + NIC_DEMUX_KEYS + NIC_TRAFFIC_KEYS}
+        v, d = instrument_health(base, dict(base, rx_packets=8000))
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["traffic_delta"]["rx_packets"], 8000)
+        v, d = instrument_health(base, dict(base, rx_missed_errors=17))
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["moved"]["rx_missed_errors"], 17)
+        # rx_dropped alone is the switch's unhandled MVRP hitting host
+        # demux AFTER rx_packets and the capture tap: recorded, never a
+        # verdict (it used to poison every window on the live bench)
+        v, d = instrument_health(base, dict(base, rx_dropped=2,
+                                            rx_packets=9900))
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["demux_dropped"]["rx_dropped"], 2)
+        self.assertNotIn("rx_dropped", d["moved"])
+        self.assertEqual(instrument_health(None, base)[0], "SKIP")
+        # a lossy instrument DOWNGRADES a device verdict; it never fails it
+        self.assertEqual(downgrade_for_instrument("FAIL", "FAIL"),
+                         INSTRUMENT_SUSPECT)
+        self.assertEqual(downgrade_for_instrument("PASS", "FAIL"),
+                         INSTRUMENT_SUSPECT)
+        self.assertEqual(downgrade_for_instrument("FAIL", "PASS"), "FAIL")
+        self.assertEqual(downgrade_for_instrument("SKIP", "FAIL"), "SKIP")
+        # and it does not grade the run
+        self.assertEqual(
+            exit_code([verdict_record("a", "x", INSTRUMENT_SUSPECT)]), 0)
+        self.assertEqual(
+            summarise([verdict_record("a", "x", INSTRUMENT_SUSPECT)])
+            [INSTRUMENT_SUSPECT], 1)
+
+class _PlanContractChecks:
+    """The plan's coverage and the assertion contract every step owes.
+
+    A mixin, not a TestCase: `self_test` combines the five into the one
+    `T` whose name the report prints, so the arms can be read apart
+    without a single line of that report changing.
+    """
+    def test_topology_is_configuration_not_a_source_edit(self) -> None:
+        """A bench of another shape is a --dut/--peer spec, and a misspelt key is
+        REFUSED: a dropped 'listners=10' would run the whole campaign against
+        the wrong shape and then report full coverage of it."""
+        d = parse_device_spec("name=ax,entity=aa" + "11" * 7 +
+                              ",mac=" + "22" * 6 + ",talkers=8,"
+                              "listeners=8,crf_out=8,crf_in=8", ARTY)
+        self.assertEqual((d.name, d.talkers, d.listeners), ("ax", 8, 8))
+        self.assertEqual(d.talker_indices(), [0, 1, 2, 3, 4, 5, 6, 7, 8])
+        # unset fields keep the base
+        self.assertEqual(parse_device_spec("talkers=2", ARTY).formats,
+                         ARTY.formats)
+        # a typo is REFUSED, not ignored: a dropped "listners=10" would run
+        # the whole campaign against the wrong shape and report full
+        # coverage of it
+        with self.assertRaises(ValueError):
+            parse_device_spec("listners=10", ARTY)
+        with self.assertRaises(ValueError):
+            parse_device_spec("talkers", ARTY)
+        # the test machine joins the participant list only once it has an
+        # interface to read
+        self.assertEqual([p.name for p in participants(ARTY, PEER)],
+                         ["arty", "peer"])
+        host = parse_device_spec("iface=enp6s0", TESTHOST)
+        self.assertEqual([p.name for p in
+                          participants(ARTY, PEER, host)],
+                         ["arty", "peer", "testhost"])
+        self.assertEqual([p.name for p in
+                          participants(ARTY, PEER, TESTHOST)],
+                         ["arty", "peer"])
+
+    def test_coverage_is_audited_PER_AREA(self) -> None:
+        """The per-area audit reddens on an index-0-only audio area while the
+        matrix area still covers everything - the masking that let the audio
+        area stay index-0-only under a green whole-plan coverage report."""
+        plan = build_plan()
+        for area in AREAS:
+            ok, d = area_covers_every_index(plan, area)
+            self.assertTrue(ok, (area, d["missing"]))
+        # NEGATIVE CONTROL: an index-0-only AUDIO area must redden the AUDIO
+        # audit even though the matrix area still covers everything.  The
+        # whole-plan audit cannot do this, which is how the audio area
+        # stayed index-0-only under a green coverage report.
+        lonely = [s for s in plan if s.area != "audio"
+                  or s.sid.endswith(".t0") or s.sid == "audio.thdn"]
+        ok, d = area_covers_every_index(lonely, "audio")
+        self.assertFalse(ok)
+        self.assertEqual(d["missing"]["dut_talker"], [1, 2, 3])
+        self.assertTrue(area_covers_every_index(lonely, "matrix")[0])
+        # and the whole-plan audit is still green over the same plan, which
+        # is the masking this exists to expose
+        cov = plan_covers_every_index(lonely)
+        self.assertEqual(cov["dut_talker"], ARTY.talker_indices())
+
+    def test_ieee_bit_numbering_conversion(self) -> None:
+        """Table 7-156's MSB-first 'Bit #' converts to the wire mask bit; reading
+        the table without the conversion inverts every mask."""
+        # Table 7-156 calls the counter at block offset 0 "Bit # 31"
+        self.assertEqual(counters_valid_bit_ieee(0), 31)
+        self.assertEqual(counters_valid_bit_ieee(44), 20)   # FRAMES_RX
+        self.assertEqual(counters_valid_bit_ieee(124), 0)   # ENT_SPECIFIC_1
+        with self.assertRaises(ValueError):
+            counters_valid_bit_ieee(3)
+
+    def test_milan_and_ieee_stream_output_layouts_differ(self) -> None:
+        """FRAMES_TX and MEDIA_RESET sit at DIFFERENT offsets in the two Stream
+        Output layouts, so a decoder handed the wrong one mislabels silently
+        instead of failing - which is why the caller must state the layout."""
+        # the trap: the same NAME sits at a different offset in the two
+        # layouts, so a decoder that picks the wrong one mislabels
+        self.assertEqual(MILAN_TABLE_54.index("FRAMES_TX"), 4)
+        self.assertEqual(IEEE_STREAM_OUTPUT_BLOCK.index("FRAMES_TX"), 7)
+        self.assertEqual(MILAN_TABLE_54.index("MEDIA_RESET"), 2)
+        self.assertEqual(IEEE_STREAM_OUTPUT_BLOCK.index("MEDIA_RESET"), 3)
+
+    def test_matrix_walks_every_index_both_directions_and_crf(self) -> None:
+        """The matrix covers every index on both devices in both directions, CRF
+        included, and a one-index device still reports only index 0 - the
+        negative control that keeps the audit able to say no."""
+        plan = plan_matrix()
+        cov = plan_covers_every_index(plan)
+        self.assertEqual(cov["dut_talker"], ARTY.talker_indices())
+        self.assertEqual(cov["dut_listener"], ARTY.listener_indices())
+        self.assertEqual(cov["peer_talker"], PEER.talker_indices())
+        self.assertEqual(cov["peer_listener"], PEER.listener_indices())
+        self.assertIn(ARTY.crf_out, cov["dut_talker"])
+        self.assertIn(ARTY.crf_in, cov["dut_listener"])
+        # NEGATIVE CONTROL: an index-0-only plan must FAIL the audit
+        lonely = Device("solo", "aa" * 8, "bb" * 6, talkers=1, listeners=1)
+        cov2 = plan_covers_every_index(plan_matrix(lonely, lonely), lonely,
+                                       lonely)
+        self.assertEqual(cov2["dut_talker"], [0])
+        self.assertNotEqual(cov2["dut_talker"], ARTY.talker_indices())
+
+    def test_every_bound_step_carries_the_full_assertion_set(self) -> None:
+        """No bind may drop an assertion its clause requires: a step that asks
+        fewer questions than the contract still counts as a step that ran."""
+        need = {a.name for a in BOUND_STREAMING_ASSERTS}
+        for s in build_plan(["matrix", "churn"]):
+            if s.op == "connect" and "rebind" not in s.sid:
+                got = {a.name for a in s.asserts}
+                self.assertTrue(need <= got,
+                                f"{s.sid} is missing {need - got}")
+
+    def test_every_step_has_a_clause_or_says_it_is_info(self) -> None:
+        """Every assertion cites a clause and declares a severity, so nothing in
+        the plan can grade a device against an unstated requirement."""
+        for s in build_plan():
+            for a in s.asserts:
+                self.assertTrue(a.clause.strip(),
+                                f"{s.sid}/{a.name} has no clause")
+                self.assertIn(a.severity, ("SHALL", "RECOMMENDED", "INFO"))
+
+    def test_storm_entries_are_recommended_not_shall(self) -> None:
+        """The adverse-practice storm entries stay RECOMMENDED and control
+        responsiveness stays INFO, because that document says responsiveness is
+        NOT expected under storm - failing it asserts the opposite of the text."""
+        # the document is a RECOMMENDED PRACTICE; calling its entries
+        # SHALL would make us fail a device for something no requirement
+        # asks of it
+        storms = [s for s in plan_torture() if ".storm." in s.sid]
+        self.assertTrue(storms)
+        for s in storms:
+            sev = {a.name: a.severity for a in s.asserts}
+            self.assertEqual(sev["stream.uninterrupted"], "RECOMMENDED")
+            # and control responsiveness is INFO, because the same clause
+            # says it is NOT expected under storm
+            self.assertEqual(sev["control.responsive"], "INFO")
+
+    def test_human_entries_are_emitted_not_skipped(self) -> None:
+        """Every needs-human step reaches the printed checklist.  A silently
+        skipped adverse-condition entry is how 'we tested link loss' becomes
+        true in a report and false at the bench."""
+        plan = build_plan()
+        hs = human_steps(plan)
+        # the cable pull (torture) plus the two physical cycle steps -
+        # which stay needs_human in the PLAN so a bench without the
+        # powerstrip hook hands them back as NEEDS-HUMAN, exactly as
+        # before they were automatable
+        self.assertGreaterEqual(len(hs), 3)
+        txt = checklist_text(plan)
+        for s in hs:
+            self.assertIn(s.sid, txt)
+            self.assertIn(s.human_action[:24], txt)
+        self.assertIn("No human-action entries", checklist_text([]))
+
+class _AreaContractChecks:
+    """The physical, gPTP, CRF, persistence and churn areas' own contracts.
+
+    A mixin, not a TestCase: `self_test` combines the five into the one
+    `T` whose name the report prints, so the arms can be read apart
+    without a single line of that report changing.
+    """
+    def test_physical_family_contract(self) -> None:
+        """The physical area runs LAST, keeps both power cycles needs_human in the
+        plan, owes BOTH directions of the GM story and the persistence story,
+        and ends each family with a full proof pair at a non-zero index."""
+        plan = build_plan()
+        # LAST, always: a partition mid-matrix would pollute everything
+        areas_in_order = []
+        for s in plan:
+            if s.area not in areas_in_order:
+                areas_in_order.append(s.area)
+        self.assertEqual(areas_in_order[-1], "physical")
+        phys = [s for s in plan if s.area == "physical"]
+        self.assertTrue(phys)
+        # the old human entries moved here and NOWHERE else
+        tort = plan_torture()
+        self.assertFalse([s for s in tort if "gm-change" in s.sid
+                          or "gm-loss" in s.sid
+                          or "power-cycle" in s.sid])
+        self.assertTrue(any("cable-pull" in s.sid and s.needs_human
+                            for s in tort))
+        # the two cycle steps: still needs_human in the PLAN (the
+        # no-regression guarantee), with the outlet role named for the
+        # runner that CAN automate them
+        cyc = {s.op: s for s in phys
+               if s.op in ("switch_power_cycle", "dut_power_cycle")}
+        self.assertEqual(set(cyc), {"switch_power_cycle",
+                                    "dut_power_cycle"})
+        for s in cyc.values():
+            self.assertTrue(s.needs_human, s.sid)
+            self.assertTrue(s.human_action, s.sid)
+            self.assertIn("outlet_role", s.args)
+        self.assertEqual(cyc["switch_power_cycle"].args["outlet_role"],
+                         "switch")
+        self.assertEqual(cyc["dut_power_cycle"].args["outlet_role"],
+                         "dut")
+        # the assertion contract: the switch cycle owes the GM change AND
+        # the GM loss story, the DUT cycle owes the persistence story
+        sw = {a.name for a in cyc["switch_power_cycle"].asserts}
+        self.assertIn("counters.avb_interface.gptp-gm-changed-advances",
+                      sw)
+        self.assertIn("physical.partition-is-the-test", sw)
+        self.assertIn("gptp.exactly-one-gm-after-heal", sw)
+        self.assertIn("entity.survived-without-reboot", sw)
+        self.assertIn("gptp.tu-validity-restored", sw)
+        # BOTH directions of the GM story are owed, plus the side that
+        # actually loses its GM and the link-event datum.  Owing only
+        # the ADVANCE is what filed a fake red against a permanent GM
+        # on 2026-08-02 (ax-phys-a).
+        self.assertIn("counters.avb_interface.gptp-gm-continuity", sw)
+        self.assertIn(
+            "counters.avb_interface.peer-gptp-gm-changed-advances", sw)
+        self.assertIn("counters.avb_interface.link-event-observed", sw)
+        du = {a.name for a in cyc["dut_power_cycle"].asserts}
+        self.assertIn("state.restored-after-power-cycle", du)
+        # and the half of the persistence story a build with no store
+        # still owes, plus the datum that makes the gap measurable
+        self.assertIn("state.self-consistent-after-power-cycle", du)
+        self.assertIn("state.format-after-power-cycle", du)
+        self.assertIn("counters.zeroed-after-power-cycle", du)
+        self.assertIn("boot.reaches-network-unattended", du)
+        self.assertIn("boot.same-gateware-version", du)
+        self.assertIn("boot.rx-filter-posture-restored", du)
+        # the budget floors from the bench facts: switch boot before any
+        # board is reachable, ~5.5 min worst-case DUT boot, and a hold an
+        # order of magnitude past the announce-receipt timeout
+        a = cyc["switch_power_cycle"].args
+        self.assertGreaterEqual(a["hold_s"], 15)
+        self.assertGreaterEqual(a["link_budget_s"], 180)
+        self.assertGreaterEqual(a["gptp_budget_s"], 120)
+        b = cyc["dut_power_cycle"].args
+        self.assertGreaterEqual(b["off_s"], 5)
+        self.assertGreaterEqual(b["net_budget_s"], 120)
+        # each family ends with a full PROOF PAIR at a NON-ZERO index
+        # (index 0 is the alias path)
+        for fam in ("switch-cycle", "dut-cycle"):
+            proof = [s for s in phys
+                     if s.sid.startswith(f"phys.{fam}.proof")]
+            conn = [s for s in proof if s.op == "connect"]
+            self.assertTrue(conn, fam)
+            self.assertGreater(conn[0].args["talker_index"], 0)
+            need = {x.name for x in BOUND_STREAMING_ASSERTS}
+            got = {x.name for x in conn[0].asserts}
+            self.assertTrue(need <= got, need - got)
+        # snapshot-before-cycle ordering, per family
+        sids = [s.sid for s in phys]
+        for fam, cyc_sid in (("switch-cycle",
+                              "phys.switch-cycle.gm-partition"),
+                             ("dut-cycle",
+                              "phys.dut-cycle.power-cycle")):
+            self.assertLess(sids.index(f"phys.{fam}.pre-snapshot"),
+                            sids.index(cyc_sid))
+
+    def test_the_gm_story_states_its_own_precondition(self) -> None:
+        """The GM clauses name WHICH device each direction is for.  Asserting the
+        GM_CHANGED advance against a DUT that IS the grandmaster - whose own
+        grandmasterIdentity never changed - filed a fake red on 2026-08-02."""
+        # ax-phys-a 2026-08-02: "a partition and a re-join are real BMCA
+        # elections, so the counter advances" was asserted against a DUT
+        # that IS the grandmaster - whose own grandmasterIdentity never
+        # changed, so 1722.1-2021 Table 7-153 requires exactly ZERO.
+        # The clause text must now name which device each direction is
+        # for, or the same fake red comes straight back.
+        adv = A_GM_CHANGED_ADVANCES.clause.lower()
+        self.assertIn("only for a device that was following", adv)
+        self.assertIn("gptp-gm-continuity", adv)
+        cont = A_GM_CONTINUITY.clause.lower()
+        self.assertIn("zero", cont)
+        self.assertIn("grandmasteridentity", cont)
+        # the link-event reading is a DATUM: the bench's inline tap can
+        # hold the DUT's PHY link up through a switch outage, so it must
+        # never be able to fail a run
+        self.assertEqual(A_LINK_EVENT_SEEN.severity, "INFO")
+        self.assertEqual(A_STATE_DEFAULTED.severity, "INFO")
+        for s in (A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
+                  A_PEER_GM_CHANGED, A_STATE_RESTORED,
+                  A_STATE_SELF_CONSISTENT):
+            self.assertEqual(s.severity, "SHALL", s.name)
+
+    def test_the_peer_crf_input_is_not_an_aaf_sink(self) -> None:
+        """No 'highest AAF index' selector may aim an AAF talker at the peer's CRF
+        Media Clock Input, which answers ACMP and then refuses every AAF
+        format: 32 of one run's 45 SKIPs were that bind's post-bind contract."""
+        # ax-phys-a aimed BOTH proof pairs at peer l8 - which is the
+        # CRF Media Clock INPUT, measured from the reference device's
+        # own refusals (listener_format 041060010000bb80: AVTP subtype
+        # 0x04 = CRF, 0xbb80 = 48 kHz).  An AAF talker can never bind
+        # it, so 32 of that run's 45 SKIPs were the post-bind contract
+        # of a bind that was never bindable.
+        self.assertEqual(PEER.crf_in, 8)
+        self.assertNotIn(8, PEER.listener_indices(include_crf=False))
+        self.assertIn(8, PEER.listener_indices(include_crf=True))
+        self.assertTrue(PEER.is_crf_listener(8))
+        # Every "highest AAF index" SELECTOR now lands on an AAF sink.
+        # The matrix is exempt by design - it is the full cross product
+        # on purpose, and a format-incompatible cell there is a wanted
+        # CONFORMANT-REFUSAL - but a step that CHOSE one index must not
+        # choose the CRF one with an AAF talker.
+        for s in build_plan():
+            if s.op != "connect" or s.area == "matrix":
+                continue
+            if s.args.get("listener") != PEER.entity_id:
+                continue
+            if PEER.is_crf_listener(s.args.get("listener_index")):
+                self.assertTrue(
+                    ARTY.is_crf_talker(s.args.get("talker_index")), s.sid)
+
+    def test_persistence_clause_is_quoted_and_never_deleted(self) -> None:
+        """Milan 5.3.8.1 stays quoted in the assertion itself: a build with no
+        store changes the VERDICT to KNOWN-PENDING, never the requirement."""
+        # Milan v1.2 5.3.8.1 is an unconditional SHALL, so the assertion
+        # stays; what a build with no store changes is the VERDICT, not
+        # the requirement.  Both halves must be traceable from the text.
+        c = A_STATE_RESTORED.clause
+        self.assertIn("5.3.8.1", c)
+        self.assertIn("non-volatile memory and restored after a power "
+                      "cycle", c)
+        self.assertIn("KNOWN-PENDING", c)
+        self.assertIn("KNOWN-PENDING", VERDICTS)
+        self.assertIn("5.3.8.1", A_STATE_SELF_CONSISTENT.clause)
+
+    def test_churn_includes_the_implicit_rebind_to_a_different_talker(self) -> None:
+        """The churn area reaches the implicit rebind - a BIND_RX over an already
+        bound input, to a DIFFERENT talker - which a bind/unbind/bind loop can
+        never produce and which carries its own counter-reset consequence."""
+        reb = [s for s in plan_churn() if s.sid.endswith(".rebind")]
+        self.assertTrue(reb)
+        for s in reb:
+            self.assertTrue(s.args.get("no_unbind_first"))
+            self.assertIn("5.5.3.5.43", s.clause)
+        # and it must move to a DIFFERENT talker index than the first bind
+        first = {s.sid: s.args["talker_index"]
+                 for s in plan_churn()
+                 if s.op == "connect" and not s.sid.endswith(".rebind")
+                 and s.sid.startswith("churn.implicit-rebind")}
+        for s in reb:
+            base = s.sid.rsplit(".", 1)[0]
+            self.assertNotEqual(s.args["talker_index"], first[base])
+
+    def test_areas_selector(self) -> None:
+        """--areas selects exactly the named areas and REFUSES an unknown one, so
+        a typo cannot quietly run a shorter campaign than the caller asked for."""
+        self.assertEqual({s.area for s in build_plan(["audio"])},
+                         {"audio"})
+        with self.assertRaises(ValueError):
+            build_plan(["nope"])
+        self.assertEqual({s.area for s in build_plan()},
+                         {"matrix", "multi", "churn", "payload", "audio",
+                          "torture", "physical"})
+
+class _ConcurrencyChecks:
+    """The multi-stream concurrency sets and the audio family.
+
+    A mixin, not a TestCase: `self_test` combines the five into the one
+    `T` whose name the report prints, so the arms can be read apart
+    without a single line of that report changing.
+    """
+    def test_multi_area_walks_concurrent_sets_and_serialises(self) -> None:
+        """Each concurrency set binds, verifies, then tears down in that order; no
+        listener is bound twice inside a set (that would be a rebind, not
+        concurrency), and a truncated set reddens the per-area audit."""
+        plan = build_plan(["multi"])
+        self.assertTrue(plan)
+        sids = [s.sid for s in plan]
+        # every set runs its phases in teardown-safe order; the stress
+        # set carries the load sandwich between verify and teardown
+        for name in ("primaries", "selfloop", "mixed"):
+            phases = [s.rsplit(".", 1)[1] for s in sids
+                      if s.startswith(f"multi.{name}.")]
+            self.assertEqual(phases, ["bind-all", "verify-concurrent",
+                                      "teardown-one", "teardown-rest"],
+                             name)
+        phases = [s.split(".", 2)[2] for s in sids
+                  if s.startswith("multi.stress.")]
+        self.assertEqual(phases, ["bind-all", "verify-concurrent",
+                                  "load-rx", "load-tx",
+                                  "verify-after-load",
+                                  "teardown-one", "teardown-rest"])
+        # the primaries set feeds EVERY reachable reference listener
+        # CONCURRENTLY - the listener set comes from the peer's SPEC (the
+        # peer's (p) primaries), never a hardcoded list
+        bind = next(s for s in plan
+                    if s.sid == "multi.primaries.bind-all")
+        self.assertEqual(
+            sorted(p["listener_index"] for p in bind.args["pairs"]),
+            PEER.listener_indices(include_crf=False))
+        self.assertTrue(all(p["listener"] == PEER.entity_id
+                            for p in bind.args["pairs"]))
+        # the selfloop set pairs tN -> lN on the DUT itself
+        loop = next(s for s in plan
+                    if s.sid == "multi.selfloop.bind-all")
+        self.assertEqual([(p["talker_index"], p["listener_index"])
+                          for p in loop.args["pairs"]],
+                         [(i, i) for i in
+                          ARTY.talker_indices(include_crf=False)])
+        # within one set no listener is bound twice: the pairs must be
+        # able to run CONCURRENTLY, and a doubled listener is a rebind
+        for s in plan:
+            if s.op == "multi_connect":
+                ls = [(p["listener"], p["listener_index"])
+                      for p in s.args["pairs"]]
+                self.assertEqual(len(ls), len(set(ls)), s.sid)
+        # the verify step carries the UNBOUND inputs for the isolation
+        # verdict, and none of them is also bound in the set
+        ver = next(s for s in plan
+                   if s.sid == "multi.selfloop.verify-concurrent")
+        self.assertTrue(ver.args["unbound"])
+        bound = {(p["listener"], p["listener_index"])
+                 for p in ver.args["pairs"]}
+        for u in ver.args["unbound"]:
+            self.assertNotIn((u["entity"], u["index"]), bound)
+        # the staged teardown unbinds a SINGLE-listener talker (so silence
+        # is owed) and carries the survivors it must prove undisturbed
+        tear = next(s for s in plan
+                    if s.sid == "multi.primaries.teardown-one")
+        n = sum(1 for p in bind.args["pairs"]
+                if (p["talker"], p["talker_index"]) ==
+                (tear.args["unbind"]["talker"],
+                 tear.args["unbind"]["talker_index"]))
+        self.assertEqual(n, 1)
+        self.assertTrue(tear.args["expect_talker_silent"])
+        self.assertEqual(len(tear.args["survivors"]),
+                         len(bind.args["pairs"]) - 1)
+        # a plan step is DATA: everything serialises
+        json.dumps([s.as_dict() for s in plan])
+        # the per-area audit covers the multi area and passes
+        ok, d = area_covers_every_index(build_plan(), "multi")
+        self.assertTrue(ok, d)
+        # NEGATIVE CONTROL: a multi area truncated to one pair per set
+        # must redden the audit
+        import dataclasses as _dc
+        lonely = [_dc.replace(s, args={
+            k: (v[:1] if k in ("pairs", "survivors") else v)
+            for k, v in s.args.items()}) for s in plan]
+        ok2, d2 = area_covers_every_index(lonely, "multi")
+        self.assertFalse(ok2)
+        self.assertTrue(d2["missing"])
+
+    def test_multi_stress_set_is_maximal_and_loads_both_directions(self) -> None:
+        """The stress set binds every DUT talker and feeds every reachable
+        reference listener, loops the overflow home, and loads both directions
+        with the 802.1Q shaping-immunity claim at SHALL and headroom at INFO."""
+        plan = build_plan(["multi"])
+        bind = next(s for s in plan if s.sid == "multi.stress.bind-all")
+        pairs = bind.args["pairs"]
+        # every DUT AAF talker is bound outbound (peer first, self-loops
+        # to fill) ...
+        self.assertEqual(sorted({p["talker_index"] for p in pairs
+                                 if p["talker"] == ARTY.entity_id}),
+                         ARTY.talker_indices(include_crf=False))
+        # ... every reachable reference listener is fed ...
+        self.assertEqual(sorted(p["listener_index"] for p in pairs
+                                if p["listener"] == PEER.entity_id),
+                         PEER.listener_indices(include_crf=False))
+        # ... and the INBOUND direction rides on top
+        self.assertEqual(sorted({p["talker_index"] for p in pairs
+                                 if p["talker"] == PEER.entity_id}),
+                         PEER.talker_indices(include_crf=False))
+        # on the AX 8x8 shape: all 8 talkers out, the overflow looped
+        # home.  The self-loop count is DERIVED from how many AAF sinks
+        # the peer really has - it went 3 -> 4 the moment index 8 was
+        # named as the peer's CRF input instead of a fifth AAF sink,
+        # and a literal here would have hidden that
+        ax = parse_device_spec("talkers=8,listeners=8,crf_out=8,"
+                               "crf_in=8", ARTY)
+        axb = next(s for s in plan_multi(ax, PEER)
+                   if s.sid == "multi.stress.bind-all")
+        self.assertEqual(sorted({p["talker_index"]
+                                 for p in axb.args["pairs"]
+                                 if p["talker"] == ax.entity_id}),
+                         list(range(8)))
+        n_peer = len(PEER.listener_indices(include_crf=False))
+        self.assertEqual(sorted(p["talker_index"]
+                                for p in axb.args["pairs"]
+                                if p["talker"] == ax.entity_id
+                                and p["listener"] == ax.entity_id),
+                         list(range(n_peer, 8)))
+        # two load steps, rx then tx, each owing the stress asserts with
+        # honest severities: immune is SHALL on the 802.1Q shaping
+        # contract, the headroom is INFO with the info reasoning stated
+        loads = [s for s in plan if s.op == "multi_stress_load"]
+        self.assertEqual([s.args["direction"] for s in loads],
+                         ["rx", "tx"])
+        for s in loads:
+            names = {a.name: a for a in s.asserts}
+            imm = names["multi.streams-immune-to-best-effort-load"]
+            self.assertEqual(imm.severity, "SHALL")
+            self.assertIn("802.1Q", imm.clause)
+            hr = names["multi.best-effort-headroom"]
+            self.assertEqual(hr.severity, "INFO")
+            self.assertTrue(hr.clause.startswith("info:"))
+            self.assertIn(A_NO_SEQ_MISMATCH.name, names)
+            self.assertIn(A_NO_LATE_EARLY.name, names)
+        # the coverage expectation now includes the inbound peer talkers
+        self.assertIn("peer_talker", area_index_expectations()["multi"])
+        ok, d = area_covers_every_index(build_plan(), "multi")
+        self.assertTrue(ok, d)
+        # the flowing verdict's stress flavour BITES and names the load
+        v, d = check_concurrent_flowing(
+            {"a": {"tx_ticks": 0, "rx_ticks": 0},
+             "b": {"tx_ticks": 4, "rx_ticks": 4}},
+            licensed=True, under_load="iperf3-tcp rx")
+        self.assertEqual(v, "FAIL")
+        self.assertIn("iperf3-tcp rx", d["why"])
+        self.assertIn("SHALL NOT disturb", d["why"])
+        # and the licence gates the stress flavour like everything else
+        self.assertEqual(check_concurrent_flowing(
+            {"a": {"tx_ticks": 0, "rx_ticks": 0}}, licensed=False,
+            under_load="iperf3-tcp rx")[0], "SKIP")
+
+    def test_multi_concurrent_flowing_bites_every_way(self) -> None:
+        """One dead pair among many FAILs, a one-sided pair counts as dead, a pair
+        unreadable on both sides SKIPs by name, and a MEASURED dead pair
+        outranks a measurement gap on another pair."""
+
+        def P(tx: int | None, rx: int | None) -> dict[str, int | None]:
+            """One pair's two interval-tick deltas over the shared window."""
+            return {"tx_ticks": tx, "rx_ticks": rx}
+        # all pairs flowing together, licence open -> PASS, and the
+        # comparison names itself as INTERVALS
+        v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(5, 4)},
+                                        licensed=True)
+        self.assertEqual(v, "PASS")
+        self.assertIn("OBSERVATION INTERVALS", d["compares"])
+        # ONE DEAD AMONG MANY - the defect this area exists for
+        v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(0, 0)},
+                                        licensed=True)
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["dead"], ["b"])
+        self.assertEqual(d["flowing"], ["a"])
+        # one-sided movement is a dead pair, not a flowing one
+        v, d = check_concurrent_flowing({"a": P(4, 0)}, licensed=True)
+        self.assertEqual(v, "FAIL")
+        # the licence gates the whole question: SHUT and UNKNOWN are SKIP
+        # and never a violation, exactly as the pairwise steps
+        self.assertEqual(check_concurrent_flowing(
+            {"a": P(0, 0)}, licensed=False)[0], "SKIP")
+        v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=None)
+        self.assertEqual(v, "SKIP")
+        self.assertIn("--licence-status", d["why"])
+        # a pair unreadable on BOTH sides SKIPs and NAMES itself...
+        v, d = check_concurrent_flowing(
+            {"a": P(4, 4), "b": P(None, None)}, licensed=True)
+        self.assertEqual(v, "SKIP")
+        self.assertEqual(d["unreadable"], ["b"])
+        # ...but a MEASURED dead pair outranks a measurement gap
+        v, d = check_concurrent_flowing(
+            {"a": P(0, 0), "b": P(None, None), "c": P(4, 4)},
+            licensed=True)
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["dead"], ["a"])
+        # the teardown flavour names the torn-down stream in the why
+        v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=True,
+                                        torn_down="artyt0-peerl0")
+        self.assertEqual(v, "FAIL")
+        self.assertIn("artyt0-peerl0", d["why"])
+        self.assertIn("cross-stream-independence", d["why"])
+        # and no pairs at all is a SKIP, not a vacuous pass
+        self.assertEqual(check_concurrent_flowing({}, licensed=True)[0],
+                         "SKIP")
+
+    def test_multi_unbound_isolation_bites(self) -> None:
+        """An UNBOUND Stream Input that ticks while its neighbours stream FAILs -
+        the per-index aliasing/bleed defect class that index-0-only testing
+        can never see - and a wrapped counter is INFO, not a pass."""
+        v, d = check_unbound_static(
+            {"peerl2": {"FRAMES_RX": 0, "MEDIA_LOCKED": 0}})
+        self.assertEqual(v, "PASS")
+        # an unbound index that TICKS is the per-index bleed defect
+        v, d = check_unbound_static({"peerl2": {"FRAMES_RX": 37}})
+        self.assertEqual(v, "FAIL")
+        self.assertEqual(d["moved"]["peerl2.FRAMES_RX"], 37)
+        self.assertIn("5.3.8.10", d["why"])
+        # nothing to check / nothing readable / a wrap are not passes
+        self.assertEqual(check_unbound_static({})[0], "SKIP")
+        self.assertEqual(check_unbound_static(
+            {"x": {"FRAMES_RX": None}})[0], "SKIP")
+        self.assertEqual(check_unbound_static(
+            {"x": {"FRAMES_RX": -5}})[0], "INFO")
+        # a readable zero beside an unreadable neighbour still passes,
+        # with the unreadable one NAMED
+        v, d = check_unbound_static({"x": {"FRAMES_RX": 0},
+                                     "y": {"FRAMES_RX": None}})
+        self.assertEqual(v, "PASS")
+        self.assertEqual(d["unreadable"], ["y"])
+
+    def test_plan_steps_serialise(self) -> None:
+        """Every plan step survives json.dumps and its assertion names agree with
+        its clause map, so a runner can consume the plan without this module."""
+        for s in build_plan():
+            d = s.as_dict()
+            json.dumps(d)
+            self.assertEqual(set(d["assert_clauses"]), set(d["asserts"]))
+
+    def test_exit_codes(self) -> None:
+        """A SHALL failure exits 1, a RECOMMENDED-only one exits 2, and a SKIP
+        alone exits 0 while still being counted in the summary."""
+        ok = [verdict_record("a", "x", "PASS")]
+        self.assertEqual(exit_code(ok), 0)
+        soft = [verdict_record("a", "x", "FAIL",
+                               severity="RECOMMENDED")]
+        self.assertEqual(exit_code(soft), 2)
+        hard = [verdict_record("a", "x", "FAIL")]
+        self.assertEqual(exit_code(hard), 1)
+        skip = [verdict_record("a", "x", "SKIP")]
+        self.assertEqual(exit_code(skip), 0)
+        self.assertEqual(summarise(hard)["FAIL"], 1)
+        self.assertEqual(summarise(hard)["exit_code"], 1)
+
+    def test_audio_is_never_forgotten(self) -> None:
+        """The campaign is invalid without an identity step, a per-channel-DISTINCT
+        pattern and a THD+N step that names the harness analyser: a pattern
+        repeated across channels cannot fail on a swap."""
+        # the campaign is invalid without an identity check, a per-channel
+        # distinct pattern, and a THD+N gate
+        ids = {s.sid for s in plan_audio()}
+        self.assertTrue(any("identity" in i for i in ids))
+        self.assertTrue(any("thdn" in i for i in ids))
+        walk = [s for s in plan_audio() if "walking-tone" in s.sid][0]
+        self.assertTrue(walk.args["per_channel_distinct"])
+        thdn = [s for s in plan_audio() if s.sid == "audio.thdn"][0]
+        self.assertIn("thdn.py", thdn.args["analyser"])
+        self.assertTrue(any("coherent" in a.name for a in thdn.asserts))
+
 def self_test() -> int:
+    """The offline suite: every arm of the five mixins, exit 0 when all pass.
+
+    Nothing here touches the wire.  What it audits is the PLAN and the
+    GRADERS - the coverage each area owes, the assertion set each step
+    carries, and that every verdict function can still say no - because a
+    grader that cannot fail is the defect this campaign keeps finding.
+    """
     import unittest
 
-    class T(unittest.TestCase):
-        def test_counter_tables_match_the_standards(self):
-            self.assertEqual(len(MILAN_TABLE_56), 10)
-            self.assertEqual(len(MILAN_TABLE_54), 5)
-            self.assertEqual(len(IEEE_STREAM_INPUT_BLOCK), 12)
-            self.assertEqual(len(IEEE_STREAM_OUTPUT_BLOCK), 8)
-            # the Milan ten, as a wire mask, is 0xF3F: bits 6/7 (the two tv
-            # tallies) are the only holes
-            self.assertEqual(
-                counters_valid_mask(MILAN_TABLE_56, IEEE_STREAM_INPUT_BLOCK),
-                MILAN_INPUT_MANDATORY_MASK)
-            self.assertEqual(
-                counters_valid_mask(IEEE_STREAM_INPUT_BLOCK,
-                                    IEEE_STREAM_INPUT_BLOCK),
-                MILAN_INPUT_FULL_MASK)
-            self.assertEqual(
-                counters_valid_mask(MILAN_TABLE_54, MILAN_TABLE_54),
-                MILAN_OUTPUT_MASK)
-
-        def test_counters_payload_decode_and_unnamed_slots(self):
-            pay = bytearray(8 + 128)
-            pay[0:2] = (0x0005).to_bytes(2, "big")
-            pay[2:4] = (0x0003).to_bytes(2, "big")
-            pay[4:8] = MILAN_INPUT_FULL_MASK.to_bytes(4, "big")
-            for i, v in enumerate(range(1, 13)):
-                pay[8 + 4 * i:12 + 4 * i] = v.to_bytes(4, "big")
-            d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
-            self.assertEqual(d["descriptor_index"], 3)
-            self.assertEqual(d["decoded"]["MEDIA_LOCKED"], 1)
-            self.assertEqual(d["decoded"]["FRAMES_RX"], 12)
-            self.assertEqual(d["claimed_but_unnamed_slots"], [])
-            # a mask claiming a slot the layout does not name is REPORTED, not
-            # dropped: it means the device and the reader disagree on layout
-            pay[4:8] = (MILAN_INPUT_FULL_MASK | (1 << 20)).to_bytes(4, "big")
-            d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
-            self.assertEqual(d["claimed_but_unnamed_slots"], [20])
-            # an unclaimed slot is ABSENT, never reported as 0 (methodology R5)
-            pay[4:8] = (0x001).to_bytes(4, "big")
-            d = decode_counters_payload(bytes(pay), IEEE_STREAM_INPUT_BLOCK)
-            self.assertEqual(list(d["decoded"]), ["MEDIA_LOCKED"])
-            with self.assertRaises(ValueError):
-                decode_counters_payload(b"\x00" * 12, IEEE_STREAM_INPUT_BLOCK)
-
-        def test_lock_and_talker_invariants(self):
-            self.assertEqual(check_lock_invariant(
-                {"MEDIA_LOCKED": 5, "MEDIA_UNLOCKED": 4})[0], "PASS")
-            self.assertEqual(check_lock_invariant(
-                {"MEDIA_LOCKED": 4, "MEDIA_UNLOCKED": 4})[0], "PASS")
-            self.assertEqual(check_lock_invariant(
-                {"MEDIA_LOCKED": 6, "MEDIA_UNLOCKED": 4})[0], "FAIL")
-            self.assertEqual(check_lock_invariant(
-                {"MEDIA_LOCKED": 3, "MEDIA_UNLOCKED": 4})[0], "FAIL")
-            self.assertEqual(check_lock_invariant({})[0], "SKIP")
-            self.assertEqual(check_talker_invariant(
-                {"STREAM_START": 3, "STREAM_STOP": 2})[0], "PASS")
-            self.assertEqual(check_talker_invariant(
-                {"STREAM_START": 3, "STREAM_STOP": 1})[0], "FAIL")
-
-        def test_tv_tnv_distinguishes_the_two_frames_rx_readings(self):
-            # 1722.1 per-frame reading: the identity is exact
-            v, d = check_tv_tnv({"TIMESTAMP_VALID": 1000,
-                                 "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1000})
-            self.assertEqual((v, d["reading"]), ("PASS", "1722.1-per-frame"))
-            # Milan interval reading: 8000 frames in 1 s, FRAMES_RX ticks once
-            v, d = check_tv_tnv({"TIMESTAMP_VALID": 8000,
-                                 "TIMESTAMP_NOT_VALID": 0, "FRAMES_RX": 1})
-            self.assertEqual((v, d["reading"]), ("INFO", "milan-interval"))
-            # neither reading permits FRAMES_RX above TV+TNV
-            self.assertEqual(check_tv_tnv({"TIMESTAMP_VALID": 5,
-                                           "TIMESTAMP_NOT_VALID": 0,
-                                           "FRAMES_RX": 99})[0], "FAIL")
-            self.assertEqual(check_tv_tnv({})[0], "SKIP")
-
-        def test_every_stream_input_counter_has_an_update_law(self):
-            # The law table is the oracle the RTL, the behave feature and the
-            # bench grader all answer to, so it must cover the whole block.
-            for n in IEEE_STREAM_INPUT_BLOCK:
-                self.assertIsNotNone(counter_law(n), n)
-            # Milan Table 5.6 defines TEN of the twelve; the two it does NOT
-            # define keep 1722.1's per-frame reading, which is exactly why a
-            # conformant device shows TIMESTAMP_VALID ~8000x FRAMES_RX.
-            self.assertEqual(
-                {n for n, (k, _, _) in STREAM_INPUT_COUNTER_LAW.items()
-                 if k == "per-frame"},
-                {"TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID"})
-            self.assertEqual(set(MILAN_INTERVAL_COUNTERS),
-                             set(MILAN_TABLE_56) - {"MEDIA_LOCKED",
-                                                    "MEDIA_UNLOCKED",
-                                                    "STREAM_INTERRUPTED"})
-            for n in MILAN_INTERVAL_COUNTERS:
-                self.assertEqual(counter_law(n)[1], "Milan v1.2 Table 5.6", n)
-
-        def test_interval_ceiling_catches_a_half_converted_counter(self):
-            # FRAMES_RX is the interval clock: nothing whose trigger arrives in
-            # a frame may out-tick it.
-            b = {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0, "LATE_TIMESTAMP": 0}
-            self.assertEqual(check_interval_ceiling(
-                b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 30,
-                    "LATE_TIMESTAMP": 2})[0], "PASS")
-            v, d = check_interval_ceiling(
-                b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 240060,
-                    "LATE_TIMESTAMP": 2})
-            self.assertEqual(v, "FAIL")
-            self.assertEqual([o["counter"] for o in d["offenders"]],
-                             ["TIMESTAMP_UNCERTAIN"])
-            # the two tv tallies are EXEMPT - Milan never defined them, so they
-            # are supposed to out-tick an interval FRAMES_RX
-            self.assertEqual(check_interval_ceiling(
-                {"FRAMES_RX": 0, "TIMESTAMP_VALID": 0, "LATE_TIMESTAMP": 0},
-                {"FRAMES_RX": 30, "TIMESTAMP_VALID": 240060,
-                 "LATE_TIMESTAMP": 2})[0], "PASS")
-            # a window with no frames grades nothing
-            self.assertEqual(check_interval_ceiling(
-                b, {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0,
-                    "LATE_TIMESTAMP": 0})[0], "SKIP")
-            # a reset inside the window is not a backwards counter finding
-            self.assertEqual(check_interval_ceiling(
-                {"FRAMES_RX": 500}, {"FRAMES_RX": 3})[0], "SKIP")
-
-        def test_counter_semantics_grades_both_ways_round(self):
-            # the mandated split at class A: TV per frame, FRAMES_RX per
-            # interval - both PASS, which is the whole point
-            self.assertEqual(grade_counter_semantics(
-                "TIMESTAMP_VALID", 240060, 30.0, stream_flowing=True)[0], "PASS")
-            self.assertEqual(grade_counter_semantics(
-                "FRAMES_RX", 30, 30.0, stream_flowing=True)[0], "PASS")
-            # OVER-conversion: a per-frame counter dragged onto the interval
-            # tick alongside the Milan seven
-            v, d = grade_counter_semantics("TIMESTAMP_VALID", 30, 30.0,
-                                           stream_flowing=True)
-            self.assertEqual((v, d["reading"]), ("FAIL", "interval"))
-            # an interval longer than the 1 s ceiling, which only FRAMES_RX's
-            # rate can ever imply
-            self.assertEqual(grade_counter_semantics(
-                "FRAMES_RX", 15, 30.0, stream_flowing=True)[0], "FAIL")
-            # more ticks than frames: impossible under every reading
-            self.assertEqual(grade_counter_semantics(
-                "FRAMES_RX", 900000, 30.0, stream_flowing=True)[0], "FAIL")
-            # AND THE TRAP THIS GRADER ITSELF FELL INTO, caught by running it
-            # against real silicon: the AX7101's sink 0 on 2026-08-03 read
-            # TIMESTAMP_UNCERTAIN 23 and LATE_TIMESTAMP 74 over ~7531 s beside
-            # FRAMES_RX 7545 (a 0.998 s interval).  Those two tick only in the
-            # intervals during which their own condition held, so dividing them
-            # by the window implies intervals of minutes - and an earlier cut
-            # of this function failed both as ceiling violations.
-            for name, delta in (("TIMESTAMP_UNCERTAIN", 23),
-                                ("LATE_TIMESTAMP", 74),
-                                ("SEQ_NUM_MISMATCH", 1)):
-                v, d = grade_counter_semantics(name, delta, 7531.0,
-                                               stream_flowing=True)
-                self.assertEqual((v, d["reading"]), ("PASS", "interval"),
-                                 f"{name} is intermittent by definition")
-            self.assertEqual(grade_counter_semantics(
-                "FRAMES_RX", 7545, 7531.0, stream_flowing=True)[0], "PASS")
-            # nothing measured, nothing concluded
-            self.assertEqual(grade_counter_semantics(
-                "UNSUPPORTED_FORMAT", 0, 30.0)[0], "SKIP")
-            self.assertEqual(grade_counter_semantics("NOT_A_COUNTER", 1, 1.0)[0],
-                             "SKIP")
-
-        def test_frames_rate_band(self):
-            self.assertEqual(frames_rate_band(7995.7), "per-frame")
-            self.assertEqual(frames_rate_band(1.0), "interval")
-            self.assertEqual(frames_rate_band(0.0), "neither")
-            # Milan Table 5.4/5.6 bound the observation interval from ABOVE
-            # ONLY ("shall be less than or equal to 1 second"), so a 5 ms
-            # interval ticking 200/s is CONFORMANT.  Calling it "neither" - as
-            # the first version of this band table did - failed a conformant
-            # device, and a unit test asserting 200.0 was "the defect" cemented
-            # it.
-            self.assertEqual(frames_rate_band(200.0), "interval")
-            self.assertEqual(frames_rate_band(3999.0), "interval")
-            self.assertAlmostEqual(
-                frames_rate_reading(200.0)["implied_interval_s"], 0.005)
-            # the ONE way an interval reading is non-conformant: the implied
-            # interval exceeds the 1 s ceiling
-            self.assertEqual(frames_rate_band(0.4), "neither")
-            self.assertIn("less than or equal to 1 s",
-                          frames_rate_reading(0.4)["why"])
-            # and the ceiling is a real parameter now, not a dead one
-            self.assertEqual(frames_rate_band(0.4, max_interval_s=5.0),
-                             "interval")
-
-        def test_no_growth_is_a_verdict_and_not_a_note(self):
-            keys = ("LATE_TIMESTAMP", "EARLY_TIMESTAMP")
-            v, d = check_no_growth({"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
-                                   {"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
-                                   keys)
-            self.assertEqual(v, "PASS")
-            # ONE tick is one bad observation interval, and it FAILS - the two
-            # real escapes (296,294/296,294 UNSUPPORTED_FORMAT and 5.1 M LATE +
-            # 4.8 M EARLY) were emitted as INFO and so could not fail anything
-            v, d = check_no_growth({"LATE_TIMESTAMP": 7, "EARLY_TIMESTAMP": 3},
-                                   {"LATE_TIMESTAMP": 8, "EARLY_TIMESTAMP": 3},
-                                   keys)
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["delta"]["LATE_TIMESTAMP"], 1)
-            v, _ = check_no_growth({"UNSUPPORTED_FORMAT": 0},
-                                   {"UNSUPPORTED_FORMAT": 296294},
-                                   ("UNSUPPORTED_FORMAT",))
-            self.assertEqual(v, "FAIL")
-            # a counter that went DOWN measured nothing: reset or wrap
-            v, _ = check_no_growth({"LATE_TIMESTAMP": 9},
-                                   {"LATE_TIMESTAMP": 0}, ("LATE_TIMESTAMP",))
-            self.assertEqual(v, "INFO")
-            # and an unclaimed counter is SKIP, never a pass
-            self.assertEqual(check_no_growth({}, {}, keys)[0], "SKIP")
-
-        def test_licence_decode_and_the_shut_gate(self):
-            # 0x30 = talker declared + domain ok, gate SHUT: the reading a
-            # CORRECTLY silent bound talker gives (Milan v1.2 5.3.7.3 needs a
-            # Listener Ready too, and there is none)
-            st, d = licence_state(0x30)
-            self.assertEqual(st, "SHUT")
-            self.assertTrue(d["talker_declared"])
-            self.assertTrue(d["domain_ok"])
-            self.assertFalse(d["stream_gate_open"])
-            self.assertEqual(d["listener_declaration"], "none/ignore")
-            st, d = licence_state(0x1FE)
-            self.assertEqual(st, "OPEN")
-            self.assertTrue(d["stream_gate_open"])
-            self.assertTrue(d["reservation_active"])
-            # a missing reading is UNKNOWN and says what to supply - it must
-            # NEVER become a violation verdict
-            st, d = licence_state(None)
-            self.assertEqual(st, "UNKNOWN")
-            self.assertIn("--licence-status", d["why"])
-            self.assertEqual(d["register"], "0x694 LWSRP_STATUS")
-            # the sticky shortfall and the MSRP failure code are decoded, not
-            # swallowed
-            self.assertTrue(decode_lwsrp_status(1 << 11)
-                            ["attribute_row_shortfall"])
-            self.assertEqual(decode_lwsrp_status(5 << 16)
-                             ["msrp_failure_code"], 5)
-
-        def test_the_frame_versus_interval_semantic_trap_cannot_be_expressed(self):
-            # AVB_INTERFACE FRAMES_TX/RX are TOTALS (1722.1 Table 7-153); the
-            # stream-descriptor ones are <= 1 s interval TICKS (Milan Table
-            # 5.4/5.6).  Same name, ~8000:1 apart.  A frame-accurate comparison
-            # against the interval counters must be IMPOSSIBLE TO WRITE.
-            for good in FRAME_ACCURATE_SOURCES:
-                self.assertEqual(assert_frame_accurate(good), good)
-            for bad in INTERVAL_SOURCES:
-                with self.assertRaises(CounterSemanticError):
-                    assert_frame_accurate(bad)
-            with self.assertRaises(CounterSemanticError):
-                assert_frame_accurate("vibes")
-            # and the interval comparison is named for what it compares
-            v, d = interval_ticks_agree(4, 4)
-            self.assertEqual(v, "PASS")
-            self.assertIn("OBSERVATION INTERVALS", d["compares"])
-            self.assertEqual(interval_ticks_agree(4, 0)[0], "FAIL")
-            self.assertEqual(interval_ticks_agree(0, 0)[0], "PASS")
-            self.assertEqual(interval_ticks_agree(9, 4)[0], "FAIL")
-            self.assertEqual(interval_ticks_agree(None, 4)[0], "SKIP")
-
-        def test_interval_agreement_attributes_a_per_frame_side(self):
-            # EVERY PARTICIPANT IS A MEASURED PARTY.  The three shapes:
-            # (1) both interval-conformant and agreeing -> PASS, no finding
-            v, d = interval_ticks_agree(4, 4, window_s=4.0)
-            self.assertEqual(v, "PASS")
-            self.assertNotIn("peer_findings", d)
-            # (2) both interval-conformant and genuinely disagreeing -> the
-            #     ORIGINAL pair FAIL, untouched by attribution
-            v, d = interval_ticks_agree(9, 4, window_s=4.0)
-            self.assertEqual(v, "FAIL")
-            self.assertNotIn("peer_findings", d)
-            # (3) one side per-frame (the peer's deviation, ~8000/s): the pair
-            #     verdict PASSes FOR THE CONFORMANT SIDE and the deviation is
-            #     an attributed finding naming the deviant ROLE and its rate
-            v, d = interval_ticks_agree(4, 31982, window_s=4.0)
-            self.assertEqual(v, "PASS")
-            self.assertTrue(d["attributed"])
-            self.assertEqual(d["conformant_role"], "talker")
-            self.assertEqual(d["listener_semantics"], "per-frame")
-            pf = d["peer_findings"]
-            self.assertEqual([f["role"] for f in pf], ["listener"])
-            self.assertGreater(pf[0]["ticks_per_s"], 150)
-            self.assertIn("Table 7-157", pf[0]["why"])
-            # ... and mirrored, the talker can be the deviant
-            v, d = interval_ticks_agree(72880, 9, window_s=8.0)
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["conformant_role"], "listener")
-            self.assertEqual(d["peer_findings"][0]["role"], "talker")
-            # movement disagreement OUTRANKS attribution: a deviant side
-            # pumping frames while the conformant side saw nothing is the
-            # original one-sided-streaming FAIL, with the finding kept
-            v, d = interval_ticks_agree(0, 31982, window_s=4.0)
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["peer_findings"][0]["role"], "listener")
-            # two per-frame sides leave no baseline: SKIP + one finding EACH,
-            # never a silent pass for either
-            v, d = interval_ticks_agree(31982, 31982, window_s=4.0)
-            self.assertEqual(v, "SKIP")
-            self.assertEqual(len(d["peer_findings"]), 2)
-            # without a window the absolute floor still catches wire rate
-            v, d = interval_ticks_agree(4, 31982)
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["peer_findings"][0]["role"], "listener")
-            self.assertIsNone(d["peer_findings"][0]["ticks_per_s"])
-            # and a fast-but-plausible interval implementation is NOT deviant:
-            # 40 ticks over 4 s (a legal 100 ms interval) stays an interval
-            # reading, so the disagreement with a 1/s peer is the pair's
-            v, d = interval_ticks_agree(4, 40, window_s=4.0)
-            self.assertEqual(v, "FAIL")
-            self.assertNotIn("peer_findings", d)
-
-        def test_cross_side_growth_bites_every_way(self):
-            def sides(t, l, w=None, **kw):
-                s = {"dut": {"role": "talker", "source": "avb_interface",
-                             "frames": t, "device": "arty"},
-                     "peer": {"role": "listener", "source": "avb_interface",
-                              "frames": l, "device": "peer"}}
-                if w is not None:
-                    s["testhost"] = {"role": "wire", "source": "nic",
-                                     "frames": w, "device": "testhost"}
-                s.update(kw)
-                return s
-
-            def one(res, name):
-                return [(v, d) for n, v, d in res if n == name][0]
-
-            # corroborated on three sides
-            r = cross_side_growth(sides(8000, 8000, 8000), licensed=True,
-                                  registered_sides={"peer"})
-            v, d = one(r, "xside.growth-corroborated")
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["sides_used"], ["dut", "peer", "testhost"])
-            # a ONE-SIDED claim of streaming FAILS
-            v, d = one(cross_side_growth(sides(8000, 0, 0), licensed=True,
-                                         registered_sides={"peer"}),
-                       "xside.growth-corroborated")
-            self.assertEqual(v, "FAIL")
-            self.assertFalse(d["moving"]["peer"])
-            # a listener counting MORE than the talker sent, beyond the skew
-            v, _ = one(cross_side_growth(sides(1000, 1000 + 8001),
-                                         licensed=True),
-                       "xside.listener-not-more-than-talker")
-            self.assertEqual(v, "FAIL")
-            # inside the skew it is the snapshot, not a defect
-            v, _ = one(cross_side_growth(sides(1000, 1000 + 10),
-                                         licensed=True),
-                       "xside.listener-not-more-than-talker")
-            self.assertEqual(v, "PASS")
-            # frames with the gate SHUT are unreserved traffic
-            v, _ = one(cross_side_growth(sides(8000, 8000), licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "FAIL")
-            v, _ = one(cross_side_growth(sides(0, 0), licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "PASS")
-            # both device sides unreadable: wire-only frames are the test
-            # host's own traffic, not evidence against the gate
-            v, d = one(cross_side_growth(sides(None, None, 42),
-                                         licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "SKIP")
-            self.assertEqual(d["sides_unreadable"], ["dut", "peer"])
-            # but ONE readable device side keeps the invariant armed
-            v, _ = one(cross_side_growth(sides(7, None, 42), licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "FAIL")
-            # ambient wire-only movement (interface-global 'nic' source) with
-            # every readable device side SILENT is unattributable: INFO, not
-            # FAIL (373 campaign-chatter frames fired a false FAIL on silicon)
-            v, d = one(cross_side_growth(sides(None, 0, 373), licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "INFO")
-            self.assertEqual(d["movers"], {"testhost": 373})
-            # a stream-scoped pcap wire source still convicts alone
-            pc = sides(None, 0)
-            pc["tap"] = {"role": "wire", "source": "pcap", "frames": 99,
-                         "device": "profishark"}
-            v, _ = one(cross_side_growth(pc, licensed=False),
-                       "xside.unlicensed-silent-everywhere")
-            self.assertEqual(v, "FAIL")
-            # PRUNING: a bystander that never registered must see nothing
-            byst = sides(8000, 8000, bystander={"role": "bystander",
-                                                "source": "pcap", "frames": 42,
-                                                "device": "tap-port-3"})
-            v, d = one(cross_side_growth(byst, licensed=True,
-                                         registered_sides={"peer"}),
-                       "xside.absent-where-not-registered")
-            self.assertEqual(v, "FAIL")
-            self.assertIn("bystander", d["leaks"])
-            # an unreadable side SKIPs and NAMES itself, never fails the others
-            v, d = one(cross_side_growth(sides(8000, None), licensed=True),
-                       "xside.growth-corroborated")
-            self.assertEqual(v, "SKIP")
-            self.assertEqual(d["sides_unreadable"], ["peer"])
-            # and the semantic guard applies to the cross-check too
-            with self.assertRaises(CounterSemanticError):
-                cross_side_growth({"x": {"role": "talker",
-                                         "source": "stream_output",
-                                         "frames": 1}})
-
-        def test_the_test_machine_is_an_instrument_before_a_witness(self):
-            base = {k: 0 for k in
-                    NIC_LOSS_KEYS + NIC_DEMUX_KEYS + NIC_TRAFFIC_KEYS}
-            v, d = instrument_health(base, dict(base, rx_packets=8000))
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["traffic_delta"]["rx_packets"], 8000)
-            v, d = instrument_health(base, dict(base, rx_missed_errors=17))
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["moved"]["rx_missed_errors"], 17)
-            # rx_dropped alone is the switch's unhandled MVRP hitting host
-            # demux AFTER rx_packets and the capture tap: recorded, never a
-            # verdict (it used to poison every window on the live bench)
-            v, d = instrument_health(base, dict(base, rx_dropped=2,
-                                                rx_packets=9900))
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["demux_dropped"]["rx_dropped"], 2)
-            self.assertNotIn("rx_dropped", d["moved"])
-            self.assertEqual(instrument_health(None, base)[0], "SKIP")
-            # a lossy instrument DOWNGRADES a device verdict; it never fails it
-            self.assertEqual(downgrade_for_instrument("FAIL", "FAIL"),
-                             INSTRUMENT_SUSPECT)
-            self.assertEqual(downgrade_for_instrument("PASS", "FAIL"),
-                             INSTRUMENT_SUSPECT)
-            self.assertEqual(downgrade_for_instrument("FAIL", "PASS"), "FAIL")
-            self.assertEqual(downgrade_for_instrument("SKIP", "FAIL"), "SKIP")
-            # and it does not grade the run
-            self.assertEqual(
-                exit_code([verdict_record("a", "x", INSTRUMENT_SUSPECT)]), 0)
-            self.assertEqual(
-                summarise([verdict_record("a", "x", INSTRUMENT_SUSPECT)])
-                [INSTRUMENT_SUSPECT], 1)
-
-        def test_topology_is_configuration_not_a_source_edit(self):
-            d = parse_device_spec("name=ax,entity=aa" + "11" * 7 +
-                                  ",mac=" + "22" * 6 + ",talkers=8,"
-                                  "listeners=8,crf_out=8,crf_in=8", ARTY)
-            self.assertEqual((d.name, d.talkers, d.listeners), ("ax", 8, 8))
-            self.assertEqual(d.talker_indices(), [0, 1, 2, 3, 4, 5, 6, 7, 8])
-            # unset fields keep the base
-            self.assertEqual(parse_device_spec("talkers=2", ARTY).formats,
-                             ARTY.formats)
-            # a typo is REFUSED, not ignored: a dropped "listners=10" would run
-            # the whole campaign against the wrong shape and report full
-            # coverage of it
-            with self.assertRaises(ValueError):
-                parse_device_spec("listners=10", ARTY)
-            with self.assertRaises(ValueError):
-                parse_device_spec("talkers", ARTY)
-            # the test machine joins the participant list only once it has an
-            # interface to read
-            self.assertEqual([p.name for p in participants(ARTY, PEER)],
-                             ["arty", "peer"])
-            host = parse_device_spec("iface=enp6s0", TESTHOST)
-            self.assertEqual([p.name for p in
-                              participants(ARTY, PEER, host)],
-                             ["arty", "peer", "testhost"])
-            self.assertEqual([p.name for p in
-                              participants(ARTY, PEER, TESTHOST)],
-                             ["arty", "peer"])
-
-        def test_coverage_is_audited_PER_AREA(self):
-            plan = build_plan()
-            for area in AREAS:
-                ok, d = area_covers_every_index(plan, area)
-                self.assertTrue(ok, (area, d["missing"]))
-            # NEGATIVE CONTROL: an index-0-only AUDIO area must redden the AUDIO
-            # audit even though the matrix area still covers everything.  The
-            # whole-plan audit cannot do this, which is how the audio area
-            # stayed index-0-only under a green coverage report.
-            lonely = [s for s in plan if s.area != "audio"
-                      or s.sid.endswith(".t0") or s.sid == "audio.thdn"]
-            ok, d = area_covers_every_index(lonely, "audio")
-            self.assertFalse(ok)
-            self.assertEqual(d["missing"]["dut_talker"], [1, 2, 3])
-            self.assertTrue(area_covers_every_index(lonely, "matrix")[0])
-            # and the whole-plan audit is still green over the same plan, which
-            # is the masking this exists to expose
-            cov = plan_covers_every_index(lonely)
-            self.assertEqual(cov["dut_talker"], ARTY.talker_indices())
-
-        def test_ieee_bit_numbering_conversion(self):
-            # Table 7-156 calls the counter at block offset 0 "Bit # 31"
-            self.assertEqual(counters_valid_bit_ieee(0), 31)
-            self.assertEqual(counters_valid_bit_ieee(44), 20)   # FRAMES_RX
-            self.assertEqual(counters_valid_bit_ieee(124), 0)   # ENT_SPECIFIC_1
-            with self.assertRaises(ValueError):
-                counters_valid_bit_ieee(3)
-
-        def test_milan_and_ieee_stream_output_layouts_differ(self):
-            # the trap: the same NAME sits at a different offset in the two
-            # layouts, so a decoder that picks the wrong one mislabels
-            self.assertEqual(MILAN_TABLE_54.index("FRAMES_TX"), 4)
-            self.assertEqual(IEEE_STREAM_OUTPUT_BLOCK.index("FRAMES_TX"), 7)
-            self.assertEqual(MILAN_TABLE_54.index("MEDIA_RESET"), 2)
-            self.assertEqual(IEEE_STREAM_OUTPUT_BLOCK.index("MEDIA_RESET"), 3)
-
-        def test_matrix_walks_every_index_both_directions_and_crf(self):
-            plan = plan_matrix()
-            cov = plan_covers_every_index(plan)
-            self.assertEqual(cov["dut_talker"], ARTY.talker_indices())
-            self.assertEqual(cov["dut_listener"], ARTY.listener_indices())
-            self.assertEqual(cov["peer_talker"], PEER.talker_indices())
-            self.assertEqual(cov["peer_listener"], PEER.listener_indices())
-            self.assertIn(ARTY.crf_out, cov["dut_talker"])
-            self.assertIn(ARTY.crf_in, cov["dut_listener"])
-            # NEGATIVE CONTROL: an index-0-only plan must FAIL the audit
-            lonely = Device("solo", "aa" * 8, "bb" * 6, talkers=1, listeners=1)
-            cov2 = plan_covers_every_index(plan_matrix(lonely, lonely), lonely,
-                                           lonely)
-            self.assertEqual(cov2["dut_talker"], [0])
-            self.assertNotEqual(cov2["dut_talker"], ARTY.talker_indices())
-
-        def test_every_bound_step_carries_the_full_assertion_set(self):
-            need = {a.name for a in BOUND_STREAMING_ASSERTS}
-            for s in build_plan(["matrix", "churn"]):
-                if s.op == "connect" and "rebind" not in s.sid:
-                    got = {a.name for a in s.asserts}
-                    self.assertTrue(need <= got,
-                                    f"{s.sid} is missing {need - got}")
-
-        def test_every_step_has_a_clause_or_says_it_is_info(self):
-            for s in build_plan():
-                for a in s.asserts:
-                    self.assertTrue(a.clause.strip(),
-                                    f"{s.sid}/{a.name} has no clause")
-                    self.assertIn(a.severity, ("SHALL", "RECOMMENDED", "INFO"))
-
-        def test_storm_entries_are_recommended_not_shall(self):
-            # the document is a RECOMMENDED PRACTICE; calling its entries
-            # SHALL would make us fail a device for something no requirement
-            # asks of it
-            storms = [s for s in plan_torture() if ".storm." in s.sid]
-            self.assertTrue(storms)
-            for s in storms:
-                sev = {a.name: a.severity for a in s.asserts}
-                self.assertEqual(sev["stream.uninterrupted"], "RECOMMENDED")
-                # and control responsiveness is INFO, because the same clause
-                # says it is NOT expected under storm
-                self.assertEqual(sev["control.responsive"], "INFO")
-
-        def test_human_entries_are_emitted_not_skipped(self):
-            plan = build_plan()
-            hs = human_steps(plan)
-            # the cable pull (torture) plus the two physical cycle steps -
-            # which stay needs_human in the PLAN so a bench without the
-            # powerstrip hook hands them back as NEEDS-HUMAN, exactly as
-            # before they were automatable
-            self.assertGreaterEqual(len(hs), 3)
-            txt = checklist_text(plan)
-            for s in hs:
-                self.assertIn(s.sid, txt)
-                self.assertIn(s.human_action[:24], txt)
-            self.assertIn("No human-action entries", checklist_text([]))
-
-        def test_physical_family_contract(self):
-            plan = build_plan()
-            # LAST, always: a partition mid-matrix would pollute everything
-            areas_in_order = []
-            for s in plan:
-                if s.area not in areas_in_order:
-                    areas_in_order.append(s.area)
-            self.assertEqual(areas_in_order[-1], "physical")
-            phys = [s for s in plan if s.area == "physical"]
-            self.assertTrue(phys)
-            # the old human entries moved here and NOWHERE else
-            tort = plan_torture()
-            self.assertFalse([s for s in tort if "gm-change" in s.sid
-                              or "gm-loss" in s.sid
-                              or "power-cycle" in s.sid])
-            self.assertTrue(any("cable-pull" in s.sid and s.needs_human
-                                for s in tort))
-            # the two cycle steps: still needs_human in the PLAN (the
-            # no-regression guarantee), with the outlet role named for the
-            # runner that CAN automate them
-            cyc = {s.op: s for s in phys
-                   if s.op in ("switch_power_cycle", "dut_power_cycle")}
-            self.assertEqual(set(cyc), {"switch_power_cycle",
-                                        "dut_power_cycle"})
-            for s in cyc.values():
-                self.assertTrue(s.needs_human, s.sid)
-                self.assertTrue(s.human_action, s.sid)
-                self.assertIn("outlet_role", s.args)
-            self.assertEqual(cyc["switch_power_cycle"].args["outlet_role"],
-                             "switch")
-            self.assertEqual(cyc["dut_power_cycle"].args["outlet_role"],
-                             "dut")
-            # the assertion contract: the switch cycle owes the GM change AND
-            # the GM loss story, the DUT cycle owes the persistence story
-            sw = {a.name for a in cyc["switch_power_cycle"].asserts}
-            self.assertIn("counters.avb_interface.gptp-gm-changed-advances",
-                          sw)
-            self.assertIn("physical.partition-is-the-test", sw)
-            self.assertIn("gptp.exactly-one-gm-after-heal", sw)
-            self.assertIn("entity.survived-without-reboot", sw)
-            self.assertIn("gptp.tu-validity-restored", sw)
-            # BOTH directions of the GM story are owed, plus the side that
-            # actually loses its GM and the link-event datum.  Owing only
-            # the ADVANCE is what filed a fake red against a permanent GM
-            # on 2026-08-02 (ax-phys-a).
-            self.assertIn("counters.avb_interface.gptp-gm-continuity", sw)
-            self.assertIn(
-                "counters.avb_interface.peer-gptp-gm-changed-advances", sw)
-            self.assertIn("counters.avb_interface.link-event-observed", sw)
-            du = {a.name for a in cyc["dut_power_cycle"].asserts}
-            self.assertIn("state.restored-after-power-cycle", du)
-            # and the half of the persistence story a build with no store
-            # still owes, plus the datum that makes the gap measurable
-            self.assertIn("state.self-consistent-after-power-cycle", du)
-            self.assertIn("state.format-after-power-cycle", du)
-            self.assertIn("counters.zeroed-after-power-cycle", du)
-            self.assertIn("boot.reaches-network-unattended", du)
-            self.assertIn("boot.same-gateware-version", du)
-            self.assertIn("boot.rx-filter-posture-restored", du)
-            # the budget floors from the bench facts: switch boot before any
-            # board is reachable, ~5.5 min worst-case DUT boot, and a hold an
-            # order of magnitude past the announce-receipt timeout
-            a = cyc["switch_power_cycle"].args
-            self.assertGreaterEqual(a["hold_s"], 15)
-            self.assertGreaterEqual(a["link_budget_s"], 180)
-            self.assertGreaterEqual(a["gptp_budget_s"], 120)
-            b = cyc["dut_power_cycle"].args
-            self.assertGreaterEqual(b["off_s"], 5)
-            self.assertGreaterEqual(b["net_budget_s"], 120)
-            # each family ends with a full PROOF PAIR at a NON-ZERO index
-            # (index 0 is the alias path)
-            for fam in ("switch-cycle", "dut-cycle"):
-                proof = [s for s in phys
-                         if s.sid.startswith(f"phys.{fam}.proof")]
-                conn = [s for s in proof if s.op == "connect"]
-                self.assertTrue(conn, fam)
-                self.assertGreater(conn[0].args["talker_index"], 0)
-                need = {x.name for x in BOUND_STREAMING_ASSERTS}
-                got = {x.name for x in conn[0].asserts}
-                self.assertTrue(need <= got, need - got)
-            # snapshot-before-cycle ordering, per family
-            sids = [s.sid for s in phys]
-            for fam, cyc_sid in (("switch-cycle",
-                                  "phys.switch-cycle.gm-partition"),
-                                 ("dut-cycle",
-                                  "phys.dut-cycle.power-cycle")):
-                self.assertLess(sids.index(f"phys.{fam}.pre-snapshot"),
-                                sids.index(cyc_sid))
-
-        def test_the_gm_story_states_its_own_precondition(self):
-            # ax-phys-a 2026-08-02: "a partition and a re-join are real BMCA
-            # elections, so the counter advances" was asserted against a DUT
-            # that IS the grandmaster - whose own grandmasterIdentity never
-            # changed, so 1722.1-2021 Table 7-153 requires exactly ZERO.
-            # The clause text must now name which device each direction is
-            # for, or the same fake red comes straight back.
-            adv = A_GM_CHANGED_ADVANCES.clause.lower()
-            self.assertIn("only for a device that was following", adv)
-            self.assertIn("gptp-gm-continuity", adv)
-            cont = A_GM_CONTINUITY.clause.lower()
-            self.assertIn("zero", cont)
-            self.assertIn("grandmasteridentity", cont)
-            # the link-event reading is a DATUM: the bench's inline tap can
-            # hold the DUT's PHY link up through a switch outage, so it must
-            # never be able to fail a run
-            self.assertEqual(A_LINK_EVENT_SEEN.severity, "INFO")
-            self.assertEqual(A_STATE_DEFAULTED.severity, "INFO")
-            for s in (A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
-                      A_PEER_GM_CHANGED, A_STATE_RESTORED,
-                      A_STATE_SELF_CONSISTENT):
-                self.assertEqual(s.severity, "SHALL", s.name)
-
-        def test_the_peer_crf_input_is_not_an_aaf_sink(self):
-            # ax-phys-a aimed BOTH proof pairs at peer l8 - which is the
-            # CRF Media Clock INPUT, measured from the reference device's
-            # own refusals (listener_format 041060010000bb80: AVTP subtype
-            # 0x04 = CRF, 0xbb80 = 48 kHz).  An AAF talker can never bind
-            # it, so 32 of that run's 45 SKIPs were the post-bind contract
-            # of a bind that was never bindable.
-            self.assertEqual(PEER.crf_in, 8)
-            self.assertNotIn(8, PEER.listener_indices(include_crf=False))
-            self.assertIn(8, PEER.listener_indices(include_crf=True))
-            self.assertTrue(PEER.is_crf_listener(8))
-            # Every "highest AAF index" SELECTOR now lands on an AAF sink.
-            # The matrix is exempt by design - it is the full cross product
-            # on purpose, and a format-incompatible cell there is a wanted
-            # CONFORMANT-REFUSAL - but a step that CHOSE one index must not
-            # choose the CRF one with an AAF talker.
-            for s in build_plan():
-                if s.op != "connect" or s.area == "matrix":
-                    continue
-                if s.args.get("listener") != PEER.entity_id:
-                    continue
-                if PEER.is_crf_listener(s.args.get("listener_index")):
-                    self.assertTrue(
-                        ARTY.is_crf_talker(s.args.get("talker_index")), s.sid)
-
-        def test_persistence_clause_is_quoted_and_never_deleted(self):
-            # Milan v1.2 5.3.8.1 is an unconditional SHALL, so the assertion
-            # stays; what a build with no store changes is the VERDICT, not
-            # the requirement.  Both halves must be traceable from the text.
-            c = A_STATE_RESTORED.clause
-            self.assertIn("5.3.8.1", c)
-            self.assertIn("non-volatile memory and restored after a power "
-                          "cycle", c)
-            self.assertIn("KNOWN-PENDING", c)
-            self.assertIn("KNOWN-PENDING", VERDICTS)
-            self.assertIn("5.3.8.1", A_STATE_SELF_CONSISTENT.clause)
-
-        def test_churn_includes_the_implicit_rebind_to_a_different_talker(self):
-            reb = [s for s in plan_churn() if s.sid.endswith(".rebind")]
-            self.assertTrue(reb)
-            for s in reb:
-                self.assertTrue(s.args.get("no_unbind_first"))
-                self.assertIn("5.5.3.5.43", s.clause)
-            # and it must move to a DIFFERENT talker index than the first bind
-            first = {s.sid: s.args["talker_index"]
-                     for s in plan_churn()
-                     if s.op == "connect" and not s.sid.endswith(".rebind")
-                     and s.sid.startswith("churn.implicit-rebind")}
-            for s in reb:
-                base = s.sid.rsplit(".", 1)[0]
-                self.assertNotEqual(s.args["talker_index"], first[base])
-
-        def test_areas_selector(self):
-            self.assertEqual({s.area for s in build_plan(["audio"])},
-                             {"audio"})
-            with self.assertRaises(ValueError):
-                build_plan(["nope"])
-            self.assertEqual({s.area for s in build_plan()},
-                             {"matrix", "multi", "churn", "payload", "audio",
-                              "torture", "physical"})
-
-        def test_multi_area_walks_concurrent_sets_and_serialises(self):
-            plan = build_plan(["multi"])
-            self.assertTrue(plan)
-            sids = [s.sid for s in plan]
-            # every set runs its phases in teardown-safe order; the stress
-            # set carries the load sandwich between verify and teardown
-            for name in ("primaries", "selfloop", "mixed"):
-                phases = [s.rsplit(".", 1)[1] for s in sids
-                          if s.startswith(f"multi.{name}.")]
-                self.assertEqual(phases, ["bind-all", "verify-concurrent",
-                                          "teardown-one", "teardown-rest"],
-                                 name)
-            phases = [s.split(".", 2)[2] for s in sids
-                      if s.startswith("multi.stress.")]
-            self.assertEqual(phases, ["bind-all", "verify-concurrent",
-                                      "load-rx", "load-tx",
-                                      "verify-after-load",
-                                      "teardown-one", "teardown-rest"])
-            # the primaries set feeds EVERY reachable reference listener
-            # CONCURRENTLY - the listener set comes from the peer's SPEC (the
-            # peer's (p) primaries), never a hardcoded list
-            bind = next(s for s in plan
-                        if s.sid == "multi.primaries.bind-all")
-            self.assertEqual(
-                sorted(p["listener_index"] for p in bind.args["pairs"]),
-                PEER.listener_indices(include_crf=False))
-            self.assertTrue(all(p["listener"] == PEER.entity_id
-                                for p in bind.args["pairs"]))
-            # the selfloop set pairs tN -> lN on the DUT itself
-            loop = next(s for s in plan
-                        if s.sid == "multi.selfloop.bind-all")
-            self.assertEqual([(p["talker_index"], p["listener_index"])
-                              for p in loop.args["pairs"]],
-                             [(i, i) for i in
-                              ARTY.talker_indices(include_crf=False)])
-            # within one set no listener is bound twice: the pairs must be
-            # able to run CONCURRENTLY, and a doubled listener is a rebind
-            for s in plan:
-                if s.op == "multi_connect":
-                    ls = [(p["listener"], p["listener_index"])
-                          for p in s.args["pairs"]]
-                    self.assertEqual(len(ls), len(set(ls)), s.sid)
-            # the verify step carries the UNBOUND inputs for the isolation
-            # verdict, and none of them is also bound in the set
-            ver = next(s for s in plan
-                       if s.sid == "multi.selfloop.verify-concurrent")
-            self.assertTrue(ver.args["unbound"])
-            bound = {(p["listener"], p["listener_index"])
-                     for p in ver.args["pairs"]}
-            for u in ver.args["unbound"]:
-                self.assertNotIn((u["entity"], u["index"]), bound)
-            # the staged teardown unbinds a SINGLE-listener talker (so silence
-            # is owed) and carries the survivors it must prove undisturbed
-            tear = next(s for s in plan
-                        if s.sid == "multi.primaries.teardown-one")
-            n = sum(1 for p in bind.args["pairs"]
-                    if (p["talker"], p["talker_index"]) ==
-                    (tear.args["unbind"]["talker"],
-                     tear.args["unbind"]["talker_index"]))
-            self.assertEqual(n, 1)
-            self.assertTrue(tear.args["expect_talker_silent"])
-            self.assertEqual(len(tear.args["survivors"]),
-                             len(bind.args["pairs"]) - 1)
-            # a plan step is DATA: everything serialises
-            json.dumps([s.as_dict() for s in plan])
-            # the per-area audit covers the multi area and passes
-            ok, d = area_covers_every_index(build_plan(), "multi")
-            self.assertTrue(ok, d)
-            # NEGATIVE CONTROL: a multi area truncated to one pair per set
-            # must redden the audit
-            import dataclasses as _dc
-            lonely = [_dc.replace(s, args={
-                k: (v[:1] if k in ("pairs", "survivors") else v)
-                for k, v in s.args.items()}) for s in plan]
-            ok2, d2 = area_covers_every_index(lonely, "multi")
-            self.assertFalse(ok2)
-            self.assertTrue(d2["missing"])
-
-        def test_multi_stress_set_is_maximal_and_loads_both_directions(self):
-            plan = build_plan(["multi"])
-            bind = next(s for s in plan if s.sid == "multi.stress.bind-all")
-            pairs = bind.args["pairs"]
-            # every DUT AAF talker is bound outbound (peer first, self-loops
-            # to fill) ...
-            self.assertEqual(sorted({p["talker_index"] for p in pairs
-                                     if p["talker"] == ARTY.entity_id}),
-                             ARTY.talker_indices(include_crf=False))
-            # ... every reachable reference listener is fed ...
-            self.assertEqual(sorted(p["listener_index"] for p in pairs
-                                    if p["listener"] == PEER.entity_id),
-                             PEER.listener_indices(include_crf=False))
-            # ... and the INBOUND direction rides on top
-            self.assertEqual(sorted({p["talker_index"] for p in pairs
-                                     if p["talker"] == PEER.entity_id}),
-                             PEER.talker_indices(include_crf=False))
-            # on the AX 8x8 shape: all 8 talkers out, the overflow looped
-            # home.  The self-loop count is DERIVED from how many AAF sinks
-            # the peer really has - it went 3 -> 4 the moment index 8 was
-            # named as the peer's CRF input instead of a fifth AAF sink,
-            # and a literal here would have hidden that
-            ax = parse_device_spec("talkers=8,listeners=8,crf_out=8,"
-                                   "crf_in=8", ARTY)
-            axb = next(s for s in plan_multi(ax, PEER)
-                       if s.sid == "multi.stress.bind-all")
-            self.assertEqual(sorted({p["talker_index"]
-                                     for p in axb.args["pairs"]
-                                     if p["talker"] == ax.entity_id}),
-                             list(range(8)))
-            n_peer = len(PEER.listener_indices(include_crf=False))
-            self.assertEqual(sorted(p["talker_index"]
-                                    for p in axb.args["pairs"]
-                                    if p["talker"] == ax.entity_id
-                                    and p["listener"] == ax.entity_id),
-                             list(range(n_peer, 8)))
-            # two load steps, rx then tx, each owing the stress asserts with
-            # honest severities: immune is SHALL on the 802.1Q shaping
-            # contract, the headroom is INFO with the info reasoning stated
-            loads = [s for s in plan if s.op == "multi_stress_load"]
-            self.assertEqual([s.args["direction"] for s in loads],
-                             ["rx", "tx"])
-            for s in loads:
-                names = {a.name: a for a in s.asserts}
-                imm = names["multi.streams-immune-to-best-effort-load"]
-                self.assertEqual(imm.severity, "SHALL")
-                self.assertIn("802.1Q", imm.clause)
-                hr = names["multi.best-effort-headroom"]
-                self.assertEqual(hr.severity, "INFO")
-                self.assertTrue(hr.clause.startswith("info:"))
-                self.assertIn(A_NO_SEQ_MISMATCH.name, names)
-                self.assertIn(A_NO_LATE_EARLY.name, names)
-            # the coverage expectation now includes the inbound peer talkers
-            self.assertIn("peer_talker", area_index_expectations()["multi"])
-            ok, d = area_covers_every_index(build_plan(), "multi")
-            self.assertTrue(ok, d)
-            # the flowing verdict's stress flavour BITES and names the load
-            v, d = check_concurrent_flowing(
-                {"a": {"tx_ticks": 0, "rx_ticks": 0},
-                 "b": {"tx_ticks": 4, "rx_ticks": 4}},
-                licensed=True, under_load="iperf3-tcp rx")
-            self.assertEqual(v, "FAIL")
-            self.assertIn("iperf3-tcp rx", d["why"])
-            self.assertIn("SHALL NOT disturb", d["why"])
-            # and the licence gates the stress flavour like everything else
-            self.assertEqual(check_concurrent_flowing(
-                {"a": {"tx_ticks": 0, "rx_ticks": 0}}, licensed=False,
-                under_load="iperf3-tcp rx")[0], "SKIP")
-
-        def test_multi_concurrent_flowing_bites_every_way(self):
-            def P(tx, rx):
-                return {"tx_ticks": tx, "rx_ticks": rx}
-            # all pairs flowing together, licence open -> PASS, and the
-            # comparison names itself as INTERVALS
-            v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(5, 4)},
-                                            licensed=True)
-            self.assertEqual(v, "PASS")
-            self.assertIn("OBSERVATION INTERVALS", d["compares"])
-            # ONE DEAD AMONG MANY - the defect this area exists for
-            v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(0, 0)},
-                                            licensed=True)
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["dead"], ["b"])
-            self.assertEqual(d["flowing"], ["a"])
-            # one-sided movement is a dead pair, not a flowing one
-            v, d = check_concurrent_flowing({"a": P(4, 0)}, licensed=True)
-            self.assertEqual(v, "FAIL")
-            # the licence gates the whole question: SHUT and UNKNOWN are SKIP
-            # and never a violation, exactly as the pairwise steps
-            self.assertEqual(check_concurrent_flowing(
-                {"a": P(0, 0)}, licensed=False)[0], "SKIP")
-            v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=None)
-            self.assertEqual(v, "SKIP")
-            self.assertIn("--licence-status", d["why"])
-            # a pair unreadable on BOTH sides SKIPs and NAMES itself...
-            v, d = check_concurrent_flowing(
-                {"a": P(4, 4), "b": P(None, None)}, licensed=True)
-            self.assertEqual(v, "SKIP")
-            self.assertEqual(d["unreadable"], ["b"])
-            # ...but a MEASURED dead pair outranks a measurement gap
-            v, d = check_concurrent_flowing(
-                {"a": P(0, 0), "b": P(None, None), "c": P(4, 4)},
-                licensed=True)
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["dead"], ["a"])
-            # the teardown flavour names the torn-down stream in the why
-            v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=True,
-                                            torn_down="artyt0-peerl0")
-            self.assertEqual(v, "FAIL")
-            self.assertIn("artyt0-peerl0", d["why"])
-            self.assertIn("cross-stream-independence", d["why"])
-            # and no pairs at all is a SKIP, not a vacuous pass
-            self.assertEqual(check_concurrent_flowing({}, licensed=True)[0],
-                             "SKIP")
-
-        def test_multi_unbound_isolation_bites(self):
-            v, d = check_unbound_static(
-                {"peerl2": {"FRAMES_RX": 0, "MEDIA_LOCKED": 0}})
-            self.assertEqual(v, "PASS")
-            # an unbound index that TICKS is the per-index bleed defect
-            v, d = check_unbound_static({"peerl2": {"FRAMES_RX": 37}})
-            self.assertEqual(v, "FAIL")
-            self.assertEqual(d["moved"]["peerl2.FRAMES_RX"], 37)
-            self.assertIn("5.3.8.10", d["why"])
-            # nothing to check / nothing readable / a wrap are not passes
-            self.assertEqual(check_unbound_static({})[0], "SKIP")
-            self.assertEqual(check_unbound_static(
-                {"x": {"FRAMES_RX": None}})[0], "SKIP")
-            self.assertEqual(check_unbound_static(
-                {"x": {"FRAMES_RX": -5}})[0], "INFO")
-            # a readable zero beside an unreadable neighbour still passes,
-            # with the unreadable one NAMED
-            v, d = check_unbound_static({"x": {"FRAMES_RX": 0},
-                                         "y": {"FRAMES_RX": None}})
-            self.assertEqual(v, "PASS")
-            self.assertEqual(d["unreadable"], ["y"])
-
-        def test_plan_steps_serialise(self):
-            for s in build_plan():
-                d = s.as_dict()
-                json.dumps(d)
-                self.assertEqual(set(d["assert_clauses"]), set(d["asserts"]))
-
-        def test_exit_codes(self):
-            ok = [verdict_record("a", "x", "PASS")]
-            self.assertEqual(exit_code(ok), 0)
-            soft = [verdict_record("a", "x", "FAIL",
-                                   severity="RECOMMENDED")]
-            self.assertEqual(exit_code(soft), 2)
-            hard = [verdict_record("a", "x", "FAIL")]
-            self.assertEqual(exit_code(hard), 1)
-            skip = [verdict_record("a", "x", "SKIP")]
-            self.assertEqual(exit_code(skip), 0)
-            self.assertEqual(summarise(hard)["FAIL"], 1)
-            self.assertEqual(summarise(hard)["exit_code"], 1)
-
-        def test_audio_is_never_forgotten(self):
-            # the campaign is invalid without an identity check, a per-channel
-            # distinct pattern, and a THD+N gate
-            ids = {s.sid for s in plan_audio()}
-            self.assertTrue(any("identity" in i for i in ids))
-            self.assertTrue(any("thdn" in i for i in ids))
-            walk = [s for s in plan_audio() if "walking-tone" in s.sid][0]
-            self.assertTrue(walk.args["per_channel_distinct"])
-            thdn = [s for s in plan_audio() if s.sid == "audio.thdn"][0]
-            self.assertIn("thdn.py", thdn.args["analyser"])
-            self.assertTrue(any("coherent" in a.name for a in thdn.asserts))
+    class T(_CounterLawChecks, _StreamingLicenceChecks, _PlanContractChecks,
+            _AreaContractChecks, _ConcurrencyChecks, unittest.TestCase):
+        """Every arm of the offline suite, under the one name the report uses."""
 
     r = unittest.TextTestRunner(verbosity=2).run(
         unittest.TestLoader().loadTestsFromTestCase(T))
@@ -4380,6 +4717,12 @@ def self_test() -> int:
 
 # ------------------------------------------------------------------------ CLI --
 def main() -> int:
+    """The CLI: print the plan, the checklist, a coverage audit, or self-test.
+
+    `--coverage-by-area` is the only arm that can exit non-zero on coverage,
+    because it is the only one that asks each area about its OWN expectation
+    instead of letting the matrix answer for everybody.
+    """
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--plan", action="store_true", help="print the plan")
     ap.add_argument("--checklist", action="store_true",

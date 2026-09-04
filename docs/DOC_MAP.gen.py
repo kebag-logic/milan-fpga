@@ -34,6 +34,16 @@ SOURCE_NAME = "docs/DOC_MAP.drawio"
 
 
 @dataclass(frozen=True)
+class Box:
+    """One drawio vertex's geometry, in diagram user units."""
+
+    x: int
+    y: int
+    width: int
+    height: int
+
+
+@dataclass(frozen=True)
 class Step:
     path: str
     result: str
@@ -109,10 +119,14 @@ PERSONAS = (
 
 
 def esc(value: object) -> str:
+    """Any value as SVG/HTML text, with quotes escaped so it is also safe in an
+    attribute."""
     return html.escape(str(value), quote=True)
 
 
 def validate() -> None:
+    """Refuse to draw a map that lies: every step must name a page that exists,
+    and the four-audience, six-step shape the layout assumes must hold."""
     missing = sorted(
         step.path
         for persona in PERSONAS
@@ -128,6 +142,7 @@ def validate() -> None:
 
 
 def positions() -> dict[str, tuple[int, int]]:
+    """Audience name -> the top-left corner of its lane, in diagram units."""
     return {
         persona.name: (40 + index * 450, 250)
         for index, persona in enumerate(PERSONAS)
@@ -135,6 +150,8 @@ def positions() -> dict[str, tuple[int, int]]:
 
 
 def svg() -> str:
+    """The rendered map: a header, one coloured lane per audience with its six
+    ordered steps, and the authority note the whole diagram is subordinate to."""
     output = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" '
         f'height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" '
@@ -200,104 +217,91 @@ def svg() -> str:
     return "\n".join(output) + "\n"
 
 
-def drawio() -> str:
-    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-
-    def vertex(
-        ident: str,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        label: str,
-        fill: str,
-        stroke: str,
-        size: int,
-        align: str = "left",
-    ) -> None:
-        style = (
-            "rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;"
-            f"align={align};spacingLeft=12;fontSize={size};fontFamily=Helvetica;"
-            f"fillColor={fill};strokeColor={stroke};strokeWidth=2;"
-        )
-        cells.append(
-            f'<mxCell id="{ident}" value="{esc(label)}" style="{style}" '
-            f'vertex="1" parent="1"><mxGeometry x="{x}" y="{y}" '
-            f'width="{width}" height="{height}" as="geometry"/></mxCell>'
-        )
-
-    vertex(
-        "title",
-        40,
-        25,
-        1000,
-        75,
-        "<b>Choose your documentation path</b><br>Select your current responsibility.",
-        "none",
-        "none",
-        24,
+def _vertex_cell(
+    ident: str,
+    box: Box,
+    label: str,
+    palette: tuple[str, str],
+    size: int,
+    align: str = "left",
+) -> str:
+    """One styled drawio vertex cell, with `palette` as (fill, stroke)."""
+    fill, stroke = palette
+    style = (
+        "rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;"
+        f"align={align};spacingLeft=12;fontSize={size};fontFamily=Helvetica;"
+        f"fillColor={fill};strokeColor={stroke};strokeWidth=2;"
     )
-    vertex(
+    return (
+        f'<mxCell id="{ident}" value="{esc(label)}" style="{style}" '
+        f'vertex="1" parent="1"><mxGeometry x="{box.x}" y="{box.y}" '
+        f'width="{box.width}" height="{box.height}" as="geometry"/></mxCell>'
+    )
+
+
+def _lane_cells(persona_index: int, persona: Persona) -> list[str]:
+    """One audience's lane: its role box, its six steps and the edges down."""
+    cells: list[str] = []
+    x, y = positions()[persona.name]
+    role_id = f"role-{persona_index}"
+    cells.append(_vertex_cell(
+        role_id,
+        Box(x, y, 410, 100),
+        f"<b>{persona.name}</b><br>{persona.question}",
+        (persona.stroke, persona.stroke),
+        18,
+    ))
+    previous_id = role_id
+    for step_index, step in enumerate(persona.steps, start=1):
+        box_y = y + 130 + (step_index - 1) * 102
+        step_id = f"step-{persona_index}-{step_index}"
+        cells.append(_vertex_cell(
+            step_id,
+            Box(x, box_y, 410, 76),
+            f"<b>{step_index}. {step.path}</b><br>{step.result}",
+            (persona.fill, persona.stroke),
+            14,
+        ))
+        cells.append(
+            f'<mxCell id="edge-{persona_index}-{step_index}" value="" '
+            'style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;'
+            'endArrow=block;endFill=1;strokeWidth=2;" edge="1" parent="1" '
+            f'source="{previous_id}" target="{step_id}">'
+            '<mxGeometry relative="1" as="geometry"/></mxCell>'
+        )
+        previous_id = step_id
+    return cells
+
+
+def drawio() -> str:
+    """The same map as an editable Draw.io file, so the picture can be changed
+    where it is read rather than only in this generator."""
+    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
+    cells.append(_vertex_cell(
+        "title",
+        Box(40, 25, 1000, 75),
+        "<b>Choose your documentation path</b><br>Select your current responsibility.",
+        ("none", "none"),
+        24,
+    ))
+    cells.append(_vertex_cell(
         "start",
-        40,
-        125,
-        1760,
-        82,
+        Box(40, 125, 1760, 82),
         "<b>Start with docs/guides/README.md</b><br>Then follow one lane downward.",
-        "#FFF8E1",
-        "#F9A825",
+        ("#FFF8E1", "#F9A825"),
         18,
         "center",
-    )
+    ))
     for persona_index, persona in enumerate(PERSONAS):
-        x, y = positions()[persona.name]
-        role_id = f"role-{persona_index}"
-        vertex(
-            role_id,
-            x,
-            y,
-            410,
-            100,
-            f"<b>{persona.name}</b><br>{persona.question}",
-            persona.stroke,
-            persona.stroke,
-            18,
-        )
-        previous_id = role_id
-        for step_index, step in enumerate(persona.steps, start=1):
-            box_y = y + 130 + (step_index - 1) * 102
-            step_id = f"step-{persona_index}-{step_index}"
-            vertex(
-                step_id,
-                x,
-                box_y,
-                410,
-                76,
-                f"<b>{step_index}. {step.path}</b><br>{step.result}",
-                persona.fill,
-                persona.stroke,
-                14,
-            )
-            cells.append(
-                f'<mxCell id="edge-{persona_index}-{step_index}" value="" '
-                'style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;'
-                'endArrow=block;endFill=1;strokeWidth=2;" edge="1" parent="1" '
-                f'source="{previous_id}" target="{step_id}">'
-                '<mxGeometry relative="1" as="geometry"/></mxCell>'
-            )
-            previous_id = step_id
-    vertex(
+        cells.extend(_lane_cells(persona_index, persona))
+    cells.append(_vertex_cell(
         "authority",
-        240,
-        1000,
-        1360,
-        38,
+        Box(240, 1000, 1360, 38),
         "Requirements outrank summaries. Executable evidence proves behavior.",
-        "#ECEFF1",
-        "#546E7A",
+        ("#ECEFF1", "#546E7A"),
         16,
         "center",
-    )
+    ))
     return (
         '<mxfile host="app.diagrams.net"><diagram name="audiences">'
         f'<mxGraphModel dx="1840" dy="1050" grid="1" gridSize="10" '
@@ -309,6 +313,7 @@ def drawio() -> str:
 
 
 def check_or_write(path: Path, content: str, checking: bool) -> bool:
+    """Write the artifact, or under --check report whether it is already current."""
     if checking:
         return path.is_file() and path.read_text(encoding="utf-8") == content
     path.write_text(content, encoding="utf-8")
@@ -320,6 +325,9 @@ def check_or_write_png(
     drawio_content: str,
     checking: bool,
 ) -> bool:
+    """Raster the map and record it, or under --check decide whether the
+    reviewed PNG still matches the diagram it claims to show. The Draw.io
+    digest travels in the PNG so a re-render alone cannot make it look current."""
     output = BASE.with_suffix(".png")
     digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
     fields = {DRAWIO_HASH_KEY: digest}
@@ -395,6 +403,8 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """Regenerate the map, or under --check fail on any of the three artifacts
+    (SVG, Draw.io, PNG) that no longer matches this source."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     checking = sys.argv[1:] == ["--check"]

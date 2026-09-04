@@ -102,7 +102,9 @@ submodule off its pin, or a population with no file in it.
 import argparse
 import re
 import sys
+from collections.abc import Callable, Iterable
 from pathlib import Path
+from typing import NoReturn
 
 REPO = Path(__file__).resolve().parent.parent
 BUDGET = Path(__file__).resolve().parent / "hygiene.budget"
@@ -171,7 +173,7 @@ MAKE_ASSIGN_RE = re.compile(rb"^ *[^#\s=:][^=]*?[:+?!]?=")
 SECTION_RE = re.compile(r"^#\s*---\s*section\s+(\S+)")
 
 
-def is_generated(raw):
+def is_generated(raw: bytes) -> bool:
     """A generated file announces itself in a comment banner within the first lines."""
     for line in raw.decode("latin-1").splitlines()[:GENERATED_SCAN_LINES]:
         lead = COMMENT_LEAD_RE.match(line)
@@ -180,23 +182,34 @@ def is_generated(raw):
     return False
 
 
-def in_scope(rel):
+def in_scope(rel: str) -> bool:
+    """Whether a tracked path is one this gate judges at all.
+
+    Suffix or bare name, minus the vendored and build prefixes. Markdown is
+    absent on purpose: two trailing spaces there ARE a hard line break.
+    """
     name = rel.rsplit("/", 1)[-1]
     return ((rel.endswith(SCANNED_SUFFIXES) or name in SCANNED_NAMES)
             and not rel.startswith(EXCLUDED_PREFIXES))
 
 
-def sources():
+def sources() -> list[str]:
+    """The population: every in-scope tracked path, both processors included.
+
+    Raises RuntimeError through the shared scope helper when a project
+    processor is off its pin, so a partial tree can never set a baseline.
+    """
     patterns = [f"*{s}" for s in SCANNED_SUFFIXES] + [f"*{n}" for n in SCANNED_NAMES]
     return [p for p in tracked(*patterns) if in_scope(p)]
 
 
-def read_tree(lister=sources):
+def read_tree(lister: Callable[[], list[str]] = sources) -> list[tuple[str, bytes]]:
     """[(path, bytes)] for the whole population; refuses an off-pin processor."""
     return [(rel, (REPO / rel).read_bytes()) for rel in lister()]
 
 
-def load_tree(lister=sources):
+def load_tree(lister: Callable[[], list[str]] = sources
+              ) -> tuple[list[tuple[str, bytes]] | None, str | None]:
     """The tree, or the refusal message when a processor is not at its pin."""
     try:
         return read_tree(lister), None
@@ -204,27 +217,28 @@ def load_tree(lister=sources):
         return None, str(exc)
 
 
-def is_project_submodule_path(rel):
+def is_project_submodule_path(rel: str) -> bool:
     """Whether a finding must be repaired in the owning submodule repository."""
     return rel.startswith(tuple(f"{name}/" for name in PROJECT_SUBMODULES))
 
 
-def population_of(rel):
+def population_of(rel: str) -> str:
     """The budget section a path is judged against."""
     return rel.split("/", 1)[0] if is_project_submodule_path(rel) else "superproject"
 
 
-def has_trailing_ws(line):
+def has_trailing_ws(line: bytes) -> bool:
     """`line` is one `\\n`-split segment; a CRLF file's segments end in `\\r`."""
     body = line.rstrip(b"\r")
     return bool(body.strip(b" \t")) and body != body.rstrip(b" \t")
 
 
-def judges_tabs(path):
+def judges_tabs(path: str) -> bool:
+    """Only SystemVerilog is held to spaces; in a makefile a tab IS the syntax."""
     return path.endswith((".sv", ".svh"))
 
 
-def scan_bytes(raw, path="x.sv"):
+def scan_bytes(raw: bytes, path: str = "x.sv") -> dict[str, int]:
     """Return {check_name: count} for one file's bytes."""
     found = dict.fromkeys(CHECK_NAMES, 0)
     if not raw or is_generated(raw):
@@ -239,13 +253,13 @@ def scan_bytes(raw, path="x.sv"):
     return found
 
 
-def line_length_findings(raw):
+def line_length_findings(raw: bytes) -> int:
     """The rejected candidate: lines longer than LINE_LENGTH_LIMIT characters."""
     text = raw.decode("utf-8", "replace")
     return sum(1 for l in text.split("\n") if len(l.rstrip("\r")) > LINE_LENGTH_LIMIT)
 
 
-def fix_bytes(raw):
+def fix_bytes(raw: bytes) -> bytes:
     """Repair the four fixable findings on the bytes themselves.
 
     Nothing is decoded: a byte that is not UTF-8 is not this gate's business
@@ -262,7 +276,7 @@ def fix_bytes(raw):
     return raw
 
 
-def content_risks(rel, old, new):
+def content_risks(rel: str, old: bytes, new: bytes) -> list[tuple[int, str]]:
     """[(line, reason)] for each repaired line whose whitespace was a value."""
     name = rel.rsplit("/", 1)[-1]
     is_py = rel.endswith(".py")
@@ -288,7 +302,9 @@ def content_risks(rel, old, new):
     return risks
 
 
-def fix_tree(files, write):
+def fix_tree(files: Iterable[tuple[str, bytes]],
+             write: Callable[[str, bytes], object]
+             ) -> tuple[list[str], list[str], list[tuple[str, int, str]]]:
     """Repair every (path, bytes) that has a fixable finding.
 
     `write(path, bytes)` is called only for a repaired file of this repository;
@@ -311,7 +327,9 @@ def fix_tree(files, write):
     return repaired, upstream, risks
 
 
-def audit_files(files):
+def audit_files(files: Iterable[tuple[str, bytes]]
+                ) -> tuple[dict[str, dict[str, int]], dict[str, dict[str, int]],
+                           list[str], dict[str, int]]:
     """(totals by population, per-file findings, skipped paths, files by population)."""
     totals = {pop: dict.fromkeys(CHECK_NAMES, 0) for pop in POPULATIONS}
     sizes = dict.fromkeys(POPULATIONS, 0)
@@ -329,7 +347,7 @@ def audit_files(files):
     return totals, per_file, skipped, sizes
 
 
-def measure(files):
+def measure(files: Iterable[tuple[str, bytes]]) -> dict[str, list[int]]:
     """{candidate: [findings, files]} - the table Rule 9 quotes."""
     rows = {name: [0, 0] for name, _verdict in CANDIDATES}
     for rel, raw in files:
@@ -344,7 +362,7 @@ def measure(files):
     return rows
 
 
-def read_budget(text=None):
+def read_budget(text: str | None = None) -> dict[str, dict[str, int]]:
     """{population: {check: limit}} from the sectioned budget file."""
     if text is None:
         if not BUDGET.is_file():
@@ -364,7 +382,8 @@ def read_budget(text=None):
     return out
 
 
-def compare(totals, budget):
+def compare(totals: dict[str, dict[str, int]],
+            budget: dict[str, dict[str, int]]) -> list[str]:
     """The --check verdicts: empty when every population is within its own section."""
     bad = []
     for pop in POPULATIONS:
@@ -379,7 +398,7 @@ def compare(totals, budget):
     return bad
 
 
-def partial(sizes):
+def partial(sizes: dict[str, int]) -> str | None:
     """The refusal for a population with no file in it; None when all are populated."""
     empty = [pop for pop in POPULATIONS if not sizes[pop]]
     if empty:
@@ -388,20 +407,8 @@ def partial(sizes):
     return None
 
 
-def selftest():
-    failures = run = 0
-
-    def ck(name, ok, detail=""):
-        nonlocal failures, run
-        run += 1
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
-
-    zeros = dict.fromkeys(CHECK_NAMES, 0)
-
+def _scanner_arms(ck):
+    """The scanner's own arms: one finding class per check, reported through `ck`."""
     # -- the scanner ---------------------------------------------------------
     ck("trailing whitespace is caught",
        scan_bytes(b"int x;   \n")["trailing whitespace"] == 1)
@@ -420,6 +427,9 @@ def selftest():
     ck("the line-length candidate counts the 101st character, not a tab's width",
        line_length_findings(b"x" * 101 + b"\n" + b"x" * 100 + b"\n" + b"\t" * 50 + b"\n") == 1)
 
+def _generated_banner_arms(ck):
+    """The arms that separate a generated-file banner from prose about one."""
+    zeros = dict.fromkeys(CHECK_NAMES, 0)
     # -- generated means a comment banner, not a sentence about one ----------
     ck("a Vivado block-design banner marks a generated file",
        scan_bytes(b"# This is a generated script based on design: x\nint y;   ") == zeros)
@@ -432,6 +442,8 @@ def selftest():
        scan_bytes(b"# Though there are limitations about the generated script,\n"
                   b"int y;   \n", "a.tcl")["trailing whitespace"] == 1)
 
+def _fixer_arms(ck):
+    """The arms that hold the fixer to repairing exactly what the scanner reports."""
     # -- the fixer repairs exactly what the scanner reports, on bytes --------
     dirty = b"\xef\xbb\xbfint x;   \r\nint y;\t \r\nint z;"
     clean = fix_bytes(dirty)
@@ -470,6 +482,9 @@ def selftest():
        content_risks("tb/x/Makefile", b"FOO = bar   \n# note   \n", b"FOO = bar\n# note\n")
        == [(1, "the value of a make variable")])
 
+def _ratchet_arms(ck):
+    """The arms that hold each population to its own section of the budget."""
+    zeros = dict.fromkeys(CHECK_NAMES, 0)
     # -- one ratchet per population ------------------------------------------
     budget = {pop: dict(zeros) for pop in POPULATIONS}
     budget["protocol-processor"]["trailing whitespace"] = 1
@@ -489,12 +504,15 @@ def selftest():
     ck("a population with no file is refused",
        partial({"superproject": 3, "protocol-processor": 0, "gptp-processor": 1}) is not None
        and partial({pop: 1 for pop in POPULATIONS}) is None)
-    def off_pin():
+    def off_pin() -> NoReturn:
+        """A lister that refuses, standing in for a processor off its pin."""
         raise RuntimeError("off pin")
     tree, why = load_tree(off_pin)
     ck("a processor off its pin is refused before anything is read",
        tree is None and why == "off pin", f"{tree!r} {why!r}")
 
+def _live_tree_arms(ck):
+    """The arms that read the real tree; 2 when the population is refused, else None."""
     # -- the live tree ---------------------------------------------------------
     tree, why = load_tree()
     if tree is None:
@@ -522,12 +540,41 @@ def selftest():
     ck("the budget carries every population",
        all(set(read_budget().get(pop, {})) >= set(CHECK_NAMES) for pop in POPULATIONS),
        f"{sorted(read_budget())}")
+    return None
+
+
+def selftest() -> int:
+    """Prove every adopted check bites, including the three sitting at zero.
+
+    A check with no population is an empty gate nobody notices, so each one
+    is fired here against a planted fixture before the live tree is read.
+    """
+    failures = run = 0
+
+    def ck(name: str, ok: bool, detail: str = "") -> None:
+        """Score one arm; `detail` is printed only when the arm went red."""
+        nonlocal failures, run
+        run += 1
+        if ok:
+            print(f"[PASS] {name}")
+        else:
+            failures += 1
+            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
+
+    _scanner_arms(ck)
+    _generated_banner_arms(ck)
+    _fixer_arms(ck)
+    _ratchet_arms(ck)
+    refused = _live_tree_arms(ck)
+    if refused is not None:
+        return refused
 
     print(f"\n{run} checks: {run - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
 
-def main():
+def main() -> int:
+    """The process exit status: 0 within ratchet, 1 over it, 2 unusable population."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="ratchet every check, per population")
     ap.add_argument("--fix", action="store_true", help="repair the mechanical findings")

@@ -80,6 +80,8 @@ import json
 import re
 import subprocess
 import sys
+from collections.abc import Callable
+from typing import Any
 
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
 
@@ -161,12 +163,17 @@ def _line_verdict(line):
 
 
 class Finding:
-    def __init__(self, number, reason, detail):
+    def __init__(self, number: int, reason: str, detail: str) -> None:
         self.number = number
         self.reason = reason        # "negative-merge" | "open-blocker" | "open-issue"
         self.detail = detail
 
-    def line(self):
+    def line(self) -> str:
+        """The one printed line: which PR, which reason, and the evidence.
+
+        Every finding reaches the reader through here, so the report cannot
+        acquire a second layout for one of its three reasons.
+        """
         return "PR #%d: %s - %s" % (self.number, self.reason, self.detail)
 
 
@@ -206,7 +213,8 @@ def _closed_issue_numbers(body):
     return nums
 
 
-def assess_pr(pr, issue_is_open):
+def assess_pr(pr: dict[str, Any],
+              issue_is_open: Callable[[int], bool]) -> list["Finding"]:
     """Every review-integrity finding for one merged PR. Pure.
 
     `pr` is the gh JSON dict (number, mergedAt, body, reviews[], comments[]);
@@ -267,7 +275,7 @@ def _gh_json(args):
         raise CannotRun("gh %s returned non-JSON: %s" % (" ".join(args), exc))
 
 
-def fetch_merged_prs(limit, base):
+def fetch_merged_prs(limit: int, base: str) -> list[dict[str, Any]]:
     """The `limit` most-recently-merged PRs into `base`, newest first.
 
     gh cannot sort by mergedAt, so over-fetch and sort here - the same reason
@@ -280,26 +288,37 @@ def fetch_merged_prs(limit, base):
     return rows[:limit]
 
 
-def issue_is_open(number):
+def issue_is_open(number: int) -> bool:
+    """Whether Issue #number is still OPEN, asked of GitHub one issue at a time.
+
+    Anything gh cannot answer raises CannotRun rather than defaulting, because
+    "assume closed" would turn the open-issue finding into a silent pass.
+    """
     state = _gh_json(["issue", "view", str(number), "--json", "state"])
     return (state.get("state") or "").upper() == "OPEN"
 
 
 # ------------------------------------------------------------------ selftest
 
-def selftest():
-    problems = []
-
-    def openf(open_set):
-        return lambda n: n in open_set
-
-    # 1. NEGATIVE last verdict, in COMMENTS (the PR #161 shape).
-    p1 = {"number": 161, "mergedAt": "2026-08-20T18:31:33Z", "body": "no closes",
+#: The PR #161 shape, hoisted out of the arms that read it: the last verdict
+#: before the merge is a NEGATIVE published in a COMMENT rather than in a
+#: formal review. Three arms need exactly this PR - case 1 reports it, case 3
+#: layers an open Issue on top of it, case 10 uses it as the vacuity fixture -
+#: so it is one fixture here rather than three copies that can drift apart.
+_PR161 = {"number": 161, "mergedAt": "2026-08-20T18:31:33Z", "body": "no closes",
           "reviews": [], "comments": [
               {"body": "[R1] **POSITIVE**", "createdAt": "2026-08-20T16:00:00Z"},
               {"body": "[R0] **NEGATIVE** - cleared-context review of 3cfc04ce",
                "createdAt": "2026-08-20T17:13:59Z"}]}
-    f1 = assess_pr(p1, openf(set()))
+
+
+def _verdict_source_problems(openf):
+    """Problems from cases 1-5: where a verdict may be published, and what an
+    open linked Issue costs. `openf` builds the is-this-Issue-open probe."""
+    problems = []
+
+    # 1. NEGATIVE last verdict, in COMMENTS (the PR #161 shape).
+    f1 = assess_pr(_PR161, openf(set()))
     if [x.reason for x in f1] != ["negative-merge"]:
         problems.append("case1 negative-in-comments: %s" % [x.line() for x in f1])
 
@@ -313,7 +332,7 @@ def selftest():
         problems.append("case2 closes-open-issue: %s" % [x.line() for x in f2])
 
     # 3. Both reasons at once (PR #161 as filed).
-    p3 = dict(p1, number=1161, body="Closes #777.")
+    p3 = dict(_PR161, number=1161, body="Closes #777.")
     f3 = assess_pr(p3, openf({777}))
     if sorted(x.reason for x in f3) != ["negative-merge", "open-issue"]:
         problems.append("case3 both reasons: %s" % [x.line() for x in f3])
@@ -338,6 +357,12 @@ def selftest():
     f5 = assess_pr(p5, openf(set()))
     if [x.reason for x in f5] != ["negative-merge"]:
         problems.append("case5 negative-in-review: %s" % [x.line() for x in f5])
+    return problems
+
+def _blocker_and_scope_problems(openf):
+    """Problems from cases 6-12: a BLOCKER's life, what a post-merge verdict
+    may not do, and the vacuity arm that a stubbed core would fail."""
+    problems = []
 
     # 6. Unanswered BLOCKER after the last POSITIVE -> reported.
     p6 = {"number": 300, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
@@ -380,7 +405,7 @@ def selftest():
     # stubbed to return nothing makes them red - the suite cannot pass on a
     # no-op. Stated directly here too: the real core is non-empty on the
     # positive fixture, which is exactly what a stub would break.
-    if not assess_pr(p1, openf(set())):
+    if not assess_pr(_PR161, openf(set())):
         problems.append("case10 vacuity: the core found nothing on the "
                         "positive fixture, so a stub would pass the suite")
 
@@ -405,6 +430,12 @@ def selftest():
                         "submittedAt": "2026-08-20T09:00:00Z"}], "comments": []}
     if [x.reason for x in assess_pr(p12, openf(set()))] != ["negative-merge"]:
         problems.append("case12 lowercase-negative")
+    return problems
+
+def _issue_link_and_lexicon_problems(openf):
+    """Problems from cases 13-18: the `Closes #a, #b` grammar, and the widened
+    verdict lexicon that must not read this repo's own test vocabulary."""
+    problems = []
 
     # 13. A comma-separated `Closes #a, #b`: the TRAILING one, still open, must
     # be reported - the old `\s+#` form dropped everything after the first.
@@ -475,6 +506,12 @@ def selftest():
     if assess_pr(p18, openf(set())):
         problems.append("case18 header-formatted POSITIVE must be clean: %s"
                         % [x.line() for x in assess_pr(p18, openf(set()))])
+    return problems
+
+def _suffixed_dialect_problems(openf):
+    """Problems from cases 19-24: the suffixed multi-lens identity, round-status
+    lines, and the bare verdict line that deliberately does not clear."""
+    problems = []
 
     # 19. THE #310 SHAPE (#316's grammar decision): a SUFFIXED multi-lens
     # identity publishes the clearing POSITIVE after a canonical NEGATIVE.
@@ -531,6 +568,14 @@ def selftest():
     if [x.reason for x in assess_pr(p22, openf(set()))] != ["open-blocker"]:
         problems.append("case22 suffixed-blocker must stay open: %s"
                         % [x.line() for x in assess_pr(p22, openf(set()))])
+    return problems
+
+
+def _canonical_verdict_line_problems(openf):
+    """Problems from cases 23-24: the #302 ordering written canonically, and
+    the same shape with a BARE verdict line, which deliberately does not
+    clear the standing BLOCKER."""
+    problems = []
 
     # 23. THE #302 ORDERING, WRITTEN CANONICALLY (#311): an earlier BLOCKER,
     # then an exact-head re-review whose CANONICAL verdict token rides the
@@ -566,14 +611,38 @@ def selftest():
     if [x.reason for x in assess_pr(p24, openf(set()))] != ["open-blocker"]:
         problems.append("case24 bare-verdict-line must NOT clear: %s"
                         % [x.line() for x in assess_pr(p24, openf(set()))])
+    return problems
+
+def selftest() -> int:
+    """Run every numbered case, and prove the banner's count is the real one.
+
+    The meta-arm counts the numbered case markers in the source of each
+    arm-bearing function: the first cut of this banner claimed 18 while 21
+    ran, in a lane whose subject was a miscounted evidence figure.
+    """
+    def openf(open_set: set[int]) -> Callable[[int], bool]:
+        """An is-this-Issue-open probe answering OPEN for exactly `open_set`."""
+        return lambda n: n in open_set
+
+    problems = (_verdict_source_problems(openf)
+                + _blocker_and_scope_problems(openf)
+                + _issue_link_and_lexicon_problems(openf)
+                + _suffixed_dialect_problems(openf)
+                + _canonical_verdict_line_problems(openf))
 
     # META-ARM ([R1] on PR #327): the banner count is pinned against the
-    # numbered case markers in this function's own source, so a new case
-    # cannot silently run uncounted - the first cut said "18" while 21 ran,
-    # in a lane whose SUBJECT was a miscounted evidence figure.
+    # numbered case markers in the source of every function that holds one, so
+    # a new case cannot silently run uncounted - the first cut said "18" while
+    # 21 ran, in a lane whose SUBJECT was a miscounted evidence figure. Every
+    # arm-bearing function is named here, `selftest` included, so a case added
+    # inline or in a new group is counted wherever it is written.
     n = 24
     import inspect
-    markers = len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(selftest)))
+    counted = (_verdict_source_problems, _blocker_and_scope_problems,
+               _issue_link_and_lexicon_problems, _suffixed_dialect_problems,
+               _canonical_verdict_line_problems, selftest)
+    markers = sum(len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(f)))
+                  for f in counted)
     if markers != n:
         problems.append("case-count drift: banner claims %d, source carries "
                         "%d numbered cases" % (n, markers))
@@ -587,14 +656,21 @@ def selftest():
 
 # ---------------------------------------------------------------------- main
 
-def run(limit, base):
+def run(limit: int, base: str) -> int:
+    """Assess the merged-PR window and print what a reader could not otherwise see.
+
+    A finding is exit 1 but not an accusation: the report says so, because a
+    NEGATIVE merge can be a legitimate maintainer override and the point is
+    that it be visible after the fact, not that it be prevented.
+    """
     prs = fetch_merged_prs(limit, base)
     findings = []
     # One issue-state lookup is cached, so a window that closes the same Issue
     # twice does not ask GitHub twice.
     cache = {}
 
-    def open_cached(n):
+    def open_cached(n: int) -> bool:
+        """`issue_is_open`, asked of GitHub at most once per issue number."""
         if n not in cache:
             cache[n] = issue_is_open(n)
         return cache[n]
@@ -615,7 +691,12 @@ def run(limit, base):
     return RC_OK
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
+    """The gate, or its self-test; a missing gh is exit 2, never a pass.
+
+    The three exit codes are kept apart on purpose: a caller must be able to
+    tell "no findings" from "the window was never read".
+    """
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--selftest", action="store_true")

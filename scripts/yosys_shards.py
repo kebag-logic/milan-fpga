@@ -96,6 +96,15 @@ def select_names(names: Sequence[str], index: int, total: int) -> list[str]:
 
 
 def selftest() -> int:
+    """Prove the split is total, disjoint and stable, and that bad input is refused.
+
+    Those three properties are the whole contract: a top that lands in two
+    shards is synthesized twice, and a top that lands in none is never
+    synthesized at all - and the second failure is silent, because every
+    shard still exits green. The weights are scheduling hints and are checked
+    only for the placement they are supposed to buy (the two heavy tops on
+    workers of their own), never as pass criteria.
+    """
     names = [
         "milan_datapath",
         "KL_pp_shadow",
@@ -153,6 +162,13 @@ def selftest() -> int:
 
 
 def main(argv: Sequence[str]) -> int:
+    """Print this worker's share of the inventory, one top per line.
+
+    The inventory arrives as arguments or on stdin, and a malformed shard
+    spec or a duplicate, empty or ill-named inventory is a usage error rather
+    than an empty shard: a worker handed nothing to build cannot be told
+    apart from a worker that built everything asked of it.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shard", default="0/1", metavar="INDEX/TOTAL")
     parser.add_argument("--show-loads", action="store_true")

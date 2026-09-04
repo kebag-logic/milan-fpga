@@ -181,6 +181,7 @@ tree that is not the revision this commit pins, and a malformed budget.
 
 import argparse
 import contextlib
+import dataclasses
 import hashlib
 import io
 import os
@@ -190,6 +191,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 
 #: Repository root, from this file's location.
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -230,8 +232,8 @@ SECTION_LABEL = {"hdl": "hdl/", "submodules": "pinned processors"}
 #: Where a bench install puts Vivado (docs/reference: 2026.1). $XVLOG wins, then
 #: these, then PATH. Read, not restated in three places.
 XVLOG_CANDIDATES = [
-    os.path.expanduser("~/Xilinx/2026.1/Vivado/bin/xvlog"),
-    os.path.expanduser("~/Xilinx2/2026.1/Vivado/bin/xvlog"),
+    pathlib.Path.home() / "Xilinx/2026.1/Vivado/bin/xvlog",
+    pathlib.Path.home() / "Xilinx2/2026.1/Vivado/bin/xvlog",
 ]
 
 #: The cascade line xvlog prints AFTER a real error ("module X is ignored due to
@@ -245,7 +247,7 @@ _IDENT_RE = re.compile(r"identifier '([^']+)'")
 _LOC_RE = re.compile(r"\[([^\]\s]+):(\d+)\]\s*$")
 
 
-def display_path(rel):
+def display_path(rel: str) -> str:
     """The path a finding is KEYED on: `<submodule>:<path>` inside a processor.
 
     A processor source is spelled with a colon rather than a slash because
@@ -262,7 +264,7 @@ def display_path(rel):
     return rel
 
 
-def section_of(key_or_path):
+def section_of(key_or_path: str) -> str:
     """Which budget section a finding key (or its path) belongs to.
 
     Derived from the path, never stored alongside it: a section a writer could
@@ -293,13 +295,16 @@ class Finding:
         self.lines = [line] if line else []
         self.message = message
 
-    def merge(self, other):
+    def merge(self, other: "Finding") -> None:
+        """Fold another occurrence of the SAME defect in: its lines, not a
+        second entry."""
         for ln in other.lines:
             if ln not in self.lines:
                 self.lines.append(ln)
 
     @property
-    def key(self):
+    def key(self) -> str:
+        """The identity this defect is banked under, line numbers excluded."""
         # Most VRFC errors name an identifier, and that is the stable key. Some
         # (a syntax error, an unopenable include) carry none, and keying two
         # DISTINCT such defects in one file as `path|code|` would collapse them:
@@ -323,20 +328,26 @@ class Finding:
                                                    "replace")).hexdigest()[:8])
         return f"{self.path}|{self.code}|{ident}"
 
-    def detail(self):
+    def detail(self) -> str:
+        """One human-readable line: where it is, what it is, what xvlog said."""
         loc = f":{','.join(self.lines)}" if self.lines else ""
         ident = f" '{self.identifier}'" if self.identifier else ""
         return f"{self.path}{loc}  [{self.code}]{ident}  {self.message}"
 
 
-def find_xvlog():
-    """An xvlog executable, or None."""
+def find_xvlog() -> str | None:
+    """An xvlog executable, or None.
+
+    A `str` and not a `Path`: every caller hands it straight to
+    `subprocess` beside string arguments, and `$XVLOG` and `shutil.which`
+    are strings already, so the boundary stays one type.
+    """
     env = os.environ.get("XVLOG")
-    if env and os.path.exists(env):
+    if env and pathlib.Path(env).exists():
         return env
     for cand in XVLOG_CANDIDATES:
-        if os.path.exists(cand):
-            return cand
+        if cand.exists():
+            return str(cand)
     return shutil.which("xvlog")
 
 
@@ -352,7 +363,7 @@ def _split_packages(files):
     return pkgs, rest
 
 
-def hdl_sources():
+def hdl_sources() -> tuple[list[str], list[str]]:
     """Tracked hdl/ design sources, packages first then the rest, both sorted.
 
     Tracked only (git ls-files): analysing an untracked stray source is a build
@@ -406,6 +417,7 @@ def _git(args, cwd):
                           capture_output=True, text=True, env=_git_env())
 
 
+@dataclasses.dataclass(slots=True, eq=False, repr=False)
 class TreeState:
     """What the superproject PINS at one processor path, and what is there.
 
@@ -498,20 +510,17 @@ class TreeState:
     them; `files` is filled only for `ok`.
     """
 
-    __slots__ = ("label", "tree", "why", "state", "expected", "actual", "files")
-
-    def __init__(self, label, tree, why, state,
-                 expected="", actual="", files=None):
-        self.label = label
-        self.tree = tree
-        self.why = why
-        self.state = state
-        self.expected = expected
-        self.actual = actual
-        self.files = files
+    label: str
+    tree: str
+    why: str
+    state: str
+    expected: str = ""
+    actual: str = ""
+    files: object = None
 
     @property
-    def ok(self):
+    def ok(self) -> bool:
+        """Whether this tree IS the pinned population - the only analysed state."""
         return self.state == "ok"
 
 
@@ -824,7 +833,8 @@ def _unpinned_bytes(path, entries, algo):
     return missing, differing
 
 
-def tree_state(label, tree, why, root=None):
+def tree_state(label: str, tree: str, why: str,
+               root: pathlib.Path | None = None) -> TreeState:
     """Resolve one processor tree against the superproject's own gitlink.
 
     Every refusable state is decided BEFORE the tree's files are listed, so a
@@ -833,7 +843,9 @@ def tree_state(label, tree, why, root=None):
     """
     root = root or ROOT
 
-    def state(name, expected="", actual="", files=None):
+    def state(name: str, expected: str = "", actual: str = "",
+              files: list[str] | None = None) -> TreeState:
+        """This tree's verdict, with the caller's label/tree/why carried in."""
         return TreeState(label, tree, why, name, expected, actual, files)
 
     kind, expected, detail = _index_pin(label, root)
@@ -902,7 +914,7 @@ def tree_state(label, tree, why, root=None):
                  [f"{label}/{name}" for _obj, name in entries])
 
 
-def submodule_sources(label, tree):
+def submodule_sources(label: str, tree: str) -> list[str] | None:
     """Tracked design sources under one processor tree, or None if unusable.
 
     None means REFUSE. It is the pinned population or nothing: see TreeState
@@ -913,7 +925,8 @@ def submodule_sources(label, tree):
     return st.files if st.ok else None
 
 
-def submodule_states(states=None):
+def submodule_states(
+        states: Callable[[str, str, str], TreeState] | None = None) -> list[TreeState]:
     """A TreeState per SUBMODULE_TREES entry.
 
     `states` overrides the resolver so the self-test can drive every arm on any
@@ -923,7 +936,8 @@ def submodule_states(states=None):
     return [resolve(label, tree, why) for label, tree, why in SUBMODULE_TREES]
 
 
-def unusable_submodule_trees(states=None):
+def unusable_submodule_trees(
+        states: Callable[[str, str, str], TreeState] | None = None) -> list[TreeState]:
     """Every processor tree that is not the pinned population, worst first.
 
     Empty means every tree in SUBMODULE_TREES is the exact revision the
@@ -932,7 +946,7 @@ def unusable_submodule_trees(states=None):
     return [st for st in submodule_states(states) if not st.ok]
 
 
-def source_plan():
+def source_plan() -> tuple[list[str], list[str], dict[str, int]]:
     """(packages, modules, {section: tracked file count}) for the whole scope.
 
     Every package in the scope is analysed into the one work library before any
@@ -1006,7 +1020,8 @@ def _dedup(findings):
     return sorted(by_key.values(), key=lambda x: x.key)
 
 
-def analyse(xvlog, extra_modules=None, workdir=None):
+def analyse(xvlog: str, extra_modules: list[str] | None = None,
+            workdir: str | None = None) -> tuple[list[Finding], list[Finding]]:
     """Compile packages then every module; return (findings, package_errors).
 
     `extra_modules` replaces the module list (the self-test passes a planted
@@ -1080,7 +1095,7 @@ class BudgetError(Exception):
     """The budget file cannot be read as written - a setup error, not a finding."""
 
 
-def read_budget(path=None):
+def read_budget(path: pathlib.Path | None = None) -> dict[str, set[str]] | None:
     """{section: {key}} for the grandfathered findings, or None if absent.
 
     The trailing `  # line(s) N` note is stripped by its OWN shape, not by
@@ -1126,7 +1141,7 @@ def read_budget(path=None):
     return sections
 
 
-def write_budget(findings, path=None):
+def write_budget(findings: list[Finding], path: pathlib.Path | None = None) -> None:
     """Rewrite the ratchet: one block per section, in SECTIONS order.
 
     No blank lines anywhere, deliberately. The previous format carried a blank
@@ -1197,7 +1212,7 @@ def _print_census(findings, counts):
             print(f"    {f.detail()}")
 
 
-def cmd_selftest(xvlog):
+def cmd_selftest(xvlog: str | None) -> int:
     """Plant a use-before-declaration into a clean module; require it to show.
 
     Detection cannot be proved without the tool, so this SKIPS (not passes)
@@ -1309,448 +1324,519 @@ def _refuse_setup(bad):
     return 2
 
 
-def _selftest_tree_state():
-    """Drive tree_state() against REAL git fixtures, one per refusable state.
+class _TreeStateFixture:
+    """The hand-built git tree the tree_state arms drive, and their assertions.
 
-    The injected-state arms below prove the REFUSAL reports each state; this
-    proves the CLASSIFIER reaches it, which is where [R0] on PR #242 found the
-    escape - the old check asked only whether the path was the top of some
-    repository with tracked sources, so a standalone clone at the gitlink path
-    and a checkout moved off the pin both classified as usable. Round 2 found
-    the same class in the INDEX parser: an unmerged path whose one surviving
-    `160000` record was read as a resolved pin. The arms below therefore drive
-    the real index through `git update-index --index-info` and check git's own
-    `U` verdict beside the classifier's.
+    A donor repository with three revisions, and a superproject whose
+    .gitmodules and INDEX gitlink are written directly (`git update-index
+    --index-info`). No network, no `submodule add`, so no `protocol.file.allow`
+    and no transport policy - it builds on any box, CI included, where no real
+    submodule is checked out.
 
-    Everything is built by hand in a temp dir: a donor repository with three
-    revisions, and a superproject whose .gitmodules and INDEX gitlink are
-    written directly (`git update-index --index-info`). No network, no
-    `submodule add`, so no `protocol.file.allow` and no transport policy - the
-    arm runs on any box, CI included, where no real submodule is checked out.
+    This was 130 lines of locals and closures at the head of one 433-line
+    function; the arm groups below now take the fixture and say which of its
+    parts they use.
     """
-    problems = []
-    if not shutil.which("git"):
-        return ["tree_state: no git on PATH, so the setup refusal cannot be "
-                "proved against real fixtures"]
-    ident = ["-c", "user.name=xvlog gate selftest",
-             "-c", "user.email=selftest@example.invalid",
-             "-c", "commit.gpgsign=false"]
-    tmp = pathlib.Path(tempfile.mkdtemp(prefix="xvlog-treestate-"))
-    label, tree = "protocol-processor", "protocol-processor/hdl"
-    try:
-        donor = tmp / "donor"
-        donor.mkdir()
-        _git(["init", "-q", "-b", "main", "."], donor)
 
-        def commit(msg):
-            _git(["add", "-A", "."], donor)
-            _git(ident + ["commit", "-q", "-m", msg], donor)
-            return _git(["rev-parse", "HEAD"], donor).stdout.strip()
-
-        (donor / "README.md").write_text("donor\n")
-        rev_empty = commit("no sources yet")
-        (donor / "hdl").mkdir()
-        (donor / "hdl" / "a.sv").write_text("module a; endmodule\n")
-        rev_one = commit("one source")
-        (donor / "hdl" / "b.sv").write_text("module b; endmodule\n")
-        rev_two = commit("two sources")
-
-        super_ = tmp / "super"
-        super_.mkdir()
-        _git(["init", "-q", "-b", "main", "."], super_)
-        (super_ / ".gitmodules").write_text(
-            f'[submodule "{label}"]\n\tpath = {label}\n\turl = {donor}\n')
-
-        def index_info(text):
-            """Write raw index records - the only way to build a fixture that
-            is unmerged, or mixed-mode, without a real merge conflict."""
-            out = subprocess.run(["git", "update-index", "--index-info"],
-                                 cwd=str(super_), input=text,
-                                 capture_output=True, text=True, env=_git_env())
-            if out.returncode:
-                problems.append("tree_state [fixture index]: git update-index "
-                                f"failed: {out.stderr.strip()}")
-
-        def pin(*entries):
-            """Rewrite the index record(s) AT the path, clearing them first.
-
-            An entry is `(rev, stage)` - a gitlink - or `(mode, obj, stage)`
-            for the non-gitlink modes an unmerged path can carry. Several
-            entries, or any nonzero stage, is what git calls unmerged.
-            """
-            text = f"0 {'0' * 40} 0\t{label}\n"
-            for entry in entries:
-                mode, obj, stage = (entry if len(entry) == 3
-                                    else ("160000",) + entry)
-                text += f"{mode} {obj} {stage}\t{label}\n"
-            index_info(text)
-
-        def git_agrees_unmerged(case):
-            """git's own verdict on the fixture, so the arm cannot pass over a
-            state git does not consider unmerged in the first place."""
-            got = _git(["submodule", "status", label], super_).stdout.strip()
-            if not got.startswith("U"):
-                problems.append(f"tree_state [{case}]: the fixture is not "
-                                f"unmerged to git either - `git submodule "
-                                f"status` printed {got!r}, so the arm proves "
-                                "nothing")
-
-        def state():
-            return tree_state(label, tree, "the selftest fixture", root=super_)
-
+    def __init__(self, tmp, label, tree):
+        self.tmp, self.label, self.tree = tmp, label, tree
+        self.problems = []
         #: Every state a real fixture below actually drove the classifier to.
         #: Asserted against _STATE_WHAT at the end, so a state cannot be added
         #: to the enumeration with only an injected arm behind it.
-        covered = set()
+        self.covered = set()
+        self.ident = ["-c", "user.name=xvlog gate selftest",
+                      "-c", "user.email=selftest@example.invalid",
+                      "-c", "commit.gpgsign=false"]
 
-        def hidden(case):
-            """git's OWN answer to the question the old check asked.
+        self.donor = tmp / "donor"
+        self.donor.mkdir()
+        _git(["init", "-q", "-b", "main", "."], self.donor)
 
-            An arm that plants an index hint proves nothing unless git really
-            does report the tree as clean underneath it, so both answers the
-            old shape relied on are asserted empty here.
-            """
-            seen = _git(["diff", "--name-only", "HEAD", "--"],
-                        checkout).stdout.strip()
-            short = _git(["status", "--short"], checkout).stdout.strip()
-            if seen or short:
-                problems.append(f"tree_state [{case}]: git reported the "
-                                f"change after all (diff {seen!r}, status "
-                                f"{short!r}), so this fixture does not "
-                                "reproduce the escape it is named for")
+        (self.donor / "README.md").write_text("donor\n")
+        self.rev_empty = self.commit("no sources yet")
+        (self.donor / "hdl").mkdir()
+        (self.donor / "hdl" / "a.sv").write_text("module a; endmodule\n")
+        self.rev_one = self.commit("one source")
+        (self.donor / "hdl" / "b.sv").write_text("module b; endmodule\n")
+        self.rev_two = self.commit("two sources")
 
-        def want(case, expect_state, expect_expected=None, expect_actual=None):
-            st = state()
-            covered.add(st.state)
-            if st.state != expect_state:
-                problems.append(f"tree_state [{case}]: classified "
-                                f"{st.state!r}, not {expect_state!r} - the "
-                                "state this fixture is in")
-                return st
-            if expect_expected is not None and st.expected != expect_expected:
-                problems.append(f"tree_state [{case}]: expected revision "
-                                f"{st.expected!r}, not the gitlink "
-                                f"{expect_expected!r}")
-            if expect_actual is not None and expect_actual not in st.actual:
-                problems.append(f"tree_state [{case}]: actual {st.actual!r} "
-                                f"does not name {expect_actual!r}")
-            if expect_state != "ok" and st.files is not None:
-                problems.append(f"tree_state [{case}]: a refused tree was "
-                                "enumerated anyway, so the population reached "
-                                "the census before the refusal")
+        self.super_ = tmp / "super"
+        self.super_.mkdir()
+        _git(["init", "-q", "-b", "main", "."], self.super_)
+        (self.super_ / ".gitmodules").write_text(
+            f'[submodule "{label}"]\n\tpath = {label}\n\turl = {self.donor}\n')
+
+        self.checkout = self.super_ / label
+        _git(["clone", "-q", str(self.donor), str(self.checkout)], tmp)
+        _git(["config", f"submodule.{label}.url", str(self.donor)], self.super_)
+        self.pin((self.rev_two, "0"))
+
+    def commit(self, msg: str) -> str:
+        """One donor commit, returning the revision it created."""
+        _git(["add", "-A", "."], self.donor)
+        _git(self.ident + ["commit", "-q", "-m", msg], self.donor)
+        return _git(["rev-parse", "HEAD"], self.donor).stdout.strip()
+
+    def index_info(self, text: str) -> None:
+        """Write raw index records - the only way to build a fixture that
+        is unmerged, or mixed-mode, without a real merge conflict."""
+        out = subprocess.run(["git", "update-index", "--index-info"],
+                             cwd=str(self.super_), input=text,
+                             capture_output=True, text=True, env=_git_env())
+        if out.returncode:
+            self.problems.append("tree_state [fixture index]: git update-index "
+                                 f"failed: {out.stderr.strip()}")
+
+    def pin(self, *entries) -> None:
+        """Rewrite the index record(s) AT the path, clearing them first.
+
+        An entry is `(rev, stage)` - a gitlink - or `(mode, obj, stage)`
+        for the non-gitlink modes an unmerged path can carry. Several
+        entries, or any nonzero stage, is what git calls unmerged.
+        """
+        text = f"0 {'0' * 40} 0\t{self.label}\n"
+        for entry in entries:
+            mode, obj, stage = (entry if len(entry) == 3
+                                else ("160000",) + entry)
+            text += f"{mode} {obj} {stage}\t{self.label}\n"
+        self.index_info(text)
+
+    def git_agrees_unmerged(self, case: str) -> None:
+        """git's own verdict on the fixture, so the arm cannot pass over a
+        state git does not consider unmerged in the first place."""
+        got = _git(["submodule", "status", self.label],
+                   self.super_).stdout.strip()
+        if not got.startswith("U"):
+            self.problems.append(f"tree_state [{case}]: the fixture is not "
+                                 f"unmerged to git either - `git submodule "
+                                 f"status` printed {got!r}, so the arm proves "
+                                 "nothing")
+
+    def hidden(self, case: str) -> None:
+        """git's OWN answer to the question the old check asked.
+
+        An arm that plants an index hint proves nothing unless git really
+        does report the tree as clean underneath it, so both answers the
+        old shape relied on are asserted empty here.
+        """
+        seen = _git(["diff", "--name-only", "HEAD", "--"],
+                    self.checkout).stdout.strip()
+        short = _git(["status", "--short"], self.checkout).stdout.strip()
+        if seen or short:
+            self.problems.append(f"tree_state [{case}]: git reported the "
+                                 f"change after all (diff {seen!r}, status "
+                                 f"{short!r}), so this fixture does not "
+                                 "reproduce the escape it is named for")
+
+    def state(self) -> TreeState:
+        """tree_state()'s verdict on the fixture as it stands."""
+        return tree_state(self.label, self.tree, "the selftest fixture",
+                          root=self.super_)
+
+    def want(self, case: str, expect_state: str,
+             expect_expected: str | None = None,
+             expect_actual: str | None = None) -> TreeState:
+        """Assert the classifier's verdict, and record the state it reached."""
+        st = self.state()
+        self.covered.add(st.state)
+        if st.state != expect_state:
+            self.problems.append(f"tree_state [{case}]: classified "
+                                 f"{st.state!r}, not {expect_state!r} - the "
+                                 "state this fixture is in")
             return st
+        if expect_expected is not None and st.expected != expect_expected:
+            self.problems.append(f"tree_state [{case}]: expected revision "
+                                 f"{st.expected!r}, not the gitlink "
+                                 f"{expect_expected!r}")
+        if expect_actual is not None and expect_actual not in st.actual:
+            self.problems.append(f"tree_state [{case}]: actual {st.actual!r} "
+                                 f"does not name {expect_actual!r}")
+        if expect_state != "ok" and st.files is not None:
+            self.problems.append(f"tree_state [{case}]: a refused tree was "
+                                 "enumerated anyway, so the population reached "
+                                 "the census before the refusal")
+        return st
 
-        checkout = super_ / label
-        _git(["clone", "-q", str(donor), str(checkout)], tmp)
-        _git(["config", f"submodule.{label}.url", str(donor)], super_)
-        pin((rev_two, "0"))
 
-        st = want("pinned", "ok", rev_two, rev_two)
-        if st.state == "ok" and st.files != [f"{tree}/a.sv", f"{tree}/b.sv"]:
-            problems.append(f"tree_state [pinned]: enumerated {st.files}, not "
-                            "the two tracked sources at the pin")
+def _arms_ts_pinned_population(fx):
+    """Arms over the pin itself: the population it names, a checkout moved off
+    it, and edited bytes under an untouched revision."""
+    problems, checkout, tree = fx.problems, fx.checkout, fx.tree
+    rev_one, rev_two, want = fx.rev_one, fx.rev_two, fx.want
+    st = want("pinned", "ok", rev_two, rev_two)
+    if st.state == "ok" and st.files != [f"{tree}/a.sv", f"{tree}/b.sv"]:
+        problems.append(f"tree_state [pinned]: enumerated {st.files}, not "
+                        "the two tracked sources at the pin")
 
-        # (2) the review's second escape: registered, moved off the pin. git
-        # prints `+`; the old check returned nothing and the census counted it.
-        _git(["checkout", "-q", "--detach", rev_one], checkout)
-        want("wrong-revision", "wrong-revision", rev_two, rev_one)
+    # (2) the review's second escape: registered, moved off the pin. git
+    # prints `+`; the old check returned nothing and the census counted it.
+    _git(["checkout", "-q", "--detach", rev_one], checkout)
+    want("wrong-revision", "wrong-revision", rev_two, rev_one)
 
-        _git(["checkout", "-q", "--detach", rev_two], checkout)
-        (checkout / "hdl" / "a.sv").write_text("module a; wire x; endmodule\n")
-        want("modified", "modified", rev_two, "hdl/a.sv")
-        _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+    _git(["checkout", "-q", "--detach", rev_two], checkout)
+    (checkout / "hdl" / "a.sv").write_text("module a; wire x; endmodule\n")
+    want("modified", "modified", rev_two, "hdl/a.sv")
+    _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
 
-        # [R0] round 4: refs/replace is a mutable object-name indirection, not
-        # an index hint. With ordinary Git semantics, `ls-tree <rev_two>` reads
-        # rev_replace's tree even though `rev-parse HEAD` still prints rev_two.
-        # Plant exactly the replacement bytes on disk: a replacement-aware
-        # population proof then calls this `ok`. Every trust-decision Git call
-        # must force GIT_NO_REPLACE_OBJECTS=1 so the real pin wins and this is
-        # `modified` instead. The end-to-end arm proves both public modes stop
-        # before census and leave the budget byte-for-byte untouched.
-        pinned_data = (checkout / "hdl" / "a.sv").read_bytes()
-        replacement_data = b"module a; wire replacement_ref; endmodule\n"
-        (donor / "hdl" / "a.sv").write_bytes(replacement_data)
-        rev_replace = commit("replacement-ref fixture")
-        _git(["branch", "replacement-fixture", rev_replace], donor)
-        _git(["reset", "-q", "--hard", rev_two], donor)
-        fetched = _git(["fetch", "-q", "origin", "replacement-fixture"],
-                       checkout)
-        if fetched.returncode:
-            problems.append("tree_state [replacement-ref]: could not fetch the "
-                            f"replacement object: {fetched.stderr.strip()}")
-        installed = _git(["replace", rev_two, rev_replace], checkout)
-        if installed.returncode:
-            problems.append("tree_state [replacement-ref]: could not install "
-                            f"refs/replace/{rev_two}: "
-                            f"{installed.stderr.strip()}")
-        (checkout / "hdl" / "a.sv").write_bytes(replacement_data)
-        literal_head = _git(["rev-parse", "HEAD"], checkout).stdout.strip()
-        replacement_ref = _git(
-            ["rev-parse", f"refs/replace/{rev_two}"], checkout).stdout.strip()
-        if literal_head != rev_two:
-            problems.append("tree_state [replacement-ref]: HEAD moved to "
-                            f"{literal_head!r}, so the fixture does not hold the "
-                            "pinned literal revision")
-        if replacement_ref != rev_replace:
-            problems.append("tree_state [replacement-ref]: replacement ref "
-                            f"resolved to {replacement_ref!r}, not {rev_replace}")
-        on_disk = (checkout / "hdl" / "a.sv").read_bytes()
-        if on_disk != replacement_data or on_disk == pinned_data:
-            problems.append("tree_state [replacement-ref]: altered replacement "
-                            "bytes are not on disk, so the arm proves nothing")
-        st = want("replacement-ref", "modified", rev_two, "hdl/a.sv")
 
-        if st.state == "modified":
-            budget_path = super_ / "scripts" / "xvlog.budget"
-            budget_path.parent.mkdir()
-            budget_sentinel = b"replacement-ref budget sentinel\n"
-            budget_path.write_bytes(budget_sentinel)
-            saved = {name: globals()[name]
-                     for name in ("ROOT", "HDL", "BUDGET", "SUBMODULE_TREES")}
-            saved_xvlog = os.environ.get("XVLOG")
-            globals()["ROOT"] = super_
-            globals()["HDL"] = super_ / "hdl"
-            globals()["BUDGET"] = budget_path
-            globals()["SUBMODULE_TREES"] = [
-                (label, tree, "the replacement-ref selftest fixture")]
-            os.environ["XVLOG"] = sys.executable
-            try:
-                for extra in ([], ["--check"]):
-                    mode = extra[0] if extra else "default"
-                    out, err = io.StringIO(), io.StringIO()
-                    with contextlib.redirect_stdout(out), \
-                            contextlib.redirect_stderr(err):
-                        rc = main(["xvlog_gate.py"] + extra)
-                    if rc != 2:
-                        problems.append(f"tree_state [replacement-ref {mode}]: "
-                                        f"main exited {rc}, not setup refusal 2")
-                    if "REFUSED" not in err.getvalue() or \
-                            _STATE_WHAT["modified"] not in err.getvalue():
-                        problems.append(f"tree_state [replacement-ref {mode}]: "
-                                        "main did not print the modified setup "
-                                        "refusal")
-                    if out.getvalue():
-                        problems.append(f"tree_state [replacement-ref {mode}]: "
-                                        "stdout was written, so the census was "
-                                        "reached")
-                    if budget_path.read_bytes() != budget_sentinel:
-                        problems.append(f"tree_state [replacement-ref {mode}]: "
-                                        "the budget was written under refusal")
-            finally:
-                for name, value in saved.items():
-                    globals()[name] = value
-                if saved_xvlog is None:
-                    os.environ.pop("XVLOG", None)
-                else:
-                    os.environ["XVLOG"] = saved_xvlog
+def _arms_ts_replacement_refuses_main(fx):
+    """The refs/replace arm end to end: BOTH public modes must stop at the
+    setup refusal and leave the budget byte-for-byte untouched."""
+    problems, super_, label = fx.problems, fx.super_, fx.label
+    tree = fx.tree
+    budget_path = super_ / "scripts" / "xvlog.budget"
+    budget_path.parent.mkdir()
+    budget_sentinel = b"replacement-ref budget sentinel\n"
+    budget_path.write_bytes(budget_sentinel)
+    saved = {name: globals()[name]
+             for name in ("ROOT", "HDL", "BUDGET", "SUBMODULE_TREES")}
+    saved_xvlog = os.environ.get("XVLOG")
+    globals()["ROOT"] = super_
+    globals()["HDL"] = super_ / "hdl"
+    globals()["BUDGET"] = budget_path
+    globals()["SUBMODULE_TREES"] = [
+        (label, tree, "the replacement-ref selftest fixture")]
+    os.environ["XVLOG"] = sys.executable
+    try:
+        for extra in ([], ["--check"]):
+            mode = extra[0] if extra else "default"
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), \
+                    contextlib.redirect_stderr(err):
+                rc = main(["xvlog_gate.py"] + extra)
+            if rc != 2:
+                problems.append(f"tree_state [replacement-ref {mode}]: "
+                                f"main exited {rc}, not setup refusal 2")
+            if "REFUSED" not in err.getvalue() or \
+                    _STATE_WHAT["modified"] not in err.getvalue():
+                problems.append(f"tree_state [replacement-ref {mode}]: "
+                                "main did not print the modified setup "
+                                "refusal")
+            if out.getvalue():
+                problems.append(f"tree_state [replacement-ref {mode}]: "
+                                "stdout was written, so the census was "
+                                "reached")
+            if budget_path.read_bytes() != budget_sentinel:
+                problems.append(f"tree_state [replacement-ref {mode}]: "
+                                "the budget was written under refusal")
+    finally:
+        for name, value in saved.items():
+            globals()[name] = value
+        if saved_xvlog is None:
+            os.environ.pop("XVLOG", None)
+        else:
+            os.environ["XVLOG"] = saved_xvlog
 
-        removed = _git(["replace", "-d", rev_two], checkout)
-        if removed.returncode:
-            problems.append("tree_state [replacement-ref]: could not remove the "
-                            f"fixture replacement: {removed.stderr.strip()}")
-        _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
-        want("replacement-ref-restored", "ok", rev_two, rev_two)
 
-        # [R0] round 3: the index can be told to LIE about the worktree, and
-        # the old check asked it. `assume-unchanged` and `skip-worktree` are
-        # set BEFORE the file is touched, exactly as the review's fixtures
-        # did, and hidden() asserts that git itself then reports nothing -
-        # over a CHANGED file (the review's planted VRFC 10-3380) and over a
-        # MISSING one (the sparse/skip-worktree boundary the review named).
-        for flag, mark in (("assume-unchanged", "h"), ("skip-worktree", "S")):
-            _git(["update-index", "--" + flag, "--", "hdl/a.sv"], checkout)
-            marks = _git(["ls-files", "-v", "--", "hdl/a.sv"],
-                         checkout).stdout.split()
-            if not marks or marks[0] != mark:
-                problems.append(f"tree_state [{flag}]: the fixture did not "
-                                f"take - `git ls-files -v` printed {marks!r}, "
-                                f"not the {mark!r} mark, so the arm proves "
-                                "nothing")
-            (checkout / "hdl" / "a.sv").write_text(
-                "module a; wire hidden_w; endmodule\n")
-            hidden(flag + "-modified")
-            want(flag + "-modified", "modified", rev_two, "hdl/a.sv")
-            (checkout / "hdl" / "a.sv").unlink()
-            hidden(flag + "-missing")
-            want(flag + "-missing", "incomplete", rev_two, "hdl/a.sv")
-            _git(["update-index", "--no-" + flag, "--", "hdl/a.sv"], checkout)
-            _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
-            want(flag + "-restored", "ok", rev_two, rev_two)
+def _arms_ts_replacement_ref(fx):
+    """Arms over refs/replace, a mutable object-name indirection rather than
+    an index hint: a replacement-aware population proof would call an
+    altered tree `ok`, so every trust decision forces
+    GIT_NO_REPLACE_OBJECTS=1 and this must read `modified`."""
+    problems, donor, checkout = fx.problems, fx.donor, fx.checkout
+    rev_two, commit, want = fx.rev_two, fx.commit, fx.want
+    # [R0] round 4: refs/replace is a mutable object-name indirection, not
+    # an index hint. With ordinary Git semantics, `ls-tree <rev_two>` reads
+    # rev_replace's tree even though `rev-parse HEAD` still prints rev_two.
+    # Plant exactly the replacement bytes on disk: a replacement-aware
+    # population proof then calls this `ok`. Every trust-decision Git call
+    # must force GIT_NO_REPLACE_OBJECTS=1 so the real pin wins and this is
+    # `modified` instead. The end-to-end arm proves both public modes stop
+    # before census and leave the budget byte-for-byte untouched.
+    pinned_data = (checkout / "hdl" / "a.sv").read_bytes()
+    replacement_data = b"module a; wire replacement_ref; endmodule\n"
+    (donor / "hdl" / "a.sv").write_bytes(replacement_data)
+    rev_replace = commit("replacement-ref fixture")
+    _git(["branch", "replacement-fixture", rev_replace], donor)
+    _git(["reset", "-q", "--hard", rev_two], donor)
+    fetched = _git(["fetch", "-q", "origin", "replacement-fixture"],
+                   checkout)
+    if fetched.returncode:
+        problems.append("tree_state [replacement-ref]: could not fetch the "
+                        f"replacement object: {fetched.stderr.strip()}")
+    installed = _git(["replace", rev_two, rev_replace], checkout)
+    if installed.returncode:
+        problems.append("tree_state [replacement-ref]: could not install "
+                        f"refs/replace/{rev_two}: "
+                        f"{installed.stderr.strip()}")
+    (checkout / "hdl" / "a.sv").write_bytes(replacement_data)
+    literal_head = _git(["rev-parse", "HEAD"], checkout).stdout.strip()
+    replacement_ref = _git(
+        ["rev-parse", f"refs/replace/{rev_two}"], checkout).stdout.strip()
+    if literal_head != rev_two:
+        problems.append("tree_state [replacement-ref]: HEAD moved to "
+                        f"{literal_head!r}, so the fixture does not hold the "
+                        "pinned literal revision")
+    if replacement_ref != rev_replace:
+        problems.append("tree_state [replacement-ref]: replacement ref "
+                        f"resolved to {replacement_ref!r}, not {rev_replace}")
+    on_disk = (checkout / "hdl" / "a.sv").read_bytes()
+    if on_disk != replacement_data or on_disk == pinned_data:
+        problems.append("tree_state [replacement-ref]: altered replacement "
+                        "bytes are not on disk, so the arm proves nothing")
+    st = want("replacement-ref", "modified", rev_two, "hdl/a.sv")
 
-        # A pinned source DELETED with no hint at all: the same class, and the
-        # boundary a diff-shaped check happens to catch. Kept so the byte
-        # proof is shown to cover it too.
-        (checkout / "hdl" / "b.sv").unlink()
-        want("pinned-source-deleted", "incomplete", rev_two, "hdl/b.sv")
-        _git(["checkout", "-q", "--", "hdl/b.sv"], checkout)
+    if st.state == "modified":
+        _arms_ts_replacement_refuses_main(fx)
 
-        # ...and the population must not be a function of the checkout's
-        # INDEX either. Dropping a record leaves the pinned bytes on disk, so
-        # this is still the pinned population - an ls-files-shaped enumeration
-        # would have analysed one file and called it the pinned processors.
-        _git(["rm", "-q", "--cached", "--", "hdl/b.sv"], checkout)
-        st = want("index-record-dropped", "ok", rev_two, rev_two)
-        if st.state == "ok" and st.files != [f"{tree}/a.sv", f"{tree}/b.sv"]:
-            problems.append(f"tree_state [index-record-dropped]: enumerated "
-                            f"{st.files} - the population followed the index "
-                            "rather than the pin")
-        _git(["reset", "-q", "HEAD", "--", "hdl/b.sv"], checkout)
+    removed = _git(["replace", "-d", rev_two], checkout)
+    if removed.returncode:
+        problems.append("tree_state [replacement-ref]: could not remove the "
+                        f"fixture replacement: {removed.stderr.strip()}")
+    _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+    want("replacement-ref-restored", "ok", rev_two, rev_two)
 
-        # A symlink whose TARGET holds the pinned bytes is still not the
-        # pinned file: reading through it makes the population a function of
-        # whatever the link resolves to, which is the thing being proved.
-        twin = checkout / "hdl" / "twin.sv"
-        twin.write_bytes((checkout / "hdl" / "a.sv").read_bytes())
+
+def _arms_ts_index_lies(fx):
+    """Arms over an index told to LIE about the worktree, a deleted pinned
+    source, a dropped index record, a symlink holding the pinned bytes,
+    and a PIN that itself names a symlink."""
+    problems, donor, checkout = fx.problems, fx.donor, fx.checkout
+    tree, rev_two, commit = fx.tree, fx.rev_two, fx.commit
+    pin, hidden, want = fx.pin, fx.hidden, fx.want
+    # [R0] round 3: the index can be told to LIE about the worktree, and
+    # the old check asked it. `assume-unchanged` and `skip-worktree` are
+    # set BEFORE the file is touched, exactly as the review's fixtures
+    # did, and hidden() asserts that git itself then reports nothing -
+    # over a CHANGED file (the review's planted VRFC 10-3380) and over a
+    # MISSING one (the sparse/skip-worktree boundary the review named).
+    for flag, mark in (("assume-unchanged", "h"), ("skip-worktree", "S")):
+        _git(["update-index", "--" + flag, "--", "hdl/a.sv"], checkout)
+        marks = _git(["ls-files", "-v", "--", "hdl/a.sv"],
+                     checkout).stdout.split()
+        if not marks or marks[0] != mark:
+            problems.append(f"tree_state [{flag}]: the fixture did not "
+                            f"take - `git ls-files -v` printed {marks!r}, "
+                            f"not the {mark!r} mark, so the arm proves "
+                            "nothing")
+        (checkout / "hdl" / "a.sv").write_text(
+            "module a; wire hidden_w; endmodule\n")
+        hidden(flag + "-modified")
+        want(flag + "-modified", "modified", rev_two, "hdl/a.sv")
         (checkout / "hdl" / "a.sv").unlink()
-        (checkout / "hdl" / "a.sv").symlink_to(twin)
-        want("symlink-holding-the-pinned-bytes", "incomplete", rev_two,
-             "a symlink")
-        (checkout / "hdl" / "a.sv").unlink()
-        twin.unlink()
+        hidden(flag + "-missing")
+        want(flag + "-missing", "incomplete", rev_two, "hdl/a.sv")
+        _git(["update-index", "--no-" + flag, "--", "hdl/a.sv"], checkout)
         _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
+        want(flag + "-restored", "ok", rev_two, rev_two)
 
-        # A PIN that itself names a source which is not a regular-file blob.
-        # Its recorded bytes are the link target's name, so byte-identity
-        # cannot be proved for it and the gate refuses rather than analysing
-        # whatever the link resolves to on this box.
-        (donor / "hdl" / "c.sv").symlink_to("a.sv")
-        rev_link = commit("a source committed as a symlink")
-        _git(["fetch", "-q", "origin"], checkout)
-        _git(["checkout", "-q", "--detach", rev_link], checkout)
-        pin((rev_link, "0"))
-        want("pin-names-a-symlink", "unpinnable", rev_link, "hdl/c.sv")
-        _git(["checkout", "-q", "--detach", rev_two], checkout)
-        pin((rev_two, "0"))
-        want("pin-restored", "ok", rev_two, rev_two)
+    # A pinned source DELETED with no hint at all: the same class, and the
+    # boundary a diff-shaped check happens to catch. Kept so the byte
+    # proof is shown to cover it too.
+    (checkout / "hdl" / "b.sv").unlink()
+    want("pinned-source-deleted", "incomplete", rev_two, "hdl/b.sv")
+    _git(["checkout", "-q", "--", "hdl/b.sv"], checkout)
 
-        # (1) the review's first escape: a real repository holding the pinned
-        # content, at the gitlink path, that is NOT the registered checkout.
-        _git(["config", "--unset", f"submodule.{label}.url"], super_)
-        want("uninitialised", "uninitialised", rev_two, rev_two)
-        _git(["config", f"submodule.{label}.url", str(donor)], super_)
+    # ...and the population must not be a function of the checkout's
+    # INDEX either. Dropping a record leaves the pinned bytes on disk, so
+    # this is still the pinned population - an ls-files-shaped enumeration
+    # would have analysed one file and called it the pinned processors.
+    _git(["rm", "-q", "--cached", "--", "hdl/b.sv"], checkout)
+    st = want("index-record-dropped", "ok", rev_two, rev_two)
+    if st.state == "ok" and st.files != [f"{tree}/a.sv", f"{tree}/b.sv"]:
+        problems.append(f"tree_state [index-record-dropped]: enumerated "
+                        f"{st.files} - the population followed the index "
+                        "rather than the pin")
+    _git(["reset", "-q", "HEAD", "--", "hdl/b.sv"], checkout)
 
-        aside = tmp / "aside"
-        checkout.rename(aside)
-        checkout.mkdir()
-        want("absent-empty-dir", "absent", rev_two)
-        (checkout / "hdl").mkdir()
-        (checkout / "hdl" / "a.sv").write_text("module a; endmodule\n")
-        want("no-repository", "no-repository", rev_two)
-        shutil.rmtree(checkout)
-        want("absent", "absent", rev_two)
+    # A symlink whose TARGET holds the pinned bytes is still not the
+    # pinned file: reading through it makes the population a function of
+    # whatever the link resolves to, which is the thing being proved.
+    twin = checkout / "hdl" / "twin.sv"
+    twin.write_bytes((checkout / "hdl" / "a.sv").read_bytes())
+    (checkout / "hdl" / "a.sv").unlink()
+    (checkout / "hdl" / "a.sv").symlink_to(twin)
+    want("symlink-holding-the-pinned-bytes", "incomplete", rev_two,
+         "a symlink")
+    (checkout / "hdl" / "a.sv").unlink()
+    twin.unlink()
+    _git(["checkout", "-q", "--", "hdl/a.sv"], checkout)
 
-        aside.rename(checkout)
-        _git(["checkout", "-q", "--detach", rev_empty], checkout)
-        pin((rev_empty, "0"))
-        want("empty", "empty", rev_empty)
+    # A PIN that itself names a source which is not a regular-file blob.
+    # Its recorded bytes are the link target's name, so byte-identity
+    # cannot be proved for it and the gate refuses rather than analysing
+    # whatever the link resolves to on this box.
+    (donor / "hdl" / "c.sv").symlink_to("a.sv")
+    rev_link = commit("a source committed as a symlink")
+    _git(["fetch", "-q", "origin"], checkout)
+    _git(["checkout", "-q", "--detach", rev_link], checkout)
+    pin((rev_link, "0"))
+    want("pin-names-a-symlink", "unpinnable", rev_link, "hdl/c.sv")
+    _git(["checkout", "-q", "--detach", rev_two], checkout)
+    pin((rev_two, "0"))
+    want("pin-restored", "ok", rev_two, rev_two)
 
-        pin((rev_one, "1"), (rev_two, "2"), (rev_empty, "3"))
-        want("conflicted", "conflicted")
-        git_agrees_unmerged("conflicted")
 
-        # [R0] round 2 on PR #242: the shapes a filter that keeps only the
-        # 160000 records cannot see. Both were reproduced on the real
-        # protocol-processor gitlink, and both classified `ok` at 40 files.
-        # A blob object so a stage can carry a non-gitlink mode; any content
-        # will do, only the mode is under test.
-        blob = _git(["hash-object", "-w", str(donor / "README.md")],
-                    super_).stdout.strip()
-        # The checkout is put back ON the surviving stage's revision on
-        # purpose: that is the reviewer's state, and it is the only one where
-        # a filter's leftover SHA reads as a FALSE GREEN rather than merely as
-        # the wrong refusal. Without it these arms would still pass over a
-        # `wrong-revision` verdict and prove far less.
-        _git(["checkout", "-q", "--detach", rev_two], checkout)
+def _arms_ts_registration(fx):
+    """Arms over registration and presence: an unregistered checkout at the
+    path, an empty directory, a directory that is no repository, an
+    absent one, and a pin carrying no source at all."""
+    tmp, donor, super_ = fx.tmp, fx.donor, fx.super_
+    checkout, label, rev_empty = fx.checkout, fx.label, fx.rev_empty
+    rev_two, pin, want = fx.rev_two, fx.pin, fx.want
+    # (1) the review's first escape: a real repository holding the pinned
+    # content, at the gitlink path, that is NOT the registered checkout.
+    _git(["config", "--unset", f"submodule.{label}.url"], super_)
+    want("uninitialised", "uninitialised", rev_two, rev_two)
+    _git(["config", f"submodule.{label}.url", str(donor)], super_)
 
-        pin((rev_two, "2"), ("100644", blob, "3"))
-        st = want("conflicted-gitlink-vs-file", "conflicted")
-        git_agrees_unmerged("conflicted-gitlink-vs-file")
-        if st.state == "conflicted" and (rev_two not in st.actual
-                                         or blob not in st.actual):
-            problems.append("tree_state [conflicted-gitlink-vs-file]: the "
-                            "refusal does not name both sides of the "
-                            "conflict, so a reader cannot tell which is which")
-        # ...and the classifier must reach the exit-2 SETUP refusal from a
-        # real index fixture, not only from an injected state. Guarded on the
-        # verdict: _refuse_setup only ever sees unusable states in production,
-        # and handing it an `ok` one would crash the arm that is already
-        # reporting the real failure.
-        if not st.ok:
-            buf = io.StringIO()
-            with contextlib.redirect_stderr(buf):
-                rc = _refuse_setup([st])
-            if rc != 2 or "REFUSED" not in buf.getvalue():
-                problems.append(f"tree_state [conflicted-gitlink-vs-file]: "
-                                f"the refusal exited {rc} with "
-                                f"{len(buf.getvalue())} byte(s) on stderr, "
-                                "not 2 with a printed reason")
+    aside = tmp / "aside"
+    checkout.rename(aside)
+    checkout.mkdir()
+    want("absent-empty-dir", "absent", rev_two)
+    (checkout / "hdl").mkdir()
+    (checkout / "hdl" / "a.sv").write_text("module a; endmodule\n")
+    want("no-repository", "no-repository", rev_two)
+    shutil.rmtree(checkout)
+    want("absent", "absent", rev_two)
 
-        pin((rev_two, "2"), ("120000", blob, "3"))
-        want("conflicted-gitlink-vs-symlink", "conflicted")
-        git_agrees_unmerged("conflicted-gitlink-vs-symlink")
+    aside.rename(checkout)
+    _git(["checkout", "-q", "--detach", rev_empty], checkout)
+    pin((rev_empty, "0"))
+    want("empty", "empty", rev_empty)
 
-        pin((rev_two, "2"))
-        want("conflicted-one-sided", "conflicted")
-        git_agrees_unmerged("conflicted-one-sided")
 
-        # A stage 0 record that is not a gitlink at all: the path is TRACKED,
-        # so `git ls-files` answers, but nothing pins a revision there.
-        pin(("100644", blob, "0"))
-        want("tracked-file-at-the-path", "unregistered")
+def _arms_ts_index_shape(fx):
+    """Arms over the index RECORD SHAPE: every unmerged spelling, a tracked
+    file at the path, the contents committed as ordinary files, and a
+    file or symlink where the checkout must be."""
+    problems, tmp, donor = fx.problems, fx.tmp, fx.donor
+    super_, checkout, label = fx.super_, fx.checkout, fx.label
+    rev_empty, rev_one, rev_two = fx.rev_empty, fx.rev_one, fx.rev_two
+    index_info, pin, git_agrees_unmerged = fx.index_info, fx.pin, fx.git_agrees_unmerged
+    want = fx.want
+    pin((rev_one, "1"), (rev_two, "2"), (rev_empty, "3"))
+    want("conflicted", "conflicted")
+    git_agrees_unmerged("conflicted")
 
-        # The contents committed as ordinary files. `git ls-files -- <path>`
-        # lists everything UNDER the path too, so more than one record turns
-        # up here as well; calling that "many conflict stages" would refuse
-        # with the wrong reason and the wrong fix. TWO of them, so an arm that
-        # matched by prefix instead of by equality cannot pass this by
-        # reaching the same verdict through the mode check.
-        nested = [f"{label}/hdl/a.sv", f"{label}/hdl/b.sv"]
-        pin()
-        index_info("".join(f"100644 {blob} 0\t{n}\n" for n in nested))
-        want("contents-committed-as-files", "unregistered", "",
-             "2 tracked file(s) under it")
-        index_info("".join(f"0 {'0' * 40} 0\t{n}\n" for n in nested))
+    # [R0] round 2 on PR #242: the shapes a filter that keeps only the
+    # 160000 records cannot see. Both were reproduced on the real
+    # protocol-processor gitlink, and both classified `ok` at 40 files.
+    # A blob object so a stage can carry a non-gitlink mode; any content
+    # will do, only the mode is under test.
+    blob = _git(["hash-object", "-w", str(donor / "README.md")],
+                super_).stdout.strip()
+    # The checkout is put back ON the surviving stage's revision on
+    # purpose: that is the reviewer's state, and it is the only one where
+    # a filter's leftover SHA reads as a FALSE GREEN rather than merely as
+    # the wrong refusal. Without it these arms would still pass over a
+    # `wrong-revision` verdict and prove far less.
+    _git(["checkout", "-q", "--detach", rev_two], checkout)
 
-        pin((rev_two, "0"))
-        aside = tmp / "file-at-the-path"
-        checkout.rename(aside)
-        checkout.write_text("not a checkout\n")
-        want("not-a-directory", "not-a-directory", rev_two, "a file")
-        checkout.unlink()
-        checkout.symlink_to(aside)
-        want("symlink-at-the-path", "not-a-directory", rev_two, "a symlink")
-        checkout.unlink()
-        aside.rename(checkout)
+    pin((rev_two, "2"), ("100644", blob, "3"))
+    st = want("conflicted-gitlink-vs-file", "conflicted")
+    git_agrees_unmerged("conflicted-gitlink-vs-file")
+    if st.state == "conflicted" and (rev_two not in st.actual
+                                     or blob not in st.actual):
+        problems.append("tree_state [conflicted-gitlink-vs-file]: the "
+                        "refusal does not name both sides of the "
+                        "conflict, so a reader cannot tell which is which")
+    # ...and the classifier must reach the exit-2 SETUP refusal from a
+    # real index fixture, not only from an injected state. Guarded on the
+    # verdict: _refuse_setup only ever sees unusable states in production,
+    # and handing it an `ok` one would crash the arm that is already
+    # reporting the real failure.
+    if not st.ok:
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            rc = _refuse_setup([st])
+        if rc != 2 or "REFUSED" not in buf.getvalue():
+            problems.append(f"tree_state [conflicted-gitlink-vs-file]: "
+                            f"the refusal exited {rc} with "
+                            f"{len(buf.getvalue())} byte(s) on stderr, "
+                            "not 2 with a printed reason")
 
-        pin()
-        want("unregistered", "unregistered")
+    pin((rev_two, "2"), ("120000", blob, "3"))
+    want("conflicted-gitlink-vs-symlink", "conflicted")
+    git_agrees_unmerged("conflicted-gitlink-vs-symlink")
+
+    pin((rev_two, "2"))
+    want("conflicted-one-sided", "conflicted")
+    git_agrees_unmerged("conflicted-one-sided")
+
+    # A stage 0 record that is not a gitlink at all: the path is TRACKED,
+    # so `git ls-files` answers, but nothing pins a revision there.
+    pin(("100644", blob, "0"))
+    want("tracked-file-at-the-path", "unregistered")
+
+    # The contents committed as ordinary files. `git ls-files -- <path>`
+    # lists everything UNDER the path too, so more than one record turns
+    # up here as well; calling that "many conflict stages" would refuse
+    # with the wrong reason and the wrong fix. TWO of them, so an arm that
+    # matched by prefix instead of by equality cannot pass this by
+    # reaching the same verdict through the mode check.
+    nested = [f"{label}/hdl/a.sv", f"{label}/hdl/b.sv"]
+    pin()
+    index_info("".join(f"100644 {blob} 0\t{n}\n" for n in nested))
+    want("contents-committed-as-files", "unregistered", "",
+         "2 tracked file(s) under it")
+    index_info("".join(f"0 {'0' * 40} 0\t{n}\n" for n in nested))
+
+    pin((rev_two, "0"))
+    aside = tmp / "file-at-the-path"
+    checkout.rename(aside)
+    checkout.write_text("not a checkout\n")
+    want("not-a-directory", "not-a-directory", rev_two, "a file")
+    checkout.unlink()
+    checkout.symlink_to(aside)
+    want("symlink-at-the-path", "not-a-directory", rev_two, "a symlink")
+    checkout.unlink()
+    aside.rename(checkout)
+
+    pin()
+    want("unregistered", "unregistered")
+
+
+def _selftest_tree_state():
+    """Drive tree_state() against REAL git fixtures, one per refusable state.
+
+    The injected-state arms elsewhere prove the REFUSAL reports each state;
+    this proves the CLASSIFIER reaches it, which is where [R0] on PR #242 found
+    the escape - the old check asked only whether the path was the top of some
+    repository with tracked sources, so a standalone clone at the gitlink path
+    and a checkout moved off the pin both classified as usable. Round 2 found
+    the same class in the INDEX parser: an unmerged path whose one surviving
+    `160000` record was read as a resolved pin. The arm groups therefore drive
+    the real index through `git update-index --index-info` and check git's own
+    `U` verdict beside the classifier's.
+
+    The groups run in the order listed, and each leaves the fixture in the
+    state the next one expects.
+    """
+    if not shutil.which("git"):
+        return ["tree_state: no git on PATH, so the setup refusal cannot be "
+                "proved against real fixtures"]
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="xvlog-treestate-"))
+    try:
+        fx = _TreeStateFixture(tmp, "protocol-processor",
+                               "protocol-processor/hdl")
+        _arms_ts_pinned_population(fx)
+        _arms_ts_replacement_ref(fx)
+        _arms_ts_index_lies(fx)
+        _arms_ts_registration(fx)
+        _arms_ts_index_shape(fx)
 
         # A state in the enumeration that no REAL fixture reaches is a state
         # whose classifier arm is a promise. `unreadable` is the single
         # exclusion and it is named: git will not construct a repository
         # whose object format it cannot itself read, so that state is driven
         # only as an injected one in _selftest_logic.
-        unfixtured = set(_STATE_WHAT) - covered - {"unreadable"}
+        unfixtured = set(_STATE_WHAT) - fx.covered - {"unreadable"}
         if unfixtured:
-            problems.append(f"tree_state: {sorted(unfixtured)} are in the "
-                            "refusal enumeration but no real git fixture "
-                            "drives the classifier to them")
-        if "ok" not in covered:
-            problems.append("tree_state: no fixture reached `ok`, so these "
-                            "arms prove only that the gate refuses")
+            fx.problems.append(f"tree_state: {sorted(unfixtured)} are in the "
+                               "refusal enumeration but no real git fixture "
+                               "drives the classifier to them")
+        if "ok" not in fx.covered:
+            fx.problems.append("tree_state: no fixture reached `ok`, so these "
+                               "arms prove only that the gate refuses")
+        return fx.problems
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    return problems
 
 
-def _selftest_logic():
-    """Arms that need no xvlog: the parser, the dedup, the ratchet diff.
-
-    These are the parts that rot silently when xvlog output or the budget
-    format changes, so they run on every box, CI included, where the live
-    detection arm can only skip.
-    """
+def _arms_parser():
+    """Arms over the xvlog output parser, the dedup and the ratchet diff."""
     problems = []
     real = ("INFO: [VRFC 10-311] analyzing module milan_csr\n"
             "ERROR: [VRFC 10-3380] identifier 'lctx_wr_p_r' is used before its "
@@ -1780,7 +1866,12 @@ def _selftest_logic():
     if new != ["c"] or gone != ["b"]:
         problems.append(f"diff: expected new=['c'] gone=['b'], "
                         f"got new={new} gone={gone}")
+    return problems
 
+
+def _arms_budget_format():
+    """Arms over the finding key and the budget's serialise/round-trip contract."""
+    problems = []
     # Identifier-less findings must not collapse: two DISTINCT ones in a file
     # get distinct keys (by message hash), two identical ones share a key.
     a = Finding("m.sv", "VRFC 10-2989", "", "1", "cannot resolve ALPHA")
@@ -1860,7 +1951,13 @@ def _selftest_logic():
             pass
     finally:
         shutil.rmtree(scratch.parent, ignore_errors=True)
+    return problems
 
+
+def _arms_scope_keys():
+    """Arms over the key spelling and the section a finding is filed under."""
+    sub_label = SUBMODULE_TREES[0][0]
+    problems = []
     # ---- scope arms (#224, #236) -------------------------------------------
     # These need no xvlog, so they run in CI too, where the live detection arm
     # can only skip. They are what re-narrowing the scope would break.
@@ -1876,24 +1973,35 @@ def _selftest_logic():
             or section_of("hdl/common/x.sv|C|i") != "hdl"):
         problems.append("section_of: a finding lands in the wrong budget "
                         "section")
+    return problems
 
-    # ---- the setup refusal, one arm per state ([R0] on PR #242) ------------
-    # Injected states, so every arm runs on every box - CI included, where no
-    # submodule is checked out and the live arm can only skip. The two the
-    # review reproduced are `uninitialised` (a standalone clone dropped at the
-    # gitlink path) and `wrong-revision` (a registered submodule moved off the
-    # pin); the previous refusal returned NOTHING for both and the census
-    # called them "the pinned processors". Round 2 reproduced two more, both
-    # `conflicted`: an unmerged index whose one surviving `160000` record was
-    # read as a resolved pin.
-    _PIN = "a25b5cc9794b8e7f70f738548f4d674e9669b469"
-    _OFF = "44489453cf362c7a41c9e020f4896f967dc2a4d1"
 
-    def _fixed(state, expected=_PIN, actual="", files=None):
-        return lambda label, tree, why: TreeState(label, tree, why, state,
-                                                  expected, actual, files)
+#: The revisions the injected-state refusal arms below are written against:
+#: the gitlink the superproject would carry, and a revision that is not it.
+_INJECTED_PIN = "a25b5cc9794b8e7f70f738548f4d674e9669b469"
+_INJECTED_OFF = "44489453cf362c7a41c9e020f4896f967dc2a4d1"
 
-    refusing = {
+
+def _fixed_state(state, expected=_INJECTED_PIN, actual="", files=None):
+    """A tree_state() stand-in that always answers with one fixed state."""
+    return lambda label, tree, why: TreeState(label, tree, why, state,
+                                              expected, actual, files)
+
+
+def _refusal_resolvers():
+    """One tree_state() stand-in per refusable state, keyed on the state.
+
+    Injected, so every arm runs on every box - CI included, where no
+    submodule is checked out and the live arm can only skip. The two [R0]
+    on PR #242 reproduced are `uninitialised` (a standalone clone dropped
+    at the gitlink path) and `wrong-revision` (a registered submodule moved
+    off the pin); the previous refusal returned NOTHING for both and the
+    census called them "the pinned processors". Round 2 reproduced two
+    more, both `conflicted`: an unmerged index whose one surviving `160000`
+    record was read as a resolved pin.
+    """
+    _PIN, _OFF, _fixed = _INJECTED_PIN, _INJECTED_OFF, _fixed_state
+    return {
         "absent": _fixed("absent"),
         "unregistered": _fixed("unregistered", expected="",
                                actual="no index record at the path"),
@@ -1929,6 +2037,14 @@ def _selftest_logic():
                                   "hdl/x.sv"),
         "empty": _fixed("empty", actual=_PIN),
     }
+
+
+def _arms_setup_refusal():
+    """Arms over the setup refusal itself: one injected state at a time."""
+    sub_label = SUBMODULE_TREES[0][0]
+    _PIN, _OFF, _fixed = _INJECTED_PIN, _INJECTED_OFF, _fixed_state
+    refusing = _refusal_resolvers()
+    problems = []
     # Exhaustive by construction: a state added to the enumeration without a
     # refusal arm fails here rather than shipping with an unproved message.
     if set(refusing) != set(_STATE_WHAT):
@@ -1974,7 +2090,13 @@ def _selftest_logic():
     if "REFUSED" not in buf.getvalue():
         problems.append("setup refusal: nothing was printed to stderr, so the "
                         "run would exit 2 with no reason given")
+    return problems
 
+
+def _arms_refusal_precedes_census():
+    """Arms proving main() refuses BEFORE the census, the budget read and the write."""
+    _PIN, _fixed = _INJECTED_PIN, _fixed_state
+    problems = []
     # ...and main() itself must reach that refusal BEFORE the census, before
     # the budget is read and before it is written, in --check AND in default
     # mode. [R0] round 3 measured the escape end to end: a hidden edit was
@@ -2018,7 +2140,12 @@ def _selftest_logic():
             os.environ.pop("XVLOG", None)
         else:
             os.environ["XVLOG"] = saved_xvlog
+    return problems
 
+
+def _arms_blob_id():
+    """Arms over the byte proof's own blob-id arithmetic, checked against git."""
+    problems = []
     # The byte proof's own arithmetic, checked against git rather than against
     # itself: a blob id this reproduces differently from `git hash-object` is
     # a proof that would refuse every clean tree, on both object formats git
@@ -2044,10 +2171,13 @@ def _selftest_logic():
                                 "the byte proof would refuse a clean tree")
     finally:
         shutil.rmtree(hash_tmp, ignore_errors=True)
+    return problems
 
-    # ...and the CLASSIFIER those states come from, against real git fixtures.
-    problems += _selftest_tree_state()
 
+def _arms_population_scope():
+    """Arms over what the analysed population IS: the hdl/ sources git tracks,
+    each checked-out processor tree, and the census count over both."""
+    problems = []
     # #224: the one tracked `.v` under hdl/ is in the analysed set. Asserted
     # against git, not against a hardcoded name, so the arm still bites when
     # another `.v` is added.
@@ -2078,6 +2208,30 @@ def _selftest_logic():
     return problems
 
 
+def _selftest_logic():
+    """Arms that need no xvlog: the parser, the dedup, the ratchet diff.
+
+    These are the parts that rot silently when xvlog output or the budget
+    format changes, so they run on every box, CI included, where the live
+    detection arm can only skip.
+
+    The groups run in the order listed and each returns what it found;
+    `_selftest_tree_state` sits where it always did, between the blob-id
+    arithmetic and the scope arms.
+    """
+    problems = []
+    problems += _arms_parser()
+    problems += _arms_budget_format()
+    problems += _arms_scope_keys()
+    problems += _arms_setup_refusal()
+    problems += _arms_refusal_precedes_census()
+    problems += _arms_blob_id()
+    # ...and the CLASSIFIER those states come from, against real git fixtures.
+    problems += _selftest_tree_state()
+    problems += _arms_population_scope()
+    return problems
+
+
 def _fail_setup(pkg_errors):
     print("xvlog gate: a package will not analyse, so no module can be graded:",
           file=sys.stderr)
@@ -2086,7 +2240,9 @@ def _fail_setup(pkg_errors):
     return 1
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
+    """The gate itself: 0 pass (or a skip, which is not a pass), 1 a regression
+    or a banked fix to record, 2 a setup this gate refuses to measure."""
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",

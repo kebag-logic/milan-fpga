@@ -70,6 +70,8 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -304,6 +306,55 @@ LOCAL_RULES = (
 #: Rule 5 in full. One table, one loop, one message shape.
 SCRUB_RULES = IDENTITY_RULES + LOCAL_RULES
 
+# Every rule in the table has a fixture, and the fixture is in a file type
+# the gate could not see before #247. A count floor with no content floor
+# is how an arm list quietly stops covering a rule it used to cover.
+_SCRUB_FIXTURES = (
+    # (name, path, line, expected class)
+    ("peer-long", "tb/verilator/x/sim_main.cpp",
+     f"    //! the peer ({_PEER_TOKEN}D declared 4ch) accepts\n",
+     "peer product name"),
+    ("peer-short-lowercase", "scripts/probe.py",
+     f"# the {_PEER_TOKEN.lower()} answered the probe\n",
+     "peer product name"),
+    ("suite", "tests/features/x.feature",
+     f"    # {_SUITE_TOKEN} es-4.5 covers this step\n",
+     "compliance suite name"),
+    ("lab", "hdl/milan/x.sv",
+     f"// verified at the {_LAB_TOKENS[0]} plugfest\n",
+     "compliance lab name"),
+    # The four shape fixtures are SPLIT at the exact junction their rule
+    # matches on, so building them here cannot make this file a finding of
+    # its own sweep. Join one back into a single literal and the
+    # gate-scans-itself arm in scrub_selftest reddens: the discipline is self-enforcing.
+    ("home-path", "syn/yosys/x.py",
+     "    # resolved to /home/" + "someone/work instead\n", "home path"),
+    ("bench-address", "tests/features/y.feature",
+     "    # iperf3 -c 192.168." + "127.1 -u -b 950M\n", "bench address"),
+    ("bench-host", "harness/board/x.sh",
+     f"# {_BENCH_HOST_TOKEN}-pi drives outlet 4\n", "bench host prefix"),
+    ("interface-name", "configs/x.yaml",
+     "  iface: enx" + "0011223344ff\n", "MAC-derived interface name"),
+    ("usb-serial", "docs/diagrams/x.svg",
+     "<svg><text>/dev/serial/by-id/usb-" + "FTDI_x</text></svg>\n",
+     "USB serial path"),
+    ("plan-stem", "avdecc/gen_x.py",
+     f"    # graded per the {_PLAN_TOKEN}vtp document\n",
+     "external test-plan name"),
+    ("plan-phrase", "tb/tools/x.py",
+     f"# the official {_PLAN_PHRASE} requires of a listener\n",
+     "external test-plan name"),
+    ("vendor-long", "sw/litex/x.sh",
+     f"# the bench AVB switch ({_VENDOR_TOKEN}) runs pdelay\n",
+     "bench-switch vendor name"),
+    ("vendor-mark", "hdl/milan/x.sv",
+     f"//! power-cycle via the {_VENDOR_MARK.upper()} console\n",
+     "bench-switch vendor name"),
+    ("vendor-mark-spaced", "tb/tools/y.py",
+     f"# reboot the {_VENDOR_MARK.replace(chr(38), ' ' + chr(38) + ' ')} switch\n",
+     "bench-switch vendor name"),
+)
+
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 LINK_SPAN_RE = re.compile(r"!?\[[^\]]*\]\([^)]*\)")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
@@ -392,14 +443,15 @@ def _walk_files():
     rooted, basenames, unignored = _ignore_matchers()
     pruned = _submodule_paths()
 
-    def reincluded(rel):
+    def reincluded(rel: str) -> bool:
         """``rel``, or a directory above it, is named by a ``!`` rule."""
         here = Path(rel)
         candidates = [str(here)] + [str(p) for p in here.parents if str(p) != "."]
         return any(fnmatch.fnmatch(c, pat)
                    for c in candidates for pat in unignored)
 
-    def ignored(rel, name):
+    def ignored(rel: str, name: str) -> bool:
+        """Whether git would leave ``rel`` out; a ``!`` rule puts it back."""
         if name in ALWAYS_PRUNE or rel in pruned:
             return True
         if any(fnmatch.fnmatch(name, pat) for pat in ALWAYS_PRUNE_GLOBS):
@@ -427,23 +479,25 @@ def _walk_files():
     return sorted(found)
 
 
-_INVENTORY = None
-_INVENTORY_SOURCE = "?"
+#: The tracked-file list and how it was obtained, resolved once per run. ONE
+#: container the resolver mutates, rather than two module-level names it had to
+#: declare `global` to rebind: the list and the label describing where it came
+#: from can no longer be written apart, or read apart.
+_INVENTORY = {"files": None, "source": "?"}
 
 
-def inventory():
-    global _INVENTORY, _INVENTORY_SOURCE
-    if _INVENTORY is None:
+def inventory() -> list[str]:
+    """The tracked-file list, resolved once per run, with its source recorded."""
+    if _INVENTORY["files"] is None:
         files = _git_files()
         if files is None:
-            files, _INVENTORY_SOURCE = _walk_files(), "filesystem walk (no git)"
+            _INVENTORY["files"], _INVENTORY["source"] = _walk_files(), "filesystem walk (no git)"
         else:
-            _INVENTORY_SOURCE = "git ls-files"
-        _INVENTORY = files
-    return _INVENTORY
+            _INVENTORY["files"], _INVENTORY["source"] = files, "git ls-files"
+    return _INVENTORY["files"]
 
 
-def tracked(pattern):
+def tracked(pattern: str) -> list[str]:
     """Files matching a git-pathspec-style glob (``*`` also matches ``/``)."""
     return [p for p in inventory() if fnmatch.fnmatch(p, pattern)]
 
@@ -452,7 +506,8 @@ def tracked(pattern):
 # reference resolution
 # --------------------------------------------------------------------------
 
-def norm_join(base, ref):
+def norm_join(base: Path, ref: str) -> str | None:
+    """``base/ref`` normalised, or None when ``..`` climbs out of the tree."""
     parts = []
     for seg in (str(base) + "/" + ref).replace("\\", "/").split("/"):
         if seg == "..":
@@ -465,11 +520,13 @@ def norm_join(base, ref):
     return "/".join(parts)
 
 
-def make_resolver(tracked_md):
+def make_resolver(tracked_md: list[str]) -> Callable[[str, Path], str | None]:
+    """A resolver over one tracked set, so the per-line rules cost no rescan."""
     tracked_set = set(tracked_md)
     by_base = Counter(Path(p).name for p in tracked_md)
 
-    def resolve(ref, filedir):
+    def resolve(ref: str, filedir: Path) -> str | None:
+        """The tracked page a reference names, or None when nothing matches."""
         for base in (filedir, Path("."), Path("docs")):
             n = norm_join(base, ref)
             if n and n in tracked_set:
@@ -483,7 +540,7 @@ def make_resolver(tracked_md):
     return resolve
 
 
-def dead_inside_repo(ref, filedir, tracked_set):
+def dead_inside_repo(ref: str, filedir: Path, tracked_set: set[str]) -> str | None:
     """Repo-internal path that does not exist, or None.
 
     A reference counts as repo-internal only when its *parent directory* is a
@@ -506,7 +563,7 @@ def dead_inside_repo(ref, filedir, tracked_set):
 LINE_ANCHOR_RE = re.compile(r"^L(\d+)(?:-L(\d+))?$")
 
 
-def anchor_overruns(resolved, frag):
+def anchor_overruns(resolved: Path, frag: str) -> str | None:
     """Why a ``#L123`` anchor cannot land, or None when it can.
 
     A citation like ``KL_acmp_lstn_ctx.sv:463`` is only useful as a link if the
@@ -527,8 +584,137 @@ def anchor_overruns(resolved, frag):
     return f"file has {n} lines" if top > n else None
 
 
-def check_md(path, relpath, resolve, tracked_set, obsolete_set=frozenset()):
+@dataclass(frozen=True)
+class _MdRules:
+    """One page's fixed facts: what every per-line rule below needs, and no
+    line of the file changes."""
+
+    path: Path
+    relpath: str
+    filedir: Path
+    resolve: object
+    tracked_set: set
+    obsolete_set: set
+    allow_dead: bool
+
+
+def _hygiene_findings(ctx, lineno, line, in_comment):
+    """(writing-hygiene findings, still-in-a-comment) for one line of prose.
+
+    Only the comment SPAN is exempt: visible text sharing a line with a comment
+    opener or closer is still prose and still checked. The span tracker is the
+    hygiene rules' OWN, so exempting a span here cannot change what the
+    reference rules in `check_md` see.
+    """
+    hvis = line
+    if in_comment:
+        if "-->" in hvis:
+            hvis, in_comment = hvis.split("-->", 1)[1], False
+        else:
+            hvis = ""
+    if not in_comment:
+        hvis = re.sub(r"<!--.*?-->", "", hvis)
+        if "<!--" in hvis:
+            hvis, in_comment = hvis.split("<!--", 1)[0], True
+    hmasked = hvis
+    for allow in HYGIENE_ALLOW:
+        hmasked = hmasked.replace(allow, "#" * len(allow))
     findings = []
+    hm = PROCESS_RE.search(hmasked)
+    if hm:
+        findings.append(
+            f"{ctx.relpath}:{lineno}: process/meta language '{hm.group(0)}' — describe the system, "
+            f"not how the page was produced (if this page is ABOUT the agent workflow, see the "
+            f"note at PROCESS_RE in scripts/docs_check.py)")
+    hm = ATTRIB_RE.search(hmasked)
+    if hm:
+        findings.append(f"{ctx.relpath}:{lineno}: attribution '{hm.group(0)}' — state the clause, "
+                        f"measurement or defect, not who asked")
+    if SECTION_SIGN_RE.search(hmasked):
+        findings.append(f"{ctx.relpath}:{lineno}: section sign — write the word 'Section'")
+    hm = BARE_SECTION_PTR_RE.search(hmasked)
+    if hm:
+        findings.append(f"{ctx.relpath}:{lineno}: un-anchored section pointer "
+                        f"'{hm.group(0).strip()}…' — link the heading anchor instead")
+    return findings, in_comment
+
+
+def _link_findings(ctx, lineno, line):
+    """Link-integrity findings for one line: the target, then the line anchor."""
+    findings = []
+    for lk in LINK_RE.finditer(line):
+        target = lk.group(1)
+        if target.startswith(("http://", "https://", "mailto:", "#")):
+            continue
+        target, _, frag = target.partition("#")
+        if not target:
+            continue
+        resolved = (ctx.path.parent / target).resolve()
+        if not resolved.exists():
+            findings.append(f"{ctx.relpath}:{lineno}: broken link -> {target}")
+            continue
+        over = anchor_overruns(resolved, frag)
+        if over:
+            findings.append(f"{ctx.relpath}:{lineno}: line anchor past end of "
+                            f"file -> {target}#{frag} ({over})")
+    return findings
+
+
+def _obsolete_route_findings(ctx, lineno, line):
+    """Rule 7 findings for one line: routing into an in-place obsolete page."""
+    findings = []
+    for lk in TEXT_LINK_RE.finditer(line):
+        text, target = lk.group(1), lk.group(2)
+        if target.startswith(("http://", "https://", "mailto:", "#")):
+            continue
+        target = target.partition("#")[0]
+        if not target:
+            continue
+        if (ctx.path.parent / target).resolve() not in ctx.obsolete_set:
+            continue
+        if any(w in text.lower() for w in OBSOLETE_LINK_WORDS):
+            continue
+        findings.append(
+            f"{ctx.relpath}:{lineno}: link '{text}' leads to an obsolete "
+            f"page without saying so — label it historical evidence "
+            f"or repoint it at the current authority")
+    return findings
+
+
+def _reference_findings(ctx, lineno, line):
+    """Bare and dead doc-reference findings for one line."""
+    findings = []
+    stripped = LINK_SPAN_RE.sub(" ", line)
+    for cm in CAND_RE.finditer(stripped):
+        ref = cm.group(1)
+        if ref == Path(ctx.relpath).name and "/" not in ref:
+            continue
+        target = ctx.resolve(ref, ctx.filedir)
+        if target and target != ctx.relpath:
+            findings.append(
+                f"{ctx.relpath}:{lineno}: bare reference to {target} — make it a link"
+            )
+            continue
+        if target or ctx.allow_dead:
+            continue
+        if Path(ref).name in RETIRED:
+            findings.append(
+                f"{ctx.relpath}:{lineno}: dead reference to retired doc {ref} — "
+                f"repoint at the living doc or drop it"
+            )
+            continue
+        gone = dead_inside_repo(ref, ctx.filedir, ctx.tracked_set)
+        if gone:
+            findings.append(
+                f"{ctx.relpath}:{lineno}: dead reference to {gone} — no such file "
+                f"in the tree"
+            )
+    return findings
+
+
+def check_md(path: Path, relpath: str, resolve: Callable[[str, Path], str | None],
+             tracked_set: set[str], obsolete_set: frozenset[Path] | set[Path] = frozenset()) -> list[str]:
+    """Every finding one markdown page carries, rules 1-4, 6 and 7."""
     try:
         text = path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
@@ -537,9 +723,11 @@ def check_md(path, relpath, resolve, tracked_set, obsolete_set=frozenset()):
     generated = bool(GENERATED_MARK.search(text[:400]))
     historical = relpath.startswith("docs/history/v1/")
     obsolete = bool(lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]))
-    allow_dead = bool(ALLOW_DEAD_MARK.search(text))
-    filedir = Path(relpath).parent
+    ctx = _MdRules(path=path, relpath=relpath, filedir=Path(relpath).parent,
+                   resolve=resolve, tracked_set=tracked_set, obsolete_set=obsolete_set,
+                   allow_dead=bool(ALLOW_DEAD_MARK.search(text)))
 
+    findings = []
     in_fence = in_comment = h_in_comment = False
     for lineno, line in enumerate(lines, 1):
         if FENCE_RE.match(line):
@@ -558,51 +746,11 @@ def check_md(path, relpath, resolve, tracked_set, obsolete_set=frozenset()):
         if in_fence:
             continue
 
-        # --- writing hygiene (living pages only; see the rules above) ---
-        # Runs BEFORE the whole-line comment skip below, because only the
-        # comment SPAN is exempt: visible text sharing a line with a comment
-        # opener or closer is still prose and still checked. The hygiene
-        # rules keep their own span tracker (h_in_comment) so exempting a
-        # span here cannot change what the reference rules below see.
+        # Writing hygiene, living pages only. It runs BEFORE the whole-line
+        # comment skip below, because only the comment SPAN is exempt.
         if not (historical or obsolete):
-            hvis = line
-            if h_in_comment:
-                if "-->" in hvis:
-                    hvis = hvis.split("-->", 1)[1]
-                    h_in_comment = False
-                else:
-                    hvis = ""
-            if not h_in_comment:
-                hvis = re.sub(r"<!--.*?-->", "", hvis)
-                if "<!--" in hvis:
-                    hvis = hvis.split("<!--", 1)[0]
-                    h_in_comment = True
-            hmasked = hvis
-            for allow in HYGIENE_ALLOW:
-                hmasked = hmasked.replace(allow, "#" * len(allow))
-            hm = PROCESS_RE.search(hmasked)
-            if hm:
-                findings.append(
-                    f"{relpath}:{lineno}: process/meta language "
-                    f"'{hm.group(0)}' — describe the system, not how the "
-                    f"page was produced (if this page is ABOUT the agent "
-                    f"workflow, see the note at PROCESS_RE in "
-                    f"scripts/docs_check.py)")
-            hm = ATTRIB_RE.search(hmasked)
-            if hm:
-                findings.append(
-                    f"{relpath}:{lineno}: attribution '{hm.group(0)}' — "
-                    f"state the clause, measurement or defect, not who asked")
-            if SECTION_SIGN_RE.search(hmasked):
-                findings.append(
-                    f"{relpath}:{lineno}: section sign — write the word "
-                    f"'Section'")
-            hm = BARE_SECTION_PTR_RE.search(hmasked)
-            if hm:
-                findings.append(
-                    f"{relpath}:{lineno}: un-anchored section pointer "
-                    f"'{hm.group(0).strip()}…' — link the heading anchor "
-                    f"instead")
+            hits, h_in_comment = _hygiene_findings(ctx, lineno, line, h_in_comment)
+            findings += hits
 
         # --- whole-line comment skip for the REFERENCE rules below ---
         if "<!--" in line and "-->" not in line:
@@ -613,76 +761,19 @@ def check_md(path, relpath, resolve, tracked_set, obsolete_set=frozenset()):
                 in_comment = False
             continue
 
-        # --- link integrity (target, then line anchor) ---
-        for lk in LINK_RE.finditer(line):
-            target = lk.group(1)
-            if target.startswith(("http://", "https://", "mailto:", "#")):
-                continue
-            target, _, frag = target.partition("#")
-            if not target:
-                continue
-            resolved = (path.parent / target).resolve()
-            if not resolved.exists():
-                findings.append(f"{relpath}:{lineno}: broken link -> {target}")
-                continue
-            over = anchor_overruns(resolved, frag)
-            if over:
-                findings.append(f"{relpath}:{lineno}: line anchor past end of "
-                                f"file -> {target}#{frag} ({over})")
-
-        # --- rule 7: routing into in-place obsolete pages (living pages only) ---
+        findings += _link_findings(ctx, lineno, line)
         if not obsolete:
-            for lk in TEXT_LINK_RE.finditer(line):
-                text, target = lk.group(1), lk.group(2)
-                if target.startswith(("http://", "https://", "mailto:", "#")):
-                    continue
-                target = target.partition("#")[0]
-                if not target:
-                    continue
-                if (path.parent / target).resolve() not in obsolete_set:
-                    continue
-                if any(w in text.lower() for w in OBSOLETE_LINK_WORDS):
-                    continue
-                findings.append(
-                    f"{relpath}:{lineno}: link '{text}' leads to an obsolete "
-                    f"page without saying so — label it historical evidence "
-                    f"or repoint it at the current authority")
-
-        # --- bare + dead doc references (living, non-generated files only) ---
+            findings += _obsolete_route_findings(ctx, lineno, line)
         if generated or historical:
             continue
-        stripped = LINK_SPAN_RE.sub(" ", line)
-        for cm in CAND_RE.finditer(stripped):
-            ref = cm.group(1)
-            if ref == Path(relpath).name and "/" not in ref:
-                continue
-            target = resolve(ref, filedir)
-            if target and target != relpath:
-                findings.append(
-                    f"{relpath}:{lineno}: bare reference to {target} — make it a link"
-                )
-                continue
-            if target or allow_dead:
-                continue
-            if Path(ref).name in RETIRED:
-                findings.append(
-                    f"{relpath}:{lineno}: dead reference to retired doc {ref} — "
-                    f"repoint at the living doc or drop it"
-                )
-                continue
-            gone = dead_inside_repo(ref, filedir, tracked_set)
-            if gone:
-                findings.append(
-                    f"{relpath}:{lineno}: dead reference to {gone} — no such file "
-                    f"in the tree"
-                )
+        findings += _reference_findings(ctx, lineno, line)
     return findings
 
 
 # --------------------------------------------------------------------------
 # rule 5: the privacy scrub, over every tracked text file
 # --------------------------------------------------------------------------
-def scrub_text(relpath, text):
+def scrub_text(relpath: str, text: str) -> list[str]:
     """Findings for one file's text: every rule, every line, class not match."""
     findings = []
     for lineno, line in enumerate(text.splitlines(), 1):
@@ -694,7 +785,7 @@ def scrub_text(relpath, text):
     return findings
 
 
-def scrub_files(root, relpaths):
+def scrub_files(root: Path | str, relpaths: list[str]) -> tuple[list[str], int]:
     """(findings, files scanned) for the scrub over ``relpaths`` under ``root``.
 
     Three exclusions, each of them arm-covered in ``scrub_selftest``:
@@ -724,7 +815,7 @@ def scrub_files(root, relpaths):
     return findings, scanned
 
 
-def scrub_selftest():
+def scrub_selftest() -> tuple[list[str], int, list[str]]:
     """Plant each class in a NON-markdown file and require the scrub to bite.
 
     (problems, arms, skipped). #247: "a scrub gate that has never failed once
@@ -733,7 +824,7 @@ def scrub_selftest():
     """
     problems, arms, skipped = [], 0, []
 
-    def arm(name, rel, body, expect_label):
+    def arm(name: str, rel: str, body: bytes | str, expect_label: str | None) -> None:
         """One planted file. ``expect_label`` None = the fixture must stay clean."""
         nonlocal arms
         arms += 1
@@ -753,57 +844,9 @@ def scrub_selftest():
             problems.append(f"[{name}] caught, but not as {expect_label!r}:"
                             f"\n{text}")
 
-    # Every rule in the table has a fixture, and the fixture is in a file type
-    # the gate could not see before #247. A count floor with no content floor
-    # is how an arm list quietly stops covering a rule it used to cover.
-    fixtures = (
-        # (name, path, line, expected class)
-        ("peer-long", "tb/verilator/x/sim_main.cpp",
-         f"    //! the peer ({_PEER_TOKEN}D declared 4ch) accepts\n",
-         "peer product name"),
-        ("peer-short-lowercase", "scripts/probe.py",
-         f"# the {_PEER_TOKEN.lower()} answered the probe\n",
-         "peer product name"),
-        ("suite", "tests/features/x.feature",
-         f"    # {_SUITE_TOKEN} es-4.5 covers this step\n",
-         "compliance suite name"),
-        ("lab", "hdl/milan/x.sv",
-         f"// verified at the {_LAB_TOKENS[0]} plugfest\n",
-         "compliance lab name"),
-        # The four shape fixtures are SPLIT at the exact junction their rule
-        # matches on, so building them here cannot make this file a finding of
-        # its own sweep. Join one back into a single literal and the
-        # gate-scans-itself arm below reddens: the discipline is self-enforcing.
-        ("home-path", "syn/yosys/x.py",
-         "    # resolved to /home/" + "someone/work instead\n", "home path"),
-        ("bench-address", "tests/features/y.feature",
-         "    # iperf3 -c 192.168." + "127.1 -u -b 950M\n", "bench address"),
-        ("bench-host", "harness/board/x.sh",
-         f"# {_BENCH_HOST_TOKEN}-pi drives outlet 4\n", "bench host prefix"),
-        ("interface-name", "configs/x.yaml",
-         "  iface: enx" + "0011223344ff\n", "MAC-derived interface name"),
-        ("usb-serial", "docs/diagrams/x.svg",
-         "<svg><text>/dev/serial/by-id/usb-" + "FTDI_x</text></svg>\n",
-         "USB serial path"),
-        ("plan-stem", "avdecc/gen_x.py",
-         f"    # graded per the {_PLAN_TOKEN}vtp document\n",
-         "external test-plan name"),
-        ("plan-phrase", "tb/tools/x.py",
-         f"# the official {_PLAN_PHRASE} requires of a listener\n",
-         "external test-plan name"),
-        ("vendor-long", "sw/litex/x.sh",
-         f"# the bench AVB switch ({_VENDOR_TOKEN}) runs pdelay\n",
-         "bench-switch vendor name"),
-        ("vendor-mark", "hdl/milan/x.sv",
-         f"//! power-cycle via the {_VENDOR_MARK.upper()} console\n",
-         "bench-switch vendor name"),
-        ("vendor-mark-spaced", "tb/tools/y.py",
-         f"# reboot the {_VENDOR_MARK.replace(chr(38), ' ' + chr(38) + ' ')} switch\n",
-         "bench-switch vendor name"),
-    )
-    for name, rel, body, label in fixtures:
+    for name, rel, body, label in _SCRUB_FIXTURES:
         arm(name, rel, body, label)
-    covered = {label for _, _, _, label in fixtures}
+    covered = {label for _, _, _, label in _SCRUB_FIXTURES}
     declared = {label for _, label, _ in SCRUB_RULES}
     if covered != declared:
         problems.append(f"[coverage] no fixture for {sorted(declared - covered)}"
@@ -865,7 +908,7 @@ def scrub_selftest():
     return problems, arms, skipped
 
 
-def routing_selftest():
+def routing_selftest() -> tuple[list[str], int]:
     """Rule 7 arms: an obsolete page and a page that links it, four ways.
 
     (problems, arms). The unmarked link must be caught; the labelled link, a
@@ -902,7 +945,8 @@ def routing_selftest():
     return problems, arms
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
+    """0 clean, 1 findings, 2 an arm did not bite - which is not clean."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--selftest", action="store_true",
                     help="run the rule-5 scrub and rule-7 routing arms and stop")
@@ -947,7 +991,7 @@ def main(argv=None):
         print(f)
     print(f"docs_check: {len(findings)} finding(s) across {len(md)} md files "
           f"+ {scanned} scrubbed text files, scrub self-test {arms}/{arms}, "
-          f"routing arms {rarms}/{rarms}{note} [{_INVENTORY_SOURCE}]")
+          f"routing arms {rarms}/{rarms}{note} [{_INVENTORY['source']}]")
     return 1 if findings else 0
 
 

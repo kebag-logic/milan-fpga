@@ -66,7 +66,9 @@ import itertools
 import json
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Any
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -92,8 +94,13 @@ _DECISION = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.Match,
              ast.match_case, ast.ExceptHandler, ast.BoolOp, ast.IfExp,
              ast.Assert, ast.comprehension)
 
+#: One measured unit as the `--json` output publishes it: a Python function's
+#: name/line/loc/depth/decisions, or a procedural block's block/kind/line/loc/
+#: depth/order_dependent, each carrying the `path` it was read from.
+Row = dict[str, str | int | list[str]]
 
-def tree_of(path):
+
+def tree_of(path: str) -> str:
     """Which of the three first-party trees a tracked path belongs to."""
     head = path.split("/", 1)[0]
     return head if head in PROJECT_SUBMODULES else "superproject"
@@ -137,7 +144,7 @@ def _depth(node, level=0):
     return deepest
 
 
-def measure_python_source(src):
+def measure_python_source(src: str) -> list[Row]:
     """Return one row per function defined in `src`."""
     rows = []
     tree = ast.parse(src)
@@ -156,11 +163,12 @@ def measure_python_source(src):
     return rows
 
 
-def python_population():
+def python_population() -> list[str]:
+    """The tracked `.py` under PY_DIRS in all three trees, as the guide scopes it."""
     return [p for p in tracked(*PY_DIRS) if p.endswith(".py")]
 
 
-def measure_python_texts(items):
+def measure_python_texts(items: Iterable[tuple[str, str]]) -> tuple[list[Row], list[str]]:
     """Measure (path, text) pairs. Returns (rows, skipped): a text that does
     not parse is reported in `skipped`, never silently dropped."""
     rows, skipped = [], []
@@ -177,7 +185,8 @@ def measure_python_texts(items):
     return rows, skipped
 
 
-def measure_python():
+def measure_python() -> tuple[list[Row], list[str]]:
+    """Measure the live host-code population, read from the working tree."""
     return measure_python_texts(
         (rel, (REPO / rel).read_text(errors="replace")) for rel in python_population())
 
@@ -217,7 +226,9 @@ class _SvSyntax(Exception):
 
 
 def _sv_strip(text):
-    def blank(m):
+    def blank(m: re.Match[str]) -> str:
+        """The comment, blanked to spaces but keeping its newlines, so every
+        line number this parser later reports is still the source's own."""
         return "".join(ch if ch == "\n" else " " for ch in m.group(0))
     return _SV_COMMENT_RE.sub(blank, text)
 
@@ -263,7 +274,10 @@ class _SvTarget:
         self.segments = segments
         self.name = ".".join(ident for ident, _ in segments)
 
-    def overlaps(self, other):
+    def overlaps(self, other: "_SvTarget") -> bool:
+        """Can these two writes touch a common bit? Different identifiers and
+        provably disjoint constant indices say no; anything else says yes, so
+        a variable index is never used to argue two writes apart."""
         for (ident_a, idx_a), (ident_b, idx_b) in zip(self.segments, other.segments):
             if ident_a != ident_b:
                 return False
@@ -316,6 +330,13 @@ def _sv_assignment_targets(toks):
     return []
 
 
+#: One parsed procedural statement: a tag and the arms that tag implies -
+#: ("seq", [stmt]), ("if", then, else-or-None), ("case", [stmt]), ("loop",
+#: stmt), ("assign", [_SvTarget]) or ("other",). The arms differ per tag, which
+#: is why it stays a tuple the reader matches on rather than one class.
+_Stmt = tuple[Any, ...]
+
+
 class _SvStatements:
     """A recursive-descent reader of ONE procedural statement and what it nests.
 
@@ -329,22 +350,26 @@ class _SvStatements:
         self.toks, self.lines, self.pos = toks, lines, pos
         self.nest = self.max_nest = 0
 
-    def peek(self, k=0):
+    def peek(self, k: int = 0) -> str | None:
+        """The token `k` ahead, or None past the end - looking never consumes."""
         i = self.pos + k
         return self.toks[i] if i < len(self.toks) else None
 
-    def take(self):
+    def take(self) -> str:
+        """The next token, consumed. Running out means the block never closed,
+        which is a reported problem and never a silently shorter block."""
         if self.pos >= len(self.toks):
             raise _SvSyntax("block is not closed before the end of the file")
         self.pos += 1
         return self.toks[self.pos - 1]
 
-    def expect(self, want):
+    def expect(self, want: str) -> None:
+        """Consume `want`, or refuse the block naming the token found instead."""
         t = self.take()
         if t != want:
             raise _SvSyntax(f"expected `{want}`, found `{t}` on line {self.lines[self.pos - 1]}")
 
-    def balanced(self, opener):
+    def balanced(self, opener: str) -> list[str]:
         """Consume a bracketed group starting at the current token; return its inside."""
         self.expect(opener)
         depth, start = 1, self.pos
@@ -353,11 +378,15 @@ class _SvStatements:
             depth += (t in _SV_OPEN) - (t in _SV_CLOSE)
         return self.toks[start:self.pos - 1]
 
-    def label(self):
+    def label(self) -> None:
+        """Step over a `: name` block label, which is decoration and not a statement."""
         if self.peek() == ":" and self.peek(1) is not None and _SV_IDENT_RE.match(self.peek(1)):
             self.pos += 2
 
-    def directives(self):
+    def directives(self) -> None:
+        """Step over compiler directives. Every `ifdef branch is read as live,
+        so a write guarded by one still counts; an `endif sitting just before a
+        closing `end` would otherwise read as an unclosed block."""
         while (t := self.peek()) is not None and t.startswith("`"):
             if t in ("`ifdef", "`ifndef", "`elsif", "`undef"):
                 self.pos += 2
@@ -368,11 +397,14 @@ class _SvStatements:
                 while self.peek() is not None and self.lines[self.pos] == line:
                     self.pos += 1
 
-    def enter(self):
+    def enter(self) -> None:
+        """Record one more level of nesting, and the deepest reached so far."""
         self.nest += 1
         self.max_nest = max(self.max_nest, self.nest)
 
-    def sequence(self, closers):
+    def sequence(self, closers: tuple[str, ...]) -> list[_Stmt]:
+        """The statements up to one of `closers`, which is consumed. Reaching
+        the end of the token stream first means the block never closed."""
         body = []
         while True:
             self.directives()               # an `endif may sit right before the closer
@@ -384,7 +416,9 @@ class _SvStatements:
         self.pos += 1
         return body
 
-    def case_label(self):
+    def case_label(self) -> None:
+        """Step over one case item's labels up to their `:`, brackets included,
+        so a `:` inside a range or a call is not mistaken for the separator."""
         if self.peek() == "default":
             self.pos += 1
             if self.peek() == ":":
@@ -402,7 +436,10 @@ class _SvStatements:
             elif t == "endcase":
                 raise _SvSyntax(f"case item without `:` before line {self.lines[self.pos - 1]}")
 
-    def simple(self):
+    def simple(self) -> _Stmt:
+        """One statement running to `;`, as ("assign", targets) when it starts
+        with a target and an assignment operator and ("other",) otherwise -
+        which is how `x_w = (a == b)` is told from `if (a == b)`."""
         start, depth = self.pos, 0
         while True:
             t = self.take()
@@ -418,7 +455,10 @@ class _SvStatements:
         targets = _sv_assignment_targets(self.toks[start:self.pos - 1])
         return ("assign", targets) if targets else ("other",)
 
-    def statement(self):
+    def statement(self) -> _Stmt:
+        """The next statement and everything it nests. Branch arms are kept
+        apart from sequences here, because that distinction - not the token
+        order - is what later decides whether two writes are exclusive."""
         self.directives()
         t = self.peek()
         if t is None:
@@ -521,7 +561,10 @@ def _sv_order_dependent(stmt):
     """Names written at a point not exclusive with an earlier write they overlap."""
     seen, flagged, ids = [], set(), itertools.count()
 
-    def walk(node, path):
+    def walk(node: _Stmt, path: tuple[tuple[int, int], ...]) -> None:
+        """Visit `node` in source order, carrying the (branch, arm) trail that
+        says which writes could not both run. A write that overlaps an earlier
+        one on a non-exclusive trail is what "priority by source order" means."""
         kind = node[0]
         if kind == "seq":
             for s in node[1]:
@@ -578,7 +621,7 @@ def _sv_blocks(text):
     return blocks, problems
 
 
-def measure_sv_source(text):
+def measure_sv_source(text: str) -> tuple[list[Row], list[tuple[int, str]]]:
     """Return (one row per procedural block, [(line, reason)] for unclosed ones)."""
     rows = []
     blocks, problems = _sv_blocks(text)
@@ -594,11 +637,12 @@ def measure_sv_source(text):
     return rows, problems
 
 
-def sv_population():
+def sv_population() -> list[str]:
+    """The design `.sv` under hdl/ in all three trees; tb/, syn/ and headers are out."""
     return [p for p in tracked(*SV_DIRS) if p.endswith(".sv")]
 
 
-def measure_sv_texts(items):
+def measure_sv_texts(items: Iterable[tuple[str, str]]) -> tuple[list[Row], list[str]]:
     """Measure (path, text) pairs. Returns (rows, skipped) - an unclosed block
     is reported in `skipped` with its line, never silently dropped."""
     rows, skipped = [], []
@@ -612,7 +656,8 @@ def measure_sv_texts(items):
     return rows, skipped
 
 
-def measure_sv():
+def measure_sv() -> tuple[list[Row], list[str]]:
+    """Measure the live RTL population, read from the working tree."""
     return measure_sv_texts(
         (rel, (REPO / rel).read_text(errors="replace")) for rel in sv_population())
 
@@ -624,7 +669,8 @@ PY_FIXTURES = [
     ("flat function is depth 0", "def f():\n    return 1\n", 0, 0),
     ("one if is depth 1", "def f(a):\n    if a:\n        return 1\n    return 0\n", 1, 1),
     ("sibling ifs do not stack", "def f(a):\n    if a:\n        pass\n    if a:\n        pass\n", 1, 2),
-    ("nested if/for stacks", "def f(a):\n    if a:\n        for i in a:\n            if i:\n                pass\n", 3, 3),
+    ("nested if/for stacks",
+     "def f(a):\n    if a:\n        for i in a:\n            if i:\n                pass\n", 3, 3),
     ("a flat elif chain is depth 1",
      "def f(r):\n    if r == 0:\n        pass\n    elif r == 1:\n        pass\n    elif r == 2:\n"
      "        pass\n    elif r == 3:\n        pass\n    elif r == 4:\n        pass\n", 1, 5),
@@ -717,7 +763,10 @@ def _arm(name, ok, detail=""):
     return 0 if ok else 1
 
 
-def selftest():
+def selftest() -> int:
+    """Grade both readers against fixtures whose answer is stated by hand, and
+    require the live scan to reach every tree: a measurement nobody has proven
+    can disagree with the source is a measurement of nothing."""
     failures = 0
     for name, src, want_depth, want_dec in PY_FIXTURES:
         rows = measure_python_source(src)
@@ -785,7 +834,9 @@ def _per_tree(rows, deep):
         print(f"  {tree}: {len(mine)} {deep(mine)}")
 
 
-def main():
+def main() -> int:
+    """Print the ranked tables (or the JSON) and return the process exit code.
+    Nothing here is a gate: only an unmeasured file or block fails the run."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--python", action="store_true", help="host code only")
     ap.add_argument("--sv", action="store_true", help="RTL only")

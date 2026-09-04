@@ -105,6 +105,16 @@ ROLES = {
 
 
 @dataclass(frozen=True)
+class Box:
+    """One drawio vertex's geometry, in diagram user units."""
+
+    x: int
+    y: int
+    width: int
+    height: int
+
+
+@dataclass(frozen=True)
 class Submodule:
     path: str
     url: str
@@ -113,6 +123,7 @@ class Submodule:
 
 
 def git(*args: str) -> str:
+    """One git command's trimmed stdout; a non-zero exit raises, never reads empty."""
     result = subprocess.run(
         ["git", "-C", str(ROOT), *args],
         check=True,
@@ -123,6 +134,7 @@ def git(*args: str) -> str:
 
 
 def read_submodules() -> list[Submodule]:
+    """Every submodule as Git records it, refused unless its role and gates exist."""
     config = configparser.ConfigParser()
     config.read(ROOT / ".gitmodules")
     found: dict[str, str] = {}
@@ -154,10 +166,12 @@ def read_submodules() -> list[Submodule]:
 
 
 def esc(value: object) -> str:
+    """XML-safe text for every generated label, attribute values included."""
     return html.escape(str(value), quote=True)
 
 
 def module_positions() -> dict[str, tuple[int, int]]:
+    """The canvas slot of each submodule card, keyed by its .gitmodules path."""
     return {
         "protocol-processor": (35, 135),
         "gptp-processor": (35, 500),
@@ -166,10 +180,9 @@ def module_positions() -> dict[str, tuple[int, int]]:
     }
 
 
-def svg(modules: list[Submodule]) -> str:
-    positions = module_positions()
-    by_path = {module.path: module for module in modules}
-    lines = [
+def _svg_header() -> list[str]:
+    """The canvas, the arrow marker and the two heading lines."""
+    return [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" '
         f'height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" '
         'font-family="Helvetica,Arial,sans-serif">',
@@ -183,33 +196,38 @@ def svg(modules: list[Submodule]) -> str:
         'Submodule paths and revisions come directly from Git.</text>',
     ]
 
-    root_x, root_y, root_w, root_h = 540, 270, 420, 310
-    lines.extend(
-        [
-            f'<rect x="{root_x}" y="{root_y}" width="{root_w}" '
-            f'height="{root_h}" rx="16" fill="#F3E5F5" '
-            'stroke="#6A1B9A" stroke-width="3"/>',
-            '<text x="750" y="310" text-anchor="middle" font-size="22" '
-            'font-weight="bold" fill="#4A148C">milan-fpga</text>',
-            '<text x="750" y="342" text-anchor="middle" font-size="18" '
-            'fill="#4A148C">integration and verification owner</text>',
-            '<rect x="580" y="375" width="340" height="62" rx="9" '
-            'fill="#FFFFFF" stroke="#7B1FA2"/>',
-            '<text x="750" y="401" text-anchor="middle" font-size="18" '
-            'font-weight="bold">milan_datapath.sv</text>',
-            '<text x="750" y="424" text-anchor="middle" font-size="16">'
-            'primary product boundary</text>',
-            '<rect x="580" y="455" width="340" height="94" rx="9" '
-            'fill="#FFFFFF" stroke="#7B1FA2"/>',
-            '<text x="750" y="480" text-anchor="middle" font-size="18" '
-            'font-weight="bold">Root integration tests</text>',
-            '<text x="750" y="505" text-anchor="middle" font-size="16">'
-            'Donor gates remain</text>',
-            '<text x="750" y="527" text-anchor="middle" font-size="16">'
-            'independently required.</text>',
-        ]
-    )
 
+def _svg_root_box() -> list[str]:
+    """The milan-fpga box: the integration owner and what it owns."""
+    root_x, root_y, root_w, root_h = 540, 270, 420, 310
+    return [
+        f'<rect x="{root_x}" y="{root_y}" width="{root_w}" '
+        f'height="{root_h}" rx="16" fill="#F3E5F5" '
+        'stroke="#6A1B9A" stroke-width="3"/>',
+        '<text x="750" y="310" text-anchor="middle" font-size="22" '
+        'font-weight="bold" fill="#4A148C">milan-fpga</text>',
+        '<text x="750" y="342" text-anchor="middle" font-size="18" '
+        'fill="#4A148C">integration and verification owner</text>',
+        '<rect x="580" y="375" width="340" height="62" rx="9" '
+        'fill="#FFFFFF" stroke="#7B1FA2"/>',
+        '<text x="750" y="401" text-anchor="middle" font-size="18" '
+        'font-weight="bold">milan_datapath.sv</text>',
+        '<text x="750" y="424" text-anchor="middle" font-size="16">'
+        'primary product boundary</text>',
+        '<rect x="580" y="455" width="340" height="94" rx="9" '
+        'fill="#FFFFFF" stroke="#7B1FA2"/>',
+        '<text x="750" y="480" text-anchor="middle" font-size="18" '
+        'font-weight="bold">Root integration tests</text>',
+        '<text x="750" y="505" text-anchor="middle" font-size="16">'
+        'Donor gates remain</text>',
+        '<text x="750" y="527" text-anchor="middle" font-size="16">'
+        'independently required.</text>',
+    ]
+
+
+def _svg_connections() -> list[str]:
+    """The four labelled elbows from each submodule card to the root box."""
+    lines: list[str] = []
     connections = {
         "protocol-processor": ((455, 260), (540, 350), "wrapper"),
         "gptp-processor": ((455, 625), (540, 500), "wrapper"),
@@ -231,135 +249,113 @@ def svg(modules: list[Submodule]) -> str:
             f'text-anchor="middle" font-size="16" fill="#37474F">'
             f'{esc(label)}</text>'
         )
+    return lines
 
-    for path, (x, y) in positions.items():
-        module = by_path[path]
-        role = module.role
-        wrapper = PurePosixPath(role.wrapper)
-        purpose_lines = textwrap.wrap(
-            role.purpose,
-            width=38,
-            break_long_words=False,
-            break_on_hyphens=False,
-        )
-        if len(purpose_lines) > 2:
-            raise SystemExit(f"{path}: purpose needs more than two lines")
-        purpose_y = y + (112 if len(purpose_lines) == 2 else 123)
-        lines.extend(
-            [
-                f'<rect x="{x}" y="{y}" width="420" height="270" rx="13" '
-                f'fill="{role.fill}" stroke="{role.stroke}" stroke-width="2.5"/>',
-                f'<rect x="{x + 18}" y="{y + 17}" width="160" height="32" '
-                f'rx="16" fill="{role.stroke}"/>',
-                f'<text x="{x + 98}" y="{y + 39}" text-anchor="middle" '
-                f'font-size="15" font-weight="bold" fill="#FFFFFF">'
-                f'{esc(role.status)}</text>',
-                f'<text x="{x + 18}" y="{y + 80}" font-size="20" '
-                f'font-weight="bold" fill="#212121">{esc(path)}</text>',
-                *[
-                    f'<text x="{x + 18}" y="{purpose_y + index * 22}" '
-                    f'font-size="16" fill="#37474F">{esc(line)}</text>'
-                    for index, line in enumerate(purpose_lines)
-                ],
-                f'<text x="{x + 18}" y="{y + 162}" font-size="16" '
-                f'fill="#37474F">pin {module.pin[:12]}</text>',
-                f'<text x="{x + 18}" y="{y + 188}" font-size="16" '
-                f'fill="#37474F">{esc(role.path_label)}:</text>',
-                f'<text x="{x + 18}" y="{y + 209}" font-size="16" '
-                f'fill="#37474F">{esc(wrapper.parent)}/</text>',
-                f'<text x="{x + 18}" y="{y + 230}" font-size="16" '
-                f'fill="#37474F">{esc(wrapper.name)}</text>',
-                f'<text x="{x + 18}" y="{y + 254}" font-size="16" '
-                f'fill="#37474F">test: {esc(role.root_gate)}</text>',
-            ]
-        )
 
-    lines.extend(
-        [
-            '<rect x="190" y="785" width="1120" height="70" rx="12" '
-            'fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>',
-            '<text x="750" y="813" text-anchor="middle" font-size="18" '
-            'font-weight="bold" fill="#263238">Evidence rule</text>',
-            '<text x="750" y="839" text-anchor="middle" font-size="17" '
-            'fill="#455A64">Run donor suites before root integration suites.</text>',
-            '</svg>',
-        ]
+def _svg_module_card(path: str, module: Submodule, x: int, y: int) -> list[str]:
+    """One submodule's card: its status, pin, wrapper and root gate."""
+    role = module.role
+    wrapper = PurePosixPath(role.wrapper)
+    purpose_lines = textwrap.wrap(
+        role.purpose,
+        width=38,
+        break_long_words=False,
+        break_on_hyphens=False,
     )
+    if len(purpose_lines) > 2:
+        raise SystemExit(f"{path}: purpose needs more than two lines")
+    purpose_y = y + (112 if len(purpose_lines) == 2 else 123)
+    return [
+        f'<rect x="{x}" y="{y}" width="420" height="270" rx="13" '
+        f'fill="{role.fill}" stroke="{role.stroke}" stroke-width="2.5"/>',
+        f'<rect x="{x + 18}" y="{y + 17}" width="160" height="32" '
+        f'rx="16" fill="{role.stroke}"/>',
+        f'<text x="{x + 98}" y="{y + 39}" text-anchor="middle" '
+        f'font-size="15" font-weight="bold" fill="#FFFFFF">'
+        f'{esc(role.status)}</text>',
+        f'<text x="{x + 18}" y="{y + 80}" font-size="20" '
+        f'font-weight="bold" fill="#212121">{esc(path)}</text>',
+        *[
+            f'<text x="{x + 18}" y="{purpose_y + index * 22}" '
+            f'font-size="16" fill="#37474F">{esc(line)}</text>'
+            for index, line in enumerate(purpose_lines)
+        ],
+        f'<text x="{x + 18}" y="{y + 162}" font-size="16" '
+        f'fill="#37474F">pin {module.pin[:12]}</text>',
+        f'<text x="{x + 18}" y="{y + 188}" font-size="16" '
+        f'fill="#37474F">{esc(role.path_label)}:</text>',
+        f'<text x="{x + 18}" y="{y + 209}" font-size="16" '
+        f'fill="#37474F">{esc(wrapper.parent)}/</text>',
+        f'<text x="{x + 18}" y="{y + 230}" font-size="16" '
+        f'fill="#37474F">{esc(wrapper.name)}</text>',
+        f'<text x="{x + 18}" y="{y + 254}" font-size="16" '
+        f'fill="#37474F">test: {esc(role.root_gate)}</text>',
+    ]
+
+
+def _svg_evidence_rule() -> list[str]:
+    """The closing rule: donor suites run before root integration suites."""
+    return [
+        '<rect x="190" y="785" width="1120" height="70" rx="12" '
+        'fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>',
+        '<text x="750" y="813" text-anchor="middle" font-size="18" '
+        'font-weight="bold" fill="#263238">Evidence rule</text>',
+        '<text x="750" y="839" text-anchor="middle" font-size="17" '
+        'fill="#455A64">Run donor suites before root integration suites.</text>',
+        '</svg>',
+    ]
+
+
+def svg(modules: list[Submodule]) -> str:
+    """The whole rendered boundary map, in the order the reader meets it."""
+    by_path = {module.path: module for module in modules}
+    lines = _svg_header()
+    lines.extend(_svg_root_box())
+    lines.extend(_svg_connections())
+    for path, (x, y) in module_positions().items():
+        lines.extend(_svg_module_card(path, by_path[path], x, y))
+    lines.extend(_svg_evidence_rule())
     return "\n".join(lines) + "\n"
 
 
-def drawio(modules: list[Submodule]) -> str:
-    positions = module_positions()
-    by_path = {module.path: module for module in modules}
-    module_ids = {
-        path: "sub-" + path.replace("/", "-")
-        for path in positions
-    }
-    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-
-    def vertex(
-        ident: str,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        label: str,
-        fill: str,
-        stroke: str,
-        font_size: int = 16,
-    ) -> None:
-        style = (
-            "rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;"
-            f"spacingTop=12;spacingLeft=12;fontSize={font_size};"
-            "fontFamily=Helvetica;"
-            f"fillColor={fill};strokeColor={stroke};strokeWidth=2;"
-        )
-        cells.append(
-            f'<mxCell id="{ident}" value="{esc(label)}" style="{style}" '
-            f'vertex="1" parent="1"><mxGeometry x="{x}" y="{y}" '
-            f'width="{width}" height="{height}" as="geometry"/></mxCell>'
-        )
-
-    vertex(
-        "title",
-        35,
-        25,
-        900,
-        65,
-        "<b>Verified submodule boundaries</b><br>"
-        "Submodule paths and revisions come directly from Git.",
-        "none",
-        "none",
-        22,
+def _vertex_cell(
+    ident: str,
+    box: Box,
+    label: str,
+    palette: tuple[str, str],
+    font_size: int = 16,
+) -> str:
+    """One styled drawio vertex cell, with `palette` as (fill, stroke)."""
+    fill, stroke = palette
+    style = (
+        "rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;"
+        f"spacingTop=12;spacingLeft=12;fontSize={font_size};"
+        "fontFamily=Helvetica;"
+        f"fillColor={fill};strokeColor={stroke};strokeWidth=2;"
     )
-    vertex(
-        "root",
-        540,
-        270,
-        420,
-        310,
-        "<b>milan-fpga</b><br>integration and verification owner<br><br>"
-        "<b>milan_datapath.sv</b><br>primary product boundary<br><br>"
-        "<b>Root integration tests</b><br>"
-        "Donor gates remain<br>independently required.",
-        "#F3E5F5",
-        "#6A1B9A",
-        18,
+    return (
+        f'<mxCell id="{ident}" value="{esc(label)}" style="{style}" '
+        f'vertex="1" parent="1"><mxGeometry x="{box.x}" y="{box.y}" '
+        f'width="{box.width}" height="{box.height}" as="geometry"/></mxCell>'
     )
 
-    for path, (x, y) in positions.items():
-        module = by_path[path]
-        role = module.role
-        wrapper = PurePosixPath(role.wrapper)
-        label = (
-            f"<b>{esc(role.status)}</b><br><br><b>{esc(path)}</b><br>"
-            f"{esc(role.purpose)}<br><br>pin {module.pin[:12]}<br>"
-            f"{esc(role.path_label)}:<br>{esc(wrapper.parent)}/<br>"
-            f"{esc(wrapper.name)}<br>"
-            f"test: {esc(role.root_gate)}"
-        )
-        vertex(module_ids[path], x, y, 420, 270, label, role.fill, role.stroke, 16)
 
+def _module_label(path: str, module: Submodule) -> str:
+    """The card text of one submodule vertex."""
+    role = module.role
+    wrapper = PurePosixPath(role.wrapper)
+    return (
+        f"<b>{esc(role.status)}</b><br><br><b>{esc(path)}</b><br>"
+        f"{esc(role.purpose)}<br><br>pin {module.pin[:12]}<br>"
+        f"{esc(role.path_label)}:<br>{esc(wrapper.parent)}/<br>"
+        f"{esc(wrapper.name)}<br>"
+        f"test: {esc(role.root_gate)}"
+    )
+
+
+def _edge_cells(module_ids: dict[str, str]) -> list[str]:
+    """The four labelled edges from each submodule vertex to the root."""
+    cells: list[str] = []
     edges = [
         ("protocol-processor", "wrapper", False),
         ("gptp-processor", "wrapper", False),
@@ -378,20 +374,54 @@ def drawio(modules: list[Submodule]) -> str:
             f'edge="1" parent="1" source="{module_ids[path]}" target="root">'
             '<mxGeometry relative="1" as="geometry"/></mxCell>'
         )
+    return cells
 
-    vertex(
+
+def drawio(modules: list[Submodule]) -> str:
+    """The same map as an editable drawio document."""
+    positions = module_positions()
+    by_path = {module.path: module for module in modules}
+    module_ids = {
+        path: "sub-" + path.replace("/", "-")
+        for path in positions
+    }
+    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
+    cells.append(_vertex_cell(
+        "title",
+        Box(35, 25, 900, 65),
+        "<b>Verified submodule boundaries</b><br>"
+        "Submodule paths and revisions come directly from Git.",
+        ("none", "none"),
+        22,
+    ))
+    cells.append(_vertex_cell(
+        "root",
+        Box(540, 270, 420, 310),
+        "<b>milan-fpga</b><br>integration and verification owner<br><br>"
+        "<b>milan_datapath.sv</b><br>primary product boundary<br><br>"
+        "<b>Root integration tests</b><br>"
+        "Donor gates remain<br>independently required.",
+        ("#F3E5F5", "#6A1B9A"),
+        18,
+    ))
+    for path, (x, y) in positions.items():
+        module = by_path[path]
+        cells.append(_vertex_cell(
+            module_ids[path],
+            Box(x, y, 420, 270),
+            _module_label(path, module),
+            (module.role.fill, module.role.stroke),
+            16,
+        ))
+    cells.extend(_edge_cells(module_ids))
+    cells.append(_vertex_cell(
         "evidence",
-        190,
-        785,
-        1120,
-        70,
+        Box(190, 785, 1120, 70),
         "<b>Evidence rule</b><br>"
         "Run donor suites before root integration suites.",
-        "#FFFFFF",
-        "#78909C",
+        ("#FFFFFF", "#78909C"),
         16,
-    )
-
+    ))
     body = "".join(cells)
     return (
         '<mxfile host="app.diagrams.net"><diagram name="submodules">'
@@ -403,6 +433,7 @@ def drawio(modules: list[Submodule]) -> str:
 
 
 def check_or_write(path: Path, content: str, checking: bool) -> bool:
+    """Write one generated file, or under --check report whether it is current."""
     if checking:
         return path.is_file() and path.read_text(encoding="utf-8") == content
     path.write_text(content, encoding="utf-8")
@@ -414,6 +445,8 @@ def check_or_write_png(
     drawio_content: str,
     checking: bool,
 ) -> bool:
+    """The raster arm: render the PNG, or ask the manifest whether the reviewed
+    one still answers to this SVG and this .drawio digest."""
     output = BASE.with_suffix(".png")
     digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
     fields = {DRAWIO_HASH_KEY: digest}
@@ -489,6 +522,7 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """The three arms - selftest, --check, regenerate; 1 when an output is stale."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     checking = sys.argv[1:] == ["--check"]

@@ -41,10 +41,10 @@ Run: python3 scripts/ci_litex_env.py [--check]
 """
 
 import argparse
-import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 #: The call this script reads its pin out of, in LiteX's own source.
 #: Deliberately anchored on the repository name as well as the function, so a
@@ -58,8 +58,7 @@ GIT_SETUP = re.compile(
 def _pin():
     """(url, branch, sha) LiteX pins VexiiRiscv to, read out of LiteX."""
     from litex.soc.cores.cpu.vexiiriscv import core
-    src = open(core.__file__, encoding="utf-8").read()
-    m = GIT_SETUP.search(src)
+    m = GIT_SETUP.search(Path(core.__file__).read_text(encoding="utf-8"))
     if not m:
         sys.exit(f"{core.__file__}: no git_setup(\"VexiiRiscv\", ...) call "
                  "with a pinned revision. This script refuses to guess one: "
@@ -72,7 +71,14 @@ def _run(cmd, cwd=None):
     subprocess.run(cmd, cwd=cwd, check=True)
 
 
-def main():
+def main() -> int:
+    """Place the VexiiRiscv source at the revision LiteX itself pins, and say where.
+
+    Always 0: every way this can fail - an unreadable pin, a clone or checkout
+    that does not run, a HEAD that is not the pin - raises or exits rather than
+    returning, because a runner left with the wrong CPU source does not fail
+    the build, it generates a netlist nobody asked for.
+    """
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--check", action="store_true",
                     help="report the pin and the target path, change nothing")
@@ -80,20 +86,20 @@ def main():
 
     from pythondata_cpu_vexiiriscv import data_location
     url, branch, sha = _pin()
-    ext = os.path.join(data_location, "ext", "VexiiRiscv")
+    ext = Path(data_location) / "ext" / "VexiiRiscv"
     print(f"VexiiRiscv pin (read from LiteX): {sha} on {branch} of {url}")
     print(f"target: {ext}")
     if args.check:
         print("--check: nothing done")
         return 0
 
-    if not os.path.isdir(os.path.join(ext, ".git")):
-        os.makedirs(os.path.dirname(ext), exist_ok=True)
+    if not (ext / ".git").is_dir():
+        ext.parent.mkdir(parents=True, exist_ok=True)
         # A blobless clone rather than --depth 1: the pin is not the branch
         # tip, so a shallow clone cannot check it out, and blobless keeps the
         # transfer to the same order as a shallow one.
         _run(["git", "clone", "--filter=blob:none", "--no-checkout",
-              url, ext])
+              url, str(ext)])
     _run(["git", "checkout", "--detach", sha], cwd=ext)
     _run(["git", "submodule", "update", "--init", "--recursive",
           "--filter=blob:none"], cwd=ext)

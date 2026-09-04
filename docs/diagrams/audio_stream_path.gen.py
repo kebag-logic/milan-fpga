@@ -13,8 +13,25 @@ Render PNG with:
 """
 import html
 import sys
+from typing import NamedTuple
 
-def esc(s):
+
+class Rect(NamedTuple):
+    """One box in diagram coordinates: top-left corner plus size."""
+    x: int
+    y: int
+    w: int
+    h: int
+
+
+class LabelFont(NamedTuple):
+    """Point size and weight of a drawio vertex label."""
+    size: int = 12
+    bold: bool = False
+
+
+def esc(s: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
     return html.escape(str(s), quote=True)
 
 # palette (fill, stroke) — DOC_MAP.gen.py family
@@ -28,68 +45,70 @@ GOLD   = ("#FFF8E1", "#F9A825")   # latency tap chips
 # ---- nodes: id -> (x, y, w, h, title, sublines, (fill, stroke)) -------------
 # Talker lane (top), listener lane (bottom). Coordinates hand-placed.
 N = {}
-def node(nid, x, y, w, h, title, sub, col):
-    N[nid] = (x, y, w, h, title, sub, col)
+def node(nid: str, rect: Rect, title: str, sub: list[str],
+         col: tuple[str, str]) -> None:
+    """record one box in `N`; both renderers walk it in this insertion order."""
+    N[nid] = (*rect, title, sub, col)
 
 # --- talker sources (pair-stream frontends) ---
-node("i2s",  60, 170, 268, 78, "KL_aaf_capture_i2s",
+node("i2s", Rect(60, 170, 268, 78), "KL_aaf_capture_i2s",
      ["Pmod I2S2 ADC (CS5343), I2S master", "24.576 MHz MMCM /512 = 48 kHz, slot 0"], BLUE)
-node("tdm",  60, 262, 268, 78, "KL_tdm_capture",
+node("tdm", Rect(60, 262, 268, 78), "KL_tdm_capture",
      ["TDM slave, 8/16/32 slots", "pair k = TDM slots {2k, 2k+1}"], BLUE)
-node("loop", 60, 354, 268, 78, "received AAF loopback",
+node("loop", Rect(60, 354, 268, 78), "received AAF loopback",
      ["accepted depacketizer channel pairs", "elastic replay queues, per RX stream"], BLUE)
-node("tone", 60, 446, 268, 78, "KL_tone_gen",
+node("tone", Rect(60, 446, 268, 78), "KL_tone_gen",
      ["1 kHz 0 dBFS, 48-entry table", "TONE_CTRL 0x6DC"], BLUE)
 
-node("cmux", 440, 288, 268, 116, "KL_chan_map_capture",
+node("cmux", Rect(440, 288, 268, 116), "KL_chan_map_capture",
      ["32-slot map RAM {en, src, idx}", "src: I2S / TDM / TONE / LOOP / zero",
       "CSR 0x900 window (bypass = legacy)"], PURPLE)
 
-node("pkt", 812, 288, 292, 116, "KL_aaf_packetizer",
+node("pkt", Rect(812, 288, 292, 116), "KL_aaf_packetizer",
      ["TCTX xN talkers, 6 samples/ch per PDU", "payload 24*C B, frame 42+24*C B",
       "avtp_timestamp = PHC ns + transit offset", "AAF_CTRL 0x654 + 0x800 TCTX window"], GREEN)
 
 # Other live fabric sources join the AAF talker at the arbiter.
-node("fabricctl", 850, 130, 300, 64, "fabric protocol / time sources",
+node("fabricctl", Rect(850, 130, 300, 64), "fabric protocol / time sources",
      ["protocol processor · MAAP · gPTP · CRF"], GREY)
 
-node("inject", 1208, 288, 268, 116, "fabric egress arbiter",
+node("inject", Rect(1208, 288, 268, 116), "fabric egress arbiter",
      ["adp_tx_arbiter (crf_dp_mux)", "AAF heads the fabric TX trunk;",
       "bandwidth held by processor SRP", "reservation face grants admission"], ORANGE)
 
-node("mactx", 1580, 300, 190, 92, "MAC TX",
+node("mactx", Rect(1580, 300, 190, 92), "MAC TX",
      ["GMII, VLAN SR class", "egress timestamp at MAC boundary"], ORANGE)
 
 # --- wire ---
-node("wire", 1880, 296, 300, 100, "the wire",
+node("wire", Rect(1880, 296, 300, 100), "the wire",
      ["AAF-PCM class A, 8000 PDU/s @48 k", "DMAC = MAAP claim, VLAN SR VID",
       "presentation time rides every PDU"], GOLD)
 
 # --- listener lane ---
-node("macrx", 60, 760, 200, 92, "MAC RX",
+node("macrx", Rect(60, 760, 200, 92), "MAC RX",
      ["rx_axis_from_mac tap", "TCAM DMAC filter"], ORANGE)
-node("parser", 320, 760, 268, 92, "avtp_stream_parser",
+node("parser", Rect(320, 760, 268, 92), "avtp_stream_parser",
      ["+ KL_stream_table: wire-truth", "stream_id match (entry 0 =", "ACMP-bound record)"], GREEN)
-node("rxmon", 648, 748, 296, 116, "KL_avtp_rx_monitor_ctx",
+node("rxmon", Rect(648, 748, 296, 116), "KL_avtp_rx_monitor_ctx",
      ["lock on 1st valid PDU, 8-PDU settle,", "100 ms silence unlock, format compare",
       "0x6B8/0x6BC/0x6C0 - ts_delta 0x6EC"], GREEN)
-node("depkt", 1004, 748, 280, 116, "KL_aaf_rx_depacketizer",
+node("depkt", Rect(1004, 748, 280, 116), "KL_aaf_rx_depacketizer",
      ["S32BE payload, 1 AXIS frame/PDU,", "tuser = stream; commits only on the",
       "monitor accept pulse - PCMRX_CNT 0x6C4"], GREEN)
-node("route", 1344, 760, 240, 92, "KL_pcm_route",
+node("route", Rect(1344, 760, 240, 92), "KL_pcm_route",
      ["route word {RENDER, reserved}", "reset: stream 0 = RENDER"], PURPLE)
 
 # RENDER branch (right)
-node("lpf", 1640, 690, 220, 78, "KL_pcm_lpf",
+node("lpf", Rect(1640, 690, 220, 78), "KL_pcm_lpf",
      ["20 kHz Butterworth biquad", "serial-MAC, ~12 clk/pair",
       "LPF_P=0 PRUNES it (ax7101 does)"], PURPLE)
-node("feed", 1900, 690, 220, 78, "KL_i2s_feed_mux",
+node("feed", Rect(1900, 690, 220, 78), "KL_i2s_feed_mux",
      ["direct listener tap or", "mapped physical pair {0,1}"], PURPLE)
-node("i2spb", 2160, 690, 268, 78, "KL_i2s_playback",
+node("i2spb", Rect(2160, 690, 268, 78), "KL_i2s_playback",
      ["CS4344 DAC, clean-clock free-run", "I2SPB_STAT 0x6D8, wire-truth chans"], BLUE)
-node("cxbar", 1640, 820, 220, 92, "KL_chan_map_render",
+node("cxbar", Rect(1640, 820, 220, 92), "KL_chan_map_render",
      ["64 stream-ch -> 10 phys", "wire-truth channels_per_frame", "CSR 0x900 window"], PURPLE)
-node("tdmout", 2160, 820, 268, 92, "KL_tdm_render",
+node("tdmout", Rect(2160, 820, 268, 92), "KL_tdm_render",
      ["TDM8 out, lane 0 slots 0..7", "double-buffered frames"], BLUE)
 
 W, H = 2500, 1060
@@ -125,7 +144,8 @@ EDGES = [
     ("cxbar", "feed", "h"), ("cxbar", "tdmout", "h"),
 ]
 
-def svg():
+def _svg_canvas():
+    """Opening <svg>, background, arrowhead marker, titles and the lane bands."""
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
          f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
     o.append(f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>')
@@ -146,8 +166,14 @@ def svg():
              f'stroke="#B0BEC5" stroke-width="1.6" stroke-dasharray="7,5"/>')
     o.append(f'<text x="48" y="688" font-size="17" font-weight="bold" fill="#78909C">'
              f'LISTENER - wire to fabric render</text>')
+    return o
 
-    def edge_pts(a, b, kind):
+
+def _svg_edges():
+    """Every routed arrow, then the free-standing annotations that label them."""
+    def edge_pts(a: str, b: str, kind: str) -> list[tuple[float, float]]:
+        """the polyline an edge follows between two nodes: `kind` picks a straight
+        run, an elbow, a vertical drop, or the wrap down the right-hand side."""
         ax, ay, aw, ah = N[a][:4]
         bx, by, bw, bh = N[b][:4]
         if kind in ("h", "pair"):
@@ -162,6 +188,7 @@ def svg():
                     (N[b][0]+N[b][2]/2, by)]
         return []
 
+    o = []
     for a, b, kind in EDGES:
         pts = edge_pts(a, b, kind)
         if not pts:
@@ -185,8 +212,12 @@ def svg():
     o.append('<text x="620" y="600" font-size="13.5" font-weight="bold" fill="#8D6E63">'
              'AAF-PCM PDUs with presentation time (avtp_timestamp) - the reference AVB '
              'switch forwards per the SRP reservation</text>')
+    return o
 
-    # nodes
+
+def _svg_boxes():
+    """The node boxes with their sub-lines, then the latency tap chips."""
+    o = []
     for nid, (x, y, w, h, title, sub, (fill, stroke)) in N.items():
         o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="9" fill="{fill}" '
                  f'stroke="{stroke}" stroke-width="2"/>')
@@ -202,8 +233,12 @@ def svg():
                  f'stroke-width="1.4"/>')
         o.append(f'<text x="{cx}" y="{cy-13}" font-size="11.5" font-weight="bold" '
                  f'fill="#795548" text-anchor="middle">{esc(lab)}</text>')
+    return o
 
-    # legend
+
+def _svg_legend():
+    """The colour key panel and the latency-tap chip sample beside it."""
+    o = []
     lx, ly = 60, 930
     o.append(f'<rect x="{lx}" y="{ly}" width="1080" height="118" rx="10" fill="#FFFFFF" '
              f'stroke="#B0BEC5" stroke-width="1.4"/>')
@@ -228,23 +263,35 @@ def svg():
     o.append(f'<circle cx="{lx+569}" cy="{ly+94}" r="8" fill="{GOLD[1]}" stroke="#795548"/>')
     o.append(f'<text x="{lx+592}" y="{ly+98}" font-size="12.5" fill="#37474F">latency tap '
              f'(docs/AAF_LATENCY_TAPS.md; CSR 0x870)</text>')
+    return o
 
+
+def svg() -> str:
+    """the published .svg. The four parts are concatenated in paint order, so
+    the edges sit under the boxes they connect rather than over their text."""
+    o = _svg_canvas() + _svg_edges() + _svg_boxes() + _svg_legend()
     o.append('</svg>')
     return "\n".join(o)
 
-def drawio():
+def drawio() -> str:
+    """the same path as an editable .drawio: a vertex per node, an ellipse per
+    latency tap, and one routed edge per link."""
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-    def vertex(nid, x, y, w, h, label, fill, stroke, fs=12, bold=False):
+    def vertex(nid: str, rect: Rect, label: str, fill: str, stroke: str,
+               font: LabelFont = LabelFont()) -> None:
+        """one styled drawio box; `font` carries the size and weight of its label."""
         style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
-                 f"fontSize={fs};align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;"
-                 + ("fontStyle=1;" if bold else ""))
+                 f"fontSize={font.size};align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;"
+                 + ("fontStyle=1;" if font.bold else ""))
+        x, y, w, h = rect
         cells.append(f'<mxCell id="{nid}" value="{esc(label)}" style="{style}" vertex="1" '
                      f'parent="1"><mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" '
                      f'as="geometry"/></mxCell>')
-    vertex("title", 40, 20, 1400, 36,
-           "milan-fpga audio stream path - capture to render", "none", "none", 22, True)
+    vertex("title", Rect(40, 20, 1400, 36),
+           "milan-fpga audio stream path - capture to render", "none", "none",
+           LabelFont(22, True))
     for nid, (x, y, w, h, title, sub, (fill, stroke)) in N.items():
-        vertex(f"n_{nid}", x, y, w, h, title + "\n" + "\n".join(sub), fill, stroke)
+        vertex(f"n_{nid}", Rect(x, y, w, h), title + "\n" + "\n".join(sub), fill, stroke)
     for i, (cx, cy, lab) in enumerate(TAPS):
         style = (f"ellipse;whiteSpace=wrap;html=1;fillColor={GOLD[1]};strokeColor=#795548;"
                  f"fontSize=9;verticalLabelPosition=top;verticalAlign=bottom;fontStyle=1;")
@@ -265,6 +312,8 @@ def drawio():
             f'</mxGraphModel></diagram></mxfile>')
 
 base = sys.argv[1] if len(sys.argv) > 1 else "audio_stream_path"
-open(base + ".svg", "w").write(svg())
-open(base + ".drawio", "w").write(drawio())
+with open(base + ".svg", "w") as _f:
+    _f.write(svg())
+with open(base + ".drawio", "w") as _f:
+    _f.write(drawio())
 print("wrote", base + ".svg", "and", base + ".drawio")

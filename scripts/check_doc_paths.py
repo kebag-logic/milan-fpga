@@ -32,6 +32,7 @@ Usage:
 import re
 import subprocess
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -88,7 +89,7 @@ ALLOW = {
 }
 
 
-def tracked():
+def tracked() -> set[Path]:
     """Paths git knows about. An UNTRACKED page is a local working file - a
     handover, a scratch note - and it is allowed to point at anything,
     including other local-only files. Gating it would fail the gate on
@@ -98,7 +99,7 @@ def tracked():
     return {REPO / p for p in out.split("\0") if p}
 
 
-def scanned_files():
+def scanned_files() -> Iterator[Path]:
     """Committed markdown outside the archive."""
     known = tracked()
     for d in ("docs", "harness"):
@@ -111,7 +112,10 @@ def scanned_files():
     yield from (p for p in sorted(REPO.glob("*.md")) if p in known)
 
 
-def citations(text):
+def citations(text: str) -> Iterator[str]:
+    """The backticked tokens in a page that are CLAIMS ABOUT THIS TREE. A
+    template (`tb/<suite>/`) or an elided path names no single file, so it is
+    not a claim and is dropped rather than reported as dangling."""
     for m in CITE_RE.finditer(text):
         tok = m.group(1)
         if not tok.startswith(PREFIXES):
@@ -122,14 +126,14 @@ def citations(text):
         yield tok.rstrip(".,;:")
 
 
-def resolves(tok, md):
+def resolves(tok: str, md: Path) -> bool:
     """A citation may be repo-relative (`hdl/foo.sv`) or relative to the page
     that makes it (`harness/README.md` saying `tests/test_harness.py`). Both
     are honest ways to point at a file, so either resolving is a pass."""
     return (REPO / tok).exists() or (md.parent / tok).exists()
 
 
-def ignored(toks):
+def ignored(toks: list[str]) -> set[str]:
     """Which of these paths git is told to ignore.
 
     A gitignored path is a BUILD ARTIFACT: `sw/builder/out/` exists in a clone
@@ -155,7 +159,7 @@ def ignored(toks):
 ANCHOR_RE = re.compile(r"\[([^\]]+)\]\(([^)#\s]+)#L(\d+)(?:-L(\d+))?\)")
 
 
-def stale_anchors(md):
+def stale_anchors(md: Path) -> list[tuple[str, int, int]]:
     """(link target, cited last line, real line count) for anchors that
     overshoot. Missing targets are NOT reported here - the citation gate
     owns those, and reporting both would print one move as two findings."""
@@ -171,7 +175,10 @@ def stale_anchors(md):
     return out
 
 
-def main():
+def main() -> int:
+    """The gate: every cited repo path resolves and every line anchor still
+    lands inside the file it names. Build artifacts and ledger pages are
+    excused; an ALLOW entry whose path came back is a note, not a failure."""
     listing = "--list" in sys.argv[1:]
     dangling, checked, allowed, ledgers = [], 0, 0, 0
     anchors_checked, overshoot = 0, []

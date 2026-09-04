@@ -94,6 +94,7 @@ entry file, no suites found), which no caller may read as a count of zero.
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -116,13 +117,23 @@ SUITE_TREES = (
     ("gptp-processor/tb/verilator", "gptp-processor", ("gptp-processor/Makefile",)),
 )
 
+#: What `entry_targets()` answers with: the `make` goals each suite directory's
+#: entries actually run, "" standing for the default goal. A key is the suite's
+#: path, or the pair ("*", tree) for a runner that loops over a whole tree with
+#: a shell variable in place of the directory, which reaches every suite in it.
+EntryTable = dict[str | tuple[str, str], set[str]]
+
+#: One executable arm found in a reachable recipe: (target, kind, detail),
+#: where kind is "driver", "define" or "table".
+Arm = tuple[str, str, str]
+
 # --- source hygiene ----------------------------------------------------------
 
 SLASH_FAMILY = {".c", ".cc", ".cpp", ".h", ".hpp", ".sv", ".svh", ".v"}
 HASH_FAMILY = {".py", ".sh", ""}  # "" is a Makefile
 
 
-def strip_source(text, suffix, strings=False):
+def strip_source(text: str, suffix: str, strings: bool = False) -> str:
     """Drop comments and, if asked, string contents, so prose cannot arm or seed.
 
     A `#` preceded by `$`, `{` or `\\` is shell parameter syntax, not a comment.
@@ -199,7 +210,8 @@ REWRITE = re.compile(r"\.replace\s*\(")
 WRITES_BACK = re.compile(r"\.write_text\s*\(|\.write\s*\(|\bopen\s*\([^)]*[\"'][wa]")
 
 
-def parse_makefile(text):
+def parse_makefile(
+        text: str) -> tuple[dict[str, str], dict[str, list[list[str]]], str | None]:
     """(variables, rules, first_target). rules: target -> (prereqs, recipe lines)."""
     text = re.sub(r"\\\n[ \t]*", " ", strip_source(text, ""))
     variables, rules, first, current, in_define = {}, {}, None, [], False
@@ -244,12 +256,14 @@ def parse_makefile(text):
     return variables, rules, first
 
 
-def expand(value, variables, depth=0):
+def expand(value: str, variables: dict[str, str], depth: int = 0) -> str:
     """Expand `$(NAME)` references; functions and automatic variables stay."""
     if depth > 8:
         return value
 
-    def rep(m):
+    def rep(m: re.Match[str]) -> str:
+        """This reference's value, expanded in turn; an unset name stays
+        written as it was, so an arm gated on it is not invented here."""
         name = m.group(1) or m.group(2)
         if name in variables:
             return expand(variables[name], variables, depth + 1)
@@ -257,7 +271,7 @@ def expand(value, variables, depth=0):
     return MAKE_REF.sub(rep, value)
 
 
-def make_invocations(text):
+def make_invocations(text: str) -> list[tuple[str, list[str]]]:
     """[(dir, [targets])] for every `make` an entry file runs; dir None = cwd."""
     calls = []
     for m in CD_MAKE_CALL.finditer(text):
@@ -282,7 +296,7 @@ def make_invocations(text):
     return calls
 
 
-def entry_targets():
+def entry_targets() -> EntryTable:
     """suite -> set of targets its entries run ("" = the default goal)."""
     out = {}
     for tree, root, entries in SUITE_TREES:
@@ -302,7 +316,9 @@ def entry_targets():
     return out
 
 
-def suite_entries(suite, table):
+def suite_entries(suite: str, table: EntryTable) -> set[str]:
+    """Every goal that reaches this suite: the ones named for it by path, plus
+    the ones a whole-tree runner reaches it with."""
     goals = set(table.get(suite, ()))
     for tree, _root, _entries in SUITE_TREES:
         if suite.startswith(tree + "/"):
@@ -310,7 +326,11 @@ def suite_entries(suite, table):
     return goals
 
 
-def reachable_targets(variables, rules, first, goals):
+def reachable_targets(variables: dict[str, str], rules: dict[str, list[list[str]]],
+                      first: str | None, goals: set[str]) -> set[str]:
+    """Every target the entry's goals actually run, through prerequisites and
+    through recursive `make` calls in the recipes. An arm in a target nothing
+    reaches is prose: it is why this walk exists rather than a scan of rules."""
     stack = [variables.get(".DEFAULT_GOAL", first) if g == "" else g for g in goals]
     seen = set()
     while stack:
@@ -327,7 +347,7 @@ def reachable_targets(variables, rules, first, goals):
     return seen
 
 
-def shell_words(segment):
+def shell_words(segment: str) -> tuple[list[str], list[str]]:
     """(leading keywords, command words) of one shell segment. Keywords,
     assignments and a group opener come off the front and a closer off the
     end, so `{ exit 1` and `(exit 1)` both read as `exit 1`."""
@@ -345,7 +365,7 @@ def shell_words(segment):
     return lead, words
 
 
-def set_errexit(words, errexit):
+def set_errexit(words: list[str], errexit: bool) -> bool:
     """errexit after this command: `set -e`/`set +e`, `set -o/+o errexit`."""
     if not words or words[0] != "set":
         return errexit
@@ -358,7 +378,7 @@ def set_errexit(words, errexit):
     return errexit
 
 
-def reraises(segments, k):
+def reraises(segments: list[str], k: int) -> bool:
     """Does the `||` fallback beginning at segment k end in `exit`/`false`,
     so the failure it caught still reaches Make? `|| true`, `|| :` and
     `|| echo ...` do not; `|| exit 1` and `|| { echo ...; exit 1; }` do."""
@@ -375,7 +395,8 @@ def reraises(segments, k):
     return last[0] == "false" or (last[0] == "exit" and (len(last) < 2 or last[1] != "0"))
 
 
-def reaches_make(segments, ops, leads, cmds, i, errexit):
+def reaches_make(segments: list[str], ops: list[str | None], leads: list[list[str]],
+                 cmds: list[list[str]], i: int, errexit: bool) -> bool:
     """Does a non-zero exit of segment i become the recipe line's status?
 
     Make runs the line as one `sh -c` and reads that shell's exit status: an
@@ -398,7 +419,7 @@ def reaches_make(segments, ops, leads, cmds, i, errexit):
     return True
 
 
-def commands(line, errexit=False):
+def commands(line: str, errexit: bool = False) -> list[tuple[str, str | None, bool]]:
     """The (command, argument, counts) triples a recipe line runs, per shell
     segment. `counts` is False where the recipe's own error control (the `-`
     prefix, `||`, `|`, `;`, a condition) keeps the command's failure from
@@ -419,7 +440,7 @@ def commands(line, errexit=False):
     return triples
 
 
-def is_driver(text, suffix):
+def is_driver(text: str, suffix: str) -> bool:
     """A script that carries a mutation/negative table, or rewrites the DUT
     text it reads and runs the harness on the result."""
     code = strip_source(text, suffix, strings=True)
@@ -429,7 +450,7 @@ def is_driver(text, suffix):
                 and WRITES_BACK.search(strip_source(text, suffix)))
 
 
-def arms(makefile, goals, scripts):
+def arms(makefile: str, goals: set[str], scripts: dict[str, str]) -> list[Arm]:
     """Every executable arm: (target, kind, detail). `scripts` maps a script's
     basename to its text; only .py/.sh files are consulted, never prose. A
     recipe whose error control keeps the arm from failing the suite is not
@@ -467,19 +488,22 @@ def arms(makefile, goals, scripts):
     return found
 
 
-def suites():
+def suites() -> list[str]:
+    """The suite inventory: one directory per tracked testbench Makefile."""
     makefiles = tracked("tb/verilator/*/Makefile", "tb/*/Makefile")
     return sorted({str(Path(rel).parent) for rel in makefiles
                    if "/tb/" in rel or rel.startswith("tb/")})
 
 
-def suite_files():
+def suite_files() -> dict[str, list[str]]:
     """suite -> every tracked file under it, from one listing of the trees."""
     files = tracked("tb/*")
     return {name: [rel for rel in files if rel.startswith(name + "/")] for name in suites()}
 
 
-def suite_arms(name, files, table):
+def suite_arms(name: str, files: list[str], table: EntryTable) -> list[Arm]:
+    """One suite's executable arms, read from its Makefile with only the
+    scripts it actually owns offered as candidate drivers."""
     scripts = {Path(rel).name: (REPO / rel).read_text(errors="replace")
                for rel in files if Path(rel).suffix in (".py", ".sh")}
     makefile = (REPO / name / "Makefile").read_text(errors="replace")
@@ -509,7 +533,7 @@ SV_SEED = re.compile(r"\bsrandom\s*\(|\$urandom\s*\(\s*[^\s)]|\$random\s*\(\s*[^
                      r"|\$value\$plusargs\s*\(\s*\"[^\"]*(?i:seed)")
 
 
-def unseeded_draws(text, suffix):
+def unseeded_draws(text: str, suffix: str) -> list[str]:
     """The random-draw shapes in `text` that no recorded seed makes replayable."""
     code = strip_source(text, suffix, strings=True)
     seedable = strip_source(text, suffix)
@@ -543,11 +567,14 @@ def unseeded_draws(text, suffix):
     return found
 
 
-def draws_without_seed(text, suffix=".py"):
+def draws_without_seed(text: str, suffix: str = ".py") -> bool:
+    """Whether this text draws at all without a seed - the yes/no the arms use."""
     return bool(unseeded_draws(text, suffix))
 
 
-def seed_population():
+def seed_population() -> list[str]:
+    """The files judged for replayable randomness: test sources in every
+    language the scan reads, plus the host scripts that generate stimulus."""
     return sorted(tracked("tb/*.py", "tb/*.cpp", "tb/*.cc", "tb/*.c", "tb/*.h",
                           "tb/*.sv", "tb/*.svh", "tb/*.v", "tb/*.sh",
                           "sw/*.py", "scripts/*.py", "tests/*.py"))
@@ -580,7 +607,10 @@ DUT_READER_DISPOSITIONS = {
 }
 
 
-def reads_dut_source(text, suffix=".py"):
+def reads_dut_source(text: str, suffix: str = ".py") -> bool:
+    """Does this test program read production HDL text? A reader is not wrong
+    by itself - a mutation arm has to rewrite the DUT - but it is where an
+    implementation-derived oracle would hide, so each one is classified."""
     code = strip_source(text, suffix)
     if suffix in (".sh", ""):
         return bool(DUT_READ_SH.search(code))
@@ -612,7 +642,7 @@ SH_CLOCK = re.compile(r"^\s*[-@+]*\s*timeout\s+\S|(?<![\w.$])sleep\s+[0-9.]|\$\(
                       r"|^\s*[-@+]*\s*date\b|(?<![\w.$])date\s+\+", re.M)
 
 
-def call_with_keyword(code, call, keyword):
+def call_with_keyword(code: str, call: re.Pattern[str], keyword: str) -> bool:
     """Does any `call(` carry `keyword=` inside its own (balanced) parentheses?"""
     for m in call.finditer(code):
         depth, i = 1, m.end()
@@ -624,7 +654,10 @@ def call_with_keyword(code, call, keyword):
     return False
 
 
-def uses_wall_clock(text, suffix=".py"):
+def uses_wall_clock(text: str, suffix: str = ".py") -> bool:
+    """Does this suite file depend on host time rather than DUT cycles? A
+    cycle-bounded protocol timeout is deterministic and stays out of the count;
+    a clock read, a sleep, or a process/socket deadline does not."""
     code = strip_source(text, suffix)
     if suffix == ".py":
         return bool(PY_CLOCK.search(code) or call_with_keyword(code, PY_DEADLINE_CALL, "timeout"))
@@ -635,7 +668,7 @@ def uses_wall_clock(text, suffix=".py"):
     return False
 
 
-def runner_contract(text):
+def runner_contract(text: str) -> list[str]:
     """Problems in the common sweep's timeout and tally evidence contract."""
     problems = []
     launch = text.find('timeout "$TMO" make')
@@ -658,13 +691,15 @@ def runner_contract(text):
 
 # --- the audit ---------------------------------------------------------------
 
-def test_sources():
+def test_sources() -> list[str]:
+    """Every executable file under a tb/ tree, whether or not a suite owns it -
+    the population the DUT-source-oracle inventory is drawn from."""
     suffixes = {".py", ".cpp", ".cc", ".c", ".h", ".sv", ".svh", ".v", ".sh"}
     return sorted(rel for rel in tracked("tb/*")
                   if Path(rel).suffix in suffixes or Path(rel).name == "Makefile")
 
 
-def suite_sources(by_suite):
+def suite_sources(by_suite: dict[str, list[str]]) -> list[str]:
     """Executable files owned by a directory that the suite inventory names."""
     suffixes = {".py", ".cpp", ".cc", ".c", ".h", ".sv", ".svh", ".v", ".sh"}
     paths = {rel for files in by_suite.values() for rel in files}
@@ -672,11 +707,18 @@ def suite_sources(by_suite):
                   if Path(rel).suffix in suffixes or Path(rel).name == "Makefile")
 
 
-def file_suffix(rel):
+def file_suffix(rel: str) -> str:
+    """Which language's idioms to read this file with; "" selects the Makefile
+    reader, so an extension-less recipe is not read as a shell script."""
     return "" if Path(rel).name == "Makefile" else Path(rel).suffix
 
 
-def audit():
+def audit() -> tuple[dict[str, list[Arm]], list[str], dict[str, list[str]],
+                     list[str], list[str], list[str], list[str]]:
+    """All four inventories in one pass over the trees:
+    (armed, unarmed, unseeded, readers, unexplained, stale, wallclock).
+    `stale` names a recorded disposition whose reader has gone, which is how a
+    classification stops standing for a file nobody reads any more."""
     table = entry_targets()
     by_suite = suite_files()
     armed, unarmed = {}, []
@@ -702,7 +744,10 @@ def audit():
     return armed, unarmed, unseeded, readers, unexplained, stale, wallclock
 
 
-def read_budget():
+def read_budget() -> Sequence[int | None]:
+    """The four ratchets, in the order the budget file writes them. A missing
+    file, or a file short of four numbers, yields None in those places, and
+    main() refuses to grade rather than treating an absence as a zero."""
     if not BUDGET.is_file():
         return None, None, None, None
     vals = [int(x) for x in re.findall(r"^\s*(\d+)\s*$", BUDGET.read_text(), re.M)]
@@ -711,254 +756,21 @@ def read_budget():
 
 # --- self-test ---------------------------------------------------------------
 
-def selftest():
-    failures = total = 0
-
-    def ck(name, ok, detail=""):
-        nonlocal failures, total
-        total += 1
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
-
-    # -- 1. an arm is what the entry executes --------------------------------
-    driver = ("MUTATIONS = [\n  ('x', 'a', 'b'),\n]\n"
-              "def main():\n    return 0\n")
-    default = {""}
-    ck("a reachable target running a mutation driver is armed",
-       bool(arms("all: run mutants\nrun:\n\t./sim\nmutants:\n\tpython3 mutants.py\n",
-                 default, {"mutants.py": driver})))
-    ck("the driver may be reached through a make variable ($(PY) x.py)",
-       bool(arms("PY ?= python3\nall: graderself\ngraderself:\n\t@$(PY) test_grade_tx.py\n",
-                 default, {"test_grade_tx.py": "def mutation_checks(t):\n    pass\n"})))
-    ck("a driver on a target the entry never runs is not an arm",
-       not arms("run:\n\t./sim\nfigures:\n\tpython3 $(CURDIR)/measure_figures.py --check\n",
-                default, {"measure_figures.py": driver}))
-    ck("...until the processor's CI names that target",
-       bool(arms("run:\n\t./sim\nfigures:\n\tpython3 $(CURDIR)/measure_figures.py --check\n",
-                 {"", "figures"}, {"measure_figures.py": driver})))
-    ck("a compile-time mutation define a recipe passes is armed",
-       bool(arms("all: obj_mut/V\nobj_mut/V:\n\tverilator +define+NVM_MUT_MAP_ALIAS x.sv\n",
-                 default, {})))
-    ck("a mutation define reaches the recipe through variable expansion",
-       bool(arms("MUTFLAGS = -DCORE_MUTANT_1\nall:\n\tg++ $(MUTFLAGS) x.cpp\n", default, {})))
-    ck("a negative-case table the recipe consumes is armed",
-       bool(arms("NEG_CASES = W=32 N=0\nall: negative\nnegative:\n\tfor c in $(NEG_CASES); do "
-                 "$(V) -G$$c; done\n", default, {})))
-    ck("a DUT-rewriting driver with no table is still a driver",
-       bool(arms("all: run neg\nrun:\n\t./sim\nneg: run\n\tpython3 binding_mutant.py\n", default,
-                 {"binding_mutant.py": 'FILTER = HERE / "../../../hdl/f.sv"\n'
-                  'src = FILTER.read_text()\nout.write_text(src.replace(A, B))\n'})))
-    ck("a DUT reader that rewrites nothing is not a driver",
-       not arms("all:\n\tpython3 check.py\n", default,
-                {"check.py": 'src = open("../hdl/x.sv").read()\nassert "port" in src\n'}))
-    ck("(A) a suite whose entry runs nothing is not armed",
-       not arms("all:\n\t@true\n# no mutant or negative arm here\n", default, {}))
-    ck("(B) a comment naming mutants.py is not an arm",
-       not arms("# TODO: write a mutants.py like tcam\nall:\n\t./sim\n", default,
-                {"mutants.py": driver}))
-    ck("(C) an unrelated -DUSE_MUTEX define is not an arm, even when passed",
-       not arms("CFLAGS += -DUSE_MUTEX\nall:\n\tg++ $(CFLAGS) x.cpp\n", default, {}))
-    ck("(D) an empty mutants: target is not an arm",
-       not arms("all: mutants\nmutants:\n\t@true\n", default, {"mutants.py": driver}))
-    ck("(E) README prose about a negative arm is not an arm",
-       not arms("all:\n\t./sim\n", default,
-                {"README.md": "Negative: none of the checks has a negative arm yet.\n"
-                              "MUTATIONS = see above\n"}))
-    ck("(F) a comment mentioning --selftest is not an arm",
-       not arms("# run with --selftest to see the fixtures\nall:\n\t./sim\n", default, {}))
-    ck("a driver named as an echo argument is not run, so not an arm",
-       not arms("all:\n\t@echo mutants.py\n", default, {"mutants.py": driver}))
-    ck("a table variable nobody's recipe consumes is not an arm",
-       not arms("NEG_CASES = W=32\nall:\n\t./sim\n", default, {}))
-    ck("mutation prose alone is not an executable arm",
-       not arms("all:\n\t./sim\n# the mutation was run by hand and failed\n", default, {}))
-    ck("a comment marker inside the driver does not make it one",
-       not arms("all:\n\tpython3 x.py\n", default, {"x.py": "# MUTATIONS = none yet\nrun()\n"}))
-    # -- error control: a failure Make never sees is not evidence -------------
-    mut = {"mutants.py": driver}
-    ck("(G) a `-` recipe line ignores errors: `-python3 mutants.py` is not an arm",
-       not arms("all: mutants\nmutants:\n\t-python3 mutants.py\n", default, mut)
-       and not arms("all:\n\t-verilator +define+NVM_MUT_MAP_ALIAS x.sv\n", default, {}))
-    ck("(H) `python3 mutants.py || true` is not an arm: the fallback masks the driver",
-       not arms("all: mutants\nmutants:\n\tpython3 mutants.py || true\n", default, mut))
-    ck("`|| :` and `|| echo ...` mask the same way",
-       not arms("all:\n\tpython3 mutants.py || :\n", default, mut)
-       and not arms("all:\n\tpython3 mutants.py || echo 'mutants failed'\n", default, mut))
-    ck("a `-` on another line of the same target leaves the driver's line evidence",
-       arms("all: mutants\nmutants:\n\t-rm -rf obj_mut\n\tpython3 mutants.py\n", default, mut)
-       == [("mutants", "driver", "mutants.py")])
-    ck("an && chain carries the driver's failure, so it still counts",
-       bool(arms("all:\n\t./sim && python3 mutants.py && echo ok\n", default, mut)))
-    ck("`@-` and `-@` are both the ignore prefix, before and after expansion",
-       not arms("all:\n\t@-python3 mutants.py\n", default, mut)
-       and not arms("all:\n\t-@python3 mutants.py\n", default, mut)
-       and not arms("Q = -\nall:\n\t$(Q)python3 mutants.py\n", default, mut))
-    ck("a `; true` tail masks; `set -e` restores the driver's failure, `set +e` drops it",
-       not arms("all:\n\tpython3 mutants.py; true\n", default, mut)
-       and bool(arms("all:\n\tset -e; python3 mutants.py; rm -rf obj_mut\n", default, mut))
-       and not arms("all:\n\tset -e; set +e; python3 mutants.py; rm -rf obj_mut\n", default, mut))
-    ck("a driver feeding a pipe reports the consumer's status, not its own",
-       not arms("all:\n\tpython3 mutants.py | tee mutants.log\n", default, mut))
-    ck("a fallback that re-raises (`|| exit 1`, `|| { ...; exit 1; }`) still counts",
-       bool(arms("all:\n\tpython3 mutants.py || exit 1\n", default, mut))
-       and bool(arms("all:\n\tpython3 mutants.py || { echo FAIL; exit 1; }\n", default, mut))
-       and not arms("all:\n\tpython3 mutants.py || { echo FAIL; exit 0; }\n", default, mut))
-    ck("an if condition, a $$(...) and a backtick substitution are not arms",
-       not arms("all:\n\tif python3 mutants.py; then echo ok; fi\n", default, mut)
-       and not arms("all:\n\techo $$(python3 mutants.py)\n", default, mut)
-       and not arms("all:\n\techo `python3 mutants.py`\n", default, mut))
-    ck(".IGNORE makes a target's, or every, recipe non-evidence",
-       not arms(".IGNORE: mutants\nall: mutants\nmutants:\n\tpython3 mutants.py\n", default, mut)
-       and not arms(".IGNORE:\nall:\n\tpython3 mutants.py\n", default, mut)
-       and bool(arms(".IGNORE: clean\nall:\n\tpython3 mutants.py\n", default, mut)))
-    calls = make_invocations('for d in tb/*/; do\n  if (cd "$d" && make) >"$log" 2>&1; then\n'
-                             'make -C tb/nvm_port figures\n$(MAKE) -C tb/verilator/ucpu\n')
-    ck("the entry reader sees the loop, the named target and the sub-make",
-       calls == [("$d", []), ("tb/nvm_port", ["figures"]), ("tb/verilator/ucpu", [])], str(calls))
-
-    # -- 2. replayable randomness, one arm per idiom ----------------------
-    ck("an unseeded draw is caught", draws_without_seed("x = random.choice([1,2])"))
-    ck("a seeded draw is not", not draws_without_seed("random.seed(11)\nx = random.choice([1,2])"))
-    ck("a Random(seed) instance counts as seeded",
-       not draws_without_seed("rng = random.Random(13)\nx = rng.choice([1,2])"))
-    ck("the guide's TEST_SEED pattern is clean",
-       not draws_without_seed('seed = int(os.environ.get("TEST_SEED", "23"))\n'
-                              'print(f"TEST_SEED={seed}")\nrng = random.Random(seed)\n'
-                              'frame = bytes(rng.randrange(256) for _ in range(64))\n'))
-    ck("an unseeded random.Random() instance draw is caught",
-       draws_without_seed("_rng = random.Random()\n_probe = _rng.randint(0, 9)\n"))
-    ck("a SystemRandom draw is caught (it cannot be seeded)",
-       draws_without_seed("g = random.SystemRandom()\nx = g.random()\n"))
-    ck("from random import randint is caught",
-       draws_without_seed("from random import randint\nx = randint(0, 9)\n"))
-    ck("...and seeded through seed() is not",
-       not draws_without_seed("from random import randint, seed\nseed(7)\nx = randint(0, 9)\n"))
-    ck("random.choices and random.gauss are draws",
-       draws_without_seed("a = random.choices(p, k=2)\n") and draws_without_seed("b = random.gauss(0, 1)\n"))
-    ck("np.random draws are caught",
-       draws_without_seed("import numpy as np\n_probe = np.random.randint(0, 9)\n"))
-    ck("...and np.random.seed / default_rng(seed) make them replayable",
-       not draws_without_seed("np.random.seed(3)\nx = np.random.randint(0, 9)\n")
-       and not draws_without_seed("g = np.random.default_rng(7)\n")
-       and draws_without_seed("g = np.random.default_rng()\n"))
-    ck("secrets.randbelow is a draw that can never be seeded",
-       draws_without_seed("import secrets\nx = secrets.randbelow(10)\n"))
-    ck("secrets.token_hex is a nonce, not a draw (known limit)",
-       not draws_without_seed("name = f'ci-{secrets.token_hex(16)}'\n"))
-    ck("a file that never draws is not counted", not draws_without_seed("x = 1"))
-    ck("a C rand() with no srand is caught", draws_without_seed("int x = rand();", ".cpp"))
-    ck("a C rand() with srand is not", not draws_without_seed("srand(7); int x = rand();", ".cpp"))
-    ck("std::rand() is caught", draws_without_seed("static int p = std::rand();", ".cpp"))
-    ck("srand(time(NULL)) is not a recorded seed",
-       draws_without_seed("srand(time(NULL)); int x = rand();", ".cpp"))
-    ck("mt19937(random_device) is caught",
-       draws_without_seed("std::mt19937 _g(std::random_device{}()); int x = _g();", ".cpp"))
-    ck("...unless the seed it produced is recorded",
-       not draws_without_seed('unsigned seed = std::random_device{}(); printf("seed=%u\\n", seed);'
-                              ' std::mt19937 g(seed);', ".cpp"))
-    ck("a literally seeded engine is deterministic",
-       not draws_without_seed("std::mt19937 rng(0xC0FFEE); int x = rng();", ".cpp"))
-    ck("$urandom with no seed is caught", draws_without_seed("a = $urandom;", ".sv"))
-    ck("$urandom_range and $random are caught",
-       draws_without_seed("a = $urandom_range(0, 7);", ".sv") and draws_without_seed("b = $random;", ".sv"))
-    ck("randomize() is a draw", draws_without_seed("if (!pkt.randomize()) $error;", ".svh"))
-    ck("srandom(seed) makes SystemVerilog draws replayable",
-       not draws_without_seed("initial begin $display(seed); process::self().srandom(seed);"
-                              " a = $urandom; end", ".sv"))
-    ck("$urandom(seed) is a seeded draw",
-       not draws_without_seed("a = $urandom(seed); b = $urandom_range(0, 7);", ".sv"))
-    ck("a +seed plusarg records the seed",
-       not draws_without_seed('if (!$value$plusargs("seed=%d", seed)) seed = 1; a = $urandom;', ".sv"))
-    ck("a draw in a comment is not a draw",
-       not draws_without_seed("// calls rand() nowhere\nint x = 1;", ".cpp")
-       and not draws_without_seed("# random.randint(0, 9) would be wrong here\nx = 1\n"))
-    ck("a draw inside a string literal is not a draw",
-       not draws_without_seed('msg = "x = random.randint(0, 9)"\n'))
-    population = seed_population()
-    ck("a depth-1 file of each tb/tests root is in the seed population",
-       "gptp-processor/tb/check_phc_contract.py" in population
-       and "tests/environment.py" in population, f"{len(population)} files")
-    ck("SystemVerilog under tb/ is in the seed population",
-       any(rel.endswith(".sv") for rel in population))
-
-    # -- 3. DUT-source oracles, one arm per idiom ------------------------
-    ck("a test reading an HDL source is an oracle-review candidate",
-       reads_dut_source('RTL = ROOT / "hdl/block.sv"\nsrc = RTL.read_text()'))
-    ck("open(...hdl...).read() is a reader",
-       reads_dut_source('_s = open("../../hdl/packet_engine/KL_pp_nvm_port.sv").read()\n'))
-    ck("readlines() over an hdl path is a reader",
-       reads_dut_source('lines = open(RTL_PATH).readlines()\nRTL_PATH = "../hdl/x.sv"\n'))
-    ck("a C++ ifstream over an hdl path is a reader",
-       reads_dut_source('std::ifstream f("../../hdl/x.sv");', ".cpp"))
-    ck("an SV `include of production HDL is a reader",
-       reads_dut_source('`include "../../hdl/pkg/x_pkg.svh"', ".sv"))
-    ck("a Makefile grep over $(RTL_DIR) is a reader",
-       reads_dut_source("check:\n\tgrep -c localparam $(RTL_DIR)/x.sv\n", ""))
-    ck("a package import is a binding, not a reader (known limit)",
-       not reads_dut_source("import x_pkg::*;\nmodule wrap;\nendmodule\n", ".sv"))
-    ck("an ordinary behavioral harness is not a source-reader candidate",
-       not reads_dut_source("expect(got, 7);", ".cpp"))
-    ck("a reader mentioned only in a comment is not one",
-       not reads_dut_source('# src = open("../hdl/x.sv").read()\nx = 1\n'))
-
-    # -- 4. wall-clock dependence, one arm per idiom ---------------------
-    ck("host sleep is wall-clock dependent", uses_wall_clock("time.sleep(0.02)"))
-    ck("a cycle timeout is deterministic",
-       not uses_wall_clock("for (int timeout_cycles = 0; timeout_cycles < 32; ++timeout_cycles) tick();", ".cpp"))
-    ck("an int named timeout is not a deadline", not uses_wall_clock("int timeout = 100;", ".cpp"))
-    ck("std::chrono is a host clock", uses_wall_clock("auto t = std::chrono::steady_clock::now();", ".cpp"))
-    ck("clock() and usleep() are host time",
-       uses_wall_clock("double t = clock();", ".cpp") and uses_wall_clock("usleep(1000);", ".cpp"))
-    ck("check_output(..., timeout=) is a process deadline",
-       uses_wall_clock('subprocess.check_output(["true"], timeout=5)'))
-    ck("a timeout keyword after a nested call is still seen",
-       uses_wall_clock("subprocess.run(build(x), timeout=30)"))
-    ck("communicate(timeout=) and select.select are deadlines",
-       uses_wall_clock("out, _ = p.communicate(timeout=10)") and uses_wall_clock("select.select([s], [], [], 1)"))
-    ck("asyncio.wait_for(..., timeout=) is a deadline; a cycle-bounded wait_for is not",
-       uses_wall_clock("await asyncio.wait_for(evt.wait(), timeout=2)")
-       and not uses_wall_clock("wait_for(dut, done, 200);", ".cpp"))
-    ck("SO_RCVTIMEO is a socket deadline", uses_wall_clock("s.setsockopt(SOL_SOCKET, SO_RCVTIMEO, tv)"))
-    ck("a shell sleep and a Makefile timeout are host time",
-       uses_wall_clock("sleep 2\n", ".sh") and uses_wall_clock("run:\n\ttimeout 60 ./obj_dir/Vsim\n", ""))
-    ck("a comment about sleeping is not host time", not uses_wall_clock("# time.sleep(1) removed\n"))
-
-    # -- tally evidence: the superproject reader refuses the processor shapes
-    scan, nocount = suite_tally.scan, suite_tally.is_nocount
-    c, f, matched, _u, skipped = scan("0 checks: 0 PASS, 0 FAIL\n")
-    ck("a zero tally is NOCOUNT, not a pass", nocount(c, f, matched, skipped))
-    ck("every tally line is summed, not only the last",
-       scan("12 checks: 12 PASS, 0 FAIL\n3 checks: 3 PASS, 0 FAIL\n")[0] == 15)
-    ck("both processor tally shapes are read",
-       scan("checks: 19   failures: 0\n")[0] == 19 and scan("== co-sim: 42 pass, 0 fail ==\n")[0] == 42)
-    ck("a [FAIL] line contradicts a green exit",
-       suite_tally.log_reports_failure("  [FAIL] priority   got=1 exp=0\n")[1])
-
-    runner = (REPO / "scripts/run_all_suites.sh").read_text()
-    ck("the live runner preserves timeout and tally verdicts",
-       not runner_contract(runner), "; ".join(runner_contract(runner)))
-    ck("a timeout reported as failure is rejected",
-       bool(runner_contract(runner.replace("exit 92", "exit 1"))))
-
-    armed, unarmed, unseeded, readers, unexplained, stale, wallclock = audit()
-    ck("the live scan sees the suites", len(armed) + len(unarmed) > 40,
-       f"{len(armed) + len(unarmed)} suites")
-    ck("both sides of the mutation split are non-empty",
-       bool(armed) and bool(unarmed),
-       "an inert classifier would put every suite on one side")
-    ck("every live arm sits on a target the entry executes",
-       all(found for found in armed.values()))
-    ck("every DUT-source reader has a current disposition",
-       not unexplained and not stale, f"unexplained={unexplained}, stale={stale}")
-
-    print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
-    return 1 if failures else 0
+def selftest() -> int:
+    """Run the fixture arms and return their exit code."""
+    # The arms live in ``measure_test_evidence_selftest``: one long list of
+    # independent fixtures with no reader in common with the rules above, and
+    # importing them only when --selftest is asked for keeps this module's own
+    # import free of them.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from measure_test_evidence_selftest import run_arms
+    return run_arms()
 
 
-def main():
+def main() -> int:
+    """Print the four inventories, grade them against the budget under
+    --check, and return the process exit code. An empty suite population is
+    exit 2, never a pass: zero suites without an arm is not the same claim."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="ratchet the four counts")
     ap.add_argument("--selftest", action="store_true", help="run the fixture arms")

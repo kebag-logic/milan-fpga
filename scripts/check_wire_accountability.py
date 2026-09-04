@@ -115,47 +115,87 @@ printed with their owner), 2 = usage/setup.  Needs pyyaml.
 """
 
 import argparse
-import os
 import re
 import sys
+from pathlib import Path
+from types import ModuleType
+from typing import Callable
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_DIR = os.path.join(ROOT, "configs")
-SOC = os.path.join(ROOT, "sw/litex/milan_soc.py")
-DATAPATH = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
-PACKETIZER = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aaf_packetizer.sv")
+ROOT = Path(__file__).resolve().parent.parent
+CONFIG_DIR = ROOT / "configs"
+SOC = ROOT / "sw/litex/milan_soc.py"
+DATAPATH = ROOT / "hdl/milan/milan_datapath.sv"
+PACKETIZER = ROOT / "hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
 
-sys.path.insert(0, os.path.join(ROOT, "sw/builder"))
+#: `sys.path` entries are strings, so this is where a Path stops being one.
+sys.path.insert(0, str(ROOT / "sw" / "builder"))
 
-findings = []
-checks = 0
-quiet = False          #! set while a self-test mutation is being run
+def _read(path: Path) -> str:
+    """The whole of one text file, with the handle closed deterministically."""
+    return path.read_text()
 
 
-def ok(what, detail=""):
-    global checks
-    checks += 1
-    if not quiet:
+class Report:
+    """One run's tally: what has been checked, what failed, and whether a
+    self-test probe is running silently right now.
+
+    These three were module globals that every helper rebound through a
+    `global` statement, and the self-test's probes hand-rolled the same
+    save-mutate-restore around each one.  Holding them on a single object
+    means the check helpers MUTATE the run instead of rebinding a module
+    name, and the save-and-restore lives in `silent_probe` once instead of
+    twice.
+    """
+
+    def __init__(self):
+        self.checks = 0
+        self.findings = []
+        #! set while a self-test mutation is being run
+        self.quiet = False
+
+    def silent_probe(self, run_checks: Callable[[], None]) -> bool:
+        """True when `run_checks()` raised a finding, printing nothing.
+
+        The check tally still advances - a probe's checks really did run, and
+        the count this gate prints has always included them - but the findings
+        belong to the probe, so the caller's list is put back before the
+        answer is returned, even if an arm raises.
+        """
+        saved, self.findings, self.quiet = list(self.findings), [], True
+        try:
+            run_checks()
+            return bool(self.findings)
+        finally:
+            self.findings = saved
+            self.quiet = False
+
+
+REPORT = Report()
+
+
+def ok(what: str, detail: str = "") -> None:
+    """Record a check that held; silent while a self-test probe is running."""
+    REPORT.checks += 1
+    if not REPORT.quiet:
         print(f"  [ok]   {what}{(' = ' + detail) if detail else ''}")
 
 
-def bad(what, owner, detail):
-    global checks
-    checks += 1
-    findings.append((what, owner, detail))
-    if not quiet:
+def bad(what: str, owner: str, detail: str) -> None:
+    """Record a finding WITH THE OWNER who must raise the wire, not a number."""
+    REPORT.checks += 1
+    REPORT.findings.append((what, owner, detail))
+    if not REPORT.quiet:
         print(f"  [FAIL] {what}\n         {detail}\n         OWNER: {owner}")
 
 
-def note(what, detail=""):
+def note(what: str, detail: str = "") -> None:
     """A fact worth printing that is NOT a finding - W3 source coverage.
 
     Counted as a check (it ran, it can be seen), never as a failure: since the
     5.3.7.3 silence fill, an unfed talker streams zeros, and no clause turns
     an unpatched input into a defect."""
-    global checks
-    checks += 1
-    if not quiet:
+    REPORT.checks += 1
+    if not REPORT.quiet:
         print(f"  [note] {what}{(' - ' + detail) if detail else ''}")
 
 
@@ -165,7 +205,7 @@ def note(what, detail=""):
 #  fact about the fabric is how the fact stops being one fact.
 
 
-def i2s_capture_pads(soc_text):
+def i2s_capture_pads(soc_text: str) -> bool:
     """Boards whose I2S capture front-end has real pads behind sdout.
 
     The AX7101 has `_connectors = []`, so there is no pmoda, so `i2s_pads`
@@ -177,10 +217,13 @@ def i2s_capture_pads(soc_text):
 
 
 # --------------------------------------------------------------- the checks --
-def check_config(builder, path, soc_text):
-    name = os.path.basename(path)[:-5]
-    cfg = builder.load_config(path)
-    if not quiet:
+def check_config(builder: ModuleType, path: Path, soc_text: str) -> None:
+    """W1-W4 for one config: the advertisement vs what the build elaborates."""
+    name = path.stem
+    # `load_config` lives in sw/builder and still declares `path: str`, so the
+    # Path stops here rather than crossing into a module this gate does not own.
+    cfg = builder.load_config(str(path))
+    if not REPORT.quiet:
         print(f"\n== {name} ==")
 
     wired = builder.tdm_bus_wired(soc_text)
@@ -249,14 +292,13 @@ def check_config(builder, path, soc_text):
              f"backing for them is roadmap item 5.")
 
     # -- W4: the constant is generated AND consumed --------------------------
-    svh = os.path.join(CONFIG_DIR, "generated", name, "gen",
-                       "adp_shape_defaults.svh")
-    if not os.path.exists(svh):
+    svh = CONFIG_DIR / "generated" / name / "gen" / "adp_shape_defaults.svh"
+    if not svh.exists():
         bad(f"{name}: no generated shape include", "run endstation_builder.py",
             f"{svh} is missing - the wire constant has nowhere to live")
         return
     m = re.search(r"localparam int TALKER_WIRE_CHANS_C\s*=\s*(\d+)\s*;",
-                  open(svh).read())
+                  _read(svh))
     if not m:
         bad(f"{name}: generated shape include carries no TALKER_WIRE_CHANS_C",
             "sw/builder/endstation_builder.py emit_adp_shape_svh",
@@ -271,7 +313,7 @@ def check_config(builder, path, soc_text):
            str(emits))
 
 
-def check_rtl_consumption(dp_text=None):
+def _check_constant_drives_the_wire(dp, pk):
     """W4b: the constant DRIVES the wire instead of describing it.
 
     A build parameter that nothing consumes is a decoration, and this repo has
@@ -280,14 +322,7 @@ def check_rtl_consumption(dp_text=None):
     So: milan_datapath must declare TALKER_WIRE_CHANS_P, hand it to the
     packetizer, and the packetizer must reset its per-talker chans field from
     it - that reset IS the channels_per_frame the wire carries.
-
-    `dp_text` overrides the milan_datapath source so the self-test can prove
-    the W5 checks bite (methodology R2)."""
-    if not quiet:
-        print("\n== the constant reaches the wire ==")
-    dp = dp_text if dp_text is not None else open(DATAPATH).read()
-    pk = open(PACKETIZER).read()
-
+    """
     if re.search(r"parameter int TALKER_WIRE_CHANS_P\s*=\s*2\s*,", dp):
         ok("milan_datapath declares TALKER_WIRE_CHANS_P (default 2)")
     else:
@@ -319,11 +354,15 @@ def check_rtl_consumption(dp_text=None):
             "without the framer being able to back it - which would make it "
             "one more declaration agreeing with the other declarations")
 
-    # -- W5: the 5.3.7.3 silence fill is structurally present ----------------
-    # Each of these is a FAILING check: delete the filler (or its pacing, or
-    # its consumer) and a bound-but-unfed talker goes back to emitting no
-    # frame at all after answering ACMP SUCCESS - the exact state the clause
-    # forbids and the reason W3 could become informational.
+
+def _check_silence_fill_is_real(dp):
+    """W5: the 5.3.7.3 silence fill is structurally present.
+
+    Each of these is a FAILING check: delete the filler (or its pacing, or
+    its consumer) and a bound-but-unfed talker goes back to emitting no
+    frame at all after answering ACMP SUCCESS - the exact state the clause
+    forbids and the reason W3 could become informational.
+    """
     if re.search(r"ZF_TOTAL_C\s*=\s*N_STREAMS\s*\*\s*"
                  r"\(\s*TALKER_WIRE_CHANS_P\s*/\s*2\s*\)", dp):
         ok("W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)")
@@ -374,8 +413,23 @@ def check_rtl_consumption(dp_text=None):
             "with the fabric")
 
 
+def check_rtl_consumption(dp_text: str | None = None) -> None:
+    """The RTL half: W4b (the constant drives the wire) then W5 (the fill).
+
+    `dp_text` overrides the milan_datapath source so the self-test can prove
+    the W5 checks bite (methodology R2)."""
+    if not REPORT.quiet:
+        print("\n== the constant reaches the wire ==")
+    dp = dp_text if dp_text is not None else _read(DATAPATH)
+    pk = _read(PACKETIZER)
+    _check_constant_drives_the_wire(dp, pk)
+    _check_silence_fill_is_real(dp)
+
+
 # ------------------------------------------------------------------- driver --
-def load_builder():
+def load_builder() -> ModuleType:
+    """endstation_builder, or exit 2: an absent builder is setup, not a
+    finding."""
     try:
         import endstation_builder
     except ImportError as e:
@@ -385,49 +439,44 @@ def load_builder():
     return endstation_builder
 
 
-def all_configs():
-    return sorted(os.path.join(CONFIG_DIR, f)
-                  for f in os.listdir(CONFIG_DIR)
-                  if f.startswith("endstation_") and f.endswith(".yaml"))
+def all_configs() -> list[Path]:
+    """Every configs/endstation_*.yaml - the population when none is named."""
+    return sorted(CONFIG_DIR.glob("endstation_*.yaml"))
 
 
-def run(paths=None):
+def run(paths: list[Path] | None = None) -> None:
+    """Check the named configs (or all), then the RTL that consumes the
+    constant."""
     builder = load_builder()
-    soc_text = open(SOC).read()
+    soc_text = _read(SOC)
     for p in (paths or all_configs()):
         check_config(builder, p, soc_text)
     check_rtl_consumption()
 
 
 # ---------------------------------------------------------------- self-test --
-def self_test():
+def self_test() -> bool:
     """A gate that cannot fail is not a gate, and a gate that only fails is
     not one either.  Both directions, on real configs."""
-    global quiet, findings, checks
     builder = load_builder()
-    soc_text = open(SOC).read()
+    soc_text = _read(SOC)
     print("\n== self-test: the gate bites in both directions ==")
     passed = True
 
-    def probe(label, path, text, expect_fail):
+    def probe(label: str, path: Path, text: str, expect_fail: bool) -> None:
+        """check_config on `text`, silently; red unless it matches
+        `expect_fail`."""
         nonlocal passed
-        global quiet, findings
-        quiet, saved = True, list(findings)
-        findings = []
-        try:
-            check_config(builder, path, text)
-            got = bool(findings)
-        finally:
-            findings = saved
-            quiet = False
+        got = REPORT.silent_probe(
+            lambda: check_config(builder, path, text))
         verdict = "as expected" if got == expect_fail else "WRONG"
         if got != expect_fail:
             passed = False
         print(f"  [{'ok' if got == expect_fail else 'FAIL'}]   {label}: "
               f"{'findings' if got else 'clean'} - {verdict}")
 
-    cur = os.path.join(CONFIG_DIR, "endstation_arty_current.yaml")
-    ax = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
+    cur = CONFIG_DIR / "endstation_arty_current.yaml"
+    ax = CONFIG_DIR / "endstation_ax7101_8x8.yaml"
 
     # NEGATIVE CONTROLS: every shipped config is clean now - arty_current
     # streams to the reference device, and the 8x8 emits the 8 channels it
@@ -450,16 +499,9 @@ def self_test():
     # W5 MUST BITE (R2): delete the silence fill from the datapath text and
     # the RTL-consumption pass must fail - a deleted filler is exactly how
     # the 5.3.7.3 violation would silently come back.
-    global quiet, findings
-    quiet, saved = True, list(findings)
-    findings = []
-    try:
-        check_rtl_consumption(
-            open(DATAPATH).read().replace("KL_pair_zero_fill", "KL_deleted"))
-        got = bool(findings)
-    finally:
-        findings = saved
-        quiet = False
+    dp_without_fill = _read(DATAPATH).replace("KL_pair_zero_fill",
+                                              "KL_deleted")
+    got = REPORT.silent_probe(lambda: check_rtl_consumption(dp_without_fill))
     if got:
         print("  [ok]   datapath with the silence fill deleted: findings - "
               "as expected")
@@ -472,20 +514,22 @@ def self_test():
     return passed
 
 
-def main():
+def main() -> int:
+    """Run the gate, optionally prove it bites, print the tally; 1 on a
+    finding."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
     ap.add_argument("--self-test", action="store_true")
-    ap.add_argument("--config", help="check one config")
+    ap.add_argument("--config", type=Path, help="check one config")
     args = ap.parse_args()
 
     run([args.config] if args.config else None)
     st_ok = self_test() if args.self_test else True
 
     print("\n" + "-" * 70)
-    print(f"checks: {checks}   findings: {len(findings)}")
-    if findings:
+    print(f"checks: {REPORT.checks}   findings: {len(REPORT.findings)}")
+    if REPORT.findings:
         print("\nTHE FABRIC CANNOT BACK WHAT THE ENTITY ADVERTISES:\n")
-        for what, owner, detail in findings:
+        for what, owner, detail in REPORT.findings:
             print(f"  * {what}")
             print(f"    {detail}")
             print(f"    OWNER: {owner}\n")
@@ -496,8 +540,8 @@ def main():
               "advertised width the fabric cannot back. Do NOT silence it by "
               "lowering a\ndeclared format: that was tried (dade536) and "
               "reverted (e103d8e).")
-    print(f"RESULT: {'PASS' if not findings and st_ok else 'FAIL'}")
-    return 0 if (not findings and st_ok) else 1
+    print(f"RESULT: {'PASS' if not REPORT.findings and st_ok else 'FAIL'}")
+    return 0 if (not REPORT.findings and st_ok) else 1
 
 
 if __name__ == "__main__":

@@ -138,6 +138,12 @@ def copy_fixture(destination: Path) -> None:
 
 
 def expect_failure(root: Path, needle: str, label: str) -> bool:
+    """Whether the mutated fixture made `validate` report an error naming `needle`.
+
+    A mutation that escapes is printed with the errors that were raised
+    instead, because a silent False here is indistinguishable from a gate
+    that checks nothing.
+    """
     errors = validate(root)
     if not any(needle in error for error in errors):
         print(f"selftest: {label} escaped: {errors}")
@@ -146,6 +152,11 @@ def expect_failure(root: Path, needle: str, label: str) -> bool:
 
 
 def expect_invalid(path: Path, content: bytes, needle: str, label: str) -> bool:
+    """Whether `content` is rejected by the decoder with `needle` in the reason.
+
+    Accepting the wrong reason counts as a failure: a raster missing IDAT and
+    one missing IEND must not be diagnosed with the same message.
+    """
     path.write_bytes(content)
     try:
         inspect_png(path)
@@ -159,6 +170,13 @@ def expect_invalid(path: Path, content: bytes, needle: str, label: str) -> bool:
 
 
 def selftest() -> int:
+    """Prove every assertion this gate makes can fail.
+
+    The committed rasters are copied to a fixture and broken one way at a
+    time - deleted, replaced by non-PNG bytes, desynchronised from their
+    source, blanked to a valid but empty raster, stripped of IDAT or IEND,
+    truncated - and each mutation is required to be caught.
+    """
     baseline_errors = validate(ROOT)
     if baseline_errors:
         print("selftest: committed PNG precondition failed")
@@ -251,6 +269,8 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """Check the committed diagrams, or run the mutation arm under --selftest;
+    1 on findings, 2 on an argument this gate does not take."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     if sys.argv[1:]:

@@ -25,6 +25,7 @@ Usage:
 import html
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "sw" / "litex"))
@@ -34,7 +35,8 @@ sys.path.insert(0, str(REPO / "sw" / "litex"))
 from flash_map import READ_ONLY, check_map, literal, load_map   # noqa: E402
 
 
-def esc(s):
+def esc(s: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
     return html.escape(str(s), quote=True)
 
 
@@ -42,6 +44,16 @@ LAYOUT = literal("FLASHBOOT_LAYOUT")
 MANIFESTS = literal("FLASHBOOT_MANIFESTS")
 ROWS, FLASH_SIZE, ERASE = load_map()
 PROBLEMS = check_map(ROWS, FLASH_SIZE, ERASE)
+
+
+class Box(NamedTuple):
+    """One drawio vertex's geometry, in diagram user units."""
+
+    x: float
+    y: float
+    w: float
+    h: float
+
 
 # palette (fill, stroke)
 BLUE = ("#E3F2FD", "#1565C0")     # gateware
@@ -52,7 +64,13 @@ GREY = ("#ECEFF1", "#90A4AE")     # free space
 RED = ("#FFEBEE", "#C62828")
 
 
-def colour(name, kind):
+def colour(name: str, kind: str) -> tuple[str, str]:
+    """The (fill, stroke) that says what a slot IS, not merely that it exists.
+
+    Orange is the one that earns its place: a slot no shipping manifest
+    carries is one the BIOS will not copy to DRAM, which is invisible in a
+    table of offsets and obvious in the picture.
+    """
     if kind == "reserved":
         return PURPLE
     if name == "bitstream":
@@ -62,7 +80,12 @@ def colour(name, kind):
     return GREEN
 
 
-def human(n):
+def human(n: int) -> str:
+    """A byte count as MiB or KiB, exact whenever the size divides evenly.
+
+    Slot sizes are erase-block multiples, so a fractional MiB in the drawing
+    is a real fact about the map rather than a rounding artefact.
+    """
     if n >= 1 << 20 and n % (1 << 20) == 0:
         return f"{n >> 20} MiB"
     if n >= 1 << 20:
@@ -87,14 +110,18 @@ TXT_X = BAR_X + BAR_W + 40
 W, H = 1620, BAR_Y + BAR_H + 230
 
 
-def band_y(off):
+def band_y(off: int) -> float:
+    """The y of a flash offset on the bar - the one place the map is to scale.
+
+    Every band, tick and leader goes through here, so the proportions cannot
+    drift apart between the bar and the ladder beside it.
+    """
     return BAR_Y + BAR_H * off / FLASH_SIZE
 
 
-def svg():
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
-         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>']
+def _svg_titles() -> list[str]:
+    """The heading, the provenance note and the map-consistency verdict."""
+    o = []
     o.append('<text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">'
              f'QSPI flash map - {human(FLASH_SIZE)} device, drawn to scale</text>')
     o.append('<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from '
@@ -111,8 +138,11 @@ def svg():
 
     o.append(f'<text x="{BAR_X}" y="{BAR_Y-22}" font-size="17" font-weight="bold" '
              f'fill="#78909C">offset 0 at the top</text>')
+    return o
 
-    # label anchors: push apart so the thin bands do not collide
+
+def _label_anchors() -> list[float]:
+    """One label y per band, pushed apart so the thin bands do not collide."""
     LBL_H = 52
     anchors = []
     for name, off, size, kind in BANDS:
@@ -120,7 +150,12 @@ def svg():
     for i in range(1, len(anchors)):
         if anchors[i] - anchors[i - 1] < LBL_H:
             anchors[i] = anchors[i - 1] + LBL_H
+    return anchors
 
+
+def _svg_bands(anchors: list[float]) -> list[str]:
+    """The to-scale bar: a rect, a leader and a detail block per band."""
+    o = []
     for bi, (name, off, size, kind) in enumerate(BANDS):
         y0, y1 = band_y(off), band_y(off + size)
         h = max(y1 - y0, 3)
@@ -166,17 +201,24 @@ def svg():
                 col = "#6A1B9A" if "NEVER" in n else "#37474F"
                 o.append(f'<text x="{TXT_X+430}" y="{ly+14+i*15:.1f}" font-size="11.5" '
                          f'fill="{col}">{esc(n)}</text>')
+    return o
 
-    # scale ticks every MiB
+
+def _svg_scale() -> list[str]:
+    """The MiB tick ladder down the left-hand side of the bar."""
+    o = []
     for mib in range(0, (FLASH_SIZE >> 20) + 1):
         y = band_y(mib << 20)
         o.append(f'<path d="M{BAR_X-12},{y:.1f} L{BAR_X},{y:.1f}" stroke="#90A4AE" '
                  f'stroke-width="1.2"/>')
         o.append(f'<text x="{BAR_X-18}" y="{y+4:.1f}" font-size="11" fill="#90A4AE" '
                  f'text-anchor="end">{mib} MiB</text>')
+    return o
 
-    # manifests
-    my = BAR_Y + BAR_H + 44
+
+def _svg_manifests(my: float) -> list[str]:
+    """The FLASHBOOT_MANIFESTS box: what the BIOS actually copies to DRAM."""
+    o = []
     o.append(f'<rect x="{BAR_X}" y="{my}" width="900" height="{34+len(MANIFESTS)*22}" '
              f'rx="9" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="1.6"/>')
     o.append(f'<text x="{BAR_X+16}" y="{my+24}" font-size="14" font-weight="bold" '
@@ -190,9 +232,12 @@ def svg():
                  f'font-family="monospace" fill="#37474F">'
                  f'{esc(", ".join(imgs) if imgs else "(nothing - serial upload of every image)")}'
                  f'</text>')
+    return o
 
-    # legend
-    ly2 = my
+
+def _svg_rule_panel(ly2: float) -> list[str]:
+    """The red legend panel stating the rule the writable slots protect."""
+    o = []
     o.append(f'<rect x="{BAR_X+940}" y="{ly2}" width="480" height="{34+len(MANIFESTS)*22}" '
              f'rx="9" fill="{RED[0]}" stroke="{RED[1]}" stroke-width="1.6"/>')
     o.append(f'<text x="{BAR_X+956}" y="{ly2+24}" font-size="14" font-weight="bold" '
@@ -203,40 +248,62 @@ def svg():
             "entity then comes back unbound only SOMETIMES."]):
         o.append(f'<text x="{BAR_X+956}" y="{ly2+46+i*20}" font-size="12" fill="#B71C1C">'
                  f'{esc(s)}</text>')
+    return o
 
+
+def svg() -> str:
+    """The whole rendered map, in the order the reader meets it."""
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
+         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>']
+    o += _svg_titles()
+    o += _svg_bands(_label_anchors())
+    o += _svg_scale()
+    my = BAR_Y + BAR_H + 44
+    o += _svg_manifests(my)
+    o += _svg_rule_panel(my)
     o.append('</svg>')
     return "\n".join(o)
 
 
-def drawio():
+def drawio() -> str:
+    """The same map as an editable .drawio, so the picture stays hand-openable.
+
+    The .svg is what the docs embed; this is what someone opens to annotate a
+    proposed layout change before it becomes a milan_soc.py edit.
+    """
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
 
-    def vertex(nid, x, y, w, h, label, fill, stroke, fs=12, bold=False):
+    def vertex(nid: str, box: Box, label: str, palette: tuple[str, str],
+               fs: int = 12, bold: bool = False) -> None:
+        """One drawio vertex, appended to the cell list in document order."""
+        fill, stroke = palette
         style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
                  f"fontSize={fs};align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;"
                  + ("fontStyle=1;" if bold else ""))
         cells.append(f'<mxCell id="{nid}" value="{esc(label)}" style="{style}" vertex="1" '
-                     f'parent="1"><mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" '
-                     f'as="geometry"/></mxCell>')
+                     f'parent="1"><mxGeometry x="{box.x}" y="{box.y}" width="{box.w}" '
+                     f'height="{box.h}" as="geometry"/></mxCell>')
 
-    vertex("title", 40, 20, 1200, 40,
+    vertex("title", Box(40, 20, 1200, 40),
            f"QSPI flash map - {human(FLASH_SIZE)} device, to scale "
-           f"(GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED)", "none", "none", 20, True)
+           f"(GENERATED from FLASHBOOT_LAYOUT + FLASHBOOT_RESERVED)", ("none", "none"),
+           20, True)
     for i, (name, off, size, kind) in enumerate(BANDS):
         y0, y1 = band_y(off), band_y(off + size)
-        fill, stroke = (GREY if kind == "free" else colour(name, kind))
+        palette = (GREY if kind == "free" else colour(name, kind))
         extra = ""
         if name in LAYOUT:
             extra = f"\n-> DRAM 0x{LAYOUT[name]['addr']:08X}"
         if kind == "reserved":
             extra += "\nWRITABLE - a reflash must NEVER erase this"
-        vertex(f"b{i}", BAR_X, y0, BAR_W + 520, max(y1 - y0, 18),
+        vertex(f"b{i}", Box(BAR_X, y0, BAR_W + 520, max(y1 - y0, 18)),
                f"{name}   0x{off:07X}..0x{off+size-1:07X}   {human(size)}{extra}",
-               fill, stroke)
-    vertex("man", BAR_X, BAR_Y + BAR_H + 44, 900, 34 + len(MANIFESTS) * 22,
+               palette)
+    vertex("man", Box(BAR_X, BAR_Y + BAR_H + 44, 900, 34 + len(MANIFESTS) * 22),
            "FLASHBOOT_MANIFESTS - what the BIOS copies to DRAM at boot\n"
            + "\n".join(f"{k}: {', '.join(v) if v else '(nothing - serial upload)'}"
-                       for k, v in MANIFESTS.items()), "#FFFFFF", "#B0BEC5")
+                       for k, v in MANIFESTS.items()), ("#FFFFFF", "#B0BEC5"))
     body = "\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="flash-layout">'
             f'<mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" '

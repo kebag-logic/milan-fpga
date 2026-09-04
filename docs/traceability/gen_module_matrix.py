@@ -39,15 +39,15 @@ Run:  python3 docs/traceability/gen_module_matrix.py [--check]
       --check exits non-zero if the generated files are stale, or if the
       UNTESTED count regressed past the ratchet (for CI).
 """
-import os
 import re
 import sys
+from pathlib import Path
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-HDL = os.path.join(ROOT, "hdl")
-TBDIR = os.path.join(ROOT, "tb", "verilator")
-TRACE = os.path.join(ROOT, "docs", "traceability")
-BUDGET = os.path.join(TRACE, "untested.budget")
+ROOT = Path(__file__).resolve().parents[2]
+HDL = ROOT / "hdl"
+TBDIR = ROOT / "tb" / "verilator"
+TRACE = ROOT / "docs" / "traceability"
+BUDGET = TRACE / "untested.budget"
 
 #: file-banner marker that takes a module out of the untested backlog by
 #: DECISION rather than by test: `Coverage    : ARCHIVED - <reason>`
@@ -55,9 +55,13 @@ ARCHIVE_RE = re.compile(r"^\s*Coverage\s*:\s*ARCHIVED\s*[-:]?\s*(.*)$", re.M)
 
 #: spec family (first path component under hdl/) -> human name + standard
 FAMILY = {
-    "ieee17221": ("IEEE 1722.1 (ATDECC)", "TX arbitration only - the ADP / ACMP / AECP engines are the protocol-processor submodule's"),
+    "ieee17221": ("IEEE 1722.1 (ATDECC)",
+                  "TX arbitration only - the ADP / ACMP / AECP engines are "
+                  "the protocol-processor submodule's"),
     "ieee1722": ("IEEE 1722 (AVTP)", "AAF / CRF / MAAP / AVTP common"),
-    "ieee8021q": ("IEEE 802.1Q", "TS/CBS shaping · VLAN/TCAM filtering (SRP/MRP is the protocol-processor submodule's)"),
+    "ieee8021q": ("IEEE 802.1Q",
+                  "TS/CBS shaping · VLAN/TCAM filtering "
+                  "(SRP/MRP is the protocol-processor submodule's)"),
     "ieee8021as": ("IEEE 802.1AS", "gPTP timestamping / pdelay / sync"),
     "common": ("Common / integration", "CSR, CDC, RMON, utilities"),
     "milan": ("Milan integration", "datapath + top wrappers"),
@@ -67,8 +71,25 @@ FAMILY = {
 #: only the IEEE 1722 AAF campaign is left.
 FUZZ_LEAF = {"avtp": "make aaf", "aaf": "make aaf"}
 
+#: one `rtl_modules()` row: family, leaf, repo-relative path, module or
+#: package name, whether it is a package, and the ARCHIVED reason if any.
+ModuleRow = tuple[str, str, str, str, bool, str | None]
 
-def archive_reason(txt):
+#: one `build()` row - the fields the renderers look up by name.
+MatrixRow = dict[str, object]
+
+
+def _read_text(path: Path, errors: str | None = None) -> str:
+    """Whole file as text, with the handle closed before the caller sees it."""
+    return path.read_text(errors=errors)
+
+
+def _write_text(path: Path, content: str) -> None:
+    """Replace `path` with `content`, closing the handle deterministically."""
+    path.write_text(content)
+
+
+def archive_reason(txt: str) -> str | None:
     """First line of an `Coverage: ARCHIVED - ...` banner marker, or None.
 
     Banner text wraps, so continuation lines (indented, no `Key :` of their
@@ -88,50 +109,50 @@ def archive_reason(txt):
     return " ".join(p for p in parts if p).strip() or "no reason given"
 
 
-def rtl_modules():
+def rtl_modules() -> list[ModuleRow]:
     """[(family, leaf, relpath, module_or_pkg, is_pkg, archived)] per hdl .sv."""
     out = []
-    for dirpath, _dirs, files in os.walk(HDL):
-        for fn in sorted(files):
-            if not fn.endswith(".sv"):
-                continue
-            path = os.path.join(dirpath, fn)
-            rel = os.path.relpath(path, ROOT)
-            parts = os.path.relpath(path, HDL).split(os.sep)
-            family = parts[0]
-            leaf = parts[1] if len(parts) > 2 else parts[0]
-            txt = open(path, errors="ignore").read()
-            arch = archive_reason(txt)
-            # strip comments before the name search: a /* */ banner line that
-            # happens to start with the word "module" must never win over the
-            # real declaration (bit KL_chan_map_capture.sv's 0x0037 banner)
-            scan = re.sub(r"/\*.*?\*/", "", txt, flags=re.S)
-            scan = re.sub(r"//.*", "", scan)
-            m = re.search(r"^\s*module\s+(\w+)", scan, re.M)
-            p = re.search(r"^\s*package\s+(\w+)", scan, re.M)
-            if m:
-                out.append((family, leaf, rel, m.group(1), False, arch))
-            elif p:
-                out.append((family, leaf, rel, p.group(1), True, arch))
+    for path in sorted(HDL.rglob("*.sv")):
+        if not path.is_file():
+            continue
+        # `rel` stays a repo-relative POSIX *string*: it is rendered into the
+        # markdown tables and sorted against other strings there.
+        rel = path.relative_to(ROOT).as_posix()
+        parts = path.relative_to(HDL).parts
+        family = parts[0]
+        leaf = parts[1] if len(parts) > 2 else parts[0]
+        txt = _read_text(path, errors="ignore")
+        arch = archive_reason(txt)
+        # strip comments before the name search: a /* */ banner line that
+        # happens to start with the word "module" must never win over the
+        # real declaration (bit KL_chan_map_capture.sv's 0x0037 banner)
+        scan = re.sub(r"/\*.*?\*/", "", txt, flags=re.S)
+        scan = re.sub(r"//.*", "", scan)
+        m = re.search(r"^\s*module\s+(\w+)", scan, re.M)
+        p = re.search(r"^\s*package\s+(\w+)", scan, re.M)
+        if m:
+            out.append((family, leaf, rel, m.group(1), False, arch))
+        elif p:
+            out.append((family, leaf, rel, p.group(1), True, arch))
     return out
 
 
-def tb_index():
+def tb_index() -> dict[str, set[str]]:
     """basename(.sv) -> sorted set of tb/verilator dirs that compile it."""
     idx = {}
-    if not os.path.isdir(TBDIR):
+    if not TBDIR.is_dir():
         return idx
-    for tb in sorted(os.listdir(TBDIR)):
-        mk = os.path.join(TBDIR, tb, "Makefile")
-        if not os.path.isfile(mk):
+    for tb in sorted(entry.name for entry in TBDIR.iterdir()):
+        mk = TBDIR / tb / "Makefile"
+        if not mk.is_file():
             continue
-        txt = open(mk, errors="ignore").read()
+        txt = _read_text(mk, errors="ignore")
         for base in re.findall(r"([A-Za-z0-9_]+\.sv)", txt):
             idx.setdefault(base, set()).add(tb)
     return idx
 
 
-def instantiation_edges(mods):
+def instantiation_edges(mods: list[ModuleRow]) -> dict[str, set[str]]:
     """module -> set(known modules it instantiates or includes).
 
     Uses the KNOWN module-name set as the candidate list so a plain
@@ -147,7 +168,7 @@ def instantiation_edges(mods):
     edges = {}
     inst_re = {m: re.compile(r"\b%s\s*(?:#\s*\(|\w+\s*\()" % re.escape(m)) for m in known}
     for name, rel in file_of.items():
-        txt = open(os.path.join(ROOT, rel), errors="ignore").read()
+        txt = _read_text(ROOT / rel, errors="ignore")
         # strip block then line comments so a mention in a banner is not counted
         body = re.sub(r"/\*.*?\*/", "", txt, flags=re.S)
         body = re.sub(r"//.*", "", body)
@@ -159,15 +180,17 @@ def instantiation_edges(mods):
                 hit.add(m)
         # `include "child.sv"` -> the module(s) that file defines
         for inc in re.findall(r'`include\s+"([^"]+\.sv)"', txt):
-            base = os.path.basename(inc)
+            base = Path(inc).name
             for m2, r2 in file_of.items():
-                if os.path.basename(r2) == base:
+                if Path(r2).name == base:
                     hit.add(m2)
         edges[name] = hit
     return edges
 
 
-def coverage(mods, tbi):
+def coverage(mods: list[ModuleRow],
+             tbi: dict[str, set[str]]) -> tuple[dict[str, set[str]],
+                                                dict[str, set[str]]]:
     """Return (direct, exercised): module -> set(tb dirs).
 
     direct    = the module's own file is listed by that TB (focused coverage).
@@ -178,7 +201,7 @@ def coverage(mods, tbi):
     for _f, _l, rel, name, is_pkg, _a in mods:
         if is_pkg:
             continue
-        tbs = tbi.get(os.path.basename(rel), set())
+        tbs = tbi.get(Path(rel).name, set())
         if tbs:
             direct[name] = set(tbs)
     edges = instantiation_edges(mods)
@@ -197,33 +220,35 @@ def coverage(mods, tbi):
     return direct, exercised
 
 
-def clause_refs():
+def clause_refs() -> dict[str, set[str]]:
     """basename-token -> set of clause ids mentioned in the same matrix row."""
     refs = {}
     clause_re = re.compile(r"M-[A-Z]+-\d+|§?\d+\.\d+(?:\.\d+)*|7\.4\.\d+")
-    for fn in os.listdir(TRACE):
-        if not fn.endswith(".md") or fn == "MODULE_MATRIX.md":
+    for path in sorted(TRACE.iterdir()):
+        if not path.name.endswith(".md") or path.name == "MODULE_MATRIX.md":
             continue  # skip our own generated output (avoid self-pollution)
-        for line in open(os.path.join(TRACE, fn), errors="ignore"):
-            if not line.startswith("|"):
-                continue
-            mods = re.findall(r"`([A-Za-z0-9_]+)`", line)
-            cls = clause_re.findall(line)
-            if not mods or not cls:
-                continue
-            for mod in mods:
-                refs.setdefault(mod, set()).update(cls[:3])
+        with path.open(errors="ignore") as handle:
+            for line in handle:
+                if not line.startswith("|"):
+                    continue
+                mods = re.findall(r"`([A-Za-z0-9_]+)`", line)
+                cls = clause_re.findall(line)
+                if not mods or not cls:
+                    continue
+                for mod in mods:
+                    refs.setdefault(mod, set()).update(cls[:3])
     return refs
 
 
-def build():
+def build() -> list[MatrixRow]:
+    """Every .sv as one row, and the ONE place a coverage status is decided."""
     mods = rtl_modules()
     tbi = tb_index()
     refs = clause_refs()
     direct, exercised = coverage(mods, tbi)
     rows = []
     for family, leaf, rel, name, is_pkg, arch in mods:
-        base = os.path.basename(rel)
+        base = Path(rel).name
         dtbs = sorted(direct.get(name, set()))
         xtbs = sorted(exercised.get(name, set()) - direct.get(name, set()))
         fuzz = FUZZ_LEAF.get(leaf)
@@ -261,7 +286,7 @@ def _test_cell(r):
     return " · ".join(parts) or "—"
 
 
-def render_coverage_chart(mods):
+def render_coverage_chart(mods: list[MatrixRow]) -> list[str]:
     """Per-family coverage, as a chart and a table — both GENERATED from `mods`.
 
     The tables below answer "does module X have a test"; neither of them
@@ -312,7 +337,8 @@ def render_coverage_chart(mods):
     return out
 
 
-def render_top(rows):
+def render_top(rows: list[MatrixRow]) -> str:
+    """MODULE_MATRIX.md: totals, the backlog, the archive, a table per family."""
     direct = sum(1 for r in rows if r["dtbs"])
     exok = sum(1 for r in rows if r["status"] == "exercised")
     fuzz = sum(1 for r in rows if r["fuzz"])
@@ -374,7 +400,8 @@ def render_top(rows):
     return "\n".join(out) + "\n"
 
 
-def render_leaf(fam, leaf, frows):
+def render_leaf(fam: str, leaf: str, frows: list[MatrixRow]) -> str:
+    """One leaf's README-tests.md, linking back up to the rolled-up index."""
     title, _ = FAMILY.get(fam, (fam, ""))
     # flat families (leaf == fam) live at hdl/<fam>/ — one level shallower
     up = "../../" if leaf == fam else "../../../"
@@ -389,12 +416,12 @@ def render_leaf(fam, leaf, frows):
         cl = ", ".join(r["clauses"][:4]) or "—"
         out.append("| %s `%s` | `%s` | %s | %s |"
                    % (STATUS_GLYPH[r["status"]], r["name"],
-                      os.path.basename(r["rel"]), _test_cell(r), cl))
+                      Path(r["rel"]).name, _test_cell(r), cl))
     out.append("")
     return "\n".join(out) + "\n"
 
 
-def leaf_files(rows):
+def leaf_files(rows: list[MatrixRow]) -> dict[Path, str]:
     """{abs_path: content} for every per-leaf README-tests.md."""
     groups = {}
     for r in rows:
@@ -402,8 +429,8 @@ def leaf_files(rows):
     files = {}
     for (fam, leaf), frows in groups.items():
         # leaf dir: hdl/<fam>/<leaf> unless leaf==fam (flat family like common/milan)
-        d = os.path.join(HDL, fam) if leaf == fam else os.path.join(HDL, fam, leaf)
-        files[os.path.join(d, "README-tests.md")] = render_leaf(fam, leaf, frows)
+        d = HDL / fam if leaf == fam else HDL / fam / leaf
+        files[d / "README-tests.md"] = render_leaf(fam, leaf, frows)
     return files
 
 
@@ -416,10 +443,10 @@ BUDGET_HDR = [
 ]
 
 
-def read_budget(default):
+def read_budget(default: int) -> int:
     """The committed ratchet value, or `default` when the file is missing."""
     try:
-        for line in open(BUDGET).read().splitlines():
+        for line in _read_text(BUDGET).splitlines():
             s = line.strip()
             if s and not s.startswith("#"):
                 return int(s)
@@ -428,23 +455,26 @@ def read_budget(default):
     return default
 
 
-def write_budget(n):
-    open(BUDGET, "w").write("\n".join(BUDGET_HDR) + "\n%d\n" % n)
+def write_budget(n: int) -> None:
+    """Rewrite the ratchet file: the header that states the rule, then `n`."""
+    _write_text(BUDGET, "\n".join(BUDGET_HDR) + "\n%d\n" % n)
 
 
-def main():
+def main() -> int:
+    """Regenerate the artifacts, or under --check report staleness and any
+    regression past the ratchet."""
     check = "--check" in sys.argv
     rows = build()
-    artifacts = {os.path.join(TRACE, "MODULE_MATRIX.md"): render_top(rows)}
+    artifacts = {TRACE / "MODULE_MATRIX.md": render_top(rows)}
     artifacts.update(leaf_files(rows))
     stale = []
     for path, content in artifacts.items():
-        cur = open(path).read() if os.path.exists(path) else None
+        cur = _read_text(path) if path.exists() else None
         if cur != content:
-            stale.append(os.path.relpath(path, ROOT))
+            stale.append(path.relative_to(ROOT).as_posix())
             if not check:
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                open(path, "w").write(content)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                _write_text(path, content)
     mods = [r for r in rows if not r["is_pkg"]]
     unt = [r for r in mods if r["status"] == "UNTESTED"]
     arch = [r for r in mods if r["status"] == "archived"]
@@ -469,7 +499,7 @@ def main():
                   "<= ratchet %d, %d archived)"
                   % (len(mods), len(unt), budget, len(arch)))
         return rc
-    if len(unt) < budget or not os.path.exists(BUDGET):
+    if len(unt) < budget or not BUDGET.exists():
         write_budget(len(unt))
         print("coverage ratchet tightened: %d -> %d untested" % (budget, len(unt)))
         budget = len(unt)

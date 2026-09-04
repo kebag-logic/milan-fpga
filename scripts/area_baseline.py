@@ -40,19 +40,18 @@ USAGE
 from __future__ import annotations
 
 import argparse
-import glob
 import json
-import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_WORK = os.path.expanduser("~/litex-milan/work")
+REPO = Path(__file__).resolve().parent.parent
+DEFAULT_WORK = Path("~/litex-milan/work").expanduser()
 
 
 # ---------------------------------------------------------------- discovery --
-def find_builds(work: str) -> list[str]:
+def find_builds(work: Path) -> list[Path]:
     """Build dirs that actually carry a placed utilization report, newest first.
 
     A directory with only a synth report is a build that died before place;
@@ -60,17 +59,17 @@ def find_builds(work: str) -> list[str]:
     trap above, so those are not offered.
     """
     out = []
-    for d in glob.glob(os.path.join(work, "build_*")):
-        if not os.path.isdir(d):
+    for d in work.glob("build_*"):
+        if not d.is_dir():
             continue
-        if glob.glob(os.path.join(d, "gateware",
-                                  "*utilization_hierarchical_place.rpt")):
+        if any(d.glob("gateware/*utilization_hierarchical_place.rpt")):
             out.append(d)
-    return sorted(out, key=os.path.getmtime, reverse=True)
+    return sorted(out, key=lambda d: d.stat().st_mtime, reverse=True)
 
 
-def rpt(build: str, suffix: str) -> str | None:
-    hits = glob.glob(os.path.join(build, "gateware", f"*{suffix}"))
+def rpt(build: Path, suffix: str) -> Path | None:
+    """The build's gateware report ending in `suffix`, or None if it has none."""
+    hits = list(build.glob(f"gateware/*{suffix}"))
     return hits[0] if hits else None
 
 
@@ -85,34 +84,35 @@ _SUMMARY_KEYS = {
 }
 
 
-def parse_summary(path: str) -> dict:
+def parse_summary(path: Path | None) -> dict:
     """`| Slice LUTs* | 57512 | 0 | 0 | 63400 | 90.71 |`"""
     res: dict[str, dict] = {}
-    if not path or not os.path.exists(path):
+    if path is None or not path.exists():
         return res
-    for line in open(path, errors="replace"):
-        if not line.startswith("|"):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) < 5:
-            continue
-        name = cells[0].rstrip("*").strip()
-        key = _SUMMARY_KEYS.get(name)
-        if not key or key in res:
-            continue
-        try:
-            res[key] = {"used": int(cells[1]), "avail": int(cells[-2]),
-                        "pct": float(cells[-1])}
-        except ValueError:
-            continue
+    with path.open(errors="replace") as report:
+        for line in report:
+            if not line.startswith("|"):
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) < 5:
+                continue
+            name = cells[0].rstrip("*").strip()
+            key = _SUMMARY_KEYS.get(name)
+            if not key or key in res:
+                continue
+            try:
+                res[key] = {"used": int(cells[1]), "avail": int(cells[-2]),
+                            "pct": float(cells[-1])}
+            except ValueError:
+                continue
     return res
 
 
-def parse_timing(path: str) -> dict:
+def parse_timing(path: Path | None) -> dict:
     """The design-wide WNS/TNS/WHS row, plus the MET/VIOLATED verdict."""
-    if not path or not os.path.exists(path):
+    if path is None or not path.exists():
         return {}
-    txt = open(path, errors="replace").read()
+    txt = path.read_text(errors="replace")
     m = re.search(r"WNS\(ns\).*?\n\s*-+.*?\n\s*([-\d.]+)\s+([-\d.]+)\s+(\d+)\s+"
                   r"(\d+)\s+([-\d.]+)\s+([-\d.]+)", txt, re.S)
     if not m:
@@ -124,35 +124,36 @@ def parse_timing(path: str) -> dict:
             "met": float(wns) >= 0.0 and float(whs) >= 0.0}
 
 
-def parse_hier(path: str) -> list[dict]:
+def parse_hier(path: Path | None) -> list[dict]:
     """Utilization-by-Hierarchy rows. Indentation carries the depth."""
     rows: list[dict] = []
-    if not path or not os.path.exists(path):
+    if path is None or not path.exists():
         return rows
     started = False
-    for line in open(path, errors="replace"):
-        if line.startswith("+---") :
-            started = True
-            continue
-        if not started or not line.startswith("|"):
-            continue
-        raw = line.rstrip("\n").strip("|").split("|")
-        if len(raw) < 10:
-            continue
-        inst_raw = raw[0]
-        if inst_raw.strip() in ("Instance", ""):
-            continue
-        depth = (len(inst_raw) - len(inst_raw.lstrip())) // 2
-        try:
-            nums = [int(c.strip()) for c in raw[2:10]]
-        except ValueError:
-            continue
-        rows.append({
-            "instance": inst_raw.strip(), "module": raw[1].strip(),
-            "depth": depth, "lut": nums[0], "logic_lut": nums[1],
-            "lutram": nums[2], "srl": nums[3], "ff": nums[4],
-            "ramb36": nums[5], "ramb18": nums[6], "dsp": nums[7],
-        })
+    with path.open(errors="replace") as report:
+        for line in report:
+            if line.startswith("+---") :
+                started = True
+                continue
+            if not started or not line.startswith("|"):
+                continue
+            raw = line.rstrip("\n").strip("|").split("|")
+            if len(raw) < 10:
+                continue
+            inst_raw = raw[0]
+            if inst_raw.strip() in ("Instance", ""):
+                continue
+            depth = (len(inst_raw) - len(inst_raw.lstrip())) // 2
+            try:
+                nums = [int(c.strip()) for c in raw[2:10]]
+            except ValueError:
+                continue
+            rows.append({
+                "instance": inst_raw.strip(), "module": raw[1].strip(),
+                "depth": depth, "lut": nums[0], "logic_lut": nums[1],
+                "lutram": nums[2], "srl": nums[3], "ff": nums[4],
+                "ramb36": nums[5], "ramb18": nums[6], "dsp": nums[7],
+            })
     return rows
 
 
@@ -160,11 +161,11 @@ def parse_hier(path: str) -> list[dict]:
 def run_ooc() -> dict[str, dict]:
     """syn/yosys/ooc.sh, parsed. SLOW. Numbers are DEFAULT-parameter, so they
     are a block-identity signal and a rank hint, never a shipping area."""
-    sh = os.path.join(REPO, "syn", "yosys", "ooc.sh")
-    if not os.path.exists(sh):
+    sh = REPO / "syn" / "yosys" / "ooc.sh"
+    if not sh.exists():
         return {}
     try:
-        p = subprocess.run([sh], cwd=os.path.dirname(sh), capture_output=True,
+        p = subprocess.run([str(sh)], cwd=sh.parent, capture_output=True,
                            text=True, timeout=7200)
     except (subprocess.TimeoutExpired, OSError) as e:
         print(f"  ! ooc.sh did not complete ({e}); OOC column omitted",
@@ -179,7 +180,13 @@ def run_ooc() -> dict[str, dict]:
 
 
 # ------------------------------------------------------------------ display --
-def headline(build: str, summ: dict, tim: dict) -> None:
+def headline(build: Path, summ: dict, tim: dict) -> None:
+    """Print one build's device utilisation beside its timing verdict.
+
+    The two are printed together on purpose: an area saving bought with a
+    violated WNS is not a saving, and reading the utilisation report alone is
+    how that gets missed.
+    """
     print(f"build   : {build}")
     for k, label in (("lut", "Slice LUTs"), ("ff", "Slice Registers"),
                      ("bram", "Block RAM Tile"), ("dsp", "DSPs")):
@@ -196,6 +203,12 @@ def headline(build: str, summ: dict, tim: dict) -> None:
 
 
 def table(rows: list[dict], ooc: dict, depth: int, top: int) -> None:
+    """Print the LUT-ranked instances at one hierarchy depth, worst first.
+
+    With an OOC column the yosys/Vivado ratio is printed next to each row,
+    which is trap 1 made visible: it runs 1.0x-2.6x and does not preserve
+    rank order, so a block graded on the OOC number alone is graded wrong.
+    """
     sel = [r for r in rows if r["depth"] == depth]
     sel.sort(key=lambda r: -r["lut"])
     if not sel:
@@ -282,11 +295,16 @@ def compare(now: list[dict], before: list[dict], top: int) -> None:
 
 
 def main() -> int:
+    """Report the area and timing of one placed build, or its per-instance LUT
+    delta against a baseline; 2 when no placed build could be found."""
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--build", help="build dir (default: newest placed one)")
-    ap.add_argument("--compare", help="baseline build dir to diff against")
-    ap.add_argument("--work", default=DEFAULT_WORK, help="where builds live")
+    ap.add_argument("--build", type=Path,
+                    help="build dir (default: newest placed one)")
+    ap.add_argument("--compare", type=Path,
+                    help="baseline build dir to diff against")
+    ap.add_argument("--work", type=Path, default=DEFAULT_WORK,
+                    help="where builds live")
     ap.add_argument("--depth", type=int, default=2,
                     help="hierarchy depth to rank (2 = milan_datapath's children)")
     ap.add_argument("--top", type=int, default=25, help="rows to print")
@@ -309,7 +327,10 @@ def main() -> int:
     ooc = run_ooc() if a.ooc else {}
 
     if a.json:
-        print(json.dumps({"build": build, "summary": summ, "timing": tim,
+        # `build` is the one Path in the payload, and json has no notion of
+        # one: spelled out here so a harness reading this keeps getting a
+        # string where it always got one.
+        print(json.dumps({"build": str(build), "summary": summ, "timing": tim,
                           "hierarchy": hier, "ooc": ooc}, indent=1))
         return 0
 

@@ -85,6 +85,7 @@ import re
 import subprocess
 import sys
 from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
 from typing import NamedTuple
 
@@ -139,8 +140,12 @@ SYNTAX = {
 #: comment syntax by basename; `Containerfile.<flavour>` matches by its stem
 NAMED = {"Makefile": PROSE_HASH, "Containerfile": SHELL}
 
+#: one reported occurrence: the path, the 1-based line, the word as written,
+#: and the source line stripped and clipped
+Occurrence = tuple[str, int, str, str]
 
-def type_key(path):
+
+def type_key(path: str) -> str:
     """The census key of `path`: a registered basename, else its suffix, else its name."""
     name = Path(path).name
     stem = name.split(".")[0]
@@ -151,7 +156,7 @@ def type_key(path):
     return Path(name).suffix or name
 
 
-def syntax_for(path):
+def syntax_for(path: str) -> Syntax | None:
     """The comment syntax of `path`, or None when its type is not read."""
     key = type_key(path)
     if key in NAMED:
@@ -231,7 +236,7 @@ def _scan(line, syn, carried, spans):
     return carried
 
 
-def comment_views(text, path):
+def comment_views(text: str, path: str) -> list[str]:
     """The comment part of every line of `text`, split on newline, blanked elsewhere.
 
     Line N of the result is the comment text of line N of the file, character
@@ -265,7 +270,7 @@ class Hit(NamedTuple):
     text: str    #: the source line, stripped and clipped
 
 
-def scan_text(text, path):
+def scan_text(text: str, path: str) -> Iterator[Hit]:
     """Every occurrence of a marker word in `text`, each classified on its own.
 
     A marker is owned by what follows ITS word - `(#N)` immediately after it -
@@ -287,7 +292,7 @@ def scan_text(text, path):
             yield Hit(n, kind, found.group(1), line.strip()[:92])
 
 
-def scan_line(line, path="x.py"):
+def scan_line(line: str, path: str = "x.py") -> tuple[bool, bool]:
     """(is_marker, is_owned) for one line: is_owned only when EVERY marker on it is."""
     markers = [h for h in scan_text(line, path) if h.kind != "near"]
     if not markers:
@@ -295,16 +300,17 @@ def scan_line(line, path="x.py"):
     return True, all(h.kind == "owned" for h in markers)
 
 
-def select(paths):
+def select(paths: list[str]) -> list[str]:
     """The paths this gate reads: a registered comment syntax, and not LINT_EXCLUDE."""
     return [p for p in paths if syntax_for(p) is not None and p not in LINT_EXCLUDE]
 
 
-def scannable():
+def scannable() -> list[str]:
+    """The live population: every tracked first-party file this gate can read."""
     return select(tracked())
 
 
-def population_problem(paths):
+def population_problem(paths: list[str]) -> str | None:
     """Why `paths` is not a population this gate may judge, or None."""
     if not paths:
         return "the population is empty"
@@ -316,7 +322,9 @@ def population_problem(paths):
     return None
 
 
-def audit(paths=None):
+def audit(paths: list[str] | None = None) -> tuple[list[Occurrence],
+                                                   list[Occurrence],
+                                                   list[Occurrence]]:
     """(unowned, owned, near) as (path, line, word, text), one entry per occurrence."""
     unowned, owned, near = [], [], []
     for rel in (scannable() if paths is None else paths):
@@ -327,42 +335,16 @@ def audit(paths=None):
     return unowned, owned, near
 
 
-def lines_of(hits):
+def lines_of(hits: list[Occurrence]) -> int:
     """How many distinct file lines the occurrences in `hits` fall on."""
     return len({(rel, n) for rel, n, _word, _text in hits})
 
 
-def selftest():
-    failures, total = 0, 0
-
-    def ck(name, ok, detail=""):
-        nonlocal failures, total
-        total += 1
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
-
-    def hits(text, path):
-        """(line, kind, WORD) per occurrence, in file order."""
-        return [(h.line, h.kind, h.word.upper()) for h in scan_text(text, path)]
-
-    def kinds(text, path):
-        """Line number -> kind, for fixtures with one occurrence per line."""
-        found = hits(text, path)
-        assert len({n for n, _k, _w in found}) == len(found), found
-        return {n: kind for n, kind, _w in found}
-
-    # THE MARKER WORDS ARE ASSEMBLED, NOT WRITTEN OUT. Not because the gate
-    # would flag a spelled fixture - a fixture is a string literal, and the
-    # extractor sees its quotes - but because the near-miss inventory counts
-    # the word ANYWHERE in a scanned line and this file is scanned. Spelled
-    # out, every fixture below would land in the inventory the gate prints
-    # for the tree, and that inventory is about the tree. The first arm
-    # proves the assembled words are the ones the matcher looks for.
-    T = "TO" + "DO"
-    F = "FIX" + "ME"
+def _marker_form_arms(ck, T, F, hits):
+    """The arms over what an owner is: which shapes are markers, which pairing
+    is the owned form, and how every occurrence on one line is classified
+    on its own. The marker words and `hits` come from the caller, so the words
+    stay assembled in exactly one place."""
     ck("the assembled fixture words are the real marker words",
        all(MARKER.search(f"{w}:") and ANY.search(w) for w in (T, F)))
 
@@ -407,6 +389,10 @@ def selftest():
     ck("an owned marker in a comment beside the word in code",
        hits(f'{T} = "x"  # {T}(#7): rename', "a.py") == [(1, "near", T), (1, "owned", T)])
 
+
+def _near_miss_arms(ck, T):
+    """The arms over the near-miss classes, each one observed in this tree: a
+    filename, an identifier, a comparison, prose, and a parenthetical."""
     # -- the near-miss classes, each observed in this tree --
     ck("a filename reference is not a marker",
        scan_line(f"  # see the historical {T}.md for the original plan", "a.py")[0] is False,
@@ -422,6 +408,12 @@ def selftest():
        scan_line(f"  //! still tied high today (REQ-MAC-03 {T}) so the pulse fires",
                  "a.sv")[0] is False)
 
+
+def _comment_syntax_arms(ck, T, kinds):
+    """The arms that hold the comment extractor to each language's rules: code
+    is not a comment, a SystemVerilog apostrophe is not a quote, a C++ digit
+    separator is not one either, and string state crosses no line but a
+    Python docstring's."""
     # -- a marker in CODE, not a comment, is not a marker --
     ck("a string literal is not a comment",
        scan_line(f'    msg = "{T}: fill this in"', "a.py")[0] is False)
@@ -468,6 +460,10 @@ def selftest():
     ck("an apostrophe inside a YAML word is prose",
        scan_line(f"- name: don't  # {T}: x", "a.yml") == (True, False))
 
+
+def _population_arms(ck, T):
+    """The arms over which files are read at all: every registered type with its
+    own opener, and the first-party population with no vendor tree in it."""
     # -- every registered type is read with its own comment syntax --
     typed = [("# ", "Makefile"), ("# ", "a.mk"), ("// ", "a.svh"), ("// ", "a.vh"),
              ("// ", "a.vlt"), ("# ", "a.xdc"), ("# ", "a.do"), ("# ", "a.feature"),
@@ -508,6 +504,10 @@ def selftest():
        population_problem(["hdl/a.sv", "protocol-processor/hdl/a.sv",
                            "gptp-processor/hdl/a.sv"]) is None)
 
+
+def _self_and_live_tree_arms(ck):
+    """The arms that read the real thing: this gate's own source, which must not
+    be a finding of itself, and the live tree it scans."""
     # -- and this gate must not be a finding of itself --
     own = Path(__file__).read_text()
     ck("this checker carries no marker of its own",
@@ -536,11 +536,51 @@ def selftest():
        run.returncode == 2 and run.stdout.startswith("REFUSED: git is not available"),
        f"rc={run.returncode} stdout={run.stdout[:80]!r} stderr={run.stderr[-160:]!r}")
 
+def selftest() -> int:
+    """Every arm, over fixtures and over the live tree; 1 when one of them fails."""
+    failures, total = 0, 0
+
+    def ck(name: str, ok: bool, detail: str = "") -> None:
+        """Record one arm, printing the detail only when it went red."""
+        nonlocal failures, total
+        total += 1
+        if ok:
+            print(f"[PASS] {name}")
+        else:
+            failures += 1
+            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
+
+    def hits(text: str, path: str) -> list[tuple[int, str, str]]:
+        """(line, kind, WORD) per occurrence, in file order."""
+        return [(h.line, h.kind, h.word.upper()) for h in scan_text(text, path)]
+
+    def kinds(text: str, path: str) -> dict[int, str]:
+        """Line number -> kind, for fixtures with one occurrence per line."""
+        found = hits(text, path)
+        assert len({n for n, _k, _w in found}) == len(found), found
+        return {n: kind for n, kind, _w in found}
+
+    # THE MARKER WORDS ARE ASSEMBLED, NOT WRITTEN OUT. Not because the gate
+    # would flag a spelled fixture - a fixture is a string literal, and the
+    # extractor sees its quotes - but because the near-miss inventory counts
+    # the word ANYWHERE in a scanned line and this file is scanned. Spelled
+    # out, every fixture below would land in the inventory the gate prints
+    # for the tree, and that inventory is about the tree. The first arm
+    # proves the assembled words are the ones the matcher looks for.
+    T = "TO" + "DO"
+    F = "FIX" + "ME"
+    _marker_form_arms(ck, T, F, hits)
+    _near_miss_arms(ck, T)
+    _comment_syntax_arms(ck, T, kinds)
+    _population_arms(ck, T)
+    _self_and_live_tree_arms(ck)
+
     print(f"\n{total} checks: {total - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
 
-def main():
+def main() -> int:
+    """The gate: refuse a partial population, then 1 on any unowned marker."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--list", action="store_true",
                     help="markers, near-misses, and the types read and not read")

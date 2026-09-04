@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Generate the Milan system domain map as both editable .drawio and rendered .svg."""
 import html, sys
+from dataclasses import dataclass
+from pathlib import Path
 
 # (title, subtitle, fill, stroke, [module lines])
 TEAL=("#B2DFDB","#00796B"); ORANGE=("#FFE0B2","#EF6C00")
@@ -51,60 +53,104 @@ LPAD, LGAP = 10, 16      # inner padding / gap between layers
 SIDE_X = X0 + LW + 40
 SIDE_W = 340
 
-def layer_height(mods): return HDR + LPAD + len(mods)*(RH+RGAP) - RGAP + LPAD
-def esc(s): return html.escape(s, quote=True)
+
+@dataclass(frozen=True)
+class Rect:
+    """Where one drawn box sits: top-left corner, then width and height."""
+    x: int
+    y: int
+    w: int
+    h: int
+
+
+def layer_height(mods: list[str]) -> int:
+    """the height a layer box needs to hold `mods` rows under its header."""
+    return HDR + LPAD + len(mods)*(RH+RGAP) - RGAP + LPAD
+
+
+def esc(s: str) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
+    return html.escape(s, quote=True)
 
 # compute positions
 layers=[]; y=Y0
 for (title,sub,(fill,stroke),mods) in LAYERS:
-    h=layer_height(mods); layers.append((title,sub,fill,stroke,mods,X0,y,LW,h)); y+=h+LGAP
+    h=layer_height(mods)
+    layers.append((title,sub,fill,stroke,mods,Rect(X0,y,LW,h)))
+    y+=h+LGAP
 total_h=y+40
 side_h=layer_height(SIDE[3]); side_y=Y0
+SIDE_RECT=Rect(SIDE_X,side_y,SIDE_W,side_h)
 
 # ---------- SVG ----------
-def svg():
+def svg() -> str:
+    """the published .svg: the stacked domain layers, the host-tooling column
+    beside them, and the dashed arrow from tooling into the stack."""
     W=SIDE_X+SIDE_W+30; H=max(total_h, side_y+side_h+40)
-    o=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
+    o=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}"'
+       f' viewBox="0 0 {W} {H}"'
+       f' font-family="Helvetica,Arial,sans-serif">']
     o.append(f'<rect width="{W}" height="{H}" fill="#ffffff"/>')
-    o.append(f'<text x="{X0}" y="40" font-size="24" font-weight="bold" fill="#263238">Milan TSN NIC: system domain map</text>')
-    o.append(f'<text x="{X0}" y="66" font-size="13" fill="#546E7A">every module by domain / language · software (top) → silicon (bottom) · host tooling generates &amp; deploys the stack</text>')
-    def box(x,y,w,h,fill,stroke,title,sub,mods):
-        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
+    o.append(f'<text x="{X0}" y="40" font-size="24" font-weight="bold"'
+             f' fill="#263238">Milan TSN NIC: system domain map</text>')
+    o.append(f'<text x="{X0}" y="66" font-size="13" fill="#546E7A">'
+             f'every module by domain / language · software (top) → silicon'
+             f' (bottom) · host tooling generates &amp; deploys the stack'
+             f'</text>')
+    def box(rect: Rect, fill: str, stroke: str, title: str, sub: str,
+            mods: list[str]) -> None:
+        """one domain layer: header, right-aligned subtitle, one white row per module."""
+        x,y,w,h = rect.x,rect.y,rect.w,rect.h
+        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8"'
+                 f' fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
         o.append(f'<text x="{x+14}" y="{y+25}" font-size="16" font-weight="bold" fill="#212121">{esc(title)}</text>')
         o.append(f'<text x="{x+14}" y="{y+25}" font-size="16" fill="#212121"><tspan> </tspan></text>')
         o.append(f'<text x="{x+w-14}" y="{y+25}" font-size="11.5" fill="{stroke}" text-anchor="end">{esc(sub)}</text>')
         my=y+HDR+LPAD
         for m in mods:
-            o.append(f'<rect x="{x+LPAD}" y="{my}" width="{w-2*LPAD}" height="{RH}" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="{stroke}" stroke-opacity="0.5" stroke-width="1"/>')
+            o.append(f'<rect x="{x+LPAD}" y="{my}" width="{w-2*LPAD}"'
+                     f' height="{RH}" rx="4" fill="#ffffff"'
+                     f' fill-opacity="0.72" stroke="{stroke}"'
+                     f' stroke-opacity="0.5" stroke-width="1"/>')
             o.append(f'<text x="{x+LPAD+10}" y="{my+17}" font-size="12.5" fill="#212121">{esc(m)}</text>')
             my+=RH+RGAP
-    for (t,s,f,st,m,x,yy,w,h) in layers: box(x,yy,w,h,f,st,t,s,m)
+    for (t,s,f,st,m,r) in layers: box(r,f,st,t,s,m)
     # side tooling
-    box(SIDE_X,side_y,SIDE_W,side_h,SIDE[2][0],SIDE[2][1],SIDE[0],SIDE[1],SIDE[3])
+    box(SIDE_RECT,SIDE[2][0],SIDE[2][1],SIDE[0],SIDE[1],SIDE[3])
     # arrow tooling -> stack, routed down the empty right column (no row overlap)
     mx=SIDE_X+SIDE_W//2; ty=side_y+side_h; ey=760
-    o.append(f'<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#F9A825"/></marker></defs>')
-    o.append(f'<path d="M{mx} {ty} L{mx} {ey} L{X0+LW+8} {ey}" fill="none" stroke="#F9A825" stroke-width="2.5" marker-end="url(#a)" stroke-dasharray="6 4"/>')
-    o.append(f'<text x="{SIDE_X}" y="{ty+28}" font-size="12" fill="#F57F17">generates · flashes · boots the whole stack</text>')
+    o.append(f'<defs><marker id="a" markerWidth="10" markerHeight="10"'
+             f' refX="8" refY="3" orient="auto">'
+             f'<path d="M0,0 L8,3 L0,6 Z" fill="#F9A825"/></marker></defs>')
+    o.append(f'<path d="M{mx} {ty} L{mx} {ey} L{X0+LW+8} {ey}" fill="none"'
+             f' stroke="#F9A825" stroke-width="2.5" marker-end="url(#a)"'
+             f' stroke-dasharray="6 4"/>')
+    o.append(f'<text x="{SIDE_X}" y="{ty+28}" font-size="12" fill="#F57F17">'
+             f'generates · flashes · boots the whole stack</text>')
     o.append('</svg>')
     return "\n".join(o)
 
 # ---------- drawio ----------
-def drawio():
+def drawio() -> str:
+    """the same map as an editable .drawio, one vertex per layer with its
+    modules carried inside it as bullet lines."""
     cells=['<mxCell id="0"/>','<mxCell id="1" parent="0"/>']
     cid=[1]
-    def add(x,y,w,h,label,fill,stroke,fs=12,fw=0,align="left",vparent="1"):
+    def add(rect: Rect, label: str, fill: str, stroke: str, fs: int = 12,
+            fw: int = 0) -> str:
+        """one drawio vertex; its id is returned, though this map draws no edges."""
+        x,y,w,h = rect.x,rect.y,rect.w,rect.h
         cid[0]+=1; i=cid[0]
         style=(f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
-               f"fontSize={fs};align={align};verticalAlign=top;spacingLeft=8;spacingTop=6;"
+               f"fontSize={fs};align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;"
                + ("fontStyle=1;" if fw else ""))
-        cells.append(f'<mxCell id="n{i}" value="{esc(label)}" style="{style}" vertex="1" parent="{vparent}">'
+        cells.append(f'<mxCell id="n{i}" value="{esc(label)}" style="{style}" vertex="1" parent="1">'
                      f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
         return f"n{i}"
-    add(X0,20,700,30,"Milan TSN NIC: system domain map","none","none",20,1)
-    for (t,s,f,st,m,x,yy,w,h) in layers:
-        add(x,yy,w,h,f"{t}   |   {s}\n\n"+"\n".join("• "+mm for mm in m),f,st,12,1)
-    add(SIDE_X,side_y,SIDE_W,side_h,f"{SIDE[0]}   |   {SIDE[1]}\n\n"+"\n".join("• "+mm for mm in SIDE[3]),
+    add(Rect(X0,20,700,30),"Milan TSN NIC: system domain map","none","none",20,1)
+    for (t,s,f,st,m,r) in layers:
+        add(r,f"{t}   |   {s}\n\n"+"\n".join("• "+mm for mm in m),f,st,12,1)
+    add(SIDE_RECT,f"{SIDE[0]}   |   {SIDE[1]}\n\n"+"\n".join("• "+mm for mm in SIDE[3]),
         SIDE[2][0],SIDE[2][1],12,1)
     body="\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="domain-map">'
@@ -113,6 +159,6 @@ def drawio():
             f'math="0" shadow="0"><root>{body}</root></mxGraphModel></diagram></mxfile>')
 
 base=sys.argv[1]
-open(base+".svg","w").write(svg())
-open(base+".drawio","w").write(drawio())
+Path(base+".svg").write_text(svg())
+Path(base+".drawio").write_text(drawio())
 print("wrote", base+".svg", "and", base+".drawio")

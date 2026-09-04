@@ -10,7 +10,7 @@ import tempfile
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 
 EXPECTED_GATES = {
     "tied-input": True,
@@ -34,6 +34,12 @@ class Result:
 
 
 def parse_result(path: Path) -> Result:
+    """One shard's `key=value` record, or a ValueError naming what invalidated it.
+
+    Every field is refused here rather than at the call site. A record CI
+    published but nothing read is how the extractor's `cells=?` placeholder
+    shipped in every result for as long as the field existed (#287).
+    """
     values: dict[str, str] = {}
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
@@ -88,6 +94,11 @@ def parse_result(path: Path) -> Result:
 
 
 def read_expected(path: Path) -> list[str]:
+    """The top names the evidence must account for, one per line.
+
+    An empty or duplicated inventory is a ValueError: the first makes the
+    exhaustiveness check vacuous, the second lets one top answer for two.
+    """
     try:
         names = [line.strip() for line in path.read_text(encoding="utf-8").splitlines()
                  if line.strip()]
@@ -106,6 +117,10 @@ def validate(
     expected: Sequence[str],
     require_structural: bool,
 ) -> tuple[list[str], list[str], list[Result]]:
+    """(errors, notes, results) for one evidence set: every expected top present
+    exactly once, blocking and PASS, plus the structural gates when they were
+    requested. Notes carry the failures existing policy keeps informational, so
+    they are reported without failing the gate."""
     errors: list[str] = []
     notes: list[str] = []
     results: list[Result] = []
@@ -174,16 +189,22 @@ def validate(
     return errors, notes, results
 
 
+def result_path(root: Path, kind: str, name: str) -> Path:
+    """Where run.sh writes the record for one shard's `kind`/`name`."""
+    return root / f"{kind}-{name}.result"
+
+
+def write_malformed_result(root: Path, kind: str, name: str) -> None:
+    """A record that is not key=value at all, for the parser's refusal arm."""
+    result_path(root, kind, name).write_text("not key value\n", encoding="utf-8")
+
+
 def write_result(root: Path, kind: str, name: str, status: str = "PASS",
-                 blocking: bool = True, malformed: bool = False,
-                 cells: str | None = "default") -> None:
+                 blocking: bool = True, cells: str | None = "default") -> None:
     """`cells` mirrors run.sh's record: a PASS top carries a count by
     default, everything else omits the key. Pass an explicit value (or None)
     to build a degenerate record."""
-    path = root / f"{kind}-{name}.result"
-    if malformed:
-        path.write_text("not key value\n", encoding="utf-8")
-        return
+    path = result_path(root, kind, name)
     if cells == "default":
         cells = "7" if kind == "top" and status == "PASS" else None
     body = (f"kind={kind}\nname={name}\nstatus={status}\n"
@@ -194,10 +215,14 @@ def write_result(root: Path, kind: str, name: str, status: str = "PASS",
 
 
 def selftest() -> int:
+    """Demonstrate every refusal against a built evidence tree, including the
+    degenerate `cells` records #287 measured in the wild; 0 when all arms hold."""
     expected = ["a", "b", "c"]
     failures = 0
 
-    def run_case(name: str, mutate, want_error: bool) -> None:
+    def run_case(name: str, mutate: Callable[[Path], None],
+                 want_error: bool) -> None:
+        """One arm: complete evidence, mutated, then checked for the objection."""
         nonlocal failures
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -230,7 +255,8 @@ def selftest() -> int:
 
     run_case("unexpected top", lambda root: write_result(root, "top", "z"), True)
     run_case("failed top", lambda root: write_result(root, "top", "b", "FAIL"), True)
-    run_case("malformed evidence", lambda root: write_result(root, "top", "b", malformed=True), True)
+    run_case("malformed evidence",
+             lambda root: write_malformed_result(root, "top", "b"), True)
     # The degenerate records #287 measured in the wild: `cells=?` was every
     # CI record for as long as the column existed, and nothing refused it.
     run_case("PASS top with cells=?",
@@ -253,6 +279,8 @@ def selftest() -> int:
 
 
 def main(argv: Sequence[str]) -> int:
+    """The gate's exit status: 1 when the evidence roots do not account for the
+    expected inventory, 0 when they do."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("roots", nargs="*", type=Path)
     parser.add_argument("--expected", required=False, type=Path)

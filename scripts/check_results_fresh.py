@@ -57,10 +57,10 @@ Exit status: 0 fresh or honestly skipped, 1 stale or unverifiable.
 """
 import argparse
 import difflib
-import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 #: The generation stamp the report writer appends to its headline. Stripping it
 #: is the whole reason this gate is not a `git diff --exit-code`.
@@ -87,7 +87,7 @@ SKIP_RE = re.compile(r"^[ \t]*SUITE-SKIP:[ \t]*(\S.*?)[ \t]*$", re.M)
 OK, STALE, SKIP, UNVERIFIABLE = "OK", "STALE", "SKIP", "UNVERIFIABLE"
 
 
-def strip_stamp(text):
+def strip_stamp(text: str) -> str:
     """Drop the generation timestamp from the headline, keep every other byte.
 
     Scoped to the headline deliberately. The stamp is a property of ONE line -
@@ -105,7 +105,7 @@ def strip_stamp(text):
     return "\n".join(out)
 
 
-def section_sums(text):
+def section_sums(text: str) -> tuple[int, int, int] | None:
     """Column totals of the `## Sections` table, or None when there is none.
 
     Scoped to that one table by heading, not by row shape, so another table
@@ -138,7 +138,8 @@ def section_sums(text):
     return tuple(sum(c) for c in zip(*rows)) if rows else None
 
 
-def _tally(regex, text, multiline=False):
+def _tally(regex: re.Pattern[str], text: str,
+           multiline: bool = False) -> tuple[int, int, int] | None:
     m = regex.search(text) if multiline else None
     if m is None:
         for line in text.splitlines():
@@ -150,22 +151,24 @@ def _tally(regex, text, multiline=False):
     return tuple(int(g) for g in m.groups())
 
 
-def artifact_tally(text):
+def artifact_tally(text: str) -> tuple[int, int, int] | None:
+    """(pass, fail, known gaps) off the artifact's own headline, or None when
+    it carries no headline at all - which is not a tally of zero."""
     return _tally(ART_TALLY_RE, text)
 
 
-def log_tally(text):
+def log_tally(text: str) -> tuple[int, int, int] | None:
+    """(pass, fail, known gaps) off the campaign's own closing line, or None
+    when the run being judged never printed one."""
     m = LOG_TALLY_RE.search(text)
     return tuple(int(g) for g in m.groups()) if m else None
 
 
-def verdict(log, fresh, committed, label="artifact"):
-    """Judge one artifact. Returns (code, [lines to print]).
-
-    Pure: it takes the three texts and no filesystem, so the self-test can
-    drive every arm of it without a repository, a campaign or a clock.
-    `committed` is None when the artifact is not committed at all.
-    """
+def _verification_refusal(log, fresh, label):
+    """The SKIP or CANNOT VERIFY verdict this evidence forces, as
+    (code, [lines to print]), or None when the artifact is tied to the run
+    the log describes and the only question left is whether the committed
+    copy matches it."""
     skip = SKIP_RE.search(log or "")
     lt = log_tally(log or "")
     # A TALLY OUTRANKS A SKIP MARKER, and the order here is the whole content
@@ -231,6 +234,14 @@ def verdict(log, fresh, committed, label="artifact"):
             "  evidence and comparing it against the committed copy would only",
             "  decide which of the two inconsistent files is on disk."]
 
+    return None
+
+
+def _freshness_verdict(fresh, committed, label):
+    """OK or STALE for an artifact already tied to its run, as
+    (code, [lines to print]). `at` is recomputed rather than passed: it is
+    a pure read of `fresh`, and the two callers would otherwise disagree."""
+    at = artifact_tally(fresh)
     if committed is None:
         return STALE, [
             "STALE %s: generated but never committed." % label,
@@ -264,33 +275,58 @@ def verdict(log, fresh, committed, label="artifact"):
     return STALE, head + [""] + ["  " + d for d in diff]
 
 
-def committed_copy(path):
+def verdict(log: str | None, fresh: str | None, committed: str | None,
+            label: str = "artifact") -> tuple[str, list[str]]:
+    """Judge one artifact. Returns (code, [lines to print]).
+
+    Pure: it takes the three texts and no filesystem, so the self-test can
+    drive every arm of it without a repository, a campaign or a clock.
+    `committed` is None when the artifact is not committed at all.
+    """
+    refusal = _verification_refusal(log, fresh, label)
+    if refusal is not None:
+        return refusal
+    return _freshness_verdict(fresh, committed, label)
+
+
+def committed_copy(path: Path) -> str | None:
     """The tracked content of `path`, or None when it is not committed.
 
     Raises `LookupError` when git cannot answer at all (no metadata, as in an
     extracted tarball), which the caller turns into an honest skip rather than
     a verdict.
+
+    A path outside the work tree is `None`, not an exception: `relative_to`
+    refuses it where `git show` used to answer non-zero, and the caller needs
+    the same "not committed" either way.
     """
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    inside = subprocess.run(["git", "-C", root, "rev-parse", "--git-dir"],
+    root = Path(__file__).resolve().parent.parent
+    inside = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-dir"],
                             capture_output=True, text=True)
     if inside.returncode != 0:
         raise LookupError("no git metadata under %s" % root)
-    rel = os.path.relpath(os.path.abspath(path), root)
-    show = subprocess.run(["git", "-C", root, "show", "HEAD:%s" % rel],
+    try:
+        rel = path.resolve().relative_to(root)
+    except ValueError:
+        return None
+    show = subprocess.run(["git", "-C", str(root), "show",
+                           "HEAD:%s" % rel.as_posix()],
                           capture_output=True, text=True)
     return show.stdout if show.returncode == 0 else None
 
 
-def read(path):
+def read(path: Path) -> str | None:
+    """The file's text, or None when it cannot be read - the caller decides
+    whether an absent file is a skip or a finding, because the two differ."""
     try:
-        with open(path, encoding="utf-8") as fh:
-            return fh.read()
+        return path.read_text(encoding="utf-8")
     except OSError:
         return None
 
 
-def check(log_path, artifact_path, label):
+def check(log_path: Path, artifact_path: Path, label: str) -> int:
+    """Judge one committed artifact against the run described by its log and
+    print the verdict; 0 fresh or honestly skipped, 1 stale or unverifiable."""
     log = read(log_path)
     if log is None:
         print("CANNOT VERIFY %s: no campaign log at %s" % (label, log_path))
@@ -326,7 +362,8 @@ def check(log_path, artifact_path, label):
 # permissive.
 
 
-def art(stamp, boot=23, total=353, gaps=9, tail=""):
+def art(stamp: str, boot: int = 23, total: int = 353, gaps: int = 9,
+        tail: str = "") -> str:
     """A fixture artifact whose section rows always add up to its headline.
 
     Coherence is built in rather than typed out, because the gate now asserts
@@ -437,7 +474,10 @@ SELFTEST = [
 ]
 
 
-def self_test():
+def self_test() -> int:
+    """Prove the gate can still fail: every arm below is one verdict the real
+    thing has to reach, several of them greens a careless version would not
+    have earned."""
     bad = 0
     for name, log, fresh, committed, want in SELFTEST:
         got, _ = verdict(log, fresh, committed, "selftest")
@@ -451,7 +491,8 @@ def self_test():
     return 1 if bad else 0
 
 
-def main():
+def main() -> int:
+    """The CLI: judge one artifact, or run the self-test arms."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--log", help="stdout of the campaign run being judged")
     ap.add_argument("--artifact", help="the TEST_RESULTS.md it writes")
@@ -463,9 +504,9 @@ def main():
         return self_test()
     if not args.log or not args.artifact:
         ap.error("--log and --artifact are both required")
-    return check(args.log, args.artifact,
-                 args.label or os.path.basename(os.path.dirname(
-                     os.path.dirname(os.path.abspath(args.artifact)))))
+    artifact = Path(args.artifact)
+    return check(Path(args.log), artifact,
+                 args.label or artifact.resolve().parent.parent.name)
 
 
 if __name__ == "__main__":

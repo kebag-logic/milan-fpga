@@ -41,6 +41,7 @@ import pathlib
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 
 #: Repository root, from this file's location.
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -50,7 +51,7 @@ PP_HDL = ROOT / "protocol-processor" / "hdl"
 EXCLUDE: dict[str, str] = {}
 
 
-def pp_sources(prefix="protocol-processor/hdl"):
+def pp_sources(prefix: str = "protocol-processor/hdl") -> list[str]:
     """Every submodule design source, packages first, then sorted."""
     if not PP_HDL.is_dir():
         raise SystemExit(
@@ -116,7 +117,8 @@ LITERAL_RE = re.compile(
     r"(?:protocol-processor/hdl|\$PP\b|\$\(PP_DIR\)|\$\{PP\})/\w+/\w+\.sv")
 
 
-def check(files=None, read=None):
+def check(files: list[str] | None = None,
+          read: Callable[[str], str] | None = None) -> tuple[list[str], list[str]]:
     """Find any build input carrying a literal copy of the source list.
 
     DISCOVERED, not listed. The first version of this check took a list of
@@ -143,7 +145,8 @@ def check(files=None, read=None):
             return [f"git ls-files failed: {out.stderr.strip()}"], []
         files = out.stdout.split()
     if read is None:
-        def read(f):
+        def read(f: str) -> str:
+            """The default reader: the tracked file's own text, off the real tree."""
             return (ROOT / f).read_text()
     tracked = set(files)
     bad, ok = [], []
@@ -186,7 +189,7 @@ def _world():
     return {f: " ".join(sorted(lits)) for f, (lits, _) in PROSE_OK.items()}
 
 
-def selftest():
+def selftest() -> list[str]:
     """Prove the check bites, on synthetic inputs, without editing the tree.
 
     CONTRIBUTING.md:171-174 states the bar for a checker in this repository:
@@ -199,12 +202,15 @@ def selftest():
     between the two writes, and it cannot run on a read-only checkout. Injecting
     the universe instead exercises the same function and touches nothing.
     """
-    def run(world):
+    def run(world: dict[str, str]) -> tuple[list[str], list[str]]:
+        """The real `check` over a synthetic tree: `world` is both the file list
+        and the text of every file in it."""
         return check(files=sorted(world), read=lambda f: world[f])
 
     problems = []
 
-    def arm(name, world, want):
+    def arm(name: str, world: dict[str, str], want: str) -> None:
+        """One arm: `world` must produce a finding whose text names `want`."""
         bad, _ok = run(world)
         hit = any(want in b for b in bad)
         if not hit:
@@ -253,7 +259,9 @@ def selftest():
     return problems
 
 
-def main():
+def main() -> int:
+    """The CLI: the gate under `--check`/`--selftest`, otherwise the one-line
+    source list the shell, Makefile and .tcl consumers word-split."""
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--prefix", default="protocol-processor/hdl",

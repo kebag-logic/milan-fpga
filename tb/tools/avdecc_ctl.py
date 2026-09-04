@@ -2,6 +2,7 @@
 """Raw-socket AVDECC (IEEE 1722.1) controller: ADP discovery, READ_DESCRIPTOR,
 GET_COUNTERS, GET_STREAM_INFO, GET_AVB_INFO.  No la_avdecc dependency."""
 import argparse, binascii, fcntl, json, socket, struct, sys, time
+from dataclasses import dataclass
 
 ETH_P_ALL = 0x0003
 ETHERTYPE_AVTP = 0x22F0
@@ -76,11 +77,14 @@ CTR_BITS = {
 }
 
 
-def mac_s(b):
+def mac_s(b: bytes) -> str:
+    """The wire's six bytes as the colon-hex spelling `ip link` prints."""
     return ':'.join('%02x' % x for x in b)
 
 
-def open_sock(iface, timeout=1.0):
+def open_sock(iface: str, timeout: float = 1.0) -> socket.socket:
+    """A raw socket on `iface`, joined to the AVDECC control multicast group so
+    the entity's responses to 91:e0:f0:01:00:00 reach this process at all."""
     s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
     s.bind((iface, 0))
     idx = socket.if_nametoindex(iface)
@@ -91,7 +95,8 @@ def open_sock(iface, timeout=1.0):
     return s
 
 
-def my_mac(iface):
+def my_mac(iface: str) -> bytes:
+    """The interface's own MAC, which every command frame is sourced from."""
     # The raw-socket host tool already requires AF_PACKET. Query the same
     # interface descriptor directly instead of coupling it to a pseudo-file.
     probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -104,7 +109,7 @@ def my_mac(iface):
     return info[18:24]
 
 
-def strip_vlan(pkt):
+def strip_vlan(pkt: bytes) -> tuple[bytes, bytes, int, bytes]:
     """Return (dst, src, ethertype, payload) skipping any 802.1Q tag."""
     dst, src = pkt[0:6], pkt[6:12]
     et = struct.unpack('!H', pkt[12:14])[0]
@@ -115,14 +120,31 @@ def strip_vlan(pkt):
     return dst, src, et, pkt[off:]
 
 
-def build_aecp(dst_mac, src_mac, target_eid, controller_eid, seq, command, payload):
+@dataclass
+class Link:
+    """One AECP conversation: the raw socket and the four addresses that every
+    command on it repeats unchanged.
+
+    Passing these five together is what keeps a command's OWN arguments -
+    sequence number, opcode, descriptor type and index - visible at the call
+    site instead of buried behind five fixed positional addresses.
+    """
+    sock: socket.socket
+    iface_mac: bytes
+    dst_mac: bytes
+    target_eid: int
+    controller_eid: int
+
+
+def build_aecp(link: Link, seq: int, command: int, payload: bytes) -> bytes:
+    """One AEM_COMMAND frame, padded to the 60-byte Ethernet minimum."""
     cdl = 8 + 8 + 2 + 2 + len(payload)          # target..end of cmd-specific
     b = bytearray()
-    b += dst_mac + src_mac + struct.pack('!H', ETHERTYPE_AVTP)
+    b += link.dst_mac + link.iface_mac + struct.pack('!H', ETHERTYPE_AVTP)
     b += bytes([SUBTYPE_AECP, 0x00])            # sv=0 ver=0 msg_type=0 AEM_COMMAND
     b += struct.pack('!H', (0 << 11) | cdl)     # status=0 | control_data_length
-    b += struct.pack('!Q', target_eid)
-    b += struct.pack('!Q', controller_eid)
+    b += struct.pack('!Q', link.target_eid)
+    b += struct.pack('!Q', link.controller_eid)
     b += struct.pack('!H', seq)
     b += struct.pack('!H', command)             # u=0
     b += payload
@@ -131,17 +153,23 @@ def build_aecp(dst_mac, src_mac, target_eid, controller_eid, seq, command, paylo
     return bytes(b)
 
 
-def aecp_xact(s, iface_mac, dst_mac, target_eid, controller_eid, seq, command,
-              payload, retries=4, timeout=0.6):
-    frame = build_aecp(dst_mac, iface_mac, target_eid, controller_eid, seq,
-                       command, payload)
+def aecp_xact(link: Link, seq: int, command: int, payload: bytes,
+              retries: int = 4, timeout: float = 0.6) -> tuple[int | None, bytes | None]:
+    """Send one command and return (status, command-specific payload).
+
+    A response is only accepted when BOTH entity ids, the sequence number and
+    the opcode match the command that is outstanding, so another controller's
+    traffic on the same wire cannot be read as this device's answer.
+    (None, None) means the entity never answered within `retries`.
+    """
+    frame = build_aecp(link, seq, command, payload)
     for _ in range(retries):
-        s.send(frame)
+        link.sock.send(frame)
         deadline = time.time() + timeout
         while time.time() < deadline:
-            s.settimeout(max(0.01, deadline - time.time()))
+            link.sock.settimeout(max(0.01, deadline - time.time()))
             try:
-                pkt = s.recv(2048)
+                pkt = link.sock.recv(2048)
             except socket.timeout:
                 break
             d, sr, et, p = strip_vlan(pkt)
@@ -155,16 +183,19 @@ def aecp_xact(s, iface_mac, dst_mac, target_eid, controller_eid, seq, command,
             ceid = struct.unpack('!Q', p[12:20])[0]
             rseq = struct.unpack('!H', p[20:22])[0]
             rcmd = struct.unpack('!H', p[22:24])[0] & 0x7FFF
-            if teid != target_eid or ceid != controller_eid or rseq != seq \
-               or rcmd != command:
+            if teid != link.target_eid or ceid != link.controller_eid \
+               or rseq != seq or rcmd != command:
                 continue
             cdl = struct.unpack('!H', p[2:4])[0] & 0x07FF
             return status, p[24:4 + cdl]
     return None, None
 
 
-def do_counters(s, mac, dst, teid, ceid, seq, dtype, dindex):
-    st, pl = aecp_xact(s, mac, dst, teid, ceid, seq, CMD['GET_COUNTERS'],
+def do_counters(link: Link, seq: int, dtype: int, dindex: int) -> dict[str, object]:
+    """GET_COUNTERS decoded against the descriptor's own bit map. A valid bit
+    with no name is reported under `unnamed` rather than dropped: an
+    entity-specific counter this table does not know is still evidence."""
+    st, pl = aecp_xact(link, seq, CMD['GET_COUNTERS'],
                        struct.pack('!HH', dtype, dindex))
     if st is None:
         return {'error': 'TIMEOUT'}
@@ -188,16 +219,20 @@ def do_counters(s, mac, dst, teid, ceid, seq, dtype, dindex):
     return out
 
 
-def do_read_desc(s, mac, dst, teid, ceid, seq, cfg, dtype, dindex):
-    st, pl = aecp_xact(s, mac, dst, teid, ceid, seq, CMD['READ_DESCRIPTOR'],
+def do_read_desc(link: Link, seq: int, cfg: int, dtype: int,
+                 dindex: int) -> tuple[int | None, bytes | None]:
+    """READ_DESCRIPTOR of one descriptor, undecoded: (status, payload)."""
+    st, pl = aecp_xact(link, seq, CMD['READ_DESCRIPTOR'],
                        struct.pack('!HHHH', cfg, 0, dtype, dindex))
     if st is None:
         return None, None
     return st, pl
 
 
-def do_stream_info(s, mac, dst, teid, ceid, seq, dtype, dindex):
-    st, pl = aecp_xact(s, mac, dst, teid, ceid, seq, CMD['GET_STREAM_INFO'],
+def do_stream_info(link: Link, seq: int, dtype: int, dindex: int) -> dict[str, object]:
+    """GET_STREAM_INFO decoded: the bound format, stream id, destination MAC
+    and the MSRP state that explains a stream which is configured but silent."""
+    st, pl = aecp_xact(link, seq, CMD['GET_STREAM_INFO'],
                        struct.pack('!HH', dtype, dindex))
     if st is None or st != 0 or pl is None or len(pl) < 46:
         return {'error': 'TIMEOUT' if st is None else STATUS.get(st, str(st))}
@@ -217,8 +252,10 @@ def do_stream_info(s, mac, dst, teid, ceid, seq, dtype, dindex):
     return d
 
 
-def do_avb_info(s, mac, dst, teid, ceid, seq, dindex):
-    st, pl = aecp_xact(s, mac, dst, teid, ceid, seq, CMD['GET_AVB_INFO'],
+def do_avb_info(link: Link, seq: int, dindex: int) -> dict[str, object]:
+    """GET_AVB_INFO decoded: the grandmaster this interface follows, its
+    propagation delay, and the asCapable/gPTP/SRP flags behind one flag byte."""
+    st, pl = aecp_xact(link, seq, CMD['GET_AVB_INFO'],
                        struct.pack('!HH', DESC['AVB_INTERFACE'], dindex))
     if st is None or st != 0 or pl is None or len(pl) < 20:
         return {'error': 'TIMEOUT' if st is None else STATUS.get(st, str(st))}
@@ -234,7 +271,9 @@ def do_avb_info(s, mac, dst, teid, ceid, seq, dindex):
             'srp_enabled': bool(flags & 0x04)}
 
 
-def discover(s, seconds):
+def discover(s: socket.socket, seconds: float) -> dict[str, dict[str, object]]:
+    """Every entity that ADVERTISED itself within `seconds`, keyed by entity id.
+    Nothing is transmitted: an entity absent here never sent an ADP."""
     ents = {}
     end = time.time() + seconds
     while time.time() < end:
@@ -266,7 +305,9 @@ def discover(s, seconds):
     return ents
 
 
-def main():
+def main() -> None:
+    """Point the controller at live silicon and print one JSON report per mode.
+    Every opcode it can send is a READ, so no mode changes the device."""
     ap = argparse.ArgumentParser()
     ap.add_argument('--iface', default='enp6s0')
     ap.add_argument('--controller-eid', default='0x6805CAFFFE95B2FF')
@@ -291,15 +332,17 @@ def main():
 
     teid = int(a.target_eid, 16)
     dst = bytes.fromhex(a.target_mac.replace(':', ''))
+    link = Link(s, mac, dst, teid, ceid)
     seq = [int(time.time()) & 0x7FFF]
 
-    def nx():
+    def nx() -> int:
+        """The next sequence number; a reused one reads as a retransmission."""
         seq[0] = (seq[0] + 1) & 0xFFFF
         return seq[0]
 
     if a.mode == 'rawdesc':
         dt, di = a.desc.split(':')
-        st, pl = do_read_desc(s, mac, dst, teid, ceid, nx(), 0,
+        st, pl = do_read_desc(link, nx(), 0,
                               DESC[dt] if dt in DESC else int(dt, 0), int(di))
         print('status=%s len=%s' % (st, len(pl) if pl is not None else None))
         if pl:
@@ -307,8 +350,7 @@ def main():
         return
 
     if a.mode == 'config':
-        st, pl = do_read_desc(s, mac, dst, teid, ceid, nx(), 0,
-                              DESC['CONFIGURATION'], 0)
+        st, pl = do_read_desc(link, nx(), 0, DESC['CONFIGURATION'], 0)
         if st != 0:
             print(json.dumps({'error': 'READ_DESCRIPTOR CONFIGURATION st=%s' % st}))
             return
@@ -329,41 +371,39 @@ def main():
 
     if a.mode == 'sweep':
         out = {'t_wall': time.time(), 't_iso': time.strftime('%Y-%m-%dT%H:%M:%S')}
-        out['ENTITY.0'] = do_counters(s, mac, dst, teid, ceid, nx(), DESC['ENTITY'], 0)
+        out['ENTITY.0'] = do_counters(link, nx(), DESC['ENTITY'], 0)
         for i in range(2):
-            out['AVB_INTERFACE.%d' % i] = do_counters(s, mac, dst, teid, ceid,
-                                                      nx(), DESC['AVB_INTERFACE'], i)
-        out['CLOCK_DOMAIN.0'] = do_counters(s, mac, dst, teid, ceid, nx(),
-                                            DESC['CLOCK_DOMAIN'], 0)
+            out['AVB_INTERFACE.%d' % i] = do_counters(link, nx(),
+                                                      DESC['AVB_INTERFACE'], i)
+        out['CLOCK_DOMAIN.0'] = do_counters(link, nx(), DESC['CLOCK_DOMAIN'], 0)
         for i in range(a.n_in):
-            out['STREAM_INPUT.%d' % i] = do_counters(s, mac, dst, teid, ceid, nx(),
+            out['STREAM_INPUT.%d' % i] = do_counters(link, nx(),
                                                      DESC['STREAM_INPUT'], i)
         for i in range(a.n_out):
-            out['STREAM_OUTPUT.%d' % i] = do_counters(s, mac, dst, teid, ceid, nx(),
+            out['STREAM_OUTPUT.%d' % i] = do_counters(link, nx(),
                                                       DESC['STREAM_OUTPUT'], i)
-        out['AVB_INFO.0'] = do_avb_info(s, mac, dst, teid, ceid, nx(), 0)
+        out['AVB_INFO.0'] = do_avb_info(link, nx(), 0)
         print(json.dumps(out, indent=1))
         return
 
     if a.mode == 'streaminfo':
         out = {}
         for i in range(a.n_in):
-            out['STREAM_INPUT.%d' % i] = do_stream_info(s, mac, dst, teid, ceid,
-                                                        nx(), DESC['STREAM_INPUT'], i)
+            out['STREAM_INPUT.%d' % i] = do_stream_info(link, nx(),
+                                                        DESC['STREAM_INPUT'], i)
         for i in range(a.n_out):
-            out['STREAM_OUTPUT.%d' % i] = do_stream_info(s, mac, dst, teid, ceid,
-                                                         nx(), DESC['STREAM_OUTPUT'], i)
+            out['STREAM_OUTPUT.%d' % i] = do_stream_info(link, nx(),
+                                                         DESC['STREAM_OUTPUT'], i)
         print(json.dumps(out, indent=1))
         return
 
     if a.mode == 'avbinfo':
-        print(json.dumps(do_avb_info(s, mac, dst, teid, ceid, nx(), 0), indent=1))
+        print(json.dumps(do_avb_info(link, nx(), 0), indent=1))
         return
 
     if a.mode == 'counters':
         dt, di = a.desc.split(':')
-        print(json.dumps(do_counters(s, mac, dst, teid, ceid, nx(),
-                                     DESC[dt], int(di)), indent=1))
+        print(json.dumps(do_counters(link, nx(), DESC[dt], int(di)), indent=1))
 
 
 if __name__ == '__main__':

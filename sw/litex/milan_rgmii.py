@@ -20,6 +20,8 @@ inversion in the CRG), reusing LiteEth's RGMII RX/TX datapath unmodified. `rx_cl
 and the IDELAY/`tx_delay` remain knobs so the timing can still be tuned per board.
 """
 
+from dataclasses import dataclass
+
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -74,9 +76,30 @@ class MilanRGMIIRX(LiteXModule):
         self.comb += source.last.eq(last)
 
 
+@dataclass
+class MilanRGMIITiming:
+    """The per-board RGMII timing and reset knobs, at the s7rgmii defaults.
+
+    One object rather than six adjacent same-typed arguments: `tx_delay` and
+    `rx_delay` are both seconds, `iodelay_clk_freq` is Hz, and a caller that
+    swapped a pair of them would build a silently mistimed PHY. `rx_delay` and
+    `iodelay_clk_freq` are carried for s7rgmii API compatibility and are unused
+    by this RX (see MilanRGMIIPHY).
+    """
+    with_hw_init_reset: bool = True
+    tx_delay: float = 2e-9
+    rx_delay: float = 0e-9
+    iodelay_clk_freq: float = 200e6
+    hw_reset_cycles: int = 256
+    rx_clk_invert: bool = True
+
+
 class _MilanRGMIICRG(LiteXModule):
-    def __init__(self, clock_pads, pads, with_hw_init_reset, tx_delay=2e-9,
-                 hw_reset_cycles=256, rx_clk_invert=True):
+    def __init__(self, clock_pads, pads, timing):
+        with_hw_init_reset = timing.with_hw_init_reset
+        tx_delay           = timing.tx_delay
+        hw_reset_cycles    = timing.hw_reset_cycles
+        rx_clk_invert      = timing.rx_clk_invert
         self._reset = CSRStorage(description="PHY reset.")
 
         # --- RX clock ---  INVERTED for the AX7101 (matches the Alinx vendor design),
@@ -125,15 +148,13 @@ class MilanRGMIIPHY(LiteXModule):
     dw          = 8
     tx_clk_freq = 125e6
     rx_clk_freq = 125e6
-    def __init__(self, clock_pads, pads, with_hw_init_reset=True, tx_delay=2e-9,
-                 rx_delay=0e-9, iodelay_clk_freq=200e6, hw_reset_cycles=256,
-                 rx_clk_invert=True):
-        self.crg = _MilanRGMIICRG(clock_pads, pads, with_hw_init_reset, tx_delay,
-                                  hw_reset_cycles, rx_clk_invert)
+    def __init__(self, clock_pads, pads, timing=None):
+        timing = MilanRGMIITiming() if timing is None else timing
+        self.crg = _MilanRGMIICRG(clock_pads, pads, timing)
         self.tx  = ClockDomainsRenamer("eth_tx")(LiteEthPHYRGMIITX(pads))
         self.rx  = ClockDomainsRenamer("eth_rx")(MilanRGMIIRX(pads))  # no IDELAY (Alinx)
         self.sink, self.source = self.tx.sink, self.rx.source
-        # rx_delay / iodelay_clk_freq are accepted for API compat but unused: this RX
+        # timing.rx_delay / .iodelay_clk_freq are carried for API compat but unused: this RX
         # samples raw data with the inverted clock (no IDELAYE2), matching the vendor.
         if LiteEthPHYMDIO is not None and hasattr(pads, "mdc"):
             self.mdio = LiteEthPHYMDIO(pads)

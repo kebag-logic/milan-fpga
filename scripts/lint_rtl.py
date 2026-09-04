@@ -119,160 +119,55 @@ Exit 0 = at or under ratchet, 1 = regression / hard error, 2 = usage or setup.
 import argparse
 import collections
 import concurrent.futures
+import dataclasses
 import os
 import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable, Iterable
+from pathlib import Path
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-HDL = os.path.join(ROOT, "hdl")
-BUDGET = os.path.join(ROOT, "scripts", "lint.budget")
+#: The waiver, exclusion and extra-warning TABLES - what this sweep asks
+#: Verilator for, what it refuses to count, and the record behind every
+#: entry - are `scripts/lint_rtl_policy.py`, which is pure policy with no
+#: machinery in it. They are re-exported here because `from lint_rtl import
+#: LINT_EXCLUDE` is how four other gates learn what this repository is
+#: responsible for.
+from lint_rtl_policy import (ELAB_BLOCKERS, EXTRA_WARNINGS, LINT_EXCLUDE,
+                             PRAGMA_WAIVERS, RULE_WAIVERS)
+
+#: TWO PATH TYPES, and which is which is a contract. An ANCHOR - this file, the
+#: tree root, a walked directory - is a `Path`. Anything that NAMES A SOURCE is
+#: a relative POSIX string: that is what Verilator is handed and prints back,
+#: and what keys LINT_EXCLUDE, PRAGMA_WAIVERS and every line of lint.budget,
+#: where a `Path` would compare unequal to the string the table holds.
+#: `ROOT / rel` crosses one way, `_rel()` the other.
+SELF = Path(__file__).resolve()
+ROOT = SELF.parent.parent
+HDL = ROOT / "hdl"
+BUDGET = ROOT / "scripts" / "lint.budget"
 THIRD_PARTY = "third_party/"
 
-#: Verilator's `--lint-only` default set is already correctness-shaped, so the
-#: gate takes it whole and then adds two codes by name.  Both are cheap here
-#: and neither is a style opinion:
-EXTRA_WARNINGS = [
-    # a signal used as BOTH an async reset and an ordinary flopped input is a
-    # reset-domain question, not a style one, and this project resets
-    # synchronously by house rule (CONTRIBUTING.md §1) - so every hit is a
-    # deviation from the rule, and there are only five (4 in ieee1722, 1 on
-    # milan_datapath's axis_resetn).
-    #
-    # INVESTIGATED 2026-07-27, all five, and none was fixed THEN: the finding
-    # was true but the selection is an artifact, so a bulk fix looked like a
-    # synthesis change bought with no evidence. THE EVIDENCE ARRIVED 2026-08-03
-    # and the bulk fix LANDED - see the reset-partition note below. Kept in the
-    # ratchet (NOT waived: an async reset really is a house-rule deviation, and
-    # "we know it is fine" is what the ratchet is for, not RULE_WAIVERS).
-    # What was found:
-    #
-    #  * `posedge clk_i or negedge rst_n` was NOT rare here - it was 44
-    #    always_ff blocks across the then-current srp/aecp/acmp trees plus
-    #    crf/aaf/common (the first three are deleted now). SYNCASYNCNET
-    #    fires on 4 of them and not the other 40, purely because those 4 ALSO
-    #    carry a 2-FF reset bridge into an audio/bclk domain
-    #    (`xrst_n_r <= {xrst_n_r[0], rst_n}` in aaf_talker_i2s:95,
-    #    KL_aaf_capture_i2s:71, KL_tdm_capture:109/120, KL_crf_tx:102). So the
-    #    rule does not select "the modules with a reset problem"; it selects
-    #    "the modules that also cross a clock domain".
-    #
-    #  * THE RESET PARTITION (2026-08-03, the missing evidence). On a 7-series
-    #    SLICE the SR line is shared by all 8 FFs and its sync/async mode is a
-    #    SLICE-WIDE property, so an async-reset FF can NEVER share a slice with
-    #    a sync-reset one. Post-place on the AX7101 8x8 rv32 build that split
-    #    was 13,040 async vs 41,253 sync registers, and the design sat at
-    #    99.96 % SLICE occupancy (15,844/15,850) with LUTs at only 83.65 % -
-    #    i.e. it was slice-bound, not LUT-bound, and the async/sync partition
-    #    was buying that. 39 of the 44 blocks were converted to the house
-    #    synchronous form; the 5 left are exactly the dual-clock modules above,
-    #    where the async assert still carries the reset into a second domain
-    #    whose clock can be stopped. The conversion is safe because milan_rst
-    #    is AsyncResetSynchronizer-generated (async assert, SYNCHRONOUS
-    #    release): the release is >= 2 clocked cycles wide, and a synchronous
-    #    reset needs exactly one edge.
-    #  * Both halves are individually correct for how the reset is GENERATED.
-    #    axis_resetn is `~ResetSignal(cd_milan)` (sw/litex/milan_soc.py:528)
-    #    and LiteX's S7PLL.create_clkout installs an AsyncResetSynchronizer:
-    #    async assert, SYNCHRONOUS deassert. `negedge rst_n` is exactly the
-    #    right sensitivity for that, and a 2-FF bridge is exactly the right
-    #    way to carry an async-asserted reset into clk_audio/tdm_bclk.
-    #  * The asymmetry that would be a defect - a dual-clock FIFO whose two
-    #    sides leave reset at different times - was checked and is benign: the
-    #    cdc_pair_fifo pointers are both cleared to 0, so the <=2-clock window
-    #    where one side is still running only writes into a RAM that is empty
-    #    by pointer comparison at both ends of it.
-    #  * milan_datapath's axis_resetn hit is INHERITED, not its own: the file
-    #    contains no `negedge` at all. Proved by mutation - deleting every
-    #    `posedge clk_i or negedge rst_n` in hdl/ drops milan_datapath from
-    #    194 findings to 193, the missing one being exactly this.
-    "SYNCASYNCNET",
-    # filename == module name is load-bearing here, not cosmetic: this sweep
-    # (and syn/yosys/run.sh) resolve children through Verilator's `-y` library
-    # search, which finds a module only by its filename.
-    "DECLFILENAME",
-]
 
-# ---- RULE WAIVERS -----------------------------------------------------------
-# One entry per rule that is switched OFF for the whole sweep, or narrowed:
-#
-#   CODE: (predicate-or-None, why this cannot be a real defect, where recorded)
-#
-# `predicate` is None for a whole-code waiver, or a callable
-# (violation) -> bool selecting the narrow subset that is waived; anything the
-# predicate does not select still counts.  The third field is the point: a
-# reason with no record is an opinion, and the next reader cannot check it.
-#
-# Rules for adding one:
-#   * the finding must be structurally impossible to be a defect - "we know it
-#     is fine" is what the ratchet is for, not this table;
-#   * prefer a NARROW predicate over a whole-code waiver, so the code stays
-#     live everywhere else;
-#   * the record must be a real file (ideally a line) a reviewer can open.
+def _rel(path: Path, base: Path) -> str:
+    """`path` as the tree names it: relative to `base`, or absolute when it is
+    not under it (only the self-test, which roots a tree at a temp dir)."""
+    try:
+        return str(path.relative_to(base))
+    except ValueError:
+        return str(path)
 
 
-def _waive_axis_if_pins(v):
-    """PINMISSING on an `axi_stream_if` instance's dead clk/rst_n ports."""
-    return v.pin in ("clk", "rst_n") and "axi_stream_if" in v.source
+def _read_text(path: Path) -> str:
+    """The whole text of one file, the handle closed before it returns."""
+    return path.read_text()
 
 
-RULE_WAIVERS = {
-    "TIMESCALEMOD": (
-        None,
-        "a lint-only artifact, not a property of the RTL: exactly two files in "
-        "hdl/ carry a `timescale (axis_mux_rr_2in_1out.sv and KL_pp_shadow.sv), "
-        "and Verilator then flags all the "
-        "others for not matching. A timescale has no synthesis meaning and "
-        "every Verilator harness sets its own on the command line, so the 106 "
-        "hits say nothing about the design",
-        "hdl/common/axis_mux_rr_2in_1out.sv:7 and hdl/milan/KL_pp_shadow.sv:156 "
-        "are the only two `timescale lines in hdl/; tb/verilator/*/Makefile "
-        "carry the harness timescales",
-    ),
-    "PINMISSING": (
-        _waive_axis_if_pins,
-        "axi_stream_if declares clk/rst_n ports that NOTHING reads: the "
-        "interface is used purely as a signal bundle, neither modport carries "
-        "clk or rst_n, and no `.clk`/`.rst_n` member select of an interface "
-        "instance exists anywhere in hdl/ or tb/ (grep -rnoE "
-        "'[a-z_][a-z0-9_]*\\.(clk|rst_n)' returns nothing). All 53 instances "
-        "are written `axi_stream_if #(...) name();` on purpose. PINMISSING "
-        "stays live for every OTHER instance",
-        "hdl/common/axi_stream_if.sv:14-15 (the ports) and :28-29 (the modports "
-        "that omit them)",
-    ),
-}
+def _write_text(path: Path, text: str) -> None:
+    """Write `text` to `path`, the handle closed before it returns."""
+    path.write_text(text)
 
-# ---- PRAGMA WAIVERS ---------------------------------------------------------
-# Every `verilator lint_off` that survives in the tree needs a justification for
-# the same reason a tied-off input does: an unexplained suppression and an
-# unexplained tie are the same defect class - a decision with no reader.
-# Keyed `<path>|<CODE>`, same three fields as above.  `--pragmas` FAILS on a
-# `lint_off` with no entry here, and on an entry naming a pragma that is gone.
-#
-# EMPTY IS A LEGITIMATE STATE (2026-08-13). Every entry this table ever held
-# was an `hdl/ieee17221/aecp/**` waiver plus the milan_datapath one that
-# justified the AEM_DYNMAP taps lifted off KL_aecp_top. The 1722.1/SRP control
-# plane is deleted and the protocol processor stands in its place, so those
-# files - and the milan_datapath pragma that pointed at them - are gone with
-# it. The table is not "unused": the `--pragmas` gate below still demands a
-# justification for every `lint_off` in the tree, and rejects an entry naming a
-# pragma that no longer exists, so an empty table means exactly one thing -
-# no file under hdl/ currently silences a Verilator warning.
-PRAGMA_WAIVERS = {}
-
-#: `hdl/` files deliberately outside the lint sweep, with the reason.  Only
-#: whole FILES, never whole directories - a directory exclusion is how a scan
-#: gets silently capped.
-LINT_EXCLUDE = {}
-
-#: Coded diagnostics that mean the SWEEP failed, not that the code is dirty:
-#: a module the tool could not find is a setup problem, and grandfathering it
-#: into a count would let the sweep quietly stop covering things.  Everything
-#: else Verilator codes - including the ones it rates as errors, e.g. ENUMVALUE
-#: - is a finding about the source and goes through the ratchet like any other.
-ELAB_BLOCKERS = {"MODMISSING", "PKGNODECL"}
 
 # ---- pragma well-formedness -------------------------------------------------
 # The 2026 scar this gate must be able to catch: a trailing `//` comment after
@@ -293,47 +188,62 @@ PRAGMA_OK_RE = re.compile(
 PRAGMA_BARE_RE = re.compile(r"^\s*(?://|/\*)\s*verilator\s+lint_(?:save|restore)\s*(?:\*/)?\s*$")
 
 
-class Violation(object):
-    """One deduplicated Verilator diagnostic."""
+@dataclasses.dataclass(eq=False, repr=False)
+class Violation:
+    """One deduplicated Verilator diagnostic.
+
+    A record, so the six fields ARE the constructor and the reader never has to
+    check a hand-written positional order against the call site.  `pin` is not
+    a field: it is read out of `msg` once, on construction, because the
+    RULE_WAIVERS predicates ask for it by name and re-running the regex at
+    every waiver test would be the same work in a worse place.  `eq=False`
+    keeps identity comparison and hashability - the sweep dedupes on `key`,
+    never on the object.
+    """
 
     __slots__ = ("code", "path", "line", "col", "msg", "source", "pin")
 
-    def __init__(self, code, path, line, col, msg, source):
-        self.code = code
-        self.path = path
-        self.line = line
-        self.col = col
-        self.msg = msg
-        self.source = source
-        m = re.search(r"missing pin: '(\w+)'", msg)
+    code: str
+    path: str
+    line: str
+    col: str
+    msg: str
+    source: str
+
+    def __post_init__(self):
+        m = re.search(r"missing pin: '(\w+)'", self.msg)
         self.pin = m.group(1) if m else ""
 
     @property
-    def key(self):
+    def key(self) -> tuple[str, str, str, str]:
+        """Dedup identity: one finding arrives once per elaboration that saw it."""
         return (self.path, self.line, self.col, self.code)
 
     @property
-    def bucket(self):
-        """Ratchet bucket = the directory the offending file lives in."""
-        return os.path.dirname(self.path)
+    def bucket(self) -> str:
+        """Ratchet bucket = the directory the offending file lives in - a
+        STRING key of `scripts/lint.budget`, and "" (never `Path.parent`'s
+        ".") at the root, or one directory would answer to two buckets."""
+        parent = Path(self.path).parent
+        return "" if parent == Path(".") else str(parent)
 
     def __str__(self):
         return "%s:%s:%s: %s  %s" % (self.path, self.line, self.col,
                                      self.code, self.msg)
 
 
-def hdl_files(exts=(".sv",)):
+def hdl_files(exts: tuple[str, ...] = (".sv",)) -> list[str]:
     """Every `hdl/` source of the given extensions, doc/ trees excluded."""
     out = []
     for base, dirs, files in os.walk(HDL):
         dirs[:] = [d for d in dirs if d != "doc"]
         for f in sorted(files):
             if f.endswith(exts):
-                out.append(os.path.relpath(os.path.join(base, f), ROOT))
+                out.append(_rel(Path(base, f), ROOT))
     return sorted(out)
 
 
-def submodule_sources():
+def submodule_sources() -> list[str]:
     """The RTL of the protocol-processor and gptp-processor submodules, as SOURCES only.
 
     `hdl/milan/KL_pp_shadow.sv` instantiates `protocol_processor_top` and
@@ -350,8 +260,8 @@ def submodule_sources():
     """
     out = []
     for sub in ("protocol-processor", "gptp-processor"):
-        root = os.path.join(ROOT, sub, "hdl")
-        if not os.path.isdir(root):
+        root = ROOT / sub / "hdl"
+        if not root.is_dir():
             continue                  # submodule not initialised: not our gate
         pkg, mod = [], []
         for base, dirs, files in os.walk(root):
@@ -359,13 +269,13 @@ def submodule_sources():
             for f in sorted(files):
                 if not f.endswith(".sv"):
                     continue
-                rel = os.path.relpath(os.path.join(base, f), ROOT)
+                rel = _rel(Path(base, f), ROOT)
                 (pkg if f.endswith("_pkg.sv") else mod).append(rel)
         out += sorted(pkg) + sorted(mod)
     return out
 
 
-def include_dirs():
+def include_dirs() -> list[str]:
     """`-I` roots for `` `include ``: every hdl directory.
 
     The ENTITY SHAPE comes first. Lint elaborates every module at its DEFAULT
@@ -378,17 +288,17 @@ def include_dirs():
     as UNDRIVEN talker DMAC/VID bits). Same rule as the testbenches: name the
     shape you are elaborating, and put it ahead of hdl/common/csr.
     """
-    dirs = [os.path.join("configs", "generated", "endstation_arty_current")]
+    dirs = ["configs/generated/endstation_arty_current"]
     for base, sub, _ in os.walk(HDL):
         sub[:] = [d for d in sub if d != "doc"]
-        dirs.append(os.path.relpath(base, ROOT))
+        dirs.append(_rel(Path(base), ROOT))
     return dirs[:1] + sorted(dirs[1:])
 
 
-def axis_lib():
+def axis_lib() -> str | None:
     """verilog-axis `-y` root - RESOLUTION ONLY, never linted (see module doc)."""
-    axis = os.path.join(ROOT, "third_party", "verilog-axis", "rtl")
-    return os.path.relpath(axis, ROOT) if os.path.isdir(axis) else None
+    axis = ROOT / "third_party" / "verilog-axis" / "rtl"
+    return _rel(axis, ROOT) if axis.is_dir() else None
 
 
 #: The trees lint reads to RESOLVE the modules hdl/ instantiates, each with the
@@ -415,8 +325,8 @@ def _tree_has_sources(rel):
     dirs, as submodule_sources does), and an empty tree is treated as absent
     ([R0] on PR #198).
     """
-    root = os.path.join(ROOT, rel)
-    if not os.path.isdir(root):
+    root = ROOT / rel
+    if not root.is_dir():
         return False
     for _base, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in ("doc", "rom", "ucode")]
@@ -425,7 +335,7 @@ def _tree_has_sources(rel):
     return False
 
 
-def missing_resolution_trees(present=None):
+def missing_resolution_trees(present: Callable[[str], bool] | None = None) -> list[tuple[str, str]]:
     """(label, why) for every resolution tree lint needs that is absent or empty.
 
     The COUNT lint prints depends on every tree here: without its sources
@@ -454,26 +364,26 @@ def missing_resolution_trees(present=None):
 INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
 
 
-def included(files):
+def included(files: Iterable[str]) -> set[str]:
     """Basenames pulled in by `` `include `` - passing them on the command line
     as well would define their modules twice (MODDUP)."""
     out = set()
     for rel in files:
-        for inc in INCLUDE_RE.findall(open(os.path.join(ROOT, rel)).read()):
-            out.add(os.path.basename(inc))
+        for inc in INCLUDE_RE.findall(_read_text(ROOT / rel)):
+            out.add(Path(inc).name)
     return out
 
 
 DECL_RE = re.compile(r"^\s*(module|package|interface)\s+([A-Za-z_]\w*)", re.M)
 
 
-def declarations():
+def declarations() -> dict[str, list[tuple[str, str]]]:
     """(file -> [(kind, name), ...]) for every linted `hdl/` source."""
     out = {}
     for rel in hdl_files((".sv",)):
         if rel in LINT_EXCLUDE:
             continue
-        text = open(os.path.join(ROOT, rel)).read()
+        text = _read_text(ROOT / rel)
         # Strip comments before the declaration search.  A banner line that
         # happens to begin with the word "module" is prose, not a design unit,
         # and handing its next word to --top-module fails elaboration outright
@@ -486,7 +396,7 @@ def declarations():
     return out
 
 
-def packages(decls):
+def packages(decls: dict[str, list[tuple[str, str]]]) -> list[str]:
     """Package-only files.  Verilator's `-y` library search resolves MODULES
     and INTERFACES by filename but NOT `import <pkg>::*`, so every package is
     handed to every lint run explicitly - which also means the packages
@@ -495,13 +405,13 @@ def packages(decls):
                   if ds and all(k == "package" for k, _ in ds))
 
 
-def coverage_gaps(decls):
+def coverage_gaps(decls: dict[str, list[tuple[str, str]]]) -> list[tuple[str, str]]:
     """Files that no lint run would reach.  A module file is linted directly, a
     package file is preloaded into every run; an INTERFACE file is pulled in
     only by `-y` when something instantiates it, so prove something does.
     Without this, an unreferenced file could sit in the tree completely
     unlinted while the sweep still reported success - a silently capped scan."""
-    bodies = {rel: open(os.path.join(ROOT, rel)).read() for rel in decls}
+    bodies = {rel: _read_text(ROOT / rel) for rel in decls}
     pkgs = set(packages(decls))
     gaps = []
     for rel, ds in sorted(decls.items()):
@@ -522,7 +432,8 @@ DIAG_RE = re.compile(r"^%(Warning|Error)-([A-Z][A-Z0-9_]*): (\S+?):(\d+):(\d+): 
 HARD_RE = re.compile(r"^%Error(?!: Exiting due to)")
 
 
-def lint_one(mod, incdirs, sources, verilator):
+def lint_one(mod: str, incdirs: list[str], sources: list[str],
+             verilator: str) -> tuple[str, list[Violation], list[str]]:
     """Lint `mod` as a top; return (raw stdout, [Violation], [hard error])."""
     cmd = [verilator, "--lint-only", "--sv", "--top-module", mod]
     for w in EXTRA_WARNINGS:
@@ -569,7 +480,8 @@ def lint_one(mod, incdirs, sources, verilator):
     return p.stdout, vios, hard
 
 
-def sweep(verilator, jobs):
+def sweep(verilator: str, jobs: int) -> tuple[
+        dict[str, list[tuple[str, str]]], list[Violation], list[str], int]:
     """Lint every module as its own top, in parallel.
 
     Returns (declarations, deduped violations, hard errors, n_lints).  The
@@ -581,9 +493,9 @@ def sweep(verilator, jobs):
     inc = included(decls)
     pkgs = packages(decls)
     # packages first: a compilation-unit `import` must see them declared
-    sources = ([p for p in pkgs if os.path.basename(p) not in inc]
+    sources = ([p for p in pkgs if Path(p).name not in inc]
                + [r for r in sorted(decls)
-                  if r not in pkgs and os.path.basename(r) not in inc]
+                  if r not in pkgs and Path(r).name not in inc]
                + submodule_sources())
     tasks = [name for rel, ds in sorted(decls.items())
              for kind, name in ds if kind == "module"]
@@ -599,7 +511,7 @@ def sweep(verilator, jobs):
     return decls, list(vios.values()), sorted(set(hard)), len(tasks)
 
 
-def apply_waivers(vios):
+def apply_waivers(vios: list[Violation]) -> tuple[list[Violation], list[Violation], list[Violation]]:
     """Split into (counted, waived, external) - external being third_party."""
     counted, waived, external = [], [], []
     for v in vios:
@@ -618,7 +530,7 @@ def apply_waivers(vios):
 
 # ---- pragma gate ------------------------------------------------------------
 
-def known_codes(verilator, codes):
+def known_codes(verilator: str, codes: Iterable[str]) -> list[str]:
     """Codes Verilator 5.050 actually knows (asked, never assumed)."""
     bad = []
     for c in sorted(codes):
@@ -630,8 +542,12 @@ def known_codes(verilator, codes):
     return bad
 
 
-def check_pragmas(verilator, files=None, root=None):
+def check_pragmas(verilator: str, files: list[str] | None = None,
+                  root: Path | None = None) -> tuple[list[str], set[str]]:
     """Well-formedness + balance + justification of every in-tree lint pragma.
+
+    `files` are relative POSIX strings under the `root` anchor, which is the
+    tree root everywhere but the self-test.
 
     Returns (findings, seen) where `seen` is the set of `<path>|<CODE>` keys."""
     root = root or ROOT
@@ -639,7 +555,9 @@ def check_pragmas(verilator, files=None, root=None):
     findings, seen, codes = [], set(), set()
     for rel in files:
         depth = collections.Counter()
-        for n, ln in enumerate(open(os.path.join(root, rel)), 1):
+        with open(root / rel) as fh:
+            lines = fh.readlines()
+        for n, ln in enumerate(lines, 1):
             if not PRAGMA_RE.search(ln):
                 continue
             if PRAGMA_BARE_RE.match(ln):
@@ -663,7 +581,7 @@ def check_pragmas(verilator, files=None, root=None):
                         "%s:%d: UNJUSTIFIED `lint_off %s` - add a "
                         "PRAGMA_WAIVERS entry (why | where the reason is "
                         "recorded) in %s, or delete the pragma."
-                        % (rel, n, code, os.path.relpath(__file__, root)))
+                        % (rel, n, code, _rel(SELF, root)))
             else:
                 depth[code] -= 1
                 if depth[code] < 0:
@@ -700,12 +618,12 @@ BUDGET_HDR = [
 ]
 
 
-def read_budget():
+def read_budget() -> dict[str, int] | None:
     """{directory: allowance}, or None when the file is missing."""
-    if not os.path.exists(BUDGET):
+    if not BUDGET.exists():
         return None
     out = {}
-    for line in open(BUDGET):
+    for line in _read_text(BUDGET).splitlines():
         s = line.split("#", 1)[0].strip()
         if not s:
             continue
@@ -714,7 +632,8 @@ def read_budget():
     return out
 
 
-def write_budget(counts, per_code=None):
+def write_budget(counts: dict[str, int], per_code: collections.Counter[str] | None = None) -> bool:
+    """Rewrite scripts/lint.budget when its content moved, and say whether it did."""
     width = max([len(d) for d in counts] or [1])
     #: the debt is legible from the committed file alone - a reader should
     #: never have to run the sweep to find out how big the backlog is or what
@@ -726,9 +645,9 @@ def write_budget(counts, per_code=None):
                                               for c, n in ranked(per_code)))
     body = ["%-*s  %d" % (width, d, n) for d, n in sorted(counts.items())]
     content = "\n".join(BUDGET_HDR + tail + [""] + body) + "\n"
-    cur = open(BUDGET).read() if os.path.exists(BUDGET) else None
+    cur = _read_text(BUDGET) if BUDGET.exists() else None
     if cur != content:
-        open(BUDGET, "w").write(content)
+        _write_text(BUDGET, content)
     return cur != content
 
 
@@ -762,18 +681,19 @@ SELF_TEST_CASES = [
 ]
 
 
-def self_test(verilator):
+def self_test(verilator: str) -> int:
     """Mutation-prove the pragma gate: malformed pragmas MUST be rejected."""
     import tempfile
     rc = 0
     with tempfile.TemporaryDirectory() as td:
+        tree = Path(td)
         for name, body, must_fail, what in SELF_TEST_CASES:
-            open(os.path.join(td, name), "w").write(body)
+            _write_text(tree / name, body)
             saved = dict(PRAGMA_WAIVERS)
             # the good case needs its justification, exactly like the tree does
             PRAGMA_WAIVERS["good.sv|UNUSED"] = ("self-test fixture", "this file")
             try:
-                found, _ = check_pragmas(verilator, files=[name], root=td)
+                found, _ = check_pragmas(verilator, files=[name], root=tree)
             finally:
                 PRAGMA_WAIVERS.clear()
                 PRAGMA_WAIVERS.update(saved)
@@ -806,14 +726,13 @@ def self_test(verilator):
     # or a submodule pinned to an empty hdl/ under-counts without refusing
     # ([R0] on PR #198). Proven on real temp dirs, no submodule needed.
     with tempfile.TemporaryDirectory() as td:
-        empty = os.path.join(td, "empty")
-        sourced = os.path.join(td, "sourced")
-        os.makedirs(empty)
-        os.makedirs(sourced)
-        open(os.path.join(sourced, "m.sv"), "w").write("module m; endmodule\n")
+        tree = Path(td)
+        (tree / "empty").mkdir()
+        (tree / "sourced").mkdir()
+        _write_text(tree / "sourced" / "m.sv", "module m; endmodule\n")
         saved = ROOT
         try:
-            globals()["ROOT"] = td
+            globals()["ROOT"] = tree
             bad = _tree_has_sources("empty") or not _tree_has_sources("sourced")
         finally:
             globals()["ROOT"] = saved
@@ -829,7 +748,7 @@ def self_test(verilator):
 
 # ---- reporting --------------------------------------------------------------
 
-def ranked(counter):
+def ranked(counter: collections.Counter[str]) -> list[tuple[str, int]]:
     """Counter -> [(key, n)] sorted by count then key.  `most_common()` keeps
     INSERTION order for ties, and the sweep is threaded, so using it would make
     the `by rule` line in the committed budget file reorder itself at random -
@@ -837,13 +756,18 @@ def ranked(counter):
     return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
-def census(vios):
+def census(vios: list[Violation]) -> tuple[collections.Counter[str], collections.Counter[str]]:
+    """(per-directory, per-code) violation counts - the two views the ratchet uses."""
     per_dir = collections.Counter(v.bucket for v in vios)
     per_code = collections.Counter(v.code for v in vios)
     return per_dir, per_code
 
 
-def print_census(counted, waived, external, budget, n_lints):
+def print_census(counted: list[Violation], waived: list[Violation],
+                 external: list[Violation], budget: dict[str, int],
+                 n_lints: int) -> None:
+    """The whole census: counted per directory against its ratchet, then the
+    by-rule line, then what was waived and what was resolved but never ours."""
     per_dir, per_code = census(counted)
     print("== hdl/ Verilator lint census (%d module elaborations) ==" % n_lints)
     width = max([len(d) for d in per_dir] or [24])
@@ -861,7 +785,7 @@ def print_census(counted, waived, external, budget, n_lints):
     if waived:
         wd = collections.Counter(v.code for v in waived)
         print("  waived (RULE_WAIVERS, reasons in %s): %s"
-              % (os.path.relpath(__file__, ROOT),
+              % (_rel(SELF, ROOT),
                  ", ".join("%s %d" % (c, n) for c, n in ranked(wd))))
     if external:
         ed = collections.Counter(v.code for v in external)
@@ -870,7 +794,8 @@ def print_census(counted, waived, external, budget, n_lints):
               % ", ".join("%s %d" % (c, n) for c, n in ranked(ed)))
 
 
-def main():
+def _parse_args():
+    """The command line: which of the four modes this run is."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
@@ -883,7 +808,97 @@ def main():
                     help="list every surviving violation")
     ap.add_argument("--jobs", "-j", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--verilator", default=os.environ.get("VERILATOR", "verilator"))
-    a = ap.parse_args()
+    return ap.parse_args()
+
+
+def _pragma_gate(verilator):
+    """Run and report the pragma gate; (rc, the `<path>|<CODE>` keys seen)."""
+    print("== lint pragma gate (well-formed · balanced · justified) ==")
+    findings, seen = check_pragmas(verilator)
+    for f in findings:
+        print("  [FAIL] " + f)
+    if findings:
+        print("PRAGMA GATE: FAIL - %d finding(s). Never ratcheted: a malformed "
+              "pragma stops OTHER Verilator versions building the file (which "
+              "no violation count can express), and an unexplained lint_off is "
+              "the same defect class as an unexplained tied-off input."
+              % len(findings))
+        return 1, seen
+    print("PRAGMA GATE: PASS (%d justified lint_off, %d excluded file(s))"
+          % (len(seen), len(LINT_EXCLUDE)))
+    return 0, seen
+
+
+def _refuse_incomplete_resolution():
+    """True (having said which tree and how to get it) if nothing may be
+    measured: a source tree lint resolves hdl/ against is absent or empty.
+
+    The sweep and the budget-lowering path would otherwise run over a tree
+    missing the sources hdl/ instantiates and under-count, inviting a ratchet
+    tighten (--check). Today an absent tree also raises a MODMISSING the
+    elaboration gate turns into an exit-1 before any budget is written, so the
+    danger is the misleading tighten hint rather than a silent lower-write -
+    but that backstop does not cover a present-but-empty tree, nor a future
+    resolution tree whose absence drops findings without a MODMISSING. A clean
+    up-front refusal covers all of them (#186). This is exit 2, a setup
+    refusal, deliberately NOT the exit-1 tighten path.
+    """
+    missing = missing_resolution_trees()
+    if not missing:
+        return False
+    print("LINT SETUP: REFUSED - a source tree lint reads to resolve hdl/ "
+          "is not checked out, so the violation count would be "
+          "under-reported:")
+    for label, why in missing:
+        print("  missing: %-26s (%s)" % (label, why))
+    print("  A fresh `git worktree add` inherits no submodules. Initialise "
+          "them (no network needed for these three):")
+    print("    git submodule update --init %s"
+          % " ".join(label for label, _ in missing))
+    print("  Refused rather than counted: a violation count over an "
+          "incomplete resolution set proves nothing and must not read as a "
+          "pass, nor invite a ratchet tighten - the pp_srcs.py rule.")
+    return True
+
+
+def _lower_ratchet(per_dir, per_code, budget, counted):
+    """Write back a budget that only ever went DOWN; the exit status.
+
+    A directory over its allowance is reported and left alone: raising the
+    ratchet is not something a tool gets to do quietly, and --check will fail
+    on it until someone deals with it.
+    """
+    new, tightened, over = dict(budget), [], []
+    for d in sorted(set(budget) | set(per_dir)):
+        n, cur = per_dir.get(d, 0), budget.get(d, 0)
+        if n < cur:
+            tightened.append("%s %d -> %d" % (d, cur, n))
+        elif n > cur:
+            over.append("%s %d > %d" % (d, n, cur))
+        new[d] = min(n, cur) if d in budget else 0
+    for o in over:
+        print("WARNING: %s violation(s) exceeds the ratchet - --check will FAIL" % o)
+    if over:
+        return 1
+    # always rewrite when the CONTENT moved: the by-rule line in the header is
+    # part of what makes the debt readable from the committed file alone, so it
+    # must not go stale just because no directory count happened to change.
+    rewrote = write_budget(new, per_code)
+    if tightened:
+        print("lint ratchet tightened: " + "; ".join(tightened))
+    elif rewrote:
+        print("lint ratchet unchanged (%d violation(s) <= %d); budget header "
+              "refreshed" % (len(counted), sum(budget.values())))
+    else:
+        print("lint ratchet unchanged (%d violation(s) <= %d)"
+              % (len(counted), sum(budget.values())))
+    return 0
+
+
+def main() -> int:
+    """The gate, in the order it refuses: pragmas, resolution trees, coverage,
+    elaboration, then the per-directory ratchet."""
+    a = _parse_args()
 
     verilator = shutil.which(a.verilator) or a.verilator
     if not shutil.which(a.verilator):
@@ -895,49 +910,15 @@ def main():
     if a.self_test:
         rc |= self_test(verilator)
 
-    print("== lint pragma gate (well-formed · balanced · justified) ==")
-    findings, seen = check_pragmas(verilator)
-    for f in findings:
-        print("  [FAIL] " + f)
-    if findings:
-        print("PRAGMA GATE: FAIL - %d finding(s). Never ratcheted: a malformed "
-              "pragma stops OTHER Verilator versions building the file (which "
-              "no violation count can express), and an unexplained lint_off is "
-              "the same defect class as an unexplained tied-off input."
-              % len(findings))
-        rc = 1
-    else:
-        print("PRAGMA GATE: PASS (%d justified lint_off, %d excluded file(s))"
-              % (len(seen), len(LINT_EXCLUDE)))
+    pragma_rc, seen = _pragma_gate(verilator)
+    rc |= pragma_rc
     # --self-test composes with --check (that is how CI runs it); on its own it
     # is the fast pragma-only mode.
     if a.pragmas or (a.self_test and not a.check):
         return rc
 
     # REFUSE before measuring anything if a resolution tree is absent or empty.
-    # The sweep below and the budget-lowering path further down would otherwise
-    # run over a tree missing the sources hdl/ instantiates and under-count,
-    # inviting a ratchet tighten (--check). Today an absent tree also raises a
-    # MODMISSING the elaboration gate turns into an exit-1 before any budget is
-    # written, so the danger is the misleading tighten hint rather than a silent
-    # lower-write - but that backstop does not cover a present-but-empty tree,
-    # nor a future resolution tree whose absence drops findings without a
-    # MODMISSING. A clean up-front refusal covers all of them (#186). This is
-    # exit 2, a setup refusal, deliberately NOT the exit-1 tighten path.
-    missing = missing_resolution_trees()
-    if missing:
-        print("LINT SETUP: REFUSED - a source tree lint reads to resolve hdl/ "
-              "is not checked out, so the violation count would be "
-              "under-reported:")
-        for label, why in missing:
-            print("  missing: %-26s (%s)" % (label, why))
-        print("  A fresh `git worktree add` inherits no submodules. Initialise "
-              "them (no network needed for these three):")
-        print("    git submodule update --init %s"
-              % " ".join(label for label, _ in missing))
-        print("  Refused rather than counted: a violation count over an "
-              "incomplete resolution set proves nothing and must not read as a "
-              "pass, nor invite a ratchet tighten - the pp_srcs.py rule.")
+    if _refuse_incomplete_resolution():
         return 2
 
     decls = declarations()
@@ -974,7 +955,7 @@ def main():
     if a.check:
         if budget is None:
             print("LINT GATE: FAIL - %s is missing; run scripts/lint_rtl.py "
-                  "once to record the baseline." % os.path.relpath(BUDGET, ROOT))
+                  "once to record the baseline." % _rel(BUDGET, ROOT))
             return 1
         bad = sorted(d for d, n in per_dir.items() if n > budget.get(d, 0))
         if bad:
@@ -1003,34 +984,8 @@ def main():
         print("lint ratchet recorded: %d violation(s) across %d director(y/ies)"
               % (len(counted), len(per_dir)))
         return 0
-    # A normal run only ever LOWERS an entry. A directory over its allowance is
-    # reported and left alone: raising the ratchet is not something a tool gets
-    # to do quietly, and --check will fail on it until someone deals with it.
-    new, tightened, over = dict(budget), [], []
-    for d in sorted(set(budget) | set(per_dir)):
-        n, cur = per_dir.get(d, 0), budget.get(d, 0)
-        if n < cur:
-            tightened.append("%s %d -> %d" % (d, cur, n))
-        elif n > cur:
-            over.append("%s %d > %d" % (d, n, cur))
-        new[d] = min(n, cur) if d in budget else 0
-    for o in over:
-        print("WARNING: %s violation(s) exceeds the ratchet - --check will FAIL" % o)
-    if over:
-        return 1
-    # always rewrite when the CONTENT moved: the by-rule line in the header is
-    # part of what makes the debt readable from the committed file alone, so it
-    # must not go stale just because no directory count happened to change.
-    rewrote = write_budget(new, per_code)
-    if tightened:
-        print("lint ratchet tightened: " + "; ".join(tightened))
-    elif rewrote:
-        print("lint ratchet unchanged (%d violation(s) <= %d); budget header "
-              "refreshed" % (len(counted), sum(budget.values())))
-    else:
-        print("lint ratchet unchanged (%d violation(s) <= %d)"
-              % (len(counted), sum(budget.values())))
-    return 0
+    # A normal run only ever LOWERS an entry.
+    return _lower_ratchet(per_dir, per_code, budget, counted)
 
 
 if __name__ == "__main__":
