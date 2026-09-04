@@ -126,6 +126,7 @@ import argparse
 import ast
 import builtins
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -214,13 +215,25 @@ REFUSED = (
     "unparseable source",
 )
 
+#: How many of each finding one module carries, keyed by finding name. Every
+#: key in `RATCHETED` and `REFUSED` is present, at zero when nothing was found,
+#: so a caller never has to distinguish "clean" from "not measured".
+Counts = dict[str, int]
 
-def sources():
+#: Where each of those findings is: `{key: [(line, detail)]}`, detail being the
+#: text the report prints after the location.
+Sites = dict[str, list[tuple[int, str]]]
+
+#: A function definition in either of its two AST spellings.
+FunctionNode = ast.FunctionDef | ast.AsyncFunctionDef
+
+
+def sources() -> list[str]:
     """Every tracked first-party *.py, across both project processors."""
     return sorted(tracked("*.py"))
 
 
-def population_problem(paths):
+def population_problem(paths: Sequence[str]) -> str | None:
     """Why this population may not be judged, or None when it is complete."""
     if not paths:
         return "the scan found no tracked Python at all"
@@ -231,21 +244,21 @@ def population_problem(paths):
     return None
 
 
-def _is_public(node):
+def _is_public(node: FunctionNode) -> bool:
     return not node.name.startswith("_")
 
 
-def _parameters(node):
+def _parameters(node: FunctionNode) -> list[ast.arg]:
     args = node.args
     return args.posonlyargs + args.args + args.kwonlyargs
 
 
-def _fully_annotated(node):
+def _fully_annotated(node: FunctionNode) -> bool:
     named = [a for a in _parameters(node) if a.arg not in ("self", "cls")]
     return all(a.annotation is not None for a in named) and node.returns is not None
 
 
-def _bound_names(tree):
+def _bound_names(tree: ast.AST) -> list[tuple[int, str]]:
     """Names bound in a scope where they would shadow a built-in.
 
     A CLASS BODY IS NOT SUCH A SCOPE, and this is not a technicality. A
@@ -259,9 +272,15 @@ def _bound_names(tree):
     structures disagree with the document they encode. Class bodies are
     therefore descended into only for their functions.
     """
-    names = []
+    names: list[tuple[int, str]] = []
 
-    def visit(node, in_class_body):
+    def visit(node: ast.AST, in_class_body: bool) -> None:
+        """Collect into `names` every binding this subtree makes.
+
+        `in_class_body` is what carries the rule above down the walk: a name
+        bound directly in a class body is recorded nowhere, while a function
+        nested anywhere below one is descended into as ordinary code.
+        """
         for child in ast.iter_child_nodes(node):
             if isinstance(child, ast.ClassDef):
                 visit(child, in_class_body=True)
@@ -281,16 +300,16 @@ def _bound_names(tree):
     return names
 
 
-def _is_mutable_default(node):
+def _is_mutable_default(node: ast.expr) -> bool:
     if isinstance(node, (ast.List, ast.Dict, ast.Set)):
         return True
     return (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
             and node.func.id in ("list", "dict", "set", "bytearray"))
 
 
-def _managed_opens(tree):
+def _managed_opens(tree: ast.AST) -> set[tuple[int, int]]:
     """Positions of every `open(...)` that IS a `with` item's context."""
-    managed = set()
+    managed: set[tuple[int, int]] = set()
     for node in ast.walk(tree):
         if isinstance(node, (ast.With, ast.AsyncWith)):
             for item in node.items:
@@ -301,12 +320,13 @@ def _managed_opens(tree):
     return managed
 
 
-def scan(text, rel="x.py"):
+def scan(text: str, rel: str = "x.py") -> tuple[Counts, Sites]:
     """(counts, sites) for one module's source text."""
-    counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
-    sites = {key: [] for key in counts}
+    counts: Counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
+    sites: Sites = {key: [] for key in counts}
 
-    def hit(key, lineno, detail):
+    def hit(key: str, lineno: int, detail: str) -> None:
+        """Record one more `key` finding, at `lineno`, with the text to print."""
         counts[key] += 1
         sites[key].append((lineno, detail))
 
@@ -386,9 +406,14 @@ def scan(text, rel="x.py"):
     return counts, sites
 
 
-def audit(paths):
-    totals = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
-    per_file = {}
+def audit(paths: Sequence[str]) -> tuple[Counts, dict[str, tuple[Counts, Sites]]]:
+    """The population's summed counts, and each module's own counts and sites.
+
+    Every path is read and scanned exactly once, so the caller may report a
+    finding's location without re-parsing the module it came from.
+    """
+    totals: Counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
+    per_file: dict[str, tuple[Counts, Sites]] = {}
     for rel in paths:
         counts, sites = scan((REPO / rel).read_text(errors="replace"), rel)
         per_file[rel] = (counts, sites)
@@ -397,9 +422,9 @@ def audit(paths):
     return totals, per_file
 
 
-def parse_budget(text):
+def parse_budget(text: str) -> Counts:
     """{key: int} from budget text; a malformed value simply has no entry."""
-    out = {}
+    out: Counts = {}
     for line in text.splitlines():
         line = line.split("#", 1)[0].strip()
         if "=" in line:
@@ -409,13 +434,20 @@ def parse_budget(text):
     return out
 
 
-def read_budget():
+def read_budget() -> Counts:
+    """The recorded ratchets; an absent budget file reads as no entries at all.
+
+    That empty result is deliberately not a pass: `ratchet` treats a missing
+    key as a failure, so a deleted budget file fails the gate rather than
+    silently granting every count an unbounded allowance.
+    """
     return parse_budget(BUDGET.read_text()) if BUDGET.is_file() else {}
 
 
-def ratchet(totals, budget):
+def ratchet(totals: Counts, budget: Counts) -> tuple[list[str], list[str]]:
     """Missing entry = failure; over = failure; under = pass plus a note."""
-    failures, notes = [], []
+    failures: list[str] = []
+    notes: list[str] = []
     for key in RATCHETED:
         limit = budget.get(key)
         if limit is None:
@@ -430,7 +462,12 @@ def ratchet(totals, budget):
     return failures, notes
 
 
-def write_budget(totals):
+def write_budget(totals: Counts) -> int:
+    """Re-record the ratchets at the measured counts, refusing to raise one.
+
+    Returns the exit status: 1 when some count has grown since the checked-in
+    budget was written, in which case nothing is written at all.
+    """
     previous = read_budget()
     raised = [key for key in RATCHETED
               if key in previous and totals[key] > previous[key]]
@@ -454,130 +491,156 @@ def write_budget(totals):
     return 0
 
 
-def selftest():
-    checks = failures = 0
+class _Tally:
+    """A self-test's running PASS/FAIL count, printed one arm at a time.
 
-    def ck(name, ok, detail=""):
-        nonlocal checks, failures
-        checks += 1
+    Calling it decides one arm: the name is printed with its verdict, and the
+    detail is shown only on a failure, where it is the reason a reader needs.
+    """
+
+    def __init__(self) -> None:
+        self.checks = 0
+        self.failures = 0
+
+    def __call__(self, name: str, ok: bool, detail: str = "") -> None:
+        self.checks += 1
         if ok:
             print(f"[PASS] {name}")
         else:
-            failures += 1
+            self.failures += 1
             print(f"[FAIL] {name}" + (f": {detail}" if detail else ""))
 
-    def count(src, key, rel="x.py"):
-        return scan(src, rel)[0][key]
 
-    # --- the refusals bite ---------------------------------------------------
+def _count(src: str, key: str, rel: str = "x.py") -> int:
+    """How many `key` findings one fixture source produces, judged as `rel`."""
+    return scan(src, rel)[0][key]
+
+
+def _selftest_refusals(ck: _Tally) -> None:
+    """Arms for checks 1-6: each refused construct fires, its safe form does not."""
     ck("a bare except is a finding",
-       count("try:\n    f()\nexcept:\n    pass\n", "bare except") == 1)
+       _count("try:\n    f()\nexcept:\n    pass\n", "bare except") == 1)
     ck("a typed except is not a finding",
-       count("try:\n    f()\nexcept OSError:\n    pass\n", "bare except") == 0)
+       _count("try:\n    f()\nexcept OSError:\n    pass\n", "bare except") == 0)
     ck("a mutable default list is a finding",
-       count("def f(x=[]):\n    return x\n", "mutable default argument") == 1)
+       _count("def f(x=[]):\n    return x\n", "mutable default argument") == 1)
     ck("a mutable default from a call is a finding",
-       count("def f(x=dict()):\n    return x\n", "mutable default argument") == 1,
+       _count("def f(x=dict()):\n    return x\n", "mutable default argument") == 1,
        "dict() builds the same shared object [] does")
     ck("an immutable default is not a finding",
-       count("def f(x=()):\n    return x\n", "mutable default argument") == 0)
+       _count("def f(x=()):\n    return x\n", "mutable default argument") == 0)
     ck("a None default is not a finding",
-       count("def f(x=None):\n    return x\n", "mutable default argument") == 0)
+       _count("def f(x=None):\n    return x\n", "mutable default argument") == 0)
     ck("shell=True is a finding",
-       count("import subprocess\nsubprocess.run(c, shell=True)\n",
-             "shell invocation") == 1)
+       _count("import subprocess\nsubprocess.run(c, shell=True)\n",
+              "shell invocation") == 1)
     ck("os.system is a finding",
-       count("import os\nos.system('ls')\n", "shell invocation") == 1)
+       _count("import os\nos.system('ls')\n", "shell invocation") == 1)
     ck("an argument-list subprocess call is not a finding",
-       count("import subprocess\nsubprocess.run(['ls', '-l'])\n",
-             "shell invocation") == 0)
+       _count("import subprocess\nsubprocess.run(['ls', '-l'])\n",
+              "shell invocation") == 0)
     ck("shadowing type is a finding",
-       count("type = 3\n", "shadowed builtin") == 1)
+       _count("type = 3\n", "shadowed builtin") == 1)
     ck("a parameter shadowing a builtin is a finding",
-       count("def f(list):\n    return list\n", "shadowed builtin") == 1)
+       _count("def f(list):\n    return list\n", "shadowed builtin") == 1)
     ck("an ordinary name is not a finding",
-       count("kind = 3\n", "shadowed builtin") == 0)
+       _count("kind = 3\n", "shadowed builtin") == 0)
     ck("a dataclass field named for a protocol field is not a finding",
-       count("class Pdu:\n    type: int\n", "shadowed builtin") == 0,
+       _count("class Pdu:\n    type: int\n", "shadowed builtin") == 0,
        "a class body is not a scope any unqualified call resolves in")
     ck("a method named set is not a finding",
-       count("class Regs:\n    def set(self, k):\n        pass\n",
-             "shadowed builtin") == 0)
+       _count("class Regs:\n    def set(self, k):\n        pass\n",
+              "shadowed builtin") == 0)
     ck("a local inside a method still shadows",
-       count("class C:\n    def f(self):\n        type = 1\n        return type\n",
-             "shadowed builtin") == 1,
+       _count("class C:\n    def f(self):\n        type = 1\n        return type\n",
+              "shadowed builtin") == 1,
        "the class body is skipped, its function bodies are not")
     ck("a wildcard import is a finding",
-       count("from something import *\n", "wildcard import") == 1)
+       _count("from something import *\n", "wildcard import") == 1)
     ck("a recorded wildcard exception is not a finding",
-       count("from migen import *\n", "wildcard import") == 0,
+       _count("from migen import *\n", "wildcard import") == 0,
        "migen documents `from migen import *` as its usage")
     ck("eval on a non-literal is a finding",
-       count("eval(user_text)\n", "dynamic eval/exec") == 1)
+       _count("eval(user_text)\n", "dynamic eval/exec") == 1)
     ck("eval on a literal is not a finding",
-       count("eval('1 + 1')\n", "dynamic eval/exec") == 0)
+       _count("eval('1 + 1')\n", "dynamic eval/exec") == 0)
     ck("a file that does not parse is a finding, not a skip",
-       count("def (:\n", "unparseable source") == 1,
+       _count("def (:\n", "unparseable source") == 1,
        "a skipped file reads as a clean one")
 
-    # --- the ratchets count the right thing ----------------------------------
+
+def _selftest_ratchets(ck: _Tally) -> None:
+    """Arms for checks 7-15: each ratcheted construct is counted, and only it.
+
+    Every arm here is a pair - the shape that must count, and the neighbouring
+    shape that must not - because a check that only ever fires is as useless as
+    one that never does.
+    """
     long_body = "def f():\n" + "    x = 1\n" * (LONG_FUNCTION_LINES + 5)
     ck("a function over the line limit is a finding",
-       count(long_body, "long function") == 1)
+       _count(long_body, "long function") == 1)
     ck("a short function is not a finding",
-       count("def f():\n    return 1\n", "long function") == 0)
+       _count("def f():\n    return 1\n", "long function") == 0)
     ck("a module over the line limit is a finding",
-       count("x = 1\n" * (LONG_MODULE_LINES + 1), "long module") == 1)
+       _count("x = 1\n" * (LONG_MODULE_LINES + 1), "long module") == 1)
     ck("an unannotated public function is a finding",
-       count("def f(a):\n    return a\n", "unannotated public function") == 1)
+       _count("def f(a):\n    return a\n", "unannotated public function") == 1)
     ck("a fully annotated public function is not a finding",
-       count("def f(a: int) -> int:\n    return a\n",
-             "unannotated public function") == 0)
+       _count("def f(a: int) -> int:\n    return a\n",
+              "unannotated public function") == 0)
     ck("a missing return annotation alone is a finding",
-       count("def f(a: int):\n    return a\n", "unannotated public function") == 1)
+       _count("def f(a: int):\n    return a\n", "unannotated public function") == 1)
     ck("a private function owes no signature",
-       count("def _f(a):\n    return a\n", "unannotated public function") == 0,
+       _count("def _f(a):\n    return a\n", "unannotated public function") == 0,
        "the rule is about what crosses a module boundary")
     ck("self does not need an annotation",
-       count("class C:\n    def f(self) -> int:\n        return 1\n",
-             "unannotated public function") == 0)
+       _count("class C:\n    def f(self) -> int:\n        return 1\n",
+              "unannotated public function") == 0)
     ck("an undocumented public function is a finding",
-       count("def f() -> int:\n    return 1\n",
-             "undocumented public function") == 1)
+       _count("def f() -> int:\n    return 1\n",
+              "undocumented public function") == 1)
     ck("a documented public function is not a finding",
-       count('def f() -> int:\n    """Say what."""\n    return 1\n',
-             "undocumented public function") == 0)
+       _count('def f() -> int:\n    """Say what."""\n    return 1\n',
+              "undocumented public function") == 0)
     ck("os.path is a finding",
-       count("import os\np = os.path.join(a, b)\n", "os.path use") == 1)
+       _count("import os\np = os.path.join(a, b)\n", "os.path use") == 1)
     ck("pathlib is not a finding",
-       count("from pathlib import Path\np = Path(a) / b\n", "os.path use") == 0)
+       _count("from pathlib import Path\np = Path(a) / b\n", "os.path use") == 0)
     ck("an unmanaged open is a finding",
-       count("t = open(p).read()\n", "unmanaged open") == 1)
+       _count("t = open(p).read()\n", "unmanaged open") == 1)
     ck("an open inside a with is not a finding",
-       count("with open(p) as fh:\n    t = fh.read()\n", "unmanaged open") == 0)
+       _count("with open(p) as fh:\n    t = fh.read()\n", "unmanaged open") == 0)
     ck("a nested open inside a with item is not a finding",
-       count("import contextlib\nwith contextlib.closing(open(p)) as fh:\n    pass\n",
-             "unmanaged open") == 0,
+       _count("import contextlib\nwith contextlib.closing(open(p)) as fh:\n    pass\n",
+              "unmanaged open") == 0,
        "the open is the with item's context expression, however it is wrapped")
     wide = "def f(" + ", ".join(f"a{i}" for i in range(MAX_PARAMETERS + 1)) + "):\n    pass\n"
     ck("a function over the parameter limit is a finding",
-       count(wide, "too many parameters") == 1)
+       _count(wide, "too many parameters") == 1)
     ck("a function at the parameter limit is not a finding",
-       count("def f(" + ", ".join(f"a{i}" for i in range(MAX_PARAMETERS)) + "):\n    pass\n",
-             "too many parameters") == 0)
+       _count("def f(" + ", ".join(f"a{i}" for i in range(MAX_PARAMETERS)) + "):\n    pass\n",
+              "too many parameters") == 0)
     ck("a global statement is a finding",
-       count("def f():\n    global X\n    X = 1\n", "global statement") == 1)
+       _count("def f():\n    global X\n    X = 1\n", "global statement") == 1)
     ck("an over-long line is a finding",
-       count("x = '" + "a" * MAX_COLUMNS + "'\n", "over-long line") == 1)
+       _count("x = '" + "a" * MAX_COLUMNS + "'\n", "over-long line") == 1)
     ck("a line at the limit is not a finding",
-       count("x = 1" + " " * (MAX_COLUMNS - 5) + "\n", "over-long line") == 0)
+       _count("x = 1" + " " * (MAX_COLUMNS - 5) + "\n", "over-long line") == 0)
 
-    # --- a construct inside a string is not a finding ------------------------
+
+def _selftest_string_immunity(ck: _Tally) -> None:
+    """The arm proving the scan reads the AST, so quoted text can never count."""
     ck("a construct quoted in a docstring is not a finding",
-       count('"""example: except: pass, and shell=True"""\n', "bare except") == 0,
+       _count('"""example: except: pass, and shell=True"""\n', "bare except") == 0,
        "the scan is AST-based, so a string cannot be a finding")
 
-    # --- budget logic --------------------------------------------------------
+
+def _selftest_budget(ck: _Tally) -> None:
+    """Arms for the ratchet verdict: over fails, equal passes, under is a note.
+
+    The missing-entry arm is the one that matters most - an absent budget key
+    must fail, never read as an unbounded allowance.
+    """
     measured = dict.fromkeys(RATCHETED, 0)
     measured["long function"] = 2
     full = dict(measured)
@@ -594,7 +657,14 @@ def selftest():
        "an absent entry must never read as an unbounded allowance")
     ck("a malformed budget value is no entry", parse_budget("long function = many") == {})
 
-    # --- the live tree -------------------------------------------------------
+
+def _selftest_live_tree(ck: _Tally) -> None:
+    """Arms proving the scan really reaches this tree, and refuses a partial one.
+
+    A gate that measures a smaller population than it claims reports fewer
+    findings and ratchets to them, so the population is checked before any
+    count taken from it is trusted.
+    """
     paths = sources()
     ck("the scan reaches over 100 first-party modules", len(paths) > 100,
        f"found {len(paths)}")
@@ -615,11 +685,25 @@ def selftest():
        all(key in budget for key in RATCHETED),
        f"missing {[k for k in RATCHETED if k not in budget]}")
 
-    print(f"\n{checks} checks: {checks - failures} PASS, {failures} FAIL")
-    return 1 if failures else 0
+
+def selftest() -> int:
+    """Run every fixture arm in order, print the tally, and return 1 on any FAIL.
+
+    Each group below is one construct family the gate implements; the order is
+    the order the report reads in, and no group depends on another having run.
+    """
+    ck = _Tally()
+    _selftest_refusals(ck)
+    _selftest_ratchets(ck)
+    _selftest_string_immunity(ck)
+    _selftest_budget(ck)
+    _selftest_live_tree(ck)
+    print(f"\n{ck.checks} checks: {ck.checks - ck.failures} PASS, {ck.failures} FAIL")
+    return 1 if ck.failures else 0
 
 
-def main():
+def main() -> int:
+    """The process exit status: 0 clean, 1 a finding, 2 a refused population."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--list", action="store_true", help="per-file counts")
     parser.add_argument("--write-budget", action="store_true",

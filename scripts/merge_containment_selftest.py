@@ -22,6 +22,9 @@ import os
 import subprocess
 import sys
 import tempfile
+from collections.abc import Sequence
+from pathlib import Path
+from types import ModuleType
 
 
 def _write(path, text, mode="w"):
@@ -42,11 +45,13 @@ class _Fixture:
         self.base_oid = None      # the object ID of its `base` branch
 
 
-def selftest(module):
+def selftest(module: ModuleType) -> int:
     """Run every case against `module`; 0 when they all pass, 1 otherwise."""
     bad = 0
 
-    def case(name, got, want, why):
+    def case(name: str, got: object, want: object, why: str) -> None:
+        """Report one comparison and, when it disagrees, count it against
+        the suite's exit code - this is the only place a case fails."""
         nonlocal bad
         ok = got == want
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<26} {why}")
@@ -60,7 +65,10 @@ def selftest(module):
     # and not counted, the advertised number could be printed as a literal 0,
     # and UNKNOWN could be made a pass -- SEVEN mutations, all silent.  `run`
     # drives the real tool and captures both the exit code and what it printed.
-    def run(argv):
+    def run(argv: Sequence[str]) -> tuple[int, str]:
+        """Drive the shipped main() for real: its exit code, and everything
+        it printed, so a verdict that is announced but not counted cannot
+        pass for a verdict that is."""
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf), \
                 contextlib.redirect_stderr(io.StringIO()):
@@ -577,7 +585,11 @@ def _merged_pr_timeline_cases(fx):
         '"isCrossRepository":true,'
         '"mergedAt":"2026-02-01T00:00:00Z"}]')
 
-    def fake_merged_list(argv, **_kwargs):
+    def fake_merged_list(argv: Sequence[str],
+                         **_kwargs: object) -> MergedListResult:
+        """Stand in for subprocess.run with the deliberately out-of-order
+        candidate list, and keep the argv so the case can also prove WHAT
+        the sweep asked GitHub for."""
         merged_list_calls.append(argv)
         return MergedListResult(unsorted_prs)
 
@@ -730,9 +742,11 @@ def _deleted_origin_cases(fx):
     # H was merged, S was pushed later, then origin/feature vanished
     # while the checker's local feature remained at H.
     with tempfile.TemporaryDirectory() as deleted_parent:
-        checker = os.path.join(deleted_parent, "checker")
-        deleted_remote = os.path.join(deleted_parent, "remote.git")
-        writer = os.path.join(deleted_parent, "writer")
+        #! str, not Path: all three go straight into git's argv.
+        parent = Path(deleted_parent)
+        checker = str(parent / "checker")
+        deleted_remote = str(parent / "remote.git")
+        writer = str(parent / "writer")
         os.mkdir(checker)
         os.chdir(checker)
         _git("init", "-q", "-b", "base")
@@ -776,7 +790,8 @@ def _deleted_origin_cases(fx):
     _git("--git-dir", remote, "symbolic-ref", "HEAD",
          "refs/heads/work")
     with tempfile.TemporaryDirectory() as shallow_parent:
-        shallow_repo = os.path.join(shallow_parent, "repo")
+        #! str, for the same reason: `git clone` is handed this word.
+        shallow_repo = str(Path(shallow_parent) / "repo")
         _git("clone", "-q", "--depth", "1",
              "--no-single-branch", "file://" + remote,
              shallow_repo)

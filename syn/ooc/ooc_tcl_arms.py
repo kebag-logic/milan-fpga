@@ -13,6 +13,7 @@ count is asserted by the caller in `ooc_tcl_selftest.py`.
 import os
 import shutil
 import tempfile
+from pathlib import Path
 
 from ooc_tcl_harness import (
     Arm, DP_TCL, EFFECTIVE_OK, GEN_GPTP, GEN_LTN, GEN_UCODE, READ_LIST,
@@ -49,10 +50,11 @@ def _arms_pp_shadow_images(suite):
     # Arm 5. The .tcl must take the generator's exit status (dp_srcs.py here:
     # the read-set generator is the first exec this recipe runs).
     stub = tempfile.mkdtemp(prefix="dp-srcs-fails-")
-    with open(os.path.join(stub, "python3"), "w") as fh:
-        fh.write("#!/bin/sh\necho 'dp_srcs: planted generator failure' >&2\n"
-                 "exit 2\n")
-    os.chmod(os.path.join(stub, "python3"), 0o755)
+    fake = Path(stub) / "python3"
+    fake.write_text("#!/bin/sh\necho 'dp_srcs: planted generator failure' >&2\n"
+                    "exit 2\n")
+    fake.chmod(0o755)
+    # `stub` stays `str`: the next thing it does is become part of PATH.
     arm(Arm("generator-failure-propagates", "planted generator failure", False,
         images("ltn_rom.hex", "ucode.hex"),
         env={"PATH": stub + os.pathsep + os.environ.get("PATH", "")}))
@@ -69,8 +71,10 @@ def _arms_datapath_generators(suite):
 
     # Arm 6. A dead microcode generator aborts the script: its exit status
     # is taken by `exec`, never discarded.
-    def no_temp_left(d, log):
-        left = sorted(f for f in os.listdir(d) if ".gen." in f)
+    def no_temp_left(d: str, log: str) -> str | None:
+        """Name the generator temps a refused run left in the run directory,
+        so near-copies of the ROMs cannot accumulate unnoticed."""
+        left = sorted(f.name for f in Path(d).iterdir() if ".gen." in f.name)
         if left:
             return ("the generator temp survived the refusal: %s. It is "
                     "cleaned on the validation path, so it must be cleaned "
@@ -114,8 +118,10 @@ def _arms_datapath_generators(suite):
     # Arm 11. STALE image + no-op generator ([R-parallel]'s exact plant):
     # the pre-created file must not survive to be measured; the no-op leaves
     # no temp file, which is the refusal, and the stale image is deleted.
-    def stale_gone(d, log):
-        if os.path.exists(os.path.join(d, "ucode.hex")):
+    def stale_gone(d: str, log: str) -> str | None:
+        """Name the pre-created ucode.hex when the refusal left it standing to
+        be measured by a later run."""
+        if (Path(d) / "ucode.hex").exists():
             return "the stale ucode.hex survived the refusal"
         return None
     dp_arm(Arm("dp-ucode-stale-noop", "leaving no file",
@@ -175,7 +181,10 @@ def _arms_synth_design_call(suite):
                   "\\1set_msg_config -id {Synth 8-4445} -new_severity "
                   "{CRITICAL WARNING}\n", "promotion-downgraded-after")
     try:
-        def downgraded(d, log):
+        def downgraded(d: str, log: str) -> str | None:
+            """Name how the effective-severity model read the downgrade: it
+            must no longer say ERROR, and it must have RECORDED the CRITICAL
+            WARNING that replaced it rather than lost the id entirely."""
             if EFFECTIVE_OK in log:
                 return "the downgrade-after-promotion mutant still reads as " \
                        "an ERROR effective severity"
@@ -350,9 +359,12 @@ def _arms_derived_source_connection(suite):
         % (pp_root, pp_root, gp_root),
         "srcs-hand-list")
     try:
-        def hand_list_detected(d, log):
-            rl = os.path.join(d, READ_LIST)
-            if not os.path.isfile(rl):
+        def hand_list_detected(d: str, log: str) -> str | None:
+            """Name the hand-list plant as indistinguishable when the read set
+            it produced still equals dp_srcs.py's record -- that equality is
+            the whole detector arm 15 leans on."""
+            rl = Path(d) / READ_LIST
+            if not rl.is_file():
                 return "the stubs recorded no read set"
             got = sorted(l.strip() for l in _read_text(rl).splitlines()
                          if l.strip())
@@ -573,14 +585,17 @@ def _arms_unguarded_constants(suite):
     # previous run's numbers standing under the same names. The generator
     # refusal used here is upstream of synth_design, which is exactly the
     # placement the original fix got wrong and no arm observed.
-    def plant_reports(d):
+    def plant_reports(d: str) -> None:
+        """Stand the previous run's three $TAG reports up in the run
+        directory, so a refusal that fails to invalidate them is visible."""
         for r in ("util_hier_base.rpt", "util_base.rpt", "timing_base.rpt"):
             _write(d, r, "STALE NUMBERS FROM A PREVIOUS RUN\n")
 
-    def reports_gone(d, log):
+    def reports_gone(d: str, log: str) -> str | None:
+        """Name whichever planted reports the refused run left standing."""
         left = sorted(r for r in ("util_hier_base.rpt", "util_base.rpt",
                                   "timing_base.rpt")
-                      if os.path.exists(os.path.join(d, r)))
+                      if (Path(d) / r).exists())
         if left:
             return ("a refused run left %s standing: the reports are the one "
                     "artifact read by hand, and nothing invalidated them"

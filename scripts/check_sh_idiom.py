@@ -95,6 +95,7 @@ import argparse
 import re
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -146,14 +147,23 @@ REFUSED = (
     "shebang without the executable bit",
 )
 
+#: How many of each finding one script carries, keyed by the report name. Every
+#: `RATCHETED` and `REFUSED` key is present, at zero when nothing was found, so
+#: a caller never distinguishes "clean" from "not measured".
+Counts = dict[str, int]
 
-def sources():
+#: Where each of those findings is: `{key: [(line, detail)]}`, detail being the
+#: text the report prints after the location.
+Sites = dict[str, list[tuple[int, str]]]
+
+
+def sources() -> list[str]:
     """Every tracked first-party *.sh, across both project processors."""
     return sorted(p for p in tracked("*.sh")
                   if not p.startswith(EXCLUDED_PREFIXES))
 
 
-def population_problem(paths):
+def population_problem(paths: Sequence[str]) -> str | None:
     """Why this population may not be judged, or None when it is complete."""
     if not paths:
         return "the scan found no tracked shell at all"
@@ -164,11 +174,11 @@ def population_problem(paths):
     return None
 
 
-def executable_bits():
+def executable_bits() -> dict[str, bool]:
     """{path: True} for every tracked path git records mode 100755."""
     run = subprocess.run(["git", "ls-files", "--stage", "--recurse-submodules"],
                          cwd=REPO, capture_output=True, text=True, check=True)
-    out = {}
+    out: dict[str, bool] = {}
     for line in run.stdout.splitlines():
         mode, _, rest = line.partition(" ")
         if "\t" in rest:
@@ -176,7 +186,7 @@ def executable_bits():
     return out
 
 
-def strip_comments(text):
+def strip_comments(text: str) -> str:
     """Blank comment bodies, keeping the `#` so a directive can still be seen.
 
     A `#` inside single or double quotes is not a comment, and a `$#` is a
@@ -210,7 +220,7 @@ def strip_comments(text):
     return "\n".join(out)
 
 
-def shell_flags(text):
+def shell_flags(text: str) -> set[str]:
     """Every `set` option this script turns on, letters and long names alike.
 
     `set -euo pipefail` is one statement in which the trailing `o` takes the
@@ -220,7 +230,7 @@ def shell_flags(text):
     the six that have it. The word after an `-...o` (or a standalone `-o`) is
     therefore consumed as an option name.
     """
-    flags = set()
+    flags: set[str] = set()
     for match in re.finditer(r"^[ \t]*set[ \t]+([^\n;&|)]*)", text, re.M):
         tokens = match.group(1).split()
         index = 0
@@ -240,13 +250,13 @@ def shell_flags(text):
     return flags
 
 
-def has_strict_mode(text):
+def has_strict_mode(text: str) -> bool:
     """True when the script sets errexit, nounset and pipefail."""
     flags = shell_flags(text)
     return {"e", "u"} <= flags and "pipefail" in flags
 
 
-def _function_line_span(lines):
+def _function_line_span(lines: Sequence[str]) -> int:
     """Number of lines inside a function definition, counted by brace depth."""
     inside = 0
     depth = 0
@@ -261,7 +271,7 @@ def _function_line_span(lines):
     return inside
 
 
-def _backticks(text):
+def _backticks(text: str) -> list[tuple[int, int]]:
     """(line, column) of every backtick that OPENS a command substitution.
 
     Quoting state is carried ACROSS LINES, which is the whole difficulty. A
@@ -273,7 +283,7 @@ def _backticks(text):
     stays a finding, and a backslash disarms one in either place. Only the
     OPENING backtick of a pair is reported, so one substitution is one finding.
     """
-    found = []
+    found: list[tuple[int, int]] = []
     quote = None
     in_backtick = False
     line = 1
@@ -311,7 +321,7 @@ def _backticks(text):
     return found
 
 
-def _splitting_context(line):
+def _splitting_context(line: str) -> bool:
     """False for a line whose expansions the shell does not word-split."""
     stripped = line.strip()
     if stripped.startswith(("#", "local ", "export ", "declare ", "readonly ")):
@@ -335,7 +345,7 @@ def _splitting_context(line):
 _SEPARATOR_RE = re.compile(r";;|;|\|\||&&|\||&")
 
 
-def _mask_assignments(line):
+def _mask_assignments(line: str) -> str:
     """Blank the right-hand side of every assignment STATEMENT on the line.
 
     `_splitting_context` already exempts a line that IS an assignment, because
@@ -354,7 +364,10 @@ def _mask_assignments(line):
     the caller's column arithmetic is unchanged.
     """
     out, index, start, quote = list(line), 0, 0, None
-    def blank(begin, end):
+
+    def blank(begin: int, end: int) -> None:
+        """Space over `out[begin:end]` when that statement IS an assignment,
+        leaving newlines and total width alone for the caller's columns."""
         segment = "".join(out[begin:end])
         if re.match(r"^\s*(?:(?:if|while|until|elif|then|do|else)\s+|!\s*)*"
                     r"[A-Za-z_]\w*\+?=", segment):
@@ -383,7 +396,8 @@ def _mask_assignments(line):
     return "".join(out)
 
 
-def _unquoted_expansions(line, raw=None, carry=None):
+def _unquoted_expansions(line: str, raw: str | None = None,
+                         carry: str | None = None) -> tuple[int, str | None]:
     """Count expansions on this line that sit outside any quoting.
 
     `raw` is the line before comment blanking, because the
@@ -440,7 +454,7 @@ def _unquoted_expansions(line, raw=None, carry=None):
     return found, (quote if line.rstrip().endswith("\\") else None)
 
 
-def _quote_state_at_end(line, carry):
+def _quote_state_at_end(line: str, carry: str | None) -> str | None:
     """The quote character still open after `line`, or None."""
     quote = carry
     index = 0
@@ -459,12 +473,14 @@ def _quote_state_at_end(line, carry):
     return quote if line.rstrip().endswith("\\") else None
 
 
-def scan(text, rel="x.sh", is_executable=True):
+def scan(text: str, rel: str = "x.sh",
+         is_executable: bool = True) -> tuple[Counts, Sites]:
     """(counts, sites) for one script's source text."""
-    counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
-    sites = {key: [] for key in counts}
+    counts: Counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
+    sites: Sites = {key: [] for key in counts}
 
-    def hit(key, lineno, detail):
+    def hit(key: str, lineno: int, detail: str) -> None:
+        """Record one more `key` finding, at `lineno`, with the text to print."""
         counts[key] += 1
         sites[key].append((lineno, detail))
 
@@ -511,10 +527,15 @@ def scan(text, rel="x.sh", is_executable=True):
     return counts, sites
 
 
-def audit(paths):
+def audit(paths: Sequence[str]) -> tuple[Counts, dict[str, tuple[Counts, Sites]]]:
+    """The population's summed counts, and each script's own counts and sites.
+
+    The executable bits are read once, from git rather than from the working
+    tree, so a checkout that lost a mode bit is judged on what is recorded.
+    """
     executable = executable_bits()
-    totals = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
-    per_file = {}
+    totals: Counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
+    per_file: dict[str, tuple[Counts, Sites]] = {}
     for rel in paths:
         counts, sites = scan((REPO / rel).read_text(errors="replace"), rel,
                              executable.get(rel, True))
@@ -524,9 +545,9 @@ def audit(paths):
     return totals, per_file
 
 
-def parse_budget(text):
+def parse_budget(text: str) -> Counts:
     """{key: int} from budget text; a malformed value simply has no entry."""
-    out = {}
+    out: Counts = {}
     for line in text.splitlines():
         line = line.split("#", 1)[0].strip()
         if "=" in line:
@@ -536,13 +557,16 @@ def parse_budget(text):
     return out
 
 
-def read_budget():
+def read_budget() -> Counts:
+    """The recorded ratchets. An absent file reads as NO entries, which
+    `ratchet` fails on rather than treating as an unbounded allowance."""
     return parse_budget(BUDGET.read_text()) if BUDGET.is_file() else {}
 
 
-def ratchet(totals, budget):
+def ratchet(totals: Counts, budget: Counts) -> tuple[list[str], list[str]]:
     """Missing entry = failure; over = failure; under = pass plus a note."""
-    failures, notes = [], []
+    failures: list[str] = []
+    notes: list[str] = []
     for key in RATCHETED:
         limit = budget.get(key)
         if limit is None:
@@ -557,7 +581,12 @@ def ratchet(totals, budget):
     return failures, notes
 
 
-def write_budget(totals):
+def write_budget(totals: Counts) -> int:
+    """Re-record the ratchets at the measured counts, refusing to raise one.
+
+    Returns the exit status: 1 when some count has grown since the checked-in
+    budget was written, in which case nothing is written at all.
+    """
     previous = read_budget()
     raised = [key for key in RATCHETED
               if key in previous and totals[key] > previous[key]]
@@ -581,137 +610,168 @@ def write_budget(totals):
     return 0
 
 
-def selftest():
-    checks = failures = 0
+#: A fixture script header that already satisfies check 5, so an arm below can
+#: isolate the construct it is really about.
+_STRICT = "#!/usr/bin/env bash\nset -euo pipefail\n"
 
-    def ck(name, ok, detail=""):
-        nonlocal checks, failures
-        checks += 1
+
+class _Tally:
+    """A self-test's running PASS/FAIL count. Calling it decides one arm and
+    prints the verdict, showing the detail only when the arm failed."""
+
+    def __init__(self) -> None:
+        self.checks = 0
+        self.failures = 0
+
+    def __call__(self, name: str, ok: bool, detail: str = "") -> None:
+        self.checks += 1
         if ok:
             print(f"[PASS] {name}")
         else:
-            failures += 1
+            self.failures += 1
             print(f"[FAIL] {name}" + (f": {detail}" if detail else ""))
 
-    def count(src, key, **kwargs):
-        return scan(src, **kwargs)[0][key]
 
-    strict = "#!/usr/bin/env bash\nset -euo pipefail\n"
+def _count(src: str, key: str, is_executable: bool = True) -> int:
+    """How many `key` findings one fixture script produces."""
+    return scan(src, is_executable=is_executable)[0][key]
 
-    # --- the refusals bite ---------------------------------------------------
+
+def _selftest_refusals(ck: _Tally) -> None:
+    """Arms for checks 1-4: each refused construct fires, its safe form does not."""
     ck("a backtick substitution is a finding",
-       count(strict + "x=`date`\n", "backtick substitution") == 1)
+       _count(_STRICT + "x=`date`\n", "backtick substitution") == 1)
     ck("a $( ) substitution is not a finding",
-       count(strict + "x=$(date)\n", "backtick substitution") == 0)
+       _count(_STRICT + "x=$(date)\n", "backtick substitution") == 0)
     ck("a backtick in a comment is not a finding",
-       count(strict + "# see `date`\n", "backtick substitution") == 0,
+       _count(_STRICT + "# see `date`\n", "backtick substitution") == 0,
        "comment bodies are blanked before matching")
     ck("a backtick inside single quotes is not a finding",
-       count(strict + "awk '/^```sv/ { print }' f\n", "backtick substitution") == 0,
+       _count(_STRICT + "awk '/^```sv/ { print }' f\n", "backtick substitution") == 0,
        "an embedded awk program is single-quoted, so its backticks are literal")
     ck("an escaped backtick is not a finding",
-       count(strict + 'echo "a \\`literal\\` span"\n',
-             "backtick substitution") == 0)
+       _count(_STRICT + 'echo "a \\`literal\\` span"\n',
+              "backtick substitution") == 0)
     ck("a backtick inside double quotes is still a finding",
-       count(strict + 'echo "now is `date`"\n', "backtick substitution") == 1,
+       _count(_STRICT + 'echo "now is `date`"\n', "backtick substitution") == 1,
        "double quotes do not disarm command substitution")
     ck("a multi-line single-quoted program keeps its backticks literal",
-       count(strict + "awk '\n/^```sv/ { a=1 }\n/^```$/ { a=0 }\n' f\n",
-             "backtick substitution") == 0,
+       _count(_STRICT + "awk '\n/^```sv/ { a=1 }\n/^```$/ { a=0 }\n' f\n",
+              "backtick substitution") == 0,
        "quoting state is carried across lines, or line two reads as code")
     ck("a bare cd without set -e is a finding",
-       count("#!/bin/sh\ncd /tmp\n", "cd without a failure path") == 1)
+       _count("#!/bin/sh\ncd /tmp\n", "cd without a failure path") == 1)
     ck("a cd with || exit is not a finding",
-       count("#!/bin/sh\ncd /tmp || exit 1\n", "cd without a failure path") == 0)
+       _count("#!/bin/sh\ncd /tmp || exit 1\n", "cd without a failure path") == 0)
     ck("a bare cd under set -e is not a finding",
-       count(strict + "cd /tmp\n", "cd without a failure path") == 0,
+       _count(_STRICT + "cd /tmp\n", "cd without a failure path") == 0,
        "errexit already ends the script on a failed cd")
     ck("a bare cd under set -e alone is not a finding",
-       count("#!/bin/sh\nset -e\ncd /tmp\n", "cd without a failure path") == 0,
+       _count("#!/bin/sh\nset -e\ncd /tmp\n", "cd without a failure path") == 0,
        "the cd rule asks about errexit, not about the whole strict trio")
     ck("a bare cd under set -u alone is a finding",
-       count("#!/bin/sh\nset -u\ncd /tmp\n", "cd without a failure path") == 1)
+       _count("#!/bin/sh\nset -u\ncd /tmp\n", "cd without a failure path") == 1)
     ck("branching on $? is a finding",
-       count(strict + "make\nif [ $? -ne 0 ]; then exit 1; fi\n",
-             "branch on $?") == 1)
+       _count(_STRICT + "make\nif [ $? -ne 0 ]; then exit 1; fi\n",
+              "branch on $?") == 1)
     ck("a chained $? test is not a finding",
-       count(strict + "out=$(grep x f) || [ $? -eq 1 ] || exit 2\n",
-             "branch on $?") == 0,
+       _count(_STRICT + "out=$(grep x f) || [ $? -eq 1 ] || exit 2\n",
+              "branch on $?") == 0,
        "nothing can be inserted between the command and a || test")
     ck("passing $? on with exit is not a finding",
-       count(strict + "if [ -n \"$x\" ]; then run; exit $?; fi\n",
-             "branch on $?") == 0)
+       _count(_STRICT + "if [ -n \"$x\" ]; then run; exit $?; fi\n",
+              "branch on $?") == 0)
     ck("testing the command directly is not a finding",
-       count(strict + "if ! make; then exit 1; fi\n", "branch on $?") == 0)
+       _count(_STRICT + "if ! make; then exit 1; fi\n", "branch on $?") == 0)
     ck("a shebang without the executable bit is a finding",
-       count(strict, "shebang without the executable bit",
-             is_executable=False) == 1)
+       _count(_STRICT, "shebang without the executable bit",
+              is_executable=False) == 1)
     ck("a shebang with the executable bit is not a finding",
-       count(strict, "shebang without the executable bit",
-             is_executable=True) == 0)
+       _count(_STRICT, "shebang without the executable bit",
+              is_executable=True) == 0)
     ck("a file with no shebang is not a finding",
-       count("set -euo pipefail\n", "shebang without the executable bit",
-             is_executable=False) == 0,
+       _count("set -euo pipefail\n", "shebang without the executable bit",
+              is_executable=False) == 0,
        "a sourced fragment is not run directly")
 
-    # --- the ratchets count the right thing ----------------------------------
+
+def _selftest_strict_mode(ck: _Tally) -> None:
+    """Arms for check 5: only the full errexit/nounset/pipefail trio counts as
+    strict mode, however the three flags are spelled or spread out."""
     ck("a script without strict mode is a finding",
-       count("#!/bin/sh\necho hi\n", "no strict mode") == 1)
+       _count("#!/bin/sh\necho hi\n", "no strict mode") == 1)
     ck("set -euo pipefail is strict mode",
-       count(strict + "echo hi\n", "no strict mode") == 0)
+       _count(_STRICT + "echo hi\n", "no strict mode") == 0)
     ck("set -u alone is not strict mode",
-       count("#!/bin/sh\nset -u\n", "no strict mode") == 1,
+       _count("#!/bin/sh\nset -u\n", "no strict mode") == 1,
        "eleven scripts set -u alone: no failure propagation, no pipe status")
     ck("the three flags set separately are strict mode",
-       count("#!/bin/sh\nset -e\nset -u\nset -o pipefail\n", "no strict mode") == 0)
+       _count("#!/bin/sh\nset -e\nset -u\nset -o pipefail\n", "no strict mode") == 0)
+
+
+def _selftest_unquoted(ck: _Tally) -> None:
+    """Arms for check 6: which expansions the shell would actually word-split.
+
+    Every non-splitting context is a fixture because each false positive here
+    invited a "repair" that broke something real - quoting a case arm broke two
+    gates that parse sweep.sh by regex.
+    """
     ck("an unquoted expansion is a finding",
-       count(strict + "rm -rf $target\n", "unquoted expansion") == 1)
+       _count(_STRICT + "rm -rf $target\n", "unquoted expansion") == 1)
     ck("a quoted expansion is not a finding",
-       count(strict + 'rm -rf "$target"\n', "unquoted expansion") == 0)
+       _count(_STRICT + 'rm -rf "$target"\n', "unquoted expansion") == 0)
     ck("an assignment does not word-split",
-       count(strict + "x=$y\n", "unquoted expansion") == 0)
+       _count(_STRICT + "x=$y\n", "unquoted expansion") == 0)
     ck("an assignment behind `if !` does not word-split",
-       count(strict + "if ! out=$(make 2>&1); then exit 1; fi\n",
-             "unquoted expansion") == 0,
+       _count(_STRICT + "if ! out=$(make 2>&1); then exit 1; fi\n",
+              "unquoted expansion") == 0,
        "this is the SC2181-free form; calling it SC2086 punishes the repair")
     # The per-statement exemption, as fixtures. The first arm is the one that
     # cost something: it was reported as a finding, and quoting it - the
     # obvious repair - broke check_sweep_shape.py and test_builder.py, both of
     # which parse this exact table out of sw/litex/sweep.sh by regex.
     ck("an assignment sharing a line with another statement does not word-split",
-       count(strict + "arty)   NS=4; CFG=${SWEEP_CFG:-configs/a.yaml};;\n",
-             "unquoted expansion") == 0,
+       _count(_STRICT + "arty)   NS=4; CFG=${SWEEP_CFG:-configs/a.yaml};;\n",
+              "unquoted expansion") == 0,
        "a case arm is an assignment after a separator, and the shell still does"
        " not split it")
     ck("a real split after an assignment on the same line is still a finding",
-       count(strict + "a=1; rm -rf $target\n", "unquoted expansion") == 1,
+       _count(_STRICT + "a=1; rm -rf $target\n", "unquoted expansion") == 1,
        "the per-line exemption hid every one of these")
     ck("both halves of a two-statement line are judged separately",
-       count(strict + "foo=$bar; baz $qux\n", "unquoted expansion") == 1)
+       _count(_STRICT + "foo=$bar; baz $qux\n", "unquoted expansion") == 1)
     ck("a separator inside quotes does not split the statement",
-       count(strict + 'echo "a; b" $target\n', "unquoted expansion") == 1)
+       _count(_STRICT + 'echo "a; b" $target\n', "unquoted expansion") == 1)
     ck("a command behind `if !` still word-splits its arguments",
-       count(strict + "if ! grep -q x $files; then exit 1; fi\n",
-             "unquoted expansion") == 1,
+       _count(_STRICT + "if ! grep -q x $files; then exit 1; fi\n",
+              "unquoted expansion") == 1,
        "only the assignment is exempt, not everything after `if !`")
     ck("a [[ ]] test does not word-split",
-       count(strict + 'if [[ $x == y ]]; then :; fi\n', "unquoted expansion") == 0)
+       _count(_STRICT + 'if [[ $x == y ]]; then :; fi\n', "unquoted expansion") == 0)
     ck("a deliberate split carrying a shellcheck directive is not a finding",
-       count(strict + "verilator $VFLAGS  # shellcheck disable=SC2086\n",
-             "unquoted expansion") == 0,
+       _count(_STRICT + "verilator $VFLAGS  # shellcheck disable=SC2086\n",
+              "unquoted expansion") == 0,
        "the comment is what separates the intentional splits from the accidents")
     ck("an expansion inside a comment is not a finding",
-       count(strict + "# uses $target\n", "unquoted expansion") == 0)
-    top_heavy = strict + "echo x\n" * LONG_SCRIPT_LINES
-    ck("a long top-level script is a finding",
-       count(top_heavy, "top-heavy long script") == 1)
-    decomposed = strict + "run() {\n" + "  echo x\n" * LONG_SCRIPT_LINES + "}\nrun\n"
-    ck("a long decomposed script is not a finding",
-       count(decomposed, "top-heavy long script") == 0)
-    ck("a short top-level script is not a finding",
-       count(strict + "echo x\n" * 5, "top-heavy long script") == 0)
+       _count(_STRICT + "# uses $target\n", "unquoted expansion") == 0)
 
-    # --- budget logic --------------------------------------------------------
+
+def _selftest_top_heavy(ck: _Tally) -> None:
+    """Arms for check 7: a long script counts only when most of its body sits
+    outside any function, so decomposing one clears the finding."""
+    top_heavy = _STRICT + "echo x\n" * LONG_SCRIPT_LINES
+    ck("a long top-level script is a finding",
+       _count(top_heavy, "top-heavy long script") == 1)
+    decomposed = _STRICT + "run() {\n" + "  echo x\n" * LONG_SCRIPT_LINES + "}\nrun\n"
+    ck("a long decomposed script is not a finding",
+       _count(decomposed, "top-heavy long script") == 0)
+    ck("a short top-level script is not a finding",
+       _count(_STRICT + "echo x\n" * 5, "top-heavy long script") == 0)
+
+
+def _selftest_budget(ck: _Tally) -> None:
+    """Arms for the ratchet verdict: over fails, equal passes, under is a note,
+    and a missing entry fails rather than reading as an unbounded allowance."""
     measured = dict.fromkeys(RATCHETED, 0)
     measured["no strict mode"] = 2
     full = dict(measured)
@@ -724,7 +784,10 @@ def selftest():
     ck("a missing budget entry fails the ratchet",
        ratchet(measured, {k: 0 for k in RATCHETED if k != "unquoted expansion"})[0] != [])
 
-    # --- the live tree -------------------------------------------------------
+
+def _selftest_live_tree(ck: _Tally) -> None:
+    """Arms proving the scan really reaches this tree, refuses a partial one,
+    and is not inert - an inert scan ratchets every count to nothing."""
     paths = sources()
     ck("the scan reaches the tracked shell", len(paths) >= 15, f"found {len(paths)}")
     ck("the live population is complete", population_problem(paths) is None,
@@ -741,11 +804,24 @@ def selftest():
        all(key in budget for key in RATCHETED),
        f"missing {[k for k in RATCHETED if k not in budget]}")
 
-    print(f"\n{checks} checks: {checks - failures} PASS, {failures} FAIL")
-    return 1 if failures else 0
+
+def selftest() -> int:
+    """Run every fixture arm in order, print the tally, and return 1 on any FAIL.
+    Each group below is one construct the gate implements, and the order is the
+    order the report reads in."""
+    ck = _Tally()
+    _selftest_refusals(ck)
+    _selftest_strict_mode(ck)
+    _selftest_unquoted(ck)
+    _selftest_top_heavy(ck)
+    _selftest_budget(ck)
+    _selftest_live_tree(ck)
+    print(f"\n{ck.checks} checks: {ck.checks - ck.failures} PASS, {ck.failures} FAIL")
+    return 1 if ck.failures else 0
 
 
-def main():
+def main() -> int:
+    """The process exit status: 0 clean, 1 a finding, 2 a refused population."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--list", action="store_true", help="per-file counts")
     parser.add_argument("--write-budget", action="store_true",

@@ -131,6 +131,7 @@ population was refused, which no caller may read as a count of zero.
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -315,10 +316,17 @@ REFUSED = (
     "unbounded C call",
 )
 
+#: How many of each construct one translation unit carries, keyed by the report
+#: name. Every `RATCHETED` and `REFUSED` key is present, at zero when nothing
+#: was found, so a caller never distinguishes "clean" from "not measured".
+Counts = dict[str, int]
 
-def blank_non_code(text):
+
+def blank_non_code(text: str) -> str:
     """Comment and string bodies become spaces; newlines and offsets survive."""
-    def blank(match):
+    def blank(match: re.Match[str]) -> str:
+        """Same-width spaces for this match, except a digit separator, which
+        stays code so it cannot open a character literal."""
         matched = match.group(0)
         if matched == "'":
             return "'"       # a digit separator is code, and stays code
@@ -326,22 +334,24 @@ def blank_non_code(text):
     return NON_CODE.sub(blank, text)
 
 
-def is_c(rel):
+def is_c(rel: str) -> bool:
     """True when this translation unit is freestanding C, not C++."""
     return rel.startswith(C_ROOTS)
 
 
-def in_scope(rel):
+def in_scope(rel: str) -> bool:
+    """Whether this path is judged at all: a scanned suffix, outside the
+    vendored-and-generated prefixes the gate may not repair by hand."""
     return rel.endswith(SCANNED_SUFFIXES) and not rel.startswith(EXCLUDED_PREFIXES)
 
 
-def sources():
+def sources() -> list[str]:
     """Every tracked first-party C/C++ path, across both project processors."""
     return sorted(p for p in tracked(*(f"*{s}" for s in SCANNED_SUFFIXES))
                   if in_scope(p))
 
 
-def population_problem(paths):
+def population_problem(paths: Sequence[str]) -> str | None:
     """Why this population may not be judged, or None when it is complete."""
     if not paths:
         return "the scan found no tracked C or C++ at all"
@@ -352,9 +362,9 @@ def population_problem(paths):
     return None
 
 
-def file_scope_mutables(code):
+def file_scope_mutables(code: str) -> list[int]:
     """Line numbers of file-scope mutable definitions in already-blanked code."""
-    found = []
+    found: list[int] = []
     depth = 0
     for lineno, line in enumerate(code.splitlines(), 1):
         stripped = line.strip()
@@ -370,10 +380,10 @@ def file_scope_mutables(code):
     return found
 
 
-def long_functions(code, limit=LONG_FUNCTION_LINES):
+def long_functions(code: str, limit: int = LONG_FUNCTION_LINES) -> list[tuple[int, int]]:
     """(line, length) for every function definition longer than `limit`."""
     lines = code.splitlines()
-    found = []
+    found: list[tuple[int, int]] = []
     index = 0
     while index < len(lines):
         if not FUNC_OPEN_RE.match(lines[index]):
@@ -391,11 +401,11 @@ def long_functions(code, limit=LONG_FUNCTION_LINES):
     return found
 
 
-def scan(text, rel="x.cpp"):
+def scan(text: str, rel: str = "x.cpp") -> Counts:
     """Every counted construct in one translation unit's source text."""
     code = blank_non_code(text)
     cpp = not is_c(rel)
-    counts = {
+    counts: Counts = {
         "naked new/delete": (len(NEW_RE.findall(code)) + len(DELETE_RE.findall(code))
                              if cpp else 0),
         "goto": len(GOTO_RE.findall(code)),
@@ -411,7 +421,7 @@ def scan(text, rel="x.cpp"):
     return counts
 
 
-def sites(text, key, rel="x.cpp"):
+def sites(text: str, key: str, rel: str = "x.cpp") -> list[tuple[int, str]]:
     """[(line, snippet)] for one key, so a finding can name where it is."""
     code = blank_non_code(text)
     patterns = {
@@ -424,7 +434,7 @@ def sites(text, key, rel="x.cpp"):
         "multi-declarator declaration": (MULTI_DECL_RE,),
     }
     raw_lines = text.splitlines()
-    out = []
+    out: list[tuple[int, str]] = []
     if key == "file-scope mutable":
         out = [(n, raw_lines[n - 1].strip()) for n in file_scope_mutables(code)]
     elif key == "long function":
@@ -438,10 +448,10 @@ def sites(text, key, rel="x.cpp"):
     return sorted(out)
 
 
-def audit(paths):
+def audit(paths: Sequence[str]) -> tuple[Counts, dict[str, Counts]]:
     """(totals, per_file) over the population."""
-    totals = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
-    per_file = {}
+    totals: Counts = dict.fromkeys(tuple(RATCHETED) + tuple(REFUSED), 0)
+    per_file: dict[str, Counts] = {}
     for rel in paths:
         counts = scan((REPO / rel).read_text(errors="replace"), rel)
         per_file[rel] = counts
@@ -453,13 +463,13 @@ def audit(paths):
     return totals, per_file
 
 
-def testbench_makefiles():
+def testbench_makefiles() -> list[str]:
     """Every tracked Makefile that drives a Verilator testbench build."""
     return sorted(p for p in tracked("Makefile", "*/Makefile")
                   if "/tb/" in f"/{p}" and not p.startswith(EXCLUDED_PREFIXES))
 
 
-def cflags_missing(text):
+def cflags_missing(text: str) -> list[str]:
     """Which warning flags this Makefile's -CFLAGS groups do not all carry.
 
     A Makefile may hand -CFLAGS to several verilator invocations - the csr
@@ -481,9 +491,10 @@ def cflags_missing(text):
                   if not all(flag in group for group in groups))
 
 
-def makefiles_without_warnings(paths=None):
+def makefiles_without_warnings(
+        paths: Sequence[str] | None = None) -> list[tuple[str, str]]:
     """[(path, flags)] for each testbench Makefile whose -CFLAGS omits a flag."""
-    found = []
+    found: list[tuple[str, str]] = []
     for rel in (paths if paths is not None else testbench_makefiles()):
         missing = cflags_missing((REPO / rel).read_text(errors="replace"))
         if missing:
@@ -491,7 +502,7 @@ def makefiles_without_warnings(paths=None):
     return found
 
 
-def header_drift(paths):
+def header_drift(paths: Sequence[str]) -> str | None:
     """The first byte-level difference between the harness header copies."""
     present = [rel for rel in HARNESS_HEADER_COPIES if (REPO / rel).is_file()]
     if not present:
@@ -521,9 +532,9 @@ def header_drift(paths):
     return None
 
 
-def parse_budget(text):
+def parse_budget(text: str) -> Counts:
     """{key: int} from budget text; a malformed value simply has no entry."""
-    out = {}
+    out: Counts = {}
     for line in text.splitlines():
         line = line.split("#", 1)[0].strip()
         if "=" in line:
@@ -533,16 +544,19 @@ def parse_budget(text):
     return out
 
 
-def read_budget():
+def read_budget() -> Counts:
+    """The recorded ratchets. An absent file reads as NO entries, which
+    `ratchet` fails on rather than treating as an unbounded allowance."""
     return parse_budget(BUDGET.read_text()) if BUDGET.is_file() else {}
 
 
-def ratchet(totals, budget):
+def ratchet(totals: Counts, budget: Counts) -> tuple[list[str], list[str]]:
     """A missing or malformed entry is a failure, because an absent budget must
     not read as an unbounded one. A count below its entry is a note that the
     entry can be lowered: a budget only moves downward, and slack in it is
     exactly where the next regression hides."""
-    failures, notes = [], []
+    failures: list[str] = []
+    notes: list[str] = []
     for key in RATCHETED:
         limit = budget.get(key)
         if limit is None:
@@ -557,7 +571,7 @@ def ratchet(totals, budget):
     return failures, notes
 
 
-def write_budget(totals):
+def write_budget(totals: Counts) -> int:
     """Re-record the ratchets at the measured counts. Never raises one."""
     previous = read_budget()
     raised = [key for key in RATCHETED
@@ -583,19 +597,30 @@ def write_budget(totals):
     return 0
 
 
-def selftest():
-    checks = failures = 0
+class _Tally:
+    """A self-test's running PASS/FAIL count. Calling it decides one arm and
+    prints the verdict, showing the detail only when the arm failed."""
 
-    def ck(name, ok, detail=""):
-        nonlocal checks, failures
-        checks += 1
+    def __init__(self) -> None:
+        self.checks = 0
+        self.failures = 0
+
+    def __call__(self, name: str, ok: bool, detail: str = "") -> None:
+        self.checks += 1
         if ok:
             print(f"[PASS] {name}")
         else:
-            failures += 1
+            self.failures += 1
             print(f"[FAIL] {name}" + (f": {detail}" if detail else ""))
 
-    # --- the refusals bite ---------------------------------------------------
+
+def _long_body() -> str:
+    """A fixture translation unit holding one function just over the limit."""
+    return "void f() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n"
+
+
+def _selftest_refusals(ck: _Tally) -> None:
+    """Arms for checks 1-3: each refused construct fires, its safe form does not."""
     ck("a naked new is a finding", scan("int main(){ auto* p = new Vfoo; }")
        ["naked new/delete"] == 1)
     ck("a naked delete is a finding", scan("void f(){ delete dut; }")
@@ -616,7 +641,11 @@ def selftest():
        scan("void f(){ memcpy(a, b, 4); }")["unbounded C call"] == 0,
        "memcpy is the right tool for a wire packet and is recorded as allowed")
 
-    # --- the ratchets count the right thing ----------------------------------
+
+def _selftest_ratchets(ck: _Tally) -> None:
+    """Arms for checks 5-10: each ratcheted construct counts, and only it. The
+    long-function arms are the indentation blind spot as fixtures - every one
+    reported zero while `FUNC_OPEN_RE` was anchored at column zero."""
     ck("a C-style cast is a finding",
        scan("void f(){ g((uint32_t)value); }")["c-style cast"] == 1)
     ck("a static_cast is not a finding",
@@ -661,9 +690,8 @@ def selftest():
        scan("static long fails = 0;\n")["multi-declarator declaration"] == 0)
     ck("a call with two arguments is not a declaration",
        scan("void f(){ g(a, b); }\n")["multi-declarator declaration"] == 0)
-    long_body = "void f() {\n" + "    x++;\n" * (LONG_FUNCTION_LINES + 5) + "}\n"
     ck("a function over the line limit is a finding",
-       scan(long_body)["long function"] == 1)
+       scan(_long_body())["long function"] == 1)
     ck("a short function is not a finding",
        scan("void f() {\n    x++;\n}\n")["long function"] == 0)
     # The indentation blind spot, as fixtures. Every arm below reported 0
@@ -693,7 +721,11 @@ def selftest():
     ck("a brace-initialiser is not a function",
        scan("void f() {\n  Foo x{1, 2};\n  x++;\n}\n")["long function"] == 0)
 
-    # --- blanking: a finding inside a comment or a string is not a finding ---
+
+def _selftest_blanking(ck: _Tally) -> None:
+    """Arms proving a construct inside a comment or a literal never counts, and
+    that the digit separator which once blanked 755 lines of a real harness -
+    losing every count downstream of it - opens no literal."""
     ck("a construct in a line comment is not counted",
        scan("// delete dut; goto done;\n")["naked new/delete"] == 0)
     ck("a construct in a block comment is not counted",
@@ -720,7 +752,9 @@ def selftest():
        == [(3, "static long fails = 0;")],
        "the site is reported at line 3, so blanking kept the newlines")
 
-    # --- C is judged as C ----------------------------------------------------
+
+def _selftest_c_is_c(ck: _Tally) -> None:
+    """Arms for the C exemption: checks 5-8 stand down, checks 2, 3, 9 and 10 do not."""
     ck("a C-style cast in C is not a finding",
        scan("void f(){ g((uint32_t)v); }", "sw/trace/milan_trace.c")
        ["c-style cast"] == 0,
@@ -732,9 +766,12 @@ def selftest():
        scan("void f(){ goto out; out: ; }", "sw/trace/milan_trace.c")["goto"] == 1,
        "checks 2, 3, 9 and 10 run on C too")
     ck("a long function in C is still a finding",
-       scan(long_body, "sw/trace/milan_trace.c")["long function"] == 1)
+       scan(_long_body(), "sw/trace/milan_trace.c")["long function"] == 1)
 
-    # --- budget logic --------------------------------------------------------
+
+def _selftest_budget(ck: _Tally) -> None:
+    """Arms for the ratchet verdict: over fails, equal passes, under is a note,
+    and a missing entry fails rather than reading as an unbounded allowance."""
     measured = dict.fromkeys(RATCHETED, 0)
     measured["c-style cast"] = 2
     full = dict(measured)
@@ -757,8 +794,11 @@ def selftest():
        parse_budget("c-style cast = 7  # the count at the head") ==
        {"c-style cast": 7})
 
-    # --- the live tree -------------------------------------------------------
-    paths = sources()
+
+def _selftest_live_tree(ck: _Tally, paths: Sequence[str]) -> None:
+    """Arms proving the live scan reaches this tree and has not gone inert. The
+    anti-vacuity arms plant each ratcheted construct into a REAL source rather
+    than demanding debt, so the guard still holds once the rule is finished."""
     ck("the scan reaches over 100 first-party translation units", len(paths) > 100,
        f"found {len(paths)}")
     for sub in PROJECT_SUBMODULES:
@@ -805,6 +845,12 @@ def selftest():
     ck("the checked-in budget carries every ratcheted key",
        all(key in budget for key in RATCHETED),
        f"missing {[k for k in RATCHETED if k not in budget]}")
+
+
+def _selftest_warning_flags(ck: _Tally) -> None:
+    """Arms for check 11: which -CFLAGS groups count as handing on the flags.
+    Both quoting hazards are fixtures, because a weaker pattern wrote
+    `-Wall -Wextra` into an escape sequence and broke a suite's build."""
     ck("a build with no warning flags is a finding",
        cflags_missing('\t$(V) -CFLAGS "-std=c++17 -O2" x.cpp\n')
        == ["-Wall", "-Wextra"])
@@ -833,15 +879,35 @@ def selftest():
        "read that sentence as a build")
     ck("the testbench Makefile population is non-empty",
        len(testbench_makefiles()) > 50, f"found {len(testbench_makefiles())}")
+
+
+def _selftest_harness_header(ck: _Tally, paths: Sequence[str]) -> None:
+    """Arms for check 4: the shared harness header exists and its copies agree."""
     ck("the shared harness header exists", (REPO / HARNESS_HEADER).is_file())
     ck("the harness header copies agree", header_drift(paths) is None,
        str(header_drift(paths)))
 
-    print(f"\n{checks} checks: {checks - failures} PASS, {failures} FAIL")
-    return 1 if failures else 0
+
+def selftest() -> int:
+    """Run every fixture arm in order, print the tally, and return 1 on any FAIL.
+    Each group below is one construct family the gate implements, and the live
+    population is established once and handed to the two groups that judge it."""
+    ck = _Tally()
+    _selftest_refusals(ck)
+    _selftest_ratchets(ck)
+    _selftest_blanking(ck)
+    _selftest_c_is_c(ck)
+    _selftest_budget(ck)
+    paths = sources()
+    _selftest_live_tree(ck, paths)
+    _selftest_warning_flags(ck)
+    _selftest_harness_header(ck, paths)
+    print(f"\n{ck.checks} checks: {ck.checks - ck.failures} PASS, {ck.failures} FAIL")
+    return 1 if ck.failures else 0
 
 
-def main():
+def main() -> int:
+    """The process exit status: 0 clean, 1 a finding, 2 a refused population."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--list", action="store_true", help="per-file counts")
     parser.add_argument("--write-budget", action="store_true",

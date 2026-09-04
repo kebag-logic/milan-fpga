@@ -34,27 +34,39 @@ and requires expect_fail() to see a rejection that NAMES the arm's own
 subject - a mutation caught by an unrelated check is not evidence.
 """
 
-import os
 import re
 import shutil
 import tempfile
+from collections.abc import Callable, Sequence
+from pathlib import Path
+from types import ModuleType
+from typing import Any
 
 import check_entity_shape as gate
 
 
-def mutate(text, old, new):
+def mutate(text: str, old: str, new: str) -> str:
+    """The source with its FIRST `old` rewritten - or no self-test at all.
+
+    An anchor that has moved is a SETUP error, not a finding: a mutation
+    that planted nothing would leave the arm green for a reason that has
+    nothing to do with the defect it claims to exercise, which is the one
+    way a mutation proof can lie. So the miss stops the run here instead of
+    being handed to expect_fail() as evidence.
+    """
     if old not in text:
         raise SystemExit(f"SELF-TEST SETUP: {old!r} not in the source")
     return text.replace(old, new, 1)
 
 
-def adp_shape_of(builder, cfg):
+def adp_shape_of(builder: ModuleType, cfg: dict[str, Any]) -> int:
     """This config's talker_stream_sources - read through the builder so the
     self-test never restates a count the gate exists to keep singular."""
     return builder.adp_shape(cfg)["talker_stream_sources"]
 
 
-def expect_fail(label, fn, required=()):
+def expect_fail(label: str, fn: Callable[[], object],
+                required: str | Sequence[str] = ()) -> None:
     """Run a mutated world and require the pipeline to REJECT it.
 
     A rejection counts whether it comes from this gate's own comparisons or
@@ -84,24 +96,39 @@ def expect_fail(label, fn, required=()):
         print(f"         (rejected by: {why})")
 
 
-def with_rtl(dp_text=None, csr_text=None):
+def with_rtl(dp_text: str | None = None,
+             csr_text: str | None = None) -> Callable[[], None]:
     """Context-manager-ish helper: swap in mutated sources for one call."""
     keep = (gate.RTL.datapath, gate.RTL.csr)
-    td = tempfile.mkdtemp()
+    td = Path(tempfile.mkdtemp())
     if dp_text is not None:
-        gate.RTL.datapath = os.path.join(td, "milan_datapath.sv")
+        gate.RTL.datapath = td / "milan_datapath.sv"
         gate.write_text(gate.RTL.datapath, dp_text)
     if csr_text is not None:
-        gate.RTL.csr = os.path.join(td, "milan_csr.sv")
+        gate.RTL.csr = td / "milan_csr.sv"
         gate.write_text(gate.RTL.csr, csr_text)
 
-    def restore():
+    def restore() -> None:
+        """Point the gate back at the tree's own RTL and drop the copies."""
         gate.RTL.datapath, gate.RTL.csr = keep
         shutil.rmtree(td, ignore_errors=True)
     return restore
 
 
-def _prove_include_ambiguity(builder):
+def _repo_spelling(path: Path) -> str:
+    """What `builder.ADP_SHAPE_REL` must hold for the gate to reach `path`.
+
+    The gate always reads the tracked shape as `ROOT / ADP_SHAPE_REL`, and
+    the builder's own value for that name is a repository-relative `str`.
+    A mutation that redirects it at a temp-directory copy therefore has to
+    hand back a `str` too, and one that still resolves THROUGH the root -
+    hence `walk_up`, which is what permits the `..` segments a path outside
+    the tree needs.
+    """
+    return str(path.relative_to(gate.ROOT, walk_up=True))
+
+
+def _prove_include_ambiguity(builder: ModuleType) -> None:
     """A byte-identical copy of the header, reachable two ways (arm H)."""
     # 0. THE AMBIGUITY CASE (arm H). Put a copy of the shape header back
     #    beside milan_csr.sv, exactly where it used to live. Nothing about
@@ -110,18 +137,18 @@ def _prove_include_ambiguity(builder):
     #    the file is now reachable two ways, so Verilator binds the include
     #    path's copy while Vivado, yosys and sv2v bind this one, and a
     #    +incdir shape override reaches only half the design.
-    adjacent = os.path.join(gate.ROOT, "hdl", "common", "csr", "gen",
-                            os.path.basename(builder.ADP_SHAPE_REL))
-    os.makedirs(os.path.dirname(adjacent), exist_ok=True)
-    shutil.copyfile(os.path.join(gate.ROOT, builder.ADP_SHAPE_REL), adjacent)
+    adjacent = (gate.ROOT / "hdl" / "common" / "csr" / "gen"
+                / Path(builder.ADP_SHAPE_REL).name)
+    adjacent.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(gate.ROOT / builder.ADP_SHAPE_REL, adjacent)
     try:
         expect_fail("a shape header beside its includer is ambiguous",
                     gate.check_include_ambiguity)
     finally:
-        os.unlink(adjacent)
+        adjacent.unlink()
 
 
-def _prove_dead_prerequisite(original, stale):
+def _prove_dead_prerequisite(original: str, stale: Path) -> None:
     """A consumer left pointing at a path the header no longer occupies.
 
     Three spellings of the same defect (arm I): the plain relative path,
@@ -188,7 +215,7 @@ def _prove_dead_prerequisite(original, stale):
             handle.write(original)
 
 
-def _prove_unresolvable_make(original, stale):
+def _prove_unresolvable_make(original: str, stale: Path) -> None:
     """Make expressions that settle to no single path in the repository.
 
     [R8-2]'s three recurrences (arm I): an append that splits the
@@ -231,7 +258,7 @@ def _prove_unresolvable_make(original, stale):
     # 0g. [R8-2]'s third recurrence: an include overriding the prefix.
     #     Make reads the include; the final value points nowhere inside
     #     the repository, and the resolver reports exactly that.
-    shadow_mk = os.path.join(gate.ROOT, "tb/verilator/csr/shape_paths.mk")
+    shadow_mk = gate.ROOT / "tb/verilator/csr/shape_paths.mk"
     with open(shadow_mk, "w", encoding="utf-8") as handle:
         handle.write("RTL_DIR = /nonexistent\n")
     with open(stale, "w", encoding="utf-8") as handle:
@@ -243,10 +270,10 @@ def _prove_unresolvable_make(original, stale):
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
-        os.unlink(shadow_mk)
+        shadow_mk.unlink()
 
 
-def _prove_frozen_expansion(original, stale):
+def _prove_frozen_expansion(original: str, stale: Path) -> None:
     """Evasions that only make's own frozen state can catch.
 
     [R8-3] and [R8-4] (arm I): the late definition arrives through an
@@ -258,7 +285,7 @@ def _prove_frozen_expansion(original, stale):
     #     include, so no same-file scan can see it. The frozen-variable
     #     cross-check does: SHAPE_LATE froze the empty prefix, the text
     #     probe reads the include's final value, and they disagree.
-    late_mk = os.path.join(gate.ROOT, "tb/verilator/csr/late_dir.mk")
+    late_mk = gate.ROOT / "tb/verilator/csr/late_dir.mk"
     with open(late_mk, "w", encoding="utf-8") as handle:
         handle.write("LATE_DIR := ../../../hdl\n")
     with open(stale, "w", encoding="utf-8") as handle:
@@ -272,7 +299,7 @@ def _prove_frozen_expansion(original, stale):
     finally:
         with open(stale, "w", encoding="utf-8") as handle:
             handle.write(original)
-        os.unlink(late_mk)
+        late_mk.unlink()
 
     # 0i. [R8-3]'s second evasion: the later definition wears an `export`
     #     prefix. The assignment-line pattern admits the prefix, and the
@@ -309,7 +336,7 @@ def _prove_frozen_expansion(original, stale):
             handle.write(original)
 
 
-def _prove_builder_shape_lies(builder, src_cfg):
+def _prove_builder_shape_lies(builder: ModuleType, src_cfg: Path) -> None:
     """A builder whose computed shape contradicts the model it emits.
 
     The bench's own defect at the layer that now owns it (arms A-C): the
@@ -323,7 +350,10 @@ def _prove_builder_shape_lies(builder, src_cfg):
     #    would be un-reachable - CRF on the wire, invisible to ATDECC.
     real_shape = builder.adp_shape
 
-    def crf_blind(cfg):
+    def crf_blind(cfg: dict[str, Any]) -> dict[str, int]:
+        """The real shape with the CRF Media Clock Output dropped from the
+        talker count, so the model advertises one source fewer than the
+        overlay emits descriptors for."""
         r = dict(real_shape(cfg))
         r["talker_stream_sources"] = len(cfg["talkers"])
         return r
@@ -336,7 +366,9 @@ def _prove_builder_shape_lies(builder, src_cfg):
 
     # 2. the CRF SINK dropped the same way (the max(N,2) asymmetry, now
     #    expressed where the shape is actually decided)
-    def sink_blind(cfg):
+    def sink_blind(cfg: dict[str, Any]) -> dict[str, int]:
+        """The real shape with the CRF sink dropped from the listener count
+        - the max(N,2) asymmetry, planted where the shape is decided."""
         r = dict(real_shape(cfg))
         r["listener_stream_sinks"] = len(cfg["listeners"])
         return r
@@ -349,7 +381,9 @@ def _prove_builder_shape_lies(builder, src_cfg):
 
     # 3. a capability with nothing behind it: MEDIA_CLOCK_SOURCE claimed by a
     #    config that has no CRF output (what the boot script did for years)
-    def caps_lie(cfg):
+    def caps_lie(cfg: dict[str, Any]) -> dict[str, int]:
+        """The real shape with MEDIA_CLOCK_SOURCE claimed in
+        talker_capabilities and no CRF output anywhere behind it."""
         r = dict(real_shape(cfg))
         r["talker_capabilities"] |= 0x0800
         return r
@@ -358,13 +392,12 @@ def _prove_builder_shape_lies(builder, src_cfg):
         expect_fail("MEDIA_CLOCK_SOURCE claimed without a CRF output",
                     lambda: gate.check_config(
                         builder,
-                        os.path.join(gate.CONFIG_DIR,
-                                     "endstation_arty_current.yaml")))
+                        gate.CONFIG_DIR / "endstation_arty_current.yaml"))
     finally:
         builder.adp_shape = real_shape
 
 
-def _prove_tracked_shape_drift(builder):
+def _prove_tracked_shape_drift(builder: ModuleType) -> None:
     """The tracked header against the config being built, and against its
     own declared owner (arms D and E)."""
     # 4. THE SHAPE-DRIFT DEFECT ITSELF, restated for the one artifact that is
@@ -380,19 +413,18 @@ def _prove_tracked_shape_drift(builder):
     #    no RTL destination since hdl/ieee17221/aecp was deleted.)
     keep = builder.ADP_SHAPE_REL
     with tempfile.TemporaryDirectory() as td:
-        other = builder.load_config(os.path.join(gate.CONFIG_DIR,
-                                                 "endstation_arty_4x4.yaml"))
-        adp4 = os.path.join(td, "adp_shape_defaults.svh")
+        other = builder.load_config(
+            str(gate.CONFIG_DIR / "endstation_arty_4x4.yaml"))
+        adp4 = Path(td) / "adp_shape_defaults.svh"
         gate.write_text(adp4, builder.emit_adp_shape_svh(other))
-        builder.ADP_SHAPE_REL = os.path.relpath(adp4, gate.ROOT)
+        builder.ADP_SHAPE_REL = _repo_spelling(adp4)
         try:
             expect_fail(
                 "the tree carries a DIFFERENT config's shape than the one "
                 "being built",
                 lambda: gate.check_built_config(
                     builder,
-                    os.path.join(gate.CONFIG_DIR,
-                                 "endstation_ax7101_8x8.yaml")))
+                    gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"))
         finally:
             builder.ADP_SHAPE_REL = keep
 
@@ -404,12 +436,12 @@ def _prove_tracked_shape_drift(builder):
         owner = gate.tracked_owner_cfg(builder, gate.all_configs())
         if owner is None:
             raise SystemExit("SELF-TEST SETUP: the tracked shape has no owner")
-        stale = os.path.join(td, "adp_shape_defaults.svh")
+        stale = Path(td) / "adp_shape_defaults.svh"
         gate.write_text(stale, mutate(
             builder.emit_adp_shape_svh(owner),
             f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner)};",
             f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner) + 1};"))
-        builder.ADP_SHAPE_REL = os.path.relpath(stale, gate.ROOT)
+        builder.ADP_SHAPE_REL = _repo_spelling(stale)
         try:
             expect_fail("tracked shape is STALE against the config it names",
                         lambda: gate.check_tracked_shape(builder,
@@ -418,7 +450,8 @@ def _prove_tracked_shape_drift(builder):
             builder.ADP_SHAPE_REL = keep
 
 
-def _prove_rtl_regressions(builder, base_dp, base_csr):
+def _prove_rtl_regressions(builder: ModuleType, base_dp: str,
+                           base_csr: str) -> None:
     """The RTL taking the entity shape or the version back into its own
     hands (arms F and G)."""
     # 5. milan_csr regains a write arm for 0x618
@@ -465,7 +498,7 @@ def _prove_rtl_regressions(builder, base_dp, base_csr):
         restore()
 
 
-def _prove_config_defects(builder, base_cfg):
+def _prove_config_defects(builder: ModuleType, base_cfg: str) -> None:
     """A config that answers a question it does not own, or under-declares
     the shape its gateware was built for (arms A-D and G)."""
     # 8. REMOVED, not weakened (2026-08-12): "TB golden not regenerated with
@@ -481,16 +514,18 @@ def _prove_config_defects(builder, base_cfg):
     # 9. a config declaring its own firmware_version - the second answer to
     #    "what version is this", which is the one controllers got for months
     with tempfile.TemporaryDirectory() as td:
-        p = os.path.join(td, "declared_fw.yaml")
+        p = Path(td) / "declared_fw.yaml"
         gate.write_text(p, mutate(
             base_cfg, '  serial_number: "AX7101-0001"',
             '  firmware_version: "0.1.0"\n  serial_number: "AX7101-0001"'))
+        # str() at the boundary: endstation_builder.load_config declares
+        # `path: str` and weaves it into its ConfigError text.
         expect_fail("a config declares its own firmware_version",
-                    lambda: builder.load_config(p))
+                    lambda: builder.load_config(str(p)))
 
     # 10. and the config itself losing a STREAM_INPUT while N_STREAMS holds
     with tempfile.TemporaryDirectory() as td:
-        p = os.path.join(td, "short_listener.yaml")
+        p = Path(td) / "short_listener.yaml"
         gate.write_text(p, mutate(
             base_cfg,
             # no `formats` list since the Milan 6.4 family became derived
@@ -505,18 +540,18 @@ def _prove_config_defects(builder, base_cfg):
                     lambda: gate.check_config(builder, p))
 
 
-def self_test():
+def self_test() -> None:
     """Mutation proof: every planted shape disagreement must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
     builder = gate.load_builder()
     _prove_include_ambiguity(builder)
-    stale = os.path.join(gate.ROOT, "tb/verilator/csr/Makefile")
+    stale = gate.ROOT / "tb/verilator/csr/Makefile"
     with open(stale, encoding="utf-8") as handle:
         original = handle.read()
     _prove_dead_prerequisite(original, stale)
     _prove_unresolvable_make(original, stale)
     _prove_frozen_expansion(original, stale)
-    src_cfg = os.path.join(gate.CONFIG_DIR, "endstation_ax7101_8x8.yaml")
+    src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
     base_cfg = gate.read_text(src_cfg)
     base_dp = gate.read_text(gate.RTL.datapath)
     base_csr = gate.read_text(gate.RTL.csr)

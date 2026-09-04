@@ -20,21 +20,31 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
+from pathlib import Path, PurePosixPath
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
-TCL = os.path.join(HERE, "pp_shadow_ooc.tcl")
-DP_TCL = os.path.join(HERE, "milan_datapath_ooc.tcl")
+#: The two directories this fixture is anchored to are `Path`, so every join
+#: below is structural rather than string arithmetic. Spelled exactly as
+#: `dp_srcs.py` next door spells it, so the two agree on the same root.
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
+#: ...and the recipes and generators derived from them cross back to `str`
+#: here, once, because each one only ever leaves this module through a text
+#: boundary: `%s`-interpolated into the generated Tcl driver or into the
+#: /bin/sh dispatcher, handed to `subprocess` as an argv word, or carried in
+#: `Arm.tcl`. A `Path` there would be re-stringified at every use instead.
+TCL = str(HERE / "pp_shadow_ooc.tcl")
+DP_TCL = str(HERE / "milan_datapath_ooc.tcl")
 SENTINEL = "OOC-GUARD-PASSED"
 EFFECTIVE_OK = "OOC-EFFECTIVE-SEV: {Synth 8-4445} = ERROR"
 READ_LIST = "ooc-read-list.txt"
 REAL_PYTHON = shutil.which("python3") or sys.executable
-GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
-                         "gen_ucode.py")
-GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
-                       "gen_ltn_rom.py")
-GEN_GPTP = os.path.join(REPO, "gptp-processor", "hdl", "ucode",
-                        "gen_gptp_ucode.py")
+GEN_UCODE = str(REPO / "protocol-processor" / "hdl" / "aecp" / "ucode"
+                / "gen_ucode.py")
+GEN_LTN = str(REPO / "protocol-processor" / "hdl" / "acmp" / "rom"
+              / "gen_ltn_rom.py")
+GEN_GPTP = str(REPO / "gptp-processor" / "hdl" / "ucode"
+               / "gen_gptp_ucode.py")
 
 #: The Vivado commands the .tcl recipes call, stubbed as the docstring
 #: describes. The canonical-image map in synth_design is TEST knowledge: the
@@ -228,13 +238,13 @@ class SelfTestPrereq(Exception):
 
 
 @functools.lru_cache(maxsize=None)
-def derived_sources():
+def derived_sources() -> list[str]:
     """dp_srcs.py's own answer, cached: the record the recipe must consume."""
     return sorted(derived_record()["src"])
 
 
 @functools.lru_cache(maxsize=None)
-def derived_record():
+def derived_record() -> dict[str, list[str]]:
     """The WHOLE record dp_srcs.py hands the recipe -- top/define/incdir/src.
     The recipe must consume every half of it: the sources decide what is read,
     the include path and defines decide which entity shape is elaborated.
@@ -242,8 +252,9 @@ def derived_record():
     Asked ONCE per run, and memoised by the decorator: a self-test that
     rebinds its own module globals to cache leaves the module mutated, and a
     refusal must stay askable, so a raised SelfTestPrereq is not cached."""
+    # `str`, not `Path`: this is an argv word for another interpreter.
     out = subprocess.run(
-        [REAL_PYTHON, os.path.join(HERE, "dp_srcs.py"), "--record"],
+        [REAL_PYTHON, str(HERE / "dp_srcs.py"), "--record"],
         capture_output=True, text=True)
     if out.returncode != 0:
         raise SelfTestPrereq(
@@ -251,7 +262,8 @@ def derived_record():
             "the record it holds the recipe to, so no arm can run: check "
             "the submodules (protocol-processor, gptp-processor) and "
             "sv2v.\n%s" % (out.returncode, (out.stderr or "").strip()))
-    rec = {"top": [], "define": [], "incdir": [], "src": []}
+    rec: dict[str, list[str]] = {"top": [], "define": [], "incdir": [],
+                                 "src": []}
     for line in out.stdout.splitlines():
         if not line.strip():
             continue
@@ -265,13 +277,13 @@ def derived_record():
     return rec
 
 
-def _read_text(path):
+def _read_text(path: str | Path) -> str:
     """The whole text of one file, the handle closed before it returns."""
-    with open(path) as fh:
-        return fh.read()
+    return Path(path).read_text()
 
 
-def _run(workdir, env=None, tcl=TCL):
+def _run(workdir: str | Path, env: dict[str, str] | None = None,
+         tcl: str = TCL) -> tuple[int, str]:
     e = dict(os.environ)
     e.update(env or {})
     # A driver FILE, not tclsh's stdin: reading a script from stdin makes an
@@ -288,23 +300,22 @@ def _run(workdir, env=None, tcl=TCL):
     return out.returncode, out.stdout + out.stderr
 
 
-def _py_sabotage(target, action):
+def _py_sabotage(target: str, action: str) -> str:
     """A scratch bin dir whose python3 dispatches; caller prepends to PATH."""
     stub = tempfile.mkdtemp(prefix="dp-rom-plant-")
-    p = os.path.join(stub, "python3")
-    with open(p, "w") as fh:
-        fh.write(PY_DISPATCH % {"target": target, "action": action,
+    p = Path(stub) / "python3"
+    p.write_text(PY_DISPATCH % {"target": target, "action": action,
                                 "real": REAL_PYTHON})
-    os.chmod(p, 0o755)
+    p.chmod(0o755)
+    # `str`: the caller's next move is to concatenate it onto PATH.
     return stub
 
 
-def _mutant(pattern, replacement, label):
+def _mutant(pattern: str, replacement: str, label: str) -> str:
     """A copy of the real datapath recipe, in this directory (it derives the
     repo root from its own location), with one substitution applied. The
     pattern MUST hit: a mutation that no longer matches is testing nothing."""
-    with open(DP_TCL) as fh:
-        text = fh.read()
+    text = Path(DP_TCL).read_text()
     mutated, n = re.subn(pattern, replacement, text)
     if n != 1:
         raise SelfTestPrereq(
@@ -318,26 +329,35 @@ def _mutant(pattern, replacement, label):
     return path
 
 
-def _write(workdir, name, content):
-    with open(os.path.join(workdir, name), "w") as fh:
-        fh.write(content)
+def _write(workdir: str | Path, name: str, content: str) -> None:
+    (Path(workdir) / name).write_text(content)
 
 
-def images(*names):
-    def setup(d):
+def images(*names: str) -> Callable[[str], None]:
+    """A setup that plants each named image in the run directory before the
+    recipe runs, a trailing `!` marking one that must land EMPTY.
+
+    The empty one is written under its `!` name and RENAMED onto its real one,
+    so the recipe meets a zero-byte file that exists -- which `file exists`
+    alone passes and `$readmemh` reads exactly as it reads an absent image --
+    rather than a file the plant never created.
+    """
+    def setup(d: str) -> None:
+        """Plant this factory's images in the run directory `d`."""
         for n in names:
             _write(d, n, "" if n.endswith("!") else "00\n")
         for n in names:
             if n.endswith("!"):
-                os.rename(os.path.join(d, n), os.path.join(d, n[:-1]))
+                (Path(d) / n).rename(Path(d) / n[:-1])
     return setup
 
 
-def unpublished(img):
+def unpublished(img: str) -> Callable[[str, str], str | None]:
     """A refused image must not be left in the run directory: the recipe
     renames into place only AFTER rom_check passes."""
-    def check(d, log):
-        if os.path.exists(os.path.join(d, img)):
+    def check(d: str, log: str) -> str | None:
+        """Name `img` as wrongly published when it outlived the refusal."""
+        if (Path(d) / img).exists():
             return ("%s was published to the run directory despite "
                     "failing validation -- the publish-after-validate "
                     "ordering is gone" % img)
@@ -345,12 +365,19 @@ def unpublished(img):
     return check
 
 
-def dp_env(target, action):
+def dp_env(target: str, action: str) -> tuple[str, dict[str, str]]:
+    """The scratch bin directory the caller must delete, and the PATH overlay
+    that puts its sabotaged python3 in front of the real one for one arm.
+
+    Both halves are `str`: PATH is text by definition, and the mapping is
+    handed straight to `subprocess` as `env=`.
+    """
     stub = _py_sabotage(target, action)
     return stub, {"PATH": stub + os.pathsep + os.environ.get("PATH", "")}
 
 
-def pkg_mutant(pkg_text, label, which="ucpu"):
+def pkg_mutant(pkg_text: str, label: str,
+               which: str = "ucpu") -> tuple[str, str]:
     """The recipe with one geometry package pointed at a synthetic file."""
     fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
     with os.fdopen(fd, "w") as fh:
@@ -383,12 +410,12 @@ class Arm:
     """
 
     name: str
-    want: object
+    want: str | None
     expect_rc0: bool = False
-    setup: object = None
-    env: object = None
+    setup: Callable[[str], None] | None = None
+    env: dict[str, str] | None = None
     tcl: str = TCL
-    check: object = None
+    check: Callable[[str, str], str | None] | None = None
     post_synth: bool = False
 
 
@@ -399,11 +426,11 @@ class Suite:
     fails part-way through still reports the arms that ran before it.
     """
 
-    def __init__(self, problems):
+    def __init__(self, problems: list[str]) -> None:
         self.problems = problems
         self.ran = 0
 
-    def run(self, a):
+    def run(self, a: Arm) -> None:
         """Run one arm, appending to `problems` whatever it failed to prove."""
         self.ran += 1
         problems = self.problems
@@ -433,7 +460,7 @@ class Suite:
                     problems.append("SELF-TEST FAILED [%s]: %s\n%s"
                                     % (a.name, miss, log.strip()))
 
-    def dp_arm(self, a, target, action):
+    def dp_arm(self, a: Arm, target: str, action: str) -> None:
         """One datapath arm, run against a python3 whose `target` generator is
         sabotaged with `action` for the length of the run."""
         stub, env = dp_env(target, action)
@@ -443,10 +470,18 @@ class Suite:
             shutil.rmtree(stub, ignore_errors=True)
 
 
-def dp_positive(d, log):
+def dp_positive(d: str, log: str) -> str | None:
+    """The FIRST thing a well-formed datapath run failed to prove, or None
+    when it proved all of them.
+
+    This is arm 15's anti-vacuity check AND the detector every mutation arm is
+    measured against through `fires`, which is why it returns the naming
+    string rather than a bare verdict: a mutation has to be caught by the
+    assertion its own arm names, not by whichever check happens to fire first.
+    """
     for img in ("ltn_rom.hex", "ucode.hex", "gptp_ucode.hex"):
-        p = os.path.join(d, img)
-        if not os.path.isfile(p) or os.path.getsize(p) == 0:
+        p = Path(d) / img
+        if not p.is_file() or p.stat().st_size == 0:
             return "%s was not generated into the run directory" % img
     for name in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P", "GPTP_UCODE_HEX_P"):
         if ("OOC-GENERIC-OK: %s" % name) not in log:
@@ -454,8 +489,8 @@ def dp_positive(d, log):
     if EFFECTIVE_OK not in log:
         return ("the EFFECTIVE severity of Synth 8-4445 at synth_design "
                 "is not ERROR")
-    rl = os.path.join(d, READ_LIST)
-    if not os.path.isfile(rl):
+    rl = Path(d) / READ_LIST
+    if not rl.is_file():
         return "the stubs recorded no read set"
     got = [l.strip() for l in _read_text(rl).splitlines() if l.strip()]
     want = derived_record()["src"]
@@ -468,8 +503,8 @@ def dp_positive(d, log):
                     "record %s. Vivado compiles Non-Project sources in "
                     "read_* order (UG895), so compilation-unit scope and "
                     "macro visibility move with it."
-                    % (first, os.path.basename(got[first]),
-                       os.path.basename(want[first])))
+                    % (first, PurePosixPath(got[first]).name,
+                       PurePosixPath(want[first]).name))
         return ("the read set (%d files) is not the dp_srcs.py record "
                 "(%d files): the derived-source connection is broken"
                 % (len(got), len(want)))
@@ -477,10 +512,10 @@ def dp_positive(d, log):
     # none of it was observed until this review: -include_dirs was a hand
     # list whose ORDER selected a different entity shape than the gate.
     rec = derived_record()
-    svf = os.path.join(d, "ooc-sv-files.txt")
+    svf = Path(d) / "ooc-sv-files.txt"
     got_sv = (set(l.strip() for l in _read_text(svf).splitlines()
                   if l.strip())
-              if os.path.isfile(svf) else set())
+              if svf.is_file() else set())
     want_sv = set(f for f in derived_record()["src"] if f.endswith(".sv"))
     if got_sv != want_sv:
         return ("the files read as SystemVerilog are not the .sv half of "
@@ -496,8 +531,8 @@ def dp_positive(d, log):
         return "synth_design was not run -mode out_of_context"
     if "OOC-PART: xc7a100tfgg484-2" not in log:
         return "synth_design was not given the ship part"
-    inc = os.path.join(d, "ooc-incdirs.txt")
-    if not os.path.isfile(inc):
+    inc = Path(d) / "ooc-incdirs.txt"
+    if not inc.is_file():
         return "synth_design received no include path at all"
     got_inc = [l for l in _read_text(inc).splitlines() if l.strip()]
     if got_inc != rec["incdir"]:
@@ -508,9 +543,9 @@ def dp_positive(d, log):
                 "carry one, so a reordered path silently elaborates a "
                 "different entity shape than the portability gate proves."
                 % (rec["incdir"], got_inc))
-    dfn = os.path.join(d, "ooc-defines.txt")
+    dfn = Path(d) / "ooc-defines.txt"
     got_def = ([l for l in _read_text(dfn).splitlines() if l.strip()]
-               if os.path.isfile(dfn) else [])
+               if dfn.is_file() else [])
     if got_def != rec["define"]:
         return ("the defines are not the record's (record %s, passed %s): "
                 "KL_gptp_engine.sv gates simulation-only $error blocks on "
@@ -519,11 +554,12 @@ def dp_positive(d, log):
     return None
 
 
-def fires(needle, what):
+def fires(needle: str, what: str) -> Callable[[str, str], str | None]:
     """The mutant must be caught by the assertion this arm NAMES. Any
     detector firing would satisfy a bare `if dp_positive(...)`, so the
     arm would survive the deletion of the very check it exists to pin."""
-    def check(d, log):
+    def check(d: str, log: str) -> str | None:
+        """Name the mutant as uncaught unless `needle`'s detector fired."""
         got = dp_positive(d, log) or ""
         if needle in got:
             return None

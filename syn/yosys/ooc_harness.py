@@ -24,10 +24,14 @@ import signal
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
-OOC = os.path.join(HERE, "ooc.sh")
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent.parent
+#: A `str` and not a `Path`, deliberately: this is argv[0] of every unmutated
+#: arm's `subprocess.run`, the text `_mutant` opens and copies, and the value
+#: `Arm.script` declares as a `str`. ooc.sh derives its own `$R` from it.
+OOC = str(HERE / "ooc.sh")
 REAL_PYTHON = shutil.which("python3") or sys.executable
 REAL_AWK = shutil.which("awk") or "awk"
 REAL_GIT = shutil.which("git") or "git"
@@ -65,12 +69,14 @@ def _sweep_on_signal(signum, _frame):
 
 for _sig in (signal.SIGINT, signal.SIGTERM):
     signal.signal(_sig, _sweep_on_signal)
-GEN_UCODE = os.path.join(REPO, "protocol-processor", "hdl", "aecp", "ucode",
-                         "gen_ucode.py")
-GEN_LTN = os.path.join(REPO, "protocol-processor", "hdl", "acmp", "rom",
-                       "gen_ltn_rom.py")
-GEN_GPTP = os.path.join(REPO, "gptp-processor", "hdl", "ucode",
-                        "gen_gptp_ucode.py")
+#: `str` and not `Path`: each of the three is `%s`-substituted into a planted
+#: /bin/sh stub body, where it is a command-line word and nothing else.
+GEN_UCODE = str(REPO / "protocol-processor" / "hdl" / "aecp" / "ucode" /
+                "gen_ucode.py")
+GEN_LTN = str(REPO / "protocol-processor" / "hdl" / "acmp" / "rom" /
+              "gen_ltn_rom.py")
+GEN_GPTP = str(REPO / "gptp-processor" / "hdl" / "ucode" /
+               "gen_gptp_ucode.py")
 
 
 def _processor_pins():
@@ -87,9 +93,9 @@ def _processor_pins():
 
     pins = {}
     for name in ("protocol-processor", "gptp-processor"):
-        pin = _rev(["-C", REPO, "rev-parse", ":" + name],
+        pin = _rev(["-C", str(REPO), "rev-parse", ":" + name],
                    "the %s gitlink from the superproject index" % name)
-        head = _rev(["-C", os.path.join(REPO, name), "rev-parse", "HEAD"],
+        head = _rev(["-C", str(REPO / name), "rev-parse", "HEAD"],
                     "the %s checkout's HEAD" % name)
         if head != pin:
             raise AssertionError(
@@ -109,7 +115,7 @@ def _ledger_digests():
         "gptp_ucode.hex": pins["gptp-processor"],
     }
     want = {}
-    with open(os.path.join(HERE, "rom_digests.tsv")) as fh:
+    with (HERE / "rom_digests.tsv").open() as fh:
         for line in fh:
             if not line.strip() or line.startswith("#"):
                 continue
@@ -137,7 +143,13 @@ def _ledger_digests():
 #: so nothing here rebinds a module global to memoise; a raised AssertionError
 #: is not cached, and the next caller asks again.
 @functools.lru_cache(maxsize=None)
-def ledger():
+def ledger() -> dict[str, str]:
+    """The digest each of the three ROM images must hash to at THIS checkout's
+    pins, keyed by image file name - the exact-byte oracle every arm's yosys
+    model asserts against, and the value a positive arm's row is only allowed
+    to be priced from. Raises instead of answering when a submodule is stale or
+    the pin has no ledger row, so no arm can run against a guessed digest.
+    """
     return _ledger_digests()
 
 
@@ -168,7 +180,12 @@ exit 0
 """
 
 
-def sv2v_plant(top, action):
+def sv2v_plant(top: str, action: str) -> str:
+    """The sv2v model's shell body with `action` armed to fire when, and only
+    when, the front end is invoked for `top`. That invocation sits between the
+    images' publication and that top's consumption of them, so the returned
+    stub is how an arm reaches into the seam a mid-run tamper would use.
+    """
     return SV2V_PLANT_TMPL.replace("@TOP@", top).replace("@ACTION@", action)
 YOSYS_FAIL = ("#!/bin/sh\necho 'ERROR: planted yosys elaboration failure'\n"
               "exit 1\n")
@@ -274,9 +291,12 @@ def _preloadable_library():
     cands += ["/usr/lib/libc.so.6", "/lib64/libc.so.6", "/usr/lib64/libc.so.6"]
     true_bin = shutil.which("true")
     for c in cands:
-        if not (os.path.isfile(c) and true_bin):
+        if not (Path(c).is_file() and true_bin):
             continue
-        c = os.path.realpath(c)
+        # A `str` from here on: it goes into an `env=` mapping as LD_PRELOAD,
+        # and arm 73 compares it against the text the yosys model recorded and
+        # against the header line ooc.sh printed.
+        c = str(Path(c).resolve())
         env = dict(os.environ, LD_PRELOAD=c)
         r = subprocess.run([true_bin], env=env, capture_output=True, text=True)
         if r.returncode == 0 and not r.stderr:
@@ -403,34 +423,35 @@ exec %(real)s "$@"
 
 
 @functools.lru_cache(maxsize=None)
-def pp_population():
+def pp_population() -> list[str]:
     """The authoritative processor population plus the parent's named files:
     what a KL_pp_shadow elaboration must consume, from pp_srcs.py itself.
     Asked once per run, and memoised by the decorator rather than by a global
-    the function rebinds."""
+    the function rebinds.
+
+    Sorted `str`, not `Path`: the list is compared for equality against the
+    argument words the sv2v model recorded out of ooc.sh's own command line.
+    """
     out = subprocess.run(
-        [REAL_PYTHON, os.path.join(REPO, "scripts", "pp_srcs.py"),
-         "--prefix", os.path.join(REPO, "protocol-processor", "hdl")],
+        [REAL_PYTHON, str(REPO / "scripts" / "pp_srcs.py"),
+         "--prefix", str(REPO / "protocol-processor" / "hdl")],
         capture_output=True, text=True, check=True)
     pop = out.stdout.split()
-    pop += [os.path.join(REPO, "third_party", "verilog-axis", "rtl",
-                         "axis_fifo.v"),
-            os.path.join(REPO, "hdl", "milan", "KL_pp_shadow.sv"),
-            os.path.join(REPO, "hdl", "milan", "KL_pp_maap_shim.sv")]
+    pop += [str(REPO / "third_party" / "verilog-axis" / "rtl" / "axis_fifo.v"),
+            str(REPO / "hdl" / "milan" / "KL_pp_shadow.sv"),
+            str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv")]
     return sorted(pop)
 
 
 def _read_text(path):
     """The whole text of one file, the handle closed before it returns."""
-    with open(path) as fh:
-        return fh.read()
+    return Path(path).read_text()
 
 
 def _stub(bindir, name, content):
-    p = os.path.join(bindir, name)
-    with open(p, "w") as fh:
-        fh.write(content)
-    os.chmod(p, 0o755)
+    p = Path(bindir) / name
+    p.write_text(content)
+    p.chmod(0o755)
 
 
 def _run(script, tops, home, rundir, ooc_tmp, extra_env=None):
@@ -441,14 +462,16 @@ def _run(script, tops, home, rundir, ooc_tmp, extra_env=None):
                 env.pop(k, None)
             else:
                 env[k] = v
-    bindir = os.path.join(home, ".local", "bin")
-    env["HOME"] = home
-    env["PATH"] = bindir + os.pathsep + env.get("PATH", "")
-    env["OOC_TMP"] = ooc_tmp
+    bindir = Path(home) / ".local" / "bin"
+    # The `env=` mapping takes `str` values only, so the scratch directories
+    # cross back over here and nowhere else; `script` is already argv[0] text.
+    env["HOME"] = str(home)
+    env["PATH"] = str(bindir) + os.pathsep + env.get("PATH", "")
+    env["OOC_TMP"] = str(ooc_tmp)
     env["OOC_ST_UCODE_SHA"] = ledger()["ucode.hex"]
     env["OOC_ST_LTN_SHA"] = ledger()["ltn_rom.hex"]
     env["OOC_ST_GPTP_SHA"] = ledger()["gptp_ucode.hex"]
-    out = subprocess.run([script] + tops, cwd=rundir, env=env,
+    out = subprocess.run([script] + tops, cwd=str(rundir), env=env,
                          capture_output=True, text=True)
     return out.returncode, out.stdout + out.stderr
 
@@ -524,21 +547,25 @@ class Suite:
         self.problems = []
         self.ran = 0
 
-    def run(self, a):
-        """Run one arm, appending to `problems` whatever it failed to prove."""
+    def run(self, a: Arm) -> None:
+        """Run one arm, appending to `problems` whatever it failed to prove.
+
+        The scratch directories reach `setup` and `check` as `Path`; only
+        `_run` spells them back out for the child's environment.
+        """
         self.ran += 1
         problems = self.problems
         name = a.name
         tops = [a.tops] if isinstance(a.tops, str) else a.tops
         with tempfile.TemporaryDirectory() as d:
-            home = os.path.join(d, "home")
-            rundir = os.path.join(d, "run")
-            ooc_tmp = os.path.join(d, "ooc_tmp")
-            bindir = os.path.join(home, ".local", "bin")
-            os.makedirs(bindir)
-            os.makedirs(rundir)
+            home = Path(d) / "home"
+            rundir = Path(d) / "run"
+            ooc_tmp = Path(d) / "ooc_tmp"
+            bindir = home / ".local" / "bin"
+            bindir.mkdir(parents=True)
+            rundir.mkdir()
             if a.setup:
-                os.makedirs(ooc_tmp, exist_ok=True)
+                ooc_tmp.mkdir(exist_ok=True)
                 a.setup(ooc_tmp)
             _stub(bindir, "sv2v", a.sv2v)
             _stub(bindir, "yosys", a.yosys)
@@ -577,7 +604,12 @@ class Suite:
                                     % (name, miss, log.strip()))
 
 
-def row_of(log, top="tcam"):
+def row_of(log: str, top: str = "tcam") -> list[str] | None:
+    """The whitespace-split cell-count row a run printed for `top`, or None
+    when it printed none. A top that failed prints a FAIL line and no row, so
+    None is exactly the reading "nothing was priced for this top" - which is
+    what a negative arm has to establish and a positive arm has to refute.
+    """
     for line in log.splitlines():
         if line.startswith(top + " ") and "FAIL" not in line:
             return line.split()
@@ -585,5 +617,4 @@ def row_of(log, top="tcam"):
 
 
 def _write(d, name, content):
-    with open(os.path.join(d, name), "w") as fh:
-        fh.write(content)
+    (Path(d) / name).write_text(content)

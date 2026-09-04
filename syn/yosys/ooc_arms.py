@@ -12,6 +12,7 @@ self-test that still prints a pass, so the count is asserted by the caller in
 """
 import os
 import tempfile
+from pathlib import Path
 
 from ooc_harness import (
     AWK_FAIL_REPORT, Arm, CHMOD_FAIL, CHMOD_FAIL_DIRLOCK, FULL_ROW, GEN_GPTP,
@@ -37,7 +38,11 @@ def _arms_generation_and_microcode(suite):
     # equal the model's stat block (no zeroed accumulator, no manufactured
     # row), all three ROMs generated and digest-verified into the run's own tmp
     # dir, nothing in the caller's directory.
-    def clean_checks(log, ooc_tmp, home):
+    def clean_checks(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The first way a nominally clean run is still not a measurement:
+        a missing row, a row that is not the model's full-width stat block, a
+        ROM the run never generated into its own tmp dir, or an exclusive run
+        directory left behind. None when the run is honest on all four."""
         row = row_of(log)
         if row is None:
             return "no row printed for the requested top"
@@ -45,8 +50,8 @@ def _arms_generation_and_microcode(suite):
             return "row is not the model's stat block: got %s, want %s" \
                    % (row[1:], FULL_ROW)
         for img in ("ltn_rom.hex", "ucode.hex", "gptp_ucode.hex"):
-            p = os.path.join(ooc_tmp, img)
-            if not os.path.isfile(p) or os.path.getsize(p) == 0:
+            p = ooc_tmp / img
+            if not p.is_file() or p.stat().st_size == 0:
                 return "%s was not generated into the run's tmp dir" % img
         for name in os.listdir(ooc_tmp):
             if ".run." in name:
@@ -95,8 +100,10 @@ def _arms_rom_content(suite):
     arm = suite.run
 
     # Arm 9. STALE image + no-op generator; the stale image must be GONE.
-    def stale_gone(log, ooc_tmp, home):
-        if os.path.exists(os.path.join(ooc_tmp, "ucode.hex")):
+    def stale_gone(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the refusal left the previous ucode.hex in place
+        for the next run to consume; None when the refusal took it away."""
+        if (ooc_tmp / "ucode.hex").exists():
             return "the stale ucode.hex survived the refusal"
         return None
     arm(Arm("ucode-stale-noop", "tcam", "ucode.hex is malformed", False,
@@ -133,8 +140,10 @@ def _arms_rom_content(suite):
             "  exit 0" % (REAL_PYTHON, GEN_LTN))))
     arm(Arm("ltn-empty", "tcam", "ltn_rom.hex is malformed", False,
         py=("gen_ltn_rom.py", ": > \"$out\"\n  exit 0")))
-    def ltn_stale_gone(log, ooc_tmp, home):
-        if os.path.exists(os.path.join(ooc_tmp, "ltn_rom.hex")):
+    def ltn_stale_gone(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the refusal left the previous ltn_rom.hex in
+        place for the next run to consume; None when it was taken away."""
+        if (ooc_tmp / "ltn_rom.hex").exists():
             return "the stale ltn_rom.hex survived the refusal"
         return None
     arm(Arm("ltn-stale-noop", "tcam", "ltn_rom.hex is malformed", False,
@@ -167,8 +176,10 @@ def _arms_rom_content(suite):
     arm(Arm("gptp-empty", "tcam", "gptp_ucode.hex is malformed", False,
         py=("gen_gptp_ucode.py", ": > \"$out\"\n  exit 0")))
 
-    def gptp_stale_gone(log, ooc_tmp, home):
-        if os.path.exists(os.path.join(ooc_tmp, "gptp_ucode.hex")):
+    def gptp_stale_gone(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the refusal left the previous gptp_ucode.hex in
+        place for the next run to consume; None when it was taken away."""
+        if (ooc_tmp / "gptp_ucode.hex").exists():
             return "the stale gptp_ucode.hex survived the refusal"
         return None
 
@@ -193,16 +204,22 @@ def _arms_staging_and_ledger(suite):
     # Arm 19. A directory squatting the publish target: cleanup must be
     # CHECKED, not assumed ([R0] round two).
     arm(Arm("target-dir-squat", "tcam", "cannot remove the previous ucode.hex",
-        False, setup=lambda t: os.makedirs(os.path.join(t, "ucode.hex"))))
+        False, setup=lambda t: (t / "ucode.hex").mkdir()))
 
     # Arm 20. [R0] round two's staging plant: files squatting predictable
     # staging names plus a no-op generator. mktemp's exclusive random name
     # ignores them; the empty stage refuses; nothing stale is published.
-    def preplant_stages(t):
+    def preplant_stages(t: Path) -> None:
+        """Squat both predictable staging names in the publish directory, so
+        the run has something stale to publish if mktemp's exclusive random
+        name is ever traded back for a guessable one."""
         _write(t, "ucode.hex.gen.%d" % os.getpid(), "STALE-STAGE\n")
         _write(t, "ucode.hex.stage.AAAAAAAA", "STALE-STAGE\n")
-    def no_stale_published(log, ooc_tmp, home):
-        if os.path.exists(os.path.join(ooc_tmp, "ucode.hex")):
+
+    def no_stale_published(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that one of the squatted staging files reached the
+        publish target anyway; None when nothing was published."""
+        if (ooc_tmp / "ucode.hex").exists():
             return "a stale staging file was published as ucode.hex"
         return None
     arm(Arm("stale-stage-preplant", "tcam", "ucode.hex is malformed", False,
@@ -230,20 +247,20 @@ def _arms_staging_and_ledger(suite):
     try:
         suite.ran += 1
         with tempfile.TemporaryDirectory() as d:
-            home = os.path.join(d, "home")
-            rundir = os.path.join(d, "run")
-            ooc_tmp = os.path.join(d, "ooc_tmp")
-            bindir = os.path.join(home, ".local", "bin")
-            os.makedirs(bindir)
-            os.makedirs(rundir)
-            os.makedirs(ooc_tmp)
+            home = Path(d) / "home"
+            rundir = Path(d) / "run"
+            ooc_tmp = Path(d) / "ooc_tmp"
+            bindir = home / ".local" / "bin"
+            bindir.mkdir(parents=True)
+            rundir.mkdir()
+            ooc_tmp.mkdir()
             _write(ooc_tmp, "scratch-ledger.tsv", "# scratch\n")
             _stub(bindir, "sv2v", SV2V_OK)
             _stub(bindir, "yosys", YOSYS_OK)
             rc1, log1 = _run(mut, ["--record-rom-digests"], home, rundir,
                              ooc_tmp)
             rows = [l for l in _read_text(
-                        os.path.join(ooc_tmp, "scratch-ledger.tsv")).splitlines()
+                        ooc_tmp / "scratch-ledger.tsv").splitlines()
                     if l.strip() and not l.startswith("#")]
             rc2, log2 = _run(mut, ["tcam"], home, rundir, ooc_tmp)
             if rc1 != 0 or len(rows) != 3 or rc2 != 0 \
@@ -300,7 +317,10 @@ def _arms_report_phase(suite):
         yosys=YOSYS_EMPTY_JSON))
 
     # Arm 28. TWO top blocks with different counts: last wins, no sum.
-    def last_block_wins(log, ooc_tmp, home):
+    def last_block_wins(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the printed row is not the LAST of the two stat
+        blocks the model emitted - a sum, the first block, or nothing at all.
+        None when the parser took the last block and only the last block."""
         row = row_of(log)
         if row is None:
             return "no row printed"
@@ -313,7 +333,11 @@ def _arms_report_phase(suite):
     # Arm 29. STICKY EXIT across tops ([R0] round two): the first top fails,
     # the second passes and prints its row, and the script still exits
     # non-zero. A later success must never launder an earlier failure.
-    def both_outcomes(log, ooc_tmp, home):
+    def both_outcomes(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that this multi-top run did not actually exercise both
+        outcomes - the planted top did not fail, or the healthy one printed no
+        row. None when one top failed and the other still priced, which is what
+        makes the sticky non-zero exit meaningful rather than incidental."""
         if "planted tcam-only failure" not in log:
             return "the failing top did not fail"
         if row_of(log, "KL_pcm_lpf") is None:
@@ -335,9 +359,14 @@ def _arms_authoritative_inputs(suite):
     # authoritative processor population (pp_srcs.py's own answer) plus the
     # parent's named files; the yosys model already refused to run outside
     # $OOC_TMP or without both canonical regular images in its cwd.
-    def population_ok(log, ooc_tmp, home):
-        rec = os.path.join(home, "sv2v-args.txt")
-        if not os.path.isfile(rec):
+    def population_ok(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that KL_pp_shadow's elaboration did not consume
+        exactly the derived processor population plus the parent's named files,
+        or priced nothing at all. None when the recorded source set EQUALS
+        pp_srcs.py's own answer, which is what stops the recipe drifting into a
+        hand-maintained list nobody notices."""
+        rec = home / "sv2v-args.txt"
+        if not rec.is_file():
             return "the sv2v model recorded no arguments"
         got = sorted(a for a in _read_text(rec).split()
                      if a.endswith(".sv") or a.endswith(".v"))
@@ -363,9 +392,18 @@ def _arms_authoritative_inputs(suite):
         'PP_DERIVED="%s/aecp/ucpu_pkg.sv %s/acmp/pp_acmp_pkg.sv"'
         % (dollar_pp, dollar_pp), "hand-population")
     try:
-        def hand_pop_detected(log, ooc_tmp, home):
-            rec = os.path.join(home, "sv2v-args.txt")
-            if not os.path.isfile(rec):
+        def hand_pop_detected(log: str, ooc_tmp: Path,
+                              home: Path) -> str | None:
+            """The complaint that arm 30's population detector cannot tell the
+            hand-written two-package list from the derived one - either because
+            the two came out equal, or because the mutant produced some third
+            source set that proves nothing. None when the recorded set is the
+            planted hand list and demonstrably not the record.
+
+            The `planted` paths stay `str`: they are compared against argument
+            words parsed out of the sv2v model's own recording."""
+            rec = home / "sv2v-args.txt"
+            if not rec.is_file():
                 return "the sv2v model recorded no arguments"
             got = sorted(a for a in _read_text(rec).split()
                          if a.endswith(".sv") or a.endswith(".v"))
@@ -373,14 +411,14 @@ def _arms_authoritative_inputs(suite):
                 return "the hand-population mutant equals the record: the " \
                        "detector cannot distinguish"
             planted = sorted([
-                os.path.join(REPO, "third_party", "verilog-axis", "rtl",
-                             "axis_fifo.v"),
-                os.path.join(REPO, "protocol-processor", "hdl", "aecp",
-                             "ucpu_pkg.sv"),
-                os.path.join(REPO, "protocol-processor", "hdl", "acmp",
-                             "pp_acmp_pkg.sv"),
-                os.path.join(REPO, "hdl", "milan", "KL_pp_shadow.sv"),
-                os.path.join(REPO, "hdl", "milan", "KL_pp_maap_shim.sv")])
+                str(REPO / "third_party" / "verilog-axis" / "rtl" /
+                    "axis_fifo.v"),
+                str(REPO / "protocol-processor" / "hdl" / "aecp" /
+                    "ucpu_pkg.sv"),
+                str(REPO / "protocol-processor" / "hdl" / "acmp" /
+                    "pp_acmp_pkg.sv"),
+                str(REPO / "hdl" / "milan" / "KL_pp_shadow.sv"),
+                str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv")])
             if got != planted:
                 return ("the mutant's source set is neither the record nor "
                         "the planted hand list (%d files) - the arm proves "
@@ -413,7 +451,13 @@ def _arms_geometry_parser(suite):
 
     # ---- the geometry parser ([R0] round two, finding 3) -----------------
 
-    def pkg_mutant(pkg_text, label):
+    def pkg_mutant(pkg_text: str, label: str) -> tuple[str, str]:
+        """A planted geometry package carrying `pkg_text`, and a copy of ooc.sh
+        that reads UCODE_W_C out of that package instead of the tracked one -
+        the pair of scratch paths an arm must unlink when it is done.
+
+        Both stay `str`: the package path is substituted into ooc.sh's own text
+        as a shell word, and the mutant path is argv[0] of the arm's run."""
         fd, pkg = tempfile.mkstemp(suffix=".sv", prefix=".ooc-pkg-")
         _track(pkg)
         with os.fdopen(fd, "w") as fh:
@@ -563,7 +607,11 @@ def _arms_consumption_custody(suite):
     # Arms 43-46. The same four plants BETWEEN two requested tops: the
     # first, unaffected top prices and keeps its row; the second must
     # refuse rather than consume the changed/missing image.
-    def between_check(log, ooc_tmp, home):
+    def between_check(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the tamper between the two tops landed on the
+        wrong side of the seam: the first, unaffected top lost its row, or the
+        second top was priced from the image that changed under it. None when
+        the run kept the honest row and refused the tampered one."""
         if row_of(log, "tcam") is None:
             return "the first (unaffected) top printed no row"
         if row_of(log, "KL_pcm_lpf") is not None:
@@ -627,10 +675,14 @@ def _arms_read_interval(suite):
 
     # Arm 51. The transient swap on the SHIPPING script: the locked run
     # directory must refuse the rename outright, and nothing may price.
-    def swap_blocked(log, ooc_tmp, home):
+    def swap_blocked(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the shipping script let the transient swap
+        through - a row priced around it, or the marker showing the reviewed
+        image really was moved aside. None when the locked run directory
+        refused the rename outright and nothing was priced."""
         if row_of(log) is not None:
             return "a row was priced around a transient-swap attempt"
-        if os.path.exists(os.path.join(ooc_tmp, "transient-swap-succeeded")):
+        if (ooc_tmp / "transient-swap-succeeded").exists():
             return "the reviewed image was moved aside despite the lock"
         return None
     arm(Arm("transient-swap-blocked", "tcam", "YOSYS-TRANSIENT-SWAP-BLOCKED",
@@ -643,11 +695,14 @@ def _arms_read_interval(suite):
     # proves arm 51's refusal is the lock's doing, not the stub's.
     mut = _mutant(r'chmod u-w "\$rundir"', "true", "no-dir-lock-swap")
     try:
-        def swap_succeeded(log, ooc_tmp, home):
+        def swap_succeeded(log: str, ooc_tmp: Path, home: Path) -> str | None:
+            """The complaint that the reviewer's exploit did NOT reproduce on
+            the mutant that forgets the directory lock - no row priced, or no
+            swap marker. None when it reproduced in full, which is what makes
+            arm 51's refusal the lock's doing rather than the stub's."""
             if row_of(log) is None:
                 return "the unlocked mutant did not price the swapped bytes"
-            if not os.path.exists(os.path.join(ooc_tmp,
-                                               "transient-swap-succeeded")):
+            if not (ooc_tmp / "transient-swap-succeeded").exists():
                 return "the swap never happened, so this arm proves nothing"
             return None
         arm(Arm("mut-no-dir-lock-transient-swap", "tcam", None, True,
@@ -696,8 +751,12 @@ def _arms_pin_authority(suite):
                   'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
                   "stale-record-ledger")
     try:
-        def ledger_untouched(log, ooc_tmp, home):
-            with open(os.path.join(ooc_tmp, "scratch-ledger.tsv")) as fh:
+        def ledger_untouched(log: str, ooc_tmp: Path,
+                             home: Path) -> str | None:
+            """The complaint that record mode minted ledger rows for a stale
+            protocol-processor checkout; None when the scratch ledger came back
+            byte-for-byte as it was planted."""
+            with (ooc_tmp / "scratch-ledger.tsv").open() as fh:
                 if fh.read() != "# scratch\n":
                     return "record mode wrote rows for a stale checkout"
             return None
@@ -719,8 +778,12 @@ def _arms_pin_authority(suite):
                   'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
                   "stale-gptp-record-ledger")
     try:
-        def gptp_ledger_untouched(log, ooc_tmp, home):
-            with open(os.path.join(ooc_tmp, "scratch-ledger.tsv")) as fh:
+        def gptp_ledger_untouched(log: str, ooc_tmp: Path,
+                                  home: Path) -> str | None:
+            """The complaint that record mode minted ledger rows for a stale
+            gptp-processor checkout; None when the scratch ledger came back
+            byte-for-byte as it was planted."""
+            with (ooc_tmp / "scratch-ledger.tsv").open() as fh:
                 if fh.read() != "# scratch\n":
                     return "record mode wrote rows for a stale gPTP checkout"
             return None
@@ -752,7 +815,11 @@ def _arms_stale_pin_false_green(suite):
         'DIGESTS="${OOC_TMP}/scratch-ledger.tsv"',
         "pin-from-checkout")
     try:
-        def stale_priced(log, ooc_tmp, home):
+        def stale_priced(log: str, ooc_tmp: Path, home: Path) -> str | None:
+            """The complaint that the checkout-keyed mutant refused instead of
+            priced, which would leave the round-five false green undemonstrated.
+            None when it DID price a stale tree with every digest green - the
+            fixture that shows the gitlink comparison is load-bearing."""
             if row_of(log) is None:
                 return "the checkout-keyed mutant did not price, so this " \
                        "arm proves nothing about the gitlink comparison"
@@ -790,12 +857,17 @@ def _arms_allocator_scoping(suite):
 
     def _env_lines(home, name):
         try:
-            with open(os.path.join(home, name)) as fh:
+            with (home / name).open() as fh:
                 return [ln.strip() for ln in fh if ln.strip()]
         except OSError:
             return []
 
-    def scoped_to_yosys(log, ooc_tmp, home):
+    def scoped_to_yosys(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that the allocator preload was not scoped to yosys: a
+        model that never ran, a yosys that ran under something other than the
+        selected library, a preload that leaked to the sv2v front end, or a
+        header line that does not name what was selected. None when the
+        preload reached yosys, only yosys, and the header says so."""
         y = _env_lines(home, "yosys-env.txt")
         v = _env_lines(home, "sv2v-env.txt")
         if not y or not v:
@@ -809,7 +881,11 @@ def _arms_allocator_scoping(suite):
             return "the header does not name the selected library"
         return None
 
-    def none_clears_child(log, ooc_tmp, home):
+    def none_clears_child(log: str, ooc_tmp: Path, home: Path) -> str | None:
+        """The complaint that YOSYS_MALLOC=none did not do exactly one thing:
+        it left the caller's inherited LD_PRELOAD on the yosys child, or it
+        stripped that environment from sv2v as well, or the header does not say
+        `system`. None when the yosys child alone was cleared."""
         y = _env_lines(home, "yosys-env.txt")
         v = _env_lines(home, "sv2v-env.txt")
         if not y or not v:

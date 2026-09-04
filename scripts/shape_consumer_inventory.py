@@ -35,11 +35,11 @@ the self-test that plants deliberately stale paths.
 import os
 import re
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 #: The repository root, spelled with pathlib so this module needs no import
 #: back into check_entity_shape.py, which computes the same directory.
-ROOT = str(Path(__file__).resolve().parent.parent)
+ROOT = Path(__file__).resolve().parent.parent
 
 #: Any literal that names the shape header, with or without a build variable
 #: in front of it ($(RTL_DIR)/..., ../../hdl/..., configs/generated/...).
@@ -71,7 +71,43 @@ ROOT_PREFIXES = ("hdl/", "configs/", "scripts/", "sw/", "syn/", "tb/",
                  "docs/", "bd/", "avdecc/")
 
 
-def resolve_reference(reference, name, text):
+def _normalized(text: str | PurePosixPath) -> str:
+    """A path with its `.` and `..` segments collapsed, LEXICALLY.
+
+    The verdicts this module reaches are about the text a build spells, not
+    about what the filesystem happens to hold, so the collapse must never
+    follow a symlink the way `Path.resolve()` would: `a/../b` is `b` here
+    even when `a` is a link somewhere else entirely, which is how make and
+    the compiler read it too. A `..` that walks off the front of a relative
+    path SURVIVES - that residue is exactly what marks a reference as
+    reaching above the repository, and arm I refuses it by name.
+    """
+    pure = PurePosixPath(text)
+    anchor = pure.anchor
+    parts: list[str] = []
+    for part in pure.parts:
+        if part == "..":
+            if parts and parts[-1] not in ("..", anchor):
+                parts.pop()
+                continue
+            if anchor and parts == [anchor]:
+                continue          # `/..` is `/`; there is nothing above it
+        parts.append(part)
+    return str(PurePosixPath(*parts)) if parts else "."
+
+
+def _repo_relative(absolute: str) -> str:
+    """Where an absolute path make printed sits relative to the repository.
+
+    A path outside the tree keeps its leading `..` segments rather than
+    raising, because "reaches outside the tracked tree" is a verdict arm I
+    reports, not an error it may die on.
+    """
+    return str(PurePosixPath(_normalized(absolute))
+               .relative_to(ROOT, walk_up=True))
+
+
+def resolve_reference(reference: str, name: str, text: str) -> str | None:
     """Static expansion for script and prose consumers: the repo-relative
     path a reference names, or None when substituting the same-file
     assignments does not settle it. Makefile references never come here --
@@ -89,8 +125,8 @@ def resolve_reference(reference, name, text):
     if "$" in resolved:
         return None
     if resolved.startswith(ROOT_PREFIXES):
-        return os.path.normpath(resolved)
-    return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
+        return _normalized(resolved)
+    return _normalized(PurePosixPath(name).parent / resolved)
 
 
 MAKE_PROBE_TARGET = "__shape_probe__"
@@ -104,7 +140,7 @@ ASSIGN_LINE_RE = re.compile(
     r"(?P<var>\w+)[ \t]*[:+?]{0,2}=(?P<rhs>.*)$", re.MULTILINE)
 
 
-def probe_make(directory, makefile, expression):
+def probe_make(directory: Path, makefile: str, expression: str) -> str | None:
     """One expression expanded by make itself in the consumer's own
     directory: final variable state, includes read, `+=`, `$(shell ...)`
     and every assignment applied exactly as a build applies them. Returns
@@ -124,7 +160,8 @@ def probe_make(directory, makefile, expression):
     return run.stdout.strip()
 
 
-def shape_prereqs_from_database(directory, makefile):
+def shape_prereqs_from_database(directory: Path,
+                                makefile: str) -> tuple[bool, list[str]]:
     """Every prerequisite naming the shape header, exactly as make FROZE
     it at parse time. Rule prerequisites are immediate-expansion contexts
     -- a variable defined after the rule line never reaches them however
@@ -154,7 +191,8 @@ def shape_prereqs_from_database(directory, makefile):
     return True, sorted(tokens)
 
 
-def resolve_make_reference(reference, name, text):
+def resolve_make_reference(reference: str, name: str,
+                           text: str) -> str | None:
     """The reference expanded by make itself, cross-checked against every
     variable whose assignment carries it. The text probe alone reads the
     FINAL variable state, which an immediate `:=` does not honor -- make
@@ -165,8 +203,8 @@ def resolve_make_reference(reference, name, text):
     cannot settle to one word, any make error: None, and None is NOT a
     pass."""
     raw = reference.lstrip("(")
-    directory = os.path.join(ROOT, os.path.dirname(name))
-    makefile = os.path.basename(name)
+    directory = ROOT / PurePosixPath(name).parent
+    makefile = PurePosixPath(name).name
     text_out = probe_make(directory, makefile, "$(abspath %s)" % raw)
     if text_out is None or any(c.isspace() for c in text_out):
         return None
@@ -177,7 +215,7 @@ def resolve_make_reference(reference, name, text):
                              "$(abspath $(%s))" % m.group("var"))
         if var_out is None or text_out not in var_out.split():
             return None
-    return os.path.normpath(os.path.relpath(text_out, ROOT))
+    return _repo_relative(text_out)
 
 
 #: The gate's OWN three sources, skipped by the consumer inventory: between
@@ -220,9 +258,9 @@ def _frozen_prereq_findings(name, tracked, seen_targets):
     a finding -- nothing about those prerequisites is then verified.
     """
     dangling = []
-    directory = os.path.join(ROOT, os.path.dirname(name))
+    directory = ROOT / PurePosixPath(name).parent
     ok, prereqs = shape_prereqs_from_database(
-        directory, os.path.basename(name))
+        directory, PurePosixPath(name).name)
     if not ok:
         dangling.append(
             f"{name}: make database unreadable; frozen shape "
@@ -232,11 +270,10 @@ def _frozen_prereq_findings(name, tracked, seen_targets):
             continue
         if (name, token) in CLASSIFIED_CONSUMERS:
             continue
-        if os.path.isabs(token):
-            target = os.path.normpath(os.path.relpath(token, ROOT))
+        if PurePosixPath(token).is_absolute():
+            target = _repo_relative(token)
         else:
-            target = os.path.normpath(
-                os.path.join(os.path.dirname(name), token))
+            target = _normalized(PurePosixPath(name).parent / token)
         note = _judge_consumer(name, token, target, tracked, seen_targets)
         if note is not None:
             dangling.append(note)

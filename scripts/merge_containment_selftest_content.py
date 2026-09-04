@@ -16,6 +16,7 @@ under test.
 
 import os
 import tempfile
+from pathlib import Path
 
 #! The fixture type and the managed-write helper are the other half's;
 #! importing them keeps one definition of each. That module imports this one
@@ -349,8 +350,8 @@ def _textconv_path_cases(fx, config_parent):
     def _git(*args):
         return mc._git(*args)
 
-    textconv_path = os.path.join(config_parent, "textconv-path")
-    os.mkdir(textconv_path)
+    textconv_path = Path(config_parent) / "textconv-path"
+    textconv_path.mkdir()
     os.chdir(textconv_path)
     _git("init", "-q", "-b", "root")
     _git("config", "user.email", "s@s")
@@ -387,8 +388,8 @@ def _textconv_patch_cases(fx, config_parent):
     def _git(*args):
         return mc._git(*args)
 
-    textconv_patch = os.path.join(config_parent, "textconv-patch")
-    os.mkdir(textconv_patch)
+    textconv_patch = Path(config_parent) / "textconv-patch"
+    textconv_patch.mkdir()
     os.chdir(textconv_patch)
     _git("init", "-q", "-b", "root")
     _git("config", "user.email", "s@s")
@@ -436,8 +437,8 @@ def _submodule_pin_cases(fx, config_parent):
     def _git(*args):
         return mc._git(*args)
 
-    submodule_repo = os.path.join(config_parent, "submodule")
-    os.mkdir(submodule_repo)
+    submodule_repo = Path(config_parent) / "submodule"
+    submodule_repo.mkdir()
     os.chdir(submodule_repo)
     _git("init", "-q", "-b", "root")
     _git("config", "user.email", "s@s")
