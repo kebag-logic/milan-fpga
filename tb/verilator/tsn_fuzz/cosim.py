@@ -20,8 +20,26 @@ import subprocess
 import struct
 import sys
 import time
+from pathlib import Path
 
 BEAT = struct.Struct("<QBB")
+
+
+class Subject:
+    """WHAT a campaign puts under test, and WHERE its results belong.
+
+    Four facts that always travel together: the DUT's one-line description, the
+    RTL files it is built from, the folder `TEST_RESULTS.md` is written into,
+    and the command that reproduces the run. They describe the artefact, not the
+    run, and only `Report._write_results` reads them.
+    """
+
+    def __init__(self, dut=None, rtl_files=(), results_dir=None,
+                 reproduce=None):
+        self.dut = dut
+        self.rtl_files = list(rtl_files)
+        self.results_dir = results_dir
+        self.reproduce = reproduce
 
 
 class Report:
@@ -33,8 +51,15 @@ class Report:
     verification status without knowing this campaign exists.
     """
 
-    def __init__(self, title, verbose=None, dut=None, rtl_files=(),
-                 results_dir=None, reproduce=None):
+    def __init__(self, title, verbose=None, **subject):
+        """`**subject` is `Subject`'s fields, spelt at the call site.
+
+        `dut`, `rtl_files`, `results_dir` and `reproduce` describe the ARTEFACT
+        under test rather than the run, always travel together, and are read by
+        nothing but `_write_results`, so they are one object and not four
+        parameters. A name that is not one of `Subject`'s fields is a TypeError
+        where the campaign is declared.
+        """
         self.title = title
         self.npass = 0
         self.nfail = 0
@@ -45,15 +70,13 @@ class Report:
         self.checks = []            # [(section, label)] every asserted check
         self._section = None
         self._counts = None
-        self.dut = dut
-        self.rtl_files = list(rtl_files)
-        self.results_dir = results_dir
-        self.reproduce = reproduce
+        self.subject = Subject(**subject)
         self.verbose = (os.environ.get("TSN_FUZZ_VERBOSE", "0") == "1"
                         if verbose is None else verbose)
         print("== %s ==" % title)
 
-    def section(self, name):
+    def section(self, name: str) -> None:
+        """Close the running section and start counting into `name`."""
         self._close_section()
         self._section = name
         self._counts = [0, 0, 0]
@@ -63,7 +86,10 @@ class Report:
         if self._section is not None and self._counts is not None:
             self.sections.append((self._section, *self._counts))
 
-    def ck(self, what, ok, detail=""):
+    def ck(self, what: str, ok: object, detail: str = "") -> bool:
+        """Grade one check and return its verdict. `ok` is judged for TRUTH, not
+        for type: a caller passing a masked flag word (`st[FLAGS] & FL_ASCAP`)
+        means the same thing as one passing a comparison."""
         # Every asserted check is recorded, pass or fail: the graded SET is what
         # ran, not what passed. `_write_results` emits it so a model pin dropped
         # or swapped changes the committed artifact by NAME, not only by a count
@@ -84,10 +110,11 @@ class Report:
             print("  [FAIL] %-58s %s" % (what, detail))
         return bool(ok)
 
-    def eq(self, what, got, exp):
+    def eq(self, what: str, got: object, exp: object) -> bool:
+        """Grade an equality, carrying both values into the failure line."""
         return self.ck(what, got == exp, "got=%s exp=%s" % (got, exp))
 
-    def gap(self, what, detail=""):
+    def gap(self, what: str, detail: str = "") -> None:
         """A KNOWN spec-conformance gap: printed loudly, tracked, not a failure.
 
         Used where the RTL's behaviour is defensible but not strictly
@@ -100,16 +127,18 @@ class Report:
         self.gaps.append((self._section, what, detail))
         print("  [GAP ] %-58s %s" % (what, detail))
 
-    def note(self, msg):
+    def note(self, msg: str) -> None:
+        """Say something on the console that is not a graded check."""
         print("  ..... %s" % msg)
 
     def _write_results(self):
         """Emit TEST_RESULTS.md beside the RTL this campaign validates."""
-        if not self.results_dir:
+        if not self.subject.results_dir:
             return None
         try:
-            os.makedirs(self.results_dir, exist_ok=True)
-            path = os.path.join(self.results_dir, "TEST_RESULTS.md")
+            results_dir = Path(self.subject.results_dir)
+            results_dir.mkdir(parents=True, exist_ok=True)
+            path = results_dir / "TEST_RESULTS.md"
             stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             verdict = "PASS" if self.nfail == 0 else "FAIL"
             out = ["<!--", "SPDX-FileCopyrightText: 2026 Kebag Logic",
@@ -121,14 +150,14 @@ class Report:
                    "(`tb/verilator/tsn_fuzz/`); this file is written into the "
                    "folder of the RTL it validates, so a reader of this block "
                    "sees its verification status in place. Do not hand-edit.", ""]
-            if self.dut:
-                out += ["**DUT:** `%s`" % self.dut, ""]
-            if self.rtl_files:
+            if self.subject.dut:
+                out += ["**DUT:** `%s`" % self.subject.dut, ""]
+            if self.subject.rtl_files:
                 out += ["**RTL under test:**", ""]
-                out += ["* `%s`" % f for f in self.rtl_files]
+                out += ["* `%s`" % f for f in self.subject.rtl_files]
                 out += [""]
-            if self.reproduce:
-                out += ["**Reproduce:** `%s`" % self.reproduce, ""]
+            if self.subject.reproduce:
+                out += ["**Reproduce:** `%s`" % self.subject.reproduce, ""]
             if self.sections:
                 out += ["## Sections", "",
                         "| section | pass | fail | gaps |", "|---|---:|---:|---:|"]
@@ -169,18 +198,26 @@ class Report:
                 for sec, what, detail in self.failures:
                     out.append("* **%s** — %s _(%s)_" % (what, detail, sec))
                 out.append("")
-            with open(path, "w") as fh:
-                fh.write("\n".join(out))
+            path.write_text("\n".join(out))
             return path
         except OSError as exc:
             print("  (could not write results: %s)" % exc)
             return None
 
-    def done(self):
+    def done(self) -> int:
+        """Write TEST_RESULTS.md, print the tally, and hand back the exit code
+        the harness contract wants: non-zero iff something FAILED. A tracked gap
+        is loud and is not a failure."""
         self._close_section()
         written = self._write_results()
         if written:
-            print("\nresults -> %s" % os.path.relpath(written))
+            #! Printed AS DECLARED, not re-relativised. Both campaigns declare
+            #! `results_dir` relative to their own directory (fuzz_aaf.py,
+            #! fuzz_ptp.py), which is where the campaign is run from, so this
+            #! is the same text `os.path.relpath()` used to produce. A campaign
+            #! that declared an absolute directory now sees it printed
+            #! absolute, which is the path it asked for.
+            print("\nresults -> %s" % written)
         print("\n== %s: %d pass, %d fail, %d known gaps =="
               % (self.title, self.npass, self.nfail, self.ngap))
         if self.gaps:
@@ -198,18 +235,21 @@ class Dut:
     """A Verilator cosim binary plus its AXI-Stream socket."""
 
     def __init__(self, binary, sock_path=None, args=(), settle=10.0):
-        self.binary = binary
-        self.sock_path = sock_path or ("/tmp/tsnfuzz_%s_%d.sock"
-                                       % (os.path.basename(binary), os.getpid()))
-        if os.path.exists(self.sock_path):
-            os.unlink(self.sock_path)
-        if not os.path.isfile(binary):
+        self.binary = Path(binary)
+        #! The socket is a real filesystem entry - it is stat-ed and unlinked
+        #! here - so it is a `Path`. It crosses back out as a `str` in exactly
+        #! two places, the child's argv and `connect()`, because both take an
+        #! address and neither is a path operation.
+        self.sock_path = Path(sock_path) if sock_path else Path(
+            "/tmp/tsnfuzz_%s_%d.sock" % (self.binary.name, os.getpid()))
+        self.sock_path.unlink(missing_ok=True)
+        if not self.binary.is_file():
             raise FileNotFoundError("DUT binary not built: %s" % binary)
-        self.proc = subprocess.Popen([binary, self.sock_path, *map(str, args)],
-                                     stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.PIPE)
+        self.proc = subprocess.Popen(
+            [str(self.binary), str(self.sock_path), *map(str, args)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         deadline = time.time() + settle
-        while not os.path.exists(self.sock_path):
+        while not self.sock_path.exists():
             if self.proc.poll() is not None:
                 err = self.proc.stderr.read().decode(errors="replace")[-500:]
                 raise RuntimeError("DUT exited before serving: %s" % err)
@@ -219,10 +259,12 @@ class Dut:
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.extras = []
         self.sock.settimeout(30.0)
-        self.sock.connect(self.sock_path)
+        self.sock.connect(str(self.sock_path))
 
     # ------------------------------------------------------------- transport
-    def send(self, frame):
+    def send(self, frame: bytes) -> None:
+        """Push one frame as 8-byte AXI-Stream beats, tkeep marking the ragged
+        tail and tlast the final beat."""
         n = len(frame)
         for off in range(0, n, 8):
             chunk = frame[off:off + 8]
@@ -231,7 +273,9 @@ class Dut:
                 (1 << len(chunk)) - 1,
                 1 if off + 8 >= n else 0))
 
-    def recv(self):
+    def recv(self) -> bytes:
+        """One frame off the socket, tkeep-selected bytes only. A closed socket
+        yields what arrived so far rather than blocking forever."""
         out = bytearray()
         while True:
             b = b""
@@ -247,7 +291,7 @@ class Dut:
             if tlast:
                 return bytes(out)
 
-    def xact_all(self, frame):
+    def xact_all(self, frame: bytes) -> list[bytes]:
         """All frames one command produced, in order (may be empty).
 
         The DUT terminates every command's reply burst with an empty frame,
@@ -262,7 +306,7 @@ class Dut:
                 return frames
             frames.append(f)
 
-    def xact(self, frame):
+    def xact(self, frame: bytes) -> bytes:
         """The reply to one command (b'' = silence).
 
         Extra frames (unsolicited notifications) are kept in `self.extras`
@@ -272,7 +316,9 @@ class Dut:
         self.extras = frames[1:]
         return frames[0] if frames else b""
 
-    def close(self):
+    def close(self) -> None:
+        """Drop the socket, stop the DUT process and remove its socket file.
+        Every step is best-effort: a campaign must not fail in its teardown."""
         try:
             self.sock.close()
         except OSError:
@@ -282,11 +328,10 @@ class Dut:
             self.proc.wait(timeout=5)
         except (OSError, subprocess.TimeoutExpired):
             self.proc.kill()
-        if os.path.exists(self.sock_path):
-            try:
-                os.unlink(self.sock_path)
-            except OSError:
-                pass
+        try:
+            self.sock_path.unlink(missing_ok=True)
+        except OSError:
+            pass
 
     def __enter__(self):
         return self
@@ -300,12 +345,12 @@ CTRL_MAGIC = b"\xc0\x51"
 CTRL_STATE, CTRL_TICK, CTRL_RESET, CTRL_EVENT = 1, 2, 3, 4
 
 
-def ctrl(op, arg=0):
+def ctrl(op: int, arg: int = 0) -> bytes:
     """A 4-byte control frame — never confusable with wire traffic."""
     return CTRL_MAGIC + bytes([op & 0xFF, arg & 0xFF])
 
 
-def parse_state(frame):
+def parse_state(frame: bytes) -> list[int]:
     """Decode a CTRL_STATE dump frame into a list of u32 (empty if not one)."""
     if len(frame) < 4 or frame[:2] != CTRL_MAGIC or frame[2] != CTRL_STATE:
         return []
@@ -314,12 +359,12 @@ def parse_state(frame):
             if len(frame) >= 8 + 4 * i]
 
 
-def read_state(dut):
+def read_state(dut: Dut) -> list[int]:
     """Ask the DUT for its observable state right now."""
     return parse_state(dut.xact(ctrl(CTRL_STATE)))
 
 
-def require_tsn_gen(report, name="AAF/AVTP field campaign"):
+def require_tsn_gen(report: Report, name: str = "AAF/AVTP field campaign") -> bool:
     """Skip cleanly (exit 0) when tsn-gen is not installed on this machine.
 
     The ``SUITE-SKIP:`` line is the machine-readable half, and it is REPORTING

@@ -35,46 +35,92 @@
 
 #include "VKL_mmcm_drp_servo.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include "drp_model.h"
 #include <cstdio>
 #include <cstdint>
 
-static VKL_mmcm_drp_servo* dut;
-static DrpMmcmModel mm;
-static long checks = 0, fails = 0;
+namespace {
 
-static void ck(const char* w, long got, long exp) {
+// ---- expected O=43 CLKOUT0 encoding (servo defaults; banner lines 195-206) -
+constexpr uint16_t CFG_C0R1  = 0x0595;
+constexpr uint16_t MASK_C0R1 = 0xEFFF;        // RESERVED[12] out
+constexpr uint16_t CFG_C0R2  = 0x0080;
+constexpr uint16_t MASK_C0R2 = 0x7FFF;        // RESERVED[15] out
+uint16_t rmw(uint16_t cur, uint16_t exp, uint16_t mask) {
+    return static_cast<uint16_t>((cur & ~mask) | (exp & mask));
+}
+
+// ---- clock wheel (femtosecond grid, mirrors sim_main.cpp) -----------------
+constexpr double HALF_I = 10000e3;            // clk_i 50 MHz
+constexpr double HALF_P = 2500e3;             // ps_clk 200 MHz
+constexpr double BASE_PPM = -10.64;
+constexpr double HALF_A0 = 0.5 * (1e15 / 24.576e6) * (1.0 - BASE_PPM * 1e-6);
+
+constexpr long ENGAGE_GUARD_STEPS = 2000;     // 2000 * 0.05 ms = 100 ms cap
+
+// The DRP-slave model, the clock wheel that drives it and the three cases.
+class AutoRepairHarness {
+ public:
+    explicit AutoRepairHarness(VKL_mmcm_drp_servo* model) : dut(model) {}
+
+    int run();
+
+ private:
+    void ck(const char* w, long got, long exp);
+    void ckx(const char* w, long got, long exp);   // hex report
+
+    void tick_one();
+    void run_ms(double ms);
+
+    int state() const;
+    int mismatch() const;
+    int verified() const;
+
+    // drive the servo back to IDLE, then engage CRF (clock_source == 2)
+    void deselect();
+    void engage_until_active();
+
+    void reset_and_defaults();
+    void repair_off_flags_the_mismatch_and_writes_nothing();
+    void repair_on_emits_the_xapp888_rmw_sequence();
+    void repair_on_never_disturbs_a_correct_config();
+
+    VKL_mmcm_drp_servo* dut;
+    DrpMmcmModel mm;
+    long checks = 0;
+    long fails = 0;
+
+    double t_fs = 0;
+    double next_i = 10000e3;
+    double next_p = 2500e3;
+    double next_a = 12345e3;
+    double base_a = 12345e3;
+
+    // corrupt values: WRONG divider fields + junk in the RESERVED bits the
+    // RMW must retain (ClkReg1[12]=1, ClkReg2[15]=1; both differ from exp)
+    const uint16_t WRONG08 = 0x1234;   // bit12 set (RESERVED junk)
+    const uint16_t WRONG09 = 0x8700;   // bit15 set (RESERVED junk)
+    const uint16_t EXP08   = rmw(WRONG08, CFG_C0R1, MASK_C0R1);  // 0x1595
+    const uint16_t EXP09   = rmw(WRONG09, CFG_C0R2, MASK_C0R2);  // 0x8080
+};
+
+void AutoRepairHarness::ck(const char* w, long got, long exp) {
     checks++;
     if (got != exp) { fails++; printf("  [FAIL] %-54s got=%ld exp=%ld\n", w, got, exp); }
     else            printf("  [ ok ] %-54s = %ld\n", w, got);
 }
-static void ckx(const char* w, long got, long exp) {   // hex report
+void AutoRepairHarness::ckx(const char* w, long got, long exp) {   // hex report
     checks++;
     if (got != exp) { fails++; printf("  [FAIL] %-54s got=0x%04lX exp=0x%04lX\n", w, got, exp); }
     else            printf("  [ ok ] %-54s = 0x%04lX\n", w, got);
 }
 
-// ---- expected O=43 CLKOUT0 encoding (servo defaults; banner lines 195-206) -
-static const uint16_t CFG_C0R1  = 0x0595, MASK_C0R1 = 0xEFFF;  // RESERVED[12] out
-static const uint16_t CFG_C0R2  = 0x0080, MASK_C0R2 = 0x7FFF;  // RESERVED[15] out
-static uint16_t rmw(uint16_t cur, uint16_t exp, uint16_t mask) {
-    return (uint16_t)((cur & ~mask) | (exp & mask));
-}
-
-// ---- clock wheel (femtosecond grid, mirrors sim_main.cpp) -----------------
-static double t_fs = 0;
-static double next_i = 10000e3, next_p = 2500e3, next_a = 12345e3;
-static const double HALF_I = 10000e3;         // clk_i 50 MHz
-static const double HALF_P = 2500e3;          // ps_clk 200 MHz
-static const double BASE_PPM = -10.64;
-static const double HALF_A0 = 0.5 * (1e15 / 24.576e6) * (1.0 - BASE_PPM * 1e-6);
-static double base_a = 12345e3;
-
-static void tick_one() {
+void AutoRepairHarness::tick_one() {
     if (next_i <= next_p && next_i <= next_a) {
         t_fs = next_i; next_i += HALF_I;
         dut->clk_i ^= 1;
-        if (dut->clk_i) dut->ptp_now_i = (uint64_t)(t_fs / 1e6);
+        if (dut->clk_i) dut->ptp_now_i = static_cast<uint64_t>(t_fs / 1e6);
         dut->eval();
         if (dut->clk_i) {
             mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
@@ -100,24 +146,21 @@ static void tick_one() {
         dut->eval();
     }
 }
-static void run_ms(double ms) { double te = t_fs + ms * 1e12; while (t_fs < te) tick_one(); }
+void AutoRepairHarness::run_ms(double ms) { double te = t_fs + ms * 1e12; while (t_fs < te) tick_one(); }
 
-static int  state()    { return (int)(dut->status_o & 7); }
-static int  mismatch() { return (int)((dut->status_o >> 4) & 1); }
-static int  verified() { return (int)((dut->status_o >> 3) & 1); }
+int AutoRepairHarness::state()    const { return static_cast<int>(dut->status_o & 7); }
+int AutoRepairHarness::mismatch() const { return static_cast<int>((dut->status_o >> 4) & 1); }
+int AutoRepairHarness::verified() const { return static_cast<int>((dut->status_o >> 3) & 1); }
 
 // drive the servo back to IDLE, then engage CRF (clock_source == 2)
-static void deselect() { dut->clk_src_i = 0; run_ms(2); }
-static void engage_until_active() {
+void AutoRepairHarness::deselect() { dut->clk_src_i = 0; run_ms(2); }
+void AutoRepairHarness::engage_until_active() {
     dut->clk_src_i = 2; dut->crf_locked_i = 1;
     long guard = 0;
-    while (!(state() == 3 || state() == 4) && guard < 2000) { run_ms(0.05); guard++; }
+    while (!(state() == 3 || state() == 4) && guard < ENGAGE_GUARD_STEPS) { run_ms(0.05); guard++; }
 }
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new VKL_mmcm_drp_servo;
-
+void AutoRepairHarness::reset_and_defaults() {
     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
     //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
     //! one AAF listener, CRF). The DUT no longer assumes it.
@@ -127,47 +170,49 @@ int main(int argc, char** argv) {
     run_ms(0.02);
     dut->rst_n = 1;
     run_ms(0.05);
+}
 
-    // corrupt values: WRONG divider fields + junk in the RESERVED bits the
-    // RMW must retain (ClkReg1[12]=1, ClkReg2[15]=1; both differ from exp)
-    const uint16_t WRONG08 = 0x1234;   // bit12 set (RESERVED junk)
-    const uint16_t WRONG09 = 0x8700;   // bit15 set (RESERVED junk)
-    const uint16_t EXP08   = rmw(WRONG08, CFG_C0R1, MASK_C0R1);  // 0x1595
-    const uint16_t EXP09   = rmw(WRONG09, CFG_C0R2, MASK_C0R2);  // 0x8080
-
-    // ================================================================== //
-    // AR0  auto_repair OFF - NEGATIVE CONTROL (today's tied-off gateware) //
-    // ================================================================== //
+// ================================================================== //
+// AR0  auto_repair OFF - NEGATIVE CONTROL (today's tied-off gateware) //
+// ================================================================== //
+void AutoRepairHarness::repair_off_flags_the_mismatch_and_writes_nothing() {
     printf("[AR0] auto_repair_i=0: mismatch flagged, ZERO DRP writes (safe default)\n");
     {
         deselect();
         mm.regs[0x08] = WRONG08; mm.regs[0x09] = WRONG09; mm.regs[0x28] = 0x0000;
         dut->auto_repair_i = 0;
-        long r0 = mm.drp_reads, w0 = mm.drp_writes, wl0 = mm.wlog_n;
+        long r0 = mm.drp_reads;
+        long w0 = mm.drp_writes;
+        long wl0 = mm.wlog_n;
         engage_until_active();
         ck ("[AR0] mismatch flagged",                 mismatch(), 1);
         ck ("[AR0] verified NOT set",                 verified(), 0);
         ck ("[AR0] read-verify issued 2 reads",       mm.drp_reads - r0, 2);
         ck ("[AR0] ZERO DRP writes (silicon-safe)",   mm.drp_writes - w0, 0);
         ck ("[AR0] ZERO write-log entries",           mm.wlog_n - wl0, 0);
-        ck ("[AR0] MMCM never held in reset",         (long)dut->mmcm_rst_o, 0);
+        ck ("[AR0] MMCM never held in reset",         static_cast<long>(dut->mmcm_rst_o), 0);
         ck ("[AR0] servo runs on live config (ACQUIRE/LOCKED)",
             state() == 3 || state() == 4, 1);
         ck ("[AR0] live registers untouched (0x08)",  mm.regs[0x08], WRONG08);
         ck ("[AR0] live registers untouched (0x09)",  mm.regs[0x09], WRONG09);
     }
+}
 
-    // ================================================================== //
-    // AR1  auto_repair ON - the REPAIR path (exact DRP RMW sequence)      //
-    // ================================================================== //
+// ================================================================== //
+// AR1  auto_repair ON - the REPAIR path (exact DRP RMW sequence)      //
+// ================================================================== //
+void AutoRepairHarness::repair_on_emits_the_xapp888_rmw_sequence() {
     printf("[AR1] auto_repair_i=1: detect + XAPP888 read-modify-write REPAIR\n");
     {
         deselect();
         mm.regs[0x08] = WRONG08; mm.regs[0x09] = WRONG09; mm.regs[0x28] = 0x0000;
         dut->auto_repair_i = 1;
-        long r0 = mm.drp_reads, w0 = mm.drp_writes;
+        long r0 = mm.drp_reads;
+        long w0 = mm.drp_writes;
         int  wl0 = mm.wlog_n;
-        long rst0 = mm.writes_wo_rst, psr0 = mm.ps_during_drp_rst, psv0 = mm.ps_viol;
+        long rst0 = mm.writes_wo_rst;
+        long psr0 = mm.ps_during_drp_rst;
+        long psv0 = mm.ps_viol;
         engage_until_active();
 
         // exact write sequence: power, then RMW 0x08, then RMW 0x09
@@ -199,7 +244,8 @@ int main(int argc, char** argv) {
             ck ("[AR1] w2 under MMCM reset",          mm.wlog_rst[wl0+2], 1);
 
             // decode the repaired ClkReg fields against the banner
-            uint16_t d1 = mm.wlog_data[wl0+1], d2 = mm.wlog_data[wl0+2];
+            uint16_t d1 = mm.wlog_data[wl0+1];
+            uint16_t d2 = mm.wlog_data[wl0+2];
             ck ("[AR1]   HIGH_TIME[11:6] = 22",       (d1 >> 6) & 0x3F, 22);
             ck ("[AR1]   LOW_TIME [5:0]  = 21",       d1 & 0x3F, 21);
             ck ("[AR1]   ClkReg1 RESERVED[12] preserved",
@@ -220,34 +266,53 @@ int main(int argc, char** argv) {
         ckx("[AR1] reg 0x08 committed",               mm.regs[0x08], EXP08);
         ckx("[AR1] reg 0x09 committed",               mm.regs[0x09], EXP09);
         ckx("[AR1] reg 0x28 committed",               mm.regs[0x28], 0xFFFF);
-        ck ("[AR1] MMCM reset released",              (long)dut->mmcm_rst_o, 0);
+        ck ("[AR1] MMCM reset released",              static_cast<long>(dut->mmcm_rst_o), 0);
         ck ("[AR1] MMCM relocked (status[5])",        (dut->status_o >> 5) & 1, 1);
         ck ("[AR1] verified after repair",            verified(), 1);
         ck ("[AR1] no relock-timeout fault",          (dut->status_o >> 8) & 1, 0);
         ck ("[AR1] resumed servo (ACQUIRE/LOCKED)",   state() == 3 || state() == 4, 1);
     }
+}
 
-    // ================================================================== //
-    // AR2  auto_repair ON, CORRECT config - repair must NOT fire          //
-    // ================================================================== //
+// ================================================================== //
+// AR2  auto_repair ON, CORRECT config - repair must NOT fire          //
+// ================================================================== //
+void AutoRepairHarness::repair_on_never_disturbs_a_correct_config() {
     printf("[AR2] auto_repair_i=1 with a CORRECT config: repair never fires\n");
     {
         deselect();
         mm.regs[0x08] = CFG_C0R1; mm.regs[0x09] = CFG_C0R2; mm.regs[0x28] = 0x0000;
         dut->auto_repair_i = 1;
-        long w0 = mm.drp_writes; int wl0 = mm.wlog_n;
+        long w0 = mm.drp_writes;
+        int  wl0 = mm.wlog_n;
         engage_until_active();
         ck ("[AR2] verified set (match)",             verified(), 1);
         ck ("[AR2] no mismatch",                      mismatch(), 0);
         ck ("[AR2] ZERO DRP writes on a live match",  mm.drp_writes - w0, 0);
         ck ("[AR2] ZERO write-log entries",           mm.wlog_n - wl0, 0);
-        ck ("[AR2] MMCM never held in reset",         (long)dut->mmcm_rst_o, 0);
+        ck ("[AR2] MMCM never held in reset",         static_cast<long>(dut->mmcm_rst_o), 0);
         ck ("[AR2] straight to servo (ACQUIRE/LOCKED)",
             state() == 3 || state() == 4, 1);
     }
+}
+
+int AutoRepairHarness::run() {
+    reset_and_defaults();
+
+    repair_off_flags_the_mismatch_and_writes_nothing();
+    repair_on_emits_the_xapp888_rmw_sequence();
+    repair_on_never_disturbs_a_correct_config();
 
     printf("======================================================================\n");
     printf("KL_mmcm_drp_servo auto_repair: %ld checks, %ld failures\n", checks, fails);
-    delete dut;
     return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    const milan::tb::Model<VKL_mmcm_drp_servo> model;
+    AutoRepairHarness harness(model.get());
+    return harness.run();
 }

@@ -31,60 +31,110 @@
 // is the strongest desk-side gate available for it.
 #include "VKL_chan_map_capture.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
 #include <map>
 
-static VKL_chan_map_capture* dut;
-static long checks = 0, fails = 0;
-static void ck(const char* what, unsigned long got, unsigned long exp) {
+namespace {
+
+//! poll guard: the readback is registered, so valid is one cycle away
+constexpr int kRdPollCyc = 8;
+//! the store entry is 13 bits; the readback word carries status above it
+constexpr uint32_t kEntryMask = 0x1FFFu;
+//! cycles watched after a tick: one full 32-slot walk fits inside it
+constexpr int kWalkCaptureCyc = 1200;
+
+// map entry {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}
+uint16_t ent(int en, int half, int src, int idxh, int idx) {
+    return static_cast<uint16_t>((en << 12) | (half << 11) | (src << 8)
+                                 | (idxh << 4) | idx);
+}
+
+//! what one slot walk emitted: slot -> {L, R}
+using PairCapture = std::map<int, std::pair<uint32_t, uint32_t>>;
+
+class NetlistDecodePin {
+ public:
+    int run();
+
+ private:
+    void ck(const char* what, unsigned long got, unsigned long exp);
+    void step();
+    void cyc(int n = 1);
+    void map_wr(int addr, uint16_t word);
+    uint32_t map_rd(int addr);
+    void lb_beat(int stream, uint32_t s0, uint32_t s1, int last);
+    PairCapture capture_walk();
+
+    void reset_and_plant_distinct_rx_audio();
+    void pin_map_writes_land_at_their_own_key();
+    void pin_walk_selects_channel_and_stream_exactly();
+
+    const milan::tb::Model<VKL_chan_map_capture> model_;
+    VKL_chan_map_capture* dut = model_.get();
+    long checks = 0;
+    long fails = 0;
+};
+
+void NetlistDecodePin::ck(const char* what, unsigned long got, unsigned long exp) {
     checks++;
     if (got != exp) { fails++; printf("  [FAIL] %-52s got=0x%lx exp=0x%lx\n", what, got, exp); }
     else            printf("  [ ok ] %-52s = 0x%lx\n", what, got);
 }
 
-static void step() { dut->clk_i = 0; dut->eval(); dut->clk_i = 1; dut->eval(); }
-static void cyc(int n = 1) { for (int i = 0; i < n; i++) step(); }
+void NetlistDecodePin::step() { dut->clk_i = 0; dut->eval(); dut->clk_i = 1; dut->eval(); }
+void NetlistDecodePin::cyc(int n) { for (int i = 0; i < n; i++) step(); }
 
 // one-cycle map write (the runtime AECP-mirror port shape: addr = CHANNEL key)
-static void map_wr(int addr, uint16_t word) {
+void NetlistDecodePin::map_wr(int addr, uint16_t word) {
     dut->map_wr_en_i = 1; dut->map_wr_addr_i = addr; dut->map_wr_data_i = word;
     cyc(); dut->map_wr_en_i = 0; cyc();
 }
 // registered readback (1-cycle latency), returns the 13-bit entry
-static uint32_t map_rd(int addr) {
+uint32_t NetlistDecodePin::map_rd(int addr) {
     dut->map_rd_en_i = 1; dut->map_rd_addr_i = addr;
-    for (int g = 0; g < 8; g++) { cyc();
-        if (dut->map_rd_valid_o) { dut->map_rd_en_i = 0; uint32_t v = dut->map_rd_data_o; cyc(); return v; } }
+    for (int g = 0; g < kRdPollCyc; g++) {
+        cyc();
+        if (dut->map_rd_valid_o) {
+            dut->map_rd_en_i = 0;
+            const uint32_t v = dut->map_rd_data_o;
+            cyc();
+            return v;
+        }
+    }
     dut->map_rd_en_i = 0; return 0xFFFFFFFFu;
 }
 
 // one loopback payload beat: two S32BE samples (2-channel stream = one
 // {ch0, ch1} pair per beat), tuser = rx stream index
-static void lb_beat(int stream, uint32_t s0, uint32_t s1, int last) {
+void NetlistDecodePin::lb_beat(int stream, uint32_t s0, uint32_t s1, int last) {
     uint64_t d = 0;
-    d |= (uint64_t)((s0 >> 16) & 0xFF) << 0;
-    d |= (uint64_t)((s0 >>  8) & 0xFF) << 8;
-    d |= (uint64_t)( s0        & 0xFF) << 16;
-    d |= (uint64_t)((s1 >> 16) & 0xFF) << 32;
-    d |= (uint64_t)((s1 >>  8) & 0xFF) << 40;
-    d |= (uint64_t)( s1        & 0xFF) << 48;
+    d |= static_cast<uint64_t>((s0 >> 16) & 0xFF) << 0;
+    d |= static_cast<uint64_t>((s0 >>  8) & 0xFF) << 8;
+    d |= static_cast<uint64_t>( s0        & 0xFF) << 16;
+    d |= static_cast<uint64_t>((s1 >> 16) & 0xFF) << 32;
+    d |= static_cast<uint64_t>((s1 >>  8) & 0xFF) << 40;
+    d |= static_cast<uint64_t>( s1        & 0xFF) << 48;
     dut->lb_tdata_i = d; dut->lb_tuser_i = stream;
     dut->lb_tvalid_i = 1; dut->lb_tlast_i = last;
     cyc();
     dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
 }
 
-// map entry {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}
-static uint16_t ent(int en, int half, int src, int idxh, int idx) {
-    return (uint16_t)((en << 12) | (half << 11) | (src << 8) | (idxh << 4) | idx);
+// ---- the walk: one tick, capture every injected pair ------------------
+PairCapture NetlistDecodePin::capture_walk() {
+    PairCapture got;                                   // slot -> {L, R}
+    dut->tick_i = 1; step(); dut->tick_i = 0;
+    for (int c = 0; c < kWalkCaptureCyc; c++) {
+        step();
+        if (dut->pair_valid_o)
+            got[dut->pair_slot_o] = { dut->pair_l_o, dut->pair_r_o };
+    }
+    return got;
 }
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new VKL_chan_map_capture;
-
-    printf("== [NC] KL_chan_map_capture NETLIST decode pin (yosys proc/memory lowering) ==\n");
+void NetlistDecodePin::reset_and_plant_distinct_rx_audio() {
     dut->rst_n = 0; dut->tick_i = 0; dut->map_wr_en_i = 0; dut->map_rd_en_i = 0;
     dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0;
     dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->tone_smp_i = 0;
@@ -101,7 +151,9 @@ int main(int argc, char** argv) {
     lb_beat(1, 0x111AA0, 0x111BB1, 1);       // rx1: ch0/ch1
     lb_beat(2, 0x222AA0, 0x222BB1, 1);       // rx2: ch0/ch1
     cyc(4);
+}
 
+void NetlistDecodePin::pin_map_writes_land_at_their_own_key() {
     // ---- runtime-style map writes: talker 0's four channel keys ----------
     // {stream 0, channel k, source LOOP rx j} - k and j both matter below.
     map_wr(0, ent(1, 0, 5, 2, 0));           // ch0 <- LOOP rx2 pair0 L
@@ -110,29 +162,24 @@ int main(int argc, char** argv) {
     map_wr(3, ent(1, 1, 5, 1, 0));           // ch3 <- LOOP rx1 pair0 R
 
     // ---- readback: every write at ITS key, neighbours untouched ----------
-    ck("NC readback key 0 (channel 0 IS reachable)", map_rd(0) & 0x1FFF, ent(1,0,5,2,0));
-    ck("NC readback key 1", map_rd(1) & 0x1FFF, ent(1,1,5,2,0));
-    ck("NC readback key 2", map_rd(2) & 0x1FFF, ent(1,0,5,1,0));
-    ck("NC readback key 3", map_rd(3) & 0x1FFF, ent(1,1,5,1,0));
-    ck("NC neighbour key 4 untouched (no +1 write shift)", map_rd(4) & 0x1FFF, 0);
-    ck("NC neighbour key 63 untouched (no -1 wrap shift)", map_rd(63) & 0x1FFF, 0);
+    ck("NC readback key 0 (channel 0 IS reachable)", map_rd(0) & kEntryMask, ent(1,0,5,2,0));
+    ck("NC readback key 1", map_rd(1) & kEntryMask, ent(1,1,5,2,0));
+    ck("NC readback key 2", map_rd(2) & kEntryMask, ent(1,0,5,1,0));
+    ck("NC readback key 3", map_rd(3) & kEntryMask, ent(1,1,5,1,0));
+    ck("NC neighbour key 4 untouched (no +1 write shift)", map_rd(4) & kEntryMask, 0);
+    ck("NC neighbour key 63 untouched (no -1 wrap shift)", map_rd(63) & kEntryMask, 0);
 
     // an isolated key far from the cluster: +1-shift detector with empty
     // neighbours on BOTH sides
     map_wr(9, ent(1, 0, 5, 1, 1));           // t2 ch1... key 9 <- rx1 pair1
-    ck("NC isolated key 9 lands at 9", map_rd(9) & 0x1FFF, ent(1,0,5,1,1));
-    ck("NC key 8 still empty",  map_rd(8)  & 0x1FFF, 0);
-    ck("NC key 10 still empty", map_rd(10) & 0x1FFF, 0);
+    ck("NC isolated key 9 lands at 9", map_rd(9) & kEntryMask, ent(1,0,5,1,1));
+    ck("NC key 8 still empty",  map_rd(8)  & kEntryMask, 0);
+    ck("NC key 10 still empty", map_rd(10) & kEntryMask, 0);
     map_wr(9, 0);                            // clear it again (walk stays clean)
+}
 
-    // ---- the walk: one tick, capture every injected pair ------------------
-    std::map<int, std::pair<uint32_t,uint32_t>> got;   // slot -> {L, R}
-    dut->tick_i = 1; step(); dut->tick_i = 0;
-    for (int c = 0; c < 1200; c++) {
-        step();
-        if (dut->pair_valid_o)
-            got[dut->pair_slot_o] = { dut->pair_l_o, dut->pair_r_o };
-    }
+void NetlistDecodePin::pin_walk_selects_channel_and_stream_exactly() {
+    PairCapture got = capture_walk();
     ck("NC walk covered all 32 slots", got.size(), 32);
 
     // slot 0 = channels {0,1}: rx2's pair EXACTLY (loop-of-rx2 taps rx2)
@@ -152,32 +199,34 @@ int main(int argc, char** argv) {
     lb_beat(1, 0x111AA2, 0x111BB3, 1);
     lb_beat(2, 0x222AA2, 0x222BB3, 1);
     cyc(4);
-    got.clear();
-    dut->tick_i = 1; step(); dut->tick_i = 0;
-    for (int c = 0; c < 1200; c++) {
-        step();
-        if (dut->pair_valid_o)
-            got[dut->pair_slot_o] = { dut->pair_l_o, dut->pair_r_o };
-    }
+    got = capture_walk();
     ck("NC beat 2: slot 0 tracks rx2", got[0].first == 0x222AA2 && got[0].second == 0x222BB3, 1);
     ck("NC beat 2: slot 1 tracks rx1", got[1].first == 0x111AA2 && got[1].second == 0x111BB3, 1);
 
     // ---- REMOVE-style write (0x0000) silences ONLY its channel -----------
     map_wr(2, 0);                            // ch2 dark, ch3 stays
-    got.clear();
-    dut->tick_i = 1; step(); dut->tick_i = 0;
-    for (int c = 0; c < 1200; c++) {
-        step();
-        if (dut->pair_valid_o)
-            got[dut->pair_slot_o] = { dut->pair_l_o, dut->pair_r_o };
-    }
+    got = capture_walk();
     ck("NC removed ch2 goes silent", got[1].first, 0);
     ck("NC sibling ch3 keeps its cluster", got[1].second, 0x111BB3);
     ck("NC untouched slot 0 unaffected by the remove", got[0].first, 0x222AA2);
+}
+
+int NetlistDecodePin::run() {
+    printf("== [NC] KL_chan_map_capture NETLIST decode pin (yosys proc/memory lowering) ==\n");
+    reset_and_plant_distinct_rx_audio();
+    pin_map_writes_land_at_their_own_key();
+    pin_walk_selects_channel_and_stream_exactly();
 
     printf("----------------------------------------------------------------------\n");
     printf("[NC] netlist decode pin: %ld checks, %ld failures\nRESULT: %s\n",
            checks, fails, fails ? "FAIL" : "PASS");
-    delete dut;
     return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    NetlistDecodePin harness;
+    return harness.run();
 }

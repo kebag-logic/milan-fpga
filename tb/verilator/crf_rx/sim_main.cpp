@@ -46,6 +46,7 @@
 #include "VKL_crf_rx.h"
 #include "VKL_crf_rx___024root.h"   // [G1] preload: the public flop names
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
 
@@ -55,28 +56,16 @@
 #if !defined(MAXTT_NS_C) || !defined(EARLY_M_NS_C)
 #error "MAXTT_NS_C / EARLY_M_NS_C must come from the Makefile (RTL twins)"
 #endif
+// The Makefile's three -D twins are the transport; these are what the
+// harness reads. A macro has no type and no scope, a constexpr has both.
+constexpr uint32_t kIvalCyc       = IVAL_CYC_C;
+constexpr uint32_t kMaxttNs       = MAXTT_NS_C;
+constexpr uint32_t kEarlyMarginNs = EARLY_M_NS_C;
 // derived here exactly as the RTL derives EARLY_LIMIT_C from its two
 // parameters — the sum is never written down as a literal on either side
-static const uint32_t EARLY_LIMIT_C = MAXTT_NS_C + EARLY_M_NS_C;
+constexpr uint32_t EARLY_LIMIT_C = kMaxttNs + kEarlyMarginNs;
 
-static VKL_crf_rx* dut;
-static long checks = 0, fails = 0;
-
-static void ck(const char* what, long long got, long long exp) {
-    checks++;
-    bool ok = (got == exp);
-    if (!ok) fails++;
-    printf("  [%s] %-46s got=%lld exp=%lld\n", ok ? "PASS" : "FAIL", what, got, exp);
-}
-
-// quiet per-PDU compare: prints only on FAIL (thousands of these)
-static void ckq(const char* what, long pdu_no, long long got, long long exp) {
-    checks++;
-    if (got != exp) {
-        fails++;
-        printf("  [FAIL] pdu#%-5ld %-38s got=%lld exp=%lld\n", pdu_no, what, got, exp);
-    }
-}
+namespace {
 
 //---------------------------------------------------------------------------
 // Independent replica of the measurement engine (Milan v1.2 7.3.2-7.3.4 +
@@ -84,27 +73,40 @@ static void ckq(const char* what, long pdu_no, long long got, long long exp) {
 // 100 ms drop, observation-interval counter commit.
 //---------------------------------------------------------------------------
 struct Model {
-    static const int  DEPTH = 256;
-    uint64_t hist[DEPTH];
-    int      hidx = 0, hfill = 0;
+    static constexpr int      DEPTH = 256;
+    // the 512 ms rate window in ns: DEPTH entries of the 2 ms PDU grid
+    static constexpr uint64_t RATE_WINDOW_NS = 512000000ULL;
+    // zero-initialised because the replica is a member of a stack-allocated
+    // harness now, not a file-scope static: the ring must start where the
+    // static-storage one did, even though no read reaches an unwritten slot
+    // (a slot is only read once hfill has counted DEPTH pushes into it)
+    uint64_t hist[DEPTH] = {};
+    int      hidx = 0;
+    int      hfill = 0;
     uint8_t  exp_seq = 0;
     bool     have_seq = false;
     int      settle = 0;                 // 0..7
     bool     locked = false;
-    uint32_t cnt_l = 0, cnt_u = 0;
+    uint32_t cnt_l = 0;
+    uint32_t cnt_u = 0;
     uint32_t cnt_i = 0;                  // STREAM_INTERRUPTED (per-event)
-    int32_t  delta = 0, rate = 0;
+    int32_t  delta = 0;
+    int32_t  rate = 0;
     // gh #61 G1: all seven interval tallies are 32-bit WRAPPING - the old
     // 8-bit fmt/seq SATURATION violated 5.3.8.10's "wraps back to zero"
     // (a pegged instrument is frozen), and 16 bits wrapped at the
     // 65536 s = 18 h 12 min soak mark
     uint32_t pdu = 0;                    // FRAMES_RX interval commits
-    uint32_t fmt_e = 0, seq_e = 0;       // UF / SM interval commits
-    uint32_t mr_c = 0, tu_c = 0;         // MR / TU interval commits
-    uint32_t lt_c = 0, et_c = 0;         // LATE / EARLY interval commits
+    uint32_t fmt_e = 0;                  // UF interval commits
+    uint32_t seq_e = 0;                  // SM interval commits
+    uint32_t mr_c = 0;                   // MR interval commits
+    uint32_t tu_c = 0;                   // TU interval commits
+    uint32_t lt_c = 0;                   // LATE interval commits
+    uint32_t et_c = 0;                   // EARLY interval commits
     // mr reference for the current binding era: seeded, not counted, by
     // the era's first accepted PDU
-    bool     prev_mr = false, mr_seeded = false;
+    bool     prev_mr = false;
+    bool     mr_seeded = false;
     // Milan 5.3.8.7 stopped state (issue #97): observation continues,
     // consumption stops - only the settle/lock arms below read it
     bool     stop = false;
@@ -115,8 +117,13 @@ struct Model {
     // harvested into the closing interval.
     uint32_t iv_div = 0;
     bool     iv_tick = false;
-    bool     f_frx = false, f_uf = false, f_sm = false;
-    bool     f_mr = false, f_tu = false, f_lt = false, f_et = false;
+    bool     f_frx = false;
+    bool     f_uf = false;
+    bool     f_sm = false;
+    bool     f_mr = false;
+    bool     f_tu = false;
+    bool     f_lt = false;
+    bool     f_et = false;
 
     void cycle(bool frx_ev, bool uf_ev, bool sm_ev,
                bool mr_ev, bool tu_ev, bool lt_ev, bool et_ev) {
@@ -134,15 +141,15 @@ struct Model {
             f_frx |= frx_ev; f_uf |= uf_ev; f_sm |= sm_ev;
             f_mr  |= mr_ev;  f_tu |= tu_ev; f_lt |= lt_ev; f_et |= et_ev;
         }
-        if (iv_div >= IVAL_CYC_C - 1) { iv_div = 0; iv_tick = true;  }
-        else                          { iv_div++;   iv_tick = false; }
+        if (iv_div >= kIvalCyc - 1) { iv_div = 0; iv_tick = true;  }
+        else                        { iv_div++;   iv_tick = false; }
     }
 
     void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr) {
         if (have_seq && seq != exp_seq) {
             settle = 0;                  // discontinuity breaks the settle run
             // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
-            if ((uint8_t)(seq - exp_seq) >= 2) cnt_i++;
+            if (static_cast<uint8_t>(seq - exp_seq) >= 2) cnt_i++;
         } else if (stop) {
             // a stopped sink's accepts advance nothing toward lock
         } else if (settle != 7) {
@@ -150,13 +157,14 @@ struct Model {
         } else if (!locked) {
             locked = true; cnt_l++;
         }
-        exp_seq  = (uint8_t)(seq + 1);
+        exp_seq  = static_cast<uint8_t>(seq + 1);
         have_seq = true;
         prev_mr  = mr;                   // seed/track the mr level
         mr_seeded = true;
-        delta = (int32_t)(uint32_t)(ts - ptp);
+        delta = static_cast<int32_t>(static_cast<uint32_t>(ts - ptp));
         if (hfill == DEPTH) {
-            rate = (int32_t)(uint32_t)((ts - hist[hidx]) - 512000000ULL);
+            rate = static_cast<int32_t>(
+                static_cast<uint32_t>((ts - hist[hidx]) - RATE_WINDOW_NS));
         } else {
             hfill++;
         }
@@ -194,180 +202,259 @@ struct Model {
     }
 };
 
-static Model m;
-static long g_pdu_no = 0;                // global accepted-PDU ordinal
+constexpr uint64_t SID_C = 0x0200000000010001ULL;
+constexpr int SETTLE_TICKS_C = 4;        // sample point after each pulse
+// the 100 ms lock timeout drilled in sim time: TOUT_CYC_C is 20 000 cycles
+// at the Makefile's 200 kHz, and the harness drives a few cycles past it
+constexpr int kSilenceCyc = 20005;
 
-static const uint64_t SID_C  = 0x0200000000010001ULL;
-static const int SETTLE_TICKS_C = 4;     // sample point after each pulse
+//---------------------------------------------------------------------------
+// The measurement-engine harness. The DUT handle, the replica, the observed
+// strobe tallies and the two timelines are members, so no phase below can be
+// read without its state in view (Core Guidelines I.2), and each phase is a
+// named function saying what it PROVES (F.3).
+//---------------------------------------------------------------------------
+class CrfRxHarness {
+ public:
+    //! Every phase in order, then the tally line the sweep parses.
+    int run() {
+        const milan::tb::Model<VKL_crf_rx> model;
+        dut = model.get();                   // this file's observing pointer
 
-// this-cycle Table 5.6 events, consumed by the next tick()
-static bool g_ev_frx = false, g_ev_uf = false, g_ev_sm = false;
-static bool g_ev_mr = false, g_ev_tu = false, g_ev_lt = false, g_ev_et = false;
-static bool g_in_reset = true;
-// gh #60 F2 push-source pulses observed (dirty_p_o is a 1-cycle strobe)
-static long g_dirty_cnt = 0;
-// gh #62 H2a: 10.4.3 restart echoes observed (mr_toggle_p_o, 1-cycle strobe).
-// g_mrtog_wide counts consecutive-high cycles so a level masquerading as a
-// pulse cannot pass the count checks below.
-static long g_mrtog_cnt = 0, g_mrtog_wide = 0, g_mrtog_run = 0;
+        apply_reset();
+        pin_reset_and_selection_gating();
+        pin_format_validation();
+        pin_plus_100ppm_trajectory();
+        pin_minus_50ppm_slope_change();
+        pin_sequence_discontinuity();
+        pin_silence_unlock_and_refill();
+        pin_interval_burst_semantics();
+        pin_five_formerly_constant_counters();
+        pin_milan_era_wipe();
+        pin_dirty_push_source_law();
+        pin_restart_echo();
+        pin_wrap_backing_and_slice_abi();
+        pin_stopped_sink();
 
-static void tick() {
-    dut->clk_i = 0; dut->eval();
-    dut->clk_i = 1; dut->eval();
-    if (dut->dirty_p_o) g_dirty_cnt++;
-    if (dut->mr_toggle_p_o) {
-        g_mrtog_cnt++;
-        if (++g_mrtog_run > 1) g_mrtog_wide++;
-    } else {
-        g_mrtog_run = 0;
+        printf("======================================================================\n");
+        printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
+               checks, fails, g_pdu_no);
+        return fails ? 1 : 0;
     }
-    if (!g_in_reset) m.cycle(g_ev_frx, g_ev_uf, g_ev_sm,
-                             g_ev_mr, g_ev_tu, g_ev_lt, g_ev_et);
-    g_ev_frx = g_ev_uf = g_ev_sm = false;
-    g_ev_mr = g_ev_tu = g_ev_lt = g_ev_et = false;
-}
 
-// run to the first cycle of a FRESH observation interval (model divider 1 =
-// the cycle right after a commit edge): a burst launched here has a full
-// tick-free window of IVAL_CYC_C-1 cycles ahead of it
-static void align_interval() {
-    while (m.iv_div != 1) tick();
-}
+ private:
+    VKL_crf_rx* dut = nullptr;
+    long checks = 0;
+    long fails = 0;
 
-// header-flag levels held across PDUs, exactly as the wire holds them:
-// mr is a LEVEL the talker toggles (1722-2016 10.4.3), tu a per-PDU flag
-static bool g_mr = false, g_tu = false;
+    Model m;
+    long g_pdu_no = 0;                       // global accepted-PDU ordinal
 
-static void drive_fields(uint64_t ts, uint8_t seq) {
-    dut->subtype_i   = 0x04;
-    dut->type_i      = 0x01;
-    dut->seq_i       = seq;
-    dut->sid_frame_i = SID_C;
-    dut->pullbase_i  = 48000;            // pull=0 | base 48000
-    dut->fsh_i       = (8ULL << 48) | (96ULL << 32) | (ts >> 32);
-    dut->fsh2_i      = (ts & 0xFFFFFFFFULL) << 32;
-    dut->mr_i        = g_mr;
-    dut->tu_i        = g_tu;
-}
+    // this-cycle Table 5.6 events, consumed by the next tick()
+    bool g_ev_frx = false;
+    bool g_ev_uf = false;
+    bool g_ev_sm = false;
+    bool g_ev_mr = false;
+    bool g_ev_tu = false;
+    bool g_ev_lt = false;
+    bool g_ev_et = false;
+    bool g_in_reset = true;
+    // gh #60 F2 push-source pulses observed (dirty_p_o is a 1-cycle strobe)
+    long g_dirty_cnt = 0;
+    // gh #62 H2a: 10.4.3 restart echoes observed (mr_toggle_p_o, 1-cycle strobe).
+    // g_mrtog_wide counts consecutive-high cycles so a level masquerading as a
+    // pulse cannot pass the count checks below.
+    long g_mrtog_cnt = 0;
+    long g_mrtog_wide = 0;
+    long g_mrtog_run = 0;
 
-// Table 5.6 late/early verdict for a PDU, computed the way the RTL does
-static bool ts_late (uint64_t ts, uint64_t ptp) {
-    return (int32_t)(uint32_t)(ts - ptp) < 0;
-}
-static bool ts_early(uint64_t ts, uint64_t ptp) {
-    int32_t d = (int32_t)(uint32_t)(ts - ptp);
-    return d >= 0 && (uint32_t)d > EARLY_LIMIT_C;
-}
+    // header-flag levels held across PDUs, exactly as the wire holds them:
+    // mr is a LEVEL the talker toggles (1722-2016 10.4.3), tu a per-PDU flag
+    bool g_mr = false;
+    bool g_tu = false;
 
-static void pulse() {
-    dut->frame_p_i = 1; tick();
-    dut->frame_p_i = 0;
-}
+    // the pair of timelines every phase advances together, and the AVTPDU
+    // sequence cursor that rides them: talker CRF ts, observer gPTP now
+    uint64_t ts = 0;
+    uint64_t ptp = 0;
+    uint8_t seq = 0;
 
-static void compare(long no) {
-    ckq("delta_o",        no, (int32_t)dut->delta_o,  m.delta);
-    ckq("rate_o",         no, (int32_t)dut->rate_o,   m.rate);
-    ckq("locked_o",       no, dut->locked_o,          m.locked);
-    ckq("pdu_count_o",    no, dut->pdu_count_o,       m.pdu);
-    ckq("fmt_err_o",      no, dut->fmt_err_o,         m.fmt_e);
-    ckq("seq_err_o",      no, dut->seq_err_o,         m.seq_e);
-    ckq("mr_cnt_o",       no, dut->mr_cnt_o,          m.mr_c);
-    ckq("tu_cnt_o",       no, dut->tu_cnt_o,          m.tu_c);
-    ckq("late_cnt_o",     no, dut->late_cnt_o,        m.lt_c);
-    ckq("early_cnt_o",    no, dut->early_cnt_o,       m.et_c);
-    ckq("cnt_locked_o",   no, dut->cnt_locked_o,      m.cnt_l);
-    ckq("cnt_unlocked_o", no, dut->cnt_unlocked_o,    m.cnt_u);
-    ckq("cnt_intr_o",     no, dut->cnt_intr_o,        m.cnt_i);
-}
+    void ck(const char* what, long long got, long long exp) {
+        checks++;
+        bool ok = (got == exp);
+        if (!ok) fails++;
+        printf("  [%s] %-46s got=%lld exp=%lld\n", ok ? "PASS" : "FAIL", what, got, exp);
+    }
 
-// one accepted-good PDU: drive, pulse, settle, compare vs replica.
-// The Table 5.6 events (FRX always, SM on a discontinuity) are computed
-// from the replica's PRE-update state — exactly what the RTL sees in
-// have_seq_r/exp_seq_r at the pulse edge.
-static void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp) {
-    dut->ptp_now_i = ptp;
-    drive_fields(ts, seq);
-    g_ev_frx = true;
-    g_ev_sm  = (m.have_seq && seq != m.exp_seq);
-    g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
-    g_ev_tu  = g_tu;
-    g_ev_lt  = ts_late(ts, ptp);
-    g_ev_et  = ts_early(ts, ptp);
-    pulse();
-    for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-    m.good_pdu(ts, seq, ptp, g_mr);
-}
-static void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
-    feed_good(ts, seq, ptp);
-    compare(++g_pdu_no);
-}
-
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new VKL_crf_rx;
-
-    dut->rst_n = 0; dut->en_i = 0; dut->frame_p_i = 0;
-    dut->sid_i = SID_C; dut->ptp_now_i = 0;
-    drive_fields(0, 0);
-    for (int i = 0; i < 8; i++) tick();
-    dut->rst_n = 1;
-    g_in_reset = false;                  // divider runs from here, both sides
-    for (int i = 0; i < 8; i++) tick();
-
-    printf("[crf_rx] reset + selection gating\n");
-    ck("reset: delta 0",  (int32_t)dut->delta_o, 0);
-    ck("reset: rate 0",   (int32_t)dut->rate_o, 0);
-    ck("reset: unlocked", dut->locked_o, 0);
-
-    // disabled: matching PDUs must be ignored.
-    // The nominal timelines put crf_ts AHEAD of ptp_now by 1 ms, which is
-    // what IEEE 1722-2016 10.7 mandates (T_CRF = source + Max Transit
-    // Time) and is inside the Table 5.6 window: a healthy CRF stream must
-    // tick NEITHER LATE_TIMESTAMP nor EARLY_TIMESTAMP.
-    uint64_t ts  = 1000000000ULL;        // talker CRF timeline
-    uint64_t ptp =  999000000ULL;        // observer gPTP timeline
-    drive_fields(ts, 0); dut->ptp_now_i = ptp;
-    pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-    ck("disabled: pdu_count 0", dut->pdu_count_o, 0);
-
-    dut->en_i = 1;
-
-    // wrong stream_id / wrong subtype: ignored (no count, no error)
-    dut->sid_frame_i = SID_C ^ 1;
-    pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-    dut->sid_frame_i = SID_C; dut->subtype_i = 0x02;    // AAF
-    pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-    ck("foreign frames: pdu_count 0", dut->pdu_count_o, 0);
-    ck("foreign frames: fmt_err 0",   dut->fmt_err_o, 0);
-
-    printf("[crf_rx] format validation (Milan 7.3.2 profile)\n");
-    // each malformed variant: settle broken, no pdu count; the
-    // UNSUPPORTED_FORMAT tally is a Table 5.6 interval counter, so the 5
-    // rejects — launched inside ONE aligned observation interval — must
-    // commit as exactly ONE tick, not 5 (the old per-frame reading).
-    align_interval();
-    struct { const char* name; int field; } bad[] = {
-        {"type != AUDIO_SAMPLE", 0}, {"pull != 0", 1}, {"base != 48000", 2},
-        {"dlen != 8", 3}, {"interval != 96", 4},
-    };
-    for (auto& b : bad) {
-        drive_fields(ts, 0);
-        switch (b.field) {
-            case 0: dut->type_i = 0x02; break;
-            case 1: dut->pullbase_i = (1u << 29) | 48000; break;
-            case 2: dut->pullbase_i = 44100; break;
-            case 3: dut->fsh_i = (16ULL << 48) | (96ULL << 32) | (ts >> 32); break;
-            case 4: dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32); break;
+    // quiet per-PDU compare: prints only on FAIL (thousands of these)
+    void ckq(const char* what, long pdu_no, long long got, long long exp) {
+        checks++;
+        if (got != exp) {
+            fails++;
+            printf("  [FAIL] pdu#%-5ld %-38s got=%lld exp=%lld\n", pdu_no, what, got, exp);
         }
-        g_ev_uf = true;
-        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
     }
-    ck("5 malformed: no commit before the tick", dut->fmt_err_o, 0);
-    for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-    ck("5 malformed: ONE interval tick, not 5", dut->fmt_err_o, 1);
-    ck("5 malformed: pdu_count still 0", dut->pdu_count_o, 0);
-    ck("5 malformed: unlocked", dut->locked_o, 0);
+
+    void tick() {
+        dut->clk_i = 0; dut->eval();
+        dut->clk_i = 1; dut->eval();
+        if (dut->dirty_p_o) g_dirty_cnt++;
+        if (dut->mr_toggle_p_o) {
+            g_mrtog_cnt++;
+            if (++g_mrtog_run > 1) g_mrtog_wide++;
+        } else {
+            g_mrtog_run = 0;
+        }
+        if (!g_in_reset) m.cycle(g_ev_frx, g_ev_uf, g_ev_sm,
+                                 g_ev_mr, g_ev_tu, g_ev_lt, g_ev_et);
+        g_ev_frx = g_ev_uf = g_ev_sm = false;
+        g_ev_mr = g_ev_tu = g_ev_lt = g_ev_et = false;
+    }
+
+    // run to the first cycle of a FRESH observation interval (model divider 1 =
+    // the cycle right after a commit edge): a burst launched here has a full
+    // tick-free window of kIvalCyc-1 cycles ahead of it
+    void align_interval() {
+        while (m.iv_div != 1) tick();
+    }
+
+    void drive_fields(uint64_t ts, uint8_t seq) {
+        dut->subtype_i   = 0x04;
+        dut->type_i      = 0x01;
+        dut->seq_i       = seq;
+        dut->sid_frame_i = SID_C;
+        dut->pullbase_i  = 48000;            // pull=0 | base 48000
+        dut->fsh_i       = (8ULL << 48) | (96ULL << 32) | (ts >> 32);
+        dut->fsh2_i      = (ts & 0xFFFFFFFFULL) << 32;
+        dut->mr_i        = g_mr;
+        dut->tu_i        = g_tu;
+    }
+
+    // Table 5.6 late/early verdict for a PDU, computed the way the RTL does
+    bool ts_late (uint64_t ts, uint64_t ptp) {
+        return static_cast<int32_t>(static_cast<uint32_t>(ts - ptp)) < 0;
+    }
+    bool ts_early(uint64_t ts, uint64_t ptp) {
+        int32_t d = static_cast<int32_t>(static_cast<uint32_t>(ts - ptp));
+        return d >= 0 && static_cast<uint32_t>(d) > EARLY_LIMIT_C;
+    }
+
+    void pulse() {
+        dut->frame_p_i = 1; tick();
+        dut->frame_p_i = 0;
+    }
+
+    void compare(long no) {
+        ckq("delta_o",        no, static_cast<int32_t>(dut->delta_o), m.delta);
+        ckq("rate_o",         no, static_cast<int32_t>(dut->rate_o),  m.rate);
+        ckq("locked_o",       no, dut->locked_o,          m.locked);
+        ckq("pdu_count_o",    no, dut->pdu_count_o,       m.pdu);
+        ckq("fmt_err_o",      no, dut->fmt_err_o,         m.fmt_e);
+        ckq("seq_err_o",      no, dut->seq_err_o,         m.seq_e);
+        ckq("mr_cnt_o",       no, dut->mr_cnt_o,          m.mr_c);
+        ckq("tu_cnt_o",       no, dut->tu_cnt_o,          m.tu_c);
+        ckq("late_cnt_o",     no, dut->late_cnt_o,        m.lt_c);
+        ckq("early_cnt_o",    no, dut->early_cnt_o,       m.et_c);
+        ckq("cnt_locked_o",   no, dut->cnt_locked_o,      m.cnt_l);
+        ckq("cnt_unlocked_o", no, dut->cnt_unlocked_o,    m.cnt_u);
+        ckq("cnt_intr_o",     no, dut->cnt_intr_o,        m.cnt_i);
+    }
+
+    // one accepted-good PDU: drive, pulse, settle, compare vs replica.
+    // The Table 5.6 events (FRX always, SM on a discontinuity) are computed
+    // from the replica's PRE-update state — exactly what the RTL sees in
+    // have_seq_r/exp_seq_r at the pulse edge.
+    void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp) {
+        dut->ptp_now_i = ptp;
+        drive_fields(ts, seq);
+        g_ev_frx = true;
+        g_ev_sm  = (m.have_seq && seq != m.exp_seq);
+        g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
+        g_ev_tu  = g_tu;
+        g_ev_lt  = ts_late(ts, ptp);
+        g_ev_et  = ts_early(ts, ptp);
+        pulse();
+        for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.good_pdu(ts, seq, ptp, g_mr);
+    }
+    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+        feed_good(ts, seq, ptp);
+        compare(++g_pdu_no);
+    }
+
+    //! Hold the DUT in reset with a quiet, deselected wire, then release it:
+    //! the model's interval divider and the replica's start on the same cycle.
+    void apply_reset() {
+        dut->rst_n = 0; dut->en_i = 0; dut->frame_p_i = 0;
+        dut->sid_i = SID_C; dut->ptp_now_i = 0;
+        drive_fields(0, 0);
+        for (int i = 0; i < 8; i++) tick();
+        dut->rst_n = 1;
+        g_in_reset = false;                  // divider runs from here, both sides
+        for (int i = 0; i < 8; i++) tick();
+    }
+
+    //! Reset values, and the two gates in front of the engine: a disabled
+    //! sink and a foreign frame are both invisible to every counter.
+    void pin_reset_and_selection_gating() {
+        printf("[crf_rx] reset + selection gating\n");
+        ck("reset: delta 0",  static_cast<int32_t>(dut->delta_o), 0);
+        ck("reset: rate 0",   static_cast<int32_t>(dut->rate_o), 0);
+        ck("reset: unlocked", dut->locked_o, 0);
+
+        // disabled: matching PDUs must be ignored.
+        // The nominal timelines put crf_ts AHEAD of ptp_now by 1 ms, which is
+        // what IEEE 1722-2016 10.7 mandates (T_CRF = source + Max Transit
+        // Time) and is inside the Table 5.6 window: a healthy CRF stream must
+        // tick NEITHER LATE_TIMESTAMP nor EARLY_TIMESTAMP.
+        ts  = 1000000000ULL;             // talker CRF timeline
+        ptp =  999000000ULL;             // observer gPTP timeline
+        drive_fields(ts, 0); dut->ptp_now_i = ptp;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        ck("disabled: pdu_count 0", dut->pdu_count_o, 0);
+
+        dut->en_i = 1;
+
+        // wrong stream_id / wrong subtype: ignored (no count, no error)
+        dut->sid_frame_i = SID_C ^ 1;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        dut->sid_frame_i = SID_C; dut->subtype_i = 0x02;    // AAF
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        ck("foreign frames: pdu_count 0", dut->pdu_count_o, 0);
+        ck("foreign frames: fmt_err 0",   dut->fmt_err_o, 0);
+    }
+
+    //! The Milan 7.3.2 profile gate: five malformed variants, one interval.
+    void pin_format_validation() {
+        printf("[crf_rx] format validation (Milan 7.3.2 profile)\n");
+        // each malformed variant: settle broken, no pdu count; the
+        // UNSUPPORTED_FORMAT tally is a Table 5.6 interval counter, so the 5
+        // rejects — launched inside ONE aligned observation interval — must
+        // commit as exactly ONE tick, not 5 (the old per-frame reading).
+        align_interval();
+        struct { const char* name; int field; } bad[] = {
+            {"type != AUDIO_SAMPLE", 0}, {"pull != 0", 1}, {"base != 48000", 2},
+            {"dlen != 8", 3}, {"interval != 96", 4},
+        };
+        for (auto& b : bad) {
+            drive_fields(ts, 0);
+            switch (b.field) {
+                case 0: dut->type_i = 0x02; break;
+                case 1: dut->pullbase_i = (1u << 29) | 48000; break;
+                case 2: dut->pullbase_i = 44100; break;
+                case 3: dut->fsh_i = (16ULL << 48) | (96ULL << 32) | (ts >> 32); break;
+                case 4: dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32); break;
+            }
+            g_ev_uf = true;
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            m.bad_pdu();
+        }
+        ck("5 malformed: no commit before the tick", dut->fmt_err_o, 0);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("5 malformed: ONE interval tick, not 5", dut->fmt_err_o, 1);
+        ck("5 malformed: pdu_count still 0", dut->pdu_count_o, 0);
+        ck("5 malformed: unlocked", dut->locked_o, 0);
+    }
 
     //-----------------------------------------------------------------------
     // Pinned trajectory 1: talker at +100 ppm (period 2 000 200 ns),
@@ -377,82 +464,93 @@ int main(int argc, char** argv) {
     // FRAMES_RX counts the INTERVALS containing PDUs (replica-pinned per
     // PDU), never the 300 frames.
     //-----------------------------------------------------------------------
-    printf("[crf_rx] +100 ppm trajectory (300 PDUs, per-PDU pinned)\n");
-    uint8_t seq = 0;
-    long rate_first_pdu = -1;
-    for (int n = 0; n < 300; n++) {
-        ts  += 2000200;                  // +100 ppm of the 2 ms grid
-        ptp += 2000000;                  // nominal observer
-        good_pdu(ts, seq++, ptp);
-        if (rate_first_pdu < 0 && (int32_t)dut->rate_o != 0)
-            rate_first_pdu = g_pdu_no;
+    void pin_plus_100ppm_trajectory() {
+        printf("[crf_rx] +100 ppm trajectory (300 PDUs, per-PDU pinned)\n");
+        seq = 0;
+        long rate_first_pdu = -1;
+        for (int n = 0; n < 300; n++) {
+            ts  += 2000200;                  // +100 ppm of the 2 ms grid
+            ptp += 2000000;                  // nominal observer
+            good_pdu(ts, seq++, ptp);
+            if (rate_first_pdu < 0 && static_cast<int32_t>(dut->rate_o) != 0)
+                rate_first_pdu = g_pdu_no;
+        }
+        ck("lock latched", dut->locked_o, 1);
+        ck("cnt_locked 1", dut->cnt_locked_o, 1);
+        ck("rate first nonzero on PDU 257 (ring full)", rate_first_pdu, 257);
+        ck("rate == +100 ppm exactly (51200 ns/512 ms)",
+           static_cast<int32_t>(dut->rate_o), 51200);
+        ck("FRAMES_RX == replica interval count", dut->pdu_count_o, m.pdu);
+        ck("300 PDUs commit as intervals, NOT frames", dut->pdu_count_o < 300, 1);
     }
-    ck("lock latched", dut->locked_o, 1);
-    ck("cnt_locked 1", dut->cnt_locked_o, 1);
-    ck("rate first nonzero on PDU 257 (ring full)", rate_first_pdu, 257);
-    ck("rate == +100 ppm exactly (51200 ns/512 ms)", (int32_t)dut->rate_o, 51200);
-    ck("FRAMES_RX == replica interval count", dut->pdu_count_o, m.pdu);
-    ck("300 PDUs commit as intervals, NOT frames", dut->pdu_count_o < 300, 1);
 
     //-----------------------------------------------------------------------
     // Pinned trajectory 2: slope change to -50 ppm (period 1 999 900 ns).
     // rate ramps -300/PDU across the mixed window, settling at
     // 256 * (-100) = -25 600. Every intermediate value pinned vs the replica.
     //-----------------------------------------------------------------------
-    printf("[crf_rx] -50 ppm slope change (300 PDUs, ramp pinned)\n");
-    for (int n = 0; n < 100; n++) {
-        ts  += 1999900;
-        ptp += 2000000;
-        good_pdu(ts, seq++, ptp);
-    }
+    void pin_minus_50ppm_slope_change() {
+        printf("[crf_rx] -50 ppm slope change (300 PDUs, ramp pinned)\n");
+        for (int n = 0; n < 100; n++) {
+            ts  += 1999900;
+            ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
 
-    // rate-update skew probe: mid-ramp (mixed 256-PDU window) rate_o still
-    // changes -300 on every PDU, so the update edge is observable.
-    // Measure how many cycles after the frame pulse the change lands.
-    // Flop-file: 0. BRAM read pipeline: 1. Bound: <= 2 (CSR-invisible).
-    {
-        ts  += 1999900; ptp += 2000000;
-        dut->ptp_now_i = ptp;
-        drive_fields(ts, seq);
-        int32_t old_rate = (int32_t)dut->rate_o;
-        g_ev_frx = true;                 // accepted sequential PDU
-        g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
-        g_ev_tu  = g_tu;
-        g_ev_lt  = ts_late(ts, ptp);
-        g_ev_et  = ts_early(ts, ptp);
-        pulse();
-        int lat = 0;
-        while ((int32_t)dut->rate_o == old_rate && lat <= 3) { tick(); lat++; }
-        for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.good_pdu(ts, seq, ptp, g_mr); seq++;
-        compare(++g_pdu_no);
-        printf("  [info] rate_o update skew after pulse edge: %d cycle(s)\n", lat);
-        ck("rate update skew <= 2 cycles", lat <= 2, 1);
+        // rate-update skew probe: mid-ramp (mixed 256-PDU window) rate_o still
+        // changes -300 on every PDU, so the update edge is observable.
+        // Measure how many cycles after the frame pulse the change lands.
+        // Flop-file: 0. BRAM read pipeline: 1. Bound: <= 2 (CSR-invisible).
+        {
+            ts  += 1999900; ptp += 2000000;
+            dut->ptp_now_i = ptp;
+            drive_fields(ts, seq);
+            int32_t old_rate = static_cast<int32_t>(dut->rate_o);
+            g_ev_frx = true;                 // accepted sequential PDU
+            g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
+            g_ev_tu  = g_tu;
+            g_ev_lt  = ts_late(ts, ptp);
+            g_ev_et  = ts_early(ts, ptp);
+            pulse();
+            int lat = 0;
+            while (static_cast<int32_t>(dut->rate_o) == old_rate && lat <= 3) {
+                tick();
+                lat++;
+            }
+            for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            m.good_pdu(ts, seq, ptp, g_mr); seq++;
+            compare(++g_pdu_no);
+            printf("  [info] rate_o update skew after pulse edge: %d cycle(s)\n", lat);
+            ck("rate update skew <= 2 cycles", lat <= 2, 1);
+        }
+        for (int n = 0; n < 199; n++) {
+            ts  += 1999900; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        ck("rate == -50 ppm exactly (-25600 ns/512 ms)",
+           static_cast<int32_t>(dut->rate_o), -25600);
     }
-    for (int n = 0; n < 199; n++) {
-        ts  += 1999900; ptp += 2000000;
-        good_pdu(ts, seq++, ptp);
-    }
-    ck("rate == -50 ppm exactly (-25600 ns/512 ms)", (int32_t)dut->rate_o, -25600);
 
     //-----------------------------------------------------------------------
     // Sequence discontinuity: settle broken, lock RETAINED (Milan drops
     // lock only on the 100 ms silence / validation contract); the
     // SEQ_NUM_MISMATCH tally commits at the next interval tick.
     //-----------------------------------------------------------------------
-    printf("[crf_rx] sequence discontinuity\n");
-    ts += 1999900; ptp += 2000000;
-    seq++;                               // skip one sequence number
-    good_pdu(ts, seq++, ptp);
-    ck("seq skip: still locked", dut->locked_o, 1);
-    for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-    ck("seq skip: ONE interval tick", dut->seq_err_o, 1);
-    for (int n = 0; n < 10; n++) {       // clean run rebuilds settle
+    void pin_sequence_discontinuity() {
+        printf("[crf_rx] sequence discontinuity\n");
         ts += 1999900; ptp += 2000000;
+        seq++;                               // skip one sequence number
         good_pdu(ts, seq++, ptp);
+        ck("seq skip: still locked", dut->locked_o, 1);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("seq skip: ONE interval tick", dut->seq_err_o, 1);
+        for (int n = 0; n < 10; n++) {       // clean run rebuilds settle
+            ts += 1999900; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        ck("clean resume: no extra lock event", dut->cnt_locked_o, 1);
+        ck("clean resume: seq_err holds at 1", dut->seq_err_o, 1);
     }
-    ck("clean resume: no extra lock event", dut->cnt_locked_o, 1);
-    ck("clean resume: seq_err holds at 1", dut->seq_err_o, 1);
 
     //-----------------------------------------------------------------------
     // 100 ms silence: unlock event, ring restarts (hfill=0) but hidx and
@@ -460,35 +558,40 @@ int main(int argc, char** argv) {
     // updates again; re-lock on the 8th clean PDU (cnt_locked -> 2).
     // ~100 empty observation intervals pass: no event, no counter motion.
     //-----------------------------------------------------------------------
-    printf("[crf_rx] 100 ms silence -> unlock -> refill\n");
-    int32_t rate_frozen = (int32_t)dut->rate_o;
-    // close the still-open interval first (its pending FRX flag rightly
-    // commits one more tick); THEN the ~100 empty intervals must not move
-    for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-    uint32_t pdu_frozen = dut->pdu_count_o;
-    for (int i = 0; i < 20005; i++) tick();      // TOUT_CYC_C = 20 000 @ 200 kHz
-    m.timeout();
-    ck("silence: unlocked", dut->locked_o, 0);
-    ck("silence: cnt_unlocked 1", dut->cnt_unlocked_o, 1);
-    ck("silence: rate holds last value", (int32_t)dut->rate_o, rate_frozen);
-    ck("silence: empty intervals do NOT tick FRAMES_RX",
-       dut->pdu_count_o, pdu_frozen);
+    void pin_silence_unlock_and_refill() {
+        printf("[crf_rx] 100 ms silence -> unlock -> refill\n");
+        int32_t rate_frozen = static_cast<int32_t>(dut->rate_o);
+        // close the still-open interval first (its pending FRX flag rightly
+        // commits one more tick); THEN the ~100 empty intervals must not move
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        uint32_t pdu_frozen = dut->pdu_count_o;
+        for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C = 20 000 @ 200 kHz
+        m.timeout();
+        ck("silence: unlocked", dut->locked_o, 0);
+        ck("silence: cnt_unlocked 1", dut->cnt_unlocked_o, 1);
+        ck("silence: rate holds last value",
+           static_cast<int32_t>(dut->rate_o), rate_frozen);
+        ck("silence: empty intervals do NOT tick FRAMES_RX",
+           dut->pdu_count_o, pdu_frozen);
 
-    // resume at +100 ppm again; ~100 ms passed on both timelines
-    ts += 100000000; ptp += 100000000;
-    long rate_change_pdu = -1;
-    long resume_base = g_pdu_no;
-    for (int n = 0; n < 270; n++) {
-        ts  += 2000200;
-        ptp += 2000000;
-        good_pdu(ts, seq++, ptp);
-        if (rate_change_pdu < 0 && (int32_t)dut->rate_o != rate_frozen)
-            rate_change_pdu = g_pdu_no - resume_base;
+        // resume at +100 ppm again; ~100 ms passed on both timelines
+        ts += 100000000; ptp += 100000000;
+        long rate_change_pdu = -1;
+        long resume_base = g_pdu_no;
+        for (int n = 0; n < 270; n++) {
+            ts  += 2000200;
+            ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+            if (rate_change_pdu < 0 &&
+                static_cast<int32_t>(dut->rate_o) != rate_frozen)
+                rate_change_pdu = g_pdu_no - resume_base;
+        }
+        ck("re-lock: cnt_locked 2", dut->cnt_locked_o, 2);
+        ck("refill: rate frozen for 256 PDUs, moves on 257",
+           rate_change_pdu, 257);
+        ck("refill: rate == +100 ppm again",
+           static_cast<int32_t>(dut->rate_o), 51200);
     }
-    ck("re-lock: cnt_locked 2", dut->cnt_locked_o, 2);
-    ck("refill: rate frozen for 256 PDUs, moves on 257",
-       rate_change_pdu, 257);
-    ck("refill: rate == +100 ppm again", (int32_t)dut->rate_o, 51200);
 
     //-----------------------------------------------------------------------
     // Table 5.6 interval semantics, the mutation anchor. A burst of N
@@ -497,61 +600,75 @@ int main(int argc, char** argv) {
     // interval during which ..."), never by N (the 1722.1 Table 7-153
     // per-frame reading — ~500x high at the CRF 500 PDU/s cadence).
     //-----------------------------------------------------------------------
-    printf("[crf_rx] Milan Table 5.6 interval semantics (burst -> ONE tick)\n");
-    align_interval();
-    uint32_t p0 = dut->pdu_count_o;
-    for (int n = 0; n < 10; n++) {       // 10 PDUs = 50 cycles < IVAL_CYC_C-1
-        ts  += 2000200; ptp += 2000000;
-        good_pdu(ts, seq++, ptp);
-    }
-    ck("burst of 10 accepted: no commit before the tick", dut->pdu_count_o, p0);
-    for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-    ck("burst of 10 accepted: FRAMES_RX +1, not +10",
-       dut->pdu_count_o, (p0 + 1));
+    void pin_interval_burst_semantics() {
+        printf("[crf_rx] Milan Table 5.6 interval semantics (burst -> ONE tick)\n");
+        align_interval();
+        uint32_t p0 = dut->pdu_count_o;
+        for (int n = 0; n < 10; n++) {       // 10 PDUs = 50 cycles < kIvalCyc-1
+            ts  += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        ck("burst of 10 accepted: no commit before the tick", dut->pdu_count_o, p0);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("burst of 10 accepted: FRAMES_RX +1, not +10",
+           dut->pdu_count_o, (p0 + 1));
 
-    // mixed burst in ONE interval: 3 discontinuities (accepted) + 2 format
-    // rejects -> SM +1, UF +1, FRX +1 (the accepted PDUs ride the same
-    // interval), all committed together at the tick
-    align_interval();
-    p0 = dut->pdu_count_o;
-    uint32_t f0 = dut->fmt_err_o, s0 = dut->seq_err_o;
-    for (int n = 0; n < 3; n++) {
-        ts  += 2000200; ptp += 2000000;
-        seq += 2;                        // every one a discontinuity
-        good_pdu(ts, seq++, ptp);
+        // mixed burst in ONE interval: 3 discontinuities (accepted) + 2 format
+        // rejects -> SM +1, UF +1, FRX +1 (the accepted PDUs ride the same
+        // interval), all committed together at the tick
+        align_interval();
+        p0 = dut->pdu_count_o;
+        uint32_t f0 = dut->fmt_err_o;
+        uint32_t s0 = dut->seq_err_o;
+        for (int n = 0; n < 3; n++) {
+            ts  += 2000200; ptp += 2000000;
+            seq += 2;                        // every one a discontinuity
+            good_pdu(ts, seq++, ptp);
+        }
+        for (int n = 0; n < 2; n++) {        // 2 format rejects (wrong interval)
+            drive_fields(ts, seq);
+            dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+            g_ev_uf = true;
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            m.bad_pdu();
+        }
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("3 discontinuities: SEQ_NUM_MISMATCH +1", dut->seq_err_o,
+           (s0 + 1));
+        ck("2 rejects: UNSUPPORTED_FORMAT +1", dut->fmt_err_o, (f0 + 1));
+        ck("same interval's accepted PDUs: FRAMES_RX +1", dut->pdu_count_o,
+           (p0 + 1));
     }
-    for (int n = 0; n < 2; n++) {        // 2 format rejects (wrong interval)
-        drive_fields(ts, seq);
-        dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
-        g_ev_uf = true;
-        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
-    }
-    for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-    ck("3 discontinuities: SEQ_NUM_MISMATCH +1", dut->seq_err_o,
-       (s0 + 1));
-    ck("2 rejects: UNSUPPORTED_FORMAT +1", dut->fmt_err_o, (f0 + 1));
-    ck("same interval's accepted PDUs: FRAMES_RX +1", dut->pdu_count_o,
-       (p0 + 1));
 
     //-----------------------------------------------------------------------
     // [AVTP-5t] The five Table 5.16 counters this engine used to advertise
     // in the 0xF3F mask and serve as CONSTANT ZERO. Each gets its own law
     // check, mirroring the AAF audit's [30a1-30g]/[IV8]/[IV9] pattern.
     //-----------------------------------------------------------------------
-    printf("\n[AVTP-5t] the five formerly-constant Table 5.16 counters\n");
+    void pin_five_formerly_constant_counters() {
+        printf("\n[AVTP-5t] the five formerly-constant Table 5.16 counters\n");
 
-    // -- a) baseline: a healthy stream moves NONE of them ------------------
-    {
+        pin_clean_stream_moves_none_of_them();
+        pin_media_reset_counts_only_toggles();
+        pin_timestamp_uncertain_folds_per_interval();
+        pin_late_and_early_against_gptp_now();
+        pin_stream_interrupted_is_per_event();
+        pin_unbind_is_not_an_interruption();
+    }
+
+// -- a) baseline: a healthy stream moves NONE of them ------------------
+    void pin_clean_stream_moves_none_of_them() {
         align_interval();
-        uint32_t mr0 = dut->mr_cnt_o, tu0 = dut->tu_cnt_o;
-        uint32_t lt0 = dut->late_cnt_o, et0 = dut->early_cnt_o;
+        uint32_t mr0 = dut->mr_cnt_o;
+        uint32_t tu0 = dut->tu_cnt_o;
+        uint32_t lt0 = dut->late_cnt_o;
+        uint32_t et0 = dut->early_cnt_o;
         uint32_t si0 = dut->cnt_intr_o;
         for (int n = 0; n < 6; n++) {
             ts += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-a1] clean stream: MEDIA_RESET still", dut->mr_cnt_o, mr0);
         ck("[5t-a2] clean stream: TIMESTAMP_UNCERTAIN still",
            dut->tu_cnt_o, tu0);
@@ -562,11 +679,11 @@ int main(int argc, char** argv) {
         ck("[5t-a5] clean stream: STREAM_INTERRUPTED still",
            dut->cnt_intr_o, si0);
         ck("[5t-a6] and none of them is stuck at the old constant 0",
-           (long)(dut->pdu_count_o > 0), 1);
+           static_cast<long>(dut->pdu_count_o > 0), 1);
     }
 
-    // -- b) MEDIA_RESET: the TOGGLE counts, a HELD mr counts nothing -------
-    {
+// -- b) MEDIA_RESET: the TOGGLE counts, a HELD mr counts nothing -------
+    void pin_media_reset_counts_only_toggles() {
         align_interval();
         uint32_t mr0 = dut->mr_cnt_o;
         g_mr = true;                     // toggle 0 -> 1 on this PDU
@@ -578,7 +695,7 @@ int main(int argc, char** argv) {
             ts += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b2] one toggle + 8 held PDUs: MEDIA_RESET +1, not +9",
            dut->mr_cnt_o, (mr0 + 1));
 
@@ -587,7 +704,7 @@ int main(int argc, char** argv) {
             ts += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b3] a HELD mr counts nothing at all",
            dut->mr_cnt_o, (mr0 + 1));
 
@@ -595,7 +712,7 @@ int main(int argc, char** argv) {
         align_interval();
         g_mr = false; ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         g_mr = true;  ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b4] two toggles in one interval: +1, not +2",
            dut->mr_cnt_o, (mr0 + 2));
 
@@ -610,7 +727,7 @@ int main(int argc, char** argv) {
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.bad_pdu();
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b5] rejected PDU: MEDIA_RESET untouched", dut->mr_cnt_o, mrb);
         ck("[5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it)",
            dut->fmt_err_o, (ufb + 1));
@@ -625,7 +742,8 @@ int main(int argc, char** argv) {
         // its header fields as measurements of the bound stream would let a
         // foreign profile forge this sink's diagnostics.
         align_interval();
-        uint32_t tub = dut->tu_cnt_o, ltb = dut->late_cnt_o;
+        uint32_t tub = dut->tu_cnt_o;
+        uint32_t ltb = dut->late_cnt_o;
         uint32_t etb = dut->early_cnt_o;
         uint32_t ufc = dut->fmt_err_o;
         g_tu = true;
@@ -638,13 +756,14 @@ int main(int argc, char** argv) {
         // a second reject, this one EARLY
         drive_fields(ts, seq);
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
-        dut->ptp_now_i = ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL;
+        dut->ptp_now_i =
+            ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL;
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.bad_pdu();
         g_tu = false;
         dut->ptp_now_i = ptp;
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b7] rejected PDU: TIMESTAMP_UNCERTAIN untouched",
            dut->tu_cnt_o, tub);
         ck("[5t-b8] rejected PDU: LATE_TIMESTAMP untouched",
@@ -655,8 +774,8 @@ int main(int argc, char** argv) {
            dut->fmt_err_o, (ufc + 1));
     }
 
-    // -- c) TIMESTAMP_UNCERTAIN: per-interval, N tu PDUs -> +1 -------------
-    {
+// -- c) TIMESTAMP_UNCERTAIN: per-interval, N tu PDUs -> +1 -------------
+    void pin_timestamp_uncertain_folds_per_interval() {
         align_interval();
         uint32_t tu0 = dut->tu_cnt_o;
         g_tu = true;
@@ -666,13 +785,13 @@ int main(int argc, char** argv) {
         }
         ck("[5t-c1] tu burst: uncommitted before the tick",
            dut->tu_cnt_o, tu0);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-c2] 7 tu PDUs in one interval: +1, not +7",
            dut->tu_cnt_o, (tu0 + 1));
         // second interval with tu set = a second commit
         align_interval();
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-c3] a second tu interval: +1 more",
            dut->tu_cnt_o, (tu0 + 2));
         g_tu = false;
@@ -680,15 +799,16 @@ int main(int argc, char** argv) {
         for (int n = 0; n < 4; n++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-c4] tu clear: TIMESTAMP_UNCERTAIN stops",
            dut->tu_cnt_o, (tu0 + 2));
     }
 
-    // -- d) LATE / EARLY: the CRF reference timestamp vs gPTP now ----------
-    {
+// -- d) LATE / EARLY: the CRF reference timestamp vs gPTP now ----------
+    void pin_late_and_early_against_gptp_now() {
         align_interval();
-        uint32_t lt0 = dut->late_cnt_o, et0 = dut->early_cnt_o;
+        uint32_t lt0 = dut->late_cnt_o;
+        uint32_t et0 = dut->early_cnt_o;
         // 5 PDUs whose reference instant already passed (10.6's
         // unreserved-stream case; Milan 7.3.3 says this must not happen).
         // The gPTP observation instant is derived FROM the PDU's own
@@ -698,7 +818,7 @@ int main(int argc, char** argv) {
             good_pdu(ts, seq++, ts + 4000000);    // gPTP 4 ms past the ts
         }
         ck("[5t-d1] LATE uncommitted before the tick", dut->late_cnt_o, lt0);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-d2] 5 late PDUs in one interval: LATE +1",
            dut->late_cnt_o, (lt0 + 1));
         ck("[5t-d3] EARLY untouched by LATE PDUs", dut->early_cnt_o, et0);
@@ -708,7 +828,7 @@ int main(int argc, char** argv) {
             align_interval();
             ts += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ts + 4000000);
-            for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+            for (int i = 0; i < kIvalCyc + 2; i++) tick();
         }
         ck("[5t-d4] LATE +2 across two more intervals",
            dut->late_cnt_o, (lt0 + 3));
@@ -717,9 +837,10 @@ int main(int argc, char** argv) {
         align_interval();
         for (int n = 0; n < 4; n++) {
             ts += 2000200; ptp += 2000000;
-            good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL);
+            good_pdu(ts, seq++,
+                     ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-d5] 4 early PDUs in one interval: EARLY +1",
            dut->early_cnt_o, (et0 + 1));
         ck("[5t-d6] LATE untouched by EARLY PDUs",
@@ -728,8 +849,8 @@ int main(int argc, char** argv) {
         // exactly at the limit is still on time (strict >)
         align_interval();
         ts += 2000200; ptp += 2000000;
-        good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        good_pdu(ts, seq++, ts - static_cast<uint64_t>(EARLY_LIMIT_C));
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-d7] delta == the limit is NOT early",
            dut->early_cnt_o, (et0 + 1));
 
@@ -738,7 +859,7 @@ int main(int argc, char** argv) {
         align_interval();
         ts += 2000200; ptp += 2000000;
         good_pdu(ts, seq++, ts);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-d7b] delta == 0 is NOT late",
            dut->late_cnt_o, (lt0 + 3));
 
@@ -746,14 +867,14 @@ int main(int argc, char** argv) {
         for (int n = 0; n < 4; n++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-d8] on-time PDUs move neither",
-           (long)(dut->late_cnt_o == (lt0 + 3) &&
-                  dut->early_cnt_o == (et0 + 1)), 1);
+           static_cast<long>(dut->late_cnt_o == (lt0 + 3) &&
+                             dut->early_cnt_o == (et0 + 1)), 1);
     }
 
-    // -- e) STREAM_INTERRUPTED is PER-EVENT, never interval-folded ---------
-    {
+// -- e) STREAM_INTERRUPTED is PER-EVENT, never interval-folded ---------
+    void pin_stream_interrupted_is_per_event() {
         align_interval();
         uint32_t si0 = dut->cnt_intr_o;
         uint32_t s0  = dut->seq_err_o;
@@ -772,24 +893,24 @@ int main(int argc, char** argv) {
         }
         ck("[5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)",
            dut->cnt_intr_o, si0 + 3);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-e3] the interval tick adds nothing to it",
            dut->cnt_intr_o, si0 + 3);
         ck("[5t-e4] the same 4 gaps fold to ONE SEQ_NUM_MISMATCH",
            dut->seq_err_o, (s0 + 1));
     }
 
-    // -- f) an unbind cannot be an interruption (clause exclusion) ---------
-    {
+// -- f) an unbind cannot be an interruption (clause exclusion) ---------
+    void pin_unbind_is_not_an_interruption() {
         uint32_t si0 = dut->cnt_intr_o;
         dut->en_i = 0;                   // Controller Unbind
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         align_interval();
         ts += 2000200; ptp += 2000000;   // frames keep arriving, unbound
         seq += 9;
         drive_fields(ts, seq);
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-f1] unbound: STREAM_INTERRUPTED cannot move",
            dut->cnt_intr_o, si0);
         // rebind: the previous era's mr level must not score as a toggle.
@@ -805,13 +926,13 @@ int main(int argc, char** argv) {
             ts += 2000200; ptp += 2000000;
             good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-f2] rebind re-seeds mr: no phantom MEDIA_RESET",
            dut->mr_cnt_o, 0);
         ck("[5t-f3] the unbind's own sequence jump is not an interruption",
            dut->cnt_intr_o, 0);
         ck("[5t-f4] and the new era IS counting (FRAMES_RX moved off 0)",
-           (long)(dut->pdu_count_o > 0), 1);
+           static_cast<long>(dut->pdu_count_o > 0), 1);
     }
 
     //-----------------------------------------------------------------------
@@ -824,15 +945,22 @@ int main(int argc, char** argv) {
     // into a new binding is the same defect class as the five constant
     // zeros: a number a Controller cannot interpret.
     //-----------------------------------------------------------------------
-    printf("\n[5t-g] Milan 5.3.8.10 era wipe (not bound -> bound)\n");
-    {
-        // ---- build a NON-ZERO value into all ten -------------------------
-        // lock (cnt_locked), then 100 ms silence (cnt_unlocked), then re-lock
+    void pin_milan_era_wipe() {
+        printf("\n[5t-g] Milan 5.3.8.10 era wipe (not bound -> bound)\n");
+
+        drive_every_table_5_6_counter_off_zero();
+        pin_unbind_keeps_and_bind_zeroes_every_counter();
+        pin_pre_bind_interval_flag_dies_with_the_era();
+    }
+
+    // ---- build a NON-ZERO value into all ten -------------------------
+    // lock (cnt_locked), then 100 ms silence (cnt_unlocked), then re-lock
+    void drive_every_table_5_6_counter_off_zero() {
         for (int n = 0; n < 10; n++) {   // clean run -> MEDIA_LOCKED
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
-        for (int i = 0; i < 20005; i++) tick();      // TOUT_CYC_C @ 200 kHz
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C @ 200 kHz
         m.timeout();                                 // -> MEDIA_UNLOCKED
         ts += 100000000; ptp += 100000000;
         for (int n = 0; n < 10; n++) {               // -> MEDIA_LOCKED again
@@ -851,47 +979,58 @@ int main(int argc, char** argv) {
         ts += 2000200; ptp += 2000000;
         good_pdu(ts, seq++, ts + 4000000);                    // LATE
         ts += 2000200; ptp += 2000000;
-        good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL);  // EARLY
+        good_pdu(ts, seq++,                                    // EARLY
+                 ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL);
         // a format reject -> UNSUPPORTED_FORMAT
         drive_fields(ts, seq);
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.bad_pdu();
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+    }
 
+    //! The asymmetric clause, both edges: the unbind keeps all ten totals,
+    //! the bind that follows zeroes them and drops the lock with them.
+    void pin_unbind_keeps_and_bind_zeroes_every_counter() {
         struct { const char* n; long v; } all10[] = {
-            {"MEDIA_LOCKED",        (long)dut->cnt_locked_o},
-            {"MEDIA_UNLOCKED",      (long)dut->cnt_unlocked_o},
-            {"STREAM_INTERRUPTED",  (long)dut->cnt_intr_o},
-            {"SEQ_NUM_MISMATCH",    (long)dut->seq_err_o},
-            {"MEDIA_RESET",         (long)dut->mr_cnt_o},
-            {"TIMESTAMP_UNCERTAIN", (long)dut->tu_cnt_o},
-            {"UNSUPPORTED_FORMAT",  (long)dut->fmt_err_o},
-            {"LATE_TIMESTAMP",      (long)dut->late_cnt_o},
-            {"EARLY_TIMESTAMP",     (long)dut->early_cnt_o},
-            {"FRAMES_RX",           (long)dut->pdu_count_o},
+            {"MEDIA_LOCKED",        static_cast<long>(dut->cnt_locked_o)},
+            {"MEDIA_UNLOCKED",      static_cast<long>(dut->cnt_unlocked_o)},
+            {"STREAM_INTERRUPTED",  static_cast<long>(dut->cnt_intr_o)},
+            {"SEQ_NUM_MISMATCH",    static_cast<long>(dut->seq_err_o)},
+            {"MEDIA_RESET",         static_cast<long>(dut->mr_cnt_o)},
+            {"TIMESTAMP_UNCERTAIN", static_cast<long>(dut->tu_cnt_o)},
+            {"UNSUPPORTED_FORMAT",  static_cast<long>(dut->fmt_err_o)},
+            {"LATE_TIMESTAMP",      static_cast<long>(dut->late_cnt_o)},
+            {"EARLY_TIMESTAMP",     static_cast<long>(dut->early_cnt_o)},
+            {"FRAMES_RX",           static_cast<long>(dut->pdu_count_o)},
         };
         for (auto& c : all10) {
             char b[96];
             snprintf(b, sizeof b, "[5t-g1] pre-unbind %s is NON-ZERO", c.n);
-            ck(b, (long)(c.v > 0), 1);
+            ck(b, static_cast<long>(c.v > 0), 1);
         }
         // Table 5.6's own invariant on the pair, in its synchronized state
         ck("[5t-g2] bound+locked: MEDIA_LOCKED == MEDIA_UNLOCKED + 1",
-           (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o + 1);
+           static_cast<long>(dut->cnt_locked_o),
+           static_cast<long>(dut->cnt_unlocked_o) + 1);
 
         // ---- bound -> NOT bound: the clause says do NOT reset ------------
         long keep[10];
         for (int k = 0; k < 10; k++) keep[k] = all10[k].v;
         dut->en_i = 0;
-        for (int i = 0; i < 3 * (IVAL_CYC_C + 2); i++) tick();
+        for (int i = 0; i < 3 * (kIvalCyc + 2); i++) tick();
         long after_unbind[10] = {
-            (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o,
-            (long)dut->cnt_intr_o,   (long)dut->seq_err_o,
-            (long)dut->mr_cnt_o,     (long)dut->tu_cnt_o,
-            (long)dut->fmt_err_o,    (long)dut->late_cnt_o,
-            (long)dut->early_cnt_o,  (long)dut->pdu_count_o };
+            static_cast<long>(dut->cnt_locked_o),
+            static_cast<long>(dut->cnt_unlocked_o),
+            static_cast<long>(dut->cnt_intr_o),
+            static_cast<long>(dut->seq_err_o),
+            static_cast<long>(dut->mr_cnt_o),
+            static_cast<long>(dut->tu_cnt_o),
+            static_cast<long>(dut->fmt_err_o),
+            static_cast<long>(dut->late_cnt_o),
+            static_cast<long>(dut->early_cnt_o),
+            static_cast<long>(dut->pdu_count_o) };
         for (int k = 0; k < 10; k++) {
             char b[96];
             snprintf(b, sizeof b, "[5t-g3] unbind must NOT reset %s",
@@ -904,11 +1043,16 @@ int main(int argc, char** argv) {
         m.bind_zero();
         for (int i = 0; i < 4; i++) tick();
         long after_bind[10] = {
-            (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o,
-            (long)dut->cnt_intr_o,   (long)dut->seq_err_o,
-            (long)dut->mr_cnt_o,     (long)dut->tu_cnt_o,
-            (long)dut->fmt_err_o,    (long)dut->late_cnt_o,
-            (long)dut->early_cnt_o,  (long)dut->pdu_count_o };
+            static_cast<long>(dut->cnt_locked_o),
+            static_cast<long>(dut->cnt_unlocked_o),
+            static_cast<long>(dut->cnt_intr_o),
+            static_cast<long>(dut->seq_err_o),
+            static_cast<long>(dut->mr_cnt_o),
+            static_cast<long>(dut->tu_cnt_o),
+            static_cast<long>(dut->fmt_err_o),
+            static_cast<long>(dut->late_cnt_o),
+            static_cast<long>(dut->early_cnt_o),
+            static_cast<long>(dut->pdu_count_o) };
         for (int k = 0; k < 10; k++) {
             char b[96];
             snprintf(b, sizeof b, "[5t-g4] bind edge zeroes %s", all10[k].n);
@@ -920,22 +1064,25 @@ int main(int argc, char** argv) {
         // 5.6 does not allow
         ck("[5t-g5] bind edge drops locked_o with the pair", dut->locked_o, 0);
         ck("[5t-g6] the drop scores NO unlock (LOCKED == UNLOCKED == 0)",
-           (long)(dut->cnt_locked_o == 0 && dut->cnt_unlocked_o == 0), 1);
+           static_cast<long>(dut->cnt_locked_o == 0 &&
+                             dut->cnt_unlocked_o == 0), 1);
 
         // ---- the new era counts from zero, on the same instrument --------
         align_interval();
         for (int n = 0; n < 10; n++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-g7] new era re-locks from zero: MEDIA_LOCKED 1",
            dut->cnt_locked_o, 1);
         ck("[5t-g8] new era counts FRAMES_RX from zero",
-           (long)(dut->pdu_count_o > 0), 1);
+           static_cast<long>(dut->pdu_count_o > 0), 1);
+    }
 
-        // ---- a seen flag raised before the bind must die with the era ----
-        // tu is set on an accepted PDU, then the bind lands BEFORE the
-        // interval tick: the flag must not commit +1 into the zeroed counter
+    // ---- a seen flag raised before the bind must die with the era ----
+    // tu is set on an accepted PDU, then the bind lands BEFORE the
+    // interval tick: the flag must not commit +1 into the zeroed counter
+    void pin_pre_bind_interval_flag_dies_with_the_era() {
         align_interval();
         g_tu = true;
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
@@ -944,7 +1091,7 @@ int main(int argc, char** argv) {
         dut->en_i = 0; tick(); tick();
         dut->en_i = 1;
         m.bind_zero();
-        for (int i = 0; i < 2 * (IVAL_CYC_C + 2); i++) tick();
+        for (int i = 0; i < 2 * (kIvalCyc + 2); i++) tick();
         ck("[5t-g10] a pre-bind interval flag cannot commit after the wipe",
            dut->tu_cnt_o, 0);
     }
@@ -956,8 +1103,9 @@ int main(int argc, char** argv) {
     // FRAMES_RX interval (the task-21 exclusion: a healthy stream closes
     // an interval every second forever and must not push forever).
     //-----------------------------------------------------------------------
-    printf("\n[dirty] gh #60 F2 push-source law\n");
-    {
+    void pin_dirty_push_source_law() {
+        printf("\n[dirty] gh #60 F2 push-source law\n");
+
         // (a) the lock event pulses once; the healthy intervals after stay
         // silent even as FRAMES_RX keeps committing
         align_interval();
@@ -970,7 +1118,7 @@ int main(int argc, char** argv) {
         for (int n = 0; n < 6; n++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
-        for (int i = 0; i < 2 * (IVAL_CYC_C + 2); i++) tick();
+        for (int i = 0; i < 2 * (kIvalCyc + 2); i++) tick();
         ck("[dirty-a2] healthy FRAMES_RX intervals NEVER pulse",
            g_dirty_cnt, 0);
 
@@ -981,7 +1129,7 @@ int main(int argc, char** argv) {
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         g_tu = false;
         ck("[dirty-b1] no pulse before the interval commit", g_dirty_cnt, 0);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[dirty-b2] the TU interval commit pulses dirty", g_dirty_cnt, 1);
 
         // (c) STREAM_INTERRUPTED is per-event: its pulse lands with the PDU,
@@ -992,12 +1140,12 @@ int main(int argc, char** argv) {
         good_pdu(ts, seq++, ptp);
         ck("[dirty-c1] the SI event pulses immediately", g_dirty_cnt, 1);
         g_dirty_cnt = 0;
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[dirty-c2] its SM interval commit pulses too", g_dirty_cnt, 1);
 
         // (d) the 100 ms silence unlock pulses
         g_dirty_cnt = 0;
-        for (int i = 0; i < 20005; i++) tick();       // TOUT_CYC_C @ 200 kHz
+        for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C @ 200 kHz
         m.timeout();
         ck("[dirty-d1] the silence unlock pulses dirty", g_dirty_cnt, 1);
 
@@ -1033,8 +1181,16 @@ int main(int argc, char** argv) {
     // A phantom here is not a cosmetic defect: it restarts the media clock
     // of every listener bound to this device's outgoing streams.
     //-----------------------------------------------------------------------
-    printf("\n[H2a] mr_toggle_p_o: the 10.4.3 restart echo (gh #62)\n");
-    {
+    void pin_restart_echo() {
+        printf("\n[H2a] mr_toggle_p_o: the 10.4.3 restart echo (gh #62)\n");
+
+        pin_restart_echo_seeds_then_reports_real_toggles();
+        pin_restart_echo_ignores_rejects_and_reseeds_on_silence();
+        pin_restart_echo_survives_rebind_and_foreign_frames();
+    }
+
+    //! (a) the era's first PDU seeds, (b) an accepted toggle is one pulse.
+    void pin_restart_echo_seeds_then_reports_real_toggles() {
         // clean slate: rebind, then settle the era with a few accepted PDUs
         dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
         dut->en_i = 1; m.bind_zero();
@@ -1069,7 +1225,11 @@ int main(int argc, char** argv) {
         g_mr = !g_mr;
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         ck("[H2a-b4] the return toggle pulses once too", g_mrtog_cnt, 1);
+    }
 
+    //! (c) a format-rejected flip never pulses, (d) the 100 ms silence
+    //! re-seeds - and the re-seeded era still reports a real toggle.
+    void pin_restart_echo_ignores_rejects_and_reseeds_on_silence() {
         // (c) a REJECTED PDU carrying a flipped bit never pulses. Same
         // profile violation [5t-b5] uses (timestamp_interval 160): the
         // accept gate is upstream of every verdict this engine forms.
@@ -1095,7 +1255,7 @@ int main(int argc, char** argv) {
         // PDU must seed, not restart. Resume on the OPPOSITE level so a
         // missing re-seed shows up as a pulse.
         g_mrtog_cnt = 0;
-        for (int i = 0; i < 20005; i++) tick();      // TOUT_CYC_C @ 200 kHz
+        for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C @ 200 kHz
         m.timeout();
         ck("[H2a-d1] the silence itself pulses nothing", g_mrtog_cnt, 0);
         g_mr = !g_mr;
@@ -1111,7 +1271,11 @@ int main(int argc, char** argv) {
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         ck("[H2a-d4] the re-seeded era still reports a real toggle",
            g_mrtog_cnt, 1);
+    }
 
+    //! (e) the bind edge re-seeds too, (f) a foreign stream's flip is not
+    //! this sink's restart - and the next section is handed a clean slate.
+    void pin_restart_echo_survives_rebind_and_foreign_frames() {
         // (e) the BIND edge re-seeds the same way, and its wipe is not a
         // restart: a Controller rebinding this sink to a different talker
         // must not restart the media clock of every stream we emit
@@ -1158,8 +1322,9 @@ int main(int argc, char** argv) {
     // (what the AECP wire serves) and the documented truncated slice (what
     // 0x74C packs - {pdu[15:0], fmt[7:0], seq[7:0]}).
     //-----------------------------------------------------------------------
-    printf("\n[G1] 32-bit wrap backing + 0x74C truncated-slice ABI\n");
-    {
+    void pin_wrap_backing_and_slice_abi() {
+        printf("\n[G1] 32-bit wrap backing + 0x74C truncated-slice ABI\n");
+
         // FRAMES_RX at 65534: a 16-bit backing wraps to 0 at 65536; the
         // 32-bit law reads 0x00010000 while the 0x74C slice truncates to 0.
         // The preload writes the FLOP (the rootp name --public-flat-rw
@@ -1170,14 +1335,14 @@ int main(int argc, char** argv) {
            dut->pdu_count_o, 65534);
         align_interval();
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         align_interval();
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[G1-a1] FRAMES_RX backing reads 65536 (0x00010000 on the wire)",
            dut->pdu_count_o, 65536);
         ck("[G1-a2] the 0x74C pdu[15:0] slice truncates to 0 (documented)",
-           (long)(uint16_t)dut->pdu_count_o, 0);
+           static_cast<long>(static_cast<uint16_t>(dut->pdu_count_o)), 0);
 
         // UNSUPPORTED_FORMAT at 254: the old 8-bit backing PEGGED at 255
         // (a frozen instrument after 4 min 15 s of persistent fault); the
@@ -1189,7 +1354,7 @@ int main(int argc, char** argv) {
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.bad_pdu();
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[G1-b1] 254 + 1 = 255 (still counting)", dut->fmt_err_o, 255);
         align_interval();
         drive_fields(ts, seq);
@@ -1197,11 +1362,11 @@ int main(int argc, char** argv) {
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.bad_pdu();
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[G1-b2] UNSUPPORTED_FORMAT passes 255 - peg dropped (256)",
            dut->fmt_err_o, 256);
         ck("[G1-b3] the 0x74C fmt[7:0] slice truncates to 0 (documented)",
-           (long)(uint8_t)dut->fmt_err_o, 0);
+           static_cast<long>(static_cast<uint8_t>(dut->fmt_err_o)), 0);
     }
 
     //-----------------------------------------------------------------------
@@ -1213,8 +1378,9 @@ int main(int argc, char** argv) {
     // Mutation anchor: re-gate frame_p_i on the stopped state (the pre-#97
     // wiring) and every stopped-counter compare below goes red.
     //-----------------------------------------------------------------------
-    printf("\n[STOP] stopped sink: observation ungated, consumption gated\n");
-    {
+    void pin_stopped_sink() {
+        printf("\n[STOP] stopped sink: observation ungated, consumption gated\n");
+
         // precondition: a started, locked sink on a clean cadence
         for (int i = 0; i < 10; i++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
@@ -1239,7 +1405,7 @@ int main(int argc, char** argv) {
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         ck("[ST-b1] the stopped toggle never reaches mr_toggle_p_o",
            g_mrtog_cnt, 0);
-        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
 
         // (c) the lock falls at the ordinary 100 ms timeout even though
@@ -1264,7 +1430,7 @@ int main(int argc, char** argv) {
         dut->stop_i = 0; m.stop = false;
         for (int i = 0; i < 4; i++) tick();
         ck("[ST-d0] restart is not a bind edge: FRAMES_RX kept its value",
-           dut->pdu_count_o, (long long)m.pdu);
+           dut->pdu_count_o, static_cast<long long>(m.pdu));
         for (int i = 0; i < 9; i++) {
             ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         }
@@ -1275,10 +1441,12 @@ int main(int argc, char** argv) {
         ck("[ST-d3] no phantom restart echo on START: the mr reference "
            "survived the stopped era", g_mrtog_cnt, 0);
     }
+};
 
-    printf("======================================================================\n");
-    printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
-           checks, fails, g_pdu_no);
-    delete dut;
-    return fails ? 1 : 0;
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    CrfRxHarness harness;
+    return harness.run();
 }

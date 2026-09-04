@@ -21,57 +21,92 @@
 
 #include "Vpair_fill_tb_top.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
 
-static Vpair_fill_tb_top* dut;
-static long checks = 0, fails = 0;
-
-static void ck(const char* what, uint64_t got, uint64_t exp) {
-    checks++;
-    if (got != exp) {
-        fails++;
-        printf("  [FAIL] %-52s got=0x%llx exp=0x%llx\n", what,
-               (unsigned long long)got, (unsigned long long)exp);
-    } else {
-        printf("  [ok]   %-52s = 0x%llx\n", what, (unsigned long long)got);
-    }
-}
-
 // one full clk cycle; sample-and-record blend/fill outputs on the rising edge
 struct Strobe { int slot; uint32_t l, r; };
-static Strobe b_log[64]; static int b_n = 0;
-static Strobe z_log[512]; static int z_n = 0;
+// log capacities: the blend section emits a handful of strobes per case, the
+// fill section a full 8-slot walk per media-tick period across ~30 periods
+constexpr int kBlendLogCap = 64;
+constexpr int kFillLogCap = 512;
 
-// Sample BEFORE the rising edge: that is the value a same-clock consumer
-// (the packetizer) latches AT the edge - sampling after it reads the
-// post-update register state and eats one-cycle strobes the edge itself
-// consumed (measured here first: pairs_merged_o said 7 while a post-edge
-// probe logged 5).
-//
-// ZERO-FILL OUTPUT IS REGISTERED (AX 100 MHz timing closure): a strobe
-// DECIDED in cycle N - live pass-through or fill - is on z_pv_o/z_slot_o
-// during cycle N+1, so this harness always steps once past the driving
-// cycle before reading. Z7 pins that contract explicitly. The blend
-// outputs remain combinational.
-static void step() {
-    dut->clk_i = 0; dut->eval();
-    if (dut->b_pv_o && b_n < 64)
-        b_log[b_n++] = { (int)dut->b_slot_o, dut->b_l_o, dut->b_r_o };
-    if (dut->z_pv_o && z_n < 512)
-        z_log[z_n++] = { (int)dut->z_slot_o, dut->z_l_o, dut->z_r_o };
-    dut->clk_i = 1; dut->eval();
-}
+namespace {
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new Vpair_fill_tb_top;
+//! The blend + zero-fill harness: the model, the tally and the two strobe
+//! logs are its members, so nothing this suite mutates lives at file scope
+//! (I.2).
+class PairFillHarness {
+ public:
+    int run();
 
+ private:
+    void ck(const char* what, uint64_t got, uint64_t exp) {
+        checks++;
+        if (got != exp) {
+            fails++;
+            printf("  [FAIL] %-52s got=0x%llx exp=0x%llx\n", what,
+                   static_cast<unsigned long long>(got),
+                   static_cast<unsigned long long>(exp));
+        } else {
+            printf("  [ok]   %-52s = 0x%llx\n", what,
+                   static_cast<unsigned long long>(got));
+        }
+    }
+
+    // Sample BEFORE the rising edge: that is the value a same-clock consumer
+    // (the packetizer) latches AT the edge - sampling after it reads the
+    // post-update register state and eats one-cycle strobes the edge itself
+    // consumed (measured here first: pairs_merged_o said 7 while a post-edge
+    // probe logged 5).
+    //
+    // ZERO-FILL OUTPUT IS REGISTERED (AX 100 MHz timing closure): a strobe
+    // DECIDED in cycle N - live pass-through or fill - is on z_pv_o/z_slot_o
+    // during cycle N+1, so this harness always steps once past the driving
+    // cycle before reading. Z7 pins that contract explicitly. The blend
+    // outputs remain combinational.
+    void step() {
+        dut->clk_i = 0; dut->eval();
+        if (dut->b_pv_o && b_n < kBlendLogCap)
+            b_log[b_n++] = { static_cast<int>(dut->b_slot_o), dut->b_l_o, dut->b_r_o };
+        if (dut->z_pv_o && z_n < kFillLogCap)
+            z_log[z_n++] = { static_cast<int>(dut->z_slot_o), dut->z_l_o, dut->z_r_o };
+        dut->clk_i = 1; dut->eval();
+    }
+
+    // the harness owns the media tick and the idle cycles between the cases
+    void tick() { dut->z_tick_i = 1; step(); dut->z_tick_i = 0; }
+    void quiet_cycles(int n) { for (int i = 0; i < n; i++) step(); }
+
+    void release_reset();
+    void blend_slot_map_and_collision_hold();
+    void fill_every_slot_after_the_reset_grace();
+    void never_fill_a_slot_that_is_still_fed();
+    void fill_a_dead_slot_once_both_windows_empty();
+    void defer_the_walk_for_a_live_strobe_but_lose_none();
+    void pass_an_out_of_span_slot_through_untracked();
+    void honour_the_registered_output_contract();
+
+    const milan::tb::Model<Vpair_fill_tb_top> model;
+    Vpair_fill_tb_top* dut = model.get();
+    long checks = 0;
+    long fails = 0;
+
+    Strobe b_log[kBlendLogCap]{};
+    int b_n = 0;
+    Strobe z_log[kFillLogCap]{};
+    int z_n = 0;
+};
+
+void PairFillHarness::release_reset() {
     dut->rst_n = 0;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1;
     for (int i = 0; i < 4; i++) step();
+}
 
+void PairFillHarness::blend_slot_map_and_collision_hold() {
     // =====================================================================
     //  BLEND
     // =====================================================================
@@ -130,13 +165,13 @@ int main(int argc, char** argv) {
 
     // B5: pairs_merged_o counted every output strobe above (1+1+2+3)
     ck("B5 pairs_merged_o == output strobes", dut->b_merged_o, 7);
+}
 
+void PairFillHarness::fill_every_slot_after_the_reset_grace() {
     // =====================================================================
     //  ZERO-FILL  (TOTAL_P = 8; the harness owns the tick)
     // =====================================================================
     printf("[fill] 5.3.7.3 silence fill, fed-tracked\n");
-    auto tick = [&]() { dut->z_tick_i = 1; step(); dut->z_tick_i = 0; };
-    auto quiet_cycles = [&](int n) { for (int i = 0; i < n; i++) step(); };
 
     // Z1: reset grace - the first tick fills nothing (fed_prev resets
     // all-fed), the second declares every slot dead and fills all 8
@@ -145,7 +180,8 @@ int main(int argc, char** argv) {
     ck("Z1 no fills after the first tick", z_n, 0);
     tick(); quiet_cycles(20);
     ck("Z1 second tick fills every slot", z_n, 8);
-    bool all_zero = true, slots_ok = true;
+    bool all_zero = true;
+    bool slots_ok = true;
     for (int i = 0; i < z_n; i++) {
         if (z_log[i].l || z_log[i].r) all_zero = false;
         if (z_log[i].slot != i) slots_ok = false;   // lowest-first walk
@@ -153,7 +189,9 @@ int main(int argc, char** argv) {
     ck("Z1 fills carry zero samples", all_zero ? 1 : 0, 1);
     ck("Z1 fills walk slots 0..7 in order", slots_ok ? 1 : 0, 1);
     ck("Z1 fill_cnt_o", dut->z_fill_cnt_o, 8);
+}
 
+void PairFillHarness::never_fill_a_slot_that_is_still_fed() {
     // Z2: a live slot is never filled - feed slot 3 once per period at a
     // phase that lands JUST AFTER each tick (the worst case the two-period
     // rule exists for), 10 periods; slot 3 must appear only as passthrough.
@@ -165,7 +203,8 @@ int main(int argc, char** argv) {
     step();
     dut->z_pv_i = 0;
     quiet_cycles(4);
-    int fills_slot3 = 0, passes_slot3 = 0;
+    int fills_slot3 = 0;
+    int passes_slot3 = 0;
     for (int p = 0; p < 10; p++) {
         tick();
         // just after the tick: the live strobe (decision cycle N; the
@@ -185,22 +224,29 @@ int main(int argc, char** argv) {
     // Z3: the other 7 slots filled once per period while slot 3 lived
     // (10 periods x 7) + Z1's 8 = fill_cnt total
     ck("Z3 fill_cnt_o == 8 + 10*7", dut->z_fill_cnt_o, 8 + 70);
+}
 
+void PairFillHarness::fill_a_dead_slot_once_both_windows_empty() {
     // Z4: death - stop feeding slot 3; the two-period rule holds it back
     // while EITHER window still saw it (grace is up to two periods,
     // ~41.7 us - the price of never doubling a live slot), then fills
     // resume every period
     z_n = 0; tick(); quiet_cycles(20);
-    int f3 = 0; for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
+    int f3 = 0;
+    for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
     ck("Z4 grace window 1 after death", f3, 0);
     z_n = 0; tick(); quiet_cycles(20);
-    f3 = 0; for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
+    f3 = 0;
+    for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
     ck("Z4 grace window 2 after death", f3, 0);
     z_n = 0; tick(); quiet_cycles(20);
-    f3 = 0; for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
+    f3 = 0;
+    for (int i = 0; i < z_n; i++) if (z_log[i].slot == 3) f3++;
     ck("Z4 dead slot fills once both windows empty", f3, 1);
     ck("Z4 all 8 filled once that period", z_n, 8);
+}
 
+void PairFillHarness::defer_the_walk_for_a_live_strobe_but_lose_none() {
     // Z5: input priority - a passthrough strobe during the fill walk defers
     // the fill but loses none of it
     tick();
@@ -215,7 +261,9 @@ int main(int argc, char** argv) {
     ck("Z5 live strobe + full pending walk", z_n, 9);
     bool live_first = (z_log[0].slot == 6 && z_log[0].l == 0x777777);
     ck("Z5 the live strobe leads the walk out", live_first ? 1 : 0, 1);
+}
 
+void PairFillHarness::pass_an_out_of_span_slot_through_untracked() {
     // Z6: an out-of-span slot passes through and is never tracked or filled
     // (settle TWO periods first so Z5's live slot 6 ages out of both windows)
     tick(); quiet_cycles(20);
@@ -231,7 +279,9 @@ int main(int argc, char** argv) {
     tick(); quiet_cycles(20);
     tick(); quiet_cycles(20);
     ck("Z6 fill span stays 8/period", (dut->z_fill_cnt_o - before) % 8, 0);
+}
 
+void PairFillHarness::honour_the_registered_output_contract() {
     // Z7: REGISTERED-OUTPUT CONTRACT (the AX 100 MHz re-time). A strobe
     // decided in cycle N is ABSENT from the outputs during N and present
     // exactly during N+1; two back-to-back decisions leave back-to-back,
@@ -257,10 +307,28 @@ int main(int argc, char** argv) {
     ck("Z7 second L intact", z_log[1].l, 0x0DEF45);
     step();
     ck("Z7 no trailing strobe", z_n, 2);
+}
+
+int PairFillHarness::run() {
+    release_reset();
+    blend_slot_map_and_collision_hold();
+    fill_every_slot_after_the_reset_grace();
+    never_fill_a_slot_that_is_still_fed();
+    fill_a_dead_slot_once_both_windows_empty();
+    defer_the_walk_for_a_live_strobe_but_lose_none();
+    pass_an_out_of_span_slot_through_untracked();
+    honour_the_registered_output_contract();
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
-    dut->final(); delete dut;
     return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    PairFillHarness harness;
+    return harness.run();
 }

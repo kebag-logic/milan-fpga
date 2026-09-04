@@ -20,27 +20,61 @@
 
 #include "Vqueues_wrap.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
 #include <vector>
 #include <string>
 
-static Vqueues_wrap* dut;
-static long checks = 0, fails = 0;
-static void ck(const char* what, long got, long exp) {
-    checks++;
-    if (got != exp) { fails++; printf("  [FAIL] %-34s got=%ld exp=%ld\n", what, got, exp); }
-}
+// cycle guard on the handshake wait loops: far longer than any frame here
+constexpr int kMaxCycles = 5000;
+// reset is held low this long, then the DUT is given time to come out of it
+constexpr int kResetCycles = 8;
+constexpr int kPostResetCycles = 4;
+// cycles the queues are left to settle after a batch of pushes or a drain
+constexpr int kSettleCycles = 8;
+// cycles watched for a leaked beat while no queue is granted
+constexpr int kNoGrantCycles = 40;
+// five queues, no spare (see the note in main): bit q per queue
+constexpr uint32_t kAllQueuesMask = 0x1F;
+// the frame tag occupies the top byte of the 64-bit beat
+constexpr unsigned kTagShift = 56;
+// tkeep of a full beat, and of the 5-byte final beat the generator emits
+constexpr uint8_t kFullBeatKeep = 0xFF;
+constexpr uint8_t kLastBeatKeep = 0x1F;
 
 struct Beat { uint64_t data; uint8_t keep; bool last; };
-static void lo() { dut->clk = 0; dut->eval(); }
-static void hi() { dut->clk = 1; dut->eval(); }
-static void step() { lo(); hi(); }
+
+namespace {
+// The model handle and the tally were file-scope statics; they are the state
+// of one run of this harness, so they belong to the object that performs it.
+class TrafficQueuesHarness {
+ public:
+    int run();
+
+ private:
+    void ck(const char* what, long got, long exp) {
+        checks++;
+        if (got != exp) { fails++; printf("  [FAIL] %-34s got=%ld exp=%ld\n", what, got, exp); }
+    }
+
+    void lo() { dut->clk = 0; dut->eval(); }
+    void hi() { dut->clk = 1; dut->eval(); }
+    void step() { lo(); hi(); }
+
+    void push_frame(int q, const std::vector<Beat>& f);
+    std::vector<Beat> drain(int q, int& out_dest);
+
+    Vqueues_wrap* dut = nullptr;
+    long checks = 0;
+    long fails = 0;
+};
 
 // push one frame (tdest=q) into the queues; returns after it is fully accepted
-static void push_frame(int q, const std::vector<Beat>& f) {
-    size_t b = 0; int accepted = 0;
-    for (int c = 0; c < 5000 && b < f.size(); c++) {
+void TrafficQueuesHarness::push_frame(int q, const std::vector<Beat>& f) {
+    size_t b = 0;
+    int accepted = 0;
+    for (int c = 0; c < kMaxCycles && b < f.size(); c++) {
         dut->s_tdata = f[b].data; dut->s_tkeep = f[b].keep;
         dut->s_tlast = f[b].last; dut->s_tdest = q; dut->s_tvalid = 1;
         lo();
@@ -53,14 +87,17 @@ static void push_frame(int q, const std::vector<Beat>& f) {
 }
 
 // grant queue q, collect the drained frame (until tlast); record tdest seen
-static std::vector<Beat> drain(int q, int& out_dest) {
-    std::vector<Beat> got; out_dest = -1;
+std::vector<Beat> TrafficQueuesHarness::drain(int q, int& out_dest) {
+    std::vector<Beat> got;
+    out_dest = -1;
     dut->queue_grant_i = (1u << q);
-    for (int c = 0; c < 5000; c++) {
+    for (int c = 0; c < kMaxCycles; c++) {
         dut->m_tready = 1;
         lo();
         if (dut->m_tvalid && dut->m_tready) {
-            got.push_back({ (uint64_t)dut->m_tdata, (uint8_t)dut->m_tkeep, (bool)dut->m_tlast });
+            got.push_back({ static_cast<uint64_t>(dut->m_tdata),
+                            static_cast<uint8_t>(dut->m_tkeep),
+                            static_cast<bool>(dut->m_tlast) });
             out_dest = dut->m_tdest;
             bool last = dut->m_tlast;
             hi();
@@ -71,38 +108,41 @@ static std::vector<Beat> drain(int q, int& out_dest) {
     return got;
 }
 
-static std::vector<Beat> mk(uint8_t tag, int len) {
+std::vector<Beat> mk(uint8_t tag, int len) {
     std::vector<Beat> f;
     for (int b = 0; b < len; b++)
-        f.push_back({ ((uint64_t)tag << 56) | (uint64_t)b,
-                      (uint8_t)(b == len - 1 ? 0x1F : 0xFF), b == len - 1 });
+        f.push_back({ (static_cast<uint64_t>(tag) << kTagShift) | static_cast<uint64_t>(b),
+                      static_cast<uint8_t>(b == len - 1 ? kLastBeatKeep : kFullBeatKeep),
+                      b == len - 1 });
     return f;
 }
-static bool eq(const std::vector<Beat>& a, const std::vector<Beat>& b) {
+bool eq(const std::vector<Beat>& a, const std::vector<Beat>& b) {
     if (a.size() != b.size()) return false;
     for (size_t i = 0; i < a.size(); i++)
         if (a[i].data != b[i].data || a[i].keep != b[i].keep || a[i].last != b[i].last) return false;
     return true;
 }
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new Vqueues_wrap;
+int TrafficQueuesHarness::run() {
+    const milan::tb::Model<Vqueues_wrap> model;
+    dut = model.get();
 
     dut->resetn = 0;
     dut->s_tvalid = dut->s_tlast = 0; dut->m_tready = 0; dut->queue_grant_i = 0;
-    for (int i = 0; i < 8; i++) step();
+    for (int i = 0; i < kResetCycles; i++) step();
     dut->resetn = 1;
-    for (int i = 0; i < 4; i++) step();
+    for (int i = 0; i < kPostResetCycles; i++) step();
 
     printf("== traffic_queues harness (axis_demux/axis_fifo/axis_arb_mux) ==\n");
 
     // distinct frames per queue (>= 8 beats so each fills past the has-data margin)
     // FIVE queues since the area round: q4 SR-A, q3 SR-B, q2 gPTP,
     // q1 control, q0 best effort. No spare.
-    std::vector<Beat> fq0 = mk(0xA0, 8), fq1 = mk(0xB1, 10),
-                      fq2 = mk(0xC2, 8), fq3 = mk(0xD3, 9),
-                      fq4 = mk(0xE4, 9);
+    std::vector<Beat> fq0 = mk(0xA0, 8);
+    std::vector<Beat> fq1 = mk(0xB1, 10);
+    std::vector<Beat> fq2 = mk(0xC2, 8);
+    std::vector<Beat> fq3 = mk(0xD3, 9);
+    std::vector<Beat> fq4 = mk(0xE4, 9);
     // NOTE: keep every frame <= 10 beats. FIFO_DEPTH is 64 BYTES here, which
     // axis_fifo turns into 8 RAM entries (+ its output skid), so an 11-beat
     // frame stalls mid-push; axis_demux holds `select` until tlast, so the
@@ -111,33 +151,45 @@ int main(int argc, char** argv) {
     // load all five queues
     push_frame(0, fq0); push_frame(1, fq1); push_frame(2, fq2);
     push_frame(3, fq3); push_frame(4, fq4);
-    for (int i = 0; i < 8; i++) step();
+    for (int i = 0; i < kSettleCycles; i++) step();
 
     // each queue reports data buffered
-    ck("queue_has_data all set", dut->queue_has_data_o & 0x1F, 0x1F);
+    ck("queue_has_data all set", dut->queue_has_data_o & kAllQueuesMask, kAllQueuesMask);
 
     // with no grant, nothing drains
     dut->queue_grant_i = 0;
     bool leaked = false;
-    for (int c = 0; c < 40; c++) { dut->m_tready = 1; lo(); if (dut->m_tvalid) leaked = true; hi(); }
+    for (int c = 0; c < kNoGrantCycles; c++) {
+        dut->m_tready = 1;
+        lo();
+        if (dut->m_tvalid) leaked = true;
+        hi();
+    }
     ck("no drain without grant", leaked ? 1 : 0, 0);
 
     // grant queues out of order; each must emerge intact with correct tdest
     struct { int q; std::vector<Beat>* f; } order[] = { {2,&fq2}, {4,&fq4}, {0,&fq0},
                                                         {3,&fq3}, {1,&fq1} };
     for (auto& o : order) {
-        int d; auto got = drain(o.q, d);
+        int d;
+        auto got = drain(o.q, d);
         ck((std::string("q") + std::to_string(o.q) + " tdest").c_str(), d, o.q);
         ck((std::string("q") + std::to_string(o.q) + " frame byte-exact").c_str(), eq(got, *o.f) ? 1 : 0, 1);
     }
 
     // all queues drained -> has_data clears
-    for (int i = 0; i < 8; i++) step();
-    ck("queue_has_data all clear", dut->queue_has_data_o & 0x1F, 0x0);
+    for (int i = 0; i < kSettleCycles; i++) step();
+    ck("queue_has_data all clear", dut->queue_has_data_o & kAllQueuesMask, 0x0);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
-    dut->final(); delete dut;
     return fails ? 1 : 0;
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    TrafficQueuesHarness harness;
+    return harness.run();
 }

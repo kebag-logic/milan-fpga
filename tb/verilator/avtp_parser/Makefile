@@ -38,13 +38,13 @@ WAIVERS = -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND 
           -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -Wno-TIMESCALEMOD
 
 VFLAGS   = --cc --exe --build -j 0 --top-module $(TOP) \
-           +incdir+$(C) +incdir+$(A) $(WAIVERS) -CFLAGS "-std=c++17 -O2"
+           +incdir+$(C) +incdir+$(A) $(WAIVERS) -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 SRCS     = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
            $(A)/avtp_stream_parser.sv
 
 # stream-table + parser at FULL index width (N=8): the milan_datapath pairing
 TBLFLAGS = --cc --exe --build -j 0 --top-module parser_tbl_wrap \
-           +incdir+$(C) +incdir+$(A) $(WAIVERS) -CFLAGS "-std=c++17 -O2"
+           +incdir+$(C) +incdir+$(A) $(WAIVERS) -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 TBLSRCS  = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
            $(A)/avtp_stream_parser.sv $(A)/KL_stream_table.sv parser_tbl_wrap.sv
 
@@ -59,19 +59,19 @@ banner:
 
 build:
 	$(VERILATOR) $(VFLAGS) --Mdir obj_n1 -GN_STREAMS=1 \
-		-CFLAGS "-DNSTREAMS_TB=1 -DSHAPE_NAME=\\\"N1-LE-legacy\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=1 -DSHAPE_NAME=\\\"N1-LE-legacy\\\" -Wall -Wextra" \
 		$(SRCS) sim_parser.cpp -o Vparser_n1
 	$(VERILATOR) $(VFLAGS) --Mdir obj_n4 -GN_STREAMS=4 \
-		-CFLAGS "-DNSTREAMS_TB=4 -DSHAPE_NAME=\\\"N4-LE-arty4x4\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=4 -DSHAPE_NAME=\\\"N4-LE-arty4x4\\\" -Wall -Wextra" \
 		$(SRCS) sim_parser.cpp -o Vparser_n4
 	$(VERILATOR) $(VFLAGS) --Mdir obj_n8 -GN_STREAMS=8 \
-		-CFLAGS "-DNSTREAMS_TB=8 -DSHAPE_NAME=\\\"N8-LE-cfg_ax8x8-SHIPPING\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=8 -DSHAPE_NAME=\\\"N8-LE-cfg_ax8x8-SHIPPING\\\" -Wall -Wextra" \
 		$(SRCS) sim_parser.cpp -o Vparser_n8
 	$(VERILATOR) $(VFLAGS) --Mdir obj_be -GN_STREAMS=8 -GBIG_ENDIAN=1 \
-		-CFLAGS "-DNSTREAMS_TB=8 -DBIG_ENDIAN_TB=1 -DSHAPE_NAME=\\\"N8-BE-beats\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=8 -DBIG_ENDIAN_TB=1 -DSHAPE_NAME=\\\"N8-BE-beats\\\" -Wall -Wextra" \
 		$(SRCS) sim_parser.cpp -o Vparser_be
 	$(VERILATOR) $(TBLFLAGS) --Mdir obj_tbl -GN_LISTENERS_P=8 \
-		-CFLAGS "-DNSTREAMS_TB=8" \
+		-CFLAGS "-DNSTREAMS_TB=8 -Wall -Wextra" \
 		$(TBLSRCS) sim_tbl.cpp -o Vparser_tbl8
 
 # run every shape even when one fails (a red shape must not hide the others);

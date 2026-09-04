@@ -57,36 +57,100 @@ def _eth(dst, src, subtype, byte15, word16, body):
             + struct.pack(">BBH", subtype, byte15, word16) + body)
 
 
+# Every builder below takes its header fields BY NAME out of a table declared
+# next to it rather than as a positional signature. The names are the API: the
+# campaign maps an oracle's per-field probes onto a builder with
+# `build(**{field: value})` (see fuzz_ptp's parser_gates and fuzz_aaf's GOOD
+# dict), so a field list is data these two helpers apply, and an order a caller
+# would have to count out never exists. A name that is in no table is refused
+# with a TypeError, which is exactly what a positional signature did.
+def _with_defaults(defaults, given, what):
+    """`defaults` overridden by `given`; an unknown field name is a TypeError."""
+    unknown = sorted(name for name in given if name not in defaults)
+    if unknown:
+        raise TypeError("%s() got an unexpected keyword argument %r"
+                        % (what, unknown[0]))
+    merged = dict(defaults)
+    merged.update(given)
+    return merged
+
+
+def _split_fields(defaults, given):
+    """(this builder's own fields with defaults applied, the rest for its caller).
+
+    A per-message-type PTP builder owns a few body fields and forwards every
+    header field to `ptp_frame`, which is the one that refuses an unknown name.
+    """
+    own = dict(defaults)
+    rest = {}
+    for name, value in given.items():
+        if name in own:
+            own[name] = value
+        else:
+            rest[name] = value
+    return own, rest
+
+
 # --------------------------------------------------------------------- AECP
-def aecp_cmd(command_type, payload=b"", seq=0x1001, msg_type=MSG_AEM_COMMAND,
-             target=ENTITY_ID, controller=CTRLR_ID, dst=ENTITY_MAC,
-             src=CTRLR_MAC, u=0, status=0, cdl=None, pad60=False):
+#: `aecp_cmd`'s fields beyond the command type and its payload, each with the
+#: value a legal AEM command carries.
+AECP_CMD_FIELDS = {
+    "seq": 0x1001,
+    "msg_type": MSG_AEM_COMMAND,
+    "target": ENTITY_ID,
+    "controller": CTRLR_ID,
+    "dst": ENTITY_MAC,
+    "src": CTRLR_MAC,
+    "u": 0,
+    "status": 0,
+    "cdl": None,
+    "pad60": False,
+}
+
+
+def aecp_cmd(command_type: int, payload: bytes = b"", **fields) -> bytes:
     """Build an AECP AEM command frame (the layout sim_main.cpp validates).
 
+    Fields are keywords out of `AECP_CMD_FIELDS`, which carries every default.
     `cdl=None` derives the spec value (12 + payload); pass an int to inject a
     deliberately wrong length for the length-validation probes. `u` is 0 on a
     command — the unsolicited bit is a RESPONSE flag (1722.1 §7.5.2).
     """
-    body = (struct.pack(">Q", target) + struct.pack(">Q", controller)
-            + struct.pack(">H", seq & 0xFFFF)
-            + struct.pack(">H", ((u & 1) << 15) | (command_type & 0x7FFF))
+    fld = _with_defaults(AECP_CMD_FIELDS, fields, "aecp_cmd")
+    body = (struct.pack(">Q", fld["target"]) + struct.pack(">Q", fld["controller"])
+            + struct.pack(">H", fld["seq"] & 0xFFFF)
+            + struct.pack(">H", ((fld["u"] & 1) << 15) | (command_type & 0x7FFF))
             + payload)
-    real_cdl = 12 + len(payload) if cdl is None else cdl
-    word16 = ((status & 0x1F) << 11) | (real_cdl & 0x7FF)
-    f = _eth(dst, src, SUBTYPE_AECP, msg_type & 0x0F, word16, body)
-    if pad60 and len(f) < 60:
+    real_cdl = 12 + len(payload) if fld["cdl"] is None else fld["cdl"]
+    word16 = ((fld["status"] & 0x1F) << 11) | (real_cdl & 0x7FF)
+    f = _eth(fld["dst"], fld["src"], SUBTYPE_AECP, fld["msg_type"] & 0x0F,
+             word16, body)
+    if fld["pad60"] and len(f) < 60:
         f += b"\x00" * (60 - len(f))
     return f
 
 
-def aecp_vu_cmd(vu_command, payload=b"", seq=0x1001, protocol_id=b"\x00\x1b\xc5\x0a\xc1\x00",
-                target=ENTITY_ID, controller=CTRLR_ID, dst=ENTITY_MAC, src=CTRLR_MAC):
-    """Milan Vendor-Unique (MVU) command frame."""
-    body = (struct.pack(">Q", target) + struct.pack(">Q", controller)
-            + struct.pack(">H", seq & 0xFFFF) + protocol_id
+#: `aecp_vu_cmd`'s fields beyond the VU command code and its payload.
+AECP_VU_CMD_FIELDS = {
+    "seq": 0x1001,
+    "protocol_id": b"\x00\x1b\xc5\x0a\xc1\x00",
+    "target": ENTITY_ID,
+    "controller": CTRLR_ID,
+    "dst": ENTITY_MAC,
+    "src": CTRLR_MAC,
+}
+
+
+def aecp_vu_cmd(vu_command: int, payload: bytes = b"", **fields) -> bytes:
+    """Milan Vendor-Unique (MVU) command frame; see `AECP_VU_CMD_FIELDS`."""
+    fld = _with_defaults(AECP_VU_CMD_FIELDS, fields, "aecp_vu_cmd")
+    protocol_id = fld["protocol_id"]
+    body = (struct.pack(">Q", fld["target"]) + struct.pack(">Q", fld["controller"])
+            + struct.pack(">H", fld["seq"] & 0xFFFF) + protocol_id
             + struct.pack(">HH", vu_command & 0xFFFF, 0) + payload)
     cdl = 10 + len(protocol_id) + 4 + len(payload)
-    return _eth(dst, src, SUBTYPE_AECP, MSG_VU_COMMAND, cdl & 0x7FF, body)
+    return _eth(fld["dst"], fld["src"], SUBTYPE_AECP, MSG_VU_COMMAND,
+                cdl & 0x7FF, body)
 
 
 class AecpResp:
@@ -121,11 +185,13 @@ class AecpResp:
     pdu = property(lambda s: s.raw[15:])
 
     @property
-    def cdl_ok(self):
+    def cdl_ok(self) -> bool:
         """IEEE 1722-2016 §5.4 on an unpadded sim frame: CDL == len - 26."""
         return len(self.raw) > 26 and self.cdl == len(self.raw) - 26
 
-    def status_name(self):
+    def status_name(self) -> str:
+        """The status field's spelling, or `status_N` for a code 1722.1 does
+        not define - an unknown code must stay visible, not become SUCCESS."""
         return STATUS.get(self.status, "status_%d" % self.status)
 
 
@@ -144,25 +210,48 @@ ACMP_GET_RX_STATE_COMMAND = 10
 ACMP_MCAST_MAC = bytes.fromhex("91e0f0010000")
 
 
-def acmp_pdu(message_type, stream_id=0, controller=CTRLR_ID, talker=ENTITY_ID,
-             listener=ENTITY_ID, talker_unique=0, listener_unique=0,
-             dest_mac=b"\x91\xe0\xf0\x00\x3a\x99", connection_count=0, seq=1,
-             flags=0, vlan=2, status=0, cdl=44, reserved=0,
-             dst=ACMP_MCAST_MAC, src=CTRLR_MAC):
+#: `acmp_pdu`'s fields beyond the message type, each with the value a legal
+#: CONNECT_RX command carries.
+ACMP_PDU_FIELDS = {
+    "stream_id": 0,
+    "controller": CTRLR_ID,
+    "talker": ENTITY_ID,
+    "listener": ENTITY_ID,
+    "talker_unique": 0,
+    "listener_unique": 0,
+    "dest_mac": b"\x91\xe0\xf0\x00\x3a\x99",
+    "connection_count": 0,
+    "seq": 1,
+    "flags": 0,
+    "vlan": 2,
+    "status": 0,
+    "cdl": 44,
+    "reserved": 0,
+    "dst": ACMP_MCAST_MAC,
+    "src": CTRLR_MAC,
+}
+
+
+def acmp_pdu(message_type: int, **fields) -> bytes:
     """Build an ACMPDU frame — 70 bytes on the wire (1722.1 §8.2.1).
 
+    Fields are keywords out of `ACMP_PDU_FIELDS`, which carries every default.
     The 70-byte length is load-bearing: controllers that emit 68-byte ACMPDUs
     are rightly rejected by the length check (see the acmp-listener-deaf
     finding), so length-probing is part of the campaign.
     """
-    body = (struct.pack(">Q", stream_id) + struct.pack(">Q", controller)
-            + struct.pack(">Q", talker) + struct.pack(">Q", listener)
-            + struct.pack(">HH", talker_unique & 0xFFFF, listener_unique & 0xFFFF)
-            + bytes(dest_mac)
-            + struct.pack(">HHHHH", connection_count & 0xFFFF, seq & 0xFFFF,
-                          flags & 0xFFFF, vlan & 0xFFFF, reserved & 0xFFFF))
-    word16 = ((status & 0x1F) << 11) | (cdl & 0x7FF)
-    return _eth(dst, src, SUBTYPE_ACMP, message_type & 0x0F, word16, body)
+    fld = _with_defaults(ACMP_PDU_FIELDS, fields, "acmp_pdu")
+    body = (struct.pack(">Q", fld["stream_id"]) + struct.pack(">Q", fld["controller"])
+            + struct.pack(">Q", fld["talker"]) + struct.pack(">Q", fld["listener"])
+            + struct.pack(">HH", fld["talker_unique"] & 0xFFFF,
+                          fld["listener_unique"] & 0xFFFF)
+            + bytes(fld["dest_mac"])
+            + struct.pack(">HHHHH", fld["connection_count"] & 0xFFFF,
+                          fld["seq"] & 0xFFFF, fld["flags"] & 0xFFFF,
+                          fld["vlan"] & 0xFFFF, fld["reserved"] & 0xFFFF))
+    word16 = ((fld["status"] & 0x1F) << 11) | (fld["cdl"] & 0x7FF)
+    return _eth(fld["dst"], fld["src"], SUBTYPE_ACMP, message_type & 0x0F,
+                word16, body)
 
 
 class AcmpResp(AecpResp):
@@ -188,32 +277,60 @@ ADP_ENTITY_DISCOVER = 2
 ADP_MCAST_MAC = bytes.fromhex("91e0f0010000")
 
 
-def adp_pdu(message_type=ADP_ENTITY_AVAILABLE, valid_time=10, entity_id=CTRLR_ID,
-            entity_model_id=0, entity_caps=0, talker_sources=0, talker_caps=0,
-            listener_sinks=0, listener_caps=0, controller_caps=0, available_index=0,
-            gptp_gm=0, gptp_domain=0, reserved0=0, current_config=0,
-            identify_control=0, interface_index=0, association_id=0, reserved1=0,
-            cdl=56, dst=ADP_MCAST_MAC, src=CTRLR_MAC):
+#: Every ADPDU field, each with the value a legal ENTITY_AVAILABLE carries.
+ADP_PDU_FIELDS = {
+    "message_type": ADP_ENTITY_AVAILABLE,
+    "valid_time": 10,
+    "entity_id": CTRLR_ID,
+    "entity_model_id": 0,
+    "entity_caps": 0,
+    "talker_sources": 0,
+    "talker_caps": 0,
+    "listener_sinks": 0,
+    "listener_caps": 0,
+    "controller_caps": 0,
+    "available_index": 0,
+    "gptp_gm": 0,
+    "gptp_domain": 0,
+    "reserved0": 0,
+    "current_config": 0,
+    "identify_control": 0,
+    "interface_index": 0,
+    "association_id": 0,
+    "reserved1": 0,
+    "cdl": 56,
+    "dst": ADP_MCAST_MAC,
+    "src": CTRLR_MAC,
+}
+
+
+def adp_pdu(**fields) -> bytes:
     """Build an ADPDU frame — 68-byte PDU, 82 bytes on the wire.
 
+    Fields are keywords out of `ADP_PDU_FIELDS`, which carries every default.
     The 82-byte frame length is load-bearing: the ADP census sweeps only
     trust LENGTH-validating decoders (AVTP shares ethertype 0x22F0, so
     ether[14]==0xFA is the discriminator). entity_id sits at wire byte 18.
     """
-    body = (struct.pack(">QQ", entity_id, entity_model_id)
-            + struct.pack(">I", entity_caps & 0xFFFFFFFF)
-            + struct.pack(">HHHH", talker_sources & 0xFFFF, talker_caps & 0xFFFF,
-                          listener_sinks & 0xFFFF, listener_caps & 0xFFFF)
-            + struct.pack(">II", controller_caps & 0xFFFFFFFF,
-                          available_index & 0xFFFFFFFF)
-            + struct.pack(">Q", gptp_gm)
-            + struct.pack(">BB", gptp_domain & 0xFF, reserved0 & 0xFF)
-            + struct.pack(">HHH", current_config & 0xFFFF, identify_control & 0xFFFF,
-                          interface_index & 0xFFFF)
-            + struct.pack(">Q", association_id)
-            + struct.pack(">I", reserved1 & 0xFFFFFFFF))
-    word16 = ((valid_time & 0x1F) << 11) | (cdl & 0x7FF)
-    return _eth(dst, src, SUBTYPE_ADP, message_type & 0x0F, word16, body)
+    fld = _with_defaults(ADP_PDU_FIELDS, fields, "adp_pdu")
+    body = (struct.pack(">QQ", fld["entity_id"], fld["entity_model_id"])
+            + struct.pack(">I", fld["entity_caps"] & 0xFFFFFFFF)
+            + struct.pack(">HHHH", fld["talker_sources"] & 0xFFFF,
+                          fld["talker_caps"] & 0xFFFF,
+                          fld["listener_sinks"] & 0xFFFF,
+                          fld["listener_caps"] & 0xFFFF)
+            + struct.pack(">II", fld["controller_caps"] & 0xFFFFFFFF,
+                          fld["available_index"] & 0xFFFFFFFF)
+            + struct.pack(">Q", fld["gptp_gm"])
+            + struct.pack(">BB", fld["gptp_domain"] & 0xFF, fld["reserved0"] & 0xFF)
+            + struct.pack(">HHH", fld["current_config"] & 0xFFFF,
+                          fld["identify_control"] & 0xFFFF,
+                          fld["interface_index"] & 0xFFFF)
+            + struct.pack(">Q", fld["association_id"])
+            + struct.pack(">I", fld["reserved1"] & 0xFFFFFFFF))
+    word16 = ((fld["valid_time"] & 0x1F) << 11) | (fld["cdl"] & 0x7FF)
+    return _eth(fld["dst"], fld["src"], SUBTYPE_ADP,
+                fld["message_type"] & 0x0F, word16, body)
 
 
 class AdpResp(AecpResp):
@@ -237,30 +354,58 @@ class AdpResp(AecpResp):
 
 
 # ------------------------------------------------------------------ AAF/AVTP
-def aaf_pdu(stream_id=0x0200000000010000, sequence_num=0, avtp_timestamp=0,
-            tv=1, mr=0, tu=0, sv=0, version=0, gv=0,
-            nsr=2, channels_per_frame=2, bit_depth=24, aaf_format=2,
-            stream_data_length=48, sparse=0, evt=0, payload=None,
-            dst=b"\x91\xe0\xf0\x00\x3a\x99", src=ENTITY_MAC, vlan=None):
+#: Every AAF stream-PDU field, each with the value a legal PDU carries.
+#: `fuzz_aaf.GOOD` is one override dict over exactly these names.
+AAF_PDU_FIELDS = {
+    "stream_id": 0x0200000000010000,
+    "sequence_num": 0,
+    "avtp_timestamp": 0,
+    "tv": 1,
+    "mr": 0,
+    "tu": 0,
+    "sv": 0,
+    "version": 0,
+    "gv": 0,
+    "nsr": 2,
+    "channels_per_frame": 2,
+    "bit_depth": 24,
+    "aaf_format": 2,
+    "stream_data_length": 48,
+    "sparse": 0,
+    "evt": 0,
+    "payload": None,
+    "dst": b"\x91\xe0\xf0\x00\x3a\x99",
+    "src": ENTITY_MAC,
+    "vlan": None,
+}
+
+
+def aaf_pdu(**fields) -> bytes:
     """Build an AAF (1722-2016 §7) stream PDU.
 
+    Fields are keywords out of `AAF_PDU_FIELDS`, which carries every default.
     byte15 = sv(1) version(3) mr(1) r(1) gv(1) tv(1); the format-specific
     words carry {format, nsr, channels_per_frame, bit_depth} and
     {sparse, evt} exactly as `KL_aaf_rx_depacketizer` parses them.
     """
+    fld = _with_defaults(AAF_PDU_FIELDS, fields, "aaf_pdu")
+    stream_data_length = fld["stream_data_length"]
+    payload = fld["payload"]
     if payload is None:
         payload = bytes(stream_data_length)
-    b15 = ((sv & 1) << 7) | ((version & 7) << 4) | ((mr & 1) << 3) | ((gv & 1) << 1) | (tv & 1)
+    b15 = (((fld["sv"] & 1) << 7) | ((fld["version"] & 7) << 4)
+           | ((fld["mr"] & 1) << 3) | ((fld["gv"] & 1) << 1) | (fld["tv"] & 1))
     hdr = struct.pack(">BB", SUBTYPE_AAF, b15)
-    hdr += struct.pack(">BB", sequence_num & 0xFF, tu & 0x7F)
-    hdr += struct.pack(">Q", stream_id)
-    hdr += struct.pack(">I", avtp_timestamp & 0xFFFFFFFF)
+    hdr += struct.pack(">BB", fld["sequence_num"] & 0xFF, fld["tu"] & 0x7F)
+    hdr += struct.pack(">Q", fld["stream_id"])
+    hdr += struct.pack(">I", fld["avtp_timestamp"] & 0xFFFFFFFF)
     # format(8) nsr(4)/rsv(4) channels_per_frame(10) bit_depth(8) -> 4 bytes
-    fsd = ((aaf_format & 0xFF) << 24) | ((nsr & 0x0F) << 20) \
-        | ((channels_per_frame & 0x3FF) << 8) | (bit_depth & 0xFF)
+    fsd = ((fld["aaf_format"] & 0xFF) << 24) | ((fld["nsr"] & 0x0F) << 20) \
+        | ((fld["channels_per_frame"] & 0x3FF) << 8) | (fld["bit_depth"] & 0xFF)
     hdr += struct.pack(">I", fsd)
     hdr += struct.pack(">H", stream_data_length & 0xFFFF)
-    hdr += struct.pack(">H", ((sparse & 1) << 12) | (evt & 0x0F))
+    hdr += struct.pack(">H", ((fld["sparse"] & 1) << 12) | (fld["evt"] & 0x0F))
+    vlan, dst, src = fld["vlan"], fld["dst"], fld["src"]
     tag = b"" if vlan is None else struct.pack(">HH", 0x8100, vlan & 0x0FFF)
     if tag:
         return dst + src + tag + struct.pack(">H", ETHERTYPE_AVTP) + hdr + payload
@@ -294,7 +439,7 @@ PTP_ANNOUNCE = 0xB
 PTP_SIGNALING = 0xC
 
 
-def ts80(ns=0, seconds=None):
+def ts80(ns: int = 0, seconds: int | None = None) -> bytes:
     """A 10-byte PTP timestamp. ns alone splits into {sec, ns} like the RTL."""
     if seconds is None:
         seconds, ns = divmod(int(ns), 1_000_000_000)
@@ -302,41 +447,66 @@ def ts80(ns=0, seconds=None):
                        seconds & 0xFFFFFFFF, ns & 0xFFFFFFFF)
 
 
-def ptp_frame(message_type, body=b"", *, transport_specific=1, reserved0=0,
-              version_ptp=2, message_length=None, domain_number=0, reserved1=0,
-              flags=0, correction_field=0, reserved2=0,
-              source_clock_identity=GPTP_PEER_CID, source_port_number=1,
-              sequence_id=0, control=0x05, log_message_interval=0x7F,
-              suffix=b"",
-              dst=GPTP_MCAST_MAC, src=GPTP_PEER_MAC, ethertype=ETHERTYPE_GPTP):
+#: Every 802.1AS common-header field (11.4.2), each with the value a legal
+#: frame carries. The names match the tsn-gen 8021as_* models so the campaign
+#: can map an oracle's per-field probes onto a builder by name; every per-type
+#: builder below forwards its unclaimed keywords here, so this table is the
+#: one place a header field is declared and the one place it is refused.
+PTP_HEADER_FIELDS = {
+    "transport_specific": 1,
+    "reserved0": 0,
+    "version_ptp": 2,
+    "message_length": None,
+    "domain_number": 0,
+    "reserved1": 0,
+    "flags": 0,
+    "correction_field": 0,
+    "reserved2": 0,
+    "source_clock_identity": GPTP_PEER_CID,
+    "source_port_number": 1,
+    "sequence_id": 0,
+    "control": 0x05,
+    "log_message_interval": 0x7F,
+    "suffix": b"",
+    "dst": GPTP_MCAST_MAC,
+    "src": GPTP_PEER_MAC,
+    "ethertype": ETHERTYPE_GPTP,
+}
+
+
+def ptp_frame(message_type: int, body: bytes = b"", **fields) -> bytes:
     """One 802.1AS frame: every header field individually probe-able.
 
-    `message_length=None` derives the spec value (34 + body); pass an int to
-    inject a wrong length. Field names match the tsn-gen 8021as_* models so
-    the campaign can map oracle probes onto builder kwargs by name.
-    `suffix` appends octets AFTER the per-type body with the derived
-    messageLength covering them (11.4.2.2 counts every octet through the
-    last TLV), so a trailing TLV rides a truthful declaration; every
-    per-type builder passes it through, which is what the campaign's
-    over-minimum acceptance probes are built on.
+    Fields are keywords out of `PTP_HEADER_FIELDS`, which carries every
+    default. `message_length=None` derives the spec value (34 + body); pass an
+    int to inject a wrong length. `suffix` appends octets AFTER the per-type
+    body with the derived messageLength covering them (11.4.2.2 counts every
+    octet through the last TLV), so a trailing TLV rides a truthful
+    declaration; every per-type builder passes it through, which is what the
+    campaign's over-minimum acceptance probes are built on.
     """
+    fld = _with_defaults(PTP_HEADER_FIELDS, fields, "ptp_frame")
+    suffix = fld["suffix"]
+    message_length = fld["message_length"]
     if message_length is None:
         message_length = 34 + len(body) + len(suffix)
     hdr = struct.pack(">BBH",
-                      ((transport_specific & 0xF) << 4) | (message_type & 0xF),
-                      ((reserved0 & 0xF) << 4) | (version_ptp & 0xF),
+                      ((fld["transport_specific"] & 0xF) << 4) | (message_type & 0xF),
+                      ((fld["reserved0"] & 0xF) << 4) | (fld["version_ptp"] & 0xF),
                       message_length & 0xFFFF)
-    hdr += struct.pack(">BBH", domain_number & 0xFF, reserved1 & 0xFF,
-                       flags & 0xFFFF)
-    hdr += struct.pack(">Q", correction_field & 0xFFFFFFFFFFFFFFFF)
-    hdr += struct.pack(">I", reserved2 & 0xFFFFFFFF)
-    hdr += struct.pack(">QH", source_clock_identity, source_port_number & 0xFFFF)
-    hdr += struct.pack(">HBB", sequence_id & 0xFFFF, control & 0xFF,
-                       log_message_interval & 0xFF)
-    return dst + src + struct.pack(">H", ethertype) + hdr + body + suffix
+    hdr += struct.pack(">BBH", fld["domain_number"] & 0xFF, fld["reserved1"] & 0xFF,
+                       fld["flags"] & 0xFFFF)
+    hdr += struct.pack(">Q", fld["correction_field"] & 0xFFFFFFFFFFFFFFFF)
+    hdr += struct.pack(">I", fld["reserved2"] & 0xFFFFFFFF)
+    hdr += struct.pack(">QH", fld["source_clock_identity"],
+                       fld["source_port_number"] & 0xFFFF)
+    hdr += struct.pack(">HBB", fld["sequence_id"] & 0xFFFF, fld["control"] & 0xFF,
+                       fld["log_message_interval"] & 0xFF)
+    return (fld["dst"] + fld["src"] + struct.pack(">H", fld["ethertype"])
+            + hdr + body + suffix)
 
 
-def ptp_sync(sequence_id=0, **kw):
+def ptp_sync(sequence_id: int = 0, **kw) -> bytes:
     """Two-step Sync (44 B PDU): origin zero, the Follow_Up carries time."""
     kw.setdefault("flags", 0x0208)                 # twoStep | ptpTimescale
     kw.setdefault("control", 0x00)
@@ -344,30 +514,43 @@ def ptp_sync(sequence_id=0, **kw):
     return ptp_frame(PTP_SYNC, ts80(0), sequence_id=sequence_id, **kw)
 
 
-def ptp_follow_up(sequence_id=0, origin_ns=0, tlv=True, tlv_type=0x0003,
-                  cumulative_scaled_rate_offset=0, gm_time_base_indicator=0,
-                  **kw):
+#: Follow_Up's OWN body fields (11.4.4 plus the 11.4.4.3 information TLV).
+#: Every other keyword is a common-header field and is forwarded to
+#: `ptp_frame`, so a caller writes both kinds the same way.
+PTP_FOLLOW_UP_FIELDS = {
+    "origin_ns": 0,
+    "tlv": True,
+    "tlv_type": 0x0003,
+    "cumulative_scaled_rate_offset": 0,
+    "gm_time_base_indicator": 0,
+}
+
+
+def ptp_follow_up(**kw) -> bytes:
     """Follow_Up: precise origin + (default) the information TLV (76 B PDU).
 
-    `tlv=False` builds the 44-octet shape that omits the TLV Table 11-9 makes
-    a field of the message; `tlv_type` injects a wrong tlvType (11.4.4.3.2
-    fixes it at 0x3). Both are refusal probes, not legal frames.
+    Body fields are keywords out of `PTP_FOLLOW_UP_FIELDS`; the rest are
+    `ptp_frame`'s. `tlv=False` builds the 44-octet shape that omits the TLV
+    Table 11-9 makes a field of the message; `tlv_type` injects a wrong
+    tlvType (11.4.4.3.2 fixes it at 0x3). Both are refusal probes, not legal
+    frames.
     """
+    own, kw = _split_fields(PTP_FOLLOW_UP_FIELDS, kw)
     kw.setdefault("flags", 0x0008)                 # ptpTimescale
     kw.setdefault("control", 0x02)
     kw.setdefault("log_message_interval", 0xFD)
-    body = ts80(origin_ns)
-    if tlv:
-        body += struct.pack(">HH", tlv_type, 28)   # information TLV
+    body = ts80(own["origin_ns"])
+    if own["tlv"]:
+        body += struct.pack(">HH", own["tlv_type"], 28)   # information TLV
         body += b"\x00\x80\xc2" + b"\x00\x00\x01"  # org id + org subtype 1
         body += struct.pack(">IH",
-                            cumulative_scaled_rate_offset & 0xFFFFFFFF,
-                            gm_time_base_indicator & 0xFFFF)
+                            own["cumulative_scaled_rate_offset"] & 0xFFFFFFFF,
+                            own["gm_time_base_indicator"] & 0xFFFF)
         body += bytes(12) + bytes(4)               # lastGmPhase / scaledFreq
-    return ptp_frame(PTP_FOLLOW_UP, body, sequence_id=sequence_id, **kw)
+    return ptp_frame(PTP_FOLLOW_UP, body, **kw)
 
 
-def ptp_pdelay_req(sequence_id=0, body_octets=20, **kw):
+def ptp_pdelay_req(sequence_id: int = 0, body_octets: int = 20, **kw) -> bytes:
     """Pdelay_Req (54 B PDU): two reserved 10-byte fields.
 
     `body_octets` shortens the body for the refusal probes: Table 11-11
@@ -381,8 +564,9 @@ def ptp_pdelay_req(sequence_id=0, body_octets=20, **kw):
                      sequence_id=sequence_id, **kw)
 
 
-def ptp_pdelay_resp(sequence_id=0, t2_ns=0, requesting_clock_identity=GPTP_OUR_CID,
-                    requesting_port_number=1, **kw):
+def ptp_pdelay_resp(sequence_id: int = 0, t2_ns: int = 0,
+                    requesting_clock_identity: int = GPTP_OUR_CID,
+                    requesting_port_number: int = 1, **kw) -> bytes:
     """Pdelay_Resp (54 B PDU): t2 + the requester's port identity."""
     kw.setdefault("flags", 0x0200)                 # twoStep
     kw.setdefault("control", 0x05)
@@ -391,8 +575,9 @@ def ptp_pdelay_resp(sequence_id=0, t2_ns=0, requesting_clock_identity=GPTP_OUR_C
     return ptp_frame(PTP_PDELAY_RESP, body, sequence_id=sequence_id, **kw)
 
 
-def ptp_pdelay_resp_fu(sequence_id=0, t3_ns=0, requesting_clock_identity=GPTP_OUR_CID,
-                       requesting_port_number=1, **kw):
+def ptp_pdelay_resp_fu(sequence_id: int = 0, t3_ns: int = 0,
+                       requesting_clock_identity: int = GPTP_OUR_CID,
+                       requesting_port_number: int = 1, **kw) -> bytes:
     """Pdelay_Resp_Follow_Up (54 B PDU): t3 + the requester's port identity."""
     kw.setdefault("flags", 0x0000)
     kw.setdefault("control", 0x05)
@@ -401,36 +586,55 @@ def ptp_pdelay_resp_fu(sequence_id=0, t3_ns=0, requesting_clock_identity=GPTP_OU
     return ptp_frame(PTP_PDELAY_RESP_FU, body, sequence_id=sequence_id, **kw)
 
 
-def ptp_announce(sequence_id=0, gm_identity=0, gm_priority1=248, gm_priority2=248,
-                 gm_clock_quality=0xF8FE436A, current_utc_offset=0,
-                 steps_removed=0, time_source=0xA0, path_trace=None, **kw):
+#: Announce's OWN body fields (10.3.2 / Table 11-8 and the path trace TLV).
+#: Every other keyword is a common-header field and is forwarded to
+#: `ptp_frame`.
+PTP_ANNOUNCE_FIELDS = {
+    "gm_identity": 0,
+    "gm_priority1": 248,
+    "gm_priority2": 248,
+    "gm_clock_quality": 0xF8FE436A,
+    "current_utc_offset": 0,
+    "steps_removed": 0,
+    "time_source": 0xA0,
+    "path_trace": None,
+}
+
+
+def ptp_announce(**kw) -> bytes:
     """Announce (64 B PDU + path trace TLV).
 
-    802.1AS-2011 10.5.3.3 REQUIRES the path trace TLV; `path_trace=None`
-    defaults to the one-hop [gm_identity]. Pass `path_trace=[]` for the
-    TLV-less shape the fabric bench uses (the parser accepts it). Unless a
-    caller is deliberately building a parser-refusal probe, a present trace
-    must start with `gm_identity` and contain `steps_removed + 1` identities.
+    Body fields are keywords out of `PTP_ANNOUNCE_FIELDS`; the rest are
+    `ptp_frame`'s. 802.1AS-2011 10.5.3.3 REQUIRES the path trace TLV;
+    `path_trace=None` defaults to the one-hop [gm_identity]. Pass
+    `path_trace=[]` for the TLV-less shape the fabric bench uses (the parser
+    accepts it). Unless a caller is deliberately building a parser-refusal
+    probe, a present trace must start with `gm_identity` and contain
+    `steps_removed + 1` identities.
     """
+    own, kw = _split_fields(PTP_ANNOUNCE_FIELDS, kw)
     kw.setdefault("flags", 0x0008)                 # ptpTimescale
     kw.setdefault("control", 0x05)
     kw.setdefault("log_message_interval", 0x00)    # Milan Table 4.1: 1 s
+    gm_identity = own["gm_identity"]
+    path_trace = own["path_trace"]
     if path_trace is None:
         path_trace = [gm_identity]
     body = bytes(10)                               # originTimestamp: reserved
-    body += struct.pack(">hB", current_utc_offset, 0)
-    body += struct.pack(">BIB", gm_priority1 & 0xFF, gm_clock_quality & 0xFFFFFFFF,
-                        gm_priority2 & 0xFF)
-    body += struct.pack(">QHB", gm_identity, steps_removed & 0xFFFF,
-                        time_source & 0xFF)
+    body += struct.pack(">hB", own["current_utc_offset"], 0)
+    body += struct.pack(">BIB", own["gm_priority1"] & 0xFF,
+                        own["gm_clock_quality"] & 0xFFFFFFFF,
+                        own["gm_priority2"] & 0xFF)
+    body += struct.pack(">QHB", gm_identity, own["steps_removed"] & 0xFFFF,
+                        own["time_source"] & 0xFF)
     if path_trace:
         body += struct.pack(">HH", 0x0008, 8 * len(path_trace))
         for cid in path_trace:
             body += struct.pack(">Q", cid)
-    return ptp_frame(PTP_ANNOUNCE, body, sequence_id=sequence_id, **kw)
+    return ptp_frame(PTP_ANNOUNCE, body, **kw)
 
 
-def ptp_suffix_tlv(data=b"\xa5\x5a"):
+def ptp_suffix_tlv(data: bytes = b"\xa5\x5a") -> bytes:
     """A well-formed ORGANIZATION_EXTENSION TLV no consumer claims (12 B).
 
     IEEE 1588-2008 14.3: tlvType 0x0003, an even lengthField covering
@@ -486,7 +690,9 @@ class PtpMsg:
     ts_ns = property(lambda s: s._be(54, 4))
 
     @property
-    def ts_total_ns(self):
+    def ts_total_ns(self) -> int:
+        """The 10-byte timestamp flattened to nanoseconds, or -1 when the
+        frame is too short to carry one."""
         return self.ts_seconds * 1_000_000_000 + self.ts_ns \
             if len(self.raw) >= 58 else -1
 
@@ -508,8 +714,8 @@ class PtpMsg:
 
 
 # ------------------------------------------------------------------ self-test
-def _selftest():
-    """Pin the codecs against vectors the RTL testbenches already validate."""
+def _selftest_1722():
+    """Pin the 1722 / 1722.1 codecs against the RTL testbenches' vectors."""
     ok = True
 
     f = aecp_cmd(4, struct.pack(">HHHH", 0, 0, 0x0000, 0), seq=0x1001)
@@ -561,9 +767,17 @@ def _selftest():
         print("  [FAIL] AAF subtype")
         ok = False
 
-    # 802.1AS: pin the shapes the fabric bench proves on the RTL
-    # (tb/verilator/gptp_shadow/sim_main.cpp: pdreq 68 B, sync 58 B, and the
-    # parser's absolute offsets OFF_TYPE 14 / OFF_SEQ0 44 / OFF_RQID_END 65)
+    return ok
+
+
+def _selftest_8021as():
+    """Pin the 802.1AS codecs against the shapes the fabric bench proves.
+
+    (tb/verilator/gptp_shadow/sim_main.cpp: pdreq 68 B, sync 58 B, and the
+    parser's absolute offsets OFF_TYPE 14 / OFF_SEQ0 44 / OFF_RQID_END 65.)
+    """
+    ok = True
+
     q = ptp_pdelay_req(sequence_id=0x1234)
     if len(q) != 68 or q[14] != 0x12 or q[15] != 0x02:
         print("  [FAIL] Pdelay_Req shape: len=%d hdr=%02x%02x" % (len(q), q[14], q[15]))
@@ -640,7 +854,15 @@ def _selftest():
               % (len(sa), PtpMsg(sa).message_length))
         ok = False
 
-    print("  [ ok ] wire codecs match the RTL-testbench vectors" if ok else "  WIRE SELFTEST FAILED")
+    return ok
+
+
+def _selftest():
+    """Every codec arm, in wire order: the 1722 family, then 802.1AS."""
+    ok = _selftest_1722()
+    ok = _selftest_8021as() and ok
+    print("  [ ok ] wire codecs match the RTL-testbench vectors" if ok
+          else "  WIRE SELFTEST FAILED")
     return ok
 
 

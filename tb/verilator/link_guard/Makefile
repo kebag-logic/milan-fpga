@@ -13,7 +13,7 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2" \
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
          -GDEAD_CYC_C=64 -GSETTLE_CYC_C=256
 
 SRCS = $(RTL_DIR)/common/KL_link_guard.sv

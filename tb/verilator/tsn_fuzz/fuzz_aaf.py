@@ -55,7 +55,9 @@ class Campaign:
         self.seq = 0
 
     # ------------------------------------------------------------- primitives
-    def pdu(self, **kw):
+    def pdu(self, **kw: int) -> bytes:
+        """One AAF PDU on the bench stream, with the sequence number advanced
+        for the caller unless the caller pinned it."""
         cfg = dict(GOOD)
         cfg.update(kw)
         if "sequence_num" not in cfg:
@@ -63,30 +65,37 @@ class Campaign:
             cfg["sequence_num"] = self.seq
         return wire.aaf_pdu(**cfg)
 
-    def send(self, **kw):
+    def send(self, **kw: int) -> list[int]:
         """Feed one PDU; the reply IS the counter snapshot."""
         return cosim.parse_state(self.dut.xact(self.pdu(**kw)))
 
-    def state(self):
+    def state(self) -> list[int]:
+        """The DUT's counter snapshot right now, without feeding it anything."""
         return cosim.read_state(self.dut)
 
-    def reset(self):
+    def reset(self) -> list[int]:
+        """Reset the DUT and the local sequence number; the reply is the fresh
+        snapshot every probe is measured against."""
         self.seq = 0
         return cosim.parse_state(self.dut.xact(cosim.ctrl(cosim.CTRL_RESET)))
 
-    def lock_stream(self, n=10):
+    def lock_stream(self, n: int = 10) -> list[int]:
         """Drive the stream to media lock and return the locked snapshot."""
         st = self.reset()
         for _ in range(n):
             st = self.send()
         return st
 
-    def delta(self, before, after):
+    def delta(self, before: list[int], after: list[int]) -> dict[str, int]:
+        """Only the counters that MOVED, by name: what a probe actually did."""
         return {NAMES[i]: after[i] - before[i]
                 for i in range(len(NAMES)) if after[i] != before[i]}
 
     # -------------------------------------------------------------- 1 model
-    def model_inventory(self):
+    def model_inventory(self) -> tsn_model.Message | None:
+        """Load tsn-gen's AVTP stream model and record every field it declares.
+        None when it will not load, which leaves the storm section with nothing
+        to drive rather than passing on an empty field set."""
         self.rep.section("AVTP stream model inventory (tsn-gen)")
         try:
             m = tsn_model.load("avtp", "1722_avtp_common_stream.yaml",
@@ -101,7 +110,9 @@ class Campaign:
         return m
 
     # ----------------------------------------------------------- 2 baseline
-    def baseline(self):
+    def baseline(self) -> None:
+        """Anti-vacuity for the whole campaign: ten good PDUs must lock the
+        stream and reach the depacketizer output, or nothing below means much."""
         self.rep.section("baseline: a good stream locks and reaches the depacketizer output")
         st0 = self.reset()
         self.rep.eq("fresh stack: not locked", st0[C_LOCKED], 0)
@@ -121,7 +132,9 @@ class Campaign:
         self.rep.eq("no dropped PCM", st[C_PCMDROPS], 0)
 
     # ------------------------------------------------- 3 per-field verdicts
-    def field_verdicts(self):
+    def field_verdicts(self) -> None:
+        """Grade each malformed field by the counter it moves, and assert the
+        gate that matters for audio: the lock survives every one of them."""
         self.rep.section("per-field accept/reject verdicts (lock must survive)")
         # label, PDU overrides, counter that must move, frames_rx accepted?
         #
@@ -158,7 +171,7 @@ class Campaign:
             self.rep.eq("%s: no unlock event" % label,
                         after[C_UNLOCKCNT], before[C_UNLOCKCNT])
 
-    def wire_truth(self):
+    def wire_truth(self) -> None:
         """channels_per_frame follows the WIRE, it does not reject the PDU."""
         self.rep.section("wire-truth channel count (declared-vs-wire mismatch)")
         for chans in (1, 2, 3, 4, 8):
@@ -175,7 +188,9 @@ class Campaign:
                         after[C_LOCKED], 1)
 
     # ------------------------------------------------------- 4 non-our-stream
-    def foreign(self):
+    def foreign(self) -> None:
+        """A frame that is not our stream must move nothing and must not
+        disturb the lock - being ignored is the verdict."""
         self.rep.section("foreign stream_id and non-AAF subtypes are ignored")
         for label, kw in (("foreign stream_id", dict(stream_id=0xDEADBEEFCAFEBABE)),
                           ("stream_id off by one", dict(stream_id=SID + 1)),
@@ -200,7 +215,7 @@ class Campaign:
                 self.rep.note("%s moved: %s" % (label, moved))
 
     # ------------------------------------------------ 4b the ACCEPT VERDICT
-    def accept_verdict(self):
+    def accept_verdict(self) -> None:
         """The listener ACCEPT VERDICT itself, graded on the parser counters.
 
         Every other section of this campaign fuzzes fields of a frame that
@@ -221,27 +236,37 @@ class Campaign:
         st = self.lock_stream()
         self.rep.eq("locked before the sid sweep", st[C_LOCKED], 1)
 
-        def probe(label, sid, expect_match):
-            before = self.state()
-            after = self.send(stream_id=sid)
-            if not after:
-                self.rep.ck("%s: DUT answered" % label, False, "no state")
-                return None
-            self.rep.eq("%s: parser PARSED climbs" % label,
-                        after[C_PARSED] - before[C_PARSED], 1)
-            self.rep.eq("%s: parser MATCHED %s" % (label,
-                        "climbs" if expect_match else "STATIC"),
-                        after[C_MATCHED] - before[C_MATCHED],
-                        1 if expect_match else 0)
-            self.rep.eq("%s: frames_rx %s" % (label,
-                        "advanced" if expect_match else "frozen"),
-                        after[C_FRAMES] - before[C_FRAMES],
-                        1 if expect_match else 0)
-            return after
-
         # the exact bound sid: the positive control the whole section rests on
-        probe("exact bound sid", SID, True)
+        self._sid_probe("exact bound sid", SID, True)
+        self._sid_bit_flips()
+        self._named_sid_confusions()
+        self._tagged_sid_verdicts()
+        self._random_sid_population()
+        self._sid_sweep_summary(st)
+        self._accept_drought()
 
+    def _sid_probe(self, label, sid, expect_match):
+        """One sid probe, graded on PARSED/MATCHED/frames_rx. Returns the
+        post-probe snapshot, or None when the DUT did not answer."""
+        before = self.state()
+        after = self.send(stream_id=sid)
+        if not after:
+            self.rep.ck("%s: DUT answered" % label, False, "no state")
+            return None
+        self.rep.eq("%s: parser PARSED climbs" % label,
+                    after[C_PARSED] - before[C_PARSED], 1)
+        self.rep.eq("%s: parser MATCHED %s" % (label,
+                    "climbs" if expect_match else "STATIC"),
+                    after[C_MATCHED] - before[C_MATCHED],
+                    1 if expect_match else 0)
+        self.rep.eq("%s: frames_rx %s" % (label,
+                    "advanced" if expect_match else "frozen"),
+                    after[C_FRAMES] - before[C_FRAMES],
+                    1 if expect_match else 0)
+        return after
+
+    def _sid_bit_flips(self):
+        """Every single-bit flip of the bound sid: the compare is 64 bits wide."""
         # every single-bit flip: the compare must be all 64 bits wide
         bad = 0
         for b in range(64):
@@ -258,6 +283,8 @@ class Campaign:
                               % (b, self.delta(before, after)))
         self.rep.eq("all 64 single-bit sid flips rejected, all parsed", bad, 0)
 
+    def _named_sid_confusions(self):
+        """The named ways a controller and the wire disagree, and byte by byte."""
         # the named ways a controller and the wire disagree
         rev = int.from_bytes(SID.to_bytes(8, "big"), "little")
         transposed = ((SID >> 32) | ((SID & 0xFFFFFFFF) << 32)) & (2 ** 64 - 1)
@@ -268,11 +295,13 @@ class Campaign:
                  ("sid + 1 (uid off by one)", SID + 1),
                  ("sid - 1", SID - 1)]
         for label, sid in named:
-            probe(label, sid, sid == SID)
+            self._sid_probe(label, sid, sid == SID)
         # per-byte corruption: each wire byte of the sid is load-bearing
         for i in range(8):
-            probe("wire sid byte %d corrupted" % i, SID ^ (0xFF << (8 * i)), False)
+            self._sid_probe("wire sid byte %d corrupted" % i, SID ^ (0xFF << (8 * i)), False)
 
+    def _tagged_sid_verdicts(self):
+        """A C-VLAN tag moves the header by 4 and must not move the verdict."""
         # a VLAN-tagged frame carrying the bound sid must accept identically:
         # the header offset moves by 4 and the verdict must not
         before = self.state()
@@ -299,6 +328,8 @@ class Campaign:
         self.rep.eq("C-VLAN tagged, foreign sid: MATCHED STATIC",
                     after[C_MATCHED] - before[C_MATCHED], 0)
 
+    def _random_sid_population(self):
+        """A seeded random sid population, each verdict predicted by the model."""
         # seeded random sid population, verdict predicted by the model
         rnd = random.Random(self.seed ^ 0x5A1D)
         mism = 0
@@ -317,12 +348,20 @@ class Campaign:
         self.rep.eq("96 random stream_ids: verdict matched the model every time",
                     mism, 0)
 
+    def _sid_sweep_summary(self, st):
+        """Anti-vacuity for the sweep: the parser must have seen every probe."""
         end = self.state()
         self.rep.ck("sid sweep: parser saw every probe",
                     end[C_PARSED] > st[C_PARSED],
                     "parsed %d -> %d, matched %d -> %d"
                     % (st[C_PARSED], end[C_PARSED], st[C_MATCHED], end[C_MATCHED]))
 
+    def _accept_drought(self):
+        """A sustained accept drought MUST unlock - the opposite gate.
+
+        Elsewhere a malformed PDU must never knock a locked stream out of
+        lock; here the frames are perfectly formed and simply are not ours.
+        """
         # The gate here is the OPPOSITE of every other section's. Elsewhere a
         # malformed PDU must never unlock the stream; here the frames are
         # perfectly formed and simply are not ours, so a sustained accept
@@ -353,7 +392,9 @@ class Campaign:
         self.rep.eq("re-locks cleanly after the drought", fresh[C_LOCKED], 1)
 
     # ------------------------------------------------------- 5 truncation
-    def truncation(self):
+    def truncation(self) -> None:
+        """Truncated and oversized PDUs: the DUT stays responsive, stays locked
+        and never runs a counter backwards."""
         self.rep.section("truncated / oversized stream PDUs")
         full = self.pdu()
         for label, frame in (("header cut mid-stream_id", full[:24]),
@@ -377,7 +418,9 @@ class Campaign:
                             (C_FRAMES, C_PCMPDUS, C_SEQMM, C_UNSUPFMT)), "")
 
     # ------------------------------------------------------------ 6 storm
-    def storm(self, m, rounds):
+    def storm(self, m: tsn_model.Message | None, rounds: int) -> None:
+        """A constrained-random storm out of tsn-gen, then the state-stability
+        gate: a good PDU is still accepted and the stack still re-locks."""
         self.rep.section("tsn-gen constrained-random storm + lock stability")
         if m is None:
             return
@@ -418,7 +461,9 @@ class Campaign:
                     fresh[C_LOCKED], 1)
 
 
-def main():
+def main() -> int:
+    """Run the campaign against the Verilator DUT. The exit code is the gate,
+    the same contract the C++ harnesses use, so `make` treats them alike."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--dut", default="obj_aaf/Vaaf_cosim")
     ap.add_argument("--rounds", type=int, default=48)

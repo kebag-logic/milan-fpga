@@ -24,10 +24,14 @@
 #include <cstdint>
 #include <cstdio>
 #include <vector>
+#include "../../common/verilator_harness.hpp"
 #include "VKL_lat_history_ring.h"
 #include "verilated.h"
 
-static VKL_lat_history_ring* dut = nullptr;
+namespace {
+
+// Fixed record width in DRAM (RECORD_BYTES_P): 2 beats of 8 bytes.
+constexpr uint32_t kRecordBytes = 16;
 
 // ---- decoded record as reconstructed from the write-beat stream ----------
 struct Rec {
@@ -38,17 +42,47 @@ struct Rec {
   uint8_t  stream;
   uint16_t flags;
 };
-static std::vector<Rec> g_recs;
 
-// in-flight beat accumulator (2 beats per 16-byte record @ 64-bit bus)
-static uint64_t g_b0 = 0;
-static uint32_t g_a0 = 0;
-static bool     g_have_b0 = false;
-static bool     g_addr_ok = true;    // beat1.addr == beat0.addr + 8 for all
-static int      g_wr_ready = 1;      // TB-driven DRAM-writer ready
+// The DRAM writer the DUT streams into, and every check made against it.
+class LatHistoryRingHarness {
+ public:
+  explicit LatHistoryRingHarness(VKL_lat_history_ring* model) : dut(model) {}
 
-static int checks = 0, fails = 0;
-static void ok(const char* name, bool cond, const char* detail = "") {
+  int run();
+
+ private:
+  void ok(const char* name, bool cond, const char* detail = "");
+  void tick();
+  void idle(int n);
+  void sample(uint64_t ptp, uint32_t lat, uint8_t stage, uint8_t stream,
+              int gap);
+
+  void reset_clears_pointer_and_counter();
+  void spaced_burst_records_every_sample_byte_exact();
+  void disable_clears_the_write_pointer();
+  void small_ring_wraps_back_to_base();
+  void stop_mode_fills_then_drops_on_full();
+  void stalled_writer_drops_and_marks_the_gap();
+  void dropped_counter_saturates_rather_than_wraps();
+
+  static constexpr uint64_t BASE = 0x30000000ULL;  // ring base (bytes)
+
+  VKL_lat_history_ring* dut;
+
+  std::vector<Rec> g_recs;
+
+  // in-flight beat accumulator (2 beats per 16-byte record @ 64-bit bus)
+  uint64_t g_b0 = 0;
+  uint32_t g_a0 = 0;
+  bool     g_have_b0 = false;
+  bool     g_addr_ok = true;    // beat1.addr == beat0.addr + 8 for all
+  int      g_wr_ready = 1;      // TB-driven DRAM-writer ready
+
+  int checks = 0;
+  int fails = 0;
+};
+
+void LatHistoryRingHarness::ok(const char* name, bool cond, const char* detail) {
   checks++;
   if (!cond) {
     fails++;
@@ -59,7 +93,7 @@ static void ok(const char* name, bool cond, const char* detail = "") {
 // One clock cycle. Inputs for the cycle must be set on the DUT before calling.
 // Combinational outputs are read on the low phase (with inputs applied); the
 // write beat presented while wr_ready is high is consumed by the rising edge.
-static void tick() {
+void LatHistoryRingHarness::tick() {
   dut->clk_i = 0;
   dut->wr_ready_i = g_wr_ready;
   dut->eval();
@@ -69,16 +103,18 @@ static void tick() {
     uint32_t addr = dut->wr_addr_o;
     bool     last = dut->wr_last_o;
     if (!last) {
-      g_b0 = data; g_a0 = addr; g_have_b0 = true;
+      g_b0 = data;
+      g_a0 = addr;
+      g_have_b0 = true;
     } else if (g_have_b0) {
       if (addr != g_a0 + 8) g_addr_ok = false;
       Rec r;
       r.addr   = g_a0;
       r.ptp    = g_b0;
-      r.lat    = (uint32_t)(data & 0xFFFFFFFFULL);
-      r.stage  = (uint8_t)((data >> 32) & 0xFF);
-      r.stream = (uint8_t)((data >> 40) & 0xFF);
-      r.flags  = (uint16_t)((data >> 48) & 0xFFFF);
+      r.lat    = static_cast<uint32_t>(data & 0xFFFFFFFFULL);
+      r.stage  = static_cast<uint8_t>((data >> 32) & 0xFF);
+      r.stream = static_cast<uint8_t>((data >> 40) & 0xFF);
+      r.flags  = static_cast<uint16_t>((data >> 48) & 0xFFFF);
       g_recs.push_back(r);
       g_have_b0 = false;
     }
@@ -89,14 +125,14 @@ static void tick() {
 }
 
 // idle N cycles with no sample offered
-static void idle(int n) {
+void LatHistoryRingHarness::idle(int n) {
   dut->sample_valid_i = 0;
   for (int i = 0; i < n; i++) tick();
 }
 
 // offer exactly one sample this cycle, then idle `gap` cycles
-static void sample(uint64_t ptp, uint32_t lat, uint8_t stage, uint8_t stream,
-                   int gap) {
+void LatHistoryRingHarness::sample(uint64_t ptp, uint32_t lat, uint8_t stage,
+                                   uint8_t stream, int gap) {
   dut->sample_valid_i  = 1;
   dut->sample_lat_ns_i = lat;
   dut->sample_stage_i  = stage;
@@ -106,90 +142,103 @@ static void sample(uint64_t ptp, uint32_t lat, uint8_t stage, uint8_t stream,
   idle(gap);
 }
 
-int main(int argc, char** argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new VKL_lat_history_ring;
-
-  const uint64_t BASE = 0x30000000ULL;  // ring base (bytes)
-
-  // ---- reset ----
+// ---- reset ----
+void LatHistoryRingHarness::reset_clears_pointer_and_counter() {
   dut->rst_n = 0;
-  dut->sample_valid_i = 0; dut->sample_lat_ns_i = 0;
-  dut->sample_stage_i = 0; dut->sample_stream_i = 0; dut->ptp_ns_i = 0;
-  dut->ring_base_i = BASE; dut->ring_len_i = 0; dut->enable_i = 0;
-  dut->loop_i = 1; dut->wr_ready_i = 1;
+  dut->sample_valid_i = 0;
+  dut->sample_lat_ns_i = 0;
+  dut->sample_stage_i = 0;
+  dut->sample_stream_i = 0;
+  dut->ptp_ns_i = 0;
+  dut->ring_base_i = BASE;
+  dut->ring_len_i = 0;
+  dut->enable_i = 0;
+  dut->loop_i = 1;
+  dut->wr_ready_i = 1;
   for (int i = 0; i < 4; i++) tick();
   dut->rst_n = 1;
 
   ok("post_reset_wptr_zero", dut->wptr_o == 0);
   ok("post_reset_dropped_zero", dut->dropped_o == 0);
+}
 
-  // ==================================================================
-  //  Phase 1: a spaced burst in loop mode, large ring -> one record
-  //  per sample, fields byte-exact, seq rolling, wptr +16, no wrap.
-  // ==================================================================
+// ==================================================================
+//  Phase 1: a spaced burst in loop mode, large ring -> one record
+//  per sample, fields byte-exact, seq rolling, wptr +16, no wrap.
+// ==================================================================
+void LatHistoryRingHarness::spaced_burst_records_every_sample_byte_exact() {
   dut->ring_len_i = 0x1000;   // 4096 B = 256 records, no wrap in this phase
   dut->loop_i     = 1;
   dut->enable_i   = 1;
   idle(2);
 
-  const int N1 = 8;
-  uint64_t exp_ptp[N1]; uint32_t exp_lat[N1];
-  uint8_t  exp_stg[N1]; uint8_t  exp_str[N1];
+  constexpr int N1 = 8;
+  uint64_t exp_ptp[N1];
+  uint32_t exp_lat[N1];
+  uint8_t  exp_stg[N1];
+  uint8_t  exp_str[N1];
   for (int i = 0; i < N1; i++) {
-    exp_ptp[i] = 0x1000ULL + (uint64_t)i * 0x137;   // strictly increasing
+    exp_ptp[i] = 0x1000ULL + static_cast<uint64_t>(i) * 0x137;   // strictly increasing
     exp_lat[i] = 100 + i * 7;
-    exp_stg[i] = (uint8_t)(i & 0x7);
-    exp_str[i] = (uint8_t)((i * 3) & 0x3);
+    exp_stg[i] = static_cast<uint8_t>(i & 0x7);
+    exp_str[i] = static_cast<uint8_t>((i * 3) & 0x3);
     sample(exp_ptp[i], exp_lat[i], exp_stg[i], exp_str[i], 5);
   }
   idle(6);
 
-  ok("p1_record_count", g_recs.size() == (size_t)N1,
-     g_recs.size() == (size_t)N1 ? "" : "wrong number of records emitted");
+  ok("p1_record_count", g_recs.size() == static_cast<size_t>(N1),
+     g_recs.size() == static_cast<size_t>(N1) ? "" : "wrong number of records emitted");
   ok("p1_beat_addr_pairing", g_addr_ok, "a beat1.addr != beat0.addr+8");
 
   uint64_t prev_ptp = 0;
   bool mono = true;
-  for (int i = 0; i < (int)g_recs.size() && i < N1; i++) {
+  for (int i = 0; i < static_cast<int>(g_recs.size()) && i < N1; i++) {
     const Rec& r = g_recs[i];
     ok("p1_ptp",    r.ptp    == exp_ptp[i]);
     ok("p1_lat",    r.lat    == exp_lat[i]);
     ok("p1_stage",  r.stage  == exp_stg[i]);
     ok("p1_stream", r.stream == exp_str[i]);
-    ok("p1_seq",    (r.flags & 0x0FFF) == (uint16_t)i);     // rolling seq
+    ok("p1_seq",    (r.flags & 0x0FFF) == static_cast<uint16_t>(i));  // rolling seq
     ok("p1_no_gap", (r.flags & 0x8000) == 0);               // no drops yet
-    ok("p1_addr",   r.addr   == (uint32_t)(BASE + (uint64_t)i * 16));
+    ok("p1_addr",   r.addr   ==
+                    static_cast<uint32_t>(BASE + static_cast<uint64_t>(i) * kRecordBytes));
     if (r.ptp < prev_ptp) mono = false;
     prev_ptp = r.ptp;
   }
   ok("p1_timestamp_monotonic", mono);
-  ok("p1_wptr_advanced", dut->wptr_o == (uint32_t)(N1 * 16),
+  ok("p1_wptr_advanced", dut->wptr_o == static_cast<uint32_t>(N1 * kRecordBytes),
      "wptr != N*16 after burst");
   ok("p1_no_drops", dut->dropped_o == 0);
+}
 
-  // ==================================================================
-  //  Phase 2: enable=0 clears the write pointer; re-enable resumes @0.
-  // ==================================================================
-  dut->enable_i = 0; idle(2);
+// ==================================================================
+//  Phase 2: enable=0 clears the write pointer; re-enable resumes @0.
+// ==================================================================
+void LatHistoryRingHarness::disable_clears_the_write_pointer() {
+  dut->enable_i = 0;
+  idle(2);
   ok("p2_disable_clears_wptr", dut->wptr_o == 0);
   uint32_t drop_before = dut->dropped_o;
-  dut->enable_i = 1; idle(2);
+  dut->enable_i = 1;
+  idle(2);
   g_recs.clear();
   sample(0x9000, 55, 2, 1, 5);
   idle(4);
   ok("p2_reenable_record", g_recs.size() == 1);
   if (g_recs.size() == 1) {
-    ok("p2_reenable_addr_base", g_recs[0].addr == (uint32_t)BASE);
+    ok("p2_reenable_addr_base", g_recs[0].addr == static_cast<uint32_t>(BASE));
     ok("p2_reenable_lat", g_recs[0].lat == 55);
   }
   ok("p2_dropped_unchanged_on_disable", dut->dropped_o == drop_before);
+}
 
-  // ==================================================================
-  //  Phase 3: small ring + loop -> ring wrap. len = 64 B = 4 records;
-  //  the 5th record wraps back to base and wptr wraps to 0.
-  // ==================================================================
-  dut->enable_i = 0; idle(2);
+// ==================================================================
+//  Phase 3: small ring + loop -> ring wrap. len = 64 B = 4 records;
+//  the 5th record wraps back to base and wptr wraps to 0.
+// ==================================================================
+void LatHistoryRingHarness::small_ring_wraps_back_to_base() {
+  dut->enable_i = 0;
+  idle(2);
   dut->ring_len_i = 64;     // 4 records
   dut->loop_i     = 1;
   dut->enable_i   = 1;
@@ -200,18 +249,22 @@ int main(int argc, char** argv) {
   ok("p3_wrap_count", g_recs.size() == 6);
   if (g_recs.size() == 6) {
     // slots cycle 0,16,32,48,0,16
-    ok("p3_slot0", g_recs[0].addr == (uint32_t)(BASE + 0));
-    ok("p3_slot3", g_recs[3].addr == (uint32_t)(BASE + 48));
-    ok("p3_wrap_to_base", g_recs[4].addr == (uint32_t)(BASE + 0));
-    ok("p3_wrap_slot16",  g_recs[5].addr == (uint32_t)(BASE + 16));
+    ok("p3_slot0", g_recs[0].addr == static_cast<uint32_t>(BASE + 0));
+    ok("p3_slot3", g_recs[3].addr == static_cast<uint32_t>(BASE + 3 * kRecordBytes));
+    ok("p3_wrap_to_base", g_recs[4].addr == static_cast<uint32_t>(BASE + 0));
+    ok("p3_wrap_slot16",  g_recs[5].addr == static_cast<uint32_t>(BASE + kRecordBytes));
   }
-  ok("p3_wptr_wrapped", dut->wptr_o == 32, "wptr should be 2*16 after 6 in a 4-slot ring");
+  ok("p3_wptr_wrapped", dut->wptr_o == 2 * kRecordBytes,
+     "wptr should be 2*16 after 6 in a 4-slot ring");
+}
 
-  // ==================================================================
-  //  Phase 4: STOP mode (loop=0) -> ring fills, then drop-on-full and
-  //  the dropped counter bumps; wptr parks at ring_len.
-  // ==================================================================
-  dut->enable_i = 0; idle(2);
+// ==================================================================
+//  Phase 4: STOP mode (loop=0) -> ring fills, then drop-on-full and
+//  the dropped counter bumps; wptr parks at ring_len.
+// ==================================================================
+void LatHistoryRingHarness::stop_mode_fills_then_drops_on_full() {
+  dut->enable_i = 0;
+  idle(2);
   dut->ring_len_i = 64;    // 4 records
   dut->loop_i     = 0;     // stop when full
   dut->enable_i   = 1;
@@ -223,13 +276,16 @@ int main(int argc, char** argv) {
   ok("p4_stop_count", g_recs.size() == 4, "only ring_len/16 records must be written");
   ok("p4_stop_full_wptr", dut->wptr_o == 64, "wptr parks at ring_len when full");
   ok("p4_stop_dropped", dut->dropped_o == drp0 + 3, "3 overflow samples must be dropped");
+}
 
-  // ==================================================================
-  //  Phase 5: drop-on-full via a STALLED writer (never back-pressure the
-  //  producer). Hold wr_ready low, pump samples -> they drop; the first
-  //  record after the stall carries the gap marker flags[15]=1.
-  // ==================================================================
-  dut->enable_i = 0; idle(2);
+// ==================================================================
+//  Phase 5: drop-on-full via a STALLED writer (never back-pressure the
+//  producer). Hold wr_ready low, pump samples -> they drop; the first
+//  record after the stall carries the gap marker flags[15]=1.
+// ==================================================================
+void LatHistoryRingHarness::stalled_writer_drops_and_marks_the_gap() {
+  dut->enable_i = 0;
+  idle(2);
   dut->ring_len_i = 0x1000;
   dut->loop_i     = 1;
   dut->enable_i   = 1;
@@ -267,18 +323,38 @@ int main(int argc, char** argv) {
     ok("p5_gap_marker_set",   (g_recs[2].flags & 0x8000) != 0);   // first post-drop record
     ok("p5_gap_marker_clear", (g_recs[3].flags & 0x8000) == 0);   // cleared after
   }
+}
 
-  // ==================================================================
-  //  Phase 6: dropped counter saturates, not wraps (single spot check
-  //  of the saturating guard via a forced near-max is impractical; verify
-  //  monotonic non-decrease across the whole run instead).
-  // ==================================================================
+// ==================================================================
+//  Phase 6: dropped counter saturates, not wraps (single spot check
+//  of the saturating guard via a forced near-max is impractical; verify
+//  monotonic non-decrease across the whole run instead).
+// ==================================================================
+void LatHistoryRingHarness::dropped_counter_saturates_rather_than_wraps() {
   ok("p6_dropped_nonzero_total", dut->dropped_o > 0);
+}
+
+int LatHistoryRingHarness::run() {
+  reset_clears_pointer_and_counter();
+  spaced_burst_records_every_sample_byte_exact();
+  disable_clears_the_write_pointer();
+  small_ring_wraps_back_to_base();
+  stop_mode_fills_then_drops_on_full();
+  stalled_writer_drops_and_marks_the_gap();
+  dropped_counter_saturates_rather_than_wraps();
 
   // ---- verdict ----
   printf("%d checks, %d failures, RESULT: %s\n",
          checks, fails, fails == 0 ? "PASS" : "FAIL");
 
-  delete dut;
   return fails == 0 ? 0 : 1;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+  Verilated::commandArgs(argc, argv);
+  const milan::tb::Model<VKL_lat_history_ring> model;
+  LatHistoryRingHarness harness(model.get());
+  return harness.run();
 }

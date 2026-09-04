@@ -10,7 +10,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -GCLK_FREQ_HZ_P=10000 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
-         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2"
+         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 SRCS = $(RTL_DIR)/ieee1722/maap/KL_maap.sv
 .PHONY: all run clean coverage
 all: run

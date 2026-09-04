@@ -44,23 +44,93 @@
 //     tick over every tick of both phases.
 #include "Vchmap_wrap.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
+#include <array>
 #include <vector>
 
-static Vchmap_wrap* dut;
-static long checks = 0, fails = 0;
-static void ck(const char* t, long got, long exp) {
+namespace {
+
+using Frame = std::vector<uint8_t>;
+
+//! The whole lane: the Verilated model, the tally, the captured AXIS frames
+//! and the BFMs that drive them, in one scope instead of at file scope.
+class ChanMapCaptureHarness {
+ public:
+  int run();
+
+ private:
+  // ---- tally and AXIS frame capture ---------------------------------------
+  void ck(const char* t, long got, long exp);
+  void sample();
+  void step();
+  void cyc(int n = 1);
+
+  // ---- map RAM write / read -----------------------------------------------
+  void a_map_wr_ch(int key, uint16_t w);
+  void b_map_wr_ch(int key, uint16_t w);
+  void a_map_wr(int slot, uint16_t d);
+  void b_map_wr(int slot, uint16_t d);
+  uint16_t a_map_rd_ch(int key);
+  uint16_t a_map_ent(int slot);
+  uint16_t a_map_mask(int slot);
+
+  // ---- TCTX window, source pairs, loopback stimulus, media ticks ----------
+  void a_tctx_wr(int t, int w, uint32_t v);
+  void b_tctx_wr(int t, int w, uint32_t v);
+  void drv_i2s(uint32_t l, uint32_t r);
+  void drv_tdm(int slot, uint32_t l, uint32_t r);
+  void lb_set_chans(int s, int chans);
+  void drv_lb_pdu(int s, int chans, int events, int e0);
+  void a_tick();
+  void b_tick();
+
+  // ---- the phases, in the order run() proves them -------------------------
+  void reset_and_idle_every_input();
+  void pin_tdm_junction_slip_detector();
+  void pin_capability_mask_says_mapped_but_unfed();
+  void pin_per_slot_source_routing();
+  void pin_midrun_remap_to_silence();
+  void pin_unmapped_slot_is_silence_not_absence();
+  void pin_full_coverage_walk_fits_one_media_tick();
+  void pin_per_half_enable();
+  void pin_half_swap_mux();
+  void pin_split_slot_carries_two_sources();
+  void pin_map_ram_readback();
+  void pin_widened_slot_on_lane_b();
+  void pin_loopback_source_feeds_talker_pairs();
+  void pin_loopback_remap_and_odd_channel_wire();
+  void pin_loopback_unfed_and_unmapped_are_silence();
+  void pin_loopback_boundaries();
+  void pin_wire_channel_count_rules_the_deinterleave();
+  void pin_loopback_quarantine();
+  void pin_lane_b_loopback_into_widened_slot();
+  void pin_empty_tick_repeats_the_last_event();
+  void pin_overflow_drops_the_oldest();
+  void pin_bind_wipe_leaves_no_stale_replay();
+  void pin_mono_wire_rides_the_skid();
+  void pin_all_32_pairs_concurrent();
+  void pin_tone_one_grid_contract();
+
+  const milan::tb::Model<Vchmap_wrap> model_;
+  Vchmap_wrap* dut = model_.get();
+  long checks = 0;
+  long fails = 0;
+  std::vector<Frame> afr;
+  std::vector<Frame> bfr;
+  Frame acur;
+  Frame bcur;
+  uint32_t lb_chans_word = 0;
+};
+
+void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
   checks++;
   if (got != exp) { fails++; printf("  [FAIL] %-46s got=0x%lx exp=0x%lx\n", t, got, exp); }
   else            printf("  [ ok ] %-46s = 0x%lx\n", t, got);
 }
 
-using Frame = std::vector<uint8_t>;
-static std::vector<Frame> afr, bfr;
-static Frame acur, bcur;
-
-static void sample() {
+void ChanMapCaptureHarness::sample() {
   if (dut->a_tvalid_o && dut->a_tready_i) {
     for (int i = 0; i < 8; i++) if ((dut->a_tkeep_o >> i) & 1)
       acur.push_back((dut->a_tdata_o >> (8 * i)) & 0xFF);
@@ -72,30 +142,35 @@ static void sample() {
     if (dut->b_tlast_o) { bfr.push_back(bcur); bcur.clear(); }
   }
 }
-static void step() { dut->clk = 0; dut->eval(); dut->clk = 1; dut->eval(); sample(); }
-static void cyc(int n = 1) { for (int i = 0; i < n; i++) step(); }
+void ChanMapCaptureHarness::step() { dut->clk = 0; dut->eval(); dut->clk = 1; dut->eval(); sample(); }
+void ChanMapCaptureHarness::cyc(int n) { for (int i = 0; i < n; i++) step(); }
 
-static unsigned long be(const Frame& b, int o, int n) {
+unsigned long be(const Frame& b, int o, int n) {
   unsigned long v = 0; for (int i = 0; i < n; i++) v = (v << 8) | b[o + i]; return v; }
-static int find_len(std::vector<Frame>& v, size_t len) {
-  for (size_t i = 0; i < v.size(); i++) if (v[i].size() == len) return (int)i; return -1; }
+int find_len(std::vector<Frame>& v, size_t len) {
+  for (size_t i = 0; i < v.size(); i++) if (v[i].size() == len) return static_cast<int>(i);
+  return -1; }
 // map entry {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}: idxh is
 // read by the LOOP source only and half defaults to BOTH, so ent() is the
 // pre-loopback 8-bit word verbatim with 0b11 above it - every legacy check
 // below still writes exactly the byte it used to, meaning exactly what it
 // used to mean.
-static const uint16_t HALF_BOTH = 0x3000, HALF_L = 0x2000, HALF_R = 0x1000;
-static const uint16_t SWAP_BOTH = 0xC000, SWAP_L = 0x8000, SWAP_R = 0x4000;
-static uint16_t ent(int en, int src, int idx) {
-  return (uint16_t)(HALF_BOTH | ((en & 1) << 7) | ((src & 7) << 4)
-                    | (idx & 0xF)); }
+constexpr uint16_t HALF_BOTH = 0x3000;
+constexpr uint16_t HALF_L = 0x2000;
+constexpr uint16_t HALF_R = 0x1000;
+constexpr uint16_t SWAP_BOTH = 0xC000;
+constexpr uint16_t SWAP_L = 0x8000;
+constexpr uint16_t SWAP_R = 0x4000;
+uint16_t ent(int en, int src, int idx) {
+  return static_cast<uint16_t>(HALF_BOTH | ((en & 1) << 7) | ((src & 7) << 4)
+                               | (idx & 0xF)); }
 //! the same entry with only ONE of the slot's two stream channels armed
-static uint16_t ent_half(int half, int en, int src, int idx) {
-  return (uint16_t)((ent(en, src, idx) & 0x0FFF) | half); }
+uint16_t ent_half(int half, int en, int src, int idx) {
+  return static_cast<uint16_t>((ent(en, src, idx) & 0x0FFF) | half); }
 // LOOP entry: RX stream s (idxh) + channel pair p (idx) -> wire ch {2p, 2p+1}
-static const int SRC_LOOP = 5;
-static uint16_t ent_lb(int en, int s, int p) {
-  return (uint16_t)((((s) & 0xF) << 8) | ent(en, SRC_LOOP, p)); }
+constexpr int SRC_LOOP = 5;
+uint16_t ent_lb(int en, int s, int p) {
+  return static_cast<uint16_t>((((s) & 0xF) << 8) | ent(en, SRC_LOOP, p)); }
 
 // ---- map RAM write / read ------------------------------------------------
 // PER-CHANNEL SHIM (0x0027, "one cluster == one audio channel"): the store
@@ -103,29 +178,39 @@ static uint16_t ent_lb(int en, int s, int p) {
 // decode {swap, halves, idxh, en, src, idx} and issue the TWO channel
 // writes that mean exactly what the old word meant - every legacy case
 // keeps its semantics; per-channel cases write channels directly.
-static uint16_t ch_word(int en, int half, int src, int idxh, int idx) {
-  return (uint16_t)(((en & 1) << 12) | ((half & 1) << 11) | ((src & 7) << 8)
-                    | ((idxh & 0xF) << 4) | (idx & 0xF)); }
-static void a_map_wr_ch(int key, uint16_t w) {
+uint16_t ch_word(int en, int half, int src, int idxh, int idx) {
+  return static_cast<uint16_t>(((en & 1) << 12) | ((half & 1) << 11) | ((src & 7) << 8)
+                               | ((idxh & 0xF) << 4) | (idx & 0xF)); }
+void ChanMapCaptureHarness::a_map_wr_ch(int key, uint16_t w) {
   dut->a_map_wr_en_i = 1; dut->a_map_wr_addr_i = key; dut->a_map_wr_data_i = w;
   cyc(); dut->a_map_wr_en_i = 0; cyc(); }
-static void b_map_wr_ch(int key, uint16_t w) {
+void ChanMapCaptureHarness::b_map_wr_ch(int key, uint16_t w) {
   dut->b_map_wr_en_i = 1; dut->b_map_wr_addr_i = key; dut->b_map_wr_data_i = w;
   cyc(); dut->b_map_wr_en_i = 0; cyc(); }
-static void a_map_wr(int slot, uint16_t d) {
-  int en = (d >> 7) & 1, src = (d >> 4) & 7, idx = d & 0xF, idxh = (d >> 8) & 0xF;
-  int len = (d >> 13) & 1, ren = (d >> 12) & 1;         // legacy half-enables
-  int lsw = (d >> 15) & 1, rsw = (d >> 14) & 1;         // legacy swap bits
+void ChanMapCaptureHarness::a_map_wr(int slot, uint16_t d) {
+  int en = (d >> 7) & 1;
+  int src = (d >> 4) & 7;
+  int idx = d & 0xF;
+  int idxh = (d >> 8) & 0xF;
+  int len = (d >> 13) & 1;                              // legacy half-enables
+  int ren = (d >> 12) & 1;
+  int lsw = (d >> 15) & 1;                              // legacy swap bits
+  int rsw = (d >> 14) & 1;
   a_map_wr_ch(2 * slot,     ch_word(en && len, lsw ? 1 : 0, src, idxh, idx));
   a_map_wr_ch(2 * slot + 1, ch_word(en && ren, rsw ? 0 : 1, src, idxh, idx)); }
-static void b_map_wr(int slot, uint16_t d) {
-  int en = (d >> 7) & 1, src = (d >> 4) & 7, idx = d & 0xF, idxh = (d >> 8) & 0xF;
-  int len = (d >> 13) & 1, ren = (d >> 12) & 1;
-  int lsw = (d >> 15) & 1, rsw = (d >> 14) & 1;
+void ChanMapCaptureHarness::b_map_wr(int slot, uint16_t d) {
+  int en = (d >> 7) & 1;
+  int src = (d >> 4) & 7;
+  int idx = d & 0xF;
+  int idxh = (d >> 8) & 0xF;
+  int len = (d >> 13) & 1;
+  int ren = (d >> 12) & 1;
+  int lsw = (d >> 15) & 1;
+  int rsw = (d >> 14) & 1;
   b_map_wr_ch(2 * slot,     ch_word(en && len, lsw ? 1 : 0, src, idxh, idx));
   b_map_wr_ch(2 * slot + 1, ch_word(en && ren, rsw ? 0 : 1, src, idxh, idx)); }
 //! raw per-CHANNEL readback: {fed[14], mapped[13], entry[12:0]}
-static uint16_t a_map_rd_ch(int key) {
+uint16_t ChanMapCaptureHarness::a_map_rd_ch(int key) {
   dut->a_map_rd_en_i = 1; dut->a_map_rd_addr_i = key; cyc();
   uint16_t v = dut->a_map_rd_data_o; bool ok = dut->a_map_rd_valid_o;
   dut->a_map_rd_en_i = 0; cyc();
@@ -134,32 +219,36 @@ static uint16_t a_map_rd_ch(int key) {
 //! LEGACY slot view recomposed from the two channel entries: {half_ens[13:12],
 //! idxh[11:8], en[7], src[6:4], idx[3:0]} - src/idxh/idx from whichever
 //! channel is enabled (they are equal for every legacy write)
-static uint16_t a_map_ent(int slot) {
-  uint16_t l = a_map_rd_ch(2 * slot) & 0x1FFF, r = a_map_rd_ch(2 * slot + 1) & 0x1FFF;
-  int len = (l >> 12) & 1, ren = (r >> 12) & 1;
+uint16_t ChanMapCaptureHarness::a_map_ent(int slot) {
+  uint16_t l = a_map_rd_ch(2 * slot) & 0x1FFF;
+  uint16_t r = a_map_rd_ch(2 * slot + 1) & 0x1FFF;
+  int len = (l >> 12) & 1;
+  int ren = (r >> 12) & 1;
   uint16_t f = len ? l : r;                   // field donor
-  int src = (f >> 8) & 7, idxh = (f >> 4) & 0xF, idx = f & 0xF;
+  int src = (f >> 8) & 7;
+  int idxh = (f >> 4) & 0xF;
+  int idx = f & 0xF;
   int en = len || ren;
   if (!en) {                                  // legacy writers always stored
     len = ren = 1;                            // halves=11 with en=0; fields
     src = (l >> 8) & 7; idxh = (l >> 4) & 0xF; idx = l & 0xF;   // from even
   }
-  return (uint16_t)((len << 13) | (ren << 12) | (idxh << 8) | (en << 7)
-                    | (src << 4) | idx); }
+  return static_cast<uint16_t>((len << 13) | (ren << 12) | (idxh << 8) | (en << 7)
+                               | (src << 4) | idx); }
 // the LOOP capability mask (readback [14:13]): bit0 = mapped, bit1 = fed
-static uint16_t a_map_mask(int slot) { return (a_map_rd_ch(2 * slot) >> 13) & 3; }
+uint16_t ChanMapCaptureHarness::a_map_mask(int slot) { return (a_map_rd_ch(2 * slot) >> 13) & 3; }
 
 // ---- TCTX window writes (poll wr_rdy, like the NxN harness) ---------------
-static void a_tctx_wr(int t, int w, uint32_t v) {
-  dut->a_tctx_wr_en_i = 1; dut->a_tctx_wr_addr_i = (uint8_t)((t << 4) | w);
+void ChanMapCaptureHarness::a_tctx_wr(int t, int w, uint32_t v) {
+  dut->a_tctx_wr_en_i = 1; dut->a_tctx_wr_addr_i = static_cast<uint8_t>((t << 4) | w);
   dut->a_tctx_wr_data_i = v;
   for (int i = 0; i < 48; i++) {
     dut->clk = 0; dut->eval(); bool rdy = dut->a_tctx_wr_rdy_o;
     dut->clk = 1; dut->eval(); sample();
     if (rdy) { dut->a_tctx_wr_en_i = 0; cyc(); return; } }
   dut->a_tctx_wr_en_i = 0; printf("  [FAIL] a_tctx_wr timeout\n"); fails++; checks++; }
-static void b_tctx_wr(int t, int w, uint32_t v) {
-  dut->b_tctx_wr_en_i = 1; dut->b_tctx_wr_addr_i = (uint8_t)((t << 4) | w);
+void ChanMapCaptureHarness::b_tctx_wr(int t, int w, uint32_t v) {
+  dut->b_tctx_wr_en_i = 1; dut->b_tctx_wr_addr_i = static_cast<uint8_t>((t << 4) | w);
   dut->b_tctx_wr_data_i = v;
   for (int i = 0; i < 48; i++) {
     dut->clk = 0; dut->eval(); bool rdy = dut->b_tctx_wr_rdy_o;
@@ -168,10 +257,10 @@ static void b_tctx_wr(int t, int w, uint32_t v) {
   dut->b_tctx_wr_en_i = 0; printf("  [FAIL] b_tctx_wr timeout\n"); fails++; checks++; }
 
 // ---- source-pair drivers (latched free-running by both chmaps) -----------
-static void drv_i2s(uint32_t l, uint32_t r) {
+void ChanMapCaptureHarness::drv_i2s(uint32_t l, uint32_t r) {
   dut->i2s_pair_valid_i = 1; dut->i2s_l_i = l & 0xFFFFFF; dut->i2s_r_i = r & 0xFFFFFF;
   cyc(); dut->i2s_pair_valid_i = 0; cyc(); }
-static void drv_tdm(int slot, uint32_t l, uint32_t r) {
+void ChanMapCaptureHarness::drv_tdm(int slot, uint32_t l, uint32_t r) {
   dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = slot;
   dut->tdm_l_i = l & 0xFFFFFF; dut->tdm_r_i = r & 0xFFFFFF;
   cyc(); dut->tdm_pair_valid_i = 0; cyc(); }
@@ -180,31 +269,30 @@ static void drv_tdm(int slot, uint32_t l, uint32_t r) {
 // wire byte j; the top 24 bits are the audio, lanes 3/7 are the S32 pad), one
 // AXIS frame per AAF PDU, tuser = stream index - the depacketizer's m_axis
 // contract, which is also what KL_chan_map_render consumes.
-static uint64_t lb_beat(uint32_t a, uint32_t b) {
+uint64_t lb_beat(uint32_t a, uint32_t b) {
   uint64_t d = 0;
-  d |= (uint64_t)((a >> 16) & 0xFF) << 0;
-  d |= (uint64_t)((a >>  8) & 0xFF) << 8;
-  d |= (uint64_t)( a        & 0xFF) << 16;
-  d |= (uint64_t)((b >> 16) & 0xFF) << 32;
-  d |= (uint64_t)((b >>  8) & 0xFF) << 40;
-  d |= (uint64_t)( b        & 0xFF) << 48;
+  d |= static_cast<uint64_t>((a >> 16) & 0xFF) << 0;
+  d |= static_cast<uint64_t>((a >>  8) & 0xFF) << 8;
+  d |= static_cast<uint64_t>( a        & 0xFF) << 16;
+  d |= static_cast<uint64_t>((b >> 16) & 0xFF) << 32;
+  d |= static_cast<uint64_t>((b >>  8) & 0xFF) << 40;
+  d |= static_cast<uint64_t>( b        & 0xFF) << 48;
   return d; }
 // DISTINCT per (stream, wire channel, sample event) - the whole point: with a
 // unique value in every channel, a crossed or duplicated L/R is visible in the
 // emitted payload bytes rather than hidden behind two equal samples.
-static uint32_t LBV(int s, int c, int e) {
+uint32_t LBV(int s, int c, int e) {
   return 0x400000u | ((s & 7) << 12) | ((c & 0xF) << 4) | (e & 0xF); }
 
-static uint32_t lb_chans_word = 0;
-static void lb_set_chans(int s, int chans) {          // RX monitors' wire_chans
+void ChanMapCaptureHarness::lb_set_chans(int s, int chans) {          // RX monitors' wire_chans
   lb_chans_word = (lb_chans_word & ~(0xFu << (s * 4)))
-                | ((uint32_t)(chans & 0xF) << (s * 4));
+                | (static_cast<uint32_t>(chans & 0xF) << (s * 4));
   dut->lb_wire_chans_i = lb_chans_word; }
 
 // one PDU: `events` sample events x `chans` channels, chronologically
 // interleaved (IEEE 1722-2016 7.3.5). events*chans must be even (2 samples
 // per beat, as the depacketizer emits full 8-byte beats).
-static void drv_lb_pdu(int s, int chans, int events, int e0) {
+void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0) {
   std::vector<uint32_t> smp;
   for (int e = 0; e < events; e++)
     for (int c = 0; c < chans; c++) smp.push_back(LBV(s, c, e0 + e));
@@ -228,18 +316,17 @@ static void drv_lb_pdu(int s, int chans, int events, int e0) {
 //! the real grid, which is MILAN_CLK_FREQ_HZ/48000 = 2083 cycles at 100 MHz
 //! (1041 at 50 MHz). WALK_C is checked against that budget in [A4] rather
 //! than being restated there.
-static const int WALK_C = 1 + (32 + 1) + 32 * (24 + 2);
-static void a_tick() { dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0; cyc(WALK_C + 60); }
-static void b_tick() { dut->b_tick_i = 1; cyc(); dut->b_tick_i = 0; cyc(WALK_C + 100); }
+constexpr int WALK_C = 1 + (32 + 1) + 32 * (24 + 2);
+void ChanMapCaptureHarness::a_tick() { dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0; cyc(WALK_C + 60); }
+void ChanMapCaptureHarness::b_tick() { dut->b_tick_i = 1; cyc(); dut->b_tick_i = 0; cyc(WALK_C + 100); }
 
-static const uint32_t I2S_L = 0x1A1111, I2S_R = 0x1A2222;
-static const uint32_t TONE  = 0x7A7A7A;
-static uint32_t TDM_L(int p) { return 0x2B0000 | (p << 4); }
-static uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
-int main(int argc, char** argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new Vchmap_wrap;
+constexpr uint32_t I2S_L = 0x1A1111;
+constexpr uint32_t I2S_R = 0x1A2222;
+constexpr uint32_t TONE  = 0x7A7A7A;
+uint32_t TDM_L(int p) { return 0x2B0000 | (p << 4); }
+uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
 
+void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->rst_n = 0;
   dut->clk_audio = 0; dut->tg_en_i = 0; dut->tg_tick_i = 0;
   dut->a_tready_i = 1; dut->b_tready_i = 1;
@@ -255,9 +342,9 @@ int main(int argc, char** argv) {
   dut->b_map_wr_en_i = 0; dut->b_map_rd_en_i = 0; dut->b_tick_i = 0; dut->b_en_i = 0;
   dut->b_tctx_wr_en_i = 0; dut->b_tctx_rd_en_i = 0;
   cyc(8); dut->rst_n = 1; cyc(4);
+}
 
-  printf("== KL_chan_map_capture (per-pair-slot TX source mux) ==\n");
-
+void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
   // ====================================================================== //
   // [T0] #74 TDM junction slip detector - graded FIRST, while the DUT is   //
   // virgin: the unfed gate needs a lane that has never seen a TDM write.   //
@@ -297,7 +384,9 @@ int main(int argc, char** argv) {
   a_tick();                               // fed, nothing pending -> one dup
   ck("T0: still fed and consumed after coincidence",
      dut->a_tdm_dup_cnt_o, 4);
+}
 
+void ChanMapCaptureHarness::pin_capability_mask_says_mapped_but_unfed() {
   // ====================================================================== //
   // [R5] LEVEL L1 (binding) / oracle: the fabric's own accepted-beat strobe.
   // A loopback slot that is MAPPED but has never been FED emits 24'd0 - the
@@ -316,7 +405,9 @@ int main(int argc, char** argv) {
   a_map_wr(31, ent(0, 0, 0));          // clear it again
   ck("R5: removing the entry clears MAPPED (it is live, not sticky)",
      a_map_mask(0), 0);
+}
 
+void ChanMapCaptureHarness::pin_per_slot_source_routing() {
   // ====================================================================== //
   printf("\n[A] per-slot routing: I2S / TDM / RESERVED / TONE across t0(2ch)+t1(8ch)\n");
   // t1 CFG via the TCTX window (chans=8 so t1 owns pair slots 1..4)
@@ -341,8 +432,9 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
 
-  ck("A: two frames (t0 + t1)", (long)afr.size(), 2);
-  int ia0 = find_len(afr, 90), ia1 = find_len(afr, 234);
+  ck("A: two frames (t0 + t1)", static_cast<long>(afr.size()), 2);
+  int ia0 = find_len(afr, 90);
+  int ia1 = find_len(afr, 234);
   ck("A: t0 90-byte frame present", ia0 >= 0, 1);
   ck("A: t1 234-byte frame present", ia1 >= 0, 1);
   if (ia0 >= 0 && ia1 >= 0) {
@@ -363,7 +455,9 @@ int main(int argc, char** argv) {
     ck("A: t0 seq 0", afr[ia0][20], 0);
     ck("A: t1 seq 0", afr[ia1][20], 0);
   } else { for (int k = 0; k < 15; k++) ck("A content (skipped: frames missing)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_midrun_remap_to_silence() {
   // ====================================================================== //
   printf("\n[A2] mid-run remap: slot3 ZERO, slot4 RESERVED (both silence)\n");
   a_map_wr(3, ent(1, 0, 0));   // slot3 -> ZERO source (silence, en=1)
@@ -372,8 +466,9 @@ int main(int argc, char** argv) {
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  ck("A2: two frames again", (long)afr.size(), 2);
-  int j1 = find_len(afr, 234), j0 = find_len(afr, 90);
+  ck("A2: two frames again", static_cast<long>(afr.size()), 2);
+  int j1 = find_len(afr, 234);
+  int j0 = find_len(afr, 90);
   if (j1 >= 0) {
     ck("A2: t1 pair2 slot3 now silence L", be(afr[j1], 58, 3), 0);
     ck("A2: t1 pair2 slot3 now silence R", be(afr[j1], 62, 3), 0);
@@ -383,7 +478,9 @@ int main(int argc, char** argv) {
   } else { for (int k = 0; k < 5; k++) ck("A2 content (skipped)", 0, 1); }
   if (j0 >= 0) ck("A2: t0 seq advanced to 1", afr[j0][20], 1);
   else         ck("A2: t0 frame (skipped)", 0, 1);
+}
 
+void ChanMapCaptureHarness::pin_unmapped_slot_is_silence_not_absence() {
   // ====================================================================== //
   // An UNMAPPED slot is a SILENT channel, never a missing stream.            //
   //                                                                          //
@@ -409,8 +506,9 @@ int main(int argc, char** argv) {
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  ck("A3: BOTH talkers still frame", (long)afr.size(), 2);
-  int k0 = find_len(afr, 90), k1 = find_len(afr, 234);
+  ck("A3: BOTH talkers still frame", static_cast<long>(afr.size()), 2);
+  int k0 = find_len(afr, 90);
+  int k1 = find_len(afr, 234);
   ck("A3: t0 is still on the wire", k0 >= 0, 1);
   if (k0 >= 0) {
     ck("A3: t0 is still 2ch", afr[k0][36], 2);
@@ -424,7 +522,9 @@ int main(int argc, char** argv) {
     ck("A3: t1 pair3 reserved source still silence", be(afr[k1], 66, 3), 0);
   } else { for (int k = 0; k < 3; k++) ck("A3 t1 content (skipped)", 0, 1); }
   //! slot0 is deliberately LEFT unmapped - [RB] below reads it back
+}
 
+void ChanMapCaptureHarness::pin_full_coverage_walk_fits_one_media_tick() {
   // ====================================================================== //
   // The walk got LONGER when unmapped slots stopped being free, so the      //
   // budget it has to fit in is now load-bearing: one whole walk must still  //
@@ -441,7 +541,8 @@ int main(int argc, char** argv) {
     afr.clear();
     //! count the injects of ONE walk and time it, then complete the 6-sample
     //! frame so the phases below stay on the frame boundary they expect
-    long pulses = 0, span = 0;
+    long pulses = 0;
+    long span = 0;
     dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;
     for (int c = 0; c < WALK_C + 60; c++) {
       cyc();
@@ -457,8 +558,9 @@ int main(int argc, char** argv) {
     //! the whole point, at the wire: a board with NOTHING mapped still
     //! streams - every channel silent, no channel missing
     ck("A4: an all-unmapped board still frames BOTH talkers",
-       (long)afr.size(), 2);
-    int z0 = find_len(afr, 90), z1 = find_len(afr, 234);
+       static_cast<long>(afr.size()), 2);
+    int z0 = find_len(afr, 90);
+    int z1 = find_len(afr, 234);
     ck("A4: t0 still framed", z0 >= 0, 1);
     ck("A4: t1 still framed", z1 >= 0, 1);
     long nz = 0;
@@ -467,7 +569,9 @@ int main(int argc, char** argv) {
     for (int s = 0; s < 32; s++) a_map_wr(s, saved[s]);
     cyc(4);
   }
+}
 
+void ChanMapCaptureHarness::pin_per_half_enable() {
   // ====================================================================== //
   // A Stream Output mapping is per STREAM CHANNEL (1722.1-2021 7.4.45 /     //
   // Milan v1.2 5.4.2.26 "at most one dynamic mapping per Stream Output's    //
@@ -522,13 +626,15 @@ int main(int argc, char** argv) {
       ck("A5: restored entry carries BOTH halves R", be(afr[h1], 46, 3), TDM_R(0));
     } else { for (int k = 0; k < 2; k++) ck("A5 restore (skipped)", 0, 1); }
   }
+}
 
+void ChanMapCaptureHarness::pin_half_swap_mux() {
   // ====================================================================== //
   printf("\n[A7] half-swap mux (USER 08-06): any half onto any parity\n");
   {
     uint16_t save1 = a_map_ent(1);
     //! full crisscross: both channels take the OTHER half of TDM pair 0
-    a_map_wr(1, (uint16_t)(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_BOTH));
+    a_map_wr(1, static_cast<uint16_t>(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_BOTH));
     cyc(4);
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
@@ -542,7 +648,7 @@ int main(int argc, char** argv) {
 
     //! single-lane swap: L takes the R half, R stays natural = the
     //! "R-half cluster onto an even channel" ATDECC route
-    a_map_wr(1, (uint16_t)(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_L));
+    a_map_wr(1, static_cast<uint16_t>(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_L));
     cyc(4);
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
@@ -565,7 +671,9 @@ int main(int argc, char** argv) {
       ck("A7: restored natural R", be(afr[h1], 46, 3), TDM_R(0));
     } else { for (int k = 0; k < 2; k++) ck("A7 restore (skipped)", 0, 1); }
   }
+}
 
+void ChanMapCaptureHarness::pin_split_slot_carries_two_sources() {
   // ====================================================================== //
   printf("\n[A8] one cluster == one audio channel (USER 08-06): two\n");
   printf("     DIFFERENT sources in ONE pair slot, each channel its own\n");
@@ -591,14 +699,18 @@ int main(int argc, char** argv) {
     ck("A8: ch3 entry {en,L,RESERVED,1}", a_map_rd_ch(3) & 0x1FFF, 0x1301);
     a_map_wr(1, sl);   // restore the legacy slot state
   }
+}
 
+void ChanMapCaptureHarness::pin_map_ram_readback() {
   // ====================================================================== //
   printf("\n[RB] map RAM readback port\n");
   ck("RB: slot1 = {en,TDM,0}",  a_map_ent(1), ent(1, 2, 0));
   ck("RB: slot3 = {en,ZERO,0}", a_map_ent(3), ent(1, 0, 0));
   ck("RB: slot4 = {en,RESERVED,1}", a_map_ent(4), ent(1, 3, 1));
   ck("RB: slot0 = disabled",    a_map_ent(0), ent(0, 1, 0));
+}
 
+void ChanMapCaptureHarness::pin_widened_slot_on_lane_b() {
   // ====================================================================== //
   printf("\n[B] widened slot: N=8 all-8ch, talker 7 owns slots 28..31 (slot 31)\n");
   // ALL 8 talkers must be 8ch so the prefix sum gives pbase[7]=28 (t7 pair p =
@@ -624,9 +736,9 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 6; i++) b_tick();
   cyc(600);
 
-  ck("B: one frame emitted (t7)", (long)bfr.size(), 1);
+  ck("B: one frame emitted (t7)", static_cast<long>(bfr.size()), 1);
   if (bfr.size() == 1) {
-    ck("B: t7 frame is 234 bytes (8ch)", (long)bfr[0].size(), 234);
+    ck("B: t7 frame is 234 bytes (8ch)", static_cast<long>(bfr[0].size()), 234);
     ck("B: t7 channels_per_frame = 8", bfr[0][36], 8);
     ck("B: t7 uid 7", be(bfr[0], 22, 8) & 0xFFFF, 7);
     ck("B: t7 DMAC = base+7", be(bfr[0], 0, 6), 0x91E0F000FE08UL);
@@ -636,7 +748,9 @@ int main(int argc, char** argv) {
     ck("B: slot31 pair3 = TONE L (widened >15 slot)", be(bfr[0], 66, 3), TONE);
     ck("B: slot31 pair3 = TONE R (widened >15 slot)", be(bfr[0], 70, 3), TONE);
   } else { for (int k = 0; k < 9; k++) ck("B content (skipped: count wrong)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_loopback_source_feeds_talker_pairs() {
   // ====================================================================== //
   printf("\n[LB] rx -> talker LOOPBACK (src 5): a received stream's channel\n"
          "     pair feeds a talker pair slot, every RX channel DISTINCT\n");
@@ -663,8 +777,9 @@ int main(int argc, char** argv) {
   // the other half of the R5 pair: once payload has actually arrived the mask
   // reads MAPPED+FED, so a zero sample from here on is real silence
   ck("LB: mask now reads MAPPED and FED", a_map_mask(0), 3);
-  ck("LB: two frames (t0 + t1)", (long)afr.size(), 2);
-  int l0 = find_len(afr, 90), l1 = find_len(afr, 234);
+  ck("LB: two frames (t0 + t1)", static_cast<long>(afr.size()), 2);
+  int l0 = find_len(afr, 90);
+  int l1 = find_len(afr, 234);
   if (l1 >= 0) {
     // pair p of the entry = wire channels {2p, 2p+1} = {L, R}, and the
     // packetizer emits pair p into the same two channels - identity round
@@ -710,7 +825,9 @@ int main(int argc, char** argv) {
     ck("LB: t0 frame = the whole 6-event PDU in order", ramp_ok, 1);
     ck("LB: t0 L != R", be(afr[l0], 42, 3) != be(afr[l0], 46, 3), 1);
   } else { for (int k = 0; k < 3; k++) ck("LB t0 (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_loopback_remap_and_odd_channel_wire() {
   // ====================================================================== //
   printf("\n[LB2] loopback remap + odd-channel de-interleave + a NEWER PDU\n");
   a_map_wr(1, ent_lb(1, 3, 3));   // t1 pair0 <- s3 ch6/ch7 (remap)
@@ -741,7 +858,9 @@ int main(int argc, char** argv) {
        LBV(2, 1, 4));
     ck("LB2: 3-ch pair L != R", be(afr[m1], 66, 3) != be(afr[m1], 70, 3), 1);
   } else { for (int k = 0; k < 9; k++) ck("LB2 content (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_loopback_unfed_and_unmapped_are_silence() {
   // ====================================================================== //
   printf("\n[LB3] a LOOP slot naming a stream nothing has sent = silence;\n"
          "      an UNMAPPED loop slot = silence too, never absence\n");
@@ -768,8 +887,9 @@ int main(int argc, char** argv) {
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  ck("LB3: unmapping a loop slot keeps BOTH talkers", (long)afr.size(), 2);
-  int u1 = find_len(afr, 234), u0 = find_len(afr, 90);
+  ck("LB3: unmapping a loop slot keeps BOTH talkers", static_cast<long>(afr.size()), 2);
+  int u1 = find_len(afr, 234);
+  int u0 = find_len(afr, 90);
   ck("LB3: t0 (2ch) survived", u0 >= 0 ? afr[u0][36] : -1, 2);
   ck("LB3: t1 (8ch) survived it too", u1 >= 0, 1);
   if (u1 >= 0) {
@@ -781,7 +901,9 @@ int main(int argc, char** argv) {
   ck("LB3: readback carries the loop stream nibble", a_map_ent(2),
      ent_lb(1, 3, 1));
   ck("LB3: readback of the disabled loop slot", a_map_ent(4), ent_lb(0, 3, 0));
+}
 
+void ChanMapCaptureHarness::pin_loopback_boundaries() {
   // ====================================================================== //
   printf("\n[LB4] boundaries: last bank entry (s7 p3), a wire WIDER than the\n"
          "      kept channels (10ch: virtual channels are walked, not kept),\n"
@@ -837,7 +959,9 @@ int main(int argc, char** argv) {
     ck("LB4: its neighbours are untouched R", be(afr[q2], 70, 3),
        LBV(3, 1, 6));
   } else { for (int k = 0; k < 4; k++) ck("LB4 range (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_wire_channel_count_rules_the_deinterleave() {
   // ====================================================================== //
   printf("\n[LB6] WIRE TRUTH: the de-interleave follows the WIRE's\n"
          "      channels_per_frame (7.3.3), never the PDU's length. Stream 1\n"
@@ -869,7 +993,9 @@ int main(int argc, char** argv) {
     ck("LB6: pair1 beyond the wire's channels = silence R",
        be(afr[w1], 54, 3), 0);
   } else { for (int k = 0; k < 5; k++) ck("LB6 (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_loopback_quarantine() {
   // ====================================================================== //
   printf("\n[LB5] QUARANTINE: with NO loop entry in the map, loopback traffic\n"
          "      must not perturb one byte of the payload (the unselected-\n"
@@ -887,8 +1013,10 @@ int main(int argc, char** argv) {
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();     // loopback AXIS IDLE
   cyc(400);
-  int r1 = find_len(afr, 234), r0 = find_len(afr, 90);
-  Frame quiet1, quiet0;
+  int r1 = find_len(afr, 234);
+  int r0 = find_len(afr, 90);
+  Frame quiet1;
+  Frame quiet0;
   if (r1 >= 0) quiet1 = Frame(afr[r1].begin() + 42, afr[r1].end());
   if (r0 >= 0) quiet0 = Frame(afr[r0].begin() + 42, afr[r0].end());
   ck("LB5: quiet-run frames present", (r1 >= 0 && r0 >= 0), 1);
@@ -901,7 +1029,8 @@ int main(int argc, char** argv) {
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  int r3 = find_len(afr, 234), r2 = find_len(afr, 90);
+  int r3 = find_len(afr, 234);
+  int r2 = find_len(afr, 90);
   if (r3 >= 0 && r2 >= 0) {
     Frame busy1(afr[r3].begin() + 42, afr[r3].end());
     Frame busy0(afr[r2].begin() + 42, afr[r2].end());
@@ -912,7 +1041,9 @@ int main(int argc, char** argv) {
     ck("LB5: t1 payload is the [A] source set (TDM0 L still there)",
        be(afr[r3], 42, 3), TDM_L(0));
   } else { for (int k = 0; k < 3; k++) ck("LB5 (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_lane_b_loopback_into_widened_slot() {
   // ====================================================================== //
   printf("\n[LBB] lane B: the loopback into the WIDENED slot 31 (t7 pair 3)\n");
   b_map_wr(31, ent_lb(1, 3, 2));   // t7 pair3 <- s3 ch4/ch5
@@ -920,7 +1051,7 @@ int main(int argc, char** argv) {
   bfr.clear();
   for (int i = 0; i < 6; i++) b_tick();
   cyc(600);
-  ck("LBB: one frame emitted (t7)", (long)bfr.size(), 1);
+  ck("LBB: one frame emitted (t7)", static_cast<long>(bfr.size()), 1);
   if (bfr.size() == 1) {
     // lane B took every push since [LB] but never ticked, so its s3 p2
     // queue holds {e1, e2, e5, e6, e11, e12} - six of the eight it can -
@@ -932,7 +1063,9 @@ int main(int argc, char** argv) {
     ck("LBB: slot28 still I2S L (untouched)", be(bfr[0], 42, 3), I2S_L);
     ck("LBB: slot30 reserved source stays silence", be(bfr[0], 58, 3), 0);
   } else { for (int k = 0; k < 5; k++) ck("LBB content (skipped)", 0, 1); }
+}
 
+void ChanMapCaptureHarness::pin_empty_tick_repeats_the_last_event() {
   // ====================================================================== //
   // [LQ*] THE 0x0036 QUEUE LAW ITSELF (silicon + user-audio 2026-08-09:
   // the latest-sample hold turned every PDU into a dup+skip stair at 8 kHz,
@@ -949,7 +1082,8 @@ int main(int argc, char** argv) {
     drv_lb_pdu(4, 2, 2, 1);          // s4 p0 <- events e1, e2
     a_map_wr(1, ent_lb(1, 4, 0));    // t1 pair0 <- s4 p0
     cyc(4);
-    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    long d0 = dut->a_dup_cnt_o;
+    long k0 = dut->a_skip_cnt_o;
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
     cyc(400);
@@ -964,18 +1098,21 @@ int main(int argc, char** argv) {
       ck("LQ1: 4 starved events repeat the LAST (never jump)", rep, 1);
     } else { for (int k = 0; k < 3; k++) ck("LQ1 (skipped)", 0, 1); }
     ck("LQ1: dup counter counted EXACTLY the 4 starved ticks",
-       (long)dut->a_dup_cnt_o - d0, 4);
-    ck("LQ1: skip counter untouched", (long)dut->a_skip_cnt_o - k0, 0);
+       static_cast<long>(dut->a_dup_cnt_o) - d0, 4);
+    ck("LQ1: skip counter untouched", static_cast<long>(dut->a_skip_cnt_o) - k0, 0);
   }
+}
 
+void ChanMapCaptureHarness::pin_overflow_drops_the_oldest() {
   // ====================================================================== //
   printf("\n[LQ2] overflow drops the OLDEST - counted, order preserved\n");
   {
-    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    long d0 = dut->a_dup_cnt_o;
+    long k0 = dut->a_skip_cnt_o;
     drv_lb_pdu(4, 2, 10, 1);         // ONE 10-event PDU vs the 8-deep queue
     cyc(8);                          // let the skid drain
     ck("LQ2: two oldest events dropped AT PUSH (skip = +2)",
-       (long)dut->a_skip_cnt_o - k0, 2);
+       static_cast<long>(dut->a_skip_cnt_o) - k0, 2);
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
     cyc(400);
@@ -1004,16 +1141,19 @@ int main(int argc, char** argv) {
       ck("LQ2: then repeats e10 (bounded slip, no jump)", rep, 1);
     } else { for (int k = 0; k < 2; k++) ck("LQ2 tail (skipped)", 0, 1); }
     ck("LQ2: the 4 tail repeats are the ONLY dups",
-       (long)dut->a_dup_cnt_o - d0, 4);
+       static_cast<long>(dut->a_dup_cnt_o) - d0, 4);
   }
+}
 
+void ChanMapCaptureHarness::pin_bind_wipe_leaves_no_stale_replay() {
   // ====================================================================== //
   printf("\n[LQ3] bind wipe: queue emptied, hold silenced, NO stale replay\n");
   {
     drv_lb_pdu(4, 2, 2, 11);         // e11, e12 queued...
     dut->a_lb_flush_i = 1u << 4;     // ...then the sink unbinds
     cyc(); dut->a_lb_flush_i = 0; cyc(2);
-    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    long d0 = dut->a_dup_cnt_o;
+    long k0 = dut->a_skip_cnt_o;
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
     cyc(400);
@@ -1028,9 +1168,9 @@ int main(int argc, char** argv) {
       ck("LQ3: wiped pair emits digital silence, not e11/e12", quiet, 1);
     } else ck("LQ3 (skipped)", 0, 1);
     ck("LQ3: a wiped pair is NOT a starved pair (dup delta 0)",
-       (long)dut->a_dup_cnt_o - d0, 0);
+       static_cast<long>(dut->a_dup_cnt_o) - d0, 0);
     ck("LQ3: and nothing was dropped (skip delta 0)",
-       (long)dut->a_skip_cnt_o - k0, 0);
+       static_cast<long>(dut->a_skip_cnt_o) - k0, 0);
     // REBIND: fresh feed leads with ITS oldest - the pre-wipe e11/e12 are
     // gone, which is the whole point of the flush
     drv_lb_pdu(4, 2, 2, 13);
@@ -1049,7 +1189,9 @@ int main(int argc, char** argv) {
       ck("LQ3: no pre-wipe sample replays after rebind", stale, 0);
     } else { for (int k = 0; k < 2; k++) ck("LQ3 rebind (skipped)", 0, 1); }
   }
+}
 
+void ChanMapCaptureHarness::pin_mono_wire_rides_the_skid() {
   // ====================================================================== //
   printf("\n[LQ4] mono wire (1 channel): two commits per beat ride the skid\n");
   {
@@ -1057,14 +1199,16 @@ int main(int argc, char** argv) {
     lb_set_chans(4, 1);
     drv_lb_pdu(4, 1, 6, 1);          // 6 events = 3 beats, both samples ch0
     cyc(8);
-    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    long d0 = dut->a_dup_cnt_o;
+    long k0 = dut->a_skip_cnt_o;
     afr.clear();
     for (int i = 0; i < 6; i++) a_tick();
     cyc(400);
     int f1 = find_len(afr, 234);
     ck("LQ4: t1 frame emitted", f1 >= 0, 1);
     if (f1 >= 0) {
-      long ord = 1, rz = 1;
+      long ord = 1;
+      long rz = 1;
       for (int e = 0; e < 6; e++) {
         if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 1 + e)) ord = 0;
         if (be(afr[f1], 46 + 32 * e, 3) != 0) rz = 0;
@@ -1072,52 +1216,58 @@ int main(int argc, char** argv) {
       ck("LQ4: ch0 = the mono ramp e1..e6 in order", ord, 1);
       ck("LQ4: the pair's R half = silence (no R on a mono wire)", rz, 1);
     } else { for (int k = 0; k < 2; k++) ck("LQ4 (skipped)", 0, 1); }
-    ck("LQ4: zero dups (rate-matched)", (long)dut->a_dup_cnt_o - d0, 0);
+    ck("LQ4: zero dups (rate-matched)", static_cast<long>(dut->a_dup_cnt_o) - d0, 0);
     ck("LQ4: zero skips (the skid absorbed the double commits)",
-       (long)dut->a_skip_cnt_o - k0, 0);
+       static_cast<long>(dut->a_skip_cnt_o) - k0, 0);
     lb_set_chans(4, 2);              // parting state
   }
+}
 
+void ChanMapCaptureHarness::pin_all_32_pairs_concurrent() {
   // ====================================================================== //
   printf("\n[LQ5] all 32 pairs concurrent: one PDU each, ZERO slip anywhere\n");
   {
     dut->b_lb_flush_i = 0xFF; cyc(); dut->b_lb_flush_i = 0; cyc(2);
     // arm every lane-B talker (mirrors [B]'s t7 provisioning)
     for (int t = 0; t < 8; t++) {
-      b_tctx_wr(t, 1, 0xF000FE01u + (uint32_t)t);
-      b_tctx_wr(t, 2, ((uint32_t)t << 16) | 0x91E0u);
+      b_tctx_wr(t, 1, 0xF000FE01u + static_cast<uint32_t>(t));
+      b_tctx_wr(t, 2, (static_cast<uint32_t>(t) << 16) | 0x91E0u);
       b_tctx_wr(t, 0, (2u << 5) | (8u << 1) | 1u);
     }
     dut->b_en_i = 0xFF;
     for (int s = 0; s < 8; s++) { lb_set_chans(s, 8); drv_lb_pdu(s, 8, 6, 1); }
     for (int p = 0; p < 32; p++) b_map_wr(p, ent_lb(1, p / 4, p % 4));
     cyc(8);
-    long d0 = dut->b_dup_cnt_o, k0 = dut->b_skip_cnt_o;
+    long d0 = dut->b_dup_cnt_o;
+    long k0 = dut->b_skip_cnt_o;
     bfr.clear();
     for (int i = 0; i < 6; i++) b_tick();
     cyc(600);
-    ck("LQ5: all 8 talkers framed", (long)bfr.size(), 8);
-    long miss = 0, seen = 0;
+    ck("LQ5: all 8 talkers framed", static_cast<long>(bfr.size()), 8);
+    long miss = 0;
+    long seen = 0;
     for (auto& f : bfr) {
       if (f.size() != 234) continue;
-      long t = (long)(be(f, 22, 8) & 0xFFFF);
+      long t = static_cast<long>(be(f, 22, 8) & 0xFFFF);
       if (t < 0 || t > 7) continue;
       seen++;
       for (int e = 0; e < 6; e++)
         for (int c = 0; c < 8; c++)
-          if (be(f, 42 + 32 * e + 4 * c, 3) != LBV((int)t, c, 1 + e)) miss++;
+          if (be(f, 42 + 32 * e + 4 * c, 3) != LBV(static_cast<int>(t), c, 1 + e)) miss++;
     }
     ck("LQ5: every frame identified by uid", seen, 8);
     ck("LQ5: 384 samples, every (stream, channel, event) EXACT", miss, 0);
     ck("LQ5: zero dups at full shape (the acceptance state)",
-       (long)dut->b_dup_cnt_o - d0, 0);
-    ck("LQ5: zero skips at full shape", (long)dut->b_skip_cnt_o - k0, 0);
+       static_cast<long>(dut->b_dup_cnt_o) - d0, 0);
+    ck("LQ5: zero skips at full shape", static_cast<long>(dut->b_skip_cnt_o) - k0, 0);
   }
+}
 
+void ChanMapCaptureHarness::pin_tone_one_grid_contract() {
   // ====================================================================== //
   printf("\n[G] tone ONE-GRID contract: media-tick pacing vs clk_audio/512\n");
   // The 48-entry table, verbatim from KL_tone_gen (att = 0).
-  static const uint32_t TAB[48] = {
+  static constexpr uint32_t TAB[48] = {
       0x000000,0x10B515,0x2120FB,0x30FBC5,0x3FFFFF,0x4DEBE4,
       0x5A8279,0x658C99,0x6ED9EB,0x7641AE,0x7BA374,0x7EE7A9,
       0x7FFFFF,0x7EE7A9,0x7BA374,0x7641AE,0x6ED9EB,0x658C99,
@@ -1146,12 +1296,16 @@ int main(int argc, char** argv) {
   // puts the legacy grid eps FASTER (phase 1: drops) then eps SLOWER
   // (phase 2: repeats) than the tick grid - the bench's 4-12 slips/s,
   // compressed to one slip every ~1/eps ticks.
-  const int    TICKDIV = 520;
-  const double EPS     = 0.004;
-  const int    NTICK   = 3000;                 // per phase: ~12 slips
+  constexpr int    TICKDIV = 520;
+  constexpr double EPS     = 0.004;
+  constexpr int    NTICK   = 3000;             // per phase: ~12 slips
   dut->tg_en_i = 1;
-  long med_mism = 0, med_ticks = 0, leg_offtab = 0;
-  long leg_slip[2] = {0, 0}, leg_rep[2] = {0, 0}, leg_drop[2] = {0, 0};
+  long med_mism = 0;
+  long med_ticks = 0;
+  long leg_offtab = 0;
+  std::array<long, 2> leg_slip = {0, 0};
+  std::array<long, 2> leg_rep = {0, 0};
+  std::array<long, 2> leg_drop = {0, 0};
   int  leg_idx = -1;
   for (int ph = 0; ph < 2; ph++) {
     const double aud_half =
@@ -1193,10 +1347,47 @@ int main(int argc, char** argv) {
   ck("G: legacy tone never leaves the table", leg_offtab, 0);
   ck("G: NEG CONTROL fast audio grid slips (drops)", leg_slip[0] > 0, 1);
   ck("G: NEG CONTROL slow audio grid slips (repeats)", leg_slip[1] > 0, 1);
+}
+
+int ChanMapCaptureHarness::run() {
+  reset_and_idle_every_input();
+
+  printf("== KL_chan_map_capture (per-pair-slot TX source mux) ==\n");
+  pin_tdm_junction_slip_detector();
+  pin_capability_mask_says_mapped_but_unfed();
+  pin_per_slot_source_routing();
+  pin_midrun_remap_to_silence();
+  pin_unmapped_slot_is_silence_not_absence();
+  pin_full_coverage_walk_fits_one_media_tick();
+  pin_per_half_enable();
+  pin_half_swap_mux();
+  pin_split_slot_carries_two_sources();
+  pin_map_ram_readback();
+  pin_widened_slot_on_lane_b();
+  pin_loopback_source_feeds_talker_pairs();
+  pin_loopback_remap_and_odd_channel_wire();
+  pin_loopback_unfed_and_unmapped_are_silence();
+  pin_loopback_boundaries();
+  pin_wire_channel_count_rules_the_deinterleave();
+  pin_loopback_quarantine();
+  pin_lane_b_loopback_into_widened_slot();
+  pin_empty_tick_repeats_the_last_event();
+  pin_overflow_drops_the_oldest();
+  pin_bind_wipe_leaves_no_stale_replay();
+  pin_mono_wire_rides_the_skid();
+  pin_all_32_pairs_concurrent();
+  pin_tone_one_grid_contract();
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",
          checks, fails, fails ? "FAIL" : "PASS");
-  delete dut;
   return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+  Verilated::commandArgs(argc, argv);
+  ChanMapCaptureHarness harness;
+  return harness.run();
 }

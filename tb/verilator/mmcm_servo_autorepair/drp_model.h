@@ -22,22 +22,32 @@
 #include <cstdint>
 
 struct DrpMmcmModel {
+    // DRP address space: 7-bit DADDR, so 128 registers and a 0x7F mask.
+    static constexpr int     REG_COUNT = 128;
+    static constexpr uint8_t ADDR_MASK = 0x7F;
+    // DRDY a few DCLK after DEN (DS181-ish).
+    static constexpr int     DRP_LAT_CYC = 4;
+    // UG472: a fine-phase shift takes 12 PSCLK cycles.
+    static constexpr int     PS_SHIFT_CYC = 12;
+
     // programmable register file
-    uint16_t regs[128] = {0};
+    uint16_t regs[REG_COUNT] = {0};
     bool     locked = true;
 
     // DRP handshake
     int      drp_lat = 0;
-    bool     drp_pend = false, drp_we_l = false;
+    bool     drp_pend = false;
+    bool     drp_we_l = false;
     uint8_t  drp_addr_l = 0;
     uint16_t drp_di_l = 0;
     bool     drdy = false;          // output this cycle
     uint16_t dout = 0;
-    long     drp_reads = 0, drp_writes = 0;
+    long     drp_reads = 0;
+    long     drp_writes = 0;
     long     writes_wo_rst = 0;     // safe-sequencing violation counter
 
     // per-write transaction log (the repair sequence is <= a handful)
-    static const int WLOG_MAX = 32;
+    static constexpr int WLOG_MAX = 32;
     uint8_t  wlog_addr[WLOG_MAX] = {0};
     uint16_t wlog_data[WLOG_MAX] = {0};
     bool     wlog_rst [WLOG_MAX] = {false};
@@ -73,11 +83,11 @@ struct DrpMmcmModel {
         if (drp_pend) {
             if (--drp_lat == 0) {
                 if (drp_we_l) {
-                    regs[drp_addr_l & 0x7F] = drp_di_l;
+                    regs[drp_addr_l & ADDR_MASK] = drp_di_l;
                     drp_writes++;
                     if (!rst) writes_wo_rst++;
                     if (wlog_n < WLOG_MAX) {
-                        wlog_addr[wlog_n] = drp_addr_l & 0x7F;
+                        wlog_addr[wlog_n] = drp_addr_l & ADDR_MASK;
                         wlog_data[wlog_n] = drp_di_l;
                         wlog_rst [wlog_n] = rst;
                         wlog_n++;
@@ -85,14 +95,14 @@ struct DrpMmcmModel {
                 } else {
                     drp_reads++;
                 }
-                dout = regs[drp_addr_l & 0x7F];
+                dout = regs[drp_addr_l & ADDR_MASK];
                 drdy = true;
                 drp_pend = false;
             }
         } else if (den) {
             drp_addr_l = daddr; drp_we_l = dwe; drp_di_l = di;
             drp_pend = true;
-            drp_lat = 4;               // DRDY a few DCLK later (DS181-ish)
+            drp_lat = DRP_LAT_CYC;     // DRDY a few DCLK later (DS181-ish)
         }
     }
 
@@ -109,7 +119,7 @@ struct DrpMmcmModel {
             }
         } else if (psen) {
             ps_dir = psincdec;
-            ps_busy = 12;
+            ps_busy = PS_SHIFT_CYC;
             if (mmcm_rst) ps_during_drp_rst++;
         }
     }

@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 
 SRCS = cbs_ver_wrap.sv $(RTL_DIR)/ieee8021q/ts/credit_based_shaper.sv
 CPP  = sim_main.cpp

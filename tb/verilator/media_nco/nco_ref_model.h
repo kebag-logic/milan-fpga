@@ -95,10 +95,10 @@ public:
         //   elapsed*den - ticks*num, scaled back by den
         const int64_t elapsed = int64_t(clock - first_clock_);
         const long double err =
-            (long double)(elapsed * spec_.period_den()
-                          - int64_t(ticks_) * spec_.period_num(trim_))
-            / (long double)spec_.period_den();
-        worst_drift_ = std::max(worst_drift_, (double)std::fabs(err));
+            static_cast<long double>(elapsed * spec_.period_den()
+                                     - int64_t(ticks_) * spec_.period_num(trim_))
+            / static_cast<long double>(spec_.period_den());
+        worst_drift_ = std::max(worst_drift_, static_cast<double>(std::fabs(err)));
     }
 
     uint64_t ticks()        const { return ticks_; }
@@ -156,6 +156,9 @@ public:
     }
 
 private:
-    uint64_t div_, rem_, den_;
-    uint64_t cnt_ = 0, frac_ = 0;
+    uint64_t div_;
+    uint64_t rem_;
+    uint64_t den_;
+    uint64_t cnt_  = 0;
+    uint64_t frac_ = 0;
 };

@@ -14,7 +14,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          +incdir+$(C) +incdir+$(A) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
-         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2"
+         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 SRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        $(A)/avtp_stream_parser.sv $(A)/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
@@ -30,7 +30,7 @@ NXFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap \
          +incdir+$(C) +incdir+$(A) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
-         -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2"
+         -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        $(A)/avtp_stream_parser.sv $(A)/KL_stream_table.sv \
        $(A)/KL_avtp_rx_monitor_ctx.sv \

@@ -11,6 +11,7 @@
 // Clock is scaled: CLK_FREQ_HZ_P=10000 -> the 100 ms unlock = 1000 cycles.
 #include "Vavtp_rxmon_wrap.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #if VM_COVERAGE
 #include "verilated_cov.h"
 #endif
@@ -18,19 +19,11 @@
 #include <cstdint>
 #include <vector>
 
-static Vavtp_rxmon_wrap* dut;
-static long checks=0, fails=0;
-static void ck(const char* t, long got, long exp){
-    checks++; if(got!=exp){ fails++; printf("  [FAIL] %-40s got=%ld exp=%ld\n",t,got,exp);}
-    else printf("  [ ok ] %-40s = %ld\n",t,got); }
-
-static void lo(){ dut->clk=0; dut->eval(); }
-static void hi(){ dut->clk=1; dut->eval(); }
-static void cyc(int n=1){ for(int i=0;i<n;i++){ lo(); hi(); } }
+namespace {
 
 // STREAM_INPUT[0] current format: AAF 48 kHz / INT32 / depth 32 / 8 ch / 6 spf
-static const uint64_t FMT = 0x0205022002006000ULL;
-static const uint64_t SID = 0x020000FFFE010000ULL;
+constexpr uint64_t FMT = 0x0205022002006000ULL;
+constexpr uint64_t SID = 0x020000FFFE010000ULL;
 
 struct AafCfg {
     bool     tagged   = false;
@@ -49,437 +42,567 @@ struct AafCfg {
     uint8_t  sp       = 0;      // NORMAL
 };
 
-//! One reusable frame buffer for the whole run: build_aaf() fills it through a
-//! reference and assign() keeps the capacity, so the ~60 stimulus frames cost
-//! ONE allocation between them instead of one each.
-static std::vector<uint8_t> stim;
+//! Cycles clocked after a frame's last beat so the depacketizer hands its
+//! PCM beats over before the next stimulus starts.
+constexpr int kDrainCycles = 20;
 
-// build an Ethernet + AVTP AAF PDU with explicit format-specific fields into
-// `out`, handing back a reference to it
-static const std::vector<uint8_t>& build_aaf(std::vector<uint8_t>& out,
-                                             const AafCfg& c, int len=120){
-    out.assign(len,0x00);           // assign KEEPS the capacity
-    std::vector<uint8_t>& f = out;
-    for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
-    int o;
-    if(c.tagged){ f[12]=0x81; f[13]=0x00; f[14]=0x20; f[15]=0x02;
-                  f[16]=0x22; f[17]=0xF0; o=18; }
-    else        { f[12]=0x22; f[13]=0xF0; o=14; }
-    f[o+0]=c.subtype;
-    f[o+1]=(uint8_t)((c.sv?0x80:0x00)|((c.version&0x07)<<4)   // sv/version/
-                     |(c.mr?0x08:0x00)|(c.tv?0x01:0x00));     // mr/tv (AAF b1)
-    f[o+2]=c.seq;
-    f[o+3]=c.tu?0x01:0x00;
-    for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(c.sid>>(8*(7-i)));
-    f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;  // avtp_ts
-    f[o+16]=c.format;
-    f[o+17]=(uint8_t)(c.nsr<<4);
-    f[o+18]=c.chans;
-    f[o+19]=c.depth;
-    f[o+20]=0x00; f[o+21]=0x40;                         // data_len = 64
-    f[o+22]=(uint8_t)(c.sp<<4);
-    for(int i=0;i<64;i++) f[o+24+i]=(uint8_t)(0x30+i);  // payload pattern
-    return out;
-}
+//! The whole harness: the model, the counters, the BFM and every phase that
+//! proves one clause of the STREAM_INPUT counter contract. What used to be
+//! file-scope `static` state and free functions are members, so the call
+//! sites inside the phases read exactly as they did (I.2).
+class AvtpRxMonitorHarness {
+ public:
+    int run() {
+        bring_up_and_release_reset();
+        unbound_matched_sid_frame_counts_nothing();
+        bind_resets_and_arms();
+        first_valid_pdu_locks();
+        settle_window_absorbs_a_sequence_step();
+        drain_the_settle_window();
+        single_loss_counts_mismatch_but_not_interruption();
+        double_loss_counts_mismatch_and_interruption();
+        duplicate_counts_as_interruption();
+        tu_bit_counts_timestamp_uncertain();
+        const long frx = family_mismatch_counts_unsupported_format_only();
+        vlan_tagged_pdu_parses_identically(frx);
+        silence_unlocks();
+        relock_rearms_the_settle_window();
+        unbind_then_rebind_resets_everything();
+        untagged_payload_is_byte_exact_on_the_pcm_port();
+        tagged_payload_is_byte_exact_on_the_pcm_port();
+        rejected_pdu_emits_no_pcm();
+        foreign_stream_id_never_reaches_the_monitor();
+        late_early_and_media_reset_counters();
+        backpressure_drops_whole_frames_without_stalling_the_tap();
+        tiny_data_len_yields_one_zero_padded_beat();
+        truncated_committed_frame_resyncs();
+        pulse_after_tlast_runt_does_not_preapprove_the_next_pdu();
+        exact_fit_frame_delivers_its_payload();
+        media_locked_is_source_agnostic_and_free_wheels();
+        family_change_while_locked_counts_then_relocks();
+        channel_freedom_accepts_every_count();
+        sparse_stream_is_rejected_and_counted();
+        mr_toggle_gates_media_reset();
+        non_zero_avtp_version_is_discarded_whole();
+        lock_and_seq_tracking_hold_across_wild_version_pdus();
 
-//! Thin by-value wrapper, kept for the sites that resize() the frame or keep
-//! two of them alive at once and so genuinely want their own copy.
-static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
-    std::vector<uint8_t> f;
-    build_aaf(f, c, len);
-    return f;
-}
+        printf("\n======================================================================\n");
+        printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
+#if VM_COVERAGE
+        Verilated::threadContextp()->coveragep()->write("coverage.dat");
+#endif
+        return fails ? 1 : 0;
+    }
 
-static std::vector<uint8_t> pcm;
-static bool pcm_last=false;
-static void feed(const std::vector<uint8_t>& f){
-    int nbeats=(int)(f.size()+7)/8;
-    for(int b=0;b<nbeats;b++){
-        uint64_t d=0; int vb=0;
-        for(int k=0;k<8;k++){ size_t idx=(size_t)b*8+k;
-            if(idx<f.size()){ d|=(uint64_t)f[idx]<<(8*k); vb++; } }
-        dut->s_tdata_i=d; dut->s_tkeep_i=(vb==8)?0xFF:((1u<<vb)-1);
-        dut->s_tvalid_i=1; dut->s_tlast_i=(b==nbeats-1);
-        cyc();
-        if(dut->pcm_tvalid_o){
-            for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
-            if(dut->pcm_tlast_o) pcm_last=true;
+ private:
+    void ck(const char* t, long got, long exp){
+        checks++; if(got!=exp){ fails++; printf("  [FAIL] %-40s got=%ld exp=%ld\n",t,got,exp);}
+        else printf("  [ ok ] %-40s = %ld\n",t,got); }
+
+    void lo(){ dut->clk=0; dut->eval(); }
+    void hi(){ dut->clk=1; dut->eval(); }
+    void cyc(int n=1){ for(int i=0;i<n;i++){ lo(); hi(); } }
+
+    // build an Ethernet + AVTP AAF PDU with explicit format-specific fields into
+    // `out`, handing back a reference to it
+    const std::vector<uint8_t>& build_aaf(std::vector<uint8_t>& out,
+                                          const AafCfg& c, int len=120){
+        out.assign(len,0x00);           // assign KEEPS the capacity
+        std::vector<uint8_t>& f = out;
+        for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
+        int o;
+        if(c.tagged){ f[12]=0x81; f[13]=0x00; f[14]=0x20; f[15]=0x02;
+                      f[16]=0x22; f[17]=0xF0; o=18; }
+        else        { f[12]=0x22; f[13]=0xF0; o=14; }
+        f[o+0]=c.subtype;
+        f[o+1]=static_cast<uint8_t>((c.sv?0x80:0x00)|((c.version&0x07)<<4)  // sv/version/
+                                   |(c.mr?0x08:0x00)|(c.tv?0x01:0x00));    // mr/tv (AAF b1)
+        f[o+2]=c.seq;
+        f[o+3]=c.tu?0x01:0x00;
+        for(int i=0;i<8;i++) f[o+4+i]=static_cast<uint8_t>(c.sid>>(8*(7-i)));
+        f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;  // avtp_ts
+        f[o+16]=c.format;
+        f[o+17]=static_cast<uint8_t>(c.nsr<<4);
+        f[o+18]=c.chans;
+        f[o+19]=c.depth;
+        f[o+20]=0x00; f[o+21]=0x40;                         // data_len = 64
+        f[o+22]=static_cast<uint8_t>(c.sp<<4);
+        for(int i=0;i<64;i++) f[o+24+i]=static_cast<uint8_t>(0x30+i);  // payload pattern
+        return out;
+    }
+
+    //! Thin by-value wrapper, kept for the sites that resize() the frame or keep
+    //! two of them alive at once and so genuinely want their own copy.
+    std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
+        std::vector<uint8_t> f;
+        build_aaf(f, c, len);
+        return f;
+    }
+
+    void feed(const std::vector<uint8_t>& f){
+        int nbeats=static_cast<int>(f.size()+7)/8;
+        for(int b=0;b<nbeats;b++){
+            uint64_t d=0; int vb=0;
+            for(int k=0;k<8;k++){ size_t idx=static_cast<size_t>(b)*8+k;
+                if(idx<f.size()){ d|=static_cast<uint64_t>(f[idx])<<(8*k); vb++; } }
+            dut->s_tdata_i=d; dut->s_tkeep_i=(vb==8)?0xFF:((1u<<vb)-1);
+            dut->s_tvalid_i=1; dut->s_tlast_i=(b==nbeats-1);
+            cyc();
+            if(dut->pcm_tvalid_o){
+                for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
+                if(dut->pcm_tlast_o) pcm_last=true;
+            }
+        }
+        dut->s_tvalid_i=0; dut->s_tlast_i=0;
+        for(int w=0; w<kDrainCycles; w++){
+            cyc();
+            if(dut->pcm_tvalid_o){
+                for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
+                if(dut->pcm_tlast_o) pcm_last=true;
+            }
         }
     }
-    dut->s_tvalid_i=0; dut->s_tlast_i=0;
-    for(int w=0; w<20; w++){
-        cyc();
-        if(dut->pcm_tvalid_o){
-            for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
-            if(dut->pcm_tlast_o) pcm_last=true;
-        }
+
+    void bring_up_and_release_reset(){
+        dut->cfg_sid_i=SID; dut->bound_i=0; dut->fmt_i=FMT;
+        dut->pcm_tready_i=1;
+        // frames carry avtp_ts 0xA55AC33C; now = 1ms before it -> on time
+        dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
+        dut->clk_src_i=0; dut->servo_conv_i=0;
+        dut->resetn=0; dut->s_tvalid_i=0;
+        cyc(6);
+        dut->resetn=1; cyc(2);
+
+        printf("== KL_avtp_rx_monitor harness (scaled clk: 100 ms = 1000 cyc) ==\n");
     }
-}
+
+    void unbound_matched_sid_frame_counts_nothing(){
+        printf("\n[1] unbound: matched-sid frame counts nothing\n");
+        feed(build_aaf(stim, {}));
+        ck("frames_rx 0", dut->cnt_frames_rx_o, 0);
+        ck("not locked", dut->media_locked_o, 0);
+    }
+
+    void bind_resets_and_arms(){
+        printf("\n[2] bind resets and arms (Milan Table 5.6)\n");
+        dut->bound_i=1; cyc(2);
+        ck("counters clear after bind", dut->cnt_frames_rx_o, 0);
+    }
+
+    void first_valid_pdu_locks(){
+        printf("\n[3] first valid PDU locks (seq seeded, settle armed)\n");
+        { AafCfg c; c.seq=10; feed(build_aaf(stim, c)); }
+        ck("MEDIA_LOCKED 1", dut->cnt_media_locked_o, 1);
+        ck("locked level", dut->media_locked_o, 1);
+        ck("FRAMES_RX 1", dut->cnt_frames_rx_o, 1);
+        ck("last_ts captured", dut->last_ts_o == 0xA55AC33CUL, 1);
+    }
+
+    void settle_window_absorbs_a_sequence_step(){
+        printf("\n[4] settle window: a sequence step is absorbed, not counted\n");
+        { AafCfg c; c.seq=11; feed(build_aaf(stim, c)); }
+        { AafCfg c; c.seq=50; feed(build_aaf(stim, c)); }   // step inside settle -> re-seed
+        { AafCfg c; c.seq=51; feed(build_aaf(stim, c)); }
+        ck("SEQ_NUM_MISMATCH 0 in settle", dut->cnt_seq_mismatch_o, 0);
+        ck("FRAMES_RX 4", dut->cnt_frames_rx_o, 4);
+    }
+
+    void drain_the_settle_window(){
+        printf("\n[5] drain the settle window (8 post-lock PDUs)\n");
+        for(uint8_t s=52; s<=56; s++){ AafCfg c; c.seq=s; feed(build_aaf(stim, c)); }
+        ck("still no mismatch", dut->cnt_seq_mismatch_o, 0);
+    }
+
+    void single_loss_counts_mismatch_but_not_interruption(){
+        printf("\n[6] single loss: mismatch, NOT interrupted (lost=1)\n");
+        { AafCfg c; c.seq=58; feed(build_aaf(stim, c)); }   // expected 57 -> lost 1
+        ck("SEQ_NUM_MISMATCH 1", dut->cnt_seq_mismatch_o, 1);
+        ck("STREAM_INTERRUPTED 0", dut->cnt_stream_interrupted_o, 0);
+    }
+
+    void double_loss_counts_mismatch_and_interruption(){
+        printf("\n[7] double loss: mismatch AND interrupted (lost=2)\n");
+        { AafCfg c; c.seq=61; feed(build_aaf(stim, c)); }   // expected 59 -> lost 2
+        ck("SEQ_NUM_MISMATCH 2", dut->cnt_seq_mismatch_o, 2);
+        ck("STREAM_INTERRUPTED 1", dut->cnt_stream_interrupted_o, 1);
+    }
+
+    void duplicate_counts_as_interruption(){
+        printf("\n[8] duplicate: lost=255 counts as interruption (reference math)\n");
+        { AafCfg c; c.seq=61; feed(build_aaf(stim, c)); }
+        ck("SEQ_NUM_MISMATCH 3", dut->cnt_seq_mismatch_o, 3);
+        ck("STREAM_INTERRUPTED 2", dut->cnt_stream_interrupted_o, 2);
+    }
+
+    void tu_bit_counts_timestamp_uncertain(){
+        printf("\n[9] tu bit counts TIMESTAMP_UNCERTAIN\n");
+        { AafCfg c; c.seq=62; c.tu=true; feed(build_aaf(stim, c)); }
+        ck("TIMESTAMP_UNCERTAIN 1", dut->cnt_ts_uncertain_o, 1);
+    }
+
+    //! Hands [11] the FRAMES_RX reading it measures its own +2 against.
+    long family_mismatch_counts_unsupported_format_only(){
+        printf("\n[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else\n");
+        //! channel count is NOT a family term (Milan BAF Section 4, task #24):
+        //! only subtype/encoding/rate/depth/sparse reject
+        long frx = dut->cnt_frames_rx_o;
+        { AafCfg c; c.seq=63; c.nsr=0x07; feed(build_aaf(stim, c)); }       // 96 kHz PDU
+        { AafCfg c; c.seq=63; c.depth=24; feed(build_aaf(stim, c)); }       // wrong depth
+        { AafCfg c; c.seq=63; c.sp=1;     feed(build_aaf(stim, c)); }       // sparse
+        { AafCfg c; c.seq=63; c.subtype=0x04; feed(build_aaf(stim, c)); }   // CRF on our sid
+        ck("UNSUPPORTED_FORMAT 4", dut->cnt_unsupported_fmt_o, 4);
+        ck("FRAMES_RX unchanged", dut->cnt_frames_rx_o, frx);
+        { AafCfg c; c.seq=63; feed(build_aaf(stim, c)); }   // good frame, seq continues
+        ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 3);
+        return frx;
+    }
+
+    void vlan_tagged_pdu_parses_identically(long frx){
+        printf("\n[11] VLAN-tagged PDU parses identically\n");
+        { AafCfg c; c.seq=64; c.tagged=true; feed(build_aaf(stim, c)); }
+        ck("FRAMES_RX +2", dut->cnt_frames_rx_o, frx+2);
+        ck("still locked", dut->media_locked_o, 1);
+    }
+
+    void silence_unlocks(){
+        printf("\n[12] 100 ms silence unlocks (MEDIA_UNLOCKED)\n");
+        cyc(1100);
+        ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
+        ck("unlocked level", dut->media_locked_o, 0);
+    }
+
+    void relock_rearms_the_settle_window(){
+        printf("\n[13] relock: MEDIA_LOCKED again, settle re-armed\n");
+        { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
+        ck("MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
+        { AafCfg c; c.seq=90; feed(build_aaf(stim, c)); }   // step right after relock
+        ck("post-relock step absorbed", dut->cnt_seq_mismatch_o, 3);
+    }
+
+    void unbind_then_rebind_resets_everything(){
+        printf("\n[14] unbind -> rebind resets everything\n");
+        dut->bound_i=0; cyc(4);
+        ck("unbind does NOT reset", dut->cnt_media_locked_o, 2);
+        dut->bound_i=1; cyc(4);
+        ck("rebind resets MEDIA_LOCKED", dut->cnt_media_locked_o, 0);
+        ck("rebind resets FRAMES_RX", dut->cnt_frames_rx_o, 0);
+        ck("rebind resets mismatch", dut->cnt_seq_mismatch_o, 0);
+        ck("rebind drops lock", dut->media_locked_o, 0);
+    }
+
+    void untagged_payload_is_byte_exact_on_the_pcm_port(){
+        printf("\n[16] depacketizer: untagged payload byte-exact to the PCM port\n");
+        pcm.clear(); pcm_last=false;
+        { AafCfg c; c.seq=91; feed(build_aaf(stim, c)); }
+        ck("PCM 64 bytes", static_cast<long>(pcm.size()), 64);
+        ck("PCM tlast", pcm_last?1:0, 1);
+        { bool ok=pcm.size()>=64;
+          for(int i=0;i<64&&ok;i++) if(pcm[i]!=static_cast<uint8_t>(0x30+i)) ok=false;
+          ck("PCM payload byte-exact (rot-2)", ok?1:0, 1); }
+        ck("depkt pdus counted", dut->pcm_pdus_o >= 1, 1);
+    }
+
+    void tagged_payload_is_byte_exact_on_the_pcm_port(){
+        printf("\n[17] depacketizer: tagged payload byte-exact (rot-6)\n");
+        pcm.clear(); pcm_last=false;
+        { AafCfg c; c.seq=92; c.tagged=true; feed(build_aaf(stim, c)); }
+        ck("PCM 64 bytes (tagged)", static_cast<long>(pcm.size()), 64);
+        { bool ok=pcm.size()>=64;
+          for(int i=0;i<64&&ok;i++) if(pcm[i]!=static_cast<uint8_t>(0x30+i)) ok=false;
+          ck("PCM payload byte-exact (rot-6)", ok?1:0, 1); }
+    }
+
+    void rejected_pdu_emits_no_pcm(){
+        printf("\n[18] depacketizer: rejected PDU emits nothing\n");
+        pcm.clear();
+        { AafCfg c; c.seq=93; c.nsr=0x07; feed(build_aaf(stim, c)); }
+        ck("no PCM for rejected PDU", static_cast<long>(pcm.size()), 0);
+    }
+
+    void foreign_stream_id_never_reaches_the_monitor(){
+        printf("\n[15] wrong stream_id never reaches the monitor\n");
+        { AafCfg c; c.seq=0; c.sid=0x1111222233334444ULL; feed(build_aaf(stim, c)); }
+        ck("foreign sid: frames_rx unchanged", dut->cnt_frames_rx_o, 2);
+    }
+
+    void late_early_and_media_reset_counters(){
+        printf("\n[23] LATE/EARLY/MEDIA_RESET (task #20: real media-clock counters)\n");
+        ck("no late/early so far", dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
+        dut->ptp_now_i = 0xA55AC33CUL + 1000;      // presentation in the past
+        { AafCfg c; c.seq=210; feed(build_aaf(stim, c)); }
+        ck("LATE counted", dut->cnt_late_ts_o, 1);
+        dut->ptp_now_i = 0xA55AC33CUL - 50000000;  // 50 ms ahead > ofs+margin
+        { AafCfg c; c.seq=211; feed(build_aaf(stim, c)); }
+        ck("EARLY counted", dut->cnt_early_ts_o, 1);
+        dut->ptp_now_i = 0xA55AC33CUL - 1000000;   // back to on-time
+        { AafCfg c; c.seq=212; feed(build_aaf(stim, c)); }
+        ck("on-time counts neither", dut->cnt_late_ts_o + dut->cnt_early_ts_o, 2);
+        //! Milan Table 5.6 MEDIA_RESET = "the 'mr' bit was toggled in any of the
+        //! received Stream Data AVTPDUs" - a WIRE event, so it arrives in a frame
+        { AafCfg c; c.seq=213; c.mr=true; feed(build_aaf(stim, c)); }
+        ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
+        dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);
+        ck("bind clears media counters",
+           dut->cnt_media_reset_o | dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
+        { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }     // relock for later tests
+    }
+
+    void backpressure_drops_whole_frames_without_stalling_the_tap(){
+        printf("\n[19] depacketizer backpressure: FIFO drops whole frames, tap never stalls\n");
+        dut->pcm_tready_i=0;
+        for(int n=0;n<40;n++){ AafCfg c; c.seq=static_cast<uint8_t>(100+n); feed(build_aaf(stim, c)); }
+        ck("drops counted", dut->pcm_drops_o > 0, 1);
+        dut->pcm_tready_i=1;
+        cyc(3000);                     // drain the FIFO backlog completely
+        pcm.clear(); pcm_last=false;
+    }
+
+    void tiny_data_len_yields_one_zero_padded_beat(){
+        printf("\n[20] tiny data_len=2: hold-only beat, zero-padded tail\n");
+        { auto f=mkaaf({}); f[14+21]=2; /*data_len=2*/ AafCfg c; (void)c; feed(f); }
+        ck("one padded beat (8 B)", static_cast<long>(pcm.size()), 8);
+        ck("payload bytes", pcm.size()>=2 && pcm[0]==0x30 && pcm[1]==0x31, 1);
+        ck("zero pad", pcm.size()>=8 &&
+           (pcm[2]|pcm[3]|pcm[4]|pcm[5]|pcm[6]|pcm[7])==0, 1);
+        ck("tlast on padded beat", pcm_last?1:0, 1);
+    }
+
+    void truncated_committed_frame_resyncs(){
+        printf("\n[21] truncated committed frame resyncs; next PDU clean\n");
+        pcm.clear(); pcm_last=false;
+        { auto f=mkaaf({}); f.resize(80); feed(f); }      // committed, payload cut
+        pcm.clear(); pcm_last=false;
+        { AafCfg c; c.seq=201; feed(build_aaf(stim, c)); }
+        ck("post-truncation PDU intact", static_cast<long>(pcm.size()), 64);
+        { bool ok=pcm.size()>=64;
+          for(int i=0;i<64&&ok;i++) if(pcm[i]!=static_cast<uint8_t>(0x30+i)) ok=false;
+          ck("post-truncation byte-exact", ok?1:0, 1); }
+    }
+
+    void pulse_after_tlast_runt_does_not_preapprove_the_next_pdu(){
+        printf("\n[21b] pulse-after-tlast runt must NOT pre-approve the next PDU\n");
+        { auto f=mkaaf({}); f.resize(56); feed(f); }      // pulse lands after tlast
+        pcm.clear();
+        { AafCfg c; c.seq=203; c.nsr=0x07; feed(build_aaf(stim, c)); }   // rejected PDU
+        ck("stray pulse did not commit reject", static_cast<long>(pcm.size()), 0);
+    }
+
+    void exact_fit_frame_delivers_its_payload(){
+        printf("\n[22] exact-fit frame (payload ends at frame end)\n");
+        pcm.clear(); pcm_last=false;
+        { AafCfg c; c.seq=202; feed(build_aaf(stim, c, 102)); }     // 38 + 64 = 102
+        ck("exact-fit PCM 64 bytes", static_cast<long>(pcm.size()), 64);
+        ck("exact-fit tlast", pcm_last?1:0, 1);
+    }
+
+    void media_locked_is_source_agnostic_and_free_wheels(){
+        printf("\n[26] MEDIA_LOCKED is source-agnostic and FREE-WHEELS (task #25,\n"
+               "     Milan 5.3.8.10 + 4.4.2.3 + 1722-2016 E.2.1)\n");
+        // lock = the stream-vs-timebase capability predicate: an accepted
+        // in-format PDU locks, for EVERY clock source; convergence loss (a
+        // gPTP change, a FIFO excursion) NEVER unlocks a flowing stream
+        dut->bound_i=0; cyc(3);
+        dut->clk_src_i=1; dut->servo_conv_i=0;   // external, UNCONVERGED
+        dut->bound_i=1; cyc(3);
+        { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }
+        ck("[26a] external+unconverged: LOCKS on the PDU", dut->media_locked_o, 1);
+        ck("[26b] lock counted once", dut->cnt_media_locked_o, 1);
+        { long ul=dut->cnt_media_unlocked_o;
+          dut->servo_conv_i=1; cyc(2);
+          dut->servo_conv_i=0; cyc(2);           // the gPTP-change shape
+          ck("[26c] convergence lost: STAYS locked (free-wheel)",
+             dut->media_locked_o, 1);
+          ck("[26d] no MEDIA_UNLOCKED for it", dut->cnt_media_unlocked_o, ul);
+          dut->clk_src_i=2; cyc(2);              // clock-source change mid-stream
+          dut->clk_src_i=1; cyc(2);
+          ck("[26e] clock-source churn: STAYS locked", dut->media_locked_o, 1);
+          ck("[26e2] ...and counts nothing", dut->cnt_media_unlocked_o, ul); }
+        { AafCfg c; c.seq=1; feed(build_aaf(stim, c)); }
+        ck("[26f] stream keeps flowing locked", dut->media_locked_o, 1);
+        // internal source: identical law
+        dut->bound_i=0; cyc(3);
+        dut->clk_src_i=0; dut->servo_conv_i=0;
+        dut->bound_i=1; cyc(3);
+        { AafCfg c; c.seq=4; feed(build_aaf(stim, c)); }
+        ck("[26g] internal: locks on first PDU w/o servo", dut->media_locked_o, 1);
+    }
+
+    void family_change_while_locked_counts_then_relocks(){
+        printf("\n[27] FAMILY change while locked: unsupported counts, relock on match\n");
+        // USER bug 6 repro, re-aimed at a FAMILY term (task #24: a channels-only
+        // change no longer mismatches - that is the BAF law, not a regression):
+        // the listener reconfigures to a 96 kHz format while the wire stays
+        // 48 kHz -> rate mismatch counts UNSUPPORTED; back to 48 kHz -> relock.
+        dut->bound_i=0; cyc(3);
+        dut->clk_src_i=0; dut->servo_conv_i=0;
+        dut->bound_i=1; cyc(3);
+        { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }
+        ck("[27a] locked on 8ch stream", dut->media_locked_o, 1);
+        dut->fmt_i = 0x0207022002006000ULL;      // listener reconfigured to 96 kHz
+        { AafCfg c; c.seq=1; feed(build_aaf(stim, c)); }   // wire still 48 kHz -> mismatch
+        { AafCfg c; c.seq=2; feed(build_aaf(stim, c)); }
+        ck("[27b] mismatch counts UNSUPPORTED", dut->cnt_unsupported_fmt_o >= 2, 1);
+        long frx27 = dut->cnt_frames_rx_o;
+        { AafCfg c; c.seq=3; feed(build_aaf(stim, c)); }
+        ck("[27c] mismatched frames not counted as RX", dut->cnt_frames_rx_o, frx27);
+        cyc(11000);                              // silence window expires -> unlock
+        ck("[27d] silence unlocks", dut->media_locked_o, 0);
+        dut->fmt_i = FMT;                        // listener back to 48 kHz
+        { AafCfg c; c.seq=4; c.chans=2; feed(build_aaf(stim, c)); }  // any count matches now
+        ck("[27e] matching PDU relocks", dut->media_locked_o, 1);
+        ck("[27f] RX counts again", dut->cnt_frames_rx_o, frx27+1);
+        dut->fmt_i = FMT;                        // restore for any later scenario
+    }
+
+    void channel_freedom_accepts_every_count(){
+        printf("\n[28] channel FREEDOM (Milan BAF Section 4 + USER 08-07: accept\n"
+               "     EVERY channel count, route only the mapped subset)\n");
+        dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
+        { AafCfg c; c.seq=0; c.chans=2; feed(build_aaf(stim, c)); } // 2ch wire vs 8ch fmt
+        ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);
+        ck("[28b] no UNSUPPORTED for adapted PDU", dut->cnt_unsupported_fmt_o, 0);
+        { AafCfg c; c.seq=1; c.chans=8; feed(build_aaf(stim, c)); } // exact match still fine
+        ck("[28c] 8ch-wire accepted", dut->cnt_frames_rx_o, 2);
+        { AafCfg c; c.seq=2; c.chans=0; feed(build_aaf(stim, c)); } // zero channels = junk
+        ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
+        //! the 08-07 live case: the wire carries MORE channels than the SET
+        //! format (the peer declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
+        //! the maps route what they map
+        { AafCfg c; c.seq=2; c.chans=9; feed(build_aaf(stim, c)); } // above the SET format
+        ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family)",
+           dut->cnt_frames_rx_o, 3);
+        ck("[28f] ...and no UNSUPPORTED for it", dut->cnt_unsupported_fmt_o, 1);
+    }
+
+    void sparse_stream_is_rejected_and_counted(){
+        printf("\n[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +\n"
+               "     Milan 6.3: base formats are non-sparse). A sustained sp=1\n"
+               "     stream is legal 1722 but off-profile here — the listener's\n"
+               "     DELIBERATE behavior is reject-and-count (UNSUPPORTED_FORMAT\n"
+               "     per PDU, no FRAMES_RX, no lock, no PCM), through the REAL\n"
+               "     parser->monitor->depacketizer wiring.\n");
+        dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era
+        pcm.clear(); pcm_last=false;
+        for(uint8_t s=0; s<10; s++){ AafCfg c; c.seq=s; c.sp=1; feed(build_aaf(stim, c)); }
+        ck("[29a] 10 sparse PDUs all UNSUPPORTED", dut->cnt_unsupported_fmt_o, 10);
+        ck("[29b] no FRAMES_RX from a sparse stream", dut->cnt_frames_rx_o, 0);
+        ck("[29c] sparse stream never locks", dut->media_locked_o, 0);
+        ck("[29d] no PCM from a sparse stream", static_cast<long>(pcm.size()), 0);
+        { AafCfg c; c.seq=10; feed(build_aaf(stim, c)); }           // talker back to sp=0
+        ck("[29e] non-sparse resumes clean (locks)", dut->media_locked_o, 1);
+        ck("[29f] FRAMES_RX resumes", dut->cnt_frames_rx_o, 1);
+    }
+
+    void mr_toggle_gates_media_reset(){
+        printf("\n[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /\n"
+               "     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).\n");
+        //! Milan v1.2 Table 5.6 MEDIA_RESET: "Incremented at the end of every
+        //! observation interval during which the 'mr' bit was TOGGLED in any of
+        //! the received Stream Data AVTPDUs" (IEEE 1722.1-2021 Table 7-157 says
+        //! the same: "on a toggle of the mr bit"). mr is a LEVEL the talker holds
+        //! for >= 8 AVTPDUs [1722-2016 4.4.4.3], so ONLY the edge is the event.
+        //! This block used to pin the OPPOSITE as an accepted gap (AVTP-5): the
+        //! parser never extracted mr, and the counter ticked on the local I2S
+        //! local renderer overrun/underrun rail instead - a signal the clause never
+        //! mentions, tied to 1'b0 outright on a DAC-less shape.
+        // (a) mr-toggled PDUs are format-valid and must keep flowing
+        { AafCfg c; c.seq=11; c.mr=true;  feed(build_aaf(stim, c)); }
+        ck("[30a1] mr 0->1 toggle ticks MEDIA_RESET", dut->cnt_media_reset_o, 1);
+        { AafCfg c; c.seq=12; c.mr=true;  feed(build_aaf(stim, c)); }
+        //! THE BITE THE OTHER WAY: a HELD mr is not a toggle. Counting the level
+        //! instead of the edge would read +1 per PDU, i.e. 8000/s at class A.
+        ck("[30a2] HELD mr counts nothing more", dut->cnt_media_reset_o, 1);
+        { AafCfg c; c.seq=13; c.mr=false; feed(build_aaf(stim, c)); }
+        ck("[30a3] mr 1->0 toggle ticks again", dut->cnt_media_reset_o, 2);
+        ck("[30a] mr-toggled PDUs accepted", dut->cnt_frames_rx_o, 4);
+        ck("[30b] mr toggle breaks no lock/seq", dut->cnt_seq_mismatch_o, 0);
+        // (b) an UNSUPPORTED_FORMAT PDU early-returns: it counts nothing else,
+        //     so its mr never moves the reference either
+        { AafCfg c; c.seq=14; c.mr=true; c.depth=24; feed(build_aaf(stim, c)); }
+        ck("[30c1] rejected PDU's mr counts no reset", dut->cnt_media_reset_o, 2);
+        { AafCfg c; c.seq=14; c.mr=true; feed(build_aaf(stim, c)); }
+        ck("[30c2] the same toggle counts once it is ACCEPTED",
+           dut->cnt_media_reset_o, 3);
+        // (c) counter gating: mr only counts while BOUND, and a bind starts a
+        //     fresh era - the first PDU SEEDS the reference and never scores a
+        //     toggle against the previous talker's level (Milan 5.3.8.10)
+        dut->bound_i=0; cyc(3);
+        { AafCfg c; c.seq=15; c.mr=false; feed(build_aaf(stim, c)); }
+        ck("[30d] unbound mr toggle counts nothing", dut->cnt_media_reset_o, 3);
+        dut->bound_i=1; cyc(3);
+        ck("[30e] bind zeroes MEDIA_RESET", dut->cnt_media_reset_o, 0);
+        //! the era's first PDU carries mr=0 while the pre-bind level was 1:
+        //! a stale reference would score this as a toggle
+        { AafCfg c; c.seq=16; c.mr=false; feed(build_aaf(stim, c)); }
+        ck("[30f] first PDU of an era SEEDS, never counts",
+           dut->cnt_media_reset_o, 0);
+        { AafCfg c; c.seq=17; c.mr=true; feed(build_aaf(stim, c)); }
+        ck("[30g] the next real toggle counts", dut->cnt_media_reset_o, 1);
+    }
+
+    void non_zero_avtp_version_is_discarded_whole(){
+        printf("\n[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016\n"
+               "     4.4.3.4: unsupported version -> \"shall discard the AVTPDU\").\n");
+        // CONFORMANT since the parser version gate: avtp_stream_parser reads
+        // b1[6:4] and fires only on version 0, so a version!=0 PDU is discarded
+        // STRUCTURALLY - no parse/match pulse, nothing reaches this monitor or
+        // the depacketizer. Counter law (Milan Table 5.6): a discarded PDU moves
+        // NOTHING on the Stream Input - FRAMES_RX counts AVTPDUs "received on
+        // this Stream Input" and a discarded PDU never was, UNSUPPORTED_FORMAT
+        // is a FORMAT verdict and version is not format. Only the MAC's RMON
+        // interface counter ticks, and that lives outside this stack.
+        { long frx31 = dut->cnt_frames_rx_o;
+          AafCfg c; c.seq=11; c.version=1; feed(build_aaf(stim, c));
+          ck("[31a] version!=0 NOT counted (discarded whole)",
+             dut->cnt_frames_rx_o, frx31); }
+    }
+
+    void lock_and_seq_tracking_hold_across_wild_version_pdus(){
+        printf("\n[31b] lock + live seq tracking hold across interleaved\n"
+               "      version!=0 PDUs carrying wild sequence numbers\n");
+        // Drain the settle window first (8 post-lock PDUs; [30g]'s seq=17 was
+        // the 1st) so sequence tracking is LIVE: if a gate regression let the
+        // wild PDUs below through, SEQ_NUM_MISMATCH and STREAM_INTERRUPTED
+        // would tick immediately - inside the settle window they would only
+        // re-seed, and this case would have no teeth.
+        for(uint8_t s=18; s<=24; s++){ AafCfg c; c.seq=s; feed(build_aaf(stim, c)); }
+        { long sm31  = dut->cnt_seq_mismatch_o;
+          long si31  = dut->cnt_stream_interrupted_o;
+          long frx31 = dut->cnt_frames_rx_o;
+          constexpr uint8_t wild[4] = {
+              0xDE, 0x03, 0x99, 0x41};
+          uint8_t good = 25;
+          for(int i=0; i<4; i++){
+            { AafCfg c; c.version=static_cast<uint8_t>(i+1); c.seq=wild[i];  // v1..v4 wild:
+              feed(build_aaf(stim, c)); }                                   // discarded
+            { AafCfg c; c.seq=good++; feed(build_aaf(stim, c)); }           // v0 flows on
+          }
+          ck("[31b] lock holds across version!=0 PDUs", dut->media_locked_o, 1);
+          ck("[31b] SEQ_NUM_MISMATCH stays frozen", dut->cnt_seq_mismatch_o, sm31);
+          ck("[31b] STREAM_INTERRUPTED stays frozen",
+             dut->cnt_stream_interrupted_o, si31);
+          ck("[31b] only the version-0 PDUs counted",
+             dut->cnt_frames_rx_o, frx31 + 4); }
+    }
+
+    const milan::tb::Model<Vavtp_rxmon_wrap> model;
+    Vavtp_rxmon_wrap* dut = model.get();
+    long checks=0;
+    long fails=0;
+
+    //! One reusable frame buffer for the whole run: build_aaf() fills it through a
+    //! reference and assign() keeps the capacity, so the ~60 stimulus frames cost
+    //! ONE allocation between them instead of one each.
+    std::vector<uint8_t> stim;
+
+    std::vector<uint8_t> pcm;
+    bool pcm_last=false;
+};
+
+}  // namespace
 
 int main(int argc,char**argv){
     Verilated::commandArgs(argc,argv);
-    dut=new Vavtp_rxmon_wrap;
-
-    dut->cfg_sid_i=SID; dut->bound_i=0; dut->fmt_i=FMT;
-    dut->pcm_tready_i=1;
-    // frames carry avtp_ts 0xA55AC33C; now = 1ms before it -> on time
-    dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
-    dut->clk_src_i=0; dut->servo_conv_i=0;
-    dut->resetn=0; dut->s_tvalid_i=0;
-    cyc(6);
-    dut->resetn=1; cyc(2);
-
-    printf("== KL_avtp_rx_monitor harness (scaled clk: 100 ms = 1000 cyc) ==\n");
-
-    printf("\n[1] unbound: matched-sid frame counts nothing\n");
-    feed(build_aaf(stim, {}));
-    ck("frames_rx 0", dut->cnt_frames_rx_o, 0);
-    ck("not locked", dut->media_locked_o, 0);
-
-    printf("\n[2] bind resets and arms (Milan Table 5.6)\n");
-    dut->bound_i=1; cyc(2);
-    ck("counters clear after bind", dut->cnt_frames_rx_o, 0);
-
-    printf("\n[3] first valid PDU locks (seq seeded, settle armed)\n");
-    { AafCfg c; c.seq=10; feed(build_aaf(stim, c)); }
-    ck("MEDIA_LOCKED 1", dut->cnt_media_locked_o, 1);
-    ck("locked level", dut->media_locked_o, 1);
-    ck("FRAMES_RX 1", dut->cnt_frames_rx_o, 1);
-    ck("last_ts captured", dut->last_ts_o == 0xA55AC33CUL, 1);
-
-    printf("\n[4] settle window: a sequence step is absorbed, not counted\n");
-    { AafCfg c; c.seq=11; feed(build_aaf(stim, c)); }
-    { AafCfg c; c.seq=50; feed(build_aaf(stim, c)); }   // step inside settle -> re-seed
-    { AafCfg c; c.seq=51; feed(build_aaf(stim, c)); }
-    ck("SEQ_NUM_MISMATCH 0 in settle", dut->cnt_seq_mismatch_o, 0);
-    ck("FRAMES_RX 4", dut->cnt_frames_rx_o, 4);
-
-    printf("\n[5] drain the settle window (8 post-lock PDUs)\n");
-    for(uint8_t s=52; s<=56; s++){ AafCfg c; c.seq=s; feed(build_aaf(stim, c)); }
-    ck("still no mismatch", dut->cnt_seq_mismatch_o, 0);
-
-    printf("\n[6] single loss: mismatch, NOT interrupted (lost=1)\n");
-    { AafCfg c; c.seq=58; feed(build_aaf(stim, c)); }   // expected 57 -> lost 1
-    ck("SEQ_NUM_MISMATCH 1", dut->cnt_seq_mismatch_o, 1);
-    ck("STREAM_INTERRUPTED 0", dut->cnt_stream_interrupted_o, 0);
-
-    printf("\n[7] double loss: mismatch AND interrupted (lost=2)\n");
-    { AafCfg c; c.seq=61; feed(build_aaf(stim, c)); }   // expected 59 -> lost 2
-    ck("SEQ_NUM_MISMATCH 2", dut->cnt_seq_mismatch_o, 2);
-    ck("STREAM_INTERRUPTED 1", dut->cnt_stream_interrupted_o, 1);
-
-    printf("\n[8] duplicate: lost=255 counts as interruption (reference math)\n");
-    { AafCfg c; c.seq=61; feed(build_aaf(stim, c)); }
-    ck("SEQ_NUM_MISMATCH 3", dut->cnt_seq_mismatch_o, 3);
-    ck("STREAM_INTERRUPTED 2", dut->cnt_stream_interrupted_o, 2);
-
-    printf("\n[9] tu bit counts TIMESTAMP_UNCERTAIN\n");
-    { AafCfg c; c.seq=62; c.tu=true; feed(build_aaf(stim, c)); }
-    ck("TIMESTAMP_UNCERTAIN 1", dut->cnt_ts_uncertain_o, 1);
-
-    printf("\n[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else\n");
-    //! channel count is NOT a family term (Milan BAF Section 4, task #24):
-    //! only subtype/encoding/rate/depth/sparse reject
-    long frx = dut->cnt_frames_rx_o;
-    { AafCfg c; c.seq=63; c.nsr=0x07; feed(build_aaf(stim, c)); }       // 96 kHz PDU
-    { AafCfg c; c.seq=63; c.depth=24; feed(build_aaf(stim, c)); }       // wrong depth
-    { AafCfg c; c.seq=63; c.sp=1;     feed(build_aaf(stim, c)); }       // sparse
-    { AafCfg c; c.seq=63; c.subtype=0x04; feed(build_aaf(stim, c)); }   // CRF on our sid
-    ck("UNSUPPORTED_FORMAT 4", dut->cnt_unsupported_fmt_o, 4);
-    ck("FRAMES_RX unchanged", dut->cnt_frames_rx_o, frx);
-    { AafCfg c; c.seq=63; feed(build_aaf(stim, c)); }   // good frame, seq continues
-    ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 3);
-
-    printf("\n[11] VLAN-tagged PDU parses identically\n");
-    { AafCfg c; c.seq=64; c.tagged=true; feed(build_aaf(stim, c)); }
-    ck("FRAMES_RX +2", dut->cnt_frames_rx_o, frx+2);
-    ck("still locked", dut->media_locked_o, 1);
-
-    printf("\n[12] 100 ms silence unlocks (MEDIA_UNLOCKED)\n");
-    cyc(1100);
-    ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
-    ck("unlocked level", dut->media_locked_o, 0);
-
-    printf("\n[13] relock: MEDIA_LOCKED again, settle re-armed\n");
-    { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
-    ck("MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
-    { AafCfg c; c.seq=90; feed(build_aaf(stim, c)); }   // step right after relock
-    ck("post-relock step absorbed", dut->cnt_seq_mismatch_o, 3);
-
-    printf("\n[14] unbind -> rebind resets everything\n");
-    dut->bound_i=0; cyc(4);
-    ck("unbind does NOT reset", dut->cnt_media_locked_o, 2);
-    dut->bound_i=1; cyc(4);
-    ck("rebind resets MEDIA_LOCKED", dut->cnt_media_locked_o, 0);
-    ck("rebind resets FRAMES_RX", dut->cnt_frames_rx_o, 0);
-    ck("rebind resets mismatch", dut->cnt_seq_mismatch_o, 0);
-    ck("rebind drops lock", dut->media_locked_o, 0);
-
-    printf("\n[16] depacketizer: untagged payload byte-exact to the PCM port\n");
-    pcm.clear(); pcm_last=false;
-    { AafCfg c; c.seq=91; feed(build_aaf(stim, c)); }
-    ck("PCM 64 bytes", (long)pcm.size(), 64);
-    ck("PCM tlast", pcm_last?1:0, 1);
-    { bool ok=pcm.size()>=64;
-      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
-      ck("PCM payload byte-exact (rot-2)", ok?1:0, 1); }
-    ck("depkt pdus counted", dut->pcm_pdus_o >= 1, 1);
-
-    printf("\n[17] depacketizer: tagged payload byte-exact (rot-6)\n");
-    pcm.clear(); pcm_last=false;
-    { AafCfg c; c.seq=92; c.tagged=true; feed(build_aaf(stim, c)); }
-    ck("PCM 64 bytes (tagged)", (long)pcm.size(), 64);
-    { bool ok=pcm.size()>=64;
-      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
-      ck("PCM payload byte-exact (rot-6)", ok?1:0, 1); }
-
-    printf("\n[18] depacketizer: rejected PDU emits nothing\n");
-    pcm.clear();
-    { AafCfg c; c.seq=93; c.nsr=0x07; feed(build_aaf(stim, c)); }
-    ck("no PCM for rejected PDU", (long)pcm.size(), 0);
-
-    printf("\n[15] wrong stream_id never reaches the monitor\n");
-    { AafCfg c; c.seq=0; c.sid=0x1111222233334444ULL; feed(build_aaf(stim, c)); }
-    ck("foreign sid: frames_rx unchanged", dut->cnt_frames_rx_o, 2);
-
-    printf("\n[23] LATE/EARLY/MEDIA_RESET (task #20: real media-clock counters)\n");
-    ck("no late/early so far", dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
-    dut->ptp_now_i = 0xA55AC33CUL + 1000;      // presentation in the past
-    { AafCfg c; c.seq=210; feed(build_aaf(stim, c)); }
-    ck("LATE counted", dut->cnt_late_ts_o, 1);
-    dut->ptp_now_i = 0xA55AC33CUL - 50000000;  // 50 ms ahead > ofs+margin
-    { AafCfg c; c.seq=211; feed(build_aaf(stim, c)); }
-    ck("EARLY counted", dut->cnt_early_ts_o, 1);
-    dut->ptp_now_i = 0xA55AC33CUL - 1000000;   // back to on-time
-    { AafCfg c; c.seq=212; feed(build_aaf(stim, c)); }
-    ck("on-time counts neither", dut->cnt_late_ts_o + dut->cnt_early_ts_o, 2);
-    //! Milan Table 5.6 MEDIA_RESET = "the 'mr' bit was toggled in any of the
-    //! received Stream Data AVTPDUs" - a WIRE event, so it arrives in a frame
-    { AafCfg c; c.seq=213; c.mr=true; feed(build_aaf(stim, c)); }
-    ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
-    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);
-    ck("bind clears media counters",
-       dut->cnt_media_reset_o | dut->cnt_late_ts_o | dut->cnt_early_ts_o, 0);
-    { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }     // relock for later tests
-
-    printf("\n[19] depacketizer backpressure: FIFO drops whole frames, tap never stalls\n");
-    dut->pcm_tready_i=0;
-    for(int n=0;n<40;n++){ AafCfg c; c.seq=(uint8_t)(100+n); feed(build_aaf(stim, c)); }
-    ck("drops counted", dut->pcm_drops_o > 0, 1);
-    dut->pcm_tready_i=1;
-    cyc(3000);                     // drain the FIFO backlog completely
-    pcm.clear(); pcm_last=false;
-
-    printf("\n[20] tiny data_len=2: hold-only beat, zero-padded tail\n");
-    { auto f=mkaaf({}); f[14+21]=2; /*data_len=2*/ AafCfg c; (void)c; feed(f); }
-    ck("one padded beat (8 B)", (long)pcm.size(), 8);
-    ck("payload bytes", pcm.size()>=2 && pcm[0]==0x30 && pcm[1]==0x31, 1);
-    ck("zero pad", pcm.size()>=8 &&
-       (pcm[2]|pcm[3]|pcm[4]|pcm[5]|pcm[6]|pcm[7])==0, 1);
-    ck("tlast on padded beat", pcm_last?1:0, 1);
-
-    printf("\n[21] truncated committed frame resyncs; next PDU clean\n");
-    pcm.clear(); pcm_last=false;
-    { auto f=mkaaf({}); f.resize(80); feed(f); }      // committed, payload cut
-    pcm.clear(); pcm_last=false;
-    { AafCfg c; c.seq=201; feed(build_aaf(stim, c)); }
-    ck("post-truncation PDU intact", (long)pcm.size(), 64);
-    { bool ok=pcm.size()>=64;
-      for(int i=0;i<64&&ok;i++) if(pcm[i]!=(uint8_t)(0x30+i)) ok=false;
-      ck("post-truncation byte-exact", ok?1:0, 1); }
-    printf("\n[21b] pulse-after-tlast runt must NOT pre-approve the next PDU\n");
-    { auto f=mkaaf({}); f.resize(56); feed(f); }      // pulse lands after tlast
-    pcm.clear();
-    { AafCfg c; c.seq=203; c.nsr=0x07; feed(build_aaf(stim, c)); }   // rejected PDU
-    ck("stray pulse did not commit reject", (long)pcm.size(), 0);
-
-    printf("\n[22] exact-fit frame (payload ends at frame end)\n");
-    pcm.clear(); pcm_last=false;
-    { AafCfg c; c.seq=202; feed(build_aaf(stim, c, 102)); }     // 38 + 64 = 102
-    ck("exact-fit PCM 64 bytes", (long)pcm.size(), 64);
-    ck("exact-fit tlast", pcm_last?1:0, 1);
-
-    printf("\n[26] MEDIA_LOCKED is source-agnostic and FREE-WHEELS (task #25,\n"
-           "     Milan 5.3.8.10 + 4.4.2.3 + 1722-2016 E.2.1)\n");
-    // lock = the stream-vs-timebase capability predicate: an accepted
-    // in-format PDU locks, for EVERY clock source; convergence loss (a
-    // gPTP change, a FIFO excursion) NEVER unlocks a flowing stream
-    dut->bound_i=0; cyc(3);
-    dut->clk_src_i=1; dut->servo_conv_i=0;   // external, UNCONVERGED
-    dut->bound_i=1; cyc(3);
-    { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }
-    ck("[26a] external+unconverged: LOCKS on the PDU", dut->media_locked_o, 1);
-    ck("[26b] lock counted once", dut->cnt_media_locked_o, 1);
-    { long ul=dut->cnt_media_unlocked_o;
-      dut->servo_conv_i=1; cyc(2);
-      dut->servo_conv_i=0; cyc(2);           // the gPTP-change shape
-      ck("[26c] convergence lost: STAYS locked (free-wheel)",
-         dut->media_locked_o, 1);
-      ck("[26d] no MEDIA_UNLOCKED for it", dut->cnt_media_unlocked_o, ul);
-      dut->clk_src_i=2; cyc(2);              // clock-source change mid-stream
-      dut->clk_src_i=1; cyc(2);
-      ck("[26e] clock-source churn: STAYS locked", dut->media_locked_o, 1);
-      ck("[26e2] ...and counts nothing", dut->cnt_media_unlocked_o, ul); }
-    { AafCfg c; c.seq=1; feed(build_aaf(stim, c)); }
-    ck("[26f] stream keeps flowing locked", dut->media_locked_o, 1);
-    // internal source: identical law
-    dut->bound_i=0; cyc(3);
-    dut->clk_src_i=0; dut->servo_conv_i=0;
-    dut->bound_i=1; cyc(3);
-    { AafCfg c; c.seq=4; feed(build_aaf(stim, c)); }
-    ck("[26g] internal: locks on first PDU w/o servo", dut->media_locked_o, 1);
-
-
-    printf("\n[27] FAMILY change while locked: unsupported counts, relock on match\n");
-    // USER bug 6 repro, re-aimed at a FAMILY term (task #24: a channels-only
-    // change no longer mismatches - that is the BAF law, not a regression):
-    // the listener reconfigures to a 96 kHz format while the wire stays
-    // 48 kHz -> rate mismatch counts UNSUPPORTED; back to 48 kHz -> relock.
-    dut->bound_i=0; cyc(3);
-    dut->clk_src_i=0; dut->servo_conv_i=0;
-    dut->bound_i=1; cyc(3);
-    { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }
-    ck("[27a] locked on 8ch stream", dut->media_locked_o, 1);
-    dut->fmt_i = 0x0207022002006000ULL;      // listener reconfigured to 96 kHz
-    { AafCfg c; c.seq=1; feed(build_aaf(stim, c)); }   // wire still 48 kHz -> mismatch
-    { AafCfg c; c.seq=2; feed(build_aaf(stim, c)); }
-    ck("[27b] mismatch counts UNSUPPORTED", dut->cnt_unsupported_fmt_o >= 2, 1);
-    long frx27 = dut->cnt_frames_rx_o;
-    { AafCfg c; c.seq=3; feed(build_aaf(stim, c)); }
-    ck("[27c] mismatched frames not counted as RX", dut->cnt_frames_rx_o, frx27);
-    cyc(11000);                              // silence window expires -> unlock
-    ck("[27d] silence unlocks", dut->media_locked_o, 0);
-    dut->fmt_i = FMT;                        // listener back to 48 kHz
-    { AafCfg c; c.seq=4; c.chans=2; feed(build_aaf(stim, c)); }  // any count matches now
-    ck("[27e] matching PDU relocks", dut->media_locked_o, 1);
-    ck("[27f] RX counts again", dut->cnt_frames_rx_o, frx27+1);
-    dut->fmt_i = FMT;                        // restore for any later scenario
-
-    printf("\n[28] channel FREEDOM (Milan BAF Section 4 + USER 08-07: accept\n"
-           "     EVERY channel count, route only the mapped subset)\n");
-    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
-    { AafCfg c; c.seq=0; c.chans=2; feed(build_aaf(stim, c)); } // 2ch wire vs 8ch fmt
-    ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);
-    ck("[28b] no UNSUPPORTED for adapted PDU", dut->cnt_unsupported_fmt_o, 0);
-    { AafCfg c; c.seq=1; c.chans=8; feed(build_aaf(stim, c)); } // exact match still fine
-    ck("[28c] 8ch-wire accepted", dut->cnt_frames_rx_o, 2);
-    { AafCfg c; c.seq=2; c.chans=0; feed(build_aaf(stim, c)); } // zero channels = junk
-    ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
-    //! the 08-07 live case: the wire carries MORE channels than the SET
-    //! format (the peer declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
-    //! the maps route what they map
-    { AafCfg c; c.seq=2; c.chans=9; feed(build_aaf(stim, c)); } // above the SET format
-    ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family)",
-       dut->cnt_frames_rx_o, 3);
-    ck("[28f] ...and no UNSUPPORTED for it", dut->cnt_unsupported_fmt_o, 1);
-
-    printf("\n[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +\n"
-           "     Milan 6.3: base formats are non-sparse). A sustained sp=1\n"
-           "     stream is legal 1722 but off-profile here — the listener's\n"
-           "     DELIBERATE behavior is reject-and-count (UNSUPPORTED_FORMAT\n"
-           "     per PDU, no FRAMES_RX, no lock, no PCM), through the REAL\n"
-           "     parser->monitor->depacketizer wiring.\n");
-    dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era
-    pcm.clear(); pcm_last=false;
-    for(uint8_t s=0; s<10; s++){ AafCfg c; c.seq=s; c.sp=1; feed(build_aaf(stim, c)); }
-    ck("[29a] 10 sparse PDUs all UNSUPPORTED", dut->cnt_unsupported_fmt_o, 10);
-    ck("[29b] no FRAMES_RX from a sparse stream", dut->cnt_frames_rx_o, 0);
-    ck("[29c] sparse stream never locks", dut->media_locked_o, 0);
-    ck("[29d] no PCM from a sparse stream", (long)pcm.size(), 0);
-    { AafCfg c; c.seq=10; feed(build_aaf(stim, c)); }           // talker back to sp=0
-    ck("[29e] non-sparse resumes clean (locks)", dut->media_locked_o, 1);
-    ck("[29f] FRAMES_RX resumes", dut->cnt_frames_rx_o, 1);
-
-    printf("\n[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /\n"
-           "     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).\n");
-    //! Milan v1.2 Table 5.6 MEDIA_RESET: "Incremented at the end of every
-    //! observation interval during which the 'mr' bit was TOGGLED in any of
-    //! the received Stream Data AVTPDUs" (IEEE 1722.1-2021 Table 7-157 says
-    //! the same: "on a toggle of the mr bit"). mr is a LEVEL the talker holds
-    //! for >= 8 AVTPDUs [1722-2016 4.4.4.3], so ONLY the edge is the event.
-    //! This block used to pin the OPPOSITE as an accepted gap (AVTP-5): the
-    //! parser never extracted mr, and the counter ticked on the local I2S
-    //! local renderer overrun/underrun rail instead - a signal the clause never
-    //! mentions, tied to 1'b0 outright on a DAC-less shape.
-    // (a) mr-toggled PDUs are format-valid and must keep flowing
-    { AafCfg c; c.seq=11; c.mr=true;  feed(build_aaf(stim, c)); }
-    ck("[30a1] mr 0->1 toggle ticks MEDIA_RESET", dut->cnt_media_reset_o, 1);
-    { AafCfg c; c.seq=12; c.mr=true;  feed(build_aaf(stim, c)); }
-    //! THE BITE THE OTHER WAY: a HELD mr is not a toggle. Counting the level
-    //! instead of the edge would read +1 per PDU, i.e. 8000/s at class A.
-    ck("[30a2] HELD mr counts nothing more", dut->cnt_media_reset_o, 1);
-    { AafCfg c; c.seq=13; c.mr=false; feed(build_aaf(stim, c)); }
-    ck("[30a3] mr 1->0 toggle ticks again", dut->cnt_media_reset_o, 2);
-    ck("[30a] mr-toggled PDUs accepted", dut->cnt_frames_rx_o, 4);
-    ck("[30b] mr toggle breaks no lock/seq", dut->cnt_seq_mismatch_o, 0);
-    // (b) an UNSUPPORTED_FORMAT PDU early-returns: it counts nothing else,
-    //     so its mr never moves the reference either
-    { AafCfg c; c.seq=14; c.mr=true; c.depth=24; feed(build_aaf(stim, c)); }
-    ck("[30c1] rejected PDU's mr counts no reset", dut->cnt_media_reset_o, 2);
-    { AafCfg c; c.seq=14; c.mr=true; feed(build_aaf(stim, c)); }
-    ck("[30c2] the same toggle counts once it is ACCEPTED",
-       dut->cnt_media_reset_o, 3);
-    // (c) counter gating: mr only counts while BOUND, and a bind starts a
-    //     fresh era - the first PDU SEEDS the reference and never scores a
-    //     toggle against the previous talker's level (Milan 5.3.8.10)
-    dut->bound_i=0; cyc(3);
-    { AafCfg c; c.seq=15; c.mr=false; feed(build_aaf(stim, c)); }
-    ck("[30d] unbound mr toggle counts nothing", dut->cnt_media_reset_o, 3);
-    dut->bound_i=1; cyc(3);
-    ck("[30e] bind zeroes MEDIA_RESET", dut->cnt_media_reset_o, 0);
-    //! the era's first PDU carries mr=0 while the pre-bind level was 1:
-    //! a stale reference would score this as a toggle
-    { AafCfg c; c.seq=16; c.mr=false; feed(build_aaf(stim, c)); }
-    ck("[30f] first PDU of an era SEEDS, never counts",
-       dut->cnt_media_reset_o, 0);
-    { AafCfg c; c.seq=17; c.mr=true; feed(build_aaf(stim, c)); }
-    ck("[30g] the next real toggle counts", dut->cnt_media_reset_o, 1);
-
-    printf("\n[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016\n"
-           "     4.4.3.4: unsupported version -> \"shall discard the AVTPDU\").\n");
-    // CONFORMANT since the parser version gate: avtp_stream_parser reads
-    // b1[6:4] and fires only on version 0, so a version!=0 PDU is discarded
-    // STRUCTURALLY - no parse/match pulse, nothing reaches this monitor or
-    // the depacketizer. Counter law (Milan Table 5.6): a discarded PDU moves
-    // NOTHING on the Stream Input - FRAMES_RX counts AVTPDUs "received on
-    // this Stream Input" and a discarded PDU never was, UNSUPPORTED_FORMAT
-    // is a FORMAT verdict and version is not format. Only the MAC's RMON
-    // interface counter ticks, and that lives outside this stack.
-    { long frx31 = dut->cnt_frames_rx_o;
-      AafCfg c; c.seq=11; c.version=1; feed(build_aaf(stim, c));
-      ck("[31a] version!=0 NOT counted (discarded whole)",
-         dut->cnt_frames_rx_o, frx31); }
-
-    printf("\n[31b] lock + live seq tracking hold across interleaved\n"
-           "      version!=0 PDUs carrying wild sequence numbers\n");
-    // Drain the settle window first (8 post-lock PDUs; [30g]'s seq=17 was
-    // the 1st) so sequence tracking is LIVE: if a gate regression let the
-    // wild PDUs below through, SEQ_NUM_MISMATCH and STREAM_INTERRUPTED
-    // would tick immediately - inside the settle window they would only
-    // re-seed, and this case would have no teeth.
-    for(uint8_t s=18; s<=24; s++){ AafCfg c; c.seq=s; feed(build_aaf(stim, c)); }
-    { long sm31  = dut->cnt_seq_mismatch_o;
-      long si31  = dut->cnt_stream_interrupted_o;
-      long frx31 = dut->cnt_frames_rx_o;
-      static const uint8_t wild[4] = {0xDE, 0x03, 0x99, 0x41};
-      uint8_t good = 25;
-      for(int i=0; i<4; i++){
-        { AafCfg c; c.version=(uint8_t)(i+1); c.seq=wild[i];  // v1..v4 wild:
-          feed(build_aaf(stim, c)); }                                   // discarded
-        { AafCfg c; c.seq=good++; feed(build_aaf(stim, c)); }           // v0 flows on
-      }
-      ck("[31b] lock holds across version!=0 PDUs", dut->media_locked_o, 1);
-      ck("[31b] SEQ_NUM_MISMATCH stays frozen", dut->cnt_seq_mismatch_o, sm31);
-      ck("[31b] STREAM_INTERRUPTED stays frozen",
-         dut->cnt_stream_interrupted_o, si31);
-      ck("[31b] only the version-0 PDUs counted",
-         dut->cnt_frames_rx_o, frx31 + 4); }
-
-    printf("\n======================================================================\n");
-    printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);
-#if VM_COVERAGE
-    Verilated::threadContextp()->coveragep()->write("coverage.dat");
-#endif
-    delete dut;
-    return fails ? 1 : 0;
+    AvtpRxMonitorHarness harness;
+    return harness.run();
 }

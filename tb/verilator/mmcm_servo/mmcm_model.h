@@ -20,6 +20,15 @@
 #pragma once
 #include <cstdint>
 
+//! DRDY answers a latched DEN this many DCLK cycles later (DS181-ish); the
+//! servo only requires "a few", never an exact number.
+constexpr int kDrpDrdyLatCycles = 4;
+//! UG472: PSDONE pulses exactly 12 PSCLK cycles after the PSEN that started
+//! the shift.
+constexpr int kPsdonePsclkCycles = 12;
+//! regs[] holds 128 entries, so a DADDR wraps into the modeled address space.
+constexpr uint8_t kDrpAddrMask = 0x7F;
+
 struct MmcmModel {
     // programmable state
     uint16_t regs[128] = {0};
@@ -27,12 +36,14 @@ struct MmcmModel {
 
     // DRP handshake
     int      drp_lat = 0;
-    bool     drp_pend = false, drp_we_l = false;
+    bool     drp_pend = false;
+    bool     drp_we_l = false;
     uint8_t  drp_addr_l = 0;
     uint16_t drp_di_l = 0;
     bool     drdy = false;     // output this cycle
     uint16_t dout = 0;
-    long     drp_reads = 0, drp_writes = 0;
+    long     drp_reads = 0;
+    long     drp_writes = 0;
     long     writes_wo_rst = 0;    // safe-sequencing violation counter
 
     // reset / lock
@@ -65,20 +76,20 @@ struct MmcmModel {
         if (drp_pend) {
             if (--drp_lat == 0) {
                 if (drp_we_l) {
-                    regs[drp_addr_l & 0x7F] = drp_di_l;
+                    regs[drp_addr_l & kDrpAddrMask] = drp_di_l;
                     drp_writes++;
                     if (!rst) writes_wo_rst++;
                 } else {
                     drp_reads++;
                 }
-                dout = regs[drp_addr_l & 0x7F];
+                dout = regs[drp_addr_l & kDrpAddrMask];
                 drdy = true;
                 drp_pend = false;
             }
         } else if (den) {
             drp_addr_l = daddr; drp_we_l = dwe; drp_di_l = di;
             drp_pend = true;
-            drp_lat = 4;               // DRDY a few DCLK later (DS181-ish)
+            drp_lat = kDrpDrdyLatCycles;   // DRDY a few DCLK later (DS181-ish)
         }
     }
 
@@ -95,7 +106,7 @@ struct MmcmModel {
             }
         } else if (psen) {
             ps_dir = psincdec;
-            ps_busy = 12;
+            ps_busy = kPsdonePsclkCycles;
             if (mmcm_rst) ps_during_drp_rst++;
         }
     }

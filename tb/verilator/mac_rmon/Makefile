@@ -24,7 +24,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-EOFNEWLINE \
          -Wno-TIMESCALEMOD \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SRCS = $(E)/KL_mac_rmon_events.sv $(RTL)/common/cdc_pulse.sv
 

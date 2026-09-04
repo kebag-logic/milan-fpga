@@ -25,125 +25,143 @@
 
 #include "VKL_mmcm_drp_servo.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include "mmcm_model.h"
 #include <cstdio>
 #include <cstdint>
 #include <cmath>
 
-static VKL_mmcm_drp_servo* dut;
-static MmcmModel mm;
-static long checks = 0, fails = 0;
-static void ck(const char* w, long got, long exp) {
-    checks++;
-    if (got != exp) { fails++; printf("  [FAIL] %-52s got=%ld exp=%ld\n", w, got, exp); }
-    else            printf("  [ ok ] %-52s = %ld\n", w, got);
-}
-static void ckr(const char* w, double got, double lo, double hi) {
-    checks++;
-    if (got < lo || got > hi) { fails++; printf("  [FAIL] %-52s got=%.3f exp=[%.3f,%.3f]\n", w, got, lo, hi); }
-    else            printf("  [ ok ] %-52s = %.3f\n", w, got);
-}
+namespace {
 
-// ---- clocks (femtosecond wheel) ------------------------------------------
-static double t_fs = 0;
-static double ptp_step_ns = 0;                // U10: injected local-PHC step
-static double next_i = 10000e3, next_p = 2500e3, next_a = 12345e3;
-static const double HALF_I = 10000e3;         // clk_i 50 MHz
-static const double HALF_P = 2500e3;          // ps_clk 200 MHz
-// audio base: 24.576 MHz - 10.64 ppm (the integer two-stage MMCM plan)
-static const double BASE_PPM = -10.64;
-static const double HALF_A0 = 0.5 * (1e15 / 24.576e6) * (1.0 - BASE_PPM * 1e-6);
-static double base_a = 12345e3;               // un-shifted audio edge grid
-
-static int state()  { return (int)(dut->status_o & 7); }
-static int16_t trim(){ return (int16_t)(dut->status_o >> 16); }
-
-static void tick_one() {
-    if (next_i <= next_p && next_i <= next_a) {
-        t_fs = next_i; next_i += HALF_I;
-        dut->clk_i ^= 1;
-        if (dut->clk_i) dut->ptp_now_i = (uint64_t)(t_fs / 1e6 + ptp_step_ns);
-        dut->eval();
-        if (dut->clk_i) {   // registered model side of the DRP/reset
-            mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
-                         dut->drp_di_o, dut->mmcm_rst_o);
-            dut->drp_do_i      = mm.dout;
-            dut->drp_rdy_i     = mm.drdy;
-            dut->mmcm_locked_i = mm.locked;
-        }
-    } else if (next_p <= next_a) {
-        t_fs = next_p; next_p += HALF_P;
-        dut->ps_clk_i ^= 1;
-        dut->eval();
-        if (dut->ps_clk_i) {
-            mm.psclk_edge(dut->ps_en_o, dut->ps_incdec_o, dut->mmcm_rst_o);
-            dut->ps_done_i = mm.psdone;
-        }
-    } else {
-        t_fs = next_a;
-        base_a += HALF_A0;
-        next_a = base_a + mm.audio_adj_fs;    // PS steps shift every edge
-        if (next_a <= t_fs) next_a = t_fs + 1e3;
-        dut->clk_audio_i ^= 1;
-        dut->eval();
+//! The whole unit harness in one object: the Verilated model, the behavioral
+//! MMCM it is wired to, the check counters and the femtosecond clock wheel -
+//! all of which used to be this file's mutable file scope (I.2) - with one
+//! member function per case (F.3).
+class MmcmServoUnitHarness {
+ public:
+    //! What `main` used to be: bring the DUT up, run every case in order,
+    //! print the tally.
+    int run() {
+        configure_model_and_release_reset();
+        prove_inert_while_deselected();
+        prove_activation_read_verifies_only();
+        prove_lock_from_plus_100ppm_with_bounded_step();
+        prove_step_response_relocks();
+        prove_holdover_freezes_trim();
+        prove_fresh_lock_from_minus_100ppm();
+        prove_mismatch_is_informative_with_repair_off();
+        prove_auto_repair_runs_the_safe_sequence();
+        prove_ps_invert_knob_matches_an_inverted_mmcm();
+        prove_local_ptp_step_windows_are_discarded();
+        return report();
     }
-}
-static void run_ms(double ms) {
-    double te = t_fs + ms * 1e12;
-    while (t_fs < te) tick_one();
-}
-static int32_t rate_for_ppm(double ppm) {   // KL_crf_rx rate_o for a talker offset
-    return (int32_t)llround(512e6 * (1.0 / (1.0 + ppm * 1e-6) - 1.0));
-}
-// effective audio clock offset vs nominal, measured from the model physics
-static double eff_ppm_meas(double ms) {
-    double a0 = mm.audio_adj_fs, t0 = t_fs;
-    run_ms(ms);
-    return BASE_PPM - 1e6 * (mm.audio_adj_fs - a0) / (t_fs - t0);
-}
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new VKL_mmcm_drp_servo;
+ private:
+    void ck(const char* w, long got, long exp) {
+        checks++;
+        if (got != exp) { fails++; printf("  [FAIL] %-52s got=%ld exp=%ld\n", w, got, exp); }
+        else            printf("  [ ok ] %-52s = %ld\n", w, got);
+    }
+    void ckr(const char* w, double got, double lo, double hi) {
+        checks++;
+        if (got < lo || got > hi) { fails++; printf("  [FAIL] %-52s got=%.3f exp=[%.3f,%.3f]\n", w, got, lo, hi); }
+        else            printf("  [ ok ] %-52s = %.3f\n", w, got);
+    }
 
-    // expected CLKOUT0 config in the model (matches the servo defaults)
-    mm.regs[0x08] = 0x0595;
-    mm.regs[0x09] = 0x0080;
+    int state() const  { return static_cast<int>(dut->status_o & 7); }
+    int16_t trim() const { return static_cast<int16_t>(dut->status_o >> 16); }
 
-    dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
-    //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
-    //! one AAF listener, CRF). The DUT no longer assumes it.
-    dut->crf_src_idx_i = 2;
-    dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
-    dut->mmcm_locked_i = 1;
-    run_ms(0.01);
-    dut->rst_n = 1;
+    void tick_one() {
+        if (next_i <= next_p && next_i <= next_a) {
+            t_fs = next_i; next_i += HALF_I;
+            dut->clk_i ^= 1;
+            if (dut->clk_i) dut->ptp_now_i = static_cast<uint64_t>(t_fs / 1e6 + ptp_step_ns);
+            dut->eval();
+            if (dut->clk_i) {   // registered model side of the DRP/reset
+                mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
+                             dut->drp_di_o, dut->mmcm_rst_o);
+                dut->drp_do_i      = mm.dout;
+                dut->drp_rdy_i     = mm.drdy;
+                dut->mmcm_locked_i = mm.locked;
+            }
+        } else if (next_p <= next_a) {
+            t_fs = next_p; next_p += HALF_P;
+            dut->ps_clk_i ^= 1;
+            dut->eval();
+            if (dut->ps_clk_i) {
+                mm.psclk_edge(dut->ps_en_o, dut->ps_incdec_o, dut->mmcm_rst_o);
+                dut->ps_done_i = mm.psdone;
+            }
+        } else {
+            t_fs = next_a;
+            base_a += HALF_A0;
+            next_a = base_a + mm.audio_adj_fs;    // PS steps shift every edge
+            if (next_a <= t_fs) next_a = t_fs + 1e3;
+            dut->clk_audio_i ^= 1;
+            dut->eval();
+        }
+    }
+    void run_ms(double ms) {
+        double te = t_fs + ms * 1e12;
+        while (t_fs < te) tick_one();
+    }
+    static int32_t rate_for_ppm(double ppm) {   // KL_crf_rx rate_o for a talker offset
+        return static_cast<int32_t>(llround(512e6 * (1.0 / (1.0 + ppm * 1e-6) - 1.0)));
+    }
+    // effective audio clock offset vs nominal, measured from the model physics
+    double eff_ppm_meas(double ms) {
+        double a0 = mm.audio_adj_fs;
+        double t0 = t_fs;
+        run_ms(ms);
+        return BASE_PPM - 1e6 * (mm.audio_adj_fs - a0) / (t_fs - t0);
+    }
 
-    printf("[U0] clock_source != 2: fully inert\n");
-    run_ms(10);
-    ck("[U0] state IDLE", state(), 0);
-    ck("[U0] zero DRP accesses", mm.drp_reads + mm.drp_writes, 0);
-    ck("[U0] zero PS operations", mm.ps_ops, 0);
-    ck("[U0] trim 0", trim(), 0);
+    void configure_model_and_release_reset() {
+        // expected CLKOUT0 config in the model (matches the servo defaults)
+        mm.regs[0x08] = 0x0595;
+        mm.regs[0x09] = 0x0080;
 
-    printf("[U1] activation: DRP read-verify only\n");
-    dut->clk_src_i = 2; dut->crf_locked_i = 1;
-    dut->crf_rate_i = rate_for_ppm(+100.0);      // talker +100 ppm
-    run_ms(1);
-    ck("[U1] verify reads = 2", mm.drp_reads, 2);
-    ck("[U1] verify writes = 0", mm.drp_writes, 0);
-    ck("[U1] verified flag", (dut->status_o >> 3) & 1, 1);
-    ck("[U1] no mismatch", (dut->status_o >> 4) & 1, 0);
+        dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+        //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
+        //! one AAF listener, CRF). The DUT no longer assumes it.
+        dut->crf_src_idx_i = 2;
+        dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
+        dut->mmcm_locked_i = 1;
+        run_ms(0.01);
+        dut->rst_n = 1;
+    }
 
-    printf("[U2] lock from +100 ppm talker\n");
-    {
+    void prove_inert_while_deselected() {
+        printf("[U0] clock_source != 2: fully inert\n");
+        run_ms(10);
+        ck("[U0] state IDLE", state(), 0);
+        ck("[U0] zero DRP accesses", mm.drp_reads + mm.drp_writes, 0);
+        ck("[U0] zero PS operations", mm.ps_ops, 0);
+        ck("[U0] trim 0", trim(), 0);
+    }
+
+    void prove_activation_read_verifies_only() {
+        printf("[U1] activation: DRP read-verify only\n");
+        dut->clk_src_i = 2; dut->crf_locked_i = 1;
+        dut->crf_rate_i = rate_for_ppm(+100.0);      // talker +100 ppm
+        run_ms(1);
+        ck("[U1] verify reads = 2", mm.drp_reads, 2);
+        ck("[U1] verify writes = 0", mm.drp_writes, 0);
+        ck("[U1] verified flag", (dut->status_o >> 3) & 1, 1);
+        ck("[U1] no mismatch", (dut->status_o >> 4) & 1, 0);
+    }
+
+    void prove_lock_from_plus_100ppm_with_bounded_step() {
+        printf("[U2] lock from +100 ppm talker\n");
         // track per-window trim slew while acquiring (U3 evidence)
-        int16_t tprev = trim(); long max_dtrim = 0; double tmark = t_fs;
+        int16_t tprev = trim();
+        long max_dtrim = 0;
+        double tmark = t_fs;
         long guard = 0;
         while (state() != 4 && guard < 200) {   // LOCKED
             run_ms(1);
             if (t_fs - tmark >= 4e12) {         // once per 4 ms window
-                long d = labs((long)trim() - (long)tprev);
+                long d = labs(static_cast<long>(trim()) - static_cast<long>(tprev));
                 if (d > max_dtrim) max_dtrim = d;
                 tprev = trim(); tmark = t_fs;
             }
@@ -159,9 +177,9 @@ int main(int argc, char** argv) {
         ck("[U3] no PS during DRP reset", mm.ps_during_drp_rst, 0);
     }
 
-    printf("[U4] step response: talker +100 -> +80 ppm\n");
-    dut->crf_rate_i = rate_for_ppm(+80.0);
-    {
+    void prove_step_response_relocks() {
+        printf("[U4] step response: talker +100 -> +80 ppm\n");
+        dut->crf_rate_i = rate_for_ppm(+80.0);
         long guard = 0;
         run_ms(8);                               // leave the settled point
         while (state() != 4 && guard < 100) { run_ms(1); guard++; }
@@ -171,8 +189,8 @@ int main(int argc, char** argv) {
         ckr("[U4] effective clock ppm ~ talker (+80)", eff, 77.0, 83.0);
     }
 
-    printf("[U5] holdover on CRF unlock\n");
-    {
+    void prove_holdover_freezes_trim() {
+        printf("[U5] holdover on CRF unlock\n");
         dut->crf_locked_i = 0;
         run_ms(6);
         ck("[U5] state HOLDOVER", state(), 5);
@@ -186,8 +204,8 @@ int main(int argc, char** argv) {
         ck("[U5] relock after CRF returns", state(), 4);
     }
 
-    printf("[U6] deselect + fresh lock from -100 ppm\n");
-    {
+    void prove_fresh_lock_from_minus_100ppm() {
+        printf("[U6] deselect + fresh lock from -100 ppm\n");
         dut->clk_src_i = 0;
         run_ms(3);
         ck("[U6] back to IDLE", state(), 0);
@@ -205,8 +223,8 @@ int main(int argc, char** argv) {
         ckr("[U6] trim ~ -89.4 ppm (x16)", trim(), -1600.0, -1250.0);
     }
 
-    printf("[U7] config mismatch, auto_repair OFF: informative only\n");
-    {
+    void prove_mismatch_is_informative_with_repair_off() {
+        printf("[U7] config mismatch, auto_repair OFF: informative only\n");
         dut->clk_src_i = 0; run_ms(3);
         mm.regs[0x08] = 0x1234;                  // corrupt HIGH/LOW cone
         long w0 = mm.drp_writes;
@@ -220,15 +238,16 @@ int main(int argc, char** argv) {
         ck("[U7] PS servo still locks on the live config", state(), 4);
     }
 
-    printf("[U8] auto_repair ON: full XAPP888 safe sequence\n");
-    {
+    void prove_auto_repair_runs_the_safe_sequence() {
+        printf("[U8] auto_repair ON: full XAPP888 safe sequence\n");
         dut->clk_src_i = 0; run_ms(3);
         // corrupt the fields AND plant junk in the RESERVED bits that the
         // RMW must preserve (ClkReg1 [12], ClkReg2 [15] - XAPP888 Tables 1/2)
         mm.regs[0x08] = 0x1234 | 0x1000;
         mm.regs[0x09] = 0x0700 | 0x8000;
         mm.regs[0x28] = 0x0000;
-        long w0 = mm.drp_writes, ops0 = mm.ps_ops;
+        long w0 = mm.drp_writes;
+        long ops0 = mm.ps_ops;
         dut->auto_repair_i = 1;
         dut->clk_src_i = 2;
         long guard = 0;
@@ -252,8 +271,8 @@ int main(int argc, char** argv) {
     //     silicon: rails 25x worse under the servo), setting the knob
     //     restores convergence. Symmetric-proof: model.invert ^ knob.
     // ---------------------------------------------------------------- //
-    printf("[U9] ps_invert knob vs an inverted-polarity MMCM\n");
-    {
+    void prove_ps_invert_knob_matches_an_inverted_mmcm() {
+        printf("[U9] ps_invert knob vs an inverted-polarity MMCM\n");
         dut->clk_src_i = 0; run_ms(3);
         ck("[U9] back to IDLE", state(), 0);
         mm.invert = true;
@@ -290,8 +309,8 @@ int main(int argc, char** argv) {
     //      silicon signature, sign per step direction) in state 3.
     //      3 checks failed; all green with the guard.
     // ---------------------------------------------------------------- //
-    printf("[U10] local ptp step: bad window discarded, no rail-out\n");
-    {
+    void prove_local_ptp_step_windows_are_discarded() {
+        printf("[U10] local ptp step: bad window discarded, no rail-out\n");
         dut->clk_src_i = 0; run_ms(3);
         ck("[U10] back to IDLE", state(), 0);
         dut->crf_rate_i = rate_for_ppm(+80.0);
@@ -306,7 +325,7 @@ int main(int argc, char** argv) {
         printf("  info: trim pre-step=%d post-3-win=%d state=%d\n",
                t0, trim(), state());
         ck("[U10] trim held across the step (3 win, |d|<=48)",
-           labs((long)trim() - (long)t0) <= 48, 1);
+           labs(static_cast<long>(trim()) - static_cast<long>(t0)) <= 48, 1);
         run_ms(28);                          // 10 windows total since step
         ck("[U10] still LOCKED 10 windows after the step", state(), 4);
         // sustained slew storm: every window implausible for 6 windows
@@ -319,7 +338,7 @@ int main(int argc, char** argv) {
                t1, trim(), state());
         ck("[U10] still LOCKED through the slew storm", state(), 4);
         ck("[U10] trim held through the storm (|d|<=48)",
-           labs((long)trim() - (long)t1) <= 48, 1);
+           labs(static_cast<long>(trim()) - static_cast<long>(t1)) <= 48, 1);
         run_ms(40);                          // slew over, normal windows
         printf("  info: trim post-recovery=%d state=%d\n", trim(), state());
         ck("[U10] LOCKED after the storm ends", state(), 4);
@@ -328,13 +347,41 @@ int main(int argc, char** argv) {
         // readout units - same scale LOCK_THR is widened for); the rail
         // signature this leg hunts is |d| ~ 1700 (the 200 ppm clamp)
         ck("[U10] trim near pre-storm after recovery (|d|<=160)",
-           labs((long)trim() - (long)t1) <= 160, 1);
+           labs(static_cast<long>(trim()) - static_cast<long>(t1)) <= 160, 1);
         double eff = eff_ppm_meas(20.0);
         ckr("[U10] effective clock still ~ talker (+80)", eff, 77.0, 83.0);
     }
 
-    printf("======================================================================\n");
-    printf("KL_mmcm_drp_servo: %ld checks, %ld failures\n", checks, fails);
-    delete dut;
-    return fails ? 1 : 0;
+    int report() const {
+        printf("======================================================================\n");
+        printf("KL_mmcm_drp_servo: %ld checks, %ld failures\n", checks, fails);
+        return fails ? 1 : 0;
+    }
+
+    const milan::tb::Model<VKL_mmcm_drp_servo> model_{};
+    VKL_mmcm_drp_servo* dut = model_.get();
+    MmcmModel mm{};
+    long checks = 0;
+    long fails = 0;
+
+    // ---- clocks (femtosecond wheel) ------------------------------------------
+    double t_fs = 0;
+    double ptp_step_ns = 0;                // U10: injected local-PHC step
+    double next_i = 10000e3;
+    double next_p = 2500e3;
+    double next_a = 12345e3;
+    static constexpr double HALF_I = 10000e3;      // clk_i 50 MHz
+    static constexpr double HALF_P = 2500e3;       // ps_clk 200 MHz
+    // audio base: 24.576 MHz - 10.64 ppm (the integer two-stage MMCM plan)
+    static constexpr double BASE_PPM = -10.64;
+    static constexpr double HALF_A0 = 0.5 * (1e15 / 24.576e6) * (1.0 - BASE_PPM * 1e-6);
+    double base_a = 12345e3;               // un-shifted audio edge grid
+};
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    MmcmServoUnitHarness harness;
+    return harness.run();
 }

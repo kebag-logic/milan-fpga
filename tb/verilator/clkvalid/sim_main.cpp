@@ -23,29 +23,63 @@
 
 #include "VKL_ptp_clock_validity.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
+#include <cerrno>
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
-static VKL_ptp_clock_validity* dut;
-static long checks = 0, fails = 0;
-static long qtick = 8;
+//! STAT bits that only an owner may set: everything except STAT[0] (tu) and
+//! STAT[3] (holdover), both of which an ownerless clock legitimately drives.
+constexpr uint32_t kOwnerFieldsMask = 0x0001FFF6u;
 
-static void ck(const char* what, long got, long exp) {
+//! Largest QTICK_CYC_P that still completes an observation interval inside a
+//! simulation: above this we are in the shipping-divider shape.
+constexpr long kFastShapeQtickMax = 1000;
+
+//! Arbitrary grandmaster identity written to the retained gm_id_i port.
+constexpr uint64_t kTestGmId = 0x1122334455667788ull;
+
+namespace {
+
+// The whole harness: the model handle, the tally, the elaborated QTICK_CYC_P
+// and every phase that reads them, so nothing mutable is left at file scope.
+class ClockValidityHarness {
+ public:
+    int run(int argc, char** argv);
+
+ private:
+    void ck(const char* what, long got, long exp);
+    void ck_range(const char* what, long got, long lo, long hi);
+    void tick(long n = 1);
+    long wait_tu(int want, long limit);
+    bool parse_qtick(int argc, char** argv);
+    void reset_and_release();
+    void fabric_publication_bank_owns_validity();
+    void option_off_is_permanently_ownerless(bool full);
+
+    VKL_ptp_clock_validity* dut = nullptr;
+    long checks = 0;
+    long fails = 0;
+    long qtick = 8;
+};
+
+void ClockValidityHarness::ck(const char* what, long got, long exp) {
     checks++;
     bool ok = (got == exp);
     if (!ok) fails++;
     printf("  [%s] %-52s got=%ld exp=%ld\n", ok ? "ok" : "FAIL", what, got, exp);
 }
-static void ck_range(const char* what, long got, long lo, long hi) {
+void ClockValidityHarness::ck_range(const char* what, long got, long lo,
+                                    long hi) {
     checks++;
     bool ok = (got >= lo && got <= hi);
     if (!ok) fails++;
     printf("  [%s] %-52s got=%ld exp=%ld..%ld\n", ok ? "ok" : "FAIL", what, got, lo, hi);
 }
 
-static void tick(long n = 1) {
+void ClockValidityHarness::tick(long n) {
     for (long i = 0; i < n; i++) {
         dut->clk_i = 0; dut->eval();
         dut->clk_i = 1; dut->eval();
@@ -53,82 +87,98 @@ static void tick(long n = 1) {
 }
 
 //! run until tu clears, or give up. Returns cycles waited.
-static long wait_tu(int want, long limit) {
+long ClockValidityHarness::wait_tu(int want, long limit) {
     long n = 0;
     while (dut->ts_uncertain_o != want && n < limit) { tick(); n++; }
     return n;
 }
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    if (argc > 1) qtick = atol(argv[1]);
-    const bool fabric = argc > 2 && strcmp(argv[2], "fabric") == 0;
-    const bool full = (qtick <= 1000);   //! interval-counter checks only in the fast shape
+//! Read the elaborated QTICK_CYC_P out of argv. False = the argument was not a
+//! usable number and the caller has already been told why.
+bool ClockValidityHarness::parse_qtick(int argc, char** argv) {
+    if (argc > 1) {
+        // `atol` cannot report a failure: a mistyped argument reads as 0, and
+        // qtick 0 silently selects a different shape from the one the caller
+        // asked for. `strtol` says whether it consumed the whole argument.
+        char* unparsed = nullptr;
+        errno = 0;
+        const long requested = std::strtol(argv[1], &unparsed, 10);
+        if (errno != 0 || unparsed == argv[1] || *unparsed != '\0' || requested < 0) {
+            std::fprintf(stderr, "usage: %s [qtick] [fabric]  (qtick must be a "
+                                 "non-negative integer, got %s)\n", argv[0], argv[1]);
+            return false;
+        }
+        qtick = requested;
+    }
+    return true;
+}
 
-    dut = new VKL_ptp_clock_validity;
+//! Hold the block in reset with every input idle, then release it.
+void ClockValidityHarness::reset_and_release() {
     dut->rst_n = 0;
-    dut->fabric_sync_ok_i = 0; dut->fabric_as_cap_i = 0;
+    dut->fabric_sync_ok_i = 0;
+    dut->fabric_as_cap_i = 0;
     dut->fabric_disc_p_i = 0;
-    dut->phc_load_p_i = 0; dut->phc_adj_p_i = 0;
+    dut->phc_load_p_i = 0;
+    dut->phc_adj_p_i = 0;
     dut->gm_id_i = 0;
     tick(4);
     dut->rst_n = 1;
     tick(2);
+}
 
-    printf("== KL_ptp_clock_validity (QTICK_CYC_P=%ld) ==\n", qtick);
+void ClockValidityHarness::fabric_publication_bank_owns_validity() {
+    printf("-- fabric publication bank owns validity (#116) --\n");
+    ck("reset: fabric has not synchronised, tu = 1",
+       dut->ts_uncertain_o, 1);
+    ck("fabric mode keeps retired no-lease field zero",
+       (dut->stat_o >> 2) & 1, 0);
 
-    if (fabric) {
-        printf("-- fabric publication bank owns validity (#116) --\n");
-        ck("reset: fabric has not synchronised, tu = 1",
-           dut->ts_uncertain_o, 1);
-        ck("fabric mode keeps retired no-lease field zero",
-           (dut->stat_o >> 2) & 1, 0);
+    //! There is no software input to this block any more (the retired
+    //! sw_* ports are deleted), so the owner fields can only be fabric's.
+    ck("no software sync claim exists", (dut->stat_o >> 1) & 1, 0);
+    ck("no software asCapable claim exists", dut->as_capable_o, 0);
+    ck("retired lease count is zero", (dut->stat_o >> 4) & 0xFFF, 0);
 
-        //! There is no software input to this block any more (the retired
-        //! sw_* ports are deleted), so the owner fields can only be fabric's.
-        ck("no software sync claim exists", (dut->stat_o >> 1) & 1, 0);
-        ck("no software asCapable claim exists", dut->as_capable_o, 0);
-        ck("retired lease count is zero", (dut->stat_o >> 4) & 0xFFF, 0);
+    dut->gm_id_i = kTestGmId;
+    dut->fabric_sync_ok_i = 1;
+    dut->fabric_as_cap_i = 1;
+    dut->eval();
+    ck("GM adoption raises tu before the sampling edge",
+       dut->ts_uncertain_o, 1);
+    tick(2);
+    long cleared = wait_tu(0, qtick * 8);
+    ck_range("fabric sync clears tu after holdover (cycles)",
+             cleared, qtick, qtick * 4);
+    ck("fabric sync is the STAT claim", (dut->stat_o >> 1) & 1, 1);
+    ck("fabric asCapable is live", dut->as_capable_o, 1);
+    ck("fabric asCapable is STAT[16]", (dut->stat_o >> 16) & 1, 1);
+    tick(qtick * 10);
+    ck("fabric sync stays valid without software", dut->ts_uncertain_o, 0);
 
-        dut->gm_id_i = 0x1122334455667788ull;
-        dut->fabric_sync_ok_i = 1;
-        dut->fabric_as_cap_i = 1;
-        dut->eval();
-        ck("GM adoption raises tu before the sampling edge",
-           dut->ts_uncertain_o, 1);
-        tick(2);
-        long cleared = wait_tu(0, qtick * 8);
-        ck_range("fabric sync clears tu after holdover (cycles)",
-                 cleared, qtick, qtick * 4);
-        ck("fabric sync is the STAT claim", (dut->stat_o >> 1) & 1, 1);
-        ck("fabric asCapable is live", dut->as_capable_o, 1);
-        ck("fabric asCapable is STAT[16]", (dut->stat_o >> 16) & 1, 1);
-        tick(qtick * 10);
-        ck("fabric sync stays valid without software", dut->ts_uncertain_o, 0);
+    dut->fabric_disc_p_i = 1;
+    dut->eval();
+    ck("fabric discontinuity raises tu before the sampling edge",
+       dut->ts_uncertain_o, 1);
+    tick();
+    dut->fabric_disc_p_i = 0;
+    tick();
+    wait_tu(0, qtick * 8);
 
-        dut->fabric_disc_p_i = 1; dut->eval();
-        ck("fabric discontinuity raises tu before the sampling edge",
-           dut->ts_uncertain_o, 1);
-        tick(); dut->fabric_disc_p_i = 0; tick();
-        wait_tu(0, qtick * 8);
+    dut->fabric_sync_ok_i = 0;
+    dut->fabric_as_cap_i = 0;
+    dut->eval();
+    ck("fabric sync loss asserts tu immediately", dut->ts_uncertain_o, 1);
+    tick();
+    ck("fabric asCapable loss is immediate", dut->as_capable_o, 0);
+}
 
-        dut->fabric_sync_ok_i = 0;
-        dut->fabric_as_cap_i = 0;
-        dut->eval();
-        ck("fabric sync loss asserts tu immediately", dut->ts_uncertain_o, 1);
-        tick();
-        ck("fabric asCapable loss is immediate", dut->as_capable_o, 0);
-
-        printf("== clkvalid: checks: %ld  failures: %ld ==\n", checks, fails);
-        delete dut;
-        return fails ? 1 : 0;
-    }
-
-    // -----------------------------------------------------------------
-    // 1. OWNERLESS OPTION-OFF INVARIANT. With no fabric gPTP engine there
-    //    is no authority that can assert sync or asCapable. The honest AVTP
-    //    verdict is tu=1 forever.
-    // -----------------------------------------------------------------
+// -----------------------------------------------------------------
+// 1. OWNERLESS OPTION-OFF INVARIANT. With no fabric gPTP engine there
+//    is no authority that can assert sync or asCapable. The honest AVTP
+//    verdict is tu=1 forever.
+// -----------------------------------------------------------------
+void ClockValidityHarness::option_off_is_permanently_ownerless(bool full) {
     printf("-- option-off is permanently ownerless (#116) --\n");
     ck("reset: tu = 1", dut->ts_uncertain_o, 1);
     ck("reset: STAT[0] tu", dut->stat_o & 1, 1);
@@ -145,7 +195,7 @@ int main(int argc, char** argv) {
     // claim sync/asCapable; the owner fields stay zero over time.
     tick(16);
     ck("time alone cannot clear tu", dut->ts_uncertain_o, 1);
-    ck("owner fields stay zero with no input", dut->stat_o & 0x0001FFF6u, 0);
+    ck("owner fields stay zero with no input", dut->stat_o & kOwnerFieldsMask, 0);
 
     // Fabric publication pins are also irrelevant in the option-off
     // elaboration; only FABRIC_GPTP_P=1 may consume them.
@@ -162,7 +212,7 @@ int main(int argc, char** argv) {
     dut->fabric_disc_p_i = 0;
 
     // A stray identity on the retained module port is not an owner either.
-    dut->gm_id_i = 0x1122334455667788ull;
+    dut->gm_id_i = kTestGmId;
     dut->eval();
     ck("GM input is ignored without a fabric owner", (dut->stat_o >> 3) & 1, 0);
     tick(2);
@@ -171,9 +221,12 @@ int main(int argc, char** argv) {
     // PHC steps remain observable diagnostics and arm holdover, but an
     // ownerless clock is already uncertain before, during, and after it.
     if (full) {
-        dut->phc_load_p_i = 1; dut->eval();
+        dut->phc_load_p_i = 1;
+        dut->eval();
         ck("PHC step keeps tu asserted", dut->ts_uncertain_o, 1);
-        tick(); dut->phc_load_p_i = 0; tick();
+        tick();
+        dut->phc_load_p_i = 0;
+        tick();
         ck("PHC step arms holdover", (dut->stat_o >> 3) & 1, 1);
         tick(qtick * 3);
         ck("holdover expires while tu remains asserted", dut->ts_uncertain_o, 1);
@@ -181,7 +234,7 @@ int main(int argc, char** argv) {
 
         uint32_t base = dut->tu_ivals_o;
         tick(qtick * 17);
-        long delta = (long)(dut->tu_ivals_o - base);
+        long delta = static_cast<long>(dut->tu_ivals_o - base);
         ck_range("permanent tu counts one-second intervals, not cycles",
                  delta, 4, 5);
     } else {
@@ -191,9 +244,34 @@ int main(int argc, char** argv) {
         ck("shipping divider: tu still asserted with no owner",
            dut->ts_uncertain_o, 1);
         ck("shipping divider: owner fields remain zero",
-           dut->stat_o & 0x0001FFF6u, 0);
+           dut->stat_o & kOwnerFieldsMask, 0);
+    }
+}
+
+int ClockValidityHarness::run(int argc, char** argv) {
+    if (!parse_qtick(argc, argv)) return 2;
+    const bool fabric = argc > 2 && strcmp(argv[2], "fabric") == 0;
+    const bool full = (qtick <= kFastShapeQtickMax);   //! interval-counter checks only in the fast shape
+
+    const milan::tb::Model<VKL_ptp_clock_validity> model;
+    dut = model.get();
+    reset_and_release();
+
+    printf("== KL_ptp_clock_validity (QTICK_CYC_P=%ld) ==\n", qtick);
+
+    if (fabric) {
+        fabric_publication_bank_owns_validity();
+    } else {
+        option_off_is_permanently_ownerless(full);
     }
     printf("== clkvalid: checks: %ld  failures: %ld ==\n", checks, fails);
-    delete dut;
     return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    ClockValidityHarness harness;
+    return harness.run(argc, argv);
 }
