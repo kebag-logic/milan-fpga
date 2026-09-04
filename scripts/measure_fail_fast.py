@@ -775,10 +775,23 @@ def audit() -> tuple[list[str], list[str], list[tuple[str, int, str]],
     shell = tracked("*.sh", ".github/workflows/*.yml", "syn/**/*.sh", "harness/**/*.sh")
     all_makefiles = tracked("Makefile", "*/Makefile", "*.mk")
     makefiles = [p for p in all_makefiles if not p.startswith(NOT_FIRST_PARTY)]
+    #: How many scanned units each project-owned processor contributes. This is
+    #: REACH, and it is deliberately separate from what the scan FINDS: the
+    #: self-test used to prove it reached both processors by requiring a masked
+    #: or captured site in each, which holds only while those files still carry
+    #: one. Rule 13 repaired protocol-processor's wrappers, every finding there
+    #: went away, and the arm failed - reporting that the scan could not see a
+    #: submodule it was reading perfectly well. A reach test must count what was
+    #: read, never what was wrong with it.
+    scanned = shell + makefiles
     population = {"sh": sum(1 for p in shell if p.endswith(".sh")),
                   "workflow": sum(1 for p in shell if p.endswith(".yml")),
                   "makefile": len(makefiles),
-                  "vendor_makefiles_excluded": len(all_makefiles) - len(makefiles)}
+                  "vendor_makefiles_excluded": len(all_makefiles) - len(makefiles),
+                  "gptp_processor_units": sum(1 for p in scanned
+                                              if p.startswith("gptp-processor/")),
+                  "protocol_processor_units": sum(1 for p in scanned
+                                                  if p.startswith("protocol-processor/"))}
     masked, waived, captured = [], [], []
     for rel in shell + makefiles:
         text = (REPO / rel).read_text(errors="replace")

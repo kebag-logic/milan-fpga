@@ -396,10 +396,18 @@ def _arms_live_tree(ck):
        sorted((rel, why) for rel, _n, why in waived) == sorted((p, w) for p, _t, w in INTENTIONAL),
        f"waived {[(r, n) for r, n, _ in waived]} vs {len(INTENTIONAL)} sites - a stale waiver "
        "must be removed")
+    # REACH, not findings. This arm read `masked + captured`, so it held only
+    # while both processors still carried a masked verdict; Rule 13 repaired
+    # protocol-processor's wrappers and the arm then reported that the scan
+    # could not see a submodule it was reading perfectly well. Counting the
+    # units scanned says the same thing about coverage and keeps saying it once
+    # the debt is gone. The planted-mutation arms above are what prove the
+    # scanner is not inert.
     ck("the live scan reaches both processor submodules' shell wrappers",
-       any(rel.startswith("gptp-processor/") for rel, _, _ in masked + captured) and
-       any(rel.startswith("protocol-processor/") for rel, _, _ in masked + captured),
-       f"masked {[r for r, _, _ in masked]}, captured {[r for r, _, _ in captured]}")
+       population["gptp_processor_units"] > 0
+       and population["protocol_processor_units"] > 0,
+       f"gptp-processor {population['gptp_processor_units']} unit(s), "
+       f"protocol-processor {population['protocol_processor_units']} unit(s) scanned")
     ck("the Makefile population is first-party only and not empty",
        population["makefile"] > 50
        and not any(rel.startswith(NOT_FIRST_PARTY) for rel, _, _ in masked + captured)

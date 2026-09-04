@@ -13615,9 +13615,15 @@ def _recipe_cases():
     assert base, "sweep.sh no longer composes BASE the way this gate reads"
     sweep_tail = shlex.split(base.group(1).replace("\\\n", " ")
                              .replace("$CFG_GEN", "$CFG_GEN"))
+    # The indent is `\s+`, not `\s{2}`. These two reads want the case-arm SHAPE,
+    # not a column: Rule 13's top-heavy repair moved sweep.sh's dispatch inside a
+    # function, which indented every arm by four more spaces and made both
+    # patterns match nothing. The `assert` below then fired with "the launcher
+    # was reshaped and this gate stopped testing anything" - correctly, but for a
+    # reformat that changed no recipe. A shape gate must read the shape.
     for board, argv in _shell_recipes(
-            SWEEP, r'^\s{2}(\w+)\)\s+OPTS="(.*?)";\s*L2=', re.M | re.S).items():
-        cfg = re.search(r'^\s{2}%s\)\s+NS=\d+;\s*CFG=\$\{SWEEP_CFG:-([^}]+)\}'
+            SWEEP, r'^\s+(\w+)\)\s+OPTS="(.*?)";\s*L2=', re.M | re.S).items():
+        cfg = re.search(r'^\s+%s\)\s+NS=\d+;\s*CFG="?\$\{SWEEP_CFG:-([^}]+)\}"?'
                         % board, sweep, re.M)
         assert cfg, f"sweep.sh names no default config for the {board} leg"
         gen = ROOT / "configs/generated" / Path(cfg.group(1)).stem
