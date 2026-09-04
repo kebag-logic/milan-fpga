@@ -19,6 +19,7 @@ the suite is in ``merge_containment_selftest_content.py``.
 import contextlib
 import io
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -276,8 +277,6 @@ def _git_minimum_cases(fx):
     #351: Git 2.38 and older have no ``patch-id --verbatim``; the fallback
     then failed eight arms with "could not measure" and never said why.
     """
-    mc = fx.mc
-    case, run = fx.case, fx.run
     real_git = shutil.which("git")
     #! Outside the fixture repository: an untracked directory inside it would
     #! ride along with a later `add -A` and change what the content cases see.
@@ -285,28 +284,44 @@ def _git_minimum_cases(fx):
         _git_minimum_shim_cases(fx, Path(shim_home) / "git", real_git)
 
 
-def _git_minimum_shim_cases(fx, shim, real_git):
-    """The cases themselves, against a ``git`` shim rejecting ``--verbatim``."""
-    mc = fx.mc
-    case, run = fx.case, fx.run
-    shim_dir = shim.parent
+def _write_git_shim(shim, real_git, status):
+    """A ``git`` that rejects ``--verbatim`` with ``status``, else passes through."""
     _write(shim, "#!/bin/sh\n"
                  "for a in \"$@\"; do\n"
                  "  if [ \"$a\" = --verbatim ]; then\n"
                  "    echo 'usage: git patch-id [--stable | --unstable]' >&2\n"
-                 "    exit 129\n"
+                 f"    exit {status}\n"
                  "  fi\n"
                  "done\n"
-                 f"exec '{real_git}' \"$@\"\n")
+                 f"exec {shlex.quote(real_git)} \"$@\"\n")
     shim.chmod(0o755)
-    case("git-minimum-current", mc.verbatim_patch_id_error(), None,
+
+
+def _git_minimum_shim_cases(fx, shim, real_git):
+    """The cases themselves, against a ``git`` shim rejecting ``--verbatim``."""
+    mc = fx.mc
+    case, run = fx.case, fx.run
+    #! Resolved leniently so the parent, which has no probe, prints FAIL for
+    #! these arms and still runs the rest of the suite.
+    probe = getattr(mc, "verbatim_patch_id_error", None)
+    minimum = getattr(mc, "MINIMUM_GIT", "")
+
+    def refusal():
+        return probe() if probe else "no probe"
+
+    def named(message):
+        return bool(minimum) and minimum in message and "unavailable" in message
+
+    case("git-minimum-current", refusal(), None,
          "the Git running this self-test has patch-id --verbatim")
-    old_path = os.environ["PATH"]
-    os.environ["PATH"] = f"{shim_dir}{os.pathsep}{old_path}"
+    old_path = os.environ.get("PATH")
+    searched = os.defpath if old_path is None else old_path
+    os.environ["PATH"] = f"{shim.parent}{os.pathsep}{searched}"
+    real_selftest = mc._run_selftest
     try:
-        message = mc.verbatim_patch_id_error() or ""
-        case("git-minimum-named",
-             mc.MINIMUM_GIT in message and "unavailable" in message, True,
+        _write_git_shim(shim, real_git, 129)
+        message = refusal() or ""
+        case("git-minimum-named", named(message), True,
              "a Git without --verbatim is refused naming the minimum")
         case("git-minimum-version", "git version" in message, True,
              "...and the version actually found")
@@ -316,8 +331,28 @@ def _git_minimum_shim_cases(fx, shim, real_git):
         case("git-minimum-e2e-silent",
              "STRANDED" in out or "UNKNOWN" in out or "contained" in out,
              False, "...and prints no verdict at all")
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(err):
+            mc.main([sys.argv[0], "--no-fetch", "--base", "base", "work"])
+        case("git-minimum-e2e-stderr", named(err.getvalue()), True,
+             "...and main() prints that refusal on stderr")
+        #! The probe must precede the --selftest dispatch, or the field
+        #! failure returns: run_all_suites.sh reaches eight scattered FAILs.
+        mc._run_selftest = lambda: 99
+        rc, _ = run(["--selftest"])
+        case("git-minimum-selftest-rc", rc, mc.RC_CANNOT_RUN,
+             "--selftest itself stops at the refusal before any arm runs")
+        mc._run_selftest = real_selftest
+        _write_git_shim(shim, real_git, 3)
+        case("git-minimum-any-status", named(refusal() or ""), True,
+             "a patch-id failing with another status is refused the same way")
     finally:
-        os.environ["PATH"] = old_path
+        mc._run_selftest = real_selftest
+        if old_path is None:
+            del os.environ["PATH"]
+        else:
+            os.environ["PATH"] = old_path
     rc, out = run(["--no-fetch", "--base", "base", "work"])
     case("git-minimum-restored", rc, mc.RC_FINDING,
          "the real Git measures the stranded fixture again")

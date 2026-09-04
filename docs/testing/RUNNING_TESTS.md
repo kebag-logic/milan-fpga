@@ -53,7 +53,9 @@ suite_logs=$(mktemp -d)
 scripts/run_all_suites.sh "$suite_logs"
 ```
 
-The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+The runner needs Git 2.39.0 or newer: it gates the post-merge containment
+self-test, which uses `git patch-id --verbatim`, and an older Git is refused
+by name before any suite runs. The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
 check count cannot be read. CI uses the same inventory split into deterministic
 shards. Inspect the assignment without compiling with:
