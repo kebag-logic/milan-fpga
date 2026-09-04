@@ -24,6 +24,8 @@ Typical use, from the candidate worktree::
 Use ``--sudo`` only on hosts whose Docker socket is unavailable to the current
 user. Exit 0 means every selected workflow passed; exit 1 means a workflow
 failed; exit 2 is a setup, trust-boundary, cleanup, or exact-head refusal.
+A handled terminal signal returns ``128 + signum`` only after cleanup; SIGINT
+therefore returns 130 and names itself in the final diagnostic.
 """
 
 from __future__ import annotations
@@ -35,6 +37,7 @@ import ctypes
 import hashlib
 import io
 import inspect
+import io
 import ipaddress
 import json
 import os
@@ -145,21 +148,25 @@ class TerminationRequest(BaseException):
         super().__init__(signal.Signals(signum).name)
 
 
+@dataclass
+class _CleanupSignalLatch:
+    """Record one cleanup signal without changing masks or dispositions."""
+
+    signum: int | None = None
+
+    def __call__(self, signum: int, _frame: object) -> None:
+        if self.signum is not None:
+            return
+        self.signum = signum
+        raise TerminationRequest(signum)
+
+
 @contextlib.contextmanager
 def cleanup_termination_signals() -> Iterator[None]:
     """Make INT/TERM/HUP run cleanup and defer repeats until it completes."""
     watched = CLEANUP_SIGNALS
     previous = {item: signal.getsignal(item) for item in watched}
-
-    def request_cleanup(signum: int, _frame: object) -> None:
-        # Ignore repeats while nested finally blocks reclaim Docker and disk state.
-        prior_mask = signal.pthread_sigmask(signal.SIG_BLOCK, watched)
-        try:
-            for item in watched:
-                signal.signal(item, signal.SIG_IGN)
-        finally:
-            signal.pthread_sigmask(signal.SIG_SETMASK, prior_mask)
-        raise TerminationRequest(signum)
+    request_cleanup = _CleanupSignalLatch()
 
     for item in watched:
         signal.signal(item, request_cleanup)
@@ -205,8 +212,17 @@ def deferred_cleanup_signal_delivery() -> Iterator[None]:
     """Latch one parent signal without exporting a blocked mask through exec."""
     previous = {item: signal.getsignal(item) for item in CLEANUP_SIGNALS}
     pending: list[int] = []
+    installed_handlers = tuple(previous.values())
+    first_handler = installed_handlers[0]
+    cleanup_already_latched = (
+        isinstance(first_handler, _CleanupSignalLatch)
+        and first_handler.signum is not None
+        and all(handler is first_handler for handler in installed_handlers)
+    )
 
-    if all(handler == signal.SIG_IGN for handler in previous.values()):
+    if cleanup_already_latched or all(
+        handler == signal.SIG_IGN for handler in installed_handlers
+    ):
         # A first cleanup signal has already latched and repeats must remain
         # harmless. Use caught no-op handlers so exec resets the child to its
         # default dispositions instead of inheriting SIG_IGN.
@@ -4966,20 +4982,75 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
                     try:
                         interrupt_handler(signal.SIGINT, None)
                     except TerminationRequest as exc:
+                        repeat_was_harmless = False
+                        try:
+                            interrupt_handler(signal.SIGTERM, None)
+                        except TerminationRequest:
+                            pass
+                        else:
+                            repeat_was_harmless = True
                         latched_interrupt = (
                             exc.signum == signal.SIGINT
+                            and repeat_was_harmless
+                            and isinstance(
+                                interrupt_handler, _CleanupSignalLatch
+                            )
+                            and interrupt_handler.signum == signal.SIGINT
                             and all(
-                                signal.getsignal(item) == signal.SIG_IGN
-                                for item in (
-                                    signal.SIGINT,
-                                    signal.SIGTERM,
-                                    signal.SIGHUP,
-                                )
+                                signal.getsignal(item) is interrupt_handler
+                                for item in CLEANUP_SIGNALS
                             )
                         )
             check(
-                "the first handled signal defers repeats until cleanup completes",
+                "the first handled signal latches and repeats stay harmless",
                 latched_interrupt,
+            )
+            handler_api_calls: list[str] = []
+            handler_race_rc: int | None = None
+            handler_race_error = ""
+            handler_race_stderr = io.StringIO()
+            original_pthread_sigmask = signal.pthread_sigmask
+            original_signal = signal.signal
+
+            def fail_handler_mask(
+                *_args: object, **_kwargs: object
+            ) -> None:
+                handler_api_calls.append("pthread_sigmask")
+                raise OSError("Signal 2 ignored due to race condition")
+
+            def fail_handler_disposition(
+                *_args: object, **_kwargs: object
+            ) -> None:
+                handler_api_calls.append("signal")
+                raise OSError("signal disposition changed during delivery")
+
+            def adversarial_sigint() -> int:
+                setattr(signal, "pthread_sigmask", fail_handler_mask)
+                setattr(signal, "signal", fail_handler_disposition)
+                try:
+                    signal.raise_signal(signal.SIGINT)
+                finally:
+                    setattr(signal, "signal", original_signal)
+                    setattr(signal, "pthread_sigmask", original_pthread_sigmask)
+                return RC_OK
+
+            try:
+                with contextlib.redirect_stderr(handler_race_stderr):
+                    handler_race_rc = run_with_cleanup_signals(
+                        adversarial_sigint
+                    )
+            except OSError as exc:
+                handler_race_error = str(exc)
+            finally:
+                setattr(signal, "signal", original_signal)
+                setattr(signal, "pthread_sigmask", original_pthread_sigmask)
+            check(
+                "SIGINT handler avoids the Python signal-mask race",
+                handler_race_rc == 128 + signal.SIGINT
+                and not handler_race_error
+                and not handler_api_calls
+                and handler_race_stderr.getvalue()
+                == "act-ci: interrupted by SIGINT after cleanup\n",
             )
             deferred_interrupt = False
             with cleanup_termination_signals():
@@ -6377,7 +6448,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
 
 
 def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
-    """Prove tool-cache separation, then interrupt act and verify cleanup."""
+    """Prove tool-cache separation, then SIGINT act and verify cleanup."""
     probe_pr = PullRequest(
         number=1,
         state="OPEN",
@@ -6747,7 +6818,7 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                                                     "privileged act child was not frozen"
                                                 )
                                             frozen.set()
-                                            os.kill(os.getpid(), signal.SIGTERM)
+                                            os.kill(os.getpid(), signal.SIGINT)
                                         except (OSError, Refusal) as exc:
                                             monitor_problems.append(
                                                 "cannot freeze live act process: "
@@ -6787,7 +6858,7 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         monitor, "interrupt monitor"
                     )
 
-                interrupted = False
+                interrupted_signal: int | None = None
                 try:
                     result = run_act_process(
                         command,
@@ -6802,7 +6873,11 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         and exc.signum not in (signal.SIGINT, signal.SIGTERM)
                     ):
                         raise
-                    interrupted = True
+                    interrupted_signal = (
+                        signal.SIGINT
+                        if isinstance(exc, KeyboardInterrupt)
+                        else exc.signum
+                    )
                 finally:
                     cancel_and_join_cleanup_threads(
                         monitor_cancel,
@@ -6816,10 +6891,14 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
                         ),
                         monitor_problems,
                     )
-                if not interrupted:
+                if interrupted_signal is None:
                     raise Refusal(
                         f"interrupt self-test act process exited {result.returncode} "
                         "before fault injection"
+                    )
+                if interrupted_signal != signal.SIGINT:
+                    raise Refusal(
+                        "interrupt self-test did not deliver the expected SIGINT"
                     )
                 if monitor_problems:
                     raise Refusal(monitor_problems[0])
@@ -6855,9 +6934,12 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
         )
         if not process_group_reaped.is_set():
             raise Refusal("interrupt self-test did not prove process-group absence")
+    if run_root.exists() or run_root.is_symlink():
+        raise Refusal("interrupt self-test left its exact run directory")
     print(
-        "interrupt-selftest: PASS (tool cache did not cross runs; the frozen "
-        "act process group left no process, container, network, or volume)"
+        "interrupt-selftest: PASS (SIGINT returned after the frozen act process "
+        "group, containers, network, tool-cache volume, and run directory were "
+        "absent; the tool cache did not cross runs)"
     )
     return RC_OK
 
@@ -6903,7 +6985,7 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument(
         "--interrupt-selftest",
         action="store_true",
-        help="freeze a live act job and verify Docker cleanup (requires Docker)",
+        help="SIGINT a frozen live act job and verify cleanup (requires Docker)",
     )
     args = parser.parse_args(argv[1:])
 

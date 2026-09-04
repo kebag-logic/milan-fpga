@@ -857,7 +857,7 @@ An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
 through the effective runner tool cache and proves a second fresh run cannot see
 it. It then starts a harmless sleeping job, inspects the real cache mount, waits
-for the owned container, freezes the `act` process group, delivers `SIGTERM` to
+for the owned container, freezes the `act` process group, delivers `SIGINT` to
 the runner, and requires the container, network, tool-cache volume, and run
 directory to be absent afterward. With `--sudo`, the probe also requires a root
 `act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
@@ -1049,11 +1049,17 @@ attempts and verifies removal of both the network and tool-cache volume so a
 failure inspecting either cannot suppress teardown of the other. Only then does
 sudo ownership recovery and recursive run-directory removal begin. Any
 unverifiable absence changes an otherwise green run to exit 2. `SIGINT`,
-`SIGTERM`, and `SIGHUP` all unwind through this cleanup; TERM/HUP retain their
-conventional `128 + signal` exit status after cleanup. The first handled signal
-latches the interruption and defers repeats of all three until every nested
-cleanup and absence check completes; a first signal that arrives after cleanup
-has already begun is blocked and delivered only after that cleanup scope exits.
+`SIGTERM`, and `SIGHUP` all unwind through this cleanup and retain their
+conventional `128 + signal` exit status after cleanup (`130` for `SIGINT`). The
+top-level Python handler only records the first signal and raises the cleanup
+request; it does not change a signal mask or disposition during delivery, so a
+deferred-signal race cannot escape the handler. Repeats of all three become
+harmless until every nested cleanup and absence check completes; a first signal
+that arrives after cleanup has already begun is blocked and delivered only after
+that cleanup scope exits. The offline self-test injects failures into the mask
+and disposition APIs while delivering a real `SIGINT`, and requires the handler
+to avoid both APIs, return 130, and print its attributable post-cleanup
+diagnostic.
 Every runner-created worker inherits those signals blocked, preventing the
 Python handler from being dispatched through a monitor thread while main is in
 a protected cleanup tail; the offline gate sends a process-directed signal with
