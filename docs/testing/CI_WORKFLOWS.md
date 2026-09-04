@@ -857,9 +857,11 @@ An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
 through the effective runner tool cache and proves a second fresh run cannot see
 it. It then plants two act-shaped volumes the runner did not create, one
-outside the sleeping job's workflow lease and one inside it, and requires the
-inside one to refuse acquisition while both survive. It then starts a harmless
-sleeping job, inspects the real cache mount and the two job volumes `act`
+outside the sleeping job's workflow lease and one inside it, requires the
+inside one to refuse acquisition while both survive, and removes the inside
+one itself before it can start the sleeping job; the outside one it removes
+only after the interrupted boundary has proven it survived. It then starts a
+harmless sleeping job, inspects the real cache mount and the two job volumes `act`
 created for it, waits for the owned container, freezes the `act` process
 group, delivers `SIGINT` to the runner, and requires the container, network,
 tool-cache volume, both job volumes, and run directory to be absent afterward
@@ -995,19 +997,25 @@ never from a run token, and removes them only inside its own graceful teardown.
 Forced process-group containment bypasses that path, and container removal
 with `--volumes` drops only anonymous volumes, so an interrupted job used to
 leave both named volumes behind. The runner therefore leases those names by
-workflow: every selected workflow must declare a `name:`, the boundary records
-the act prefix derived from it, every act command requires that lease, and
-acquisition refuses when any volume inside the scope already exists, naming it
-and never removing it, because act would otherwise reuse it as the candidate's
-workspace or environment. After the process group and owned containers are
-proven absent, cleanup removes each volume inside the scope or observed
-mounted on an owned container without force, requires a stable absence window,
-reports any survivor or any volume another container still holds, and flags an
-observed volume outside the scope as lease drift. A volume outside the scope is
-never touched, so an act-shaped volume from another workflow survives; the
-serialization the tool-cache name already demands also covers a rival running
-the same workflow name concurrently. The offline self-test pins the name
-derivation to a volume name a live `act` 0.2.89 produced.
+workflow: every selected workflow must declare a `name:` that sanitizes to a
+prefix act keeps intact (at most 63 characters of letters, digits, and single
+hyphens; act trims the part before the hash to 63 characters), no selected
+name may be a hyphen-prefix of another, the boundary records the act prefix
+derived from each name, every act command requires that lease, and the runner
+refuses before any Docker mutation and again right before each act spawn when
+any volume inside the scope already exists, naming it and never removing it,
+because act would otherwise reuse it as the candidate's workspace or
+environment. After the process group is proven absent and owned-container
+removal has run, cleanup removes each volume inside the scope without force,
+requires a stable absence window, and reports any survivor, any volume another
+container still holds, and any failed inventory. A volume outside the scope is
+never touched: an act-shaped volume from another workflow survives, and one an
+owned container mounted is preserved and reported as lease drift, because
+acquisition never proved that name absent. The serialization the tool-cache
+name already demands also covers a rival running the same workflow name
+concurrently. The offline self-test pins the name derivation to a volume name
+a live `act` 0.2.89 produced and pins that no shipping workflow name is a
+hyphen-prefix of another.
 
 A freshly created empty tool-cache volume also exposes a Docker daemon race
 (#315). Sibling jobs in one workflow start their containers concurrently, and
