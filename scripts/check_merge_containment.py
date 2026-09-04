@@ -6,6 +6,9 @@
     python3 scripts/check_merge_containment.py --selftest
     python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)
 
+    Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from
+    ``git patch-id --verbatim``, and an older Git is refused by name.
+
 WHY THIS EXISTS
 ---------------
 A pull request merged before review activity stops can leave later work
@@ -72,6 +75,11 @@ RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
 DEFAULT_BASE = "origin/dev"
 RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
                   "--ignore-submodules=none")
+#! `git patch-id --verbatim` arrived in 2.39.0 and is the whole basis of the
+#! whitespace-exact fallback.  An older Git answered every measurement with
+#! an opaque UNKNOWN: eight scattered self-test failures and no version in
+#! sight (#351).  Refuse it once, by name, before any verdict.
+MINIMUM_GIT = "2.39.0"
 
 
 def _git(*args):
@@ -83,6 +91,19 @@ def _git(*args):
     p = subprocess.run(("git", "--no-replace-objects") + args,
                        capture_output=True, text=True)
     return p.returncode, p.stdout.rstrip("\n")
+
+
+def verbatim_patch_id_error() -> str | None:
+    """Explain a Git without ``patch-id --verbatim``, or return None."""
+    p = subprocess.run(("git", "patch-id", "--verbatim"), input="",
+                       capture_output=True, text=True)
+    if p.returncode == 0:
+        return None
+    rc, version = _git("--version")
+    found = version if rc == 0 and version else "a Git of unknown version"
+    return (f"git patch-id --verbatim is unavailable ({found}); "
+            f"whitespace-exact patch identity needs Git {MINIMUM_GIT} or "
+            f"newer")
 
 
 def active_graft_error() -> str | None:
@@ -909,6 +930,11 @@ def main(argv: list[str]) -> int:
     graft_error = active_graft_error()
     if graft_error:
         sys.stderr.write(graft_error + "\n")
+        return RC_CANNOT_RUN
+
+    git_error = verbatim_patch_id_error()
+    if git_error:
+        sys.stderr.write(git_error + "\n")
         return RC_CANNOT_RUN
 
     if "--selftest" in args:

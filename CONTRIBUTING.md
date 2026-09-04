@@ -201,6 +201,10 @@ flowchart LR
    python3 scripts/check_merge_review_integrity.py           # NEGATIVE merges / open Issues
    ```
 
+   Both commands need Git 2.39.0 or newer, the release that added
+   `git patch-id --verbatim`; an older Git is refused by name before any
+   verdict, and so is the self-test.
+
    It exits non-zero and names the count when commits are left behind. Replayed
    against the two merge points in step 6 it reports **3** stranded commits for
    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed

@@ -19,6 +19,7 @@ the suite is in ``merge_containment_selftest_content.py``.
 import contextlib
 import io
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -90,6 +91,7 @@ def selftest(module: ModuleType) -> int:
             os.chdir(td)
             _linear_history_cases(fx)
             _cli_option_cases(fx)
+            _git_minimum_cases(fx)
 
             # Fetch updates origin/work but not the checked-out local work
             # branch.  The default path must assess the fetched tip, or the
@@ -266,6 +268,59 @@ def _cli_option_cases(fx):
     rc, out = run(["--no-fetch", "--merged-prs", "1", "work"])
     case("e2e-sweep-operand", rc, RC_CANNOT_RUN,
          "a merged sweep cannot silently ignore a branch operand")
+
+
+def _git_minimum_cases(fx):
+    """Prove an old Git is refused by name, not through scattered UNKNOWNs.
+
+    #351: Git 2.38 and older have no ``patch-id --verbatim``; the fallback
+    then failed eight arms with "could not measure" and never said why.
+    """
+    mc = fx.mc
+    case, run = fx.case, fx.run
+    real_git = shutil.which("git")
+    #! Outside the fixture repository: an untracked directory inside it would
+    #! ride along with a later `add -A` and change what the content cases see.
+    with tempfile.TemporaryDirectory() as shim_home:
+        _git_minimum_shim_cases(fx, Path(shim_home) / "git", real_git)
+
+
+def _git_minimum_shim_cases(fx, shim, real_git):
+    """The cases themselves, against a ``git`` shim rejecting ``--verbatim``."""
+    mc = fx.mc
+    case, run = fx.case, fx.run
+    shim_dir = shim.parent
+    _write(shim, "#!/bin/sh\n"
+                 "for a in \"$@\"; do\n"
+                 "  if [ \"$a\" = --verbatim ]; then\n"
+                 "    echo 'usage: git patch-id [--stable | --unstable]' >&2\n"
+                 "    exit 129\n"
+                 "  fi\n"
+                 "done\n"
+                 f"exec '{real_git}' \"$@\"\n")
+    shim.chmod(0o755)
+    case("git-minimum-current", mc.verbatim_patch_id_error(), None,
+         "the Git running this self-test has patch-id --verbatim")
+    old_path = os.environ["PATH"]
+    os.environ["PATH"] = f"{shim_dir}{os.pathsep}{old_path}"
+    try:
+        message = mc.verbatim_patch_id_error() or ""
+        case("git-minimum-named",
+             mc.MINIMUM_GIT in message and "unavailable" in message, True,
+             "a Git without --verbatim is refused naming the minimum")
+        case("git-minimum-version", "git version" in message, True,
+             "...and the version actually found")
+        rc, out = run(["--no-fetch", "--base", "base", "work"])
+        case("git-minimum-e2e-rc", rc, mc.RC_CANNOT_RUN,
+             "...and main() cannot run instead of answering UNKNOWN")
+        case("git-minimum-e2e-silent",
+             "STRANDED" in out or "UNKNOWN" in out or "contained" in out,
+             False, "...and prints no verdict at all")
+    finally:
+        os.environ["PATH"] = old_path
+    rc, out = run(["--no-fetch", "--base", "base", "work"])
+    case("git-minimum-restored", rc, mc.RC_FINDING,
+         "the real Git measures the stranded fixture again")
 
 
 def _fetched_tip_cases(fx):
