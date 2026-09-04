@@ -20,6 +20,7 @@ Use this page for parent RTL changes.
 | Parent transport | `KL_gptp_shadow` |
 | Egress capture | `KL_gptp_txstamp` |
 | PHC arithmetic | `timestamp_counter` |
+| PHC clock domain | `milan_datapath` ties `gtx_clk` to `axis_clk` |
 | Time validity | `KL_ptp_clock_validity` |
 | Public ABI | `milan_csr` and processor wrapper |
 
@@ -34,6 +35,23 @@ Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf8
 ![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/bacf812178ea0e0ca843b5c332dd62414f701fad/docs/diagrams/wavedrom/rx_accept.svg)
 
 ![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/bacf812178ea0e0ca843b5c332dd62414f701fad/docs/diagrams/wavedrom/tx_backpressure.svg)
+
+![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
+
+The parent chronogram proves three orderings:
+
+- The tuple returns on accepted beat 5, before EOF.
+- Ingress commit follows nine accepted beats.
+- Engine SOF follows the commit by three cycles.
+
+Clock-domain precondition:
+
+- The PHC counts on `gtx_clk`.
+- The shadow samples `phc_ns_i` on `axis_clk`.
+- Every real instantiation ties `gtx_clk` to `axis_clk`.
+- `ptp_csr_sync` crosses CSR commands only.
+
+Timing rules:
 
 - RX acceptance requires a real parent transfer.
 - RX timestamps remain paired through frame commit.

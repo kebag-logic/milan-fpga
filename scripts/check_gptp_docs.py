@@ -9,6 +9,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -46,6 +47,7 @@ DOCUMENT_TOKENS = {
         "Publication",
         "make -C gptp-processor",
         "make -C tb/verilator/gptp_shadow",
+        "PTP_INGRESS_LAT",
     ),
     "docs/design/TIME_SYNC.md": (
         "crf.media-clock-consumption",
@@ -55,6 +57,9 @@ DOCUMENT_TOKENS = {
         "Media clock",
         "KL_media_grid_align",
         "tu",
+        "391/1591",
+        "1.9582 s",
+        "EARLY_MARGIN_NS_C",
     ),
     "docs/design/GM_LOSS_RECOVERY.md": (
         "Announce timeout",
@@ -74,18 +79,22 @@ DOCUMENT_TOKENS = {
         "Risks",
         "Issue #74",
         "Issue #117",
+        "GM_LOSS_RECOVERY.md",
     ),
     "docs/guides/gptp/SYSTEM_INTEGRATOR.md": (
         "Configure",
         "Connect",
         "Observe",
         "Verify",
+        "GM_LOSS_RECOVERY.md",
     ),
     "docs/guides/gptp/HDL_DEVELOPER.md": (
         "KL_gptp_shadow",
         "KL_gptp_txstamp",
         "rx_accept.svg",
         "tx_backpressure.svg",
+        "wd_gptp_pdelay.svg",
+        "gtx_clk",
     ),
     "docs/guides/gptp/TEST_DEVELOPER.md": (
         "| Python |",
@@ -127,7 +136,7 @@ SOURCE_TOKENS = {
 WAVEDROM_TOKENS = (
     "accepted MAC SOF",
     "TX PHC capture",
-    "accepted sequence beat 5",
+    "accepted seq beat 5",
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
@@ -143,8 +152,8 @@ WAVEDROM_TOKENS = (
 # registered tuple before a normal Pdelay frame reaches tx_tlast_i. This order
 # is the interface contract; labels alone cannot prove it.
 WAVEDROM_ORDER = (
-    ("accepted MAC SOF", "accepted sequence beat 5"),
-    ("accepted sequence beat 5", "returned tuple"),
+    ("accepted MAC SOF", "accepted seq beat 5"),
+    ("accepted seq beat 5", "returned tuple"),
     ("returned tuple", "accepted MAC EOF"),
     ("accepted tap SOF", "accepted tap EOF"),
     ("accepted tap EOF", "frame FIFO commit"),
@@ -166,6 +175,11 @@ WAVEDROM_EXACT_DELTA = (
     ("accepted tap EOF", "frame FIFO commit", 1),
     ("frame FIFO commit", "engine RX SOF", 3),
 )
+# The one asserted event of an oracle signal is a level `1` or a WaveDrom value
+# symbol; the cycle is the symbol's string index, so `period`, `phase` and the
+# `|` stall - each of which moves a symbol off its index - are refused.
+VALUE_SYMBOLS = frozenset("=23456789")
+STALL_SYMBOL = "|"
 
 SUBMODULE_DOCS = (
     "README.md",
@@ -324,51 +338,88 @@ def flatten_json(value: object) -> list[str]:
     return [str(value)]
 
 
-def named_waves(value: object) -> dict[str, list[str]]:
-    """Collect every named WaveDrom signal without assuming group layout."""
-    waves: dict[str, list[str]] = {}
+def named_signals(value: object) -> dict[str, list[dict[str, object]]]:
+    """Collect every named WaveDrom signal object without assuming group layout."""
+    signals: dict[str, list[dict[str, object]]] = {}
     if isinstance(value, dict):
         name = value.get("name")
-        wave = value.get("wave")
-        if isinstance(name, str) and isinstance(wave, str):
-            waves.setdefault(name, []).append(wave)
+        if isinstance(name, str) and isinstance(value.get("wave"), str):
+            signals.setdefault(name, []).append(value)
         children = value.values()
     elif isinstance(value, list):
         children = value
     else:
         children = ()
     for child in children:
-        for child_name, items in named_waves(child).items():
-            waves.setdefault(child_name, []).extend(items)
-    return waves
+        for child_name, items in named_signals(child).items():
+            signals.setdefault(child_name, []).extend(items)
+    return signals
+
+
+def named_waves(value: object) -> dict[str, list[str]]:
+    """The wave string of every named WaveDrom signal, by name."""
+    return {
+        name: [str(signal["wave"]) for signal in signals]
+        for name, signals in named_signals(value).items()
+    }
+
+
+def timing_signal_names() -> set[str]:
+    """Every signal the order, same-cycle and exact-interval checks name."""
+    names = {name for pair in WAVEDROM_ORDER for name in pair}
+    names.update(name for pair in WAVEDROM_SAME_CYCLE for name in pair)
+    names.update(
+        name for before, after, _ in WAVEDROM_EXACT_DELTA for name in (before, after)
+    )
+    return names
+
+
+def event_cycle(
+    name: str, signal: dict[str, object], label: str
+) -> tuple[int | None, str]:
+    """The cycle of the one asserted event of an oracle signal, or None and the
+    finding: a `period`, a `phase` or a `|` stall is refused because the cycle
+    is read from the wave's string index, and exactly one `1` or value symbol
+    (`=`, `2`-`9`) must remain."""
+    for key in ("period", "phase"):
+        if key in signal:
+            return None, (
+                f"{label}: signal {name!r} must not set {key}; the timing oracle "
+                "reads cycles from wave indices"
+            )
+    wave = str(signal["wave"])
+    if STALL_SYMBOL in wave:
+        return None, (
+            f"{label}: signal {name!r} must not contain a {STALL_SYMBOL!r} stall; "
+            "the timing oracle reads cycles from wave indices"
+        )
+    events = [
+        index for index, symbol in enumerate(wave)
+        if symbol == "1" or symbol in VALUE_SYMBOLS
+    ]
+    if len(events) != 1:
+        return None, f"{label}: signal {name!r} must contain one asserted event"
+    return events[0], ""
 
 
 def wavedrom_value_findings(value: object, label: str) -> list[str]:
     """Label, order, same-cycle and exact-interval findings for one parsed
     WaveDrom document; `label` names it in each finding."""
     findings = token_findings(label, "\n".join(flatten_json(value)), WAVEDROM_TOKENS)
-    waves = named_waves(value)
+    signals = named_signals(value)
     cycles: dict[str, int] = {}
-    ordered_names = {name for pair in WAVEDROM_ORDER for name in pair}
-    ordered_names.update(name for pair in WAVEDROM_SAME_CYCLE for name in pair)
-    ordered_names.update(
-        name for before, after, _ in WAVEDROM_EXACT_DELTA
-        for name in (before, after)
-    )
-    for name in sorted(ordered_names):
-        matches = waves.get(name, [])
+    for name in sorted(timing_signal_names()):
+        matches = signals.get(name, [])
         if len(matches) != 1:
             findings.append(
                 f"{label}: expected one named signal {name!r}, found {len(matches)}"
             )
             continue
-        rises = [index for index, symbol in enumerate(matches[0]) if symbol == "1"]
-        if len(rises) != 1:
-            findings.append(
-                f"{label}: signal {name!r} must contain one asserted event"
-            )
+        cycle, finding = event_cycle(name, matches[0], label)
+        if cycle is None:
+            findings.append(finding)
             continue
-        cycles[name] = rises[0]
+        cycles[name] = cycle
     for before, after in WAVEDROM_ORDER:
         if before in cycles and after in cycles and cycles[before] >= cycles[after]:
             findings.append(
@@ -447,8 +498,10 @@ def gitlink_pin() -> str:
     return fields[1]
 
 
-def submodule_findings(root: Path = ROOT) -> list[str]:
-    """Findings for a donor checkout that is absent, off-pin, or missing a page."""
+def submodule_findings(root: Path = ROOT, *, pin: str | None = None) -> list[str]:
+    """Findings for the donor checkout under `root` when it is absent, off the
+    pin (`pin`; the production gitlink unless a fixture supplies one), or
+    missing a donor page."""
     checkout = root / "gptp-processor"
     if not checkout.is_dir():
         return ["gptp-processor: checkout is missing"]
@@ -459,7 +512,8 @@ def submodule_findings(root: Path = ROOT) -> list[str]:
             capture_output=True,
             text=True,
         ).stdout.strip()
-        pin = gitlink_pin()
+        if pin is None:
+            pin = gitlink_pin()
     except (OSError, subprocess.CalledProcessError, ValueError) as error:
         return [f"gptp-processor: cannot verify checkout: {error}"]
     findings = []
@@ -479,15 +533,18 @@ class SelftestFailure(Exception):
 
 def move_event(value: object, name: str, cycle: int) -> int:
     """Move the single asserted event of every signal named `name` to `cycle`
-    inside a parsed WaveDrom document; returns how many signals moved."""
+    inside a parsed WaveDrom document, keeping its symbol - a level `1` or a
+    value symbol; returns how many signals moved."""
     moved = 0
     if isinstance(value, dict):
         if value.get("name") == name and isinstance(value.get("wave"), str):
             symbols = list(value["wave"])
             if cycle >= len(symbols):
                 raise ValueError(f"cycle {cycle} is outside {name!r}")
-            symbols = ["." if symbol == "1" else symbol for symbol in symbols]
-            symbols[cycle] = "1"
+            events = [s for s in symbols if s == "1" or s in VALUE_SYMBOLS]
+            marker = events[0] if events else "1"
+            symbols = ["." if symbol == marker else symbol for symbol in symbols]
+            symbols[cycle] = marker
             value["wave"] = "".join(symbols)
             moved += 1
         children = value.values()
@@ -640,6 +697,84 @@ def wavedrom_selftest() -> int:
     return 6
 
 
+def wavedrom_shape_selftest() -> int:
+    """The wave-shape arms: the value form of the returned tuple is read as
+    its event, so displacing that `=` past EOF is caught as an order defect;
+    then a `period`, a `phase` and a `|` stall on an oracle signal are each
+    refused."""
+    production = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+    waves = named_waves(production)
+    if not set(waves["returned tuple"][0]) & VALUE_SYMBOLS:
+        raise SelftestFailure("production returned tuple is not a value wave")
+    eof_cycle = waves["accepted MAC EOF"][0].index("1")
+    if move_event(production, "returned tuple", eof_cycle + 1) != 1:
+        raise SelftestFailure("value fixture drift")
+    if not any(
+        "'returned tuple' must precede 'accepted MAC EOF'" in finding
+        for finding in wavedrom_value_findings(production, "fixture")
+    ):
+        raise SelftestFailure("displaced value symbol escaped")
+    for key, mutation in (("period", 2), ("phase", 0.5), ("wave", STALL_SYMBOL)):
+        mutated = json.loads(WAVEDROM.read_text(encoding="utf-8"))
+        signal = named_signals(mutated)["accepted tap SOF"][0]
+        if key == "wave":
+            signal["wave"] = STALL_SYMBOL + str(signal["wave"])[1:]
+        else:
+            signal[key] = mutation
+        if not any(
+            "'accepted tap SOF' must not" in finding
+            for finding in wavedrom_value_findings(mutated, "fixture")
+        ):
+            raise SelftestFailure(f"{key} on an oracle signal escaped")
+    return 4
+
+
+def submodule_selftest() -> int:
+    """The donor-checkout arms on a temporary root: no checkout directory, a
+    checkout whose HEAD is not the pin, and a checkout at the pin that lacks
+    one donor page - each a finding naming its defect."""
+    with tempfile.TemporaryDirectory(prefix="gptp-docs-selftest-") as directory:
+        root = Path(directory)
+        missing = ["gptp-processor: checkout is missing"]
+        if submodule_findings(root, pin="0" * 40) != missing:
+            raise SelftestFailure("absent donor checkout escaped")
+        checkout = root / "gptp-processor"
+        for relative in SUBMODULE_DOCS:
+            page = checkout / relative
+            page.parent.mkdir(parents=True, exist_ok=True)
+            page.write_text("fixture\n", encoding="utf-8")
+        git = [
+            "git", "-c", "user.name=fixture", "-c", "user.email=fixture@invalid",
+            "-c", "commit.gpgsign=false", "-c", "init.defaultBranch=main",
+            "-C", str(checkout),
+        ]
+        subprocess.run(git + ["init", "-q"], check=True, capture_output=True)
+        subprocess.run(
+            git + ["commit", "-q", "--allow-empty", "-m", "fixture"],
+            check=True,
+            capture_output=True,
+        )
+        head = subprocess.run(
+            git + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True
+        ).stdout.strip()
+        stale = "0" * 40 if head != "0" * 40 else "1" * 40
+        if not any(
+            "differs from pin" in finding
+            for finding in submodule_findings(root, pin=stale)
+        ):
+            raise SelftestFailure("off-pin donor checkout escaped")
+        if submodule_findings(root, pin=head):
+            raise SelftestFailure("pinned donor checkout fixture failed")
+        (checkout / SUBMODULE_DOCS[-1]).unlink()
+        expected = [
+            f"gptp-processor/{SUBMODULE_DOCS[-1]}: required donor documentation "
+            "is missing"
+        ]
+        if submodule_findings(root, pin=head) != expected:
+            raise SelftestFailure("missing donor page escaped")
+    return 3
+
+
 def document_selftest() -> int:
     """The page arms: production pages and source pass, and both manager
     contradictions - a wrong status row, a retired risk sentence - are found."""
@@ -668,8 +803,9 @@ def document_selftest() -> int:
 
 
 def selftest() -> int:
-    """Run every fixture arm against the production gitlink; 1 names the first
-    arm that did not bite."""
+    """Run every fixture arm - links, references, tokens, the WaveDrom timing
+    and shape oracles, the pages, and the donor checkout on a temporary root -
+    against the production gitlink; 1 names the first arm that did not bite."""
     try:
         pin = gitlink_pin()
     except (OSError, subprocess.CalledProcessError, ValueError) as error:
@@ -681,7 +817,9 @@ def selftest() -> int:
             + reference_selftest(pin)
             + token_selftest()
             + wavedrom_selftest()
+            + wavedrom_shape_selftest()
             + document_selftest()
+            + submodule_selftest()
         )
     except SelftestFailure as failure:
         print(f"gPTP docs selftest: {failure}")
