@@ -26,6 +26,13 @@ MARKDOWN_REFERENCE_TARGET_RE = re.compile(
     re.MULTILINE,
 )
 MARKDOWN_AUTOLINK_RE = re.compile(r"<(https?://[^>\s]+)>")
+# Every way a page can name a donor revision, Markdown link or not: a bare
+# URL GitHub autolinks, an HTML anchor, and the blob/tree/raw/blame/commit
+# forms of the web host beside the raw host. The ref is the next segment.
+DONOR_REFERENCE_RE = re.compile(
+    r"https?://(?:github\.com/Mister-M-alt/FPGA-gPTP/(?:blob|tree|raw|blame|commit)"
+    r"|raw\.githubusercontent\.com/Mister-M-alt/FPGA-gPTP)/([^/\s)\]>\"'#?]+)"
+)
 
 DOCUMENT_TOKENS = {
     "docs/design/GPTP_PLANE.md": (
@@ -269,6 +276,18 @@ def donor_target_findings(
     return []
 
 
+def donor_reference_findings(label: str, text: str, pin: str) -> list[str]:
+    """One finding per donor revision named anywhere in `text` that is not the
+    gitlink pin, whatever syntax carries the URL."""
+    return [
+        f"{label}: donor reference must use gitlink {pin}, found {ref}: "
+        f"{match.group(0)}"
+        for match in DONOR_REFERENCE_RE.finditer(text)
+        for ref in (match.group(1),)
+        if ref != pin
+    ]
+
+
 def donor_link_findings(
     pin: str,
     *,
@@ -282,11 +301,12 @@ def donor_link_findings(
         if "history" in relative.parts:
             continue
         try:
-            targets = markdown_targets(document.read_text(encoding="utf-8"))
+            text = document.read_text(encoding="utf-8")
         except OSError as error:
             findings.append(f"{relative.as_posix()}: cannot read links: {error}")
             continue
-        for target in targets:
+        findings.extend(donor_reference_findings(relative.as_posix(), text, pin))
+        for target in markdown_targets(text):
             findings.extend(
                 donor_target_findings(
                     document, target, pin, root=root, checkout=checkout
@@ -524,6 +544,30 @@ def link_selftest(pin: str) -> int:
     return 6
 
 
+def reference_selftest(pin: str) -> int:
+    """The raw-reference arms: a bare URL, an HTML anchor, a tree URL and a
+    web-host raw URL at a stale revision are each found; the pinned forms pass."""
+    stale = "0" * 40 if pin != "0" * 40 else "1" * 40
+    stale_forms = (
+        f"see {DONOR_BLOB_ROOT}/{stale}/docs/MANAGER.md for the rest",
+        f'<a href="{DONOR_BLOB_ROOT}/{stale}/docs/MANAGER.md">guide</a>',
+        f"[tree](https://github.com/Mister-M-alt/FPGA-gPTP/tree/{stale}/docs)",
+        f"![w](https://github.com/Mister-M-alt/FPGA-gPTP/raw/{stale}/docs/x.svg)",
+    )
+    for text in stale_forms:
+        if not donor_reference_findings("fixture", text, pin):
+            raise SelftestFailure(f"stale donor reference escaped: {text}")
+    pinned = (
+        f"see {DONOR_BLOB_ROOT}/{pin}/docs/MANAGER.md#risks for the rest",
+        f"![w]({DONOR_RAW_ROOT}/{pin}/docs/diagrams/wavedrom/rx_accept.svg)",
+        "a clone URL https://github.com/Mister-M-alt/FPGA-gPTP.git names no revision",
+    )
+    for text in pinned:
+        if donor_reference_findings("fixture", text, pin):
+            raise SelftestFailure(f"pinned donor reference failed: {text}")
+    return len(stale_forms) + 1
+
+
 def token_selftest() -> int:
     """The token arms: a complete fixture passes, a missing token is found."""
     if token_findings("fixture", "alpha beta", ("alpha", "beta")):
@@ -634,6 +678,7 @@ def selftest() -> int:
     try:
         arms = (
             link_selftest(pin)
+            + reference_selftest(pin)
             + token_selftest()
             + wavedrom_selftest()
             + document_selftest()
