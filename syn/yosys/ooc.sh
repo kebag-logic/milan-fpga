@@ -32,7 +32,16 @@
 # Requires: yosys, sv2v (see README.md).
 # Self-test: syn/yosys/ooc_selftest.py drives the refusals on planted failures.
 
-set -u
+# THE TRIO IS SAFE HERE ONLY BECAUSE THE EXPECTED FAILURES ARE NAMED. This is
+# a measuring sweep: a top that fails must print its row and be counted in
+# $status, never end the run. So the yosys subshell's status is taken with
+# `|| yosys_rc=$?` and not with a bare `; yosys_rc=$?` (which under errexit
+# aborts the sweep on the first red top), each `grep` that may legitimately
+# match nothing is taken explicitly where it is read, and the EXIT trap's
+# chmod carries `|| true` so a run directory already gone cannot cut the
+# cleanup short and turn a clean exit into a 1. Every other refusal here is
+# already an `if !` or an `|| exit 2`, which errexit leaves exactly as it is.
+set -euo pipefail
 # The allocator rules, shared with run.sh. This script never moves the main
 # shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
 # subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
@@ -70,7 +79,10 @@ TMP="$(cd "$TMP" && pwd -P)" || exit 2
 # same trap. OOC_TMP still means "keep the artefacts".
 RUNDIR=""
 ooc_cleanup() {
-  [ -z "$RUNDIR" ] || { chmod u+w "$RUNDIR" 2>/dev/null; rm -rf "$RUNDIR"; }
+  # The chmod is best-effort and SAYS so: under errexit a run directory that
+  # is already gone would otherwise end this trap before the rm below it, and
+  # a failing EXIT trap also replaces a clean exit status with 1.
+  [ -z "$RUNDIR" ] || { chmod u+w "$RUNDIR" 2>/dev/null || true; rm -rf "$RUNDIR"; }
   [ -z "${LEDGER_STAGE:-}" ] || rm -f "$LEDGER_STAGE"
   [ -n "${OOC_TMP:-}" ] || rm -rf "$TMP"
 }
@@ -142,7 +154,7 @@ tops=(
 # recogniser accepts what it has modelled and bash accepts something else
 # (syn/ooc/dp_srcs.py records four escapes that worked exactly that way).
 if [ "${1:-}" = "--emit-dp" ]; then
-  printf '%s\n' $DP_SRCS
+  printf '%s\n' $DP_SRCS  # shellcheck disable=SC2086 - deliberate split: one word per source is the whole point of this flag
   exit 0
 fi
 
@@ -215,8 +227,11 @@ done
 #     validated digest before AND after the run.
 one_pp_source() { # <basename> -> the ONE population entry carrying it, or die
   local hits n
-  hits=$(printf '%s\n' $PP_DERIVED | grep "/$1\$")
-  n=$(printf '%s\n' "$hits" | grep -c .)
+  # NO MATCH IS AN ANSWER, and the refusal below is where it is reported: both
+  # greps are entitled to come back empty, so neither status ends the script
+  # before the diagnostic that names the file it was looking for.
+  hits=$(printf '%s\n' $PP_DERIVED | grep "/$1\$") || true
+  n=$(printf '%s\n' "$hits" | grep -c .) || true
   if [ "$n" -ne 1 ]; then
     echo "ooc.sh: FATAL: expected exactly one $1 in the derived processor population, found $n - geometry comes from the record pp_srcs.py hands this script, and it did not" >&2
     exit 2
@@ -307,6 +322,12 @@ GPTP_UCODE_W=$(nibble_width GPTP_UCODE_W_C "$GPTP_UCODE_W") || exit 2
 GPTP_UPC_W=$(pkg_num "$GPTP_UCPU_PKG" UPC_W_C) || exit 2
 GPTP_UPC_W=$(addr_width GPTP_UPC_W_C "$GPTP_UPC_W") || exit 2
 
+# THE THREE `$i` BELOW ARE AWK FIELDS, NOT SHELL EXPANSIONS. They sit inside a
+# single-quoted program, so the shell never sees them; scripts/check_sh_idiom.py
+# scans line by line, loses that quoting state after line one, and counts them
+# as unquoted expansions. They are the whole of this script's residue on the
+# Rule 13 unquoted ratchet, and a `# shellcheck disable=SC2086` here would be a
+# claim about a split that cannot happen - the one thing that comment is for.
 rom_check() { # <file> <hex digits per word> <word count> ; diagnostics on stdout
   awk -v digits="$2" -v words="$3" '
     { sub(/\/\/.*$/, "")
@@ -409,13 +430,15 @@ for rom_spec in \
     echo "ooc.sh: FATAL: sha256sum produced no usable digest for $img ('$got')" >&2
     exit 2
   fi
-  ROM_SHA[$img]="$got"
+  ROM_SHA["$img"]="$got"
   if [ "$RECORD" -eq 1 ]; then
     new_rows="${new_rows}${pin}	${img}	${got}
 "
   else
     # `recorded`, not `want`: `want` is the requested-tops ARRAY above.
-    recorded=$(awk -v p="$pin" -v i="$img" '$1 == p && $2 == i { print $3; exit }' "$DIGESTS" 2>/dev/null)
+    # An absent or unreadable ledger leaves this EMPTY, which is the case the
+    # refusal immediately below is written for; errexit must not pre-empt it.
+    recorded=$(awk -v p="$pin" -v i="$img" '$1 == p && $2 == i { print $3; exit }' "$DIGESTS" 2>/dev/null) || true
     if [ -z "$recorded" ]; then
       rm -f "$stage"
       echo "ooc.sh: FATAL: no recorded content digest for $img at $pin_name pin $pin in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump" >&2
@@ -503,10 +526,11 @@ for spec in "${tops[@]}"; do
   top="${spec%%|*}"; srcs="${spec#*|}"
   if [ ${#want[@]} -gt 0 ]; then
     hit=0; for w in "${want[@]}"; do [ "$w" = "$top" ] && hit=1; done
-    [ $hit -eq 1 ] || continue
+    [ "$hit" -eq 1 ] || continue
   fi
-  if ! sv2v --top="$top" $INC $srcs > "$TMP/$top.ooc.v" 2> "$TMP/$top.ooc.sv2v.err"; then
-    printf "%-28s sv2v FAIL: %s\n" "$top" "$(head -1 "$TMP/$top.ooc.sv2v.err")"; status=1; continue
+  if ! sv2v --top="$top" $INC $srcs > "$TMP/$top.ooc.v" 2> "$TMP/$top.ooc.sv2v.err"; then  # shellcheck disable=SC2086 - deliberate split: $INC is a flag list and $srcs the row's source list
+    sv2v_reason="$(head -1 "$TMP/$top.ooc.sv2v.err")"
+    printf "%-28s sv2v FAIL: %s\n" "$top" "$sv2v_reason"; status=1; continue
   fi
   # OOC_CHPARAM="N_STREAMS=8 AUDIO_IF_SLOTS_P=16 ..." elaborates the SHIP
   # shape instead of the SV defaults (milan_datapath defaults N_STREAMS=1,
@@ -523,7 +547,7 @@ for spec in "${tops[@]}"; do
   # default in any build that does not override it (recipe and the numbers it
   # produced: docs/design/AREA_BUDGET.md).
   chp=""
-  for kv in ${OOC_CHPARAM:-}; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done
+  for kv in ${OOC_CHPARAM:-}; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done  # shellcheck disable=SC2086 - deliberate split: OOC_CHPARAM is a space-separated NAME=VALUE list
   # OOC_NODSP=1 maps constant multipliers to LUT+CARRY4 instead of DSP48E1.
   # Both mappings are legal, and a block whose only DSPs come from constant
   # strides is priced honestly only if BOTH are published: the DSP column
@@ -585,9 +609,13 @@ for spec in "${tops[@]}"; do
   # exactly that text (and refuse if it appears twice, so do not quote it
   # verbatim here), and its allocator arms read the model's record of what
   # yosys and sv2v ran under.
+  #
+  # A FAILING TOP IS A ROW THIS SCRIPT PRINTS, not the end of the sweep, so
+  # the status is taken with `||`: a bare `; yosys_rc=$?` under errexit would
+  # leave the run directory locked and every later top unmeasured.
+  yosys_rc=0
   (cd "$rundir" && apply_malloc_env "$MALLOC_LIB" && yosys -p "read_verilog $TMP/$top.ooc.v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $TMP/$top.ooc.json") \
-    > "$TMP/$top.ooc.log" 2>&1
-  yosys_rc=$?
+    > "$TMP/$top.ooc.log" 2>&1 || yosys_rc=$?
   for img in ucode.hex ltn_rom.hex gptp_ucode.hex; do
     if ! copy_matches "$rundir/$img" "$img"; then
       echo "ooc.sh: FATAL: $img changed under $top's synthesis run - the read-only consuming copy no longer hashes to the validated digest; discarding whatever was measured" >&2
@@ -601,7 +629,10 @@ for spec in "${tops[@]}"; do
   rm -rf "$rundir"
   RUNDIR=""
   if [ "$yosys_rc" -ne 0 ]; then
-    printf "%-28s yosys FAIL: %s\n" "$top" "$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)"; status=1; continue
+    # An OOM-killed yosys logs no ERROR: line at all, so no match is a case
+    # this column exists to show as blank rather than a reason to stop.
+    yosys_reason="$(grep -oE 'ERROR:.*' "$TMP/$top.ooc.log" | head -1)" || true
+    printf "%-28s yosys FAIL: %s\n" "$top" "$yosys_reason"; status=1; continue
   fi
   # yosys said 0; the REPORT phase must fail closed too ([R-parallel] on
   # #245): the JSON artifact the command names must exist non-empty (its

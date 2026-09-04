@@ -10,6 +10,24 @@
 # proves `--list` reads nothing but run.sh and scripts/yosys_shards.py, in a
 # tree built to hold only those two files (#190), and an unconditional source
 # here would break that contract rather than the other way round.
+#
+# RULE 13'S STRICT-MODE RATCHET IS DECLINED HERE, all three of it, and this
+# comment is the record rather than an assumption a later reader has to
+# reconstruct. `set -euo pipefail` in a SOURCED fragment does not configure
+# this file; it reconfigures the CALLER's shell, from the line the caller
+# sourced it on to the end of that script, which is a shell option neither
+# caller asked for and no reader of run.sh or ooc.sh would find here. The
+# concrete failure: run.sh sources this at its line 109 and then counts a
+# failing top rather than dying on it, so an errexit switched on from inside
+# this file turns its per-top `( ... yosys ... ) > log` sweep into an abort on
+# the first red top, and its report into a crash; `pipefail` would likewise
+# change the meaning of the `grep -oE 'ERROR:.*' | head -1` that produces the
+# reason column. The trio belongs to whoever owns the shell, so both callers
+# set it themselves, and this file is written to be correct under it: every
+# `a && b && { c; }` here sits where errexit exempts it, no loop body ends on
+# a bare failing test, and `select_malloc` returns 0 with an empty answer on
+# the machine with no jemalloc - the documented default, and the one arm that
+# would otherwise take the whole gate down with it.
 
 # THESE FLOWS ARE ALLOCATION-BOUND, NOT PARSE-BOUND (#286, #288). On the heaviest
 # top Yosys spends about three quarters of its time in the `opt*` family and

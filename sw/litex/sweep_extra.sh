@@ -6,7 +6,7 @@
 set -euo pipefail
 BOARD=${1:?board}; TAG=${2:?tag}
 export PATH="$HOME/litex-milan/venv/bin:$PATH"
-source $HOME/Xilinx/2026.1/Vivado/settings64.sh
+source "$HOME/Xilinx/2026.1/Vivado/settings64.sh"
 W=$HOME/litex-milan/work
 case "$BOARD" in
   arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6";;
@@ -22,9 +22,12 @@ BASE="python3 $(dirname "$(realpath "$0")")/milan_soc.py $OPTS --cpu vexiiriscv 
 cd "$W"
 rm -rf build_${BOARD}_{exp,asm,enl}_${TAG}
 launch() {
-  setsid nohup $BASE --place-directive "$2" \
-    --output-dir "$W/build_${BOARD}_${1}_${TAG}" \
-    > "$W/build_${BOARD}_${1}_${TAG}.launch.log" 2>&1 < /dev/null &
+  local dir="$W/build_${BOARD}_${1}_${TAG}"
+  # $BASE is a command LINE, not a path: the word split is what turns it back
+  # into argv, so it stays unquoted - quoting it would hand milan_soc.py one
+  # 200-character argument. The directive rides on the command's own line
+  # (check_sh_idiom reads it per line), which is why the redirections fold up.
+  setsid nohup $BASE --place-directive "$2" --output-dir "$dir" > "$dir.launch.log" 2>&1 < /dev/null &  # shellcheck disable=SC2086
   echo "LAUNCHED [${BOARD}_${1}_${TAG}] pid=$!"
 }
 launch exp Explore;               sleep 90

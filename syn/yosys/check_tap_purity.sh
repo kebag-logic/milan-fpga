@@ -30,7 +30,15 @@
 # Wired into syn/yosys/run.sh as a trailing report next to the tied-input
 # inventory; standalone use is the exit-coded gate.
 
-set -u
+# The full trio is safe here, and the three places where a non-zero status is
+# EXPECTED are spelled out rather than left to errexit: `run_checks` returns a
+# violation COUNT (taken with `|| rc=$?` at both call sites and at the
+# self-test), the port parse may legitimately come back empty (taken with
+# `|| dirs=""`, so the "header drifted?" diagnostic still prints), and the
+# report's `grep -v` finds nothing when there are no violations (`|| true`).
+# Everything else that fails here - find, mktemp, the fixture heredocs - is a
+# broken checker, and a broken checker must not print a purity verdict.
+set -euo pipefail
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 DP="$R/hdl/milan/milan_datapath.sv"
 
@@ -120,9 +128,12 @@ run_checks() {
     local viol=0 f m dirs dir name port expr m_bind
     for f in "$@"; do
         [ -r "$f" ] || { echo "  [ERROR] missing tap source $f"; viol=$((viol+1)); continue; }
-        dirs="$(port_dirs "$f")"
+        # An empty parse is a FINDING below, not a reason to stop: the awk
+        # exits non-zero on a header it cannot read, and that diagnostic is
+        # worth more than errexit's silence.
+        dirs="$(port_dirs "$f")" || dirs=""
         [ -n "$dirs" ] || { echo "  [ERROR] no ports parsed from $f (header drifted?)"; viol=$((viol+1)); continue; }
-        for m in $(module_names "$f"); do
+        for m in $(module_names "$f"); do  # shellcheck disable=SC2086 - deliberate split: one word per module name declared in the file
             m_bind=0
             if [ "$mode" = "pure" ]; then
                 # 1) module level: no stream-handshake-named OUTPUT
@@ -158,15 +169,18 @@ run_checks() {
             fi
         done
     done
-    return $viol
+    return "$viol"
 }
 
-echo "== observer-purity structural check (taps/telemetry never drive streams) =="
 
 # ---- negative self-test: the checker must FAIL a deliberately-broken fixture
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
-cat > "$TMP/bad_probe_taps.sv" <<'EOF'
+# NO LOCALS ANYWHERE IN THIS FILE, deliberately. $TMP and the
+# n_bind/n_rx_fabric witnesses run_checks accumulates are read by the
+# real-tree pass below, and a `local` in either of these two functions would
+# hand it a fresh copy of a counter whose whole job is to prove the wiring
+# parse was not vacuous.
+selftest_checker() {
+    cat > "$TMP/bad_probe_taps.sv" <<'EOF'
 module bad_probe_taps (
   input  wire        clk_i,
   input  wire        rx_tvalid_i,
@@ -175,7 +189,7 @@ module bad_probe_taps (
 );
 endmodule
 EOF
-cat > "$TMP/fixture_dp.sv" <<'EOF'
+    cat > "$TMP/fixture_dp.sv" <<'EOF'
 module fixture_dp;
   bad_probe_taps probe (
     .clk_i       (clk),
@@ -184,35 +198,51 @@ module fixture_dp;
   );
 endmodule
 EOF
-self_out="$(run_checks pure "$TMP/fixture_dp.sv" "$TMP/bad_probe_taps.sv")"
-self_n=$?
-if [ "$self_n" -ge 2 ]; then
-    echo "  negative self-test: checker flags the broken fixture ($self_n violations) - OK"
-else
-    echo "  negative self-test FAILED: broken fixture produced only $self_n finding(s):"
-    echo "$self_out"
-    echo "TAP-PURITY RESULT: CHECKER-BROKEN"
-    exit 3
-fi
+    # The COUNT is the answer here, so the status is taken: a non-zero
+    # run_checks is what this fixture exists to produce, not a failure.
+    self_n=0
+    self_out="$(run_checks pure "$TMP/fixture_dp.sv" "$TMP/bad_probe_taps.sv")" \
+        || self_n=$?
+    if [ "$self_n" -ge 2 ]; then
+        echo "  negative self-test: checker flags the broken fixture ($self_n violations) - OK"
+    else
+        echo "  negative self-test FAILED: broken fixture produced only $self_n finding(s):"
+        echo "$self_out"
+        echo "TAP-PURITY RESULT: CHECKER-BROKEN"
+        exit 3
+    fi
+}
 
 # ---- the real tree ----------------------------------------------------------
-[ -r "$DP" ] || { echo "  missing $DP"; exit 2; }
-# in-shell runs (redirects, no subshell) so the n_bind witness accumulates
-n_bind=0
-n_rx_fabric=0
-viol=0
-run_checks pure   "$DP" "${PURE_FILES[@]}"   > "$TMP/pure.log";   viol=$((viol+$?))
-run_checks reader "$DP" "${READER_FILES[@]}" > "$TMP/reader.log"; viol=$((viol+$?))
-cat "$TMP/pure.log" "$TMP/reader.log" | grep -v '^$' || true
-echo "--------------------------------------------------------------"
-echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   stream-net bindings checked: $n_bind (rx_axis_fabric: $n_rx_fabric)   violations: $viol"
-if [ "$n_bind" -eq 0 ]; then
-    echo "  [ERROR] zero stream-net bindings resolved - the wiring parse went vacuous"
-    viol=$((viol+1))
-fi
-if [ "$n_rx_fabric" -eq 0 ]; then
-    echo "  [ERROR] zero bindings resolved on the live rx_axis_fabric observer seam"
-    viol=$((viol+1))
-fi
-echo "TAP-PURITY RESULT: $([ "$viol" -eq 0 ] && echo PASS || echo FAIL)"
-[ "$viol" -eq 0 ]
+check_tree() {
+    [ -r "$DP" ] || { echo "  missing $DP"; exit 2; }
+    # in-shell runs (redirects, no subshell) so the n_bind witness accumulates
+    n_bind=0
+    n_rx_fabric=0
+    viol=0
+    rc=0; run_checks pure   "$DP" "${PURE_FILES[@]}"   > "$TMP/pure.log"   || rc=$?; viol=$((viol+rc))
+    rc=0; run_checks reader "$DP" "${READER_FILES[@]}" > "$TMP/reader.log" || rc=$?; viol=$((viol+rc))
+    cat "$TMP/pure.log" "$TMP/reader.log" | grep -v '^$' || true
+    echo "--------------------------------------------------------------"
+    echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   stream-net bindings checked: $n_bind (rx_axis_fabric: $n_rx_fabric)   violations: $viol"
+    if [ "$n_bind" -eq 0 ]; then
+        echo "  [ERROR] zero stream-net bindings resolved - the wiring parse went vacuous"
+        viol=$((viol+1))
+    fi
+    if [ "$n_rx_fabric" -eq 0 ]; then
+        echo "  [ERROR] zero bindings resolved on the live rx_axis_fabric observer seam"
+        viol=$((viol+1))
+    fi
+    echo "TAP-PURITY RESULT: $([ "$viol" -eq 0 ] && echo PASS || echo FAIL)"
+    [ "$viol" -eq 0 ]
+}
+
+main() {
+    echo "== observer-purity structural check (taps/telemetry never drive streams) =="
+    TMP="$(mktemp -d)"
+    trap 'rm -rf "$TMP"' EXIT
+    selftest_checker
+    check_tree
+}
+
+main "$@"

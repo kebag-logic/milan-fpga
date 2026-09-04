@@ -20,6 +20,11 @@
 #   * at most 3 concurrent builds (3 x 32 = the 96-core box saturated).
 #
 # Configs are FUNCTIONS below - one place to edit a board's canonical shape.
+# So is everything else: the body is functions called from main() at the bottom,
+# in the order board_serials -> (do_flash) -> parse_args -> check_entity_shapes
+# -> expand_jobs -> launch_jobs. The state they hand each other (CONFIGS, EXTRA,
+# SWEEP, DRY, JOBS, the ENTITY_CFG_* table) is deliberately global and MUST NOT
+# be made `local`: each stage reads what the previous one set.
 # MAINTAINER DOC: docs/integration/BUILDING.md (configs, discipline rationale, per-board
 # load/console facts, gates). Update it when adding a config or a rule here.
 
@@ -30,17 +35,19 @@ TAG=${TAG:-$(date +%m%d%H%M)}
 STAGGER=90
 REPO_ROOT="$(cd "$SOC_DIR/../.." && pwd)"
 
-# ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
-# serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
-# wrong board is destructive). Serials are BENCH-LOCAL: set AX_FTDI/ARTY_FTDI in
-# the environment or in sw/litex/boards.local.sh (gitignored; template =
-# boards.local.sh.example). policy = what this board's QSPI holds:
-#   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-#   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
-#   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259).
-[ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
-AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
-ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
+board_serials() {
+    # ---- per-board flash/JTAG facts (docs/integration/BUILDING.md section 4) --------------------
+    # serial = FTDI serial (TWO cables on the bus: NEVER omit, a flash op picking the
+    # wrong board is destructive). Serials are BENCH-LOCAL: set AX_FTDI/ARTY_FTDI in
+    # the environment or in sw/litex/boards.local.sh (gitignored; template =
+    # boards.local.sh.example). policy = what this board's QSPI holds:
+    #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
+    #   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
+    #   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259).
+    [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
+    AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
+    ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
+}
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
         ax7101|ax8x8) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
@@ -57,14 +64,13 @@ gptp_owner_for_config() {
     esac
 }
 
-# ---- flash subcommand: ./build.sh flash <config>[:<builddir>] ... ---------------
-# Every persistent named-config write delegates to deploy.sh flash-pair. Supply
-# INSTALLED_LAYOUT + INSTALLED_BIT for the exact build currently in the board's
-# QSPI (or INSTALLED_BUILD=<dir> to derive both). The transaction proves that
-# bitstream by live readback, prepares the whole target set, then selects the
-# direction-safe verified write order.
-if [ "${1:-}" = "flash" ]; then
-    shift
+do_flash() {
+    # ---- flash subcommand: ./build.sh flash <config>[:<builddir>] ... ---------------
+    # Every persistent named-config write delegates to deploy.sh flash-pair. Supply
+    # INSTALLED_LAYOUT + INSTALLED_BIT for the exact build currently in the board's
+    # QSPI (or INSTALLED_BUILD=<dir> to derive both). The transaction proves that
+    # bitstream by live readback, prepares the whole target set, then selects the
+    # direction-safe verified write order.
     [ $# -gt 0 ] || { echo "usage: $0 flash <config>[:<builddir>] ..." >&2; exit 2; }
     for spec in "$@"; do
         c=${spec%%:*}; dir=${spec#*:}; [ "$dir" = "$spec" ] && dir=""
@@ -132,8 +138,7 @@ if [ "${1:-}" = "flash" ]; then
                 ;;
         esac
     done
-    exit 0
-fi
+}
 
 # ---- named configurations -----------------------------------------------------
 cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
@@ -213,75 +218,99 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"
 
-# ---- arg parsing ----------------------------------------------------------------
-CONFIGS=(); SWEEP=0; DRY=0; EXTRA=()
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --sweep)   SWEEP=1;;
-        --dry-run) DRY=1;;
-        --)        shift; EXTRA=("$@"); break;;
-        *)         type "cfg_$1" >/dev/null 2>&1 || { echo "unknown config '$1' (have: $(declare -F | sed -n 's/.* cfg_/ /p' | tr -d '\n'))" >&2; exit 2; }
-                   CONFIGS+=("$1");;
-    esac
-    shift
-done
-[ ${#CONFIGS[@]} -gt 0 ] || { echo "usage: $0 <config> [<config> ...] [--sweep] [--dry-run] [-- extra args]" >&2; exit 2; }
+parse_args() {
+    # ---- arg parsing ----------------------------------------------------------------
+    CONFIGS=(); SWEEP=0; DRY=0; EXTRA=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --sweep)   SWEEP=1;;
+            --dry-run) DRY=1;;
+            --)        shift; EXTRA=("$@"); break;;
+            *)         type "cfg_$1" >/dev/null 2>&1 || { echo "unknown config '$1' (have: $(declare -F | sed -n 's/.* cfg_/ /p' | tr -d '\n'))" >&2; exit 2; }
+                       CONFIGS+=("$1");;
+        esac
+        shift
+    done
+    [ ${#CONFIGS[@]} -gt 0 ] || { echo "usage: $0 <config> [<config> ...] [--sweep] [--dry-run] [-- extra args]" >&2; exit 2; }
+}
 
-# ---- entity-definition gate (HARD, not advisory) --------------------------------
-# The gateware `include-s a GENERATED entity definition: the ADPDU stream counts
-# in hdl/common/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C
-# and ALSO sizing the protocol processor's ACMP source/sink context arrays. It
-# comes from ONE end-station config via endstation_builder.py --write-rtl.
-# Until 2026-07-27 nothing checked WHICH config: the tree carried the 1x1 shape
-# and every build, 8x8 included, compiled it in - so the 8x8 board advertised 1
-# talker source. Refuse to launch if the tree is another shape's.
-# (The AEM descriptor ROM used to be the second half of this gate, and briefly
-#  had no successor: the deleted AECP/AEM engine took the in-gateware ROM with
-#  it. The descriptors are back, in DRAM - milan_soc.py builds the image for
-#  THIS config from the same out/ directory and writes it beside the bitstream,
-#  refusing to launch Vivado if the model is missing or unbuildable. So the
-#  shape check below still covers only the `svh`; the descriptors now police
-#  themselves, per build, and cannot be another config's.)
-ENTITY_CFG_ax7101="configs/endstation_ax7101_1x1_tdm8.yaml"
-ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
-ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
-for c in "${CONFIGS[@]}"; do
-    eval "ecfg=\${ENTITY_CFG_$c:-}"
-    [ -n "$ecfg" ] || continue
-    python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" \
-        || { echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2; }
-done
+check_entity_shapes() {
+    # ---- entity-definition gate (HARD, not advisory) --------------------------------
+    # The gateware `include-s a GENERATED entity definition: the ADPDU stream counts
+    # in hdl/common/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C
+    # and ALSO sizing the protocol processor's ACMP source/sink context arrays. It
+    # comes from ONE end-station config via endstation_builder.py --write-rtl.
+    # Until 2026-07-27 nothing checked WHICH config: the tree carried the 1x1 shape
+    # and every build, 8x8 included, compiled it in - so the 8x8 board advertised 1
+    # talker source. Refuse to launch if the tree is another shape's.
+    # (The AEM descriptor ROM used to be the second half of this gate, and briefly
+    #  had no successor: the deleted AECP/AEM engine took the in-gateware ROM with
+    #  it. The descriptors are back, in DRAM - milan_soc.py builds the image for
+    #  THIS config from the same out/ directory and writes it beside the bitstream,
+    #  refusing to launch Vivado if the model is missing or unbuildable. So the
+    #  shape check below still covers only the `svh`; the descriptors now police
+    #  themselves, per build, and cannot be another config's.)
+    ENTITY_CFG_ax7101="configs/endstation_ax7101_1x1_tdm8.yaml"
+    ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
+    ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
+    for c in "${CONFIGS[@]}"; do
+        eval "ecfg=\${ENTITY_CFG_$c:-}"
+        [ -n "$ecfg" ] || continue
+        python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" \
+            || { echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2; }
+    done
+}
 
-# ---- expand configs (x directives when sweeping) --------------------------------
-JOBS=()   # "name|args"
-for c in "${CONFIGS[@]}"; do
-    base_args=$("cfg_$c")
-    if [ "$SWEEP" = 1 ]; then
-        for d in $SWEEP_DIRECTIVES; do
-            short=$(echo "$d" | tr -dc 'A-Z' | tr 'A-Z' 'a-z')
-            # strip any config-default place directive, then pin the sweep's
-            args=$(echo "$base_args" | sed 's/--place-directive [A-Za-z_]*//')
-            JOBS+=("${c}_${short}|$args --place-directive $d")
-        done
-    else
-        JOBS+=("${c}|$base_args")
+expand_jobs() {
+    # ---- expand configs (x directives when sweeping) --------------------------------
+    JOBS=()   # "name|args"
+    for c in "${CONFIGS[@]}"; do
+        base_args=$("cfg_$c")
+        if [ "$SWEEP" = 1 ]; then
+            # SWEEP_DIRECTIVES is a LIST of Vivado directives: the split is the
+            # point, one loop iteration per directive.
+            for d in $SWEEP_DIRECTIVES; do  # shellcheck disable=SC2086
+                short=$(echo "$d" | tr -dc 'A-Z' | tr 'A-Z' 'a-z')
+                # strip any config-default place directive, then pin the sweep's
+                args=$(echo "$base_args" | sed 's/--place-directive [A-Za-z_]*//')
+                JOBS+=("${c}_${short}|$args --place-directive $d")
+            done
+        else
+            JOBS+=("${c}|$base_args")
+        fi
+    done
+    [ ${#JOBS[@]} -le 3 ] || { echo "refusing ${#JOBS[@]} parallel builds (box saturates at 3 x 32 threads); split the call" >&2; exit 2; }
+}
+
+launch_jobs() {
+    # ---- launch ---------------------------------------------------------------------
+    first=1
+    for job in "${JOBS[@]}"; do
+        name=${job%%|*}; args=${job#*|}
+        out="$WORK/build_${name}_${TAG}"
+        cmd="cd $SOC_DIR && source $HOME/Xilinx2/2026.1/Vivado/settings64.sh && "
+        cmd+="export PATH=$HOME/litex-milan/venv/bin:\$PATH && "
+        cmd+="exec python3 milan_soc.py $args ${EXTRA[*]:-} --vivado-max-threads 32 --build --output-dir $out"
+        if [ "$DRY" = 1 ]; then
+            echo "DRY [$name] -> $out"; echo "  $cmd" | tr -s ' '; continue
+        fi
+        [ "$first" = 1 ] || { echo "stagger ${STAGGER}s (shared pythondata checkout)"; sleep "$STAGGER"; }
+        first=0
+        setsid nohup bash -c "$cmd" > "$WORK/build_${name}_${TAG}.launch.log" 2>&1 &
+        echo "LAUNCHED [$name] pid=$! out=$out log=$WORK/build_${name}_${TAG}.launch.log"
+    done
+}
+
+main() {
+    board_serials
+    if [ "${1:-}" = "flash" ]; then
+        shift
+        do_flash "$@"
+        exit 0
     fi
-done
-[ ${#JOBS[@]} -le 3 ] || { echo "refusing ${#JOBS[@]} parallel builds (box saturates at 3 x 32 threads); split the call" >&2; exit 2; }
-
-# ---- launch ---------------------------------------------------------------------
-first=1
-for job in "${JOBS[@]}"; do
-    name=${job%%|*}; args=${job#*|}
-    out="$WORK/build_${name}_${TAG}"
-    cmd="cd $SOC_DIR && source $HOME/Xilinx2/2026.1/Vivado/settings64.sh && \
-         export PATH=$HOME/litex-milan/venv/bin:\$PATH && \
-         exec python3 milan_soc.py $args ${EXTRA[*]:-} --vivado-max-threads 32 --build --output-dir $out"
-    if [ "$DRY" = 1 ]; then
-        echo "DRY [$name] -> $out"; echo "  $cmd" | tr -s ' '; continue
-    fi
-    [ "$first" = 1 ] || { echo "stagger ${STAGGER}s (shared pythondata checkout)"; sleep $STAGGER; }
-    first=0
-    setsid nohup bash -c "$cmd" > "$WORK/build_${name}_${TAG}.launch.log" 2>&1 &
-    echo "LAUNCHED [$name] pid=$! out=$out log=$WORK/build_${name}_${TAG}.launch.log"
-done
+    parse_args "$@"
+    check_entity_shapes
+    expand_jobs
+    launch_jobs
+}
+main "$@"

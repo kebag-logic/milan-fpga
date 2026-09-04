@@ -30,6 +30,26 @@
 # READING THE RESULT. In the product shape, the fabric gPTP owner drives `tu`
 # from its live sync/asCapable state. In the verification-only ownerless shape,
 # `tu = 1` is fail-safe and legacy CLKV writes are inert.
+#
+# STRICT MODE, DECLINED (Rule 13, docs/development/CODE_QUALITY.md). This
+# script keeps `set -u` and takes neither `-e` nor `pipefail`; both halves of
+# that are recorded here rather than left for the next reader to rediscover.
+#
+#   * ERREXIT would end the run at the capture, on EVERY run. The capture is
+#     `timeout "$SECS" tcpdump -w`, and a tcpdump that is still capturing when
+#     the window closes is the ONLY way this script ever finishes - timeout(1)
+#     then reports 124 because it is the one that killed the job. Under `-e`
+#     the capture line is therefore fatal on every run, and the script exits
+#     without reading a single frame of the capture it just took. The reads
+#     that follow already handle their own status - an empty capture is the
+#     `n -eq 0` branch, which says where to run this instead - so errexit
+#     would buy nothing in exchange for that.
+#   * PIPEFAIL is not in POSIX sh, and the `#!/bin/sh` above is deliberate:
+#     this runs on whatever bench host or tap box can see the stream, and
+#     where that host's /bin/sh is dash, `set -o pipefail` fails on the first
+#     line and the script does not run at all - on exactly the machines it
+#     exists for. Nothing here reads a pipeline's status anyway; both pipes
+#     end in `wc -l`, whose count IS the reading.
 set -u
 IF=${1:?usage: check_tu_on_wire.sh <iface> <talker-mac> [seconds] [--tap]}
 MAC=${2:?talker source MAC, e.g. 02:00:00:00:00:01}
