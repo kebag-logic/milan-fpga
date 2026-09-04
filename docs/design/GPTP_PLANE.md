@@ -96,11 +96,23 @@ Reset is synchronous and active-low.
 | Ingress | First accepted tap beat | Delivered-frame position | `gptp_shadow` suite |
 | Egress | First accepted MAC-boundary beat | Sequence plus message type | `gptp_shadow` suite |
 
-Ingress correction belongs to the tap boundary.
+No ingress correction is applied today.
+
+`KL_gptp_shadow` stores the raw PHC value at `FW_HEAD0`.
+
+`PTP_INGRESS_LAT` (`0x540`) is write-only scratch.
+
+A future ingress correction belongs at the tap boundary.
 
 Physical calibration remains tracked by issue #64.
 
-The engine receives event-specific timestamps only.
+Both seams stamp per frame.
+
+The shadow pushes one stamp per committed `0x88F7` frame.
+
+The stamper returns one tuple per armed frame.
+
+No live PHC value enters the engine.
 
 ## Configuration
 

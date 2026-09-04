@@ -68,6 +68,8 @@ Zero PathTrace count means no published trace.
 
 It never implies one hidden identity.
 
+Read [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md) for transition behavior.
+
 ## Verify
 
 - Run the imported engine suite.

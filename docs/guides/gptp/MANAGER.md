@@ -47,6 +47,8 @@ Simulation remains necessary but insufficient.
 - Engine receive errors have an upstream issue.
 - Issue #74 media-clock bench acceptance remains open.
 
+Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+
 Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf812178ea0e0ca843b5c332dd62414f701fad/docs/MANAGER.md).
 
 ## Release evidence

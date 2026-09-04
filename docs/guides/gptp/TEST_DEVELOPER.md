@@ -35,6 +35,9 @@ Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf
 | Donor `ucpu` | Arithmetic and instruction execution |
 | Donor `parser` | Byte parsing and refusal paths |
 | Donor `engine` | Protocol behavior and servo |
+| Donor `gaskets` | Bench MII gasket loopback and FIFO wedge |
+| Parent `ptp` | PHC accumulator arithmetic |
+| Parent `ptp_ts` | Stand-alone record stamper, absent from the product |
 | Parent `gptp_shadow` | Transport, pairing, publication |
 | Parent `gptp_plane` | Closed-loop PHC steering |
 | Parent `clkvalid` | Discontinuity and holdover |
