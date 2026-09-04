@@ -186,7 +186,7 @@ module KL_crf_tx (
   output logic        m_axis_tlast,
   input  wire         m_axis_tready,
 
-  output reg  [31:0]  tx_count_o         //! CRF PDUs completed on the wire side
+  output logic [31:0] tx_count_o         //! CRF PDUs completed on the wire side
 );
 
   //! Milan 7.3.1 constants (mirror KL_crf_rx)
@@ -416,19 +416,19 @@ module KL_crf_tx (
   // cd_milan: latch the event's gPTP time, then serialise one 60-byte PDU.
   // A busy serialiser skips the event whole (see header).
   // -----------------------------------------------------------------------
-  reg [63:0] ts_r;
-  reg [7:0]  seq_r;
-  reg        frame_pend_r;
-  reg        tu_r;      //! tu frozen for the whole frame (latched with ts_r)
+  logic [63:0] ts_r;
+  logic [7:0]  seq_r;
+  logic        frame_pend_r;
+  logic        tu_r;      //! tu frozen for the whole frame (latched with ts_r)
   //! ... and so is the 10.4.3 mr level: the engine may grant a new one at any
   //! cycle, and a frame whose header byte disagrees with the PDU it belongs
   //! to would corrupt both the listener's restart verdict and the hold count
-  reg        mr_r;
+  logic        mr_r;
   //! tag shape frozen for the whole frame too - the tag moves every byte
   //! after offset 12, so a mid-frame change would splice two layouts
-  reg        vln_r;
-  reg [2:0]  vpcp_r;
-  reg [11:0] vvid_r;
+  logic        vln_r;
+  logic [2:0]  vpcp_r;
+  logic [11:0] vvid_r;
 
   //! CRF AVTPDU (IEEE 1722-2016 clause 10) - assembled ONCE, then placed at
   //! the offset the chosen Ethernet header ends at.
@@ -471,7 +471,7 @@ module KL_crf_tx (
 
   typedef enum logic [0:0] { IDLE_S, SEND_S } st_t;
   st_t st_r;
-  reg [3:0] beat_r;
+  logic [3:0] beat_r;
   logic [63:0] w_beat;
   always_comb
     for (int l = 0; l < 8; l++) w_beat[8*l +: 8] = fb[{28'd0, beat_r}*8 + l];

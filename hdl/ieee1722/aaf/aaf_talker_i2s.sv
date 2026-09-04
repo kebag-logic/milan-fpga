@@ -73,8 +73,8 @@ module aaf_talker_i2s #(
     input  wire         m_axis_tready,
 
     // ---- status (firmware-visible via CSR) --------------------------------
-    output reg  [31:0]  frames_sent_o,     //! AAF frames completed on the AXIS master
-    output reg  [31:0]  pairs_captured_o   //! I2S L+R sample pairs captured (liveness)
+    output logic [31:0] frames_sent_o,     //! AAF frames completed on the AXIS master
+    output logic [31:0] pairs_captured_o   //! I2S L+R sample pairs captured (liveness)
 );
 
   localparam int SAMPLES_PER_FRAME = 6;       //! per channel (Milan 48k class A)
@@ -160,8 +160,8 @@ module aaf_talker_i2s #(
   );
 
   //! clk_i side: pop one pair at a time; pair_valid_r pulses per pop
-  reg [23:0] sample_l_r, sample_r_r;
-  reg        pair_valid_r;
+  logic [23:0] sample_l_r, sample_r_r;
+  logic        pair_valid_r;
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
       sample_l_r <= '0; sample_r_r <= '0;
@@ -180,13 +180,13 @@ module aaf_talker_i2s #(
   // Sample accumulator: 6 L/R pairs per AAF frame. Timestamp latched at the
   // FIRST pair of the frame (+ max transit time).
   // -----------------------------------------------------------------------
-  reg [23:0] buf_l [0:SAMPLES_PER_FRAME-1];
-  reg [23:0] buf_r [0:SAMPLES_PER_FRAME-1];
-  reg [2:0]  nsamp_r;
-  reg [31:0] ts_r;
-  reg [7:0]  seq_r;
-  reg        tu_r;   //! tu frozen for the whole frame (latched with pend)
-  reg        frame_pend_r;              //! a full frame waits for the serialiser
+  logic [23:0] buf_l [0:SAMPLES_PER_FRAME-1];
+  logic [23:0] buf_r [0:SAMPLES_PER_FRAME-1];
+  logic [2:0]  nsamp_r;
+  logic [31:0] ts_r;
+  logic [7:0]  seq_r;
+  logic        tu_r;   //! tu frozen for the whole frame (latched with pend)
+  logic        frame_pend_r;              //! a full frame waits for the serialiser
 
   // -----------------------------------------------------------------------
   // Frame byte assembly (combinational over registered fields)
@@ -229,7 +229,7 @@ module aaf_talker_i2s #(
   // -----------------------------------------------------------------------
   typedef enum logic [0:0] { IDLE_S, SEND_S } st_t;
   st_t st_r;
-  reg [3:0] beat_r;
+  logic [3:0] beat_r;
   logic [63:0] w_beat;
   always_comb
     for (int l = 0; l < 8; l++) w_beat[8*l +: 8] = fb[{28'd0, beat_r}*8 + l];

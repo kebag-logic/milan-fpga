@@ -28,11 +28,11 @@ module axis_mux_rr_2in_1out #(
   input  wire [TDATA_WIDTH/8-1:0] s1_tkeep,
 
   //! Master axis interface
-  output reg  [TDATA_WIDTH-1:0]  m_tdata,
-  output reg                     m_tvalid,
+  output logic [TDATA_WIDTH-1:0] m_tdata,
+  output logic                   m_tvalid,
   input  wire                    m_tready,
-  output reg                     m_tlast,
-  output reg  [TDATA_WIDTH/8-1:0] m_tkeep
+  output logic                   m_tlast,
+  output logic [TDATA_WIDTH/8-1:0] m_tkeep
 );
 
   //! typedef for state enumeration

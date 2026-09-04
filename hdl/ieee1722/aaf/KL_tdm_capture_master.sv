@@ -105,7 +105,7 @@ module KL_tdm_capture_master #(
   output logic [23:0] pair_r_o,
 
   // ---- status (firmware-visible via CSR) ------------------------------
-  output reg  [31:0]  pairs_captured_o   //! pairs captured (liveness)
+  output logic [31:0] pairs_captured_o   //! pairs captured (liveness)
 );
 
   localparam int unsigned BW_C     = $clog2(WORD_BITS_P);

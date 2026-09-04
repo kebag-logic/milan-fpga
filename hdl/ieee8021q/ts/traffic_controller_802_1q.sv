@@ -68,7 +68,7 @@ module traffic_controller_802_1q #(
 );
 
   //! Width of `tdest` field
-  localparam TDEST_WIDTH = $clog2(NUMBER_OF_QUEUES);
+  localparam int TDEST_WIDTH = $clog2(NUMBER_OF_QUEUES);
 
   //! AXIS interface from traffic_classifier to traffic_queues
   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH), .TDEST_WIDTH_P(TDEST_WIDTH)) classifier_to_queue();

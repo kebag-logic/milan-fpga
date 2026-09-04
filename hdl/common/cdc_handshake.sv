@@ -36,12 +36,12 @@ module cdc_handshake #(
 );
 
   // ---- declarations (both domains) --------------------------------------
-  reg             src_send_d, req_tog;
-  reg [WIDTH-1:0] data_hold;
-  (* ASYNC_REG = "TRUE" *) reg [SRC_SYNC_FF:0]  ack_sync;
-  (* ASYNC_REG = "TRUE" *) reg [DEST_SYNC_FF:0] req_sync;
-  reg [WIDTH-1:0] dest_out_r;
-  reg             dest_req_r, ack_tog;
+  logic             src_send_d, req_tog;
+  logic [WIDTH-1:0] data_hold;
+  (* ASYNC_REG = "TRUE" *) logic [SRC_SYNC_FF:0]  ack_sync;
+  (* ASYNC_REG = "TRUE" *) logic [DEST_SYNC_FF:0] req_sync;
+  logic [WIDTH-1:0] dest_out_r;
+  logic             dest_req_r, ack_tog;
 
   // ---- source: on rising edge of src_send, latch data + toggle request ---
   always_ff @(posedge src_clk) begin

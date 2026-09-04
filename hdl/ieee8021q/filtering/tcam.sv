@@ -60,10 +60,10 @@ module tcam #(
   // -----------------------------------------------------------------------
   //  Entry storage (registers)
   // -----------------------------------------------------------------------
-  reg                    ent_valid  [NUM_ENTRIES-1:0];
-  reg [KEY_WIDTH-1:0]    ent_key    [NUM_ENTRIES-1:0];
-  reg [KEY_WIDTH-1:0]    ent_mask   [NUM_ENTRIES-1:0];
-  reg [ACTION_WIDTH-1:0] ent_action [NUM_ENTRIES-1:0];
+  logic                    ent_valid  [NUM_ENTRIES-1:0];
+  logic [KEY_WIDTH-1:0]    ent_key    [NUM_ENTRIES-1:0];
+  logic [KEY_WIDTH-1:0]    ent_mask   [NUM_ENTRIES-1:0];
+  logic [ACTION_WIDTH-1:0] ent_action [NUM_ENTRIES-1:0];
 
   integer r;
   always_ff @(posedge clk_i) begin : entry_write
@@ -80,7 +80,7 @@ module tcam #(
   // -----------------------------------------------------------------------
   //  Parallel ternary match: hit[i] = valid & ((key ^ ent_key) & mask) == 0
   // -----------------------------------------------------------------------
-  reg [NUM_ENTRIES-1:0] hit;
+  logic [NUM_ENTRIES-1:0] hit;
   integer m;
   always_comb begin : match_logic
     for (m = 0; m < NUM_ENTRIES; m = m + 1)
@@ -90,9 +90,9 @@ module tcam #(
   // -----------------------------------------------------------------------
   //  Priority encode: lowest index wins (evaluate high->low so index 0 last)
   // -----------------------------------------------------------------------
-  reg                    match_any;
-  reg [IDX_WIDTH-1:0]    match_idx;
-  reg [ACTION_WIDTH-1:0] match_act;
+  logic                    match_any;
+  logic [IDX_WIDTH-1:0]    match_idx;
+  logic [ACTION_WIDTH-1:0] match_act;
   integer p;
   always_comb begin : prio_encode
     match_any = 1'b0;

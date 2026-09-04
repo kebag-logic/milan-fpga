@@ -60,7 +60,7 @@ module KL_aaf_capture_i2s (
     output logic [23:0] pair_r_o,
 
     // ---- status (firmware-visible via CSR) ------------------------------
-    output reg  [31:0]  pairs_captured_o   //! pairs captured (liveness)
+    output logic [31:0] pairs_captured_o   //! pairs captured (liveness)
 );
 
   //! CLEAN-CLOCK front-end (07-18): plain registered dividers of

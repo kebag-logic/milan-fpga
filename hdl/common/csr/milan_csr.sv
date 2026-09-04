@@ -1040,7 +1040,7 @@ module milan_csr #(
 
   // ADP advertiser identity/control registers (0x600 group)
   logic [31:0] adp_ctrl;                 //! ADP_CTRL: [0]=enable, [12:8]=valid_time
-  reg   [7:0]  adp_disc_seen_cnt_r;      //! A_ADP_DIAG2[23:16]: ENTITY_DISCOVERs seen on the wire (any target)
+  logic [7:0]  adp_disc_seen_cnt_r;      //! A_ADP_DIAG2[23:16]: ENTITY_DISCOVERs seen on the wire (any target)
   logic [31:0] aaf_ctrl, aaf_dmlo, aaf_dmhi; //! AAF talker: ctrl {vid[27:16], bypass[1], en[0]}, DMAC
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [4:2]=classA queue, [5]=declare-always bypass (reset 0)

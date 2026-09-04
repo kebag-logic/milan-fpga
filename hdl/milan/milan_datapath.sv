@@ -1843,7 +1843,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! Synchronise the MAC speed[] indication (i_mac_speed, gtx_clk-domain) into
   //! axis_clk before it is used by the CSR readback and link-change detector.
-  (* ASYNC_REG = "TRUE" *) reg [1:0] speed_meta, speed_sync;
+  (* ASYNC_REG = "TRUE" *) logic [1:0] speed_meta, speed_sync;
   always_ff @(posedge axis_clk) begin : mac_speed_cdc
     if (!axis_resetn) begin
       speed_meta <= 2'b10; speed_sync <= 2'b10;
@@ -1854,8 +1854,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end
 
   //! Link-status change detector (for IRQ / stats), on the synchronised speed.
-  reg  [1:0] speed_q;
-  reg        evt_link_change;
+  logic [1:0] speed_q;
+  logic      evt_link_change;
   always_ff @(posedge axis_clk) begin : link_change_detect
     if (!axis_resetn) begin
       speed_q <= 2'b10; evt_link_change <= 1'b0;
