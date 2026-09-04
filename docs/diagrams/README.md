@@ -52,7 +52,7 @@ The [submodule reference](../reference/SUBMODULES.md) embeds its verified map.
 |---|---|---|---|
 | `wd_axis_backpressure` | Accepted AXI-Stream transfers | `wd_axis_backpressure.json` | Both developer roles |
 | `wd_cdc_handshake` | Multi-bit clock crossing | `wd_cdc_handshake.json` | Both developer roles |
-| `wd_gptp_pdelay` | Peer-delay timestamps | `wd_gptp_pdelay.json` | Time-sync developers |
+| `wd_gptp_pdelay` | Parent pdelay timestamp ownership | `wd_gptp_pdelay.json` | Time-sync developers |
 | `wd_cbs_credit` | Credit shaping behavior | `wd_cbs_credit.json` | Datapath developers |
 | `wd_ring_pointers` | DMA pointer commits | `wd_ring_pointers.json` | DMA developers |
 | `wd_linkguard_reset` | Sequenced reset release | `wd_linkguard_reset.json` | Integrators |
@@ -84,6 +84,8 @@ They never guarantee other hardware results.
 | `nxn_window_map` | Shipped row-map defect | [Architecture](../overview/ARCHITECTURE.md) |
 | `../history/v1/diagrams/ROOT_DOC_MAP.*` | Superseded audience map | [Documentation index](../README.md) |
 | `../history/v1/diagrams/perf_campaign.*` | Closed throughput-campaign chart | [Full FPGA solution](../overview/FULL_FPGA_SOLUTION.md) |
+| `../history/v1/diagrams/timesync_chain.*` | Frozen pre-rework clock-chain render | [Time synchronization](../design/TIME_SYNC.md) |
+| `../history/v1/diagrams/wd_gptp_pdelay.*` | Frozen pre-rework peer-delay chronogram | [Fabric gPTP plane](../design/GPTP_PLANE.md) |
 
 Historical diagrams remain evidence only.
 
@@ -111,6 +113,8 @@ python3 docs/DOC_MAP.gen.py --check
 python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
@@ -123,6 +127,8 @@ python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_axis_backpressure.json --background=white --check
 python3 scripts/gen_wavedrom.py \
   docs/diagrams/wd_cdc_handshake.json --background=white --check
+python3 scripts/gen_wavedrom.py \
+  docs/diagrams/wd_gptp_pdelay.json --background=white --check
 ```
 
 - Generator checks tolerate local renderer differences.

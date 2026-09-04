@@ -58,6 +58,8 @@ Never convert missing evidence into progress.
 | Historical success | Earlier revision passed | Demand current-head evidence |
 | Submodule pin change | Imported behavior changed | Require donor and root gates |
 
+Use the [gPTP manager guide](gptp/MANAGER.md) for time risks.
+
 ## Approve readiness
 
 - Confirm every acceptance criterion.

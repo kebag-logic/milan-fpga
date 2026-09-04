@@ -10,7 +10,8 @@ junction pend/consume law (the same law behind `KL_chan_map_capture`'s
 
 The reference rate is the true divider plan: `100 MHz * 391/1591 / 512 =
 47,999.4893 Hz`, the -10.6393 ppm Plan A that slips one sample every
-1.9582 s free-running ([Section 3.5.1 of TIME_SYNC.md](../../../docs/design/TIME_SYNC.md),
+1.9582 s free-running (the [media boundary](../../../docs/design/TIME_SYNC.md#media-boundary)
+table; measured in the [historical Section 3.5.1](../../../docs/history/v1/design/TIME_SYNC.md#351-the-grid-phase-contract--clk_tdm_i-clk_audio_i-media_tick_p-74);
 `tb/verilator/milan_dp/sim_aclk.cpp`).
 
 ## Contents

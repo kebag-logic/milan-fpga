@@ -61,6 +61,9 @@ TRACKED_RASTERS = {
     "docs/diagrams/wd_cdc_handshake.png": (
         "docs/diagrams/wd_cdc_handshake.json"
     ),
+    "docs/diagrams/wd_gptp_pdelay.png": (
+        "docs/diagrams/wd_gptp_pdelay.json"
+    ),
 }
 
 

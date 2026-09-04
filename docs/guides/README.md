@@ -36,6 +36,10 @@ flowchart TD
 - Historical pages never define current behavior.
 - Open Issues own unresolved work.
 
+| Focus | Implementation | Verification | Integration | Management |
+|---|---|---|---|---|
+| Fabric gPTP | [HDL](gptp/HDL_DEVELOPER.md) | [Tests](gptp/TEST_DEVELOPER.md) | [System](gptp/SYSTEM_INTEGRATOR.md) | [Status](gptp/MANAGER.md) |
+
 Stop when authorities disagree.
 
 Publish the conflict before continuing.

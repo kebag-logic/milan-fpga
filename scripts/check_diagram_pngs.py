@@ -44,6 +44,11 @@ ARTIFACTS = (
         DRAWIO_HASH_KEY,
     ),
     Artifact(
+        "docs/diagrams/timesync_chain.png",
+        "docs/diagrams/timesync_chain.drawio",
+        DRAWIO_HASH_KEY,
+    ),
+    Artifact(
         "docs/diagrams/wd_axis_backpressure.png",
         "docs/diagrams/wd_axis_backpressure.json",
         WAVEDROM_HASH_KEY,
@@ -51,6 +56,11 @@ ARTIFACTS = (
     Artifact(
         "docs/diagrams/wd_cdc_handshake.png",
         "docs/diagrams/wd_cdc_handshake.json",
+        WAVEDROM_HASH_KEY,
+    ),
+    Artifact(
+        "docs/diagrams/wd_gptp_pdelay.png",
+        "docs/diagrams/wd_gptp_pdelay.json",
         WAVEDROM_HASH_KEY,
     ),
 )
@@ -125,7 +135,7 @@ def validate(root: Path) -> list[str]:
 
 
 def copy_fixture(destination: Path) -> None:
-    """Copy only the nine files the gate consumes."""
+    """Copy only the files the gate consumes."""
     manifest = destination / MANIFEST
     manifest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / MANIFEST, manifest)
@@ -264,7 +274,7 @@ def selftest() -> int:
         if not expect_invalid(sample, truncated, "PNG raster", "truncated raster"):
             return 1
 
-    print("diagram PNG selftest: OK (4 rasters, 20 mutation controls)")
+    print("diagram PNG selftest: OK (6 rasters, 28 mutation controls)")
     return 0
 
 

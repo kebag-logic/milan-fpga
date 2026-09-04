@@ -54,7 +54,7 @@ prose stays in Git history.
 The later, specific #304 instruction overrides this rule. A gate-clean
 page still keeps checkouts clean.
 
-- Archive total: 17 Markdown pages.
+- Archive total: 21 Markdown pages.
 
 ## Archived pages
 
@@ -65,6 +65,9 @@ page still keeps checkouts clean.
 | [NxN architecture (historical)](NXN_ARCHITECTURE.md) | `docs/NXN_ARCHITECTURE.md` | 2026-08-31 | Mixed ownership eras | [Architecture](../../overview/ARCHITECTURE.md) |
 | [Specification traceability (historical)](SPEC_TRACEABILITY.md) | `docs/SPEC_TRACEABILITY.md` | 2026-08-31 | Stale manual tallies | [Module matrix](../../traceability/MODULE_MATRIX.md) |
 | [Talker state machine (historical)](design/MILAN_TALKER_SM.md) | `docs/design/MILAN_TALKER_SM.md` | 2026-08-31 | Deleted local engines | [Architecture](../../overview/ARCHITECTURE.md) |
+| [Fabric gPTP plane (historical)](design/GPTP_PLANE.md) | `docs/design/GPTP_PLANE.md` | 2026-09-02 | Mixed current integration with investigations | [Fabric gPTP plane](../../design/GPTP_PLANE.md) |
+| [Grandmaster recovery (historical)](design/GM_LOSS_RECOVERY.md) | `docs/design/GM_LOSS_RECOVERY.md` | 2026-09-02 | Mixed current behavior with dated evidence | [Grandmaster recovery](../../design/GM_LOSS_RECOVERY.md) |
+| [Time synchronization (historical)](design/TIME_SYNC.md) | `docs/design/TIME_SYNC.md` | 2026-09-02 | Mixed current boundaries with measurements | [Time synchronization](../../design/TIME_SYNC.md) |
 | [Static ADP shape (historical)](findings/ADP_SHAPE_STATIC_0727.md) | `docs/findings/ADP_SHAPE_STATIC_0727.md` | 2026-08-31 | Fixed generated-shape finding | [End-station builder](../../ENDSTATION_BUILDER.md) |
 | [Throughput campaign record (historical)](findings/PERFORMANCE_GOAL.md) | `docs/findings/PERFORMANCE_GOAL.md` | 2026-09-02 | Closed retired-platform campaign | [Full FPGA solution](../../overview/FULL_FPGA_SOLUTION.md) |
 | [Media-clock lock (historical)](findings/MEDIA_CLOCK_LOCK_0810.md) | `docs/findings/MEDIA_CLOCK_LOCK_0810.md` | 2026-08-31 | Superseded diagnosis | [Time synchronization](../../design/TIME_SYNC.md) |
@@ -76,6 +79,7 @@ page still keeps checkouts clean.
 | [Protocol sweep (historical)](testing/PROTOCOL_SWEEP_PLAN.md) | `docs/testing/PROTOCOL_SWEEP_PLAN.md` | 2026-08-31 | Invalidated execution plan | [Running tests](../../testing/RUNNING_TESTS.md) |
 | [IEEE 1722 traceability (historical)](traceability/ieee1722-2016.md) | `docs/traceability/ieee1722-2016.md` | 2026-08-31 | Stale module rows | [Module matrix](../../traceability/MODULE_MATRIX.md) |
 | [IEEE 1722.1 traceability (historical)](traceability/ieee1722_1-2021.md) | `docs/traceability/ieee1722_1-2021.md` | 2026-08-31 | Superseded control mapping | [Milan audit](../../testing/MILAN_V12_AUDIT_2026-08-16.md) |
+| [IEEE 802.1AS traceability (historical)](traceability/ieee8021as.md) | `docs/traceability/ieee8021as.md` | 2026-09-02 | Oversized mixed-era evidence cells | [IEEE 802.1AS traceability](../../traceability/ieee8021as.md) |
 | [Milan profile traceability (historical)](traceability/milan-v12.md) | `docs/traceability/milan-v12.md` | 2026-08-31 | Stale profile verdicts | [Requirements register](../../reference/FR_NFR.md) |
 
 ## Historical diagram files
@@ -86,3 +90,7 @@ page still keeps checkouts clean.
 | [`ROOT_DOC_MAP.svg` (historical)](diagrams/ROOT_DOC_MAP.svg) | `DOC_MAP.svg` | Superseded audience render |
 | [`perf_campaign.svg` (historical)](diagrams/perf_campaign.svg) | `docs/perf_campaign.svg` | Closed campaign chart render |
 | [`perf_campaign_chart.py` (historical)](diagrams/perf_campaign_chart.py) | `docs/perf_campaign_chart.py` | Closed campaign chart generator |
+| [`timesync_chain.png` (historical)](diagrams/timesync_chain.png) | `docs/diagrams/timesync_chain.png` | Frozen 2026-09-02 clock-chain render; the archived time-sync page embeds it |
+| [`timesync_chain.drawio` (historical)](diagrams/timesync_chain.drawio) | `docs/diagrams/timesync_chain.drawio` | Editable master of that frozen render |
+| [`wd_gptp_pdelay.png` (historical)](diagrams/wd_gptp_pdelay.png) | `docs/diagrams/wd_gptp_pdelay.png` | Frozen 2026-09-02 peer-delay and Sync chronogram; the archived time-sync page embeds it |
+| [`wd_gptp_pdelay.json` (historical)](diagrams/wd_gptp_pdelay.json) | `docs/diagrams/wd_gptp_pdelay.json` | WaveDrom master of that frozen chronogram |

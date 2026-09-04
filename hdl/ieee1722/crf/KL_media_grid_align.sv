@@ -23,7 +23,10 @@
                 COMMAND, so both grids move together and their NOMINAL
                 offset survives.
 
-                THE REFERENCE CHAIN (#74's phase contract, TIME_SYNC.md):
+                THE REFERENCE CHAIN (#74's phase contract - the "Media
+                boundary" of docs/design/TIME_SYNC.md; the bench numbers
+                are section 3.5.1 of the archived
+                docs/history/v1/design/TIME_SYNC.md):
                 CRF -> KL_mmcm_drp_servo (hardware, bench-measurable) ->
                 clk_audio/clk_tdm -> fsync -> THIS MODULE (arithmetic,
                 sim-provable) -> media_tick_p. A chain, not a fork: each

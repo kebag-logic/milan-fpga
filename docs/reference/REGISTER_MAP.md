@@ -774,7 +774,7 @@ Q8.24-ns rate controls consumed by `timestamp_counter`.
 
 Bare-metal firmware may write the board-name overlay. The fabric gPTP owner
 publishes live parent topology directly; option OFF is ownerless and reads zero
-([Section 2.5 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#25-who-runs-where)).
+([Clock ownership](../design/TIME_SYNC.md#clock-ownership)).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -789,8 +789,9 @@ publishes live parent topology directly; option OFF is ownerless and reads zero
 The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
 every PDU of the followed CRF stream against the Milan 7.3.2 profile
 constants and produces the servo's phase/frequency inputs; the MMCM-DRP
-actuator status lives at `0x8F8`. Loop semantics + RTL citations:
-[Sections 3.3-3.4 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#33-crf-in--kl_crf_rx-the-measurement-half)
+actuator status lives at `0x8F8`. Loop semantics:
+[Media boundary](../design/TIME_SYNC.md#media-boundary); servo internals and
+bench history: [historical Section 3.4](../history/v1/design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)
 
 The followed stream normally comes from the CRF sink bind (ACMP listener
 sink 1 — the bind wins); the SID pair here is the manual lever, and the
@@ -835,7 +836,7 @@ sample grid: every 96th `/512` sample event latches the live PHC value, so
 the wire carries the actual audio-clock rate as the PHC sees it. A PDU that
 would collide with a busy serializer is skipped whole — timestamps stay
 truthful, only the cadence stretches
-([Section 3.2 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#32-crf-out--kl_crf_tx-the-media-clock-talker)).
+([historical CRF talker section](../history/v1/design/TIME_SYNC.md#32-crf-out--kl_crf_tx-the-media-clock-talker)).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -1121,7 +1122,7 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
 | `0x6E4` | `GPTP_PDELAY` | RO live | reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value. |
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
-| `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [Section 3.6 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#36-aaf-presentation-time-against-the-phc)) |
+| `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [presentation validity](../design/TIME_SYNC.md#presentation-validity)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
 | `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 Section 5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
 | `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
@@ -1679,7 +1680,8 @@ and pin-level evidence instead.
 > The servo's command slice `[31:16]` is the MMCM's ALONE: the packet-grid
 > NCO no longer mirrors it. The packet grid follows the PHYSICAL fsync grid
 > through `KL_media_grid_align` (one reference chain, each link separately
-> falsifiable - [Section 3.4/3.5.1 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md)),
+> falsifiable - [media boundary](../design/TIME_SYNC.md#media-boundary), measured
+> in the [historical Section 3.5.1](../history/v1/design/TIME_SYNC.md#351-the-grid-phase-contract--clk_tdm_i-clk_audio_i-media_tick_p-74)),
 > which is what actually removes the -10.64 ppm divider drift a mirrored
 > command could never close.
 >
@@ -1688,7 +1690,8 @@ and pin-level evidence instead.
 > build plan distinguishes the first.
 
 The CRF clock-recovery ACTUATOR (status word + control knobs; loop
-semantics in [Section 3.4 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)).
+semantics in the [media boundary](../design/TIME_SYNC.md#media-boundary),
+internals in the [historical Section 3.4](../history/v1/design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)).
 Parked at the map TAIL (after the 0x800-0x85C window) on purpose: parallel
 feature lanes are extending the 0x700 group, so a tail slot cannot collide
 on merge; `0x8FC` next to it holds the servo control knobs.

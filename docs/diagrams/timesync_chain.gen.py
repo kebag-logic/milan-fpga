@@ -1,281 +1,578 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Generate the time-sync clock-chain diagram (docs/design/TIME_SYNC.md) as
-both an editable .drawio and a rendered .svg from ONE node/edge table.
+"""Generate the source-checked fabric time-ownership diagram."""
 
-Content: the three clocks and how they chain -
-  wire -> PHY/MAC -> fabric gPTP engine <-> PHC -> atomic publication bank
-  PHC -> CRF -> MMCM-DRP servo -> audio MMCM -> media clock -> I2S/TDM
-with the CSR touchpoints labeled (offsets per docs/reference/REGISTER_MAP.md).
-Arrows are TIME/TIMESTAMP flow, not audio sample flow.
+from __future__ import annotations
 
-Regenerate:
-    python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain
-    rsvg-convert -w 2000 docs/diagrams/timesync_chain.svg \
-        -o docs/diagrams/timesync_chain.png
-"""
-import html, sys
-from dataclasses import dataclass
+import hashlib
+import html
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, replace
+from pathlib import Path
 
-W, H = 1760, 832
 
-# palette (fill, stroke) - house colors (DOC_MAP.gen.py)
-BLUE   = ("#E3F2FD", "#1565C0")   # fabric, network-time lane
-GREEN  = ("#E8F5E9", "#2E7D32")   # fabric, media-clock lane
-PURPLE = ("#F3E5F5", "#6A1B9A")   # bare-metal firmware/control
-GOLD   = ("#FFF8E1", "#F9A825")   # the PHC hub
-ORANGE = ("#FFF3E0", "#EF6C00")   # AVTP timestamp consumers
-GREY   = ("#ECEFF1", "#455A64")   # wire / notes
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
 
-# ---- nodes: id -> (x, y, w, h, title, sublines, (fill,stroke), dashed) ----
-N = {
- # lane A - network time
- "wire":    (40,116,130,84,"1 GbE wire","802.1AS peer\n(AVB switch / board)",GREY,0),
- "phymac":  (205,116,150,84,"PHY + MAC","RGMII/GMII\nLiteEth or MilanMAC",BLUE,0),
- "tstap":   (390,116,250,84,"KL_gptp_shadow RX/TX","delivered-frame RX stamp\nMAC-boundary TX stamp",BLUE,0),
- "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nfabric tuple pairing",BLUE,0),
- "kleth":   (910,116,190,84,"KL_gptp_engine","BTCA + Pdelay + Sync\nPHC servo in fabric",BLUE,0),
- "pub":     (1135,116,180,84,"atomic publish bank","GM + parent + flags\npdelay + offset + annq",BLUE,0),
- "hwnote":  (1350,116,370,84,"product ownership (0x0002_0056)",
-             "fabric is the ONE PHC/protocol/publication owner (#259)\n"
-             "option OFF is ownerless verification hardware",GREY,1),
- # row 2 - the PHC hub + its fabric-owned public consumers
- "phc":     (40,290,330,96,"PHC - timestamp_counter",
-             "Q8.24 ns accumulator, datapath clock\n"
-             "CSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),
- "g2c":     (1190,290,330,96,"public gPTP consumers",
-             "CSR GM/parent/pdelay - GET_AVB_INFO/PATH\n"
-             "CLKV asCapable/sync - every AVTP tu",BLUE,0),
- # AAF timestamp-consumer strip
- "aafpkt":  (40,445,300,76,"AAF packetizer",
-             "avtp_timestamp = ptp_now + PTO\n"
-             "(PTO: SET_STREAM_INFO acc-lat, reset 2 ms)",ORANGE,0),
- "rxmon":   (380,445,300,76,"AVTP RX monitor","ts_delta 0x6EC = avtp_ts - ptp_now\nLATE / EARLY counters",ORANGE,0),
- "locknote":(1430,445,290,76,"media-lock rule",
-             "internal source: lock on first valid PDU\n"
-             "external (CRF): lock only when servo converged",GREY,1),
- # lane B - media clock
- "mmcm":    (40,596,230,96,"audio MMCM 24.576 MHz",
-             "integer x34/43 off 31.081 MHz\n"
-             "-10.6 ppm base - fine-PS 16.9 ps + DRP",GREEN,0),
- "div":     (305,596,150,96,"/512","48 kHz media clock\n(MCLK/SCLK/LRCK dividers)",GREEN,0),
- "frontend":(490,596,200,96,"I2S / TDM front-ends","DAC render + ADC capture\npair FIFO, converged flag",GREEN,0),
- "crftx":   (725,596,240,96,"KL_crf_tx (talker)","every 96th sample event:\nts = PHC ns + PTO - 500 PDU/s",GREEN,0),
- "crfwire": (1000,596,120,96,"wire","CRF stream\nsubtype 4",GREY,0),
- "crfrx":   (1155,596,240,96,"KL_crf_rx (listener)",
-             "validate Milan 7.3.2 - delta 0x744\n"
-             "rate 0x748 - lock 0x738[31]",GREEN,0),
- "servo":   (1430,596,290,96,"KL_mmcm_drp_servo",
-             "in: rate error (ns/512 ms) - PI FLL +-200 ppm\n"
-             "MCSRV 0x8F8/0x8FC - engages at the shape.s CRF clock_source",GREEN,0),
+from png_artifact import (  # noqa: E402
+    render_svg_png,
+    reviewed_png_current,
+    update_pixel_manifest,
+    zero_raster_bytes,
+)
+
+
+BASE = ROOT / "docs" / "diagrams" / "timesync_chain"
+MANIFEST = ROOT / "docs" / "diagrams" / "PNG_MANIFEST.json"
+ARTIFACT_NAME = "docs/diagrams/timesync_chain.png"
+SOURCE_NAME = "docs/diagrams/timesync_chain.drawio"
+DRAWIO_HASH_KEY = "Milan-Drawio-SHA256"
+WIDTH = 1600
+HEIGHT = 900
+RASTER_WIDTH = 2400
+
+FEATURE_FILE = ROOT / "docs" / "reference" / "milan_feature_status.json"
+FEATURE_IDS = (
+    "gptp.fabric-product-owner",
+    "crf.media-clock-consumption",
+)
+SOURCE_TOKENS = {
+    "hdl/milan/milan_datapath.sv": (
+        "parameter bit GPTP_PLANE_EN_P = 1'b1",
+        "always_ff @(posedge axis_clk) begin : media_clk_resolve",
+        "pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C",
+        "KL_media_grid_align #(",
+        "KL_gptp_shadow #(",
+        "KL_gptp_txstamp #(",
+        "timestamp_counter #(",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": (
+        "module KL_gptp_shadow #(",
+        "assign beat_w = rx_tvalid_i & rx_tready_i",
+        "input  wire [3:0]  txts_type_i",
+        "output logic        pub_commit_o",
+        "output wire         pub_disc_o",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv": (
+        "module KL_gptp_txstamp #(",
+        "assign beat_w = tx_tvalid_i & tx_tready_i",
+        "output logic [15:0] ts_seq_o",
+        "output logic [3:0]  ts_type_o",
+    ),
+    "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": (
+        "assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w",
+        "assign as_capable_o = as_cap_w",
+    ),
+    "sw/builder/endstation_builder.py": (
+        '"board.features.fabric_gptp: false is retired (#259): the "',
+        'argv += ["--fabric-gptp"]',
+    ),
 }
 
-# ---- edges: (src, dst, label, [waypoints], style) ----
-# waypoints = full polyline INCLUDING endpoints (svg draws it verbatim; the
-# drawio export derives exit/entry pins + intermediate mxPoints from it).
-# style: "d"=data (solid), "c"=control (dashed)
-E = [
- ("wire","phymac","RX",              [(170,145),(205,145)],"d"),
- ("phymac","wire","TX",              [(205,175),(170,175)],"d"),
- ("phymac","tstap","",               [(355,145),(390,145)],"d"),
- ("tstap","phymac","",               [(390,175),(355,175)],"d"),
- ("tstap","tsring","",               [(640,158),(675,158)],"d"),
- ("tsring","kleth","",               [(875,158),(910,158)],"d"),
- ("kleth","pub","commit",            [(1100,158),(1135,158)],"d"),
- ("kleth","phc","adjfine / adjtime (fabric owner); settime stays on CSR face",
-                                     [(1225,200),(1225,246),(205,246),(205,290)],"c"),
- ("phc","tstap","ptp_now (64-bit ns)",[(100,290),(100,224),(515,224),(515,200)],"c"),
- ("pub","g2c","one coherent generation",[(1280,200),(1280,290)],"c"),
- ("phc","aafpkt","ptp_now + PTO",    [(190,386),(190,445)],"c"),
- ("phc","rxmon","ptp_now",           [(330,386),(330,415),(530,415),(530,445)],"c"),
- ("phc","crftx","ptp_now",           [(350,386),(350,412),(845,412),(845,596)],"c"),
- ("phc","crfrx","ptp_now",           [(310,386),(310,400),(1275,400),(1275,596)],"c"),
- ("mmcm","div","",                   [(270,644),(305,644)],"d"),
- ("div","frontend","",               [(455,644),(490,644)],"d"),
- ("crftx","crfwire","",              [(965,644),(1000,644)],"d"),
- ("crfwire","crfrx","",              [(1120,644),(1155,644)],"d"),
- ("crfrx","servo","",                [(1395,644),(1430,644)],"d"),
- ("mmcm","crftx","clk_audio 24.576 MHz - own /512 + /96 event grid",
-                                     [(100,692),(100,718),(830,718),(830,692)],"c"),
- ("servo","mmcm","fine-PS step rate = ppm trim - DRP verify/repair (auto_repair 0x8FC[1])",
-                                     [(1575,692),(1575,744),(60,744),(60,692)],"c"),
-]
 
-LANE_LABELS = [
- (40,104,"NETWORK TIME - gPTP (802.1AS, domain 0)","#1565C0"),
- (40,278,"THE HUB - PTP hardware clock (PHC) and its public consumers (one owner, #259)","#B26A00"),
- (40,433,"AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)","#EF6C00"),
- (40,566,"MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)","#2E7D32"),
- (40,584,
-  "coherent chain: capture, CRF grid and (via the servo) the listener playback "
-  "clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter "
-  "floor)","#555555"),
-]
-
-TITLE = "milan-fpga time sync - the three clocks and how they chain"
-SUB   = ("fabric gPTP  ->  network PHC + atomic public state   -   PHC + CRF  ->  media clock (MMCM-DRP servo)"
-         "   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples")
-FOOT  = ("sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - "
-         "hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py"
-         "   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain")
-
-
-def esc(s: object) -> str:
-    """XML-safe text, quotes included, because every use is an attribute value."""
-    return html.escape(str(s), quote=True)
-
-
-# ---------------------------------------------------------------- SVG ----
-def svg() -> str:
-    """the published .svg: the node boxes, the flow arrows with their labels,
-    the lane notes and the source footer."""
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
-    o.append(f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>')
-    o.append('<defs>'
-             '<marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto">'
-             '<path d="M0,0 L8,4 L0,8 Z" fill="#455A64"/></marker>'
-             '<marker id="arrc" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto">'
-             '<path d="M0,0 L8,4 L0,8 Z" fill="#8D6E63"/></marker>'
-             '</defs>')
-    o.append(f'<text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">{esc(TITLE)}</text>')
-    o.append(f'<text x="40" y="70" font-size="12.5" fill="#546E7A">{esc(SUB)}</text>')
-    for x, y, t, col in LANE_LABELS:
-        fs = 11 if y in (584,) else 13
-        fw = "400" if y in (584,) else "700"
-        o.append(f'<text x="{x}" y="{y}" font-size="{fs}" font-weight="{fw}" fill="{col}">{esc(t)}</text>')
-    # boxes first, then edges + labels on top (edge labels must never be
-    # painted under a box fill)
-    for nid, (x, y, w, h, title, sub, (fill, stroke), dash) in N.items():
-        dd = ' stroke-dasharray="7 5"' if dash else ''
-        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="9" fill="{fill}" '
-                 f'stroke="{stroke}" stroke-width="2"{dd}/>')
-        subl = sub.split("\n") if sub else []
-        ty = y + 24 if subl else y + h/2 + 5
-        o.append(f'<text x="{x+w/2}" y="{ty}" font-size="14" font-weight="bold" '
-                 f'fill="#212121" text-anchor="middle">{esc(title)}</text>')
-        for j, sl in enumerate(subl):
-            o.append(f'<text x="{x+w/2}" y="{y+42+j*15}" font-size="11" fill="#37474F" '
-                     f'text-anchor="middle">{esc(sl)}</text>')
-    for src, dst, label, pts, sty in E:
-        col = "#455A64" if sty == "d" else "#8D6E63"
-        mk = "arr" if sty == "d" else "arrc"
-        dash = "" if sty == "d" else ' stroke-dasharray="6 4"'
-        d = "M" + " L".join(f"{x},{y}" for x, y in pts)
-        o.append(f'<path d="{d}" fill="none" stroke="{col}" stroke-width="1.8" marker-end="url(#{mk})"{dash}/>')
-        if label:
-            # label near the midpoint of the longest segment
-            best, bl = None, -1
-            for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
-                l = abs(x2-x1) + abs(y2-y1)
-                if l > bl:
-                    bl, best = l, ((x1+x2)/2, (y1+y2)/2, x2 == x1)
-            mx, my, vert = best
-            tx, ty, anch = (mx+6, my-4, "start") if vert else (mx, my-6, "middle")
-            o.append(f'<text x="{tx}" y="{ty}" font-size="10.5" fill="#5D4037" '
-                     f'text-anchor="{anch}">{esc(label)}</text>')
-    o.append(f'<text x="40" y="{H-18}" font-size="11" fill="#78909C">{esc(FOOT)}</text>')
-    o.append('</svg>')
-    return "\n".join(o)
-
-
-# ------------------------------------------------------------- drawio ----
-def dio_esc(s: object) -> str:
-    """`esc` plus the newline entity: a drawio label lives inside an attribute,
-    where a literal line break would end the value."""
-    return html.escape(str(s), quote=True).replace("\n", "&#10;")
+@dataclass(frozen=True)
+class Facts:
+    pin: str
+    gptp_status: str
+    media_status: str
 
 
 @dataclass(frozen=True)
-class CellStyle:
-    """How one drawio vertex is painted: the (fill, stroke) pair off the node
-    table, its dashed flag, and the font the label is set in."""
+class Node:
+    x: int
+    y: int
+    width: int
+    height: int
+    title: str
+    lines: tuple[str, ...]
     fill: str
     stroke: str
-    dash: int = 0
-    fs: int = 12
-    bold: int = 1
+    dashed: bool = False
 
 
 @dataclass(frozen=True)
-class LabelStyle:
-    """How one free-standing drawio text cell is painted."""
-    col: str
-    fs: int = 13
-    bold: int = 1
+class Edge:
+    source: str
+    target: str
+    label: str
+    dashed: bool = False
+    route: tuple[tuple[int, int], ...] = ()
+    label_at: tuple[int, int] | None = None
 
 
-def drawio() -> str:
-    """the same chain as an editable .drawio: a vertex per node, a text cell per
-    lane note and one routed edge per arrow."""
+def esc(value: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
+    return html.escape(str(value), quote=True)
+
+
+def feature_statuses(path: Path = FEATURE_FILE) -> dict[str, str]:
+    """The canonical status of each feature the diagram states, by id."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    features = data.get("features") if isinstance(data, dict) else None
+    if not isinstance(features, list):
+        raise ValueError("feature ledger lacks a features list")
+    statuses = {
+        item.get("id"): item.get("status")
+        for item in features
+        if isinstance(item, dict)
+    }
+    missing = [feature for feature in FEATURE_IDS if feature not in statuses]
+    if missing:
+        raise ValueError("feature ledger lacks: " + ", ".join(missing))
+    return {feature: str(statuses[feature]) for feature in FEATURE_IDS}
+
+
+def source_errors(root: Path = ROOT) -> list[str]:
+    """Every RTL evidence token the diagram depends on that is not in the tree."""
+    errors: list[str] = []
+    for relative, tokens in SOURCE_TOKENS.items():
+        path = root / relative
+        if not path.is_file():
+            errors.append(f"{relative}: source evidence is missing")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for token in tokens:
+            if token not in text:
+                errors.append(f"{relative}: missing evidence token: {token}")
+    return errors
+
+
+def gitlink_pin() -> str:
+    """The exact gptp-processor gitlink at stage zero, read from the index."""
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "--stage", "--", "gptp-processor"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.split()
+    if len(result) < 4 or result[0] != "160000" or result[2] != "0":
+        raise ValueError("gptp-processor is not one stage-zero gitlink")
+    return result[1]
+
+
+def read_facts() -> Facts:
+    """The source-checked facts the diagram is drawn from, or a ValueError."""
+    errors = source_errors()
+    if errors:
+        raise ValueError("; ".join(errors))
+    statuses = feature_statuses()
+    if statuses[FEATURE_IDS[0]] != "implemented":
+        raise ValueError("fabric-owner feature is not implemented")
+    if statuses[FEATURE_IDS[1]] != "implemented":
+        raise ValueError("media-consumption feature is not implemented")
+    return Facts(
+        gitlink_pin(),
+        statuses[FEATURE_IDS[0]],
+        statuses[FEATURE_IDS[1]],
+    )
+
+
+def nodes(facts: Facts) -> dict[str, Node]:
+    """The node table, with the pin and the media status read into their boxes."""
+    blue = ("#E3F2FD", "#1565C0")
+    gold = ("#FFF8E1", "#F9A825")
+    green = ("#E8F5E9", "#2E7D32")
+    purple = ("#F3E5F5", "#6A1B9A")
+    orange = ("#FFF3E0", "#EF6C00")
+    grey = ("#ECEFF1", "#546E7A")
+    return {
+        "peer": Node(35, 140, 175, 100, "802.1AS peer", ("Ethernet wire",), *grey),
+        "rx": Node(
+            250, 125, 245, 130, "Parent RX seam",
+            ("accepted MAC beats", "first-beat PHC time"), *blue,
+        ),
+        "engine": Node(
+            545,
+            115,
+            300,
+            150,
+            "Fabric gPTP engine",
+            (f"pin {facts.pin[:12]}", "protocol, timers, servo"),
+            *blue,
+        ),
+        "tx": Node(
+            895, 125, 245, 130, "Parent TX seam",
+            ("byte-to-wide transport", "valid-ready backpressure"), *blue,
+        ),
+        "mac": Node(1190, 140, 175, 100, "MAC boundary", ("actual TX acceptance",), *grey),
+        "phc": Node(150, 350, 300, 135, "PHC counter", ("network nanoseconds", "rate and phase controls"), *gold),
+        "publish": Node(
+            535, 350, 310, 135, "Atomic publication",
+            ("GM, parent, path", "delay, flags, commit"), *purple,
+        ),
+        "consumers": Node(900, 350, 310, 135, "Public consumers", ("CSR and protocol", "AVTP tu and status"), *purple),
+        "stamp": Node(
+            1260, 350, 285, 135, "MAC-boundary timestamp",
+            ("first accepted TX beat", "sequence plus type"), *gold,
+        ),
+        "avtp": Node(115, 650, 330, 135, "AVTP timeline", ("PHC dates AAF and CRF", "tu reports uncertainty"), *orange),
+        "crf": Node(565, 650, 330, 135, "CRF measurement", ("remote phase and rate", "selection reaches root"), *green),
+        "media": Node(
+            1070, 635, 380, 165, "Media clock lineage",
+            ("INTERNAL: free-run", "CRF: steered and aligned"), *green,
+        ),
+        "select": Node(
+            920,
+            525,
+            245,
+            100,
+            "CRF steering gates",
+            (f"status: {facts.media_status}", "rate and grid loops"),
+            *green,
+        ),
+    }
+
+
+EDGES = (
+    Edge("peer", "rx", "RX", route=((210, 190), (250, 190)), label_at=(230, 180)),
+    Edge("rx", "engine", "", route=((495, 190), (545, 190))),
+    Edge("engine", "tx", "bytes", route=((845, 190), (895, 190)), label_at=(870, 180)),
+    Edge("tx", "mac", "TX", route=((1140, 190), (1190, 190)), label_at=(1165, 180)),
+    Edge("phc", "rx", "PHC time", True, ((300, 350), (300, 255)), (340, 305)),
+    Edge("engine", "phc", "rate / phase", True, ((620, 265), (620, 310), (450, 310), (450, 418)), (535, 300)),
+    Edge("engine", "publish", "commit", False, ((695, 265), (695, 350)), (730, 315)),
+    Edge("publish", "consumers", "state", False, ((845, 418), (900, 418)), (872, 408)),
+    Edge("mac", "stamp", "accepted TX", False, ((1277, 240), (1277, 350)), (1320, 305)),
+    Edge("stamp", "engine", "return tuple", False, ((1402, 350), (1402, 290), (800, 290), (800, 265)), (1100, 280)),
+    Edge("phc", "avtp", "presentation time", True, ((300, 485), (300, 650)), (360, 575)),
+    Edge("phc", "crf", "common time", True, ((450, 450), (500, 450), (500, 610), (730, 610), (730, 650)), (620, 600)),
+    Edge("media", "crf", "internal events", False, ((1070, 718), (895, 718)), (982, 708)),
+    Edge("crf", "select", "rate error", True, ((895, 680), (940, 680), (940, 625)), (985, 642)),
+    Edge("select", "media", "steer / align", True, ((1165, 575), (1260, 575), (1260, 635)), (1212, 565)),
+)
+
+
+def svg(facts: Facts) -> str:
+    """The published .svg: boundaries, routed arrows with labels, node boxes."""
+    diagram_nodes = nodes(facts)
+    lines = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" '
+        f'viewBox="0 0 {WIDTH} {HEIGHT}" font-family="Helvetica,Arial,sans-serif">',
+        f'<rect width="{WIDTH}" height="{HEIGHT}" fill="#FAFAFA"/>',
+        '<defs><marker id="arrow" markerWidth="12" markerHeight="12" '
+        'refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" '
+        'fill="#455A64"/></marker></defs>',
+        '<text x="35" y="48" font-size="28" font-weight="bold" fill="#263238">'
+        'Fabric time ownership and integration</text>',
+        '<text x="35" y="78" font-size="17" fill="#546E7A">'
+        f'Product owner: {esc(facts.gptp_status)}. Media consumption: '
+        f'{esc(facts.media_status)}.</text>',
+        '<text x="35" y="112" font-size="15" font-weight="bold" fill="#1565C0">'
+        'NETWORK TIME</text>',
+        '<text x="35" y="325" font-size="15" font-weight="bold" fill="#B26A00">'
+        'TIMESTAMP AND PUBLICATION BOUNDARIES</text>',
+        '<text x="35" y="620" font-size="15" font-weight="bold" fill="#2E7D32">'
+        'PRESENTATION AND MEDIA BOUNDARY</text>',
+    ]
+    for edge in EDGES:
+        dash = ' stroke-dasharray="7,6"' if edge.dashed else ""
+        route = " L".join(f"{x},{y}" for x, y in edge.route)
+        lines.append(
+            f'<path d="M{route}" '
+            f'fill="none" stroke="#455A64" stroke-width="2" '
+            f'marker-end="url(#arrow)"{dash}/>'
+        )
+        if edge.label and edge.label_at is not None:
+            lines.append(
+                f'<text x="{edge.label_at[0]}" y="{edge.label_at[1]}" '
+                f'text-anchor="middle" font-size="12" fill="#37474F">'
+                f'{esc(edge.label)}</text>'
+            )
+    for identifier, node in diagram_nodes.items():
+        dash = ' stroke-dasharray="8,6"' if node.dashed else ""
+        lines.extend(
+            [
+                f'<rect id="{identifier}" x="{node.x}" y="{node.y}" '
+                f'width="{node.width}" height="{node.height}" rx="12" '
+                f'fill="{node.fill}" stroke="{node.stroke}" stroke-width="2.5"{dash}/>',
+                f'<text x="{node.x + node.width / 2}" y="{node.y + 34}" '
+                f'text-anchor="middle" font-size="17" font-weight="bold" '
+                f'fill="#212121">{esc(node.title)}</text>',
+            ]
+        )
+        for index, detail in enumerate(node.lines):
+            lines.append(
+                f'<text x="{node.x + node.width / 2}" '
+                f'y="{node.y + 62 + index * 23}" text-anchor="middle" '
+                f'font-size="14" fill="#37474F">{esc(detail)}</text>'
+            )
+    lines.extend(
+        [
+            '<text x="35" y="865" font-size="12" fill="#78909C">'
+            'Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, '
+            'KL_ptp_clock_validity, feature ledger, and exact Gitlink.</text>',
+            '</svg>',
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def drawio_annotations(facts: Facts) -> tuple[tuple[str, str, int, int, int, int, str], ...]:
+    """The free-standing text cells: id, text, x, y, width, height, style."""
+    return (
+        (
+            "title",
+            "Fabric time ownership and integration",
+            35,
+            25,
+            900,
+            45,
+            "fontSize=24;fontStyle=1;fontColor=#263238;",
+        ),
+        (
+            "status",
+            f"Product owner: {facts.gptp_status}. "
+            f"Media consumption: {facts.media_status}.",
+            35,
+            65,
+            900,
+            28,
+            "fontSize=15;fontColor=#546E7A;",
+        ),
+        (
+            "network-boundary",
+            "NETWORK TIME",
+            35,
+            95,
+            260,
+            28,
+            "fontSize=13;fontStyle=1;fontColor=#1565C0;",
+        ),
+        (
+            "timestamp-boundary",
+            "TIMESTAMP AND PUBLICATION BOUNDARIES",
+            35,
+            310,
+            420,
+            28,
+            "fontSize=13;fontStyle=1;fontColor=#B26A00;",
+        ),
+        (
+            "media-boundary",
+            "PRESENTATION AND MEDIA BOUNDARY",
+            35,
+            610,
+            390,
+            28,
+            "fontSize=13;fontStyle=1;fontColor=#2E7D32;",
+        ),
+        (
+            "sources",
+            "Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, "
+            "KL_ptp_clock_validity, feature ledger, and exact Gitlink.",
+            35,
+            840,
+            1250,
+            25,
+            "fontSize=11;fontColor=#78909C;",
+        ),
+    )
+
+
+def drawio(facts: Facts) -> str:
+    """The same diagram as an editable .drawio: a text cell per annotation,
+    a vertex per node and one routed edge per arrow."""
+    diagram_nodes = nodes(facts)
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-
-    def vertex(cid: str, rect: tuple[int, int, int, int], label: str,
-               style: CellStyle) -> None:
-        """one drawio node box, painted from a `CellStyle` rather than five loose flags."""
-        x, y, w, h = rect
-        st = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={style.fill};"
-              f"strokeColor={style.stroke};"
-              f"fontSize={style.fs};align=center;verticalAlign=middle;"
-              + ("dashed=1;" if style.dash else "")
-              + ("fontStyle=1;" if style.bold else ""))
-        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{st}" '
-                     f'vertex="1" parent="1">'
-                     f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
-
-    def text(cid: str, x: int, y: int, w: int, label: str,
-             style: LabelStyle) -> None:
-        """one free-standing drawio label. `y` is the SVG text baseline, and the
-        cell is hung 16 above it so both renders put the note in the same place."""
-        st = (f"text;html=1;align=left;verticalAlign=middle;fontSize={style.fs};"
-              f"fontColor={style.col};" + ("fontStyle=1;" if style.bold else ""))
-        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{st}" '
-                     f'vertex="1" parent="1">'
-                     f'<mxGeometry x="{x}" y="{y-16}" width="{w}" height="22" as="geometry"/></mxCell>')
-
-    for nid, (x, y, w, h, title, sub, (fill, stroke), dash) in N.items():
-        lbl = title + ("\n" + sub if sub else "")
-        vertex("n_" + nid, (x, y, w, h), lbl, CellStyle(fill, stroke, dash))
-    for k, (x, y, t, col) in enumerate(LANE_LABELS):
-        text(f"t_{k}", x, y, 1680, t,
-             LabelStyle(col, fs=12 if y == 584 else 13, bold=0 if y == 584 else 1))
-    text("t_title", 40, 44, 1400, TITLE, LabelStyle("#263238", fs=22))
-    text("t_sub", 40, 70, 1680, SUB, LabelStyle("#546E7A", fs=11, bold=0))
-    text("t_foot", 40, H-18, 1680, FOOT, LabelStyle("#78909C", fs=10, bold=0))
-
-    for k, (src, dst, label, pts, sty) in enumerate(E):
-        sx, sy, sw, sh = N[src][:4]
-        dx, dy, dw, dh = N[dst][:4]
-        (x0, y0), (xn, yn) = pts[0], pts[-1]
-        ex, ey = round((x0-sx)/sw, 3), round((y0-sy)/sh, 3)
-        nx, ny = round((xn-dx)/dw, 3), round((yn-dy)/dh, 3)
-        dash = "dashed=1;" if sty == "c" else ""
-        color = "#455A64" if sty == "d" else "#8D6E63"
-        st = (f"edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;"
-              f"strokeColor={color};strokeWidth=1.8;fontSize=10;labelBackgroundColor=#FAFAFA;"
-              f"{dash}exitX={ex};exitY={ey};entryX={nx};entryY={ny};")
-        geo = '<mxGeometry relative="1" as="geometry">'
-        mid = pts[1:-1]
-        if mid:
-            geo += ('<Array as="points">'
-                    + "".join(f'<mxPoint x="{x}" y="{y}"/>' for x, y in mid)
-                    + '</Array>')
-        geo += '</mxGeometry>'
-        cells.append(f'<mxCell id="e_{k}" value="{dio_esc(label)}" style="{st}" edge="1" '
-                     f'parent="1" source="n_{src}" target="n_{dst}">{geo}</mxCell>')
-
-    body = "\n".join(cells)
-    return (f'<mxfile host="app.diagrams.net"><diagram name="timesync-chain">'
-            f'<mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" '
-            f'connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="{W}" '
-            f'pageHeight="{H}" math="0" shadow="0"><root>{body}</root></mxGraphModel>'
-            f'</diagram></mxfile>')
+    for identifier, value, x, y, width, height, text_style in drawio_annotations(facts):
+        style = "text;html=1;align=left;verticalAlign=middle;" + text_style
+        cells.append(
+            f'<mxCell id="{identifier}" value="{esc(value)}" style="{style}" '
+            f'vertex="1" parent="1"><mxGeometry x="{x}" y="{y}" '
+            f'width="{width}" height="{height}" as="geometry"/></mxCell>'
+        )
+    for identifier, node in diagram_nodes.items():
+        details = "<br>".join(node.lines)
+        label = f"<b>{node.title}</b><br><br>{details}"
+        style = (
+            "rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;"
+            "align=center;fontSize=15;strokeWidth=2;"
+            f"fillColor={node.fill};strokeColor={node.stroke};"
+            + ("dashed=1;" if node.dashed else "")
+        )
+        cells.append(
+            f'<mxCell id="n-{identifier}" value="{esc(label)}" style="{style}" '
+            f'vertex="1" parent="1"><mxGeometry x="{node.x}" y="{node.y}" '
+            f'width="{node.width}" height="{node.height}" as="geometry"/>'
+            '</mxCell>'
+        )
+    for index, edge in enumerate(EDGES):
+        style = (
+            "edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;"
+            "endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;"
+            + ("dashed=1;" if edge.dashed else "")
+        )
+        geometry = '<mxGeometry relative="1" as="geometry">'
+        if len(edge.route) > 2:
+            geometry += '<Array as="points">' + "".join(
+                f'<mxPoint x="{x}" y="{y}"/>'
+                for x, y in edge.route[1:-1]
+            ) + '</Array>'
+        geometry += '</mxGeometry>'
+        cells.append(
+            f'<mxCell id="e-{index}" value="{esc(edge.label)}" style="{style}" '
+            f'edge="1" parent="1" source="n-{edge.source}" target="n-{edge.target}">'
+            f'{geometry}</mxCell>'
+        )
+    body = "".join(cells)
+    return (
+        '<mxfile host="app.diagrams.net"><diagram name="fabric-time">'
+        f'<mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" '
+        f'guides="1" page="1" pageScale="1" pageWidth="{WIDTH}" '
+        f'pageHeight="{HEIGHT}" math="0" shadow="0"><root>{body}</root>'
+        '</mxGraphModel></diagram></mxfile>\n'
+    )
 
 
-base = sys.argv[1] if len(sys.argv) > 1 else "timesync_chain"
-with open(base + ".svg", "w") as fh:
-    fh.write(svg())
-with open(base + ".drawio", "w") as fh:
-    fh.write(drawio())
-print("wrote", base + ".svg", "and", base + ".drawio")
+def check_or_write(path: Path, content: str, checking: bool) -> bool:
+    """Write one text output, or under --check report whether it is current."""
+    if checking:
+        return path.is_file() and path.read_text(encoding="utf-8") == content
+    path.write_text(content, encoding="utf-8")
+    return True
+
+
+def check_or_write_png(svg_content: str, drawio_content: str, checking: bool) -> bool:
+    """Render the reviewed PNG, or under --check compare it against the manifest."""
+    output = BASE.with_suffix(".png")
+    digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
+    fields = {DRAWIO_HASH_KEY: digest}
+    if not checking:
+        render_svg_png(svg_content, output, RASTER_WIDTH, fields)
+        update_pixel_manifest(
+            MANIFEST,
+            ARTIFACT_NAME,
+            SOURCE_NAME,
+            output,
+            BASE.with_suffix(".drawio"),
+        )
+        return True
+    with tempfile.TemporaryDirectory(prefix="timesync-png-") as directory:
+        candidate = Path(directory) / "timesync_chain.png"
+        candidate_info = render_svg_png(svg_content, candidate, RASTER_WIDTH, fields)
+    return reviewed_png_current(
+        MANIFEST,
+        ARTIFACT_NAME,
+        SOURCE_NAME,
+        output,
+        BASE.with_suffix(".drawio"),
+        (candidate_info.width, candidate_info.height),
+        fields,
+    )
+
+
+def selftest() -> int:
+    """The fixture arms: status, XML, source evidence and raster must all bite."""
+    facts = read_facts()
+    source_svg = svg(facts)
+    changed_svg = svg(replace(facts, media_status="missing"))
+    if source_svg == changed_svg or "status: implemented" not in source_svg:
+        print("time-sync selftest: feature status did not affect output")
+        return 1
+    source_drawio = drawio(facts)
+    try:
+        ET.fromstring(source_drawio)
+    except ET.ParseError as error:
+        print(f"time-sync selftest: generated Draw.io is invalid: {error}")
+        return 1
+    for annotation in (
+        "Product owner: implemented. Media consumption: implemented.",
+        "TIMESTAMP AND PUBLICATION BOUNDARIES",
+        "PRESENTATION AND MEDIA BOUNDARY",
+        "KL_gptp_txstamp",
+    ):
+        if annotation not in source_drawio:
+            print(f"time-sync selftest: Draw.io lacks annotation: {annotation}")
+            return 1
+    with tempfile.TemporaryDirectory(prefix="timesync-source-") as directory:
+        fixture = Path(directory)
+        for relative in SOURCE_TOKENS:
+            target = fixture / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text((ROOT / relative).read_text(encoding="utf-8"), encoding="utf-8")
+        if source_errors(fixture):
+            print("time-sync selftest: copied source evidence failed")
+            return 1
+        relative = next(iter(SOURCE_TOKENS))
+        victim = fixture / relative
+        token = SOURCE_TOKENS[relative][0]
+        victim.write_text(victim.read_text(encoding="utf-8").replace(token, "missing", 1), encoding="utf-8")
+        if not source_errors(fixture):
+            print("time-sync selftest: missing source token escaped")
+            return 1
+    digest = hashlib.sha256(drawio(facts).encode("utf-8")).hexdigest()
+    fields = {DRAWIO_HASH_KEY: digest}
+    with tempfile.TemporaryDirectory(prefix="timesync-raster-") as directory:
+        fixture = Path(directory)
+        manifest = fixture / "PNG_MANIFEST.json"
+        source = fixture / "timesync_chain.drawio"
+        output = fixture / "timesync_chain.png"
+        candidate = fixture / "candidate.png"
+        shutil.copy2(MANIFEST, manifest)
+        shutil.copy2(BASE.with_suffix(".drawio"), source)
+        shutil.copy2(BASE.with_suffix(".png"), output)
+        candidate_info = render_svg_png(source_svg, candidate, RASTER_WIDTH, fields)
+        arguments = (
+            manifest,
+            ARTIFACT_NAME,
+            SOURCE_NAME,
+            output,
+            source,
+            (candidate_info.width, candidate_info.height),
+            fields,
+        )
+        if not reviewed_png_current(*arguments):
+            print("time-sync selftest: copied raster failed")
+            return 1
+        output.write_bytes(zero_raster_bytes(output))
+        if reviewed_png_current(*arguments):
+            print("time-sync selftest: wrong raster escaped")
+            return 1
+    print("time-sync diagram selftest: OK (source, status, XML, raster)")
+    return 0
+
+
+def main() -> int:
+    """The three arms - selftest, --check, regenerate; 1 when an output is stale."""
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
+    checking = sys.argv[1:] == ["--check"]
+    if sys.argv[1:] not in ([], ["--check"]):
+        print("usage: timesync_chain.gen.py [--check|--selftest]")
+        return 2
+    try:
+        facts = read_facts()
+    except (OSError, ValueError, subprocess.CalledProcessError, json.JSONDecodeError) as error:
+        print(f"time-sync diagram: FAIL: {error}")
+        return 1
+    svg_content = svg(facts)
+    drawio_content = drawio(facts)
+    outputs = {
+        BASE.with_suffix(".svg"): svg_content,
+        BASE.with_suffix(".drawio"): drawio_content,
+    }
+    stale = [
+        str(path.relative_to(ROOT))
+        for path, content in outputs.items()
+        if not check_or_write(path, content, checking)
+    ]
+    if not check_or_write_png(svg_content, drawio_content, checking):
+        stale.append(str(BASE.with_suffix(".png").relative_to(ROOT)))
+    if stale:
+        print("time-sync diagram stale: " + ", ".join(stale))
+        return 1
+    if checking:
+        print("time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)")
+    else:
+        print("wrote timesync_chain.drawio, timesync_chain.svg, and timesync_chain.png")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
