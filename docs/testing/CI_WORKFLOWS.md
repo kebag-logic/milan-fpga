@@ -821,6 +821,10 @@ python3 -I <audited-install>/act_ci.py --pr <number> \
   --trusted-install-sha256 <recorded-64-hex-digest>
 ```
 
+The audited install may be flat as shown. The offline self-test binds its byte
+check to that installed file. It requires no copied repository directory
+shape.
+
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects
 drift after that audit; it cannot establish that substituted runner code is
