@@ -76,6 +76,35 @@ MAX_CHECKED_FILE_BYTES = 4 * 1024 * 1024
 MAX_GITMODULES_BYTES = 64 * 1024
 DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
+#: The most host CPUs one job container may schedule onto. Hosted
+#: ``ubuntu-latest`` runners have 4 vCPUs, so a workflow step written as
+#: ``make -j"$(nproc)"`` (the Verilator and Yosys builds in rtl-fast) is a
+#: hosted-shaped assumption: ``nproc`` reads the scheduler affinity, which
+#: follows the container's cpuset, so an unbounded container starts one
+#: compiler per host core - 128 on a 128-vCPU host, which exhausted the host's
+#: memory and had the harness kill the replica. Four is the hosted runner's
+#: own count, so a job's ``-j$(nproc)`` builds exactly what it builds hosted;
+#: sixteen was tried first and four matrix legs at sixteen compilers each
+#: still exhausted a 72 GB host. This is a replica-shape decision, not a
+#: trust-boundary one; the cost is replica time, never fidelity.
+CONTAINER_CPU_LIMIT = 4
+#: The memory one job container may take, applied as both ``--memory`` and
+#: ``--memory-swap`` so the bound includes swap. Hosted ``ubuntu-latest``
+#: runners have 16 GB, so a job that needs more fails hosted too; a bounded
+#: container fails the replica instead of the host, which eight unbounded
+#: ``-j$(nproc)`` toolchain builds had nearly exhausted. Docker size syntax.
+CONTAINER_MEMORY = "16g"
+#: The jobs of one workflow stage act starts at once. Hosted jobs each get
+#: their own runner; on one host the replica's jobs share it, and with the
+#: CPU set alone an rtl-full replica launched all eight shard jobs together,
+#: each building its toolchain. The flag bounds jobs, not matrix legs: act
+#: runs a matrix job's legs ``strategy.max-parallel`` wide (default 4)
+#: inside that job's slot, so one job at a time still lets each of
+#: rtl-full's four-shard jobs fan out to four containers, each held to
+#: CONTAINER_MEMORY: at most 64 GB at once. Below one, act falls back to
+#: one job per host CPU. A replica-shape decision, as above; the hosted
+#: runner gives every job its own machine.
+CONCURRENT_JOB_LIMIT = 1
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 ACT_TOOLCACHE_SEED_SUFFIX = "-toolcache-seed"
@@ -112,6 +141,13 @@ TRUSTED_ACTION_USES = frozenset(
         "actions/upload-artifact@v4",
     }
 )
+#: act 0.2.89's own grammar for a remote `uses:` (newRemoteAction): owner,
+#: repository, an optional subpath, and a mandatory ref.
+ACTION_REFERENCE_RE = re.compile(r"^([^/@]+)/([^/@]+)(?:/([^@]*))?@(.+)$")
+#: act names an action's cache directory after the WHOLE `uses:` string with
+#: these characters turned into `-` (safeFilename), so `actions/cache@v4` is
+#: read from `actions-cache@v4` and a subpath action keeps its subpath.
+ACTION_CACHE_KEY_TRANSLATION = str.maketrans({char: "-" for char in '<>:"/\\|?*'})
 TRUSTED_SUBMODULES = (
     (
         "external",
@@ -434,6 +470,27 @@ class RunLayout:
     secret_file: pathlib.Path
     var_file: pathlib.Path
     input_file: pathlib.Path
+
+
+@dataclass(frozen=True)
+class RemoteAction:
+    """One remote `uses:` reference as act parses it: owner, repository, optional subpath, and ref."""
+
+    spec: str
+    owner: str
+    repo: str
+    path: str
+    ref: str
+
+    @property
+    def clone_url(self) -> str:
+        """The exact URL act clones and later compares with `remote.origin.url`; a `.git` suffix would differ."""
+        return f"https://github.com/{self.owner}/{self.repo}"
+
+    @property
+    def cache_key(self) -> str:
+        """The directory name act 0.2.89 derives from the `uses:` string."""
+        return self.spec.translate(ACTION_CACHE_KEY_TRANSLATION)
 
 
 @dataclass(frozen=True)
@@ -1719,6 +1776,174 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                         "unaudited remote actions can execute through the host "
                         "Docker daemon"
                     )
+
+
+def parse_action_reference(spec: str) -> RemoteAction | None:
+    """The remote action `spec` names; None for a `./` local or `docker://` step; any other shape is a Refusal."""
+    if spec.startswith("./") or spec.startswith("docker://"):
+        return None
+    match = ACTION_REFERENCE_RE.fullmatch(spec)
+    if match is None:
+        raise Refusal(f"step uses {spec!r}, which is not of the form owner/repo[/path]@ref")
+    owner, repo, path, ref = match.groups()
+    return RemoteAction(spec=spec, owner=owner, repo=repo, path=path or "", ref=ref)
+
+
+def workflow_step_uses(root: pathlib.Path, relative: str) -> list[str]:
+    """Every step-level `uses:` string in the workflow at `relative` beneath `root`, in document order."""
+    document = load_workflow(root, relative)
+    jobs = document.get("jobs")
+    if not isinstance(jobs, dict):
+        raise Refusal(f"workflow has no jobs mapping: {relative}")
+    uses: list[str] = []
+    for job in jobs.values():
+        steps = job.get("steps") if isinstance(job, dict) else None
+        for step in steps if isinstance(steps, list) else ():
+            if isinstance(step, dict) and isinstance(step.get("uses"), str):
+                uses.append(step["uses"])
+    return uses
+
+
+def collect_workflow_actions(
+    root: pathlib.Path, relatives: Sequence[str]
+) -> tuple[RemoteAction, ...]:
+    """The distinct remote actions the workflows at `relatives` use, sorted by `uses:` string.
+
+    Local and `docker://` steps are not remote actions and are skipped here;
+    the sandbox scan, which runs first, is what refuses them. Two distinct
+    references that act would read from one cache directory are refused,
+    because act re-clones a directory whose origin URL is not the one it
+    expects, and in offline mode that is the race this step exists to end.
+    """
+    actions: dict[str, RemoteAction] = {}
+    for relative in relatives:
+        for spec in workflow_step_uses(root, relative):
+            action = parse_action_reference(spec)
+            if action is not None:
+                actions.setdefault(spec, action)
+    keyed: dict[str, str] = {}
+    for spec, action in sorted(actions.items()):
+        other = keyed.setdefault(action.cache_key, spec)
+        if other != spec:
+            raise Refusal(
+                f"actions {other} and {spec} share act's cache directory {action.cache_key}"
+            )
+    return tuple(action for _spec, action in sorted(actions.items()))
+
+
+def action_cache_directory(layout: RunLayout, action: RemoteAction) -> pathlib.Path:
+    """Where act reads `action` from beneath this run's `--action-cache-path`."""
+    return layout.action_cache / action.cache_key
+
+
+def resolve_action_commit(
+    directory: pathlib.Path,
+    action: RemoteAction,
+    *,
+    home: pathlib.Path,
+    run_git: Callable[..., str],
+) -> str:
+    """The commit `action.ref` names in the clone at `directory`, tried as act does: tag, origin branch, SHA.
+
+    `git checkout --detach <name>` cannot take a branch that exists only as
+    `origin/<name>` after a fresh clone, so the ref is resolved first, in
+    the order act's own duck-typing uses, and the checkout takes the SHA.
+    """
+    failures: list[str] = []
+    for candidate in (
+        f"refs/tags/{action.ref}",
+        f"refs/remotes/origin/{action.ref}",
+        action.ref,
+    ):
+        try:
+            resolved = run_git(
+                [
+                    *git_prefix(),
+                    "-C",
+                    str(directory),
+                    "rev-parse",
+                    "--verify",
+                    "--quiet",
+                    "--end-of-options",
+                    f"{candidate}^{{commit}}",
+                ],
+                cwd=directory,
+                env=git_environment(home),
+                description=f"action {action.spec} resolve of {candidate}",
+            )
+        except Refusal as exc:
+            failures.append(str(exc))
+            continue
+        if SHA_RE.fullmatch(resolved):
+            return resolved
+        failures.append(f"{candidate} resolved to {resolved!r}")
+    raise Refusal(
+        f"action {action.spec}: ref {action.ref!r} is neither a tag, an origin branch, "
+        f"nor a commit of the clone ({'; '.join(failures)})"
+    )
+
+
+def materialize_action(
+    layout: RunLayout, action: RemoteAction, run_git: Callable[..., str]
+) -> str:
+    """Clone `action` credential-free into its cache directory and check its ref out detached; the SHA."""
+    directory = action_cache_directory(layout, action)
+    env = git_environment(layout.home)
+    run_git(
+        [*git_prefix(), "clone", "--quiet", action.clone_url, str(directory)],
+        cwd=layout.root,
+        env=env,
+        description=f"action {action.spec} clone",
+    )
+    commit = resolve_action_commit(directory, action, home=layout.home, run_git=run_git)
+    run_git(
+        [*git_prefix(), "-C", str(directory), "checkout", "--quiet", "--detach", commit],
+        cwd=layout.root,
+        env=env,
+        description=f"action {action.spec} checkout",
+    )
+    return commit
+
+
+def materialize_workflow_actions(
+    layout: RunLayout,
+    workflows: Sequence[str],
+    *,
+    dry_run: bool,
+    run_git: Callable[..., str] = capture,
+) -> tuple[RemoteAction, ...]:
+    """Populate the run's action cache serially before act can start; under dry-run only print the plan.
+
+    act materialises an action lazily from whichever sibling job reaches it
+    first - a full clone into `<action-cache-path>/<key>` and a checkout of
+    the ref - while the other siblings copy that same directory into their
+    containers. A copy taken mid-checkout sees the default branch's files
+    or a torn bundle (#337: `jest.config.ts` missing under
+    `actions-cache@v4`; `__dirname` undefined in a truncated
+    `dist/restore/index.js`). So the runner performs every clone itself,
+    one at a time, and launches act with `--action-offline-mode` so no job
+    fetches or checks out again. The audited set is re-checked here rather
+    than inherited from the sandbox scan's position in the sequence: this
+    is the step that puts candidate-named repositories on the network.
+    """
+    actions = collect_workflow_actions(
+        layout.checkout, [WORKFLOWS[workflow] for workflow in workflows]
+    )
+    for action in actions:
+        if action.spec not in TRUSTED_ACTION_USES:
+            raise Refusal(
+                f"action {action.spec} is outside the audited set and is not cloned"
+            )
+    for action in actions:
+        if dry_run:
+            directory = action_cache_directory(layout, action)
+            emit_flushed(
+                f"act-ci: action {action.spec} planned at {directory} (dry-run, not cloned)"
+            )
+            continue
+        commit = materialize_action(layout, action, run_git)
+        emit_flushed(f"act-ci: action {action.spec} materialised at {commit}")
+    return actions
 
 
 def act_container_name(*parts: str) -> str:
@@ -3330,6 +3555,12 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
     return isolated_command_prefix(act_binary, use_sudo, env)
 
 
+def container_cpuset() -> str:
+    """The `--cpuset-cpus` range one job container gets: `0-<n-1>` for n = min(host CPUs, CONTAINER_CPU_LIMIT)."""
+    bound = min(os.cpu_count() or 1, CONTAINER_CPU_LIMIT)
+    return f"0-{bound - 1}"
+
+
 def build_act_command(
     prefix: Sequence[str],
     workflow: str,
@@ -3380,6 +3611,7 @@ def build_act_command(
         str(artifact_port),
         "--action-cache-path",
         str(layout.action_cache),
+        "--action-offline-mode",
         "--cache-server-path",
         str(layout.cache_server),
         "--cache-server-addr",
@@ -3398,8 +3630,12 @@ def build_act_command(
         "GITHUB_TOKEN=",
         "--container-daemon-socket",
         "-",
+        "--concurrent-jobs",
+        str(CONCURRENT_JOB_LIMIT),
         "--container-options",
-        f"--label={DOCKER_OWNER_LABEL}={boundary.token}",
+        f"--label={DOCKER_OWNER_LABEL}={boundary.token} "
+        f"--cpuset-cpus={container_cpuset()} "
+        f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
         "--network",
         boundary.name,
     ]
@@ -4052,6 +4288,7 @@ def run_validation(
             f"recorded base oid {pr.base_sha}), draft={str(pr.draft).lower()}"
         )
         print("act-ci: credentials=none docker-socket=none caches=ephemeral")
+        materialize_workflow_actions(layout, workflows, dry_run=dry_run)
         plan = WorkflowPlan(
             workflows=workflows,
             candidate_worktree=candidate_worktree,
@@ -4402,6 +4639,15 @@ def selftest_validation_transcript(
         "the normal validation path leases the selected workflow's act job volumes",
         len(dry_boundaries) == 1
         and dry_boundaries[0].job_volume_prefixes == ("act-docs-",),
+    )
+    check(
+        "dry-run prints the job bound and the bounded container options as "
+        "one quoted argv word",
+        f" --concurrent-jobs {CONCURRENT_JOB_LIMIT} --container-options "
+        f"'--label={DOCKER_OWNER_LABEL}="
+        in transcript.getvalue()
+        and f" --cpuset-cpus={container_cpuset()} --memory={CONTAINER_MEMORY}"
+        f" --memory-swap={CONTAINER_MEMORY}'" in transcript.getvalue(),
     )
 
 
@@ -5013,9 +5259,24 @@ def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
         == selftest_boundary.gateway,
     )
     check(
-        "job containers carry the unpredictable runner ownership label",
-        command[command.index("--container-options") + 1]
-        == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}",
+        "job container options are one argv word: the ownership label, the "
+        "CPU set, then the memory and swap limits",
+        command.count("--container-options") == 1
+        and command[command.index("--container-options") + 1]
+        == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token} "
+        f"--cpuset-cpus={container_cpuset()} "
+        f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
+    )
+    #: Hosted jobs each get their own runner; a replica's jobs share one
+    #: host, so act starts at most CONCURRENT_JOB_LIMIT of a stage's jobs.
+    #: Below one, act falls back to one job per host CPU.
+    check(
+        f"act starts at most {CONCURRENT_JOB_LIMIT} jobs of a stage at once, "
+        "stated exactly once",
+        command.count("--concurrent-jobs") == 1
+        and command[command.index("--concurrent-jobs") + 1]
+        == str(CONCURRENT_JOB_LIMIT)
+        and CONCURRENT_JOB_LIMIT >= 1,
     )
     check(
         "only an explicitly empty GitHub token reaches candidate jobs",
@@ -5038,6 +5299,98 @@ def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
         "artifact uploads receive a real isolated listener port",
         command[command.index("--artifact-server-port") + 1]
         == str(allocated_port),
+    )
+    #: #337: every job reads the cache the runner populated before act
+    #: started; without this flag act fetches and checks out each action
+    #: from whichever sibling reaches it first while the others copy it.
+    check(
+        "act reads the pre-populated per-head action cache offline, exactly once",
+        command.count("--action-offline-mode") == 1
+        and command[command.index("--action-cache-path") + 1]
+        == str(first.action_cache),
+    )
+
+
+def selftest_container_cpu_bound(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the job container's cpuset is bounded by CONTAINER_CPU_LIMIT and keeps the ownership label."""
+    check = tally.check
+    selftest_boundary = docker.boundary
+    cpuset_re = re.compile(r"^--cpuset-cpus=0-(\d+)$")
+
+    def cpuset_words(host_cpus: int | None) -> list[str]:
+        """The cpuset words of a command built on a host reporting `host_cpus`."""
+        with mock.patch.object(os, "cpu_count", return_value=host_cpus):
+            command = build_act_command(
+                ["act"], "rtl-fast", docker.layout, docker.port, selftest_boundary
+            )
+        words = shlex.split(command[command.index("--container-options") + 1])
+        return [word for word in words if word.startswith("--cpuset-cpus=")]
+
+    def bound_of(host_cpus: int | None) -> int | None:
+        """The CPU count a `0-<n-1>` cpuset word encodes, or None when the word is malformed."""
+        words = cpuset_words(host_cpus)
+        match = cpuset_re.match(words[0]) if len(words) == 1 else None
+        return int(match.group(1)) + 1 if match else None
+
+    #: rtl-fast's ``make -j"$(nproc)"`` Verilator build ran 128 compilers
+    #: inside an unbounded container on a 128-vCPU host and exhausted its
+    #: memory; hosted runners have 4 vCPUs. ``nproc`` follows the cpuset.
+    check(
+        "job containers get a cpuset of 0-<n-1> for n = min(host CPUs, "
+        f"{CONTAINER_CPU_LIMIT})",
+        bound_of(128) == CONTAINER_CPU_LIMIT
+        and bound_of(CONTAINER_CPU_LIMIT + 1) == CONTAINER_CPU_LIMIT
+        and bound_of(4) == 4
+        and bound_of(1) == 1
+        and bound_of(None) == 1
+        and bound_of(os.cpu_count())
+        == min(os.cpu_count() or 1, CONTAINER_CPU_LIMIT),
+    )
+    label_command = build_act_command(
+        ["act"], "rtl-fast", docker.layout, docker.port, selftest_boundary
+    )
+    option_words = shlex.split(
+        label_command[label_command.index("--container-options") + 1]
+    )
+    check(
+        "the CPU bound leaves the unpredictable ownership label in the same "
+        "container options word",
+        option_words[0] == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}"
+        and option_words[1] == f"--cpuset-cpus={container_cpuset()}"
+        and "--privileged" not in label_command,
+    )
+
+
+def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: job containers are held to CONTAINER_MEMORY, swap included, in a word of exactly four bounded tokens."""
+    check = tally.check
+    selftest_boundary = docker.boundary
+    command = build_act_command(
+        ["act"], "rtl-full", docker.layout, docker.port, selftest_boundary
+    )
+    option_words = shlex.split(command[command.index("--container-options") + 1])
+    memory_words = [word for word in option_words if word.startswith("--memory=")]
+    swap_words = [word for word in option_words if word.startswith("--memory-swap=")]
+    #: Hosted ``ubuntu-latest`` runners have 16 GB: a job that needs more
+    #: fails hosted too, and a bounded container fails the replica instead
+    #: of the host. Swap equal to memory is Docker for "no swap beyond it".
+    check(
+        f"job containers are held to {CONTAINER_MEMORY} of memory and the "
+        "same swap ceiling, one limit each, in Docker size syntax",
+        memory_words == [f"--memory={CONTAINER_MEMORY}"]
+        and swap_words == [f"--memory-swap={CONTAINER_MEMORY}"]
+        and re.fullmatch(r"[1-9][0-9]*[kmg]", CONTAINER_MEMORY) is not None,
+    )
+    check(
+        "the container options word splits into exactly four tokens: label, "
+        "cpuset, memory, memory-swap, in that order",
+        option_words
+        == [
+            f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}",
+            f"--cpuset-cpus={container_cpuset()}",
+            f"--memory={CONTAINER_MEMORY}",
+            f"--memory-swap={CONTAINER_MEMORY}",
+        ],
     )
 
 
@@ -5092,6 +5445,290 @@ def selftest_act_command_refusals(tally: SelftestTally, docker: DockerFixture) -
             allocated_port,
             replace(selftest_boundary, toolcache_seeded=False),
         ),
+    )
+
+
+ACTION_FIXTURE_WORKFLOW = (
+    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-latest\n"
+    "    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/cache@v4\n"
+    "      - uses: actions/checkout@v4\n"
+)
+
+
+def recording_git(calls: list[tuple[list[str], object]]) -> Callable[..., str]:
+    """A git stand-in that appends (argv, env) to `calls` and answers every rev-parse with one SHA."""
+
+    def run(command: Sequence[str], **kwargs: object) -> str:
+        """Record the call; a rev-parse resolves, everything else succeeds silently."""
+        calls.append((list(command), kwargs.get("env")))
+        return "c" * 40 if "rev-parse" in command else ""
+
+    return run
+
+
+def selftest_action_materialisation(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the collector, act's directory naming, the resolve order, and the credential-free clone argv."""
+    check = tally.check
+    refused = tally.refused
+    first = docker.layout
+    fixture_root = first.temporary / "action-fixture"
+    fixture_root.mkdir()
+    (fixture_root / "mixed.yml").write_text(
+        "name: mixed\non: push\njobs:\n"
+        "  one:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "      - uses: owner/repo@v1\n      - uses: owner/repo/sub@v1\n"
+        "      - uses: ./local\n      - uses: docker://alpine:3.20\n      - run: true\n"
+        "  two:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "      - uses: owner/repo@v1\n      - uses: actions/cache@v4\n",
+        encoding="utf-8",
+    )
+    collected = collect_workflow_actions(fixture_root, ("mixed.yml",))
+    check(
+        "the collector yields each remote action once, sorted, skipping local and "
+        "docker:// steps",
+        tuple(action.spec for action in collected)
+        == ("actions/cache@v4", "owner/repo/sub@v1", "owner/repo@v1"),
+    )
+    cache = collected[0]
+    check(
+        "an action is cloned into the directory act 0.2.89 derives from its uses: "
+        "string, from act's exact clone URL",
+        action_cache_directory(first, cache) == first.action_cache / "actions-cache@v4"
+        and action_cache_directory(first, collected[1])
+        == first.action_cache / "owner-repo-sub@v1"
+        and cache.clone_url == "https://github.com/actions/cache",
+    )
+    refused(
+        "a uses: string that is neither local, docker://, nor owner/repo@ref is refused",
+        lambda: parse_action_reference("actions/cache"),
+    )
+    calls: list[tuple[list[str], object]] = []
+    commit = materialize_action(first, cache, recording_git(calls))
+    argv = [command for command, _env in calls]
+    directory = str(first.action_cache / "actions-cache@v4")
+    check(
+        "the clone is a full credential-free HTTPS clone, a tag-first resolve, then "
+        "a detached checkout of the resolved SHA",
+        len(argv) == 3
+        and argv[0][-4:] == ["clone", "--quiet", "https://github.com/actions/cache", directory]
+        and argv[1][-1] == "refs/tags/v4^{commit}"
+        and argv[2][-4:] == ["checkout", "--quiet", "--detach", "c" * 40]
+        and commit == "c" * 40,
+    )
+    expected_env = git_environment(first.home)
+    check(
+        "every action git call runs with the runner's no-prompt, no-helper, "
+        "HTTPS-only environment and no token",
+        all(env == expected_env for _command, env in calls)
+        and expected_env["GIT_TERMINAL_PROMPT"] == "0"
+        and expected_env["GIT_ASKPASS"] == os.devnull
+        and not any("TOKEN" in key for key in expected_env)
+        and all(
+            "credential.helper=" in command and "protocol.allow=never" in command
+            for command in argv
+        ),
+    )
+    attempts: list[str] = []
+
+    def branch_only_git(command: Sequence[str], **_kwargs: object) -> str:
+        """Resolve only the origin-branch candidate, recording each attempt."""
+        attempts.append(command[-1])
+        if command[-1].startswith("refs/remotes/origin/"):
+            return "d" * 40
+        raise Refusal("resolve failed")
+
+    check(
+        "a ref is resolved the way act duck-types it: tag, then origin branch, then SHA",
+        resolve_action_commit(
+            first.action_cache / "x", cache, home=first.home, run_git=branch_only_git
+        )
+        == "d" * 40
+        and attempts == ["refs/tags/v4^{commit}", "refs/remotes/origin/v4^{commit}"],
+    )
+
+    def failing_git(command: Sequence[str], **kwargs: object) -> str:
+        """Fail every call the way capture reports a nonzero git exit."""
+        raise Refusal(f"{kwargs.get('description')} failed: fatal: repository not found")
+
+    try:
+        materialize_action(first, cache, failing_git)
+    except Refusal as exc:
+        clone_refusal: str | None = str(exc)
+    else:
+        clone_refusal = None
+    check(
+        "a failing clone is a Refusal naming the action",
+        clone_refusal is not None and "actions/cache@v4" in clone_refusal,
+    )
+
+
+def selftest_action_plan(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: dry-run prints the plan and clones nothing; the audited set is re-checked; the real git default."""
+    check = tally.check
+    first = docker.layout
+    workflow_path = first.checkout / WORKFLOWS["docs"]
+    workflow_path.parent.mkdir(parents=True, exist_ok=True)
+    workflow_path.write_text(ACTION_FIXTURE_WORKFLOW, encoding="utf-8")
+    calls: list[tuple[list[str], object]] = []
+    plan = io.StringIO()
+    with contextlib.redirect_stdout(plan):
+        planned = materialize_workflow_actions(
+            first, ("docs",), dry_run=True, run_git=recording_git(calls)
+        )
+    check(
+        "dry-run prints the planned action set and clones nothing",
+        tuple(action.spec for action in planned) == ("actions/cache@v4", "actions/checkout@v4")
+        and not calls
+        and "act-ci: action actions/cache@v4 planned at" in plan.getvalue()
+        and "act-ci: action actions/checkout@v4 planned at" in plan.getvalue(),
+    )
+    workflow_path.write_text(
+        ACTION_FIXTURE_WORKFLOW + "      - uses: example/setup@v1\n", encoding="utf-8"
+    )
+    tally.refused(
+        "the materialiser re-checks each action against the audited set rather than "
+        "inheriting the sandbox scan's position in the sequence",
+        lambda: materialize_workflow_actions(
+            first, ("docs",), dry_run=False, run_git=recording_git(calls)
+        ),
+    )
+    check(
+        "and that refusal reaches git for nothing",
+        not calls,
+    )
+    check(
+        "the materialiser defaults to the real tracked capture boundary",
+        materialize_workflow_actions.__kwdefaults__ == {"run_git": capture},
+    )
+    workflow_path.unlink()
+
+
+@dataclass(frozen=True)
+class ActionDrive:
+    """What one faked full validation run recorded: the call order, its result, and the layout it used."""
+
+    events: list[str]
+    rc: int | None
+    error: Exception | None
+    layout: RunLayout | None
+
+
+def drive_validation_with_actions(
+    resolved: ValidatedRun,
+    shipping_root: pathlib.Path,
+    run_git: Callable[..., str],
+) -> ActionDrive:
+    """Run the full, non-dry validation path with Git, Docker, and act faked; the recorded call order."""
+    events: list[str] = []
+    layouts: list[RunLayout] = []
+    real_materialize = materialize_workflow_actions
+
+    def materialize_for_actions(_run: ValidatedRun, layout: RunLayout) -> pathlib.Path:
+        """A checkout stand-in carrying the two selected workflows, each using both actions."""
+        layouts.append(layout)
+        for workflow in ("docs", "elaborate"):
+            path = layout.checkout / WORKFLOWS[workflow]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(ACTION_FIXTURE_WORKFLOW, encoding="utf-8")
+        return layout.checkout
+
+    @contextlib.contextmanager
+    def recording_boundary(
+        planned: DockerBoundary, **_kwargs: object
+    ) -> Iterator[DockerBoundary]:
+        """A boundary stand-in that records its entry and yields a populated boundary."""
+        events.append("boundary")
+        yield replace(
+            planned,
+            network_id="a" * 64,
+            gateway="172.18.0.1",
+            toolcache_owned=True,
+            toolcache_seeded=True,
+        )
+
+    def act_for_actions(_command: Sequence[str], **_kwargs: object) -> int:
+        """An act stand-in that records the launch and passes."""
+        events.append("act")
+        return 0
+
+    def materialize_with_fake_git(
+        layout: RunLayout, workflows: Sequence[str], **kwargs: object
+    ) -> tuple[RemoteAction, ...]:
+        """The real materialiser, recorded, with the fake git in place of capture."""
+        events.append("materialise")
+        return real_materialize(layout, workflows, run_git=run_git, **kwargs)  # type: ignore[arg-type]
+
+    rc: int | None = None
+    error: Exception | None = None
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        materialize_remote_head=materialize_for_actions,
+        validate_checkout=lambda *_args, **_kwargs: None,
+        validate_workflow_sandbox=lambda *_args, **_kwargs: None,
+        initialize_required_submodules=lambda *_args, **_kwargs: None,
+        require_live_pull_request=lambda *_args, **_kwargs: None,
+        require_runtime=lambda *_args, **_kwargs: ["/trusted/act"],
+        inspect_docker_boundary=lambda *_args, **_kwargs: None,
+        temporary_docker_boundary=recording_boundary,
+        allocate_tcp_port=lambda: 43211,
+        execute_act_boundary=act_for_actions,
+        cleanup_owned_containers=lambda *_args, **_kwargs: 0,
+        cleanup_act_job_volumes=lambda *_args, **_kwargs: [],
+        materialize_workflow_actions=materialize_with_fake_git,
+    ):
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                rc = run_validation(
+                    resolved,
+                    ("docs", "elaborate"),
+                    shipping_root,
+                    act_binary="/trusted/act",
+                    use_sudo=False,
+                    dry_run=False,
+                )
+        except Exception as exc:  # the result is graded by the caller
+            error = exc
+    return ActionDrive(events, rc, error, layouts[0] if layouts else None)
+
+
+def selftest_action_launch_order(
+    tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path
+) -> None:
+    """Arms: one population before the boundary and the first act launch; a failed clone launches nothing."""
+    check = tally.check
+    calls: list[tuple[list[str], object]] = []
+    drive = drive_validation_with_actions(resolved, shipping_root, recording_git(calls))
+    clones = [command[-2] for command, _env in calls if "clone" in command]
+    check(
+        "the action cache is populated exactly once per run, before the Docker "
+        "boundary exists and before the first act launch",
+        drive.error is None
+        and drive.rc == RC_OK
+        and drive.events == ["materialise", "boundary", "act", "act"],
+    )
+    check(
+        "two workflows sharing two actions produce one clone each, in sorted order",
+        clones == ["https://github.com/actions/cache", "https://github.com/actions/checkout"],
+    )
+    check(
+        "the clones in the real sequence carry the run's own credential-free git "
+        "environment",
+        drive.layout is not None
+        and bool(calls)
+        and all(env == git_environment(drive.layout.home) for _command, env in calls),
+    )
+
+    def failing_clone(command: Sequence[str], **kwargs: object) -> str:
+        """Fail the clone the way capture reports it; resolve nothing else."""
+        raise Refusal(f"{kwargs.get('description')} failed: fatal: could not read from remote")
+
+    failed = drive_validation_with_actions(resolved, shipping_root, failing_clone)
+    check(
+        "a failing clone refuses the run naming the action, before any boundary or act "
+        "launch",
+        isinstance(failed.error, Refusal)
+        and "actions/cache@v4" in str(failed.error)
+        and failed.events == ["materialise"],
     )
 
 
@@ -8687,7 +9324,11 @@ def selftest_run_directory_stages(
             second = make_layout(second_root, other_pr)
             docker = selftest_docker_fixture(first)
             selftest_act_command(tally, docker)
+            selftest_container_cpu_bound(tally, docker)
+            selftest_container_memory_bound(tally, docker)
             selftest_act_command_refusals(tally, docker)
+            selftest_action_materialisation(tally, docker)
+            selftest_action_plan(tally, docker)
             selftest_toolcache_ownership(tally, docker)
             selftest_toolcache_survivor(tally, docker)
             selftest_toolcache_post_accept(tally, docker)
@@ -8779,6 +9420,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_fetch_window(tally, fixture, resolved)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_workflow_order(tally, resolved, shipping_root)
+    selftest_action_launch_order(tally, resolved, shipping_root)
     selftest_trusted_runner(tally, fixture, resolved)
     selftest_wiring_pins(tally)
     tally.refused(
