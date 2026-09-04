@@ -15,7 +15,7 @@ concurrency it ran at.
 - **[Reproduce a cell](#reproduce-a-cell)** — The exact commands for the invariance oracle, a timed batch of at least 3 trials, a lone-process run, and the report; where the output goes and what the heavy tops cost.
 - **[Records and the report](#records-and-the-report)** — Every field a per-trial JSON carries, and how `--report` groups them into `median (min-max)` rows compared only against glibc at the same concurrency, with `MISMATCH` and the below-3-trials star.
 - **[Self-test](#self-test)** — The ten fixture arms, each planting the defect it guards, and what they do not need.
-- **[Results](#results)** — Deliberately empty: the campaign fills it in, and the issue's first-pass figures are not repeated here.
+- **[Results](#results)** — The 2026-09-04 campaign on one machine: netlist invariance across four allocators, the allocator table with RSS beside wall, where the time goes and the front-end share, the whole gate serial and sharded, the rebuilt-Yosys, huge-page, host and re-parse levers, the result-cache costing, and a go/no-go per lever.
 
 ## What it measures
 
@@ -99,9 +99,161 @@ library.
 
 ## Results
 
-**Not yet measured.** The measurement campaign of
-[#286](https://github.com/kebag-logic/milan-fpga/issues/286) fills this
-section in: the allocator comparison on `milan_datapath`, `KL_pp_shadow` and
-one small top, with the record directory, the rendered report and the netlist
-digests for each. Until then the figures in the issue are the hand-taken first
-pass, and this page carries none of them.
+Measured 2026-09-04 with this harness on one machine, from the campaign
+recorded under the issue. Every figure below is the median of 3 trials with its
+min-max unless starred, and every batch states its concurrency.
+
+### Machine and tools
+
+- machine: AMD EPYC 9554P (`znver4`), presented as 128 single-core vCPUs by a
+  `kvm` hypervisor, 72.7 GiB RAM, kernel 7.2.2, THP `always`/defrag `madvise`,
+  `/tmp` a 250 GiB tmpfs
+- `yosys 0.66` (distribution build of upstream tag `v0.66`, `g++ 16.1.1`,
+  `-O2 … -O3`, external ABC), `sv2v v0.0.13`, glibc 2.44
+- jemalloc 5.3.1, mimalloc 3.5.1, gperftools (tcmalloc) 2.18.1, all as
+  `LD_PRELOAD` drop-ins through `malloc.sh`'s selection rules
+- machine load before every batch is on each record (1.4 to 2.5, from the
+  campaign's own earlier cells)
+
+### Netlist invariance
+
+One matched batch of four allocators per top, `write_rtlil` appended to the
+gate's program:
+
+| top | cells | wires | `write_rtlil` sha256, all four allocators |
+| --- | ---: | ---: | --- |
+| `KL_crf_rx` | 30 104 | 21 235 | `d5287ce6e8b5b834…` (6 329 152 bytes) |
+| `KL_pp_shadow` | 1 133 318 | 808 050 | `fe6bd6e35f180b4e…` |
+| `milan_datapath` | 1 610 463 | 1 146 704 | `ab84e1b99194b0a5…` |
+
+Byte-identical under glibc, jemalloc, mimalloc and tcmalloc on every top. The
+allocator is a speed knob only; nothing else in this section is conditional.
+
+### Allocator
+
+Three trials per cell, each trial one matched batch of the four allocators
+(concurrency 4):
+
+| top | allocator | wall s | CPU s | peak RSS MiB | wall vs glibc | RSS vs glibc |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `milan_datapath` | glibc | 452.9 (451.6-456.6) | 508.8 | 2 810 | - | - |
+| | jemalloc | 300.5 (300.3-300.9) | 346.3 | 2 761 | **-33.7%** | -1.8% |
+| | mimalloc | 313.8 (313.2-313.9) | 356.5 | 2 551 | -30.7% | -9.2% |
+| | tcmalloc | 332.4 (332.3-332.6) | 427.9 | 2 379 | -26.6% | -15.3% |
+| `KL_pp_shadow` | glibc | 223.8 (223.1-225.1) | 261.1 | 1 888 | - | - |
+| | jemalloc | 157.3 (157.3-157.6) | 190.0 | 1 927 | **-29.7%** | +2.1% |
+| | mimalloc | 163.4 (163.3-163.4) | 192.1 | 1 672 | -27.0% | -11.4% |
+| | tcmalloc | 175.1 (174.2-175.1) | 239.1 | 1 569 | -21.8% | -16.9% |
+| `KL_crf_rx` | glibc | 3.64 (3.61-3.68) | 4.01 | 117 | - | - |
+| | jemalloc | 3.19 (3.17-3.23) | 3.53 | 250 | -12.4% | +113% |
+| | mimalloc | 3.16 (3.14-3.18) | 3.52 | 177 | -13.2% | +51% |
+| | tcmalloc | 3.37 (3.32-3.42) | 3.89 | 129 | -7.4% | +10% |
+
+Two lone runs of `milan_datapath` at concurrency 1 (one trial each, starred in
+the report): glibc 454.5 s, jemalloc 298.4 s (-34.3%). A batch of four costs
+nothing measurable on this machine, so the batched medians stand.
+
+The win is a CPU reduction (509 s to 346 s on `milan_datapath`), grows with
+design size, and leaves peak RSS within 2% on the two heavy tops. jemalloc
+doubles the RSS of the 4-second top, from 117 to 250 MiB, which is the
+size-dependence the issue warned about and is irrelevant to a shard pool's
+budget. mimalloc is within 3 points of jemalloc and saves 9-11% RSS on the
+heavy tops; tcmalloc is the slowest of the three and saves the most memory.
+
+### Where the time goes
+
+`milan_datapath`, glibc, median of the three timed trials:
+
+| pass | seconds | share of wall | calls |
+| --- | ---: | ---: | ---: |
+| `abc` | 132.0 | 29.1% | 1 |
+| `opt_dff` | 105.2 | 23.2% | 76 |
+| `opt_clean` | 90.6 | 20.0% | 82 |
+| `opt_expr` | 61.0 | 13.5% | 424 |
+| `opt_muxtree` | 25.8 | 5.7% | 204 |
+| `opt_merge` | 18.5 | 4.1% | 80 |
+| `techmap` | 12.8 | 2.8% | 1 |
+| `read_verilog` | 2.6 | 0.6% | 1 |
+
+The `opt*` family is about two thirds of the run and `abc` most of the rest.
+The whole front end, `sv2v` plus `read_verilog`, is 10.8 s of 461 s on
+`milan_datapath` (**2.3%**), 6.2 s of 229 s on `KL_pp_shadow` (2.7%), and
+0.24 s of 3.9 s on the small top. Over the complete 48-top inventory `sv2v`
+takes 26.1 s in total and emits 2.7 MB of Verilog. That is the entire prize any
+front end can win, for every top together.
+
+### Whole gate
+
+`syn/yosys/run.sh --no-structural`, the full 48-top inventory, 48 pass in every
+configuration:
+
+| configuration | wall | vs serial |
+| --- | ---: | ---: |
+| serial, glibc (`YOSYS_MALLOC=none`) | 856.9 s (14m17s) | - |
+| 8 shards in parallel, glibc | 488.2 s (8m08s) | -43.0% |
+| 8 shards in parallel, jemalloc (the shipping default) | **310.1 s** (5m10s) | **-63.8%** |
+
+Sharding buys 1.76x and cannot buy more: `milan_datapath` alone is 453 s under
+glibc, so the 8-shard glibc gate sits 35 s above that one process. The
+allocator lifts the floor itself, to 300 s, and the sharded gate follows it to
+310 s. That is the measured ceiling #270 inherits: the gate cannot finish
+faster than its longest top, and today that top is 300 s.
+
+### Rebuilt Yosys
+
+Pending: phase 2b of the campaign (the same `v0.66` tag rebuilt here with the
+distribution's flags and with tuned flags plus a linked allocator, the full
+`cells=` reproduction under each binary, and matched timing against the
+distribution binary).
+
+### Transparent huge pages
+
+Pending: phase 2 of the campaign (`KL_pp_shadow` under a `PR_SET_THP_DISABLE`
+shim, glibc and jemalloc, three trials each side).
+
+### Host and firmware
+
+`systemd-detect-virt` reports `kvm`; the 64-core part is presented as 128
+single-core sockets in one NUMA node with no `cpufreq` interface and no cache
+topology. Nothing firmware-side is reachable from this guest. The two host-side
+items usually proposed are already in place: the scratch path is RAM-backed
+(`/tmp` is tmpfs and `run.sh` puts its `mktemp -d` there) and THP is `always`.
+What remains is a request to the hypervisor owner, to be measured there before
+it is reported as a result: CPU topology passthrough so a shard pool can see
+real cores and L3 domains, 1 GiB huge-page backing for the guest (the lever
+that matters for a 3 GiB single-process heap), vCPU pinning, and on the
+firmware itself determinism/cTDP, C-state and DF C-state policy and SMT. The
+kernel's `Safe RET`, TSA and Enhanced IBRS mitigations cost cycles on this
+call-heavy workload but need a reboot and a security decision, so they stay a
+hypothesis.
+
+### The protocol-processor re-parse
+
+Pending: phase 2 of the campaign (the processor's own portability gate as
+shipped against `read_verilog -defer`, three trials each).
+
+### Result cache
+
+Not measured: a cache is a design, not a lever to time. A top whose `sv2v`
+output digest, Yosys version string and exact program string are all unchanged
+would be skipped; on the common PR that is 46 or more of the 48 tops, so the
+gate would take the time of the tops the PR touched. Its cost is the trust
+surface: under #270's rules the seed must be read-only and trusted, the
+per-head state writable only by the run, and no candidate may write a shared
+cache, which means the cache key must include the Yosys binary digest as well
+as its version string, and a hit must still re-check the recorded `cells=`
+against the stored record. That is a follow-up issue, not a change to this
+gate.
+
+### Go and no-go
+
+| lever | verdict | evidence | follow-up |
+| --- | --- | --- | --- |
+| allocator preload | **go, adopted** | -33.7% on the heaviest top, gate 488 s to 310 s, netlists byte-identical, RSS neutral on heavy tops | landed as `run.sh`'s default (`malloc.sh`); mimalloc stays the documented alternative where RSS is tight |
+| shard parallelism | measured, hand to #270 | 1.76x at 8 shards, floor = `milan_datapath` (300 s under jemalloc) | #270 |
+| result cache | go | largest remaining win on the common PR; trust rules costed above | follow-up issue |
+| front end (Verific, yosys-slang) | **no-go** as a speed lever | 2.3% of the critical path, 26 s over the whole inventory; Verific is commercial-only | yosys-slang only as a robustness lane |
+| rebuilt Yosys | pending phase 2b | | |
+| transparent huge pages | pending phase 2 | | |
+| host and firmware | not measurable here | guest with no topology or firmware reach | written request to the host owner |
+| protocol-processor re-parse | pending phase 2 | | protocol-processor #25 |
