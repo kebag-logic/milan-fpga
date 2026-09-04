@@ -248,7 +248,7 @@ def ck(what: str, got: object, exp: object) -> None:
 
 
 # -------------------------------------------------- consumer inventory --
-def check_shape_consumers() -> None:
+def check_shape_consumers(extra_tracked: Sequence[str] = ()) -> None:
     """I: every declared consumer of the TRACKED shape header resolves.
 
     The header is a tracked build artifact whose consumers live in
@@ -272,10 +272,14 @@ def check_shape_consumers() -> None:
     file, `include`, `export`, `override`) can never do -- and otherwise
     either resolves to a tracked path or is listed in
     CLASSIFIED_CONSUMERS with a reason.
+    GNUmakefile, Makefile, makefile and .mk/.mak fragments all take this Make
+    path. `extra_tracked` lets mutations model a newly committed consumer
+    without changing the real Git index.
     A textual suffix is not evidence that the build expression in front of
     it resolves to the repository. Nothing else passes.
     """
     tracked = set(tracked_files())
+    tracked.update(extra_tracked)
     dangling = []
     for name in sorted(tracked):
         if name in GATE_SOURCES:

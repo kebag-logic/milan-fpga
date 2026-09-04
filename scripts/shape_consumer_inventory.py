@@ -50,6 +50,17 @@ ASSIGN_RE = re.compile(r"^\s*(\w+)\s*[:?]?=\s*(\S+)\s*$", re.MULTILINE)
 VARIABLE_RE = re.compile(r"\$[({]?(\w+)[)}]?")
 SHAPE_BASENAME = "adp_shape_defaults.svh"
 
+#: GNU Make's default GNUmakefile/Makefile/makefile names, custom files that
+#: retain that suffix, and the usual included-fragment suffixes all carry Make
+#: syntax. Case-folding this one policy keeps the resolver choice independent
+#: of spelling; every matching consumer must be expanded by Make itself.
+MAKE_CONSUMER_SUFFIXES = ("makefile", ".mk", ".mak")
+
+
+def is_make_consumer(name: str) -> bool:
+    """Whether a repo-relative consumer name carries GNU Make syntax."""
+    return PurePosixPath(name).name.casefold().endswith(MAKE_CONSUMER_SUFFIXES)
+
 #: References to the shape header that no static expansion can settle, each
 #: classified with the reason it is not a tracked-header consumer. This set
 #: is the ONLY way past the inventory: an unresolvable reference that is not
@@ -289,7 +300,7 @@ def dangling_consumers(name: str, text: str, tracked: set) -> list:
     """
     dangling = []
     seen_targets = set()
-    is_make = name.endswith("Makefile") or name.endswith(".mk")
+    is_make = is_make_consumer(name)
     references = sorted(set(CONSUMER_RE.findall(text)))
     for reference in references:
         # A bare `gen/...` is an `include directive: the compiler
