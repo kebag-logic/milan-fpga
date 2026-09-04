@@ -1059,7 +1059,9 @@ that arrives after cleanup has already begun is blocked and delivered only after
 that cleanup scope exits. The offline self-test injects failures into the mask
 and disposition APIs while delivering a real `SIGINT`, and requires the handler
 to avoid both APIs, return 130, and print its attributable post-cleanup
-diagnostic.
+diagnostic. A synchronized process-directed `SIGINT` separately targets a
+runner blocked on a non-cooperative child tree and requires the entire recorded
+process group to be absent before the runner returns.
 Every runner-created worker inherits those signals blocked, preventing the
 Python handler from being dispatched through a monitor thread while main is in
 a protected cleanup tail; the offline gate sends a process-directed signal with

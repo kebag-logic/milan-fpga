@@ -5941,7 +5941,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         tree_helper = capture_probe_root / "noncooperative-tree.py"
         tree_helper.write_text(noncooperative_tree_program, encoding="utf-8")
         tree_helper.chmod(0o755)
-        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+        for sent_signal in CLEANUP_SIGNALS:
             tree_ready = capture_probe_root / f"tree-{sent_signal}.ready"
             check(
                 f"process-directed {signal.Signals(sent_signal).name} "
@@ -6018,7 +6018,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
             "--no-tags",
             "origin",
         ]
-        for sent_signal in (signal.SIGTERM, signal.SIGHUP):
+        for sent_signal in CLEANUP_SIGNALS:
             git_ready = capture_probe_root / f"git-{sent_signal}.ready"
             probe_env = {
                 **git_env,
