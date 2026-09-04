@@ -589,9 +589,8 @@ SV2V_INSTALL = (
 #: id; the [R3] rounds on that PR then measured the same levers one level
 #: down: a step-level `if: false`, `continue-on-error: true` or
 #: `--check || true` on `docs-check`'s ci_events step, on
-#: `wire-accountability`'s gate step and on `docs-check-no-git`'s metadata-
-#: stripping gate step each returned `ci_events: OK`, because check_docs
-#: held that step by
+#: `wire-accountability`'s gate step and on `docs-check-no-git`'s single
+#: step each returned `ci_events: OK`, because check_docs held that step by
 #: a substring recogniser that `--check || true` still satisfies. So each
 #: gate step's script is pinned verbatim after whitespace normalization,
 #: exactly as the gate job's contract step is, and each must be PRESENT
@@ -616,11 +615,8 @@ WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
 CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
                               WIRE_GATE_CALL)
 NO_GIT_GATE_CALL = "python3 scripts/docs_check.py"
-CANONICAL_NO_GIT_GATE_SCRIPT = (
-    "rm -rf .git gptp-processor/.git",
-    NO_GIT_GATE_CALL,
-    "python3 scripts/check_feature_status.py",
-)
+CANONICAL_NO_GIT_GATE_SCRIPT = ("rm -rf .git", NO_GIT_GATE_CALL,
+                                "python3 scripts/check_feature_status.py")
 #: elaborate's scope step is that workflow's whole run/no-run decision:
 #: every gate step's `if` is pinned to read `steps.scope.outputs.rtl`, and
 #: the step that PUBLISHES the output was not pinned ([R3] on PR #293) --
@@ -673,7 +669,6 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
 CARRIER_STEP_LISTS = {
     (DOCS, "docs-check"): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch the builder source dependencies"},
         {"name": "Build the validated HDL reference"},
         {"name": "Upload the HDL reference HTML",
          "uses": "actions/upload-artifact@v4",
@@ -692,6 +687,7 @@ CARRIER_STEP_LISTS = {
         {"name": "Published diagram PNG gate"},
         {"name": "Milan feature-status consistency gate"},
         {"name": "Traceability matrix no-drift gate"},
+        {"name": "Fetch the builder source dependencies"},
         {"name": IMPORTED_GPTP_GATE_NAME},
         {"name": "Code-quality measurement self-tests"},
         {"name": "Install the pinned sv2v release"},
@@ -724,7 +720,6 @@ CARRIER_STEP_LISTS = {
     ),
     (DOCS, "docs-check-no-git"): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch the linked gPTP documentation authority"},
         {"name": "Strip git metadata, then run the docs gate"},
     ),
     (ELABORATE, "elaborate"): (
@@ -2690,8 +2685,8 @@ def check_docs(c, wf):
     check_carrier_gate_step(
         c, DOCS, wf, "docs-check-no-git", NO_GIT_GATE_CALL,
         CANONICAL_NO_GIT_GATE_SCRIPT,
-        "this step is the whole no-git proof, and unless both the root and "
-        "linked-authority metadata are removed it proves a different claim")
+        "this step is the whole no-git proof, and with `rm -rf .git` gone "
+        "it proves a different claim")
     for jid in PUBLIC_NAMES[DOCS]:
         check_carrier_steps(c, DOCS, wf, jid)
 
@@ -4630,7 +4625,7 @@ def _mutations():
         ("#261 rtl-fast.yml workflow-level defaults",
          (lambda w: w[RTL_FAST].__setitem__("defaults", {"run": {"shell": "bash -n {0}"}})),
          "the workflow may carry only the keys"),
-        ("#261 docs-check-no-git gate step shell",
+        ("#261 docs-check-no-git single step shell",
          m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "scripts/noop.sh {0}"),
          "may carry only the keys"),
         ("#261 docs-check step benign key",
@@ -4809,32 +4804,27 @@ def _mutations():
         ("#295 wire-accountability gate step removed",
          (lambda w: strip_steps(w, DOCS, "wire-accountability", "check_wire_accountability")),
          f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
-        # docs-check-no-git's metadata-stripping gate step.
-        ("#295 docs-check-no-git gate step if: false",
+        # docs-check-no-git's single step.
+        ("#295 docs-check-no-git single step if: false",
          m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "if", False),
          "(`Strip git metadata, then run the docs gate`) must carry no `if`"),
-        ("#295 docs-check-no-git gate step continue-on-error",
+        ("#295 docs-check-no-git single step continue-on-error",
          m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "continue-on-error", True),
          "(`Strip git metadata, then run the docs gate`) must carry no `continue-on-error`"),
-        ("#295 docs-check-no-git gate step shell",
+        ("#295 docs-check-no-git single step shell",
          m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "bash -n {0}"),
          "(`Strip git metadata, then run the docs gate`) must carry no `shell`"),
-        ("#295 docs-check-no-git gate step working-directory",
+        ("#295 docs-check-no-git single step working-directory",
          m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "working-directory", "sub"),
          "(`Strip git metadata, then run the docs gate`) keys must be exactly name, run; surplus: working-directory"),
-        ("#295 docs-check-no-git gate step || true",
+        ("#295 docs-check-no-git single step || true",
          m_gate_or_true(DOCS, "docs-check-no-git", "docs_check.py"),
          "job `docs-check-no-git`'s gate step script is not the canonical form"),
         ("#295 docs-check-no-git docs_check call replaced by true",
          m_gate_line(DOCS, "docs-check-no-git", "docs_check.py",
                      "python3 scripts/docs_check.py\n", "true\n"),
          f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
-        ("#295 docs-check-no-git gate step leaves linked Git metadata",
-         m_gate_line(DOCS, "docs-check-no-git", "docs_check.py",
-                     "rm -rf .git gptp-processor/.git\n",
-                     "rm -rf .git\n"),
-         "job `docs-check-no-git`'s gate step script is not the canonical form"),
-        ("#295 docs-check-no-git gate step removed",
+        ("#295 docs-check-no-git single step removed",
          (lambda w: strip_steps(w, DOCS, "docs-check-no-git", "docs_check.py")),
          f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
         # elaborate's scope step, held as the decide step is.
@@ -4906,7 +4896,7 @@ def _mutations():
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check-no-git` must carry exactly 3 steps"),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 wire-accountability inserted GITHUB_PATH prepend breaks the sequence",
          m_insert_step(DOCS, "wire-accountability",
                        {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
@@ -4922,7 +4912,7 @@ def _mutations():
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 docs-check-no-git inserted step of benign content",
          m_insert_step(DOCS, "docs-check-no-git", {"name": "tidy", "run": "true"}),
-         "job `docs-check-no-git` must carry exactly 3 steps"),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
          "job `elaborate` must carry exactly 15 steps"),
@@ -4930,10 +4920,6 @@ def _mutations():
          (lambda w: strip_steps(w, DOCS, "docs-check",
                                 "check_gptp_docs.py --with-submodule")),
          "job `docs-check` must carry exactly 37 steps, in the recorded order (found 36)"),
-        ("#303 docs-check-no-git linked authority fetch removed",
-         (lambda w: strip_steps(w, DOCS, "docs-check-no-git",
-                                "git submodule update --init gptp-processor")),
-         "job `docs-check-no-git` must carry exactly 3 steps, in the recorded order (found 2)"),
         ("#295 docs-check recognised step removed",
          (lambda w: strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
          "job `docs-check` must carry exactly 37 steps, in the recorded order (found 36)"),

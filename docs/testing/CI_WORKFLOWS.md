@@ -406,8 +406,8 @@ is exactly these twelve things:
     context ran nothing. So the job whose id is the public name must carry
     it. The five gate steps inside the four jobs are pinned too (#295 and
     #303): `docs-check`'s ci_events and imported-gPTP steps,
-    `wire-accountability`'s gate step, `docs-check-no-git`'s metadata-
-    stripping gate step, and `elaborate`'s scope step. The four documentation
+    `wire-accountability`'s gate step, `docs-check-no-git`'s single step,
+    and `elaborate`'s scope step. The four documentation
     steps each carry exactly `name` and `run`. Their scripts equal the recorded
     canonical forms after whitespace normalization, so a
     step-level `if`,
@@ -442,8 +442,6 @@ is exactly these twelve things:
     action, or any content at all -- is refused naming the job and the
     position, as are a removed, reordered or renamed step, a loosened
     step `if`, and a rewritten cache or upload `with`.
-    The extracted-tree sequence is checkout, fetch the linked gPTP authority,
-    then strip both root and linked-checkout Git metadata before the gates.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
     shell before any pinned script runs: `BASH_ENV` names a file bash
@@ -600,7 +598,7 @@ unmatched `${{`, `include`, a `fromJSON` matrix, a missing key, an empty
 list - and a literal decoy carrying a required name another file owns, in
 each of the four files; each of the five non-RTL gate steps (`docs-check`'s
 ci_events and imported-gPTP steps, `wire-accountability`'s gate step,
-`docs-check-no-git`'s metadata-stripping gate step, `elaborate`'s scope step)
+`docs-check-no-git`'s single step, `elaborate`'s scope step)
 given an `if: false`, a
 `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
 each removed; the elaborate scope script made to publish a literal
@@ -615,8 +613,7 @@ recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
 and an upload `with` rewritten; the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
-moved under another recorded step name; the linked-authority fetch removed,
-and the no-Git removal narrowed to root metadata only; a whitespace-only
+moved under another recorded step name; a whitespace-only
 reformatting of all ten canonical scripts that must still pass; and the
 decision itself for every event class.
 

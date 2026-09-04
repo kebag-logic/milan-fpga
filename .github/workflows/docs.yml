@@ -9,16 +9,10 @@ jobs:
   docs-check:
     runs-on: ubuntu-latest
     steps:
-      # The audience guides link into the pinned gPTP documentation tree, so
-      # this job performs its one canonical dependency checkout before the
-      # documentation-only gates. The other two trees are consumed later by
-      # the builder and source-list gates.
+      # The documentation-only gates run before any submodule checkout. The
+      # builder gates below consume the pinned processor image tools and expand
+      # the Vivado datapath manifest through verilog-axis's source inventory.
       - uses: actions/checkout@v4
-      - name: Fetch the builder source dependencies
-        # This is the job's one canonical source checkout: gptp-processor is
-        # needed immediately by the linked-doc gates, while the other two
-        # trees are consumed by the builder and source-list gates below.
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
       # The reference builds from the pinned first-party generator (issue
       # #300): one hash-locked parser wheel replaces the retired node and
       # npm dependency graph, so every installed byte is pinned and source
@@ -87,6 +81,16 @@ jobs:
         run: python3 scripts/check_feature_status.py --self-test
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
+      - name: Fetch the builder source dependencies
+        # gptp-processor rides along for the SoC source-list gate: since it
+        # polices submodule-rooted entries, the files must exist to be judged
+        # present rather than STALE. The builder's dp_srcs.py self-test also
+        # resolves the five verilog-axis leaves in the shipping OOC manifest.
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # The audience guides deep-link into the pinned gPTP documentation at
+      # its exact gitlink, so the parent checker verifies every linked target
+      # against the checkout just fetched, and the donor's own documentation
+      # gates run at that same commit (#303).
       - name: Imported gPTP documentation gate
         run: |
           python3 scripts/check_gptp_docs.py --with-submodule
@@ -332,10 +336,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the linked gPTP documentation authority
-        run: git submodule update --init gptp-processor
       - name: Strip git metadata, then run the docs gate
         run: |
-          rm -rf .git gptp-processor/.git
+          rm -rf .git
           python3 scripts/docs_check.py
           python3 scripts/check_feature_status.py
