@@ -859,13 +859,15 @@ through the effective runner tool cache and proves a second fresh run cannot see
 it. It then plants two act-shaped volumes the runner did not create, one
 outside the sleeping job's workflow lease and one inside it, requires the
 inside one to refuse acquisition while both survive, and removes the inside
-one itself before it can start the sleeping job; the outside one it removes
-only after the interrupted boundary has proven it survived. It then starts a
+one itself before it can start the sleeping job. It then starts a
 harmless sleeping job, inspects the real cache mount and the two job volumes `act`
 created for it, waits for the owned container, freezes the `act` process
 group, delivers `SIGINT` to the runner, and requires the container, network,
 tool-cache volume, both job volumes, and run directory to be absent afterward
-while the planted outside volume survives. With `--sudo`, the probe also requires a root
+while the planted outside volume survives. The gate then reconciles both
+planted volumes on every exit, checks the outside one's survival before that
+reconciliation on the success path, and reports a planted volume it cannot
+remove on stderr and fails. With `--sudo`, the probe also requires a root
 `act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
 `kill`, proves every process-group member is stopped, and proves the complete
 group is absent before Docker teardown. Cancellation is serialized with that
@@ -972,8 +974,9 @@ last owned container. The refusal names the
 cache, the operator must serialize every act runner and prove no container uses
 it; absence of a label does not prove inactivity. A labelled cache must not be
 removed until no runner, container, or network with its owner token remains.
-The runner never deletes an
-unowned volume. Concurrent runner invocations fail closed because only one can
+The runner never deletes a
+volume it does not own, by label or by the job-volume lease described below.
+Concurrent runner invocations fail closed because only one can
 own the upstream global name. If a Docker create call times out or is
 interrupted after the daemon accepted it, the runner inspects the exact global
 volume name and unpredictable network name, removes only resources carrying its
@@ -1002,18 +1005,23 @@ prefix act keeps intact (at most 63 characters of letters, digits, and single
 hyphens; act trims the part before the hash to 63 characters), no selected
 name may be a hyphen-prefix of another, the boundary records the act prefix
 derived from each name, every act command requires that lease, and the runner
-refuses before any Docker mutation and again right before each act spawn when
-any volume inside the scope already exists, naming it and never removing it,
-because act would otherwise reuse it as the candidate's workspace or
-environment. After the process group is proven absent and owned-container
-removal has run, cleanup removes each volume inside the scope without force,
-requires a stable absence window, and reports any survivor, any volume another
-container still holds, and any failed inventory. A volume outside the scope is
-never touched: an act-shaped volume from another workflow survives, and one an
-owned container mounted is preserved and reported as lease drift, because
-acquisition never proved that name absent. The serialization the tool-cache
-name already demands also covers a rival running the same workflow name
-concurrently. The offline self-test pins the name derivation to a volume name
+refuses before any Docker mutation and again immediately before each act
+spawn, in the PR run and in the live gate's three spawns, when any volume
+inside the scope already exists or the volume inventory itself fails, naming
+the volume and never removing it, because act would otherwise reuse it as the
+candidate's workspace or environment. After the process group is proven absent
+and owned-container removal has run, cleanup removes each volume inside the
+scope without force, requires a stable absence window, and reports any
+survivor, any volume another container still holds, and any failed inventory;
+after each workflow the runner reconciles before it refuses, so drift observed
+on a leftover container is named. A volume outside the scope is never touched:
+an act-shaped volume from another workflow survives unless that workflow's
+name hyphen-extends a selected name, an anonymous volume leaves with its
+container, and a volume an owned container mounted outside the scope is
+preserved and reported as lease drift, because only the lease proves this run
+created a name: a rival can create a name between a gate's inventory and act's
+own create, and act adopts it. The serialization the tool-cache name already
+demands also covers a rival running the same workflow name concurrently. The offline self-test pins the name derivation to a volume name
 a live `act` 0.2.89 produced and pins that no shipping workflow name is a
 hyphen-prefix of another.
 
@@ -1063,8 +1071,8 @@ workers uploaded them. `scripts/ci_events.py --check` pins the edge and its
 self-test removes it as a negative control.
 
 Cleanup is restricted to the exact generated directory, the
-labeled tool-cache volume, the act job volumes inside the leased workflow scope
-or observed on an owned container, and the network whose ID, name, gateway, and
+labeled tool-cache volume, the act job volumes inside the leased workflow
+scope, and the network whose ID, name, gateway, and
 ownership label the runner recorded at creation. Mutable leases are registered before the
 run directory, cache volume, or network can be accepted; post-create inspection
 failures and the function-return handoff therefore still reconcile the exact
