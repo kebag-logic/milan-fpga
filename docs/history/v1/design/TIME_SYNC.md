@@ -42,13 +42,14 @@ the [Milan feature status ledger](../../../reference/MILAN_FEATURE_STATUS.md):
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
-![The time-sync clock chain](../../../diagrams/timesync_chain.png)
+![The time-sync clock chain](../diagrams/timesync_chain.png)
 
-> The picture above is generated (editable
-> [timesync_chain.drawio](../../../diagrams/timesync_chain.drawio); regenerate with
-> `python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain &&
-> rsvg-convert -w 2000 docs/diagrams/timesync_chain.svg -o
-> docs/diagrams/timesync_chain.png`).
+> The picture above is the render of this page's time, frozen with its
+> editable master
+> [timesync_chain.drawio (historical)](../diagrams/timesync_chain.drawio)
+> under `docs/history/v1/diagrams/`; neither is regenerated. The live
+> `docs/diagrams/timesync_chain.*` set was reworked on 2026-09-02 and is
+> embedded by the [current successor](../../../design/TIME_SYNC.md).
 
 ## Contents
 
@@ -162,12 +163,14 @@ the retired timestamp-metadata finding (#259, in git history).
 
 Both exchanges, as this design stamps them:
 
-![gPTP timelines: peer delay and Sync/Follow_Up with the PHC latch points](../../../diagrams/wd_gptp_pdelay.png)
+![gPTP timelines: peer delay and Sync/Follow_Up with the PHC latch points](../diagrams/wd_gptp_pdelay.png)
 
-> Generated chronogram (master
-> [wd_gptp_pdelay.json](../../../diagrams/wd_gptp_pdelay.json); regenerate with
-> `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
-> docs/diagrams/wd_gptp_pdelay.json`). The plane's stampers latch the PHC at
+> Chronogram of this page's time, frozen with its WaveDrom master
+> [wd_gptp_pdelay.json (historical)](../diagrams/wd_gptp_pdelay.json) under
+> `docs/history/v1/diagrams/`; neither is regenerated. The live
+> `docs/diagrams/wd_gptp_pdelay.*` set was reworked on 2026-09-02 into the
+> parent-ownership chronogram the current successor embeds. The plane's
+> stampers latch the PHC at
 > the frame's first beat (event messages only), so
 > `t1`/`t4` come from hardware records while the peer's `t2`/`t3` arrive
 > inside `Pdelay_Resp`/`Pdelay_Resp_Follow_Up`; the active gPTP owner computes

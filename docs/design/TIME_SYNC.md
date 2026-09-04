@@ -73,6 +73,29 @@ CRF selection activates the MMCM servo.
 
 The grid aligner follows the physical sample grid.
 
+```mermaid
+flowchart LR
+    CRF[CRF sink] --> SERVO[MMCM-DRP servo]
+    SERVO --> AUDIO[clk_audio and clk_tdm]
+    AUDIO --> FSYNC[fsync frame marker]
+    FSYNC --> ALIGN[Grid aligner]
+    ALIGN --> TICK[Packet grid media_tick_p]
+```
+
+Each link has exactly one master.
+
+| Loop fact | Value | RTL |
+|---|---|---|
+| Physical sample grid | `100 MHz * 391/1591 / 512` = 47,999.4893 Hz | TDM master divider |
+| Packet grid | 48,000.0000 Hz free-running | `KL_media_nco` |
+| Free-running offset | -10.64 ppm; one sample slips every 1.9582 s | `KL_chan_map_capture` dup/skip counters |
+| MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
+| MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
+| MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
+| CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+| Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
+| Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
+
 | Function | Implemented | Product effect |
 |---|---|---|
 | CRF transmit | Yes | Publishes internal media events |
@@ -99,6 +122,14 @@ AVTP timestamps expose only low nanosecond bits.
 That representation wraps every 4.295 seconds.
 
 `tu` therefore carries indispensable health information.
+
+| Counter | Condition | RTL |
+|---|---|---|
+| `ts_delta` | `avtp_timestamp - ptp_now` at each accepted PDU | `KL_avtp_rx_monitor` |
+| LATE | `ts_delta < 0` | `KL_avtp_rx_monitor` |
+| EARLY | `ts_delta > offset + 10 ms` | `KL_avtp_rx_monitor`, `EARLY_MARGIN_NS_C` |
+
+`AVTPRX_TSD` (`0x6EC`) exposes the last `ts_delta`.
 
 - Streams continue during uncertain time.
 - Loss of synchronization raises `tu`.

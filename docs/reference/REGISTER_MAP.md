@@ -789,8 +789,9 @@ publishes live parent topology directly; option OFF is ownerless and reads zero
 The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
 every PDU of the followed CRF stream against the Milan 7.3.2 profile
 constants and produces the servo's phase/frequency inputs; the MMCM-DRP
-actuator status lives at `0x8F8`. Loop semantics + RTL citations:
-[Media boundary](../design/TIME_SYNC.md#media-boundary)
+actuator status lives at `0x8F8`. Loop semantics:
+[Media boundary](../design/TIME_SYNC.md#media-boundary); servo internals and
+bench history: [historical Section 3.4](../history/v1/design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)
 
 The followed stream normally comes from the CRF sink bind (ACMP listener
 sink 1 — the bind wins); the SID pair here is the manual lever, and the
@@ -835,7 +836,7 @@ sample grid: every 96th `/512` sample event latches the live PHC value, so
 the wire carries the actual audio-clock rate as the PHC sees it. A PDU that
 would collide with a busy serializer is skipped whole — timestamps stay
 truthful, only the cadence stretches
-([Media boundary](../design/TIME_SYNC.md#media-boundary)).
+([historical CRF talker section](../history/v1/design/TIME_SYNC.md#32-crf-out--kl_crf_tx-the-media-clock-talker)).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -1679,7 +1680,8 @@ and pin-level evidence instead.
 > The servo's command slice `[31:16]` is the MMCM's ALONE: the packet-grid
 > NCO no longer mirrors it. The packet grid follows the PHYSICAL fsync grid
 > through `KL_media_grid_align` (one reference chain, each link separately
-> falsifiable - [Section 3.4/3.5.1 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md)),
+> falsifiable - [media boundary](../design/TIME_SYNC.md#media-boundary), measured
+> in the [historical Section 3.5.1](../history/v1/design/TIME_SYNC.md#351-the-grid-phase-contract--clk_tdm_i-clk_audio_i-media_tick_p-74)),
 > which is what actually removes the -10.64 ppm divider drift a mirrored
 > command could never close.
 >
@@ -1688,7 +1690,8 @@ and pin-level evidence instead.
 > build plan distinguishes the first.
 
 The CRF clock-recovery ACTUATOR (status word + control knobs; loop
-semantics in the [media boundary](../design/TIME_SYNC.md#media-boundary)).
+semantics in the [media boundary](../design/TIME_SYNC.md#media-boundary),
+internals in the [historical Section 3.4](../history/v1/design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)).
 Parked at the map TAIL (after the 0x800-0x85C window) on purpose: parallel
 feature lanes are extending the 0x700 group, so a tail slot cannot collide
 on merge; `0x8FC` next to it holds the servo control knobs.

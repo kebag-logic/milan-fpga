@@ -90,3 +90,7 @@ page still keeps checkouts clean.
 | [`ROOT_DOC_MAP.svg` (historical)](diagrams/ROOT_DOC_MAP.svg) | `DOC_MAP.svg` | Superseded audience render |
 | [`perf_campaign.svg` (historical)](diagrams/perf_campaign.svg) | `docs/perf_campaign.svg` | Closed campaign chart render |
 | [`perf_campaign_chart.py` (historical)](diagrams/perf_campaign_chart.py) | `docs/perf_campaign_chart.py` | Closed campaign chart generator |
+| [`timesync_chain.png` (historical)](diagrams/timesync_chain.png) | `docs/diagrams/timesync_chain.png` | Frozen 2026-09-02 clock-chain render; the archived time-sync page embeds it |
+| [`timesync_chain.drawio` (historical)](diagrams/timesync_chain.drawio) | `docs/diagrams/timesync_chain.drawio` | Editable master of that frozen render |
+| [`wd_gptp_pdelay.png` (historical)](diagrams/wd_gptp_pdelay.png) | `docs/diagrams/wd_gptp_pdelay.png` | Frozen 2026-09-02 peer-delay and Sync chronogram; the archived time-sync page embeds it |
+| [`wd_gptp_pdelay.json` (historical)](diagrams/wd_gptp_pdelay.json) | `docs/diagrams/wd_gptp_pdelay.json` | WaveDrom master of that frozen chronogram |

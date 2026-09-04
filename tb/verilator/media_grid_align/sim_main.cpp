@@ -6,9 +6,12 @@
 // The C++ side IS the physical grid: frame_ev_i pulses on a double-precision
 // fractional-period model of the TDM fsync (the true 391/1591 divider plan:
 // 100 MHz * 391/1591 / 512 = 47,999.4893 Hz, -10.6393 ppm against the NCO's
-// exact 48,000.0000 Hz - docs/design/TIME_SYNC.md Plan A, the drift
+// exact 48,000.0000 Hz - the "Media boundary" table of
+// docs/design/TIME_SYNC.md; Plan A itself and the drift
 // tb/verilator/milan_dp/sim_aclk.cpp measures as one slipped sample every
-// 1.9582 s). The oracle is the NCO's tick_o: the harness runs its own copy
+// 1.9582 s are recorded in sections 3.1 and 3.5.1 of the archived
+// docs/history/v1/design/TIME_SYNC.md). The oracle is the NCO's tick_o: the
+// harness runs its own copy
 // of the junction pend/consume law (the same law as KL_chan_map_capture's
 // tdm_dup/tdm_skip counters), so "no sample slip" is graded by the
 // instrument the datapath actually ships.

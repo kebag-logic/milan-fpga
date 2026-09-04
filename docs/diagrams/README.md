@@ -84,6 +84,8 @@ They never guarantee other hardware results.
 | `nxn_window_map` | Shipped row-map defect | [Architecture](../overview/ARCHITECTURE.md) |
 | `../history/v1/diagrams/ROOT_DOC_MAP.*` | Superseded audience map | [Documentation index](../README.md) |
 | `../history/v1/diagrams/perf_campaign.*` | Closed throughput-campaign chart | [Full FPGA solution](../overview/FULL_FPGA_SOLUTION.md) |
+| `../history/v1/diagrams/timesync_chain.*` | Frozen pre-rework clock-chain render | [Time synchronization](../design/TIME_SYNC.md) |
+| `../history/v1/diagrams/wd_gptp_pdelay.*` | Frozen pre-rework peer-delay chronogram | [Fabric gPTP plane](../design/GPTP_PLANE.md) |
 
 Historical diagrams remain evidence only.
 
