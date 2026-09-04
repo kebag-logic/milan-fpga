@@ -40,7 +40,8 @@ Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf8
 
 The parent chronogram proves three orderings:
 
-- The tuple is registered on accepted beat 5 and visible one cycle later, before EOF.
+- Accepted beat 5 registers the tuple.
+- It is visible one cycle later, before EOF.
 - Ingress commit follows nine accepted beats.
 - Engine SOF follows the commit by three cycles.
 
