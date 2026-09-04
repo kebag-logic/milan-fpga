@@ -33,6 +33,7 @@ import ast
 import contextlib
 import ctypes
 import hashlib
+import io
 import inspect
 import ipaddress
 import json
@@ -52,6 +53,7 @@ import threading
 import time
 from dataclasses import dataclass, fields, replace
 from typing import Callable, Iterable, Iterator, Mapping, Sequence
+from unittest import mock
 
 
 RC_OK, RC_FAILED, RC_REFUSED = 0, 1, 2
@@ -3487,7 +3489,7 @@ def run_validation(
         planned_boundary = new_docker_boundary()
         print(f"act-ci: PR #{pr.number} {event['action']} exact head {pr.head_sha}")
         print(
-            f"act-ci: base {validation_base} (live {pr.base_ref} tip; "
+            f"act-ci: base {run.validation_base} (live {pr.base_ref} tip; "
             f"recorded base oid {pr.base_sha}), draft={str(pr.draft).lower()}"
         )
         print("act-ci: credentials=none docker-socket=none caches=ephemeral")
@@ -3715,6 +3717,72 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         stale_event_pr["base"]["sha"] != resolved.validation_base,
     )
 
+    #: The ordinary PR path used to reach its status transcript with an
+    #: unbound ``validation_base`` name while all construction-only arms
+    #: stayed green (#340). Drive run_validation through that transcript and
+    #: into the Docker-boundary context without touching Git, Docker, or act.
+    dry_boundaries: list[DockerBoundary] = []
+
+    def materialize_for_transcript(
+        _run: ValidatedRun, layout: RunLayout
+    ) -> pathlib.Path:
+        layout.checkout.mkdir(parents=True, exist_ok=True)
+        return layout.checkout
+
+    @contextlib.contextmanager
+    def dry_boundary(
+        planned: DockerBoundary, **_kwargs: object
+    ) -> Iterator[DockerBoundary]:
+        active = replace(
+            planned,
+            network_id="a" * 64,
+            gateway="172.18.0.1",
+            toolcache_owned=True,
+            toolcache_seeded=True,
+        )
+        dry_boundaries.append(active)
+        yield active
+
+    transcript = io.StringIO()
+    transcript_error: Exception | None = None
+    transcript_rc: int | None = None
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        materialize_remote_head=materialize_for_transcript,
+        validate_checkout=lambda *_args, **_kwargs: None,
+        validate_workflow_sandbox=lambda *_args, **_kwargs: None,
+        initialize_required_submodules=lambda *_args, **_kwargs: None,
+        require_live_pull_request=lambda *_args, **_kwargs: None,
+        inspect_docker_boundary=lambda *_args, **_kwargs: None,
+        temporary_docker_boundary=dry_boundary,
+        allocate_tcp_port=lambda: 43210,
+    ):
+        try:
+            with contextlib.redirect_stdout(transcript):
+                transcript_rc = run_validation(
+                    resolved,
+                    ("docs",),
+                    shipping_root,
+                    act_binary="/trusted/act",
+                    use_sudo=False,
+                    dry_run=True,
+                )
+        except Exception as exc:  # the result is graded below
+            transcript_error = exc
+    expected_base_line = (
+        f"act-ci: base {resolved.validation_base} (live {pr.base_ref} tip; "
+        f"recorded base oid {pr.base_sha}), draft=false"
+    )
+    check(
+        "the normal validation path prints the resolved base and enters its "
+        "Docker boundary",
+        transcript_error is None
+        and transcript_rc == RC_OK
+        and expected_base_line in transcript.getvalue().splitlines()
+        and len(dry_boundaries) == 1
+        and "act-ci: docs:" in transcript.getvalue(),
+    )
+
     #: [R1] on PR #336: the trusted-worktree comparison is the lane's
     #: load-bearing change and was asserted by nothing - the live proof runs
     #: the audited-install path, which skips it entirely. These arms drive it
@@ -3747,6 +3815,9 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         return None, seen + [(root, "state", "state") for root in roots]
 
     accepted, verified = trusted_runner_message(resolved.validation_base)
+    installed_runner_relative = (
+        pathlib.Path(__file__).resolve().relative_to(ROOT).as_posix()
+    )
     check(
         "a trusted worktree at the live tip is accepted while the recorded "
         "base oid is stale",
@@ -3757,7 +3828,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         "validation base and not the recorded oid - are what is verified",
         verified
         == [
-            (ROOT, resolved.validation_base, "scripts/act_ci.py"),
+            (ROOT, resolved.validation_base, installed_runner_relative),
             (ROOT, "state", "state"),
         ],
     )
