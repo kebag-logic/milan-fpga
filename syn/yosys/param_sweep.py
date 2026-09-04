@@ -65,6 +65,14 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
 
+#: One parameter pinned to one value, and the 2-way interaction two of them
+#: form - the unit the covering array is built out of.
+Choice = tuple[str, int]
+Pair = tuple[Choice, Choice]
+
+#: A whole configuration: every swept parameter given a value.
+Config = dict[str, int]
+
 #: Parameter -> the values worth synthesising, after equivalence partitioning.
 #: Each entry says WHY those values and not the others; a value that selects no
 #: distinct structure is cost without coverage.
@@ -108,7 +116,7 @@ DEFAULT_MAX = 12
 MARGINAL_PCT = 0.5
 
 
-def all_pairs():
+def all_pairs() -> set[Pair]:
     """Every (param, value, param, value) pair the space can produce."""
     out = set()
     for (a, av), (b, bv) in itertools.combinations(SPACE.items(), 2):
@@ -118,12 +126,14 @@ def all_pairs():
     return out
 
 
-def pairs_of(cfg):
+def pairs_of(cfg: Config) -> set[Pair]:
+    """The 2-way interactions one configuration exercises - its contribution to
+    coverage, and the reason one run can retire many pairs at once."""
     return {((a, cfg[a]), (b, cfg[b]))
             for a, b in itertools.combinations(SPACE, 2)}
 
 
-def plan(max_runs):
+def plan(max_runs: int) -> tuple[dict[str, Config], set[Pair], set[Pair]]:
     """Pinned configurations, then a greedy 2-way fill of what they missed."""
     chosen = dict(PINNED)
     covered = set().union(*(pairs_of(c) for c in chosen.values()))
@@ -149,12 +159,13 @@ def plan(max_runs):
 
 
 #: `  parameter int N_STREAMS = 1,`  ->  capture so the default can be replaced
-def _param_re(name):
+def _param_re(name: str) -> re.Pattern[str]:
     return re.compile(rf"(^\s*parameter\s+int\s+{re.escape(name)}\s*=\s*)"
                       rf"([0-9_]+)", re.M)
 
 
-def convert(top, srcs, inc, cfg, tmp, tag):
+def convert(top: str, srcs: list[str], inc: list[str], cfg: Config,
+            tmp: Path, tag: str) -> tuple[Path | None, str | None]:
     """sv2v the sources with this configuration's parameter defaults applied.
 
     The top's own source is copied and its parameter DEFAULTS rewritten, so
@@ -192,7 +203,9 @@ DESIGN_TOTAL_RE = re.compile(r"=== design hierarchy ===.*?^\s+(\d+) cells$",
                              re.M | re.S)
 
 
-def synth(top, vfile, cfg, tmp):
+def synth(top: str, vfile: Path, cfg: Config, tmp: Path) -> tuple[int | None, str | None]:
+    """The design-hierarchy cell count for one elaborated shape, or the first
+    line of why yosys could not produce one."""
     script = (f"read_verilog {vfile}; synth -top {top}; hierarchy -check; "
               f"stat -top {top}")
     r = subprocess.run(["yosys", "-p", script], capture_output=True, text=True)
@@ -206,7 +219,7 @@ def synth(top, vfile, cfg, tmp):
     return int(m.group(1)), None
 
 
-def sources_from_run_sh(top):
+def sources_from_run_sh(top: str) -> tuple[list[str] | None, list[str] | None] | None:
     """Reuse run.sh's source list verbatim - ONE list, not two that can drift.
 
     run.sh sets `R` from `$0`, which is meaningless when the prelude is
@@ -238,17 +251,12 @@ def sources_from_run_sh(top):
     return srcs, inc_txt.split()
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--list", action="store_true")
-    ap.add_argument("--max", type=int, default=DEFAULT_MAX)
-    args = ap.parse_args()
-
-    chosen, covered, target = plan(args.max)
+def _print_plan(chosen: dict[str, Config], covered: set[Pair],
+                target: set[Pair], max_runs: int) -> None:
+    """The space, the runs it was reduced to, and what the budget dropped."""
     product = 1
     for v in SPACE.values():
         product *= len(v)
-
     print(f"== parameter sweep plan ==")
     print(f"space: {' x '.join(f'{k}({len(v)})' for k, v in SPACE.items())}"
           f" = {product} combinations")
@@ -258,11 +266,129 @@ def main():
           f"({100 * len(covered) // len(target)} %)")
     if covered < target:
         # No silent caps: say what the budget dropped.
-        print(f"NOT COVERED at --max {args.max}: {len(target - covered)} pair(s) "
+        print(f"NOT COVERED at --max {max_runs}: {len(target - covered)} pair(s) "
               f"- raise --max to close them")
     print()
     for name, cfg in chosen.items():
         print(f"  {name:<14} " + "  ".join(f"{k}={v}" for k, v in cfg.items()))
+
+
+def _synthesise_configs(top: str, srcs: list[str], inc: list[str],
+                        chosen: dict[str, Config],
+                        tmp: Path) -> tuple[int, dict[str, int]]:
+    """Synthesise every chosen configuration of one top.
+
+    Returns (failures, cell count by configuration name).
+    """
+    fails = 0
+    base = None
+    seen_cells = {}
+    for name, cfg in chosen.items():
+        t1 = time.time()
+        vfile, err = convert(top, srcs, inc, cfg, tmp, name)
+        if err:
+            print(f"  [FAIL] {name:<14} sv2v: {err}")
+            fails += 1
+            continue
+        cells, err = synth(top, vfile, cfg, tmp)
+        if err:
+            print(f"  [FAIL] {name:<14} {err}")
+            fails += 1
+            continue
+        seen_cells.setdefault(cells, []).append(name)
+        if name == "default":
+            base = cells
+        delta = ""
+        if base and cells and name != "default":
+            delta = f"  ({cells / base:.2f}x default)"
+        print(f"  [PASS] {name:<14} cells={cells:<8} "
+              f"{time.time() - t1:.0f}s{delta}")
+    return fails, {n: c for c, ns in seen_cells.items() for n in ns}
+
+
+def _report_sensitivity(chosen: dict[str, Config], cells_of: dict[str, int]) -> int:
+    """Judge each parameter on the pairs that differ in IT ALONE.
+
+    Returns the number of parameters whose override provably did nothing.
+    """
+    fails = 0
+    # PER-PARAMETER sensitivity, not "some number moved". The first
+    # version of this check only asserted the counts were not all
+    # identical, and it passed while the extraction was reading a
+    # parameter-independent leaf module: one parameter happened to
+    # correlate with the values seen, so "distinct sizes" looked like
+    # proof that every override bit. It proved nothing about the other
+    # parameters. Now each parameter is judged on pairs that
+    # differ in IT ALONE, and a parameter with no such pair in the plan
+    # is reported undetermined rather than assumed working.
+    by_cfg = {n: c for n, c in chosen.items()}
+    for pname in SPACE:
+        pairs = [(a, b) for a, b in itertools.combinations(by_cfg, 2)
+                 if by_cfg[a][pname] != by_cfg[b][pname]
+                 and all(by_cfg[a][k] == by_cfg[b][k]
+                         for k in SPACE if k != pname)]
+        pairs = [(a, b) for a, b in pairs
+                 if a in cells_of and b in cells_of]
+        if not pairs:
+            print(f"  [warn] {pname}: no pair in this plan differs in "
+                  f"it alone - sensitivity UNDETERMINED, not proven")
+            continue
+        # "different" is not "meaningfully different". AUDIO_IF_SLOTS_P
+        # 8 -> 32 moved SEVENTEEN cells out of 910,000 - 0.002 %,
+        # indistinguishable from synthesis noise - and reporting that as
+        # proof the override bit would be the same mistake as the check
+        # this replaced. Anything under MARGINAL_PCT is reported as
+        # marginal, which is a fact about the parameter (it selects
+        # almost the same hardware), not a failure.
+        best = max(pairs, key=lambda ab:
+                   abs(cells_of[ab[0]] - cells_of[ab[1]]))
+        a, b = best
+        d = abs(cells_of[a] - cells_of[b])
+        pct = 100.0 * d / max(cells_of[a], cells_of[b], 1)
+        if d and pct >= MARGINAL_PCT:
+            print(f"  [ok]   {pname}: {cells_of[a]} vs {cells_of[b]} "
+                  f"({a} vs {b}) - {d:+} cells, {pct:.2f} % - bites")
+        elif d:
+            print(f"  [marg] {pname}: largest single-parameter delta is "
+                  f"{d} cells ({pct:.3f} %) between {a} and {b} - the "
+                  f"override is WIRED but selects near-identical "
+                  f"hardware; do not read this as proof it works")
+        else:
+            print(f"  [FAIL] {pname}: {a} and {b} differ ONLY in "
+                  f"{pname} yet synthesised to the same "
+                  f"{cells_of[a]} cells - that override is not taking "
+                  f"effect")
+            fails += 1
+    return fails
+
+
+def _sweep_tops(chosen: dict[str, Config], tmp: Path) -> int:
+    """Every swept top, synthesised and then judged. Returns the failure count."""
+    fails = 0
+    for top in SWEPT_TOPS:
+        srcs, inc = sources_from_run_sh(top)
+        if not srcs:
+            print(f"  [FAIL] {top}: no source list found in run.sh")
+            fails += 1
+            continue
+        print(f"\n== {top} ==")
+        synth_fails, cells_of = _synthesise_configs(top, srcs, inc, chosen, tmp)
+        fails += synth_fails
+        fails += _report_sensitivity(chosen, cells_of)
+    return fails
+
+
+def main() -> int:
+    """Print the plan, then - unless --list - synthesise it and return the number
+    of configurations that failed or whose parameter provably did nothing.
+    Exit 2 means sv2v or yosys is absent, which is not a passing sweep."""
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--list", action="store_true")
+    ap.add_argument("--max", type=int, default=DEFAULT_MAX)
+    args = ap.parse_args()
+
+    chosen, covered, target = plan(args.max)
+    _print_plan(chosen, covered, target, args.max)
     if args.list:
         return 0
 
@@ -271,87 +397,9 @@ def main():
             print(f"missing tool: {t} (see syn/yosys/README.md)")
             return 2
 
-    fails = 0
     tmp = Path(tempfile.mkdtemp(prefix="paramsweep."))
     try:
-        for top in SWEPT_TOPS:
-            srcs, inc = sources_from_run_sh(top)
-            if not srcs:
-                print(f"  [FAIL] {top}: no source list found in run.sh")
-                fails += 1
-                continue
-            print(f"\n== {top} ==")
-            base = None
-            seen_cells = {}
-            for name, cfg in chosen.items():
-                t1 = time.time()
-                vfile, err = convert(top, srcs, inc, cfg, tmp, name)
-                if err:
-                    print(f"  [FAIL] {name:<14} sv2v: {err}")
-                    fails += 1
-                    continue
-                cells, err = synth(top, vfile, cfg, tmp)
-                if err:
-                    print(f"  [FAIL] {name:<14} {err}")
-                    fails += 1
-                    continue
-                seen_cells.setdefault(cells, []).append(name)
-                if name == "default":
-                    base = cells
-                delta = ""
-                if base and cells and name != "default":
-                    delta = f"  ({cells / base:.2f}x default)"
-                print(f"  [PASS] {name:<14} cells={cells:<8} "
-                      f"{time.time() - t1:.0f}s{delta}")
-
-            # PER-PARAMETER sensitivity, not "some number moved". The first
-            # version of this check only asserted the counts were not all
-            # identical, and it passed while the extraction was reading a
-            # parameter-independent leaf module: one parameter happened to
-            # correlate with the values seen, so "distinct sizes" looked like
-            # proof that every override bit. It proved nothing about the other
-            # parameters. Now each parameter is judged on pairs that
-            # differ in IT ALONE, and a parameter with no such pair in the plan
-            # is reported undetermined rather than assumed working.
-            by_cfg = {n: c for n, c in chosen.items()}
-            cells_of = {n: c for c, ns in seen_cells.items() for n in ns}
-            for pname in SPACE:
-                pairs = [(a, b) for a, b in itertools.combinations(by_cfg, 2)
-                         if by_cfg[a][pname] != by_cfg[b][pname]
-                         and all(by_cfg[a][k] == by_cfg[b][k]
-                                 for k in SPACE if k != pname)]
-                pairs = [(a, b) for a, b in pairs
-                         if a in cells_of and b in cells_of]
-                if not pairs:
-                    print(f"  [warn] {pname}: no pair in this plan differs in "
-                          f"it alone - sensitivity UNDETERMINED, not proven")
-                    continue
-                # "different" is not "meaningfully different". AUDIO_IF_SLOTS_P
-                # 8 -> 32 moved SEVENTEEN cells out of 910,000 - 0.002 %,
-                # indistinguishable from synthesis noise - and reporting that as
-                # proof the override bit would be the same mistake as the check
-                # this replaced. Anything under MARGINAL_PCT is reported as
-                # marginal, which is a fact about the parameter (it selects
-                # almost the same hardware), not a failure.
-                best = max(pairs, key=lambda ab:
-                           abs(cells_of[ab[0]] - cells_of[ab[1]]))
-                a, b = best
-                d = abs(cells_of[a] - cells_of[b])
-                pct = 100.0 * d / max(cells_of[a], cells_of[b], 1)
-                if d and pct >= MARGINAL_PCT:
-                    print(f"  [ok]   {pname}: {cells_of[a]} vs {cells_of[b]} "
-                          f"({a} vs {b}) - {d:+} cells, {pct:.2f} % - bites")
-                elif d:
-                    print(f"  [marg] {pname}: largest single-parameter delta is "
-                          f"{d} cells ({pct:.3f} %) between {a} and {b} - the "
-                          f"override is WIRED but selects near-identical "
-                          f"hardware; do not read this as proof it works")
-                else:
-                    print(f"  [FAIL] {pname}: {a} and {b} differ ONLY in "
-                          f"{pname} yet synthesised to the same "
-                          f"{cells_of[a]} cells - that override is not taking "
-                          f"effect")
-                    fails += 1
+        fails = _sweep_tops(chosen, tmp)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

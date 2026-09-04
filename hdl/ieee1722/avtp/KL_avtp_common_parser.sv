@@ -69,7 +69,7 @@ module KL_avtp_common_parser #(
 
   state_t parser_state;
   //! Received subtype field from Slave AXIS
-  reg [7:0] rcvd_subtype_r;
+  logic [7:0] rcvd_subtype_r;
 
   //! Create pipeline registers
   logic [TDATA_WIDTH-1:0] tdata_pipe [0:PIPELINE_DELAY];

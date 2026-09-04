@@ -43,20 +43,31 @@ an independent decoder.
 import json
 import os
 import subprocess
+from pathlib import Path
 
 import yaml
 
-TSN_GEN_ROOT = os.environ.get("TSN_GEN_ROOT", os.path.expanduser("~/tsn-gen"))
-PACKET_GEN = os.environ.get(
-    "PACKET_GEN", os.path.join(TSN_GEN_ROOT, "build", "traffic-gen", "packet_gen"))
+#: EVERY path this module holds or hands out is a `Path` - the roots below,
+#: the family directories at the foot of the file, `Message.path` and
+#: `Message.yaml_dir`. `subprocess` takes path-like arguments, so they reach
+#: packet_gen as they are; `os` survives only for `environ` and `access`,
+#: which pathlib has no equivalent of.
+#:
+#: `~` is expanded on the environment value too, not only on the default,
+#: which is the spelling tests/environment.py already uses for the same tree.
+#: The old form expanded the default alone, so a TSN_GEN_ROOT beginning `~`
+#: named a literal directory called `~` and found nothing; CI sets an
+#: absolute path ($RUNNER_TEMP/tsn-gen), so nothing that runs changes.
+TSN_GEN_ROOT = Path(os.environ.get("TSN_GEN_ROOT", "~/tsn-gen")).expanduser()
+PACKET_GEN = Path(os.environ.get(
+    "PACKET_GEN", TSN_GEN_ROOT / "build" / "traffic-gen" / "packet_gen"))
 #: repo-local protocol models (ACMP lives here, not in tsn-gen)
-REPO_PROTOCOLS = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "tests", "protocols")
+REPO_PROTOCOLS = Path(__file__).resolve().parents[3] / "tests" / "protocols"
 
 
-def available():
+def available() -> bool:
     """True when the tsn-gen binary and model tree are usable."""
-    return os.path.isfile(PACKET_GEN) and os.access(PACKET_GEN, os.X_OK)
+    return PACKET_GEN.is_file() and os.access(PACKET_GEN, os.X_OK)
 
 
 #: the constraint kinds the model grammar allows under `expected:`. Upstream
@@ -64,7 +75,7 @@ def available():
 CONSTRAINT_KINDS = ("value", "values", "range", "mask")
 
 
-def kind_conflict(name, con):
+def kind_conflict(name: str, con: dict[str, object]) -> str | None:
     """ONE CONSTRAINT KIND PER FIELD, decided here and nowhere else (#151).
 
     `con` is a field's `expected:` mapping. Returns None when it declares at
@@ -101,11 +112,12 @@ class Message:
     """One PDU's spec field model, loaded from its tsn-gen YAML."""
 
     def __init__(self, yaml_path, interface=None, yaml_dir=None):
-        self.path = yaml_path
-        with open(yaml_path) as fh:
-            doc = yaml.safe_load(fh)
+        #: a caller may hand a plain string (test_grade_tx writes a temporary
+        #: model with `tempfile.mkstemp`); it becomes a `Path` here, once.
+        self.path = Path(yaml_path)
+        doc = yaml.safe_load(self.path.read_text())
         self.service = doc["service"]
-        self.yaml_dir = yaml_dir or os.path.dirname(yaml_path)
+        self.yaml_dir = yaml_dir or self.path.parent
         #: {name: (bits, constraint-dict)} in declaration order
         self.vars = {}
         for v in doc.get("vars", []):
@@ -131,19 +143,23 @@ class Message:
         raise ValueError("interface %s not in %s" % (want, self.path))
 
     @property
-    def fields(self):
+    def fields(self) -> list[tuple[str, int, dict[str, object]]]:
         """[(name, bits, constraint)] in wire order."""
         return [(n, self.vars[n][0], self.vars[n][1]) for n in self.order
                 if n in self.vars]
 
-    def width(self, name):
+    def width(self, name: str) -> int:
+        """The field's width as the MODEL declares it. Read the wire-layout
+        caveat above before using it as a wire offset."""
         return self.vars[name][0]
 
-    def mask(self, name):
+    def mask(self, name: str) -> int:
+        """The all-ones mask of the field's width, which every probe value is
+        clamped to so a constraint cannot produce a value the field cannot hold."""
         return (1 << self.vars[name][0]) - 1
 
     # --------------------------------------------------------------- probes
-    def legal(self, name):
+    def legal(self, name: str) -> list[int]:
         """Spec-LEGAL probe values for one field (deduped, width-clamped).
 
         Raises ValueError when the field declares more than one constraint
@@ -171,7 +187,7 @@ class Message:
             out = [0, 1, full // 2, full]
         return sorted({v & full for v in out})
 
-    def illegal(self, name):
+    def illegal(self, name: str) -> list[int]:
         """Spec-ILLEGAL probe values (empty when the field is unconstrained).
 
         Raises ValueError on a field declaring more than one kind, exactly as
@@ -202,7 +218,7 @@ class Message:
         return sorted({v & full for v in out})
 
     # ------------------------------------------------------- random via CLI
-    def random(self, count, seed):
+    def random(self, count: int, seed: int) -> list[dict[str, object]]:
         """Constrained-random field sets straight from packet_gen (reproducible)."""
         cmd = [PACKET_GEN, "--yaml-dir", self.yaml_dir, "--interface", self.interface,
                "--count", str(count), "--seed", str(seed), "--output", "json"]
@@ -219,7 +235,8 @@ class Message:
         return out
 
 
-def decode_pdu(yaml_dir, interface, pdu_bytes):
+def decode_pdu(yaml_dir: Path, interface: str,
+               pdu_bytes: bytes) -> dict[str, object]:
     """packet_gen's independent dissection of a REAL PDU (offset-corrected).
 
     `pdu_bytes` starts at the AVTPDU byte holding sv/version/message_type.
@@ -258,7 +275,8 @@ def decode_pdu(yaml_dir, interface, pdu_bytes):
     return {}
 
 
-def decode_ptp(yaml_dir, interface, pdu_bytes):
+def decode_ptp(yaml_dir: Path, interface: str,
+               pdu_bytes: bytes) -> dict[str, object]:
     """packet_gen's independent dissection of an 802.1AS PDU — NO shift.
 
     The missing-nibble caveat above is a 1722.1 defect only: the 8021as_*
@@ -292,15 +310,15 @@ def decode_ptp(yaml_dir, interface, pdu_bytes):
 
 
 # ------------------------------------------------------------------ catalogue
-AECP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "application", "1722_1", "aecp")
-ADP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "application", "1722_1", "adp")
-AVTP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "data_link", "1722")
-PTP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "data_link", "ptp")
-ACMP_DIR = os.path.join(REPO_PROTOCOLS, "acmp")
+AECP_DIR = TSN_GEN_ROOT / "protocols" / "application" / "1722_1" / "aecp"
+ADP_DIR = TSN_GEN_ROOT / "protocols" / "application" / "1722_1" / "adp"
+AVTP_DIR = TSN_GEN_ROOT / "protocols" / "data_link" / "1722"
+PTP_DIR = TSN_GEN_ROOT / "protocols" / "data_link" / "ptp"
+ACMP_DIR = REPO_PROTOCOLS / "acmp"
 
 
-def load(kind, yaml_name, interface=None):
+def load(kind: str, yaml_name: str, interface: str | None = None) -> Message:
     """Load a model by family: 'aecp' | 'adp' | 'avtp' | 'ptp' | 'acmp'."""
     d = {"aecp": AECP_DIR, "adp": ADP_DIR, "avtp": AVTP_DIR, "ptp": PTP_DIR,
          "acmp": ACMP_DIR}[kind]
-    return Message(os.path.join(d, yaml_name), interface, yaml_dir=d)
+    return Message(d / yaml_name, interface, yaml_dir=d)

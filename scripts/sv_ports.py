@@ -58,7 +58,7 @@ def _blank_keep_newlines(m):
     return "".join(c if c == "\n" else " " for c in m.group(0))
 
 
-def module_headers(text):
+def module_headers(text: str) -> list[tuple[str, str, int]]:
     """[(module_name, header_text, first_line_no)] for each module in `text`.
 
     The header runs from `module` to the `;` that ends the port list, with
@@ -130,18 +130,20 @@ def _group_comment_in(text):
     return found
 
 
-def _parse_chunk(kind, chunk, carried_doc):
-    """Parse one declaration chunk into [(name, doc, multibit)].
+def _chunk_comments(lines):
+    """The `//!` comments a chunk carries, and the chunk with them removed.
 
-    `carried_doc` is a standalone `//!` group comment still in force; the
-    return also carries the group comment this chunk leaves in force and
-    whether that comment is fresh (written after this declaration)."""
-    lines = chunk.split("\n")
-    # standalone `//!` lines inside the chunk are group comments for what
-    # follows; a blank line ends a bundle whether it comes after the names or
-    # after such a run, because a blank line is how a port list separates one
-    # bundle from the next. The chunk's last line is the next declaration's
-    # indentation, not a blank line.
+    Returns (code_lines, docs_by_line, group_after, gap_after_code):
+    `docs_by_line` maps a line index to the comment written beside the code on
+    that line, `group_after` is the standalone `//!` run this chunk leaves in
+    force, and `gap_after_code` records the blank line that ends a bundle.
+
+    Standalone `//!` lines inside the chunk are group comments for what
+    follows; a blank line ends a bundle whether it comes after the names or
+    after such a run, because a blank line is how a port list separates one
+    bundle from the next. The chunk's last line is the next declaration's
+    indentation, not a blank line.
+    """
     docs_by_line, group_after = {}, None
     code_lines = []
     run = []
@@ -169,8 +171,17 @@ def _parse_chunk(kind, chunk, carried_doc):
                 elif seen_code:
                     gap_after_code = True
             code_lines.append(line)
-    # the declaration's own line is the line of its first name; a same-line
-    # `//!` documents every name declared on that line
+    return code_lines, docs_by_line, group_after, gap_after_code
+
+
+def _chunk_names(kind, code_lines):
+    """The names one declaration chunk declares, and whether it is a quantity.
+
+    Returns (names, line_of, multibit): the declared names in source order,
+    the line index each name's token sits on - the declaration's own line is
+    the line of its first name, and a same-line `//!` documents every name
+    declared on that line - and whether the declaration carries any packed or
+    unpacked dimension, an unsized or user type, or is a parameter."""
     joined = "\n".join(code_lines)
     # strip the closing `)` of a port list and any default value
     joined = joined.replace(")", " ").replace("(", " ")
@@ -182,7 +193,6 @@ def _parse_chunk(kind, chunk, carried_doc):
     joined_nodims = re.sub(r"\[[^\]]*\]", " ", joined)
     # split names by comma, keep track of which line each piece starts on
     names, line_of = [], {}
-    pos = 0
     pieces = joined_nodims.split(",")
     offset = 0
     first_piece_typed = None
@@ -212,6 +222,18 @@ def _parse_chunk(kind, chunk, carried_doc):
         names.append(name)
         line_of[name] = name_line
     multibit = has_dims or bool(first_piece_typed) or kind in ("param", "iface")
+    return names, line_of, multibit
+
+
+def _parse_chunk(kind, chunk, carried_doc):
+    """Parse one declaration chunk into [(name, doc, multibit)].
+
+    `carried_doc` is a standalone `//!` group comment still in force; the
+    return also carries the group comment this chunk leaves in force and
+    whether that comment is fresh (written after this declaration)."""
+    code_lines, docs_by_line, group_after, gap_after_code = _chunk_comments(
+        chunk.split("\n"))
+    names, line_of, multibit = _chunk_names(kind, code_lines)
     rows, any_own = [], False
     for name in names:
         ln = line_of[name]
@@ -235,7 +257,7 @@ def _parse_chunk(kind, chunk, carried_doc):
     return rows, carried_doc, False
 
 
-def declarations(text):
+def declarations(text: str) -> list[tuple[str, str, str, bool, str]]:
     """[(module, name, doc, multibit, kind)] for every port/parameter in `text`."""
     out = []
     for module, header, _ in module_headers(text):

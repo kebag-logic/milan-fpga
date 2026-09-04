@@ -46,10 +46,12 @@ import io
 import os
 import sys
 import tempfile
+from collections.abc import Callable, Sequence
+from pathlib import Path
 
 import yaml
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from cosim import Report                                    # noqa: E402
 import fuzz_ptp                                             # noqa: E402
@@ -63,11 +65,13 @@ class OneFieldModel:
         self._fields = fields
 
     @property
-    def fields(self):
+    def fields(self) -> list[tuple[str, int, dict[str, object]]]:
+        """The `.fields` surface tsn_model.Message presents, as given."""
         return self._fields
 
 
-def grade_model(model, pdu):
+def grade_model(model: OneFieldModel | tsn_model.Message,
+                pdu: Sequence[int]) -> tuple[int, int, str, str]:
     """Run grade_tx over `model` and return (npass, nfail, what, detail).
 
     `what`/`detail` are the first recorded failure, or empty strings. The
@@ -89,12 +93,15 @@ def grade_model(model, pdu):
     return rep.npass, rep.nfail, what, detail
 
 
-def grade(field_bits, constraint, pdu, field="f"):
+def grade(field_bits: int, constraint: dict[str, object],
+          pdu: Sequence[int],
+          field: str = "f") -> tuple[int, int, str, str]:
     """Grade one synthetic field; see grade_model for the return shape."""
     return grade_model(OneFieldModel([(field, field_bits, constraint)]), pdu)
 
 
-def message_model(field, bits, constraint):
+def message_model(field: str, bits: int,
+                  constraint: dict[str, object]) -> tsn_model.Message:
     """A tsn_model.Message holding one synthetic field, built without a YAML.
 
     The whole surface legal()/illegal() touch is `.vars`; the loader itself
@@ -107,7 +114,7 @@ def message_model(field, bits, constraint):
     return m
 
 
-def refusal_of(fn, field):
+def refusal_of(fn: Callable[[str], object], field: str) -> str | None:
     """str() of the ValueError `fn(field)` raises, or None when it does not."""
     try:
         fn(field)
@@ -245,30 +252,53 @@ MUTANTS = [
 MIN_CHECKS = 54
 
 
-def run_case(bits, con, pdu, want_p, want_f, needles, field="f",
-             detail_only=False):
-    """Grade one synthetic field and judge it: (ok, note)."""
+class Expect:
+    """What one graded case must produce.
+
+    The tally it must reach, the words the message must carry, and where those
+    words are looked for: `detail_only` requires them in the DETAIL alone rather
+    than in "what | detail", which is what the refusal cases assert because the
+    detail is the predicate's own words and the check label carries the field
+    name anyway. Four facts about one expectation, so they travel as one.
+    """
+
+    def __init__(self, want_p, want_f, needles=(), detail_only=False):
+        self.want_p = want_p
+        self.want_f = want_f
+        self.needles = tuple(needles)
+        self.detail_only = detail_only
+
+
+def run_case(bits: int, con: dict[str, object], pdu: Sequence[int],
+             expect: Expect, field: str = "f") -> tuple[bool, str]:
+    """Grade one synthetic field and judge it against `expect`: (ok, note)."""
     npass, nfail, what, detail = grade(bits, con, pdu, field)
-    hay = detail if detail_only else "%s | %s" % (what, detail)
-    missing = [n for n in needles if n not in hay]
-    ok = npass == want_p and nfail == want_f and not missing
-    note = " pass=%d/%d fail=%d/%d" % (npass, want_p, nfail, want_f)
-    if needles:
+    hay = detail if expect.detail_only else "%s | %s" % (what, detail)
+    missing = [n for n in expect.needles if n not in hay]
+    ok = npass == expect.want_p and nfail == expect.want_f and not missing
+    note = " pass=%d/%d fail=%d/%d" % (npass, expect.want_p,
+                                       nfail, expect.want_f)
+    if expect.needles:
         note += ("  needles=%r %s"
-                 % (needles, "found" if not missing
+                 % (expect.needles, "found" if not missing
                     else "MISSING %r in %r" % (missing, hay)))
     return ok, note
 
 
-def case_ok(case):
+def case_ok(case: tuple[str, int, dict[str, object], list[int],
+                        int, int, str]) -> bool:
+    """True when one CASES row still grades to its recorded tally."""
     name, bits, con, pdu, want_p, want_f, needle = case
-    return run_case(bits, con, pdu, want_p, want_f,
-                    (needle,) if needle else ())[0]
+    return run_case(bits, con, pdu,
+                    Expect(want_p, want_f, (needle,) if needle else ()))[0]
 
 
-def refusal_ok(case):
+def refusal_ok(case: tuple[str, int, dict[str, object], list[int],
+                           tuple[str, ...]]) -> bool:
+    """True when one REFUSALS row is still refused, by name and by kind."""
     name, bits, con, pdu, needles = case
-    return run_case(bits, con, pdu, 0, 1, needles, DUAL, detail_only=True)[0]
+    return run_case(bits, con, pdu,
+                    Expect(0, 1, needles, detail_only=True), DUAL)[0]
 
 
 class Tally:
@@ -276,7 +306,8 @@ class Tally:
         self.total = 0
         self.bad = 0
 
-    def check(self, name, ok, note=""):
+    def check(self, name: str, ok: bool, note: str = "") -> bool:
+        """Record and print one verdict; the count is MIN_CHECKS' floor."""
         self.total += 1
         if not ok:
             self.bad += 1
@@ -284,7 +315,7 @@ class Tally:
         return ok
 
 
-def parity_checks(t):
+def parity_checks(t: Tally) -> None:
     """(3) legal()/illegal() refuse with the SAME message grade_tx reports.
 
     One predicate means one message: the detail grade_tx records and the
@@ -301,7 +332,7 @@ def parity_checks(t):
                 % (detail, got_legal, got_illegal))
 
 
-def shared_predicate_checks(t):
+def shared_predicate_checks(t: Tally) -> None:
     """(3) all three readers route through tsn_model.kind_conflict.
 
     Replace the predicate with a sentinel that refuses everything and watch a
@@ -330,7 +361,7 @@ def shared_predicate_checks(t):
         tsn_model.kind_conflict = saved
 
 
-def loader_checks(t):
+def loader_checks(t: Tally) -> None:
     """(3) through the real loader: a YAML model is refused after parsing.
 
     The synthetic cases hand the predicate a dict. This closes the one way
@@ -373,10 +404,10 @@ def loader_checks(t):
         t.check("loaded model: grade_tx grades solo and refuses dual_fld",
                 ok, " pass=%d/1 fail=%d/1 %s" % (npass, nfail, detail))
     finally:
-        os.unlink(path)
+        Path(path).unlink()
 
 
-def mutation_checks(t):
+def mutation_checks(t: Tally) -> None:
     """(4) every mutant of the predicate is caught, and only by the refusals."""
     for mname, mutant in MUTANTS:
         saved = tsn_model.kind_conflict
@@ -395,17 +426,19 @@ def mutation_checks(t):
                 not broken, "" if not broken else "  BROKE: %r" % broken)
 
 
-def main():
+def main() -> int:
+    """Run every arm; exit 1 on a red case or on a tally below MIN_CHECKS."""
     t = Tally()
     print("[single-kind and unknown-kind fields]")
     for name, bits, con, pdu, want_p, want_f, needle in CASES:
-        ok, note = run_case(bits, con, pdu, want_p, want_f,
-                            (needle,) if needle else ())
+        ok, note = run_case(bits, con, pdu,
+                            Expect(want_p, want_f,
+                                   (needle,) if needle else ()))
         t.check(name, ok, note)
     print("[a field declaring more than one kind is refused]")
     for name, bits, con, pdu, needles in REFUSALS:
-        ok, note = run_case(bits, con, pdu, 0, 1, needles, DUAL,
-                            detail_only=True)
+        ok, note = run_case(bits, con, pdu,
+                            Expect(0, 1, needles, detail_only=True), DUAL)
         t.check(name, ok, note)
     print("[one predicate for grade_tx, legal() and illegal()]")
     parity_checks(t)

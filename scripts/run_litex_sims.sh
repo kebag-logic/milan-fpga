@@ -72,7 +72,14 @@
 # green control, a planted failure, a masked verdict, a MISSING member, an
 # UNLISTED extra, the declared-skip path, the explicit-pin refusal and the
 # wall-clock UNKNOWN, and requires the observed exit and message each time.
-set -u
+#
+# STRICT MODE (Rule 13). Every command whose non-zero status is EXPECTED says
+# so on the spot: a member that fails, times out or is killed is the
+# measurement, so its status is captured with `|| rc=$?` and read by the case
+# below, never allowed to reach errexit. Same for the eight negative controls
+# in the selftest, which exist to observe a red run. `-e` is here to catch the
+# statuses nobody is reading, not to end the sweep at the first red member.
+set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SIM_DIR="$ROOT/sw/litex"
@@ -96,8 +103,12 @@ probe() { "$1" -c "$PROBE" >/dev/null 2>&1; }
 # stay true (the same derivation sw/builder/test_builder.py uses).
 sweep_venv_python() {
   local name
+  # `|| true`: no sweep.sh (a tree without sw/litex, or the selftest sandbox
+  # before make_tree writes one) is a NAME NOT FOUND, not an error - sed's
+  # status is the pipeline's under pipefail, and the empty name below is
+  # already the answer for it.
   name="$(sed -n 's|^export PATH="\$HOME/\([^/"[:space:]:]*\)/venv/bin.*|\1|p' \
-          "$SIM_DIR/sweep.sh" 2>/dev/null | head -n1)"
+          "$SIM_DIR/sweep.sh" 2>/dev/null | head -n1)" || true
   [ -n "$name" ] && echo "$HOME/$name/venv/bin/python3"
 }
 
@@ -128,7 +139,7 @@ run_aggregate() {
 
   local pass=0 fail=0 skip=0 tmo=0 failed="" timedout="" t f name
   declare -A pinned=()
-  for t in "${INVENTORY[@]}"; do pinned[$t]=1; done
+  for t in "${INVENTORY[@]}"; do pinned["$t"]=1; done
 
   # Reconciliation, both directions, before anything runs.
   for t in "${INVENTORY[@]}"; do
@@ -168,14 +179,17 @@ run_aggregate() {
       printf '         and run scripts/ci_litex_env.py)\n'
       continue
     fi
-    (cd "$SIM_DIR" && timeout -k 10 "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1
-    local rc=$?
+    # A member that fails or is killed is the measurement, so its status is
+    # taken here and read by the case below - errexit must not see it.
+    local rc=0
+    (cd "$SIM_DIR" && timeout -k 10 "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1 \
+      || rc=$?
     # Rule 6: a script that PRINTS a failure (or nothing) and exits 0 is a
     # masked verdict. Both members end with an explicit `RESULT: PASS`.
     if [ "$rc" -eq 0 ] && ! grep -q '^RESULT: PASS$' "$out/$t.log"; then
       rc=93
     fi
-    case $rc in
+    case "$rc" in
       0)   pass=$((pass + 1)); printf 'PASS     %s\n' "$t" ;;
       93)  fail=$((fail + 1)); failed="$failed $t"
            printf 'FAIL     %s   (exited 0 without `RESULT: PASS` - a masked verdict)\n' "$t" ;;
@@ -255,50 +269,50 @@ selftest() {
 
   local out rc
   make_tree "$sand/a"
-  out="$(arm "$sand/a" bin-ok)"; rc=$?
+  rc=0; out="$(arm "$sand/a" bin-ok)" || rc=$?
   ck "green control: a sandbox where everything passes exits 0" 0 "$rc" \
      "passed: 2\b" "$out"
 
   make_tree "$sand/b"
   printf 'import sys\nprint("RESULT: FAIL")\nsys.exit(1)\n' \
          > "$sand/b/sw/litex/test_pp_mem_bridge.py"
-  out="$(arm "$sand/b" bin-ok)"; rc=$?
+  rc=0; out="$(arm "$sand/b" bin-ok)" || rc=$?
   ck "a planted failing simulation turns the aggregate red, named" 1 "$rc" \
      "failing: test_pp_mem_bridge" "$out"
 
   make_tree "$sand/c"
   printf 'import sys\nprint("RESULT: FAIL")\nsys.exit(0)\n' \
          > "$sand/c/sw/litex/test_pp_boot_bus_freeze.py"
-  out="$(arm "$sand/c" bin-ok)"; rc=$?
+  rc=0; out="$(arm "$sand/c" bin-ok)" || rc=$?
   ck "a script that fails but exits 0 is a FAIL (masked verdict)" 1 "$rc" \
      "masked verdict" "$out"
 
   make_tree "$sand/d"
   rm "$sand/d/sw/litex/test_pp_mem_bridge.py"
-  out="$(arm "$sand/d" bin-ok)"; rc=$?
+  rc=0; out="$(arm "$sand/d" bin-ok)" || rc=$?
   ck "a deleted inventory member is a FAIL (MISSING), not a silence" 1 "$rc" \
      "MISSING" "$out"
 
   make_tree "$sand/e"
   printf 'import sys\nprint("RESULT: PASS")\nsys.exit(0)\n' \
          > "$sand/e/sw/litex/test_rogue.py"
-  out="$(arm "$sand/e" bin-ok)"; rc=$?
+  rc=0; out="$(arm "$sand/e" bin-ok)" || rc=$?
   ck "a test_*.py outside the inventory is a FAIL (UNLISTED)" 1 "$rc" \
      "UNLISTED" "$out"
 
   make_tree "$sand/f"
-  out="$(HOME="$sand" arm "$sand/f" bin-no)"; rc=$?
+  rc=0; out="$(HOME="$sand" arm "$sand/f" bin-no)" || rc=$?
   ck "no usable interpreter: every member a declared skip, exit 90" 90 "$rc" \
      "SKIP" "$out"
 
   make_tree "$sand/g"
-  out="$(arm "$sand/g" bin-ok MILAN_LITEX_PYTHON="$sand/no-such-python")"; rc=$?
+  rc=0; out="$(arm "$sand/g" bin-ok MILAN_LITEX_PYTHON="$sand/no-such-python")" || rc=$?
   ck "an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED" 91 "$rc" \
      "REFUSED" "$out"
 
   make_tree "$sand/h"
   printf 'import time\ntime.sleep(30)\n' > "$sand/h/sw/litex/test_pp_mem_bridge.py"
-  out="$(arm "$sand/h" bin-ok LITEX_SIM_TIMEOUT=1)"; rc=$?
+  rc=0; out="$(arm "$sand/h" bin-ok LITEX_SIM_TIMEOUT=1)" || rc=$?
   ck "a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure" 92 "$rc" \
      "TIMEOUT" "$out"
 

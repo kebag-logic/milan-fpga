@@ -27,11 +27,14 @@ import subprocess
 import json
 import argparse
 import binascii
+from pathlib import Path
 
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
 
-from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
+from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
+                   Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
+                   NextState, Memory, Module, Record)
 from migen.genlib.cdc import MultiReg
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -48,8 +51,15 @@ from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 
+# THIS FILE'S TWO ROOTS, as `Path`s, derived once. Every path below is a
+# `Path`; a `str()` marks the boundary where one leaves for something that
+# takes text - a migen `Instance` parameter, a LiteX platform/source list, a
+# `sys.path` entry or a JSON field - and there are no others.
+SOC_DIR = Path(__file__).parent                 # sw/litex/
+REPO_ROOT = SOC_DIR.parent.parent               # milan-fpga/
+
 # Local platform (not in upstream litex_boards).
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "platforms"))
+sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
 import board_audio_routing
 
@@ -117,7 +127,7 @@ FLASHBOOT_RESERVED = {
 }
 
 
-def flash_map():
+def flash_map() -> list[tuple[str, int, int, str]]:
     """Every slot on the device, ordered by offset: [(name, offset, size, kind)].
 
     The single reader of both dicts.  `kind` is "image" for anything the BIOS
@@ -130,7 +140,7 @@ def flash_map():
     return sorted(rows, key=lambda r: r[1])
 
 
-def check_flash_map():
+def check_flash_map() -> list[str]:
     """Return a list of problems with the flash map; empty means consistent.
 
     Erase-block alignment is not cosmetic: a writable region that starts or ends
@@ -463,9 +473,8 @@ class MilanNIC(LiteXModule):
 def _pp_sources():
     """Submodule design sources, derived from the tree by scripts/pp_srcs.py."""
     import importlib.util
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     spec = importlib.util.spec_from_file_location(
-        "pp_srcs", os.path.join(root, "scripts", "pp_srcs.py"))
+        "pp_srcs", REPO_ROOT / "scripts" / "pp_srcs.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod.pp_sources()
@@ -503,7 +512,8 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv", "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
     "hdl/common/cdc_pulse.sv", "hdl/common/cdc_handshake.sv",
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
-    "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
+    "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+    "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
     # ADP TX arbitration survives the scenario-B substitution: the advertiser
     # itself is the processor's KL_adp_engine now, but the two-source TX merge
@@ -523,10 +533,19 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
     "hdl/ieee1722/avtp/KL_stream_table.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
-    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv", "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+    "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
-    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv", "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
-    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/crf/KL_media_nco.sv", "hdl/ieee1722/crf/KL_media_grid_align.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv",
+    "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv",
+    "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv",
+    "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv",
+    "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+    "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv",
+    "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/crf/KL_media_nco.sv",
+    "hdl/ieee1722/crf/KL_media_grid_align.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
     # listed here because add_milan_datapath is the one place RTL sources are
@@ -546,11 +565,9 @@ def _eth_event_lanes():
     bit are dropped on the floor with nothing failing anywhere - the same shape
     as the tie that killed RMON in the first place. Parsing the single source of
     truth costs three lines and cannot drift."""
-    svh = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__)))), "hdl", "common", "eth_event_counter",
-        "ethernet_events.svh")
-    with open(svh) as f:
-        body = f.read()
+    svh = REPO_ROOT / "hdl" / "common" / "eth_event_counter" / \
+        "ethernet_events.svh"
+    body = svh.read_text()
     m = re.search(r"typedef\s+enum\s+int\s*\{(.*?)\}", body, re.S)
     assert m, f"{svh}: ethernet_events_t enum not found"
     names = [n.split("=")[0].strip()
@@ -666,16 +683,23 @@ def _board_audio_ports(platform):
     return ports, i2s_pads
 
 
-def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
-                       desc_base=None, resp_base=None,
-                       milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
-                       talker_wire_chans=2, audio_if_master=False,
-                       audio_if_i2s_pair=False,
-                       gptp_plane=None,
-                       loopback_lane=False,
-                       render_lpf=True,
-                       optional_blocks=None,
-                       entity_gen_dir=None):
+def add_milan_datapath(host: Module, platform: object,
+                       axil: axi.AXILiteInterface,
+                       extra_ports: dict[str, object] | None = None,
+                       milan_cd: str = "sys",
+                       desc_base: int | None = None,
+                       resp_base: int | None = None,
+                       milan_clk_hz: float = 100_000_000,
+                       num_streams: int = 1,
+                       audio_if_slots: int = 0,
+                       talker_wire_chans: int = 2,
+                       audio_if_master: bool = False,
+                       audio_if_i2s_pair: bool = False,
+                       gptp_plane: bool | None = None,
+                       loopback_lane: bool = False,
+                       render_lpf: bool = True,
+                       optional_blocks: dict[str, bool] | None = None,
+                       entity_gen_dir: str | None = None) -> None:
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave. `extra_ports`
@@ -780,7 +804,7 @@ def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
     # audio_if_slots cannot feed - that guard is what makes this a fabric fact
     # and not one more declaration.
     # milan-fpga/ root - used by the source list AND the processor ROM path
-    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
+    base = REPO_ROOT
     # Ownership is a per-build fact.  Raising here catches a caller which
     # stopped forwarding the resolved value; bool(None) would silently choose
     # the option-off plane even though the RTL product default is on.
@@ -810,22 +834,22 @@ def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
     # and hands over an ABSOLUTE path, so the bitstream cannot depend on where
     # vivado was launched from and cannot silently elaborate an all-zero ROM
     # (which is a listener that answers nothing).
-    rom = os.path.join(base, "configs", "generated", "ltn_rom.hex")
-    gen = os.path.join(base, "protocol-processor", "hdl", "acmp", "rom",
-                       "gen_ltn_rom.py")
-    os.makedirs(os.path.dirname(rom), exist_ok=True)
-    subprocess.run([sys.executable, gen, "-o", rom], check=True)
-    dp_params["p_PP_TROM_HEX_P"] = rom
+    rom = base / "configs" / "generated" / "ltn_rom.hex"
+    gen = base / "protocol-processor" / "hdl" / "acmp" / "rom" / "gen_ltn_rom.py"
+    rom.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([sys.executable, str(gen), "-o", str(rom)], check=True)
+    # A `str`: this is a Verilog string parameter on the Instance below, and a
+    # PurePath would render into the emitted .v as a repr, not as a path.
+    dp_params["p_PP_TROM_HEX_P"] = str(rom)
 
     # THE AECP uCPU MICROCODE IMAGE, same relative-$readmemh contract as the
     # ACMP ROM above and the same failure mode if it is not handed over as an
     # absolute path: an all-zero microcode store is an AECP engine that
     # answers nothing, which looks exactly like the pre-uCPU build.
-    uc = os.path.join(base, "configs", "generated", "ucode.hex")
-    ucgen = os.path.join(base, "protocol-processor", "hdl", "aecp", "ucode",
-                         "gen_ucode.py")
-    subprocess.run([sys.executable, ucgen, "-o", uc], check=True)
-    dp_params["p_PP_UCODE_HEX_P"] = uc
+    uc = base / "configs" / "generated" / "ucode.hex"
+    ucgen = base / "protocol-processor" / "hdl" / "aecp" / "ucode" / "gen_ucode.py"
+    subprocess.run([sys.executable, str(ucgen), "-o", str(uc)], check=True)
+    dp_params["p_PP_UCODE_HEX_P"] = str(uc)          # Instance parameter: text
 
     # WHERE THE ENTITY MODEL LIVES. The processor's descriptor store fetches
     # the AEM image from MAIN MEMORY over a read-only master, at a base that is
@@ -1098,13 +1122,13 @@ def add_milan_datapath(host, platform, axil, extra_ports=None, milan_cd="sys",
     # tracked dirs below stay as the fallback for every other include.
     if entity_gen_dir:
         platform.add_verilog_include_path(entity_gen_dir)
-        platform.add_verilog_include_path(os.path.join(entity_gen_dir, "gen"))
+        platform.add_verilog_include_path(str(Path(entity_gen_dir) / "gen"))
     for inc in ("hdl/common", "hdl/ieee8021q/ts", "hdl/ieee8021as/ptp_timestamp",
                 "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
                 "hdl/ieee1722/avtp"):
-        platform.add_verilog_include_path(os.path.join(base, inc))
+        platform.add_verilog_include_path(str(base / inc))
     for f in _MILAN_DATAPATH_SOURCES:
-        platform.add_source(os.path.join(base, f))
+        platform.add_source(str(base / f))
 
 
 # AXIS clock-domain crossing (protocol-memory/MAC boundaries) -------------------------------------
@@ -1117,11 +1141,19 @@ class _AxisDP:
         self.dp  = dp
         self.sys = sys
 
-def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16, rename=None):
+#: Async-FIFO depth of every AXIS datapath crossing, in beats. It was a
+#: `depth=16` parameter of `_axis_dp_cdc` that not one of its eight call sites
+#: ever passed - a knob nobody turns is a constant with a longer signature, and
+#: this file has enough of those. Named here so the eight crossings still say
+#: the same number in one place.
+_AXIS_CDC_DEPTH = 16
+
+
+def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, rename=None):
     """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
     datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
-    boundary. `to_datapath=True` is a sys->milan_cd lane; False is
-    milan_cd->sys. When `milan_cd == "sys"` there is no
+    boundary, `_AXIS_CDC_DEPTH` beats deep. `to_datapath=True` is a sys->milan_cd
+    lane; False is milan_cd->sys. When `milan_cd == "sys"` there is no
     crossing: `.dp` and `.sys` are the same endpoint (direct wire)."""
     if milan_cd == "sys":
         ep = stream.Endpoint(layout)
@@ -1138,11 +1170,14 @@ def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, depth=16, rename=Non
     # pointers past the depth invariant and can MANUFACTURE the permanent-full
     # state it is meant to clear.
     if to_datapath:                                        # sys -> milan_cd
-        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd, depth=depth, buffered=True)
+        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd,
+                                         depth=_AXIS_CDC_DEPTH, buffered=True)
         if rename: cdc = ClockDomainsRenamer(rename)(cdc)
         setattr(host, name, cdc)                           # LiteXModule auto-submodule
         return _AxisDP(dp=cdc.source, sys=cdc.sink)
-    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys", depth=depth, buffered=True)  # milan_cd -> sys
+    # milan_cd -> sys
+    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys",
+                                     depth=_AXIS_CDC_DEPTH, buffered=True)
     if rename: cdc = ClockDomainsRenamer(rename)(cdc)
     setattr(host, name, cdc)
     return _AxisDP(dp=cdc.sink, sys=cdc.source)
@@ -1834,7 +1869,7 @@ PP_PROC_MEM_TMO_CYC = 4096
 PP_MEM_TMO_SHARE = (3, 4)
 
 
-def pp_mem_bus_worst_cycles(sys_clk_hz):
+def pp_mem_bus_worst_cycles(sys_clk_hz: float) -> int:
     """Conservative arbitration floor for the two protocol-memory masters.
 
     Only the descriptor reader and response-buffer reader/writer share this
@@ -1849,9 +1884,9 @@ def pp_mem_bus_worst_cycles(sys_clk_hz):
     return (mem_cycles + 1) + mem_cycles
 
 
-def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
-                          proc_tmo_cyc=PP_PROC_MEM_TMO_CYC,
-                          share=PP_MEM_TMO_SHARE):
+def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
+                          proc_tmo_cyc: int = PP_PROC_MEM_TMO_CYC,
+                          share: tuple[int, int] = PP_MEM_TMO_SHARE) -> int:
     """The bridge watchdog in sys cycles. Derived, because the RELATION is what
     the design depends on and a bare number only satisfies it by accident.
 
@@ -1902,7 +1937,7 @@ def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
     return cyc
 
 
-def pp_mem_gate(m, dfi_sel):
+def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
     """`mem_rdy`: the DFI has been handed BACK to the LiteDRAM controller.
 
     A LEVEL, and it is READ from LiteDRAM rather than restated: the BIOS takes
@@ -1929,7 +1964,8 @@ def pp_mem_gate(m, dfi_sel):
     return _mem_rdy
 
 
-def pp_desc_bridge(m, req, rsp, wb, mem_rdy, tmo, sel_mask, addr_sh):
+def pp_desc_bridge(m: Module, req: Record, rsp: Record, wb: object,
+                   mem_rdy: Signal | C, tmo: int, sel_mask: int, addr_sh: int) -> tuple[FSM, Signal, Signal]:
     """The descriptor-image read bridge: one wishbone READ master, one FSM.
 
     `req`/`rsp` are the processor's sys-domain request and response faces, `wb`
@@ -2715,9 +2751,9 @@ class MilanSoC(SoCCore):
 
 # Build --------------------------------------------------------------------------------------------
 
-#: milan-fpga's root, from THIS file's location: sw/litex/milan_soc.py -> up 3.
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))))
+#: REPO_ROOT and SOC_DIR are derived once, beside the imports at the top of
+#: this file - `_pp_sources()` runs while `_MILAN_DATAPATH_SOURCES` is being
+#: built, long before this point, so the roots cannot live down here.
 
 
 def _builder_out(entity_gen_dir, name):
@@ -2730,13 +2766,16 @@ def _builder_out(entity_gen_dir, name):
         raise RuntimeError(
             "this build needs its end-station config: pass --entity-gen-dir "
             "(build.sh does, for every named config)")
-    cfg = os.path.basename(os.path.normpath(entity_gen_dir))
-    path = os.path.join(REPO_ROOT, "sw", "builder", "out", cfg, name)
-    if not os.path.exists(path):
+    cfg = Path(entity_gen_dir).name
+    path = REPO_ROOT / "sw" / "builder" / "out" / cfg / name
+    if not path.exists():
         raise RuntimeError(
             f"config '{cfg}' has no {name} ({path}). Run the end-station "
             f"builder for this config first")
-    return path
+    # A `str`, named as a boundary: one caller feeds this straight to a migen
+    # Instance parameter (p_GPTP_UCODE_HEX_P) and another puts it in a JSON
+    # manifest, and neither accepts a PurePath.
+    return str(path)
 
 
 def _platform_shape(entity_gen_dir):
@@ -2752,7 +2791,7 @@ def _platform_shape(entity_gen_dir):
         return json.load(fh)
 
 
-def build_desc_image(entity_gen_dir):
+def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
     """The AEM descriptor image this gateware's store will fetch from DRAM.
 
     The processor serves READ_DESCRIPTOR out of main memory and holds no
@@ -2773,9 +2812,9 @@ def build_desc_image(entity_gen_dir):
     # prevent.
     overlay = _builder_out(entity_gen_dir, "aem_overlay.json")
 
-    sys.path.insert(0, os.path.join(REPO_ROOT, "avdecc"))
-    sys.path.insert(0, os.path.join(REPO_ROOT, "protocol-processor", "hdl",
-                                    "aecp", "desc"))
+    sys.path.insert(0, str(REPO_ROOT / "avdecc"))
+    sys.path.insert(0, str(REPO_ROOT / "protocol-processor" / "hdl" /
+                           "aecp" / "desc"))
     import gen_aem_store as _aem
     import gen_desc_image as _img
     import gen_aemi_image as _join
@@ -2791,19 +2830,27 @@ def build_desc_image(entity_gen_dir):
     return blob, report, overlay
 
 
-def main():
+def main() -> None:
+    """The gateware generator: resolve the build shape from the command line,
+    elaborate the SoC, and - before Vivado is asked for anything - build the
+    descriptor image and bind every flash artifact it will be shipped with.
+    """
     ap = argparse.ArgumentParser(description="Milan RISC-V fabric-control SoC")
     ap.add_argument("--xlen", default=32, type=int, choices=[32, 64],
                     help="CPU register width, honoured by BOTH --cpu choices "
                          "(the bare-metal product profile requires RV32 without an MMU)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
-    ap.add_argument("--cpu",          default="vexiiriscv", choices=["naxriscv","vexiiriscv"], help="soft CPU (the product profile uses vexiiriscv)")
+    ap.add_argument("--cpu",          default="vexiiriscv",
+                    choices=["naxriscv","vexiiriscv"],
+                    help="soft CPU (the product profile uses vexiiriscv)")
     ap.add_argument("--software-profile", default="baremetal",
                     choices=("baremetal",),
                     help="firmware shape; the product uses the cacheless RV32I "
                          "M-mode Vexii core and Milan UART/CSR firmware")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
-    ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
+    ap.add_argument("--scala-args",   action="append", default=[],
+                    help="extra NaxRiscv scala args, e.g. "
+                         "alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--board", default="ax7101", choices=["ax7101", "arty"],
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
@@ -3161,7 +3208,7 @@ def main():
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))
     if args.software_profile == "baremetal":
-        fw_dir = os.path.join(REPO_ROOT, "sw", "firmware", "milan_baremetal")
+        fw_dir = str(REPO_ROOT / "sw" / "firmware" / "milan_baremetal")
         builder.add_software_package("libmilan_baremetal", fw_dir)
         builder.add_software_library("libmilan_baremetal", always_link=True)
     # Aggressive timing closure (opt-in): enables the post-place phys_opt pass
@@ -3244,10 +3291,10 @@ def main():
     # board flashed with one and loaded with the other's model enumerates the
     # wrong device, which no counter reports.
     _aem_binding = None
+    _out_dir = Path(builder.output_dir)
     if _desc_blob is not None:
-        _img_path = os.path.join(builder.output_dir, "aem_desc.bin")
-        with open(_img_path, "wb") as f:
-            f.write(_desc_blob)
+        _img_path = _out_dir / "aem_desc.bin"
+        _img_path.write_bytes(_desc_blob)
         _aem_binding = aem_image_binding(_img_path)
         _man = {
             "desc_base": soc._pp_windows["desc_base"],
@@ -3255,11 +3302,14 @@ def main():
             "window_bytes": soc._pp_windows["window_bytes"],
             "image": "aem_desc.bin",
             "image_bytes": len(_desc_blob),
-            "overlay": os.path.relpath(_desc_overlay, REPO_ROOT),
+            # `str`, and it has to be: this dict is json.dump-ed below.
+            # `_builder_out` built the overlay path under REPO_ROOT, so the
+            # relative walk is always downwards and never needs a `..`.
+            "overlay": str(Path(_desc_overlay).relative_to(REPO_ROOT)),
         }
-        with open(os.path.join(builder.output_dir, "aem_desc.json"), "w") as f:
+        with open(_out_dir / "aem_desc.json", "w") as f:
             json.dump(_man, f, indent=2)
-        with open(os.path.join(builder.output_dir, "aem_desc.map"), "w") as f:
+        with open(_out_dir / "aem_desc.map", "w") as f:
             f.write(_desc_report)
         print(f"[milan] entity model ({len(_desc_blob)} B) -> {_img_path} "
               f"@ 0x{soc._pp_windows['desc_base']:08x}")
@@ -3278,11 +3328,11 @@ def main():
             soc._flashboot_layout.update(_aem_binding)
         if args.build:
             bit_path = builder.get_bitstream_filename(mode="sram")
-            if not os.path.isfile(bit_path):
+            if not Path(bit_path).is_file():
                 raise RuntimeError(
                     f"Vivado build produced no bitstream for layout binding: {bit_path}")
             soc._flashboot_layout.update(bitstream_binding(bit_path))
-        layout_path = os.path.join(builder.output_dir, "flashboot_layout.json")
+        layout_path = _out_dir / "flashboot_layout.json"
         with open(layout_path, "w") as f:
             json.dump(soc._flashboot_layout, f, indent=2)
         print(f"[milan] flash-boot layout ({args.flashboot}) -> {layout_path}")

@@ -20,7 +20,7 @@ obj_dir/V$(TOP): $(SRCS) sim_main.cpp
 	$(VERILATOR) --cc --exe --build -j 0 --top-module $(TOP) \
 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-DECLFILENAME \
 	  -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY \
-	  -CFLAGS "-std=c++17 -O2" \
+	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
 	  $(SRCS) sim_main.cpp
 run: obj_dir/V$(TOP)
 	./obj_dir/V$(TOP)

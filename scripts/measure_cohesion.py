@@ -65,14 +65,15 @@ _MODULE_RE = re.compile(r"^\s*module\s+([A-Za-z_]\w*)\b", re.M)
 _ENDMODULE_RE = re.compile(r"\bendmodule\b")
 
 
-def strip_comments(text):
+def strip_comments(text: str) -> str:
     """Blank out comments, preserving newlines so line numbers survive."""
-    def blank(m):
+    def blank(m: re.Match[str]) -> str:
+        """One comment as spaces, keeping its newlines so later lines still align."""
         return "".join(ch if ch == "\n" else " " for ch in m.group(0))
     return _COMMENT_RE.sub(blank, text)
 
 
-def find_blocks(text):
+def find_blocks(text: str) -> list[tuple[str, str, int]]:
     """Return [(name, body, line)] for every always_ff block in `text`.
 
     The body runs to the `end` that closes the block's own `begin`, found by
@@ -91,7 +92,7 @@ def find_blocks(text):
     return blocks
 
 
-def group_blocks(blocks):
+def group_blocks(blocks: list[tuple[str, str, int]]) -> list[list[int]]:
     """Partition blocks into coupled groups. Returns a list of lists of indices.
 
     Coupling is symmetric and transitive:
@@ -101,18 +102,23 @@ def group_blocks(blocks):
     writes = [set(_WRITE_RE.findall(body)) for _, body, _ in blocks]
     parent = list(range(len(blocks)))
 
-    def find(a):
+    def find(a: int) -> int:
+        """The group `a` currently belongs to, path-compressed on the way up."""
         while parent[a] != a:
             parent[a] = parent[parent[a]]
             a = parent[a]
         return a
 
-    def union(a, b):
+    def union(a: int, b: int) -> None:
+        """Declare two blocks one state owner; coupling is symmetric, so either
+        direction gives the same partition."""
         ra, rb = find(a), find(b)
         if ra != rb:
             parent[ra] = rb
 
-    def reads(body, signals):
+    def reads(body: str, signals: set[str]) -> bool:
+        """Whether `body` consumes any of `signals`, which is what makes reading
+        another block's state a coupling rather than an independent group."""
         return any(re.search(r"\b" + re.escape(s) + r"\b", body) for s in signals)
 
     for i in range(len(blocks)):
@@ -128,7 +134,7 @@ def group_blocks(blocks):
     return list(groups.values())
 
 
-def measure_text(text):
+def measure_text(text: str) -> dict[str, object]:
     """Measure one already-read SystemVerilog source."""
     stripped = strip_comments(text)
     blocks = find_blocks(stripped)
@@ -146,11 +152,12 @@ def measure_text(text):
     }
 
 
-def first_party_sources():
+def first_party_sources() -> list[str]:
+    """The population: tracked first-party SystemVerilog, vendor RTL excluded."""
     return [p for p in tracked("hdl") if p.endswith(".sv")]
 
 
-def measure_source(text):
+def measure_source(text: str) -> list[dict[str, object]]:
     """Return one measurement per module declaration in a source file."""
     code = strip_comments(text)
     rows = []
@@ -170,7 +177,9 @@ def measure_source(text):
     return rows
 
 
-def measure_repo(paths=None):
+def measure_repo(paths: list[str] | None = None) -> list[dict[str, object]]:
+    """Every module in `paths` (default: the whole population), worst first -
+    most disjoint state groups, then longest, which is the review order."""
     rows = []
     for rel in (paths if paths is not None else first_party_sources()):
         for row in measure_source((REPO / rel).read_text(errors="replace")):
@@ -237,7 +246,9 @@ WRITE_FIXTURES = [
 ]
 
 
-def selftest():
+def selftest() -> int:
+    """Grade the extractor against fixtures whose answer is known by
+    construction, so a silently wrong write set cannot pass as a group count."""
     failures = 0
     for name, stmt, want in WRITE_FIXTURES:
         got = sorted(set(_WRITE_RE.findall(stmt)))
@@ -274,7 +285,9 @@ def selftest():
     return 1 if failures else 0
 
 
-def main():
+def main() -> int:
+    """Print the candidate table, one module's group detail, or the JSON rows.
+    Nothing here fails on a measurement; only --selftest can return non-zero."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--list", action="store_true", help="every module, not just candidates")
     ap.add_argument("--module", metavar="PATH", help="one file, with per-group detail")

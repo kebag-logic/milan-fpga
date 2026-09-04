@@ -15,6 +15,7 @@ processor before returning.
 
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -46,7 +47,7 @@ def _assert_pinned_submodules():
         sys.exit(2)
 
 
-def scoped_pathspecs(*patterns):
+def scoped_pathspecs(*patterns: str) -> list[str]:
     """Return each superproject pathspec plus its two submodule equivalents."""
     out = list(patterns)
     for submodule in PROJECT_SUBMODULES:
@@ -54,7 +55,7 @@ def scoped_pathspecs(*patterns):
     return out
 
 
-def gitlinks():
+def gitlinks() -> list[str]:
     """Every submodule path the superproject index records (mode 160000)."""
     run = subprocess.run(
         ["git", "ls-files", "--stage"],
@@ -63,14 +64,14 @@ def gitlinks():
             if line.startswith("160000 ")]
 
 
-def first_party(paths, links):
+def first_party(paths: Iterable[str], links: Iterable[str]) -> list[str]:
     """Drop every path at or under a gitlink that is not a project processor."""
     vendor = tuple(link for link in links if link not in PROJECT_SUBMODULES)
     return [p for p in paths
             if not any(p == v or p.startswith(v + "/") for v in vendor)]
 
 
-def tracked(*patterns):
+def tracked(*patterns: str) -> list[str]:
     """Tracked first-party paths across the superproject and project submodules.
 
     With no pattern, every tracked first-party path.
@@ -78,7 +79,7 @@ def tracked(*patterns):
     return tracked_exact(*scoped_pathspecs(*patterns))
 
 
-def tracked_exact(*pathspecs):
+def tracked_exact(*pathspecs: str) -> list[str]:
     """Tracked first-party paths for already-rooted pathspecs, without scope
     expansion; the vendor gitlinks are filtered here too, so no caller can
     reach a third-party tree by spelling its path."""

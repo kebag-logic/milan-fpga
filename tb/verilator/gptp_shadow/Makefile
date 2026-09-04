@@ -12,7 +12,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE \
          -Wno-PINCONNECTEMPTY \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 SRCS = gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \

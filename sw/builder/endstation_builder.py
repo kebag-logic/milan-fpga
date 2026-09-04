@@ -43,21 +43,50 @@ before any output is written.
 import argparse
 import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 try:
     import yaml
 except ImportError:  # pragma: no cover
     sys.exit("endstation_builder: PyYAML required (python3 -m pip install pyyaml)")
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
+#: Every path in this module is a `Path`. The two places a `str` crosses out
+#: of it are named where they happen: `cfg["source"]` (serialised into every
+#: generated artifact) and the `{label: path}` map `build()` returns, which
+#: `test_builder.py` hands straight to `subprocess.run` and to `json.loads`.
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
+
+
+def _repo_relative(path: Path) -> str:
+    """`path` written the way every generated artifact names its inputs.
+
+    A `str`, and deliberately so: this is what becomes `cfg["source"]`, which
+    is serialised into soc_params.json, into the `//  Source      :` banner of
+    every emitted include and into the build plan, and is matched character
+    for character by check_entity_shape.py and by test_builder's
+    tracked-config lookup. A `Path` there would render the same today and
+    raise on the first `json.dump`.
+
+    A path INSIDE the tree is named relative to the repository root, which is
+    what the tracked configs produce. A path outside it - test_builder builds
+    ~20 throwaway variants under /tmp - keeps its absolute form rather than
+    the `../../tmp/...` walk-up `os.path.relpath` used to emit: an absolute
+    path says where the config was without depending on where the builder ran.
+    """
+    absolute = path if path.is_absolute() else Path.cwd() / path
+    if absolute.is_relative_to(ROOT):
+        return str(absolute.relative_to(ROOT))
+    return str(absolute)
 
 OVERLAY_SCHEMA_ID = "kebag-logic/aem-overlay"
 OVERLAY_SCHEMA_VERSION = "2.2.0"     # 2.x: per-stream STREAM_PORT layout
@@ -585,7 +614,8 @@ RESOURCE_COSTS = {
 }
 
 
-def resource_instances(cfg, overlay):
+def resource_instances(cfg: dict[str, Any],
+                       overlay: dict[str, Any]) -> list[tuple[str, int]]:
     """Ordered (module, instance-count) pairs for the config. Counts of 0
     drop out; l2_size_delta_4k may be negative (smaller L2 than the
     calibration build)."""
@@ -633,7 +663,7 @@ def resource_instances(cfg, overlay):
     ]
 
 
-def block_present(cfg, name):
+def block_present(cfg: dict[str, Any], name: str) -> bool:
     """Is optional block `name` built for this config?
 
     Every synthesis prune has exactly one declaration under board.features;
@@ -642,7 +672,7 @@ def block_present(cfg, name):
     return bool(cfg.get("features", {}).get(name, True))
 
 
-def resource_verdict(worst_pct):
+def resource_verdict(worst_pct: float) -> str:
     """Budget verdict vs the part: OK (<70%), TIGHT (70-80%, area-70
     directive), OVER (>80%)."""
     if worst_pct < VERDICT_OK_BELOW:
@@ -652,7 +682,8 @@ def resource_verdict(worst_pct):
     return "OVER"
 
 
-def estimate_resources(cfg, overlay):
+def estimate_resources(cfg: dict[str, Any],
+                       overlay: dict[str, Any]) -> dict[str, Any]:
     """Approximate LUT/FF/BRAM36/DSP estimate for the config vs xc7a100t.
     Deterministic; returns dict(items, totals, pct, worst, verdict,
     upper_bound)."""
@@ -732,19 +763,17 @@ AUDIO_IF_SLOTS = {"tdm8": 8, "tdm16": 16, "tdm32": 32}
 WIRE_CHANS_MIN, WIRE_CHANS_MAX = 2, 8
 
 
-SOC_PY = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                      "..", "litex", "milan_soc.py")
+SOC_PY = HERE.parent / "litex" / "milan_soc.py"
 _TDM_WIRED_CACHE = {}
 
 #: Per-board pad routing oracle (HANDOVER 8.3b): the same module the SoC's
 #: front-end refusal uses, so the builder's pair-supply arithmetic and the
 #: elaborated fabric answer from one place and cannot drift.
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "..", "litex", "platforms"))
+sys.path.insert(0, str(HERE.parent / "litex" / "platforms"))
 import board_audio_routing as bar  # noqa: E402
 
 
-def tdm_bus_wired(soc_text=None):
+def tdm_bus_wired(soc_text: str | None = None) -> bool:
     """Does any SoC in this tree DRIVE the TDM capture bus?
 
     THE SINGLE SOURCE OF TRUTH for "is a TDM front-end real on this board",
@@ -776,8 +805,8 @@ def tdm_bus_wired(soc_text=None):
     if soc_text is None:
         if "cached" not in _TDM_WIRED_CACHE:
             try:
-                with open(SOC_PY) as fh:
-                    _TDM_WIRED_CACHE["cached"] = tdm_bus_wired(fh.read())
+                _TDM_WIRED_CACHE["cached"] = tdm_bus_wired(
+                    SOC_PY.read_text())
             except OSError:
                 _TDM_WIRED_CACHE["cached"] = False
         return _TDM_WIRED_CACHE["cached"]
@@ -796,7 +825,7 @@ def tdm_bus_wired(soc_text=None):
     return bool(vals) and any(v != "0" for v in vals)
 
 
-def tdm_bus_master(soc_text=None):
+def tdm_bus_master(soc_text: str | None = None) -> bool:
     """Is the TDM bus real because the FABRIC drives it (vs a codec)?
 
     Separated from tdm_bus_wired() because only a master needs
@@ -805,8 +834,7 @@ def tdm_bus_master(soc_text=None):
     a codec-driven slave header."""
     if soc_text is None:
         try:
-            with open(SOC_PY) as fh:
-                soc_text = fh.read()
+            soc_text = SOC_PY.read_text()
         except OSError:
             return False
     return bool(
@@ -814,7 +842,8 @@ def tdm_bus_master(soc_text=None):
         and re.search(r"i_clk_tdm_i\s*=", soc_text))
 
 
-def interface_is_placeholder(cfg, wired=None):
+def interface_is_placeholder(cfg: dict[str, Any],
+                             wired: bool | None = None) -> bool:
     """True when the config NAMES a TDM interface the fabric cannot provide.
 
     USER 2026-07-27: "the tdm can be a placeholder" - declaring the interface
@@ -830,7 +859,8 @@ def interface_is_placeholder(cfg, wired=None):
     return bool(AUDIO_IF_SLOTS.get(cfg["interface"]["kind"])) and not wired
 
 
-def audio_if_slots(cfg, wired=None):
+def audio_if_slots(cfg: dict[str, Any],
+                   wired: bool | None = None) -> int:
     """milan_datapath AUDIO_IF_SLOTS_P this config elaborates (0 = I2S).
 
     A placeholder interface elaborates the I2S front-end the board really has,
@@ -841,7 +871,8 @@ def audio_if_slots(cfg, wired=None):
     return AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
 
 
-def i2s_pair_blended(cfg, wired=None):
+def i2s_pair_blended(cfg: dict[str, Any],
+                     wired: bool | None = None) -> bool:
     """HANDOVER 8.3b: does this build BLEND the stereo I2S pair beside the
     TDM master (milan_datapath AUDIO_IF_I2S_PAIR_P -> KL_pair_blend)?
 
@@ -859,7 +890,8 @@ def i2s_pair_blended(cfg, wired=None):
     return bar.routes_tdm(board) and bar.routes_i2s_pmod(board)
 
 
-def framer_pair_supply(cfg, wired=None):
+def framer_pair_supply(cfg: dict[str, Any],
+                       wired: bool | None = None) -> int:
     """Pair slots the capture front-end actually delivers to the packetizer.
 
     `wired` overrides the milan_soc.py reading; it exists so a gate can ask
@@ -871,7 +903,7 @@ def framer_pair_supply(cfg, wired=None):
     return slots // 2 + (1 if i2s_pair_blended(cfg, wired) else 0)
 
 
-def framer_declared_channels(cfg):
+def framer_declared_channels(cfg: dict[str, Any]) -> int:
     """The WIDEST channels_per_frame any of this config's talkers advertises.
 
     The REQUIREMENT, stated by the entity itself: a listener may bind any
@@ -890,7 +922,8 @@ def framer_declared_channels(cfg):
     return want or WIRE_CHANS_MIN
 
 
-def framer_wire_channels(cfg, wired=None):
+def framer_wire_channels(cfg: dict[str, Any],
+                         wired: bool | None = None) -> int:
     """channels_per_frame this fabric puts in a talker's AAF PDU.
 
     = milan_datapath TALKER_WIRE_CHANS_P = KL_aaf_packetizer WIRE_CHANS_P =
@@ -926,7 +959,7 @@ def framer_wire_channels(cfg, wired=None):
     return max(WIRE_CHANS_MIN, min(supply, framer_declared_channels(cfg)))
 
 
-def fmt_channels(fmt):
+def fmt_channels(fmt: str) -> int | None:
     """channels_per_frame declared by an AAF stream-format qword (the inverse
     of aaf_pcm32_48k: bits [31:22] of the low word). Returns None for a
     non-AAF format (CRF has no channel count)."""
@@ -948,7 +981,8 @@ BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
 BASE_CHANNELS = (1, 2, 4, 6, 8)
 
 
-def aaf_pcm32(channels, rate_hz=48000, ut=False):
+def aaf_pcm32(channels: int, rate_hz: int = 48000,
+              ut: bool = False) -> int:
     """One AAF PCM 32-bit stream-format qword, DERIVED from the fields rather
     than copied out of Milan Table 6.2 (test_builder gate 29 proves the
     derivation reproduces all fifteen of that table's strings).
@@ -970,14 +1004,14 @@ def aaf_pcm32(channels, rate_hz=48000, ut=False):
             | (0x02 << 40) | (32 << 32) | (channels << 22) | (spf << 12))
 
 
-def aaf_pcm32_48k(channels, ut=False):
+def aaf_pcm32_48k(channels: int, ut: bool = False) -> int:
     """48 kHz spelling of aaf_pcm32, kept because it is the rate every shipping
     config runs at: 2ch=0x0205022000806000, 8ch=0x0205022002006000,
     ut8=0x0215022002006000."""
     return aaf_pcm32(channels, 48000, ut)
 
 
-def base_format_rate(fmt):
+def base_format_rate(fmt: str) -> tuple[int, int, bool] | None:
     """(rate_hz, channels_per_frame, ut) when `fmt` is an AAF PCM 32-bit format
     at one of Milan 6.2's three Base sampling rates, else None.
 
@@ -995,7 +1029,7 @@ def base_format_rate(fmt):
     return None
 
 
-def base_format_cover(fmts):
+def base_format_cover(fmts: Sequence[str]) -> dict[int, set[int]]:
     """{rate_hz: set(channel counts)} of Milan 6.2 Base formats an advertised
     formats list covers.
 
@@ -1022,7 +1056,7 @@ def base_format_cover(fmts):
     return cover
 
 
-def base_format_complete(fmts):
+def base_format_complete(fmts: Sequence[str]) -> list[str]:
     """A Stream Input's formats list with Milan v1.2 6.4's family completion
     DERIVED here instead of enumerated per config.
 
@@ -1192,8 +1226,190 @@ def _streams(lst, ctx, direction, rate_hz=48000):
 
 
 # --------------------------------------------------- cluster/port layout ----
-def cluster_layout(listeners, talkers, policy, iface_channels,
-                   phys=None, pools=None, lb_backed=True):
+@dataclass(frozen=True)
+class ClusterRules:
+    """Everything EXCEPT the streams that decides a port's cluster block.
+
+    These five travelled together as five positional arguments of
+    `cluster_layout` and are read as one thing by every helper below:
+
+      policy          one of CLUSTER_POLICIES.
+      iface_channels  audio_interface.channels - the declared wire width.
+      phys            per-direction physical widths {"render", "capture"},
+                      or None for "as wide as the interface" (legacy).
+      pools           the D8 role-pool declaration, or None/{} for none.
+      lb_backed       does THIS build elaborate the rx -> talker LOOP bucket
+                      (task #65), so a loopback cluster may be a power-on
+                      source.
+    """
+    policy: str
+    iface_channels: int
+    phys: dict = None
+    pools: dict = None
+    lb_backed: bool = True
+
+
+def _cluster_widths(rules):
+    """Physical cluster width per DIRECTION (render, capture). Default = the
+    declared interface width; a platform that routes no audio pins declares 0
+    and every cluster on it is honestly non-physical (see CLUSTER_ROLES)."""
+    if rules.phys is None:
+        return rules.iface_channels, rules.iface_channels
+    return int(rules.phys["render"]), int(rules.phys["capture"])
+
+
+def _effective_clusters(rules, stream):
+    """The stream's cluster count after the policy has had its say."""
+    if rules.policy == "cap-at-interface":
+        return min(stream["clusters"], rules.iface_channels)
+    return stream["clusters"]
+
+
+def _legacy_pool(dir_base, n, ph):
+    """Legacy policies: the wire-truth rule is stated PER DIRECTION
+    ("physical interface channels bind in order to the first clusters
+    per direction"), so a port's roles depend on where its block sits in
+    its direction, not on the port index."""
+    segs, off = [], 0
+    n_phys = max(0, min(n, ph - dir_base))
+    if n_phys:
+        segs.append(dict(role="physical", offset=0, width=n_phys,
+                         first=dir_base))
+        off = n_phys
+    if n - off:
+        segs.append(dict(role="virtual", offset=off, width=n - off,
+                         first=dir_base + off))
+    return segs
+
+
+def _role_pool(rules, direction, port_index, widths):
+    """D8 pools. Order is fixed so base_cluster arithmetic is readable:
+    physical, then (talker ports only) pilot and loopback."""
+    ph_render, ph_capture = widths
+    pools = rules.pools or {}
+    segs, off = [], 0
+    for role, width in (
+            ("physical", ph_render if direction == "input" else ph_capture),
+            ("pilot", (1 if pools.get("pilot") else 0)
+                      if direction == "output" else 0),
+            ("loopback", int(pools.get("loopback", 0))
+                         if direction == "output" else 0)):
+        if width > 0:
+            segs.append(dict(role=role, offset=off, width=width,
+                             first=0 if role != "loopback" else port_index))
+            off += width
+    # A listener with no physical render endpoint is deliberately
+    # headless. Its STREAM_PORT_INPUT still
+    # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
+    # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
+    # stream can still feed fabric-only consumers such as the loopback
+    # lane.  Output ports may never be empty: a talker needs a source.
+    if not segs and direction == "input" and ph_render == 0:
+        return []
+    if not segs:
+        raise ConfigError(
+            f"cluster_mapping.policy role-pools: STREAM_PORT_"
+            f"{direction.upper()} {port_index} would carry ZERO clusters - "
+            "every declared pool (physical/pilot/loopback) is 0 wide. "
+            "A STREAM_PORT with no cluster block cannot carry audio; "
+            "declare at least one pool (audio_interface.cluster_mapping."
+            "pools) or use another policy")
+    return segs
+
+
+def _input_ports(listeners, rules):
+    """The STREAM_PORT_INPUT list, one port per listener stream, each with
+    its contiguous cluster block and pool segments."""
+    widths = _cluster_widths(rules)
+    ph_render = widths[0]
+    ports_in, base, next_map, dir_base = [], 0, 0, 0
+    for i, s in enumerate(listeners):
+        if rules.policy == "role-pools":
+            pool = _role_pool(rules, "input", i, widths)
+            n = sum(g["width"] for g in pool)
+        else:
+            n = _effective_clusters(rules, s)
+            pool = _legacy_pool(dir_base, n, ph_render)
+        dyn = s.get("map_mode", "dynamic") == "dynamic"
+        ports_in.append(dict(index=i, stream_index=i, clusters=n,
+                             base_cluster=base,
+                             maps=0 if dyn else 1,
+                             base_map=0 if dyn else next_map,
+                             map_mode=s.get("map_mode", "dynamic"),
+                             map_page=s.get("map_page"), pool=pool))
+        if not dyn:
+            next_map += 1
+        base += n
+        dir_base += n
+    return ports_in
+
+
+def _settle_map_page(ports_in):
+    """The ONE GET_AUDIO_MAP partition size every dynamic port shares.
+
+    The RTL page origin (map_index * PAGE) is a constant multiply, so PAGE is
+    a single elaboration constant. Milan 5.4.2.26 only bounds a subset's SIZE
+    ("disjoint subsets whose size does not exceed 176") and requires the
+    partitioning to be fixed for a Configuration - it never requires equal
+    subsets - so one shared bound is conformant and a port with fewer clusters
+    than the page simply gets number_of_maps = 1 with a short last partition.
+    An EXPLICIT map_page must agree across dynamic ports; left unset it
+    defaults to the widest port, capped at 8."""
+    dynp = [p for p in ports_in if p["map_mode"] == "dynamic"]
+    if not dynp:
+        return
+    explicit = {p["map_page"] for p in dynp if p["map_page"] is not None}
+    if len(explicit) > 1:
+        raise ConfigError(
+            "every map_mode-dynamic listener must declare the SAME "
+            f"map_page (one RTL partition constant); got "
+            f"{sorted(explicit)}")
+    page = explicit.pop() if explicit \
+        else max(1, min(max(p["clusters"] for p in dynp), 8))
+    if not 1 <= page <= 11:
+        raise ConfigError(f"map_page {page} outside 1..11 (RTL "
+                          "GET_AUDIO_MAP scratch bound)")
+    for p in dynp:
+        p["map_page"] = page
+
+
+def _output_ports(talkers, rules, base, next_map):
+    """The STREAM_PORT_OUTPUT list. `base` and `next_map` continue the
+    cluster and AUDIO_MAP numbering the input ports already consumed."""
+    widths = _cluster_widths(rules)
+    ph_capture = widths[1]
+    ports_out, dir_base = [], 0
+    for j, s in enumerate(talkers):
+        if rules.policy == "role-pools":
+            pool = _role_pool(rules, "output", j, widths)
+            n = sum(g["width"] for g in pool)
+        else:
+            n = _effective_clusters(rules, s)
+            pool = _legacy_pool(dir_base, n, ph_capture)
+        dyn = s.get("map_mode", "static") == "dynamic"
+        ports_out.append(dict(index=j, stream_index=j, clusters=n,
+                              base_cluster=base,
+                              maps=0 if dyn else 1,
+                              base_map=0 if dyn else next_map,
+                              map_mode=s.get("map_mode", "static"),
+                              pool=pool,
+                              # task #65: does THIS BUILD elaborate the rx ->
+                              # talker LOOP bucket? Read by primary_segment,
+                              # so a loopback cluster can never become the
+                              # power-on source of a build without the lane.
+                              lb_backed=rules.lb_backed))
+        if not dyn:
+            next_map += 1
+        base += n
+        dir_base += n
+    return ports_out
+
+
+def cluster_layout(
+        listeners: list[dict[str, Any]],
+        talkers: list[dict[str, Any]],
+        rules: ClusterRules,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """USER decision: ONE STREAM_PORT per stream. Each listener stream gets a
     STREAM_PORT_INPUT, each talker stream a STREAM_PORT_OUTPUT; every port
     owns a contiguous AUDIO_CLUSTER block and exactly one AUDIO_MAP whose
@@ -1216,138 +1432,18 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
     segments covering 0..clusters-1 exactly, which is what names the
     AUDIO_CLUSTERs (D10) and what the AUDIO_MAP is written against.
     Returns (ports_in, ports_out)."""
-    if policy not in CLUSTER_POLICIES:
-        raise ConfigError(f"cluster policy '{policy}' not in {CLUSTER_POLICIES}")
-    pools = pools or {}
-    # physical widths per DIRECTION. Default = the declared interface width;
-    # a platform that routes no audio pins declares 0 and every cluster on it
-    # is honestly non-physical (see CLUSTER_ROLES).
-    ph_render = iface_channels if phys is None else int(phys["render"])
-    ph_capture = iface_channels if phys is None else int(phys["capture"])
-
-    def eff(s):
-        if policy == "cap-at-interface":
-            return min(s["clusters"], iface_channels)
-        return s["clusters"]
-
-    def legacy_pool(dir_base, n, ph):
-        """Legacy policies: the wire-truth rule is stated PER DIRECTION
-        ("physical interface channels bind in order to the first clusters
-        per direction"), so a port's roles depend on where its block sits in
-        its direction, not on the port index."""
-        segs, off = [], 0
-        n_phys = max(0, min(n, ph - dir_base))
-        if n_phys:
-            segs.append(dict(role="physical", offset=0, width=n_phys,
-                             first=dir_base))
-            off = n_phys
-        if n - off:
-            segs.append(dict(role="virtual", offset=off, width=n - off,
-                             first=dir_base + off))
-        return segs
-
-    def role_pool(direction, port_index):
-        """D8 pools. Order is fixed so base_cluster arithmetic is readable:
-        physical, then (talker ports only) pilot and loopback."""
-        segs, off = [], 0
-        for role, width in (
-                ("physical", ph_render if direction == "input" else ph_capture),
-                ("pilot", (1 if pools.get("pilot") else 0)
-                          if direction == "output" else 0),
-                ("loopback", int(pools.get("loopback", 0))
-                             if direction == "output" else 0)):
-            if width > 0:
-                segs.append(dict(role=role, offset=off, width=width,
-                                 first=0 if role != "loopback" else port_index))
-                off += width
-        # A listener with no physical render endpoint is deliberately
-        # headless. Its STREAM_PORT_INPUT still
-        # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
-        # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
-        # stream can still feed fabric-only consumers such as the loopback
-        # lane.  Output ports may never be empty: a talker needs a source.
-        if not segs and direction == "input" and ph_render == 0:
-            return []
-        if not segs:
-            raise ConfigError(
-                f"cluster_mapping.policy role-pools: STREAM_PORT_"
-                f"{direction.upper()} {port_index} would carry ZERO clusters - "
-                "every declared pool (physical/pilot/loopback) is 0 wide. "
-                "A STREAM_PORT with no cluster block cannot carry audio; "
-                "declare at least one pool (audio_interface.cluster_mapping."
-                "pools) or use another policy")
-        return segs
-
+    if rules.policy not in CLUSTER_POLICIES:
+        raise ConfigError(
+            f"cluster policy '{rules.policy}' not in {CLUSTER_POLICIES}")
     # map_mode dynamic (gaps item 8): the port carries NO AUDIO_MAP
     # (7.2.13 number_of_maps=0, base_map ignored) - static maps are
     # renumbered contiguously so the descriptor set stays gapless.
-    ports_in, base, next_map, dir_base = [], 0, 0, 0
-    for i, s in enumerate(listeners):
-        if policy == "role-pools":
-            pool = role_pool("input", i)
-            n = sum(g["width"] for g in pool)
-        else:
-            n = eff(s)
-            pool = legacy_pool(dir_base, n, ph_render)
-        dyn = s.get("map_mode", "dynamic") == "dynamic"
-        ports_in.append(dict(index=i, stream_index=i, clusters=n,
-                             base_cluster=base,
-                             maps=0 if dyn else 1,
-                             base_map=0 if dyn else next_map,
-                             map_mode=s.get("map_mode", "dynamic"),
-                             map_page=s.get("map_page"), pool=pool))
-        if not dyn:
-            next_map += 1
-        base += n
-        dir_base += n
-    # Every dynamic port shares ONE GET_AUDIO_MAP partition size: the RTL
-    # page origin (map_index * PAGE) is a constant multiply, so PAGE is a
-    # single elaboration constant. Milan 5.4.2.26 only bounds a subset's
-    # SIZE ("disjoint subsets whose size does not exceed 176") and requires
-    # the partitioning to be fixed for a Configuration - it never requires
-    # equal subsets - so one shared bound is conformant and a port with
-    # fewer clusters than the page simply gets number_of_maps = 1 with a
-    # short last partition. An EXPLICIT map_page must agree across dynamic
-    # ports; left unset it defaults to the widest port, capped at 8.
-    dynp = [p for p in ports_in if p["map_mode"] == "dynamic"]
-    if dynp:
-        explicit = {p["map_page"] for p in dynp if p["map_page"] is not None}
-        if len(explicit) > 1:
-            raise ConfigError(
-                "every map_mode-dynamic listener must declare the SAME "
-                f"map_page (one RTL partition constant); got "
-                f"{sorted(explicit)}")
-        page = explicit.pop() if explicit \
-            else max(1, min(max(p["clusters"] for p in dynp), 8))
-        if not 1 <= page <= 11:
-            raise ConfigError(f"map_page {page} outside 1..11 (RTL "
-                              "GET_AUDIO_MAP scratch bound)")
-        for p in dynp:
-            p["map_page"] = page
-    ports_out, dir_base = [], 0
-    for j, s in enumerate(talkers):
-        if policy == "role-pools":
-            pool = role_pool("output", j)
-            n = sum(g["width"] for g in pool)
-        else:
-            n = eff(s)
-            pool = legacy_pool(dir_base, n, ph_capture)
-        dyn = s.get("map_mode", "static") == "dynamic"
-        ports_out.append(dict(index=j, stream_index=j, clusters=n,
-                              base_cluster=base,
-                              maps=0 if dyn else 1,
-                              base_map=0 if dyn else next_map,
-                              map_mode=s.get("map_mode", "static"),
-                              pool=pool,
-                              # task #65: does THIS BUILD elaborate the rx ->
-                              # talker LOOP bucket? Read by primary_segment,
-                              # so a loopback cluster can never become the
-                              # power-on source of a build without the lane.
-                              lb_backed=lb_backed))
-        if not dyn:
-            next_map += 1
-        base += n
-        dir_base += n
+    ports_in = _input_ports(listeners, rules)
+    _settle_map_page(ports_in)
+    ports_out = _output_ports(
+        talkers, rules,
+        base=sum(p["clusters"] for p in ports_in),
+        next_map=sum(p["maps"] for p in ports_in))
     return ports_in, ports_out
 
 
@@ -1376,7 +1472,8 @@ PRIMARY_ROLE_ORDER = {
 }
 
 
-def primary_segment(port, direction):
+def primary_segment(port: dict[str, Any],
+                    direction: str) -> dict[str, Any] | None:
     """The pool segment this port's static AUDIO_MAP wires its stream
     channels to (1722.1 7.2.19 offsets are port-relative, so this is just an
     offset inside the port's own pool).
@@ -1412,10 +1509,12 @@ class _ClusterNaming:
         self.rx = [(si, ch) for si, s in enumerate(cfg["listeners"])
                    for ch in range(s["channels"])]
 
-    def chname(self, k, fallback):
+    def chname(self, k: int, fallback: str) -> str:
+        """Interface channel `k`'s configured name, or `fallback` when the
+        config named fewer channels than this port has clusters."""
         return self._names[k] if k < len(self._names) else fallback
 
-    def rx_index(self, stream):
+    def rx_index(self, stream: int) -> int:
         """Where `stream`'s channel space starts, or 0 if it has none."""
         return next((k for k, (si, ch) in enumerate(self.rx)
                      if si == stream and ch == 0), 0)
@@ -1457,7 +1556,8 @@ CLUSTER_NAMERS = {
 }
 
 
-def cluster_names(cfg, port, direction):
+def cluster_names(cfg: dict[str, Any], port: dict[str, Any],
+                  direction: str) -> list[str]:
     """D10: one object_name per cluster of this port, in offset order.
 
     1722.1-2021 6.2.2.8 lists `object_name` among the fields EXCLUDED from
@@ -1480,7 +1580,8 @@ def cluster_names(cfg, port, direction):
 
 
 # ------------------------------------------------------------ lwSRP table ---
-def srp_frame_geometry(channels, rate_hz, intervals_ps):
+def srp_frame_geometry(channels: int, rate_hz: int,
+                       intervals_ps: int) -> dict[str, int]:
     """AAF-PCM32 frame geometry for ONE class-interval frame, from the
     KL_aaf_packetizer contract (its header states the identity: payload =
     SAMPLES_PER_FRAME x C x 4 octets, so the L2 frame is 42 + 24*C bytes at
@@ -1505,7 +1606,8 @@ def srp_frame_geometry(channels, rate_hz, intervals_ps):
                 max_frame_bytes=avtpdu + MILAN_TSPEC_HEADROOM_B)
 
 
-def srp_idle_slope_bps(max_frame_bytes, interval_frames, intervals_ps):
+def srp_idle_slope_bps(max_frame_bytes: int, interval_frames: int,
+                       intervals_ps: int) -> int:
     """Class-A idleSlope, bits/s - MILAN v1.2 4.3.3.2's recipe run as FOUR
     STEPS, the form KL_lwsrp_bw_gate uses since 0x0020.
 
@@ -1526,11 +1628,10 @@ def srp_idle_slope_bps(max_frame_bytes, interval_frames, intervals_ps):
     return (f + SRP_WIRE_OVERHEAD_B) * interval_frames * intervals_ps * 8
 
 
-def load_srp(raw, listeners, talkers, clocking, cons, binfo,
-             wire_channels=None):
-    """Validate + normalize the optional `srp:` section and resolve every
-    per-stream TSpec. Raises ConfigError on a contradictory reservation
-    (unknown SR class, illegal VID/queue, over-subscribed class-A ceiling).
+@dataclass(frozen=True)
+class SrpShape:
+    """What a reservation is computed AGAINST: the streams that declare it,
+    the clock they run on, and the port it has to fit in.
 
     `wire_channels` is the channels_per_frame the FRAMER emits
     (framer_wire_channels): 802.1Q 35.2.2.8.4 a) defines MaxFrameSize as
@@ -1539,7 +1640,19 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
     Deriving from the declared channel count is how the 2026-07-28 bench
     measured a TSpec of a frame nobody sent (declared-8ch MSDU announced
     while the wire carried the 2ch 72-byte one). None = fall back to the
-    declaration (legacy callers/tests only; load_config always passes it)."""
+    declaration (legacy callers/tests only; load_config always passes it).
+    """
+    listeners: list
+    talkers: list
+    clocking: dict
+    cons: dict
+    binfo: dict
+    wire_channels: int = None
+
+
+def _srp_section(raw):
+    """SRP_DEFAULTS overlaid with the config's `srp:` section, nothing
+    validated yet - the refusals are _srp_validate's, in one place."""
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("srp: must be a mapping")
@@ -1563,7 +1676,13 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
         s["max_frame_bytes"] = int(ts["max_frame_bytes"])
     if "interval_frames" in ts:
         s["interval_frames"] = int(ts["interval_frames"])
+    return s
 
+
+def _srp_validate(s, cons):
+    """Every range/type refusal the normalized section is subject to, in the
+    order a reader of the config would meet them. Returns the SR class
+    record the section selected."""
     if s["sr_class"] not in SRP_SR_CLASSES:
         raise ConfigError(f"srp.sr_class '{s['sr_class']}' unknown - Milan "
                           f"v1.2 5.6 defines {sorted(SRP_SR_CLASSES)} for a "
@@ -1595,6 +1714,12 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
             and 1 <= s["bandwidth_limit_pct"] <= 100):
         raise ConfigError(f"srp.bandwidth_limit_pct {s['bandwidth_limit_pct']} "
                           "outside 1..100")
+    return cls
+
+
+def _srp_dmac(s):
+    """The stream DMAC base as an int, after recording the ALLOCATION POLICY
+    the section asked for. Mutates `s` with the resolved policy + base."""
     # `maap` = the DMACs are claimed at run time by KL_maap. Everything
     # downstream still needs a concrete base to model the reservation with,
     # so the default provisioned base is used for the tables and the
@@ -1613,9 +1738,11 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
         raise ConfigError(f"srp.stream_dmac_base {s['stream_dmac_base']} is "
                           "not a MULTICAST address (I/G bit clear) - an AAF "
                           "stream DMAC must come from the MAAP range")
-    lat = int(s["accumulated_latency_ns"])
-    if not 0 <= lat <= 0xFFFFFFFF:
-        raise ConfigError(f"srp.accumulated_latency_ns {lat} outside 32 bits")
+    return dmac
+
+
+def _srp_reset_bits(s):
+    """The three booleans that are single BITS of a generated reset word."""
     # LWSRP_CTRL[0] / [1] are SINGLE BITS of the reset word milan_csr.sv now
     # compiles in from the generated header; a non-boolean shifts straight
     # into the neighbouring field (2 << 1 lands in class_queue[0]) and would
@@ -1632,6 +1759,13 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
             f"decides whether this config OWNS the tracked generated RTL "
             f"headers ({CSR_DEFAULTS_REL})")
 
+
+def _srp_rows(s, shape, cls, dmac, lat):
+    """The lwSRP attribute rows - one reserving Talker row per talker stream,
+    one declaring (reserving nothing) Listener row per listener. Returns
+    (rows, total_idle_slope_bps of the talker rows)."""
+    listeners, talkers = shape.listeners, shape.talkers
+    wire_channels = shape.wire_channels
     # ---- per-talker TSpec ------------------------------------------------
     # Geometry from the WIRE width (see the docstring): with the
     # accountability gate holding declared == emitted the two derivations
@@ -1640,7 +1774,7 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
     # and the lwSRP engine's own talker rows already derive 24 + 24*C from
     # TCTX chans at runtime; this makes the provisioned rows agree with it
     # by construction.
-    rate = clocking["sampling_rate_hz"]
+    rate = shape.clocking["sampling_rate_hz"]
     rows, total_slope = [], 0
     for t, st in enumerate(talkers):
         geo = srp_frame_geometry(
@@ -1672,14 +1806,21 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
                              sl["channels"], rate,
                              cls["intervals_ps"])["l2_frame_bytes"],
                          samples_per_frame=rate // cls["intervals_ps"]))
+    return rows, total_slope
 
+
+def _srp_budget(s, shape, cls, total_slope):
+    """Fold the CRF media clock's own reservation into the class total and
+    refuse a port that cannot carry the result. Returns
+    (crf_tk_c, crf_slope_c, total_slope, limit_bps, link_bps)."""
+    talkers, binfo = shape.talkers, shape.binfo
     link_bps = binfo["link_mbps"] * 1_000_000
     limit_bps = link_bps * s["bandwidth_limit_pct"] // 100
     #! the CRF Media Clock Output reserves too (Milan v1.2 7.3.3), and the
     #! bw-gate sums its slope into the SAME class A Sigma - so the ceiling
     #! check has to see it, or a shape that only fits WITHOUT its mandatory
     #! media clock would pass here and be refused on the wire.
-    crf_tk_c = 1 if clocking["crf_output"] else 0
+    crf_tk_c = 1 if shape.clocking["crf_output"] else 0
     crf_slope_c = srp_idle_slope_bps(CRF_SRP_MAXFRAME_B, 1,
                                      cls["intervals_ps"]) if crf_tk_c else 0
     total_slope += crf_slope_c
@@ -1693,6 +1834,26 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
             "KL_lwsrp_bw_gate would refuse the excess streams (802.1Q "
             "34.3.1 / Milan v1.2 5.6). Reduce channels/streams or move the "
             "shape to a faster port.")
+    return crf_tk_c, crf_slope_c, total_slope, limit_bps, link_bps
+
+
+def load_srp(raw: dict[str, Any] | None,
+             shape: SrpShape) -> dict[str, Any]:
+    """Validate + normalize the optional `srp:` section and resolve every
+    per-stream TSpec against `shape` (an SrpShape). Raises ConfigError on a
+    contradictory reservation (unknown SR class, illegal VID/queue,
+    over-subscribed class-A ceiling)."""
+    listeners, talkers = shape.listeners, shape.talkers
+    s = _srp_section(raw)
+    cls = _srp_validate(s, shape.cons)
+    dmac = _srp_dmac(s)
+    lat = int(s["accumulated_latency_ns"])
+    if not 0 <= lat <= 0xFFFFFFFF:
+        raise ConfigError(f"srp.accumulated_latency_ns {lat} outside 32 bits")
+    _srp_reset_bits(s)
+    rows, total_slope = _srp_rows(s, shape, cls, dmac, lat)
+    crf_tk_c, crf_slope_c, total_slope, limit_bps, link_bps = _srp_budget(
+        s, shape, cls, total_slope)
 
     s.update(
         class_id=cls["class_id"], priority=cls["priority"],
@@ -1737,7 +1898,7 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
     return s
 
 
-def srp_reset_words(cfg):
+def srp_reset_words(cfg: dict[str, Any]) -> dict[str, int]:
     """The 0x680 CSR group reset words this config implies. For a config with
     no `srp:` section these are EXACTLY the hand-written reset defaults in
     hdl/common/csr/milan_csr.sv (test gate 18a parses the RTL and compares)."""
@@ -1828,12 +1989,10 @@ def _entity_model_image(cfg, overlay):
     generated the `ppmem` reservation above - the loader reads the base from
     here and never restates it.
     """
-    here = os.path.dirname(os.path.abspath(__file__))
-    repo = os.path.dirname(os.path.dirname(here))
-    for d in (os.path.join(repo, "avdecc"),
-              os.path.join(repo, "protocol-processor", "hdl", "aecp", "desc")):
-        if d not in sys.path:
-            sys.path.insert(0, d)
+    for d in (ROOT / "avdecc",
+              ROOT / "protocol-processor" / "hdl" / "aecp" / "desc"):
+        if str(d) not in sys.path:
+            sys.path.insert(0, str(d))
     import gen_aem_store as _aem
     import gen_desc_image as _img
     import gen_aemi_image as _join
@@ -1853,14 +2012,14 @@ def _entity_model_image(cfg, overlay):
         "image_bytes": len(blob),
         # names the config this model IS, so a board and a bench can tell
         # whether the image on the board is the one they think it is
-        "config": os.path.basename(str(cfg.get("source", ""))),
+        "config": Path(str(cfg.get("source", ""))).name,
     }
     return {"aem_desc.bin": blob,
             "aem_desc.json": json.dumps(manifest, indent=1) + "\n",
             "aem_desc.map": report}
 
 
-def emit_lwsrp_table(cfg):
+def emit_lwsrp_table(cfg: dict[str, Any]) -> dict[str, Any]:
     """The lwSRP reservation table this config defines: SR-class + timer +
     bandwidth constants (today hand-written in lwsrp_pkg.sv), the 0x680 CSR
     reset words (today hand-written in milan_csr.sv), the RTL elaboration
@@ -1902,7 +2061,7 @@ def emit_lwsrp_table(cfg):
     }
 
 
-def lwsrp_module_params(cfg):
+def lwsrp_module_params(cfg: dict[str, Any]) -> dict[str, int]:
     """Item-4 subtask 3: the config values that ARE module parameters today
     (milan_datapath -> KL_lwsrp_top / milan_csr), emitted as one table so a
     hand edit on either side is visible. Gate 18c parses the RTL."""
@@ -1933,11 +2092,9 @@ def lwsrp_module_params(cfg):
     }
 
 
-def emit_lwsrp_svh(cfg, table):
-    """SystemVerilog include with the lwSRP table constants. Include-only: it
-    deliberately carries NO `default_nettype directive (that would leak into
-    the including file's scope) and declares no nets."""
-    s = cfg["srp"]
+def _lwsrp_svh_banner(cfg):
+    """The generated file's header comment - what it is, where it came from
+    and what still compiles it (nothing, since the engine was deleted)."""
     ln = []
     a = ln.append
     a("// SPDX-FileCopyrightText: 2026 Kebag Logic")
@@ -1966,9 +2123,15 @@ def emit_lwsrp_svh(cfg, table):
     a("//--------------------------------------------------------------------"
       "-------//")
     a("")
-    a("`ifndef LWSRP_TABLE_SVH")
-    a("`define LWSRP_TABLE_SVH")
-    a("")
+    return ln
+
+
+def _lwsrp_svh_constants(cfg, table):
+    """The scalar half of the contract: SR class, MRP timers, the class-A
+    bandwidth math, the 0x680 reset words and the elaboration parameters."""
+    s = cfg["srp"]
+    ln = []
+    a = ln.append
     a("  //! SR class (Milan v1.2 5.6: class A only for a Milan end station)")
     a(f"  localparam [7:0] LWSRP_CLASS_ID_C   = 8'd{s['class_id']};")
     a(f"  localparam [7:0] LWSRP_CLASS_PRIO_C = 8'd{s['priority']};")
@@ -2017,6 +2180,14 @@ def emit_lwsrp_svh(cfg, table):
       f"{s['ctx_rows_required']};")
     a(f"  localparam int unsigned LWSRP_ROWS_AVAIL_C = "
       f"{s['ctx_rows_available']};")
+    return ln
+
+
+def _lwsrp_svh_rows(s):
+    """The reservation table itself - one packed KL_lwsrp_ctx record per
+    stream, talkers first."""
+    ln = []
+    a = ln.append
     a("  //! {dmac[119:72], prio_rank[71:64], max_frame[63:48],")
     a("  //! interval[47:32], latency[31:0]} - the KL_lwsrp_ctx record layout")
     a("  //! verbatim; listener entries carry zeros (their sid + DMAC arrive")
@@ -2032,13 +2203,26 @@ def emit_lwsrp_svh(cfg, table):
           f"{r['stream_index']}: {r['channels']}ch, "
           f"slope {r['idle_slope_bps']} bps")
     a("  };")
-    a("")
-    a("`endif  // LWSRP_TABLE_SVH")
-    a("")
+    return ln
+
+
+def emit_lwsrp_svh(cfg: dict[str, Any], table: dict[str, Any]) -> str:
+    """SystemVerilog include with the lwSRP table constants. Include-only: it
+    deliberately carries NO `default_nettype directive (that would leak into
+    the including file's scope) and declares no nets."""
+    ln = _lwsrp_svh_banner(cfg)
+    ln.append("`ifndef LWSRP_TABLE_SVH")
+    ln.append("`define LWSRP_TABLE_SVH")
+    ln.append("")
+    ln.extend(_lwsrp_svh_constants(cfg, table))
+    ln.extend(_lwsrp_svh_rows(cfg["srp"]))
+    ln.append("")
+    ln.append("`endif  // LWSRP_TABLE_SVH")
+    ln.append("")
     return "\n".join(ln)
 
 
-def emit_csr_defaults_svh(cfg):
+def emit_csr_defaults_svh(cfg: dict[str, Any]) -> str:
     """The CSR-facing SUBSET of the lwSRP table, as the SystemVerilog include
     hdl/common/csr/milan_csr.sv actually compiles (`include
     "gen/lwsrp_csr_defaults.svh"). Everything here was a hand-written literal
@@ -2099,7 +2283,7 @@ def emit_csr_defaults_svh(cfg):
     return "\n".join(ln)
 
 
-def adp_shape(cfg):
+def adp_shape(cfg: dict[str, Any]) -> dict[str, int]:
     """The entity's ADVERTISED SHAPE, computed from the declarative config.
 
     IEEE 1722.1-2021 6.2.1.9 / 6.2.1.11: talker_stream_sources and
@@ -2123,7 +2307,7 @@ def adp_shape(cfg):
                 talker_capabilities=tcaps, listener_capabilities=lcaps)
 
 
-def overlay_adp_block(cfg):
+def overlay_adp_block(cfg: dict[str, Any]) -> dict[str, Any]:
     """The ADP-advertised identity, for the consumers that must REPEAT it.
 
     1722.1-2021 Table 7-2 makes the ENTITY descriptor's identity fields the
@@ -2150,40 +2334,8 @@ def overlay_adp_block(cfg):
     }
 
 
-def emit_adp_shape_svh(cfg, overlay=None):
-    """The ADP shape as the SystemVerilog include milan_csr.sv and
-    milan_datapath.sv compile (`include "gen/adp_shape_defaults.svh").
-
-    WHY THIS FILE EXISTS.  Until 2026-07-27 the ADPDU stream counts came from
-    two hand-typed lines in a boot script, and the 8x8 board therefore
-    advertised the 1x1 shape those lines were written for (1 talker source /
-    2 listener sinks) - see docs/ENDSTATION_BUILDER.md.  Making
-    the registers read-only removed the runtime lie; putting the VALUES here
-    is the other half, and the one the standing directive asks for: the
-    declarative end-station config is the single definition, and it drives
-    the gateware, the AEM model and lwSRP alike (docs/ENDSTATION_BUILDER.md).
-
-    These are not merely the CSR's reset words.  milan_datapath sizes its
-    talker/listener CONTEXT ARRAYS from the same two constants - the ACMP
-    contexts once, the protocol processor's source/sink arrays since that
-    plane replaced them - so the advertised range and the addressable range
-    are the same number by construction: there is no edit that moves one
-    without the other, and a gateware built for one shape cannot be handed
-    another shape's entity definition without failing to elaborate.
-
-    This is now the ONLY generated entity artifact any RTL compiles: the AEM
-    descriptor ROM's `include-r (KL_aecp_aem_store) is deleted with the rest
-    of the AECP plane, so scripts/check_entity_shape.py guards this file
-    alone - and it guards it harder, because it is still a tracked
-    last-writer-wins artifact.
-
-    Include-only, exactly like gen/lwsrp_csr_defaults.svh: no
-    `default_nettype (it would leak into the includer's scope), no include
-    guard (module-scope localparams - each including module needs its own
-    copy) and no net decls."""
-    sh = adp_shape(cfg)
-    if overlay is None:
-        overlay = emit_aem_overlay(cfg)
+def _adp_name_entries(overlay):
+    """SET_NAME/GET_NAME entries this exact AEM model needs."""
     # The semantic name table covers the descriptor types named by
     # gen_aem_store.build_model(). ENTITY contributes two entries while each
     # other instance contributes one. Derive the capacity from the overlay's
@@ -2191,8 +2343,6 @@ def emit_adp_shape_svh(cfg, overlay=None):
     # builder-only fixtures may deliberately omit media features that the
     # shipping image serializer requires, but they still need an honest shape
     # header and must not fail for an unrelated serializer constraint.
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
-    import gen_aem_store as aem_store
     named_types = (
         "ENTITY", "CONFIGURATION", "AUDIO_UNIT", "STREAM_INPUT",
         "STREAM_OUTPUT", "AVB_INTERFACE", "CLOCK_SOURCE", "CLOCK_DOMAIN",
@@ -2206,10 +2356,14 @@ def emit_adp_shape_svh(cfg, overlay=None):
                           f"types: {', '.join(missing_name_counts)}")
     aem_name_entries = 1 + sum(int(descriptor_counts[name])
                                for name in named_types)
+    return aem_name_entries
+
+
+def _adp_dyn_in_geometry(cfg, overlay):
+    """The dynamic-AUDIO_MAP input geometry, or {"EMIT": False} when no
+    listener declares one."""
     din_any = any(s.get("map_mode", "static") == "dynamic"
                   for s in cfg["listeners"])
-    dout_any = any(s.get("map_mode", "static") == "dynamic"
-                   for s in cfg["talkers"])
     dm = {"EMIT": din_any}
     if din_any:
         dyn_in = [p for p in cfg["ports_in"]
@@ -2229,6 +2383,14 @@ def emit_adp_shape_svh(cfg, overlay=None):
                   if s.get("kind", "aaf") == "aaf" else 0)
                  for s in in_streams],
         )
+    return dm
+
+
+def _adp_dyn_out_geometry(cfg, overlay, aem_store):
+    """The dynamic-AUDIO_MAP output geometry and its capture-source
+    words, or {"EMIT": False} when no talker declares one."""
+    dout_any = any(s.get("map_mode", "static") == "dynamic"
+                   for s in cfg["talkers"])
     od = {"EMIT": dout_any}
     if dout_any:
         out_streams = overlay["stream_outputs"]
@@ -2258,6 +2420,11 @@ def emit_adp_shape_svh(cfg, overlay=None):
                         for _ in range(p["clusters"])]
             csrc.extend(srcs)
         od.update(PCLS=pcls, PCBASE=pcbase, SCH=sch, CSRC=csrc)
+    return od
+
+
+def _adp_banner(cfg):
+    """The generated header comment, naming the shape it encodes."""
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
     crf_o = "yes" if cfg["clocking"]["crf_output"] else "no"
     crf_s = "yes" if cfg["clocking"]["crf_sink"] else "no"
@@ -2286,6 +2453,14 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("//--------------------------------------------------------------------"
       "-------//")
     a("")
+    return ln
+
+
+def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
+    """The advertised counts, the ADP capability words and the
+    CLOCK_SOURCE shape the media plane compares against."""
+    ln = []
+    a = ln.append
     a("  //! talker_stream_sources = STREAM_OUTPUT descriptors = the ACMP")
     a("  //! talker_unique_id range (AAF talkers, then the CRF Media Clock")
     a("  //! Output at uid = the AAF talker count when this config has one)")
@@ -2323,6 +2498,23 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a(f"  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd{crf_ix};"
       if crf_ix is not None else
       "  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+    return ln
+
+
+def _sv_array(ln, name, kind, values, render=str):
+    """One SystemVerilog unpacked-array localparam appended to `ln`. An empty
+    list becomes a one-element array: SystemVerilog has no zero-length one."""
+    vals = list(values) or [0]
+    body = ", ".join(render(v) for v in vals)
+    ln.append(f"  localparam logic {kind} {name} [0:{len(vals)-1}] = "
+              f"'{{{body}}};")
+
+
+def _adp_dmap_in(cfg, dm):
+    """Dynamic input geometry: the page partition, its global
+    cluster-key projection and the render-crossbar keys."""
+    ln = []
+    a = ln.append
     a("  //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set")
     a("  //! bit means the descriptor carries no static AUDIO_MAP and the")
     a("  //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.")
@@ -2369,29 +2561,30 @@ def emit_adp_shape_svh(cfg, overlay=None):
                 if key < len(in_rphys) and phys < 64:
                     in_rphys[key] = 0x40 | phys
 
-    def sv_array(name, kind, values, render=str):
-        vals = list(values) or [0]
-        body = ", ".join(render(v) for v in vals)
-        a(f"  localparam logic {kind} {name} [0:{len(vals)-1}] = "
-          f"'{{{body}}};")
-
     a(f"  localparam int ADP_DMAP_IN_KEYS_C    = {max(1, in_keys)};")
     a(f"  localparam int ADP_DMAP_IN_PAGE_C    = {in_page};")
     a(f"  localparam int ADP_DMAP_IN_NPORTS_C  = {len(in_pbase)};")
     a(f"  localparam int ADP_DMAP_IN_NSTRIN_C  = {len(in_sch)};")
-    sv_array("ADP_DMAP_IN_PBASE_C", "[6:0]", in_pbase,
+    _sv_array(ln, "ADP_DMAP_IN_PBASE_C", "[6:0]", in_pbase,
              lambda v: f"7'd{v}")
-    sv_array("ADP_DMAP_IN_PCLS_C", "[6:0]", in_pcls,
+    _sv_array(ln, "ADP_DMAP_IN_PCLS_C", "[6:0]", in_pcls,
              lambda v: f"7'd{v}")
-    sv_array("ADP_DMAP_IN_PNMAPS_C", "[6:0]", in_pnmaps,
+    _sv_array(ln, "ADP_DMAP_IN_PNMAPS_C", "[6:0]", in_pnmaps,
              lambda v: f"7'd{v}")
-    sv_array("ADP_DMAP_IN_RPHYS_C", "[6:0]", in_rphys,
+    _sv_array(ln, "ADP_DMAP_IN_RPHYS_C", "[6:0]", in_rphys,
              lambda v: f"7'h{v:02X}")
-    sv_array("ADP_DMAP_IN_SAAF_C", "", in_saaf,
+    _sv_array(ln, "ADP_DMAP_IN_SAAF_C", "", in_saaf,
              lambda v: "1'b1" if v else "1'b0")
-    sv_array("ADP_DMAP_IN_SCH_C", "[9:0]", in_sch,
+    _sv_array(ln, "ADP_DMAP_IN_SCH_C", "[9:0]", in_sch,
              lambda v: f"10'd{v}")
 
+    return ln
+
+
+def _adp_dmap_out(cfg, od):
+    """Dynamic output geometry and the fabric capture-source words."""
+    ln = []
+    a = ln.append
     a("  //! Dynamic output geometry and capture-source words are copied")
     a("  //! from the AEM generator's ODMAP table. CSRC uses the fabric word")
     a("  //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.")
@@ -2415,14 +2608,22 @@ def emit_adp_shape_svh(cfg, overlay=None):
         out_csrc = [0] * max(1, total)
     a(f"  localparam int ADP_DMAP_OUT_NPORTS_C = {len(out_pcls)};")
     a(f"  localparam int ADP_DMAP_OUT_NSRC_C    = {len(out_csrc)};")
-    sv_array("ADP_DMAP_OUT_PCLS_C", "[6:0]", out_pcls,
+    _sv_array(ln, "ADP_DMAP_OUT_PCLS_C", "[6:0]", out_pcls,
              lambda v: f"7'd{v}")
-    sv_array("ADP_DMAP_OUT_PCBASE_C", "[7:0]", out_pcbase,
+    _sv_array(ln, "ADP_DMAP_OUT_PCBASE_C", "[7:0]", out_pcbase,
              lambda v: f"8'd{v}")
-    sv_array("ADP_DMAP_OUT_SCH_C", "[9:0]", out_sch,
+    _sv_array(ln, "ADP_DMAP_OUT_SCH_C", "[9:0]", out_sch,
              lambda v: f"10'd{v}")
-    sv_array("ADP_DMAP_OUT_CSRC_C", "[12:0]", out_csrc,
+    _sv_array(ln, "ADP_DMAP_OUT_CSRC_C", "[12:0]", out_csrc,
              lambda v: f"13'h{v:04X}")
+    return ln
+
+
+def _adp_formats(cfg):
+    """The wire channel constant and every declared stream format the
+    fabric admits frames against."""
+    ln = []
+    a = ln.append
     a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
     a("  //! the FRAMER emits, derived from the capture front-end this config")
     a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
@@ -2472,9 +2673,9 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("  //! scalar stays for its acceptance-filter consumer.")
     a(f"  localparam int ADP_STRIN_NFMT_C  = {len(in_f0)};")
     a(f"  localparam int ADP_STROUT_NFMT_C = {len(out_f0)};")
-    sv_array("ADP_STRIN_FMT_C", "[63:0]", in_f0,
+    _sv_array(ln, "ADP_STRIN_FMT_C", "[63:0]", in_f0,
              lambda v: f"64'h{v:016X}")
-    sv_array("ADP_STROUT_FMT_C", "[63:0]", out_f0,
+    _sv_array(ln, "ADP_STROUT_FMT_C", "[63:0]", out_f0,
              lambda v: f"64'h{v:016X}")
     #! the CRF Media Clock stream formats, for the same reason: the format
     #! verdict must admit exactly what the CRF descriptors advertise, and
@@ -2501,10 +2702,58 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a(f"  localparam logic [63:0] ADP_CRF_FMT_C     = 64'h{cf0:016X};")
     a(f"  localparam logic [63:0] ADP_CRF_OUT_FMT_C = 64'h{co0:016X};")
     a("")
+    return ln
+
+
+def emit_adp_shape_svh(cfg: dict[str, Any],
+                       overlay: dict[str, Any] | None = None) -> str:
+    """The ADP shape as the SystemVerilog include milan_csr.sv and
+    milan_datapath.sv compile (`include "gen/adp_shape_defaults.svh").
+
+    WHY THIS FILE EXISTS.  Until 2026-07-27 the ADPDU stream counts came from
+    two hand-typed lines in a boot script, and the 8x8 board therefore
+    advertised the 1x1 shape those lines were written for (1 talker source /
+    2 listener sinks) - see docs/ENDSTATION_BUILDER.md.  Making
+    the registers read-only removed the runtime lie; putting the VALUES here
+    is the other half, and the one the standing directive asks for: the
+    declarative end-station config is the single definition, and it drives
+    the gateware, the AEM model and lwSRP alike (docs/ENDSTATION_BUILDER.md).
+
+    These are not merely the CSR's reset words.  milan_datapath sizes its
+    talker/listener CONTEXT ARRAYS from the same two constants - the ACMP
+    contexts once, the protocol processor's source/sink arrays since that
+    plane replaced them - so the advertised range and the addressable range
+    are the same number by construction: there is no edit that moves one
+    without the other, and a gateware built for one shape cannot be handed
+    another shape's entity definition without failing to elaborate.
+
+    This is now the ONLY generated entity artifact any RTL compiles: the AEM
+    descriptor ROM's `include-r (KL_aecp_aem_store) is deleted with the rest
+    of the AECP plane, so scripts/check_entity_shape.py guards this file
+    alone - and it guards it harder, because it is still a tracked
+    last-writer-wins artifact.
+
+    Include-only, exactly like gen/lwsrp_csr_defaults.svh: no
+    `default_nettype (it would leak into the includer's scope), no include
+    guard (module-scope localparams - each including module needs its own
+    copy) and no net decls."""
+    sh = adp_shape(cfg)
+    if overlay is None:
+        overlay = emit_aem_overlay(cfg)
+    sys.path.insert(0, str(ROOT / "avdecc"))
+    import gen_aem_store as aem_store
+    aem_name_entries = _adp_name_entries(overlay)
+    dm = _adp_dyn_in_geometry(cfg, overlay)
+    od = _adp_dyn_out_geometry(cfg, overlay, aem_store)
+    ln = _adp_banner(cfg)
+    ln.extend(_adp_shape_params(sh, aem_name_entries, overlay, aem_store))
+    ln.extend(_adp_dmap_in(cfg, dm))
+    ln.extend(_adp_dmap_out(cfg, od))
+    ln.extend(_adp_formats(cfg))
     return "\n".join(ln)
 
 
-def rtl_firmware_version(rev=0):
+def rtl_firmware_version(rev: int = 0) -> str:
     """This gateware's version string for the ENTITY descriptor.
 
     Delegates to avdecc/gen_aem_store.py, which parses `parameter logic
@@ -2517,20 +2766,21 @@ def rtl_firmware_version(rev=0):
     Yes, the builder reads RTL here.  It already does (rtl_capability_marks,
     and test gate 21a parses module parameters): a build parameter whose
     truth lives in the RTL is read from the RTL, not copied beside it."""
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
     return g.firmware_version_string(rev)
 
 
-def rtl_version():
+def rtl_version() -> tuple[int, int]:
     """`(major, minor)` behind the read-only VERSION register - the raw pair
     rtl_firmware_version() renders, for artifacts that want to show both."""
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
     return g.rtl_version()
 
 
-def emit_aem_rom_svh(cfg, overlay):
+def emit_aem_rom_svh(cfg: dict[str, Any],
+                     overlay: dict[str, Any]) -> str:
     """This config's legacy AEM SVH rendering.
 
     Nothing compiles this result. Its former include consumer,
@@ -2546,12 +2796,12 @@ def emit_aem_rom_svh(cfg, overlay):
     which is why --write-rtl refuses on that failure.
 
     Written to out/<cfg>/aecp_aem_rom.svh only. See the module banner."""
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
     return g.emit_svh_text(g.build_model(g.spec_from_overlay(overlay)))
 
 
-def emit_interface_params(cfg):
+def emit_interface_params(cfg: dict[str, Any]) -> dict[str, Any] | None:
     """The SV parameters `audio_interface` selects on the physical front-end.
 
     For the AES3/S-PDIF family this IS the config switch: one core
@@ -2599,7 +2849,7 @@ def _mac48(v, ctx):
     return n
 
 
-def load_features(raw):
+def load_features(raw: dict[str, Any] | None) -> dict[str, bool]:
     """Normalize `board.features`.
 
     Datapath tier-1 blocks retain their PRESENT default. The fabric gPTP plane
@@ -2631,7 +2881,13 @@ def load_features(raw):
     return out
 
 
-def validate_features(feat, clocking, interface, srp, platform):
+def validate_features(
+        feat: dict[str, bool],
+        clocking: dict[str, Any],
+        interface: dict[str, Any],
+        srp: dict[str, Any],
+        platform: dict[str, Any],
+) -> dict[str, bool]:
     """THE GATE (docs/design/AREA_BUDGET.md rule 5): refuse a config that asks
     for a feature one of the prune parameters removed. A silently absent
     feature is the decorative-ABI defect in reverse - the register window
@@ -2695,7 +2951,7 @@ def validate_features(feat, clocking, interface, srp, platform):
     return feat
 
 
-def load_platform(raw):
+def load_platform(raw: dict[str, Any] | None) -> dict[str, Any]:
     """Validate identity, filtering posture and processor-memory placement."""
     raw = raw or {}
     if not isinstance(raw, dict):
@@ -2723,7 +2979,7 @@ def load_platform(raw):
     return p
 
 
-def emit_platform_shape(cfg):
+def emit_platform_shape(cfg: dict[str, Any]) -> dict[str, Any]:
     """Return the processor-memory reservation consumed by gateware.
 
     This artifact intentionally contains no generic hardware inventory. Its
@@ -2745,7 +3001,7 @@ def emit_platform_shape(cfg):
 
 
 # ------------------------------------------------------- model-id hashing ---
-def model_shape(cfg):
+def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
     """The model-shaping fields ONLY (no board flags / names / serials): the
     input to the hash-derived entity_model_id. Any key added here changes
     every hash-derived id - extend deliberately."""
@@ -2815,7 +3071,7 @@ def model_shape(cfg):
     return shape
 
 
-def derive_model_id(shape):
+def derive_model_id(shape: dict[str, Any]) -> int:
     """Deterministic EUI-64 from the model shape (recipe in the module
     docstring + sw/builder/README-parameters.md)."""
     canon = json.dumps(shape, sort_keys=True, separators=(",", ":")).encode()
@@ -2825,8 +3081,8 @@ def derive_model_id(shape):
 
 
 # ---------------------------------------------- gPTP engine pinned dataset --
-GPTP_UCODE_GENERATOR = os.path.join(
-    ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+GPTP_UCODE_GENERATOR = (
+    ROOT / "gptp-processor" / "hdl" / "ucode" / "gen_gptp_ucode.py")
 
 #! The gptp: field the engine generator CONSUMES (--p1); everything else in
 #! the section it hardcodes ([R-parallel] on #228). MAC and the clock
@@ -2834,7 +3090,11 @@ GPTP_UCODE_GENERATOR = os.path.join(
 #! gptp.domain is pinned to 0 by its own Milan rule and the engine emits 0.
 GPTP_ENGINE_CONSUMED = ("priority1",)
 
-_gptp_engine_pins_cache = None
+#: The parse below is of a pinned generator that cannot change under a running
+#: process, so it is done once and kept here. A CONTAINER that is mutated, not
+#: a name that is rebound - the same idiom as _TDM_WIRED_CACHE above, and the
+#: reason no function in this module needs a `global`.
+_GPTP_ENGINE_PINS_CACHE = {}
 
 
 def _engine_const(lines, pattern, what):
@@ -2851,7 +3111,7 @@ def _engine_const(lines, pattern, what):
     return int(hits[0], 0)
 
 
-def gptp_engine_pins(source=None):
+def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
     """The Announce dataset the fabric engine transmits, PARSED from the
     pinned generator (never restated here: a mirrored 248 or 0xF8FE436A
     would diverge in silence on a submodule bump). The generator consumes
@@ -2859,19 +3119,17 @@ def gptp_engine_pins(source=None):
     message logMessageInterval octets are constants in its source, so the
     AVB_INTERFACE descriptor must be derived FROM them ([R-parallel] on
     #228). `source` is for the test suite's synthetic fixtures only."""
-    global _gptp_engine_pins_cache
     from_file = source is None
     if from_file:
-        if _gptp_engine_pins_cache is not None:
-            return dict(_gptp_engine_pins_cache)
-        if not os.path.isfile(GPTP_UCODE_GENERATOR):
+        if "pins" in _GPTP_ENGINE_PINS_CACHE:
+            return dict(_GPTP_ENGINE_PINS_CACHE["pins"])
+        if not GPTP_UCODE_GENERATOR.is_file():
             raise ConfigError(
                 "the gptp-processor submodule is not checked out, and its "
                 "generator is the authority the gPTP descriptor dataset "
                 "derives from ([R-parallel] on #228): run `git submodule "
                 "update --init gptp-processor` before loading a config")
-        with open(GPTP_UCODE_GENERATOR, encoding="utf-8") as f:
-            source = f.read()
+        source = GPTP_UCODE_GENERATOR.read_text(encoding="utf-8")
     num = r"(0[xX][0-9A-Fa-f]+|\d+)"          # captured value
     anum = r"(?:0[xX][0-9A-Fa-f]+|\d+)"       # matched, not captured
     lines = [ln.split("#", 1)[0].rstrip() for ln in source.splitlines()]
@@ -2882,7 +3140,7 @@ def gptp_engine_pins(source=None):
         raise ConfigError(f"gen_gptp_ucode.py: CQ_C 0x{cq:X} is not a "
                           f"32-bit clockQuality word")
 
-    def logint(mtype, name):
+    def logint(mtype: str, name: str) -> int:
         """e_hdr's logint argument for one TX message type: the wire
         logMessageInterval octet, sign-extended."""
         v = _engine_const(
@@ -2904,13 +3162,12 @@ def gptp_engine_pins(source=None):
         log_pdelay_interval=logint("0x2", "Pdelay_Req"),
     )
     if from_file:
-        _gptp_engine_pins_cache = dict(pins)
+        _GPTP_ENGINE_PINS_CACHE["pins"] = dict(pins)
     return pins
 
 
-def load_config(path):
-    """Load + validate + normalize a YAML end-station config. Returns the
-    normalized config dict; raises ConfigError on any violation."""
+def _load_document(path):
+    """The YAML file, checked for being this schema at this major."""
     with open(path) as f:
         cfg = yaml.safe_load(f)
     if not isinstance(cfg, dict):
@@ -2921,7 +3178,12 @@ def load_config(path):
     ver = str(cfg.get("schema_version", ""))
     if not ver.startswith(SCHEMA_MAJOR + "."):
         raise ConfigError(f"{path}: schema_version {ver} (need {SCHEMA_MAJOR}.x)")
+    return cfg
 
+
+def _load_entity(cfg, path):
+    """The ENTITY descriptor facts the config owns. The firmware
+    version is NOT among them - it is derived from the gateware."""
     # entity (entity_model_id resolved AFTER streams/interface: hash needs
     # the derived layout)
     ent = _req(cfg, "entity", path)
@@ -2958,9 +3220,13 @@ def load_config(path):
     for k in ("name", "serial_number", "group_name", "firmware_version"):
         if len(str(n[k]).encode()) > 63:
             raise ConfigError(f"entity.{k}: exceeds 63 bytes (AEM cstr64)")
-    entity = n
+    return n
 
-    # board
+
+
+def _load_board(cfg, path):
+    """The board target and its pin/clock constraints. Returns
+    (target, constraints)."""
     brd = _req(cfg, "board", path)
     target = _req(brd, "target", "board")
     if target not in BOARDS:
@@ -3019,8 +3285,12 @@ def load_config(path):
     if cons["eth_port"] is not None and cons["eth_port"] not in binfo["eth_ports"]:
         raise ConfigError(f"board.constraints.eth_port '{cons['eth_port']}' "
                           f"invalid for {target} (choices {binfo['eth_ports'] or '(none)'})")
+    return target, cons
 
-    # clocking
+
+def _load_clocking(cfg, path):
+    """The media clock: its rate, the sources that may drive it and
+    the two CRF stream formats."""
     clk = _req(cfg, "clocking", path)
     rate = int(_req(clk, "sampling_rate_hz", "clocking"))
     if rate not in BASE_RATE_HZ:
@@ -3055,15 +3325,20 @@ def load_config(path):
         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
+    return clocking
 
-    # gPTP clock attributes: ONE source for the AVB_INTERFACE descriptor's
-    # static clock fields and the fabric uCPU image. Fabric ownership (every
-    # product configuration, #259) requires this section. Present => the
-    # section joins
-    # model_shape, so a changed clock posture rotates a hash-derived
-    # entity_model_id (controllers cache descriptor content by model id -
-    # measured 2026-08-05: a stale cached model offered ports the flashed
-    # entity did not have).
+
+def _load_gptp(cfg):
+    """The gPTP clock attributes, or None when the config has no
+    `gptp:` section. Every field the fabric engine hardcodes is taken
+    FROM the engine and a config that states otherwise is refused."""
+    # ONE source for the AVB_INTERFACE descriptor's static clock fields and
+    # the fabric uCPU image. Fabric ownership (every product configuration,
+    # #259) requires this section. Present => the section joins model_shape,
+    # so a changed clock posture rotates a hash-derived entity_model_id
+    # (controllers cache descriptor content by model id - measured
+    # 2026-08-05: a stale cached model offered ports the flashed entity did
+    # not have).
     gp_raw = cfg.get("gptp")
     gptp = None
     if gp_raw is not None:
@@ -3149,30 +3424,13 @@ def load_config(path):
             log_announce_interval=_gp_pinned("log_announce_interval"),
             log_pdelay_interval=_gp_pinned("log_pdelay_interval"),
         )
+    return gptp
 
-    # audio interface
-    aif = _req(cfg, "audio_interface", path)
-    kind = _req(aif, "kind", "audio_interface")
-    if kind not in INTERFACES:
-        raise ConfigError(f"audio_interface.kind '{kind}' not in {sorted(INTERFACES)}")
-    iinfo = INTERFACES[kind]
-    wl = int(aif.get("word_length_bits", 24))
-    if wl not in iinfo["word_bits"]:
-        raise ConfigError(f"word_length_bits {wl} invalid for {kind} "
-                          f"(allowed {iinfo['word_bits']})")
+
+def _load_cluster_pools(aif, iinfo, kind, policy):
+    """What the BOARD routes and what the D8 role pools declare.
+    Returns (physical channels per direction, pools, loopback lane)."""
     cm = aif.get("cluster_mapping") or {}
-    if "rule" in cm:
-        raise ConfigError("cluster_mapping.rule was replaced by "
-                          "cluster_mapping.policy in schema 1.1 "
-                          f"(choices {CLUSTER_POLICIES})")
-    policy = cm.get("policy", "cluster-per-stream-channel")
-    if policy not in CLUSTER_POLICIES:
-        raise ConfigError(f"cluster_mapping.policy '{policy}' not in "
-                          f"{CLUSTER_POLICIES}")
-    # PHYSICAL truth, per direction. Defaults to the declared interface width
-    # (every existing config keeps exactly the roles it had), but a platform
-    # that routes no audio pins says so HERE rather than letting the model
-    # advertise a pool the fabric cannot back - see CLUSTER_ROLES.
     pc = aif.get("physical_channels")
     if pc is None:
         phys = dict(capture=iinfo["channels"], render=iinfo["channels"])
@@ -3233,6 +3491,11 @@ def load_config(path):
     # of every stream port; loopback/physical names are role-prefixed.
     # 1722.1-2021 6.2.2.8 excludes object_name from the model
     # shape, so names never move a hash-derived entity_model_id.
+    return phys, pools, lb_lane
+
+
+def _load_channel_names(aif, phys):
+    """The optional per-port-channel names, or None."""
     names = aif.get("channel_names")
     if names is not None:
         if (not isinstance(names, list) or not names
@@ -3246,6 +3509,38 @@ def load_config(path):
             raise ConfigError(
                 f"audio_interface.channel_names has {len(names)} names but "
                 f"this shape's widest named pool needs {need}")
+    return names
+
+
+def _load_interface(cfg, path, clocking):
+    """The audio interface: its family, word length, cluster policy
+    and - for the AES3 family - the serial clock the media clock
+    forces."""
+    rate = clocking["sampling_rate_hz"]
+    aif = _req(cfg, "audio_interface", path)
+    kind = _req(aif, "kind", "audio_interface")
+    if kind not in INTERFACES:
+        raise ConfigError(f"audio_interface.kind '{kind}' not in {sorted(INTERFACES)}")
+    iinfo = INTERFACES[kind]
+    wl = int(aif.get("word_length_bits", 24))
+    if wl not in iinfo["word_bits"]:
+        raise ConfigError(f"word_length_bits {wl} invalid for {kind} "
+                          f"(allowed {iinfo['word_bits']})")
+    cm = aif.get("cluster_mapping") or {}
+    if "rule" in cm:
+        raise ConfigError("cluster_mapping.rule was replaced by "
+                          "cluster_mapping.policy in schema 1.1 "
+                          f"(choices {CLUSTER_POLICIES})")
+    policy = cm.get("policy", "cluster-per-stream-channel")
+    if policy not in CLUSTER_POLICIES:
+        raise ConfigError(f"cluster_mapping.policy '{policy}' not in "
+                          f"{CLUSTER_POLICIES}")
+    # PHYSICAL truth, per direction. Defaults to the declared interface width
+    # (every existing config keeps exactly the roles it had), but a platform
+    # that routes no audio pins says so HERE rather than letting the model
+    # advertise a pool the fabric cannot back - see CLUSTER_ROLES.
+    phys, pools, lb_lane = _load_cluster_pools(aif, iinfo, kind, policy)
+    names = _load_channel_names(aif, phys)
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
         cluster_policy=policy, rtl=iinfo["rtl"],
@@ -3267,8 +3562,12 @@ def load_config(path):
                 f"divide of clocking.audio_pll_hz {clocking['audio_pll_hz']}")
         interface["serial_clk_hz"] = need
         interface["serial_clk_div"] = clocking["audio_pll_hz"] // need
+    return interface
 
-    # streams
+
+def _load_streams(cfg, path, clocking):
+    """The declared listener and talker streams, and the two shape
+    rules that constrain the set as a whole."""
     st = _req(cfg, "streams", path)
     # the AUDIO_UNIT's current rate is the one a stream's default Base format
     # is stated at: Milan 5.3.3.3 makes the AUDIO_UNIT list the Audio Unit's
@@ -3302,8 +3601,12 @@ def load_config(path):
             "Clock Output (Milan v1.2 7.2.3) - set clocking.crf_output: "
             "{enabled: true} (format defaults to the Milan 7.3.2 word "
             f"{CRF_FORMAT_DEFAULT})")
+    return listeners, talkers
 
-    # soc policy overrides
+
+def _load_soc(cfg, cons):
+    """The SoC policy overrides, checked against the board's own
+    constraints (a bare-metal profile forbids an L2)."""
     soc_raw = cfg.get("soc") or {}
     if not isinstance(soc_raw, dict):
         raise ConfigError("soc: must be a mapping")
@@ -3329,14 +3632,33 @@ def load_config(path):
             raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
         if cons["flashboot"] not in ("baremetal", "none"):
             raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
+    return soc
+
+
+def load_config(path: str) -> dict[str, Any]:
+    """Load + validate + normalize a YAML end-station config. Returns the
+    normalized config dict; raises ConfigError on any violation."""
+    cfg = _load_document(path)
+    ent = _req(cfg, "entity", path)
+    brd = _req(cfg, "board", path)
+    entity = _load_entity(cfg, path)
+    target, cons = _load_board(cfg, path)
+    clocking = _load_clocking(cfg, path)
+    gptp = _load_gptp(cfg)
+    interface = _load_interface(cfg, path, clocking)
+    policy = interface["cluster_policy"]
+    phys, pools = interface["physical_channels"], interface["cluster_pools"]
+    listeners, talkers = _load_streams(cfg, path, clocking)
+    soc = _load_soc(cfg, cons)
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
     # carrying exactly the keys framer_wire_channels consumes.
     wire_ch = framer_wire_channels(dict(talkers=talkers, interface=interface,
                                         board_target=target))
-    srp = load_srp(cfg.get("srp"), listeners, talkers, clocking, cons,
-                   BOARDS[target], wire_channels=wire_ch)
+    srp = load_srp(cfg.get("srp"),
+                   SrpShape(listeners, talkers, clocking, cons,
+                            BOARDS[target], wire_channels=wire_ch))
     platform = load_platform(cfg.get("platform"))
 
     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
@@ -3361,8 +3683,8 @@ def load_config(path):
             "generator defaults")
 
     out = dict(
-        source=os.path.relpath(path, ROOT),
-        name=os.path.splitext(os.path.basename(path))[0],
+        source=_repo_relative(Path(path)),
+        name=Path(path).stem,
         entity=entity, board_target=target, constraints=cons,
         clocking=clocking, interface=interface,
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
@@ -3371,9 +3693,10 @@ def load_config(path):
 
     # per-stream port layout (needed by the model-id hash and the overlay)
     out["ports_in"], out["ports_out"] = cluster_layout(
-        listeners, talkers, policy, interface["channels"],
-        phys=phys, pools=pools,
-        lb_backed=interface["cluster_fabric"]["loopback_lane"])
+        listeners, talkers,
+        ClusterRules(
+            policy, interface["channels"], phys=phys, pools=pools,
+            lb_backed=interface["cluster_fabric"]["loopback_lane"]))
 
     # entity_model_id resolution: pin > hash-derived > literal
     shape = model_shape(out)
@@ -3393,10 +3716,8 @@ def load_config(path):
 
 
 # ----------------------------------------------------- RTL capability marks --
-def rtl_capability_marks(cfg):
-    """(element, status, note) per config element; status is 'supported' or a
-    'planned (...)' marker - NEVER an error (the builder validates NxN shapes,
-    the RTL catches up in items 5/4-audio)."""
+def _marks_streams(cfg):
+    """How many AAF streams each direction declares, and the CRF pair."""
     marks = []
     n_l, n_t = len(cfg["listeners"]), len(cfg["talkers"])
     if n_l > RTL_TODAY["max_aaf_listeners"]:
@@ -3422,6 +3743,12 @@ def rtl_capability_marks(cfg):
                       "silicon-proven 500 PDU/s) - missing = S50 provisioning "
                       "+ ACMP talker context for the CRF stream (rides with "
                       "the item-5 NxN integration)"))
+    return marks
+
+
+def _marks_interface(cfg):
+    """The audio interface: is its ser/des real, driven, and integrated."""
+    marks = []
     kind = cfg["interface"]["kind"]
     if interface_is_placeholder(cfg):
         marks.append((f"audio interface {kind}",
@@ -3466,8 +3793,13 @@ def rtl_capability_marks(cfg):
                       "milan_datapath front-end generate for the AES3 family "
                       "and the milan_soc.py --audio-interface value that "
                       "selects it (the tdm kinds' path, reused)"))
-    # D8 role pools: the MODEL half is emitted here; each pool that has no
-    # fabric source behind it is marked, never silently advertised.
+    return marks
+
+
+def _marks_cluster_pools(cfg):
+    """The D8 role pools: the MODEL half is emitted here; each pool that has
+    no fabric source behind it is marked, never silently advertised."""
+    marks = []
     if cfg["interface"]["cluster_policy"] == "role-pools":
         pools = cfg["interface"]["cluster_pools"]
         ph = cfg["interface"]["physical_channels"]
@@ -3522,6 +3854,12 @@ def rtl_capability_marks(cfg):
                           "from a quiet one either way: CHMAP_LOOP 0x914 "
                           "[18] LOOP_SUSPECT = mapped & ~fed, so silence "
                           "here is never a lying zero"))
+    return marks
+
+
+def _marks_media_clock(cfg):
+    """Whether today's render path can run at the declared sampling rate."""
+    marks = []
     rate = cfg["clocking"]["sampling_rate_hz"]
     if rate in RTL_TODAY["sampling_rates"]:
         marks.append((f"{rate} Hz media clock", "supported", ""))
@@ -3529,6 +3867,12 @@ def rtl_capability_marks(cfg):
         marks.append((f"{rate} Hz media clock",
                       "planned (item 6 - MMCM-DRP media-clock servo)",
                       "render path is 48k-only today"))
+    return marks
+
+
+def _marks_srp(cfg):
+    """lwSRP attribute-context capacity and the per-stream TSpec posture."""
+    marks = []
     # lwSRP attribute-context capacity. milan_datapath ties N_CTX_P to
     # N_STREAMS = max(L, T), but the 0x800 window row map needs L+T-1 rows
     # (listener k -> row k, talker t -> row (L-1)+t). Every NxN shape beyond
@@ -3561,6 +3905,13 @@ def rtl_capability_marks(cfg):
                       "each talker row derives 24 + 24*C from its own TCTX w0 "
                       "chans under the packetizer clamp; row 0 keeps "
                       "LWSRP_TSPEC verbatim (no-regression axiom)"))
+    return marks
+
+
+def _marks_render_width(cfg):
+    """Listener formats wider than the physical render interface."""
+    marks = []
+    kind = cfg["interface"]["kind"]
     max_ch = max(s["channels"] for s in cfg["listeners"])
     if max_ch > RTL_TODAY["render_channels"] and kind in RTL_TODAY["interfaces"]:
         marks.append((f"{max_ch}ch listener formats on a "
@@ -3571,13 +3922,22 @@ def rtl_capability_marks(cfg):
     return marks
 
 
+def rtl_capability_marks(cfg: dict[str, Any]) -> list[tuple[str, str, str]]:
+    """(element, status, note) per config element; status is 'supported' or a
+    'planned (...)' marker - NEVER an error (the builder validates NxN shapes,
+    the RTL catches up in items 5/4-audio)."""
+    return (_marks_streams(cfg) + _marks_interface(cfg)
+            + _marks_cluster_pools(cfg) + _marks_media_clock(cfg)
+            + _marks_srp(cfg) + _marks_render_width(cfg))
+
+
 # ------------------------------------------------------------ soc_params ----
 def _freq(hz):
     """Render a frequency the way the build scripts write it (83.333e6)."""
     return f"{hz / 1e6:g}e6"
 
 
-def emit_board_opts(cfg):
+def emit_board_opts(cfg: dict[str, Any]) -> list[str]:
     """The board-specific design-flag prefix of the argv = EXACTLY the OPTS
     string sw/litex/sweep.sh keeps per board (test-gated byte match)."""
     c, binfo = cfg["constraints"], BOARDS[cfg["board_target"]]
@@ -3607,7 +3967,7 @@ def emit_board_opts(cfg):
     return opts
 
 
-def emit_design_opts(cfg):
+def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     """emit_board_opts + every remaining BITSTREAM-SHAPING flag: this is the
     string a sweep must carry, and the ONLY correct content for
     configs/generated/sweep_opts_<board>.sh.
@@ -3663,7 +4023,7 @@ def emit_design_opts(cfg):
     return argv
 
 
-def emit_soc_argv(cfg):
+def emit_soc_argv(cfg: dict[str, Any]) -> list[str]:
     """The milan_soc.py DESIGN argv this config implies (flow flags -
     --build/--vivado-max-threads/--place-directive/--output-dir - are
     sweep.sh's business, not the end-station definition's).
@@ -3691,7 +4051,7 @@ def emit_soc_argv(cfg):
 
 
 # ------------------------------------------------------------ sweep opts ----
-def emit_sweep_opts(cfg):
+def emit_sweep_opts(cfg: dict[str, Any]) -> str:
     """Shell fragment sourced by sw/litex/sweep.sh: the complete per-board
     SoC argv, single-sourced from the end-station config. The inline case
     tables in sweep.sh are the FALLBACK only; the builder test gate asserts
@@ -3722,7 +4082,7 @@ def emit_sweep_opts(cfg):
 
 
 # -------------------------------------------------------- entity identity ---
-def derive_entity_id(cfg):
+def derive_entity_id(cfg: dict[str, Any]) -> int:
     """The ATDECC entity_id (1722.1-2021 6.2.1.7) as an int.
 
     "mac-derived" is the EUI-48 -> EUI-64 expansion of the STATION MAC the
@@ -3739,7 +4099,7 @@ def derive_entity_id(cfg):
 # ----------------------------------------------------------- aem_overlay ----
 
 
-def emit_aem_overlay(cfg):
+def emit_aem_overlay(cfg: dict[str, Any]) -> dict[str, Any]:
     """AEM model overlay: descriptor counts + per-descriptor content that the
     config controls, consumed by avdecc/gen_aem_store.py --overlay. Layout:
     ONE STREAM_PORT per stream (cluster_layout above); every port owns its
@@ -3747,13 +4107,35 @@ def emit_aem_overlay(cfg):
     (1722.1-2021 7.2.19). All input clusters precede all output clusters;
     physical interface channels bind in order to the first clusters of each
     direction (wire-truth rule)."""
+    stream_inputs, stream_outputs = _overlay_streams(cfg)
+    ports_in, ports_out = _overlay_ports(cfg)
+    return _overlay_document(cfg, OverlayParts(
+        stream_inputs=stream_inputs, stream_outputs=stream_outputs,
+        clock_sources=_overlay_clock_sources(cfg),
+        audio_maps=_overlay_audio_maps(cfg),
+        audio_clusters=_overlay_audio_clusters(cfg),
+        ports_in=ports_in, ports_out=ports_out))
+
+
+@dataclass(frozen=True)
+class OverlayParts:
+    """The descriptor lists the overlay document is assembled from - each
+    built by its own function above, all of them derived from one config."""
+    stream_inputs: list
+    stream_outputs: list
+    clock_sources: list
+    audio_maps: list
+    audio_clusters: list
+    ports_in: list
+    ports_out: list
+
+
+def _overlay_streams(cfg):
+    """The STREAM_INPUT and STREAM_OUTPUT lists, each with the CRF pair
+    appended after the AAF streams. Returns (inputs, outputs)."""
     L, T, clk = cfg["listeners"], cfg["talkers"], cfg["clocking"]
-    P_in, P_out = cfg["ports_in"], cfg["ports_out"]
     n_crf = 1 if clk["crf_sink"] else 0
     n_crf_out = 1 if clk["crf_output"] else 0
-    in_clusters = sum(p["clusters"] for p in P_in)
-    out_clusters = sum(p["clusters"] for p in P_out)
-
     stream_inputs = [dict(index=i, name=s["name"], kind="aaf",
                           channels=s["channels"], formats=s["formats"],
                           buffer_length_ns=s["buffer_length_ns"])
@@ -3777,9 +4159,14 @@ def emit_aem_overlay(cfg):
         stream_outputs.append(dict(index=len(T), name="CRF", kind="crf",
                                    channels=0,
                                    formats=[clk["crf_output_format"]]))
+    return stream_inputs, stream_outputs
 
-    # CLOCK_SOURCE set mirrors media_clock_sources (internal first, then one
-    # per AAF listener stream, then CRF - gen_aem_store order)
+
+def _overlay_clock_sources(cfg):
+    """The CLOCK_SOURCE set, mirroring media_clock_sources (internal first,
+    then one per AAF listener stream, then CRF - gen_aem_store order)."""
+    L, clk = cfg["listeners"], cfg["clocking"]
+    n_crf = 1 if clk["crf_sink"] else 0
     clock_sources = []
     if "internal" in clk["media_clock_sources"]:
         clock_sources.append(dict(index=len(clock_sources), name="Internal",
@@ -3798,7 +4185,13 @@ def emit_aem_overlay(cfg):
                                   type="crf",
                                   location_type="STREAM_INPUT",
                                   location_index=len(L)))
+    return clock_sources
 
+
+def _overlay_audio_maps(cfg):
+    """The AUDIO_MAPs, sorted by descriptor index."""
+    L, T = cfg["listeners"], cfg["talkers"]
+    P_in, P_out = cfg["ports_in"], cfg["ports_out"]
     # one AUDIO_MAP per STATIC port; rows = (stream_index, stream_channel,
     # cluster_offset RELATIVE to the port's base_cluster, cluster_channel).
     # map_mode dynamic ports (gaps item 8) emit NO map. GET_AUDIO_MAP reads
@@ -3812,7 +4205,11 @@ def emit_aem_overlay(cfg):
     # primary segment's port-relative offset. Both forms satisfy the 7.2.19
     # uniqueness rules (input: <=1 entry per cluster channel; output: <=1
     # entry per stream channel).
-    def rows(p, direction, channels):
+    def rows(p: dict[str, Any], direction: str,
+             channels: int) -> list[list[int]]:
+        """This port's AUDIO_MAP mappings: one per cluster under the identity
+        policies, or min(`channels`, the primary segment's width) rows at that
+        segment's port-relative offset under role-pools."""
         if cfg["interface"]["cluster_policy"] != "role-pools":
             return [[p["stream_index"], ch, ch, 0]
                     for ch in range(p["clusters"])]
@@ -3839,9 +4236,13 @@ def emit_aem_overlay(cfg):
             primary_role=primary_segment(p, "output")["role"],
             mappings=rows(p, "output", T[p["stream_index"]]["channels"])))
     audio_maps.sort(key=lambda m: m["index"])
+    return audio_maps
 
-    # D10: every AUDIO_CLUSTER carries its ROLE and the object_name that role
-    # implies, in global descriptor-index order (all input clusters first).
+
+def _overlay_audio_clusters(cfg):
+    """Every AUDIO_CLUSTER with its ROLE and the object_name that role
+    implies, in global descriptor-index order (all input clusters first)."""
+    P_in, P_out = cfg["ports_in"], cfg["ports_out"]
     audio_clusters = []
     for direction, ports in (("input", P_in), ("output", P_out)):
         for p in ports:
@@ -3853,10 +4254,20 @@ def emit_aem_overlay(cfg):
                         index=p["base_cluster"] + off, name=names[off],
                         direction=direction, role=g["role"],
                         port_index=p["index"], offset=off))
+    return audio_clusters
 
-    # overlay port entries: map_mode/map_page keys appear ONLY on dynamic
-    # ports so every static config's overlay stays byte-identical
-    def port_public(p, direction):
+
+def _overlay_ports(cfg):
+    """The published STREAM_PORT entries. map_mode/map_page keys appear ONLY
+    on dynamic ports, so every static config's overlay stays byte-identical.
+    Returns (input ports, output ports)."""
+    P_in, P_out = cfg["ports_in"], cfg["ports_out"]
+
+    def port_public(p: dict[str, Any],
+                    direction: str) -> dict[str, Any]:
+        """One STREAM_PORT as the overlay publishes it: the six 7.2.13
+        fields, its D8 role pool, and the dynamic keys only when it is
+        one - so a static config's overlay stays byte-identical."""
         q = {k: p[k] for k in ("index", "stream_index", "clusters",
                                "base_cluster", "maps", "base_map")}
         if p.get("map_mode", "static") == "dynamic":
@@ -3868,9 +4279,20 @@ def emit_aem_overlay(cfg):
                       "width": g["width"]} for g in p["pool"]]
         q["primary_role"] = (primary_segment(p, direction) or {}).get("role")
         return q
-    P_in_pub = [port_public(p, "input") for p in P_in]
-    P_out_pub = [port_public(p, "output") for p in P_out]
+    return ([port_public(p, "input") for p in P_in],
+            [port_public(p, "output") for p in P_out])
 
+
+def _overlay_document(cfg, parts):
+    """The overlay document itself: the identity block, the descriptor
+    census, and the descriptor lists `parts` carries."""
+    L, T, clk = cfg["listeners"], cfg["talkers"], cfg["clocking"]
+    P_in, P_out = cfg["ports_in"], cfg["ports_out"]
+    n_crf = 1 if clk["crf_sink"] else 0
+    n_crf_out = 1 if clk["crf_output"] else 0
+    in_clusters = sum(p["clusters"] for p in P_in)
+    out_clusters = sum(p["clusters"] for p in P_out)
+    clock_sources, audio_maps = parts.clock_sources, parts.audio_maps
     return {
         "_schema": OVERLAY_SCHEMA_ID,
         "_schema_version": OVERLAY_SCHEMA_VERSION,
@@ -3912,12 +4334,13 @@ def emit_aem_overlay(cfg):
             "AUDIO_CLUSTER": in_clusters + out_clusters,
             "AUDIO_MAP": len(audio_maps),   # dynamic ports carry none
         },
-        "stream_inputs": stream_inputs,
-        "stream_outputs": stream_outputs,
+        "stream_inputs": parts.stream_inputs,
+        "stream_outputs": parts.stream_outputs,
         "clock_sources": clock_sources,
-        "stream_ports": {"input": P_in_pub, "output": P_out_pub},
+        "stream_ports": {"input": parts.ports_in,
+                         "output": parts.ports_out},
         "audio_maps": audio_maps,
-        "audio_clusters": audio_clusters,
+        "audio_clusters": parts.audio_clusters,
         "cluster_format": "MBLA-mono",
         "cluster_policy": cfg["interface"]["cluster_policy"],
         "cluster_pools": cfg["interface"]["cluster_pools"],
@@ -3938,7 +4361,7 @@ def emit_aem_overlay(cfg):
 
 
 # ------------------------------------------------------------- build plan ---
-def emit_resource_section(est):
+def emit_resource_section(est: dict[str, Any]) -> list[str]:
     """The '## Resource estimate' block of the build plan."""
     ln = []
     a = ln.append
@@ -3994,7 +4417,8 @@ def emit_resource_section(est):
     return ln
 
 
-def emit_lwsrp_section(cfg, lwsrp):
+def emit_lwsrp_section(cfg: dict[str, Any],
+                       lwsrp: dict[str, Any]) -> list[str]:
     """The '## lwSRP reservation table' block of the build plan."""
     s, b = cfg["srp"], lwsrp["bandwidth"]
     ln = []
@@ -4036,7 +4460,7 @@ def emit_lwsrp_section(cfg, lwsrp):
     return ln
 
 
-def emit_platform_section(shape):
+def emit_platform_section(shape: dict[str, Any]) -> list[str]:
     """The gateware-consumed processor-memory block of the build plan."""
     ln = []
     a = ln.append
@@ -4083,7 +4507,7 @@ FEATURE_REMEASURE = {
 }
 
 
-def emit_features_line(cfg):
+def emit_features_line(cfg: dict[str, Any]) -> str:
     """The '## Optional blocks' section of the build plan. ALWAYS emitted, so
     a reader of any plan can see which optional blocks this bitstream does and
     does not contain - the point of the whole exercise is that an absent block
@@ -4115,7 +4539,22 @@ def emit_features_line(cfg):
     return "\n".join(ln)
 
 
-def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
+@dataclass(frozen=True)
+class PlanParts:
+    """The artifacts build() has already derived that the plan REPORTS on.
+    They travel together because the plan is one document about one config;
+    nothing in here is an input the plan re-derives."""
+    argv: list
+    overlay: dict
+    marks: list
+    est: dict
+    lwsrp: dict
+    shape: dict
+
+
+def _plan_identity(cfg):
+    """Who this build is (entity), what it runs on (board + features) and
+    what it clocks and converts with."""
     c, e, i = cfg["constraints"], cfg["entity"], cfg["interface"]
     ln = []
     a = ln.append
@@ -4166,6 +4605,15 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
           f"({clk['sampling_rate_hz']} Hz x {AES3_UI_PER_FRAME} UI/frame x "
           f"{AES3_OVERSAMPLE} oversample) = audio PLL / {ip['serial_clk_div']}")
     a("")
+    return ln
+
+
+def _plan_streams(cfg):
+    """The declared streams, plus the CRF pair that is a stream on the wire
+    without being one in `streams:`."""
+    clk = cfg["clocking"]
+    ln = []
+    a = ln.append
     a("## Streams")
     a("")
     a("| Dir | Index | Name | Channels | Clusters (cfg) | Formats |")
@@ -4183,6 +4631,15 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
         a(f"| talker | {len(cfg['talkers'])} | CRF (Milan 7.2.3) | - | - "
           f"| {clk['crf_output_format']} |")
     a("")
+    return ln
+
+
+def _plan_ports(cfg):
+    """One STREAM_PORT per stream, its cluster block, and how much of that
+    block the board actually routes to a pin."""
+    i = cfg["interface"]
+    ln = []
+    a = ln.append
     a("## Stream ports (one per stream)")
     a("")
     a("| Port | Stream | Clusters | base_cluster | AUDIO_MAP index | Cluster pool (D8 roles) | Map source |")
@@ -4212,6 +4669,13 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
       "ARE - `Virtual`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
       "controller operator can tell a live source from a dead slot.")
     a("")
+    return ln
+
+
+def _plan_descriptors(overlay):
+    """The AEM descriptor census the overlay came out with."""
+    ln = []
+    a = ln.append
     a("## AEM descriptor counts")
     a("")
     a("| Descriptor | Count |")
@@ -4219,6 +4683,13 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     for t, n in overlay["descriptor_counts"].items():
         a(f"| {t} | {n} |")
     a("")
+    return ln
+
+
+def _plan_soc_argv(cfg, argv):
+    """The exact milan_soc.py invocation this config's design flags mean."""
+    ln = []
+    a = ln.append
     a("## milan_soc.py parameter set")
     a("")
     a("```")
@@ -4229,9 +4700,13 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
       "stay in sw/litex/sweep.sh; sweep.sh sources the generated "
       f"configs/generated/sweep_opts_{cfg['board_target']}.sh for OPTS/L2)")
     a("")
-    ln.extend(emit_lwsrp_section(cfg, lwsrp))
-    ln.extend(emit_platform_section(shape))
-    ln.extend(emit_resource_section(est))
+    return ln
+
+
+def _plan_capability(marks):
+    """Which elements today's RTL can actually build, and which are planned."""
+    ln = []
+    a = ln.append
     a("## RTL capability")
     a("")
     a("| Element | Status | Note |")
@@ -4247,11 +4722,29 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     else:
         a("**All elements buildable with today's RTL.**")
     a("")
+    return ln
+
+
+def emit_build_plan(cfg: dict[str, Any], parts: PlanParts) -> str:
+    """The whole build_plan.md for one config: who it is, what it streams,
+    what argv it implies, and what it costs - one document per build so a
+    reviewer never has to join two artifacts to answer one question."""
+    ln = []
+    ln.extend(_plan_identity(cfg))
+    ln.extend(_plan_streams(cfg))
+    ln.extend(_plan_ports(cfg))
+    ln.extend(_plan_descriptors(parts.overlay))
+    ln.extend(_plan_soc_argv(cfg, parts.argv))
+    ln.extend(emit_lwsrp_section(cfg, parts.lwsrp))
+    ln.extend(emit_platform_section(parts.shape))
+    ln.extend(emit_resource_section(parts.est))
+    ln.extend(_plan_capability(parts.marks))
     return "\n".join(ln)
 
 
 # ------------------------------------------------------------- tracked RTL --
-def write_rtl_entity(cfg, adp_svh, paths):
+def write_rtl_entity(cfg: dict[str, Any], adp_svh: str,
+                     paths: dict[str, str]) -> None:
     """Write the ENTITY-DEFINITION artifact into the tracked RTL tree.
 
     Called ONLY by `--write-rtl`, for the config you are about to build - see
@@ -4266,16 +4759,38 @@ def write_rtl_entity(cfg, adp_svh, paths):
     would just recreate the directory and mislead the next reader.  The shape
     include survives and is MORE load-bearing than before: milan_datapath.sv
     now sizes the protocol processor's source/sink arrays from it."""
-    adp_gen = os.path.join(ROOT, ADP_SHAPE_REL)
-    os.makedirs(os.path.dirname(adp_gen), exist_ok=True)
-    with open(adp_gen, "w") as f:
-        f.write(adp_svh)
-    paths["rtl_adp_shape_svh"] = adp_gen
+    adp_gen = ROOT / ADP_SHAPE_REL
+    adp_gen.parent.mkdir(parents=True, exist_ok=True)
+    adp_gen.write_text(adp_svh)
+    paths["rtl_adp_shape_svh"] = str(adp_gen)
 
 
-def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
-    """Run the full pipeline for one config. Returns dict with the emitted
-    paths + in-memory artifacts (for tests)."""
+@dataclass(frozen=True)
+class BuildArtifacts:
+    """Everything one config IMPLIES, derived before anything is written.
+    `aem_rom` is None when the ROM consumer cannot express this overlay, and
+    `aem_rom_why` then says so."""
+    cfg: dict
+    argv: list
+    overlay: dict
+    lwsrp: dict
+    lwsrp_svh: str
+    csr_svh: str
+    adp_svh: str
+    aem_rom: str
+    aem_rom_why: str
+    iparams: dict
+    shape: dict
+    marks: list
+    est: dict
+    plan: str
+    sweep: str
+
+
+def _derive_artifacts(config_path):
+    """The whole derivation pipeline for one config. Writes NOTHING: every
+    artifact below is in memory, so a config that cannot be built fails
+    before any file has been touched."""
     cfg = load_config(config_path)
     argv = emit_soc_argv(cfg)
     overlay = emit_aem_overlay(cfg)
@@ -4299,18 +4814,37 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     shape = emit_platform_shape(cfg)
     marks = rtl_capability_marks(cfg)
     est = estimate_resources(cfg, overlay)
-    plan = emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape)
+    plan = emit_build_plan(
+        cfg, PlanParts(argv, overlay, marks, est, lwsrp, shape))
     sweep = emit_sweep_opts(cfg)
+    return BuildArtifacts(
+        cfg=cfg, argv=argv, overlay=overlay, lwsrp=lwsrp,
+        lwsrp_svh=lwsrp_svh, csr_svh=csr_svh, adp_svh=adp_svh,
+        aem_rom=aem_rom, aem_rom_why=aem_rom_why, iparams=iparams,
+        shape=shape, marks=marks, est=est, plan=plan, sweep=sweep)
 
-    outdir = outdir or os.path.join(HERE, "out")
-    d = os.path.join(outdir, cfg["name"])
-    os.makedirs(d, exist_ok=True)
-    p_soc = os.path.join(d, "soc_params.json")
+
+def _write_artifact_dir(art, outdir):
+    """Write the READABLE artifact set to <outdir>/<config name>/. Returns
+    (that directory as a `Path`, {label: path string} for everything written
+    there).
+
+    The map's values are `str`: test_builder.py hands them straight to
+    `subprocess.run` argument lists and to `pathlib.Path(...)`, and
+    `endstation_builder` does not get to change that contract from here.
+    """
+    cfg, overlay = art.cfg, art.overlay
+    outdir = Path(outdir) if outdir else HERE / "out"
+    if not outdir.is_absolute():
+        outdir = Path.cwd() / outdir
+    d = outdir / cfg["name"]
+    d.mkdir(parents=True, exist_ok=True)
+    p_soc = d / "soc_params.json"
     with open(p_soc, "w") as f:
-        json.dump({"milan_soc": "sw/litex/milan_soc.py", "argv": argv,
+        json.dump({"milan_soc": "sw/litex/milan_soc.py", "argv": art.argv,
                    "_source_config": cfg["source"]}, f, indent=1)
         f.write("\n")
-    p_ovl = os.path.join(d, "aem_overlay.json")
+    p_ovl = d / "aem_overlay.json"
     with open(p_ovl, "w") as f:
         json.dump(overlay, f, indent=1)
         f.write("\n")
@@ -4321,41 +4855,55 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         # Generate it here, once per config, so a three-directive Vivado sweep
         # reads one stable image rather than three jobs racing on a shared
         # relative gptp_ucode.hex in their run directories.
-        p_gptp_ucode = os.path.join(d, "gptp_ucode.hex")
+        p_gptp_ucode = d / "gptp_ucode.hex"
         generator = GPTP_UCODE_GENERATOR
         mac = _mac48(cfg["platform"]["mac_address"],
                      "platform.mac_address")
         subprocess.run(
-            [sys.executable, generator, "-o", p_gptp_ucode,
+            [sys.executable, str(generator), "-o", str(p_gptp_ucode),
              "--mac", f"0x{mac:012x}",
              "--p1", str(cfg["gptp"]["priority1"]),
              "--clk-hz", str(cfg["constraints"]["milan_clk_hz"])],
             check=True, capture_output=True, text=True)
-    p_plan = os.path.join(d, "build_plan.md")
+    p_plan = d / "build_plan.md"
     with open(p_plan, "w") as f:
-        f.write(plan)
+        f.write(art.plan)
         f.write("\n")
-    p_srp = os.path.join(d, "lwsrp_table.json")
+    p_srp = d / "lwsrp_table.json"
     with open(p_srp, "w") as f:
-        json.dump(lwsrp, f, indent=1)
+        json.dump(art.lwsrp, f, indent=1)
         f.write("\n")
-    p_srp_svh = os.path.join(d, "lwsrp_table.svh")
+    p_srp_svh = d / "lwsrp_table.svh"
     with open(p_srp_svh, "w") as f:
-        f.write(lwsrp_svh)
-    p_csr_svh = os.path.join(d, "lwsrp_csr_defaults.svh")
+        f.write(art.lwsrp_svh)
+    p_csr_svh = d / "lwsrp_csr_defaults.svh"
     with open(p_csr_svh, "w") as f:
-        f.write(csr_svh)
-    p_adp_svh = os.path.join(d, "adp_shape_defaults.svh")
+        f.write(art.csr_svh)
+    p_adp_svh = d / "adp_shape_defaults.svh"
     with open(p_adp_svh, "w") as f:
-        f.write(adp_svh)
-    p_aem_rom = os.path.join(d, AEM_ROM_OUT_NAME)
-    if aem_rom is not None:
+        f.write(art.adp_svh)
+    p_aem_rom = d / AEM_ROM_OUT_NAME
+    if art.aem_rom is not None:
         with open(p_aem_rom, "w") as f:
-            f.write(aem_rom)
-    p_shape = os.path.join(d, "platform_shape.json")
+            f.write(art.aem_rom)
+    p_shape = d / "platform_shape.json"
     with open(p_shape, "w") as f:
-        json.dump(shape, f, indent=1)
+        json.dump(art.shape, f, indent=1)
         f.write("\n")
+    return d, dict(soc_params=str(p_soc), aem_overlay=str(p_ovl),
+                   build_plan=str(p_plan), lwsrp_table=str(p_srp),
+                   lwsrp_svh=str(p_srp_svh), csr_defaults_svh=str(p_csr_svh),
+                   adp_shape_svh=str(p_adp_svh), platform_shape=str(p_shape),
+                   aem_rom_svh=str(p_aem_rom),
+                   gptp_ucode=None if p_gptp_ucode is None
+                   else str(p_gptp_ucode))
+
+
+def _write_shape_copies(art, d, write_rtl, write_fragment):
+    """The two writes that declare OWNERSHIP rather than just report: the
+    per-board sweep fragment and the per-config shape include. Returns
+    (sweep fragment path, config shape-include path)."""
+    cfg = art.cfg
     # Sweep fragment: written ONLY under --write-rtl, the same "this config
     # owns the tree now" declaration that writes the tracked svh. It used to
     # be written by EVERY build() - defensible while the content was
@@ -4365,8 +4913,8 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # the 4x4's tdm8-master flags to the 1x1's, and the next `sweep.sh arty`
     # would have built the wrong shape with a fragment that looked generated
     # and current. One flag, one owner, one moment of transfer.
-    gen_dir = os.path.join(ROOT, GEN_CONFIG_DIR)
-    p_sweep = os.path.join(gen_dir, f"sweep_opts_{cfg['board_target']}.sh")
+    gen_dir = ROOT / GEN_CONFIG_DIR
+    p_sweep = gen_dir / f"sweep_opts_{cfg['board_target']}.sh"
     # write_fragment defaults to write_rtl but is separable on purpose: the
     # fragment is PER-BOARD (sweep_opts_arty.sh vs sweep_opts_ax7101.sh, no
     # collision), the tracked svh is PER-TREE (one owner). Updating board A's
@@ -4374,9 +4922,8 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     if write_fragment is None:
         write_fragment = write_rtl
     if write_fragment:
-        os.makedirs(gen_dir, exist_ok=True)
-        with open(p_sweep, "w") as f:
-            f.write(sweep)
+        gen_dir.mkdir(parents=True, exist_ok=True)
+        p_sweep.write_text(art.sweep)
     # Product identity is carried only in the generated AEM image.
     # per-CONFIG (not per-board) shape include: an include dir whose `gen/`
     # holds this config's entity definition, so a harness or a build selects
@@ -4387,13 +4934,12 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # on ~20 throwaway variants in temp directories, and each one leaving a
     # configs/generated/tmpXXXX/ behind is untracked litter that a reader has
     # to guess at. A variant still gets its copy under outdir/<name>/.
-    p_cfg_adp = os.path.join(d, "gen", "adp_shape_defaults.svh")
-    if os.path.normpath(cfg["source"]).startswith("configs" + os.sep):
-        p_cfg_adp = os.path.join(gen_dir, cfg["name"], "gen",
-                                 "adp_shape_defaults.svh")
-    os.makedirs(os.path.dirname(p_cfg_adp), exist_ok=True)
-    with open(p_cfg_adp, "w") as f:
-        f.write(adp_svh)
+    p_cfg_adp = d / "gen" / "adp_shape_defaults.svh"
+    source_parts = Path(cfg["source"]).parts
+    if len(source_parts) > 1 and source_parts[0] == "configs":
+        p_cfg_adp = gen_dir / cfg["name"] / "gen" / "adp_shape_defaults.svh"
+    p_cfg_adp.parent.mkdir(parents=True, exist_ok=True)
+    p_cfg_adp.write_text(art.adp_svh)
     # NO DESCRIPTOR SET BESIDE IT ANY MORE (2026-08-12). This directory used
     # to get gen/aecp_aem_rom.svh too, because KL_aecp_aem_store `include-d it
     # out of the SAME `gen/` a harness pointed +incdir at, and shipping the
@@ -4402,13 +4948,27 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # a `gen/` dir now holds exactly what an elaboration still reads - the
     # shape - and the ROM stays a readable artifact under out/<cfg>/ where no
     # +incdir can accidentally pick it up.
-    paths = dict(soc_params=p_soc, aem_overlay=p_ovl, build_plan=p_plan,
-                 lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
-                 csr_defaults_svh=p_csr_svh, adp_shape_svh=p_adp_svh,
+    return str(p_sweep), str(p_cfg_adp)
+
+
+def build(config_path: str, outdir: str | None = None,
+          write_rtl: bool = False,
+          write_fragment: bool | None = None) -> dict[str, Any]:
+    """Run the full pipeline for one config. Returns dict with the emitted
+    paths + in-memory artifacts (for tests)."""
+    art = _derive_artifacts(config_path)
+    cfg = art.cfg
+    d, out = _write_artifact_dir(art, outdir)
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+    paths = dict(soc_params=out["soc_params"], aem_overlay=out["aem_overlay"],
+                 build_plan=out["build_plan"],
+                 lwsrp_table=out["lwsrp_table"], lwsrp_svh=out["lwsrp_svh"],
+                 csr_defaults_svh=out["csr_defaults_svh"],
+                 adp_shape_svh=out["adp_shape_svh"],
                  cfg_adp_shape_svh=p_cfg_adp,
-                 platform_shape=p_shape, sweep_opts=p_sweep)
-    if p_gptp_ucode is not None:
-        paths["gptp_ucode"] = p_gptp_ucode
+                 platform_shape=out["platform_shape"], sweep_opts=p_sweep)
+    if out["gptp_ucode"] is not None:
+        paths["gptp_ucode"] = out["gptp_ucode"]
     # The TRACKED RTL header: exactly one config (the DEPLOYED shape, marked
     # srp.rtl_table) owns hdl/common/csr/gen/lwsrp_csr_defaults.svh, the
     # subset milan_csr.sv COMPILES, so a config edit re-elaborates the CSR
@@ -4424,29 +4984,34 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # chose. The gate reads the `Source:` header, so "which shape is in the
     # tree" is always answerable.
     if write_rtl:
-        if aem_rom is None:
+        if art.aem_rom is None:
             raise ConfigError(
                 f"--write-rtl: this shape's AEM descriptor ROM cannot be "
                 f"generated, so its entity definition is incomplete and the "
-                f"ADP counts derived from it cannot be trusted - {aem_rom_why}")
-        write_rtl_entity(cfg, adp_svh, paths)
+                f"ADP counts derived from it cannot be trusted - "
+                f"{art.aem_rom_why}")
+        write_rtl_entity(cfg, art.adp_svh, paths)
     if cfg["srp"]["rtl_table"]:
-        csr_gen = os.path.join(ROOT, CSR_DEFAULTS_REL)
-        os.makedirs(os.path.dirname(csr_gen), exist_ok=True)
-        with open(csr_gen, "w") as f:
-            f.write(csr_svh)
-        paths["rtl_csr_defaults_svh"] = csr_gen
-    if aem_rom is not None:
-        paths["aem_rom_svh"] = p_aem_rom
-    return dict(cfg=cfg, argv=argv, overlay=overlay, marks=marks, plan=plan,
-                resource_estimate=est, sweep_opts=sweep, lwsrp=lwsrp,
-                lwsrp_svh=lwsrp_svh, csr_defaults_svh=csr_svh,
-                adp_shape_svh=adp_svh, aem_rom_svh=aem_rom,
-                aem_rom_unsupported=aem_rom_why,
-                interface_params=iparams, platform=shape, paths=paths)
+        csr_gen = ROOT / CSR_DEFAULTS_REL
+        csr_gen.parent.mkdir(parents=True, exist_ok=True)
+        csr_gen.write_text(art.csr_svh)
+        paths["rtl_csr_defaults_svh"] = str(csr_gen)
+    if art.aem_rom is not None:
+        paths["aem_rom_svh"] = out["aem_rom_svh"]
+    return dict(cfg=cfg, argv=art.argv, overlay=art.overlay, marks=art.marks,
+                plan=art.plan,
+                resource_estimate=art.est, sweep_opts=art.sweep,
+                lwsrp=art.lwsrp,
+                lwsrp_svh=art.lwsrp_svh, csr_defaults_svh=art.csr_svh,
+                adp_shape_svh=art.adp_svh, aem_rom_svh=art.aem_rom,
+                aem_rom_unsupported=art.aem_rom_why,
+                interface_params=art.iparams, platform=art.shape,
+                paths=paths)
 
 
-def main():
+def main() -> None:
+    """The CLI: build one config, then say what it decided and name every
+    file it wrote, so a build is auditable from its own console output."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
     ap.add_argument("config", help="end-station YAML config")
     ap.add_argument("-o", "--outdir", default=None,
@@ -4487,9 +5052,10 @@ def main():
           f"{r['resource_estimate']['worst_pct']}%"
           + (", UPPER BOUND" if r["resource_estimate"]["upper_bound"] else "")
           + ")")
-    for p in r["paths"].values():
-        rel = os.path.relpath(p, ROOT)
-        print(f"  wrote {p if rel.startswith(os.pardir) else rel}")
+    for written in r["paths"].values():
+        path = Path(written)
+        print(f"  wrote "
+              f"{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
 
 
 if __name__ == "__main__":

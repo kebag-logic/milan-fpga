@@ -16,6 +16,7 @@ Regenerate:
         -o docs/diagrams/timesync_chain.png
 """
 import html, sys
+from dataclasses import dataclass
 
 W, H = 1760, 832
 
@@ -36,22 +37,38 @@ N = {
  "tsring":  (675,116,200,84,"timestamp transport","RX side FIFO + TX seq/type\nfabric tuple pairing",BLUE,0),
  "kleth":   (910,116,190,84,"KL_gptp_engine","BTCA + Pdelay + Sync\nPHC servo in fabric",BLUE,0),
  "pub":     (1135,116,180,84,"atomic publish bank","GM + parent + flags\npdelay + offset + annq",BLUE,0),
- "hwnote":  (1350,116,370,84,"product ownership (0x0002_0056)","fabric is the ONE PHC/protocol/publication owner (#259)\noption OFF is ownerless verification hardware",GREY,1),
+ "hwnote":  (1350,116,370,84,"product ownership (0x0002_0056)",
+             "fabric is the ONE PHC/protocol/publication owner (#259)\n"
+             "option OFF is ownerless verification hardware",GREY,1),
  # row 2 - the PHC hub + its fabric-owned public consumers
- "phc":     (40,290,330,96,"PHC - timestamp_counter","Q8.24 ns accumulator, datapath clock\nCSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),
- "g2c":     (1190,290,330,96,"public gPTP consumers","CSR GM/parent/pdelay - GET_AVB_INFO/PATH\nCLKV asCapable/sync - every AVTP tu",BLUE,0),
+ "phc":     (40,290,330,96,"PHC - timestamp_counter",
+             "Q8.24 ns accumulator, datapath clock\n"
+             "CSR 0x500 CTRL - 0x504 INCR - 0x508 ADJ - 0x520 CMD",GOLD,0),
+ "g2c":     (1190,290,330,96,"public gPTP consumers",
+             "CSR GM/parent/pdelay - GET_AVB_INFO/PATH\n"
+             "CLKV asCapable/sync - every AVTP tu",BLUE,0),
  # AAF timestamp-consumer strip
- "aafpkt":  (40,445,300,76,"AAF packetizer","avtp_timestamp = ptp_now + PTO\n(PTO: SET_STREAM_INFO acc-lat, reset 2 ms)",ORANGE,0),
+ "aafpkt":  (40,445,300,76,"AAF packetizer",
+             "avtp_timestamp = ptp_now + PTO\n"
+             "(PTO: SET_STREAM_INFO acc-lat, reset 2 ms)",ORANGE,0),
  "rxmon":   (380,445,300,76,"AVTP RX monitor","ts_delta 0x6EC = avtp_ts - ptp_now\nLATE / EARLY counters",ORANGE,0),
- "locknote":(1430,445,290,76,"media-lock rule","internal source: lock on first valid PDU\nexternal (CRF): lock only when servo converged",GREY,1),
+ "locknote":(1430,445,290,76,"media-lock rule",
+             "internal source: lock on first valid PDU\n"
+             "external (CRF): lock only when servo converged",GREY,1),
  # lane B - media clock
- "mmcm":    (40,596,230,96,"audio MMCM 24.576 MHz","integer x34/43 off 31.081 MHz\n-10.6 ppm base - fine-PS 16.9 ps + DRP",GREEN,0),
+ "mmcm":    (40,596,230,96,"audio MMCM 24.576 MHz",
+             "integer x34/43 off 31.081 MHz\n"
+             "-10.6 ppm base - fine-PS 16.9 ps + DRP",GREEN,0),
  "div":     (305,596,150,96,"/512","48 kHz media clock\n(MCLK/SCLK/LRCK dividers)",GREEN,0),
  "frontend":(490,596,200,96,"I2S / TDM front-ends","DAC render + ADC capture\npair FIFO, converged flag",GREEN,0),
  "crftx":   (725,596,240,96,"KL_crf_tx (talker)","every 96th sample event:\nts = PHC ns + PTO - 500 PDU/s",GREEN,0),
  "crfwire": (1000,596,120,96,"wire","CRF stream\nsubtype 4",GREY,0),
- "crfrx":   (1155,596,240,96,"KL_crf_rx (listener)","validate Milan 7.3.2 - delta 0x744\nrate 0x748 - lock 0x738[31]",GREEN,0),
- "servo":   (1430,596,290,96,"KL_mmcm_drp_servo","in: rate error (ns/512 ms) - PI FLL +-200 ppm\nMCSRV 0x8F8/0x8FC - engages at the shape.s CRF clock_source",GREEN,0),
+ "crfrx":   (1155,596,240,96,"KL_crf_rx (listener)",
+             "validate Milan 7.3.2 - delta 0x744\n"
+             "rate 0x748 - lock 0x738[31]",GREEN,0),
+ "servo":   (1430,596,290,96,"KL_mmcm_drp_servo",
+             "in: rate error (ns/512 ms) - PI FLL +-200 ppm\n"
+             "MCSRV 0x8F8/0x8FC - engages at the shape.s CRF clock_source",GREEN,0),
 }
 
 # ---- edges: (src, dst, label, [waypoints], style) ----
@@ -90,22 +107,29 @@ LANE_LABELS = [
  (40,278,"THE HUB - PTP hardware clock (PHC) and its public consumers (one owner, #259)","#B26A00"),
  (40,433,"AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)","#EF6C00"),
  (40,566,"MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)","#2E7D32"),
- (40,584,"coherent chain: capture, CRF grid and (via the servo) the listener playback clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter floor)","#555555"),
+ (40,584,
+  "coherent chain: capture, CRF grid and (via the servo) the listener playback "
+  "clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter "
+  "floor)","#555555"),
 ]
 
 TITLE = "milan-fpga time sync - the three clocks and how they chain"
 SUB   = ("fabric gPTP  ->  network PHC + atomic public state   -   PHC + CRF  ->  media clock (MMCM-DRP servo)"
          "   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples")
-FOOT  = ("sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py"
+FOOT  = ("sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - "
+         "hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py"
          "   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain")
 
 
-def esc(s):
+def esc(s: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
     return html.escape(str(s), quote=True)
 
 
 # ---------------------------------------------------------------- SVG ----
-def svg():
+def svg() -> str:
+    """the published .svg: the node boxes, the flow arrows with their labels,
+    the lane notes and the source footer."""
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
          f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
     o.append(f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>')
@@ -149,44 +173,76 @@ def svg():
                     bl, best = l, ((x1+x2)/2, (y1+y2)/2, x2 == x1)
             mx, my, vert = best
             tx, ty, anch = (mx+6, my-4, "start") if vert else (mx, my-6, "middle")
-            o.append(f'<text x="{tx}" y="{ty}" font-size="10.5" fill="#5D4037" text-anchor="{anch}">{esc(label)}</text>')
+            o.append(f'<text x="{tx}" y="{ty}" font-size="10.5" fill="#5D4037" '
+                     f'text-anchor="{anch}">{esc(label)}</text>')
     o.append(f'<text x="40" y="{H-18}" font-size="11" fill="#78909C">{esc(FOOT)}</text>')
     o.append('</svg>')
     return "\n".join(o)
 
 
 # ------------------------------------------------------------- drawio ----
-def dio_esc(s):
+def dio_esc(s: object) -> str:
+    """`esc` plus the newline entity: a drawio label lives inside an attribute,
+    where a literal line break would end the value."""
     return html.escape(str(s), quote=True).replace("\n", "&#10;")
 
 
-def drawio():
+@dataclass(frozen=True)
+class CellStyle:
+    """How one drawio vertex is painted: the (fill, stroke) pair off the node
+    table, its dashed flag, and the font the label is set in."""
+    fill: str
+    stroke: str
+    dash: int = 0
+    fs: int = 12
+    bold: int = 1
+
+
+@dataclass(frozen=True)
+class LabelStyle:
+    """How one free-standing drawio text cell is painted."""
+    col: str
+    fs: int = 13
+    bold: int = 1
+
+
+def drawio() -> str:
+    """the same chain as an editable .drawio: a vertex per node, a text cell per
+    lane note and one routed edge per arrow."""
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
 
-    def vertex(cid, x, y, w, h, label, fill, stroke, dash, fs=12, bold=1):
-        style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
-                 f"fontSize={fs};align=center;verticalAlign=middle;"
-                 + ("dashed=1;" if dash else "")
-                 + ("fontStyle=1;" if bold else ""))
-        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{style}" '
+    def vertex(cid: str, rect: tuple[int, int, int, int], label: str,
+               style: CellStyle) -> None:
+        """one drawio node box, painted from a `CellStyle` rather than five loose flags."""
+        x, y, w, h = rect
+        st = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={style.fill};"
+              f"strokeColor={style.stroke};"
+              f"fontSize={style.fs};align=center;verticalAlign=middle;"
+              + ("dashed=1;" if style.dash else "")
+              + ("fontStyle=1;" if style.bold else ""))
+        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{st}" '
                      f'vertex="1" parent="1">'
                      f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
 
-    def text(cid, x, y, w, label, col, fs=13, bold=1):
-        style = (f"text;html=1;align=left;verticalAlign=middle;fontSize={fs};"
-                 f"fontColor={col};" + ("fontStyle=1;" if bold else ""))
-        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{style}" '
+    def text(cid: str, x: int, y: int, w: int, label: str,
+             style: LabelStyle) -> None:
+        """one free-standing drawio label. `y` is the SVG text baseline, and the
+        cell is hung 16 above it so both renders put the note in the same place."""
+        st = (f"text;html=1;align=left;verticalAlign=middle;fontSize={style.fs};"
+              f"fontColor={style.col};" + ("fontStyle=1;" if style.bold else ""))
+        cells.append(f'<mxCell id="{cid}" value="{dio_esc(label)}" style="{st}" '
                      f'vertex="1" parent="1">'
                      f'<mxGeometry x="{x}" y="{y-16}" width="{w}" height="22" as="geometry"/></mxCell>')
 
     for nid, (x, y, w, h, title, sub, (fill, stroke), dash) in N.items():
         lbl = title + ("\n" + sub if sub else "")
-        vertex("n_" + nid, x, y, w, h, lbl, fill, stroke, dash)
+        vertex("n_" + nid, (x, y, w, h), lbl, CellStyle(fill, stroke, dash))
     for k, (x, y, t, col) in enumerate(LANE_LABELS):
-        text(f"t_{k}", x, y, 1680, t, col, fs=12 if y == 584 else 13, bold=0 if y == 584 else 1)
-    text("t_title", 40, 44, 1400, TITLE, "#263238", fs=22)
-    text("t_sub", 40, 70, 1680, SUB, "#546E7A", fs=11, bold=0)
-    text("t_foot", 40, H-18, 1680, FOOT, "#78909C", fs=10, bold=0)
+        text(f"t_{k}", x, y, 1680, t,
+             LabelStyle(col, fs=12 if y == 584 else 13, bold=0 if y == 584 else 1))
+    text("t_title", 40, 44, 1400, TITLE, LabelStyle("#263238", fs=22))
+    text("t_sub", 40, 70, 1680, SUB, LabelStyle("#546E7A", fs=11, bold=0))
+    text("t_foot", 40, H-18, 1680, FOOT, LabelStyle("#78909C", fs=10, bold=0))
 
     for k, (src, dst, label, pts, sty) in enumerate(E):
         sx, sy, sw, sh = N[src][:4]
@@ -218,6 +274,8 @@ def drawio():
 
 
 base = sys.argv[1] if len(sys.argv) > 1 else "timesync_chain"
-open(base + ".svg", "w").write(svg())
-open(base + ".drawio", "w").write(drawio())
+with open(base + ".svg", "w") as fh:
+    fh.write(svg())
+with open(base + ".drawio", "w") as fh:
+    fh.write(drawio())
 print("wrote", base + ".svg", "and", base + ".drawio")

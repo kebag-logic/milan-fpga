@@ -17,16 +17,17 @@ Run: cd sw/litex && python3 test_pp_boot_bus_freeze.py
 """
 
 import ast
-import os
 import sys
+from collections.abc import Callable, Generator
+from pathlib import Path
 
 from migen import *
 
 from litex.soc.integration.soc import SoCBusHandler, SoCRegion
 from litex.soc.interconnect import wishbone, axi
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-MILAN_SOC = os.path.join(HERE, "milan_soc.py")
+HERE = Path(__file__).resolve().parent
+MILAN_SOC = HERE / "milan_soc.py"
 
 #: Protocol-memory masters in the same insertion order used by milan_soc.py.
 #: The grant index is the insertion index.
@@ -59,24 +60,39 @@ WORD = 0x01000100494D4541          # what a healthy memory returns
 #: just `err` is what makes "the access completed" a measurement.
 WORD_BE = int.from_bytes(WORD.to_bytes(8, "little"), "big")
 
-fails = 0
-checks = 0
+#: The tally `check()` accumulates into: ONE module-level container it MUTATES,
+#: rather than two names it had to declare `global` to rebind. The summary at
+#: the bottom of the file reads the same object, so the count printed and the
+#: count exited on cannot come apart.
+TALLY = {"checks": 0, "fails": 0}
+
+#: What migen's simulator drives: a generator that yields signals and
+#: statements and is sent back the values it reads. Spelled once so the
+#: stimulus factories below can say what they hand `run_simulation`.
+SimGen = Generator[object, object, None]
 
 
-def check(name, cond, detail=""):
-    global fails, checks
-    checks += 1
+def check(name: str, cond: object, detail: str = "") -> None:
+    """Score one claim into TALLY, and say which one on the spot.
+
+    `cond` is judged for truth, not for being a bool: several claims read a
+    list that is empty exactly when the bus froze, and a `bool()` here would
+    hide which of the two it was from the printed detail.
+    """
+    TALLY["checks"] += 1
     if cond:
         print(f"  [ok]   {name}")
     else:
-        fails += 1
+        TALLY["fails"] += 1
         print(f"  [FAIL] {name} {detail}")
 
 
 def _milan_soc():
     """The real SoC module: the bridge, the gate and the counters are ITS code."""
-    if HERE not in sys.path:
-        sys.path.insert(0, HERE)
+    # sys.path entries are strings; a Path here would never compare equal to
+    # one already present and would be re-inserted on every call.
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
     import milan_soc
     return milan_soc
 
@@ -143,7 +159,13 @@ class PPMemBus(Module):
         h.add_slave(name="dma", slave=self.slave,
                     region=SoCRegion(origin=0x00000000, size=2**32))
 
-    def arbiter(self):
+    def arbiter(self) -> Module:
+        """The read arbiter LiteX built, so a freeze can be read off it.
+
+        Reached through the handler's own submodules rather than kept as a
+        name here: the interconnect is `SoCBusHandler.finalize()`'s, and a
+        second reference to it would be a second thing to keep current.
+        """
         return dict(self.h._submodules)["_interconnect"].arbiter
 
 
@@ -206,7 +228,7 @@ class Session(Module):
             [("desc", wb, self.psn, self.psn_set)], mem_rdy=self.mem_rdy)
 
 
-def counters(dut):
+def counters(dut: Session) -> Generator[object, object, dict[str, int]]:
     """The two CSR words, decoded the way the register map documents them."""
     req = yield dut.diag.desc_req.status
     flt = yield dut.diag.desc_fault.status
@@ -218,7 +240,8 @@ def counters(dut):
 #  the memory, and the neighbours that load the bus
 # ---------------------------------------------------------------------------
 
-def memory(dut, cycles, alive_at=0, latency=MEM_LATENCY):
+def memory(dut: PPMemBus, cycles: int, alive_at: int = 0,
+           latency: int = MEM_LATENCY) -> Callable[[], SimGen]:
     """Main memory: `latency` cycles, ARLEN+1 beats, writes answered on B.
 
     Before `alive_at` a read COMMAND IS ACCEPTED AND SWALLOWED - see the banner
@@ -226,7 +249,8 @@ def memory(dut, cycles, alive_at=0, latency=MEM_LATENCY):
     """
     s = dut.slave
 
-    def gen():
+    def gen() -> SimGen:
+        """Accept AR/AW every cycle; answer only what arrived after `alive_at`."""
         rq = []          # [ready_cycle, beats_left]
         wq = []          # ready_cycle
         yield s.ar.ready.eq(1)
@@ -272,9 +296,11 @@ def memory(dut, cycles, alive_at=0, latency=MEM_LATENCY):
 # check. `run_simulation` ends when every generator has, so one unbounded wait
 # turns a red test into a test that never finishes.
 
-def wb_repeat_reads(wb, addr, cycles, start=0):
+def wb_repeat_reads(wb: wishbone.Interface, addr: int, cycles: int,
+                    start: int = 0) -> Callable[[], SimGen]:
     """Repeated response-buffer reads that load the retained read arbiter."""
-    def gen():
+    def gen() -> SimGen:
+        """One read after another for `cycles`, each released on ack or err."""
         for _ in range(start):
             yield
         yield wb.adr.eq(addr >> 3)
@@ -299,11 +325,17 @@ def wb_repeat_reads(wb, addr, cycles, start=0):
     return gen
 
 
-def wb_one_read(wb, addr, budget, start=0):
-    """One wishbone read, abandoned after `budget` cycles."""
+def wb_one_read(wb: wishbone.Interface, addr: int, budget: int, start: int = 0
+                ) -> tuple[Callable[[], SimGen], list[tuple[str, int | None]]]:
+    """One wishbone read, abandoned after `budget` cycles.
+
+    The list comes back with the generator and is filled while it runs: one
+    ("ack", word) if the bus answered, one ("tmo", None) if it never did.
+    """
     out = []
 
-    def gen():
+    def gen() -> SimGen:
+        """Hold cyc & stb until the read is answered or the budget is spent."""
         for _ in range(start):
             yield
         yield wb.adr.eq(addr >> 3)
@@ -327,8 +359,15 @@ def wb_one_read(wb, addr, budget, start=0):
     return gen, out
 
 
-def idle(n):
-    def gen():
+def idle(n: int) -> Callable[[], SimGen]:
+    """`n` cycles of nothing - a bounded wait, never a wait-until.
+
+    Every generator in this file is bounded on purpose: the defect under
+    study is a bus that stops answering, and a wait-until would hang the
+    simulator instead of failing a check.
+    """
+    def gen() -> SimGen:
+        """Advance `n` cycles and stop."""
         for _ in range(n):
             yield
     return gen
@@ -338,7 +377,95 @@ def idle(n):
 #  the session
 # ---------------------------------------------------------------------------
 
-def run(gate, healthy, cycles=CYCLES, boot_probe=True, load=True):
+def _dfi_handover(dut, cycles):
+    """The one DFI bit the gate reads: 1 at configuration, 0 for the BIOS's
+    software-control window, 1 again when `sdram_init` is done."""
+    for _ in range(SW_AT):
+        yield
+    yield dut.sel.eq(0)
+    for _ in range(HAND_AT - SW_AT):
+        yield
+    yield dut.sel.eq(1)
+    for _ in range(cycles - HAND_AT):
+        yield
+
+
+def _processor(dut, cycles, boot_probe):
+    """The store's two requests, each offered until the bridge takes it."""
+    t = 0
+    if boot_probe:
+        # the boot walk: KL_aecp_desc_store resets INTO S_HDR_REQ
+        yield dut.req.addr.eq(0x7F700000)
+        yield dut.req.beats.eq(4)
+        yield dut.req.valid.eq(1)
+        yield
+        t += 1
+        while t < LOCATE_AT and not (yield dut.req.ready):
+            yield
+            t += 1
+        yield dut.req.valid.eq(0)
+    while t < LOCATE_AT:
+        yield
+        t += 1
+    # a locate re-arms the header probe long after the BIOS is done
+    yield dut.req.addr.eq(0x7F700000)
+    yield dut.req.beats.eq(4)
+    yield dut.req.valid.eq(1)
+    yield
+    t += 1
+    while t < cycles - 20 and not (yield dut.req.ready):
+        yield
+        t += 1
+    yield dut.req.valid.eq(0)
+    while t < cycles - 20:
+        yield
+        t += 1
+
+
+def _collector(dut, cycles, beats):
+    """Every response beat the processor would see, with its cycle, into `beats`."""
+    for t in range(cycles):
+        if (yield dut.rsp.valid):
+            beats.append({"t": t, "err": (yield dut.rsp.err),
+                          "data": (yield dut.rsp.data),
+                          "blast": (yield dut.rsp.blast)})
+        yield
+
+
+def _monitor(dut, cycles, alive_at, watch):
+    """WAS THE BUS TOUCHED WHILE THE MEMORY COULD NOT ANSWER, recorded in `watch`.
+
+    MEASURED AGAINST THE EXPERIMENT'S CLOCK, never against `mem_rdy`: a
+    gate tied to 1 asserts it is ready throughout, so a window defined by
+    the gate's own opinion is empty exactly when the gate is broken, and
+    the check passes for the mutant it exists to catch. `alive_at` is the
+    objective fact - the cycle the memory model starts answering.
+    """
+    for t in range(cycles):
+        on  = (yield dut.bus.port["milan_desc_mem"].cyc) \
+            and (yield dut.bus.port["milan_desc_mem"].stb)
+        if (yield dut.mem_rdy) and watch["first_rdy"] is None:
+            watch["first_rdy"] = t
+        if on:
+            if watch["first_cyc"] is None:
+                watch["first_cyc"] = t
+            if t < alive_at:
+                watch["cyc_dead"] += 1
+        yield
+
+
+def _arbiter_probe(dut, cycles, snap):
+    """The arbiter and counter reading taken 20 cycles from the end, into `snap`."""
+    yield from idle(cycles - 20)()
+    a = dut.bus.arbiter()
+    snap["rd_lock"] = (yield a.rd_lock.counter)
+    snap["grant"] = (yield a.rr_read.grant)
+    snap["ce"] = (yield a.rr_read.ce)
+    snap.update((yield from counters(dut)))
+
+
+def run(gate: str, healthy: bool, cycles: int = CYCLES, boot_probe: bool = True,
+        load: bool = True) -> dict[str, object]:
     """One session. `gate` picks the shape, `healthy` the memory.
 
     Timeline, in the board's order: the store probes at reset; the BIOS takes
@@ -359,102 +486,24 @@ def run(gate, healthy, cycles=CYCLES, boot_probe=True, load=True):
     if load:
         gens.append(wb_repeat_reads(p["milan_resp_mem"], 0x40001000, busy,
                                     start=HAND_AT)())
-
-    def dfi():
-        """The one DFI bit the gate reads: 1 at configuration, 0 for the
-        BIOS's software-control window, 1 again when `sdram_init` is done."""
-        for _ in range(SW_AT):
-            yield
-        yield dut.sel.eq(0)
-        for _ in range(HAND_AT - SW_AT):
-            yield
-        yield dut.sel.eq(1)
-        for _ in range(cycles - HAND_AT):
-            yield
-    gens.append(dfi())
-
-    def processor():
-        """The store's two requests, each offered until the bridge takes it."""
-        t = 0
-        if boot_probe:
-            # the boot walk: KL_aecp_desc_store resets INTO S_HDR_REQ
-            yield dut.req.addr.eq(0x7F700000)
-            yield dut.req.beats.eq(4)
-            yield dut.req.valid.eq(1)
-            yield
-            t += 1
-            while t < LOCATE_AT and not (yield dut.req.ready):
-                yield
-                t += 1
-            yield dut.req.valid.eq(0)
-        while t < LOCATE_AT:
-            yield
-            t += 1
-        # a locate re-arms the header probe long after the BIOS is done
-        yield dut.req.addr.eq(0x7F700000)
-        yield dut.req.beats.eq(4)
-        yield dut.req.valid.eq(1)
-        yield
-        t += 1
-        while t < cycles - 20 and not (yield dut.req.ready):
-            yield
-            t += 1
-        yield dut.req.valid.eq(0)
-        while t < cycles - 20:
-            yield
-            t += 1
+    gens.append(_dfi_handover(dut, cycles))
 
     beats = []
-
-    def collector():
-        """Every response beat the processor would see, with its cycle."""
-        for t in range(cycles):
-            if (yield dut.rsp.valid):
-                beats.append({"t": t, "err": (yield dut.rsp.err),
-                              "data": (yield dut.rsp.data),
-                              "blast": (yield dut.rsp.blast)})
-            yield
-
     watch = {"first_cyc": None, "first_rdy": None, "cyc_dead": 0,
              "alive_at": alive_at}
-
-    def monitor():
-        """WAS THE BUS TOUCHED WHILE THE MEMORY COULD NOT ANSWER.
-
-        MEASURED AGAINST THE EXPERIMENT'S CLOCK, never against `mem_rdy`: a
-        gate tied to 1 asserts it is ready throughout, so a window defined by
-        the gate's own opinion is empty exactly when the gate is broken, and
-        the check passes for the mutant it exists to catch. `alive_at` is the
-        objective fact - the cycle the memory model starts answering.
-        """
-        for t in range(cycles):
-            on  = (yield dut.bus.port["milan_desc_mem"].cyc) \
-                and (yield dut.bus.port["milan_desc_mem"].stb)
-            if (yield dut.mem_rdy) and watch["first_rdy"] is None:
-                watch["first_rdy"] = t
-            if on:
-                if watch["first_cyc"] is None:
-                    watch["first_cyc"] = t
-                if t < alive_at:
-                    watch["cyc_dead"] += 1
-            yield
+    snap = {}
 
     # The other processor bridge performs one plain read long after handover.
     # It is independent of the descriptor bridge and proves a lost descriptor
     # access wedges every read-capable master, not only its originator.
     other_gen, other = wb_one_read(p["milan_resp_mem"], 0x40001000, 600,
                                    start=cycles - 700)
-    snap = {}
 
-    def probe():
-        yield from idle(cycles - 20)()
-        a = dut.bus.arbiter()
-        snap["rd_lock"] = (yield a.rd_lock.counter)
-        snap["grant"] = (yield a.rr_read.grant)
-        snap["ce"] = (yield a.rr_read.ce)
-        snap.update((yield from counters(dut)))
-
-    gens += [processor(), collector(), monitor(), other_gen(), probe()]
+    gens += [_processor(dut, cycles, boot_probe),
+             _collector(dut, cycles, beats),
+             _monitor(dut, cycles, alive_at, watch),
+             other_gen(),
+             _arbiter_probe(dut, cycles, snap)]
     run_simulation(dut, gens)
     boot = [b for b in beats if b["t"] < LOCATE_AT]
     late = [b for b in beats if b["t"] >= LOCATE_AT]
@@ -476,7 +525,12 @@ def _fmt(r):
 _RUNS = {}
 
 
-def session(gate, healthy):
+def session(gate: str, healthy: bool) -> dict[str, object]:
+    """The run for one (gate, memory) pair, built at most once.
+
+    Three claims read the same two runs and a session costs about 45 s, so
+    they share one result rather than each paying for its own.
+    """
     key = (gate, healthy)
     if key not in _RUNS:
         _RUNS[key] = run(gate, healthy)
@@ -487,7 +541,7 @@ def session(gate, healthy):
 #  the predicates, shared between the fix and the mutants
 # ---------------------------------------------------------------------------
 
-def grade(r):
+def grade(r: dict[str, object]) -> dict[str, bool]:
     """The shipping claims as booleans, so a MUTANT is graded by exactly the
     predicates the fix is graded by. A claim only one of them is applied to is
     a claim nobody has shown can fail."""
@@ -518,7 +572,7 @@ def grade(r):
 #  claims
 # ---------------------------------------------------------------------------
 
-def test_control_loaded_bus():
+def test_control_loaded_bus() -> None:
     """A healthy memory, every read-capable path exercised, 1,424 ns per miss.
 
     The response-buffer bridge loads the same read arbiter, and the descriptor
@@ -560,7 +614,7 @@ def test_control_loaded_bus():
           and g["arb"].get("timed_out") == 0, f"got {g['late']}, {_fmt(g)}")
 
 
-def test_pre_fix_shape_freezes_the_read_half():
+def test_pre_fix_shape_freezes_the_read_half() -> None:
     """The ungated shape loses its boot probe and never recovers the read half."""
     r = session(GATE_OPEN, False)
     a = r["arb"]
@@ -585,7 +639,7 @@ def test_pre_fix_shape_freezes_the_read_half():
           "samples stb & cyc again")
 
 
-def test_shipping_shape_survives_its_boot_probe():
+def test_shipping_shape_survives_its_boot_probe() -> None:
     """THE FIX. milan_soc.py's own bridge and gate, DRIVEN.
 
     The gate is `pp_mem_gate` fed the `sel` sequence a boot performs, and the
@@ -603,7 +657,7 @@ def test_shipping_shape_survives_its_boot_probe():
           "opens on hardware control alone is open at cycle 0")
 
 
-def test_the_claims_can_fail():
+def test_the_claims_can_fail() -> None:
     """THE MUTANTS. A gate has two ways to be wrong and both must be caught.
 
     MUTANT 1, `_mem_rdy` tied 1: the gate is present, named in every arm, and
@@ -637,7 +691,7 @@ def test_the_claims_can_fail():
           "a refused request must not touch the bus at all")
 
 
-def test_gate_derivation():
+def test_gate_derivation() -> None:
     """`pp_mem_gate` alone: the 1 -> 0 -> 1 edge, and nothing less.
 
     Cheap and separate from the bus runs above, because it is the one claim
@@ -654,7 +708,8 @@ def test_gate_derivation():
     dut = Gate()
     seen = {}
 
-    def gen():
+    def gen() -> SimGen:
+        """Drive `sel` 1 -> 0 -> 1 and read the gate at each of the four moments."""
         yield
         seen["at_config"] = (yield dut.rdy)
         yield dut.sel.eq(0)
@@ -680,7 +735,7 @@ def test_gate_derivation():
           seen.get("stays_open") == 1, f"got {seen}")
 
 
-def test_structural():
+def test_structural() -> None:
     """THE WIRING, which the simulation above cannot see.
 
     This file builds `pp_mem_gate` and `pp_desc_bridge` itself, so it would
@@ -688,7 +743,7 @@ def test_structural():
     together, and they are parsed rather than grepped so a comment naming a
     signal cannot satisfy them.
     """
-    src = open(MILAN_SOC).read()
+    src = MILAN_SOC.read_text()
     tree = ast.parse(src)
 
     calls = {}
@@ -749,7 +804,7 @@ if __name__ == "__main__":
     test_gate_derivation()
     print("test_structural:")
     test_structural()
-    print(f"\ntest_pp_boot_bus_freeze: {checks} checks: "
-          f"{checks - fails} PASS, {fails} FAIL")
-    print("RESULT:", "FAIL" if fails else "PASS")
-    sys.exit(1 if fails else 0)
+    print(f"\ntest_pp_boot_bus_freeze: {TALLY['checks']} checks: "
+          f"{TALLY['checks'] - TALLY['fails']} PASS, {TALLY['fails']} FAIL")
+    print("RESULT:", "FAIL" if TALLY["fails"] else "PASS")
+    sys.exit(1 if TALLY["fails"] else 0)

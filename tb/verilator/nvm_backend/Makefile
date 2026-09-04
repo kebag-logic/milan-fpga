@@ -47,7 +47,7 @@ T1X1 = records_endstation_ax7101_1x1_tdm8.txt
 # section 9.4 deadlines are reachable in simulation; the deadline VALUES are
 # what the design page fixes and are exercised as relations, not as durations.
 VFLAGS = --cc --exe --build -j 0 --prefix Vnvm \
-         -Wall -CFLAGS "-std=c++17 -O2 -Wall"
+         -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
             -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \

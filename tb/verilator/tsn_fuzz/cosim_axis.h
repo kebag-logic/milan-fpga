@@ -43,8 +43,16 @@ struct __attribute__((packed)) AxiStreamBeat {
 static_assert(sizeof(AxiStreamBeat) == 10, "beat must be 10 bytes");
 
 //! control-frame magic + opcodes (see the header comment)
-static const uint8_t CTRL_MAGIC0 = 0xC0, CTRL_MAGIC1 = 0x51;
-enum { CTRL_STATE = 0x01, CTRL_TICK = 0x02, CTRL_RESET = 0x03, CTRL_EVENT = 0x04 };
+//!
+//! Opcodes are `constexpr uint8_t`, not an `enum class`: they are compared
+//! against a raw wire byte (`cmd[2]`) and pushed straight into a byte vector,
+//! so a scoped enum would need a cast at every one of those sites.
+inline constexpr uint8_t CTRL_MAGIC0 = 0xC0;
+inline constexpr uint8_t CTRL_MAGIC1 = 0x51;
+inline constexpr uint8_t CTRL_STATE = 0x01;
+inline constexpr uint8_t CTRL_TICK = 0x02;
+inline constexpr uint8_t CTRL_RESET = 0x03;
+inline constexpr uint8_t CTRL_EVENT = 0x04;
 
 using Frames = std::vector<std::vector<uint8_t>>;
 //! handler(frame) -> the frames it produced. Control frames arrive here too.
@@ -74,7 +82,7 @@ inline bool tsn_write_all(int fd, const void* p, size_t n) {
 //! frame), used to size a receive buffer once instead of growing it a beat at
 //! a time. The caller's buffer is reused across frames, so this is one
 //! allocation for a whole fuzzing session.
-static const size_t TSN_FRAME_MAX = 1514;
+inline constexpr size_t TSN_FRAME_MAX = 1514;
 
 inline bool tsn_recv_frame(int fd, std::vector<uint8_t>& out) {
     out.clear();                        // clear KEEPS the capacity

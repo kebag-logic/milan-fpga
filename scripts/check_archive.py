@@ -54,6 +54,8 @@ class Metadata:
 
 
 def tracked_markdown() -> list[str]:
+    """Every tracked Markdown path, repo-relative and sorted. Untracked pages
+    are somebody's working copy and are not the archive's business."""
     output = subprocess.run(
         ["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
         check=True,
@@ -64,6 +66,7 @@ def tracked_markdown() -> list[str]:
 
 
 def archived_pages(paths: list[str]) -> list[Path]:
+    """The versioned-history pages themselves, without their own index."""
     return [
         REPO / path
         for path in paths
@@ -72,10 +75,13 @@ def archived_pages(paths: list[str]) -> list[Path]:
 
 
 def current_pages(paths: list[str]) -> list[Path]:
+    """Everything outside versioned history - the pages a reader is sent to."""
     return [REPO / path for path in paths if not path.startswith(ARCHIVE_PREFIX)]
 
 
 def resolve_link(source: Path, raw_target: str) -> Path | None:
+    """The file a Markdown target names, or None when it names no file in this
+    tree: an external URL, a site-absolute path, or a bare fragment."""
     target = raw_target.split("#", 1)[0].split("?", 1)[0].strip("<>")
     if not target or target.startswith("/") or "://" in target:
         return None
@@ -83,6 +89,9 @@ def resolve_link(source: Path, raw_target: str) -> Path | None:
 
 
 def parse_metadata(path: Path) -> tuple[Metadata | None, list[str]]:
+    """The archive front matter of one page, or None and the reasons it is not
+    usable. Metadata is returned only when every field parsed and the successor
+    it names is a file that exists - a partial record would route nowhere."""
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
     try:
@@ -124,6 +133,7 @@ def parse_metadata(path: Path) -> tuple[Metadata | None, list[str]]:
 
 
 def index_rows(index: Path = INDEX) -> list[tuple[Path, Path, str]]:
+    """(historical page, current successor, source line) per archive index row."""
     rows: list[tuple[Path, Path, str]] = []
     for line in index.read_text(encoding="utf-8").splitlines():
         if not line.startswith("|") or "---" in line:
@@ -139,6 +149,8 @@ def index_rows(index: Path = INDEX) -> list[tuple[Path, Path, str]]:
 
 
 def link_is_marked(text: str) -> bool:
+    """Whether link text warns that it leads into history. An unmarked link
+    hands a reader a retired page with nothing saying it is retired."""
     lowered = text.lower()
     return any(word in lowered for word in ("archiv", "histor", "obsolete"))
 
@@ -188,7 +200,8 @@ def archive_total_problem(totals: list[int], expected: int) -> str | None:
     return None
 
 
-def selftest() -> int:
+def _selftest_metadata(page: Path) -> int:
+    """Parsing arms: the valid fixture, the replacement marker, each mutation."""
     good = """[OBSOLETE + 2026-08-01]
 
 > Status: Historical
@@ -210,68 +223,73 @@ def selftest() -> int:
         "successor": ("> Current successor:", "> Replacement:"),
         "dead successor": ("current.md", "missing.md"),
     }
-    with tempfile.TemporaryDirectory() as directory:
-        root = Path(directory)
-        page = root / "old.md"
-        current = root / "current.md"
-        current.write_text("# Current\n", encoding="utf-8")
-        page.write_text(good, encoding="utf-8")
-        metadata, errors = parse_metadata(page)
-        if errors or metadata is None or metadata.original != "old.md":
-            print(f"archive selftest: valid fixture failed: {errors}")
+    page.write_text(good, encoding="utf-8")
+    metadata, errors = parse_metadata(page)
+    if errors or metadata is None or metadata.original != "old.md":
+        print(f"archive selftest: valid fixture failed: {errors}")
+        return 1
+    replaced = good.replace(
+        "> Current successor:",
+        "> Replaced in place: yes\n>\n> Current successor:",
+    )
+    page.write_text(replaced, encoding="utf-8")
+    metadata, errors = parse_metadata(page)
+    if errors or metadata is None or not metadata.replaced_in_place:
+        print(f"archive selftest: replacement metadata failed: {errors}")
+        return 1
+    for name, (old, new) in mutations.items():
+        page.write_text(good.replace(old, new, 1), encoding="utf-8")
+        _metadata, errors = parse_metadata(page)
+        if not errors:
+            print(f"archive selftest: {name} mutation escaped")
             return 1
-        replaced = good.replace(
-            "> Current successor:",
-            "> Replaced in place: yes\n>\n> Current successor:",
-        )
-        page.write_text(replaced, encoding="utf-8")
-        metadata, errors = parse_metadata(page)
-        if errors or metadata is None or not metadata.replaced_in_place:
-            print(f"archive selftest: replacement metadata failed: {errors}")
-            return 1
-        for name, (old, new) in mutations.items():
-            page.write_text(good.replace(old, new, 1), encoding="utf-8")
-            _metadata, errors = parse_metadata(page)
-            if not errors:
-                print(f"archive selftest: {name} mutation escaped")
-                return 1
-        valid_replacement = Metadata(
-            "current.md",
-            "2026-08-01",
-            "2026-08-31",
-            current.resolve(),
-            True,
-        )
-        if not valid_in_place_replacement(valid_replacement, current.resolve()):
-            print("archive selftest: valid in-place replacement failed")
-            return 1
-        if valid_in_place_replacement(
-            replace(valid_replacement, replaced_in_place=False), current.resolve()
-        ):
-            print("archive selftest: unmarked in-place replacement escaped")
-            return 1
-        if valid_in_place_replacement(
-            replace(valid_replacement, successor=page.resolve()), current.resolve()
-        ):
-            print("archive selftest: mismatched in-place successor escaped")
-            return 1
-        missing = root / "missing.md"
-        if valid_in_place_replacement(
-            replace(valid_replacement, successor=missing), missing
-        ):
-            print("archive selftest: missing in-place successor escaped")
-            return 1
-        index = root / "README.md"
-        index.write_text(
-            "| Historical page | Current successor |\n"
-            "|---|---|\n"
-            "| [Old](old.md) | [Current](current.md) |\n",
-            encoding="utf-8",
-        )
-        rows = index_rows(index)
-        if len(rows) != 1 or rows[0][0] != page.resolve():
-            print("archive selftest: index row parsing failed")
-            return 1
+    return 0
+
+
+def _selftest_in_place(root: Path, page: Path, current: Path) -> int:
+    """In-place-replacement predicate arms, then the index-row parser."""
+    valid_replacement = Metadata(
+        "current.md",
+        "2026-08-01",
+        "2026-08-31",
+        current.resolve(),
+        True,
+    )
+    if not valid_in_place_replacement(valid_replacement, current.resolve()):
+        print("archive selftest: valid in-place replacement failed")
+        return 1
+    if valid_in_place_replacement(
+        replace(valid_replacement, replaced_in_place=False), current.resolve()
+    ):
+        print("archive selftest: unmarked in-place replacement escaped")
+        return 1
+    if valid_in_place_replacement(
+        replace(valid_replacement, successor=page.resolve()), current.resolve()
+    ):
+        print("archive selftest: mismatched in-place successor escaped")
+        return 1
+    missing = root / "missing.md"
+    if valid_in_place_replacement(
+        replace(valid_replacement, successor=missing), missing
+    ):
+        print("archive selftest: missing in-place successor escaped")
+        return 1
+    index = root / "README.md"
+    index.write_text(
+        "| Historical page | Current successor |\n"
+        "|---|---|\n"
+        "| [Old](old.md) | [Current](current.md) |\n",
+        encoding="utf-8",
+    )
+    rows = index_rows(index)
+    if len(rows) != 1 or rows[0][0] != page.resolve():
+        print("archive selftest: index row parsing failed")
+        return 1
+    return 0
+
+
+def _selftest_routes() -> int:
+    """Marked-history-link arms, then the retired-replacement-role arms."""
     if not link_is_marked("historical result"):
         print("archive selftest: marked link failed")
         return 1
@@ -301,6 +319,11 @@ def selftest() -> int:
     if retired_role_lines("CHANGELOG.md", historical_route):
         print("archive selftest: historical target misclassified")
         return 1
+    return 0
+
+
+def _selftest_inventory() -> int:
+    """Declared-archive-total parsing arms and the total-drift verdict."""
     if declared_archive_totals("- Archive total: 43 Markdown pages.\n") != [43]:
         print("archive selftest: valid inventory total failed")
         return 1
@@ -313,25 +336,29 @@ def selftest() -> int:
     if archive_total_problem([42], 43) is None:
         print("archive selftest: inventory count drift escaped")
         return 1
+    return 0
+
+
+def selftest() -> int:
+    """Every control armed against a fixture that should trip it, so a gate
+    that has quietly stopped checking cannot report a pass."""
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        page = root / "old.md"
+        current = root / "current.md"
+        current.write_text("# Current\n", encoding="utf-8")
+        failed = _selftest_metadata(page) or _selftest_in_place(root, page, current)
+    if failed or _selftest_routes() or _selftest_inventory():
+        return 1
     print("archive selftest: OK (24 controls)")
     return 0
 
 
-def main() -> int:
-    if sys.argv[1:] == ["--selftest"]:
-        return selftest()
-    listing = sys.argv[1:] == ["--list"]
-    if sys.argv[1:] not in ([], ["--list"]):
-        print(__doc__)
-        return 2
-
+def _archived_problems(
+    pages: list[Path], listing: bool
+) -> tuple[list[str], dict[Path, Metadata]]:
+    """Front-matter findings on the archived pages, and the metadata parsed."""
     problems: list[str] = []
-    tracked = tracked_markdown()
-    old_paths = [path for path in tracked if path.startswith(OLD_PREFIX)]
-    if old_paths:
-        problems.append("legacy archive paths remain: " + ", ".join(old_paths))
-
-    pages = archived_pages(tracked)
     metadata: dict[Path, Metadata] = {}
     originals: list[str] = []
     for page in pages:
@@ -358,7 +385,12 @@ def main() -> int:
     )
     if duplicates:
         problems.append("duplicate original paths: " + ", ".join(duplicates))
+    return problems, metadata
 
+
+def _index_problems(pages: list[Path], metadata: dict[Path, Metadata]) -> list[str]:
+    """Findings in the archive index: coverage, duplicate rows, the inventory."""
+    problems: list[str] = []
     rows = index_rows()
     row_counts = Counter(page for page, _successor, _line in rows)
     expected = {page.resolve() for page in pages}
@@ -385,7 +417,14 @@ def main() -> int:
     total_problem = archive_total_problem(totals, len(pages))
     if total_problem is not None:
         problems.append(total_problem)
+    return problems
 
+
+def _current_problems(
+    tracked: list[str], metadata: dict[Path, Metadata], expected: set[Path]
+) -> list[str]:
+    """Findings on the pages still current: stale header, retired role, link."""
+    problems: list[str] = []
     replacement_targets = {
         (REPO / parsed.original).resolve(): parsed.original
         for parsed in metadata.values()
@@ -413,6 +452,32 @@ def main() -> int:
                         f"unmarked history link: {page.relative_to(REPO)}:"
                         f"{line_number}: {link_text!r}"
                     )
+    return problems
+
+
+def main() -> int:
+    """The gate: history carries its metadata, the index routes every page to a
+    successor that exists, and no current page links into history unmarked."""
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
+    listing = sys.argv[1:] == ["--list"]
+    if sys.argv[1:] not in ([], ["--list"]):
+        print(__doc__)
+        return 2
+
+    problems: list[str] = []
+    tracked = tracked_markdown()
+    old_paths = [path for path in tracked if path.startswith(OLD_PREFIX)]
+    if old_paths:
+        problems.append("legacy archive paths remain: " + ", ".join(old_paths))
+
+    pages = archived_pages(tracked)
+    archived, metadata = _archived_problems(pages, listing)
+    problems.extend(archived)
+    problems.extend(_index_problems(pages, metadata))
+    problems.extend(
+        _current_problems(tracked, metadata, {page.resolve() for page in pages})
+    )
 
     if problems:
         print(f"archive gate: FAIL ({len(problems)} findings)")

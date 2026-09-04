@@ -36,7 +36,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from svglib import SVG                                        # noqa: E402
+from svglib import SVG, Rect                                  # noqa: E402
 
 WRAP_NS = 2 ** 32
 HALF_NS = WRAP_NS // 2
@@ -56,11 +56,17 @@ SAMPLES = [
 T_END = 484.0
 
 
-def polarity(late, early):
+def polarity(late: float, early: float) -> str:
+    """One sweep's verdict: L, E, or M when neither side reaches 90 %.
+
+    The 90 % threshold is what separates a sweep sitting inside one half of
+    the ring from a sweep the crossing happened during; M is the evidence a
+    transition instant is estimated from, not a missing reading.
+    """
     return "L" if late >= 90 else ("E" if early >= 90 else "M")
 
 
-def transitions():
+def transitions() -> tuple[list[float], list[str]]:
     """Transition instants, estimated at the midpoint of the interval the
     polarity changed in - so each carries +/- 10 s from the 20 s cadence."""
     out, tags = [], []
@@ -110,7 +116,13 @@ g = SVG(1420, 934,
         "predicted from the talker's own PHC rate error vs the period the listener's counters show")
 
 
-def raw(s):
+def raw(s: str) -> None:
+    """Emit a literal SVG fragment for the shapes svglib has no helper for.
+
+    The pie wedges, the polylines and the stacked strip bars are all built
+    from computed coordinates; writing them out here keeps svglib a small
+    set of helpers rather than growing one per figure.
+    """
     g.e.append(s)
 
 
@@ -119,16 +131,26 @@ AY0, AY1 = 156, 392                       # delta = 0 at the top, 2^32 at the bo
 AMID = AY0 + (AY1 - AY0) / 2              # delta = 2^31
 
 
-def xs(t):
+def xs(t: float) -> float:
+    """Pixel x for a time in seconds - the axis panel A and panel B share.
+
+    Both panels go through this, which is what lets a transition instant in
+    the strip line up with the crossing in the walk above it.
+    """
     return PX0 + (PX1 - PX0) * t / T_END
 
 
-def ys(d_ns):
+def ys(d_ns: float) -> float:
+    """Pixel y for a modular delta: 0 at the top of the band, 2^32 at the bottom.
+
+    The ring is cut at delta = 0 and drawn downward, so a falling delta walks
+    UP the panel and a wrap is a jump from the top edge to the bottom.
+    """
     return AY0 + (AY1 - AY0) * d_ns / WRAP_NS
 
 
 # ---------------------------------------------------------------- panel A ----
-g.box(40, 100, 1340, 366, "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
+g.box(Rect(40, 100, 1340, 366), "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
 raw(f'<rect x="{PX0}" y="{AY0}" width="{PX1-PX0}" height="{AMID-AY0}" fill="{AMBER_F}"/>')
 raw(f'<rect x="{PX0}" y="{AMID}" width="{PX1-PX0}" height="{AY1-AMID}" fill="{RED_F}"/>')
 raw(f'<rect x="{PX0}" y="{AY0}" width="{PX1-PX0}" height="{AY1-AY0}" fill="none" stroke="#bbb" stroke-width="1"/>')
@@ -148,14 +170,14 @@ g.label((PX0 + PX1) / 2, AY1 + 42, "t (s) into the 484 s counter sweep", fs=11.5
         col="#333", anchor="middle", weight="700")
 
 
-def delta_at(t, rate):
+def delta_at(t: float, rate: float) -> float:
     """delta falls at `rate` s per s and is phase-locked so the FIRST observed
     transition (a LATE->EARLY flip = a downward crossing of 2^31) lands on it."""
     d0 = HALF_NS + rate * 1e9 * TR[0]
     return (d0 - rate * 1e9 * t) % WRAP_NS
 
 
-def delta_measured(t):
+def delta_measured(t: float) -> float:
     """delta from the MEASURED block schedule: linear inside each block,
     between the anchors the strip actually fixes."""
     pts = [(-70.5, WRAP_NS)] + ANCHORS + [(533.5, 0)]
@@ -169,7 +191,13 @@ def delta_measured(t):
     return 0.0
 
 
-def walk(rate, col, width, dash):
+def walk(rate: float, col: str, width: float, dash: str) -> None:
+    """Draw one constant-rate walk, cutting the polyline at every wrap.
+
+    Without the cut, the jump from delta = 0 back to 2^32 would be drawn as a
+    near-vertical stroke across the whole band and read as a real excursion
+    rather than as the seam where the ring was opened.
+    """
     seg, prev = [], None
     for i in range(0, 2425):
         t = T_END * i / 2424.0
@@ -188,13 +216,13 @@ def walk(rate, col, width, dash):
 walk(RATE_MEASURED, GREY, 2.0, ' stroke-dasharray="7 5"')
 walk(RATE_OBS, VIO, 2.8, "")
 
-g.box(PX1 - 470, AY0 + 12, 460, 62,
+g.box(Rect(PX1 - 470, AY0 + 12, 460, 62),
       f"predicted from -10,004 ppm:  half-period {HALF_PRED:.2f} s",
       f"observed, from the strip below:  {HALF_OBS:.1f} s   ->   {RATIO:.2f}x FASTER, unexplained",
       fill="#ffffff", stroke=VIO, tcol=GREY, fs=12, r=6, sw=1.6, subcol=VIO)
 
 # ---------------------------------------------------------------- panel B ----
-g.box(40, 496, 1340, 404, "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
+g.box(Rect(40, 496, 1340, 404), "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
 g.label(66, 530, "the same walk as a ring, and what the listener's counters actually did - "
         "each bar is one 20 s GET_COUNTERS sweep",
         fs=12, col="#333", weight="700")
@@ -205,7 +233,8 @@ RY = 586
 for t in (15, 70, 200, 310, 400, 470):
     cx = xs(t)
 
-    def rpt(d_ns, rad=RR):
+    def rpt(d_ns: float, rad: float = RR) -> tuple[float, float]:
+        """Point on the ring snapshot for a delta, with 0 at twelve o'clock."""
         th = 2 * math.pi * d_ns / WRAP_NS - math.pi / 2
         return cx + rad * math.cos(th), RY + rad * math.sin(th)
 
@@ -229,7 +258,8 @@ for t, late, early in SAMPLES:
     raw(f'<rect x="{x0:.2f}" y="{BY}" width="{x1-x0:.2f}" height="{he:.2f}" fill="{AMBER}" opacity="0.9"/>')
     raw(f'<rect x="{x0:.2f}" y="{BY+he:.2f}" width="{x1-x0:.2f}" height="{ho:.2f}" fill="{GREEN}" opacity="0.9"/>')
     raw(f'<rect x="{x0:.2f}" y="{BY+he+ho:.2f}" width="{x1-x0:.2f}" height="{hl:.2f}" fill="{RED}" opacity="0.9"/>')
-    raw(f'<rect x="{x0:.2f}" y="{BY}" width="{x1-x0:.2f}" height="{BH}" fill="none" stroke="#ffffff" stroke-width="0.7"/>')
+    raw(f'<rect x="{x0:.2f}" y="{BY}" width="{x1-x0:.2f}" height="{BH}" '
+        f'fill="none" stroke="#ffffff" stroke-width="0.7"/>')
     prev_t = t
 raw(f'<rect x="{xs(0)}" y="{BY}" width="{xs(T_END)-xs(0)}" height="{BH}" fill="none" stroke="#999" stroke-width="1"/>')
 g.label(PX0 - 12, BY + 16, "EARLY", fs=10.5, col=AMBER, anchor="end", weight="700")
@@ -260,7 +290,7 @@ g.label(xs(300), BY + BH + 88,
         f"{EARLY_BLOCKS[1]:.1f} s, LATE blocks {LATE_BLOCKS[0]:.1f} and {LATE_BLOCKS[1]:.1f} s - "
         f"also unexplained (+/- 10 s from the sweep cadence)",
         fs=11, col=VIO, anchor="middle", weight="700")
-g.box(66, BY + BH + 104, 1278, 58,
+g.box(Rect(66, BY + BH + 104, 1278, 58),
       f"half-period from the four surviving gaps {CLEAN} s   ->   mean {HALF_OBS:.1f} s   "
       f"against {HALF_PRED:.1f} s predicted",
       f"the mechanism is settled; the RATE is not. Implied relative rate {RATE_OBS*1e6:.0f} ppm against "

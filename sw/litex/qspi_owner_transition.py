@@ -19,11 +19,13 @@ import argparse
 import binascii
 import hashlib
 import json
-import os
 import re
 import struct
 import sys
 import tempfile
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 from gptp_owner_contract import GPTP_OWNERS
 
@@ -40,7 +42,7 @@ AEM_BINDING_KEYS = (
 )
 
 
-def _aem_binding_from_bytes(raw):
+def _aem_binding_from_bytes(raw: bytes) -> dict[str, int | str]:
     """Return immutable identity fields for one generated AEM image."""
     if not raw:
         raise TransitionError("AEM image is empty")
@@ -53,7 +55,7 @@ def _aem_binding_from_bytes(raw):
     }
 
 
-def aem_image_binding(path):
+def aem_image_binding(path: str | Path) -> dict[str, int | str]:
     """Return the layout fields binding the exact generated AEM bytes."""
     try:
         with open(path, "rb") as stream:
@@ -63,7 +65,8 @@ def aem_image_binding(path):
     return _aem_binding_from_bytes(raw)
 
 
-def validate_aem_layout_binding(layout, label="layout"):
+def validate_aem_layout_binding(layout: dict[str, Any],
+                                label: str = "layout") -> dict[str, int | str]:
     """Return a validated AEM identity record from a layout object."""
     size = layout.get("aem_image_bytes")
     if type(size) is not int or size <= 0:
@@ -85,7 +88,8 @@ def validate_aem_layout_binding(layout, label="layout"):
     }
 
 
-def validate_aem_artifact(layout_path, aem_path, label="artifact"):
+def validate_aem_artifact(layout_path: str | Path, aem_path: str | Path,
+                          label: str = "artifact") -> dict[str, int | str]:
     """Bind one AEM file to the exact length, CRC and digest in its layout."""
     layout = _load_layout(layout_path)
     expected = validate_aem_layout_binding(layout, f"{label} layout")
@@ -108,7 +112,7 @@ def _take(raw, pos, count, label):
     return raw[pos:end], end
 
 
-def bit_info(path):
+def bit_info(path: str | Path) -> tuple[bytes, str]:
     """Return (payload, part) as parsed by openFPGALoader's .bit path."""
     try:
         with open(path, "rb") as stream:
@@ -164,12 +168,12 @@ def bit_info(path):
         fields[field_type] = value
 
 
-def bit_payload(path):
+def bit_payload(path: str | Path) -> bytes:
     """Return the exact bytes openFPGALoader v1.1.1 writes for a .bit file."""
     return bit_info(path)[0]
 
 
-def bitstream_binding(path):
+def bitstream_binding(path: str | Path) -> dict[str, str]:
     """Return the immutable layout fields that bind one parsed .bit payload."""
     payload, part = bit_info(path)
     return {
@@ -221,8 +225,8 @@ def _bound_payload(layout_path, bit_path, label):
     # Resolve the artifacts themselves, not only their containing spelling: a
     # gateware/foo.bit symlink to another build must not satisfy same-build
     # identity merely because the link was placed under the target directory.
-    layout_dir = os.path.dirname(os.path.realpath(layout_path))
-    bit_dir = os.path.dirname(os.path.dirname(os.path.realpath(bit_path)))
+    layout_dir = Path(layout_path).resolve().parent
+    bit_dir = Path(bit_path).resolve().parent.parent
     if layout_dir != bit_dir:
         raise TransitionError(
             f"{label} BIT and LAYOUT are from different build directories")
@@ -264,7 +268,9 @@ def _normal_part(part):
     return value[2:] if value.startswith("xc") else value
 
 
-def validate_artifact_pair(layout_path, bit_path, expected_fpga_part=None):
+def validate_artifact_pair(layout_path: str | Path, bit_path: str | Path,
+                           expected_fpga_part: str | None = None
+                           ) -> dict[str, str | int]:
     """Bind one layout to the SHA-256 and part of its Xilinx bitstream."""
     layout, payload, part = _bound_payload(layout_path, bit_path, "artifact")
     if (expected_fpga_part is not None and
@@ -279,8 +285,10 @@ def validate_artifact_pair(layout_path, bit_path, expected_fpga_part=None):
     }
 
 
-def plan(installed_layout, installed_bit, target_layout, target_bit,
-         expected_target_owner=None, expected_fpga_part=None):
+def plan(installed_layout: str | Path, installed_bit: str | Path,
+         target_layout: str | Path, target_bit: str | Path,
+         expected_target_owner: str | None = None,
+         expected_fpga_part: str | None = None) -> dict[str, str | int]:
     """Return source owner, target owner, ordering and readback byte count."""
     old_layout, old_payload, old_part = _bound_payload(
         installed_layout, installed_bit, "installed")
@@ -320,7 +328,8 @@ def plan(installed_layout, installed_bit, target_layout, target_bit,
     }
 
 
-def identify(dump_path, installed_bit, target_bit, expected_size=None):
+def identify(dump_path: str | Path, installed_bit: str | Path,
+             target_bit: str | Path, expected_size: int | None = None) -> str:
     """Classify a live QSPI dump as the exact installed or target payload."""
     old_payload = bit_payload(installed_bit)
     new_payload = bit_payload(target_bit)
@@ -355,12 +364,24 @@ def _fake_bit(path, payload, title=b"fixture", part=b"7a100tfgg484\0"):
         stream.write(raw)
 
 
-def self_test():
-    checks = 0
+class _Checks:
+    """The self-test's tally and its two assertion arms.
 
-    def expect_error(fn, needle=None):
-        nonlocal checks
-        checks += 1
+    The arm groups below are separate functions so that each stays readable;
+    they all count into one `_Checks`, which is what the closing line
+    reports."""
+
+    def __init__(self) -> None:
+        self.total = 0
+
+    def expect_pass(self) -> None:
+        """Count one arm that asserted its own result inline."""
+        self.total += 1
+
+    def expect_error(self, fn: Callable[[], object],
+                     needle: str | None = None) -> None:
+        """Count one arm that must refuse, with `needle` in the message."""
+        self.total += 1
         try:
             fn()
         except TransitionError as exc:
@@ -369,13 +390,128 @@ def self_test():
         else:
             raise AssertionError("transition unexpectedly accepted")
 
-    with tempfile.TemporaryDirectory() as temp:
-        def build(name, owner, manifest, complete, payload, names):
-            root = os.path.join(temp, name)
-            os.makedirs(os.path.join(root, "gateware"))
-            bit = os.path.join(root, "gateware", "board.bit")
-            aem = os.path.join(root, "aem_desc.bin")
-            layout = os.path.join(root, "flashboot_layout.json")
+
+def _transition_and_pair_arms(build, checks):
+    """The plan arms and the layout/bitstream pair arms.
+
+    Returns the two fabric bare-metal builds - each a (layout, bit) pair -
+    that the AEM arms and the live-image arms below reuse."""
+    fab = build("fab", "fabric", "baremetal", False, b"fabric",
+                ["bitstream", "aem"])
+    fab2 = build("fab2", "fabric", "baremetal", False, b"fabric2",
+                 ["bitstream", "aem"])
+    none_bm = build("none-bm", "none", "baremetal", False, b"none-bm",
+                    ["bitstream", "aem"])
+
+    # The one supported transition: a fabric-baremetal refresh, target bit
+    # last so the old autonomous owner stays live until every image holds.
+    assert plan(*fab, *fab2)["order"] == "images-first"; checks.expect_pass()
+    # An ownerless bare-metal set is not a product image either.
+    checks.expect_error(lambda: plan(*fab, *none_bm), "not flashable")
+    checks.expect_error(lambda: plan(*fab, *fab), "identical")
+    checks.expect_error(lambda: plan(*fab, *fab2,
+                                     expected_target_owner="software"),
+                        "selected recipe expects")
+    checks.expect_error(lambda: plan(*fab, *fab2,
+                                     expected_fpga_part="xc7a200tfbg484"),
+                        "programmer part")
+    foreign_link = fab2[1].parent / "foreign-build.bit"
+    foreign_link.symlink_to(fab[1])
+    checks.expect_error(lambda: validate_artifact_pair(
+        fab2[0], foreign_link), "different build directories")
+    # This is the installed-owner trust seam: a valid bit copied beside a
+    # different build's mutable layout used to satisfy the directory test
+    # and inherit that layout's owner.  The payload digest must reject it.
+    adjacent_wrong = fab2[1].parent / "adjacent-fabric.bit"
+    with open(fab[1], "rb") as source, open(adjacent_wrong, "wb") as sink:
+        sink.write(source.read())
+    checks.expect_error(lambda: validate_artifact_pair(
+        fab2[0], adjacent_wrong), "payload SHA-256")
+
+    unbound = build("unbound", "fabric", "baremetal", False, b"unbound",
+                    ["bitstream", "aem"])
+    with open(unbound[0], encoding="utf-8") as stream:
+        unbound_layout = json.load(stream)
+    del unbound_layout["bitstream_payload_sha256"]
+    with open(unbound[0], "w", encoding="utf-8") as stream:
+        json.dump(unbound_layout, stream)
+    checks.expect_error(lambda: validate_artifact_pair(*unbound),
+                        "no valid bitstream payload SHA-256")
+    return fab, fab2
+
+
+def _aem_identity_arms(temp, fab, fab2, checks):
+    """The arms that hold the AEM inside the build identity.
+
+    The AEM is a first-class member of the build identity. A valid image from
+    another build, a byte mutation, an empty file and a legacy layout without
+    the binding must all refuse."""
+    good_aem = fab2[0].parent / "aem_desc.bin"
+    assert validate_aem_artifact(fab2[0], good_aem)["aem_image_bytes"] > 0
+    checks.expect_pass()
+    checks.expect_error(lambda: validate_aem_artifact(
+        fab2[0], fab[0].parent / "aem_desc.bin"), "AEM")
+    mutated_aem = temp / "mutated-aem.bin"
+    with open(good_aem, "rb") as source:
+        mutated = bytearray(source.read())
+    mutated[-1] ^= 1
+    with open(mutated_aem, "wb") as stream:
+        stream.write(mutated)
+    checks.expect_error(lambda: validate_aem_artifact(fab2[0], mutated_aem),
+                        "CRC32")
+    empty_aem = temp / "empty-aem.bin"
+    with open(empty_aem, "wb"):
+        pass
+    checks.expect_error(lambda: validate_aem_artifact(fab2[0], empty_aem),
+                        "empty")
+    with open(fab2[0], encoding="utf-8") as stream:
+        legacy_layout = json.load(stream)
+    for key in AEM_BINDING_KEYS:
+        del legacy_layout[key]
+    legacy_path = fab2[0].parent / "legacy.json"
+    with open(legacy_path, "w", encoding="utf-8") as stream:
+        json.dump(legacy_layout, stream)
+    checks.expect_error(lambda: validate_aem_artifact(legacy_path, good_aem),
+                        "aem_image_bytes")
+
+
+def _wrong_part_arm(build, checks):
+    """The arm where the bitstream's own FPGA part contradicts the layout."""
+    wrong_part = build("wrong-part", "fabric", "baremetal", False,
+                       b"wrong-part", ["bitstream", "aem"])
+    with open(wrong_part[0], encoding="utf-8") as stream:
+        wrong_part_layout = json.load(stream)
+    wrong_part_layout["bitstream_fpga_part"] = "xc7a200tfbg484"
+    with open(wrong_part[0], "w", encoding="utf-8") as stream:
+        json.dump(wrong_part_layout, stream)
+    checks.expect_error(lambda: validate_artifact_pair(*wrong_part),
+                        "differs from layout binding")
+
+
+def self_test() -> None:
+    """Every arm, on fixtures built here, so no programmer or board is needed.
+
+    The fixtures are real enough to be refused for the real reasons: a
+    synthesised .bit carries the configuration sync word, and each arm that
+    must fail is matched against the substring of the message that names WHY.
+    """
+    checks = _Checks()
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        temp = Path(tempdir)
+
+        def build(name: str, owner: str, manifest: str, complete: bool,
+                  payload: bytes, names: list[str]) -> tuple[Path, Path]:
+            """One (layout, bit) artifact pair on disk, bound as a real build is.
+
+            The layout is filled from the same binding helpers the SoC build
+            uses, so a fixture cannot pass an arm the shipped path would fail.
+            """
+            root = temp / name
+            (root / "gateware").mkdir(parents=True)
+            bit = root / "gateware" / "board.bit"
+            aem = root / "aem_desc.bin"
+            layout = root / "flashboot_layout.json"
             _fake_bit(bit, b"\xff" * 16 + b"\xaa\x99\x55\x66" + payload)
             with open(aem, "wb") as stream:
                 stream.write(b"AEMI" + payload)
@@ -390,122 +526,43 @@ def self_test():
                 json.dump(body, stream)
             return layout, bit
 
-        fab = build("fab", "fabric", "baremetal", False, b"fabric",
-                    ["bitstream", "aem"])
-        fab2 = build("fab2", "fabric", "baremetal", False, b"fabric2",
-                     ["bitstream", "aem"])
-        none_bm = build("none-bm", "none", "baremetal", False, b"none-bm",
-                        ["bitstream", "aem"])
+        fab, fab2 = _transition_and_pair_arms(build, checks)
+        _aem_identity_arms(temp, fab, fab2, checks)
+        _wrong_part_arm(build, checks)
 
-        # The one supported transition: a fabric-baremetal refresh, target bit
-        # last so the old autonomous owner stays live until every image holds.
-        assert plan(*fab, *fab2)["order"] == "images-first"; checks += 1
-        # An ownerless bare-metal set is not a product image either.
-        expect_error(lambda: plan(*fab, *none_bm), "not flashable")
-        expect_error(lambda: plan(*fab, *fab), "identical")
-        expect_error(lambda: plan(*fab, *fab2,
-                                  expected_target_owner="software"),
-                     "selected recipe expects")
-        expect_error(lambda: plan(*fab, *fab2,
-                                  expected_fpga_part="xc7a200tfbg484"),
-                     "programmer part")
-        foreign_link = os.path.join(
-            os.path.dirname(fab2[1]), "foreign-build.bit")
-        os.symlink(fab[1], foreign_link)
-        expect_error(lambda: validate_artifact_pair(
-            fab2[0], foreign_link), "different build directories")
-        # This is the installed-owner trust seam: a valid bit copied beside a
-        # different build's mutable layout used to satisfy the directory test
-        # and inherit that layout's owner.  The payload digest must reject it.
-        adjacent_wrong = os.path.join(os.path.dirname(fab2[1]),
-                                      "adjacent-fabric.bit")
-        with open(fab[1], "rb") as source, open(adjacent_wrong, "wb") as sink:
-            sink.write(source.read())
-        expect_error(lambda: validate_artifact_pair(
-            fab2[0], adjacent_wrong), "payload SHA-256")
-
-        unbound = build("unbound", "fabric", "baremetal", False, b"unbound",
-                        ["bitstream", "aem"])
-        with open(unbound[0], encoding="utf-8") as stream:
-            unbound_layout = json.load(stream)
-        del unbound_layout["bitstream_payload_sha256"]
-        with open(unbound[0], "w", encoding="utf-8") as stream:
-            json.dump(unbound_layout, stream)
-        expect_error(lambda: validate_artifact_pair(*unbound),
-                     "no valid bitstream payload SHA-256")
-
-        # The AEM is a first-class member of the build identity. A valid
-        # image from another build, a byte mutation, an empty file and a
-        # legacy layout without the binding must all refuse.
-        assert validate_aem_artifact(
-            fab2[0], os.path.join(os.path.dirname(fab2[0]), "aem_desc.bin"))[
-                "aem_image_bytes"] > 0
-        checks += 1
-        expect_error(lambda: validate_aem_artifact(
-            fab2[0], os.path.join(os.path.dirname(fab[0]), "aem_desc.bin")),
-            "AEM")
-        mutated_aem = os.path.join(temp, "mutated-aem.bin")
-        with open(os.path.join(os.path.dirname(fab2[0]), "aem_desc.bin"),
-                  "rb") as source:
-            mutated = bytearray(source.read())
-        mutated[-1] ^= 1
-        with open(mutated_aem, "wb") as stream:
-            stream.write(mutated)
-        expect_error(lambda: validate_aem_artifact(fab2[0], mutated_aem),
-                     "CRC32")
-        empty_aem = os.path.join(temp, "empty-aem.bin")
-        with open(empty_aem, "wb"):
-            pass
-        expect_error(lambda: validate_aem_artifact(fab2[0], empty_aem),
-                     "empty")
-        with open(fab2[0], encoding="utf-8") as stream:
-            legacy_layout = json.load(stream)
-        for key in AEM_BINDING_KEYS:
-            del legacy_layout[key]
-        legacy_path = os.path.join(os.path.dirname(fab2[0]), "legacy.json")
-        with open(legacy_path, "w", encoding="utf-8") as stream:
-            json.dump(legacy_layout, stream)
-        expect_error(lambda: validate_aem_artifact(
-            legacy_path, os.path.join(os.path.dirname(fab2[0]),
-                                      "aem_desc.bin")),
-            "aem_image_bytes")
-
-        wrong_part = build("wrong-part", "fabric", "baremetal", False,
-                           b"wrong-part", ["bitstream", "aem"])
-        with open(wrong_part[0], encoding="utf-8") as stream:
-            wrong_part_layout = json.load(stream)
-        wrong_part_layout["bitstream_fpga_part"] = "xc7a200tfbg484"
-        with open(wrong_part[0], "w", encoding="utf-8") as stream:
-            json.dump(wrong_part_layout, stream)
-        expect_error(lambda: validate_artifact_pair(*wrong_part),
-                     "differs from layout binding")
-
-        live = os.path.join(temp, "qspi.bin")
+        live = temp / "qspi.bin"
         old_payload = bit_payload(fab[1])
         new_payload = bit_payload(sw[1])
         size = max(len(old_payload), len(new_payload))
         with open(live, "wb") as stream:
             stream.write(old_payload + b"\xff" * (size - len(old_payload)))
-        assert identify(live, fab[1], sw[1], size) == "installed"; checks += 1
+        assert identify(live, fab[1], sw[1], size) == "installed"; checks.expect_pass()
         with open(live, "wb") as stream:
             stream.write(new_payload + b"\xff" * (size - len(new_payload)))
-        assert identify(live, fab[1], sw[1], size) == "target"; checks += 1
+        assert identify(live, fab[1], sw[1], size) == "target"; checks.expect_pass()
         with open(live, "wb") as stream:
             stream.write(b"\x00" * size)
-        expect_error(lambda: identify(live, fab[1], sw[1], size), "neither")
+        checks.expect_error(lambda: identify(live, fab[1], sw[1], size), "neither")
         with open(live, "wb") as stream:
             stream.write(b"\x00" * (size - 1))
-        expect_error(lambda: identify(live, fab[1], sw[1], size), "expected exactly")
+        checks.expect_error(lambda: identify(live, fab[1], sw[1], size),
+                            "expected exactly")
 
-        corrupt = os.path.join(temp, "corrupt.bit")
+        corrupt = temp / "corrupt.bit"
         with open(corrupt, "wb") as stream:
             stream.write(b"not a bitstream")
-        expect_error(lambda: bit_payload(corrupt), "truncated")
+        checks.expect_error(lambda: bit_payload(corrupt), "truncated")
 
-    print(f"qspi owner transition self-test: {checks}/{checks} checks pass")
+    print(f"qspi owner transition self-test: {checks.total}/{checks.total} checks pass")
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
+    """The four subcommands deploy.sh drives, printing tab-separated fields.
+
+    A refusal is exit 2 with the reason on stderr, distinct from a subcommand
+    that ran and answered: the caller is a shell script deciding whether to
+    write flash, and "the artifacts do not bind" must not read as "no".
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--self-test", action="store_true")
     sub = parser.add_subparsers(dest="command")

@@ -82,12 +82,28 @@ THE CHECKS, each with the clause it rests on:
 Exit code 0 = clean, 1 = at least one FAIL.
 """
 import argparse
-import os
 import struct
 import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+
+@dataclass
+class Peers:
+    """The four addresses every AECP command frame carries.
+
+    One object rather than four adjacent `bytes` arguments: `src`/`dst` are
+    MAC addresses and `target`/`controller` are Entity IDs, and a caller that
+    transposed a pair of them would build a frame the device silently ignores.
+    """
+    src: bytes
+    dst: bytes
+    target: bytes
+    controller: bytes
+
 
 # One calibrated socket recipe: reuse hive_compliance's transport when it is
 # importable (raw AVDECC tools MUST join 91:E0:F0:01:00:00 or the NIC drops
@@ -95,6 +111,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
     from hive_compliance import open_sock, aecp_cmd, xchg, resp_parts
     _SHARED_TRANSPORT = True
+
+    def _command_frame(peers, seq, cmd, payload):
+        """(frame, cdl) built by hive_compliance's own aecp_cmd."""
+        return aecp_cmd(peers, seq, cmd, payload)
+
 except ImportError:                                    # pragma: no cover
     import socket
     _SHARED_TRANSPORT = False
@@ -103,7 +124,10 @@ except ImportError:                                    # pragma: no cover
     SOL_PACKET, ADD_MEMBERSHIP, MR_MULTICAST = 263, 1, 0
     SUBTYPE_AECP = 0xFB
 
-    def open_sock(iface):
+    def open_sock(iface: str) -> socket.socket:
+        """A raw AF_PACKET socket bound to `iface` and joined to the AVDECC
+        multicast group - without that membership the NIC drops every
+        response, which is a recorded bench trap."""
         s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW,
                           socket.htons(ETH_P_ALL))
         s.bind((iface, 0))
@@ -113,15 +137,20 @@ except ImportError:                                    # pragma: no cover
         s.settimeout(1.0)
         return s
 
-    def aecp_cmd(src, dst, target, ctrlr, seq, cmd, payload):
+    def _command_frame(peers, seq, cmd, payload):
+        """(frame, cdl) - the local copy of hive_compliance.aecp_cmd."""
         # cdl counts octets FOLLOWING target_entity_id (1722.1-2021
         # 9.2.2.6), matching hive_compliance.aecp_cmd's 2026-08-02 fix.
-        body = struct.pack('!8s8sHH', target, ctrlr, seq, cmd) + payload
+        body = struct.pack('!8s8sHH', peers.target, peers.controller,
+                           seq, cmd) + payload
         cdl = len(body) - 8
         avtp = bytes([SUBTYPE_AECP, 0x00, (cdl >> 8) & 0x07, cdl & 0xFF])
-        return dst + src + struct.pack('!H', AVTP) + avtp + body, cdl
+        return peers.dst + peers.src + struct.pack('!H', AVTP) + avtp + body, cdl
 
-    def xchg(s, frame, src, seq, timeout=1.5):
+    def xchg(s: socket.socket, frame: bytes, src: bytes, seq: int,
+             timeout: float = 1.5) -> bytes | None:
+        """Send one command and return the AECP response frame that carries
+        this sequence id, or None when nothing answered inside `timeout`."""
         s.send(frame)
         end = time.time() + timeout
         while time.time() < end:
@@ -138,7 +167,8 @@ except ImportError:                                    # pragma: no cover
             return f
         return None
 
-    def resp_parts(f):
+    def resp_parts(f: bytes) -> tuple[int, int, bytes]:
+        """(status, control_data_length, payload after the command code)."""
         return (f[16] >> 3) & 0x1F, ((f[16] & 0x07) << 8) | f[17], f[38:]
 
 CMD_READ_DESCRIPTOR = 0x0004
@@ -154,34 +184,41 @@ ST_SUCCESS, ST_NO_SUCH_DESCRIPTOR, ST_BAD_ARGUMENTS, ST_NOT_SUPPORTED = 0, 2, 7,
 FAILS, SKIPS, CHECKS = [], [], [0]
 
 
-def ck(ok, name, detail=""):
+def ck(ok: bool, name: str, detail: str = "") -> None:
+    """Record and print one graded check; a red one is kept in FAILS so the
+    run reports every clause it broke, not just the first."""
     CHECKS[0] += 1
     if not ok:
         FAILS.append(f"{name}: {detail}")
     print(f"  [{'ok  ' if ok else 'FAIL'}] {name}" + (f"  {detail}" if detail else ""))
 
 
-def skip(name, why):
+def skip(name: str, why: str) -> None:
+    """Record a check the device gave no way to make - a skip is never a pass
+    and is counted separately in the summary."""
     SKIPS.append(name)
     print(f"  [skip] {name}  {why}")
 
 
 class Probe:
-    def __init__(self, sock, src, dst, tgt, ctl):
-        self.s, self.src, self.dst, self.tgt, self.ctl = sock, src, dst, tgt, ctl
+    def __init__(self, sock, peers):
+        self.s, self.peers = sock, peers
         self.seq = 0x7A00
 
     def _nx(self):
         self.seq = (self.seq + 1) & 0xFFFF
         return self.seq
 
-    def cmd(self, code, payload):
+    def cmd(self, code: int,
+            payload: bytes) -> tuple[int | None, int | None, bytes | None]:
+        """One AECP command and its response as (status, cdl, payload), or
+        (None, None, None) when the device did not answer."""
         q = self._nx()
-        fr, _ = aecp_cmd(self.src, self.dst, self.tgt, self.ctl, q, code, payload)
-        r = xchg(self.s, fr, self.src, q)
+        fr, _ = _command_frame(self.peers, q, code, payload)
+        r = xchg(self.s, fr, self.peers.src, q)
         return resp_parts(r) if r else (None, None, None)
 
-    def read_desc(self, dtype, index):
+    def read_desc(self, dtype: int, index: int) -> tuple[int | None, bytes]:
         """-> (status, descriptor_image). The image starts after the
         READ_DESCRIPTOR response's configuration_index(2)+reserved(2)."""
         st, _, pl = self.cmd(CMD_READ_DESCRIPTOR,
@@ -189,7 +226,7 @@ class Probe:
         return st, (pl[4:] if pl is not None and len(pl) > 4 else b'')
 
 
-def parse_port(img):
+def parse_port(img: bytes) -> dict[str, int] | None:
     """STREAM_PORT_INPUT/OUTPUT, 1722.1-2021 7.2.13 Table 7-23. Field order
     after descriptor_type(2)+descriptor_index(2): clock_domain_index(2),
     port_flags(2), number_of_controls(2), base_control(2),
@@ -200,7 +237,7 @@ def parse_port(img):
     return dict(clusters=n_cl, base_cluster=b_cl, maps=n_map, base_map=b_map)
 
 
-def parse_map_rows(img):
+def parse_map_rows(img: bytes) -> list[tuple[int, int, int, int]]:
     """AUDIO_MAP, 1722.1-2021 7.2.19: descriptor_type(2) descriptor_index(2)
     mappings_offset(2) number_of_mappings(2), then number_of_mappings x
     {mapping_stream_index, mapping_stream_channel, mapping_cluster_offset,
@@ -217,7 +254,7 @@ def parse_map_rows(img):
     return rows
 
 
-def parse_cluster_name(img):
+def parse_cluster_name(img: bytes) -> str:
     """AUDIO_CLUSTER, 7.2.16: object_name is the 64-byte field at descriptor
     offset 4."""
     if len(img) < 68:
@@ -225,7 +262,18 @@ def parse_cluster_name(img):
     return img[4:68].split(b'\0')[0].decode(errors='replace')
 
 
-def main():
+@dataclass
+class PortProbe:
+    """One STREAM_PORT under test: which descriptor it is, and what its own
+    7.2.13 fields say it holds (`fields` as `parse_port` returned them)."""
+    dname: str
+    dcode: int
+    index: int
+    fields: dict
+
+
+def _parse_args():
+    """The CLI: which device to probe, and whether writes are allowed."""
     p = argparse.ArgumentParser()
     p.add_argument('--iface', required=True)
     p.add_argument('--target-eid', required=True)
@@ -238,16 +286,183 @@ def main():
                         '(number_of_maps == 0). This MUTATES the device; the '
                         'static half needs no such flag because a port with '
                         'Audio Maps refuses the command by definition.')
-    a = p.parse_args()
+    return p.parse_args()
 
-    s = open_sock(a.iface)
-    src = s.getsockname()[4][:6]
-    pr = Probe(s, src, bytes.fromhex(a.target_mac.replace(':', '')),
-               bytes.fromhex(a.target_eid), bytes.fromhex(a.controller_eid))
 
-    print(f"=== hive_compliance_clusters {a.target_eid} on {a.iface} "
-          f"(transport: {'shared' if _SHARED_TRANSPORT else 'local'}) ===")
+def _check_cluster_block(pr, ctx, all_cluster_owners):
+    """C5: every advertised AUDIO_CLUSTER answers, and no two ports own one.
 
+    Records each answered cluster's owner in `all_cluster_owners`, which is how
+    the overlap between two ports is seen at all.
+    """
+    dname, i, port = ctx.dname, ctx.index, ctx.fields
+    bad, dup = [], []
+    for off in range(port['clusters']):
+        idx = port['base_cluster'] + off
+        cst, cimg = pr.read_desc(DESC_AUDIO_CLUSTER, idx)
+        if cst != ST_SUCCESS:
+            bad.append((idx, cst))
+            continue
+        if idx in all_cluster_owners:
+            dup.append((idx, all_cluster_owners[idx]))
+        all_cluster_owners[idx] = (dname, i)
+        if off < 3:
+            print(f"        cluster {idx} = "
+                  f"'{parse_cluster_name(cimg)}'")
+    ck(not bad, f"C5 {dname}.{i} every advertised AUDIO_CLUSTER "
+                f"answers READ_DESCRIPTOR (7.2.13)",
+       f"unanswered={bad}" if bad else
+       f"{port['clusters']} clusters from {port['base_cluster']}")
+    ck(not dup, f"C5 {dname}.{i} cluster block does not overlap "
+                f"another port's (7.2.13)", f"shared={dup}")
+
+
+def _check_map_block(pr, ctx, out_stream_keys):
+    """C6/C7: every declared AUDIO_MAP answers, its rows are PORT-RELATIVE, and
+    7.2.19 uniqueness holds - per map for an input, Configuration-wide for an
+    output, which is what `out_stream_keys` accumulates."""
+    dname, dcode, i, port = ctx.dname, ctx.dcode, ctx.index, ctx.fields
+    for k in range(port['maps']):
+        midx = port['base_map'] + k
+        mst, mimg = pr.read_desc(DESC_AUDIO_MAP, midx)
+        ck(mst == ST_SUCCESS,
+           f"C6 {dname}.{i} declared AUDIO_MAP {midx} answers (7.2.13)",
+           f"status={mst}")
+        if mst != ST_SUCCESS:
+            continue
+        rows = parse_map_rows(mimg)
+        oob = [r for r in rows if r[2] >= port['clusters']]
+        ck(not oob,
+           f"C6 {dname}.{i} map {midx} offsets are PORT-RELATIVE "
+           f"(7.2.19)",
+           f"rows outside the {port['clusters']}-cluster block: {oob}"
+           if oob else f"{len(rows)} row(s), max offset "
+                       f"{max([r[2] for r in rows], default=-1)}")
+        # -- C7: 7.2.19 uniqueness --------------------------------
+        if dcode == DESC_STREAM_PORT_INPUT:
+            keys = [(r[2], r[3]) for r in rows]
+            ck(len(keys) == len(set(keys)),
+               f"C7 {dname}.{i} map {midx}: <=1 entry per cluster "
+               f"channel (7.2.19)", f"keys={keys}")
+        else:
+            clash = [(r[0], r[1]) for r in rows
+                     if (r[0], r[1]) in out_stream_keys]
+            ck(not clash,
+               f"C7 {dname}.{i} map {midx}: <=1 entry per stream "
+               f"channel in the Configuration (7.2.19)",
+               f"already mapped: {clash}")
+            out_stream_keys.update((r[0], r[1]) for r in rows)
+
+
+def _check_add_posture(pr, ctx, allow_writes):
+    """C8: Milan 5.4.2.27/28 - ADD_AUDIO_MAPPINGS is NOT_SUPPORTED on a port
+    that HAS Audio Maps, and mandatory on one that has none."""
+    dname, dcode, i, port = ctx.dname, ctx.dcode, ctx.index, ctx.fields
+    # one well-formed record; on a port WITH maps this cannot mutate
+    # anything because the command is refused by definition.
+    addp = struct.pack('!HHHH', dcode, i, 1, 0) + \
+        struct.pack('!HHHH', 0, 0, 0, 0)
+    if port['maps'] > 0:
+        ast, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, addp)
+        ck(ast == ST_NOT_SUPPORTED,
+           f"C8 {dname}.{i} HAS Audio Maps -> ADD_AUDIO_MAPPINGS "
+           f"NOT_SUPPORTED (Milan 5.4.2.27/28 - conformance)",
+           f"status={ast}")
+    elif allow_writes:
+        ast, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, addp)
+        ck(ast is not None and ast != ST_NOT_SUPPORTED,
+           f"C8 {dname}.{i} has NO Audio Map -> ADD_AUDIO_MAPPINGS "
+           f"is MANDATORY (Milan 5.4.2.27)", f"status={ast}")
+        #: NOTE this probe deliberately does NOT assert SUCCESS -
+        #: record {0,0,0,0} may be genuinely invalid on some ports.
+        #: That tolerance is exactly why it could not see a device
+        #: refusing every ODD count; C10 below is the check that can.
+    else:
+        skip(f"C8 {dname}.{i} dynamic-port ADD_AUDIO_MAPPINGS",
+             "number_of_maps == 0: the command MUTATES a live "
+             "device - re-run with --allow-writes")
+
+
+def _check_paging(pr, ctx):
+    """C9: map_index == the port's OWN reported number_of_maps must answer
+    BAD_ARGUMENTS. Read-only, and the bound comes out of the device."""
+    dname, dcode, i, port = ctx.dname, ctx.dcode, ctx.index, ctx.fields
+    if port['maps'] == 0:
+        gst, _, gpl = pr.cmd(CMD_GET_AUDIO_MAP,
+                             struct.pack('!HHHH', dcode, i, 0, 0))
+        if gst != ST_SUCCESS or gpl is None or len(gpl) < 8:
+            skip(f"C9 {dname}.{i} GET_AUDIO_MAP paging",
+                 f"map_index 0 answered status={gst}: nothing to "
+                 "calibrate the page bound against")
+        else:
+            # response: type(2) index(2) map_index(2) number_of_maps(2)
+            n_maps = struct.unpack('!H', gpl[6:8])[0]
+            bst, _, _ = pr.cmd(CMD_GET_AUDIO_MAP,
+                               struct.pack('!HHHH', dcode, i, n_maps, 0))
+            ck(bst == ST_BAD_ARGUMENTS,
+               f"C9 {dname}.{i} map_index == number_of_maps "
+               f"({n_maps}) -> BAD_ARGUMENTS (Milan 5.4.2.26, "
+               f"1722.1 7.4.44)", f"status={bst}")
+    else:
+        skip(f"C9 {dname}.{i} GET_AUDIO_MAP paging",
+             "static port (number_of_maps > 0): 5.4.2.26 paging "
+             "governs the DYNAMIC case")
+
+
+def _check_single_mapping_add(pr, ctx, allow_writes):
+    """C10: an ADD of ONE mapping the device itself just reported is ordinary
+    traffic and must be accepted; REMOVE and re-ADD leave it as found."""
+    dname, dcode, i, port = ctx.dname, ctx.dcode, ctx.index, ctx.fields
+    if port['maps'] > 0:
+        skip(f"C10 {dname}.{i} single-mapping ADD",
+             "static port: 5.4.2.27 makes ADD NOT_SUPPORTED here")
+    elif not allow_writes:
+        skip(f"C10 {dname}.{i} single-mapping ADD",
+             "idempotent, but still a write - re-run with "
+             "--allow-writes")
+    else:
+        gst, _, gpl = pr.cmd(CMD_GET_AUDIO_MAP,
+                             struct.pack('!HHHH', dcode, i, 0, 0))
+        live = []
+        if gst == ST_SUCCESS and gpl is not None and len(gpl) >= 12:
+            n_rows = struct.unpack('!H', gpl[8:10])[0]
+            for r in range(n_rows):
+                o = 12 + 8 * r
+                if o + 8 <= len(gpl):
+                    live.append(struct.unpack('!HHHH', gpl[o:o + 8]))
+        if not live:
+            skip(f"C10 {dname}.{i} single-mapping ADD",
+                 "the port reports no dynamic mapping to re-ADD "
+                 "idempotently")
+        else:
+            one = live[0]
+            one_pl = struct.pack('!HHHH', dcode, i, 1, 0) + \
+                struct.pack('!HHHH', *one)
+            ost, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
+            ck(ost == ST_SUCCESS,
+               f"C10 {dname}.{i} ADD of ONE mapping the device "
+               f"itself reports {one} is accepted "
+               f"(7.4.45: number_of_mappings is bounded by the "
+               f"PDU, not by parity)", f"status={ost}")
+            #: and the same for REMOVE's count rule, put straight
+            #: back so the device is left as it was found
+            rst, _, _ = pr.cmd(CMD_REMOVE_AUDIO_MAPPINGS, one_pl)
+            ck(rst == ST_SUCCESS,
+               f"C10 {dname}.{i} REMOVE of that ONE mapping is "
+               f"accepted (7.4.46)", f"status={rst}")
+            if rst == ST_SUCCESS:
+                bst2, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
+                ck(bst2 == ST_SUCCESS,
+                   f"C10 {dname}.{i} single-mapping ADD restores it "
+                   f"(device left as found)", f"status={bst2}")
+
+
+def _walk_ports(pr, max_ports, allow_writes):
+    """Run C5-C10 over every STREAM_PORT the device answers for.
+
+    -> True when at least one port answered; False means the entity exposes no
+    audio ports and these checks had nothing to look at.
+    """
     all_cluster_owners = {}          # global cluster index -> (dname, port)
     out_stream_keys = set()          # 7.2.19 output uniqueness, Configuration-wide
     any_port = False
@@ -255,7 +470,7 @@ def main():
     for dname, dcode in (('STREAM_PORT_INPUT', DESC_STREAM_PORT_INPUT),
                          ('STREAM_PORT_OUTPUT', DESC_STREAM_PORT_OUTPUT)):
         print(f"\n-- {dname} --")
-        for i in range(a.max_ports):
+        for i in range(max_ports):
             st, img = pr.read_desc(dcode, i)
             if st != ST_SUCCESS:
                 break
@@ -267,155 +482,40 @@ def main():
             any_port = True
             print(f"     {dname}.{i}: clusters={port['clusters']}@"
                   f"{port['base_cluster']} maps={port['maps']}@{port['base_map']}")
+            ctx = PortProbe(dname, dcode, i, port)
 
             # -- C5: every advertised cluster answers, and is owned once ----
-            bad, dup = [], []
-            for off in range(port['clusters']):
-                idx = port['base_cluster'] + off
-                cst, cimg = pr.read_desc(DESC_AUDIO_CLUSTER, idx)
-                if cst != ST_SUCCESS:
-                    bad.append((idx, cst))
-                    continue
-                if idx in all_cluster_owners:
-                    dup.append((idx, all_cluster_owners[idx]))
-                all_cluster_owners[idx] = (dname, i)
-                if off < 3:
-                    print(f"        cluster {idx} = "
-                          f"'{parse_cluster_name(cimg)}'")
-            ck(not bad, f"C5 {dname}.{i} every advertised AUDIO_CLUSTER "
-                        f"answers READ_DESCRIPTOR (7.2.13)",
-               f"unanswered={bad}" if bad else
-               f"{port['clusters']} clusters from {port['base_cluster']}")
-            ck(not dup, f"C5 {dname}.{i} cluster block does not overlap "
-                        f"another port's (7.2.13)", f"shared={dup}")
-
+            _check_cluster_block(pr, ctx, all_cluster_owners)
             # -- C6: maps answer; rows are PORT-RELATIVE --------------------
-            for k in range(port['maps']):
-                midx = port['base_map'] + k
-                mst, mimg = pr.read_desc(DESC_AUDIO_MAP, midx)
-                ck(mst == ST_SUCCESS,
-                   f"C6 {dname}.{i} declared AUDIO_MAP {midx} answers (7.2.13)",
-                   f"status={mst}")
-                if mst != ST_SUCCESS:
-                    continue
-                rows = parse_map_rows(mimg)
-                oob = [r for r in rows if r[2] >= port['clusters']]
-                ck(not oob,
-                   f"C6 {dname}.{i} map {midx} offsets are PORT-RELATIVE "
-                   f"(7.2.19)",
-                   f"rows outside the {port['clusters']}-cluster block: {oob}"
-                   if oob else f"{len(rows)} row(s), max offset "
-                               f"{max([r[2] for r in rows], default=-1)}")
-                # -- C7: 7.2.19 uniqueness --------------------------------
-                if dcode == DESC_STREAM_PORT_INPUT:
-                    keys = [(r[2], r[3]) for r in rows]
-                    ck(len(keys) == len(set(keys)),
-                       f"C7 {dname}.{i} map {midx}: <=1 entry per cluster "
-                       f"channel (7.2.19)", f"keys={keys}")
-                else:
-                    clash = [(r[0], r[1]) for r in rows
-                             if (r[0], r[1]) in out_stream_keys]
-                    ck(not clash,
-                       f"C7 {dname}.{i} map {midx}: <=1 entry per stream "
-                       f"channel in the Configuration (7.2.19)",
-                       f"already mapped: {clash}")
-                    out_stream_keys.update((r[0], r[1]) for r in rows)
-
+            _check_map_block(pr, ctx, out_stream_keys)
             # -- C8: Milan 5.4.2.27/28 posture ------------------------------
-            # one well-formed record; on a port WITH maps this cannot mutate
-            # anything because the command is refused by definition.
-            addp = struct.pack('!HHHH', dcode, i, 1, 0) + \
-                struct.pack('!HHHH', 0, 0, 0, 0)
-            if port['maps'] > 0:
-                ast, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, addp)
-                ck(ast == ST_NOT_SUPPORTED,
-                   f"C8 {dname}.{i} HAS Audio Maps -> ADD_AUDIO_MAPPINGS "
-                   f"NOT_SUPPORTED (Milan 5.4.2.27/28 - conformance)",
-                   f"status={ast}")
-            elif a.allow_writes:
-                ast, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, addp)
-                ck(ast is not None and ast != ST_NOT_SUPPORTED,
-                   f"C8 {dname}.{i} has NO Audio Map -> ADD_AUDIO_MAPPINGS "
-                   f"is MANDATORY (Milan 5.4.2.27)", f"status={ast}")
-                #: NOTE this probe deliberately does NOT assert SUCCESS -
-                #: record {0,0,0,0} may be genuinely invalid on some ports.
-                #: That tolerance is exactly why it could not see a device
-                #: refusing every ODD count; C10 below is the check that can.
-            else:
-                skip(f"C8 {dname}.{i} dynamic-port ADD_AUDIO_MAPPINGS",
-                     "number_of_maps == 0: the command MUTATES a live "
-                     "device - re-run with --allow-writes")
-
+            _check_add_posture(pr, ctx, allow_writes)
             # -- C9: GET_AUDIO_MAP paging (read-only) -----------------------
-            if port['maps'] == 0:
-                gst, _, gpl = pr.cmd(CMD_GET_AUDIO_MAP,
-                                     struct.pack('!HHHH', dcode, i, 0, 0))
-                if gst != ST_SUCCESS or gpl is None or len(gpl) < 8:
-                    skip(f"C9 {dname}.{i} GET_AUDIO_MAP paging",
-                         f"map_index 0 answered status={gst}: nothing to "
-                         "calibrate the page bound against")
-                else:
-                    # response: type(2) index(2) map_index(2) number_of_maps(2)
-                    n_maps = struct.unpack('!H', gpl[6:8])[0]
-                    bst, _, _ = pr.cmd(CMD_GET_AUDIO_MAP,
-                                       struct.pack('!HHHH', dcode, i, n_maps, 0))
-                    ck(bst == ST_BAD_ARGUMENTS,
-                       f"C9 {dname}.{i} map_index == number_of_maps "
-                       f"({n_maps}) -> BAD_ARGUMENTS (Milan 5.4.2.26, "
-                       f"1722.1 7.4.44)", f"status={bst}")
-            else:
-                skip(f"C9 {dname}.{i} GET_AUDIO_MAP paging",
-                     "static port (number_of_maps > 0): 5.4.2.26 paging "
-                     "governs the DYNAMIC case")
-
+            _check_paging(pr, ctx)
             # -- C10: an ODD number_of_mappings is ordinary traffic ---------
-            if port['maps'] > 0:
-                skip(f"C10 {dname}.{i} single-mapping ADD",
-                     "static port: 5.4.2.27 makes ADD NOT_SUPPORTED here")
-            elif not a.allow_writes:
-                skip(f"C10 {dname}.{i} single-mapping ADD",
-                     "idempotent, but still a write - re-run with "
-                     "--allow-writes")
-            else:
-                gst, _, gpl = pr.cmd(CMD_GET_AUDIO_MAP,
-                                     struct.pack('!HHHH', dcode, i, 0, 0))
-                live = []
-                if gst == ST_SUCCESS and gpl is not None and len(gpl) >= 12:
-                    n_rows = struct.unpack('!H', gpl[8:10])[0]
-                    for r in range(n_rows):
-                        o = 12 + 8 * r
-                        if o + 8 <= len(gpl):
-                            live.append(struct.unpack('!HHHH', gpl[o:o + 8]))
-                if not live:
-                    skip(f"C10 {dname}.{i} single-mapping ADD",
-                         "the port reports no dynamic mapping to re-ADD "
-                         "idempotently")
-                else:
-                    one = live[0]
-                    one_pl = struct.pack('!HHHH', dcode, i, 1, 0) + \
-                        struct.pack('!HHHH', *one)
-                    ost, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
-                    ck(ost == ST_SUCCESS,
-                       f"C10 {dname}.{i} ADD of ONE mapping the device "
-                       f"itself reports {one} is accepted "
-                       f"(7.4.45: number_of_mappings is bounded by the "
-                       f"PDU, not by parity)", f"status={ost}")
-                    #: and the same for REMOVE's count rule, put straight
-                    #: back so the device is left as it was found
-                    rst, _, _ = pr.cmd(CMD_REMOVE_AUDIO_MAPPINGS, one_pl)
-                    ck(rst == ST_SUCCESS,
-                       f"C10 {dname}.{i} REMOVE of that ONE mapping is "
-                       f"accepted (7.4.46)", f"status={rst}")
-                    if rst == ST_SUCCESS:
-                        bst2, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
-                        ck(bst2 == ST_SUCCESS,
-                           f"C10 {dname}.{i} single-mapping ADD restores it "
-                           f"(device left as found)", f"status={bst2}")
+            _check_single_mapping_add(pr, ctx, allow_writes)
 
         # boundary: one past the last port that answered
         pass
 
-    if not any_port:
+    return any_port
+
+
+def main() -> int:
+    """Probe one live device and report C5-C9; 0 only when every check that
+    could be made passed."""
+    a = _parse_args()
+
+    s = open_sock(a.iface)
+    src = s.getsockname()[4][:6]
+    pr = Probe(s, Peers(src, bytes.fromhex(a.target_mac.replace(':', '')),
+                        bytes.fromhex(a.target_eid),
+                        bytes.fromhex(a.controller_eid)))
+
+    print(f"=== hive_compliance_clusters {a.target_eid} on {a.iface} "
+          f"(transport: {'shared' if _SHARED_TRANSPORT else 'local'}) ===")
+
+    if not _walk_ports(pr, a.max_ports, a.allow_writes):
         print("\n  [skip] no STREAM_PORT descriptor answered - this entity "
               "exposes no audio ports, so C5-C9 have nothing to check")
 

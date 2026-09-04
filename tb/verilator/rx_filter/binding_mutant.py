@@ -59,7 +59,7 @@ ARMS = (
 )
 
 
-def build_recipe():
+def build_recipe() -> list[str]:
     """[verilator, flag, ...] exactly as the Makefile builds the clean run."""
     # --no-print-directory: this driver runs UNDER make (the suite's default
     # goal), and GNU make 4.3 - the CI runner's - prints "make[1]: Entering
@@ -76,7 +76,8 @@ def build_recipe():
     return lines
 
 
-def run_arm(recipe, path, old, new, marker):
+def run_arm(recipe: list[str], path: Path, old: str, new: str,
+            marker: str | None) -> tuple[bool, str]:
     """(passed, detail) for one mutation."""
     sources = {TCAM: TCAM.read_text(), FILTER: FILTER.read_text()}
     if sources[path].count(old) != 1:
@@ -122,7 +123,12 @@ def run_arm(recipe, path, old, new, marker):
         return False, "the harness accepted it:\n" + run.stdout[-800:] + run.stderr[-400:]
 
 
-def main():
+def main() -> int:
+    """Run every arm against the clean run's own recipe; 1 if any survived.
+
+    A mutation that is accepted - built and passed, or refused for the wrong
+    reason - means the seam is not observed, which is the whole claim.
+    """
     recipe = build_recipe()
     passed = failed = 0
     for name, path, old, new, marker in ARMS:

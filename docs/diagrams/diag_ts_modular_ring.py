@@ -36,7 +36,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from svglib import SVG                                        # noqa: E402
+from svglib import SVG, Rect                                  # noqa: E402
 
 WRAP_NS = 2 ** 32                       # 4,294,967,296 ns = 4.294967296 s
 HALF_NS = WRAP_NS // 2                  # 2,147,483,648 ns - the convention's split
@@ -63,26 +63,28 @@ g = SVG(1440, 810,
         "and splits the result at 2^31")
 
 
-def raw(s):
+def raw(s: str) -> None:
+    """append a finished SVG element; svglib has no path, circle or arc primitive."""
     g.e.append(s)
 
 
 # ============================================================ panel A: ring ===
 CX, CY, R = 400, 396, 158
-g.box(40, 100, 700, 596, "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
+g.box(Rect(40, 100, 700, 596), "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
 g.label(390, 130, "A.  the ring", fs=15, col="#111", anchor="middle", weight="700")
 g.label(390, 150, "one lap = 2^32 ns = 4.294967296 s; 0 at the top, delta increasing clockwise",
         fs=11, col="#666", anchor="middle")
 
 
-def pt(d_ns, rad=None):
+def pt(d_ns: float, rad: float | None = None) -> tuple[float, float]:
     """modular delta in ns [0, 2^32) -> ring point; 0 at the top, clockwise."""
     rad = R if rad is None else rad
     th = 2 * math.pi * d_ns / WRAP_NS - math.pi / 2
     return CX + rad * math.cos(th), CY + rad * math.sin(th)
 
 
-def wedge(a_ns, b_ns, col, fill):
+def wedge(a_ns: float, b_ns: float, col: str, fill: str) -> None:
+    """ring sector between two deltas; the large-arc flag follows the 2^31 split."""
     x0, y0 = pt(a_ns)
     x1, y1 = pt(b_ns)
     large = 1 if (b_ns - a_ns) > HALF_NS else 0
@@ -132,7 +134,7 @@ raw(f'<circle cx="{lx:.2f}" cy="{ly:.2f}" r="8" fill="{VIO}" stroke="#ffffff" st
 g.label(lx + 14, ly + 4, "lands here", fs=11.5, col=VIO, anchor="start", weight="700")
 
 
-def walk_arrow(a_ns, b_ns):
+def walk_arrow(a_ns: float, b_ns: float) -> None:
     """outer dashed arc a -> b in the direction the delta actually moves."""
     x0, y0 = pt(a_ns, R + 22)
     x1, y1 = pt(b_ns, R + 22)
@@ -146,13 +148,13 @@ def walk_arrow(a_ns, b_ns):
 # ts - now falls every second: the modular delta DECREASES and wraps at 0.
 walk_arrow(int(0.80 * HALF_NS), int(0.34 * HALF_NS))     # up the EARLY side
 walk_arrow(int(1.66 * HALF_NS), int(1.20 * HALF_NS))     # up the LATE side
-g.box(96, 636, 590, 46,
+g.box(Rect(96, 636, 590, 46),
       "the landing point is arbitrary, and the drift keeps it moving",
       "talker PHC slewed -10,004 ppm  ->  delta falls, wraps through 0, and comes round again",
       fill="#f6f0fa", stroke=VIO, tcol="#4a2d66", fs=12, r=6)
 
 # ======================================================= panel B: unrolled ====
-g.box(770, 100, 630, 596, "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
+g.box(Rect(770, 100, 630, 596), "", None, fill="#ffffff", stroke="#ddd", r=10, sw=1.4)
 g.label(1085, 130, "B.  the same ring, unrolled", fs=15, col="#111", anchor="middle", weight="700")
 g.label(1085, 150, "delta = (avtp_timestamp - ptp_now) mod 2^32, in ns", fs=11,
         col="#666", anchor="middle")
@@ -161,7 +163,8 @@ BX, BW, BY0 = 900, 96, 180
 BH = 280                                    # full 2^32 drawn top (0) to bottom
 
 
-def by(d_ns):
+def by(d_ns: float) -> float:
+    """modular delta in ns -> y on the unrolled bar; 0 at its top, 2^32 at its foot."""
     return BY0 + BH * d_ns / WRAP_NS
 
 
@@ -191,13 +194,17 @@ g.label(1090, 500, f"the on-time band magnified: {ONTIME_NS/1e6:.0f} ms of {WRAP
         fs=11.5, col=GREEN, anchor="middle", weight="700")
 
 
-def mx(ms):
+def mx(ms: float) -> float:
+    """milliseconds -> x on the magnified strip, which spans -1 ms to 14 ms."""
     return MX0 + (MX1 - MX0) * (ms + 1.0) / 15.0
 
 
-raw(f'<rect x="{mx(-1)}" y="{MY-24}" width="{mx(0)-mx(-1)}" height="48" fill="{RED_F}" stroke="{RED}" stroke-width="1.4"/>')
-raw(f'<rect x="{mx(0)}" y="{MY-24}" width="{mx(12)-mx(0)}" height="48" fill="{GREEN_F}" stroke="{GREEN}" stroke-width="1.8"/>')
-raw(f'<rect x="{mx(12)}" y="{MY-24}" width="{mx(14)-mx(12)}" height="48" fill="{AMBER_F}" stroke="{AMBER}" stroke-width="1.4"/>')
+raw(f'<rect x="{mx(-1)}" y="{MY-24}" width="{mx(0)-mx(-1)}" height="48" '
+    f'fill="{RED_F}" stroke="{RED}" stroke-width="1.4"/>')
+raw(f'<rect x="{mx(0)}" y="{MY-24}" width="{mx(12)-mx(0)}" height="48" '
+    f'fill="{GREEN_F}" stroke="{GREEN}" stroke-width="1.8"/>')
+raw(f'<rect x="{mx(12)}" y="{MY-24}" width="{mx(14)-mx(12)}" height="48" '
+    f'fill="{AMBER_F}" stroke="{AMBER}" stroke-width="1.4"/>')
 g.label(mx(7), MY + 5, "ON TIME", fs=13, col=GREEN, anchor="middle", weight="700")
 raw(f'<circle cx="{mx(2)}" cy="{MY}" r="5.5" fill="{GREEN}"/>')
 g.label(mx(2), MY - 34, "a synced talker lands here (pto = 2 ms)", fs=10.5, col=GREEN,
@@ -207,13 +214,13 @@ for ms, txt in ((0, "0"), (2, "2 ms"), (12, "12 ms")):
     g.label(mx(ms), MY + 48, txt, fs=10.5, col="#444", anchor="middle")
 g.label(mx(12), MY + 62, "pto + EARLY_MARGIN_NS_C", fs=10, col=AMBER, anchor="middle")
 
-g.box(800, 630, 570, 56,
+g.box(Rect(800, 630, 570, 56),
       "late  = ts_delta < 0\nearly = !late && ts_delta > pres_ofs + EARLY_MARGIN_NS_C",
       "KL_avtp_rx_monitor.sv - the signed cast of an unsigned modular difference IS this convention",
       fill="#eef3f8", stroke="#33628f", tcol="#123", fs=11.5, r=6)
 
 # ==================================================================== banner ==
-g.box(40, 712, 1360, 66,
+g.box(Rect(40, 712, 1360, 66),
       "the listener is not measuring a wrong offset - it is measuring a meaningless one, correctly",
       f"once the true separation exceeds one lap, the modular difference carries NO information about the "
       f"direction or the magnitude of the clock error; at {LAPS:,} laps it is simply a point on the ring",

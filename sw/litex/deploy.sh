@@ -90,8 +90,9 @@ run_milan_soc() {
     local label="$1"; shift
     # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting
     # preserves the historical command while making dry-run and execution share
-    # the exact same final argv.
-    set -- "$HERE/milan_soc.py" $MILAN_OPTS "$@"
+    # the exact same final argv. It is a command LINE, not a path: quoting it
+    # would hand milan_soc.py one 400-character argument.
+    set -- "$HERE/milan_soc.py" $MILAN_OPTS "$@"  # shellcheck disable=SC2086
     if [ "$DRY" = 1 ]; then
         printf "DRY [%s]\n  " "$label"
         printf "%q " "$@"

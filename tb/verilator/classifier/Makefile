@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SRCS = $(RTL_DIR)/common/ethernet_packet_pkg.sv \
        $(RTL_DIR)/common/axi_stream_if.sv \

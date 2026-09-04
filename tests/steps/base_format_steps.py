@@ -14,6 +14,7 @@
 # will carry - not what the YAML says.
 
 from behave import then, when
+from behave.runner import Context
 
 #: Milan v1.2 Table 6.2, the 48 kHz block: five Base formats, one per channel
 #: count in 6.2's N in {1, 2, 4, 6, 8}. AAF PCM 32-bit, nsr 5, 6 samples/PDU.
@@ -66,7 +67,13 @@ def _missing(fmts):
 
 
 @then("every Stream Input advertises all five 48 kHz Base channel counts")
-def step_inputs_complete(context):
+def step_inputs_complete(context: Context) -> None:
+    """Refuses a Stream Input that advertises part of a rate's Base family.
+
+    Milan 6.4 makes one Base format at a rate a promise of all five channel
+    counts at that rate; a listener capped at 4 is still one a controller will
+    connect an 8-channel talker to.
+    """
     bad = []
     for i, s in enumerate(context.cfg["listeners"]):
         for rate, miss in sorted(_missing(s["formats"]).items()):
@@ -82,7 +89,9 @@ def step_inputs_complete(context):
 
 
 @then("every Stream Input advertises the same Base sampling rates")
-def step_inputs_same_rates(context):
+def step_inputs_same_rates(context: Context) -> None:
+    """Refuses a Configuration whose Stream Inputs disagree on which Base
+    sampling rates exist at all."""
     rates = {tuple(sorted(_cover(s["formats"])))
              for s in context.cfg["listeners"] if _cover(s["formats"])}
     assert len(rates) <= 1, (
@@ -94,7 +103,10 @@ def step_inputs_same_rates(context):
 
 
 @then("every advertised Base sampling rate is one the AUDIO_UNIT reports")
-def step_rates_match_audio_unit(context):
+def step_rates_match_audio_unit(context: Context) -> None:
+    """Grades the formats lists against the AUDIO_UNIT's sampling rates - when
+    the two sets differ, one of the two descriptors is lying to the
+    controller."""
     unit = [int(r) for r in context.cfg["clocking"]["audio_unit_rates_hz"]]
     bad = []
     for label, key in (("STREAM_INPUT", "listeners"),
@@ -114,7 +126,9 @@ def step_rates_match_audio_unit(context):
 
 
 @then("at least one Stream Output advertises a Base format")
-def step_output_has_base(context):
+def step_output_has_base(context: Context) -> None:
+    """Refuses a Base Talker with no Base Stream Output anywhere in the
+    Configuration - 6.3's one-stream minimum."""
     assert any(_cover(s["formats"]) for s in context.cfg["talkers"]), (
         f"{context.cfg_name}: no Stream Output advertises a Milan 6.2 Base "
         "format. Milan v1.2 6.3: \"A PAAD-AE Base Talker shall have at least "
@@ -124,7 +138,12 @@ def step_output_has_base(context):
 
 
 @then("no Stream Output advertises more than one Base channel count")
-def step_output_is_wire_truth(context):
+def step_output_is_wire_truth(context: Context) -> None:
+    """Refuses a Stream Output that advertises a channel-count family.
+
+    A talker emits ONE width, so the wider claim is one the framer cannot
+    honour and the listener discards every frame it does not fit.
+    """
     bad = []
     for i, s in enumerate(context.cfg["talkers"]):
         for rate, got in sorted(_cover(s["formats"]).items()):
@@ -153,7 +172,9 @@ def _crf_streams(context):
 
 
 @then("every CRF stream advertises exactly the CRF media clock format")
-def step_crf_format(context):
+def step_crf_format(context: Context) -> None:
+    """Grades every CRF stream against the single Table 7.1 media clock
+    format, so a near-miss encoding is a failure and not a variant."""
     got = _crf_streams(context)
     assert got, f"{context.cfg_name}: no CRF stream to check"
     for label, fmt in got:
@@ -165,7 +186,9 @@ def step_crf_format(context):
 
 
 @then("no CRF stream advertises an AAF Base format")
-def step_crf_has_no_aaf(context):
+def step_crf_has_no_aaf(context: Context) -> None:
+    """Refuses a CRF stream that also advertises an AAF Base format; 5.3.3.4
+    makes the two mutually exclusive on one Stream Input or Output."""
     for label, fmt in _crf_streams(context):
         assert not _cover([fmt]), (
             f"{context.cfg_name}: the CRF {label} advertises the AAF Base "
@@ -175,7 +198,10 @@ def step_crf_has_no_aaf(context):
 
 
 @when("a Stream Input's family is capped at 4 channels")
-def step_cap_family(context):
+def step_cap_family(context: Context) -> None:
+    """Re-caps the first Stream Input's ut family at 4 channels - the bytes
+    endstation_arty_4x4 carried before 2026-08-14 - so the family check has an
+    incomplete config to bite."""
     #: The pre-2026-08-14 bytes, restored by hand: 0x0215022001006000 is the
     #: ut entry at FOUR channels endstation_arty_4x4 used to carry.
     context.cfg["listeners"][0]["formats"] = ["0x0205022001006000",
@@ -183,7 +209,10 @@ def step_cap_family(context):
 
 
 @then("the Base family check REPORTS the missing 6- and 8-channel formats")
-def step_family_check_bites(context):
+def step_family_check_bites(context: Context) -> None:
+    """Grades the family check itself: the capped config must report the 6-
+    and 8-channel 48 kHz formats missing, or the check has stopped saying
+    no."""
     miss = _missing(context.cfg["listeners"][0]["formats"])
     assert miss == {48000: [6, 8]}, (
         f"a 4-channel ut family reported {miss}, expected the 6- and "

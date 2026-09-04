@@ -84,6 +84,7 @@ removal.
 import argparse
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -129,7 +130,7 @@ _NAME_TOKENS = ("ns", "us", "ms", "nsec", "usec", "msec", "cyc", "cycle", "cycle
                 "mbps", "gbps")
 
 
-def family(word):
+def family(word: str) -> str | None:
     """The family of a unit spelling from either vocabulary, or None."""
     return _FAMILY_OF.get(re.sub(r"\s*/\s*", "/", re.sub(r"\s+", " ", word.lower().strip())))
 
@@ -138,7 +139,8 @@ def _alternation(words):
     """A regex alternation of unit spellings, longest first so "clock cycles"
     beats "cycles" and "bytes per second" beats "bytes"; a space matches any
     whitespace and a slash tolerates spaces around it."""
-    def pat(w):
+    def pat(w: str) -> str:
+        """One spelling's pattern, tolerant of the spacing prose actually uses."""
         return r"\s+".join(r"\s*/\s*".join(re.escape(p) for p in tok.split("/"))
                            for tok in w.split(" "))
     return "|".join(pat(w) for w in sorted(words, key=len, reverse=True))
@@ -194,7 +196,7 @@ PROTOCOL = re.compile(
 # ---------------------------------------------------------------------------
 # classification
 # ---------------------------------------------------------------------------
-def units_in(doc):
+def units_in(doc: str) -> list[tuple[str, str]]:
     """Every unit-looking word in a comment, in order, as (word, kind).
 
     kind is 'unit' for a unit of measure or 'noun' for a singular byte/octet/
@@ -223,7 +225,7 @@ def units_in(doc):
     return found
 
 
-def unit_in(doc):
+def unit_in(doc: str) -> tuple[str | None, str]:
     """(word, kind) for the first unit of measure in a comment, else the first
     noun for the value (reported as an exclusion so the class stays visible),
     else (None, '') when no unit word is present at all."""
@@ -234,7 +236,7 @@ def unit_in(doc):
     return (words[0][0], "noun") if words else (None, "")
 
 
-def name_families(name):
+def name_families(name: str) -> set[str]:
     """The unit families an identifier carries as `_`-delimited tokens."""
     return {family(m.group(2)) for m in NAME_UNIT.finditer(name)}
 
@@ -273,7 +275,7 @@ def _classify_named(name, doc, unit, named):
     return "candidate", unit, MISMATCH
 
 
-def classify(name, doc, multibit):
+def classify(name: str, doc: str, multibit: bool) -> tuple[str | None, str | None, str]:
     """('candidate'|'excluded'|None, unit, reason)."""
     unit, kind = unit_in(doc)
     if not unit:
@@ -292,7 +294,8 @@ def classify(name, doc, multibit):
     return "candidate", unit, ""
 
 
-def scan_text(text):
+def scan_text(text: str) -> tuple[
+        list[tuple[str, str, str, str, str]], list[tuple[str, str, str, str]], dict[str, int]]:
     """(candidates, excluded, stats) for one source.
 
     candidates: [(module, name, unit, doc, reason)] - reason is '' for a name
@@ -320,18 +323,23 @@ def scan_text(text):
     return candidates, excluded, stats
 
 
-def tree_of(rel):
+def tree_of(rel: str) -> str:
+    """Which tree a path is in: a processor submodule, or the superproject."""
     for sub in ("gptp-processor", "protocol-processor"):
         if rel.startswith(sub + "/"):
             return sub
     return "superproject"
 
 
-def sources():
+def sources() -> list[str]:
+    """Every tracked first-party .sv, this repository and both processors."""
     return [p for p in tracked("hdl") if p.endswith(".sv")]
 
 
-def scan_repo():
+def scan_repo() -> tuple[list[tuple[str, str, str, str, str, str]],
+                         list[tuple[str, str, str, str, str]], dict[str, dict[str, int]]]:
+    """(candidates, excluded matches, per-tree tallies) over every source, each
+    row carrying the path it was found in."""
     rows, drops, per_tree = [], [], {}
     for rel in sources():
         c, e, st = scan_text((REPO / rel).read_text(errors="replace"))
@@ -359,7 +367,9 @@ def scan_repo():
 _SUBMODULE_PREFIXES = ("protocol-processor/", "gptp-processor/")
 
 
-def identity(row):
+def identity(row: tuple[str, ...]) -> str:
+    """The ratchet key for one row - `path:module:name`, a processor spelled
+    with the colon the comment above requires."""
     rel, module, name = row[0], row[1], row[2]
     for prefix in _SUBMODULE_PREFIXES:
         if rel.startswith(prefix):
@@ -368,7 +378,7 @@ def identity(row):
     return f"{rel}:{module}:{name}"
 
 
-def identity_path(ident):
+def identity_path(ident: str) -> tuple[str, str, str]:
     """(rel_path, module, name) from an identity, undoing the processor spelling."""
     for prefix in _SUBMODULE_PREFIXES:
         sub = prefix[:-1]
@@ -382,7 +392,7 @@ def identity_path(ident):
 # ---------------------------------------------------------------------------
 # the identity ratchet
 # ---------------------------------------------------------------------------
-def read_budget():
+def read_budget() -> set[str] | None:
     """{identity} recorded, or None when the file is missing/unreadable."""
     if not BUDGET.is_file():
         return None
@@ -394,10 +404,14 @@ def read_budget():
     return ids
 
 
-def declared_as(rel, module, name):
+def declared_as(rel: str, module: str, name: str, repo: Path | None = None) -> str | None:
     """The `//!` comment when `module` in `rel` still declares a port or
-    parameter called `name`, else None."""
-    path = REPO / rel
+    parameter called `name`, else None.
+
+    `repo` names the tree `rel` is relative to; it defaults to this
+    repository and is passed a scratch directory by the self-test, which
+    would otherwise have to rebind the module's own root."""
+    path = (REPO if repo is None else repo) / rel
     if not path.is_file():
         return None
     for m, n, doc, _mb, _k in declarations(path.read_text(errors="replace")):
@@ -406,7 +420,7 @@ def declared_as(rel, module, name):
     return None
 
 
-def agrees(name, doc):
+def agrees(name: str, doc: str) -> bool:
     """True when the identifier carries a unit and the comment names that
     family: the one way a unit-named record may leave the ratchet without a
     rename, because the tool cannot tell a conversion ("~21 ms" on a cycle
@@ -415,15 +429,17 @@ def agrees(name, doc):
     return bool(named) and bool(named & {family(w) for w, _k in units_in(doc)})
 
 
-def ratchet(rows, recorded):
+def ratchet(rows: list[tuple[str, ...]], recorded: set[str],
+            repo: Path | None = None) -> tuple[list[str], list[str], list[str]]:
     """(new, stripped, left) - new identities, records that lost their unit
-    word without a rename, and records that left legitimately."""
+    word without a rename, and records that left legitimately. `repo` is the
+    tree the recorded identities are re-read from (default: this one)."""
     current = {identity(r) for r in rows}
     new = sorted(current - recorded)
     stripped, left = [], []
     for ident in sorted(recorded - current):
         rel, module, name = identity_path(ident)
-        doc = declared_as(rel, module, name)
+        doc = declared_as(rel, module, name, repo)
         if doc is None or agrees(name, doc):
             left.append(ident)
         else:
@@ -431,7 +447,10 @@ def ratchet(rows, recorded):
     return new, stripped, left
 
 
-def write_budget(rows, per_tree):
+def write_budget(rows: list[tuple[str, str, str, str, str, str]],
+                 per_tree: dict[str, dict[str, int]]) -> None:
+    """Regenerate scripts/naming.budget: the counted header, then one line per
+    identity with the mismatch reason where there is one."""
     total = sum(t["candidates"] for t in per_tree.values())
     mismatched = sum(t["mismatched"] for t in per_tree.values())
     head = [
@@ -550,13 +569,18 @@ FIXTURES = [
     ("names sharing one declaration are each a port",
      _wrap("  input logic [7:0] probe_sh1_i, probe_sh2_i, //! sizes in bytes"), 2, 0),
     ("a port-like line inside a block comment is not a port",
-     _wrap("  /* input wire [31:0] probe_blockcmt_i, //! delay, ns */\n  input wire [31:0] real_i, //! delay, ns"), 1, 0),
+     _wrap("  /* input wire [31:0] probe_blockcmt_i, //! delay, ns */\n"
+           "  input wire [31:0] real_i, //! delay, ns"), 1, 0),
     ("a parameter is a boundary too",
-     "module f #(\n  parameter int TIMEOUT_C = 50000 //! re-arm guard, cycles\n) (\n  input wire clk_i //! clock\n);\nendmodule\n", 1, 0),
+     "module f #(\n  parameter int TIMEOUT_C = 50000 //! re-arm guard, cycles\n"
+     ") (\n  input wire clk_i //! clock\n);\nendmodule\n", 1, 0),
     ("a parameter carrying its unit is not",
-     "module f #(\n  parameter int TIMEOUT_CYC_C = 50000 //! re-arm guard, cycles\n) (\n  input wire clk_i //! clock\n);\nendmodule\n", 0, 0),
+     "module f #(\n  parameter int TIMEOUT_CYC_C = 50000 //! re-arm guard, cycles\n"
+     ") (\n  input wire clk_i //! clock\n);\nendmodule\n", 0, 0),
     ("a function argument in the body is not a boundary",
-     "module f (\n  input wire clk_i //! clock\n);\n  function automatic int g(input int idle_slope); //! bits/s\n    return idle_slope;\n  endfunction\nendmodule\n", 0, 0),
+     "module f (\n  input wire clk_i //! clock\n);\n"
+     "  function automatic int g(input int idle_slope); //! bits/s\n"
+     "    return idle_slope;\n  endfunction\nendmodule\n", 0, 0),
     ("an interface modport port parses as one name",
      _wrap("  axi_stream_if.slave s_axis, //! ingress, bytes per beat"), 1, 0),
     # the unit families: a name must agree with its documented unit, not just carry one
@@ -588,17 +612,8 @@ FIXTURES = [
 ]
 
 
-def selftest():
-    failures = 0
-
-    def ck(name, ok, detail=""):
-        nonlocal failures
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
-
+def _check_fixtures(ck):
+    """Every FIXTURES arm, and the two whose exclusion reason is named."""
     for name, src, want_c, want_e in FIXTURES:
         c, e, _ = scan_text(src)
         ck(name, len(c) == want_c and len(e) == want_e,
@@ -611,6 +626,9 @@ def selftest():
     ck("timing prose is excluded under its own reason",
        bool(e2) and e2[0][3].startswith("noun"), f"{e2}")
 
+
+def _check_classification(ck):
+    """`classify`, the unit vocabularies, and the documented/undocumented tally."""
     # the reviewer's reproduction, verbatim: a misleading suffix must not satisfy the contract
     verdict, unit, reason = classify("timeout_bytes_i", "timeout in cycles", True)
     ck("classify refuses a name whose unit family differs from the documented one",
@@ -634,8 +652,9 @@ def selftest():
     ck("undocumented ports are counted, not silently skipped",
        st["undocumented"] == 1 and st["documented"] == 2, f"{st}")
 
-    # the identity ratchet: a stripped comment is refused, a rename or removal is not
-    recorded = {"x.sv:f:pres_ofs_i"}
+
+def _check_identities(ck, recorded):
+    """The ratchet's in-memory arms, and how an identity is spelled."""
     rows_now = [("x.sv", "f", "pres_ofs_i", "ns", "offset ns")]
     ck("a recorded candidate that is still a candidate is neither new nor gone",
        ratchet(rows_now, recorded) == ([], [], []))
@@ -651,39 +670,42 @@ def selftest():
        == ("gptp-processor/hdl/top/KL_gptp_engine.sv", "KL_gptp_engine", "pub_offset_o")
        and identity_path("hdl/a.sv:m:p") == ("hdl/a.sv", "m", "p"))
 
-    import tempfile
-    with tempfile.TemporaryDirectory() as td:
-        global REPO
-        real = REPO
-        try:
-            REPO = Path(td)
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_i, //! presentation offset"))
-            ck("a recorded port that merely lost the unit from its comment is refused as stripped",
-               ratchet([], recorded) == ([], ["x.sv:f:pres_ofs_i"], []))
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_ns_i, //! presentation offset ns"))
-            ck("a recorded port renamed with its unit has left legitimately",
-               ratchet([], recorded) == ([], [], ["x.sv:f:pres_ofs_i"]))
-            (REPO / "x.sv").write_text(_wrap(""))
-            ck("a recorded port that was removed has left legitimately",
-               ratchet([], recorded) == ([], [], ["x.sv:f:pres_ofs_i"]))
-            # a recorded MISMATCH may also leave by a comment that names the name's family
-            wrong = {"x.sv:f:timeout_bytes_i"}
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in cycles"))
-            ck("a recorded mismatch that is still one is neither new nor gone",
-               ratchet([("x.sv", "f", "timeout_bytes_i", "cycles", "timeout in cycles", MISMATCH)], wrong)
-               == ([], [], []))
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in bytes"))
-            ck("a recorded mismatch whose comment now names the name's unit has left legitimately",
-               ratchet([], wrong) == ([], [], ["x.sv:f:timeout_bytes_i"]))
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout"))
-            ck("a recorded mismatch that merely lost the unit from its comment is refused as stripped",
-               ratchet([], wrong) == ([], ["x.sv:f:timeout_bytes_i"], []))
-            (REPO / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_i, //! presentation offset"))
-            ck("a name without a unit still cannot leave by a comment edit",
-               ratchet([], recorded) == ([], ["x.sv:f:pres_ofs_i"], []))
-        finally:
-            REPO = real
 
+def _check_departures(ck, recorded):
+    """How a recorded identity may leave the ratchet, against a scratch tree.
+
+    The arms rewrite one .sv between calls, so the tree they judge is passed
+    to `ratchet` as its `repo`, never installed over this module's own."""
+    with tempfile.TemporaryDirectory() as td:
+        repo = Path(td)
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_i, //! presentation offset"))
+        ck("a recorded port that merely lost the unit from its comment is refused as stripped",
+           ratchet([], recorded, repo) == ([], ["x.sv:f:pres_ofs_i"], []))
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_ns_i, //! presentation offset ns"))
+        ck("a recorded port renamed with its unit has left legitimately",
+           ratchet([], recorded, repo) == ([], [], ["x.sv:f:pres_ofs_i"]))
+        (repo / "x.sv").write_text(_wrap(""))
+        ck("a recorded port that was removed has left legitimately",
+           ratchet([], recorded, repo) == ([], [], ["x.sv:f:pres_ofs_i"]))
+        # a recorded MISMATCH may also leave by a comment that names the name's family
+        wrong = {"x.sv:f:timeout_bytes_i"}
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in cycles"))
+        ck("a recorded mismatch that is still one is neither new nor gone",
+           ratchet([("x.sv", "f", "timeout_bytes_i", "cycles", "timeout in cycles", MISMATCH)],
+                   wrong, repo) == ([], [], []))
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout in bytes"))
+        ck("a recorded mismatch whose comment now names the name's unit has left legitimately",
+           ratchet([], wrong, repo) == ([], [], ["x.sv:f:timeout_bytes_i"]))
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] timeout_bytes_i, //! timeout"))
+        ck("a recorded mismatch that merely lost the unit from its comment is refused as stripped",
+           ratchet([], wrong, repo) == ([], ["x.sv:f:timeout_bytes_i"], []))
+        (repo / "x.sv").write_text(_wrap("  input wire [31:0] pres_ofs_i, //! presentation offset"))
+        ck("a name without a unit still cannot leave by a comment edit",
+           ratchet([], recorded, repo) == ([], ["x.sv:f:pres_ofs_i"], []))
+
+
+def _check_live_scan(ck):
+    """The scan reaches this tree and both processors, and the budget parses."""
     rows, drops, per_tree = scan_repo()
     total_ports = sum(t["ports"] for t in per_tree.values())
     ck("the live scan reads the tree", total_ports > 500 and rows,
@@ -697,13 +719,36 @@ def selftest():
        recorded_live is not None and all(":" in i for i in recorded_live),
        "scripts/naming.budget must list path:module:name lines")
 
+
+def selftest() -> int:
+    """Every arm, in order, and the PASS/FAIL tally as the exit status."""
+    failures = []
+
+    def ck(name: str, ok: object, detail: str = "") -> None:
+        """Print one arm's verdict; any truthy `ok` passes, a failure is kept."""
+        if ok:
+            print(f"[PASS] {name}")
+        else:
+            failures.append(name)
+            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
+
+    # the identity ratchet: a stripped comment is refused, a rename or removal is not
+    recorded = {"x.sv:f:pres_ofs_i"}
+    _check_fixtures(ck)
+    _check_classification(ck)
+    _check_identities(ck, recorded)
+    _check_departures(ck, recorded)
+    _check_live_scan(ck)
+
     n = len(FIXTURES) + 20
-    print(f"\n{n} checks: {n - failures} PASS, {failures} FAIL")
+    print(f"\n{n} checks: {n - len(failures)} PASS, {len(failures)} FAIL")
     return 1 if failures else 0
 
 
 # ---------------------------------------------------------------------------
-def main():
+def main() -> int:
+    """The candidate table and per-tree tally, or one of --excluded,
+    --write-budget and the --check identity ratchet."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="the identity ratchet")
     ap.add_argument("--excluded", action="store_true", help="every filtered match, and why")

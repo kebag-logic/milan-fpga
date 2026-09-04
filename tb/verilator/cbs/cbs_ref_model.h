@@ -61,8 +61,8 @@
 
 struct CbsConfig {
     int64_t clk_freq_hz     = 100000000;   // compile-time parameter (constant divisor)
-    static const int FP = 16;              // FP_DECIMAL_POINT
-    static const int BYTE_TO_BIT = 8;
+    static constexpr int FP = 16;          // FP_DECIMAL_POINT
+    static constexpr int BYTE_TO_BIT = 8;
 };
 
 struct CbsInputs {
@@ -89,8 +89,8 @@ static inline int64_t cbs_drain_q16(bool is_1g, int64_t clk_freq_hz) {
     int64_t n = is_1g ? 125000000LL : 12500000LL;
     return (((n << 17) / clk_freq_hz) + 1) >> 1;
 }
-static const int CBS_WIRE_OVERHEAD_BYTES = 24;   // preamble+SFD+FCS+IFG
-static const int CBS_MIN_FRAME_BYTES     = 60;   // 64 wire octets less FCS
+constexpr int CBS_WIRE_OVERHEAD_BYTES = 24;      // preamble+SFD+FCS+IFG
+constexpr int CBS_MIN_FRAME_BYTES     = 60;      // 64 wire octets less FCS
 
 // ---------------------------------------------------------------------------
 // State-for-state mirror of the RTL sequential slope engine (slope_engine in
@@ -104,7 +104,7 @@ static const int CBS_MIN_FRAME_BYTES     = 60;   // 64 wire octets less FCS
 // All updates below read pre-step state first, mirroring nonblocking <=.
 // ---------------------------------------------------------------------------
 struct SlopeEngineRef {
-    static const uint64_t M48 = ((uint64_t)1 << 48) - 1;
+    static constexpr uint64_t M48 = (static_cast<uint64_t>(1) << 48) - 1;
     int      cnt = 0;
     int64_t  idle_s = 0;            // sampled idle slope (sign-extended)
     bool     is1g_s = false;        // sampled link select
@@ -114,13 +114,15 @@ struct SlopeEngineRef {
     uint64_t quo = 0;               // quotient shift register
     int64_t  q1 = 0;                // stashed signed quotient of divide 1
     uint64_t den = 1;               // active divisor
-    int64_t  isc = 0, ssb = 0;      // committed slope registers (_r in RTL)
+    int64_t  isc = 0;               // committed slope registers (_r in RTL)
+    int64_t  ssb = 0;
 
     void reset() { *this = SlopeEngineRef(); }
 
     static int64_t wrap48(int64_t v) {
-        uint64_t u = (uint64_t)v & M48;
-        return (u & ((uint64_t)1 << 47)) ? (int64_t)(u | ~M48) : (int64_t)u;
+        uint64_t u = static_cast<uint64_t>(v) & M48;
+        return (u & (static_cast<uint64_t>(1) << 47))
+                   ? static_cast<int64_t>(u | ~M48) : static_cast<int64_t>(u);
     }
 
     void step(int32_t idle_slope_bps_i, bool is_1g_i, int64_t clk_freq_hz) {
@@ -129,22 +131,24 @@ struct SlopeEngineRef {
         int64_t  ldval  = (cnt == 1) ? wrap48(idle_s << CbsConfig::FP)
                                      : wrap48((idle_s - link) << CbsConfig::FP);
         bool     ldsign = ldval < 0;
-        uint64_t ldmag  = (uint64_t)(ldsign ? -ldval : ldval) & M48;
+        uint64_t ldmag  = static_cast<uint64_t>(ldsign ? -ldval : ldval) & M48;
         uint64_t trial  = (rem << 1) | ((num >> 47) & 1);
         bool     ge     = (trial >= den);
         // REQ-CBS-06: round the magnitude to nearest (ties away from zero)
         // using the finished divide's remainder/divisor, then apply the sign.
         uint64_t quo_r  = (quo + (((rem << 1) >= den) ? 1u : 0u)) & M48;
-        int64_t  quo_s  = sign ? -(int64_t)quo_r : (int64_t)quo_r;
+        int64_t  quo_s  = sign ? -static_cast<int64_t>(quo_r)
+                               : static_cast<int64_t>(quo_r);
 
         if (cnt == 0) {
-            idle_s = (int64_t)idle_slope_bps_i;
+            idle_s = static_cast<int64_t>(idle_slope_bps_i);
             is1g_s = is_1g_i;
         } else if (cnt == 1 || cnt == 50) {
             if (cnt == 50) q1 = quo_s;
             sign = ldsign; num = ldmag; rem = 0; quo = 0;
-            den = (cnt == 1) ? (uint64_t)(clk_freq_hz * CbsConfig::BYTE_TO_BIT)
-                             : (uint64_t)link;
+            den = (cnt == 1)
+                      ? static_cast<uint64_t>(clk_freq_hz * CbsConfig::BYTE_TO_BIT)
+                      : static_cast<uint64_t>(link);
         } else if (cnt == 99) {
             isc = q1; ssb = quo_s;
         } else {
@@ -179,20 +183,20 @@ public:
     // truncating '/' of the pre-2026-07-26 RTL.
     static int64_t div_round(int64_t num, int64_t den) {
         bool neg = (num < 0);
-        uint64_t m = (uint64_t)(neg ? -num : num);
-        uint64_t d = (uint64_t)den;
+        uint64_t m = static_cast<uint64_t>(neg ? -num : num);
+        uint64_t d = static_cast<uint64_t>(den);
         uint64_t q = m / d;
         if ((m % d) * 2 >= d) q++;
-        return neg ? -(int64_t)q : (int64_t)q;
+        return neg ? -static_cast<int64_t>(q) : static_cast<int64_t>(q);
     }
     int64_t idle_slope_per_cycle(bool is_1g, int32_t idle_slope_bps) const {
         (void)is_1g;
-        int64_t idle = (int64_t)idle_slope_bps;
+        int64_t idle = static_cast<int64_t>(idle_slope_bps);
         return div_round(idle << CbsConfig::FP, cfg.clk_freq_hz * CbsConfig::BYTE_TO_BIT);
     }
     int64_t send_slope_per_byte(bool is_1g, int32_t idle_slope_bps) const {
         int64_t link = is_1g ? 1000000000LL : 100000000LL;
-        int64_t send = (int64_t)idle_slope_bps - link;   // negative
+        int64_t send = static_cast<int64_t>(idle_slope_bps) - link;   // negative
         return div_round(send << CbsConfig::FP, link);
     }
 
@@ -202,14 +206,15 @@ public:
 
     // Advance one posedge. `in` are the input values stable before the edge.
     void step(const CbsInputs& in) {
-        const int64_t HIc = (int64_t)in.hi_credit_bytes << CbsConfig::FP;
-        const int64_t LOc = (int64_t)in.lo_credit_bytes << CbsConfig::FP;
+        const int64_t HIc = static_cast<int64_t>(in.hi_credit_bytes) << CbsConfig::FP;
+        const int64_t LOc = static_cast<int64_t>(in.lo_credit_bytes) << CbsConfig::FP;
 
         // ---- next-state values (nonblocking: all computed from current) ----
 
         // stage1_pipe (uses the engine-committed slope registers, PRE-step:
         // on a commit edge the RTL stage1 still reads the old values)
-        int64_t n_send_delta      = eng.ssb * (int64_t)(int16_t)in.bytes_sent;
+        int64_t n_send_delta      = eng.ssb *
+                                    static_cast<int64_t>(static_cast<int16_t>(in.bytes_sent));
         int64_t n_credit_add_idle = eng.isc;
         bool    n_istx = in.is_transmitting;
         bool    n_qhd  = in.queue_has_data;
@@ -219,15 +224,16 @@ public:
         // debt_stage1 (REQ-CBS-07): the per-frame byte counter walks the
         // accepted beats; the Q16 debt increment carries the beat's bytes
         // plus, on tlast, the fixed overhead and the MAC min-frame pad.
-        int      frame_len   = (int)frame_cnt + (int)in.bytes_sent;
+        int      frame_len   = static_cast<int>(frame_cnt) + static_cast<int>(in.bytes_sent);
         int      frame_pad   = (frame_len < CBS_MIN_FRAME_BYTES)
                                ? (CBS_MIN_FRAME_BYTES - frame_len) : 0;
-        int      add_bytes   = (int)in.bytes_sent +
+        int      add_bytes   = static_cast<int>(in.bytes_sent) +
                                (in.tlast ? (CBS_WIRE_OVERHEAD_BYTES + frame_pad) : 0);
         uint16_t n_frame_cnt = in.is_transmitting
-                               ? (in.tlast ? 0 : (uint16_t)frame_len) : frame_cnt;
+                               ? (in.tlast ? 0 : static_cast<uint16_t>(frame_len))
+                               : frame_cnt;
         int64_t  n_debt_add  = in.is_transmitting
-                               ? ((int64_t)(add_bytes & 0xFF) << 16) : 0;
+                               ? (static_cast<int64_t>(add_bytes & 0xFF) << 16) : 0;
         bool     n_is1g      = in.is_1g;
 
         // debt_update (stage 2): += this beat's registered increment, -= the
@@ -238,7 +244,7 @@ public:
             n_wire_debt = 0;
         } else {
             int64_t t = wire_debt + debt_add - cbs_drain_q16(is1g_r, cfg.clk_freq_hz);
-            const int64_t M48 = (((int64_t)1) << 48) - 1;
+            constexpr int64_t M48 = (static_cast<int64_t>(1) << 48) - 1;
             n_wire_debt = (t < 0) ? 0 : (t > M48 ? M48 : t);
         }
         // 8.6.8.2 (e) transmit, from the PRE-step debt register (the RTL's
@@ -285,7 +291,9 @@ public:
     }
 
     int64_t credit_q16() const { return credit; }
-    double  credit_bytes() const { return (double)credit / (double)(1 << CbsConfig::FP); }
+    double  credit_bytes() const {
+        return static_cast<double>(credit) / static_cast<double>(1 << CbsConfig::FP);
+    }
     int64_t wire_debt_q16() const { return wire_debt; }
     // Output allow_transmit: combinational off the CURRENT credit register
     // (REQ-CBS-05); forced high when unshaped (uses registered shaped).
@@ -293,9 +301,13 @@ public:
 
     const CbsConfig cfg;
     int64_t credit;
-    int64_t send_delta, credit_add_idle;
+    int64_t send_delta;
+    int64_t credit_add_idle;
     SlopeEngineRef eng;     // mirrors the RTL slope_engine state-for-state
-    bool istx, qhd, isg, shaped;
+    bool istx;
+    bool qhd;
+    bool isg;
+    bool shaped;
     // REQ-CBS-07 wire-time debt state (mirrors debt_stage1/debt_update)
     int64_t  wire_debt;     // Q16 bytes still owed to the wire
     int64_t  debt_add;      // stage-1 registered increment (Q16)
@@ -320,22 +332,25 @@ public:
 
     double idle_rate_per_cycle(bool is_1g, int32_t idle_slope_bps) const {
         (void)is_1g;
-        return (double)idle_slope_bps / (double)cfg.clk_freq_hz / (double)CbsConfig::BYTE_TO_BIT;
+        return static_cast<double>(idle_slope_bps) / static_cast<double>(cfg.clk_freq_hz)
+               / static_cast<double>(CbsConfig::BYTE_TO_BIT);
     }
     double send_rate_per_byte(bool is_1g, int32_t idle_slope_bps) const {
         double link = is_1g ? 1e9 : 1e8;
-        return ((double)idle_slope_bps - link) / link;
+        return (static_cast<double>(idle_slope_bps) - link) / link;
     }
 
     void step(const CbsInputs& in) {
-        const double HIc = (double)in.hi_credit_bytes;
-        const double LOc = (double)in.lo_credit_bytes;
+        const double HIc = static_cast<double>(in.hi_credit_bytes);
+        const double LOc = static_cast<double>(in.lo_credit_bytes);
 
         // slope-engine cadence mirror (float): sample the exact rates at cnt 0,
         // commit at cnt 99, exactly aligned with SlopeEngineRef so the DUT-vs-
         // ideal gap stays pure quantization error through warm-up/reconfig.
-        double n_isc_r = isc_r, n_ssb_r = ssb_r;
-        double n_pend_isc = pend_isc, n_pend_ssb = pend_ssb;
+        double n_isc_r = isc_r;
+        double n_ssb_r = ssb_r;
+        double n_pend_isc = pend_isc;
+        double n_pend_ssb = pend_ssb;
         if (cnt == 0) {
             n_pend_isc = idle_rate_per_cycle(in.is_1g, in.idle_slope_bps);
             n_pend_ssb = send_rate_per_byte(in.is_1g, in.idle_slope_bps);
@@ -343,24 +358,27 @@ public:
             n_isc_r = pend_isc; n_ssb_r = pend_ssb;
         }
         int n_cnt = (cnt == 99) ? 0 : cnt + 1;
-        double n_send_delta      = ssb_r * (double)in.bytes_sent;
+        double n_send_delta      = ssb_r * static_cast<double>(in.bytes_sent);
         double n_credit_add_idle = isc_r;
-        bool   n_istx = in.is_transmitting, n_qhd = in.queue_has_data, n_isg = in.is_granted;
+        bool   n_istx = in.is_transmitting;
+        bool   n_qhd  = in.queue_has_data;
+        bool   n_isg  = in.is_granted;
         bool   n_shaped = in.shaped;
 
         // REQ-CBS-07 wire-time debt, same register cadence as the RTL but
         // with the EXACT drain rate (link bytes per second / clk).
-        int    frame_len   = (int)frame_cnt + (int)in.bytes_sent;
+        int    frame_len   = static_cast<int>(frame_cnt) + static_cast<int>(in.bytes_sent);
         int    frame_pad   = (frame_len < CBS_MIN_FRAME_BYTES)
                              ? (CBS_MIN_FRAME_BYTES - frame_len) : 0;
-        int    add_bytes   = (int)in.bytes_sent +
+        int    add_bytes   = static_cast<int>(in.bytes_sent) +
                              (in.tlast ? (CBS_WIRE_OVERHEAD_BYTES + frame_pad) : 0);
         uint16_t n_frame_cnt = in.is_transmitting
-                               ? (in.tlast ? 0 : (uint16_t)frame_len) : frame_cnt;
-        double n_debt_add  = in.is_transmitting ? (double)add_bytes : 0.0;
+                               ? (in.tlast ? 0 : static_cast<uint16_t>(frame_len))
+                               : frame_cnt;
+        double n_debt_add  = in.is_transmitting ? static_cast<double>(add_bytes) : 0.0;
         bool   n_is1g      = in.is_1g;
         double drain       = (is1g_r ? 125000000.0 : 12500000.0)
-                             / (double)cfg.clk_freq_hz;
+                             / static_cast<double>(cfg.clk_freq_hz);
         double n_wire_debt;
         if (!shaped) n_wire_debt = 0.0;
         else {
@@ -408,13 +426,21 @@ public:
     bool   allow_transmit() const { return shaped ? (credit >= 0.0) : true; }
 
     const CbsConfig cfg;
-    double credit, send_delta, credit_add_idle;
-    double isc_r, ssb_r;   // committed slope terms (cadence-aligned with the engine)
+    double credit;
+    double send_delta;
+    double credit_add_idle;
+    double isc_r;          // committed slope terms (cadence-aligned with the engine)
+    double ssb_r;
     int    cnt;            // slope-engine cadence mirror
-    double pend_isc, pend_ssb;
-    bool istx, qhd, isg, shaped;
+    double pend_isc;
+    double pend_ssb;
+    bool istx;
+    bool qhd;
+    bool isg;
+    bool shaped;
     // REQ-CBS-07 wire-time debt state (exact-rate mirror of the RTL's)
-    double   wire_debt, debt_add;
+    double   wire_debt;
+    double   debt_add;
     uint16_t frame_cnt;
     bool     is1g_r;
 };

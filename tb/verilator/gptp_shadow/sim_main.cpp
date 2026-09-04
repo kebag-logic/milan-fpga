@@ -26,38 +26,39 @@
 //  7  a back-to-back burst overflows the tap FIFO: drops are COUNTED,
 //     and the plane keeps working afterwards
 
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <vector>
 #include <verilated.h>
 #include "Vgptp_shadow_wrap.h"
+#include "../../common/verilator_harness.hpp"
 
-static const uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
-static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
-static const uint32_t OUR_CQ = 0xF8FE436A;
-static const uint64_t GMID = 0x00AACCFFFE010203ull;
-static const uint64_t GMID2 = 0x00AACCFFFE010204ull;
-static const uint64_t GMID_EMPTY = 0x00AACCFFFE010205ull;
-static const uint64_t PEER2_CID = 0x0080E1FFFE112244ull;
-static const uint64_t PATH_HOP = 0x00DDBBFFFE000001ull;
-static const uint64_t PATH_HOP2 = 0x00DDBBFFFE000002ull;
-static const uint64_t PATH_HOP3 = 0x00DDBBFFFE000003ull;
-static const uint64_t PATH_HOP4 = 0x00DDBBFFFE000004ull;
-static const uint64_t PATH_HOP5 = 0x00DDBBFFFE000005ull;
-static const uint64_t PATH_HOP6 = 0x00DDBBFFFE000006ull;
+constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
+constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
+constexpr uint32_t OUR_CQ = 0xF8FE436A;
+constexpr uint64_t GMID = 0x00AACCFFFE010203ull;
+constexpr uint64_t GMID2 = 0x00AACCFFFE010204ull;
+constexpr uint64_t GMID_EMPTY = 0x00AACCFFFE010205ull;
+constexpr uint64_t PEER2_CID = 0x0080E1FFFE112244ull;
+constexpr uint64_t PATH_HOP = 0x00DDBBFFFE000001ull;
+constexpr uint64_t PATH_HOP2 = 0x00DDBBFFFE000002ull;
+constexpr uint64_t PATH_HOP3 = 0x00DDBBFFFE000003ull;
+constexpr uint64_t PATH_HOP4 = 0x00DDBBFFFE000004ull;
+constexpr uint64_t PATH_HOP5 = 0x00DDBBFFFE000005ull;
+constexpr uint64_t PATH_HOP6 = 0x00DDBBFFFE000006ull;
 
-static const uint32_t FL_PRESENT = 1, FL_AMGM = 2, FL_ASCAP = 4,
-                      FL_SYNCOK = 8;
+constexpr uint32_t FL_PRESENT = 1;
+constexpr uint32_t FL_AMGM = 2;
+constexpr uint32_t FL_ASCAP = 4;
+constexpr uint32_t FL_SYNCOK = 8;
 
-static int checks = 0, fails = 0;
-static void expect(const char *what, uint64_t got, uint64_t exp) {
-  checks++;
-  if (got != exp) {
-    fails++;
-    printf("FAIL %-32s got %016llx exp %016llx\n", what,
-           (unsigned long long)got, (unsigned long long)exp);
-  }
-}
+//! The lane the tap and the transmitter share is 64 bits: eight bytes per
+//! beat, one tkeep bit each, and eight bits per byte in the packer's shift.
+constexpr size_t kLaneBytes = 8;
+constexpr unsigned kByteBits = 8;
+//! Clocks rst_n is held low, at boot and at every warm reset below.
+constexpr int kResetTicks = 8;
 
 struct Frame {
   std::vector<uint8_t> b;
@@ -110,376 +111,487 @@ static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
   return g;
 }
 
-static Vgptp_shadow_wrap *dut;
-static uint64_t cyc = 0;
-static uint16_t last_txts_seq = 0xFFFF;
-//! #214: every returning stamp, in arrival order, with both of its tags.
-//! A stamp names the frame it belongs to by {sequenceId, messageType}; the
-//! sequence alone cannot, because a Pdelay_Req carries our own counter
-//! while a Pdelay_Resp echoes the peer's and the two can coincide.
-struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; };
-static std::vector<Stamp> stamps;
-//! The exact tuples after the test-only return-order gate. Unlike `stamps`,
-//! this stream records delivery to the engine, so the collision phases can
-//! prove response-first order rather than inferring it from emitted frames.
-static std::vector<Stamp> engine_stamps;
-//! #214: the slice port must carry the tag AT the cycle the face is valid,
-//! not one stamp later. The engine samples txts_* combinationally on the
-//! valid pulse (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
-//! txts_seq_i`, cited by the assignment because the pin under it moves),
-//! so a registered mirror would
-//! read the PREVIOUS stamp's type there and credit one leg's egress time
-//! to another leg's claim. Every valid cycle is compared, and the count is
-//! asserted non-zero so the check cannot pass by never running.
-static int slice_skews = 0, slice_valids = 0;
-static std::vector<std::vector<uint8_t>> txf;   // unpacked lane frames
-static std::vector<uint64_t> tx_sof_phc;        // phc at each frame's beat0
-static std::vector<uint8_t> cur;
-static bool in_tx = false;
-static bool tx_first = true;
-
-//! The complete outward bank may change only with its commit pulse.
-static bool pub_watch = false;
-static uint64_t last_pub_gm, last_pub_parent, last_pub_annq;
-static uint64_t last_pub_path_tail0, last_pub_path_tail1,
-                last_pub_path_tail6;
-static uint32_t last_pub_flags, last_pub_pdelay, last_pub_offset;
-static uint8_t last_pub_path_count, last_pub_path_gen;
-static unsigned pub_commits, pub_changes, pub_unguarded_changes;
-
-//! issue #122: capture the ingress-ts ring push/pop stamps during a burst
-static std::vector<uint64_t> g_pushed, g_popped;
-static bool g_ts_capture = false;
-
-static uint64_t phc() { return dut->phc_ns_o; }
-
-static void tick() {
-  dut->clk_i = 0; dut->eval();
-  //! Sample the engine face immediately before the active edge: a replay
-  //! valid is combinational from the held slot and is consumed at this edge,
-  //! then disappears when the slot clears. Post-edge sampling would miss the
-  //! very delivery whose order this trace exists to prove.
-  if (dut->dbg_eng_txts_v_o)
-    engine_stamps.push_back({(uint16_t)dut->dbg_eng_txts_seq_o,
-                             (uint8_t)dut->dbg_eng_txts_type_o,
-                             dut->dbg_eng_txts_ns_o});
-  //! A transfer is the value presented immediately before the active edge.
-  //! Sampling after the edge loses a last beat when a producer drops valid
-  //! in response to that same handshake -- a distinction the backpressure
-  //! phase deliberately exercises.
-  if (dut->tx_tvalid_o && dut->tx_tready_i) {
-    if (tx_first) {
-      cur.clear();
-      in_tx = true;
-      tx_sof_phc.push_back(phc());
-    }
-    for (int i = 0; i < 8; i++)
-      if ((dut->tx_tkeep_o >> i) & 1)
-        cur.push_back((dut->tx_tdata_o >> (8 * i)) & 0xFF);
-    if (dut->tx_tlast_o) {
-      txf.push_back(cur);
-      in_tx = false;
-      tx_first = true;
-    } else {
-      tx_first = false;
-    }
-  }
-  dut->clk_i = 1; dut->eval();
-  if (!dut->rst_n) {
-    // A later warm reset starts a new publication epoch.  Do not compare the
-    // reset value against the pre-reset bank and call that reset transition an
-    // uncommitted runtime publication.
-    pub_watch = false;
-  } else {
-    if (!pub_watch) {
-      pub_watch = true;
-    } else {
-      const bool changed = dut->pub_gm_id_o != last_pub_gm
-                        || dut->pub_parent_id_o != last_pub_parent
-                        || dut->pub_flags_o != last_pub_flags
-                        || dut->pub_pdelay_ns_o != last_pub_pdelay
-                        || dut->pub_offset_o != last_pub_offset
-                        || dut->pub_annq_o != last_pub_annq
-                        || dut->pub_path_count_o != last_pub_path_count
-                        || dut->pub_path_tail0_o != last_pub_path_tail0
-                        || dut->pub_path_tail1_o != last_pub_path_tail1
-                        || dut->pub_path_tail6_o != last_pub_path_tail6
-                        || dut->pub_path_gen_o != last_pub_path_gen;
-      if (changed) {
-        pub_changes++;
-        if (!dut->pub_commit_o) pub_unguarded_changes++;
-      }
-    }
-    if (dut->pub_commit_o) pub_commits++;
-    last_pub_gm = dut->pub_gm_id_o;
-    last_pub_parent = dut->pub_parent_id_o;
-    last_pub_flags = dut->pub_flags_o;
-    last_pub_pdelay = dut->pub_pdelay_ns_o;
-    last_pub_offset = dut->pub_offset_o;
-    last_pub_annq = dut->pub_annq_o;
-    last_pub_path_count = dut->pub_path_count_o;
-    last_pub_path_tail0 = dut->pub_path_tail0_o;
-    last_pub_path_tail1 = dut->pub_path_tail1_o;
-    last_pub_path_tail6 = dut->pub_path_tail6_o;
-    last_pub_path_gen = dut->pub_path_gen_o;
-  }
-  if (g_ts_capture) {
-    if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
-    if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
-  }
-  if (dut->dbg_txts_v_o) {
-    slice_valids++;
-    if (dut->dbg_slice_type_o != dut->dbg_txts_type_o) slice_skews++;
-    last_txts_seq = dut->dbg_txts_seq_o;
-    stamps.push_back({(uint16_t)dut->dbg_txts_seq_o,
-                      (uint8_t)dut->dbg_txts_type_o, dut->dbg_txts_o});
-  }
-  cyc++;
-}
-
-static void run(uint64_t n) { while (n--) tick(); }
-
-//! pack bytes into 64-bit beats and drive the tap (harness is the DMA
-//! consumer too: tready held high)
-static void send_wide(const std::vector<uint8_t> &bytes) {
-  size_t n = bytes.size();
-  for (size_t off = 0; off < n; off += 8) {
-    uint64_t d = 0;
-    uint8_t k = 0;
-    for (size_t i = 0; i < 8 && off + i < n; i++) {
-      d |= (uint64_t)bytes[off + i] << (8 * i);
-      k |= (uint8_t)(1u << i);
-    }
-    dut->rx_tdata_i = d;
-    dut->rx_tkeep_i = k;
-    dut->rx_tvalid_i = 1;
-    dut->rx_tready_i = 1;
-    dut->rx_tlast_i = (off + 8 >= n);
-    tick();
-  }
-  dut->rx_tvalid_i = 0;
-  dut->rx_tlast_i = 0;
-}
-
-// ---- the peer: answers pdelay with residence computed from observed
-// fabric time, so the measured delay lands near D_NOM. The harness's
-// own records give the EXPECTED delay exactly, up to the few-tick skew
-// between its observation points and the fabric latches ---------------
-static const int64_t D_NOM = 600;
-static size_t pd_seen = 0;
-static bool pd_on = false;
-static int64_t pd_target = D_NOM;             // may be legal negative noise
-static int64_t pd_expect = 0;                // the last exchange's D
-
-static void service_pdelay() {
-  while (pd_seen < txf.size()) {
-    size_t i = pd_seen;
-    if (txf[i].size() <= 14 || (txf[i][14] & 0xF) != 0x2) {
-      pd_seen++;
-      continue;
-    }
-    pd_seen++;
-    if (!pd_on) continue;
-    uint16_t seq = (uint16_t)((txf[i][44] << 8) | txf[i][45]);
-    uint64_t t1 = tx_sof_phc[i];             // = the boundary stamp
-    run(300);                                // a real turnaround, > 2*D_NOM
-    uint64_t t2 = 5000000ull + phc();
-    Frame f = ptp(0x3, seq, 0, 0x0200, 20);
-    f.ts(t2); f.u64(OUR_CID); f.u16(1);
-    // residence = (fabric turnaround) - 2*D_NOM, computed at send time;
-    // the tap stamps t4 within a beat of the first wide beat below
-    int64_t resid = (int64_t)(phc() - t1) - 2 * pd_target;
-    uint64_t t3 = t2 + (uint64_t)resid;
-    uint64_t t4_est = phc() + 8;             // the next tick's beat 0
-    pd_expect = ((int64_t)(t4_est - t1) - resid) / 2;
-    send_wide(f.b);
-    run(50);
-    Frame g = ptp(0xA, seq, 0, 0x0000, 20);
-    g.ts(t3); g.u64(OUR_CID); g.u16(1);
-    send_wide(g.b);
-    run(50);
-  }
-}
-
-static void run_svc(uint64_t n) {
-  while (n--) { tick(); if ((n & 255) == 0) service_pdelay(); }
-}
-
-static bool wait_flags(uint32_t mask, uint32_t want, uint64_t max_ticks) {
-  for (uint64_t n = 0; n < max_ticks; n++) {
-    if ((dut->pub_flags_o & mask) == want) return true;
-    tick();
-    if ((n & 255) == 0) service_pdelay();
-  }
-  return false;
-}
-
-static size_t tx_seen = 0;
-static std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles,
-                                    size_t *idx_out = nullptr) {
-  for (uint64_t n = 0; n < max_cycles; n++) {
-    while (tx_seen < txf.size()) {
-      size_t i = tx_seen++;
-      if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype)) {
-        if (idx_out) *idx_out = i;
-        return txf[i];
-      }
-    }
-    tick();
-    if ((n & 255) == 0) service_pdelay();
-  }
-  printf("FAIL wait_tx type %d: timeout\n", mtype);
-  fails++; checks++;
-  return {};
-}
-
 static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
-  uint64_t v = 0; for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
+  uint64_t v = 0;
+  for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
   return v;
 }
 static uint16_t fld16(const std::vector<uint8_t> &f, size_t o) {
-  return (uint16_t)(((uint16_t)f[o] << 8) | f[o + 1]);
+  return static_cast<uint16_t>((static_cast<uint16_t>(f[o]) << 8) | f[o + 1]);
 }
 static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
-  uint32_t v = 0; for (int i = 0; i < 4; i++) v = (v << 8) | f[o + i];
+  uint32_t v = 0;
+  for (int i = 0; i < 4; i++) v = (v << 8) | f[o + i];
   return v;
 }
 static uint64_t fld64(const std::vector<uint8_t> &f, size_t o) {
-  uint64_t v = 0; for (int i = 0; i < 8; i++) v = (v << 8) | f[o + i];
+  uint64_t v = 0;
+  for (int i = 0; i < 8; i++) v = (v << 8) | f[o + i];
   return v;
 }
 static uint64_t timestamp_field_ns(const std::vector<uint8_t> &f, size_t o) {
   return fld48(f, o) * 1000000000ull + fld32(f, o + 6);
-}
-static void announce(uint16_t seq, uint8_t p1, uint64_t gmid,
-                     uint64_t src = PEER_CID) {
-  //! Present-PathTrace control: use three identities so this wide-face
-  //! integration bench proves more than a reconstructed `{GM,parent}` path.
-  Frame a = ptp(0xB, seq, 0, 0x0008, 58, src);
-  for (int i = 0; i < 10; i++) a.u8(0);
-  a.u16(0xFFC4); a.u8(0);
-  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
-  a.u64(gmid);
-  a.u16(2); a.u8(0xA0);
-  a.u16(0x0008); a.u16(24);
-  a.u64(gmid); a.u64(PATH_HOP); a.u64(src);
-  send_wide(a.b);
-  run_svc(4000);
-}
-static void announce_eight_path(uint16_t seq, uint8_t p1, uint64_t gmid,
-                                uint64_t src = PEER_CID) {
-  //! Exercise the parent's complete fixed-width ABI, including slot seven.
-  //! A loop bound accidentally shortened to the smaller smoke-test path must
-  //! fail even though the donor itself still publishes all eight entries.
-  Frame a = ptp(0xB, seq, 0, 0x0008, 98, src);
-  for (int i = 0; i < 10; i++) a.u8(0);
-  a.u16(0xFFC4); a.u8(0);
-  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
-  a.u64(gmid);
-  a.u16(7); a.u8(0xA0);
-  a.u16(0x0008); a.u16(64);
-  a.u64(gmid); a.u64(PATH_HOP); a.u64(PATH_HOP2); a.u64(PATH_HOP3);
-  a.u64(PATH_HOP4); a.u64(PATH_HOP5); a.u64(PATH_HOP6); a.u64(src);
-  send_wide(a.b);
-  run_svc(4000);
-}
-static void announce_without_path(uint16_t seq, uint8_t p1, uint64_t gmid,
-                                  uint64_t src = PEER_CID) {
-  //! An exact fixed Announce has no suffix. The donor publishes its selected
-  //! GM/parent scalars but truthfully reports the absent PathTrace as count 0.
-  Frame a = ptp(0xB, seq, 0, 0x0008, 30, src);
-  for (int i = 0; i < 10; i++) a.u8(0);
-  a.u16(0xFFC4); a.u8(0);
-  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
-  a.u64(gmid);
-  a.u16(0); a.u8(0xA0);
-  send_wide(a.b);
-  run_svc(4000);
-}
-static void announce_one_path(uint16_t seq, uint8_t p1, uint64_t gmid) {
-  //! Explicit one-entry PathTrace from a directly connected GM. This is not
-  //! the absent-TLV spelling: its served sequence is exactly `[GM]`.
-  Frame a = ptp(0xB, seq, 0, 0x0008, 42, gmid);
-  for (int i = 0; i < 10; i++) a.u8(0);
-  a.u16(0xFFC4); a.u8(0);
-  a.u8(p1); a.u32(OUR_CQ); a.u8(248);
-  a.u64(gmid);
-  a.u16(0); a.u8(0xA0);
-  a.u16(0x0008); a.u16(8); a.u64(gmid);
-  send_wide(a.b);
-  run_svc(4000);
-}
-static void sync_pair(uint16_t seq, uint64_t origin_delta,
-                      uint64_t *measured_at) {
-  // origin = (tap-stamp-to-be) - origin_delta: the harness reads the
-  // counter just before injecting; the tap stamps within a beat
-  Frame f = ptp(0x0, seq, 0, 0x0208, 10);
-  f.ts(0);
-  uint64_t at = phc();
-  send_wide(f.b);
-  run(30);
-  Frame g = follow_up(seq, at - origin_delta);
-  send_wide(g.b);
-  run(4000);
-  if (measured_at) *measured_at = at;
 }
 
 static bool near(int64_t v, int64_t c, int64_t tol) {
   return v >= c - tol && v <= c + tol;
 }
 
-int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new Vgptp_shadow_wrap;
+namespace {
 
-  dut->rst_n = 0;
-  dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
-  dut->rx_tkeep_i = 0; dut->rx_tready_i = 1;
-  dut->tx_tready_i = 1;
-  dut->txts_hold_en_i = 0; dut->txts_hold_type_i = 0;
-  dut->txts_release_i = 0;
-  for (int i = 0; i < 8; i++) tick();
-  dut->rst_n = 1;
+//! The whole bench: the fabric slice, the peer that answers its pdelay
+//! exchanges, and the phases that prove the loop closes in fabric. Every
+//! former file-scope variable is a member here, so no phase can be read
+//! without the state it moves being in view (Core Guidelines I.2).
+class GptpShadowHarness {
+ public:
+  //! Every phase, in order; what the body of `main` became. The
+  //! single-argument `run(n)` below is the clock-stepping overload the
+  //! phases call, and the two never collide: one takes a count.
+  int run() {
+    drive_boot_reset();
+    const std::vector<uint8_t> req = check_boot_pdelay_request_is_exact();
+    check_equal_sequence_request_collision(req);
+    check_one_exchange_measures_the_delay();
+    check_second_exchange_raises_capability();
+    check_announce_adoption_and_path_trace();
+    check_sync_offset_and_closed_loop_lock();
+    check_gm_switch_marks_time_uncertain();
+    check_foreign_ethertype_and_runt_are_invisible();
+    check_oversize_frame_cannot_skew_the_next_stamp();
+    check_overflow_drops_are_counted();
+    check_burst_never_laps_the_stamp_ring();
+    check_fifo_drops_do_not_leak_ring_slots();
+    check_shed_path_does_not_leak_across_bursts();
+    check_long_frame_shed_stays_atomic();
+    check_shed_count_is_ethertype_gated();
+    const size_t master_mark = ride_quietly_to_grandmaster();
+    check_master_sync_collision(master_mark);
+    check_master_emits_all_three_types(master_mark);
+    check_same_type_response_ownership();
+    check_warm_reset_clears_the_request_owner();
+    check_warm_reset_clears_the_sync_owner();
+    check_every_stamp_names_its_own_frame();
+
+    printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+    return fails ? 1 : 0;
+  }
+
+ private:
+  //! The Verilated model, owned for the harness's whole lifetime, and the
+  //! observing pointer through which every phase drives it.
+  const milan::tb::Model<Vgptp_shadow_wrap> model_;
+  Vgptp_shadow_wrap *dut = model_.get();
+  int checks = 0;
+  int fails = 0;
+  uint64_t cyc = 0;
+  uint16_t last_txts_seq = 0xFFFF;
+  //! #214: every returning stamp, in arrival order, with both of its tags.
+  //! A stamp names the frame it belongs to by {sequenceId, messageType}; the
+  //! sequence alone cannot, because a Pdelay_Req carries our own counter
+  //! while a Pdelay_Resp echoes the peer's and the two can coincide.
+  struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; };
+  std::vector<Stamp> stamps;
+  //! The exact tuples after the test-only return-order gate. Unlike `stamps`,
+  //! this stream records delivery to the engine, so the collision phases can
+  //! prove response-first order rather than inferring it from emitted frames.
+  std::vector<Stamp> engine_stamps;
+  //! #214: the slice port must carry the tag AT the cycle the face is valid,
+  //! not one stamp later. The engine samples txts_* combinationally on the
+  //! valid pulse (KL_gptp_engine's `if (txts_valid_i) ... txts_pend_seq_r <=
+  //! txts_seq_i`, cited by the assignment because the pin under it moves),
+  //! so a registered mirror would
+  //! read the PREVIOUS stamp's type there and credit one leg's egress time
+  //! to another leg's claim. Every valid cycle is compared, and the count is
+  //! asserted non-zero so the check cannot pass by never running.
+  int slice_skews = 0;
+  int slice_valids = 0;
+  std::vector<std::vector<uint8_t>> txf;   // unpacked lane frames
+  std::vector<uint64_t> tx_sof_phc;        // phc at each frame's beat0
+  std::vector<uint8_t> cur;
+  bool in_tx = false;
+  bool tx_first = true;
+
+  //! The complete outward bank may change only with its commit pulse.
+  bool pub_watch = false;
+  uint64_t last_pub_gm = 0;
+  uint64_t last_pub_parent = 0;
+  uint64_t last_pub_annq = 0;
+  uint64_t last_pub_path_tail0 = 0;
+  uint64_t last_pub_path_tail1 = 0;
+  uint64_t last_pub_path_tail6 = 0;
+  uint32_t last_pub_flags = 0;
+  uint32_t last_pub_pdelay = 0;
+  uint32_t last_pub_offset = 0;
+  uint8_t last_pub_path_count = 0;
+  uint8_t last_pub_path_gen = 0;
+  unsigned pub_commits = 0;
+  unsigned pub_changes = 0;
+  unsigned pub_unguarded_changes = 0;
+
+  //! issue #122: capture the ingress-ts ring push/pop stamps during a burst
+  std::vector<uint64_t> g_pushed;
+  std::vector<uint64_t> g_popped;
+  bool g_ts_capture = false;
+
+  // ---- the peer: answers pdelay with residence computed from observed
+  // fabric time, so the measured delay lands near D_NOM. The harness's
+  // own records give the EXPECTED delay exactly, up to the few-tick skew
+  // between its observation points and the fabric latches ---------------
+  static constexpr int64_t D_NOM = 600;
+  size_t pd_seen = 0;
+  bool pd_on = false;
+  int64_t pd_target = D_NOM;             // may be legal negative noise
+  int64_t pd_expect = 0;                // the last exchange's D
+
+  size_t tx_seen = 0;
+
+  //! Phase 14's two peer requests: the sequence, requesting clock identity
+  //! and requesting port every step of the ownership proof compares to.
+  static constexpr uint16_t Q1 = 0x1111;
+  static constexpr uint16_t Q2 = 0x2222;
+  static constexpr uint64_t C1 = PEER_CID;
+  static constexpr uint64_t C2 = 0x001122FFFE334455ull;
+  static constexpr uint16_t P1 = 1;
+  static constexpr uint16_t P2 = 2;
+
+  void expect(const char *what, uint64_t got, uint64_t exp) {
+    checks++;
+    if (got != exp) {
+      fails++;
+      printf("FAIL %-32s got %016llx exp %016llx\n", what,
+             static_cast<unsigned long long>(got),
+             static_cast<unsigned long long>(exp));
+    }
+  }
+
+  uint64_t phc() { return dut->phc_ns_o; }
+
+  void tick() {
+    dut->clk_i = 0; dut->eval();
+    //! Sample the engine face immediately before the active edge: a replay
+    //! valid is combinational from the held slot and is consumed at this edge,
+    //! then disappears when the slot clears. Post-edge sampling would miss the
+    //! very delivery whose order this trace exists to prove.
+    if (dut->dbg_eng_txts_v_o)
+      engine_stamps.push_back({static_cast<uint16_t>(dut->dbg_eng_txts_seq_o),
+                               static_cast<uint8_t>(dut->dbg_eng_txts_type_o),
+                               dut->dbg_eng_txts_ns_o});
+    //! A transfer is the value presented immediately before the active edge.
+    //! Sampling after the edge loses a last beat when a producer drops valid
+    //! in response to that same handshake -- a distinction the backpressure
+    //! phase deliberately exercises.
+    if (dut->tx_tvalid_o && dut->tx_tready_i) {
+      if (tx_first) {
+        cur.clear();
+        in_tx = true;
+        tx_sof_phc.push_back(phc());
+      }
+      for (size_t i = 0; i < kLaneBytes; i++)
+        if ((dut->tx_tkeep_o >> i) & 1)
+          cur.push_back((dut->tx_tdata_o >> (kByteBits * i)) & 0xFF);
+      if (dut->tx_tlast_o) {
+        txf.push_back(cur);
+        in_tx = false;
+        tx_first = true;
+      } else {
+        tx_first = false;
+      }
+    }
+    dut->clk_i = 1; dut->eval();
+    if (!dut->rst_n) {
+      // A later warm reset starts a new publication epoch.  Do not compare the
+      // reset value against the pre-reset bank and call that reset transition an
+      // uncommitted runtime publication.
+      pub_watch = false;
+    } else {
+      if (!pub_watch) {
+        pub_watch = true;
+      } else {
+        const bool changed = dut->pub_gm_id_o != last_pub_gm
+                          || dut->pub_parent_id_o != last_pub_parent
+                          || dut->pub_flags_o != last_pub_flags
+                          || dut->pub_pdelay_ns_o != last_pub_pdelay
+                          || dut->pub_offset_o != last_pub_offset
+                          || dut->pub_annq_o != last_pub_annq
+                          || dut->pub_path_count_o != last_pub_path_count
+                          || dut->pub_path_tail0_o != last_pub_path_tail0
+                          || dut->pub_path_tail1_o != last_pub_path_tail1
+                          || dut->pub_path_tail6_o != last_pub_path_tail6
+                          || dut->pub_path_gen_o != last_pub_path_gen;
+        if (changed) {
+          pub_changes++;
+          if (!dut->pub_commit_o) pub_unguarded_changes++;
+        }
+      }
+      if (dut->pub_commit_o) pub_commits++;
+      last_pub_gm = dut->pub_gm_id_o;
+      last_pub_parent = dut->pub_parent_id_o;
+      last_pub_flags = dut->pub_flags_o;
+      last_pub_pdelay = dut->pub_pdelay_ns_o;
+      last_pub_offset = dut->pub_offset_o;
+      last_pub_annq = dut->pub_annq_o;
+      last_pub_path_count = dut->pub_path_count_o;
+      last_pub_path_tail0 = dut->pub_path_tail0_o;
+      last_pub_path_tail1 = dut->pub_path_tail1_o;
+      last_pub_path_tail6 = dut->pub_path_tail6_o;
+      last_pub_path_gen = dut->pub_path_gen_o;
+    }
+    if (g_ts_capture) {
+      if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
+      if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
+    }
+    if (dut->dbg_txts_v_o) {
+      slice_valids++;
+      if (dut->dbg_slice_type_o != dut->dbg_txts_type_o) slice_skews++;
+      last_txts_seq = dut->dbg_txts_seq_o;
+      stamps.push_back({static_cast<uint16_t>(dut->dbg_txts_seq_o),
+                        static_cast<uint8_t>(dut->dbg_txts_type_o),
+                        dut->dbg_txts_o});
+    }
+    cyc++;
+  }
+
+  void run(uint64_t n) { while (n--) tick(); }
+
+  //! pack bytes into 64-bit beats and drive the tap (harness is the DMA
+  //! consumer too: tready held high)
+  void send_wide(const std::vector<uint8_t> &bytes) {
+    size_t n = bytes.size();
+    for (size_t off = 0; off < n; off += kLaneBytes) {
+      uint64_t d = 0;
+      uint8_t k = 0;
+      for (size_t i = 0; i < kLaneBytes && off + i < n; i++) {
+        d |= static_cast<uint64_t>(bytes[off + i]) << (kByteBits * i);
+        k |= static_cast<uint8_t>(1u << i);
+      }
+      dut->rx_tdata_i = d;
+      dut->rx_tkeep_i = k;
+      dut->rx_tvalid_i = 1;
+      dut->rx_tready_i = 1;
+      dut->rx_tlast_i = (off + kLaneBytes >= n);
+      tick();
+    }
+    dut->rx_tvalid_i = 0;
+    dut->rx_tlast_i = 0;
+  }
+
+  void service_pdelay() {
+    while (pd_seen < txf.size()) {
+      size_t i = pd_seen;
+      if (txf[i].size() <= 14 || (txf[i][14] & 0xF) != 0x2) {
+        pd_seen++;
+        continue;
+      }
+      pd_seen++;
+      if (!pd_on) continue;
+      uint16_t seq = static_cast<uint16_t>((txf[i][44] << 8) | txf[i][45]);
+      uint64_t t1 = tx_sof_phc[i];             // = the boundary stamp
+      run(300);                                // a real turnaround, > 2*D_NOM
+      uint64_t t2 = 5000000ull + phc();
+      Frame f = ptp(0x3, seq, 0, 0x0200, 20);
+      f.ts(t2); f.u64(OUR_CID); f.u16(1);
+      // residence = (fabric turnaround) - 2*D_NOM, computed at send time;
+      // the tap stamps t4 within a beat of the first wide beat below
+      int64_t resid = static_cast<int64_t>(phc() - t1) - 2 * pd_target;
+      uint64_t t3 = t2 + static_cast<uint64_t>(resid);
+      uint64_t t4_est = phc() + 8;             // the next tick's beat 0
+      pd_expect = (static_cast<int64_t>(t4_est - t1) - resid) / 2;
+      send_wide(f.b);
+      run(50);
+      Frame g = ptp(0xA, seq, 0, 0x0000, 20);
+      g.ts(t3); g.u64(OUR_CID); g.u16(1);
+      send_wide(g.b);
+      run(50);
+    }
+  }
+
+  void run_svc(uint64_t n) {
+    while (n--) { tick(); if ((n & 255) == 0) service_pdelay(); }
+  }
+
+  bool wait_flags(uint32_t mask, uint32_t want, uint64_t max_ticks) {
+    for (uint64_t n = 0; n < max_ticks; n++) {
+      if ((dut->pub_flags_o & mask) == want) return true;
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    return false;
+  }
+
+  std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles,
+                               size_t *idx_out = nullptr) {
+    for (uint64_t n = 0; n < max_cycles; n++) {
+      while (tx_seen < txf.size()) {
+        size_t i = tx_seen++;
+        if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype)) {
+          if (idx_out) *idx_out = i;
+          return txf[i];
+        }
+      }
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    printf("FAIL wait_tx type %d: timeout\n", mtype);
+    fails++; checks++;
+    return {};
+  }
+
+  //! Index in `txf` of the first frame of message type `mt` and sequence
+  //! `seq` transmitted since `mark`, or -1 when the lane never carried it.
+  int find_frame(size_t mark, uint8_t mt, uint16_t seq) const {
+    for (size_t i = mark; i < txf.size(); i++)
+      if (txf[i].size() > 45 && (txf[i][14] & 0xF) == mt &&
+          fld16(txf[i], 44) == seq)
+        return static_cast<int>(i);
+    return -1;
+  }
+
+  //! build a minimal classifiable 0x88F7 (or foreign-ethertype) frame
+  std::vector<uint8_t> tapframe(size_t len, bool gptp) {
+      std::vector<uint8_t> f(len, 0);
+    const std::array<uint8_t, 6> da = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};
+    const std::array<uint8_t, 6> sa = {0x00, 0x80, 0xE1, 0x11, 0x22, 0x33};
+      for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+      f[12] = gptp ? 0x88 : 0x22;
+      f[13] = gptp ? 0xF7 : 0xF0;
+      f[14] = 0x10; f[15] = 0x02;
+      return f;
+  }
+
+  void announce(uint16_t seq, uint8_t p1, uint64_t gmid,
+                uint64_t src = PEER_CID) {
+    //! Present-PathTrace control: use three identities so this wide-face
+    //! integration bench proves more than a reconstructed `{GM,parent}` path.
+    Frame a = ptp(0xB, seq, 0, 0x0008, 58, src);
+    for (int i = 0; i < 10; i++) a.u8(0);
+    a.u16(0xFFC4); a.u8(0);
+    a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+    a.u64(gmid);
+    a.u16(2); a.u8(0xA0);
+    a.u16(0x0008); a.u16(24);
+    a.u64(gmid); a.u64(PATH_HOP); a.u64(src);
+    send_wide(a.b);
+    run_svc(4000);
+  }
+
+  void announce_eight_path(uint16_t seq, uint8_t p1, uint64_t gmid,
+                           uint64_t src = PEER_CID) {
+    //! Exercise the parent's complete fixed-width ABI, including slot seven.
+    //! A loop bound accidentally shortened to the smaller smoke-test path must
+    //! fail even though the donor itself still publishes all eight entries.
+    Frame a = ptp(0xB, seq, 0, 0x0008, 98, src);
+    for (int i = 0; i < 10; i++) a.u8(0);
+    a.u16(0xFFC4); a.u8(0);
+    a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+    a.u64(gmid);
+    a.u16(7); a.u8(0xA0);
+    a.u16(0x0008); a.u16(64);
+    a.u64(gmid); a.u64(PATH_HOP); a.u64(PATH_HOP2); a.u64(PATH_HOP3);
+    a.u64(PATH_HOP4); a.u64(PATH_HOP5); a.u64(PATH_HOP6); a.u64(src);
+    send_wide(a.b);
+    run_svc(4000);
+  }
+
+  void announce_without_path(uint16_t seq, uint8_t p1, uint64_t gmid,
+                             uint64_t src = PEER_CID) {
+    //! An exact fixed Announce has no suffix. The donor publishes its selected
+    //! GM/parent scalars but truthfully reports the absent PathTrace as count 0.
+    Frame a = ptp(0xB, seq, 0, 0x0008, 30, src);
+    for (int i = 0; i < 10; i++) a.u8(0);
+    a.u16(0xFFC4); a.u8(0);
+    a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+    a.u64(gmid);
+    a.u16(0); a.u8(0xA0);
+    send_wide(a.b);
+    run_svc(4000);
+  }
+
+  void announce_one_path(uint16_t seq, uint8_t p1, uint64_t gmid) {
+    //! Explicit one-entry PathTrace from a directly connected GM. This is not
+    //! the absent-TLV spelling: its served sequence is exactly `[GM]`.
+    Frame a = ptp(0xB, seq, 0, 0x0008, 42, gmid);
+    for (int i = 0; i < 10; i++) a.u8(0);
+    a.u16(0xFFC4); a.u8(0);
+    a.u8(p1); a.u32(OUR_CQ); a.u8(248);
+    a.u64(gmid);
+    a.u16(0); a.u8(0xA0);
+    a.u16(0x0008); a.u16(8); a.u64(gmid);
+    send_wide(a.b);
+    run_svc(4000);
+  }
+
+  void sync_pair(uint16_t seq, uint64_t origin_delta,
+                 uint64_t *measured_at) {
+    // origin = (tap-stamp-to-be) - origin_delta: the harness reads the
+    // counter just before injecting; the tap stamps within a beat
+    Frame f = ptp(0x0, seq, 0, 0x0208, 10);
+    f.ts(0);
+    uint64_t at = phc();
+    send_wide(f.b);
+    run(30);
+    Frame g = follow_up(seq, at - origin_delta);
+    send_wide(g.b);
+    run(4000);
+    if (measured_at) *measured_at = at;
+  }
+
+  //! The boot reset the whole run starts from: every input at its idle
+  //! level while rst_n is held low for kResetTicks clocks.
+  void drive_boot_reset() {
+    dut->rst_n = 0;
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
+    dut->rx_tkeep_i = 0; dut->rx_tready_i = 1;
+    dut->tx_tready_i = 1;
+    dut->txts_hold_en_i = 0; dut->txts_hold_type_i = 0;
+    dut->txts_release_i = 0;
+    for (int i = 0; i < kResetTicks; i++) tick();
+    dut->rst_n = 1;
+  }
 
   // ---- 1: boot -> Pdelay_Req byte-exact through the gearbox -------------
   // Hold its REAL boundary-stamper tuple so a same-sequence response can
   // return first. Nothing is fabricated: only the delivery order changes.
-  dut->txts_hold_type_i = 0x2;
-  dut->txts_hold_en_i = 1;
-  size_t req_idx = 0;
-  std::vector<uint8_t> req = wait_tx(0x2, 3200000, &req_idx);
-  if (!req.empty()) {
-    expect("pdreq length", req.size(), 68);
-    expect("pdreq DA", fld48(req, 0), 0x0180C200000Eull);
-    expect("pdreq etype+type",
-           ((uint64_t)req[12] << 16) | ((uint64_t)req[13] << 8) | req[14],
-           0x88F712ull);
-    expect("pdreq srcCID", fld48(req, 34), OUR_CID >> 16);
-  }
-  expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
-  if (!req.empty()) {
-    uint16_t req_seq = (uint16_t)((req[44] << 8) | req[45]);
-    expect("stamper extracted the req's seq", last_txts_seq, req_seq);
-    expect("held request tuple keeps sequenceId",
-           dut->dbg_txts_held_seq_o, req_seq);
-    expect("held request tuple keeps messageType",
-           dut->dbg_txts_held_type_o, (uint8_t)(req[14] & 0xF));
-    if (req_idx < stamps.size()) {
-      expect("held request tuple keeps the real stamper time",
-             dut->dbg_txts_held_ns_o, stamps[req_idx].ns);
-      if (req_idx < tx_sof_phc.size())
-        expect("held request time is the frame's SOF PHC",
-               dut->dbg_txts_held_ns_o, tx_sof_phc[req_idx]);
+  std::vector<uint8_t> check_boot_pdelay_request_is_exact() {
+    dut->txts_hold_type_i = 0x2;
+    dut->txts_hold_en_i = 1;
+    size_t req_idx = 0;
+    std::vector<uint8_t> req = wait_tx(0x2, 3200000, &req_idx);
+    if (!req.empty()) {
+      expect("pdreq length", req.size(), 68);
+      expect("pdreq DA", fld48(req, 0), 0x0180C200000Eull);
+      expect("pdreq etype+type",
+             (static_cast<uint64_t>(req[12]) << 16) |
+                 (static_cast<uint64_t>(req[13]) << 8) | req[14],
+             0x88F712ull);
+      expect("pdreq srcCID", fld48(req, 34), OUR_CID >> 16);
     }
-  }
-  // #214: the stamp names the frame by BOTH tags. A Pdelay_Req is
-  // messageType 0x2 (802.1AS-2011 Table 11-3), the low nibble of wire
-  // byte 14, and the tag must be that frame's, not the previous one's.
-  if (!req.empty() && !stamps.empty()) {
-    expect("the req's stamp carries messageType 0x2",
-           stamps.back().type, (uint8_t)(req[14] & 0xF));
-    expect("the slice holds the same type at the engine boundary",
-           dut->dbg_slice_type_o, (uint8_t)(req[14] & 0xF));
+    expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
+    if (!req.empty()) {
+      uint16_t req_seq = static_cast<uint16_t>((req[44] << 8) | req[45]);
+      expect("stamper extracted the req's seq", last_txts_seq, req_seq);
+      expect("held request tuple keeps sequenceId",
+             dut->dbg_txts_held_seq_o, req_seq);
+      expect("held request tuple keeps messageType",
+             dut->dbg_txts_held_type_o, static_cast<uint8_t>(req[14] & 0xF));
+      if (req_idx < stamps.size()) {
+        expect("held request tuple keeps the real stamper time",
+               dut->dbg_txts_held_ns_o, stamps[req_idx].ns);
+        if (req_idx < tx_sof_phc.size())
+          expect("held request time is the frame's SOF PHC",
+                 dut->dbg_txts_held_ns_o, tx_sof_phc[req_idx]);
+      }
+    }
+    // #214: the stamp names the frame by BOTH tags. A Pdelay_Req is
+    // messageType 0x2 (802.1AS-2011 Table 11-3), the low nibble of wire
+    // byte 14, and the tag must be that frame's, not the previous one's.
+    if (!req.empty() && !stamps.empty()) {
+      expect("the req's stamp carries messageType 0x2",
+             stamps.back().type, static_cast<uint8_t>(req[14] & 0xF));
+      expect("the slice holds the same type at the engine boundary",
+             dut->dbg_slice_type_o, static_cast<uint8_t>(req[14] & 0xF));
+    }
+    return req;
   }
 
   // ---- 1c: equal-sequence Req/Resp claims, response stamp first ---------
@@ -488,225 +600,241 @@ int main(int argc, char **argv) {
   // draws a type-3 response. Its stamp must build that response's type-A
   // Follow_Up, and the unclaimed type-A stamp must leave our type-2 claim for
   // the original tuple. Sequence-only credit fails all three observations.
-  expect("boot request stamp is held for collision", dut->dbg_txts_held_o, 1);
-  dut->txts_hold_en_i = 0;
-  uint16_t boot_clash = req.empty() ? 0 :
-      (uint16_t)((req[44] << 8) | req[45]);
-  size_t boot_eng_mark = engine_stamps.size();
-  uint16_t boot_ev_drop = dut->dbg_ev_drop_o;
-  {
-    size_t mark = txf.size();
-    tx_seen = mark;
-    Frame rq = ptp(0x2, boot_clash, 0, 0x0000, 20, PEER_CID);
-    rq.u64(0); rq.u64(0); rq.u32(0);
-    send_wide(rq.b);
-    size_t ri = 0;
-    std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
-    std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
-    expect("equal request sequences: the peer request is answered",
-           rsp.empty() ? 0 : 1, 1);
-    expect("response-first stamp builds its Resp_Follow_Up",
-           rfu.empty() ? 0 : 1, 1);
-    if (!rsp.empty())
-      expect("equal request sequences: Resp echoes the common sequence",
-             (uint16_t)((rsp[44] << 8) | rsp[45]), boot_clash);
-    if (!rfu.empty()) {
-      expect("equal request sequences: Resp_FU echoes the common sequence",
-             (uint16_t)((rfu[44] << 8) | rfu[45]), boot_clash);
-      if (ri < stamps.size())
-        expect("Resp_FU carries the response's own boundary stamp",
-               timestamp_field_ns(rfu, 48), stamps[ri].ns);
+  void check_equal_sequence_request_collision(const std::vector<uint8_t> &req) {
+    expect("boot request stamp is held for collision", dut->dbg_txts_held_o, 1);
+    dut->txts_hold_en_i = 0;
+    uint16_t boot_clash = req.empty() ? 0 :
+        static_cast<uint16_t>((req[44] << 8) | req[45]);
+    size_t boot_eng_mark = engine_stamps.size();
+    uint16_t boot_ev_drop = dut->dbg_ev_drop_o;
+    {
+      size_t mark = txf.size();
+      tx_seen = mark;
+      Frame rq = ptp(0x2, boot_clash, 0, 0x0000, 20, PEER_CID);
+      rq.u64(0); rq.u64(0); rq.u32(0);
+      send_wide(rq.b);
+      size_t ri = 0;
+      std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
+      std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
+      expect("equal request sequences: the peer request is answered",
+             rsp.empty() ? 0 : 1, 1);
+      expect("response-first stamp builds its Resp_Follow_Up",
+             rfu.empty() ? 0 : 1, 1);
+      if (!rsp.empty())
+        expect("equal request sequences: Resp echoes the common sequence",
+               static_cast<uint16_t>((rsp[44] << 8) | rsp[45]), boot_clash);
+      if (!rfu.empty()) {
+        expect("equal request sequences: Resp_FU echoes the common sequence",
+               static_cast<uint16_t>((rfu[44] << 8) | rfu[45]), boot_clash);
+        if (ri < stamps.size())
+          expect("Resp_FU carries the response's own boundary stamp",
+                 timestamp_field_ns(rfu, 48), stamps[ri].ns);
+      }
+      run(2000);  // let the unclaimed type-A stamp dispatch; donor #31 is open
+      expect("unclaimed Resp_FU stamp leaves the request tuple held",
+             dut->dbg_txts_held_o, 1);
     }
-    run(2000);  // let the unclaimed type-A stamp dispatch; donor #31 is open
-    expect("unclaimed Resp_FU stamp leaves the request tuple held",
-           dut->dbg_txts_held_o, 1);
+    dut->txts_release_i = 1;
+    tick();
+    dut->txts_release_i = 0;
+    tick();
+    expect("the original request tuple is released exactly once",
+           dut->dbg_txts_held_o, 0);
+    expect("request collision delivers exactly response, FU, request",
+           engine_stamps.size(), boot_eng_mark + 3);
+    if (engine_stamps.size() >= boot_eng_mark + 3) {
+      expect("request collision delivery 1 is Pdelay_Resp",
+             engine_stamps[boot_eng_mark].type, 0x3);
+      expect("request collision delivery 2 is unclaimed Resp_FU",
+             engine_stamps[boot_eng_mark + 1].type, 0xA);
+      expect("request collision delivery 3 is held Pdelay_Req",
+             engine_stamps[boot_eng_mark + 2].type, 0x2);
+      for (size_t k = boot_eng_mark; k < boot_eng_mark + 3; k++)
+        expect("all request-collision deliveries share sequenceId",
+               engine_stamps[k].seq, boot_clash);
+    }
+    expect("request collision gate had no overlap/overflow",
+           dut->dbg_txts_gate_conflict_o, 0);
+    expect("request collision changed no engine-event drop count",
+           dut->dbg_ev_drop_o, boot_ev_drop);
   }
-  dut->txts_release_i = 1;
-  tick();
-  dut->txts_release_i = 0;
-  tick();
-  expect("the original request tuple is released exactly once",
-         dut->dbg_txts_held_o, 0);
-  expect("request collision delivers exactly response, FU, request",
-         engine_stamps.size(), boot_eng_mark + 3);
-  if (engine_stamps.size() >= boot_eng_mark + 3) {
-    expect("request collision delivery 1 is Pdelay_Resp",
-           engine_stamps[boot_eng_mark].type, 0x3);
-    expect("request collision delivery 2 is unclaimed Resp_FU",
-           engine_stamps[boot_eng_mark + 1].type, 0xA);
-    expect("request collision delivery 3 is held Pdelay_Req",
-           engine_stamps[boot_eng_mark + 2].type, 0x2);
-    for (size_t k = boot_eng_mark; k < boot_eng_mark + 3; k++)
-      expect("all request-collision deliveries share sequenceId",
-             engine_stamps[k].seq, boot_clash);
-  }
-  expect("request collision gate had no overlap/overflow",
-         dut->dbg_txts_gate_conflict_o, 0);
-  expect("request collision changed no engine-event drop count",
-         dut->dbg_ev_drop_o, boot_ev_drop);
 
   // ---- 2: one fabric-timed exchange; not capable at one ------------------
-  pd_seen = 0;                      // answer the boot request too
-  pd_on = true;
-  service_pdelay();
-  run_svc(8000);
-  expect("pdelay matches the records",
-         near((int32_t)dut->pub_pdelay_ns_o, pd_expect, 32), 1);
-  expect("one exchange not capable", dut->pub_flags_o & FL_ASCAP, 0);
+  void check_one_exchange_measures_the_delay() {
+    pd_seen = 0;                      // answer the boot request too
+    pd_on = true;
+    service_pdelay();
+    run_svc(8000);
+    expect("pdelay matches the records",
+           near(static_cast<int32_t>(dut->pub_pdelay_ns_o), pd_expect, 32), 1);
+    expect("one exchange not capable", dut->pub_flags_o & FL_ASCAP, 0);
+  }
 
   // ---- 3: the second exchange raises asCapable ---------------------------
-  expect("capable at the second exchange",
-         wait_flags(FL_ASCAP, FL_ASCAP, 6000000ull), 1);
+  void check_second_exchange_raises_capability() {
+    expect("capable at the second exchange",
+           wait_flags(FL_ASCAP, FL_ASCAP, 6000000ull), 1);
 
-  // A symmetric exchange can legitimately measure a small negative delay.
-  // The donor must retain that signed value for its acceptance decision (and
-  // therefore keep asCapable), while the parent's unsigned public bank must
-  // publish zero.  Removing the sign-bit clamp exposes ~2^32 ns here; forcing
-  // every delay to zero instead fails the positive 600 ns phase above.
-  pd_target = -40;
-  for (uint64_t n = 0;
-       n < 6000000ull && !(pd_expect < 0 && dut->pub_pdelay_ns_o == 0);
-       n++) {
-    tick();
-    if ((n & 255) == 0) service_pdelay();
+    // A symmetric exchange can legitimately measure a small negative delay.
+    // The donor must retain that signed value for its acceptance decision (and
+    // therefore keep asCapable), while the parent's unsigned public bank must
+    // publish zero.  Removing the sign-bit clamp exposes ~2^32 ns here; forcing
+    // every delay to zero instead fails the positive 600 ns phase above.
+    pd_target = -40;
+    for (uint64_t n = 0;
+         n < 6000000ull && !(pd_expect < 0 && dut->pub_pdelay_ns_o == 0);
+         n++) {
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    expect("negative pdelay exchange really measured below zero",
+           pd_expect < 0, 1);
+    expect("negative pdelay clamps at the unsigned publication boundary",
+           dut->pub_pdelay_ns_o, 0);
+    expect("negative pdelay noise preserves asCapable",
+           dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
+    pd_target = D_NOM;
+    for (uint64_t n = 0;
+         n < 6000000ull && !(pd_expect > 0 && dut->pub_pdelay_ns_o > 0);
+         n++) {
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    expect("positive pdelay resumes after the clamp probe",
+           pd_expect > 0 && dut->pub_pdelay_ns_o > 0, 1);
   }
-  expect("negative pdelay exchange really measured below zero",
-         pd_expect < 0, 1);
-  expect("negative pdelay clamps at the unsigned publication boundary",
-         dut->pub_pdelay_ns_o, 0);
-  expect("negative pdelay noise preserves asCapable",
-         dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
-  pd_target = D_NOM;
-  for (uint64_t n = 0;
-       n < 6000000ull && !(pd_expect > 0 && dut->pub_pdelay_ns_o > 0);
-       n++) {
-    tick();
-    if ((n & 255) == 0) service_pdelay();
-  }
-  expect("positive pdelay resumes after the clamp probe",
-         pd_expect > 0 && dut->pub_pdelay_ns_o > 0, 1);
 
   // ---- 4: adopt; offsets in range; the counter locks ---------------------
-  announce(10, 100, GMID);
-  expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
-  expect("pub gm id", dut->pub_gm_id_o, GMID);
-  expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
-  expect("published full path count", dut->pub_path_count_o, 3);
-  expect("published path middle hop", dut->pub_path_tail0_o, PATH_HOP);
-  expect("published path source tail", dut->pub_path_tail1_o, PEER_CID);
-  {
-    //! Mutation bars for the parent contract. Reinstating either `raw<=1 ? 1`
-    //! or an unconditional GM term in the path-generation comparator fails
-    //! this arm. Scalar GM selection remains independent of the served path.
-    const uint8_t gen_present = dut->pub_path_gen_o;
-    announce_without_path(11, 100, GMID);
-    expect("TLV-less selected GM remains published", dut->pub_gm_id_o, GMID);
-    expect("TLV-less selected parent remains published",
-           dut->pub_parent_id_o, PEER_CID);
-    expect("TLV-less selected PathTrace stays raw empty",
-           dut->pub_path_count_o, 0);
-    expect("TLV-less selected path clears active tail 1",
-           dut->pub_path_tail0_o, 0);
-    expect("TLV-less selected path clears active tail 2",
-           dut->pub_path_tail1_o, 0);
-    expect("TLV-less selected path clears final ABI tail",
-           dut->pub_path_tail6_o, 0);
-    const uint8_t gen_empty = (uint8_t)((gen_present + 1u) & 0xFu);
-    expect("present to absent spends exactly one path generation",
-           dut->pub_path_gen_o, gen_empty);
+  void check_announce_adoption_and_path_trace() {
+    announce(10, 100, GMID);
+    expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
+    expect("pub gm id", dut->pub_gm_id_o, GMID);
+    expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
+    expect("published full path count", dut->pub_path_count_o, 3);
+    expect("published path middle hop", dut->pub_path_tail0_o, PATH_HOP);
+    expect("published path source tail", dut->pub_path_tail1_o, PEER_CID);
+    {
+      //! Mutation bars for the parent contract. Reinstating either `raw<=1 ? 1`
+      //! or an unconditional GM term in the path-generation comparator fails
+      //! this arm. Scalar GM selection remains independent of the served path.
+      const uint8_t gen_present = dut->pub_path_gen_o;
+      announce_without_path(11, 100, GMID);
+      expect("TLV-less selected GM remains published", dut->pub_gm_id_o, GMID);
+      expect("TLV-less selected parent remains published",
+             dut->pub_parent_id_o, PEER_CID);
+      expect("TLV-less selected PathTrace stays raw empty",
+             dut->pub_path_count_o, 0);
+      expect("TLV-less selected path clears active tail 1",
+             dut->pub_path_tail0_o, 0);
+      expect("TLV-less selected path clears active tail 2",
+             dut->pub_path_tail1_o, 0);
+      expect("TLV-less selected path clears final ABI tail",
+             dut->pub_path_tail6_o, 0);
+      const uint8_t gen_empty = static_cast<uint8_t>((gen_present + 1u) & 0xFu);
+      expect("present to absent spends exactly one path generation",
+             dut->pub_path_gen_o, gen_empty);
 
-    announce_without_path(12, 100, GMID);
-    expect("identical absent refresh spends no path generation",
-           dut->pub_path_gen_o, gen_empty);
+      announce_without_path(12, 100, GMID);
+      expect("identical absent refresh spends no path generation",
+             dut->pub_path_gen_o, gen_empty);
 
-    announce_without_path(13, 90, GMID_EMPTY, GMID_EMPTY);
-    expect("better TLV-less Announce changes scalar GM",
-           dut->pub_gm_id_o, GMID_EMPTY);
-    expect("better TLV-less Announce still serves empty",
-           dut->pub_path_count_o, 0);
-    expect("absent GM A-to-B is path-generation silent",
-           dut->pub_path_gen_o, gen_empty);
+      announce_without_path(13, 90, GMID_EMPTY, GMID_EMPTY);
+      expect("better TLV-less Announce changes scalar GM",
+             dut->pub_gm_id_o, GMID_EMPTY);
+      expect("better TLV-less Announce still serves empty",
+             dut->pub_path_count_o, 0);
+      expect("absent GM A-to-B is path-generation silent",
+             dut->pub_path_gen_o, gen_empty);
 
-    announce_one_path(14, 90, GMID_EMPTY);
-    const uint8_t gen_one = (uint8_t)((gen_empty + 1u) & 0xFu);
-    expect("explicit one-entry PathTrace publishes count one",
-           dut->pub_path_count_o, 1);
-    expect("absent to explicit GM spends one path generation",
-           dut->pub_path_gen_o, gen_one);
+      announce_one_path(14, 90, GMID_EMPTY);
+      const uint8_t gen_one = static_cast<uint8_t>((gen_empty + 1u) & 0xFu);
+      expect("explicit one-entry PathTrace publishes count one",
+             dut->pub_path_count_o, 1);
+      expect("absent to explicit GM spends one path generation",
+             dut->pub_path_gen_o, gen_one);
 
-    announce_without_path(15, 90, GMID_EMPTY, GMID_EMPTY);
-    const uint8_t gen_empty_again = (uint8_t)((gen_one + 1u) & 0xFu);
-    expect("explicit GM withdrawal restores empty count",
-           dut->pub_path_count_o, 0);
-    expect("explicit GM to absent spends one path generation",
-           dut->pub_path_gen_o, gen_empty_again);
+      announce_without_path(15, 90, GMID_EMPTY, GMID_EMPTY);
+      const uint8_t gen_empty_again = static_cast<uint8_t>((gen_one + 1u) & 0xFu);
+      expect("explicit GM withdrawal restores empty count",
+             dut->pub_path_count_o, 0);
+      expect("explicit GM to absent spends one path generation",
+             dut->pub_path_gen_o, gen_empty_again);
 
-    announce(16, 80, GMID);
-    expect("present path restored for servo controls",
-           dut->pub_path_count_o, 3);
-    expect("restored path returns original scalar GM", dut->pub_gm_id_o, GMID);
-    expect("absent to restored path spends one generation",
-           dut->pub_path_gen_o, (gen_empty_again + 1u) & 0xFu);
+      announce(16, 80, GMID);
+      expect("present path restored for servo controls",
+             dut->pub_path_count_o, 3);
+      expect("restored path returns original scalar GM", dut->pub_gm_id_o, GMID);
+      expect("absent to restored path spends one generation",
+             dut->pub_path_gen_o, (gen_empty_again + 1u) & 0xFu);
 
-    const uint8_t gen_restored = dut->pub_path_gen_o;
-    announce_eight_path(17, 75, GMID);
-    expect("maximum bounded PathTrace publishes count eight",
-           dut->pub_path_count_o, 8);
-    expect("maximum bounded PathTrace reaches final tail slot",
-           dut->pub_path_tail6_o, PEER_CID);
-    expect("three to eight entries spends one generation",
-           dut->pub_path_gen_o, (gen_restored + 1u) & 0xFu);
-  }
-  {
-    // offset = tap_stamp - (origin + pd): origin is written so the true
-    // offset is ~+1000 ns; the tap stamps within a couple of beats
-    sync_pair(0x100, 1000 + (uint64_t)D_NOM, nullptr);
-    expect("offset near +1000",
-           near((int32_t)dut->pub_offset_o, 1000, 200), 1);
-    expect("sync-ok rose", dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
-  }
-  {
-    // short closed loop: a master 1 ms ahead at +100 ppm in counter
-    // time; one re-base then the addend carries the rate
-    uint64_t mst_base = phc() + 1000000ull - cyc * 8ull - cyc / 1250ull;
-    uint16_t sq = 0x200;
-    for (int k = 0; k < 12; k++) {
-      if ((k % 6) == 0) announce((uint16_t)(20 + k), 100, GMID);
-      run_svc(250000);
-      uint64_t origin = mst_base + cyc * 8ull + cyc / 1250ull;
-      Frame f = ptp(0x0, sq, 0, 0x0208, 10);
-      f.ts(0);
-      send_wide(f.b);
-      run(30);
-      // cancel pd so offset -> 0
-      Frame g = follow_up(sq, origin + (uint64_t)D_NOM);
-      send_wide(g.b);
-      run(4000);
-      sq++;
+      const uint8_t gen_restored = dut->pub_path_gen_o;
+      announce_eight_path(17, 75, GMID);
+      expect("maximum bounded PathTrace publishes count eight",
+             dut->pub_path_count_o, 8);
+      expect("maximum bounded PathTrace reaches final tail slot",
+             dut->pub_path_tail6_o, PEER_CID);
+      expect("three to eight entries spends one generation",
+             dut->pub_path_gen_o, (gen_restored + 1u) & 0xFu);
     }
-    expect("closed loop locked",
-           near((int32_t)dut->pub_offset_o, 0, 300), 1);
+  }
+
+  //! The sync half of phase 4: one pair puts the offset in range, then a
+  //! short closed loop against a +100 ppm master locks the REAL counter.
+  void check_sync_offset_and_closed_loop_lock() {
+    {
+      // offset = tap_stamp - (origin + pd): origin is written so the true
+      // offset is ~+1000 ns; the tap stamps within a couple of beats
+      sync_pair(0x100, 1000 + static_cast<uint64_t>(D_NOM), nullptr);
+      expect("offset near +1000",
+             near(static_cast<int32_t>(dut->pub_offset_o), 1000, 200), 1);
+      expect("sync-ok rose", dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
+    }
+    {
+      // short closed loop: a master 1 ms ahead at +100 ppm in counter
+      // time; one re-base then the addend carries the rate
+      uint64_t mst_base = phc() + 1000000ull - cyc * 8ull - cyc / 1250ull;
+      uint16_t sq = 0x200;
+      for (int k = 0; k < 12; k++) {
+        if ((k % 6) == 0) announce(static_cast<uint16_t>(20 + k), 100, GMID);
+        run_svc(250000);
+        uint64_t origin = mst_base + cyc * 8ull + cyc / 1250ull;
+        Frame f = ptp(0x0, sq, 0, 0x0208, 10);
+        f.ts(0);
+        send_wide(f.b);
+        run(30);
+        // cancel pd so offset -> 0
+        Frame g = follow_up(sq, origin + static_cast<uint64_t>(D_NOM));
+        send_wide(g.b);
+        run(4000);
+        sq++;
+      }
+      expect("closed loop locked",
+             near(static_cast<int32_t>(dut->pub_offset_o), 0, 300), 1);
+    }
   }
 
   // A better Announce moves the registered bank on the same edge on which
   // talkers may launch. The pre-commit discontinuity must make tu visible
   // to both consumer-equivalent launch registers on that edge.
-  run_svc(512);
-  expect("healthy bank clears tu before GM switch", dut->ts_uncertain_o, 0);
-  const uint16_t disc_before = dut->disc_launch_count_o;
-  announce(0x2F0, 70, GMID2, PEER2_CID);
-  expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
-  expect("better Announce preserves full path count", dut->pub_path_count_o, 3);
-  expect("better Announce preserves middle hop", dut->pub_path_tail0_o,
-         PATH_HOP);
-  expect("better Announce publishes new source tail", dut->pub_path_tail1_o,
-         PEER2_CID);
-  expect("registered bank emitted a pre-commit discontinuity",
-         dut->disc_launch_count_o > disc_before, 1);
-  expect("AAF same-edge launch samples tu=1", dut->aaf_launch_tu_o, 1);
-  expect("CRF same-edge launch samples tu=1", dut->crf_launch_tu_o, 1);
+  void check_gm_switch_marks_time_uncertain() {
+    run_svc(512);
+    expect("healthy bank clears tu before GM switch", dut->ts_uncertain_o, 0);
+    const uint16_t disc_before = dut->disc_launch_count_o;
+    announce(0x2F0, 70, GMID2, PEER2_CID);
+    expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
+    expect("better Announce preserves full path count", dut->pub_path_count_o, 3);
+    expect("better Announce preserves middle hop", dut->pub_path_tail0_o,
+           PATH_HOP);
+    expect("better Announce publishes new source tail", dut->pub_path_tail1_o,
+           PEER2_CID);
+    expect("registered bank emitted a pre-commit discontinuity",
+           dut->disc_launch_count_o > disc_before, 1);
+    expect("AAF same-edge launch samples tu=1", dut->aaf_launch_tu_o, 1);
+    expect("CRF same-edge launch samples tu=1", dut->crf_launch_tu_o, 1);
+  }
+
   // ---- 5: classify negatives ---------------------------------------------
-  {
+  void check_foreign_ethertype_and_runt_are_invisible() {
     uint32_t pd_before = dut->pub_pdelay_ns_o;
     uint16_t drop_before = dut->dbg_tap_drop_o;
     Frame avtp = ptp(0x3, 0x7000, 0, 0x0200, 20, PEER_CID, 0x22F0);
@@ -725,31 +853,31 @@ int main(int argc, char **argv) {
   // INSIDE it; with the commit-pulse ts transport the following sync
   // still pairs with its OWN arrival stamp (an accept-time push would
   // hand it the storm frame's)
-  {
+  void check_oversize_frame_cannot_skew_the_next_stamp() {
     Frame storm = ptp(0x0, 0x7100, 0, 0x0208, 10);
     storm.ts(0);
     while (storm.b.size() < 3000) storm.u8(0xAA);
     send_wide(storm.b);
     run(2000);
-    sync_pair(0x300, 2000 + (uint64_t)D_NOM, nullptr);
+    sync_pair(0x300, 2000 + static_cast<uint64_t>(D_NOM), nullptr);
     expect("oversize cannot skew the stamp",
-           near((int32_t)dut->pub_offset_o, 2000, 200), 1);
+           near(static_cast<int32_t>(dut->pub_offset_o), 2000, 200), 1);
   }
 
   // ---- 7: overflow drops are counted; the plane survives ----------------
-  {
+  void check_overflow_drops_are_counted() {
     uint16_t drop_before = dut->dbg_tap_drop_o;
     for (int k = 0; k < 12; k++) {
-      Frame f = ptp(0xC, (uint16_t)(0x7200 + k), 0, 0, 20);
+      Frame f = ptp(0xC, static_cast<uint16_t>(0x7200 + k), 0, 0, 20);
       while (f.b.size() < 512) f.u8(0x55);
       send_wide(f.b);                  // back-to-back, no gap
     }
     run(20000);
     expect("overflow drops counted",
            dut->dbg_tap_drop_o > drop_before, 1);
-    sync_pair(0x400, 3000 + (uint64_t)D_NOM, nullptr);
+    sync_pair(0x400, 3000 + static_cast<uint64_t>(D_NOM), nullptr);
     expect("the plane survives the burst",
-           near((int32_t)dut->pub_offset_o, 3000, 200), 1);
+           near(static_cast<int32_t>(dut->pub_offset_o), 3000, 200), 1);
   }
 
   // ---- 8: issue #122 -- a back-to-back 0x88F7 burst must NOT lap the ring.
@@ -760,15 +888,15 @@ int main(int argc, char **argv) {
   // lapped: the popped stamps are exactly the pushed stamps in FIFO order,
   // and pops + gPTP sheds account for all 40. On the unguarded RTL the ring
   // laps and the popped stamps diverge from the pushed ones (the mutation).
-  {
+  void check_burst_never_laps_the_stamp_ring() {
     g_pushed.clear(); g_popped.clear();
     uint16_t drop0 = dut->dbg_tap_drop_o;
     g_ts_capture = true;
     for (int k = 0; k < 40; k++) {
       std::vector<uint8_t> f(16, 0);
       // DA 01:80:C2:00:00:0E, SA 00:80:E1:11:22:33
-      const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
-      const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+      const std::array<uint8_t, 6> da = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+      const std::array<uint8_t, 6> sa = {0x00,0x80,0xE1,0x11,0x22,0x33};
       for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
       f[12] = 0x88; f[13] = 0xF7;             // EtherType (accepted by the tap)
       f[14] = 0x10; f[15] = 0x02;             // sv/version/message_type, ptp ver
@@ -776,7 +904,7 @@ int main(int argc, char **argv) {
     }
     run(40000);                                // drain the whole burst
     g_ts_capture = false;
-    uint16_t sheds = (uint16_t)(dut->dbg_tap_drop_o - drop0);
+    uint16_t sheds = static_cast<uint16_t>(dut->dbg_tap_drop_o - drop0);
 
     // the FIFO/subsequence law: every popped stamp is the pushed stamp at the
     // same position -- no entry was lapped over a still-live one.
@@ -794,7 +922,7 @@ int main(int argc, char **argv) {
     // accounting: every one of the 40 frames either serialized (a pop) or was
     // shed at the tap; the ring never silently swallowed one.
     expect("ts-ring burst: pops + gPTP sheds == 40",
-           (int)g_popped.size() + (int)sheds, 40);
+           static_cast<int>(g_popped.size()) + static_cast<int>(sheds), 40);
     // the guard must actually engage on this burst (else the law is vacuous).
     expect("ts-ring burst: the guard shed at least one frame", sheds > 0, 1);
   }
@@ -807,9 +935,9 @@ int main(int argc, char **argv) {
   // plane, which is worse than the lap this ticket fixes. Drive 40 oversize
   // gPTP frames (> the 2 KB frame FIFO, so the FIFO drops each one) and then
   // require a normal frame to still reach the engine.
-  {
+  void check_fifo_drops_do_not_leak_ring_slots() {
     for (int k = 0; k < 40; k++) {
-      Frame f = ptp(0x0, (uint16_t)(0x7300 + k), 0, 0x0208, 10);
+      Frame f = ptp(0x0, static_cast<uint16_t>(0x7300 + k), 0, 0x0208, 10);
       f.ts(0);
       while (f.b.size() < 3000) f.u8(0xAA);   // oversize: dropped in the FIFO
       send_wide(f.b);
@@ -834,7 +962,7 @@ int main(int argc, char **argv) {
   // sheds only a handful. Repeat the burst and require the per-burst shed
   // count NOT to grow: a leak makes every repetition shed strictly more,
   // ending in all-shed.
-  {
+  void check_shed_path_does_not_leak_across_bursts() {
     long sheds[4];
     for (int rep = 0; rep < 4; rep++) {
       uint16_t d0 = dut->dbg_tap_drop_o;
@@ -842,8 +970,8 @@ int main(int argc, char **argv) {
       g_ts_capture = true;
       for (int k = 0; k < 40; k++) {
         std::vector<uint8_t> f(16, 0);
-        const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
-        const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+        const std::array<uint8_t, 6> da = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        const std::array<uint8_t, 6> sa = {0x00,0x80,0xE1,0x11,0x22,0x33};
         for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
         f[12] = 0x88; f[13] = 0xF7;
         f[14] = 0x10; f[15] = 0x02;
@@ -851,7 +979,8 @@ int main(int argc, char **argv) {
       }
       run(40000);
       g_ts_capture = false;
-      sheds[rep] = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+      sheds[rep] =
+          static_cast<long>(static_cast<uint16_t>(dut->dbg_tap_drop_o - d0));
       // the per-burst law still holds on every repetition. !empty() is NOT
       // decoration: without it a plane that sheds EVERYTHING satisfies every
       // check in this phase vacuously (0 == 0 pops, 0 + 40 == 40, and a flat
@@ -862,7 +991,8 @@ int main(int argc, char **argv) {
         if (g_popped[i] != g_pushed[i]) law = false;
       expect("repeat burst: no lap on this repetition", law, 1);
       expect("repeat burst: pops + sheds == 40",
-             (int)g_popped.size() + (int)sheds[rep], 40);
+             static_cast<int>(g_popped.size()) + static_cast<int>(sheds[rep]),
+             40);
     }
     // EQUALITY, not <=: on correct RTL every repetition sheds exactly the
     // same count, so an exact compare is deterministic. A <= endpoint compare
@@ -874,18 +1004,6 @@ int main(int argc, char **argv) {
              sheds[rep] == sheds[0], 1);
   }
 
-  //! build a minimal classifiable 0x88F7 (or foreign-ethertype) frame
-  auto tapframe = [](size_t len, bool gptp) {
-    std::vector<uint8_t> f(len, 0);
-    const uint8_t da[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};
-    const uint8_t sa[6] = {0x00, 0x80, 0xE1, 0x11, 0x22, 0x33};
-    for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
-    f[12] = gptp ? 0x88 : 0x22;
-    f[13] = gptp ? 0xF7 : 0xF0;
-    f[14] = 0x10; f[15] = 0x02;
-    return f;
-  };
-
   // ---- 11: issue #122 -- the shed must stay ATOMIC for frames LONGER than
   // two beats. A shed frame is held out of the FIFO by routing FW_HEAD1 to
   // FW_SKIP; lose that route and beats 2..N of a shed frame enter as a
@@ -896,22 +1014,26 @@ int main(int argc, char **argv) {
   // FW_HEAD1. The size must also stay small enough that the 2 KB frame FIFO
   // does NOT saturate, or its own overflow drop masks the ghost push. 24 and
   // 56 bytes sit in that window (a real Pdelay_Req is 68).
-  for (int fb = 0; fb < 2; fb++) {
-    const size_t flen = (fb == 0) ? 24 : 56;
-    const int    nfr  = 60;
-    uint16_t d0 = dut->dbg_tap_drop_o;
-    g_pushed.clear(); g_popped.clear();
-    g_ts_capture = true;
-    for (int k = 0; k < nfr; k++) send_wide(tapframe(flen, true));
-    run(120000);
-    g_ts_capture = false;
-    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
-    bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
-    for (size_t i = 0; law && i < g_popped.size(); i++)
-      if (g_popped[i] != g_pushed[i]) law = false;
-    expect("long-frame shed stays atomic: popped == pushed, in order", law, 1);
-    expect("long-frame shed stays atomic: pops + sheds == 60",
-           (int)g_popped.size() + (int)sheds, nfr);
+  void check_long_frame_shed_stays_atomic() {
+    for (int fb = 0; fb < 2; fb++) {
+      const size_t flen = (fb == 0) ? 24 : 56;
+      const int    nfr  = 60;
+      uint16_t d0 = dut->dbg_tap_drop_o;
+      g_pushed.clear(); g_popped.clear();
+      g_ts_capture = true;
+      for (int k = 0; k < nfr; k++) send_wide(tapframe(flen, true));
+      run(120000);
+      g_ts_capture = false;
+      long sheds =
+          static_cast<long>(static_cast<uint16_t>(dut->dbg_tap_drop_o - d0));
+      bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+      for (size_t i = 0; law && i < g_popped.size(); i++)
+        if (g_popped[i] != g_pushed[i]) law = false;
+      expect("long-frame shed stays atomic: popped == pushed, in order", law, 1);
+      expect("long-frame shed stays atomic: pops + sheds == 60",
+             static_cast<int>(g_popped.size()) + static_cast<int>(sheds), nfr);
+    }
+
   }
 
   // ---- 12: the shed diagnostic counts gPTP sheds ONLY. The guard sheds at
@@ -920,7 +1042,7 @@ int main(int argc, char **argv) {
   // dbg_tap_drop_o, which is what a silicon reader uses to size the loss.
   // Saturate the ring with short gPTP frames while interleaving AVTP ones:
   // the accounting law below holds only if the count is EtherType-gated.
-  {
+  void check_shed_count_is_ethertype_gated() {
     const int npair = 60;
     uint16_t d0 = dut->dbg_tap_drop_o;
     g_pushed.clear(); g_popped.clear();
@@ -931,9 +1053,10 @@ int main(int argc, char **argv) {
     }
     run(120000);
     g_ts_capture = false;
-    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+    long sheds =
+        static_cast<long>(static_cast<uint16_t>(dut->dbg_tap_drop_o - d0));
     expect("mixed traffic: pops + gPTP sheds == the 60 gPTP frames sent",
-           (int)g_popped.size() + (int)sheds, npair);
+           static_cast<int>(g_popped.size()) + static_cast<int>(sheds), npair);
   }
 
   // ---- 13: #214 -- the master role puts the other three types on the
@@ -944,7 +1067,8 @@ int main(int argc, char **argv) {
   // expires, the plane becomes grandmaster, and Announce, Sync and
   // Follow_Up join the lane. Last, because a plane that is its own
   // grandmaster no longer consumes the peer syncs the earlier phases use.
-  {
+  //! Returns the frame index the master-role checks below start from.
+  size_t ride_quietly_to_grandmaster() {
     size_t before = txf.size();        // the first Announce rides the
     uint64_t spent = 0;                // transition itself, so mark first
     size_t ann_stamp_mark = stamps.size();
@@ -968,10 +1092,15 @@ int main(int argc, char **argv) {
     expect("master Announce stamp precedes the Sync collision",
            ann_stamp_seen ? 1 : 0, 1);
     run_svc(2000);                     // finish its timestamp handler
+    return before;
+  }
 
+  //! Phase 13's collision arm: hold the next real master Sync tuple, then
+  //! prove a same-sequence peer request cannot take it.
+  void check_master_sync_collision(size_t before) {
     dut->txts_hold_type_i = 0x0;       // hold the next real Sync tuple
     dut->txts_hold_en_i = 1;
-    spent = 0;
+    uint64_t spent = 0;
     while (!dut->dbg_txts_held_o && spent < 500000ull) {
       // Stop within 1,000 clocks of the held Sync, well inside the 125 ms
       // Sync interval, so a second Sync cannot replace the same claim.
@@ -994,7 +1123,7 @@ int main(int argc, char **argv) {
     bool held_sync_seen = false;
     for (size_t k = before; k < txf.size() && k < stamps.size(); k++) {
       if (txf[k].size() > 45 && (txf[k][14] & 0xF) == 0x0 &&
-          (uint16_t)((txf[k][44] << 8) | txf[k][45]) == clash &&
+          static_cast<uint16_t>((txf[k][44] << 8) | txf[k][45]) == clash &&
           stamps[k].type == 0x0 && stamps[k].seq == clash &&
           stamps[k].ns == sync_stamp_ns) {
         sync_idx = k;
@@ -1007,81 +1136,95 @@ int main(int argc, char **argv) {
       expect("held Sync time is the frame's SOF PHC",
              sync_stamp_ns, tx_sof_phc[sync_idx]);
 
-    if (held_sync_seen) {
-      size_t collision_mark = txf.size();
-      size_t sync_eng_mark = engine_stamps.size();
-      tx_seen = collision_mark;
+    if (held_sync_seen)
+      check_sync_collision_delivers_response_first(clash, sync_stamp_ns,
+                                                   sync_ev_drop);
+  }
 
-      // A peer request using the Sync sequence creates a type-3 claim with
-      // the same 16-bit sequence. Return its real stamp first. Only the type
-      // distinguishes the mandatory Resp_FU from our pending Sync Follow_Up.
-      Frame same = ptp(0x2, clash, 0, 0x0000, 20, PEER_CID);
-      same.u64(0); same.u64(0); same.u32(0);
-      send_wide(same.b);
-      size_t ri = 0;
-      std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
-      std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
-      expect("equal Sync/Resp sequences: the peer request is answered",
-             rsp.empty() ? 0 : 1, 1);
-      expect("response stamp builds Resp_FU rather than Sync Follow_Up",
-             rfu.empty() ? 0 : 1, 1);
-      if (!rfu.empty()) {
-        expect("equal Sync/Resp sequences: Resp_FU keeps the common sequence",
-               (uint16_t)((rfu[44] << 8) | rfu[45]), clash);
-        if (ri < stamps.size())
-          expect("equal Sync/Resp sequences: Resp_FU carries its own stamp",
-                 timestamp_field_ns(rfu, 48), stamps[ri].ns);
-      }
-      int premature_sync_fu = 0;
-      for (size_t k = collision_mark; k < txf.size(); k++)
-        if (txf[k].size() > 14 && (txf[k][14] & 0xF) == 0x8)
-          premature_sync_fu++;
-      expect("response and unclaimed Resp_FU leave Sync pending",
-             premature_sync_fu, 0);
-      run(2000);  // dispatch the unclaimed type-A stamp; donor #31 is open
-      expect("the original Sync tuple remains held after the type-A stamp",
-             dut->dbg_txts_held_o, 1);
-      expect("Sync collision has delivered response then unclaimed FU",
-             engine_stamps.size(), sync_eng_mark + 2);
+  //! The three deliveries the held Sync collision must produce, in order:
+  //! the response, the unclaimed Resp_FU, then the released Sync itself.
+  void check_sync_collision_delivers_response_first(uint16_t clash,
+                                                    uint64_t sync_stamp_ns,
+                                                    uint16_t sync_ev_drop) {
+    size_t collision_mark = txf.size();
+    size_t sync_eng_mark = engine_stamps.size();
+    tx_seen = collision_mark;
 
-      dut->txts_release_i = 1;
-      tick();
-      dut->txts_release_i = 0;
-      tick();
-      expect("Sync collision delivers exactly response, FU, Sync",
-             engine_stamps.size(), sync_eng_mark + 3);
-      if (engine_stamps.size() >= sync_eng_mark + 3) {
-        expect("Sync collision delivery 1 is Pdelay_Resp",
-               engine_stamps[sync_eng_mark].type, 0x3);
-        expect("Sync collision delivery 2 is unclaimed Resp_FU",
-               engine_stamps[sync_eng_mark + 1].type, 0xA);
-        expect("Sync collision delivery 3 is held Sync",
-               engine_stamps[sync_eng_mark + 2].type, 0x0);
-        for (size_t k = sync_eng_mark; k < sync_eng_mark + 3; k++)
-          expect("all Sync-collision deliveries share sequenceId",
-                 engine_stamps[k].seq, clash);
-        expect("released engine tuple keeps the held Sync time",
-               engine_stamps[sync_eng_mark + 2].ns, sync_stamp_ns);
-      }
-      std::vector<uint8_t> fu = wait_tx(0x8, 200000);
-      expect("released Sync stamp builds its own Follow_Up",
-             fu.empty() ? 0 : 1, 1);
-      if (!fu.empty()) {
-        expect("released Sync Follow_Up keeps the common sequence",
-               (uint16_t)((fu[44] << 8) | fu[45]), clash);
-        expect("released Sync Follow_Up carries the Sync boundary stamp",
-               timestamp_field_ns(fu, 48), sync_stamp_ns);
-      }
-      expect("the held Sync tuple is consumed exactly once",
-             dut->dbg_txts_held_o, 0);
-      expect("Sync collision gate had no overlap/overflow",
-             dut->dbg_txts_gate_conflict_o, 0);
-      expect("Sync collision changed no engine-event drop count",
-             dut->dbg_ev_drop_o, sync_ev_drop);
+    // A peer request using the Sync sequence creates a type-3 claim with
+    // the same 16-bit sequence. Return its real stamp first. Only the type
+    // distinguishes the mandatory Resp_FU from our pending Sync Follow_Up.
+    Frame same = ptp(0x2, clash, 0, 0x0000, 20, PEER_CID);
+    same.u64(0); same.u64(0); same.u32(0);
+    send_wide(same.b);
+    size_t ri = 0;
+    std::vector<uint8_t> rsp = wait_tx(0x3, 200000, &ri);
+    std::vector<uint8_t> rfu = wait_tx(0xA, 200000);
+    expect("equal Sync/Resp sequences: the peer request is answered",
+           rsp.empty() ? 0 : 1, 1);
+    expect("response stamp builds Resp_FU rather than Sync Follow_Up",
+           rfu.empty() ? 0 : 1, 1);
+    if (!rfu.empty()) {
+      expect("equal Sync/Resp sequences: Resp_FU keeps the common sequence",
+             static_cast<uint16_t>((rfu[44] << 8) | rfu[45]), clash);
+      if (ri < stamps.size())
+        expect("equal Sync/Resp sequences: Resp_FU carries its own stamp",
+               timestamp_field_ns(rfu, 48), stamps[ri].ns);
     }
+    int premature_sync_fu = 0;
+    for (size_t k = collision_mark; k < txf.size(); k++)
+      if (txf[k].size() > 14 && (txf[k][14] & 0xF) == 0x8)
+        premature_sync_fu++;
+    expect("response and unclaimed Resp_FU leave Sync pending",
+           premature_sync_fu, 0);
+    run(2000);  // dispatch the unclaimed type-A stamp; donor #31 is open
+    expect("the original Sync tuple remains held after the type-A stamp",
+           dut->dbg_txts_held_o, 1);
+    expect("Sync collision has delivered response then unclaimed FU",
+           engine_stamps.size(), sync_eng_mark + 2);
 
+    dut->txts_release_i = 1;
+    tick();
+    dut->txts_release_i = 0;
+    tick();
+    expect("Sync collision delivers exactly response, FU, Sync",
+           engine_stamps.size(), sync_eng_mark + 3);
+    if (engine_stamps.size() >= sync_eng_mark + 3) {
+      expect("Sync collision delivery 1 is Pdelay_Resp",
+             engine_stamps[sync_eng_mark].type, 0x3);
+      expect("Sync collision delivery 2 is unclaimed Resp_FU",
+             engine_stamps[sync_eng_mark + 1].type, 0xA);
+      expect("Sync collision delivery 3 is held Sync",
+             engine_stamps[sync_eng_mark + 2].type, 0x0);
+      for (size_t k = sync_eng_mark; k < sync_eng_mark + 3; k++)
+        expect("all Sync-collision deliveries share sequenceId",
+               engine_stamps[k].seq, clash);
+      expect("released engine tuple keeps the held Sync time",
+             engine_stamps[sync_eng_mark + 2].ns, sync_stamp_ns);
+    }
+    std::vector<uint8_t> fu = wait_tx(0x8, 200000);
+    expect("released Sync stamp builds its own Follow_Up",
+           fu.empty() ? 0 : 1, 1);
+    if (!fu.empty()) {
+      expect("released Sync Follow_Up keeps the common sequence",
+             static_cast<uint16_t>((fu[44] << 8) | fu[45]), clash);
+      expect("released Sync Follow_Up carries the Sync boundary stamp",
+             timestamp_field_ns(fu, 48), sync_stamp_ns);
+    }
+    expect("the held Sync tuple is consumed exactly once",
+           dut->dbg_txts_held_o, 0);
+    expect("Sync collision gate had no overlap/overflow",
+           dut->dbg_txts_gate_conflict_o, 0);
+    expect("Sync collision changed no engine-event drop count",
+           dut->dbg_ev_drop_o, sync_ev_drop);
+  }
+
+  //! With the plane its own grandmaster, Announce, Sync and Follow_Up all
+  //! reach the lane, so the stamp tag is proved for every type it emits.
+  void check_master_emits_all_three_types(size_t before) {
     run_svc(1400000);                  // an announce interval and then some
-    int saw_ann = 0, saw_sync = 0, saw_fu = 0;
+    int saw_ann = 0;
+    int saw_sync = 0;
+    int saw_fu = 0;
     for (size_t k = before; k < txf.size(); k++) {
       if (txf[k].size() <= 14) continue;
       int t = txf[k][14] & 0xF;
@@ -1102,7 +1245,7 @@ int main(int argc, char **argv) {
   // test gate holds response 1's REAL stamper tuple: request 2 must stay
   // behind the open response owner, retain its event snapshot through that
   // bank churn, and keep its own requester identity and boundary time.
-  {
+  void check_same_type_response_ownership() {
     pd_on = false;
     service_pdelay();
     for (int k = 0; k < 2000 && (dut->tx_tvalid_o || in_tx); k++) tick();
@@ -1110,45 +1253,44 @@ int main(int argc, char **argv) {
     //! can only be response 1; post-reset periodic traffic is still more than
     //! two million clocks away.
     dut->rst_n = 0;
-    for (int i = 0; i < 8; i++) tick();
+    for (int i = 0; i < kResetTicks; i++) tick();
     dut->rst_n = 1;
     dut->tx_tready_i = 1;
     pd_seen = txf.size();
     tx_seen = txf.size();
     run(512);
 
-    const uint16_t Q1 = 0x1111, Q2 = 0x2222;
-    const uint64_t C1 = PEER_CID, C2 = 0x001122FFFE334455ull;
-    const uint16_t P1 = 1, P2 = 2;
     Frame q1 = ptp(0x2, Q1, 0, 0x0000, 20, C1);
     q1.u64(0); q1.u64(0); q1.u32(0);
     Frame q2 = ptp(0x2, Q2, 0, 0x0000, 20, C2);
-    q2.b[42] = (uint8_t)(P2 >> 8);
-    q2.b[43] = (uint8_t)P2;
+    q2.b[42] = static_cast<uint8_t>(P2 >> 8);
+    q2.b[43] = static_cast<uint8_t>(P2);
     q2.u64(0); q2.u64(0); q2.u32(0);
 
     const size_t mark = txf.size();
     const uint16_t evdrop0 = dut->dbg_ev_drop_o;
     const uint16_t conflict0 = dut->dbg_txts_gate_conflict_o;
-    auto find_frame = [&](uint8_t mt, uint16_t seq) -> int {
-      for (size_t i = mark; i < txf.size(); i++)
-        if (txf[i].size() > 45 && (txf[i][14] & 0xF) == mt &&
-            fld16(txf[i], 44) == seq)
-          return (int)i;
-      return -1;
-    };
 
     dut->txts_hold_type_i = 0x3;
     dut->txts_hold_en_i = 1;
     dut->tx_tready_i = 0;
-    const uint64_t Q1_RX = phc();
+    const uint64_t q1_rx = phc();
     send_wide(q1.b);
-    const uint64_t Q2_RX = phc();
+    const uint64_t q2_rx = phc();
     send_wide(q2.b);
     Frame chase1 = ptp(0xC, 0xD00D, 0, 0x0000, 0);
     Frame chase2 = ptp(0xC, 0xBEEF, 0, 0x0000, 0);
     send_wide(chase1.b);
     send_wide(chase2.b);
+    check_backpressure_holds_the_lane();
+    const int resp1 = check_response_one_owns_its_stamp(mark, q1_rx);
+    check_second_response_waits_for_the_owner(mark, resp1, q2_rx, evdrop0,
+                                              conflict0);
+  }
+
+  //! Phase 14's lane half: a stalled production frame must hold its start
+  //! beat and its mid-frame beat without losing or inventing a byte.
+  void check_backpressure_holds_the_lane() {
     for (int k = 0; k < 200000 && !dut->tx_tvalid_o; k++) tick();
     expect("backpressure: a production frame is presented",
            dut->tx_tvalid_o, 1);
@@ -1179,23 +1321,28 @@ int main(int argc, char **argv) {
     expect("backpressure: mid last holds", dut->tx_tlast_o, mid_last);
     expect("backpressure: mid accepts no byte", cur.size(), mid_size);
     dut->tx_tready_i = 1;
+  }
 
+  //! Response 1 owns the one held stamper tuple: it carries its own
+  //! requester and boundary time, and response 2 must wait behind it.
+  //! Returns response 1's frame index, or -1 when it never appeared.
+  int check_response_one_owns_its_stamp(size_t mark, uint64_t q1_rx) {
     int resp1 = -1;
     for (int k = 0; k < 400000 &&
                          (resp1 < 0 || !dut->dbg_txts_held_o); k++) {
       tick();
-      resp1 = find_frame(0x3, Q1);
+      resp1 = find_frame(mark, 0x3, Q1);
     }
     expect("same-type owner: response 1 sent", resp1 >= 0 ? 1 : 0, 1);
     expect("same-type owner: response 1 stamp is held",
            dut->dbg_txts_held_o, 1);
     if (resp1 >= 0)
       expect("backpressure: the stalled frame is response 1",
-             (size_t)resp1, mark);
+             static_cast<size_t>(resp1), mark);
     dut->txts_hold_en_i = 0;
     if (resp1 >= 0) {
       expect("same-type owner: response 1 requestReceiptTimestamp",
-             timestamp_field_ns(txf[resp1], 48), Q1_RX);
+             timestamp_field_ns(txf[resp1], 48), q1_rx);
       expect("same-type owner: response 1 requester",
              fld64(txf[resp1], 58), C1);
       expect("same-type owner: response 1 port", fld16(txf[resp1], 66), P1);
@@ -1203,14 +1350,22 @@ int main(int argc, char **argv) {
              dut->dbg_txts_held_seq_o, Q1);
       expect("same-type owner: held type",
              dut->dbg_txts_held_type_o, 0x3);
-      if ((size_t)resp1 < stamps.size())
+      if (static_cast<size_t>(resp1) < stamps.size())
         expect("same-type owner: held real boundary time",
                dut->dbg_txts_held_ns_o, stamps[resp1].ns);
     }
     run(2000);
     expect("same-type owner: response 2 waits for response 1 stamp",
-           find_frame(0x3, Q2) < 0 ? 1 : 0, 1);
+           find_frame(mark, 0x3, Q2) < 0 ? 1 : 0, 1);
+    return resp1;
+  }
 
+  //! Releasing response 1's tuple must produce Follow_Up 1, then response
+  //! 2 and its Follow_Up, each with its own requester, port and stamp.
+  void check_second_response_waits_for_the_owner(size_t mark, int resp1,
+                                                 uint64_t q2_rx,
+                                                 uint16_t evdrop0,
+                                                 uint16_t conflict0) {
     while (dut->dbg_txts_v_o) tick();
     dut->txts_release_i = 1;
     tick();
@@ -1219,12 +1374,14 @@ int main(int argc, char **argv) {
     expect("same-type owner: response 1 tuple releases once",
            dut->dbg_txts_held_o, 0);
 
-    int fu1 = -1, resp2 = -1, fu2 = -1;
+    int fu1 = -1;
+    int resp2 = -1;
+    int fu2 = -1;
     for (int k = 0; k < 600000 && (fu1 < 0 || resp2 < 0 || fu2 < 0); k++) {
       tick();
-      fu1 = find_frame(0xA, Q1);
-      resp2 = find_frame(0x3, Q2);
-      fu2 = find_frame(0xA, Q2);
+      fu1 = find_frame(mark, 0xA, Q1);
+      resp2 = find_frame(mark, 0x3, Q2);
+      fu2 = find_frame(mark, 0xA, Q2);
     }
     expect("same-type owner: Follow_Up 1 sent", fu1 >= 0 ? 1 : 0, 1);
     expect("same-type owner: response 2 sent", resp2 >= 0 ? 1 : 0, 1);
@@ -1236,13 +1393,13 @@ int main(int argc, char **argv) {
       expect("same-type owner: Follow_Up 1 requester",
              fld64(txf[fu1], 58), C1);
       expect("same-type owner: Follow_Up 1 port", fld16(txf[fu1], 66), P1);
-      if ((size_t)resp1 < stamps.size())
+      if (static_cast<size_t>(resp1) < stamps.size())
         expect("same-type owner: Follow_Up 1 carries stamp 1",
                timestamp_field_ns(txf[fu1], 48), stamps[resp1].ns);
     }
     if (resp2 >= 0) {
       expect("same-type owner: response 2 requestReceiptTimestamp",
-             timestamp_field_ns(txf[resp2], 48), Q2_RX);
+             timestamp_field_ns(txf[resp2], 48), q2_rx);
       expect("same-type owner: response 2 requester",
              fld64(txf[resp2], 58), C2);
       expect("same-type owner: response 2 port", fld16(txf[resp2], 66), P2);
@@ -1251,7 +1408,7 @@ int main(int argc, char **argv) {
       expect("same-type owner: Follow_Up 2 requester",
              fld64(txf[fu2], 58), C2);
       expect("same-type owner: Follow_Up 2 port", fld16(txf[fu2], 66), P2);
-      if ((size_t)resp2 < stamps.size())
+      if (static_cast<size_t>(resp2) < stamps.size())
         expect("same-type owner: Follow_Up 2 carries stamp 2",
                timestamp_field_ns(txf[fu2], 48), stamps[resp2].ns);
     }
@@ -1267,7 +1424,7 @@ int main(int argc, char **argv) {
   // survives warm reset for Milan cease history, but a pre-reset egress owner
   // must be hidden until a fresh transmitter writes one; otherwise every
   // later timer request remains suppressed forever.
-  {
+  void check_warm_reset_clears_the_request_owner() {
     pd_on = false;
     pd_seen = txf.size();
     dut->txts_hold_type_i = 0x2;
@@ -1288,7 +1445,7 @@ int main(int argc, char **argv) {
     }
     dut->txts_hold_en_i = 0;
     dut->rst_n = 0;
-    for (int i = 0; i < 8; i++) tick();
+    for (int i = 0; i < kResetTicks; i++) tick();
     dut->rst_n = 1;
     dut->tx_tready_i = 1;
     dut->txts_release_i = 0;
@@ -1319,7 +1476,7 @@ int main(int argc, char **argv) {
   // case. Boot must re-arm both cadence and announce-receipt timers: the
   // plane re-earns capability, becomes master again, and emits a fresh Sync
   // plus Follow_Up without any harness-supplied timestamp.
-  {
+  void check_warm_reset_clears_the_sync_owner() {
     while (dut->dbg_txts_v_o) tick();
     dut->txts_hold_type_i = 0x0;
     dut->txts_hold_en_i = 1;
@@ -1339,7 +1496,7 @@ int main(int argc, char **argv) {
     }
     dut->txts_hold_en_i = 0;
     dut->rst_n = 0;
-    for (int i = 0; i < 8; i++) tick();
+    for (int i = 0; i < kResetTicks; i++) tick();
     dut->rst_n = 1;
     dut->tx_tready_i = 1;
     dut->txts_release_i = 0;
@@ -1370,38 +1527,50 @@ int main(int argc, char **argv) {
     }
   }
 
-  // #214: the tag must be right where the engine reads it, every time
-  expect("the slice port carried a tag at every stamp", slice_valids > 0, 1);
-  expect("the slice port never lags the stamper at the valid cycle",
-         slice_skews, 0);
-  // ...and every stamp must name ITS OWN frame. One stamp per transmitted
-  // frame, in order (the stamper's armed counting), so the pairing is
-  // positional and the tags are checked against the frame's own header
-  // bytes for EVERY type the run emits rather than a hard-coded few. Six
-  // is what this plane transmits: Sync 0x0, Pdelay_Req 0x2, Pdelay_Resp
-  // 0x3, Follow_Up 0x8, Pdelay_Resp_Follow_Up 0xA and Announce 0xB
-  // (802.1AS-2011 Table 11-3 and Table 10-5).
-  expect("one stamp per transmitted frame", (int)stamps.size(),
-         (int)txf.size());
-  int tag_wrong = 0, seq_wrong = 0, types_seen = 0, mask = 0;
-  for (size_t k = 0; k < stamps.size() && k < txf.size(); k++) {
-    if (txf[k].size() < 46) continue;
-    int t = txf[k][14] & 0xF;
-    if (stamps[k].type != t) tag_wrong++;
-    if (stamps[k].seq != (uint16_t)((txf[k][44] << 8) | txf[k][45]))
-      seq_wrong++;
-    if (!(mask & (1 << t))) { mask |= 1 << t; types_seen++; }
+  //! The full-run laws: one stamp per transmitted frame, every stamp
+  //! naming its own frame, and a publication bank that moved only on its
+  //! commit pulse.
+  void check_every_stamp_names_its_own_frame() {
+    // #214: the tag must be right where the engine reads it, every time
+    expect("the slice port carried a tag at every stamp", slice_valids > 0, 1);
+    expect("the slice port never lags the stamper at the valid cycle",
+           slice_skews, 0);
+    // ...and every stamp must name ITS OWN frame. One stamp per transmitted
+    // frame, in order (the stamper's armed counting), so the pairing is
+    // positional and the tags are checked against the frame's own header
+    // bytes for EVERY type the run emits rather than a hard-coded few. Six
+    // is what this plane transmits: Sync 0x0, Pdelay_Req 0x2, Pdelay_Resp
+    // 0x3, Follow_Up 0x8, Pdelay_Resp_Follow_Up 0xA and Announce 0xB
+    // (802.1AS-2011 Table 11-3 and Table 10-5).
+    expect("one stamp per transmitted frame", static_cast<int>(stamps.size()),
+           static_cast<int>(txf.size()));
+    int tag_wrong = 0;
+    int seq_wrong = 0;
+    int types_seen = 0;
+    int mask = 0;
+    for (size_t k = 0; k < stamps.size() && k < txf.size(); k++) {
+      if (txf[k].size() < 46) continue;
+      int t = txf[k][14] & 0xF;
+      if (stamps[k].type != t) tag_wrong++;
+      if (stamps[k].seq != static_cast<uint16_t>((txf[k][44] << 8) | txf[k][45]))
+        seq_wrong++;
+      if (!(mask & (1 << t))) { mask |= 1 << t; types_seen++; }
+    }
+    expect("every stamp carries its own frame's messageType", tag_wrong, 0);
+    expect("every stamp carries its own frame's sequenceId", seq_wrong, 0);
+    expect("the tag is proved for all six transmitted types", types_seen, 6);
+
+    expect("publication bank changed under stimulus", pub_changes > 0, 1);
+    expect("publication commit pulse observed", pub_commits > 0, 1);
+    expect("every publication change was commit-qualified",
+           pub_unguarded_changes, 0);
   }
-  expect("every stamp carries its own frame's messageType", tag_wrong, 0);
-  expect("every stamp carries its own frame's sequenceId", seq_wrong, 0);
-  expect("the tag is proved for all six transmitted types", types_seen, 6);
+};
 
-  expect("publication bank changed under stimulus", pub_changes > 0, 1);
-  expect("publication commit pulse observed", pub_commits > 0, 1);
-  expect("every publication change was commit-qualified",
-         pub_unguarded_changes, 0);
+}  // namespace
 
-  printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
-  delete dut;
-  return fails ? 1 : 0;
+int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
+  GptpShadowHarness harness;
+  return harness.run();
 }

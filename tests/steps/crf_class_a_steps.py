@@ -26,21 +26,25 @@
 #   Milan v1.2 7.3.3    - the media clock stream is carried under an SRP
 #                         reservation of the specified class (A)
 
-import os
+from __future__ import annotations
+
 import re
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from behave import given, then
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
 
-CRF_TX_SV = os.path.join(ROOT, "hdl", "ieee1722", "crf", "KL_crf_tx.sv")
-DATAPATH  = os.path.join(ROOT, "hdl", "milan", "milan_datapath.sv")
+ROOT = Path(__file__).resolve().parents[2]
+
+CRF_TX_SV = ROOT / "hdl" / "ieee1722" / "crf" / "KL_crf_tx.sv"
+DATAPATH  = ROOT / "hdl" / "milan" / "milan_datapath.sv"
 
 
-def _read(path):
-    with open(path, "r", encoding="utf-8") as fh:
-        return fh.read()
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
 
 
 #! sized Verilog literal: [width]'[s][base]digits
@@ -101,14 +105,20 @@ def _instance(src, module):
 
 
 @given('the CRF talker RTL')
-def step_crf_rtl(context):
+def step_crf_rtl(context: Context) -> None:
+    """The two sources every later step grades: the CRF emitter and the datapath.
+
+    Both are read here rather than per-step so that no step can quietly grade a
+    frame built by one file against a lane declared in another.
+    """
     context.crf_src = _read(CRF_TX_SV)
     context.dp_src = _read(DATAPATH)
 
 
 # ---------------------------------------------------------------- the tag
 @then('the CRF emitter builds an 802.1Q C-TAG with TPID 0x8100 at octet 12')
-def step_tpid(context):
+def step_tpid(context: Context) -> None:
+    """The tagged shape carries a C-TAG, not a stream a bridge sees as untagged."""
     # 802.1Q 9.5: the TPID sits immediately after the source address, i.e.
     # frame octets 12..13, and is 0x8100 for a C-TAG.
     assert re.search(r"fb\[12\]\s*=\s*8'h81;\s*fb\[13\]\s*=\s*8'h00;",
@@ -117,7 +127,8 @@ def step_tpid(context):
 
 
 @then('the TCI is {{PCP, DEI, VID}} with DEI 0')
-def step_tci(context):
+def step_tci(context: Context) -> None:
+    """The media clock stream is never offered to the bridge as drop-eligible."""
     # 802.1Q 9.6: TCI = PCP[15:13] | DEI[12] | VID[11:0]. An SR class A
     # stream is never drop-eligible, so DEI must be a hard 0.
     assert re.search(
@@ -127,14 +138,16 @@ def step_tci(context):
 
 
 @then('the EtherType moves to octet 16 in the tagged shape')
-def step_ethertype(context):
+def step_ethertype(context: Context) -> None:
+    """Inserting the tag moved 0x22F0 along with it, so the AVTPDU still parses."""
     assert re.search(r"fb\[16\]\s*=\s*8'h22;\s*fb\[17\]\s*=\s*8'hF0;",
                      context.crf_src), \
         "AVTP EtherType 0x22F0 is not at octets 16..17 when tagged"
 
 
 @then('the PCP and VID are wires, not literals')
-def step_pcp_vid_wires(context):
+def step_pcp_vid_wires(context: Context) -> None:
+    """The tag the CRF emits is steerable, so it can follow the bridge's domain."""
     # A hardcoded PCP/VID would silently ignore the SR class the bridge
     # actually advertises in its MSRP Domain.
     for port in ("vlan_pcp_i", "vlan_vid_i", "vlan_en_i"):
@@ -143,7 +156,8 @@ def step_pcp_vid_wires(context):
 
 
 @then('both frame shapes are the same {n:d}-octet frame')
-def step_frame_len(context, n):
+def step_frame_len(context: Context, n: int) -> None:
+    """FRAME_BYTES read out of the RTL, not re-typed here, matches the scenario."""
     # The tag REPLACES pad. If it grew the frame instead, the reservation's
     # MaxFrameSize (below) and the emitted frame would disagree.
     assert _localparam_int(context.crf_src, "FRAME_BYTES") == n, \
@@ -152,7 +166,8 @@ def step_frame_len(context, n):
 
 # ------------------------------------------------------------- the lane
 @then('the CRF AXIS is bound to the data lane, not the control merge')
-def step_lane(context):
+def step_lane(context: Context) -> None:
+    """The CRF PDU takes the data lane, out of reach of the control-lane gasket."""
     # L1 BINDING (structural). The CRF PDU carries a gPTP timestamp a
     # listener steers its recovery clock against; on the control lane it sat
     # behind tx_ifg_gasket's 512-cycle per-frame spacing and behind whatever

@@ -36,6 +36,7 @@ import html
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple, NoReturn
 
 REPO = Path(__file__).resolve().parents[2]
 PKG = REPO / "hdl" / "common" / "ethernet_packet_pkg.sv"
@@ -43,11 +44,22 @@ CSR = REPO / "hdl" / "common" / "csr" / "milan_csr.sv"
 TCM = REPO / "hdl" / "ieee8021q" / "ts" / "traffic_class_map.sv"
 
 
-def esc(s):
+class Box(NamedTuple):
+    """One drawio vertex's geometry, in diagram user units."""
+
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+def esc(s: object) -> str:
+    """XML-escape a value for SVG text AND for a drawio `value=` attribute."""
     return html.escape(str(s), quote=True)
 
 
-def die(what):
+def die(what: str) -> NoReturn:
+    """Refuse to draw: the RTL moved, and a stale picture is worse than none."""
     raise SystemExit(f"egress_queue_map.gen.py: cannot parse {what} — the RTL "
                      f"shape changed; fix this generator, do not hand-draw.")
 
@@ -94,7 +106,8 @@ if not m:
 TOP_WINS = m.group(2) == "--"
 
 # slope arrays, indexed by queue
-def slope_array(name):
+def slope_array(name: str) -> list[int]:
+    """One `[0:NUMBER_OF_QUEUES-1]` slope parameter, proven NQ entries long."""
     m = re.search(rf"parameter\s+int\s+{name}\s*\[0:NUMBER_OF_QUEUES-1\]\s*=\s*'\{{(.*?)\}}\s*;",
                   pkg, re.S)
     if not m:
@@ -112,7 +125,8 @@ m = re.search(r"parameter\s+int\s+MAX_FRAME_SIZE\s*=\s*(\d+)\s*;", pkg)
 MAX_FRAME = int(m.group(1)) if m else die("MAX_FRAME_SIZE")
 
 # CSR reset state: hi/lo credit, the shaped-enable mask, the TC -> queue map
-def csr_array(name):
+def csr_array(name: str) -> list[int]:
+    """One per-queue CSR reset array, cut to NQ entries and proven that long."""
     m = re.search(rf"localparam\s+int\s+{name}\s*\[0:\d+\]\s*=\s*'\{{(.*?)\}}\s*;", csr, re.S)
     if not m:
         die(name)
@@ -163,7 +177,8 @@ PURPLE = ("#F3E5F5", "#6A1B9A")    # classification tables
 GOLD = ("#FFF8E1", "#F9A825")      # the arbiter
 
 
-def qcolour(q):
+def qcolour(q: int) -> tuple[str, str]:
+    """The (fill, stroke) a queue earns from its enum name: SR, gPTP, control, spare."""
     name = QUEUES[q][0]
     if name.startswith("SR"):
         return GREEN
@@ -174,11 +189,13 @@ def qcolour(q):
     return GREY
 
 
-def mbps(bps):
+def mbps(bps: int) -> str:
+    """A slope in Mb/s, the unit 802.1Qav states idleSlope in."""
     return f"{bps / 1e6:g} Mb/s"
 
 
-def pct(bps, port=1_000_000_000):
+def pct(bps: int, port: int = 1_000_000_000) -> str:
+    """A slope as its share of the port rate, which is what compares across queues."""
     return f"{100.0 * bps / port:.4g} %"
 
 
@@ -193,18 +210,15 @@ W = BX + 26 + BW + 40
 H = LY + LADDER_H + 176
 
 
-def qy(q):
+def qy(q: int) -> int:
     """Top of queue q's box. Highest priority is drawn topmost."""
     rank = (NQ - 1 - q) if TOP_WINS else q
     return LY + rank * (QH + QGAP)
 
 
-def svg():
-    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
-         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>',
-         '<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" '
-         'orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#546E7A"/></marker></defs>']
+def _svg_titles():
+    """The heading, the provenance note and which index wins the arbitration."""
+    o = []
     o.append('<text x="40" y="52" font-size="30" font-weight="bold" fill="#263238">'
              f'Egress queue map - {NQ} traffic classes, 802.1Q order</text>')
     o.append('<text x="40" y="82" font-size="15" fill="#546E7A">GENERATED from '
@@ -215,8 +229,12 @@ def svg():
              f'{"HIGHER index = HIGHER priority" if TOP_WINS else "LOWER index = HIGHER priority"}'
              f' - priority_encode scans {"from the top index down" if TOP_WINS else "from index 0 up"},'
              f' so q{NQ-1 if TOP_WINS else 0} is granted first.</text>')
+    return o
 
-    # ---- the strict-priority ladder ----
+
+def _svg_ladder():
+    """The strict-priority ladder: one box per queue, with its shaping badge."""
+    o = []
     o.append(f'<text x="{LX}" y="{LY-22}" font-size="17" font-weight="bold" fill="#78909C">'
              f'STRICT-PRIORITY LADDER (the arbiter grants top-down)</text>')
     for q in range(NQ):
@@ -247,8 +265,12 @@ def svg():
         rank = (NQ - q) if TOP_WINS else (q + 1)
         o.append(f'<text x="{LX-14}" y="{y+QH/2+6}" font-size="15" font-weight="bold" '
                  f'fill="#90A4AE" text-anchor="end">#{rank}</text>')
+    return o
 
-    # CBS bracket over the shaped-capable band
+
+def _svg_cbs_bracket():
+    """The 802.1Qav panel bracketing the shaped-capable band, when there is one."""
+    o = []
     if SHAPED:
         top = min(qy(q) for q in SHAPED)
         bot = max(qy(q) for q in SHAPED) + QH
@@ -271,8 +293,12 @@ def svg():
         for i, s in enumerate(lines):
             o.append(f'<text x="{bx+42}" y="{top+56+i*19}" font-size="12" fill="#1B5E20">'
                      f'{esc(s)}</text>')
+    return o
 
-    # the correctness constraint the ladder encodes
+
+def _svg_priority_note():
+    """The red panel: why gPTP sits below the shaped classes."""
+    o = []
     cy = LY + LADDER_H + 34
     o.append(f'<rect x="{LX}" y="{cy}" width="{BX+26+BW-LX}" height="106" rx="9" '
              f'fill="#FFEBEE" stroke="#C62828" stroke-width="2"/>')
@@ -287,8 +313,12 @@ def svg():
         "carries."]):
         o.append(f'<text x="{LX+16}" y="{cy+50+i*17}" font-size="11.8" fill="#B71C1C">'
                  f'{esc(s)}</text>')
+    return o
 
-    # ---- classification: what puts a frame in a queue ----
+
+def _svg_classification():
+    """The left column: how a tagged, control or unmatched frame picks its queue."""
+    o = []
     o.append(f'<text x="40" y="{LY-22}" font-size="17" font-weight="bold" fill="#78909C">'
              f'CLASSIFICATION - how a frame picks its queue</text>')
 
@@ -352,8 +382,12 @@ def svg():
     for y0 in (ty + 98, uy + rows_h / 2, fy + 29):
         o.append(f'<path d="M640,{y0:.0f} L{LX-56},{y0:.0f}" fill="none" stroke="#546E7A" '
                  f'stroke-width="2.2" marker-end="url(#arr)"/>')
+    return o
 
-    # arbiter -> MAC, right column under the CBS bracket
+
+def _svg_arbiter():
+    """The arbiter box under the CBS bracket: what grants the next frame."""
+    o = []
     ay = (max(qy(q) for q in SHAPED) + QH + 26) if SHAPED else LY
     o.append(f'<rect x="{BX+26}" y="{ay}" width="{BW}" height="104" rx="9" fill="{GOLD[0]}" '
              f'stroke="{GOLD[1]}" stroke-width="2"/>')
@@ -366,35 +400,54 @@ def svg():
             "gate allows it (unshaped = always)."]):
         o.append(f'<text x="{BX+42}" y="{ay+50+i*17}" font-size="12" fill="#795548">'
                  f'{esc(s)}</text>')
+    return o
 
+
+def svg() -> str:
+    """The whole rendered map, in the order the reader meets it."""
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
+         f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
+         f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>',
+         '<defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" '
+         'orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#546E7A"/></marker></defs>']
+    o += _svg_titles()
+    o += _svg_ladder()
+    o += _svg_cbs_bracket()
+    o += _svg_priority_note()
+    o += _svg_classification()
+    o += _svg_arbiter()
     o.append('</svg>')
     return "\n".join(o)
 
 
-def drawio():
+def drawio() -> str:
+    """The same map as an editable .drawio, for annotating without hand-drawing it."""
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
 
-    def vertex(nid, x, y, w, h, label, fill, stroke, fs=12, bold=False):
+    def vertex(nid: str, box: Box, label: str, palette: tuple[str, str],
+               fs: int = 12, bold: bool = False) -> None:
+        """Append one rounded vertex, in the DOC_MAP.gen.py fill/stroke style."""
+        fill, stroke = palette
         style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
                  f"fontSize={fs};align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;"
                  + ("fontStyle=1;" if bold else ""))
         cells.append(f'<mxCell id="{nid}" value="{esc(label)}" style="{style}" vertex="1" '
-                     f'parent="1"><mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" '
-                     f'as="geometry"/></mxCell>')
+                     f'parent="1"><mxGeometry x="{box.x}" y="{box.y}" width="{box.w}" '
+                     f'height="{box.h}" as="geometry"/></mxCell>')
 
-    vertex("title", 40, 20, 1500, 40,
+    vertex("title", Box(40, 20, 1500, 40),
            f"Egress queue map - {NQ} traffic classes, 802.1Q order "
-           f"(GENERATED from ethernet_packet_pkg.sv + milan_csr.sv)", "none", "none", 20, True)
+           f"(GENERATED from ethernet_packet_pkg.sv + milan_csr.sv)", ("none", "none"),
+           20, True)
     for q in range(NQ):
-        fill, stroke = qcolour(q)
         name, doc = QUEUES[q]
         rank = (NQ - q) if TOP_WINS else (q + 1)
         label = (f"#{rank}  q{q} {name}\n{doc}\n"
                  f"idleSlope {mbps(IDLE_1G[q])} ({pct(IDLE_1G[q])}) | {mbps(IDLE_100M[q])} @100M\n"
                  f"reset hiCredit {HI_RST[q]} B / loCredit {LO_RST[q]} B\n"
                  f"{'CBS-capable (REQ-CBS-02)' if q in SHAPED else 'strict priority - never CBS'}")
-        vertex(f"q{q}", LX, qy(q), QW, QH, label, fill, stroke)
-    vertex("tagged", 40, LY, 600, 196,
+        vertex(f"q{q}", Box(LX, qy(q), QW, QH), label, qcolour(q))
+    vertex("tagged", Box(40, LY, 600, 196),
            "TAGGED frame - 802.1Q decides\n"
            "eff_pcp = vlan_valid ? PCP : CLS_DEFAULT_PCP (0x304)\n"
            "regen = CLS_PRIO_REGEN[eff_pcp] (0x30C)\n"
@@ -402,33 +455,35 @@ def drawio():
            "queue = CLS_TC_QUEUE_MAP[tc] (0x310)\n"
            f"reset 0x{TCQ_RST:08X} = "
            + ", ".join(f"TC{tc}->q{TC_MAP[tc]}" for tc in range(8)),
-           PURPLE[0], PURPLE[1])
-    vertex("untagged", 40, LY + 224, 600, 26 + 20 * len(CTRL_ROWS) + 40,
+           PURPLE)
+    vertex("untagged", Box(40, LY + 224, 600, 26 + 20 * len(CTRL_ROWS) + 40),
            "UNTAGGED control - the DESTINATION MAC decides\n"
            + "\n".join(f"{a}  {w}" for a, w in CTRL_ROWS)
            + "\nA row hit needs no EtherType; 0x88F7 splits the shared address.",
-           BLUE[0], BLUE[1])
-    vertex("fall", 40, LY + 224 + 26 + 20 * len(CTRL_ROWS) + 62, 600, 58,
+           BLUE)
+    vertex("fall", Box(40, LY + 224 + 26 + 20 * len(CTRL_ROWS) + 62, 600, 58),
            "FALLTHROUGH - everything else, and any out-of-range map entry, clamped to q0",
-           GREY[0], GREY[1])
-    vertex("cbs", LX + QW + 60, min(qy(q) for q in SHAPED) + 8 if SHAPED else LY, 330,
-           (max(qy(q) for q in SHAPED) + QH - min(qy(q) for q in SHAPED) - 16) if SHAPED else 100,
+           GREY)
+    vertex("cbs",
+           Box(LX + QW + 60, min(qy(q) for q in SHAPED) + 8 if SHAPED else LY, 330,
+               (max(qy(q) for q in SHAPED) + QH - min(qy(q) for q in SHAPED) - 16)
+               if SHAPED else 100),
            "802.1Qav credit-based shaper\nREQ-CBS-02: SR classes only, never best effort.\n"
            f"CBS_EN_RST = "
            f"{'none shaped at reset' if not any(EN_RST) else ','.join('q%d' % q for q in range(NQ) if EN_RST[q])}"
            f"\nhi/loCredit at MAX_FRAME_SIZE = {MAX_FRAME} B",
-           GREEN[0], GREEN[1])
-    vertex("gptp", LX, LY + LADDER_H + 34, QW + 390, 106,
+           GREEN)
+    vertex("gptp", Box(LX, LY + LADDER_H + 34, QW + 390, 106),
            "Why gPTP sits BELOW the shaped classes - correctness, not preference.\n"
            "802.1Q-2018 8.6.8.2 assumes the shaped queues are the top of the strict-priority "
            "order; a strict-priority queue above them voids the credit accounting that bounds "
            "class-A latency. gPTP is unharmed - every event message is hardware-stamped at the "
-           "egress SFD.", "#FFEBEE", "#C62828")
-    vertex("arb", LX + QW + 60, LY + LADDER_H + 34, 330, 106,
+           "egress SFD.", ("#FFEBEE", "#C62828"))
+    vertex("arb", Box(LX + QW + 60, LY + LADDER_H + 34, 330, 106),
            "arbiter -> MAC TX\npriority_encode scans "
            + (f"q{NQ-1} down to q0" if TOP_WINS else f"q0 up to q{NQ-1}")
            + ", granting the first requester whose CBS gate allows it.",
-           GOLD[0], GOLD[1])
+           GOLD)
     for i, src in enumerate(("tagged", "untagged", "fall")):
         cells.append(f'<mxCell id="e{i}" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;'
                      f'strokeColor=#546E7A;strokeWidth=2;" edge="1" parent="1" source="{src}" '

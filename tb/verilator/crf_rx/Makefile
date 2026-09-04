@@ -41,7 +41,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
          -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
-                  -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u"
+                  -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u -Wall -Wextra"
 
 SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
 CPP  = sim_main.cpp

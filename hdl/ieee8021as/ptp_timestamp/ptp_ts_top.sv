@@ -297,7 +297,7 @@ module ptp_ts_top#(
   //! TX egress-timestamp ready pulse (REQ-PTP-04): assert for one axis_clk cycle
   //! when a completed TX timestamp record (last metadata beat) is accepted into
   //! the TX ts buffer. milan_csr latches this into IRQ_STATUS[0].
-  reg tx_ts_ready_r;
+  logic tx_ts_ready_r;
   always_ff @(posedge axis_clk) begin : tx_ts_ready_pulse
     if (!axis_resetn)
       tx_ts_ready_r <= 1'b0;

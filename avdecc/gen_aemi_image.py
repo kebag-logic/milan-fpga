@@ -60,16 +60,19 @@ this script has no way to know it and a guessed base is worse than no image.
 """
 import argparse
 import json
-import os
 import re
 import sys
+from pathlib import Path
+from typing import Any
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_REPO = os.path.dirname(_HERE)
-_DESC = os.path.join(_REPO, "protocol-processor", "hdl", "aecp", "desc")
+_HERE = Path(__file__).resolve().parent
+_REPO = _HERE.parent
+_DESC = _REPO / "protocol-processor" / "hdl" / "aecp" / "desc"
 
-sys.path.insert(0, _HERE)
-sys.path.insert(0, _DESC)
+#: `str()`, not the `Path`: `sys.path` entries are looked up by the import
+#: machinery's own path-hook cache, which is keyed on strings.
+sys.path.insert(0, str(_HERE))
+sys.path.insert(0, str(_DESC))
 
 import gen_aem_store as aem            # noqa: E402  (path set above)
 
@@ -78,7 +81,7 @@ try:
 except ImportError:                    # pragma: no cover - submodule missing
     print("gen_aemi_image: the protocol-processor submodule is not checked "
           "out (no %s).\n  git submodule update --init protocol-processor"
-          % os.path.relpath(_DESC, _REPO), file=sys.stderr)
+          % _DESC.relative_to(_REPO), file=sys.stderr)
     raise SystemExit(2)
 
 
@@ -92,8 +95,7 @@ AEM_SUPPORTED_C = 0x0000_0008
 #! frame_byte_f), with no CSR in the path, so there is no run-time value for
 #! the image to disagree with. Read, never restated: a copied mask diverges in
 #! silence and this one carries AEM_SUPPORTED.
-_PP_ADP_PKG = os.path.join(_REPO, "protocol-processor", "hdl", "adp",
-                           "pp_adp_pkg.sv")
+_PP_ADP_PKG = _REPO / "protocol-processor" / "hdl" / "adp" / "pp_adp_pkg.sv"
 
 #! Overlay spans this join deliberately does NOT write, with the reason each
 #! one is not a build constant. Anything not listed here and not resolved by
@@ -116,14 +118,13 @@ UNBAKED_SPANS = {
 }
 
 
-def adp_entity_capabilities():
+def adp_entity_capabilities() -> int:
     """entity_capabilities as the ADP engine advertises it."""
-    with open(_PP_ADP_PKG, encoding="utf-8") as fh:
-        m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
-                      fh.read())
+    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
+                  _PP_ADP_PKG.read_text(encoding="utf-8"))
     if not m:
         raise image.ImageError(
-            f"no ADP_ENTITY_CAPS_C in {os.path.relpath(_PP_ADP_PKG, _REPO)} - "
+            f"no ADP_ENTITY_CAPS_C in {_PP_ADP_PKG.relative_to(_REPO)} - "
             "entity_capabilities has no other source, and Table 7-2 makes the "
             "ENTITY descriptor repeat the ADPDU's value")
     caps = int(m.group(1).replace("_", ""), 16)
@@ -135,7 +136,7 @@ def adp_entity_capabilities():
     return caps
 
 
-def identity_from_overlay(ovl):
+def identity_from_overlay(ovl: dict[str, Any]) -> dict[str, bytes]:
     """The Table 7-2 identity, keyed by gen_aem_store's own overlay names.
 
     Every value is read from the artifact that already owns it - the overlay's
@@ -165,7 +166,9 @@ def identity_from_overlay(ovl):
     #! fabric time-sync engine announces.
     clock_id = mac[:3] + b"\xFF\xFE" + mac[3:]
 
-    def u(value, nbytes):
+    def u(value: str | int, nbytes: int) -> bytes:
+        """A big-endian field of nbytes. The overlay writes a number either as
+        JSON int or as a hex string, and both mean the same wire value."""
         return int(str(value), 16 if isinstance(value, str) else 10) \
             .to_bytes(nbytes, "big")
 
@@ -196,7 +199,7 @@ def identity_from_overlay(ovl):
     }
 
 
-def apply_identity(M, ident):
+def apply_identity(M: dict[str, Any], ident: dict[str, bytes]) -> bytes:
     """The ROM with every build-constant overlay span filled in.
 
     `M` is left untouched: the same model also generates the store's svh,
@@ -223,32 +226,19 @@ def apply_identity(M, ident):
     return bytes(rom)
 
 
-def model_to_document(M, ident):
-    """gen_aem_store model -> the kl-aem-image document `build()` consumes.
-
-    `M["directory"]` is the authority for both the membership and the byte
-    span of every descriptor: entries are `(type, index, base, length)` into
-    `M["rom"]`. Slicing the ROM rather than re-deriving the descriptors is the
-    point - it is the same bytes the rest of the build agreed on.
-
-    `ident` (identity_from_overlay) is REQUIRED and has no default. The
-    Table 7-2 identity used to be applied by RTL at read time and the
-    replacement supply chain simply did not carry the step forward; a default
-    here would let the next caller drop it just as quietly.
-
-    `M["NAMED"]` is the authority for the semantic names that SET_NAME and
-    GET_NAME expose. The image format stores those names in one flat table,
-    and its index rows carry the first entry for each descriptor run. This
-    join derives that table from the same inline bytes READ_DESCRIPTOR serves,
-    so all three command paths start coherent and the packer can enforce that
-    they remain structurally addressable.
-    """
-    rom = apply_identity(M, ident)
+def _descriptor_directory(M: dict[str, Any]) -> dict[tuple[int, int], tuple[int, int]]:
+    """{(type, index): (base, length)} - the ROM span of every descriptor."""
     directory = {(int(typ), int(idx)): (int(base), int(length))
                  for typ, idx, base, length in M["directory"]}
     if len(directory) != len(M["directory"]):
         raise image.ImageError("descriptor directory contains duplicate keys")
+    return directory
 
+
+def _named_slots(M: dict[str, Any],
+                 directory: dict[tuple[int, int], tuple[int, int]],
+                 ) -> dict[tuple[int, int], dict[int, int]]:
+    """{(type, index): {semantic index: ROM address}} from `M["NAMED"]`."""
     named = {}
     for typ, idx, semantic, addr in M["NAMED"]:
         key = (int(typ), int(idx))
@@ -264,24 +254,38 @@ def model_to_document(M, ident):
                 f"duplicate name for type 0x{key[0]:04X} index {key[1]} "
                 f"semantic index {semantic}")
         slots[semantic] = addr
+    return named
 
-    def text_from_name(raw, who):
-        if len(raw) != image.NAME_BYTES:
-            raise image.ImageError(
-                f"{who} is {len(raw)} bytes, expected {image.NAME_BYTES}")
-        head, separator, tail = raw.partition(b"\x00")
-        if separator and any(tail):
-            raise image.ImageError(
-                f"{who} has nonzero bytes after its first NUL")
-        try:
-            text = (head if separator else raw).decode("utf-8")
-        except UnicodeDecodeError as exc:
-            raise image.ImageError(f"{who} is not valid UTF-8: {exc}") from exc
-        if image.name_bytes(text) != raw:
-            raise image.ImageError(
-                f"{who} cannot be represented exactly by the image format")
-        return text
 
+def _text_from_name(raw: bytes, who: str) -> str:
+    """The string one NAME_BYTES ROM field holds, or why it cannot be one."""
+    if len(raw) != image.NAME_BYTES:
+        raise image.ImageError(
+            f"{who} is {len(raw)} bytes, expected {image.NAME_BYTES}")
+    head, separator, tail = raw.partition(b"\x00")
+    if separator and any(tail):
+        raise image.ImageError(
+            f"{who} has nonzero bytes after its first NUL")
+    try:
+        text = (head if separator else raw).decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise image.ImageError(f"{who} is not valid UTF-8: {exc}") from exc
+    if image.name_bytes(text) != raw:
+        raise image.ImageError(
+            f"{who} cannot be represented exactly by the image format")
+    return text
+
+
+def _name_table(rom: bytes,
+                directory: dict[tuple[int, int], tuple[int, int]],
+                named: dict[tuple[int, int], dict[int, int]],
+                ) -> tuple[list[str], dict[tuple[int, int], int]]:
+    """(the flat name table, {descriptor key: its first row in that table}).
+
+    Every name is read out of the same inline ROM bytes READ_DESCRIPTOR serves,
+    at the address `M["NAMED"]` gave it and only where that address is the one
+    the descriptor's layout puts it at.
+    """
     names = []
     first_name = {}
     per_type = {}
@@ -319,10 +323,15 @@ def model_to_document(M, ident):
                     raise image.ImageError(
                         f"type 0x{typ:04X} index {idx} semantic name "
                         f"{semantic} is outside its descriptor")
-                names.append(text_from_name(
+                names.append(_text_from_name(
                     rom[addr:addr + image.NAME_BYTES],
                     f"type 0x{typ:04X} index {idx} semantic name {semantic}"))
+    return names, first_name
 
+
+def _descriptor_rows(rom: bytes, M: dict[str, Any],
+                     first_name: dict[tuple[int, int], int]) -> list[dict[str, Any]]:
+    """One document row per directory entry, carrying its sliced ROM bytes."""
     descriptors = []
     for typ, idx, base, length in M["directory"]:
         desc = {
@@ -335,15 +344,46 @@ def model_to_document(M, ident):
         if key in first_name:
             desc["name_index"] = first_name[key]
         descriptors.append(desc)
+    return descriptors
+
+
+def model_to_document(M: dict[str, Any], ident: dict[str, bytes]) -> dict[str, Any]:
+    """gen_aem_store model -> the kl-aem-image document `build()` consumes.
+
+    `M["directory"]` is the authority for both the membership and the byte
+    span of every descriptor: entries are `(type, index, base, length)` into
+    `M["rom"]`. Slicing the ROM rather than re-deriving the descriptors is the
+    point - it is the same bytes the rest of the build agreed on.
+
+    `ident` (identity_from_overlay) is REQUIRED and has no default. The
+    Table 7-2 identity used to be applied by RTL at read time and the
+    replacement supply chain simply did not carry the step forward; a default
+    here would let the next caller drop it just as quietly.
+
+    `M["NAMED"]` is the authority for the semantic names that SET_NAME and
+    GET_NAME expose. The image format stores those names in one flat table,
+    and its index rows carry the first entry for each descriptor run. This
+    join derives that table from the same inline bytes READ_DESCRIPTOR serves,
+    so all three command paths start coherent and the packer can enforce that
+    they remain structurally addressable.
+    """
+    rom = apply_identity(M, ident)
+    directory = _descriptor_directory(M)
+    named = _named_slots(M, directory)
+    names, first_name = _name_table(rom, directory, named)
     return {
         "format": "kl-aem-image",
         "version": image.LAYOUT_VERSION,
         "names": names,
-        "descriptors": descriptors,
+        "descriptors": _descriptor_rows(rom, M, first_name),
     }
 
 
-def main():
+def main() -> int:
+    """Join the two halves for one build configuration: the overlay's model,
+    the Table 7-2 identity baked in, packed into the flat image the store
+    fetches from `PP_DESC_BASE_P`. Any layout refusal is reported and returns
+    1, because an image that packs wrongly enumerates wrongly."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("-o", "--out", required=True,
                     help="flat image to write at PP_DESC_BASE_P")
@@ -361,28 +401,29 @@ def main():
                          "wire (default 576)")
     args = ap.parse_args()
 
-    with open(args.overlay, encoding="utf-8") as fh:
-        ovl = json.load(fh)
+    overlay, out = Path(args.overlay), Path(args.out)
+    ovl = json.loads(overlay.read_text(encoding="utf-8"))
     M = aem.build_model(aem.spec_from_overlay(ovl))
-    origin = args.overlay
 
     try:
         doc = model_to_document(M, identity_from_overlay(ovl))
         if args.json:
-            with open(args.json, "w", encoding="utf-8") as fh:
-                json.dump(doc, fh, indent=2)
+            Path(args.json).write_text(json.dumps(doc, indent=2),
+                                       encoding="utf-8")
         img, report = image.build(doc, args.line_bytes)
     except image.ImageError as exc:
         print(f"gen_aemi_image: {exc}", file=sys.stderr)
         return 1
 
-    with open(args.out, "wb") as fh:
-        fh.write(img)
-    print(f"[gen_aemi_image] {origin}: {len(doc['descriptors'])} descriptors "
-          f"-> {args.out}, {len(img)} bytes")
+    out.write_bytes(img)
+    #! The two paths are echoed AS THE CALLER TYPED THEM (args.overlay,
+    #! args.out), not as the `Path`s above render them: a `Path` drops a
+    #! leading `./` and a trailing separator, and this line is what a build
+    #! log shows the operator when they go looking for the file they named.
+    print(f"[gen_aemi_image] {args.overlay}: {len(doc['descriptors'])} "
+          f"descriptors -> {args.out}, {len(img)} bytes")
     if args.map:
-        with open(args.map, "w", encoding="utf-8") as fh:
-            fh.write(report)
+        Path(args.map).write_text(report, encoding="utf-8")
     print(report, end="")
     return 0
 

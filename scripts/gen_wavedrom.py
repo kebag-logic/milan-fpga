@@ -77,6 +77,7 @@ def tracked_names(output: Path, source: Path) -> tuple[str, str] | None:
 
 
 def tag_png(path: Path, svg: str, source: Path) -> None:
+    """Stamp the raster with the SVG and JSON digests --check later reads back."""
     set_text_fields(
         path,
         {
@@ -87,6 +88,8 @@ def tag_png(path: Path, svg: str, source: Path) -> None:
 
 
 def render_svg(src: Path, background: str | None) -> str:
+    """The WaveDrom render, with an opaque backdrop injected when one is asked
+    for - the default render is transparent and unreadable on a dark page."""
     svg = wavedrom.render(src.read_text(encoding="utf-8")).tostring()
     if background is None:
         return svg
@@ -103,6 +106,7 @@ def render_png(
     background: str | None,
     source: Path,
 ) -> None:
+    """Rasterise the SVG through rsvg-convert at `width`, then tag the PNG."""
     with tempfile.TemporaryDirectory(prefix="wavedrom-") as directory:
         temporary_svg = Path(directory) / "diagram.svg"
         temporary_svg.write_text(svg, encoding="utf-8")
@@ -117,6 +121,8 @@ def render_png(
 
 
 def selftest() -> int:
+    """Prove the three raster controls still fail loudly: the metadata
+    round-trip, a valid PNG whose pixels changed, and a damaged CRC."""
     with tempfile.TemporaryDirectory(prefix="wavedrom-selftest-") as directory:
         path = Path(directory) / "fixture.png"
         source_path = Path(directory) / "fixture.json"
@@ -195,7 +201,9 @@ def selftest() -> int:
     return 0
 
 
-def main():
+def main() -> int:
+    """Render one diagram or --check it; 1 when a render is stale, 2 on a bad
+    option."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     if len(sys.argv) < 2:

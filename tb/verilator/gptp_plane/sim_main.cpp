@@ -41,24 +41,38 @@
 #include <vector>
 #include <verilated.h>
 #include "Vgptp_plane_wrap.h"
+#include "../../common/verilator_harness.hpp"
 
-static const uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
-static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
-static const uint32_t OUR_CQ = 0xF8FE436A;
-static const uint64_t GMID = 0x00AACCFFFE010203ull;
+constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
+constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
+constexpr uint32_t OUR_CQ = 0xF8FE436A;
+constexpr uint64_t GMID = 0x00AACCFFFE010203ull;
 
-static const uint32_t FL_PRESENT = 1, FL_AMGM = 2, FL_ASCAP = 4,
-                      FL_SYNCOK = 8;
+constexpr uint32_t FL_PRESENT = 1;
+constexpr uint32_t FL_AMGM = 2;
+constexpr uint32_t FL_ASCAP = 4;
+constexpr uint32_t FL_SYNCOK = 8;
 
-static int checks = 0, fails = 0;
-static void expect(const char *what, uint64_t got, uint64_t exp) {
-  checks++;
-  if (got != exp) {
-    fails++;
-    printf("FAIL %-30s got %016llx exp %016llx\n", what,
-           (unsigned long long)got, (unsigned long long)exp);
-  }
-}
+// Loop guards. Every wait below is bounded by a bench-cycle budget that is
+// generous by design: it exists so a broken DUT reports instead of hanging.
+constexpr uint64_t kBootPdelayReqTicks = 3200000;   // boot -> first Pdelay_Req
+constexpr uint64_t kAsCapableTicks = 6000000ull;    // second exchange->capable
+constexpr uint64_t kGrandmasterTicks = 10000000ull; // announce timeout ride-out
+constexpr uint64_t kTxWaitTicks = 800000;           // a frame reaches the wire
+
+// One sync interval at --clk-hz 2000000 (see the timescale note above).
+constexpr uint64_t kSyncIntervalTicks = 250000;
+
+// Phase 4's acceptance window, in the terms the file header states it:
+// ONE re-base "near +1 ms", then offset under 150 ns, the latched addend at
+// the +100 ppm ideal of 13,421 Q8.24 units within 15%, and the counter's
+// advance tracking the master's within 100 ns.
+constexpr int64_t kRebaseMinNs = 995000;
+constexpr int64_t kRebaseMaxNs = 1005000;
+constexpr int32_t kOffsetLockNs = 150;
+constexpr int32_t kAddendMinQ824 = 11408;
+constexpr int32_t kAddendMaxQ824 = 15434;
+constexpr int64_t kRateTrackNs = 100;
 
 struct Frame {
   std::vector<uint8_t> b;
@@ -110,239 +124,284 @@ static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
   return g;
 }
 
-static Vgptp_plane_wrap *dut;
-static uint64_t cyc = 0;
-static std::vector<std::vector<uint8_t>> txf;
-static std::vector<uint64_t> txns;
-static std::vector<uint8_t> cur;
-static bool in_tx = false;
-static bool auto_txts = false;
-static int auto_pend = -1;
-static std::vector<uint64_t> steps_seen;
-static std::vector<uint32_t> adj_seen;
-
 struct StampReturn {
   size_t frame_idx;
   uint16_t seq;
   uint8_t type;
   bool automatic;
 };
-static std::vector<StampReturn> stamp_returns;
 
 //! Fields reported by a boundary stamper come from the transmitted PTP
 //! header: messageType is frame byte 14's low nibble and sequenceId is
 //! frame bytes 44..45. Bounds return zero so an earlier missing-frame
 //! assertion reports cleanly instead of crashing the rest of the run.
 static uint16_t seq_of(const std::vector<uint8_t> &f) {
-  return f.size() > 45 ? (uint16_t)((f[44] << 8) | f[45]) : 0;
+  return f.size() > 45 ? static_cast<uint16_t>((f[44] << 8) | f[45]) : 0;
 }
 static uint8_t type_of(const std::vector<uint8_t> &f) {
-  return f.size() > 14 ? (uint8_t)(f[14] & 0xF) : 0;
+  return f.size() > 14 ? static_cast<uint8_t>(f[14] & 0xF) : 0;
 }
 
-static uint64_t phc() { return dut->phc_ns_o; }
+static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
+  uint64_t v = 0;
+  for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
+  return v;
+}
+static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
+  return (static_cast<uint32_t>(f[o]) << 24) |
+         (static_cast<uint32_t>(f[o + 1]) << 16) |
+         (static_cast<uint32_t>(f[o + 2]) << 8) | f[o + 3];
+}
 
-static void tick() {
-  if (auto_pend >= 0 && !dut->txts_valid_i) {
-    size_t idx = (size_t)auto_pend;
-    uint64_t ns = phc() + 200;
+namespace {
+
+//! The whole bench: the model, the wire BFM, the auto peer and the five
+//! phases, so no reader has to hold thirty file-scope names in their head to
+//! follow one of them (Core Guidelines I.2).
+class GptpPlaneHarness {
+ public:
+  //! Every phase, in the order the file header lists them.
+  int execute() {
+    bring_the_plane_out_of_reset();
+    prove_boot_exchange_is_not_yet_capable();
+    prove_second_exchange_raises_ascapable();
+    prove_better_announce_is_adopted();
+    prove_closed_loop_steers_the_real_counter();
+    prove_grandmaster_follow_up_rides_the_real_counter();
+    grade_every_stamp_return_tag();
+
+    printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+    return fails ? 1 : 0;
+  }
+
+ private:
+  int checks = 0;
+  int fails = 0;
+  void expect(const char *what, uint64_t got, uint64_t exp) {
+    checks++;
+    if (got != exp) {
+      fails++;
+      printf("FAIL %-30s got %016llx exp %016llx\n", what,
+             static_cast<unsigned long long>(got),
+             static_cast<unsigned long long>(exp));
+    }
+  }
+
+  const milan::tb::Model<Vgptp_plane_wrap> model;
+  Vgptp_plane_wrap *dut = model.get();
+  uint64_t cyc = 0;
+  std::vector<std::vector<uint8_t>> txf;
+  std::vector<uint64_t> txns;
+  std::vector<uint8_t> cur;
+  bool in_tx = false;
+  bool auto_txts = false;
+  int auto_pend = -1;
+  std::vector<uint64_t> steps_seen;
+  std::vector<uint32_t> adj_seen;
+
+  std::vector<StampReturn> stamp_returns;
+
+  uint64_t phc() { return dut->phc_ns_o; }
+
+  void tick() {
+    if (auto_pend >= 0 && !dut->txts_valid_i) {
+      size_t idx = static_cast<size_t>(auto_pend);
+      uint64_t ns = phc() + 200;
+      dut->txts_valid_i = 1;
+      dut->txts_ns_i = ns;
+      dut->txts_seq_i = idx < txf.size() ? seq_of(txf[idx]) : 0;
+      dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
+      if (idx < txns.size()) txns[idx] = ns;
+      stamp_returns.push_back({idx, static_cast<uint16_t>(dut->txts_seq_i),
+                               static_cast<uint8_t>(dut->txts_type_i), true});
+      auto_pend = -1;
+    }
+    dut->clk_i = 0; dut->eval();
+    dut->clk_i = 1; dut->eval();
+    if (dut->tap_adj_we_o) adj_seen.push_back(dut->tap_adj_o);
+    if (dut->tap_step_we_o) steps_seen.push_back(dut->tap_step_o);
+    if (dut->tx_valid_o) {
+      if (dut->tx_sof_o) { cur.clear(); in_tx = true; }
+      if (in_tx) cur.push_back(dut->tx_data_o);
+      if (dut->tx_eof_o && in_tx) {
+        txf.push_back(cur);
+        txns.push_back(0);
+        if (auto_txts) auto_pend = static_cast<int>(txf.size()) - 1;
+        in_tx = false;
+      }
+    }
+    dut->txts_valid_i = 0;
+    cyc++;
+  }
+
+  void run(uint64_t n) { while (n--) tick(); }
+
+  void send_frame(const std::vector<uint8_t> &bytes, uint64_t rx_ts) {
+    dut->rx_ts_i = rx_ts;
+    for (size_t i = 0; i < bytes.size(); i++) {
+      dut->rx_valid_i = 1;
+      dut->rx_data_i = bytes[i];
+      dut->rx_sof_i = (i == 0);
+      dut->rx_eof_i = (i + 1 == bytes.size());
+      dut->rx_err_i = 0;
+      tick();
+    }
+    dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
+  }
+
+  void txts_idx(size_t idx, uint64_t ns) {
     dut->txts_valid_i = 1;
     dut->txts_ns_i = ns;
     dut->txts_seq_i = idx < txf.size() ? seq_of(txf[idx]) : 0;
     dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
-    if (idx < txns.size()) txns[idx] = ns;
-    stamp_returns.push_back({idx, (uint16_t)dut->txts_seq_i,
-                             (uint8_t)dut->txts_type_i, true});
-    auto_pend = -1;
-  }
-  dut->clk_i = 0; dut->eval();
-  dut->clk_i = 1; dut->eval();
-  if (dut->tap_adj_we_o) adj_seen.push_back(dut->tap_adj_o);
-  if (dut->tap_step_we_o) steps_seen.push_back(dut->tap_step_o);
-  if (dut->tx_valid_o) {
-    if (dut->tx_sof_o) { cur.clear(); in_tx = true; }
-    if (in_tx) cur.push_back(dut->tx_data_o);
-    if (dut->tx_eof_o && in_tx) {
-      txf.push_back(cur);
-      txns.push_back(0);
-      if (auto_txts) auto_pend = (int)txf.size() - 1;
-      in_tx = false;
-    }
-  }
-  dut->txts_valid_i = 0;
-  cyc++;
-}
-
-static void run(uint64_t n) { while (n--) tick(); }
-
-static void send_frame(const std::vector<uint8_t> &bytes, uint64_t rx_ts) {
-  dut->rx_ts_i = rx_ts;
-  for (size_t i = 0; i < bytes.size(); i++) {
-    dut->rx_valid_i = 1;
-    dut->rx_data_i = bytes[i];
-    dut->rx_sof_i = (i == 0);
-    dut->rx_eof_i = (i + 1 == bytes.size());
-    dut->rx_err_i = 0;
+    stamp_returns.push_back({idx, static_cast<uint16_t>(dut->txts_seq_i),
+                             static_cast<uint8_t>(dut->txts_type_i), false});
     tick();
+    dut->txts_valid_i = 0;
   }
-  dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
-}
 
-static void txts_idx(size_t idx, uint64_t ns) {
-  dut->txts_valid_i = 1;
-  dut->txts_ns_i = ns;
-  dut->txts_seq_i = idx < txf.size() ? seq_of(txf[idx]) : 0;
-  dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
-  stamp_returns.push_back({idx, (uint16_t)dut->txts_seq_i,
-                           (uint8_t)dut->txts_type_i, false});
-  tick();
-  dut->txts_valid_i = 0;
-}
+  // ---- auto peer: answers every Pdelay_Req the plane transmits --------------
+  size_t pd_seen = 0;
+  bool pd_on = false;
 
-// ---- auto peer: answers every Pdelay_Req the plane transmits --------------
-static size_t pd_seen = 0;
-static bool pd_on = false;
-
-static uint64_t peer_ns(uint64_t ours) {
-  return 5000000ull + ours + (ours >> 13);
-}
-
-static void service_pdelay() {
-  while (pd_seen < txf.size()) {
-    size_t i = pd_seen;
-    if ((txf[i].size() <= 14) || ((txf[i][14] & 0xF) != 0x2)) {
-      pd_seen++;
-      continue;
-    }
-    if (txns[i] == 0) return;
-    pd_seen++;
-    if (!pd_on) continue;
-    uint16_t seq = (uint16_t)((txf[i][44] << 8) | txf[i][45]);
-    uint64_t t1 = txns[i];
-    uint64_t t2 = peer_ns(t1 + 300);
-    uint64_t t3 = t2 + 20000;                    // D = ~600 ns
-    uint64_t t4 = t1 + 21200;
-    Frame f = ptp(0x3, seq, 0, 0x0200, 20);
-    f.ts(t2); f.u64(OUR_CID); f.u16(1);
-    send_frame(f.b, t4);
-    run(400);
-    Frame g = ptp(0xA, seq, 0, 0x0000, 20);
-    g.ts(t3); g.u64(OUR_CID); g.u16(1);
-    send_frame(g.b, t4 + 1000);
-    run(400);
+  static uint64_t peer_ns(uint64_t ours) {
+    return 5000000ull + ours + (ours >> 13);
   }
-}
 
-static void run_svc(uint64_t n) {
-  while (n--) { tick(); if ((n & 255) == 0) service_pdelay(); }
-}
-
-static bool wait_flags(uint32_t mask, uint32_t want, uint64_t max_ticks) {
-  for (uint64_t n = 0; n < max_ticks; n++) {
-    if ((dut->pub_flags_o & mask) == want) return true;
-    tick();
-    if ((n & 255) == 0) service_pdelay();
-  }
-  return false;
-}
-
-static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
-  uint64_t v = 0; for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
-  return v;
-}
-static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
-  return ((uint32_t)f[o] << 24) | ((uint32_t)f[o + 1] << 16) |
-         ((uint32_t)f[o + 2] << 8) | f[o + 3];
-}
-
-static size_t tx_seen = 0;
-static std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles,
-                                    size_t *idx_out = nullptr) {
-  for (uint64_t n = 0; n < max_cycles; n++) {
-    while (tx_seen < txf.size()) {
-      size_t i = tx_seen++;
-      if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype)) {
-        if (idx_out) *idx_out = i;
-        return txf[i];
+  void service_pdelay() {
+    while (pd_seen < txf.size()) {
+      size_t i = pd_seen;
+      if ((txf[i].size() <= 14) || ((txf[i][14] & 0xF) != 0x2)) {
+        pd_seen++;
+        continue;
       }
+      if (txns[i] == 0) return;
+      pd_seen++;
+      if (!pd_on) continue;
+      uint16_t seq = static_cast<uint16_t>((txf[i][44] << 8) | txf[i][45]);
+      uint64_t t1 = txns[i];
+      uint64_t t2 = peer_ns(t1 + 300);
+      uint64_t t3 = t2 + 20000;                    // D = ~600 ns
+      uint64_t t4 = t1 + 21200;
+      Frame f = ptp(0x3, seq, 0, 0x0200, 20);
+      f.ts(t2); f.u64(OUR_CID); f.u16(1);
+      send_frame(f.b, t4);
+      run(400);
+      Frame g = ptp(0xA, seq, 0, 0x0000, 20);
+      g.ts(t3); g.u64(OUR_CID); g.u16(1);
+      send_frame(g.b, t4 + 1000);
+      run(400);
     }
-    tick();
-    if ((n & 255) == 0) service_pdelay();
   }
-  printf("FAIL wait_tx type %d: timeout\n", mtype);
-  fails++; checks++;
-  return {};
-}
 
-int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new Vgptp_plane_wrap;
+  void run_svc(uint64_t n) {
+    while (n--) { tick(); if ((n & 255) == 0) service_pdelay(); }
+  }
 
-  dut->rst_n = 0;
-  dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
-  dut->rx_err_i = 0; dut->rx_data_i = 0; dut->rx_ts_i = 0;
-  dut->tx_ready_i = 1;
-  dut->txts_valid_i = 0; dut->txts_ns_i = 0; dut->txts_seq_i = 0;
-  dut->txts_type_i = 0;
-  for (int i = 0; i < 8; i++) tick();
-  dut->rst_n = 1;
+  bool wait_flags(uint32_t mask, uint32_t want, uint64_t max_ticks) {
+    for (uint64_t n = 0; n < max_ticks; n++) {
+      if ((dut->pub_flags_o & mask) == want) return true;
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    return false;
+  }
+
+  size_t tx_seen = 0;
+  std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles,
+                               size_t *idx_out = nullptr) {
+    for (uint64_t n = 0; n < max_cycles; n++) {
+      while (tx_seen < txf.size()) {
+        size_t i = tx_seen++;
+        if (mtype < 0 || (txf[i].size() > 14 && (txf[i][14] & 0xF) == mtype)) {
+          if (idx_out) *idx_out = i;
+          return txf[i];
+        }
+      }
+      tick();
+      if ((n & 255) == 0) service_pdelay();
+    }
+    printf("FAIL wait_tx type %d: timeout\n", mtype);
+    fails++; checks++;
+    return {};
+  }
+
+  void bring_the_plane_out_of_reset() {
+    dut->rst_n = 0;
+    dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
+    dut->rx_err_i = 0; dut->rx_data_i = 0; dut->rx_ts_i = 0;
+    dut->tx_ready_i = 1;
+    dut->txts_valid_i = 0; dut->txts_ns_i = 0; dut->txts_seq_i = 0;
+    dut->txts_type_i = 0;
+    for (int i = 0; i < 8; i++) tick();
+    dut->rst_n = 1;
+  }
 
   // ---- 1: boot -> Pdelay_Req; one exchange is not capable ---------------
-  size_t req_idx = 0;
-  std::vector<uint8_t> req = wait_tx(0x2, 3200000, &req_idx);
-  expect("counter is ticking", phc() > 0, 1);
-  expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
-  uint64_t t1 = phc() + 200;
-  txts_idx(req_idx, t1);
-  run(2000);
-  {
-    uint16_t req_seq = seq_of(req);
-    uint64_t t2 = peer_ns(t1 + 300), t3 = t2 + 20000, t4 = t1 + 21200;
-    Frame f = ptp(0x3, req_seq, 0, 0x0200, 20);
-    f.ts(t2); f.u64(OUR_CID); f.u16(1);
-    send_frame(f.b, t4);
-    run(4000);
-    Frame g = ptp(0xA, req_seq, 0, 0x0000, 20);
-    g.ts(t3); g.u64(OUR_CID); g.u16(1);
-    send_frame(g.b, t4 + 1000);
-    run(6000);
+  void prove_boot_exchange_is_not_yet_capable() {
+    size_t req_idx = 0;
+    std::vector<uint8_t> req = wait_tx(0x2, kBootPdelayReqTicks, &req_idx);
+    expect("counter is ticking", phc() > 0, 1);
+    expect("asCapable low at boot", dut->pub_flags_o & FL_ASCAP, 0);
+    uint64_t t1 = phc() + 200;
+    txts_idx(req_idx, t1);
+    run(2000);
+    {
+      uint16_t req_seq = seq_of(req);
+      uint64_t t2 = peer_ns(t1 + 300);
+      uint64_t t3 = t2 + 20000;
+      uint64_t t4 = t1 + 21200;
+      Frame f = ptp(0x3, req_seq, 0, 0x0200, 20);
+      f.ts(t2); f.u64(OUR_CID); f.u16(1);
+      send_frame(f.b, t4);
+      run(4000);
+      Frame g = ptp(0xA, req_seq, 0, 0x0000, 20);
+      g.ts(t3); g.u64(OUR_CID); g.u16(1);
+      send_frame(g.b, t4 + 1000);
+      run(6000);
+    }
+    expect("pdelay measured", dut->pub_pdelay_ns_o, 600);
+    expect("one exchange not capable", dut->pub_flags_o & FL_ASCAP, 0);
   }
-  expect("pdelay measured", dut->pub_pdelay_ns_o, 600);
-  expect("one exchange not capable", dut->pub_flags_o & FL_ASCAP, 0);
 
   // ---- 2: the live peer raises asCapable at the second exchange ---------
-  auto_txts = true;
-  pd_seen = txf.size();
-  pd_on = true;
-  expect("second exchange -> capable",
-         wait_flags(FL_ASCAP, FL_ASCAP, 6000000ull), 1);
+  void prove_second_exchange_raises_ascapable() {
+    auto_txts = true;
+    pd_seen = txf.size();
+    pd_on = true;
+    expect("second exchange -> capable",
+           wait_flags(FL_ASCAP, FL_ASCAP, kAsCapableTicks), 1);
+  }
 
   // ---- 3: better announce -> adopt; the publish bank is the contract ----
-  {
-    Frame f = ptp(0xB, 10, 0, 0x0008, 30);
-    for (int i = 0; i < 10; i++) f.u8(0);
-    f.u16(0xFFC4); f.u8(0);
-    f.u8(100); f.u32(OUR_CQ); f.u8(248);
-    f.u64(GMID);
-    f.u16(0); f.u8(0xA0);
-    send_frame(f.b, phc() + 150);
-    run_svc(6000);
+  void prove_better_announce_is_adopted() {
+    {
+      Frame f = ptp(0xB, 10, 0, 0x0008, 30);
+      for (int i = 0; i < 10; i++) f.u8(0);
+      f.u16(0xFFC4); f.u8(0);
+      f.u8(100); f.u32(OUR_CQ); f.u8(248);
+      f.u64(GMID);
+      f.u16(0); f.u8(0xA0);
+      send_frame(f.b, phc() + 150);
+      run_svc(6000);
+    }
+    expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
+    expect("pub gm id", dut->pub_gm_id_o, GMID);
   }
-  expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
-  expect("pub gm id", dut->pub_gm_id_o, GMID);
 
   // ---- 4: closed loop -- the engine steers the REAL counter -------------
   // master: independent of the steered counter, +100 ppm in counter
   // time (8 ns + 8/10000 per bench cycle), starting 1 ms ahead
-  {
+  void prove_closed_loop_steers_the_real_counter() {
     size_t steps_before = steps_seen.size();
     uint64_t mst_base =
         phc() + 1000000ull - cyc * 8ull - cyc / 1250ull;
     uint16_t sq = 0x0300;
-    uint64_t c_lock = 0, m_lock = 0;             // window for rate check
+    uint64_t c_lock = 0;                         // window for rate check
+    uint64_t m_lock = 0;
     for (int k = 0; k < 24; k++) {
       if ((k % 8) == 0) {                        // keep the GM elected
-        Frame a = ptp(0xB, (uint16_t)(20 + k), 0, 0x0008, 30);
+        Frame a = ptp(0xB, static_cast<uint16_t>(20 + k), 0, 0x0008, 30);
         for (int i = 0; i < 10; i++) a.u8(0);
         a.u16(0xFFC4); a.u8(0);
         a.u8(100); a.u32(OUR_CQ); a.u8(248);
@@ -351,9 +410,11 @@ int main(int argc, char **argv) {
         send_frame(a.b, phc() + 150);
         run(4000);
       }
-      run_svc(250000);                           // one sync interval
-      if (k == 20) { c_lock = phc(); m_lock = mst_base + cyc * 8ull
-                                              + cyc / 1250ull; }
+      run_svc(kSyncIntervalTicks);               // one sync interval
+      if (k == 20) {
+        c_lock = phc();
+        m_lock = mst_base + cyc * 8ull + cyc / 1250ull;
+      }
       uint64_t origin = mst_base + cyc * 8ull + cyc / 1250ull;
       uint64_t local_rx = phc() + 150;
       Frame f = ptp(0x0, sq, 0, 0x0208, 10);
@@ -369,23 +430,28 @@ int main(int argc, char **argv) {
     // a bench that fails must REPORT, not crash: an empty vector here
     // means the servo never stepped, which is exactly the interesting
     // failure, and .back() on it takes the rest of the run with it
-    int64_t step = steps_seen.empty() ? 0 : (int64_t)steps_seen.back();
+    int64_t step =
+        steps_seen.empty() ? 0 : static_cast<int64_t>(steps_seen.back());
     expect("re-base near +1 ms",
-           !steps_seen.empty() && step > 995000 && step < 1005000, 1);
-    int32_t final_off = (int32_t)dut->pub_offset_o;
+           !steps_seen.empty() && step > kRebaseMinNs && step < kRebaseMaxNs,
+           1);
+    int32_t final_off = static_cast<int32_t>(dut->pub_offset_o);
     expect("measured offset locked",
-           final_off > -150 && final_off < 150, 1);
+           final_off > -kOffsetLockNs && final_off < kOffsetLockNs, 1);
     // +100 ppm of 8 ns/tick = 0.0008 ns/tick = 13,421 Q8.24 units
-    int32_t final_adj = adj_seen.empty() ? 0 : (int32_t)adj_seen.back();
+    int32_t final_adj =
+        adj_seen.empty() ? 0 : static_cast<int32_t>(adj_seen.back());
     expect("addend at the +100 ppm ideal",
-           !adj_seen.empty() && final_adj > 11408 && final_adj < 15434, 1);
+           !adj_seen.empty() && final_adj > kAddendMinQ824 &&
+               final_adj < kAddendMaxQ824,
+           1);
     // the REAL proof: the counter's advance tracks the master's
     uint64_t c_now = phc();
     uint64_t m_now = mst_base + cyc * 8ull + cyc / 1250ull;
-    int64_t rate_err = (int64_t)(c_now - c_lock) -
-                       (int64_t)(m_now - m_lock);
+    int64_t rate_err = static_cast<int64_t>(c_now - c_lock) -
+                       static_cast<int64_t>(m_now - m_lock);
     expect("counter tracks the master",
-           rate_err > -100 && rate_err < 100, 1);
+           rate_err > -kRateTrackNs && rate_err < kRateTrackNs, 1);
     expect("sync-ok held through lock",
            dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
   }
@@ -401,22 +467,22 @@ int main(int argc, char **argv) {
   // TX timestamp this bench drives at :119-122. The SLICE's counter wire is a
   // different signal and remains covered by tb/verilator/gptp_shadow through
   // its ingress-capture and boundary-stamper consumers (milan-fpga #211).
-  {
+  void prove_grandmaster_follow_up_rides_the_real_counter() {
     expect("quiet ride to grandmaster",
-           wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
+           wait_flags(FL_AMGM, FL_AMGM, kGrandmasterTicks), 1);
     tx_seen = txf.size();
-    std::vector<uint8_t> sy = wait_tx(0x0, 800000);
+    std::vector<uint8_t> sy = wait_tx(0x0, kTxWaitTicks);
     expect("sync long enough to parse", sy.size() >= 58, 1);
     if (sy.size() >= 58) {
       uint64_t body = fld48(sy, 48) * 1000000000ull + fld32(sy, 54);
       expect("two-step Sync reserved body is zero (Table 11-8)", body, 0ull);
     }
-    std::vector<uint8_t> fu = wait_tx(0x8, 800000);
+    std::vector<uint8_t> fu = wait_tx(0x8, kTxWaitTicks);
     expect("follow_up long enough to parse", fu.size() >= 90, 1);
     if (fu.size() >= 90) {
       uint64_t origin = fld48(fu, 48) * 1000000000ull + fld32(fu, 54);
       uint64_t now = phc();
-      int64_t d = (int64_t)(now - origin);
+      int64_t d = static_cast<int64_t>(now - origin);
       expect("follow_up origin is the real counter",
              d >= 0 && d < 300000, 1);
     }
@@ -427,27 +493,35 @@ int main(int argc, char **argv) {
   // tag prevents its Follow_Up. Grade the harness independently too, so a
   // future constant or stale tag is named rather than surfacing only as a
   // downstream timeout.
-  int tag_wrong = 0, auto_count = 0;
-  bool saw_nonzero_pdreq = false, saw_sync = false;
-  for (const StampReturn &r : stamp_returns) {
-    if (r.frame_idx >= txf.size() || txf[r.frame_idx].size() <= 45) {
-      tag_wrong++;
-      continue;
+  void grade_every_stamp_return_tag() {
+    int tag_wrong = 0;
+    int auto_count = 0;
+    bool saw_nonzero_pdreq = false;
+    bool saw_sync = false;
+    for (const StampReturn &r : stamp_returns) {
+      if (r.frame_idx >= txf.size() || txf[r.frame_idx].size() <= 45) {
+        tag_wrong++;
+        continue;
+      }
+      const std::vector<uint8_t> &f = txf[r.frame_idx];
+      if (r.seq != static_cast<uint16_t>((f[44] << 8) | f[45])) tag_wrong++;
+      if (r.type != static_cast<uint8_t>(f[14] & 0xF)) tag_wrong++;
+      if (!r.automatic) continue;
+      auto_count++;
+      if (r.type == 0x2 && r.seq != 0) saw_nonzero_pdreq = true;
+      if (r.type == 0x0) saw_sync = true;
     }
-    const std::vector<uint8_t> &f = txf[r.frame_idx];
-    if (r.seq != (uint16_t)((f[44] << 8) | f[45])) tag_wrong++;
-    if (r.type != (uint8_t)(f[14] & 0xF)) tag_wrong++;
-    if (!r.automatic) continue;
-    auto_count++;
-    if (r.type == 0x2 && r.seq != 0) saw_nonzero_pdreq = true;
-    if (r.type == 0x0) saw_sync = true;
+    expect("every return carries its selected frame's two tags", tag_wrong, 0);
+    expect("automatic timestamp return path exercised", auto_count > 0, 1);
+    expect("auto return covers a nonzero Pdelay sequence", saw_nonzero_pdreq, 1);
+    expect("auto return covers Sync messageType", saw_sync, 1);
   }
-  expect("every return carries its selected frame's two tags", tag_wrong, 0);
-  expect("automatic timestamp return path exercised", auto_count > 0, 1);
-  expect("auto return covers a nonzero Pdelay sequence", saw_nonzero_pdreq, 1);
-  expect("auto return covers Sync messageType", saw_sync, 1);
+};
 
-  printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
-  delete dut;
-  return fails ? 1 : 0;
+}  // namespace
+
+int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
+  GptpPlaneHarness harness;
+  return harness.execute();
 }

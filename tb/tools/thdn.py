@@ -24,6 +24,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING
+
+# PEP 563 is in force above, so this name is wanted by a type checker and never
+# at run time - numpy stays imported inside the two functions that need it.
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 class ThdnError(Exception):
@@ -43,6 +49,12 @@ class ThdnResult:
     clipped: bool
 
     def as_dict(self) -> dict:
+        """The measurement flattened for serialisation, conditions included.
+
+        Every field travels, not just `thdn_dbfs`: a number reported without
+        the periods, bins and clipping flag it was taken under cannot be
+        compared with the next run's.
+        """
         return asdict(self)
 
 
@@ -66,7 +78,7 @@ def decode_s32be(raw: bytes, channels: int) -> "list":
     return [arr[:, c] for c in range(channels)]
 
 
-def analyse(samples, *, rate_hz: int, f0_hz: int,
+def analyse(samples: ArrayLike, *, rate_hz: int, f0_hz: int,
             channel: int = 0) -> ThdnResult:
     """THD+N of one channel. `samples` is a 1-D float array in [-1, 1)."""
     import numpy as np

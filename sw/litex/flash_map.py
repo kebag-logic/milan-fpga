@@ -17,20 +17,20 @@ Usage:
 """
 import ast
 import functools
-import os
+from pathlib import Path
+from typing import Any
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-SOC = os.path.join(HERE, "milan_soc.py")
+HERE = Path(__file__).resolve().parent
+SOC = HERE / "milan_soc.py"
 
 
 @functools.lru_cache(maxsize=None)
 def _tree(src):
     """The SoC source parsed ONCE per process: four names, one parse."""
-    with open(src, encoding="utf-8") as fh:
-        return ast.parse(fh.read())
+    return ast.parse(Path(src).read_text(encoding="utf-8"))
 
 
-def literal(name, src=SOC):
+def literal(name: str, src: Path = SOC) -> Any:
     """One top-level literal out of the SoC source, by name."""
     for node in _tree(src).body:
         if isinstance(node, ast.Assign):
@@ -52,7 +52,7 @@ _literal = literal          # the name the first consumers were written against
 READ_ONLY = frozenset(literal("FLASHBOOT_LAYOUT"))
 
 
-def load_map():
+def load_map() -> tuple[list[tuple[str, int, int, str]], int, int]:
     """[(name, offset, size, kind)] ordered by offset, plus (flash_size, eb)."""
     layout, reserved = literal("FLASHBOOT_LAYOUT"), literal("FLASHBOOT_RESERVED")
     rows = [(n, e["offset"], e["size"], "image") for n, e in layout.items()]
@@ -61,7 +61,8 @@ def load_map():
             literal("FLASH_SIZE"), literal("FLASH_ERASE_BLOCK"))
 
 
-def check_map(rows, flash_size, erase):
+def check_map(rows: list[tuple[str, int, int, str]], flash_size: int,
+              erase: int) -> list[str]:
     """Overlap / alignment / past-the-device, as a list of problem strings."""
     problems, prev_end, prev_name = [], 0, None
     for name, off, size, _kind in rows:

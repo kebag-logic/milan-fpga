@@ -127,30 +127,38 @@ TYPED_HEAD = re.compile(
 UNTYPED_NAME = re.compile(r"\s*([A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*(?:=|$)")
 
 
-def blank_non_code(text):
+def blank_non_code(text: str) -> str:
+    """The source with every comment and string literal turned into spaces.
+
+    Blanked rather than deleted: each newline survives, so a match's line
+    number is still the line a reader opens in the file.
+    """
     return NON_CODE.sub(
         lambda m: "".join(c if c == "\n" else " " for c in m.group(0)), text)
 
 
-def hdl_suffix(path):
+def hdl_suffix(path: str) -> str:
+    """The extension, lower-cased, so `.SV` and `.sv` are one spelling here."""
     name = path.rsplit("/", 1)[-1]
     return name.rsplit(".", 1)[-1].lower() if "." in name else ""
 
 
-def is_hdl(path):
+def is_hdl(path: str) -> bool:
+    """True when the extension names an HDL source; a .md or .py under hdl/ is not."""
     return hdl_suffix(path) in HDL_SUFFIXES
 
 
-def not_systemverilog(path):
+def not_systemverilog(path: str) -> bool:
     """True for an HDL file whose spelling is not a lower-case .sv/.svh."""
     return is_hdl(path) and not path.endswith(SYSTEMVERILOG)
 
 
-def sources():
+def sources() -> list[str]:
+    """Every tracked HDL file in scope, minus lint_rtl's whole-file exceptions."""
     return [p for p in tracked("hdl") if is_hdl(p) and p not in LINT_EXCLUDE]
 
 
-def population_problem(paths):
+def population_problem(paths: list[str]) -> str | None:
     """Why this population may not be judged, or None when it is complete."""
     if not paths:
         return "the scan found no tracked HDL at all"
@@ -161,7 +169,7 @@ def population_problem(paths):
     return None
 
 
-def declaration_items(rest):
+def declaration_items(rest: str) -> list[str]:
     """Top-level comma-separated items of the declaration that starts at rest.
 
     The declaration ends at a top-level `;`, or at the `)` that closes the
@@ -187,7 +195,7 @@ def declaration_items(rest):
     return items
 
 
-def untyped_names(code):
+def untyped_names(code: str) -> dict[str, list[str]]:
     """{keyword: [names]} for the parameter/localparam declarations with no type."""
     out = {"parameter": [], "localparam": []}
     for m in PARAM_KW.finditer(code):
@@ -202,7 +210,7 @@ def untyped_names(code):
     return out
 
 
-def scan(text, path="x.sv"):
+def scan(text: str, path: str = "x.sv") -> dict[str, int]:
     """{finding: count} for one HDL source, non-code text removed first."""
     code = blank_non_code(text)
     names = untyped_names(code)
@@ -215,7 +223,9 @@ def scan(text, path="x.sv"):
     }
 
 
-def audit(paths=None):
+def audit(paths: list[str] | None = None) -> tuple[
+        dict[str, int], dict[str, dict[str, int]], list[tuple[str, int]], list[str]]:
+    """(totals, per-file counts, generic-`always` sites, non-SystemVerilog files)."""
     paths = sources() if paths is None else paths
     totals = {"not SystemVerilog": 0, "generic always": 0,
               "reg declaration": 0, "untyped parameter": 0,
@@ -237,7 +247,7 @@ def audit(paths=None):
     return totals, per_file, sites, foreign
 
 
-def undocumented_hdl_exceptions():
+def undocumented_hdl_exceptions() -> list[str]:
     """Excluded non-SystemVerilog files whose required local rationale is absent."""
     bad = []
     for rel, rationale in LINT_EXCLUDE.items():
@@ -250,7 +260,7 @@ def undocumented_hdl_exceptions():
     return bad
 
 
-def parse_budget(text):
+def parse_budget(text: str) -> dict[str, int]:
     """{key: int} from budget text; a malformed value simply has no entry."""
     out = {}
     for line in text.splitlines():
@@ -262,11 +272,13 @@ def parse_budget(text):
     return out
 
 
-def read_budget():
+def read_budget() -> dict[str, int]:
+    """The checked-in ratchets; an absent file is an empty budget, which fails
+    every key rather than allowing any count."""
     return parse_budget(BUDGET.read_text()) if BUDGET.is_file() else {}
 
 
-def ratchet(totals, budget):
+def ratchet(totals: dict[str, int], budget: dict[str, int | None]) -> tuple[list[str], list[str]]:
     """(failures, notes): the ratchet verdict for the measured totals.
 
     A missing or malformed entry is a failure, because an absent budget must
@@ -288,22 +300,9 @@ def ratchet(totals, budget):
     return failures, notes
 
 
-def selftest():
-    failures = checks = 0
-
-    def ck(name, ok, detail=""):
-        nonlocal failures, checks
-        checks += 1
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
-
-    def n_untyped(text):
-        found = scan(text)
-        return found["untyped parameter"], found["untyped localparam"]
-
+def _lexeme_arms(ck):
+    """The arms over the two lexemes the gate refuses: a generic `always` and a
+    `reg` declaration, each also proved invisible inside a comment or a string."""
     ck("a generic always is caught",
        scan("always @(posedge c) x <= 1;")["generic always"] == 1)
     ck("a generic always with begin before the sensitivity list is caught",
@@ -339,6 +338,10 @@ def selftest():
     ck("the word reg inside a string is not counted",
        scan('$display("reg declaration");')["reg declaration"] == 0)
 
+
+def _extension_arms(ck):
+    """The arms over which file extensions are the population and which are
+    refused as not SystemVerilog."""
     for path in ("hdl/x.v", "hdl/x.vh", "hdl/x.V", "hdl/x.SV", "hdl/x.vhd",
                  "protocol-processor/hdl/x.vh"):
         ck(f"a non-SystemVerilog HDL file is refused: {path}",
@@ -348,6 +351,15 @@ def selftest():
            scan("module x; endmodule", path)["not SystemVerilog"] == 0)
     ck("a non-HDL file under hdl/ is not in the population",
        not is_hdl("hdl/README.md") and not is_hdl("hdl/x.py"))
+
+
+def _parameter_typing_arms(ck):
+    """The arms over parameter and localparam typing, including the list forms
+    where one type governs every name after it."""
+    def n_untyped(text: str) -> tuple[int, int]:
+        """(untyped parameter, untyped localparam) counts for one snippet."""
+        found = scan(text)
+        return found["untyped parameter"], found["untyped localparam"]
 
     ck("an untyped parameter is caught", n_untyped("parameter W = 8;") == (1, 0))
     ck("an untyped parameter with no default is caught",
@@ -372,6 +384,10 @@ def selftest():
        n_untyped("localparam X = $clog2(N);") == (0, 1))
     ck("a typed localparam is not", n_untyped("localparam int X = 4;") == (0, 0))
 
+
+def _population_and_ratchet_arms(ck):
+    """The arms over the two refusals that keep a number honest: a partial
+    population, and a budget the measured counts have outgrown."""
     ck("an empty population is refused",
        population_problem([]) is not None)
     ck("a population without the processors names both",
@@ -405,6 +421,10 @@ def selftest():
     ck("an absent budget file is an empty budget",
        all(k in ratchet(measured, {})[0][i] for i, k in enumerate(RATCHETED)))
 
+
+def _live_tree_arms(ck):
+    """The arms that read the real tree, so an inert scan cannot ratchet to
+    nothing and an off-population scan cannot establish a smaller baseline."""
     paths = sources()
     totals, per_file, sites, foreign = audit(paths)
     ck("the live scan reads the tree", len(paths) > 100, f"{len(paths)} files")
@@ -417,17 +437,53 @@ def selftest():
        not LINT_EXCLUDE)
     ck("every HDL exception has a reason and evidence",
        not undocumented_hdl_exceptions())
-    ck("the ratcheted populations are non-empty",
-       totals["reg declaration"] > 0,
-       "an inert scan would report zero everywhere and ratchet to nothing")
+    # ANTI-VACUITY, REBASED ON DETECTION RATHER THAN ON DEBT. This arm used to
+    # read `totals["reg declaration"] > 0`, which conflates two different
+    # things: "the scan is working" and "the tree still carries debt". It held
+    # only while the population was above zero, so the commit that finally
+    # cleared the last `reg` turned the gate's own self-test red - a rule
+    # cannot be written so that complying with it is a failure. What the guard
+    # is actually for is catching a live scan that has gone inert, so it now
+    # plants a finding in a REAL tree source and requires the live path to see
+    # it. That holds at any population, including zero.
+    planted = Path(REPO / paths[0]).read_text(errors="replace") + "\nreg planted_r;\n"
+    ck("the live scan still detects a planted finding",
+       scan(planted, paths[0])["reg declaration"]
+       == per_file.get(paths[0], {}).get("reg declaration", 0) + 1,
+       f"planted one `reg` into {paths[0]} and the scan must count exactly one more")
+    ck("a clean tree is allowed to be clean",
+       all(totals[key] >= 0 for key in RATCHETED),
+       "the population may legitimately be zero; the planted-finding arm above "
+       "is what proves the scan is not inert")
     ck("the checked-in budget carries every ratcheted key",
        all(k in read_budget() for k in RATCHETED), str(read_budget()))
+
+def selftest() -> int:
+    """Every arm, in order, and the PASS/FAIL tally as the exit status."""
+    failures = checks = 0
+
+    def ck(name: str, ok: object, detail: str = "") -> None:
+        """Count one arm and print its verdict; any truthy `ok` is a pass."""
+        nonlocal failures, checks
+        checks += 1
+        if ok:
+            print(f"[PASS] {name}")
+        else:
+            failures += 1
+            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
+
+    _lexeme_arms(ck)
+    _extension_arms(ck)
+    _parameter_typing_arms(ck)
+    _population_and_ratchet_arms(ck)
+    _live_tree_arms(ck)
 
     print(f"\n{checks} checks: {checks - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
 
-def main():
+def main() -> int:
+    """The gate: refuse a partial population, print every finding, then ratchet."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--list", action="store_true", help="per-file counts")
     ap.add_argument("--selftest", action="store_true", help="run the fixture arms")

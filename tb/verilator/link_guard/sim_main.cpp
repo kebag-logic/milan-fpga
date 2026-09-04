@@ -12,16 +12,61 @@
 
 #include "VKL_link_guard.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 
-static VKL_link_guard *dut;
-static int pass = 0, fail = 0;
-static vluint64_t tcyc = 0;
+// Mirror the -GDEAD_CYC_C / -GSETTLE_CYC_C overrides the Makefile builds with.
+constexpr int DEAD = 64;
+constexpr int SETTLE = 256;
 
-// eth-clock models: toggle flips every N sys cycles (0 = frozen)
-static int rx_period = 0, tx_period = 0;
+// stat_o[31:16] is a 16-bit bounce counter that saturates instead of wrapping.
+constexpr uint64_t kBounceMax = 0xFFFF;
+// Enough single-bounce episodes to drive that counter past kBounceMax.
+constexpr int kSaturationEpisodes = 65600;
 
-static void tick() {
+namespace {
+
+class LinkGuardHarness {
+ public:
+  int execute();
+
+ private:
+  void tick();
+  void run(int n);
+  void ck(const char *name, uint64_t got, uint64_t want);
+  uint64_t bounce() { return static_cast<uint64_t>(dut->stat_o >> 16); }
+
+  void configure_and_release_reset();
+  void prove_unarmed_guard_is_inert();
+  void prove_armed_clocks_stay_in_run();
+  void prove_rx_death_holds_settles_and_counts_one_episode();
+  void prove_tx_death_counts_a_second_episode();
+  void prove_manual_reinit_drives_the_full_sequence();
+  void prove_freeze_hook_fakes_a_death();
+  void prove_disable_drops_the_guard_reset();
+  void prove_activity_flag_follows_the_toggle();
+  void prove_glitchy_wobble_is_one_episode();
+  void prove_liveness_boundary_between_slow_and_dead();
+  void prove_overlapping_rx_tx_death_is_one_episode();
+  void prove_clock_death_during_manual_reinit_is_taken_over();
+  void prove_freeze_during_settle_drops_back_to_hold();
+  void prove_disable_during_settle_then_benign_reenable();
+  void prove_reset_mid_episode_clears_to_unarmed();
+  void prove_partial_arm_is_not_a_veto();
+  void prove_eth_side_reset_releases_before_the_sys_side();
+  void prove_bounce_counter_saturates();
+
+  VKL_link_guard *dut = nullptr;
+  int pass = 0;
+  int fail = 0;
+  vluint64_t tcyc = 0;
+
+  // eth-clock models: toggle flips every N sys cycles (0 = frozen)
+  int rx_period = 0;
+  int tx_period = 0;
+};
+
+void LinkGuardHarness::tick() {
   if (rx_period && (tcyc % rx_period) == 0) dut->rx_tgl_i ^= 1;
   if (tx_period && (tcyc % tx_period) == 0) dut->tx_tgl_i ^= 1;
   dut->clk_i = 0; dut->eval();
@@ -29,38 +74,40 @@ static void tick() {
   tcyc++;
 }
 
-static void run(int n) { for (int i = 0; i < n; i++) tick(); }
+void LinkGuardHarness::run(int n) { for (int i = 0; i < n; i++) tick(); }
 
-static void ck(const char *name, uint64_t got, uint64_t want) {
+void LinkGuardHarness::ck(const char *name, uint64_t got, uint64_t want) {
   if (got == want) { pass++; printf("[PASS] %s\n", name); }
   else { fail++; printf("[FAIL] %s: got 0x%llx want 0x%llx\n", name,
-                        (unsigned long long)got, (unsigned long long)want); }
+                        static_cast<unsigned long long>(got),
+                        static_cast<unsigned long long>(want)); }
 }
 
-static const int DEAD = 64, SETTLE = 256;
-
-int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new VKL_link_guard;
-
+void LinkGuardHarness::configure_and_release_reset() {
   dut->rst_n = 0; dut->rx_tgl_i = 0; dut->tx_tgl_i = 0; dut->act_tgl_i = 0;
   dut->dis_i = 0; dut->freeze_i = 0; dut->man_reinit_i = 0;
   run(4); dut->rst_n = 1; run(4);
+}
 
-  // -- unarmed = inert (TB/no-PHY tops): alive, no reinit, link up ------
+// -- unarmed = inert (TB/no-PHY tops): alive, no reinit, link up ------
+void LinkGuardHarness::prove_unarmed_guard_is_inert() {
   run(3 * DEAD);
   ck("unarmed alive stat", dut->stat_o, 0x0003);
   ck("unarmed reinit",     dut->reinit_o, 0);
   ck("unarmed link_est",   dut->link_est_o, 1);
+}
 
-  // -- arm both clocks, stay RUN ---------------------------------------
+// -- arm both clocks, stay RUN ---------------------------------------
+void LinkGuardHarness::prove_armed_clocks_stay_in_run() {
   rx_period = 2; tx_period = 3;
   run(4 * DEAD);
   ck("armed RUN reinit",   dut->reinit_o, 0);
   ck("armed RUN alive",    dut->stat_o & 0x3F, 0x03);   // state 0, alive 11
   ck("armed link_est",     dut->link_est_o, 1);
+}
 
-  // -- rx death -> HOLD + reinit + bounce 1 ----------------------------
+// -- rx death -> HOLD + reinit + bounce 1 ----------------------------
+void LinkGuardHarness::prove_rx_death_holds_settles_and_counts_one_episode() {
   rx_period = 0;
   run(DEAD + 8);
   ck("rx-death reinit",    dut->reinit_o, 1);
@@ -83,8 +130,10 @@ int main(int argc, char **argv) {
   ck("recovered reinit",   dut->reinit_o, 0);
   ck("recovered state",    (dut->stat_o >> 4) & 3, 0);
   ck("recovered link_est", dut->link_est_o, 1);
+}
 
-  // -- tx death is also a trigger; second episode counts ---------------
+// -- tx death is also a trigger; second episode counts ---------------
+void LinkGuardHarness::prove_tx_death_counts_a_second_episode() {
   tx_period = 0;
   run(DEAD + 8);
   ck("tx-death reinit",    dut->reinit_o, 1);
@@ -92,11 +141,13 @@ int main(int argc, char **argv) {
   tx_period = 3;
   run(SETTLE + DEAD + 16);
   ck("tx-recover reinit",  dut->reinit_o, 0);
+}
 
-  // -- manual reinit now drives the FULL sequenced eth+sys recovery -----
-  // (LINK_CTRL[1] rising edge -> HOLD -> SETTLE -> eth-first release), so a
-  // software reinit clears an eth-side CDC desync even with the eth clocks
-  // ALIVE - the old sys-only path could not, and the MAC stayed wedged.
+// -- manual reinit now drives the FULL sequenced eth+sys recovery -----
+// (LINK_CTRL[1] rising edge -> HOLD -> SETTLE -> eth-first release), so a
+// software reinit clears an eth-side CDC desync even with the eth clocks
+// ALIVE - the old sys-only path could not, and the MAC stayed wedged.
+void LinkGuardHarness::prove_manual_reinit_drives_the_full_sequence() {
   uint64_t b_before = dut->stat_o >> 16;
   dut->man_reinit_i = 1; run(2);
   ck("manual reinit",       dut->reinit_o, 1);
@@ -107,8 +158,10 @@ int main(int argc, char **argv) {
   ck("manual recovered",    dut->reinit_o, 0);           // then releases
   ck("manual eth released", dut->eth_rst_o, 0);
   ck("manual not a bounce", dut->stat_o >> 16, b_before);// sw reinit != cable event
+}
 
-  // -- freeze test hook: fakes death, full sequence --------------------
+// -- freeze test hook: fakes death, full sequence --------------------
+void LinkGuardHarness::prove_freeze_hook_fakes_a_death() {
   dut->freeze_i = 1;
   run(DEAD + 8);
   ck("freeze reinit",      dut->reinit_o, 1);
@@ -117,8 +170,10 @@ int main(int argc, char **argv) {
   dut->freeze_i = 0;
   run(SETTLE + DEAD + 16);
   ck("unfreeze recover",   dut->reinit_o, 0);
+}
 
-  // -- disable: drops the guard reset immediately ----------------------
+// -- disable: drops the guard reset immediately ----------------------
+void LinkGuardHarness::prove_disable_drops_the_guard_reset() {
   rx_period = 0;
   run(DEAD + 8);
   ck("pre-disable reinit", dut->reinit_o, 1);
@@ -128,18 +183,20 @@ int main(int argc, char **argv) {
   dut->dis_i = 0; rx_period = 2;
   run(SETTLE + 2 * DEAD + 16);
   ck("re-enable recover",  dut->reinit_o, 0);
+}
 
-  // -- activity flag ----------------------------------------------------
+// -- activity flag ----------------------------------------------------
+void LinkGuardHarness::prove_activity_flag_follows_the_toggle() {
   ck("act idle",           (dut->stat_o >> 7) & 1, 0);
   dut->act_tgl_i ^= 1; run(4);
   ck("act recent",         (dut->stat_o >> 7) & 1, 1);
+}
 
-  // ==== robustness round ================================================
+// ==== robustness round ================================================
 
-  auto bounce = [&]() { return (uint64_t)(dut->stat_o >> 16); };
-
-  // -- glitchy renegotiation wobble: bursts of life shorter than SETTLE
-  //    must never release the reset, and the whole mess is ONE episode --
+// -- glitchy renegotiation wobble: bursts of life shorter than SETTLE
+//    must never release the reset, and the whole mess is ONE episode --
+void LinkGuardHarness::prove_glitchy_wobble_is_one_episode() {
   {
     uint64_t b0 = bounce();
     rx_period = 0; run(DEAD + 8);
@@ -156,8 +213,10 @@ int main(int argc, char **argv) {
     ck("wobble clean release", dut->reinit_o, 0);
     ck("wobble episode count", bounce(), b0 + 1);
   }
+}
 
-  // -- liveness boundary: slow-but-alive vs slower-than-DEAD ------------
+// -- liveness boundary: slow-but-alive vs slower-than-DEAD ------------
+void LinkGuardHarness::prove_liveness_boundary_between_slow_and_dead() {
   {
     uint64_t b0 = bounce();
     rx_period = DEAD / 2;               // transitions well inside DEAD
@@ -171,8 +230,10 @@ int main(int argc, char **argv) {
     ck("boundary recover",       dut->reinit_o, 0);
     ck("boundary one episode",   bounce(), b0 + 1);
   }
+}
 
-  // -- overlapping rx+tx death = one episode ----------------------------
+// -- overlapping rx+tx death = one episode ----------------------------
+void LinkGuardHarness::prove_overlapping_rx_tx_death_is_one_episode() {
   {
     uint64_t b0 = bounce();
     rx_period = 0; run(DEAD + 8);       // rx dies first
@@ -184,8 +245,10 @@ int main(int argc, char **argv) {
     ck("overlap release",    dut->reinit_o, 0);
     ck("overlap one episode", bounce(), b0 + 1);
   }
+}
 
-  // -- clock death during a manual reinit: auto takes over --------------
+// -- clock death during a manual reinit: auto takes over --------------
+void LinkGuardHarness::prove_clock_death_during_manual_reinit_is_taken_over() {
   {
     uint64_t b0 = bounce();
     dut->man_reinit_i = 1; run(4);
@@ -197,8 +260,10 @@ int main(int argc, char **argv) {
     ck("manual-overlap recover", dut->reinit_o, 0);
     ck("manual-overlap episode", bounce(), b0 + 1);
   }
+}
 
-  // -- freeze during SETTLE drops back to HOLD, same episode ------------
+// -- freeze during SETTLE drops back to HOLD, same episode ------------
+void LinkGuardHarness::prove_freeze_during_settle_drops_back_to_hold() {
   {
     uint64_t b0 = bounce();
     rx_period = 0; run(DEAD + 8);
@@ -210,8 +275,10 @@ int main(int argc, char **argv) {
     ck("fis release",  dut->reinit_o, 0);
     ck("fis one episode", bounce(), b0 + 1);
   }
+}
 
-  // -- disable during SETTLE, benign re-enable (clocks alive) -----------
+// -- disable during SETTLE, benign re-enable (clocks alive) -----------
+void LinkGuardHarness::prove_disable_during_settle_then_benign_reenable() {
   {
     uint64_t b0 = bounce();
     rx_period = 0; run(DEAD + 8);
@@ -223,8 +290,10 @@ int main(int argc, char **argv) {
     ck("benign re-enable RUN", (dut->stat_o >> 4) & 3, 0);
     ck("benign re-enable no bounce", bounce(), b0 + 1);
   }
+}
 
-  // -- reset mid-episode: full clear back to unarmed-inert --------------
+// -- reset mid-episode: full clear back to unarmed-inert --------------
+void LinkGuardHarness::prove_reset_mid_episode_clears_to_unarmed() {
   rx_period = 0; run(DEAD + 8);
   ck("pre-reset held", dut->reinit_o, 1);
   tx_period = 0;                        // stop BOTH before the reset pulse:
@@ -234,8 +303,10 @@ int main(int argc, char **argv) {
   run(3 * DEAD);
   ck("post-reset unarmed stat", dut->stat_o, 0x0003);
   ck("post-reset reinit", dut->reinit_o, 0);
+}
 
-  // -- partial arm: tx toggle never wired/ticking is not a veto ---------
+// -- partial arm: tx toggle never wired/ticking is not a veto ---------
+void LinkGuardHarness::prove_partial_arm_is_not_a_veto() {
   rx_period = 2; run(4 * DEAD);         // arm rx only
   ck("partial-arm RUN", dut->reinit_o, 0);
   rx_period = 0; run(DEAD + 8);
@@ -243,13 +314,15 @@ int main(int argc, char **argv) {
   ck("partial-arm bounce", bounce(), 1);
   rx_period = 2; run(SETTLE + DEAD + 16);
   ck("partial-arm recover", dut->reinit_o, 0);
+}
 
-  // ==== eth-side CDC reset sequencing (gaps 5 RTL fix) =================
-  // eth_rst_o must assert with reinit_o on clock death, hold through the
-  // FIRST half of settle (clean clocked reset cycles for the eth halves),
-  // then release strictly BEFORE the sys side: eth-first-then-sys.
+// ==== eth-side CDC reset sequencing (gaps 5 RTL fix) =================
+// eth_rst_o must assert with reinit_o on clock death, hold through the
+// FIRST half of settle (clean clocked reset cycles for the eth halves),
+// then release strictly BEFORE the sys side: eth-first-then-sys.
+void LinkGuardHarness::prove_eth_side_reset_releases_before_the_sys_side() {
   {
-    auto ethrst = [&]() { return (uint64_t)((dut->stat_o >> 2) & 1); };
+    auto ethrst = [&]() { return static_cast<uint64_t>((dut->stat_o >> 2) & 1); };
 
     ck("ethrst RUN idle",            ethrst(), 0);
     ck("ethrst port idle",           dut->eth_rst_o, 0);
@@ -296,24 +369,61 @@ int main(int argc, char **argv) {
     ck("pre-disable ethrst",         ethrst(), 1);
     dut->dis_i = 1; run(2);
     ck("disabled ethrst clear",      ethrst(), 0);
-    ck("stat[2] mirrors eth_rst_o",  ethrst(), (uint64_t)dut->eth_rst_o);
+    ck("stat[2] mirrors eth_rst_o",  ethrst(), static_cast<uint64_t>(dut->eth_rst_o));
     dut->dis_i = 0; rx_period = 2;
     run(SETTLE + 2 * DEAD + 16);
     ck("post-disable recovered",     dut->reinit_o, 0);
   }
+}
 
-  // -- bounce counter saturates at 0xFFFF (no wrap) ---------------------
-  for (int i = 0; i < 65600; i++) {
+// -- bounce counter saturates at 0xFFFF (no wrap) ---------------------
+void LinkGuardHarness::prove_bounce_counter_saturates() {
+  for (int i = 0; i < kSaturationEpisodes; i++) {
     rx_period = 0; run(DEAD + 6);
     rx_period = 2; run(SETTLE + DEAD + 8);
   }
-  ck("bounce saturated", bounce(), 0xFFFF);
+  ck("bounce saturated", bounce(), kBounceMax);
   rx_period = 0; run(DEAD + 8);
   rx_period = 2; run(SETTLE + DEAD + 16);
-  ck("bounce stays saturated", bounce(), 0xFFFF);
+  ck("bounce stays saturated", bounce(), kBounceMax);
   ck("saturated still recovers", dut->reinit_o, 0);
+}
+
+int LinkGuardHarness::execute() {
+  const milan::tb::Model<VKL_link_guard> model;
+  dut = model.get();
+
+  configure_and_release_reset();
+
+  prove_unarmed_guard_is_inert();
+  prove_armed_clocks_stay_in_run();
+  prove_rx_death_holds_settles_and_counts_one_episode();
+  prove_tx_death_counts_a_second_episode();
+  prove_manual_reinit_drives_the_full_sequence();
+  prove_freeze_hook_fakes_a_death();
+  prove_disable_drops_the_guard_reset();
+  prove_activity_flag_follows_the_toggle();
+
+  prove_glitchy_wobble_is_one_episode();
+  prove_liveness_boundary_between_slow_and_dead();
+  prove_overlapping_rx_tx_death_is_one_episode();
+  prove_clock_death_during_manual_reinit_is_taken_over();
+  prove_freeze_during_settle_drops_back_to_hold();
+  prove_disable_during_settle_then_benign_reenable();
+  prove_reset_mid_episode_clears_to_unarmed();
+  prove_partial_arm_is_not_a_veto();
+
+  prove_eth_side_reset_releases_before_the_sys_side();
+  prove_bounce_counter_saturates();
 
   printf("\n%d checks: %d PASS, %d FAIL\n", pass + fail, pass, fail);
-  delete dut;
   return fail ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
+  LinkGuardHarness harness;
+  return harness.execute();
 }

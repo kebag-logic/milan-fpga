@@ -16,7 +16,14 @@
 #
 # Needs bash + python3 only (no yosys, no sv2v, no submodule), so it runs on any
 # box and in CI. Exit 0 = the contract holds, 1 = it was broken.
-set -u
+#
+# The full trio is safe here because every failure this check REPORTS is read
+# through an `if`: the two --list invocations are conditions, and the only
+# commands whose non-zero status is expected are the two `grep -c` counts,
+# which are taken explicitly below. Anything else that fails - a cp into the
+# scratch tree, an mkdir - is a broken harness, and a broken harness must not
+# print a verdict about run.sh.
+set -euo pipefail
 
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 fail=0
@@ -28,7 +35,9 @@ if ! real_out="$(bash "$R/syn/yosys/run.sh" --list 2>/dev/null)"; then
   echo "  inventory should print without tools or submodules (#191)."
   exit 1
 fi
-n_real="$(printf '%s\n' "$real_out" | grep -c .)"
+# `grep -c` exits 1 when the count is zero, and zero is an answer this check
+# is entitled to compare rather than die on, so the status is taken here.
+n_real="$(printf '%s\n' "$real_out" | grep -c .)" || true
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -38,7 +47,7 @@ cp "$R/scripts/yosys_shards.py" "$tmp/scripts/yosys_shards.py"
 
 # Positive: only those two files present, no submodule dir at all.
 if bare_out="$(bash "$tmp/syn/yosys/run.sh" --list 2>/dev/null)"; then
-  n_bare="$(printf '%s\n' "$bare_out" | grep -c .)"
+  n_bare="$(printf '%s\n' "$bare_out" | grep -c .)" || true
   if [ "$n_bare" -eq "$n_real" ]; then
     echo "check_list_hermetic: PASS positive - --list printed $n_bare top(s)"
     echo "  from a tree holding only run.sh and scripts/yosys_shards.py"

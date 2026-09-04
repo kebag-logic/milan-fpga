@@ -12,13 +12,14 @@ import argparse
 import hashlib
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 
 SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
 
 
-def parse_shard(value):
+def parse_shard(value: str) -> tuple[int, int]:
     """Return (zero-based index, worker count), rejecting ambiguous forms."""
     match = SHARD_RE.fullmatch(value)
     if not match:
@@ -29,7 +30,7 @@ def parse_shard(value):
     return index, total
 
 
-def discover_suites(root):
+def discover_suites(root: str | Path) -> list[str]:
     """Return suite directory names in the serial sweep's lexical order."""
     root = Path(root)
     return sorted(
@@ -38,18 +39,19 @@ def discover_suites(root):
     )
 
 
-def select_suites(suites, index, total):
+def select_suites(suites: Sequence[str], index: int, total: int) -> list[str]:
     """Select one stable-hash shard from an already ordered inventory."""
     return [suite for suite in suites if shard_owner(suite, total) == index]
 
 
-def shard_owner(suite, total):
+def shard_owner(suite: str, total: int) -> int:
     """Return the stable zero-based owner of one suite name."""
     digest = hashlib.sha256(suite.encode("utf-8")).digest()
     return int.from_bytes(digest[:8], "big") % total
 
 
-def selftest():
+def selftest() -> int:
+    """Prove the split stays complete, disjoint and stable; 0 when it does."""
     suites = [f"suite-{number:02d}" for number in range(17)]
     bad = 0
 
@@ -95,7 +97,8 @@ def selftest():
     return 1 if bad else 0
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
+    """Print one shard's suite names, one per line, for the sweep to run."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite-root", type=Path,
                         help="directory containing one subdirectory per suite")

@@ -17,7 +17,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINMISSING \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 
 SRCS = shaper_core_wrap.sv \
        $(RTL_DIR)/ieee8021q/ts/traffic_shaping_core.sv \

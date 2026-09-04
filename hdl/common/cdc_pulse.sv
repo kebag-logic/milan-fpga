@@ -28,13 +28,13 @@ module cdc_pulse #(
 );
 
   //! source: flip a level on every input pulse
-  reg src_level;
+  logic src_level;
   always_ff @(posedge src_clk)
     if (!src_rst_n)      src_level <= 1'b0;
     else if (src_pulse)  src_level <= ~src_level;
 
   //! destination: synchronise the level + one extra stage for edge detect
-  (* ASYNC_REG = "TRUE" *) reg [DEST_SYNC_FF:0] sync;
+  (* ASYNC_REG = "TRUE" *) logic [DEST_SYNC_FF:0] sync;
   always_ff @(posedge dest_clk)
     if (!dest_rst_n) sync <= '0;
     else             sync <= {sync[DEST_SYNC_FF-1:0], src_level};

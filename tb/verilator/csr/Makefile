@@ -51,7 +51,7 @@ TOP        = milan_csr
 VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common/csr \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 
 # GENERATED INCLUDES ARE PREREQUISITES. milan_csr.sv `include-s these; make
@@ -91,7 +91,7 @@ obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
 obj_100m/Vcsr_sim100: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_100m --top-module $(TOP) \
 	  -GMILAN_CLK_FREQ_HZ_P=100000000 \
-	  -CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL \
+	  -CFLAGS "-DCSR_MILAN_CLK_HZ=100000000ULL -Wall -Wextra" \
 	  $(SRCS) sim_main.cpp -o Vcsr_sim100
 
 obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp

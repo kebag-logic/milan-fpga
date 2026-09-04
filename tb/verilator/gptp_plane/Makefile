@@ -9,7 +9,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 SRCS = gptp_plane_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \

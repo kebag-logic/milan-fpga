@@ -51,19 +51,28 @@ absent rather than a silent pass.  Nothing here touches a board.
     python3 sw/trace/test_trace_roundtrip.py
 """
 
+import ast
 import os
 import re
+from functools import lru_cache
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
-GEN = os.path.join(HERE, "generated")
+#: Every path in this file is a `Path`. It becomes a `str` at exactly two
+#: boundaries, each a foreign contract rather than a preference: `sys.path`,
+#: whose entries are strings, and `trace_segment.main()`, which takes a COMMAND
+#: LINE and quotes the spelling it was handed back in its own messages.
+#: `subprocess` and `ctf_read` both document path-like arguments, so those keep
+#: the `Path`.
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+GEN = HERE / "generated"
 
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(ROOT, "sw", "litex"))
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "sw" / "litex"))
 import ctf_read          # noqa: E402
 import trace_segment     # noqa: E402
 import flash_map as gmp           # noqa: E402
@@ -93,7 +102,10 @@ EVENT_IDS = {
 MUST_EXERCISE = set(EVENT_IDS.values())
 
 
-def test_flash_map_and_persist_inventory():
+def test_flash_map_and_persist_inventory() -> None:
+    """Gate 1: every flash slot is erase-block aligned, inside the device and
+    non-overlapping, and the two writable slots are still the shape the layout
+    promises - checked structurally, never against a copied literal size."""
     rows, flash_size, erase = gmp.load_map()
     problems = gmp.check_map(rows, flash_size, erase)
     assert not problems, "flash map: " + "; ".join(problems)
@@ -120,7 +132,7 @@ def test_flash_map_and_persist_inventory():
           f"0x{sum(r[2] for r in rows):X} of 0x{flash_size:X} allocated")
 
 
-def test_generated_is_fresh():
+def test_generated_is_fresh() -> None:
     """Re-run barectf and diff, when barectf is importable."""
     try:
         import barectf  # noqa: F401
@@ -129,20 +141,22 @@ def test_generated_is_fresh():
               f"barectf not importable ({type(e).__name__}); the checked-in "
               "generated/ is used as-is")
         return
-    with tempfile.TemporaryDirectory() as td:
+    with tempfile.TemporaryDirectory() as tmp:
+        td = Path(tmp)
+        yaml = HERE / "milan_trace.yaml"
         r = subprocess.run(
             [sys.executable, "-m", "barectf.cli" if False else "barectf",
              "generate", "--code-dir", td, "--headers-dir", td,
-             "--metadata-dir", td, os.path.join(HERE, "milan_trace.yaml")],
+             "--metadata-dir", td, yaml],
             capture_output=True, text=True)
         if r.returncode != 0:
             # barectf is importable but its CLI entry point is not on PATH;
             # drive the library directly rather than skipping.
             import barectf.cli as bcli
             argv = sys.argv
-            sys.argv = ["barectf", "generate", "--code-dir", td,
-                        "--headers-dir", td, "--metadata-dir", td,
-                        os.path.join(HERE, "milan_trace.yaml")]
+            sys.argv = ["barectf", "generate", "--code-dir", str(td),
+                        "--headers-dir", str(td), "--metadata-dir", str(td),
+                        str(yaml)]
             try:
                 bcli._run()
             except SystemExit:
@@ -152,13 +166,13 @@ def test_generated_is_fresh():
         stale = []
         for name in ("metadata", "barectf.c", "barectf.h",
                      "barectf-bitfield.h"):
-            fresh = os.path.join(td, name)
-            if not os.path.isfile(fresh):
+            fresh = td / name
+            if not fresh.is_file():
                 stale.append(f"{name} (barectf produced nothing)")
                 continue
-            if _strip_gen_stamp(open(fresh, encoding="utf-8").read()) != \
-               _strip_gen_stamp(open(os.path.join(GEN, name),
-                                     encoding="utf-8").read()):
+            fresh_text = fresh.read_text(encoding="utf-8")
+            kept_text = (GEN / name).read_text(encoding="utf-8")
+            if _strip_gen_stamp(fresh_text) != _strip_gen_stamp(kept_text):
                 stale.append(name)
         assert not stale, \
             ("generated/ is stale vs milan_trace.yaml: " + ", ".join(stale) +
@@ -177,7 +191,10 @@ def _strip_gen_stamp(text):
     return _STAMP.sub("", text)
 
 
-def test_event_ids_pinned():
+def test_event_ids_pinned() -> None:
+    """Gate 3: the event-record id map, the common context and the header
+    widths are pinned. barectf numbers events by SORTED NAME, so a renumber
+    shows up here as a diff instead of as a mis-decoded archive."""
     meta = _meta()
     got = meta.event_ids()
     assert got == EVENT_IDS, (
@@ -197,15 +214,11 @@ def test_event_ids_pinned():
           f"{ctx}; 8-bit id + 32-bit timestamp")
 
 
-_META = None
-
-
+@lru_cache(maxsize=1)
 def _meta():
-    global _META
-    if _META is None:
-        _META = ctf_read.Metadata(
-            open(os.path.join(GEN, "metadata"), encoding="utf-8").read())
-    return _META
+    """The parsed CTF metadata, read once and shared by every gate."""
+    return ctf_read.Metadata(
+        (GEN / "metadata").read_text(encoding="utf-8"))
 
 
 def _cc():
@@ -218,46 +231,51 @@ def _cc():
 _RUN = {}
 
 
-def test_producer_builds_and_runs():
+def test_producer_builds_and_runs() -> None:
+    """Gate 4: the shipping producer builds -Werror with a host C compiler and
+    its scripted run writes real CTF segments for the gates below."""
     cc = _cc()
     if cc is None:
         _skip("gates 4-13", "no C compiler (set CC=) - nothing to produce")
         return
-    td = tempfile.mkdtemp(prefix="milan-trace-")
+    td = Path(tempfile.mkdtemp(prefix="milan-trace-"))
     _RUN["dir"] = td
-    exe = os.path.join(td, "trace_selftest")
+    exe = td / "trace_selftest"
     r = subprocess.run(
         [cc, "-std=c99", "-O2", "-Wall", "-Wextra", "-Werror",
          "-I", HERE, "-o", exe,
-         os.path.join(HERE, "trace_selftest.c"),
-         os.path.join(HERE, "milan_trace.c"),
-         os.path.join(GEN, "barectf.c")],
+         HERE / "trace_selftest.c",
+         HERE / "milan_trace.c",
+         GEN / "barectf.c"],
         capture_output=True, text=True)
     assert r.returncode == 0, f"producer does not compile:\n{r.stderr}"
-    raw = os.path.join(td, "raw")
-    os.makedirs(raw)
+    raw = td / "raw"
+    raw.mkdir()
     r = subprocess.run([exe, raw], capture_output=True, text=True)
     assert r.returncode == 0, f"producer failed:\n{r.stderr}"
     _RUN["raw"] = raw
-    stats = dict(ln.split("=", 1) for ln in
-                 open(os.path.join(raw, "stats.txt")).read().split())
+    stats_text = (raw / "stats.txt").read_text()
+    stats = dict(ln.split("=", 1) for ln in stats_text.split())
     _RUN["stats"] = stats
     print(f"  [gate 4] {cc} -Werror built the shipping producer; run wrote "
           f"{stats['segments']} segments / {stats['packets_written']} packets "
           f"over {int(stats['sim_us']) // 1000000} s of simulated board time")
 
 
-def test_segments_decode():
+def test_segments_decode() -> None:
+    """Gate 5: the segments decode clean, the ring's own accounting closes
+    (every packet written is decoded, dropped or still resident - a packet that
+    is none of the three vanished silently), every event type was exercised,
+    and the ABI agrees in the metadata, the header and the boot record."""
     if "raw" not in _RUN:
         return
     meta = _meta()
     total_pkts, names, events = 0, set(), []
-    for f in sorted(os.listdir(_RUN["raw"])):
-        if not f.startswith("seg-"):
-            continue
-        blob = open(os.path.join(_RUN["raw"], f), "rb").read()
+    for seg in _segment_files():
+        blob = seg.read_bytes()
         packets, evs, note = ctf_read.decode(blob, meta)
-        assert note is None, f"{f}: decode note on an intact segment: {note}"
+        assert note is None, \
+            f"{seg.name}: decode note on an intact segment: {note}"
         total_pkts += len(packets)
         events.extend(evs)
         names.update(e["name"] for e in evs)
@@ -275,7 +293,7 @@ def test_segments_decode():
     missing = MUST_EXERCISE - names
     assert not missing, f"event types never exercised: {sorted(missing)}"
     boot = next(e for e in events if e["name"] == "boot")
-    hdr = open(os.path.join(HERE, "milan_trace.h")).read()
+    hdr = (HERE / "milan_trace.h").read_text()
     m = re.search(r"#define MILAN_TRACE_ABI\s+(\d+)u", hdr)
     assert m, "MILAN_TRACE_ABI missing from milan_trace.h"
     abi = int(meta.abi)
@@ -289,18 +307,22 @@ def test_segments_decode():
           f"exercised; ABI {abi} agrees in metadata/header/boot")
 
 
-def test_compression_ratio():
+def test_compression_ratio() -> None:
+    """Gate 6: the pinned xz chain reaches the ratio the bundle budget was
+    sized against, and the measured value is reported rather than assumed."""
     if "raw" not in _RUN:
         return
-    packed = os.path.join(_RUN["dir"], "log")
-    raws = sorted(os.path.join(_RUN["raw"], f)
-                  for f in os.listdir(_RUN["raw"]) if f.startswith("seg-"))
-    rc = trace_segment.main(["pack"] + raws + ["-o", packed])
+    packed = _RUN["dir"] / "log"
+    raws = _segment_files()
+    # `main` takes a COMMAND LINE: it quotes back the spelling it was handed,
+    # so the boundary into it is strings (see the note on the anchors above).
+    rc = trace_segment.main(["pack"] + [str(p) for p in raws]
+                            + ["-o", str(packed)])
     assert rc == 0
     _RUN["log"] = packed
-    tin = sum(os.path.getsize(p) for p in raws)
-    tout = sum(os.path.getsize(os.path.join(packed, f))
-               for f in os.listdir(packed) if f.endswith(".xz"))
+    tin = sum(p.stat().st_size for p in raws)
+    tout = sum(p.stat().st_size for p in packed.iterdir()
+               if p.name.endswith(".xz"))
     ratio = tout / tin
     assert ratio < 0.40, (
         f"compressed ratio {ratio:.3f} is worse than the 0.40 guard - the "
@@ -311,19 +333,23 @@ def test_compression_ratio():
           f"{bpr:.2f} compressed bytes per trace record")
 
 
+def _segment_files():
+    """The raw segments the producer wrote, oldest name first."""
+    return sorted(p for p in _RUN["raw"].iterdir()
+                  if p.name.startswith("seg-"))
+
+
 def _biggest_raw():
-    raws = sorted((os.path.getsize(os.path.join(_RUN["raw"], f)),
-                   os.path.join(_RUN["raw"], f))
-                  for f in os.listdir(_RUN["raw"]) if f.startswith("seg-"))
-    return raws[-1][1]
+    return max(_segment_files(), key=lambda p: (p.stat().st_size, p))
 
 
-def test_torn_raw_segment():
+def test_torn_raw_segment() -> None:
+    """Gate 7: a raw segment cut mid-packet yields exactly the whole packets
+    before the cut, says it was cut, and is a prefix of the intact decode."""
     if "raw" not in _RUN:
         return
     meta = _meta()
-    path = _biggest_raw()
-    full = open(path, "rb").read()
+    full = _biggest_raw().read_bytes()
     psize = 4096
     whole, _e, note = ctf_read.decode(full, meta)
     assert note is None
@@ -346,12 +372,13 @@ def _decode_events(blob, meta):
     return e
 
 
-def test_torn_xz_segment():
+def test_torn_xz_segment() -> None:
+    """Gate 8: a truncated xz segment recovers a monotonically growing PREFIX
+    of the intact record list - less data, never different data."""
     if "log" not in _RUN:
         return
     meta = _meta()
-    src = _biggest_raw()
-    plain = open(src, "rb").read()
+    plain = _biggest_raw().read_bytes()
     blob = trace_segment.compress(plain)
     ref = _decode_events(plain, meta)
     last, rows = -1, []
@@ -376,11 +403,14 @@ def test_torn_xz_segment():
     print(f"  [gate 8] truncated xz decodes as a growing PREFIX: {detail}")
 
 
-def test_negative_controls():
+def test_negative_controls() -> None:
+    """Gate 9: a clobbered packet magic and an impossible content_size are
+    refused AT that packet rather than decoded into plausible nonsense, the
+    packets before the damage survive, and an erased tail ends it quietly."""
     if "raw" not in _RUN:
         return
     meta = _meta()
-    full = bytearray(open(_biggest_raw(), "rb").read())
+    full = bytearray(_biggest_raw().read_bytes())
     psize = 4096
     good, _e, _n = ctf_read.decode(bytes(full), meta)
     assert len(good) > 4
@@ -409,7 +439,9 @@ def test_negative_controls():
           "decode quietly")
 
 
-def test_timestamp_wrap_margin():
+def test_timestamp_wrap_margin() -> None:
+    """Gate 10: the heartbeat holds every inter-record gap far below the 32-bit
+    timestamp wrap, so no archived trace can be read off by 2^32 us."""
     if "events" not in _RUN:
         return
     ts = [e["ts"] for e in _RUN["events"]]
@@ -419,12 +451,12 @@ def test_timestamp_wrap_margin():
     assert worst < wrap // 4, (
         f"largest inter-record gap {worst} us is within 4x of the 32-bit "
         f"timestamp wrap ({wrap} us) - the heartbeat is not doing its job")
-    hdr = open(os.path.join(HERE, "milan_trace.h")).read()
+    hdr = (HERE / "milan_trace.h").read_text()
     m = re.search(r"#define MILAN_TRACE_HEARTBEAT_MAX_US\s+(\d+)u", hdr)
     assert m, "MILAN_TRACE_HEARTBEAT_MAX_US missing from milan_trace.h"
     hb = int(m.group(1))
     assert hb * 4 < wrap, "the heartbeat ceiling does not bound the wrap"
-    yml = open(os.path.join(HERE, "milan_trace.yaml")).read()
+    yml = (HERE / "milan_trace.yaml").read_text()
     assert "MILAN_TRACE_HEARTBEAT_MAX_US" in yml, \
         "the yaml contract no longer names the heartbeat requirement"
     print(f"  [gate 10] worst inter-record gap {worst} us; heartbeat ceiling "
@@ -432,7 +464,37 @@ def test_timestamp_wrap_margin():
           f"({wrap / hb:.0f}x margin)")
 
 
-def test_export_budget():
+_C_INT_NODES = (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant,
+                ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.LShift,
+                ast.RShift, ast.BitOr, ast.BitAnd, ast.BitXor, ast.Invert,
+                ast.UAdd, ast.USub)
+
+
+def _c_define_int(header_text, name):
+    """The integer value of a parenthesised arithmetic `#define` in a C header.
+
+    The header IS the contract, so this reads the number out of it rather than
+    restating it here where the two could drift. It does not `eval` it. The
+    text comes from a file this test does not own, and `eval` on it would run
+    whatever that file happened to contain; instead the expression is parsed
+    and then walked, and any node that is not integer arithmetic is a failure
+    that names itself. The `u` suffixes C writes on unsigned literals are
+    stripped first because Python has no such suffix.
+    """
+    match = re.search(rf"#define {name}\s+\(([^)]+)\)", header_text)
+    assert match, f"{name} is not a parenthesised #define in milan_trace.h"
+    expression = match.group(1).replace("u", "").replace("U", "")
+    tree = ast.parse(expression, mode="eval")
+    for node in ast.walk(tree):
+        assert isinstance(node, _C_INT_NODES), \
+            f"{name} = {expression!r} is not plain integer arithmetic " \
+            f"({type(node).__name__})"
+        if isinstance(node, ast.Constant) and not isinstance(node.value, int):
+            raise AssertionError(f"{name} = {expression!r} is not an integer")
+    return eval(compile(tree, f"<{name}>", "eval"), {"__builtins__": {}}, {})
+
+
+def test_export_budget() -> None:
     """The export token bucket in milan_trace.c, driven by its defaults.
 
     The drill runs a continuously-faulting producer and counts the 100 KiB
@@ -441,13 +503,9 @@ def test_export_budget():
     if "stats" not in _RUN:
         return
     st = _RUN["stats"]
-    hdr = open(os.path.join(HERE, "milan_trace.h")).read()
-    per_hour = eval(re.search(
-        r"#define MILAN_TRACE_BUDGET_BYTES_PER_HOUR\s+\(([^)]+)\)",
-        hdr).group(1).replace("u", ""))
-    minflush = eval(re.search(
-        r"#define MILAN_TRACE_MIN_FLUSH_BYTES\s+\(([^)]+)\)",
-        hdr).group(1).replace("u", ""))
+    hdr = (HERE / "milan_trace.h").read_text()
+    per_hour = _c_define_int(hdr, "MILAN_TRACE_BUDGET_BYTES_PER_HOUR")
+    minflush = _c_define_int(hdr, "MILAN_TRACE_MIN_FLUSH_BYTES")
     n = int(st["budget_flushes"])
     assert int(st["budget_hold"]) == 6, (
         f"the drill stopped for hold code {st['budget_hold']}, not BUDGET (6) - "
@@ -470,17 +528,19 @@ def test_export_budget():
           f"then holds on BUDGET; the bucket refills to full over an idle hour")
 
 
-def test_rotation_policy():
-    td = tempfile.mkdtemp(prefix="milan-rot-")
+def test_rotation_policy() -> None:
+    """Gate 12: rotation holds the bundle budget by evicting the OLDEST
+    rotating segments, and never the pinned first-fault one."""
+    td = Path(tempfile.mkdtemp(prefix="milan-rot-"))
     try:
         sizes = [70000] * 30            # 2.1 MB of segments over a 1.5 MiB budget
         for i, s in enumerate(sizes):
-            open(os.path.join(td, f"seg-{i:06d}.ctf.xz"), "wb").write(b"\0" * s)
+            (td / f"seg-{i:06d}.ctf.xz").write_bytes(b"\0" * s)
         budget = trace_segment.DEFAULT_LOG_BUDGET
-        rc = trace_segment.main(["rotate", td, "--budget", str(budget)])
+        rc = trace_segment.main(["rotate", str(td), "--budget", str(budget)])
         assert rc == 0
         left = [n for n, _p in trace_segment.segments(td)]
-        total = sum(os.path.getsize(p) for _n, p in trace_segment.segments(td))
+        total = sum(p.stat().st_size for _n, p in trace_segment.segments(td))
         assert total <= budget, f"rotation left {total} B over a {budget} B budget"
         assert trace_segment.PINNED_SEGMENT in left, \
             "the pinned first-fault segment was evicted"
@@ -494,7 +554,9 @@ def test_rotation_policy():
         shutil.rmtree(td, ignore_errors=True)
 
 
-def test_bundle_budget_fits_compatibility_ceiling():
+def test_bundle_budget_fits_compatibility_ceiling() -> None:
+    """Gate 13: the bundle budget fits under the user slot with the reserve
+    trace_segment DERIVES from the map, not a third copy of a slot size."""
     rows, _fs, erase = gmp.load_map()
     user = [r for r in rows if r[0] == "user"][0]
     budget = trace_segment.DEFAULT_LOG_BUDGET
@@ -517,7 +579,9 @@ def test_bundle_budget_fits_compatibility_ceiling():
           f"segment ceiling {trace_segment.SEGMENT_BYTES} B")
 
 
-def test_babeltrace2_agrees():
+def test_babeltrace2_agrees() -> None:
+    """Gate 14: the canonical reader and ctf_read.py count the same records,
+    when babeltrace2 is installed to be asked."""
     if "log" not in _RUN:
         return
     if shutil.which("babeltrace2") is None:
@@ -525,8 +589,9 @@ def test_babeltrace2_agrees():
               "babeltrace2 not installed - the pure-python reader is "
               "un-cross-checked on this host")
         return
-    out = os.path.join(_RUN["dir"], "bt")
-    assert trace_segment.main(["unpack", _RUN["log"], "-o", out]) == 0
+    out = _RUN["dir"] / "bt"
+    assert trace_segment.main(
+        ["unpack", str(_RUN["log"]), "-o", str(out)]) == 0
     r = subprocess.run(["babeltrace2", out], capture_output=True, text=True)
     assert r.returncode == 0, f"babeltrace2 refused the trace:\n{r.stderr}"
     n = len([ln for ln in r.stdout.splitlines() if ln.strip()])
@@ -536,13 +601,14 @@ def test_babeltrace2_agrees():
     print(f"  [gate 14] babeltrace2 and ctf_read.py agree on {ours} records")
 
 
-def test_event_catalogue_fresh():
+def test_event_catalogue_fresh() -> None:
     """Gate 15: docs/reference/TRACE_EVENTS.md is generated from the YAML, so
     "what is being logged" cannot drift from the ABI that emits it. Same
     staleness contract as the traceability matrix."""
     import subprocess
-    r = subprocess.run([sys.executable, os.path.join(HERE, "gen_trace_events.py"), "--check"],
-                       capture_output=True, text=True)
+    r = subprocess.run(
+        [sys.executable, HERE / "gen_trace_events.py", "--check"],
+        capture_output=True, text=True)
     if "pyyaml not installed" in (r.stderr or ""):
         _skip("gate 15 event catalogue", "pyyaml not installed")
         return

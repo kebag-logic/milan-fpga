@@ -26,6 +26,7 @@
 import os
 import sys
 import argparse
+from pathlib import Path
 
 from migen import Signal, ClockDomain, ClockSignal, ResetSignal
 
@@ -36,7 +37,7 @@ from litex.build.sim.config import SimConfig
 
 # Reuse the real sim SoC and the shared datapath wiring.
 from litex.tools.litex_sim import SimSoC
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, str(Path(__file__).parent))
 from milan_soc import (MILAN_CSR_BASE, MILAN_CSR_SIZE, add_milan_datapath,
                        _platform_shape)
 
@@ -148,7 +149,14 @@ def _verilator_build_kwargs():
     return kwargs
 
 
-def main():
+def main() -> None:
+    """Build and run the Verilator model of the SoC that proves M-A2.
+
+    The defaults are the proven path - RV32, single-threaded Verilator, an
+    interactive BIOS console - because that is the shape the M-A2 evidence was
+    taken on; --xlen=64, --non-interactive and the VERILATOR_* variables are
+    developer conveniences and none of them describes a product profile.
+    """
     ap = argparse.ArgumentParser(description="Milan SoC Verilator simulation (M-A2 proof)")
     ap.add_argument("--xlen", default=32, type=int, choices=[32, 64],
                     help="developer NaxRiscv simulation width (default 32 mirrors the "
@@ -192,7 +200,7 @@ def main():
     # whatever directory the sim happened to be launched from, and sw/litex is
     # the usual one.
     builder = Builder(soc, output_dir=args.output_dir,
-                      csr_csv=os.path.join(args.output_dir, "csr.csv"))
+                      csr_csv=str(Path(args.output_dir) / "csr.csv"))
     builder.build(sim_config=sim_config, interactive=not args.non_interactive,
                   **_verilator_build_kwargs())
 

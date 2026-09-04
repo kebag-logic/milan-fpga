@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021q/ts \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SRCS = $(RTL_DIR)/ieee8021q/ts/traffic_class_map.sv
 CPP  = sim_main.cpp

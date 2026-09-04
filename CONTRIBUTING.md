@@ -452,6 +452,17 @@ governing rule for cleanup:
 Cleanup that preserves behavior is a change of its own, reviewable on its own.
 A functional change carries no repository-wide formatting, mass rename or
 opportunistic refactor outside its stated scope.
+
+Four of its rules are the per-language idiom contracts, and new code in each
+language follows its own immediately:
+[SystemVerilog](docs/development/CODE_QUALITY.md#rule-10-prefer-idiomatic-systemverilog),
+[C++ and C](docs/development/CODE_QUALITY.md#rule-11-prefer-idiomatic-c-and-c)
+(the isocpp C++ Core Guidelines; a Verilated model is owned by
+`milan::tb::Model<T>` from `tb/common/verilator_harness.hpp`, never by a naked
+`new`), [Python](docs/development/CODE_QUALITY.md#rule-12-prefer-idiomatic-python)
+and [shell](docs/development/CODE_QUALITY.md#rule-13-prefer-idiomatic-shell).
+Each is gated in the documentation workflow, and each carries a ratchet file
+beside its gate that only moves downward.
 ## 6. Documentation wording and privacy
 
 `scripts/docs_check.py` enforces a wording deny-list over every committed

@@ -68,11 +68,11 @@ VFLAGS = [
     "--cc", "--exe", "--build", "-j", "0", "--top-module", "tcam",
     "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
     "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
-    "-CFLAGS", "-std=c++17 -O2",
+    "-CFLAGS", "-std=c++17 -O2 -Wall -Wextra",
 ]
 
 
-def build(rtl_path, workdir, tag):
+def build(rtl_path: Path, workdir: Path, tag: str) -> Path | None:
     """Build the harness against `rtl_path`; the executable path, or None."""
     mdir = workdir / f"obj_{tag}"
     #: verilator resolves -o RELATIVE TO --Mdir, so the name is bare and the
@@ -88,7 +88,7 @@ def build(rtl_path, workdir, tag):
     return exe
 
 
-def run_harness(exe):
+def run_harness(exe: Path) -> tuple[int | str, str]:
     """(rc, stdout) of one harness run; rc is "TIMEOUT" when it was killed.
 
     The harness is its own process group, so the kill on timeout reaches
@@ -110,7 +110,7 @@ def run_harness(exe):
             proc.wait()
 
 
-def verdict(rc, out):
+def verdict(rc: int | str, out: str) -> str:
     """How the harness answered: 'pass', 'caught', or why it is not evidence."""
     reason, failed = log_reports_failure(out)
     if rc == "TIMEOUT":
@@ -126,7 +126,12 @@ def verdict(rc, out):
     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
 
 
-def main():
+def main() -> int:
+    """Run the positive control and every mutant; 1 if any mutant survived.
+
+    A surviving mutant and a control that stopped passing are the same
+    verdict here: the harness has stopped proving what it claims to prove.
+    """
     src = RTL.read_text()
     passes = fails = 0
 

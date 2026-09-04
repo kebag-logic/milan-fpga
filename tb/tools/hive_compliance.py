@@ -233,433 +233,36 @@ import socket
 import struct
 import sys
 import time
+from pathlib import Path
 
-ETH_P_ALL = 0x0003
-AVTP = 0x22F0
-MCAST = bytes.fromhex('91e0f0010000')
-SOL_PACKET, ADD_MEMBERSHIP, MR_MULTICAST = 263, 1, 0
-SUBTYPE_ADP, SUBTYPE_AECP = 0xFA, 0xFB
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-CMD_READ_DESCRIPTOR = 0x0004
-CMD_GET_STREAM_FORMAT = 0x0009
-#: C12/C13 (re-added 2026-07-28; they landed as C5/C6 in e076647 and were
-#: lost to a numbering collision when 3cea0e48's C5/C6 merged first):
-#: descriptor geometry for the STREAM current_format field, and the Table
-#: 7-156 counter bit positions the wire oracle reads.
-DESCRIPTOR_OFF = 4                #: response payload: cfg(2) + reserved(2)
-STREAM_CURRENT_FORMAT_OFF = 74    #: 1722.1-2021 7.2.6 Table 7-16
-CTR_UNSUPPORTED_FORMAT = 8
-CTR_FRAMES_RX = 11
-CMD_GET_STREAM_INFO = 0x000F
-CMD_GET_NAME = 0x0011
-CMD_GET_SAMPLING_RATE = 0x0015
-CMD_GET_CLOCK_SOURCE = 0x0017
-CMD_GET_AVB_INFO = 0x0027
-CMD_GET_AS_PATH = 0x0028
-CMD_GET_COUNTERS = 0x0029
-CMD_GET_AUDIO_MAP = 0x002B
-
-STATUS_NOT_IMPLEMENTED = 1
-
-DESC = {'STREAM_INPUT': 0x0005, 'STREAM_OUTPUT': 0x0006}
-D_AUDIO_UNIT = 0x0002
-D_AVB_INTERFACE = 0x0009
-D_STREAM_PORT_INPUT = 0x000E
-D_STREAM_PORT_OUTPUT = 0x000F
-#: 1722.1-2021 Table 7.1: AUDIO_CLUSTER is 0x0014. It read 0x0016 here until
-#: 2026-07-28, which is SENSOR_CLUSTER - a type this entity does not have - so
-#: every READ_DESCRIPTOR C9 issued for a cluster came back NO_SUCH_DESCRIPTOR,
-#: cluster_channels stayed empty and the 7.2.16 cluster_channel bound was
-#! never asserted at all. It did not fail; it did not run (methodology R5: a
-#: structural zero is not a measurement). Confirmed against the generated ROM:
-#: the AX7101 8x8 descriptor set carries types 0x14 and 0x17, no 0x16.
-D_AUDIO_CLUSTER = 0x0014
-D_CLOCK_DOMAIN = 0x0024
-STATUS_NO_SUCH_DESCRIPTOR = 2
-STATUS_NOT_SUPPORTED = 11
-
-#: STREAM_PORT descriptor (1722.1-2021 7.2.13) field offsets, counted from the
-#: start of the descriptor: type 0, index 2, clock_domain_index 4, port_flags
-#: 6, number_of_controls 8, base_control 10, number_of_clusters 12,
-#: base_cluster 14, number_of_maps 16, base_map 18.
-SP_NUM_CLUSTERS_OFF = 12
-SP_BASE_CLUSTER_OFF = 14
-SP_NUM_MAPS_OFF = 16
-SP_BASE_MAP_OFF = 18
-#: AUDIO_MAP descriptor (7.2.19): type(2) index(2) mappings_offset(2)
-#: number_of_mappings(2), then number_of_mappings x 8-octet mappings
-D_AUDIO_MAP = 0x0017
-AM_NUM_MAPPINGS_OFF = 6
-AM_ROWS_OFF = 8
-#: AUDIO_CLUSTER descriptor (7.2.16): channel_count sits after object_name(64)
-#: + localized_description(2) + signal_type(2) + signal_index(2) +
-#: signal_output(2) + path_latency(4) + block_latency(4) = offset 84.
-AC_CHANNEL_COUNT_OFF = 84
-#: a READ_DESCRIPTOR response payload is configuration_index(2) + reserved(2)
-#: then the descriptor bytes (7.4.5.2)
-RD_DESC_OFF = 4
-#: GET_AUDIO_MAP response payload (7.4.44.2): type(2) index(2) map_index(2)
-#: number_of_maps(2) number_of_mappings(2) reserved(2) then 8 B per mapping
-AM_HDR = 12
-
-#: index used to force an error status - far past any real descriptor count
-BAD_INDEX = 90
-
-FAILS, CHECKS = [], [0]
-
-#: every (label, command_type, response frame) this run collected, for the
-#: whole-frame checks C7/C8 that apply to EVERY response regardless of command
-SEEN = []
-
-#: C3: the target's advertised shape, sniffed OPPORTUNISTICALLY out of every
-#: receive the tool does. A fixed listen window at the start is a race - the
-#: AX board advertises roughly every 7 s and a 6 s window missed it, which
-#: would have SKIPPED C3, and a skipped check proves exactly nothing. The
-#: whole run is tens of seconds, so sniffing throughout always catches one.
-ADV = {}
+# The predicates and the transport live beside this file; see their module
+# docstrings for the split. `aecp_cmd` and `xchg` are re-exported here on
+# purpose - `hive_compliance_clusters.py` imports the calibrated transport as
+# `from hive_compliance import open_sock, aecp_cmd, xchg, resp_parts`, and
+# that spelling is the one recorded in its socket-recipe comment.
+from hive_compliance_oracle import (aaf_channels,             # noqa: E402
+                                    audio_map_overreads,
+                                    audio_map_violations,
+                                    self_test)
+from hive_compliance_wire import (                            # noqa: E402,F401
+    AC_CHANNEL_COUNT_OFF, ADV, AM_HDR, AM_NUM_MAPPINGS_OFF, AM_ROWS_OFF,
+    BAD_INDEX, CHECKS, CMD_GET_AS_PATH, CMD_GET_AUDIO_MAP, CMD_GET_AVB_INFO,
+    CMD_GET_CLOCK_SOURCE, CMD_GET_COUNTERS, CMD_GET_NAME,
+    CMD_GET_SAMPLING_RATE, CMD_GET_STREAM_FORMAT, CMD_GET_STREAM_INFO,
+    CMD_READ_DESCRIPTOR, DESC, DESCRIPTOR_OFF, D_AUDIO_CLUSTER, D_AUDIO_MAP,
+    D_AUDIO_UNIT, D_AVB_INTERFACE, D_CLOCK_DOMAIN, D_STREAM_PORT_INPUT,
+    D_STREAM_PORT_OUTPUT, FAILS, RD_DESC_OFF, SEEN, SP_BASE_CLUSTER_OFF,
+    SP_BASE_MAP_OFF, SP_NUM_CLUSTERS_OFF, SP_NUM_MAPS_OFF,
+    STATUS_NOT_IMPLEMENTED, STATUS_NOT_SUPPORTED, STATUS_NO_SUCH_DESCRIPTOR,
+    STREAM_CURRENT_FORMAT_OFF, Binding, Peers, Probe, acmp, aecp_cmd, ck,
+    open_sock, peer_counters, resp_parts, sniff_adp, xchg)
 
 
-def sniff_adp(f, tgt):
-    """ADPDU (1722.1-2021 6.2.1): talker_stream_sources at ADPDU octet 24 and
-    listener_stream_sinks at octet 28 -> frame bytes 38 and 42 (entity_id is
-    at frame byte 18, a recorded bench trap)."""
-    if len(f) < 60 or f[12:14] != struct.pack('!H', AVTP):
-        return
-    if f[14] != SUBTYPE_ADP or f[18:26] != tgt:
-        return
-    ADV['STREAM_OUTPUT'] = struct.unpack('!H', f[38:40])[0]
-    ADV['STREAM_INPUT'] = struct.unpack('!H', f[42:44])[0]
-
-
-def audio_map_overreads(mappings, n_mappings, payload_len, desc_rows,
-                        desc_len, desc_declared=None):
-    """C10's whole rule, as a pure function so it can be self-tested offline.
-
-    GET_AUDIO_MAP does not just have to be IN RANGE, it has to be THIS PORT'S
-    MAP.  Bounds alone cannot see a map served out of the wrong descriptor
-    whenever the neighbouring descriptor happens to hold in-range numbers, and
-    on 2026-07-28 the entity served STREAM_PORT_OUTPUT[0] from AUDIO_MAP[1] -
-    STREAM_PORT_INPUT[1]'s map - with a hardcoded 8 mappings and a hardcoded
-    64-byte region out of a descriptor holding 16, putting 48 octets of
-    whatever followed it in the descriptor ROM on the wire.
-
-    mappings    : the 8-byte rows parsed out of the GET_AUDIO_MAP response
-    n_mappings  : number_of_mappings the response DECLARED
-    payload_len : octets of AEM payload the response actually carried
-    desc_rows   : the same rows read out of the port's own AUDIO_MAP
-                  descriptor via READ_DESCRIPTOR (base_map), or None when the
-                  port declares number_of_maps = 0 and has no descriptor -
-                  then only the self-consistency half is checked
-    desc_len    : octets of that descriptor, or None with desc_rows None
-    desc_declared: the descriptor's OWN number_of_mappings, which may exceed
-                  the rows that fit in it - that gap IS defect B; defaults to
-                  len(desc_rows)
-
-    -> list of human-readable violations (empty = conformant)
-    """
-    out = []
-    # (a) the response must CARRY what it declares. 1722.1-2021 7.4.44.2,
-    #     verbatim: "The number_of_mappings field is set to the number of
-    #     mappings contained in the mappings field." So the payload is
-    #     12 + 8*number_of_mappings and anything shorter is a count a
-    #     controller will read past the end of.
-    if payload_len < AM_HDR + 8 * n_mappings:
-        out.append(f"declares {n_mappings} mappings but the payload is "
-                   f"{payload_len} B, short of {AM_HDR + 8 * n_mappings}")
-    if len(mappings) < n_mappings:
-        out.append(f"declares {n_mappings} mappings, {len(mappings)} parsed")
-    if desc_rows is None:
-        return out
-    if desc_declared is None:
-        desc_declared = len(desc_rows)
-    # (b) the descriptor must HOLD what IT declares (the same rule one tier
-    #     down: a controller that trusts an AUDIO_MAP's own count and reads
-    #     8 rows out of a 24-byte descriptor reads 6 rows of neighbours)
-    if desc_len is not None and desc_len < 8 + 8 * desc_declared:
-        out.append(f"AUDIO_MAP descriptor declares {desc_declared} mappings "
-                   f"but is {desc_len} B, short of {8 + 8 * desc_declared}")
-    # (c) and the served rows must BE the port's own rows. Compared as a
-    #     multiset, not in order: 7.4.44 does not fix an ordering, so
-    #     requiring one would be inventing a rule (methodology R3). What it
-    #     DOES catch is a row that is not in this port's map at all.
-    have = list(desc_rows)
-    for m in mappings:
-        if m in have:
-            have.remove(m)
-        else:
-            out.append(f"served mapping {m} is not in this port's own "
-                       f"AUDIO_MAP (7.2.19: the map belongs to the port)")
-    if n_mappings != desc_declared:
-        out.append(f"serves {n_mappings} mappings where the port's own "
-                   f"AUDIO_MAP descriptor declares {desc_declared}")
-    return out
-
-
-def audio_map_violations(mappings, n_streams, stream_channels,
-                         number_of_clusters, cluster_channels):
-    """C9's whole rule, as a pure function so it can be self-tested offline.
-
-    mappings          : [(stream_index, stream_channel, cluster_offset,
-                          cluster_channel)]
-    n_streams         : how many stream descriptors THIS direction answers
-    stream_channels   : {stream_index: channel count of its current format},
-                        missing = unknown (that one bound is not asserted)
-    number_of_clusters: the answering STREAM_PORT's number_of_clusters
-    cluster_channels  : {cluster_offset: channel_count of the AUDIO_CLUSTER at
-                        base_cluster + offset}, missing = unknown
-
-    -> list of human-readable violations (empty = conformant)
-    """
-    out = []
-    for si, sc, co, cc in mappings:
-        if si >= n_streams:
-            out.append(f"stream_index {si} >= {n_streams} streams")
-        elif si in stream_channels and sc >= stream_channels[si]:
-            out.append(f"stream_channel {sc} >= stream {si} format channels "
-                       f"{stream_channels[si]}")
-        if co >= number_of_clusters:
-            out.append(f"cluster_offset {co} >= number_of_clusters "
-                       f"{number_of_clusters} (port-RELATIVE, 7.2.19)")
-        elif co in cluster_channels and cc >= cluster_channels[co]:
-            out.append(f"cluster_channel {cc} >= cluster {co} channel_count "
-                       f"{cluster_channels[co]}")
-    return out
-
-
-def aaf_channels(fmt):
-    """current_format -> channels_per_frame, or None when the format is not an
-    audio format that has one. IEEE 1722-2016 7.3.1: the AAF stream_format
-    subtype is the top octet (0x02 = AAF), channels_per_frame is bits 31:22 of
-    the 64-bit word - the same field KL_aecp_response_builder validates on.
-    CRF (0x04) carries a clock, not channels: no bound to assert."""
-    if (fmt >> 56) != 0x02:
-        return None
-    return (fmt >> 22) & 0x3FF
-
-
-def self_test():
-    """Negative control for C9 (methodology R2). The live subject may return
-    zero mappings and pass vacuously; these vectors prove the rule bites."""
-    ok = True
-
-    def t(name, got, exp_n):
-        nonlocal ok
-        good = (len(got) == exp_n)
-        ok = ok and good
-        print(f"  [{'ok  ' if good else 'FAIL'}] {name}: {len(got)} "
-              f"violation(s), expected {exp_n}" + (f"  {got}" if got else ""))
-
-    sch = {0: 8, 1: 2}
-    cch = {0: 1, 1: 1, 8: 1}
-    t("conformant 8-channel map",
-      audio_map_violations([(0, c, c, 0) for c in range(8)], 2, sch, 8, cch),
-      0)
-    t("a SECOND port may reuse the SAME port-relative offsets",
-      audio_map_violations([(1, 0, 0, 0), (1, 1, 1, 0)], 2, sch, 8, cch), 0)
-    t("GLOBAL cluster index where the clause wants a port-relative offset",
-      audio_map_violations([(0, 0, 9, 0)], 2, sch, 8, cch), 1)
-    t("stream_index past the descriptors that answer",
-      audio_map_violations([(9, 0, 0, 0)], 2, sch, 8, cch), 1)
-    t("stream_channel past the current format's channel count",
-      audio_map_violations([(1, 5, 0, 0)], 2, sch, 8, cch), 1)
-    t("cluster_channel past that cluster's channel_count",
-      audio_map_violations([(0, 0, 0, 3)], 2, sch, 8, cch), 1)
-    t("unknown format -> that ONE bound is not asserted, the others still are",
-      audio_map_violations([(0, 999, 99, 0)], 2, {}, 8, cch), 1)
-
-    # ---- C10: the served map is THIS PORT'S map, whole and no more -------
-    # The vectors are the measured defect, not invented shapes: the deployed
-    # 8x8 output port's own AUDIO_MAP holds 2 rows in 24 bytes, and the RTL
-    # served 8 rows / 64 bytes out of the INPUT port's 72-byte map instead.
-    own2 = [(0, 0, 0, 0), (0, 1, 1, 0)]                     # its own 2 rows
-    other8 = [(1, c, c, 0) for c in range(8)]               # input port 1's
-    t("conformant: the port's own 2 rows, declared and carried",
-      audio_map_overreads(own2, 2, AM_HDR + 16, own2, 24), 0)
-    t("rows in a different ORDER are still the same map (no clause fixes one)",
-      audio_map_overreads(own2[::-1], 2, AM_HDR + 16, own2, 24), 0)
-    t("DEFECT A: 8 rows from ANOTHER port's map on a 2-row port",
-      #  8 not-mine + count 8 != 2
-      audio_map_overreads(other8, 8, AM_HDR + 64, own2, 24), 9)
-    t("declares more mappings than the payload carries (the read-past cue)",
-      audio_map_overreads(own2, 8, AM_HDR + 16, own2, 24), 3)
-    t("DEFECT B: a descriptor that declares more rows than it can hold",
-      audio_map_overreads(own2, 2, AM_HDR + 16, own2 + own2 + own2 + own2,
-                          24), 2)
-    t("no AUDIO_MAP descriptor (7.2.13 number_of_maps=0) -> only the "
-      "self-consistency half applies",
-      audio_map_overreads(own2, 2, AM_HDR + 16, None, None), 0)
-    print("\nC9/C10 self-test:", "PASS" if ok else "FAIL")
-    return 0 if ok else 1
-
-
-def ck(ok, name, detail=""):
-    CHECKS[0] += 1
-    if not ok:
-        FAILS.append(f"{name}: {detail}")
-    print(f"  [{'ok  ' if ok else 'FAIL'}] {name}" + (f"  {detail}" if detail else ""))
-
-
-
-# -------------------------------------------------------------- C13 wire ----
-#  ACMP transport for the wire oracle, copied from the bench-proven builder
-#  in avdecc/milan_controller.py rather than rewritten: the ACMPDU is 70
-#  bytes on the wire (14 eth + 4 common + 52) and a 68-byte one is RIGHTLY
-#  REJECTED - that cost a bench session once already. IEEE 1722.1-2021 Cl 8.
-ACMP_MCAST = bytes.fromhex('91e0f0010000')
-
-
-def acmp(s, src, msg_type, seq, ctlr, talker_eid, listener_eid,
-         talker_uid, listener_uid, timeout=2.0):
-    pkt = struct.pack('>BBH', 0xFC, msg_type & 0x0F, 44)
-    pkt += b'\x00' * 8                                   # stream_id
-    pkt += ctlr + talker_eid + listener_eid
-    pkt += struct.pack('>HH', talker_uid, listener_uid)
-    pkt += b'\x00' * 6                                   # stream_dest_mac
-    pkt += struct.pack('>HHHHH', 0, seq, 0, 0, 0)        # cnt/seq/flags/vlan/rsv
-    s.send(ACMP_MCAST + src + struct.pack('>H', AVTP) + pkt)
-    end = time.time() + timeout
-    while time.time() < end:
-        try:
-            f = s.recv(2048)
-        except socket.timeout:
-            return None
-        if len(f) < 70 or f[12:14] != struct.pack('>H', AVTP) or f[14] != 0xFC:
-            continue
-        if (f[15] & 0x0F) != ((msg_type & 0x0F) | 1):
-            continue
-        if struct.unpack('>H', f[62:64])[0] != seq:
-            continue
-        return f
-    return None
-
-
-def peer_counters(s, src, dst, tgt, ctl, seq, dtype, index):
-    """-> {name: value} for the peer's STREAM_INPUT counters, or None.
-
-    IEEE 1722.1-2021 7.4.42: response payload is descriptor_type(2),
-    descriptor_index(2), counters_valid(4), counters_block(32 x 4)."""
-    fr, _ = aecp_cmd(src, dst, tgt, ctl, seq, CMD_GET_COUNTERS,
-                     struct.pack('!HH', dtype, index))
-    r = xchg(s, fr, src, seq, tgt=tgt)
-    if not r:
-        return None
-    st, _, pl = resp_parts(r)
-    if st != 0 or len(pl) < 8 + 128:
-        return None
-    valid = struct.unpack('!I', pl[4:8])[0]
-    words = struct.unpack('!32I', pl[8:8 + 128])
-    out = {}
-    for bit, name in ((CTR_UNSUPPORTED_FORMAT, 'UNSUPPORTED_FORMAT'),
-                      (CTR_FRAMES_RX, 'FRAMES_RX')):
-        out[name] = words[bit] if (valid >> bit) & 1 else None
-    return out
-
-
-def open_sock(iface):
-    s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETH_P_ALL))
-    s.bind((iface, 0))
-    # raw AVDECC tools MUST join the ADP/AECP multicast or responses are
-    # NIC-dropped (recorded bench trap)
-    s.setsockopt(SOL_PACKET, ADD_MEMBERSHIP,
-                 struct.pack("iHH8s", s.if_nametoindex(iface)
-                             if hasattr(s, 'if_nametoindex')
-                             else socket.if_nametoindex(iface),
-                             MR_MULTICAST, len(MCAST), MCAST))
-    s.settimeout(1.0)
-    return s
-
-
-def aecp_cmd(src, dst, target, ctrlr, seq, cmd, payload):
-    """AEM command. control_data_length counts the octets FOLLOWING
-    target_entity_id (1722.1-2021 9.2.2.6) - controller_entity_id(8) +
-    sequence_id(2) + u/command_type(2) + payload = 12 + len(payload).
-    The old ``len(body)`` here counted the 8-octet target too; every small
-    GET survived only because Ethernet 60-byte padding covered the
-    over-declaration, and the A-F14 declared-vs-delivered validator
-    (x32p_aslm) silently drops any frame whose payload outgrows that slack
-    (first victims: ADD/REMOVE_AUDIO_MAPPINGS, bench 2026-08-02)."""
-    body = struct.pack('!8s8sHH', target, ctrlr, seq, cmd) + payload
-    cdl = len(body) - 8
-    avtp = bytes([SUBTYPE_AECP, 0x00, 0x00 | ((cdl >> 8) & 0x07), cdl & 0xFF])
-    return dst + src + struct.pack('!H', AVTP) + avtp + body, cdl
-
-
-def xchg(s, frame, src, seq, tgt=None, timeout=1.5):
-    s.send(frame)
-    end = time.time() + timeout
-    while time.time() < end:
-        try:
-            f = s.recv(2048)
-        except socket.timeout:
-            return None
-        if tgt is not None:
-            sniff_adp(f, tgt)
-        if len(f) < 26 or f[12:14] != struct.pack('!H', AVTP):
-            continue
-        if f[14] != SUBTYPE_AECP or f[0:6] != src:
-            continue
-        if struct.unpack('!H', f[34:36])[0] != seq:
-            continue
-        return f
-    return None
-
-
-def resp_parts(f):
-    """-> (status, control_data_length, payload_bytes_after_cmd)"""
-    status = (f[16] >> 3) & 0x1F
-    cdl = ((f[16] & 0x07) << 8) | f[17]
-    return status, cdl, f[38:]
-
-
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument('--self-test', action='store_true',
-                   help="run C9's bounds predicate over crafted good/bad "
-                        "vectors and exit (no network, no device)")
-    if '--self-test' in sys.argv:
-        print("=== hive_compliance C9 self-test (AUDIO_MAP bounds) ===")
-        return self_test()
-    p.add_argument('--iface', required=True)
-    p.add_argument('--target-eid', required=True)
-    p.add_argument('--target-mac', required=True)
-    p.add_argument('--controller-eid', default='0011223344556677')
-    p.add_argument('--max-index', type=int, default=16,
-                   help='highest descriptor index to probe (default 16)')
-    p.add_argument('--wire-peer-eid', default=None,
-                   help='C13 wire oracle: EID of a SECOND (reference) Milan '
-                        'device to bind as the listener (e.g. '
-                        '3CC0C60102030000). Enables C13.')
-    p.add_argument('--wire-peer-mac', default=None)
-    p.add_argument('--wire-talker', type=int, default=0)
-    p.add_argument('--wire-sink', type=int, default=0)
-    p.add_argument('--wire-seconds', type=float, default=6.0)
-    p.add_argument('--adp-wait', type=float, default=6.0,
-                   help='seconds to wait for the target ADPDU (C3)')
-    a = p.parse_args()
-
-    tgt = bytes.fromhex(a.target_eid)
-    ctl = bytes.fromhex(a.controller_eid)
-    dst = bytes.fromhex(a.target_mac.replace(':', ''))
-    s = open_sock(a.iface)
-    src = s.getsockname()[4][:6]
-    seq = [0x7000]
-
-    def nx():
-        seq[0] = (seq[0] + 1) & 0xFFFF
-        return seq[0]
-
-    def do(label, cmd, payload):
-        """one command/response exchange, recorded for C7/C8"""
-        q = nx()
-        fr, ccdl = aecp_cmd(src, dst, tgt, ctl, q, cmd, payload)
-        r = xchg(s, fr, src, q, tgt)
-        if r is not None:
-            SEEN.append((label, cmd, ccdl, r))
-        return r, ccdl
-
-    print(f"=== hive_compliance {a.target_eid} on {a.iface} ===")
-    fmts = {}   # dname -> {index: current_format} (C12/C13)
-
+def _await_advertisement(pr):
+    """Seed the advertised shape; sniff_adp keeps it fed for the rest of the run."""
+    a, s, tgt = pr.args, pr.sock, pr.tgt
     # ---- C3 part 1: seed the advertised shape (kept fed by sniff_adp) ----
     end = time.time() + a.adp_wait
     while time.time() < end and not ADV:
@@ -668,110 +271,116 @@ def main():
         except socket.timeout:
             continue
 
+
+def _probe_descriptor_type(pr, dname, dcode, fmts):
+    """C1/C2/C4/C6/C12 for one descriptor type -> its (served, answered) indices.
+
+    `fmts` gains this type's per-index current_format, which C12 compares
+    against GET_STREAM_FORMAT and C13 reads for the talker it binds.
+    """
+    a, do = pr.args, pr.do
+    print(f"\n-- {dname} --")
+    served, answered, ok_cdl = [], [], []
+    fmt_ok, cnt_ok = [], []
+    for i in range(a.max_index):
+        # READ_DESCRIPTOR: cfg(2) res(2) type(2) index(2)
+        r, _ = do(f"READ_DESCRIPTOR {dname}.{i}", CMD_READ_DESCRIPTOR,
+                  struct.pack('!HHHH', 0, 0, dcode, i))
+        if r and resp_parts(r)[0] == 0:
+            served.append(i)
+            pl = resp_parts(r)[2]
+            o = DESCRIPTOR_OFF + STREAM_CURRENT_FORMAT_OFF
+            if len(pl) >= o + 8:
+                fmts.setdefault(dname, {})[i] = \
+                    struct.unpack('!Q', pl[o:o + 8])[0]
+
+        # GET_STREAM_INFO: type(2) index(2)
+        r, _ = do(f"GET_STREAM_INFO {dname}.{i}", CMD_GET_STREAM_INFO,
+                  struct.pack('!HH', dcode, i))
+        if not r:
+            continue
+        st, rcdl, pl = resp_parts(r)
+        if st == 0:
+            answered.append(i)
+            ok_cdl.append(rcdl)
+            # C4: Milan 5.4.2.10.1 - StreamInfoFlags bit 24 reserved = 0
+            if len(pl) >= 8:
+                flags = struct.unpack('!I', pl[4:8])[0]
+                ck(((flags >> 24) & 1) == 0,
+                   f"C4 {dname}.{i} StreamInfoFlags bit24 reserved=0",
+                   f"flags=0x{flags:08X}")
+        else:
+            # C1: a NON-SUCCESS response must still echo the command's
+            # control_data_length. This is the check our own tools skipped
+            # and Hive flagged 15 times.
+            want = ok_cdl[0] if ok_cdl else None
+            if want is None:
+                print(f"  [skip] C1 {dname}.{i}: no SUCCESS response yet "
+                      f"to calibrate the expected size against")
+            else:
+                ck(rcdl == want,
+                   f"C1 {dname}.{i} non-success size == success size",
+                   f"status={st} resp_cdl={rcdl} success_cdl={want}")
+
+    # C6: the OTHER dynamic-info commands owe the same descriptors an
+    # answer. GET_STREAM_FORMAT = 1722.1 7.4.10, GET_COUNTERS = 7.4.42;
+    # both are addressed by {descriptor_type, descriptor_index} exactly
+    # like GET_STREAM_INFO, so "the descriptor exists" cannot differ
+    # between them.
+    for i in served:
+        r, _ = do(f"GET_STREAM_FORMAT {dname}.{i}", CMD_GET_STREAM_FORMAT,
+                  struct.pack('!HH', dcode, i))
+        if r and resp_parts(r)[0] == 0:
+            fmt_ok.append(i)
+            # C12: the descriptor's current_format (1722.1-2021 7.2.6)
+            # and the GET_STREAM_FORMAT answer are the SAME fact stated
+            # twice - a disagreement means Milan 5.5.1.2's format check
+            # ran against a format the talker will not send.
+            desc_fmt = fmts.get(dname, {}).get(i)
+            if desc_fmt is not None and len(resp_parts(r)[2]) >= 12:
+                gsf = struct.unpack('!Q', resp_parts(r)[2][4:12])[0]
+                nch = aaf_channels(desc_fmt)
+                ck(gsf == desc_fmt,
+                   f"C12 {dname}.{i} descriptor current_format == "
+                   f"GET_STREAM_FORMAT",
+                   f"descriptor=0x{desc_fmt:016X} "
+                   f"GET_STREAM_FORMAT=0x{gsf:016X}"
+                   + (f" ({nch}ch AAF)" if nch is not None
+                      else " (non-AAF)"))
+        r, _ = do(f"GET_COUNTERS {dname}.{i}", CMD_GET_COUNTERS,
+                  struct.pack('!HH', dcode, i))
+        if r and resp_parts(r)[0] == 0:
+            cnt_ok.append(i)
+
+    # C2: anything READ_DESCRIPTOR serves must answer GET_STREAM_INFO
+    missing = [i for i in served if i not in answered]
+    ck(not missing, f"C2 {dname} every served descriptor answers "
+                    f"GET_STREAM_INFO",
+       f"served={len(served)} answered={len(answered)} missing={missing}")
+    for cname, got in (("GET_STREAM_FORMAT", fmt_ok),
+                       ("GET_COUNTERS", cnt_ok)):
+        miss = [i for i in served if i not in got]
+        ck(not miss, f"C6 {dname} every served descriptor answers {cname}",
+           f"served={len(served)} answered={len(got)} missing={miss}")
+
+    print(f"     served={served}")
+    print(f"     answered={answered}")
+
+    return served, answered
+
+
+def _descriptor_sweep(pr, fmts):
+    """dname -> (served, answered) for every descriptor type, C3 and C9's input."""
+    _await_advertisement(pr)
     shape = {}
     for dname, dcode in DESC.items():
-        print(f"\n-- {dname} --")
-        served, answered, ok_cdl = [], [], []
-        fmt_ok, cnt_ok = [], []
-        for i in range(a.max_index):
-            # READ_DESCRIPTOR: cfg(2) res(2) type(2) index(2)
-            r, _ = do(f"READ_DESCRIPTOR {dname}.{i}", CMD_READ_DESCRIPTOR,
-                      struct.pack('!HHHH', 0, 0, dcode, i))
-            if r and resp_parts(r)[0] == 0:
-                served.append(i)
-                pl = resp_parts(r)[2]
-                o = DESCRIPTOR_OFF + STREAM_CURRENT_FORMAT_OFF
-                if len(pl) >= o + 8:
-                    fmts.setdefault(dname, {})[i] = \
-                        struct.unpack('!Q', pl[o:o + 8])[0]
+        shape[dname] = _probe_descriptor_type(pr, dname, dcode, fmts)
+    return shape
 
-            # GET_STREAM_INFO: type(2) index(2)
-            r, _ = do(f"GET_STREAM_INFO {dname}.{i}", CMD_GET_STREAM_INFO,
-                      struct.pack('!HH', dcode, i))
-            if not r:
-                continue
-            st, rcdl, pl = resp_parts(r)
-            if st == 0:
-                answered.append(i)
-                ok_cdl.append(rcdl)
-                # C4: Milan 5.4.2.10.1 - StreamInfoFlags bit 24 reserved = 0
-                if len(pl) >= 8:
-                    flags = struct.unpack('!I', pl[4:8])[0]
-                    ck(((flags >> 24) & 1) == 0,
-                       f"C4 {dname}.{i} StreamInfoFlags bit24 reserved=0",
-                       f"flags=0x{flags:08X}")
-            else:
-                # C1: a NON-SUCCESS response must still echo the command's
-                # control_data_length. This is the check our own tools skipped
-                # and Hive flagged 15 times.
-                want = ok_cdl[0] if ok_cdl else None
-                if want is None:
-                    print(f"  [skip] C1 {dname}.{i}: no SUCCESS response yet "
-                          f"to calibrate the expected size against")
-                else:
-                    ck(rcdl == want,
-                       f"C1 {dname}.{i} non-success size == success size",
-                       f"status={st} resp_cdl={rcdl} success_cdl={want}")
 
-        # C6: the OTHER dynamic-info commands owe the same descriptors an
-        # answer. GET_STREAM_FORMAT = 1722.1 7.4.10, GET_COUNTERS = 7.4.42;
-        # both are addressed by {descriptor_type, descriptor_index} exactly
-        # like GET_STREAM_INFO, so "the descriptor exists" cannot differ
-        # between them.
-        for i in served:
-            r, _ = do(f"GET_STREAM_FORMAT {dname}.{i}", CMD_GET_STREAM_FORMAT,
-                      struct.pack('!HH', dcode, i))
-            if r and resp_parts(r)[0] == 0:
-                fmt_ok.append(i)
-                # C12: the descriptor's current_format (1722.1-2021 7.2.6)
-                # and the GET_STREAM_FORMAT answer are the SAME fact stated
-                # twice - a disagreement means Milan 5.5.1.2's format check
-                # ran against a format the talker will not send.
-                desc_fmt = fmts.get(dname, {}).get(i)
-                if desc_fmt is not None and len(resp_parts(r)[2]) >= 12:
-                    gsf = struct.unpack('!Q', resp_parts(r)[2][4:12])[0]
-                    nch = aaf_channels(desc_fmt)
-                    ck(gsf == desc_fmt,
-                       f"C12 {dname}.{i} descriptor current_format == "
-                       f"GET_STREAM_FORMAT",
-                       f"descriptor=0x{desc_fmt:016X} "
-                       f"GET_STREAM_FORMAT=0x{gsf:016X}"
-                       + (f" ({nch}ch AAF)" if nch is not None
-                          else " (non-AAF)"))
-            r, _ = do(f"GET_COUNTERS {dname}.{i}", CMD_GET_COUNTERS,
-                      struct.pack('!HH', dcode, i))
-            if r and resp_parts(r)[0] == 0:
-                cnt_ok.append(i)
-
-        # C2: anything READ_DESCRIPTOR serves must answer GET_STREAM_INFO
-        missing = [i for i in served if i not in answered]
-        ck(not missing, f"C2 {dname} every served descriptor answers "
-                        f"GET_STREAM_INFO",
-           f"served={len(served)} answered={len(answered)} missing={missing}")
-        for cname, got in (("GET_STREAM_FORMAT", fmt_ok),
-                           ("GET_COUNTERS", cnt_ok)):
-            miss = [i for i in served if i not in got]
-            ck(not miss, f"C6 {dname} every served descriptor answers {cname}",
-               f"served={len(served)} answered={len(got)} missing={miss}")
-
-        shape[dname] = (served, answered)
-        print(f"     served={served}")
-        print(f"     answered={answered}")
-
-    # ------------------------------------------------------------------ #
-    # C5: the size rule, generalised past GET_STREAM_INFO.
-    #
-    # mode 'fixed': the clause fixes the whole response, so a non-success
-    #   response must be the SAME size as this device's own SUCCESS response
-    #   (calibrated, never hardcoded).
-    # mode 'min':   the response carries a variable-length list, so only the
-    #   clause-defined minimum can be asserted. The reference device answers
-    #   GET_AVB_INFO SUCCESS with cdl 36 and its error with cdl 32 (the 20 B
-    #   minimum, msrp_mappings_count = 0) and both are correct - which is
-    #   exactly why equality is NOT the rule for these.
-    # min_payload values are the clause field lists, mirrored by la_avdecc's
-    # protocolAemPayloadSizes.hpp constants (each tagged with its clause).
-    # ------------------------------------------------------------------ #
+def _advertised_shape_checks(pr, shape):
+    """C3: the ADP advertisement and the descriptors must agree."""
+    a, s, tgt = pr.args, pr.sock, pr.tgt
     # ---- C3: advertised shape == addressable shape ----------------------
     # The ADP count is what a controller sizes its enumeration loop from; a
     # descriptor set larger or smaller than the advertisement is a
@@ -804,6 +413,24 @@ def main():
                f"C3 {dname} ADP count == descriptors answering GET_STREAM_INFO",
                f"adp={ADV[dname]} answered={len(answered)}")
 
+
+def _non_success_size_checks(pr):
+    """C5: an error status does not shrink a response."""
+    do = pr.do
+    # ------------------------------------------------------------------ #
+    # C5: the size rule, generalised past GET_STREAM_INFO.
+    #
+    # mode 'fixed': the clause fixes the whole response, so a non-success
+    #   response must be the SAME size as this device's own SUCCESS response
+    #   (calibrated, never hardcoded).
+    # mode 'min':   the response carries a variable-length list, so only the
+    #   clause-defined minimum can be asserted. The reference device answers
+    #   GET_AVB_INFO SUCCESS with cdl 36 and its error with cdl 32 (the 20 B
+    #   minimum, msrp_mappings_count = 0) and both are correct - which is
+    #   exactly why equality is NOT the rule for these.
+    # min_payload values are the clause field lists, mirrored by la_avdecc's
+    # protocolAemPayloadSizes.hpp constants (each tagged with its clause).
+    # ------------------------------------------------------------------ #
     print("\n-- C5 non-success size, per command --")
     C5 = [
         # label, cmd, clause, mode, min_payload, descriptor type, good index,
@@ -859,10 +486,85 @@ def main():
                f"C5 {label} non-success >= clause minimum ({clause})",
                f"status={bst} resp_cdl={bcdl} min_cdl={12 + minpl}")
 
-    # ------------------------------------------------------------------ #
-    # C7/C8 run over EVERY response this tool collected, so they cost one
-    # check each and cover the whole session.
-    # ------------------------------------------------------------------ #
+
+def _stream_channel_counts(pr, sname, n_streams):
+    """index -> channels_per_frame from each stream's current format (C9 bound)."""
+    do = pr.do
+    # this direction's per-stream current-format channel counts
+    stream_channels = {}
+    for i in range(n_streams):
+        r, _ = do(f"GET_STREAM_FORMAT {sname}.{i} (C9)",
+                  CMD_GET_STREAM_FORMAT,
+                  struct.pack('!HH', DESC[sname], i))
+        if r and resp_parts(r)[0] == 0 and len(r) >= 50:
+            ch = aaf_channels(struct.unpack('!Q', r[42:50])[0])
+            if ch:
+                stream_channels[i] = ch
+    return stream_channels
+
+
+def _port_own_map(pr, pname, pi, n_maps, base_map):
+    """C10's oracle: (rows, length, declared count) of the port's OWN AUDIO_MAP.
+
+    All three are None when the port declares no map descriptor, and
+    `rows` stops short of `declared` when the descriptor is truncated - the
+    overread predicate reports both.
+    """
+    do = pr.do
+    # C10's oracle: THE PORT'S OWN AUDIO_MAP, the one ITS base_map
+    # names. 7.2.13 number_of_maps = 0 means there is no descriptor
+    # (the mappings are dynamic state) - then only the response's
+    # self-consistency can be checked.
+    desc_rows, desc_len, desc_declared = None, None, None
+    if n_maps:
+        rm, _ = do(f"READ_DESCRIPTOR AUDIO_MAP.{base_map} "
+                   f"({pname}.{pi} base_map)", CMD_READ_DESCRIPTOR,
+                   struct.pack('!HHHH', 0, 0, D_AUDIO_MAP, base_map))
+        if rm and resp_parts(rm)[0] == 0:
+            _st_m, cdl_m, pl_m = resp_parts(rm)
+            dm = pl_m[RD_DESC_OFF:]
+            # length from control_data_length, NOT len(frame): the
+            # 60-octet Ethernet minimum pads short frames and would
+            # make a truncated descriptor look complete.
+            desc_len = cdl_m - 12 - RD_DESC_OFF
+            if desc_len >= AM_ROWS_OFF:
+                desc_declared = struct.unpack(
+                    '!H', dm[AM_NUM_MAPPINGS_OFF:
+                             AM_NUM_MAPPINGS_OFF + 2])[0]
+                desc_rows = []
+                for k in range(desc_declared):
+                    o = AM_ROWS_OFF + 8 * k
+                    if o + 8 > min(desc_len, len(dm)):
+                        break          # truncated: (b) reports it
+                    desc_rows.append(struct.unpack('!HHHH',
+                                                   dm[o:o + 8]))
+    return desc_rows, desc_len, desc_declared
+
+
+def _cluster_channel_counts(pr, maps, n_clusters, base_cluster):
+    """cluster offset -> that AUDIO_CLUSTER's channel_count, for the rows served."""
+    do = pr.do
+    # cluster channel counts, addressed base_cluster + offset
+    cluster_channels = {}
+    for _si, _sc, co, _cc in maps:
+        if co in cluster_channels or co >= n_clusters:
+            continue
+        rc, _ = do(f"READ_DESCRIPTOR AUDIO_CLUSTER."
+                   f"{base_cluster + co}", CMD_READ_DESCRIPTOR,
+                   struct.pack('!HHHH', 0, 0, D_AUDIO_CLUSTER,
+                               base_cluster + co))
+        if rc and resp_parts(rc)[0] == 0:
+            dc = rc[38 + RD_DESC_OFF:]
+            if len(dc) >= AC_CHANNEL_COUNT_OFF + 2:
+                cluster_channels[co] = struct.unpack(
+                    '!H', dc[AC_CHANNEL_COUNT_OFF:
+                             AC_CHANNEL_COUNT_OFF + 2])[0]
+    return cluster_channels
+
+
+def _audio_map_checks(pr, shape):
+    """C9/C10/C11: AUDIO_MAP bounds, ownership and direction split."""
+    a, do = pr.args, pr.do
     # ------------------------------------------------------------------ #
     # C9: AUDIO_MAP mapping bounds. Each of the four fields is bounded by a
     # DIFFERENT descriptor, and cluster_offset is port-RELATIVE (7.2.19
@@ -876,16 +578,7 @@ def main():
                                 ("STREAM_PORT_OUTPUT", D_STREAM_PORT_OUTPUT,
                                  'STREAM_OUTPUT')):
         n_streams = len(shape.get(sname, ([], []))[0])
-        # this direction's per-stream current-format channel counts
-        stream_channels = {}
-        for i in range(n_streams):
-            r, _ = do(f"GET_STREAM_FORMAT {sname}.{i} (C9)",
-                      CMD_GET_STREAM_FORMAT,
-                      struct.pack('!HH', DESC[sname], i))
-            if r and resp_parts(r)[0] == 0 and len(r) >= 50:
-                ch = aaf_channels(struct.unpack('!Q', r[42:50])[0])
-                if ch:
-                    stream_channels[i] = ch
+        stream_channels = _stream_channel_counts(pr, sname, n_streams)
 
         checked, skipped, viol = 0, 0, []
         over = []                              # C10 violations, this direction
@@ -906,33 +599,8 @@ def main():
                                            SP_NUM_MAPS_OFF + 2])[0]
             base_map = struct.unpack('!H', d[SP_BASE_MAP_OFF:
                                              SP_BASE_MAP_OFF + 2])[0]
-            # C10's oracle: THE PORT'S OWN AUDIO_MAP, the one ITS base_map
-            # names. 7.2.13 number_of_maps = 0 means there is no descriptor
-            # (the mappings are dynamic state) - then only the response's
-            # self-consistency can be checked.
-            desc_rows, desc_len, desc_declared = None, None, None
-            if n_maps:
-                rm, _ = do(f"READ_DESCRIPTOR AUDIO_MAP.{base_map} "
-                           f"({pname}.{pi} base_map)", CMD_READ_DESCRIPTOR,
-                           struct.pack('!HHHH', 0, 0, D_AUDIO_MAP, base_map))
-                if rm and resp_parts(rm)[0] == 0:
-                    _st_m, cdl_m, pl_m = resp_parts(rm)
-                    dm = pl_m[RD_DESC_OFF:]
-                    # length from control_data_length, NOT len(frame): the
-                    # 60-octet Ethernet minimum pads short frames and would
-                    # make a truncated descriptor look complete.
-                    desc_len = cdl_m - 12 - RD_DESC_OFF
-                    if desc_len >= AM_ROWS_OFF:
-                        desc_declared = struct.unpack(
-                            '!H', dm[AM_NUM_MAPPINGS_OFF:
-                                     AM_NUM_MAPPINGS_OFF + 2])[0]
-                        desc_rows = []
-                        for k in range(desc_declared):
-                            o = AM_ROWS_OFF + 8 * k
-                            if o + 8 > min(desc_len, len(dm)):
-                                break          # truncated: (b) reports it
-                            desc_rows.append(struct.unpack('!HHHH',
-                                                           dm[o:o + 8]))
+            desc_rows, desc_len, desc_declared = _port_own_map(
+                pr, pname, pi, n_maps, base_map)
             for mi in range(max(n_maps, 1)):
                 r, _ = do(f"GET_AUDIO_MAP {pname}.{pi}.{mi}", CMD_GET_AUDIO_MAP,
                           struct.pack('!HHH', pcode, pi, mi))
@@ -971,21 +639,8 @@ def main():
                     if len(pl) < off + 8:
                         break
                     maps.append(struct.unpack('!HHHH', pl[off:off + 8]))
-                # cluster channel counts, addressed base_cluster + offset
-                cluster_channels = {}
-                for _si, _sc, co, _cc in maps:
-                    if co in cluster_channels or co >= n_clusters:
-                        continue
-                    rc, _ = do(f"READ_DESCRIPTOR AUDIO_CLUSTER."
-                               f"{base_cluster + co}", CMD_READ_DESCRIPTOR,
-                               struct.pack('!HHHH', 0, 0, D_AUDIO_CLUSTER,
-                                           base_cluster + co))
-                    if rc and resp_parts(rc)[0] == 0:
-                        dc = rc[38 + RD_DESC_OFF:]
-                        if len(dc) >= AC_CHANNEL_COUNT_OFF + 2:
-                            cluster_channels[co] = struct.unpack(
-                                '!H', dc[AC_CHANNEL_COUNT_OFF:
-                                         AC_CHANNEL_COUNT_OFF + 2])[0]
+                cluster_channels = _cluster_channel_counts(
+                    pr, maps, n_clusters, base_cluster)
                 checked += len(maps)
                 for v in audio_map_violations(maps, n_streams, stream_channels,
                                               n_clusters, cluster_channels):
@@ -1006,6 +661,13 @@ def main():
         ck(not milan, f"C11 {pname} follows Milan 5.4.2.26's direction split",
            f"ports={pi} violations={milan[:6]}")
 
+
+def _whole_frame_checks():
+    """C7/C8: the two rules every response collected owes at once."""
+    # ------------------------------------------------------------------ #
+    # C7/C8 run over EVERY response this tool collected, so they cost one
+    # check each and cover the whole session.
+    # ------------------------------------------------------------------ #
     print("\n-- C7/C8 whole-frame checks over every response --")
     # C7: 1722.1-2021 9.2.1.1.6 - control_data_length counts the octets after
     # it, so the frame must hold 14 (Ethernet) + 4 (AVTP common) + cdl. Short
@@ -1028,6 +690,11 @@ def main():
                    "command_type",
        f"responses={len(SEEN)} bad={badhdr[:6]}")
 
+
+def _wire_oracle_checks(pr, fmts):
+    """C13: bind a real peer to our talker and read ITS counters."""
+    a, s, src, ctl, tgt, nx = (pr.args, pr.sock, pr.src, pr.ctl,
+                               pr.tgt, pr.nx)
     # C13: ADVERTISED == EMITTED, ON THE WIRE (opt-in). THE CHECK THAT WOULD
     # HAVE CAUGHT 2026-07-27: every other check compares a declaration
     # against another declaration; this one binds a REAL listener (the
@@ -1050,17 +717,18 @@ def main():
             # DISCONNECT first: a sink left bound by an earlier run reports
             # the OLD stream's counters and every number below would be a
             # measurement of the previous experiment.
-            acmp(s, src, 0x02, nx(), ctl, tgt, peid, a.wire_talker, a.wire_sink)
-            r = acmp(s, src, 0x00, nx(), ctl, tgt, peid,
-                     a.wire_talker, a.wire_sink)
+            bind = Binding(ctl, tgt, peid, a.wire_talker, a.wire_sink)
+            acmp(s, src, 0x02, nx(), bind)
+            r = acmp(s, src, 0x00, nx(), bind)
             st = None if r is None else (r[16] >> 3) & 0x1F
             ck(st == 0, f"C13 ACMP CONNECT_RX talker {a.wire_talker} -> peer "
                         f"sink {a.wire_sink} returns SUCCESS", f"status={st}")
             if st == 0:
-                c0 = peer_counters(s, src, pmac, peid, ctl, nx(),
+                sink = Peers(src, pmac, peid, ctl)
+                c0 = peer_counters(s, sink, nx(),
                                    DESC['STREAM_INPUT'], a.wire_sink)
                 time.sleep(a.wire_seconds)
-                c1 = peer_counters(s, src, pmac, peid, ctl, nx(),
+                c1 = peer_counters(s, sink, nx(),
                                    DESC['STREAM_INPUT'], a.wire_sink)
                 if not c0 or not c1:
                     ck(False, "C13 peer answered GET_COUNTERS on its sink",
@@ -1075,8 +743,51 @@ def main():
                        f"C13 peer UNSUPPORTED_FORMAT == 0 for the "
                        f"{nch}-channel format we advertise",
                        f"+{uf} unsupported of +{rx} received")
-            acmp(s, src, 0x02, nx(), ctl, tgt, peid, a.wire_talker, a.wire_sink)
+            acmp(s, src, 0x02, nx(), bind)
 
+
+def main() -> int:
+    """Run every block against a live entity; 1 when any check went red."""
+    p = argparse.ArgumentParser()
+    p.add_argument('--self-test', action='store_true',
+                   help="run C9's bounds predicate over crafted good/bad "
+                        "vectors and exit (no network, no device)")
+    if '--self-test' in sys.argv:
+        print("=== hive_compliance C9 self-test (AUDIO_MAP bounds) ===")
+        return self_test()
+    p.add_argument('--iface', required=True)
+    p.add_argument('--target-eid', required=True)
+    p.add_argument('--target-mac', required=True)
+    p.add_argument('--controller-eid', default='0011223344556677')
+    p.add_argument('--max-index', type=int, default=16,
+                   help='highest descriptor index to probe (default 16)')
+    p.add_argument('--wire-peer-eid', default=None,
+                   help='C13 wire oracle: EID of a SECOND (reference) Milan '
+                        'device to bind as the listener (e.g. '
+                        '3CC0C60102030000). Enables C13.')
+    p.add_argument('--wire-peer-mac', default=None)
+    p.add_argument('--wire-talker', type=int, default=0)
+    p.add_argument('--wire-sink', type=int, default=0)
+    p.add_argument('--wire-seconds', type=float, default=6.0)
+    p.add_argument('--adp-wait', type=float, default=6.0,
+                   help='seconds to wait for the target ADPDU (C3)')
+    a = p.parse_args()
+
+    tgt = bytes.fromhex(a.target_eid)
+    ctl = bytes.fromhex(a.controller_eid)
+    dst = bytes.fromhex(a.target_mac.replace(':', ''))
+    s = open_sock(a.iface)
+    pr = Probe(s, s.getsockname()[4][:6], dst, tgt, ctl, a)
+
+    print(f"=== hive_compliance {a.target_eid} on {a.iface} ===")
+    fmts = {}   # dname -> {index: current_format} (C12/C13)
+
+    shape = _descriptor_sweep(pr, fmts)
+    _advertised_shape_checks(pr, shape)
+    _non_success_size_checks(pr)
+    _audio_map_checks(pr, shape)
+    _whole_frame_checks()
+    _wire_oracle_checks(pr, fmts)
 
     print(f"\n----------------------------------------")
     print(f"checks: {CHECKS[0]}   failures: {len(FAILS)}")

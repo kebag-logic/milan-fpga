@@ -40,6 +40,7 @@ class Row:
 
 
 def run_git(*args: str) -> str:
+    """Stripped stdout of a Git command run against the repository root."""
     result = subprocess.run(
         ["git", "-C", str(ROOT), *args],
         check=True,
@@ -50,12 +51,15 @@ def run_git(*args: str) -> str:
 
 
 def configured_paths() -> list[str]:
+    """The submodule paths .gitmodules declares, sorted."""
     config = configparser.ConfigParser()
     config.read(ROOT / ".gitmodules")
     return sorted(config.get(section, "path") for section in config.sections())
 
 
 def gitlink_pins(paths: list[str]) -> dict[str, str]:
+    """Path -> the SHA the index actually pins, refusing anything but one
+    stage-0 gitlink so a conflicted or replaced submodule cannot read as a pin."""
     pins: dict[str, str] = {}
     for path in paths:
         fields = run_git("ls-files", "--stage", "--", path).split()
@@ -66,6 +70,8 @@ def gitlink_pins(paths: list[str]) -> dict[str, str]:
 
 
 def parse_rows(text: str) -> list[Row]:
+    """The pin rows between the two markers in SUBMODULES.md. A missing or
+    duplicated marker raises rather than silently yielding an empty table."""
     if text.count(START) != 1 or text.count(END) != 1:
         raise ValueError("pin table markers must appear exactly once")
     section = text.split(START, 1)[1].split(END, 1)[0]
@@ -84,6 +90,9 @@ def parse_rows(text: str) -> list[Row]:
 
 
 def validate_rows(rows: list[Row], pins: dict[str, str]) -> list[str]:
+    """Every way the documented table disagrees with the index: a duplicated,
+    missing or unknown path, a pin that is not a full SHA or not the one Git
+    holds, or a row with no purpose or root boundary."""
     errors: list[str] = []
     counts = Counter(row.path for row in rows)
     duplicates = sorted(path for path, count in counts.items() if count != 1)
@@ -108,6 +117,9 @@ def validate_rows(rows: list[Row], pins: dict[str, str]) -> list[str]:
 
 
 def validate_drawio(paths: list[str], source: Path = DRAWIO) -> list[str]:
+    """Every way the boundary diagram disagrees with the submodule set: a node
+    missing or mislabeled, an edge that misses root or carries the wrong role,
+    and legacy dashing on anything but `external`."""
     root = ET.parse(source).getroot()
     cells = {cell.get("id"): cell for cell in root.iter("mxCell")}
     errors: list[str] = []
@@ -139,6 +151,8 @@ def validate_drawio(paths: list[str], source: Path = DRAWIO) -> list[str]:
 
 
 def selftest() -> int:
+    """Fixture arms proving each control bites: a stale pin, a duplicate path, a
+    missing marker, a wrong edge label and missing legacy dashing all fail."""
     pins = {"alpha": "a" * 40, "beta": "b" * 40}
     table = f"""{START}
 | Path | Pin | Purpose | Root integration |
@@ -196,6 +210,8 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """The gate: documented pins, the generated diagram and the boundary
+    drawing must all agree with .gitmodules and the index."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     if sys.argv[1:]:

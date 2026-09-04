@@ -29,7 +29,9 @@ Usage:
 import html
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+from typing import NoReturn
 
 REPO = Path(__file__).resolve().parents[2]
 HDL = REPO / "hdl"
@@ -44,23 +46,32 @@ PRIMS = {
 }
 
 
-def esc(s):
+def esc(s: object) -> str:
+    """One value as XML/SVG text: escaped, attribute-safe, str()-ed first."""
     return html.escape(str(s), quote=True)
 
 
-def die(what):
+def die(what: str) -> NoReturn:
+    """Abort rather than draw a census the parse could not fill.
+
+    A crossing this generator silently missed is exactly the defect the
+    drawing exists to catch, so an unparsable source is a stop, never a
+    shorter picture.
+    """
     raise SystemExit(f"cdc_census.gen.py: cannot parse {what} — the source shape "
                      f"changed; fix this generator, do not hand-draw the census.")
 
 
-def strip_comments(txt):
+def strip_comments(txt: str) -> str:
+    """The SystemVerilog with its `//` comments blanked, so a commented-out
+    instantiation cannot be counted as a live crossing."""
     return re.sub(r"//.*", "", txt)
 
 
 # --------------------------------------------------------------------------
 # RTL side
 # --------------------------------------------------------------------------
-def rtl_crossings():
+def rtl_crossings() -> list[tuple[str, str, str, str, str, str]]:
     """[(module, instance, primitive, clk_a, clk_b, relpath)] over hdl/."""
     rows = []
     for sv in sorted(HDL.rglob("*.sv")):
@@ -93,7 +104,7 @@ def rtl_crossings():
 # --------------------------------------------------------------------------
 # LiteX side
 # --------------------------------------------------------------------------
-def soc_crossings():
+def soc_crossings() -> list[tuple[str, str, str]]:
     """[(kind, name, note)] for the SoC-generated crossings."""
     txt = SOC.read_text(encoding="utf-8")
     body = re.sub(r"^\s*#.*", "", txt, flags=re.M)
@@ -141,12 +152,16 @@ COLS = 3
 ROW_H, HDR_H, LINE_H = 0, 30, 16
 
 
-def owner_h(o):
+def owner_h(o: str) -> int:
+    """The pixel height one module's card needs: header, a line per crossing,
+    and the bottom padding."""
     return HDR_H + len(BY_OWNER[o]) * LINE_H + 14
 
 
 # lay the owner cards out in COLS balanced columns
-def layout():
+def layout() -> tuple[dict[str, tuple[int, int]], int]:
+    """({owner: (x, y)}, tallest column) - cards dealt to the shortest column
+    so the census stays one screen wide as crossings are added."""
     heights = [0] * COLS
     place = {}
     for o in OWNERS:
@@ -161,7 +176,9 @@ W = MARGIN * 2 + COLS * COL_W + (COLS - 1) * COL_GAP
 H = 250 + STACK_H + 330
 
 
-def svg():
+def svg() -> str:
+    """The rendered census: legend, one card per owning module, the SoC half
+    and the claim about what the parse cannot see."""
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
          f'viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">',
          f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>']
@@ -245,50 +262,78 @@ def svg():
     return "\n".join(o)
 
 
-def drawio():
+@dataclass
+class Box:
+    """One draw.io vertex's mxGeometry, in the parent's coordinates."""
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+@dataclass
+class Face:
+    """How one draw.io vertex is painted and set: the mxCell style, grouped.
+
+    Four of the five used to be adjacent positional arguments of the same two
+    types, so `vertex(..., fill, stroke, fs, bold)` was four values a caller
+    could permute without the generator noticing.
+    """
+    fill: str
+    stroke: str
+    fs: int = 12
+    bold: bool = False
+    align: str = "left"
+
+
+def drawio() -> str:
     """The editable master: one draw.io vertex per module card and per crossing."""
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
 
-    def vertex(nid, x, y, w, h, label, fill, stroke, fs=12, bold=False,
-               parent="1", align="left"):
-        style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={fill};strokeColor={stroke};"
-                 f"fontSize={fs};align={align};verticalAlign=top;spacingLeft=8;spacingTop=4;"
-                 + ("fontStyle=1;" if bold else ""))
+    def vertex(nid: str, box: Box, label: str, face: Face,
+               parent: str = "1") -> None:
+        """Append one styled mxCell vertex to the cell list being built."""
+        style = (f"rounded=1;whiteSpace=wrap;html=1;fillColor={face.fill};"
+                 f"strokeColor={face.stroke};"
+                 f"fontSize={face.fs};align={face.align};verticalAlign=top;"
+                 f"spacingLeft=8;spacingTop=4;"
+                 + ("fontStyle=1;" if face.bold else ""))
         cells.append(f'<mxCell id="{nid}" value="{esc(label)}" style="{style}" vertex="1" '
-                     f'parent="{parent}"><mxGeometry x="{x}" y="{y}" width="{w}" '
-                     f'height="{h}" as="geometry"/></mxCell>')
+                     f'parent="{parent}"><mxGeometry x="{box.x}" y="{box.y}" width="{box.w}" '
+                     f'height="{box.h}" as="geometry"/></mxCell>')
 
-    vertex("title", 40, 20, 1500, 44,
+    vertex("title", Box(40, 20, 1500, 44),
            f"Clock-domain crossings - the whole census ({len(RTL)} in fabric, "
            f"{len(SOCX)} generated by the SoC). GENERATED from hdl/**/*.sv + "
-           f"sw/litex/milan_soc.py.", "none", "none", 20, True)
+           f"sw/litex/milan_soc.py.", Face("none", "none", 20, True))
     for i, (prim, (_ports, doc)) in enumerate(PRIMS.items()):
         fill, stroke = PRIM_COLOUR[prim]
         n = sum(1 for r in RTL if r[2] == prim)
-        vertex(f"p{i}", MARGIN + i * 340, 160, 320, 60,
-               f"{prim}  x{n}\n{doc}", fill, stroke)
+        vertex(f"p{i}", Box(MARGIN + i * 340, 160, 320, 60),
+               f"{prim}  x{n}\n{doc}", Face(fill, stroke))
     # module cards, each carrying its crossings as child vertices
     for oi, owner in enumerate(OWNERS):
         x, y = PLACE[owner]
         h = owner_h(owner)
-        vertex(f"m{oi}", x, y, COL_W, h, owner, "#FFFFFF", "#B0BEC5", 13, True)
+        vertex(f"m{oi}", Box(x, y, COL_W, h), owner,
+               Face("#FFFFFF", "#B0BEC5", 13, True))
         for i, (inst, prim, ca, cb) in enumerate(BY_OWNER[owner]):
             fill, stroke = PRIM_COLOUR[prim]
-            vertex(f"m{oi}_{i}", 10, HDR_H + i * LINE_H - 2, COL_W - 20, LINE_H,
-                   f"{inst}: {ca} -> {cb}", fill, stroke, 10,
+            vertex(f"m{oi}_{i}", Box(10, HDR_H + i * LINE_H - 2, COL_W - 20, LINE_H),
+                   f"{inst}: {ca} -> {cb}", Face(fill, stroke, 10),
                    parent=f"m{oi}")
     sy = 250 + STACK_H + 36
-    vertex("soc", MARGIN, sy, W - 2 * MARGIN, 28 + len(SOCX) * 18,
+    vertex("soc", Box(MARGIN, sy, W - 2 * MARGIN, 28 + len(SOCX) * 18),
            "GENERATED BY add_milan_datapath() - the sys / cd_milan boundary\n"
            + "\n".join(f"{k}  {n}  -  {note}" for k, n, note in SOCX),
-           GREY[0], GREY[1])
-    vertex("claim", MARGIN, sy + 40 + len(SOCX) * 18, W - 2 * MARGIN, 92,
+           Face(GREY[0], GREY[1]))
+    vertex("claim", Box(MARGIN, sy + 40 + len(SOCX) * 18, W - 2 * MARGIN, 92),
            "What this census can and cannot prove: it proves every crossing built "
            "from one of the four primitives is drawn here. It CANNOT prove a signal "
            "is not crossing some other way - a bare assignment between two clocked "
            "processes is invisible to this parse and to simulation alike. That is "
            "what the constraints and the synthesis CDC report are for.",
-           RED[0], RED[1])
+           Face(RED[0], RED[1]))
     body = "\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="cdc-census">'
             f'<mxGraphModel dx="1600" dy="1000" grid="0" gridSize="10" guides="1" '

@@ -1,7 +1,8 @@
 # Code quality — the maintainability contract
 
 This page is the numbered, cross-language maintainability contract for
-first-party SystemVerilog, C++, Python, Tcl and shell code in this repository.
+first-party SystemVerilog, C++, C, Python, Tcl and shell code in this
+repository.
 It exists because cleanup is otherwise easy to mix into functional work, to
 turn into large formatting churn, or to apply to one language and not the next.
 
@@ -12,7 +13,7 @@ spec" are not restated here as weaker preferences. This page adds the rules
 those house rules do not cover, and gives each one wording, examples,
 exceptions, a measurement and a review checklist.
 
-The rules landed one at a time, and all ten are now below, each in its own
+The rules landed one at a time, and all thirteen are now below, each in its own
 section. [The contract is complete](#the-contract-is-complete) at the end says
 what every landed rule ships with and which of them a workflow gate enforces,
 so a reader can see the whole shape rather than guess at it.
@@ -33,7 +34,10 @@ so a reader can see the whole shape rather than guess at it.
 - **[Rule 7: comments explain why, and dead code goes](#rule-7-comments-explain-why-and-dead-code-goes)** -- What a comment is for, why a marker names its issue or is resolved, the near-misses that forced a narrow definition of "marker" and what the gate reads to find one, the two stale markers removed, and the dead code the inventory found.
 - **[Rule 8: tests prove something, and prove they can fail](#rule-8-tests-prove-something-and-prove-they-can-fail)** -- Why a green suite can prove nothing, the three defects injected into the TCAM to show its harness is load-bearing, what counts as an executed arm, the four evidence ratchets, and what was found already clean.
 - **[Rule 9: automate mechanical hygiene with measured ratchets](#rule-9-automate-mechanical-hygiene-with-measured-ratchets)** -- The six candidate checks measured before any was adopted, why the highest-volume one was rejected on the record, why three checks are adopted at zero, and how the formatting-only rewrite was isolated and proven.
-- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Why ordinary `.v` files and generic `always @` are refused, what is ratcheted instead, why a `wire` is deliberately not a finding, and the representative boundaries modernized without changing behavior.
+- **[Rule 10: prefer idiomatic SystemVerilog](#rule-10-prefer-idiomatic-systemverilog)** -- Why ordinary `.v` files and generic `always @` are refused, the three ratchets that are now all at zero, why a `wire` is deliberately not a finding, the representative boundaries modernized without changing behavior, and the anti-vacuity guard that turned this gate red the moment the rule was complied with.
+- **[Rule 11: prefer idiomatic C++ and C](#rule-11-prefer-idiomatic-c-and-c)** -- What the C++ Core Guidelines require of the 110 first-party translation units, the shared harness header that gave 99 of them an owner for their Verilated model, the two gate defects that let a 5 741-line `main` sit uncounted, why `printf` is deliberately not a finding, and the sweep that is the oracle for all of it.
+- **[Rule 12: prefer idiomatic Python](#rule-12-prefer-idiomatic-python)** -- The six refusals, five of which were already at zero across 3 192 functions, the unguarded `eval` that was reading the trace ABI, the precision bug that made the first gate demand a rename of an IEEE 1722 field, and the annotation debt this page called unrepairable and the tree then repaired.
+- **[Rule 13: prefer idiomatic shell](#rule-13-prefer-idiomatic-shell)** -- Why a shell gate whose tool is absent prints PASS, the `cd` and `$?` repairs that make three processor scripts fail when they should, the four bugs this gate carried, two of which pushed a repair that broke two source-parsing gates, and the five strict-mode declines with the reason in each file.
 - **[The contract is complete](#the-contract-is-complete)** -- What every landed rule carries, which eight of the ten rules a gate in the documentation workflow enforces and why each of those gates ships with a self-test proving it can fail, and why Rules 1 and 2 are measurements rather than gates.
 
 ## The governing rule
@@ -2018,17 +2022,23 @@ asks for neither, and the difference is silent. The first gate looked for
 `always` followed by `@`, which a legal `always begin @(...)` walked past; the
 keyword itself is now the finding, and a fixture holds that spelling.
 
-**`reg` declarations are ratcheted at 58**, across fifteen files. A `reg` in a
-`.sv` file is legal and usually harmless; `logic` is the SystemVerilog spelling
-and new code uses it. Rewriting all fifty-eight in one change is the churn the
-governing rule forbids.
+**`reg` declarations are ratcheted at 0.** A `reg` in a `.sv` file is legal and
+usually harmless; `logic` is the SystemVerilog spelling and new code uses it.
+The census was 58, across fifteen files, and **every one of the 58 was
+single-driver sequential state inside an `always_ff`** — so the repair was a
+spelling change and not a restructuring. Each was respelled `logic`, the
+`verilator --lint-only -Wall` warning set was compared before and after for
+every file, and every suite that instantiates one was rebuilt against its
+recorded tally. A one-word substitution that a lint set and a suite tally both
+witness is not the churn the governing rule forbids; rewriting the blocks
+around it would have been.
 
 The first checker reported 48 because its expression only recognized `reg` at
 the beginning of a line. It missed fourteen ANSI `output reg` declarations and
 attribute-prefixed declarations. The gate now blanks comments and strings and
 recognizes the reserved `reg` keyword in every declaration context; a fixture
-specifically kills the old `output reg` blind spot. The corrected baseline is
-58 after the four variables modernized in `rx_mac_filter` below.
+specifically kills the old `output reg` blind spot. The corrected census was
+58, after the four variables modernized in `rx_mac_filter` below.
 
 **Untyped `parameter` declarations are held at zero.** `parameter W = 8` takes
 an implementation-defined type; `parameter int unsigned W = 8` does not. The
@@ -2039,14 +2049,41 @@ of a `parameter A = 1, B = 2;` list counts once, both of which the first gate's
 expression missed. A packed range (`parameter [3:0] W = 4`) is an explicit
 width and is not counted, and a user-defined type ahead of the name is a type.
 
-**Untyped `localparam` declarations are ratcheted at 2**, as their own entry.
+**Untyped `localparam` declarations are ratcheted at 0**, as their own entry.
 The rule the issue wrote names parameters and localparams together; the two
-that remain are the `$clog2`-derived `TDEST_WIDTH` constants in
+the census found were the `$clog2`-derived `TDEST_WIDTH` constants in
 `hdl/ieee8021q/ts/traffic_queues.sv` and
-`hdl/ieee8021q/ts/traffic_controller_802_1q.sv`. A localparam crosses no
-boundary, so this is a smaller debt than an untyped port parameter would be,
-but it is counted rather than left out, and the entry is separate so localparam
-debt is never traded against port parameters.
+`hdl/ieee8021q/ts/traffic_controller_802_1q.sv`, and both are now
+`localparam int`. A localparam crosses no boundary, so this was a smaller debt
+than an untyped port parameter would be, but it was counted rather than left
+out, and the entry stays separate so localparam debt is never traded against
+port parameters.
+
+### The anti-vacuity guard made compliance a failure
+
+All four idiom gates carried a self-test arm asserting that some ratcheted
+population was above zero, so an inert scan could not report zero everywhere
+and ratchet the tree to nothing. The intent is right. The implementation
+conflated two different things: **"the scan works" and "debt still exists"**.
+
+What it cost: `scripts/check_sv_idiom.py` went red the moment SystemVerilog
+reached zero. The commit that respelled the last `reg` failed the gate whose
+whole job was to record that it had, and `scripts/check_cpp_idiom.py` was one
+change away from the same. **A rule must not be written so that complying with
+it is a failure.**
+
+Both are now rebased on DETECTION rather than on debt. The arm plants each
+ratcheted construct into a real tree source — a `reg` into the first scanned
+`.sv` here; a file-scope mutable, a multi-declarator declaration and a
+120-line function into a real `.cpp` in Rule 11's gate — and requires the live
+scan to count exactly one more of it than it counted before. That holds at any
+population, zero included, and it still fails for the reason the guard exists:
+a scan that has stopped reading the tree.
+
+`scripts/check_py_idiom.py` and `scripts/check_sh_idiom.py` still carry the old
+form. Both pass, and they pass only because their populations are not yet zero
+— 13 long functions, 5 scripts without strict mode. It is the same defect,
+waiting for the commit that finishes those two rules.
 
 ### Inventory and repository examples
 
@@ -2065,13 +2102,13 @@ recorded decision rather than an omission:
 - **The generated CSR headers are gated on purpose.**
   `hdl/common/gen/adp_shape_defaults.svh` and
   `hdl/common/csr/gen/lwsrp_csr_defaults.svh` are written by
-  `sw/builder/endstation_builder.py`; they hold 32 and 7 typed localparams and
-  no finding. They are inside the 120 rather than excluded, because a finding in
+  `sw/builder/endstation_builder.py`; they hold 33 and 7 typed localparams and
+  no finding. They are inside the 119 rather than excluded, because a finding in
   generator output is fixed in the generator, and the gate reading the output is
   how a generator regression would be seen. `LINT_EXCLUDE` lists whole files
   with a reason each and names neither header.
-- **Untyped `localparam`s are counted**, two of them, as their own ratchet
-  above.
+- **Untyped `localparam`s are counted** as their own ratchet above; the two the
+  census found are typed and the entry is at zero.
 
 One tooling exception on the processor side is recorded here rather than fixed,
 because the fix belongs upstream. `gptp-processor`'s own lint target
@@ -2114,8 +2151,8 @@ The issue's interpretation asks for `` `default_nettype none `` around every
 first-party compilation unit. [CONTRIBUTING.md](../../CONTRIBUTING.md) already
 requires it — `none` at the top of the file and `wire` at the bottom — and this
 page does not restate a house rule as a weaker preference, so what is recorded
-here is the measured state and why no third refusal was added. Of the 120 gated
-files, 113 carry the directive. The seven that do not are two packages
+here is the measured state and why no third refusal was added. Of the 119 gated
+files, 112 carry the directive. The seven that do not are two packages
 (`hdl/common/ethernet_packet_pkg.sv` and
 `hdl/ieee1722/avtp/avtp_subtype_pkg.sv`), four include headers
 (`hdl/common/parameters.svh`,
@@ -2195,24 +2232,645 @@ There are currently no whole-file HDL exceptions.
 - If this is a net, is it connectivity — or a variable spelled as one?
 - If a construct is avoided for a tool, is the tool and the reason written down?
 
+## Rule 11: prefer idiomatic C++ and C
+
+> New first-party C++ MUST follow the
+> [isocpp C++ Core Guidelines](https://github.com/isocpp/CppCoreGuidelines).
+> New and touched code SHOULD use the construct that states ownership,
+> conversion and intent rather than the one that leaves them to a reader:
+> a scoped owner rather than a naked `new`, a named cast rather than a
+> C-style one, a `constexpr` rather than a `#define`. Freestanding C is
+> judged as C, not as C++ with omissions. Legacy code migrates in
+> behaviour-preserving changes; generated and vendored code is fixed in its
+> generator, and every exception is recorded.
+
+Rule 10 does this for SystemVerilog. Until this rule there was no equivalent
+for the 110 first-party translation units, and no tool in the tree read C++
+for anything except trailing whitespace (`scripts/check_hygiene.py`) and TODO
+ownership (`scripts/check_todo_ownership.py`). That is a larger gap than it
+sounds: those translation units are the verification evidence. Every claim
+this project makes that a change is safe is a claim about what they printed.
+
+### What was measured, and what it is now
+
+Over the 110 tracked first-party `.c`/`.cpp`/`.h` files — 64 871 lines at the
+census, 75 883 now — with the barectf output excluded (see [Scope](#scope)):
+
+| Construct | Core Guidelines | Before | After |
+|---|---|---:|---:|
+| Naked `new`/`delete` | R.11, R.20, C.149 | 197 | **0** |
+| C-style cast | ES.49, ES.48 | 2 386 | **0** |
+| Multi-declarator declaration | ES.10 | 2 297 | **0** |
+| File-scope mutable variable | I.2 | 811 | **0** |
+| Unnamed `enum { }` constant bag | Enum.2, Enum.5 | 94 | **0** |
+| Macro constant | ES.31, Enum.1 | 74 | **0** |
+| Function over 100 lines | F.3 | 94 | **0** |
+| Testbench build with no warning flags | P.4, P.5 | 84 | **0** |
+| `goto` | ES.76 | 0 | 0 |
+| Unbounded C string call | SL.str.1, ES.50 | 0 | 0 |
+
+The "before" column is the census taken before any edit and does not move; the
+"after" column is what `scripts/cpp_idiom.budget` now holds. Every entry is
+zero, and a zero entry is still a ratchet: the budget is read on every run and
+a count above its entry fails, whether that entry is 621 or 0.
+
+Two of the movements are worth a sentence. The C-style cast population fell
+from 2 386 to zero because the conversion is purely local, and a named cast is
+never wrong where an unnamed one was right. The ES.10 and I.2 populations —
+2 297 and 811 — fell together rather than trading against each other, which is
+not what splitting a multi-declarator predicts on its own;
+[the harness class](#the-shared-harness-header-and-why-ownership-was-the-first-repair)
+is why, and the paragraph in [Seven ratchets](#seven-ratchets) that predicted
+the trade is corrected there rather than deleted.
+
+One "before" number is itself wrong and is kept anyway. The F.3 census of 94
+was produced by a scan that could see no member function, and that lost its
+place at a digit separator and stopped counting the rest of the file; both
+defects are recorded below. The column says what was measured, not what was
+true.
+
+Three numbers behind the ownership row are worth stating separately, because
+each of them is a defect rather than a style preference. Ninety-nine harnesses
+own a Verilated model through a raw pointer. **Seventy-five never call
+`final()`.** **Seven never free the model at all.** And **thirty-nine have a
+`return` in `main` that runs before their teardown** — the "give up, the DUT
+never asserted ready" path a debugging session adds and nobody removes — so
+for those the teardown at the bottom of `main` is not the only path out and
+never was.
+
+### The shared harness header, and why ownership was the first repair
+
+`tb/common/verilator_harness.hpp` holds the two things every harness needs and
+nothing else: `milan::tb::Model<T>`, which owns a Verilated model for the
+scope it is declared in and runs `final()` then frees it on *every* path out;
+and `milan::tb::Checker`, which counts assertions and prints the one summary
+shape `scripts/suite_tally.py` can read.
+
+It is deliberately not a BFM library. Clock stepping, AXI transactions and
+protocol modelling stay in the harness that owns them, because they differ per
+DUT and a shared `step()` would need a knob per suite. Only what is the same
+everywhere lives there.
+
+The header exists once per repository — here, and in each project-owned
+processor — because a submodule cannot include a file out of the superproject
+that happens to contain it. Three copies of one meaning is Rule 3's problem
+shape, so `scripts/check_cpp_idiom.py` compares them byte for byte and names
+the first difference. Copy the file; do not edit the copy.
+
+The `Checker` half is available and is what new harnesses use. It is **not**
+retrofitted into the existing ones in the same change, because it changes what
+they print, and what they print is the sweep's evidence. That is a separate,
+reviewable change with its own before-and-after sweep.
+
+That restraint is what made everything else in this rule checkable, so it is
+worth being explicit about. The harness-class repair — the one that took the
+I.2 population to zero and the longest function in the tree from 5 741 lines
+to eight — moves file-scope state into a class and a giant `main` into member
+functions of it. It adopts `Model<T>`; it does **not** adopt `Checker`. Every
+`ck(...)` call, every got/expected column and every tally line is the one that
+was there before, so **no printed line changed**. That is why
+[the sweep](#the-sweep-is-the-oracle-and-it-is-unchanged) could be used as the
+oracle for the repair rather than merely as a smoke test after it.
+
+### Four refusals
+
+**A naked `new` or `delete` is refused** (R.11, R.20, C.149). A placement
+`new` allocates nothing and is not a finding; `= delete` on a function is not
+a deallocation and is not a finding. Everything else is, and the population is
+now zero: every one of the 99 harnesses declares
+
+```cpp
+const milan::tb::Model<Vmilan_csr> model;
+dut = model.get();               // the harness's own observing pointer
+```
+
+in place of `dut = new Vmilan_csr;` … `dut->final(); delete dut;`.
+
+**`goto` is refused**, at zero. The construct that replaces it — a named
+function with an early `return`, or a `break` — is always available in C++,
+and a `goto` threaded through what was a five-thousand-line `main` is the one
+edit no reader can follow.
+
+**An unbounded C string or conversion call is refused**, at zero: `strcpy`,
+`strcat`, `sprintf`, `vsprintf`, `gets`, `scanf`, and `atoi`, which cannot
+report a failure so a bad input reads as zero.
+
+**A drifted copy of the shared harness header is refused**, as described
+above.
+
+### Seven ratchets
+
+`scripts/cpp_idiom.budget` records C-style casts, file-scope mutables, macro
+constants, unnamed enum blocks, multi-declarator declarations, functions over
+100 lines, and testbench builds that hand the compiler no warning flags. Every
+number may only go down, and every one of the seven is now zero.
+
+The last of those is the one that was invisible before this rule and is worth
+its own paragraph. **Eighty-four of the eighty-four testbench Makefiles passed
+`-CFLAGS "-std=c++17 -O2"`. Exactly one added `-Wall`. None added `-Wextra`.**
+So the C++ compiler watched 63 000 lines of hand-written verification code and
+said nothing. Turning the flags on found, immediately:
+
+- `tb/verilator/aes3/sim_main.cpp` asserting
+  `ck("recovered: transmitter accepting pairs again", dut->pair_ready_o >= 0, 1)`
+  — `pair_ready_o` is an unsigned Verilator word, so `>= 0` is always true.
+  **That check can never fail**, which is precisely the masked verdict
+  [Rule 6](#rule-6-fail-fast-and-encode-invariants) exists to stop, sitting
+  green in the tree because nothing was looking. Correcting it is worth
+  following, because the obvious correction is also wrong: `== 1` was run
+  against the DUT and reported `got=0 exp=1`. `pair_ready_o` is `!src_full_w`,
+  the harness hands over a pair on every cycle the FIFO has room, and eight
+  frames is far longer than the depth-8 FIFO needs to refill — so a fully
+  recovered transmitter reads back 0 there, and the instantaneous level was
+  never the right thing to assert. What "accepting pairs again" means is that
+  pairs were TAKEN during the window, which the feed counter already records.
+  The check now reads `accepted_after_starve > 0`, tests the property it
+  names, and passes; the suite still reports 50 checks;
+- two "unsequenced modification and access" lines in
+  `protocol-processor/tb/dispatch/sim_main.cpp` — undefined behaviour in code
+  the project uses as evidence.
+
+Verilator's own generated code compiles clean under `-Wall -Wextra` (measured:
+one warning across a whole suite build, and it was in the hand-written
+harness), so the flags cost nothing in noise. `-Werror` is deliberately NOT
+added: a warning must be visible, not fatal, while the population is above
+zero.
+
+**The flag rollout broke a suite, and the sweep is what caught it.** Adding
+the flags to 84 Makefiles was done mechanically, with a pattern that read a
+`-CFLAGS` group as ending at its first `"`. Two Makefiles do not have that
+shape: `tb/verilator/avtp_parser` passes `-DSHAPE_NAME=\\\"N8-BE-beats\\\"`,
+so the group contains escaped quotes, and the flags were inserted INTO the
+escape sequence — `/bin/sh: unexpected EOF while looking for matching quote`,
+and the suite stopped building. `tb/verilator/crf_rx` continues its group over
+two lines with a trailing backslash. Per-suite verification did not catch the
+first, because the mechanical pass ran after the per-suite agents; the
+full sweep did, on the run whose whole purpose is to compare every suite
+against its pre-change tally. Both Makefiles are repaired, and both shapes are
+now fixture arms of `cflags_missing` — the gate that reads those groups had
+the same blind spot, and would have reported the flags missing on the very
+files that carry them.
+
+**What `-Wall -Wextra` does NOT restore, on the record.** Verilator 5.050 puts
+its own suppression list on every `g++` line it drives — `-Wno-bool-operation`,
+`-Wno-int-in-bool-context`, `-Wno-shadow`, `-Wno-sign-compare`,
+`-Wno-subobject-linkage`, `-Wno-tautological-compare`, `-Wno-uninitialized`,
+`-Wno-unused-but-set-parameter`, `-Wno-unused-but-set-variable`,
+`-Wno-unused-parameter`, `-Wno-unused-variable` — and GCC gives an explicit
+`-Wno-X` precedence over a group flag whatever the command-line order. Those
+eleven classes therefore stay off. Forcing them back with explicit positive
+flags does work, and then reports 109 warnings out of `verilated_funcs.h`,
+which is why Verilator suppresses them: `-CFLAGS` reaches Verilator's runtime
+headers as well as the harness, and there is no per-file split to hang them
+on. So the rule asks for `-Wall -Wextra` and stops there. What that still
+delivers is the part that matters here — `-Wtype-limits` is the flag that
+found the `aes3` check that can never fail, and `-Wsequence-point`,
+`-Wmisleading-indentation`, `-Wformat`, `-Wreturn-type`, `-Wparentheses`,
+`-Wempty-body` and `-Wunused-value` all survive. Separating the harness
+compile from the runtime compile, so the other eleven can be turned on for
+first-party sources only, is a build-system change and is not made here.
+
+**Two of them were predicted to move in opposite directions, and did not.**
+`static long fails = 0, checks = 0;` is ONE multi-declarator finding and, once
+split as ES.10 requires, TWO file-scope mutables, so this page recorded that
+ES.10 would fall while I.2 rose in the same commit, and that only adopting
+`milan::tb::Checker` would remove the I.2 debt. Both are now zero and `Checker`
+was not adopted. What removed them is the harness class: a counter that was a
+file-scope `static` becomes a member of the object that owns the run, which is
+what I.2 asks for and costs no printed line. The prediction was wrong in the
+one direction that mattered — it assumed a shared summary printer was the only
+owner a counter could be given.
+
+### Function length is the ratchet that tracks readability
+
+The threshold is 100, the same number `scripts/check_py_idiom.py` uses, so a
+reader does not have to remember two. It counts FUNCTIONS rather than lines,
+so splitting one giant into three merely large ones still shows as progress.
+
+This page said the measured maximum in this tree was a 4 641-line `main` in
+`tb/verilator/milan_dp/sim_nxn.cpp`. **It was not.** The maximum was a
+**5 741-line `main`** in `protocol-processor/tb/pp_top/sim_main.cpp`, which no
+count had ever seen, for the reason the digit-separator subsection below
+gives. That `main` is now eight lines: it constructs the model, hands it to a
+harness, runs the suite and prints the tally. The work sits in over 274 member
+functions of that harness, the longest function in the file is 97 lines, and
+tree-wide no function exceeds 100.
+
+### The F.3 check could not see a member function
+
+`FUNC_OPEN_RE` was anchored at column zero, which is where a free function and
+a `main` open. A member function opens indented inside its class body, so the
+pattern matched free functions and `main` and **no member at all**. That makes
+the ratchet answer the wrong question at the worst possible moment: wrapping a
+giant `main` in a harness class — the repair this rule itself asks for — takes
+the count to zero without shortening one function.
+
+What it cost, measured at the commit that widened the pattern: the gate
+reported `long function: 0` while **21 functions were still over the limit,
+the largest 756 lines**. Six fixture arms now hold the distinction — a member,
+an out-of-line member definition, a lambda body (one finding for the function
+that owns it, not two), a `} else if` continuation, a class head, and a
+brace-initialiser; the last three are the shapes that end in `{` without
+opening a function, and each of them was a false positive waiting for the
+anchor to come off.
+
+### A digit separator was read as a character literal
+
+`NON_CODE` blanks comment and string bodies before anything is counted, and it
+had no case for C++14's `'` digit separator. In `0x0000'0FFF` that apostrophe
+opened a character literal, and the literal ran to the next apostrophe in the
+file — in `tb/verilator/pp_shadow/sim_main.cpp`, the one in "engine's", twenty
+lines below. Everything between them was blanked, closing braces included, so
+the brace counter lost its place and **every function from there to end of
+file went uncounted**, along with two C-style casts.
+
+That is what hid the 5 741-line `main`:
+`protocol-processor/tb/pp_top/sim_main.cpp` is dense with separators from line
+1019 onward, and no census ever read past them. The separator alternative is
+now matched ahead of the character-literal one and kept as code, with four
+fixture arms — the separator not opening a literal, the separator leaving
+brace counting intact, a real character literal still being blanked, and a
+`goto` inside one still not being a finding. The general lesson is not
+specific to this gate and is worth stating plainly: **a lexer that loses its
+place silently makes every count downstream of it a guess.**
+
+### `printf` is deliberately not a finding
+
+SL.io.3 prefers iostreams. A harness whose entire output is a column-aligned
+table of got/expected values is clearer with a format string than with a dozen
+`std::setw` manipulators; every tally line in this tree is a `printf`;
+`scripts/suite_tally.py` parses those lines; and converting them would be a
+repository-wide edit that changes no property any reader or tool can use.
+`memcpy`, `memset` and the `malloc` family are not findings either — they are
+the correct tools for assembling a wire packet out of trivially copyable
+bytes, and `sw/trace` is freestanding C99 where there is no alternative.
+
+### C is judged as C
+
+A translation unit under `sw/trace/` or `sw/firmware/` is freestanding C99.
+C-style casts, `#define` constants and file-scope statics are the language
+there, not a deviation from it, so the four C++-only checks do not run on it.
+`goto`, the unbounded string calls, multi-declarator lines and long functions
+do — each is as unreadable in C as in C++.
+
+Two repairs landed in the C. `sw/trace/trace_selftest.c` produces the
+compression and truncation numbers `sw/trace/test_trace_roundtrip.py` gates
+on, and **four of its five `write_segment()` calls threw the status away**,
+as did both `fwrite` and both `fclose`. A short write there leaves a segment
+the reader reports as torn — indistinguishable from the torn-segment case
+gate 7 deliberately manufactures. All of them now report, and `main` returns
+non-zero (E.2). The gate ran green before and after.
+
+### The sweep is the oracle, and it is unchanged
+
+The claim every repair in this rule rests on is that nothing it touched
+changed what a suite prints. That is a claim about a tool's output, so it is
+made with the tool, as [the governing rule](#the-governing-rule)'s fifth
+obligation requires. The whole RTL sweep was captured before the pass and
+again after, and the per-suite tallies are `diff`-identical:
+
+| Tree | Suites | Checks | Failures |
+|---|---:|---:|---:|
+| Superproject | 51 | 2 115 891 | 0 |
+| `protocol-processor` | 31 | 14 727 | 0 |
+| `gptp-processor` | 3 | 1 700 | 0 |
+
+One suite is red on this workstation and on no gate. `chmap_capture`'s
+netcheck stage shells out to `sv2v`, which is not installed here; that is an
+absent tool, not a finding. Its harness leg builds, runs, and prints 196
+checks, 0 failures.
+
+### Exceptions, recorded rather than assumed
+
+- `sw/trace/generated/` is barectf 3.1.2 output, recorded in
+  [THIRD_PARTY.md](../../THIRD_PARTY.md). It is vendored AND generated, so it
+  is fixed by re-running barectf. It carries an upstream MIT banner rather
+  than a generated-by banner, so the shared banner test does not see it and
+  the gate names the prefix explicitly.
+- `sw/firmware/milan_baremetal/milan_baremetal.c` links the LiteX BIOS and
+  cannot be built on a workstation without the RISC-V toolchain and a LiteX
+  tree. Its 25 `(unsigned long)` casts before a `%l` conversion would be better as
+  `<inttypes.h>`'s `PRIx32`, and that change is **not** made here: a
+  `PRIx32` the target libc does not provide breaks the firmware build, and a
+  change that cannot be compiled must not be made blind.
+
+### Review checklist
+
+- Who owns this object, and does the code say so without a comment?
+- Does every conversion name which conversion it is?
+- Is this constant typed and scoped, or is it a macro?
+- Can a reader of this function see all of it at once?
+- Does this declaration introduce exactly one name?
+- If a Core Guideline is not followed, is the reason written down where the
+  next reader will look?
+
+## Rule 12: prefer idiomatic Python
+
+> New first-party Python MUST avoid the constructs that make a defect
+> invisible — a bare `except`, a mutable default, a shell string, a shadowed
+> built-in, a wildcard import, an unguarded `eval`. New and touched public
+> functions SHOULD carry a complete PEP 484 signature and a docstring, and
+> SHOULD be short enough to read. Existing debt is ratcheted, not rewritten.
+
+There is more Python in this tree than SystemVerilog — 129 files, 99 526
+lines — and before this rule there was no `pyproject.toml`, no `.flake8`, no
+`ruff.toml`, no `mypy` configuration and no gate anywhere in it. Twenty-six
+hand-written gates policed the RTL and the documentation. Nothing policed the
+gates.
+
+### Six refusals, and why the population was already almost clean
+
+| Refusal | Population found |
+|---|---:|
+| Bare `except:` | 0 |
+| Mutable default argument | 0 |
+| `shell=True` or `os.system()` | 0 |
+| Shadowed built-in | 0 |
+| Wildcard import outside the recorded exception | 0 |
+| Unguarded `eval`/`exec` | 2 |
+
+Five of the six were already at zero across 3 192 function definitions, which
+is worth saying plainly: the house habits are good, and the rule's job is to
+keep the seventh occurrence from being the first. The exception list holds one
+entry — `from migen import *`, which is that framework's documented usage.
+
+The two real findings were in `sw/trace/test_trace_roundtrip.py`, which read
+two `#define` values out of `milan_trace.h` — correctly, because the header is
+the ABI and restating the numbers in the test is how the two drift — and then
+handed the text to `eval`. `_c_define_int` now parses the expression and walks
+every node against an integer-arithmetic whitelist before compiling it. The
+other two sites are guarded by explicit character-class matches and are
+recorded in the gate's `DYNAMIC_EXEC_INVENTORY` with the guard that makes each
+safe; an unguarded `eval` on file text is refused however good the reason.
+
+### A precision bug the first version of the gate had, on the record
+
+The first shadowed-built-in check counted four findings: a dataclass field
+`type: int` in `tb/tools/avtp_wire_truth.py`, another in
+`scripts/gen_hdl_reference.py`, and a method `def set(...)` in
+`sw/builder/test_builder.py`. **All four were wrong.** A class body is not a
+scope any unqualified call resolves in, so none of them costs any scope the
+ability to call `type()` or `set()` — and `avtp_wire_truth.py` names its field `type`
+because IEEE 1722 names it `type`. Acting on those findings would have
+demanded a rename that made the structure disagree with the document it
+encodes. The gate now descends into a class body only for its functions, and
+carries three fixture arms holding that distinction.
+
+### Nine ratchets, and the shape of the debt
+
+The measured populations are in `scripts/py_idiom.budget`. The census that
+opened this rule, and what the tree holds now:
+
+| Ratchet | Census | Now |
+|---|---:|---:|
+| Function over 100 lines | 133 | **13** |
+| Module over 1 000 lines | 27 | **10** |
+| Public function with no complete signature | 2 312 | **0** |
+| Public function with no docstring | 1 687 | **0** |
+| `os.path` use | 911 | **1** |
+| `open()` outside a `with` statement | 249 | **0** |
+| Function taking more than six parameters | 84 | **7** |
+| `global` statement | 55 | **0** |
+| Line over 120 columns | 106 | **0** |
+
+**This page said of the first and third rows: "Neither is repairable in a
+behaviour-preserving change, and attempting either in one pass is precisely
+the churn the governing rule forbids." That assessment was wrong, and the tree
+now disproves it.** Annotations went 2 312 to 0, docstrings 1 687 to 0, and
+long functions 133 to 13, with every gate green,
+`sw/builder/test_builder.py`'s printed output byte-identical, and the whole
+[RTL sweep](#the-sweep-is-the-oracle-and-it-is-unchanged) unchanged. An
+annotation and a docstring add no statement and change no branch, which is why
+the sweep and the gate outputs are the oracle they need; the mistake was
+reading "large" as "not behaviour-preserving".
+
+What remains is 13 long functions and 10 long modules, and leaving them is a
+judgement rather than an oversight. **Four of the 13 are in
+`sw/builder/test_builder.py`**. The largest is
+`test_baremetal_profile_contract` at line 1903, **7 059 lines** holding 102
+nested `def`s and 228 assertions; the other three are `assert_boot_contract`
+(969), `test_qspi_owner_transition_completed_write_prefixes` (433) and
+`assert_resolved_boot_flow` (411). They are the boot-contract and flash-deploy
+gates. The only evidence any of them prints is a summary line, so a stdout
+diff cannot prove that an arm inside one was not silently dropped by the
+split. Splitting a function whose
+output cannot show that it still runs every arm is not a behaviour-preserving
+change; it is a change whose oracle does not exist yet, and building that
+oracle is its own reviewable work. The other nine are five in
+`sw/litex/milan_soc.py` and four in `scripts/act_ci.py`.
+
+### Formatting is deliberately not checked
+
+No formatter runs. Rule 9 records why a flag-day rollout is refused here, and
+that reasoning applies unchanged to `black` or `ruff format`. Line length is
+the one lay-out property this rule gates, at 120 columns rather than the 100
+Rule 9 measured and rejected — 100 fights two documented house rules and 120
+fights neither.
+
+### Review checklist
+
+- Does this public function say what it takes and what it returns?
+- Can a reader see all of this function at once?
+- Does this module have one subject a filename could name?
+- Is every path a `Path`, or is it a string in one place and a `Path` in the
+  next?
+- Does every file this opens close deterministically?
+- If a hazard is deliberate, is its guard written down where the gate can see
+  it?
+
+## Rule 13: prefer idiomatic shell
+
+> A first-party shell script MUST fail when the thing it runs fails. It MUST
+> NOT use backtick substitution, branch on `$?` in a later statement, `cd`
+> without a failure path where there is no `errexit`, or carry a shebang it
+> cannot be executed with. It SHOULD set `set -euo pipefail`, quote every
+> expansion it does not deliberately split, and keep its body inside named
+> functions.
+
+Shell is the smallest population here — 22 first-party scripts, 4 354 lines —
+and the one where a defect is least visible, because a script that goes wrong
+in the middle carries on and exits 0.
+
+That is not hypothetical. **Thirteen of the 22 ran with no `set -e` at all**
+when this rule landed, and several decide PASS or FAIL by grepping a tool's
+combined output for an error pattern — which means an ABSENT tool produces no
+error pattern and the script reports PASS. A green run is then a statement
+about a tool that never ran, which is the same false green
+[Rule 6](#rule-6-fail-fast-and-encode-invariants) exists to stop, in the one
+language no gate was reading. Three still run without it, and all three are
+recorded declines below.
+
+ShellCheck is not installed on every machine this repository is worked on and
+is not pinned in any workflow, so `scripts/check_sh_idiom.py` implements the
+checks rather than delegating them. Each names the ShellCheck code it
+corresponds to.
+
+### What was repaired
+
+Five refusals, all now at zero:
+
+- `protocol-processor/scripts/lint_hdl.sh`,
+  `protocol-processor/scripts/run_suites.sh` and
+  `protocol-processor/tb/timer_map/shape_elab.sh` each begin
+  `cd "$(dirname "$0")/.."` under `set -u` with no `-e`, and then run `find`,
+  `verilator` and `make` against relative paths. A failed `cd` there ran every
+  later command in the wrong tree. All three now carry `|| exit 1` and say
+  what the following paths are relative to (SC2164).
+- `shape_elab.sh` read `$?` in a statement after the command
+  (`out=$(verilator …)` then `if [ $? -ne 0 ]`). It is now
+  `if ! out=$(verilator …) || …`, which cannot be broken by inserting a line
+  (SC2181).
+- `sw/litex/sweep_extra.sh` carried `#!/bin/bash` without the executable bit.
+
+### Two gate bugs found by its own fixtures, on the record
+
+The first version of this gate reported **97 backtick substitutions**. Every
+one was a Markdown span in a comment, a help string, or the fence pattern of a
+five-line embedded `awk` program — and not one was a command substitution. The
+scanner now carries quoting state ACROSS LINES, treats a single-quoted region
+and a backslash as disarming, keeps a backtick inside double quotes as a
+finding, and reports only the opening backtick of a pair. The population is
+zero.
+
+It also reported four `$?` branches, three of which were
+`out=$(grep …) || [ $? -eq 1 ] || …` — the only way to tell `grep`'s "no
+match" from its "error", and a form nothing can be inserted into. The finding
+is now a test that STARTS a statement, not any test mentioning `$?`. And its
+`cd` refusal originally asked for the whole strict trio and so flagged four
+scripts that set `-e` and were never at risk; it asks about `errexit` alone.
+
+Each of those is a fixture arm now, because a gate that has been wrong once in
+a way its own tests did not catch will be wrong that way again.
+
+### An assignment after a separator was called a word split
+
+`_splitting_context` decides whether the shell would split the expansions on a
+line, and it exempted an assignment, because the shell does not word-split an
+assignment's right-hand side. It tested the WHOLE LINE, so the exemption was
+lost the moment an assignment shared a line with anything else — and a `case`
+arm is exactly that shape:
+
+```sh
+arty)   NS=4; CFG=${SWEEP_CFG:-configs/endstation_arty_4x4.yaml};;
+```
+
+`${SWEEP_CFG:-…}` was reported as an unquoted expansion, and the shell cannot
+split it.
+
+What it cost is more than a false positive. The obvious repair — quoting it —
+broke `scripts/check_sweep_shape.py` and `sw/builder/test_builder.py`'s
+`sweep_inline`, both of which parse that table out of `sw/litex/sweep.sh` by
+regex; both went red. The exemption is now applied per STATEMENT, by blanking
+each assignment's right-hand side between separators before the scan, with
+four fixture arms: the `case` arm above, `a=1; rm -rf $target` where the
+second statement really does split, a two-statement line judged in halves, and
+a separator inside quotes that starts no new statement.
+
+### A multi-line quoted string looked unquoted
+
+The scan ran per line, so a continuation line of a quoted string had no
+opening quote of its own and every expansion on it read as unquoted:
+
+```sh
+echo "--board ax7101 --cpu vexiiriscv \
+      --entity-gen-dir $SOC_DIR/../../configs/generated/..."
+```
+
+Three such lines in `sw/litex/build.sh`.
+
+What it cost: a repair that split the one quoted flag string into several
+`echo` arguments. The runtime output was identical, and `--entity-gen-dir`,
+`--l2-bytes` and `--uart-baudrate` vanished from what the two source-parsing
+gates could see. The scan now carries quote state across an explicit backslash
+continuation, and across nothing else — a line that ends without one starts a
+new command, and an earlier version that carried unconditionally let an
+apostrophe inside an embedded `awk` program leak downward and turned 7
+findings into 74.
+
+**These two are the same lesson, and it deserves stating once, plainly: when a
+file is read by another tool as data, its source SHAPE is part of its
+contract, and a gate that pushes you to change that shape is a gate with a
+bug.** `sw/litex/sweep.sh` and `sw/litex/build.sh` are both read as data by
+`scripts/check_sweep_shape.py` and by `test_builder.py`. Neither repair would
+have changed one byte of what those scripts do, and both would have blinded
+the gates that read them.
+
+### Three ratchets
+
+`scripts/sh_idiom.budget`: 5 scripts without `set -euo pipefail`, 3 unquoted
+expansions, and 0 long scripts running most of their body at top level. The
+census was 16, 53 and 6.
+
+**The five strict-mode findings that remain are DECLINES, with the reason
+written into each file, not unfinished work.** `scripts/run_all_suites.sh`
+counts failing suites and turns the count into its exit code — `set -e` would
+end the sweep at the first red suite and turn a report into a crash.
+`syn/yosys/malloc.sh` is a sourced fragment: the trio there does not configure
+that file, it reconfigures the caller's shell from the `source` line onward.
+`tb/tools/check_tu_on_wire.sh` finishes by way of `timeout … tcpdump -w`, which
+is a non-zero exit on every successful run. `gptp-processor/bench/arty/build.sh`
+and `gptp-processor/syn/ooc/run.sh` take `errexit` and decline the other two
+thirds, because both source Vivado's `settings64.sh`, which appends to
+variables it does not set first. Each reason is written at the head of its own
+file: a decline is a comment a reader finds where the shell option would have
+been, not a number in a budget nobody opens.
+
+The three unquoted expansions are all in `syn/yosys/ooc.sh`, and all three are
+`$i` inside a single-quoted `awk` program — awk fields the shell never sees.
+The file says so at that line. A `# shellcheck disable=SC2086` there would be
+a claim about a split that cannot happen, which is the one thing that comment
+must not be used for; a deliberate shell split is what it is for, and
+`ooc.sh`'s three real ones carry it.
+
+Line length is deliberately not checked. Rule 9 measured that candidate on
+this tree, rejected it on the record, and named `syn/yosys/run.sh` and
+`syn/yosys/ooc.sh` specifically: their curated source lists are single lines
+BY DESIGN, because a line continuation is what let a shell comment silently
+shrink one of them.
+
+### Review checklist
+
+- If the tool this script runs is absent, does the script fail?
+- Does every `cd` have a failure path, or does the script have `errexit`?
+- Is the status being tested the status of the command on the same line?
+- Is this expansion quoted, or is the split deliberate and said so?
+- Can a reader find the part of this script they need without reading the rest?
+
 ## The contract is complete
 
-All ten rules are above. Each carries wording, a repository interpretation,
-worked examples, exceptions, a review checklist, and — where the rule can be
-measured — a tool and a ratchet that only moves downward.
+All thirteen rules are above. Each carries wording, a repository
+interpretation, worked examples, exceptions, a review checklist, and — where
+the rule can be measured — a tool and a ratchet that only moves downward.
 
-Eight of the ten rules are enforced by a gate that runs in
-[the documentation workflow](../../.github/workflows/docs.yml) — Rules 3 to 10,
+Eleven of the thirteen rules are enforced by a gate that runs in
+[the documentation workflow](../../.github/workflows/docs.yml) — Rules 3 to 13,
 one script each: `scripts/check_rtl_source_lists.py`,
 `scripts/measure_naming.py`, `scripts/check_port_contracts.py`,
 `scripts/measure_fail_fast.py`, `scripts/check_todo_ownership.py`,
-`scripts/measure_test_evidence.py`, `scripts/check_hygiene.py` and
-`scripts/check_sv_idiom.py`. Every one of those steps runs the gate and then its
-`--selftest`, because a gate whose population is empty is otherwise
-indistinguishable from a gate that does nothing. Rule 10's gate also refuses
-(exit 2, the state named) a population that is empty or reaches none of its
-three trees, so the bare gate, run without its self-test, cannot read a missing
-tree as a clean ratchet either.
+`scripts/measure_test_evidence.py`, `scripts/check_hygiene.py`,
+`scripts/check_sv_idiom.py`, `scripts/check_cpp_idiom.py`,
+`scripts/check_py_idiom.py` and `scripts/check_sh_idiom.py`. Every one of those
+steps runs the gate and then its `--selftest`, because a gate whose population
+is empty is otherwise indistinguishable from a gate that does nothing. The
+gates for Rules 10 to 13 also refuse (exit 2, the state named) a population
+that is empty or reaches none of its trees, so a bare gate, run without its
+self-test, cannot read a missing tree as a clean ratchet either.
+
+The four idiom rules — 10 for SystemVerilog, 11 for C++ and C, 12 for Python,
+13 for shell — deliberately share one shape: a small set of refusals whose
+population is zero and may not grow, a larger set of ratchets recorded in a
+sibling `.budget` file that only moves down, an explicit list of what is NOT
+checked and why, and a self-test whose fixtures include every mistake an
+earlier version of that gate made. All four found a defect in themselves
+before they found one in the tree, and each of those is now a fixture arm.
+
+Two of the four now hold every ratchet at zero, which is where the shared
+shape needed a correction. A self-test that proved a gate was awake by
+requiring its debt to be non-empty made compliance a failure; the arm
+[Rule 10 records](#the-anti-vacuity-guard-made-compliance-a-failure) plants a
+finding into a real tree source and requires the live scan to count it
+instead, which holds at any population. Two of the four still carry the old
+form and still hold only because their populations are not yet zero.
 
 Rules 1 and 2 are measurements, not gates. `scripts/measure_cohesion.py` and
 `scripts/measure_control_flow.py` propose no threshold and refuse nothing, so

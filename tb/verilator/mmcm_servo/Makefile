@@ -17,7 +17,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
          -Wno-PINCONNECTEMPTY \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 COMMON = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
          $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv

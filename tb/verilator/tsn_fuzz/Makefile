@@ -58,7 +58,7 @@ FRESH = ../../../scripts/check_results_fresh.py
 VCOMMON = --cc --exe --build -j 0 \
           -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
           -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
-          -CFLAGS "-std=c++17 -O2 -I.."
+          -CFLAGS "-std=c++17 -O2 -I.. -Wall -Wextra"
 
 # ---- ACMP / ADP / AECP campaigns: DELETED with the RTL they fuzzed --------
 # fuzz_acmp, fuzz_adp, fuzz_aecp and the legacy 14-command smoke driver all

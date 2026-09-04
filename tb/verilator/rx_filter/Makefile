@@ -25,7 +25,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Werror-USERERROR -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -Werror-PINMISSING -Werror-UNDRIVEN \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SRCS = $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv
 CPP  = sim_main.cpp

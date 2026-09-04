@@ -51,8 +51,8 @@ module tx_ifg_gasket #(
 
   localparam int CW = (GAP_CYCLES <= 1) ? 1 : $clog2(GAP_CYCLES);
 
-  reg [CW-1:0] gap_r;      //! remaining gap cycles (0 = passthrough)
-  reg          gapping_r;  //! high while enforcing the idle window
+  logic [CW-1:0] gap_r;      //! remaining gap cycles (0 = passthrough)
+  logic          gapping_r;  //! high while enforcing the idle window
 
   //! combinational passthrough, gated by the gap window
   assign m_tdata  = s_tdata;

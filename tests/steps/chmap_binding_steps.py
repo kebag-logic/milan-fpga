@@ -21,7 +21,19 @@ so nothing in this module needs the tsn_gen packet generator - and nothing
 here skips when that binary is absent.
 """
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
 from behave import given, then, when
+
+if TYPE_CHECKING:  # behave is a test-only dependency; the annotation is lazy
+    from behave.runner import Context
+
+#: One ADD/REMOVE record as 1722.1-2021 Table 7-33 orders it:
+#: (stream_index, stream_channel, cluster_offset, cluster_channel).
+Mapping = tuple[int, int, int, int]
 
 #: IEEE 1722.1-2021 7.4.44/7.4.45/7.4.46 command codes, kept so the model's
 #: ADD / REMOVE / GET arms stay separable and self-describing.
@@ -38,6 +50,29 @@ STATUS_SUCCESS = 0
 STATUS_NO_SUCH_DESCRIPTOR = 2
 STATUS_BAD_ARGUMENTS = 7
 STATUS_NOT_SUPPORTED = 11
+
+
+class MapShape:
+    """The AEM_DMAP_* generics one audio-map model is shaped by.
+
+    Four facts that describe the FABRIC the model stands in for, and that only
+    ever move together: which cluster block each STREAM_PORT_INPUT owns
+    (`ports`, as (base_cluster, clusters) pairs - AEM_DMAP_PBASE_C /
+    AEM_DMAP_PCLS_C), how many mappings a GET page carries (`page` -
+    AEM_DMAP_PAGE_C), the current format of each STREAM_INPUT
+    (`stream_channels`, with None marking an unmappable CRF input), and how
+    deep the render crossbar physically reaches (`phys` - AEM_DMAP_PHYS_C,
+    milan_datapath CHMAP_PHYS_C).
+
+    `ports=None` asks for the single-port default shape, which the model then
+    derives from its own `keys`/`nmaps` declaration.
+    """
+
+    def __init__(self, ports=None, page=4, stream_channels=8, phys=10):
+        self.ports = ports
+        self.page = page
+        self.stream_channels = stream_channels
+        self.phys = phys
 
 
 class MilanAudioMapModel:
@@ -70,25 +105,31 @@ class MilanAudioMapModel:
     executable chmap64 binding contract (docs/CHMAP64_AEM_BINDING.md).
     """
 
-    def __init__(self, keys=8, nmaps=2, page=4, stream_channels=8,
-                 ports=None, phys=10):
-        self.page = page              # AEM_DMAP_PAGE_C: mappings per page
+    def __init__(self, shape=None, keys=8, nmaps=2):
+        """`shape` is the fabric (`MapShape`); `keys`/`nmaps` are the
+        single-port DEFAULT, kept apart from it because they are not a shape
+        the caller picks but the declaration this model asserts its own
+        derivation against when no ports are given."""
+        shape = MapShape() if shape is None else shape
+        self.page = shape.page        # AEM_DMAP_PAGE_C: mappings per page
         #: (base_cluster, clusters) per STREAM_PORT_INPUT — AEM_DMAP_PBASE_C
         #: / AEM_DMAP_PCLS_C. Default = the single-port shape.
-        self.ports = [tuple(p) for p in ports] if ports else [(0, keys)]
+        self.ports = ([tuple(p) for p in shape.ports] if shape.ports
+                      else [(0, keys)])
         self.keys = max(b + n for b, n in self.ports)   # AEM_DMAP_KEYS_C
         #: AEM_DMAP_PNMAPS_C: per-port fixed partition count (5.4.2.26)
-        self.nmaps = [-(-n // page) for _, n in self.ports]
-        assert ports is not None or self.nmaps == [nmaps], \
+        self.nmaps = [-(-n // self.page) for _, n in self.ports]
+        assert shape.ports is not None or self.nmaps == [nmaps], \
             f'single-port shape: derived nmaps {self.nmaps} != {nmaps}'
         #: channels in the CURRENT format of each STREAM_INPUT; None marks an
         #: unmappable (CRF) input. A bare int is the legacy 1-stream shape.
-        self.stream_channels = (list(stream_channels)
-                                if isinstance(stream_channels, (list, tuple))
-                                else [stream_channels])
+        self.stream_channels = (list(shape.stream_channels)
+                                if isinstance(shape.stream_channels,
+                                              (list, tuple))
+                                else [shape.stream_channels])
         #: render-crossbar DEPTH (AEM_DMAP_PHYS_C = milan_datapath
         #: CHMAP_PHYS_C): keys past it are model-only and refused
-        self.phys = phys
+        self.phys = shape.phys
         self.store = {}               # global key -> (stream_index, stream_ch)
         self.fabric_map = {}          # global key -> {en,stream,ch} word
         self.last_get = None          # rows returned by the last GET page
@@ -121,16 +162,27 @@ class MilanAudioMapModel:
     def _project_remove(self, key):
         self.fabric_map[key] = {'en': 0, 'stream': 0, 'ch': 0}
 
-    def word(self, key):
+    def word(self, key: int) -> int:
         """The 7-bit chmap64 map word {en[6], stream[5:3], ch[2:0]}."""
         m = self.fabric_map.get(key, {'en': 0, 'stream': 0, 'ch': 0})
         return ((m['en'] & 1) << 6) | ((m['stream'] & 0x7) << 3) | (m['ch'] & 0x7)
 
-    def enabled_words(self):
+    def enabled_words(self) -> int:
+        """How many map-RAM words currently drive a channel. A removal writes
+        a disabled word rather than dropping the entry, so this counts the
+        enable bits and not the size of the projection."""
         return sum(1 for m in self.fabric_map.values() if m['en'])
 
     # -- command processing -------------------------------------------------
-    def process_mappings(self, cmd, dt, di, mappings):
+    def process_mappings(self, cmd: int, dt: int, di: int,
+                         mappings: Sequence[Mapping]) -> int:
+        """The AEM status one ADD or REMOVE command earns, having applied all
+        of its records or none of them.
+
+        Both arms validate the whole command before writing anything, so a
+        caller that reads only the status can still trust the store: a
+        BAD_ARGUMENTS return means the model is exactly as it was.
+        """
         if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
             return STATUS_NOT_SUPPORTED          # static output maps
         port = self._port(di)
@@ -175,7 +227,13 @@ class MilanAudioMapModel:
                 self._project_remove(base + co)
         return STATUS_SUCCESS
 
-    def process_get(self, dt, di, map_index):
+    def process_get(self, dt: int, di: int, map_index: int) -> int:
+        """The AEM status one GET_AUDIO_MAP page earns, leaving the page
+        itself in `last_get`.
+
+        Every refusal clears `last_get` first, so a scenario cannot read a
+        stale page after a failed GET and call it a response.
+        """
         if dt == DESC_STREAM_PORT_OUTPUT and di == 0:
             self.last_get = None
             return STATUS_NOT_SUPPORTED
@@ -201,89 +259,114 @@ class MilanAudioMapModel:
 # ---------------------------------------------------------------------------
 
 @given('a fresh Milan audio-map model')
-def step_fresh_audiomap(context):
+def step_fresh_audiomap(context: Context) -> None:
+    """The single-port default shape: 8 clusters, page 4, one 8-channel
+    Stream Input - the smallest fabric that can show a paging boundary."""
     context.amap = MilanAudioMapModel()
 
 
 @given('a Milan audio-map model with {n:d} dynamic ports of {cl:d} clusters '
        'and page {page:d}')
-def step_fresh_audiomap_ports(context, n, cl, page):
+def step_fresh_audiomap_ports(context: Context, n: int, cl: int,
+                              page: int) -> None:
     """Milan 5.3.3.9: dynamic mappings on ALL Stream Port Inputs. Ports own
     contiguous cluster blocks, so port p's base_cluster is p*clusters, and
     the last Stream Input is the unmappable CRF sink."""
-    context.amap = MilanAudioMapModel(
+    context.amap = MilanAudioMapModel(MapShape(
         page=page, ports=[(p * cl, cl) for p in range(n)],
-        stream_channels=[8] * n + [None])
+        stream_channels=[8] * n + [None]))
 
 
 @when('I ADD mapping stream_channel {sc:d} at cluster_offset {co:d}')
-def step_amap_add(context, sc, co):
+def step_amap_add(context: Context, sc: int, co: int) -> None:
+    """ADD one record on the default port, and keep only its status: the
+    scenario grades the store and the fabric words separately."""
     context.amap_status = context.amap.process_mappings(
         CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0, [(0, sc, co, 0)])
 
 
 @when('I ADD {n:d} copies of stream_channel {sc:d} at cluster_offset {co:d}')
-def step_amap_add_copies(context, n, sc, co):
+def step_amap_add_copies(context: Context, n: int, sc: int, co: int) -> None:
+    """ADD the same record n times in ONE command - the exact-duplicate case
+    5.4.2.27 allows, as distinct from two records claiming one key."""
     context.amap_status = context.amap.process_mappings(
         CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0,
         [(0, sc, co, 0)] * n)
 
 
 @when('I REMOVE mapping stream_channel {sc:d} at cluster_offset {co:d}')
-def step_amap_remove(context, sc, co):
+def step_amap_remove(context: Context, sc: int, co: int) -> None:
+    """REMOVE one record on the default port, keeping only its status."""
     context.amap_status = context.amap.process_mappings(
         CMD_REMOVE_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0, [(0, sc, co, 0)])
 
 
 @when('on input port {di:d} I ADD stream {si:d} channel {sc:d} at '
       'cluster_offset {co:d}')
-def step_amap_add_port(context, di, si, sc, co):
+def step_amap_add_port(context: Context, di: int, si: int, sc: int,
+                       co: int) -> None:
+    """ADD across the multi-port shape, where cluster_offset is relative to
+    THIS port's base_cluster - the distinction Milan 5.3.3.9 forces."""
     context.amap_status = context.amap.process_mappings(
         CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, di, [(si, sc, co, 0)])
 
 
 @when('on input port {di:d} I REMOVE stream {si:d} channel {sc:d} at '
       'cluster_offset {co:d}')
-def step_amap_remove_port(context, di, si, sc, co):
+def step_amap_remove_port(context: Context, di: int, si: int, sc: int,
+                          co: int) -> None:
+    """REMOVE across the multi-port shape, at a port-relative offset."""
     context.amap_status = context.amap.process_mappings(
         CMD_REMOVE_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, di,
         [(si, sc, co, 0)])
 
 
 @when('the audio-map model GETs input port {di:d} page {mi:d}')
-def step_amap_get_port(context, di, mi):
+def step_amap_get_port(context: Context, di: int, mi: int) -> None:
+    """Fetch one GET_AUDIO_MAP page, leaving both its status and its rows
+    on the model for the Then steps to read."""
     context.amap_status = context.amap.process_get(
         DESC_STREAM_PORT_INPUT, di, mi)
 
 
 @then('the audio-map model responds status {code:d}')
-def step_amap_status(context, code):
+def step_amap_status(context: Context, code: int) -> None:
+    """Grade the last command's AEM status against Table 7-5."""
     assert context.amap_status == code, \
         f'audio-map status {context.amap_status}, expected {code}'
 
 
 @then('the fabric map word at cluster_offset {co:d} is en {en:d} stream {s:d} ch {ch:d}')
-def step_fabric_word_fields(context, co, en, s, ch):
+def step_fabric_word_fields(context: Context, co: int, en: int, s: int,
+                            ch: int) -> None:
+    """Grade the projected word field by field, which says WHICH field is
+    wrong when a packing change would only show as a wrong number."""
     m = context.amap.fabric_map.get(co, {'en': 0, 'stream': 0, 'ch': 0})
     assert (m['en'], m['stream'], m['ch']) == (en, s, ch), \
         f'cluster_offset {co}: fabric word {m}, expected en={en} stream={s} ch={ch}'
 
 
 @then('the fabric map word at cluster_offset {co:d} equals {val}')
-def step_fabric_word_value(context, co, val):
+def step_fabric_word_value(context: Context, co: int, val: str) -> None:
+    """Grade the packed 7-bit word itself, so the bit ORDER {en, stream, ch}
+    is under test and not just the three values."""
     v = int(val, 0)
     assert context.amap.word(co) == v, \
         f'cluster_offset {co}: word {context.amap.word(co):#04x}, expected {v:#04x}'
 
 
 @then('the fabric render crossbar has {n:d} enabled words')
-def step_fabric_enabled(context, n):
+def step_fabric_enabled(context: Context, n: int) -> None:
+    """Count enabled crossbar words - the check that catches an all-or-
+    nothing violation writing rows a status-only assertion would miss."""
     assert context.amap.enabled_words() == n, \
         f'{context.amap.enabled_words()} enabled words, expected {n}'
 
 
 @then('the last GET lists {n:d} mappings')
-def step_get_count(context, n):
+def step_get_count(context: Context, n: int) -> None:
+    """Size the last GET page, refusing to grade one that was never taken;
+    the final partition is short, so the count is not always `page`."""
     assert context.amap.last_get is not None, 'no GET page captured'
     assert len(context.amap.last_get) == n, \
         f'GET page has {len(context.amap.last_get)} mappings, expected {n}'
@@ -291,7 +374,10 @@ def step_get_count(context, n):
 
 @then('the last GET contains stream {si:d} channel {sc:d} at cluster_offset '
       '{co:d}')
-def step_get_contains_port(context, si, sc, co):
+def step_get_contains_port(context: Context, si: int, sc: int,
+                           co: int) -> None:
+    """Assert one row is on the page, spelled with the PORT-RELATIVE offset
+    the response carries rather than the global key the store uses."""
     assert context.amap.last_get is not None, 'no GET page captured'
     assert (si, sc, co, 0) in context.amap.last_get, \
         f'(si={si}, sc={sc}, co={co}) not in GET page {context.amap.last_get}'

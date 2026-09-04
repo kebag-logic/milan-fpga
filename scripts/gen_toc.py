@@ -36,6 +36,7 @@ Usage:
 import re
 import subprocess
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -78,7 +79,7 @@ FENCE_RE = re.compile(r"^(```|~~~)")
 HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
 
 
-def anchor(text, seen):
+def anchor(text: str, seen: dict[str, int]) -> str:
     """GitHub's heading-anchor algorithm."""
     a = text.strip().lower()
     a = re.sub(r"[^\w\- ]", "", a, flags=re.UNICODE)  # \w keeps digits/underscore
@@ -88,7 +89,7 @@ def anchor(text, seen):
     return a if n == 0 else f"{a}-{n}"
 
 
-def strip_md(text):
+def strip_md(text: str) -> str:
     """Heading text as a reader sees it: no backticks, no link syntax, no bold."""
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
     text = text.replace("`", "")
@@ -96,7 +97,7 @@ def strip_md(text):
     return text.strip()
 
 
-def label(text):
+def label(text: str) -> str:
     """strip_md, then make it safe as the text of a **bold** link.
 
     A heading like ``## 2. Per-module HDL pages (`hdl/**/doc/*.md`)`` keeps a
@@ -106,7 +107,7 @@ def label(text):
     return strip_md(text).replace("*", r"\*")
 
 
-def headings(text):
+def headings(text: str) -> list[tuple[int, str, str]]:
     """(level, raw_text, anchor) for every heading outside a fenced block.
 
     Anchors must be numbered over ALL headings - GitHub counts collisions
@@ -130,7 +131,7 @@ def headings(text):
     return out
 
 
-def plan(text):
+def plan(text: str) -> list[tuple[int, str, str]] | None:
     """Which headings belong in this page's TOC, or None if it gets none."""
     hs = headings(text)
     h2 = [h for h in hs if h[0] == 2 and h[1].strip() != TOC_HEAD[3:]]
@@ -142,7 +143,8 @@ def plan(text):
     return [h for h in hs if h[0] in want and h[1].strip() != TOC_HEAD[3:]]
 
 
-def existing(text):
+def existing(
+        text: str) -> tuple[dict[str, str], int | None, int | None, str | None]:
     """Descriptions keyed by anchor, the TOC span, and its separator."""
     lines = text.split("\n")
     start = next((i for i, l in enumerate(lines) if l.strip() == TOC_HEAD), None)
@@ -163,7 +165,14 @@ def existing(text):
     return desc, start, end, separator
 
 
-def render(items, desc, separator):
+def render(items: list[tuple[int, str, str]], desc: dict[str, str],
+           separator: str) -> list[str]:
+    """The Contents block itself, with each surviving description put back.
+
+    A heading with no description carried forward gets `TODO`, which the gate
+    then refuses: the generator's job ends at the link, and the sentence after
+    the separator is the half a human still owes.
+    """
     out = [TOC_HEAD, ""]
     for lvl, raw, anc in items:
         lab = label(raw)
@@ -176,7 +185,7 @@ def render(items, desc, separator):
     return out
 
 
-def apply(path, text):
+def apply(path: Path, text: str) -> str | None:
     """Return the page with its TOC inserted/refreshed, or None if unchanged."""
     items = plan(text)
     desc, start, end, separator = existing(text)
@@ -200,7 +209,7 @@ def apply(path, text):
     return None if new == text else new
 
 
-def pages():
+def pages() -> Iterator[Path]:
     """Every hand-written .md the gate has an opinion about.
 
     The corpus comes from `git ls-files`, i.e. THE INDEX - which can name a
@@ -229,7 +238,7 @@ def pages():
         yield md
 
 
-def verify_anchors():
+def verify_anchors() -> int:
     """Check the anchor algorithm against `file.md#frag` links people wrote."""
     ok = bad = 0
     for md in pages():
@@ -247,7 +256,13 @@ def verify_anchors():
     return 1 if bad else 0
 
 
-def main():
+def main() -> int:
+    """Run one of the three arms - `--verify-anchors`, `--write`, or the gate.
+
+    `--check` is the default and the only one that can fail: it separates a
+    page with no contents list at all from one whose list has drifted, because
+    the two need different work from whoever reads the report.
+    """
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     flags = {a for a in sys.argv[1:] if a.startswith("--")}
 

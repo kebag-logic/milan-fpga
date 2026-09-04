@@ -103,11 +103,10 @@
 #  (KL_pair_zero_fill) - the scope acceptance is bclk 12.288 MHz and fsync
 #  48.000 kHz on the header itself.
 
-import os
 import re
+from pathlib import Path
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_ROOT = os.path.abspath(os.path.join(_HERE, "..", "..", ".."))
+_ROOT = Path(__file__).resolve().parents[3]
 
 #: Platform source this repo ships for a board, if any. A board absent from this
 #: map rides a stock litex_boards platform and can only gain a resource through
@@ -152,8 +151,7 @@ class UnroutedFrontEnd(Exception):
 
 def _read(rel):
     try:
-        with open(os.path.join(_ROOT, rel)) as fh:
-            return fh.read()
+        return (_ROOT / rel).read_text()
     except OSError:
         return ""
 
@@ -229,7 +227,8 @@ def _soc_adds_extension(soc_text, board, name, plat_text=""):
     return False
 
 
-def routes(board, name, sources=None):
+def routes(board: str, name: str,
+           sources: dict[str, str] | None = None) -> bool:
     """Does `board` route a `<name>` resource to real package pins?
 
     `sources` is an override dict {"plat": text, "soc": text} so a gate can hand
@@ -251,18 +250,19 @@ def routes(board, name, sources=None):
         or _soc_adds_extension(soc, board, name, plat)
 
 
-def routes_tdm(board, sources=None):
+def routes_tdm(board: str, sources: dict[str, str] | None = None) -> bool:
     """Does `board` bring a TDM bus out to pins?"""
     return routes(board, "tdm", sources)
 
 
-def routes_i2s_pmod(board, sources=None):
+def routes_i2s_pmod(board: str, sources: dict[str, str] | None = None) -> bool:
     """Does `board` attach the Pmod I2S2 (the i2s_pmod_io extension)?"""
     return routes(board, "i2s_pmod_io", sources)
 
 
-def assert_front_end_routed(board, audio_interface, audio_if_master=False,
-                            sources=None):
+def assert_front_end_routed(board: str, audio_interface: str,
+                            audio_if_master: bool = False,
+                            sources: dict[str, str] | None = None) -> None:
     """REFUSE a build whose target board does not route the front-end it asks
     for.  Called from milan_soc.main() right after the platform is constructed,
     i.e. BEFORE anything elaborates, so the failure is a build failure and not a
@@ -304,7 +304,7 @@ def assert_front_end_routed(board, audio_interface, audio_if_master=False,
             if board == "arty" else ""))
 
 
-def verify_against_litex_boards():
+def verify_against_litex_boards() -> bool | None:
     """Re-derive the recorded Arty facts from the REAL platform module.
 
     Returns None when litex_boards is not importable (the plain-python gate
@@ -328,7 +328,8 @@ def verify_against_litex_boards():
     assert got == ARTY_I2S_RX_MCLK_PIN, \
         "arty i2s_rx_mclk moved: recorded %s, platform %s" % (
             ARTY_I2S_RX_MCLK_PIN, got)
-    src = open(_a.__file__).read()
+    with open(_a.__file__) as stream:
+        src = stream.read()
     assert "tdm" not in src.lower(), \
         ("the stock Arty platform now mentions tdm - re-read it and update the "
          "routing record above rather than trusting this module")

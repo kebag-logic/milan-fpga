@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          +incdir+$(RTL_DIR)/common \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CURDIR)"
 
 SRCS = media_grid_align_wrap.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_grid_align.sv \

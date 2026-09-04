@@ -109,7 +109,18 @@ GENERATED IN MEMORY rather than read from the tracked ROM and the TB golden,
 both of which are deleted; the arm therefore proves the derivation reaches
 offset 116, and no longer proves any artifact is fresh (there is no longer an
 artifact to be stale).  The two mutations that tested exactly that staleness
-are removed from the self-test below, by name and with the reason.
+are removed from the self-test, by name and with the reason.
+
+WHERE THE REST OF THIS GATE LIVES.  Two subjects were lifted out of this
+file, each into a module named for what it produces, and nothing else
+imports either:
+
+  scripts/shape_consumer_inventory.py   what a build expression naming
+                                        gen/adp_shape_defaults.svh resolves
+                                        to - make expansion, frozen `:=`
+                                        values, rule prerequisites (arm I)
+  scripts/entity_shape_selftest.py      the planted worlds every arm above
+                                        must go red in (--self-test)
 
 Usage:
     check_entity_shape.py                 # every configs/endstation_*.yaml
@@ -124,17 +135,27 @@ Needs pyyaml (same dependency as sw/builder/test_builder.py).
 """
 
 import argparse
-import os
 import subprocess
 import re
-import shutil
 import sys
-import tempfile
+from collections.abc import Sequence
+from pathlib import Path
+from types import ModuleType
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATAPATH = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
-CSR = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
-CONFIG_DIR = os.path.join(ROOT, "configs")
+#: Arm I's resolver: everything that turns a build expression naming
+#: gen/adp_shape_defaults.svh into the repository path it actually reaches.
+#: sys.path[0] is this directory when the gate runs as a script, and
+#: sw/builder/test_builder.py puts scripts/ on the path before importing it.
+from shape_consumer_inventory import (GATE_SOURCES,  # noqa: E402
+                                      dangling_consumers)
+
+ROOT = Path(__file__).resolve().parent.parent
+#: Where arms F and G read the RTL from when nothing has redirected them.
+#: The self-test points RTL (below) at mutated copies for one call; these
+#: two names always spell the tree's own sources.
+DATAPATH = ROOT / "hdl/milan/milan_datapath.sv"
+CSR = ROOT / "hdl/common/csr/milan_csr.sv"
+CONFIG_DIR = ROOT / "configs"
 #: What a per-config `gen/` include dir may hold. adp_shape_defaults.svh is
 #: the ONE generated entity artifact any RTL still compiles; aecp_aem_rom.svh
 #: used to sit beside it for KL_aecp_aem_store, and that module is deleted.
@@ -151,163 +172,83 @@ STREAM_INPUT, STREAM_OUTPUT = 0x0005, 0x0006
 #: containing the firmware version of the ATDECC Entity".
 FW_OFFSET, FW_LEN = 116, 64
 
-fails = []
-checks = 0
-quiet = False          #! set while a self-test mutation is being run
+class Tally:
+    """Every ck() result: how many comparisons ran, and which ones failed.
+
+    ONE module-level instance, MUTATED and never rebound, so no function
+    here reaches for `global` and no importer can end up holding a second
+    answer to "did this run pass".  The self-test swaps a planted
+    mutation's result set in and out by assigning these attributes around
+    one call (entity_shape_selftest.expect_fail).
+    """
+
+    def __init__(self):
+        self.fails = []
+        self.checks = 0
+        #! set while a self-test mutation is being run: the failure it
+        #! plants is the expected outcome, so it is collected, not printed
+        self.quiet = False
 
 
-def ck(what, got, exp):
-    global checks
-    checks += 1
+class RtlSources:
+    """The two RTL files arms F and G read, as one mutable pair.
+
+    Same reason as Tally: the self-test redirects these at mutated copies
+    for the length of one call and puts them back, which used to be two
+    `global` rebinds in a helper and its nested restore.
+    """
+
+    def __init__(self, datapath, csr):
+        self.datapath = datapath
+        self.csr = csr
+
+
+TALLY = Tally()
+RTL = RtlSources(DATAPATH, CSR)
+
+
+# The three file helpers take `str | Path` rather than `Path`, because the
+# mutation proofs (scripts/entity_shape_selftest.py) hand them temp-directory
+# paths they build with their own spelling. Everything this module computes
+# for itself is a Path.
+def read_text(path: str | Path) -> str:
+    """A whole file, read through a managed handle."""
+    with open(path) as handle:
+        return handle.read()
+
+
+def read_utf8(path: str | Path) -> str:
+    """A whole file as UTF-8 text, undecodable bytes replaced."""
+    with open(path, encoding="utf-8", errors="replace") as handle:
+        return handle.read()
+
+
+def write_text(path: str | Path, text: str) -> None:
+    """Replace a file's contents, through a managed handle."""
+    with open(path, "w") as handle:
+        handle.write(text)
+
+
+def ck(what: str, got: object, exp: object) -> None:
+    """Record one comparison in the module tally, and say so out loud.
+
+    Every arm of this gate reduces to a value the tree produces and the
+    value it has to be, so this is the only place a result is decided.  A
+    failure is collected even while quiet, which is what lets a planted
+    mutation prove an arm goes red without printing a failure a reader
+    would have to learn to ignore.
+    """
+    TALLY.checks += 1
     if got != exp:
-        fails.append(f"{what}: got {got!r}, expected {exp!r}")
-        if not quiet:
+        TALLY.fails.append(f"{what}: got {got!r}, expected {exp!r}")
+        if not TALLY.quiet:
             print(f"  [FAIL] {what}: got {got!r}, expected {exp!r}")
-    elif not quiet:
+    elif not TALLY.quiet:
         print(f"  [ok]   {what} = {got!r}")
 
 
 # -------------------------------------------------- consumer inventory --
-#: Any literal that names the shape header, with or without a build variable
-#: in front of it ($(RTL_DIR)/..., ../../hdl/..., configs/generated/...).
-CONSUMER_RE = re.compile(r"[\w$(){}./\\-]*gen/adp_shape_defaults\.svh")
-
-
-ASSIGN_RE = re.compile(r"^\s*(\w+)\s*[:?]?=\s*(\S+)\s*$", re.MULTILINE)
-VARIABLE_RE = re.compile(r"\$[({]?(\w+)[)}]?")
-SHAPE_BASENAME = "adp_shape_defaults.svh"
-
-#: References to the shape header that no static expansion can settle, each
-#: classified with the reason it is not a tracked-header consumer. This set
-#: is the ONLY way past the inventory: an unresolvable reference that is not
-#: listed here is a finding, because "could not tell" must not read as "fine".
-CLASSIFIED_CONSUMERS = {
-    ("sw/litex/sweep.sh", "$CFG_GEN/gen/adp_shape_defaults.svh"):
-        "a per-config copy chosen at build time under configs/generated/",
-    ("tb/verilator/milan_dp/Makefile",
-     "gen_divergent/gen/adp_shape_defaults.svh"):
-        "written by gen_divergent_shape.py during the suite, never tracked",
-    ("tb/verilator/milan_dp/gen_divergent_shape.py",
-     "gen_divergent/gen/adp_shape_defaults.svh"):
-        "the same generated file, named by the script that writes it",
-}
-
-#: Repo-root-anchored prefixes: a reference starting with one of these is
-#: relative to the repository, not to the file quoting it.
-ROOT_PREFIXES = ("hdl/", "configs/", "scripts/", "sw/", "syn/", "tb/",
-                 "docs/", "bd/", "avdecc/")
-
-
-def resolve_reference(reference, name, text):
-    """Static expansion for script and prose consumers: the repo-relative
-    path a reference names, or None when substituting the same-file
-    assignments does not settle it. Makefile references never come here --
-    make's own engine expands those (resolve_make_reference), because only
-    make applies +=, includes and $(shell ...) the way the build does.
-    None is NOT a pass -- see the classification below."""
-    assignments = dict(ASSIGN_RE.findall(text))
-    resolved = reference.lstrip("(")
-    for _ in range(4):
-        expanded = VARIABLE_RE.sub(
-            lambda m: assignments.get(m.group(1), m.group(0)), resolved)
-        if expanded == resolved:
-            break
-        resolved = expanded
-    if "$" in resolved:
-        return None
-    if resolved.startswith(ROOT_PREFIXES):
-        return os.path.normpath(resolved)
-    return os.path.normpath(os.path.join(os.path.dirname(name), resolved))
-
-
-MAKE_PROBE_TARGET = "__shape_probe__"
-
-#: An assignment line, however it is spelled: optional `export`/`override`
-#: prefixes, any of make's assignment operators. The frozen-value cross
-#: check below keys on the VARIABLE being assigned, so a spelling the
-#: pattern missed would only ever ADD a probe, never remove one.
-ASSIGN_LINE_RE = re.compile(
-    r"^[ \t]*(?:export[ \t]+|override[ \t]+)*"
-    r"(?P<var>\w+)[ \t]*[:+?]{0,2}=(?P<rhs>.*)$", re.MULTILINE)
-
-
-def probe_make(directory, makefile, expression):
-    """One expression expanded by make itself in the consumer's own
-    directory: final variable state, includes read, `+=`, `$(shell ...)`
-    and every assignment applied exactly as a build applies them. Returns
-    make's expansion, or None when make errors out."""
-    probe = "%s: ; @printf '%%s' \"%s\"" % (MAKE_PROBE_TARGET, expression)
-    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
-    try:
-        run = subprocess.run(
-            ["make", "-s", "--no-print-directory", "-f", makefile,
-             "--eval", probe, MAKE_PROBE_TARGET],
-            cwd=directory, env=env, capture_output=True, text=True,
-            timeout=60)
-    except (OSError, subprocess.TimeoutExpired):
-        return None
-    if run.returncode != 0 or not run.stdout.strip():
-        return None
-    return run.stdout.strip()
-
-
-def shape_prereqs_from_database(directory, makefile):
-    """Every prerequisite naming the shape header, exactly as make FROZE
-    it at parse time. Rule prerequisites are immediate-expansion contexts
-    -- a variable defined after the rule line never reaches them however
-    the final state reads -- and make's post-parse database records them
-    frozen, so it is their ground truth. Returns (ok, tokens); not-ok
-    means the database could not be read and nothing is verified."""
-    env = dict(os.environ, MAKEFLAGS="", MFLAGS="")
-    try:
-        run = subprocess.run(["make", "-pqrR", "-f", makefile],
-                             cwd=directory, env=env, capture_output=True,
-                             text=True, timeout=60)
-    except (OSError, subprocess.TimeoutExpired):
-        return False, []
-    if "# Files" not in run.stdout:
-        return False, []
-    tokens = set()
-    for line in run.stdout.splitlines():
-        if not line or line.startswith(("#", "\t", " ")):
-            continue
-        idx = line.find(":")
-        if idx <= 0 or line[idx + 1:idx + 2] == "=":
-            continue
-        for token in line[idx + 1:].lstrip(":").split():
-            if "$" not in token and token.endswith("/" + SHAPE_BASENAME) \
-                    and token.endswith("gen/" + SHAPE_BASENAME):
-                tokens.add(token)
-    return True, sorted(tokens)
-
-
-def resolve_make_reference(reference, name, text):
-    """The reference expanded by make itself, cross-checked against every
-    variable whose assignment carries it. The text probe alone reads the
-    FINAL variable state, which an immediate `:=` does not honor -- make
-    froze that value at its line, whatever `include`, `export` or a later
-    definition did afterwards -- so for each assignment line containing
-    the reference, the frozen variable is probed too and the text result
-    must appear among its words. Any disagreement, any expansion make
-    cannot settle to one word, any make error: None, and None is NOT a
-    pass."""
-    raw = reference.lstrip("(")
-    directory = os.path.join(ROOT, os.path.dirname(name))
-    makefile = os.path.basename(name)
-    text_out = probe_make(directory, makefile, "$(abspath %s)" % raw)
-    if text_out is None or any(c.isspace() for c in text_out):
-        return None
-    for m in ASSIGN_LINE_RE.finditer(text):
-        if reference not in m.group("rhs"):
-            continue
-        var_out = probe_make(directory, makefile,
-                             "$(abspath $(%s))" % m.group("var"))
-        if var_out is None or text_out not in var_out.split():
-            return None
-    return os.path.normpath(os.path.relpath(text_out, ROOT))
-
-
-def check_shape_consumers():
+def check_shape_consumers() -> None:
     """I: every declared consumer of the TRACKED shape header resolves.
 
     The header is a tracked build artifact whose consumers live in
@@ -337,77 +278,16 @@ def check_shape_consumers():
     tracked = set(tracked_files())
     dangling = []
     for name in sorted(tracked):
-        # The gate's own source carries the CONSUMER_RE pattern and the
-        # deliberately-stale path arm I plants. Neither is a consumer.
-        if name == "scripts/check_entity_shape.py":
+        if name in GATE_SOURCES:
             continue
-        path = os.path.join(ROOT, name)
-        if not os.path.isfile(path):
+        path = ROOT / name
+        if not path.is_file():
             continue
         try:
-            text = open(path, encoding="utf-8", errors="replace").read()
+            text = read_utf8(path)
         except OSError:
             continue
-        is_make = name.endswith("Makefile") or name.endswith(".mk")
-        seen_targets = set()
-
-        def judge(reference, target):
-            if target is None:
-                dangling.append(
-                    f"{name}: {reference} cannot be resolved and is not "
-                    f"classified in CLASSIFIED_CONSUMERS")
-                return
-            if target.startswith("configs/generated/"):
-                return            # per-config copies are arm D's
-            if target in seen_targets:
-                return            # one report per resolved defect
-            if not target.startswith("hdl/"):
-                seen_targets.add(target)
-                dangling.append(
-                    f"{name}: {reference} -> {target} is outside the "
-                    f"tracked tree and is not classified")
-                return
-            if target not in tracked:
-                seen_targets.add(target)
-                dangling.append(f"{name}: {reference} -> {target}")
-
-        references = sorted(set(CONSUMER_RE.findall(text)))
-        for reference in references:
-            # A bare `gen/...` is an `include directive: the compiler
-            # resolves it through the search path, not against the file's
-            # own directory. Whether it can bind two ways is arm H's
-            # subject. A build prerequisite always carries a prefix.
-            if reference.lstrip("(") == "gen/" + SHAPE_BASENAME:
-                continue
-            if (name, reference) in CLASSIFIED_CONSUMERS:
-                continue          # the ONLY way past the inventory
-            if is_make:
-                target = resolve_make_reference(reference, name, text)
-            else:
-                target = resolve_reference(reference, name, text)
-            judge(reference, target)
-        if is_make and references:
-            # Second source: the frozen prerequisites from make's own
-            # database, catching an immediate-expansion RULE line the
-            # per-reference probes cannot see ([R8-4]).
-            directory = os.path.join(ROOT, os.path.dirname(name))
-            ok, prereqs = shape_prereqs_from_database(
-                directory, os.path.basename(name))
-            if not ok:
-                dangling.append(
-                    f"{name}: make database unreadable; frozen shape "
-                    f"prerequisites cannot be verified")
-            for token in prereqs:
-                if token.lstrip("(") == "gen/" + SHAPE_BASENAME:
-                    continue
-                if (name, token) in CLASSIFIED_CONSUMERS:
-                    continue
-                if os.path.isabs(token):
-                    target = os.path.normpath(os.path.relpath(token, ROOT))
-                else:
-                    target = os.path.normpath(
-                        os.path.join(os.path.dirname(name), token))
-                judge(token, target)
+        dangling.extend(dangling_consumers(name, text, tracked))
     ck("I every shape-header consumer resolves", sorted(dangling), [])
 
 
@@ -415,13 +295,18 @@ def check_shape_consumers():
 INCLUDE_RE = re.compile(r'^\s*`include\s+"([^"]+)"', re.M)
 
 
-def tracked_files():
+def tracked_files() -> list[str]:
+    """Every path git records, which is what "in the tree" means to this gate.
+
+    An untracked copy of a header is invisible here on purpose: it cannot be
+    what a build compiles for anyone but the person who has it.
+    """
     out = subprocess.run(["git", "ls-files"], cwd=ROOT, check=True,
                          capture_output=True, text=True)
     return [l for l in out.stdout.splitlines() if l.strip()]
 
 
-def check_include_ambiguity():
+def check_include_ambiguity() -> None:
     """H: no `include may resolve two ways.
 
     A quoted `include is searched in the INCLUDING FILE'S OWN DIRECTORY before
@@ -449,16 +334,18 @@ def check_include_ambiguity():
     ambiguous = []
     for f in rtl:
         try:
-            text = open(os.path.join(ROOT, f), encoding="utf-8",
-                        errors="replace").read()
+            text = read_utf8(ROOT / f)
         except OSError:
             continue
-        own_dir = os.path.dirname(f)
+        own_dir = Path(f).parent
         for rel in set(INCLUDE_RE.findall(text)):
             if rel.startswith("/") or ".." in rel.split("/"):
                 continue
-            adjacent = os.path.normpath(os.path.join(own_dir, rel))
-            if not os.path.isfile(os.path.join(ROOT, adjacent)):
+            # STRING, not Path: `adjacent` is compared against git ls-files
+            # output and printed in the finding, and the `..`-free guard above
+            # is what makes the plain join equal to the old normpath.
+            adjacent = str(own_dir / rel)
+            if not (ROOT / adjacent).is_file():
                 continue
             others = [o for o in tracked
                       if o.endswith("/" + rel) and o != adjacent]
@@ -471,14 +358,14 @@ def check_include_ambiguity():
 
 
 # ------------------------------------------------------ RTL consumption --
-def check_rtl_wiring():
+def check_rtl_wiring() -> None:
     """F: the RTL CONSUMES the generated shape and serves it read-only.
 
     Nothing here recomputes a count - that is the point. It checks that the
     two modules take their numbers from gen/adp_shape_defaults.svh and that
     no path exists for software to overwrite them."""
     print("== RTL: the shape is included from the config, and is read-only ==")
-    dp = open(DATAPATH).read()
+    dp = read_text(RTL.datapath)
     ck("milan_datapath includes the generated shape",
        '`include "gen/adp_shape_defaults.svh"' in dp, True)
     ck("ACMP talker contexts sized by ADP_TALKER_SRC_C",
@@ -496,7 +383,7 @@ def check_rtl_wiring():
        "N_TALKER_SRC_P" in inst.group(1) or "N_LISTENER_SINK_P" in inst.group(1),
        False)
 
-    csr = open(CSR).read()
+    csr = read_text(RTL.csr)
     ck("milan_csr includes the generated shape",
        '`include "gen/adp_shape_defaults.svh"' in csr, True)
     ck("0x618 word is built from ADP_TALKER_SRC_C",
@@ -527,9 +414,10 @@ def check_rtl_wiring():
 
 
 # ------------------------------------------------------------ AEM ROM read --
-def svh_shape(text, where):
+def svh_shape(text: str, where: str) -> dict[str, int]:
     """Read the four constants back out of a generated shape include."""
-    def one(name, pat):
+    def one(name: str, pat: str) -> str:
+        """The one constant's literal, or a setup refusal naming the include."""
         m = re.search(name + r"\s*=\s*" + pat + r"\s*;", text)
         if not m:
             raise SystemExit(f"SETUP: no {name} in {where}")
@@ -543,13 +431,15 @@ def svh_shape(text, where):
             one("ADP_LISTENER_CAPS_C", r"16'h([0-9A-Fa-f]{4})"), 16))
 
 
-def svh_source(text):
+def svh_source(text: str) -> str | None:
     """The `Source :` header line every builder-generated include carries."""
     m = re.search(r"//\s*Source\s*:\s*(\S+)", text)
     return m.group(1) if m else None
 
 
-def tracked_owner(builder, adp_text=None, configs=None):
+def tracked_owner(builder: ModuleType, adp_text: str | None = None,
+                  configs: Sequence[str | Path] | None = None
+                  ) -> tuple[str | None, dict[str, object] | None]:
     """WHICH CONFIG OWNS the tracked entity definition - asked of the TREE.
 
     `endstation_builder.py --write-rtl <cfg>` installs the tracked shape
@@ -567,7 +457,7 @@ def tracked_owner(builder, adp_text=None, configs=None):
     Returns (source-path string or None, config dict or None).
     """
     if adp_text is None:
-        adp_text = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+        adp_text = read_text(ROOT / builder.ADP_SHAPE_REL)
     src = svh_source(adp_text)
     for path in (all_configs() if configs is None else configs):
         cfg = builder.load_config(path)
@@ -576,9 +466,9 @@ def tracked_owner(builder, adp_text=None, configs=None):
     return src, None
 
 
-def rom_descriptor_counts(path):
+def rom_descriptor_counts(path: str) -> dict[int, int]:
     """Count descriptors by type in a generated aecp_aem_rom.svh directory."""
-    text = path if "\n" in path else open(path).read()
+    text = path if "\n" in path else read_text(path)
     body = re.search(r"AEM_DIR_C\s*\[[^\]]*\]\s*=\s*'\{(.*?)\};", text, re.S)
     if not body:
         raise SystemExit("SETUP: no AEM_DIR_C directory in the ROM text")
@@ -590,7 +480,8 @@ def rom_descriptor_counts(path):
 
 
 # -------------------------------------------------------------- the checks --
-def check_config(builder, path):
+def check_config(builder: ModuleType,
+                 path: str | Path) -> tuple[dict[str, object], str]:
     """A-D: this config -> its generated shape include -> its AEM ROM."""
     cfg = builder.load_config(path)
     name = cfg["name"]
@@ -659,12 +550,11 @@ def check_config(builder, path):
     # used to live there for KL_aecp_aem_store; that module is deleted, and a
     # leftover copy in an include dir is a stale descriptor set waiting to be
     # compiled by the next harness that points at this directory.
-    p_gen = os.path.join(ROOT, builder.GEN_CONFIG_DIR, name, "gen")
-    p_cfg = os.path.join(p_gen, "adp_shape_defaults.svh")
+    p_gen = ROOT / builder.GEN_CONFIG_DIR / name / "gen"
+    p_cfg = p_gen / "adp_shape_defaults.svh"
     ck(f"{name}: configs/generated copy is current",
-       os.path.exists(p_cfg) and open(p_cfg).read() == adp_svh, True)
-    left = sorted(f for f in GEN_DIR_FORBIDDEN
-                  if os.path.exists(os.path.join(p_gen, f)))
+       p_cfg.exists() and read_text(p_cfg) == adp_svh, True)
+    left = sorted(f for f in GEN_DIR_FORBIDDEN if (p_gen / f).exists())
     ck(f"{name}: no deleted-plane artifact left in its gen/ include dir",
        left, [])
     return cfg, adp_svh
@@ -676,7 +566,7 @@ def _dir_entries(text, pat):
             for t, i, b, l in re.findall(pat, text)]
 
 
-def svh_rom(text):
+def svh_rom(text: str) -> tuple[bytes, list[tuple[int, int, int, int]]]:
     """(rom bytes, directory) out of a tracked aecp_aem_rom.svh."""
     body = re.search(r"AEM_ROM_INIT_C\s*\[[^\]]*\]\s*=\s*'\{(.*?)\n\};",
                      text, re.S)
@@ -697,7 +587,8 @@ def svh_rom(text):
 # no staleness for arm G to catch there.
 
 
-def entity_fw_field(rom, directory, what):
+def entity_fw_field(rom: bytes, directory: Sequence[tuple[int, int, int, int]],
+                    what: str) -> bytes:
     """The raw 64 octets a controller gets back at ENTITY[0] + 116."""
     base = [b for (t, i, b, _l) in directory if (t, i) == (ENTITY, 0)]
     if not base:
@@ -705,7 +596,7 @@ def entity_fw_field(rom, directory, what):
     return rom[base[0] + FW_OFFSET: base[0] + FW_OFFSET + FW_LEN]
 
 
-def check_firmware_version(builder):
+def check_firmware_version(builder: ModuleType) -> None:
     """G: the firmware version a controller READS is the version this
     gateware IS.
 
@@ -742,7 +633,7 @@ def check_firmware_version(builder):
     """
     print("\n== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==")
     g = load_aem_store()
-    major, minor = g.rtl_version(CSR)
+    major, minor = g.rtl_version(RTL.csr)
     print(f"  milan_csr VERSION: 0x{major:04X}_{minor:04X} "
           f"-> major {major}, minor {minor}")
 
@@ -750,12 +641,12 @@ def check_firmware_version(builder):
     #    to "what version is this", and it is the copy controllers get.
     for p in all_configs():
         cfg = builder.load_config(p)
-        raw = builder.yaml.safe_load(open(p))["entity"]
+        raw = builder.yaml.safe_load(read_text(p))["entity"]
         ck(f"{cfg['name']}: config declares no firmware_version",
            "firmware_version" in raw, False)
         ck(f"{cfg['name']}: emitted firmware_version",
            cfg["entity"]["firmware_version"],
-           g.firmware_version_string(cfg["entity"]["firmware_rev"], CSR))
+           g.firmware_version_string(cfg["entity"]["firmware_rev"], RTL.csr))
 
     # 2. the DESCRIPTOR BYTES the tracked shape's owner generates. Generated
     #    in memory: the tracked ROM and the TB golden are deleted, so there
@@ -765,7 +656,7 @@ def check_firmware_version(builder):
         ck("tracked shape names an owning config whose descriptors can be "
            "generated", False, True)
         return
-    want = g.firmware_version_string(owner["entity"]["firmware_rev"], CSR)
+    want = g.firmware_version_string(owner["entity"]["firmware_rev"], RTL.csr)
     rom_o, dir_o = svh_rom(builder.emit_aem_rom_svh(
         owner, builder.emit_aem_overlay(owner)))
     what = f"generated ROM ({owner['name']})"
@@ -788,8 +679,14 @@ def _utf8(b):
         return False
 
 
-def load_aem_store():
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+def load_aem_store() -> ModuleType:
+    """avdecc/gen_aem_store.py, which owns the VERSION -> version-string rule.
+
+    Imported here rather than at the top so the shape arms still run on a
+    tree where avdecc/ is absent, and refused loudly rather than skipped
+    when arm G needs it and it is not there.
+    """
+    sys.path.insert(0, str(ROOT / "avdecc"))
     try:
         import gen_aem_store as g
     except ImportError as e:                          # pragma: no cover
@@ -797,7 +694,9 @@ def load_aem_store():
     return g
 
 
-def tracked_owner_cfg(builder, configs):
+def tracked_owner_cfg(builder: ModuleType,
+                      configs: Sequence[str | Path]
+                      ) -> dict[str, object] | None:
     """The config the tracked entity definition was generated from.
 
     Returns the CONFIG DICT. Distinct from tracked_owner() above, which
@@ -805,7 +704,7 @@ def tracked_owner_cfg(builder, configs):
     caller can ask the question of a CANDIDATE pair. Two functions with one
     name shadowed each other across a merge and broke every tuple-unpacking
     caller at import time - hence the rename rather than a second alias."""
-    src = svh_source(open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read())
+    src = svh_source(read_text(ROOT / builder.ADP_SHAPE_REL))
     for path in configs:
         cfg = builder.load_config(path)
         if cfg["source"] == src:
@@ -813,7 +712,8 @@ def tracked_owner_cfg(builder, configs):
     return None
 
 
-def check_tracked_shape(builder, configs):
+def check_tracked_shape(builder: ModuleType,
+                        configs: Sequence[str | Path]) -> None:
     """E: the tracked entity definition is ONE config's, and is current.
 
     hdl/common/gen/adp_shape_defaults.svh is what a build `include-s -
@@ -827,7 +727,7 @@ def check_tracked_shape(builder, configs):
     the tracked shape and the entity model it was derived from cannot drift
     apart without one of them being regenerated alone."""
     print("\n== tracked entity definition (what a build includes) ==")
-    adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+    adp = read_text(ROOT / builder.ADP_SHAPE_REL)
     src, owner = tracked_owner(builder, adp_text=adp, configs=configs)
     print(f"  tracked shape source: {src}")
     ck("tracked ADP shape names a source config", src is not None, True)
@@ -845,14 +745,14 @@ def check_tracked_shape(builder, configs):
        rc.get(STREAM_INPUT, 0), got["listener_stream_sinks"])
 
 
-def check_built_config(builder, path):
+def check_built_config(builder: ModuleType, path: str | Path) -> None:
     """Pre-build gate: the tracked entity definition IS the config being
     built. Without this a `build.sh ax8x8` silently inherits whatever shape
     was last committed - exactly how an 8x8 gateware came to carry a 1x1
     descriptor set. The fix is one command, and the message says it."""
     cfg = builder.load_config(path)
     print(f"\n== pre-build: tracked definition vs {cfg['name']} ==")
-    adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
+    adp = read_text(ROOT / builder.ADP_SHAPE_REL)
     ok_adp = adp == builder.emit_adp_shape_svh(cfg)
     ck(f"tracked ADP shape is {cfg['name']}'s", ok_adp, True)
     if not ok_adp:
@@ -861,8 +761,14 @@ def check_built_config(builder, path):
               f"--write-rtl")
 
 
-def load_builder():
-    sys.path.insert(0, os.path.join(ROOT, "sw/builder"))
+def load_builder() -> ModuleType:
+    """sw/builder/endstation_builder.py - the ONE derivation this gate judges.
+
+    Nothing here recomputes a shape; every expected value comes from the
+    builder a real build runs, so the gate cannot agree with itself while
+    disagreeing with what gets flashed.
+    """
+    sys.path.insert(0, str(ROOT / "sw/builder"))
     try:
         import endstation_builder as b
     except ImportError as e:                          # pragma: no cover
@@ -870,12 +776,18 @@ def load_builder():
     return b
 
 
-def all_configs():
-    return sorted(os.path.join(CONFIG_DIR, f) for f in os.listdir(CONFIG_DIR)
-                  if f.startswith("endstation_") and f.endswith(".yaml"))
+def all_configs() -> list[Path]:
+    """Every configs/endstation_*.yaml, discovered rather than listed.
+
+    A gate that names its configs stops checking the one added after it.
+    One directory, so sorting the Paths is the order sorting their strings
+    gave: the parent is identical and only the file name decides.
+    """
+    return sorted(CONFIG_DIR.glob("endstation_*.yaml"))
 
 
-def run():
+def run() -> None:
+    """Arms A-I over every config, in the order a defect is cheapest to read."""
     builder = load_builder()
     check_shape_consumers()
     check_include_ambiguity()
@@ -887,432 +799,8 @@ def run():
     check_firmware_version(builder)
 
 
-# ---------------------------------------------------------------- self-test --
-def mutate(text, old, new):
-    if old not in text:
-        raise SystemExit(f"SELF-TEST SETUP: {old!r} not in the source")
-    return text.replace(old, new, 1)
-
-
-def adp_shape_of(builder, cfg):
-    """This config's talker_stream_sources - read through the builder so the
-    self-test never restates a count the gate exists to keep singular."""
-    return builder.adp_shape(cfg)["talker_stream_sources"]
-
-
-def expect_fail(label, fn, required=()):
-    """Run a mutated world and require the pipeline to REJECT it.
-
-    A rejection counts whether it comes from this gate's own comparisons or
-    from the builder refusing to load the config - both stop the build.
-    When required strings are supplied, the rejection must also name each
-    one; a mutation caught by an unrelated check is not evidence for the arm
-    it claims to exercise."""
-    global fails, checks, quiet
-    saved_f, saved_c, saved_q = fails, checks, quiet
-    fails, checks, quiet = [], 0, True
-    try:
-        fn()
-    except Exception as e:                            # noqa: BLE001
-        fails.append(f"{type(e).__name__}: {e}")
-    if isinstance(required, str):
-        required = (required,)
-    reasons = "\n".join(fails)
-    missing = [token for token in required if token not in reasons]
-    caught = bool(fails) and not missing
-    if missing:
-        why = "rejection did not name " + ", ".join(repr(s) for s in missing)
-    else:
-        why = fails[0] if fails else ""
-    fails, checks, quiet = saved_f, saved_c, saved_q
-    ck(f"MUTATION rejected: {label}", caught, True)
-    if caught:
-        print(f"         (rejected by: {why})")
-
-
-def with_rtl(dp_text=None, csr_text=None):
-    """Context-manager-ish helper: swap in mutated sources for one call."""
-    global DATAPATH, CSR
-    keep = (DATAPATH, CSR)
-    td = tempfile.mkdtemp()
-    if dp_text is not None:
-        DATAPATH = os.path.join(td, "milan_datapath.sv")
-        open(DATAPATH, "w").write(dp_text)
-    if csr_text is not None:
-        CSR = os.path.join(td, "milan_csr.sv")
-        open(CSR, "w").write(csr_text)
-
-    def restore():
-        global DATAPATH, CSR
-        DATAPATH, CSR = keep
-        shutil.rmtree(td, ignore_errors=True)
-    return restore
-
-
-def self_test():
-    """Mutation proof: every planted shape disagreement must FAIL."""
-    print("\n== self-test: a disagreeing shape must be REJECTED ==")
-    builder = load_builder()
-
-    # 0. THE AMBIGUITY CASE (arm H). Put a copy of the shape header back
-    #    beside milan_csr.sv, exactly where it used to live. Nothing about
-    #    the CONTENT is wrong -- the copy is byte-identical to the tracked
-    #    one -- and every existing arm still passes. What is wrong is that
-    #    the file is now reachable two ways, so Verilator binds the include
-    #    path's copy while Vivado, yosys and sv2v bind this one, and a
-    #    +incdir shape override reaches only half the design.
-    adjacent = os.path.join(ROOT, "hdl", "common", "csr", "gen",
-                            os.path.basename(builder.ADP_SHAPE_REL))
-    os.makedirs(os.path.dirname(adjacent), exist_ok=True)
-    shutil.copyfile(os.path.join(ROOT, builder.ADP_SHAPE_REL), adjacent)
-    try:
-        expect_fail("a shape header beside its includer is ambiguous",
-                    check_include_ambiguity)
-    finally:
-        os.unlink(adjacent)
-
-    # 0b. THE STALE-CONSUMER CASE (arm I). Point a build prerequisite at the
-    #     header's old home. Nothing about the RTL is wrong and every
-    #     source-level gate stays green -- only the consumer inventory sees
-    #     that the named file is gone.
-    stale = os.path.join(ROOT, "tb/verilator/csr/Makefile")
-    original = open(stale, encoding="utf-8").read()
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original.replace(
-            "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
-            "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh", 1))
-    try:
-        expect_fail("a build prerequisite left at the header's old path",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile",
-                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-
-    # 0c. [R8]'s plant on PR #310: the same stale prerequisite, reached
-    #     through a make FUNCTION. The make-engine resolver expands it the
-    #     way the build does -- $(shell pwd) runs -- so the verdict is the
-    #     truthful one: resolved to the stale path, which is not tracked.
-    shell_expr = mutate(
-        original,
-        "RTL_DIR    = ../../../hdl",
-        "RTL_DIR    = $(shell pwd)/../../../hdl")
-    shell_expr = mutate(
-        shell_expr,
-        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
-        "$(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(shell_expr)
-    try:
-        expect_fail("a make-function expression naming a dead path",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile",
-                     "hdl/common/csr/gen/adp_shape_defaults.svh"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-
-    # 0d. [R8]'s second plant: CURDIR is a standard make variable, but this
-    #     spelling walks one directory above the repository before returning
-    #     to hdl/. Make resolves it exactly there, and a path outside the
-    #     repository is refused whatever its tail spells.
-    curdir_expr = mutate(
-        original,
-        "$(RTL_DIR)/common/gen/adp_shape_defaults.svh",
-        "$(CURDIR)/../../../../hdl/common/gen/adp_shape_defaults.svh")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(curdir_expr)
-    try:
-        expect_fail("an above-repository prefix with an existing hdl tail",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-
-    # 0e. [R8-2]'s first recurrence: `+=` after the good assignment. Make
-    #     appends with a separating space, the prerequisite becomes two
-    #     words, and no single path exists to bank -- the resolver must
-    #     refuse rather than keep the pre-append value.
-    if "RTL_DIR    = ../../../hdl" not in original:
-        raise SystemExit("SELF-TEST SETUP: RTL_DIR spelling moved")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original + "\nRTL_DIR += /junk\n")
-    try:
-        expect_fail("a += append that splits the prerequisite",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-
-    # 0f. [R8-2]'s second recurrence: an immediate := through a variable
-    #     defined only LATER. Make froze the empty value at the := line, so
-    #     the frozen-variable probe and the final-state text probe disagree
-    #     and the reference is refused.
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original + (
-            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
-            "\nLATE_DIR := ../../../hdl\n"))
-    try:
-        expect_fail("an immediate assignment through a later definition",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-
-    # 0g. [R8-2]'s third recurrence: an include overriding the prefix.
-    #     Make reads the include; the final value points nowhere inside
-    #     the repository, and the resolver reports exactly that.
-    shadow_mk = os.path.join(ROOT, "tb/verilator/csr/shape_paths.mk")
-    with open(shadow_mk, "w", encoding="utf-8") as handle:
-        handle.write("RTL_DIR = /nonexistent\n")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original + "\ninclude shape_paths.mk\n")
-    try:
-        expect_fail("an include that overrides the prefix",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-        os.unlink(shadow_mk)
-    # 0h. [R8-3]'s first evasion: the late definition arrives through an
-    #     include, so no same-file scan can see it. The frozen-variable
-    #     cross-check does: SHAPE_LATE froze the empty prefix, the text
-    #     probe reads the include's final value, and they disagree.
-    late_mk = os.path.join(ROOT, "tb/verilator/csr/late_dir.mk")
-    with open(late_mk, "w", encoding="utf-8") as handle:
-        handle.write("LATE_DIR := ../../../hdl\n")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original + (
-            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
-            "\ninclude late_dir.mk\n"))
-    try:
-        expect_fail("an immediate assignment fed by an include",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-        os.unlink(late_mk)
-
-    # 0i. [R8-3]'s second evasion: the later definition wears an `export`
-    #     prefix. The assignment-line pattern admits the prefix, and the
-    #     frozen-variable cross-check refuses the disagreement.
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(original + (
-            "\nSHAPE_LATE := $(LATE_DIR)/common/gen/adp_shape_defaults.svh"
-            "\nexport LATE_DIR = ../../../hdl\n"))
-    try:
-        expect_fail("an immediate assignment fed by an exported definition",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "cannot be resolved"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-    # 0j. [R8-4]'s evasion: the reference sits on a RULE line, an
-    #     immediate-expansion context no assignment scan or reference
-    #     probe models -- make froze the empty prefix into the
-    #     prerequisite at parse time. The database sweep reads exactly
-    #     that frozen prerequisite and refuses it.
-    rule_expr = mutate(
-        original,
-        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp",
-        "obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) "
-        "$(LATE_DIR)/common/gen/adp_shape_defaults.svh sim_main.cpp")
-    with open(stale, "w", encoding="utf-8") as handle:
-        handle.write(rule_expr + "\nLATE_DIR := ../../../hdl\n")
-    try:
-        expect_fail("a frozen rule prerequisite through a later definition",
-                    check_shape_consumers,
-                    ("tb/verilator/csr/Makefile", "outside the tracked tree"))
-    finally:
-        with open(stale, "w", encoding="utf-8") as handle:
-            handle.write(original)
-    src_cfg = os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")
-    base_cfg = open(src_cfg).read()
-    base_dp = open(DATAPATH).read()
-    base_csr = open(CSR).read()
-
-    # 1. THE CRF CASE the bench found, at the layer that now owns it: the
-    #    builder computes a talker count that excludes the CRF Media Clock
-    #    Output while the AEM overlay still emits its STREAM_OUTPUT. The
-    #    entity would advertise 8 sources and hold 9 descriptors, and uid 8
-    #    would be un-reachable - CRF on the wire, invisible to ATDECC.
-    real_shape = builder.adp_shape
-
-    def crf_blind(cfg):
-        r = dict(real_shape(cfg))
-        r["talker_stream_sources"] = len(cfg["talkers"])
-        return r
-    builder.adp_shape = crf_blind
-    try:
-        expect_fail("builder's talker count excludes the CRF uid",
-                    lambda: check_config(builder, src_cfg))
-    finally:
-        builder.adp_shape = real_shape
-
-    # 2. the CRF SINK dropped the same way (the max(N,2) asymmetry, now
-    #    expressed where the shape is actually decided)
-    def sink_blind(cfg):
-        r = dict(real_shape(cfg))
-        r["listener_stream_sinks"] = len(cfg["listeners"])
-        return r
-    builder.adp_shape = sink_blind
-    try:
-        expect_fail("builder's sink count excludes the CRF sink",
-                    lambda: check_config(builder, src_cfg))
-    finally:
-        builder.adp_shape = real_shape
-
-    # 3. a capability with nothing behind it: MEDIA_CLOCK_SOURCE claimed by a
-    #    config that has no CRF output (what the boot script did for years)
-    def caps_lie(cfg):
-        r = dict(real_shape(cfg))
-        r["talker_capabilities"] |= 0x0800
-        return r
-    builder.adp_shape = caps_lie
-    try:
-        expect_fail("MEDIA_CLOCK_SOURCE claimed without a CRF output",
-                    lambda: check_config(
-                        builder,
-                        os.path.join(CONFIG_DIR,
-                                     "endstation_arty_current.yaml")))
-    finally:
-        builder.adp_shape = real_shape
-
-    # 4. THE SHAPE-DRIFT DEFECT ITSELF, restated for the one artifact that is
-    #    left: the tracked shape include carries config A's counts while the
-    #    build is config B's. That is exactly "an 8x8 gateware shipping a 1x1
-    #    shape", and it is still entirely possible - adp_shape_defaults.svh is
-    #    a tracked, last-writer-wins file and `--write-rtl` hands it to
-    #    whichever config it is called with.
-    #
-    #    (This mutation replaces the old "tracked ROM is a DIFFERENT config's
-    #    than the shape" one. That mutation's subject - a second tracked
-    #    entity artifact to disagree WITH - no longer exists: the AEM ROM has
-    #    no RTL destination since hdl/ieee17221/aecp was deleted.)
-    keep = builder.ADP_SHAPE_REL
-    with tempfile.TemporaryDirectory() as td:
-        other = builder.load_config(os.path.join(CONFIG_DIR,
-                                                 "endstation_arty_4x4.yaml"))
-        adp4 = os.path.join(td, "adp_shape_defaults.svh")
-        open(adp4, "w").write(builder.emit_adp_shape_svh(other))
-        builder.ADP_SHAPE_REL = os.path.relpath(adp4, ROOT)
-        try:
-            expect_fail(
-                "the tree carries a DIFFERENT config's shape than the one "
-                "being built",
-                lambda: check_built_config(
-                    builder,
-                    os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")))
-        finally:
-            builder.ADP_SHAPE_REL = keep
-
-    # 4b. and the same file left STALE against its own declared owner: the
-    #     `Source :` marker still names config X while the body is no longer
-    #     what X generates. A shape include that lies about being current is
-    #     worse than one that names nobody.
-    with tempfile.TemporaryDirectory() as td:
-        owner = tracked_owner_cfg(builder, all_configs())
-        if owner is None:
-            raise SystemExit("SELF-TEST SETUP: the tracked shape has no owner")
-        stale = os.path.join(td, "adp_shape_defaults.svh")
-        open(stale, "w").write(mutate(
-            builder.emit_adp_shape_svh(owner),
-            f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner)};",
-            f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner) + 1};"))
-        builder.ADP_SHAPE_REL = os.path.relpath(stale, ROOT)
-        try:
-            expect_fail("tracked shape is STALE against the config it names",
-                        lambda: check_tracked_shape(builder, all_configs()))
-        finally:
-            builder.ADP_SHAPE_REL = keep
-
-    # 5. milan_csr regains a write arm for 0x618
-    restore = with_rtl(csr_text=mutate(
-        base_csr,
-        "          A_ADP_CCAPS:  adp_ccaps <= s_axi_wdata;",
-        "          A_ADP_TALK:   adp_ccaps <= s_axi_wdata;\n"
-        "          A_ADP_CCAPS:  adp_ccaps <= s_axi_wdata;"))
-    try:
-        expect_fail("milan_csr regained a write arm for 0x618",
-                    check_rtl_wiring)
-    finally:
-        restore()
-
-    # 6. milan_datapath stops sizing its ACMP arrays from the generated
-    #    shape and computes its own again - RTL deciding the entity shape,
-    #    which is how the advertised and addressable ranges drift apart
-    restore = with_rtl(dp_text=mutate(
-        base_dp, "localparam int ACMP_SRC_C = ADP_TALKER_SRC_C;",
-        "localparam int ACMP_SRC_C = (N_STREAMS > 1) ? N_STREAMS + 1 : 1;"))
-    try:
-        expect_fail("milan_datapath recomputes the talker context count",
-                    check_rtl_wiring)
-    finally:
-        restore()
-
-    # 7. THE VERSION DEFECT ITSELF: the gateware's VERSION moves and the
-    #    descriptor keeps telling controllers the old number. Read the current
-    #    literal out of the RTL rather than naming it - naming it here would
-    #    be a second copy of exactly the constant this gate exists to keep
-    #    singular. The mutation makes the VERSION arm G reads disagree with
-    #    the one the model derived its firmware_version from, which is the
-    #    same divergence in the same field.
-    cur = re.search(r"(parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h)"
-                    r"([0-9A-Fa-f_]+)", base_csr)
-    if not cur:
-        raise SystemExit("SELF-TEST SETUP: no VERSION parameter in milan_csr")
-    restore = with_rtl(csr_text=mutate(
-        base_csr, cur.group(0), cur.group(1) + "0002_0003"))
-    try:
-        expect_fail("milan_csr VERSION moved out from under the entity model",
-                    lambda: check_firmware_version(builder))
-    finally:
-        restore()
-
-    # 8. REMOVED, not weakened (2026-08-12): "TB golden not regenerated with
-    #    the AEM ROM". It flipped one octet inside the firmware_version field
-    #    of tb/verilator/aecp/aem_golden.h to prove arm G caught a stale
-    #    golden. That file and the aecp Verilator suite that consumed it are
-    #    DELETED, and so is the tracked ROM it was compared against - there is
-    #    no second on-disk copy of the descriptor bytes left to go stale, so
-    #    the mutation has no subject. Faking one (writing a golden nothing
-    #    reads, just to flip a byte in it) would be a check that proves only
-    #    that this file can write a file.
-
-    # 9. a config declaring its own firmware_version - the second answer to
-    #    "what version is this", which is the one controllers got for months
-    with tempfile.TemporaryDirectory() as td:
-        p = os.path.join(td, "declared_fw.yaml")
-        open(p, "w").write(mutate(
-            base_cfg, '  serial_number: "AX7101-0001"',
-            '  firmware_version: "0.1.0"\n  serial_number: "AX7101-0001"'))
-        expect_fail("a config declares its own firmware_version",
-                    lambda: builder.load_config(p))
-
-    # 10. and the config itself losing a STREAM_INPUT while N_STREAMS holds
-    with tempfile.TemporaryDirectory() as td:
-        p = os.path.join(td, "short_listener.yaml")
-        open(p, "w").write(mutate(
-            base_cfg,
-            # no `formats` list since the Milan 6.4 family became derived
-            # (endstation_builder.base_format_complete) rather than spelled
-            # out per stream row
-            '    - { name: "Stream In 7", channels: 8, map_mode: dynamic }\n',
-            ""))
-        # the model stays self-consistent; what breaks is the per-config
-        # tracked copy on disk, which is how a config edit without a builder
-        # run gets caught
-        expect_fail("config edited without regenerating its shape include",
-                    lambda: check_config(builder, p))
-
-
-def main():
+def main() -> int:
+    """The gate's exit status: 0 when every arm agreed, 1 on any drift."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
     ap.add_argument("--self-test", action="store_true",
                     help="additionally prove that disagreeing shapes FAIL")
@@ -1325,14 +813,25 @@ def main():
     else:
         run()
         if args.self_test:
-            self_test()
+            # Imported here, not at the top: the mutation proofs import this
+            # module back (they mutate its RTL sources and read its tally),
+            # and nothing but this one flag needs them.
+            import entity_shape_selftest
+            entity_shape_selftest.self_test()
     print("-" * 70)
-    print(f"checks: {checks}   failures: {len(fails)}")
-    for f in fails:
+    print(f"checks: {TALLY.checks}   failures: {len(TALLY.fails)}")
+    for f in TALLY.fails:
         print(f"  {f}")
-    print(f"RESULT: {'FAIL' if fails else 'PASS'}")
-    return 1 if fails else 0
+    print(f"RESULT: {'FAIL' if TALLY.fails else 'PASS'}")
+    return 1 if TALLY.fails else 0
 
 
 if __name__ == "__main__":
+    # Run as a script this module is `__main__`, so the self-test's
+    # `import check_entity_shape` would load a SECOND copy with its own
+    # TALLY and its own RTL paths - the mutations would then be counted in
+    # a tally nothing prints. Publish the running module under its import
+    # name first; when it was imported normally (sw/builder/test_builder.py)
+    # the name is already bound to this same object and nothing changes.
+    sys.modules.setdefault("check_entity_shape", sys.modules[__name__])
     sys.exit(main())

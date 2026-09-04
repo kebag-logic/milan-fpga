@@ -104,6 +104,7 @@ is unusable (refused, named).
 import argparse
 import re
 import sys
+from collections.abc import Collection, Iterable, Iterator
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -144,28 +145,31 @@ NOT_A_MODULE = {
 }
 
 
-def blank_comments(text):
+def blank_comments(text: str) -> str:
     """Blank string literals, block comments and line comments, keeping every
     newline so line numbers survive. Strings go first: `$display("u.hit")` is
     not a hierarchical read, and a `//` inside a string is not a comment."""
-    def blank(m):
+    def blank(m: re.Match[str]) -> str:
+        """The match as spaces, its newlines kept so the line numbers hold."""
         return "".join(c if c == "\n" else " " for c in m.group(0))
     return COMMENT.sub(blank, STRING.sub(blank, text))
 
 
-def tree_of(rel):
+def tree_of(rel: str) -> str:
+    """Which of the three trees owns a path, and so which ratchet judges it."""
     for sub in ("gptp-processor", "protocol-processor"):
         if rel.startswith(sub + "/"):
             return sub
     return "hdl"
 
 
-def sources():
+def sources() -> list[str]:
+    """The gated surface, taken from lint_rtl so the two gates cannot disagree."""
     return [p for p in tracked("hdl") if p.endswith((".sv", ".svh"))
             and p not in LINT_EXCLUDE]
 
 
-def check_files(paths, root=REPO):
+def check_files(paths: Iterable[str], root: Path = REPO) -> str | None:
     """A refusal message naming every tracked HDL path the working tree does
     not hold as a regular file, or None. Such a path is refused, never dropped:
     a population quietly missing a file under-counts (#186), and a symlink is
@@ -180,7 +184,7 @@ def check_files(paths, root=REPO):
     return None
 
 
-def declared_modules(paths):
+def declared_modules(paths: Iterable[str]) -> tuple[set[str], set[str]]:
     """(module names, interface names) this tree declares."""
     modules, ifaces = set(), set()
     for rel in paths:
@@ -193,7 +197,7 @@ def declared_modules(paths):
 # ---------------------------------------------------------------------------
 # ports: the population and the undocumented count, through sv_ports
 # ---------------------------------------------------------------------------
-def scan_ports(text):
+def scan_ports(text: str) -> tuple[int, list[str]]:
     """(total, undocumented_names) over the module headers in `text`."""
     total, undoc = 0, []
     for _module, name, doc, _multibit, kind in declarations(text):
@@ -205,7 +209,7 @@ def scan_ports(text):
     return total, undoc
 
 
-def non_ansi_headers(text):
+def non_ansi_headers(text: str) -> list[tuple[str, int]]:
     """[(module, line)] for every module whose port list names ports without a
     direction keyword: the non-ANSI form, whose directions live in the body
     where the parser does not look. Counting such a module as zero ports would
@@ -258,7 +262,8 @@ def _at_line_start(code, pos):
     return not code[code.rfind("\n", 0, pos) + 1:pos].strip()
 
 
-def declared_instances(text, known, foreign=False):
+def declared_instances(text: str, known: Collection[str], foreign: bool = False
+                       ) -> Iterator[tuple[str, str, str, str, int, str]]:
     """Yield instances with their balanced connection text as
     (module, instance, params_text, conns_text, conns_start, code).
 
@@ -327,7 +332,10 @@ def _line(code, pos):
     return code[:pos].count("\n") + 1
 
 
-def scan_bindings(text, known, ifaces=frozenset()):
+def scan_bindings(text: str, known: Collection[str],
+                  ifaces: Collection[str] = frozenset()
+                  ) -> tuple[list[int], list[tuple[str, str, int, str]],
+                             list[tuple[str, str, int]]]:
     """(wildcards, positional, hierarchical) for one source.
 
     wildcards:    [line]
@@ -374,7 +382,8 @@ COMMENT_ONLY = re.compile(r"^\s*//")
 HAS_COMMENT = re.compile(r"//")
 
 
-def scan_connection_dispositions(text, known):
+def scan_connection_dispositions(text: str, known: Collection[str]
+                                 ) -> list[tuple[str, str, str, int, str, bool]]:
     """[(module, instance, port, line, kind, justified)] for every open
     (kind "OPEN") or literal-bound (kind "TIED") named port on a first-party
     child. Justification is the bundle rule of the docstring, read from the
@@ -407,7 +416,8 @@ def _justified(lines, ln, hit_lines):
     return j >= 0 and bool(COMMENT_ONLY.match(lines[j]))
 
 
-def test_backdoors(known, ifaces):
+def test_backdoors(known: Collection[str],
+                   ifaces: Collection[str]) -> list[tuple[str, str, str, int]]:
     """Read-only inventory of hierarchical observation confined to test RTL."""
     found = []
     for rel in tracked("tb/**/*.sv"):
@@ -420,7 +430,8 @@ def test_backdoors(known, ifaces):
 # ---------------------------------------------------------------------------
 # the audit and its refusals
 # ---------------------------------------------------------------------------
-def check_population(files_per_tree, ports_per_tree):
+def check_population(files_per_tree: dict[str, int],
+                     ports_per_tree: dict[str, int]) -> str | None:
     """A refusal message, or None. An empty or partial population must never
     establish a baseline or read as a pass."""
     if not any(files_per_tree.values()):
@@ -433,7 +444,12 @@ def check_population(files_per_tree, ports_per_tree):
     return None
 
 
-def audit():
+def audit() -> dict[str, object]:
+    """One pass over the population: every finding, count and refusal at once.
+
+    The refusal is carried in the result rather than raised, so a caller that
+    wants the numbers and a caller that wants the verdict read the same scan.
+    """
     paths = sources()
     files_per_tree = {t: 0 for t in TREES}
     ports_per_tree = {t: 0 for t in TREES}
@@ -473,7 +489,7 @@ def audit():
     }
 
 
-def identity(rel, inst, port):
+def identity(rel: str, inst: str, port: str) -> str:
     """`path:instance.port`. A processor path is spelled `<submodule>:<path>`,
     the form naming.budget and xvlog.budget use, so this generated file is
     never read as a hand-written list of submodule sources (pp_srcs --check
@@ -487,7 +503,7 @@ def identity(rel, inst, port):
 # ---------------------------------------------------------------------------
 # the budget: per-tree undocumented counts, unjustified connections by identity
 # ---------------------------------------------------------------------------
-def read_budget(path=BUDGET):
+def read_budget(path: Path = BUDGET) -> tuple[dict[str, int], set[str]] | None:
     """({tree: count}, {identity}) or None when missing or malformed."""
     if not path.is_file():
         return None
@@ -508,7 +524,9 @@ def read_budget(path=BUDGET):
     return counts, idents
 
 
-def ratchet(result, budget):
+def ratchet(result: dict[str, object],
+            budget: tuple[dict[str, int], set[str]]
+            ) -> tuple[list[tuple[str, int, int]], list[str], list[str]]:
     """(over, new, left): trees over their count, unjustified identities not
     recorded, recorded identities no longer present."""
     counts, idents = budget
@@ -519,7 +537,12 @@ def ratchet(result, budget):
     return over, sorted(current - idents), sorted(idents - current)
 
 
-def write_budget(result, path=BUDGET):
+def write_budget(result: dict[str, object], path: Path = BUDGET) -> None:
+    """Re-record the ratchets from this tree, with the reasoning above them.
+
+    Written only from the tool: a hand-edited number is a limit nobody
+    measured, and the header says so where the next editor will read it.
+    """
     rows = [(rel, inst, port) for rel, _m, inst, port, _l, _k, ok
             in result["dispositions"] if not ok]
     unjust = sorted(identity(*row) for row in rows)
@@ -561,105 +584,120 @@ def _mod(body, head="module f ("):
     return f"{head}\n{body}\n);\nendmodule\n"
 
 
-def selftest():
-    failures, n_checks = 0, 0
+#: The names the self-test's fixtures declare: one child module and one
+#: interface, so an arm reads without hunting for what "known" holds.
+_SELFTEST_KNOWN = {"KL_child"}
+_SELFTEST_IFACES = {"axi_stream_if"}
 
-    def ck(name, ok, detail=""):
-        nonlocal failures, n_checks
-        n_checks += 1
-        if ok:
-            print(f"[PASS] {name}")
-        else:
-            failures += 1
-            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
 
-    known, ifaces = {"KL_child"}, {"axi_stream_if"}
-    B = lambda src: scan_bindings(src, known, ifaces)   # noqa: E731
+def _bindings(src):
+    """`scan_bindings` over one fixture, with the self-test's declared names."""
+    return scan_bindings(src, _SELFTEST_KNOWN, _SELFTEST_IFACES)
 
+
+def _dispositions(src):
+    """`scan_connection_dispositions` over one fixture."""
+    return scan_connection_dispositions(src, _SELFTEST_KNOWN)
+
+
+def _arm_binding_forms(ck):
+    """Every binding form the gate refuses, and every one it accepts."""
     # -- the three refusals must BITE. Their live population is zero, so without
     # -- these arms the gate is indistinguishable from an inert one.
-    w, p, h = B("\n\n  KL_child u_c (.*);")
+    w, p, h = _bindings("\n\n  KL_child u_c (.*);")
     ck("a wildcard binding is caught, with its line", w == [3], f"{w}")
-    w, p, h = B("  KL_child u_c (sig_a, sig_b);")
+    w, p, h = _bindings("  KL_child u_c (sig_a, sig_b);")
     ck("a positional binding is caught", [x[3] for x in p] == ["ports"], f"{p}")
-    w, p, h = B("  KL_child u_c (.a(sig_a), .b(sig_b));")
+    w, p, h = _bindings("  KL_child u_c (.a(sig_a), .b(sig_b));")
     ck("a named binding is accepted", not w and not p, f"{w} {p}")
-    w, p, h = B("  KL_child #(.W(8)) u_c (.a(sig_a));")
+    w, p, h = _bindings("  KL_child #(.W(8)) u_c (.a(sig_a));")
     ck("a parameterised named binding is accepted", not w and not p, f"{w} {p}")
-    w, p, h = B("  KL_child #(.W(8)) u_c (sig_a);")
+    w, p, h = _bindings("  KL_child #(.W(8)) u_c (sig_a);")
     ck("a parameterised positional binding is caught", [x[3] for x in p] == ["ports"], f"{p}")
-    w, p, h = B("  KL_child #(8, 16) u_c (.a(sig_a));")
+    w, p, h = _bindings("  KL_child #(8, 16) u_c (.a(sig_a));")
     ck("a positional PARAMETER list is caught", [x[3] for x in p] == ["parameters"], f"{p}")
-    w, p, h = B("  KL_child u_c [0:1] (.*);")
+    w, p, h = _bindings("  KL_child u_c [0:1] (.*);")
     ck("an instance array with a wildcard is caught", len(w) == 1, f"{w}")
-    w, p, h = B("  KL_child u_c [0:1] (sig_a, sig_b);")
+    w, p, h = _bindings("  KL_child u_c [0:1] (sig_a, sig_b);")
     ck("an instance array bound by position is caught", len(p) == 1, f"{p}")
-    w, p, h = B("  KL_child u_c [0:1] (.a(sig_a));")
+    w, p, h = _bindings("  KL_child u_c [0:1] (.a(sig_a));")
     ck("an instance array bound by name is accepted", not w and not p, f"{w} {p}")
 
+
+def _arm_multi_instance(ck):
+    """One head, several instances: each instance is judged on its own."""
     # -- one head, several instances: `module_instance { , module_instance } ;`.
     # -- The first version stopped after the first connection list, so the
     # -- reviewer's `u_bad(.*)` passed (PR #279).
-    w, p, h = scan_bindings("child u_ok(.a(a)), u_bad(.*);", {"child"}, ifaces)
+    w, p, h = scan_bindings("child u_ok(.a(a)), u_bad(.*);", {"child"}, _SELFTEST_IFACES)
     ck("a wildcard on the second instance of a declaration is caught, with its line",
        w == [1], f"{w}")
-    w, p, h = B("  KL_child u_ok (.a(sig_a)), u_bad (sig_a, sig_b);")
+    w, p, h = _bindings("  KL_child u_ok (.a(sig_a)), u_bad (sig_a, sig_b);")
     ck("a positional binding on the second instance is caught",
        [(x[1], x[3]) for x in p] == [("u_bad", "ports")], f"{p}")
-    w, p, h = B("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));")
-    seen = [i for _m, i, *_ in declared_instances("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));", known)]
+    w, p, h = _bindings("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));")
+    seen = [i for _m, i, *_ in declared_instances("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));", _SELFTEST_KNOWN)]
     ck("a clean two-instance declaration is accepted and both instances are seen",
        not w and not p and seen == ["u_a", "u_b"], f"{w} {p} {seen}")
     three = "  KL_child #(.W(8)) u_a (.a(sig_a)),\n    u_b [0:1] (.a(sig_b)),\n    u_c (.a(sig_c));"
-    w, p, h = B(three)
-    seen = [(i, prm.strip()) for _m, i, prm, *_ in declared_instances(three, known)]
+    w, p, h = _bindings(three)
+    seen = [(i, prm.strip()) for _m, i, prm, *_ in declared_instances(three, _SELFTEST_KNOWN)]
     ck("a three-instance declaration with an array and a parameterised head is accepted, every instance seen",
        not w and not p and seen == [("u_a", ".W(8)"), ("u_b", ".W(8)"), ("u_c", ".W(8)")], f"{w} {p} {seen}")
-    w, p, h = B(three.replace("(.a(sig_c))", "(.*)"))
+    w, p, h = _bindings(three.replace("(.a(sig_c))", "(.*)"))
     ck("a wildcard on the third instance is caught on its own line", w == [3], f"{w}")
-    w, p, h = B(three.replace("(.a(sig_b))", "(sig_b)"))
+    w, p, h = _bindings(three.replace("(.a(sig_b))", "(sig_b)"))
     ck("a positional array instance in the middle of a declaration is caught",
        [(x[1], x[2], x[3]) for x in p] == [("u_b", 2, "ports")], f"{p}")
-    w, p, h = B("  KL_child #(8) u_a (.a(sig_a)), u_b (.a(sig_b));")
+    w, p, h = _bindings("  KL_child #(8) u_a (.a(sig_a)), u_b (.a(sig_b));")
     ck("a positional parameter list on a shared head is refused for every instance it configures",
        [(x[1], x[3]) for x in p] == [("u_a", "parameters"), ("u_b", "parameters")], f"{p}")
-    w, p, h = B("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));\n  assign leak = u_b.hidden_r;")
+    w, p, h = _bindings("  KL_child u_a (.a(sig_a)), u_b (.a(sig_b));\n  assign leak = u_b.hidden_r;")
     ck("a read through the second instance is a hierarchical dependency",
        h == [("u_b", "hidden_r", 2)], f"{h}")
-    w, p, h = B("  VendorPrimitive u_a (sig_a), u_b (sig_b);\n  assign leak = u_b.q;")
+    w, p, h = _bindings("  VendorPrimitive u_a (sig_a), u_b (sig_b);\n  assign leak = u_b.q;")
     ck("a foreign head's later instance is not judged but still roots a read",
        not p and h == [("u_b", "q", 2)], f"{p} {h}")
 
+
+def _arm_foreign_and_noise(ck):
+    """A foreign module keeps its form, and comments and strings are not bindings."""
     # a module this tree does NOT declare keeps whatever form its tool needs
-    w, p, h = B("  VendorPrimitive u_v (sig_a, sig_b);")
+    w, p, h = _bindings("  VendorPrimitive u_v (sig_a, sig_b);")
     ck("a foreign module is not judged", not p, f"{p}")
-    w, p, h = B("  VendorPrimitive u_v (.*);")
+    w, p, h = _bindings("  VendorPrimitive u_v (.*);")
     ck("a foreign wildcard keeps its boundary exception", not w, f"{w}")
 
     # control flow, comments and strings must not read as bindings
-    w, p, h = B("  if (cond) begin\n    x <= 1;\n  end")
+    w, p, h = _bindings("  if (cond) begin\n    x <= 1;\n  end")
     ck("control flow is not an instantiation", not p, f"{p}")
-    w, p, h = B("  // KL_child u_c (sig_a, sig_b);")
+    w, p, h = _bindings("  // KL_child u_c (sig_a, sig_b);")
     ck("a commented-out binding is not counted", not p and not w, f"{p} {w}")
-    w, p, h = B('  KL_child u_c (.a(sig_a));\n  initial $display("u_c.hit");')
+    w, p, h = _bindings('  KL_child u_c (.a(sig_a));\n  initial $display("u_c.hit");')
     ck("a string literal is not a hierarchical read", not h, f"{h}")
 
+
+def _arm_hierarchical_reads(ck):
+    """What counts as a read through a child, and what only looks like one."""
     # -- production hierarchical reads --
-    w, p, h = B("  KL_child u_c (.a(sig_a));\n  assign leak = u_c.hidden_r;")
+    w, p, h = _bindings("  KL_child u_c (.a(sig_a));\n  assign leak = u_c.hidden_r;")
     ck("a read through a first-party child is caught", h == [("u_c", "hidden_r", 2)], f"{h}")
-    w, p, h = B("  axis_fifo #(.D(4)) u_f (.a(sig_a));\n  assign leak = u_f.rd_ptr_reg;")
+    w, p, h = _bindings("  axis_fifo #(._dispositions(4)) u_f (.a(sig_a));\n  assign leak = u_f.rd_ptr_reg;")
     ck("a read through a FOREIGN child instance is caught", h == [("u_f", "rd_ptr_reg", 2)], f"{h}")
-    w, p, h = B("  assign leak = KL_child.u_x.pass_r;")
+    w, p, h = _bindings("  assign leak = KL_child.u_x.pass_r;")
     ck("a reference rooted in a module name is caught", h == [("KL_child", "u_x", 1)], f"{h}")
-    w, p, h = B("  assign leak = $root.top.u_x.pass_r;")
+    w, p, h = _bindings("  assign leak = $root.top.u_x.pass_r;")
     ck("a $root reference is caught", h == [("$root", "top", 1)], f"{h}")
-    w, p, h = B("  axi_stream_if s_axis ();\n  assign v = s_axis.tvalid;")
+    w, p, h = _bindings("  axi_stream_if s_axis ();\n  assign v = s_axis.tvalid;")
     ck("interface member access is a modport, not a backdoor", not h, f"{h}")
-    w, p, h = B("  assign v = pkt.KL_child.x;\n  assign q = my_pkg::KL_child.y;")
+    w, p, h = _bindings("  assign v = pkt.KL_child.x;\n  assign q = my_pkg::KL_child.y;")
     ck("a struct member or package item named like a module is not a reference", not h, f"{h}")
-    w, p, h = B("  wire foo (a, b);\n  logic [7:0] arr [0:3];")
+    w, p, h = _bindings("  wire foo (a, b);\n  logic [7:0] arr [0:3];")
     ck("a declaration is not a foreign instantiation", not h and not p, f"{h} {p}")
 
+
+def _arm_port_documentation(ck):
+    """Which ports the shared parser sees, and which comment documents which."""
     # -- port documentation, through the shared parser --
     n, u = scan_ports(_mod("  input wire clk_i  //! the clock"))
     ck("a documented port is not counted", n == 1 and not u, f"{n} {u}")
@@ -702,32 +740,40 @@ def selftest():
         na = non_ansi_headers(src)
         ck(f"{what} is not a non-ANSI header", not na, f"{na}")
 
+
+def _arm_dispositions(ck):
+    """Open and literal-bound connections, and the comment that justifies one."""
     # -- open and literal-bound connections and their rationale --
-    D = lambda src: scan_connection_dispositions(src, known)   # noqa: E731
-    d = D("  KL_child u_c (.unused_o(), .reset_i(1'b0), .data_i(sig));")
+    d = _dispositions("  KL_child u_c (.unused_o(), .reset_i(1'b0), .data_i(sig));")
     ck("open and literal-bound ports are inventoried",
        [(x[2], x[4]) for x in d] == [("unused_o", "OPEN"), ("reset_i", "TIED")], f"{d}")
-    d = D("  KL_child u_c (\n    .unused_o(), // never consumed here\n    .data_i(sig));")
+    d = _dispositions("  KL_child u_c (\n    .unused_o(), // never consumed here\n    .data_i(sig));")
     ck("a comment on the connection's line justifies it", [x[5] for x in d] == [True], f"{d}")
-    d = D("  KL_child u_c (\n    //! the diagnostic is owned by software\n    .unused_o(),\n    .data_i(sig));")
+    d = _dispositions("  KL_child u_c (\n    //! the diagnostic is owned by software\n"
+                      "    .unused_o(),\n    .data_i(sig));")
     ck("a comment directly above justifies it", [x[5] for x in d] == [True], f"{d}")
-    d = D("  KL_child u_c (\n    //! P4 seam, unlanded at this pin\n    .a_o(),\n    .b_i(1'b0),\n    .c_i('0),\n    .data_i(sig));")
+    d = _dispositions("  KL_child u_c (\n    //! P4 seam, unlanded at this pin\n"
+                      "    .a_o(),\n    .b_i(1'b0),\n    .c_i('0),\n    .data_i(sig));")
     ck("a comment above a contiguous run justifies the whole run",
        [x[5] for x in d] == [True, True, True], f"{d}")
-    d = D("  KL_child u_c (\n    //! a rationale\n\n    .unused_o(),\n    .data_i(sig));")
+    d = _dispositions("  KL_child u_c (\n    //! a rationale\n\n    .unused_o(),\n    .data_i(sig));")
     ck("a blank line between the comment and the connection leaves it unjustified",
        [x[5] for x in d] == [False], f"{d}")
-    d = D("  KL_child u_c (\n    .data_i(sig),\n    .unused_o());")
+    d = _dispositions("  KL_child u_c (\n    .data_i(sig),\n    .unused_o());")
     ck("no comment is no rationale", [x[5] for x in d] == [False], f"{d}")
-    d = D("  KL_child u_c (\n    //! only a\n    .a_o(),\n    .data_i(sig),\n    .b_o());")
+    d = _dispositions("  KL_child u_c (\n    //! only a\n    .a_o(),\n    .data_i(sig),\n    .b_o());")
     ck("an ordinary connection ends the run", [x[5] for x in d] == [True, False], f"{d}")
-    d = D("  KL_child u_c (\n    .a_o(), //! a's own reason\n    .b_o());")
+    d = _dispositions("  KL_child u_c (\n    .a_o(), //! a's own reason\n    .b_o());")
     ck("a sibling's own comment ends the run", [x[5] for x in d] == [True, False], f"{d}")
-    d = D("  KL_child u_a (.a(sig)), u_b (\n    .x_o(),\n    .y_i(1'b0), //! y is a feature disable here\n    .a(sig));")
+    d = _dispositions("  KL_child u_a (.a(sig)), u_b (\n    .x_o(),\n"
+                      "    .y_i(1'b0), //! y is a feature disable here\n    .a(sig));")
     ck("open and literal-bound ports on the second instance are inventoried with their rationale",
        [(x[1], x[2], x[3], x[4], x[5]) for x in d]
        == [("u_b", "x_o", 2, "OPEN", False), ("u_b", "y_i", 3, "TIED", True)], f"{d}")
 
+
+def _arm_ratchets(ck):
+    """The ratchet verdicts, the identity spelling and the budget refusals."""
     # -- the ratchets, on synthetic results --
     res = {"undoc_per_tree": {"hdl": 5, "gptp-processor": 1, "protocol-processor": 2},
            "dispositions": [("x.sv", "KL_child", "u_c", "a_o", 3, "OPEN", False),
@@ -771,6 +817,9 @@ def selftest():
            and all(name in refusal for name in ("gone.sv", "d.sv", "l.sv"))
            and "a.sv" not in refusal.split(": ")[-1], refusal)
 
+
+def _arm_population(ck):
+    """The population refusals: an empty, fileless or portless tree."""
     # -- the population refusals --
     ck("an empty population is refused",
        (check_population({}, {}) or "").startswith("REFUSED: empty"))
@@ -784,6 +833,9 @@ def selftest():
        check_population({"hdl": 3, "gptp-processor": 3, "protocol-processor": 3},
                         {"hdl": 9, "gptp-processor": 9, "protocol-processor": 9}) is None)
 
+
+def _arm_live_scan(ck):
+    """The live tree: the scan must actually reach and read every tree."""
     # -- and the live scan must actually read the tree --
     result = audit()
     ck("the live population is whole", result["refusal"] is None, f"{result['refusal']}")
@@ -804,12 +856,38 @@ def selftest():
     ck("the .svh files are in the binding population", any(p.endswith(".svh") for p in paths))
     ck("the tree's interface is not a hierarchical root", "axi_stream_if" not in known_live)
 
+
+def selftest() -> int:
+    """Prove each refusal BITES on a fixture whose answer is known by hand.
+
+    The live population of the three refused forms is zero, so without these
+    arms a working gate and an inert one report exactly the same thing.
+    """
+    failures, n_checks = 0, 0
+
+    def ck(name: str, ok: bool, detail: str = "") -> None:
+        """Score one arm; `detail` is printed only when the arm went red."""
+        nonlocal failures, n_checks
+        n_checks += 1
+        if ok:
+            print(f"[PASS] {name}")
+        else:
+            failures += 1
+            print(f"[FAIL] {name}{': ' + detail if detail else ''}")
+
+    for arm in (_arm_binding_forms, _arm_multi_instance, _arm_foreign_and_noise,
+                _arm_hierarchical_reads, _arm_port_documentation,
+                _arm_dispositions, _arm_ratchets, _arm_population,
+                _arm_live_scan):
+        arm(ck)
+
     print(f"\n{n_checks} checks: {n_checks - failures} PASS, {failures} FAIL")
     return 1 if failures else 0
 
 
 # ---------------------------------------------------------------------------
-def main():
+def main() -> int:
+    """The gate's exit status: 0 clean, 1 a finding, 2 an unusable population."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--list", action="store_true", help="per-file and per-connection detail")
     ap.add_argument("--selftest", action="store_true", help="run the fixture arms")

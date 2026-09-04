@@ -14,7 +14,7 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
 SRCS = $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \

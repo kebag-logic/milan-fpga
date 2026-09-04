@@ -15,7 +15,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          +incdir+$(C) +incdir+$(AAF) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
-         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2"
+         -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 SRCS = $(C)/cdc_pair_fifo.sv $(AAF)/KL_tdm_render.sv
 .PHONY: all run clean
 all: run

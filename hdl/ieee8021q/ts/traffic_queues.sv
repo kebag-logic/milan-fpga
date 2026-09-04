@@ -46,7 +46,7 @@ module traffic_queues #(
 );
 
   //! Width of `tdest` field
-  localparam TDEST_WIDTH = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
+  localparam int TDEST_WIDTH = (NUMBER_OF_QUEUES <= 1) ? 1 : $clog2(NUMBER_OF_QUEUES);
   localparam int KW = TDATA_WIDTH/8;
   //! prog_empty threshold: queue reports "has data" only above this depth (was the
   //! xpm PROG_EMPTY_THRESH; keeps the CBS scheduler's underrun margin unchanged).

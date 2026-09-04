@@ -92,11 +92,11 @@ module adp_tx_arbiter #(
 );
 
   // sel: 0 = datapath, 1 = adp
-  reg  locked_r;        //! a source is granted and being forwarded until tlast
-  reg  sel_r;           //! the granted source while locked
-  reg  last_grant_r;    //! last source granted (for round-robin fairness)
-  reg  flush_r;         //! closing an abandoned frame with an injected tlast
-  reg [TO_LOG2_P:0] to_cnt_r;  //! cycles the held lock has made no progress
+  logic locked_r;       //! a source is granted and being forwarded until tlast
+  logic sel_r;          //! the granted source while locked
+  logic last_grant_r;   //! last source granted (for round-robin fairness)
+  logic flush_r;        //! closing an abandoned frame with an injected tlast
+  logic [TO_LOG2_P:0] to_cnt_r;  //! cycles the held lock has made no progress
 
   // Combinational grant: while locked keep sel_r; else pick a valid source,
   // preferring the one that was NOT granted last (round-robin).

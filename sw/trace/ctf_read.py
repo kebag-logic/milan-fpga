@@ -45,10 +45,11 @@ usage:
 import argparse
 import json
 import lzma
-import os
 import re
 import struct
 import sys
+from pathlib import Path
+from typing import Any
 
 CTF_MAGIC = 0xC1FC1FC1
 
@@ -97,7 +98,9 @@ class IntType:
                 "this reader only supports byte-aligned fields; use babeltrace2")
 
     @property
-    def nbytes(self):
+    def nbytes(self) -> int:
+        """The field's width in whole bytes; the constructor already refused a
+        size this reader could not divide."""
         return self.size // 8
 
 
@@ -250,10 +253,13 @@ class Metadata:
             raise MetadataError("event header has no `id` field")
 
     @property
-    def abi(self):
+    def abi(self) -> str:
+        """The trace ABI version the writer stamped into env, or "?" - a
+        decode of a trace whose ABI is unknown is still reported as such."""
         return self.env.get("milan_trace_abi", "?")
 
-    def event_ids(self):
+    def event_ids(self) -> dict[int, str]:
+        """{event id: event name} as this metadata declares them."""
         return {eid: n for eid, (n, _) in self.events.items()}
 
 
@@ -271,13 +277,16 @@ class _Cursor:
         self.off = off
         self.little = little
 
-    def align(self, nbits):
+    def align(self, nbits: int) -> None:
+        """Advance the cursor to the field's byte alignment."""
         nbytes = max(1, nbits // 8)
         rem = self.off % nbytes
         if rem:
             self.off += nbytes - rem
 
-    def read(self, ftype):
+    def read(self, ftype: IntType | StrType) -> int | str:
+        """One field's value, raising TruncatedTrace rather than reading past
+        the end of a torn buffer."""
         if isinstance(ftype, StrType):
             end = self.buf.find(b"\0", self.off)
             if end < 0:
@@ -294,7 +303,10 @@ class _Cursor:
         return int.from_bytes(raw, "little" if self.little else "big",
                               signed=ftype.signed)
 
-    def read_struct(self, members):
+    def read_struct(
+            self, members: list[tuple[str, IntType | StrType]]
+    ) -> dict[str, int | str]:
+        """{field name: value} for one declared structure, read in order."""
         out = {}
         for name, ftype in members:
             out[name] = self.read(ftype)
@@ -311,7 +323,9 @@ class Packet:
     __slots__ = ("header", "context", "events", "offset", "size_bytes")
 
 
-def decode(buf, meta):
+def decode(
+        buf: bytes, meta: Metadata
+) -> tuple[list[Packet], list[dict[str, Any]], str | None]:
     """Decode `buf` into (packets, events, note).
 
     Stops at the first structurally invalid or incomplete packet.  `note` is
@@ -403,15 +417,15 @@ def _extend_ts(meta, eh, base_ts, last_ts):
 # input handling
 # --------------------------------------------------------------------------
 
-def read_stream_bytes(path):
+def read_stream_bytes(path: Path) -> tuple[bytes, bool]:
     """Bytes of a stream file, decompressing `.xz` and tolerating truncation.
 
     A truncated xz stream still yields every byte the decoder could produce -
     MEASURED, not assumed: see docs/design/TRACE_LOGGING.md section 8.  The
     liblzma error at the end is expected and is not a failure.
     """
-    raw = open(path, "rb").read()
-    if not path.endswith(".xz"):
+    raw = path.read_bytes()
+    if path.suffix != ".xz":
         return raw, False
     d = lzma.LZMADecompressor(format=lzma.FORMAT_XZ)
     out = bytearray()
@@ -429,32 +443,42 @@ def read_stream_bytes(path):
 def _looks_like_stream(path):
     """A CTF stream (packet magic) or an xz segment.  Anything else in the
     directory - a stats file, an operator's note - is not a decode failure."""
-    if not os.path.isfile(path):
+    if not path.is_file():
         return False
-    with open(path, "rb") as f:
+    with path.open("rb") as f:
         head = f.read(6)
     return (head[:6] == b"\xfd7zXZ\x00" or
             int.from_bytes(head[:4], "little") == CTF_MAGIC or
             int.from_bytes(head[:4], "big") == CTF_MAGIC)
 
 
-def load(path, metadata_path=None):
-    """(metadata, [(name, bytes, truncated)]) for a dir, a file or an .xz."""
-    if os.path.isdir(path):
-        mpath = metadata_path or os.path.join(path, "metadata")
-        streams = sorted(f for f in os.listdir(path)
-                         if f != "metadata" and not f.startswith(".")
-                         and _looks_like_stream(os.path.join(path, f)))
-        items = [(f,) + read_stream_bytes(os.path.join(path, f)) for f in streams]
+def load(
+        path: str | Path, metadata_path: str | Path | None = None
+) -> tuple[Metadata, list[tuple[str, bytes, bool]]]:
+    """(metadata, [(name, bytes, truncated)]) for a dir, a file or an .xz.
+
+    `path` is accepted as either a `str` or a `Path` because callers outside
+    this module hand it a `str`; the stream NAMES come back as `str` for the
+    same reason - they are report text, not paths, and a caller joins them to
+    nothing.  Stream order stays a sort of those names, not of `Path`s, so a
+    dotted or dashed segment name keeps the order `ls` would show.
+    """
+    root = Path(path)
+    if root.is_dir():
+        mpath = Path(metadata_path) if metadata_path else root / "metadata"
+        streams = sorted(f.name for f in root.iterdir()
+                         if f.name != "metadata" and not f.name.startswith(".")
+                         and _looks_like_stream(f))
+        items = [(f,) + read_stream_bytes(root / f) for f in streams]
     else:
-        mpath = metadata_path or os.path.join(os.path.dirname(path) or ".",
-                                              "metadata")
-        items = [(os.path.basename(path),) + read_stream_bytes(path)]
-    if not os.path.isfile(mpath):
+        mpath = (Path(metadata_path) if metadata_path
+                 else root.parent / "metadata")
+        items = [(root.name,) + read_stream_bytes(root)]
+    if not mpath.is_file():
         raise MetadataError(
             f"no metadata at {mpath} - a CTF trace cannot be decoded without the "
             "metadata that was written WITH it (pass --metadata)")
-    meta = Metadata(open(mpath, encoding="utf-8", errors="replace").read())
+    meta = Metadata(mpath.read_text(encoding="utf-8", errors="replace"))
     return meta, items
 
 
@@ -471,7 +495,13 @@ def _fmt_value(v):
     return v
 
 
-def main(argv=None):
+def main(argv: list[str] | None = None) -> int:
+    """Decode one trace and print it in the requested shape.
+
+    2 when the metadata written WITH the trace could not be read, 0 otherwise:
+    a torn trace is reported in the notes, never in the exit status, because
+    the recovered prefix is still the evidence the reader came for.
+    """
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("path")
     ap.add_argument("--metadata")

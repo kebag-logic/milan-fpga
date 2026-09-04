@@ -203,15 +203,17 @@ Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
      python3 sw/builder/test_builder.py --require-elaboration   (the CI job)
 """
 
+from __future__ import annotations
+
 import ast
 import binascii
+import collections
 import contextlib
 import copy
 import gzip
 import io
 import json
 import os
-import pathlib
 import re
 import shlex
 import shutil
@@ -221,14 +223,22 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any, NoReturn
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
-SOC_DIR = os.path.join(ROOT, "sw/litex")
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(ROOT, "avdecc"))
-sys.path.insert(0, os.path.join(ROOT, "scripts"))
-sys.path.insert(0, SOC_DIR)
+#: Every path constant below is a `pathlib.Path`, and so is every path this
+#: module derives from one.  The one deliberate exception is `sys.path`, which
+#: the import machinery joins with `str.join` and which therefore silently
+#: imports nothing when handed a `Path` - `str()` at that boundary is a
+#: contract, not a leftover.
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+SOC_DIR = ROOT / "sw/litex"
+sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(ROOT / "avdecc"))
+sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(SOC_DIR))
 
 import yaml  # noqa: E402
 
@@ -241,26 +251,34 @@ import qspi_owner_transition as qspi_transition  # noqa: E402
 import check_entity_shape as ces  # noqa: E402
 
 CONFIGS = {
-    "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
-    "arty_4x4": os.path.join(ROOT, "configs/endstation_arty_4x4.yaml"),
-    "arty_8ch": os.path.join(ROOT, "configs/endstation_arty_8ch.yaml"),
-    "ax7101_8x8": os.path.join(ROOT, "configs/endstation_ax7101_8x8.yaml"),
-    "ax7101_1x1_tdm8": os.path.join(
-        ROOT, "configs/endstation_ax7101_1x1_tdm8.yaml"),
+    "arty_current": ROOT / "configs/endstation_arty_current.yaml",
+    "arty_4x4": ROOT / "configs/endstation_arty_4x4.yaml",
+    "arty_8ch": ROOT / "configs/endstation_arty_8ch.yaml",
+    "ax7101_8x8": ROOT / "configs/endstation_ax7101_8x8.yaml",
+    "ax7101_1x1_tdm8": ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml",
 }
-OUT = os.path.join(HERE, "out")
+OUT = HERE / "out"
 #: gate 24d's pin of the cluster namer: every object_name the builder produces
 #: for a loopback-bearing config and for the channel_names config, per
 #: direction and STREAM_PORT, in offset order. Generated from the
 #: implementation by `python3 sw/builder/test_builder.py --write-cluster-golden`;
 #: a deliberate naming change regenerates it, and the diff of that file is what
 #: a reviewer reads.
-CLUSTER_NAMES_GOLDEN = os.path.join(HERE, "cluster_names_golden.json")
+CLUSTER_NAMES_GOLDEN = HERE / "cluster_names_golden.json"
 CLUSTER_NAMES_GOLDEN_CONFIGS = ("ax7101_8x8", "ax7101_1x1_tdm8")
-SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
-BUILD_SH = os.path.join(ROOT, "sw/litex/build.sh")
-PATCH_DIR = os.path.join(ROOT, "sw/litex/patches")
-APPLY_SH = os.path.join(PATCH_DIR, "apply.sh")
+#: The three tree files ONE boot-contract mutation may substitute for the
+#: tracked copy; `None` means "read the tracked one".  A mutation row names
+#: the file it replaces instead of positioning it behind two bare `None`s,
+#: which is how `..., None, None, x)` came to be the spelling for "datapath"
+#: in a table 133 rows long.
+MutantFiles = collections.namedtuple(
+    "MutantFiles", ("makefile", "listing", "datapath"),
+    defaults=(None, None, None))
+
+SWEEP = ROOT / "sw/litex/sweep.sh"
+BUILD_SH = ROOT / "sw/litex/build.sh"
+PATCH_DIR = ROOT / "sw/litex/patches"
+APPLY_SH = PATCH_DIR / "apply.sh"
 
 #: Every gate arm that could not run, in the order it declined.  A gate that
 #: prints its SKIP and then lets `main()` print ALL GATES PASS with exit 0
@@ -285,7 +303,7 @@ NO_LITEX = "no-litex"
 TOOLCHAIN = "toolchain"
 
 
-def skip(gate, why, kind="row"):
+def skip(gate: str, why: str, kind: str = "row") -> None:
     """Record one gate arm that could not run, and say so on stdout.
 
     `gate` is the bracketed name the gate prints under, `why` the condition
@@ -301,7 +319,7 @@ def skip(gate, why, kind="row"):
 #: DELETED with the AECP plane: the descriptor ROM has no RTL destination any
 #: more, so every gate that used to compare against a tracked ROM now compares
 #: generated text against generated text (see gates 10/17/24d).
-TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
+TRACKED_ADP_SVH = ROOT / eb.ADP_SHAPE_REL
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
 # synth/opt directives joined 2026-07-28 when the reference flow gained
@@ -326,10 +344,16 @@ DEPLOYED_MODEL_ID = "0x001BC50AC1000003"
 
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
-REAL_RPT = os.path.expanduser(
+REAL_RPT = Path(
     "~/litex-milan/work/build_arty_eto_milanfinal48/gateware/"
-    "digilent_arty_utilization_place.rpt")
+    "digilent_arty_utilization_place.rpt").expanduser()
 CAL_TOL = 0.15                               # +/-15% calibration gate
+
+#: How the compiled census invokes a compiler: `subprocess.run` by
+#: default, and a stub in the self-tests, which is what lets a
+#: stand-down that runs the compiler anyway be a finding rather than a
+#: message.
+CensusRunner = Callable[..., subprocess.CompletedProcess[str]]
 
 
 def _canon(tokens):
@@ -360,18 +384,18 @@ def _canon(tokens):
     return d
 
 
-def sweep_inline(board):
+def sweep_inline(board: str) -> tuple[str, str]:
     """(OPTS string, L2 string) of sweep.sh's inline FALLBACK table."""
-    txt = open(SWEEP).read()
+    txt = SWEEP.read_text()
     m = re.search(rf'{board}\)\s+OPTS="([^"]+)"; L2=(\d+)', txt)
     assert m, f"sweep.sh: no OPTS case for {board}"
     return m.group(1), m.group(2)
 
 
-def sweep_expected(board):
+def sweep_expected(board: str) -> dict[str, list[float | str]]:
     """Design-flag dict sweep.sh composes for <board> (OPTS + BASE minus
     flow flags)."""
-    txt = open(SWEEP).read()
+    txt = SWEEP.read_text()
     opts, l2 = sweep_inline(board)
     mb = re.search(r'milan_soc\.py \$OPTS (.*?)"', txt, re.S)
     assert mb, "sweep.sh: BASE line not found"
@@ -389,18 +413,29 @@ def sweep_expected(board):
     return _canon(out)
 
 
-def _variant(base_path, mutate):
+def _offset_within(span: tuple[int, int], pos: int) -> bool:
+    """Whether source offset `pos` falls inside the half-open `span`.
+
+    Half-open on purpose: `span` is a (start, end) pair from a body scan, so
+    a match starting exactly at `end` is the FIRST byte after that body, not
+    its last one.
+    """
+    return span[0] <= pos < span[1]
+
+
+def _variant(base_path: Path, mutate: Callable[[dict], None]) -> Path:
     """Write a mutated copy of a config to a temp file; return its path.
     mutate(cfg_dict) edits in place."""
-    cfg = yaml.safe_load(open(base_path))
+    cfg = yaml.safe_load(base_path.read_text())
     mutate(cfg)
     f = tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False)
     yaml.safe_dump(cfg, f)
     f.close()
-    return f.name
+    return Path(f.name)
 
 
-def check_stream_layout(rom, dirv, label):
+def check_stream_layout(rom: bytes, dirv: list[dict[str, Any]],
+                        label: str) -> int:
     """Every STREAM_INPUT/STREAM_OUTPUT is IEEE 1722.1-2021 Table 7-8.
 
     THE LAYOUT THIS PROJECT SHIPS, pinned so a regression is caught here and
@@ -447,7 +482,8 @@ def check_stream_layout(rom, dirv, label):
     return len(streams)
 
 
-def image_descriptor(blob, dtype, index=0, config=0):
+def image_descriptor(blob: bytes, dtype: int, index: int = 0,
+                     config: int = 0) -> bytes:
     """One descriptor out of the packed AEM image, located the way the STORE
     locates it.
 
@@ -480,7 +516,8 @@ def image_descriptor(blob, dtype, index=0, config=0):
         f"({n_entries} index-map entries)")
 
 
-def check_port_layout(ovl, n_listeners, n_talkers):
+def check_port_layout(ovl: dict[str, Any], n_listeners: int,
+                      n_talkers: int) -> None:
     """USER-decision invariants: one STREAM_PORT per stream, contiguous
     non-overlapping cluster blocks, unique per-port map bases, one map per
     port with port-relative in-range rows.
@@ -776,6 +813,21 @@ class Rv32Range(object):
         return f"[0x{self.lo:x}..0x{self.hi:x}]"
 
 
+#: What the resolver can say about a 32-bit value: a number, the
+#: address of a named object or of a stack slot, per-bit or interval
+#: knowledge, a producer tag, or `None` for "cannot say".
+Rv32Value = int | Rv32Sym | Rv32Stack | Rv32Bits | Rv32Range | Rv32Tag | None
+#: How a modelled memory location is keyed: `(frame register,
+#: displacement)` for a frame slot, `("sym", object, displacement)` for
+#: one word of a static this unit defines.
+Rv32Slot = tuple[str, int] | tuple[str, str, int]
+#: One function's emitted body, in emission order: a label row carries
+#: no instruction and an instruction row carries no label.
+Rv32Body = list[tuple[str | None, str | None, str | None]]
+#: One basic block: the `(mnemonic, operands)` rows it executes.
+Rv32Block = list[tuple[str, str]]
+
+
 def _rv32_range_bounded(lo, hi):
     """A range value, collapsed to the int when it is one point, and to
     None when it leaves 32 bits: a sum that can wrap is not a bounded
@@ -791,13 +843,15 @@ def _rv32_range_add(value, delta):
     return _rv32_range_bounded(value.lo + delta, value.hi + delta)
 
 
-def rv32_ones(value):
+def rv32_ones(value: Rv32Value) -> int:
+    """The bits `value` is KNOWN to hold set; 0 when nothing is known."""
     if isinstance(value, int):
         return value & RV32_MASK
     return value.ones if isinstance(value, Rv32Bits) else 0
 
 
-def rv32_zeros(value):
+def rv32_zeros(value: Rv32Value) -> int:
+    """The bits `value` is KNOWN to hold clear; 0 when nothing is known."""
     if isinstance(value, int):
         return ~value & RV32_MASK
     return value.zeros if isinstance(value, Rv32Bits) else 0
@@ -811,7 +865,7 @@ def _rv32_partial(ones, zeros):
     return Rv32Bits(ones, zeros) if (ones or zeros) else None
 
 
-def asm_int(text):
+def asm_int(text: str) -> int:
     """The integer grammar of COMPILER-EMITTED assembly, not Python's:
     `0x`/`0X` is hex, anything else all-digits is decimal, zero-padded
     spellings included. `int(x, 0)` refuses `03118564` as a malformed
@@ -860,7 +914,7 @@ assert [asm_int(_t) & 0xFFFF_FFFF
     "the census replay no longer parses the zero-padded immediate shape"
 
 
-def rv32_data(text):
+def rv32_data(text: str) -> dict[str, int]:
     """Every symbol in `text` whose ENTIRE definition is one `.word N`.
 
     A symbol defined by anything else is left unresolved rather than
@@ -896,7 +950,7 @@ def rv32_data(text):
     return {name: value for name, value in data.items() if value is not None}
 
 
-def rv32_functions(text):
+def rv32_functions(text: str) -> dict[str, Rv32Body]:
     """`{name: [(label, mnemonic, operands)]}` for every function defined,
     in emission order, with local labels kept in place as block heads."""
     functions, current, body = {}, None, []
@@ -922,7 +976,8 @@ def rv32_functions(text):
     return functions
 
 
-def rv32_blocks(body):
+def rv32_blocks(body: Rv32Body) -> tuple[dict[str, Rv32Block], list[str],
+                                         dict[str, list[tuple[str, str]]]]:
     """`(blocks, order, edges)`: the function's basic-block graph.  Each
     edge is `(successor, "taken"|"fall")`, which is what lets a caller
     delete ONE outgoing edge and ask what is still reachable."""
@@ -997,13 +1052,17 @@ class Rv32State(object):
         self.regs = dict(regs) if regs else {}
         self.mem = dict(mem) if mem else {}
 
-    def copy(self):
+    def copy(self) -> Rv32State:
+        """A state the caller may step without disturbing this one."""
         return Rv32State(self.regs, self.mem)
 
-    def get(self, name):
+    def get(self, name: str) -> Rv32Value:
+        """The value held in `name`: 0 for zero/x0, None for "cannot say"."""
         return 0 if name in ("zero", "x0") else self.regs.get(name)
 
-    def set(self, name, value):
+    def set(self, name: str, value: Rv32Value) -> None:
+        """Bind `name`, forgetting the frame slots a frame register that MOVED
+        would otherwise leave standing for two different addresses."""
         if name in ("zero", "x0"):
             return
         if name in RV32_FRAME_REGS:
@@ -1016,7 +1075,7 @@ class Rv32State(object):
                 del self.mem[key]
         self.regs[name] = value
 
-    def meet(self, other):
+    def meet(self, other: Rv32State) -> Rv32State:
         """Greatest lower bound with `other`: a value BOTH sides carry, and
         agree on, survives; everything else becomes "cannot say".
 
@@ -1044,7 +1103,8 @@ class Rv32State(object):
                 self.mem[key] = None
         return self
 
-    def frozen(self):
+    def frozen(self) -> tuple[frozenset[tuple[str, Rv32Value]],
+                              frozenset[tuple[Rv32Slot, Rv32Value]]]:
         """The state as a comparable value, with absent and unknown spelled
         the same way -- which is how every reader of it reads them.  This is
         what the fixpoint compares, so "did this block's entry change" is
@@ -1055,7 +1115,7 @@ class Rv32State(object):
                           if value is not None))
 
 
-def rv32_meet(states):
+def rv32_meet(states: list[Rv32State]) -> Rv32State:
     """The meet of a list of states.  No states at all means nothing is
     known, which is the safe reading for a block with no reachable
     predecessor.  Order-independent: `Rv32State.meet()` is commutative and
@@ -1128,7 +1188,8 @@ def _rv32_slot_mirror(insns, reg):
     return None
 
 
-def rv32_edge_refined(exit_state, insns, kind):
+def rv32_edge_refined(exit_state: Rv32State, insns: Rv32Block,
+                      kind: str) -> Rv32State:
     """`exit_state` as it holds ON one outgoing edge.
 
     For an unsigned conditional branch whose other operand is resolved,
@@ -1170,10 +1231,13 @@ def rv32_edge_refined(exit_state, insns, kind):
     return refined_state
 
 
-def rv32_step(state, mnem, ops, data, tags):
-    """Interpret one instruction.  Returns an observation for the caller
-    (`store`, `call`, `ret`, `branch`, `symstore`) or None."""
-    args = [part.strip() for part in ops.split(",")] if ops else []
+#: `rv32_step`'s "this family did not recognise the instruction".  None
+#: is already taken: it means "recognised, and nothing to observe".
+_RV32_UNHANDLED = object()
+
+
+def _rv32_step_move(state, mnem, args):
+    """The register-setting family (li, lui, lla/la, mv), or _RV32_UNHANDLED."""
     if mnem == "li" and len(args) == 2:
         state.set(args[0], _rv32_imm(args[1]))
         return None
@@ -1191,6 +1255,11 @@ def rv32_step(state, mnem, ops, data, tags):
     if mnem == "mv" and len(args) == 2:
         state.set(args[0], state.get(args[1]))
         return None
+    return _RV32_UNHANDLED
+
+
+def _rv32_step_alu(state, mnem, args):
+    """The immediate and register ALU families, or _RV32_UNHANDLED."""
     if mnem in RV32_IMMOPS and len(args) == 3:
         source, raw = state.get(args[1]), args[2]
         #: A frame register the prologue set and never moved, displaced
@@ -1250,6 +1319,11 @@ def rv32_step(state, mnem, ops, data, tags):
         else:
             state.set(args[0], None)
         return None
+    return _RV32_UNHANDLED
+
+
+def _rv32_step_load(state, mnem, args, data):
+    """The load family, or _RV32_UNHANDLED."""
     if mnem in RV32_LOADS and len(args) == 2:
         place = RV32_MEM_RE.match(args[1])
         # Read the BASE before clobbering the destination: `lw a5,0(a5)` is
@@ -1279,6 +1353,11 @@ def rv32_step(state, mnem, ops, data, tags):
         elif base in RV32_FRAME_REGS and held is None:
             state.set(args[0], state.mem.get((base, offset)))
         return None
+    return _RV32_UNHANDLED
+
+
+def _rv32_step_store(state, mnem, ops, args):
+    """The store family - EVERY store is reported - or _RV32_UNHANDLED."""
     if mnem in RV32_STORES:
         #: EVERY store is reported, classified by the base it goes through.
         #: The two silent drops that used to live here -- an operand this
@@ -1322,6 +1401,26 @@ def rv32_step(state, mnem, ops, data, tags):
             return ("store", (Rv32Where("call", held.what[5:]), value))
         _rv32_forget_symbols(state)
         return ("store", (Rv32Where("unplaced", repr(held)), value))
+    return _RV32_UNHANDLED
+
+
+def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
+              tags: dict[str, Rv32Tag]) -> tuple[str, Any] | None:
+    """Interpret one instruction.  Returns an observation for the caller
+    (`store`, `call`, `ret`, `branch`, `symstore`) or None."""
+    args = [part.strip() for part in ops.split(",")] if ops else []
+    moved = _rv32_step_move(state, mnem, args)
+    if moved is not _RV32_UNHANDLED:
+        return moved
+    computed = _rv32_step_alu(state, mnem, args)
+    if computed is not _RV32_UNHANDLED:
+        return computed
+    loaded = _rv32_step_load(state, mnem, args, data)
+    if loaded is not _RV32_UNHANDLED:
+        return loaded
+    stored = _rv32_step_store(state, mnem, ops, args)
+    if stored is not _RV32_UNHANDLED:
+        return stored
     #: `jr <reg>` that is not the return is a tail transfer through a
     #: register, which is the same unplaceable edge as `jalr <reg>` and is
     #: reported as one; `jr ra` falls through to the return below.
@@ -1349,7 +1448,10 @@ def rv32_step(state, mnem, ops, data, tags):
     return None
 
 
-def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
+def rv32_run(body: Rv32Body, data: dict[str, int],
+             tags: dict[str, Rv32Tag] | None = None,
+             entry_regs: dict[str, Rv32Value] | None = None,
+             cut: tuple[str, str] | None = None) -> dict[str, Any]:
     """Constant-propagate over one function's CFG to a fixpoint, then read
     the observations off the SETTLED states.
 
@@ -1379,7 +1481,7 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
             preds[succ].append((block, kind))
     seed, exits = Rv32State(entry_regs or {}), {}
 
-    def joined(block):
+    def joined(block: str) -> Rv32State:
         """The meet over every predecessor that is REACHABLE, plus the
         function's own entry state for the entry block.  An unreachable
         predecessor contributes nothing, which is exactly what `cut` needs:
@@ -1434,7 +1536,8 @@ def rv32_run(body, data, tags=None, entry_regs=None, cut=None):
     return seen
 
 
-def rv32_verdict_edge(run, produced, against=0):
+def rv32_verdict_edge(run: dict[str, Any], produced: Rv32Value,
+                      against: int = 0) -> tuple[str, str, str] | None:
     """The `(block, edge)` a conditional branch takes when a value the
     interpreter TAGGED compares equal to `against`, and the complementary
     edge.  Resolving which value is compared is the whole point: a
@@ -1494,7 +1597,7 @@ RV32_ADDRESS_TAKEN_RE = re.compile(
     r"|^\s*\.(?:word|4byte|long|dword|8byte|quad)\s+([A-Za-z_.$][\w.$]*)\s*$")
 
 
-def rv32_address_taken(assembly):
+def rv32_address_taken(assembly: str) -> set[str]:
     """Every symbol whose address the emitted code forms."""
     taken = set()
     for line in assembly.splitlines():
@@ -1503,7 +1606,7 @@ def rv32_address_taken(assembly):
     return taken
 
 
-def rv32_defined(assembly):
+def rv32_defined(assembly: str) -> set[str]:
     """Every symbol this translation unit DEFINES: a label it emits, or an
     object it reserves with `.comm`/`.lcomm`.
 
@@ -1523,7 +1626,8 @@ def rv32_defined(assembly):
     return defined
 
 
-def rv32_call_seeds(runs, private):
+def rv32_call_seeds(runs: dict[str, dict[str, Any]],
+                    private: set[str]) -> dict[str, dict[str, Rv32Value]]:
     """The entry registers a PRIVATE function can be resolved with: for
     each argument register, the value every call site in this unit hands
     it, or nothing when the sites disagree.
@@ -1552,7 +1656,7 @@ def rv32_call_seeds(runs, private):
     return seeds
 
 
-def rv32_unit(assembly):
+def rv32_unit(assembly: str) -> dict[str, Any]:
     """Resolve the whole translation unit the census compiled.
 
     Two passes: the first finds every static the code STORES through, the
@@ -1601,18 +1705,202 @@ def rv32_unit(assembly):
             "addressed": addressed, "defined": rv32_defined(assembly)}
 
 
-def test_all_configs_build():
+def test_all_configs_build() -> None:
+    """Gate 1: every example config builds end-to-end, and every artifact it
+    emits is non-empty and carries the current overlay schema."""
     for name, path in CONFIGS.items():
         r = eb.build(path, OUT)
         for p in r["paths"].values():
-            assert os.path.getsize(p) > 0, f"{name}: empty {p}"
+            assert Path(p).stat().st_size > 0, f"{name}: empty {p}"
         assert r["overlay"]["_schema"] == "kebag-logic/aem-overlay"
         assert r["overlay"]["_schema_version"].startswith("2.")
-        print(f"  [gate 1] {name}: builds end-to-end "
-              f"({os.path.relpath(os.path.dirname(r['paths']['soc_params']), ROOT)}/)")
+        emitted = Path(r["paths"]["soc_params"]).parent.relative_to(ROOT)
+        print(f"  [gate 1] {name}: builds end-to-end ({emitted}/)")
 
 
-def test_baremetal_profile_contract():
+def _assert_no_token_joining_splice(source):
+    """Refuse a backslash-newline whose deletion JOINS two tokens - the
+    phase-2 hazard that hides a CSR primitive name from a text reader."""
+    # Translation phase 2 runs before comments, strings and preprocessing
+    # tokens exist. It DELETES this pair, so `milan_\`-newline-`write` is
+    # the one identifier `milan_write` to the compiler while an offset-
+    # preserving reader that substitutes spaces sees two identifiers.
+    # Scan RAW source and refuse the language construct; blanked text is
+    # already too late, and line_spliced() intentionally preserves
+    # offsets. Narrowed to the splices that actually JOIN two tokens:
+    # a continuation with whitespace on either side of the deleted pair
+    # cannot merge anything and is ordinary C.
+    splice = re.search(r"(?<=\S)\\[ \t\f\v]*(?:\r\n|[\n\r])(?=\S)",
+                       source)
+    assert not splice, \
+        "firmware must not splice physical source lines with backslash-" \
+        "newline where the pair JOINS two tokens: C translation phase 2 " \
+        "deletes it before preprocessing tokens are formed, so the " \
+        "physical-text whole-firmware store census can miss a joined " \
+        "CSR primitive name"
+
+
+def _assert_recipe_set_is_pinned(recipes, variables, stem, expected,
+                                 make_sentinels):
+    """The two commands make would run are pinned exactly, so no flag
+    spelling can inject a second file into the one translation unit."""
+    # ---- and the RECIPE SET, which is what actually bounds this.
+    #
+    # Three scans used to live here: one for link steps, one for
+    # injecting flags and one for search-path flags, each a list of the
+    # spellings someone had thought of. That is the same shape as the
+    # name allowlist before it, the disassembly regex before that and
+    # the flag regex after: `-Wp,-include,hdr`, `@response.file` and
+    # `-iprefix`/`-iwithprefixbefore` all walked past it, and every one
+    # of them put a whole second file into the one translation unit.
+    #
+    # So the recipe set is PINNED instead. make tells us the two
+    # commands it would run; they are fully determined by the stub
+    # environment's sentinels and the one source path, so anything
+    # added, removed or reworded is refused without naming a single
+    # flag. This is strictly smaller than the three scans it replaces
+    # and it has no list to fall behind.
+    #
+    # LIMIT, measured on #162 and CLOSED this round: this reads what
+    # make PRINTS, which is already expanded. A name the Makefile
+    # references and nothing defines expands to nothing, so
+    # `CFLAGS += $(MILAN_EXTRA_CFLAGS)` leaves these two lines identical
+    # while the environment decides what the compiler is really given.
+    # The origin probe in make_plan() is what answers it now: every
+    # name reaching the pinned recipe chain must have a make origin
+    # that is not 'undefined'/'environment', refused by name above.
+    expected_recipes = [
+        f"{make_sentinels['CC']} -c {make_sentinels['CFLAGS']} "
+        f"-I{make_sentinels['BIOS_DIRECTORY']} "
+        f"{Path(variables.get('LIBDIR', '')) / (stem + '.c')} "
+        f"-o {expected}",
+        f"{make_sentinels['AR']} crs lib{stem}.a {expected}",
+    ]
+    assert recipes == expected_recipes, \
+        "the commands make would run are pinned, and this Makefile " \
+        "changes them: one compile of the one source with the one added " \
+        "include path, and one archive of the one object. Anything else " \
+        "can inject a file into the translation unit, move which file is " \
+        "compiled, or link a second one in, whatever flag spelling " \
+        f"carries it.\n  expected: {expected_recipes}\n  make runs: " \
+        f"{recipes}"
+
+
+def _assert_no_computed_variable_names(makefile, computed_name_references):
+    """A Makefile that computes a variable NAME at expansion time is
+    REFUSED: there is no name left for $(origin) to be asked about."""
+    #: (#162, round two) REFUSED, not modelled: a computed reference
+    #: defers the NAME itself to expansion time, so there is no name to
+    #: ask $(origin) about -- the environment picks WHICH variable is
+    #: read, and no enumeration of origins can cover a name that does
+    #: not exist until expansion. Measured on this PR's adversarial
+    #: pass: `X = MILAN_EXTRA` + `CFLAGS += $($(X))` (and the ${${X}}
+    #: spelling) left the recipe pin, the hostile double-run and the
+    #: origin probe all green -- the walker probed X, origin 'file' --
+    #: while MILAN_EXTRA='-include ../shadow.h' in a real build's
+    #: environment reached the compile line. The scan is over the whole
+    #: comment-stripped text, recipes of never-run rules included,
+    #: deliberately WIDER than the origin closure: refusal is the sound
+    #: arm where modelling cannot be, and the COST is stated in the
+    #: verdict -- a computed name is RED even where a plain undefined
+    #: name like $(CTAGS) stays green.
+    computed = computed_name_references(makefile)
+    assert not computed, \
+        "this Makefile computes a variable NAME at expansion time (" + \
+        ", ".join(computed) + \
+        "): a computed variable name defers the NAME itself, so no " \
+        "origin probe can enumerate what the environment decides; " \
+        "refused rather than modelled (#162)"
+
+
+def _assert_make_plan_is_determined(plan, hostile, origins):
+    """make planned this Makefile, planned it the same way under a
+    hostile environment, and defers no pinned-recipe input to it."""
+    # An exit code is a FINDING, never "no findings": when a mutation
+    # names a source this harness did not stub, make exits 2 and its own
+    # message names the extra object.
+    assert plan.returncode == 0, \
+        "make could not plan this Makefile, so what it builds is " \
+        "unknown and this gate refuses rather than report a clean " \
+        f"result it did not take; make said " \
+        f"{(plan.stderr.strip().splitlines() or ['?'])[-1]!r}"
+    assert hostile.returncode == plan.returncode and \
+        hostile.stdout == plan.stdout, \
+        "this Makefile lets the ENVIRONMENT decide what gets compiled: " \
+        "planned under a hostile environment it builds something else, " \
+        "so the file this gate reads is not necessarily the file the " \
+        "build compiles"
+    #: (#162) ... and the deferral the double-run measurably CANNOT see:
+    #: a name the pinned recipes reference that nothing defines expands
+    #: to nothing in BOTH runs, identical by construction, while a real
+    #: build's environment supplies the value make's default rules give
+    #: an unassigned name. Refuse it by origin instead.
+    deferred = sorted(name for name, origin in origins.items()
+                      if origin in ("undefined", "environment"))
+    assert not deferred, \
+        "this Makefile defers a pinned-recipe input to the " \
+        "environment: " + ", ".join(
+            f"$(origin {name}) = {origins[name]}" for name in deferred) \
+        + " for a name the pinned recipe chain references, so the " \
+        "environment, not the Makefile, decides its value and the " \
+        "pinned commands cannot show the deferral (#162)"
+
+
+def _assert_primitive_spelling_is_readable(code):
+    """Rules 3 and 4: milan_write is always CALLED, and no paste, digraph,
+    trigraph or macro body hides a CSR primitive from the census."""
+    # 3. milan_write is CALLED, never used as a value: taking its address
+    #    hands a function pointer a CSR store the census cannot see.
+    for use in re.finditer(r"\bmilan_write\b", code):
+        assert re.match(r"\s*\(", code[use.end():]), \
+            "milan_write must always be called, never used as a value: a " \
+            "function pointer to it stores to a CSR outside the census"
+    # 4. No pasted or aliased spelling of the primitive: a name this gate
+    #    cannot read is a store it cannot classify, so fail closed.
+    assert "##" not in code and "%:" not in code and "??" not in code, \
+        "firmware must not paste tokens, and must not spell one with a " \
+        "digraph or a trigraph: a pasted call name builds a CSR store " \
+        "this gate cannot read, and an alternate spelling of `#` builds " \
+        "a directive it cannot read either"
+    for name, body in re.findall(
+            r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
+            r"([^\r\n]*)$", code):
+        hidden = re.search(r"\bmilan_(?:reg|read|write)\b", body)
+        assert not hidden, \
+            f"#define {name} hides {hidden.group(0)}() inside a macro " \
+            "body: every call to a CSR primitive must be spelled out so " \
+            "the operand census can read which register it names. A " \
+            "read-only accessor macro contains no store and is refused " \
+            "for this reason, not for storing"
+
+
+def _assert_read_side_preserves_offset(code, reg_span, reg_def,
+                                       read_span, read_def):
+    """Rule 6: the two read-side accessors preserve the offset and value
+    the call-site census attributes to each call."""
+    # 6. The call-site census only has meaning if the two read-side
+    #    accessors preserve the offset and value it attributes to each
+    #    call. Keep this after the set closure so the existing
+    #    helper-body-store mutants remain pinned to the independent cast
+    #    and store-set checks that were written for them.
+    reg_body = code[reg_span[0]:reg_span[1]]
+    reg_offset = re.escape(reg_def.group("offset"))
+    assert re.fullmatch(
+        rf"\s*\breturn\b\s*\(\s*volatile\s+uint32_t\s*\*\s*\)\s*"
+        rf"\(\s*MILAN_CSR_BASE\s*\+\s*{reg_offset}\s*\)\s*;\s*",
+        reg_body), \
+        "milan_reg() must return exactly MILAN_CSR_BASE plus the offset " \
+        "it is passed"
+    read_body = code[read_span[0]:read_span[1]]
+    read_offset = re.escape(read_def.group("offset"))
+    assert re.fullmatch(
+        rf"\s*\breturn\b\s*\*\s*milan_reg\s*\(\s*{read_offset}\s*\)"
+        rf"\s*;\s*", read_body), \
+        "milan_read() must return exactly the value loaded through " \
+        "milan_reg(offset)"
+
+
+def test_baremetal_profile_contract() -> None:
     """Gate 1b: every tracked config uses the one product CPU contract."""
     for name, path in CONFIGS.items():
         result = eb.build(path, OUT)
@@ -1637,10 +1925,12 @@ def test_baremetal_profile_contract():
             #: baseline ROM at its single-config opening; today's opening
             #: iterates every product config, so capture it here for the
             #: ucode-mutation check below (same 1024-word pin).
-            base_ucode = open(result["paths"]["gptp_ucode"], "rb").read()
+            base_ucode = Path(result["paths"]["gptp_ucode"]).read_bytes()
             assert len(base_ucode.splitlines()) == 1024, name
 
-    def set_soc(key, value):
+    def set_soc(key: str, value: Any) -> Callable[[dict[str, Any]], None]:
+        """One `soc.<key> = value` edit, as the refusal table below spells a
+        mutation: a callable handed the parsed config to change in place."""
         return lambda cfg: cfg.setdefault("soc", {}).__setitem__(key, value)
 
     cases = (
@@ -1669,34 +1959,32 @@ def test_baremetal_profile_contract():
             else:
                 raise AssertionError(f"{label}: incompatible profile was accepted")
         finally:
-            os.unlink(path)
+            path.unlink()
     print(f"  [gate 1b] {len(CONFIGS)} product configs and "
           f"{len(cases)} refusal arms pass")
 
-    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    soc_source = (ROOT / "sw/litex/milan_soc.py").read_text()
 
-    firmware_path = os.path.join(
-        ROOT, "sw/firmware/milan_baremetal/milan_baremetal.c")
-    docs_path = os.path.join(
-        ROOT, "docs/integration/BAREMETAL_FIRMWARE.md")
-    csr_path = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
-    datapath_path = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
-    with open(firmware_path, encoding="utf-8") as fh:
-        firmware_source = fh.read()
-    with open(docs_path, encoding="utf-8") as fh:
-        docs_source = fh.read()
-    with open(csr_path, encoding="utf-8") as fh:
-        csr_source = fh.read()
-    with open(datapath_path, encoding="utf-8") as fh:
-        datapath_source = fh.read()
-    with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
-              encoding="utf-8") as fh:
-        makefile_source = fh.read()
+    firmware_path = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
+    docs_path = ROOT / "docs/integration/BAREMETAL_FIRMWARE.md"
+    csr_path = ROOT / "hdl/common/csr/milan_csr.sv"
+    datapath_path = ROOT / "hdl/milan/milan_datapath.sv"
+    firmware_source = firmware_path.read_text(encoding="utf-8")
+    docs_source = docs_path.read_text(encoding="utf-8")
+    csr_source = csr_path.read_text(encoding="utf-8")
+    datapath_source = datapath_path.read_text(encoding="utf-8")
+    makefile_source = (firmware_path.parent / "Makefile").read_text(
+        encoding="utf-8")
+    #: Bare entry NAMES, not paths: the shadowed-include arms below concatenate
+    #: this tuple with `("command.h",)` and compare it against `#include`
+    #: spellings, so it stays a tuple of `str` on purpose.
     firmware_listing = tuple(sorted(
-        os.listdir(os.path.dirname(firmware_path))))
-    firmware_object = os.path.basename(firmware_path)[:-2] + ".o"
+        entry.name for entry in firmware_path.parent.iterdir()))
+    firmware_object = firmware_path.with_suffix(".o").name
 
-    def braced_span(source, guard, label):
+    def braced_span(source: str, guard: re.Match[str] | None,
+                    label: str) -> tuple[int, int]:
+        """The half-open offsets of the body the brace inside `guard` opens."""
         assert guard, f"firmware boot guard missing: {label}"
         brace = source.index("{", guard.start(), guard.end())
         depth = 0
@@ -1709,17 +1997,21 @@ def test_baremetal_profile_contract():
                     return brace + 1, pos
         raise AssertionError(f"firmware boot guard is not closed: {label}")
 
-    def braced_block(source, guard, label):
+    def braced_block(source: str, guard: re.Match[str] | None,
+                     label: str) -> str:
+        """The text of the block `guard` opens, its braces excluded."""
         body, close = braced_span(source, guard, label)
         return source[body:close]
 
-    def blanked(source):
+    def blanked(source: str) -> str:
         """`source` with the BODIES of comments and string/char literals
         replaced by spaces, so every textual rule below reads code only --
         and every offset still indexes the original text unchanged."""
         out, i, n = list(source), 0, len(source)
 
-        def erase(start, stop):
+        def erase(start: int, stop: int) -> None:
+            """Blank one span in place, keeping the newlines so every later
+            offset and line number still indexes the original text."""
             for k in range(start, stop):
                 if out[k] != "\n":
                     out[k] = " "
@@ -1746,7 +2038,7 @@ def test_baremetal_profile_contract():
             i = stop
         return "".join(out)
 
-    def blanked_sv(source):
+    def blanked_sv(source: str) -> str:
         """SystemVerilog code with comments and string literals blanked.
 
         This deliberately does not treat a single quote as a character-literal
@@ -1756,7 +2048,9 @@ def test_baremetal_profile_contract():
         """
         out, i, n = list(source), 0, len(source)
 
-        def erase(start, stop):
+        def erase(start: int, stop: int) -> None:
+            """Blank one span in place, keeping the newlines so every later
+            offset and line number still indexes the original text."""
             for k in range(start, stop):
                 if out[k] != "\n":
                     out[k] = " "
@@ -1789,7 +2083,8 @@ def test_baremetal_profile_contract():
             i = stop
         return "".join(out)
 
-    def assert_direct_scope(source, stop, reason, require_item_start=True):
+    def assert_direct_scope(source: str, stop: int, reason: str,
+                            require_item_start: bool = True) -> None:
         """The checked SV item is unconditional in the supplied arm.
 
         Intentional outer generate arms are removed before their bodies are
@@ -1844,7 +2139,8 @@ def test_baremetal_profile_contract():
     cpp_directive_re = re.compile(
         r"(?m)^[ \t]*#[ \t]*(if|ifdef|ifndef|elif|else|endif)\b")
 
-    def cpp_arms(code):
+    def cpp_arms(code: str) -> tuple[list[re.Match[str]],
+                                     Callable[[int], tuple[tuple[int, int], ...]]]:
         """`(directives, arm_path)` for `code`'s preprocessor conditionals.
 
         This gate reads TEXT; the compiler compiles a TRANSLATION UNIT, so two
@@ -1867,7 +2163,9 @@ def test_baremetal_profile_contract():
             marks.append((directive.end(), tuple(tuple(f) for f in stack)))
         assert not stack, "firmware leaves a preprocessor conditional open"
 
-        def arm_path(pos):
+        def arm_path(pos: int) -> tuple[tuple[int, int], ...]:
+            """The (group, arm) pair of every conditional enclosing `pos`, which
+            is what says whether two offsets survive the preprocessor together."""
             path = ()
             for at, value in marks:
                 if at > pos:
@@ -1877,7 +2175,8 @@ def test_baremetal_profile_contract():
 
         return directives, arm_path
 
-    def assert_preprocessor_visible(code, source, load_span):
+    def assert_preprocessor_visible(code: str, source: str,
+                                    load_span: tuple[int, int]) -> None:
         """No boot code may be selected by a directive this gate cannot read.
 
         NARROWED by the entity-advertise choke point (#153).  It used to
@@ -1964,25 +2263,9 @@ def test_baremetal_profile_contract():
                 "address model reads every definition as unconditional " \
                 "text, so an arm this gate cannot evaluate chooses the " \
                 "value it resolves a register name to"
-        # Translation phase 2 runs before comments, strings and preprocessing
-        # tokens exist. It DELETES this pair, so `milan_\`-newline-`write` is
-        # the one identifier `milan_write` to the compiler while an offset-
-        # preserving reader that substitutes spaces sees two identifiers.
-        # Scan RAW source and refuse the language construct; blanked text is
-        # already too late, and line_spliced() intentionally preserves
-        # offsets. Narrowed to the splices that actually JOIN two tokens:
-        # a continuation with whitespace on either side of the deleted pair
-        # cannot merge anything and is ordinary C.
-        splice = re.search(r"(?<=\S)\\[ \t\f\v]*(?:\r\n|[\n\r])(?=\S)",
-                           source)
-        assert not splice, \
-            "firmware must not splice physical source lines with backslash-" \
-            "newline where the pair JOINS two tokens: C translation phase 2 " \
-            "deletes it before preprocessing tokens are formed, so the " \
-            "physical-text whole-firmware store census can miss a joined " \
-            "CSR primitive name"
+        _assert_no_token_joining_splice(source)
 
-    def constant_value(text):
+    def constant_value(text: str) -> int | None:
         """`text` as a 32-bit constant, or None when this gate cannot read it.
 
         Integer literals, parentheses and the bitwise/shift/additive operators
@@ -2022,7 +2305,7 @@ def test_baremetal_profile_contract():
     sv_bases = {"h": 16, "d": 10, "o": 8, "b": 2}
     sv_formats = {16: "x", 10: "d", 8: "o", 2: "b"}
 
-    def sv_literal_value(text):
+    def sv_literal_value(text: str) -> int | None:
         """`text` as an integer, or None when this gate cannot read EVERY bit
         of it. An `x` or `z` digit lands here as None on purpose: a bit whose
         value the RTL does not state is not a bit this gate may call clear."""
@@ -2042,7 +2325,8 @@ def test_baremetal_profile_contract():
         except ValueError:
             return None
 
-    def csr_write_decode(csr, signal):
+    def csr_write_decode(csr: str, signal: str) -> tuple[list[list[str]],
+                                                        list[str]]:
         """`(labels, other)` for `signal` in the CSR RTL.
 
         `labels` is one entry per assignment reached from a `case (wr_addr)`
@@ -2062,7 +2346,9 @@ def test_baremetal_profile_contract():
             rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*"
             rf"(?:<=|=)\s*([^;]*);")
 
-        def depth_at(pos, start):
+        def depth_at(pos: int, start: int) -> int:
+            """How many case statements opened since `start` are still open at
+            `pos`, so an arm label nested in an inner case is not read as one."""
             depth = 0
             for at, token in tokens:
                 if at < start or at >= pos:
@@ -2101,7 +2387,7 @@ def test_baremetal_profile_contract():
                 other.append(write.group(1))
         return governed, other
 
-    def assert_decode_is_one_to_one(csr, model):
+    def assert_decode_is_one_to_one(csr: str, model: CsrModel) -> None:
         """Each entity-enable register is written from ONE address, and comes
         out of reset DISABLED.
 
@@ -2171,7 +2457,7 @@ def test_baremetal_profile_contract():
         r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"
         r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{")
 
-    def csr_literal_default(csr, rtl_name):
+    def csr_literal_default(csr: str, rtl_name: str) -> int:
         """The literal in ``csr_default``'s live, top-level address case.
 
         A bare whole-file regex can take an A_ID arm from a dead procedural
@@ -2276,16 +2562,19 @@ def test_baremetal_profile_contract():
             self.identity = self.rtl_address("A_ID")
             self.identity_default = csr_literal_default(csr, "A_ID")
 
-        def rtl_address(self, rtl_name):
+        def rtl_address(self, rtl_name: str) -> int:
+            """The address the RTL decode table gives `rtl_name`."""
             for address, name in self.decoded.items():
                 if name == rtl_name:
                     return address
             raise AssertionError(f"the RTL no longer decodes {rtl_name}")
 
-        def label(self, address):
+        def label(self, address: int) -> str:
+            """How a finding names the register at `address`: the RTL name
+            without its `A_`, and the address the bus reaches it at."""
             return f"{self.decoded[address][2:]} (CSR 0x{address:03x})"
 
-        def address(self, operand):
+        def address(self, operand: str) -> int | None:
             """The CSR address `operand` reaches, or None when this gate
             cannot prove it reaches one -- a value constant, a local, a macro
             argument, an arithmetic expression on a variable."""
@@ -2295,7 +2584,7 @@ def test_baremetal_profile_contract():
                 value = constant_value(text)
             return value if value in self.decoded else None
 
-        def calls(self, source):
+        def calls(self, source: str) -> list[dict[str, Any]]:
             """Every milan_write() CALL in `source` as a record, the
             primitive's own definition excluded. Offsets index `source`."""
             code = blanked(source)
@@ -2327,7 +2616,7 @@ def test_baremetal_profile_contract():
                 # dropped back in as an expression.
             return found
 
-        def writes(self, source, address):
+        def writes(self, source: str, address: int) -> list[dict[str, Any]]:
             """Every milan_write() in `source` that reaches `address`, each
             with what it does to bit 0. A VALUE this gate cannot read counts
             as SETTING bit 0, so an unreadable value can never be an
@@ -2339,7 +2628,11 @@ def test_baremetal_profile_contract():
                 found.append(self.effect(record, address))
             return found
 
-        def effect(self, record, address):
+        def effect(self, record: dict[str, Any],
+                   address: int) -> dict[str, Any]:
+            """`record` with what it does to bit 0 of `address`: a read/OR that
+            sets, a read/AND that clears, a constant, or `opaque` - which is
+            counted as a set, so an unreadable value is never a silent enable."""
             text = record["value"]
             read = re.match(
                 r"\A\s*\bmilan_read\s*\(\s*([^()]*?)\s*\)\s*([|&])\s*"
@@ -2365,7 +2658,7 @@ def test_baremetal_profile_contract():
             record.update(kind="opaque", sets=True, clears=False)
             return record
 
-        def enable_write(self, block, address):
+        def enable_write(self, block: str, address: int) -> dict[str, Any]:
             """The single read/OR enable of bit 0 at `address` in `block`."""
             label = self.label(address)
             ored = [w for w in self.writes(block, address)
@@ -2388,7 +2681,8 @@ def test_baremetal_profile_contract():
         r"(?P<literal>(?:(?:[0-9]+)\s*)?'[hHdDbB]\s*[0-9A-Fa-f_]+|"
         r"[0-9][0-9_]*)\s*;")
 
-    def ptp_reset_assignment(csr):
+    def ptp_reset_assignment(csr: str) -> tuple[re.Match[str], int]:
+        """The `ptp_ctrl <=` reset assignment and the value it resets to."""
         match = reset_pattern.search(csr)
         assert match, "bare-metal PHC contract requires a literal reset value"
         literal = match.group("literal")
@@ -2397,7 +2691,7 @@ def test_baremetal_profile_contract():
             f"unsupported ptp_ctrl reset literal: {literal}"
         return match, value
 
-    def ptp_enable_assignment(csr):
+    def ptp_enable_assignment(csr: str) -> re.Match[str]:
         """The PHC enable output and the register bit that solely drives it."""
         matches = list(re.finditer(
             r"\bassign\s+o_ptp_enable\s*=\s*(?P<value>[^;]+);", csr))
@@ -2410,7 +2704,7 @@ def test_baremetal_profile_contract():
             "independent of ADP, AEM and protocol-processor gates"
         return matches[0]
 
-    def crc_mismatch_guard(load_source):
+    def crc_mismatch_guard(load_source: str) -> re.Match[str] | None:
         """The `if` that refuses a CRC mismatch, found by the comparison it
         makes rather than by the name of the local it compares -- renaming a
         local is not a boot-contract change."""
@@ -2419,7 +2713,7 @@ def test_baremetal_profile_contract():
             r"MILAN_AEM_IMAGE_CRC32\s*!=\s*(?P<rhs>\w+))\s*\)\s*\{",
             load_source)
 
-    def assert_csr_store_closure(code, source):
+    def assert_csr_store_closure(code: str, source: str) -> None:
         """milan_write() is the ONLY store into a CSR, in the text this reads.
 
         Every rule below the census reads milan_write() call sites, so a
@@ -2483,9 +2777,6 @@ def test_baremetal_profile_contract():
             "milan_write() must store exactly the value it is passed at the " \
             "offset it is passed, or the bit-0 census reads the wrong register"
 
-        def within(span, pos):
-            return span[0] <= pos < span[1]
-
         # 1. Only milan_reg() may FORM a CSR address. This is no longer a
         #    rule about text: assert_compiled_census_is_clean() asks the
         #    COMPILER which functions materialise a window address, so a
@@ -2498,67 +2789,28 @@ def test_baremetal_profile_contract():
                 (r"\bMILAN_CSR_BASE\b", "the CSR base"),
                 (r"\(\s*volatile\s+uint32_t\s*\*\s*\)", "a CSR pointer cast")):
             for use in re.finditer(pattern, code):
-                assert within(reg_span, use.start()), \
+                assert _offset_within(reg_span, use.start()), \
                     f"only milan_reg() may form a CSR address, but {what} is " \
                     "used outside it: a raw store there reaches a control " \
                     "register without passing the bit-0 census"
         # 2. ... and only milan_read()/milan_write() may call it, so the one
         #    dereference-store through it stays the one inside milan_write().
         for use in re.finditer(r"\bmilan_reg\s*\(", code):
-            assert within(reg_span, use.start()) or \
-                within(read_span, use.start()) or \
-                within(write_span, use.start()) or \
-                within((reg_def.start(), reg_def.end()), use.start()), \
+            assert _offset_within(reg_span, use.start()) or \
+                _offset_within(read_span, use.start()) or \
+                _offset_within(write_span, use.start()) or \
+                _offset_within((reg_def.start(), reg_def.end()),
+                               use.start()), \
                 "milan_reg() may be called only by milan_read()/milan_write(): " \
                 "a store through it bypasses the bit-0 census"
-        # 3. milan_write is CALLED, never used as a value: taking its address
-        #    hands a function pointer a CSR store the census cannot see.
-        for use in re.finditer(r"\bmilan_write\b", code):
-            assert re.match(r"\s*\(", code[use.end():]), \
-                "milan_write must always be called, never used as a value: a " \
-                "function pointer to it stores to a CSR outside the census"
-        # 4. No pasted or aliased spelling of the primitive: a name this gate
-        #    cannot read is a store it cannot classify, so fail closed.
-        assert "##" not in code and "%:" not in code and "??" not in code, \
-            "firmware must not paste tokens, and must not spell one with a " \
-            "digraph or a trigraph: a pasted call name builds a CSR store " \
-            "this gate cannot read, and an alternate spelling of `#` builds " \
-            "a directive it cannot read either"
-        for name, body in re.findall(
-                r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
-                r"([^\r\n]*)$", code):
-            hidden = re.search(r"\bmilan_(?:reg|read|write)\b", body)
-            assert not hidden, \
-                f"#define {name} hides {hidden.group(0)}() inside a macro " \
-                "body: every call to a CSR primitive must be spelled out so " \
-                "the operand census can read which register it names. A " \
-                "read-only accessor macro contains no store and is refused " \
-                "for this reason, not for storing"
+        _assert_primitive_spelling_is_readable(code)
         # 5. ... and the cast set and the store set, restored: they catch
         #    address formation the compiled census cannot see because no
         #    window immediate is ever printed.
         assert_store_set_is_closed(code, source)
 
-        # 6. The call-site census only has meaning if the two read-side
-        #    accessors preserve the offset and value it attributes to each
-        #    call. Keep this after the set closure so the existing
-        #    helper-body-store mutants remain pinned to the independent cast
-        #    and store-set checks that were written for them.
-        reg_body = code[reg_span[0]:reg_span[1]]
-        reg_offset = re.escape(reg_def.group("offset"))
-        assert re.fullmatch(
-            rf"\s*\breturn\b\s*\(\s*volatile\s+uint32_t\s*\*\s*\)\s*"
-            rf"\(\s*MILAN_CSR_BASE\s*\+\s*{reg_offset}\s*\)\s*;\s*",
-            reg_body), \
-            "milan_reg() must return exactly MILAN_CSR_BASE plus the offset " \
-            "it is passed"
-        read_body = code[read_span[0]:read_span[1]]
-        read_offset = re.escape(read_def.group("offset"))
-        assert re.fullmatch(
-            rf"\s*\breturn\b\s*\*\s*milan_reg\s*\(\s*{read_offset}\s*\)"
-            rf"\s*;\s*", read_body), \
-            "milan_read() must return exactly the value loaded through " \
-            "milan_reg(offset)"
+        _assert_read_side_preserves_offset(code, reg_span, reg_def,
+                                           read_span, read_def)
     #: ---- RESTORED, and the reason is measured -----------------------
     #:
     #: Round nine deleted the three families below on the claim that the
@@ -2618,7 +2870,7 @@ def test_baremetal_profile_contract():
         r"(?<![=!<>+\-*/%&|^])(?:[-+*/%&|^]|<<|>>)?=(?!=)")
     subscript_lhs_re = re.compile(r"\A\w+[ \t]*\[[^\]]*\]\Z")
 
-    def pointer_stores(code):
+    def pointer_stores(code: str) -> list[tuple[int, int]]:
         """`(start, stop)` for every store through a pointer in `code`.
 
         The left-hand side is taken back to the statement's start. A
@@ -2645,7 +2897,7 @@ def test_baremetal_profile_contract():
             found.append((start, len(code) if stop < 0 else stop))
         return found
 
-    def assert_store_set_is_closed(code, source):
+    def assert_store_set_is_closed(code: str, source: str) -> None:
         """The firmware's stores through a pointer are pinned to the four it
         ships, so a CSR store cannot be built from a cast this gate never
         thought to name.
@@ -2679,7 +2931,7 @@ def test_baremetal_profile_contract():
         '__asm__ volatile("fence rw, rw" ::: "memory")')
     asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
 
-    def assert_asm_set_is_closed(code, source):
+    def assert_asm_set_is_closed(code: str, source: str) -> None:
         """Inline asm is pinned to the two fences the firmware ships.
 
         COST: a third asm statement is RED until it is added above, which is
@@ -2719,7 +2971,7 @@ def test_baremetal_profile_contract():
     #: well as the names: the firmware's directory holds exactly these files,
     #: and CFLAGS carries exactly this one search path.
     firmware_directory = ("Makefile", "milan_baremetal.c")
-    def assert_include_resolution_is_pinned(listing):
+    def assert_include_resolution_is_pinned(listing: tuple[str, ...]) -> None:
         """No file beside the firmware may answer to a pinned include name.
 
         This is the axis that matters, and it is NOT who wrote the file: it
@@ -2747,13 +2999,13 @@ def test_baremetal_profile_contract():
     include_operand_re = re.compile(
         r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z")
 
-    def line_spliced(text):
+    def line_spliced(text: str) -> str:
         """`text` with backslash-newline splices joined, LENGTH PRESERVED so
         every offset still indexes the original. C and make both continue a
         line this way, so both read it through here."""
         return re.sub(r"\\\n", "  ", text)
 
-    def spliced(text):
+    def spliced(text: str) -> str:
         """`text` after translation phases 1 and 2, LENGTH PRESERVED so every
         offset still indexes the original: digraphs translated and
         backslash-newline splices joined, each substitution exactly as wide as
@@ -2773,7 +3025,7 @@ def test_baremetal_profile_contract():
             text.replace("??=", "#  ").replace("??/", "  \\")
                 .replace("%:%:", "##  ").replace("%:", "# "))
 
-    def assert_directive_set_is_closed(code, source):
+    def assert_directive_set_is_closed(code: str, source: str) -> None:
         """The text this gate reads is the WHOLE translation unit.
 
         assert_single_translation_unit() proves the image is built from one
@@ -2883,9 +3135,11 @@ def test_baremetal_profile_contract():
     #: The RV32 cross compiler is the real target and the only one that can
     #: assemble the firmware's RISC-V asm; a host compiler answers every
     #: C-level shape and FAILS LOUDLY on the asm rather than passing it.
+    #: argv[0] SPELLINGS, not paths: four of the five are bare command names
+    #: resolved on PATH, so the tuple is `str` throughout and the one
+    #: home-relative entry is rendered at the boundary.
     census_compilers = (
-        os.path.join(os.path.expanduser("~"),
-                     "br-milan-rv32/host/bin/riscv32-linux-gcc"),
+        str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
         "riscv64-elf-gcc", "riscv32-unknown-elf-gcc", "cc", "gcc")
     #: The flag sets that can make one of those candidates the RV32 target,
     #: tried in order. The EMPTY one comes first because a compiler built
@@ -2894,12 +3148,12 @@ def test_baremetal_profile_contract():
     #: it exists for.
     rv32_drivers = ((), ("-march=rv32i", "-mabi=ilp32"))
 
-    def census_headers(root):
+    def census_headers(root: Path) -> None:
         """The stub header set the census compiles against, written from
         `census_defines` plus the window base read out of milan_soc.py, so
         no address in it is mirrored from anywhere."""
         for leaf in ("generated", "hw", "libbase"):
-            os.makedirs(os.path.join(root, leaf), exist_ok=True)
+            (root / leaf).mkdir(parents=True, exist_ok=True)
         for name, value in census_defines.items():
             assert not csr_base <= value < csr_base + csr_size, \
                 f"census stub {name} lands inside the CSR window and would " \
@@ -2922,8 +3176,7 @@ def test_baremetal_profile_contract():
                       "(*const f##_i)(void) __attribute__((unused)) = f\n",
         }
         for leaf, text in write.items():
-            with open(os.path.join(root, leaf), "w") as fh:
-                fh.write(text)
+            (root / leaf).write_text(text)
 
     #: Filled in by the first census run and printed in the verdict: a
     #: census whose answer depends on an unrecorded tool choice is not a
@@ -2931,7 +3184,7 @@ def test_baremetal_profile_contract():
     #: firmware's RISC-V asm, which is what makes the census authoritative.
     census_used = {}
 
-    def rv32_probe_source(xlen):
+    def rv32_probe_source(xlen: int) -> str:
         """The census probe: the RISC-V asm the firmware also writes, under
         a guard on the width the compiler is about to compile FOR.
 
@@ -2948,21 +3201,24 @@ def test_baremetal_profile_contract():
                 "#endif\n"
                 "void f(void){__asm__ volatile(\"nop\" ::: \"t0\");}\n")
 
-    def census_probe(candidate, driver, xlen=32, runner=None):
+    def census_probe(candidate: str, driver: tuple[str, ...], xlen: int = 32,
+                     runner: CensusRunner | None = None) -> bool:
         """Compile the probe once; True when `candidate` driven by `driver`
         IS a RISC-V target of `xlen` bits."""
         run = subprocess.run if runner is None else runner
-        with tempfile.TemporaryDirectory(prefix="milan-cc-") as probe_dir:
-            probe_path = os.path.join(probe_dir, "probe.c")
-            with open(probe_path, "w") as fh:
-                fh.write(rv32_probe_source(xlen))
+        with tempfile.TemporaryDirectory(prefix="milan-cc-") as tmp:
+            probe_dir = Path(tmp)
+            probe_path = probe_dir / "probe.c"
+            probe_path.write_text(rv32_probe_source(xlen))
             built = run(
                 [candidate] + list(driver) +
-                ["-S", "-o", os.path.join(probe_dir, "p.s"), probe_path],
+                ["-S", "-o", str(probe_dir / "p.s"), str(probe_path)],
                 capture_output=True, text=True)
         return built.returncode == 0
 
-    def census_rv32_driver(candidate, runner=None):
+    def census_rv32_driver(
+            candidate: str,
+            runner: CensusRunner | None = None) -> tuple[str, ...] | None:
         """The first flag set that makes `candidate` the RV32 target, or
         None when none of them does."""
         for driver in rv32_drivers:
@@ -2981,7 +3237,7 @@ def test_baremetal_profile_contract():
                                 re.M)
     census_arch_seen = {"stated": 0, "unstated": 0}
 
-    def assert_census_arch_is_rv32(assembly_text, label):
+    def assert_census_arch_is_rv32(assembly_text: str, label: str) -> str | None:
         """The arch the census assembly declares, or None when the toolchain
         declares none. A toolchain that states nothing cannot be blamed for
         it, so the absence is REPORTED rather than reddened."""
@@ -3012,7 +3268,9 @@ def test_baremetal_profile_contract():
         "assembly with no arch attribute must come back unstated, not " \
         "invented: a toolchain that declares none cannot be blamed for it"
 
-    def census_candidate_answers(candidate):
+    def census_candidate_answers(candidate: str) -> bool:
+        """True when `candidate` is on this box and answers at all, which is
+        what lets the stand-down name the tool that declined."""
         try:
             version = subprocess.run([candidate, "--version"],
                                      capture_output=True, text=True)
@@ -3020,7 +3278,10 @@ def test_baremetal_profile_contract():
             return False
         return version.returncode == 0
 
-    def census_compiler():
+    def census_compiler() -> str | None:
+        """The compiler the census is taken with, chosen once and recorded in
+        `census_used`: the first candidate that can be driven at RV32, or,
+        when none can, the first that merely answers."""
         if census_used:
             return census_used.get("compiler")
         present = [c for c in census_compilers if census_candidate_answers(c)]
@@ -3129,11 +3390,11 @@ def test_baremetal_profile_contract():
             "resolves"),
     }
 
-    def format_census_verdict(verdict):
+    def format_census_verdict(verdict: dict[str, Any]) -> str:
         """Render only an execution state the census actually observed."""
         assert verdict["ran"] == verdict["target"], \
             "compiled-census verdict contradicts its execution state"
-        compiler = os.path.basename(verdict.get("compiler") or "no")
+        compiler = Path(verdict.get("compiler") or "no").name
         driver = " ".join(verdict.get("flags") or ())
         if verdict["ran"]:
             arch = verdict.get("arch")
@@ -3147,7 +3408,9 @@ def test_baremetal_profile_contract():
                 "did not run and the text rules above carry this on their "
                 "own")
 
-    def census_take(firmware, label="firmware", selection=None, runner=None):
+    def census_take(firmware: str, label: str = "firmware",
+                    selection: dict[str, Any] | None = None,
+                    runner: CensusRunner | None = None) -> dict[str, Any]:
         """Compile `firmware` for the exact RV32 target once and hand back
         the assembly, or a recorded stand-down.
 
@@ -3177,16 +3440,16 @@ def test_baremetal_profile_contract():
             f"{list(census_compilers)}: this gate cannot bound CSR stores " \
             "by reading C, so it refuses to report a result it did not take"
         run = subprocess.run if runner is None else runner
-        with tempfile.TemporaryDirectory(prefix="milan-census-") as root:
+        with tempfile.TemporaryDirectory(prefix="milan-census-") as tmp:
+            root = Path(tmp)
             census_headers(root)
-            source = os.path.join(root, "milan_baremetal.c")
-            with open(source, "w") as fh:
-                fh.write(firmware)
-            assembly = os.path.join(root, "census.s")
+            source = root / "milan_baremetal.c"
+            source.write_text(firmware)
+            assembly = root / "census.s"
             built = run(
                 [compiler] + list(driver) +
                 ["-std=gnu99", "-O0", "-fno-inline", "-S",
-                 "-o", assembly, f"-I{root}", source],
+                 "-o", str(assembly), f"-I{root}", str(source)],
                 capture_output=True, text=True)
             if built.returncode != 0:
                 # Reached only when the compiler IS the RV32 target, since a
@@ -3208,15 +3471,17 @@ def test_baremetal_profile_contract():
                     f"{compiler}, which IS the RV32 target: a source this "
                     "gate cannot compile is a source whose CSR stores it "
                     f"cannot census; {built.stderr.strip().splitlines()[-1:]}")
-            text = open(assembly, encoding="utf-8", errors="replace").read()
+            text = assembly.read_text(encoding="utf-8", errors="replace")
         arch = assert_census_arch_is_rv32(text, label)
         census_arch_seen["stated" if arch else "unstated"] += 1
         return {"compiler": compiler, "target": True, "ran": True,
                 "flags": driver, "text": text, "arch": arch}
 
-    def assert_compiled_census_is_clean(firmware, label="firmware",
-                                        selection=None, runner=None,
-                                        taken=None):
+    def assert_compiled_census_is_clean(firmware: str, label: str = "firmware",
+                                        selection: dict[str, Any] | None = None,
+                                        runner: CensusRunner | None = None,
+                                        taken: dict[str, Any] | None = None,
+                                        ) -> dict[str, Any]:
         """No function but milan_reg() may materialise a CSR window address.
 
         Measured on the COMPILER's output, not on the firmware's text.
@@ -3281,7 +3546,9 @@ def test_baremetal_profile_contract():
     #: measured rather than asserted: the exempted-helper blindness control
     #: below runs BOTH instruments over the same mutant and records that the
     #: census is blind to it while the resolver rejects it.
-    def entity_advertise_span(code, label="firmware"):
+    def entity_advertise_span(
+            code: str,
+            label: str = "firmware") -> tuple[re.Match[str], int, int]:
         """`(match, body, close)` for the entity-advertise choke point."""
         found = re.search(
             r"\bstatic\s+void\s+entity_advertise\s*\(\s*int\s+"
@@ -3294,8 +3561,9 @@ def test_baremetal_profile_contract():
         body, close = braced_span(code, found, "entity_advertise()")
         return found, body, close
 
-    def assert_resolved_boot_flow(assembly, model, label="firmware",
-                                  helper=None):
+    def assert_resolved_boot_flow(assembly: str, model: CsrModel,
+                                  label: str = "firmware",
+                                  helper: str | None = None) -> dict[str, Any]:
         """Answer the boot contract from the RESOLVED assembly.
 
         Five questions, each about a VALUE or an EDGE and none about a
@@ -3447,7 +3715,9 @@ def test_baremetal_profile_contract():
         # exactly as a number is: a range that so much as touches the
         # window is a control-register store, however much of it lies
         # outside.
-        def resolved_in_window(address):
+        def resolved_in_window(address: int | Rv32Range | Rv32Where) -> bool:
+            """True when a resolved store address can land in the CSR window: a
+            bounded range that so much as touches it counts as a hit."""
             if isinstance(address, int):
                 return csr_base <= address < csr_base + csr_size
             return (isinstance(address, Rv32Range) and
@@ -3713,7 +3983,8 @@ def test_baremetal_profile_contract():
     #: shapes, because the two things the slot feeds are the two things the
     #: boot contract is proved with: the CRC comparison's provenance and
     #: the verifier's return value.
-    def rv32_join_diamond(store_first, both=False, tail=None):
+    def rv32_join_diamond(store_first: bool, both: bool = False,
+                          tail: list[str] | None = None) -> str:
         """One function, one diamond, `store_first` choosing WHICH
         predecessor carries the store.  The two layouts are semantically
         equivalent; only the block order differs."""
@@ -3734,7 +4005,8 @@ def test_baremetal_profile_contract():
     crc_probe_tag = Rv32Tag("crc32")
     return_tail = ["\tlw a0,-20(s0)"]
 
-    def rv32_join_answers(store_first, both=False):
+    def rv32_join_answers(store_first: bool, both: bool = False) -> tuple[
+            tuple[str, str, str] | None, list[Rv32Value]]:
         """`(crc-provenance edge, returned values)` for one layout."""
         body = rv32_functions(rv32_join_diamond(store_first, both))["diamond"]
         run = rv32_run(body, {}, tags={"crc32": crc_probe_tag})
@@ -3774,7 +4046,8 @@ def test_baremetal_profile_contract():
     #: and require the two layouts to DISAGREE. Without this the four
     #: assertions above are a check that cannot go red -- exactly the shape
     #: this gate keeps being bitten by.
-    def rv32_order_dependent_meet(self, other):
+    def rv32_order_dependent_meet(self: Rv32State,
+                                  other: Rv32State) -> Rv32State:
         """The join exactly as it stood at a8083a29: a slot missing from
         `self` is COPIED IN from `other`, so a value on one incoming path
         survives whenever that path is folded in second."""
@@ -3838,7 +4111,10 @@ def test_baremetal_profile_contract():
     #: one firmware), and a bounded index on a base whose sum can WRAP
     #: must come back unplaced, because no firmware here exercises the
     #: wrap arm and an unexercised fail-closed branch is a claim.
-    def rv32_range_probe(base):
+    def rv32_range_probe(base: int) -> dict[str, Any]:
+        """The resolved run of a bltu-bounded copy loop writing through
+        `base` - the shape the AEM copy store's placement rests on, and,
+        at a wrapping base, the shape the range class must refuse."""
         return rv32_run(rv32_functions(
             "ranged:\n"
             "\taddi sp,sp,-32\n\tsw s0,24(sp)\n\taddi s0,sp,32\n"
@@ -3875,7 +4151,9 @@ def test_baremetal_profile_contract():
     # printed to users describes that same observed no-run verdict.
     host_only_calls = []
 
-    def forbidden_host_census(*args, **kwargs):
+    def forbidden_host_census(*args: object, **kwargs: object) -> NoReturn:
+        """The runner a stood-down census must never reach: being called at
+        all is the finding, so the stand-down cannot be words only."""
         host_only_calls.append((args, kwargs))
         raise AssertionError("host-only compiled census ran after stand-down")
 
@@ -3898,12 +4176,16 @@ def test_baremetal_profile_contract():
     #:
     #: First the probe's own decision, over the three shapes a box can
     #: present, driven through a stub so the answer is the same everywhere.
-    def stub_compiler(accepts):
+    def stub_compiler(accepts: set[tuple[str, ...]]) -> tuple[
+            CensusRunner, list[tuple[str, ...]]]:
         """A compiler that succeeds only for the driver flag sets in
         `accepts`, and records every argv it was handed."""
         seen = []
 
-        def run(command, **kwargs):
+        def run(command: list[str],
+                **kwargs: object) -> subprocess.CompletedProcess[str]:
+            """Succeed only for a driver flag set in `accepts`, and record the
+            argv, which is what proves the flags REACH the compiler."""
             seen.append(tuple(command))
             #: The probe's argv is [cc] + driver + [-S, -o, out, src], so
             #: the driver is what is left after both fixed ends. Reading it
@@ -3941,7 +4223,9 @@ def test_baremetal_profile_contract():
     #: user reads.
     rv64_calls = []
 
-    def forbidden_rv64_census(*args, **kwargs):
+    def forbidden_rv64_census(*args: object, **kwargs: object) -> NoReturn:
+        """The runner a 64-bit candidate's stand-down must never reach:
+        being called at all is the finding."""
         rv64_calls.append((args, kwargs))
         raise AssertionError("64-bit compiled census ran after stand-down")
 
@@ -3970,7 +4254,8 @@ def test_baremetal_profile_contract():
             "the register width and the census it authorises could be a " \
             "64-bit census printed as the RV32 one"
 
-    def assert_target_compiles(firmware, label, allow_warnings=False):
+    def assert_target_compiles(firmware: str, label: str,
+                               allow_warnings: bool = False) -> bool:
         """Prove one mutation is accepted C for the exact RV32 target.
 
         A source-text rule may reject the mutation before the assembly census
@@ -3983,11 +4268,11 @@ def test_baremetal_profile_contract():
         if not compiler or not census_used.get("target"):
             return False
         driver = list(census_used.get("flags") or ())
-        with tempfile.TemporaryDirectory(prefix="milan-compile-") as root:
+        with tempfile.TemporaryDirectory(prefix="milan-compile-") as tmp:
+            root = Path(tmp)
             census_headers(root)
-            source = os.path.join(root, "milan_baremetal.c")
-            with open(source, "w") as fh:
-                fh.write(firmware)
+            source = root / "milan_baremetal.c"
+            source.write_text(firmware)
             #: The SAME driver the probe selected. Without it a multilib
             #: riscv64 GCC compiled every mutant for RV64, where the
             #: firmware's own 32-bit pointer cast is an -Werror error, and
@@ -3997,7 +4282,7 @@ def test_baremetal_profile_contract():
                 flags.append("-Werror")
             built = subprocess.run(
                 flags + ["-O0", "-fno-inline", "-S", "-o",
-                         os.path.join(root, "mutation.s"), f"-I{root}", source],
+                         str(root / "mutation.s"), f"-I{root}", str(source)],
                 capture_output=True, text=True)
         assert built.returncode == 0, \
             f"{label} must compile for RV32 before its gate verdict counts; " \
@@ -4018,7 +4303,7 @@ def test_baremetal_profile_contract():
         r"[ \t]*(.*)$")
     objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
 
-    def makefile_objects(makefile):
+    def makefile_objects(makefile: str) -> list[str] | None:
         """The Makefile's OBJECTS as a list, or None when this gate cannot
         evaluate every token of it.
 
@@ -4052,7 +4337,7 @@ def test_baremetal_profile_contract():
                 value = tokens
         return value
 
-    def unexpanded(text):
+    def unexpanded(text: str) -> str:
         """`text` with every `$(...)` / `${...}` blanked, offsets preserved.
 
         A rule's colon and a variable reference's colon look the same to a
@@ -4111,7 +4396,9 @@ def test_baremetal_profile_contract():
     make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
-    def make_rules(makefile):
+    def make_rules(makefile: str) -> tuple[
+            list[tuple[list[str], list[str], list[str]]],
+            list[tuple[str, str]]]:
         """`(rules, assignments)` for `makefile`.
 
         A rule is `(targets, prerequisites, recipe)`. Continuations are joined
@@ -4247,7 +4534,7 @@ def test_baremetal_profile_contract():
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
 
-    def computed_name_references(makefile):
+    def computed_name_references(makefile: str) -> list[str]:
         """Every reference whose NAME position itself expands: `$($(X))`,
         `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix.
 
@@ -4283,7 +4570,7 @@ def test_baremetal_profile_contract():
             at += 2
         return found
 
-    def pinned_recipe_names(makefile, compile_value):
+    def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
         _rules, assignments = make_rules(makefile)
         by_name = {}
@@ -4302,7 +4589,7 @@ def test_baremetal_profile_contract():
                 pending.extend(make_origin_ref_re.findall(value))
         return sorted(reachable - make_stub_seeded)
 
-    def make_plan(makefile, expected):
+    def make_plan(makefile: str, expected: str) -> tuple[dict[str, str], list[str]]:
         """`(variables, recipe_lines)` for what make would actually do.
 
         Hazards, all measured rather than assumed, and all fatal if ignored:
@@ -4313,36 +4600,17 @@ def test_baremetal_profile_contract():
         command-line assignment silently overrides the Makefile and hides
         exactly the mutation being tested. `--eval` is not usable: it is
         processed before makefiles are read and reports empty."""
-        #: (#162, round two) REFUSED, not modelled: a computed reference
-        #: defers the NAME itself to expansion time, so there is no name to
-        #: ask $(origin) about -- the environment picks WHICH variable is
-        #: read, and no enumeration of origins can cover a name that does
-        #: not exist until expansion. Measured on this PR's adversarial
-        #: pass: `X = MILAN_EXTRA` + `CFLAGS += $($(X))` (and the ${${X}}
-        #: spelling) left the recipe pin, the hostile double-run and the
-        #: origin probe all green -- the walker probed X, origin 'file' --
-        #: while MILAN_EXTRA='-include ../shadow.h' in a real build's
-        #: environment reached the compile line. The scan is over the whole
-        #: comment-stripped text, recipes of never-run rules included,
-        #: deliberately WIDER than the origin closure: refusal is the sound
-        #: arm where modelling cannot be, and the COST is stated in the
-        #: verdict -- a computed name is RED even where a plain undefined
-        #: name like $(CTAGS) stays green.
-        computed = computed_name_references(makefile)
-        assert not computed, \
-            "this Makefile computes a variable NAME at expansion time (" + \
-            ", ".join(computed) + \
-            "): a computed variable name defers the NAME itself, so no " \
-            "origin probe can enumerate what the environment decides; " \
-            "refused rather than modelled (#162)"
+        _assert_no_computed_variable_names(makefile,
+                                          computed_name_references)
         stem = expected[:-2]
-        with tempfile.TemporaryDirectory(prefix="milan-make-") as root:
-            soc = os.path.join(root, "soc")
-            run = os.path.join(root, "run")
-            src = os.path.join(root, "src")
-            gen = os.path.join(root, "include", "generated")
-            for leaf in (os.path.join(soc, "software"), run, src, gen):
-                os.makedirs(leaf, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
+            root = Path(tmp)
+            soc = root / "soc"
+            run = root / "run"
+            src = root / "src"
+            gen = root / "include" / "generated"
+            for leaf in (soc / "software", run, src, gen):
+                leaf.mkdir(parents=True, exist_ok=True)
             # Every object the Makefile names needs a source for make to
             # find a rule for it; the CONTENT is irrelevant, only the path.
             # Stubbing them all is a HARNESS convenience, not a gate rule:
@@ -4351,32 +4619,33 @@ def test_baremetal_profile_contract():
             # than showing make compiling and archiving two translation
             # units.
             for named in set(re.findall(r"\b([\w.-]+)\.o\b", makefile)):
-                open(os.path.join(src, named + ".c"), "w").close()
-            open(os.path.join(src, stem + ".c"), "w").close()
-            with open(os.path.join(gen, "variables.mak"), "w") as fh:
-                fh.write(f"SOC_DIRECTORY = {soc}\n"
-                         f"BIOS_DIRECTORY = "
-                         f"{make_sentinels['BIOS_DIRECTORY']}\n"
-                         f"LIBMILAN_BAREMETAL_DIRECTORY = {src}\n")
-            with open(os.path.join(soc, "software", "common.mak"), "w") as fh:
-                fh.write(f"CC = {make_sentinels['CC']}\n"
-                         f"AR = {make_sentinels['AR']}\n"
-                         f"CFLAGS = {make_sentinels['CFLAGS']}\n"
-                         "define compile\n$(CC) -c $(CFLAGS) $(1) $< -o $@\n"
-                         "endef\n")
-            with open(os.path.join(run, "Makefile"), "w") as fh:
-                fh.write(makefile)
-            probe = os.path.join(root, "probe.mk")
-            with open(probe, "w") as fh:
-                fh.write(make_probe)
-            def run_make(extra_env, extra_fragments=()):
+                (src / (named + ".c")).write_text("")
+            (src / (stem + ".c")).write_text("")
+            (gen / "variables.mak").write_text(
+                f"SOC_DIRECTORY = {soc}\n"
+                f"BIOS_DIRECTORY = {make_sentinels['BIOS_DIRECTORY']}\n"
+                f"LIBMILAN_BAREMETAL_DIRECTORY = {src}\n")
+            (soc / "software" / "common.mak").write_text(
+                f"CC = {make_sentinels['CC']}\n"
+                f"AR = {make_sentinels['AR']}\n"
+                f"CFLAGS = {make_sentinels['CFLAGS']}\n"
+                "define compile\n$(CC) -c $(CFLAGS) $(1) $< -o $@\n"
+                "endef\n")
+            (run / "Makefile").write_text(makefile)
+            probe = root / "probe.mk"
+            probe.write_text(make_probe)
+            def run_make(extra_env: dict[str, str],
+                         extra_fragments: tuple[Path, ...] = ()
+                         ) -> subprocess.CompletedProcess[str]:
+                """One `make -Bn` of the stub tree with `extra_env` in the
+                environment and any extra probe fragments appended."""
                 environ = dict(os.environ)
                 environ.pop("MAKEFLAGS", None)
                 environ.update(extra_env)
                 return subprocess.run(
-                    ["make", "-Bn", "-f", "Makefile", "-f", probe]
+                    ["make", "-Bn", "-f", "Makefile", "-f", str(probe)]
                     + [arg for fragment in extra_fragments
-                       for arg in ("-f", fragment)],
+                       for arg in ("-f", str(fragment))],
                     cwd=run, capture_output=True, text=True, env=environ)
 
             plan = run_make({})
@@ -4387,7 +4656,9 @@ def test_baremetal_profile_contract():
             # enumerate the options that do that, run the plan twice and
             # require it to be the same plan.
             hostile = run_make({
-                "LIBMILAN_BAREMETAL_DIRECTORY": os.path.join(root, "hostile"),
+                # `env=` values must be `str`: a Path here is a TypeError
+                # out of the spawn, not a hostile-environment finding.
+                "LIBMILAN_BAREMETAL_DIRECTORY": str(root / "hostile"),
                 "CFLAGS": "__HOSTILE_CFLAGS__",
                 "OBJECTS": "hostile.o",
             })
@@ -4398,43 +4669,15 @@ def test_baremetal_profile_contract():
                 r"(?m)^PROBE_COMPILE=\[(.*)\]$", plan.stdout + plan.stderr)
             origin_names = pinned_recipe_names(
                 makefile, compile_match.group(1) if compile_match else "")
-            origin_probe = os.path.join(root, "origins.mk")
-            with open(origin_probe, "w") as fh:
-                fh.write("".join(
-                    f"$(info PROBE_ORIGIN_{name}=[$(origin {name})])\n"
-                    for name in origin_names))
+            origin_probe = root / "origins.mk"
+            origin_probe.write_text("".join(
+                f"$(info PROBE_ORIGIN_{name}=[$(origin {name})])\n"
+                for name in origin_names))
             origins_run = run_make({}, (origin_probe,))
             origins = dict(re.findall(
                 r"(?m)^PROBE_ORIGIN_(\w+)=\[(.*)\]$",
                 origins_run.stdout + origins_run.stderr))
-        # An exit code is a FINDING, never "no findings": when a mutation
-        # names a source this harness did not stub, make exits 2 and its own
-        # message names the extra object.
-        assert plan.returncode == 0, \
-            "make could not plan this Makefile, so what it builds is " \
-            "unknown and this gate refuses rather than report a clean " \
-            f"result it did not take; make said " \
-            f"{(plan.stderr.strip().splitlines() or ['?'])[-1]!r}"
-        assert hostile.returncode == plan.returncode and \
-            hostile.stdout == plan.stdout, \
-            "this Makefile lets the ENVIRONMENT decide what gets compiled: " \
-            "planned under a hostile environment it builds something else, " \
-            "so the file this gate reads is not necessarily the file the " \
-            "build compiles"
-        #: (#162) ... and the deferral the double-run measurably CANNOT see:
-        #: a name the pinned recipes reference that nothing defines expands
-        #: to nothing in BOTH runs, identical by construction, while a real
-        #: build's environment supplies the value make's default rules give
-        #: an unassigned name. Refuse it by origin instead.
-        deferred = sorted(name for name, origin in origins.items()
-                          if origin in ("undefined", "environment"))
-        assert not deferred, \
-            "this Makefile defers a pinned-recipe input to the " \
-            "environment: " + ", ".join(
-                f"$(origin {name}) = {origins[name]}" for name in deferred) \
-            + " for a name the pinned recipe chain references, so the " \
-            "environment, not the Makefile, decides its value and the " \
-            "pinned commands cannot show the deferral (#162)"
+        _assert_make_plan_is_determined(plan, hostile, origins)
         variables = dict(re.findall(r"(?m)^PROBE_(\w+)=\[(.*)\]$",
                                     plan.stdout + plan.stderr))
         recipes = [" ".join(line.split())
@@ -4442,7 +4685,7 @@ def test_baremetal_profile_contract():
                    if not line.startswith("PROBE_") and line.strip()]
         return variables, recipes
 
-    def assert_single_translation_unit(makefile, expected):
+    def assert_single_translation_unit(makefile: str, expected: str) -> None:
         """The firmware image is built from exactly the one `.c` this reads,
         with exactly the flags this gate accounts for.
 
@@ -4489,8 +4732,8 @@ def test_baremetal_profile_contract():
                           for token in line.split() if token.endswith(".c")})
         objects = sorted({token for line in recipes
                           for token in line.split() if token.endswith(".o")})
-        assert sources == [os.path.join(variables.get("LIBDIR", ""),
-                                        stem + ".c")], \
+        assert sources == [str(Path(variables.get("LIBDIR", ""))
+                               / (stem + ".c"))], \
             f"make must compile exactly one source, {stem}.c, and its whole " \
             "plan names another: the object this gate calls one translation " \
             f"unit is built from several; make touches {sources}"
@@ -4498,56 +4741,18 @@ def test_baremetal_profile_contract():
             "make must build and archive exactly the one object, and its " \
             "whole plan names another: an object the OBJECTS list never " \
             f"named reaches the image; make touches {objects}"
-        # ---- and the RECIPE SET, which is what actually bounds this.
-        #
-        # Three scans used to live here: one for link steps, one for
-        # injecting flags and one for search-path flags, each a list of the
-        # spellings someone had thought of. That is the same shape as the
-        # name allowlist before it, the disassembly regex before that and
-        # the flag regex after: `-Wp,-include,hdr`, `@response.file` and
-        # `-iprefix`/`-iwithprefixbefore` all walked past it, and every one
-        # of them put a whole second file into the one translation unit.
-        #
-        # So the recipe set is PINNED instead. make tells us the two
-        # commands it would run; they are fully determined by the stub
-        # environment's sentinels and the one source path, so anything
-        # added, removed or reworded is refused without naming a single
-        # flag. This is strictly smaller than the three scans it replaces
-        # and it has no list to fall behind.
-        #
-        # LIMIT, measured on #162 and CLOSED this round: this reads what
-        # make PRINTS, which is already expanded. A name the Makefile
-        # references and nothing defines expands to nothing, so
-        # `CFLAGS += $(MILAN_EXTRA_CFLAGS)` leaves these two lines identical
-        # while the environment decides what the compiler is really given.
-        # The origin probe in make_plan() is what answers it now: every
-        # name reaching the pinned recipe chain must have a make origin
-        # that is not 'undefined'/'environment', refused by name above.
-        expected_recipes = [
-            f"{make_sentinels['CC']} -c {make_sentinels['CFLAGS']} "
-            f"-I{make_sentinels['BIOS_DIRECTORY']} "
-            f"{os.path.join(variables.get('LIBDIR', ''), stem + '.c')} "
-            f"-o {expected}",
-            f"{make_sentinels['AR']} crs lib{stem}.a {expected}",
-        ]
-        assert recipes == expected_recipes, \
-            "the commands make would run are pinned, and this Makefile " \
-            "changes them: one compile of the one source with the one added " \
-            "include path, and one archive of the one object. Anything else " \
-            "can inject a file into the translation unit, move which file is " \
-            "compiled, or link a second one in, whatever flag spelling " \
-            f"carries it.\n  expected: {expected_recipes}\n  make runs: " \
-            f"{recipes}"
+        _assert_recipe_set_is_pinned(recipes, variables, stem, expected,
+                                     make_sentinels)
         assert variables.get("VPATH") == "undefined", \
             "this Makefile must not set VPATH: it decides which file the " \
             "pattern rule's %.c resolves to, so it moves the file this gate " \
             "calls the firmware"
-        assert os.path.basename(variables.get("LIBDIR", "")) == "src", \
+        assert Path(variables.get("LIBDIR", "")).name == "src", \
             "the source directory make compiles from is not the one this " \
             "gate reads, so every rule above is reading a file the build " \
             f"does not compile; make uses {variables.get('LIBDIR')!r}"
 
-    def anchored(text, needle, what, start=0):
+    def anchored(text: str, needle: str, what: str, start: int = 0) -> int:
         """`text.index(needle)`, but failing with a message that names the
         property instead of a bare `ValueError: substring not found`.
 
@@ -4566,8 +4771,21 @@ def test_baremetal_profile_contract():
             "function by shape"
         return at
 
-    def assert_boot_contract(firmware, docs, csr, makefile=None,
-                             listing=None, datapath=None):
+    def assert_boot_contract(firmware: str, docs: str, csr: str,
+                             makefile: str | None = None,
+                             listing: tuple[str, ...] | None = None,
+                             datapath: str | None = None) -> dict[str, Any]:
+        """The whole boot contract, judged over ONE firmware/docs/CSR triple.
+
+        Every rule gate 1b owns is asked here - of the text, of the make
+        plan, of the compiled assembly and of the RTL - and what comes back
+        is the compiled-census verdict, carrying the resolved boot flow when
+        the census ran, so the caller can print WHICH instrument answered.
+
+        The mutation table calls this with a substituted firmware, Makefile,
+        directory listing or datapath and requires a reason-pinned refusal:
+        the arguments are what a mutation replaces, and defaulting one to
+        `None` means "read the tracked file"."""
         raw_datapath = datapath_source if datapath is None else datapath
         # Read code, not plausible-looking text in comments.  This is a
         # distinct lexer from blanked(): an apostrophe starts a numeric
@@ -4575,7 +4793,13 @@ def test_baremetal_profile_contract():
         datapath = blanked_sv(raw_datapath)
         csr_code = blanked_sv(csr)
 
-        def assert_sv_directive_set(raw, code, includes, reason):
+        def assert_sv_directive_set(raw: str, code: str,
+                                    includes: tuple[str, ...],
+                                    reason: str) -> None:
+            """The file's live compiler directives are exactly the two paired
+            `default_nettype`s around the pinned `include list, each with one
+            literal path - so no arm of it is selected by a directive this
+            bounded model cannot read."""
             matches = list(re.finditer(
                 r"`[ \t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\b", code))
             names = tuple(match.group("name") for match in matches)
@@ -4618,7 +4842,10 @@ def test_baremetal_profile_contract():
             "datapath integration proof requires unconditional live "
             "SystemVerilog text")
 
-        def direct_port(ports, port, value, reason):
+        def direct_port(ports: str, port: str, value: str,
+                        reason: str) -> None:
+            """One named port of an instance, connected exactly once and to
+            exactly `value`."""
             matches = list(re.finditer(
                 rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)",
                 ports))
@@ -4629,7 +4856,8 @@ def test_baremetal_profile_contract():
             assert actual == expected, \
                 f"{reason}: expected .{port}({value})"
 
-        def reference_census(source, expected, reason):
+        def reference_census(source: str, expected: dict[str, int],
+                             reason: str) -> None:
             """Pin every code-token reference to named bounded-proof nets.
 
             Exact endpoint expressions do not establish sole-driver
@@ -4645,7 +4873,8 @@ def test_baremetal_profile_contract():
                     f"{reason}: {name} must have exactly {count} live " \
                     f"references, found {found}"
 
-        def direct_initializer(source, declaration, signal, value, reason):
+        def direct_initializer(source: str, declaration: str, signal: str,
+                               value: str, reason: str) -> None:
             """One direct module-scope wire initializer with an exact RHS."""
             matches = list(re.finditer(
                 rf"(?m)^[ \t]*{declaration}[ \t]*=[ \t]*"
@@ -4660,7 +4889,10 @@ def test_baremetal_profile_contract():
                 f"{matches[0].group('value').strip()!r}"
             assert_direct_scope(source, matches[0].start(), reason)
 
-        def direct_assignment(lhs, rhs, reason, source=None):
+        def direct_assignment(lhs: str, rhs: str, reason: str,
+                              source: str | None = None) -> None:
+            """One continuous assignment of `lhs`, with exactly `rhs`, and an
+            unconditional item of the arm it sits in."""
             source = datapath if source is None else source
             matches = list(re.finditer(
                 rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
@@ -4672,7 +4904,10 @@ def test_baremetal_profile_contract():
                 f"{reason}: expected assign {lhs} = {rhs};"
             assert_direct_scope(source, matches[0].start(), reason)
 
-        def instance_ports(source, module, instance, reason):
+        def instance_ports(source: str, module: str, instance: str,
+                           reason: str) -> str:
+            """The port list of the one `module` instance named `instance`,
+            proved to be an unconditional item of its arm first."""
             matches = list(re.finditer(
                 rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
                 rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
@@ -5256,7 +5491,9 @@ def test_baremetal_profile_contract():
         # without the preprocessor and without changing a line this gate reads.
         init_body = init_source.index("{")
 
-        def unconditional(match, what):
+        def unconditional(match: re.Match[str], what: str) -> None:
+            """The matched boot step is a top-level statement of milan_init()
+            itself, so no condition this gate cannot evaluate can drop it."""
             head = max(init_source.rfind(char, init_body, match.start())
                        for char in ";{}")
             assert head >= 0 and \
@@ -5513,7 +5750,7 @@ def test_baremetal_profile_contract():
     if not baseline_census_verdict["ran"]:
         skip("gate 1b",
              "the compiled CSR-address census: "
-             f"{os.path.basename(baseline_census_verdict['compiler'] or 'no')}"
+             f"{Path(baseline_census_verdict['compiler'] or 'no').name}"
              " is not the RV32 target and no flag set here drives it as one, "
              "so the four census-only mutations, the phase-2 splice compile "
              "proofs and the census of the shipping firmware itself did not "
@@ -5524,12 +5761,14 @@ def test_baremetal_profile_contract():
              "the CRC was taken over MILAN_AEM_DESC_BASE, so its eight "
              "mutations did not run either")
 
-    def replace_once(source, old, new, label):
+    def replace_once(source: str, old: str, new: str, label: str) -> str:
+        """`source` with the FIRST `old` replaced, refusing a mutation that
+        changed nothing - an inert mutant proves nothing about a rule."""
         changed = source.replace(old, new, 1)
         assert changed != source, f"{label} mutation did not apply"
         return changed
 
-    def make_honours_makeflags_e():
+    def make_honours_makeflags_e() -> bool:
         """Whether THIS make lets `MAKEFLAGS += -e` inside a makefile hand
         the environment an override.
 
@@ -5538,10 +5777,11 @@ def test_baremetal_profile_contract():
         depends on the machine is not evidence, so the entry below is
         included only where the construct actually does something, and the
         skip is printed rather than silent."""
-        with tempfile.TemporaryDirectory(prefix="milan-mf-") as probe:
-            with open(os.path.join(probe, "Makefile"), "w") as fh:
-                fh.write("MAKEFLAGS += -e\nOBJECTS = good.o\n"
-                         "all:\n\t@echo $(OBJECTS)\n")
+        with tempfile.TemporaryDirectory(prefix="milan-mf-") as tmp:
+            probe = Path(tmp)
+            (probe / "Makefile").write_text(
+                "MAKEFLAGS += -e\nOBJECTS = good.o\n"
+                "all:\n\t@echo $(OBJECTS)\n")
             environ = dict(os.environ)
             environ.pop("MAKEFLAGS", None)
             environ["OBJECTS"] = "evil.o"
@@ -5563,24 +5803,26 @@ def test_baremetal_profile_contract():
         """
         if datapath_lint_context:
             return datapath_lint_context["sources"]
-        suite = os.path.join(ROOT, "tb/verilator/milan_dp")
+        suite = ROOT / "tb/verilator/milan_dp"
         planned = subprocess.run(
             ["make", "-s", "print-srcs"], cwd=suite,
             capture_output=True, text=True)
         assert planned.returncode == 0, \
             "RTL-mutant elaboration could not derive milan_dp sources: " \
             f"{planned.stderr.strip()}"
-        sources = tuple(os.path.abspath(os.path.join(suite, source))
+        sources = tuple((suite / source).resolve()
                         for source in shlex.split(planned.stdout))
-        assert sources and all(os.path.isfile(source) for source in sources), \
+        assert sources and all(source.is_file() for source in sources), \
             "RTL-mutant elaboration source closure contains a missing file"
-        assert os.path.abspath(csr_path) in sources and \
-            os.path.abspath(datapath_path) in sources, \
+        assert csr_path.resolve() in sources and \
+            datapath_path.resolve() in sources, \
             "RTL-mutant elaboration source closure lost milan_csr/datapath"
         datapath_lint_context["sources"] = sources
         return sources
 
-    def assert_rtl_mutant_elaborates(label, csr, datapath, count=True):
+    def assert_rtl_mutant_elaborates(label: str, csr: str,
+                                     datapath: str | None,
+                                     count: bool = True) -> None:
         """Require each behavior-changing RTL control to be valid RTL.
 
         A recognizer rejecting malformed text proves nothing about the
@@ -5599,15 +5841,14 @@ def test_baremetal_profile_contract():
         if not verilator:
             return
 
-        with tempfile.TemporaryDirectory(prefix="milan-rtl-mutant-") as tmp:
-            mutated_csr = os.path.join(tmp, "milan_csr.sv")
-            mutated_datapath = os.path.join(tmp, "milan_datapath.sv")
+        with tempfile.TemporaryDirectory(prefix="milan-rtl-mutant-") as tmpdir:
+            tmp = Path(tmpdir)
+            mutated_csr = tmp / "milan_csr.sv"
+            mutated_datapath = tmp / "milan_datapath.sv"
             if changed_csr:
-                with open(mutated_csr, "w", encoding="utf-8") as fh:
-                    fh.write(csr)
+                mutated_csr.write_text(csr, encoding="utf-8")
             if changed_datapath:
-                with open(mutated_datapath, "w", encoding="utf-8") as fh:
-                    fh.write(datapath)
+                mutated_datapath.write_text(datapath, encoding="utf-8")
 
             common = [
                 verilator, "--lint-only", "--sv", "-Wno-fatal",
@@ -5617,34 +5858,35 @@ def test_baremetal_profile_contract():
                 "-Wno-IMPORTSTAR", "-Wno-CASEINCOMPLETE",
                 "-Wno-EOFNEWLINE", "-Wno-PINMISSING",
                 "-Wno-SELRANGE", "-Wno-TIMESCALEMOD",
-                "--Mdir", os.path.join(tmp, "obj")]
+                "--Mdir", str(tmp / "obj")]
             include_dirs = (
-                os.path.join(ROOT, "configs/generated/endstation_arty_current"),
-                os.path.join(ROOT, "hdl/common"),
-                os.path.join(ROOT, "hdl/common/csr"),
-                os.path.join(ROOT, "hdl/common/eth_event_counter"),
-                os.path.join(ROOT, "hdl/ieee17221/adp"),
-                os.path.join(ROOT, "hdl/ieee8021q/ts"),
-                os.path.join(ROOT, "hdl/ieee8021as/ptp_timestamp"),
-                os.path.join(ROOT, "third_party/verilog-axis/rtl"),
+                ROOT / "configs/generated/endstation_arty_current",
+                ROOT / "hdl/common",
+                ROOT / "hdl/common/csr",
+                ROOT / "hdl/common/eth_event_counter",
+                ROOT / "hdl/ieee17221/adp",
+                ROOT / "hdl/ieee8021q/ts",
+                ROOT / "hdl/ieee8021as/ptp_timestamp",
+                ROOT / "third_party/verilog-axis/rtl",
             )
-            common += ["-I" + path for path in include_dirs]
+            common += [f"-I{path}" for path in include_dirs]
 
             if changed_datapath:
                 sources = []
                 for source in _datapath_lint_sources():
-                    if source == os.path.abspath(csr_path) and changed_csr:
+                    if source == csr_path.resolve() and changed_csr:
                         source = mutated_csr
-                    elif source == os.path.abspath(datapath_path):
+                    elif source == datapath_path.resolve():
                         source = mutated_datapath
-                    sources.append(source)
+                    sources.append(str(source))
                 command = common + [
                     "--top-module", "milan_datapath",
                     "-GGPTP_PLANE_EN_P=1", "-GPB_PREFILL_C=2",
                     "-GCLKV_QTICK_CYC_P=4096", "-GLDIAG_IVAL_CYC_P=256",
                     "-GDIAG_TICK_CYC_P=256"] + sources
             else:
-                command = common + ["--top-module", "milan_csr", mutated_csr]
+                command = common + ["--top-module", "milan_csr",
+                                    str(mutated_csr)]
             result = subprocess.run(
                 command, cwd=ROOT, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT, text=True)
@@ -5654,17 +5896,23 @@ def test_baremetal_profile_contract():
         if count:
             rtl_mutant_elaboration["passed"] += 1
 
-    def assert_rejected(label, firmware, docs, csr, because,
-                        makefile=None, listing=None, datapath=None):
+    def assert_rejected(label: str, firmware: str, docs: str, csr: str,
+                        because: str,
+                        files: MutantFiles | None = None) -> None:
+        """One mutation arm: the boot contract must refuse this triple, and
+        refuse it for the reason `because` names. A mutant rejected on an
+        incidental anchor mismatch proves nothing about the property, so
+        the reason is pinned and the RTL half must still elaborate."""
+        files = MutantFiles() if files is None else files
         try:
-            assert_boot_contract(firmware, docs, csr, makefile, listing,
-                                 datapath)
+            assert_boot_contract(firmware, docs, csr, files.makefile,
+                                 files.listing, files.datapath)
         except (AssertionError, ValueError) as exc:
             # A mutation rejected on an incidental anchor mismatch proves
             # nothing about the safety property, so pin the reason too.
             assert because in str(exc), \
                 f"{label} mutation was rejected for the wrong reason: {exc}"
-            assert_rtl_mutant_elaborates(label, csr, datapath)
+            assert_rtl_mutant_elaborates(label, csr, files.datapath)
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
@@ -5677,7 +5925,8 @@ def test_baremetal_profile_contract():
     firmware_code = blanked(firmware_source)
     source_model = CsrModel(firmware_source, blanked_sv(csr_source))
 
-    def with_define_value(baseline, name, new_value, label):
+    def with_define_value(baseline: str, name: str, new_value: str,
+                          label: str) -> str:
         """Replace one object-like firmware #define value by parsed span."""
         code = blanked(baseline)
         define = re.search(
@@ -5817,7 +6066,7 @@ def test_baremetal_profile_contract():
         "static inline\nvolatile uint32_t *\nmilan_reg(\n\tunsigned int "
         f"{source_reg_def.group('offset')})\n{{")
 
-    def accepted_reg_reflow(baseline):
+    def accepted_reg_reflow(baseline: str) -> str:
         """Return the accepted helper reflow, including an already-reflowed
         live baseline without asking replace_once() to perform a no-op."""
         code = blanked(baseline)
@@ -5844,7 +6093,7 @@ def test_baremetal_profile_contract():
                         source_fabric_body +
                         source_init[source_configure.end():])
 
-    def pre_aem_clear(address):
+    def pre_aem_clear(address: int) -> tuple[dict[str, Any], str]:
         """The bit-0 clear the pre-AEM entity disable rests on, found by what
         it does rather than by where or how it is spelled."""
         label = source_model.label(address)
@@ -5856,7 +6105,7 @@ def test_baremetal_profile_contract():
             f"{label} pre-AEM clear is not a unique statement"
         return found[0], text
 
-    def forced_enable(clear, text):
+    def forced_enable(clear: dict[str, Any], text: str) -> str:
         """The same write, turned into the enable the AEM gate must forbid --
         rebuilt from the census record rather than edited as text, so ANY
         clear spelling (`& ~1u`, `& ~(1u << 0)`, `& 0xfffffffeu`, a literal
@@ -5876,7 +6125,7 @@ def test_baremetal_profile_contract():
     adp_name = next(name for name, value in sorted(source_model.defines.items())
                     if value == source_model.adp)
 
-    def aliased(name, address, statement):
+    def aliased(name: str, address: int, statement: str) -> str:
         """The firmware plus a SECOND #define for `address` and a write
         through it in configure_fabric(): ordinary C that compiles clean and
         that the bus cannot tell from a write through the original name."""
@@ -5900,7 +6149,7 @@ def test_baremetal_profile_contract():
     #: once stored to 0xf000_0600: address right, ordering wrong.
     fabric_tail = source_fabric_body.rstrip()
 
-    def enabled_before_aem(statement):
+    def enabled_before_aem(statement: str) -> str:
         """`statement` spliced at the END of configure_fabric(), i.e. onto
         the boot path after the pre-AEM clears and before the AEM image has
         been verified, so the bit is still set when the verifier runs."""
@@ -6084,7 +6333,10 @@ def test_baremetal_profile_contract():
         "  wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr + A_VERSION;",
         "offset CSR read address")
 
-    def gate_instance_port(source, module, instance, port, value, label):
+    def gate_instance_port(source: str, module: str, instance: str,
+                           port: str, value: str, label: str) -> str:
+        """`source` with one instance port ANDed with cfg_adp_enable: the RTL
+        mutant that puts a signal the ADP gate must not reach behind it."""
         instances = list(re.finditer(
             rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"
             rf"{re.escape(instance)}\s*\((?P<ports>.*?)\)\s*;",
@@ -6226,7 +6478,9 @@ def test_baremetal_profile_contract():
     gptp_gated_boundary_mux_reset = gate_instance_port(
         datapath_source, "adp_tx_arbiter", "adp_tx_mux", "rst_n",
         "axis_resetn", "fabric gPTP boundary-mux reset gate")
-    def runtime_gate_assignment(source, lhs, label):
+    def runtime_gate_assignment(source: str, lhs: str, label: str) -> str:
+        """`source` with `lhs`'s one continuous assignment ANDed with
+        cfg_adp_enable, which is the same gate one hop further out."""
         matches = list(re.finditer(
             rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="
             r"(?P<value>[^;]+);", source))
@@ -6342,7 +6596,9 @@ def test_baremetal_profile_contract():
     crc_guard_statement = source_load_function[
         source_crc_guard.start():source_crc_guard.end()]
 
-    def defined(source, name, value, label):
+    def defined(source: str, name: str, value: str, label: str) -> str:
+        """`source` with one more object-like #define, spliced ahead of the
+        firmware's first file-scope object so it precedes every use."""
         return replace_once(
             source, "static int aem_loaded;",
             f"#define {name} {value}\n\nstatic int aem_loaded;", label)
@@ -6378,7 +6634,7 @@ def test_baremetal_profile_contract():
         f"switch (milan_read({probe}) & 2u) {{\n\tcase 2:\n\t\t" +
         guard_statement + "\n\tdefault:\n\t\tbreak;\n\t}",
         "case label falling into the entity-advertise call")
-    def one_physical_line(text):
+    def one_physical_line(text: str) -> str:
         """A census record as ONE physical line.
 
         Splicing a record into a continuation macro assumes exactly that, and
@@ -6521,7 +6777,9 @@ def test_baremetal_profile_contract():
     source_crc_arm = source_load_arm(source_crc_guard.start())
     source_returns = list(re.finditer(r"\breturn\b([^;]*);", source_load_code))
 
-    def returned(match, verdict, label):
+    def returned(match: re.Match[str], verdict: int, label: str) -> str:
+        """The firmware with one `return` of the AEM verifier replaced by
+        `return <verdict>;`, so the value the choke point sees is chosen."""
         return replace_once(
             firmware_source, source_load_function,
             source_load_function[:match.start()] + f"return {verdict};" +
@@ -6593,12 +6851,12 @@ def test_baremetal_profile_contract():
     objects_span_at = source_objects_assigns[0].start()
     objects_span_to = source_objects_assigns[-1].end()
 
-    def objects_valued_line(line):
+    def objects_valued_line(line: str) -> str:
         """The Makefile with EVERY OBJECTS assignment replaced by `line`."""
         return (makefile_source[:objects_span_at] + line +
                 makefile_source[objects_span_to:])
 
-    def objects_valued(text):
+    def objects_valued(text: str) -> str:
         """The Makefile with its LAST OBJECTS assignment carrying `text`,
         spliced at the offsets the parser itself reported: a second `.c` in
         the image, with its own CSR base, its own address helper and its own
@@ -6634,7 +6892,9 @@ def test_baremetal_profile_contract():
     #: whole one rather than inside its operand.
     last_include_end = firmware_code.index("\n", source_includes[-1].end())
 
-    def after_includes(line):
+    def after_includes(line: str) -> str:
+        """The firmware with `line` spliced after its LAST #include, so a
+        directive lands after a whole one and never inside an operand."""
         return (firmware_source[:last_include_end] + "\n" + line +
                 firmware_source[last_include_end:])
 
@@ -6667,7 +6927,7 @@ def test_baremetal_profile_contract():
     #: these four stored to 0xf000_0600, which is the LiteX CSR bank and not
     #: ADP_CTRL at all, so they reddened on an address-blind rule while
     #: demonstrating no entity enable whatsoever.
-    def stored_before_aem(statement, label):
+    def stored_before_aem(statement: str, label: str) -> str:
         """Spliced at the END of configure_fabric(), for the same reason
         enabled_before_aem() is: ahead of the clears the firmware would undo
         the mutant's own store before the AEM decision."""
@@ -6742,7 +7002,9 @@ def test_baremetal_profile_contract():
         "\n-include extra.mk" +
         makefile_source[source_objects_line.end():])
 
-    def after_objects(line):
+    def after_objects(line: str) -> str:
+        """The Makefile with `line` spliced after its last OBJECTS
+        assignment, which is where a text-deciding variable can land."""
         return (makefile_source[:source_objects_line.end()] + "\n" + line +
                 makefile_source[source_objects_line.end():])
 
@@ -6790,7 +7052,7 @@ def test_baremetal_profile_contract():
     #: -I rule turned out to be a denylist the moment it was written.
     quoted_search_path = after_objects("CFLAGS += -iquote shadow")
 
-    def raised_bit0(statement, label):
+    def raised_bit0(statement: str, label: str) -> str:
         """`statement` with bit 0 of its literal SET, rebuilt at the literal's
         own width and base: the RTL's own spelling of its reset value with the
         enable bit on, rather than a second literal hard-coded here."""
@@ -6810,7 +7072,7 @@ def test_baremetal_profile_contract():
             raised = str(value | 1)
         return statement[:match.start(1)] + raised + statement[match.end(1):]
 
-    def literal_reset(signal):
+    def literal_reset(signal: str) -> str:
         """The one LITERAL assignment to `signal` in the RTL: its reset value,
         found by what it is rather than by the line it sits on."""
         found = [m.group(0) for m in re.finditer(
@@ -6853,7 +7115,7 @@ def test_baremetal_profile_contract():
     #: A store added inside the helper the census exempts BY NAME. Rule 1
     #: is satisfied (the use is inside reg_span) and the census skips the
     #: function, so only the cast SET sees the fifth cast.
-    def helper_body_store_for(baseline, label):
+    def helper_body_store_for(baseline: str, label: str) -> str:
         """Add the exempted-helper escape relative to `baseline` itself."""
         code = blanked(baseline)
         reg_def = re.search(
@@ -7167,7 +7429,9 @@ def test_baremetal_profile_contract():
     #: because they are the measured proof that it does not have to: each
     #: changes the pinned compile command and is refused by the SET, and
     #: adding a fourth spelling would need no change to the rule at all.
-    def tool_flag(line, label):
+    def tool_flag(line: str, label: str) -> str:
+        """The Makefile with `line` appended to the CFLAGS include-path
+        assignment, which is where an injected flag reaches the compile."""
         return replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
                             "CFLAGS += -I$(BIOS_DIRECTORY)\n" + line, label)
 
@@ -7244,7 +7508,9 @@ def test_baremetal_profile_contract():
     absent_reset = replace_once(
         csr_source, adp_reset_statement, "", "ADP_CTRL reset value deleted")
 
-    def condensed(text):
+    def condensed(text: str) -> str:
+        """`text` with every run of whitespace removed, so two spellings of
+        one RTL statement compare equal."""
         return re.sub(r"\s+", "", text)
 
     pp_label = source_model.label(source_model.pp)
@@ -7666,41 +7932,41 @@ def test_baremetal_profile_contract():
         ("milan_csr PHC output binding gated by ADP", firmware_source,
          docs_source, csr_source,
          "milan_csr PHC output must drive cfg_ptp_enable directly",
-         None, None, phc_binding_gated_by_adp),
+         MutantFiles(datapath=phc_binding_gated_by_adp)),
         ("PHC enable hidden behind a resolved second driver", firmware_source,
          docs_source, csr_source,
          "datapath PHC nets must retain sole-driver reference ownership",
-         None, None, phc_wand_second_driver),
+         MutantFiles(datapath=phc_wand_second_driver)),
         #: 915cbcc3: the PHC consumer is the ptp_csr_sync crossing; the
         #: reasons follow the re-pointed pins.
         ("PHC crossing consumer gated by ADP", firmware_source,
          docs_source, csr_source,
          "PHC CSR crossing enable must be driven directly by "
-         "cfg_ptp_enable", None, None, phc_consumer_gated_by_adp),
+         "cfg_ptp_enable", MutantFiles(datapath=phc_consumer_gated_by_adp)),
         ("PHC crossing increment gated by ADP", firmware_source,
          docs_source, csr_source,
          "PHC CSR-crossing controls and readback must remain direct and "
-         "independent", None, None, phc_increment_gated_by_adp),
+         "independent", MutantFiles(datapath=phc_increment_gated_by_adp)),
         ("effective PHC frequency adjustment gated by ADP", firmware_source,
          docs_source, csr_source,
          "effective PHC adjustment must select only gPTP or CSR control",
-         None, None, phc_effective_adjust_gated_by_adp),
+         MutantFiles(datapath=phc_effective_adjust_gated_by_adp)),
         ("effective PHC offset gated by ADP", firmware_source,
          docs_source, csr_source,
          "effective PHC offset must select only gPTP or CSR control",
-         None, None, phc_effective_offset_gated_by_adp),
+         MutantFiles(datapath=phc_effective_offset_gated_by_adp)),
         ("effective PHC adjustment strobe gated by ADP", firmware_source,
          docs_source, csr_source,
          "effective PHC adjust strobe must select only gPTP or CSR control",
-         None, None, phc_effective_strobe_gated_by_adp),
+         MutantFiles(datapath=phc_effective_strobe_gated_by_adp)),
         ("PHC counter gtx reset gated by ADP", firmware_source,
          docs_source, csr_source,
          "PHC CSR-crossing and counter clocks and resets must be direct",
-         None, None, gptp_gated_timestamp_gtx_reset),
+         MutantFiles(datapath=gptp_gated_timestamp_gtx_reset)),
         ("PHC crossing axis reset gated by ADP", firmware_source,
          docs_source, csr_source,
          "PHC CSR-crossing and counter clocks and resets must be direct",
-         None, None, gptp_gated_timestamp_axis_reset),
+         MutantFiles(datapath=gptp_gated_timestamp_axis_reset)),
         #: the ptp_ts_top RX ingress/ready mutations lost their subject in
         #: 915cbcc3; the ready direction survives as the boundary-assignment
         #: gate below and the valid direction as "external MAC RX valid
@@ -7708,85 +7974,89 @@ def test_baremetal_profile_contract():
         ("external MAC RX ready gated by ADP", firmware_source,
          docs_source, csr_source,
          "external MAC RX handshake must drive rx_axis_from_mac directly",
-         None, None, gptp_gated_external_rx_ready),
+         MutantFiles(datapath=gptp_gated_external_rx_ready)),
         ("enabled RX-filter ingress valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_ingress),
+         "directly", MutantFiles(datapath=gptp_gated_filter_ingress)),
         ("enabled RX-filter clock gated by ADP", firmware_source,
          docs_source, csr_source,
          "MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_clock),
+         "directly", MutantFiles(datapath=gptp_gated_filter_clock)),
         ("enabled RX-filter reset gated by ADP", firmware_source,
          docs_source, csr_source,
          "MAC RX must traverse the enabled RX-filter arm "
-         "directly", None, None, gptp_gated_filter_reset),
+         "directly", MutantFiles(datapath=gptp_gated_filter_reset)),
         ("RX-filter default policy gated by ADP", firmware_source,
          docs_source, csr_source,
          "reset-time RX filter policy must remain independent of ADP",
-         None, None, gptp_filter_policy_gated_by_adp),
+         MutantFiles(datapath=gptp_filter_policy_gated_by_adp)),
         ("bypass RX-filter ingress valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "MAC RX must traverse the bypass RX-filter arm "
-         "directly", None, None, gptp_gated_filter_bypass),
+         "directly", MutantFiles(datapath=gptp_gated_filter_bypass)),
         ("fabric gPTP reset gated by ADP", firmware_source, docs_source,
          csr_source,
          "fabric gPTP RX and control inputs must observe the live datapath "
-         "directly", None, None, gptp_gated_datapath),
+         "directly", MutantFiles(datapath=gptp_gated_datapath)),
         ("fabric gPTP ingress valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "fabric gPTP RX and control inputs must observe the live datapath "
-         "directly", None, None, gptp_gated_ingress),
+         "directly", MutantFiles(datapath=gptp_gated_ingress)),
         ("fabric gPTP local egress valid gated by ADP", firmware_source,
          docs_source, csr_source,
-         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
-         gptp_gated_local_egress),
+         "fabric gPTP TX must traverse gptp_ctl_mux directly",
+         MutantFiles(datapath=gptp_gated_local_egress)),
         ("fabric gPTP control-mux reset gated by ADP", firmware_source,
          docs_source, csr_source,
-         "fabric gPTP TX must traverse gptp_ctl_mux directly", None, None,
-         gptp_gated_control_mux_reset),
+         "fabric gPTP TX must traverse gptp_ctl_mux directly",
+         MutantFiles(datapath=gptp_gated_control_mux_reset)),
         ("fabric gPTP MAC-boundary valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "fabric gPTP control output must reach the MAC-boundary arbiter "
-         "directly", None, None, gptp_gated_boundary_egress),
+         "directly", MutantFiles(datapath=gptp_gated_boundary_egress)),
         ("fabric gPTP boundary-mux reset gated by ADP", firmware_source,
          docs_source, csr_source,
          "fabric gPTP control output must reach the MAC-boundary arbiter "
-         "directly", None, None, gptp_gated_boundary_mux_reset),
+         "directly", MutantFiles(datapath=gptp_gated_boundary_mux_reset)),
         ("external MAC TX valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None, gptp_gated_external_tx),
+         "tx_axis_to_mac", MutantFiles(datapath=gptp_gated_external_tx)),
         ("external MAC TX valid hidden behind a resolved second driver",
          firmware_source, docs_source, csr_source,
          "external MAC handshake ports must retain sole-driver/reference "
-         "ownership", None, None, gptp_wand_second_driver_external_tx),
+         "ownership",
+         MutantFiles(datapath=gptp_wand_second_driver_external_tx)),
         ("commented direct TX decoy with live macro gate", firmware_source,
          docs_source, csr_source,
          "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None, gptp_commented_external_tx),
+         "SystemVerilog text",
+         MutantFiles(datapath=gptp_commented_external_tx)),
         ("direct TX connection made an inactive conditional", firmware_source,
          docs_source, csr_source,
          "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None, gptp_inactive_external_tx),
+         "SystemVerilog text",
+         MutantFiles(datapath=gptp_inactive_external_tx)),
         ("direct TX connection put in an inactive static generate arm",
          firmware_source, docs_source, csr_source,
          "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None, gptp_static_generate_external_tx),
+         "tx_axis_to_mac",
+         MutantFiles(datapath=gptp_static_generate_external_tx)),
         ("direct TX decoy selected by mid-line compiler directives",
          firmware_source, docs_source, csr_source,
          "datapath integration proof requires unconditional live "
-         "SystemVerilog text", None, None,
-         gptp_midline_directive_external_tx),
+         "SystemVerilog text",
+         MutantFiles(datapath=gptp_midline_directive_external_tx)),
         ("direct TX decoy selected by an implicit conditional generate",
          firmware_source, docs_source, csr_source,
          "external MAC TX handshake must be driven directly by "
-         "tx_axis_to_mac", None, None,
-         gptp_implicit_generate_external_tx),
+         "tx_axis_to_mac",
+         MutantFiles(datapath=gptp_implicit_generate_external_tx)),
         ("external MAC RX valid gated by ADP", firmware_source,
          docs_source, csr_source,
          "external MAC RX handshake must drive rx_axis_from_mac directly",
-         None, None, gptp_gated_external_rx),
+         MutantFiles(datapath=gptp_gated_external_rx)),
         # ---- the preprocessor: this gate reads one arm, the compiler takes
         # the other, and the arm it reads is the safe one by construction.
         ("AEM guard selected by a build flag", preprocessor_guard,
@@ -7837,19 +8107,22 @@ def test_baremetal_profile_contract():
         # object is every rule above voided at once. make builds a VARIABLE,
         # so each of its assignment flavours is its own way to add one.
         ("second translation unit listed on the OBJECTS line", firmware_source,
-         docs_source, csr_source, both_objects, listed_objects),
+         docs_source, csr_source, both_objects,
+         MutantFiles(makefile=listed_objects)),
         ("second translation unit appended with OBJECTS +=", firmware_source,
-         docs_source, csr_source, both_objects, appended_objects),
+         docs_source, csr_source, both_objects,
+         MutantFiles(makefile=appended_objects)),
         ("second translation unit on an OBJECTS continuation line",
          firmware_source, docs_source, csr_source,
-         both_objects, continued_objects),
+         both_objects, MutantFiles(makefile=continued_objects)),
         ("object list this gate cannot evaluate", firmware_source,
          docs_source, csr_source,
-         "must stay ONE translation unit", wildcard_objects),
+         "must stay ONE translation unit",
+         MutantFiles(makefile=wildcard_objects)),
         ("second object archived past the OBJECTS list", firmware_source,
          docs_source, csr_source,
          "make must build and archive exactly the one object",
-         archived_objects),
+         MutantFiles(makefile=archived_objects)),
         # ---- one OBJECT is not one FILE. Each of these keeps the object
         # list at exactly one, so the rules above pass honestly while the
         # closure reads text that is not the whole translation unit.
@@ -7898,37 +8171,43 @@ def test_baremetal_profile_contract():
         # ---- and RESOLUTION: a pinned NAME is not a pinned FILE.
         ("pinned include shadowed by a file beside the firmware",
          firmware_source, docs_source, csr_source,
-         "the firmware's directory is pinned to", None,
-         shadowed_quoted_include),
+         "the firmware's directory is pinned to",
+         MutantFiles(listing=shadowed_quoted_include)),
         ("pinned include shadowed by an added -I search path",
          firmware_source, docs_source, csr_source,
-         "the commands make would run are pinned", shadowed_search_path),
+         "the commands make would run are pinned",
+         MutantFiles(makefile=shadowed_search_path)),
         ("object list the environment can override", firmware_source,
          docs_source, csr_source,
-         "lets the ENVIRONMENT decide what gets compiled", environment_objects),
+         "lets the ENVIRONMENT decide what gets compiled",
+         MutantFiles(makefile=environment_objects)),
         ("second file injected through -Wp, the preprocessor pass-through",
          firmware_source, docs_source, csr_source,
-         "the commands make would run are pinned", preprocessor_passthrough),
+         "the commands make would run are pinned",
+         MutantFiles(makefile=preprocessor_passthrough)),
         ("second file injected through a response file", firmware_source,
          docs_source, csr_source,
-         "the commands make would run are pinned", response_file_injection),
+         "the commands make would run are pinned",
+         MutantFiles(makefile=response_file_injection)),
         ("search path added through the -iprefix chain", firmware_source,
          docs_source, csr_source,
-         "the commands make would run are pinned", prefixed_search_path),
+         "the commands make would run are pinned",
+         MutantFiles(makefile=prefixed_search_path)),
         ("second file injected through the CC tool variable", firmware_source,
          docs_source, csr_source,
-         "the commands make would run are pinned", tool_variable_injection),
+         "the commands make would run are pinned",
+         MutantFiles(makefile=tool_variable_injection)),
         ("search path added through the CC tool variable", firmware_source,
          docs_source, csr_source,
          "the commands make would run are pinned",
-         tool_variable_search_path),
+         MutantFiles(makefile=tool_variable_search_path)),
         #: #162's flag half: refused by the origin probe, the ONE instrument
         #: that can see it -- the recipe pin and the hostile double-run were
         #: both measured blind to it before this round.
         ("compile flags deferred to an undefined environment name",
          firmware_source, docs_source, csr_source,
          "defers a pinned-recipe input to the environment",
-         env_deferred_flags),
+         MutantFiles(makefile=env_deferred_flags)),
         #: ... and the round-two evasions of that probe, permanent. The
         #: first is pinned on the computed-name refusal, the instrument
         #: built for it; the second on the origin refusal, which the parsed
@@ -7936,28 +8215,31 @@ def test_baremetal_profile_contract():
         ("compile flags routed through a computed variable name",
          firmware_source, docs_source, csr_source,
          "computes a variable NAME at expansion time",
-         computed_deferred_flags),
+         MutantFiles(makefile=computed_deferred_flags)),
         ("compile flags deferred to the environment through a define body",
          firmware_source, docs_source, csr_source,
          "defers a pinned-recipe input to the environment",
-         define_deferred_flags),
+         MutantFiles(makefile=define_deferred_flags)),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
-         quoted_search_path),
+         MutantFiles(makefile=quoted_search_path)),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", linked_objects),
+         "make must compile exactly one source",
+         MutantFiles(makefile=linked_objects)),
         ("objects added by a Makefile fragment this gate does not read",
          firmware_source, docs_source, csr_source,
-         "the Makefile's include set is pinned", fragment_objects),
+         "the Makefile's include set is pinned",
+         MutantFiles(makefile=fragment_objects)),
         # ... and pinning the rule is not pinning what the rule compiles.
         ("second source injected by a -include compiler flag",
          firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", injected_source),
+         "make must compile exactly one source",
+         MutantFiles(makefile=injected_source)),
         ("compile recipe redefined to take a second source", firmware_source,
          docs_source, csr_source, "make must compile exactly one source",
-         recompiled_objects),
+         MutantFiles(makefile=recompiled_objects)),
         # A `vpath %.c` mutant used to sit here and it is RETIRED, not
         # lost: the plan shows it changes nothing for this build. The
         # reason, stated precisely because the first attempt was overbroad:
@@ -7968,16 +8250,18 @@ def test_baremetal_profile_contract():
         # ... behind make's other modifier keywords, and target-specific.
         ("second source injected by an exported assignment", firmware_source,
          docs_source, csr_source,
-         "make must compile exactly one source", exported_injection),
+         "make must compile exactly one source",
+         MutantFiles(makefile=exported_injection)),
         ("second source injected by a target-specific assignment",
          firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", target_injection),
+         "make must compile exactly one source",
+         MutantFiles(makefile=target_injection)),
         # ... and the producing rule's own prerequisite variable, pointed at
         # a different tree entirely.
         ("the compiled source directory moved out from under the rule",
          firmware_source, docs_source, csr_source,
          "make could not plan this Makefile",
-         shadowed_source_dir),
+         MutantFiles(makefile=shadowed_source_dir)),
         # CORRECTION. Round nine retired a `MAKEFLAGS += -e` mutant here on
         # the claim that `-e` inside a Makefile does not change what that
         # run expands. That measurement was WRONG: on GNU make 4.4.1 it
@@ -8005,10 +8289,12 @@ def test_baremetal_profile_contract():
          docs_source, csr_source, "the firmware's inline asm is pinned"),
         ("one object linked from two sources by literally named tools",
          firmware_source, docs_source, csr_source,
-         "make must compile exactly one source", literal_tool_rule),
+         "make must compile exactly one source",
+         MutantFiles(makefile=literal_tool_rule)),
         ("second object archived by a literally named ar", firmware_source,
          docs_source, csr_source,
-         "make must compile exactly one source", literal_tool_archive),
+         "make must compile exactly one source",
+         MutantFiles(makefile=literal_tool_archive)),
         ("ADP_CTRL reset written blocking with the enable bit set",
          firmware_source, docs_source, blocking_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
@@ -8134,7 +8420,7 @@ def test_baremetal_profile_contract():
             ("MAKEFLAGS += -e letting the environment choose", firmware_source,
              docs_source, csr_source,
              "lets the ENVIRONMENT decide what gets compiled",
-             env_override_flags),
+             MutantFiles(makefile=env_override_flags)),
         )
     else:
         #: Registered, like the census and Verilator arms, because dropping
@@ -8601,11 +8887,11 @@ def test_baremetal_profile_contract():
             path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
             try:
                 changed = eb.build(path, td)
-                image = open(changed["paths"]["gptp_ucode"], "rb").read()
+                image = Path(changed["paths"]["gptp_ucode"]).read_bytes()
                 assert image != base_ucode, \
                     f"{label}: mutation did not reach gptp_ucode.hex"
             finally:
-                os.unlink(path)
+                path.unlink()
     print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
           "MAC, priority1 and fabric clock")
 
@@ -8633,12 +8919,14 @@ def test_baremetal_profile_contract():
                          str(pins[field]), "gen_gptp_ucode.py"):
                 assert part in str(e), f"refused, but without {part!r}: {e}"
         finally:
-            os.unlink(bad)
+            bad.unlink()
     print(f"  [gate 1b] the {len(pinned)} engine-pinned gptp fields REFUSE "
           "a divergent config value, naming field, both values and "
           "gen_gptp_ucode.py as the authority")
 
-    def set_soc(key, value):
+    def set_soc(key: str, value: Any) -> Callable[[dict[str, Any]], None]:
+        """One `soc.<key> = value` edit, as the refusal table below spells a
+        mutation: a callable handed the parsed config to change in place."""
         return lambda c: c.setdefault("soc", {}).__setitem__(key, value)
 
     cases = (
@@ -8668,12 +8956,12 @@ def test_baremetal_profile_contract():
             else:
                 raise AssertionError(f"{label}: incompatible profile was accepted")
         finally:
-            os.unlink(path)
+            path.unlink()
     print(f"  [gate 1b] {len(cases)}/{len(cases)} incompatible CPU/cache/flash "
           "profiles rejected before SoC generation")
 
 
-def test_gptp_product_default_and_legacy_option():
+def test_gptp_product_default_and_legacy_option() -> None:
     """Gate 1c: fabric ownership is the product default and only config value."""
     default_cfg = _variant(
         CONFIGS["ax7101_1x1_tdm8"],
@@ -8686,7 +8974,7 @@ def test_gptp_product_default_and_legacy_option():
             assert "--no-fabric-gptp" not in result["argv"]
             assert "gptp_ucode" in result["paths"]
     finally:
-        os.unlink(default_cfg)
+        default_cfg.unlink()
 
     disabled = _variant(
         CONFIGS["ax7101_1x1_tdm8"],
@@ -8699,39 +8987,42 @@ def test_gptp_product_default_and_legacy_option():
         else:
             raise AssertionError("option-off product configuration was accepted")
     finally:
-        os.unlink(disabled)
+        disabled.unlink()
 
-    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    soc_source = (ROOT / "sw/litex/milan_soc.py").read_text()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
     assert 'self._gptp_owner = "software"' not in soc_source
     for launcher in ("sw/litex/sweep.sh", "sw/litex/build.sh",
                      "sw/litex/sweep_extra.sh"):
-        source = open(os.path.join(ROOT, launcher)).read()
+        source = (ROOT / launcher).read_text()
         assert "--fabric-gptp" in source
         assert "--no-fabric-gptp" not in source
     print("  [gate 1c] fabric ownership is the only product configuration")
 
 
-def test_qspi_owner_transition_completed_write_prefixes():
+def test_qspi_owner_transition_completed_write_prefixes() -> None:
     """Gate 1e: every supported persistent write prefix has one owner.
 
     #259: the one supported persistent image set is the fabric-owned
     bare-metal {bitstream, aem} pair and the one transition is its refresh.
     Unsupported owners and malformed layouts refuse with zero programmer
     I/O, and the compiled CPU-width binding fails closed."""
-    with tempfile.TemporaryDirectory() as td:
-        fake_bin = os.path.join(td, "bin")
-        os.makedirs(fake_bin)
-        qspi = os.path.join(td, "qspi.bin")
-        log = os.path.join(td, "programmer.log")
-        count = os.path.join(td, "programmer.count")
-        deploy_tmp = os.path.join(td, "deploy-tmp")
-        os.makedirs(deploy_tmp)
+    with tempfile.TemporaryDirectory() as tmp:
+        #: Every path here is a `Path`; the `str()` calls below are the two
+        #: boundaries that need one - `env=` values and argv, both of which
+        #: are `str`-only to the spawn.
+        td = Path(tmp)
+        fake_bin = td / "bin"
+        fake_bin.mkdir()
+        qspi = td / "qspi.bin"
+        log = td / "programmer.log"
+        count = td / "programmer.count"
+        deploy_tmp = td / "deploy-tmp"
+        deploy_tmp.mkdir()
 
-        fake_ofl = os.path.join(fake_bin, "openFPGALoader")
-        with open(fake_ofl, "w", encoding="utf-8") as stream:
-            stream.write(r'''#!/usr/bin/env python3
+        fake_ofl = fake_bin / "openFPGALoader"
+        fake_ofl.write_text(r'''#!/usr/bin/env python3
 import os, struct, sys
 
 args = sys.argv[1:]
@@ -8802,15 +9093,14 @@ with open(log, "a", encoding="utf-8") as trace:
     trace.write(f"WRITE\t{index}\t{off}\tverify\t{os.path.basename(source_path)}\n")
 if int(os.environ.get("OFL_FAIL_AFTER", "0")) == index:
     raise SystemExit(92)
-''')
-        os.chmod(fake_ofl, 0o755)
+''', encoding="utf-8")
+        fake_ofl.chmod(0o755)
 
         # This gate intentionally has no LiteX dependency. Implement only the
         # crcfbigen output boundary and delegate every checker/planner command
         # to the real interpreter.
-        fake_python = os.path.join(fake_bin, "fixture-python")
-        with open(fake_python, "w", encoding="utf-8") as stream:
-            stream.write(f'''#!{sys.executable}
+        fake_python = fake_bin / "fixture-python"
+        fake_python.write_text(f'''#!{sys.executable}
 import binascii, os, struct, sys
 if sys.argv[1:3] == ["-m", "litex.soc.software.crcfbigen"]:
     source = sys.argv[3]
@@ -8821,17 +9111,22 @@ if sys.argv[1:3] == ["-m", "litex.soc.software.crcfbigen"]:
         sink.write(data)
     raise SystemExit(0)
 os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
-''')
-        os.chmod(fake_python, 0o755)
+''', encoding="utf-8")
+        fake_python.chmod(0o755)
 
-        def make_build(name, owner, serial_payload, manifest="baremetal",
-                       extra_rows=(), cpu_xlen=32):
-            build = os.path.join(td, name)
-            os.makedirs(os.path.join(build, "gateware"))
-            bit = os.path.join(build, "gateware", "alinx_ax7101.bit")
+        def make_build(name: str, owner: str, serial_payload: bytes,
+                       manifest: str = "baremetal",
+                       extra_rows: tuple[dict[str, Any], ...] = (),
+                       cpu_xlen: int | None = 32) -> dict[str, Any]:
+            """One staged build tree - gateware bitstream, AEM image and the
+            flashboot layout binding both - plus what the arms below need to
+            reset the fake flash to it and to recognise it once live."""
+            build = td / name
+            (build / "gateware").mkdir(parents=True)
+            bit = build / "gateware" / "alinx_ax7101.bit"
             payload = (b"\xff" * 16 + b"\xaa\x99\x55\x66" + serial_payload)
             qspi_transition._fake_bit(bit, payload, name.encode())
-            layout = os.path.join(build, "flashboot_layout.json")
+            layout = build / "flashboot_layout.json"
             images = [
                 {"name": "bitstream", "offset": 0, "budget": 0x400000},
                 {"name": "aem", "offset": 0x400000, "budget": 0x10000},
@@ -8840,9 +9135,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                     "complete": False, "images": images}
             if cpu_xlen is not None:
                 body["cpu_xlen"] = cpu_xlen
-            aem = os.path.join(build, "aem_desc.bin")
-            with open(aem, "wb") as out:
-                out.write(b"AEMI" + serial_payload)
+            aem = build / "aem_desc.bin"
+            aem.write_bytes(b"AEMI" + serial_payload)
             body.update(qspi_transition.bitstream_binding(bit))
             body.update(qspi_transition.aem_image_binding(aem))
             with open(layout, "w", encoding="utf-8") as out:
@@ -8874,35 +9168,38 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 
         base_env = dict(os.environ)
         base_env.update({
-            "PATH": fake_bin + os.pathsep + base_env.get("PATH", ""),
-            "PYTHON": fake_python,
+            "PATH": f"{fake_bin}{os.pathsep}{base_env.get('PATH', '')}",
+            "PYTHON": str(fake_python),
             "SERIAL": "TEST-SERIAL", "AX_FTDI": "TEST-SERIAL",
             "CABLE": "ft232", "FPGA_PART": "xc7a100tfgg484",
-            "OFL_QSPI": qspi, "OFL_LOG": log, "OFL_COUNT": count,
+            "OFL_QSPI": str(qspi), "OFL_LOG": str(log),
+            "OFL_COUNT": str(count),
             "OFL_EXPECT_SERIAL": "TEST-SERIAL",
-            "TMPDIR": deploy_tmp,
+            "TMPDIR": str(deploy_tmp),
         })
 
-        def reset_flash(source):
+        def reset_flash(source: dict[str, Any]) -> None:
+            """Put the fake QSPI back to `source`'s bitstream and AEM and drop
+            the programmer log, so every arm starts from one known owner."""
             with open(qspi, "wb") as flash:
                 flash.truncate(16 * 1024 * 1024)
                 flash.seek(0)
                 flash.write(source["payload"])
-                with open(os.path.join(source["dir"], "aem_desc.bin"),
-                          "rb") as artifact:
-                    flash.seek(0x400000)
-                    flash.write(artifact.read())
+                flash.seek(0x400000)
+                flash.write((source["dir"] / "aem_desc.bin").read_bytes())
             for path in (log, count):
-                try:
-                    os.unlink(path)
-                except FileNotFoundError:
-                    pass
+                path.unlink(missing_ok=True)
 
-        def env_for(source, target, fail_kind=None, fail_index=0):
+        def env_for(source: dict[str, Any], target: dict[str, Any],
+                    fail_kind: str | None = None,
+                    fail_index: int = 0) -> dict[str, str]:
+            """The deploy environment for one source -> target pair, carrying at
+            most the ONE injected abort `fail_kind`/`fail_index` name."""
             env = dict(base_env)
-            env.update({"INSTALLED_LAYOUT": source["layout"],
-                        "INSTALLED_BIT": source["bit"],
-                        "LAYOUT": target["layout"], "BIT": target["bit"],
+            env.update({"INSTALLED_LAYOUT": str(source["layout"]),
+                        "INSTALLED_BIT": str(source["bit"]),
+                        "LAYOUT": str(target["layout"]),
+                        "BIT": str(target["bit"]),
                         "EXPECTED_GPTP_OWNER": target["owner"]})
             env.pop("OFL_FAIL_BEFORE", None)
             env.pop("OFL_FAIL_AFTER", None)
@@ -8912,42 +9209,61 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
                 env[f"OFL_FAIL_{fail_kind.upper()}"] = str(fail_index)
             return env
 
-        deploy = os.path.join(SOC_DIR, "deploy.sh")
+        deploy = SOC_DIR / "deploy.sh"
 
-        def invoke_deploy(argv, env):
+        def invoke_deploy(argv: list[str],
+                          env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+            """Run one deploy invocation, and require it to leave no staged
+            artifact behind whatever its exit status."""
             result = subprocess.run(argv, cwd=SOC_DIR, env=env, text=True,
                                     capture_output=True)
-            leaked = os.listdir(deploy_tmp)
+            leaked = [entry.name for entry in deploy_tmp.iterdir()]
             assert not leaked, (
                 f"deploy transaction leaked staged artifacts after rc "
                 f"{result.returncode}: {leaked}\n{result.stdout}{result.stderr}")
             return result
 
-        def run_pair(source, target, fail_kind=None, fail_index=0,
-                     reset=True, named=False, env_over=None):
+        def run_pair(source: dict[str, Any], target: dict[str, Any],
+                     fail: tuple[str, int] | None = None,
+                     reset: bool = True, named: bool = False,
+                     env_over: dict[str, str] | None = None,
+                     ) -> subprocess.CompletedProcess[str]:
+            """One source -> target flash-pair run, reached either through
+            deploy.sh or through the named build.sh launcher."""
+            # `fail` is the ONE injected abort as the (kind, index) pair
+            # env_for() spells it with, or None for an uninjected run. The
+            # two travel together at every call site and are meaningless
+            # apart: an index without a kind injects nothing.
+            fail_kind, fail_index = (None, 0) if fail is None else fail
             if reset:
                 reset_flash(source)
             env = env_for(source, target, fail_kind, fail_index)
             if env_over:
                 env.update(env_over)
             if named:
-                argv = [BUILD_SH, "flash", f"ax7101:{target['dir']}"]
+                argv = [str(BUILD_SH), "flash", f"ax7101:{target['dir']}"]
             else:
-                argv = [deploy, "flash-pair"]
+                argv = [str(deploy), "flash-pair"]
             return invoke_deploy(argv, env)
 
-        def writes():
-            if not os.path.exists(log):
+        def writes() -> list[tuple[int, int, str, str]]:
+            """Every WRITE the fake programmer logged, in order. No log at all
+            is no writes, which is how "never reached I/O" is proved."""
+            if not log.exists():
                 return []
             rows = []
-            for line in open(log, encoding="utf-8"):
-                fields = line.rstrip("\n").split("\t")
-                if fields[0] == "WRITE":
-                    rows.append((int(fields[1]), int(fields[2]),
-                                 fields[3], fields[4]))
+            with open(log, encoding="utf-8") as handle:
+                for line in handle:
+                    fields = line.rstrip("\n").split("\t")
+                    if fields[0] == "WRITE":
+                        rows.append((int(fields[1]), int(fields[2]),
+                                     fields[3], fields[4]))
             return rows
 
-        def live_bit(source, target):
+        def live_bit(source: dict[str, Any],
+                     target: dict[str, Any]) -> dict[str, Any]:
+            """Which of the two builds the flash would boot, refusing to answer
+            unless EXACTLY one owner's prefix is live."""
             with open(qspi, "rb") as flash:
                 live = flash.read(max(len(source["payload"]),
                                       len(target["payload"])))
@@ -8975,8 +9291,8 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         # the immutable staged copy, never reopen the rebuilt source path.
         swapped = run_pair(
             fabric, mutable_target,
-            env_over={"OFL_MUTATE_BIT": mutable_target["bit"],
-                      "OFL_MUTATE_FROM": replacement_target["bit"]})
+            env_over={"OFL_MUTATE_BIT": str(mutable_target["bit"]),
+                      "OFL_MUTATE_FROM": str(replacement_target["bit"])})
         assert swapped.returncode == 0, swapped.stdout + swapped.stderr
         assert live_bit(fabric, mutable_target) is mutable_target, \
             "flash-pair programmed a bitstream replaced after validation"
@@ -8984,7 +9300,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         checked_prefixes = 0
         for kind in ("before", "after"):
             for index in range(1, total + 1):
-                failed = run_pair(fabric, fabric2, kind, index)
+                failed = run_pair(fabric, fabric2, (kind, index))
                 assert failed.returncode != 0, failed.stdout + failed.stderr
                 prefix = writes()
                 expected = index - 1 if kind == "before" else index
@@ -9017,21 +9333,24 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         # Whole-set preparation happens before even read-only programmer I/O.
         reset_flash(fabric)
         missing_env = env_for(fabric, fabric2)
-        missing_env["AEM"] = os.path.join(td, "missing-aem.bin")
-        missing = invoke_deploy([deploy, "flash-pair"], missing_env)
+        missing_env["AEM"] = str(td / "missing-aem.bin")
+        missing = invoke_deploy([str(deploy), "flash-pair"], missing_env)
         assert missing.returncode != 0
         assert not writes(), "missing AEM artifact caused a programmer write"
-        assert not os.path.exists(log), \
+        assert not log.exists(), \
             "missing AEM artifact caused read-only programmer I/O"
 
-        def refuse_before_io(label, source, target, needle):
+        def refuse_before_io(label: str, source: dict[str, Any],
+                             target: dict[str, Any], needle: str) -> None:
+            """One refusal arm: the deploy must decline, say `needle` while
+            doing so, and never reach programmer I/O at all."""
             reset_flash(source)
             refused = invoke_deploy(
-                [deploy, "flash-pair"], env_for(source, target))
+                [str(deploy), "flash-pair"], env_for(source, target))
             output = refused.stdout + refused.stderr
             assert refused.returncode != 0, f"{label}: accepted\n{output}"
             assert needle in output, f"{label}: no {needle!r}\n{output}"
-            assert not os.path.exists(log), \
+            assert not log.exists(), \
                 f"{label} reached programmer I/O"
 
         refuse_before_io("ownerless bare-metal target", fabric, none_owner,
@@ -9051,11 +9370,12 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             reset_flash(fabric)
             recovery_env = env_for(fabric, malformed)
             recovery_env["ALLOW_NONATOMIC_FLASH"] = "1"
-            refused = invoke_deploy([deploy, recovery_step], recovery_env)
+            refused = invoke_deploy([str(deploy), recovery_step],
+                                    recovery_env)
             assert refused.returncode != 0, (
                 f"{recovery_step}: malformed layout accepted\n"
                 f"{refused.stdout}{refused.stderr}")
-            assert not os.path.exists(log), \
+            assert not log.exists(), \
                 f"{recovery_step}: malformed layout reached programmer I/O"
 
         # The compiled CPU width binds fail-closed ([R0] on PR #228): a
@@ -9068,19 +9388,18 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             with open(fabric2["layout"], encoding="utf-8") as source:
                 unbound_body = json.load(source)
             mutate_xlen(unbound_body)
-            unbound_layout = os.path.join(fabric2["dir"],
-                                          "unbound-layout.json")
+            unbound_layout = fabric2["dir"] / "unbound-layout.json"
             with open(unbound_layout, "w", encoding="utf-8") as out:
                 json.dump(unbound_body, out)
             reset_flash(fabric)
             env = env_for(fabric, fabric2)
-            env["LAYOUT"] = unbound_layout
-            refused = invoke_deploy([deploy, "flash-pair"], env)
+            env["LAYOUT"] = str(unbound_layout)
+            refused = invoke_deploy([str(deploy), "flash-pair"], env)
             output = refused.stdout + refused.stderr
             assert refused.returncode != 0, f"{label}: accepted\n{output}"
             assert "compiled CPU width" in output, f"{label}\n{output}"
-            assert not os.path.exists(log), f"{label} reached programmer I/O"
-            os.unlink(unbound_layout)
+            assert not log.exists(), f"{label} reached programmer I/O"
+            unbound_layout.unlink()
 
         # Persistent targets are identity evidence, never an mtime-selected
         # convenience default.  Omission must fail before live QSPI access.
@@ -9088,9 +9407,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
             reset_flash(fabric)
             omitted_env = env_for(fabric, fabric2)
             omitted_env.pop(omitted)
-            refused = invoke_deploy([deploy, "flash-pair"], omitted_env)
+            refused = invoke_deploy([str(deploy), "flash-pair"], omitted_env)
             assert refused.returncode != 0
-            assert not os.path.exists(log), \
+            assert not log.exists(), \
                 f"missing target {omitted} caused programmer I/O"
 
         # A mutable owner string cannot substitute for exact live QSPI proof.
@@ -9098,7 +9417,7 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
         with open(qspi, "r+b") as flash:
             flash.write(b"\x00" * len(fabric["payload"]))
         mismatch = invoke_deploy(
-            [deploy, "flash-pair"], env_for(fabric, fabric2))
+            [str(deploy), "flash-pair"], env_for(fabric, fabric2))
         assert mismatch.returncode != 0
         assert not writes(), "unidentified live bitstream caused a write"
 
@@ -9119,7 +9438,9 @@ os.execv({sys.executable!r}, [{sys.executable!r}] + sys.argv[1:])
 
 
 
-def test_current_shape_matches_sweep_flags():
+def test_current_shape_matches_sweep_flags() -> None:
+    """Gate 2: the shipping Arty and AX shapes emit EXACTLY the design
+    flags sweep.sh composes for their boards, flow flags excluded."""
     # The shipping Arty shape is the 4x4 tdm8-master since 2026-07-28 (the
     # 8.3b flash decision); sweep.sh's arty table says so, and this gate
     # compares like against like. arty_current remains a valid config (and
@@ -9181,7 +9502,10 @@ def test_current_shape_matches_sweep_flags():
               f"({len(got)} flags, --eth-port {got['--eth-port'][0]} == the config)")
 
 
-def test_current_shape_matches_gen_aem_store():
+def test_current_shape_matches_gen_aem_store() -> None:
+    """Gate 3: arty_current's overlay and the hand-written model in
+    gen_aem_store.py agree descriptor for descriptor, format for
+    format, rate for rate and port for port."""
     import gen_aem_store as g  # ROM assembles at import; writes only in main
     rom_counts = {}
     for (t, i, _b, _l) in g.directory:
@@ -9217,7 +9541,11 @@ def test_current_shape_matches_gen_aem_store():
           f"rates, port layout)")
 
 
-def test_capability_marks():
+def test_capability_marks() -> None:
+    """Gate 4: every capability mark states the FABRIC fact. A declared
+    front-end nothing drives is a planned mark naming the missing
+    half; a mastered one is supported and names the master module;
+    the deployed shape carries no planned mark at all."""
     r = eb.build(CONFIGS["arty_current"], OUT)
     planned = [m for m in r["marks"] if m[1].startswith("planned")]
     assert planned == [], f"current shape must be fully supported: {planned}"
@@ -9287,7 +9615,7 @@ def test_capability_marks():
         try:
             r = eb.build(v, OUT)
         finally:
-            os.unlink(v)
+            v.unlink()
         serdes = [m for m in r["marks"] if m[0].endswith("ser/des")]
         assert serdes and serdes[0][1] == "supported" \
             and eb.AES3_RX_MODULE in serdes[0][2] \
@@ -9304,8 +9632,10 @@ def test_capability_marks():
     print("  [gate 4] arty_current: zero planned marks")
 
 
-def test_bad_configs_rejected():
-    base = yaml.safe_load(open(CONFIGS["arty_current"]))
+def test_bad_configs_rejected() -> None:
+    """Gate 5: every spot-checked contradictory config raises ConfigError
+    rather than building a shape the board cannot be."""
+    base = yaml.safe_load(CONFIGS["arty_current"].read_text())
     cases = [
         ("phy contradiction", ["board", "constraints", "phy"], "gmii-1g"),
         ("bad interface", ["audio_interface", "kind"], "adat"),
@@ -9326,7 +9656,7 @@ def test_bad_configs_rejected():
         with tempfile.NamedTemporaryFile("w", suffix=".yaml",
                                          delete=False) as f:
             yaml.safe_dump(c, f)
-            p = f.name
+            p = Path(f.name)
         try:
             try:
                 eb.load_config(p)
@@ -9335,12 +9665,14 @@ def test_bad_configs_rejected():
             else:
                 raise AssertionError(f"{label}: accepted invalid config")
         finally:
-            os.unlink(p)
+            p.unlink()
     print(f"  [gate 5] {len(cases)}/{len(cases)} invalid configs rejected "
           "with ConfigError")
 
 
-def test_port_layout_invariants():
+def test_port_layout_invariants() -> None:
+    """Gate 6: every shipped shape holds the per-stream STREAM_PORT
+    layout invariants."""
     shapes = {"arty_current": (1, 1), "arty_4x4": (4, 4), "ax7101_8x8": (8, 8)}
     for name, (nl, nt) in shapes.items():
         r = eb.build(CONFIGS[name], OUT)
@@ -9351,13 +9683,19 @@ def test_port_layout_invariants():
               "invariants hold")
 
 
-def test_both_policies_valid():
+def test_both_policies_valid() -> None:
+    """Gate 7: both cluster policies lay the 4x4 and 8x8 shapes out
+    validly, cap-at-interface actually caps at the interface width,
+    and the legacy-8 layout stays expressible."""
     #: pools are read ONLY by role-pools, so switching a config's policy has
     #: to move them with it - declaring pools under another policy is a
     #: refused config (they would be silently ignored). The task #65 `fabric`
     #: block rides the same rule: it says which POOL SOURCES the build
     #: elaborates, so it is meaningless without pools to source.
-    def set_policy(c, pol):
+    def set_policy(c: dict[str, Any], pol: str) -> None:
+        """Switch a config's cluster policy and move the pool declarations
+        with it: pools under another policy are a REFUSED config, not
+        text that is quietly ignored."""
         cm = c["audio_interface"]["cluster_mapping"]
         cm["policy"] = pol
         if pol == "role-pools":
@@ -9371,15 +9709,17 @@ def test_both_policies_valid():
             p = _variant(CONFIGS[name],
                          lambda c, pol=pol: set_policy(c, pol))
             try:
-                r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+                r = eb.build(p, OUT / "_policy_variants")
                 check_port_layout(r["overlay"], nl, nt)
                 assert r["overlay"]["cluster_policy"] == pol
             finally:
-                os.unlink(p)
+                p.unlink()
         print(f"  [gate 7] {name}: all {len(eb.CLUSTER_POLICIES)} cluster "
               "policies -> valid layouts")
     # cap-at-interface must actually CAP: 8ch listeners on a 2ch i2s
-    def to_i2s(c):
+    def to_i2s(c: dict[str, Any]) -> None:
+        """Recast the AX shape as a two-channel I2S board, so
+        cap-at-interface has something narrower to cap to."""
         c["audio_interface"]["kind"] = "i2s_philips"
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
@@ -9389,33 +9729,38 @@ def test_both_policies_valid():
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
-        r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+        r = eb.build(p, OUT / "_policy_variants")
         check_port_layout(r["overlay"], 8, 8)
         for port in r["overlay"]["stream_ports"]["input"]:
             assert port["clusters"] == 2, f"cap-at-interface did not cap: {port}"
         assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == 8 * 2 + 8 * 2
     finally:
-        os.unlink(p)
+        p.unlink()
     print("  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s "
           "interface (32 clusters total)")
     # cluster-per-stream-channel must NOT cap (legacy-8 expressible)
-    def legacy(c):
+    def legacy(c: dict[str, Any]) -> None:
+        """Put the shape back on the legacy eight-cluster-per-stream layout,
+        which must NOT be capped."""
         set_policy(c, "cluster-per-stream-channel")
         for t in c["streams"]["talkers"]:
             t["clusters"] = 8
     p = _variant(CONFIGS["arty_4x4"], legacy)
     try:
-        r = eb.build(p, os.path.join(OUT, "_policy_variants"))
+        r = eb.build(p, OUT / "_policy_variants")
         check_port_layout(r["overlay"], 4, 4)
         for port in r["overlay"]["stream_ports"]["output"]:
             assert port["clusters"] == 8
     finally:
-        os.unlink(p)
+        p.unlink()
     print("  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout "
           "expressible")
 
 
-def test_model_id_hashing():
+def test_model_id_hashing() -> None:
+    """Gate 8: the hashed entity_model_id is deterministic, OUI-prefixed
+    and shape-sensitive, blind to instance fields, and loses to
+    arty_current's pin - which is the deployed silicon identity."""
     # determinism: same config -> same id (two independent loads)
     a = eb.load_config(CONFIGS["arty_4x4"])
     b = eb.load_config(CONFIGS["arty_4x4"])
@@ -9440,18 +9785,20 @@ def test_model_id_hashing():
         try:
             v2 = eb.load_config(p)["model_id"]["value"]
         finally:
-            os.unlink(p)
+            p.unlink()
         assert v2 not in ids, f"{label}: shape change did not change the id"
         ids.add(v2)
     # board/name changes must NOT change the id (model != instance)
-    def rename(c):
+    def rename(c: dict[str, Any]) -> None:
+        """Change only INSTANCE fields - the entity name and serial - which
+        name a unit rather than a model and must not move the id."""
         c["entity"]["name"] = "Other Name"
         c["entity"]["serial_number"] = "OTHER-9999"
     p = _variant(CONFIGS["arty_4x4"], rename)
     try:
         assert eb.load_config(p)["model_id"]["value"] == a["model_id"]["value"]
     finally:
-        os.unlink(p)
+        p.unlink()
     # 4x4 and 8x8 shapes differ
     e88 = eb.load_config(CONFIGS["ax7101_8x8"])
     assert e88["model_id"]["value"] != a["model_id"]["value"]
@@ -9466,7 +9813,7 @@ def test_model_id_hashing():
           f"arty_current pinned to {DEPLOYED_MODEL_ID}")
 
 
-def sweep_config(board):
+def sweep_config(board: str) -> Path:
     """The end-station config sweep.sh itself builds for <board>, read out of
     its own `CFG=${SWEEP_CFG:-...}` case arm.
 
@@ -9480,19 +9827,22 @@ def sweep_config(board):
     does not, a launch would have quietly built the 1x1 two-channel Arty while
     every artifact said 4x4 TDM8. That is the same shape-downgrade this
     fragment mechanism was added to prevent, wearing the test's own clothes."""
-    txt = open(SWEEP).read()
+    txt = SWEEP.read_text()
     m = re.search(rf'{board}\)\s+NS=\d+;\s+CFG=\$\{{SWEEP_CFG:-([^}}]+)\}};', txt)
     assert m, f"sweep.sh: no CFG case for {board}"
-    return os.path.join(ROOT, m.group(1).strip())
+    return ROOT / m.group(1).strip()
 
 
-def test_sweep_opts_fragments():
+def test_sweep_opts_fragments() -> None:
+    """Gate 9: each generated sweep_opts_<board>.sh reproduces sweep.sh's
+    own inline OPTS/L2 table byte for byte, and sweep.sh and both
+    fragments parse as sh."""
     frag = {}
     for board in ("arty", "ax7101"):
         r = eb.build(sweep_config(board), OUT)
-        p = r["paths"]["sweep_opts"]
-        assert os.path.basename(p) == f"sweep_opts_{board}.sh"
-        txt = open(p).read()
+        p = Path(r["paths"]["sweep_opts"])
+        assert p.name == f"sweep_opts_{board}.sh"
+        txt = p.read_text()
         m = re.search(r'^OPTS="([^"]*)"\n(?:NS=\d+\n)?L2=(\d+)\n',
                       txt, re.M)
         assert m, f"{p}: fragment lacks OPTS/L2"
@@ -9505,7 +9855,7 @@ def test_sweep_opts_fragments():
         print(f"  [gate 9] {board}: generated OPTS/L2 byte-match sweep.sh "
               f"inline table ({len(opts)} chars)")
     for path in [SWEEP] + [p for (_o, _l, p) in frag.values()]:
-        subprocess.run(["sh", "-n", path], check=True)
+        subprocess.run(["sh", "-n", str(path)], check=True)
     print("  [gate 9] sh -n clean: sweep.sh + both fragments")
 
 
@@ -9521,7 +9871,7 @@ def _tracked_owner_config():
     than no gate - that is the 2026-07-27 defect (an 8x8 gateware carrying a
     1x1 descriptor set) with the layers swapped. Read the same `Source :`
     marker check_entity_shape.py reads, and hold whoever owns it to account."""
-    adp = open(os.path.join(ROOT, eb.ADP_SHAPE_REL)).read()
+    adp = (ROOT / eb.ADP_SHAPE_REL).read_text()
     m = re.search(r"//\s*Source\s*:\s*(\S+)", adp)
     assert m, f"{eb.ADP_SHAPE_REL}: no `Source :` marker - cannot tell which "
     src = m.group(1)
@@ -9534,7 +9884,7 @@ def _tracked_owner_config():
         f"tracked config with sw/builder/endstation_builder.py --write-rtl")
 
 
-def test_gen_aem_store_consumes_overlay():
+def test_gen_aem_store_consumes_overlay() -> None:
     """Gate 10: the overlay -> gen_aem_store path is byte-stable.
 
     WHAT MOVED (2026-08-12).  The comparand used to be the TRACKED ROM
@@ -9548,12 +9898,13 @@ def test_gen_aem_store_consumes_overlay():
     disk is asserted about, because there is nothing on disk to assert."""
     owner, owner_path = _tracked_owner_config()
     r = eb.build(owner_path, OUT)
-    with tempfile.TemporaryDirectory() as td:
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
         subprocess.run(
-            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-             "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
             check=True, capture_output=True)
-        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
+        got = (td / "aecp_aem_rom.svh").read_bytes()
         want = r["aem_rom_svh"].encode()
         assert got == want, (
             "the gen_aem_store CLI and the builder's own emit_aem_rom_svh() "
@@ -9562,24 +9913,25 @@ def test_gen_aem_store_consumes_overlay():
         # ...and the CLI writes NOTHING into a deleted RTL destination. A
         # generator that recreates hdl/ieee17221/aecp/gen/ is how a directory
         # nobody compiles comes back and starts looking authoritative.
-        assert not os.path.exists(
-            os.path.join(ROOT, "hdl/ieee17221/aecp")), \
+        assert not (ROOT / "hdl/ieee17221/aecp").exists(), \
             "gen_aem_store recreated hdl/ieee17221/aecp - the AECP plane is " \
             "deleted and nothing may write into it"
-        assert sorted(os.listdir(td)) == ["aecp_aem_rom.svh", "aem_rom.json"], \
-            f"--out-dir emitted unexpected files: {sorted(os.listdir(td))}"
+        emitted = sorted(entry.name for entry in td.iterdir())
+        assert emitted == ["aecp_aem_rom.svh", "aem_rom.json"], \
+            f"--out-dir emitted unexpected files: {emitted}"
         # The DEPLOYED shape's stream descriptors, pinned to the layout Milan
         # v1.2 5.3.3.4 requires. Byte-identity above only proves the two paths
         # agree; it says nothing about what they agree ON, and the layout is
         # the part a controller sees.
-        jd = json.load(open(os.path.join(td, "aem_rom.json")))
+        jd = json.loads((td / "aem_rom.json").read_text())
         n_str = check_stream_layout(bytes.fromhex(jd["rom_hex"]),
                                     jd["directory"], owner)
         print(f"  [gate 10] {owner} overlay -> gen_aem_store --overlay: "
               f"svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh "
               f"({len(got)} B); no RTL destination touched; {n_str} stream "
               "descriptors in 1722.1-2021 Table 7-8 layout")
-    with tempfile.TemporaryDirectory() as td:
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
         # Refactor guard on the BUILTIN model (no --overlay). It is pinned to
         # arty_current's overlay, never to whatever shape the tree carries:
         # the builtin descriptor set is the 1x1 one, so tying it to the
@@ -9588,15 +9940,16 @@ def test_gen_aem_store_consumes_overlay():
         # not a regression in gen_aem_store.
         ref = eb.build(CONFIGS["arty_current"], OUT)
         subprocess.run(
-            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-             "--out-dir", td], check=True, capture_output=True)
-        got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
-        with tempfile.TemporaryDirectory() as td2:
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--out-dir", str(td)], check=True, capture_output=True)
+        got = (td / "aecp_aem_rom.svh").read_bytes()
+        with tempfile.TemporaryDirectory() as made:
+            td2 = Path(made)
             subprocess.run(
-                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                 "--overlay", ref["paths"]["aem_overlay"], "--out-dir", td2],
+                [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", ref["paths"]["aem_overlay"], "--out-dir", str(td2)],
                 check=True, capture_output=True)
-            want = open(os.path.join(td2, "aecp_aem_rom.svh"), "rb").read()
+            want = (td2 / "aecp_aem_rom.svh").read_bytes()
         assert got == want, (
             "default-path svh regressed: the builtin descriptor set no longer "
             f"equals arty_current's overlay ({len(got)} vs {len(want)} bytes)")
@@ -9604,12 +9957,14 @@ def test_gen_aem_store_consumes_overlay():
               "(refactor guard)")
 
 
-def _real_totals(path):
+def _real_totals(path: Path):
     """Parse LUT/FF/BRAM36-equivalent/DSP totals from a flat Vivado
     utilization report. bram36 = RAMB36 + RAMB18/2."""
-    txt = open(path).read()
+    txt = path.read_text()
 
-    def grab(pat):
+    def grab(pat: str) -> int:
+        """The one integer `pat` captures in the report, or a failure that
+        names the pattern that found nothing."""
         m = re.search(pat, txt)
         assert m, f"{path}: no match for {pat!r}"
         return int(m.group(1))
@@ -9623,8 +9978,10 @@ def _real_totals(path):
     )
 
 
-def test_resource_calibration():
-    if not os.path.exists(REAL_RPT):
+def test_resource_calibration() -> None:
+    """Gate 11: the arty_current estimate lands within +/-15% of the REAL
+    mf48 place-report totals, per category."""
+    if not REAL_RPT.exists():
         skip("gate 11", f"real report not on disk ({REAL_RPT}) - the "
                         "calibration gate needs the mf48 build tree")
         return
@@ -9640,7 +9997,9 @@ def test_resource_calibration():
               f"({(got - want) / want:+.2%}, gate +/-{CAL_TOL:.0%})")
 
 
-def test_resource_determinism():
+def test_resource_determinism() -> None:
+    """Gate 12: two builds of one config produce an identical estimate
+    and identical plan bytes."""
     import json
     a = eb.build(CONFIGS["ax7101_8x8"], OUT)
     b = eb.build(CONFIGS["ax7101_8x8"], OUT)
@@ -9650,7 +10009,9 @@ def test_resource_determinism():
     print("  [gate 12] resource estimate + plan deterministic across builds")
 
 
-def test_resource_verdicts():
+def test_resource_verdicts() -> None:
+    """Gate 13: the OK/TIGHT/OVER thresholds sit at 70 and 80, and every
+    shipped shape is estimated rather than UPPER BOUND labelled."""
     # threshold semantics: OK <70, TIGHT 70-80, OVER >80
     for pct, want in ((0.0, "OK"), (69.9, "OK"), (70.0, "TIGHT"),
                       (80.0, "TIGHT"), (80.1, "OVER"), (142.0, "OVER")):
@@ -9692,14 +10053,19 @@ def test_resource_verdicts():
 CRF_FMT = "0x041060010000BB80"       # Milan 7.3.2 Table 7.1 format word
 
 
-def test_milan_723_crf_output_rule():
+def test_milan_723_crf_output_rule() -> None:
+    """Gate 14: Milan 7.2.3 is ENFORCED - two or more AAF Media Inputs
+    without a CRF Media Clock Output is a ConfigError citing the
+    clause, and one listener keeps it optional."""
     # >=2 AAF listener streams REQUIRE clocking.crf_output (Milan 7.2.3:
     # "an AAF Media Listener with two or more AAF Media Inputs shall
     # implement a CRF Media Clock Output")
-    def drop(c):
+    def drop(c: dict[str, Any]) -> None:
+        """Take the CRF Media Clock Output out of the config entirely."""
         c["clocking"].pop("crf_output", None)
 
-    def disable(c):
+    def disable(c: dict[str, Any]) -> None:
+        """Leave the CRF Media Clock Output declared but switched off."""
         c["clocking"]["crf_output"]["enabled"] = False
 
     for label, mutate in (("crf_output absent", drop),
@@ -9717,9 +10083,11 @@ def test_milan_723_crf_output_rule():
                         f"{shape}/{label}: >=2-listener shape accepted "
                         "without a CRF Media Clock Output")
             finally:
-                os.unlink(p)
+                p.unlink()
     # exactly 2 AAF listeners is already >= 2 (rule boundary)
-    def two_listeners(c):
+    def two_listeners(c: dict[str, Any]) -> None:
+        """Cut the shape to EXACTLY two AAF listeners with no CRF output,
+        which is the boundary 7.2.3 is stated at."""
         del c["streams"]["listeners"][2:]
         c["clocking"].pop("crf_output", None)
     p = _variant(CONFIGS["arty_4x4"], two_listeners)
@@ -9731,7 +10099,7 @@ def test_milan_723_crf_output_rule():
         else:
             raise AssertionError("2-listener shape accepted without CRF output")
     finally:
-        os.unlink(p)
+        p.unlink()
     # 1 AAF listener: CRF output OPTIONAL - arty_current has none (deployed
     # shape untouched); enabling it on a 1-listener shape is legal and the
     # format defaults to the Milan 7.3.2 word
@@ -9745,13 +10113,16 @@ def test_milan_723_crf_output_rule():
         assert c1["clocking"]["crf_output"] is True
         assert c1["clocking"]["crf_output_format"] == CRF_FMT
     finally:
-        os.unlink(p)
+        p.unlink()
     print("  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes "
           "rejected without crf_output (error cites 7.2.3); optional at "
           "1 listener, format defaults to " + CRF_FMT)
 
 
-def test_crf_output_overlay_structure():
+def test_crf_output_overlay_structure() -> None:
+    """Gate 15: a CRF Media Clock Output adds one STREAM_OUTPUT and one
+    talker stream source and NOTHING else - no port, cluster, map or
+    CLOCK_SOURCE growth - and never reaches the deployed shape."""
     for name, n in (("arty_4x4", 4), ("ax7101_8x8", 8)):
         ovl = eb.build(CONFIGS[name], OUT)["overlay"]
         so = ovl["stream_outputs"]
@@ -9785,16 +10156,45 @@ def test_crf_output_overlay_structure():
     print("  [gate 15] arty_current: no CRF output (deployed shape untouched)")
 
 
-def test_gen_aem_store_crf_output_overlay():
+def _assert_per_stream_format_tables(svh, dirv, outs):
+    """Gate 16b: the per-descriptor format tables agree with the directory."""
+    # Per-descriptor format tables (item-4 follow-up): multi-stream shapes
+    # emit the `AEM_PER_STREAM_FMT layout — one reference entry + WB address
+    # per STREAM_INPUT/STREAM_OUTPUT; the deployed shape never does (gate 10
+    # byte-identity is the proof of absence).
+    assert "`define AEM_PER_STREAM_FMT" in svh
+    assert "localparam int unsigned AEM_N_STRIN_C  = 5;" in svh   # 4 AAF + CRF
+    assert "localparam int unsigned AEM_N_STROUT_C = 5;" in svh   # 4 AAF + CRF
+    m = re.search(r"AEM_STRIN_CRF_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == ["1'b0"] * 4 + ["1'b1"]
+    ins = [d for d in dirv if d["type"] == 0x0005]
+    m = re.search(r"WB_STRIN_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == \
+        [f"16'd{d['base'] + 74}" for d in ins], "input WB addr table"
+    m = re.search(r"WB_STROUT_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ") == \
+        [f"16'd{d['base'] + 74}" for d in outs], "output WB addr table"
+    m = re.search(r"AEM_STROUT_FMT_C \[0:4\] = '\{(.*?)\};", svh)
+    assert m and m.group(1).split(", ")[-1] == f"64'h{CRF_FMT[2:]}"
+    print("  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + "
+          "5-in/5-out reference + WB-addr arrays match the directory "
+          "(CRF flags/formats in the right rows)")
+
+
+def test_gen_aem_store_crf_output_overlay() -> None:
+    """Gate 16: gen_aem_store turns a CRF-output overlay into a
+    structurally valid ROM, with the Milan 7.3.2 format word, the
+    clock-sync flags and the domain index in the CRF row alone."""
     import json
     r = eb.build(CONFIGS["arty_4x4"], OUT)
-    with tempfile.TemporaryDirectory() as td:
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
         subprocess.run(
-            [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-             "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
             check=True, capture_output=True)
-        j = json.load(open(os.path.join(td, "aem_rom.json")))
-        svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+        j = json.loads((td / "aem_rom.json").read_text())
+        svh = (td / "aecp_aem_rom.svh").read_text()
     rom = bytes.fromhex(j["rom_hex"])
     dirv = j["directory"]
     # directory covers the ROM contiguously (structural validity)
@@ -9868,37 +10268,20 @@ def test_gen_aem_store_crf_output_overlay():
           f"{len(rom)} B structurally valid; STREAM_OUTPUT[4] = CRF "
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
           "4 output ports")
-    # Per-descriptor format tables (item-4 follow-up): multi-stream shapes
-    # emit the `AEM_PER_STREAM_FMT layout — one reference entry + WB address
-    # per STREAM_INPUT/STREAM_OUTPUT; the deployed shape never does (gate 10
-    # byte-identity is the proof of absence).
-    assert "`define AEM_PER_STREAM_FMT" in svh
-    assert "localparam int unsigned AEM_N_STRIN_C  = 5;" in svh   # 4 AAF + CRF
-    assert "localparam int unsigned AEM_N_STROUT_C = 5;" in svh   # 4 AAF + CRF
-    m = re.search(r"AEM_STRIN_CRF_C \[0:4\] = '\{(.*?)\};", svh)
-    assert m and m.group(1).split(", ") == ["1'b0"] * 4 + ["1'b1"]
-    ins = [d for d in dirv if d["type"] == 0x0005]
-    m = re.search(r"WB_STRIN_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
-    assert m and m.group(1).split(", ") == \
-        [f"16'd{d['base'] + 74}" for d in ins], "input WB addr table"
-    m = re.search(r"WB_STROUT_FMT_ADDR_C \[0:4\] = '\{(.*?)\};", svh)
-    assert m and m.group(1).split(", ") == \
-        [f"16'd{d['base'] + 74}" for d in outs], "output WB addr table"
-    m = re.search(r"AEM_STROUT_FMT_C \[0:4\] = '\{(.*?)\};", svh)
-    assert m and m.group(1).split(", ")[-1] == f"64'h{CRF_FMT[2:]}"
-    print("  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + "
-          "5-in/5-out reference + WB-addr arrays match the directory "
-          "(CRF flags/formats in the right rows)")
+    _assert_per_stream_format_tables(svh, dirv, outs)
 
 
-def test_dynamic_map_topology_reaches_shape_header():
+def test_dynamic_map_topology_reaches_shape_header() -> None:
     """gate 16c - the RTL mapping face receives the AEM model topology."""
-    def scalar(s, name):
+    def scalar(s: str, name: str) -> int:
+        """The one integer localparam `name` states in the shape header."""
         m = re.search(rf"{name}\s*=\s*(\d+)\s*;", s)
         assert m, f"shape header has no {name}"
         return int(m.group(1))
 
-    def array(s, name):
+    def array(s: str, name: str) -> list[int]:
+        """The based-literal array `name` states in the shape header, read
+        back as integers whatever base each element is spelled in."""
         m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", s)
         assert m, f"shape header has no {name}"
         out = []
@@ -9943,7 +10326,7 @@ def test_dynamic_map_topology_reaches_shape_header():
           "output CSRC tables match both AX7101 entity models")
 
 
-def _dynmap_candidate(cfg_path, td):
+def _dynmap_candidate(cfg_path: Path, td: Path) -> tuple[Path, Path]:
     """The tracked pair `--write-rtl <cfg>` WOULD install for cfg_path,
     written to td.  Same technique as gate 10's candidate pairs - the real
     tree is never touched.  It takes a PATH rather than a CONFIGS key
@@ -9953,16 +10336,15 @@ def _dynmap_candidate(cfg_path, td):
     assert r["aem_rom_svh"] is not None, (
         f"{cfg_path}: no descriptor ROM can be generated for this shape "
         f"({r['aem_rom_unsupported']}) - it could never own the tracked pair")
-    adp_p = os.path.join(td, "adp_shape_defaults.svh")
-    rom_p = os.path.join(td, "aecp_aem_rom.svh")
-    with open(adp_p, "w") as f:
-        f.write(r["adp_shape_svh"])
-    with open(rom_p, "w") as f:
-        f.write(r["aem_rom_svh"])
+    adp_p = td / "adp_shape_defaults.svh"
+    rom_p = td / "aecp_aem_rom.svh"
+    adp_p.write_text(r["adp_shape_svh"])
+    rom_p.write_text(r["aem_rom_svh"])
     return adp_p, rom_p
 
 
-def _check_tracked_dynmap(adp_path, rom_path, configs=None):
+def _check_tracked_dynmap(adp_path: Path, rom_path: Path,
+                          configs=None):
     """Gate 17's engine-presence check, asked of ANY tracked pair.
 
     Milan v1.2 5.3.3.9 makes every Stream Port Input dynamic, so every valid
@@ -9979,7 +10361,7 @@ def _check_tracked_dynmap(adp_path, rom_path, configs=None):
     CANDIDATE pair (a temp-dir fixture) without installing it in the tree.
     Returns (owner name, expected engine presence).
     """
-    adp = open(adp_path).read()
+    adp = adp_path.read_text()
     src, owner = ces.tracked_owner(eb, adp_text=adp, configs=configs)
     assert src is not None, (
         f"{adp_path}: no `Source :` marker - the tree does not record WHICH "
@@ -9996,7 +10378,7 @@ def _check_tracked_dynmap(adp_path, rom_path, configs=None):
     # RTL engine's scope widens.
     want = any(s.get("map_mode", "static") == "dynamic"
                for s in owner["listeners"])
-    got = "AEM_DYNMAP" in open(rom_path).read()
+    got = "AEM_DYNMAP" in rom_path.read_text()
     assert got == want, (
         f"{rom_path}: `AEM_DYNMAP {'present' if got else 'absent'} but its "
         f"owner {owner['name']} ({src}) declares "
@@ -10018,17 +10400,16 @@ def _expect_dynmap_rejected(label, fn):
                          f"{label}")
 
 
-def test_dynamic_audio_map_overlay():
-    # gaps item 8: listeners[0] map_mode dynamic drops the port's AUDIO_MAP
-    # (7.2.13 number_of_maps=0) and the overlay -> gen_aem_store path emits
-    # the `AEM_DYNMAP engine constants; a config that declares no dynamic
-    # port never does.
-    import gen_aem_store as aem_store
+def _dyn_first_listener(c):
+    """Put listeners[0] on the dynamic map at page 4."""
+    c["streams"]["listeners"][0]["map_mode"] = "dynamic"
+    c["streams"]["listeners"][0]["map_page"] = 4
 
-    def dyn(c):
-        c["streams"]["listeners"][0]["map_mode"] = "dynamic"
-        c["streams"]["listeners"][0]["map_page"] = 4
-    p = _variant(CONFIGS["arty_current"], dyn)
+
+def _assert_one_dynamic_listener():
+    """Gate 17: listeners[0] dynamic drops the port's AUDIO_MAP and the
+    overlay -> gen_aem_store path emits the `AEM_DYNMAP constants."""
+    p = _variant(CONFIGS["arty_current"], _dyn_first_listener)
     try:
         r = eb.build(p, OUT)
         ovl = r["overlay"]
@@ -10042,12 +10423,13 @@ def test_dynamic_audio_map_overlay():
         assert ovl["descriptor_counts"]["AUDIO_MAP"] == 1
         # static ports carry NO map_mode key (overlay byte-stability)
         assert "map_mode" not in ovl["stream_ports"]["output"][0]
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory() as made:
+            td = Path(made)
             subprocess.run(
-                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
                 check=True, capture_output=True)
-            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+            svh = (td / "aecp_aem_rom.svh").read_text()
         assert "`define AEM_DYNMAP" in svh
         assert "localparam int unsigned AEM_DMAP_KEYS_C  = 8;" in svh
         assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
@@ -10063,11 +10445,10 @@ def test_dynamic_audio_map_overlay():
         # the owner, and that file is still tracked and still drifts.
         with tempfile.TemporaryDirectory() as td_o:
             src_o, owner_cfg = ces.tracked_owner(
-                eb, adp_text=open(TRACKED_ADP_SVH).read())
+                eb, adp_text=TRACKED_ADP_SVH.read_text())
             assert owner_cfg is not None, \
                 f"tracked shape names no known config ({src_o})"
-            _, owner_rom = _dynmap_candidate(
-                os.path.join(ROOT, src_o), td_o)
+            _, owner_rom = _dynmap_candidate(ROOT / src_o, Path(td_o))
             owner_name, owner_dyn = _check_tracked_dynmap(TRACKED_ADP_SVH,
                                                           owner_rom)
         # a dynamic listener changes the model hash (capability change) and
@@ -10082,32 +10463,36 @@ def test_dynamic_audio_map_overlay():
               f"svh must be `AEM_DYNMAP-{'bearing' if owner_dyn else 'free'} "
               f"- and is")
     finally:
-        os.unlink(p)
+        p.unlink()
 
+
+def _assert_dynmap_owner_is_read_from_the_tree():
+    """Gate 17: engine presence is a model invariant read from the tracked
+    shape's own owner - a stale ROM and an unresolvable owner both fail."""
     # R2: every Milan input is dynamic, so engine presence is now an
     # unconditional model invariant. Candidate pairs are kept in temp dirs;
     # nothing is installed and the tree retains its owner.
-    p = _variant(CONFIGS["arty_current"], dyn)
+    p = _variant(CONFIGS["arty_current"], _dyn_first_listener)
     try:
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory() as tmp:
+            td = Path(tmp)
             dyn_adp, dyn_rom = _dynmap_candidate(p, td)
-            sub = os.path.join(td, "current")
-            os.makedirs(sub)
+            sub = td / "current"
+            sub.mkdir()
             cur_adp, cur_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
 
             # A conformant owner passes with the required input engine.
             name, want = _check_tracked_dynmap(dyn_adp, dyn_rom, configs=[p])
             assert want is True, f"{name}: dynamic owner not seen as dynamic"
-            assert "AEM_DYNMAP" in open(dyn_rom).read(), (
+            assert "AEM_DYNMAP" in dyn_rom.read_text(), (
                 "SETUP: the dynamic candidate ROM has no engine to require")
             print(f"  [gate 17] a Milan input owner requires "
                   f"`AEM_DYNMAP PRESENT and the candidate pair carries it")
 
             # A stale/mutated ROM with the engine marker removed is rejected.
-            broken_rom = os.path.join(td, "broken.svh")
-            with open(broken_rom, "w") as f:
-                f.write(open(dyn_rom).read().replace("AEM_DYNMAP",
-                                                     "AEM_XYNMAP"))
+            broken_rom = td / "broken.svh"
+            broken_rom.write_text(
+                dyn_rom.read_text().replace("AEM_DYNMAP", "AEM_XYNMAP"))
             _expect_dynmap_rejected(
                 "owner declares a dynamic port, tracked ROM has no engine",
                 lambda: _check_tracked_dynmap(dyn_adp, broken_rom,
@@ -10115,7 +10500,7 @@ def test_dynamic_audio_map_overlay():
 
             # An owner that cannot be resolved must FAIL, not skip: with
             #     no owner there is no expectation to check against.
-            ghost = open(cur_adp).read().replace(
+            ghost = cur_adp.read_text().replace(
                 "configs/endstation_arty_current.yaml",
                 "configs/endstation_ghost.yaml")
             assert ces.svh_source(ghost) == "configs/endstation_ghost.yaml"
@@ -10125,12 +10510,18 @@ def test_dynamic_audio_map_overlay():
                 "shape include names a config that does not exist",
                 lambda: _check_tracked_dynmap(cur_adp, cur_rom))
     finally:
-        os.unlink(p)
+        p.unlink()
 
+
+def _assert_every_listener_dynamic():
+    """Gates 17b/17c: all N listeners go dynamic together, and the AEM
+    refusal and the render-map write gate agree on the physical depth."""
     # roadmap 23: Milan v1.2 5.3.3.9 makes dynamic mappings a SHALL on
     # EVERY Stream Port Input, so all N listeners must go dynamic together
     # and the svh must describe each port's own cluster block.
-    def dyn_all(c):
+    def dyn_all(c: dict[str, Any]) -> None:
+        """Flip every listener to dynamic map mode: 5.3.3.9 makes it a SHALL
+        on every Stream Port Input, so they go together or not at all."""
         for s in c["streams"]["listeners"]:
             s["map_mode"] = "dynamic"
     p = _variant(CONFIGS["arty_4x4"], dyn_all)
@@ -10146,12 +10537,13 @@ def test_dynamic_audio_map_overlay():
         assert [m["index"] for m in ovl["audio_maps"]] == [0, 1, 2, 3]
         assert ovl["descriptor_counts"]["AUDIO_MAP"] == 4
         check_port_layout(ovl, 4, 4)          # invariants hold when dynamic
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory() as made:
+            td = Path(made)
             subprocess.run(
-                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
                 check=True, capture_output=True)
-            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+            svh = (td / "aecp_aem_rom.svh").read_text()
         assert "localparam int unsigned AEM_DMAP_NPORTS_C = 4;" in svh
         # keys span every dynamic port's clusters: 4 ports x 4 = 16
         assert "localparam int unsigned AEM_DMAP_KEYS_C  = 16;" in svh
@@ -10175,7 +10567,7 @@ def test_dynamic_audio_map_overlay():
         m = re.search(r"localparam int unsigned AEM_DMAP_PHYS_C\s*=\s*(\d+);",
                       svh)
         assert m, "svh emits no AEM_DMAP_PHYS_C"
-        dp = open(DATAPATH_SV).read()
+        dp = DATAPATH_SV.read_text()
         d = re.search(r"localparam int CHMAP_PHYS_C\s*=\s*(\d+);", dp)
         assert d, "milan_datapath has no CHMAP_PHYS_C localparam"
         assert int(m.group(1)) == int(d.group(1)), (
@@ -10198,14 +10590,64 @@ def test_dynamic_audio_map_overlay():
               f"CHMAP_PHYS_C {d.group(1)}; RPHYS validity and full-width "
               "physical-depth gates protect both render-map write arms")
     finally:
-        os.unlink(p)
+        p.unlink()
 
+
+def _assert_lane_on_hands_the_pool_back(dyn_everything):
+    """Gate 17e, the other direction: declaring the loopback lane must
+    hand the pool back, with ONE fact driving both the argv and the map."""
+    # and the OTHER direction: declaring the lane must hand the pool
+    # back. ONE fact drives the argv and the map, so they cannot drift.
+    def dyn_everything_lane(c: dict[str, Any]) -> None:
+        """The all-dynamic shape plus the DECLARED loopback lane, which must
+        hand the pool back through the same one fact the argv reads."""
+        dyn_everything(c)
+        c["audio_interface"]["cluster_mapping"]["fabric"] = {
+            "loopback_lane": True}
+    p2 = _variant(CONFIGS["ax7101_8x8"], dyn_everything_lane)
+    try:
+        r2 = eb.build(p2, OUT)
+        with tempfile.TemporaryDirectory() as made:
+            td = Path(made)
+            subprocess.run(
+                [sys.executable,
+                 str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", r2["paths"]["aem_overlay"],
+                 "--out-dir", str(td)],
+                check=True, capture_output=True)
+            svh2 = (td / "aecp_aem_rom.svh").read_text()
+        assert "13'h1500" in svh2, \
+            "lane declared but no VALID loopback template emitted"
+        # #259: the retired pool is absent, so the old preference has no
+        # subject left on this shape - the walk lands on the
+        # BACKED loopback pool (offset 1: pilot holds offset 0), which
+        # is the D8 point this arm exists for: declaring the lane
+        # hands the pool back. INIT co runs 1..8 on every port.
+        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h21, 6'h22, 6'h23, " \
+               "6'h24, 6'h25, 6'h26, 6'h27, 6'h28, 6'h21" in svh2, \
+            "the power-on map must claim the backed loopback pool"
+        assert "--loopback-lane" in eb.emit_design_opts(
+            eb.load_config(p2)), \
+            "lane declared but milan_soc was never told to build it"
+        assert all(q["primary_role"] == "loopback"
+                   for q in r2["overlay"]["stream_ports"]["output"])
+        print("  [gate 17e] lane ON: loopback valid (13'h1500), "
+              "primary_role/INIT move onto it (6'h21..6'h28) - "
+              "declaring the lane hands the pool back")
+    finally:
+        p2.unlink()
+
+
+def _assert_every_stream_dynamic():
+    """Gates 17d/17e: talkers go dynamic too, and the power-on image may only
+    name a source THIS build can produce - both lane polarities."""
     # unsupported placements are rejected with clear errors
     # gate 17d (USER 08-01): talkers may go dynamic too. On the role-pools
     # 8x8 ship shape, flipping every talker+listener dynamic must emit the
     # `AEM_ODYNMAP engine with the D8 pool projected into capture-crossbar
     # source templates (loopback identity - the AX routes no audio pins).
-    def dyn_everything(c):
+    def dyn_everything(c: dict[str, Any]) -> None:
+        """Flip every talker AND every listener to dynamic map mode."""
         for s in c["streams"]["listeners"]:
             s["map_mode"] = "dynamic"
         for s in c["streams"]["talkers"]:
@@ -10219,12 +10661,13 @@ def test_dynamic_audio_map_overlay():
         assert all(q.get("map_mode") == "dynamic" for q in pout)
         assert ovl["descriptor_counts"]["AUDIO_MAP"] == 0
         assert ovl["audio_maps"] == []
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory() as made:
+            td = Path(made)
             subprocess.run(
-                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
                 check=True, capture_output=True)
-            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+            svh = (td / "aecp_aem_rom.svh").read_text()
         assert "`define AEM_ODYNMAP" in svh
         assert "localparam int unsigned AEM_ODMAP_NPORTS_C = 8;" in svh
         assert "localparam int unsigned AEM_ODMAP_KEYS_C   = 64;" in svh
@@ -10267,52 +10710,22 @@ def test_dynamic_audio_map_overlay():
               "reserved source 3 absent (#259), loopback templates emitted "
               "fabric-disabled (13'h05xx) and protocol-mappable")
 
-        # and the OTHER direction: declaring the lane must hand the pool
-        # back. ONE fact drives the argv and the map, so they cannot drift.
-        def dyn_everything_lane(c):
-            dyn_everything(c)
-            c["audio_interface"]["cluster_mapping"]["fabric"] = {
-                "loopback_lane": True}
-        p2 = _variant(CONFIGS["ax7101_8x8"], dyn_everything_lane)
-        try:
-            r2 = eb.build(p2, OUT)
-            with tempfile.TemporaryDirectory() as td:
-                subprocess.run(
-                    [sys.executable,
-                     os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                     "--overlay", r2["paths"]["aem_overlay"],
-                     "--out-dir", td],
-                    check=True, capture_output=True)
-                svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
-            assert "13'h1500" in svh2, \
-                "lane declared but no VALID loopback template emitted"
-            # #259: the retired pool is absent, so the old preference has no
-            # subject left on this shape - the walk lands on the
-            # BACKED loopback pool (offset 1: pilot holds offset 0), which
-            # is the D8 point this arm exists for: declaring the lane
-            # hands the pool back. INIT co runs 1..8 on every port.
-            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h21, 6'h22, 6'h23, " \
-                   "6'h24, 6'h25, 6'h26, 6'h27, 6'h28, 6'h21" in svh2, \
-                "the power-on map must claim the backed loopback pool"
-            assert "--loopback-lane" in eb.emit_design_opts(
-                eb.load_config(p2)), \
-                "lane declared but milan_soc was never told to build it"
-            assert all(q["primary_role"] == "loopback"
-                       for q in r2["overlay"]["stream_ports"]["output"])
-            print("  [gate 17e] lane ON: loopback valid (13'h1500), "
-                  "primary_role/INIT move onto it (6'h21..6'h28) - "
-                  "declaring the lane hands the pool back")
-        finally:
-            os.unlink(p2)
+        _assert_lane_on_hands_the_pool_back(dyn_everything)
     finally:
-        os.unlink(p)
+        p.unlink()
 
+
+def _assert_legacy_dynamic_output_pool(aem_store):
+    """Gate 17f: a dynamic OUTPUT under the legacy cluster-count policy still
+    carries an explicit source pool, and every consumer refuses it missing."""
     # gate 17f (#259): the legacy cluster-count policy still carries an
     # explicit physical/virtual source pool when an OUTPUT becomes dynamic.
     # A schema-2.x overlay with that pool missing is stale or hand-mutated;
     # counts cannot reconstruct its source topology. Both consumers must
     # refuse it instead of reviving reserved source encoding 3 as a fallback.
-    def dyn_legacy_output(c):
+    def dyn_legacy_output(c: dict[str, Any]) -> None:
+        """Flip the legacy-policy shape's talkers to dynamic, which is where
+        the explicit physical/virtual source pool has to survive."""
         for s in c["streams"]["talkers"]:
             s["map_mode"] = "dynamic"
     p = _variant(CONFIGS["arty_current"], dyn_legacy_output)
@@ -10379,9 +10792,15 @@ def test_dynamic_audio_map_overlay():
               "virtual source pool accepted; missing/empty topology refused "
               "by descriptor, model, and ADP consumers")
     finally:
-        os.unlink(p)
+        p.unlink()
 
-    def dyn_page_static(c):
+
+def _assert_dynamic_map_rejects():
+    """Gate 17: the reject paths - a static listener with a page, two dynamic
+    ports declaring different pages, and mixed output map modes."""
+    def dyn_page_static(c: dict[str, Any]) -> None:
+        """A STATIC listener carrying a map page - the combination the
+        dynamic-map rules forbid."""
         c["streams"]["listeners"][0]["map_mode"] = "static"
         c["streams"]["listeners"][0]["map_page"] = 4
     for label, mutate, needle in (
@@ -10395,10 +10814,12 @@ def test_dynamic_audio_map_overlay():
             else:
                 raise AssertionError(f"{label}: accepted")
         finally:
-            os.unlink(p)
+            p.unlink()
     # one RTL partition constant: two dynamic ports may not DECLARE
     # different map_page values (left unset they resolve to one default)
-    def dyn_split_page(c):
+    def dyn_split_page(c: dict[str, Any]) -> None:
+        """Two dynamic listeners DECLARING different map pages, which one
+        RTL partition constant cannot serve."""
         for n, s in enumerate(c["streams"]["listeners"]):
             s["map_mode"] = "dynamic"
             s["map_page"] = 2 if n else 4
@@ -10411,11 +10832,13 @@ def test_dynamic_audio_map_overlay():
         else:
             raise AssertionError("split map_page: accepted")
     finally:
-        os.unlink(p)
+        p.unlink()
     # The capture crossbar selects static/dynamic output mapping globally,
     # so a mixed output image must be rejected instead of misrouting its
     # static ports through an empty dynamic map.
-    def mixed_output_modes(c):
+    def mixed_output_modes(c: dict[str, Any]) -> None:
+        """One dynamic talker beside a static one, which the capture
+        crossbar's global static/dynamic select cannot route."""
         c["streams"]["talkers"][0]["map_mode"] = "dynamic"
         c["streams"]["talkers"][1]["map_mode"] = "static"
     p = _variant(CONFIGS["arty_4x4"], mixed_output_modes)
@@ -10427,25 +10850,45 @@ def test_dynamic_audio_map_overlay():
         else:
             raise AssertionError("mixed output map modes: accepted")
     finally:
-        os.unlink(p)
+        p.unlink()
     print("  [gate 17] reject paths: static input, disagreeing input pages, "
           "mixed output map modes, and missing dynamic-output source "
           "topology raise ConfigError")
 
 
-MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
+def test_dynamic_audio_map_overlay() -> None:
+    """Gate 17: Milan v1.2 5.3.3.9 dynamic audio maps, end to end. A
+    dynamic port drops its AUDIO_MAP (1722.1-2021 7.2.13
+    number_of_maps=0), the tracked ROM carries the engine constants
+    if and only if the config that OWNS it declares a dynamic port,
+    and the shapes the RTL cannot serve are refused."""
+    # gaps item 8: listeners[0] map_mode dynamic drops the port's AUDIO_MAP
+    # (7.2.13 number_of_maps=0) and the overlay -> gen_aem_store path emits
+    # the `AEM_DYNMAP engine constants; a config that declares no dynamic
+    # port never does.
+    import gen_aem_store as aem_store
+
+    _assert_one_dynamic_listener()
+    _assert_dynmap_owner_is_read_from_the_tree()
+    _assert_every_listener_dynamic()
+    _assert_every_stream_dynamic()
+    _assert_legacy_dynamic_output_pool(aem_store)
+    _assert_dynamic_map_rejects()
+
+
+MILAN_CSR_SV = ROOT / "hdl/common/csr/milan_csr.sv"
 #: hdl/ieee8021q/srp/** is DELETED (lwsrp_pkg.sv, KL_lwsrp_top.sv,
 #: KL_lwsrp_bw_gate.sv and gen/lwsrp_table.svh with it).  Gates 18b/18c used
 #: those files as the RTL comparand for the SR-class, MRP-timer, bandwidth and
 #: module-parameter constants; what survives of that loop is the CSR-facing
 #: subset milan_csr.sv still `include-s, and the gates below say per assertion
 #: which comparand each one lost.
-DATAPATH_SV = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
-PACKETIZER_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aaf_packetizer.sv")
-ETH_PKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
-MILAN_SOC_PY = os.path.join(ROOT, "sw/litex/milan_soc.py")
-TRACKED_CSR_SVH = os.path.join(ROOT, eb.CSR_DEFAULTS_REL)
-REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
+DATAPATH_SV = ROOT / "hdl/milan/milan_datapath.sv"
+PACKETIZER_SV = ROOT / "hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
+ETH_PKG_SV = ROOT / "hdl/common/ethernet_packet_pkg.sv"
+MILAN_SOC_PY = ROOT / "sw/litex/milan_soc.py"
+TRACKED_CSR_SVH = ROOT / eb.CSR_DEFAULTS_REL
+REGMAP_MD = ROOT / "docs/reference/REGISTER_MAP.md"
 
 #: Everything that compiles hdl/common/csr/milan_csr.sv. Since 11944cd that
 #: file `include-s gen/lwsrp_csr_defaults.svh, so each of these must carry
@@ -10488,7 +10931,7 @@ def _svh_localparams(txt):
     return out
 
 
-def test_lwsrp_reset_words_match_rtl():
+def test_lwsrp_reset_words_match_rtl() -> None:
     """Gate 18a: the emitted 0x680 reset words are the words milan_csr.sv
     actually elaborates. Since the RTL `include-s the GENERATED header there
     is no second hand-written copy left to compare against, so the chain the
@@ -10497,11 +10940,11 @@ def test_lwsrp_reset_words_match_rtl():
     block assigns -> the symbol its csr_default readback table returns -> the
     REGISTER_MAP Reset column. Every link must name the SAME constant, so a
     hand edit anywhere still fails here."""
-    csr = open(MILAN_CSR_SV).read()
-    reg = open(REGMAP_MD).read()
+    csr = MILAN_CSR_SV.read_text()
+    reg = REGMAP_MD.read_text()
     r = eb.build(CONFIGS["arty_current"], OUT)
     got = r["lwsrp"]["reset_words"]
-    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
+    hdr = _svh_localparams(TRACKED_CSR_SVH.read_text())
     # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
     rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x10"),
             ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
@@ -10538,12 +10981,12 @@ def test_lwsrp_reset_words_match_rtl():
         want = _sv_hex(csr, rf"{enum}\s*=\s*'h([0-9A-Fa-f]+)", f"enum {enum}")
         assert off == want, f"{name}: offset 0x{off:X} != RTL 0x{want:X}"
     print(f"  [gate 18a] arty_current lwSRP reset words == the generated "
-          f"{os.path.basename(TRACKED_CSR_SVH)} == the symbols milan_csr's "
+          f"{TRACKED_CSR_SVH.name} == the symbols milan_csr's "
           f"reset block and csr_default table use == the REGISTER_MAP Reset "
           f"column ({len(rows)} registers, {len(eb.SRP_CSR_OFFSETS)} offsets)")
 
 
-def test_lwsrp_class_constants_match_rtl():
+def test_lwsrp_class_constants_match_rtl() -> None:
     """Gate 18b: the SR-class / MRP-timer / bandwidth constants, and the
     PriorityAndRank byte milan_csr drives onto o_srp_ctx_prio_rank.
 
@@ -10565,7 +11008,7 @@ def test_lwsrp_class_constants_match_rtl():
         LWSRP_PRIO_RANK_C in hdl/common/csr/gen/lwsrp_csr_defaults.svh ->
         milan_csr.sv's assign to o_srp_ctx_prio_rank.  milan_csr still
         `include-s that header, so a config edit still re-elaborates it."""
-    csr = open(MILAN_CSR_SV).read()
+    csr = MILAN_CSR_SV.read_text()
     t = eb.build(CONFIGS["arty_current"], OUT)["lwsrp"]
     # ---- Milan 4.3.3.2's recipe, composed. Step-by-step comparison against
     # the RTL is gone with lwsrp_pkg.sv; the clause's own worked examples are
@@ -10599,7 +11042,7 @@ def test_lwsrp_class_constants_match_rtl():
     pr = t["sr_class"]["prio_rank"]
     # milan_csr's literal duplicate is GONE: it drives o_srp_ctx_prio_rank from
     # the generated LWSRP_PRIO_RANK_C, so the chain is emitter -> header -> RTL.
-    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
+    hdr = _svh_localparams(TRACKED_CSR_SVH.read_text())
     assert pr == hdr["LWSRP_PRIO_RANK_C"], \
         "PriorityAndRank: emitter vs the generated CSR header"
     assert re.search(r"assign o_srp_ctx_prio_rank\s*=\s*LWSRP_PRIO_RANK_C;",
@@ -10617,7 +11060,7 @@ def test_lwsrp_class_constants_match_rtl():
                    "LWSRP_CTRL_RST_C      = 32'h0000_0010;",
                    "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
         assert needle in svh, f"emitted lwsrp_table.svh lacks {needle!r}"
-    assert not os.path.exists(os.path.join(ROOT, "hdl/ieee8021q/srp")), \
+    assert not (ROOT / "hdl/ieee8021q/srp").exists(), \
         "hdl/ieee8021q/srp is back - the lwSRP engine is deleted and the " \
         "builder must not recreate its gen/ directory"
     print("  [gate 18b] PriorityAndRank == the generated symbol milan_csr "
@@ -10626,23 +11069,11 @@ def test_lwsrp_class_constants_match_rtl():
           "from, and no hdl/ieee8021q/srp tree was recreated")
 
 
-def test_lwsrp_tspec_and_params():
-    """Gate 18c: the TSpec derivation is anchored in the RTL frame geometry
-    (KL_aaf_packetizer), and the ctx row arithmetic covers every attribute
-    row the shape needs.
-
-    WHAT THIS GATE LOST (2026-08-12).  It also asserted that milan_datapath
-    instantiates KL_lwsrp_top with N_CTX_P(SRP_CTX_ROWS_C) /
-    N_LISTENERS_P(N_STREAMS) / N_TALKERS_P(SRP_TALKERS_C), and that
-    KL_lwsrp_top ties the bw_gate width to N_TALKERS_P.  Both modules are
-    DELETED and milan_datapath no longer instantiates any lwSRP engine, so
-    those four assertions have no subject.  The ANCHOR that matters most is
-    untouched: KL_aaf_packetizer still exists and still emits the frames the
-    TSpec describes, so the frame geometry is still checked against the RTL
-    that produces it - and the datapath's SRP row-map localparams are still
-    there and still checked, because the protocol processor consumes the same
-    row layout."""
-    pk = open(PACKETIZER_SV).read()
+def _lwsrp_rtl_anchors():
+    """Gate 18c's RTL half: the frame geometry against KL_aaf_packetizer
+    and the datapath's surviving SRP row-map localparams.  Returns the
+    ethernet_packet_pkg queue count the per-config arms are graded on."""
+    pk = PACKETIZER_SV.read_text()
     spf = _sv_int(pk, r"SAMPLES_PER_FRAME_C\s*=\s*(\d+);", "packetizer")
     geo = eb.srp_frame_geometry(2, 48000, 8000)
     assert geo["samples_per_frame"] == spf
@@ -10660,8 +11091,8 @@ def test_lwsrp_tspec_and_params():
     # idleSlope formula, verbatim from LWSRP_FPGA_ARCHITECTURE / bw_gate
     assert eb.srp_idle_slope_bps(224, 1, 8000) == 1 * (224 + 42) * 8 * 8000
     # per-config: derived TSpec, reservation under the ceiling, module params
-    dp = open(DATAPATH_SV).read()
-    epkg = open(ETH_PKG_SV).read()
+    dp = DATAPATH_SV.read_text()
+    epkg = ETH_PKG_SV.read_text()
     # (the KL_lwsrp_top instantiation assertion that stood here is REMOVED:
     #  milan_datapath instantiates no lwSRP engine any more and the module is
     #  deleted. The row-map localparams below survive and are still checked.)
@@ -10680,6 +11111,46 @@ def test_lwsrp_tspec_and_params():
     # (the KL_lwsrp_bw_gate width assertion that stood here is REMOVED with
     #  KL_lwsrp_top.sv - both modules are deleted.)
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
+    return nq
+
+
+def _assert_ctx_row_shortfall_stays_closed():
+    """Gate 18c: every shape still marks its lwSRP attribute rows
+    `supported`, so a reopened shortfall cannot flip back in silence."""
+    # the NxN row shortfall CLOSED 2026-07-26 (datapath sizes the ctx table at
+    # 2*N_STREAMS-1). The mark must now read `supported` for every shape - if a
+    # future change reopens the shortfall the mark flips back to `planned`,
+    # which this asserts against, so the regression cannot be silent.
+    for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
+        marks = eb.build(CONFIGS[name], OUT)["marks"]
+        row_marks = [m for m in marks if "lwSRP attribute row" in m[0]]
+        assert row_marks, f"{name}: ctx rows not marked at all"
+        assert all(m[1] == "supported" for m in row_marks), \
+            f"{name}: ctx-row shortfall reopened -> {row_marks}"
+    cur = eb.build(CONFIGS["arty_current"], OUT)["marks"]
+    assert any("lwSRP attribute row(s)" in m[0] and m[1] == "supported"
+               for m in cur), "arty_current lwSRP rows must be supported"
+    print("  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) "
+          "contexts) marked planned; 1x1 supported")
+
+
+def test_lwsrp_tspec_and_params() -> None:
+    """Gate 18c: the TSpec derivation is anchored in the RTL frame geometry
+    (KL_aaf_packetizer), and the ctx row arithmetic covers every attribute
+    row the shape needs.
+
+    WHAT THIS GATE LOST (2026-08-12).  It also asserted that milan_datapath
+    instantiates KL_lwsrp_top with N_CTX_P(SRP_CTX_ROWS_C) /
+    N_LISTENERS_P(N_STREAMS) / N_TALKERS_P(SRP_TALKERS_C), and that
+    KL_lwsrp_top ties the bw_gate width to N_TALKERS_P.  Both modules are
+    DELETED and milan_datapath no longer instantiates any lwSRP engine, so
+    those four assertions have no subject.  The ANCHOR that matters most is
+    untouched: KL_aaf_packetizer still exists and still emits the frames the
+    TSpec describes, so the frame geometry is still checked against the RTL
+    that produces it - and the datapath's SRP row-map localparams are still
+    there and still checked, because the protocol processor consumes the same
+    row layout."""
+    nq = _lwsrp_rtl_anchors()
     for name, (L, T) in (("arty_current", (1, 1)), ("arty_4x4", (4, 4)),
                          ("ax7101_8x8", (8, 8))):
         r = eb.build(CONFIGS[name], OUT)
@@ -10751,24 +11222,10 @@ def test_lwsrp_tspec_and_params():
               f"the port (ceiling {b['limit_pct']}%), ctx rows "
               f"{t['ctx_rows']['required']} needed / "
               f"{t['ctx_rows']['available']} available")
-    # the NxN row shortfall CLOSED 2026-07-26 (datapath sizes the ctx table at
-    # 2*N_STREAMS-1). The mark must now read `supported` for every shape - if a
-    # future change reopens the shortfall the mark flips back to `planned`,
-    # which this asserts against, so the regression cannot be silent.
-    for name in ("arty_current", "arty_4x4", "ax7101_8x8"):
-        marks = eb.build(CONFIGS[name], OUT)["marks"]
-        row_marks = [m for m in marks if "lwSRP attribute row" in m[0]]
-        assert row_marks, f"{name}: ctx rows not marked at all"
-        assert all(m[1] == "supported" for m in row_marks), \
-            f"{name}: ctx-row shortfall reopened -> {row_marks}"
-    cur = eb.build(CONFIGS["arty_current"], OUT)["marks"]
-    assert any("lwSRP attribute row(s)" in m[0] and m[1] == "supported"
-               for m in cur), "arty_current lwSRP rows must be supported"
-    print("  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) "
-          "contexts) marked planned; 1x1 supported")
+    _assert_ctx_row_shortfall_stays_closed()
 
 
-def test_lwsrp_rejects():
+def test_lwsrp_rejects() -> None:
     """Gate 18d: contradictory reservations raise ConfigError."""
     cases = [
         ("class B", lambda c: c["srp"].__setitem__("sr_class", "B"),
@@ -10794,7 +11251,7 @@ def test_lwsrp_rejects():
             else:
                 raise AssertionError(f"{label}: accepted")
         finally:
-            os.unlink(p)
+            p.unlink()
     # over-subscription. Since the TSpec follows the WIRE (802.1Q 35.2.2.8.4
     # a) - the frame the talker WILL PRODUCE), a fat DECLARATION no longer
     # inflates the reservation: the old 32ch mutation derives the producible
@@ -10802,7 +11259,9 @@ def test_lwsrp_rejects():
     # the gate failing. Real over-subscription is COUNT x wire MSDU: eight
     # 8-channel talkers on the 100 Mb/s arty port = 8 x (216+42) x 8 x 8000
     # = 132 Mb/s against the 75 Mb/s class-A ceiling.
-    def fat(c):
+    def fat(c: dict[str, Any]) -> None:
+        """Eight eight-channel talkers on the 100 Mb/s port: a REAL class-A
+        over-subscription, rather than a tie the MSDU clamp absorbs."""
         base = dict(c["streams"]["talkers"][0])
         base["channels"] = 8
         base["formats"] = ["0x0205022002006000"]
@@ -10818,19 +11277,19 @@ def test_lwsrp_rejects():
         else:
             raise AssertionError("over-subscribed reservation accepted")
     finally:
-        os.unlink(p)
+        p.unlink()
     print(f"  [gate 18d] {len(cases) + 1}/{len(cases) + 1} contradictory "
           "reservations rejected with ConfigError (incl. a 213 Mb/s class-A "
           "request on a 100 Mb/s port)")
 
 
-def test_platform_gateware_shape():
+def test_platform_gateware_shape() -> None:
     """Gate 19: publish only the memory reservation gateware consumes."""
     import json
 
     for name, path in CONFIGS.items():
         result = eb.build(path, OUT)
-        shape = json.load(open(result["paths"]["platform_shape"]))
+        shape = json.loads(Path(result["paths"]["platform_shape"]).read_text())
         assert shape == result["platform"], name
         assert set(shape) == {
             "_schema", "_schema_version", "_generated_by",
@@ -10862,12 +11321,12 @@ def test_platform_gateware_shape():
             else:
                 raise AssertionError(f"{label}: invalid platform was accepted")
         finally:
-            os.unlink(path)
+            path.unlink()
     print(f"  [gate 19] {len(CONFIGS)} gateware memory reservations contain "
           "only pp_mem; unknown/retired/unaligned inputs are refused")
 
 
-def test_csr_defaults_header_consumed():
+def test_csr_defaults_header_consumed() -> None:
     """Gate 20a: the RTL CONSUMES the generated header - the loop is closed.
 
     Up to 11944cd the emitters only *compared* against milan_csr.sv's
@@ -10897,9 +11356,9 @@ def test_csr_defaults_header_consumed():
          lives in hdl/common/gen/, beside no includer, and
          check_entity_shape.py arm H keeps it that way."""
     r = eb.build(CONFIGS["arty_current"], OUT)
-    csr = open(MILAN_CSR_SV).read()
+    csr = MILAN_CSR_SV.read_text()
     # 1. staleness
-    assert open(TRACKED_CSR_SVH).read() == r["csr_defaults_svh"], \
+    assert TRACKED_CSR_SVH.read_text() == r["csr_defaults_svh"], \
         f"{eb.CSR_DEFAULTS_REL} is STALE - regenerate it"
     # 2. the include, exactly as the emitter documents it
     inc = f'`include "{eb.CSR_DEFAULTS_INCLUDE}"'
@@ -10910,7 +11369,7 @@ def test_csr_defaults_header_consumed():
         "the deployed 0x680 reset words MOVED: "
         + ", ".join(f"{k} 0x{got[k]:08X} != 0x{v:08X}"
                     for k, v in eb.SRP_FROZEN_RESETS.items() if got[k] != v))
-    hdr = _svh_localparams(open(TRACKED_CSR_SVH).read())
+    hdr = _svh_localparams(TRACKED_CSR_SVH.read_text())
     for k, v in eb.SRP_FROZEN_RESETS.items():
         assert hdr[k + "_RST_C"] == v, f"{k}_RST_C != the frozen 0x{v:08X}"
     assert hdr["LWSRP_PRIO_RANK_C"] == eb.SRP_FROZEN_PRIO_RANK
@@ -10941,9 +11400,9 @@ def test_csr_defaults_header_consumed():
             f"0x{tbl[k]:X} - the two emitters have drifted")
     # 6. every consumer can resolve the include
     for rel, pat in CSR_INCDIR_CONSUMERS:
-        p = os.path.join(ROOT, rel)
-        assert os.path.exists(p), f"{rel} is gone - is it still building?"
-        txt = open(p).read()
+        p = ROOT / rel
+        assert p.exists(), f"{rel} is gone - is it still building?"
+        txt = p.read_text()
         assert "milan_csr" in txt, f"{rel} no longer names milan_csr"
         assert re.search(pat, txt), (
             f"{rel} compiles milan_csr.sv but has no hdl/common/csr include "
@@ -10957,7 +11416,7 @@ def test_csr_defaults_header_consumed():
           f"include dir")
 
 
-def test_csr_defaults_rejects():
+def test_csr_defaults_rejects() -> None:
     """Gate 20b: a config that would emit a MALFORMED header - one milan_csr
     would silently compile into the wrong reset word - raises ConfigError.
 
@@ -10984,9 +11443,11 @@ def test_csr_defaults_rejects():
             else:
                 raise AssertionError(f"{label}: accepted")
         finally:
-            os.unlink(p)
+            p.unlink()
     # and the emitted LWSRP_CTRL word really is bit-exact for the legal shape
-    def enable(c):
+    def enable(c: dict[str, Any]) -> None:
+        """Turn both LWSRP_CTRL reset booleans on - the one legal shape the
+        emitted word is then checked against bit for bit."""
         c["srp"]["enable_at_reset"] = True
         c["srp"]["talker_declare_at_reset"] = True
     p = _variant(CONFIGS["arty_current"], enable)
@@ -10995,14 +11456,14 @@ def test_csr_defaults_rejects():
         w = eb.srp_reset_words(cfg)["LWSRP_CTRL"]
         assert w == 0x00000013, f"LWSRP_CTRL {w:#010x} != 0x00000013"
     finally:
-        os.unlink(p)
+        p.unlink()
     print(f"  [gate 20b] {len(cases)}/{len(cases)} malformed LWSRP_CTRL "
           "sources rejected with ConfigError; en+talker+q4 emits 0x00000013")
 
 
-AES3_RX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_rx.sv")
-AES3_TX_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aes3_tx.sv")
-AES3_TB_MK = os.path.join(ROOT, "tb/verilator/aes3/Makefile")
+AES3_RX_SV = ROOT / "hdl/ieee1722/aaf/KL_aes3_rx.sv"
+AES3_TX_SV = ROOT / "hdl/ieee1722/aaf/KL_aes3_tx.sv"
+AES3_TB_MK = ROOT / "tb/verilator/aes3/Makefile"
 
 
 def _sv_param_default(txt, name):
@@ -11013,7 +11474,7 @@ def _sv_param_default(txt, name):
     return int(m.group(1).replace("_", ""))
 
 
-def test_aes3_interface_switch():
+def test_aes3_interface_switch() -> None:
     """Gate 21a: `audio_interface.kind: aes3|spdif` is a REAL switch now.
 
     One core (KL_aes3_rx / KL_aes3_tx) carries both transports, so the config
@@ -11022,8 +11483,8 @@ def test_aes3_interface_switch():
     test time: the parameter names, the defaults the emitter reuses
     (OVERSAMPLE_P, LOCK_BLOCKS_P), the CONSUMER_P dialect split, and the
     serial-clock arithmetic the transport forces."""
-    rx = open(AES3_RX_SV).read()
-    tx = open(AES3_TX_SV).read()
+    rx = AES3_RX_SV.read_text()
+    tx = AES3_TX_SV.read_text()
     # the parameters the emitter names must EXIST on the modules it names
     for p in ("CONSUMER_P", "WORD_BITS_P", "LOCK_BLOCKS_P"):
         assert re.search(rf"parameter\s+\S+.*?\b{p}\b", rx), f"{p} not on the rx"
@@ -11037,20 +11498,23 @@ def test_aes3_interface_switch():
     assert re.search(r"BLOCK_FRAMES_C\s*=\s*(\d+)", tx).group(1) == \
         str(eb.AES3_BLOCK_FRAMES)
     # the suite the mark points at must exist and compile these two modules
-    mk = open(AES3_TB_MK).read()
+    mk = AES3_TB_MK.read_text()
     for m in (eb.AES3_RX_MODULE, eb.AES3_TX_MODULE):
         assert f"{m}.sv" in mk, f"tb/verilator/aes3 does not build {m}"
     seen = []
     for kind, consumer in (("aes3", 0), ("spdif", 1)):
         for wl in (16, 20, 24):
-            def mutate(c, k=kind, w=wl):
+            def mutate(c: dict[str, Any], k: str = kind,
+                       w: int = wl) -> None:
+                """Set the transport kind and word length this arm measures, bound
+                at def time so the loop cannot move them under the variant."""
                 c["audio_interface"]["kind"] = k
                 c["audio_interface"]["word_length_bits"] = w
             v = _variant(CONFIGS["arty_current"], mutate)
             try:
                 r = eb.build(v, OUT)
             finally:
-                os.unlink(v)
+                v.unlink()
             ip = r["interface_params"]
             assert ip["family"] == "aes3" and ip["kind"] == kind
             assert ip["rx_module"] == eb.AES3_RX_MODULE
@@ -11081,7 +11545,7 @@ def test_aes3_interface_switch():
           f"frames/block) parsed from the modules themselves")
 
 
-def test_aes3_rejects():
+def test_aes3_rejects() -> None:
     """Gate 21b: an AES3/S-PDIF shape the RTL could not actually clock, or a
     word length the transport cannot carry, raises ConfigError - it is never
     emitted as a ser/des that would transmit at the wrong rate."""
@@ -11105,7 +11569,7 @@ def test_aes3_rejects():
             else:
                 raise AssertionError(f"{label}: accepted")
         finally:
-            os.unlink(p)
+            p.unlink()
     # the shipping 24.576 MHz PLL DOES carry 48 kHz AES3 (divide by 1)
     p = _variant(CONFIGS["arty_current"],
                  lambda c: c["audio_interface"].__setitem__("kind", "aes3"))
@@ -11114,7 +11578,7 @@ def test_aes3_rejects():
         assert cfg["interface"]["serial_clk_hz"] == 24_576_000
         assert cfg["interface"]["serial_clk_div"] == 1
     finally:
-        os.unlink(p)
+        p.unlink()
     print(f"  [gate 21b] {len(cases)}/{len(cases)} unclockable AES3 shapes "
           "rejected with ConfigError; 48 kHz AES3 rides the shipping "
           "24.576 MHz audio PLL exactly (divide 1)")
@@ -11136,8 +11600,8 @@ def test_aes3_rejects():
 #  zero), so a slope edit that forgets its credits fails even if all four
 #  copies were edited consistently-but-wrongly.
 # ---------------------------------------------------------------------------
-EPKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
-EGRESS_MD = os.path.join(ROOT, "docs/reference/EGRESS_QUEUE_MAP.md")
+EPKG_SV = ROOT / "hdl/common/ethernet_packet_pkg.sv"
+EGRESS_MD = ROOT / "docs/reference/EGRESS_QUEUE_MAP.md"
 MAX_FRAME_SIZE = 1522
 PORT_RATE_1G = 1_000_000_000
 
@@ -11181,11 +11645,15 @@ def _num(cell):
     return int(m.group(0))
 
 
-def test_cbs_reset_table_single_source():
-    epkg = open(EPKG_SV).read()
-    csr = open(MILAN_CSR_SV).read()
-    reg = open(REGMAP_MD).read()
-    egr = open(EGRESS_MD).read()
+def test_cbs_reset_table_single_source() -> None:
+    """Gate 22: the CBS reset table has ONE source. milan_csr's reset
+    words, the REGISTER_MAP 0x400 table and EGRESS_QUEUE_MAP each
+    agree with ethernet_packet_pkg row for row, credits re-derived
+    rather than copied, and no queue is shaped at reset."""
+    epkg = EPKG_SV.read_text()
+    csr = MILAN_CSR_SV.read_text()
+    reg = REGMAP_MD.read_text()
+    egr = EGRESS_MD.read_text()
 
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
     s1g = _sv_int_array(epkg, "IDLE_SLOPE_1G", "ethernet_packet_pkg")
@@ -11255,7 +11723,7 @@ def _prune(cfg, **feats):
     cfg.setdefault("board", {}).setdefault("features", {}).update(feats)
 
 
-def test_optional_blocks_default_present():
+def test_optional_blocks_default_present() -> None:
     """gate 23a - rule 1 (default PRESENT) enforced, not asserted: a block is
     pruned ONLY where a config says so in as many words.
 
@@ -11327,7 +11795,7 @@ def test_optional_blocks_default_present():
           f"declared posture")
 
 
-def test_optional_block_gates_bite():
+def test_optional_block_gates_bite() -> None:
     """gate 23b - THE GATE (AREA_BUDGET rule 5). Each case is a config that
     asks for a feature the prune removed; every one must raise ConfigError.
     The paired POSITIVE case proves the same prune is ACCEPTED once the
@@ -11375,7 +11843,10 @@ def test_optional_block_gates_bite():
     ]
     n_bad = n_ok = 0
     for label, feats, mutate, must_raise in cases:
-        def m(c, feats=feats, mutate=mutate):
+        def m(c: dict[str, Any], feats: dict[str, Any] = feats,
+              mutate: Callable[[dict[str, Any]], None] = mutate) -> None:
+            """This arm's prune and its extra edit, both bound at def time so
+            the loop cannot move them under the variant."""
             _prune(c, **feats)
             mutate(c)
         p = _variant(CONFIGS["ax7101_8x8"], m)
@@ -11397,18 +11868,20 @@ def test_optional_block_gates_bite():
                     assert flag in argv, f"{label}: {flag} missing from argv"
                     assert cfg["features"][k] is False
         finally:
-            os.unlink(p)
+            p.unlink()
     print(f"  [gate 23b] {n_bad}/{n_bad} contradictory prune configs REFUSED "
           f"with ConfigError; {n_ok}/{n_ok} honest prunes accepted and their "
           "--no-* flags reach the soc argv")
 
 
-def test_optional_block_prune_accounting():
+def test_optional_block_prune_accounting() -> None:
     """gate 23c - a pruned config's estimate must go DOWN by the banked
     figure, the plan must name the block, its milan_datapath parameter and
     the re-measurement it forces, and the estimate must stay labelled an
     ESTIMATE."""
-    def m(c):
+    def m(c: dict[str, Any]) -> None:
+        """The whole prune this accounting arm measures: six optional
+        blocks, internal-only clocking and a promiscuous RX filter."""
         _prune(c, media_clock_servo=False, latency_taps=False, maap=False,
                i2s_playback=False, rx_mac_filter=False, render_lpf=False)
         c["clocking"].update(media_clock_sources=["internal"],
@@ -11419,7 +11892,7 @@ def test_optional_block_prune_accounting():
         base = eb.build(CONFIGS["ax7101_8x8"], OUT)
         pruned = eb.build(p, OUT)
     finally:
-        os.unlink(p)
+        p.unlink()
     b, q = base["resource_estimate"], pruned["resource_estimate"]
     # the CRF sink also goes with internal-only clocking, so compare against
     # the sum of the banked prune rows PLUS the crf_rx row the config drops.
@@ -11462,7 +11935,7 @@ TDM_MASTER_BINDING = [
 ]
 
 
-def test_tdm_master_binding_reaches_the_pins():
+def test_tdm_master_binding_reaches_the_pins() -> None:
     """gate 24 - THE L1 BINDING GATE for the item-4 TDM master.
 
     LEVEL 1 (module <-> wrapper <-> platform binding).  ORACLE: the fabric
@@ -11496,10 +11969,9 @@ def test_tdm_master_binding_reaches_the_pins():
 
 
 def _tdm_sources():
-    return (open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read(),
-            open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read(),
-            open(os.path.join(ROOT,
-                              "sw/litex/platforms/alinx_ax7101.py")).read())
+    return ((ROOT / "sw/litex/milan_soc.py").read_text(),
+            (ROOT / "hdl/milan/milan_datapath.sv").read_text(),
+            (ROOT / "sw/litex/platforms/alinx_ax7101.py").read_text())
 
 
 def _tdm_master_binding(soc, rtl, plat):
@@ -11603,7 +12075,7 @@ TDM_BINDING_MUTATIONS = [
 ]
 
 
-def test_tdm_master_binding_gate_bites():
+def test_tdm_master_binding_gate_bites() -> None:
     """gate 24b - prove every gate-24 assertion can FAIL.
 
     LEVEL 1, same oracle. Seven mutations of the real sources, each the shape
@@ -11728,6 +12200,50 @@ def _sole_call(scope, callee, where):
     return {kw.arg: kw.value for kw in call.keywords}
 
 
+def _assert_no_flags_are_live_levers(main_def):
+    """Every ordinary `--no-*` main() declares is an off-by-default
+    store_true main() also reads - so no prune flag is a decorative no-op."""
+    # Every ordinary --no-* flag main() DECLARES must be one main() also READS,
+    # and it must stay an off-by-default store_true. `--no-fabric-gptp` is the
+    # deliberate exception: it is the negative member of a mutually-exclusive
+    # owner group and therefore uses store_false on the shared fabric_gptp
+    # destination; gates 1c/1e grade both of its polarities and every carrier.
+    # `default=True` on an ordinary --no-* flag inverts the lever in silence
+    # (an UNFLAGGED build takes the pruned path), and a flag nothing reads is
+    # decorative ABI wearing a CLI hat.
+    read = {n.attr for n in ast.walk(main_def) if isinstance(n, ast.Attribute)
+            and isinstance(n.value, ast.Name) and n.value.id == "args"}
+    for call in ast.walk(main_def):
+        if not (isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Attribute)
+                and call.func.attr == "add_argument"
+                and call.args and isinstance(call.args[0], ast.Constant)
+                and str(call.args[0].value).startswith("--no-")):
+            continue
+        flag = call.args[0].value
+        if flag == "--no-fabric-gptp":
+            continue
+        opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
+        named = opts.get("dest")
+        dest = named.value if isinstance(named, ast.Constant) else \
+            flag.removeprefix("--").replace("-", "_")
+        act = opts.get("action")
+        assert isinstance(act, ast.Constant) and act.value == "store_true", (
+            f"{flag}: a --no-* flag must be a plain store_true, not "
+            f"{ast.unparse(act) if act is not None else 'a positional store'}")
+        dflt = opts.get("default")
+        assert dflt is None or (isinstance(dflt, ast.Constant)
+                                and (dflt.value is False
+                                     or dflt.value is None)), (
+            f"{flag}: `default={ast.unparse(dflt)}` inverts the flag - an "
+            "UNFLAGGED build would take the pruned path and ship the block "
+            "missing, which is the silent no-op with its sign flipped")
+        assert dest in read, (
+            f"{flag}: main() declares it and never reads `args.{dest}`, so it "
+            "is decorative - the argv records the intent and the gateware "
+            "never hears about it (the #130 shape, one hop earlier)")
+
+
 def _optional_block_cli_consumption(soc):
     """Map every OPTIONAL_BLOCKS row to its consumption route in main().
 
@@ -11795,113 +12311,15 @@ def _optional_block_cli_consumption(soc):
                 f"a dedicated `{name}=` keyword; the missing key defaults "
                 "to PRESENT and the prune flag becomes a silent no-op")
 
-    # Every ordinary --no-* flag main() DECLARES must be one main() also READS,
-    # and it must stay an off-by-default store_true. `--no-fabric-gptp` is the
-    # deliberate exception: it is the negative member of a mutually-exclusive
-    # owner group and therefore uses store_false on the shared fabric_gptp
-    # destination; gates 1c/1e grade both of its polarities and every carrier.
-    # `default=True` on an ordinary --no-* flag inverts the lever in silence
-    # (an UNFLAGGED build takes the pruned path), and a flag nothing reads is
-    # decorative ABI wearing a CLI hat.
-    read = {n.attr for n in ast.walk(mains[0]) if isinstance(n, ast.Attribute)
-            and isinstance(n.value, ast.Name) and n.value.id == "args"}
-    for call in ast.walk(mains[0]):
-        if not (isinstance(call, ast.Call)
-                and isinstance(call.func, ast.Attribute)
-                and call.func.attr == "add_argument"
-                and call.args and isinstance(call.args[0], ast.Constant)
-                and str(call.args[0].value).startswith("--no-")):
-            continue
-        flag = call.args[0].value
-        if flag == "--no-fabric-gptp":
-            continue
-        opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
-        named = opts.get("dest")
-        dest = named.value if isinstance(named, ast.Constant) else \
-            flag.removeprefix("--").replace("-", "_")
-        act = opts.get("action")
-        assert isinstance(act, ast.Constant) and act.value == "store_true", (
-            f"{flag}: a --no-* flag must be a plain store_true, not "
-            f"{ast.unparse(act) if act is not None else 'a positional store'}")
-        dflt = opts.get("default")
-        assert dflt is None or (isinstance(dflt, ast.Constant)
-                                and (dflt.value is False
-                                     or dflt.value is None)), (
-            f"{flag}: `default={ast.unparse(dflt)}` inverts the flag - an "
-            "UNFLAGGED build would take the pruned path and ship the block "
-            "missing, which is the silent no-op with its sign flipped")
-        assert dest in read, (
-            f"{flag}: main() declares it and never reads `args.{dest}`, so it "
-            "is decorative - the argv records the intent and the gateware "
-            "never hears about it (the #130 shape, one hop earlier)")
+    _assert_no_flags_are_live_levers(mains[0])
     return routes
 
 
-def _optional_block_prune_chain(soc):
-    """Trace every tier-1 prune from argparse to `p_<PARAM> = 0`, statically.
-
-    Gate 23d used to stop at the FIRST hop, `main()` -> `MilanSoC(...)`. Three
-    more hops sit between that call and the parameter the RTL reads, and all
-    of them live in this one file:
-
-        main()             -> MilanSoC(optional_blocks=..., render_lpf=...)
-        MilanSoC.__init__  -> MilanNIC(optional_blocks=..., render_lpf=...)
-        MilanNIC.__init__  -> add_milan_datapath(optional_blocks=...)
-        add_milan_datapath -> dp_params[f"p_{param}"] = 0
-
-    A value dropped, tied or inverted on any of them is invisible to a
-    spelling check, and its symptom is the #130 symptom exactly: the config
-    declares the prune, the plan tabulates it, the estimate books the saving,
-    and the bitstream ships the block. The emit guard is worse than a no-op if
-    inverted, because then an UNFLAGGED build prunes all seven and the
-    shipping bitstream quietly loses MAAP, the media-clock servo and the RX
-    MAC filter.
-
-    Task #144 (gate 23f) proves the same chain BEHAVIOURALLY, by elaborating
-    main() and spying on `Instance("milan_datapath", ...)`; that gate needs
-    migen + LiteX, so it SKIPS in CI. This one is text and AST only, which is
-    why it is the half that runs on the pyyaml-only docs job. The last link,
-    `dp_params` -> the parameters `Instance` is actually handed, is #144's:
-    no amount of reading can prove what elaboration does with the dict.
-    """
-    tree = _soc_tree(soc)
-    routes = _optional_block_cli_consumption(tree)
-    dedicated = sorted(k for k, r in routes.items() if r != "optional_blocks")
-    dict_routed = sorted(k for k, r in routes.items()
-                         if r == "optional_blocks")
-    soc_init = _def_of(_class_of(tree, "MilanSoC"), "__init__")
-    nic_init = _def_of(_class_of(tree, "MilanNIC"), "__init__")
-    dp_def = _sole([n for n in tree.body
-                    if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
-                    and n.name == "add_milan_datapath"],
-                   "def add_milan_datapath()")
-
-    # hops 2 and 3: the carriers are FORWARDED, and each still READS the
-    # parameter it arrived in. Deleting `optional_blocks=optional_blocks`
-    # here defaults it to None one call further down, which un-prunes every
-    # dict-routed block; tying `render_lpf=True` does the same to the banked
-    # 428 LUT lever. Both are one deleted line and neither raises.
-    carriers = {"optional_blocks": dict_routed}
-    carriers.update({name: [name] for name in dedicated})
-    for src, callee, dst, where in (
-            (soc_init, "MilanNIC", nic_init, "MilanSoC.__init__"),
-            (nic_init, "add_milan_datapath", dp_def, "MilanNIC.__init__")):
-        passed = _sole_call(src, callee, where)
-        for carrier, carried in carriers.items():
-            assert carrier in _declared_params(src), (
-                f"{where} declares no `{carrier}` parameter, so the prune "
-                f"never arrives at all for: {', '.join(carried)}")
-            assert carrier in _declared_params(dst), (
-                f"{callee} declares no `{carrier}` parameter, so {where} "
-                f"cannot hand the prune on for: {', '.join(carried)}")
-            got = passed.get(carrier)
-            saw = f"`{carrier}={ast.unparse(got)}`" if got is not None else \
-                f"no `{carrier}=` keyword at all"
-            assert _reads(got, carrier), (
-                f"{where}: the {callee}(...) call passes {saw}, which no "
-                f"longer reads its own `{carrier}` parameter - the prune is "
-                f"dropped one hop short of the RTL for: {', '.join(carried)}")
-
+def _assert_prune_map_folds_and_emits(dp_def, routes, dedicated,
+                                      dict_routed):
+    """Hop 4 of the prune chain: add_milan_datapath seeds every block
+    PRESENT, folds both carriers into the map, and emits `p_<PARAM> = 0`
+    under the one guard whose polarity decides the whole tier-1 table."""
     # hop 4a: the map starts ALL PRESENT (AREA_BUDGET rule 1, at the source)
     seed = _sole([n for n in ast.walk(dp_def) if isinstance(n, ast.Assign)
                   and isinstance(n.targets[0], ast.Name)
@@ -11976,6 +12394,75 @@ def _optional_block_prune_chain(soc):
     assert isinstance(out.value, ast.Constant) and out.value.value == 0, (
         f"add_milan_datapath: `{ast.unparse(out)}` - only 0 prunes, any other "
         "value leaves the generate arm elaborated (AREA_BUDGET rule 1)")
+
+
+def _optional_block_prune_chain(soc):
+    """Trace every tier-1 prune from argparse to `p_<PARAM> = 0`, statically.
+
+    Gate 23d used to stop at the FIRST hop, `main()` -> `MilanSoC(...)`. Three
+    more hops sit between that call and the parameter the RTL reads, and all
+    of them live in this one file:
+
+        main()             -> MilanSoC(optional_blocks=..., render_lpf=...)
+        MilanSoC.__init__  -> MilanNIC(optional_blocks=..., render_lpf=...)
+        MilanNIC.__init__  -> add_milan_datapath(optional_blocks=...)
+        add_milan_datapath -> dp_params[f"p_{param}"] = 0
+
+    A value dropped, tied or inverted on any of them is invisible to a
+    spelling check, and its symptom is the #130 symptom exactly: the config
+    declares the prune, the plan tabulates it, the estimate books the saving,
+    and the bitstream ships the block. The emit guard is worse than a no-op if
+    inverted, because then an UNFLAGGED build prunes all seven and the
+    shipping bitstream quietly loses MAAP, the media-clock servo and the RX
+    MAC filter.
+
+    Task #144 (gate 23f) proves the same chain BEHAVIOURALLY, by elaborating
+    main() and spying on `Instance("milan_datapath", ...)`; that gate needs
+    migen + LiteX, so it SKIPS in CI. This one is text and AST only, which is
+    why it is the half that runs on the pyyaml-only docs job. The last link,
+    `dp_params` -> the parameters `Instance` is actually handed, is #144's:
+    no amount of reading can prove what elaboration does with the dict.
+    """
+    tree = _soc_tree(soc)
+    routes = _optional_block_cli_consumption(tree)
+    dedicated = sorted(k for k, r in routes.items() if r != "optional_blocks")
+    dict_routed = sorted(k for k, r in routes.items()
+                         if r == "optional_blocks")
+    soc_init = _def_of(_class_of(tree, "MilanSoC"), "__init__")
+    nic_init = _def_of(_class_of(tree, "MilanNIC"), "__init__")
+    dp_def = _sole([n for n in tree.body
+                    if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    and n.name == "add_milan_datapath"],
+                   "def add_milan_datapath()")
+
+    # hops 2 and 3: the carriers are FORWARDED, and each still READS the
+    # parameter it arrived in. Deleting `optional_blocks=optional_blocks`
+    # here defaults it to None one call further down, which un-prunes every
+    # dict-routed block; tying `render_lpf=True` does the same to the banked
+    # 428 LUT lever. Both are one deleted line and neither raises.
+    carriers = {"optional_blocks": dict_routed}
+    carriers.update({name: [name] for name in dedicated})
+    for src, callee, dst, where in (
+            (soc_init, "MilanNIC", nic_init, "MilanSoC.__init__"),
+            (nic_init, "add_milan_datapath", dp_def, "MilanNIC.__init__")):
+        passed = _sole_call(src, callee, where)
+        for carrier, carried in carriers.items():
+            assert carrier in _declared_params(src), (
+                f"{where} declares no `{carrier}` parameter, so the prune "
+                f"never arrives at all for: {', '.join(carried)}")
+            assert carrier in _declared_params(dst), (
+                f"{callee} declares no `{carrier}` parameter, so {where} "
+                f"cannot hand the prune on for: {', '.join(carried)}")
+            got = passed.get(carrier)
+            saw = f"`{carrier}={ast.unparse(got)}`" if got is not None else \
+                f"no `{carrier}=` keyword at all"
+            assert _reads(got, carrier), (
+                f"{where}: the {callee}(...) call passes {saw}, which no "
+                f"longer reads its own `{carrier}` parameter - the prune is "
+                f"dropped one hop short of the RTL for: {', '.join(carried)}")
+
+    _assert_prune_map_folds_and_emits(dp_def, routes, dedicated,
+                                      dict_routed)
     return routes
 
 
@@ -11986,7 +12473,7 @@ def _module_source(module):
     is found here by NAME across hdl/ so this helper cannot be fooled by a
     stale list - a module that exists is found, a module that does not is not.
     """
-    for path in sorted(pathlib.Path(ROOT, "hdl").rglob("*.sv")):
+    for path in sorted((ROOT / "hdl").rglob("*.sv")):
         text = path.read_text(errors="replace")
         if re.search(r"^\s*module\s+%s\b" % re.escape(module), text, re.M):
             return text
@@ -12031,7 +12518,66 @@ def _prune_guard_site(param, rtl):
     return None, param
 
 
-def test_optional_block_names_reach_the_rtl():
+def _assert_loopback_lane_reaches_the_rtl(soc, rtl):
+    """Gate 23e: the same decorative-ABI risk at the opposite polarity -
+    --loopback-lane is an ADD, default OFF, so gate 23d cannot see it."""
+    # gate 23e (task #65): the loopback lane rides the SAME decorative-ABI
+    # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
+    # not in OPTIONAL_BLOCKS and gate 23d above cannot see it. Nothing in CI
+    # runs LiteX, so a rename on either side would silently no-op exactly
+    # like the historical misspelling did: argv would carry --loopback-lane, the
+    # Instance would pass a parameter the RTL does not have, the bucket would
+    # stay tied off, and the AEM would go on advertising a lane that is not
+    # there. Pin all four names as TEXT.
+    assert re.search(r'ap\.add_argument\("--loopback-lane",\s*'
+                     r'action="store_true"', soc), \
+        "milan_soc.py has no --loopback-lane store_true argument"
+    assert re.search(r'dp_params\["p_LOOPBACK_P"\]\s*=\s*1', soc), \
+        "milan_soc.py never passes p_LOOPBACK_P (the SV name, exactly)"
+    assert re.search(r"^\s*parameter\s+int\s+LOOPBACK_P\s*=\s*(\d+)\s*,",
+                     rtl, re.M).group(1) == "0", (
+        "milan_datapath.sv LOOPBACK_P must exist and default to 0 - it is an "
+        "ADD that the shipping bitstream cannot afford, not a prune")
+    # and it must actually reach the leaf: the tie-off is the strobe, so a
+    # build with the lane off can never write the hold bank
+    assert re.search(r"assign lb_tap_tvalid_w\s*=\s*\(LOOPBACK_P != 0\)",
+                     rtl), \
+        "milan_datapath.sv: LOOPBACK_P does not gate the LOOP bucket's strobe"
+    assert ".lb_tvalid_i (lb_tap_tvalid_w)" in rtl, \
+        "milan_datapath.sv: the LOOP bucket's feed is not connected at all"
+    # the builder half: the flag is emitted from the SAME declaration
+    # primary_segment reads, so the two cannot disagree
+    lane_cfg = eb.load_config(CONFIGS["ax7101_8x8"])
+    assert ("--loopback-lane" in eb.emit_design_opts(lane_cfg)) == \
+        lane_cfg["interface"]["cluster_fabric"]["loopback_lane"], \
+        "the milan_soc argv and the declared fabric lane disagree"
+    print("  [gate 23e] task #65 loopback lane: --loopback-lane store_true == "
+          "p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate "
+          "== the connected lb_tvalid_i == the config declaration that "
+          "primary_segment reads (same silent-no-op class, opposite polarity)")
+
+
+def _assert_area_budget_table_agrees():
+    """Gate 23d step 6: AREA_BUDGET.md's tier-1 table carries the same
+    block, parameter and flag as the builder, and the same banked LUTs."""
+    # 6. and the DOC that authorises all of this names the same blocks, with the
+    #    same parameter and the same flag. A prune table that drifts from the
+    #    RTL is how a banked lever becomes folklore.
+    doc = (ROOT / "docs/design/AREA_BUDGET.md").read_text()
+    for name, (flag, param, _why) in eb.OPTIONAL_BLOCKS.items():
+        row = re.search(r"^\|[^|\n]+\| `%s` \| `%s` \| `%s` \|"
+                        % (re.escape(param), re.escape(flag),
+                           re.escape(name)), doc, re.M)
+        assert row, (f"AREA_BUDGET.md tier-1 table has no row mapping "
+                     f"`{param}` / `{flag}` / `{name}`")
+    # the three subtractive estimator rows must quote the doc's figures
+    for k in ("media_clock_servo", "latency_taps", "render_lpf"):
+        lut = -eb.RESOURCE_COSTS[f"prune_{k}"]["lut"]
+        assert re.search(r"\| %s \|" % lut, doc) or f"{lut}" in doc, \
+            f"AREA_BUDGET.md does not carry the banked {lut} LUT for {k}"
+
+
+def test_optional_block_names_reach_the_rtl() -> None:
     """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
     record: `milan_soc.py` once passed a misspelled optional-block Instance
     parameter, so LiteX silently no-oped it and the flag pruned nothing.
@@ -12046,8 +12592,8 @@ def test_optional_block_names_reach_the_rtl():
     rename, typo, decorative --no-* flag, dropped forward or inverted guard
     fails here in milliseconds, on a box with no LiteX and no migen.
     """
-    soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
-    rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
     routes = _optional_block_prune_chain(soc)
     # 1. the SoC's own keyword -> parameter map, parsed from the literal
     soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
@@ -12099,21 +12645,7 @@ def test_optional_block_names_reach_the_rtl():
         assert f'dp_params[f"p_{{param}}"] = 0' in soc or \
                re.search(r'dp_params\[f?"p_\{?param\}?"\]\s*=\s*0', soc), \
             "milan_soc.py must emit p_<PARAM>=0 only when pruning"
-    # 6. and the DOC that authorises all of this names the same blocks, with the
-    #    same parameter and the same flag. A prune table that drifts from the
-    #    RTL is how a banked lever becomes folklore.
-    doc = open(os.path.join(ROOT, "docs/design/AREA_BUDGET.md")).read()
-    for name, (flag, param, _why) in eb.OPTIONAL_BLOCKS.items():
-        row = re.search(r"^\|[^|\n]+\| `%s` \| `%s` \| `%s` \|"
-                        % (re.escape(param), re.escape(flag),
-                           re.escape(name)), doc, re.M)
-        assert row, (f"AREA_BUDGET.md tier-1 table has no row mapping "
-                     f"`{param}` / `{flag}` / `{name}`")
-    # the three subtractive estimator rows must quote the doc's figures
-    for k in ("media_clock_servo", "latency_taps", "render_lpf"):
-        lut = -eb.RESOURCE_COSTS[f"prune_{k}"]["lut"]
-        assert re.search(r"\| %s \|" % lut, doc) or f"{lut}" in doc, \
-            f"AREA_BUDGET.md does not carry the banked {lut} LUT for {k}"
+    _assert_area_budget_table_agrees()
     direct = sorted(k for k, route in routes.items()
                     if route != "optional_blocks")
     print(f"  [gate 23d] {len(eb.OPTIONAL_BLOCKS)} optional blocks: builder "
@@ -12133,40 +12665,7 @@ def test_optional_block_names_reach_the_rtl():
           "test. That family and what elaboration hands Instance() are both "
           "gate 23f, task #144)")
 
-    # gate 23e (task #65): the loopback lane rides the SAME decorative-ABI
-    # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
-    # not in OPTIONAL_BLOCKS and gate 23d above cannot see it. Nothing in CI
-    # runs LiteX, so a rename on either side would silently no-op exactly
-    # like the historical misspelling did: argv would carry --loopback-lane, the
-    # Instance would pass a parameter the RTL does not have, the bucket would
-    # stay tied off, and the AEM would go on advertising a lane that is not
-    # there. Pin all four names as TEXT.
-    assert re.search(r'ap\.add_argument\("--loopback-lane",\s*'
-                     r'action="store_true"', soc), \
-        "milan_soc.py has no --loopback-lane store_true argument"
-    assert re.search(r'dp_params\["p_LOOPBACK_P"\]\s*=\s*1', soc), \
-        "milan_soc.py never passes p_LOOPBACK_P (the SV name, exactly)"
-    assert re.search(r"^\s*parameter\s+int\s+LOOPBACK_P\s*=\s*(\d+)\s*,",
-                     rtl, re.M).group(1) == "0", (
-        "milan_datapath.sv LOOPBACK_P must exist and default to 0 - it is an "
-        "ADD that the shipping bitstream cannot afford, not a prune")
-    # and it must actually reach the leaf: the tie-off is the strobe, so a
-    # build with the lane off can never write the hold bank
-    assert re.search(r"assign lb_tap_tvalid_w\s*=\s*\(LOOPBACK_P != 0\)",
-                     rtl), \
-        "milan_datapath.sv: LOOPBACK_P does not gate the LOOP bucket's strobe"
-    assert ".lb_tvalid_i (lb_tap_tvalid_w)" in rtl, \
-        "milan_datapath.sv: the LOOP bucket's feed is not connected at all"
-    # the builder half: the flag is emitted from the SAME declaration
-    # primary_segment reads, so the two cannot disagree
-    lane_cfg = eb.load_config(CONFIGS["ax7101_8x8"])
-    assert ("--loopback-lane" in eb.emit_design_opts(lane_cfg)) == \
-        lane_cfg["interface"]["cluster_fabric"]["loopback_lane"], \
-        "the milan_soc argv and the declared fabric lane disagree"
-    print("  [gate 23e] task #65 loopback lane: --loopback-lane store_true == "
-          "p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate "
-          "== the connected lb_tvalid_i == the config declaration that "
-          "primary_segment reads (same silent-no-op class, opposite polarity)")
+    _assert_loopback_lane_reaches_the_rtl(soc, rtl)
 
 
 def _chain_control(label, soc, pattern, repl, expect, flags=0):
@@ -12190,7 +12689,7 @@ def _chain_control(label, soc, pattern, repl, expect, flags=0):
             "block it claims to have pruned")
 
 
-def test_prune_guard_hop_gate_bites():
+def test_prune_guard_hop_gate_bites() -> None:
     """gate 23d, the ONE-HOP arm. Following a parameter into a child module is
     only safe if the follow refuses everything except a real guarded generate
     with an inert else arm. Each case below is a mutation of the live LTAP
@@ -12206,7 +12705,7 @@ def test_prune_guard_hop_gate_bites():
 
     # the live shape: the datapath binds LTAP_P into the bank's ENABLE_P and
     # the bank owns the generate.
-    rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
     site, guard = _prune_guard_site("LTAP_P", rtl)
     assert site is not None and guard == "ENABLE_P", (
         "the live one-hop binding .ENABLE_P (LTAP_P) must resolve to the "
@@ -12231,8 +12730,7 @@ def test_prune_guard_hop_gate_bites():
     # and the else arm is still required AT THE SITE: a child whose generate
     # has no inert arm must not satisfy the gate. Graded on text, because that
     # is what the gate itself reads.
-    bank = open(os.path.join(ROOT,
-                "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv")).read()
+    bank = (ROOT / "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv").read_text()
     g = re.search(r"generate if \(ENABLE_P != 0\) begin : (\w+)", bank)
     assert g, "the bank must carry the guarded generate this gate follows to"
     assert re.search(r"end else begin : \w+", bank[g.end():]), \
@@ -12241,45 +12739,9 @@ def test_prune_guard_hop_gate_bites():
           "refused, inert else arm present at the followed site")
 
 
-def test_optional_block_consumption_gate_bites():
-    """Gate 23d negative controls: cut every link of the prune chain.
-
-    Replacing a live predicate with True models the exact failure from #130:
-    argparse still accepts the flag, but main() always tells MilanSoC that the
-    block is present. Every row must turn the focused check red, and the rows
-    below it cut the same chain further downstream, where the value is
-    forwarded, folded and finally emitted as `p_<PARAM> = 0`.
-    """
-    soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
-    rejected = []
-    for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
-        dest = flag.removeprefix("--").replace("-", "_")
-        patterns = (
-            r'(^\s*"%s"\s*:\s*)not\s+args\.%s\b'
-            % (re.escape(name), re.escape(dest)),
-            r'(^\s*%s\s*=\s*)not\s+args\.%s\b'
-            % (re.escape(name), re.escape(dest)),
-        )
-        bad, changed = soc, 0
-        for pattern in patterns:
-            bad, n = re.subn(pattern, r"\g<1>True", bad, count=1,
-                             flags=re.M)
-            changed += n
-        assert changed == 1, (
-            f"{name}: negative control found {changed} live handoffs, want 1")
-        try:
-            _optional_block_cli_consumption(bad)
-        except AssertionError as exc:
-            assert name in str(exc), \
-                f"{name}: mutation failed for the wrong reason: {exc}"
-            rejected.append(name)
-        else:
-            raise AssertionError(
-                f"{name}: gate 23d accepted a decorative `{flag}` whose "
-                "main() handoff was replaced with True")
-    print(f"  [gate 23d mutation] {len(rejected)}/{len(eb.OPTIONAL_BLOCKS)} "
-          "disconnected --no-* handoffs rejected by block name")
-
+def _assert_swallowed_keyword_control(soc):
+    """Gate 23d's BLOCKER control: a dedicated keyword MilanSoC.__init__
+    never declares must be REFUSED, not printed as a route."""
     # ---- the BLOCKER control: a keyword `**kwargs` would swallow -----------
     # Move a row out of optional_blocks and onto its own top-level keyword.
     # argparse accepts it, MilanSoC.__init__ accepts it (it ends in
@@ -12320,6 +12782,48 @@ def test_optional_block_consumption_gate_bites():
     print(f"  [gate 23d mutation] {len(swallowed)}/{len(swallowed)} dedicated "
           "keywords MilanSoC.__init__ never declares rejected by block name "
           "(LiteX warns and ignores; the bitstream ships unpruned)")
+
+
+def test_optional_block_consumption_gate_bites() -> None:
+    """Gate 23d negative controls: cut every link of the prune chain.
+
+    Replacing a live predicate with True models the exact failure from #130:
+    argparse still accepts the flag, but main() always tells MilanSoC that the
+    block is present. Every row must turn the focused check red, and the rows
+    below it cut the same chain further downstream, where the value is
+    forwarded, folded and finally emitted as `p_<PARAM> = 0`.
+    """
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    rejected = []
+    for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
+        dest = flag.removeprefix("--").replace("-", "_")
+        patterns = (
+            r'(^\s*"%s"\s*:\s*)not\s+args\.%s\b'
+            % (re.escape(name), re.escape(dest)),
+            r'(^\s*%s\s*=\s*)not\s+args\.%s\b'
+            % (re.escape(name), re.escape(dest)),
+        )
+        bad, changed = soc, 0
+        for pattern in patterns:
+            bad, n = re.subn(pattern, r"\g<1>True", bad, count=1,
+                             flags=re.M)
+            changed += n
+        assert changed == 1, (
+            f"{name}: negative control found {changed} live handoffs, want 1")
+        try:
+            _optional_block_cli_consumption(bad)
+        except AssertionError as exc:
+            assert name in str(exc), \
+                f"{name}: mutation failed for the wrong reason: {exc}"
+            rejected.append(name)
+        else:
+            raise AssertionError(
+                f"{name}: gate 23d accepted a decorative `{flag}` whose "
+                "main() handoff was replaced with True")
+    print(f"  [gate 23d mutation] {len(rejected)}/{len(eb.OPTIONAL_BLOCKS)} "
+          "disconnected --no-* handoffs rejected by block name")
+
+    _assert_swallowed_keyword_control(soc)
 
     # ---- one cut link per row, from main() down to dp_params --------------
     # Every one of these was green across the WHOLE suite while gate 23d
@@ -12524,12 +13028,11 @@ def _litex_python():
     """
     cands = [os.environ.get("MILAN_LITEX_PYTHON"), sys.executable]
     m = re.search(r'export PATH="?\$HOME/([^/"\s:]+)/venv/bin',
-                  open(SWEEP).read())
+                  SWEEP.read_text())
     if m:
-        cands.append(os.path.join(os.path.expanduser("~"), m.group(1),
-                                  "venv", "bin", "python3"))
+        cands.append(str(Path.home() / m.group(1) / "venv/bin/python3"))
     for cand in cands:
-        if not cand or not os.path.exists(cand):
+        if not cand or not Path(cand).exists():
             continue
         if subprocess.run([cand, "-c", "import migen, litex, litex_boards"],
                           cwd=SOC_DIR, capture_output=True).returncode == 0:
@@ -12574,7 +13077,8 @@ def _instance_params(python, runs, mutations=()):
     """
     env = dict(os.environ, PYTHONHASHSEED="0")
     out, seen = {}, {}
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory() as made:
+        tmp = Path(made)
         # THE SPY MUST STOP THE ELABORATION, not merely witness it, and the
         # empty directory below is what proves it.  Every recipe run carries
         # `--build`; if the spy ever raised too LATE - after Builder() was
@@ -12584,28 +13088,31 @@ def _instance_params(python, runs, mutations=()):
         # harness whose own cheapness is assumed rather than checked is the
         # thing these gates exist to stop.  Borrowed from gate 1e on the #116
         # lane (PR #135), which had this and this file did not.
-        build_out = os.path.join(tmp, "build-out")
-        os.makedirs(build_out)
+        build_out = tmp / "build-out"
+        build_out.mkdir()
         for label, argv in runs:
-            argv = [build_out if a == BUILD_OUT_TOKEN else a for a in argv]
+            argv = [str(build_out) if a == BUILD_OUT_TOKEN else a
+                    for a in argv]
             # Several labels share one command line on purpose; elaborating
             # the same shipping baseline more than once buys nothing.
             key = tuple(argv)
             if key in seen:
                 out[label] = seen[key]
                 continue
-            spec = os.path.join(tmp, "spec.json")
-            result = os.path.join(tmp, "result.json")
-            if os.path.exists(result):
-                os.unlink(result)
+            spec = tmp / "spec.json"
+            result = tmp / "result.json"
+            result.unlink(missing_ok=True)
             with open(spec, "w") as fh:
-                json.dump({"soc_path": os.path.join(SOC_DIR, "milan_soc.py"),
-                           "result": result, "argv": argv,
+                # The probe is another process reading JSON: every path in
+                # the spec is rendered, because json cannot serialise a Path.
+                json.dump({"soc_path": str(SOC_DIR / "milan_soc.py"),
+                           "result": str(result), "argv": argv,
                            "mutations": [list(m) for m in mutations]}, fh)
-            proc = subprocess.run([python, "-", spec], input=_INSTANCE_PROBE,
+            proc = subprocess.run([python, "-", str(spec)],
+                                  input=_INSTANCE_PROBE,
                                   text=True, cwd=SOC_DIR, env=env,
                                   capture_output=True)
-            assert os.path.exists(result), (
+            assert result.exists(), (
                 f"{label}: the milan_soc.py probe wrote no result "
                 f"(rc={proc.returncode})\n{proc.stdout[-2000:]}"
                 f"\n{proc.stderr[-2000:]}")
@@ -12623,7 +13130,7 @@ def _instance_params(python, runs, mutations=()):
                 row["child_output"] = "\n".join(
                     (proc.stdout + "\n" + proc.stderr).splitlines()[-200:])
             out[label] = seen[key] = row
-        left = os.listdir(build_out)
+        left = [entry.name for entry in build_out.iterdir()]
         assert not left, (
             "the Instance spy no longer stops the elaboration: a run carrying "
             f"--build wrote {left} into its output directory, so these runs "
@@ -12655,7 +13162,9 @@ def _prune_contract(got, rows):
     """
     bad = []
 
-    def params(label):
+    def params(label: str) -> dict[str, Any] | None:
+        """This case's Instance parameters, or None with the reason banked
+        as a finding when the case never reached any."""
         row = got.get(label) or {"error": "case not run"}
         if "params" not in row:
             bad.append(f"{label}: {_why_failed(row)}")
@@ -12696,10 +13205,12 @@ def _config_argv(name):
     """
     cfg = eb.load_config(CONFIGS[name])
     eb.build(CONFIGS[name], OUT)
-    gen = os.path.join(ROOT, "configs/generated", cfg["name"])
-    assert os.path.isdir(gen), \
+    gen = ROOT / "configs/generated" / cfg["name"]
+    assert gen.is_dir(), \
         f"{gen}: this config has no generated include dir"
-    return cfg, eb.emit_soc_argv(cfg) + ["--entity-gen-dir", gen]
+    # argv is `list[str]`: it is rendered into a JSON spec and handed to
+    # another interpreter, neither of which takes a Path.
+    return cfg, eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(gen)]
 
 
 def _behavioural_runs():
@@ -12751,12 +13262,12 @@ def _gptp_without_owner_flag(argv):
             if a not in ("--fabric-gptp", "--no-fabric-gptp")]
 
 
-def _launcher_soc_argv(script, args):
+def _launcher_soc_argv(script: Path, args):
     """The milan_soc.py argv printed by a launcher's real dry-run path."""
-    proc = subprocess.run(["bash", script] + list(args), cwd=SOC_DIR,
+    proc = subprocess.run(["bash", str(script)] + list(args), cwd=SOC_DIR,
                           text=True, capture_output=True)
     assert proc.returncode == 0, (
-        f"{os.path.basename(script)} {' '.join(args)} dry-run failed "
+        f"{script.name} {' '.join(args)} dry-run failed "
         f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n"
         f"{proc.stderr[-2000:]}")
     rows = []
@@ -12765,14 +13276,14 @@ def _launcher_soc_argv(script, args):
             continue
         tokens = shlex.split(line.strip())
         for i, token in enumerate(tokens):
-            if os.path.basename(token) == "milan_soc.py":
+            if Path(token).name == "milan_soc.py":
                 argv = tokens[i + 1:]
                 if "--output-dir" in argv:
                     j = argv.index("--output-dir")
                     argv[j + 1] = BUILD_OUT_TOKEN
                 rows.append(argv)
                 break
-    assert rows, (f"{os.path.basename(script)} {' '.join(args)} printed no "
+    assert rows, (f"{script.name} {' '.join(args)} printed no "
                   f"milan_soc.py argv\n{proc.stdout[-2000:]}")
     return rows
 
@@ -12801,7 +13312,7 @@ def _gptp_instance_runs():
     runs.append(("gptp build.sh shipping", build_rows[0]))
     expected["gptp build.sh shipping"] = 1
 
-    deploy = os.path.join(SOC_DIR, "deploy.sh")
+    deploy = SOC_DIR / "deploy.sh"
     deploy_rows = _launcher_soc_argv(deploy, ["build", "--dry-run"])
     assert len(deploy_rows) == 1, \
         f"deploy.sh build emitted {len(deploy_rows)} commands, want 1"
@@ -12836,7 +13347,7 @@ def _gptp_instance_contract(got, expected):
             bad.append(f"{label}: gPTP ROM is "
                        f"{'present' if has_rom else 'absent'} with plane "
                        f"{'on' if want else 'off'}")
-        if has_rom and not os.path.isabs(p["p_GPTP_UCODE_HEX_P"]):
+        if has_rom and not Path(p["p_GPTP_UCODE_HEX_P"]).is_absolute():
             bad.append(f"{label}: gPTP ROM path is not absolute")
     for default, explicit in (("gptp baremetal default",
                                "gptp baremetal explicit"),
@@ -12851,7 +13362,7 @@ def _gptp_instance_contract(got, expected):
     return bad
 
 
-def test_gptp_plane_reaches_the_instance():
+def test_gptp_plane_reaches_the_instance() -> None:
     """Gate 1e: both owner states reach the real RTL Instance."""
     python = _litex_or_skip("gate 1e")
     if python is None:
@@ -12904,7 +13415,7 @@ GPTP_INSTANCE_MUTATIONS = (
 )
 
 
-def test_gptp_plane_instance_gate_bites():
+def test_gptp_plane_instance_gate_bites() -> None:
     """Gate 1e negative controls: every Python carrier cut turns it red."""
     python = _litex_or_skip("gate 1e mutation")
     if python is None:
@@ -12919,7 +13430,7 @@ def test_gptp_plane_instance_gate_bites():
           f"{len(GPTP_INSTANCE_MUTATIONS)} owner-carrier cuts rejected")
 
 
-def test_optional_blocks_reach_the_instance():
+def test_optional_blocks_reach_the_instance() -> None:
     """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issues #130, #154).
 
     Every OPTIONAL_BLOCKS row is graded on the
@@ -12949,7 +13460,7 @@ def test_optional_blocks_reach_the_instance():
           f"bitstream places or boots")
 
 
-def test_optional_block_instance_gate_bites():
+def test_optional_block_instance_gate_bites() -> None:
     """Gate 23f negative controls - the hops a spelling gate cannot see.
 
     Each row deletes, renames or inverts ONE link of the argv -> Instance
@@ -13052,7 +13563,7 @@ def test_optional_block_instance_gate_bites():
 KNOWN_UNRUNNABLE = {}
 
 
-def _shell_recipes(path, pattern, flags=0):
+def _shell_recipes(path: Path, pattern, flags=0):
     """{name: argv} from a shell file, one entry per `pattern` match.
 
     `pattern` must capture (name, body).  The body is the raw shell word
@@ -13061,13 +13572,13 @@ def _shell_recipes(path, pattern, flags=0):
     - anything else left unexpanded is an assertion failure rather than a
     token silently handed to argparse with a `$` in it.
     """
-    text = open(path, encoding="utf-8").read()
+    text = path.read_text(encoding="utf-8")
     out = {}
     for name, body in re.findall(pattern, text, flags):
-        body = body.replace("\\\n", " ").replace("$SOC_DIR", SOC_DIR)
+        body = body.replace("\\\n", " ").replace("$SOC_DIR", str(SOC_DIR))
         argv = shlex.split(body)
         assert not [a for a in argv if "$" in a], \
-            f"{os.path.basename(path)} {name}: unexpanded shell variable in " \
+            f"{path.name} {name}: unexpanded shell variable in " \
             f"{[a for a in argv if '$' in a]} - this gate would hand it to " \
             "argparse verbatim"
         out[name] = argv
@@ -13088,7 +13599,7 @@ def _recipe_cases():
     # build.sh: `cfg_<name>() { ... echo "<argv>" }`, tail from its own exec
     # line, read out of build.sh rather than restated.
     tail = re.search(r"exec python3 milan_soc\.py \$args \$\{EXTRA\[\*\]:-\}"
-                     r'(.*?)"\s*$', open(BUILD_SH, encoding="utf-8").read(),
+                     r'(.*?)"\s*$', BUILD_SH.read_text(encoding="utf-8"),
                      re.M)
     assert tail, "build.sh no longer execs milan_soc.py the way this gate reads"
     build_tail = shlex.split(tail.group(1).replace("$out", OUT_DIR_TOKEN))
@@ -13098,20 +13609,25 @@ def _recipe_cases():
         out.append((f"build.sh cfg_{name}", argv + build_tail))
     # sweep.sh: OPTS per board from its own case table, plus the BASE tail and
     # the per-directive launch tail.
-    sweep = open(SWEEP, encoding="utf-8").read()
+    sweep = SWEEP.read_text(encoding="utf-8")
     base = re.search(r'BASE="python3 \$R/sw/litex/milan_soc\.py \$OPTS(.*?)"',
                      sweep, re.S)
     assert base, "sweep.sh no longer composes BASE the way this gate reads"
     sweep_tail = shlex.split(base.group(1).replace("\\\n", " ")
                              .replace("$CFG_GEN", "$CFG_GEN"))
+    # The indent is `\s+`, not `\s{2}`. These two reads want the case-arm SHAPE,
+    # not a column: Rule 13's top-heavy repair moved sweep.sh's dispatch inside a
+    # function, which indented every arm by four more spaces and made both
+    # patterns match nothing. The `assert` below then fired with "the launcher
+    # was reshaped and this gate stopped testing anything" - correctly, but for a
+    # reformat that changed no recipe. A shape gate must read the shape.
     for board, argv in _shell_recipes(
-            SWEEP, r'^\s{2}(\w+)\)\s+OPTS="(.*?)";\s*L2=', re.M | re.S).items():
-        cfg = re.search(r'^\s{2}%s\)\s+NS=\d+;\s*CFG=\$\{SWEEP_CFG:-([^}]+)\}'
+            SWEEP, r'^\s+(\w+)\)\s+OPTS="(.*?)";\s*L2=', re.M | re.S).items():
+        cfg = re.search(r'^\s+%s\)\s+NS=\d+;\s*CFG="?\$\{SWEEP_CFG:-([^}]+)\}"?'
                         % board, sweep, re.M)
         assert cfg, f"sweep.sh names no default config for the {board} leg"
-        gen = os.path.join(ROOT, "configs/generated",
-                           os.path.basename(cfg.group(1))[:-len(".yaml")])
-        tail = [gen if a == "$CFG_GEN" else a for a in sweep_tail]
+        gen = ROOT / "configs/generated" / Path(cfg.group(1)).stem
+        tail = [str(gen) if a == "$CFG_GEN" else a for a in sweep_tail]
         out.append((f"sweep.sh {board}", argv + tail +
                     ["--place-directive", "AltSpreadLogic_high",
                      "--output-dir", OUT_DIR_TOKEN]))
@@ -13196,7 +13712,7 @@ def _classify_recipe(label, argv, row, known_unrunnable=None):
         f"{_why_failed(row)}")
 
 
-def test_every_recipe_elaborates():
+def test_every_recipe_elaborates() -> None:
     """gate 23g - every build.sh recipe and sweep.sh leg REACHES the Instance.
 
     #156: nothing in this tree ever ran a recipe.  Two of them could not
@@ -13238,7 +13754,7 @@ def test_every_recipe_elaborates():
           "gate 1e's and #155 carries where the two disagree")
 
 
-def test_recipe_smoke_gate_bites():
+def test_recipe_smoke_gate_bites() -> None:
     """Gate 23g negative control - a recipe that cannot launch must redden it.
 
     The mutation is the REAL #156 item 1, replayed: strip `--entity-gen-dir`
@@ -13260,7 +13776,7 @@ def test_recipe_smoke_gate_bites():
           "item 1 replayed on the recipes that shipped it")
 
 
-def test_recipe_skip_classifier_bites():
+def test_recipe_skip_classifier_bites() -> None:
     """Gate 23g negative controls for the SKIP classifier; they need no LiteX.
 
     The skips are the part of gate 23g that can turn a failure into a green,
@@ -13401,7 +13917,7 @@ def _patch_series():
     L2 one had, and a second copy of the list here could hold it while
     apply.sh dropped it.
     """
-    src = open(APPLY_SH, encoding="utf-8").read()
+    src = APPLY_SH.read_text(encoding="utf-8")
     block = re.search(r"^SERIES=\((.*?)^\)", src, re.M | re.S)
     assert block, "apply.sh no longer declares a SERIES array this gate can read"
     rows = re.findall(r'"\s*(\S+)\s+(\S+\.patch)\s*"', block.group(1))
@@ -13409,26 +13925,33 @@ def _patch_series():
     return rows
 
 
-def _tree_root(python, key):
-    """The directory apply.sh's patch paths are relative to, for one tree key."""
+def _tree_root(python, key) -> Path:
+    """The directory apply.sh's patch paths are relative to, for one tree key.
+
+    The expression runs in ANOTHER interpreter, so `os.path` inside those
+    strings is that program's source, not this module's."""
     expr = _TREE_EXPR.get(
         key, f"import {key}, os; "
              f"print(os.path.dirname(os.path.dirname({key}.__file__)))")
     got = subprocess.run([python, "-c", expr], capture_output=True, text=True)
     assert got.returncode == 0, \
         f"{key}: this interpreter cannot locate the tree ({got.stderr.strip()})"
-    return got.stdout.strip()
+    return Path(got.stdout.strip())
 
 
-def _patch_targets(patch):
-    """The paths one patch rewrites, relative to its tree root."""
-    got = re.findall(r"^\+\+\+ b/(\S+)", open(patch, encoding="utf-8").read(),
+def _patch_targets(patch: Path) -> list[str]:
+    """The paths one patch rewrites, relative to its tree root.
+
+    Kept as `str` rows: they are diff HEADER text, joined onto a tree root by
+    the callers, and one of them is compared against apply.sh's own spelling.
+    """
+    got = re.findall(r"^\+\+\+ b/(\S+)", patch.read_text(encoding="utf-8"),
                      re.M)
     assert got, f"{patch}: no target files - is it a valid diff?"
     return got
 
 
-def _mirror(tmp, real):
+def _mirror(tmp: Path, real: Path) -> Path:
     """Where `real` lives inside the scratch mirror.
 
     THE MIRROR IS KEYED BY ABSOLUTE REALPATH, and that is the whole fix for
@@ -13445,7 +13968,7 @@ def _mirror(tmp, real):
     realpath(<pythondata root>)/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
     IS realpath(<vexiiriscv root>).
     """
-    return os.path.join(tmp, os.path.realpath(real).lstrip(os.sep))
+    return Path(tmp).joinpath(*Path(real).resolve().parts[1:])
 
 
 def _reconstruct(python, series, roots=None):
@@ -13466,26 +13989,28 @@ def _reconstruct(python, series, roots=None):
     """
     problems = []
     roots = roots or {key: _tree_root(python, key) for key, _ in series}
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory() as made:
+        tmp = Path(made)
         live = {}
         for key, patch in series:
             root = roots[key]
-            for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
-                src = os.path.join(root, rel)
-                if not os.path.exists(src):
+            for rel in _patch_targets(PATCH_DIR / patch):
+                src = root / rel
+                if not src.exists():
                     problems.append(f"{patch}: {key} has no {rel} at all")
                     continue
                 dst = _mirror(tmp, src)
                 if dst not in live:
-                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                    dst.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(src, dst)
                     live[dst] = src
         if problems:
             return problems
         for key, patch in reversed(series):
             rc = subprocess.run(
-                ["git", "-C", _mirror(tmp, roots[key]), "apply", "--reverse",
-                 os.path.join(PATCH_DIR, patch)], capture_output=True)
+                ["git", "-C", str(_mirror(tmp, roots[key])),
+                 "apply", "--reverse",
+                 str(PATCH_DIR / patch)], capture_output=True)
             if rc.returncode != 0:
                 problems.append(
                     f"{patch}: does not reverse out of the live {key}, so "
@@ -13498,24 +14023,27 @@ def _reconstruct(python, series, roots=None):
                 return problems
         for key, patch in series:
             rc = subprocess.run(
-                ["git", "-C", _mirror(tmp, roots[key]), "apply",
-                 os.path.join(PATCH_DIR, patch)], capture_output=True)
+                ["git", "-C", str(_mirror(tmp, roots[key])), "apply",
+                 str(PATCH_DIR / patch)], capture_output=True)
             if rc.returncode != 0:
                 problems.append(
                     f"{patch}: does not re-apply to the pristine {key} the "
                     "reversal produced, so the series is not self-consistent "
                     "in its own order")
                 return problems
-        for dst, src in sorted(live.items()):
-            if open(dst, "rb").read() != open(src, "rb").read():
+        # Sorted as TEXT, not as `Path`: a `Path` sort is component-wise, so
+        # `a/b/c` lands before `a-b/c` where a string sort puts it after, and
+        # the order these problems are reported in would move for no reason.
+        for dst, src in sorted(live.items(), key=lambda pair: str(pair[0])):
+            if dst.read_bytes() != src.read_bytes():
                 problems.append(
-                    f"{os.path.relpath(dst, tmp)}: upstream plus the series "
+                    f"{dst.relative_to(tmp)}: upstream plus the series "
                     "does not reproduce the installed file, so the tree "
                     "carries a change no patch here records")
     return problems
 
 
-def test_toolchain_patches_are_applied():
+def test_toolchain_patches_are_applied() -> None:
     """gate 23h - the LiteX being elaborated with is the one this repo describes.
 
     Reconstruction, not inspection: the series is reversed off a copy of the
@@ -13524,7 +14052,8 @@ def test_toolchain_patches_are_applied():
     if python is None:
         return
     series = _patch_series()
-    on_disk = {f for f in os.listdir(PATCH_DIR) if f.endswith(".patch")}
+    on_disk = {f.name for f in PATCH_DIR.iterdir()
+               if f.name.endswith(".patch")}
     listed = {f for _k, f in series}
     assert listed == on_disk, (
         "sw/litex/patches and apply.sh's SERIES disagree, which is how "
@@ -13540,22 +14069,23 @@ def test_toolchain_patches_are_applied():
     roots = {key: _tree_root(python, key) for key, _ in series}
     by_real, by_mirror = {}, {}
     for key, patch in series:
-        for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
-            src = os.path.join(roots[key], rel)
-            by_real.setdefault(os.path.realpath(src), set()).add(patch)
-            by_mirror.setdefault(_mirror("/m", src), set()).add(patch)
+        for rel in _patch_targets(PATCH_DIR / patch):
+            src = roots[key] / rel
+            by_real.setdefault(src.resolve(), set()).add(patch)
+            by_mirror.setdefault(_mirror(Path("/m"), src), set()).add(patch)
     for real, pats in by_real.items():
-        mirrors = {_mirror("/m", real)}
-        assert len(mirrors) == 1 and by_mirror.get(_mirror("/m", real)) >= pats, (
-            f"{real} is named by {sorted(pats)} but does not resolve to one "
-            "scratch file, so those patches would be graded apart")
-    shared = {os.path.basename(r): sorted(p)
+        mirrors = {_mirror(Path("/m"), real)}
+        assert len(mirrors) == 1 and \
+            by_mirror.get(_mirror(Path("/m"), real)) >= pats, (
+                f"{real} is named by {sorted(pats)} but does not resolve to "
+                "one scratch file, so those patches would be graded apart")
+    shared = {r.name: sorted(p)
               for r, p in by_real.items() if len(p) > 1}
 
     problems = _reconstruct(python, series)
     assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
     files = {(k, r) for k, p in series
-             for r in _patch_targets(os.path.join(PATCH_DIR, p))}
+             for r in _patch_targets(PATCH_DIR / p)}
     print(f"  [gate 23h] the {len(series)} patches in sw/litex/patches are the "
           f"{len(on_disk)} apply.sh applies, and reversing them off this "
           f"interpreter's trees and re-applying them reproduces all "
@@ -13568,7 +14098,7 @@ def test_toolchain_patches_are_applied():
           "patches are CORRECT, only that the tree is the one described here")
 
 
-def _missing_patch_fixture(python, series, fx, index):
+def _missing_patch_fixture(python, series, fx: Path, index):
     """(roots, missing) - a REACHABLE tree that genuinely lacks series[index].
 
     Two shapes, and the first is preferred because it is exact. Reversing
@@ -13584,19 +14114,22 @@ def _missing_patch_fixture(python, series, fx, index):
     """
     roots = {key: _tree_root(python, key) for key, _ in series}
     for key, patch in series:
-        for rel in _patch_targets(os.path.join(PATCH_DIR, patch)):
-            src = os.path.join(roots[key], rel)
+        for rel in _patch_targets(PATCH_DIR / patch):
+            src = roots[key] / rel
             dst = _mirror(fx, src)
-            if not os.path.exists(dst):
-                os.makedirs(os.path.dirname(dst), exist_ok=True)
+            if not dst.exists():
+                dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
     fx_roots = {key: _mirror(fx, root) for key, root in roots.items()}
 
-    def reverse(entry):
+    def reverse(entry: tuple[str, str]) -> int:
+        """`git apply --reverse` of one (tree, patch) entry, as its exit
+        status. Atomic without --reject, so a refusal leaves the mirror
+        untouched and the fallback can run on it directly."""
         key, patch = entry
         return subprocess.run(
-            ["git", "-C", fx_roots[key], "apply", "--reverse",
-             os.path.join(PATCH_DIR, patch)], capture_output=True).returncode
+            ["git", "-C", str(fx_roots[key]), "apply", "--reverse",
+             str(PATCH_DIR / patch)], capture_output=True).returncode
 
     if reverse(series[index]) == 0:
         return fx_roots, [series[index][1]]
@@ -13606,7 +14139,7 @@ def _missing_patch_fixture(python, series, fx, index):
     return fx_roots, [patch for _k, patch in series[index:]]
 
 
-def test_toolchain_patch_gate_bites():
+def test_toolchain_patch_gate_bites() -> None:
     """Gate 23h negative control - a tree missing a patch must redden it.
 
     REAL FIXTURES, NOT A DOUBLE REVERSAL. The first version of this control
@@ -13623,8 +14156,9 @@ def test_toolchain_patch_gate_bites():
     series = _patch_series()
     exact, tail, unreachable = 0, 0, []
     for i in range(len(series)):
-        with tempfile.TemporaryDirectory() as fx:
-            roots, missing = _missing_patch_fixture(python, series, fx, i)
+        with tempfile.TemporaryDirectory() as made:
+            roots, missing = _missing_patch_fixture(
+                python, series, Path(made), i)
             if roots is None:
                 unreachable.append(series[i][1])
                 continue
@@ -13722,14 +14256,13 @@ def _require_elaboration_verdict(skipped):
 #            breaks, so it is exercised in BOTH tree states - today's, and a
 #            synthesized "the master has landed" tree.
 
-sys.path.insert(0, os.path.join(ROOT, "sw/litex/platforms"))
+sys.path.insert(0, str(ROOT / "sw/litex/platforms"))
 import board_audio_routing as bar  # noqa: E402
 
 
 def _routing_sources():
-    return {"plat": open(os.path.join(
-                ROOT, "sw/litex/platforms/alinx_ax7101.py")).read(),
-            "soc": open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()}
+    return {"plat": (ROOT / "sw/litex/platforms/alinx_ax7101.py").read_text(),
+            "soc": (ROOT / "sw/litex/milan_soc.py").read_text()}
 
 
 def _argv_under(cfg_path, wired):
@@ -13758,6 +14291,43 @@ def _board_can_have_tdm(board, src):
     platform with no TDM extension: nothing in this tree can route it.
     """
     return bar.routes_tdm(board, src) or board in bar._REPO_PLATFORM
+
+
+def _assert_argv_never_selects_unroutable_tdm(src, cfg_paths, argv_of):
+    """Gate 24c step 3: in BOTH reachable tree states, no config's argv
+    selects a TDM front-end for a board that cannot back one."""
+    # 3. L-ARGV: no config's argv may SELECT a TDM front-end for a board that
+    #    cannot back one. Checked in BOTH reachable tree states, with the
+    #    strength each state can actually know:
+    #      wired=False  THIS tree. Strict: the header must EXIST today.
+    #      wired=True   the tree the TDM master creates - and the master is only
+    #                   meaningful alongside the platform work that routes the
+    #                   header, which for a repo-owned platform lands together
+    #                   (gate 24/24b is what proves it really did). So the
+    #                   weaker "can have one" applies, which is still enough to
+    #                   refuse a board whose pinout is not ours - the Arty.
+    #    This second pass is the whole point: tdm_bus_wired() answers a GLOBAL
+    #    question ("can ANY SoC here build a master?") and so turns true for
+    #    EVERY board at once, while whether a front-end reaches a pin is PER
+    #    BOARD. Testing only today's tree tests the one state in which the
+    #    defect is dormant.
+    for wired, ok in ((False, bar.routes_tdm), (True, _board_can_have_tdm)):
+        for name, path in cfg_paths.items():
+            board = eb.load_config(path)["board_target"]
+            argv = argv_of(path, wired)
+            sel = [argv[i + 1] for i, a in enumerate(argv[:-1])
+                   if a == "--audio-interface"]
+            master = "--audio-interface-master" in argv
+            if not any(k in bar.TDM_KINDS for k in sel) and not master:
+                continue
+            assert ok(board, src), (
+                f"{name} (board {board}) emits --audio-interface "
+                f"{' '.join(sel) or '?'}{' --audio-interface-master' * master} "
+                f"with tdm_bus_wired()={wired}, but that board routes no `tdm` "
+                f"resource and cannot be given one here: bclk/fsync/dout would "
+                f"drive unconnected Signal()s, tdm_data_i would read 0 "
+                f"(digital silence at the declared width) and o_i2s_mclk_o "
+                f"would be rebound off the I2S pad.")
 
 
 def _front_end_routing(src, cfg_paths, argv_of=None):
@@ -13834,38 +14404,7 @@ def _front_end_routing(src, cfg_paths, argv_of=None):
                 f"platform tdm.{sub} has Pins({pins!r}) - a pad that is not "
                 f"routed is a front-end clocking in a constant zero")
 
-    # 3. L-ARGV: no config's argv may SELECT a TDM front-end for a board that
-    #    cannot back one. Checked in BOTH reachable tree states, with the
-    #    strength each state can actually know:
-    #      wired=False  THIS tree. Strict: the header must EXIST today.
-    #      wired=True   the tree the TDM master creates - and the master is only
-    #                   meaningful alongside the platform work that routes the
-    #                   header, which for a repo-owned platform lands together
-    #                   (gate 24/24b is what proves it really did). So the
-    #                   weaker "can have one" applies, which is still enough to
-    #                   refuse a board whose pinout is not ours - the Arty.
-    #    This second pass is the whole point: tdm_bus_wired() answers a GLOBAL
-    #    question ("can ANY SoC here build a master?") and so turns true for
-    #    EVERY board at once, while whether a front-end reaches a pin is PER
-    #    BOARD. Testing only today's tree tests the one state in which the
-    #    defect is dormant.
-    for wired, ok in ((False, bar.routes_tdm), (True, _board_can_have_tdm)):
-        for name, path in cfg_paths.items():
-            board = eb.load_config(path)["board_target"]
-            argv = argv_of(path, wired)
-            sel = [argv[i + 1] for i, a in enumerate(argv[:-1])
-                   if a == "--audio-interface"]
-            master = "--audio-interface-master" in argv
-            if not any(k in bar.TDM_KINDS for k in sel) and not master:
-                continue
-            assert ok(board, src), (
-                f"{name} (board {board}) emits --audio-interface "
-                f"{' '.join(sel) or '?'}{' --audio-interface-master' * master} "
-                f"with tdm_bus_wired()={wired}, but that board routes no `tdm` "
-                f"resource and cannot be given one here: bclk/fsync/dout would "
-                f"drive unconnected Signal()s, tdm_data_i would read 0 "
-                f"(digital silence at the declared width) and o_i2s_mclk_o "
-                f"would be rebound off the I2S pad.")
+    _assert_argv_never_selects_unroutable_tdm(src, cfg_paths, argv_of)
 
     # 4. i2s_mclk STAYS ON THE PMOD on every build that uses the I2S front-end.
     #    Requirement in its own right: the Arty's Pmod I2S2 is the one
@@ -13890,7 +14429,7 @@ def _front_end_routing(src, cfg_paths, argv_of=None):
     assert bar.verify_against_litex_boards() in (None, True)
 
 
-def test_front_end_routing_per_board():
+def test_front_end_routing_per_board() -> None:
     """gate 24c - a config may not request a front-end its board does not route.
 
     LEVEL 1 (config <-> wrapper <-> platform binding). ORACLE: the platform pad
@@ -13994,7 +14533,7 @@ def _blend_binding(soc, rtl):
         assert re.search(rx, src, re.M), f"8.3b blend binding missing: {label}"
 
 
-def test_i2s_pair_blend_binding():
+def test_i2s_pair_blend_binding() -> None:
     """gate 24e - L1 binding for the 8.3b I2S+TDM blend.
 
     LEVEL 1, oracle = the fabric (SoC glue + RTL text). The blend is what
@@ -14016,7 +14555,7 @@ def test_i2s_pair_blend_binding():
           "(I2S at slot 0), AX7101 stays solo")
 
 
-def test_i2s_pair_blend_gate_bites():
+def test_i2s_pair_blend_gate_bites() -> None:
     """gate 24e-b - every blend binding can FAIL (R2)."""
     soc, rtl, _ = _tdm_sources()
     base = {"soc": soc, "rtl": rtl}
@@ -14037,12 +14576,10 @@ def test_i2s_pair_blend_gate_bites():
           "mutations REJECTED")
 
 
-def test_front_end_routing_gate_bites():
-    """gate 24d - prove every gate-24c assertion can FAIL.
-
-    LEVEL 1, same oracle. Config mutations are written to a temp file (the
-    builder loads by path); source mutations run in memory, so nothing is
-    written to the tree."""
+def _routing_gate_setup():
+    """Gate 24d's starting tree: (the live sources, an AX platform whose J11
+    header routes TDM).  Every negative control below is checked here first,
+    because a mutation of an unrouted resource proves nothing."""
     base = _routing_sources()
     #: the AX with the J11 header Lane 1 routes - the tree state in which the
     #: `Pins("")` mutation is meaningful at all. Without a routed resource to
@@ -14061,15 +14598,25 @@ def test_front_end_routing_gate_bites():
     # 8.3b: the Arty routes tdm through its OWN one-line soc extension; the
     # per-board isolation property is tested on a tree with that line gone -
     # an AX header must still never answer for the Arty.
-    _ARTY_TDM_EXT = 'platform.add_extension(_arty_serial_io("tdm", "pmodb"))'
-    assert _ARTY_TDM_EXT in base["soc"], \
+    arty_tdm_ext = 'platform.add_extension(_arty_serial_io("tdm", "pmodb"))'
+    assert arty_tdm_ext in base["soc"], \
         "gate 24d setup: the Arty tdm extension line moved - update the anchor"
     assert bar.routes_tdm("arty", base), \
         "gate 24d setup: the Arty must route tdm via its soc extension (8.3b)"
-    soc_no_arty = base["soc"].replace(_ARTY_TDM_EXT, "pass")
+    soc_no_arty = base["soc"].replace(arty_tdm_ext, "pass")
     assert not bar.routes_tdm("arty", dict(base, plat=plat_j11,
                                            soc=soc_no_arty)), \
         "gate 24d setup: an AX header must not make the ARTY route tdm"
+    return base, plat_j11
+
+
+def test_front_end_routing_gate_bites() -> None:
+    """gate 24d - prove every gate-24c assertion can FAIL.
+
+    LEVEL 1, same oracle. Config mutations are written to a temp file (the
+    builder loads by path); source mutations run in memory, so nothing is
+    written to the tree."""
+    base, plat_j11 = _routing_gate_setup()
 
     n = 0
     for label, which, payload in ROUTING_MUTATIONS:
@@ -14078,7 +14625,11 @@ def test_front_end_routing_gate_bites():
             if which == "argv":
                 at, argv = payload
 
-                def argv_of(path, wired, _at=at, _argv=argv):
+                def argv_of(path: str, wired: bool, _at: bool = at,
+                            _argv: list[str] = argv) -> list[str]:
+                    """The soc argv this arm substitutes for the one (config,
+                    tree state) pair it mutates, and the real builder's
+                    everywhere else."""
                     if wired == _at and path == CONFIGS["arty_4x4"]:
                         return list(_argv)
                     return _argv_under(path, wired)
@@ -14088,18 +14639,23 @@ def test_front_end_routing_gate_bites():
                     f"gate 24d setup: anchor for '{label}' gone from soc"
                 src["soc"] = src["soc"].replace(anchor, mutant, 1)
 
-                def argv_of(path, wired, _at=at, _argv=argv):
+                def argv_of(path: str, wired: bool, _at: bool = at,
+                            _argv: list[str] = argv) -> list[str]:
+                    """The soc argv this arm substitutes for the one (config,
+                    tree state) pair it mutates, and the real builder's
+                    everywhere else."""
                     if wired == _at and path == CONFIGS["arty_4x4"]:
                         return list(_argv)
                     return _argv_under(path, wired)
             elif which == "cfg":
                 name, anchor, mutant = payload
-                raw = open(CONFIGS[name]).read()
+                raw = CONFIGS[name].read_text()
                 assert anchor in raw, \
                     f"gate 24d setup: anchor for '{label}' gone from {name}"
-                fd, tmp = tempfile.mkstemp(suffix=".yaml")
+                fd, made = tempfile.mkstemp(suffix=".yaml")
                 with os.fdopen(fd, "w") as fh:
                     fh.write(raw.replace(anchor, mutant, 1))
+                tmp = Path(made)
                 cfgs[name] = tmp
             elif which == "soc_move":
                 # RELOCATE the refusal to after the platform is constructed.
@@ -14135,14 +14691,14 @@ def test_front_end_routing_gate_bites():
                 f"gate 24c ACCEPTED a mutated tree - it cannot detect: {label}")
         finally:
             if tmp:
-                os.unlink(tmp)
+                tmp.unlink()
     print(f"  [gate 24d] {n}/{len(ROUTING_MUTATIONS)} routing mutations "
           f"REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, "
           f"refusal deleted / mis-keyed / late / undefended, a routed header "
           f"losing its pins, a kind added on one side only, and the argv "
           f"itself selecting TDM for the Arty in BOTH tree states)")
 
-def test_firmware_version_derived_from_rtl():
+def test_firmware_version_derived_from_rtl() -> None:
     """Gate 24: the version a controller reads is the version the fabric is.
 
     The ENTITY descriptor's firmware_version (IEEE 1722.1-2021 7.2.1
@@ -14154,7 +14710,7 @@ def test_firmware_version_derived_from_rtl():
     The literal is read out of the RTL here, so this gate follows a VERSION
     bump instead of pinning one - a hardcoded expectation would be the same
     second copy the gate exists to forbid."""
-    csr = open(os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")).read()
+    csr = (ROOT / "hdl/common/csr/milan_csr.sv").read_text()
     m = re.search(r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*"
                   r"32'h([0-9A-Fa-f_]+)", csr)
     assert m, "milan_csr.sv has no VERSION parameter"
@@ -14165,7 +14721,7 @@ def test_firmware_version_derived_from_rtl():
     # every shipped config derives it, and none of them declares it
     ids = {}
     for name, path in CONFIGS.items():
-        raw = yaml.safe_load(open(path))["entity"]
+        raw = yaml.safe_load(path.read_text())["entity"]
         assert "firmware_version" not in raw, \
             f"{name}: config re-declares entity.firmware_version"
         cfg = eb.load_config(path)
@@ -14195,10 +14751,10 @@ def test_firmware_version_derived_from_rtl():
         assert r["entity"]["entity_model_id"] == ids["arty_4x4"], \
             "firmware_rev moved the entity_model_id (6.2.2.8 violation)"
     finally:
-        os.unlink(p)
+        p.unlink()
 
     # and it reaches the descriptor bytes at the standard's offset
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
     for name in CONFIGS:
         cfg = eb.load_config(CONFIGS[name])
@@ -14224,7 +14780,7 @@ def test_firmware_version_derived_from_rtl():
             else:
                 raise AssertionError(f"{label}: accepted")
         finally:
-            os.unlink(p)
+            p.unlink()
 
     print(f"  [gate 24] firmware_version DERIVED from milan_csr VERSION "
           f"0x{major:04X}_{minor:04X} -> {want!r}: 3/3 configs derive it and "
@@ -14234,7 +14790,9 @@ def test_firmware_version_derived_from_rtl():
           f"{DEPLOYED_MODEL_ID}), firmware_rev 7 -> {major}.{minor}.7 with "
           f"the same id, 4/4 bad declarations refused")
 def _pools_variant(base, phys, pools, mutate=None):
-    def m(c):
+    def m(c: dict[str, Any]) -> None:
+        """Put the role-pools policy, its pools and the physical channel
+        count on the config, then apply the caller's own edit."""
         c["audio_interface"]["physical_channels"] = phys
         c["audio_interface"]["cluster_mapping"] = {"policy": "role-pools",
                                                    "pools": pools}
@@ -14243,7 +14801,127 @@ def _pools_variant(base, phys, pools, mutate=None):
     return _variant(CONFIGS[base], m)
 
 
-def test_d8_role_pools():
+def _assert_power_on_map_image(r, P_out, want):
+    """Gate 24a (b): with dynamic ship talkers the identity lives in
+    AEM_ODMAP_INIT_C, and every armed key names a template the fabric
+    can actually source."""
+    if all(p["maps"] == 0 for p in P_out):
+        with tempfile.TemporaryDirectory() as made:
+            td = Path(made)
+            subprocess.run(
+                [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", str(td)],
+                check=True, capture_output=True)
+            svh = (td / "aecp_aem_rom.svh").read_text()
+        mi = re.search(r"AEM_ODMAP_INIT_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
+        assert mi, "dynamic ship talkers but no AEM_ODMAP_INIT_C image"
+        vals = [int(v.strip().split("'h")[1], 16)
+                for v in mi.group(2).split(",")]
+        seg = next(g for g in P_out[0]["pool"] if g["role"] == want)
+        assert len(vals) == 8 * len(P_out)
+        # #259: the want pool is no longer 8 wide on every shape (pilot is
+        # ONE cluster), so only its width's worth of keys may arm; the rest
+        # of each port's eight keys wake NOT MAPPED, which Milan v1.2
+        # 5.3.9.1 makes explicit and legal - never on an unbacked source.
+        armed_w = min(seg["width"], 8)
+        for k, v in enumerate(vals):
+            if k % 8 < armed_w:
+                assert v >> 5 == 1, f"identity key {k} not armed"
+                assert (v & 0x1F) == seg["offset"] + k % 8, \
+                    f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+            else:
+                assert v == 0, f"identity key {k} armed past the {want} pool"
+        # and EVERY armed key must name a template the fabric can source -
+        # the property whose absence was the whole defect. A key is armed
+        # only where gen_aem_store found srcs[co]["valid"], so an unbacked
+        # pool can never be the image; re-assert it from the ROM side.
+        cs = re.search(r"AEM_ODMAP_CSRC_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
+        assert cs, "no capture-crossbar source templates emitted"
+        tmpl = [int(v.strip().split("'h")[1], 16)
+                for v in cs.group(2).split(",")]
+        pcls = P_out[0]["clusters"]
+        for k, v in enumerate(vals):
+            if v >> 5:
+                assert tmpl[(k // 8) * pcls + (v & 0x1F)] >> 12 == 1, \
+                    f"power-on key {k} names an UNBACKED source template"
+
+
+def _assert_physical_pool_reappears():
+    """Gate 24a (d): declaring routed channels re-introduces the physical
+    pool AND moves the static map onto it."""
+    # (d) physical pool APPEARS when the platform declares routed channels
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+                       {"pilot": True, "loopback": 2})
+    try:
+        r = eb.build(p, OUT / "_pools")
+        P = r["overlay"]["stream_ports"]["output"][0]
+        assert [g["role"] for g in P["pool"]] == \
+            ["physical", "pilot", "loopback"], P
+        assert P["clusters"] == 16 + 1 + 2
+        # With physical present the static map still does NOT go to loopback -
+        # that was and remains the point of this assertion. The 0x0043
+        # old preference order lost its subject when the retired pool was
+        # removed (#259), so the identity lands on PHYSICAL (this variant is
+        # not the shipped
+        # AX, whose declared truth stays 0 routed channels), and the
+        # UNBACKED loopback pool is never a candidate (task #65).
+        assert P["primary_role"] == "physical", P["primary_role"]
+        assert [g["role"] for g in P["pool"]][0] == "physical", \
+            "cluster numbering must stay physical-first"
+        names = [c["name"] for c in r["overlay"]["audio_clusters"]
+                 if c["port_index"] == 0 and c["direction"] == "output"]
+        # Derived from the variant's own interface kind, not hardcoded: the
+        # ax7101 shape moved tdm16 -> tdm32 when the MASTER front-end landed
+        # (USER: "do not use TDM8 use TDM32 then"), and a role name that
+        # restates the config is a test that breaks on a legitimate change
+        # rather than on a defect (methodology R4).
+        pfx = eb.load_config(p)["interface"]["kind"].upper()
+        assert names[:2] == [f"{pfx} In 0", f"{pfx} In 1"], (names[:4], pfx)
+        assert "Pilot Tone" in names
+    finally:
+        p.unlink()
+    print("  [gate 24a] declaring routed channels re-introduces the physical "
+          "pool AND moves the static map onto it (primary-role fallthrough)")
+
+
+def _assert_overwide_pool_is_marked_not_emitted():
+    """Gate 24a (e): the over-wide D8 loopback pool VALIDATES, overflows
+    the 16-bit store, is marked rather than emitted, and --write-rtl
+    refuses it."""
+    # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
+    #     D6 predicted could not be stored - it must VALIDATE and be marked,
+    #     not crash and not silently wrap the 16-bit ROM address space.
+    #     With only live fabric roles, loopback widens 64 -> 72 so the
+    #     per-output-port total stays 89
+    #     and the deliberate overflow is preserved (840 clusters at 90 B
+    #     put the ROM at 80873 B, still past the 65536 B store).
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+                       {"pilot": True, "loopback": 72})
+    try:
+        r = eb.build(p, OUT / "_pools")
+        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
+            8*16 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
+        assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
+        assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
+        # builder contract: it VALIDATES and lands in the plan, never errors
+        assert "planned" in r["plan"]
+        try:
+            # write_fragment=False: the refusal fires AFTER the fragment
+            # write, so the probe would otherwise hand the tracked
+            # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
+            eb.build(p, OUT / "_pools", write_rtl=True,
+                     write_fragment=False)
+            assert False, "--write-rtl must refuse a shape with no ROM"
+        except eb.ConfigError as e:
+            assert "entity definition is incomplete" in str(e), e
+    finally:
+        p.unlink()
+    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
+          "exceeds the 16-bit AEM store address space, is marked rather "
+          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
+
+
+def test_d8_role_pools() -> None:
     """gate 24a - D8: the port's cluster block is the sum of its declared
     role pools, every width derived from the platform declaration, and the
     static AUDIO_MAP falls through to the pool that can actually source the
@@ -14293,44 +14971,7 @@ def test_d8_role_pools():
         m = next(m for m in ovl["audio_maps"] if m["index"] == p["base_map"])
         assert all(seg["offset"] <= off < seg["offset"] + seg["width"]
                    for (_, _, off, _) in m["mappings"]), m
-    if all(p["maps"] == 0 for p in P_out):
-        with tempfile.TemporaryDirectory() as td:
-            subprocess.run(
-                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
-                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
-                check=True, capture_output=True)
-            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
-        mi = re.search(r"AEM_ODMAP_INIT_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
-        assert mi, "dynamic ship talkers but no AEM_ODMAP_INIT_C image"
-        vals = [int(v.strip().split("'h")[1], 16)
-                for v in mi.group(2).split(",")]
-        seg = next(g for g in P_out[0]["pool"] if g["role"] == want)
-        assert len(vals) == 8 * len(P_out)
-        # #259: the want pool is no longer 8 wide on every shape (pilot is
-        # ONE cluster), so only its width's worth of keys may arm; the rest
-        # of each port's eight keys wake NOT MAPPED, which Milan v1.2
-        # 5.3.9.1 makes explicit and legal - never on an unbacked source.
-        armed_w = min(seg["width"], 8)
-        for k, v in enumerate(vals):
-            if k % 8 < armed_w:
-                assert v >> 5 == 1, f"identity key {k} not armed"
-                assert (v & 0x1F) == seg["offset"] + k % 8, \
-                    f"identity key {k} cluster {v & 0x1F} outside {want} pool"
-            else:
-                assert v == 0, f"identity key {k} armed past the {want} pool"
-        # and EVERY armed key must name a template the fabric can source -
-        # the property whose absence was the whole defect. A key is armed
-        # only where gen_aem_store found srcs[co]["valid"], so an unbacked
-        # pool can never be the image; re-assert it from the ROM side.
-        cs = re.search(r"AEM_ODMAP_CSRC_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
-        assert cs, "no capture-crossbar source templates emitted"
-        tmpl = [int(v.strip().split("'h")[1], 16)
-                for v in cs.group(2).split(",")]
-        pcls = P_out[0]["clusters"]
-        for k, v in enumerate(vals):
-            if v >> 5:
-                assert tmpl[(k // 8) * pcls + (v & 0x1F)] >> 12 == 1, \
-                    f"power-on key {k} names an UNBACKED source template"
+    _assert_power_on_map_image(r, P_out, want)
     # (c) per-talker DISTINCT loopback sources: talker t defaults to rx
     #     stream t, so eight talkers see eight different sources
     byport = {}
@@ -14346,74 +14987,13 @@ def test_d8_role_pools():
           f"because the board routes none, talker map -> {want} (fabric lane "
           f"{'on' if lane else 'off'}), 8 distinct loopback sources offered")
 
-    # (d) physical pool APPEARS when the platform declares routed channels
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"pilot": True, "loopback": 2})
-    try:
-        r = eb.build(p, os.path.join(OUT, "_pools"))
-        P = r["overlay"]["stream_ports"]["output"][0]
-        assert [g["role"] for g in P["pool"]] == \
-            ["physical", "pilot", "loopback"], P
-        assert P["clusters"] == 16 + 1 + 2
-        # With physical present the static map still does NOT go to loopback -
-        # that was and remains the point of this assertion. The 0x0043
-        # old preference order lost its subject when the retired pool was
-        # removed (#259), so the identity lands on PHYSICAL (this variant is
-        # not the shipped
-        # AX, whose declared truth stays 0 routed channels), and the
-        # UNBACKED loopback pool is never a candidate (task #65).
-        assert P["primary_role"] == "physical", P["primary_role"]
-        assert [g["role"] for g in P["pool"]][0] == "physical", \
-            "cluster numbering must stay physical-first"
-        names = [c["name"] for c in r["overlay"]["audio_clusters"]
-                 if c["port_index"] == 0 and c["direction"] == "output"]
-        # Derived from the variant's own interface kind, not hardcoded: the
-        # ax7101 shape moved tdm16 -> tdm32 when the MASTER front-end landed
-        # (USER: "do not use TDM8 use TDM32 then"), and a role name that
-        # restates the config is a test that breaks on a legitimate change
-        # rather than on a defect (methodology R4).
-        pfx = eb.load_config(p)["interface"]["kind"].upper()
-        assert names[:2] == [f"{pfx} In 0", f"{pfx} In 1"], (names[:4], pfx)
-        assert "Pilot Tone" in names
-    finally:
-        os.unlink(p)
-    print("  [gate 24a] declaring routed channels re-introduces the physical "
-          "pool AND moves the static map onto it (primary-role fallthrough)")
-
-    # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
-    #     D6 predicted could not be stored - it must VALIDATE and be marked,
-    #     not crash and not silently wrap the 16-bit ROM address space.
-    #     With only live fabric roles, loopback widens 64 -> 72 so the
-    #     per-output-port total stays 89
-    #     and the deliberate overflow is preserved (840 clusters at 90 B
-    #     put the ROM at 80873 B, still past the 65536 B store).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
-                       {"pilot": True, "loopback": 72})
-    try:
-        r = eb.build(p, os.path.join(OUT, "_pools"))
-        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*16 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
-        assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
-        assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
-        # builder contract: it VALIDATES and lands in the plan, never errors
-        assert "planned" in r["plan"]
-        try:
-            # write_fragment=False: the refusal fires AFTER the fragment
-            # write, so the probe would otherwise hand the tracked
-            # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
-            eb.build(p, os.path.join(OUT, "_pools"), write_rtl=True,
-                     write_fragment=False)
-            assert False, "--write-rtl must refuse a shape with no ROM"
-        except eb.ConfigError as e:
-            assert "entity definition is incomplete" in str(e), e
-    finally:
-        os.unlink(p)
-    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
-          "exceeds the 16-bit AEM store address space, is marked rather "
-          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
+    _assert_physical_pool_reappears()
 
 
-def test_d8_role_pools_reject():
+    _assert_overwide_pool_is_marked_not_emitted()
+
+
+def test_d8_role_pools_reject() -> None:
     """gate 24b - the NEGATIVE control. Every one of these configs is wrong
     in a way that would otherwise ship a model the fabric cannot back."""
     bad = [
@@ -14456,80 +15036,19 @@ def test_d8_role_pools_reject():
     for why, base, mut in bad:
         p = _variant(CONFIGS[base], mut)
         try:
-            eb.build(p, os.path.join(OUT, "_pools_bad"))
+            eb.build(p, OUT / "_pools_bad")
             assert False, f"accepted a config it must refuse: {why}"
         except eb.ConfigError:
             pass
         finally:
-            os.unlink(p)
+            p.unlink()
     print(f"  [gate 24b] {len(bad)}/{len(bad)} contradictory pool configs "
           "REFUSED with ConfigError")
 
 
-def test_d10_cluster_names():
-    """gate 24c - D10: every AUDIO_CLUSTER is named for what it IS, and the
-    rename does NOT move entity_model_id.
-
-    1722.1-2021 6.2.2.8 lists `object_name` among the fields that do NOT
-    constitute "the structure of an ATDECC Entity data model" (alongside
-    entity_name, firmware_version, serial_number, current_format, ...), so a
-    name change must keep the id AND controllers must be able to SET_NAME it
-    at runtime. This gate proves both directions: names change -> id frozen;
-    pool shape changes -> id moves."""
-    for name in CONFIGS:
-        r = eb.build(CONFIGS[name], OUT)
-        ovl = r["overlay"]
-        cl = sorted(ovl["audio_clusters"], key=lambda c: c["index"])
-        assert len(cl) == ovl["descriptor_counts"]["AUDIO_CLUSTER"]
-        assert all(c["name"] not in ("Input", "Output") for c in cl), \
-            f"{name}: a cluster is still named the pre-D10 placeholder"
-        assert all(len(c["name"].encode()) <= 63 for c in cl), \
-            "object_name must fit the 64-byte field (7.2.16)"
-        # Role and name must agree; a pilot label on any other role would be
-        # exactly the lie D10 exists to remove.
-        cnames = r["cfg"]["interface"].get("channel_names") or []
-        for c in cl:
-            if c["role"] == "pilot":
-                assert c["name"] == "Pilot Tone", c
-            elif c["role"] == "loopback":
-                assert c["name"].startswith("Loopback S"), c
-                # channel_names reach the loopback suffix too
-                if cnames:
-                    assert c["name"].split()[-1] in cnames, c
-            elif c["role"] == "virtual":
-                assert c["name"].startswith("Virtual "), c
-            else:
-                assert c["role"] == "physical", c
-                assert c["name"].split()[0] in eb.IFACE_LABEL.values(), c
-    # the DEPLOYED arty shape: physical first, virtual tail (the wire-truth
-    # rule is stated per DIRECTION, and the Pmod I2S2 is a 2-channel link)
-    ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
-    names = [c["name"] for c in sorted(ovl["audio_clusters"],
-                                       key=lambda c: c["index"])]
-    assert names == ["I2S Out 0", "I2S Out 1"] \
-        + [f"Virtual Out {n}" for n in range(2, 8)] \
-        + ["I2S In 0", "I2S In 1"] \
-        + [f"Virtual In {n}" for n in range(2, 8)], names
-
-    # 6.2.2.8: renaming must NOT move the id ...
-    base = eb.load_config(CONFIGS["ax7101_8x8"])
-    p = _variant(CONFIGS["ax7101_8x8"],
-                 lambda c: c["streams"]["talkers"][0].__setitem__(
-                     "name", "Renamed Talker"))
-    try:
-        assert eb.load_config(p)["model_id"]["hash"] == \
-            base["model_id"]["hash"], "a stream NAME moved the model id"
-    finally:
-        os.unlink(p)
-    # ... but a pool WIDTH must, because it changes the descriptor set
-    # (loopback 4 against the base's 8 - one width apart is enough)
-    p = _pools_variant("ax7101_8x8", {"capture": 0, "render": 0},
-                       {"pilot": True, "loopback": 4})
-    try:
-        assert eb.load_config(p)["model_id"]["hash"] != \
-            base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
-    finally:
-        os.unlink(p)
+def _assert_pre_d8_model_ids_stay_pinned():
+    """Gate 24c: the two configs that predate D8 still hash to the ids
+    recorded here, each move below justified where it was made."""
     # ... and every config that predates D8 must hash EXACTLY as before, up to
     # the ONE input that is deliberately allowed to move every id at once:
     # 0x001BC5AB73EC9D1D -> 0x001BC53442950FCB when AEM_LAYOUT_REV went 1 -> 2
@@ -14583,13 +15102,80 @@ def test_d10_cluster_names():
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
         "0x001BC5E53D97FC91"
+
+
+def test_d10_cluster_names() -> None:
+    """gate 24c - D10: every AUDIO_CLUSTER is named for what it IS, and the
+    rename does NOT move entity_model_id.
+
+    1722.1-2021 6.2.2.8 lists `object_name` among the fields that do NOT
+    constitute "the structure of an ATDECC Entity data model" (alongside
+    entity_name, firmware_version, serial_number, current_format, ...), so a
+    name change must keep the id AND controllers must be able to SET_NAME it
+    at runtime. This gate proves both directions: names change -> id frozen;
+    pool shape changes -> id moves."""
+    for name in CONFIGS:
+        r = eb.build(CONFIGS[name], OUT)
+        ovl = r["overlay"]
+        cl = sorted(ovl["audio_clusters"], key=lambda c: c["index"])
+        assert len(cl) == ovl["descriptor_counts"]["AUDIO_CLUSTER"]
+        assert all(c["name"] not in ("Input", "Output") for c in cl), \
+            f"{name}: a cluster is still named the pre-D10 placeholder"
+        assert all(len(c["name"].encode()) <= 63 for c in cl), \
+            "object_name must fit the 64-byte field (7.2.16)"
+        # Role and name must agree; a pilot label on any other role would be
+        # exactly the lie D10 exists to remove.
+        cnames = r["cfg"]["interface"].get("channel_names") or []
+        for c in cl:
+            if c["role"] == "pilot":
+                assert c["name"] == "Pilot Tone", c
+            elif c["role"] == "loopback":
+                assert c["name"].startswith("Loopback S"), c
+                # channel_names reach the loopback suffix too
+                if cnames:
+                    assert c["name"].split()[-1] in cnames, c
+            elif c["role"] == "virtual":
+                assert c["name"].startswith("Virtual "), c
+            else:
+                assert c["role"] == "physical", c
+                assert c["name"].split()[0] in eb.IFACE_LABEL.values(), c
+    # the DEPLOYED arty shape: physical first, virtual tail (the wire-truth
+    # rule is stated per DIRECTION, and the Pmod I2S2 is a 2-channel link)
+    ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
+    names = [c["name"] for c in sorted(ovl["audio_clusters"],
+                                       key=lambda c: c["index"])]
+    assert names == ["I2S Out 0", "I2S Out 1"] \
+        + [f"Virtual Out {n}" for n in range(2, 8)] \
+        + ["I2S In 0", "I2S In 1"] \
+        + [f"Virtual In {n}" for n in range(2, 8)], names
+
+    # 6.2.2.8: renaming must NOT move the id ...
+    base = eb.load_config(CONFIGS["ax7101_8x8"])
+    p = _variant(CONFIGS["ax7101_8x8"],
+                 lambda c: c["streams"]["talkers"][0].__setitem__(
+                     "name", "Renamed Talker"))
+    try:
+        assert eb.load_config(p)["model_id"]["hash"] == \
+            base["model_id"]["hash"], "a stream NAME moved the model id"
+    finally:
+        p.unlink()
+    # ... but a pool WIDTH must, because it changes the descriptor set
+    # (loopback 4 against the base's 8 - one width apart is enough)
+    p = _pools_variant("ax7101_8x8", {"capture": 0, "render": 0},
+                       {"pilot": True, "loopback": 4})
+    try:
+        assert eb.load_config(p)["model_id"]["hash"] != \
+            base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
+    finally:
+        p.unlink()
+    _assert_pre_d8_model_ids_stay_pinned()
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; pre-D8 hashes stay explicitly pinned to "
           "their current model")
 
 
-def cluster_name_census(name):
+def cluster_name_census(name: str) -> dict[str, list[list[str]]]:
     """Every cluster name the builder produces for config `name`: per
     direction, one list per STREAM_PORT in port order, names in offset order.
     Read off the overlay, which is what gen_aem_store turns into descriptor
@@ -14609,7 +15195,7 @@ def cluster_name_census(name):
     return census
 
 
-def write_cluster_names_golden():
+def write_cluster_names_golden() -> None:
     """Regenerate cluster_names_golden.json from the current builder."""
     golden = {
         "_generated_by": "python3 sw/builder/test_builder.py --write-cluster-golden",
@@ -14625,7 +15211,7 @@ def write_cluster_names_golden():
     print(f"wrote {CLUSTER_NAMES_GOLDEN}")
 
 
-def test_d10_cluster_namer_paths():
+def test_d10_cluster_namer_paths() -> None:
     """gate 24d - the cluster namers: the two paths a live config does not
     reach, and the moved logic pinned name by name.
 
@@ -14724,7 +15310,7 @@ def test_d10_cluster_namer_paths():
           "configs match the tracked golden name for name")
 
 
-def test_d10_names_reach_the_rom():
+def test_d10_names_reach_the_rom() -> None:
     """gate 24d - the cluster ROLE NAMES survive the whole path (config ->
     overlay -> gen_aem_store -> descriptor bytes), and the TRACKED SHAPE
     include is exactly what the config it names generates.
@@ -14746,7 +15332,7 @@ def test_d10_names_reach_the_rom():
     which is still tracked, still last-writer-wins, and now also sizes the
     protocol processor's arrays - must still be what its named owner
     generates."""
-    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
     ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
     M = g.build_model(g.spec_from_overlay(ovl))
@@ -14763,10 +15349,10 @@ def test_d10_names_reach_the_rom():
     # READ from the tree (gate 17's rule: never a second answer to "who owns
     # the tracked definition"). Hardcoding arty_current here broke the day the
     # 08-01 flip handed the tree to the ax7101_8x8 ship config.
-    src, owner = ces.tracked_owner(eb, adp_text=open(TRACKED_ADP_SVH).read())
+    src, owner = ces.tracked_owner(eb, adp_text=TRACKED_ADP_SVH.read_text())
     assert owner is not None, f"tracked shape names no owner ({src})"
-    r_o = eb.build(os.path.join(ROOT, src), OUT)
-    assert r_o["adp_shape_svh"] == open(TRACKED_ADP_SVH).read(), \
+    r_o = eb.build(ROOT / src, OUT)
+    assert r_o["adp_shape_svh"] == TRACKED_ADP_SVH.read_text(), \
         f"tracked adp_shape_defaults.svh is not what its owner ({src}) " \
         f"generates - re-run endstation_builder.py {src} --write-rtl"
     print(f"  [gate 24d] role names reach the descriptor bytes; the tracked "
@@ -14775,7 +15361,7 @@ def test_d10_names_reach_the_rom():
 
 
 
-def test_gptp_domain_is_one_source():
+def test_gptp_domain_is_one_source() -> None:
     """Gate 26: Milan domain 0 is a structural protocol fact.
 
     A non-zero configuration must be refused with the governing clause. The
@@ -14795,7 +15381,7 @@ def test_gptp_domain_is_one_source():
     except eb.ConfigError as e:
         assert "802.1AS-2011" in str(e) and "shall be 0" in str(e), \
             f"refused, but without the clause: {e}"
-    os.unlink(bad)
+    bad.unlink()
 
     DOM = 0                                   # the only value Milan permits
     legal = _variant(CONFIGS["ax7101_1x1_tdm8"],
@@ -14803,7 +15389,7 @@ def test_gptp_domain_is_one_source():
     try:
         r = eb.build(legal, OUT)
     finally:
-        os.unlink(legal)
+        legal.unlink()
 
     # 1. The legal config value survives normalization and reaches the fabric
     # configuration artifact. It does not generate a second RTL authority.
@@ -14815,7 +15401,7 @@ def test_gptp_domain_is_one_source():
     # 2. CSR readback and the protocol-facing output are structural zero.
     # Neither expression is conditional on GPTP_PLANE_EN_P, so both supported
     # elaboration shapes expose the same Milan domain.
-    csr = open(MILAN_CSR_SV).read()
+    csr = MILAN_CSR_SV.read_text()
     assert re.search(r"A_ADP_DOMAIN\s*:\s*live_mux\s*=\s*32'd0\s*;", csr), \
         "A_ADP_DOMAIN readback is not structural domain 0"
     assert re.search(r"assign\s+o_adp_gptp_domain\s*=\s*8'd0\s*;", csr), \
@@ -14826,7 +15412,7 @@ def test_gptp_domain_is_one_source():
     # 3. Walk the public output into the protocol plane by name. The byte-48
     # placement lives in the pinned submodule; this repository owns the chain
     # to that boundary.
-    dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    dp = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
     assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
                      dp), "milan_datapath does not take the CSR's domain"
     assert re.search(r"\.gptp_domain_i\s*\(\s*cfg_adp_gptp_domain\s*\)", dp), \
@@ -14837,7 +15423,44 @@ def test_gptp_domain_is_one_source():
           f"the chain reaches the advertising plane's gptp_domain_i")
 
 
-def test_gptp_dataset_matches_engine_announce():
+def _assert_engine_pin_parser_derives(wire):
+    """Gate 26b step 4: gptp_engine_pins() reads its answer out of the
+    generator text rather than mirroring the builder, and REFUSES a
+    fixture whose constants are missing or declared twice."""
+    # 4. the parser derives (it does not mirror): a fixture with OTHER
+    #    values comes back with those values, a commented-out duplicate
+    #    does not count, and a missing or twice-declared constant REFUSES
+    fixture = ("P1_C, P2_C = 248, 247\n"
+               "CQ_C = 0xF7FD436B\n"
+               "# CQ_C = 0x11111111 commented copies are stripped\n"
+               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
+               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
+               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
+    got = eb.gptp_engine_pins(fixture)
+    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
+                       offset_scaled_log_variance=0x436B,
+                       log_sync_interval=-4, log_announce_interval=1,
+                       log_pdelay_interval=0), got
+    for label, broken in (
+            ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
+            ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
+            ("missing Announce TX",
+             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
+                             "")),
+            ("duplicate Announce TX",
+             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
+        try:
+            eb.gptp_engine_pins(broken)
+            raise AssertionError(f"{label}: the derivation invented a value "
+                                 f"instead of refusing")
+        except eb.ConfigError as e:
+            assert "gen_gptp_ucode.py" in str(e), \
+                f"{label}: refused without naming the authority: {e}"
+    #! and the fixture path never poisons the real cache
+    assert eb.gptp_engine_pins() == wire
+
+
+def test_gptp_dataset_matches_engine_announce() -> None:
     """Gate 26b: the AVB_INTERFACE clock dataset IS the engine's Announce.
 
     THE DEFECT THIS GATE CLOSES ([R-parallel] on #228).  The builder
@@ -14858,11 +15481,11 @@ def test_gptp_dataset_matches_engine_announce():
     gen_gptp_ucode.py, so a removed or cross-wired mapping in
     endstation_builder fails byte-for-byte instead of comparing the
     builder's derivation with itself."""
-    gen = open(os.path.join(
-        ROOT, "gptp-processor/hdl/ucode/gen_gptp_ucode.py")).read()
+    gen = (ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py").read_text()
     live = [ln.split("#", 1)[0] for ln in gen.splitlines()]
 
-    def one(pat, what):
+    def one(pat: str, what: str) -> int:
+        """The single live match of `pat` in gen_gptp_ucode.py, as an int."""
         hits = [m.group(1) for ln in live for m in [re.match(pat, ln)] if m]
         assert len(hits) == 1, \
             f"{what}: {len(hits)} live matches in gen_gptp_ucode.py, need 1"
@@ -14921,42 +15544,13 @@ def test_gptp_dataset_matches_engine_announce():
     thin = _variant(CONFIGS["ax7101_1x1_tdm8"],
                     lambda c: [c["gptp"].pop(k, None) for k in wire])
     cfg = eb.load_config(thin)
-    os.unlink(thin)
+    thin.unlink()
     for k, v in wire.items():
         assert cfg["gptp"][k] == v, \
             f"omitted gptp.{k} resolved to {cfg['gptp'][k]}, engine says {v}"
 
-    # 4. the parser derives (it does not mirror): a fixture with OTHER
-    #    values comes back with those values, a commented-out duplicate
-    #    does not count, and a missing or twice-declared constant REFUSES
-    fixture = ("P1_C, P2_C = 248, 247\n"
-               "CQ_C = 0xF7FD436B\n"
-               "# CQ_C = 0x11111111 commented copies are stripped\n"
-               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
-               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
-               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
-    got = eb.gptp_engine_pins(fixture)
-    assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
-                       offset_scaled_log_variance=0x436B,
-                       log_sync_interval=-4, log_announce_interval=1,
-                       log_pdelay_interval=0), got
-    for label, broken in (
-            ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
-            ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
-            ("missing Announce TX",
-             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
-                             "")),
-            ("duplicate Announce TX",
-             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
-        try:
-            eb.gptp_engine_pins(broken)
-            raise AssertionError(f"{label}: the derivation invented a value "
-                                 f"instead of refusing")
-        except eb.ConfigError as e:
-            assert "gen_gptp_ucode.py" in str(e), \
-                f"{label}: refused without naming the authority: {e}"
-    #! and the fixture path never poisons the real cache
-    assert eb.gptp_engine_pins() == wire
+    _assert_engine_pin_parser_derives(wire)
+
 
     print(f"  [gate 26b] AVB_INTERFACE == wire Announce for all "
           f"{len(CONFIGS)} configs: priority2 {wire['priority2']}, "
@@ -14967,25 +15561,161 @@ def test_gptp_dataset_matches_engine_announce():
           f"constant ([R-parallel] on #228)")
 
 
-def test_pp_window_contract():
+def test_pp_window_contract() -> None:
     """Gate 27: config and gateware share one processor-memory window."""
     import json
     for name, path in CONFIGS.items():
         result = eb.build(path, OUT)
-        shape = json.load(open(result["paths"]["platform_shape"]))
+        shape = json.loads(Path(result["paths"]["platform_shape"]).read_text())
         published = shape["pp_mem"]
         cfg = result["cfg"]["platform"]
         assert int(published["phys"], 16) == cfg["pp_mem_phys"], name
         assert int(published["bytes"], 16) == cfg["pp_mem_bytes"], name
 
-    soc = open(MILAN_SOC_PY).read()
+    soc = MILAN_SOC_PY.read_text()
     assert re.search(r"^\s*_shape\s*=\s*_platform_shape\(", soc, re.M)
     assert '_shape["pp_mem"]["phys"]' in soc
     assert '_shape["pp_mem"]["bytes"]' in soc
     print(f"  [gate 27] {len(CONFIGS)} processor-memory windows are single-sourced")
 
 
-def test_image_identity_is_baked():
+#: 1722.1-2021 descriptor types gate 28 reads out of the packed image, and the
+#: Table 6-3 capability bit that says the entity HAS an entity model at all.
+_ENTITY_DESC, _AVB_INTERFACE_DESC = 0x0000, 0x0009
+_AEM_SUPPORTED = 0x0000_0008
+
+
+def _be_uint(blob, off, nbytes):
+    """`nbytes` big-endian octets of `blob` at `off`, as an int."""
+    return int.from_bytes(blob[off:off + nbytes], "big")
+
+
+def _adp_entity_caps():
+    """entity_capabilities as pp_adp_pkg.sv declares it, proved non-trivial.
+
+    Read here as well as in the generator: two independent reads of one
+    constant is what makes gate 28 an assertion rather than a tautology.
+    """
+    pkg = ROOT / "protocol-processor/hdl/adp/pp_adp_pkg.sv"
+    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
+                  pkg.read_text())
+    assert m, "pp_adp_pkg.sv declares no ADP_ENTITY_CAPS_C"
+    adp_caps = int(m.group(1).replace("_", ""), 16)
+    assert adp_caps & _AEM_SUPPORTED, (
+        f"ADP advertises entity_capabilities 0x{adp_caps:08X} with "
+        "AEM_SUPPORTED clear (Table 6-3): the entity would be telling every "
+        "controller it has no entity model, and no READ_DESCRIPTOR would "
+        "ever arrive to serve this image from")
+    return adp_caps
+
+
+def _adp_side_of_table_7_2(name, cfg, adp_caps):
+    """What ADP advertises for one config, from the artifacts ADP is built
+    from: (the Table 7-2 fields, the station MAC, its 802.1AS clock id)."""
+    svh = eb.emit_adp_shape_svh(cfg)
+
+    def sym(n: str, s: str = svh, who: str = name) -> int:
+        """One numeric localparam out of the generated shape include."""
+        g = re.search(rf"{n}\s*=\s*(?:\d+'h([0-9A-Fa-f]+)|(\d+))\s*;", s)
+        assert g, f"{who}: adp_shape_defaults.svh declares no {n}"
+        return int(g.group(1), 16) if g.group(1) else int(g.group(2))
+
+    want = {
+        "entity_id": eb.derive_entity_id(cfg),
+        "entity_model_id": int(cfg["entity"]["entity_model_id"], 16),
+        "entity_capabilities": adp_caps,
+        "talker_stream_sources": sym("ADP_TALKER_SRC_C"),
+        "talker_capabilities": sym("ADP_TALKER_CAPS_C"),
+        "listener_stream_sinks": sym("ADP_LISTENER_SINK_C"),
+        "listener_capabilities": sym("ADP_LISTENER_CAPS_C"),
+    }
+    mac = bytes(int(x, 16)
+                for x in cfg["platform"]["mac_address"].split(":"))
+    #! 802.1AS-2011 8.5.2.2: EUI-48 widened to EUI-64 with FF-FE at the
+    #! OUI boundary, the recipe the deleted mux applied in RTL.
+    return want, mac, mac[:3] + b"\xFF\xFE" + mac[3:]
+
+
+def _assert_entity_image_matches_adp(name, ent, want, overlay):
+    """ENTITY descriptor bytes 4..31 equal the ADP side field for field.
+
+    Returns what the image actually served, for the verdict line."""
+    got = {
+        "entity_id": _be_uint(ent, 4, 8),
+        "entity_model_id": _be_uint(ent, 12, 8),
+        "entity_capabilities": _be_uint(ent, 20, 4),
+        "talker_stream_sources": _be_uint(ent, 24, 2),
+        "talker_capabilities": _be_uint(ent, 26, 2),
+        "listener_stream_sinks": _be_uint(ent, 28, 2),
+        "listener_capabilities": _be_uint(ent, 30, 2),
+    }
+    for k, w in want.items():
+        assert w != 0, (
+            f"{name}: the ADP side of {k} is itself 0, so this gate would "
+            "be comparing two zeros and proving nothing")
+        assert got[k] == w, (
+            f"{name}: ENTITY descriptor {k} reads 0x{got[k]:X} in the "
+            f"image, ADP advertises 0x{w:X}. 1722.1-2021 Table 7-2: the "
+            "descriptor field 'is the same as' the ADP one"
+            + ("  [entity_capabilities = 0 clears AEM_SUPPORTED: the "
+               "entity model says it has no entity model]"
+               if k == "entity_capabilities" and got[k] == 0 else ""))
+    assert got["entity_capabilities"] & _AEM_SUPPORTED, (
+        f"{name}: entity_capabilities 0x{got['entity_capabilities']:08X} "
+        "has AEM_SUPPORTED clear")
+    # The teeth on the model id: the number the CONFIG generates, not
+    # merely the number the boot script happens to carry.
+    assert got["entity_model_id"] == int(overlay["model_id"]["value"], 16),\
+        (f"{name}: image entity_model_id 0x{got['entity_model_id']:016X} "
+         f"is not the id this config generates "
+         f"({overlay['model_id']['value']}). 1722.1-2021 6.2.1.10 makes "
+         "that id the identity OF the model, and a controller caches the "
+         "descriptors under it")
+    return got
+
+
+def _assert_image_spans_are_baked(name, ent, overlay, aem, aemi):
+    """No build-constant span ships zero-filled, and the fields ADP really
+    does send as zero are still zero in the image."""
+    # Stated over gen_aem_store's own overlay list so a span added there
+    # cannot ship as zeros the way this whole set did: every entry is
+    # either resolved or explicitly declared dynamic, with no third
+    # option.
+    model = aem.build_model(aem.spec_from_overlay(overlay))
+    ident = aemi.identity_from_overlay(overlay)
+    for base, nbytes, src in model["OVERLAYS"]:
+        assert src in ident or src in aemi.UNBAKED_SPANS, (
+            f"{name}: overlay span {src} (ROM 0x{base:04X}, {nbytes} B) "
+            "is neither resolved nor declared dynamic - it would ship as "
+            "zeros")
+        if src in ident and any(ident[src]):
+            assert len(ident[src]) == nbytes
+    #! available_index is the one field here that genuinely cannot be
+    #! baked: it counts THIS entity's advertisements and increments per
+    #! ADPDU (6.2.1.14). Pinned so that baking a counter into a static
+    #! image is a visible diff.
+    assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
+        "available_index is a live counter; a flat image cannot state it"
+    assert _be_uint(ent, 36, 4) == 0, f"{name}: available_index baked non-zero"
+    #! controller_capabilities and association_id are 0 BECAUSE ADP sends
+    #! them as 0 (KL_adp_engine frame_byte_f wire bytes 46..49 and 70..77)
+    #! - this entity implements no controller and associates with nobody.
+    #! Asserted against the RTL so the day either becomes a real value,
+    #! this fails rather than silently shipping stale zeros.
+    eng = ROOT / "protocol-processor/hdl/adp/KL_adp_engine.sv"
+    src = eng.read_text()
+    assert re.search(r"i < 50\)\s*b = 8'h00;\s*// ctrl caps", src), \
+        "KL_adp_engine no longer sends controller_capabilities as zero"
+    assert _be_uint(ent, 32, 4) == 0, \
+        f"{name}: controller_capabilities non-zero"
+    assert _be_uint(ent, 40, 8) == 0, f"{name}: association_id non-zero"
+    #! current_configuration: d_configuration emits configurations_count
+    #! = 1, so 0 is the only index SET_CONFIGURATION could select.
+    assert _be_uint(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
+    assert _be_uint(ent, 310, 2) == 0, f"{name}: current_configuration != 0"
+
+
+def test_image_identity_is_baked() -> None:
     """Gate 28: the descriptor IMAGE carries the Table 7-2 identity.
 
     IEEE 1722.1-2021 Table 7-2 states, field by field, that the ENTITY
@@ -15014,92 +15744,22 @@ def test_image_identity_is_baked():
     pp_adp_pkg.sv for entity_capabilities, and the config for the MAC. It fails
     both ways round: an unbaked image and a baked image that disagrees with ADP.
     """
-    sys.path.insert(0, os.path.join(ROOT, "protocol-processor/hdl/aecp/desc"))
+    sys.path.insert(0, str(ROOT / "protocol-processor/hdl/aecp/desc"))
     import gen_aem_store as aem                    # noqa: E402
     import gen_aemi_image as aemi                  # noqa: E402
 
-    ENTITY, AVB_INTERFACE = 0x0000, 0x0009
-    AEM_SUPPORTED = 0x0000_0008                    # 1722.1-2021 Table 6-3
-
-    #! Read here as well as in the generator: two independent reads of one
-    #! constant is what makes this an assertion rather than a tautology.
-    pkg = open(os.path.join(ROOT, "protocol-processor/hdl/adp/pp_adp_pkg.sv"))
-    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
-                  pkg.read())
-    assert m, "pp_adp_pkg.sv declares no ADP_ENTITY_CAPS_C"
-    adp_caps = int(m.group(1).replace("_", ""), 16)
-    assert adp_caps & AEM_SUPPORTED, (
-        f"ADP advertises entity_capabilities 0x{adp_caps:08X} with "
-        "AEM_SUPPORTED clear (Table 6-3): the entity would be telling every "
-        "controller it has no entity model, and no READ_DESCRIPTOR would "
-        "ever arrive to serve this image from")
+    adp_caps = _adp_entity_caps()
 
     for name in ("ax7101_1x1_tdm8", "arty_current", "arty_4x4",
                  "ax7101_8x8"):
         cfg = eb.load_config(CONFIGS[name])
         overlay = eb.emit_aem_overlay(cfg)
         blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
-        ent = image_descriptor(blob, ENTITY)
-        avbi = image_descriptor(blob, AVB_INTERFACE)
+        ent = image_descriptor(blob, _ENTITY_DESC)
+        avbi = image_descriptor(blob, _AVB_INTERFACE_DESC)
 
-        # ---- the ADP side of Table 7-2, from the artifacts ADP is built from
-        want_eid = eb.derive_entity_id(cfg)
-        want_mid = int(cfg["entity"]["entity_model_id"], 16)
-        svh = eb.emit_adp_shape_svh(cfg)
-
-        def sym(n, s=svh, who=name):
-            g = re.search(rf"{n}\s*=\s*(?:\d+'h([0-9A-Fa-f]+)|(\d+))\s*;", s)
-            assert g, f"{who}: adp_shape_defaults.svh declares no {n}"
-            return int(g.group(1), 16) if g.group(1) else int(g.group(2))
-
-        mac = bytes(int(x, 16)
-                    for x in cfg["platform"]["mac_address"].split(":"))
-        #! 802.1AS-2011 8.5.2.2: EUI-48 widened to EUI-64 with FF-FE at the
-        #! OUI boundary, the recipe the deleted mux applied in RTL.
-        want_clock_id = mac[:3] + b"\xFF\xFE" + mac[3:]
-
-        # ---- what the image actually serves
-        u = lambda b, o, n: int.from_bytes(b[o:o + n], "big")  # noqa: E731
-        got = {
-            "entity_id": u(ent, 4, 8),
-            "entity_model_id": u(ent, 12, 8),
-            "entity_capabilities": u(ent, 20, 4),
-            "talker_stream_sources": u(ent, 24, 2),
-            "talker_capabilities": u(ent, 26, 2),
-            "listener_stream_sinks": u(ent, 28, 2),
-            "listener_capabilities": u(ent, 30, 2),
-        }
-        want = {
-            "entity_id": want_eid,
-            "entity_model_id": want_mid,
-            "entity_capabilities": adp_caps,
-            "talker_stream_sources": sym("ADP_TALKER_SRC_C"),
-            "talker_capabilities": sym("ADP_TALKER_CAPS_C"),
-            "listener_stream_sinks": sym("ADP_LISTENER_SINK_C"),
-            "listener_capabilities": sym("ADP_LISTENER_CAPS_C"),
-        }
-        for k, w in want.items():
-            assert w != 0, (
-                f"{name}: the ADP side of {k} is itself 0, so this gate would "
-                "be comparing two zeros and proving nothing")
-            assert got[k] == w, (
-                f"{name}: ENTITY descriptor {k} reads 0x{got[k]:X} in the "
-                f"image, ADP advertises 0x{w:X}. 1722.1-2021 Table 7-2: the "
-                "descriptor field 'is the same as' the ADP one"
-                + ("  [entity_capabilities = 0 clears AEM_SUPPORTED: the "
-                   "entity model says it has no entity model]"
-                   if k == "entity_capabilities" and got[k] == 0 else ""))
-        assert got["entity_capabilities"] & AEM_SUPPORTED, (
-            f"{name}: entity_capabilities 0x{got['entity_capabilities']:08X} "
-            "has AEM_SUPPORTED clear")
-        # The teeth on the model id: the number the CONFIG generates, not
-        # merely the number the boot script happens to carry.
-        assert got["entity_model_id"] == int(overlay["model_id"]["value"], 16),\
-            (f"{name}: image entity_model_id 0x{got['entity_model_id']:016X} "
-             f"is not the id this config generates "
-             f"({overlay['model_id']['value']}). 1722.1-2021 6.2.1.10 makes "
-             "that id the identity OF the model, and a controller caches the "
-             "descriptors under it")
+        want, mac, want_clock_id = _adp_side_of_table_7_2(name, cfg, adp_caps)
+        got = _assert_entity_image_matches_adp(name, ent, want, overlay)
 
         assert avbi[70:76] == mac, (
             f"{name}: AVB_INTERFACE mac_address {avbi[70:76].hex()} is not "
@@ -15108,43 +15768,7 @@ def test_image_identity_is_baked():
             f"{name}: AVB_INTERFACE clock_identity {avbi[78:86].hex()}, "
             f"802.1AS says {want_clock_id.hex()}")
 
-        # ---- and NO build-constant span left zero-filled anywhere.
-        # Stated over gen_aem_store's own overlay list so a span added there
-        # cannot ship as zeros the way this whole set did: every entry is
-        # either resolved or explicitly declared dynamic, with no third
-        # option.
-        model = aem.build_model(aem.spec_from_overlay(overlay))
-        ident = aemi.identity_from_overlay(overlay)
-        for base, nbytes, src in model["OVERLAYS"]:
-            assert src in ident or src in aemi.UNBAKED_SPANS, (
-                f"{name}: overlay span {src} (ROM 0x{base:04X}, {nbytes} B) "
-                "is neither resolved nor declared dynamic - it would ship as "
-                "zeros")
-            if src in ident and any(ident[src]):
-                assert len(ident[src]) == nbytes
-        #! available_index is the one field here that genuinely cannot be
-        #! baked: it counts THIS entity's advertisements and increments per
-        #! ADPDU (6.2.1.14). Pinned so that baking a counter into a static
-        #! image is a visible diff.
-        assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
-            "available_index is a live counter; a flat image cannot state it"
-        assert u(ent, 36, 4) == 0, f"{name}: available_index baked non-zero"
-        #! controller_capabilities and association_id are 0 BECAUSE ADP sends
-        #! them as 0 (KL_adp_engine frame_byte_f wire bytes 46..49 and 70..77)
-        #! - this entity implements no controller and associates with nobody.
-        #! Asserted against the RTL so the day either becomes a real value,
-        #! this fails rather than silently shipping stale zeros.
-        eng = open(os.path.join(ROOT,
-                                "protocol-processor/hdl/adp/KL_adp_engine.sv"))
-        src = eng.read()
-        assert re.search(r"i < 50\)\s*b = 8'h00;\s*// ctrl caps", src), \
-            "KL_adp_engine no longer sends controller_capabilities as zero"
-        assert u(ent, 32, 4) == 0, f"{name}: controller_capabilities non-zero"
-        assert u(ent, 40, 8) == 0, f"{name}: association_id non-zero"
-        #! current_configuration: d_configuration emits configurations_count
-        #! = 1, so 0 is the only index SET_CONFIGURATION could select.
-        assert u(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
-        assert u(ent, 310, 2) == 0, f"{name}: current_configuration != 0"
+        _assert_image_spans_are_baked(name, ent, overlay, aem, aemi)
 
         print(f"  [gate 28] {name}: image ENTITY carries entity_id "
               f"0x{got['entity_id']:016X}, entity_model_id "
@@ -15158,7 +15782,7 @@ def test_image_identity_is_baked():
               f"clock_identity - all equal to what ADP advertises (Table 7-2)")
 
 
-def test_image_name_table_matches_descriptors():
+def test_image_name_table_matches_descriptors() -> None:
     """Gate 28b: name commands and READ_DESCRIPTOR share one initial truth.
 
     The packed image index rows are the hardware's only mapping from a
@@ -15234,7 +15858,7 @@ def test_image_name_table_matches_descriptors():
             assert n_names == 29, (
                 f"shipping model has {n_names} names, expected 29")
             rtl = "hdl/milan/KL_pp_shadow.sv"
-            src = open(os.path.join(ROOT, rtl), encoding="utf-8").read()
+            src = (ROOT / rtl).read_text(encoding="utf-8")
             assert re.search(r"DESC_NAME_ENTRIES_P\s*=\s*32", src), (
                 f"{rtl}: standalone default cannot fit the shipping model")
 
@@ -15298,7 +15922,7 @@ def _oracle_cover(fmts):
     return cover
 
 
-def test_per_row_format_facts_are_per_row():
+def test_per_row_format_facts_are_per_row() -> None:
     """Gate 30: the emitted per-row format facts carry EACH row's own
     declaration, and the CRF output constant reads the NORMALIZED
     crf_output_format key.
@@ -15315,13 +15939,15 @@ def test_per_row_format_facts_are_per_row():
     """
     import re
 
-    def qarray(s, name):
+    def qarray(s: str, name: str) -> list[int]:
+        """The hex array `name` states in the shape header, as integers."""
         m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", s)
         assert m, f"shape header has no {name}"
         return [int(t.strip().split("'h")[1], 16)
                 for t in m.group(1).split(",")]
 
-    def qscalar(s, name):
+    def qscalar(s: str, name: str) -> int:
+        """The 64-bit hex scalar `name` states in the shape header."""
         m = re.search(rf"{name}\s*=\s*64'h([0-9A-Fa-f]+);", s)
         assert m, f"shape header has no {name}"
         return int(m.group(1), 16)
@@ -15362,7 +15988,71 @@ def test_per_row_format_facts_are_per_row():
     assert urows == [qscalar(usvh, "ADP_STRIN0_FMT_C")] * len(urows)
 
 
-def test_milan_base_formats_are_rate_complete():
+def _milan_stream_format_facts(name, streams, rates, worst):
+    """Grade every stream of ONE config against Milan 5.3.3.3 / 5.3.3.4 /
+    6.4 and 1722.1-2021 Table 7-8.
+
+    Returns (the Base rate set each Stream Input advertises, how many
+    complete rate families were checked, which directions carry a Base
+    format, and the longest descriptor seen so far)."""
+    in_rates, complete, base_streams = [], 0, {}
+    for kind, s in streams:
+        who = f"{name} {kind}[{s['index']}] ('{s['name']}')"
+        cover = _oracle_cover(s["formats"])
+        # E. CRF exclusivity, both directions (5.3.3.4)
+        if s["kind"] == "crf":
+            assert [f.upper() for f in s["formats"]] == \
+                [f"0X{MILAN_TABLE_7_1_CRF:016X}"], (
+                f"{who}: a CRF Media Clock stream advertises "
+                f"{s['formats']}, and Milan 7.3.2 / Table 7.1 define "
+                f"exactly one Avnu Pro Audio CRF Media Clock Stream "
+                f"Format, 0x{MILAN_TABLE_7_1_CRF:016X}")
+            assert not cover, (
+                f"{who}: a CRF stream advertises AAF Base format(s) "
+                f"{sorted(cover)} - Milan 5.3.3.4: \"If a Stream "
+                f"Input/Output supports the Avnu Pro Audio CRF Media "
+                f"Clock Stream Format, it shall not support the Avnu Pro "
+                f"Audio AAF Audio Stream Format, and vice versa\"")
+        else:
+            assert MILAN_TABLE_7_1_CRF not in \
+                [int(str(f), 16) for f in s["formats"]], \
+                f"{who}: an AAF stream advertises the CRF format (5.3.3.4)"
+            base_streams.setdefault(kind, []).append(bool(cover))
+        # D. rate coherence with the AUDIO_UNIT (5.3.3.3 + 5.3.3.4)
+        for rate in cover:
+            assert rate in rates, (
+                f"{who}: advertises a {rate} Hz Base format while the "
+                f"AUDIO_UNIT reports sampling rates {rates} - Milan "
+                f"5.3.3.3 makes that list the Audio Unit's truth")
+        # B. the family rule, Stream Inputs only (6.4 third paragraph)
+        if kind == "STREAM_INPUT" and s["kind"] != "crf":
+            in_rates.append(sorted(cover))
+            for rate, got in sorted(cover.items()):
+                missing = sorted(set(eb.BASE_CHANNELS) - got)
+                assert not missing, (
+                    f"{who}: advertises {s['formats']} = {rate} Hz Base "
+                    f"channel counts {sorted(got)}, missing {missing}. "
+                    f"Milan v1.2 6.4: \"If the PAAD-AE Base Listener "
+                    f"advertises support for a 48kHz (resp. 96kHz, "
+                    f"192kHz) Base format in a Stream Input, then it "
+                    f"shall also advertise support for all the other "
+                    f"48kHz (resp. 96kHz, 192kHz) Base formats in this "
+                    f"Stream Input.\" One ut entry at "
+                    f"0x{eb.aaf_pcm32(max(eb.BASE_CHANNELS), rate, ut=True):016X} "
+                    f"covers the whole family (6.5)")
+                complete += 1
+        # G. IEEE 1722.1-2021 Table 7-8 against the store's line buffer
+        n = len(s["formats"])
+        length = 138 + 8 * n
+        assert length <= DESC_LINE_BYTES, (
+            f"{who}: {n} formats = {length} octets (Table 7-8: "
+            f"138 + 8*N + 2*R at R=0), past KL_aecp_desc_store's "
+            f"{DESC_LINE_BYTES}-octet line buffer")
+        worst = max(worst, (length, who))
+    return in_rates, complete, base_streams, worst
+
+
+def test_milan_base_formats_are_rate_complete() -> None:
     """Gate 29: every Stream Input that advertises a Base format advertises
     the WHOLE rate family, the CRF streams carry the CRF format and nothing
     else, and no stream's descriptor outgrows the store's line buffer.
@@ -15432,60 +16122,8 @@ def test_milan_base_formats_are_rate_complete():
         rates = [int(x) for x in cfg["clocking"]["audio_unit_rates_hz"]]
         streams = ([("STREAM_INPUT", s) for s in ovl["stream_inputs"]]
                    + [("STREAM_OUTPUT", s) for s in ovl["stream_outputs"]])
-        in_rates, complete, base_streams = [], 0, {}
-        for kind, s in streams:
-            who = f"{name} {kind}[{s['index']}] ('{s['name']}')"
-            cover = _oracle_cover(s["formats"])
-            # E. CRF exclusivity, both directions (5.3.3.4)
-            if s["kind"] == "crf":
-                assert [f.upper() for f in s["formats"]] == \
-                    [f"0X{MILAN_TABLE_7_1_CRF:016X}"], (
-                    f"{who}: a CRF Media Clock stream advertises "
-                    f"{s['formats']}, and Milan 7.3.2 / Table 7.1 define "
-                    f"exactly one Avnu Pro Audio CRF Media Clock Stream "
-                    f"Format, 0x{MILAN_TABLE_7_1_CRF:016X}")
-                assert not cover, (
-                    f"{who}: a CRF stream advertises AAF Base format(s) "
-                    f"{sorted(cover)} - Milan 5.3.3.4: \"If a Stream "
-                    f"Input/Output supports the Avnu Pro Audio CRF Media "
-                    f"Clock Stream Format, it shall not support the Avnu Pro "
-                    f"Audio AAF Audio Stream Format, and vice versa\"")
-            else:
-                assert MILAN_TABLE_7_1_CRF not in \
-                    [int(str(f), 16) for f in s["formats"]], \
-                    f"{who}: an AAF stream advertises the CRF format (5.3.3.4)"
-                base_streams.setdefault(kind, []).append(bool(cover))
-            # D. rate coherence with the AUDIO_UNIT (5.3.3.3 + 5.3.3.4)
-            for rate in cover:
-                assert rate in rates, (
-                    f"{who}: advertises a {rate} Hz Base format while the "
-                    f"AUDIO_UNIT reports sampling rates {rates} - Milan "
-                    f"5.3.3.3 makes that list the Audio Unit's truth")
-            # B. the family rule, Stream Inputs only (6.4 third paragraph)
-            if kind == "STREAM_INPUT" and s["kind"] != "crf":
-                in_rates.append(sorted(cover))
-                for rate, got in sorted(cover.items()):
-                    missing = sorted(set(eb.BASE_CHANNELS) - got)
-                    assert not missing, (
-                        f"{who}: advertises {s['formats']} = {rate} Hz Base "
-                        f"channel counts {sorted(got)}, missing {missing}. "
-                        f"Milan v1.2 6.4: \"If the PAAD-AE Base Listener "
-                        f"advertises support for a 48kHz (resp. 96kHz, "
-                        f"192kHz) Base format in a Stream Input, then it "
-                        f"shall also advertise support for all the other "
-                        f"48kHz (resp. 96kHz, 192kHz) Base formats in this "
-                        f"Stream Input.\" One ut entry at "
-                        f"0x{eb.aaf_pcm32(max(eb.BASE_CHANNELS), rate, ut=True):016X} "
-                        f"covers the whole family (6.5)")
-                    complete += 1
-            # G. IEEE 1722.1-2021 Table 7-8 against the store's line buffer
-            n = len(s["formats"])
-            length = 138 + 8 * n
-            assert length <= DESC_LINE_BYTES, (
-                f"{who}: {n} formats = {length} octets (Table 7-8: "
-                f"138 + 8*N + 2*R at R=0), past KL_aecp_desc_store's "
-                f"{DESC_LINE_BYTES}-octet line buffer")
-            worst = max(worst, (length, who))
+        in_rates, complete, base_streams, worst = \
+            _milan_stream_format_facts(name, streams, rates, worst)
         # F. one Base stream per direction (6.3 / 6.4 second paragraphs: "at
         #    least one Configuration that contains at least one Stream
         #    Output/Input which advertises support for a Base format in its

@@ -12,56 +12,79 @@
 
 #include "Vtcam.h"
 #include "verilated.h"
+#include "../../common/verilator_harness.hpp"
 #include <cstdio>
 #include <cstdint>
 
-static Vtcam* dut;
-static long checks = 0, fails = 0;
-static void ck(const char* what, uint64_t got, uint64_t exp) {
-    checks++;
-    if (got != exp) { fails++; printf("  [FAIL] %-30s got=0x%llx exp=0x%llx\n", what,
-                                       (unsigned long long)got, (unsigned long long)exp); }
-}
+namespace {
+// The model handle and the tally were file-scope statics; they are the state
+// of one run of this harness, so they belong to the object that performs it.
+class TcamHarness {
+ public:
+    int run();
 
-static void tick() { dut->clk_i = 0; dut->eval(); dut->clk_i = 1; dut->eval(); }
+ private:
+    void ck(const char* what, uint64_t got, uint64_t exp) {
+        checks++;
+        if (got != exp) {
+            fails++;
+            printf("  [FAIL] %-30s got=0x%llx exp=0x%llx\n", what,
+                   static_cast<unsigned long long>(got), static_cast<unsigned long long>(exp));
+        }
+    }
 
-// add/update (valid=1) or remove (valid=0) one entry
-static void wr(int idx, int valid, uint64_t key, uint64_t mask, int action) {
-    dut->wr_en_i = 1; dut->wr_index_i = idx; dut->wr_valid_i = valid;
-    dut->wr_key_i = key; dut->wr_mask_i = mask; dut->wr_action_i = action;
-    tick();
-    dut->wr_en_i = 0; tick();
-}
+    void tick() { dut->clk_i = 0; dut->eval(); dut->clk_i = 1; dut->eval(); }
 
-// combinational lookup
-static void look(uint64_t key, int& m, int& idx, int& act, int& vec) {
-    dut->lookup_key_i = key; dut->eval();
-    m = dut->match_o; idx = dut->match_index_o; act = dut->match_action_o; vec = dut->match_vec_o;
-}
+    // add/update (valid=1) or remove (valid=0) one entry
+    void wr(int idx, int valid, uint64_t key, uint64_t mask, int action) {
+        dut->wr_en_i = 1; dut->wr_index_i = idx; dut->wr_valid_i = valid;
+        dut->wr_key_i = key; dut->wr_mask_i = mask; dut->wr_action_i = action;
+        tick();
+        dut->wr_en_i = 0; tick();
+    }
+
+    // combinational lookup
+    void look(uint64_t key, int& m, int& idx, int& act, int& vec) {
+        dut->lookup_key_i = key; dut->eval();
+        m = dut->match_o; idx = dut->match_index_o; act = dut->match_action_o; vec = dut->match_vec_o;
+    }
+
+    Vtcam* dut = nullptr;
+    long checks = 0;
+    long fails = 0;
+};
+}  // namespace
+
+// Clock edges driven with rst_n low before the first lookup
+constexpr int kResetCycles = 4;
 
 // Well-known destination MACs
-static const uint64_t MAC_GPTP   = 0x0180C200000EULL; // gPTP peer-delay multicast
-static const uint64_t MAC_AVDECC = 0x91E0F0010000ULL; // AVDECC/ADP multicast
-static const uint64_t MAC_RESVK  = 0x0180C2000000ULL; // reserved multicast 01-80-C2-00-00-0x
-static const uint64_t MAC_RESVM  = 0xFFFFFFFFFFF0ULL; // ...low nibble wildcard
-static const uint64_t MAC_BCAST  = 0xFFFFFFFFFFFFULL;
-static const uint64_t MASK_ALL   = 0xFFFFFFFFFFFFULL;
-static const uint64_t MAC_UNI    = 0xAABBCCDDEEFFULL; // random unicast (miss)
-static const uint64_t MAC_STREAM = 0x91E0F0001234ULL; // a MAAP-style stream dest
+constexpr uint64_t MAC_GPTP   = 0x0180C200000EULL; // gPTP peer-delay multicast
+constexpr uint64_t MAC_AVDECC = 0x91E0F0010000ULL; // AVDECC/ADP multicast
+constexpr uint64_t MAC_RESVK  = 0x0180C2000000ULL; // reserved multicast 01-80-C2-00-00-0x
+constexpr uint64_t MAC_RESVM  = 0xFFFFFFFFFFF0ULL; // ...low nibble wildcard
+constexpr uint64_t MAC_BCAST  = 0xFFFFFFFFFFFFULL;
+constexpr uint64_t MASK_ALL   = 0xFFFFFFFFFFFFULL;
+constexpr uint64_t MAC_UNI    = 0xAABBCCDDEEFFULL; // random unicast (miss)
+constexpr uint64_t MAC_STREAM = 0x91E0F0001234ULL; // a MAAP-style stream dest
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
-    dut = new Vtcam;
+namespace {
+int TcamHarness::run() {
+    const milan::tb::Model<Vtcam> model;
+    dut = model.get();
 
     dut->rst_n = 0;
     dut->wr_en_i = 0; dut->lookup_key_i = 0;
-    for (int i = 0; i < 4; i++) tick();
+    for (int i = 0; i < kResetCycles; i++) tick();
     dut->rst_n = 1; tick();
 
     printf("== tcam (ternary MAC CAM) harness ==\n");
 
     // after reset, table is empty -> everything misses
-    int m, idx, act, vec;
+    int m;
+    int idx;
+    int act;
+    int vec;
     look(MAC_GPTP, m, idx, act, vec);
     ck("empty table misses", m, 0);
 
@@ -111,6 +134,12 @@ int main(int argc, char** argv) {
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
-    dut->final(); delete dut;
     return fails ? 1 : 0;
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+    Verilated::commandArgs(argc, argv);
+    TcamHarness harness;
+    return harness.run();
 }
