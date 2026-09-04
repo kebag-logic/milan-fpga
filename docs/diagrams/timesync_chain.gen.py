@@ -107,10 +107,12 @@ class Edge:
 
 
 def esc(value: object) -> str:
+    """XML-safe text, quotes included, because every use is an attribute value."""
     return html.escape(str(value), quote=True)
 
 
 def feature_statuses(path: Path = FEATURE_FILE) -> dict[str, str]:
+    """The canonical status of each feature the diagram states, by id."""
     data = json.loads(path.read_text(encoding="utf-8"))
     features = data.get("features") if isinstance(data, dict) else None
     if not isinstance(features, list):
@@ -127,6 +129,7 @@ def feature_statuses(path: Path = FEATURE_FILE) -> dict[str, str]:
 
 
 def source_errors(root: Path = ROOT) -> list[str]:
+    """Every RTL evidence token the diagram depends on that is not in the tree."""
     errors: list[str] = []
     for relative, tokens in SOURCE_TOKENS.items():
         path = root / relative
@@ -141,6 +144,7 @@ def source_errors(root: Path = ROOT) -> list[str]:
 
 
 def gitlink_pin() -> str:
+    """The exact gptp-processor gitlink at stage zero, read from the index."""
     result = subprocess.run(
         ["git", "-C", str(ROOT), "ls-files", "--stage", "--", "gptp-processor"],
         check=True,
@@ -153,6 +157,7 @@ def gitlink_pin() -> str:
 
 
 def read_facts() -> Facts:
+    """The source-checked facts the diagram is drawn from, or a ValueError."""
     errors = source_errors()
     if errors:
         raise ValueError("; ".join(errors))
@@ -169,6 +174,7 @@ def read_facts() -> Facts:
 
 
 def nodes(facts: Facts) -> dict[str, Node]:
+    """The node table, with the pin and the media status read into their boxes."""
     blue = ("#E3F2FD", "#1565C0")
     gold = ("#FFF8E1", "#F9A825")
     green = ("#E8F5E9", "#2E7D32")
@@ -177,7 +183,10 @@ def nodes(facts: Facts) -> dict[str, Node]:
     grey = ("#ECEFF1", "#546E7A")
     return {
         "peer": Node(35, 140, 175, 100, "802.1AS peer", ("Ethernet wire",), *grey),
-        "rx": Node(250, 125, 245, 130, "Parent RX seam", ("accepted MAC beats", "first-beat PHC time"), *blue),
+        "rx": Node(
+            250, 125, 245, 130, "Parent RX seam",
+            ("accepted MAC beats", "first-beat PHC time"), *blue,
+        ),
         "engine": Node(
             545,
             115,
@@ -187,15 +196,27 @@ def nodes(facts: Facts) -> dict[str, Node]:
             (f"pin {facts.pin[:12]}", "protocol, timers, servo"),
             *blue,
         ),
-        "tx": Node(895, 125, 245, 130, "Parent TX seam", ("byte-to-wide transport", "valid-ready backpressure"), *blue),
+        "tx": Node(
+            895, 125, 245, 130, "Parent TX seam",
+            ("byte-to-wide transport", "valid-ready backpressure"), *blue,
+        ),
         "mac": Node(1190, 140, 175, 100, "MAC boundary", ("actual TX acceptance",), *grey),
         "phc": Node(150, 350, 300, 135, "PHC counter", ("network nanoseconds", "rate and phase controls"), *gold),
-        "publish": Node(535, 350, 310, 135, "Atomic publication", ("GM, parent, path", "delay, flags, commit"), *purple),
+        "publish": Node(
+            535, 350, 310, 135, "Atomic publication",
+            ("GM, parent, path", "delay, flags, commit"), *purple,
+        ),
         "consumers": Node(900, 350, 310, 135, "Public consumers", ("CSR and protocol", "AVTP tu and status"), *purple),
-        "stamp": Node(1260, 350, 285, 135, "MAC-boundary timestamp", ("first accepted TX beat", "sequence plus type"), *gold),
+        "stamp": Node(
+            1260, 350, 285, 135, "MAC-boundary timestamp",
+            ("first accepted TX beat", "sequence plus type"), *gold,
+        ),
         "avtp": Node(115, 650, 330, 135, "AVTP timeline", ("PHC dates AAF and CRF", "tu reports uncertainty"), *orange),
         "crf": Node(565, 650, 330, 135, "CRF measurement", ("remote phase and rate", "selection reaches root"), *green),
-        "media": Node(1070, 635, 380, 165, "Media clock lineage", ("INTERNAL: free-run", "CRF: steered and aligned"), *green),
+        "media": Node(
+            1070, 635, 380, 165, "Media clock lineage",
+            ("INTERNAL: free-run", "CRF: steered and aligned"), *green,
+        ),
         "select": Node(
             920,
             525,
@@ -228,6 +249,7 @@ EDGES = (
 
 
 def svg(facts: Facts) -> str:
+    """The published .svg: boundaries, routed arrows with labels, node boxes."""
     diagram_nodes = nodes(facts)
     lines = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" '
@@ -291,10 +313,9 @@ def svg(facts: Facts) -> str:
     return "\n".join(lines) + "\n"
 
 
-def drawio(facts: Facts) -> str:
-    diagram_nodes = nodes(facts)
-    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-    annotations = (
+def drawio_annotations(facts: Facts) -> tuple[tuple[str, str, int, int, int, int, str], ...]:
+    """The free-standing text cells: id, text, x, y, width, height, style."""
+    return (
         (
             "title",
             "Fabric time ownership and integration",
@@ -352,7 +373,14 @@ def drawio(facts: Facts) -> str:
             "fontSize=11;fontColor=#78909C;",
         ),
     )
-    for identifier, value, x, y, width, height, text_style in annotations:
+
+
+def drawio(facts: Facts) -> str:
+    """The same diagram as an editable .drawio: a text cell per annotation,
+    a vertex per node and one routed edge per arrow."""
+    diagram_nodes = nodes(facts)
+    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
+    for identifier, value, x, y, width, height, text_style in drawio_annotations(facts):
         style = "text;html=1;align=left;verticalAlign=middle;" + text_style
         cells.append(
             f'<mxCell id="{identifier}" value="{esc(value)}" style="{style}" '
@@ -403,6 +431,7 @@ def drawio(facts: Facts) -> str:
 
 
 def check_or_write(path: Path, content: str, checking: bool) -> bool:
+    """Write one text output, or under --check report whether it is current."""
     if checking:
         return path.is_file() and path.read_text(encoding="utf-8") == content
     path.write_text(content, encoding="utf-8")
@@ -410,6 +439,7 @@ def check_or_write(path: Path, content: str, checking: bool) -> bool:
 
 
 def check_or_write_png(svg_content: str, drawio_content: str, checking: bool) -> bool:
+    """Render the reviewed PNG, or under --check compare it against the manifest."""
     output = BASE.with_suffix(".png")
     digest = hashlib.sha256(drawio_content.encode("utf-8")).hexdigest()
     fields = {DRAWIO_HASH_KEY: digest}
@@ -438,6 +468,7 @@ def check_or_write_png(svg_content: str, drawio_content: str, checking: bool) ->
 
 
 def selftest() -> int:
+    """The fixture arms: status, XML, source evidence and raster must all bite."""
     facts = read_facts()
     source_svg = svg(facts)
     changed_svg = svg(replace(facts, media_status="missing"))
@@ -508,6 +539,7 @@ def selftest() -> int:
 
 
 def main() -> int:
+    """The three arms - selftest, --check, regenerate; 1 when an output is stale."""
     if sys.argv[1:] == ["--selftest"]:
         return selftest()
     checking = sys.argv[1:] == ["--check"]

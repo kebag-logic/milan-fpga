@@ -77,6 +77,7 @@ required context. So the aggregate must need every other job of that
 workflow; every job an aggregate needs is the selector, a consumer, or
 itself held; the verdict step's keys, env bindings and script are derived
 from that `needs` list; each public check name is carried by exactly one
+from collections.abc import Callable
 job; and the reference audit covers every static `needs` chain, `.result`
 included, not only `.outputs.`.
 
@@ -2497,14 +2498,17 @@ def check_carrier_gate_step(c, path, wf, jid, call, canonical, why):
            + script_difference(lines, canonical) + "; " + why)
 
 
-def check_named_carrier_gate_step(c, path, wf, jid, name, canonical, why):
-    """Pin a gate body to the exact named step that publishes its claim.
+def check_named_carrier_gate_step(c: Contract, path: str, wf: dict, jid: str,
+                                  gate: tuple[str, tuple[str, ...], str]) -> None:
+    """Pin a gate body to the exact named step that publishes its claim;
+    `gate` is the (name, canonical script, why) triple of that step.
 
     Searching only for a command is insufficient: the canonical body can be
     moved to an adjacent step while the recorded gate name becomes `run: true`.
     The carrier sequence still has every expected name in that construction,
     but the named evidence is false.
     """
+    name, canonical, why = gate
     job = jobs(wf).get(jid)
     ss = steps(job) if isinstance(job, dict) else []
     found = [s for s in ss if s.get("name") == name]
@@ -2674,10 +2678,10 @@ def check_docs(c, wf):
         "a `|| true` beside either call swallows the finding this file "
         "exists to raise while the required context stays green")
     check_named_carrier_gate_step(
-        c, DOCS, wf, "docs-check", IMPORTED_GPTP_GATE_NAME,
-        CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
-        "this named step is the published proof for both the parent gPTP "
-        "documentation contract and the pinned donor documentation build")
+        c, DOCS, wf, "docs-check",
+        (IMPORTED_GPTP_GATE_NAME, CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
+         "this named step is the published proof for both the parent gPTP "
+         "documentation contract and the pinned donor documentation build"))
     check_carrier_gate_step(
         c, DOCS, wf, "wire-accountability", WIRE_GATE_CALL,
         CANONICAL_WIRE_GATE_SCRIPT,
@@ -3592,18 +3596,22 @@ def _mutations():
             found[0]["run"] = found[0]["run"].replace(old, new, 1)
         return f
 
-    def m_named_gate_run(path, jid, name, run):
-        def f(w):
+    def m_named_gate_run(path: str, jid: str, name: str, run: str) -> Callable[[dict], None]:
+        """Replace the whole body of the step named `name` with `run`."""
+        def f(w: dict) -> None:
+            """Apply the body swap to one in-memory world."""
             found = [s for s in job_steps(w, path, jid)
                      if s.get("name") == name]
             assert len(found) == 1, f"fixture drift: step {name!r} in {jid}"
             found[0]["run"] = run
         return f
 
-    def m_move_named_gate_body(path, jid, name, recipient):
-        # Preserve the canonical commands elsewhere in the same pinned step
-        # list while making the step whose name publishes the claim a stub.
-        def f(w):
+    def m_move_named_gate_body(path: str, jid: str, name: str,
+                               recipient: str) -> Callable[[dict], None]:
+        """Preserve the canonical commands elsewhere in the same pinned step
+        list while making the step whose name publishes the claim a stub."""
+        def f(w: dict) -> None:
+            """Move the named body onto `recipient` and stub the named step."""
             named = [s for s in job_steps(w, path, jid)
                      if s.get("name") == name]
             recipients = [s for s in job_steps(w, path, jid)
