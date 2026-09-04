@@ -856,10 +856,14 @@ from their executable.
 An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
 through the effective runner tool cache and proves a second fresh run cannot see
-it. It then starts a harmless sleeping job, inspects the real cache mount, waits
-for the owned container, freezes the `act` process group, delivers `SIGINT` to
-the runner, and requires the container, network, tool-cache volume, and run
-directory to be absent afterward. With `--sudo`, the probe also requires a root
+it. It then plants two act-shaped volumes the runner did not create, one
+outside the sleeping job's workflow lease and one inside it, and requires the
+inside one to refuse acquisition while both survive. It then starts a harmless
+sleeping job, inspects the real cache mount and the two job volumes `act`
+created for it, waits for the owned container, freezes the `act` process
+group, delivers `SIGINT` to the runner, and requires the container, network,
+tool-cache volume, both job volumes, and run directory to be absent afterward
+while the planted outside volume survives. With `--sudo`, the probe also requires a root
 `act` child distinct from the sudo leader, sends `SIGSTOP` through privileged
 `kill`, proves every process-group member is stopped, and proves the complete
 group is absent before Docker teardown. Cancellation is serialized with that
@@ -985,6 +989,26 @@ marker through
 marker is absent there, inspects the effective container mount, and finally
 proves interrupt cleanup removes the volume too.
 
+`act` 0.2.89 also names each job's workspace and environment volumes
+`act-<workflow>-<job>-<sha256>` and `...-env` from the workflow and job names,
+never from a run token, and removes them only inside its own graceful teardown.
+Forced process-group containment bypasses that path, and container removal
+with `--volumes` drops only anonymous volumes, so an interrupted job used to
+leave both named volumes behind. The runner therefore leases those names by
+workflow: every selected workflow must declare a `name:`, the boundary records
+the act prefix derived from it, every act command requires that lease, and
+acquisition refuses when any volume inside the scope already exists, naming it
+and never removing it, because act would otherwise reuse it as the candidate's
+workspace or environment. After the process group and owned containers are
+proven absent, cleanup removes each volume inside the scope or observed
+mounted on an owned container without force, requires a stable absence window,
+reports any survivor or any volume another container still holds, and flags an
+observed volume outside the scope as lease drift. A volume outside the scope is
+never touched, so an act-shaped volume from another workflow survives; the
+serialization the tool-cache name already demands also covers a rival running
+the same workflow name concurrently. The offline self-test pins the name
+derivation to a volume name a live `act` 0.2.89 produced.
+
 A freshly created empty tool-cache volume also exposes a Docker daemon race
 (#315). Sibling jobs in one workflow start their containers concurrently, and
 every container create against an empty volume triggers the daemon's image
@@ -1031,8 +1055,9 @@ workers uploaded them. `scripts/ci_events.py --check` pins the edge and its
 self-test removes it as a negative control.
 
 Cleanup is restricted to the exact generated directory, the
-labeled tool-cache volume, and the network whose ID, name, gateway, and ownership
-label the runner recorded at creation. Mutable leases are registered before the
+labeled tool-cache volume, the act job volumes inside the leased workflow scope
+or observed on an owned container, and the network whose ID, name, gateway, and
+ownership label the runner recorded at creation. Mutable leases are registered before the
 run directory, cache volume, or network can be accepted; post-create inspection
 failures and the function-return handoff therefore still reconcile the exact
 resource before propagating failure. Act process creation likewise blocks the
@@ -1045,8 +1070,10 @@ After every workflow and on every exceptional exit, the runner inventories
 Docker, selects only containers carrying that token, attached to that network,
 or sharing an owned container's network namespace, then stops and forcibly
 removes them. It verifies that no owned container remains, then independently
-attempts and verifies removal of both the network and tool-cache volume so a
-failure inspecting either cannot suppress teardown of the other. Only then does
+attempts and verifies removal of the network, the tool-cache volume, and the
+leased job volumes so a failure inspecting one cannot suppress teardown of the
+others. After a workflow exits, a leftover owned container or job volume is
+removed and refuses the run. Only then does
 sudo ownership recovery and recursive run-directory removal begin. Any
 unverifiable absence changes an otherwise green run to exit 2. `SIGINT`,
 `SIGTERM`, and `SIGHUP` all unwind through this cleanup and retain their
