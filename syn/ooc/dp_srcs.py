@@ -108,6 +108,20 @@ FRONT_END = "sv2v"
 LINKED = ("hdl", "scripts", "protocol-processor", "gptp-processor",
           "third_party", "configs", "tb")
 
+#: Files run.sh SOURCES from beside itself. A shadow root gets run.sh's text
+#: and nothing else in syn/yosys/, so these have to be linked in explicitly or
+#: the mutated authority cannot start.
+#:
+#: This was invisible until Rule 13 put `set -euo pipefail` on run.sh. Before
+#: that, `. "$(dirname "$0")/malloc.sh"` against a file that is not there
+#: printed "No such file or directory" and the script CARRIED ON to emit its
+#: record, so every arm passed over a shadow root that was missing a file the
+#: real authority reads. Under errexit the same line ends the script, and all
+#: ten authority arms reported the same rc=2. The arms were right to fail: the
+#: shadow root was never a faithful copy. Linking the file is the repair;
+#: making the source tolerant again would only restore the blind spot.
+SOURCED_BESIDE_RUN_SH = ("malloc.sh",)
+
 #: How many arms selftest() must run. A deleted arm is a self-test that still
 #: prints a pass, so the count is declared and checked rather than counted.
 ARMS = 35
@@ -376,6 +390,10 @@ def _shadow(text, tmp):
         target = REPO / name
         if target.exists():
             (root / name).symlink_to(target)
+    for name in SOURCED_BESIDE_RUN_SH:
+        target = REPO / "syn" / "yosys" / name
+        if target.exists():
+            (root / "syn" / "yosys" / name).symlink_to(target)
     path = root / "syn" / "yosys" / "run.sh"
     path.write_text(text)
     return root, path
