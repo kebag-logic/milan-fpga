@@ -32,11 +32,10 @@
 4
 # 3. Captured verdicts whose exit status is discarded: `out=$(tool ...)` with
 #    no errexit and nothing consulting the status, or behind local/export.
-#    Two, both in the pinned protocol-processor: scripts/lint_hdl.sh:14, where
-#    a Verilator that exits non-zero without printing %Error reads as LINT OK;
-#    and tb/timer_map/shape_elab.sh:48, whose OVER arm decides from the guard's
-#    text - a silent Verilator there reads as GUARD FAIL, so it fails closed
-#    today, but the status is still never read (line 35 of the same script
-#    reads `$?` on the next line and is the model). Both are fixed upstream;
-#    the pin bump lowers this to 0.
-2
+#    Zero since the protocol-processor pin e743dcdc (#345). Before it there
+#    were two, both in that processor: scripts/lint_hdl.sh:14, where a
+#    Verilator that exited non-zero without printing %Error read as LINT OK;
+#    and tb/timer_map/shape_elab.sh:48, whose OVER arm decided from the guard's
+#    text (it failed closed, but the status was never read). pp#31 fixed both
+#    upstream and the bump took the ratchet to 0.
+0

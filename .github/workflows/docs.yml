@@ -236,6 +236,41 @@ jobs:
           python3 scripts/check_sv_idiom.py
           python3 scripts/check_sv_idiom.py --selftest
 
+      # Rule 11: a naked new/delete, a goto, an unbounded C string call and a
+      # drifted copy of tb/common/verilator_harness.hpp are refused outright.
+      # C-style casts, file-scope mutables, macro constants, unnamed enum bags,
+      # multi-declarator declarations, functions over 100 lines and testbench
+      # builds that hand the compiler no warning flags are ratcheted in
+      # scripts/cpp_idiom.budget. A translation unit under
+      # sw/trace/ or sw/firmware/ is judged as freestanding C, not as C++ with
+      # omissions, and barectf's generated output is out of scope entirely.
+      - name: C and C++ idiom gate
+        run: |
+          python3 scripts/check_cpp_idiom.py
+          python3 scripts/check_cpp_idiom.py --selftest
+
+      # Rule 12: a bare except, a mutable default, shell=True/os.system, a
+      # shadowed built-in, an unrecorded wildcard import and an unguarded
+      # eval/exec are refused; function and module length, PEP 484 coverage,
+      # docstrings, os.path, unmanaged open(), parameter count, `global` and
+      # 120-column lines are ratcheted in scripts/py_idiom.budget. The checks
+      # are AST-based, so a construct inside a string cannot be a finding.
+      - name: Python idiom gate
+        run: |
+          python3 scripts/check_py_idiom.py
+          python3 scripts/check_py_idiom.py --selftest
+
+      # Rule 13: backtick substitution, a cd with no failure path where there
+      # is no errexit, a $? branch that starts a statement, and a shebang
+      # without the executable bit are refused; strict mode, unquoted
+      # expansions and top-heavy long scripts are ratcheted in
+      # scripts/sh_idiom.budget. ShellCheck is not pinned in any workflow, so
+      # the checks are implemented here and each names its SC code.
+      - name: Shell idiom gate
+        run: |
+          python3 scripts/check_sh_idiom.py
+          python3 scripts/check_sh_idiom.py --selftest
+
       # CI event and SHA contract gate (#174, #181): the four workflow files
       # and docs/testing/CI_WORKFLOWS.md must agree on the triggers, the cron
       # time, the public check names, cancel-in-progress and the one-SHA rule

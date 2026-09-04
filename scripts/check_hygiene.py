@@ -31,7 +31,7 @@ about 0.4 s, so runtime rejected nothing:
 Before the repair commits the same scanner counted 44 trailing-whitespace lines
 in 17 files (43 in 16 files of this repository, 1 in protocol-processor) and 15
 files without a final newline. Every one in this repository was repaired; the
-one that remains is protocol-processor/tb/nvm_port/measure_figures.py:206, and
+one that remains is in protocol-processor/tb/nvm_port/measure_figures.py, and
 it is that repository's to fix.
 
 WHY THE LINE-LENGTH CHECK IS REJECTED, on the record. It is the highest-volume

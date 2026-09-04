@@ -1333,7 +1333,7 @@ table says what it covers rather than reading as tree-wide.
 |---|---:|---|
 | Parameterised modules with no elaboration contract | 85 of 102 | Ratchet across the superproject and both project-owned processor submodules. Paid down as modules gain contracts. |
 | Pipelines that discard their producer's exit status | **4** | Ratchet. Two are `gptp-processor/syn/ooc/run.sh` reading a Vivado report through `grep … \| head` (below); fixed upstream, the pin bump removes them. Two are coverage recipes, `tb/verilator/avtp_rxmon/Makefile` and `tb/verilator/maap/Makefile`, piping `verilator_coverage --annotate` into `tail` under make's own `/bin/sh -c`; `cov_gate.py` refuses a missing annotate directory behind them, and the fix is to drop the pipe. |
-| Captured verdicts whose exit status is discarded | **2** | Ratchet. `protocol-processor/scripts/lint_hdl.sh:14` (below), and `protocol-processor/tb/timer_map/shape_elab.sh:48`, whose over-large arm decides from the guard's text — a silent Verilator there reads as GUARD FAIL, so it fails closed, but the status is never read; line 35 of the same script reads `$?` on the next line and is the model. Both fixed upstream. |
+| Captured verdicts whose exit status is discarded | **0** | Ratchet, at zero since the protocol-processor pin `e743dcdc` (#345). The two it held were `protocol-processor/scripts/lint_hdl.sh:14` (below) and `protocol-processor/tb/timer_map/shape_elab.sh:48`, whose over-large arm decided from the guard's text; pp#31 fixed both upstream. |
 | Pipelines waived because the consumer *is* the assertion | 2 | Waived by **site** — path and exact line — with the reason recorded. |
 
 The waiver is by site, not by pattern. `verilator --version | grep -F "$WANT"`
@@ -2082,7 +2082,7 @@ a scan that has stopped reading the tree.
 
 `scripts/check_py_idiom.py` and `scripts/check_sh_idiom.py` still carry the old
 form. Both pass, and they pass only because their populations are not yet zero
-— 13 long functions, 5 scripts without strict mode. It is the same defect,
+— 9 long functions, 5 scripts without strict mode. It is the same defect,
 waiting for the commit that finishes those two rules.
 
 ### Inventory and repository examples
@@ -2623,7 +2623,7 @@ opened this rule, and what the tree holds now:
 
 | Ratchet | Census | Now |
 |---|---:|---:|
-| Function over 100 lines | 133 | **13** |
+| Function over 100 lines | 133 | **9** |
 | Module over 1 000 lines | 27 | **10** |
 | Public function with no complete signature | 2 312 | **0** |
 | Public function with no docstring | 1 687 | **0** |
@@ -2637,15 +2637,15 @@ opened this rule, and what the tree holds now:
 behaviour-preserving change, and attempting either in one pass is precisely
 the churn the governing rule forbids." That assessment was wrong, and the tree
 now disproves it.** Annotations went 2 312 to 0, docstrings 1 687 to 0, and
-long functions 133 to 13, with every gate green,
+long functions 133 to 9, with every gate green,
 `sw/builder/test_builder.py`'s printed output byte-identical, and the whole
 [RTL sweep](#the-sweep-is-the-oracle-and-it-is-unchanged) unchanged. An
 annotation and a docstring add no statement and change no branch, which is why
 the sweep and the gate outputs are the oracle they need; the mistake was
 reading "large" as "not behaviour-preserving".
 
-What remains is 13 long functions and 10 long modules, and leaving them is a
-judgement rather than an oversight. **Four of the 13 are in
+What remains is 9 long functions and 10 long modules, and leaving them is a
+judgement rather than an oversight. **Four of the 9 are in
 `sw/builder/test_builder.py`**. The largest is
 `test_baremetal_profile_contract` at line 1903, **7 059 lines** holding 102
 nested `def`s and 228 assertions; the other three are `assert_boot_contract`
@@ -2656,8 +2656,9 @@ diff cannot prove that an arm inside one was not silently dropped by the
 split. Splitting a function whose
 output cannot show that it still runs every arm is not a behaviour-preserving
 change; it is a change whose oracle does not exist yet, and building that
-oracle is its own reviewable work. The other nine are five in
-`sw/litex/milan_soc.py` and four in `scripts/act_ci.py`.
+oracle is its own reviewable work. The other five are in
+`sw/litex/milan_soc.py`; the ten that were in `scripts/act_ci.py` and the
+three in `scripts/ci_events.py` went with #345's pass over the CI runners.
 
 ### Formatting is deliberately not checked
 
