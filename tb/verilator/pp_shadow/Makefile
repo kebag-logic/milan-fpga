@@ -80,7 +80,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
-         -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D)"
+         -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D) -Wall -Wextra"
 
 # ONE SOURCE LIST, AND IT ALREADY CONTAINS THE PROCESSOR. milan_dp's SRCS now
 # begins with the protocol-processor sources plus KL_pp_shadow/KL_pp_maap_shim,

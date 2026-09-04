@@ -8,32 +8,76 @@
  * stats snapshot, and the config output wiring. Exit 0 = pass.
  */
 
+#include "../../common/verilator_harness.hpp"
 #include "Vmilan_csr.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstdint>
 
 // Register offsets (mirror docs/reference/REGISTER_MAP.md)
-enum {
-  A_ID=0x000, A_VERSION=0x004, A_CAP=0x008, A_SCRATCH=0x00C,
-  A_IRQ_STATUS=0x010, A_IRQ_MASK=0x014, A_IRQ_RAW=0x018,
-  A_MAC_CTRL=0x100, A_MAC_IFG=0x104, A_MAC_ALO=0x108, A_MAC_AHI=0x10C,
-  A_MAC_STATUS=0x110, A_MC_LO=0x114, A_MC_HI=0x118, A_PHY_RST=0x11C,
-  A_STATS_CTRL=0x200, A_STATS_CAP=0x204, A_STAT0=0x210, A_STAT8=0x230,
-  A_CLS_CTRL=0x300, A_CLS_MAP=0x308, A_CLS_TCQ=0x310,
-  A_CBS0_IDLE=0x400, A_CBS0_CTRL=0x40C, A_CBS1_IDLE=0x420, A_CBS2_CTRL=0x44C,
-  A_CBS3_IDLE=0x460, A_CBS3_CTRL=0x46C, A_CBS4_IDLE=0x480, A_CBS4_CTRL=0x48C,
-  A_CBS_PAST_END=0x4A0,
-  A_PTP_CTRL=0x500, A_PTP_INCR=0x504, A_PTP_TWLO=0x510, A_PTP_TWHI=0x514,
-  A_PTP_CMD=0x520, A_PTP_TRLO=0x530, A_PTP_TRHI=0x534,
-  A_ADP_CTRL=0x600, A_ADP_EIDLO=0x604, A_ADP_EIDHI=0x608, A_ADP_ECAPS=0x614,
-  A_ADP_TALK=0x618, A_ADP_LIST=0x61C,
-  A_ADP_GMLO=0x624, A_ADP_GMHI=0x628, A_ADP_DOMAIN=0x62C,
-  A_ADP_IDX0=0x630, A_ADP_CMD=0x640, A_ADP_STATUS=0x644,
-  A_AS2_LO=0x730, A_AS2_HI=0x734,
-  A_TCAM_CTRL=0x700, A_TCAM_KLO=0x704, A_TCAM_KHI=0x708, A_TCAM_MLO=0x70C,
-  A_TCAM_MHI=0x710, A_TCAM_ACT=0x714, A_TCAM_CMD=0x718,
-};
+constexpr uint32_t A_ID           = 0x000;
+constexpr uint32_t A_VERSION      = 0x004;
+constexpr uint32_t A_CAP          = 0x008;
+constexpr uint32_t A_SCRATCH      = 0x00C;
+constexpr uint32_t A_IRQ_STATUS   = 0x010;
+constexpr uint32_t A_IRQ_MASK     = 0x014;
+constexpr uint32_t A_IRQ_RAW      = 0x018;
+constexpr uint32_t A_MAC_CTRL     = 0x100;
+constexpr uint32_t A_MAC_IFG      = 0x104;
+constexpr uint32_t A_MAC_ALO      = 0x108;
+constexpr uint32_t A_MAC_AHI      = 0x10C;
+constexpr uint32_t A_MAC_STATUS   = 0x110;
+constexpr uint32_t A_MC_LO        = 0x114;
+constexpr uint32_t A_MC_HI        = 0x118;
+constexpr uint32_t A_PHY_RST      = 0x11C;
+constexpr uint32_t A_STATS_CTRL   = 0x200;
+constexpr uint32_t A_STATS_CAP    = 0x204;
+constexpr uint32_t A_STAT0        = 0x210;
+constexpr uint32_t A_STAT8        = 0x230;
+constexpr uint32_t A_CLS_CTRL     = 0x300;
+constexpr uint32_t A_CLS_MAP      = 0x308;
+constexpr uint32_t A_CLS_TCQ      = 0x310;
+constexpr uint32_t A_CBS0_IDLE    = 0x400;
+constexpr uint32_t A_CBS0_CTRL    = 0x40C;
+constexpr uint32_t A_CBS1_IDLE    = 0x420;
+constexpr uint32_t A_CBS2_CTRL    = 0x44C;
+constexpr uint32_t A_CBS3_IDLE    = 0x460;
+constexpr uint32_t A_CBS3_CTRL    = 0x46C;
+constexpr uint32_t A_CBS4_IDLE    = 0x480;
+constexpr uint32_t A_CBS4_CTRL    = 0x48C;
+constexpr uint32_t A_CBS_PAST_END = 0x4A0;
+constexpr uint32_t A_PTP_CTRL     = 0x500;
+constexpr uint32_t A_PTP_INCR     = 0x504;
+constexpr uint32_t A_PTP_TWLO     = 0x510;
+constexpr uint32_t A_PTP_TWHI     = 0x514;
+constexpr uint32_t A_PTP_CMD      = 0x520;
+constexpr uint32_t A_PTP_TRLO     = 0x530;
+constexpr uint32_t A_PTP_TRHI     = 0x534;
+constexpr uint32_t A_ADP_CTRL     = 0x600;
+constexpr uint32_t A_ADP_EIDLO    = 0x604;
+constexpr uint32_t A_ADP_EIDHI    = 0x608;
+constexpr uint32_t A_ADP_ECAPS    = 0x614;
+constexpr uint32_t A_ADP_TALK     = 0x618;
+constexpr uint32_t A_ADP_LIST     = 0x61C;
+constexpr uint32_t A_ADP_GMLO     = 0x624;
+constexpr uint32_t A_ADP_GMHI     = 0x628;
+constexpr uint32_t A_ADP_DOMAIN   = 0x62C;
+constexpr uint32_t A_ADP_IDX0     = 0x630;
+constexpr uint32_t A_ADP_CMD      = 0x640;
+constexpr uint32_t A_ADP_STATUS   = 0x644;
+constexpr uint32_t A_AS2_LO       = 0x730;
+constexpr uint32_t A_AS2_HI       = 0x734;
+constexpr uint32_t A_TCAM_CTRL    = 0x700;
+constexpr uint32_t A_TCAM_KLO     = 0x704;
+constexpr uint32_t A_TCAM_KHI     = 0x708;
+constexpr uint32_t A_TCAM_MLO     = 0x70C;
+constexpr uint32_t A_TCAM_MHI     = 0x710;
+constexpr uint32_t A_TCAM_ACT     = 0x714;
+constexpr uint32_t A_TCAM_CMD     = 0x718;
+
+//! Cycle bound on every AXI4-Lite handshake wait: large enough that a healthy
+//! DUT never reaches it, small enough that a wedged one still exits.
+constexpr int kAxiGuard = 2048;
 
 //! The milan clock this leg elaborates the DUT at. The Makefile builds the
 //! suite twice: once at the RTL's 125 MHz default and once at the 100 MHz
@@ -43,27 +87,112 @@ enum {
 #ifndef CSR_MILAN_CLK_HZ
 #define CSR_MILAN_CLK_HZ 125000000ULL
 #endif
+//! The typed form of the macro above; everything below reads this, never the
+//! macro. The `#define` survives only because the Makefile overrides it with
+//! `-CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL` for the 100 MHz leg.
+constexpr uint64_t kCsrMilanClkHz = CSR_MILAN_CLK_HZ;
 
 //! PTP_INCR reset = the nominal per-tick increment in 24.8 fixed point,
 //! computed here the same way milan_csr.sv's PTP_INCR_RST_C computes it.
 //! Deriving rather than hardcoding is the point: a literal here would
 //! mirror the very constant the RTL fix removed.
-static const uint32_t PTP_INCR_EXPECT =
-    (uint32_t)((1000000000ULL << 24) / (uint64_t)CSR_MILAN_CLK_HZ);
+constexpr uint32_t PTP_INCR_EXPECT =
+    static_cast<uint32_t>((1000000000ULL << 24) / kCsrMilanClkHz);
 
-static Vmilan_csr* dut;
-static long fails = 0, checks = 0;
+// P11 indexed per-stream window offsets, N=1 silicon shape. They are file
+// scope constants because the four window arms below share them; what they
+// prove is on `p11_window_at_the_n1_silicon_shape`.
+constexpr uint32_t A_STRM_SEL   = 0x800;
+constexpr uint32_t A_STRM_SNAP  = 0x804;
+constexpr uint32_t A_SW_CTRL    = 0x810;
+constexpr uint32_t A_SW_SID_LO  = 0x814;
+constexpr uint32_t A_SW_SID_HI  = 0x818;
+constexpr uint32_t A_SW_DMAC_LO = 0x81C;
+constexpr uint32_t A_SW_DMAC_HI = 0x820;
+constexpr uint32_t A_SW_FMT_LO  = 0x824;
+[[maybe_unused]] constexpr uint32_t A_SW_FMT_HI = 0x828;
+constexpr uint32_t A_SW_STATE   = 0x82C;
+constexpr uint32_t A_SW_CNT0    = 0x830;
+constexpr uint32_t A_SW_PDUS    = 0x858;
+constexpr uint32_t A_SW_SRP     = 0x85C;
 
-// sticky captures of single-cycle strobe outputs
-static bool seen_ptp_load, seen_ptp_adjust, seen_ptp_snap;
-static bool seen_stats_snap, seen_stats_reset;
-static bool seen_adp_adv, seen_adp_dep;
-static bool seen_i2spb_clru, seen_i2spb_clro;
-// TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
-static bool     seen_tcam_wr;
-static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
-static uint64_t tcam_wr_key, tcam_wr_mask;
-static void posedge() {
+namespace {
+
+//! Owns the Verilated model, the counters, the AXI4-Lite BFM and every
+//! sticky strobe capture, so no function below reads state a reader has to
+//! find at file scope (I.2).
+class MilanCsrHarness {
+ public:
+  int run();
+
+ private:
+  void posedge();
+  void axi_write(uint32_t a, uint32_t d);
+  uint32_t axi_read(uint32_t a);
+  uint64_t asp_slot(int k);
+  void ck(const char* what, uint64_t got, uint64_t exp);
+
+  void p11_window_at_the_n1_silicon_shape();
+  void reset_and_idle_the_bus();
+  void identification_and_capabilities();
+  void reset_values();
+  void fqtss_bandwidth_availability();
+  void read_only_registers_reject_writes();
+  void rw_registers_and_output_wiring();
+  void ptp_ctrl_owns_phc_enable_independent_of_adp();
+  void mac_control_and_cbs_scratch_read_back();
+  void irq_latch_mask_and_w1c();
+  void ptp_command_strobes_and_tod_snapshot();
+  void statistics_snapshot();
+  void stats_cap_is_a_live_read_only_mask();
+  void mac_reinit_invalidates_the_stats_snapshot();
+  void adp_advertiser_identity_and_control();
+  void lwsrp_engine_group();
+  void acmp_listener_state_machine_ro_group();
+  void avtp_rx_monitor_ro_group();
+  void maap_and_i2s_playback_groups();
+  void retired_clock_owner_abi_is_inert();
+  void adp_diagnostics_bit_packing();
+  void link_guard_tone_and_trim_outputs();
+  void rx_dest_mac_tcam_programming();
+  void crf_talker_csr_group();
+  void acmp_bind_restore_group();
+  void window_sel_decode_and_out_of_range_rule();
+  void window_idx0_talker_aliases_the_flat_aaf_regs();
+  void window_idx0_talker_snap_latches_the_block();
+  void window_idx0_listener_full_width_counters();
+  void rx_parser_probe_group();
+  void reserved_inert_csr_gap();
+  void is_1g_follows_the_mac_reported_speed();
+  void chmap_readback_negative_control();
+  void retired_as_path_publication_abi_is_inert();
+  void gptp_drop_words_are_zero_with_the_plane_off();
+
+  const milan::tb::Model<Vmilan_csr> model;
+  Vmilan_csr* dut = model.get();
+  long fails = 0;
+  long checks = 0;
+
+  // sticky captures of single-cycle strobe outputs
+  bool seen_ptp_load = false;
+  bool seen_ptp_adjust = false;
+  bool seen_ptp_snap = false;
+  bool seen_stats_snap = false;
+  bool seen_stats_reset = false;
+  bool seen_adp_adv = false;
+  bool seen_adp_dep = false;
+  bool seen_i2spb_clru = false;
+  bool seen_i2spb_clro = false;
+  // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
+  bool     seen_tcam_wr = false;
+  uint32_t tcam_wr_index = 0;
+  uint32_t tcam_wr_valid = 0;
+  uint32_t tcam_wr_action = 0;
+  uint64_t tcam_wr_key = 0;
+  uint64_t tcam_wr_mask = 0;
+};
+
+void MilanCsrHarness::posedge() {
   dut->aclk = 1; dut->eval();
   seen_ptp_load    |= dut->o_ptp_cmd_load;
   seen_ptp_adjust  |= dut->o_ptp_cmd_adjust;
@@ -83,25 +212,29 @@ static void posedge() {
   dut->aclk = 0; dut->eval();
 }
 
-static void axi_write(uint32_t a, uint32_t d) {
+void MilanCsrHarness::axi_write(uint32_t a, uint32_t d) {
   dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
   dut->s_axi_wdata  = d; dut->s_axi_wvalid  = 1; dut->s_axi_wstrb = 0xF;
   dut->s_axi_bready = 1;
-  for (int g = 0; g < 2048; ++g) {
+  for (int g = 0; g < kAxiGuard; ++g) {
     dut->eval();
     bool acc = dut->s_axi_awready && dut->s_axi_wready;
     posedge();
     if (acc) break;
   }
   dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
-  for (int g = 0; g < 2048; ++g) { dut->eval(); if (dut->s_axi_bvalid) break; posedge(); }
+  for (int g = 0; g < kAxiGuard; ++g) {
+    dut->eval();
+    if (dut->s_axi_bvalid) break;
+    posedge();
+  }
   posedge();                       // consume bvalid (bready=1)
   dut->s_axi_bready = 0;
 }
 
-static uint32_t axi_read(uint32_t a) {
+uint32_t MilanCsrHarness::axi_read(uint32_t a) {
   dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
-  for (int g = 0; g < 2048; ++g) {
+  for (int g = 0; g < kAxiGuard; ++g) {
     dut->eval();
     bool acc = dut->s_axi_arready;
     posedge();
@@ -109,7 +242,11 @@ static uint32_t axi_read(uint32_t a) {
   }
   dut->s_axi_arvalid = 0;
   uint32_t v = 0;
-  for (int g = 0; g < 2048; ++g) { dut->eval(); if (dut->s_axi_rvalid) { v = dut->s_axi_rdata; break; } posedge(); }
+  for (int g = 0; g < kAxiGuard; ++g) {
+    dut->eval();
+    if (dut->s_axi_rvalid) { v = dut->s_axi_rdata; break; }
+    posedge();
+  }
   posedge();                       // consume rvalid (rready=1)
   dut->s_axi_rready = 0;
   return v;
@@ -118,27 +255,27 @@ static uint32_t axi_read(uint32_t a) {
 //! J4: PUBLISHED slot k (1..7) out of the flattened o_asp_path vector. Slot k
 //! lives at bit [64*(k-1) +: 64], i.e. two 32-bit Verilator words starting at
 //! 2*(k-1). The private COMMIT image is deliberately not a public port.
-static uint64_t asp_slot(int k) {
+uint64_t MilanCsrHarness::asp_slot(int k) {
   const int w = 2 * (k - 1);
-  return ((uint64_t)dut->o_asp_path[w + 1] << 32) | (uint32_t)dut->o_asp_path[w];
+  return (static_cast<uint64_t>(dut->o_asp_path[w + 1]) << 32)
+       | static_cast<uint32_t>(dut->o_asp_path[w]);
 }
 
-static void ck(const char* what, uint64_t got, uint64_t exp) {
+void MilanCsrHarness::ck(const char* what, uint64_t got, uint64_t exp) {
   checks++;
   if (got != exp) {
     fails++;
     printf("  [FAIL] %-26s got=0x%llx exp=0x%llx\n", what,
-           (unsigned long long)got, (unsigned long long)exp);
+           static_cast<unsigned long long>(got),
+           static_cast<unsigned long long>(exp));
   } else {
-    printf("  [ok]   %-26s = 0x%llx\n", what, (unsigned long long)got);
+    printf("  [ok]   %-26s = 0x%llx\n", what,
+           static_cast<unsigned long long>(got));
   }
 }
 
-int main(int argc, char** argv) {
-  Verilated::commandArgs(argc, argv);
-  dut = new Vmilan_csr;
-
-  // reset
+// reset
+void MilanCsrHarness::reset_and_idle_the_bus() {
   dut->aresetn = 0;
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_bready = 0;
   dut->s_axi_arvalid = dut->s_axi_rready = 0;
@@ -157,9 +294,9 @@ int main(int argc, char** argv) {
   for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
+}
 
-  printf("== milan_csr AXI4-Lite CSR verification ==\n");
-
+void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
   ck("VERSION",       axi_read(A_VERSION), 0x00020057);
@@ -173,7 +310,9 @@ int main(int argc, char** argv) {
   ck("CAP.ADP",        (cap >> 12) & 1, 1);
   ck("CAP.TCAM",       (cap >> 13) & 1, 1);
   ck("CAP.ts_width",   (cap >> 16) & 0xFF, 64);
+}
 
+void MilanCsrHarness::reset_values() {
   printf("-- reset values --\n");
   ck("MAC_CTRL(reset)",  axi_read(A_MAC_CTRL), 0x13);
   ck("MAC_IFG(reset)",   axi_read(A_MAC_IFG),  0x0C);
@@ -237,36 +376,43 @@ int main(int argc, char** argv) {
   // the block has no o_cls_*/o_cbs_* ports any more. The readbacks above are
   // therefore the whole contract; there is no second literal to pin against.
   dut->eval();
+}
 
-  // FQTSS bandwidth availability (802.1Q-2018 §34.3.1 / REQ-CBS-03) over the
-  // registers SOFTWARE actually reads, not over the RTL package. `deltaBandwidth`
-  // caps the reserved share of portTransmitRate at 75 %; the shaper harness
-  // (tb/verilator/shaper_core) gates the package tables, this gates the CSR
-  // window they are supposed to mirror. A slope table edited past the ceiling
-  // is a spec violation that no per-register readback check can see.
-  {
-    uint64_t sum = 0;
-    for (int q = 0; q < 5; q++) sum += axi_read(0x400 + 0x20 * q);
-    ck("FQTSS 34.3.1: sum(CBSn_IDLE) <= 75% of 1 Gb/s", sum <= 750000000ull, 1);
-    ck("FQTSS 34.3.1: SR A+B <= 75% of 1 Gb/s",
-       (uint64_t)axi_read(A_CBS4_IDLE) + axi_read(A_CBS3_IDLE) <= 750000000ull, 1);
-    // class A must outrank class B in bandwidth as well as in queue order
-    ck("FQTSS: class A slope > class B slope",
-       axi_read(A_CBS4_IDLE) > axi_read(A_CBS3_IDLE), 1);
-    printf("   [info] reset idleSlope sum = %llu bps (%.1f%% of 1 Gb/s), "
-           "SR A+B = %u bps\n", (unsigned long long)sum, sum / 1e7,
-           axi_read(A_CBS4_IDLE) + axi_read(A_CBS3_IDLE));
-  }
+// FQTSS bandwidth availability (802.1Q-2018 §34.3.1 / REQ-CBS-03) over the
+// registers SOFTWARE actually reads, not over the RTL package. `deltaBandwidth`
+// caps the reserved share of portTransmitRate at 75 %; the shaper harness
+// (tb/verilator/shaper_core) gates the package tables, this gates the CSR
+// window they are supposed to mirror. A slope table edited past the ceiling
+// is a spec violation that no per-register readback check can see.
+void MilanCsrHarness::fqtss_bandwidth_availability() {
+  uint64_t sum = 0;
+  for (int q = 0; q < 5; q++) sum += axi_read(0x400 + 0x20 * q);
+  ck("FQTSS 34.3.1: sum(CBSn_IDLE) <= 75% of 1 Gb/s", sum <= 750000000ull, 1);
+  ck("FQTSS 34.3.1: SR A+B <= 75% of 1 Gb/s",
+     static_cast<uint64_t>(axi_read(A_CBS4_IDLE)) + axi_read(A_CBS3_IDLE)
+         <= 750000000ull, 1);
+  // class A must outrank class B in bandwidth as well as in queue order
+  ck("FQTSS: class A slope > class B slope",
+     axi_read(A_CBS4_IDLE) > axi_read(A_CBS3_IDLE), 1);
+  printf("   [info] reset idleSlope sum = %llu bps (%.1f%% of 1 Gb/s), "
+         "SR A+B = %u bps\n", static_cast<unsigned long long>(sum), sum / 1e7,
+         axi_read(A_CBS4_IDLE) + axi_read(A_CBS3_IDLE));
+}
 
+void MilanCsrHarness::read_only_registers_reject_writes() {
   printf("-- read-only registers reject writes --\n");
   axi_write(A_ID, 0xFFFFFFFF);
   ck("ID stays RO", axi_read(A_ID), 0x4D494C4E);
   ck("MAC_STATUS(link/spd/dup)", axi_read(A_MAC_STATUS), 0xD); // fd=1,spd=2,link=1 -> 1101
+}
 
+void MilanCsrHarness::rw_registers_and_output_wiring() {
   printf("-- RW registers + output wiring --\n");
   axi_write(A_SCRATCH, 0xDEADBEEF);
   ck("SCRATCH rw", axi_read(A_SCRATCH), 0xDEADBEEF);
+}
 
+void MilanCsrHarness::ptp_ctrl_owns_phc_enable_independent_of_adp() {
   printf("-- PTP_CTRL directly owns PHC enable, independent of ADP --\n");
   axi_write(A_PTP_CTRL, 0x0);
   dut->eval();
@@ -280,7 +426,9 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_CTRL, 0x00000A00);     // restore shipping ADP reset state
   dut->eval();
   ck("ADP off cannot gate PHC off", dut->o_ptp_enable, 1);
+}
 
+void MilanCsrHarness::mac_control_and_cbs_scratch_read_back() {
   axi_write(A_MAC_CTRL, 0x1F);
   ck("MAC_CTRL rw", axi_read(A_MAC_CTRL), 0x1F);
   dut->eval();
@@ -307,7 +455,9 @@ int main(int argc, char** argv) {
   ck("CBS4_CTRL rw (scratch, bit 0)", axi_read(A_CBS4_CTRL), 0x1);
   axi_write(A_CBS4_CTRL, 0x0);
   axi_write(A_CBS4_IDLE, 450000000u);
+}
 
+void MilanCsrHarness::irq_latch_mask_and_w1c() {
   printf("-- IRQ: event latch, mask, W1C --\n");
   axi_write(A_IRQ_MASK, 0x7);
   dut->i_evt_link_change = 1; posedge(); dut->i_evt_link_change = 0; posedge();
@@ -336,7 +486,9 @@ int main(int argc, char** argv) {
   dut->i_evt_link_change = 0; posedge();
   axi_write(A_IRQ_STATUS, 0x2);          // now the event is gone, W1C clears it
   ck("W1C clears once event deasserts", (axi_read(A_IRQ_STATUS) >> 1) & 1, 0);
+}
 
+void MilanCsrHarness::ptp_command_strobes_and_tod_snapshot() {
   printf("-- PTP command strobes + TOD snapshot --\n");
   seen_ptp_snap = false;
   axi_write(A_PTP_CMD, 0x4);             // snapshot command -> pulses o_ptp_cmd_snapshot
@@ -351,7 +503,9 @@ int main(int argc, char** argv) {
   seen_ptp_load = false;
   axi_write(A_PTP_CMD, 0x1);             // load (settime apply)
   ck("o_ptp_cmd_load pulsed", seen_ptp_load, 1);
+}
 
+void MilanCsrHarness::statistics_snapshot() {
   printf("-- statistics snapshot --\n");
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0xAAAA0000u + k;
   dut->eval();
@@ -363,7 +517,9 @@ int main(int argc, char** argv) {
   seen_stats_reset = false;
   axi_write(A_STATS_CTRL, 0x2);          // reset pulse
   ck("o_stats_reset pulsed", seen_stats_reset, 1);
+}
 
+void MilanCsrHarness::stats_cap_is_a_live_read_only_mask() {
   printf("-- STATS_CAP 0x204 (which STAT lanes are real) --\n");
   // The STAT window's zero used to be ambiguous: "no errors" and "no counter"
   // read identically, which is how a fully tied-off RMON group survived on two
@@ -382,7 +538,9 @@ int main(int argc, char** argv) {
      (axi_write(A_STATS_CTRL, 0x1), axi_read(A_STATS_CAP)), 0x00000108);
   dut->i_stats_cap = 0x000001B8;
   dut->eval();
+}
 
+void MilanCsrHarness::mac_reinit_invalidates_the_stats_snapshot() {
   printf("-- MAC-reset snapshot invalidate (stale-shadow fix) --\n");
   // A MAC reinit (link guard / LINK_CTRL[1]) restarts the MAC path without
   // an aresetn event here; a pre-reset snapshot must NOT survive it (the
@@ -402,7 +560,9 @@ int main(int argc, char** argv) {
   ck("STAT0 re-armed post-reinit", axi_read(A_STAT0), 0xBBBB0000u);
   // config state is NOT MAC-domain state: it must survive the reinit
   ck("SCRATCH unaffected by reinit", axi_read(A_SCRATCH), 0xDEADBEEF);
+}
 
+void MilanCsrHarness::adp_advertiser_identity_and_control() {
   printf("-- ADP advertiser identity/control (FR-DISC-*) --\n");
   ck("ADP_CTRL(reset valid_time=10, Milan 5.6.2)", axi_read(A_ADP_CTRL), 0x00000A00);
   axi_write(A_ADP_EIDLO, 0xEF00FEED);
@@ -480,7 +640,9 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_CMD, 0x2);             // depart
   ck("o_adp_depart_p pulsed", seen_adp_dep, 1);
   ck("ADP_CMD reads 0 (strobe)", axi_read(A_ADP_CMD), 0);
+}
 
+void MilanCsrHarness::lwsrp_engine_group() {
   printf("-- lwSRP engine (0x680 group, FR-SRP-*) --\n");
   // class-A queue field is [4:2] (3 bits) and resets to q4 = SR class A
   ck("LWSRP_CTRL(reset q=4)", axi_read(0x680), 0x00000010);
@@ -541,7 +703,9 @@ int main(int argc, char** argv) {
   ck("LWSRP_DOM tracks the input", axi_read(0x788), 0x00030002u);
   axi_write(0x788, 0xFFFFFFFFu);         // RO: the write must not stick
   ck("LWSRP_DOM write ignored", axi_read(0x788), 0x00030002u);
+}
 
+void MilanCsrHarness::acmp_listener_state_machine_ro_group() {
   printf("-- ACMP listener SM RO group (0x6A4) --\n");
   dut->i_acmpl_state = 0x002F0177; dut->i_acmpl_talker_lo = 0xFE000001;
   dut->i_acmpl_talker_hi = 0x02000000; dut->i_acmpl_cnt = 0x00030002;
@@ -551,7 +715,9 @@ int main(int argc, char** argv) {
   ck("ACMPL_TKHI RO",  axi_read(0x6AC), 0x02000000);
   ck("ACMPL_CNT RO",   axi_read(0x6B0), 0x00030002);
   ck("ACMPL_TUID RO",  axi_read(0x6B4), 0x00080000);
+}
 
+void MilanCsrHarness::avtp_rx_monitor_ro_group() {
   printf("-- AVTP RX monitor RO group (0x6B8) --\n");
   dut->i_avtprx_stat = 0x01020301; dut->i_avtprx_frx = 0xDEADBEEF;
   dut->i_avtprx_err = 0x00050702; dut->eval();
@@ -560,7 +726,9 @@ int main(int argc, char** argv) {
   ck("AVTPRX_ERR RO",  axi_read(0x6C0), 0x00050702);
   axi_write(0x6BC, 0x12345678);   // RO: write ignored
   ck("AVTPRX_FRX write ignored", axi_read(0x6BC), 0xDEADBEEF);
+}
 
+void MilanCsrHarness::maap_and_i2s_playback_groups() {
   printf("-- MAAP group (0x6CC) --\n");
   ck("MAAP_CTRL reset (count=8, en=0)", axi_read(0x6CC), 0x00000800);
   axi_write(0x6CC, 0x12340901);   // seed 0x1234, count 9, en
@@ -591,12 +759,14 @@ int main(int argc, char** argv) {
   axi_write(0x6D8, 0);                   // zero write clears nothing
   ck("I2SPB W1C zero inert", seen_i2spb_clru || seen_i2spb_clro, 0);
   ck("I2SPB_STAT still live", axi_read(0x6D8), 0x00050002);
+}
 
-  // ---- 0x778 retired clock-owner ABI (#116) --------------------------
-  // The word remains addressable, but no write may produce a pulse, lease,
-  // sync claim, discontinuity, or asCapable claim.
-  // The block has no o_clkv_* ports (deleted, not tied): a write here has
-  // no wire to travel down, so the readback is the whole observable face.
+// ---- 0x778 retired clock-owner ABI (#116) --------------------------
+// The word remains addressable, but no write may produce a pulse, lease,
+// sync claim, discontinuity, or asCapable claim.
+// The block has no o_clkv_* ports (deleted, not tied): a write here has
+// no wire to travel down, so the readback is the whole observable face.
+void MilanCsrHarness::retired_clock_owner_abi_is_inert() {
   ck("CLKV_CTRL reset is inert zero", axi_read(0x778), 0);
 
   axi_write(0x778, 0xFFFFFFFFu);
@@ -614,12 +784,15 @@ int main(int argc, char** argv) {
   ck("CLKV_STAT stays RO", axi_read(0x77C), 0x00000009);
   axi_write(0x780, 0xFFFFFFFFu);
   ck("CLKV_TUCNT stays RO", axi_read(0x780), 0x0000002A);
-  // ---- ADP diagnostics: 0x668 forensics + 0x674 liveness (VERSION 0x001D) --
-  // 0x674 exists because 0x668 cannot answer "is it still advertising?": a
-  // healthy advertiser that never departed and never re-armed reads 0 there,
-  // and so would a stalled one (2026-07-30 cost a wire capture to tell those
-  // apart). This pins the BIT PACKING of both words - a diagnostic register
-  // whose fields are mis-shifted is worse than none, because it is believed.
+}
+
+// ---- ADP diagnostics: 0x668 forensics + 0x674 liveness (VERSION 0x001D) --
+// 0x674 exists because 0x668 cannot answer "is it still advertising?": a
+// healthy advertiser that never departed and never re-armed reads 0 there,
+// and so would a stalled one (2026-07-30 cost a wire capture to tell those
+// apart). This pins the BIT PACKING of both words - a diagnostic register
+// whose fields are mis-shifted is worse than none, because it is believed.
+void MilanCsrHarness::adp_diagnostics_bit_packing() {
   dut->i_adp_depart_cnt  = 0x12;
   dut->i_adp_rearm_cnt   = 0x34;
   dut->i_adp_depart_src  = 0x2;      // last depart = shutdown
@@ -644,8 +817,10 @@ int main(int argc, char** argv) {
   dut->i_adp_depart_cnt = 0; dut->i_adp_rearm_cnt = 0; dut->i_adp_depart_src = 0;
   dut->i_adp_sent_cnt = 0; dut->i_adp_disc_rx_cnt = 0;
   dut->i_adp_last_msg = 0; dut->i_adp_state = 0; dut->eval();
+}
 
-  // link guard: RO status mux + LINK_CTRL[3:2] control outputs
+// link guard: RO status mux + LINK_CTRL[3:2] control outputs
+void MilanCsrHarness::link_guard_tone_and_trim_outputs() {
   dut->i_linkg_stat = 0x00070013; dut->eval();
   ck("LINKG_STAT RO", axi_read(0x774), 0x00070013);
   axi_write(0x71C, 0xD);                 // sw_link | dis | freeze (no reinit)
@@ -668,7 +843,9 @@ int main(int argc, char** argv) {
   axi_write(0x6E4, 0x00021F6A); dut->eval();
   // (no o_gptp_pdelay_ns mirror port exists; the retained address is the face)
   ck("GPTP_PDELAY retained address reads zero", axi_read(0x6E4), 0);
+}
 
+void MilanCsrHarness::rx_dest_mac_tcam_programming() {
   printf("-- RX dest-MAC TCAM programming (REQ-MAC-02) --\n");
   ck("TCAM_CTRL(reset default_pass)", axi_read(A_TCAM_CTRL) & 1, 1);
   dut->eval();
@@ -696,8 +873,10 @@ int main(int argc, char** argv) {
   axi_write(A_TCAM_CMD, (1u << 16) | (0u << 8) | 3);   // commit: index=3, valid=0 (remove)
   ck("remove commit pulsed", seen_tcam_wr, 1);
   ck("remove valid=0", tcam_wr_valid, 0);
+}
 
-  // ---- CRF talker CSR group (0x750) ----
+// ---- CRF talker CSR group (0x750) ----
+void MilanCsrHarness::crf_talker_csr_group() {
   axi_write(0x750, 0x1);
   axi_write(0x754, 0x00010001);
   axi_write(0x758, 0x02000000);
@@ -713,7 +892,9 @@ int main(int argc, char** argv) {
   ck("o_crft_dest_mac", dut->o_crft_dest_mac, 0x91E0F0002A07ULL);
   dut->i_crft_count = 1234;
   ck("CRFT_COUNT live", axi_read(0x764), 1234);
+}
 
+void MilanCsrHarness::acmp_bind_restore_group() {
   printf("-- ACMP bind-restore group (0x7A0, E1) --\n");
   // retained 0x7A0 feature probe: write/readback of the pattern
   axi_write(0x7A0, 0xA5C35A3C);
@@ -759,21 +940,9 @@ int main(int argc, char** argv) {
   // a write without the commit bit is inert
   axi_write(0x7B4, 0x00000001);
   ck("no-commit write inert", (axi_read(0x7B4) >> 31) & 1, 0);
+}
 
-  // =====================================================================
-  // P11 indexed per-stream window, N=1 silicon shape (defaults):
-  // SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
-  // defined out-of-range behaviour (reads 0, writes ignored). The lane-K
-  // engine inputs stay at their datapath ties (rd_data=0, snap_ok=0 is
-  // irrelevant here: index 0 never bursts) — engine-backed words read 0.
-  // =====================================================================
-  enum {
-    A_STRM_SEL=0x800, A_STRM_SNAP=0x804, A_SW_CTRL=0x810,
-    A_SW_SID_LO=0x814, A_SW_SID_HI=0x818, A_SW_DMAC_LO=0x81C,
-    A_SW_DMAC_HI=0x820, A_SW_FMT_LO=0x824, A_SW_FMT_HI=0x828,
-    A_SW_STATE=0x82C, A_SW_CNT0=0x830, A_SW_PDUS=0x858, A_SW_SRP=0x85C,
-  };
-
+void MilanCsrHarness::window_sel_decode_and_out_of_range_rule() {
   printf("-- 0x800 window: SEL decode + out-of-range rule (N=1) --\n");
   ck("SEL reset", axi_read(A_STRM_SEL), 0);
   axi_write(A_STRM_SEL, 0x0000011F);            // dir=1, idx=15 (garbage high bits masked)
@@ -790,7 +959,9 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 8; ++i) posedge();
   ck("oor SNAP busy clears", axi_read(A_STRM_SNAP), 0);
   ck("oor SNAP CNT0 zero",   axi_read(A_SW_CNT0), 0);
+}
 
+void MilanCsrHarness::window_idx0_talker_aliases_the_flat_aaf_regs() {
   printf("-- window idx0 dir=talker: hard aliases of the flat AAF regs --\n");
   axi_write(A_STRM_SEL, 0x00000100);            // dir=1 (talker), idx=0
   axi_write(0x654, 0x00020003);                 // AAF_CTRL: en=1, bypass=1, VID=2
@@ -815,7 +986,9 @@ int main(int argc, char** argv) {
   // (MAC regs still hold 0x554433221100 from the MAC test above)
   ck("win SID_HI = mac[47:16]", axi_read(A_SW_SID_HI), 0x00112233);
   ck("win SID_LO = {mac[15:0],0}", axi_read(A_SW_SID_LO), 0x44550000);
+}
 
+void MilanCsrHarness::window_idx0_talker_snap_latches_the_block() {
   printf("-- window idx0 talker SNAP: PDUS/STATE flat latch --\n");
   dut->i_aaf_frames = 0xCAFE0001;
   dut->i_aaf_gate = 1; dut->i_acmp_probe_armed = 1; dut->i_acmp_talker_active = 0;
@@ -830,7 +1003,9 @@ int main(int argc, char** argv) {
   // events after the snap do NOT move the latched block (snapshot semantics)
   dut->i_aaf_frames = 0xCAFE0099;
   ck("PDUS frozen until next SNAP", axi_read(A_SW_PDUS), 0xCAFE0001);
+}
 
+void MilanCsrHarness::window_idx0_listener_full_width_counters() {
   printf("-- window idx0 dir=listener: FULL-WIDTH Table 7-157 counters --\n");
   // The window's index-0 CNT words used to be re-derived from the PACKED
   // 0x6B8/0x6C0 views, so they inherited their 8/16-bit truncation - and the
@@ -844,7 +1019,7 @@ int main(int argc, char** argv) {
   dut->i_avtprx_err  = 0x00070203;              // packed view (saturating)
   dut->i_avtprx_frx  = 123456;
   {                                             // full-width Table 7-157 lanes
-    const uint32_t c10[10] = {
+    constexpr uint32_t c10[10] = {
       0x00000103u,   // MEDIA_LOCKED        259  (> 8-bit view)
       0x00001204u,   // MEDIA_UNLOCKED     4612
       0x00034005u,   // STREAM_INTERRUPTED
@@ -890,14 +1065,16 @@ int main(int argc, char** argv) {
   // engine-backed words (LCTX port B) read 0 at the tie
   ck("listener CTRL 0 (LCTX tied)",   axi_read(A_SW_CTRL), 0);
   ck("listener FMT_LO 0 (LCTX tied)", axi_read(A_SW_FMT_LO), 0);
+}
 
-  // ---- RX parser probe group (APRB 0x8B4-0x8C4) -------------------------
-  // 5 packed RO words, same >=0x800 carve-out class as the LTAP group: a
-  // missing rd_in_window term makes the whole block read 0 while the fabric
-  // counts fine (the 0x8F8 dead-read trap, hit for real on the servo word).
+// ---- RX parser probe group (APRB 0x8B4-0x8C4) -------------------------
+// 5 packed RO words, same >=0x800 carve-out class as the LTAP group: a
+// missing rd_in_window term makes the whole block read 0 while the fabric
+// counts fine (the 0x8F8 dead-read trap, hit for real on the servo word).
+void MilanCsrHarness::rx_parser_probe_group() {
   printf("-- RX parser probe (0x8B4-0x8C4) --\n");
-  const uint32_t aprb[5] = {0x00001234u, 0x000000FEu, 0x00020000u,
-                            0x02000000u, 0x0008021Au};
+  constexpr uint32_t aprb[5] = {0x00001234u, 0x000000FEu, 0x00020000u,
+                                0x02000000u, 0x0008021Au};
   for (int k = 0; k < 5; ++k) dut->i_aprb_regs[k] = aprb[k];
   posedge(); posedge();
   ck("APRB frames parsed 0x8B4", axi_read(0x8B4), aprb[0]);
@@ -910,10 +1087,12 @@ int main(int argc, char** argv) {
   posedge(); posedge();
   ck("APRB word 0 live",  axi_read(0x8B4), 0xA5A50000u);
   ck("APRB word 4 live",  axi_read(0x8C4), 0xA5A50004u);
+}
 
-  // ---- reserved inert CSR gap (zero-valued, 0x8C8-0x8D0) ---------------
-  // Keep these addresses carved out of the >=0x800 shadow alias space so
-  // accesses return zero rather than unrelated RAM.
+// ---- reserved inert CSR gap (zero-valued, 0x8C8-0x8D0) ---------------
+// Keep these addresses carved out of the >=0x800 shadow alias space so
+// accesses return zero rather than unrelated RAM.
+void MilanCsrHarness::reserved_inert_csr_gap() {
   printf("-- reserved inert CSR gap (0x8C8-0x8D0) --\n");
   ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
@@ -926,158 +1105,222 @@ int main(int argc, char** argv) {
   ck("reserved gap 0x8C8 ignores writes", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC ignores writes", axi_read(0x8CC), 0);
   ck("reserved gap 0x8D0 ignores writes", axi_read(0x8D0), 0);
+}
 
-  // ---- REQ-MAC-03: is_1g follows the MAC's reported speed ----
-  // MAC_CTRL[4] reset is 1, so before this a 100 Mb/s port (Arty MII, i_speed
-  // = 01) told every is_1g consumer it was on a gigabit link until software
-  // intervened - and is_1g sets the lwSRP bandwidth-gate admission limit
-  // (750 vs 75 Mb/s) and the CBS sendSlope denominator. Now it follows
-  // i_speed unless MAC_CTRL[5] (speed_manual) is set.
-  {
-    long f0 = fails;
-    axi_write(A_MAC_CTRL, 0x13);                 // the reset value: manual bit clear
-    dut->i_speed = 2; dut->eval();               // 1000 Mb/s
-    ck("mac03 auto: speed=1000 -> is_1g",  dut->o_mac_is_1g, 1);
-    dut->i_speed = 1; dut->eval();               // 100 Mb/s
-    ck("mac03 auto: speed=100 -> !is_1g",  dut->o_mac_is_1g, 0);
-    dut->i_speed = 0; dut->eval();               // 10 Mb/s
-    ck("mac03 auto: speed=10 -> !is_1g",   dut->o_mac_is_1g, 0);
-    // MAC_STATUS must report the same speed the rate select is derived from,
-    // so software and the datapath cannot disagree about the link
-    dut->i_speed = 1; dut->eval();
-    ck("mac03 MAC_STATUS speed tracks",     (axi_read(A_MAC_STATUS) >> 1) & 3, 1);
+// ---- REQ-MAC-03: is_1g follows the MAC's reported speed ----
+// MAC_CTRL[4] reset is 1, so before this a 100 Mb/s port (Arty MII, i_speed
+// = 01) told every is_1g consumer it was on a gigabit link until software
+// intervened - and is_1g sets the lwSRP bandwidth-gate admission limit
+// (750 vs 75 Mb/s) and the CBS sendSlope denominator. Now it follows
+// i_speed unless MAC_CTRL[5] (speed_manual) is set.
+void MilanCsrHarness::is_1g_follows_the_mac_reported_speed() {
+  long f0 = fails;
+  axi_write(A_MAC_CTRL, 0x13);                 // the reset value: manual bit clear
+  dut->i_speed = 2; dut->eval();               // 1000 Mb/s
+  ck("mac03 auto: speed=1000 -> is_1g",  dut->o_mac_is_1g, 1);
+  dut->i_speed = 1; dut->eval();               // 100 Mb/s
+  ck("mac03 auto: speed=100 -> !is_1g",  dut->o_mac_is_1g, 0);
+  dut->i_speed = 0; dut->eval();               // 10 Mb/s
+  ck("mac03 auto: speed=10 -> !is_1g",   dut->o_mac_is_1g, 0);
+  // MAC_STATUS must report the same speed the rate select is derived from,
+  // so software and the datapath cannot disagree about the link
+  dut->i_speed = 1; dut->eval();
+  ck("mac03 MAC_STATUS speed tracks",     (axi_read(A_MAC_STATUS) >> 1) & 3, 1);
 
-    // manual override restores the old behaviour in BOTH directions
-    axi_write(A_MAC_CTRL, 0x33);                 // [5]=manual, [4]=1
-    dut->i_speed = 1; dut->eval();
-    ck("mac03 manual=1,is_1g=1 beats speed=100", dut->o_mac_is_1g, 1);
-    axi_write(A_MAC_CTRL, 0x23);                 // [5]=manual, [4]=0
-    dut->i_speed = 2; dut->eval();
-    ck("mac03 manual=1,is_1g=0 beats speed=1000", dut->o_mac_is_1g, 0);
+  // manual override restores the old behaviour in BOTH directions
+  axi_write(A_MAC_CTRL, 0x33);                 // [5]=manual, [4]=1
+  dut->i_speed = 1; dut->eval();
+  ck("mac03 manual=1,is_1g=1 beats speed=100", dut->o_mac_is_1g, 1);
+  axi_write(A_MAC_CTRL, 0x23);                 // [5]=manual, [4]=0
+  dut->i_speed = 2; dut->eval();
+  ck("mac03 manual=1,is_1g=0 beats speed=1000", dut->o_mac_is_1g, 0);
 
-    // NEGATIVE: with manual CLEAR, MAC_CTRL[4] must have NO effect at all -
-    // otherwise the old wrong-default path is still reachable by accident
-    axi_write(A_MAC_CTRL, 0x13);                 // manual clear, [4]=1
-    dut->i_speed = 1; dut->eval();
-    ck("mac03 auto ignores MAC_CTRL[4]=1",  dut->o_mac_is_1g, 0);
-    axi_write(A_MAC_CTRL, 0x03);                 // manual clear, [4]=0
-    dut->i_speed = 2; dut->eval();
-    ck("mac03 auto ignores MAC_CTRL[4]=0",  dut->o_mac_is_1g, 1);
+  // NEGATIVE: with manual CLEAR, MAC_CTRL[4] must have NO effect at all -
+  // otherwise the old wrong-default path is still reachable by accident
+  axi_write(A_MAC_CTRL, 0x13);                 // manual clear, [4]=1
+  dut->i_speed = 1; dut->eval();
+  ck("mac03 auto ignores MAC_CTRL[4]=1",  dut->o_mac_is_1g, 0);
+  axi_write(A_MAC_CTRL, 0x03);                 // manual clear, [4]=0
+  dut->i_speed = 2; dut->eval();
+  ck("mac03 auto ignores MAC_CTRL[4]=0",  dut->o_mac_is_1g, 1);
 
-    // restore the harness defaults for anything that follows
-    axi_write(A_MAC_CTRL, 0x13);
-    dut->i_speed = 2; dut->eval();
-    printf("  [%s] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)\n",
-           (fails == f0) ? "PASS" : "FAIL");
-  }
+  // restore the harness defaults for anything that follows
+  axi_write(A_MAC_CTRL, 0x13);
+  dut->i_speed = 2; dut->eval();
+  printf("  [%s] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)\n",
+         (fails == f0) ? "PASS" : "FAIL");
+}
 
-  // ------------------------------------------------------------------ //
-  //  chmap map-RAM readback: THE NEGATIVE CONTROL (CHMAP_RDBK_P = 0)
-  //
-  //  This executable elaborates milan_csr at its DEFAULT parameters, which
-  //  means "no map-RAM readback port is wired in this build" - exactly the
-  //  state milan_datapath shipped in (map_rd_en_i = 1'b0, map_rd_data_o
-  //  unconnected). The property under test is methodology R5: a capability
-  //  the fabric cannot back must read UNSUPPORTED, never 0. The check that
-  //  matters here is the one that CAN fail - if the register ever answered
-  //  a snapshot on a build with no port, or answered it with a zero map
-  //  word, this leg fails while sim_win's positive leg still passes.
-  //
-  //  ORACLE: the fabric. With no readback port there IS no fabric answer,
-  //  so the only honest report is "unsupported", and the data word must
-  //  stay poison.
-  // ------------------------------------------------------------------ //
-  {
-    long f0 = fails;
-    printf("-- chmap readback NEGATIVE control: no port in this build --\n");
-    const uint32_t A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904;
-    const uint32_t A_CHMAP_SNAP = 0x910, A_CHMAP_LOOP = 0x914;
-    const uint32_t POISON = 0xDEADDEADu;
+// ------------------------------------------------------------------ //
+//  chmap map-RAM readback: THE NEGATIVE CONTROL (CHMAP_RDBK_P = 0)
+//
+//  This executable elaborates milan_csr at its DEFAULT parameters, which
+//  means "no map-RAM readback port is wired in this build" - exactly the
+//  state milan_datapath shipped in (map_rd_en_i = 1'b0, map_rd_data_o
+//  unconnected). The property under test is methodology R5: a capability
+//  the fabric cannot back must read UNSUPPORTED, never 0. The check that
+//  matters here is the one that CAN fail - if the register ever answered
+//  a snapshot on a build with no port, or answered it with a zero map
+//  word, this leg fails while sim_win's positive leg still passes.
+//
+//  ORACLE: the fabric. With no readback port there IS no fabric answer,
+//  so the only honest report is "unsupported", and the data word must
+//  stay poison.
+// ------------------------------------------------------------------ //
+void MilanCsrHarness::chmap_readback_negative_control() {
+  long f0 = fails;
+  printf("-- chmap readback NEGATIVE control: no port in this build --\n");
+  constexpr uint32_t A_CHMAP_CTRL = 0x900;
+  constexpr uint32_t A_CHMAP_SEL  = 0x904;
+  constexpr uint32_t A_CHMAP_SNAP = 0x910;
+  constexpr uint32_t A_CHMAP_LOOP = 0x914;
+  constexpr uint32_t POISON = 0xDEADDEADu;
 
-    // THE TRAP THIS REGISTER EXISTS TO AVOID: the 0x800 window's data words
-    // read 0 until their SNAP is armed, which is indistinguishable from a
-    // dead block. Un-armed here must be POISON.
-    ck("CHMAP_LOOP un-armed is POISON not 0", axi_read(A_CHMAP_LOOP), POISON);
-    uint32_t s = axi_read(A_CHMAP_SNAP);
-    ck("CHMAP_SNAP tag 0xC5 (feature probe)", (s >> 24) & 0xFF, 0xC5);
-    ck("CHMAP_SNAP cap = 0 (port absent)", (s >> 8) & 3, 0);
-    ck("CHMAP_SNAP armed = 0 at reset",     (s >> 4) & 1, 0);
-    ck("CHMAP_SNAP busy = 0 at reset",       s        & 1, 0);
-    ck("CHMAP_SNAP valid = 0 at reset",     (s >> 1) & 1, 0);
-    // 0x918 is still reserved: it reads 0, so the 0xC5 tag is what tells a
-    // probe that 0x910 EXISTS in this gateware
-    ck("0x918 still reserved-reads-0", axi_read(0x918), 0);
+  // THE TRAP THIS REGISTER EXISTS TO AVOID: the 0x800 window's data words
+  // read 0 until their SNAP is armed, which is indistinguishable from a
+  // dead block. Un-armed here must be POISON.
+  ck("CHMAP_LOOP un-armed is POISON not 0", axi_read(A_CHMAP_LOOP), POISON);
+  uint32_t s = axi_read(A_CHMAP_SNAP);
+  ck("CHMAP_SNAP tag 0xC5 (feature probe)", (s >> 24) & 0xFF, 0xC5);
+  ck("CHMAP_SNAP cap = 0 (port absent)", (s >> 8) & 3, 0);
+  ck("CHMAP_SNAP armed = 0 at reset",     (s >> 4) & 1, 0);
+  ck("CHMAP_SNAP busy = 0 at reset",       s        & 1, 0);
+  ck("CHMAP_SNAP valid = 0 at reset",     (s >> 1) & 1, 0);
+  // 0x918 is still reserved: it reads 0, so the 0xC5 tag is what tells a
+  // probe that 0x910 EXISTS in this gateware
+  ck("0x918 still reserved-reads-0", axi_read(0x918), 0);
 
-    // arm a snapshot with no port behind it
-    axi_write(A_CHMAP_CTRL, 1);
-    axi_write(A_CHMAP_SEL, 0x105);            // side = capture, index = 5
-    bool saw_req = false;
-    axi_write(A_CHMAP_SNAP, 1);
-    for (int i = 0; i < 40; ++i) { if (dut->o_chmap_rd_en) saw_req = true; posedge(); }
-    s = axi_read(A_CHMAP_SNAP);
-    ck("refused arm: unsup = 1",  (s >> 3) & 1, 1);
-    ck("refused arm: valid = 0",  (s >> 1) & 1, 0);
-    ck("refused arm: busy = 0",    s       & 1, 0);
-    ck("refused arm: timeout = 0", (s >> 2) & 1, 0);   // refused, not silent
-    ck("refused arm: armed = 1",  (s >> 4) & 1, 1);    // the arm WAS seen
-    ck("refused arm latched {side,idx}", (s >> 16) & 0x7F, (1u << 6) | 5u);
-    ck("no fabric request was issued", saw_req, 0);
-    ck("CHMAP_LOOP still POISON after a refused arm",
-       axi_read(A_CHMAP_LOOP), POISON);
-    axi_write(A_CHMAP_CTRL, 0);
-    printf("  [%s] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0\n",
-           (fails == f0) ? "PASS" : "FAIL");
-  }
+  // arm a snapshot with no port behind it
+  axi_write(A_CHMAP_CTRL, 1);
+  axi_write(A_CHMAP_SEL, 0x105);            // side = capture, index = 5
+  bool saw_req = false;
+  axi_write(A_CHMAP_SNAP, 1);
+  for (int i = 0; i < 40; ++i) { if (dut->o_chmap_rd_en) saw_req = true; posedge(); }
+  s = axi_read(A_CHMAP_SNAP);
+  ck("refused arm: unsup = 1",  (s >> 3) & 1, 1);
+  ck("refused arm: valid = 0",  (s >> 1) & 1, 0);
+  ck("refused arm: busy = 0",    s       & 1, 0);
+  ck("refused arm: timeout = 0", (s >> 2) & 1, 0);   // refused, not silent
+  ck("refused arm: armed = 1",  (s >> 4) & 1, 1);    // the arm WAS seen
+  ck("refused arm latched {side,idx}", (s >> 16) & 0x7F, (1u << 6) | 5u);
+  ck("no fabric request was issued", saw_req, 0);
+  ck("CHMAP_LOOP still POISON after a refused arm",
+     axi_read(A_CHMAP_LOOP), POISON);
+  axi_write(A_CHMAP_CTRL, 0);
+  printf("  [%s] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0\n",
+         (fails == f0) ? "PASS" : "FAIL");
+}
 
-  // ---- 0x7DC retired AS_PATH publication ABI (#116) ------------------
-  {
-    long f0 = fails;
-    printf("-- 0x7DC AS_PATH addresses are inert without a fabric owner --\n");
-    const uint32_t A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4;
+// ---- 0x7DC retired AS_PATH publication ABI (#116) ------------------
+void MilanCsrHarness::retired_as_path_publication_abi_is_inert() {
+  long f0 = fails;
+  printf("-- 0x7DC AS_PATH addresses are inert without a fabric owner --\n");
+  constexpr uint32_t A_ASP_LO  = 0x7DC;
+  constexpr uint32_t A_ASP_HI  = 0x7E0;
+  constexpr uint32_t A_ASP_CMD = 0x7E4;
 
-    ck("ASP LO reset zero", axi_read(A_ASP_LO), 0);
-    ck("ASP HI reset zero", axi_read(A_ASP_HI), 0);
-    ck("ASP {gen,count} reset zero", axi_read(A_ASP_CMD), 0);
-    ck("ASP public count reset zero", dut->o_asp_count, 0);
-    ck("ASP public generation reset zero", dut->o_asp_gen, 0);
-    for (int k = 1; k <= 7; ++k) ck("ASP public slot reset zero", asp_slot(k), 0);
+  ck("ASP LO reset zero", axi_read(A_ASP_LO), 0);
+  ck("ASP HI reset zero", axi_read(A_ASP_HI), 0);
+  ck("ASP {gen,count} reset zero", axi_read(A_ASP_CMD), 0);
+  ck("ASP public count reset zero", dut->o_asp_count, 0);
+  ck("ASP public generation reset zero", dut->o_asp_gen, 0);
+  for (int k = 1; k <= 7; ++k) ck("ASP public slot reset zero", asp_slot(k), 0);
 
-    // Attempt the full historical stage/commit/publish sequence, including
-    // a maximum count. None of it may create a runtime owner or private
-    // readback state in an option-off build.
-    axi_write(A_ASP_LO, 0xFFFE0210u);
-    axi_write(A_ASP_HI, 0x3CC0C6FFu);
-    axi_write(A_ASP_CMD, 0xC0000108u);
-    axi_write(A_ASP_LO, 0x11111111u);
-    axi_write(A_ASP_HI, 0xAABBCCDDu);
-    axi_write(A_ASP_CMD, 0xFFFFFFFFu);
+  // Attempt the full historical stage/commit/publish sequence, including
+  // a maximum count. None of it may create a runtime owner or private
+  // readback state in an option-off build.
+  axi_write(A_ASP_LO, 0xFFFE0210u);
+  axi_write(A_ASP_HI, 0x3CC0C6FFu);
+  axi_write(A_ASP_CMD, 0xC0000108u);
+  axi_write(A_ASP_LO, 0x11111111u);
+  axi_write(A_ASP_HI, 0xAABBCCDDu);
+  axi_write(A_ASP_CMD, 0xFFFFFFFFu);
 
-    ck("ASP LO write reads zero", axi_read(A_ASP_LO), 0);
-    ck("ASP HI write reads zero", axi_read(A_ASP_HI), 0);
-    ck("ASP CMD write reads zero", axi_read(A_ASP_CMD), 0);
-    ck("ASP writes cannot publish a count", dut->o_asp_count, 0);
-    ck("ASP writes cannot spend a generation", dut->o_asp_gen, 0);
-    for (int k = 1; k <= 7; ++k)
-      ck("ASP writes cannot publish a slot", asp_slot(k), 0);
+  ck("ASP LO write reads zero", axi_read(A_ASP_LO), 0);
+  ck("ASP HI write reads zero", axi_read(A_ASP_HI), 0);
+  ck("ASP CMD write reads zero", axi_read(A_ASP_CMD), 0);
+  ck("ASP writes cannot publish a count", dut->o_asp_count, 0);
+  ck("ASP writes cannot spend a generation", dut->o_asp_gen, 0);
+  for (int k = 1; k <= 7; ++k)
+    ck("ASP writes cannot publish a slot", asp_slot(k), 0);
 
-    printf("  [%s] #116: software writes cannot manufacture an AS_PATH owner\n",
-           (fails == f0) ? "PASS" : "FAIL");
-  }
+  printf("  [%s] #116: software writes cannot manufacture an AS_PATH owner\n",
+         (fails == f0) ? "PASS" : "FAIL");
+}
 
-  printf("--------------------------------------------------------------\n");
-  // ---- issue #207: option OFF serves defined zeros at 0x7E8/0x7EC -------
-  // The inputs are driven hard so the zero is the parameter gate's doing,
-  // not the harness's: software on a plane-OFF build reads an explicit
-  // absent-plane zero, never a floating count.
+// ---- issue #207: option OFF serves defined zeros at 0x7E8/0x7EC -------
+// The inputs are driven hard so the zero is the parameter gate's doing,
+// not the harness's: software on a plane-OFF build reads an explicit
+// absent-plane zero, never a floating count.
+void MilanCsrHarness::gptp_drop_words_are_zero_with_the_plane_off() {
   dut->i_gptp_tap_drop = 0xFFFF; dut->i_gptp_rx_drop = 0xFFFF;
   dut->i_gptp_ev_drop = 0xFFFF;
   dut->eval();
   ck("0x7E8 plane-OFF zero", axi_read(0x7E8), 0);
   ck("0x7EC plane-OFF zero", axi_read(0x7EC), 0);
+}
+
+// =====================================================================
+// P11 indexed per-stream window, N=1 silicon shape (defaults):
+// SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
+// defined out-of-range behaviour (reads 0, writes ignored). The lane-K
+// engine inputs stay at their datapath ties (rd_data=0, snap_ok=0 is
+// irrelevant here: index 0 never bursts) — engine-backed words read 0.
+// =====================================================================
+void MilanCsrHarness::p11_window_at_the_n1_silicon_shape() {
+  window_sel_decode_and_out_of_range_rule();
+  window_idx0_talker_aliases_the_flat_aaf_regs();
+  window_idx0_talker_snap_latches_the_block();
+  window_idx0_listener_full_width_counters();
+}
+
+int MilanCsrHarness::run() {
+  reset_and_idle_the_bus();
+
+  printf("== milan_csr AXI4-Lite CSR verification ==\n");
+
+  identification_and_capabilities();
+  reset_values();
+  fqtss_bandwidth_availability();
+  read_only_registers_reject_writes();
+  rw_registers_and_output_wiring();
+  ptp_ctrl_owns_phc_enable_independent_of_adp();
+  mac_control_and_cbs_scratch_read_back();
+  irq_latch_mask_and_w1c();
+  ptp_command_strobes_and_tod_snapshot();
+  statistics_snapshot();
+  stats_cap_is_a_live_read_only_mask();
+  mac_reinit_invalidates_the_stats_snapshot();
+  adp_advertiser_identity_and_control();
+  lwsrp_engine_group();
+  acmp_listener_state_machine_ro_group();
+  avtp_rx_monitor_ro_group();
+  maap_and_i2s_playback_groups();
+  retired_clock_owner_abi_is_inert();
+  adp_diagnostics_bit_packing();
+  link_guard_tone_and_trim_outputs();
+  rx_dest_mac_tcam_programming();
+  crf_talker_csr_group();
+  acmp_bind_restore_group();
+  p11_window_at_the_n1_silicon_shape();
+  rx_parser_probe_group();
+  reserved_inert_csr_gap();
+  is_1g_follows_the_mac_reported_speed();
+  chmap_readback_negative_control();
+  retired_as_path_publication_abi_is_inert();
+
+  printf("--------------------------------------------------------------\n");
+  gptp_drop_words_are_zero_with_the_plane_off();
 
   printf("checks: %ld   failures: %ld\n", checks, fails);
   printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
-  dut->final();
-  delete dut;
   return fails ? 1 : 0;
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+  Verilated::commandArgs(argc, argv);
+  MilanCsrHarness harness;
+  return harness.run();
 }
