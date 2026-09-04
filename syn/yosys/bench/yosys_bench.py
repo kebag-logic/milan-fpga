@@ -94,7 +94,7 @@ SONAMES = {
 }
 #: malloc.sh's literal fallback for a machine whose ldconfig a normal user
 #: cannot run, plus Debian's multiarch directory for a hosted runner.
-LITERAL_DIRS = ("/usr/lib", "/usr/lib64", "/usr/local/lib", "/usr/lib/x86_64-linux-gnu")
+LITERAL_DIRS = ("/usr/lib", "/usr/lib64", "/usr/local/lib")
 #: package names to ask the package manager about, pacman first, dpkg second.
 PACKAGES = {
     "jemalloc": ("jemalloc", "libjemalloc2"),
@@ -640,27 +640,27 @@ def summary_line(rec: dict[str, object]) -> str:
 
 # --- the session -----------------------------------------------------------
 
-def read_or_empty(path: str) -> str:
-    """A file's text, or "" when it is absent or unreadable (a fact, not a failure)."""
-    try:
-        return Path(path).read_text(errors="replace")
-    except OSError:
-        return ""
+def lscpu_fields() -> dict[str, str]:
+    """`lscpu`'s `Key: value` lines as a dict; empty when the tool is absent."""
+    if shutil.which("lscpu") is None:
+        return {}
+    proc = subprocess.run(["lscpu"], capture_output=True, text=True, check=False)
+    pairs = (line.partition(":") for line in proc.stdout.splitlines() if ":" in line)
+    return {key.strip(): value.strip() for key, _, value in pairs}
 
 
 def machine_facts() -> dict[str, object]:
-    """CPU model, vCPU count, virtualisation, RAM, kernel and THP policy."""
-    cpu = next((line.partition(":")[2].strip() for line in read_or_empty("/proc/cpuinfo").splitlines()
-                if line.startswith("model name")), "unknown")
-    mem_kib = next((int(line.split()[1]) for line in read_or_empty("/proc/meminfo").splitlines()
-                    if line.startswith("MemTotal:")), 0)
-    virt = "unknown"
-    if shutil.which("systemd-detect-virt"):
-        proc = subprocess.run(["systemd-detect-virt"], capture_output=True, text=True, check=False)
-        virt = proc.stdout.strip() or "none"
-    thp = read_or_empty("/sys/kernel/mm/transparent_hugepage/enabled").strip() or "unknown"
-    return {"cpu": cpu, "vcpus": os.cpu_count() or 0, "virt": virt, "mem_total_kib": mem_kib,
-            "kernel": platform.release(), "thp": thp}
+    """CPU model, vCPU count, virtualisation, RAM and OS release, from `lscpu`,
+    `os.sysconf` and `platform`; a missing source reads `unknown`, never a guess."""
+    fields = lscpu_fields()
+    virt = fields.get("Hypervisor vendor", "").lower() or (
+        "none" if fields else "unknown")
+    try:
+        mem_kib = os.sysconf("SC_PHYS_PAGES") * os.sysconf("SC_PAGE_SIZE") // 1024
+    except (ValueError, OSError):
+        mem_kib = 0
+    return {"cpu": fields.get("Model name", "unknown"), "vcpus": os.cpu_count() or 0, "virt": virt,
+            "mem_total_kib": mem_kib, "os_release": platform.release()}
 
 
 def first_line(argv: Sequence[str]) -> str:
@@ -815,7 +815,7 @@ def context_lines(recs: Sequence[dict[str, object]]) -> list[str]:
     gib = int(machine["mem_total_kib"]) / (1024 * 1024)
     lines = ["## Machine and tools", "",
              f"- machine: {machine['cpu']}, {machine['vcpus']} vCPU, virt={machine['virt']}, "
-             f"{gib:.1f} GiB RAM, kernel {machine['kernel']}, THP {machine['thp']}"]
+             f"{gib:.1f} GiB RAM, OS release {machine.get('os_release', 'unknown')}"]
     lines += [f"- {name}: {version}" for name, version in tools.items()]
     packages = {str(r["variant"]): str(r["alloc_package"]) for r in recs}
     lines += [f"- {name}: {pkg}" for name, pkg in packages.items() if name != GLIBC]

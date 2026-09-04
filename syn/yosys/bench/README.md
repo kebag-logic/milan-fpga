@@ -74,7 +74,7 @@ runs four at once. A `write_rtlil` netlist is tens of MB for a mid-sized top.
 One JSON file per trial under `<out>/records/`: top, variant, library and
 package version, trial, batch id, concurrency, the 1-minute load before start,
 the exact program and its shape, input digest and `sv2v` argv, tool versions,
-machine (CPU model, vCPUs, virtualisation, RAM, kernel, THP policy), status and
+machine (CPU model, vCPUs, virtualisation, RAM, OS release), status and
 reason, exit code, timing, counts, the pass table and the netlist digest.
 
 `--report` groups records by machine and tools, then by top, input digest and
@@ -106,7 +106,7 @@ min-max unless starred, and every batch states its concurrency.
 ### Machine and tools
 
 - machine: AMD EPYC 9554P (`znver4`), presented as 128 single-core vCPUs by a
-  `kvm` hypervisor, 72.7 GiB RAM, kernel 7.2.2, THP `always`/defrag `madvise`,
+  `kvm` hypervisor, 72.7 GiB RAM, OS release 7.2.2, THP `always`/defrag `madvise`,
   `/tmp` a 250 GiB tmpfs
 - `yosys 0.66` (distribution build of upstream tag `v0.66`, `g++ 16.1.1`,
   `-O2 … -O3`, external ABC), `sv2v v0.0.13`, glibc 2.44
@@ -264,7 +264,7 @@ give back.
 
 ### Host and firmware
 
-`systemd-detect-virt` reports `kvm`; the 64-core part is presented as 128
+`lscpu` reports a KVM hypervisor; the 64-core part is presented as 128
 single-core sockets in one NUMA node with no `cpufreq` interface and no cache
 topology. Nothing firmware-side is reachable from this guest. The two host-side
 items usually proposed are already in place: the scratch path is RAM-backed
@@ -274,7 +274,7 @@ it is reported as a result: CPU topology passthrough so a shard pool can see
 real cores and L3 domains, 1 GiB huge-page backing for the guest (the lever
 that matters for a 3 GiB single-process heap), vCPU pinning, and on the
 firmware itself determinism/cTDP, C-state and DF C-state policy and SMT. The
-kernel's `Safe RET`, TSA and Enhanced IBRS mitigations cost cycles on this
+host's `Safe RET`, TSA and Enhanced IBRS mitigations cost cycles on this
 call-heavy workload but need a reboot and a security decision, so they stay a
 hypothesis.
 

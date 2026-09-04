@@ -220,7 +220,7 @@ def _fake(variant: str, wall: float, conc: int = 4, rtlil: str | None = None, st
             "trial": 1, "batch_id": "b", "concurrency": conc, "load1_before": 0.0, "program": "p",
             "program_shape": "shape", "input": {"sha256": "d" * 64, "bytes": 1, "sv2v_s": 0.1, "sv2v_argv": []},
             "tools": {"yosys": "Y"}, "machine": {"cpu": "c", "vcpus": 1, "virt": "none", "mem_total_kib": 1048576,
-                                                 "kernel": "k", "thp": "always"},
+                                                 "os_release": "k"},
             "status": status, "reason": "" if number else "planted", "exit_code": 0 if number else 1,
             "wall_s": wall if number else None, "user_s": wall if number else None, "sys_s": 0.5 if number else None,
             "max_rss_kib": int(wall * 102400) if number else None, "cells": 47 if number else None,
