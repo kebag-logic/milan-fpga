@@ -1,0 +1,9 @@
+# Rule 13 ratchets - the shell idiom debt this tree still carries.
+# EVERY NUMBER MAY ONLY GO DOWN. Regenerate with
+#   python3 scripts/check_sh_idiom.py --write-budget
+# which refuses to raise one. What each entry counts is in the gate's
+# docstring and in docs/development/CODE_QUALITY.md's Rule 13.
+
+no strict mode        = 5
+unquoted expansion    = 3
+top-heavy long script = 0

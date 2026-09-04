@@ -32,14 +32,14 @@ Needs pyyaml (same dependency as sw/builder/test_builder.py).
 """
 
 import argparse
-import os
 import re
 import sys
 import tempfile
+from pathlib import Path
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
-BUILD = os.path.join(ROOT, "sw/litex/build.sh")
+ROOT = Path(__file__).resolve().parent.parent
+SWEEP = ROOT / "sw/litex/sweep.sh"
+BUILD = ROOT / "sw/litex/build.sh"
 
 # build.sh's named recipes are the OTHER path to a flashed bitstream, so they
 # get the same treatment: cfg function -> the end-station config it claims to
@@ -81,6 +81,50 @@ PINNED = {}
 # this named set drives their dedicated absent-and-swapped negative controls.
 CPU_FLAGS = {"--xlen": "xlen", "--cpu-count": "cpu_count"}
 
+# Negative controls for the named-build branch. These span the seven
+# #155 repairs and the config-artifact binding. CPU absence/value
+# mutations are covered by self_test_build_sh. Each edit starts from the
+# pristine recipe so one mismatch cannot mask another.
+#   (why, recipe, old fragment, new fragment, the drift it must report)
+BUILD_MUTATIONS = [
+    ("cfg_ax8x8 loses its explicit Ethernet port",
+     "ax8x8", "--eth-port e1", "", "design flag --eth-port:"),
+    # #259 retired the playback rings and the cache scala words,
+    # so the dropped-flag and added-word plants below ride tokens
+    # the bare-metal recipes still carry.
+    ("cfg_ax8x8 loses its wire-channel count",
+     "ax8x8", "--talker-wire-chans 8", "",
+     "design flag --talker-wire-chans:"),
+    ("cfg_ax8x8 stops spending the datapath-probe prune",
+     "ax8x8", "--no-datapath-probes", "",
+     "design flag --no-datapath-probes:"),
+    # the CBS instance mask is retired with the shaper chain (the
+    # classifier/queue/CBS blocks are no longer datapath sources),
+    # so the value-change plant rides the wire-channel count instead.
+    ("cfg_ax8x8 changes its wire-channel count",
+     "ax8x8", "--talker-wire-chans 8",
+     "--talker-wire-chans 4", "design flag --talker-wire-chans:"),
+    ("cfg_ax8x8 adds an RV64-era prefetch Scala word",
+     "ax8x8", "--l2-bytes 0",
+     "--l2-bytes 0 --scala-args=--lsu-hardware-prefetch=rpt",
+     "design flag --scala-args:"),
+    ("cfg_arty changes its Milan clock",
+     "arty", "--milan-clk-freq 50e6", "--milan-clk-freq 100e6",
+     "design flag --milan-clk-freq:"),
+    ("cfg_arty restores an RV64-era Scala slot count",
+     "arty", "--l2-bytes 0",
+     "--l2-bytes 0 --scala-args=--l2-general-slots=16",
+     "design flag --scala-args:"),
+    ("cfg_arty loses its generated entity directory",
+     "arty", "--entity-gen-dir "
+     "$SOC_DIR/../../configs/generated/endstation_arty_current", "",
+     "no --entity-gen-dir"),
+    ("cfg_ax8x8 points at another config's generated artifacts",
+     "ax8x8", "configs/generated/endstation_ax7101_8x8",
+     "configs/generated/endstation_ax7101_1x1_tdm8",
+     "--entity-gen-dir names"),
+]
+
 
 def _yaml():
     try:
@@ -90,7 +134,7 @@ def _yaml():
     return yaml
 
 
-def config_shape(path):
+def config_shape(path: str | Path) -> tuple[str, int, int, bool]:
     """(board, num_streams, l2_bytes, render_lpf) implied by a config.
 
     num_streams == milan_datapath N_STREAMS == the WIDER of the two stream
@@ -98,11 +142,13 @@ def config_shape(path):
     it - kept as one line here on purpose so the two can be eyeballed together.
     """
     yaml = _yaml()
-    if not os.path.isabs(path):
-        path = os.path.join(ROOT, path)
-    if not os.path.exists(path):
-        sys.exit(f"check_sweep_shape: no such config {path}")
-    cfg = yaml.safe_load(open(path))
+    cfg_file = Path(path)
+    if not cfg_file.is_absolute():
+        cfg_file = ROOT / cfg_file
+    if not cfg_file.exists():
+        sys.exit(f"check_sweep_shape: no such config {cfg_file}")
+    with cfg_file.open() as handle:
+        cfg = yaml.safe_load(handle)
     s = cfg.get("streams") or {}
     n_streams = max(len(s.get("listeners") or []), len(s.get("talkers") or []))
     board_cfg = cfg.get("board") or {}
@@ -119,21 +165,28 @@ def config_shape(path):
             bool(features.get("render_lpf", True)))
 
 
-def parse_sweep(path=SWEEP):
+def parse_sweep(path: str | Path = SWEEP) -> dict[str, dict[str, str | int]]:
     """sweep.sh's per-board default tables -> {board: {opts,l2,ns,cfg}}.
 
     Deliberately the SAME parse shape test_builder.sweep_inline() uses for
     OPTS/L2, extended with the NS/CFG line - if either table is reformatted
     so this regex misses, the gate fails loudly rather than passing vacuously.
     """
-    txt = open(path).read()
+    txt = Path(path).read_text()
     boards = {}
     for m in re.finditer(r'^\s*(\w+)\)\s+OPTS="([^"]+)"; L2=(\d+);',
                          txt, re.M):
         boards[m.group(1)] = dict(opts=m.group(2), l2=int(m.group(3)))
     if not boards:
         sys.exit(f"check_sweep_shape: no OPTS/L2 table found in {path}")
-    for m in re.finditer(r'^\s*(\w+)\)\s+NS=(\d+); CFG=\$\{SWEEP_CFG:-([^}]+)\}',
+    # The surrounding quotes on the CFG assignment are OPTIONAL to this parse.
+    # They were added by Rule 13's unquoted-expansion repair (SC2086), which is
+    # correct shell - a config path with a space must survive the assignment -
+    # and this regex rejected the whole table the moment they appeared, so the
+    # gate exited "sweep.sh has no NS/CFG line for arty, ax7101" on a sweep.sh
+    # that had simply been quoted. A shape gate must read the shape, not one
+    # spelling of it.
+    for m in re.finditer(r'^\s*(\w+)\)\s+NS=(\d+); CFG="?\$\{SWEEP_CFG:-([^}]+)\}"?',
                          txt, re.M):
         if m.group(1) in boards:
             boards[m.group(1)]["ns"] = int(m.group(2))
@@ -145,7 +198,7 @@ def parse_sweep(path=SWEEP):
     return boards
 
 
-def design_opts_expected(cfg_path):
+def design_opts_expected(cfg_path: str | Path) -> list[str]:
     """The complete SoC flag list this config implies, from the builder's
     own emission (sw/builder/endstation_builder.emit_soc_argv).
 
@@ -153,13 +206,13 @@ def design_opts_expected(cfg_path):
     / the tier-1 prune resolution are real logic, and a second copy here is
     exactly the kind that drifts. The import is in-repo and costs pyyaml,
     which this script already requires."""
-    sys.path.insert(0, os.path.join(ROOT, "sw/builder"))
+    sys.path.insert(0, str(ROOT / "sw/builder"))
     import endstation_builder as eb
-    p = cfg_path if os.path.isabs(cfg_path) else os.path.join(ROOT, cfg_path)
-    return eb.emit_soc_argv(eb.load_config(p))
+    p = Path(cfg_path)
+    return eb.emit_soc_argv(eb.load_config(p if p.is_absolute() else ROOT / p))
 
 
-def parse_flags(tokens):
+def parse_flags(tokens: list[str]) -> dict[str, str | bool]:
     """['--a', '1', '--b'] -> {'--a': '1', '--b': True}. Values never start
     with '--', so a missing value cannot swallow the next flag."""
     d = {}
@@ -170,8 +223,14 @@ def parse_flags(tokens):
     return d
 
 
-def compare(board, cfg_path, ns, l2, where, opts=""):
-    """One board's effective shape vs its config. Returns a list of problems."""
+def compare(board: str, cfg_path: str | Path, ns: int, l2: int, where: str,
+            opts: str = "") -> list[str]:
+    """One board's effective shape vs its config. Returns a list of problems.
+
+    `cfg_path` is echoed back VERBATIM in the drift header, because it is the
+    spelling sweep.sh's table (or the command line) used and that is what a
+    reader has to go and edit.
+    """
     c_board, c_ns, c_l2, c_lpf = config_shape(cfg_path)
     bad = []
     if c_board != board:
@@ -207,25 +266,25 @@ def compare(board, cfg_path, ns, l2, where, opts=""):
                     f"design flag {k}: effective "
                     f"{got.get(k, '(absent)')} != config-implied "
                     f"{want.get(k, '(absent)')} (emit_soc_argv of "
-                    f"{os.path.basename(cfg_path)})")
+                    f"{Path(cfg_path).name})")
     if bad:
         print(f"SHAPE DRIFT [{where}] {board} vs {cfg_path}:", file=sys.stderr)
         for b in bad:
             print(f"  - {b}", file=sys.stderr)
     else:
         print(f"  [sweep-shape] {board}: num-streams {ns}, "
-              f"l2 {l2}, render-lpf {lpf} == {os.path.basename(cfg_path)}")
+              f"l2 {l2}, render-lpf {lpf} == {Path(cfg_path).name}")
     return bad
 
 
-def check_fragment(board):
+def check_fragment(board: str) -> int | None:
     """The generated fragment may pin NS too (it is sourced AFTER the defaults).
     When it does, it is authoritative and must agree; when it does not, say so -
     silence is what let the 8x8 build ship as 1x1."""
-    p = os.path.join(ROOT, "configs/generated", f"sweep_opts_{board}.sh")
-    if not os.path.exists(p):
+    p = ROOT / "configs/generated" / f"sweep_opts_{board}.sh"
+    if not p.exists():
         return None
-    txt = open(p).read()
+    txt = p.read_text()
     m = re.search(r"^NS=(\d+)\s*$", txt, re.M)
     if m:
         return int(m.group(1))
@@ -233,9 +292,9 @@ def check_fragment(board):
     return int(m.group(1)) if m else None
 
 
-def parse_build_sh(path=BUILD):
+def parse_build_sh(path: str | Path = BUILD) -> dict[str, dict[str, str | bool]]:
     """build.sh's `cfg_<name>() { ... echo "<flags>" ... }` recipes -> flag dicts."""
-    txt = open(path).read()
+    txt = Path(path).read_text()
     out = {}
     for m in re.finditer(r'^cfg_(\w+)\(\)\s*\{(.*?)^\}', txt, re.M | re.S):
         body = m.group(2)
@@ -254,7 +313,7 @@ def parse_build_sh(path=BUILD):
     return out
 
 
-def design_flags(flags):
+def design_flags(flags: dict[str, str | bool]) -> dict[str, str | bool]:
     """Drop launcher-only flags and compare the Scala profile as one value."""
     design, scala = {}, []
     for key, value in flags.items():
@@ -271,17 +330,17 @@ def design_flags(flags):
 
 def _entity_gen_dir_agrees(name, cfg_path, flags):
     """Require a recipe to use the generated artifacts for its graded config."""
-    want = os.path.splitext(os.path.basename(cfg_path))[0]
+    want = Path(cfg_path).stem
     got = flags.get("--entity-gen-dir")
     msg = None
     if got is True or not got:
         msg = (f"cfg_{name}: no --entity-gen-dir. milan_soc.py refuses to "
                f"launch without it, so this recipe cannot be run at all; it "
                f"must name configs/generated/{want}")
-    elif os.path.basename(str(got).rstrip("/")) != want:
+    elif Path(str(got).rstrip("/")).name != want:
         msg = (f"cfg_{name}: --entity-gen-dir names "
-               f"{os.path.basename(str(got).rstrip('/'))!r} but this recipe "
-               f"is graded against {os.path.basename(cfg_path)} - the "
+               f"{Path(str(got).rstrip('/')).name!r} but this recipe "
+               f"is graded against {Path(cfg_path).name} - the "
                f"gateware and generated artifacts would be different shapes")
     if msg is None:
         return []
@@ -289,7 +348,8 @@ def _entity_gen_dir_agrees(name, cfg_path, flags):
     return [msg]
 
 
-def check_build_sh(path=BUILD, quiet=False):
+def check_build_sh(path: str | Path = BUILD,
+                   quiet: bool = False) -> list[str]:
     """Compare every build.sh design flag with emit_soc_argv, flag for flag.
 
     Divergences listed in PINNED are accepted and re-verified against their
@@ -341,14 +401,14 @@ def check_build_sh(path=BUILD, quiet=False):
             elif g != w:
                 msg = (f"cfg_{name}: design flag {k}: build.sh {g!r} != "
                        f"config-implied {w!r} (emit_soc_argv of "
-                       f"{os.path.basename(cfg_path)})")
+                       f"{Path(cfg_path).name})")
                 print("SHAPE DRIFT: " + msg, file=sys.stderr)
                 local.append(msg)
             else:
                 n_ok += 1
         if not local and not quiet:
             print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags "
-                  f"agree with {os.path.basename(cfg_path)} flag for flag "
+                  f"agree with {Path(cfg_path).name} flag for flag "
                   f"({n_pin} PINNED), and --entity-gen-dir names it")
         bad += local
 
@@ -360,7 +420,8 @@ def check_build_sh(path=BUILD, quiet=False):
     return bad
 
 
-def self_test_build_sh(path=BUILD):
+def self_test_build_sh(path: str | Path = BUILD
+                       ) -> list[tuple[str, str, str]]:
     """Negative controls for the build.sh CPU keys (#157).
 
     Two mutated copies of build.sh: the REAL defect replayed - every
@@ -370,7 +431,7 @@ def self_test_build_sh(path=BUILD):
     of all three recipes, or a check is vacuous. Returns the
     (mutation, cfg, flag) triples the gate FAILED to reject; empty means every
     flag bit."""
-    txt = open(path).read()
+    txt = Path(path).read_text()
     mutations = {
         "absent": re.sub(r"--(?:xlen|cpu-count) \d+ ?", "", txt),
         "swapped": re.sub(
@@ -385,15 +446,13 @@ def self_test_build_sh(path=BUILD):
         if mut == txt:
             sys.exit("self-test: could not mutate the CPU flags in build.sh "
                      f"({label})")
-        with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
-            f.write(mut)
-            tmp = f.name
+        tmp = _temp_sh(mut)
         try:
             print(f"  [self-test] build.sh --xlen/--cpu-count {label} - "
                   "expecting REJECT on both keys of every recipe:")
             bad = check_build_sh(tmp, quiet=True)
         finally:
-            os.unlink(tmp)
+            tmp.unlink()
         for name in BUILD_CFGS:
             for flag in CPU_FLAGS:
                 drift = f"cfg_{name}: design flag {flag}:"
@@ -404,7 +463,7 @@ def self_test_build_sh(path=BUILD):
     return missed
 
 
-def mutate_build_recipe(text, name, old, new):
+def mutate_build_recipe(text: str, name: str, old: str, new: str) -> str:
     """Change one flag fragment inside one named recipe for a negative test."""
     match = re.search(rf"^cfg_{re.escape(name)}\(\)\s*\{{.*?^\}}",
                       text, re.M | re.S)
@@ -419,12 +478,19 @@ def mutate_build_recipe(text, name, old, new):
     return text[:match.start()] + mutated + text[match.end():]
 
 
-def run_static(sweep_path=SWEEP, quiet=False):
+def run_static(sweep_path: str | Path = SWEEP,
+               quiet: bool = False) -> list[str]:
+    """Every board in sweep.sh against its config, plus the generated fragment.
+
+    The fragment is checked as well as the default table because it is
+    sourced AFTER the defaults: a fragment pinning a different NS wins, and
+    winning silently is exactly how the 8x8 build shipped as 1x1.
+    """
     boards = parse_sweep(sweep_path)
     bad = []
     for board, v in sorted(boards.items()):
         bad += compare(board, v["cfg"], v["ns"], v["l2"],
-                       os.path.basename(sweep_path), opts=v["opts"])
+                       Path(sweep_path).name, opts=v["opts"])
         frag_ns = check_fragment(board)
         if frag_ns is not None and frag_ns != v["ns"]:
             msg = (f"{board}: generated fragment pins NS={frag_ns} but "
@@ -438,7 +504,120 @@ def run_static(sweep_path=SWEEP, quiet=False):
     return bad
 
 
-def main():
+def _temp_sh(text: str) -> Path:
+    """`text` written to a throwaway .sh; the caller unlinks the path."""
+    with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
+        f.write(text)
+        return Path(f.name)
+
+
+def _self_test_sweep_ns(sweep_path):
+    """Negative control: every board's NS bumped by one in a COPY of sweep.sh
+    must be REJECTED. Without it the gate could be vacuously green (e.g. a
+    regex that stopped matching). 0 = rejected as required, 2 = it was not."""
+    txt = Path(sweep_path).read_text()
+    mut = re.sub(r'^(\s*\w+\)\s+NS=)(\d+)',
+                 lambda m: m.group(1) + str(int(m.group(2)) + 1),
+                 txt, flags=re.M)
+    if mut == txt:
+        print("self-test: could not mutate NS in sweep.sh", file=sys.stderr)
+        return 2
+    tmp = _temp_sh(mut)
+    try:
+        print("  [self-test] mutated NS (+1 per board) - expecting REJECT:")
+        bad_mut = run_static(tmp, quiet=True)
+    finally:
+        tmp.unlink()
+    if not bad_mut:
+        print("self-test FAILED: a wrong NS was accepted", file=sys.stderr)
+        return 2
+    print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported for the "
+          "mutated sweep.sh")
+    missed = self_test_build_sh()
+    if missed:
+        print("self-test FAILED: build.sh CPU-flag mutations accepted on "
+              + ", ".join(f"{m}/cfg_{n}/{k}" for m, n, k in missed),
+              file=sys.stderr)
+        return 2
+    print("  [self-test] OK: --xlen and --cpu-count rejected on "
+          f"{len(BUILD_CFGS)} build.sh recipes, absent and swapped")
+    return 0
+
+
+def _self_test_build_recipes(build_text):
+    """Negative controls for the named-build branch: every BUILD_MUTATIONS
+    plant must be REJECTED naming its expected drift. 0 = all were, 2 = one
+    was not (or the plant no longer matches the recipe)."""
+    for why, name, old, new, expected in BUILD_MUTATIONS:
+        try:
+            mutated = mutate_build_recipe(build_text, name, old, new)
+        except ValueError as exc:
+            print(f"self-test: {exc}", file=sys.stderr)
+            return 2
+        tmp = _temp_sh(mutated)
+        try:
+            print(f"  [self-test] {why} - expecting REJECT:")
+            bad_mut = check_build_sh(tmp, quiet=True)
+        finally:
+            tmp.unlink()
+        if not any(expected in drift for drift in bad_mut):
+            print(f"self-test FAILED: {why} did not report {expected!r}",
+                  file=sys.stderr)
+            return 2
+        print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
+    return 0
+
+
+def _self_test_unbound_recipe(build_text):
+    """A newly added cfg_* function must not escape grading merely because
+    BUILD_CFGS was not extended with its declarative config. 0 = the unbound
+    recipe was rejected, 2 = it was accepted (or the anchor moved)."""
+    unbound_recipe = (
+        "cfg_unbound_selftest() {\n"
+        "    echo \"--board arty --cpu vexiiriscv --cpu-count 1 "
+        "--xlen 32\"\n"
+        "}\n\n")
+    mutated, count = re.subn(r"^(SWEEP_DIRECTIVES=)",
+                             unbound_recipe + r"\1", build_text,
+                             count=1, flags=re.M)
+    if count != 1:
+        print("self-test: SWEEP_DIRECTIVES anchor not found in build.sh",
+              file=sys.stderr)
+        return 2
+    tmp = _temp_sh(mutated)
+    try:
+        print("  [self-test] unbound cfg_* recipe - expecting REJECT:")
+        bad_mut = check_build_sh(tmp, quiet=True)
+    finally:
+        tmp.unlink()
+    if not any("cfg_unbound_selftest has no config binding" in drift
+               for drift in bad_mut):
+        print("self-test FAILED: unbound cfg_* recipe was accepted",
+              file=sys.stderr)
+        return 2
+    print("  [self-test] OK: unbound cfg_* recipe rejected")
+    return 0
+
+
+def _run_self_test(sweep_path):
+    """Every negative control, in order; the first failure's exit status."""
+    status = _self_test_sweep_ns(sweep_path)
+    if status:
+        return status
+    build_text = BUILD.read_text()
+    status = _self_test_build_recipes(build_text)
+    if status:
+        return status
+    return _self_test_unbound_recipe(build_text)
+
+
+def main() -> int:
+    """Pick the runtime or the static branch, and refuse a build that drifted.
+
+    The runtime branch is the one sweep.sh calls seconds before Vivado, so
+    its refusal message names the consequence - the bitstream would not be
+    the shape the end-station config declares - rather than the flag.
+    """
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--board")
@@ -478,131 +657,7 @@ def main():
     print("sweep shape gate: OK")
 
     if a.self_test:
-        # Negative control: bump every board's NS by one in a COPY of sweep.sh
-        # and require the gate to reject it. Without this the gate could be
-        # vacuously green (e.g. a regex that stopped matching).
-        txt = open(a.sweep).read()
-        mut = re.sub(r'^(\s*\w+\)\s+NS=)(\d+)',
-                     lambda m: m.group(1) + str(int(m.group(2)) + 1),
-                     txt, flags=re.M)
-        if mut == txt:
-            print("self-test: could not mutate NS in sweep.sh", file=sys.stderr)
-            return 2
-        with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
-            f.write(mut)
-            tmp = f.name
-        try:
-            print("  [self-test] mutated NS (+1 per board) - expecting REJECT:")
-            bad_mut = run_static(tmp, quiet=True)
-        finally:
-            os.unlink(tmp)
-        if not bad_mut:
-            print("self-test FAILED: a wrong NS was accepted", file=sys.stderr)
-            return 2
-        print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported for the "
-              "mutated sweep.sh")
-        missed = self_test_build_sh()
-        if missed:
-            print("self-test FAILED: build.sh CPU-flag mutations accepted on "
-                  + ", ".join(f"{m}/cfg_{n}/{k}" for m, n, k in missed),
-                  file=sys.stderr)
-            return 2
-        print("  [self-test] OK: --xlen and --cpu-count rejected on "
-              f"{len(BUILD_CFGS)} build.sh recipes, absent and swapped")
-
-        # Negative controls for the named-build branch. These span the seven
-        # #155 repairs and the config-artifact binding. CPU absence/value
-        # mutations are covered above. Each edit starts from the pristine
-        # recipe so one mismatch cannot mask another.
-        build_mutations = [
-            ("cfg_ax8x8 loses its explicit Ethernet port",
-             "ax8x8", "--eth-port e1", "", "design flag --eth-port:"),
-            # #259 retired the playback rings and the cache scala words,
-            # so the dropped-flag and added-word plants below ride tokens
-            # the bare-metal recipes still carry.
-            ("cfg_ax8x8 loses its wire-channel count",
-             "ax8x8", "--talker-wire-chans 8", "",
-             "design flag --talker-wire-chans:"),
-            ("cfg_ax8x8 stops spending the datapath-probe prune",
-             "ax8x8", "--no-datapath-probes", "",
-             "design flag --no-datapath-probes:"),
-            # the CBS instance mask is retired with the shaper chain (the
-            # classifier/queue/CBS blocks are no longer datapath sources),
-            # so the value-change plant rides the wire-channel count instead.
-            ("cfg_ax8x8 changes its wire-channel count",
-             "ax8x8", "--talker-wire-chans 8",
-             "--talker-wire-chans 4", "design flag --talker-wire-chans:"),
-            ("cfg_ax8x8 adds an RV64-era prefetch Scala word",
-             "ax8x8", "--l2-bytes 0",
-             "--l2-bytes 0 --scala-args=--lsu-hardware-prefetch=rpt",
-             "design flag --scala-args:"),
-            ("cfg_arty changes its Milan clock",
-             "arty", "--milan-clk-freq 50e6", "--milan-clk-freq 100e6",
-             "design flag --milan-clk-freq:"),
-            ("cfg_arty restores an RV64-era Scala slot count",
-             "arty", "--l2-bytes 0",
-             "--l2-bytes 0 --scala-args=--l2-general-slots=16",
-             "design flag --scala-args:"),
-            ("cfg_arty loses its generated entity directory",
-             "arty", "--entity-gen-dir "
-             "$SOC_DIR/../../configs/generated/endstation_arty_current", "",
-             "no --entity-gen-dir"),
-            ("cfg_ax8x8 points at another config's generated artifacts",
-             "ax8x8", "configs/generated/endstation_ax7101_8x8",
-             "configs/generated/endstation_ax7101_1x1_tdm8",
-             "--entity-gen-dir names"),
-        ]
-        btxt = open(BUILD).read()
-        for why, name, old, new, expected in build_mutations:
-            try:
-                mutated = mutate_build_recipe(btxt, name, old, new)
-            except ValueError as exc:
-                print(f"self-test: {exc}", file=sys.stderr)
-                return 2
-            with tempfile.NamedTemporaryFile("w", suffix=".sh",
-                                             delete=False) as f:
-                f.write(mutated)
-                tmp = f.name
-            try:
-                print(f"  [self-test] {why} - expecting REJECT:")
-                bad_mut = check_build_sh(tmp, quiet=True)
-            finally:
-                os.unlink(tmp)
-            if not any(expected in drift for drift in bad_mut):
-                print(f"self-test FAILED: {why} did not report {expected!r}",
-                      file=sys.stderr)
-                return 2
-            print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
-
-        # A newly added cfg_* function must not escape grading merely because
-        # BUILD_CFGS was not extended with its declarative config.
-        unbound_recipe = (
-            "cfg_unbound_selftest() {\n"
-            "    echo \"--board arty --cpu vexiiriscv --cpu-count 1 "
-            "--xlen 32\"\n"
-            "}\n\n")
-        mutated, count = re.subn(r"^(SWEEP_DIRECTIVES=)",
-                                  unbound_recipe + r"\1", btxt,
-                                  count=1, flags=re.M)
-        if count != 1:
-            print("self-test: SWEEP_DIRECTIVES anchor not found in build.sh",
-                  file=sys.stderr)
-            return 2
-        with tempfile.NamedTemporaryFile("w", suffix=".sh",
-                                         delete=False) as f:
-            f.write(mutated)
-            tmp = f.name
-        try:
-            print("  [self-test] unbound cfg_* recipe - expecting REJECT:")
-            bad_mut = check_build_sh(tmp, quiet=True)
-        finally:
-            os.unlink(tmp)
-        if not any("cfg_unbound_selftest has no config binding" in drift
-                   for drift in bad_mut):
-            print("self-test FAILED: unbound cfg_* recipe was accepted",
-                  file=sys.stderr)
-            return 2
-        print("  [self-test] OK: unbound cfg_* recipe rejected")
+        return _run_self_test(a.sweep)
     return 0
 
 
