@@ -150,8 +150,11 @@ Three trials per cell, each trial one matched batch of the four allocators
 | | tcmalloc | 3.37 (3.32-3.42) | 3.89 | 129 | -7.4% | +10% |
 
 Two lone runs of `milan_datapath` at concurrency 1 (one trial each, starred in
-the report): glibc 454.5 s, jemalloc 298.4 s (-34.3%). A batch of four costs
-nothing measurable on this machine, so the batched medians stand.
+the report): glibc 454.5 s, jemalloc 298.4 s (-34.3%). Three glibc+jemalloc
+pairs at concurrency 2 give 460.1 s and 300.7 s (-34.6%) on `milan_datapath`
+and 226.8 s and 156.8 s (-30.9%) on `KL_pp_shadow`. Concurrency 1, 2 and 4
+agree within 2%, so a matched batch costs nothing measurable on this machine
+and the batched medians stand.
 
 The win is a CPU reduction (509 s to 346 s on `milan_datapath`), grows with
 design size, and leaves peak RSS within 2% on the two heavy tops. jemalloc
@@ -208,8 +211,23 @@ distribution binary).
 
 ### Transparent huge pages
 
-Pending: phase 2 of the campaign (`KL_pp_shadow` under a `PR_SET_THP_DISABLE`
-shim, glibc and jemalloc, three trials each side).
+`KL_pp_shadow`, glibc and jemalloc as one matched batch (concurrency 2), three
+trials with the machine's `THP always` policy and three under a
+`PR_SET_THP_DISABLE` wrapper around the same `yosys` binary:
+
+| configuration | wall s | peak RSS MiB |
+| --- | ---: | ---: |
+| glibc, THP on | 225.1 (224.9-226.7) | 1 900 |
+| glibc, THP off | 233.6 (233.4-234.6) | 1 895 |
+| jemalloc, THP on | 156.9 (156.4-157.2) | 1 926 |
+| jemalloc, THP off | 164.3 (163.9-164.5) | 1 378 |
+
+Huge pages are worth 3.8% to glibc and 4.7% to jemalloc on this top, and
+jemalloc pays 40% more peak RSS for them (1 378 to 1 926 MiB). That is the
+ceiling of the memory-tuning family on this workload: single digits, traded
+against the memory a shard pool needs. The policy is already `always`, so
+there is nothing to switch on; a pool that runs out of memory has this 4.7% to
+give back.
 
 ### Host and firmware
 
@@ -255,6 +273,6 @@ this gate.
 | result cache | go | largest remaining win on the common PR; trust rules costed above | [#350](https://github.com/kebag-logic/milan-fpga/issues/350) |
 | front end (Verific, yosys-slang) | **no-go** as a speed lever | 2.3% of the critical path, 26 s over the whole inventory; Verific is commercial-only | yosys-slang only as a robustness lane |
 | rebuilt Yosys | pending phase 2b | | |
-| transparent huge pages | pending phase 2 | | |
+| transparent huge pages | no-go as a lever | already on; worth 4-5%, at +40% RSS under jemalloc | none; a memory-bound pool may switch it off per process |
 | host and firmware | not measurable here | guest with no topology or firmware reach | written request to the host owner |
 | protocol-processor re-parse | pending phase 2 | | protocol-processor #25 |
