@@ -242,8 +242,9 @@ surface: under #270's rules the seed must be read-only and trusted, the
 per-head state writable only by the run, and no candidate may write a shared
 cache, which means the cache key must include the Yosys binary digest as well
 as its version string, and a hit must still re-check the recorded `cells=`
-against the stored record. That is a follow-up issue, not a change to this
-gate.
+against the stored record. That is
+[#350](https://github.com/kebag-logic/milan-fpga/issues/350), not a change to
+this gate.
 
 ### Go and no-go
 
@@ -251,7 +252,7 @@ gate.
 | --- | --- | --- | --- |
 | allocator preload | **go, adopted** | -33.7% on the heaviest top, gate 488 s to 310 s, netlists byte-identical, RSS neutral on heavy tops | landed as `run.sh`'s default (`malloc.sh`); mimalloc stays the documented alternative where RSS is tight |
 | shard parallelism | measured, hand to #270 | 1.76x at 8 shards, floor = `milan_datapath` (300 s under jemalloc) | #270 |
-| result cache | go | largest remaining win on the common PR; trust rules costed above | follow-up issue |
+| result cache | go | largest remaining win on the common PR; trust rules costed above | [#350](https://github.com/kebag-logic/milan-fpga/issues/350) |
 | front end (Verific, yosys-slang) | **no-go** as a speed lever | 2.3% of the critical path, 26 s over the whole inventory; Verific is commercial-only | yosys-slang only as a robustness lane |
 | rebuilt Yosys | pending phase 2b | | |
 | transparent huge pages | pending phase 2 | | |
