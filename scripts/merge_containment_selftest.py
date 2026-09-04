@@ -306,10 +306,12 @@ def _git_minimum_shim_cases(fx, shim, real_git):
     probe = getattr(mc, "verbatim_patch_id_error", None)
     minimum = getattr(mc, "MINIMUM_GIT", "")
 
-    def refusal():
+    def refusal() -> str | None:
+        """What the probe answers now, or a marker when the parent has none."""
         return probe() if probe else "no probe"
 
-    def named(message):
+    def named(message: str) -> bool:
+        """True when ``message`` is the attributable refusal naming the minimum."""
         return bool(minimum) and minimum in message and "unavailable" in message
 
     case("git-minimum-current", refusal(), None,
