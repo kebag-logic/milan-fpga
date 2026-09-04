@@ -77,7 +77,6 @@ required context. So the aggregate must need every other job of that
 workflow; every job an aggregate needs is the selector, a consumer, or
 itself held; the verdict step's keys, env bindings and script are derived
 from that `needs` list; each public check name is carried by exactly one
-from collections.abc import Callable
 job; and the reference audit covers every static `needs` chain, `.result`
 included, not only `.outputs.`.
 
@@ -132,6 +131,7 @@ import pathlib
 import re
 import sys
 import tempfile
+from collections.abc import Callable
 
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
 
