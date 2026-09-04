@@ -180,6 +180,9 @@ sudo pacman -S --needed gcc make python python-yaml verilator git
 git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
+Git must be 2.39.0 or newer: the sweep's post-merge containment self-test
+uses `git patch-id --verbatim`, and an older Git is refused by name.
+
 Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
@@ -253,7 +256,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 
 | Suite | Command | Needs |
 |---|---|---|
-| **All Verilator TBs** | `logs=$(mktemp -d); scripts/run_all_suites.sh "$logs"` | verilator ≥ 5.050 |
+| **All Verilator TBs** | `logs=$(mktemp -d); scripts/run_all_suites.sh "$logs"` | verilator ≥ 5.050, git ≥ 2.39.0 |
 | One TB | `cd tb/verilator/<suite> && make` (exit 0 = PASS) | verilator |
 | **RTL lint** over all of `hdl/` (ratcheted, ~10 s) | `python3 scripts/lint_rtl.py --check` | verilator (the CI pin) |
 | Docs gate (links, wording, dead references; privacy scrub over every tracked text file) | `python3 scripts/docs_check.py` | python3 — **git optional** |
