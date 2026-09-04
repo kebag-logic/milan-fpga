@@ -280,8 +280,25 @@ hypothesis.
 
 ### The protocol-processor re-parse
 
-Pending: phase 2 of the campaign (the processor's own portability gate as
-shipped against `read_verilog -defer`, three trials each).
+The processor's own portability gate (`protocol-processor/syn/yosys/run.sh`:
+one `sv2v` of the whole `hdl/` tree into `all.v`, then 32 `yosys` processes
+that each `read_verilog all.v` before selecting their top, then one
+`synth_xilinx` area check) as shipped, and the same script with
+`read_verilog -defer`, three serial trials each on the pinned processor
+(`e743dcdc`), all 33 checks passing in every run:
+
+| variant | wall s | peak RSS MiB |
+| --- | ---: | ---: |
+| A, as shipped: 32 processes, each parses all 38 modules | 65.0 (64.9-65.1) | 3 745 |
+| C, `read_verilog -defer` | 33.8 (33.6-33.9) | 3 757 |
+
+`-defer` halves the whole script; the peak RSS belongs to the final
+`synth_xilinx` step and is the same either way. This is the one place in the
+tree where `-defer` is the right instrument, because it is the one place that
+re-reads modules it will not use; `run.sh` here stages one top per `sv2v`
+output and gains nothing from it (README, "Runtime levers"). The change lives
+in the processor repository, behind its issue #25, which should first complete
+the six tops that array does not elaborate.
 
 ### Result cache
 
@@ -308,4 +325,4 @@ this gate.
 | rebuilt Yosys | adopt-behind-an-option, not now | -8 to -10% under jemalloc from the build itself, 0% from `-march=native`; every `cells=` reproduced; netlist differs in banner and bundled paths only | fold into #287's pinned-toolchain artefact if a digest-pinned build ever replaces the package; no separate issue |
 | transparent huge pages | no-go as a lever | already on; worth 4-5%, at +40% RSS under jemalloc | none; a memory-bound pool may switch it off per process |
 | host and firmware | not measurable here | guest with no topology or firmware reach | written request to the host owner |
-| protocol-processor re-parse | pending phase 2 | | protocol-processor #25 |
+| protocol-processor re-parse | go, in the processor repository | its gate halves (65.0 to 33.8 s) with `read_verilog -defer`, 33 of 33 checks green | protocol-processor #25 (complete the tops array first) |
