@@ -147,8 +147,9 @@ WAVEDROM_ORDER = (
 # The published diagram is explicitly the unstalled 64-bit parent path. A
 # 68-byte Pdelay_Resp occupies nine accepted beats, hence eight cycle intervals
 # from the accepted SOF beat to the accepted EOF beat. axis_fifo commits on the
-# following cycle; its default one-stage RAM pipeline and the shadow serializer
-# then put engine SOF two cycles after the visible commit pulse.
+# following cycle; its RAM read register plus its one-stage output pipeline
+# present the first beat two cycles after that, and the shadow serializer
+# registers it once more, so engine SOF is three cycles after the commit pulse.
 WAVEDROM_SAME_CYCLE = (
     ("accepted MAC SOF", "TX PHC capture"),
     ("accepted tap SOF", "RX PHC capture"),
@@ -156,7 +157,7 @@ WAVEDROM_SAME_CYCLE = (
 WAVEDROM_EXACT_DELTA = (
     ("accepted tap SOF", "accepted tap EOF", 8),
     ("accepted tap EOF", "frame FIFO commit", 1),
-    ("frame FIFO commit", "engine RX SOF", 2),
+    ("frame FIFO commit", "engine RX SOF", 3),
 )
 
 SUBMODULE_DOCS = (
