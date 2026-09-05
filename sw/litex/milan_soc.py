@@ -1936,19 +1936,30 @@ PP_PROC_MEM_TMO_CYC = 4096
 PP_MEM_TMO_SHARE = (3, 4)
 
 
-def pp_mem_bus_worst_cycles(sys_clk_hz: float) -> int:
-    """Conservative arbitration floor for the two protocol-memory masters.
+#: The masters on the dedicated fabric-memory port, and the number the
+#: arbitration floor below is derived from: the descriptor reader, the AECP
+#: response-buffer reader/writer and, since #70's backend landed, the
+#: saved-state record-image reader/writer (KL_nvm_backend through
+#: KL_pp_shadow). test_pp_boot_bus_freeze.py models the port with the same
+#: list, in the same insertion order.
+PP_MEM_MASTERS = ("milan_desc_mem", "milan_resp_mem", "milan_nvm_mem")
 
-    Only the descriptor reader and response-buffer reader/writer share this
-    dedicated fabric-memory port.
-    A requester can therefore wait for at most one peer access before its own.
-    The 45-cycle term is the measured memory-port round trip; the response peer
-    adds one data beat. `sys_clk_hz` remains in the signature because the
-    timeout API is clock-pair based, but there is no longer a frame-time term.
+
+def pp_mem_bus_worst_cycles(sys_clk_hz: float) -> int:
+    """Conservative arbitration floor for the protocol-memory masters.
+
+    Only the masters named in PP_MEM_MASTERS share this dedicated
+    fabric-memory port, each with one outstanding single-beat access. A
+    requester can therefore wait for at most one access of EACH peer before
+    its own: two, now that the record-image master is the third. The 45-cycle
+    term is the measured memory-port round trip; a peer's access adds one data
+    beat. `sys_clk_hz` remains in the signature because the timeout API is
+    clock-pair based, but there is no longer a frame-time term.
     """
     del sys_clk_hz
     mem_cycles = 45
-    return (mem_cycles + 1) + mem_cycles
+    peers = len(PP_MEM_MASTERS) - 1
+    return peers * (mem_cycles + 1) + mem_cycles
 
 
 def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
@@ -2658,11 +2669,12 @@ class MilanSoC(SoCCore):
             _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
             _pp_sh   = int(_math.log2(_pp_dw // 8))
             # Derive a watchdog below the processor per-beat ceiling and above
-            # one complete two-master arbitration lap. The two-master floor is
-            # 91 sys cycles.
+            # one complete arbitration lap of the PP_MEM_MASTERS. The
+            # three-master floor is 137 sys cycles (two peer accesses of 46
+            # plus the requester's own 45).
             _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
                                             milan_clk_freq or sys_clk_freq)
-            # Hold both masters off while the BIOS owns the LiteDRAM DFI.
+            # Hold all three masters off while the BIOS owns the LiteDRAM DFI.
             if with_dram:
                 _mem_rdy = pp_mem_gate(self,
                                        self.sdram.dfii._control.fields.sel)

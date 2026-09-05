@@ -489,8 +489,9 @@ def test_precedence() -> None:
               f"bridge fired at {fired}, processor deadline {deadline}")
 
     # THE GUARD ITSELF. A clock pair whose derived watchdog falls inside the
-    # current 91-cycle bus-wait floor must be REFUSED at elaboration, not built.
-    # At sys=100 MHz the 3/4 processor budget crosses that floor above 3.3 GHz.
+    # current bus-wait floor (137 cycles with the three masters of
+    # PP_MEM_MASTERS) must be REFUSED at elaboration, not built. At sys=100 MHz
+    # the 3/4 processor budget crosses that floor above about 2.2 GHz.
     for sys_hz, milan_hz in ((100e6, 3.4e9), (100e6, 4.0e9)):
         try:
             got = milan_soc.pp_mem_timeout_cycles(sys_hz, milan_hz)

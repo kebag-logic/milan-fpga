@@ -34,6 +34,7 @@ MILAN_SOC = HERE / "milan_soc.py"
 MASTERS = [
     ("milan_desc_mem", "wb"),    # 0  descriptor-image read bridge
     ("milan_resp_mem", "wb"),    # 1  AECP response-buffer bridge
+    ("milan_nvm_mem", "wb"),     # 2  saved-state record-image bridge (#70)
 ]
 DESC_MEM = 0
 
