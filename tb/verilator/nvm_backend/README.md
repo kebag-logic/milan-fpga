@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # nvm_backend -- the saved-state backing store, graded on bytes
 
-`make` - exit 0 = PASS. **198 checks at the 8x8 shape and 54 at 1x1, 0
+`make` - exit 0 = PASS. **344 checks at the 8x8 shape and 108 at 1x1, 0
 failures**, plus three negative controls that must each go RED. The suite
 carries no `-Wno-*` at all, not even `-Wno-fatal`, so any Verilator warning
 stops the build.
@@ -54,7 +54,7 @@ starts -- before a single clock is driven. Only then is the RTL asked to find
 each record from the shape, the fixed group bases and the firmware-loaded
 channel-map tables, and its answer is graded against the encoder's offsets.
 
-The group BASE for the output map group and for the name banks is deliberately
+The group BASE for the output map group and for the name records is deliberately
 NOT programmed through the CSR face. Firmware loads per-port lengths and the
 running prefix inside each group; the backend has to derive everything after
 them, which is exactly what a nominal stride got wrong.

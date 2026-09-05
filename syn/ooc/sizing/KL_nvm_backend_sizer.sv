@@ -31,10 +31,10 @@
 //  Measure with (see syn/yosys/README.md for the toolchain):
 //    OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 \
 //                 N_SPORT_OUT_P=1 N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 \
-//                 N_NAME_BANK_P=4" syn/yosys/ooc.sh KL_nvm_backend_sizer
+//                 N_NAME_P=31" syn/yosys/ooc.sh KL_nvm_backend_sizer
 //    OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 \
 //                 N_SPORT_OUT_P=8 N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 \
-//                 N_NAME_BANK_P=30" syn/yosys/ooc.sh KL_nvm_backend_sizer
+//                 N_NAME_P=107" syn/yosys/ooc.sh KL_nvm_backend_sizer
 //
 //  THERE IS NO NOMINAL CHANNEL-MAP SIZE PARAMETER any more, and its removal
 //  is the round-4 repair. A `MAP_BYTES_P` stride priced both channel-map
@@ -72,7 +72,7 @@ module KL_nvm_backend_sizer #(
     parameter int unsigned N_SPORT_OUT_P  = 8,
     parameter int unsigned N_AUDIO_UNIT_P = 1,
     parameter int unsigned N_CLK_DOM_P    = 1,
-    parameter int unsigned N_NAME_BANK_P  = 30,
+    parameter int unsigned N_NAME_P       = 107,
     //! design page section 9.4 deadlines, in milliseconds
     parameter int unsigned T_ALIVE_MS_P   = 2000,
     parameter int unsigned T_COMMIT_MS_P  = 8000
@@ -129,7 +129,7 @@ module KL_nvm_backend_sizer #(
   localparam logic [1:0] OP_ERASE_C = 2'd2;
 
   localparam int unsigned REC_HDR_C  = 8;    // F07.8 framing bytes
-  localparam int unsigned NAME_BANK_C = 512; // 8 slots x 64 B, section 4.2
+  localparam int unsigned NAME_C = 64;       // one AEM string, section 4.2
 
   // ---- the section 4.2 id blocks -----------------------------------------
   localparam int unsigned ID_CFG_C   = 'h00;
@@ -156,7 +156,7 @@ module KL_nvm_backend_sizer #(
   localparam int unsigned SZ_BIND_C = REC_HDR_C + 20;
   localparam int unsigned SZ_FMT_C  = REC_HDR_C + 8;
   localparam int unsigned SZ_PTOF_C = REC_HDR_C + 4;
-  localparam int unsigned SZ_NAME_C = REC_HDR_C + NAME_BANK_C;
+  localparam int unsigned SZ_NAME_C = REC_HDR_C + NAME_C;
 
   // ---- image byte bases: records are concatenated in ascending record_id --
   //! Constant up to the first channel-map group, because every group before it
@@ -299,7 +299,7 @@ module KL_nvm_backend_sizer #(
 `endif
       rec_hit_w  = 1'b1;
     end else if (dev_region_i >= 8'(ID_NAME_C)
-              && dev_region_i <  8'(ID_NAME_C + N_NAME_BANK_P)) begin
+              && dev_region_i <  8'(ID_NAME_C + N_NAME_P)) begin
       rec_base_w = b_name_w
                  + 18'(SZ_NAME_C) * 18'(dev_region_i - 8'(ID_NAME_C));
       rec_len_w  = 12'(SZ_NAME_C);

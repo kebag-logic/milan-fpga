@@ -52,12 +52,12 @@ VFLAGS = --cc --exe --build -j 0 --prefix Vnvm \
 SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
             -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
             -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 \
-            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_BANK_P=30
+            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=107
 
 SHAPE_1X1 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
             -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 \
             -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 \
-            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_BANK_P=4
+            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=31
 
 .PHONY: all run lint clean
 all: run

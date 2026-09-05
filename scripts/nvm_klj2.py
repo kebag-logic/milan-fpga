@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nvm_contract import (                                    # noqa: E402
-    ALIGN, ALLOC, FIXED, KLJ2_FMT_VER, KLJ2_HDR, KLJ2_MAGIC, KLJ2_TRAILER,
+    ALIGN, ALLOC, KLJ2_FMT_VER, KLJ2_HDR, KLJ2_MAGIC, KLJ2_TRAILER,
     NAME_BYTES, REC_HDR, REC_MAGIC, SEAM, VD_BLANK, VD_CRC, VD_ENT,
     VD_INCOMPLETE, VD_LEN, VD_MAGIC, VD_OK, VD_REC, VD_SHAPE, VD_VER,
     VENDOR_DEFAULT_NAME, Donor, Ident, Key)
@@ -58,12 +58,11 @@ def id_blocks(base: int) -> list[tuple[str, int | None, int]]:
             for g, (b, blk) in ALLOC.items()]
 
 
-def key_of_id(rid: int, base: int, flat: bool) -> Key | None:
+def key_of_id(rid: int, base: int) -> Key | None:
     """Invert the section 4.2 allocation: record_id -> (group, index)."""
     for g, b, blk in id_blocks(base):
         if b is not None and b <= rid < b + blk:
-            return ("NAME", rid - b) if (flat and g == "NAMES_BANK") \
-                else (g, rid - b)
+            return (g, rid - b)
     return None
 
 
@@ -98,8 +97,7 @@ def klj2_assemble(frames: dict[int, bytes], donor: Donor,
 
 
 def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
-                expect: dict[Key, int],
-                flat: bool) -> tuple[int, dict[Key, bytes]]:
+                expect: dict[Key, int]) -> tuple[int, dict[Key, bytes]]:
     """Apply ZERO records unless every section 6.2 test passes.
 
     `expect` is the exact per-shape mandatory set, {(group, index): payload
@@ -150,7 +148,7 @@ def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
         if rid <= last:                     # section 6.1: ascending, normative
             return VD_REC, {}
         last = rid
-        key = key_of_id(rid, base, flat)
+        key = key_of_id(rid, base)
         if key is None or key not in expect or expect[key] != plen:
             return VD_REC, {}
         applied[key] = pay
@@ -162,8 +160,7 @@ def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
     return VD_OK, applied
 
 
-def name_table(n_names: int,
-               overrides: dict[int, bytes] | None = None) -> Callable[[int], bytes]:
+def name_table(overrides: dict[int, bytes] | None = None) -> Callable[[int], bytes]:
     """ordinal -> the 64-byte AEM string the entity currently holds.
 
     A name is a fixed 64-byte NUL-padded AEM string and `SET_NAME` writes all
@@ -173,12 +170,9 @@ def name_table(n_names: int,
     over = overrides or {}
 
     def val(ordinal: int) -> bytes:
-        """The 64 bytes this ordinal holds: an override, the vendor default,
-        or the all-zero tail of the last bank past the shape's last name."""
+        """The 64 bytes this ordinal holds: an override or the vendor default."""
         if ordinal in over:
             return over[ordinal]
-        if ordinal >= n_names:
-            return b"\x00" * NAME_BYTES       # unused tail of the last bank
         return (VENDOR_DEFAULT_NAME + b" %d" % ordinal)[:NAME_BYTES] \
             .ljust(NAME_BYTES, b"\x00")
     return val
@@ -188,16 +182,15 @@ def payload_bytes(group: str, index: int, rid: int, plen: int,
                   nval: Callable[[int], bytes] | None = None) -> bytes:
     """Deterministic record content.
 
-    With `nval`, a name bank is the eight 64-byte slots of ordinals
-    8*index .. 8*index+7. Without it every record follows one arithmetic rule,
-    which is the form `--emit-record-table` publishes: the C++ in
+    With `nval`, a NAME record is the 64-byte string of its ordinal, which is
+    its index. Without it every record follows one arithmetic rule, which is
+    the form `--emit-record-table` publishes: the C++ in
     tb/verilator/nvm_backend regenerates the same bytes independently, so a
     disagreement about WHERE a record starts shows up as a byte mismatch
     instead of as agreement about nothing.
     """
-    if group == "NAMES_BANK" and nval is not None:
-        return b"".join(nval(index * FIXED.NAMES_PER_BANK + slot)
-                        for slot in range(FIXED.NAMES_PER_BANK))
+    if group == "NAME" and nval is not None:
+        return nval(index)
     return bytes(((rid * 131 + j * 17) & 0xFF) for j in range(plen))
 
 
@@ -205,27 +198,17 @@ def names_from_image(applied: dict[Key, bytes],
                      n_names: int) -> dict[int, bytes]:
     """ordinal -> 64 bytes, for the ordinals THIS SHAPE has.
 
-    Presence is a property of the SHAPE, never of the content. Ordinal
-    >= n_names maps to no descriptor, so the tail of the last bank is never
-    read, and an all-zero slot INSIDE the shape is therefore the empty name --
-    a legal value Milan 5.3.13 requires to survive -- rather than an absence.
+    Presence is a property of the SHAPE, never of the content: ordinal k is
+    present when the shape has k writable names and record NAME[k] decoded,
+    and an all-zero record is the empty name -- a legal value Milan 5.3.13
+    requires to survive -- rather than an absence.
     """
-    if SEAM.NAMES_TAIL_FROM_CONTENT:
-        n_names = 0
-        for (g, i), pay in applied.items():
-            if g != "NAMES_BANK":
-                continue
-            for slot in range(FIXED.NAMES_PER_BANK):
-                if any(pay[slot * NAME_BYTES:(slot + 1) * NAME_BYTES]):
-                    n_names = max(n_names, i * FIXED.NAMES_PER_BANK + slot + 1)
     out = {}
     for k in range(n_names):
-        bank, slot = divmod(k, FIXED.NAMES_PER_BANK)
-        pay = applied.get(("NAMES_BANK", bank))
+        pay = applied.get(("NAME", k))
         if pay is None:
             continue
-        v = pay[slot * NAME_BYTES:(slot + 1) * NAME_BYTES]
-        if SEAM.NAME_PRESENCE_FROM_CONTENT and not any(v):
+        if SEAM.NAME_PRESENCE_FROM_CONTENT and not any(pay):
             continue                        # round 3: "no name stored"
-        out[k] = v
+        out[k] = pay
     return out

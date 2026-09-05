@@ -158,17 +158,6 @@ def inventory(shape: Shape, base: int) -> list[Record]:
     for p in shape.spo:
         add("MAPS_OUT", p["index"], p["clusters"] * MAP_ENTRY)
 
-    if shape.flat:
-        # The pre-review allocation: one record per writable name, laid out
-        # straight after the last per-index group. This is what the first
-        # version of the design page adopted from F07.8 unchanged.
-        first = ALLOC["NAMES_BANK"][0]
-        for n in range(names):
-            recs.append(("NAME", n, first + n, NAME_BYTES, names))
-    else:
-        banks = (names + FIXED.NAMES_PER_BANK - 1) // FIXED.NAMES_PER_BANK
-        b, block = ALLOC["NAMES_BANK"]
-        for k in range(banks):
-            recs.append(("NAMES_BANK", k, b + k if k < block else None,
-                         FIXED.NAMES_PER_BANK * NAME_BYTES, block))
+    for n in range(names):
+        add("NAME", n, NAME_BYTES)
     return recs

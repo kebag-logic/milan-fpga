@@ -23,7 +23,6 @@ subprocesses.
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,7 +33,6 @@ ROOT = Path(__file__).resolve().parent.parent
 MAX_PAYLOAD = 1024      # KL_pp_nvm_port MAX_PAYLOAD_P default
 REC_HDR = 8             # F07.8: magic, layout_version, record_id, plen, crc16
 NAME_BYTES = 64         # AEM name field
-DECISION_RE = r"PERSISTED-FORMAT DECISION \(#259"
 
 #: One inventory row, as `inventory()` emits it and every later check reads
 #: it: (group, index, record_id -- None when the group's block cannot reach
@@ -62,11 +60,6 @@ class Contract:
         self.ID_SPACE = 256
         #: N25Q128 smallest erase unit = one A/B slot
         self.ERASE_BLOCK = 64 * 1024
-        #: the banking factor the design page fixes
-        self.NAMES_PER_BANK = 8
-        #: Where the persisted-format decision lives; check 6 reads it, never
-        #: restates it, so deleting the recorded decision reddens the gate.
-        self.DESIGN_PAGE = ROOT / "docs" / "design" / "SAVED_STATE_FASTCONNECT.md"
         #: Design page section 9.4: the commit deadline, which must cover the
         #: worst-case flash transaction with margin at EVERY shape. The two
         #: liveness numbers it sits with are in the media section below; only
@@ -76,15 +69,6 @@ class Contract:
 
 FIXED = Contract()
 
-
-def persisted_format_decision() -> str | None:
-    """The anchored decision line from the design page, or None."""
-    try:
-        text = FIXED.DESIGN_PAGE.read_text(encoding="utf-8")
-    except OSError:
-        return None
-    m = re.search(DECISION_RE + r"[^\n]*", text)
-    return m.group(0) if m else None
 
 # ---- KLJ2 container and F07.8 record framing, section 6.1 ------------------
 KLJ2_MAGIC   = 0x324A4C4B    # 'KLJ2' when hexdumped
@@ -148,8 +132,10 @@ PAY = {
 MAP_ENTRY = 8           # {stream_index, stream_channel, cluster_offset,
                         #  cluster_channel} x u16
 
-# The banked allocation contract. Each entry is {base, block} and the group's
-# index must satisfy 0 <= index < block.
+# The allocation contract: the donor's F07.8 rule unchanged, one record per
+# item group and index, with each user name persisted as one record per
+# writable-name ordinal. Each entry is {base, block} and the group's index
+# must satisfy 0 <= index < block.
 ALLOC = {
     "CFG_IDX":    (0x00, 1),
     "SUID":       (0x01, 1),
@@ -162,7 +148,7 @@ ALLOC = {
     "PT_OFS":     (0x50, 16),
     "MAPS_IN":    (0x60, 16),
     "MAPS_OUT":   (0x70, 16),
-    "NAMES_BANK": (0x80, 128),
+    "NAME":       (0x80, 128),
 }
 
 # ---- THE LEDGER: what MUST be in the inventory, derived independently ------
@@ -171,7 +157,8 @@ ALLOC = {
 # graded against, so deleting a mandatory group from the inventory shrinks the
 # image and reddens the gate instead of greening it. Each entry is
 #   group -> (class, clause, cardinality(descriptor_counts))
-# where class is one of "singleton", "per-descriptor" or "bank".
+# where class is one of "singleton" or "per-descriptor"; user names are one
+# record per ordinal and are graded through NAME_SLOTS below.
 LEDGER = {
     "CFG_IDX":  ("singleton", "donor 07 5.1 design decision", lambda d: 1),
     "SUID":     ("singleton", "donor 07 5.1 design decision", lambda d: 1),
@@ -220,10 +207,6 @@ class Seams:
         #: 5.3.13 requires the empty name to survive, and the empty AEM string
         #: IS 64 zero bytes, so this rule cannot encode a legitimate value.
         self.NAME_PRESENCE_FROM_CONTENT = False
-        #: derive the writable-name count from the last non-zero slot instead
-        #: of from the shape. Identical on every entity whose last name is
-        #: non-empty.
-        self.NAMES_TAIL_FROM_CONTENT = False
         #: round 3's section 6.2: "an allocated id that is simply absent is not
         #: a failure. That item was never saved and keeps its vendor default."
         self.DECODE_ALLOW_ABSENT = False
@@ -259,16 +242,10 @@ class Ident:
 
 @dataclass(frozen=True)
 class Shape:
-    """One config's persisted shape, as the builder and the overlay report it.
-
-    `flat` rides along because it selects the ALLOCATION this shape is judged
-    under -- the pre-review one record per name, or the banked layout -- and
-    every question about a key set, a payload length or an image depends on it.
-    """
+    """One config's persisted shape, as the builder and the overlay report it."""
 
     cfg: Path
     names: int      # writable name ordinals, from the AEMI image header
     dc: dict        # descriptor_counts, from the generated overlay
     spi: list       # stream_ports.input
     spo: list       # stream_ports.output
-    flat: bool
