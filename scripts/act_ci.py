@@ -5918,6 +5918,12 @@ def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> 
         "a group that outlives the grace is killed and reported",
         "survived 0.1 s" in message and "was killed" in message,
     )
+    tally.refused(
+        "a probe clone that has not finished within its timeout is killed and refused",
+        lambda: run_probe_clone(
+            [shell, "-c", "sleep 30"], env=env, cwd=cwd, label="hanging", timeout=0.2
+        ),
+    )
 
 
 def selftest_toolcache_ownership(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -10908,6 +10914,13 @@ def run_probe_arm(probe: BoundaryProbeRun, context: CommandContext, *, leaky: bo
     return text
 
 
+def kill_probe_group(process: subprocess.Popen[str]) -> None:
+    """SIGKILL a probe clone's whole session and reap its leader; an already-empty group is fine."""
+    with blocked_cleanup_signals(), contextlib.suppress(ProcessLookupError):
+        os.killpg(process.pid, signal.SIGKILL)
+    process.wait()
+
+
 def run_probe_clone(
     command: Sequence[str],
     *,
@@ -10915,6 +10928,7 @@ def run_probe_clone(
     cwd: pathlib.Path,
     label: str,
     grace: float = 5.0,
+    timeout: float = PROBE_CLONE_TIMEOUT,
 ) -> str:
     """Run a probe clone that must fail, in its own session; its last stderr line.
 
@@ -10924,7 +10938,7 @@ def run_probe_clone(
     helper outlives it by some milliseconds, which `capture`'s instantaneous
     process-group check reads as a survivor, so the group is given `grace`
     seconds to drain; one that outlives them is killed and is a Refusal, as is
-    a clone that succeeds.
+    a clone that succeeds or one that has not finished after `timeout` seconds.
     """
     try:
         with deferred_cleanup_signal_delivery():
@@ -10940,7 +10954,7 @@ def run_probe_clone(
     except OSError as exc:
         raise Refusal(f"cannot start the {label} clone: {exc}") from exc
     try:
-        _stdout, stderr = process.communicate(timeout=PROBE_CLONE_TIMEOUT)
+        _stdout, stderr = process.communicate(timeout=timeout)
         deadline = time.monotonic() + grace
         while process_group_exists(process.pid, use_sudo=False):
             if time.monotonic() >= deadline:
@@ -10949,10 +10963,13 @@ def run_probe_clone(
                     "its leader exited and was killed"
                 )
             time.sleep(0.01)
-    except (subprocess.TimeoutExpired, Refusal):
-        with blocked_cleanup_signals(), contextlib.suppress(ProcessLookupError):
-            os.killpg(process.pid, signal.SIGKILL)
-        process.wait()
+    except subprocess.TimeoutExpired as exc:
+        kill_probe_group(process)
+        raise Refusal(
+            f"the {label} clone did not finish within {timeout:g} s and was killed"
+        ) from exc
+    except Refusal:
+        kill_probe_group(process)
         raise
     if process.returncode == 0:
         raise Refusal(f"the {label} clone succeeded against a URL that must fail")

@@ -900,7 +900,8 @@ credential store, a netrc line, `gh` and Docker auth files, an SSH agent
 socket, and an authenticated proxy on the loopback interface that records who
 presents credentials to it, beside a host loopback service. It then runs one
 probe job through the real boundary and the runner's own git at a credential
-challenge and an SSH URL, and requires the job to report the token, the Docker
+challenge on GitHub (a repository that does not exist, so the server asks for
+credentials) and at an SSH URL, and requires the job to report the token, the Docker
 socket, the host loopback, an agent socket, proxy variables and credential
 files all absent (the job reports names and states, never values), the two
 clones to fail for the boundary's own reasons, and every recorder to stay
