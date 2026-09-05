@@ -343,6 +343,38 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire        i_resp_mem_wr_done,
   input  wire        i_resp_mem_wr_err,
 
+  //! ---- saved-state record image READ+WRITE master (to the SoC's main memory)
+  //! The THIRD main-memory master, KL_nvm_backend's (KL_pp_shadow): the
+  //! persisted record image lives in the reserved ppmem window
+  //! (docs/design/SAVED_STATE_FASTCONNECT.md section 8.1) and this face moves
+  //! record bytes between the processor's NVM port and that image. SAME
+  //! CONTRACT as the response face above, to the letter: one outstanding read
+  //! burst of 64-bit big-endian beats (this master only ever asks for one),
+  //! real `rsp_ready` backpressure, one outstanding single-beat 8-byte-aligned
+  //! write whose zero-strobe bytes SHALL NOT be modified, and a one-cycle
+  //! `wr_done` commit pulse in or after the `wr_ready` cycle. A separate face
+  //! for the same reason the response buffer is: one-transaction clients and
+  //! the SoC's memory system as the arbiter. An integration with no memory
+  //! to offer may tie i_nvm_mem_req_ready and i_nvm_mem_wr_ready to 0: the
+  //! backend then holds every configured operation until they arrive, and a
+  //! firmware that never configures an image never issues one.
+  output wire        o_nvm_mem_req_valid,  //! read request, held until i_nvm_mem_req_ready
+  input  wire        i_nvm_mem_req_ready,  //! the bridge accepts the request
+  output wire [31:0] o_nvm_mem_req_addr,   //! lane address of the read, low three bits zero
+  output wire [8:0]  o_nvm_mem_req_beats,  //! lanes in the burst: this master asks for one
+  input  wire        i_nvm_mem_rsp_valid,  //! a response lane is present
+  output wire        o_nvm_mem_rsp_ready,  //! the backend takes the lane: REAL backpressure
+  input  wire [63:0] i_nvm_mem_rsp_data,   //! the lane read, big-endian as the contract above
+  input  wire        i_nvm_mem_rsp_last,   //! final lane of the burst
+  input  wire        i_nvm_mem_rsp_err,    //! the read failed: the record operation aborts
+  output wire        o_nvm_mem_wr_valid,   //! write presented, held until i_nvm_mem_wr_ready
+  input  wire        i_nvm_mem_wr_ready,   //! the bridge accepts the write
+  output wire [31:0] o_nvm_mem_wr_addr,    //! lane address of the write, low three bits zero
+  output wire [63:0] o_nvm_mem_wr_data,    //! the lane to write, big-endian as the contract above
+  output wire [7:0]  o_nvm_mem_wr_strb,    //! lane enable, bit n for lane position n
+  input  wire        i_nvm_mem_wr_done,    //! one-cycle commit pulse, in or after the ready cycle
+  input  wire        i_nvm_mem_wr_err,     //! ...and the write failed: rides the done pulse
+
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
   input  wire        clk_audio_i,      //! clean MMCM audio clock (24.576 MHz nominal) for the I2S DAC serializer
@@ -1971,6 +2003,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! validated nothing, and whether any persistent media exists at all
   logic        pp_restore_blank_w, pp_nvm_backed_w;
   logic        pp_nvm_alarm_w;
+  //! the saved-state backend's control tuple (design page section 8.2) and
+  //! its section 9 status: an indexed CSR face, never record data
+  logic        pp_nvm_csr_sel_w, pp_nvm_csr_we_w;
+  logic [5:0]  pp_nvm_csr_addr_w;
+  logic [31:0] pp_nvm_csr_wdata_w, pp_nvm_csr_rdata_w;
+  logic        pp_nvm_dirty_w, pp_nvm_stale_w, pp_nvm_img_valid_w;
+  logic [3:0]  pp_nvm_verdict_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
   //! the processor's packed control-lane egress; unconsumed while draining
@@ -2443,6 +2482,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_pp_nvm_backed    (pp_nvm_backed_w),
     .i_pp_nvm_blank     (pp_restore_blank_w),
     .i_pp_nvm_alarm     (pp_nvm_alarm_w),
+    .i_pp_nvm_dirty     (pp_nvm_dirty_w),
+    .i_pp_nvm_stale     (pp_nvm_stale_w),
+    .i_pp_nvm_img_valid (pp_nvm_img_valid_w),
+    .i_pp_nvm_verdict   (pp_nvm_verdict_w),
+    .o_pp_nvm_csr_sel   (pp_nvm_csr_sel_w),
+    .o_pp_nvm_csr_we    (pp_nvm_csr_we_w),
+    .o_pp_nvm_csr_addr  (pp_nvm_csr_addr_w),
+    .o_pp_nvm_csr_wdata (pp_nvm_csr_wdata_w),
+    .i_pp_nvm_csr_rdata (pp_nvm_csr_rdata_w),
     .i_pp_rx_frames     (pp_rx_frames_w),
     .i_pp_rx_drops      (pp_rx_drops_w),
     .i_pp_tx_frames     (pp_tx_frames_w),
@@ -6525,7 +6573,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       //! Large configured models therefore cannot inherit a small default.
       .DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C),
       .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P),
-      .RESP_BASE_P         (PP_RESP_BASE_P)
+      .RESP_BASE_P         (PP_RESP_BASE_P),
+      //! The saved-state record allocation's shape (design page section 4.2),
+      //! from the SAME generated header as the counts above: one channel-map
+      //! record per STREAM_PORT in each direction, one sampling-rate record
+      //! per AUDIO_UNIT, one clock-source and one media-clock-reference record
+      //! per CLOCK_DOMAIN. Never a literal here.
+      .N_SPORT_IN_P        (ADP_DMAP_IN_NPORTS_C),
+      .N_SPORT_OUT_P       (ADP_DMAP_OUT_NPORTS_C),
+      .N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C),
+      .N_CLK_DOM_P         (AEM_N_CLKDOM_C)
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
@@ -6707,6 +6764,28 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .resp_mem_wr_strb_o   (o_resp_mem_wr_strb),
       .resp_mem_wr_done_i   (i_resp_mem_wr_done),
       .resp_mem_wr_err_i    (i_resp_mem_wr_err),
+      //! ...and the saved-state backend's, read AND write, into the image
+      .nvm_mem_req_valid_o  (o_nvm_mem_req_valid),
+      .nvm_mem_req_ready_i  (i_nvm_mem_req_ready),
+      .nvm_mem_req_addr_o   (o_nvm_mem_req_addr),
+      .nvm_mem_req_beats_o  (o_nvm_mem_req_beats),
+      .nvm_mem_rsp_valid_i  (i_nvm_mem_rsp_valid),
+      .nvm_mem_rsp_ready_o  (o_nvm_mem_rsp_ready),
+      .nvm_mem_rsp_data_i   (i_nvm_mem_rsp_data),
+      .nvm_mem_rsp_last_i   (i_nvm_mem_rsp_last),
+      .nvm_mem_rsp_err_i    (i_nvm_mem_rsp_err),
+      .nvm_mem_wr_valid_o   (o_nvm_mem_wr_valid),
+      .nvm_mem_wr_ready_i   (i_nvm_mem_wr_ready),
+      .nvm_mem_wr_addr_o    (o_nvm_mem_wr_addr),
+      .nvm_mem_wr_data_o    (o_nvm_mem_wr_data),
+      .nvm_mem_wr_strb_o    (o_nvm_mem_wr_strb),
+      .nvm_mem_wr_done_i    (i_nvm_mem_wr_done),
+      .nvm_mem_wr_err_i     (i_nvm_mem_wr_err),
+      .nvm_csr_sel_i        (pp_nvm_csr_sel_w),
+      .nvm_csr_we_i         (pp_nvm_csr_we_w),
+      .nvm_csr_addr_i       (pp_nvm_csr_addr_w),
+      .nvm_csr_wdata_i      (pp_nvm_csr_wdata_w),
+      .nvm_csr_rdata_o      (pp_nvm_csr_rdata_w),
       .host_req_i        (pp_req_w),
       .host_we_i         (pp_we_w),
       .host_addr_i       (pp_addr_w),
@@ -6720,6 +6799,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .nvm_backed_o      (pp_nvm_backed_w),
       .restore_blank_o   (pp_restore_blank_w),
       .nvm_alarm_o       (pp_nvm_alarm_w),
+      .nvm_dirty_o       (pp_nvm_dirty_w),
+      .nvm_stale_o       (pp_nvm_stale_w),
+      .nvm_verdict_o     (pp_nvm_verdict_w),
+      .nvm_img_valid_o   (pp_nvm_img_valid_w),
       .rx_frames_o       (pp_rx_frames_w),
       .rx_drops_o        (pp_rx_drops_w),
       .tx_frames_o       (pp_tx_frames_w),

@@ -2472,6 +2472,18 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
     a("  //! This sizes the processor overlay from the generated descriptor")
     a("  //! shape, so a larger model cannot compile with a smaller cache.")
     a(f"  localparam int AEM_NAME_ENTRIES_C = {aem_name_entries};")
+    # The two descriptor counts the saved-state record allocation is sized
+    # by and nothing else in the fabric had needed until now (design page
+    # section 4.2: one RATE record per AUDIO_UNIT, one CLKSRC and one MCR
+    # record per CLOCK_DOMAIN). Read from the overlay's descriptor_counts,
+    # the same pass that emitted the descriptors, never a hand literal.
+    dc = overlay["descriptor_counts"]
+    a("  //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:")
+    a("  //! the saved-state record allocation (KL_nvm_backend) is sized by")
+    a("  //! them, one sampling-rate record per unit and one clock-source and")
+    a("  //! one media-clock-reference record per domain.")
+    a(f"  localparam int AEM_N_AUDIO_UNIT_C = {int(dc.get('AUDIO_UNIT', 0))};")
+    a(f"  localparam int AEM_N_CLKDOM_C     = {int(dc.get('CLOCK_DOMAIN', 0))};")
     a("  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |")
     a("  //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT")
     a("  //! exists to back it")
