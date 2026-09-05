@@ -559,6 +559,24 @@ module milan_csr #(
   //! the completed walk validated ZERO records (blank or unframed media)
   input  wire                    i_pp_nvm_blank,
   input  wire                    i_pp_nvm_alarm,
+  //! The saved-state backend's section 9 bits and the firmware's verdict
+  //! (docs/design/SAVED_STATE_FASTCONNECT.md 9.1): dirty = the image holds
+  //! committed changes no slot holds; stale = a writer loss not yet made good;
+  //! img_valid = the firmware validated the image in the window.
+  input  wire                    i_pp_nvm_dirty,      //! PP_STAT[8]
+  input  wire                    i_pp_nvm_stale,      //! PP_STAT[9]
+  input  wire                    i_pp_nvm_img_valid,  //! PP_STAT[10]
+  input  wire [3:0]              i_pp_nvm_verdict,    //! PP_STAT[15:12]
+  //! The backend's indexed control face (section 8.2: a control tuple, never
+  //! record data). PP_NVM_SEL names a word, PP_NVM_DATA reads or writes it,
+  //! PP_NVM_STAT reads the backend's status word and strobes its heartbeat and
+  //! commit bracket. A read presents the address and takes the answer in the
+  //! same cycle; a write is one `sel & we` cycle.
+  output wire                    o_pp_nvm_csr_sel,    //! control-face access
+  output wire                    o_pp_nvm_csr_we,     //! 1 = write
+  output wire [5:0]              o_pp_nvm_csr_addr,   //! the backend word index
+  output wire [31:0]             o_pp_nvm_csr_wdata,  //! write data
+  input  wire [31:0]             i_pp_nvm_csr_rdata,  //! read data, the same cycle
   input  wire [15:0]             i_pp_rx_frames,    //! control frames handed to the PP
   input  wire [7:0]              i_pp_rx_drops,     //! frames lost to a full FIFO
   input  wire [15:0]             i_pp_tx_frames,    //! frames the PP WOULD have sent
@@ -811,6 +829,19 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_PP_SPADDR = 'h928;  //! RW: [19:0] side-port WORD address; a WRITE here posts a READ
   localparam [ADDR_WIDTH-1:0] A_PP_SPDATA = 'h92C;  //! RW: read = last posted read's data; write = side-port WRITE to SPADDR
   localparam [ADDR_WIDTH-1:0] A_PP_DIAG   = 'h930;  //! RO: {tx_frames[15:0], drops[7:0], rx_frames[7:0]} shadow evidence
+  //! ---- the saved-state backend's control window, 0x934-0x93C --------------
+  //! An INDEXED window (design page section 8.2): SEL names one of the
+  //! backend's words - 0 image base, 1 image length, 2 sequence number,
+  //! 3 status/verdict, 4 heartbeat and commit strobes, 0x20-0x2F the input
+  //! channel-map table, 0x30-0x3F the output one - and DATA reads or writes
+  //! it. STAT is the backend's status word on read (word 3) and, on write,
+  //! its strobe word (word 4): [0] heartbeat, [1] commit acknowledged,
+  //! [2] commit started. Record data never crosses here.
+  localparam [ADDR_WIDTH-1:0] A_PP_NVM_SEL  = 'h934;  //! RW: [5:0] backend word index
+  localparam [ADDR_WIDTH-1:0] A_PP_NVM_DATA = 'h938;  //! RW: the word SEL names
+  localparam [ADDR_WIDTH-1:0] A_PP_NVM_STAT = 'h93C;  //! R: status word; W1P: strobes
+  localparam [5:0] PP_NVM_W_STAT_C = 6'd3;  //! the backend's status word index
+  localparam [5:0] PP_NVM_W_ACK_C  = 6'd4;  //! the backend's strobe word index
   //! PP_STAT[31:24]: a CONSTANT, so 0 at 0x924 = plane absent (see above).
   localparam logic [7:0] PP_PRESENT_TAG_C = 8'h5B;
   //! Watchdog on the readback handshake. The capture RAM answers one clock
@@ -1928,22 +1959,44 @@ module milan_csr #(
     logic        pp_busy_r, pp_err_r;
     logic        pp_req_r, pp_we_r;
     logic [31:0] pp_wdata_r;
+    logic [5:0]  pp_nvm_sel_r;
+    //! one `sel & we` cycle toward the backend: the word SEL names for a
+    //! DATA write, the strobe word for a STAT write
+    logic        pp_nvm_we_r;
+    logic [5:0]  pp_nvm_waddr_r;
+    logic [31:0] pp_nvm_wdata_r;
 
     always_ff @(posedge aclk) begin : pp_regs
       if (!aresetn) begin
-        pp_ctrl_r    <= 32'h0;
-        pp_spaddr_r  <= 20'h0;
-        pp_sprdata_r <= 32'h0;
-        pp_busy_r    <= 1'b0;
-        pp_err_r     <= 1'b0;
-        pp_req_r     <= 1'b0;
-        pp_we_r      <= 1'b0;
-        pp_wdata_r   <= 32'h0;
+        pp_ctrl_r      <= 32'h0;
+        pp_spaddr_r    <= 20'h0;
+        pp_sprdata_r   <= 32'h0;
+        pp_busy_r      <= 1'b0;
+        pp_err_r       <= 1'b0;
+        pp_req_r       <= 1'b0;
+        pp_we_r        <= 1'b0;
+        pp_wdata_r     <= 32'h0;
+        pp_nvm_sel_r   <= 6'd0;
+        pp_nvm_we_r    <= 1'b0;
+        pp_nvm_waddr_r <= 6'd0;
+        pp_nvm_wdata_r <= 32'h0;
       end else begin
-        pp_req_r <= 1'b0;               //! single-cycle strobe
+        pp_req_r    <= 1'b0;            //! single-cycle strobe
+        pp_nvm_we_r <= 1'b0;            //! single-cycle strobe
         if (wr_fire) begin
           unique case (wr_addr)
             A_PP_CTRL:   pp_ctrl_r <= s_axi_wdata;
+            A_PP_NVM_SEL: pp_nvm_sel_r <= s_axi_wdata[5:0];
+            A_PP_NVM_DATA: begin
+              pp_nvm_we_r    <= 1'b1;
+              pp_nvm_waddr_r <= pp_nvm_sel_r;
+              pp_nvm_wdata_r <= s_axi_wdata;
+            end
+            A_PP_NVM_STAT: begin
+              pp_nvm_we_r    <= 1'b1;
+              pp_nvm_waddr_r <= PP_NVM_W_ACK_C;
+              pp_nvm_wdata_r <= s_axi_wdata;
+            end
             //! arming a read: latch the address AND post the request
             A_PP_SPADDR: begin
               pp_spaddr_r <= s_axi_wdata[19:0];
@@ -1982,12 +2035,31 @@ module milan_csr #(
     assign o_pp_addr       = pp_spaddr_r;
     assign o_pp_wdata      = pp_wdata_r;
 
+    //! The backend's face: a write is the latched strobe cycle; a read
+    //! presents the address the read decode below needs and takes the
+    //! answer combinationally, the same cycle.
+    logic pp_nvm_rd_w;
+    assign pp_nvm_rd_w        = (rd_addr_q == A_PP_NVM_DATA)
+                              || (rd_addr_q == A_PP_NVM_STAT);
+    assign o_pp_nvm_csr_sel   = pp_nvm_we_r | pp_nvm_rd_w;
+    assign o_pp_nvm_csr_we    = pp_nvm_we_r;
+    assign o_pp_nvm_csr_addr  = pp_nvm_we_r ? pp_nvm_waddr_r
+                              : (rd_addr_q == A_PP_NVM_STAT) ? PP_NVM_W_STAT_C
+                              : pp_nvm_sel_r;
+    assign o_pp_nvm_csr_wdata = pp_nvm_wdata_r;
+
     always_comb begin : pp_read
       pp_rd_hit_w  = 1'b1;
       pp_rd_data_w = 32'h0;
       unique case (rd_addr_q)
         A_PP_CTRL:   pp_rd_data_w = pp_ctrl_r;
-        A_PP_STAT:   pp_rd_data_w = {PP_PRESENT_TAG_C, 16'd0,
+        //! [15:12] verdict, [10] img_valid, [9] stale, [8] dirty: the section
+        //! 9.1 bits beside the original [7:0]; nvm_backed is LIVE evidence
+        //! now, not a constant (KL_pp_shadow's banner)
+        A_PP_STAT:   pp_rd_data_w = {PP_PRESENT_TAG_C, 8'd0,
+                                     i_pp_nvm_verdict, 1'b0,
+                                     i_pp_nvm_img_valid, i_pp_nvm_stale,
+                                     i_pp_nvm_dirty,
                                      i_pp_nvm_blank, i_pp_nvm_backed,
                                      pp_err_r,
                                      i_pp_nvm_alarm, i_pp_restore_fail,
@@ -1997,6 +2069,9 @@ module milan_csr #(
         A_PP_SPDATA: pp_rd_data_w = pp_sprdata_r;
         A_PP_DIAG:   pp_rd_data_w = {i_pp_tx_frames, i_pp_rx_drops,
                                      i_pp_rx_frames[7:0]};
+        A_PP_NVM_SEL:  pp_rd_data_w = {26'd0, pp_nvm_sel_r};
+        A_PP_NVM_DATA: pp_rd_data_w = i_pp_nvm_csr_rdata;
+        A_PP_NVM_STAT: pp_rd_data_w = i_pp_nvm_csr_rdata;
         default:     pp_rd_hit_w  = 1'b0;
       endcase
     end

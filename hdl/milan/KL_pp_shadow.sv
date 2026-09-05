@@ -76,43 +76,60 @@
                 downstream path parks a beat with tvalid held, and a
                 tvalid-only tap re-eats it.
 
-                NVM. The device face is answered by a BLANK-FLASH responder
-                (reads 0xFF, writes accepted and discarded, erase completes).
-                That is the processor's documented no-saved-binding path. It
-                is deliberately NOT persistent, and with KL_persist_journal
-                deleted alongside the rest of the legacy plane NOTHING in this
-                device now persists a binding across a power cycle: a restore
-                walk always finds blank flash and completes with zero records.
-                Milan v1.2 5.3.8.2 wants saved state; this build does not have
-                it, and says so structurally rather than by a zeroed counter.
+                NVM. The device face is answered by KL_nvm_backend, the
+                shipping saved-state backing store
+                (docs/design/SAVED_STATE_FASTCONNECT.md sections 4, 8, 9):
+                record bytes move between the processor's port and a KLJ2
+                image in the integrator's main memory over a THIRD memory
+                master (nvm_mem_*), and the firmware that owns the flash
+                validates that image, heartbeats and acknowledges commits
+                through an indexed control face (nvm_csr_*). Until the
+                firmware has configured AND validated an image the backend
+                answers exactly what the deleted blank-flash responder did
+                (reads 0xFF, writes accepted and discarded, erase completes),
+                so a build whose firmware never speaks is the documented
+                no-saved-binding path and nothing else.
 
                 AND IT MUST SAY SO IN THE STATUS. Until 0x0045 it did not.
                 Every arm of the processor's per-record vendor default
                 (07 §5.3 F07.9) ends the walk with restore_done and no
-                restore_fail, so the responder above produced the SAME status
-                word a real restore of eight bindings produces: a device with
-                no media reported a completed restore. A report of saved state
-                that was never saved is worse than reporting none, because a
-                Milan 5.3.8.2/5.3.8.3 checklist passes on it and the failure
-                only appears on a bench that cycles the power. So the wrapper
-                publishes two more levels beside done/fail:
+                restore_fail, so a blank-flash responder produced the SAME
+                status word a real restore of eight bindings produces: a
+                device with no media reported a completed restore. A report
+                of saved state that was never saved is worse than reporting
+                none, because a Milan 5.3.8.2/5.3.8.3 checklist passes on it
+                and the failure only appears on a bench that cycles the
+                power. So the wrapper publishes, beside done/fail:
 
-                  nvm_backed_o   CONSTANT. Derived from the responder below
-                                 (NVM_BACKED_C), never a parameter: a port an
-                                 integrator can set to 1 while the volatile
-                                 stub is still instantiated is the same lie
-                                 with a longer reach.
+                  nvm_backed_o   LIVE EVIDENCE, never a knob: the backend
+                                 raises it when the firmware answers and
+                                 drops it when a deadline lapses (design
+                                 page section 9.2). No CSR write can set it,
+                                 the property the old localparam had, kept
+                                 now that the level moves.
+                  nvm_dirty_o    the image holds committed changes no slot
+                                 holds yet (section 9.1)
+                  nvm_stale_o    a writer loss not yet made good (9.1, 9.2)
+                  nvm_verdict_o  the firmware's verdict on the last image
+                  nvm_img_valid_o the firmware validated the image in place
                   restore_blank_o  the walk validated zero records - blank or
                                  unframed media - as opposed to a walk that
                                  put bindings back.
 
-                and restore_fail_o is RAISED on a completed walk with no
-                backend. That last choice is deliberate: fail is the bit every
-                existing decoder of this status already reads as "not
-                successful", and landing in an encoding they understand beats
-                inventing a code that only new software can see. Blank media
-                behind a REAL backend is not a failure (nothing was ever
-                saved, which Milan permits): it reports backed with blank.
+                and restore_fail_o is RAISED on a completed walk that ran
+                BLIND: at some cycle of the walk no validated image stood
+                behind the device face, so the bytes it read were the blank
+                answer and not saved state. That is latched per walk
+                (walk_blind_r below) rather than read off the live level,
+                because a firmware that validates the image AFTER the walk
+                would otherwise turn a blank walk into a reported restore
+                without a byte having been restored: the false success
+                issue #70 exists to remove, one level up. Fail is the bit
+                every existing decoder of this status already reads as "not
+                successful", and landing in an encoding they understand
+                beats inventing a code only new software can see. Blank
+                media behind a validated image is not a failure (nothing was
+                ever saved, which Milan permits): it reports blank, not fail.
 
                 CLASS-D FABRIC FACE. Everything the processor knows used to be
                 reachable only through a side-port READ TRANSACTION - a
@@ -200,6 +217,17 @@ module KL_pp_shadow #(
     //! processor ALONE and it must not overlap the descriptor image. Passed
     //! straight through; this wrapper adds no policy.
     parameter logic [31:0] RESP_BASE_P         = 32'h2010_0000,
+    //! ---- saved-state record allocation shape (design page section 4.2) ---
+    //! One channel-map record per STREAM_PORT in each direction, one
+    //! sampling-rate record per AUDIO_UNIT, one clock-source and one
+    //! media-clock-reference record per CLOCK_DOMAIN. The integrator derives
+    //! them from the SAME generated header as the stream counts
+    //! (hdl/common/gen/adp_shape_defaults.svh); these defaults are the 8x8
+    //! bench shape, never the shipping board's.
+    parameter int unsigned N_SPORT_IN_P        = 8,
+    parameter int unsigned N_SPORT_OUT_P       = 8,
+    parameter int unsigned N_AUDIO_UNIT_P      = 1,
+    parameter int unsigned N_CLK_DOM_P         = 1,
     //! derived source-index width for the maap face — do not override.
     //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
     //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
@@ -458,6 +486,44 @@ module KL_pp_shadow #(
     input  wire                        resp_mem_wr_done_i,
     input  wire                        resp_mem_wr_err_i,
 
+    //! ---- saved-state record image memory master (READ + WRITE) ----------
+    //! A THIRD main-memory master, KL_nvm_backend's: the persisted record
+    //! image lives in the integrator's main memory (design page section 8.1)
+    //! and this face moves record bytes between the processor's NVM port and
+    //! that image. SAME CONTRACT as resp_mem_* above, to the letter, and a
+    //! separate face for the same reason: one-transaction clients, and the
+    //! integrator's memory system as the arbiter. Tying req_ready_i and
+    //! wr_ready_i to 0 is legal ONLY for an integration whose firmware never
+    //! configures an image: an unconfigured backend never issues a
+    //! transaction, a configured one waits for the bridge.
+    output logic                       nvm_mem_req_valid_o,  //! read request, held until nvm_mem_req_ready_i
+    input  wire                        nvm_mem_req_ready_i,  //! the bridge accepts the request
+    output logic [31:0]                nvm_mem_req_addr_o,   //! lane address of the read, low three bits zero
+    output logic [8:0]                 nvm_mem_req_beats_o,  //! lanes in the burst: this master asks for one
+    input  wire                        nvm_mem_rsp_valid_i,  //! a response lane is present
+    output logic                       nvm_mem_rsp_ready_o,  //! the backend takes the lane: REAL backpressure
+    input  wire  [63:0]                nvm_mem_rsp_data_i,   //! the lane read, big-endian as the contract above
+    input  wire                        nvm_mem_rsp_last_i,   //! final lane of the burst
+    input  wire                        nvm_mem_rsp_err_i,    //! the read failed: the record operation aborts
+    output logic                       nvm_mem_wr_valid_o,   //! write presented, held until nvm_mem_wr_ready_i
+    input  wire                        nvm_mem_wr_ready_i,   //! the bridge accepts the write
+    output logic [31:0]                nvm_mem_wr_addr_o,    //! lane address of the write, low three bits zero
+    output logic [63:0]                nvm_mem_wr_data_o,    //! the lane to write, big-endian as the contract above
+    output logic [7:0]                 nvm_mem_wr_strb_o,    //! lane enable, bit n for lane position n
+    input  wire                        nvm_mem_wr_done_i,    //! one-cycle commit pulse, in or after the ready cycle
+    input  wire                        nvm_mem_wr_err_i,     //! ...and the write failed: rides the done pulse
+
+    //! ---- saved-state backend control face (design page section 8.2) -----
+    //! The firmware's control tuple: image base and length, sequence number,
+    //! verdict and validity, heartbeat and commit strobes, and the per-port
+    //! channel-map record lengths. Straight through to KL_nvm_backend; record
+    //! DATA never crosses here. A read is answered the same cycle.
+    input  wire                        nvm_csr_sel_i,        //! control-face access
+    input  wire                        nvm_csr_we_i,         //! 1 = write
+    input  wire  [5:0]                 nvm_csr_addr_i,       //! word index (KL_nvm_backend's csr_addr_i)
+    input  wire  [31:0]                nvm_csr_wdata_i,      //! write data
+    output logic [31:0]                nvm_csr_rdata_o,      //! read data, the same cycle
+
     //! ---- maap face (02 §4.2) — THE ADDRESS ALLOCATOR SEAM ----
     //! Passed straight through to protocol_processor_top, names and
     //! directions unchanged. The fabric's allocator is a BLOCK allocator
@@ -577,9 +643,13 @@ module KL_pp_shadow #(
     output logic       restore_busy_o,     //! restore walk running
     output logic       restore_done_o,     //! restore sequencing complete (NOT a verdict)
     output logic       restore_fail_o,     //! the completed restore did NOT restore: torn read-back, or no backend at all
-    output logic       nvm_backed_o,       //! CONSTANT: 1 = persistent media behind the device face, 0 = none in this build
+    output logic       nvm_backed_o,       //! LIVE: the firmware behind the device face answered in time (section 9.2)
     output logic       restore_blank_o,    //! the completed walk validated ZERO records
     output logic       nvm_alarm_o,        //! commit retries exhausted
+    output logic       nvm_dirty_o,        //! the image holds committed changes no slot holds
+    output logic       nvm_stale_o,        //! a writer loss that has not been made good
+    output logic [3:0] nvm_verdict_o,      //! the firmware's verdict on the last image offered
+    output logic       nvm_img_valid_o,    //! the firmware validated the image in the window
     output logic [15:0] rx_frames_o,       //! control frames handed to the PP
     output logic [7:0] rx_drops_o,         //! frames lost to a full FIFO
     output logic [15:0] tx_frames_o,       //! frames the PP WOULD have sent
@@ -793,70 +863,108 @@ module KL_pp_shadow #(
   end
 
   // ======================================================================= //
-  //  Blank-flash NVM responder (NOT persistent — see the banner)            //
+  //  Saved-state backing store (design page sections 4, 8 and 9)           //
   // ======================================================================= //
-  //! The responder below IS this build's whole backend and it holds nothing
-  //! across a reset, let alone a power cycle. This constant sits here, beside
-  //! it, so the two move together: whoever replaces the responder with real
-  //! media edits the line under their cursor. It is deliberately NOT a module
-  //! parameter — the fact is a property of the logic in this file, and a
-  //! parameter would let an integrator assert persistence the fabric does not
-  //! have.
-  localparam logic NVM_BACKED_C = 1'b0;
-
-  localparam logic [1:0] NVMP_OP_READ_C  = 2'd0;
-  localparam logic [1:0] NVMP_OP_WRITE_C = 2'd1;
-
-  logic        nvm_req_w, nvm_wvalid_w, nvm_rready_w;
+  //! KL_nvm_backend answers the processor's NVM device face out of the KLJ2
+  //! record image in main memory and publishes the section 9 status. What
+  //! this wrapper adds is exactly two things, both fabric evidence:
+  //!
+  //!   * change: the processor's aecp_dyn_dirty_o is a STICKY LEVEL (set by
+  //!     the first persisted-field write since reset, cleared by reset only)
+  //!     and the backend's change_i is an EVENT. The rising edge is the event
+  //!     the level carries; every later change reaches the backend as the
+  //!     device-face WRITE the processor issues to persist it, and the
+  //!     backend marks the image dirty on the write itself. Feeding the level
+  //!     would re-mark dirty every cycle and make the commit acknowledgement
+  //!     a no-op.
+  //!   * a blind walk: whether a validated image stood behind the device face
+  //!     for EVERY cycle of the restore walk. Latched per walk, because the
+  //!     verdict is about the bytes the walk read, not about the image's
+  //!     state when someone reads the status later.
+  logic        nvm_req_w, nvm_gnt_w, nvm_wvalid_w, nvm_wready_w;
+  logic        nvm_rvalid_w, nvm_rready_w, nvm_busy_w, nvm_done_w, nvm_err_w;
   logic [1:0]  nvm_op_w;
-  logic [15:0] nvm_len_w;
-  logic        nvm_gnt_r, nvm_done_r, nvm_rvalid_r, nvm_wready_r;
-  logic [15:0] nvm_cnt_r;
-  logic        nvm_busy_r;
+  logic [7:0]  nvm_region_w, nvm_wdata_w, nvm_rdata_w;
+  logic [15:0] nvm_offset_w, nvm_len_w;
+  logic        nvm_backed_w, nvm_img_valid_w, nvm_change_w;
+  logic        dyn_dirty_q, restore_busy_q, walk_blind_r;
+
+  assign nvm_change_w = aecp_dyn_dirty_o & ~dyn_dirty_q;
 
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      nvm_busy_r   <= 1'b0;
-      nvm_gnt_r    <= 1'b0;
-      nvm_done_r   <= 1'b0;
-      nvm_rvalid_r <= 1'b0;
-      nvm_wready_r <= 1'b0;
-      nvm_cnt_r    <= 16'd0;
+      dyn_dirty_q    <= 1'b0;
+      restore_busy_q <= 1'b0;
+      //! no walk has run yet: a done with no walk behind it is blind
+      walk_blind_r   <= 1'b1;
     end else begin
-      nvm_gnt_r  <= 1'b0;
-      nvm_done_r <= 1'b0;
-      if (!nvm_busy_r) begin
-        nvm_rvalid_r <= 1'b0;
-        nvm_wready_r <= 1'b0;
-        if (nvm_req_w) begin
-          nvm_gnt_r  <= 1'b1;
-          nvm_cnt_r  <= nvm_len_w;
-          nvm_busy_r <= 1'b1;
-          // ERASE (and any zero-length command) completes with no data phase
-          if ((nvm_op_w != NVMP_OP_READ_C && nvm_op_w != NVMP_OP_WRITE_C)
-              || (nvm_len_w == 16'd0)) begin
-            nvm_busy_r <= 1'b0;
-            nvm_done_r <= 1'b1;
-          end else begin
-            nvm_rvalid_r <= (nvm_op_w == NVMP_OP_READ_C);
-            nvm_wready_r <= (nvm_op_w == NVMP_OP_WRITE_C);
-          end
-        end
-      end else begin
-        // one byte per accepted handshake, blank flash reads as 0xFF
-        if ((nvm_rvalid_r & nvm_rready_w) | (nvm_wready_r & nvm_wvalid_w)) begin
-          if (nvm_cnt_r <= 16'd1) begin
-            nvm_busy_r   <= 1'b0;
-            nvm_rvalid_r <= 1'b0;
-            nvm_wready_r <= 1'b0;
-            nvm_done_r   <= 1'b1;
-          end else begin
-            nvm_cnt_r <= nvm_cnt_r - 16'd1;
-          end
-        end
-      end
+      dyn_dirty_q    <= aecp_dyn_dirty_o;
+      restore_busy_q <= restore_busy_o;
+      //! fresh evidence when a walk starts, then any blind cycle sticks
+      if (restore_busy_o && !restore_busy_q)       walk_blind_r <= ~nvm_img_valid_w;
+      else if (restore_busy_o && !nvm_img_valid_w) walk_blind_r <= 1'b1;
     end
   end
+
+  KL_nvm_backend #(
+      .CLK_HZ_P        (CLK_HZ_P),
+      .N_STREAM_IN_P   (N_STREAM_IN_P),
+      .N_STREAM_OUT_P  (N_STREAM_OUT_P),
+      .N_SPORT_IN_P    (N_SPORT_IN_P),
+      .N_SPORT_OUT_P   (N_SPORT_OUT_P),
+      .N_AUDIO_UNIT_P  (N_AUDIO_UNIT_P),
+      .N_CLK_DOM_P     (N_CLK_DOM_P),
+      //! one NAME record per name-store entry: the same count the processor's
+      //! descriptor store is built with, so the two cannot disagree
+      .N_NAME_P        (DESC_NAME_ENTRIES_P)
+  ) u_nvm (
+      .clk_i           (clk_i),
+      .rst_n           (rst_n),
+      .dev_req_i       (nvm_req_w),
+      .dev_gnt_o       (nvm_gnt_w),
+      .dev_op_i        (nvm_op_w),
+      .dev_region_i    (nvm_region_w),
+      .dev_offset_i    (nvm_offset_w),
+      .dev_len_i       (nvm_len_w),
+      .dev_wvalid_i    (nvm_wvalid_w),
+      .dev_wready_o    (nvm_wready_w),
+      .dev_wdata_i     (nvm_wdata_w),
+      .dev_rvalid_o    (nvm_rvalid_w),
+      .dev_rdata_o     (nvm_rdata_w),
+      .dev_rready_i    (nvm_rready_w),
+      .dev_busy_o      (nvm_busy_w),
+      .dev_done_o      (nvm_done_w),
+      .dev_err_o       (nvm_err_w),
+      .mem_req_valid_o (nvm_mem_req_valid_o),
+      .mem_req_ready_i (nvm_mem_req_ready_i),
+      .mem_req_addr_o  (nvm_mem_req_addr_o),
+      .mem_req_beats_o (nvm_mem_req_beats_o),
+      .mem_rsp_valid_i (nvm_mem_rsp_valid_i),
+      .mem_rsp_ready_o (nvm_mem_rsp_ready_o),
+      .mem_rsp_data_i  (nvm_mem_rsp_data_i),
+      .mem_rsp_last_i  (nvm_mem_rsp_last_i),
+      .mem_rsp_err_i   (nvm_mem_rsp_err_i),
+      .mem_wr_valid_o  (nvm_mem_wr_valid_o),
+      .mem_wr_ready_i  (nvm_mem_wr_ready_i),
+      .mem_wr_addr_o   (nvm_mem_wr_addr_o),
+      .mem_wr_data_o   (nvm_mem_wr_data_o),
+      .mem_wr_strb_o   (nvm_mem_wr_strb_o),
+      .mem_wr_done_i   (nvm_mem_wr_done_i),
+      .mem_wr_err_i    (nvm_mem_wr_err_i),
+      .csr_sel_i       (nvm_csr_sel_i),
+      .csr_we_i        (nvm_csr_we_i),
+      .csr_addr_i      (nvm_csr_addr_i),
+      .csr_wdata_i     (nvm_csr_wdata_i),
+      .csr_rdata_o     (nvm_csr_rdata_o),
+      .change_i        (nvm_change_w),
+      .nvm_backed_o    (nvm_backed_w),
+      .nvm_dirty_o     (nvm_dirty_o),
+      .nvm_stale_o     (nvm_stale_o),
+      .nvm_verdict_o   (nvm_verdict_o),
+      .img_valid_o     (nvm_img_valid_w)
+  );
+
+  assign nvm_img_valid_o = nvm_img_valid_w;
 
   // ======================================================================= //
   //  The processor                                                          //
@@ -1023,20 +1131,20 @@ module KL_pp_shadow #(
       .nvm_alarm_o         (nvm_alarm_o),
 
       .nvm_dev_req_o       (nvm_req_w),
-      .nvm_dev_gnt_i       (nvm_gnt_r),
+      .nvm_dev_gnt_i       (nvm_gnt_w),
       .nvm_dev_op_o        (nvm_op_w),
-      .nvm_dev_region_o    (),
-      .nvm_dev_offset_o    (),
+      .nvm_dev_region_o    (nvm_region_w),
+      .nvm_dev_offset_o    (nvm_offset_w),
       .nvm_dev_len_o       (nvm_len_w),
       .nvm_dev_wvalid_o    (nvm_wvalid_w),
-      .nvm_dev_wready_i    (nvm_wready_r),
-      .nvm_dev_wdata_o     (),
-      .nvm_dev_rvalid_i    (nvm_rvalid_r),
-      .nvm_dev_rdata_i     (8'hFF),
+      .nvm_dev_wready_i    (nvm_wready_w),
+      .nvm_dev_wdata_o     (nvm_wdata_w),
+      .nvm_dev_rvalid_i    (nvm_rvalid_w),
+      .nvm_dev_rdata_i     (nvm_rdata_w),
       .nvm_dev_rready_o    (nvm_rready_w),
-      .nvm_dev_busy_i      (nvm_busy_r),
-      .nvm_dev_done_i      (nvm_done_r),
-      .nvm_dev_err_i       (1'b0),
+      .nvm_dev_busy_i      (nvm_busy_w),
+      .nvm_dev_done_i      (nvm_done_w),
+      .nvm_dev_err_i       (nvm_err_w),
 
       .host_req_valid_i    (hb_pend_r),
       .host_we_i           (hb_we_r),
@@ -1268,17 +1376,20 @@ module KL_pp_shadow #(
   //! done stays the SEQUENCING level the processor publishes: the walk ran to
   //! the end. Everything below is what the walk is allowed to CLAIM.
   assign restore_done_o  = pp_restore_done_w;
-  assign nvm_backed_o    = NVM_BACKED_C;
+  assign nvm_backed_o    = nvm_backed_w;
   assign restore_blank_o = pp_restore_blank_w;
 
-  //! A completed walk with no backend is a FAILED restore, not a successful
-  //! one: the bound state Milan 5.3.8.2 requires to survive a power cycle was
-  //! not restored and could not have been. Raising the processor's own fail
+  //! A completed walk that ran BLIND is a FAILED restore, not a successful
+  //! one: with no validated image behind the device face the bytes it read
+  //! were the blank answer, so the bound state Milan 5.3.8.2 requires to
+  //! survive a power cycle was not restored. Raising the processor's own fail
   //! level is what puts it in the encoding existing readers of this status
   //! already treat as unsuccessful. It is gated on done so the verdict is a
-  //! verdict: before a restore has run there is nothing to have failed.
+  //! verdict: before a restore has run there is nothing to have failed. And
+  //! it is the walk's OWN evidence, latched above, never the live image
+  //! state: validating the image after the walk restores nothing.
   assign restore_fail_o  = pp_restore_fail_w
-                         || (pp_restore_done_w && !NVM_BACKED_C);
+                         || (pp_restore_done_w && walk_blind_r);
 
 endmodule
 

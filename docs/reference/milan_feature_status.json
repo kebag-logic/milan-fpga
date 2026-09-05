@@ -263,7 +263,7 @@
     {
       "id": "state.nonvolatile-persistence",
       "status": "missing",
-      "summary": "The shipping integration has a blank stub and no nonvolatile backend.",
+      "summary": "The fabric backing store (KL_nvm_backend) and its control face ship behind the processor NVM port, but the firmware flash writer that would configure, validate and commit the record image does not exist, so nothing persists yet.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",

@@ -203,7 +203,7 @@ derive_sources() {
     PP_SRCS="@pp-srcs-not-derived-for---list@"
   else
     PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
-    PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+    PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv $R/hdl/milan/KL_nvm_backend.sv"
   fi
 
   # The product-default datapath elaborates the integrated gPTP plane. Keep the
@@ -261,6 +261,9 @@ build_inventory() {
     "ptp_ts_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $C/axis_mux_rr_2in_1out.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv"
     "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"
     "KL_pp_maap_shim|$R/hdl/milan/KL_pp_maap_shim.sv"
+    # the saved-state backing store behind the processor's NVM device face,
+    # also reached inside KL_pp_shadow and milan_datapath above
+    "KL_nvm_backend|$R/hdl/milan/KL_nvm_backend.sv"
     "axis_fifo|$A/axis_fifo.v"
     "axis_demux|$A/axis_demux.v"
     "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"

@@ -1727,7 +1727,7 @@ map stores and the authoritative protocol ownership state from non-ATDECC edits.
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` map commits (currently CSR only, wraps), `[23:16]` CSR writes refused while disarmed or entity-locked (saturates) |
 | `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **W** `[0]` arm a readback of the entry named by `CHMAP_SEL` (ignored while busy). **R** `[0]` busy, `[1]` valid — the LAST snapshot carries fabric data, `[2]` timeout — the LAST snapshot ended without the fabric answering, `[3]` unsupported — the LAST arm was refused because this side has no readback port in this build, `[4]` armed — a snapshot has been armed since reset, `[9:8]` capability (`[8]` render port wired, `[9]` capture port wired **and** carrying the `{loop_fed, loop_mapped}` mask), `[22:16]` `{side, index}` latched at the last arm, `[31:24]` **constant `0xC5`** |
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | The map word **the RAM actually holds**. `[15:0]` raw fabric readback word — capture side `{1'b0, loop_fed[14], loop_mapped[13], entry[12:0]}` where the entry is the per-channel word `{en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}` (one entry per stream channel since 0x0027). NOTE the two formats: the `CHMAP_WORD` you WRITE is `{EN[15], SRC[14:12], rsvd, HALF[8], IDXH, IDXL}`; the ENTRY you read BACK here re-packs those fields — e.g. word `0xB000` reads back as entry `0x1300`, and mistaking the packing for corruption cost a bench session. `loop_fed`/`loop_mapped`/`LOOP_SUSPECT` grade the LOOP source only, never general slot health, render side `{8'd0, entry[7:0]}`; `[16]` mapped, `[17]` fed, `[18]` **`LOOP_SUSPECT` = mapped & ~fed** (extracted from the raw word's canonical flag bits, stable here whatever the raw layout), `[19]` side, `[25:20]` index, `[26]` **VALID** (this word is a measurement), `[27]` **MASK_VALID** (`[18:16]` are a measurement — capture side only). **`0xDEADDEAD` = there is no measurement behind this word** |
-| `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x930` are the protocol-processor window** — see the next section; `0x934`-`0x93C` remain reserved |
+| `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x93C` are the protocol-processor window**, see the next section |
 
 #### `0x910`/`0x914` - reading the map RAM, and why the un-armed state is not zero
 
@@ -1839,20 +1839,23 @@ bench that cycled the power. Read the four bits together:
 
 | `nvm_backed` `[6]` | `nvm_blank` `[7]` | `restore_fail` `[3]` | Meaning |
 |---|---|---|---|
-| `1` | `0` | `0` | **A restore genuinely completed** — media answered and records were validated |
-| `1` | `1` | `0` | **Blank or invalid media** — the store is real but held nothing this walk could use. Not a failure: Milan permits an entity that has never been bound |
-| `1` | `0`/`1` | `1` | **Torn read-back** — the walk aborted and the whole image was discarded |
-| `0` | `1` | `1` | **No backend at all** — what this build reports, `0x5B00_008C` |
+| `1` | `0` | `0` | **A restore genuinely completed**: the writer is live and the walk read records out of a validated image |
+| `1` | `1` | `0` | **Blank media behind a validated image**: the store is real but held nothing this walk could use. Not a failure: Milan permits an entity that has never been bound |
+| `0`/`1` | `0`/`1` | `1` | **Torn read-back, or a BLIND walk**: the walk aborted and the whole image was discarded, or at some cycle of the walk no validated image stood behind the device face, so what it read was the blank answer. The blind verdict is latched per walk in `KL_pp_shadow.sv`: validating the image after the walk does not restore anything, so it cannot clear it |
+| `0` | `1` | `1` | **No writer has answered and the walk ran blind**: what a build whose firmware has not configured the backing store reports, `0x5B00_008C` |
 
-`restore_fail` is deliberately raised in the last row rather than a new code
-being invented for it: `fail` is the bit every reader of this register already
-treats as not-successful, so software that predates `[6]` and `[7]` still grades
-an unbacked build correctly. `nvm_backed` is a **constant derived from the
-fabric**, not a parameter — it is set beside the responder in `KL_pp_shadow.sv`,
-because a knob an integrator can turn to `1` while the volatile stub is still
-instantiated is the same lie with a longer reach. What a real backend would have
-to provide is recorded as blocker B2 in the
-[current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md); it is **not** implemented.
+`restore_fail` is deliberately raised in the last two rows rather than a new
+code being invented for it: `fail` is the bit every reader of this register
+already treats as not-successful, so software that predates `[6]` and `[7]`
+still grades an unbacked build correctly. `nvm_backed` is **fabric evidence,
+never a knob**: `KL_nvm_backend` raises it when the firmware answers and drops
+it when a deadline lapses or a failure is reported, and no CSR write can set it,
+which is the property that made it a localparam beside the old blank-flash
+responder and survives it being live. The backend behind the face is
+`hdl/milan/KL_nvm_backend.sv` and its control face is `0x934`-`0x93C` below;
+the firmware flash writer that makes the image durable is the remaining piece
+of issue #70, and until it configures and validates an image every walk is
+blind and this register reads exactly as it did before the backend landed.
 
 **The side port is POSTED, and one access is outstanding at a time.** The
 processor's side port is a fabric walk behind a request/ack, and an AXI read must
@@ -1865,11 +1868,14 @@ another.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable** — ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk. The walk always completes with **zero records**: the device face behind it is a blank-flash responder (reads `0xFF`, writes accepted and discarded, erase completes), which is the processor's documented no-saved-binding path. Nothing in this device persists a binding across a power cycle, and since `0x0045` `PP_STAT` says so rather than reporting a clean restore |
-| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy` — a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done` — the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err` — the last side-port access returned an error, `[6]` `nvm_backed` — **constant**: `1` = persistent media sits behind the processor's NVM device face, `0` = none in this build, `[7]` `nvm_blank` — the completed walk validated **zero** records, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
+| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing |
+| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done`, the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed walk validated **zero** records, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |
 | `0x930` | `PP_DIAG` | RO | `0` | Shadow evidence, and the only frame accounting the control plane now publishes: `[31:16]` control frames transmitted, `[15:8]` **RX drops** — control frames lost to a full ingress FIFO, counted rather than silently absorbed, `[7:0]` control frames received. This replaces the per-plane PDU counters at `0x648`, `0x69C` and `0x6B0`, all of which are structural zeros |
+| `0x934` | `PP_NVM_SEL` | RW | `0` | `[5:0]` the backing store's word index that the next `PP_NVM_DATA` access names (design page section 8.2: a control tuple, never a data window). `0` image base, the byte address of the KLJ2 record image in main memory, 8-byte aligned; `1` image length in bytes, `0` = unconfigured, which is the blank-flash behaviour (a write to word `0` or `1` clears `img_valid`); `2` the sequence number of the image in the window, firmware's to keep; `3` status/verdict, write `[3:0]` verdict and `[4]` `img_valid`; `4` the strobe word, write-only, `[0]` heartbeat, `[1]` commit acknowledged, `[2]` commit started; `0x20`+port the INPUT channel-map table, `0x30`+port the OUTPUT one, each entry `{framed length[31:16], byte prefix inside the group[15:0]}` for that STREAM_PORT. Readback = the index |
+| `0x938` | `PP_NVM_DATA` | RW | `0` | the word `PP_NVM_SEL` names. Words `0`-`3` and both tables read back what was written; word `4` reads `0` (strobes have no state to read) |
+| `0x93C` | `PP_NVM_STAT` | R / W1P | `0` | **Read** the backing store's status word: `[15:12]` verdict, `[10]` `commit_busy`, a commit is inside its `T-NVM-COMMIT-TIMEOUT` (8000 ms) bracket, `[9]` `nvm_stale`, `[8]` `nvm_dirty`, `[7]` `img_valid`, `[6]` `nvm_backed`, `[5]` `img_cfg`, an image length is set, `[4]` `dev_busy`, the processor has a record operation in flight. **Write** the strobe word (word `4`): `[0]` heartbeat re-arms `T-NVM-WRITER-ALIVE`, `[1]` commit acknowledged clears `nvm_dirty` and the commit bracket, `[2]` commit started opens it. A loss in the same cycle as a heartbeat wins, a change in the same cycle as an acknowledgement wins (design page 9.2) |
 
 **Why an RX drop counter exists here at all.** `protocol_processor_top` eats a
 1 byte/clk stream, which at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a

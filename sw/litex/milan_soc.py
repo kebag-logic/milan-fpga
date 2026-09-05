@@ -487,8 +487,11 @@ _MILAN_DATAPATH_SOURCES = [
     # copies went stale together the moment the submodule pin moved.
     *_pp_sources(),
     # the two consumer-side wrappers that bind it into this datapath: the
-    # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
+    # shadow/substitution wrapper and the block-vs-per-source MAAP adapter,
+    # and the saved-state backing store the shadow instantiates behind the
+    # processor's NVM device face (docs/design/SAVED_STATE_FASTCONNECT.md).
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
+    "hdl/milan/KL_nvm_backend.sv",
     # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
     # KL_gptp_txstamp under GPTP_PLANE_EN_P (product default ON), so Vivado must see
     # the wrappers and the gptp-processor engine they wrap. No copy of this
@@ -1080,6 +1083,54 @@ def add_milan_datapath(host: Module, platform: object,
     host.respmem_wr_sys  = r_wr.sys
     host.respmem_wd_sys  = r_wd.sys
 
+    # The THIRD main-memory master: KL_nvm_backend's, behind the processor's
+    # NVM device face inside KL_pp_shadow (docs/design/SAVED_STATE_FASTCONNECT.md
+    # section 8). The persisted record image lives in the reserved ppmem window
+    # and the backend reads and writes it one 64-bit lane at a time, with the
+    # SAME contract as the response face above: single-beat reads (it only
+    # ever asks for one), real `rsp_ready` backpressure, one outstanding
+    # 8-byte-aligned write whose zero-strobe bytes must not be modified, and a
+    # one-cycle `wr_done` commit pulse strictly after `wr_ready`. Same CDC
+    # shape, same reasons, a separate face because it is a separate
+    # one-transaction client and the bus is the arbiter.
+    nvm_req_valid = Signal();      nvm_req_ready = Signal()
+    nvm_req_addr  = Signal(32);    nvm_req_beats = Signal(9)
+    nvm_rsp_valid = Signal();      nvm_rsp_ready = Signal()
+    nvm_rsp_data  = Signal(64)
+    nvm_rsp_last  = Signal();      nvm_rsp_err   = Signal()
+    nvm_wr_valid  = Signal();      nvm_wr_ready  = Signal()
+    nvm_wr_addr   = Signal(32);    nvm_wr_data   = Signal(64)
+    nvm_wr_strb   = Signal(8)
+    nvm_wr_done   = Signal();      nvm_wr_err    = Signal()
+
+    n_req = _axis_dp_cdc(host, "nvmmem_req_cdc",
+                         [("addr", 32), ("beats", 9)], milan_cd,
+                         to_datapath=False)
+    n_rsp = _axis_dp_cdc(host, "nvmmem_rsp_cdc",
+                         [("data", 64), ("blast", 1), ("err", 1)], milan_cd,
+                         to_datapath=True)
+    n_wr  = _axis_dp_cdc(host, "nvmmem_wr_cdc",
+                         [("addr", 32), ("data", 64), ("strb", 8)], milan_cd,
+                         to_datapath=False)
+    n_wd  = _axis_dp_cdc(host, "nvmmem_wd_cdc",
+                         [("err", 1)], milan_cd, to_datapath=True)
+    host.comb += [
+        n_req.dp.valid.eq(nvm_req_valid), n_req.dp.addr.eq(nvm_req_addr),
+        n_req.dp.beats.eq(nvm_req_beats), nvm_req_ready.eq(n_req.dp.ready),
+        nvm_rsp_valid.eq(n_rsp.dp.valid), nvm_rsp_data.eq(n_rsp.dp.data),
+        nvm_rsp_last.eq(n_rsp.dp.blast),  nvm_rsp_err.eq(n_rsp.dp.err),
+        n_rsp.dp.ready.eq(nvm_rsp_ready),
+        n_wr.dp.valid.eq(nvm_wr_valid),   n_wr.dp.addr.eq(nvm_wr_addr),
+        n_wr.dp.data.eq(nvm_wr_data),     n_wr.dp.strb.eq(nvm_wr_strb),
+        nvm_wr_ready.eq(n_wr.dp.ready),
+        n_wd.dp.ready.eq(1),
+        nvm_wr_done.eq(n_wd.dp.valid), nvm_wr_err.eq(n_wd.dp.err),
+    ]
+    host.nvmmem_req_sys = n_req.sys
+    host.nvmmem_rsp_sys = n_rsp.sys
+    host.nvmmem_wr_sys  = n_wr.sys
+    host.nvmmem_wd_sys  = n_wd.sys
+
     ports.update(
         o_o_resp_mem_req_valid = resp_req_valid,
         i_i_resp_mem_req_ready = resp_req_ready,
@@ -1097,6 +1148,22 @@ def add_milan_datapath(host: Module, platform: object,
         o_o_resp_mem_wr_strb   = resp_wr_strb,
         i_i_resp_mem_wr_done   = resp_wr_done,
         i_i_resp_mem_wr_err    = resp_wr_err,
+        o_o_nvm_mem_req_valid  = nvm_req_valid,
+        i_i_nvm_mem_req_ready  = nvm_req_ready,
+        o_o_nvm_mem_req_addr   = nvm_req_addr,
+        o_o_nvm_mem_req_beats  = nvm_req_beats,
+        i_i_nvm_mem_rsp_valid  = nvm_rsp_valid,
+        o_o_nvm_mem_rsp_ready  = nvm_rsp_ready,
+        i_i_nvm_mem_rsp_data   = nvm_rsp_data,
+        i_i_nvm_mem_rsp_last   = nvm_rsp_last,
+        i_i_nvm_mem_rsp_err    = nvm_rsp_err,
+        o_o_nvm_mem_wr_valid   = nvm_wr_valid,
+        i_i_nvm_mem_wr_ready   = nvm_wr_ready,
+        o_o_nvm_mem_wr_addr    = nvm_wr_addr,
+        o_o_nvm_mem_wr_data    = nvm_wr_data,
+        o_o_nvm_mem_wr_strb    = nvm_wr_strb,
+        i_i_nvm_mem_wr_done    = nvm_wr_done,
+        i_i_nvm_mem_wr_err     = nvm_wr_err,
     )
 
     host.specials += Instance("milan_datapath", **dp_params, **ports)
@@ -2066,6 +2133,97 @@ def pp_desc_bridge(m: Module, req: Record, rsp: Record, wb: object,
     return _dfsm, _dpsn, _dpsn_set
 
 
+def pp_rw_bridge(m: Module, faces: tuple[Record, Record, Record, Record],
+                 wb: object, mem_rdy: Signal | C, tmo: int,
+                 geom: tuple[int, int]) -> tuple[FSM, Signal, Signal]:
+    """A READ+WRITE main-memory bridge: one wishbone master, one FSM.
+
+    `faces` are the processor-side sys-domain endpoints in the order
+    (read request, read response, write, write done); `wb` the master this
+    drives, `mem_rdy` the DFI handover gate, `tmo` the watchdog in sys cycles
+    and `geom` the `(sel_mask, addr_shift)` pair of the 64-bit lane. Returns
+    `(fsm, poisoned, poison_set)` exactly like `pp_desc_bridge`.
+
+    THESE ARE THE RESPONSE-BUFFER BRIDGE'S ARMS, for the saved-state backing
+    store's face (KL_nvm_backend through KL_pp_shadow, design page section 8):
+    the same contract to the letter - one outstanding single-beat write whose
+    strobe rides ONE 64-bit wishbone cycle as `sel` so a zero-strobe byte is
+    never modified, an entirely empty strobe skipped rather than issued, the
+    write offered first when both are pending, `rsp.ready` as real
+    backpressure, the error arm that reads `err` beside `ack`, the watchdog and
+    the poison flag (see `pp_desc_bridge` for why a poisoned master keeps
+    driving the bus). The response bridge itself stays inline in `MilanSoC`,
+    where the waiting bitstreams were exported from; moving it here is a
+    follow-up that owes the same netlist-identical export diff the descriptor
+    bridge's move produced.
+    """
+    rq, rs, rw, rd = faces
+    sel_mask, addr_sh = geom
+    _ra = Signal(32); _rl = Signal(9)
+    _rdat = Signal(64); _re = Signal()
+    _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
+    _rto = Signal(max=tmo + 1)
+    _psn = Signal(); _psn_set = Signal()
+    m.sync += If(_psn_set, _psn.eq(1)
+              ).Elif(_psn & (wb.ack | wb.err), _psn.eq(0))
+    fsm = FSM(reset_state="IDLE")
+    fsm.act("IDLE",
+        rw.ready.eq(1),
+        rq.ready.eq(~rw.valid),
+        NextValue(_rto, 0),
+        If(rw.valid,
+            NextValue(_wa, rw.addr), NextValue(_wd, rw.data),
+            NextValue(_ws, rw.strb),
+            NextValue(_werr, _psn | ~mem_rdy),
+            If(mem_rdy, NextState("WR")).Else(NextState("WDONE"))
+        ).Elif(rq.valid,
+            NextValue(_ra, rq.addr), NextValue(_rl, rq.beats),
+            NextValue(_re, _psn | ~mem_rdy),
+            If(mem_rdy, NextState("RD")).Else(NextState("REMIT"))))
+    fsm.act("WR",
+        If(_ws == 0,
+            NextState("WDONE")     # no byte enabled: nothing to write
+        ).Else(
+            wb.cyc.eq(1), wb.stb.eq(1), wb.we.eq(1),
+            wb.sel.eq(_ws), wb.adr.eq(_wa[addr_sh:]),
+            wb.dat_w.eq(Cat(_wd[56:64], _wd[48:56], _wd[40:48], _wd[32:40],
+                            _wd[24:32], _wd[16:24], _wd[8:16],  _wd[0:8])),
+            NextValue(_rto, _rto + 1),
+            If(wb.ack,
+                NextValue(_rto, 0),
+                If(wb.err, NextValue(_werr, 1)),
+                NextState("WDONE")
+            ).Elif(_rto == tmo,
+                NextValue(_rto, 0), NextValue(_werr, 1),
+                _psn_set.eq(1), NextState("WDONE"))))
+    # one cycle here = the one-cycle commit pulse, strictly after `wr_ready`
+    fsm.act("WDONE",
+        rd.valid.eq(1), rd.err.eq(_werr),
+        If(rd.ready, NextState("IDLE")))
+    fsm.act("RD",
+        wb.cyc.eq(1), wb.stb.eq(1), wb.sel.eq(sel_mask),
+        wb.adr.eq(_ra[addr_sh:]),
+        NextValue(_rto, _rto + 1),
+        If(wb.ack,
+            NextValue(_rto, 0),
+            If(wb.err, NextValue(_re, 1)
+            ).Else(NextValue(_rdat, wb.dat_r)),
+            NextState("REMIT")
+        ).Elif(_rto == tmo,
+            NextValue(_rto, 0), NextValue(_re, 1),
+            _psn_set.eq(1), NextState("REMIT")))
+    fsm.act("REMIT",
+        rs.valid.eq(1), rs.err.eq(_re),
+        rs.blast.eq((_rl == 1) | _re),
+        rs.data.eq(Cat(_rdat[56:64], _rdat[48:56], _rdat[40:48], _rdat[32:40],
+                       _rdat[24:32], _rdat[16:24], _rdat[8:16],  _rdat[0:8])),
+        If(rs.ready,
+            If(_re | (_rl == 1), NextState("IDLE")
+            ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
+                   NextValue(_rto, 0), NextState("RD"))))
+    return fsm, _psn, _psn_set
+
+
 # SoC ----------------------------------------------------------------------------------------------
 
 class MilanSoC(SoCCore):
@@ -2662,6 +2820,30 @@ class MilanSoC(SoCCore):
                     If(_re | (_rl == 1), NextState("IDLE")
                     ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
                            NextValue(_rto, 0), NextState("RD"))))
+
+            # ===============================================================
+            #  SAVED-STATE RECORD IMAGE READ+WRITE BRIDGE (design page 8)
+            # ===============================================================
+            # The THIRD master: KL_nvm_backend's, through KL_pp_shadow. The
+            # record image sits in the reserved ppmem window between the
+            # descriptor image and the response buffer, and the firmware that
+            # owns the flash names it to the backend through PP_NVM_SEL/DATA
+            # (0x934/0x938); until it does, the backend issues NOTHING on this
+            # master and the processor's NVM port sees blank flash. The arms
+            # are the response bridge's, in `pp_rw_bridge`: same lane, same
+            # strobe rule, same watchdog and poison flag, same DFI gate.
+            # ITS EVIDENCE IS THE BACKEND'S OWN: a refused or failed access
+            # reaches the processor as `dev_err` and the firmware as
+            # PP_NVM_STAT, so this face is not added to the `ppmem` observer
+            # below, whose published bit layout is two faces wide.
+            self.nvmmem_wb = _nwb = _wb.Interface(data_width=_pp_dw,
+                                                  adr_width=_pp_adrw,
+                                                  addressing="word")
+            _mem_bus.add_master("milan_nvm_mem", master=_nwb)
+            self.nvmmem_fsm, _npsn, _npsn_set = pp_rw_bridge(
+                self, (self.milan.nvmmem_req_sys, self.milan.nvmmem_rsp_sys,
+                       self.milan.nvmmem_wr_sys, self.milan.nvmmem_wd_sys),
+                _nwb, _mem_rdy, _pp_tmo, (_pp_selm, _pp_sh))
 
             # ===============================================================
             #  THE INSTRUMENT THE 08-13 ROUND DID NOT HAVE
