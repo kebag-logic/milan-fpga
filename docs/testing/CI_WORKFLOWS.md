@@ -892,6 +892,36 @@ python3 -I <audited-install>/act_ci.py --interrupt-selftest \
   --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
+The credential boundary has its own live negative control, the boundary
+self-test. It plants, in the invoking process's environment and a throwaway
+operator home, every secret the boundary must withhold: a GitHub token, a
+credential helper and an SSH command that only record being invoked, a
+credential store, a netrc line, `gh` and Docker auth files, an SSH agent
+socket, and an authenticated proxy on the loopback interface that records who
+presents credentials to it, beside a host loopback service. It then runs one
+probe job through the real boundary and the runner's own git at a credential
+challenge and an SSH URL, and requires the job to report the token, the Docker
+socket, the host loopback, an agent socket, proxy variables and credential
+files all absent (the job reports names and states, never values), the two
+clones to fail for the boundary's own reasons, and every recorder to stay
+silent. The same probe job then runs with the boundary removed (the operator
+environment passed through, the token sourced from it, act's default socket
+mount and host network) and plain git runs under the planted environment; now
+the job must report the token, the socket and the loopback visible, the proxy
+must have recorded an authenticated `CONNECT`, the credential helper must have
+been consulted and the SSH command must have run with the agent socket. A
+probe that cannot see a removed boundary proves nothing about the real one, so
+the second half is required for a pass. Host caches are covered by the
+interruption probe's cross-run marker and by the per-run action and cache
+directories above. The offline self-test pins the plants, the probe workflow's
+admissibility under the trusted sandbox, the transcript grading and both
+command shapes.
+
+```sh
+python3 -I <audited-install>/act_ci.py --boundary-selftest \
+  --act-bin <absolute-act-0.2.89> [--sudo]
+```
+
 The command reads the open PR from GitHub and refuses before validation when
 the base is not `dev`, the head is cross-repository, the candidate worktree is
 dirty or at a different SHA, or selected workflow bytes disagree with the
