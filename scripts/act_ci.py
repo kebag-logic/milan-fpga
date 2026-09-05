@@ -5836,6 +5836,12 @@ def selftest_boundary_probe_commands(tally: SelftestTally, docker: DockerFixture
     )
     require_boundary_present(command, docker.boundary)
     require_boundary_removed(leaky)
+    tally.refused(
+        "a boundary command that already lacks the owned network cannot be turned into a leaky arm",
+        lambda: leaky_act_command(
+            [word for word in command if word not in ("--network", docker.boundary.name)], plants, False
+        ),
+    )
     sudo_command = build_act_command(
         isolated_command_prefix("/trusted/act", True, controlled_act_environment(first)),
         "docs",
@@ -10827,6 +10833,8 @@ def leaky_act_command(
     act_index = words.index("pull_request") - 1
     arguments = words[act_index + 1 :]
     for flag in ("--container-daemon-socket", "--network"):
+        if flag not in arguments:
+            raise Refusal(f"boundary command carries no {flag}; there is no boundary to remove")
         position = arguments.index(flag)
         del arguments[position : position + 2]
     secret = arguments.index("--secret")
@@ -11036,9 +11044,15 @@ def host_leaky_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
 
 
 def run_boundary_arms(probe: BoundaryProbeRun, context: CommandContext) -> list[str]:
-    """Boundary arms first, with every plant in place, then the leaky arms; every problem found."""
+    """Boundary arms first, with every plant in place; the leaky arms only once the boundary held.
+
+    A boundary that leaks is already the verdict, so the leaky arms, which prove
+    the probe can see a removed boundary, run only after a clean boundary arm.
+    """
     problems = grade_probe_transcript(run_probe_arm(probe, context, leaky=False), "boundary")
     problems += host_boundary_arm(probe.plants, probe.layout)
+    if problems:
+        return problems
     problems += grade_probe_transcript(run_probe_arm(probe, context, leaky=True), "leaky")
     problems += host_leaky_arm(probe.plants, probe.layout)
     return problems
