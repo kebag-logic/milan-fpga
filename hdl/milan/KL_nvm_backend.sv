@@ -78,7 +78,8 @@
 `default_nettype none
 
 module KL_nvm_backend #(
-    //! core clock, for the millisecond tick the deadlines count in
+    //! core clock frequency in Hz; the millisecond tick the deadlines
+    //! count in is derived from it
     parameter int unsigned CLK_HZ_P       = 125_000_000,
     //! shape: the section 4.2 allocation's per-group occupancy
     parameter int unsigned N_STREAM_IN_P  = 9,
@@ -204,6 +205,31 @@ module KL_nvm_backend #(
 
   //! The id comparisons run in 9 bits: a block that ends exactly at 0x100
   //! (128 names) must not wrap to 0 and vanish, which an 8-bit sum would do.
+  // ---- elaboration contract: what this shape refuses ---------------------
+  //! Every bound is an id-block capacity of the section 4.2 allocation or a
+  //! counter width below, so a shape that cannot be addressed is refused when
+  //! the parameters bind rather than aliased into a neighbouring block.
+  //! ONE format string per $error: later arguments print as values.
+  if (N_STREAM_IN_P < 1 || N_STREAM_IN_P > 16 || N_STREAM_OUT_P < 1 || N_STREAM_OUT_P > 16) begin : g_refuse_streams
+    $error("KL_nvm_backend: N_STREAM_IN_P=%0d / N_STREAM_OUT_P=%0d outside 1..16: the BINDING, FORMAT and OFFSET blocks hold sixteen ids each (0x20, 0x30, 0x40, 0x50).",
+           N_STREAM_IN_P, N_STREAM_OUT_P);
+  end else if (N_SPORT_IN_P < 1 || N_SPORT_IN_P > 16 || N_SPORT_OUT_P < 1 || N_SPORT_OUT_P > 16) begin : g_refuse_sports
+    $error("KL_nvm_backend: N_SPORT_IN_P=%0d / N_SPORT_OUT_P=%0d outside 1..16: the channel-map blocks hold sixteen ids each (0x60, 0x70) and the tables are indexed by csr_addr_i[3:0].",
+           N_SPORT_IN_P, N_SPORT_OUT_P);
+  end else if (N_AUDIO_UNIT_P < 1 || N_AUDIO_UNIT_P > 8 || N_CLK_DOM_P < 1 || N_CLK_DOM_P > 8) begin : g_refuse_units
+    $error("KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.",
+           N_AUDIO_UNIT_P, N_CLK_DOM_P);
+  end else if (N_NAME_P < 1 || N_NAME_P > 128) begin : g_refuse_names
+    $error("KL_nvm_backend: N_NAME_P=%0d outside 1..128: the NAME block is 0x80..0xFF.",
+           N_NAME_P);
+  end else if (CLK_HZ_P < 1000) begin : g_refuse_clock
+    $error("KL_nvm_backend: CLK_HZ_P=%0d is below 1 kHz, so no millisecond tick can be derived for the section 9.4 deadlines.",
+           CLK_HZ_P);
+  end else if (T_ALIVE_MS_P < 1 || T_ALIVE_MS_P > 65535 || T_COMMIT_MS_P < 1 || T_COMMIT_MS_P > 65535) begin : g_refuse_deadlines
+    $error("KL_nvm_backend: T_ALIVE_MS_P=%0d / T_COMMIT_MS_P=%0d outside 1..65535: the deadline down-counters are sixteen bits wide.",
+           T_ALIVE_MS_P, T_COMMIT_MS_P);
+  end
+
   localparam int unsigned IDW_C = 9;
 
   // =======================================================================
