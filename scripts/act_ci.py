@@ -48,6 +48,7 @@ import shlex
 import shutil
 import signal
 import socket
+import socketserver
 import stat
 import subprocess
 import sys
@@ -5732,6 +5733,199 @@ def selftest_action_launch_order(
     )
 
 
+def selftest_boundary_plants(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: plants and silent recorders, plant-free runner environments, and an admissible probe workflow."""
+    check = tally.check
+    first = docker.layout
+    root = first.temporary / "boundary-plants"
+    root.mkdir()
+    plants = plant_boundary_secrets(root, (3128, 8080))
+    environment = plants.environment()
+    direct = plants.environment(proxied=False)
+    files = (".netrc", ".git-credentials", ".config/gh/hosts.yml", ".docker/config.json")
+    check(
+        "the plants occupy every operator-environment name the boundary must withhold, each "
+        "credential file carries the planted token, and both recorders are executable and silent",
+        all(name in environment for name in PLANTED_ENVIRONMENT_NAMES)
+        and not any(name.lower().endswith("_proxy") for name in direct)
+        and environment["HTTPS_PROXY"] == plants.proxy_url == environment["all_proxy"]
+        and all(plants.token in (plants.home / name).read_text(encoding="utf-8") for name in files)
+        and str(plants.home / "planted-credential-helper")
+        in (plants.home / ".gitconfig").read_text(encoding="utf-8")
+        and all(
+            os.access(plants.home / name, os.X_OK) for name in ("planted-credential-helper", "planted-ssh")
+        )
+        and not recorder_activity(plants, "fixture"),
+    )
+    runner_environments = (git_environment(first.home), controlled_act_environment(first))
+    prefix = " ".join(isolated_command_prefix("/trusted/act", True, controlled_act_environment(first)))
+    check(
+        "no plant reaches the runner's git environment, act's environment, or the sudo prefix "
+        "by construction",
+        all(
+            name not in built and built["HOME"] != str(plants.home)
+            for built in runner_environments
+            for name in PLANTED_ENVIRONMENT_NAMES
+        )
+        and plants.token not in prefix
+        and str(plants.home) not in prefix,
+    )
+    fixture_root = first.temporary / "boundary-probe-fixture"
+    for path, contents in boundary_probe_sources(plants).items():
+        (fixture_root / path).parent.mkdir(parents=True, exist_ok=True)
+        (fixture_root / path).write_text(contents, encoding="utf-8")
+    WORKFLOWS[BOUNDARY_PROBE_WORKFLOW] = BOUNDARY_PROBE_PATH
+    try:
+        validate_workflow_sandbox(fixture_root, (BOUNDARY_PROBE_WORKFLOW,))
+        scope = workflow_job_volume_scope(fixture_root, (BOUNDARY_PROBE_WORKFLOW,))
+    finally:
+        WORKFLOWS.pop(BOUNDARY_PROBE_WORKFLOW, None)
+    text = boundary_probe_sources(plants)[BOUNDARY_PROBE_PATH]
+    check(
+        "the probe workflow passes the trusted sandbox, leases its own job-volume prefix, maps the "
+        "token secret, reports every check in both states, and carries no plant but the token marker",
+        scope == {BOUNDARY_PROBE_WORKFLOW: "act-boundary-probe-selftest-"}
+        and "PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}" in text
+        and all(f"report {name} visible" in text and f"report {name} absent" in text for name in BOUNDARY_PROBE_NAMES)
+        and f"/dev/tcp/127.0.0.1/{plants.loopback_port}" in text
+        and "/var/run/docker.sock" in text
+        and plants.proxy_url not in text
+        and str(plants.home) not in text,
+    )
+
+
+def selftest_boundary_probe_commands(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: transcript grading on planted transcripts, and the boundary and leaky command shapes."""
+    check = tally.check
+    first = docker.layout
+    plants = plant_boundary_secrets(first.temporary / "boundary-command-plants", (3128, 8080))
+    prefix = f"[{BOUNDARY_PROBE_WORKFLOW}/probe]   | boundary-probe "
+    absent = "".join(f"{prefix}{name}=absent\n" for name in BOUNDARY_PROBE_NAMES)
+    visible = "".join(f"{prefix}{name}=visible\n" for name in BOUNDARY_PROBE_NAMES)
+    partial = absent.replace(f"{prefix}docker-socket=absent\n", "")
+    check(
+        "grading: an all-absent transcript passes the boundary arm and fails the leaky arm on the "
+        "three discriminators; all-visible the reverse; an unreported check fails both; `other` fails "
+        "the boundary arm",
+        grade_probe_transcript(absent, "boundary") == []
+        and len(grade_probe_transcript(absent, "leaky")) == len(BOUNDARY_DISCRIMINATORS)
+        and len(grade_probe_transcript(visible, "boundary")) == len(BOUNDARY_PROBE_NAMES)
+        and grade_probe_transcript(visible, "leaky") == []
+        and all("docker-socket was not reported" in p for p in grade_probe_transcript(partial, "boundary")[:1])
+        and any("not reported" in p for p in grade_probe_transcript(partial, "leaky"))
+        and grade_probe_transcript(absent.replace("token=absent", "token=other"), "boundary")
+        == ["boundary arm: token is other"],
+    )
+    command = build_act_command(["act"], "docs", first, docker.port, docker.boundary)
+    leaky = leaky_act_command(command, plants, False)
+    check(
+        "the boundary command carries the empty token, the disabled socket and the owned network; "
+        "the leaky command drops exactly those, sources the token from the environment, and keeps "
+        "the ownership label and the event",
+        expect_refusal("the boundary command is refused as a leaky arm", lambda: require_boundary_removed(command))
+        and expect_refusal(
+            "the leaky command is refused as a boundary arm",
+            lambda: require_boundary_present(leaky, docker.boundary),
+        )
+        and "--container-daemon-socket" not in leaky
+        and "--network" not in leaky
+        and leaky[leaky.index("--secret") + 1] == "GITHUB_TOKEN"
+        and leaky[leaky.index("--container-options") + 1] == command[command.index("--container-options") + 1]
+        and leaky[leaky.index("--eventpath") + 1] == str(first.event_path)
+        and leaky[0] == "act",
+    )
+    require_boundary_present(command, docker.boundary)
+    require_boundary_removed(leaky)
+    tally.refused(
+        "a boundary command that already lacks the owned network cannot be turned into a leaky arm",
+        lambda: leaky_act_command(
+            [word for word in command if word not in ("--network", docker.boundary.name)], plants, False
+        ),
+    )
+    sudo_command = build_act_command(
+        isolated_command_prefix("/trusted/act", True, controlled_act_environment(first)),
+        "docs",
+        first,
+        docker.port,
+        docker.boundary,
+    )
+    leaky_sudo = leaky_act_command(sudo_command, plants, True)
+    head = leaky_sudo[: leaky_sudo.index("pull_request")]
+    check(
+        "under sudo the leaky command starts act from the planted environment, not an emptied one, "
+        "and the boundary command without its `-i` is refused",
+        "-i" not in head
+        and f"HOME={plants.home}" in head
+        and f"GITHUB_TOKEN={plants.token}" in head
+        and head[-1] == "/trusted/act"
+        and pathlib.Path(head[0]).name == "sudo"
+        and expect_refusal(
+            "a sudo boundary command that keeps the operator environment is refused",
+            lambda: require_boundary_present(
+                [word for word in sudo_command if word != "-i"], docker.boundary
+            ),
+        ),
+    )
+    transcript = first.temporary / "boundary-transcript.log"
+    child = transcript_popen(transcript)(
+        [sys.executable, "-c", "print('boundary-probe token=absent')"], cwd=first.temporary
+    )
+    child.wait()
+    check(
+        "the transcript Popen appends the child's output where the grader reads it",
+        child.returncode == 0 and parse_probe_transcript(transcript.read_text(encoding="utf-8")) == {"token": "absent"},
+    )
+
+
+
+def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the probe-clone runner drains a lingering group, refuses a success, kills one outliving the grace.
+
+    The lingering grandchildren release the pipes, as git's remote helper does,
+    so `communicate` returns while the group still has a member.
+    """
+    check = tally.check
+    cwd = docker.layout.temporary
+    env = {"PATH": SAFE_PATH}
+    shell = require_tool("sh")
+    text = run_probe_clone(
+        [shell, "-c", "sleep 0.2 >/dev/null 2>&1 & printf 'first\\nlast line\\n' >&2; exit 1"],
+        env=env,
+        cwd=cwd,
+        label="draining",
+    )
+    check(
+        "a failing child whose group drains within the grace yields its last stderr line",
+        text == "last line",
+    )
+    tally.refused(
+        "a probe clone that succeeds is refused",
+        lambda: run_probe_clone([shell, "-c", "exit 0"], env=env, cwd=cwd, label="success"),
+    )
+    try:
+        run_probe_clone(
+            [shell, "-c", "sleep 30 >/dev/null 2>&1 & exit 1"],
+            env=env,
+            cwd=cwd,
+            label="lingering",
+            grace=0.1,
+        )
+    except Refusal as exc:
+        message = str(exc)
+    else:
+        message = ""
+    check(
+        "a group that outlives the grace is killed and reported",
+        "survived 0.1 s" in message and "was killed" in message,
+    )
+    tally.refused(
+        "a probe clone that has not finished within its timeout is killed and refused",
+        lambda: run_probe_clone(
+            [shell, "-c", "sleep 30"], env=env, cwd=cwd, label="hanging", timeout=0.2
+        ),
+    )
+
+
 def selftest_toolcache_ownership(tally: SelftestTally, docker: DockerFixture) -> None:
     """Arms: the labelled tool cache is accepted, and a foreign or rival cache is never removed."""
     check = tally.check
@@ -9329,6 +9523,9 @@ def selftest_run_directory_stages(
             selftest_act_command_refusals(tally, docker)
             selftest_action_materialisation(tally, docker)
             selftest_action_plan(tally, docker)
+            selftest_boundary_plants(tally, docker)
+            selftest_boundary_probe_commands(tally, docker)
+            selftest_probe_clone_runner(tally, docker)
             selftest_toolcache_ownership(tally, docker)
             selftest_toolcache_survivor(tally, docker)
             selftest_toolcache_post_accept(tally, docker)
@@ -10315,6 +10512,627 @@ def interrupt_selftest(act_binary: str, use_sudo: bool) -> int:
     return RC_OK
 
 
+BOUNDARY_PROBE_WORKFLOW = "boundary-probe-selftest"
+BOUNDARY_PROBE_PATH = ".github/workflows/boundary-probe-selftest.yml"
+#: The probe job reports by name and state only: `boundary-probe <name>=<state>`.
+BOUNDARY_PROBE_LINE_RE = re.compile(r"boundary-probe ([a-z-]+)=(visible|absent|other)\b")
+#: Every check the probe job reports. The first three separate a boundaried
+#: launch from an unboundaried one; the last three are absent under both,
+#: because act forwards no operator environment or home directory on its
+#: own, and are reported so the transcript states that rather than assumes it.
+BOUNDARY_PROBE_NAMES = (
+    "token",
+    "docker-socket",
+    "host-loopback",
+    "ssh-agent",
+    "proxy-env",
+    "credential-files",
+)
+BOUNDARY_DISCRIMINATORS = ("token", "docker-socket", "host-loopback")
+#: The operator-environment names the plants occupy. None may reach act,
+#: the job container, or the runner's own git.
+PLANTED_ENVIRONMENT_NAMES = (
+    "GITHUB_TOKEN",
+    "GH_TOKEN",
+    "HTTPS_PROXY",
+    "https_proxy",
+    "HTTP_PROXY",
+    "http_proxy",
+    "ALL_PROXY",
+    "all_proxy",
+    "SSH_AUTH_SOCK",
+    "GIT_SSH_COMMAND",
+)
+#: GitHub answers a clone of a repository that does not exist with a
+#: credential challenge, so git consults every credential source its
+#: environment offers before it fails; that is the host-side probe.
+CREDENTIAL_CHALLENGE_URL = "https://github.com/kebag-logic/act-ci-boundary-selftest-absent"
+SSH_PROBE_URL = "ssh://git@github.com/kebag-logic/milan-fpga.git"
+#: A probe clone reaches a loopback recorder or GitHub's credential challenge;
+#: minutes is generous, and the run is a refusal rather than a hang beyond it.
+PROBE_CLONE_TIMEOUT = 5 * 60
+PLANTED_PROXY_RESPONSE = (
+    b"HTTP/1.1 407 Proxy Authentication Required\r\n"
+    b'Proxy-Authenticate: Basic realm="planted"\r\n'
+    b"Content-Length: 0\r\nConnection: close\r\n\r\n"
+)
+
+
+@dataclass(frozen=True)
+class BoundaryPlants:
+    """The fake operator secrets one boundary self-test plants, and where their recorders write.
+
+    Every value is invented for the run: a token, a credential store, a netrc
+    line, a `gh` host file, a Docker auth file, a credential helper and an SSH
+    command that only record being invoked, an agent socket nothing answers,
+    and a proxy on the loopback interface that records who presents
+    credentials to it.
+    """
+
+    home: pathlib.Path
+    token: str
+    helper_log: pathlib.Path
+    ssh_log: pathlib.Path
+    proxy_log: pathlib.Path
+    agent_socket: pathlib.Path
+    proxy_port: int
+    loopback_port: int
+
+    @property
+    def proxy_url(self) -> str:
+        """The planted proxy with the planted credential in it, as an operator's shell might carry it."""
+        return f"http://planted:{self.token}@127.0.0.1:{self.proxy_port}"
+
+    def environment(self, *, proxied: bool = True) -> dict[str, str]:
+        """The operator environment with every plant present, as an unboundaried launch inherits it."""
+        environment = {
+            "PATH": SAFE_PATH,
+            "HOME": str(self.home),
+            "LANG": "C.UTF-8",
+            "LC_ALL": "C.UTF-8",
+            "GITHUB_TOKEN": self.token,
+            "GH_TOKEN": self.token,
+            "SSH_AUTH_SOCK": str(self.agent_socket),
+            "GIT_SSH_COMMAND": str(self.home / "planted-ssh"),
+        }
+        if proxied:
+            for name in PLANTED_ENVIRONMENT_NAMES:
+                if name.lower().endswith("_proxy"):
+                    environment[name] = self.proxy_url
+        return environment
+
+
+class PlantedProxyServer(socketserver.ThreadingTCPServer):
+    """A loopback proxy that answers every request with 407 and records what it was shown."""
+
+    allow_reuse_address = True
+    daemon_threads = True
+
+    def __init__(self, log_path: pathlib.Path) -> None:
+        """Bind an ephemeral loopback port and record requests to `log_path`."""
+        self.log_path = log_path
+        super().__init__(("127.0.0.1", 0), PlantedProxyHandler)
+
+
+class PlantedProxyHandler(socketserver.StreamRequestHandler):
+    """Record one request's first line and whether it carried proxy credentials, never the value."""
+
+    def handle(self) -> None:
+        """Read the request line and headers, append one record line, answer 407."""
+        request = self.rfile.readline(4096).decode("latin-1", "replace").strip()
+        credentials = "absent"
+        for _ in range(64):
+            header = self.rfile.readline(4096)
+            if not header or header in (b"\r\n", b"\n"):
+                break
+            if header.lower().startswith(b"proxy-authorization:"):
+                credentials = "present"
+        log_path = getattr(self.server, "log_path")
+        with log_path.open("a", encoding="utf-8") as handle:
+            handle.write(f"{request} proxy-authorization={credentials}\n")
+        self.wfile.write(PLANTED_PROXY_RESPONSE)
+
+
+class LoopbackMarkerHandler(socketserver.StreamRequestHandler):
+    """Answer a connection on the host loopback listener; reaching it is what the probe reports."""
+
+    def handle(self) -> None:
+        """Write one marker line and close."""
+        self.wfile.write(b"planted host service\n")
+
+
+@contextlib.contextmanager
+def planted_loopback_services(root: pathlib.Path) -> Iterator[tuple[int, int]]:
+    """Serve the planted proxy, the loopback marker and an agent socket under `root`; (proxy, marker) ports."""
+    proxy = PlantedProxyServer(root / "proxy.log")
+    marker = socketserver.TCPServer(("127.0.0.1", 0), LoopbackMarkerHandler)
+    agent = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    agent.bind(str(root / "agent.sock"))
+    agent.listen(1)
+    threads = [
+        threading.Thread(target=server.serve_forever, daemon=True)
+        for server in (proxy, marker)
+    ]
+    for thread in threads:
+        thread.start()
+    try:
+        yield proxy.server_address[1], marker.server_address[1]
+    finally:
+        for server in (proxy, marker):
+            server.shutdown()
+            server.server_close()
+        agent.close()
+        for thread in threads:
+            thread.join(timeout=5)
+
+
+def plant_boundary_secrets(root: pathlib.Path, ports: tuple[int, int]) -> BoundaryPlants:
+    """Write the planted operator home, the two recorders and their logs beneath `root`; the plants."""
+    token = f"ghp_planted{secrets.token_hex(8)}"
+    home = root / "planted-home"
+    for directory in (home / ".ssh", home / ".config" / "gh", home / ".docker"):
+        directory.mkdir(parents=True, exist_ok=True)
+    helper_log = root / "credential-helper.log"
+    ssh_log = root / "ssh-command.log"
+    for log in (helper_log, ssh_log, root / "proxy.log"):
+        log.touch()
+    helper = home / "planted-credential-helper"
+    helper.write_text(
+        "#!/bin/sh\n"
+        f"printf 'called %s\\n' \"$1\" >> '{helper_log}'\n"
+        "if [ \"$1\" = get ]; then\n"
+        f"  printf 'username=planted\\npassword=%s\\n' '{token}'\n"
+        "fi\n",
+        encoding="utf-8",
+    )
+    (home / "planted-ssh").write_text(
+        "#!/bin/sh\n"
+        f"printf 'invoked agent=%s\\n' \"${{SSH_AUTH_SOCK:-unset}}\" >> '{ssh_log}'\n"
+        "exit 255\n",
+        encoding="utf-8",
+    )
+    for script in (helper, home / "planted-ssh"):
+        script.chmod(0o700)
+    (home / ".gitconfig").write_text(
+        f"[credential]\n\thelper = {helper}\n"
+        "[user]\n\tname = planted\n\temail = planted@example.invalid\n",
+        encoding="utf-8",
+    )
+    (home / ".git-credentials").write_text(f"https://planted:{token}@github.com\n", encoding="utf-8")
+    (home / ".netrc").write_text(f"machine github.com login planted password {token}\n", encoding="utf-8")
+    (home / ".config" / "gh" / "hosts.yml").write_text(
+        f"github.com:\n    oauth_token: {token}\n    user: planted\n", encoding="utf-8"
+    )
+    (home / ".docker" / "config.json").write_text(
+        json.dumps({"auths": {"ghcr.io": {"auth": token}}}) + "\n", encoding="utf-8"
+    )
+    for private in (home / ".git-credentials", home / ".netrc"):
+        private.chmod(0o600)
+    return BoundaryPlants(
+        home=home,
+        token=token,
+        helper_log=helper_log,
+        ssh_log=ssh_log,
+        proxy_log=root / "proxy.log",
+        agent_socket=root / "agent.sock",
+        proxy_port=ports[0],
+        loopback_port=ports[1],
+    )
+
+
+@contextlib.contextmanager
+def planted_operator_environment(plants: BoundaryPlants) -> Iterator[None]:
+    """Put every plant into this process's own environment while the body runs, then restore it."""
+    saved = {name: os.environ.get(name) for name in (*PLANTED_ENVIRONMENT_NAMES, "HOME")}
+    os.environ.update(plants.environment())
+    try:
+        yield
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
+def boundary_probe_sources(plants: BoundaryPlants) -> dict[str, str]:
+    """The probe workflow by path: one job reporting, by name and state only, which plants it can see."""
+    lines = [
+        "set -uo pipefail",
+        "report() { printf 'boundary-probe %s=%s\\n' \"$1\" \"$2\"; }",
+        f'if [ "${{PROBE_TOKEN:-}}" = "{plants.token}" ]; then report token visible',
+        'elif [ -n "${PROBE_TOKEN:-}" ]; then report token other',
+        "else report token absent; fi",
+        "if [ -S /var/run/docker.sock ]; then report docker-socket visible",
+        "else report docker-socket absent; fi",
+        f"if (exec 3<>/dev/tcp/127.0.0.1/{plants.loopback_port}) 2>/dev/null",
+        "then report host-loopback visible; else report host-loopback absent; fi",
+        'if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "$SSH_AUTH_SOCK" ]; then report ssh-agent visible',
+        "else report ssh-agent absent; fi",
+        "if env | grep -qiE '^(https?_proxy|all_proxy)='; then report proxy-env visible",
+        "else report proxy-env absent; fi",
+        'if [ -e "$HOME/.git-credentials" ] || [ -e "$HOME/.netrc" ] \\',
+        '   || [ -e "$HOME/.config/gh/hosts.yml" ] \\',
+        '   || [ -n "$(git config --global --get-all credential.helper 2>/dev/null)" ]',
+        "then report credential-files visible; else report credential-files absent; fi",
+        "exit 0",
+    ]
+    script = "".join(f"          {line}\n" for line in lines)
+    return {
+        BOUNDARY_PROBE_PATH: (
+            f"name: {BOUNDARY_PROBE_WORKFLOW}\n"
+            "on: pull_request\n"
+            "jobs:\n"
+            "  probe:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    env:\n"
+            "      PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n"
+            "    steps:\n"
+            "      - shell: bash\n"
+            "        run: |\n" + script
+        )
+    }
+
+
+def parse_probe_transcript(text: str) -> dict[str, str]:
+    """The probe's `name=state` reports found in `text`, the last report per name."""
+    return {match.group(1): match.group(2) for match in BOUNDARY_PROBE_LINE_RE.finditer(text)}
+
+
+def grade_probe_transcript(text: str, arm: str) -> list[str]:
+    """The problems with one arm's transcript: a check not reported, or a state that arm forbids.
+
+    The boundary arm must report every check absent. The leaky arm must report
+    the three discriminators visible: a probe that cannot see a removed
+    boundary proves nothing when it reports the real one intact.
+    """
+    reports = parse_probe_transcript(text)
+    problems: list[str] = []
+    for name in BOUNDARY_PROBE_NAMES:
+        state = reports.get(name)
+        if state is None:
+            problems.append(f"{arm} arm: {name} was not reported")
+        elif arm == "boundary" and state != "absent":
+            problems.append(f"{arm} arm: {name} is {state}")
+        elif arm == "leaky" and name in BOUNDARY_DISCRIMINATORS and state != "visible":
+            problems.append(f"{arm} arm: {name} is {state}, so the probe cannot see a removed boundary")
+    return problems
+
+
+def require_boundary_present(command: Sequence[str], boundary: DockerBoundary) -> None:
+    """Refuse a boundary-arm act command that lacks the empty token, the disabled socket, or the owned network."""
+    words = list(command)
+    pairs = (
+        ("--secret", "GITHUB_TOKEN="),
+        ("--container-daemon-socket", "-"),
+        ("--network", boundary.name),
+    )
+    for flag, value in pairs:
+        if flag not in words or words[words.index(flag) + 1] != value:
+            raise Refusal(f"boundary arm command does not carry {flag} {value}")
+    if "sudo" in pathlib.Path(words[0]).name and "-i" not in words[: words.index("pull_request")]:
+        raise Refusal("boundary arm command under sudo does not start act from an empty environment")
+
+
+def require_boundary_removed(command: Sequence[str]) -> None:
+    """Refuse a leaky-arm act command that still carries any part of the boundary."""
+    words = list(command)
+    head = words[: words.index("pull_request")]
+    for flag in ("--container-daemon-socket", "--network"):
+        if flag in words:
+            raise Refusal(f"leaky arm command still carries {flag}")
+    if "--secret" not in words or words[words.index("--secret") + 1] != "GITHUB_TOKEN":
+        raise Refusal("leaky arm command does not source GITHUB_TOKEN from the environment")
+    if "-i" in head:
+        raise Refusal("leaky arm command still empties the environment")
+
+
+def leaky_act_command(
+    command: Sequence[str], plants: BoundaryPlants, use_sudo: bool
+) -> list[str]:
+    """`command` with its boundary removed: operator environment, env-sourced token, socket mount, host network.
+
+    This is the control arm. Everything else, including the ownership label
+    that lets the runner reclaim the container, is kept.
+    """
+    words = list(command)
+    act_index = words.index("pull_request") - 1
+    arguments = words[act_index + 1 :]
+    for flag in ("--container-daemon-socket", "--network"):
+        if flag not in arguments:
+            raise Refusal(f"boundary command carries no {flag}; there is no boundary to remove")
+        position = arguments.index(flag)
+        del arguments[position : position + 2]
+    secret = arguments.index("--secret")
+    if arguments[secret + 1] != "GITHUB_TOKEN=":
+        raise Refusal("boundary command does not carry the explicit empty GITHUB_TOKEN")
+    arguments[secret + 1] = "GITHUB_TOKEN"
+    if not use_sudo:
+        return [words[act_index], *arguments]
+    assignments = [f"{key}={value}" for key, value in sorted(plants.environment().items())]
+    return [
+        require_tool("sudo"),
+        "-n",
+        "--",
+        require_tool("env"),
+        *assignments,
+        words[act_index],
+        *arguments,
+    ]
+
+
+def transcript_popen(path: pathlib.Path) -> Callable[..., subprocess.Popen[object]]:
+    """A Popen that appends the child's stdout and stderr to `path`, so a transcript can be graded."""
+
+    def popen(command: Sequence[str], **kwargs: object) -> subprocess.Popen[object]:
+        """Start `command` with both streams appended to the transcript file."""
+        with path.open("ab") as handle:
+            return subprocess.Popen(command, stdout=handle, stderr=subprocess.STDOUT, **kwargs)
+
+    return popen
+
+
+@dataclass(frozen=True)
+class BoundaryProbeRun:
+    """What one probe arm launches through: the run layout, the act prefix, the job-volume scope and the plants."""
+
+    layout: RunLayout
+    prefix: Sequence[str]
+    scope: Mapping[str, str]
+    plants: BoundaryPlants
+
+
+def run_probe_arm(probe: BoundaryProbeRun, context: CommandContext, *, leaky: bool) -> str:
+    """Run the probe job once, through the boundary or with it removed; act's transcript."""
+    arm = "leaky" if leaky else "boundary"
+    transcript = probe.layout.temporary / f"{arm}-probe.log"
+    with temporary_docker_boundary(
+        new_docker_boundary((probe.scope[BOUNDARY_PROBE_WORKFLOW],)),
+        context=context,
+    ) as boundary:
+        command = build_act_command(
+            probe.prefix, BOUNDARY_PROBE_WORKFLOW, probe.layout, allocate_tcp_port(), boundary
+        )
+        command.append("--pull=false")
+        arm_context = context
+        if leaky:
+            command = leaky_act_command(command, probe.plants, context.use_sudo)
+            arm_context = replace(context, env=probe.plants.environment())
+            require_boundary_removed(command)
+        else:
+            require_boundary_present(command, boundary)
+        require_act_job_volumes_absent(boundary, context=context)
+        result = run_act_process(
+            command,
+            context=arm_context,
+            seams=ProcessSeams(popen=transcript_popen(transcript)),
+        )
+    text = transcript.read_text(encoding="utf-8", errors="replace")
+    if result.returncode != 0:
+        tail = " / ".join(text.strip().splitlines()[-3:])
+        raise Refusal(f"{arm} probe job exited {result.returncode}: {tail}")
+    return text
+
+
+def kill_probe_group(process: subprocess.Popen[str]) -> None:
+    """SIGKILL a probe clone's whole session and reap its leader; an already-empty group is fine."""
+    with blocked_cleanup_signals(), contextlib.suppress(ProcessLookupError):
+        os.killpg(process.pid, signal.SIGKILL)
+    process.wait()
+
+
+def run_probe_clone(
+    command: Sequence[str],
+    *,
+    env: Mapping[str, str],
+    cwd: pathlib.Path,
+    label: str,
+    grace: float = 5.0,
+    timeout: float = PROBE_CLONE_TIMEOUT,
+) -> str:
+    """Run a probe clone that must fail, in its own session; its last stderr line.
+
+    Every probe clone fails by design: at a credential challenge with no
+    credential source, at a refused transport, at a proxy that answers 407, or
+    through an SSH command that exits 255. When git dies that way its remote
+    helper outlives it by some milliseconds, which `capture`'s instantaneous
+    process-group check reads as a survivor, so the group is given `grace`
+    seconds to drain; one that outlives them is killed and is a Refusal, as is
+    a clone that succeeds or one that has not finished after `timeout` seconds.
+    """
+    try:
+        with deferred_cleanup_signal_delivery():
+            process = subprocess.Popen(
+                list(command),
+                cwd=cwd,
+                env=dict(env),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                start_new_session=True,
+            )
+    except OSError as exc:
+        raise Refusal(f"cannot start the {label} clone: {exc}") from exc
+    try:
+        _stdout, stderr = process.communicate(timeout=timeout)
+        deadline = time.monotonic() + grace
+        while process_group_exists(process.pid, use_sudo=False):
+            if time.monotonic() >= deadline:
+                raise Refusal(
+                    f"the {label} clone's process group survived {grace:g} s after "
+                    "its leader exited and was killed"
+                )
+            time.sleep(0.01)
+    except subprocess.TimeoutExpired as exc:
+        kill_probe_group(process)
+        raise Refusal(
+            f"the {label} clone did not finish within {timeout:g} s and was killed"
+        ) from exc
+    except Refusal:
+        kill_probe_group(process)
+        raise
+    if process.returncode == 0:
+        raise Refusal(f"the {label} clone succeeded against a URL that must fail")
+    lines = stderr.strip().splitlines()
+    return lines[-1] if lines else f"exit {process.returncode} with no stderr"
+
+
+def host_boundary_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
+    """Run the runner's own git at a credential challenge and an SSH URL with every plant present; the problems.
+
+    Both clones must fail for the boundary's reason: the challenge with prompts
+    disabled and no credential source, the SSH URL as a refused transport. The
+    recorders must have seen nothing.
+    """
+    problems: list[str] = []
+    env = git_environment(layout.home)
+    expectations = (
+        ("challenge", CREDENTIAL_CHALLENGE_URL, "terminal prompts disabled"),
+        ("ssh", SSH_PROBE_URL, "not allowed"),
+    )
+    for label, url, expected in expectations:
+        target = layout.temporary / f"boundary-{label}"
+        try:
+            text = run_probe_clone(
+                [*git_prefix(), "clone", "--quiet", url, str(target)],
+                env=env,
+                cwd=layout.root,
+                label=f"boundary {label}",
+            )
+        except Refusal as exc:
+            problems.append(str(exc))
+            continue
+        if expected not in text:
+            problems.append(f"boundary {label} clone failed for another reason: {text}")
+    problems.extend(recorder_activity(plants, "boundary"))
+    return problems
+
+
+def recorder_activity(plants: BoundaryPlants, arm: str) -> list[str]:
+    """One problem per planted recorder that holds a record, named for `arm`."""
+    recorders = (
+        ("credential helper", plants.helper_log),
+        ("SSH command", plants.ssh_log),
+        ("proxy", plants.proxy_log),
+    )
+    return [
+        f"{arm} arm: the planted {name} recorded activity: {log.read_text(encoding='utf-8').strip()!r}"
+        for name, log in recorders
+        if log.read_text(encoding="utf-8").strip()
+    ]
+
+
+def host_leaky_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
+    """Run plain git under the planted operator environment; every recorder must record its use.
+
+    The proxied clone must present the planted proxy credential, the direct
+    clone must consult the planted credential helper, and the SSH clone must
+    run the planted SSH command with the planted agent socket. Each clone
+    fails, because every plant is fake; the records are the result.
+    """
+    problems: list[str] = []
+    git = require_tool("git")
+    proxied = plants.environment()
+    direct = plants.environment(proxied=False)
+    clones = (
+        ("proxied", CREDENTIAL_CHALLENGE_URL, proxied),
+        ("direct", CREDENTIAL_CHALLENGE_URL, direct),
+        ("ssh", SSH_PROBE_URL, direct),
+    )
+    for label, url, env in clones:
+        target = layout.temporary / f"leaky-{label}"
+        try:
+            run_probe_clone(
+                [git, "clone", "--quiet", url, str(target)],
+                env=env,
+                cwd=layout.root,
+                label=f"leaky {label}",
+            )
+        except Refusal as exc:
+            problems.append(str(exc))
+    proxy_text = plants.proxy_log.read_text(encoding="utf-8")
+    if "CONNECT github.com:443" not in proxy_text or "proxy-authorization=present" not in proxy_text:
+        problems.append("leaky arm: the planted proxy saw no authenticated CONNECT from the unboundaried clone")
+    if "called get" not in plants.helper_log.read_text(encoding="utf-8"):
+        problems.append("leaky arm: the planted credential helper was not consulted by the unboundaried clone")
+    if f"agent={plants.agent_socket}" not in plants.ssh_log.read_text(encoding="utf-8"):
+        problems.append("leaky arm: the planted SSH command did not run with the planted agent socket")
+    return problems
+
+
+def run_boundary_arms(probe: BoundaryProbeRun, context: CommandContext) -> list[str]:
+    """Boundary arms first, with every plant in place; the leaky arms only once the boundary held.
+
+    A boundary that leaks is already the verdict, so the leaky arms, which prove
+    the probe can see a removed boundary, run only after a clean boundary arm.
+    """
+    problems = grade_probe_transcript(run_probe_arm(probe, context, leaky=False), "boundary")
+    problems += host_boundary_arm(probe.plants, probe.layout)
+    if problems:
+        return problems
+    problems += grade_probe_transcript(run_probe_arm(probe, context, leaky=True), "leaky")
+    problems += host_leaky_arm(probe.plants, probe.layout)
+    return problems
+
+
+def boundary_selftest_pull_request() -> PullRequest:
+    """The synthetic PR the boundary self-test materializes its probe workflow under."""
+    return replace(
+        interrupt_selftest_pull_request(),
+        head_ref="boundary-selftest",
+        head_sha="3" * 40,
+    )
+
+
+def boundary_selftest(act_binary: str, use_sudo: bool) -> int:
+    """Live negative control for the credential boundary (#337).
+
+    Plants every operator secret the boundary must withhold, runs a probe job
+    and the runner's own git through the boundary and requires them to see
+    none of it, then runs the same probe and plain git with the boundary
+    removed and requires them to see the plants. The second half is what
+    makes the first half evidence rather than silence.
+    """
+    problems: list[str] = []
+    with temporary_run_directory(use_sudo) as run_root:
+        layout = make_layout(run_root, boundary_selftest_pull_request())
+        layout.checkout.mkdir(parents=True)
+        planted_root = run_root / "planted"
+        planted_root.mkdir()
+        with planted_loopback_services(planted_root) as ports:
+            plants = plant_boundary_secrets(planted_root, ports)
+            commit_interrupt_selftest_checkout(layout, boundary_probe_sources(plants))
+            env = controlled_act_environment(layout)
+            context = CommandContext(use_sudo=use_sudo, cwd=layout.invocation, env=env)
+            validate_isolation_layout(layout)
+            prefix = require_runtime(act_binary, use_sudo, layout, env)
+            WORKFLOWS[BOUNDARY_PROBE_WORKFLOW] = BOUNDARY_PROBE_PATH
+            try:
+                validate_workflow_sandbox(layout.checkout, (BOUNDARY_PROBE_WORKFLOW,))
+                scope = workflow_job_volume_scope(layout.checkout, (BOUNDARY_PROBE_WORKFLOW,))
+                probe = BoundaryProbeRun(layout, prefix, scope, plants)
+                with planted_operator_environment(plants):
+                    problems = run_boundary_arms(probe, context)
+            finally:
+                with blocked_cleanup_signals():
+                    WORKFLOWS.pop(BOUNDARY_PROBE_WORKFLOW, None)
+    if run_root.exists() or run_root.is_symlink():
+        raise Refusal("boundary self-test left its exact run directory")
+    if problems:
+        raise Refusal("boundary self-test: " + "; ".join(problems))
+    print(
+        "boundary-selftest: PASS (with a planted token, credential helper, credential "
+        "store, netrc, gh and Docker auth files, SSH agent and command, and an "
+        "authenticated proxy in the operator environment, the boundaried probe job "
+        "and the runner's git saw none of them and every recorder stayed silent; the "
+        "same probe and plain git with the boundary removed saw the token, the "
+        "Docker socket and the host loopback, presented the proxy credential, "
+        "consulted the credential helper and ran the SSH command with the agent)"
+    )
+    return RC_OK
+
+
+
 def build_argument_parser() -> argparse.ArgumentParser:
     """The runner's command-line parser."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -10359,6 +11177,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="SIGINT a frozen live act job and verify cleanup (requires Docker)",
     )
+    parser.add_argument(
+        "--boundary-selftest",
+        action="store_true",
+        help=(
+            "plant operator secrets, prove the boundaried probe job and git see none, "
+            "then prove the same probe sees them once the boundary is removed "
+            "(requires Docker)"
+        ),
+    )
     return parser
 
 
@@ -10374,11 +11201,13 @@ def main(argv: Sequence[str]) -> int:
             or args.dry_run
             or args.trusted_install_sha256
             or args.interrupt_selftest
+            or args.boundary_selftest
         ):
             parser.error("--selftest cannot be combined with PR-run arguments")
         shipping_root = (args.worktree or ROOT).expanduser().resolve()
         return selftest(shipping_root)
-    if args.interrupt_selftest:
+    if args.interrupt_selftest or args.boundary_selftest:
+        flag = "--boundary-selftest" if args.boundary_selftest else "--interrupt-selftest"
         if (
             args.pr is not None
             or args.workflow
@@ -10386,15 +11215,17 @@ def main(argv: Sequence[str]) -> int:
             or args.trusted_install_sha256
             or args.repo is not None
             or args.worktree is not None
+            or (args.interrupt_selftest and args.boundary_selftest)
         ):
             parser.error(
-                "--interrupt-selftest cannot be combined with PR-run arguments"
+                f"{flag} cannot be combined with PR-run arguments or the other live self-test"
             )
+        live_selftest = boundary_selftest if args.boundary_selftest else interrupt_selftest
         try:
             act_binary = resolve_act_binary(args.act_bin)
             validate_act_binary(act_binary, pathlib.Path.cwd().resolve())
             return run_with_cleanup_signals(
-                lambda: interrupt_selftest(act_binary, args.sudo)
+                lambda: live_selftest(act_binary, args.sudo)
             )
         except Refusal as exc:
             print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
