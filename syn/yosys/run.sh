@@ -40,6 +40,14 @@ usage: syn/yosys/run.sh [options]
                          (top=/define=/incdir=/derived=/src= lines) and exit
   --mode full|elaborate  full synthesis or fast hierarchy/process smoke
   --results DIRECTORY    write one machine-readable result per top/gate
+  --cache DIRECTORY      content-addressed result cache (#350): a top whose
+                         staged sv2v output, program, Yosys binary and sv2v
+                         version match a verified PASS entry is skipped and
+                         its cells= reported from the stored evidence; every
+                         miss runs exactly as without the flag, and every
+                         PASS is stored here. This run's WRITABLE state
+  --cache-seed DIRECTORY read-only trusted seed, read after --cache and
+                         never written (syn/yosys/result_cache.py)
   --no-structural        do not run the tied-input and tap-purity checks
   --selftest-alloc       check the YOSYS_MALLOC selection rules and exit;
                          needs neither jemalloc, yosys, sv2v nor a submodule
@@ -63,6 +71,8 @@ parse_args() {
   LIST=0
   EMIT=""
   RESULTS=""
+  CACHE=""
+  CACHE_SEED=""
   NO_STRUCTURAL=0
   SELFTEST_ALLOC=0
   REQUESTED_TOPS=()
@@ -84,6 +94,14 @@ parse_args() {
         [ "$#" -ge 2 ] || { echo "--results needs DIRECTORY" >&2; exit 2; }
         RESULTS="$2"; shift 2 ;;
       --results=*) RESULTS="${1#--results=}"; shift ;;
+      --cache)
+        [ "$#" -ge 2 ] || { echo "--cache needs DIRECTORY" >&2; exit 2; }
+        CACHE="$2"; shift 2 ;;
+      --cache=*) CACHE="${1#--cache=}"; shift ;;
+      --cache-seed)
+        [ "$#" -ge 2 ] || { echo "--cache-seed needs DIRECTORY" >&2; exit 2; }
+        CACHE_SEED="$2"; shift 2 ;;
+      --cache-seed=*) CACHE_SEED="${1#--cache-seed=}"; shift ;;
       --list) LIST=1; shift ;;
       --emit)
         [ "$#" -ge 2 ] || { echo "--emit needs a top NAME" >&2; exit 2; }
@@ -366,6 +384,51 @@ require_tools() {
   # Resolved once, after the tool check, so a machine missing yosys is told that
   # and not something about an allocator.
   MALLOC_LIB="$(select_malloc)" || exit 2
+
+  # THE CACHE KEY'S TOOL HALF (#350), resolved once: the Yosys version string
+  # AND the digest of the binary it names (a rebuilt binary of the same version
+  # is a different tool), and the sv2v version. Each capture is a verdict: a
+  # tool that cannot state its identity disqualifies the cache for this run,
+  # loudly, rather than keying every top on an empty string.
+  YOSYS_ID=""; YOSYS_BIN_SHA=""; SV2V_ID=""
+  if [ -n "$CACHE" ] || [ -n "$CACHE_SEED" ]; then
+    YOSYS_ID="$(yosys -V 2>/dev/null | head -1)" || {
+      echo "result cache: yosys -V failed; refusing to key on an unknown tool" >&2; exit 2; }
+    yosys_path="$(realpath "$(command -v yosys)")" || {
+      echo "result cache: cannot resolve the yosys binary" >&2; exit 2; }
+    YOSYS_BIN_SHA="$(sha256sum "$yosys_path" | cut -d' ' -f1)" || {
+      echo "result cache: cannot digest $yosys_path" >&2; exit 2; }
+    SV2V_ID="$(sv2v --version 2>/dev/null | head -1)" || {
+      echo "result cache: sv2v --version failed; refusing to key on an unknown tool" >&2; exit 2; }
+    [ -n "$YOSYS_ID" ] && [ -n "$YOSYS_BIN_SHA" ] && [ -n "$SV2V_ID" ] || {
+      echo "result cache: a tool identity came back empty" >&2; exit 2; }
+    python3 "$R/syn/yosys/result_cache.py" --selftest >/dev/null || {
+      echo "result cache: syn/yosys/result_cache.py fails its own self-test" >&2; exit 2; }
+  fi
+}
+
+cache_lookup() {
+  # Verified hit: prints cells=N and returns 0. Miss: 1. A present entry
+  # that fails the hit rule: 2, with the reason on stderr; the caller treats
+  # 1 and 2 alike (the top runs) and only the wording differs.
+  local seed_args=()
+  [ -z "$CACHE_SEED" ] || seed_args=(--seed "$CACHE_SEED")
+  python3 "$R/syn/yosys/result_cache.py" lookup --dir "${CACHE:-$TMP/no-cache}" \
+    "${seed_args[@]}" \
+    --top "$1" --mode "$MODE" --sv2v-file "$TMP/$1.v" --program "$2" \
+    --yosys-version "$YOSYS_ID" --yosys-bin-sha256 "$YOSYS_BIN_SHA" --sv2v-version "$SV2V_ID"
+}
+
+cache_store() {
+  # A PASS and its stat.json into the per-head directory; never the seed,
+  # never a FAIL. A store that fails is reported and does not fail the top:
+  # the verdict was taken live and stands.
+  [ -n "$CACHE" ] || return 0
+  python3 "$R/syn/yosys/result_cache.py" store --dir "$CACHE" \
+    --top "$1" --mode "$MODE" --sv2v-file "$TMP/$1.v" --program "$2" \
+    --yosys-version "$YOSYS_ID" --yosys-bin-sha256 "$YOSYS_BIN_SHA" --sv2v-version "$SV2V_ID" \
+    --cells "$3" --stat-json "$TMP/$1.stat.json" >/dev/null \
+    || echo "  [note] $1: result not cached (see result_cache.py)"
 }
 
 prepare_tmp() {
@@ -447,10 +510,13 @@ run_tops() {
       continue
     fi
 
+    # Written with a placeholder for this run's scratch directory FIRST and
+    # substituted second: the placeholder form is the result cache's key
+    # (#350), and no two runs could share a key over a mktemp path.
     if [ "$MODE" = full ]; then
-      program="read_verilog $TMP/$top.v; $SYNTH -top $top; hierarchy -check; stat -top $top"
+      program_key="read_verilog @TMP@/$top.v; $SYNTH -top $top; hierarchy -check; stat -top $top"
     else
-      program="read_verilog $TMP/$top.v; hierarchy -check -top $top; proc; opt_clean; check -assert; stat -top $top"
+      program_key="read_verilog @TMP@/$top.v; hierarchy -check -top $top; proc; opt_clean; check -assert; stat -top $top"
     fi
     # The recorded cell count comes from `stat -json`, never from the human
     # table. The text total changed spelling between Yosys releases (0.33's
@@ -461,7 +527,27 @@ run_tops() {
     # hierarchy-rollup total the text section prints and it exists in both the
     # hierarchical and the single-module case; when it is missing the top FAILS
     # below instead of publishing a placeholder that looks like evidence.
-    program="$program; tee -q -o $TMP/$top.stat.json stat -top $top -json"
+    program_key="$program_key; tee -q -o @TMP@/$top.stat.json stat -top $top -json"
+    program="${program_key//@TMP@/$TMP}"
+    # THE RESULT CACHE (#350). Everything that decides the verdict is in the
+    # key or in the entry, and result_cache.py re-derives the count from the
+    # stored stat.json before it is believed. A hit publishes the SAME record
+    # a live run would; a miss or a refused entry falls through to the
+    # synthesis below unchanged.
+    if [ -n "$CACHE" ] || [ -n "$CACHE_SEED" ]; then
+      cache_rc=0
+      cache_line="$(cache_lookup "$top" "$program_key" 2> "$TMP/$top.cache.err")" || cache_rc=$?
+      if [ "$cache_rc" -eq 0 ]; then
+        cells="${cache_line#cells=}"
+        printf "  [PASS] %-22s cells=%s  (result cache)\n" "$top" "$cells"
+        record_result top "$top" PASS 1 "$MODE" "$cells"
+        pass=$((pass + 1))
+        continue
+      elif [ "$cache_rc" -eq 2 ]; then
+        reason="$(head -1 "$TMP/$top.cache.err")" || reason="(reason unreadable)"
+        printf "  [note] %-22s cache entry refused, running live: %s\n" "$top" "$reason"
+      fi
+    fi
     # The preload is exported INSIDE the subshell, so it reaches yosys and the
     # children yosys spawns - `abc`, which is 16% of the heaviest top - and dies
     # with them. sv2v above is a GHC binary and the helpers are python3, and
@@ -505,6 +591,7 @@ PY
       printf "  [PASS] %-22s cells=%s\n" "$top" "$cells"
       record_result top "$top" PASS 1 "$MODE" "$cells"
       pass=$((pass + 1))
+      [ -z "$CACHE" ] || cache_store "$top" "$program_key" "$cells"
     elif [ "$rc" -eq 0 ]; then
       # yosys exited 0 but produced no measurable total: FAIL, never `cells=?`.
       # The published record is the gate's evidence, and scripts/yosys_tally.py

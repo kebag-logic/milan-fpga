@@ -215,6 +215,13 @@ jobs:
       - name: Prove ooc.sh generates the ROMs and fails on a failed top
         run: python3 syn/yosys/ooc_selftest.py
 
+      # The result cache's hit rule (#350), driven against the real run.sh
+      # with this job's Yosys and sv2v: a cold run stores, a warm run hits
+      # with the same record, a planted forged entry is refused and the top
+      # runs live, and a read-only seed is read but never written.
+      - name: Prove the result cache refuses a planted entry
+        run: python3 syn/yosys/cache_selftest.py
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:
