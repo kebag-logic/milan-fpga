@@ -418,7 +418,8 @@ def _arms_authoritative_inputs(suite):
                 str(REPO / "protocol-processor" / "hdl" / "acmp" /
                     "pp_acmp_pkg.sv"),
                 str(REPO / "hdl" / "milan" / "KL_pp_shadow.sv"),
-                str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv")])
+                str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv"),
+                str(REPO / "hdl" / "milan" / "KL_nvm_backend.sv")])
             if got != planted:
                 return ("the mutant's source set is neither the record nor "
                         "the planted hand list (%d files) - the arm proves "
