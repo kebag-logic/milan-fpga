@@ -11,10 +11,11 @@ What it never checked was the other capacity in the same design: the processor's
 NVM port (`KL_pp_nvm_port` in the protocol-processor submodule) addresses a
 record by `record_id[7:0]`, and the donor's F07.8 framing says "one record per
 item group and index". One record per
-writable name at the 8x8 shape needs 235 ids on its own; the whole persisted
-inventory needs 292. The namespace holds 256. The design could not have been
-built as written, and no gate said so, because every check in the tree was
-counting bytes.
+writable name at the 8x8 shape of 2026-08 needed 235 ids on its own; the whole
+persisted inventory needed 292. The namespace holds 256. The design could not
+have been built as written, and no gate said so, because every check in the
+tree was counting bytes. That arithmetic forced a BANKED name layout (eight
+names per record) and a request that the donor amend F07.8 to allow it.
 
 The SECOND review round found the mirror-image hole in the gate itself: every
 check validated only the records `inventory()` chose to emit, so DELETING a
@@ -33,11 +34,20 @@ COUNTS and TABLES, and a count cannot see which items it counted.
 So the shape changed. This gate now BUILDS THE IMAGE and READS IT BACK. Every
 question that a table could only answer approximately is now answered on
 bytes: the exact `(group, index)` key set (not its cardinality), the empty
-name that is a legal value rather than an absence, the unused tail of the last
-name bank, and an image that is CRC-clean but missing a mandatory record.
+name that is a legal value rather than an absence, and an image that is
+CRC-clean but missing a mandatory record.
 `--emit-record-table` publishes the byte offsets of that same image so
 `tb/verilator/nvm_backend` can grade the region decoder of
 `syn/ooc/sizing/KL_nvm_backend_sizer.sv` against them.
+
+THE BANKED LAYOUT IS RETIRED (#70, 2026-09-05). #259 retired the 8x8's
+nonphysical clusters and the conformant floor fell to 164 of 256 at the worst
+shipped shape, so nothing forces the divergence any more; and nothing ever
+persisted or decoded a name bank -- no donor gateware decodes one, and no
+producer writes a KLJ2 image to any board. The allocation is therefore the
+donor's F07.8 rule unchanged, one record per item group and index, with each
+user name its own 64-byte record, and the amendment request to the donor is
+withdrawn (design page section 4.3).
 
 WHAT IT CHECKS, per config, for the full persisted inventory of Milan v1.2
 5.3.5.1 / 5.3.7.1 / 5.3.7.6 / 5.3.8.1 / 5.3.8.2 / 5.3.8.3 / 5.3.8.7 / 5.3.9.1 /
@@ -54,12 +64,10 @@ id, media clock reference):
   4. every record payload fits `MAX_PAYLOAD_P`    -- the port refuses a stream
      it cannot delimit BEFORE any device traffic
   5. the whole image fits one 64 KiB erase block  -- the A/B slot geometry
-  6. banking is NECESSARY at some shipped shape, OR the divergence is the
-     RECORDED persisted-format decision the design page anchors (#259: the
-     8x8 shape that forced it shrank, but the banked layout is already in
-     flashed boards' KLJ2 images and in the landed donor decoder) -- never
-     a silent preference. Banking unforced with no recorded decision is a
-     finding, and removing the decision text reddens this gate
+  6. the allocation is the donor's own F07.8 rule and its conformant floor
+     fits the namespace at EVERY shipped shape -- a shape whose record set
+     the contract cannot hold is a finding that names it, never a silent
+     divergence (that is the situation which once forced banking)
   7. the worst-case commit fits `T-NVM-COMMIT-TIMEOUT` with margin -- the
      deadline of design page section 9.4 is a measured bound, not a guess
   8. the KLJ2 image ROUND TRIPS: encode the inventory, decode it back, and
@@ -67,9 +75,7 @@ id, media clock reference):
   9. an EMPTY user name survives -- all 64 bytes zero is a legal AEM string
      and Milan 5.3.13 requires it to persist, so it must never be read as
      "no name stored"
- 10. the unused tail of the last name bank is derived from the SHAPE, never
-     from slot content: writing rubbish into the tail changes nothing
- 11. a CRC-CLEAN image that omits ANY mandatory record is REFUSED with zero
+ 10. a CRC-CLEAN image that omits ANY mandatory record is REFUSED with zero
      records applied -- absence is not a way to restore a vendor default
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
@@ -90,16 +96,12 @@ instead of silently missed.
 USAGE
   scripts/check_nvm_record_space.py              # every configs/endstation_*.yaml
   scripts/check_nvm_record_space.py --config configs/endstation_ax7101_8x8.yaml
-  scripts/check_nvm_record_space.py --flat       # the pre-review allocation:
-                                                 # one record per item, no banking
   scripts/check_nvm_record_space.py --mutate collide   # one negative control
   scripts/check_nvm_record_space.py --self-test        # run them all
   scripts/check_nvm_record_space.py --emit-record-table configs/e.yaml -o t.txt
 
-`--flat` and every `--mutate` arm are negative controls and are EXPECTED to
-exit 1 (`--flat` fits the namespace since #259 shrank the 8x8, but it
-contradicts the recorded persisted-format decision). `--self-test` runs all of
-them and fails if ANY of them passes, so no
+Every `--mutate` arm is a negative control and is EXPECTED to exit 1.
+`--self-test` runs all of them and fails if ANY of them passes, so no
 assertion here can quietly become vacuous: each arm perturbs exactly one fixed
 point and must be caught by the check that owns it.
 """
@@ -131,7 +133,7 @@ from nvm_contract import (                                    # noqa: E402
     KLJ2_HDR, KLJ2_TRAILER, LEDGER, MAP_ENTRY, MAX_PAYLOAD, NAME_BYTES, PAY,
     REC_HDR, ROOT, SEAM, T_NVM_HEARTBEAT_MS, T_NVM_WRITER_ALIVE_MS,
     T_PP_MAX_MS, T_SE_MAX_MS, VD_OK, VENDOR_DEFAULT_NAME, VERDICT_NAME,
-    Donor, Ident, Key, Record, Shape, persisted_format_decision)
+    Donor, Ident, Key, Record, Shape)
 from nvm_klj2 import (frame_record, klj2_assemble,            # noqa: E402
                       klj2_decode, name_table, names_from_image,
                       payload_bytes)
@@ -148,13 +150,13 @@ def _mut_collide():
 
 def _mut_block():
     """A group's block is too small for the shape -- capacity must fire."""
-    b, _ = ALLOC["NAMES_BANK"]
-    ALLOC["NAMES_BANK"] = (b, 8)
+    b, _ = ALLOC["NAME"]
+    ALLOC["NAME"] = (b, 8)
 
 
 def _mut_payload():
-    """A bank grows past what the port can delimit -- payload must fire."""
-    FIXED.NAMES_PER_BANK = 32
+    """A record grows past what the port can delimit -- payload must fire."""
+    PAY["MCR"] = MAX_PAYLOAD + 1
 
 
 def _mut_image():
@@ -162,22 +164,11 @@ def _mut_image():
     FIXED.ERASE_BLOCK = 8 * 1024
 
 
-def _mut_decision():
-    """The recorded persisted-format decision is deleted -- with banking
-    unforced since #259, check 6 must redden rather than bless the
-    divergence silently."""
-    FIXED.DESIGN_PAGE = ROOT / "scripts" / "no-such-design-page.md"
-
-
 def _mut_idspace():
-    """The namespace grows past the donor-conformant floor AND the recorded
-    persisted-format decision is deleted -- the unforced-divergence finding
-    must fire even at a geometry where banking could never have been
-    forced. (Since #259 the decision alone carries the divergence, so this
-    arm composes with the decision removal; `--mutate=decision` proves the
-    same detector at the shipped geometry.)"""
-    FIXED.ID_SPACE = 512
-    FIXED.DESIGN_PAGE = ROOT / "scripts" / "no-such-design-page.md"
+    """The namespace shrinks below the F07.8 floor of the largest shipped
+    shape -- the conformance check must fire and name that shape, the
+    situation that once forced the banked layout."""
+    FIXED.ID_SPACE = 128
 
 
 def _mut_deadline():
@@ -215,7 +206,7 @@ def _mut_omit_names():
     """Delete every name record -- the Milan 5.3.13 class in full."""
     def keep(r: Record) -> bool:
         """True for every row that carries no user name."""
-        return r[0] not in ("NAMES_BANK", "NAME")
+        return r[0] != "NAME"
     SEAM.OMIT = keep
 
 
@@ -232,14 +223,14 @@ def _mut_shift_index():
     SEAM.XFORM = shift
 
 
-def _mut_shift_bank():
-    """The same defect on the NAME BANK ordinals: bank 0 disappears and a bank
-    one past the last is invented, so the first eight user names are never
-    persisted while the bank count is unchanged."""
+def _mut_shift_name():
+    """The same defect on the NAME ordinals: ordinal 0 disappears and one
+    past the last is invented, so the entity name is never persisted while
+    the record count is unchanged."""
     def shift(recs: list[Record]) -> list[Record]:
-        """Renumber every name-bank row one ordinal and one id up."""
+        """Renumber every name row one ordinal and one id up."""
         return [(g, i + 1, None if r is None else r + 1, p, b)
-                if g == "NAMES_BANK" else (g, i, r, p, b)
+                if g == "NAME" else (g, i, r, p, b)
                 for g, i, r, p, b in recs]
     SEAM.XFORM = shift
 
@@ -265,12 +256,6 @@ def _mut_name_absent_rule():
     SEAM.NAME_PRESENCE_FROM_CONTENT = True
 
 
-def _mut_tail_from_content():
-    """Derive the used part of the last bank from slot content instead of from
-    the shape, which loses any trailing name the controller set to empty."""
-    SEAM.NAMES_TAIL_FROM_CONTENT = True
-
-
 def _mut_accept_absent():
     """Restore round 3's section 6.2 sentence -- an allocated id that is simply
     absent is not a failure -- so a CRC-clean image missing a mandatory record
@@ -281,16 +266,14 @@ def _mut_accept_absent():
 MUTATIONS = {
     "collide": _mut_collide,
     "shift_index": _mut_shift_index,
-    "shift_bank": _mut_shift_bank,
+    "shift_name": _mut_shift_name,
     "dup_index": _mut_dup_index,
     "name_absent_rule": _mut_name_absent_rule,
-    "tail_from_content": _mut_tail_from_content,
     "accept_absent": _mut_accept_absent,
     "block": _mut_block,
     "payload": _mut_payload,
     "image": _mut_image,
     "idspace": _mut_idspace,
-    "decision": _mut_decision,
     "deadline": _mut_deadline,
     "omit_singleton": _mut_omit_singleton,
     "omit_indexed": _mut_omit_indexed,
@@ -299,14 +282,12 @@ MUTATIONS = {
 }
 
 
-
-
 # ---- the exact expectation, derived from the shape and never from the image -
 def _class_of(group):
     if group in LEDGER:
         cls, clause, _rule = LEDGER[group]
         return cls, clause
-    return ("bank" if group == "NAMES_BANK" else "per-name"), "Milan 5.3.13"
+    return "per-name", "Milan 5.3.13"
 
 
 def record_keys(shape: Shape) -> set[Key]:
@@ -321,12 +302,7 @@ def record_keys(shape: Shape) -> set[Key]:
     dc = shape.dc
     want = {(g, i) for g, card in expected_records(dc).items()
             for i in range(card)}
-    n = expected_names(dc)
-    if shape.flat:
-        want |= {("NAME", k) for k in range(n)}
-    else:
-        want |= {("NAMES_BANK", k)
-                 for k in range((n + FIXED.NAMES_PER_BANK - 1) // FIXED.NAMES_PER_BANK)}
+    want |= {("NAME", k) for k in range(expected_names(dc))}
     return want
 
 
@@ -340,8 +316,6 @@ def expected_payloads(shape: Shape) -> dict[Key, int]:
             out[(g, i)] = spi_cl.get(i, 0)
         elif g == "MAPS_OUT":
             out[(g, i)] = spo_cl.get(i, 0)
-        elif g == "NAMES_BANK":
-            out[(g, i)] = FIXED.NAMES_PER_BANK * NAME_BYTES
         elif g == "NAME":
             out[(g, i)] = NAME_BYTES
         else:
@@ -441,7 +415,7 @@ def _assemble(img, frames):
 
 def _decode(img, blob):
     """(verdict, applied) for one blob, graded against this shape's set."""
-    return klj2_decode(blob, img.donor, img.ident, img.expect, img.shape.flat)
+    return klj2_decode(blob, img.donor, img.ident, img.expect)
 
 
 def _round_trip(img):
@@ -452,7 +426,7 @@ def _round_trip(img):
     """
     cfg, names = img.shape.cfg, img.shape.names
     findings = []
-    nval = name_table(names)
+    nval = name_table()
     base_frames = _frames_for(img, nval)
     vd, applied = _decode(img, _assemble(img, base_frames))
     if vd != VD_OK:
@@ -475,7 +449,7 @@ def _empty_name_survives(img):
     cfg, names = img.shape.cfg, img.shape.names
     findings = []
     empty = b"\x00" * NAME_BYTES
-    b2 = _assemble(img, _frames_for(img, name_table(names, {0: empty})))
+    b2 = _assemble(img, _frames_for(img, name_table({0: empty})))
     vd2, ap2 = _decode(img, b2)
     if vd2 != VD_OK:
         findings.append(
@@ -499,32 +473,6 @@ def _empty_name_survives(img):
             f"{cfg.stem}: {len(got)} of the shape's {names} writable "
             f"name ordinals restore from the image")
     return findings
-
-
-def _bank_tail_from_shape(img, applied):
-    """Check 10: the unused tail of the last name bank follows from the SHAPE.
-
-    Rubbish written into a slot no descriptor owns must change nothing that
-    restores; `applied` is what the untouched image restored.
-    """
-    cfg, names = img.shape.cfg, img.shape.names
-    banks = (names + FIXED.NAMES_PER_BANK - 1) // FIXED.NAMES_PER_BANK
-    unused = banks * FIXED.NAMES_PER_BANK - names
-    if unused <= 0:
-        return []
-    junk = {o: b"\xFF" * NAME_BYTES
-            for o in range(names, banks * FIXED.NAMES_PER_BANK)}
-    b3 = _assemble(img, _frames_for(img, name_table(names, junk)))
-    vd3, ap3 = _decode(img, b3)
-    if vd3 == VD_OK and names_from_image(ap3, names) == \
-            names_from_image(applied, names):
-        return []
-    return [
-        f"{cfg.stem}: rubbish written into the "
-        f"{unused} unused slot(s) of the "
-        f"last name bank changed what restores -- the tail must "
-        f"follow from the shape's {names} writable names, never "
-        f"from slot content"]
 
 
 def _incomplete_is_refused(img, base_frames):
@@ -575,9 +523,8 @@ def check_image(shape: Shape, recs: list[Record],
     base_frames, applied, findings = _round_trip(img)
     if applied is None:
         return findings
-    if not shape.flat and shape.names:
+    if shape.names:
         findings += _empty_name_survives(img)
-        findings += _bank_tail_from_shape(img, applied)
     findings += _incomplete_is_refused(img, base_frames)
     return findings
 
@@ -615,13 +562,13 @@ def render_record_table(shape: Shape, recs: list[Record],
     return "\n".join(out) + "\n"
 
 
-def check_one(cfg: Path, out: Path, donor: Donor, flat: bool,
+def check_one(cfg: Path, out: Path, donor: Donor,
               verbose: bool) -> tuple[list[str], int]:
     """Every finding one config earns, with the F07.8 floor its shape
-    implies. The floor comes back with the findings because the divergence
+    implies. The floor comes back with the findings because the conformance
     check is a statement about the SET of shipped shapes, not about one."""
     names, dc, spi, spo = build(cfg, out)
-    shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo, flat=flat)
+    shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     recs = inventory(shape, donor.base)
     if SEAM.OMIT is not None:
         recs = [r for r in recs if SEAM.OMIT(r)]
@@ -676,7 +623,7 @@ def check_one(cfg: Path, out: Path, donor: Donor, flat: bool,
     # the committed fixture the Verilator suite reads must still be what this
     # gate would emit at this head, or the RTL is graded against stale bytes
     fixture = TABLE_DIR / f"records_{cfg.stem}.txt"
-    if fixture.exists() and not flat:
+    if fixture.exists():
         if fixture.read_text() != render_record_table(shape, recs, donor):
             findings.append(
                 f"{cfg.stem}: {fixture.relative_to(ROOT)} is STALE -- "
@@ -711,9 +658,6 @@ def _arg_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", action="append", type=Path,
                     help="config to check (default: every configs/endstation_*.yaml)")
-    ap.add_argument("--flat", action="store_true",
-                    help="the pre-review allocation, one record per item "
-                         "(negative control: MUST fail at 8x8)")
     ap.add_argument("--mutate", choices=sorted(MUTATIONS),
                     help="perturb one fixed point so the matching assertion "
                          "must fire (negative control: MUST fail)")
@@ -732,7 +676,7 @@ def _arg_parser():
 def _every_control_reddens():
     """Run each negative control in its OWN process; False if any of them
     passed, which means the assertion it targets has gone vacuous."""
-    controls = ["--flat"] + [f"--mutate={m}" for m in sorted(MUTATIONS)]
+    controls = [f"--mutate={m}" for m in sorted(MUTATIONS)]
     for c in controls:
         r = subprocess.run([sys.executable, __file__, c, "--quiet"],
                            cwd=ROOT, capture_output=True, text=True)
@@ -752,7 +696,7 @@ def _emit_record_table(cfg, out, donor):
     """Write, or print, the byte-exact fixture for one config."""
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         names, dc, spi, spo = build(cfg, Path(tmp))
-    shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo, flat=False)
+    shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     recs = inventory(shape, donor.base)
     text = render_record_table(shape, recs, donor)
     if out:
@@ -763,37 +707,22 @@ def _emit_record_table(cfg, out, donor):
         sys.stdout.write(text)
 
 
-def _divergence_findings(flat, floors):
-    """Check 6. Banking is a DIVERGENCE from the donor's F07.8 contract, so
-    it has to be forced by a shipped shape or carried as the RECORDED
-    persisted-format decision (#259 shrank the 8x8 that used to force it;
-    the banked layout is already persisted in flashed KLJ2 images and
-    decoded by landed donor gateware, so a flat re-allocation is a
-    migration with its own issue, never a silent side effect). A recorded
-    decision that is deleted, or an unforced divergence nobody recorded,
-    is a finding either way.
+def _conformance_findings(floors):
+    """Check 6. The allocation is the donor's own F07.8 rule, one record per
+    item group and index, so the only way it can stop fitting is a shape
+    whose conformant floor overflows record_id[7:0]. That is a finding that
+    names the shape and the arithmetic, never a silent divergence: the banked
+    NAMES layout that once answered it (2026-08) is retired, because #259
+    shrank the shape that forced it and nothing persisted or decoded it.
     """
     findings = []
-    decision = persisted_format_decision()
-    if not flat and floors:
-        worst_cfg, worst_floor = max(floors, key=lambda t: t[1])
-        if worst_floor <= FIXED.ID_SPACE and decision is None:
+    for cfg, floor in floors:
+        if floor > FIXED.ID_SPACE:
             findings.append(
-                f"banking is NOT necessary and NO persisted-format decision "
-                f"is recorded: the donor-conformant F07.8 allocation needs "
-                f"at most {worst_floor} records ({worst_cfg}) and the "
-                f"namespace holds {FIXED.ID_SPACE}, so the divergence from "
-                f"F07.8 "
-                f"has nothing forcing it and nothing on record carrying it "
-                f"(the decision lives in {FIXED.DESIGN_PAGE.name})")
-    if flat:
-        findings.append(
-            "the flat allocation contradicts the recorded persisted-format "
-            "decision: the banked NAMES layout is retained for "
-            "already-persisted images (#259; see "
-            f"{FIXED.DESIGN_PAGE.name})" if decision else
-            "the flat allocation cannot be judged: no recorded "
-            "persisted-format decision exists to diverge from")
+                f"no F07.8-conformant allocation exists at {cfg}: one record "
+                f"per item group and index needs {floor} records and the "
+                f"namespace holds {FIXED.ID_SPACE}, so the record contract "
+                f"would have to change before that shape can ship")
     return findings
 
 
@@ -813,11 +742,11 @@ def _report(findings, cfgs, quiet):
               f"with no key claimed twice, every persisted "
               f"record has a unique id inside record_id[7:0], every group is "
               f"inside its block, every payload fits MAX_PAYLOAD_P, every "
-              f"image fits one erase block, banking is forced by a shipped "
+              f"image fits one erase block, the allocation is the donor's own "
+              f"F07.8 rule and its floor fits the namespace at every shipped "
               f"shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with "
               f"{COMMIT_MARGIN}x margin, every record round trips through a "
-              f"KLJ2 image, an empty user name survives it, the unused tail of "
-              f"the last name bank follows from the shape, and a CRC-clean "
+              f"KLJ2 image, an empty user name survives it, and a CRC-clean "
               f"image missing any mandatory record is refused with zero "
               f"records applied")
     return 0
@@ -854,12 +783,11 @@ def main() -> int:
     floors = []
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         for cfg in cfgs:
-            f, floor = check_one(cfg, Path(tmp), donor, args.flat,
-                                 not args.quiet)
+            f, floor = check_one(cfg, Path(tmp), donor, not args.quiet)
             findings += f
             floors.append((cfg.stem, floor))
 
-    findings += _divergence_findings(args.flat, floors)
+    findings += _conformance_findings(floors)
     return _report(findings, cfgs, args.quiet)
 
 
