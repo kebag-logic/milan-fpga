@@ -850,8 +850,9 @@ the host-side bootstrap cannot be redirected into an unbounded candidate read.
 The default PR run executes `docs`,
 `elaborate`, `rtl-fast`, and `rtl-full` in that order.
 Use repeatable `--workflow <name>` options for a focused reproduction, and use
-`--dry-run` to perform the trust, fetch, metadata, and byte checks and print the
-generated command before consuming containers. The runner requires `gh`, Git,
+`--dry-run` to perform the trust, fetch, metadata, and byte checks, print the
+planned action clones without performing them, and print the generated command
+before consuming containers. The runner requires `gh`, Git,
 PyYAML, Docker, and exactly `act` 0.2.89. A newer act is refused until its Docker
 mount and cache behavior is audited and the repository pin is deliberately
 updated. On a host where the current user cannot open the Docker socket, add
@@ -928,6 +929,32 @@ and `gptp-processor`). This gives act's local checkout copier the submodule-path
 parity that a hosted checkout exposes; each workflow's own submodule update
 remains the authoritative, idempotent check of those pins.
 
+The runner then populates the per-run action cache itself, serially, before
+`act` may launch any job (#337). It reads every step-level `uses:` of the
+selected workflows through the same bounded reader, re-checks each against the
+audited action set (this is the step that puts candidate-named repositories on
+the network, so the check is not inherited from the sandbox scan), and performs
+each distinct clone `act` would otherwise perform lazily: a credential-free
+HTTPS clone of `https://github.com/<owner>/<repo>` under the candidate fetch's
+no-prompt, no-helper, HTTPS-only Git environment, then a detached checkout of
+the ref (tag, origin branch, or SHA, in that order) in the directory `act`
+derives from the `uses:` string (`actions-cache@v4` for `actions/cache@v4`).
+Each action is reported with its resolved SHA; a failure refuses the run before
+a container exists; `--dry-run` prints the plan and clones nothing. Every `act`
+invocation then carries `--action-offline-mode`, so sibling jobs read the
+populated directory and never fetch or check out. Without this, `act` clones
+and checks out an action from whichever sibling job reaches it first while the
+others copy the same directory into their containers; a copy taken
+mid-checkout sees the default branch's file set or a torn bundle, which is how
+`rtl-fast` lost `yosys-elaboration` to an `lstat` of `jest.config.ts` under
+`actions-cache@v4` and to an `__dirname` error from a truncated
+`dist/restore/index.js`. The offline self-test pins the collector, the
+directory naming, the clone environment, the resolve order, the refusal on a
+failed clone, the offline flag, and that the population precedes the Docker
+boundary and the first `act` launch; the all-workflow ready run is the live
+negative control, reproducing either symptom without the population and the
+flag and neither with them.
+
 Every host-side command routed through the runner's capture boundary, including
 Git metadata, fetch, checkout, and submodule commands, runs in a distinct
 tracked process group with a 30-minute upper bound. An interrupt or timeout
@@ -972,6 +999,28 @@ runner-created bridge network instead of the host network, applies the same
 unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
+
+The same `--container-options` word also bounds every job container to a CPU
+set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
+`CONTAINER_CPU_LIMIT`) and to 16 GB of memory with no swap beyond it
+(`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
+`ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
+`make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
+follows the container's cpuset, and in an unbounded container on a 128-vCPU
+host they started 128 compilers and exhausted host memory; at sixteen, four
+matrix legs still exhausted a 72 GB host. A job that needs more than 16 GB
+fails hosted too; a bounded container fails the replica instead of the host.
+Hosted jobs also each get their own runner, while a replica's jobs share one
+host, so `act` starts one of a stage's jobs at a time (`--concurrent-jobs 1`;
+`CONCURRENT_JOB_LIMIT`): with the CPU set alone, an `rtl-full` replica
+launched all eight shard jobs together, each building its toolchain. That flag
+bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
+(default 4) inside one job's slot, so each of `rtl.yml`'s four-shard jobs
+still fans out to four containers, each held to 16 GB: at most 64 GB at once.
+The bounds are replica-shape decisions, not trust-boundary ones; the offline
+self-test pins the word's four tokens in order, the CPU ceiling for host
+counts above, at, and below the limit, the memory and swap limits, the single
+`--concurrent-jobs` value, and the surviving ownership label.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. `act` 0.2.89 also hard-codes the global
