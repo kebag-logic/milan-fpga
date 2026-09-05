@@ -104,6 +104,12 @@ cost**, so no front-end change — `-defer`, a faster parser, or a commercial
 one — can move this gate much. `sv2v` over the *whole* 46-top inventory is
 34.6 s.
 
+Every figure in this section is reproducible with the harness in
+[`bench/`](bench/README.md): it stages a top from `run.sh --emit`, times the
+gate's own program under a named allocator, and reports median, min and max
+per cell with the machine, the tool versions, the trial count and the
+concurrency on the record.
+
 ### The allocator: on by default, worth ~45%
 
 Yosys allocates constantly, and glibc's allocator is where a large share of
