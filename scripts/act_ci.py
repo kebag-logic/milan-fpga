@@ -5872,6 +5872,48 @@ def selftest_boundary_probe_commands(tally: SelftestTally, docker: DockerFixture
 
 
 
+def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the probe-clone runner drains a lingering group, refuses a success, kills one outliving the grace.
+
+    The lingering grandchildren release the pipes, as git's remote helper does,
+    so `communicate` returns while the group still has a member.
+    """
+    check = tally.check
+    cwd = docker.layout.temporary
+    env = {"PATH": SAFE_PATH}
+    shell = require_tool("sh")
+    text = run_probe_clone(
+        [shell, "-c", "sleep 0.2 >/dev/null 2>&1 & printf 'first\\nlast line\\n' >&2; exit 1"],
+        env=env,
+        cwd=cwd,
+        label="draining",
+    )
+    check(
+        "a failing child whose group drains within the grace yields its last stderr line",
+        text == "last line",
+    )
+    tally.refused(
+        "a probe clone that succeeds is refused",
+        lambda: run_probe_clone([shell, "-c", "exit 0"], env=env, cwd=cwd, label="success"),
+    )
+    try:
+        run_probe_clone(
+            [shell, "-c", "sleep 30 >/dev/null 2>&1 & exit 1"],
+            env=env,
+            cwd=cwd,
+            label="lingering",
+            grace=0.1,
+        )
+    except Refusal as exc:
+        message = str(exc)
+    else:
+        message = ""
+    check(
+        "a group that outlives the grace is killed and reported",
+        "survived 0.1 s" in message and "was killed" in message,
+    )
+
+
 def selftest_toolcache_ownership(tally: SelftestTally, docker: DockerFixture) -> None:
     """Arms: the labelled tool cache is accepted, and a foreign or rival cache is never removed."""
     check = tally.check
@@ -9471,6 +9513,7 @@ def selftest_run_directory_stages(
             selftest_action_plan(tally, docker)
             selftest_boundary_plants(tally, docker)
             selftest_boundary_probe_commands(tally, docker)
+            selftest_probe_clone_runner(tally, docker)
             selftest_toolcache_ownership(tally, docker)
             selftest_toolcache_survivor(tally, docker)
             selftest_toolcache_post_accept(tally, docker)
@@ -10493,6 +10536,9 @@ PLANTED_ENVIRONMENT_NAMES = (
 #: environment offers before it fails; that is the host-side probe.
 CREDENTIAL_CHALLENGE_URL = "https://github.com/kebag-logic/act-ci-boundary-selftest-absent"
 SSH_PROBE_URL = "ssh://git@github.com/kebag-logic/milan-fpga.git"
+#: A probe clone reaches a loopback recorder or GitHub's credential challenge;
+#: minutes is generous, and the run is a refusal rather than a hang beyond it.
+PROBE_CLONE_TIMEOUT = 5 * 60
 PLANTED_PROXY_RESPONSE = (
     b"HTTP/1.1 407 Proxy Authentication Required\r\n"
     b'Proxy-Authenticate: Basic realm="planted"\r\n'
@@ -10854,6 +10900,58 @@ def run_probe_arm(probe: BoundaryProbeRun, context: CommandContext, *, leaky: bo
     return text
 
 
+def run_probe_clone(
+    command: Sequence[str],
+    *,
+    env: Mapping[str, str],
+    cwd: pathlib.Path,
+    label: str,
+    grace: float = 5.0,
+) -> str:
+    """Run a probe clone that must fail, in its own session; its last stderr line.
+
+    Every probe clone fails by design: at a credential challenge with no
+    credential source, at a refused transport, at a proxy that answers 407, or
+    through an SSH command that exits 255. When git dies that way its remote
+    helper outlives it by some milliseconds, which `capture`'s instantaneous
+    process-group check reads as a survivor, so the group is given `grace`
+    seconds to drain; one that outlives them is killed and is a Refusal, as is
+    a clone that succeeds.
+    """
+    try:
+        with deferred_cleanup_signal_delivery():
+            process = subprocess.Popen(
+                list(command),
+                cwd=cwd,
+                env=dict(env),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                start_new_session=True,
+            )
+    except OSError as exc:
+        raise Refusal(f"cannot start the {label} clone: {exc}") from exc
+    try:
+        _stdout, stderr = process.communicate(timeout=PROBE_CLONE_TIMEOUT)
+        deadline = time.monotonic() + grace
+        while process_group_exists(process.pid, use_sudo=False):
+            if time.monotonic() >= deadline:
+                raise Refusal(
+                    f"the {label} clone's process group survived {grace:g} s after "
+                    "its leader exited and was killed"
+                )
+            time.sleep(0.01)
+    except (subprocess.TimeoutExpired, Refusal):
+        with blocked_cleanup_signals(), contextlib.suppress(ProcessLookupError):
+            os.killpg(process.pid, signal.SIGKILL)
+        process.wait()
+        raise
+    if process.returncode == 0:
+        raise Refusal(f"the {label} clone succeeded against a URL that must fail")
+    lines = stderr.strip().splitlines()
+    return lines[-1] if lines else f"exit {process.returncode} with no stderr"
+
+
 def host_boundary_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
     """Run the runner's own git at a credential challenge and an SSH URL with every plant present; the problems.
 
@@ -10870,16 +10968,14 @@ def host_boundary_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
     for label, url, expected in expectations:
         target = layout.temporary / f"boundary-{label}"
         try:
-            capture(
+            text = run_probe_clone(
                 [*git_prefix(), "clone", "--quiet", url, str(target)],
-                cwd=layout.root,
                 env=env,
-                description=f"boundary {label} clone",
+                cwd=layout.root,
+                label=f"boundary {label}",
             )
         except Refusal as exc:
-            text = str(exc)
-        else:
-            problems.append(f"boundary {label} clone succeeded against a URL that must fail")
+            problems.append(str(exc))
             continue
         if expected not in text:
             problems.append(f"boundary {label} clone failed for another reason: {text}")
@@ -10921,15 +11017,14 @@ def host_leaky_arm(plants: BoundaryPlants, layout: RunLayout) -> list[str]:
     for label, url, env in clones:
         target = layout.temporary / f"leaky-{label}"
         try:
-            capture(
+            run_probe_clone(
                 [git, "clone", "--quiet", url, str(target)],
-                cwd=layout.root,
                 env=env,
-                description=f"leaky {label} clone",
+                cwd=layout.root,
+                label=f"leaky {label}",
             )
-        except Refusal:
-            continue
-        problems.append(f"leaky {label} clone succeeded against a URL that must fail")
+        except Refusal as exc:
+            problems.append(str(exc))
     proxy_text = plants.proxy_log.read_text(encoding="utf-8")
     if "CONNECT github.com:443" not in proxy_text or "proxy-authorization=present" not in proxy_text:
         problems.append("leaky arm: the planted proxy saw no authenticated CONNECT from the unboundaried clone")
