@@ -100,8 +100,9 @@ library.
 ## Results
 
 Measured 2026-09-04 with this harness on one machine, from the campaign
-recorded under the issue. Every figure below is the median of 3 trials with its
-min-max unless starred, and every batch states its concurrency.
+recorded under the issue. Every harness figure below is the median of 3 trials
+with its min-max unless starred, and every batch states its concurrency; the
+three whole-gate rows are single end-to-end runs and say so.
 
 ### Machine and tools
 
@@ -187,8 +188,9 @@ front end can win, for every top together.
 
 ### Whole gate
 
-`syn/yosys/run.sh --no-structural`, the full 48-top inventory, 48 pass in every
-configuration:
+`syn/yosys/run.sh --no-structural` over the full 48-top inventory, timed end to
+end outside the harness: one run per configuration (a `run.sh` wall time, not a
+median), 48 pass in every configuration:
 
 | configuration | wall | vs serial |
 | --- | ---: | ---: |
