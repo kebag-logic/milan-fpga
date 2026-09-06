@@ -82,7 +82,8 @@ Frame ptp(uint8_t type, uint16_t seq, uint16_t flags, uint16_t body) {
     f.u48(0x0180C200000EULL); f.u48(0x0080E1112233ULL); f.u16(0x88F7);
     f.u8(0x10 | type); f.u8(2); f.u16(34 + body);
     f.u16(0); f.u16(flags); f.u64(0); f.u32(0);
-    f.u64(kPeer); f.u16(1); f.u16(seq); f.u8(5); f.u8(0x7F);
+    f.u64(kPeer); f.u16(1); f.u16(seq); f.u8(5);
+    f.u8(type == 0 || type == 8 ? 0xFD : (type == 0xB ? 0 : 0x7F));
     return f;
 }
 
@@ -168,6 +169,11 @@ class Harness {
     bool held_last = false;
     uint64_t stall_beats = 0;
     uint64_t stall_bad = 0;
+    uint64_t stall_until = 0;
+    bool frame_stall_armed = false;
+    bool frame_was_stalled = false;
+    uint64_t stalled_ptp_frames = 0;
+    std::array<bool, 8> completed{};
     std::deque<std::vector<uint8_t>> replies;
 
     struct Event {
@@ -299,7 +305,11 @@ Harness::Fires Harness::tick() {
     // Synthetic observed Ethernet clock toggles; no PHY implementation.
     dut->i_ethrx_tgl = cyc & 1;
     dut->i_ethtx_tgl = cyc & 1;
-    dut->m_axis_mac_tx_tready = !(stall_on && (cyc % 4096 < 64));
+    if (stall_on && dut->m_axis_mac_tx_tvalid && !frame_stall_armed) {
+        frame_stall_armed = true;
+        stall_until = cyc + 64; // every frame sees 1.28 us of backpressure
+    }
+    dut->m_axis_mac_tx_tready = !(stall_on && cyc < stall_until);
     for (unsigned q = 0; q < 4; ++q) clocks(q);
     Fires fire;
     fire.aw = dut->s_axi_awvalid && dut->s_axi_awready;
@@ -313,6 +323,7 @@ Harness::Fires Harness::tick() {
     }
     for (unsigned q = 4; q < 8; ++q) clocks(q);
     ++cyc;
+    if (cyc % (kHz / 4) == 0) printf("PROGRESS simulated_seconds=%.2f rx_aaf=%llu tx_aaf=%llu\n", double(cyc) / kHz, static_cast<unsigned long long>(rx_audio), static_cast<unsigned long long>(tx_audio));
     return fire;
 }
 
@@ -440,7 +451,7 @@ void Harness::transmit_edge() {
         ++stall_bad;
     stalled = dut->m_axis_mac_tx_tvalid && !dut->m_axis_mac_tx_tready;
     if (stalled) {
-        ++stall_beats; held_data = dut->m_axis_mac_tx_tdata;
+        ++stall_beats; frame_was_stalled = true; held_data = dut->m_axis_mac_tx_tdata;
         held_keep = dut->m_axis_mac_tx_tkeep; held_last = dut->m_axis_mac_tx_tlast;
     }
     if (!dut->m_axis_mac_tx_tvalid || !dut->m_axis_mac_tx_tready) return;
@@ -448,12 +459,16 @@ void Harness::transmit_edge() {
     for (unsigned i = 0; i < 8; ++i)
         if (dut->m_axis_mac_tx_tkeep & (1u << i))
             tx_cur.push_back(dut->m_axis_mac_tx_tdata >> (8 * i));
-    if (dut->m_axis_mac_tx_tlast) { complete_tx(); tx_cur.clear(); }
+    if (dut->m_axis_mac_tx_tlast) {
+        complete_tx(); tx_cur.clear(); frame_stall_armed = false;
+        frame_was_stalled = false;
+    }
     if (tx_cur.size() > 2048) throw std::runtime_error("MAC TX missing tlast");
 }
 
 void Harness::complete_tx() {
     const auto& f = tx_cur;
+    if (frame_was_stalled && be(f, 12, 2) == 0x88F7) ++stalled_ptp_frames;
     if (f.size() >= 68 && be(f, 12, 2) == 0x88F7 && (f[14] & 15) == 2)
         answer_pdelay(f);
     const size_t v = be(f, 12, 2) == 0x8100 ? 4 : 0;
@@ -492,6 +507,7 @@ void Harness::grade_audio(const std::vector<uint8_t>& f) {
 void Harness::reset() {
     peer_on = false; audio_on = false; stall_on = false; require_tu = -1;
     events.clear(); rx_busy = false; tx_cur.clear(); replies.clear(); stalled = false;
+    frame_stall_armed = false; frame_was_stalled = false; stall_until = 0;
     dut->axis_resetn = 0; dut->gtx_resetn = 0;
     dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; dut->s_axi_arvalid = 0;
     dut->s_axi_bready = 0; dut->s_axi_rready = 0;
@@ -511,6 +527,7 @@ void Harness::reset() {
 }
 
 void Harness::configure() {
+    write(0x108, 0x00000002); write(0x10C, 0x00000100);
     write(0x608, 0x020000FF); write(0x604, 0xFE000001);
     check.hex("PHC reset increment is 20 ns", read(0x504), 0x14000000);
     check.hex("advertised talker geometry AAF plus CRF", read(0x618), 0x48010002);
@@ -533,22 +550,25 @@ void Harness::configure() {
     printf("TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN\n");
     audio_on = true; next_audio = cyc;
     audio_warm_until = cyc + kHz / 100; // 10 ms settling, excluded from payload score
-    peer_on = true; next_sync = cyc; next_announce = cyc;
+    peer_on = true; next_sync = cyc; next_announce = cyc + kHz / 4;
 }
 
 void Harness::geometry_and_clocks() {
+    const uint32_t pairs0 = read(0x664);
     const uint64_t a0 = audio_edges;
     const uint64_t p0 = ps_edges;
-    const uint32_t pairs0 = read(0x664);
+    const uint64_t f0 = fs_edges;
     const uint64_t start = cyc;
     run_cycles(159100);
     const uint64_t delta = cyc - start;
     const int64_t audio_error = static_cast<int64_t>((audio_edges - a0) * 1591)
         - static_cast<int64_t>(delta * 782);
-    check.that("audio ratio 782/1591 within one quantized edge", std::abs(audio_error) <= 1591 * 4);
+    check.that("audio ratio 782/1591 within one quantized edge", std::abs(audio_error) <= 1591);
     check.that("200 MHz auxiliary clock has four rising edges per Milan cycle",
-               ps_edges - p0 >= delta * 4 && ps_edges - p0 <= (delta + 16) * 4);
-    check.that("TDM8 master captures four pairs per frame", read(0x664) - pairs0 > 500);
+               ps_edges - p0 == delta * 4);
+    const uint32_t pairs = read(0x664) - pairs0;
+    check.that("TDM8 master captures four pairs per frame", pairs > 500
+        && std::abs(int64_t(pairs) - int64_t(4 * (fs_edges - f0))) <= 4);
     check.that("TDM8 FSYNC period follows audio divided by 512", fs_edges > 100
         && std::abs(double(last_fs - first_fs) / double(fs_edges - 1) - 512.0 * 1591 / 782) < 2);
     write(0x520, 4); run_cycles(32);
@@ -647,16 +667,22 @@ void Harness::loss_recovery() {
     const uint64_t loss = cyc;
     audio_window("Sync loss transition", kHz * 45 / 100, -1);
     check.hex("375 ms Sync timeout clears sync and asserts tu", read(0x77C) & 3, 1);
-    audio_window("peer loss, real fourth missed Pdelay", kHz * 41 / 10, 1);
+    audio_window("peer loss, real fourth missed Pdelay", kHz * 46 / 10, 1);
     publication("lost", false);
     printf("LOSS elapsed %.6f s, no timer compression\n", double(cyc - loss) / kHz);
-    peer_on = true; next_sync = cyc; next_announce = cyc;
-    audio_window("recovery transition", kHz * 26 / 10, -1);
+    peer_on = true; next_sync = cyc; next_announce = cyc + kHz / 4;
+    audio_window("recovery transition", kHz * 3, -1);
     publication("recovered", true);
     audio_window("recovered stable", kHz / 50, 0);
 }
 
 int Harness::report() {
+    constexpr std::array<const char*, 8> phases = {
+        "geometry and clocks", "initial audio payload", "first Pdelay exchange",
+        "acquisition and public coherence", "healthy audio", "backpressure",
+        "loss and recovery", "reset and reacquisition"};
+    for (size_t i = 0; i < phases.size(); ++i)
+        if (!completed[i]) printf("NOT RUN TO COMPLETION: %s\n", phases[i]);
     printf("simulated_duration_seconds=%.9f cycles=%llu\n", double(cyc) / kHz,
            static_cast<unsigned long long>(cyc));
     printf("clock_audio_hz=%.6f clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20\n", double(kHz) * 782 / 1591);
@@ -669,29 +695,48 @@ int Harness::report() {
 int Harness::run() {
     printf("ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=%d\n", negative_);
     try {
-        reset(); configure(); geometry_and_clocks();
-        audio_window("acquisition", kHz * 26 / 10, -1);
+        reset(); configure(); geometry_and_clocks(); completed[0] = true;
+        run_cycles(kHz / 100);
+        audio_window("initial payload", kHz / 50, 1);
+        completed[1] = true;
+        const auto initial_avb = query(0x27, 0x7010);
+        check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
+        check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
+        run_cycles(kHz * 12 / 10);
+        check.dec("first Pdelay response completed", pd_answers, 1);
+        check.hex("one response cannot assert asCapable", read(0x77C) & 0x10000, 0);
+        const uint32_t first_delay = read(0x6E4);
+        printf("FIRST PDELAY published=%u oracle=%lld ns\n", first_delay, static_cast<long long>(oracle_delay));
+        check.that("first peer delay matches independent event oracle within 28 ns",
+                   std::abs(int64_t(first_delay) - oracle_delay) <= 28);
+        completed[2] = true;
+        if (negative_) return report();
+        audio_window("acquisition", kHz * 18 / 10, -1);
         check.that("boot Pdelay occurs at 1.2 s", pd_requests >= 2
             && pd_first - stamp_origin >= 1200000000 && pd_first - stamp_origin < 1200100000);
         check.dec("Pdelay retains one-second cadence", pd_cadence_bad, 0);
         check.dec("scheduled peer ingress met its event times", schedule_bad, 0);
         publication("acquired", true);
-        wire_publication();
+        wire_publication(); completed[3] = true;
         if (!negative_) {
-            audio_window("healthy stable", kHz / 50, 0);
+            audio_window("healthy stable", kHz / 50, 0); completed[4] = true;
             stall_on = true;
-            audio_window("TX backpressure", kHz / 50, 0);
+            audio_window("TX backpressure", kHz * 3 / 10, 0);
             stall_on = false;
             check.that("backpressure actually stalled valid beats", stall_beats > 0);
             check.dec("TX held data keep last and valid under stalls", stall_bad, 0);
-            loss_recovery();
+            check.that("gPTP packets traversed actual backpressure", stalled_ptp_frames > 0);
+            publication("after backpressure", true); completed[5] = true;
+            loss_recovery(); completed[6] = true;
             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
             reset(); configure();
             check.hex("reset clears public GM", read(0x624), 0);
             check.hex("reset clears public parent", read(0x730), 0);
-            audio_window("reset reacquisition", kHz * 26 / 10, -1);
+            audio_window("reset reacquisition", kHz * 3, -1);
             publication("reset recovered", true);
-            audio_window("reset stable", kHz / 50, 0);
+            audio_window("reset stable", kHz / 50, 0); completed[7] = true;
+            check.dec("all scheduled Pdelay ingress events met deadlines", schedule_bad, 0);
+            check.dec("all epochs retain real Pdelay cadence", pd_cadence_bad, 0);
         } else printf("NOT RUN: long loss/backpressure/reset arms in negative-control mode\n");
     } catch (const std::exception& e) {
         check.fail(e.what());

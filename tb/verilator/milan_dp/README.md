@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **eleven elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -26,9 +26,12 @@ log in the failure so the artifact can be inspected.
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
+| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, 50 MHz | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
+
 ## Contents
 
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
+- **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -72,7 +75,111 @@ The [suite boundaries](../../../docs/testing/SIMULATION.md) explain those distin
 
 The separate `make gptp` target exercises fabric gPTP ownership.
 It does not select this complete eight-channel/TDM8 parameter set.
-A combined product-shape run therefore still needs separate evidence.
+The combined physical-rate leg below supplies separate evidence.
+
+## AX7101 1x1 eight-channel gPTP physical-rate run
+
+Run the focused leg with bounded compilation:
+
+```sh
+make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=8
+```
+
+The maintained DUT boundary is milan_datapath's AXI-Lite and MAC packet interfaces.
+LiteEth/PHY, CPU/DDR, physical clock primitives and hardware compliance are not covered by this task.
+
+The target elaborates one AAF stream in each direction.
+Both streams carry eight channels.
+TDM8 master and the backed loopback remain enabled.
+I2S playback and render LPF remain pruned.
+CSR shape words must both equal `0x48010002`.
+Packet lengths and channel fields are checked separately.
+
+| Model | Behavior |
+|---|---|
+| Milan and PHC | 50 MHz aliases; nominal PHC increment 20 ns |
+| Audio and TDM | Plan A, 782/1591 of Milan; 24,575,738.529 Hz |
+| Auxiliary phase clock | Explicit 200 MHz; four rising edges per Milan cycle |
+| Phase quantization | Audio edges rounded upward onto 10 ns half-cycles; auxiliary edges every 2.5 ns |
+| Reset | Both resets asserted together for 64 Milan cycles; release before the next falling edge; clocks continue |
+| TDM master | FSYNC cadence and captured-pair counters measured; serial input silent |
+| Peer clock | Independent 125 MHz timestamp edges; 10 us epoch offset; no drift |
+| Peer link | 320 ns each direction; 20 us residence; independent event timestamps |
+| Packet interface | Exact keep/last; RX beats every 80 ns; PTP ingress reservations; TX handshake collection |
+| Response memory | Ordered 592-byte store for AECP gPTP getters |
+| Auxiliary feedback | MMCM locked; DRP/phase acknowledgments idle; INTERNAL media selection |
+| Ethernet liveness | Synthetic receive/transmit clock toggles |
+
+The ROM is separately generated as `gptp_ax1x1_ucode.hex`.
+Generation uses `--clk-hz 50000000`, station MAC, and priority1.
+The generator uses that frequency for its servo gains.
+The engine timer independently receives the same frequency.
+No gPTP or protocol-processor timers are compressed.
+Boot Pdelay waits 1.2 seconds; requests repeat each second.
+Sync/Follow_Up repeats every 125 milliseconds.
+Announce repeats each second, initially phased at 250 milliseconds.
+Sync loss waits beyond the real 375 ms timeout.
+Peer loss includes the fourth unanswered request interval.
+Recovery and reset reacquisition retain the original timers.
+
+The peer timestamps scheduled arrival and departure events.
+It never reads PHC to construct its timestamps.
+Its delay oracle uses actual accepted packet event times.
+The comparison allows 28 ns for timestamp quantization only.
+This allowance contains no physical calibration correction.
+
+Audio uses diagnostic provisioning through documented CSR windows.
+`AAF_CTRL[1]` bypasses talker admission.
+The listener stream override and capture-map window select loopback.
+This run is **not licensed end-to-end streaming evidence**.
+The closed admission gate is checked before enabling bypass.
+
+Incoming PCM32 encodes channel identity and a monotonic sample index.
+All eight returned channels must match that supplied ramp.
+Sample order and packet sequence must remain continuous.
+Acquisition, healthy streaming, stalls, loss, recovery, and reset are graded.
+Stable phases also compare outgoing uncertainty with public state.
+CSR and AECP getters must expose consistent GM/parent/delay/PathTrace.
+Warm-up payload and transition-state comparisons are explicitly excluded.
+Every exclusion prints `NOT RUN` and contributes no pass.
+
+Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
+Issue #360 remains outside this packet-interface simulation.
+Other omissions: CPU/DDR, descriptor loading, NVM, and ACMP/SRP admission.
+Analog audio, pad delays, PLL lock transients, and metastability are absent.
+Oscillator drift, jitter, and MMCM actuation are absent.
+Physical rendering, CRF recovery, and multiple-responder cease are untested.
+No hardware compliance claim follows from this run.
+
+The negative control corrupts peer residence and one audio channel:
+
+```sh
+cd tb/verilator/milan_dp
+sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex
+/usr/bin/time -f 'wall_clock_seconds=%e process_exit_status=%x' \
+  ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp --negative-control
+```
+
+Expected: nonzero exit, peer-delay failure, and audio-payload failure.
+The switch defaults off and changes no RTL or ROM.
+It stops after the first real Pdelay exchange.
+Later acquisition, loss/reset/stall arms are explicitly unexecuted.
+Negative-control results never enter the broad sweep's passing count.
+
+The focused compilation limit is at most eight jobs.
+Smaller positive `VERILATOR_JOBS` values remain available.
+
+The normal log includes simulated duration and counted verdicts.
+The recipe records wall duration, process status, and SHA-256 hashes.
+Each phase has a bounded simulated deadline.
+Transport timeout aborts print the remaining unexecuted scope.
+
+The broad sweep appends this leg after every existing command.
+`suite_tally.py` reads its separate physical-rate summary.
+`suite_shards.py` assigns it with `milan_dp`, currently shard 0/4.
+`run_all_suites.sh` therefore needs no inventory change.
+The existing `gptp` compressed smoke remains separately counted.
+The option-OFF and fractional-audio legs retain their original models.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 

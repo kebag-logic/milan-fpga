@@ -240,7 +240,8 @@ ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 # Physical-rate integration: no compressed diagnostics, holdover or PP timers.
 # A distinct image keeps the historical 2 MHz gptp leg byte-for-byte intact.
 AX_GPTP_HZ = 50000000
-AX_GPTP_FLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS))
+AX_GPTP_JOBS = $(if $(filter 1 2 3 4 5 6 7,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),8)
+AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS)))
 gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
 	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
 

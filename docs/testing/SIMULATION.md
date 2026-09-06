@@ -187,6 +187,18 @@ harness's 1:1 audio clocks and no MAC, PHY, CPU or DDR model; the suite's
 [README](../../tb/verilator/milan_dp/README.md#first-ax7101-1x1-eight-channel-run)
 records the boundary and how to read the run.
 
+The combined gPTP-ON target uses the deployment clock rates:
+
+```sh
+make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=8
+```
+
+It combines physical gPTP timers with eight-channel diagnostic loopback.
+Its [coverage and negative control](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run)
+state modeled clocks, omissions, and admission bypass.
+The boundary remains AXI-Lite and MAC packet interfaces.
+It provides no licensed-streaming or hardware-compliance verdict.
+
 ### Section 1.4: Warning suppressions and why they are safe
 
 Two Verilator warnings are suppressed project-wide and are **not** bugs (details in
