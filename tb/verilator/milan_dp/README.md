@@ -28,11 +28,11 @@ log in the failure so the artifact can be inspected.
 
 ## Contents
 
-- **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** — Run the focused datapath baseline and identify its coverage limits.
-- **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** — What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
-- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** — What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
-- **[Check counts, before and after](#check-counts-before-and-after)** — Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
-- **[Rules this suite is held to](#rules-this-suite-is-held-to)** — The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
+- **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
+- **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
+- **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+- **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
 
 ## First AX7101 1x1 eight-channel run
 
