@@ -88,6 +88,7 @@ SIM_DIR="$ROOT/sw/litex"
 #: means growing this list - the UNLISTED reconciliation makes forgetting it
 #: a red run, and docs/testing/TESTING.md section 2 names the rule.
 INVENTORY=(
+  test_cpu_memory_port_cdc
   test_pp_boot_bus_freeze
   test_pp_mem_bridge
 )
@@ -270,8 +271,10 @@ selftest() {
   local out rc
   make_tree "$sand/a"
   rc=0; out="$(arm "$sand/a" bin-ok)" || rc=$?
+  # the expected count is the inventory's size, never a literal: a member
+  # joining the inventory must not turn the green control red
   ck "green control: a sandbox where everything passes exits 0" 0 "$rc" \
-     "passed: 2\b" "$out"
+     "passed: ${#INVENTORY[@]}\b" "$out"
 
   make_tree "$sand/b"
   printf 'import sys\nprint("RESULT: FAIL")\nsys.exit(1)\n' \

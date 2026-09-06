@@ -2015,6 +2015,73 @@ def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
     return cyc
 
 
+def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
+    """Put an AXI clock-domain crossing behind every memory bus the CPU hands
+    LiteDRAM, so the port LiteDRAM connects to is clocked by `cd_to`.
+
+    WHY THIS EXISTS (#359). With `--with-cpu-clk` the pinned VexiiRiscv LiteX
+    generator (vexiiriscv/soc/litex/Soc.scala) builds its fabric under
+    `cpuCd` - the clock this SoC drives from `milan` since 1e80a106 - and
+    wraps only the peripheral bridge (`pBus`) and the DMA slave in `litexCd`,
+    each behind the fabric's own `StreamFifoCC` crossings. The memory master
+    (`mem.toAxi4`, the `mBus_*` pins) is NOT wrapped: in the generated netlist
+    every `mBus` address, data and valid register clocks on `cpu_clk`. LiteX's
+    `add_sdram` then connects `cpu.memory_buses` straight to a `sys`-clocked
+    LiteDRAM port. Handshakes launched at 50 MHz and sampled at 100 MHz lose
+    or duplicate beats, and the first DRAM access after the BIOS hands the DFI
+    back to the controller never completes: on the AX7101 every persistent
+    boot of the shipping image stopped at `Switching SDRAM to hardware control`
+    (#359, reproduced on dev 3cfc0b81 and on the dev-40506026 control). A
+    workstation-local diagnostic that inserted exactly this crossing booted to
+    the prompt (#358), which is the lead this function makes permanent.
+
+    HOW. `add_sdram` calls `cpu.add_memory_buses(...)` and then reads
+    `cpu.memory_buses`, so the crossing has to exist between those two steps:
+    this wraps the CPU's own method, lets it build its `cd_from` port, and
+    replaces each entry with a `cd_to` port fed through LiteX's
+    `AXIClockDomainCrossing` (one async FIFO per AXI channel, both
+    directions). Port shape - data width, address width, id width, AXI
+    version - is preserved, so LiteX's width conversion and `LiteDRAMAXI2Native`
+    see what they saw before. A CPU without `cpu_clk` is left alone: when
+    `milan_cd == "sys"` there is nothing to cross, and the simulation SoCs
+    keep their old shape.
+
+    THE PORT'S OWN `clock_domain` LABEL IS NOT CONSULTED. The generator's
+    `add_memory_buses` builds its AXIInterface with LiteX's default
+    `clock_domain="sys"` although the netlist clocks it from `cpu_clk`, so a
+    hook that skipped ports "already in sys" crossed nothing: the first cut
+    did exactly that, elaborated a netlist byte-identical to the stalling one
+    (same 392 async FIFOs), and only a diff of the generated Verilog caught it.
+    The fact that decides is `cpu_clk` on the CPU, and every memory bus the
+    CPU makes is crossed.
+
+    The protocol-memory bridges (`_mem_bus`, the LiteX DMA bus into the CPU's
+    `dma_bus` slave) reach LiteDRAM through this same master, so they cross
+    here too; their watchdog derivation already sits thousands of sys cycles
+    above the few tens of nanoseconds a FIFO pair adds.
+    """
+    if not hasattr(cpu, "cpu_clk") or cd_from == cd_to:
+        return
+    original = cpu.add_memory_buses
+
+    def add_memory_buses(address_width: int, data_width: int) -> None:
+        """The CPU's own method, then the crossing behind each port it made."""
+        original(address_width, data_width)
+        for index, cpu_port in enumerate(cpu.memory_buses):
+            sys_port = axi.AXIInterface(
+                data_width    = cpu_port.data_width,
+                address_width = cpu_port.address_width,
+                id_width      = cpu_port.id_width,
+                version       = cpu_port.version,
+                clock_domain  = cd_to)
+            setattr(cpu.submodules, f"memory_port_cdc{index}",
+                    axi.AXIClockDomainCrossing(cpu_port, sys_port,
+                                               cd_from=cd_from, cd_to=cd_to))
+            cpu.memory_buses[index] = sys_port
+
+    cpu.add_memory_buses = add_memory_buses
+
+
 def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
     """`mem_rdy`: the DFI has been handed BACK to the LiteDRAM controller.
 
@@ -2423,7 +2490,11 @@ class MilanSoC(SoCCore):
         if hasattr(self.cpu, "cpu_clk"):
             # with_cpu_clk makes this an explicit asynchronous CPU boundary;
             # the generated Vexii wrapper retains litex_clk/reset on cd_sys.
+            # Vexii crosses its peripheral and DMA buses back into sys itself;
+            # its MEMORY master stays on cpu_clk, and this SoC crosses it
+            # (#359, see cross_cpu_memory_ports).
             self.comb += self.cpu.cpu_clk.eq(ClockSignal("milan"))
+            cross_cpu_memory_ports(self.cpu, cd_from="milan", cd_to="sys")
 
         # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
         # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
