@@ -77,6 +77,13 @@ GENERATED_SCAN_LINES = 12
 
 FENCE_RE = re.compile(r"^(```|~~~)")
 HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
+#: One Contents entry as this script writes it: the label, the anchor, the
+#: separator (U+2014 on the pages that predate the em-dash rule, `--` on
+#: every block written since) and the description. check_em_dash.py reads
+#: entries with this same expression, so the gate and the generator cannot
+#: disagree on what an entry is.
+TOC_ENTRY_RE = re.compile(
+    r"\s*-\s+(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?\s*(\u2014|--)\s*(.*)")
 
 
 def anchor(text: str, seen: dict[str, int]) -> str:
@@ -156,12 +163,11 @@ def existing(
     desc = {}
     separator = None
     for l in lines[start:end]:
-        m = re.match(r"\s*-\s+(?:\*\*)?\[[^\]]*\]\(#([^)]*)\)(?:\*\*)?\s*(—|--)\s*(.*)",
-                     l)
+        m = TOC_ENTRY_RE.match(l)
         if m:
-            desc[m.group(1)] = m.group(3).strip()
+            desc[m.group(2)] = m.group(4).strip()
             if separator is None:
-                separator = m.group(2)
+                separator = m.group(3)
     return desc, start, end, separator
 
 
@@ -197,7 +203,9 @@ def apply(path: Path, text: str) -> str | None:
         del lines[start:end]                      # too few sections now
         return "\n".join(lines)
 
-    block = render(items, desc, separator or "—")
+    # A page keeps the separator it has; a block written for the first time
+    # uses `--`, the only separator the em-dash rule lets a change add.
+    block = render(items, desc, separator or "--")
     if start is not None:
         lines[start:end] = block
     else:
