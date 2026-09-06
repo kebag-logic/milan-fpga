@@ -28,10 +28,51 @@ log in the failure so the artifact can be inspected.
 
 ## Contents
 
-- **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** — What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
-- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** — What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
-- **[Check counts, before and after](#check-counts-before-and-after)** — Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
-- **[Rules this suite is held to](#rules-this-suite-is-held-to)** — The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
+- **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
+- **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
+- **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+- **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
+
+## First AX7101 1x1 eight-channel run
+
+Run from the repository root:
+
+```sh
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+make -C tb/verilator/milan_dp ax1x1 VERILATOR_JOBS=2
+```
+
+This selects the existing `obj_ax1x1` elaboration only.
+The complete `make` sweep still includes the identical leg.
+
+| Parameter | Selected baseline |
+|---|---|
+| Entity configuration | `endstation_ax7101_1x1_tdm8` |
+| AAF streams | One talker and one listener |
+| Wire channels | Eight |
+| Audio interface | TDM8 master |
+| Loopback lane | Enabled |
+| I2S playback / render LPF | Disabled |
+| Fabric gPTP | Disabled; ownerless verification boundary |
+| Datapath frequency parameter | Default 100 MHz, not deployment's 50 MHz |
+| Audio clocks | Toggled with the datapath, not the physical audio ratio |
+| Harness | Unchanged `sim_main.cpp` assertions |
+
+`VERILATOR_JOBS=2` limits compilation to two jobs.
+It does not change simulation parameters or assertions.
+
+Check the command's exit status and assertion summary.
+Preserve every printed `SKIP`, `GAP`, and guarded-check count.
+Excluded checks are not passes.
+
+This is a first datapath baseline, not product qualification.
+It excludes physical LiteEth/GMII behavior and CPU/DDR execution.
+The [suite boundaries](../../../docs/testing/SIMULATION.md) explain those distinctions.
+
+The separate `make gptp` target exercises fabric gPTP ownership.
+It does not select this complete eight-channel/TDM8 parameter set.
+A combined product-shape run therefore still needs separate evidence.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 

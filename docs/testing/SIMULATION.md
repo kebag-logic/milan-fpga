@@ -179,6 +179,14 @@ cd tb/verilator && for d in */ ; do (cd $d && make) || break; done   # glob = ev
 # expected: each ends "<name>: N checks, 0 failures"; every suite green
 ```
 
+One leg of `milan_dp` can be run on its own: `make -C tb/verilator/milan_dp
+ax1x1 VERILATOR_JOBS=2` builds and runs only the shipping AX7101 1x1
+eight-channel TDM8 elaboration, with the same parameters and assertions the
+broad `make` gives it. It is a datapath baseline with fabric gPTP OFF, the
+harness's 1:1 audio clocks and no MAC, PHY, CPU or DDR model; the suite's
+[README](../../tb/verilator/milan_dp/README.md#first-ax7101-1x1-eight-channel-run)
+records the boundary and how to read the run.
+
 ### Section 1.4: Warning suppressions and why they are safe
 
 Two Verilator warnings are suppressed project-wide and are **not** bugs (details in
