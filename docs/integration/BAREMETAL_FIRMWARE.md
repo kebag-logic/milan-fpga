@@ -40,8 +40,13 @@ these statements hold:
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
 - The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
-  supported decoupled-clock boundary crosses CPU traffic back into the 100 MHz
-  LiteX system fabric; the system/audio clock recipe therefore stays unchanged.
+  decoupled-clock option crosses the CPU's peripheral bridge and DMA slave
+  back into the 100 MHz LiteX system fabric; its memory master stays on the
+  CPU clock, and `sw/litex/milan_soc.py` crosses that port before LiteDRAM
+  sees it (`cross_cpu_memory_ports`, #359: without it the first DRAM access
+  after the BIOS handed the DFI back never completed and no persistent boot
+  reached the firmware). The system/audio clock recipe therefore stays
+  unchanged.
 - `board.features.fabric_gptp` is true and a `gptp:` section is present. The
   builder emits `--fabric-gptp` and generates `gptp_ucode.hex` from that same
   configuration's station MAC, priority1 and 50 MHz Milan clock.
@@ -651,7 +656,9 @@ The measured cell is commit `1e80a106`, configuration
 (the Vivado default), `AreaOptimized_high` synthesis, `ExploreArea`
 optimization, `AggressiveExplore` physical optimization and routing, and the
 three place directives below. The 100 MHz system/audio clocks and the 50 MHz
-Milan/cacheless-CPU clock are asynchronous by construction.
+Milan/cacheless-CPU clock are asynchronous by construction, and every bus
+that crosses between them carries a crossing: Vexii's own for the peripheral
+and DMA buses, the SoC's for the memory port (#359).
 
 | Place directive | Slice LUTs | Slice registers | BRAM tiles | DSP | Slices | WNS (ns) | TNS (ns) | WHS (ns) | Result |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|

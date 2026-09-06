@@ -401,7 +401,13 @@ then the aggregate on the interpreter it just installed and patched.
 
 The population was twelve scripts when #297 was filed; ten tested the
 bare-metal ring/DMA product that #259 retired, and PR #294 deleted them with
-the RTL they proved. The two survivors are the checks below.
+the RTL they proved. The two survivors are the checks below, joined by
+`test_cpu_memory_port_cdc.py` (#359): it installs the shipping
+`cross_cpu_memory_ports` hook on a stand-in CPU and proves the port LiteDRAM
+gets is in the `sys` domain behind an AXI clock-domain crossing that carries
+every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
+sink, while the pre-#359 direct connection across the same clocks loses or
+duplicates beats.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.

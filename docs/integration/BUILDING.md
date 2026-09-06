@@ -114,8 +114,11 @@ xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
 (MT41J256M16), 16 MB N25Q128 QSPI. This is the shipping 1x1 TDM8 profile:
 one RV32I VexiiRiscv hart at 50 MHz in machine mode, no MMU, no operating
 system, no L1/L2 or LiteX SDRAM cache. The CPU and 64-bit Milan
-plane share the 50 MHz domain through Vexii's supported decoupled-clock
-boundary; the LiteX system and audio clock recipe stays at 100 MHz. The
+plane share the 50 MHz domain; Vexii's decoupled-clock option crosses the
+CPU's peripheral and DMA buses back into the 100 MHz LiteX system fabric,
+and the SoC crosses the CPU's memory port, which that option leaves on the
+CPU clock (`cross_cpu_memory_ports`, #359). The LiteX system and audio
+clock recipe stays at 100 MHz. The
 physical/fabric audio datapath and protocol processor remain. The
 configuration explicitly enables the #114 fabric gPTP plane with
 `--fabric-gptp`; the builder creates its ROM from the same YAML station MAC,
