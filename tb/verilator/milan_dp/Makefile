@@ -5,9 +5,11 @@
 # whole TSN core (csr + classify/CBS + PTP + rx-filter + ADP + events) and drives
 # it over the AXI4-Lite CSR + MAC AXIS ports.
 #   make        - build and run the self-checking harness
+#   make ax1x1  - run only the eight-channel AX7101 option-OFF baseline
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 PP_DIR     = ../../../protocol-processor/hdl
@@ -56,7 +58,7 @@ GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F) $(SHAPE_AX1_
 SHAPE_DV    = +incdir+gen_divergent
 SHAPE_DV_F  = gen_divergent/gen/adp_shape_defaults.svh
 
-VFLAGS = --cc --exe --build -j 0 \
+VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
@@ -167,7 +169,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off clean
+.PHONY: all run gptp option-off ax1x1 clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -186,6 +188,18 @@ PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
 AX_CHANS = 8
 AX_I2SPB = 0
 AX_SLOTS = 8
+
+# One compile recipe serves both the focused target and the broad sweep.
+# The geometry matches AX7101; gPTP remains OFF for this verification leg.
+# Keep its parameters and sim_main assertions unchanged when selecting it alone.
+define AX1X1_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -Wall -Wextra" \
+  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
+endef
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
 # $$readmemh's it by the relative name below - so it must exist in the RUN
@@ -216,6 +230,12 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	./obj_dir/Vmilan_dp_sim
+
+# First eight-channel datapath baseline, without the ten unrelated elaborations.
+# VERILATOR_JOBS bounds compilation without changing model parameters.
+ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(AX1X1_BUILD)
+	./obj_ax1x1/Vmilan_dp_ax1x1
 
 run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
@@ -265,12 +285,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # Every one of those had desk coverage on its
 # own; the combination - which is the only combination that ever reaches a
 # board - had none, and three defects were living in it.
-	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
-	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
-	  -GAUDIO_IF_MASTER_P=1 \
-	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -Wall -Wextra" \
-	  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
+	$(AX1X1_BUILD)
 # THE SAME SHIPPING SHAPE, CLOCKED HONESTLY. Every other leg toggles
 # clk_audio_i/clk_tdm_i 1:1 with axis_clk, so the 391/1591 divider plan that
 # puts the TDM word clock -10.6393 ppm from the AAF packet grid does not exist
