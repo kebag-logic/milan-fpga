@@ -105,12 +105,37 @@ top. The `yosys-portability` aggregate rejects:
 The tap-purity report remains informational in the combined Yosys script, which
 preserves the existing local policy. Its result is still recorded exactly once.
 
+**The result cache (#350).** Each Yosys worker runs `run.sh` with `--cache`
+pointing at `${{ runner.temp }}/yosys-result-cache`, restored and saved by
+`actions/cache@v4`. A top is skipped only when a stored PASS entry matches the
+digest of its staged sv2v output, the exact Yosys program, the Yosys version
+string and the Yosys binary's digest, and the sv2v version; and even then the
+count it publishes is re-derived from the entry's stored `stat -json` by
+`syn/yosys/result_cache.py`, which refuses an entry whose stored JSON disagrees
+with its own `cells=` line, whose status is not PASS, or whose record is
+malformed, so the top runs live instead. A miss runs exactly as it always has,
+and a hit publishes the same result record a live run publishes; the shipping
+`run.sh --list` inventory, the program and the recorded `cells=` values are
+untouched. The trust boundary is GitHub's cache scoping, stated and pinned
+rather than assumed: the save key ends in the run's own `github.sha`, so a
+pull request's writes land in per-head state that only its branch can read;
+the `restore-keys` prefix `yosys-results-<YOSYS_VERSION>-shard<N>-` lets a run
+read the newest lineage of the same worker from its own branch or from `dev`,
+and the entries `dev` published (its pushes and the nightly) are the read-only
+seed. No candidate can write a cache another branch reads, `run.sh` never
+rewrites an existing entry, and the workflow passes no `--cache-seed`: the
+restored directory is the seed. `syn/yosys/cache_selftest.py`, run by the fast
+workflow's Yosys job, drives a cold run, a warm hit, a forged entry that must
+be refused and a read-only seed against the real script.
+
 ## Nightly and manual dispatch
 
 **The nightly** validates whatever `dev` points at when the cron fires. Its
 value is environment drift: the Verilator and Yosys build caches (both tools
 are pinned and version-verified, so the drift a nightly can find is the
-cache or its build inputs, not the version), the jemalloc preload (a speed
+cache or its build inputs, not the version), the Yosys result cache seed it
+republishes for `dev` (a nightly hit rate below the tree's change rate is a
+cache-scoping finding), the jemalloc preload (a speed
 choice `syn/yosys/run.sh` makes only when the
 library is installed, never a pass criterion), the hash-locked HDL reference
 parser install,

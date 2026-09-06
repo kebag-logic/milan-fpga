@@ -449,10 +449,27 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
+      # THE RESULT CACHE (#350): a top whose staged sv2v output, Yosys
+      # program, Yosys binary and sv2v version match a verified PASS entry
+      # is skipped and reports the stored count; everything else runs as it
+      # always has. The trust boundary is GitHub's own cache scoping: a
+      # pull-request run can restore caches created on its branch or on `dev`
+      # (the seed, published by the pushes and the nightly that run there),
+      # and the cache it saves under its own head SHA is readable by that
+      # branch alone - never by `dev`, never by another pull request. The
+      # per-shard prefix restores the newest lineage of the same worker, whose
+      # top set is the selector's deterministic answer.
+      - name: Restore the portability result cache seeded from dev
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/yosys-result-cache
+          key: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-
       - name: Run this weighted portability shard
         run: |
           syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" \
-            --results "$RUNNER_TEMP/yosys-results"
+            --results "$RUNNER_TEMP/yosys-results" \
+            --cache "$RUNNER_TEMP/yosys-result-cache"
       - name: Upload per-top and structural evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

@@ -1394,8 +1394,7 @@ def check_rtl_full(c: Contract, wf: YamlMap, policy: str) -> None:
         check_no_gh_env(c, path, f"job `{GATE_JOB}`", gate.get("env"))
     check_no_gh_env(c, path, "the workflow's top-level", wf.get("env"))
     c.item("defaults" not in wf, path, "the workflow must carry no top-level "
-           f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell`"
-           " changes how every script runs")
+           f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell` changes how every script runs")
 
     # Every job that uploads evidence records the SHA first; every job that
     # downloads evidence verifies it against the gate's output.
@@ -1424,14 +1423,75 @@ def check_rtl_full(c: Contract, wf: YamlMap, policy: str) -> None:
                 check_sha_sources(c, path, jid, vsteps[0])
                 check_verify_step(c, path, wf, jid, job, vsteps[0])
 
-    # A sharded worker states its shard count once, in the matrix.
+    # A sharded worker states its shard count once; the result cache (#350).
     for jid, job in jobs(wf).items():
         check_shard_denominator(c, path, jid, job)
+    check_yosys_result_cache(c, path, wf, policy)
 
     # The decision's publication path: the outputs map that carries it and
     # every job that runs on it. check_job_keys for the aggregates lives
     # there now, beside the same call for the workers.
     check_publication_path(c, path, wf)
+
+
+#: #350: the Yosys workers' content-addressed result cache. The trust
+#: boundary is GitHub's cache scoping, so the contract pins the exact shape
+#: that makes the scoping do the work: one restore of one path, a save key
+#: that ends in the run's own SHA (per-head state), a restore prefix that is
+#: this worker's own lineage and nothing wider, the run step reading that
+#: path with `--cache` and passing no `--cache-seed` (the restored directory
+#: IS the seed), and the policy page stating the boundary.
+YOSYS_SHARDS_JOB = "yosys-shards"
+RESULT_CACHE_PATH = "${{ runner.temp }}/yosys-result-cache"
+RESULT_CACHE_KEY = ("yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}"
+                    "-${{ github.sha }}")
+RESULT_CACHE_RESTORE = "yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-"
+RESULT_CACHE_FLAG = '--cache "$RUNNER_TEMP/yosys-result-cache"'
+RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache",
+                             "`restore-keys`")
+
+
+def check_yosys_result_cache(c: Contract, path: str, wf: YamlMap,
+                             policy: str) -> None:
+    """The result cache's restore step, its keys, the run step's flags and
+    the policy page's statement of the trust boundary (#350)."""
+    job = jobs(wf).get(YOSYS_SHARDS_JOB)
+    if not isinstance(job, dict):
+        c.item(False, path, f"job `{YOSYS_SHARDS_JOB}` must exist")
+        return
+    ss = steps(job)
+    caches = [s for s in ss if uses(s, "actions/cache")
+              and isinstance(s.get("with"), dict)
+              and s["with"].get("path") == RESULT_CACHE_PATH]
+    c.item(len(caches) == 1, path, f"job `{YOSYS_SHARDS_JOB}` must restore the "
+           f"result cache exactly once, at `{RESULT_CACHE_PATH}` (found "
+           f"{len(caches)}): the cache the trust boundary is stated for")
+    runs = [s for s in ss if "syn/yosys/run.sh" in step_text(s)]
+    c.item(len(runs) == 1, path, f"job `{YOSYS_SHARDS_JOB}` must run "
+           f"syn/yosys/run.sh in exactly one step (found {len(runs)})")
+    if len(caches) == 1:
+        with_ = caches[0]["with"]
+        c.item(with_.get("key") == RESULT_CACHE_KEY, path,
+               f"the result cache save key must be exactly `{RESULT_CACHE_KEY}` "
+               f"(found {with_.get('key')!r}): it ends in the run's own SHA so a "
+               "candidate's writes are per-head state its branch alone reads")
+        c.item(with_.get("restore-keys") == RESULT_CACHE_RESTORE, path,
+               "the result cache `restore-keys` must be exactly "
+               f"`{RESULT_CACHE_RESTORE}` (found {with_.get('restore-keys')!r}): "
+               "this worker's own lineage from its branch or from dev, nothing wider")
+        if len(runs) == 1:
+            c.item(ss.index(caches[0]) < ss.index(runs[0]), path,
+                   "the result cache must be restored before the run step reads it")
+    if len(runs) == 1:
+        text = step_text(runs[0])
+        c.item(RESULT_CACHE_FLAG in text, path, "the run step must pass exactly "
+               f"`{RESULT_CACHE_FLAG}` so the restored cache is the one read")
+        c.item("--cache-seed" not in text, path, "the run step must pass no "
+               "`--cache-seed`: the restored directory is the seed, and a second "
+               "directory would be a source no scoping rule covers")
+    missing = [m for m in RESULT_CACHE_POLICY_MARKS if m not in policy]
+    c.item(not missing, POLICY, "must state the result cache and its trust "
+           f"boundary, naming {list(RESULT_CACHE_POLICY_MARKS)} (missing: {missing})")
 
 
 def all_scalars(node: Any) -> Iterator[str]:
@@ -5638,6 +5698,84 @@ def _carrier_step_list_arms() -> list[Arm]:
     ]
 
 
+def _result_cache_step(w: World) -> YamlMap:
+    """The yosys-shards result cache step, by its path."""
+    found = [s for s in _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+             if uses(s, "actions/cache") and isinstance(s.get("with"), dict)
+             and s["with"].get("path") == RESULT_CACHE_PATH]
+    assert len(found) == 1, "fixture drift: result cache step not found"
+    return found[0]
+
+
+def _result_cache_run_step(w: World) -> YamlMap:
+    """The yosys-shards step that runs syn/yosys/run.sh."""
+    found = [s for s in _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+             if "syn/yosys/run.sh" in step_text(s)]
+    assert len(found) == 1, "fixture drift: run.sh step not found"
+    return found[0]
+
+
+def _m_result_cache_with(key: str, value: Any) -> Mutator:
+    """Set one `with` binding of the result cache step."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _result_cache_step(w)["with"][key] = value
+    return mutate
+
+
+def _m_result_cache_run(old: str, new: str) -> Mutator:
+    """Rewrite the run step's script text, refusing to edit nothing."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = _result_cache_run_step(w)
+        assert old in step["run"], f"fixture drift: {old!r} not in the run step"
+        step["run"] = step["run"].replace(old, new)
+    return mutate
+
+
+def _m_result_cache_removed(w: World) -> None:
+    """Delete the restore step."""
+    ss = _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+    ss.remove(_result_cache_step(w))
+
+
+def _m_result_cache_after_run(w: World) -> None:
+    """Move the restore step after the run step."""
+    ss = _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+    step = _result_cache_step(w)
+    ss.remove(step)
+    ss.insert(ss.index(_result_cache_run_step(w)) + 1, step)
+
+
+def _result_cache_arms() -> list[Arm]:
+    """#350: the result cache's restore, keys, flags and policy statement."""
+    return [
+        ("#350 result cache restore step removed", _m_result_cache_removed,
+         "must restore the result cache exactly once"),
+        ("#350 result cache path moved",
+         _m_result_cache_with("path", "${{ runner.temp }}/elsewhere"),
+         "must restore the result cache exactly once"),
+        ("#350 save key without the head SHA",
+         _m_result_cache_with("key", RESULT_CACHE_RESTORE + "static"),
+         "save key must be exactly"),
+        ("#350 restore prefix wider than this worker's lineage",
+         _m_result_cache_with("restore-keys", "yosys-results-"),
+         "`restore-keys` must be exactly"),
+        ("#350 restore step after the run step", _m_result_cache_after_run,
+         "must be restored before the run step"),
+        ("#350 run step without --cache",
+         _m_result_cache_run(RESULT_CACHE_FLAG, ""), "must pass exactly"),
+        ("#350 run step adds a second seed directory",
+         _m_result_cache_run(RESULT_CACHE_FLAG,
+                             RESULT_CACHE_FLAG + ' --cache-seed "$RUNNER_TEMP/x"'),
+         "must pass no `--cache-seed`"),
+        ("#350 policy page silent on the result cache",
+         lambda w: _policy_replace(w, "`syn/yosys/result_cache.py`",
+                                   "`syn/yosys/result_cache.txt`"),
+         "must state the result cache"),
+    ]
+
+
 def _mutations() -> list[Arm]:
     """(name, mutate(parsed_world), expected finding fragment), every arm.
 
@@ -5667,7 +5805,8 @@ def _mutations() -> list[Arm]:
             + _docs_check_gate_step_arms()
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
-            + _carrier_step_list_arms())
+            + _carrier_step_list_arms()
+            + _result_cache_arms())
 
 
 def _run_mutations(checker: Callable[[World], list[str]],

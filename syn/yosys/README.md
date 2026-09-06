@@ -22,6 +22,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 - **[How it works](#how-it-works)** — The two-stage pipeline and why each stage is there: sv2v converts the SystemVerilog Yosys cannot parse (interfaces, packages, assignment patterns), then `hierarchy -check` is what makes a PASS mean something — it fails on any surviving vendor primitive, so green = fully mapped to generic logic with nothing Xilinx-specific left.
 - **[Tooling](#tooling)** — The two binaries you need, where to get them, and the exact versions CI takes the gate's verdict with — Yosys `v0.66` with its bundled ABC, sv2v `v0.0.12` — which is what a local run has to match to be comparable. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
 - **[The cells= record](#the-cells-record)** — Where the published cell count comes from (`stat -json`, never the human table), why a PASS without a numeric count is a FAIL, and why the count is required but deliberately not a checked-in ratchet.
+- **[The result cache](#the-result-cache)** — `--cache DIR` skips a top whose staged sv2v output, program, Yosys binary and sv2v version match a verified PASS entry (#350): the key, the hit rule that re-derives the count from the stored `stat -json` and refuses a forged or stale entry, the read-only seed, and what a hit does and does not change (the same record; never the inventory, the program or a `cells=` value).
 - **[Runtime levers](#runtime-levers)** — Why this gate is optimisation-bound and not parse-bound, which is the one fact that decides every speed question here: the jemalloc preload it now runs under (−45% on the heaviest top, −42% on the whole sharded gate, byte-identical netlist) and how to turn it off, and the measured reason `read_verilog -defer` is *not* used — it removes 85% of a step that is 0.5% of the run, and changes the cell count by 1.3% while doing it.
 - **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
@@ -83,6 +84,59 @@ The count is **required, not ratcheted**:
   between a CI-built and a distro-built 0.66 has not been measured. If
   #286's harness proves that equality, a zero-tolerance baseline can be
   added cheaply on top of this record shape.
+
+## The result cache
+
+`run.sh --cache DIR` keeps a content-addressed result cache (#350,
+[`result_cache.py`](result_cache.py)). On the common pull request 46 or more
+of the 48 staged `sv2v` outputs are byte-identical to `dev`'s, so a top whose
+inputs cannot have changed is skipped instead of re-synthesised, and the gate
+pays for the tops a change touched.
+
+**The key** is a sha256 over the top name, the mode, the sha256 of the staged
+`sv2v` output, the exact Yosys program with the run's scratch directory
+replaced by a placeholder, the Yosys version string, the sha256 of the Yosys
+binary that string names (a rebuilt binary of the same version is a different
+tool) and the sv2v version string. Any of those moving is a miss.
+
+**The hit rule** is stricter than a key match. The entry must hold a PASS
+record whose recorded inputs equal the current ones field by field, and the
+count a hit publishes is RE-DERIVED from the entry's stored `stat -json` with
+the same extractor a live run uses. An entry whose stored JSON disagrees with
+its own `cells=` line, whose JSON is missing, whose status is not PASS or whose
+record is malformed is refused by name (`[note] <top> cache entry refused,
+running live: ...`) and the top runs exactly as without a cache. So a stale or
+forged entry can cost one synthesis and never make a wrong number green.
+
+**What a hit changes, and what it does not.** A hit prints
+`[PASS] <top> cells=<n>  (result cache)` and writes the SAME `--results`
+record a live run writes (byte for byte; `cache_selftest.py` diffs them). It
+changes nothing else: the `--list` inventory, the program, `hierarchy -check`
+and the recorded `cells=` values are what they were, and a miss runs the
+unchanged path. `--results` records therefore carry no trace of the cache, and
+`scripts/yosys_tally.py` needs none.
+
+**Two directories, one writable.** `--cache DIR` is this run's per-head state:
+looked up first, and the only place a PASS is stored (a FAIL is never stored;
+an existing entry is never rewritten). `--cache-seed DIR` is an optional
+read-only trusted seed, looked up second and never written. In CI (#350, on
+[#270](https://github.com/kebag-logic/milan-fpga/issues/270)'s rules) the
+seed is the cache `dev` published under its own scope and the per-head state is
+the pull request's own cache entry; `actions/cache` scoping keeps a candidate
+from writing anything another branch reads, and
+[`CI_WORKFLOWS.md`](../../docs/testing/CI_WORKFLOWS.md) states the boundary
+`scripts/ci_events.py` pins.
+
+**Reproduce it locally**, with the same tools CI pins:
+
+```sh
+syn/yosys/run.sh --results /tmp/r0                    # today's gate
+syn/yosys/run.sh --results /tmp/r1 --cache /tmp/rc    # cold: same records, stores 48 entries
+syn/yosys/run.sh --results /tmp/r2 --cache /tmp/rc    # warm: 48 hits, same records
+diff -r /tmp/r0 /tmp/r2                               # nothing
+python3 syn/yosys/result_cache.py --selftest          # the key and the hit rule on planted entries
+python3 syn/yosys/cache_selftest.py                   # cold, warm, forged and seed arms on the real gate
+```
 
 ## Runtime levers
 
