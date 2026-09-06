@@ -2046,6 +2046,15 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
     `milan_cd == "sys"` there is nothing to cross, and the simulation SoCs
     keep their old shape.
 
+    THE PORT'S OWN `clock_domain` LABEL IS NOT CONSULTED. The generator's
+    `add_memory_buses` builds its AXIInterface with LiteX's default
+    `clock_domain="sys"` although the netlist clocks it from `cpu_clk`, so a
+    hook that skipped ports "already in sys" crossed nothing: the first cut
+    did exactly that, elaborated a netlist byte-identical to the stalling one
+    (same 392 async FIFOs), and only a diff of the generated Verilog caught it.
+    The fact that decides is `cpu_clk` on the CPU, and every memory bus the
+    CPU makes is crossed.
+
     The protocol-memory bridges (`_mem_bus`, the LiteX DMA bus into the CPU's
     `dma_bus` slave) reach LiteDRAM through this same master, so they cross
     here too; their watchdog derivation already sits thousands of sys cycles
@@ -2059,8 +2068,6 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
         """The CPU's own method, then the crossing behind each port it made."""
         original(address_width, data_width)
         for index, cpu_port in enumerate(cpu.memory_buses):
-            if getattr(cpu_port, "clock_domain", cd_from) == cd_to:
-                continue
             sys_port = axi.AXIInterface(
                 data_width    = cpu_port.data_width,
                 address_width = cpu_port.address_width,

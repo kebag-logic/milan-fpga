@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import sys
 from collections import defaultdict
+from collections.abc import Generator
 from pathlib import Path
 from random import Random
 
@@ -56,9 +57,11 @@ class StandInCpu(Module):
             self.cpu_clk = Signal()
 
     def add_memory_buses(self, address_width: int, data_width: int) -> None:
-        """The generator's port, in the CPU clock domain."""
+        """The generator's port exactly as LiteX's VexiiRiscv makes it: clocked
+        by cpu_clk in the netlist, yet carrying the DEFAULT clock_domain label
+        ("sys"). A hook that believed the label would cross nothing."""
         port = axi.AXIInterface(data_width=data_width, address_width=address_width,
-                                id_width=8, version="axi4", clock_domain="milan")
+                                id_width=8, version="axi4")
         self.native_ports.append(port)
         self.memory_buses.append(port)
 
@@ -78,7 +81,7 @@ class Harness(Module):
         self.cpu_port = self.cpu.native_ports[0]    # what the CPU netlist drives
 
 
-def contents(endpoint, channel: str):
+def contents(endpoint: object, channel: str) -> Cat:
     """Every AXI wire of one channel endpoint as one vector (w and r carry last)."""
     fields = [endpoint.payload.raw_bits(), endpoint.param.raw_bits()]
     if channel in ("w", "r"):
@@ -110,9 +113,11 @@ def shape_arms(problems: list[str]) -> None:
     plain = StandInCpu(with_cpu_clk=False)
     milan_soc.cross_cpu_memory_ports(plain, cd_from="milan", cd_to="sys")
     plain.add_memory_buses(address_width=32, data_width=256)
-    check(problems, plain.memory_buses[0].clock_domain == "milan"
+    check(problems, plain.memory_buses[0] is plain.native_ports[0]
           and not hasattr(plain, "memory_port_cdc0"),
           "a CPU without cpu_clk is left alone")
+    check(problems, cpu.native_ports[0].clock_domain == "sys" and port is not cpu.native_ports[0],
+          "a CPU port carrying LiteX's default sys label is still crossed (the label is not the fact)")
     same = StandInCpu(with_cpu_clk=True)
     milan_soc.cross_cpu_memory_ports(same, cd_from="sys", cd_to="sys")
     same.add_memory_buses(address_width=32, data_width=256)
@@ -136,7 +141,8 @@ def transport(crossing: bool, periods: tuple[int, int], channel: str) -> bool:
     observed: list[int] = []
     sent: list[int] = []
 
-    def produce():
+    def produce() -> Generator[None, None, None]:
+        """Offer every expected beat in order, holding valid until ready."""
         for _ in range(8):
             yield
         for word in expected:
@@ -152,7 +158,8 @@ def transport(crossing: bool, periods: tuple[int, int], channel: str) -> bool:
             yield source.valid.eq(0)
             yield
 
-    def consume():
+    def consume() -> Generator[None, None, None]:
+        """Take beats under a periodic backpressure pattern and record them."""
         for cycle in range(1000):
             yield sink.ready.eq(cycle % 11 not in (3, 4, 5, 6))
             yield
