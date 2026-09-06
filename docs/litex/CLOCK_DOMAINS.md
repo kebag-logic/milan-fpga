@@ -3,7 +3,8 @@
 This guide maps the reference SoC's actual clock wiring.
 It distinguishes clock sources, reset domains, and protocol time.
 
-Baseline: `911bc57e`, the `dev` tip of 2026-09-06, checked against the source that day.
+Baseline: `911bc57e`, the `dev` tip of 2026-09-06.
+Every claim below was checked against that source.
 
 Example configuration: [AX7101 1x1 TDM8](../../configs/endstation_ax7101_1x1_tdm8.yaml).
 Rates below describe this configuration unless stated otherwise.
@@ -13,15 +14,15 @@ This is an implementation map, not CDC sign-off.
 
 ## Contents
 
-- **[Clock tree](#clock-tree)** — Follow physical sources and derived clocks.
-- **[Domain inventory](#domain-inventory)** — Find frequencies, consumers, and clock aliases.
-- **[Audio variants](#audio-variants)** — Separate nominal rates from synthesized rates.
-- **[Reset ownership](#reset-ownership)** — Understand reset scope and recovery ordering.
-- **[Crossing map](#crossing-map)** — Locate bus, packet, audio, and control crossings.
-- **[gPTP timestamp boundaries](#gptp-timestamp-boundaries)** — Locate timestamp capture relative to MAC buffering.
-- **[Constraints and verification](#constraints-and-verification)** — Check implementation evidence without assuming CDC safety.
-- **[Known gaps](#known-gaps)** — Read the statements this map contradicts or cannot close, each with its owner.
-- **[Source index](#source-index)** — Find the owning code and related contracts.
+- **[Clock tree](#clock-tree)** -- Follow physical sources and derived clocks.
+- **[Domain inventory](#domain-inventory)** -- Find frequencies, consumers, and clock aliases.
+- **[Audio variants](#audio-variants)** -- Separate nominal rates from synthesized rates.
+- **[Reset ownership](#reset-ownership)** -- Understand reset scope and recovery ordering.
+- **[Crossing map](#crossing-map)** -- Locate bus, packet, audio, and control crossings.
+- **[gPTP timestamp boundaries](#gptp-timestamp-boundaries)** -- Locate timestamp capture relative to MAC buffering.
+- **[Constraints and verification](#constraints-and-verification)** -- Check implementation evidence without assuming CDC safety.
+- **[Known gaps](#known-gaps)** -- Find the recorded contradictions and their owners.
+- **[Source index](#source-index)** -- Find the owning code and related contracts.
 
 ## Clock tree
 
@@ -179,13 +180,26 @@ Its reset sequence is:
 ```text
 Ethernet clock outage
   -> hold MAC/PHY-side fabric resets
-  -> wait for clocks to resume and settle
-  -> release eth_rst first
-  -> release reinit later
+  -> wait for both Ethernet clocks to resume
+  -> settle: release eth_rst after 1,048,576 clean cycles (20.97 ms)
+  -> release reinit after 2,097,152 clean cycles (41.94 ms)
   -> resume MAC traffic
 ```
 
-- The guard provides approximately 21 ms of settling.
+The `link_guard` instance in the [datapath](../../hdl/milan/milan_datapath.sv) passes no override.
+It runs on `axis_clk`, the Milan clock at 50 MHz here.
+
+| Guard constant | Cycles | Duration at 50 MHz | Meaning |
+|---|---:|---:|---|
+| `DEAD_CYC_C` | 4,096 | 81.92 us | No-transition window that declares an Ethernet clock dead |
+| `ETH_REL_CYC_C` (`SETTLE_CYC_C / 2`) | 1,048,576 | 20.97 ms | `eth_rst` release point inside the settle hold |
+| `SETTLE_CYC_C` | 2,097,152 | 41.94 ms | Full `reinit` hold after both clocks return |
+
+Constants: [`KL_link_guard`](../../hdl/common/KL_link_guard.sv) parameters and `ETH_REL_CYC_C`.
+
+The guard's comments say 21 ms and 41 us.
+Those are the 100 MHz figures; [#374](https://github.com/kebag-logic/milan-fpga/issues/374) owns them.
+
 - Both FIFO reset sides must converge before resuming traffic.
 - Per-domain reset release can differ by several clock cycles.
 - Clock-liveness toggle registers are deliberately `reset_less`.
@@ -211,7 +225,8 @@ Conditional paths exist only when their features are elaborated.
 | MAC core TX/RX streams | `macsys` → `maceth_tx`; `maceth_rx` → `macsys` | LiteEth internal stream FIFOs plus width conversion |
 | CPU peripheral/DMA interfaces | CPU clock ↔ `sys` | Generated CPU wrapper's supported CDC; distinct from dedicated DDR port |
 | CPU dedicated DDR AXI port | CPU clock (`milan`) → `sys` LiteDRAM port | `cross_cpu_memory_ports()`: one LiteX `AXIClockDomainCrossing` per memory bus, added by [#359](https://github.com/kebag-logic/milan-fpga/issues/359)'s fix; before it the port was connected straight and the board stalled when the BIOS returned the DRAM to the controller |
-| CSR IRQ, link and duplex levels | Milan → `sys`; `sys` → Milan | Migen `MultiReg`; speed uses RTL `mac_speed_cdc` |
+| Link, duplex and speed levels | `sys` → Milan | Migen `MultiReg` on `link_status.link_up` and `full_duplex`; `speed` is synchronized by RTL `mac_speed_cdc` |
+| CSR IRQ | none | `o_irq_csr` is left unconnected in `add_milan_datapath()`; firmware polls, and no CPU event-manager ABI exists |
 | MAC event pulses | `macsys` → Milan | `KL_mac_rmon_events`, using `cdc_pulse` |
 | Ethernet liveness/activity toggles | `eth_rx`/`eth_tx` → Milan | Reset-less source toggles; synchronization inside `KL_link_guard` |
 | PHC commands and snapshots | `axis_clk` ↔ `gtx_clk` | `ptp_csr_sync` retained, but both clock ports alias Milan here |
@@ -226,13 +241,15 @@ Each uses a 16-beat buffered asynchronous FIFO here.
 
 LiteEth's internal FIFOs have separate dependency-owned settings.
 
-The CPU DDR path has its own crossing since #359's fix.
-`cross_cpu_memory_ports()` wraps each CPU memory bus in an
-`AXIClockDomainCrossing` from `milan` to `sys`; the peripheral bus and DMA
-were already crossed inside the generated CPU wrapper, the memory bus was not.
-LiteX labels an interface's `clock_domain` by default, so that label never
-proved a crossing; the netlist's asynchronous FIFO count did.
-`sw/litex/test_cpu_memory_port_cdc.py` drives the hook on a stand-in CPU.
+The CPU DDR path is crossed since #359's fix:
+
+- `cross_cpu_memory_ports()` wraps each CPU memory bus in an `AXIClockDomainCrossing`.
+- That crossing runs from `milan` to `sys`.
+- The CPU wrapper already crossed its peripheral bus and DMA.
+- The memory bus was not crossed before the fix.
+- LiteX labels every interface's `clock_domain` by default.
+- The label proved nothing; the asynchronous FIFO count did.
+- `sw/litex/test_cpu_memory_port_cdc.py` drives the hook on a stand-in CPU.
 
 See the generated [CDC census](../diagrams/cdc_census.svg).
 Its [generator](../diagrams/cdc_census.gen.py) inventories recognized primitive call sites.
@@ -283,7 +300,12 @@ tracks the TX timestamp reference-plane defect.
 Peer delay alone cannot identify an external inline-device fault.
 
 The retained latency CSRs do not repair this path.
-In VERSION `0x0002_0057`, `0x540`/`0x544` are write-only scratch.
+In VERSION `0x0002_0057`, `0x540`/`0x544` are readable, inert scratch:
+
+- `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
+- A read returns the last written value.
+- No timestamp path consumes them at this VERSION.
+- Source: `is_plain_rw` and `shadow_mem` in [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
 
 See the [register map](../reference/REGISTER_MAP.md) and
 [timestamp scope note](../../REQUIREMENTS.md#4-time-synchronization-and-timestamping).
@@ -301,6 +323,12 @@ Clock labels alone do not establish safe data transfer.
 - Do not replace those bounds with blanket clock-group exclusions.
 - DDR's 4× clocks remain related PHY timing clocks.
 - Audio's explicit two-stage ratios follow the selected plan.
+
+The tracked `constraints/` directory is not a build input:
+
+- [`rgmii.xdc`](../../constraints/rgmii.xdc) carries RGMII and MDIO pin properties only.
+- [`ila.xdc`](../../constraints/ila.xdc) is empty.
+- No build script or platform file references either file.
 
 For an implemented candidate, inspect these Vivado reports:
 
@@ -330,21 +358,13 @@ The [testing guide](../testing/TESTING.md) defines the required evidence.
 
 Recorded, not repaired; each has an owner elsewhere.
 
-- **A requirement names a clock the design does not use.** `FR-CLK-02` in
-  the [requirements ledger](../reference/FR_NFR.md) says the PHC is disciplined
-  from a fixed 125 MHz clock and cites `REQ-PTP-07`, which is about atomic
-  publication of the gPTP state. The reference SoC clocks the PHC from the
-  Milan clock at 50 MHz with a derived increment. The requirement text and its
-  cross-reference are the gap; this guide describes the source.
-- **The TX timestamp reference plane** is the first accepted AXIS beat, ahead
-  of a store-and-forward buffer and two clock crossings; [#360](https://github.com/kebag-logic/milan-fpga/issues/360)
-  owns it.
-- **Audio-domain resets are not uniform.** Some audio-clocked processes take
-  `axis_resetn` directly and some synchronize it locally; the MMCM-unlock reset
-  covers the Migen domains, not every RTL register.
-- **CPU memory-port crossing evidence is netlist evidence.** LiteX's
-  `clock_domain` label proved nothing; the asynchronous FIFO count did. A
-  future change to the CPU wrapper or its buses needs the same measurement.
+- **FR-CLK-02 names a clock the design does not use.** The [requirements ledger](../reference/FR_NFR.md) requires a fixed 125 MHz PHC clock. It cites `REQ-PTP-07`, which covers atomic state publication. The reference SoC clocks the PHC from `milan` at 50 MHz. The requirement text and its cross-reference are the gap.
+- **FR-CLK-05 requires GMII SFD timestamps.** The same ledger marks it MET. Neither stamp here is a pad or wire-SFD stamp. [#360](https://github.com/kebag-logic/milan-fpga/issues/360) owns the reconciliation.
+- **TX timestamps** are taken at the first accepted AXIS beat. That beat precedes a store-and-forward buffer and two crossings. [#360](https://github.com/kebag-logic/milan-fpga/issues/360) owns the reference plane.
+- **Two pages call readable words write-only.** The [register map](../reference/REGISTER_MAP.md) rows for `0x540`/`0x544` say RW and WRITE-ONLY SCRATCH. The [timestamp scope note](../../REQUIREMENTS.md#4-time-synchronization-and-timestamping) repeats that wording. The decoder stores and returns both words. [#375](https://github.com/kebag-logic/milan-fpga/issues/375) owns the wording.
+- **Source comments carry the 100 MHz guard figures.** They state 21 ms settling and 41 us detection. They sit in `KL_link_guard.sv`, `milan_datapath.sv` and `milan_soc.py`. This configuration runs the guard at 50 MHz. [#374](https://github.com/kebag-logic/milan-fpga/issues/374) owns the comment text.
+- **Audio-domain resets are not uniform.** Some audio-clocked processes take `axis_resetn` directly. Others synchronize it locally. MMCM-unlock resets cover the Migen domains, not every RTL register.
+- **CPU memory-port crossing evidence is netlist evidence.** LiteX's `clock_domain` label proved nothing; the asynchronous FIFO count did. Any CPU wrapper or bus change needs that measurement again.
 
 ## Source index
 
