@@ -12,6 +12,9 @@ invisible until silicon. For example, in 2026-07-26 sweep.sh passed NO
     and the build directories all called it 8x8.
 In 2026-08-22 (#157), two named recipes passed no `--xlen`, so the script
     and declarative configuration could select different CPU widths.
+In 2026-09-06 (#362), build.sh launched without the PYTHONHASHSEED=0
+    that sweep.sh pins, so the same recipe regenerated a differently
+    named CPU core depending on which launcher ran it.
 
 Same shape both times: a build knob that lives in the declarative end-station
 config, is NOT carried by the script that builds, and silently defaults.  This
@@ -504,6 +507,70 @@ def run_static(sweep_path: str | Path = SWEEP,
     return bad
 
 
+#: The environment line both launchers must place BEFORE milan_soc.py runs.
+#: LiteX spells the CPU ISA argument from a Python set, the pinned core's
+#: netlist cache hashes that spelling, and an unpinned seed spells it
+#: differently in every process: the cache misses, the core regenerates, and
+#: the regenerated core placed anywhere between 12122 and 12661 LUTs across
+#: six otherwise-identical builds (sweep.sh, 2026-08-02). build.sh shipped
+#: without it until #362 (2026-09-06), so the two launchers had drifted.
+LAUNCH_SEED = "export PYTHONHASHSEED=0"
+LAUNCH_ENTRY = "milan_soc.py"
+
+
+def launch_seed_position(text: str) -> tuple[int | None, int | None]:
+    """(line of the seed export, line of the first milan_soc.py launch).
+
+    The seed export is recognised as a whole shell line or as a `&&` member
+    of a composed command string; the launch is the first line that names
+    the SoC script. Either is None when absent, so the caller can name what
+    is missing instead of guessing.
+    """
+    seed = launch = None
+    seed_re = re.compile(rf"(^|[\s\"'])+{re.escape(LAUNCH_SEED)}(\s|&&|\"|$)")
+    for number, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            continue
+        if seed is None and seed_re.search(line):
+            seed = number
+        if launch is None and LAUNCH_ENTRY in line:
+            launch = number
+    return seed, launch
+
+
+def check_launch_seed(build_path: str | Path = BUILD,
+                      sweep_path: str | Path = SWEEP,
+                      quiet: bool = False) -> list[str]:
+    """Both launchers export the hash seed before the SoC script runs (#362).
+
+    The two entry points to a flashed bitstream must agree on this or the
+    same recipe builds a differently named, freshly regenerated core
+    depending on which script launched it. Missing or late is drift.
+    """
+    bad = []
+    for path in (Path(build_path), Path(sweep_path)):
+        seed, launch = launch_seed_position(path.read_text())
+        if launch is None:
+            msg = f"{path.name}: no line launches {LAUNCH_ENTRY}"
+        elif seed is None:
+            msg = (f"{path.name}: launches {LAUNCH_ENTRY} without "
+                   f"`{LAUNCH_SEED}`; the CPU netlist name would depend on "
+                   "the process")
+        elif seed > launch:
+            msg = (f"{path.name}: `{LAUNCH_SEED}` on line {seed} comes after "
+                   f"the {LAUNCH_ENTRY} launch on line {launch}")
+        else:
+            if not quiet:
+                print(f"  [sweep-shape] {path.name}: `{LAUNCH_SEED}` on line "
+                      f"{seed} precedes the {LAUNCH_ENTRY} launch on line "
+                      f"{launch}")
+            continue
+        print("SHAPE DRIFT: " + msg, file=sys.stderr)
+        bad.append(msg)
+    return bad
+
+
 def _temp_sh(text: str) -> Path:
     """`text` written to a throwaway .sh; the caller unlinks the path."""
     with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
@@ -599,6 +666,48 @@ def _self_test_unbound_recipe(build_text):
     return 0
 
 
+def _self_test_launch_seed(build_text: str, sweep_path: str | Path) -> int:
+    """Negative controls for the seed export (#362): each launcher with its
+    `export PYTHONHASHSEED=0` removed, then build.sh with the export moved
+    after the exec line, must be REJECTED naming that launcher. 0 = all
+    were, 2 = one was not (or a plant no longer matches)."""
+    sweep_text = Path(sweep_path).read_text()
+    seed_line = f"cmd+=\"{LAUNCH_SEED} && \"\n"
+    unseeded = build_text.replace(f"        {seed_line}", "")
+    plants = [
+        ("build.sh without the seed export", "build.sh", "without",
+         unseeded, sweep_text),
+        ("sweep.sh without the seed export", "sweep.sh", "without",
+         build_text,
+         re.sub(rf"^\s*{re.escape(LAUNCH_SEED)}\s*\n", "", sweep_text,
+                flags=re.M)),
+        ("build.sh exporting the seed after exec", "build.sh", "comes after",
+         unseeded + f"\n{LAUNCH_SEED}\n", sweep_text),
+    ]
+    for why, culprit, expected, build_mut, sweep_mut in plants:
+        if build_mut == build_text and sweep_mut == sweep_text:
+            print(f"self-test: could not plant '{why}'", file=sys.stderr)
+            return 2
+        tmp_build, tmp_sweep = _temp_sh(build_mut), _temp_sh(sweep_mut)
+        try:
+            print(f"  [self-test] {why} - expecting REJECT:")
+            bad_mut = check_launch_seed(tmp_build, tmp_sweep, quiet=True)
+        finally:
+            tmp_build.unlink()
+            tmp_sweep.unlink()
+        # The temp copies carry random names, so the culprit is matched by
+        # its position: build.sh is reported first, sweep.sh second.
+        want = 0 if culprit == "build.sh" else 1
+        names = [tmp_build.name, tmp_sweep.name]
+        if not any(drift.startswith(names[want]) and expected in drift
+                   for drift in bad_mut):
+            print(f"self-test FAILED: {why} did not report {culprit} "
+                  f"{expected!r}", file=sys.stderr)
+            return 2
+        print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
+    return 0
+
+
 def _run_self_test(sweep_path):
     """Every negative control, in order; the first failure's exit status."""
     status = _self_test_sweep_ns(sweep_path)
@@ -608,7 +717,10 @@ def _run_self_test(sweep_path):
     status = _self_test_build_recipes(build_text)
     if status:
         return status
-    return _self_test_unbound_recipe(build_text)
+    status = _self_test_unbound_recipe(build_text)
+    if status:
+        return status
+    return _self_test_launch_seed(build_text, sweep_path)
 
 
 def main() -> int:
@@ -651,7 +763,8 @@ def main() -> int:
             return 1
         return 0
 
-    bad = run_static(a.sweep) + check_build_sh()
+    bad = run_static(a.sweep) + check_build_sh() + check_launch_seed(
+        sweep_path=a.sweep)
     if bad:
         return 1
     print("sweep shape gate: OK")
