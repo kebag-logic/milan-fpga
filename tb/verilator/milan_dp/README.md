@@ -107,6 +107,7 @@ Packet lengths and channel fields are checked separately.
 | Peer link | 320 ns each direction; 20 us residence; independent event timestamps |
 | Packet interface | Exact keep/last; RX beats every 80 ns; PTP ingress reservations; TX handshake collection |
 | Response memory | Ordered 592-byte store for AECP gPTP getters |
+| Descriptor memory | Builder-generated AEM image; 12-cycle initial read latency |
 | Auxiliary feedback | MMCM locked; DRP/phase acknowledgments idle; INTERNAL media selection |
 | Ethernet liveness | Synthetic receive/transmit clock toggles |
 
@@ -140,12 +141,15 @@ Sample order and packet sequence must remain continuous.
 Acquisition, healthy streaming, stalls, loss, recovery, and reset are graded.
 Stable phases also compare outgoing uncertainty with public state.
 CSR and AECP getters must expose consistent GM/parent/delay/PathTrace.
+AECP status must report successful descriptor validation.
+Short responses retain Ethernet minimum-frame padding.
+Final cumulative assertions include traffic between named audio windows.
 Warm-up payload and transition-state comparisons are explicitly excluded.
 Every exclusion prints `NOT RUN` and contributes no pass.
 
 Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
 Issue #360 remains outside this packet-interface simulation.
-Other omissions: CPU/DDR, descriptor loading, NVM, and ACMP/SRP admission.
+Other omissions: CPU/DDR execution, NVM, and ACMP/SRP admission.
 Analog audio, pad delays, PLL lock transients, and metastability are absent.
 Oscillator drift, jitter, and MMCM actuation are absent.
 Physical rendering, CRF recovery, and multiple-responder cease are untested.
@@ -155,7 +159,7 @@ The negative control corrupts peer residence and one audio channel:
 
 ```sh
 cd tb/verilator/milan_dp
-sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex
+sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
 /usr/bin/time -f 'wall_clock_seconds=%e process_exit_status=%x' \
   ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp --negative-control
 ```

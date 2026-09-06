@@ -26,11 +26,12 @@
 // digital silence. No physical render exists in this configuration.
 //
 // Omitted: LiteEth/PHY, preamble/FCS, MAC buffers and their timestamp error
-// (#360), CPU/DDR, descriptor image, ACMP/SRP admission, NVM persistence,
+// (#360), CPU/DDR, ACMP/SRP admission, NVM persistence,
 // analog audio, pad delays, PLL lock/jitter/metastability, oscillator drift,
 // MMCM DRP/phase actuation, CRF recovery, multiple peers/cease and compliance.
 // Response memory is an ordered 592-byte store for GET_AVB_INFO/GET_AS_PATH;
-// descriptor/NVM ports remain idle. MMCM is locked, acknowledgments idle,
+// descriptor reads use the builder-generated AEM image with 12-cycle latency;
+// NVM ports remain idle. MMCM is locked, acknowledgments idle,
 // INTERNAL media source retained. Ethernet liveness toggles are synthetic.
 // All protocol deadlines are simulated cycles. --negative-control corrupts
 // peer residence timestamps and one received audio channel, off by default.
@@ -43,6 +44,8 @@
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <fstream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -197,6 +200,11 @@ class Harness {
     uint32_t mem_addr = 0;
     unsigned mem_left = 0;
     bool mem_done = false;
+    std::vector<uint8_t> descriptor;
+    bool desc_busy = false;
+    uint32_t desc_addr = 0;
+    unsigned desc_left = 0;
+    unsigned desc_wait = 0;
 
     struct Fires {
         bool aw = false;
@@ -219,6 +227,8 @@ class Harness {
     void clocks(unsigned quarter);
     void memory_drive();
     void memory_edge();
+    void descriptor_drive();
+    void descriptor_edge();
     void schedule();
     void receive_drive();
     void receive_edge();
@@ -298,10 +308,36 @@ void Harness::memory_edge() {
     }
 }
 
+void Harness::descriptor_drive() {
+    uint64_t data = 0;
+    for (unsigned i = 0; i < 8; ++i) {
+        const uint32_t off = desc_addr - 0x20000000u + i;
+        data = (data << 8) | (off < descriptor.size() ? descriptor[off] : 0);
+    }
+    dut->i_desc_mem_req_ready = !desc_busy;
+    dut->i_desc_mem_rsp_valid = desc_busy && desc_wait == 0;
+    dut->i_desc_mem_rsp_data = data;
+    dut->i_desc_mem_rsp_last = desc_busy && desc_left == 1;
+    dut->i_desc_mem_rsp_err = 0;
+}
+
+void Harness::descriptor_edge() {
+    if (!desc_busy && dut->o_desc_mem_req_valid) {
+        desc_addr = dut->o_desc_mem_req_addr;
+        desc_left = dut->o_desc_mem_req_beats;
+        desc_busy = desc_left != 0;
+        desc_wait = 12;
+    } else if (desc_busy && desc_wait) --desc_wait;
+    else if (desc_busy && dut->o_desc_mem_rsp_ready) {
+        desc_addr += 8;
+        if (--desc_left == 0) desc_busy = false;
+    }
+}
+
 Harness::Fires Harness::tick() {
     if (dut->axis_resetn) schedule();
     receive_drive();
-    memory_drive();
+    memory_drive(); descriptor_drive();
     // Synthetic observed Ethernet clock toggles; no PHY implementation.
     dut->i_ethrx_tgl = cyc & 1;
     dut->i_ethtx_tgl = cyc & 1;
@@ -319,7 +355,7 @@ Harness::Fires Harness::tick() {
     fire.r = dut->s_axi_rready && dut->s_axi_rvalid;
     fire.data = dut->s_axi_rdata;
     if (dut->axis_resetn) {
-        receive_edge(); transmit_edge(); memory_edge();
+        receive_edge(); transmit_edge(); memory_edge(); descriptor_edge();
     }
     for (unsigned q = 4; q < 8; ++q) clocks(q);
     ++cyc;
@@ -516,7 +552,7 @@ void Harness::reset() {
     dut->i_mmcm_ps_done = 0; dut->i_mmcm_drp_rdy = 0; dut->i_mmcm_drp_do = 0;
     dut->i2s_sdout_i = 0; dut->tdm_data_i = 0;
     dut->tdm_bclk_i = 0; dut->tdm_fsync_i = 0;
-    mem_busy = false; mem_done = false;
+    mem_busy = false; mem_done = false; desc_busy = false; desc_wait = 0;
     run_cycles(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     stamp_origin = cyc * 20;
@@ -632,7 +668,10 @@ void Harness::wire_publication() {
     check.dec("GET_AVB_INFO delay equals CSR bank", be(avb, 50, 4), delay);
     check.that("GET_AVB_INFO asCapable agrees with CSR", avb.size() > 55 && (avb[55] & 1));
     const auto path = query(0x28, 0x7002);
-    check.dec("GET_AS_PATH length", path.size(), 58);
+    check.dec("GET_AS_PATH Ethernet minimum length", path.size(), 60);
+    check.dec("GET_AS_PATH status SUCCESS", path.size() > 16 ? path[16] >> 3 : 255, 0);
+    check.dec("GET_AS_PATH control data length excludes padding", be(path, 16, 2) & 0x7FF, 32);
+    check.dec("GET_AS_PATH padding bytes are zero", be(path, 58, 2), 0);
     check.dec("GET_AS_PATH two ordered identities", be(path, 38, 4), 2);
     check.hex("GET_AS_PATH GM", be(path, 42, 8), kGm);
     check.hex("GET_AS_PATH parent", be(path, 50, 8), kPeer);
@@ -677,6 +716,9 @@ void Harness::loss_recovery() {
 }
 
 int Harness::report() {
+    check.dec("all monitored audio payload errors, excluding declared warm-up", payload_bad, 0);
+    check.dec("all monitored audio sample ordering errors", order_bad, 0);
+    check.dec("all monitored AAF packet sequence errors", sequence_bad, 0);
     constexpr std::array<const char*, 8> phases = {
         "geometry and clocks", "initial audio payload", "first Pdelay exchange",
         "acquisition and public coherence", "healthy audio", "backpressure",
@@ -695,12 +737,17 @@ int Harness::report() {
 int Harness::run() {
     printf("ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=%d\n", negative_);
     try {
+        std::ifstream image("obj_ax1x1gptp/aemi.bin", std::ios::binary);
+        if (!image) throw std::runtime_error("generated AEM image missing");
+        descriptor.assign(std::istreambuf_iterator<char>(image), std::istreambuf_iterator<char>());
+        if (descriptor.empty()) throw std::runtime_error("generated AEM image empty");
         reset(); configure(); geometry_and_clocks(); completed[0] = true;
         run_cycles(kHz / 100);
         audio_window("initial payload", kHz / 50, 1);
         completed[1] = true;
         const auto initial_avb = query(0x27, 0x7010);
         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
+        check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
         check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
         run_cycles(kHz * 12 / 10);
         check.dec("first Pdelay response completed", pd_answers, 1);
