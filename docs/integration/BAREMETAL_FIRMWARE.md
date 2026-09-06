@@ -21,8 +21,9 @@ The capability rows on this page are checked against the
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
+- **[Saved state: the flash writer](#saved-state-the-flash-writer)** — The boot validation of the two journal slots, the staged KLJ2 container and the control tuple, the heartbeat and debounced A/B commit, and the host model that grades all of it per shape.
 - **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the ownerless verification-only option-off elaboration.
-- **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive bench smoke invocation.
+- **[UART commands](#uart-commands)** — The status, TAI set/get, explicit UTC conversion and saved-state slot commands, followed by the non-disruptive bench smoke invocation.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
 
 ## Build contract
