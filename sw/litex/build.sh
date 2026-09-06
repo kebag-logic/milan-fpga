@@ -290,6 +290,11 @@ launch_jobs() {
         out="$WORK/build_${name}_${TAG}"
         cmd="cd $SOC_DIR && source $HOME/Xilinx2/2026.1/Vivado/settings64.sh && "
         cmd+="export PATH=$HOME/litex-milan/venv/bin:\$PATH && "
+        # Same seed as sweep.sh: LiteX spells the CPU ISA argument from a
+        # Python set, the netlist cache hashes that spelling, and an unpinned
+        # seed regenerates the core per process (#362; measured spread in
+        # sweep.sh). The shape gate refuses a launch line without it.
+        cmd+="export PYTHONHASHSEED=0 && "
         cmd+="exec python3 milan_soc.py $args ${EXTRA[*]:-} --vivado-max-threads 32 --build --output-dir $out"
         if [ "$DRY" = 1 ]; then
             echo "DRY [$name] -> $out"; echo "  $cmd" | tr -s ' '; continue

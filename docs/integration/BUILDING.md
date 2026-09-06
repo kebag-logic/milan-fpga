@@ -236,6 +236,14 @@ exists so they cannot be forgotten:
   AltSpreadLogic_high, ExtraTimingOpt): placement is noise-dominated, so
   single important configs are built as sweeps and the best WNS/slices build
   is kept (the standing 96-core rule).
+* **`PYTHONHASHSEED=0` on every launch.** LiteX spells the VexiiRiscv ISA
+  argument from a Python set and the pinned core's netlist cache hashes that
+  spelling, so an unpinned seed spells it differently in every process, misses
+  the cache and regenerates the core. Six otherwise-identical AX7101 builds
+  placed the regenerated core anywhere between 12,122 and 12,661 LUTs
+  (2026-08-02). `sweep.sh` has exported the seed since then; `build.sh` did
+  not until #362 (2026-09-06), and `--dry-run` now shows it on the launch
+  line. The shape gate refuses either launcher without it.
 
 ### 3.1 The shape gate (`scripts/check_sweep_shape.py`)
 
@@ -246,7 +254,8 @@ equals the end-station config it claims to build. It checks `--num-streams`,
 `build.sh`'s `cfg_*` recipes against the same configs; for those recipes
 `--xlen` and `--cpu-count` must also be stated and equal the config's (since
 2026-08-22, #157: an absent flag inherits `milan_soc.py`'s RV64 default, not
-the builder's RV32). Exit non-zero = no Vivado runs.
+the builder's RV32). Since #362 it also requires both launchers to export
+`PYTHONHASHSEED=0` before `milan_soc.py` runs. Exit non-zero = no Vivado runs.
 
 Why it exists: this class of bug is only visible on silicon and has now bitten
 four times.
@@ -264,7 +273,7 @@ rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 
 ```sh
 python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
-python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, xlen or cpu-count is rejected
+python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, xlen, cpu-count or a launch without the seed is rejected
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
 ```
 
