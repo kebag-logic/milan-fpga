@@ -512,9 +512,8 @@ static void summary(void)
 
 static void boot(void)
 {
-	static const char aem[4] = {'A', 'E', 'M', 'I'};
-
-	memcpy(nvm_host_flash + NVM_HOST_AEM_OFFSET, aem, sizeof(aem));
+	/* the AEM slot: the four magic bytes the firmware's verifier looks for */
+	memcpy(nvm_host_flash + NVM_HOST_AEM_OFFSET, "AEMI", 4);
 	recompose();
 	nvm_host_init_milan_init();
 	settle();
