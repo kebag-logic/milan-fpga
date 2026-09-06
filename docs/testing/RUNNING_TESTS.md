@@ -128,8 +128,8 @@ out-of-context estimate is not a substitute for the placed design.
 
 ## 6. Silicon acceptance
 
-After flashing or JTAG-loading a candidate, run the UART grader from the bench
-workstation:
+After flashing or JTAG-loading a candidate, run the UART grader from the build
+box, which carries the AX7101 console and JTAG:
 
 ```sh
 python3 scripts/baremetal_uart_smoke.py \
@@ -141,14 +141,18 @@ PTP/ADP/protocol processing, nonzero GM and parent identities, a bounded
 measured peer delay, a published path, `sync=1`, `asCapable=1`,
 `time_uncertain=0`, and two increasing PHC reads.
 
-Then generate and capture traffic with an external workstation or instrument.
+Then generate and capture traffic from the bench hosts named in
+[the build guide](../integration/BUILDING.md#41-bench-hosts-and-the-one-dut-acceptance-contract):
+the controller and audio endpoint on `pw1`, the ProfiShark taps on the Ubuntu
+server.
 Preserve the exact bitstream identity, generated configuration, UART
 transcript, packet capture, and any external CSR transcript with the result.
 The UART intentionally exposes a small documented command set; it is not a
 general register shell.
 
-Physical and two-board acceptance for this change remains tracked in issue
-#117.
+Physical acceptance for this change remains tracked in issue #117: one AX7101
+DUT against the Milan-validated reference peer, with GM loss and return induced
+through the peer or the bench AVB switch.
 
 ## Debug loop
 

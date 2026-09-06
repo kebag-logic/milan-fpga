@@ -101,16 +101,17 @@ form the evidence chain.
 
 ## 7. Board integration
 
-AX7101 is the release platform and Arty is the bring-up platform. Each build
-selects a physical Ethernet port and audio pin shape. Clock/reset, DDR3, QSPI,
-LiteEth, and the Milan fabric are integrated by `sw/litex/milan_soc.py`.
+AX7101 is the release platform and the one DUT; the Arty is a retired DUT whose
+recipe only elaborates. Each build selects a physical Ethernet port and audio
+pin shape. Clock/reset, DDR3, QSPI, LiteEth, and the Milan fabric are
+integrated by `sw/litex/milan_soc.py`.
 
 ## 8. Release boundaries
 
 The direct fabric-gPTP option-OFF shape is verification-only. It publishes no
 GM, parent, path, or peer-delay state and cannot be flashed as a product image.
-External physical testing and two-board interoperability remain separate from
-digital simulation evidence.
+External physical testing and interoperability with the Milan-validated
+reference peer remain separate from digital simulation evidence.
 
 ## 9. What remains and how to finish it - the roadmap
 

@@ -36,7 +36,7 @@ stays in fabric.
 | AVTP `tu` decision | fabric | `KL_ptp_clock_validity` combines fabric sync with same-edge discontinuity holdover |
 | ADP, AECP/AEM, ACMP, and SRP | fabric | The pinned protocol processor owns the served protocol state; MAAP remains in the root fabric |
 | Classification, queues, CBS, timestamping, AAF/CRF, and audio routing | fabric | Per-frame behavior has no firmware round trip |
-| External measurement and artifact packaging | bench workstation | Host tools observe the board; they are not part of the product image |
+| External measurement and artifact packaging | bench hosts (build box, `pw1`, Ubuntu server) | Host tools observe the board; they are not part of the product image |
 
 ## 2. Boot sequence
 
@@ -87,8 +87,8 @@ This form is a negative control, not a second supported architecture.
 ## 5. Known incomplete boundaries
 
 - #70: the protocol processor NVM face still has no persistent backend.
-- #117: exact-candidate two-board gPTP, GM transition, wire, and audio evidence has
-  not been recorded.
+- #117: exact-candidate gPTP, GM transition, wire, and audio evidence of the one
+  AX7101 DUT against the Milan-validated reference peer has not been recorded.
 - #74: the stored media clock-source selection is consumed (a CRF selection
   steers the audio clock plane); the silicon bench probe of the aligned grids
   is the part still open.

@@ -1009,7 +1009,7 @@ are why you get a clean status instead of a hang:
    (`csr.csv` / `soc.json`) for the bitstream that is actually flashed — a
    literal copied from another build is exactly the drift this project keeps
    paying for.
-4. **Ask the shipping firmware first.** From the bench workstation, issue
+4. **Ask the shipping firmware first.** From the build box, which carries the UART, issue
    `milan_status` over UART (or run
    `scripts/baremetal_uart_smoke.py --port <UART>`). `AEM=loaded` proves the
    boot copy and verification completed. For a custom integration, inspect the

@@ -149,7 +149,8 @@ boundary. Measurements taken from images that ended the chain at an obsolete
 packet-copy endpoint do not validate this topology and are intentionally not
 carried forward as current results. The digital harness proves the stage walk,
 same-cycle cascade handling, clear/re-enable behaviour, and stream-data purity;
-the two-board timing capture remains part of #117.
+the timing capture against the Milan-validated reference peer remains part of
+#117.
 
 The companion instrument for diagnosing a non-accepting listener is the `0x8B4`
 parser-probe group (the pre-match view — see

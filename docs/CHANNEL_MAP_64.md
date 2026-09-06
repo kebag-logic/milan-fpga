@@ -186,7 +186,7 @@ Digital coverage includes:
   negative controls that deliberately swap or invert channel identity; and
 - protocol-versus-CSR ownership and whole-command atomicity.
 
-The physical completion record belongs to #117: two boards, exact image IDs,
-all eight streams, walking channel identity, render selection, loopback, and
-counter snapshots. Digital success is required but does not replace that
-evidence.
+The physical completion record belongs to #117: one AX7101 DUT against the
+Milan-validated reference peer, exact image IDs, all eight streams, walking
+channel identity, render selection, loopback, and counter snapshots. Digital
+success is required but does not replace that evidence.
