@@ -742,7 +742,9 @@ static void nvm_flash_command(uint8_t cmd, uint32_t addr)
 /*
  * Poll write-in-progress until the device is ready or `timeout_ns` passes.
  * The heartbeat is serviced from this loop, which is what lets the liveness
- * deadline stay shorter than an erase (section 9.4).
+ * deadline stay shorter than an erase (section 9.4). The clock is the PHC,
+ * so a time step during the wait can end it early as a transaction failure;
+ * the commit is then retried after the bracket lapses, nothing is lost.
  */
 static int nvm_flash_wait(uint64_t timeout_ns)
 {
@@ -832,8 +834,11 @@ static int nvm_commit(const char *why)
 	nvm_seal();
 	vd = nvm_validate(NVM_IMG);
 	if (vd != VD_OK) {
+		/* a record is mid-write: re-arm the debounce rather than retry
+		 * on every idle call while the span settles */
 		printf("Milan NVM: commit (%s) deferred, the staged image reads %s.\n",
 		       why, nvm_verdict_name[vd]);
+		nvm_dirty_since = 0;
 		nvm_in_commit = 0;
 		return 0;
 	}

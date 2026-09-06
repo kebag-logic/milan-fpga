@@ -636,7 +636,11 @@ verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
 `backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
 map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 
-**Runtime.** The idle hook heartbeats every 250 ms, half the section 9.4
+**Runtime.** The idle hook runs while the console waits for a key, so a
+console command that itself runs for more than the 2,000 ms liveness deadline
+lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
+next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
+The hook heartbeats every 250 ms, half the section 9.4
 maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
 window (1,000 ms, the provisional value section 14 leaves open) with no record
 operation and no commit bracket in flight, it commits: the container is sealed
