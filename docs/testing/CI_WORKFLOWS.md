@@ -461,7 +461,12 @@ is exactly these twelve things:
     (its literal `name`, or its `uses`), each step's exact key set and
     env bindings, each recorded `if` verbatim (the scope guard on
     `elaborate`'s gated steps, `always()` plus the guard on its cache
-    write-back) and each recorded `with` mapping exactly, so a `run:` or
+    write-back) and each recorded `with` mapping exactly -- `docs-check`'s
+    em-dash gate (#378) is the one documentation step recorded with an
+    `env`, its `EVENT_NAME`, `PR_BASE_SHA` and `PUSH_BEFORE_SHA` bound to
+    the same source expressions the fast selector reads, because the base
+    it judges added Markdown lines against is the event's own and a
+    rebound base judges other lines -- so a `run:` or
     `uses:` step inserted anywhere in the four jobs -- a `BASH_ENV`
     written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party
     action, or any content at all -- is refused naming the job and the
@@ -485,8 +490,9 @@ is exactly these twelve things:
     the names a job's steps bind stay inside that job's recorded set (the
     gate's four, the workers' shard and target names, the aggregates'
     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
-    step's result bindings, `elaborate`'s scope pair, and nothing in the
-    documentation jobs). Each refusal names the scope, the job or step, and
+    step's result bindings, `elaborate`'s scope pair, `docs-check`'s
+    em-dash gate triple, and nothing else in the documentation jobs). Each
+    refusal names the scope, the job or step, and
     the surplus names. Measured under act: a job-level `BASH_ENV` on
     `docs-check` makes that job's own gates green and `full-ci-gate`'s
     contract step refuse it, so both required aggregates fail. Declared
@@ -636,7 +642,10 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the imported gPTP gate removed, replaced by
+and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
+hard-coded, its `PR_BASE_SHA` rebound to the run's own SHA, its
+`PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
+`if: false` and removed; the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
 reformatting of all ten canonical scripts that must still pass; and the

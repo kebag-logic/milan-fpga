@@ -45,6 +45,31 @@ jobs:
           python3 -m pip install --quiet wavedrom==2.0.3.post3
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
+      # The em-dash rule (#378): no U+2014 in the Markdown lines a change
+      # ADDS, whatever the page already carries; the one exemption is a
+      # Contents label gen_toc.py copies verbatim from a heading the base
+      # version of the page already had. The base is the event's own: the
+      # pull request's base SHA, or a push's before SHA. The checkout is
+      # shallow, so a base the clone lacks is fetched by SHA first; an event
+      # that names no base is refused, never guessed at. The gate runs its
+      # planted controls before every verdict.
+      - name: Added-line em-dash gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          case "$EVENT_NAME" in
+            pull_request) base="$PR_BASE_SHA" ;;
+            push) base="$PUSH_BEFORE_SHA" ;;
+            *) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;
+          esac
+          if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then
+            echo "the $EVENT_NAME event names no base commit"; exit 2
+          fi
+          git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"
+          python3 scripts/check_em_dash.py --base "$base"
       - name: Concise audience documentation gate
         run: |
           python3 scripts/check_doc_style.py
