@@ -357,16 +357,21 @@ def parity_cases(bench: Bench) -> list[tuple[str, bytes]]:
     plen_last = len(bench.frames[last]) - REC_HDR
 
     def patched(blob: bytes, at: int, new: bytes, seal: bool = True) -> bytes:
+        """`blob` with `new` written at `at`, its trailer recomputed unless
+        the corruption under test is the trailer itself."""
         out = blob[:at] + new + blob[at + len(new):]
         return reseal(out) if seal else out
 
     def with_frames(frames: dict[int, bytes], nrec: int | None = None) -> bytes:
+        """The container for `frames`, its N_REC word overridden when asked."""
         blob = bench.assemble(frames, 3)
         if nrec is not None:
             blob = patched(blob, 12, struct.pack("<I", nrec))
         return blob
 
-    def id_rewritten(rid: int, new_rid: int) -> bytes:
+    def id_rewritten(rid: int, new_rid: int) -> dict[int, bytes]:
+        """The golden frames with record `rid` re-framed under `new_rid`, its
+        crc16 recomputed so only the id is wrong."""
         fr = bench.frames[rid]
         hdr = fr[:2] + bytes([fr[2], new_rid]) + fr[4:6]
         crc = struct.pack(">H", crc16_ccitt(hdr + fr[REC_HDR:]))
