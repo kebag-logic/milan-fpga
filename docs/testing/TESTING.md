@@ -147,8 +147,8 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`. No vendor tools are required |
-| Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Five suites elaborate Forencich cores; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and every `milan_dp` leg parses its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
 
