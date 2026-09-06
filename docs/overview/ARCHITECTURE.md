@@ -77,11 +77,14 @@ slips. The silicon bench probe of the aligned grids stays open on #74.
 
 ## 5. Clock domains & CDC
 
-The principal domains are LiteX `sys`, Milan `axis_clk`, Ethernet TX/RX clocks,
-the 125 MHz timestamp clock, and the audio clock. Crossings use explicit
-AXI-Lite/stream adapters, `cdc_pulse`, `cdc_handshake`, `cdc_pair_fifo`, or
-`ptp_csr_sync`; generated constraints must name the same clocks and false paths.
-The derived crossing census in `docs/diagrams/cdc_census.*` is gated for drift.
+The principal domains are LiteX `sys`, Milan `axis_clk`, the Ethernet TX/RX
+clocks, and the audio clock. The PHC runs on the datapath's `gtx_clk`, which
+equals the Milan clock at 50 MHz in the reference integration; there is no
+separate timestamp clock. Crossings use explicit AXI-Lite/stream adapters,
+`cdc_pulse`, `cdc_handshake`, `cdc_pair_fifo`, or `ptp_csr_sync`; generated
+constraints must name the same clocks and false paths. The
+[clock-domain guide](../litex/CLOCK_DOMAINS.md) owns the detailed map. The
+derived crossing census in `docs/diagrams/cdc_census.*` is gated for drift.
 
 ## 6. Persistent state
 

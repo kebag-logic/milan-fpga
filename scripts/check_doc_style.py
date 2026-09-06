@@ -31,6 +31,7 @@ DOCUMENTS = (
     ROOT / "docs" / "design" / "GM_LOSS_RECOVERY.md",
     ROOT / "docs" / "traceability" / "ieee8021as.md",
     ROOT / "docs" / "integration" / "INTEGRATION_GUIDE.md",
+    ROOT / "docs" / "litex" / "CLOCK_DOMAINS.md",
     ROOT / "docs" / "reference" / "SUBMODULES.md",
     ROOT / "docs" / "DOCUMENTATION_AUDIT.md",
     ROOT / "docs" / "history" / "v1" / "README.md",

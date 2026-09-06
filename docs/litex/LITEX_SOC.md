@@ -41,10 +41,16 @@ small UART command set; it is not a packet relay.
 
 ### 2.1 Clock/reset generation
 
-`_CRG` owns the board input clock, system clocks, Ethernet clocks, reset
-synchronization, and the audio-MMCM controls exported by `milan_datapath`.
-When `--milan-clk-freq` differs from `sys`, explicit stream and AXI-Lite clock
-crossings isolate the domains.
+`_CRG` generates system, DDR, and audio clocks.
+The LiteEth PHY wrapper derives Ethernet clocks from PHY inputs.
+`MilanMAC` adds reset-extended aliases for link recovery.
+
+The `sys` clock runs at 100 MHz.
+The deployed CPU, datapath, and PHC use `milan` at 50 MHz.
+The datapath's `gtx_clk` is not the physical GTX clock.
+
+Read the [clock-domain guide](CLOCK_DOMAINS.md).
+It maps clock sources, reset ownership, crossings, and known gaps.
 
 ### 2.2 MilanNIC and MilanMAC
 

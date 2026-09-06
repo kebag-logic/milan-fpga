@@ -95,16 +95,22 @@ Read the [feature ledger](../reference/MILAN_FEATURE_STATUS.md).
 |---|---|
 | `axis_clk` | Runs datapath logic and CSR handling |
 | `axis_resetn` | Synchronous, active-low axis reset |
-| `gtx_clk` | Runs MAC timestamp logic |
-| `gtx_resetn` | Synchronous, active-low GTX reset |
+| `gtx_clk` | Runs the PHC; equals `axis_clk` in this integration |
+| `gtx_resetn` | Equals `axis_resetn` in this integration |
 | `clk_audio_i` | Drives selected audio functions |
 | `clk_tdm_i` | Drives selected TDM-master geometry |
 
 - Shipping deployment selects 50 MHz for `axis_clk`.
+- The PHC therefore also runs at 50 MHz.
+- `gtx_clk` does not mean the PHY's 125 MHz clock.
+- Direct live-PHC consumers require the same clock.
 - System clocks retain their configured rates.
 - Never infer one clock from another.
-- Declare asynchronous clock relationships.
+- Preserve the documented crossing constraints.
 - Use only approved crossing structures.
+
+Read the [clock-domain guide](../litex/CLOCK_DOMAINS.md).
+It distinguishes physical sources, reset aliases, and timestamp boundaries.
 
 Read the generated [CDC census](../diagrams/cdc_census.svg).
 
