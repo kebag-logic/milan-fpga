@@ -169,7 +169,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 clean
+.PHONY: all run gptp option-off ax1x1 ax1x1gptp clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -236,6 +236,25 @@ option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(AX1X1_BUILD)
 	./obj_ax1x1/Vmilan_dp_ax1x1
+
+# Physical-rate integration: no compressed diagnostics, holdover or PP timers.
+# A distinct image keeps the historical 2 MHz gptp leg byte-for-byte intact.
+AX_GPTP_HZ = 50000000
+AX_GPTP_FLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS))
+gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
+	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
+
+ax1x1gptp: VERILATOR_JOBS = 8
+ax1x1gptp: ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
+	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
+	  -GGPTP_UCODE_HEX_P='"gptp_ax1x1_ucode.hex"' \
+	  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
+	  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \
+	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+	  $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
+	sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex
+	/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
 
 run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
@@ -332,6 +351,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	./obj_ax1x1/Vmilan_dp_ax1x1
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
 	./obj_aclk/Vmilan_dp_aclk
+	$(MAKE) ax1x1gptp VERILATOR_JOBS=$(VERILATOR_JOBS)
 
 # The datapath source list, for suites that must elaborate the SAME gateware
 # under a different parameter set (tb/verilator/pp_shadow). Exporting it beats
@@ -349,4 +369,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
