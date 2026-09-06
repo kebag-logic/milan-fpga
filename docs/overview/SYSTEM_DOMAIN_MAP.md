@@ -4,6 +4,10 @@ Which module lives in which domain / language  -  the whole Milan TSN NIC stack,
 firmware down to the Artix-7 silicon, plus the host tooling that generates and deploys it.
 Software at the top, hardware at the bottom.
 
+These are ownership domains, not clock domains.
+For clocks, resets, and crossings, read the
+[clock-domain guide](../litex/CLOCK_DOMAINS.md).
+
 ![Milan system domain map](../SYSTEM_DOMAIN_MAP.svg)
 
 *(Editable source: [`SYSTEM_DOMAIN_MAP.drawio`](../SYSTEM_DOMAIN_MAP.drawio)  -  open in

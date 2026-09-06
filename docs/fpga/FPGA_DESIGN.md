@@ -76,7 +76,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 - **[0. Global conventions](#0-global-conventions)** -- The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic -- the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
 - **[1. Top level - one datapath boundary](#1-top-level---one-datapath-boundary)** -- The MAC-less fabric boundary and its TX/RX pipeline. Product traffic comes from fabric media and protocol engines; the retained classifier/queue chain has an inactive input.
 - **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
-- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Notes that the only PHC crossing left in the datapath is `ptp_csr_sync`; the `ptp_ts_core` record path with its same-clock metadata FIFOs is no longer instantiated.
+- **[3. Clock domains & CDC](#3-clock-domains--cdc)** -- Locate the reference clock map and distinguish the PHC alias from the physical Ethernet clock.
 - **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- The external MAC, descriptor image, trace tooling, and CPU/SoC integration.
 - **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** -- How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
 
@@ -350,22 +350,26 @@ this table whenever `hdl/` changes shape.
 Each module's authoritative documentation is its own header banner (house
 style: `//!` port docs); this table is the index, not the spec.
 
-## 3. Clock domains & CDC (complete inventory)
+## 3. Clock domains & CDC
 
 | Domain | Contents |
 |---|---|
-| `axis_clk` (`cd_milan`: 50 MHz deployed; 100 MHz AX bring-up) | all of Section 2 except the PHC |
-| `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
-| MAC RX recovered clock | inside the external MAC only |
-| SoC clocks (LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
+| `axis_clk` (`cd_milan`: 50 MHz deployed; configurable elsewhere) | Packet processing, CSRs, protocol engines, PHC and gPTP stamps |
+| `gtx_clk` (alias of `axis_clk` here) | PHC clock port; not physical GMII GTX |
+| `clk_audio_i`, conditional `clk_tdm_i` / external `tdm_bclk_i` | Audio serializers, capture, and media-clock measurement |
+| MAC `eth_rx` / `eth_tx` (125 MHz GMII) | LiteEth framing and PHY registers, outside the datapath |
+| SoC `sys`, DDR clocks, `idelay` | System interconnect, memory, and clock-control support |
 
-Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
-(no vendor macros): `ptp_csr_sync` (CSR commands → PHC, snapshot return) and
-the 2-FF `i_mac_speed` sync in the wrappers. The `ptp_ts_core` record path
-(its `cdc_pulse` + `cdc_handshake` and same-clock metadata FIFOs) is no longer
-instantiated by the datapath since `0x0002_0056`; it remains a stand-alone
-verified block. Constraint requirements per
-toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints---translate-dont-skip).
+The [clock-domain guide](../litex/CLOCK_DOMAINS.md) owns the detailed map.
+It covers resets, aliases, crossings, and actual timestamp boundaries.
+
+`ptp_csr_sync` remains instantiated with identical clock inputs here.
+Live PHC consumers rely on that same-clock connection.
+Audio paths additionally use pulse, handshake, and asynchronous-FIFO crossings.
+The retained `ptp_ts_core` record path is not instantiated.
+
+For portable constraints, read the
+[timing contract](../integration/PORTING_GUIDE.md#45-timing-constraints---translate-dont-skip).
 
 ## 4. What is *not* in `hdl/` (and where it lives instead)
 
