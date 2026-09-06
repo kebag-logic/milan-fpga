@@ -1463,13 +1463,18 @@ class MilanMAC(LiteXModule):
         # Link-guard liveness toggles (KL_link_guard, 2026-07-21): plain
         # divide-by-2 FFs in each PHY-provided clock domain plus one flip per
         # received frame. The datapath's guard samples them as async data,
-        # declares a clock dead after 41 us without a transition, and then
-        # auto-sequences the reinit strobe (hold through the outage + ~21 ms
-        # clean-clock settle) - the hardware version of the linkmon recovery.
+        # declares a clock dead after DEAD_CYC_C = 4,096 guard cycles without
+        # a transition, and then auto-sequences the reinit strobe (hold through
+        # the outage + SETTLE_CYC_C = 2,097,152 clean guard cycles) - the
+        # hardware version of the linkmon recovery. The guard runs on the
+        # datapath clock, `milan_cd`: 82 us and 41.94 ms at the 50 MHz Milan
+        # clock of the AX7101 build, 41 us and 20.97 ms when `milan_cd` is the
+        # 100 MHz sys clock.
         # reset_less: the toggles OBSERVE the raw clocks, so they must sit outside
         # every reset cone the guard itself drives. With plain FFs the AX42 ext_reset
         # thread (eth_rst -> PHY CRG -> cd_eth_tx/rx domain resets) froze the toggles
-        # whenever the guard asserted eth_rst: both_alive dropped 41 us into SETTLE,
+        # whenever the guard asserted eth_rst: both_alive dropped DEAD_CYC_C
+        # guard cycles (82 us at 50 MHz, 41 us at 100 MHz) into SETTLE,
         # the FSM fell back to HOLD with eth_rst still high, and the guard deadlocked
         # holding MAC+PHY in reset forever (silicon 2026-07-24: every cold boot with
         # an autoneg RXC bounce, and every manual LINK_CTRL[1] reinit, wire-dead).
@@ -1568,10 +1573,12 @@ class MilanMAC(LiteXModule):
         # `_axis_dp_cdc` for why one-sided reset is worse than none.
         # LOAD-BEARING INVARIANT: the two sides release a few cycles APART
         # (each synchronizes release into its own clock). That skew is safe
-        # ONLY because reinit is held ~21 ms (KL_link_guard SETTLE) with both
-        # clocks running, so the reset_less gray-pointer MultiRegs converge
-        # to 0 long before EITHER side releases; a future "fast reinit" of a
-        # few cycles would reintroduce pointer desync - keep the hold long.
+        # ONLY because reinit is held for KL_link_guard SETTLE_CYC_C =
+        # 2,097,152 guard cycles (41.94 ms at the 50 MHz Milan clock of the
+        # AX7101 build, 20.97 ms at 100 MHz) with both clocks running, so the
+        # reset_less gray-pointer MultiRegs converge to 0 long before EITHER
+        # side releases; a future "fast reinit" of a few cycles would
+        # reintroduce pointer desync - keep the hold long.
         if milan_cd != "sys":
             self.cd_macdp = ClockDomain()
             self.comb += self.cd_macdp.clk.eq(ClockSignal(milan_cd))
