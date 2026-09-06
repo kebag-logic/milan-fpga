@@ -8,21 +8,23 @@
 //                (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3)
 //
 //  Description : AREA SIZING SKETCH, the BEFORE half of a before/after pair.
-//                The blank-flash responder that ships today, lifted verbatim
-//                from hdl/milan/KL_pp_shadow.sv so that the two numbers in
-//                section 8.3 are measured on the same face. The AFTER half is
-//                KL_nvm_backend_sizer.sv beside this file.
+//                The blank-flash responder hdl/milan/KL_pp_shadow.sv carried
+//                until the saved-state backing store landed, lifted verbatim
+//                so that the two numbers in section 8.3 are measured on the
+//                same face. The AFTER half is the shipping module itself,
+//                hdl/milan/KL_nvm_backend.sv, which replaced this responder
+//                inside the shadow; the sizing sketch that stood in for it
+//                while the decision was taken is retired.
 //
-//  WHY ITS OWN FILE. Both tops used to live in KL_nvm_backend_sizer.sv, and
-//  the lint command the PR published then exited 1 under Verilator 5.050 on
+//  WHY ITS OWN FILE. Both tops used to live in one sizing file, and the lint
+//  command the PR published then exited 1 under Verilator 5.050 on
 //  DECLFILENAME -- a file may declare one top-level module named after it.
 //  One module per file makes the advertised lint command reproduce.
 //
 //  THIS IS NOT SHIPPING RTL, and it is deliberately NOT under `hdl/`.
 //  Nothing instantiates it and `scripts/lint_rtl.py` (which sweeps `hdl/`)
-//  does not see it. tb/verilator/nvm_backend compiles both tops with
-//  `-Wall` and no `-Wno-fatal`, so the lint claim is executable rather than
-//  recorded.
+//  does not see it. tb/verilator/nvm_backend lints it with `-Wall` and no
+//  `-Wno-fatal`, so the lint claim is executable rather than recorded.
 //
 //  Measure with (see syn/yosys/README.md for the toolchain):
 //    syn/yosys/ooc.sh KL_nvm_blankflash_sizer

@@ -78,7 +78,7 @@ The count is **required, not ratcheted**:
   moving under an unchanged tree — is closed by the version pins above,
   which make any toolchain move a reviewed workflow diff; a cells baseline
   would additionally move on essentially every functional RTL edit of any
-  of the 48 tops (unlike [`scripts/lint.budget`](../../scripts/lint.budget),
+  of the 49 tops (unlike [`scripts/lint.budget`](../../scripts/lint.budget),
   which moves only when the warning set changes), and netlist equality
   between a CI-built and a distro-built 0.66 has not been measured. If
   #286's harness proves that equality, a zero-tolerance baseline can be
@@ -214,7 +214,7 @@ a fix for synthesis.** Check the `read_verilog` line in `yosys -d` output
 before reaching for it.
 
 ## Coverage
-48 tops as of 2026-09-02 (`KL_media_grid_align` joined with #74; the `tops=()`
+49 tops as of 2026-09-05 (`KL_nvm_backend` joined with #70, `KL_media_grid_align` with #74; the `tops=()`
 array in `run.sh` is authoritative — that
 array is the count, this prose is not; re-read it rather than trusting a number
 here):

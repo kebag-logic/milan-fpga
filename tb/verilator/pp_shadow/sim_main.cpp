@@ -131,6 +131,7 @@ class PpShadowHarness {
         grade_plane_presence_and_csr_window();
         provision_the_identity_before_enable();
         grade_absent_backend_reports_no_restore();
+        grade_control_face_and_liveness();
         const uint32_t aidx0 = enable_the_entity_and_read_the_class_d_baseline();
         grade_side_port_answers_with_the_processor_magic();
         grade_control_frame_reaches_the_validator();
@@ -508,6 +509,9 @@ class PpShadowHarness {
     static constexpr uint16_t A_PP_SPADDR   = 0x928;
     static constexpr uint16_t A_PP_SPDATA   = 0x92C;
     static constexpr uint16_t A_PP_DIAG     = 0x930;
+    static constexpr uint16_t A_PP_NVM_SEL  = 0x934;
+    static constexpr uint16_t A_PP_NVM_DATA = 0x938;
+    static constexpr uint16_t A_PP_NVM_STAT = 0x93C;
 
     // The entity_id this harness provisions. NOT zero on purpose: the processor's
     // talker matches a PROBE_TX on target_eid == own entity_id, and against a zero
@@ -939,14 +943,16 @@ class PpShadowHarness {
         axi_write(A_ADP_CAPS,  0x0000C588u);          // a Milan PAAD's capabilities
     }
 
-    // ---- P. SAVED STATE: an absent backend may not report a restore -------
+    // ---- P. SAVED STATE: an unconfigured backend may not report a restore -
     // Milan v1.2 puts unconditional SHALLs on non-volatile state: 5.3.8.2
     // "The current bound state shall be saved in a non-volatile memory and
     // restored after a power cycle", 5.3.8.3 the four binding parameters,
     // 5.3.8.7 the started/stopped state, with 5.5.2.4 fixing WHEN the
-    // Listener writes them. This build cannot meet them: KL_pp_shadow answers
-    // the class-F device face with a blank-flash responder (reads 0xFF,
-    // discards writes), so no binding survives a power cycle.
+    // Listener writes them. This build cannot meet them yet: KL_pp_shadow
+    // answers the class-F device face with KL_nvm_backend, and until firmware
+    // has configured AND validated a record image through PP_NVM_SEL/DATA
+    // (nothing in this harness does) the backend answers blank flash (reads
+    // 0xFF, discards writes), so no binding survives a power cycle.
     // WHAT IS GRADED HERE IS NOT PERSISTENCE. It is that PP_STAT never
     // reports a restore that did not happen. The failure mode being closed is
     // a checklist that reads a clean restore verdict off a device with no
@@ -982,7 +988,7 @@ class PpShadowHarness {
         // ...and the two bits that keep the three outcomes apart, so "no media
         // behind the port" is never confused with "media that happened to be
         // blank" nor with "a restore that genuinely put bindings back".
-        ck("PP_STAT[6] nvm_backed == 0 (no persistent media behind the device face)",
+        ck("PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face)",
            (rstat >> 6) & 1, 0u);
         ck("PP_STAT[7] nvm_blank == 1 (the walk validated zero records)",
            (rstat >> 7) & 1, 1u);
@@ -992,6 +998,56 @@ class PpShadowHarness {
            (rstat >> 4) & 1, 0u);
         ck("the presence tag is unchanged by the verdict bits",
            (rstat >> 24) & 0xFF, 0x5Bu);
+        // The bits the backing store added (REGISTER_MAP PP_STAT [8]..[15:12]):
+        // nothing was configured, so nothing is dirty, stale, valid or judged.
+        ck("PP_STAT[8] nvm_dirty == 0 (no change was accepted)",
+           (rstat >> 8) & 1, 0u);
+        ck("PP_STAT[9] nvm_stale == 0 (never backed is not stale)",
+           (rstat >> 9) & 1, 0u);
+        ck("PP_STAT[10] nvm_img_valid == 0 (no image was validated)",
+           (rstat >> 10) & 1, 0u);
+        ck("PP_STAT[15:12] nvm_verdict == 0 (no image was offered)",
+           (rstat >> 12) & 0xF, 0u);
+    }
+
+    // ---- P2. THE CONTROL FACE, AND THE FALSE SUCCESS ONE LEVEL UP ---------
+    // PP_NVM_SEL/DATA/STAT (0x934-0x93C) reach KL_nvm_backend through
+    // milan_csr and KL_pp_shadow. The sequence word is firmware's to keep and
+    // inert to the fabric, so it is the one word this harness may write
+    // without configuring an image: an image LENGTH would make the backend
+    // wait on a memory bridge this harness does not model, and stall every
+    // NVM write the processor issues afterwards.
+    // Then a firmware heartbeat: it makes the writer LIVE (nvm_backed = 1)
+    // and nothing else. The walk in [P] ran with no validated image behind
+    // the face, and liveness arriving afterwards restores nothing, so fail
+    // MUST stay raised. A verdict read off the live level instead of the
+    // walk's own evidence would flip to "restored" here: that is the false
+    // success issue #70 exists to remove, moved up one level.
+    void grade_control_face_and_liveness() {
+        printf("[P2] saved state: the control face answers, liveness heals no walk\n");
+        axi_write(A_PP_NVM_SEL, 2u);
+        ck("PP_NVM_SEL reads back the index", axi_read(A_PP_NVM_SEL) & 0x3Fu, 2u);
+        axi_write(A_PP_NVM_DATA, 0xA5C30001u);
+        ck("PP_NVM_DATA reads back the backend's word 2 (sequence)",
+           axi_read(A_PP_NVM_DATA), 0xA5C30001u);
+        const uint32_t nstat = axi_read(A_PP_NVM_STAT);
+        ck("PP_NVM_STAT: not configured, not backed, no operation in flight",
+           nstat & ((1u << 6) | (1u << 5) | (1u << 4)), 0u);
+
+        axi_write(A_PP_NVM_STAT, 1u << 0);                // heartbeat strobe
+        run_idle(8);
+        const uint32_t hstat = axi_read(A_PP_STAT);
+        printf("  [i]    PP_STAT 0x924 = 0x%08X after a heartbeat\n", hstat);
+        ck("PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence)",
+           (hstat >> 6) & 1, 1u);
+        ck("PP_NVM_STAT[6] agrees with PP_STAT[6]",
+           (axi_read(A_PP_NVM_STAT) >> 6) & 1, 1u);
+        ck("PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness",
+           (hstat >> 3) & 1, 1u);
+        ck("PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records)",
+           (hstat >> 7) & 1, 1u);
+        ck("PP_STAT[2] restore_done stays 1 (the walk did complete)",
+           (hstat >> 2) & 1, 1u);
     }
 
     // class-D baseline, taken before the processor has ever advertised

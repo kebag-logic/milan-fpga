@@ -37,8 +37,8 @@ bytes: the exact `(group, index)` key set (not its cardinality), the empty
 name that is a legal value rather than an absence, and an image that is
 CRC-clean but missing a mandatory record.
 `--emit-record-table` publishes the byte offsets of that same image so
-`tb/verilator/nvm_backend` can grade the region decoder of
-`syn/ooc/sizing/KL_nvm_backend_sizer.sv` against them.
+`tb/verilator/nvm_backend` can grade the region decoder of the shipping
+backing store, `hdl/milan/KL_nvm_backend.sv`, against them.
 
 THE BANKED LAYOUT IS RETIRED (#70, 2026-09-05). #259 retired the 8x8's
 nonphysical clusters and the conformant floor fell to 164 of 256 at the worst

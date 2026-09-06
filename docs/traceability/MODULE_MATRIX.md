@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 64 modules · 63 with a dedicated TB · 0 exercised-only · 30 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 65 modules · 64 with a dedicated TB · 0 exercised-only · 30 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,8 +32,8 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "milan", "ieee8021as", "ieee8021q", "common"]
     y-axis "modules" 0 --> 36
-    bar [35, 1, 3, 7, 8, 10]
-    bar [34, 1, 3, 7, 8, 10]
+    bar [35, 1, 4, 7, 8, 10]
+    bar [34, 1, 4, 7, 8, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -42,7 +42,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 |---|---|---|---|---|---|---|
 | IEEE 1722 (AVTP) | 35 | 34 | 0 | 29 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
-| Milan integration | 3 | 3 | 0 | 0 | 0 | 0 |
+| Milan integration | 4 | 4 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 7 | 7 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
@@ -151,6 +151,7 @@ _datapath + top wrappers_
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ✅ `KL_nvm_backend` | `milan/KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` | — |
 | ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `milan_dp` | — |
 | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` | 34.3, 34.4 |
 | ✅ `milan_datapath` | `milan/milan_datapath.sv` | `milan_dp` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |

@@ -47,14 +47,26 @@
 > A decision record whose arithmetic was corrected is a better artifact than one
 > that quietly does not add up. The corrections are recorded here rather than
 > silently applied, and on issue #70.
+>
+> **The fabric half landed (2026-09-05).** `hdl/milan/KL_nvm_backend.sv` is the
+> device behind the processor's NVM port in `KL_pp_shadow`, with the third
+> main-memory master in the SoC, the control face at `0x934`-`0x93C` and the
+> section 9 bits in `PP_STAT`. Its area is measured on the shipping module in
+> section 8.3, and it is above the candidate's bound: 992 LUT-equivalents and
+> 377 FF worst case against 781 and 280. The firmware writer that configures,
+> validates and commits the image does not exist yet, so nothing persists yet
+> and the status still says so.
 
 Milan v1.2 names eight things a PAAD-AE shall keep across a power cycle, plus
 the bound state, the binding parameters and the started/stopped state. This
-device keeps none of them. `KL_pp_shadow` answers the processor's NVM port with
-a blank-flash responder: reads return `0xFF`, writes are accepted and discarded,
-erase completes. A restore walk therefore always finds blank flash, restores
-zero records, and -- until the wrapper started publishing `nvm_backed_o` --
-reported success for it.
+device keeps none of them yet. `KL_pp_shadow` answers the processor's NVM port
+with `KL_nvm_backend`, the backing store this page decided (sections 4, 8 and
+9); until firmware configures and validates a record image through it, the
+backend answers exactly what the blank-flash responder it replaced did: reads
+return `0xFF`, writes are accepted and discarded, erase completes. A restore
+walk therefore still finds blank flash, restores zero records, and -- since the
+wrapper started publishing `nvm_backed_o` -- says so rather than reporting
+success for it.
 
 This page is the **decision record** issue #70's first work item asks for:
 which media backs those records, who owns the write path, how the records are
@@ -99,12 +111,12 @@ it.
 | The processor frames and streams one record class | **Landed** (submodule) | `KL_pp_nvm_port` + `KL_acmp_nvm_shadow`. The shadow is the ONLY manager wired to the port today (`protocol_processor_top.sv` lines 2261 and 2278); it owns BINDING records and nothing else |
 | A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
 | The processor emits commit marks | **Landed, unobserved** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
-| A device behind the port | **ABSENT** | `NVM_BACKED_C = 1'b0` in `hdl/milan/KL_pp_shadow.sv`, a localparam and deliberately not a parameter |
+| A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
 | A write path on the shipping profile | **ABSENT** | the baremetal firmware reads flash through the XIP window and has no erase or program path |
 | The record set fits the namespace | **DECIDED HERE** (2026-09-05), gated: the donor's F07.8 rule unchanged, one record per item group and index, 164 of 256 ids at the largest shipped shape | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
-| The backing store | **DECIDED HERE**, not built | sections 3 and 8 |
-| The backend's area | **MEASURED HERE**, upper bound | section 8.3: 781 LUT-equivalents / 280 FF OOC worst case, against 35 LUT / 21 FF for the responder it replaces, by the recipe in 8.3 |
-| The backend candidate does what it is priced for | **DRIVEN**, not only synthesised | `tb/verilator/nvm_backend`: 198 checks at 8x8 and 54 at 1x1 against a byte-exact KLJ2 image, plus three negative controls that must each go RED |
+| The backing store | **DECIDED HERE, fabric half built** | sections 3 and 8; the firmware half (validate a slot into the window, heartbeat, commit the image into the journal slots, acknowledge) is the remaining work item |
+| The backend's area | **MEASURED**, on the shipping module | section 8.3: 992 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
+| The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 433 checks at 8x8 and 148 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Which donor commit.** `dev` pins the processor at `a25b5cc9`, which carries
@@ -440,7 +452,8 @@ Re-derived at this head with
 | `sw/litex/milan_soc.py` | 159 | section 5, the flash map's one source of truth | yes, this section |
 | `scripts/check_nvm_record_space.py` | 8 | the page, as the design the gate defends | yes, sections 4 and 9.4 |
 | `syn/yosys/ooc.sh` | 81 | section 8.3 | yes, section 8.3 |
-| `syn/ooc/sizing/KL_nvm_backend_sizer.sv` | 8 | section 8.3 | yes, section 8.3 |
+| `syn/ooc/sizing/KL_nvm_blankflash_sizer.sv` | 8 | section 8.3 | yes, section 8.3 |
+| `hdl/milan/KL_nvm_backend.sv` | 8 | sections 4, 8 and 9 | yes |
 
 **Zero unresolved citations, and that is a change.** Round 2 left five
 `hdl/common/csr/milan_csr.sv` comments citing this page by section and called
@@ -656,6 +669,15 @@ length, the sequence number, the dirty and verdict state of section 9, and the
 firmware's acknowledgement. That is the smallest contract that can carry the
 decision; bulk data does not cross the CSR window.
 
+Landed as an indexed window of three registers, `PP_NVM_SEL`, `PP_NVM_DATA` and
+`PP_NVM_STAT` at `0x934`-`0x93C`
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)): the word index, the word
+it names, and the status and strobe word. Beside the tuple above the window
+carries the two per-port channel-map length tables the section 4.2 decoder
+needs, which firmware derives from the same overlay the descriptor image came
+from. Writing the image base or length clears the image's validity, so a moved
+image has to be validated again before a READ serves a byte out of it.
+
 ### 8.3 The area, measured
 
 Issue #70 work item 1 asks for the flash path's area to be measured before
@@ -681,12 +703,14 @@ expensive part:
   although KLJ2 section 6.1 concatenates records with no inter-record padding.
 
 Both are repaired, the nominal-size parameter is gone rather than corrected, and
-the candidate is now DRIVEN rather than only synthesised.
+the module under test is now the SHIPPING one, DRIVEN rather than only
+synthesised.
 [`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend/README.md) reads
 every `0x60..0x67` and `0x70..0x77` mapping -- and every other allocated record
--- out of a byte-exact KLJ2 image at both shapes, and carries three negative
-controls compiled from the same source with one defect each restored, every one
-of which must go RED. The image's offsets come from
+-- out of a byte-exact KLJ2 image at both shapes, and carries four negative
+controls, each a copy of the shipping source with one defect planted (the three
+above plus a READ that ignores the validity gate), every one of which must go
+RED. The image's offsets come from
 `scripts/check_nvm_record_space.py --emit-record-table` and its bytes are
 rebuilt independently in the harness, which checks its own CRC-32 against the
 encoder's before a clock is driven.
@@ -701,23 +725,40 @@ encoder's before a clock is driven.
 - **Zero new DRAM reservation and no published-map change**, from the same measurement.
 
 **Measured, before and after, on the same face.**
-[`syn/ooc/sizing/KL_nvm_backend_sizer.sv`](../../syn/ooc/sizing/KL_nvm_backend_sizer.sv)
-carries two synthesizable tops. `KL_nvm_blankflash_sizer` is the BEFORE: the
-blank-flash responder that ships today, lifted verbatim out of
-`hdl/milan/KL_pp_shadow.sv`. `KL_nvm_backend_sizer` is the AFTER: the three
-pieces this section names, the region-to-offset decoder, the main-memory access
-path and the control CSRs, plus the section 9.4 deadline counters. Both are
-registered as tops in [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) and measured
-with the recipe that file already carries, `synth_xilinx -family xc7 -flatten`,
-which is the only mapping this repository judges an area lever on.
+[`syn/ooc/sizing/KL_nvm_blankflash_sizer.sv`](../../syn/ooc/sizing/KL_nvm_blankflash_sizer.sv)
+is the BEFORE: the blank-flash responder `hdl/milan/KL_pp_shadow.sv` carried
+until the backend landed, lifted verbatim. The AFTER is the shipping module
+itself, [`hdl/milan/KL_nvm_backend.sv`](../../hdl/milan/KL_nvm_backend.sv):
+the region-to-offset decoder, the main-memory access path with its one-lane
+word cache, the validity gate with its blank and discard paths, the span checks
+a record operation must pass before a byte moves, the control CSRs and the
+section 9 machine with its two deadline counters. Both are registered as tops in
+[`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) and measured with the recipe that
+file already carries, `synth_xilinx -family xc7 -flatten`, which is the only
+mapping this repository judges an area lever on.
 
 | top | shape | LUT | LUTRAM | **LUT_TOT** | FF | RAMB36 | DSP | CARRY4 |
 |---|---|---|---|---|---|---|---|---|
 | `KL_nvm_blankflash_sizer` (before) | -- | 35 | 0 | **35** | 21 | 0 | 0 | 5 |
-| `KL_nvm_backend_sizer` (after) | 1x1 | 553 | 0 | **553** | 280 | 0 | 6 | 99 |
-| `KL_nvm_backend_sizer` (after) | 8x8 | 548 | 128 | **676** | 216 | 0 | 6 | 98 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 1x1 | 636 | 0 | **636** | 280 | 0 | 0 | 125 |
-| `KL_nvm_backend_sizer`, `-nodsp` | 8x8 | 653 | 128 | **781** | 216 | 0 | 0 | 124 |
+| `KL_nvm_backend` (shipping) | 1x1 | 756 | 0 | **756** | 377 | 0 | 6 | 108 |
+| `KL_nvm_backend` (shipping) | 8x8 | 773 | 128 | **901** | 313 | 0 | 6 | 107 |
+| `KL_nvm_backend`, `-nodsp` | 1x1 | 855 | 0 | **855** | 377 | 0 | 0 | 134 |
+| `KL_nvm_backend`, `-nodsp` | 8x8 | 864 | 128 | **992** | 313 | 0 | 0 | 133 |
+
+**The shipping module is above the candidate's bound, and the record says so.**
+The sizing candidate this section priced the decision on measured 553, 676, 636
+and 781 LUT-equivalents in the same four columns, with 280 and 216 FF; it is
+retired with the module that replaced it. The shipping module is 211
+LUT-equivalents and 97 FF above the candidate's worst case. The difference is
+what the candidate did not carry and a device on a real port cannot do without:
+the one-lane word cache (a 64-bit lane and its tag, so consecutive byte reads
+inside a lane cost one memory transaction instead of eight), the validity gate
+with the blank-read and write-discard paths that keep today's behaviour until
+firmware has validated an image, the two span checks (inside the record, inside
+the image) that refuse an operation before it touches memory, and the error and
+status paths a bus error or a refused operation has to reach the processor
+through. A bound that held while the shipping module is a fifth larger is still
+the decision's bound; the number the bitstream carries is the one below.
 
 **The `LUTRAM` column is new, and its absence was an under-count of 128 LUT.**
 At the 8x8 shape yosys maps the two eight-entry channel-map tables to 32
@@ -733,19 +774,21 @@ are unchanged by it -- the column is additive, not a re-scaling.
 The six `DSP48E1` are the constant-stride multiplies in the region decoder,
 which the default `synth_xilinx` mapping happily hands to a DSP. Both mappings
 are published because either is a legal implementation, and the `-nodsp` column
-is the LUT-only worst case: **the backend costs at most 781 LUT-equivalents and
-280 FF**, which is **1.23 percent of the XC7A100T's 63,400 LUT** and 0.22
-percent of its 126,800 FF. The delta over what ships today is **+746 LUT and
-+259 FF** in the LUT-only mapping, taking the worst column of each: 8x8 for LUT,
-1x1 for FF, because the shapes trade one against the other (at 8x8 the tables
-become distributed RAM and stop costing flops).
+is the LUT-only worst case: **the backend costs at most 992 LUT-equivalents and
+377 FF**, which is **1.56 percent of the XC7A100T's 63,400 LUT** and 0.30
+percent of its 126,800 FF. The delta over the responder it replaced is **+957
+LUT and +356 FF** in the LUT-only mapping, taking the worst column of each: 8x8
+for LUT, 1x1 for FF, because the shapes trade one against the other (at 8x8 the
+tables become distributed RAM and stop costing flops).
 
 Calibration, measured in the same run so the figure is anchored rather than
 free-floating: `KL_maap` is 637 LUT / 268 FF, `tcam` is 678 LUT / 1,680 FF and
-`KL_chan_map_render` is 4,581 LUT / 2,485 FF. **Round 3's claim that the backend
-is smaller than the MAAP engine is withdrawn**: at 781 LUT-equivalents it is
-larger than either `KL_maap` or `tcam`, and about a sixth of
-`KL_chan_map_render`. What the calibration still supports is the conclusion the
+`KL_chan_map_render` is 5,468 LUT / 2,101 FF (re-measured with the shipping
+module on 2026-09-05; the render map grew with the cluster work since round 3,
+the other two are unchanged). **Round 3's claim that the backend is smaller
+than the MAAP engine is withdrawn**: at 992 LUT-equivalents it is larger than
+either `KL_maap` or `tcam`, and under a fifth of `KL_chan_map_render`. What the
+calibration still supports is the conclusion the
 decision needs -- a block of this size cannot invalidate the selected
 architecture on a device whose area campaign is fought in single-digit
 percentages -- and it no longer supports the softer claim that was made
@@ -757,7 +800,7 @@ because in context it shares decode and constants with its neighbours, so the
 in-context delta is always the smaller and truer number. It is also
 pre-placement, and `scripts/area_baseline.py` records that post-synth numbers
 move by thousands of LUT and that out-of-context numbers do not preserve rank
-order. So this bounds the decision -- 781 LUT-equivalents cannot invalidate the
+order. So this bounds the decision -- 992 LUT-equivalents cannot invalidate the
 selected architecture on a device where the area campaign is fought in
 single-digit percentages -- and it does not replace the post-place delta.
 
@@ -784,14 +827,14 @@ syn/yosys/ooc.sh KL_nvm_blankflash_sizer KL_maap tcam KL_chan_map_render
 # the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column
 OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 N_SPORT_OUT_P=1 \
              N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=31" \
-  syn/yosys/ooc.sh KL_nvm_backend_sizer
+  syn/yosys/ooc.sh KL_nvm_backend
 
 # the after, at the 8x8 shape
 OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 \
              N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=107" \
-  syn/yosys/ooc.sh KL_nvm_backend_sizer
+  syn/yosys/ooc.sh KL_nvm_backend
 
-# and what the candidate actually DOES, at both shapes, with the three
+# and what the module actually DOES, at both shapes, with the four
 # negative controls that must each fail
 make -C tb/verilator/nvm_backend
 ```
@@ -813,29 +856,31 @@ also the negative control for the two `OOC_CHPARAM` runs above -- the 1x1 and
 8x8 columns differ, so the parameters are reaching the design rather than being
 silently ignored.
 
-**Why the sketch is not under `hdl/`.** It is not shipping RTL. Nothing
-instantiates it, `milan_soc.py` does not register it, and `scripts/lint_rtl.py`
-sweeps `hdl/` and would treat it as a module the SoC forgot to wire. Keeping it
-in `syn/ooc/sizing/` states its status structurally. It is not therefore
-unchecked, and the check is now executable rather than recorded. Round 3's PR
-published `verilator --lint-only -Wall --top-module ... KL_nvm_backend_sizer.sv`
-for both tops and **neither command reproduced**: one file declaring two
-top-level modules trips `DECLFILENAME` under this repository's Verilator 5.050,
-so both exited 1. The tops live in one file each now
-([`KL_nvm_blankflash_sizer.sv`](../../syn/ooc/sizing/KL_nvm_blankflash_sizer.sv)
-and
-[`KL_nvm_backend_sizer.sv`](../../syn/ooc/sizing/KL_nvm_backend_sizer.sv)), both
-commands pass, and `make -C tb/verilator/nvm_backend` runs them as its `lint`
-prerequisite with no `-Wno-*` at all -- so the claim is a suite step that the
-`verilator-suites` aggregate already carries, not a sentence.
+**Why the BEFORE sketch is not under `hdl/`, and the AFTER is.** The
+blank-flash sizer is not shipping RTL any more: nothing instantiates it,
+`milan_soc.py` does not register it, and `scripts/lint_rtl.py` sweeps `hdl/`
+and would treat it as a module the SoC forgot to wire, so it stays in
+`syn/ooc/sizing/` and states its status structurally. The backend IS shipping
+RTL: it lives in `hdl/milan/`, `lint_rtl.py` sweeps it, all five RTL source
+lists carry it (`scripts/check_rtl_source_lists.py`), `syn/yosys/run.sh`
+synthesises it as a top of its own and inside `KL_pp_shadow` and
+`milan_datapath`, and `tb/verilator/nvm_backend` lints both files with `-Wall`
+and no `-Wno-*` as its `lint` prerequisite. Round 3's PR published a lint
+command that did not reproduce, because one file declared two top-level modules
+and tripped `DECLFILENAME` under this repository's Verilator 5.050; the tops
+have lived in one file each since, and the check is a suite step the
+`verilator-suites` aggregate carries, not a sentence.
 
-Two simplifications remain, both named in the file's own header. The channel-map
-one is gone: it was the largest under-count risk, it turned out to be an outright
-defect rather than a risk, and it is now direction-distinct state that the suite
-grades against a byte-exact image. What is left is the datapath, which moves one
-byte per handshake rather than coalescing into words, so the figure bounds the
-decode and control cost rather than every possible datapath; a coalescing variant
-would add a word buffer and a lane mux, which is tens of LUT on a 781-LUT block.
+One simplification remains from the candidate's header. The channel-map one is
+gone: it was the largest under-count risk, it turned out to be an outright
+defect rather than a risk, and it is direction-distinct state that the suite
+grades against a byte-exact image. The datapath still moves one byte per
+device-face handshake, as the processor's port does; on the memory side the
+word cache already coalesces the reads of one lane into one transaction, and a
+write is one strobe-masked lane per byte. A variant that gathered a record's
+write bytes into whole lanes would trade a lane buffer for fewer bus cycles,
+which is tens of LUT either way on a 992-LUT block, and the bus is not what the
+port's byte pace waits on.
 
 ## 9. What the fabric may claim: the durability and liveness contract
 
@@ -863,6 +908,18 @@ is free:
 `nvm_backed` remains **fabric-derived evidence and never a knob**: no CSR write
 can set it, which is the property that made it a localparam rather than a
 parameter in the first place, and it survives being made dynamic.
+
+**Landed (2026-09-05)**: `PP_STAT[8]`, `[9]`, `[10]` `nvm_img_valid` (firmware
+validated the image in the window) and `[15:12]` are published as above, driven
+by `KL_nvm_backend` through `KL_pp_shadow`, and the same word is readable on the
+backend's own face as `PP_NVM_STAT`. One verdict moved with them: `restore_fail`
+on a completed walk now means a torn read-back OR a **blind walk**, one during
+which no validated image stood behind the device face for every cycle. The
+shadow latches that per walk rather than reading the live level, because a
+firmware that validates the image after the walk has restored nothing, and a
+verdict that flipped to success on it would be this page's false success moved
+up one level. `tb/verilator/pp_shadow` drives exactly that sequence: a walk, then
+a heartbeat that makes the writer live, and `restore_fail` stays raised.
 
 ### 9.2 When it sets, when it is revoked, and when the loss is forgiven
 

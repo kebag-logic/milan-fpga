@@ -71,6 +71,14 @@ MEMORY_FACES = {
             "i_resp_mem_wr_done",
         ),
     ),
+    "Record image memory": (
+        "nvm_mem_*",
+        (
+            "o_nvm_mem_req_valid",
+            "o_nvm_mem_wr_valid",
+            "i_nvm_mem_wr_done",
+        ),
+    ),
 }
 
 
@@ -136,6 +144,13 @@ PORT_GROUPS = (
         "Complete every accepted response operation",
         "Set `i_resp_mem_req_ready=0`, `i_resp_mem_wr_ready=0`; clear response and completion inputs",
         (r"[io]_resp_mem_.*",),
+    ),
+    PortGroup(
+        "Record image memory",
+        "`o_nvm_mem_*`, `i_nvm_mem_*`",
+        "Complete every accepted saved-state record operation",
+        "Set `i_nvm_mem_req_ready=0`, `i_nvm_mem_wr_ready=0`; clear response and completion inputs",
+        (r"[io]_nvm_mem_.*",),
     ),
     PortGroup(
         "MAC control and status",

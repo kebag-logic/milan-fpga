@@ -98,7 +98,7 @@ PP="$R/protocol-processor/hdl"
 # assignment drops it, and the generator's refusal to emit an empty list is
 # worth nothing on this side of the process boundary if nobody reads it.
 PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
-PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
+PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv $R/hdl/milan/KL_nvm_backend.sv"
 GPTP_ENGINE_SRCS="$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $R/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $R/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $R/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $R/gptp-processor/hdl/common/KL_gptp_timer.sv $R/gptp-processor/hdl/top/KL_gptp_engine.sv"
 GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
 
@@ -139,14 +139,13 @@ tops=(
   "KL_pcm_lpf|$R/hdl/ieee1722/aaf/KL_pcm_lpf.sv"
   "milan_datapath|$DP_SRCS"
   # The saved-state backing store's BEFORE/AFTER pair
-  # (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3). These are
-  # sizing sketches under syn/ooc/sizing/, NOT shipping RTL: nothing
-  # instantiates them and hdl/ never sees them. They are here so the
-  # decision record can quote a measured bound for the backend that
-  # replaces KL_pp_shadow's blank-flash responder, at both shapes,
-  # through OOC_CHPARAM.
+  # (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3). The BEFORE is a
+  # sizing sketch under syn/ooc/sizing/, NOT shipping RTL: it is the
+  # blank-flash responder KL_pp_shadow used to carry, kept so the pair
+  # can still be measured. The AFTER is the shipping module itself,
+  # instantiated by KL_pp_shadow, at both shapes through OOC_CHPARAM.
   "KL_nvm_blankflash_sizer|$R/syn/ooc/sizing/KL_nvm_blankflash_sizer.sv"
-  "KL_nvm_backend_sizer|$R/syn/ooc/sizing/KL_nvm_backend_sizer.sv"
+  "KL_nvm_backend|$R/hdl/milan/KL_nvm_backend.sv"
 )
 
 # Print bash's own expansion of DP_SRCS and exit. scripts/check_rtl_source_lists.py

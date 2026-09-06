@@ -29,6 +29,12 @@
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
   localparam int AEM_NAME_ENTRIES_C = 31;
+  //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:
+  //! the saved-state record allocation (KL_nvm_backend) is sized by
+  //! them, one sampling-rate record per unit and one clock-source and
+  //! one media-clock-reference record per domain.
+  localparam int AEM_N_AUDIO_UNIT_C = 1;
+  localparam int AEM_N_CLKDOM_C     = 1;
   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
   //! exists to back it

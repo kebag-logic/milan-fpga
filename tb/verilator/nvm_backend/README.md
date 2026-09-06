@@ -1,29 +1,30 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # nvm_backend -- the saved-state backing store, graded on bytes
 
-`make` - exit 0 = PASS. **344 checks at the 8x8 shape and 108 at 1x1, 0
-failures**, plus three negative controls that must each go RED. The suite
+`make` - exit 0 = PASS. **433 checks at the 8x8 shape and 148 at 1x1, 0
+failures**, plus four negative controls that must each go RED. The suite
 carries no `-Wno-*` at all, not even `-Wno-fatal`, so any Verilator warning
 stops the build.
 
 ## Contents
 
-- **[What it drives, and why a sizing sketch has a suite](#what-it-drives-and-why-a-sizing-sketch-has-a-suite)** -- Why an area candidate that cannot map the records it prices does not discharge an area acceptance
+- **[What it drives](#what-it-drives)** -- The shipping module, at both shipped shapes, against an image the harness builds independently
 - **[The fixture, and what makes it byte-exact](#the-fixture-and-what-makes-it-byte-exact)** -- Two independent implementations of the same image, meeting at a CRC-32 before a clock is driven
-- **[The three negative controls](#the-three-negative-controls)** -- The exact defects of review round 3, compiled back in one at a time
-- **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- The line between the sizing candidate and the module the implementation ticket owes
+- **[The blank-flash behaviour, and the validity gate](#the-blank-flash-behaviour-and-the-validity-gate)** -- What the module answers before firmware has configured and validated an image
+- **[The four negative controls](#the-four-negative-controls)** -- The exact defects of review round 3 plus the one this module could newly commit, compiled back in one at a time
+- **[What this suite does NOT prove](#what-this-suite-does-not-prove)** -- The line between the backend and the firmware writer issue #70 still owes
 
-## What it drives, and why a sizing sketch has a suite
+## What it drives
 
-[`syn/ooc/sizing/KL_nvm_backend_sizer.sv`](../../../syn/ooc/sizing/KL_nvm_backend_sizer.sv)
-is an AREA candidate for
+[`hdl/milan/KL_nvm_backend.sv`](../../../hdl/milan/KL_nvm_backend.sv) is the
+module `KL_pp_shadow` instantiates behind the processor's NVM device face: the
+region-to-offset decoder for the section 4.2 allocation of
 [the backing store decision](../../../docs/design/SAVED_STATE_FASTCONNECT.md),
-not shipping RTL. Round 3 of that page's review measured its area and then
-found that the candidate could not map the two channel-map groups it claimed to
-price, and that its recovery machine contradicted the state table it cited. A
-synthesizable but functionally impossible sketch does not discharge an area
-acceptance, so the exact sizing source is now driven rather than only
-synthesised, at both shipped shapes.
+the main-memory access path into the KLJ2 record image, the control CSRs of
+section 8.2 and the section 9 liveness machine with its two deadlines. It is the
+same source the SoC synthesises, driven here with `CLK_HZ_P` dropped to 10 kHz
+so that the millisecond deadlines are reachable in simulation; the deadline
+VALUES are the design page's and are exercised as relations, not durations.
 
 The asymmetry is the point. On the generated 8x8 overlay an input stream port
 has 8 clusters (a 64-byte payload, a 72-byte framed record) and an output port
@@ -32,6 +33,14 @@ clusters -- an 8-byte framed record with no payload at all -- against the same
 136-byte output payload. Any decode that gives the two directions one length,
 or that advances past a channel-map group by a nominal stride, reads the wrong
 span in at least one direction at both shapes.
+
+The harness models the SoC bridge on the memory face exactly as
+`sw/litex/milan_soc.py` builds it: single-beat big-endian 64-bit lanes, real
+`rsp_ready` backpressure, a strobe-masked write whose zero-strobe bytes are
+checked untouched, and a `wr_done` pulse that arrives strictly after `wr_ready`
+(the acknowledged bridge) or in the same cycle (a posted one); both are driven.
+A poisoned word answers `rsp_err`, and the module must report `dev_err` for it
+and never present a byte.
 
 ## The fixture, and what makes it byte-exact
 
@@ -59,23 +68,55 @@ NOT programmed through the CSR face. Firmware loads per-port lengths and the
 running prefix inside each group; the backend has to derive everything after
 them, which is exactly what a nominal stride got wrong.
 
-## The three negative controls
+## The blank-flash behaviour, and the validity gate
 
-Each is the round-3 defect compiled back into the same source, and each MUST
-fail. `make` reddens if any of them passes.
+Before firmware has written an image length the module IS the blank-flash
+responder it replaced: every READ returns `0xFF` for every byte, every WRITE is
+accepted and discarded, every ERASE completes, and no transaction reaches the
+memory face. With an image configured but not yet validated (`img_valid` = 0),
+a READ still answers blank -- a walk must never restore bytes out of an image
+nobody has vouched for -- while WRITE and ERASE do land, so firmware can build
+the image in place. Writing the image base or length clears `img_valid`, so a
+moved image has to be validated again. Every one of those cases is driven, and
+the fourth negative control is the READ that ignores the gate.
 
-| define | the defect it restores | the RED line it produces |
+The section 9 machine is driven through all of the design page's sequences:
+never backed; a heartbeat that sets `backed`; a loss with nothing outstanding
+followed by a clean recovery and a later ordinary change; a loss with data
+outstanding that stays `stale` through the recovery until the commit that makes
+it durable completes; a second loss; a commit that overruns its deadline; and
+one acknowledged in time. `(backed=1, dirty=0, stale=1)` is checked
+unreachable on every cycle of the stale test, not at sample points.
+
+## The four negative controls
+
+Each is compiled from a COPY of the shipping source with one defect planted by
+`mutate.py`, which matches the shipping text exactly and refuses when a pattern
+hits anything other than once, so a refactor that moves the line a control
+depends on breaks the build rather than passing vacuously. Each MUST fail;
+`make` reddens if any of them passes.
+
+| control | the defect it plants | why it must go RED |
 |---|---|---|
-| `NVM_MUT_MAP_ALIAS` | one `{prefix,length}` table indexed by `dev_region_i[3:0]`, so `0x60+k` and `0x70+k` share an entry | `a READ of record 0x70 (MAPS_OUT[0]) was REFUSED` |
-| `NVM_MUT_NOMINAL_STRIDE` | each channel-map group advanced by a nominal stride, although KLJ2 6.1 concatenates records with no padding | `MAPS_OUT[0] ... reads the wrong span: byte 0 came back 0x78, the image holds 0x17` |
-| `NVM_MUT_STALE_MASKONLY` | `nvm_stale` a latch cleared only by reset, with the published bit masked | `an ordinary change after a healed outage is in flight, not stale -- read (backed=1, dirty=1, stale=1), wanted (1, 1, 0)` |
+| `alias` | the output channel-map group reads the INPUT table | `0x60+k` and `0x70+k` share a length, and at both shapes the two directions differ |
+| `stride` | the output map group's base advances by a NOMINAL per-port stride | KLJ2 6.1 concatenates records with no padding; the base after the input group is the sum of the actual input record lengths |
+| `stale_mask` | round 3's recovery machine: the latch cleared only by reset, the published bit masked by `backed AND NOT dirty` | an ordinary change after a healed outage re-publishes `stale` = 1 with no new loss |
+| `blind_read` | a READ serves image bytes before firmware validated the image | a restore walk would put back bytes nobody vouched for |
 
 ## What this suite does NOT prove
 
-It grades a CANDIDATE, so it bounds a decision rather than accepting a module.
-It does not exercise the container acceptance order of design page section 6.2
--- that lives above the backend and is checked in
+It grades the backend, not the persistence. The firmware flash writer that
+validates an image at boot, heartbeats, commits the image into the journal
+slots and acknowledges the commit does not exist yet, and until it does every
+walk on the board is blind and the fabric reports exactly what it reported
+before the backend landed
+([`REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md), `PP_STAT`). The
+container
+acceptance order of design page section 6.2 lives above the backend and is
+checked in
 [`scripts/check_nvm_record_space.py`](../../../scripts/check_nvm_record_space.py),
-which encodes and decodes whole KLJ2 images -- and it does not carry the
-post-place area delta, which is a build-time obligation on the module the
-implementation ticket lands.
+which encodes and decodes whole KLJ2 images. The integration into
+`KL_pp_shadow`, `milan_datapath` and the CSR window is graded by
+`tb/verilator/pp_shadow` (the status bits and the control face through the AXI
+window) and the post-place area delta is a build-time obligation on the
+bitstream, not on this suite.

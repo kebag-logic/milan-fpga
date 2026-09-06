@@ -81,6 +81,7 @@ refuses a set whose installed or target identity cannot be proven.
 |---|---|---|---|
 | Descriptor memory | `desc_mem_*` | Read-only | Fetch the verified entity image |
 | Response memory | `resp_mem_*` | Read-write | Build AECP responses |
+| Record image memory | `nvm_mem_*` | Read-write | Keep the saved-state record image |
 <!-- solution-memory-faces:end -->
 
 ## 5. Performance model

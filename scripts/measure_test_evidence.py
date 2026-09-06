@@ -600,6 +600,8 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it stages three engine defects and requires failure",
     "protocol-processor/tb/nvm_port/measure_figures.py":
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+    "tb/verilator/nvm_backend/mutate.py":
+        "mutation campaign; it plants one of four backend defects into a copy and requires failure",
     "tb/verilator/rx_filter/binding_mutant.py":
         "mutation campaign; it ties a real named binding low and requires failure",
     "tb/verilator/tcam/mutants.py":

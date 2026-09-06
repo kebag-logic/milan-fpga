@@ -439,7 +439,9 @@ def pp_population() -> list[str]:
     pop = out.stdout.split()
     pop += [str(REPO / "third_party" / "verilog-axis" / "rtl" / "axis_fifo.v"),
             str(REPO / "hdl" / "milan" / "KL_pp_shadow.sv"),
-            str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv")]
+            str(REPO / "hdl" / "milan" / "KL_pp_maap_shim.sv"),
+            # the saved-state backing store the shadow instantiates (#70)
+            str(REPO / "hdl" / "milan" / "KL_nvm_backend.sv")]
     return sorted(pop)
 
 

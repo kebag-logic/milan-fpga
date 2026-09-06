@@ -109,7 +109,8 @@ ifneq ($(.SHELLSTATUS),0)
 $(error scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived)
 endif
 PP_SRCS := $(PP_DERIVED) \
-       $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
+       $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv \
+       $(RTL_DIR)/milan/KL_nvm_backend.sv
 
 # the gPTP plane (issue #114): parsed by every leg (the instantiation
 # must resolve), elaborated only where -GGPTP_PLANE_EN_P=1
