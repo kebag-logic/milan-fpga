@@ -44,7 +44,7 @@ These claims mirror the canonical feature ledger.
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
-| `state.nonvolatile-persistence` | `missing` | - |
+| `state.nonvolatile-persistence` | `partial` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 

@@ -843,7 +843,7 @@ The control-plane diagnoses below are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
-| `state.nonvolatile-persistence` | `missing` | - |
+| `state.nonvolatile-persistence` | `partial` | - |
 <!-- milan-feature-status:end -->
 
 **Diagnosis.** Three questions, in this order:

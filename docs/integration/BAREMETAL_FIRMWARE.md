@@ -21,8 +21,9 @@ The capability rows on this page are checked against the
 
 - **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
 - **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before either compatibility enable bit may activate the shared AVDECC control plane.
+- **[Saved state: the flash writer](#saved-state-the-flash-writer)** — The boot validation of the two journal slots, the staged KLJ2 container and the control tuple, the heartbeat and debounced A/B commit, and the host model that grades all of it per shape.
 - **[Fabric gPTP option](#fabric-gptp-option)** — The default fabric owner, generated microcode, and the ownerless verification-only option-off elaboration.
-- **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive bench smoke invocation.
+- **[UART commands](#uart-commands)** — The status, TAI set/get, explicit UTC conversion and saved-state slot commands, followed by the non-disruptive bench smoke invocation.
 - **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
 
 ## Build contract
@@ -71,6 +72,8 @@ builder-generated protocol-processor entity image:
 |---|---:|---:|---|---|
 | bitstream | `0x000000` | 4 MiB | raw FPGA configuration | FPGA configuration logic |
 | AEM image | `0x400000` | 64 KiB | raw `aem_desc.bin` beginning with `AEMI` | bare-metal firmware |
+| journal slot A | `0xEE0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
+| journal slot B | `0xEF0000` | 64 KiB | KLJ2 saved-state container, raw | bare-metal firmware, read and written |
 
 `deploy.sh flash-pair` writes the AEM image raw as the non-bit member of a
 proved transition; it must not receive a LiteX FBI header. The one supported
@@ -88,9 +91,13 @@ this order:
    control plane disabled while the PHC and fabric gPTP plane remain active.
 2. Program the generated entity ID, model ID, station MAC, SR VID, stream
    counts, lwSRP policy, MAAP count and CRF/AAF controls.
-3. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
+3. Validate the two journal slots, stage the newer accepted saved-state
+   container in the reserved window (or an all-erased one when neither slot
+   is accepted), hand the backing store its control tuple and run the
+   restore walk; see [Saved state](#saved-state-the-flash-writer) below.
+4. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
    window and verify its CRC32.
-4. After the identity check and AEM verification succeed, set the
+5. After the identity check and AEM verification succeed, set the
    `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits. The
    controls are ORed into one shared control-plane enable, so either bit alone
    enables it.
@@ -103,11 +110,14 @@ two steps here, or in the firmware, and the gate names both sequences.
 <!-- milan-feature-order:firmware_boot_order:start -->
 1. `configure_fabric()` — the fabric CSRs, with the PHC and the gPTP plane
    already live from the CSR reset.
-2. `load_aem_image()` — copy from QSPI and verify the CRC32.
-3. `entity_advertise()` — the enable bits, and only on a verified image.
+2. `nvm_boot()`: the saved-state slots, the backing store and the restore
+   walk, before the entity model is loaded and before the entity can be
+   advertised.
+3. `load_aem_image()`: copy from QSPI and verify the CRC32.
+4. `entity_advertise()`: the enable bits, and only on a verified image.
 <!-- milan-feature-order:firmware_boot_order:end -->
 
-Step 4 lives in one function and nowhere else:
+Step 5 lives in one function and nowhere else:
 
 ```c
 static void entity_advertise(int verified)
@@ -595,6 +605,70 @@ already expanded. Retiring the remaining store-recognition families still
 requires #162's Makefile half. No further refusal family is deleted until a
 replacement rejects the recorded escapes by measurement.
 
+## Saved state: the flash writer
+
+The firmware is the media owner of the saved-state design
+([design page](../design/SAVED_STATE_FASTCONNECT.md) sections 3, 6, 7 and
+9): the fabric keeps the record image in main memory behind the processor's
+NVM port (`KL_nvm_backend`), and this firmware moves it to and from the two
+journal slots. Everything it needs is generated: the slot offsets come from
+`FLASHBOOT_RESERVED`, the container's staging address `MILAN_NVM_IMAGE_BASE`
+is the erase block directly below the response buffer inside the reserved
+processor window, and the record set (`MILAN_NVM_N_*`, the per-port
+channel-map cluster counts, the donor's binding base and layout version) is
+one derivation in `scripts/nvm_shape.py` shared with the record-space gate and
+the host test, so the firmware never restates a count.
+
+**Boot.** `nvm_boot()` runs after the fabric is configured and before the
+entity model is loaded. It reads both slots through the QSPI mapping and applies
+the section 6.2 acceptance order to each, rule for rule as
+`scripts/nvm_klj2.py` does, including the erased-record rule of section 6.1.
+The newer accepted slot (a wrap-safe signed compare of `SEQ`) is copied into
+the window byte for byte; when neither is accepted the firmware stages an
+all-erased container at sequence 0 and reports the failing slot's verdict.
+It then programs the backing store through `PP_NVM_SEL`/`PP_NVM_DATA`: the
+record area's base and length, the per-port channel-map tables (framed length
+and running prefix, direction distinct), the sequence, and the verdict with
+the validity bit, which is asserted only after validation. A first heartbeat
+follows at once, the restore walk is started through `PP_CTRL[1]` and waited
+for, and the console idle hook is installed. The boot line names both slots'
+verdicts, the offered sequence and the walk's `done`, `fail`, `blank` and
+`backed` bits, so a blank board reads `blank=1 fail=0 backed=1`, the register
+map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
+
+**Runtime.** The idle hook runs while the console waits for a key, so a
+console command that itself runs for more than the 2,000 ms liveness deadline
+lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
+next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
+The hook heartbeats every 250 ms, half the section 9.4
+maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
+window (1,000 ms, the provisional value section 14 leaves open) with no record
+operation and no commit bracket in flight, it commits: the container is sealed
+under the next sequence, validated in memory (a torn record defers the commit
+rather than opening a bracket over it), the bracket is opened, the
+non-authoritative slot is erased, programmed page by page and read back, and
+only a slot that validates at the new sequence and matches the window byte for
+byte is acknowledged. The heartbeat is serviced from the erase and program
+poll loops, so a datasheet-worst-case 3 s erase never lets the liveness
+deadline lapse. A failed erase, program or read-back publishes `VD_ERASE`,
+`VD_PROGRAM` or `VD_VERIFY` through the store's verdict nibble and withholds
+the acknowledgement, so the commit deadline revokes the durability claim
+instead of the firmware asserting one.
+
+**What is proved, and where.** `sw/firmware/nvm_hosttest/test_nvm_firmware.py`
+compiles this translation unit unchanged against stub headers and a host
+model of the CSR face, the flash and the clock, and grades it per shipped
+shape: the staged and committed containers equal the Python encoder's byte for
+byte, the verdict the firmware prints for every section 6.2 refusal equals
+`klj2_decode`'s for the same bytes, the A/B rule, the debounce, the three
+transaction failures and the heartbeat through a 3 s erase; `--self-test`
+plants four writer defects and requires each to be caught. What it cannot
+prove is the board: the real LiteSPI master, the real DRAM window and the
+processor writing records into it. Today only the processor's binding records
+reach the store (the manager for the other seven Milan items is the donor's
+open work, design page section 12.2), so a commit on the bench carries binding
+records and erased spans.
+
 ## Fabric gPTP option
 
 `board.features.fabric_gptp` defaults to `true`; every shipping YAML profile
@@ -625,6 +699,9 @@ The LiteX BIOS console stays at 115200 baud and provides:
 | `milan_gettime` | Snapshot and print the fabric PHC as `TAI_NS=0x...`. |
 | `milan_settime <tai-seconds> [nanoseconds]` | Set the PHC from explicit TAI seconds. Overflow and nanoseconds outside `0..999999999` are refused. |
 | `milan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>` | Convert an explicit UTC value and TAI-UTC offset to TAI before setting the PHC. |
+| `milan_nvm` | Validate both journal slots now and print their verdicts and sequences, the authoritative slot, the staged container, the backing store's status word and the commit counters. |
+| `milan_nvm commit` | Promote the staged container into the non-authoritative slot now, whether or not the store reports changes. |
+| `milan_nvm wipe` | Erase both journal slots; the staged container stays, so the next boot is a blank boot. |
 
 The firmware does not embed a leap-second table. The operator or controller
 must provide the current TAI-UTC offset to `milan_utc`.

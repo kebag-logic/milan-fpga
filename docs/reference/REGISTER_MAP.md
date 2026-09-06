@@ -57,7 +57,7 @@ Machine-checked status rows are defined by the
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `implemented` | - |
-| `state.nonvolatile-persistence` | `missing` | - |
+| `state.nonvolatile-persistence` | `partial` | - |
 | `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
@@ -1852,10 +1852,13 @@ never a knob**: `KL_nvm_backend` raises it when the firmware answers and drops
 it when a deadline lapses or a failure is reported, and no CSR write can set it,
 which is the property that made it a localparam beside the old blank-flash
 responder and survives it being live. The backend behind the face is
-`hdl/milan/KL_nvm_backend.sv` and its control face is `0x934`-`0x93C` below;
-the firmware flash writer that makes the image durable is the remaining piece
-of issue #70, and until it configures and validates an image every walk is
-blind and this register reads exactly as it did before the backend landed.
+`hdl/milan/KL_nvm_backend.sv` and its control face is `0x934`-`0x93C` below.
+The bare-metal firmware is the writer ([firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer)):
+at boot it validates the two journal slots, stages the accepted container or
+an all-erased one in the reserved window, configures and validates the image
+through this face and then starts the walk, so a blank board reads the second
+row above rather than the last one; a build whose firmware predates the writer
+still reads `0x5B00_008C`.
 
 **The side port is POSTED, and one access is outstanding at a time.** The
 processor's side port is a fabric walk behind a request/ack, and an AXI read must
@@ -1875,7 +1878,7 @@ another.
 | `0x930` | `PP_DIAG` | RO | `0` | Shadow evidence, and the only frame accounting the control plane now publishes: `[31:16]` control frames transmitted, `[15:8]` **RX drops** — control frames lost to a full ingress FIFO, counted rather than silently absorbed, `[7:0]` control frames received. This replaces the per-plane PDU counters at `0x648`, `0x69C` and `0x6B0`, all of which are structural zeros |
 | `0x934` | `PP_NVM_SEL` | RW | `0` | `[5:0]` the backing store's word index that the next `PP_NVM_DATA` access names (design page section 8.2: a control tuple, never a data window). `0` image base, the byte address of the KLJ2 record image in main memory, 8-byte aligned; `1` image length in bytes, `0` = unconfigured, which is the blank-flash behaviour (a write to word `0` or `1` clears `img_valid`); `2` the sequence number of the image in the window, firmware's to keep; `3` status/verdict, write `[3:0]` verdict and `[4]` `img_valid`; `4` the strobe word, write-only, `[0]` heartbeat, `[1]` commit acknowledged, `[2]` commit started; `0x20`+port the INPUT channel-map table, `0x30`+port the OUTPUT one, each entry `{framed length[31:16], byte prefix inside the group[15:0]}` for that STREAM_PORT. Readback = the index |
 | `0x938` | `PP_NVM_DATA` | RW | `0` | the word `PP_NVM_SEL` names. Words `0`-`3` and both tables read back what was written; word `4` reads `0` (strobes have no state to read) |
-| `0x93C` | `PP_NVM_STAT` | R / W1P | `0` | **Read** the backing store's status word: `[15:12]` verdict, `[10]` `commit_busy`, a commit is inside its `T-NVM-COMMIT-TIMEOUT` (8000 ms) bracket, `[9]` `nvm_stale`, `[8]` `nvm_dirty`, `[7]` `img_valid`, `[6]` `nvm_backed`, `[5]` `img_cfg`, an image length is set, `[4]` `dev_busy`, the processor has a record operation in flight. **Write** the strobe word (word `4`): `[0]` heartbeat re-arms `T-NVM-WRITER-ALIVE`, `[1]` commit acknowledged clears `nvm_dirty` and the commit bracket, `[2]` commit started opens it. A loss in the same cycle as a heartbeat wins, a change in the same cycle as an acknowledgement wins (design page 9.2) |
+| `0x93C` | `PP_NVM_STAT` | R / W1P | `0` | **Read** the backing store's status word: `[15:12]` verdict (`0` `VD_OK` to `10` `VD_INCOMPLETE` are the section 6.2 codes of the last slot the firmware judged; `11` `VD_ERASE`, `12` `VD_PROGRAM` and `13` `VD_VERIFY` are the writer's transaction verdicts, published when a commit fails at that stage and left unacknowledged), `[10]` `commit_busy`, a commit is inside its `T-NVM-COMMIT-TIMEOUT` (8000 ms) bracket, `[9]` `nvm_stale`, `[8]` `nvm_dirty`, `[7]` `img_valid`, `[6]` `nvm_backed`, `[5]` `img_cfg`, an image length is set, `[4]` `dev_busy`, the processor has a record operation in flight. **Write** the strobe word (word `4`): `[0]` heartbeat re-arms `T-NVM-WRITER-ALIVE`, `[1]` commit acknowledged clears `nvm_dirty` and the commit bracket, `[2]` commit started opens it. A loss in the same cycle as a heartbeat wins, a change in the same cycle as an acknowledgement wins (design page 9.2) |
 
 **Why an RX drop counter exists here at all.** `protocol_processor_top` eats a
 1 byte/clk stream, which at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a

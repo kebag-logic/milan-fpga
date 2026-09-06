@@ -2847,6 +2847,16 @@ def test_baremetal_profile_contract() -> None:
         "*milan_reg(offset) = value",
         "*value = (uint64_t)parsed",
         "*value = seconds * 1000000000ull + nanoseconds",
+        # The saved-state writer's five (#70): every one is a byte store
+        # into the staged KLJ2 container at MILAN_NVM_IMAGE_BASE, a
+        # constant base inside the reserved processor window, under a loop
+        # the compiler bounds by a constant; none can reach the control
+        # window, and the compiled census places each as a bounded range.
+        "NVM_IMG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))",
+        "NVM_IMG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))",
+        "NVM_IMG[i] = NVM_ERASED",
+        "NVM_IMG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u",
+        "NVM_IMG[i] = src[i]",
         "dst[i] = src[i]",
     )
     #: ... and every cast to a POINTER, pinned the same way and for a reason
@@ -2859,6 +2869,11 @@ def test_baremetal_profile_contract() -> None:
     #: register in the first place.
     firmware_pointer_casts = (
         "(volatile uint32_t *)",
+        # the saved-state writer's two (#70): the staged container in the
+        # reserved window, and a journal slot through the QSPI mapping
+        "(volatile uint8_t *)",
+        "(const volatile uint8_t *)",
+        # the AEM verifier's three
         "(const volatile uint8_t *)",
         "(volatile uint8_t *)",
         "(const unsigned char *)",
@@ -2898,11 +2913,11 @@ def test_baremetal_profile_contract() -> None:
         return found
 
     def assert_store_set_is_closed(code: str, source: str) -> None:
-        """The firmware's stores through a pointer are pinned to the four it
+        """The firmware's stores through a pointer are pinned to the nine it
         ships, so a CSR store cannot be built from a cast this gate never
         thought to name.
 
-        COST: a fifth pointer store is RED until it is added above. That is
+        COST: a tenth pointer store is RED until it is added above. That is
         the tripwire: whoever adds one has to decide, in this gate, whether
         its target can be a control register."""
         casts = [" ".join(m.group(0).split())
@@ -2959,11 +2974,13 @@ def test_baremetal_profile_contract() -> None:
         "<stdint.h>", "<errno.h>", "<stdio.h>", "<stdlib.h>",
         "<hw/common.h>", "<libbase/crc.h>", "<system.h>",
         '"command.h"', '"init.h"')
-    #: ... and two are written by THIS REPOSITORY'S OWN BUILDER, so their
-    #: contents are this repository's text one generator away. Pinning those
+    #: ... and three are written by THIS REPOSITORY'S OWN BUILDER, so their
+    #: contents are this repository's text one generator away (csr.h since
+    #: the saved-state writer drives the LiteSPI command master, #70). Pinning those
     #: names is the weaker half of the claim and it should not be stated as
     #: though it were the same one. Their VALUES are gate 28's.
-    firmware_includes_generated = ("<generated/mem.h>", "<generated/soc.h>")
+    firmware_includes_generated = ("<generated/csr.h>", "<generated/mem.h>",
+                                   "<generated/soc.h>")
     firmware_includes = (firmware_includes_third_party +
                          firmware_includes_generated)
     #: ... and a pinned NAME is not a pinned FILE. `"command.h"` and
@@ -3131,6 +3148,21 @@ def test_baremetal_profile_contract() -> None:
         "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0x10,
         "MILAN_N_TALKERS": 1, "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
         "MILAN_AEM_IMAGE_BYTES": 4096, "MILAN_AEM_IMAGE_CRC32": 0xDEAD_BEEF,
+        # the saved-state writer's constants (#70): the two journal slots,
+        # the staged container's band inside the reserved processor window
+        # and one small record shape; sentinels like the rest, every one
+        # asserted outside the control window below
+        "MILAN_FLASH_JOURNAL_OFFSET": 0x00EE_0000,
+        "MILAN_FLASH_JOURNAL_SIZE": 0x0002_0000,
+        "MILAN_NVM_IMAGE_BASE": 0x7F7E_F000, "MILAN_NVM_IMAGE_MAX": 0x1_0000,
+        "MILAN_NVM_N_STREAM_IN": 2, "MILAN_NVM_N_STREAM_OUT": 2,
+        "MILAN_NVM_N_SPORT_IN": 1, "MILAN_NVM_N_SPORT_OUT": 1,
+        "MILAN_NVM_N_AUDIO_UNIT": 1, "MILAN_NVM_N_CLK_DOM": 1,
+        "MILAN_NVM_N_NAME": 31, "MILAN_NVM_BIND_BASE": 0x20,
+        "MILAN_NVM_REC_LAYOUT": 2,
+        **{f"MILAN_NVM_MAPIN_CLUSTERS_{k}": 0 for k in range(16)},
+        **{f"MILAN_NVM_MAPOUT_CLUSTERS_{k}": (17 if k == 0 else 0)
+           for k in range(16)},
     }
     #: The RV32 cross compiler is the real target and the only one that can
     #: assemble the firmware's RISC-V asm; a host compiler answers every
@@ -3164,6 +3196,20 @@ def test_baremetal_profile_contract() -> None:
             "generated/mem.h": f"#pragma once\n#define MILAN_CSR_BASE "
                                f"0x{csr_base:x}u\n{body}\n",
             "generated/soc.h": "#pragma once\n",
+            # the LiteSPI command master the writer drives: declarations
+            # only, so the census sees calls and no store of its own
+            "generated/csr.h":
+                "#pragma once\n#include <stdint.h>\n"
+                "#define CSR_SPIFLASH_MASTER_PHYCONFIG_LEN_OFFSET 0\n"
+                "#define CSR_SPIFLASH_MASTER_PHYCONFIG_WIDTH_OFFSET 8\n"
+                "#define CSR_SPIFLASH_MASTER_PHYCONFIG_MASK_OFFSET 16\n"
+                "#define CSR_SPIFLASH_MASTER_STATUS_TX_READY_OFFSET 0\n"
+                "#define CSR_SPIFLASH_MASTER_STATUS_RX_READY_OFFSET 1\n"
+                "uint32_t spiflash_master_status_read(void);\n"
+                "void spiflash_master_cs_write(uint32_t v);\n"
+                "void spiflash_master_phyconfig_write(uint32_t v);\n"
+                "uint32_t spiflash_master_rxtx_read(void);\n"
+                "void spiflash_master_rxtx_write(uint32_t v);\n",
             "hw/common.h": "#pragma once\n",
             "libbase/crc.h": "#pragma once\nunsigned int crc32("
                              "const unsigned char *b, unsigned int n);\n",

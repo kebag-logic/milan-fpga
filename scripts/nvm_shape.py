@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nvm_contract import (                                    # noqa: E402
     ALLOC, FIXED, FLASH_PAGE, LEDGER, MAP_ENTRY, NAME_BYTES, NAME_SLOTS, PAY,
-    ROOT, SPI_HZ, T_PP_MAX_MS, T_SE_MAX_MS, Record, Shape)
+    ROOT, SPI_HZ, T_PP_MAX_MS, T_SE_MAX_MS, Donor, Record, Shape)
 
 
 SHADOW_STEM = "KL_acmp_nvm_shadow"
@@ -122,6 +122,45 @@ def commit_worst_ms(image: int) -> float:
     pages = math.ceil(image / FLASH_PAGE)
     readback_ms = image * 8 * 1000.0 / SPI_HZ
     return T_SE_MAX_MS + pages * T_PP_MAX_MS + readback_ms
+
+
+#: The channel-map tables the firmware loads into the backend and the record
+#: set it enumerates are both indexed by STREAM_PORT ordinal; the backend's
+#: tables hold sixteen ports per direction (csr_addr_i[3:0]), so the constant
+#: set always names sixteen and a shape's absent ports carry zero clusters.
+FW_MAP_PORTS = 16
+
+
+def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
+    """The generated constants the bare-metal writer derives its record set
+    from: `MILAN_NVM_*` in the LiteX `generated/soc.h`.
+
+    ONE derivation for two consumers. `sw/litex/milan_soc.py` publishes these
+    for the firmware it links, and the firmware host test publishes the same
+    dict into its stub header, so the C enumeration is graded against the
+    Python inventory of the SAME shape and never against a second reading of
+    the overlay. Counts only, never sums: the record area's length and every
+    record's offset are the firmware's to derive, exactly as the backend
+    derives them from its parameters, and the host test is where the three
+    derivations meet.
+    """
+    dc = shape.dc
+    out = {
+        "MILAN_NVM_N_STREAM_IN": dc["STREAM_INPUT"],
+        "MILAN_NVM_N_STREAM_OUT": dc["STREAM_OUTPUT"],
+        "MILAN_NVM_N_SPORT_IN": dc["STREAM_PORT_INPUT"],
+        "MILAN_NVM_N_SPORT_OUT": dc["STREAM_PORT_OUTPUT"],
+        "MILAN_NVM_N_AUDIO_UNIT": dc["AUDIO_UNIT"],
+        "MILAN_NVM_N_CLK_DOM": dc["CLOCK_DOMAIN"],
+        "MILAN_NVM_N_NAME": shape.names,
+        "MILAN_NVM_BIND_BASE": donor.base,
+        "MILAN_NVM_REC_LAYOUT": donor.layout,
+    }
+    for label, ports in (("IN", shape.spi), ("OUT", shape.spo)):
+        clusters = {p["index"]: p["clusters"] for p in ports}
+        for k in range(FW_MAP_PORTS):
+            out[f"MILAN_NVM_MAP{label}_CLUSTERS_{k}"] = clusters.get(k, 0)
+    return out
 
 
 def inventory(shape: Shape, base: int) -> list[Record]:

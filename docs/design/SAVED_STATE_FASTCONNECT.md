@@ -21,7 +21,7 @@
 > | the backend's memory and the transfer mechanism | left open | decided | unchanged, section 8 |
 > | `nvm_backed_o` | asserts once a writer has answered | live, with a revocation list | **plus recovery semantics, an exhaustive state table and two derived deadline values**, section 9 |
 > | the area claim | borrowed issue #69's unrelated LUT delta | withdrawn as unmeasurable | **measured**: a synthesizable before/after pair, section 8.3 |
-> | the record-space gate | did not exist | five negative controls, no omission oracle | **fifteen controls**, and the gate now encodes and decodes the image instead of counting it, section 4.4 |
+> | the record-space gate | did not exist | five negative controls, no omission oracle | **sixteen controls**, and the gate now encodes and decodes the image instead of counting it, section 4.4 |
 > | the five `milan_csr.sv` citations | dangling | named as deliberately stale | **repaired**, section 5.1 |
 >
 > **Round 3 changed four more things, and one of them is about this page's own
@@ -53,9 +53,19 @@
 > main-memory master in the SoC, the control face at `0x934`-`0x93C` and the
 > section 9 bits in `PP_STAT`. Its area is measured on the shipping module in
 > section 8.3, and it is above the candidate's bound: 992 LUT-equivalents and
-> 377 FF worst case against 781 and 280. The firmware writer that configures,
-> validates and commits the image does not exist yet, so nothing persists yet
-> and the status still says so.
+> 377 FF worst case against 781 and 280.
+>
+> **The firmware half landed (2026-09-06).** `sw/firmware/milan_baremetal/`
+> validates both journal slots at boot, stages the accepted container in the
+> reserved window, configures and validates the image through the control
+> face, starts the walk, heartbeats from the console's idle hook and commits
+> changes A/B into flash; `sw/firmware/nvm_hosttest/` grades it per shape on a
+> host model, and the encoder it carries agrees with `scripts/nvm_klj2.py` byte
+> for byte. It brought one amendment to section 6: the **erased-record rule**,
+> because a record the processor has never written has no frame, and the
+> container had no way to say so. What persists on a board today is what the
+> processor writes into the store, which is the binding records alone until
+> the manager of section 12.2 exists.
 
 Milan v1.2 names eight things a PAAD-AE shall keep across a power cycle, plus
 the bound state, the binding parameters and the started/stopped state. This
@@ -112,11 +122,12 @@ it.
 | A manager for every other persisted item | **ABSENT** | `KL_pp_nvm_port`'s own header says the manager "lands in P4". Nothing serializes names, formats, offsets, maps, rates, clock source, configuration index or SUID |
 | The processor emits commit marks | **Landed, unobserved** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
-| A write path on the shipping profile | **ABSENT** | the baremetal firmware reads flash through the XIP window and has no erase or program path |
+| A write path on the shipping profile | **Landed** (2026-09-06) | `sw/firmware/milan_baremetal/milan_baremetal.c`: boot validation of both slots, the staged container, the control tuple, the restore walk, the heartbeat, the debounced A/B commit through the LiteSPI command master with erase, page program and read-back; `sw/firmware/nvm_hosttest/test_nvm_firmware.py` grades it per shape against `scripts/nvm_klj2.py` |
 | The record set fits the namespace | **DECIDED HERE** (2026-09-05), gated: the donor's F07.8 rule unchanged, one record per item group and index, 164 of 256 ids at the largest shipped shape | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
-| The backing store | **DECIDED HERE, fabric half built** | sections 3 and 8; the firmware half (validate a slot into the window, heartbeat, commit the image into the journal slots, acknowledge) is the remaining work item |
+| The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
 | The backend's area | **MEASURED**, on the shipping module | section 8.3: 992 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
 | The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 433 checks at 8x8 and 148 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
+| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Which donor commit.** `dev` pins the processor at `a25b5cc9`, which carries
@@ -408,7 +419,7 @@ fire: four omission arms, two index-set arms (a shift that keeps the
 cardinality, and a duplicate key with distinct ids), a namespace shrunk below
 the conformant floor, and two arms that restore a round-3 DECODER rule -- the
 content-based name presence rule and "an absent allocated id is not a
-failure". `--self-test` runs all fifteen controls and fails if any of them
+failure". `--self-test` runs all sixteen controls and fails if any of them
 passes.
 
 `--emit-record-table` writes the byte offsets of that same image for
@@ -543,6 +554,23 @@ section 4.2 blocks alone, which is what the region decoder measured in
 section 8.3 does, instead of carrying a 256-entry offset table. The area is zero-padded to a 4-byte boundary; the pad is counted in
 `IMG_LEN` and covered by the digest.
 
+**The erased-record rule (round 5, 2026-09-06).** A record position may hold,
+instead of a frame, the record's whole span (8 header bytes plus its
+payload_length) filled with `0xFF`. That record has never been written since
+the media was blank: the backend erases a record's span to `0xFF` and writes
+it in place, the firmware wraps the record area verbatim, and a record the
+processor has not yet committed therefore has no frame to carry. An erased
+record counts as PRESENT for rule 12, applies nothing, and the processor
+restores the vendor default for it through the same blank arm it takes on
+blank media. The rule is deliberately narrow: an erased span is accepted only
+at the position of the next required record in ascending id order and only
+for that record's exact span, so a header of `0xFF` over a payload that is not
+erased is a torn or foreign span and is refused (rule 8), and an image that is
+one record SHORT is still refused (rules 10 and 12), because absence stayed an
+omission. Without this rule a board that has never been bound could never
+carry an accepted image at all, and the very first controller SET would have
+produced a container rule 12 refuses.
+
 Trailer, 1 word: `CRC-32/ISO-HDLC` (reflected polynomial `0xEDB88320`, init
 `0xFFFFFFFF`, final XOR `0xFFFFFFFF`) over **every preceding byte of the
 image**, that is bit-for-bit `zlib.crc32(blob[:-4])`. It is the same algorithm
@@ -565,14 +593,23 @@ the accepted `SEQ`:
 | 5 | CRC-32 over bytes 0 to `IMG_LEN` minus 4 matches the trailer | `VD_CRC` |
 | 6 | `ENT_LO` and `ENT_HI` equal this entity's `entity_id` | `VD_ENT` |
 | 7 | `MODEL_LO` and `MODEL_HI` equal this build's `entity_model_id` | `VD_SHAPE` |
-| 8 | every record: magic `0x1722`, `layout_version` equal to `REC_LAYOUT` and to the port's `LAYOUT_VER_P`, `record_id` inside a block allocated for this shape, `payload_length` the length section 4 fixes for that group, crc16 closes | `VD_REC` |
+| 8 | every record: magic `0x1722`, `layout_version` equal to `REC_LAYOUT` and to the port's `LAYOUT_VER_P`, `record_id` inside a block allocated for this shape, `payload_length` the length section 4 fixes for that group, crc16 closes; or the record is ERASED, its whole span `0xFF` at the position of the next required record (section 6.1) | `VD_REC` |
 | 9 | no `record_id` appears twice | `VD_REC` |
 | 10 | the record area ends exactly at the trailer | `VD_LEN` |
 | 11 | `SEQ` advances past the already-accepted one | `VD_STALE`, ignored |
-| 12 | **every record this shape requires is present**: the exact `(group, index)` set derived from `descriptor_counts` and the writable-name count, section 4 | `VD_INCOMPLETE` |
+| 12 | **every record this shape requires is present**, framed or erased: the exact `(group, index)` set derived from `descriptor_counts` and the writable-name count, section 4 | `VD_INCOMPLETE` |
 
-A blank slot, all `0xFF`, fails test 1 and is reported as `VD_BLANK` rather than
-an error: Milan permits an entity that has never been bound.
+A blank slot, its 40 header bytes all `0xFF`, fails test 1 and is reported as
+`VD_BLANK` rather than an error: Milan permits an entity that has never been
+bound. The header decides blankness because an erase clears the whole slot and
+a program writes the header page first, so a writer and a decoder judge the
+same bytes.
+
+Three more codes share the verdict nibble and are the WRITER's, never the
+decoder's: `VD_ERASE` (11), `VD_PROGRAM` (12) and `VD_VERIFY` (13) name the
+stage at which a commit failed, are published through the backing store's
+status word and are left unacknowledged, so the commit deadline of section
+9.4 revokes the durability claim (section 9.2).
 
 **Rule 12 is new, and it withdraws a sentence.** Round 3 of this page said that
 an allocated id which is simply absent from the image is not a failure, because
@@ -611,6 +648,13 @@ one refused case per verdict code in the table above. That is the only way two
 independent implementations, the firmware writer and the fabric reader, can be
 shown to agree; the deleted page's 52-byte worked example is the shape of the
 artifact wanted.
+
+Delivered as `sw/firmware/nvm_hosttest/test_nvm_firmware.py`: the shipping
+firmware translation unit runs on a host model, and per shipped shape the
+container it stages and the container it commits are compared byte for byte
+with `scripts/nvm_klj2.py`'s for the same records, while the verdict it prints
+for every refusal above, for both faces of the erased-record rule and for a
+blank slot is compared with `klj2_decode`'s for the same bytes.
 
 ## 7. Durability: the A/B contract
 
@@ -1105,6 +1149,15 @@ bare-metal persistence contract.
    `milan_soc.py` the single source of truth for the firmware as well.
 5. **A reflash must not erase either reserved slot.** A gateware update that
    silently wipes saved bindings is worse than having none.
+6. **What the firmware does (2026-09-06).** `nvm_boot()` validates both
+   slots through the QSPI mapping, stages the newer accepted container at
+   `MILAN_NVM_IMAGE_BASE` (the erase block below the response buffer in the
+   reserved window) or an all-erased one at sequence 0, loads the control
+   tuple of section 8.2 with validity asserted only after validation,
+   heartbeats once, starts the walk through `PP_CTRL[1]` and waits for it,
+   then installs the console idle hook that heartbeats every 250 ms and
+   commits A/B after a 1,000 ms debounce. The firmware page describes the
+   sequence and the host test that grades it.
 
 ## 11. Bench recipe
 
@@ -1127,7 +1180,11 @@ equivalent.
 
 **G2 to G5** -- restore from a preloaded image, fast connect with no
 controller, the write path, and the reboot drill -- are the implementation
-ticket's and need a board. The bench is down at the time of writing.
+ticket's and need a board. The host model in `sw/firmware/nvm_hosttest`
+covers the firmware's side of G2, G4 and G5 (a preloaded golden image is
+chosen and copied, one change is committed into the other slot, a wiped pair
+boots blank), so what the board still owes is the real media, the real window
+and the processor's own record writes.
 
 ## 12. The commit marks that already exist
 
@@ -1175,17 +1232,27 @@ manager's job.
 
 ## 13. Risks, stated rather than discovered later
 
-- **The firmware writer is missing.** The shipping profile is
-  `--flashboot baremetal` and the current firmware only reads. The write path
-  must be implemented in `sw/firmware/milan_baremetal/` against the same CSRs.
+- **The firmware writer landed on a host model, not yet on the bench.** The
+  write path in `sw/firmware/milan_baremetal/` drives the LiteSPI command
+  master one byte at a time in 1x mode, the way `liblitespi` does; the host
+  test cannot see a timing or arbitration defect against the real master, so
+  the first board commit is still a measurement.
+- **Only the binding records reach the store.** The manager that turns the
+  eight commit marks of section 12.1 into records for the other seven items
+  is the donor's open work; until it lands, an accepted image on a board is
+  binding records and erased spans, and the erased-record rule is what makes
+  that image legal.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.
 - **The debounce window is a data-loss window.** The processor already debounces
   commits (`T-NVM-DEBOUNCE`, coalescing) and the mapping compliance sequence
   issues a dozen SETs in a row, so a commit per command would burn erase cycles
-  for nothing. Whatever window is chosen, the PR that lands it must say what a
-  power cut inside it loses, and `nvm_dirty` is the bit that makes it visible.
+  for nothing. The firmware holds a commit for 1,000 ms after `nvm_dirty`
+  first reports, as a PROVISIONAL value: a power cut inside that second loses
+  exactly the changes `nvm_dirty` was reporting and nothing older, because the
+  authoritative slot is never touched until the new one has verified. The
+  value is not the bench-measured one section 14 asks for.
 - **Four donor defects are open against the port** and matter to any consumer:
   an unowned `done_seen_r`, no timeout so a silent device wedges the port,
   restore failures collapsing three situations into one signal, and `record_id`
@@ -1213,7 +1280,8 @@ allocation that rounds 3 and 4 listed here is decided in section 4.2.
 - **The debounce window's value.** `T-NVM-DEBOUNCE` is a wear-versus-loss trade
   that needs a bench, and section 13 says what the PR that picks it owes. It is
   a different quantity from the two deadlines of section 9.4, which are fixed
-  here.
+  here. The firmware ships 1,000 ms as a provisional value and section 13
+  states its loss window; the bench still owes the measurement.
 - **The exact CSR addresses** of the control tuple in section 8.2, and the bit
   positions proposed in section 9.1. The shapes are decided; where they land in
   `milan_csr` is the implementation's, and
@@ -1235,7 +1303,7 @@ so nothing here moves when the pin does.
 **The record namespace**
 
 - [ ] `scripts/check_nvm_record_space.py` passes for every shipped config, and
-      its `--self-test` still reddens on all fifteen negative controls,
+      its `--self-test` still reddens on all sixteen negative controls,
       including the four omission arms, the two index-set arms, the shrunken
       namespace and the two that restore a round-3 decoder rule.
 - [ ] Every user name of the largest shipped shape is encoded by one
@@ -1250,12 +1318,17 @@ so nothing here moves when the pin does.
 
 **The container**
 
-- [ ] A pinned golden image per shape, byte for byte, with its CRC, produced by
-      the firmware encoder and reproduced by the fabric decoder.
-- [ ] One refused case per verdict code in section 6.2, each proving **zero**
-      records were applied: foreign entity, foreign model, bad magic, wrong
+- [x] A pinned golden image per shape, byte for byte, with its CRC, produced by
+      the firmware encoder and reproduced by the fabric decoder: on the host
+      model, `sw/firmware/nvm_hosttest`, against the Python decoder; the
+      fabric decoder reads the same bytes through `tb/verilator/nvm_backend`'s
+      record table.
+- [x] One refused case per verdict code in section 6.2, each proving **zero**
+      records were applied, with the firmware's verdict equal to the decoder's
+      for the same bytes: foreign entity, foreign model, bad magic, wrong
       major, truncated, overrun, bad digest, unknown record id, duplicate record
-      id, mixed layout_version, torn slot, stale sequence.
+      id, mixed layout_version, torn slot; the stale sequence is decided by the
+      A/B pick at boot and by the read-back at commit.
 - [ ] Records are emitted in ascending `record_id` (section 6.1), and a decoder
       that computes offsets from the shape agrees with one that walks the
       records.
@@ -1269,8 +1342,9 @@ so nothing here moves when the pin does.
 - [ ] A writer that answers once and then stops drives `nvm_backed` to 0 and
       `nvm_stale` to 1 within `T-NVM-WRITER-ALIVE`, with `nvm_dirty` reporting
       whether anything was outstanding.
-- [ ] A failed erase, a failed program and a failed read-back-verify each revoke
-      `nvm_backed` independently.
+- [x] A failed erase, a failed program and a failed read-back-verify each revoke
+      `nvm_backed` independently: on the host model each publishes its own
+      verdict, withholds the acknowledgement, and the commit deadline lapses.
 - [ ] **Every reachable row of the section 9.3 table is produced**, and the one
       marked unreachable, `(backed=1, dirty=0, stale=1)`, is never observed at a
       CSR read boundary.
@@ -1284,16 +1358,19 @@ so nothing here moves when the pin does.
 - [ ] **A late-but-valid completion** -- a commit that finishes after
       `T-NVM-COMMIT-TIMEOUT` has already revoked `nvm_backed` -- is accepted as
       data and does not resurrect the claim by itself.
-- [ ] **A legal flash operation is never declared stale early**: a commit taking
+- [x] **A legal flash operation is never declared stale early**: a commit taking
       the datasheet worst case of section 9.4 completes inside
       `T-NVM-COMMIT-TIMEOUT` at both shapes, and the heartbeat is serviced
-      throughout the erase.
+      throughout the erase: on the host model, a 3 s erase with heartbeats at
+      most 500 ms apart, acknowledged.
 - [ ] A timeout injected during each of erase, program and read-back produces
       the same revocation and the same verdict, and the three are distinguished
       in `nvm_verdict`.
 - [ ] A power cut inside the debounce window loses exactly the marked changes,
       and `nvm_dirty` said so beforehand.
-- [ ] A restore walk over blank flash reports "nothing restored", never success.
+- [x] A restore walk over blank flash reports "nothing restored", never success:
+      on the host model `blank=1 fail=0 backed=1`, the register map's second
+      row; the bench reading is still owed.
 
 **The saved set**
 
