@@ -223,6 +223,7 @@ class Harness {
     void run_cycles(uint64_t n) { while (n--) tick(); }
     void write(uint16_t addr, uint32_t value);
     uint32_t read(uint16_t addr);
+    uint64_t read_identity(uint16_t low_addr);
     Fires tick();
     void clocks(unsigned quarter);
     void memory_drive();
@@ -384,6 +385,15 @@ uint32_t Harness::read(uint16_t addr) {
         if (f.r) { dut->s_axi_rready = 0; return f.data; }
     }
     throw std::runtime_error("AXI read response timeout");
+}
+
+uint64_t Harness::read_identity(uint16_t low_addr) {
+    // REGISTER_MAP: the first half opens a snapshot until its complement.
+    // Consume both halves even when checking reset, without a pending read
+    // that could join a later live low word to an earlier snapshot high word.
+    const uint32_t low = read(low_addr);
+    const uint32_t high = read(low_addr + 4);
+    return (uint64_t(high) << 32) | low;
 }
 
 Frame Harness::audio_frame() {
@@ -617,8 +627,8 @@ void Harness::geometry_and_clocks() {
 
 void Harness::publication(const char* arm, bool healthy) {
     const uint32_t gen0 = read(0x7E4);
-    const uint64_t gm = (uint64_t(read(0x628)) << 32) | read(0x624);
-    const uint64_t parent = (uint64_t(read(0x734)) << 32) | read(0x730);
+    const uint64_t gm = read_identity(0x624);
+    const uint64_t parent = read_identity(0x730);
     const uint32_t delay = read(0x6E4);
     const uint32_t stat = read(0x77C);
     const uint32_t gen1 = read(0x7E4);
@@ -777,8 +787,8 @@ int Harness::run() {
             loss_recovery(); completed[6] = true;
             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
             reset(); configure();
-            check.hex("reset clears public GM", read(0x624), 0);
-            check.hex("reset clears public parent", read(0x730), 0);
+            check.hex("reset clears complete public GM", read_identity(0x624), 0);
+            check.hex("reset clears complete public parent", read_identity(0x730), 0);
             audio_window("reset reacquisition", kHz * 3, -1);
             publication("reset recovered", true);
             audio_window("reset stable", kHz / 50, 0); completed[7] = true;

@@ -141,6 +141,7 @@ Sample order and packet sequence must remain continuous.
 Acquisition, healthy streaming, stalls, loss, recovery, and reset are graded.
 Stable phases also compare outgoing uncertainty with public state.
 CSR and AECP getters must expose consistent GM/parent/delay/PathTrace.
+Identity reads consume both halves of each CSR snapshot, including reset checks.
 AECP status must report successful descriptor validation.
 Short responses retain Ethernet minimum-frame padding.
 Final cumulative assertions include traffic between named audio windows.
