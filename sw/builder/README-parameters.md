@@ -12,7 +12,7 @@ The dynamic-map command and persistence claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `soc.baremetal-profile` | `implemented` | - |
-| `state.nonvolatile-persistence` | `missing` | - |
+| `state.nonvolatile-persistence` | `partial` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents

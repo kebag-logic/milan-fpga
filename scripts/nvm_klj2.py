@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nvm_contract import (                                    # noqa: E402
-    ALIGN, ALLOC, KLJ2_FMT_VER, KLJ2_HDR, KLJ2_MAGIC, KLJ2_TRAILER,
+    ALIGN, ALLOC, ERASED, KLJ2_FMT_VER, KLJ2_HDR, KLJ2_MAGIC, KLJ2_TRAILER,
     NAME_BYTES, REC_HDR, REC_MAGIC, SEAM, VD_BLANK, VD_CRC, VD_ENT,
     VD_INCOMPLETE, VD_LEN, VD_MAGIC, VD_OK, VD_REC, VD_SHAPE, VD_VER,
     VENDOR_DEFAULT_NAME, Donor, Ident, Key)
@@ -58,12 +58,27 @@ def id_blocks(base: int) -> list[tuple[str, int | None, int]]:
             for g, (b, blk) in ALLOC.items()]
 
 
+def rid_of_key(key: Key, base: int) -> int:
+    """The section 4.2 allocation, forward: (group, index) -> record_id."""
+    group, index = key
+    block_base = base if group == "BINDING" else ALLOC[group][0]
+    return block_base + index
+
+
 def key_of_id(rid: int, base: int) -> Key | None:
     """Invert the section 4.2 allocation: record_id -> (group, index)."""
     for g, b, blk in id_blocks(base):
         if b is not None and b <= rid < b + blk:
             return (g, rid - b)
     return None
+
+
+def erased_record(plen: int) -> bytes:
+    """The span a record of `plen` payload bytes occupies when the processor
+    has never written it: header and payload all ERASED (section 6.1, the
+    erased-record rule). It is what the backend's ERASE leaves and what a
+    blank slot's record area is made of, so an encoder emits it verbatim."""
+    return bytes([ERASED]) * (REC_HDR + plen)
 
 
 def frame_record(rid: int, payload: bytes, layout: int) -> bytes:
@@ -107,12 +122,23 @@ def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
     absent is not a failure, so a CRC-clean image could omit any mandatory
     item, publish an accepted sequence and silently restore a changed value to
     its vendor default. That sentence is withdrawn; absence is now VD_INCOMPLETE.
+
+    An ERASED record is not an absence. The backend writes the record area in
+    place and the writer wraps it verbatim, so a record the processor has
+    never written since the media was blank is its span of ERASED bytes at
+    the position the shape gives it; it counts as present, applies nothing,
+    and the processor restores the vendor default for it through its own
+    blank arm. A span whose header is ERASED but whose payload is not is torn
+    or foreign and is refused (section 6.1, the erased-record rule).
     """
     layout, base = donor.layout, donor.base
     entity_id, model_id = ident.entity_id, ident.model_id
     if len(blob) < KLJ2_HDR + KLJ2_TRAILER:
         return VD_LEN, {}
-    if all(b == 0xFF for b in blob):
+    if all(b == ERASED for b in blob[:KLJ2_HDR]):
+        # a slot whose header is erased is blank: an erase clears the whole
+        # slot and a program writes the header page first, so the header is
+        # what a writer and this decoder both judge (section 6.2, VD_BLANK)
         return VD_BLANK, {}
     magic, ver, _seq, nrec, img_len, elo, ehi, mlo, mhi, rlay = \
         struct.unpack_from("<10I", blob, 0)
@@ -133,9 +159,32 @@ def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
         return VD_REC, {}
 
     applied, pos, end, last = {}, KLJ2_HDR, img_len - KLJ2_TRAILER, -1
+    #: the shape's records in the order section 6.1 requires, so an erased
+    #: span (which carries no id and no length of its own) is placed by the
+    #: NEXT required record rather than by anything the bytes say
+    order = sorted((rid_of_key(k, base), k) for k in expect)
+    erased = set()
     for _ in range(nrec):
         if pos + REC_HDR > end:
             return VD_LEN, {}
+        if all(b == ERASED for b in blob[pos:pos + REC_HDR]):
+            # the erased-record rule: the record at this position was never
+            # written. Only the next required record may be erased here, and
+            # its whole span must be ERASED, or the span is torn or foreign.
+            nxt = next(((r, k) for r, k in order if r > last), None)
+            if nxt is None:
+                return VD_REC, {}
+            rid, key = nxt
+            plen = expect[key]
+            if pos + REC_HDR + plen > end:
+                return VD_LEN, {}
+            span = blob[pos + REC_HDR:pos + REC_HDR + plen]
+            if not SEAM.ERASED_HEADER_ONLY and any(b != ERASED for b in span):
+                return VD_REC, {}
+            erased.add(key)
+            last = rid
+            pos += REC_HDR + plen
+            continue
         rmagic, rver, rid, plen = struct.unpack_from(">HBBH", blob, pos)
         rcrc = struct.unpack_from(">H", blob, pos + 6)[0]
         if rmagic != REC_MAGIC or rver != layout:
@@ -155,7 +204,7 @@ def klj2_decode(blob: bytes, donor: Donor, ident: Ident,
         pos += REC_HDR + plen
     if pos + ((-(pos - KLJ2_HDR)) % ALIGN) != end:
         return VD_LEN, {}
-    if set(expect) - set(applied) and not SEAM.DECODE_ALLOW_ABSENT:
+    if set(expect) - set(applied) - erased and not SEAM.DECODE_ALLOW_ABSENT:
         return VD_INCOMPLETE, {}
     return VD_OK, applied
 

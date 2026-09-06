@@ -22,7 +22,7 @@ Machine-checked anchors from the
 | `notifications.change-events` | `implemented` | - |
 | `notifications.controller-liveness` | `implemented` | - |
 | `crf.media-clock-consumption` | `implemented` | - |
-| `state.nonvolatile-persistence` | `missing` | - |
+| `state.nonvolatile-persistence` | `partial` | - |
 <!-- milan-feature-status:end -->
 
 Normative editions — clause numbers below were re-verified against these exact

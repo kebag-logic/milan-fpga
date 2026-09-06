@@ -63,6 +63,13 @@ sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
 import board_audio_routing
 
+# The saved-state record contract (design page section 4.2): the firmware's
+# record-set constants come from the SAME derivation the record-space gate and
+# the firmware host test use, so the three cannot read the overlay apart.
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+from nvm_shape import binding_base, firmware_constants, layout_version
+from nvm_contract import Donor as NvmDonor, Shape as NvmShape
+
 # The Milan CSR window. The register OFFSETS (0x000..0x700) match docs/reference/REGISTER_MAP.md;
 # only the BASE is CPU-specific: on the supported LiteX CPU maps an MMIO peripheral
 # must live in the IO region (>= 0x8000_0000, uncached), so we map it at 0x9000_0000. The Zynq
@@ -2690,12 +2697,25 @@ class MilanSoC(SoCCore):
             # - forty-five times the largest shape in the tree. Both bases are
             # derived from one reserved window, so moving it moves both together.
             _resp_base = _desc_base + _PP_WINDOW - 0x1000
+            # ...AND WHERE THE SAVED-STATE IMAGE LIVES (design page section
+            # 8.1). The firmware stages the whole KLJ2 container here: the
+            # 40-byte header, the record area the backend reads and writes
+            # in place (its image base is this address plus 40), and the
+            # CRC-32 trailer. One A/B slot is one 64 KiB erase block and the
+            # container may not exceed it (section 6.2 rule 3), so the
+            # staging band is the 64 KiB directly below the response buffer:
+            # 0x100000 - 0x1000 - 0x10000 = 978,944 bytes above the model's
+            # first byte, forty-two times the largest model in the tree. The
+            # firmware is not told the base twice: it is compiled in as
+            # MILAN_NVM_IMAGE_BASE below and published in the manifest.
+            _nvm_base = _resp_base - FLASH_ERASE_BLOCK
             # Published for the manifest that ships with the image. The loader
             # must not restate this address: it is compiled into the gateware,
             # so a loader that guesses it writes the model somewhere the store
             # will never look and the entity stays silent with no error.
             self._pp_windows = {"desc_base": _desc_base,
                                 "resp_base": _resp_base,
+                                "nvm_base": _nvm_base,
                                 "window_bytes": _PP_WINDOW}
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
@@ -3550,6 +3570,25 @@ def main() -> None:
                          int(_baremetal_srp["reset_words"]["LWSRP_VID"], 16))
         soc.add_constant("MILAN_LWSRP_CTRL_RESET",
                          int(_baremetal_srp["reset_words"]["LWSRP_CTRL"], 16))
+        # The saved-state writer (#70): where the KLJ2 container is staged,
+        # and the record set it enumerates. Counts, never sums: the firmware
+        # derives the record area exactly as KL_nvm_backend derives it from
+        # its parameters, and sw/firmware/nvm_hosttest grades the two against
+        # scripts/nvm_shape.py's inventory of the same overlay.
+        soc.add_constant("MILAN_NVM_IMAGE_BASE", soc._pp_windows["nvm_base"])
+        soc.add_constant("MILAN_NVM_IMAGE_MAX", FLASH_ERASE_BLOCK)
+        _nvm_shape = NvmShape(
+            cfg=Path(args.entity_gen_dir),
+            # the writable-name count, from the AEMI image header the
+            # processor's name store is built from (nvm_shape.build reads
+            # the same two bytes)
+            names=int.from_bytes(_desc_blob[10:12], "big"),
+            dc=_baremetal_ovl["descriptor_counts"],
+            spi=_baremetal_ovl["stream_ports"]["input"],
+            spo=_baremetal_ovl["stream_ports"]["output"])
+        _nvm_donor = NvmDonor(base=binding_base(), layout=layout_version())
+        for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
+            soc.add_constant(_name, _value)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     # Ship the entity model WITH the gateware that reads it, and record the
     # base it was compiled for. Bitstream and image are one deliverable: a
@@ -3564,6 +3603,7 @@ def main() -> None:
         _man = {
             "desc_base": soc._pp_windows["desc_base"],
             "resp_base": soc._pp_windows["resp_base"],
+            "nvm_base": soc._pp_windows["nvm_base"],
             "window_bytes": soc._pp_windows["window_bytes"],
             "image": "aem_desc.bin",
             "image_bytes": len(_desc_blob),

@@ -107,10 +107,13 @@ depends on breaks the build rather than passing vacuously. Each MUST fail;
 
 It grades the backend, not the persistence. The firmware flash writer that
 validates an image at boot, heartbeats, commits the image into the journal
-slots and acknowledges the commit does not exist yet, and until it does every
-walk on the board is blind and the fabric reports exactly what it reported
-before the backend landed
-([`REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md), `PP_STAT`). The
+slots and acknowledges the commit lives in `sw/firmware/milan_baremetal/` and
+is graded on a host model by
+[`sw/firmware/nvm_hosttest/test_nvm_firmware.py`](../../../sw/firmware/nvm_hosttest/test_nvm_firmware.py),
+which compares the containers it writes with the Python encoder's byte for byte;
+the two suites meet at the record table this directory carries, and neither is
+a board ([`REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md),
+`PP_STAT`, says what a board reads). The
 container
 acceptance order of design page section 6.2 lives above the backend and is
 checked in

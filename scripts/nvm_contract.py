@@ -79,14 +79,27 @@ REC_MAGIC    = 0x1722        # F07.8 record magic, big-endian
 #: section 6.2 verdicts. VD_INCOMPLETE is added by review round 4: an image
 #: that is CRC-clean but missing a mandatory record used to be ACCEPTED,
 #: because "an allocated id that is simply absent is not a failure".
+#: The three after VD_INCOMPLETE are the firmware writer's TRANSACTION
+#: verdicts (design page section 9, "a failed erase, a failed program and a
+#: failed read-back-verify each revoke nvm_backed independently"): the codec
+#: never returns them, the writer publishes them through the backend's status
+#: word when a commit fails at that stage and withholds the acknowledgement,
+#: so the commit deadline revokes the claim. One nibble carries all fourteen.
 (VD_OK, VD_MAGIC, VD_VER, VD_LEN, VD_CRC, VD_ENT, VD_SHAPE, VD_REC,
- VD_STALE, VD_BLANK, VD_INCOMPLETE) = range(11)
+ VD_STALE, VD_BLANK, VD_INCOMPLETE, VD_ERASE, VD_PROGRAM,
+ VD_VERIFY) = range(14)
 VERDICT_NAME = {
     VD_OK: "VD_OK", VD_MAGIC: "VD_MAGIC", VD_VER: "VD_VER", VD_LEN: "VD_LEN",
     VD_CRC: "VD_CRC", VD_ENT: "VD_ENT", VD_SHAPE: "VD_SHAPE",
     VD_REC: "VD_REC", VD_STALE: "VD_STALE", VD_BLANK: "VD_BLANK",
-    VD_INCOMPLETE: "VD_INCOMPLETE",
+    VD_INCOMPLETE: "VD_INCOMPLETE", VD_ERASE: "VD_ERASE",
+    VD_PROGRAM: "VD_PROGRAM", VD_VERIFY: "VD_VERIFY",
 }
+#: A record the processor has never written since the media was blank holds
+#: no frame: the backend erases a record's span to 0xFF and writes it in
+#: place, and the firmware wraps the record area verbatim (design page
+#: section 6.1, the erased-record rule). The byte every such span is made of.
+ERASED = 0xFF
 
 #: A vendor default name, so "restored the default instead of the empty string
 #: the controller set" is a DISTINGUISHABLE outcome rather than a silent one.
@@ -210,6 +223,10 @@ class Seams:
         #: round 3's section 6.2: "an allocated id that is simply absent is not
         #: a failure. That item was never saved and keeps its vendor default."
         self.DECODE_ALLOW_ABSENT = False
+        #: the erased-record rule's own degenerate case: an erased HEADER
+        #: whose payload bytes are not all ERASED is a torn or foreign span
+        #: and must be refused (VD_REC). The control accepts the header alone.
+        self.ERASED_HEADER_ONLY = False
 
 
 SEAM = Seams()

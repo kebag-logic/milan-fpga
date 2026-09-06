@@ -141,7 +141,7 @@ jobs:
       # The gate also ENCODES the KLJ2 image and decodes it back, because three
       # review rounds running found the same class of hole in a check that
       # reasoned about the set as counts rather than bytes. --self-test runs
-      # fifteen negative controls and fails if any of them passes, so no
+      # sixteen negative controls and fails if any of them passes, so no
       # assertion here can quietly become vacuous. Placed after the builder
       # gates: it needs pyyaml and the processor submodule, which both steps
       # above provide.
@@ -149,6 +149,15 @@ jobs:
         run: |
           python3 scripts/check_nvm_record_space.py
           python3 scripts/check_nvm_record_space.py --self-test
+      # Saved-state writer gate (#70): the bare-metal firmware's translation
+      # unit compiled unchanged against stub headers and run on a host model
+      # of the CSR face, the flash and the clock, per shipped shape. The
+      # containers it stages and commits must equal scripts/nvm_klj2.py's
+      # byte for byte and its verdict for every refusal must equal the
+      # decoder's; --self-test plants four writer defects and requires each
+      # to redden. Needs the builder (the shapes) and a host gcc.
+      - name: Saved-state writer gate
+        run: python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
         run: |
           python3 scripts/check_soc_sources.py

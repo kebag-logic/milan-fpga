@@ -77,6 +77,10 @@ id, media clock reference):
      "no name stored"
  10. a CRC-CLEAN image that omits ANY mandatory record is REFUSED with zero
      records applied -- absence is not a way to restore a vendor default
+ 11. the ERASED-RECORD rule (design page section 6.1): a record the
+     processor never wrote is its span of 0xFF at the shape's position and
+     counts as present; an erased header over a payload that is not erased,
+     and an erased span short by one record, are both refused
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -132,11 +136,11 @@ from nvm_contract import (                                    # noqa: E402
     ALIGN, ALIVE_HEARTBEATS, ALLOC, COMMIT_MARGIN, FIXED, FLASH_PAGE,
     KLJ2_HDR, KLJ2_TRAILER, LEDGER, MAP_ENTRY, MAX_PAYLOAD, NAME_BYTES, PAY,
     REC_HDR, ROOT, SEAM, T_NVM_HEARTBEAT_MS, T_NVM_WRITER_ALIVE_MS,
-    T_PP_MAX_MS, T_SE_MAX_MS, VD_OK, VENDOR_DEFAULT_NAME, VERDICT_NAME,
-    Donor, Ident, Key, Record, Shape)
-from nvm_klj2 import (frame_record, klj2_assemble,            # noqa: E402
-                      klj2_decode, name_table, names_from_image,
-                      payload_bytes)
+    T_PP_MAX_MS, T_SE_MAX_MS, VD_OK, VD_REC, VENDOR_DEFAULT_NAME,
+    VERDICT_NAME, Donor, Ident, Key, Record, Shape)
+from nvm_klj2 import (erased_record, frame_record,            # noqa: E402
+                      key_of_id, klj2_assemble, klj2_decode, name_table,
+                      names_from_image, payload_bytes)
 from nvm_shape import (binding_base, build, commit_worst_ms,  # noqa: E402
                        conformant_floor, expected_names, expected_records,
                        inventory, layout_version)
@@ -256,6 +260,13 @@ def _mut_name_absent_rule():
     SEAM.NAME_PRESENCE_FROM_CONTENT = True
 
 
+def _mut_erased_header_only():
+    """Accept an erased record on its HEADER alone, so a span whose payload
+    bytes are not erased (a torn or foreign record behind an erased header)
+    is applied as 'never written' instead of being refused."""
+    SEAM.ERASED_HEADER_ONLY = True
+
+
 def _mut_accept_absent():
     """Restore round 3's section 6.2 sentence -- an allocated id that is simply
     absent is not a failure -- so a CRC-clean image missing a mandatory record
@@ -270,6 +281,7 @@ MUTATIONS = {
     "dup_index": _mut_dup_index,
     "name_absent_rule": _mut_name_absent_rule,
     "accept_absent": _mut_accept_absent,
+    "erased_header_only": _mut_erased_header_only,
     "block": _mut_block,
     "payload": _mut_payload,
     "image": _mut_image,
@@ -501,6 +513,56 @@ def _incomplete_is_refused(img, base_frames):
     return []
 
 
+def _erased_record_rule(img, base_frames):
+    """Check 12: the erased-record rule of section 6.1.
+
+    A record the processor has never written is its span of ERASED bytes at
+    the shape's position: present, applying nothing. Four faces of that rule
+    are asked on bytes: every record erased decodes clean with zero applied
+    (blank media behind a validated image); one record erased leaves every
+    other one applied and that one alone unapplied; an erased header over a
+    payload that is NOT erased is refused; and an erased span that is short
+    by one record is refused, so erasure never stands in for omission.
+    """
+    cfg = img.shape.cfg
+    findings = []
+    plen = {rid: len(fr) - REC_HDR for rid, fr in base_frames.items()}
+    blank = {rid: erased_record(plen[rid]) for rid in base_frames}
+    vd, ap = _decode(img, _assemble(img, blank))
+    if vd != VD_OK or ap:
+        findings.append(
+            f"{cfg.stem}: an image whose every record is erased decodes as "
+            f"{VERDICT_NAME[vd]} with {len(ap)} record(s) applied; it must be "
+            f"VD_OK with none applied (blank media behind a validated image)")
+    victim = max(base_frames)                       # the last name record
+    one = dict(base_frames)
+    one[victim] = erased_record(plen[victim])
+    vd, ap = _decode(img, _assemble(img, one))
+    key = key_of_id(victim, img.donor.base)
+    if vd != VD_OK or key in ap or len(ap) != len(base_frames) - 1:
+        findings.append(
+            f"{cfg.stem}: an image with only record_id 0x{victim:02X} erased "
+            f"decodes as {VERDICT_NAME[vd]} with {len(ap)} of "
+            f"{len(base_frames) - 1} other record(s) applied")
+    torn = dict(one)
+    torn[victim] = erased_record(plen[victim])[:-1] + b"\x00"
+    vd, ap = _decode(img, _assemble(img, torn))
+    if vd != VD_REC or ap:
+        findings.append(
+            f"{cfg.stem}: an erased header over a payload that is not erased "
+            f"was {VERDICT_NAME[vd]} with {len(ap)} record(s) applied; a torn "
+            f"or foreign span must be refused with none applied")
+    short = dict(one)
+    del short[victim]
+    vd, ap = _decode(img, _assemble(img, short))
+    if vd == VD_OK or ap:
+        findings.append(
+            f"{cfg.stem}: an image missing record_id 0x{victim:02X} entirely "
+            f"was {VERDICT_NAME[vd]} with {len(ap)} record(s) applied; "
+            f"erasure must never stand in for omission")
+    return findings
+
+
 def check_image(shape: Shape, recs: list[Record],
                 donor: Donor) -> list[str]:
     """Checks 8..11: build the KLJ2 image and read it back.
@@ -526,6 +588,7 @@ def check_image(shape: Shape, recs: list[Record],
     if shape.names:
         findings += _empty_name_survives(img)
     findings += _incomplete_is_refused(img, base_frames)
+    findings += _erased_record_rule(img, base_frames)
     return findings
 
 

@@ -40,6 +40,7 @@
     "missing_mandatory_aem_operations": [],
     "firmware_boot_order": [
       "configure_fabric",
+      "nvm_boot",
       "load_aem_image",
       "entity_advertise"
     ]
@@ -262,8 +263,8 @@
     },
     {
       "id": "state.nonvolatile-persistence",
-      "status": "missing",
-      "summary": "The fabric backing store (KL_nvm_backend) and its control face ship behind the processor NVM port, but the firmware flash writer that would configure, validate and commit the record image does not exist, so nothing persists yet.",
+      "status": "partial",
+      "summary": "The fabric backing store (KL_nvm_backend) ships behind the processor NVM port and the bare-metal firmware now validates the journal slots at boot, stages the KLJ2 container, heartbeats and commits changes A/B into flash, graded on a host model per shape; only the processor's binding records reach the store today, the other seven Milan items still lack a manager, and the board proof is pending.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",

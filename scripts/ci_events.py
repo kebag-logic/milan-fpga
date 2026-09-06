@@ -715,6 +715,7 @@ CARRIER_STEP_LISTS = {
         {"name": "Bare-metal scope gate"},
         {"name": "End-station builder gates"},
         {"name": "NVM record-space gate"},
+        {"name": "Saved-state writer gate"},
         {"name": "SoC source-list gate (Vivado would fail 40 min in "
                  "without this)"},
         {"name": "RTL source-list drift gate"},
