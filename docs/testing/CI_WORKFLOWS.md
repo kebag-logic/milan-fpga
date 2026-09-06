@@ -1029,6 +1029,16 @@ production-entry control invokes the normal PR command path, interrupts its earl
 repository lookup, and therefore fails if signal containment is narrowed to
 workflow execution again.
 
+Probe clones give descendants a grace period to drain after their leader
+exits. Only live process-group members count as survivors: a member whose
+`/proc/<pid>/stat` state is `Z` has already exited and cannot continue the
+probe. The act job container's PID 1 is act's own `tail` process, which reaps
+no orphans, while the hosted VM's PID 1 reaps them. An unreaped zombie must
+therefore not prevent draining in the local replica. A PID that vanishes
+between listing and reading is ignored; an unanswerable inspection refuses
+the probe. Any live member that outlives the unchanged grace still causes
+refusal and `SIGKILL` of the group.
+
 The synthetic pull-request event names the exact base and head. A draft uses
 `synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
 the real exhaustive selector launches all workers. `act` copies the immutable
