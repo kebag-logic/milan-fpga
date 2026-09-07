@@ -100,7 +100,8 @@ No ingress correction is applied today.
 
 `KL_gptp_shadow` stores the raw PHC value at `FW_HEAD0`.
 
-`PTP_INGRESS_LAT` (`0x540`) is write-only scratch.
+`PTP_INGRESS_LAT` (`0x540`) is readable, inert scratch. It is a plain RW word
+with no timestamp consumer.
 
 A future ingress correction belongs at the tap boundary.
 
