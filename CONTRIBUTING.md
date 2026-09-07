@@ -525,6 +525,12 @@ python3 scripts/check_em_dash.py --base "$(git merge-base origin/dev HEAD)"
 python3 scripts/check_em_dash.py --selftest
 ```
 
+A generator that writes committed Markdown owes the rule too, because its
+regeneration is mandatory and the lines it adds are judged like any others:
+[`docs/traceability/gen_module_matrix.py`](docs/traceability/gen_module_matrix.py)
+renders an empty test or clause cell as `--`, and its own controls fail if a
+row it emits spells the character.
+
 The docs workflow runs it with the base the event carries (a pull request's
 base SHA, a push's `before` SHA) and refuses an event with neither rather
 than guessing one. The first fast-forward of `main` after the gate landed
