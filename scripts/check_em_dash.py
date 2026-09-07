@@ -22,15 +22,25 @@ only, and every page compared as text whatever a ``.gitattributes`` entry
 says: a ``-diff`` attribute made git print ``Binary files differ`` with no
 hunk at all, and a page with no hunk was a page with nothing to judge ([R0]
 on PR #384). Should git still report a binary difference, the page is
-refused, never counted clean. Every added line carrying the character is a
-finding unless it is an entry of the page's real, unfenced Contents block
-whose label equals, after gen_toc's own label transform, a heading of the
-BASE version of the same page - and then only the label span is exempt: the
-link target, the separator, the description and any other character of the
-line are judged. The exemption is decided from the base page's headings,
-never from the label text alone, so a label that mirrors a heading the same
-change introduces is refused with its heading, and a Contents block quoted
-inside a fence is fenced text like any other.
+refused, never counted clean. A rename git does not pair with its old path
+is judged as a new page, which is the safe direction.
+
+Every added line carrying the character is a finding unless PROVENANCE says
+it is generated navigation: the line must be byte-identical, at its own
+position, to the line ``gen_toc.py`` renders for that page, which that
+script answers through ``generated_block``. Nothing here parses Markdown.
+Five review rounds on PR #384 showed why: this gate carried its own fence,
+comment and indentation walks, and each round found another construct the
+two readers disagreed about -- a longer fence, a tilde fence, an indented
+opener, an indented code block, an HTML comment, a raw ``<pre>`` block --
+until the walk refused a legitimate page over a fence marker inside an old
+comment. Provenance ends the class: hand-written text is judged wherever it
+sits, and a copy of a block written where nothing renders it is hand-written
+text. Even on a generated line only the LABEL span can be exempt, and only
+when the heading it copies is one the BASE version of the page rendered, so
+a label mirroring a heading the same change introduces is refused with its
+heading, and one mirroring heading syntax that exists only inside a comment
+is refused too.
 
 The base is explicit. Locally pass the merge base; the docs workflow passes
 the pull request's base SHA or a push's ``before`` SHA and refuses an event
@@ -61,7 +71,8 @@ from pathlib import Path
 # OWNED by gen_toc.py, which writes the entries this gate reads; lifting them
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gen_toc import HEAD_RE, TOC_ENTRY_RE, TOC_HEAD, fenced, headings, label
+from gen_toc import (TOC_ENTRY_RE, generated_block, headings, label,
+                     line_kinds)
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -77,11 +88,6 @@ DIFF_FLAGS = ("-U0", "-M", "--text", "--no-textconv", "--no-color",
               "--no-ext-diff", "--diff-algorithm=myers", "--src-prefix=a/",
               "--dst-prefix=b/")
 REMEDY = "write --, a colon or a plain sentence"
-#: Four spaces (or a tab) of indentation start an indented code block, which
-#: renders as code, not as navigation ([R0] round 4 on PR #384). Such a run
-#: cannot interrupt a paragraph, so it begins only after a blank line.
-INDENT_CODE_RE = re.compile(r"^(?: {4}|\t)")
-COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 
 
 class Refusal(Exception):
@@ -104,16 +110,6 @@ class Added:
     path: str
     lineno: int
     text: str
-
-
-@dataclass(frozen=True)
-class Shape:
-    """What a page's lines are, by index (fenced line, heading, table row
-    or prose line), and the span of its real, unfenced Contents block as
-    (index of the heading, index of the next section heading), or None."""
-
-    kinds: list[str]
-    contents: tuple[int, int] | None
 
 
 @dataclass
@@ -203,85 +199,6 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
     return out
 
 
-def _comment_spans(lines: list[str], fences: list[bool]) -> list[bool]:
-    """Per line: does it BEGIN inside an HTML comment? A commented Contents
-    block renders nothing at all, so no line of one is a navigation entry
-    ([R0] round 4 on PR #384). Fenced lines cannot open or close a comment:
-    inside a code block the delimiters are text."""
-    out, inside = [], False
-    for line, in_fence in zip(lines, fences):
-        out.append(inside)
-        if in_fence:
-            continue
-        scan = line
-        while scan:
-            if inside:
-                at = scan.find(COMMENT_CLOSE)
-                if at < 0:
-                    break
-                scan, inside = scan[at + len(COMMENT_CLOSE):], False
-            else:
-                at = scan.find(COMMENT_OPEN)
-                if at < 0:
-                    break
-                scan, inside = scan[at + len(COMMENT_OPEN):], True
-    return out
-
-
-def shape(text: str) -> Shape:
-    """A page's line kinds and the span of its real Contents block.
-
-    Everything here decides ONE question: which added lines may carry the
-    label exemption. Only a line that renders as a navigation entry may, so
-    three spans are held apart from prose, each of them an escape a review
-    round measured on this gate: a fenced block (the fence walk is
-    gen_toc's, with CommonMark's delimiter, length, closer and indentation
-    rules), an indented code block, and an HTML comment. A Contents block
-    written inside any of them renders as code, or as nothing, and its
-    heading is not this page's Contents heading either -- so the block
-    starts at the first `## Contents` heading that is none of those things,
-    and ends at the next such `## ` heading.
-
-    An indented list continuation elsewhere on a page is called an indented
-    code line here too. That decides no exemption (it is not in a Contents
-    block, and an entry is bounded at three spaces of indentation anyway);
-    it changes only which word a finding uses for the line.
-    """
-    lines = text.split("\n")
-    fences = fenced(text)
-    comments = _comment_spans(lines, fences)
-    kinds, start, end = [], None, None
-    code, prev_blank = False, True
-    for i, line in enumerate(lines):
-        blank = not line.strip()
-        if fences[i] or comments[i]:
-            code = False
-        elif INDENT_CODE_RE.match(line):
-            code = code or prev_blank
-        elif not blank:
-            code = False
-        prev_blank = blank
-        if fences[i]:
-            kinds.append("fenced line")
-        elif comments[i]:
-            kinds.append("commented line")
-        elif code and not blank:
-            kinds.append("indented code line")
-        elif HEAD_RE.match(line):
-            kinds.append("heading")
-            if start is None and line.strip() == TOC_HEAD:
-                start = i
-            elif start is not None and end is None and line.startswith("## "):
-                end = i
-        elif line.lstrip().startswith("|"):
-            kinds.append("table row")
-        else:
-            kinds.append("prose line")
-    if start is None:
-        return Shape(kinds, None)
-    return Shape(kinds, (start, len(kinds) if end is None else end))
-
-
 def base_labels(repo: Path, base: str, change: Change) -> set[str]:
     """The Contents labels gen_toc writes for the headings the BASE version
     of the page carries: the whole exemption, decided here and nowhere
@@ -326,27 +243,37 @@ def _entry_findings(where: str, hit: Added, entry: re.Match[str],
 
 def judge_page(repo: Path, base: str, change: Change,
                verdict: Verdict) -> None:
-    """Every finding one page's added lines carry, appended to
-    ``verdict``. The page's HEAD text is read only when an added line
-    carries the character, to place it in the Contents block or name what
-    it is."""
+    """Every finding one page's added lines carry, appended to ``verdict``.
+
+    The exemption is decided by PROVENANCE, not by context: an added line
+    can carry a copied heading label only when it is byte-identical to the
+    line `gen_toc.py` itself renders for this page at this position, which
+    that script answers through `generated_block`. Nothing here parses
+    Markdown. Anything a person wrote by hand is judged wherever it sits,
+    which is what makes a Contents block quoted inside a fence, an indented
+    code block, an HTML comment or a raw HTML block judged text without a
+    rule for each ([R0] rounds 4 and 5 on PR #384). The page's HEAD text is
+    read only when an added line carries the character.
+    """
     added = added_lines(repo, base, change)
     verdict.judged += len(added)
     hits = [a for a in added if EM_DASH in a.text]
     if not hits:
         return
-    page = shape(git(repo, "show", f"HEAD:{change.path}"))
+    text = git(repo, "show", f"HEAD:{change.path}")
+    kinds, block = line_kinds(text), generated_block(text)
     exempt_labels = None
     for hit in hits:
         where = f"{hit.path}:{hit.lineno}"
-        kind = page.kinds[hit.lineno - 1]
+        at = hit.lineno - 1
         entry = None
-        if kind == "prose line" and page.contents is not None \
-                and page.contents[0] < hit.lineno - 1 < page.contents[1]:
+        if block is not None and 0 <= at - block[0] < len(block[1]) \
+                and hit.text == block[1][at - block[0]]:
             entry = TOC_ENTRY_RE.match(hit.text)
         if entry is None:
             verdict.findings.append(
-                f"{where}: U+2014 (em dash) in an added {kind} -- {REMEDY}")
+                f"{where}: U+2014 (em dash) in an added "
+                f"{kinds[at] if at < len(kinds) else 'line'} -- {REMEDY}")
             continue
         if exempt_labels is None:
             exempt_labels = base_labels(repo, base, change)
@@ -362,7 +289,10 @@ def judge(repo: Path, base: str) -> Verdict:
     for change in changed_pages(repo, base):
         verdict.pages += 1
         judge_page(repo, base, change, verdict)
-    verdict.findings.sort()
+    # By page, then by line NUMBER: a string sort puts line 100 before
+    # line 10 ([R10] round 5 on PR #384).
+    verdict.findings.sort(key=lambda f: (f.rsplit(":", 2)[0],
+                                         int(f.rsplit(":", 2)[1])))
     return verdict
 
 
@@ -371,7 +301,11 @@ def judge(repo: Path, base: str) -> Verdict:
 # --------------------------------------------------------------------------
 
 #: A page with a Contents block that predates the rule: em-dash separators,
-#: one label mirroring an em-dash heading. The anchors are gen_toc's.
+#: one label mirroring an em-dash heading. The anchors are gen_toc's. The
+#: filler lines are load-bearing: git pairs a renamed file with its old path
+#: by CONTENT similarity, and on a page of a dozen lines a legitimate edit
+#: drops below the default threshold, so the rename control would prove
+#: nothing about renames.
 _WITH_TOC = f"""# With a contents list
 
 Prose with no dash.
@@ -395,6 +329,19 @@ Body.
 | Column | Value |
 |---|---|
 | a | b |
+
+Filler sentence 1 keeps this page long enough for git to pair it across a rename.
+Filler sentence 2 keeps this page long enough for git to pair it across a rename.
+Filler sentence 3 keeps this page long enough for git to pair it across a rename.
+Filler sentence 4 keeps this page long enough for git to pair it across a rename.
+Filler sentence 5 keeps this page long enough for git to pair it across a rename.
+Filler sentence 6 keeps this page long enough for git to pair it across a rename.
+Filler sentence 7 keeps this page long enough for git to pair it across a rename.
+Filler sentence 8 keeps this page long enough for git to pair it across a rename.
+Filler sentence 9 keeps this page long enough for git to pair it across a rename.
+Filler sentence 10 keeps this page long enough for git to pair it across a rename.
+Filler sentence 11 keeps this page long enough for git to pair it across a rename.
+Filler sentence 12 keeps this page long enough for git to pair it across a rename.
 """
 
 #: The same headings with no Contents block yet: the branch writes the
@@ -412,6 +359,19 @@ Body.
 ## Table
 
 Body.
+
+Filler sentence 1 keeps this page long enough for git to pair it across a rename.
+Filler sentence 2 keeps this page long enough for git to pair it across a rename.
+Filler sentence 3 keeps this page long enough for git to pair it across a rename.
+Filler sentence 4 keeps this page long enough for git to pair it across a rename.
+Filler sentence 5 keeps this page long enough for git to pair it across a rename.
+Filler sentence 6 keeps this page long enough for git to pair it across a rename.
+Filler sentence 7 keeps this page long enough for git to pair it across a rename.
+Filler sentence 8 keeps this page long enough for git to pair it across a rename.
+Filler sentence 9 keeps this page long enough for git to pair it across a rename.
+Filler sentence 10 keeps this page long enough for git to pair it across a rename.
+Filler sentence 11 keeps this page long enough for git to pair it across a rename.
+Filler sentence 12 keeps this page long enough for git to pair it across a rename.
 """
 
 #: The Contents block gen_toc writes for _NO_TOC once the rule is in force.
@@ -444,11 +404,58 @@ def _commit(repo: Path, message: str) -> str:
     return _fixture_git(repo, "rev-parse", "HEAD").strip()
 
 
+#: A base page whose em-dash heading exists ONLY inside a comment: it
+#: renders no heading, so it has no anchor to preserve and authorises no
+#: label ([R0] round 5 F2 on PR #384).
+_COMMENTED = f"""# Commented heading page
+
+<!--
+## Old {EM_DASH} heading
+-->
+
+## Alpha
+
+Body.
+
+## Beta
+
+Body.
+
+## Gamma
+
+Body.
+"""
+
+#: A base page that opens with a comment carrying a fence marker. Its
+#: Contents block is legitimate and must stay exempt: a walk that let the
+#: marker open a fence refused this page ([R0] round 5 F3 on PR #384).
+_FENCE_IN_COMMENT = """<!--
+```
+-->
+
+# Fence marker in an old comment
+
+## Old {EM_DASH} heading
+
+Body.
+
+## Plain
+
+Body.
+
+## Table
+
+Body.
+""".replace("{EM_DASH}", EM_DASH)
+
+
 def _fixture_repo(repo: Path) -> str:
-    """The base commit: both pages as they stood before the branch."""
+    """The base commit: every page as it stood before the branch."""
     _fixture_git(repo, "init", "-q", "--initial-branch=main")
     (repo / "WITH_TOC.md").write_text(_WITH_TOC, encoding="utf-8")
     (repo / "NO_TOC.md").write_text(_NO_TOC, encoding="utf-8")
+    (repo / "COMMENTED.md").write_text(_COMMENTED, encoding="utf-8")
+    (repo / "FENCE_COMMENT.md").write_text(_FENCE_IN_COMMENT, encoding="utf-8")
     return _commit(repo, "base")
 
 
@@ -493,7 +500,7 @@ class Control:
     exempt: int | None = None
 
 
-#: The em-dash heading both fixture pages carry, and its Contents entry as
+#: The em-dash heading the fixture pages carry, and its Contents entry as
 #: _WITH_TOC writes it, with the em-dash separator.
 _OLD_HEADING = f"## Old {EM_DASH} heading"
 _OLD_ENTRY = f"- **[Old {EM_DASH} heading](#old--heading)** {EM_DASH} "
@@ -504,29 +511,36 @@ _PROSE_DASH = ("NO_TOC.md", "Body.\n\n## Plain",
 
 def _controls() -> tuple[Control, ...]:
     """The four controls #378 names, then the boundaries of the rule."""
-    return _issue_controls() + _boundary_controls()
+    return (_issue_controls() + _label_controls() + _context_controls()
+            + _provenance_controls() + _scope_controls())
 
 
 def _issue_controls() -> tuple[Control, ...]:
     """The four controls #378 names."""
-    old_heading, block = _OLD_HEADING, _WITH_TOC[
-        _WITH_TOC.index("## Contents"):_WITH_TOC.index(_OLD_HEADING)]
+    block = _WITH_TOC[_WITH_TOC.index("## Contents"):
+                      _WITH_TOC.index(_OLD_HEADING)]
     return (
         Control("added prose em dash is refused",
                 lambda r: _edit(r, *_PROSE_DASH),
                 1, ("NO_TOC.md:5:", "added prose line")),
         Control("mirrored label of a pre-existing heading passes",
-                lambda r: _edit(r, "NO_TOC.md", old_heading,
-                                _NEW_BLOCK + old_heading),
+                lambda r: _edit(r, "NO_TOC.md", _OLD_HEADING,
+                                _NEW_BLOCK + _OLD_HEADING),
                 0, exempt=1),
         Control("new heading with an em dash is refused, label included",
-                lambda r: (_edit(r, "WITH_TOC.md", "\n\n## Old",
-                                 f"\n- **[New {EM_DASH} section]"
-                                 "(#new--section)** -- Body.\n\n## Old"),
+                # The entry sits where the generator puts it, so the line
+                # has provenance and the exemption is really asked: the
+                # answer is no, because the base page had no such heading.
+                # The page's separator is the em dash, so the added entry
+                # line is refused for that too.
+                lambda r: (_edit(r, "WITH_TOC.md", "- **[Plain](#plain)**",
+                                 f"- **[New {EM_DASH} section](#new--section)**"
+                                 f" {EM_DASH} Body.\n- **[Plain](#plain)**"),
                            _edit(r, "WITH_TOC.md", "## Plain",
                                  f"## New {EM_DASH} section\n\nBody.\n\n"
                                  "## Plain")),
-                2, ("added heading", "mirrors no heading")),
+                3, ("added heading", "mirrors no heading",
+                    "Contents separator"), exempt=0),
         Control("separator change to -- passes",
                 lambda r: _edit(r, "WITH_TOC.md", block,
                                 block.replace(f"** {EM_DASH} ", "** -- ")),
@@ -534,49 +548,47 @@ def _issue_controls() -> tuple[Control, ...]:
     )
 
 
-def _boundary_controls() -> tuple[Control, ...]:
-    """The boundaries of the rule: only the label span of a real entry is
-    exempt, and what git's own attributes may not take out of the
-    judgement."""
-    return _label_controls() + _scope_controls()
-
-
 def _label_controls() -> tuple[Control, ...]:
-    """Only the label span of an entry in the page's real Contents block
-    is exempt; every other character of the line is judged."""
-    old_heading, old_entry = _OLD_HEADING, _OLD_ENTRY
+    """Only the label span of a generated entry is exempt; the separator,
+    the description and an entry the generator would not write are all
+    judged."""
     return (
-        Control("em dash in the link target of an exempt entry is refused",
-                lambda r: _edit(r, "NO_TOC.md", old_heading,
+        Control("em dash in the description of an exempt entry is refused",
+                lambda r: _edit(
+                    r, "NO_TOC.md", _OLD_HEADING,
+                    _NEW_BLOCK.replace("What the old section holds.",
+                                       f"What the old {EM_DASH} section holds.")
+                    + _OLD_HEADING),
+                1, ("Contents description",), exempt=1),
+        Control("an added entry keeping the em-dash separator is refused",
+                lambda r: (_edit(r, "WITH_TOC.md", f"](#table)** {EM_DASH} A table.",
+                                 f"](#table)** {EM_DASH} A table.\n"
+                                 f"- **[Extra](#extra)** {EM_DASH} More."),
+                           _edit(r, "WITH_TOC.md", "| a | b |\n",
+                                 "| a | b |\n\n## Extra\n\nBody.\n")),
+                1, ("Contents separator",), exempt=0),
+        Control("an entry whose anchor is not the generator's is refused",
+                lambda r: _edit(r, "NO_TOC.md", _OLD_HEADING,
                                 _NEW_BLOCK.replace("(#old--heading)",
                                                    f"(#old-{EM_DASH}-heading)")
-                                + old_heading),
-                1, ("link target",), exempt=1),
-        Control("em dash in the description of an exempt entry is refused",
-                lambda r: _edit(r, "WITH_TOC.md", old_entry + "What",
-                                f"{old_entry[:-2]}-- What {EM_DASH} what"),
-                1, ("Contents description",), exempt=1),
-        Control("added entry keeping the em-dash separator is refused",
-                lambda r: _edit(r, "WITH_TOC.md", "\n\n## Old",
-                                f"\n- **[Extra](#extra)** {EM_DASH} More.\n"
-                                "\n## Old"),
-                1, ("Contents separator",)),
-        Control("fenced example of a mirrored label is refused",
+                                + _OLD_HEADING),
+                1, ("added prose line",), exempt=0),
+        Control("an entry indented four spaces is refused",
+                lambda r: _edit(r, "NO_TOC.md", _OLD_HEADING,
+                                _NEW_BLOCK.replace("- **[Old",
+                                                   "    - **[Old")
+                                + _OLD_HEADING),
+                1, ("NO_TOC.md",), exempt=0),
+    )
+
+
+def _context_controls() -> tuple[Control, ...]:
+    """A copy of a generated block written where nothing renders it: every
+    construct both review rounds built, kept as one regression each."""
+    return (
+        Control("fenced copy of a mirrored label is refused",
                 lambda r: _fenced_example(r, "```", "```"),
                 1, ("added fenced line",), exempt=0),
-        # The two constructs that render no navigation at all ([R0] round
-        # 4 on PR #384): four spaces of indentation make the block code,
-        # and an HTML comment makes it invisible. Neither is an entry.
-        Control("indented-code copy of a mirrored label is refused",
-                lambda r: _fenced_example(
-                    r, "", "", indent="    "),
-                1, ("added indented code line",), exempt=0),
-        Control("commented-out copy of a mirrored label is refused",
-                lambda r: _fenced_example(r, "<!--", "-->"),
-                1, ("added commented line",), exempt=0),
-        # The fence shapes that a laxer walk read as prose ([R0] round 2 on
-        # PR #384): the block below carries a three-backtick line of its
-        # own, so only a four-backtick closer ends it.
         Control("four-backtick fence around a mirrored label is refused",
                 # The three-backtick line is CONTENT of the longer fence,
                 # not its closer, so the block below is still quoted.
@@ -588,13 +600,44 @@ def _label_controls() -> tuple[Control, ...]:
         Control("indented fence around a mirrored label is refused",
                 lambda r: _fenced_example(r, "   ```", "   ```"),
                 1, ("added fenced line",), exempt=0),
+        Control("indented-code copy of a mirrored label is refused",
+                lambda r: _fenced_example(r, "", "", indent="    "),
+                1, ("added indented code line",), exempt=0),
+        Control("commented-out copy of a mirrored label is refused",
+                lambda r: _fenced_example(r, "<!--", "-->"),
+                1, ("added commented line",), exempt=0),
+        Control("raw HTML copy of a mirrored label is refused",
+                lambda r: _fenced_example(r, "<pre>", "</pre>"),
+                1, ("added raw HTML line",), exempt=0),
+    )
+
+
+def _provenance_controls() -> tuple[Control, ...]:
+    """Where the exemption comes from: a heading the base page really
+    rendered, and a page whose own commented text must not disturb it."""
+    return (
+        Control("a heading that exists only in a comment authorises nothing",
+                lambda r: _edit(r, "COMMENTED.md", "## Alpha",
+                                "## Contents\n\n"
+                                f"- **[Old {EM_DASH} heading]"
+                                "(#old--heading)** -- Copied.\n"
+                                "- **[Alpha](#alpha)** -- What alpha holds.\n"
+                                "- **[Beta](#beta)** -- What beta holds.\n"
+                                "- **[Gamma](#gamma)** -- What gamma holds.\n"
+                                "\n## Alpha"),
+                1, ("COMMENTED.md", "added prose line"), exempt=0),
+        Control("a fence marker in an old comment refuses nothing",
+                lambda r: _edit(r, "FENCE_COMMENT.md", _OLD_HEADING,
+                                _NEW_BLOCK + _OLD_HEADING),
+                0, exempt=1),
     )
 
 
 def _scope_controls() -> tuple[Control, ...]:
     """What is judged beyond the Contents block, what a rename keeps, and
     what git's own attributes may not take out of the judgement."""
-    old_entry = _OLD_ENTRY
+    block = _WITH_TOC[_WITH_TOC.index("## Contents"):
+                      _WITH_TOC.index(_OLD_HEADING)]
     return (
         Control("added table row is refused",
                 lambda r: _edit(r, "WITH_TOC.md", "| a | b |\n",
@@ -606,8 +649,8 @@ def _scope_controls() -> tuple[Control, ...]:
                 1, ("added fenced line",)),
         Control("a moved page keeps its exemption",
                 lambda r: (_fixture_git(r, "mv", "WITH_TOC.md", "MOVED.md"),
-                           _edit(r, "MOVED.md", old_entry,
-                                 old_entry.replace(f"** {EM_DASH} ", "** -- "))),
+                           _edit(r, "MOVED.md", block,
+                                 block.replace(f"** {EM_DASH} ", "** -- "))),
                 0, exempt=1),
         Control("a page marked -diff is still compared as text",
                 lambda r: (_write(r, ".gitattributes", "NO_TOC.md -diff\n"),
@@ -645,6 +688,55 @@ def _run_control(repo: Path, base: str, control: Control) -> list[str]:
     return problems
 
 
+def _base_derivation_arms() -> tuple[list[str], int]:
+    """The base a run judges from is DERIVED, never the one recorded when a
+    pull request opened.
+
+    (problems, arms). GitHub freezes `pull_request.base.sha` at open while
+    the checkout builds the merge of the head into the CURRENT base tip, so
+    the recorded oid attributes to this branch every line merged into the
+    base since -- measured on PR #384 itself, where two other pull
+    requests' lines were reported as this branch's. The workflow step
+    therefore takes the merge base against the base BRANCH, and this arm
+    plants exactly that situation: an unrelated commit lands on the base
+    branch after the branch opens, the base is merged in as the merge ref
+    does, and the derived base must attribute nothing of it while the
+    frozen one still does.
+    """
+    problems, arms = [], 0
+    with tempfile.TemporaryDirectory(prefix="emdash.base.") as tmp:
+        repo = Path(tmp)
+        frozen = _fixture_repo(repo)
+        _fixture_git(repo, "checkout", "-q", "-b", "topic")
+        _edit(repo, "NO_TOC.md", "Body.\n\n## Plain",
+              "Body, and more body.\n\n## Plain")
+        _commit(repo, "this branch's own clean change")
+        _fixture_git(repo, "checkout", "-q", "main")
+        _edit(repo, "WITH_TOC.md", "Prose with no dash.",
+              f"Prose {EM_DASH} with a dash.")
+        other = _commit(repo, "another branch's change, merged into the base")
+        _fixture_git(repo, "checkout", "-q", "topic")
+        _fixture_git(repo, "merge", "-q", "--no-edit", "main")
+        derived = _fixture_git(repo, "merge-base", "HEAD", "main").strip()
+        arms += 1
+        if derived != other:
+            problems.append("[base derivation] the merge base of the merge "
+                            "ref with the base branch is not the base tip")
+        arms += 1
+        mine = judge(repo, derived)
+        if mine.findings:
+            problems.append("[base derivation] the derived base attributes "
+                            "another branch's lines:\n"
+                            + "\n".join(mine.findings))
+        arms += 1
+        recorded = judge(repo, frozen)
+        if not any("WITH_TOC.md" in f for f in recorded.findings):
+            problems.append("[base derivation] the frozen base no longer "
+                            "reproduces the defect this arm guards, so it "
+                            "proves nothing")
+    return problems, arms
+
+
 def selftest() -> tuple[list[str], int]:
     """Plant each control in a repository built here and require the
     verdict the rule promises. (problems, arms)."""
@@ -673,7 +765,8 @@ def selftest() -> tuple[list[str], int]:
                             "not a commit")
         except Refusal:
             pass
-    return problems, arms
+    found, more = _base_derivation_arms()
+    return problems + found, arms + more
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -503,12 +503,15 @@ cells, fenced text and the separator of a Contents entry. Write `--`, ` - `,
 a colon or a plain sentence instead. One exemption: a Contents label that
 `scripts/gen_toc.py` copies verbatim from a heading the page already had at
 the branch's base, because rewording such a heading moves its anchor and
-breaks every link into it. The label alone is exempt, in the page's real
-Contents block: the entry's link target, separator and description are
-judged, and a Contents block that renders as something other than
-navigation is judged whole -- inside a fence, inside an indented code
-block, or inside an HTML comment. Existing pages are not rewritten for
-this rule.
+breaks every link into it. The exemption is decided by PROVENANCE: a line
+qualifies only when it is byte-identical, at its own position, to the line
+`gen_toc.py` renders for that page, and even then only its label span is
+exempt, so the entry's link target, separator and description are judged.
+Anything a person wrote by hand is judged wherever it sits, which is why a
+copy of a Contents block written inside a fence, an indented code block, an
+HTML comment or a raw HTML block is judged whole: nothing renders it as
+navigation, and the generator did not write it. Existing pages are not
+rewritten for this rule.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
@@ -540,7 +543,11 @@ judges every commit since the previous one, so that one push is red on this
 step. Regenerating the Contents block of a page whose separator is still the
 em dash adds entries the gate refuses: switch that page's separator to `--`
 (every entry line becomes an added line, and each is judged), then rerun
-`gen_toc.py --write`. A block written for the first time uses `--`.
+`gen_toc.py --write`. Rewrite the entry DESCRIPTIONS in the same pass where
+they carry the character: 102 entries on 45 pages do, and the description is
+judged like any other added text. A block written for the first time uses
+`--`. The two pages `gen_toc.py` deliberately skips, the two documentation
+indexes, have no generated block, so nothing on them is ever exempt.
 
 Status claims in prose are separately machine-judged against the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md); the
