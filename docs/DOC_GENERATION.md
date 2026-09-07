@@ -275,6 +275,7 @@ python3 scripts/check_archive.py --selftest
 python3 scripts/check_doc_paths.py
 python3 scripts/check_feature_status.py --self-test
 python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/gen_toc.py --selftest
 python3 scripts/gen_toc.py --verify-anchors
 python3 scripts/gen_toc.py --check
 ```

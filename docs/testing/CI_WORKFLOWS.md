@@ -469,10 +469,14 @@ is exactly these twelve things:
     `elaborate`'s gated steps, `always()` plus the guard on its cache
     write-back) and each recorded `with` mapping exactly -- `docs-check`'s
     em-dash gate (#378) is the one documentation step recorded with an
-    `env`, its `EVENT_NAME`, `PR_BASE_SHA` and `PUSH_BEFORE_SHA` bound to
-    the same source expressions the fast selector reads, because the base
-    it judges added Markdown lines against is the event's own and a
-    rebound base judges other lines -- so a `run:` or
+    `env`, its `EVENT_NAME`, `PR_BASE_REF` and `PUSH_BEFORE_SHA` bound to
+    their source expressions, and `docs-check`'s checkout carries
+    `fetch-depth: 0` because that step derives its base by merge-base
+    against the base BRANCH: GitHub freezes `pull_request.base.sha` when the
+    request opens while the job checks out the merge into the current base
+    tip, so the recorded oid attributed other pull requests' lines to the
+    branch under test (the maintainer's finding on PR #384, the same lesson
+    as #292) -- so a `run:` or
     `uses:` step inserted anywhere in the four jobs -- a `BASH_ENV`
     written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party
     action, or any content at all -- is refused naming the job and the
@@ -497,7 +501,8 @@ is exactly these twelve things:
     gate's four, the workers' shard and target names, the aggregates'
     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
     step's result bindings, `elaborate`'s scope pair, `docs-check`'s
-    em-dash gate triple, and nothing else in the documentation jobs). Each
+    em-dash gate triple (`EVENT_NAME`, `PR_BASE_REF`, `PUSH_BEFORE_SHA`),
+    and nothing else in the documentation jobs). Each
     refusal names the scope, the job or step, and
     the surplus names. Measured under act: a job-level `BASH_ENV` on
     `docs-check` makes that job's own gates green and `full-ci-gate`'s
@@ -652,8 +657,9 @@ and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_SHA` rebound to the run's own SHA, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
 `if: false` and removed, its body replaced by `true`, judging from HEAD,
-swallowing its exit status, its push base rewritten, its null-base refusal
-and its base fetch removed, and its body moved under another recorded
+judging from the frozen recorded base, swallowing its exit status, its push
+base rewritten, its base-branch fetch, its null-base refusal and its
+by-SHA fetch removed, and its body moved under another recorded
 name; the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
