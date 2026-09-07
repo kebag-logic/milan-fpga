@@ -460,11 +460,12 @@ is exactly these twelve things:
     job named `docs-check` passed with no finding -- the unique carrier had
     no neuter key, the id-named job kept its pinned steps, and the required
     context ran nothing. So the job whose id is the public name must carry
-    it. The five gate steps inside the four jobs are pinned too (#295 and
-    #303): `docs-check`'s ci_events and imported-gPTP steps,
+    it. The six gate steps inside the four jobs are pinned too (#295, #303
+    and #378): `docs-check`'s ci_events, imported-gPTP and em-dash steps,
     `wire-accountability`'s gate step, `docs-check-no-git`'s single step,
     and `elaborate`'s scope step. The four documentation
-    steps each carry exactly `name` and `run`. Their scripts equal the recorded
+    steps each carry exactly `name` and `run`, the em-dash step `name`,
+    `env` and `run`. Their scripts equal the recorded
     canonical forms after whitespace normalization, so a
     step-level `if`,
     `shell`, `continue-on-error` or `working-directory`, and a `|| true`
@@ -474,6 +475,11 @@ is exactly these twelve things:
     `run: true` is also refused. Its two commands are indivisible evidence:
     the parent checker validates current links and integration facts, and the
     donor build validates the documentation at the exact linked commit;
+    the em-dash body is bound the same way ([R0] on PR #384), because its
+    event selection, its null and empty base refusals, the fetch of a base
+    the shallow checkout lacks and the gate call are one script -- `--base
+    HEAD` judges no line and a `|| true` reports none, and each left every
+    recorded key, name and binding in place;
     `elaborate`'s scope step is held as the decide step is (item 7, the
     #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
     env bindings pinned to their source expressions, `ci_scope.py
@@ -492,7 +498,16 @@ is exactly these twelve things:
     (its literal `name`, or its `uses`), each step's exact key set and
     env bindings, each recorded `if` verbatim (the scope guard on
     `elaborate`'s gated steps, `always()` plus the guard on its cache
-    write-back) and each recorded `with` mapping exactly, so a `run:` or
+    write-back) and each recorded `with` mapping exactly -- `docs-check`'s
+    em-dash gate (#378) is the one documentation step recorded with an
+    `env`, its `EVENT_NAME`, `PR_BASE_REF` and `PUSH_BEFORE_SHA` bound to
+    their source expressions, and `docs-check`'s checkout carries
+    `fetch-depth: 0` because that step derives its base by merge-base
+    against the base BRANCH: GitHub freezes `pull_request.base.sha` when the
+    request opens while the job checks out the merge into the current base
+    tip, so the recorded oid attributed other pull requests' lines to the
+    branch under test (the maintainer's finding on PR #384, the same lesson
+    as #292) -- so a `run:` or
     `uses:` step inserted anywhere in the four jobs -- a `BASH_ENV`
     written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party
     action, or any content at all -- is refused naming the job and the
@@ -516,8 +531,10 @@ is exactly these twelve things:
     the names a job's steps bind stay inside that job's recorded set (the
     gate's four, the workers' shard and target names, the aggregates'
     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
-    step's result bindings, `elaborate`'s scope pair, and nothing in the
-    documentation jobs). Each refusal names the scope, the job or step, and
+    step's result bindings, `elaborate`'s scope pair, `docs-check`'s
+    em-dash gate triple (`EVENT_NAME`, `PR_BASE_REF`, `PUSH_BEFORE_SHA`),
+    and nothing else in the documentation jobs). Each
+    refusal names the scope, the job or step, and
     the surplus names. Measured under act: a job-level `BASH_ENV` on
     `docs-check` makes that job's own gates green and `full-ci-gate`'s
     contract step refuse it, so both required aggregates fail. Declared
@@ -667,7 +684,14 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the imported gPTP gate removed, replaced by
+and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
+hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
+`PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
+`if: false` and removed, its body replaced by `true`, judging from HEAD,
+judging from the frozen recorded base, swallowing its exit status, its push
+base rewritten, its base-branch fetch, its null-base refusal and its
+by-SHA fetch removed, and its body moved under another recorded
+name; the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
 reformatting of all ten canonical scripts that must still pass; and the
@@ -1059,6 +1083,25 @@ probe allows its complete 25-second escalation. A separate
 production-entry control invokes the normal PR command path, interrupts its early
 repository lookup, and therefore fails if signal containment is narrowed to
 workflow execution again.
+
+Probe clones give descendants a grace period to drain after their leader
+exits. Only live process-group members count as survivors: a member whose
+`/proc/<pid>/stat` state is `Z` has already exited and cannot continue the
+probe. The act job container's PID 1 is act's own `tail` process, which reaps
+no orphans, while the hosted VM's PID 1 reaps them. An unreaped zombie must
+therefore not prevent draining in the local replica. The runner checks host
+group membership before reading state, skipping foreign processes even when
+their state is inaccessible. An unreadable member refuses the probe. Before
+accepting a drained group, it sends `SIGSTOP` and requires two matching
+inventories of confirmed group members and their states, repeating the stop
+before the second scan. Confirmed members remain inventoried if their state
+read races their disappearance; the second scan catches newly forked members.
+Confirmed foreign PIDs never affect the comparison, even when they appear or
+vanish between scans. Unanswerable membership queries refuse inspection;
+already-vanished PIDs are skipped. A changing member inventory uses another
+grace tick. Live members resume with `SIGCONT` after
+inspection, including on an inspection failure. Any live member that outlives
+the unchanged grace still causes refusal and `SIGKILL` of the group.
 
 The synthetic pull-request event names the exact base and head. A draft uses
 `synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so

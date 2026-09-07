@@ -5879,7 +5879,7 @@ def selftest_boundary_probe_commands(tally: SelftestTally, docker: DockerFixture
 
 
 def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: the probe-clone runner drains a lingering group, refuses a success, kills one outliving the grace.
+    """Arms: probe clones drain live descendants, ignore zombies, and refuse success or survivors.
 
     The lingering grandchildren release the pipes, as git's remote helper does,
     so `communicate` returns while the group still has a member.
@@ -5902,27 +5902,328 @@ def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> 
         "a probe clone that succeeds is refused",
         lambda: run_probe_clone([shell, "-c", "exit 0"], env=env, cwd=cwd, label="success"),
     )
-    try:
-        run_probe_clone(
-            [shell, "-c", "sleep 30 >/dev/null 2>&1 & exit 1"],
-            env=env,
-            cwd=cwd,
-            label="lingering",
-            grace=0.1,
-        )
-    except Refusal as exc:
-        message = str(exc)
-    else:
-        message = ""
-    check(
-        "a group that outlives the grace is killed and reported",
-        "survived 0.1 s" in message and "was killed" in message,
-    )
+    selftest_probe_clone_descendants(tally, docker)
+    selftest_probe_clone_fork_race(tally, docker)
+    selftest_probe_clone_foreign_churn(tally, docker)
+    selftest_probe_group_states(tally, cwd)
     tally.refused(
         "a probe clone that has not finished within its timeout is killed and refused",
         lambda: run_probe_clone(
             [shell, "-c", "sleep 30"], env=env, cwd=cwd, label="hanging", timeout=0.2
         ),
+    )
+
+
+def selftest_probe_clone_descendants(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Keep an adopted zombie unreaped during draining and prove a live survivor is killed."""
+    # The subreaper adopts the grandchild when its leader exits, so even a
+    # reaping PID 1 cannot remove the zombie before the runner checks it.
+    source = (
+        "import os, pathlib, sys, time\n"
+        "child = os.fork()\n"
+        "if child == 0:\n"
+        "    os.close(1)\n"
+        "    os.close(2)\n"
+        "    if sys.argv[2] == 'live':\n"
+        "        time.sleep(30)\n"
+        "    os._exit(37)\n"
+        "if sys.argv[2] == 'zombie':\n"
+        "    os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)\n"
+        "pathlib.Path(sys.argv[1]).write_text(f'{os.getpid()} {child} {os.getpgrp()}')\n"
+        "print('descendant ready', file=sys.stderr)\n"
+        "sys.exit(1)\n"
+    )
+    for state in ("zombie", "live"):
+        ready_path = docker.layout.temporary / f"probe-{state}-pids"
+        with selftest_child_subreaper():
+            text, message = "", ""
+            try:
+                text = run_probe_clone(
+                    [sys.executable, "-I", "-c", source, str(ready_path), state],
+                    env={"PATH": SAFE_PATH},
+                    cwd=docker.layout.temporary,
+                    label=state,
+                    grace=0.1,
+                )
+            except Refusal as exc:
+                message = str(exc)
+            recorded = await_recorded_probe_pids(ready_path)
+            tally.check(f"the {state} probe records its descendant and group", recorded is not None)
+            if recorded is None:
+                continue
+            _leader, child, process_group = recorded
+            try:
+                if state == "zombie":
+                    exited = None
+                    with contextlib.suppress(ChildProcessError):
+                        exited = os.waitid(os.P_PID, child, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                    tally.check(
+                        "an unreaped zombie in the probe group does not prevent draining",
+                        text == "descendant ready"
+                        and not message
+                        and exited is not None
+                        and process_group_exists(process_group, use_sudo=False)
+                        and os.getpgid(child) == process_group
+                        and exited.si_code == os.CLD_EXITED
+                        and exited.si_status == 37,
+                    )
+            finally:
+                absent = prove_probe_group_absent(process_group)
+            if state == "live":
+                tally.check(
+                    "a live grandchild that outlives the grace is refused and its group killed",
+                    "survived 0.1 s" in message and "was killed" in message and absent,
+                )
+            else:
+                tally.check("the zombie probe is reaped after its drain check", absent)
+
+
+def selftest_probe_clone_fork_race(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Schedule R0's fork after enumeration, then reap the inventoried parent before its stat read."""
+    root = docker.layout.temporary / "probe-fork-race"
+    root.mkdir()
+    source = (
+        "import os, pathlib, sys, time\n"
+        "root = pathlib.Path(sys.argv[1])\n"
+        "child = os.fork()\n"
+        "if child:\n"
+        "    (root / 'pids').write_text(f'{os.getpid()} {child} {os.getpgrp()}')\n"
+        "    print('expected failure', file=sys.stderr)\n"
+        "    sys.exit(1)\n"
+        "os.close(1)\n"
+        "os.close(2)\n"
+        "while not (root / 'release').exists():\n"
+        "    time.sleep(0.001)\n"
+        "grandchild = os.fork()\n"
+        "if grandchild:\n"
+        "    (root / 'grandchild').write_text(f'{os.getpid()} {grandchild} {os.getpgrp()}')\n"
+        "    os._exit(0)\n"
+        "time.sleep(30)\n"
+        "os._exit(0)\n"
+    )
+    original_iterdir, original_killpg = pathlib.Path.iterdir, os.killpg
+    delayed_stops: list[int] = []
+    groups: list[int] = []
+    scheduled = False
+
+    def delay_stop(process_group: int, sent_signal: int) -> None:
+        """Delay delivery until the captured inventory's parent has forked and exited."""
+        if sent_signal == signal.SIGSTOP and not scheduled:
+            delayed_stops.append(process_group)
+        else:
+            original_killpg(process_group, sent_signal)
+
+    def scheduled_inventory(proc: pathlib.Path) -> Iterator[pathlib.Path]:
+        """Return the old inventory only after the replacement descendant exists."""
+        nonlocal scheduled
+        entries = list(original_iterdir(proc))
+        if proc == pathlib.Path("/proc") and not scheduled:
+            recorded = await_recorded_probe_pids(root / "pids")
+            if recorded is None:
+                raise Refusal("fork-race probe did not record its relay")
+            _leader, relay, process_group = recorded
+            groups.append(process_group)
+            (root / "release").touch()
+            replacement = await_recorded_probe_pids(root / "grandchild")
+            if replacement is None:
+                raise Refusal("fork-race probe did not record its grandchild")
+            os.waitpid(relay, 0)
+            _relay, grandchild, child_group = replacement
+            scheduled = True
+            tally.check(
+                "the scan inventory omits the new same-group child and its old parent is gone",
+                str(relay) in {entry.name for entry in entries}
+                and str(grandchild) not in {entry.name for entry in entries}
+                and not (proc / str(relay)).exists()
+                and child_group == process_group == os.getpgid(grandchild),
+            )
+            for group in delayed_stops:
+                original_killpg(group, signal.SIGSTOP)
+        return iter(entries)
+
+    with selftest_child_subreaper():
+        message = ""
+        try:
+            with mock.patch.object(pathlib.Path, "iterdir", scheduled_inventory), mock.patch.object(
+                os, "killpg", delay_stop
+            ):
+                try:
+                    run_probe_clone(
+                        [sys.executable, "-I", "-c", source, str(root)],
+                        env={"PATH": SAFE_PATH}, cwd=root, label="fork-during-scan", grace=0.1,
+                    )
+                except Refusal as exc:
+                    message = str(exc)
+            absent = bool(groups) and prove_probe_group_absent(groups[0])
+            tally.check(
+                "a child forked during inspection is refused after the grace and its group killed",
+                scheduled and "survived 0.1 s" in message and "was killed" in message and absent,
+            )
+        finally:
+            for group in groups:
+                with contextlib.suppress(ProcessLookupError):
+                    original_killpg(group, signal.SIGKILL)
+                prove_probe_group_absent(group)
+
+
+def selftest_probe_clone_foreign_churn(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Replace a queryable foreign PID between scans while retaining the probe's real zombie."""
+    root = docker.layout.temporary / "probe-foreign-churn"
+    root.mkdir()
+    source = (
+        "import os, pathlib, sys\n"
+        "child = os.fork()\n"
+        "if child == 0:\n"
+        "    os.close(1)\n"
+        "    os.close(2)\n"
+        "    os._exit(37)\n"
+        "os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)\n"
+        "pathlib.Path(sys.argv[1]).write_text(f'{os.getpid()} {child} {os.getpgrp()}')\n"
+        "print('expected failure', file=sys.stderr)\n"
+        "sys.exit(1)\n"
+    )
+    original_iterdir, original_getpgid = pathlib.Path.iterdir, os.getpgid
+    foreign: subprocess.Popen[bytes] | None = None
+    foreign_pids: list[int] = []
+    inventories: list[set[str]] = []
+    confirmed_foreign: set[int] = set()
+    recorded: tuple[int, int, int] | None = None
+    scan_started = 0.0
+
+    def membership(pid: int) -> int:
+        """Count successful foreign membership queries without changing their answers."""
+        group = original_getpgid(pid)
+        if foreign is not None and pid == foreign.pid and recorded is not None and group != recorded[2]:
+            confirmed_foreign.add(pid)
+        return group
+
+    def churn(proc: pathlib.Path) -> Iterator[pathlib.Path]:
+        """Keep each foreign child queryable throughout its scan, replacing it before the next."""
+        nonlocal foreign, recorded, scan_started
+        if proc != pathlib.Path("/proc"):
+            return original_iterdir(proc)
+        if recorded is None:
+            scan_started = time.monotonic()
+            recorded = await_recorded_probe_pids(root / "pids")
+            if recorded is None:
+                raise Refusal("foreign-churn probe did not record its zombie")
+        if foreign is not None:
+            foreign.kill()
+            foreign.wait()
+        foreign = subprocess.Popen(
+            [sys.executable, "-I", "-c", "import signal; signal.pause()"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        foreign_pids.append(foreign.pid)
+        entries = list(original_iterdir(proc))
+        inventories.append({entry.name for entry in entries})
+        return iter(entries)
+
+    with selftest_child_subreaper():
+        text, message = "", ""
+        try:
+            with mock.patch.object(pathlib.Path, "iterdir", churn), mock.patch.object(os, "getpgid", membership):
+                try:
+                    text = run_probe_clone(
+                        [sys.executable, "-I", "-c", source, str(root / "pids")],
+                        env={"PATH": SAFE_PATH}, cwd=root, label="foreign-churn",
+                    )
+                except Refusal as exc:
+                    message = str(exc)
+            elapsed = time.monotonic() - scan_started
+            tally.check(
+                "both changing foreign PIDs are confirmed nonmembers in their frozen inventories",
+                len(inventories) >= 2 and len(set(foreign_pids[:2])) == 2
+                and set(foreign_pids[:2]) <= confirmed_foreign
+                and str(foreign_pids[0]) in inventories[0] - inventories[1]
+                and str(foreign_pids[1]) in inventories[1] - inventories[0],
+            )
+            exited = None
+            if recorded is not None:
+                with contextlib.suppress(ChildProcessError):
+                    exited = os.waitid(os.P_PID, recorded[1], os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            tally.check(
+                "confirmed foreign churn drains a zombie-only probe within the unchanged grace",
+                text == "expected failure" and not message and len(inventories) == 2 and elapsed < 5.0
+                and recorded is not None and exited is not None
+                and original_getpgid(recorded[1]) == recorded[2]
+                and exited.si_code == os.CLD_EXITED and exited.si_status == 37,
+            )
+        finally:
+            if foreign is not None:
+                foreign.kill()
+                foreign.wait()
+            if recorded is None:
+                recorded = await_recorded_probe_pids(root / "pids")
+            absent = recorded is not None and prove_probe_group_absent(recorded[2])
+            tally.check("the foreign-churn probe is reaped after its drain check", absent)
+
+
+def selftest_probe_group_states(tally: SelftestTally, cwd: pathlib.Path) -> None:
+    """Isolate synthetic group IDs from real membership queries and signals."""
+    with mock.patch.object(os, "killpg"), mock.patch.object(os, "getpgid", return_value=456):
+        selftest_probe_group_state_fixtures(tally, cwd)
+
+
+def selftest_probe_group_state_fixtures(tally: SelftestTally, cwd: pathlib.Path) -> None:
+    """Check proc parsing, disappearing PIDs, and refusals without relying on process timing."""
+    proc_root = cwd / "probe-proc"
+    proc_root.mkdir()
+    member = proc_root / "123"
+    member.mkdir()
+    stat_path = member / "stat"
+    stat_path.write_bytes(b"123 (name with ) spaces) Z 1 456 456\n")
+    tally.check(
+        "proc parsing ignores a zombie even with parentheses and spaces in its name",
+        not probe_group_has_live_members(456, proc_root=proc_root),
+    )
+    stat_path.write_bytes(b"123 (live) S 1 789 789\n")
+    with mock.patch.object(os, "getpgid", return_value=789):
+        tally.check(
+            "live members count only in their own probe group",
+            probe_group_has_live_members(789, proc_root=proc_root)
+            and not probe_group_has_live_members(456, proc_root=proc_root),
+        )
+    stat_path.unlink()
+    tally.check(
+        "a PID vanishing between listing and reading is not a survivor or an error",
+        not probe_group_has_live_members(456, proc_root=proc_root),
+    )
+    for contents in (b"malformed", b"123 (bad group) S 1 unknown\n"):
+        stat_path.write_bytes(contents)
+        tally.refused(
+            "an unanswerable proc stat record is refused",
+            lambda: probe_group_has_live_members(456, proc_root=proc_root),
+        )
+    with mock.patch.object(pathlib.Path, "read_bytes", side_effect=PermissionError("denied")) as read_stat:
+        with mock.patch.object(os, "getpgid", return_value=789):
+            tally.check(
+                "a proven foreign process is skipped before its inaccessible stat is read",
+                not probe_group_has_live_members(456, proc_root=proc_root) and not read_stat.called,
+            )
+        with mock.patch.object(os, "getpgid", side_effect=ProcessLookupError("gone")):
+            tally.check(
+                "a PID gone before membership lookup is skipped without reading its stat",
+                not probe_group_has_live_members(456, proc_root=proc_root) and not read_stat.called,
+            )
+        tally.refused(
+            "an unreadable member stat record is refused",
+            lambda: probe_group_has_live_members(456, proc_root=proc_root),
+        )
+    with mock.patch.object(os, "killpg") as signal_group, mock.patch.object(
+        os, "getpgid", side_effect=PermissionError("denied")
+    ):
+        tally.refused(
+            "an unanswerable membership lookup is refused",
+            lambda: probe_group_has_live_members(456, proc_root=proc_root),
+        )
+        tally.check(
+            "an inspection refusal resumes the frozen group",
+            signal_group.call_args_list == [mock.call(456, signal.SIGSTOP), mock.call(456, signal.SIGCONT)],
+        )
+    tally.refused(
+        "an unavailable proc inventory is refused",
+        lambda: probe_group_has_live_members(456, proc_root=proc_root / "missing"),
     )
 
 
@@ -10914,6 +11215,67 @@ def run_probe_arm(probe: BoundaryProbeRun, context: CommandContext, *, leaky: bo
     return text
 
 
+def probe_group_inventory(
+    process_group: int, proc_root: pathlib.Path
+) -> tuple[frozenset[int], dict[int, bytes]]:
+    """Confirmed member PIDs and states; retain members that vanish before their stat read."""
+    entries = [entry for entry in proc_root.iterdir() if entry.name.isdecimal()]
+    members: set[int] = set()
+    states: dict[int, bytes] = {}
+    for entry in entries:
+        pid = int(entry.name)
+        try:
+            if os.getpgid(pid) != process_group:
+                continue
+            members.add(pid)
+            record = (entry / "stat").read_bytes()
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        # comm is parenthesized and can itself contain spaces or ')'.
+        _comm, separator, suffix = record.rpartition(b")")
+        fields = suffix.split()
+        if not separator or len(fields) < 3 or len(fields[0]) != 1:
+            raise Refusal(f"cannot parse probe process state: {entry / 'stat'}")
+        if int(fields[2]) == process_group:
+            states[pid] = fields[0]
+    return frozenset(members), states
+
+
+def probe_group_has_live_members(
+    process_group: int, *, proc_root: pathlib.Path = pathlib.Path("/proc")
+) -> bool:
+    """Freeze and compare inventories before accepting a zombie-only group as drained.
+
+    A stop can race a fork already in flight. Require two identical member
+    inventories and states after group stops; retain confirmed members that
+    vanish before their state is read. The second scan catches replacements
+    absent from the first. Confirmed foreign PIDs never affect the comparison;
+    membership errors other than a vanished PID refuse inspection. A changing
+    member inventory uses another grace tick. Live members are resumed,
+    including on inspection failure.
+    """
+    if process_group <= 1 or process_group == os.getpgrp():
+        raise Refusal("invalid probe process-group ID")
+    try:
+        with blocked_cleanup_signals():
+            try:
+                os.killpg(process_group, signal.SIGSTOP)
+            except ProcessLookupError:
+                return False
+            try:
+                first = probe_group_inventory(process_group, proc_root)
+                os.killpg(process_group, signal.SIGSTOP)
+                second = probe_group_inventory(process_group, proc_root)
+                return first != second or any(state != b"Z" for state in second[1].values())
+            except ProcessLookupError:
+                return False
+            finally:
+                with contextlib.suppress(ProcessLookupError):
+                    os.killpg(process_group, signal.SIGCONT)
+    except (OSError, ValueError) as exc:
+        raise Refusal(f"cannot inspect probe process group {process_group}: {exc}") from exc
+
+
 def kill_probe_group(process: subprocess.Popen[str]) -> None:
     """SIGKILL a probe clone's whole session and reap its leader; an already-empty group is fine."""
     with blocked_cleanup_signals(), contextlib.suppress(ProcessLookupError):
@@ -10937,8 +11299,9 @@ def run_probe_clone(
     through an SSH command that exits 255. When git dies that way its remote
     helper outlives it by some milliseconds, which `capture`'s instantaneous
     process-group check reads as a survivor, so the group is given `grace`
-    seconds to drain; one that outlives them is killed and is a Refusal, as is
-    a clone that succeeds or one that has not finished after `timeout` seconds.
+    seconds to drain. Zombies do not count as survivors; a live member that
+    outlives the grace is killed and is a Refusal, as is a clone that succeeds
+    or one that has not finished after `timeout` seconds.
     """
     try:
         with deferred_cleanup_signal_delivery():
@@ -10956,7 +11319,7 @@ def run_probe_clone(
     try:
         _stdout, stderr = process.communicate(timeout=timeout)
         deadline = time.monotonic() + grace
-        while process_group_exists(process.pid, use_sudo=False):
+        while probe_group_has_live_members(process.pid):
             if time.monotonic() >= deadline:
                 raise Refusal(
                     f"the {label} clone's process group survived {grace:g} s after "

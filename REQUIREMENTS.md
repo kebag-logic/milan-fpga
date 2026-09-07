@@ -99,14 +99,16 @@ REQ-PTP-03, REQ-PTP-04 and REQ-PTP-06 in the retired product is no longer
 instantiated: its records had no consumer once #259 removed the transmit path.
 Those three requirements bind the record cores stand-alone (`ptp_ts` suite)
 and are not product claims: `IRQ_STATUS[0]` is a structural zero and
-`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are write-only scratch
-([REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
+`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are readable, inert scratch (plain RW, the
+last written value returned, no timestamp-correction consumer at this VERSION;
+[REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
 latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.
 
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
-clock-validity, CSR, and full-datapath benches with #117's two-board wire and
-publication correlation.
+clock-validity, CSR, and full-datapath benches with #117's wire and
+publication correlation of the one AX7101 DUT against the Milan-validated
+reference peer.
 
 ## 5. Credit-based shaping
 
@@ -200,8 +202,9 @@ verified blocks outside the shipping datapath; the station-address rules
   are green with zero policy findings.
 - **REQ-VER-05 (MUST):** A booted shipping board demonstrates firmware startup,
   UART diagnostics, fabric-owned gPTP, persistent state, and audio operation.
-  Two matched boards additionally demonstrate asCapable, GM transition/recovery,
-  publication/`tu` correlation, conformance, and latency (#117).
+  The one AX7101 DUT against the Milan-validated reference peer additionally
+  demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
+  conformance, and latency (#117).
 
 Release acceptance requires all requirements above or an explicit standards-
 cited deviation in the traceability table. At the current candidate, #70 and

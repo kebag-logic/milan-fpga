@@ -111,11 +111,13 @@ gateware** (exit 0):
   were built and run on the board; those retired captures remain in Git history
   under #259. Re-run the current named build and #117 bench procedure for
   exact-candidate physical acceptance.
-- **On-board bring-up**  -  the board is attached and **verified reachable**:
+- **On-board bring-up**  -  the board is attached to the build box and **verified reachable**:
   **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
   (the `ttyUSBn` numbers flip on re-plug). Program with [`sw/litex/deploy.sh`](../../sw/litex/deploy.sh), then
   M-A1…M-A5 (see [Section 9 of `FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md#9-what-remains-and-how-to-finish-it---the-roadmap)). The old boot banners and memtest captures
   were retired under #259 and remain in Git history; #117 owns the current
-  two-board physical run.
+  physical run: this board as the one DUT against the Milan-validated
+  reference peer, with the bench roles recorded in
+  [the build guide](BUILDING.md#41-bench-hosts-and-the-one-dut-acceptance-contract).

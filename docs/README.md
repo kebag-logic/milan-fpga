@@ -129,6 +129,7 @@ Obsolete documentation lives under versioned history.
 - Prefer bullets for independent facts.
 - Keep current paragraphs small.
 - Keep current sentences under eleven words.
+- Never add an em dash; see [the rule](../CONTRIBUTING.md#61-the-em-dash-rule).
 - Edit diagram masters first.
 - Regenerate every committed render.
 - Inspect diagrams before publishing.

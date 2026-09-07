@@ -47,9 +47,11 @@ see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 > header reports `configurations_count` = 0 and the microprogram performs the
 > range check before the locate. To grade `NO_SUCH_DESCRIPTOR`, supply a valid
 > image first and then miss inside it. Because the wrapper instantiates the processor
-> unconditionally, every suite that elaborates `milan_datapath` — `pp_shadow`
-> and `milan_dp` — now needs
-> `git submodule update --init protocol-processor`, an anonymous HTTPS remote. Layer 3
+> unconditionally, every suite that elaborates `milan_datapath` (`pp_shadow`
+> and `milan_dp`) needs the `protocol-processor` submodule, and both parse the
+> `gptp-processor` sources as well; both processor remotes are anonymous HTTPS,
+> and the Section 0 command initialises them together with `third_party/verilog-axis`:
+> `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Layer 3
 > below is unaffected: it exercises the CPU⇄CSR path, not the control plane.
 
 ---
@@ -65,7 +67,9 @@ see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 ## Section 0: Prerequisites
 
-- **Layer 1 (RTL harnesses)** needs *only* `verilator >= 5.050` (the CI pin) + a C++17 compiler.
+- **Layer 1 (RTL harnesses)** needs *only* `verilator >= 5.050` (the CI pin), a C++17 compiler
+  and the three submodules named in Section 0 of [`TESTING.md`](TESTING.md#0-prerequisites):
+  `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
   No LiteX, no RISC-V toolchain, no Xilinx. This is the fast inner loop.
 - **Layers 2–3 (softcore)** additionally need the LiteX venv + RISC-V toolchain +
   JDK/sbt (NaxRiscv is generated from SpinalHDL). One-time setup is in

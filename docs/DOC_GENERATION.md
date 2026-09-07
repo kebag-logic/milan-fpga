@@ -255,6 +255,8 @@ Run focused documentation checks first.
 ```sh
 python3 scripts/docs_check.py
 python3 scripts/docs_check.py --selftest
+python3 scripts/check_em_dash.py --base "$(git merge-base origin/dev HEAD)"
+python3 scripts/check_em_dash.py --selftest
 python3 scripts/check_doc_style.py
 python3 scripts/check_doc_style.py --selftest
 python3 scripts/check_gptp_docs.py
@@ -273,6 +275,7 @@ python3 scripts/check_archive.py --selftest
 python3 scripts/check_doc_paths.py
 python3 scripts/check_feature_status.py --self-test
 python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/gen_toc.py --selftest
 python3 scripts/gen_toc.py --verify-anchors
 python3 scripts/gen_toc.py --check
 ```

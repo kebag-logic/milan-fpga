@@ -75,8 +75,211 @@ GENERATED_RE = re.compile(
     r"|regenerate with|do not hand-?edit|do not edit|\*\*GENERATED\b", re.I)
 GENERATED_SCAN_LINES = 12
 
-FENCE_RE = re.compile(r"^(```|~~~)")
+#: A fence delimiter line: at most three spaces of indentation, then a run of
+#: three or more backticks or tildes, then the rest of the line. What the run
+#: and the rest MEAN depends on the block already open, which is why
+#: `blocks()` below and not this expression decides it.
+FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
+#: Four spaces or a tab of indentation start an indented code block, which
+#: renders as code. Such a run cannot interrupt a paragraph, so it begins
+#: only after a blank line.
+INDENT_CODE_RE = re.compile(r"^(?: {4}|\t)")
+#: CommonMark's type-1 raw HTML block: its content is not parsed as Markdown
+#: and it survives blank lines, so a Contents block written inside one
+#: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
+#: its closing tag.
+RAW_HTML_TAGS = ("pre", "script", "style", "textarea")
+RAW_HTML_OPEN_RE = re.compile(r"^ {0,3}<(%s)[\s>/]" % "|".join(RAW_HTML_TAGS),
+                              re.IGNORECASE)
+#: CommonMark's type-6 raw HTML block: a block-level tag on its own line
+#: opens it and a BLANK LINE closes it, and nothing inside is parsed as
+#: Markdown. A `## Head` line tucked between `<div>` and `</div>` with no
+#: blank line renders as text, so it is no heading and its label is no
+#: evidence of an anchor ([R0] and [R10] round 7 on PR #384). Adding the
+#: blank lines ends the block, and then the heading really does render.
+HTML_BLOCK_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
+    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
+    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html"
+    "|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup"
+    "|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead"
+    "|title|tr|track|ul")
+HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
+                                re.IGNORECASE)
+COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
+#: What a line is, for every reader in this repository. The names are what a
+#: finding calls the line, so they read as English in a message.
+TEXT, FENCE, COMMENT, CODE, HTML = ("prose line", "fenced line",
+                                    "commented line", "indented code line",
+                                    "raw HTML line")
+
+
+def _closes_fence(delim: str, run: str, info: str) -> bool:
+    """Whether a delimiter line closes the fence `delim` opened: same
+    character, at least as long, and nothing after it but whitespace."""
+    return bool(run) and run[0] == delim[0] and len(run) >= len(delim) \
+        and not info.strip()
+
+
+def blocks(text: str) -> list[str]:
+    """What every line of ``text`` is: TEXT, FENCE, COMMENT, CODE or HTML.
+
+    ONE walk, and the only one in this repository: a gate that re-derived
+    it disagreed with this generator about which lines are navigation, five
+    review rounds running on PR #384. It is a single state machine, so the
+    block already open decides what a delimiter means -- a fence delimiter
+    inside an HTML comment does not open a fence, and a comment delimiter
+    inside a fence does not open a comment ([R0] round 5 F3, where a
+    three-backtick line inside an old comment made this walk refuse a
+    legitimate page).
+
+    Two kinds of raw HTML block are held apart because they end
+    differently: a type-1 block (`pre`, `script`, `style`, `textarea`) ends
+    at its closing tag and survives blank lines; a type-6 block, any other
+    block-level tag on its own line, ends at the first BLANK line. Neither
+    parses its content as Markdown, so a heading or a Contents block
+    written inside either is text.
+
+    The rules are CommonMark's, with indentation measured from column 0
+    rather than from an enclosing container's content column: a fence
+    opener is indented at most three spaces; it closes only on a line of
+    the SAME character, at least as long, carrying nothing but whitespace
+    after the run, so a three-backtick line inside a four-backtick block is
+    content; a backtick opener's info string may not contain a backtick,
+    while a tilde opener's may. An indented code run needs a blank line
+    before it, because it cannot interrupt a paragraph. A comment runs to
+    its closing delimiter and a type-1 raw HTML block to its closing tag,
+    both across blank lines. A line that mixes commented and visible text
+    is labelled by the block it STARTS in, which can only withhold a
+    heading or a Contents block from a reader, never invent one.
+    """
+    out, state, delim, tag = [], TEXT, "", ""
+    prev_blank = True
+    for line in text.split("\n"):
+        if state in (FENCE, COMMENT, HTML):
+            out.append(state)
+            state, delim, tag = _still_open(line, state, delim, tag)
+        else:
+            label, state, delim, tag = _opens(line, prev_blank, state)
+            out.append(label)
+        prev_blank = not line.strip()
+    return out
+
+
+def _comment_after(line: str, inside: bool) -> bool:
+    """Whether a comment is open AFTER this line, reading EVERY delimiter on
+    it in order.
+
+    One `-->` is not the end of the story: `<!-- first --> <!-- second`
+    closes one comment and opens another, and a walk that read only the
+    first delimiter left the second span classified as text, which handed
+    a hand-written block inside it the navigation exemption ([R0] round 6
+    on PR #384). A comment is also the only block that can open after
+    visible text on a line, so this scan is the only residue any line
+    needs: a fence, an indented code run and a raw HTML block all require
+    the line's own start.
+    """
+    scan = line
+    while scan:
+        if inside:
+            at = scan.find(COMMENT_CLOSE)
+            if at < 0:
+                return True
+            scan, inside = scan[at + len(COMMENT_CLOSE):], False
+        else:
+            at = scan.find(COMMENT_OPEN)
+            if at < 0:
+                return False
+            scan, inside = scan[at + len(COMMENT_OPEN):], True
+    return inside
+
+
+def _still_open(line: str, state: str, delim: str,
+                tag: str) -> tuple[str, str, str]:
+    """The state after a line INSIDE a fence, comment or raw HTML block.
+    Only that block's own closer is read, which is the whole precedence
+    rule: nothing else on the line means anything while it is open."""
+    if state == COMMENT:
+        return (COMMENT if _comment_after(line, True) else TEXT), "", ""
+    if state == HTML:
+        if not tag:                     # type 6: a blank line ends it
+            return (TEXT if not line.strip() else HTML), "", tag
+        return ((TEXT if re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
+                 else HTML), "", tag)
+    m = FENCE_RE.match(line)
+    if m and _closes_fence(delim, m.group(1), m.group(2)):
+        return TEXT, "", ""
+    return FENCE, delim, ""
+
+
+def _opens(line: str, prev_blank: bool,
+           state: str) -> tuple[str, str, str, str]:
+    """(what this line is, the state after it, fence delimiter, HTML tag)
+    for a line that no block encloses.
+
+    The order is CommonMark's: an indented code run swallows the line
+    before any delimiter on it is read; a comment that opens after visible
+    text leaves THIS line ordinary and starts the span on the next one, so
+    a heading with a trailing comment is still a heading.
+    """
+    if state == CODE and (not line.strip() or INDENT_CODE_RE.match(line)):
+        return CODE, CODE, "", ""      # the run continues across blank lines
+    if INDENT_CODE_RE.match(line) and prev_blank:
+        return CODE, CODE, "", ""
+    m = FENCE_RE.match(line)
+    if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
+        return FENCE, FENCE, m.group(1), ""
+    html = RAW_HTML_OPEN_RE.match(line)
+    if html:
+        tag = html.group(1)
+        closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
+        return HTML, (TEXT if closed else HTML), "", tag
+    if HTML_BLOCK_OPEN_RE.match(line):
+        # Type 6 carries no tag here: the blank line, not a closing tag,
+        # is what ends it.
+        return HTML, HTML, "", ""
+    if COMMENT_OPEN in line:
+        after = COMMENT if _comment_after(line, False) else TEXT
+        starts = line.lstrip().startswith(COMMENT_OPEN)
+        return (COMMENT if starts else TEXT), after, "", ""
+    return TEXT, TEXT, "", ""
+
+
+def line_kinds(text: str) -> list[str]:
+    """`blocks()`, refined for the lines that are ordinary Markdown text: a
+    heading, a table row, or prose. This is what a finding names, and it is
+    the owner's answer rather than a second reader's."""
+    out = []
+    for line, kind in zip(text.split("\n"), blocks(text)):
+        if kind != TEXT:
+            out.append(kind)
+        elif HEAD_RE.match(line):
+            out.append("heading")
+        elif line.lstrip().startswith("|"):
+            out.append("table row")
+        else:
+            out.append(TEXT)
+    return out
+
+
+def fenced(text: str) -> list[bool]:
+    """Per line: is it inside a fenced code block? Derived from `blocks()`,
+    never re-walked."""
+    return [k == FENCE for k in blocks(text)]
+
+
+#: One Contents entry as this script writes it: the label, the anchor, the
+#: separator (U+2014 on the pages that predate the em-dash rule, `--` on
+#: every block written since) and the description. check_em_dash.py reads
+#: entries with this same expression, so the gate and the generator cannot
+#: disagree on what an entry is. The indentation is bounded at three spaces,
+#: which is what this script writes (none, or two for a nested entry) and
+#: what Markdown still renders as a list item: at four it is an indented
+#: code block, which renders as code and is no navigation entry at all
+#: ([R0] round 4 on PR #384).
+TOC_ENTRY_RE = re.compile(
+    r" {0,3}- +(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?\s*(\u2014|--)\s*(.*)")
 
 
 def anchor(text: str, seen: dict[str, int]) -> str:
@@ -108,21 +311,19 @@ def label(text: str) -> str:
 
 
 def headings(text: str) -> list[tuple[int, str, str]]:
-    """(level, raw_text, anchor) for every heading outside a fenced block.
+    """(level, raw_text, anchor) for every heading that renders as one.
+
+    A heading inside a fence, an indented code block, an HTML comment or a
+    raw HTML block renders as text, so it is no heading here and its label
+    is no evidence of an anchor to preserve ([R0] round 5 F2 on PR #384,
+    where commented heading syntax authorised a new label).
 
     Anchors must be numbered over ALL headings - GitHub counts collisions
     across the whole page, including the H1 and the Contents heading itself -
     so the walk cannot skip anything before assigning."""
-    seen, out, fence = {}, [], None
-    for line in text.split("\n"):
-        f = FENCE_RE.match(line)
-        if f:
-            if fence is None:
-                fence = f.group(1)
-            elif line.startswith(fence):
-                fence = None
-            continue
-        if fence is not None:
+    seen, out = {}, []
+    for line, kind in zip(text.split("\n"), blocks(text)):
+        if kind != TEXT:
             continue
         m = HEAD_RE.match(line)
         if m:
@@ -145,23 +346,29 @@ def plan(text: str) -> list[tuple[int, str, str]] | None:
 
 def existing(
         text: str) -> tuple[dict[str, str], int | None, int | None, str | None]:
-    """Descriptions keyed by anchor, the TOC span, and its separator."""
-    lines = text.split("\n")
-    start = next((i for i, l in enumerate(lines) if l.strip() == TOC_HEAD), None)
+    """Descriptions keyed by anchor, the TOC span, and its separator.
+
+    The span is located through `blocks()`, so a `## Contents` heading
+    written inside a fence, a comment, an indented code block or a raw HTML
+    block is an example of one and not this page's own.
+    """
+    lines, kinds = text.split("\n"), blocks(text)
+    start = next((i for i, l in enumerate(lines)
+                  if kinds[i] == TEXT and l.strip() == TOC_HEAD), None)
     if start is None:
         return {}, None, None, None
     end = start + 1
-    while end < len(lines) and not lines[end].startswith("## "):
+    while end < len(lines) and not (kinds[end] == TEXT
+                                    and lines[end].startswith("## ")):
         end += 1
     desc = {}
     separator = None
-    for l in lines[start:end]:
-        m = re.match(r"\s*-\s+(?:\*\*)?\[[^\]]*\]\(#([^)]*)\)(?:\*\*)?\s*(—|--)\s*(.*)",
-                     l)
+    for i in range(start, end):
+        m = TOC_ENTRY_RE.match(lines[i]) if kinds[i] == TEXT else None
         if m:
-            desc[m.group(1)] = m.group(3).strip()
+            desc[m.group(2)] = m.group(4).strip()
             if separator is None:
-                separator = m.group(2)
+                separator = m.group(3)
     return desc, start, end, separator
 
 
@@ -197,7 +404,9 @@ def apply(path: Path, text: str) -> str | None:
         del lines[start:end]                      # too few sections now
         return "\n".join(lines)
 
-    block = render(items, desc, separator or "—")
+    # A page keeps the separator it has; a block written for the first time
+    # uses `--`, the only separator the em-dash rule lets a change add.
+    block = render(items, desc, separator or "--")
     if start is not None:
         lines[start:end] = block
     else:
@@ -207,6 +416,49 @@ def apply(path: Path, text: str) -> str | None:
         lines[first:first] = block
     new = "\n".join(lines)
     return None if new == text else new
+
+
+def owns(relpath: str, text: str) -> bool:
+    """Whether THIS script writes the Contents block of ``relpath``.
+
+    One population, read by `pages()` below and by every tool that asks
+    about provenance: the historical tree is frozen, `SKIP` names the two
+    indexes that ARE tables of contents, and a generator-owned page belongs
+    to its own generator. A gate that skipped this question exempted a
+    label on a hand-written index ([R0] round 6 on PR #384).
+    """
+    if relpath.startswith("docs/history/v1/") or relpath in SKIP:
+        return False
+    head = "\n".join(text.split("\n")[:GENERATED_SCAN_LINES])
+    return not GENERATED_RE.search(head)
+
+
+def generated_block(text: str,
+                    relpath: str | None = None) -> tuple[int, list[str]] | None:
+    """Where this page's Contents block starts and the exact lines THIS
+    SCRIPT renders for it, or None when the page carries no block or its
+    block is not what this script would write.
+
+    It is the provenance answer other tools ask for: a line is generated
+    navigation if it is byte-identical to the line here, at its own
+    position, on a page this script owns -- pass ``relpath`` and a page
+    outside `owns()` answers None, whatever its text looks like.
+    `check_em_dash.py` exempts a copied heading label only on
+    that answer, so no second reader has to decide what renders as
+    navigation -- five rounds of PR #384 showed that a second reader
+    decides it differently. Equality holds for every page the `--check`
+    arm below passes, which is the same comparison `apply()` makes.
+    """
+    if relpath is not None and not owns(relpath, text):
+        return None
+    items = plan(text)
+    desc, start, end, separator = existing(text)
+    if items is None or start is None:
+        return None
+    block = render(items, desc, separator or "--")
+    if text.split("\n")[start:end] != block:
+        return None
+    return start, block
 
 
 def pages() -> Iterator[Path]:
@@ -225,17 +477,16 @@ def pages() -> Iterator[Path]:
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
                          capture_output=True, text=True, check=True).stdout
     for p in sorted(out.split("\0")):
-        if not p or p.startswith("docs/history/v1/") or p in SKIP:
+        if not p:
             continue
         md = REPO / p
         if not md.is_file():
-            print(f"  GONE  {p}: tracked in the index but not on disk "
-                  f"(stage the deletion, or restore the file) - skipped")
+            if owns(p, ""):
+                print(f"  GONE  {p}: tracked in the index but not on disk "
+                      f"(stage the deletion, or restore the file) - skipped")
             continue
-        head = "\n".join(md.read_text().split("\n")[:GENERATED_SCAN_LINES])
-        if GENERATED_RE.search(head):
-            continue                       # generator-owned; see GENERATED_RE
-        yield md
+        if owns(p, md.read_text()):
+            yield md
 
 
 def verify_anchors() -> int:
@@ -256,6 +507,161 @@ def verify_anchors() -> int:
     return 1 if bad else 0
 
 
+#: A page whose Contents block this script owns: three sections, one
+#: heading carrying text a label must copy verbatim, and the block itself.
+_ARM_PAGE = """# Page
+
+## Contents
+
+- **[Alpha](#alpha)** -- What alpha holds.
+- **[Beta](#beta)** -- What beta holds.
+- **[Gamma](#gamma)** -- What gamma holds.
+
+## Alpha
+
+Body.
+
+## Beta
+
+Body.
+
+## Gamma
+
+Body.
+"""
+
+
+def _walk_arms() -> list[tuple[str, str, object]]:
+    """The block walk's arms: (name, page, predicate over `blocks(page)`).
+
+    Every one of them was an escape or a false refusal measured on PR #384,
+    so each states the rule it holds rather than a shape it happens to
+    accept.
+    """
+    tick, tilde = "`" * 3, "~" * 3
+    return [
+        ("a fence delimiter inside a comment opens no fence",
+         f"<!--\n{tick}\n-->\n\n## Contents\n",
+         lambda k: k[:3] == [COMMENT] * 3 and k[4] == TEXT),
+        ("a comment delimiter inside a fence opens no comment",
+         f"{tick}\n<!--\n{tick}\n\n## Contents\n",
+         lambda k: k[:3] == [FENCE] * 3 and k[4] == TEXT),
+        ("a short delimiter inside a longer fence is content",
+         f"{tick}`\n{tick}\n## Contents\n{tick}`\ntext\n",
+         lambda k: k[:4] == [FENCE] * 4 and k[4] == TEXT),
+        ("a tilde fence does not close on backticks",
+         f"{tilde}\n{tick}\n## Contents\n{tilde}\ntext\n",
+         lambda k: k[:4] == [FENCE] * 4 and k[4] == TEXT),
+        ("a closer carrying an info string does not close",
+         f"{tick}\n{tick} text\n## Contents\n{tick}\ntext\n",
+         lambda k: k[:4] == [FENCE] * 4 and k[4] == TEXT),
+        ("a backtick in a backtick opener's info string voids the opener",
+         f"{tick} `x\ntext\n", lambda k: k[0] == TEXT),
+        ("a backtick in a tilde opener's info string does not",
+         f"{tilde} `x\ntext\n", lambda k: k[0] == FENCE),
+        ("an opener indented three spaces still opens",
+         f"   {tick}\ntext\n   {tick}\n", lambda k: k[:3] == [FENCE] * 3),
+        ("four spaces after a blank line is code, not a fence",
+         f"text\n\n    {tick}\n", lambda k: k[2] == CODE),
+        ("an indented line continuing a paragraph is not code",
+         "text\n    more text\n", lambda k: k[1] == TEXT),
+        ("a raw HTML block's content is not Markdown",
+         "<pre>\n## Contents\n</pre>\n\n## Real\n",
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("a raw HTML block closed on its own line ends there",
+         "<pre>x</pre>\n\n## Real\n", lambda k: k[0] == HTML and k[2] == TEXT),
+        ("a tight type-6 block hides the heading it wraps",
+         "<div>\n## Alpha\n</div>\n\n## Real\n",
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("a type-6 block ends at the blank line, so the heading renders",
+         "<div>\n\n## Alpha\n\n</div>\n",
+         lambda k: k[0] == HTML and k[2] == TEXT),
+        ("a details block hides its heading the same way",
+         "<details>\n<summary>s</summary>\n## Alpha\n</details>\n\n## Real\n",
+         lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
+        ("a comment opened after visible text leaves that line alone",
+         "## Head <!-- note\n-->\n## B\n",
+         lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
+        ("a second comment opened on a closing line stays open",
+         "<!-- first --> <!-- second\n## Contents\n-->\ntext\n",
+         lambda k: k[:3] == [COMMENT] * 3 and k[3] == TEXT),
+        ("a comment closed and reopened inside a span stays open",
+         "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n",
+         lambda k: k[:4] == [COMMENT] * 4 and k[4] == TEXT),
+        ("a comment that really closes ends the span",
+         "<!-- one --> two\n## Contents\n",
+         lambda k: k[0] == COMMENT and k[1] == TEXT),
+    ]
+
+
+def _provenance_arms() -> list[tuple[str, str, object]]:
+    """`generated_block`'s arms: what counts as this script's own output."""
+    page = _ARM_PAGE
+    return [
+        ("a block this script would write has provenance", page,
+         lambda t: generated_block(t) is not None),
+        ("a hand-edited entry loses it for the block",
+         page.replace("- **[Beta](#beta)** --", "- **[Beta](#beta)**  --"),
+         lambda t: generated_block(t) is None),
+        ("an entry indented four spaces loses it",
+         page.replace("- **[Beta]", "    - **[Beta]"),
+         lambda t: generated_block(t) is None),
+        ("a block inside a fence is no block of this page",
+         page.replace("## Contents", "```\n## Contents").replace(
+             "\n## Alpha", "\n```\n\n## Alpha", 1),
+         lambda t: generated_block(t) is None),
+        ("a block inside a comment is no block of this page",
+         page.replace("## Contents", "<!--\n## Contents").replace(
+             "\n## Alpha", "\n-->\n\n## Alpha", 1),
+         lambda t: generated_block(t) is None),
+        ("a block inside a raw HTML block is no block of this page",
+         page.replace("## Contents", "<pre>\n## Contents").replace(
+             "\n## Alpha", "\n</pre>\n\n## Alpha", 1),
+         lambda t: generated_block(t) is None),
+        ("a heading inside a tight type-6 block is no heading",
+         "<div>\n## Alpha\n</div>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+        ("a heading inside a type-6 block that closed IS a heading",
+         "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
+        ("a heading inside a comment is no heading",
+         "<!--\n## Alpha\n-->\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+        ("a page this script skips has no provenance", page,
+         lambda t: generated_block(t, "docs/README.md") is None),
+        ("nor has a historical page", page,
+         lambda t: generated_block(t, "docs/history/v1/X.md") is None),
+        ("nor has a generator-owned page",
+         page.replace("# Page",
+                      "# Page\n\n**GENERATED** - do not hand-edit."),
+         lambda t: generated_block(t, "docs/x.md") is None),
+        ("a page this script owns still has provenance", page,
+         lambda t: generated_block(t, "docs/x.md") is not None),
+    ]
+
+
+def selftest() -> int:
+    """Run the block-walk and provenance arms. 0 when every one holds.
+
+    They live here because this script owns the walk: a gate that carried
+    its own copy of it refused a legitimate page and exempted three that
+    render nothing ([R0] rounds 4 and 5 on PR #384).
+    """
+    problems = 0
+    for name, page, holds in _walk_arms():
+        if not holds(blocks(page)):
+            problems += 1
+            print(f"  FAIL [{name}]: {blocks(page)}")
+    for name, page, holds in _provenance_arms():
+        if not holds(page):
+            problems += 1
+            print(f"  FAIL [{name}]")
+    arms = len(_walk_arms()) + len(_provenance_arms())
+    print(f"TOC selftest: {'PASS' if not problems else 'FAIL'} "
+          f"({arms - problems}/{arms} arm(s))")
+    return 1 if problems else 0
+
+
 def main() -> int:
     """Run one of the three arms - `--verify-anchors`, `--write`, or the gate.
 
@@ -265,6 +671,9 @@ def main() -> int:
     """
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     flags = {a for a in sys.argv[1:] if a.startswith("--")}
+
+    if "--selftest" in flags:
+        return selftest()
 
     if "--verify-anchors" in flags:
         return verify_anchors()

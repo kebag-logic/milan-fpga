@@ -356,8 +356,8 @@ the completed PS-to-fabric migration plan (#259, in git history).
 1. **Platform up**  -  bare-metal RV32I firmware on the AX7101 with the HW
    datapath (MAC/PHC/AVTP). *(M-A5)*
 2. **gPTP (802.1AS)**  -  enable the integrated fabric owner and verify its
-   wire/CSR/publication behavior plus ≤ 1 µs sync. Booted and two-board
-   acceptance remains #117. *(FR-CLK-01/02, NFR-TIME-01)*
+   wire/CSR/publication behavior plus ≤ 1 µs sync. Booted acceptance against
+   the Milan-validated reference peer remains #117. *(FR-CLK-01/02, NFR-TIME-01)*
 3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
    builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
    tracked bare-metal boot verifies and copies the paired image from QSPI to

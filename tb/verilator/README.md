@@ -5,10 +5,13 @@ Milan TSN NIC — one suite per subdirectory (the directory listing is
 the authoritative count; prose numbers go stale).
 
 They need **only** `verilator >= 5.050` (the CI pin; older 5.x cannot build every suite -- see [Section 7 of `docs/testing/TESTING.md`](../../docs/testing/TESTING.md#7-known-gaps-kept-honest)), a C++17
-compiler and the `third_party/verilog-axis` submodule
-(`git submodule update --init third_party/verilog-axis`) — no Xilinx tools —
-because they target the pure-RTL blocks (no XPM/DSP primitives are
-instantiated).
+compiler and the three submodules the suites read, initialised in one
+command: `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
+No Xilinx tools are needed, because the suites target the pure-RTL blocks (no
+XPM/DSP primitives are instantiated). Which suite reads which is in
+[Section 0 of `docs/testing/TESTING.md`](../../docs/testing/TESTING.md#0-prerequisites),
+and it is not a Makefile grep: `pp_shadow` takes its whole source list from
+`milan_dp`, so it reads both processor submodules without naming either.
 
 Each exits `0` on pass / non-zero on failure. Run the whole set with
 `scripts/run_all_suites.sh` (exit status = number of failing suites); CI runs it

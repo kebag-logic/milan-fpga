@@ -88,7 +88,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
-- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the `verilog-axis` submodule that five suites elaborate.
+- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the three submodules the harnesses read, initialised by one command (`third_party/verilog-axis`, `protocol-processor`, `gptp-processor`).
 - **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table -- reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
 - **[2. LiteX integration checks - sw/litex/test_\*.py](#2-litex-integration-checks---swlitextest_py)** -- Focused checks for the protocol-processor memory bridges and boot/freeze behavior retained by the bare-metal SoC.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end -- the M-A2 `"MILN"` read, in simulation, before any board exists.
@@ -97,7 +97,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** -- What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step: simulation cannot prove board clocking, PHY pins, external-wire behavior, or the physical audio path. Then the bring-up order and where silicon measurements get logged.
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
-- **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence on the bench workstation without depending on removed target-side campaign machinery.
+- **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence across the bench hosts (build box, Ubuntu server, `pw1`) without depending on removed target-side campaign machinery.
 - **[6d. Unattended campaign vehicle](#6d-unattended-campaign-vehicle)** -- What stands in place of the removed campaign runner: the UART grader per flash, the desk half of the torture campaign, and the two issues that own the bench and power-cut lanes.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
@@ -147,8 +147,8 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`. No vendor tools are required |
-| Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
 
@@ -211,11 +211,19 @@ of any kind; `controller_rate` is the gating regression born from the
 control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
-**Two suites need the public protocol-processor submodule.**
-`milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`,
-and `milan_dp` resolve `protocol-processor/hdl`. Its remote uses
-anonymous HTTPS. Run `git submodule update --init protocol-processor` before
-building any of them. The CI workflow initializes it before the full sweep.
+**The processor submodules serve more suites than name them.**
+`milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`
+and `milan_dp` resolve `protocol-processor/hdl`. Both of them also resolve
+`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow` and `tsn_fuzz`:
+`milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
+that same list from `make -C ../milan_dp print-srcs`, so a suite can need a
+submodule its own Makefile never names. Grepping the Makefiles is therefore
+not the census; the expanded recipe is, so read it with `make -n` in the suite
+and the line continuations joined. Both processor remotes use anonymous HTTPS.
+Run the Section 0 command,
+`git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`,
+before building any of them. The CI workflow initializes the same three before
+the full sweep.
 
 
 ### 0.1 Coverage map — the module ↔ spec ↔ test matrix
@@ -391,12 +399,12 @@ verdicts and for check counts.
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
 | [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a CRF selection; at INTERNAL it free-runs |
-| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
+| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
 | [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7) |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
 | [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
-| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` submodule |
+| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
 | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model |
 | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | — |
 | [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |
@@ -569,14 +577,14 @@ is on the resolution path and is **never linted** — it is upstream code.
 
 ## 6. On-silicon validation
 
-**Mandatory first step after every flash:** run the UART grader on the bench
-workstation attached to the board:
+**Mandatory first step after every flash:** run the UART grader on the build
+box, which carries the board's console:
 
 ```sh
 python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
 ```
 
-The workstation grader exercises direct bare-metal UART commands. It requires
+The grader exercises direct bare-metal UART commands. It requires
 `ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
 PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
 consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
@@ -679,8 +687,9 @@ pass as proof a response is well formed.
 ## 6b. Bench evidence retention
 
 The removed campaign runner is not a current product or repository
-interface. Keep each bench run self-contained on the workstation that owns the
-UART, capture and external JTAG/CSR transport:
+interface. Keep each bench run self-contained across the hosts that own it:
+the build box (UART, JTAG and the external CSR transport), the Ubuntu server
+(the two ProfiShark taps) and `pw1` (the controller and audio endpoint):
 
 - save the exact bitstream/AEM manifest and `csr.csv` used by the board;
 - save the full `baremetal_uart_smoke.py` transcript and exit status;
@@ -706,8 +715,9 @@ bare-metal board exposes only the UART. What stands in its place:
   `tb/tools/torture_campaign.py` (`--self-test`, and `--checklist` for the
   bench steps a person performs) with the `@torture` behave tier described in
   [`tests/README.md`](../../tests/README.md);
-- two-board sync, GM switch and wire-capture acceptance are #117's lane, and
-  the power-cut soak is #70's.
+- sync, GM loss and return, and wire-capture acceptance of the one AX7101 DUT
+  against the Milan-validated reference peer are #117's lane, and the
+  power-cut soak is #70's.
 
 ## 7. Known gaps (kept honest)
 
@@ -753,8 +763,8 @@ bare-metal board exposes only the UART. What stands in its place:
 * **The datapath-level suites run in CI.** `pp_shadow` and `milan_dp`
   elaborate `milan_datapath` with the protocol processor.
   [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) initializes the
-  public HTTPS `protocol-processor` and `third_party/verilog-axis` submodules
-  before the full Verilator sweep.
+  public HTTPS `third_party/verilog-axis`, `protocol-processor` and
+  `gptp-processor` submodules before the full Verilator sweep.
 * **The BDD conformance suite runs on every verification round** (USER standing
   order, 2026-07-26). `cd tests && behave -f plain` — the run's own tally is
   authoritative, so read it there rather than here; on 2026-08-13 it stood at 12
