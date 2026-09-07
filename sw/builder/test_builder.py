@@ -5007,8 +5007,9 @@ def test_baremetal_profile_contract() -> None:
             ("o_ptp_cmd_snapshot", "cfg_ptp_cmd_snapshot"),
             #: o_ptp_ingress_lat / o_ptp_egress_lat left milan_csr with the
             #: dead ptp_ts record chain (915cbcc3, PR #294 lane): A_PTP_ILAT/
-            #: A_PTP_ELAT (0x540/0x544) remain write-only scratch with no
-            #: consumer, so there is no output port left to pin.
+            #: A_PTP_ELAT (0x540/0x544) remain readable, inert scratch: plain
+            #: RW with no timestamp-correction consumer at VERSION 0x0002_0057,
+            #: so there is no output port left to pin.
             ("i_ptp_tod", "ptp_tod_rd"),
             ("i_ptp_tod_valid", "ptp_tod_rd_valid"),
         )
@@ -5029,7 +5030,8 @@ def test_baremetal_profile_contract() -> None:
                 ("o_ptp_cmd_snapshot", "ptp_snap_p")):
             #: the o_ptp_ingress_lat/o_ptp_egress_lat assignments (and their
             #: ptp_ilat/ptp_elat registers) left milan_csr in 915cbcc3; the
-            #: 0x540/0x544 words are write-only scratch with no consumer.
+            #: 0x540/0x544 words are readable, inert scratch: plain RW with
+            #: no timestamp-correction consumer at VERSION 0x0002_0057.
             direct_assignment(lhs, rhs, phc_source_reason, csr_code)
         reference_census(
             csr_code,
