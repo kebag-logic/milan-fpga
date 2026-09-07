@@ -536,18 +536,23 @@ regeneration is mandatory and the lines it adds are judged like any others:
 renders an empty test or clause cell as `--`, and its own controls fail if a
 row it emits spells the character.
 
-The docs workflow runs it with the base the event carries (a pull request's
-base SHA, a push's `before` SHA) and refuses an event with neither rather
-than guessing one. The first fast-forward of `main` after the gate landed
-judges every commit since the previous one, so that one push is red on this
-step. Regenerating the Contents block of a page whose separator is still the
+The docs workflow DERIVES the base: for a pull request it fetches the base
+branch and takes the merge base against the checked-out tree, because GitHub
+freezes `pull_request.base.sha` when the request opens while the job builds
+the merge into the current base tip, so the recorded oid attributes to the
+branch every line merged into the base since. A push judges from its own
+`before` SHA, and an event carrying neither is refused rather than guessed
+at. The first fast-forward of `main` after the gate landed judges every
+commit since the previous one, so that one push is red on this step. Regenerating the Contents block of a page whose separator is still the
 em dash adds entries the gate refuses: switch that page's separator to `--`
 (every entry line becomes an added line, and each is judged), then rerun
 `gen_toc.py --write`. Rewrite the entry DESCRIPTIONS in the same pass where
 they carry the character: 102 entries on 45 pages do, and the description is
 judged like any other added text. A block written for the first time uses
-`--`. The two pages `gen_toc.py` deliberately skips, the two documentation
-indexes, have no generated block, so nothing on them is ever exempt.
+`--`. Provenance follows the generator's own page population: the two
+documentation indexes it skips, the historical tree and any page another
+generator owns carry no generated navigation, so nothing on them is ever
+exempt.
 
 Status claims in prose are separately machine-judged against the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md); the

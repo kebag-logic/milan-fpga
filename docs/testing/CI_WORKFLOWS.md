@@ -654,7 +654,7 @@ third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
 and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
-hard-coded, its `PR_BASE_SHA` rebound to the run's own SHA, its
+hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
 `if: false` and removed, its body replaced by `true`, judging from HEAD,
 judging from the frozen recorded base, swallowing its exit status, its push
