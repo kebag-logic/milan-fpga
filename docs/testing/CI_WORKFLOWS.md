@@ -1029,6 +1029,25 @@ production-entry control invokes the normal PR command path, interrupts its earl
 repository lookup, and therefore fails if signal containment is narrowed to
 workflow execution again.
 
+Probe clones give descendants a grace period to drain after their leader
+exits. Only live process-group members count as survivors: a member whose
+`/proc/<pid>/stat` state is `Z` has already exited and cannot continue the
+probe. The act job container's PID 1 is act's own `tail` process, which reaps
+no orphans, while the hosted VM's PID 1 reaps them. An unreaped zombie must
+therefore not prevent draining in the local replica. The runner checks host
+group membership before reading state, skipping foreign processes even when
+their state is inaccessible. An unreadable member refuses the probe. Before
+accepting a drained group, it sends `SIGSTOP` and requires two matching
+inventories of confirmed group members and their states, repeating the stop
+before the second scan. Confirmed members remain inventoried if their state
+read races their disappearance; the second scan catches newly forked members.
+Confirmed foreign PIDs never affect the comparison, even when they appear or
+vanish between scans. Unanswerable membership queries refuse inspection;
+already-vanished PIDs are skipped. A changing member inventory uses another
+grace tick. Live members resume with `SIGCONT` after
+inspection, including on an inspection failure. Any live member that outlives
+the unchanged grace still causes refusal and `SIGKILL` of the group.
+
 The synthetic pull-request event names the exact base and head. A draft uses
 `synchronize`, retaining `draft=true`; a ready PR uses `ready_for_review`, so
 the real exhaustive selector launches all workers. `act` copies the immutable
