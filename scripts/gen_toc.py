@@ -87,10 +87,26 @@ HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
 INDENT_CODE_RE = re.compile(r"^(?: {4}|\t)")
 #: CommonMark's type-1 raw HTML block: its content is not parsed as Markdown
 #: and it survives blank lines, so a Contents block written inside one
-#: renders as literal text ([R0] and [R10] round 5 on PR #384).
+#: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
+#: its closing tag.
 RAW_HTML_TAGS = ("pre", "script", "style", "textarea")
 RAW_HTML_OPEN_RE = re.compile(r"^ {0,3}<(%s)[\s>/]" % "|".join(RAW_HTML_TAGS),
                               re.IGNORECASE)
+#: CommonMark's type-6 raw HTML block: a block-level tag on its own line
+#: opens it and a BLANK LINE closes it, and nothing inside is parsed as
+#: Markdown. A `## Head` line tucked between `<div>` and `</div>` with no
+#: blank line renders as text, so it is no heading and its label is no
+#: evidence of an anchor ([R0] and [R10] round 7 on PR #384). Adding the
+#: blank lines ends the block, and then the heading really does render.
+HTML_BLOCK_TAGS = (
+    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
+    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
+    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html"
+    "|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup"
+    "|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead"
+    "|title|tr|track|ul")
+HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
+                                re.IGNORECASE)
 COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 #: What a line is, for every reader in this repository. The names are what a
 #: finding calls the line, so they read as English in a message.
@@ -117,6 +133,13 @@ def blocks(text: str) -> list[str]:
     inside a fence does not open a comment ([R0] round 5 F3, where a
     three-backtick line inside an old comment made this walk refuse a
     legitimate page).
+
+    Two kinds of raw HTML block are held apart because they end
+    differently: a type-1 block (`pre`, `script`, `style`, `textarea`) ends
+    at its closing tag and survives blank lines; a type-6 block, any other
+    block-level tag on its own line, ends at the first BLANK line. Neither
+    parses its content as Markdown, so a heading or a Contents block
+    written inside either is text.
 
     The rules are CommonMark's, with indentation measured from column 0
     rather than from an enclosing container's content column: a fence
@@ -180,6 +203,8 @@ def _still_open(line: str, state: str, delim: str,
     if state == COMMENT:
         return (COMMENT if _comment_after(line, True) else TEXT), "", ""
     if state == HTML:
+        if not tag:                     # type 6: a blank line ends it
+            return (TEXT if not line.strip() else HTML), "", tag
         return ((TEXT if re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
                  else HTML), "", tag)
     m = FENCE_RE.match(line)
@@ -210,6 +235,10 @@ def _opens(line: str, prev_blank: bool,
         tag = html.group(1)
         closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
         return HTML, (TEXT if closed else HTML), "", tag
+    if HTML_BLOCK_OPEN_RE.match(line):
+        # Type 6 carries no tag here: the blank line, not a closing tag,
+        # is what ends it.
+        return HTML, HTML, "", ""
     if COMMENT_OPEN in line:
         after = COMMENT if _comment_after(line, False) else TEXT
         starts = line.lstrip().startswith(COMMENT_OPEN)
@@ -541,6 +570,15 @@ def _walk_arms() -> list[tuple[str, str, object]]:
          lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
         ("a raw HTML block closed on its own line ends there",
          "<pre>x</pre>\n\n## Real\n", lambda k: k[0] == HTML and k[2] == TEXT),
+        ("a tight type-6 block hides the heading it wraps",
+         "<div>\n## Alpha\n</div>\n\n## Real\n",
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("a type-6 block ends at the blank line, so the heading renders",
+         "<div>\n\n## Alpha\n\n</div>\n",
+         lambda k: k[0] == HTML and k[2] == TEXT),
+        ("a details block hides its heading the same way",
+         "<details>\n<summary>s</summary>\n## Alpha\n</details>\n\n## Real\n",
+         lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
         ("a comment opened after visible text leaves that line alone",
          "## Head <!-- note\n-->\n## B\n",
          lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
@@ -580,6 +618,12 @@ def _provenance_arms() -> list[tuple[str, str, object]]:
          page.replace("## Contents", "<pre>\n## Contents").replace(
              "\n## Alpha", "\n</pre>\n\n## Alpha", 1),
          lambda t: generated_block(t) is None),
+        ("a heading inside a tight type-6 block is no heading",
+         "<div>\n## Alpha\n</div>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+        ("a heading inside a type-6 block that closed IS a heading",
+         "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
         ("a heading inside a comment is no heading",
          "<!--\n## Alpha\n-->\n\n## Beta\n",
          lambda t: [a for _, _, a in headings(t)] == ["beta"]),
