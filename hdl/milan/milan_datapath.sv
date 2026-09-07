@@ -2611,8 +2611,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign eff_link_w = i_link_up & cfg_sw_link &
                       (cfg_linkg_dis | linkg_est_w);
   //! Counter-only link view: PHY + guard, without firmware qualification.
-  //! One physical flap = guard pair (41us detect/21ms settle) + a second
-  //! delayed firmware qualification pair (if any) -> the
+  //! One physical flap = guard pair (DEAD_CYC_C = 4,096 axis_clk cycles to
+  //! detect, SETTLE_CYC_C = 2,097,152 to settle: 82 us and 41.94 ms at the
+  //! 50 MHz Milan clock of the AX7101 build, 41 us and 20.97 ms at 100 MHz)
+  //! + a second delayed firmware qualification pair (if any) -> the
   //! Milan LINK_UP/LINK_DOWN counters read +2 per flap on eff_link. The
   //! counters follow the physical event; eff_link keeps gating ADP/datapath.
   wire cnt_link_w;

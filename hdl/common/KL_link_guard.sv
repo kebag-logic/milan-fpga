@@ -21,15 +21,18 @@
                 This block does it in hardware: each eth domain exports a
                 divide-by-2 toggle (plain FF, flips every cycle). The
                 toggles are synchronized here and their transition rate
-                is watched; no transition for DEAD_CYC_C sys cycles
-                (41 us at 100 MHz - the slowest legal eth clock, MII 10M
-                2.5 MHz, transitions every 800 ns) declares the clock
-                dead. Any death asserts reinit_o immediately and holds
-                it until BOTH clocks have run glitch-free for
-                SETTLE_CYC_C (~21 ms), riding through the PHY's clock
-                wobble during renegotiation. Recovery is then automatic
-                and sub-50-ms with zero software involvement; the
-                LINK_CTRL[1] manual strobe remains OR-ed in as a
+                is watched; no transition for DEAD_CYC_C clk_i cycles
+                declares the clock dead: 4,096 cycles is 82 us at the
+                50 MHz Milan clock the AX7101 reference build drives
+                clk_i with (axis_clk), 41 us at 100 MHz, against the
+                slowest legal eth clock (MII 10M, 2.5 MHz, a transition
+                every 800 ns). Any death asserts reinit_o immediately and
+                holds it until BOTH clocks have run glitch-free for
+                SETTLE_CYC_C clk_i cycles: 2,097,152 cycles is 41.94 ms
+                at 50 MHz, 20.97 ms at 100 MHz, riding through the PHY's
+                clock wobble during renegotiation. Recovery is then
+                automatic and sub-50-ms with zero software involvement;
+                the LINK_CTRL[1] manual strobe remains OR-ed in as a
                 firmware-controlled fallback.
 
                 link_est_o = "eth RX clock alive" - the first hardware
@@ -69,10 +72,18 @@
 `default_nettype none
 
 module KL_link_guard #(
-  parameter int unsigned DEAD_CYC_C   = 4096,     //! no-transition -> dead
-  parameter int unsigned SETTLE_CYC_C = 2097152   //! clean-clock hold (~21 ms)
+  //! no-transition window that declares an eth clock dead, in clk_i
+  //! cycles: 4,096 cycles is 82 us at the 50 MHz Milan clock the AX7101
+  //! reference build drives clk_i with (axis_clk), 41 us at 100 MHz
+  parameter int unsigned DEAD_CYC_C   = 4096,
+  //! clean-clock hold before reinit_o drops, in clk_i cycles: 2,097,152
+  //! cycles is 41.94 ms at 50 MHz, 20.97 ms at 100 MHz; eth_rst_o drops
+  //! half-way, at SETTLE_CYC_C / 2 = 1,048,576 cycles (20.97 ms at 50 MHz)
+  parameter int unsigned SETTLE_CYC_C = 2097152
 ) (
-  input  wire        clk_i,          //! sys clock (always running)
+  //! guard clock, always running; the AX7101 reference build drives it
+  //! from axis_clk, the 50 MHz Milan clock
+  input  wire        clk_i,
   input  wire        rst_n,          //! sys reset, active low
 
   //! async divide-by-2 toggles from the eth clock domains (plain FFs)
@@ -155,7 +166,8 @@ module KL_link_guard #(
     end
   end : liveness
 
-  //! RX activity seen within the last ~1.3 s (status/diagnostics only)
+  //! RX activity seen within the last 2^27 clk_i cycles: 2.7 s at 50 MHz,
+  //! 1.3 s at 100 MHz (status/diagnostics only)
   logic [26:0] act_age_r;
   wire         act_recent_w = (act_age_r != '1);
 
