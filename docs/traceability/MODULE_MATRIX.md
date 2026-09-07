@@ -4,16 +4,16 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 -->
 # Module ↔ spec ↔ test traceability matrix
 
-**GENERATED - do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`
+**GENERATED — do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`
 (regenerate on any RTL/TB tree change; `--check` gates staleness **and the untested-count ratchet** in CI).
 
 Every module in `hdl/` mapped to its spec family, the clause(s) it
 appears against in the clause matrices, and the testbench(es) that
-compile it. A module with no testbench is an **⚪ UNTESTED** row -
+compile it. A module with no testbench is an **⚪ UNTESTED** row —
 that is the coverage gap this matrix exists to make visible.
 
 The count of ⚪ rows is ratcheted by [`untested.budget`](untested.budget): a normal run only ever lowers
-it, and `--check` fails when the live count exceeds it, so a new
+it, and `--check` fails when the live count exceeds it — so a new
 module without a testbench breaks the gate instead of quietly
 growing the backlog. The one escape is a 🗄️ **ARCHIVED** banner
 marker in the module's own file, which states *why* no open-flow
@@ -25,7 +25,7 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 
 ## Coverage by spec family
 
-*Which family is thinnest on dedicated testbenches?* The ordering the tables below cannot show. Weakest first.
+*Which family is thinnest on dedicated testbenches?* — the ordering the tables below cannot show. Weakest first.
 
 ```mermaid
 xychart-beta

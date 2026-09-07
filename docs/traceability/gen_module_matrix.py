@@ -274,6 +274,12 @@ def build() -> list[MatrixRow]:
 STATUS_GLYPH = {"direct": "✅", "exercised": "➰", "fuzz": "🔬",
                 "pkg": "📦", "archived": "🗄️", "UNTESTED": "⚪"}
 
+#! The four MODULE_MATRIX.md boilerplate sentences below keep the U+2014 the
+#! page has always carried. Substituting the marker is this rule applied to
+#! generated text; REWORDING a sentence is not, and the round-4 decision on
+#! PR #384 refuses the rewording. Those lines belong to a page that exists,
+#! so they are never lines a change adds -- the gate judges added lines, and
+#! only a page created from nothing would add them.
 #: What an empty test or clause cell renders as. ASCII on purpose (#378,
 #: [R0] round 2 on PR #384): these pages are committed, and the added-line
 #: em-dash gate refuses U+2014 on every line a change adds, so a row this
@@ -321,7 +327,7 @@ def render_coverage_chart(mods: list[MatrixRow]) -> list[str]:
     order = sorted(fams, key=lambda f: (stat[f][1] / stat[f][0], stat[f][0]))
     ymax = max(stat[f][0] for f in fams)
     out = ["## Coverage by spec family", "",
-           "*Which family is thinnest on dedicated testbenches?* The ordering "
+           "*Which family is thinnest on dedicated testbenches?* — the ordering "
            "the tables below cannot show. Weakest first.", "",
            "```mermaid", "xychart-beta",
            '    title "Modules per spec family: dedicated testbenches vs total"',
@@ -356,17 +362,17 @@ def render_top(rows: list[MatrixRow]) -> str:
     out = ["<!--", "SPDX-FileCopyrightText: 2026 Kebag Logic",
            "SPDX-License-Identifier: CERN-OHL-W-2.0", "-->",
            "# Module ↔ spec ↔ test traceability matrix", "",
-           "**GENERATED - do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`",
+           "**GENERATED — do not hand-edit.** `python3 docs/traceability/gen_module_matrix.py`",
            "(regenerate on any RTL/TB tree change; `--check` gates staleness "
            "**and the untested-count ratchet** in CI).",
            "",
            "Every module in `hdl/` mapped to its spec family, the clause(s) it",
            "appears against in the clause matrices, and the testbench(es) that",
-           "compile it. A module with no testbench is an **⚪ UNTESTED** row -",
+           "compile it. A module with no testbench is an **⚪ UNTESTED** row —",
            "that is the coverage gap this matrix exists to make visible.", "",
            "The count of ⚪ rows is ratcheted by "
            "[`untested.budget`](untested.budget): a normal run only ever lowers",
-           "it, and `--check` fails when the live count exceeds it, so a new",
+           "it, and `--check` fails when the live count exceeds it — so a new",
            "module without a testbench breaks the gate instead of quietly",
            "growing the backlog. The one escape is a 🗄️ **ARCHIVED** banner",
            "marker in the module's own file, which states *why* no open-flow",
