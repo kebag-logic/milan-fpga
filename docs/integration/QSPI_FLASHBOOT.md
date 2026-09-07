@@ -211,7 +211,7 @@ See also [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) and
    failures). One lucky boot in ~6 was the tell. Fix (build_hsq3+):
    `add_constant("SPIFLASH_SKIP_FREQ_INIT")` next to `add_spi_flash(...,
    clk_freq=12.5e6)`  -  the BIOS then keeps the built-for divisor.
-3. **Grade every persistent update over UART from the bench workstation.** Run
+3. **Grade every persistent update over UART from the build box.** Run
    `python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>`; it checks
    the image, identity, `0x0002_0056` publication ABI and advancing PHC.
 4. **Use an external JTAG/CSR transport for evidence not exposed by the UART

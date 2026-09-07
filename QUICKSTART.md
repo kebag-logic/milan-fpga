@@ -342,8 +342,8 @@ firmware boot/CSR contract → connect the board to the timed network.
    and [`docs/limitations/RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
    for current limitations and integration hazards.
 4. [`docs/testing/TESTING.md`](docs/testing/TESTING.md)
-   — the evidence required for simulation and the two-board physical acceptance
-   tracked by #117.
+   for the evidence required for simulation and the physical acceptance of the
+   one AX7101 DUT against the Milan-validated reference peer, tracked by #117.
 
 You will also need an **802.1AS-capable switch** for anything involving two
 endpoints. gPTP is not optional in Milan — without a working time domain there is

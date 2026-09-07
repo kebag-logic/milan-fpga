@@ -69,7 +69,7 @@ The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf812178ea0
 ## Open evidence
 
 - Issue #64 owns physical latency calibration.
-- Issue #117 owns two-board product acceptance.
+- Issue #117 owns product acceptance against the reference peer.
 - AS-6 needs the physical winner variant.
 - AS-12 needs physical traffic-load repetition.
 

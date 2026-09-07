@@ -1,10 +1,10 @@
-# Building bitstreams  -  the two-board build flow
+# Building bitstreams  -  the AX7101 build flow
 
 *2026-07-25. Canonical entry point: **[`sw/litex/build.sh`](../../sw/litex/build.sh)**. This page is the
 maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
-configuration, and the per-board load/console facts you need after a build
-lands. Test layers around a build:
+configuration, and the load, console and bench-host facts you need after a
+build lands. Test layers around a build:
 [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md).*
 
 The shipping software-profile claims are checked against the
@@ -26,10 +26,10 @@ The shipping software-profile claims are checked against the
 ## Contents
 
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
-- **[1. Usage](#1-usage)** -- The invocation table -- both boards in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
+- **[1. Usage](#1-usage)** -- The invocation table -- two recipes in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
 - **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, fabric streams, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
 - **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gate and the three separate times this class of drift reached silicon.
-- **[4. After the build: load + console, per board](#4-after-the-build-load--console-per-board)** -- Per-board JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the bare-metal bitstream+AEM flash layout, and the bench-workstation UART smoke that is mandatory after every flash.
+- **[4. After the build: load, console and bench roles](#4-after-the-build-load-console-and-bench-roles)** -- The AX7101 JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the bare-metal bitstream+AEM flash layout, the bench host roles with the one-DUT acceptance contract, and the UART smoke on the build box that is mandatory after every flash.
 - **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds, including two hard-won caveats: keep AX margin above +0.03 because QSPI flashboot corrupted below it, and OOC-synth a module before believing its hierarchical utilization line.
 
 ## 0. The pipeline, and where it can refuse you
@@ -88,8 +88,8 @@ cd sw/litex
 | Invocation | Effect |
 |---|---|
 | `./build.sh ax7101` | one build of the AX7101 ship shape |
-| `./build.sh arty` | one build of the Arty A7-100 bring-up shape |
-| `./build.sh ax7101 arty` | BOTH boards in parallel (90 s stagger) |
+| `./build.sh arty` | one build of the Arty A7-100 recipe (a retired DUT, section 2) |
+| `./build.sh ax7101 arty` | two recipes in parallel (90 s stagger); the bench has one DUT |
 | `./build.sh ax7101 --sweep` | 3 builds: the config x the place-directive sweep |
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
@@ -186,14 +186,16 @@ generated-entity directory fails the gate.
 change the build** — the two must be changed together, and the cable is the
 side that decides.
 
-### `arty`  -  Digilent Arty A7-100, the second Milan node
+### `arty`  -  Digilent Arty A7-100, the retired bring-up recipe
 
 xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 100 MHz), 10/100 Ethernet (DP83848, **MII**; the SoC drives its 25 MHz
 `eth_ref_clk`), 256 MB DDR3 (MT41K128M16), QSPI flashboot (`--with-spiflash
 --flashboot baremetal`; the retired #259 multi-image manifest is history) and
-`--no-datapath-probes`. Role: AVDECC/Milan interop peer and the 100 Mbit CBS
-test point (`is_1g=0` slope branch); not a throughput peer.
+`--no-datapath-probes`. Its role until its retirement: AVDECC/Milan interop
+peer and the 100 Mbit CBS test point (`is_1g=0` slope branch); not a
+throughput peer. The bench peer is now the Milan-validated reference peer
+(section 4.1).
 Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
 since 2026-08-22, #157, matching `configs/endstation_arty_current.yaml` and
 the `sweep.sh` arty leg). The Arty is a retired DUT, so the recipe is proven
@@ -277,15 +279,18 @@ python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, xlen, cp
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
 ```
 
-## 4. After the build: load + console, per board
+## 4. After the build: load, console and bench roles
 
-ttyUSB numbers RENUMBER whenever a USB device is replugged. Always select
-cables by serial and consoles by `/dev/serial/by-id/` path:
+The AX7101 is the one DUT, and its JTAG cable and serial console sit on the
+build box. ttyUSB numbers RENUMBER whenever a USB device is replugged. Always
+select the cable by serial and the console by `/dev/serial/by-id/` path:
 
 | Board | JTAG load | Console |
 |---|---|---|
 | AX7101 | `openFPGALoader --ftdi-serial <ax-ftdi-serial> -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
-| Arty A7-100 | `openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/<board-usb-serial>` (`-if01-port0`), 115200; tmux session `arty_console` |
+
+The Arty is a retired DUT: its recipe elaborates under gate 23g (section 2)
+and the board is not powered, loaded or flashed.
 
 Every profile keeps the bitstream at QSPI offset 0 in a dedicated 4 MiB slot.
 The bare-metal manifest carries only raw `aem_desc.bin` at 4 MiB in a 64 KiB
@@ -323,12 +328,27 @@ prefix and makes a failed transaction safely resumable. Power loss during the
 single offset-zero erase/program itself can still tear that bitstream; removing
 that hardware boundary requires an A/B or MultiBoot flash layout.
 
-After a bare-metal flash, run this on the bench workstation attached to the
-board's UART:
+After a bare-metal flash, run this on the build box, which carries the board's
+UART:
 
 ```console
 python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
 ```
+
+### 4.1 Bench hosts and the one-DUT acceptance contract
+
+The physical acceptance of #110 and #117 runs one AX7101 DUT against the
+Milan-validated reference peer. GM loss and return are induced through the
+peer or the bench AVB switch, and the evidence is the same wire, publication,
+conformance, latency and audio set those issues list. Two matched FPGA DUTs
+are not required. Bench roles as of 2026-09-06:
+
+| Host | Role |
+|---|---|
+| build box | Vivado, the repositories, the AX7101 JTAG cable and its serial console |
+| `pw1` | ATDECC controller (la_avdecc) and audio endpoint host on the AVB LAN |
+| Ubuntu server | the two ProfiShark taps, which are the wire capture points |
+| `pw0` | retired; it holds no bench role |
 
 ## 5. Gates before a build is "good"
 
@@ -340,7 +360,7 @@ python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
    attribution  -  but OOC-synth a module before believing its hierarchical
    line, see TROUBLESHOOTING (../limitations/) section 15).
 3. **Silicon checklist** (RUNNING_TESTS): boot, run the UART smoke from the
-   bench workstation, and exercise the MAC with an external traffic source and
+   build box, and exercise the MAC with an external traffic source and
    capture point. A build that passes 1-2 but fails UART evidence or wire
    traffic is not ship-cleared; record the complete test-cell recipe with any
    timing or throughput claim as required by

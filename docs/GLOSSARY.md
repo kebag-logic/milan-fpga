@@ -88,6 +88,6 @@ Current product terminology for the bare-metal Milan v1.2 end station.
 |---|---|
 | **Desk evidence** | Deterministic simulation, generation, lint, elaboration, and synthesis checks on one exact source candidate. |
 | **Physical evidence** | Booted-board result tied to exact source, generated image, topology, capture point, method, and raw artifacts. |
-| **#117** | Two-board fabric-gPTP, GM transition, conformance, latency, and audio acceptance campaign. |
+| **#117** | Fabric-gPTP, GM transition, conformance, latency, and audio acceptance campaign: one AX7101 DUT against the Milan-validated reference peer. |
 | **#70** | Persistent-state implementation and power-cut acceptance. |
 | **#259** | Bare-metal-only product and repository migration. |

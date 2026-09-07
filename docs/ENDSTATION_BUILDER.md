@@ -929,7 +929,7 @@ Its own gates are:
   the shipped ROM's descriptor counts and `sweep.sh`'s design argv
   byte-for-byte;
 - (b) on migration, `gen_aem_store.py` consuming the overlay must keep the
-  bench conformance suite green on both boards with an unchanged
+  bench conformance suite green on the DUT with an unchanged
   entity_model_id for an unchanged model (D4).
 
 > **What those gates prove (2026-08-16).** The argv leg keeps the gateware shape

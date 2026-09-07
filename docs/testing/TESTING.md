@@ -97,7 +97,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** -- What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step: simulation cannot prove board clocking, PHY pins, external-wire behavior, or the physical audio path. Then the bring-up order and where silicon measurements get logged.
 - **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
-- **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence on the bench workstation without depending on removed target-side campaign machinery.
+- **[6b. Bench evidence retention](#6b-bench-evidence-retention)** -- The current rule for retaining UART, external-wire and JTAG/CSR evidence across the bench hosts (build box, Ubuntu server, `pw1`) without depending on removed target-side campaign machinery.
 - **[6d. Unattended campaign vehicle](#6d-unattended-campaign-vehicle)** -- What stands in place of the removed campaign runner: the UART grader per flash, the desk half of the torture campaign, and the two issues that own the bench and power-cut lanes.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including public IDENTIFY, persistence, commands outside the served inventory and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
@@ -529,14 +529,14 @@ is on the resolution path and is **never linted** — it is upstream code.
 
 ## 6. On-silicon validation
 
-**Mandatory first step after every flash:** run the UART grader on the bench
-workstation attached to the board:
+**Mandatory first step after every flash:** run the UART grader on the build
+box, which carries the board's console:
 
 ```sh
 python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
 ```
 
-The workstation grader exercises direct bare-metal UART commands. It requires
+The grader exercises direct bare-metal UART commands. It requires
 `ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
 PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
 consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
@@ -639,8 +639,9 @@ pass as proof a response is well formed.
 ## 6b. Bench evidence retention
 
 The removed campaign runner is not a current product or repository
-interface. Keep each bench run self-contained on the workstation that owns the
-UART, capture and external JTAG/CSR transport:
+interface. Keep each bench run self-contained across the hosts that own it:
+the build box (UART, JTAG and the external CSR transport), the Ubuntu server
+(the two ProfiShark taps) and `pw1` (the controller and audio endpoint):
 
 - save the exact bitstream/AEM manifest and `csr.csv` used by the board;
 - save the full `baremetal_uart_smoke.py` transcript and exit status;
@@ -666,8 +667,9 @@ bare-metal board exposes only the UART. What stands in its place:
   `tb/tools/torture_campaign.py` (`--self-test`, and `--checklist` for the
   bench steps a person performs) with the `@torture` behave tier described in
   [`tests/README.md`](../../tests/README.md);
-- two-board sync, GM switch and wire-capture acceptance are #117's lane, and
-  the power-cut soak is #70's.
+- sync, GM loss and return, and wire-capture acceptance of the one AX7101 DUT
+  against the Milan-validated reference peer are #117's lane, and the
+  power-cut soak is #70's.
 
 ## 7. Known gaps (kept honest)
 

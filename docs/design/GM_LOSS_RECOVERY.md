@@ -133,7 +133,7 @@ Legacy writes remain acknowledged and ineffective.
 | `media_grid_align` | Alignment, watchdog, and recovery |
 | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
 
-Physical two-board acceptance remains issue #117.
+Physical acceptance against the reference peer remains issue #117.
 
 Silicon grid comparison remains issue #74.
 
