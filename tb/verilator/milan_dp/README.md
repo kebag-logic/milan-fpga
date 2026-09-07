@@ -170,9 +170,17 @@ The switch defaults off and changes no RTL or ROM.
 It stops after the first real Pdelay exchange.
 Later acquisition, loss/reset/stall arms are explicitly unexecuted.
 Negative-control results never enter the broad sweep's passing count.
+The 2026-09-06 control measured 27 checks and 3 expected failures, exit 1.
+The peer-delay assertion and both payload assertions detected corruption.
 
 The focused compilation limit is at most eight jobs.
 Smaller positive `VERILATOR_JOBS` values remain available.
+
+The 2026-09-06 UTC focused run took 2282.26 wall-clock seconds.
+It simulated 14.443565400 seconds on the shared development box.
+This exceeds the common sweep driver default of 1800 seconds per suite.
+Full repository timing remains unvalidated; no timeout threshold was changed.
+A run killed by that deadline remains UNKNOWN, with no passing verdict.
 
 The normal log includes simulated duration and counted verdicts.
 The recipe records wall duration, process status, and SHA-256 hashes.
@@ -365,12 +373,12 @@ the first offset beyond the model.
 
 "Before" is the state after the compile fix that made the suite build at all
 (`sim_nxn.cpp` reached deleted RTL through Verilator XMRs and did not compile,
-so *no* leg ran). **Every "after" number below is measured on ONE `make`** —
-all eleven legs, release `0x0002_0057` (2026-09-02) — this table carries no
-projection. (Issue #314 caught the previous revision claiming that while five
-rows were stale and one pointed at a summary that did not exist.)
+so *no* leg ran). Every after value below was measured in one broad run
+on 2026-09-06 UTC for Issue #367. The eleven existing legs retain their
+2026-09-02 counts; the twelfth is the new physical-rate integration.
+No row projects unexecuted checks.
 
-| leg | before (measured) | after (measured, one make @ 0x0002_0057) | note |
+| leg | before (measured) | after (measured, one make, 2026-09-06 UTC) | note |
 |---|---|---|---|
 | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
@@ -383,6 +391,7 @@ rows were stale and one pointed at a summary that did not exist.)
 | `obj_prune` (`sim_prune`) | 31 / 0 | **28 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there) |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **22 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added |
+| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | new in #367 | **126 / 0** | 50 MHz physical timers; eight-channel diagnostic loopback; independent peer; loss, recovery, stalls and reset; licensed streaming excluded |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
 working tree went out from under the build — `protocol_processor_top.sv` had an
