@@ -519,7 +519,32 @@ def selftest() -> tuple[list[str], int]:
                                archived="reason")) == EMPTY_CELL:
         problems.append("[archived cell] an archived row lost its stated "
                         "reason to the empty marker")
-    return problems, arms
+    problems += _boilerplate_arm(dash)
+    return problems, arms + 1
+
+
+#: The four sentences of MODULE_MATRIX.md that carry U+2014 and keep it: the
+#: page exists, so they are never lines a change adds, and rewording them is
+#: not marker substitution (the round-4 decision on PR #384). Every OTHER
+#: emitted line must stay clear of the character, the optional untested and
+#: archived sections included -- their headers are generated text that a
+#: future tree really does add, and the four controls above read only the
+#: fixture row's own lines ([R0] and [R10] rounds 5 and 6).
+BOILERPLATE_CARRIERS = 4
+
+
+def _boilerplate_arm(dash: str) -> list[str]:
+    """Render the page with BOTH optional sections present and require that
+    only the four recorded boilerplate sentences carry the character."""
+    rows = [_fixture_row(),
+            _fixture_row(name="KL_archived", rel="hdl/common/KL_archived.sv",
+                         status="archived", archived="no open-flow test")]
+    carriers = [l for l in render_top(rows).split("\n") if dash in l]
+    if len(carriers) != BOILERPLATE_CARRIERS:
+        return [f"[boilerplate] {len(carriers)} emitted line(s) carry U+2014, "
+                f"not the {BOILERPLATE_CARRIERS} recorded sentences:\n"
+                + "\n".join(carriers)]
+    return []
 
 
 def main() -> int:
