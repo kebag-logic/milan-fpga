@@ -49,7 +49,7 @@ STAGES = [
    ("UART reports VERSION 0x00020057 + gPTP state", 0),
    ("focused RTL + processor suites", 1),
    ("traceability + builder gates", 0),
-   ("#117: physical / two-board pending", 0),
+   ("#117: physical / one DUT + reference peer pending", 0),
    ("REGISTER_MAP.md = the ABI", 0),
    ("#117 records topology + raw evidence", 0),
  ], "digitally validated candidate;\nphysical acceptance stays on #117"),
