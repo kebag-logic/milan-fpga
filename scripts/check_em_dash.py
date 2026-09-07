@@ -40,11 +40,18 @@ text. Even on a generated line only the LABEL span can be exempt, and only
 when the heading it copies is one the BASE version of the page rendered, so
 a label mirroring a heading the same change introduces is refused with its
 heading, and one mirroring heading syntax that exists only inside a comment
-is refused too.
+is refused too. The page must also be one whose Contents block that script
+writes: the two documentation indexes, the historical tree and pages another
+generator owns carry no generated navigation, so nothing on them is exempt.
 
-The base is explicit. Locally pass the merge base; the docs workflow passes
-the pull request's base SHA or a push's ``before`` SHA and refuses an event
-carrying neither rather than guessing one. The planted controls run on every
+The base is explicit and, in CI, DERIVED. Locally pass the merge base. The
+docs workflow fetches the pull request's base BRANCH and takes the merge
+base against the checked-out tree, because GitHub freezes
+``pull_request.base.sha`` when the request opens while the job builds the
+merge into the current base tip, so the recorded oid attributes to this
+branch every line merged into the base since. A push judges from its own
+``before`` SHA, and an event carrying neither is refused rather than guessed
+at. The planted controls run on every
 invocation, before any verdict: a gate that has never failed once is not
 evidence that it works.
 
@@ -261,7 +268,12 @@ def judge_page(repo: Path, base: str, change: Change,
     if not hits:
         return
     text = git(repo, "show", f"HEAD:{change.path}")
-    kinds, block = line_kinds(text), generated_block(text)
+    # The PATH is part of the question: `gen_toc.py` does not write a
+    # Contents block for the two documentation indexes, for the historical
+    # tree or for another generator's pages, so nothing on them is ever
+    # generated navigation ([R0] round 6 on PR #384).
+    kinds = line_kinds(text)
+    block = generated_block(text, change.path)
     exempt_labels = None
     for hit in hits:
         where = f"{hit.path}:{hit.lineno}"
@@ -456,6 +468,11 @@ def _fixture_repo(repo: Path) -> str:
     (repo / "NO_TOC.md").write_text(_NO_TOC, encoding="utf-8")
     (repo / "COMMENTED.md").write_text(_COMMENTED, encoding="utf-8")
     (repo / "FENCE_COMMENT.md").write_text(_FENCE_IN_COMMENT, encoding="utf-8")
+    # One page at a path `gen_toc.py` deliberately skips: it IS a table of
+    # contents, so this script writes no block for it and no line of it can
+    # be generated navigation.
+    (repo / "docs").mkdir(exist_ok=True)
+    (repo / "docs" / "README.md").write_text(_NO_TOC, encoding="utf-8")
     return _commit(repo, "base")
 
 
@@ -626,6 +643,14 @@ def _provenance_controls() -> tuple[Control, ...]:
                                 "- **[Gamma](#gamma)** -- What gamma holds.\n"
                                 "\n## Alpha"),
                 1, ("COMMENTED.md", "added prose line"), exempt=0),
+        Control("a second comment on a closing line still hides the block",
+                lambda r: _fenced_example(r, "<!-- first --> <!-- second",
+                                          "-->"),
+                1, ("added commented line",), exempt=0),
+        Control("an index page this generator skips is never exempt",
+                lambda r: _edit(r, "docs/README.md", _OLD_HEADING,
+                                _NEW_BLOCK + _OLD_HEADING),
+                1, ("docs/README.md", "added prose line"), exempt=0),
         Control("a fence marker in an old comment refuses nothing",
                 lambda r: _edit(r, "FENCE_COMMENT.md", _OLD_HEADING,
                                 _NEW_BLOCK + _OLD_HEADING),
