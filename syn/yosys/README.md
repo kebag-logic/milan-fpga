@@ -10,8 +10,10 @@ It complements the Verilator harnesses (`tb/verilator/`, which prove *behaviour*
 proving *synthesizability on other devices*.
 
 ```sh
-git submodule update --init third_party/verilog-axis   # required: several tops
-                                                        # elaborate Forencich cores
+# run.sh reads all three: Forencich cores for several tops, the
+# protocol-processor list derived by scripts/pp_srcs.py, and the
+# gptp-processor engine sources plus its microcode generator
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 cd syn/yosys
 make            # generic synth (device-independent) of every top -> RESULT: PASS
 make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4)

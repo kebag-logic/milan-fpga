@@ -69,7 +69,7 @@ and reaches 144/147, which locks the harness observation itself to AXI
 Stream handshake semantics.
 
 ```sh
-git submodule update --init gptp-processor   # once
+git submodule update --init third_party/verilog-axis gptp-processor   # once
 make        # regenerates gptp_ucode.hex from the submodule, builds, runs
 ```
 
