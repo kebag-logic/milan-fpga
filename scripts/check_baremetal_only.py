@@ -47,7 +47,9 @@ R. retired target RUNTIME/service surface: the former helper services and
    class-T vocabulary. This includes exact absolute pseudo-filesystem/device
    paths; similar words such as ``/procedure`` are not matches. The one
    read-only workstation PHC probe and the yosys loader test's ``/etc/hosts``
-   example are masked only in their exact host-tool files.
+   example are masked only in their exact host-tool files. The act runner's
+   host process inventory and its policy paragraph have literal, file-pinned
+   masks under #376's recorded host-tooling decision.
 P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
    OS tree, target service, host-audio plane or retired target-driver-tree
    name while carrying clean (or binary) contents. Path scanning uses the
@@ -262,6 +264,12 @@ HOST_RUNTIME_MASKS = {
     "tb/tools/crf_vs_phc.py": re.compile(r"/dev/ptp(?:N|[0-9]+)\b",
                                          re.IGNORECASE),
     "syn/yosys/malloc.sh": re.compile(r"/etc/hosts\b"),
+    # #376 decision 1: the runner inspects build-host processes, never the
+    # product target. Allow only its inventory root and the stat-state
+    # spelling in the runner policy paragraph, not other target paths.
+    "scripts/act_ci.py": re.compile(r'(?<=Path\(")/proc(?="\))'),
+    "docs/testing/CI_WORKFLOWS.md": re.compile(
+        r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
 }
 
 # Class H: concrete names and phrases that carried the removed target host
@@ -931,6 +939,25 @@ def _arms_retired_surfaces(arm):
 
 def _arms_host_tooling_masks(arm):
     """Generated outputs are scanned, and each host-tooling mask is exact."""
+    def plant_runner_path(r: pathlib.Path, path: str, payload: str) -> None:
+        """Plant the same literal at an allowed or unrelated tracked path."""
+        target = r / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(payload)
+
+    for path, payload in (
+        ("scripts/act_ci.py", 'root = pathlib.Path("/proc")\n'),
+        ("docs/testing/CI_WORKFLOWS.md", '`/proc/<pid>/stat` state is `Z`\n'),
+    ):
+        arm(f"runner-host-inventory-allowed-{path}",
+            lambda r, p=path, t=payload: plant_runner_path(r, p, t), False)
+        arm(f"runner-host-inventory-wrong-file-{path}",
+            lambda r, t=payload: plant_runner_path(r, "other.txt", t),
+            True, "[R]")
+        arm(f"runner-host-inventory-does-not-launder-{path}",
+            lambda r, p=path, t=payload: plant_runner_path(
+                r, p, t.rstrip() + " /proc/mtd\n"), True, "[R]")
+
     # generated outputs are scanned: a term planted in an .svg text node
     arm("term-in-generated-svg",
         lambda r: (r / "diagram.svg").write_text(
