@@ -190,7 +190,7 @@ records the boundary and how to read the run.
 The combined gPTP-ON target uses the deployment clock rates:
 
 ```sh
-make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=4
 ```
 
 It combines physical gPTP timers with eight-channel diagnostic loopback.
@@ -198,7 +198,9 @@ Its [coverage and negative control](../../tb/verilator/milan_dp/README.md#ax7101
 state modeled clocks, omissions, and admission bypass.
 The boundary remains AXI-Lite and MAC packet interfaces.
 It provides no licensed-streaming or hardware-compliance verdict.
-The default sweep schedules it separately as `milan_dp_gptp`.
+The nightly/manual job runs it separately as `milan_dp_gptp`.
+The default sweep excludes this physical-rate suite.
+The full driver selects it explicitly with `--physical-gptp`.
 Transition windows stop upon observed public state, with unchanged timers.
 `make ax1x1gptp-extended` retains the original long spans.
 The [testing guide](TESTING.md) declares its separate suite budget.

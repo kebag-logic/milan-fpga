@@ -86,7 +86,7 @@ The combined physical-rate leg below supplies separate evidence.
 Run the focused leg with bounded compilation:
 
 ```sh
-make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=4
 ```
 
 The maintained DUT boundary is milan_datapath's AXI-Lite and MAC packet interfaces.
@@ -152,12 +152,16 @@ Final cumulative assertions include traffic between named audio windows.
 Warm-up payload and transition-state comparisons are explicitly excluded.
 Every exclusion prints `NOT RUN` and contributes no pass.
 Cumulative assertions require their own executed comparisons.
+Per-window order, sequence, and uncertainty assertions require new comparisons.
+Earlier traffic cannot supply evidence for a later silent window.
 Without comparisons, each prints an explicit uncounted omission.
 Payload, sample-order, and packet-sequence counters are independent.
 Reset restarts ordering history, preserving cumulative comparison counts.
 A missing AEM image aborts before the first cycle.
 Only its setup failure counts; no audio assertion passes.
 The separate suite also grades this setup failure automatically.
+Two admission controls exercise initial silence and silence after traffic.
+Each silent window retains activity/payload failures and uncounted comparison omissions.
 
 Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
 Issue #360 remains outside this packet-interface simulation.
@@ -185,11 +189,11 @@ The 2026-09-07 control measured 27 checks and 3 expected failures, exit 1.
 It took 192.37 wall seconds; all five later phases stayed uncounted.
 The peer-delay assertion and both payload assertions detected corruption.
 
-The focused compilation limit is at most eight jobs.
+The focused compilation limit is at most four jobs.
 Smaller positive `VERILATOR_JOBS` values remain available.
 
-The original run simulated 14.443565400 seconds.
-Its measured 2282.26 wall seconds exceeded the shared suite deadline.
+The original fixed-window scenario spans 14.443565400 simulated seconds.
+The opt-in extended target retains those windows.
 The default now ends transition windows upon observed public state.
 Polling uses AXI-Lite every simulated millisecond.
 Each reached transition gets another millisecond for packet/publication settling.
@@ -211,37 +215,70 @@ No physical clock, protocol timer, or comparison threshold changes.
 The four missed intervals prevent a 600-second default run.
 Acquisition, recovery, and reset also require real Pdelay exchanges.
 The trimmed scenario still requires 12.992496440 simulated seconds.
-Consequently, the physical leg owns a separate suite deadline:
+Consequently, the physical leg runs separately from the default sweep:
 
 ```sh
-make -C tb/verilator/milan_dp_gptp
+VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/physical-logs --physical-gptp
+make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
 ```
 
-This calls the same focused recipe, then checks setup-abort accounting.
-The driver permits this suite 2400 wall seconds, including compilation.
-`milan_dp` and all other suites retain their 1800-second defaults.
-The [budget contract](../../../docs/testing/TESTING.md) records this exception.
-The driver retains TIMEOUT/UNKNOWN and nonzero exit on expiry.
+The wrapper calls the focused recipe and accounting regressions.
+The physical harness contributes 127 checks.
+Setup-abort contributes six; two no-TX controls contribute twenty.
+Its separate deadline is 5400 seconds, including compilation.
+The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+Every default suite retains its 1800-second deadline.
+The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+Physical regressions are therefore caught nightly, outside the PR aggregate.
+Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
 
-The 2026-09-07 UTC full-driver measurements passed:
+The former 2400-second hosted budget expired on 2026-09-07.
+Its twelve shard companions passed; the physical result remained unknown.
+The reference machine needed approximately 2080 simulation seconds.
+It uses an AMD EPYC 9554P with 128 logical CPUs.
+This establishes a hosted/local ratio above approximately 1.15.
+The killed run supplies no finite upper bound.
+The scheduling decision uses that conservative, unbounded end.
+It does not treat the lower bound as a prediction.
 
-| Directory | Driver wall seconds | Checks / failures | Default budget |
+Round-three measurements used Verilator 5.050 on 2026-09-07.
+Each experiment was confined to four distinct logical CPUs.
+Each allocation also ran one CPU-bound SHA-256 background worker.
+Experiments used separate build directories and disjoint CPU allocations.
+Every build used four compilation jobs.
+All three tabulated models ran completely.
+
+| Build configuration | Fresh build and run | Simulation only | Checks / failures |
 |---|---:|---:|---:|
-| `milan_dp` | 322.72 | 9237 / 0 | 1800 s |
-| `milan_dp_gptp` | 2078.69 | 133 / 0 | 2400 s |
+| Baseline, single thread, `-O2` | 2079.57 s | 2058.94 s | 127 / 0 |
+| Verilator `-O3`, C++ `-O3`, `--threads 1` | 2024.43 s | 2002.53 s | 127 / 0 |
+| Same optimization, `--threads 3 --threads-max-mtasks 3` | 2050.32 s | 2027.80 s | 127 / 0 |
 
-The physical simulation itself took 2053.39 wall seconds.
-Its 127 checks passed; setup-abort regression adds six separate checks.
-Driver measurements include compilation and preflight gates.
-The physical suite retained 321.31 seconds of budget headroom.
-Its simulation alone still exceeds the ordinary 1800-second deadline.
-Neither run set `SUITE_TIMEOUT`.
+The three-thread build's coarse partition schedules all work serially.
+It proves equivalent output, without demonstrating parallel acceleration.
+Unrestricted parallel and intermediate partition trials were stopped as impractical.
+Those incomplete trials provide no passing coverage or equivalence verdict.
+The shipped recipe therefore selects the faster single-threaded optimization.
+It improves complete local runtime by 2.65 percent.
 
+All three completed simulation transcripts are byte-identical.
+Their SHA-256 is `15e5f27266e8c56a28122492282012dbc4d6361a2b360780742321485886bdad`.
+They retain 649624822 cycles and 12.992496440 simulated seconds.
+Payload/order/sequence comparison counts remain 4981392/622672/103937.
+Every publication value, phase, and assertion result remains unchanged.
+
+The killed hosted workload divided by the measured baseline exceeds 1.15408.
+The optimistic optimized projection therefore exceeds 2336.36 seconds.
+The interval has no finite upper bound.
+A 30-percent margin would require at most 1680 seconds.
+Even its optimistic end misses that target substantially.
+The conservative, unbounded end therefore requires decision branch 2.
+The new nightly deadline remains an operational limit awaiting hosted evidence.
 
 The original spans remain explicitly available:
 
 ```sh
-make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=4
 # Equivalent entry from the separate suite:
 make -C tb/verilator/milan_dp_gptp extended
 ```
@@ -256,7 +293,7 @@ The recipe records wall duration, process status, and SHA-256 hashes.
 Each phase has a bounded simulated deadline.
 Transport timeout aborts print the remaining unexecuted scope.
 
-The broad driver runs this leg once through `milan_dp_gptp`.
+The explicit physical driver runs this leg once through `milan_dp_gptp`.
 The `milan_dp` default retains its eleven existing legs.
 `suite_tally.py` reads its separate physical-rate summary.
 It also counts the six executed setup-abort regression assertions.

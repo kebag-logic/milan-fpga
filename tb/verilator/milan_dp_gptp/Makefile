@@ -3,7 +3,7 @@
 
 # Separate driver deadline for the real-cadence gPTP integration. The shared
 # recipe owns the generated image, elaboration parameters and build directory.
-# The milan_dp default no longer runs this leg, so a sweep executes it once.
+# The default sweep excludes this directory; --physical-gptp selects it once.
 .PHONY: all extended
 all:
 	$(MAKE) -C ../milan_dp ax1x1gptp

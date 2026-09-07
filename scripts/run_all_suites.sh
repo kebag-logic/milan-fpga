@@ -3,9 +3,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Run every Verilator testbench suite under tb/verilator/ and summarise.
+# Run the default Verilator sweep, or the separate scheduled physical suite.
 #
-#   scripts/run_all_suites.sh [outdir] [--wait] [--shard INDEX/TOTAL]
+#   scripts/run_all_suites.sh [outdir] [--wait] [--shard INDEX/TOTAL] [--physical-gptp]
 #   scripts/run_all_suites.sh [--shard INDEX/TOTAL] --list
 #
 # Each suite is a directory with its own Makefile; the default target builds
@@ -30,7 +30,7 @@
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
-#                        Defaults: 1800 s; milan_dp_gptp alone gets 2400 s.
+#                        Defaults: 1800 s; scheduled milan_dp_gptp gets 5400 s.
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
@@ -105,6 +105,7 @@ WAIT=0
 OUT=""
 SHARD="0/1"
 LIST=0
+PHYSICAL_GPTP=0
 
 #! the command line: [outdir] [--wait] [--shard INDEX/TOTAL] [--list]
 parse_args() {
@@ -112,6 +113,7 @@ parse_args() {
     case "$1" in
       --wait) WAIT=1; shift ;;
       --list) LIST=1; shift ;;
+      --physical-gptp) PHYSICAL_GPTP=1; shift ;;
       --shard)
         [ "$#" -ge 2 ] || { echo "--shard needs INDEX/TOTAL" >&2; exit 2; }
         SHARD="$2"; shift 2 ;;
@@ -128,15 +130,16 @@ parse_args() {
 #! the suites this invocation owns, into `suites` (or --list and out)
 select_suites() {
   # Selection is delegated to a self-tested helper. Its default 0/1 result is
-  # exactly the old lexical glob order, so local callers remain an unsharded
-  # full sweep. --list is intentionally read-only and takes no sweep lock.
+  # the default inventory in lexical order. The physical leg has its own
+  # explicit selection. --list is read-only and takes no sweep lock.
+  selector=(python3 "$ROOT/scripts/suite_shards.py"
+    --suite-root "$ROOT/tb/verilator" --shard "$SHARD")
+  [ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)
   if [ "$LIST" = 1 ]; then
-    exec python3 "$ROOT/scripts/suite_shards.py" \
-      --suite-root "$ROOT/tb/verilator" --shard "$SHARD"
+    exec "${selector[@]}"
   fi
 
-  if ! selected_out=$(python3 "$ROOT/scripts/suite_shards.py" \
-        --suite-root "$ROOT/tb/verilator" --shard "$SHARD" 2>&1); then
+  if ! selected_out=$("${selector[@]}" 2>&1); then
     echo "$selected_out" >&2
     exit 2
   fi
@@ -200,7 +203,7 @@ acquire_lock() {
 #! The CI runner contract pins both budgets and the sole exception's name.
 suite_timeout() {
   case "$1" in
-    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
+    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }

@@ -241,8 +241,11 @@ ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 # A distinct image keeps the historical 2 MHz gptp leg byte-for-byte intact.
 AX_GPTP_HZ = 50000000
 AX_GPTP_ARGS =
-AX_GPTP_JOBS = $(if $(filter 1 2 3 4 5 6 7,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),8)
+AX_GPTP_JOBS = $(if $(filter 1 2 3,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),4)
 AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS)))
+# Model-preserving compiler optimization; physical clocks and timers stay above.
+# Three-thread measurements did not establish a safe PR-shard budget.
+AX_GPTP_FLAGS += -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra"
 gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
 	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
 
@@ -250,7 +253,7 @@ ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
 	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_ax1x1gptp/aemi.bin
 
-ax1x1gptp: VERILATOR_JOBS = 8
+ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
 	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \

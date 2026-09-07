@@ -18,8 +18,9 @@ on:
 
 # Marking a PR draft again starts a no-op run in the same group and cancels any
 # obsolete exhaustive work. A later commit to a ready PR replaces old evidence.
+# Nightly/manual physical evidence survives pushes, which do not rerun that leg.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'physical' || 'default' }}
   cancel-in-progress: true
 
 env:
@@ -295,6 +296,84 @@ jobs:
         with:
           name: suite-logs-${{ matrix.shard }}
           path: ${{ runner.temp }}/suite-logs
+          if-no-files-found: error
+          retention-days: 3
+
+  # The real-cadence integration reports nightly and on explicit dispatch.
+  physical-gptp:
+    name: Physical gPTP (nightly and manual)
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: |
+          set -euo pipefail
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+          python3 -m pip install --quiet pyyaml
+      - name: Record the tree this worker validates
+        env:
+          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/physical-gptp-logs"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"
+          echo "target_sha=$GITHUB_SHA"
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$(nproc)"
+          sudo make install
+      - name: Put Verilator on PATH and prove the version
+        run: |
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+      - name: Prove physical suite selection
+        run: |
+          set -euo pipefail
+          python3 scripts/suite_shards.py --selftest
+          selected="$(scripts/run_all_suites.sh --physical-gptp --list)"
+          test "$selected" = milan_dp_gptp
+      - name: Run the physical gPTP suite with its own deadline
+        run: |
+          set -euo pipefail
+          /usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' \
+            env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \
+            scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" --physical-gptp
+          python3 scripts/suite_tally.py "$RUNNER_TEMP/physical-gptp-logs" --quiet \
+            --expect-suite-root tb/verilator --physical-gptp
+          mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"
+          cp tb/verilator/milan_dp/obj_ax1x1gptp/*tx-control.log \
+            "$RUNNER_TEMP/physical-gptp-logs/controls/"
+      - name: Upload the physical suite evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: physical-gptp-logs
+          path: ${{ runner.temp }}/physical-gptp-logs
           if-no-files-found: error
           retention-days: 3
 

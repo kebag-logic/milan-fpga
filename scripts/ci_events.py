@@ -161,6 +161,94 @@ RTL_FULL = ".github/workflows/rtl.yml"
 RTL_FAST = ".github/workflows/rtl-fast.yml"
 DOCS = ".github/workflows/docs.yml"
 ELABORATE = ".github/workflows/elaborate.yml"
+PHYSICAL_GPTP_JOB = "physical-gptp"
+# Independent whole-job expectation: route, deadline, setup and evidence all matter.
+PHYSICAL_GPTP_CONTRACT: YamlMap = {
+    'name': 'Physical gPTP (nightly and manual)',
+    'needs': 'full-ci-gate',
+    'if': "${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == "
+          "'schedule' || github.event_name == 'workflow_dispatch') }}",
+    'runs-on': 'ubuntu-latest',
+    'timeout-minutes': 120,
+    'steps': [   {'uses': 'actions/checkout@v4'},
+                 {   'name': 'Fetch RTL dependencies',
+                     'run': 'set -euo pipefail\n'
+                            'git submodule update --init third_party/verilog-axis '
+                            'protocol-processor gptp-processor\n'
+                            'python3 -m pip install --quiet pyyaml\n'},
+                 {   'name': 'Record the tree this worker validates',
+                     'env': {'TARGET_SHA': '${{ needs.full-ci-gate.outputs.target_sha }}'},
+                     'run': 'set -euo pipefail\n'
+                            'head="$(git rev-parse HEAD)"\n'
+                            'if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != '
+                            '"$TARGET_SHA" ]; then\n'
+                            '  echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target '
+                            '$TARGET_SHA must be one SHA" >&2\n'
+                            '  exit 1\n'
+                            'fi\n'
+                            'mkdir -p "$RUNNER_TEMP/physical-gptp-logs"\n'
+                            'printf \'%s\\n\' "$GITHUB_SHA" > '
+                            '"$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"\n'
+                            'echo "target_sha=$GITHUB_SHA"\n'},
+                 {   'name': 'Cache the pinned Verilator build',
+                     'id': 'cache-verilator',
+                     'uses': 'actions/cache@v4',
+                     'with': {   'path': '/opt/verilator',
+                                 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ '
+                                        'runner.os }}'}},
+                 {   'name': 'Build Verilator from source on cache miss',
+                     'if': "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}",
+                     'run': 'set -euo pipefail\n'
+                            'sudo apt-get update -qq\n'
+                            'sudo apt-get install -y --no-install-recommends \\\n'
+                            '  git make autoconf g++ flex bison libfl2 libfl-dev help2man '
+                            'perl python3\n'
+                            'git clone --depth 1 --branch "$VERILATOR_VERSION" \\\n'
+                            '  https://github.com/verilator/verilator.git '
+                            '/tmp/verilator-src\n'
+                            'cd /tmp/verilator-src\n'
+                            'autoconf\n'
+                            './configure --prefix=/opt/verilator\n'
+                            'make -j"$(nproc)"\n'
+                            'sudo make install\n'},
+                 {   'name': 'Put Verilator on PATH and prove the version',
+                     'run': 'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
+                            '/opt/verilator/bin/verilator --version\n'
+                            '/opt/verilator/bin/verilator --version | grep -F '
+                            '"${VERILATOR_VERSION#v}"\n'},
+                 {   'name': 'Prove physical suite selection',
+                     'run': 'set -euo pipefail\n'
+                            'python3 scripts/suite_shards.py --selftest\n'
+                            'selected="$(scripts/run_all_suites.sh --physical-gptp --list)"\n'
+                            'test "$selected" = milan_dp_gptp\n'},
+                 {   'name': 'Run the physical gPTP suite with its own deadline',
+                     'run': 'set -euo pipefail\n'
+                            "/usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' "
+                            '\\\n'
+                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \\\n'
+                            '  scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" '
+                            '--physical-gptp\n'
+                            'python3 scripts/suite_tally.py '
+                            '"$RUNNER_TEMP/physical-gptp-logs" --quiet \\\n'
+                            '  --expect-suite-root tb/verilator --physical-gptp\n'
+                            'mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"\n'
+                            'cp tb/verilator/milan_dp/obj_ax1x1gptp/*tx-control.log \\\n'
+                            '  "$RUNNER_TEMP/physical-gptp-logs/controls/"\n'},
+                 {   'name': 'Upload the physical suite evidence',
+                     'if': '${{ always() }}',
+                     'uses': 'actions/upload-artifact@v4',
+                     'with': {   'name': 'physical-gptp-logs',
+                                 'path': '${{ runner.temp }}/physical-gptp-logs',
+                                 'if-no-files-found': 'error',
+                                 'retention-days': 3}}]}
+PHYSICAL_GPTP_IF = str(PHYSICAL_GPTP_CONTRACT["if"])
+PHYSICAL_GPTP_CONCURRENCY = (
+    "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-"
+    "${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') "
+    "&& 'physical' || 'default' }}"
+)
+
+
 POLICY = "docs/testing/CI_WORKFLOWS.md"
 WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
 FILES = WORKFLOWS + (POLICY,)
@@ -440,6 +528,10 @@ ENV_FILE_WRITERS = {
         'echo /opt/sbt/bin >> "$GITHUB_PATH"',
     ),
 }
+ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")] = (
+    ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")]
+)
+
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
 #: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
 #: computes the required context on another tree.
@@ -456,6 +548,7 @@ RECORDED_ACTIONS = frozenset({
 INHERITED_STEP_ENV = {
     (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
     (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
+    (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
@@ -1435,6 +1528,25 @@ def check_rtl_full(c: Contract, wf: YamlMap, policy: str) -> None:
     check_publication_path(c, path, wf)
 
 
+def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
+    """Pin the scheduled leg's entire job and keep the default shard command."""
+    c.item(wf.get("concurrency") == {"group": PHYSICAL_GPTP_CONCURRENCY,
+                                    "cancel-in-progress": True}, RTL_FULL,
+           "physical runs must survive push/PR cancellation in their pinned concurrency group")
+    job = jobs(wf).get(PHYSICAL_GPTP_JOB)
+    c.item(job == PHYSICAL_GPTP_CONTRACT, RTL_FULL,
+           "physical-gptp must match its pinned schedule, budget, steps and evidence")
+    shard = jobs(wf).get("verilator-shards", {})
+    run_steps = [s for s in steps(shard) if s.get("name") == "Run this exhaustive suite shard"]
+    expected_run = ('scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" '
+                    '--shard "${{ matrix.shard }}/${{ matrix.total }}"')
+    c.item(len(run_steps) == 1 and set(run_steps[0]) == {"name", "run"}
+           and normalize_script(run_steps[0].get("run", "")) == normalize_script(expected_run),
+           RTL_FULL, "default Verilator shards must use the pinned default inventory command")
+    for token in ("physical-gptp", "--physical-gptp", "5400", "120", "nightly"):
+        c.item(token in policy, POLICY, f"must document physical gPTP policy token `{token}`")
+
+
 #: #350: the Yosys workers' content-addressed result cache. The trust
 #: boundary is GitHub's cache scoping, so the contract pins the exact shape
 #: that makes the scoping do the work: one restore of one path, a save key
@@ -1659,9 +1771,10 @@ def check_publication_path(c: Contract, path: str, wf: YamlMap) -> None:
         if jid == sel or sel not in needs_list(job):
             continue
         aggregate = display_name(jid, job) in public
-        check_job_keys(c, path, jid, job, allow_needs=True,
-                       allowed_if=(AGGREGATE_IF[path] if aggregate
-                                   else consumer_job_if(sel, decision)))
+        allowed_if = AGGREGATE_IF[path] if aggregate else consumer_job_if(sel, decision)
+        if path == RTL_FULL and jid == PHYSICAL_GPTP_JOB:
+            allowed_if = PHYSICAL_GPTP_IF
+        check_job_keys(c, path, jid, job, allow_needs=True, allowed_if=allowed_if)
 
     # [R2] on PR #239: a job wired straight into an aggregate's `needs`
     # without itself needing the selector, as `bdd-conformance` is, landed in
@@ -2916,6 +3029,7 @@ def check(parsed: World) -> Contract:
     """The whole contract over a parsed world. Returns a Contract."""
     c = Contract()
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
+    check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_rtl_fast(c, parsed[RTL_FAST])
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
@@ -5777,6 +5891,54 @@ def _result_cache_arms() -> list[Arm]:
     ]
 
 
+def _physical_gptp_arms() -> list[Arm]:
+    """The nightly leg cannot disappear, widen its budget or rejoin PR shards."""
+    finding = "physical-gptp must match its pinned schedule, budget, steps and evidence"
+    arms: list[Arm] = [
+        ("physical job removed", lambda w: jobs(w[RTL_FULL]).pop(PHYSICAL_GPTP_JOB), finding),
+    ]
+    for key, value in (("if", "${{ false }}"),
+                       ("if", "${{ needs.full-ci-gate.outputs.run_full == 'true' }}"),
+                       ("needs", []), ("timeout-minutes", 180),
+                       ("runs-on", "self-hosted"), ("continue-on-error", True)):
+        arms.append((f"physical job changed {key} {value}",
+                     _m_job_key_any(RTL_FULL, PHYSICAL_GPTP_JOB, key, value), finding))
+
+    def step_mutation(index: int, key: str, value: Any) -> Mutator:
+        """Change one step without altering any of its neighbors."""
+        def mutate(w: World) -> None:
+            """Apply the selected step mutation to this fixture world."""
+            jobs(w[RTL_FULL])[PHYSICAL_GPTP_JOB]["steps"][index][key] = value
+        return mutate
+
+    for index, key, value in ((0, "with", {"ref": "dev"}),
+                              (1, "run", "echo no descriptor-builder dependency"),
+                              (2, "run", "echo unbound SHA"),
+                              (4, "run", "echo no tool build"),
+                              (5, "run", "echo no version check"),
+                              (6, "run", "echo no selection check"),
+                              (7, "if", "${{ false }}"),
+                              (7, "run", "echo no suite run"),
+                              (7, "env", {"SUITE_TIMEOUT": "7200"}),
+                              (8, "with", {"name": "suite-logs-3"})):
+        arms.append((f"physical step {index} changed {key}",
+                     step_mutation(index, key, value), finding))
+    def default_command(w: World) -> None:
+        """Attempt to run the physical suite in every default shard."""
+        for step in jobs(w[RTL_FULL])["verilator-shards"]["steps"]:
+            if step.get("name") == "Run this exhaustive suite shard":
+                step["run"] += " --physical-gptp"
+    arms.append(("physical selection leaked into default shards", default_command,
+                 "default Verilator shards must use the pinned default inventory command"))
+    def shared_cancellation(w: World) -> None:
+        """Let a push cancel a physical run without starting a replacement."""
+        w[RTL_FULL]["concurrency"]["group"] = (
+            "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}")
+    arms.append(("physical runs cancelled by pushes", shared_cancellation,
+                 "physical runs must survive push/PR cancellation"))
+    return arms
+
+
 def _mutations() -> list[Arm]:
     """(name, mutate(parsed_world), expected finding fragment), every arm.
 
@@ -5807,7 +5969,8 @@ def _mutations() -> list[Arm]:
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
-            + _result_cache_arms())
+            + _result_cache_arms()
+            + _physical_gptp_arms())
 
 
 def _run_mutations(checker: Callable[[World], list[str]],

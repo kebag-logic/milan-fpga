@@ -112,9 +112,12 @@ uint32_t sample(uint32_t index, unsigned channel) {
     return ((channel + 1) << 20) | (index & 0xFFFFF);
 }
 
+enum class TrafficControl { Normal, NoTx, StopTx };
+
 class Harness {
  public:
-    Harness(bool negative, bool extended) : negative_(negative), extended_(extended) {
+    Harness(bool negative, bool extended, TrafficControl traffic_control)
+        : negative_(negative), extended_(extended), traffic_control_(traffic_control) {
         check.echo_passes();
     }
     int run();
@@ -125,6 +128,7 @@ class Harness {
     milan::tb::Checker check{"ax1x1gptp physical"};
     bool negative_;
     bool extended_;
+    TrafficControl traffic_control_;
     uint64_t cyc = 0;
     uint64_t audio_edges = 0;
     uint64_t ps_edges = 0;
@@ -162,6 +166,7 @@ class Harness {
     uint64_t uncertain_frames = 0;
     int require_tu = -1;
     uint64_t tu_bad = 0;
+    uint64_t tu_comparisons = 0;
     uint64_t pd_requests = 0;
     uint64_t pd_answers = 0;
     uint64_t pd_first = 0;
@@ -536,7 +541,10 @@ void Harness::grade_audio(const std::vector<uint8_t>& f) {
     ++tx_audio;
     const bool tu = f[17 + v] & 1;
     if (tu) ++uncertain_frames; else ++certain_frames;
-    if (require_tu >= 0 && tu != bool(require_tu)) ++tu_bad;
+    if (require_tu >= 0) {
+        ++tu_comparisons;
+        if (tu != bool(require_tu)) ++tu_bad;
+    }
     if (seq_started) {
         ++sequence_comparisons;
         if (f[16 + v] != uint8_t(last_seq + 1)) ++sequence_bad;
@@ -606,7 +614,7 @@ void Harness::configure() {
         write(0x904, 0x100 | ch);
         write(0x908, 0xD000 | ((ch & 1) << 8) | (ch / 2));
     }
-    write(0x654, 0x00020003);
+    write(0x654, traffic_control_ == TrafficControl::NoTx ? 0x00020001 : 0x00020003);
     check.hex("diagnostic talker bypass opens gate", read(0x66C) & 8, 8);
     printf("TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN\n");
     audio_on = true; next_audio = cyc;
@@ -712,6 +720,9 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
     const uint64_t seq0 = sequence_bad;
     const uint64_t good0 = good_samples;
     const uint64_t tu0 = tu_bad;
+    const uint64_t order_comparisons0 = order_comparisons;
+    const uint64_t sequence_comparisons0 = sequence_comparisons;
+    const uint64_t tu_comparisons0 = tu_comparisons;
     require_tu = tu;
     if (extended_ || until == Until::Deadline) run_cycles(n);
     else {
@@ -746,9 +757,15 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
         static_cast<unsigned long long>(order_bad - order0));
     check.that("both eight-channel packet directions active", rx_audio - rx0 > 50 && tx_audio - tx0 > 50);
     check.that("all eight channel payloads match the supplied ramp", payload_bad == bad0 && good_samples - good0 > 300);
-    check.dec("audio sample order, no duplicates or gaps", order_bad - order0, 0);
-    check.dec("AAF packet sequence order", sequence_bad - seq0, 0);
-    if (tu >= 0) check.dec("AAF uncertainty matches public stable state", tu_bad - tu0, 0);
+    const auto compared = [this](const char* label, uint64_t comparisons, uint64_t errors) {
+        if (comparisons) check.dec(label, errors, 0);
+        else printf("NOT RUN: %s (no comparisons in this window; uncounted)\n", label);
+    };
+    compared("audio sample order, no duplicates or gaps", order_comparisons - order_comparisons0,
+             order_bad - order0);
+    compared("AAF packet sequence order", sequence_comparisons - sequence_comparisons0, sequence_bad - seq0);
+    if (tu >= 0) compared("AAF uncertainty matches public stable state", tu_comparisons - tu_comparisons0,
+                          tu_bad - tu0);
     else printf("NOT RUN: stable-tu comparison during transition window\n");
 }
 
@@ -811,6 +828,15 @@ int Harness::run() {
         run_cycles(kHz / 100);
         audio_window("initial payload", kHz / 50, 1);
         completed[1] = true;
+        if (traffic_control_ == TrafficControl::NoTx) return report();
+        if (traffic_control_ == TrafficControl::StopTx) {
+            // Preserve the initial comparisons, then drain admitted traffic.
+            // This proves a later empty window cannot borrow earlier evidence.
+            write(0x654, 0x00020001);
+            run_cycles(kHz / 100);
+            audio_window("admission withheld after traffic", kHz / 50, 1);
+            return report();
+        }
         const auto initial_avb = query(0x27, 0x7010);
         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
         check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
@@ -868,9 +894,15 @@ int main(int argc, char** argv) {
     setvbuf(stdout, nullptr, _IOLBF, 0);
     bool negative = false;
     bool extended = false;
+    TrafficControl traffic_control = TrafficControl::Normal;
     if (argc == 2 && std::string(argv[1]) == "--negative-control") negative = true;
     else if (argc == 2 && std::string(argv[1]) == "--extended") extended = true;
-    else if (argc != 1) { fprintf(stderr, "usage: %s [--negative-control|--extended]\n", argv[0]); return 2; }
-    Harness harness(negative, extended);
+    else if (argc == 2 && std::string(argv[1]) == "--no-tx-control") traffic_control = TrafficControl::NoTx;
+    else if (argc == 2 && std::string(argv[1]) == "--stop-tx-control") traffic_control = TrafficControl::StopTx;
+    else if (argc != 1) {
+        fprintf(stderr, "usage: %s [--negative-control|--extended|--no-tx-control|--stop-tx-control]\n", argv[0]);
+        return 2;
+    }
+    Harness harness(negative, extended, traffic_control);
     return harness.run();
 }

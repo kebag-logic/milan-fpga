@@ -12,11 +12,13 @@ import argparse
 import hashlib
 import re
 import sys
+import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 
 
 SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
+SCHEDULED_SUITES = frozenset({"milan_dp_gptp"})
 
 
 def parse_shard(value: str) -> tuple[int, int]:
@@ -39,6 +41,12 @@ def discover_suites(root: str | Path) -> list[str]:
     )
 
 
+def sweep_suites(root: str | Path, *, physical: bool = False) -> list[str]:
+    """Select the default or scheduled inventory, shared with the tally reader."""
+    return [suite for suite in discover_suites(root)
+            if (suite in SCHEDULED_SUITES) == physical]
+
+
 def select_suites(suites: Sequence[str], index: int, total: int) -> list[str]:
     """Select one stable-hash shard from an already ordered inventory."""
     return [suite for suite in suites if shard_owner(suite, total) == index]
@@ -48,6 +56,30 @@ def shard_owner(suite: str, total: int) -> int:
     """Return the stable zero-based owner of one suite name."""
     digest = hashlib.sha256(suite.encode("utf-8")).digest()
     return int.from_bytes(digest[:8], "big") % total
+
+
+def scheduled_partition_selftest() -> bool:
+    """Prove physical/default separation while admitting future default suites."""
+    # The physical-rate leg has a separate schedule and never consumes a PR
+    # shard's deadline. Unknown future suites still join the default sweep.
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        names = ["milan_dp", "milan_dp_gptp", "future_suite"]
+        for name in names:
+            (root / name).mkdir()
+            (root / name / "Makefile").touch()
+        default = sweep_suites(root)
+        physical = sweep_suites(root, physical=True)
+        ok = (SCHEDULED_SUITES == frozenset({"milan_dp_gptp"})
+              and default == ["future_suite", "milan_dp"]
+              and physical == ["milan_dp_gptp"]
+              and sorted(default + physical) == sorted(names)
+              and all("milan_dp_gptp" not in select_suites(default, i, 4)
+                      for i in range(4)))
+        print(f"  {'ok  ' if ok else 'FAIL'} scheduled/default partition: "
+              f"default={default} physical={physical}")
+        return ok
+
 
 
 def selftest() -> int:
@@ -74,7 +106,6 @@ def selftest() -> int:
     # for chmap_capture's worker, so an assignment-rule change must fail here.
     landmarks = {
         "milan_dp": 0,
-        "milan_dp_gptp": 3,
         "pp_shadow": 1,
         "mmcm_servo": 2,
         "tsn_fuzz": 1,
@@ -84,6 +115,8 @@ def selftest() -> int:
     ok = got == landmarks
     print(f"  {'ok  ' if ok else 'FAIL'} four-worker runtime landmarks: {got}")
     bad += 0 if ok else 1
+
+    bad += 0 if scheduled_partition_selftest() else 1
 
     for value in ("", "1", "-1/4", "01/4", "4/4", "5/4", "0/0", "a/4"):
         try:
@@ -106,6 +139,8 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument("--shard", default="0/1", metavar="INDEX/TOTAL",
                         help="zero-based shard to print (default: 0/1)")
     parser.add_argument("--selftest", action="store_true")
+    parser.add_argument("--physical-gptp", action="store_true",
+                        help="only the scheduled physical suite; absent from default shards")
     args = parser.parse_args(argv[1:])
 
     if args.selftest:
@@ -115,7 +150,9 @@ def main(argv: Sequence[str]) -> int:
 
     try:
         index, total = parse_shard(args.shard)
-        suites = discover_suites(args.suite_root)
+        if args.physical_gptp and (index, total) != (0, 1):
+            raise ValueError("--physical-gptp uses its own unsharded job (0/1)")
+        suites = sweep_suites(args.suite_root, physical=args.physical_gptp)
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     if not suites:
