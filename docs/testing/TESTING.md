@@ -88,7 +88,7 @@ response-boundary and stopped CRF observation gaps that keep START/STOP partial.
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
-- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the `verilog-axis` submodule that five suites elaborate.
+- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the three submodules the harnesses read, initialised by one command (`third_party/verilog-axis`, `protocol-processor`, `gptp-processor`).
 - **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table -- reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
 - **[2. LiteX integration checks - sw/litex/test_\*.py](#2-litex-integration-checks---swlitextest_py)** -- Focused checks for the protocol-processor memory bridges and boot/freeze behavior retained by the bare-metal SoC.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end -- the M-A2 `"MILN"` read, in simulation, before any board exists.
@@ -147,7 +147,7 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Five suites elaborate Forencich cores; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and every `milan_dp` leg parses its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and every `milan_dp` leg parses its sources even with the fabric gPTP plane off. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
@@ -171,11 +171,14 @@ of any kind; `controller_rate` is the gating regression born from the
 control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
-**Two suites need the public protocol-processor submodule.**
-`milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`,
-and `milan_dp` resolve `protocol-processor/hdl`. Its remote uses
-anonymous HTTPS. Run `git submodule update --init protocol-processor` before
-building any of them. The CI workflow initializes it before the full sweep.
+**Two suites need the public protocol-processor submodule and four need
+gptp-processor.** `milan_datapath` instantiates `KL_pp_shadow` unconditionally,
+so `pp_shadow` and `milan_dp` resolve `protocol-processor/hdl`; `gptp_plane`,
+`gptp_shadow`, `tsn_fuzz` and `milan_dp` resolve `gptp-processor/hdl`. Both
+remotes use anonymous HTTPS. Run the Section 0 command,
+`git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`,
+before building any of them. The CI workflow initializes the same three before
+the full sweep.
 
 
 ### 0.1 Coverage map — the module ↔ spec ↔ test matrix
@@ -351,7 +354,7 @@ verdicts and for check counts.
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
 | [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a CRF selection; at INTERNAL it free-runs |
-| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
+| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
 | [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7) |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
@@ -713,8 +716,8 @@ bare-metal board exposes only the UART. What stands in its place:
 * **The datapath-level suites run in CI.** `pp_shadow` and `milan_dp`
   elaborate `milan_datapath` with the protocol processor.
   [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) initializes the
-  public HTTPS `protocol-processor` and `third_party/verilog-axis` submodules
-  before the full Verilator sweep.
+  public HTTPS `third_party/verilog-axis`, `protocol-processor` and
+  `gptp-processor` submodules before the full Verilator sweep.
 * **The BDD conformance suite runs on every verification round** (USER standing
   order, 2026-07-26). `cd tests && behave -f plain` — the run's own tally is
   authoritative, so read it there rather than here; on 2026-08-13 it stood at 12
