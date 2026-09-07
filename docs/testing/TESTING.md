@@ -147,7 +147,7 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and every `milan_dp` leg parses its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
@@ -171,11 +171,16 @@ of any kind; `controller_rate` is the gating regression born from the
 control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
-**Two suites need the public protocol-processor submodule and four need
-gptp-processor.** `milan_datapath` instantiates `KL_pp_shadow` unconditionally,
-so `pp_shadow` and `milan_dp` resolve `protocol-processor/hdl`; `gptp_plane`,
-`gptp_shadow`, `tsn_fuzz` and `milan_dp` resolve `gptp-processor/hdl`. Both
-remotes use anonymous HTTPS. Run the Section 0 command,
+**The processor submodules serve more suites than name them.**
+`milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`
+and `milan_dp` resolve `protocol-processor/hdl`. Both of them also resolve
+`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow` and `tsn_fuzz`:
+`milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
+that same list from `make -C ../milan_dp print-srcs`, so a suite can need a
+submodule its own Makefile never names. Grepping the Makefiles is therefore
+not the census; the expanded recipe is, so read it with `make -n` in the suite
+and the line continuations joined. Both processor remotes use anonymous HTTPS.
+Run the Section 0 command,
 `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`,
 before building any of them. The CI workflow initializes the same three before
 the full sweep.
@@ -359,7 +364,7 @@ verdicts and for check counts.
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
 | [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
-| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` submodule |
+| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
 | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model |
 | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | — |
 | [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |

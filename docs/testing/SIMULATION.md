@@ -48,8 +48,8 @@ see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 > range check before the locate. To grade `NO_SUCH_DESCRIPTOR`, supply a valid
 > image first and then miss inside it. Because the wrapper instantiates the processor
 > unconditionally, every suite that elaborates `milan_datapath` (`pp_shadow`
-> and `milan_dp`) needs the `protocol-processor` submodule, and `milan_dp` parses
-> the `gptp-processor` sources as well; both processor remotes are anonymous HTTPS,
+> and `milan_dp`) needs the `protocol-processor` submodule, and both parse the
+> `gptp-processor` sources as well; both processor remotes are anonymous HTTPS,
 > and the Section 0 command initialises them together with `third_party/verilog-axis`:
 > `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Layer 3
 > below is unaffected: it exercises the CPU⇄CSR path, not the control plane.
