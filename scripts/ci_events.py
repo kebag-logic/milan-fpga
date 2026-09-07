@@ -464,6 +464,7 @@ INHERITED_STEP_ENV = {
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
     (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+    (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
 }
 #: The shard denominator a worker passes and states in its display name.
 #: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
@@ -578,7 +579,10 @@ BUILDER_RUNS = {
     ),
 }
 BUILDER_CHECKOUTS = {
-    DOCS: {"uses": "actions/checkout@v4"},
+    # Full history since #378: the em-dash gate derives its base by
+    # merge-base against the base branch, which a depth-1 checkout cannot
+    # answer.
+    DOCS: {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
     ELABORATE: {
         "uses": "actions/checkout@v4",
         "with": {"fetch-depth": 0},
@@ -632,6 +636,33 @@ CANONICAL_IMPORTED_GPTP_GATE_SCRIPT = (
     IMPORTED_GPTP_GATE_CALL,
     "make -C gptp-processor docs",
 )
+#: #378: the em-dash gate's body is bound to its published name the way the
+#: imported-gPTP body is. The event selection, the null and empty base
+#: refusals, the fetch of a base the shallow checkout lacks and the gate
+#: call are one script: `--base HEAD` judges no line, a `|| true` reports
+#: none, and either kept every recorded key, name and binding in place
+#: with the required context green ([R0] on PR #384).
+EM_DASH_GATE_CALL = 'python3 scripts/check_em_dash.py --base "$base"'
+EM_DASH_BASE_DERIVATION = 'base="$(git merge-base HEAD FETCH_HEAD || true)"'
+CANONICAL_EM_DASH_GATE_SCRIPT = (
+    'set -euo pipefail',
+    'case "$EVENT_NAME" in',
+    'pull_request)',
+    'if [ -z "$PR_BASE_REF" ]; then',
+    'echo "the pull_request event names no base branch"; exit 2',
+    'fi',
+    'git fetch --quiet origin "$PR_BASE_REF"',
+    'base="$(git merge-base HEAD FETCH_HEAD || true)"',
+    ';;',
+    'push) base="$PUSH_BEFORE_SHA" ;;',
+    '*) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;',
+    'esac',
+    'if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then',
+    'echo "the $EVENT_NAME event names no base commit"; exit 2',
+    'fi',
+    'git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"',
+    'python3 scripts/check_em_dash.py --base "$base"',
+)
 WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
 CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
                               WIRE_GATE_CALL)
@@ -674,6 +705,21 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
     '>> "$GITHUB_OUTPUT"',
 )
+#: The em-dash gate of `docs-check` (#378) judges the Markdown lines a change
+#: adds against a base it DERIVES, so its three bindings are held to their
+#: source expressions exactly as the fast selector's are. The pull-request
+#: binding is the base BRANCH, not `base.sha`: GitHub freezes that oid when
+#: the request opens while this job checks out the merge of the head into
+#: the current base tip, so the recorded oid attributed every line merged
+#: into the base since to the branch under test (the maintainer's finding on
+#: PR #384; the same lesson as #292 for the local runner). An event name
+#: hard-coded to `pull_request` reads the wrong base on a push.
+EM_DASH_GATE_NAME = "Added-line em-dash gate"
+EM_DASH_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+}
 #: THE FOUR CARRIERS' STEP LISTS (#295, closing [R4] round 6 on PR #293).
 #: The declared allowlists above hold what a step SAYS; none of them holds
 #: which steps a carrier job runs. A `run:` step inserted before the gates
@@ -689,7 +735,8 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
 #: anything else on the step is a surplus key refused by name.
 CARRIER_STEP_LISTS = {
     (DOCS, "docs-check"): (
-        {"uses": "actions/checkout@v4"},
+        {"uses": "actions/checkout@v4",
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
         {"name": "Build the validated HDL reference"},
         {"name": "Upload the HDL reference HTML",
          "uses": "actions/upload-artifact@v4",
@@ -700,6 +747,7 @@ CARRIER_STEP_LISTS = {
         {"name": "Install the python gate dependencies"},
         {"name": "Install diagram gate dependencies"},
         {"name": "Link health, wording, dead-reference and local-info gate"},
+        {"name": EM_DASH_GATE_NAME, "env": EM_DASH_STEP_ENV},
         {"name": "Concise audience documentation gate"},
         {"name": "Audience diagram no-drift gate"},
         {"name": "Product solution source-fact gate"},
@@ -2845,6 +2893,12 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
         (IMPORTED_GPTP_GATE_NAME, CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
          "this named step is the published proof for both the parent gPTP "
          "documentation contract and the pinned donor documentation build"))
+    check_named_carrier_gate_step(
+        c, DOCS, wf, "docs-check",
+        (EM_DASH_GATE_NAME, CANONICAL_EM_DASH_GATE_SCRIPT,
+         "the base this step judges from and the exit status it returns "
+         "are the whole gate: `--base HEAD` judges no line and a `|| true` "
+         "reports none"))
     check_carrier_gate_step(c, DOCS, wf, "wire-accountability", GatePin(
         WIRE_GATE_CALL, CANONICAL_WIRE_GATE_SCRIPT,
         "this step is the whole item-00 record, so a line beside the call "
@@ -5280,7 +5334,8 @@ def _contract_step_and_env_arms() -> list[Arm]:
          "the workflow-level `env` must name exactly ['VERILATOR_VERSION', 'YOSYS_VERSION']"),
         ("#261 docs-check ci_events step-level BASH_ENV",
          _m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
-         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist "
+         "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
         ("#261 elaborate builder-call step-level BASH_ENV",
          _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
@@ -5512,6 +5567,55 @@ def _docs_check_gate_step_arms() -> list[Arm]:
     ]
 
 
+def _em_dash_gate_step_arms() -> list[Arm]:
+    """#378: the em-dash gate's body, bound to its published name ([R0] on
+    PR #384): the call replaced, the base rebound to HEAD, the exit status
+    swallowed, the event selection and the refusals rewritten, and the body
+    moved under another recorded name."""
+    return [
+        ("#378 em-dash gate body replaced by true",
+         _m_named_gate_run(DOCS, "docs-check", EM_DASH_GATE_NAME, "true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate judges from HEAD",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     "python3 scripts/check_em_dash.py --base HEAD\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate swallows failure",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     EM_DASH_GATE_CALL + " || true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate judges from the frozen recorded base",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_BASE_DERIVATION,
+                     'base="$PR_BASE_SHA"'),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate base branch fetch removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     'git fetch --quiet origin "$PR_BASE_REF"\n', ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate push base rewritten",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     'push) base="$PUSH_BEFORE_SHA" ;;',
+                     'push) base="$GITHUB_SHA" ;;'),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate null-base refusal removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     '|| [ "$base" = 0000000000000000000000000000000000000000 ]',
+                     ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate base fetch removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     ' || git fetch --quiet --depth=1 origin "$base"', ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate body moved under another name",
+         _m_move_named_gate_body(DOCS, "docs-check", EM_DASH_GATE_NAME,
+                                 "Concise audience documentation gate"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+    ]
+
+
 def _carrier_gate_step_arms() -> list[Arm]:
     """#295: the gate step of the other two documentation carriers, one arm
     per lever per step."""
@@ -5640,7 +5744,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 41 steps"),
+         "job `docs-check` must carry exactly 42 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -5654,7 +5758,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `elaborate` must carry exactly 15 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 41 steps"),
+         "job `docs-check` must carry exactly 42 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -5667,22 +5771,22 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 41 steps, in the recorded order (found 40)"),
+         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 41 steps, in the recorded order (found 40)"),
+         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
          "job `elaborate` must carry exactly 15 steps, in the recorded order (found 14)"),
         ("#295 docs-check recognised steps swapped",
-         _m_swap_steps(DOCS, "docs-check", 36, 37),
-         "job `docs-check` step 38 must be the step named `Archive integrity gate`"),
+         _m_swap_steps(DOCS, "docs-check", 37, 38),
+         "job `docs-check` step 39 must be the step named `Archive integrity gate`"),
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
-         "job `docs-check` step 37 must be the step named `Doc cited-path gate`"),
+         "job `docs-check` step 38 must be the step named `Doc cited-path gate`"),
         ("#295 docs-check non-gate step if: false",
          _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
          "(`Bare-metal scope gate`) must carry no `if`"),
@@ -5696,7 +5800,41 @@ def _carrier_step_list_arms() -> list[Arm]:
          _m_with_key(DOCS, "docs-check", "Upload the HDL reference HTML", "path",
                      "${{ runner.temp }}/decoy/index.html"),
          "(`Upload the HDL reference HTML`) `with` must be exactly"),
+        # #378: the em-dash gate's base is the event's, bound by content.
+        ("#378 em-dash gate step EVENT_NAME hard-coded",
+         _set_env_key(_em_dash_step, "EVENT_NAME", "pull_request"),
+         f"(`{EM_DASH_GATE_NAME}`) env must bind `EVENT_NAME`"),
+        ("#378 em-dash gate step PR_BASE_REF rebound to the recorded oid",
+         _set_env_key(_em_dash_step, "PR_BASE_REF",
+                      "${{ github.event.pull_request.base.sha }}"),
+         f"(`{EM_DASH_GATE_NAME}`) env must bind `PR_BASE_REF`"),
+        ("#378 em-dash gate step PUSH_BEFORE_SHA dropped",
+         _m_em_dash_env_missing,
+         "missing: PUSH_BEFORE_SHA"),
+        ("#378 em-dash gate step env gains BASH_ENV",
+         _m_step_env(DOCS, "docs-check", "check_em_dash.py", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist "
+         "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
+        ("#378 em-dash gate step if: false",
+         _m_step_key_any(DOCS, "docs-check", "check_em_dash.py", "if", False),
+         f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
+        ("#378 em-dash gate step removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
+         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
     ]
+
+
+def _em_dash_step(w: World) -> YamlMap:
+    """docs-check's one em-dash gate step, by its script."""
+    found = [s for s in _job_steps(w, DOCS, "docs-check")
+             if "check_em_dash.py" in step_text(s)]
+    assert len(found) == 1, "fixture drift: no unique em-dash gate step"
+    return found[0]
+
+
+def _m_em_dash_env_missing(w: World) -> None:
+    """Drop PUSH_BEFORE_SHA from the em-dash gate step's env."""
+    del _em_dash_step(w)["env"]["PUSH_BEFORE_SHA"]
 
 
 def _result_cache_step(w: World) -> YamlMap:
@@ -5804,6 +5942,7 @@ def _mutations() -> list[Arm]:
             + _key_allowlist_arms()
             + _recorded_writer_arms()
             + _docs_check_gate_step_arms()
+            + _em_dash_gate_step_arms()
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()

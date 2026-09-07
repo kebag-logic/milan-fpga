@@ -274,6 +274,20 @@ def build() -> list[MatrixRow]:
 STATUS_GLYPH = {"direct": "✅", "exercised": "➰", "fuzz": "🔬",
                 "pkg": "📦", "archived": "🗄️", "UNTESTED": "⚪"}
 
+#! The four MODULE_MATRIX.md boilerplate sentences below keep the U+2014 the
+#! page has always carried. Substituting the marker is this rule applied to
+#! generated text; REWORDING a sentence is not, and the round-4 decision on
+#! PR #384 refuses the rewording. Those lines belong to a page that exists,
+#! so they are never lines a change adds -- the gate judges added lines, and
+#! only a page created from nothing would add them.
+#: What an empty test or clause cell renders as. ASCII on purpose (#378,
+#: [R0] round 2 on PR #384): these pages are committed, and the added-line
+#: em-dash gate refuses U+2014 on every line a change adds, so a row this
+#: generator emits with U+2014 in it is a required regeneration nobody can
+#: land. `selftest` below renders a row with neither a test nor a clause
+#: and requires the character to be absent.
+EMPTY_CELL = "--"
+
 
 def _test_cell(r):
     parts = ["`%s`" % t for t in r["dtbs"]]
@@ -283,7 +297,7 @@ def _test_cell(r):
         parts.append("🔬`%s`" % r["fuzz"])
     if not parts and r["status"] == "archived":
         return "🗄️ archived"
-    return " · ".join(parts) or "—"
+    return " · ".join(parts) or EMPTY_CELL
 
 
 def render_coverage_chart(mods: list[MatrixRow]) -> list[str]:
@@ -373,15 +387,15 @@ def render_top(rows: list[MatrixRow]) -> str:
     if unt:
         out += ["## ⚪ Untested modules (the backlog)", ""]
         for r in sorted(unt, key=lambda r: r["rel"]):
-            out.append("* `%s` — `%s`" % (r["name"], r["rel"]))
+            out.append("* `%s` -- `%s`" % (r["name"], r["rel"]))
         out.append("")
     if arch:
         out += ["## 🗄️ Archived modules (no open-flow test is possible)", "",
-                "Reason quoted from each module's own file banner — the "
+                "Reason quoted from each module's own file banner: the "
                 "generator reads it there, so it cannot drift from the code.",
                 ""]
         for r in sorted(arch, key=lambda r: r["rel"]):
-            out.append("* `%s` — `%s`  " % (r["name"], r["rel"]))
+            out.append("* `%s` -- `%s`  " % (r["name"], r["rel"]))
             out.append("  %s" % r["archived"])
         out.append("")
     for fam in ["ieee17221", "ieee1722", "ieee8021q", "ieee8021as", "common", "milan"]:
@@ -392,7 +406,7 @@ def render_top(rows: list[MatrixRow]) -> str:
         out += ["## %s" % title, "", "_%s_" % blurb, "",
                 "| module | file | test | clauses |", "|---|---|---|---|"]
         for r in sorted(frows, key=lambda r: (r["leaf"], r["rel"])):
-            cl = ", ".join(r["clauses"][:4]) or "—"
+            cl = ", ".join(r["clauses"][:4]) or EMPTY_CELL
             out.append("| %s `%s` | `%s` | %s | %s |"
                        % (STATUS_GLYPH[r["status"]], r["name"],
                           r["rel"].replace("hdl/", ""), _test_cell(r), cl))
@@ -407,13 +421,13 @@ def render_leaf(fam: str, leaf: str, frows: list[MatrixRow]) -> str:
     up = "../../" if leaf == fam else "../../../"
     out = ["<!--", "SPDX-FileCopyrightText: 2026 Kebag Logic",
            "SPDX-License-Identifier: CERN-OHL-W-2.0", "-->",
-           "# `%s/%s` — modules & test coverage" % (fam, leaf), "",
-           "**GENERATED** by `docs/traceability/gen_module_matrix.py` — do not",
+           "# `%s/%s` -- modules & test coverage" % (fam, leaf), "",
+           "**GENERATED** by `docs/traceability/gen_module_matrix.py` -- do not",
            "hand-edit. Part of the %s family; rolled up in" % title,
            "[`docs/traceability/MODULE_MATRIX.md`](%sdocs/traceability/MODULE_MATRIX.md)." % up,
            "", "| module | file | test | clauses |", "|---|---|---|---|"]
     for r in sorted(frows, key=lambda r: r["rel"]):
-        cl = ", ".join(r["clauses"][:4]) or "—"
+        cl = ", ".join(r["clauses"][:4]) or EMPTY_CELL
         out.append("| %s `%s` | `%s` | %s | %s |"
                    % (STATUS_GLYPH[r["status"]], r["name"],
                       Path(r["rel"]).name, _test_cell(r), cl))
@@ -460,10 +474,94 @@ def write_budget(n: int) -> None:
     _write_text(BUDGET, "\n".join(BUDGET_HDR) + "\n%d\n" % n)
 
 
+def _fixture_row(**over: object) -> MatrixRow:
+    """One synthetic row, empty everywhere a real row can be empty."""
+    row = dict(family="common", leaf="common", rel="hdl/common/KL_fixture.sv",
+               name="KL_fixture", is_pkg=False, dtbs=[], xtbs=[], fuzz=None,
+               clauses=[], status="UNTESTED", archived=None)
+    row.update(over)
+    return row
+
+
+def selftest() -> tuple[list[str], int]:
+    """A row with neither a test nor a clause must render without U+2014.
+
+    (problems, arms). The markers and the list lines are the only content
+    this generator invents, and both pages it writes use them, so both are
+    rendered here: the rolled-up matrix and one leaf page. #378's gate
+    reads every line a change adds, generated pages included, and a
+    regeneration is not optional -- so a row that spelled the character
+    would make the two mandatory gates contradict each other.
+    """
+    problems, arms = [], 0
+    dash = chr(0x2014)
+    pages = (("matrix", render_top([_fixture_row()])),
+             ("leaf", render_leaf("common", "common", [_fixture_row()])),
+             ("archived", render_top([_fixture_row(status="archived",
+                                                   archived="no open flow")])))
+    for what, text in pages:
+        arms += 1
+        lines = [l for l in text.split("\n") if "KL_fixture" in l]
+        rows = [l for l in lines if l.startswith("|")]
+        carriers = [l for l in lines if dash in l]
+        if not lines or len(rows) != 1:
+            problems.append(f"[{what}] the fixture row was not rendered "
+                            f"({len(lines)} line(s), {len(rows)} table row)")
+        elif carriers:
+            problems.append(f"[{what}] a generated row still spells U+2014: "
+                            + "; ".join(carriers))
+        elif what != "archived" and [c.strip() for c in
+                                     rows[0].split("|")].count(EMPTY_CELL) != 2:
+            problems.append(f"[{what}] an empty cell is not the marker: "
+                            f"{rows[0]}")
+    arms += 1
+    if _test_cell(_fixture_row(status="archived",
+                               archived="reason")) == EMPTY_CELL:
+        problems.append("[archived cell] an archived row lost its stated "
+                        "reason to the empty marker")
+    problems += _boilerplate_arm(dash)
+    return problems, arms + 1
+
+
+#: The four sentences of MODULE_MATRIX.md that carry U+2014 and keep it: the
+#: page exists, so they are never lines a change adds, and rewording them is
+#: not marker substitution (the round-4 decision on PR #384). Every OTHER
+#: emitted line must stay clear of the character, the optional untested and
+#: archived sections included -- their headers are generated text that a
+#: future tree really does add, and the four controls above read only the
+#: fixture row's own lines ([R0] and [R10] rounds 5 and 6).
+BOILERPLATE_CARRIERS = 4
+
+
+def _boilerplate_arm(dash: str) -> list[str]:
+    """Render the page with BOTH optional sections present and require that
+    only the four recorded boilerplate sentences carry the character."""
+    rows = [_fixture_row(),
+            _fixture_row(name="KL_archived", rel="hdl/common/KL_archived.sv",
+                         status="archived", archived="no open-flow test")]
+    carriers = [l for l in render_top(rows).split("\n") if dash in l]
+    if len(carriers) != BOILERPLATE_CARRIERS:
+        return [f"[boilerplate] {len(carriers)} emitted line(s) carry U+2014, "
+                f"not the {BOILERPLATE_CARRIERS} recorded sentences:\n"
+                + "\n".join(carriers)]
+    return []
+
+
 def main() -> int:
     """Regenerate the artifacts, or under --check report staleness and any
     regression past the ratchet."""
     check = "--check" in sys.argv
+    # Before any verdict: the empty-cell control must still hold.
+    problems, arms = selftest()
+    for problem in problems:
+        print("  - " + problem)
+    if problems:
+        print("gen_module_matrix: FATAL: %d of %d control(s) did not hold"
+              % (len(problems), arms))
+        return 2
+    print("traceability generator controls: %d/%d" % (arms, arms))
+    if "--selftest" in sys.argv:
+        return 0
     rows = build()
     artifacts = {TRACE / "MODULE_MATRIX.md": render_top(rows)}
     artifacts.update(leaf_files(rows))
@@ -485,7 +583,7 @@ def main() -> int:
             print("COVERAGE REGRESSION: %d untested modules, ratchet allows %d"
                   % (len(unt), budget))
             for r in sorted(unt, key=lambda r: r["rel"]):
-                print("  ⚪ %s — %s" % (r["name"], r["rel"]))
+                print("  ⚪ %s -- %s" % (r["name"], r["rel"]))
             print("  give it a testbench, or state the decision with a")
             print("  `Coverage    : ARCHIVED - <reason>` banner marker.")
             rc = 1

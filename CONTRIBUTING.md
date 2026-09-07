@@ -11,7 +11,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Three rules paid for on hardware: ≥ 8 min AX boot probes, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
 - **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
-- **[6. Documentation wording and privacy](#6-documentation-wording-and-privacy)** -- The deny-listed public-hygiene rules `scripts/docs_check.py` enforces: bench equipment is named by role (the DUT, the reference peer, the bench AVB switch), compliance references cite the Milan/IEEE clause rather than any external test-plan document, internal bench rows are written `item N.M`, and no bench-identifying host/path/serial ever lands in committed text.
+- **[6. Documentation wording and privacy](#6-documentation-wording-and-privacy)** -- The deny-listed public-hygiene rules `scripts/docs_check.py` enforces: bench equipment is named by role (the DUT, the reference peer, the bench AVB switch), compliance references cite the Milan/IEEE clause rather than any external test-plan document, internal bench rows are written `item N.M`, no bench-identifying host/path/serial ever lands in committed text, and the em-dash rule for the lines a change adds.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
@@ -495,6 +495,68 @@ reverse-engineering the regex:
   itself), the rule in `IDENTITY_RULES` so it sweeps every tracked text file,
   and a planted fixture in `scrub_selftest` so the arm count proves it fires —
   then scrub the tree in the same commit, so the gate never lands red.
+
+### 6.1 The em-dash rule
+
+No U+2014 (the em dash) in any text a branch writes: prose, headings, table
+cells, fenced text and the separator of a Contents entry. Write `--`, ` - `,
+a colon or a plain sentence instead. One exemption: a Contents label that
+`scripts/gen_toc.py` copies verbatim from a heading the page already had at
+the branch's base, because rewording such a heading moves its anchor and
+breaks every link into it. The exemption is decided by PROVENANCE: a line
+qualifies only when it is byte-identical, at its own position, to the line
+`gen_toc.py` renders for that page, and even then only its label span is
+exempt, so the entry's link target, separator and description are judged.
+Anything a person wrote by hand is judged wherever it sits, which is why a
+copy of a Contents block written inside a fence, an indented code block, an
+HTML comment or a raw HTML block is judged whole: nothing renders it as
+navigation, and the generator did not write it. Existing pages are not
+rewritten for this rule.
+The gate judges the lines a change ADDS, never the tree, so a page that
+carries the character keeps it until a change touches those lines.
+
+`scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
+`HEAD` over every tracked `*.md` (renames followed, every page compared as
+text whatever a `.gitattributes` entry says, a page git will only report as
+binary refused rather than counted clean) and refuses each added
+line carrying the character outside the exemption, which it decides from the
+headings of the BASE version of the same page, never from the label text
+alone: a label mirroring a heading the same change introduces is refused
+with its heading. Its planted controls run before every verdict. Locally,
+pass the merge base:
+
+```sh
+python3 scripts/check_em_dash.py --base "$(git merge-base origin/dev HEAD)"
+python3 scripts/check_em_dash.py --selftest
+```
+
+A generator that writes committed Markdown owes the rule too, because its
+regeneration is mandatory and the lines it adds are judged like any others:
+[`docs/traceability/gen_module_matrix.py`](docs/traceability/gen_module_matrix.py)
+renders an empty test or clause cell as `--`, and its own controls fail if a
+row it emits spells the character.
+
+The docs workflow DERIVES the base: for a pull request it fetches the base
+branch and takes the merge base against the checked-out tree, because GitHub
+freezes `pull_request.base.sha` when the request opens while the job builds
+the merge into the current base tip, so the recorded oid attributes to the
+branch every line merged into the base since. A push judges from its own
+`before` SHA, and an event carrying neither is refused rather than guessed
+at.
+
+The first fast-forward of `main` after the gate landed judges every commit
+since the previous one, so that one push is red on this step.
+
+Regenerating the Contents block of a page whose separator is still the
+em dash adds entries the gate refuses: switch that page's separator to `--`
+(every entry line becomes an added line, and each is judged), then rerun
+`gen_toc.py --write`. Rewrite the entry DESCRIPTIONS in the same pass where
+they carry the character: 102 entries on 45 pages do, and the description is
+judged like any other added text. A block written for the first time uses
+`--`. Provenance follows the generator's own page population: the two
+documentation indexes it skips, the historical tree and any page another
+generator owns carry no generated navigation, so nothing on them is ever
+exempt.
 
 Status claims in prose are separately machine-judged against the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md); the
