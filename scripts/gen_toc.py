@@ -116,9 +116,13 @@ def fenced(text: str) -> list[bool]:
 #: separator (U+2014 on the pages that predate the em-dash rule, `--` on
 #: every block written since) and the description. check_em_dash.py reads
 #: entries with this same expression, so the gate and the generator cannot
-#: disagree on what an entry is.
+#: disagree on what an entry is. The indentation is bounded at three spaces,
+#: which is what this script writes (none, or two for a nested entry) and
+#: what Markdown still renders as a list item: at four it is an indented
+#: code block, which renders as code and is no navigation entry at all
+#: ([R0] round 4 on PR #384).
 TOC_ENTRY_RE = re.compile(
-    r"\s*-\s+(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?\s*(\u2014|--)\s*(.*)")
+    r" {0,3}- +(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?\s*(\u2014|--)\s*(.*)")
 
 
 def anchor(text: str, seen: dict[str, int]) -> str:

@@ -77,6 +77,11 @@ DIFF_FLAGS = ("-U0", "-M", "--text", "--no-textconv", "--no-color",
               "--no-ext-diff", "--diff-algorithm=myers", "--src-prefix=a/",
               "--dst-prefix=b/")
 REMEDY = "write --, a colon or a plain sentence"
+#: Four spaces (or a tab) of indentation start an indented code block, which
+#: renders as code, not as navigation ([R0] round 4 on PR #384). Such a run
+#: cannot interrupt a paragraph, so it begins only after a blank line.
+INDENT_CODE_RE = re.compile(r"^(?: {4}|\t)")
+COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 
 
 class Refusal(Exception):
@@ -198,22 +203,70 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
     return out
 
 
+def _comment_spans(lines: list[str], fences: list[bool]) -> list[bool]:
+    """Per line: does it BEGIN inside an HTML comment? A commented Contents
+    block renders nothing at all, so no line of one is a navigation entry
+    ([R0] round 4 on PR #384). Fenced lines cannot open or close a comment:
+    inside a code block the delimiters are text."""
+    out, inside = [], False
+    for line, in_fence in zip(lines, fences):
+        out.append(inside)
+        if in_fence:
+            continue
+        scan = line
+        while scan:
+            if inside:
+                at = scan.find(COMMENT_CLOSE)
+                if at < 0:
+                    break
+                scan, inside = scan[at + len(COMMENT_CLOSE):], False
+            else:
+                at = scan.find(COMMENT_OPEN)
+                if at < 0:
+                    break
+                scan, inside = scan[at + len(COMMENT_OPEN):], True
+    return out
+
+
 def shape(text: str) -> Shape:
     """A page's line kinds and the span of its real Contents block.
 
-    The fence walk is gen_toc's, so a heading inside a fence is fenced text
-    here exactly as it is no heading there, and the CommonMark rules it
-    applies are the ones that decide this: a three-backtick line inside a
-    four-backtick block is content, a tilde fence does not close on
-    backticks, and an opener may carry up to three spaces of indentation.
-    The block starts at the first unfenced `## Contents` heading and ends
-    at the next unfenced `## ` heading, so a Contents block quoted inside a
-    fence of any shape is no block at all.
+    Everything here decides ONE question: which added lines may carry the
+    label exemption. Only a line that renders as a navigation entry may, so
+    three spans are held apart from prose, each of them an escape a review
+    round measured on this gate: a fenced block (the fence walk is
+    gen_toc's, with CommonMark's delimiter, length, closer and indentation
+    rules), an indented code block, and an HTML comment. A Contents block
+    written inside any of them renders as code, or as nothing, and its
+    heading is not this page's Contents heading either -- so the block
+    starts at the first `## Contents` heading that is none of those things,
+    and ends at the next such `## ` heading.
+
+    An indented list continuation elsewhere on a page is called an indented
+    code line here too. That decides no exemption (it is not in a Contents
+    block, and an entry is bounded at three spaces of indentation anyway);
+    it changes only which word a finding uses for the line.
     """
+    lines = text.split("\n")
+    fences = fenced(text)
+    comments = _comment_spans(lines, fences)
     kinds, start, end = [], None, None
-    for i, (line, in_fence) in enumerate(zip(text.split("\n"), fenced(text))):
-        if in_fence:
+    code, prev_blank = False, True
+    for i, line in enumerate(lines):
+        blank = not line.strip()
+        if fences[i] or comments[i]:
+            code = False
+        elif INDENT_CODE_RE.match(line):
+            code = code or prev_blank
+        elif not blank:
+            code = False
+        prev_blank = blank
+        if fences[i]:
             kinds.append("fenced line")
+        elif comments[i]:
+            kinds.append("commented line")
+        elif code and not blank:
+            kinds.append("indented code line")
         elif HEAD_RE.match(line):
             kinds.append("heading")
             if start is None and line.strip() == TOC_HEAD:
@@ -413,14 +466,18 @@ def _write(repo: Path, name: str, text: str) -> None:
     (repo / name).write_text(text, encoding="utf-8")
 
 
-def _fenced_example(repo: Path, opener: str, closer: str) -> None:
-    """Quote the generated Contents block of `_NO_TOC` inside a fence: the
-    block copies a heading the base page already had, and none of it is a
-    navigation label, so every line of it is judged. `opener` may carry
-    more than one line, so a control can put content between the fence and
-    the block."""
-    _edit(repo, "NO_TOC.md", "Body.\n\n## Table",
-          f"{opener}\n{_NEW_BLOCK}{closer}\n\n## Table")
+def _fenced_example(repo: Path, opener: str, closer: str,
+                    indent: str = "") -> None:
+    """Quote the generated Contents block of `_NO_TOC` inside a fence, a
+    comment or an indented code block: the block copies a heading the base
+    page already had, and none of it renders as a navigation label, so
+    every line of it is judged. `opener` may carry more than one line, so a
+    control can put content between the delimiter and the block; `indent`
+    is what makes the block code rather than a list."""
+    block = "".join(indent + l if l.strip() else l
+                    for l in _NEW_BLOCK.splitlines(keepends=True))
+    quoted = "\n".join(x for x in (opener, block + closer) if x)
+    _edit(repo, "NO_TOC.md", "Body.\n\n## Table", f"{quoted}\n\n## Table")
 
 
 @dataclass(frozen=True)
@@ -507,6 +564,16 @@ def _label_controls() -> tuple[Control, ...]:
         Control("fenced example of a mirrored label is refused",
                 lambda r: _fenced_example(r, "```", "```"),
                 1, ("added fenced line",), exempt=0),
+        # The two constructs that render no navigation at all ([R0] round
+        # 4 on PR #384): four spaces of indentation make the block code,
+        # and an HTML comment makes it invisible. Neither is an entry.
+        Control("indented-code copy of a mirrored label is refused",
+                lambda r: _fenced_example(
+                    r, "", "", indent="    "),
+                1, ("added indented code line",), exempt=0),
+        Control("commented-out copy of a mirrored label is refused",
+                lambda r: _fenced_example(r, "<!--", "-->"),
+                1, ("added commented line",), exempt=0),
         # The fence shapes that a laxer walk read as prose ([R0] round 2 on
         # PR #384): the block below carries a three-backtick line of its
         # own, so only a four-backtick closer ends it.
@@ -590,7 +657,14 @@ def selftest() -> tuple[list[str], int]:
             return [f"[fixture] cannot build the repository: {exc}"], 1
         for control in _controls():
             arms += 1
-            problems += _run_control(repo, base, control)
+            # A Refusal from inside an arm is an arm that did not hold, and
+            # this file promises rc 2 for that ([R10] round 4 on PR #384);
+            # letting it escape printed a traceback and exited 1, the code
+            # that means "findings".
+            try:
+                problems += _run_control(repo, base, control)
+            except Refusal as exc:
+                problems.append(f"[{control.name}] cannot judge: {exc}")
         # A base that is not a commit is refused, never judged as empty.
         arms += 1
         try:

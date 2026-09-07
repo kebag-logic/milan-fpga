@@ -505,8 +505,10 @@ a colon or a plain sentence instead. One exemption: a Contents label that
 the branch's base, because rewording such a heading moves its anchor and
 breaks every link into it. The label alone is exempt, in the page's real
 Contents block: the entry's link target, separator and description are
-judged, and a Contents block quoted inside a fence is fenced text.
-Existing pages are not rewritten for this rule.
+judged, and a Contents block that renders as something other than
+navigation is judged whole -- inside a fence, inside an indented code
+block, or inside an HTML comment. Existing pages are not rewritten for
+this rule.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
