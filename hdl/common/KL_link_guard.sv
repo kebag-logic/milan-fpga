@@ -72,16 +72,18 @@
 `default_nettype none
 
 module KL_link_guard #(
-  //! Both windows count clk_i cycles; the AX7101 reference build clocks
-  //! clk_i from axis_clk, the 50 MHz Milan clock, so DEAD_CYC_C = 4,096
-  //! cycles is 82 us (41 us at 100 MHz) and SETTLE_CYC_C = 2,097,152
-  //! cycles is 41.94 ms (20.97 ms at 100 MHz); eth_rst_o drops half-way,
-  //! at SETTLE_CYC_C / 2 = 1,048,576 cycles (20.97 ms at 50 MHz).
-  parameter int unsigned DEAD_CYC_C   = 4096,     //! no-transition cycles: dead
-  parameter int unsigned SETTLE_CYC_C = 2097152   //! clean-clock hold in cycles
+  //! no-transition window that declares an eth clock dead, in clk_i
+  //! cycles: 4,096 cycles is 82 us at the 50 MHz Milan clock the AX7101
+  //! reference build drives clk_i with (axis_clk), 41 us at 100 MHz
+  parameter int unsigned DEAD_CYC_C   = 4096,
+  //! clean-clock hold before reinit_o drops, in clk_i cycles: 2,097,152
+  //! cycles is 41.94 ms at 50 MHz, 20.97 ms at 100 MHz; eth_rst_o drops
+  //! half-way, at SETTLE_CYC_C / 2 = 1,048,576 cycles (20.97 ms at 50 MHz)
+  parameter int unsigned SETTLE_CYC_C = 2097152
 ) (
-  input  wire        clk_i,          //! guard clock (always running): the
-                                     //! 50 MHz Milan clock in the AX7101 build
+  //! guard clock, always running; the AX7101 reference build drives it
+  //! from axis_clk, the 50 MHz Milan clock
+  input  wire        clk_i,
   input  wire        rst_n,          //! sys reset, active low
 
   //! async divide-by-2 toggles from the eth clock domains (plain FFs)
