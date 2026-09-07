@@ -280,12 +280,14 @@ instantiates the 802.1Q classifier / per-queue FIFOs / 802.1Qav CBS shaper
 (`traffic_controller_802_1q`) or the `ptp_ts_top` TX/RX record stampers: their
 only packet source was the transmit path that #259 removed, and every product
 source joins the trunk after the point they occupied. No address moved. The
-words that configured them are 🟡 **WRITE-ONLY SCRATCH** - `CLS_*` (`0x300`),
-the CBS window (`0x400`-`0x49F`) and `PTP_INGRESS/EGRESS_LAT` (`0x540`/`0x544`)
-store and read back exactly as before and reach no logic - and two status bits
-are 🔴 **STRUCTURAL ZERO**: `CAP[8]` and `IRQ_STATUS[0]`. `TXARB_DIAG` lane 1
-(`aaf_final`) is a structural zero too, unrenumbered. The blocks themselves stay
-verified stand-alone (see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md)).
+words that configured them store and read back exactly as before and reach no
+logic: `CLS_*` (`0x300`) and the CBS window (`0x400`-`0x49F`) are 🟡
+**WRITE-ONLY SCRATCH**, and `PTP_INGRESS/EGRESS_LAT` (`0x540`/`0x544`) are
+readable, inert scratch (plain RW, the last written value returned; #375).
+Two status bits are 🔴 **STRUCTURAL ZERO**: `CAP[8]` and `IRQ_STATUS[0]`.
+`TXARB_DIAG` lane 1 (`aaf_final`) is a structural zero too, unrenumbered. The
+blocks themselves stay verified stand-alone (see
+[EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md)).
 
 **0x0055: Table 5.22 notifications and the controller monitor are live
 (issue #69).** Every successful state-changing command pushes its unsolicited
@@ -651,8 +653,8 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | `0x520` | `PTP_CMD` | W1S | `0` | `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime)  -  self-clearing pulses |
 | `0x530` | `PTP_TOD_RD_LO` | RO | `0` | latched TOD `[31:0]` (updated when the PHC snapshot returns) |
 | `0x534` | `PTP_TOD_RD_HI` | RO | `0` | latched TOD `[63:32]` |
-| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH since `0x0056`.** Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated, so the word stores and reaches nothing |
-| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH since `0x0056`.** Egress latency correction, ns, that the TX tap **ADDED**; same fate |
+| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated |
+| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated |
 
 Both reset to 0 = uncorrected, and both were the register half of REQ-PTP-06
 for the record stampers the retired target consumed. The fabric gPTP plane stamps

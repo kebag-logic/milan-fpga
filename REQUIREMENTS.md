@@ -99,8 +99,9 @@ REQ-PTP-03, REQ-PTP-04 and REQ-PTP-06 in the retired product is no longer
 instantiated: its records had no consumer once #259 removed the transmit path.
 Those three requirements bind the record cores stand-alone (`ptp_ts` suite)
 and are not product claims: `IRQ_STATUS[0]` is a structural zero and
-`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are write-only scratch
-([REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
+`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are readable, inert scratch (plain RW, the
+last written value returned, no timestamp-correction consumer at this VERSION;
+[REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
 latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.
 

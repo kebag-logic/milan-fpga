@@ -122,7 +122,8 @@ What a reader still sees of it:
 
 | where | what remains | why |
 |---|---|---|
-| `CLS_*` `0x300`, `0x400`-`0x49F`, `PTP_INGRESS/EGRESS_LAT` `0x540`/`0x544` | write-only scratch: stored, read back as documented, consumed by nothing | the register map is an ABI; no address moves |
+| `CLS_*` `0x300`, `0x400`-`0x49F` | write-only scratch: stored, read back as documented, consumed by nothing | the register map is an ABI; no address moves |
+| `PTP_INGRESS/EGRESS_LAT` `0x540`/`0x544` | readable, inert scratch: plain RW, the last written value returned, no timestamp-correction consumer at this VERSION | the same ABI rule; no address moves |
 | `CAP[8]` `0x008`, `IRQ_STATUS[0]` `0x010`, `TXARB_DIAG` lane 1 `0x784` | structural zero | the shaper, the TX record stamper and the `aaf_final_mux` merge are gone |
 | `CAP[3:0]` = 5 | the retained `0x400` window geometry | see [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
 
