@@ -438,6 +438,28 @@ Body.
 Body.
 """
 
+#: A base page whose em-dash heading sits in a TIGHT type-6 HTML block: no
+#: blank line ends the block, so the heading renders as text and has no
+#: anchor to preserve ([R0] and [R10] round 7 on PR #384).
+_DIV_BASE = f"""# Div-wrapped heading page
+
+<div>
+## Old {EM_DASH} heading
+</div>
+
+## Alpha
+
+Body.
+
+## Beta
+
+Body.
+
+## Gamma
+
+Body.
+"""
+
 #: A base page that opens with a comment carrying a fence marker. Its
 #: Contents block is legitimate and must stay exempt: a walk that let the
 #: marker open a fence refused this page ([R0] round 5 F3 on PR #384).
@@ -468,6 +490,7 @@ def _fixture_repo(repo: Path) -> str:
     (repo / "NO_TOC.md").write_text(_NO_TOC, encoding="utf-8")
     (repo / "COMMENTED.md").write_text(_COMMENTED, encoding="utf-8")
     (repo / "FENCE_COMMENT.md").write_text(_FENCE_IN_COMMENT, encoding="utf-8")
+    (repo / "DIV.md").write_text(_DIV_BASE, encoding="utf-8")
     # One page at a path `gen_toc.py` deliberately skips: it IS a table of
     # contents, so this script writes no block for it and no line of it can
     # be generated navigation.
@@ -651,6 +674,34 @@ def _provenance_controls() -> tuple[Control, ...]:
                 lambda r: _edit(r, "docs/README.md", _OLD_HEADING,
                                 _NEW_BLOCK + _OLD_HEADING),
                 1, ("docs/README.md", "added prose line"), exempt=0),
+        Control("a heading wrapped in a tight HTML block authorises nothing",
+                # The head page is a valid generated block, so provenance
+                # holds and the exemption is really asked: the answer is
+                # no, because the base rendered no such heading.
+                lambda r: (_edit(r, "DIV.md", "<div>\n" + _OLD_HEADING
+                                 + "\n</div>\n\n", ""),
+                           _edit(r, "DIV.md", "## Alpha",
+                                 "## Contents\n\n"
+                                 f"- **[Old {EM_DASH} heading]"
+                                 "(#old--heading)** -- Copied.\n"
+                                 "- **[Alpha](#alpha)** -- What alpha holds.\n"
+                                 "- **[Beta](#beta)** -- What beta holds.\n"
+                                 "- **[Gamma](#gamma)** -- What gamma holds.\n"
+                                 "\n## Old " + EM_DASH + " heading\n\nBody."
+                                 "\n\n## Alpha")),
+                # The heading line itself is not an added line: the base
+                # carried the same text inside the block, so git pairs it.
+                1, ("mirrors no heading",), exempt=0),
+        Control("an entry-shaped line outside the block is not exempt",
+                # The page carries a VALID generated block, so only the
+                # position and byte equality of a line decide provenance:
+                # the stray copy below sits outside the block and is
+                # judged, while the block's own label stays exempt.
+                lambda r: _edit(r, "NO_TOC.md", _OLD_HEADING,
+                                _NEW_BLOCK + _OLD_HEADING + "\n\n"
+                                f"- **[Old {EM_DASH} heading]"
+                                "(#old--heading)** -- Stray copy."),
+                1, ("added prose line",), exempt=1),
         Control("a fence marker in an old comment refuses nothing",
                 lambda r: _edit(r, "FENCE_COMMENT.md", _OLD_HEADING,
                                 _NEW_BLOCK + _OLD_HEADING),
