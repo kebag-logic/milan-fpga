@@ -503,12 +503,17 @@ cells, fenced text and the separator of a Contents entry. Write `--`, ` - `,
 a colon or a plain sentence instead. One exemption: a Contents label that
 `scripts/gen_toc.py` copies verbatim from a heading the page already had at
 the branch's base, because rewording such a heading moves its anchor and
-breaks every link into it. Existing pages are not rewritten for this rule.
+breaks every link into it. The label alone is exempt, in the page's real
+Contents block: the entry's link target, separator and description are
+judged, and a Contents block quoted inside a fence is fenced text.
+Existing pages are not rewritten for this rule.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
-`HEAD` over every tracked `*.md` (renames followed) and refuses each added
+`HEAD` over every tracked `*.md` (renames followed, every page compared as
+text whatever a `.gitattributes` entry says, a page git will only report as
+binary refused rather than counted clean) and refuses each added
 line carrying the character outside the exemption, which it decides from the
 headings of the BASE version of the same page, never from the label text
 alone: a label mirroring a heading the same change introduces is refused

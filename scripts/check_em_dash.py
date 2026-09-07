@@ -16,14 +16,21 @@ rewritten - the tree carries the character on 145 of its 158 pages - so the
 gate judges the lines a change ADDS between a base commit and HEAD, never
 the tree.
 
-What is judged. ``git diff -U0 -M <base> HEAD`` over every tracked ``*.md``,
-renames followed so a moved page is judged on its changed lines only. Every
-added line carrying the character is a finding unless it is an entry of the
-page's Contents block whose label equals, after gen_toc's own label
-transform, a heading of the BASE version of the same page; that entry's
-separator and description are still judged. The exemption is decided from
-the base page's headings, never from the label text alone, so a label that
-mirrors a heading the same change introduces is refused with its heading.
+What is judged. ``git diff -U0 -M --text <base> HEAD`` over every tracked
+``*.md``, renames followed so a moved page is judged on its changed lines
+only, and every page compared as text whatever a ``.gitattributes`` entry
+says: a ``-diff`` attribute made git print ``Binary files differ`` with no
+hunk at all, and a page with no hunk was a page with nothing to judge ([R0]
+on PR #384). Should git still report a binary difference, the page is
+refused, never counted clean. Every added line carrying the character is a
+finding unless it is an entry of the page's real, unfenced Contents block
+whose label equals, after gen_toc's own label transform, a heading of the
+BASE version of the same page - and then only the label span is exempt: the
+link target, the separator, the description and any other character of the
+line are judged. The exemption is decided from the base page's headings,
+never from the label text alone, so a label that mirrors a heading the same
+change introduces is refused with its heading, and a Contents block quoted
+inside a fence is fenced text like any other.
 
 The base is explicit. Locally pass the merge base; the docs workflow passes
 the pull request's base SHA or a push's ``before`` SHA and refuses an event
@@ -35,8 +42,8 @@ evidence that it works.
     python3 scripts/check_em_dash.py --selftest    # the planted controls alone
 
 Exit 0 = clean; 1 = findings, one per line as ``path:line: message``; 2 =
-cannot judge (no git, a base that is not a commit) or an arm that did not
-bite, which is unproven, not clean.
+cannot judge (no git, a base that is not a commit, a page git will only
+report as binary) or an arm that did not bite, which is unproven, not clean.
 """
 
 from __future__ import annotations
@@ -54,7 +61,7 @@ from pathlib import Path
 # OWNED by gen_toc.py, which writes the entries this gate reads; lifting them
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gen_toc import FENCE_RE, HEAD_RE, TOC_ENTRY_RE, existing, headings, label
+from gen_toc import FENCE_RE, HEAD_RE, TOC_ENTRY_RE, TOC_HEAD, headings, label
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -62,13 +69,19 @@ REPO = Path(__file__).resolve().parent.parent
 #: it refuses and the self-test fixtures never spell it either.
 EM_DASH = "\u2014"
 HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
-DIFF_FLAGS = ("-U0", "-M", "--no-color", "--no-ext-diff",
-              "--diff-algorithm=myers", "--src-prefix=a/", "--dst-prefix=b/")
+#: `--text` compares every page as text whatever its diff attribute or
+#: driver says; `--no-textconv` and `--no-ext-diff` keep a configured driver
+#: from rewriting what is compared; the prefixes are fixed so a user's
+#: `diff.noprefix` cannot change the header shape.
+DIFF_FLAGS = ("-U0", "-M", "--text", "--no-textconv", "--no-color",
+              "--no-ext-diff", "--diff-algorithm=myers", "--src-prefix=a/",
+              "--dst-prefix=b/")
 REMEDY = "write --, a colon or a plain sentence"
 
 
 class Refusal(Exception):
-    """The judgement cannot run: no git, or a revision that is not a commit."""
+    """The judgement cannot run: no git, a revision that is not a commit,
+    or a page whose added lines git will not establish."""
 
 
 @dataclass(frozen=True)
@@ -86,6 +99,16 @@ class Added:
     path: str
     lineno: int
     text: str
+
+
+@dataclass(frozen=True)
+class Shape:
+    """What a page's lines are, by index (fenced line, heading, table row
+    or prose line), and the span of its real, unfenced Contents block as
+    (index of the heading, index of the next section heading), or None."""
+
+    kinds: list[str]
+    contents: tuple[int, int] | None
 
 
 @dataclass
@@ -147,7 +170,9 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
     """The lines HEAD adds to one page, with their HEAD line numbers, as
     git's own diff reports them. Both paths of a rename are named so the
     rename is detected inside the pathspec and only its changed lines are
-    added; `:(literal)` keeps a glob character in a path from expanding."""
+    added; `:(literal)` keeps a glob character in a path from expanding. A
+    page git will only report as a binary difference is refused: its added
+    lines cannot be established, so it cannot be counted clean."""
     spec = [f":(literal){p}" for p in dict.fromkeys(
         (change.path, change.base_path)) if p]
     raw = git(repo, "diff", *DIFF_FLAGS, base, "HEAD", "--", *spec)
@@ -156,6 +181,9 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
         if line.startswith("diff --git "):
             in_hunk = False
             continue
+        if not in_hunk and line.startswith("Binary files "):
+            raise Refusal(f"{change.path}: git reports a binary difference, "
+                          "so its added lines cannot be established")
         m = HUNK_RE.match(line)
         if m:
             lineno, in_hunk = int(m.group(1)), True
@@ -170,28 +198,37 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
     return out
 
 
-def kinds(text: str) -> list[str]:
-    """What each line of a page is, by index: a fenced line, a heading, a
-    table row or a prose line. The fence walk is gen_toc's, so a heading inside a fence
-    is fenced text here exactly as it is no heading there."""
-    out, fence = [], None
-    for line in text.split("\n"):
+def shape(text: str) -> Shape:
+    """A page's line kinds and the span of its real Contents block. The
+    fence walk is gen_toc's, so a heading inside a fence is fenced text
+    here exactly as it is no heading there; the block starts at the first
+    unfenced `## Contents` heading and ends at the next unfenced `## `
+    heading, so a Contents block quoted inside a fence is no block at
+    all."""
+    kinds, fence, start, end = [], None, None, None
+    for i, line in enumerate(text.split("\n")):
         f = FENCE_RE.match(line)
         if f:
             if fence is None:
                 fence = f.group(1)
             elif line.startswith(fence):
                 fence = None
-            out.append("fenced line")
+            kinds.append("fenced line")
         elif fence is not None:
-            out.append("fenced line")
+            kinds.append("fenced line")
         elif HEAD_RE.match(line):
-            out.append("heading")
+            kinds.append("heading")
+            if start is None and line.strip() == TOC_HEAD:
+                start = i
+            elif start is not None and end is None and line.startswith("## "):
+                end = i
         elif line.lstrip().startswith("|"):
-            out.append("table row")
+            kinds.append("table row")
         else:
-            out.append("prose line")
-    return out
+            kinds.append("prose line")
+    if start is None:
+        return Shape(kinds, None)
+    return Shape(kinds, (start, len(kinds) if end is None else end))
 
 
 def base_labels(repo: Path, base: str, change: Change) -> set[str]:
@@ -204,27 +241,36 @@ def base_labels(repo: Path, base: str, change: Change) -> set[str]:
     return {label(raw) for _, raw, _ in headings(text)}
 
 
-def _entry_findings(where: str, entry: re.Match[str],
+def _entry_findings(where: str, hit: Added, entry: re.Match[str],
                     exempt_labels: set[str], verdict: Verdict) -> None:
-    """The findings one added Contents entry carries: its separator, its
-    description, and its label unless the base page had that heading."""
-    lab, sep, desc = entry.group(1), entry.group(3), entry.group(4)
-    if sep == EM_DASH:
+    """The findings one added Contents entry carries. Only the label span
+    can be exempt, and only when the base page had that heading; the link
+    target, the separator, the description and every other character of
+    the line are judged as the rule judges any added text."""
+    lab = entry.group(1)
+    if EM_DASH in lab:
+        if lab in exempt_labels:
+            verdict.exempt += 1
+        else:
+            verdict.findings.append(
+                f"{where}: U+2014 (em dash) in a Contents label that mirrors "
+                "no heading the base version of this page had -- reword the "
+                "new heading, then regenerate the block")
+    parts = (("in the link target of a Contents entry -- the anchor is "
+              "gen_toc's to write", entry.group(2)),
+             ("as the Contents separator -- switch this page's separator "
+              "to --", entry.group(3)),
+             (f"in a Contents description -- {REMEDY}", entry.group(4)))
+    named = 0
+    for what, part in parts:
+        if EM_DASH in part:
+            named += part.count(EM_DASH)
+            verdict.findings.append(f"{where}: U+2014 (em dash) {what}")
+    rest = hit.text[:entry.start(1)] + hit.text[entry.end(1):]
+    if rest.count(EM_DASH) > named:
         verdict.findings.append(
-            f"{where}: U+2014 (em dash) as the Contents separator -- "
-            "switch this page's separator to --")
-    if EM_DASH in desc:
-        verdict.findings.append(
-            f"{where}: U+2014 (em dash) in a Contents description -- {REMEDY}")
-    if EM_DASH not in lab:
-        return
-    if lab in exempt_labels:
-        verdict.exempt += 1
-        return
-    verdict.findings.append(
-        f"{where}: U+2014 (em dash) in a Contents label that mirrors no "
-        "heading the base version of this page had -- reword the new "
-        "heading, then regenerate the block")
+            f"{where}: U+2014 (em dash) outside the label of a Contents "
+            f"entry -- {REMEDY}")
 
 
 def judge_page(repo: Path, base: str, change: Change,
@@ -238,23 +284,22 @@ def judge_page(repo: Path, base: str, change: Change,
     hits = [a for a in added if EM_DASH in a.text]
     if not hits:
         return
-    text = git(repo, "show", f"HEAD:{change.path}")
-    kind = kinds(text)
-    _, start, end, _ = existing(text)
+    page = shape(git(repo, "show", f"HEAD:{change.path}"))
     exempt_labels = None
     for hit in hits:
         where = f"{hit.path}:{hit.lineno}"
+        kind = page.kinds[hit.lineno - 1]
         entry = None
-        if start is not None and start < hit.lineno - 1 < end:
+        if kind == "prose line" and page.contents is not None \
+                and page.contents[0] < hit.lineno - 1 < page.contents[1]:
             entry = TOC_ENTRY_RE.match(hit.text)
         if entry is None:
             verdict.findings.append(
-                f"{where}: U+2014 (em dash) in an added "
-                f"{kind[hit.lineno - 1]} -- {REMEDY}")
+                f"{where}: U+2014 (em dash) in an added {kind} -- {REMEDY}")
             continue
         if exempt_labels is None:
             exempt_labels = base_labels(repo, base, change)
-        _entry_findings(where, entry, exempt_labels, verdict)
+        _entry_findings(where, hit, entry, exempt_labels, verdict)
 
 
 def judge(repo: Path, base: str) -> Verdict:
@@ -365,6 +410,11 @@ def _edit(repo: Path, name: str, old: str, new: str) -> None:
     page.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
+def _write(repo: Path, name: str, text: str) -> None:
+    """Write one fixture file whole."""
+    (repo / name).write_text(text, encoding="utf-8")
+
+
 @dataclass(frozen=True)
 class Control:
     """One planted change and the verdict the rule promises for it: the
@@ -378,14 +428,27 @@ class Control:
     exempt: int | None = None
 
 
+#: The em-dash heading both fixture pages carry, and its Contents entry as
+#: _WITH_TOC writes it, with the em-dash separator.
+_OLD_HEADING = f"## Old {EM_DASH} heading"
+_OLD_ENTRY = f"- **[Old {EM_DASH} heading](#old--heading)** {EM_DASH} "
+#: An ordinary prose edit of _NO_TOC introducing the character at line 5.
+_PROSE_DASH = ("NO_TOC.md", "Body.\n\n## Plain",
+               f"Body {EM_DASH} more body.\n\n## Plain")
+
+
 def _controls() -> tuple[Control, ...]:
     """The four controls #378 names, then the boundaries of the rule."""
-    old_heading = f"## Old {EM_DASH} heading"
-    old_sep = f"](#old--heading)** {EM_DASH} "
+    return _issue_controls() + _boundary_controls()
+
+
+def _issue_controls() -> tuple[Control, ...]:
+    """The four controls #378 names."""
+    old_heading, block = _OLD_HEADING, _WITH_TOC[
+        _WITH_TOC.index("## Contents"):_WITH_TOC.index(_OLD_HEADING)]
     return (
         Control("added prose em dash is refused",
-                lambda r: _edit(r, "NO_TOC.md", "Body.\n\n## Plain",
-                                f"Body {EM_DASH} more body.\n\n## Plain"),
+                lambda r: _edit(r, *_PROSE_DASH),
                 1, ("NO_TOC.md:5:", "added prose line")),
         Control("mirrored label of a pre-existing heading passes",
                 lambda r: _edit(r, "NO_TOC.md", old_heading,
@@ -400,24 +463,51 @@ def _controls() -> tuple[Control, ...]:
                                  "## Plain")),
                 2, ("added heading", "mirrors no heading")),
         Control("separator change to -- passes",
-                lambda r: _edit(r, "WITH_TOC.md",
-                                _WITH_TOC[_WITH_TOC.index("## Contents"):
-                                          _WITH_TOC.index(old_heading)],
-                                _WITH_TOC[_WITH_TOC.index("## Contents"):
-                                          _WITH_TOC.index(old_heading)]
-                                .replace(f"** {EM_DASH} ", "** -- ")),
+                lambda r: _edit(r, "WITH_TOC.md", block,
+                                block.replace(f"** {EM_DASH} ", "** -- ")),
                 0, exempt=1),
-        # The boundaries: what the rule still refuses, and what it does
-        # not read at all.
+    )
+
+
+def _boundary_controls() -> tuple[Control, ...]:
+    """The boundaries of the rule: only the label span of a real entry is
+    exempt, and what git's own attributes may not take out of the
+    judgement."""
+    return _label_controls() + _scope_controls()
+
+
+def _label_controls() -> tuple[Control, ...]:
+    """Only the label span of an entry in the page's real Contents block
+    is exempt; every other character of the line is judged."""
+    old_heading, old_entry = _OLD_HEADING, _OLD_ENTRY
+    return (
+        Control("em dash in the link target of an exempt entry is refused",
+                lambda r: _edit(r, "NO_TOC.md", old_heading,
+                                _NEW_BLOCK.replace("(#old--heading)",
+                                                   f"(#old-{EM_DASH}-heading)")
+                                + old_heading),
+                1, ("link target",), exempt=1),
+        Control("em dash in the description of an exempt entry is refused",
+                lambda r: _edit(r, "WITH_TOC.md", old_entry + "What",
+                                f"{old_entry[:-2]}-- What {EM_DASH} what"),
+                1, ("Contents description",), exempt=1),
         Control("added entry keeping the em-dash separator is refused",
                 lambda r: _edit(r, "WITH_TOC.md", "\n\n## Old",
                                 f"\n- **[Extra](#extra)** {EM_DASH} More.\n"
                                 "\n## Old"),
                 1, ("Contents separator",)),
-        Control("em dash in an added Contents description is refused",
-                lambda r: _edit(r, "WITH_TOC.md", f"{EM_DASH} A table.",
-                                f"-- A table {EM_DASH} of two rows."),
-                1, ("Contents description",)),
+        Control("fenced example of a mirrored label is refused",
+                lambda r: _edit(r, "NO_TOC.md", "Body.\n\n## Table",
+                                f"```\n{_NEW_BLOCK}```\n\n## Table"),
+                1, ("added fenced line",), exempt=0),
+    )
+
+
+def _scope_controls() -> tuple[Control, ...]:
+    """What is judged beyond the Contents block, what a rename keeps, and
+    what git's own attributes may not take out of the judgement."""
+    old_entry = _OLD_ENTRY
+    return (
         Control("added table row is refused",
                 lambda r: _edit(r, "WITH_TOC.md", "| a | b |\n",
                                 f"| a | b |\n| c | d {EM_DASH} e |\n"),
@@ -428,21 +518,18 @@ def _controls() -> tuple[Control, ...]:
                 1, ("added fenced line",)),
         Control("a moved page keeps its exemption",
                 lambda r: (_fixture_git(r, "mv", "WITH_TOC.md", "MOVED.md"),
-                           _edit(r, "MOVED.md", old_sep,
-                                 old_sep.replace(EM_DASH, "--"))),
+                           _edit(r, "MOVED.md", old_entry,
+                                 old_entry.replace(f"** {EM_DASH} ", "** -- "))),
                 0, exempt=1),
+        Control("a page marked -diff is still compared as text",
+                lambda r: (_write(r, ".gitattributes", "NO_TOC.md -diff\n"),
+                           _edit(r, *_PROSE_DASH)),
+                1, ("NO_TOC.md:5:", "added prose line")),
         Control("a deleted page adds no line",
-                lambda r: (repo_unlink(r / "WITH_TOC.md")), 0),
+                lambda r: (r / "WITH_TOC.md").unlink(), 0),
         Control("text outside Markdown is not read",
-                lambda r: (r / "notes.txt").write_text(
-                    f"a {EM_DASH} b\n", encoding="utf-8"),
-                0),
+                lambda r: _write(r, "notes.txt", f"a {EM_DASH} b\n"), 0),
     )
-
-
-def repo_unlink(path: Path) -> None:
-    """Delete one fixture file."""
-    path.unlink()
 
 
 def _run_control(repo: Path, base: str, control: Control) -> list[str]:
