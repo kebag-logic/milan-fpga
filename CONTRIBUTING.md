@@ -542,8 +542,12 @@ freezes `pull_request.base.sha` when the request opens while the job builds
 the merge into the current base tip, so the recorded oid attributes to the
 branch every line merged into the base since. A push judges from its own
 `before` SHA, and an event carrying neither is refused rather than guessed
-at. The first fast-forward of `main` after the gate landed judges every
-commit since the previous one, so that one push is red on this step. Regenerating the Contents block of a page whose separator is still the
+at.
+
+The first fast-forward of `main` after the gate landed judges every commit
+since the previous one, so that one push is red on this step.
+
+Regenerating the Contents block of a page whose separator is still the
 em dash adds entries the gate refuses: switch that page's separator to `--`
 (every entry line becomes an added line, and each is judged), then rerun
 `gen_toc.py --write`. Rewrite the entry DESCRIPTIONS in the same pass where
