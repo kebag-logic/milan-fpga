@@ -698,7 +698,7 @@ which caused a false "0x774 = TCAM" reading; TCAM is 0x700–0x718 only.)
 |--------|------|-----|-------|--------|
 | `0x71C` | `LINK_CTRL` | RW | `0x0000_0001` | `[0]` firmware link qualification (assumed up at reset), `[1]` manual mac_reinit (hold MAC sys-side in reset), `[2]` linkg_dis (1 = guard disabled), `[3]` linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable) |
 | `0x720` | `RST_EPOCH` | RO | `0` | datapath reset-release count — the shadow-lie canary (a live tick proves a real reset happened, e.g. so a CSR-wipe is not mistaken for an unbind) |
-| `0x774` | `LINKG_STAT` | RO | — | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX activity within the last 2^27 guard clock cycles: 2.7 s at the 50 MHz Milan clock, 1.3 s at 100 MHz), `[6]` guard_rst (reinit held), `[5:4]` state (0 RUN, 1 HOLD, 2 SETTLE), `[2]` eth_rst (sequenced eth-CDC reset, minor ≥ 0x0007), `[1]` tx_alive, `[0]` rx_alive |
+| `0x774` | `LINKG_STAT` | RO | -- | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX activity within the last 2^27 guard clock cycles: 2.7 s at the 50 MHz Milan clock, 1.3 s at 100 MHz), `[6]` guard_rst (reinit held), `[5:4]` state (0 RUN, 1 HOLD, 2 SETTLE), `[2]` eth_rst (sequenced eth-CDC reset, minor ≥ 0x0007), `[1]` tx_alive, `[0]` rx_alive |
 
 ### 0x778  -  Clock validity: the AVTP `tu` verdict  `(VERSION minor >= 0x0016)`
 
