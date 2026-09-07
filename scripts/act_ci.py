@@ -5904,6 +5904,7 @@ def selftest_probe_clone_runner(tally: SelftestTally, docker: DockerFixture) -> 
     )
     selftest_probe_clone_descendants(tally, docker)
     selftest_probe_clone_fork_race(tally, docker)
+    selftest_probe_clone_foreign_churn(tally, docker)
     selftest_probe_group_states(tally, cwd)
     tally.refused(
         "a probe clone that has not finished within its timeout is killed and refused",
@@ -6063,6 +6064,99 @@ def selftest_probe_clone_fork_race(tally: SelftestTally, docker: DockerFixture) 
                 with contextlib.suppress(ProcessLookupError):
                     original_killpg(group, signal.SIGKILL)
                 prove_probe_group_absent(group)
+
+
+def selftest_probe_clone_foreign_churn(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Replace a queryable foreign PID between scans while retaining the probe's real zombie."""
+    root = docker.layout.temporary / "probe-foreign-churn"
+    root.mkdir()
+    source = (
+        "import os, pathlib, sys\n"
+        "child = os.fork()\n"
+        "if child == 0:\n"
+        "    os.close(1)\n"
+        "    os.close(2)\n"
+        "    os._exit(37)\n"
+        "os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)\n"
+        "pathlib.Path(sys.argv[1]).write_text(f'{os.getpid()} {child} {os.getpgrp()}')\n"
+        "print('expected failure', file=sys.stderr)\n"
+        "sys.exit(1)\n"
+    )
+    original_iterdir, original_getpgid = pathlib.Path.iterdir, os.getpgid
+    foreign: subprocess.Popen[bytes] | None = None
+    foreign_pids: list[int] = []
+    inventories: list[set[str]] = []
+    confirmed_foreign: set[int] = set()
+    recorded: tuple[int, int, int] | None = None
+    scan_started = 0.0
+
+    def membership(pid: int) -> int:
+        """Count successful foreign membership queries without changing their answers."""
+        group = original_getpgid(pid)
+        if foreign is not None and pid == foreign.pid and recorded is not None and group != recorded[2]:
+            confirmed_foreign.add(pid)
+        return group
+
+    def churn(proc: pathlib.Path) -> Iterator[pathlib.Path]:
+        """Keep each foreign child queryable throughout its scan, replacing it before the next."""
+        nonlocal foreign, recorded, scan_started
+        if proc != pathlib.Path("/proc"):
+            return original_iterdir(proc)
+        if recorded is None:
+            scan_started = time.monotonic()
+            recorded = await_recorded_probe_pids(root / "pids")
+            if recorded is None:
+                raise Refusal("foreign-churn probe did not record its zombie")
+        if foreign is not None:
+            foreign.kill()
+            foreign.wait()
+        foreign = subprocess.Popen(
+            [sys.executable, "-I", "-c", "import signal; signal.pause()"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        foreign_pids.append(foreign.pid)
+        entries = list(original_iterdir(proc))
+        inventories.append({entry.name for entry in entries})
+        return iter(entries)
+
+    with selftest_child_subreaper():
+        text, message = "", ""
+        try:
+            with mock.patch.object(pathlib.Path, "iterdir", churn), mock.patch.object(os, "getpgid", membership):
+                try:
+                    text = run_probe_clone(
+                        [sys.executable, "-I", "-c", source, str(root / "pids")],
+                        env={"PATH": SAFE_PATH}, cwd=root, label="foreign-churn",
+                    )
+                except Refusal as exc:
+                    message = str(exc)
+            elapsed = time.monotonic() - scan_started
+            tally.check(
+                "both changing foreign PIDs are confirmed nonmembers in their frozen inventories",
+                len(inventories) >= 2 and len(set(foreign_pids[:2])) == 2
+                and set(foreign_pids[:2]) <= confirmed_foreign
+                and str(foreign_pids[0]) in inventories[0] - inventories[1]
+                and str(foreign_pids[1]) in inventories[1] - inventories[0],
+            )
+            exited = None
+            if recorded is not None:
+                with contextlib.suppress(ChildProcessError):
+                    exited = os.waitid(os.P_PID, recorded[1], os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            tally.check(
+                "confirmed foreign churn drains a zombie-only probe within the unchanged grace",
+                text == "expected failure" and not message and len(inventories) == 2 and elapsed < 5.0
+                and recorded is not None and exited is not None
+                and original_getpgid(recorded[1]) == recorded[2]
+                and exited.si_code == os.CLD_EXITED and exited.si_status == 37,
+            )
+        finally:
+            if foreign is not None:
+                foreign.kill()
+                foreign.wait()
+            if recorded is None:
+                recorded = await_recorded_probe_pids(root / "pids")
+            absent = recorded is not None and prove_probe_group_absent(recorded[2])
+            tally.check("the foreign-churn probe is reaped after its drain check", absent)
 
 
 def selftest_probe_group_states(tally: SelftestTally, cwd: pathlib.Path) -> None:
@@ -11124,13 +11218,16 @@ def run_probe_arm(probe: BoundaryProbeRun, context: CommandContext, *, leaky: bo
 def probe_group_inventory(
     process_group: int, proc_root: pathlib.Path
 ) -> tuple[frozenset[int], dict[int, bytes]]:
-    """Visible PID names and member states; query membership before requiring any stat read."""
+    """Confirmed member PIDs and states; retain members that vanish before their stat read."""
     entries = [entry for entry in proc_root.iterdir() if entry.name.isdecimal()]
+    members: set[int] = set()
     states: dict[int, bytes] = {}
     for entry in entries:
+        pid = int(entry.name)
         try:
-            if os.getpgid(int(entry.name)) != process_group:
+            if os.getpgid(pid) != process_group:
                 continue
+            members.add(pid)
             record = (entry / "stat").read_bytes()
         except (FileNotFoundError, ProcessLookupError):
             continue
@@ -11140,8 +11237,8 @@ def probe_group_inventory(
         if not separator or len(fields) < 3 or len(fields[0]) != 1:
             raise Refusal(f"cannot parse probe process state: {entry / 'stat'}")
         if int(fields[2]) == process_group:
-            states[int(entry.name)] = fields[0]
-    return frozenset(int(entry.name) for entry in entries), states
+            states[pid] = fields[0]
+    return frozenset(members), states
 
 
 def probe_group_has_live_members(
@@ -11149,11 +11246,13 @@ def probe_group_has_live_members(
 ) -> bool:
     """Freeze and compare inventories before accepting a zombie-only group as drained.
 
-    A stop can race a fork already in flight. Require two identical complete
-    PID inventories and member states after group stops; names include PIDs
-    that vanished before inspection, so a replaced parent cannot disappear
-    from both comparisons. A changing inventory conservatively uses another
-    grace tick. Live members are resumed, including on inspection failure.
+    A stop can race a fork already in flight. Require two identical member
+    inventories and states after group stops; retain confirmed members that
+    vanish before their state is read. The second scan catches replacements
+    absent from the first. Confirmed foreign PIDs never affect the comparison;
+    membership errors other than a vanished PID refuse inspection. A changing
+    member inventory uses another grace tick. Live members are resumed,
+    including on inspection failure.
     """
     if process_group <= 1 or process_group == os.getpgrp():
         raise Refusal("invalid probe process-group ID")

@@ -1037,11 +1037,14 @@ no orphans, while the hosted VM's PID 1 reaps them. An unreaped zombie must
 therefore not prevent draining in the local replica. The runner checks host
 group membership before reading state, skipping foreign processes even when
 their state is inaccessible. An unreadable member refuses the probe. Before
-accepting a drained group, it sends `SIGSTOP` and requires two matching PID
-inventories and member states, repeating the stop before the second scan.
-Inventory names retain vanished PIDs for this comparison, so a parent that
-forks and exits during inspection cannot hide its replacement. A changing
-inventory uses another grace tick. Live members resume with `SIGCONT` after
+accepting a drained group, it sends `SIGSTOP` and requires two matching
+inventories of confirmed group members and their states, repeating the stop
+before the second scan. Confirmed members remain inventoried if their state
+read races their disappearance; the second scan catches newly forked members.
+Confirmed foreign PIDs never affect the comparison, even when they appear or
+vanish between scans. Unanswerable membership queries refuse inspection;
+already-vanished PIDs are skipped. A changing member inventory uses another
+grace tick. Live members resume with `SIGCONT` after
 inspection, including on an inspection failure. Any live member that outlives
 the unchanged grace still causes refusal and `SIGKILL` of the group.
 
