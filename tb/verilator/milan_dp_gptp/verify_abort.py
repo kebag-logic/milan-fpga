@@ -9,7 +9,7 @@ import re
 import tempfile
 
 
-NEGATIVE_CASES = ["generated AEM image missing", "talker admission withheld", "talker admission withdrawn"]
+NEGATIVE_CASES = ["generated AEM image missing"]
 LABELS = (
     "all monitored audio payload errors, excluding declared warm-up",
     "all monitored audio sample ordering errors",
@@ -23,7 +23,7 @@ def main() -> int:
               / "milan_dp/obj_ax1x1gptp/Vmilan_dp_ax1x1gptp")
     checks = 0
     failures = 0
-    for error in NEGATIVE_CASES[:1]:
+    for error in NEGATIVE_CASES:
         # An empty run directory withholds the relative AEM input without
         # renaming the shared generated image or racing another build.
         with tempfile.TemporaryDirectory(prefix="ax1x1gptp-abort-") as run_dir:
@@ -46,7 +46,7 @@ def main() -> int:
         if failures:
             print(output)
     print(f"== ax1x1gptp setup abort: checks: {checks}   failures: {failures} ==")
-    return int(failures != 0) | verify_no_tx(binary)
+    return int(failures != 0) | verify_no_tx(binary) | verify_no_pdelay(binary)
 
 
 WINDOW_LABELS = (
@@ -95,6 +95,37 @@ def verify_no_tx(binary: Path) -> int:
         if failures:
             print(output)
     print(f"== ax1x1gptp no-TX accounting: checks: {checks}   failures: {failures} ==")
+    return int(failures != 0)
+
+
+def verify_no_pdelay(binary: Path) -> int:
+    """An unanswered real request must not earn first-exchange comparison passes."""
+    result = subprocess.run([str(binary), "--no-pdelay-control"], cwd=binary.parent.parent,
+                            text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = result.stdout
+    (binary.parent / "no-pdelay-control.log").write_text(output)
+    events = re.search(r"PDELAY event accounting requests=(\d+) responses=(\d+)", output)
+    outcomes = [
+        ("missing response retains a nonzero DUT verdict", result.returncode == 1),
+        ("a real request was unanswered",
+         bool(events) and int(events[1]) > 0 and int(events[2]) == 0),
+        ("missing response assertion still fails",
+         any("[FAIL]" in line and "first Pdelay response completed" in line for line in output.splitlines())),
+        ("first exchange remains incomplete", "NOT RUN TO COMPLETION: first Pdelay exchange" in output),
+    ]
+    for label in ("one response cannot assert asCapable",
+                  "first peer delay matches independent event oracle within 28 ns"):
+        outcomes.extend([
+            (f"uncounted omission: {label}", f"NOT RUN: {label} (first exchange absent; uncounted)" in output),
+            (f"no unexecuted pass: {label}",
+             not any("[ ok ]" in line and label in line for line in output.splitlines())),
+        ])
+    for label, passed in outcomes:
+        print(f"[{' ok ' if passed else 'FAIL'}] --no-pdelay-control: {label}")
+    failures = sum(not passed for _, passed in outcomes)
+    if failures:
+        print(output)
+    print(f"== ax1x1gptp no-Pdelay accounting: checks: {len(outcomes)}   failures: {failures} ==")
     return int(failures != 0)
 
 

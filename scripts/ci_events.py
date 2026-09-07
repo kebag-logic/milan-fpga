@@ -212,7 +212,8 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             'make -j"$(nproc)"\n'
                             'sudo make install\n'},
                  {   'name': 'Put Verilator on PATH and prove the version',
-                     'run': 'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
+                     'run': 'set -euo pipefail\n'
+                            'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
                             '/opt/verilator/bin/verilator --version\n'
                             '/opt/verilator/bin/verilator --version | grep -F '
                             '"${VERILATOR_VERSION#v}"\n'},
@@ -232,7 +233,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             '"$RUNNER_TEMP/physical-gptp-logs" --quiet \\\n'
                             '  --expect-suite-root tb/verilator --physical-gptp\n'
                             'mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"\n'
-                            'cp tb/verilator/milan_dp/obj_ax1x1gptp/*tx-control.log \\\n'
+                            'cp tb/verilator/milan_dp/obj_ax1x1gptp/*control.log \\\n'
                             '  "$RUNNER_TEMP/physical-gptp-logs/controls/"\n'},
                  {   'name': 'Upload the physical suite evidence',
                      'if': '${{ always() }}',
@@ -529,7 +530,8 @@ ENV_FILE_WRITERS = {
     ),
 }
 ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")] = (
-    ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")]
+    'set -euo pipefail',
+    *ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")],
 )
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
@@ -5923,6 +5925,10 @@ def _physical_gptp_arms() -> list[Arm]:
                               (8, "with", {"name": "suite-logs-3"})):
         arms.append((f"physical step {index} changed {key}",
                      step_mutation(index, key, value), finding))
+    arms.append(("physical version check loses pipefail",
+                 step_mutation(5, "run", "\n".join(ENV_FILE_WRITERS[
+                     (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")])),
+                 finding))
     def default_command(w: World) -> None:
         """Attempt to run the physical suite in every default shard."""
         for step in jobs(w[RTL_FULL])["verilator-shards"]["steps"]:

@@ -191,7 +191,7 @@ make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=4
 ```
 
 The first command includes preflight, timeout, verdict, and tally handling.
-Both normal commands include setup-abort and no-TX accounting regressions.
+Both normal commands include setup, no-TX and missing-response accounting regressions.
 The extended command retains the original fixed windows explicitly.
 It runs the physical harness without those separate accounting regressions.
 

@@ -112,12 +112,12 @@ uint32_t sample(uint32_t index, unsigned channel) {
     return ((channel + 1) << 20) | (index & 0xFFFFF);
 }
 
-enum class TrafficControl { Normal, NoTx, StopTx };
+enum class TestControl { Normal, NoTx, StopTx, NoPdelay };
 
 class Harness {
  public:
-    Harness(bool negative, bool extended, TrafficControl traffic_control)
-        : negative_(negative), extended_(extended), traffic_control_(traffic_control) {
+    Harness(bool negative, bool extended, TestControl test_control)
+        : negative_(negative), extended_(extended), test_control_(test_control) {
         check.echo_passes();
     }
     int run();
@@ -128,7 +128,7 @@ class Harness {
     milan::tb::Checker check{"ax1x1gptp physical"};
     bool negative_;
     bool extended_;
-    TrafficControl traffic_control_;
+    TestControl test_control_;
     uint64_t cyc = 0;
     uint64_t audio_edges = 0;
     uint64_t ps_edges = 0;
@@ -489,7 +489,7 @@ void Harness::answer_pdelay(const std::vector<uint8_t>& request) {
     if (pd_requests && (tx_sof - pd_last < 999900000
                        || tx_sof - pd_last > 1000100000)) ++pd_cadence_bad;
     pd_last = tx_sof; ++pd_requests;
-    if (!peer_on) return;
+    if (!peer_on || test_control_ == TestControl::NoPdelay) return;
     const uint64_t arrival = tx_sof + kPropagation;
     const uint64_t depart = arrival + kResidence;
     const uint64_t t2 = peer_clock(arrival);
@@ -614,7 +614,7 @@ void Harness::configure() {
         write(0x904, 0x100 | ch);
         write(0x908, 0xD000 | ((ch & 1) << 8) | (ch / 2));
     }
-    write(0x654, traffic_control_ == TrafficControl::NoTx ? 0x00020001 : 0x00020003);
+    write(0x654, test_control_ == TestControl::NoTx ? 0x00020001 : 0x00020003);
     check.hex("diagnostic talker bypass opens gate", read(0x66C) & 8, 8);
     printf("TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN\n");
     audio_on = true; next_audio = cyc;
@@ -828,8 +828,8 @@ int Harness::run() {
         run_cycles(kHz / 100);
         audio_window("initial payload", kHz / 50, 1);
         completed[1] = true;
-        if (traffic_control_ == TrafficControl::NoTx) return report();
-        if (traffic_control_ == TrafficControl::StopTx) {
+        if (test_control_ == TestControl::NoTx) return report();
+        if (test_control_ == TestControl::StopTx) {
             // Preserve the initial comparisons, then drain admitted traffic.
             // This proves a later empty window cannot borrow earlier evidence.
             write(0x654, 0x00020001);
@@ -843,13 +843,22 @@ int Harness::run() {
         check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
         run_cycles(kHz * 12 / 10);
         check.dec("first Pdelay response completed", pd_answers, 1);
-        check.hex("one response cannot assert asCapable", read(0x77C) & 0x10000, 0);
-        const uint32_t first_delay = read(0x6E4);
-        printf("FIRST PDELAY published=%u oracle=%lld ns\n", first_delay, static_cast<long long>(oracle_delay));
-        check.that("first peer delay matches independent event oracle within 28 ns",
-                   std::abs(int64_t(first_delay) - oracle_delay) <= 28);
-        completed[2] = true;
-        if (negative_) return report();
+        if (pd_answers == 1) {
+            check.hex("one response cannot assert asCapable", read(0x77C) & 0x10000, 0);
+            const uint32_t first_delay = read(0x6E4);
+            printf("FIRST PDELAY published=%u oracle=%lld ns\n", first_delay, static_cast<long long>(oracle_delay));
+            check.that("first peer delay matches independent event oracle within 28 ns",
+                       std::abs(int64_t(first_delay) - oracle_delay) <= 28);
+            completed[2] = true;
+        } else {
+            printf("NOT RUN: one response cannot assert asCapable (first exchange absent; uncounted)\n");
+            printf("NOT RUN: first peer delay matches independent event oracle within 28 ns "
+                   "(first exchange absent; uncounted)\n");
+        }
+        if (test_control_ == TestControl::NoPdelay)
+            printf("PDELAY event accounting requests=%llu responses=%llu\n",
+                   static_cast<unsigned long long>(pd_requests), static_cast<unsigned long long>(pd_answers));
+        if (negative_ || test_control_ == TestControl::NoPdelay) return report();
         audio_window("acquisition", kHz * 18 / 10, -1, Until::Healthy);
         check.that("boot Pdelay occurs at 1.2 s", pd_requests >= 2
             && pd_first - stamp_origin >= 1200000000 && pd_first - stamp_origin < 1200100000);
@@ -894,15 +903,17 @@ int main(int argc, char** argv) {
     setvbuf(stdout, nullptr, _IOLBF, 0);
     bool negative = false;
     bool extended = false;
-    TrafficControl traffic_control = TrafficControl::Normal;
+    TestControl test_control = TestControl::Normal;
     if (argc == 2 && std::string(argv[1]) == "--negative-control") negative = true;
     else if (argc == 2 && std::string(argv[1]) == "--extended") extended = true;
-    else if (argc == 2 && std::string(argv[1]) == "--no-tx-control") traffic_control = TrafficControl::NoTx;
-    else if (argc == 2 && std::string(argv[1]) == "--stop-tx-control") traffic_control = TrafficControl::StopTx;
+    else if (argc == 2 && std::string(argv[1]) == "--no-tx-control") test_control = TestControl::NoTx;
+    else if (argc == 2 && std::string(argv[1]) == "--stop-tx-control") test_control = TestControl::StopTx;
+    else if (argc == 2 && std::string(argv[1]) == "--no-pdelay-control") test_control = TestControl::NoPdelay;
     else if (argc != 1) {
-        fprintf(stderr, "usage: %s [--negative-control|--extended|--no-tx-control|--stop-tx-control]\n", argv[0]);
+        fprintf(stderr, "usage: %s [--negative-control|--extended|--no-tx-control|"
+                        "--stop-tx-control|--no-pdelay-control]\n", argv[0]);
         return 2;
     }
-    Harness harness(negative, extended, traffic_control);
+    Harness harness(negative, extended, test_control);
     return harness.run();
 }

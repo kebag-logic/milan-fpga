@@ -225,6 +225,9 @@ make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
 The wrapper calls the focused recipe and accounting regressions.
 The physical harness contributes 127 checks.
 Setup-abort contributes six; two no-TX controls contribute twenty.
+The missing-response control contributes eight additional accounting checks.
+It preserves a real unanswered request and its failed assertion.
+First-exchange comparisons remain explicitly uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
 Every default suite retains its 1800-second deadline.
@@ -251,10 +254,12 @@ All three tabulated models ran completely.
 | Build configuration | Fresh build and run | Simulation only | Checks / failures |
 |---|---:|---:|---:|
 | Baseline, single thread, `-O2` | 2079.57 s | 2058.94 s | 127 / 0 |
-| Verilator `-O3`, C++ `-O3`, `--threads 1` | 2024.43 s | 2002.53 s | 127 / 0 |
+| Verilator `-O3`, model/runtime C++ `-O3`, `--threads 1` | 2024.43 s | 2002.53 s | 127 / 0 |
 | Same optimization, `--threads 3 --threads-max-mtasks 3` | 2050.32 s | 2027.80 s | 127 / 0 |
 
 The three-thread build's coarse partition schedules all work serially.
+The user harness retains Verilator's `OPT_FAST` default, `-Os`.
+These measured flags do not set every translation unit to `-O3`.
 It proves equivalent output, without demonstrating parallel acceleration.
 Unrestricted parallel and intermediate partition trials were stopped as impractical.
 Those incomplete trials provide no passing coverage or equivalence verdict.
@@ -296,8 +301,9 @@ Transport timeout aborts print the remaining unexecuted scope.
 The explicit physical driver runs this leg once through `milan_dp_gptp`.
 The `milan_dp` default retains its eleven existing legs.
 `suite_tally.py` reads its separate physical-rate summary.
-It also counts the six executed setup-abort regression assertions.
-`suite_shards.py` places `milan_dp_gptp` on shard 3/4.
+It also counts 34 setup, audio and missing-response accounting checks.
+`suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
+The nightly/manual job runs that selection without sharding.
 The historical `milan_dp` directory remains on shard 0/4.
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.

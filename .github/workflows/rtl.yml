@@ -348,6 +348,7 @@ jobs:
           sudo make install
       - name: Put Verilator on PATH and prove the version
         run: |
+          set -euo pipefail
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
@@ -366,7 +367,7 @@ jobs:
           python3 scripts/suite_tally.py "$RUNNER_TEMP/physical-gptp-logs" --quiet \
             --expect-suite-root tb/verilator --physical-gptp
           mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"
-          cp tb/verilator/milan_dp/obj_ax1x1gptp/*tx-control.log \
+          cp tb/verilator/milan_dp/obj_ax1x1gptp/*control.log \
             "$RUNNER_TEMP/physical-gptp-logs/controls/"
       - name: Upload the physical suite evidence
         if: ${{ always() }}
