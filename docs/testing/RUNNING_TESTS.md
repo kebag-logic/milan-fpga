@@ -46,22 +46,28 @@ make -C tb/verilator/pp_shadow
 make -C tb/verilator/csr
 ```
 
-Run the complete inventory before release review:
+Run both selections for the complete inventory before release review:
 
 ```sh
 suite_logs=$(mktemp -d)
 scripts/run_all_suites.sh "$suite_logs"
+physical_suite_logs=$(mktemp -d)
+scripts/run_all_suites.sh "$physical_suite_logs" --physical-gptp
 ```
 
 The runner needs Git 2.39.0 or newer: it gates the post-merge containment
 self-test, which uses `git patch-id --verbatim`, and an older Git is refused
 by name before any suite runs. The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
-check count cannot be read. CI uses the same inventory split into deterministic
-shards. Inspect the assignment without compiling with:
+check count cannot be read. The default selection contains 51 suites, each
+with an 1800-second deadline. The separate `milan_dp_gptp` selection uses
+5400 seconds, including compilation, and preserves physical clock and timer
+rates. CI shards the default selection; the physical job runs nightly and on
+manual dispatch. Inspect both selections without compiling with:
 
 ```sh
 scripts/run_all_suites.sh --shard 0/4 --list
+scripts/run_all_suites.sh --physical-gptp --list
 ```
 
 The `milan_dp` suite is the integration authority for MAC-facing wire traffic,

@@ -78,11 +78,42 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator runs the complete suite inventory on four workers. The aggregate
+Verilator runs the default suite inventory on four workers. The aggregate
 rejects missing, unexpected, or duplicate suite logs before it trusts the
 combined tally. Specialized dependencies are installed only by their stable
 owners: `tsn_fuzz` owns the pinned packet generator, and `chmap_capture` owns
 the Yosys/sv2v netlist leg. The shard selector self-test pins both assumptions.
+
+The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+It runs nightly at 01:17 UTC and on manual dispatch.
+PR and push events exclude this job from execution.
+Physical regressions therefore report nightly, outside the required PR aggregate.
+The four default shards retain every other suite.
+
+The physical suite has a 5400-second build-and-run deadline.
+Its separate four-core `ubuntu-latest` job permits 120 minutes total.
+The remaining 30 minutes allow toolchain installation and evidence upload.
+These deadlines await successful hosted measurement; they promise no completion time.
+The earlier 2400-second hosted timeout established no upper slowdown bound.
+Reference-platform timings and the decision appear in the [suite README](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
+
+The physical job records and verifies the event's exact SHA.
+It uploads `physical-gptp-logs`, separately from `suite-logs-*` artifacts.
+Failing DUT control transcripts reside below its `controls/` subdirectory.
+The passing tally reads only top-level suite logs.
+The standard driver retains its preflights, lock, timeout, verdict, and tally:
+
+```sh
+VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/physical-logs --physical-gptp
+python3 scripts/suite_tally.py /tmp/physical-logs --quiet \
+  --expect-suite-root tb/verilator --physical-gptp
+```
+
+`ci_events.py` pins the physical job's full step sequence.
+It pins event conditions, cancellation, deadlines, checkout, tooling, and evidence bindings.
+Mutation tests reject disabled steps, altered budgets, and unbound evidence.
+The default shard command is pinned separately.
+The selector and tally share the default/physical inventory partition.
 
 Yosys runs the complete top inventory on four weighted workers, under the
 pinned toolchain the workflow declares: `YOSYS_VERSION` names the one Yosys
@@ -156,8 +187,8 @@ gh run list --workflow rtl.yml --event workflow_dispatch --limit 3
 
 The run uses the `rtl.yml` of that branch and validates that branch's tip,
 pinned as `GITHUB_SHA` like every other event; there are no inputs. Its
-concurrency group is the branch ref, so a dispatched run neither cancels nor
-is cancelled by a pull-request run of the same branch.
+concurrency group includes the branch ref and the physical-run category.
+Push and pull-request runs cannot cancel scheduled or dispatched physical evidence.
 
 An agent uses dispatch in two situations:
 
@@ -1386,11 +1417,13 @@ run's own (see [One authoritative SHA](#one-authoritative-sha)), compare
 artifacts with the live repository inventory, and separately require every
 worker result to be `success`.
 
-Workflow concurrency is scoped to the PR or branch. A new commit cancels older
-runs because their evidence no longer describes the current head. Converting a
-PR to draft starts a no-op run in the same group, which releases hosted runners
-from obsolete exhaustive work. A dispatched run and a scheduled run are scoped
-to their branch ref, and a push to that branch cancels them the same way.
+Workflow concurrency retains the PR number or branch ref.
+Push/PR runs share the default category; newer updates replace older runs.
+Schedule/dispatch runs share a separate physical category for each ref.
+A newer physical run replaces an older physical run.
+Pushes cannot cancel physical evidence without starting a replacement.
+`ci_events.py` pins this separation and tests its removal.
+
 
 Push validation on `dev` checks the actual merge result. It complements, but
 does not replace, the explicit post-merge containment check required by

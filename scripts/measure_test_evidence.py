@@ -678,6 +678,21 @@ def runner_contract(text: str) -> list[str]:
     tally_run = text.find('suite_tally.py" "$OUT" --quiet')
     if launch < 0:
         problems.append("the per-suite wall-clock guard is missing")
+    budget = '''suite_timeout() {
+  case "$1" in
+    milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+    *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+  esac
+}'''
+    if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+        problems.append("the declared 1800/5400-second suite budgets changed")
+    selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                 '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                 '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+                 'exec "${selector[@]}"',
+                 'if ! selected_out=$("${selector[@]}" 2>&1); then')
+    if any(line not in text for line in selection) or "PHYSICAL_GPTP=0" not in text:
+        problems.append("the explicit physical/default inventory selection changed")
     if tally_selftest < 0 or (launch >= 0 and tally_selftest > launch):
         problems.append("the tally self-test does not run before the first suite")
     if tally_run < 0 or (launch >= 0 and tally_run < launch):
@@ -807,6 +822,12 @@ def main() -> int:
     print(f"\nsuite files using host wall-clock/process deadlines ({len(wallclock)}):")
     for rel in wallclock:
         print(f"   {rel}")
+
+    from suite_shards import sweep_suites
+    default_suites = sweep_suites(REPO / "tb/verilator")
+    physical_suites = sweep_suites(REPO / "tb/verilator", physical=True)
+    print(f"\nVerilator scheduling: {len(default_suites)} default suites; "
+          f"physical selection: {', '.join(physical_suites)}")
 
     runner_problems = runner_contract((REPO / "scripts/run_all_suites.sh").read_text())
     print("\nrunner evidence contract: " + ("OK" if not runner_problems else "FAIL"))

@@ -157,12 +157,53 @@ is generated (Section 0.1).
 Self-checking, exit `0` = PASS:
 
 ```sh
-cd tb/verilator
-for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 ```
 
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
+
+The default driver permits 1800 seconds per suite.
+It excludes only the scheduled `milan_dp_gptp` directory.
+The separate physical job permits 5400 seconds, including compilation.
+Its workflow job permits 120 minutes, including toolchain setup.
+Both target a four-core `ubuntu-latest` hosted worker.
+These are operational deadlines, pending completed hosted physical evidence.
+
+The earlier hosted run expired at 2400 seconds.
+The reference machine needed approximately 2080 simulation seconds.
+That machine has an AMD EPYC 9554P, with 128 logical CPUs.
+Hosted slowdown therefore exceeds approximately 1.15; its upper bound remains unknown.
+Four-core affinity and background load underpin the new local measurements.
+See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
+
+Every physical transition and original timer remains exercised.
+Four missed Pdelay intervals, recovery, and reset require physical seconds.
+The scenario still spans 12.992496440 simulated seconds.
+The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
+Physical regressions are caught nightly, outside the PR aggregate.
+Run the identical suite on demand:
+
+```sh
+VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/physical-logs --physical-gptp
+make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
+make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=4
+```
+
+The first command includes preflight, timeout, verdict, and tally handling.
+Both normal commands include setup, no-TX and missing-response accounting regressions.
+The missing-response control reaches acquisition timeout and checks the later publication.
+The extended command retains the original fixed windows explicitly.
+It runs the physical harness without those separate accounting regressions.
+
+`suite_shards.py` owns the default/physical partition.
+`suite_tally.py` shares that inventory and rejects misplaced logs.
+`measure_test_evidence.py` pins both deadlines and explicit physical selection.
+Its self-test rejects widened budgets and implicit physical selection.
+An explicit `SUITE_TIMEOUT` still overrides selected suite deadlines locally.
+CI unsets that override for the physical job.
+Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
+
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
 TX/RX); `pp_shadow` is the suite that **grades** the protocol processor as this
@@ -256,8 +297,8 @@ and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn
 
 ### 1.1 Suite index — reconciled against the tree 2026-08-13
 
-[`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) runs every dir under [`tb/verilator/`](../../tb/verilator) that has a
-`Makefile`. **Run it for the verdicts; this page does not carry them.** The last
+[`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) runs the default inventory under [`tb/verilator/`](../../tb/verilator).
+Every directory needs a `Makefile`; only `milan_dp_gptp` runs separately. **Run it for the verdicts; this page does not carry them.** The last
 whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
 described a tree that no longer exists — twelve of the suites it graded have
 since been deleted — so quoting it would be quoting a measurement of a
@@ -270,7 +311,7 @@ watching the printed total not move). Rerun the sweep for both figures.
 With no options the script remains the mandatory serial local sweep. GitHub
 uses four isolated `--shard INDEX/4` workers to reduce wall time, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
-the uploaded log names with the live `tb/verilator/*/Makefile` inventory and
+the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the
 combined tally. `scripts/run_all_suites.sh --shard 0/4 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,

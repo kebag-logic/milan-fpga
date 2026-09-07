@@ -4,19 +4,22 @@ Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
 Milan TSN NIC — one suite per subdirectory (the directory listing is
 the authoritative count; prose numbers go stale).
 
-They need **only** `verilator >= 5.050` (the CI pin; older 5.x cannot build every suite -- see [Section 7 of `docs/testing/TESTING.md`](../../docs/testing/TESTING.md#7-known-gaps-kept-honest)), a C++17
+The basic harnesses require `verilator >= 5.050` (the CI pin), a C++17
 compiler and the three submodules the suites read, initialised in one
 command: `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`.
+Some suites also require Yosys, sv2v or the pinned packet generator.
 No Xilinx tools are needed, because the suites target the pure-RTL blocks (no
 XPM/DSP primitives are instantiated). Which suite reads which is in
 [Section 0 of `docs/testing/TESTING.md`](../../docs/testing/TESTING.md#0-prerequisites),
 and it is not a Makefile grep: `pp_shadow` takes its whole source list from
 `milan_dp`, so it reads both processor submodules without naming either.
 
-Each exits `0` on pass / non-zero on failure. Run the whole set with
-`scripts/run_all_suites.sh` (exit status = number of failing suites); CI runs it
-in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
-— see [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md).
+Each exits `0` on pass and nonzero on failure. `scripts/run_all_suites.sh`
+runs the 51 default suites. The separate `--physical-gptp` selection runs
+`milan_dp_gptp`, preserving its physical clocks and longer deadline.
+The `rtl` workflow shards the default suites; its physical job runs nightly
+and on manual dispatch. The `docs` workflow owns docs, matrix and builder gates.
+See [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md) for verdict handling.
 
 | Harness | DUT | What it proves | Run |
 |---------|-----|----------------|-----|
@@ -36,6 +39,7 @@ in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
 | [`mac_rmon/`](mac_rmon) | `KL_mac_rmon_events.sv` (two shapes: a MAC that checks FCS/preamble/bad-frame, and one that checks none) | The block that turns MAC-boundary facts into the `ethernet_events` pulse vector — the RMON "decorative ABI" fix. Per-frame derivation at the AXIS boundary across an asynchronous clock ratio (exactly one 1-cycle destination pulse per frame; mid-frame beats and a backpressured `tlast` count for nothing), good-vs-bad RX frames mutually exclusive, MAC error counters turned into pulses with a counter RESET (link-guard reinit) deliberately emitting none, and — the honesty half — `cap_o` tracking the parameters rather than the wish: the four MAC-internal lanes are never claimed, an unattached boundary reports cap 0 **and** stays silent, and the no-checks shape drops the three optional lanes from the mask (2 × 28 checks). | `cd mac_rmon && make` |
 | [`datapath/`](datapath) | `traffic_controller_802_1q.sv` | **End-to-end** de-Xilinx'd 802.1Q TX datapath (T1.5): classifier → Forencich per-queue FIFOs → CBS shaper. VLAN frames in → byte-exact egress, PCP→queue routing (exact `tdest`), all 4 queues, strict-priority + CBS modes, burst (15 checks). | `cd datapath && make` |
 | [`milan_dp/`](milan_dp) | `milan_datapath.sv` | Whole-wrapper integration: CSR identity/version, classifier programming, byte-exact memory/MAC paths, NxN routing and protocol-processor publication. Product-on gPTP checks cover BMCA/sync/pdelay, coherent GM/parent/path publication, CLOCK_DOMAIN counters/notifications and AAF/CRF `tu`; verification-only option OFF proves zero-owner, zero-publication, write-inert fail-safe behavior. Pruned and generated NxN shapes elaborate and retain their structural-zero contracts. | `cd milan_dp && make` |
+| [`milan_dp_gptp/`](milan_dp_gptp) | `milan_datapath.sv` | One-stream, eight-channel TDM8 integration at 50 MHz with independent peer events, diagnostic audio, loss/recovery/reset, backpressure and accounting controls. Selected separately for nightly/manual execution; the boundary excludes MAC/PHY timing and hardware compliance. | `cd milan_dp_gptp && make` |
 | [`avtp_stream/`](avtp_stream) | `avtp_stream_parser.sv` | IEEE 1722 AVTP stream-header monitor (the S1 AVTP-engine foundation): stream-id / presentation-time / subtype / `tv` extraction against a programmable stream-match table, accept + reject cases, untagged and VLAN-tagged frames (21 checks). | `cd avtp_stream && make` |
 | [`avtp_parser/`](avtp_parser) | `avtp_stream_parser.sv` + `KL_stream_table.sv`, at **five shapes** (`N_STREAMS` = 1 / 4 / 8, `BIG_ENDIAN=1`, and the table+parser pairing at N=8) | The listener **accept verdict** and, above all, its **reject leg**: `stream_id` byte order as lifted off the wire, the VLAN-tagged vs untagged offset with both mis-offset negatives, the subtype/`sv` gate swept, every table entry reachable at each N (entries 4..7 exist only at N=8), the compare's failure modes — byte-reversed arm, transposed `SID_LO`/`SID_HI`, one-bit-off, armed-but-disabled — each asserted as the exact `0x8B4` APRB signature (*PARSED climbs, MATCHED does not, the latch shows the wire value*), frame-stream integrity (one verdict per frame, back-to-back with no gap, backpressure, the 56-byte header floor), 600 randomised frames per shape against an independent model, and TRAP-1: any entry-0 window write detaches the ACMP alias for good (~10 660 checks). | `cd avtp_parser && make` |
 | [`controller_rate/`](controller_rate) | `traffic_controller_802_1q.sv` | **Gating regression** for the CBS interference TX-wedge ([`docs/findings/CBS_DATAPATH_BUG.md`](../../docs/findings/CBS_DATAPATH_BUG.md)): back-to-back frames landing in *different* queues must each come out byte-exact — catches classifier `tdest` mis-timing / parse-FSM desync. | `cd controller_rate && make` |
@@ -43,8 +47,9 @@ in the `rtl` workflow, and the docs/matrix/builder gates in the `docs` workflow
 | [`tdm/`](tdm) | `KL_tdm_capture.sv` + `KL_aaf_packetizer.sv` | Item-4 TDM front-end family: TDM16 slave deserializer slot alignment under BOTH documented frame-sync modes (1-bclk pulse + data delay 1, 50%-duty long fsync + delay 0, armed edge detection), then capture → packetizer with TCTX-chans pair-slot partitioning — a 234-byte 8-channel AAF PDU and a 90-byte stereo PDU byte-exact vs hand-built references (1722-2016 7.3.3/7.3.4/7.3.5), two epochs (seq/ts chains). | `cd tdm && make` |
 
 ```sh
-# run everything (glob — never hand-list suites, lists go stale)
-for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
+# From the repository root, run both parts of the discovered inventory.
+scripts/run_all_suites.sh /tmp/default-suite-logs
+scripts/run_all_suites.sh /tmp/physical-suite-logs --physical-gptp
 ```
 
 ### Suites without a row above (yet)

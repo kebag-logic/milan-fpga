@@ -2,7 +2,7 @@
 """Tally the check counts out of a Verilator sweep's per-suite logs.
 
     python3 scripts/suite_tally.py <logdir>... [--quiet]
-        [--expect-suite-root <tb/verilator>]
+        [--expect-suite-root <tb/verilator>] [--physical-gptp]
     python3 scripts/suite_tally.py --verdict <suite.log>
 
 ``<logdir>`` is the directory ``scripts/run_all_suites.sh`` writes
@@ -352,9 +352,10 @@ def _verdict_command(path) -> int:
 
 
 def _parse_options(argv):
-    """(quiet, expected_root, logdirs, exit_code); the code is set on a usage error."""
+    """(quiet, expected_root, physical, logdirs, exit_code); the code is set on a usage error."""
     quiet = False
     expected_root = None
+    physical = False
     logdir_args = []
     pos = 1
     while pos < len(argv):
@@ -362,26 +363,29 @@ def _parse_options(argv):
         if arg == "--quiet":
             quiet = True
             pos += 1
+        elif arg == "--physical-gptp":
+            physical = True
+            pos += 1
         elif arg == "--expect-suite-root":
             if pos + 1 >= len(argv):
                 sys.stderr.write("suite_tally: --expect-suite-root needs a path\n")
-                return False, None, [], 2
+                return False, None, False, [], 2
             expected_root = Path(argv[pos + 1])
             pos += 2
         elif arg.startswith("-"):
             sys.stderr.write(f"suite_tally: unknown option {arg}\n")
-            return False, None, [], 2
+            return False, None, False, [], 2
         else:
             logdir_args.append(arg)
             pos += 1
     if not logdir_args:
         sys.stderr.write("usage: suite_tally.py <logdir>... [--quiet] "
                          "[--expect-suite-root <dir>]\n")
-        return False, None, [], 2
-    return quiet, expected_root, [Path(arg) for arg in logdir_args], None
+        return False, None, False, [], 2
+    return quiet, expected_root, physical, [Path(arg) for arg in logdir_args], None
 
 
-def _inventory_findings(logs, expected_root):
+def _inventory_findings(logs, expected_root, physical=False):
     """(findings, exit_code): where the shard logs are not the serial inventory."""
     inventory_findings = []
     counts = Counter(log.stem for log in logs)
@@ -391,10 +395,8 @@ def _inventory_findings(logs, expected_root):
                 ("DUPLICATE", suite, f"appears in {count} shard log directories"))
     if expected_root is not None:
         try:
-            expected = {
-                path.name for path in expected_root.iterdir()
-                if path.is_dir() and (path / "Makefile").is_file()
-            }
+            from suite_shards import sweep_suites
+            expected = set(sweep_suites(expected_root, physical=physical))
         except OSError as exc:
             sys.stderr.write(f"suite_tally: cannot read expected suite root "
                              f"{expected_root}: {exc}\n")
@@ -482,7 +484,7 @@ def main(argv: list[str]) -> int:
         return _campaign_guard_command(argv[argv.index("--campaign-guard") + 1])
     if "--verdict" in argv[1:]:
         return _verdict_command(argv[argv.index("--verdict") + 1])
-    quiet, expected_root, logdirs, usage_failure = _parse_options(argv)
+    quiet, expected_root, physical, logdirs, usage_failure = _parse_options(argv)
     if usage_failure is not None:
         return usage_failure
 
@@ -494,7 +496,7 @@ def main(argv: list[str]) -> int:
                          f"tally, which is an unknown, not a zero\n")
         return 2
 
-    inventory_findings, root_failure = _inventory_findings(logs, expected_root)
+    inventory_findings, root_failure = _inventory_findings(logs, expected_root, physical)
     if root_failure is not None:
         return root_failure
 

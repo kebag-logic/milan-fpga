@@ -243,6 +243,27 @@ def _arms_sharded_inventory() -> int:
           ("a", "b")),
          0, "checks: 5   in-suite failures: 0",
          "disjoint shard logs reproduce the serial tally"),
+        ("inventory-scheduled-excluded",
+         ({"left": {"milan_dp": "checks: 2   failures: 0\n"}},
+          ("milan_dp", "milan_dp_gptp")),
+         0, "checks: 2   in-suite failures: 0",
+         "the default tally expects only default suite logs"),
+        ("inventory-scheduled-leaked",
+         ({"left": {"milan_dp": "checks: 2   failures: 0\n",
+                    "milan_dp_gptp": "checks: 127   failures: 0\n"}},
+          ("milan_dp", "milan_dp_gptp")),
+         1, "UNEXPECTED  milan_dp_gptp",
+         "physical evidence cannot leak into the default aggregate"),
+        ("physical-exact",
+         ({"left": {"milan_dp_gptp": "checks: 127   failures: 0\n"}},
+          ("milan_dp", "milan_dp_gptp")),
+         0, "checks: 127   in-suite failures: 0",
+         "the physical tally independently requires its suite"),
+        ("physical-missing",
+         ({"left": {"milan_dp": "checks: 2   failures: 0\n"}},
+          ("milan_dp", "milan_dp_gptp")),
+         1, "MISSING     milan_dp_gptp",
+         "default evidence cannot stand in for physical evidence"),
         ("inventory-missing",
          ({"left": {"a": "checks: 2   failures: 0\n"}}, ("a", "b")),
          1, "MISSING     b", "one omitted serial suite fails closed"),
@@ -277,7 +298,8 @@ def _arms_sharded_inventory() -> int:
             with contextlib.redirect_stdout(buf), \
                     contextlib.redirect_stderr(io.StringIO()):
                 rc = main([sys.argv[0], *map(str, logdirs), "--quiet",
-                           "--expect-suite-root", str(suite_root)])
+                           "--expect-suite-root", str(suite_root)]
+                          + (["--physical-gptp"] if name.startswith("physical-") else []))
         out = buf.getvalue()
         ok = rc == want_rc and want_out in out
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
