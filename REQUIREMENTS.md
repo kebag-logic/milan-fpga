@@ -105,8 +105,9 @@ latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.
 
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
-clock-validity, CSR, and full-datapath benches with #117's two-board wire and
-publication correlation.
+clock-validity, CSR, and full-datapath benches with #117's wire and
+publication correlation of the one AX7101 DUT against the Milan-validated
+reference peer.
 
 ## 5. Credit-based shaping
 
@@ -200,8 +201,9 @@ verified blocks outside the shipping datapath; the station-address rules
   are green with zero policy findings.
 - **REQ-VER-05 (MUST):** A booted shipping board demonstrates firmware startup,
   UART diagnostics, fabric-owned gPTP, persistent state, and audio operation.
-  Two matched boards additionally demonstrate asCapable, GM transition/recovery,
-  publication/`tu` correlation, conformance, and latency (#117).
+  The one AX7101 DUT against the Milan-validated reference peer additionally
+  demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
+  conformance, and latency (#117).
 
 Release acceptance requires all requirements above or an explicit standards-
 cited deviation in the traceability table. At the current candidate, #70 and
