@@ -633,6 +633,26 @@ CANONICAL_IMPORTED_GPTP_GATE_SCRIPT = (
     IMPORTED_GPTP_GATE_CALL,
     "make -C gptp-processor docs",
 )
+#: #378: the em-dash gate's body is bound to its published name the way the
+#: imported-gPTP body is. The event selection, the null and empty base
+#: refusals, the fetch of a base the shallow checkout lacks and the gate
+#: call are one script: `--base HEAD` judges no line, a `|| true` reports
+#: none, and either kept every recorded key, name and binding in place
+#: with the required context green ([R0] on PR #384).
+EM_DASH_GATE_CALL = 'python3 scripts/check_em_dash.py --base "$base"'
+CANONICAL_EM_DASH_GATE_SCRIPT = (
+    'set -euo pipefail',
+    'case "$EVENT_NAME" in',
+    'pull_request) base="$PR_BASE_SHA" ;;',
+    'push) base="$PUSH_BEFORE_SHA" ;;',
+    '*) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;',
+    'esac',
+    'if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then',
+    'echo "the $EVENT_NAME event names no base commit"; exit 2',
+    'fi',
+    'git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"',
+    'python3 scripts/check_em_dash.py --base "$base"',
+)
 WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
 CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
                               WIRE_GATE_CALL)
@@ -2858,6 +2878,12 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
         (IMPORTED_GPTP_GATE_NAME, CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
          "this named step is the published proof for both the parent gPTP "
          "documentation contract and the pinned donor documentation build"))
+    check_named_carrier_gate_step(
+        c, DOCS, wf, "docs-check",
+        (EM_DASH_GATE_NAME, CANONICAL_EM_DASH_GATE_SCRIPT,
+         "the base this step judges from and the exit status it returns "
+         "are the whole gate: `--base HEAD` judges no line and a `|| true` "
+         "reports none"))
     check_carrier_gate_step(c, DOCS, wf, "wire-accountability", GatePin(
         WIRE_GATE_CALL, CANONICAL_WIRE_GATE_SCRIPT,
         "this step is the whole item-00 record, so a line beside the call "
@@ -5526,6 +5552,46 @@ def _docs_check_gate_step_arms() -> list[Arm]:
     ]
 
 
+def _em_dash_gate_step_arms() -> list[Arm]:
+    """#378: the em-dash gate's body, bound to its published name ([R0] on
+    PR #384): the call replaced, the base rebound to HEAD, the exit status
+    swallowed, the event selection and the refusals rewritten, and the body
+    moved under another recorded name."""
+    return [
+        ("#378 em-dash gate body replaced by true",
+         _m_named_gate_run(DOCS, "docs-check", EM_DASH_GATE_NAME, "true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate judges from HEAD",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     "python3 scripts/check_em_dash.py --base HEAD\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate swallows failure",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     EM_DASH_GATE_CALL + " || true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate push base rewritten",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     'push) base="$PUSH_BEFORE_SHA" ;;',
+                     'push) base="$GITHUB_SHA" ;;'),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate null-base refusal removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     '|| [ "$base" = 0000000000000000000000000000000000000000 ]',
+                     ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate base fetch removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     ' || git fetch --quiet --depth=1 origin "$base"', ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate body moved under another name",
+         _m_move_named_gate_body(DOCS, "docs-check", EM_DASH_GATE_NAME,
+                                 "Concise audience documentation gate"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+    ]
+
+
 def _carrier_gate_step_arms() -> list[Arm]:
     """#295: the gate step of the other two documentation carriers, one arm
     per lever per step."""
@@ -5851,6 +5917,7 @@ def _mutations() -> list[Arm]:
             + _key_allowlist_arms()
             + _recorded_writer_arms()
             + _docs_check_gate_step_arms()
+            + _em_dash_gate_step_arms()
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()

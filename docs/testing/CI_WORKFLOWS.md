@@ -429,11 +429,12 @@ is exactly these twelve things:
     job named `docs-check` passed with no finding -- the unique carrier had
     no neuter key, the id-named job kept its pinned steps, and the required
     context ran nothing. So the job whose id is the public name must carry
-    it. The five gate steps inside the four jobs are pinned too (#295 and
-    #303): `docs-check`'s ci_events and imported-gPTP steps,
+    it. The six gate steps inside the four jobs are pinned too (#295, #303
+    and #378): `docs-check`'s ci_events, imported-gPTP and em-dash steps,
     `wire-accountability`'s gate step, `docs-check-no-git`'s single step,
     and `elaborate`'s scope step. The four documentation
-    steps each carry exactly `name` and `run`. Their scripts equal the recorded
+    steps each carry exactly `name` and `run`, the em-dash step `name`,
+    `env` and `run`. Their scripts equal the recorded
     canonical forms after whitespace normalization, so a
     step-level `if`,
     `shell`, `continue-on-error` or `working-directory`, and a `|| true`
@@ -443,6 +444,11 @@ is exactly these twelve things:
     `run: true` is also refused. Its two commands are indivisible evidence:
     the parent checker validates current links and integration facts, and the
     donor build validates the documentation at the exact linked commit;
+    the em-dash body is bound the same way ([R0] on PR #384), because its
+    event selection, its null and empty base refusals, the fetch of a base
+    the shallow checkout lacks and the gate call are one script -- `--base
+    HEAD` judges no line and a `|| true` reports none, and each left every
+    recorded key, name and binding in place;
     `elaborate`'s scope step is held as the decide step is (item 7, the
     #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
     env bindings pinned to their source expressions, `ci_scope.py
@@ -645,7 +651,10 @@ given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
 and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_SHA` rebound to the run's own SHA, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
-`if: false` and removed; the imported gPTP gate removed, replaced by
+`if: false` and removed, its body replaced by `true`, judging from HEAD,
+swallowing its exit status, its push base rewritten, its null-base refusal
+and its base fetch removed, and its body moved under another recorded
+name; the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
 reformatting of all ten canonical scripts that must still pass; and the
