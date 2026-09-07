@@ -21,9 +21,11 @@
                 SCRATCH SINCE VERSION 0x0002_0056. traffic_controller_802_1q
                 and the ptp_ts_top record stampers are no longer instantiated
                 by milan_datapath (their only input was the retired host
-                plane's TX), so CLS_* (0x300), the CBS window (0x400) and
-                PTP_INGRESS/EGRESS_LAT (0x540/0x544) still store and read
-                back what software writes but reach no logic; CAP.CBS and
+                plane's TX), so CLS_* (0x300) and the CBS window (0x400)
+                still store and read back what software writes but reach
+                no logic. PTP_INGRESS/EGRESS_LAT (0x540/0x544) are readable,
+                inert scratch: plain RW with no timestamp-correction consumer
+                at VERSION 0x0002_0057. CAP.CBS and
                 IRQ_STATUS[0] tx_ts_ready are structural zero. The output
                 ports that carried them are deleted, not tied.
 
@@ -197,8 +199,9 @@ module milan_csr #(
   output wire                    o_ptp_cmd_load,    //! settime apply strobe (1-cycle pulse, PTP_CMD[0])
   output wire                    o_ptp_cmd_adjust,  //! adjtime apply strobe (1-cycle pulse, PTP_CMD[1])
   output wire                    o_ptp_cmd_snapshot,//! gettime latch strobe (1-cycle pulse, PTP_CMD[2])
-  //! PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544) have no port: their only
-  //! reader was the ptp_ts_core record path, gone with the general-data chain
+  //! PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544) are readable, inert scratch:
+  //! plain RW with no timestamp-correction consumer at VERSION 0x0002_0057.
+  //! They have no port: the ptp_ts_core record path left with the general-data chain.
   input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
   input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
 
@@ -1750,8 +1753,10 @@ module milan_csr #(
               tcam_wr_valid_r <= s_axi_wdata[8];
             end
           end
-          //! CLS_*, PTP_*_LAT and the 0x400 CBS window land in the shadow
-          //! only (is_plain_rw): write-only scratch, no flop, no consumer
+          //! CLS_* and the 0x400 CBS window land in the shadow only
+          //! (is_plain_rw): write-only scratch, no flop, no consumer.
+          //! PTP_*_LAT are readable, inert scratch in the same shadow:
+          //! plain RW, no timestamp-correction consumer at VERSION 0x0002_0057.
           default: ;
         endcase
       end

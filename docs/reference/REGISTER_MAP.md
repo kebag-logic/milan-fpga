@@ -98,7 +98,7 @@ of three verdicts:
 | Verdict | What it means | How software must treat it |
 |---|---|---|
 | **STRUCTURAL ZERO** | The source of this word is deleted and has no replacement. It reads `0` because there is nothing behind it, **not** because nothing happened | Never read it as a measurement. A word that read a plausible value instead would be a defect — "engine idle" and "no engine" must not be confusable |
-| **WRITE-ONLY SCRATCH** | The register still reads back exactly what software wrote, but the value **no longer reaches the wire** | Writing it changes nothing observable. Do not infer from a successful readback that the setting took effect |
+| **Readable, inert scratch** (legacy label: **WRITE-ONLY SCRATCH**) | The register still reads back exactly what software wrote, but the value **no longer reaches the wire** | Writing it changes nothing observable. Do not infer from a successful readback that the setting took effect |
 | **LIVE, REPOINTED** | Still real, now sourced from the protocol processor's class-D face instead of a deleted engine | Read it normally; the meaning is unchanged |
 
 Two structural changes that break existing decoders and are called out at their

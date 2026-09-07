@@ -554,8 +554,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (tb/verilator/{classifier,queues,cbs,shaper_core,datapath,
   //! controller_rate,ptp_ts}) as the building blocks of a class-A shaping lane
   //! for the fabric's own streams, which is a separate lane. The CSR words
-  //! that configured the chain (0x300 CLS_*, 0x400 CBS_*, 0x540/0x544
-  //! PTP_*_LAT) are WRITE-ONLY SCRATCH and CAP.CBS / IRQ_STATUS[0] are
+  //! that configured the chain (0x300 CLS_*, 0x400 CBS_*) are WRITE-ONLY
+  //! SCRATCH. PTP_*_LAT (0x540/0x544) are readable, inert scratch: plain RW
+  //! with no timestamp-correction consumer at VERSION 0x0002_0057.
+  //! CAP.CBS / IRQ_STATUS[0] are
   //! structural zero - docs/reference/REGISTER_MAP.md records each.
 
   //! I2S divider scale: mclk = clk/2^N ~= 12.5 MHz -> 48.8 kHz sample rate

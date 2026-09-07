@@ -53,6 +53,8 @@ constexpr uint32_t A_PTP_TWHI     = 0x514;
 constexpr uint32_t A_PTP_CMD      = 0x520;
 constexpr uint32_t A_PTP_TRLO     = 0x530;
 constexpr uint32_t A_PTP_TRHI     = 0x534;
+constexpr uint32_t A_PTP_ILAT     = 0x540;
+constexpr uint32_t A_PTP_ELAT     = 0x544;
 constexpr uint32_t A_ADP_CTRL     = 0x600;
 constexpr uint32_t A_ADP_EIDLO    = 0x604;
 constexpr uint32_t A_ADP_EIDHI    = 0x608;
@@ -141,6 +143,7 @@ class MilanCsrHarness {
   void rw_registers_and_output_wiring();
   void ptp_ctrl_owns_phc_enable_independent_of_adp();
   void mac_control_and_cbs_scratch_read_back();
+  void ptp_latency_scratch_read_back();
   void irq_latch_mask_and_w1c();
   void ptp_command_strobes_and_tod_snapshot();
   void statistics_snapshot();
@@ -455,6 +458,34 @@ void MilanCsrHarness::mac_control_and_cbs_scratch_read_back() {
   ck("CBS4_CTRL rw (scratch, bit 0)", axi_read(A_CBS4_CTRL), 0x1);
   axi_write(A_CBS4_CTRL, 0x0);
   axi_write(A_CBS4_IDLE, 450000000u);
+}
+
+void MilanCsrHarness::ptp_latency_scratch_read_back() {
+  printf("-- PTP latency readable, inert scratch --\n");
+  ck("PTP_ILAT reset", axi_read(A_PTP_ILAT), 0);
+  ck("PTP_ELAT reset", axi_read(A_PTP_ELAT), 0);
+
+  axi_write(A_PTP_ILAT, 0xA5A50001);
+  ck("PTP_ILAT pattern", axi_read(A_PTP_ILAT), 0xA5A50001);
+  ck("PTP_ELAT unaffected by ILAT", axi_read(A_PTP_ELAT), 0);
+  axi_write(A_PTP_ELAT, 0x5A5A0002);
+  ck("PTP_ELAT pattern", axi_read(A_PTP_ELAT), 0x5A5A0002);
+  ck("PTP_ILAT unaffected by ELAT", axi_read(A_PTP_ILAT), 0xA5A50001);
+
+  axi_write(A_PTP_ILAT, 0xFFFFFFFF);
+  ck("PTP_ILAT full width", axi_read(A_PTP_ILAT), 0xFFFFFFFF);
+  ck("PTP_ELAT retained", axi_read(A_PTP_ELAT), 0x5A5A0002);
+  axi_write(A_PTP_ELAT, 0xFFFFFFFF);
+  ck("PTP_ELAT full width", axi_read(A_PTP_ELAT), 0xFFFFFFFF);
+  ck("PTP_ILAT repeated read", axi_read(A_PTP_ILAT), 0xFFFFFFFF);
+  ck("PTP_ELAT repeated read", axi_read(A_PTP_ELAT), 0xFFFFFFFF);
+
+  axi_write(A_PTP_ILAT, 0);
+  ck("PTP_ILAT zero after nonzero", axi_read(A_PTP_ILAT), 0);
+  ck("PTP_ELAT retained on clear", axi_read(A_PTP_ELAT), 0xFFFFFFFF);
+  axi_write(A_PTP_ELAT, 0);
+  ck("PTP_ELAT zero after nonzero", axi_read(A_PTP_ELAT), 0);
+  ck("PTP_ILAT retained on clear", axi_read(A_PTP_ILAT), 0);
 }
 
 void MilanCsrHarness::irq_latch_mask_and_w1c() {
@@ -1286,6 +1317,7 @@ int MilanCsrHarness::run() {
   rw_registers_and_output_wiring();
   ptp_ctrl_owns_phc_enable_independent_of_adp();
   mac_control_and_cbs_scratch_read_back();
+  ptp_latency_scratch_read_back();
   irq_latch_mask_and_w1c();
   ptp_command_strobes_and_tod_snapshot();
   statistics_snapshot();
