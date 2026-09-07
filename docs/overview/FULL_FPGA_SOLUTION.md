@@ -32,15 +32,15 @@ Machine-checked status rows are defined by the
 
 ## Contents
 
-- **[1. Included functions](#1-included-functions)** — The protocol, time, media, shaping, identity, boot, and diagnostic functions in the release image.
-- **[2. Runtime flow](#2-runtime-flow)** — The all-fabric packet and audio paths from ingress observation to MAC egress.
-- **[3. Software responsibility](#3-software-responsibility)** — The bounded boot, provisioning, time-init, and UART duties of firmware, plus the explicit #70 persistence gap.
-- **[4. Build identity](#4-build-identity)** — How one configuration binds generated sources, bitstream, entity image, plan, and hashes.
-- **[5. Performance model](#5-performance-model)** — Why fabric timing and wire measurements, rather than firmware throughput, grade the product.
-- **[6. Compliance evidence](#6-compliance-evidence)** — The canonical ledger and layered evidence used for Milan claims.
-- **[7. Board integration](#7-board-integration)** — The AX7101 as release platform and one DUT, the retired Arty recipe, and the physical resource selections.
-- **[8. Release boundaries](#8-release-boundaries)** — What is product-supported, verification-only, or still outside the candidate.
-- **[9. What remains and how to finish it - the roadmap](#9-what-remains-and-how-to-finish-it---the-roadmap)** — The remaining protocol, media, timing, and physical acceptance work.
+- **[1. Included functions](#1-included-functions)** -- The protocol, time, media, shaping, identity, boot, and diagnostic functions in the release image.
+- **[2. Runtime flow](#2-runtime-flow)** -- The all-fabric packet and audio paths from ingress observation to MAC egress.
+- **[3. Software responsibility](#3-software-responsibility)** -- The bounded boot, provisioning, time-init, and UART duties of firmware, plus the explicit #70 persistence gap.
+- **[4. Build identity](#4-build-identity)** -- How one configuration binds generated sources, bitstream, entity image, plan, and hashes.
+- **[5. Performance model](#5-performance-model)** -- Why fabric timing and wire measurements, rather than firmware throughput, grade the product.
+- **[6. Compliance evidence](#6-compliance-evidence)** -- The canonical ledger and layered evidence used for Milan claims.
+- **[7. Board integration](#7-board-integration)** -- The AX7101 as release platform and one DUT, the retired Arty recipe, and the physical resource selections.
+- **[8. Release boundaries](#8-release-boundaries)** -- What is product-supported, verification-only, or still outside the candidate.
+- **[9. What remains and how to finish it - the roadmap](#9-what-remains-and-how-to-finish-it---the-roadmap)** -- The remaining protocol, media, timing, and physical acceptance work.
 
 ## 1. Included functions
 
