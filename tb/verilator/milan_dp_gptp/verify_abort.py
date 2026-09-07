@@ -32,7 +32,8 @@ def main() -> int:
         outcomes = [
             ("setup error exits nonzero", result.returncode == 1 and f"[FAIL] {error}" in output),
             ("setup failure runs zero cycles", "simulated_duration_seconds=0.000000000 cycles=0" in output),
-            ("only the executed setup failure is counted", "checks: 1   failures: 1" in output and "[ ok ]" not in output),
+            ("only the executed setup failure is counted",
+             "checks: 1   failures: 1" in output and "[ ok ]" not in output),
         ]
         outcomes.extend((f"uncounted omission: {label}",
                          f"NOT RUN: {label} (no comparisons; uncounted)" in output)
