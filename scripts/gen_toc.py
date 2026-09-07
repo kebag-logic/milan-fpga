@@ -75,8 +75,43 @@ GENERATED_RE = re.compile(
     r"|regenerate with|do not hand-?edit|do not edit|\*\*GENERATED\b", re.I)
 GENERATED_SCAN_LINES = 12
 
-FENCE_RE = re.compile(r"^(```|~~~)")
+#: A fence delimiter line as CommonMark defines one: at most three spaces of
+#: indentation, then a run of three or more backticks or tildes, then the
+#: rest of the line. What the run and the rest MEAN depends on whether a
+#: fence is already open, which is why `fenced()` below and not this
+#: expression decides it.
+FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
+
+
+def fenced(text: str) -> list[bool]:
+    """Per line of ``text``: is it part of a fenced code block, delimiters
+    included?
+
+    The rules are CommonMark's, and each one has been an escape: an opener
+    is indented at most three spaces (an indented example was read as
+    prose); it closes only on a line of the SAME character (a tilde fence
+    was closed by backticks); the closer is at least as long as the opener,
+    so a three-backtick line inside a four-backtick block is CONTENT, not
+    the end of the block ([R0] round 2 on PR #384 quoted a whole Contents
+    block that way); a closer carries nothing but whitespace after its run;
+    and a backtick opener's info string may not contain a backtick.
+    """
+    out, delim = [], None
+    for line in text.split("\n"):
+        m = FENCE_RE.match(line)
+        run, info = (m.group(1), m.group(2)) if m else ("", "")
+        if delim is None:
+            opens = bool(m) and not (run[0] == "`" and "`" in info)
+            if opens:
+                delim = run
+            out.append(opens)
+            continue
+        out.append(True)
+        if run and run[0] == delim[0] and len(run) >= len(delim) \
+                and not info.strip():
+            delim = None
+    return out
 #: One Contents entry as this script writes it: the label, the anchor, the
 #: separator (U+2014 on the pages that predate the em-dash rule, `--` on
 #: every block written since) and the description. check_em_dash.py reads
@@ -120,16 +155,9 @@ def headings(text: str) -> list[tuple[int, str, str]]:
     Anchors must be numbered over ALL headings - GitHub counts collisions
     across the whole page, including the H1 and the Contents heading itself -
     so the walk cannot skip anything before assigning."""
-    seen, out, fence = {}, [], None
-    for line in text.split("\n"):
-        f = FENCE_RE.match(line)
-        if f:
-            if fence is None:
-                fence = f.group(1)
-            elif line.startswith(fence):
-                fence = None
-            continue
-        if fence is not None:
+    seen, out = {}, []
+    for line, in_fence in zip(text.split("\n"), fenced(text)):
+        if in_fence:
             continue
         m = HEAD_RE.match(line)
         if m:

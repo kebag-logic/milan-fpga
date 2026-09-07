@@ -61,7 +61,7 @@ from pathlib import Path
 # OWNED by gen_toc.py, which writes the entries this gate reads; lifting them
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gen_toc import FENCE_RE, HEAD_RE, TOC_ENTRY_RE, TOC_HEAD, headings, label
+from gen_toc import HEAD_RE, TOC_ENTRY_RE, TOC_HEAD, fenced, headings, label
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -199,22 +199,20 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
 
 
 def shape(text: str) -> Shape:
-    """A page's line kinds and the span of its real Contents block. The
-    fence walk is gen_toc's, so a heading inside a fence is fenced text
-    here exactly as it is no heading there; the block starts at the first
-    unfenced `## Contents` heading and ends at the next unfenced `## `
-    heading, so a Contents block quoted inside a fence is no block at
-    all."""
-    kinds, fence, start, end = [], None, None, None
-    for i, line in enumerate(text.split("\n")):
-        f = FENCE_RE.match(line)
-        if f:
-            if fence is None:
-                fence = f.group(1)
-            elif line.startswith(fence):
-                fence = None
-            kinds.append("fenced line")
-        elif fence is not None:
+    """A page's line kinds and the span of its real Contents block.
+
+    The fence walk is gen_toc's, so a heading inside a fence is fenced text
+    here exactly as it is no heading there, and the CommonMark rules it
+    applies are the ones that decide this: a three-backtick line inside a
+    four-backtick block is content, a tilde fence does not close on
+    backticks, and an opener may carry up to three spaces of indentation.
+    The block starts at the first unfenced `## Contents` heading and ends
+    at the next unfenced `## ` heading, so a Contents block quoted inside a
+    fence of any shape is no block at all.
+    """
+    kinds, start, end = [], None, None
+    for i, (line, in_fence) in enumerate(zip(text.split("\n"), fenced(text))):
+        if in_fence:
             kinds.append("fenced line")
         elif HEAD_RE.match(line):
             kinds.append("heading")
@@ -415,6 +413,16 @@ def _write(repo: Path, name: str, text: str) -> None:
     (repo / name).write_text(text, encoding="utf-8")
 
 
+def _fenced_example(repo: Path, opener: str, closer: str) -> None:
+    """Quote the generated Contents block of `_NO_TOC` inside a fence: the
+    block copies a heading the base page already had, and none of it is a
+    navigation label, so every line of it is judged. `opener` may carry
+    more than one line, so a control can put content between the fence and
+    the block."""
+    _edit(repo, "NO_TOC.md", "Body.\n\n## Table",
+          f"{opener}\n{_NEW_BLOCK}{closer}\n\n## Table")
+
+
 @dataclass(frozen=True)
 class Control:
     """One planted change and the verdict the rule promises for it: the
@@ -497,8 +505,21 @@ def _label_controls() -> tuple[Control, ...]:
                                 "\n## Old"),
                 1, ("Contents separator",)),
         Control("fenced example of a mirrored label is refused",
-                lambda r: _edit(r, "NO_TOC.md", "Body.\n\n## Table",
-                                f"```\n{_NEW_BLOCK}```\n\n## Table"),
+                lambda r: _fenced_example(r, "```", "```"),
+                1, ("added fenced line",), exempt=0),
+        # The fence shapes that a laxer walk read as prose ([R0] round 2 on
+        # PR #384): the block below carries a three-backtick line of its
+        # own, so only a four-backtick closer ends it.
+        Control("four-backtick fence around a mirrored label is refused",
+                # The three-backtick line is CONTENT of the longer fence,
+                # not its closer, so the block below is still quoted.
+                lambda r: _fenced_example(r, "````markdown\n```", "````"),
+                1, ("added fenced line",), exempt=0),
+        Control("tilde fence around a mirrored label is refused",
+                lambda r: _fenced_example(r, "~~~", "~~~"),
+                1, ("added fenced line",), exempt=0),
+        Control("indented fence around a mirrored label is refused",
+                lambda r: _fenced_example(r, "   ```", "   ```"),
                 1, ("added fenced line",), exempt=0),
     )
 
