@@ -127,7 +127,9 @@ def blocks(text: str) -> list[str]:
     while a tilde opener's may. An indented code run needs a blank line
     before it, because it cannot interrupt a paragraph. A comment runs to
     its closing delimiter and a type-1 raw HTML block to its closing tag,
-    both across blank lines.
+    both across blank lines. A line that mixes commented and visible text
+    is labelled by the block it STARTS in, which can only withhold a
+    heading or a Contents block from a reader, never invent one.
     """
     out, state, delim, tag = [], TEXT, "", ""
     prev_blank = True
@@ -142,13 +144,41 @@ def blocks(text: str) -> list[str]:
     return out
 
 
+def _comment_after(line: str, inside: bool) -> bool:
+    """Whether a comment is open AFTER this line, reading EVERY delimiter on
+    it in order.
+
+    One `-->` is not the end of the story: `<!-- first --> <!-- second`
+    closes one comment and opens another, and a walk that read only the
+    first delimiter left the second span classified as text, which handed
+    a hand-written block inside it the navigation exemption ([R0] round 6
+    on PR #384). A comment is also the only block that can open after
+    visible text on a line, so this scan is the only residue any line
+    needs: a fence, an indented code run and a raw HTML block all require
+    the line's own start.
+    """
+    scan = line
+    while scan:
+        if inside:
+            at = scan.find(COMMENT_CLOSE)
+            if at < 0:
+                return True
+            scan, inside = scan[at + len(COMMENT_CLOSE):], False
+        else:
+            at = scan.find(COMMENT_OPEN)
+            if at < 0:
+                return False
+            scan, inside = scan[at + len(COMMENT_OPEN):], True
+    return inside
+
+
 def _still_open(line: str, state: str, delim: str,
                 tag: str) -> tuple[str, str, str]:
     """The state after a line INSIDE a fence, comment or raw HTML block.
     Only that block's own closer is read, which is the whole precedence
     rule: nothing else on the line means anything while it is open."""
     if state == COMMENT:
-        return (TEXT if COMMENT_CLOSE in line else COMMENT), "", ""
+        return (COMMENT if _comment_after(line, True) else TEXT), "", ""
     if state == HTML:
         return ((TEXT if re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
                  else HTML), "", tag)
@@ -180,9 +210,10 @@ def _opens(line: str, prev_blank: bool,
         tag = html.group(1)
         closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
         return HTML, (TEXT if closed else HTML), "", tag
-    head, sep, rest = line.partition(COMMENT_OPEN)
-    if sep and COMMENT_CLOSE not in rest:
-        return (COMMENT if not head.strip() else TEXT), COMMENT, "", ""
+    if COMMENT_OPEN in line:
+        after = COMMENT if _comment_after(line, False) else TEXT
+        starts = line.lstrip().startswith(COMMENT_OPEN)
+        return (COMMENT if starts else TEXT), after, "", ""
     return TEXT, TEXT, "", ""
 
 
@@ -358,19 +389,39 @@ def apply(path: Path, text: str) -> str | None:
     return None if new == text else new
 
 
-def generated_block(text: str) -> tuple[int, list[str]] | None:
+def owns(relpath: str, text: str) -> bool:
+    """Whether THIS script writes the Contents block of ``relpath``.
+
+    One population, read by `pages()` below and by every tool that asks
+    about provenance: the historical tree is frozen, `SKIP` names the two
+    indexes that ARE tables of contents, and a generator-owned page belongs
+    to its own generator. A gate that skipped this question exempted a
+    label on a hand-written index ([R0] round 6 on PR #384).
+    """
+    if relpath.startswith("docs/history/v1/") or relpath in SKIP:
+        return False
+    head = "\n".join(text.split("\n")[:GENERATED_SCAN_LINES])
+    return not GENERATED_RE.search(head)
+
+
+def generated_block(text: str,
+                    relpath: str | None = None) -> tuple[int, list[str]] | None:
     """Where this page's Contents block starts and the exact lines THIS
     SCRIPT renders for it, or None when the page carries no block or its
     block is not what this script would write.
 
     It is the provenance answer other tools ask for: a line is generated
     navigation if it is byte-identical to the line here, at its own
-    position. `check_em_dash.py` exempts a copied heading label only on
+    position, on a page this script owns -- pass ``relpath`` and a page
+    outside `owns()` answers None, whatever its text looks like.
+    `check_em_dash.py` exempts a copied heading label only on
     that answer, so no second reader has to decide what renders as
     navigation -- five rounds of PR #384 showed that a second reader
     decides it differently. Equality holds for every page the `--check`
     arm below passes, which is the same comparison `apply()` makes.
     """
+    if relpath is not None and not owns(relpath, text):
+        return None
     items = plan(text)
     desc, start, end, separator = existing(text)
     if items is None or start is None:
@@ -397,17 +448,16 @@ def pages() -> Iterator[Path]:
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
                          capture_output=True, text=True, check=True).stdout
     for p in sorted(out.split("\0")):
-        if not p or p.startswith("docs/history/v1/") or p in SKIP:
+        if not p:
             continue
         md = REPO / p
         if not md.is_file():
-            print(f"  GONE  {p}: tracked in the index but not on disk "
-                  f"(stage the deletion, or restore the file) - skipped")
+            if owns(p, ""):
+                print(f"  GONE  {p}: tracked in the index but not on disk "
+                      f"(stage the deletion, or restore the file) - skipped")
             continue
-        head = "\n".join(md.read_text().split("\n")[:GENERATED_SCAN_LINES])
-        if GENERATED_RE.search(head):
-            continue                       # generator-owned; see GENERATED_RE
-        yield md
+        if owns(p, md.read_text()):
+            yield md
 
 
 def verify_anchors() -> int:
@@ -494,6 +544,15 @@ def _walk_arms() -> list[tuple[str, str, object]]:
         ("a comment opened after visible text leaves that line alone",
          "## Head <!-- note\n-->\n## B\n",
          lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
+        ("a second comment opened on a closing line stays open",
+         "<!-- first --> <!-- second\n## Contents\n-->\ntext\n",
+         lambda k: k[:3] == [COMMENT] * 3 and k[3] == TEXT),
+        ("a comment closed and reopened inside a span stays open",
+         "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n",
+         lambda k: k[:4] == [COMMENT] * 4 and k[4] == TEXT),
+        ("a comment that really closes ends the span",
+         "<!-- one --> two\n## Contents\n",
+         lambda k: k[0] == COMMENT and k[1] == TEXT),
     ]
 
 
@@ -524,6 +583,16 @@ def _provenance_arms() -> list[tuple[str, str, object]]:
         ("a heading inside a comment is no heading",
          "<!--\n## Alpha\n-->\n\n## Beta\n",
          lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+        ("a page this script skips has no provenance", page,
+         lambda t: generated_block(t, "docs/README.md") is None),
+        ("nor has a historical page", page,
+         lambda t: generated_block(t, "docs/history/v1/X.md") is None),
+        ("nor has a generator-owned page",
+         page.replace("# Page",
+                      "# Page\n\n**GENERATED** - do not hand-edit."),
+         lambda t: generated_block(t, "docs/x.md") is None),
+        ("a page this script owns still has provenance", page,
+         lambda t: generated_block(t, "docs/x.md") is not None),
     ]
 
 
