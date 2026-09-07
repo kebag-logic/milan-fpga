@@ -169,7 +169,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/milan/milan_datapath.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 ax1x1gptp ax1x1gptp-aemi clean
+.PHONY: all run gptp option-off ax1x1 ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -240,6 +240,7 @@ ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 # Physical-rate integration: no compressed diagnostics, holdover or PP timers.
 # A distinct image keeps the historical 2 MHz gptp leg byte-for-byte intact.
 AX_GPTP_HZ = 50000000
+AX_GPTP_ARGS =
 AX_GPTP_JOBS = $(if $(filter 1 2 3 4 5 6 7,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),8)
 AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS)))
 gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
@@ -259,7 +260,11 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
 	sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
-	/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
+	/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp $(AX_GPTP_ARGS)
+
+# Preserve the original long windows outside the default sweep.
+ax1x1gptp-extended: AX_GPTP_ARGS = --extended
+ax1x1gptp-extended: ax1x1gptp
 
 run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
@@ -356,7 +361,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	./obj_ax1x1/Vmilan_dp_ax1x1
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
 	./obj_aclk/Vmilan_dp_aclk
-	$(MAKE) ax1x1gptp VERILATOR_JOBS=$(VERILATOR_JOBS)
+# The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
+# target stays here so there is only one source/parameter/build recipe.
 
 # The datapath source list, for suites that must elaborate the SAME gateware
 # under a different parameter set (tb/verilator/pp_shadow). Exporting it beats

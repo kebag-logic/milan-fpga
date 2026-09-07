@@ -74,6 +74,7 @@ def selftest() -> int:
     # for chmap_capture's worker, so an assignment-rule change must fail here.
     landmarks = {
         "milan_dp": 0,
+        "milan_dp_gptp": 3,
         "pp_shadow": 1,
         "mmcm_servo": 2,
         "tsn_fuzz": 1,

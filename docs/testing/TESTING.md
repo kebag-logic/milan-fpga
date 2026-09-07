@@ -163,6 +163,23 @@ for d in */ ; do ( cd "$d" && make clean >/dev/null && make ) || exit 1; done
 
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
+
+The common driver normally permits 1800 seconds per suite.
+`milan_dp_gptp` alone receives 2400 seconds, including compilation.
+Its physical cadence requires four missed Pdelay intervals.
+Acquisition and recovery require two successful exchanges.
+Reset also checks cadence between two completed exchanges.
+The trimmed integration therefore spans about 13 simulated seconds.
+See its [phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
+The historical `milan_dp` suite retains its 1800-second deadline.
+`suite_timeout` in `scripts/run_all_suites.sh` declares both defaults.
+An explicit `SUITE_TIMEOUT` still overrides all selected suites.
+Normal CI uses the declared defaults without that override.
+`measure_test_evidence.py` pins the sole exception and both budgets.
+Its self-test rejects changed budgets, directory names, and guard assignment.
+Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
+The extended physical run requires an explicit make target.
+
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, scratch-word readback, byte-exact
 TX/RX); `pp_shadow` is the suite that **grades** the protocol processor as this

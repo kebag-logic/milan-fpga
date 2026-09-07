@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **eleven elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -26,6 +26,10 @@ log in the failure so the artifact can be inspected.
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
+The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+
+| objdir | harness | shape | what it is for |
+|---|---|---|---|
 | `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, 50 MHz | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
 
 ## Contents
@@ -147,6 +151,13 @@ Short responses retain Ethernet minimum-frame padding.
 Final cumulative assertions include traffic between named audio windows.
 Warm-up payload and transition-state comparisons are explicitly excluded.
 Every exclusion prints `NOT RUN` and contributes no pass.
+Cumulative assertions require their own executed comparisons.
+Without comparisons, each prints an explicit uncounted omission.
+Payload, sample-order, and packet-sequence counters are independent.
+Reset restarts ordering history, preserving cumulative comparison counts.
+A missing AEM image aborts before the first cycle.
+Only its setup failure counts; no audio assertion passes.
+The separate suite also grades this setup failure automatically.
 
 Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
 Issue #360 remains outside this packet-interface simulation.
@@ -170,27 +181,87 @@ The switch defaults off and changes no RTL or ROM.
 It stops after the first real Pdelay exchange.
 Later acquisition, loss/reset/stall arms are explicitly unexecuted.
 Negative-control results never enter the broad sweep's passing count.
-The 2026-09-06 control measured 27 checks and 3 expected failures, exit 1.
+The 2026-09-07 control measured 27 checks and 3 expected failures, exit 1.
+It took 192.37 wall seconds; all five later phases stayed uncounted.
 The peer-delay assertion and both payload assertions detected corruption.
 
 The focused compilation limit is at most eight jobs.
 Smaller positive `VERILATOR_JOBS` values remain available.
 
-The 2026-09-06 UTC focused run took 2282.26 wall-clock seconds.
-It simulated 14.443565400 seconds on the shared development box.
-This exceeds the common sweep driver default of 1800 seconds per suite.
-Full repository timing remains unvalidated; no timeout threshold was changed.
-A run killed by that deadline remains UNKNOWN, with no passing verdict.
+The original run simulated 14.443565400 seconds.
+Its measured 2282.26 wall seconds exceeded the shared suite deadline.
+The default now ends transition windows upon observed public state.
+Polling uses AXI-Lite every simulated millisecond.
+Each reached transition gets another millisecond for packet/publication settling.
+Audio monitoring continues throughout polling and between named windows.
+No physical clock, protocol timer, or comparison threshold changes.
+
+| Phase | Required span and stopping condition |
+|---|---|
+| Geometry and initial audio | Clock measurement takes about 3.4 ms. Payload warm-up excludes 10 ms. The 20 ms audio window covers 160 PDUs and 960 samples. |
+| First Pdelay | Boot request occurs at 1.2 s. Inspection follows its response and Follow_Up, before the second request. |
+| Acquisition and public getters | Second exchange occurs at 2.2 s. Announce and Sync/Follow_Up select the GM at 2.25 s. The unchanged discontinuity holdover clears `tu` near 2.75 s. Stop on healthy CLKV, then compare GM/parent/delay/path through CSR and AECP. Original 1.8 s window remains the failure bound. |
+| Healthy audio | Twenty milliseconds compares all eight channels, ordering, and certain `tu`. |
+| Backpressure | Wait for the next DUT Pdelay at 3.2 s. Every transmitted frame stalls for 64 cycles. Stop after a stalled PTP frame, then settle its response. The earlier acquisition requires approximately 0.43 s before that same request. The polling bound permits one unchanged Pdelay interval; the cadence tolerance remains unchanged. |
+| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. Stop on public uncertain state; the original 450 ms failure bound remains. |
+| Peer loss | Four unanswered request intervals must finish. After the successful 3.2 s request, these finish around 8.2 s. Stop only after public loss and the fifth unanswered request. The combined loss deadline remains 5.05 s. Audio and uncertain `tu` remain graded. |
+| Recovery | Two fresh exchanges and selected Announce/Sync are required. Then Announce/Sync and the discontinuity holdover must complete. Stop on healthy public state within the original 3 s bound, then grade 20 ms of certain audio. |
+| Reset | Assert both resets during active traffic. Warm-reset public health can return after one exchange. Continue through two completed exchanges, at 1.2/2.2 s, to grade the reset epoch's one-second cadence. Require healthy public state within 3 s, then grade 20 ms of certain audio. |
+
+The four missed intervals prevent a 600-second default run.
+Acquisition, recovery, and reset also require real Pdelay exchanges.
+The trimmed scenario still requires 12.992496440 simulated seconds.
+Consequently, the physical leg owns a separate suite deadline:
+
+```sh
+make -C tb/verilator/milan_dp_gptp
+```
+
+This calls the same focused recipe, then checks setup-abort accounting.
+The driver permits this suite 2400 wall seconds, including compilation.
+`milan_dp` and all other suites retain their 1800-second defaults.
+The [budget contract](../../../docs/testing/TESTING.md) records this exception.
+The driver retains TIMEOUT/UNKNOWN and nonzero exit on expiry.
+
+The 2026-09-07 UTC full-driver measurements passed:
+
+| Directory | Driver wall seconds | Checks / failures | Default budget |
+|---|---:|---:|---:|
+| `milan_dp` | 322.72 | 9237 / 0 | 1800 s |
+| `milan_dp_gptp` | 2078.69 | 133 / 0 | 2400 s |
+
+The physical simulation itself took 2053.39 wall seconds.
+Its 127 checks passed; setup-abort regression adds six separate checks.
+Driver measurements include compilation and preflight gates.
+The physical suite retained 321.31 seconds of budget headroom.
+Its simulation alone still exceeds the ordinary 1800-second deadline.
+Neither run set `SUITE_TIMEOUT`.
+
+
+The original spans remain explicitly available:
+
+```sh
+make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=8
+# Equivalent entry from the separate suite:
+make -C tb/verilator/milan_dp_gptp extended
+```
+
+Extended mode retains every original fixed-duration audio window.
+Both modes execute the same assertions and comparison thresholds.
+The new elapsed-interval assertion also checks four unanswered Pdelay intervals.
+Extended mode is excluded from the default sweep.
 
 The normal log includes simulated duration and counted verdicts.
 The recipe records wall duration, process status, and SHA-256 hashes.
 Each phase has a bounded simulated deadline.
 Transport timeout aborts print the remaining unexecuted scope.
 
-The broad sweep appends this leg after every existing command.
+The broad driver runs this leg once through `milan_dp_gptp`.
+The `milan_dp` default retains its eleven existing legs.
 `suite_tally.py` reads its separate physical-rate summary.
-`suite_shards.py` assigns it with `milan_dp`, currently shard 0/4.
-`run_all_suites.sh` therefore needs no inventory change.
+It also counts the six executed setup-abort regression assertions.
+`suite_shards.py` places `milan_dp_gptp` on shard 3/4.
+The historical `milan_dp` directory remains on shard 0/4.
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
 
@@ -374,11 +445,12 @@ the first offset beyond the model.
 "Before" is the state after the compile fix that made the suite build at all
 (`sim_nxn.cpp` reached deleted RTL through Verilator XMRs and did not compile,
 so *no* leg ran). Every after value below was measured in one broad run
-on 2026-09-06 UTC for Issue #367. The eleven existing legs retain their
-2026-09-02 counts; the twelfth is the new physical-rate integration.
+on 2026-09-06 UTC for Issue #367, except the separate physical suite.
+The eleven existing legs retain their 2026-09-02 counts.
+Round two separates the physical leg's driver deadline.
 No row projects unexecuted checks.
 
-| leg | before (measured) | after (measured, one make, 2026-09-06 UTC) | note |
+| leg | before (measured) | after (measured; date noted below) | note |
 |---|---|---|---|
 | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
@@ -391,7 +463,7 @@ No row projects unexecuted checks.
 | `obj_prune` (`sim_prune`) | 31 / 0 | **28 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there) |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **22 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added |
-| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | new in #367 | **126 / 0** | 50 MHz physical timers; eight-channel diagnostic loopback; independent peer; loss, recovery, stalls and reset; licensed streaming excluded |
+| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
 working tree went out from under the build — `protocol_processor_top.sv` had an

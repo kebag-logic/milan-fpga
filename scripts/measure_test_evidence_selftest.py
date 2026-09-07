@@ -288,6 +288,12 @@ def _arms_runner_contract(ck):
        not runner_contract(runner), "; ".join(runner_contract(runner)))
     ck("a timeout reported as failure is rejected",
        bool(runner_contract(runner.replace("exit 92", "exit 1"))))
+    for old, new in (("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
+                     ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-3000"),
+                     ("milan_dp_gptp)", "milan_dp)"),
+                     ('TMO=$(suite_timeout "$suite")', 'TMO=2400')):
+        ck(f"a changed suite budget is rejected: {old}",
+           bool(runner_contract(runner.replace(old, new))))
 
 
 def _arms_live_scan(ck):

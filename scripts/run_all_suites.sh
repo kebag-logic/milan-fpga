@@ -29,7 +29,9 @@
 #            it is not a failure and it is not a pass. Re-run it uncontended.
 #
 # Environment:
-#   SUITE_TIMEOUT        per-suite wall clock in seconds (default 1800)
+#   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
+#                        Defaults: 1800 s; milan_dp_gptp alone gets 2400 s.
+#                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
 #                        ONE path to serialise sweeps machine-wide instead.
@@ -166,7 +168,6 @@ refuse() {
 acquire_lock() {
   LOCK="${SUITE_SWEEP_LOCK:-$ROOT/.run_all_suites.lock}"
   LOCK_OWNER="$LOCK.owner"
-  TMO="${SUITE_TIMEOUT:-1800}"
 
   if command -v flock >/dev/null 2>&1; then
     exec 9>>"$LOCK" || { echo "cannot open $LOCK" >&2; exit 2; }
@@ -193,6 +194,15 @@ acquire_lock() {
   trap cleanup EXIT INT TERM
   printf 'pid %s  host %s  started %s\n  outdir %s\n' \
          "$$" "$(uname -n)" "$(date -Is 2>/dev/null || date)" "$OUT" > "$LOCK_OWNER"
+}
+
+#! Declared per-suite defaults; an explicit caller override retains its meaning.
+#! The CI runner contract pins both budgets and the sole exception's name.
+suite_timeout() {
+  case "$1" in
+    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
+    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+  esac
 }
 
 #! every self-test that has to hold before a 40-minute sweep is worth
@@ -301,6 +311,7 @@ run_suites() {
   echo "shard: $SHARD   selected suites: ${#suites[@]}"
   for suite in "${suites[@]}"; do
     d="$ROOT/tb/verilator/$suite"
+    TMO=$(suite_timeout "$suite")
     timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
     rc=$?
     # Rule 6: a suite that PRINTS a failure and exits 0 is a masked verdict, and

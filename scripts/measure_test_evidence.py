@@ -678,6 +678,14 @@ def runner_contract(text: str) -> list[str]:
     tally_run = text.find('suite_tally.py" "$OUT" --quiet')
     if launch < 0:
         problems.append("the per-suite wall-clock guard is missing")
+    budget = '''suite_timeout() {
+  case "$1" in
+    milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-2400}" ;;
+    *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+  esac
+}'''
+    if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+        problems.append("the declared 1800/2400-second suite budgets changed")
     if tally_selftest < 0 or (launch >= 0 and tally_selftest > launch):
         problems.append("the tally self-test does not run before the first suite")
     if tally_run < 0 or (launch >= 0 and tally_run < launch):
