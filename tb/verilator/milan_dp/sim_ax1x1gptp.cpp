@@ -589,7 +589,7 @@ void Harness::reset() {
     run_cycles(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     stamp_origin = cyc * 20;
-    pd_requests = 0; pd_answers = 0;
+    pd_requests = 0; pd_answers = 0; oracle_delay = 0;
     seq_started = false; payload_started = false;
     audio_seq = 0; audio_index = 1;
     run_cycles(512);
@@ -665,8 +665,11 @@ void Harness::publication(const char* arm, bool healthy) {
         check.hex("PathTrace has GM and parent", gen1 & 15, 2);
         check.hex("asCapable and Sync healthy, uncertainty cleared", stat & 0x10003, 0x10002);
         // Bound: 20 ns ingress phase plus 8 ns peer quantization. No PHY allowance.
-        check.that("peer delay equals independent event oracle within 28 ns",
-                   std::abs(int64_t(delay) - oracle_delay) <= 28);
+        if (pd_answers)
+            check.that("peer delay equals independent event oracle within 28 ns",
+                       std::abs(int64_t(delay) - oracle_delay) <= 28);
+        else printf("NOT RUN: peer delay equals independent event oracle within 28 ns "
+                    "(no accepted response in this reset epoch; uncounted)\n");
     } else {
         check.hex("loss clears asCapable", stat & 0x10000, 0);
         check.hex("loss clears Sync and asserts uncertainty", stat & 3, 1);
@@ -855,16 +858,21 @@ int Harness::run() {
             printf("NOT RUN: first peer delay matches independent event oracle within 28 ns "
                    "(first exchange absent; uncounted)\n");
         }
-        if (test_control_ == TestControl::NoPdelay)
-            printf("PDELAY event accounting requests=%llu responses=%llu\n",
-                   static_cast<unsigned long long>(pd_requests), static_cast<unsigned long long>(pd_answers));
-        if (negative_ || test_control_ == TestControl::NoPdelay) return report();
+        if (negative_) return report();
         audio_window("acquisition", kHz * 18 / 10, -1, Until::Healthy);
         check.that("boot Pdelay occurs at 1.2 s", pd_requests >= 2
             && pd_first - stamp_origin >= 1200000000 && pd_first - stamp_origin < 1200100000);
-        check.dec("Pdelay retains one-second cadence", pd_cadence_bad, 0);
-        check.dec("scheduled peer ingress met its event times", schedule_bad, 0);
+        if (pd_requests >= 2) check.dec("Pdelay retains one-second cadence", pd_cadence_bad, 0);
+        else printf("NOT RUN: Pdelay retains one-second cadence (fewer than two requests; uncounted)\n");
+        if (pd_answers) check.dec("scheduled peer ingress met its event times", schedule_bad, 0);
+        else printf("NOT RUN: scheduled peer ingress met its event times "
+                    "(no accepted response in this reset epoch; uncounted)\n");
         publication("acquired", true);
+        if (test_control_ == TestControl::NoPdelay) {
+            printf("PDELAY event accounting requests=%llu responses=%llu\n",
+                   static_cast<unsigned long long>(pd_requests), static_cast<unsigned long long>(pd_answers));
+            return report();
+        }
         wire_publication(); completed[3] = true;
         if (!negative_) {
             audio_window("healthy stable", kHz / 50, 0); completed[4] = true;
@@ -875,7 +883,8 @@ int Harness::run() {
             audio_window("TX backpressure", extended_ ? kHz * 3 / 10 : kHz, 0, Until::StalledPtp);
             stall_on = false;
             check.that("backpressure actually stalled valid beats", stall_beats > 0);
-            check.dec("TX held data keep last and valid under stalls", stall_bad, 0);
+            if (stall_beats) check.dec("TX held data keep last and valid under stalls", stall_bad, 0);
+            else printf("NOT RUN: TX held data keep last and valid under stalls (no stalled beats; uncounted)\n");
             check.that("gPTP packets traversed actual backpressure", stalled_ptp_frames > 0);
             publication("after backpressure", true); completed[5] = true;
             loss_recovery(); completed[6] = true;
@@ -886,7 +895,9 @@ int Harness::run() {
             audio_window("reset reacquisition", kHz * 3, -1, Until::Healthy);
             publication("reset recovered", true);
             audio_window("reset stable", kHz / 50, 0); completed[7] = true;
-            check.dec("all scheduled Pdelay ingress events met deadlines", schedule_bad, 0);
+            if (pd_answers) check.dec("all scheduled Pdelay ingress events met deadlines", schedule_bad, 0);
+            else printf("NOT RUN: all scheduled Pdelay ingress events met deadlines "
+                        "(no accepted response in this reset epoch; uncounted)\n");
             check.that("all epochs retain real Pdelay cadence",
                        pd_requests >= 2 && pd_cadence_bad == 0);
         } else printf("NOT RUN: long loss/backpressure/reset arms in negative-control mode\n");

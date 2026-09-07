@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Require setup failures to omit unexecuted cumulative audio assertions."""
+"""Require failure paths to omit unexecuted audio and peer-event comparisons."""
 
 from pathlib import Path
 import subprocess
@@ -18,7 +18,7 @@ LABELS = (
 
 
 def main() -> int:
-    """Run the real binary without its image; grade only executed evidence."""
+    """Run the real failure controls and grade only their executed evidence."""
     binary = (Path(__file__).resolve().parent.parent
               / "milan_dp/obj_ax1x1gptp/Vmilan_dp_ax1x1gptp")
     checks = 0
@@ -99,7 +99,7 @@ def verify_no_tx(binary: Path) -> int:
 
 
 def verify_no_pdelay(binary: Path) -> int:
-    """An unanswered real request must not earn first-exchange comparison passes."""
+    """Unanswered real requests cannot earn first-exchange or publication passes."""
     result = subprocess.run([str(binary), "--no-pdelay-control"], cwd=binary.parent.parent,
                             text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = result.stdout
@@ -108,16 +108,31 @@ def verify_no_pdelay(binary: Path) -> int:
     outcomes = [
         ("missing response retains a nonzero DUT verdict", result.returncode == 1),
         ("a real request was unanswered",
-         bool(events) and int(events[1]) > 0 and int(events[2]) == 0),
+         bool(events) and int(events[1]) >= 2 and int(events[2]) == 0),
         ("missing response assertion still fails",
          any("[FAIL]" in line and "first Pdelay response completed" in line for line in output.splitlines())),
         ("first exchange remains incomplete", "NOT RUN TO COMPLETION: first Pdelay exchange" in output),
+        ("the unchanged acquisition deadline actually elapsed",
+         "AUDIO arm=acquisition deadline=1.800000 s" in output
+         and "AUDIO elapsed=1.800000 s" in output),
+        ("acquired publication was reached and retains its health failure",
+         "PUBLIC acquired " in output
+         and any("[FAIL]" in line and "asCapable and Sync healthy, uncertainty cleared" in line
+                 for line in output.splitlines())),
     ]
     for label in ("one response cannot assert asCapable",
                   "first peer delay matches independent event oracle within 28 ns"):
         outcomes.extend([
             (f"uncounted omission: {label}", f"NOT RUN: {label} (first exchange absent; uncounted)" in output),
             (f"no unexecuted pass: {label}",
+             not any("[ ok ]" in line and label in line for line in output.splitlines())),
+        ])
+    for label in ("scheduled peer ingress met its event times",
+                  "peer delay equals independent event oracle within 28 ns"):
+        outcomes.extend([
+            (f"uncounted omission after acquisition timeout: {label}",
+             f"NOT RUN: {label} (no accepted response in this reset epoch; uncounted)" in output),
+            (f"no unexecuted pass after acquisition timeout: {label}",
              not any("[ ok ]" in line and label in line for line in output.splitlines())),
         ])
     for label, passed in outcomes:

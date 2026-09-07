@@ -162,6 +162,9 @@ Only its setup failure counts; no audio assertion passes.
 The separate suite also grades this setup failure automatically.
 Two admission controls exercise initial silence and silence after traffic.
 Each silent window retains activity/payload failures and uncounted comparison omissions.
+Peer-delay and arrival comparisons require an accepted response in the current reset epoch.
+Cadence checks require two requests; stall comparisons require observed stalled beats.
+Their missing prerequisites produce explicit, uncounted omissions.
 
 Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
 Issue #360 remains outside this packet-interface simulation.
@@ -225,9 +228,10 @@ make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
 The wrapper calls the focused recipe and accounting regressions.
 The physical harness contributes 127 checks.
 Setup-abort contributes six; two no-TX controls contribute twenty.
-The missing-response control contributes eight additional accounting checks.
-It preserves a real unanswered request and its failed assertion.
-First-exchange comparisons remain explicitly uncounted without an accepted response.
+The missing-response control contributes fourteen additional accounting checks.
+It preserves real unanswered requests and their failed response/publication assertions.
+The unchanged acquisition deadline expires before the acquired-publication check.
+First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
 Every default suite retains its 1800-second deadline.
@@ -301,7 +305,7 @@ Transport timeout aborts print the remaining unexecuted scope.
 The explicit physical driver runs this leg once through `milan_dp_gptp`.
 The `milan_dp` default retains its eleven existing legs.
 `suite_tally.py` reads its separate physical-rate summary.
-It also counts 34 setup, audio and missing-response accounting checks.
+It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
 The nightly/manual job runs that selection without sharding.
 The historical `milan_dp` directory remains on shard 0/4.

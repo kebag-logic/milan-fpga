@@ -4,7 +4,7 @@ Run `make` here for the physical integration.
 The shared recipe remains in `../milan_dp/Makefile`.
 It builds one eight-channel TDM8 datapath with gPTP enabled.
 It then grades setup, audio-window and missing-response accounting.
-The normal total is 161 checks: 127 physical, 34 accounting.
+The normal total is 167 checks: 127 physical, 40 accounting.
 The original long spans require `make extended` explicitly.
 Extended mode runs the physical harness alone, with 127 checks.
 
@@ -36,6 +36,8 @@ Initial silence produces RX traffic with zero TX or comparisons.
 The stopped-traffic control preserves previous comparisons before withholding admission.
 Each silent window prints three explicit, uncounted comparison omissions.
 Activity and payload checks retain their nonzero DUT verdicts.
-The missing-response control transmits a real Pdelay request.
-Its absent response leaves the first-exchange comparisons explicitly uncounted.
-The missing-response assertion and DUT result remain failures.
+The missing-response control transmits real Pdelay requests and withholds every response.
+It runs through the unchanged 1.8-second acquisition deadline and acquired-publication check.
+First-exchange, peer-arrival and delay comparisons remain explicitly uncounted without responses.
+The missing-response and publication-health assertions retain a failing DUT result.
+The verifier grades fourteen checks on that failure path.

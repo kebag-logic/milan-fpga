@@ -192,6 +192,7 @@ make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=4
 
 The first command includes preflight, timeout, verdict, and tally handling.
 Both normal commands include setup, no-TX and missing-response accounting regressions.
+The missing-response control reaches acquisition timeout and checks the later publication.
 The extended command retains the original fixed windows explicitly.
 It runs the physical harness without those separate accounting regressions.
 
