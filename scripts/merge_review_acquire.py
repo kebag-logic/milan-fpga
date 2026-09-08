@@ -26,11 +26,15 @@ credential or transport is introduced.
 WHAT COMPLETE MEANS HERE, and what it does not. A connection is accepted only
 when the command succeeded, every page parsed, no page carried a GraphQL
 `errors` member, every page produced the expected object shape, every node
-carried a stable non-empty id, no id repeated, no cursor repeated, every
-non-terminal page advertised another page and carried at least one node, the
-final page advertised `hasNextPage: false`, the advertised `totalCount` was
-identical on every page, and the number of nodes collected equals it. That is
-an observed-consistency proof about ONE acquisition. It is not a claim that a
+carried a stable non-empty id, no id repeated, every NON-TERMINAL page
+advertised another page, carried at least one node and spent an endCursor no
+earlier page in the stream had spent, the final page advertised
+`hasNextPage: false`, the advertised `totalCount` was identical on every page,
+and the number of nodes collected equals it. The cursor rule is written for
+non-terminal pages because that is where a cursor is a claim about a further
+read; a terminal page ends the stream, so what closes it is its terminal flag
+reconciled against the population, not a cursor. All of that is an
+observed-consistency proof about ONE acquisition. It is not a claim that a
 body is immutable, and it recovers no comment edit history: a body edited
 between two reads is two different strings under one stable id, and nothing
 here would notice.
@@ -201,12 +205,24 @@ class Acquirer:
         return _collect(payload, connection, what)
 
     def repository(self) -> tuple[str, str]:
-        """The (owner, name) this gh checkout resolves to, asked once."""
+        """The (owner, name) this gh checkout resolves to, asked once.
+
+        A parsed response is not an object just because it is truthy: an array,
+        a bare string and a number all survive `json.loads` and none of them
+        answers `.get`. Reading a member off one is an uncaught AttributeError
+        where this module owes its caller a named refusal and the gate's
+        cannot-run exit, so the type is checked before any member is read.
+        """
         if self._repo is None:
             payload = self._json(["repo", "view", "--json", "owner,name"],
                                  "repository identity")
-            owner = (payload or {}).get("owner")
-            name = (payload or {}).get("name")
+            if not isinstance(payload, dict):
+                raise AcquisitionError(
+                    "repository identity: gh repo view returned a %s, not a "
+                    "JSON object: %s"
+                    % (type(payload).__name__, json.dumps(payload)[:200]))
+            owner = payload.get("owner")
+            name = payload.get("name")
             login = owner.get("login") if isinstance(owner, dict) else None
             if not isinstance(login, str) or not login \
                     or not isinstance(name, str) or not name:
@@ -337,9 +353,14 @@ def _check_page_position(conn: dict[str, Any], what: str, index: int,
     node, and the last must advertise none: gh stops paginating exactly when
     `hasNextPage` goes false, so a false in the middle means the array is not
     one stream and a true at the end means the stream was cut before it ended.
-    Cursors are opaque, so they are checked for REPETITION rather than order -
-    an ordering claim over a base64 blob would be a guess about a server's
-    encoding.
+
+    The cursor check binds NON-TERMINAL pages only, which is where a cursor is
+    a claim about a further read: each must carry a non-empty endCursor no
+    earlier page has spent. The terminal page is reconciled through its node
+    population and its terminal flag instead, so a valid terminal-empty page
+    stays valid. Cursors are opaque, so they are checked for REPETITION rather
+    than order - an ordering claim over a base64 blob would be a guess about a
+    server's encoding.
     """
     has_next = conn["pageInfo"]["hasNextPage"]
     if has_next == last:

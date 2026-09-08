@@ -108,6 +108,11 @@ CASE_NAMES = (
     "prefix-discrimination-anti-vacuity",
     "outer-window-and-limit-preserved",
     "repository-identity-resolved-once",
+    # a repository response that is not an object at all, end to end
+    "repository-identity-array-refuses-exit-2",
+    "repository-identity-string-refuses-exit-2",
+    "repository-identity-number-refuses-exit-2",
+    "repository-identity-valid-empty-histories-exit-0",
 )
 
 
@@ -805,6 +810,44 @@ def end_to_end_cases(env: Env) -> None:
          (1, 4))
 
 
+def identity_cases(env: Env) -> None:
+    """A repository response that is not an object, through the whole gate.
+
+    `gh repo view --json` answers with an object, but a proxy, a rate limiter
+    or a future flag can put an array, a bare string or a number on stdout, and
+    each of those parses. Reading a member off one used to be an uncaught
+    AttributeError, which is a crash where this gate owes its caller a named
+    cannot-run: these arms are end to end, so what they pin is the EXIT the
+    caller sees, not an internal refusal.
+    """
+    case = env.cases.outcome
+    rows = [{"number": 425, "mergedAt": MERGED_AT, "body": "no closes"}]
+
+    def identity_gate(repo: Any) -> tuple[int, bool]:
+        """main()'s exit, and whether its diagnostic names the type observed."""
+        code, _, err, _ = drive(env, rows, FakeGh({}, repo=repo),
+                                ["--limit", "1"])
+        named = ("repository identity: gh repo view returned a %s"
+                 % type(repo).__name__) in err
+        return code, named
+
+    for name, repo in (("repository-identity-array-refuses-exit-2", [1]),
+                       ("repository-identity-string-refuses-exit-2", "broken"),
+                       ("repository-identity-number-refuses-exit-2", 7)):
+        case(name, lambda r=repo: identity_gate(r), (2, True))
+
+    # ANTI-VACUITY for the guard above: the same path over a well-formed
+    # identity and two empty histories is still a normal clean run, so what
+    # was added refuses malformed responses rather than every response.
+    def valid_identity() -> tuple[int, bool]:
+        """The exit and verdict line for a valid identity with no events."""
+        code, out, _, _ = drive(env, rows, FakeGh({}), ["--limit", "1"])
+        return code, "clean over the last 1 merged PR(s)" in out
+
+    case("repository-identity-valid-empty-histories-exit-0", valid_identity,
+         (0, True))
+
+
 def selftest(acquire: ModuleType, checker: ModuleType) -> tuple[list[str], int]:
     """Run every acquisition case; (problems, how many cases actually ran)."""
     cases = Cases(acquire.AcquisitionError)
@@ -813,7 +856,7 @@ def selftest(acquire: ModuleType, checker: ModuleType) -> tuple[list[str], int]:
     # traceback: every case it had not reached is then reported by name by the
     # roster arm below, which is what makes an aborted group readable.
     for group in (boundary_cases, stream_cases, refusal_cases,
-                  end_to_end_cases):
+                  end_to_end_cases, identity_cases):
         try:
             group(env)
         except Exception as exc:
