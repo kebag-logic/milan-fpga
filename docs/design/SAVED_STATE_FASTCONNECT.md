@@ -108,7 +108,7 @@ it.
 - **[10. Boot-side work](#10-boot-side-work)** -- Five items, and why the block-layer route a previous profile assumed was never available on this controller.
 - **[11. Bench recipe](#11-bench-recipe)** -- G0 and G0b, which run today, and why G1 belonged to a superseded target profile. Cited by `milan_soc.py`.
 - **[12. The commit marks that already exist](#12-the-commit-marks-that-already-exist)** -- Eight marks across seven programs, derived from the pinned donor rather than from a comment, plus the exemplar that is not one and the deliberate absence at IDENTIFY that is a requirement. Round 1 said three.
-- **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, four donor defects are open against the port, and the record contract's one external dependency is now the donor pin itself.
+- **[13. Risks, stated rather than discovered later](#13-risks-stated-rather-than-discovered-later)** -- The proven writer no longer exists in the tree, persistence depends on firmware liveness, the debounce window is a data-loss window a PR must quantify, three donor risks remain against the port, and the record contract's one external dependency is now the donor pin itself.
 - **[14. What this page does NOT decide](#14-what-this-page-does-not-decide)** -- Two things: the debounce window's value, and where the proposed CSR bits actually land.
 - **[15. Sequencing](#15-sequencing)** -- Why this page is deliberately ahead of the submodule pin it will be implemented on, and why nothing in it moves when that pin lands.
 - **[16. Acceptance for the implementation](#16-acceptance-for-the-implementation)** -- Twenty-seven checks in six groups, including the vacuity trap a naive save/restore test falls into, one refused case per container verdict code, the six liveness and recovery cases the state table makes determinate, and the requirement that deleting any of the eight `NVM_MARK` sites must redden something.
@@ -130,10 +130,14 @@ it.
 | The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
-**Which donor commit.** `dev` pins the processor at `a25b5cc9`, which carries
-`protocol-processor/tb/nvm_port`. That suite's power-cut arm lands at `44489453`, ten commits later,
-and arrives with issue #69's pin bump (PR #227). The mark inventory in section
-12.1 is identical at both commits, so nothing on this page waits on that pin.
+**Which donor commit.** The processor pin is
+`2faa5af8889d97616bda1369e4739a546da7b0f1` (root issue #424).
+It merges [donor PR #32](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/32).
+Its tree matches reviewed head `488b876f83c0a7b2d1dd73e892b05ea35ed6087a`.
+Completion now belongs only to the granted device command.
+The existing `protocol-processor/tb/nvm_port` controls check that ownership.
+Parent device and manager handshakes remain unchanged.
+Full saved-state and board acceptance remain open under #70.
 
 ## 2. What the two ends actually look like
 
@@ -1253,10 +1257,11 @@ manager's job.
   exactly the changes `nvm_dirty` was reporting and nothing older, because the
   authoritative slot is never touched until the new one has verified. The
   value is not the bench-measured one section 14 asks for.
-- **Four donor defects are open against the port** and matter to any consumer:
-  an unowned `done_seen_r`, no timeout so a silent device wedges the port,
-  restore failures collapsing three situations into one signal, and `record_id`
-  never checked against its region. The last one is now load-bearing: section
+- **Three donor risks remain against the port:** no device timeout,
+  collapsed restore outcomes, and unchecked `record_id` regions.
+  The consumed PR #32 fixes unowned `done_seen_r` completion.
+  It changes none of those remaining contracts.
+  The unchecked region remains load-bearing: section
   4's blocks are enforced by the manager and by
   `scripts/check_nvm_record_space.py`, not by the port.
 - **The record contract has no external dependency left, and the gate says
