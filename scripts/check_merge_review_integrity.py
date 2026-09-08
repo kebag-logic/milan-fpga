@@ -62,11 +62,25 @@ is off-convention and can be missed; the fix for that is to publish the verdict
 as `[R<n>] NEGATIVE`, not to grow this regex without bound. That boundary is
 the honest one after three rounds of dialect-chasing ([R]/[R1]/[R2]).
 
+COMPLETE HISTORIES, OR UNKNOWN (issue #426). The verdict that decides a PR can
+be published at any ordinal, so a classification over a PREFIX of the history
+is not a weaker answer, it is a different one. `gh pr list --json
+...reviews,comments` returns each connection's first 100 nodes and its JSON
+export drops the `totalCount`/`pageInfo` that would say so: PR #425 merged
+carrying 266 comments, the canonical run saw 1-100, and the two clearing
+POSITIVE reports published pre-merge at ordinals 215 and 232 were simply not in
+the input. So the nested projections are no longer requested. Each selected PR
+is hydrated by `merge_review_acquire`, which acquires BOTH complete streams and
+proves each one complete before `assess_pr` sees it; an acquisition that cannot
+be proved complete is cannot-run (exit 2), never a finding and never a pass.
+The assessment core below is unchanged by that work.
+
 TOOL ABSENCE IS UNKNOWN, NEVER A PASS. With no `gh`, or a `gh` that errors, the
 gate exits 2 (cannot run), never 0. The `--selftest` needs no network: it drives
 the pure `assess_pr` core over fixtures, including the mandated negative control
 (a positive verdict + a closed Issue must NOT be reported) and a vacuity arm
-that fails if the core is stubbed to find nothing.
+that fails if the core is stubbed to find nothing, and it drives the acquisition
+layer over mocked `gh` pages into that same unchanged core.
 
     scripts/check_merge_review_integrity.py            # scan the merged-PR window
     scripts/check_merge_review_integrity.py --limit 40 # a wider window
@@ -81,6 +95,7 @@ import re
 import subprocess
 import sys
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
@@ -275,17 +290,57 @@ def _gh_json(args):
         raise CannotRun("gh %s returned non-JSON: %s" % (" ".join(args), exc))
 
 
+def _sibling_module(name: str) -> Any:
+    """Import a module that ships beside this script, without a package.
+
+    Same reason check_merge_containment.py imports its self-test this way: the
+    entry point stays a script that runs from anywhere, and the import is the
+    one this file resolves, not a second copy under another name.
+    """
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    return __import__(name)
+
+
+def _new_acquirer() -> Any:
+    """The history acquirer `fetch_merged_prs` hydrates through.
+
+    A single named seam. The self-test replaces this with an acquirer driven by
+    mocked `gh` pages, so the real selection, the real hydration, the real
+    completeness proof and the real assessment all run in its arms.
+    """
+    return _sibling_module("merge_review_acquire").Acquirer()
+
+
 def fetch_merged_prs(limit: int, base: str) -> list[dict[str, Any]]:
-    """The `limit` most-recently-merged PRs into `base`, newest first.
+    """The `limit` most-recently-merged PRs into `base`, newest first, hydrated.
 
     gh cannot sort by mergedAt, so over-fetch and sort here - the same reason
-    check_merge_containment.py over-fetches its window.
+    check_merge_containment.py over-fetches its window. That candidate window
+    is CREATION-ordered: `max(limit * 3, 60)` PRs are fetched newest-created
+    first and then sorted by merge time, so the result is the latest merges
+    among a finite candidate set, not a proof of the globally latest merges.
+    A PR created long ago and merged yesterday can sit outside it. #426 keeps
+    that selection deliberately and states the limitation rather than
+    redesigning it here.
+
+    `reviews`/`comments` are NOT requested from the list call: those nested
+    projections stop at 100 nodes and carry no evidence that they did (#426).
+    Each selected PR's two histories are acquired complete instead, and an
+    acquisition that cannot be proved complete raises CannotRun, so an
+    incomplete window is unknown rather than clean.
     """
     rows = _gh_json(["pr", "list", "--state", "merged", "--base", base,
                      "--limit", str(max(limit * 3, 60)),
-                     "--json", "number,mergedAt,body,reviews,comments"])
+                     "--json", "number,mergedAt,body"])
     rows.sort(key=lambda r: r.get("mergedAt") or "", reverse=True)
-    return rows[:limit]
+    selected = rows[:limit]
+    acquire = _sibling_module("merge_review_acquire")
+    try:
+        return _new_acquirer().hydrate(selected)
+    except acquire.AcquisitionError as exc:
+        raise CannotRun("incomplete acquisition: %s" % exc) from exc
 
 
 def issue_is_open(number: int) -> bool:
@@ -613,6 +668,18 @@ def _canonical_verdict_line_problems(openf):
                         % [x.line() for x in assess_pr(p24, openf(set()))])
     return problems
 
+def _acquisition_problems() -> tuple[list[str], int]:
+    """The acquisition-layer cases, which live in a module beside this one.
+
+    They are handed BOTH modules rather than importing either, so the arms
+    patch and drive the very namespaces `run()` and `fetch_merged_prs()`
+    resolve from. Returns (problems, how many cases actually ran).
+    """
+    selftest_module = _sibling_module("merge_review_selftest")
+    return selftest_module.selftest(_sibling_module("merge_review_acquire"),
+                                    sys.modules[__name__])
+
+
 def selftest() -> int:
     """Run every numbered case, and prove the banner's count is the real one.
 
@@ -636,16 +703,23 @@ def selftest() -> int:
     # 21 ran, in a lane whose SUBJECT was a miscounted evidence figure. Every
     # arm-bearing function is named here, `selftest` included, so a case added
     # inline or in a new group is counted wherever it is written.
-    n = 24
+    core = 24
     import inspect
     counted = (_verdict_source_problems, _blocker_and_scope_problems,
                _issue_link_and_lexicon_problems, _suffixed_dialect_problems,
                _canonical_verdict_line_problems, selftest)
     markers = sum(len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(f)))
                   for f in counted)
-    if markers != n:
+    if markers != core:
         problems.append("case-count drift: banner claims %d, source carries "
-                        "%d numbered cases" % (n, markers))
+                        "%d numbered cases" % (core, markers))
+
+    # The acquisition layer (#426) carries its own arms and its own count of
+    # the cases that RAN, so an arm lost to an early return is a drift finding
+    # there exactly as a miscounted marker is one here.
+    acquisition_problems, acquisition_cases = _acquisition_problems()
+    problems += acquisition_problems
+    n = core + acquisition_cases
 
     for p in problems:
         print("  SELFTEST FAILED: %s" % p)
