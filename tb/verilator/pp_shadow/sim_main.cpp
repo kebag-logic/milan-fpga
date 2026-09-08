@@ -147,6 +147,7 @@ class PpShadowHarness {
         grade_shared_control_lane();
         grade_global_anti_wedge_invariant();
         grade_heal_before_answer();
+        grade_backend_rejection_reaches_the_processor();
 
         printf("----------------------------------------------------------------\n");
         printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
@@ -2428,6 +2429,99 @@ class PpShadowHarness {
             ck("M2: ...with the twelve-counter mask, not a raced zero",
                static_cast<uint32_t>(get_be(b, 42, 4)), 0x00000FFFu);
         }
+    }
+
+    //! Arms a restore walk and waits for PP_STAT[2] restore_done, on the same
+    //! budget [P] gives its own walk. Returns false when the walk never
+    //! terminates, so a wedged walk is a graded failure and not a hang.
+    bool restore_walk_completes() {
+        axi_write(A_PP_CTRL, 0x2);                       // restore_go
+        for (int i = 0; i < 200; i++) {
+            run_idle(64);
+            if ((axi_read(A_PP_STAT) >> 2) & 1) return true;
+        }
+        return false;
+    }
+
+    // ---- P3. THE DEVICE ERROR WIRE, WHICH ONLY THIS TOP CAN SEE -----------
+    // KL_nvm_backend refuses a record that does not fit the CONFIGURED image
+    // span (KL_nvm_backend.sv:616 takes S_ERR when span_ok_w is low) and
+    // answers with dev_err_o. KL_pp_shadow carries that pulse on nvm_err_w
+    // (:937) into the processor's nvm_dev_err_i (:1147), and the port turns it
+    // into the one terminal result the restore walk retires on.
+    //
+    // NOTHING ELSE GRADES THAT CONNECTION. The donor's tb/nvm_port drives a
+    // synthetic device, tb/verilator/nvm_backend drives the backend as its own
+    // top, and neither elaborates this wrapper, so a build with
+    // `.nvm_dev_err_i` tied low is invisible to both. It is invisible to the
+    // sections above too: they never configure an image, so the backend never
+    // reaches its span check and never has an error to deliver. Removing that
+    // one connection leaves every standing check in this file green.
+    //
+    // THE PROVOCATION IS A ONE-BYTE IMAGE. Writing PP_NVM_SEL = 1 selects the
+    // backend's IMG_LEN register and PP_NVM_DATA = 1 gives it a length of one
+    // byte: configured (img_cfg_w high) but far too small to hold any framed
+    // record, so the FIRST record the walk asks for fails span_ok_w in S_IDLE
+    // and is refused before any main-memory access. That matters here, because
+    // this harness models no bridge on the backend's memory face - the reason
+    // [P2] says an image LENGTH is the one word it must not write - and a
+    // rejection that needed one would stall instead of answering.
+    //
+    // WHY IT RUNS LAST. It leaves a configured length behind and it resets the
+    // plane twice, so every phase that needs the provisioned CSR window must
+    // already have run.
+    //
+    // WHAT IT DOES NOT DECIDE. A completed walk that validated zero records
+    // reports blank and fail together, whatever ended it: restore_blank_o is
+    // `done_r && !any_rec_r` in the manager, so a refusal and empty media land
+    // in the same encoding. That collapse is EXISTING behaviour and belongs to
+    // donor #20; this phase pins it exactly as it is and defines no new
+    // error-status policy. What it grades is delivery and retirement: the
+    // refusal must ARRIVE, the walk must terminate rather than wedge, the
+    // result must not read as a successful restore, and the shared reset must
+    // retire it and leave a legitimate blank READ usable.
+    void grade_backend_rejection_reaches_the_processor() {
+        printf("[P3] saved state: a real backend refusal must reach the processor\n");
+        do_reset();
+        axi_write(A_PP_NVM_SEL, 1u);                     // backend register 1 = IMG_LEN
+        axi_write(A_PP_NVM_DATA, 1u);                    // one byte: configured, unusable
+        ck("PP_NVM_SEL reads back the IMG_LEN index",
+           axi_read(A_PP_NVM_SEL) & 0x3Fu, 1u);
+        ck("PP_NVM_DATA reads back the one-byte image length",
+           axi_read(A_PP_NVM_DATA), 1u);
+        ck("P3: the reset retired [M2]'s walk, so this result is a NEW one",
+           (axi_read(A_PP_STAT) >> 2) & 1, 0u);
+
+        const bool refused_walk_done = restore_walk_completes();
+        const uint32_t xstat = axi_read(A_PP_STAT);
+        printf("  [i]    PP_STAT 0x924 = 0x%08X after a refused image (backed %u "
+               "blank %u alarm %u fail %u done %u)\n", xstat, (xstat >> 6) & 1,
+               (xstat >> 7) & 1, (xstat >> 4) & 1, (xstat >> 3) & 1, (xstat >> 2) & 1);
+        //! THE NAMED COMPLETION OBLIGATION. Tie `.nvm_dev_err_i` low in
+        //! KL_pp_shadow and the refusal never arrives: the walk stops with
+        //! restore_done clear and this check is the one that goes red.
+        ck_true("P3: the backend refusal reaches the processor and retires the walk",
+                refused_walk_done,
+                refused_walk_done ? "restore_done set" : "restore_done never set");
+        ck("P3: a refused image is NOT reported as a successful restore",
+           (xstat >> 3) & 1, 1u);
+        ck("P3: ...and no record was validated (the #20 blank/refusal collapse)",
+           (xstat >> 7) & 1, 1u);
+        ck("P3: nothing was committed, so nothing is dirty",
+           (xstat >> 8) & 1, 0u);
+
+        // The shared reset is the one both children take (KL_pp_shadow.sv:921
+        // and :998), so it must retire the failed operation on both ends and
+        // leave the device face serviceable.
+        do_reset();
+        ck("P3: the shared reset retires the terminal result",
+           (axi_read(A_PP_STAT) >> 2) & 1, 0u);
+        const bool blank_walk_done = restore_walk_completes();
+        ck_true("P3: a legitimate blank READ still completes after the reset",
+                blank_walk_done,
+                blank_walk_done ? "restore_done set" : "restore_done never set");
+        ck("P3: ...and that walk is blank, not a restore",
+           (axi_read(A_PP_STAT) >> 7) & 1, 1u);
     }
 };
 
