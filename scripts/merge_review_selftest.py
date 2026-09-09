@@ -120,6 +120,7 @@ CASE_NAMES = (
     "repository-identity-number-refuses-exit-2",
     "repository-identity-valid-empty-histories-exit-0",
     "repository-identity-diagnostic-complete",
+    "repository-identity-non-object-diagnostic-complete",
 )
 
 
@@ -891,11 +892,9 @@ def completeness_cases(env: Env) -> None:
     """The #426 round-3 corrections, through the real entry point."""
     case = env.cases.outcome
     rows = [{"number": 425, "mergedAt": MERGED_AT, "body": "no closes"}]
-    bank = {(425, "reviews"): nodes("reviews", 201,
-                                    {5: POSITIVE, 201: NEGATIVE})}
-    # F1: a last-page review with no submittedAt MEMBER exits 2 naming the
-    # field, and the assessor sees NOTHING; over the complete stream the same
-    # observer sees one PR, so an observer that never fired could not pass.
+    bank = {(425, "reviews"): nodes("reviews", 201, {5: POSITIVE, 201: NEGATIVE})}
+    # F1: a last-page review with no submittedAt MEMBER exits 2 naming the field
+    # with NOTHING assessed; the complete stream then proves the observer fires.
     def absent_stamp_run() -> tuple[int, bool, int, int]:
         """Exit, stderr names the field, PRs assessed; then the live control."""
         seen: list[dict[str, Any]] = []
@@ -958,16 +957,18 @@ def identity_cases(env: Env) -> None:
          (0, True))
 
     # F2 (#426 round 3): a no-owner payload is quoted WHOLE, past the old 200.
-    def diagnostic_complete() -> tuple[int, bool]:
+    def diagnostic_complete(repo: Any) -> tuple[int, bool]:
         """main()'s exit, and whether its diagnostic carries the payload tail."""
-        repo = {"name": "milan-fpga", "context": [
-            "identity context %02d" % i for i in range(12)], "note": TAIL}
         _past(json.dumps(repo), 200)
-        code, _, err, _ = drive(env, rows, FakeGh({}, repo=repo),
-                                ["--limit", "1"])
+        code, _, err, _ = drive(env, rows, FakeGh({}, repo=repo), ["--limit", "1"])
         return code, TAIL in err
 
-    case("repository-identity-diagnostic-complete", diagnostic_complete, (2, True))
+    context = ["identity context %02d" % i for i in range(12)]
+    case("repository-identity-diagnostic-complete", lambda: diagnostic_complete(
+        {"name": "milan-fpga", "context": context, "note": TAIL}), (2, True))
+    # R77 MINOR: the NON-OBJECT identity refusal carries its payload whole too.
+    case("repository-identity-non-object-diagnostic-complete",
+         lambda: diagnostic_complete(context + [TAIL]), (2, True))
 
 
 def selftest(acquire: ModuleType, checker: ModuleType) -> tuple[list[str], int]:
