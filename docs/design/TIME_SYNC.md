@@ -113,6 +113,51 @@ Never infer clock recovery from CRF lock alone.
 
 Silicon grid comparison remains open on issue #74.
 
+### Listener render latency
+
+The render path holds one constant latency (#386).
+
+`KL_render_setpoint` queues whole media events per stream.
+
+It pops one event per stream per media tick.
+
+The crossbar's input grid is the reference point.
+
+The constant is independent of the audio interface.
+
+| Law term | Value | Derivation |
+|---|---|---|
+| Events per PDU | 6 | class A at 48 kHz: `AAF_SPF_C`, read, never copied |
+| Allowance | 2 events | one tick of accept phase, one of verdict plus drain |
+| Setpoint | 8 events = 166.67 us | fill just before every PDU push |
+| Shipping samples | 64 | 8 events of 8 channels; 16 on a stereo lane |
+| First-event delay | (8, 9] media ticks after accept | the accept phase is the only jitter |
+| Event k of a PDU | k ticks after event 0 | the talker's packetization |
+| Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
+| Reset rail | +/-6 events at PDU ends | one PDU: a late PDU never trips it |
+| Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
+| Recentre | GM identity change, PHC adjtime or settime | once, at the next PDU end |
+
+Under INTERNAL the grids free-run.
+
+The rail then re-centres every twelve seconds.
+
+Under CRF the grids align and no rail fires.
+
+| Interface after the grid | Fixed delay | Owner |
+|---|---|---|
+| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles | `KL_chan_map_render` |
+| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk + the tick-to-fsync phase | `KL_tdm_render`; #74 holds the phase under CRF |
+| I2S (shapes with `I2SPB_P = 1`) | its own setpoint FIFO plus one frame | `KL_i2s_playback`, VERSION 0x0001_002F |
+
+A live clock-source change moves the grid slightly.
+
+The fill may shift one event until the next recentre.
+
+Digital proof: `tb/verilator/render_setpoint` and the `milan_dp` true-ratio leg.
+
+Silicon proof at the TDM frame pin rides #117.
+
 ## Presentation validity
 
 The PHC dates AAF and CRF packets.

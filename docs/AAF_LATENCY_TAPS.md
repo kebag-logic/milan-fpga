@@ -75,6 +75,20 @@ flowchart LR
 * The final **I2S DAC playout** stage is FIFO-fill dominated (the CDC pair
   FIFO decouples PDUs from DAC frames), so it is characterised by the
   `I2SPB_STAT` fill/converged rails rather than a delta here.
+* **Since #386 the render crossbar is fed through `KL_render_setpoint`**, and
+  the chain above stops at that stage's input. From `FABRIC_RENDER` onward the
+  delay is not a measured envelope but a LAW: the first event of every accepted
+  PDU is popped into the crossbar 8 media ticks (166.67 us at 48 kHz, plus the
+  accept instant's sub-tick phase) after `ACCEPT`, event k of the PDU k ticks
+  later, whatever clock source is selected. The setpoint is derived from the
+  class-A frame shape (6 events per PDU + 2), the bands and the one-shot
+  recentre are stated in
+  [Listener render latency](design/TIME_SYNC.md#listener-render-latency), and
+  the fixed delay from the crossbar's grid to each interface (TDM frame pin,
+  I2S) is tabled there. The stage's fill, prefill, convergence and rail
+  counters are Verilator taps today; the CSR word is the #390 follow-up. The
+  silicon figure at the TDM frame pin (tap host capture against these taps)
+  rides #117.
 
 ## Tap → trigger → CSR (the authoritative map)
 

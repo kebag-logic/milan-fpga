@@ -92,6 +92,18 @@ working physical route.
 The default physical shape has ten channels: I2S left/right at indices 0/1 and
 TDM lane 0 slots 0..7 at indices 2..9.
 
+Since #386 the crossbar's clone input is `KL_render_setpoint`, a per-stream
+elastic queue of whole media events that pops exactly one event per stream on
+every media tick and hands the crossbar a render tick delayed past that pop
+schedule. The crossbar therefore renders, on every tick, the event the stage
+just handed it, and the accept-to-render delay of the shipping path is the
+stage's constant setpoint rather than whatever phase a latest-sample latch
+held. The law, its bands and the per-interface constants are in
+[Listener render latency](design/TIME_SYNC.md#listener-render-latency). The
+stage presents every stream as eight lanes with the lanes beyond the stream's
+channel count zeroed, so the crossbar's per-stream channel count is the lane
+count and the wire truth is de-interleaved once, in the stage.
+
 ## 4. Capture mux contract (KL_chmap_capture, phase-1 name)
 
 `KL_chan_map_capture` owns each Talker channel while the map is armed. It walks
