@@ -39,7 +39,7 @@ I have to check by hand at the end?*
 
 ```mermaid
 flowchart LR
-    CMD["build.sh CONFIG"] --> CFG["cfg_ recipe<br/>the canonical arg list"]
+    CMD["build.sh CONFIG"] --> CFG["design argv from the config's<br/>builder artefact + cfg_ flow flags"]
     CFG --> GATE{"shape gate"}
     GATE -->|"mismatch"| STOP["REFUSED<br/>nothing launches"]
     GATE -->|"match"| LAUNCH["detached launch<br/>90 s stagger, max 3<br/>32 threads each"]
@@ -65,7 +65,7 @@ flowchart LR
 
 | step | what it checks | automatic? |
 |---|---|---|
-| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` — stream count, clock/cache parameters, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
+| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes** - refuses *before* anything launches |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
@@ -93,7 +93,8 @@ cd sw/litex
 | `./build.sh ax7101 --sweep` | 3 builds: the config x the place-directive sweep |
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
-| `./build.sh ... --dry-run` | print the exact launch commands, start nothing |
+| `./build.sh ... --dry-run` | print the exact launch commands, start nothing; the tracked-shape refusal (section 3.1) is previewed, not enforced |
+| `BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101` | the named recipe's flow flags on another config under `configs/`, for one call (`sweep.sh`'s `SWEEP_CFG`) |
 | `INSTALLED_BUILD=<current> ./build.sh flash <config>[:<target-builddir>]` | prove the current QSPI bitstream, then flash the target set in its owner-safe order — see section 4 |
 
 Outputs land in `~/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
@@ -103,10 +104,29 @@ the timing/utilization reports (see section 5).
 
 ## 2. The named configurations
 
-A configuration is a bash function `cfg_<name>()` in `build.sh` that echoes the
-full `milan_soc.py` argument list. One place to edit a board's canonical shape;
-call-time deviations go through `-- <args>` (appended last, so argparse lets
-them override).
+A named configuration is one end-station config plus flow flags, and the two
+have different owners (#402):
+
+- **The config owns the design argv.** `recipe_config` in `build.sh` binds
+  the name to `configs/endstation_<shape>.yaml`; `design_argv` runs
+  `sw/builder/endstation_builder.py` on it in the same shell, the way
+  `sweep.sh`'s `entity_defs` does, and reads the `milan_soc.py` argv out of
+  the `soc_params.json` it just wrote (`sw/builder/out/<shape>/`, the
+  per-config emission of every builder run). Board, CPU width and hart
+  count, streams, audio interface, wire channels, the tier-1 prunes, clocks
+  and flash all come from there, so a new builder flag reaches a launch with
+  no edit to `build.sh`. The `--entity-gen-dir` it appends is a flow flag:
+  where this launch reads its generated entity definition from.
+- **`build.sh` owns the flow flags.** `cfg_<name>()` echoes the Vivado
+  directives; `launch_jobs` appends the thread cap, `--build` and the output
+  directory. Call-time deviations go through `-- <args>` (appended last, so
+  argparse lets them override).
+
+Until #402 the three recipes restated the design argv as shell literals,
+kept equal to the builder by the shape gate; #155 repaired ten divergences
+at once and #157 and #362 two more. `BUILD_CFG=configs/<other>.yaml` rebinds
+one named recipe to another config under `configs/` for one call, the
+`SWEEP_CFG` counterpart; the entity gate then checks that config.
 
 ### `ax7101`  -  Alinx AX7101, the perf/ship platform
 
@@ -141,7 +161,8 @@ Same board, wider dataplane, and the same cacheless bare-metal profile. It keeps
 `--flashboot baremetal`, and place directive AltSpreadLogic_high. The fabric
 time plane is timer-driven and independent of firmware workload.
 The CPU is the RV32 single-hart VexiiRiscv every other artifact of this shape describes:
-since 2026-08-22 (#157) the recipe states `--xlen 32 --cpu-count 1`.
+#157 (2026-08-22) had the recipe state `--xlen 32 --cpu-count 1` by hand, and
+since #402 both ride the config's artefact like every other design flag.
 
 #### Choosing the Ethernet port (`--eth-port`)
 
@@ -153,7 +174,7 @@ other variant over JTAG.
 | | |
 |---|---|
 | default | **`e1`** (`milan_soc.py --eth-port`, `choices=[e1, e2]`) |
-| `build.sh cfg_ax8x8` / `cfg_ax7101` | pin `--eth-port e1` explicitly |
+| `build.sh ax8x8` / `ax7101` | `e1` from `board.constraints.eth_port` of the bound config, explicit on the launch line |
 | `sweep.sh ax7101` | pins it explicitly in that board's `OPTS` line |
 | bench cable (2026-07-27) | **e1** |
 
@@ -161,7 +182,7 @@ To change it:
 
 ```sh
 # one-off build
-sw/litex/build.sh cfg_ax8x8 -- --eth-port e2
+sw/litex/build.sh ax8x8 -- --eth-port e2
 
 # the 3-seed sweep: edit the ax7101 OPTS line in sw/litex/sweep.sh
 #   ... --floorplan --eth-port e1     <- keep in step with the cable
@@ -175,11 +196,12 @@ grep -m1 -oE 'milan_soc\.py.*' <build>/litex.log | grep -o '\-\-eth-port [a-z0-9
 # no match  =>  no explicit port was recorded; verify the producing recipe
 ```
 
-`scripts/check_sweep_shape.py` compares every design flag in each named
-`build.sh` recipe with the arguments implied by its end-station config,
-including the explicitly stated `--xlen` and `--cpu-count`. There are no active
-`PINNED` exceptions: every disagreement, missing config binding, or mismatched
-generated-entity directory fails the gate.
+`scripts/check_sweep_shape.py` reads each named recipe's launch line out of
+`./build.sh <config> --dry-run` and compares every design flag on it with
+`emit_soc_argv` of the bound config, `--xlen` and `--cpu-count` included; it
+also proves the artefact the recipe read is that config's current emission.
+Every disagreement, missing config binding, stale or foreign artefact, or
+mismatched generated-entity directory fails the gate.
 
 `e2` exists as the fallback for the 2026-07-22 **e1 GMII-RX hardware fault**
 (cold-soak-proven). If that fault resurfaces, **move the cable first, then
@@ -196,9 +218,10 @@ xc7a100t**csg324-1** (SAME die, SLOWER speedgrade  -  expect tighter WNS at
 peer and the 100 Mbit CBS test point (`is_1g=0` slope branch); not a
 throughput peer. The bench peer is now the Milan-validated reference peer
 (section 4.1).
-Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, stated
-since 2026-08-22, #157, matching `configs/endstation_arty_current.yaml` and
-the `sweep.sh` arty leg). The Arty is a retired DUT, so the recipe is proven
+Its CPU is one RV32 VexiiRiscv hart (`--cpu-count 1 --xlen 32`, from
+`configs/endstation_arty_current.yaml` since #402; #157 had the recipe state
+them by hand, matching that config and the `sweep.sh` arty leg). The Arty is
+a retired DUT, so the recipe is proven
 to elaborate by `sw/builder/test_builder.py` gate 23g rather than built.
 
 Its Pmod B TDM header routes `mclk`, `bclk`, `fsync`, `din`, and `dout`.
@@ -209,14 +232,18 @@ elaborates and drives the complete five-signal header.
 
 ### Adding a configuration
 
-1. Add `cfg_<name>() { echo "--board ... --cpu ..."; }` next to the others.
+1. Write its `configs/endstation_<shape>.yaml`, bind the name to it in
+   `recipe_config`, add `cfg_<name>()` with the flow flags next to the
+   others, and add the binding to `BUILD_CFGS` in
+   `scripts/check_sweep_shape.py` (an unbound recipe fails the gate).
 2. If it is a new BOARD (not just a shape), first port `milan_soc.py`:
    `--board` choice, platform import, `_CRG` clocking arm, DRAM module,
    `MilanMAC` phy_model, and the speed wiring  -  the arty arm (commit e32feaf)
    is the template. Elaborate WITHOUT `--build` before burning P&R time
    (RUNNING_TESTS layer 1).
-3. Keep the pairing notes in the function comment: hs page size, flashboot,
-   probe policy. A configuration IS the pairing contract for its board.
+3. The pairing contract for its board (flashboot, prunes, clocks) is the
+   config's; keep the function comment to the flow choices and what
+   measured them.
 
 ## 3. The launch discipline (why the script is not just a for-loop)
 
@@ -252,11 +279,13 @@ exists so they cannot be forgotten:
 [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the command line it composed
 equals the end-station config it claims to build. It checks `--num-streams`,
 `--l2-bytes`, the render-filter setting, and every emitted design flag against
-`configs/endstation_<shape>.yaml`, and
-`build.sh`'s `cfg_*` recipes against the same configs; for those recipes
-`--xlen` and `--cpu-count` must also be stated and equal the config's (since
-2026-08-22, #157: an absent flag inherits `milan_soc.py`'s RV64 default, not
-the builder's RV32). Since #362 it also requires both launchers to export
+`configs/endstation_<shape>.yaml`, and, in static mode, every `build.sh`
+recipe's launch line, read out of `./build.sh <config> --dry-run`, against
+the config `recipe_config` binds it to: every design flag, flag for flag
+(`--xlen` and `--cpu-count` included; #157: an absent flag inherits
+`milan_soc.py`'s RV64 default, not the builder's RV32), `--entity-gen-dir`
+naming that config, and the artefact the line was read from being that
+config's current emission (#402). Since #362 it also requires both launchers to export
 `PYTHONHASHSEED=0` before `milan_soc.py` runs. Exit non-zero = no Vivado runs.
 
 Why it exists: this class of bug is only visible on silicon and has now bitten
@@ -274,8 +303,8 @@ can never silently drop it, and a fragment that pins one wins. The stream count
 rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 
 ```sh
-python3 scripts/check_sweep_shape.py              # static check, no shell/Vivado
-python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, xlen, cpu-count or a launch without the seed is rejected
+python3 scripts/check_sweep_shape.py              # static check, no Vivado (runs build.sh --dry-run)
+python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, a hand-appended CPU literal, a rebound recipe, a stale artefact or a launch without the seed is rejected
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
 ```
 

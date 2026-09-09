@@ -74,9 +74,11 @@ and in executable verification where the behavior is implemented.
 ```
 configs/endstation_<shape>.yaml          (single source of truth)
         │  endstation_builder.py
-        ├── soc_params.json   → sw/litex/milan_soc.py design argv
-        │                       (flow flags — --build, threads, directives —
-        │                        stay in sw/litex/sweep.sh)
+        ├── soc_params.json   → sw/litex/milan_soc.py design argv; read by
+        │                       sw/litex/build.sh's named recipes, which
+        │                       regenerate it per launch (#402). Flow flags
+        │                       (--build, threads, directives) stay in
+        │                       sw/litex/sweep.sh and build.sh
         ├── aem_overlay.json  → avdecc/gen_aem_store.py migration contract
         │                       (descriptor counts, formats, cluster/map
         │                        layout, entity identity)
@@ -442,7 +444,10 @@ model rather than to invent a new id.
 `milan_soc.py` design argv (`soc_params.json`), the AEM overlay, and the
 protocol-processor memory reservation are all emitted from it. Flow flags (`--build`,
 `--vivado-max-threads`, `--place-directive`, output dirs) are explicitly
-*not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh).
+*not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh)
+and [`sw/litex/build.sh`](../sw/litex/build.sh); since #402 the named
+`build.sh` recipes read their design argv out of `soc_params.json` rather
+than restating it.
 
 **Why (engineering, no clause needed).** Today the same fact can live in up to
 three places — `sweep.sh` OPTS, `gen_aem_store.py` constants, and

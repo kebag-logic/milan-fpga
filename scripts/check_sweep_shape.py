@@ -15,6 +15,12 @@ In 2026-08-22 (#157), two named recipes passed no `--xlen`, so the script
 In 2026-09-06 (#362), build.sh launched without the PYTHONHASHSEED=0
     that sweep.sh pins, so the same recipe regenerated a differently
     named CPU core depending on which launcher ran it.
+Until 2026-09-09 (#402), build.sh's three named recipes restated the whole
+    design argv as shell literals, and this gate kept the copies equal:
+    #155 repaired ten divergences at once, #157 and #362 two more. The
+    recipes now read the argv out of the builder's artefact, and this gate
+    checks the launch line they print instead of the literals they no
+    longer carry.
 
 Same shape both times: a build knob that lives in the declarative end-station
 config, is NOT carried by the script that builds, and silently defaults.  This
@@ -26,7 +32,8 @@ Two modes:
       check_sweep_shape.py --board ax7101 --config configs/endstation_ax7101_8x8.yaml \
                            --num-streams 8 --l2-bytes 16384
 
-  static   (CI / review: no shell, no Vivado - parse sweep.sh itself)
+  static   (CI / review: no Vivado - parse sweep.sh itself, and read every
+            build.sh recipe's launch line out of its own --dry-run)
       check_sweep_shape.py                    # every board in sweep.sh's tables
       check_sweep_shape.py --self-test        # + prove a mismatch is rejected
 
@@ -35,7 +42,11 @@ Needs pyyaml (same dependency as sw/builder/test_builder.py).
 """
 
 import argparse
+import collections
+import json
+import os
 import re
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -46,9 +57,10 @@ BUILD = ROOT / "sw/litex/build.sh"
 
 # build.sh's named recipes are the OTHER path to a flashed bitstream, so they
 # get the same treatment: cfg function -> the end-station config it claims to
-# build. The deployed 8x8 image came from the x32f1_eto sweep; cfg_ax8x8 has
-# never produced a bitstream. This gate keeps that alternate recipe aligned
-# with the same graded config before anybody uses it.
+# build. This is the gate's oracle for build.sh's own recipe_config binding:
+# the launch line's --entity-gen-dir and the artefact it was read from must
+# both name this config. The deployed 8x8 image came from the x32f1_eto
+# sweep; cfg_ax8x8 has never produced a bitstream.
 BUILD_CFGS = {
     "ax7101": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax8x8": "configs/endstation_ax7101_8x8.yaml",
@@ -64,69 +76,52 @@ FLOW_FLAGS = {
     "--vivado-max-threads", "--output-dir", "--build",
 }
 
-# PINNED DIVERGENCES - live disagreements that are DELIBERATE (or at least
-# known and evidenced) and must not move silently. The gate fails if the pinned
-# pair stops holding, which is the point: the exception is visible and dated
-# instead of being an untracked gap.
-#   (source, board/cfg, key): (source_value, config_value, reason)
-PINNED = {}
+#: What one `build.sh <name> --dry-run` said: the milan_soc.py argv on the
+#: launch line launch_jobs prints, the artefact design_argv read it from and
+#: the config it regenerated (both off the provenance line expand_jobs
+#: prints), or `failure` naming why none of that could be read.
+DryRun = collections.namedtuple("DryRun",
+                                ("argv", "artefact", "config", "failure"))
 
-# CPU WIDTH AND HART COUNT (2026-08-22, #157). The two entry points default
-# this one decision opposite ways: milan_soc.py --xlen defaults to 64, and
-# only its baremetal profile refuses anything else, while the builder's
-# SOC_DEFAULTS says 32 and one hart. A build.sh recipe that omitted --xlen
-# therefore elaborated an RV64 core under an RV32 config and an RV32 boot
-# chain, and the symptom of that is a board that prints a BIOS banner and
-# hangs at Liftoff with nothing naming the cause (8b5d0255, 2026-08-05). So
-# for these two flags an ABSENT flag is drift, not a default: the recipe must
-# state the value and it must equal what emit_soc_argv derives for the
-# config. The full flag-for-flag comparison below now subsumes these two flags;
-# this named set drives their dedicated absent-and-swapped negative controls.
-CPU_FLAGS = {"--xlen": "xlen", "--cpu-count": "cpu_count"}
+#: expand_jobs' provenance line, the one place build.sh names the artefact.
+PROVENANCE_RE = re.compile(
+    r"^\[(\w+)\] design argv from (\S+) \(regenerated from (\S+)\)")
 
-# Negative controls for the named-build branch. These span the seven
-# #155 repairs and the config-artifact binding. CPU absence/value
-# mutations are covered by self_test_build_sh. Each edit starts from the
-# pristine recipe so one mismatch cannot mask another.
-#   (why, recipe, old fragment, new fragment, the drift it must report)
-BUILD_MUTATIONS = [
-    ("cfg_ax8x8 loses its explicit Ethernet port",
-     "ax8x8", "--eth-port e1", "", "design flag --eth-port:"),
-    # #259 retired the playback rings and the cache scala words,
-    # so the dropped-flag and added-word plants below ride tokens
-    # the bare-metal recipes still carry.
-    ("cfg_ax8x8 loses its wire-channel count",
-     "ax8x8", "--talker-wire-chans 8", "",
-     "design flag --talker-wire-chans:"),
-    ("cfg_ax8x8 stops spending the datapath-probe prune",
-     "ax8x8", "--no-datapath-probes", "",
-     "design flag --no-datapath-probes:"),
-    # the CBS instance mask is retired with the shaper chain (the
-    # classifier/queue/CBS blocks are no longer datapath sources),
-    # so the value-change plant rides the wire-channel count instead.
-    ("cfg_ax8x8 changes its wire-channel count",
-     "ax8x8", "--talker-wire-chans 8",
-     "--talker-wire-chans 4", "design flag --talker-wire-chans:"),
-    ("cfg_ax8x8 adds an RV64-era prefetch Scala word",
-     "ax8x8", "--l2-bytes 0",
-     "--l2-bytes 0 --scala-args=--lsu-hardware-prefetch=rpt",
-     "design flag --scala-args:"),
-    ("cfg_arty changes its Milan clock",
-     "arty", "--milan-clk-freq 50e6", "--milan-clk-freq 100e6",
-     "design flag --milan-clk-freq:"),
-    ("cfg_arty restores an RV64-era Scala slot count",
-     "arty", "--l2-bytes 0",
-     "--l2-bytes 0 --scala-args=--l2-general-slots=16",
-     "design flag --scala-args:"),
-    ("cfg_arty loses its generated entity directory",
-     "arty", "--entity-gen-dir "
-     "$SOC_DIR/../../configs/generated/endstation_arty_current", "",
-     "no --entity-gen-dir"),
-    ("cfg_ax8x8 points at another config's generated artifacts",
-     "ax8x8", "configs/generated/endstation_ax7101_8x8",
-     "configs/generated/endstation_ax7101_1x1_tdm8",
-     "--entity-gen-dir names"),
+# Negative controls for the named-build branch, planted in build.sh's TEXT
+# and executed in place (see dry_run): each is a way the launch line can
+# stop being the config's emission now that no recipe restates it. A
+# hand-appended literal wins in argparse (last occurrence), which is why the
+# first two plants are the #157 CPU keys; the rebind is #155's "another
+# config's artefacts"; the reader plant is the absent-flag class; the last
+# one is the sourcing itself reverted. Every plant must apply exactly once.
+#   (why, old fragment, new fragment, the drifts it must report)
+BUILD_PLANTS = [
+    ("cfg_ax8x8 hand-appends an RV64 --xlen after the sourced argv",
+     '--place-directive AltSpreadLogic_high"',
+     '--place-directive AltSpreadLogic_high --xlen 64"',
+     ("cfg_ax8x8: design flag --xlen:",)),
+    ("cfg_arty hand-appends a second hart",
+     'echo ""', 'echo "--cpu-count 2"',
+     ("cfg_arty: design flag --cpu-count:",)),
+    ("cfg_ax8x8 is rebound to the 1x1 config",
+     'ax8x8)  echo "configs/endstation_ax7101_8x8.yaml";;',
+     'ax8x8)  echo "configs/endstation_ax7101_1x1_tdm8.yaml";;',
+     ("cfg_ax8x8: --entity-gen-dir names",
+      "cfg_ax8x8: design flag --num-streams:",
+      "cfg_ax8x8: build.sh regenerated")),
+    ("the reader drops the first design flag pair",
+     '["argv"]))', '["argv"][2:]))',
+     ("cfg_ax7101: design flag --board:", "cfg_arty: design flag --board:")),
+    ("the launch line drops the sourced argv",
+     "exec python3 milan_soc.py $args ", "exec python3 milan_soc.py ",
+     ("cfg_ax7101: no --entity-gen-dir", "cfg_ax8x8: no --entity-gen-dir",
+      "cfg_arty: no --entity-gen-dir")),
 ]
+
+#: The regeneration line design_argv runs; the stale-artefact control
+#: deletes it to prove the freshness check needs it.
+REGENERATE_LINE = ('    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" '
+                   '"$REPO_ROOT/$cfg" > /dev/null\n')
 
 
 def _yaml():
@@ -295,25 +290,46 @@ def check_fragment(board: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def parse_build_sh(path: str | Path = BUILD) -> dict[str, dict[str, str | bool]]:
-    """build.sh's `cfg_<name>() { ... echo "<flags>" ... }` recipes -> flag dicts."""
-    txt = Path(path).read_text()
-    out = {}
-    for m in re.finditer(r'^cfg_(\w+)\(\)\s*\{(.*?)^\}', txt, re.M | re.S):
-        body = m.group(2)
-        e = re.search(r'echo\s+"(.*?)"', body, re.S)
-        if not e:
-            continue
-        flags = e.group(1).replace("\\\n", " ").split()
-        d = {}
-        for i, t in enumerate(flags):
-            if t.startswith("--"):
-                nxt = flags[i + 1] if i + 1 < len(flags) else None
-                d[t] = nxt if (nxt and not nxt.startswith("--")) else True
-        out[m.group(1)] = d
-    if not out:
-        sys.exit(f"check_sweep_shape: no cfg_* recipes found in {path}")
-    return out
+def recipe_names(text: str) -> list[str]:
+    """Every `cfg_<name>()` recipe build.sh declares, in file order."""
+    names = re.findall(r"^cfg_(\w+)\(\)", text, re.M)
+    if not names:
+        sys.exit("check_sweep_shape: no cfg_* recipes found in build.sh")
+    return names
+
+
+def dry_run(text: str, name: str) -> DryRun:
+    """`build.sh <name> --dry-run`, executed from `text`, read back.
+
+    Executed with `bash -c` and $0 set to the real build.sh path, so
+    SOC_DIR and REPO_ROOT resolve as they do for the tracked file while the
+    self-test can run a mutated copy without writing one into sw/litex.
+    BUILD_CFG is stripped from the environment: the gate grades the recipes'
+    own bindings, never a caller's override.
+    """
+    env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
+    proc = subprocess.run(["bash", "-c", text, str(BUILD), name, "--dry-run"],
+                          cwd=BUILD.parent, capture_output=True, text=True,
+                          env=env)
+    argv = artefact = config = None
+    for line in proc.stdout.splitlines():
+        m = PROVENANCE_RE.match(line)
+        if m and m.group(1) == name:
+            artefact, config = m.group(2), m.group(3)
+        tokens = line.split()
+        if LAUNCH_ENTRY in tokens:
+            argv = tokens[tokens.index(LAUNCH_ENTRY) + 1:]
+    failure = None
+    if proc.returncode != 0:
+        said = proc.stderr.strip().splitlines() or [proc.stdout[-300:]]
+        failure = (f"build.sh {name} --dry-run exited {proc.returncode}: "
+                   f"{said[-1]}")
+    elif argv is None:
+        failure = f"build.sh {name} --dry-run printed no {LAUNCH_ENTRY} launch line"
+    elif artefact is None:
+        failure = (f"build.sh {name} --dry-run named no artefact for its "
+                   "design argv (no provenance line)")
+    return DryRun(argv, artefact, config, failure)
 
 
 def design_flags(flags: dict[str, str | bool]) -> dict[str, str | bool]:
@@ -332,7 +348,8 @@ def design_flags(flags: dict[str, str | bool]) -> dict[str, str | bool]:
 
 
 def _entity_gen_dir_agrees(name, cfg_path, flags):
-    """Require a recipe to use the generated artifacts for its graded config."""
+    """Require a recipe to use the generated artifacts for its graded config.
+    Returns the drift as a one-element list; the caller prints it."""
     want = Path(cfg_path).stem
     got = flags.get("--entity-gen-dir")
     msg = None
@@ -345,140 +362,103 @@ def _entity_gen_dir_agrees(name, cfg_path, flags):
                f"{Path(str(got).rstrip('/')).name!r} but this recipe "
                f"is graded against {Path(cfg_path).name} - the "
                f"gateware and generated artifacts would be different shapes")
-    if msg is None:
-        return []
-    print("SHAPE DRIFT: " + msg, file=sys.stderr)
-    return [msg]
+    return [] if msg is None else [msg]
 
 
-def check_build_sh(path: str | Path = BUILD,
-                   quiet: bool = False) -> list[str]:
-    """Compare every build.sh design flag with emit_soc_argv, flag for flag.
+def artefact_drift(name: str, cfg_path: str, run: DryRun) -> list[str]:
+    """The artefact the recipe read is the graded config's CURRENT emission.
 
-    Divergences listed in PINNED are accepted and re-verified against their
-    exact pair. Everything else is drift. This deliberately replaces the old
-    four-key subset, which could not see the #155 cache, CBS, port, playback,
-    or optional-block disagreements.
-    `quiet` suppresses successful agreement summaries while negative controls
-    exercise mutated copies.
+    Freshness by construction is what build.sh promises (it regenerates in
+    the same shell); this proves the promise: the artefact exists, names the
+    config as its source, was regenerated FROM that config, and its argv is
+    emit_soc_argv of it right now.
     """
-    recipes = parse_build_sh(path)
     bad = []
-    unbound = sorted(set(recipes) - set(BUILD_CFGS))
-    for name in unbound:
+    if run.config != cfg_path:
+        bad.append(f"cfg_{name}: build.sh regenerated {run.config} for a "
+                   f"recipe graded against {cfg_path}")
+    artefact = Path(run.artefact)
+    if not artefact.is_file():
+        return bad + [f"cfg_{name}: the launch line was read from "
+                      f"{artefact}, which does not exist"]
+    data = json.loads(artefact.read_text())
+    if data.get("_source_config") != cfg_path:
+        bad.append(f"cfg_{name}: {artefact.name} was generated from "
+                   f"{data.get('_source_config')!r}, not {cfg_path!r}")
+    if data.get("argv") != design_opts_expected(cfg_path):
+        bad.append(f"cfg_{name}: {artefact} is stale: its argv is not "
+                   f"emit_soc_argv of {Path(cfg_path).name} - regenerate it")
+    return bad
+
+
+def check_recipe(name: str, cfg_path: str, run: DryRun,
+                 quiet: bool = False) -> list[str]:
+    """One recipe's dry-run launch line against its config, flag for flag.
+
+    The launch line is graded as argparse reads it (last occurrence wins),
+    so a literal hand-appended after the sourced argv is a value drift, not
+    a duplicate nobody sees.
+    """
+    if run.failure:
+        msg = f"cfg_{name}: {run.failure}"
+        print("SHAPE DRIFT: " + msg, file=sys.stderr)
+        return [msg]
+    flags = parse_flags(run.argv)
+    bad = _entity_gen_dir_agrees(name, cfg_path, flags)
+    got = design_flags(flags)
+    got.pop("--entity-gen-dir", None)  # checked above, by config basename
+    want = design_flags(parse_flags(design_opts_expected(cfg_path)))
+    n_ok = 0
+    for k in sorted(set(got) | set(want)):
+        g, w = got.get(k, "(absent)"), want.get(k, "(absent)")
+        if g != w:
+            bad.append(f"cfg_{name}: design flag {k}: launch line {g!r} != "
+                       f"config-implied {w!r} (emit_soc_argv of "
+                       f"{Path(cfg_path).name})")
+        else:
+            n_ok += 1
+    bad += artefact_drift(name, cfg_path, run)
+    for msg in bad:
+        print("SHAPE DRIFT: " + msg, file=sys.stderr)
+    if not bad and not quiet:
+        artefact = Path(run.artefact)
+        shown = (artefact.relative_to(ROOT) if artefact.is_relative_to(ROOT)
+                 else artefact)
+        print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags on "
+              f"the dry-run launch line agree with {Path(cfg_path).name} "
+              f"flag for flag, --entity-gen-dir names it, and {shown} is "
+              "its current emission")
+    return bad
+
+
+def check_build_sh(text: str | None = None,
+                   quiet: bool = False) -> list[str]:
+    """Every build.sh recipe's launch line against emit_soc_argv, flag for
+    flag, read out of build.sh's own --dry-run rather than its text.
+
+    Since #402 the recipes carry no design literal to parse: what they
+    launch is the builder's artefact plus flow flags, so the only honest
+    comparison is the line they print. `text` is build.sh's source (the
+    tracked file by default; a mutated copy under --self-test); `quiet`
+    suppresses the agreement summaries while negative controls run.
+    """
+    if text is None:
+        text = BUILD.read_text()
+    names = recipe_names(text)
+    bad = []
+    for name in sorted(set(names) - set(BUILD_CFGS)):
         msg = (f"build.sh cfg_{name} has no config binding in BUILD_CFGS; "
                "an ungraded recipe could silently build a different shape")
         print("SHAPE DRIFT: " + msg, file=sys.stderr)
         bad.append(msg)
-
-    visited_pins = set()
     for name, cfg_path in sorted(BUILD_CFGS.items()):
-        if name not in recipes:
+        if name not in names:
             msg = f"build.sh has no cfg_{name}"
             print("SHAPE DRIFT: " + msg, file=sys.stderr)
             bad.append(msg)
             continue
-        f = recipes[name]
-        local = _entity_gen_dir_agrees(name, cfg_path, f)
-        got = design_flags(f)
-        want = design_flags(parse_flags(design_opts_expected(cfg_path)))
-        got.pop("--entity-gen-dir", None)  # checked above, by config basename
-        n_ok = n_pin = 0
-        for k in sorted(set(got) | set(want)):
-            pin_key = ("build.sh", name, k)
-            pin = PINNED.get(pin_key)
-            g = got.get(k, "(absent)")
-            w = want.get(k, "(absent)")
-            if pin is not None:
-                visited_pins.add(pin_key)
-                n_pin += 1
-                if (g, w) != tuple(pin[:2]):
-                    msg = (f"cfg_{name}: PINNED divergence on {k} no longer "
-                           f"holds (build.sh {g!r} / config {w!r}, pinned "
-                           f"{pin[0]!r} / {pin[1]!r}) - revisit the pin")
-                    print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                    local.append(msg)
-                elif not quiet:
-                    print(f"  [sweep-shape] build.sh cfg_{name}: {k} "
-                          f"{g!r} != config {w!r} - PINNED, known: {pin[2]}")
-            elif g != w:
-                msg = (f"cfg_{name}: design flag {k}: build.sh {g!r} != "
-                       f"config-implied {w!r} (emit_soc_argv of "
-                       f"{Path(cfg_path).name})")
-                print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                local.append(msg)
-            else:
-                n_ok += 1
-        if not local and not quiet:
-            print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags "
-                  f"agree with {Path(cfg_path).name} flag for flag "
-                  f"({n_pin} PINNED), and --entity-gen-dir names it")
-        bad += local
-
-    for pin_key in sorted(set(PINNED) - visited_pins):
-        msg = (f"PINNED divergence {pin_key!r} was never visited; remove the "
-               "stale exception or restore the recipe/config binding")
-        print("SHAPE DRIFT: " + msg, file=sys.stderr)
-        bad.append(msg)
+        bad += check_recipe(name, cfg_path, dry_run(text, name), quiet)
     return bad
-
-
-def self_test_build_sh(path: str | Path = BUILD
-                       ) -> list[tuple[str, str, str]]:
-    """Negative controls for the build.sh CPU keys (#157).
-
-    Two mutated copies of build.sh: the REAL defect replayed - every
-    `--xlen N` and `--cpu-count N` stripped, so each recipe would inherit
-    milan_soc.py's defaults - and its value-swapped cousin (xlen flipped
-    between 32 and 64, one more hart). Each must be rejected on BOTH CPU flags
-    of all three recipes, or a check is vacuous. Returns the
-    (mutation, cfg, flag) triples the gate FAILED to reject; empty means every
-    flag bit."""
-    txt = Path(path).read_text()
-    mutations = {
-        "absent": re.sub(r"--(?:xlen|cpu-count) \d+ ?", "", txt),
-        "swapped": re.sub(
-            r"--cpu-count (\d+)",
-            lambda m: f"--cpu-count {int(m.group(1)) + 1}",
-            re.sub(r"--xlen (\d+)",
-                   lambda m: f"--xlen {32 if m.group(1) == '64' else 64}",
-                   txt)),
-    }
-    missed = []
-    for label, mut in mutations.items():
-        if mut == txt:
-            sys.exit("self-test: could not mutate the CPU flags in build.sh "
-                     f"({label})")
-        tmp = _temp_sh(mut)
-        try:
-            print(f"  [self-test] build.sh --xlen/--cpu-count {label} - "
-                  "expecting REJECT on both keys of every recipe:")
-            bad = check_build_sh(tmp, quiet=True)
-        finally:
-            tmp.unlink()
-        for name in BUILD_CFGS:
-            for flag in CPU_FLAGS:
-                drift = f"cfg_{name}: design flag {flag}:"
-                pinned = f"cfg_{name}: PINNED divergence on {flag} "
-                if not any(b.startswith(drift) or b.startswith(pinned)
-                           for b in bad):
-                    missed.append((label, name, flag))
-    return missed
-
-
-def mutate_build_recipe(text: str, name: str, old: str, new: str) -> str:
-    """Change one flag fragment inside one named recipe for a negative test."""
-    match = re.search(rf"^cfg_{re.escape(name)}\(\)\s*\{{.*?^\}}",
-                      text, re.M | re.S)
-    if not match:
-        raise ValueError(f"cfg_{name} recipe not found")
-    recipe = match.group(0)
-    count = recipe.count(old)
-    if count != 1:
-        raise ValueError(
-            f"{old!r} matched {count} times in cfg_{name}, want 1")
-    mutated = recipe.replace(old, new)
-    return text[:match.start()] + mutated + text[match.end():]
 
 
 def run_static(sweep_path: str | Path = SWEEP,
@@ -600,38 +580,72 @@ def _self_test_sweep_ns(sweep_path):
         return 2
     print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported for the "
           "mutated sweep.sh")
-    missed = self_test_build_sh()
-    if missed:
-        print("self-test FAILED: build.sh CPU-flag mutations accepted on "
-              + ", ".join(f"{m}/cfg_{n}/{k}" for m, n, k in missed),
-              file=sys.stderr)
-        return 2
-    print("  [self-test] OK: --xlen and --cpu-count rejected on "
-          f"{len(BUILD_CFGS)} build.sh recipes, absent and swapped")
     return 0
 
 
-def _self_test_build_recipes(build_text):
-    """Negative controls for the named-build branch: every BUILD_MUTATIONS
-    plant must be REJECTED naming its expected drift. 0 = all were, 2 = one
-    was not (or the plant no longer matches the recipe)."""
-    for why, name, old, new, expected in BUILD_MUTATIONS:
-        try:
-            mutated = mutate_build_recipe(build_text, name, old, new)
-        except ValueError as exc:
-            print(f"self-test: {exc}", file=sys.stderr)
+def _self_test_build_plants(build_text):
+    """Negative controls for the named-build branch: every BUILD_PLANTS
+    mutation, run through build.sh's own dry-run, must be REJECTED naming
+    each expected drift. 0 = all were, 2 = one was not (or a plant no
+    longer matches the text it is planted in)."""
+    for why, old, new, expected in BUILD_PLANTS:
+        if build_text.count(old) != 1:
+            print(f"self-test: {old!r} matched {build_text.count(old)} "
+                  f"times in build.sh, want 1 ({why})", file=sys.stderr)
             return 2
-        tmp = _temp_sh(mutated)
-        try:
-            print(f"  [self-test] {why} - expecting REJECT:")
-            bad_mut = check_build_sh(tmp, quiet=True)
-        finally:
-            tmp.unlink()
-        if not any(expected in drift for drift in bad_mut):
-            print(f"self-test FAILED: {why} did not report {expected!r}",
+        print(f"  [self-test] {why} - expecting REJECT:")
+        bad_mut = check_build_sh(build_text.replace(old, new), quiet=True)
+        missing = [e for e in expected
+                   if not any(e in drift for drift in bad_mut)]
+        if missing:
+            print(f"self-test FAILED: {why} did not report {missing!r}",
                   file=sys.stderr)
             return 2
         print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
+    return 0
+
+
+def _self_test_stale_artefact(build_text):
+    """The regeneration is load-bearing: a stale artefact (its --xlen
+    flipped to 64) is overwritten by the tracked build.sh and ACCEPTED,
+    and is carried onto the launch line and REJECTED by a build.sh whose
+    regeneration line is deleted. The planted bytes are restored either
+    way. 0 = both held, 2 = one did not."""
+    name = "arty"
+    unregenerated = build_text.replace(REGENERATE_LINE, "")
+    if unregenerated == build_text:
+        print("self-test: could not delete the regeneration line",
+              file=sys.stderr)
+        return 2
+    run = dry_run(build_text, name)
+    if run.failure:
+        print(f"self-test: {run.failure}", file=sys.stderr)
+        return 2
+    artefact = Path(run.artefact)
+    original = artefact.read_bytes()
+    stale = json.loads(original)
+    stale["argv"][stale["argv"].index("--xlen") + 1] = "64"
+    planted = (json.dumps(stale, indent=1) + "\n").encode()
+    try:
+        artefact.write_bytes(planted)
+        print("  [self-test] stale artefact under the tracked build.sh - "
+              "expecting ACCEPT (regenerated):")
+        if check_build_sh(build_text, quiet=True):
+            print("self-test FAILED: the tracked build.sh launched a stale "
+                  "artefact", file=sys.stderr)
+            return 2
+        artefact.write_bytes(planted)
+        print("  [self-test] stale artefact, regeneration line deleted - "
+              "expecting REJECT:")
+        bad_mut = check_build_sh(unregenerated, quiet=True)
+    finally:
+        artefact.write_bytes(original)
+    want = (f"cfg_{name}: design flag --xlen:", f"cfg_{name}: {artefact} is stale")
+    if not all(any(w in d for d in bad_mut) for w in want):
+        print(f"self-test FAILED: the stale artefact was accepted ({bad_mut})",
+              file=sys.stderr)
+        return 2
+    print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
     return 0
 
 
@@ -651,12 +665,8 @@ def _self_test_unbound_recipe(build_text):
         print("self-test: SWEEP_DIRECTIVES anchor not found in build.sh",
               file=sys.stderr)
         return 2
-    tmp = _temp_sh(mutated)
-    try:
-        print("  [self-test] unbound cfg_* recipe - expecting REJECT:")
-        bad_mut = check_build_sh(tmp, quiet=True)
-    finally:
-        tmp.unlink()
+    print("  [self-test] unbound cfg_* recipe - expecting REJECT:")
+    bad_mut = check_build_sh(mutated, quiet=True)
     if not any("cfg_unbound_selftest has no config binding" in drift
                for drift in bad_mut):
         print("self-test FAILED: unbound cfg_* recipe was accepted",
@@ -714,7 +724,10 @@ def _run_self_test(sweep_path):
     if status:
         return status
     build_text = BUILD.read_text()
-    status = _self_test_build_recipes(build_text)
+    status = _self_test_build_plants(build_text)
+    if status:
+        return status
+    status = _self_test_stale_artefact(build_text)
     if status:
         return status
     status = _self_test_unbound_recipe(build_text)

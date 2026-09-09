@@ -11,6 +11,11 @@
 #                                      # saturate-the-box rule (3 x 32 threads)
 #   TAG=myrun ./build.sh arty          # output dir suffix (default: date +%m%d%H%M)
 #   ./build.sh arty -- --sys-clk-freq 90e6   # append/override milan_soc.py args
+#   ./build.sh ax8x8 --dry-run           # print the launch line, start nothing (the
+#                                      # tracked-shape refusal is previewed, not enforced)
+#   BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101
+#                                      # a named recipe's flow flags on another config
+#                                      # under configs/ (sweep.sh: SWEEP_CFG)
 #
 # Discipline encoded here (docs/integration/BUILDING.md):
 #   * every build: setsid nohup (harness task-kills must never reap Vivado),
@@ -19,12 +24,14 @@
 #     concurrent LiteX elaborations race on index.lock and crash);
 #   * at most 3 concurrent builds (3 x 32 = the 96-core box saturated).
 #
-# Configs are FUNCTIONS below - one place to edit a board's canonical shape.
-# So is everything else: the body is functions called from main() at the bottom,
-# in the order board_serials -> (do_flash) -> parse_args -> check_entity_shapes
-# -> expand_jobs -> launch_jobs. The state they hand each other (CONFIGS, EXTRA,
-# SWEEP, DRY, JOBS, the ENTITY_CFG_* table) is deliberately global and MUST NOT
-# be made `local`: each stage reads what the previous one set.
+# A named config is ONE end-station YAML (recipe_config) plus the flow flags
+# its cfg_<name> function appends; the DESIGN argv is read from the builder's
+# artefact of that config, never spelled here (#402, design_argv below).
+# Everything else is functions too: the body is called from main() at the
+# bottom, in the order board_serials -> (do_flash) -> parse_args
+# -> check_entity_shapes -> expand_jobs -> launch_jobs. The state they hand
+# each other (CONFIGS, EXTRA, SWEEP, DRY, JOBS) is deliberately global and
+# MUST NOT be made `local`: each stage reads what the previous one set.
 # MAINTAINER DOC: docs/integration/BUILDING.md (configs, discipline rationale, per-board
 # load/console facts, gates). Update it when adding a config or a rule here.
 
@@ -141,79 +148,67 @@ do_flash() {
 }
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart.
-                 # cfg_ax8x8 is the 8-stream bare-metal shape and cfg_arty the
-                 # Arty bare-metal shape.
-    # TDM8 shipping profile: cacheless RV32, fabric protocol/media planes,
-    # board MAC/PHY and persistent AEM image.
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --full --num-streams 1 \
-          --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
-          --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
-          --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
-          --audio-interface-master --talker-wire-chans 8 \
-          --loopback-lane --fabric-gptp \
-          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
-          --synth-directive AreaOptimized_high --opt-directive ExploreArea \
-          --l2-bytes 0 \
-          --uart-baudrate 115200 \
+# recipe_config binds a name to the end-station config it builds; cfg_<name>
+# holds the FLOW flags only (Vivado directives here; the thread cap, --build
+# and the output directory are launch_jobs'). Every DESIGN flag - board, CPU
+# width and hart count, streams, audio interface, wire channels, the tier-1
+# prunes, clocks, flash - comes from the config through design_argv, so a new
+# builder flag reaches a launch with no edit here. Until #402 the three
+# recipes restated that argv as shell literals kept equal to emit_soc_argv by
+# scripts/check_sweep_shape.py: #155 repaired ten divergences at once and
+# #157/#362 two more, which is what a copy costs.
+recipe_config() {  # -> the end-station config named recipe "$1" builds
+    # BUILD_CFG rebinds it for ONE call, the way SWEEP_CFG does in sweep.sh: a
+    # config under configs/, named relative to the repository root, so that
+    # its generated/ include dir is where design_argv points --entity-gen-dir.
+    if [ -n "${BUILD_CFG:-}" ]; then
+        [ -f "$REPO_ROOT/$BUILD_CFG" ] || { echo "BUILD_CFG=$BUILD_CFG: no such config under the repository root" >&2; return 1; }
+        echo "$BUILD_CFG"; return
+    fi
+    case "$1" in
+        ax7101) echo "configs/endstation_ax7101_1x1_tdm8.yaml";;
+        ax8x8)  echo "configs/endstation_ax7101_8x8.yaml";;
+        arty)   echo "configs/endstation_arty_current.yaml";;
+        *)      echo "no end-station config is bound to '$1'" >&2; return 1;;
+    esac
+}
+soc_params_for() {  # -> the builder artefact design_argv reads for config "$1"
+    echo "$REPO_ROOT/sw/builder/out/$(basename "$1" .yaml)/soc_params.json"
+}
+design_argv() {
+    # ---- the design argv of config "$1", read from the builder's artefact ----------
+    # Regenerated HERE, the way sweep.sh's entity_defs does, so the artefact
+    # can only be stale if this line goes; then read back out of
+    # soc_params.json, the per-config emission every builder run writes. (The
+    # per-board sweep fragment is written only under --write-fragment, and
+    # the two AX recipes would fight over it.) --entity-gen-dir is a flow
+    # flag: where THIS launch reads its generated entity definition from.
+    cfg=$1
+    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null
+    argv=$(python3 -c 'import json, pathlib, sys; print(" ".join(json.loads(pathlib.Path(sys.argv[1]).read_text())["argv"]))' "$(soc_params_for "$cfg")")
+    echo "$argv --entity-gen-dir $REPO_ROOT/configs/generated/$(basename "$cfg" .yaml)"
+}
+cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
+    echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
           --place-directive ExtraPostPlacementOpt"
 }
-cfg_ax8x8() {    # 8-stream (64ch) bare-metal fabric endpoint.
-    # 2026-08-22 (#157): --xlen 32 is STATED. This recipe carried no --xlen
-    # from its creation (8a98d265, 07-24) and milan_soc.py defaults to 64, so
-    # it implied an RV64 core while the 8x8 config, SOC_DEFAULTS, sweep.sh and
-    # the deployed 0x00010022 gateware (x32f1_eto, a sweep build: this recipe
-    # has never produced a bitstream) are all RV32 single-hart. An RV64 SoC
-    # under the RV32 boot chain hangs at Liftoff with nothing naming the
-    # cause (8b5d0255). The 07-24 close above was measured on that RV64 core
-    # and its RV64-era refill/prefetch cache profile, so it is an upper bound
-    # for this recipe, not its figure.
-    # 2026-08-25 (#259): this recipe is the cacheless bare-metal product.
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --full --fabric-gptp \
-          --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal --gtx-tx-invert \
-          --timing-opt --floorplan --eth-port e1 --l2-bytes 0 \
-          --uart-baudrate 115200 \
-          --num-streams 8 --audio-interface tdm32 --audio-interface-master \
-          --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
-          --no-render-lpf --no-datapath-probes \
-          --synth-directive AreaOptimized_high \
-          --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
-                 # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
-                 # docs/design/AREA_BUDGET.md). 428 LUT / 756 FF / 0 DSP
-                 # from the shipping 8x8 place report - the only Vivado-PROVEN
-                 # figure of that round - on the board whose 6-queue map missed
-                 # placement by 282 slices. Pruned, the render tap behaves
-                 # exactly like LPF_CTRL[0]=0 does today (raw AXIS to the DAC),
-                 # so no CSR and no digital acceptance surface moves; the analog
-                 # loop THD+N record, however, was measured THROUGH the filter
-                 # and must be re-measured before it is quoted against this
-                 # bitstream. Drop the flag to put the filter back.
-                 # eth-port is pinned to e1 (the bench default, same as cfg_ax7101).
-                 # If the AX cable is on e2, append `-- --eth-port e2`; AX42's guard
-                 # reset scope covers either PHY's tx/gtx path.
+cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flow flags
+    # The deployed 0x00010022 gateware came from the x32f1_eto sweep; this
+    # recipe has never produced a bitstream. Its design facts are the
+    # config's: RV32 single hart (#157), the cacheless bare-metal product
+    # (#259), the SPENT render-filter area lever (docs/design/AREA_BUDGET.md).
+    # So is the Ethernet port (e1, the bench default). If the AX cable is on
+    # e2, append `-- --eth-port e2`; AX42's guard reset scope covers either
+    # PHY's tx/gtx path.
+    echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
+          --place-directive AltSpreadLogic_high"
 }
-cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probes stripped since v8 - AVDECC stack needs the slices: v7-style probes overflowed by 181)
-    # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); 50 MHz is
-    # 3.2 Gb/s of 64-bit datapath for a 100 Mbit wire. sys 83.333 = the clean
-    # PLL divisor set (VCO 1000; 90e6 has NO solution with the 25 MHz eth ref).
-    # Flash = bitstream@0 + the raw AEM image (QSPI self-boot on both boards).
-    # 2026-08-22 (#157): --cpu-count 1 --xlen 32 are STATED, matching
-    # configs/endstation_arty_current.yaml, the sweep.sh arty leg and
-    # configs/generated/sweep_opts_arty.sh. The 2-hart count dated from the
-    # launcher's first commit (207192cc) and never matched a deployed Arty
-    # bitstream (the m0019 ship was one hart); the absent --xlen implied RV64
-    # through milan_soc.py's default. The Arty recipe is proven to reach the
-    # Instance (test_builder gate 23g), not built.
-    # 2026-08-25 (#259): bare-metal, like every named config.
-    echo "--board arty --cpu vexiiriscv --cpu-count 1 --xlen 32 \
-          --software-profile baremetal --full --fabric-gptp --num-streams 1 \
-          --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
-          --uart-baudrate 115200 --timing-opt --l2-bytes 0 \
-          \
-          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current"
+cfg_arty() {     # Arty A7-100 bare-metal (endstation_arty_current): Vivado defaults
+    # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); the config
+    # runs the datapath at 50 MHz with sys 83.333 (VCO 1000; 90e6 has NO
+    # solution with the 25 MHz eth ref). Proven to reach the Instance
+    # (test_builder gate 23g), not built: the board is a retired DUT.
+    echo ""
 }
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"
@@ -232,6 +227,7 @@ parse_args() {
         shift
     done
     [ ${#CONFIGS[@]} -gt 0 ] || { echo "usage: $0 <config> [<config> ...] [--sweep] [--dry-run] [-- extra args]" >&2; exit 2; }
+    [ -z "${BUILD_CFG:-}" ] || [ ${#CONFIGS[@]} -eq 1 ] || { echo "BUILD_CFG rebinds ONE named recipe: name one config" >&2; exit 2; }
 }
 
 check_entity_shapes() {
@@ -250,14 +246,14 @@ check_entity_shapes() {
     #  refusing to launch Vivado if the model is missing or unbuildable. So the
     #  shape check below still covers only the `svh`; the descriptors now police
     #  themselves, per build, and cannot be another config's.)
-    ENTITY_CFG_ax7101="configs/endstation_ax7101_1x1_tdm8.yaml"
-    ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
-    ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
     for c in "${CONFIGS[@]}"; do
-        eval "ecfg=\${ENTITY_CFG_$c:-}"
-        [ -n "$ecfg" ] || continue
-        python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" \
-            || { echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2; }
+        ecfg=$(recipe_config "$c") || exit 2
+        python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" && continue
+        # A dry run launches nothing, so it previews the refusal beside the
+        # launch line instead of stopping: the shape gate reads every recipe's
+        # argv out of its dry run, whichever config owns the tree (#402).
+        [ "$DRY" = 1 ] && { echo "DRY [$c] a launch would be REFUSED: the tracked entity definition is not $ecfg's"; continue; }
+        echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2
     done
 }
 
@@ -265,7 +261,10 @@ expand_jobs() {
     # ---- expand configs (x directives when sweeping) --------------------------------
     JOBS=()   # "name|args"
     for c in "${CONFIGS[@]}"; do
-        base_args=$("cfg_$c")
+        cfg=$(recipe_config "$c") || exit 2
+        design=$(design_argv "$cfg")
+        base_args="$design $("cfg_$c")"
+        echo "[$c] design argv from $(soc_params_for "$cfg") (regenerated from $cfg); flow flags from cfg_$c"
         if [ "$SWEEP" = 1 ]; then
             # SWEEP_DIRECTIVES is a LIST of Vivado directives: the split is the
             # point, one loop iteration per directive.
