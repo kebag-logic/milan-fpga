@@ -1784,6 +1784,7 @@ class NxnDatapathHarness {
         prove_set_name_reaches_the_descriptor_and_back();
         grade_get_configuration_against_the_entity_row();
         grade_get_clock_source_against_the_clock_domain();
+        grade_the_clock_source_set_against_the_fabric();
         prove_the_settings_face_reaches_the_datapath();
         grade_get_sampling_rate_against_the_audio_unit();
         grade_get_stream_format_shape_only();
@@ -1793,6 +1794,12 @@ class NxnDatapathHarness {
 
     //! the AECP sequence_id cursor the whole model walk shares
     uint16_t model_sq = 0x4100;
+    //! #389: what the generated CLOCK_DOMAIN lists, read by the set walk
+    //! below and consumed by [CRF-SEL] and [CLKSRC-RANGE]: the count, and
+    //! the index of the one INPUT_STREAM source (the CRF sink's), -1 until
+    //! the walk has found it
+    unsigned model_clksrc_count = 0;
+    long model_crf_ix = -1;
 
     //! Every row the generator emitted, served by READ_DESCRIPTOR.
     void read_every_descriptor_the_generator_emitted() {
@@ -1978,6 +1985,71 @@ class NxnDatapathHarness {
         }
     }
 
+    // ---- the CLOCK_SOURCE set, against what the fabric follows -
+    //! #389: every CLOCK_SOURCE the model advertises must be one a
+    //! controller can select AND the media plane follows. The fabric
+    //! follows exactly two - INTERNAL (the free-running grid) and the
+    //! CRF sink's INPUT_STREAM source (the #74 chain media_clk_resolve
+    //! arms) - so an INPUT_STREAM source located on an AAF listener,
+    //! which the builder used to emit one of per listener, was
+    //! advertised, accepted and stored while nothing followed it. The
+    //! builder no longer emits one, and this walk reads the GENERATED
+    //! descriptors rather than assuming a rule: 1722.1-2021 7.2.9.2
+    //! (clock_source_type @72, location_type @82, location_index @84)
+    //! and 7.2.32 (clock_sources_offset @72, clock_sources_count @74,
+    //! the list @76). The CRF index it derives is what [CRF-SEL] selects
+    //! and the count is the edge [CLKSRC-RANGE] grades from both sides.
+    void grade_the_clock_source_set_against_the_fabric() {
+        const std::vector<uint8_t>* cd = desc_of(0x0024, 0);
+        ck("[AECP-MODEL] the model has CLOCK_DOMAIN 0",
+           static_cast<long>(cd != nullptr), 1);
+        if (!cd) return;
+        const unsigned count = model_be16(*cd, 74);
+        model_clksrc_count = count;
+        ck("[AECP-MODEL] CLOCK_DOMAIN 0 clock_sources_offset is 76 (7.2.32)",
+           model_be16(*cd, 72), 76);
+        //! the list is the identity permutation (avdecc/aem_descriptors.py
+        //! d_clock_domain), which is what makes the processor's
+        //! clock_source_index < clock_sources_count the membership test
+        //! 7.4.23.1 asks for
+        long identity = 1;
+        for (unsigned k = 0; k < count; k++)
+            if (model_be16(*cd, 76 + 2 * k) != k) identity = 0;
+        ck("[AECP-MODEL] CLOCK_DOMAIN 0 lists CLOCK_SOURCE 0..count-1 in "
+           "order", identity, 1);
+        long internal = 0;
+        long on_aaf = 0;
+        long on_crf = 0;
+        long other = 0;
+        for (unsigned k = 0; k < count; k++) {
+            const std::vector<uint8_t>* cs = desc_of(0x000A, k);
+            if (!cs) { other++; continue; }
+            const unsigned ty = model_be16(*cs, 72);   // clock_source_type
+            const unsigned lt = model_be16(*cs, 82);   // location_type
+            const unsigned li = model_be16(*cs, 84);   // location_index
+            if (ty == 0x0000) {
+                internal++;
+            } else if (ty == 0x0002 && lt == 0x0005 && li == kNstreamsTb) {
+                on_crf++;                     // the CRF sink's own source
+                model_crf_ix = static_cast<long>(k);
+            } else if (ty == 0x0002 && lt == 0x0005 && li < kNstreamsTb) {
+                on_aaf++;                     // an AAF listener's: unfollowed
+            } else {
+                other++;                      // EXTERNAL, or a stray location
+            }
+        }
+        ck("[AECP-MODEL] one INTERNAL CLOCK_SOURCE (the free-running grid)",
+           internal, 1);
+        ck("[AECP-MODEL] no INPUT_STREAM CLOCK_SOURCE is located on an AAF "
+           "listener (#389)", on_aaf, 0);
+        ck("[AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF "
+           "sink", on_crf, 1);
+        ck("[AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow",
+           other, 0);
+        ck("[AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows",
+           internal + on_crf, count);
+    }
+
     // ---- the SETTINGS FACE reaches the datapath ---------------
     // KL_pp_shadow republishes the dynamic store into
     // milan_datapath, where media_clk_resolve consumes the
@@ -2012,6 +2084,7 @@ class NxnDatapathHarness {
         prove_set_control_identify_reaches_the_datapath(id);
         restore_the_clock_source_and_identify_faces(cs, id);
         prove_the_crf_selection_reaches_the_one_resolve();
+        prove_a_removed_clock_source_index_is_refused();
         //! HONEST LIMIT, stated rather than papered over. The
         //! configuration face cannot be MOVED on this model:
         //! avdecc/gen_aem_store.py emits configurations_count = 1,
@@ -2111,17 +2184,21 @@ class NxnDatapathHarness {
     void prove_the_crf_selection_reaches_the_one_resolve() {
         #ifndef DIVERGENT_TB
         //! #74 [CRF-SEL]: the COMMAND CHAIN reaches the media
-        //! plane's one resolve. This shape's CLOCK_SOURCE set is
-        //! internal, one Stream Clock per listener, then CRF, so
-        //! the CRF index is NSTREAMS_TB + 1 - the same rule
-        //! gen_aem_store.clock_source_shape derives (hardcoding
-        //! "2" was the 8-listener bug the generator banner
-        //! records). Selected: the registered verdict and the
-        //! NCO gate rise; restored: they fall. The selected-mode
+        //! plane's one resolve. The CRF index is READ out of the
+        //! generated CLOCK_SOURCE descriptors by the [AECP-MODEL]
+        //! set walk above (the one INPUT_STREAM source, located at
+        //! the CRF sink) - never a rule restated here: hardcoding
+        //! "2" was the 8-listener bug the generator banner records,
+        //! and #389 moved the index again by dropping the per-
+        //! listener sources. Selected: the registered verdict and
+        //! the NCO gate rise; restored: they fall. The selected-mode
         //! PHYSICS (grid alignment, the live status slice, mr)
         //! runs where the clock ratio exists - obj_aclk's [CRF]
         //! phase; this arm owns only the chain.
-        const uint16_t crf_ix = static_cast<uint16_t>(kNstreamsTb + 1);
+        ck("[CRF-SEL] the model names a CRF CLOCK_SOURCE to select",
+           static_cast<long>(model_crf_ix >= 0), 1);
+        const uint16_t crf_ix =
+            static_cast<uint16_t>(model_crf_ix < 0 ? 0 : model_crf_ix);
         std::vector<uint8_t> c5(8, 0);
         c5[0] = 0x00; c5[1] = 0x24;      // CLOCK_DOMAIN @24
         c5[4] = static_cast<uint8_t>(crf_ix >> 8);
@@ -2147,6 +2224,83 @@ class NxnDatapathHarness {
            static_cast<long>(dut->rootp
                ->milan_datapath__DOT__mnco_servo_en_w), 0);
         #endif
+    }
+
+    //! #389 [CLKSRC-RANGE]: a SET_CLOCK_SOURCE naming an index the
+    //! CLOCK_DOMAIN does not list answers BAD_ARGUMENTS (1722.1-2021
+    //! 7.4.23.1, Milan v1.2 5.4.2.15) carrying the CURRENT index, and
+    //! moves neither the stored selection nor the face the media plane
+    //! resolves - the processor's E_SCLKS range check against
+    //! clock_sources_count. Three indexes are refused: the count itself
+    //! (one past the list), NSTREAMS + 1 (the index the pre-#389 model
+    //! gave the CRF source; the negative control against the old image
+    //! is that this exact command answered SUCCESS there), and 0xFFFF.
+    //! The edge is then graded from the inside: count - 1 (the CRF
+    //! source) is accepted, and the selection is restored.
+    void prove_a_removed_clock_source_index_is_refused() {
+        const unsigned count = model_clksrc_count;
+        const uint16_t cur = static_cast<uint16_t>(
+            dut->rootp->milan_datapath__DOT__pp_aecp_clk_src_index_w);
+        ck("[CLKSRC-RANGE] the model lists at least the INTERNAL source",
+           static_cast<long>(count >= 1), 1);
+        const uint16_t refused[3] = {
+            static_cast<uint16_t>(count),
+            static_cast<uint16_t>(kNstreamsTb + 1),
+            0xFFFF };
+        const char* why[3] = {
+            "clock_sources_count, one past the list",
+            "NSTREAMS + 1, the pre-#389 CRF index",
+            "0xFFFF" };
+        std::vector<uint8_t> c(8, 0);
+        c[0] = 0x00; c[1] = 0x24;             // CLOCK_DOMAIN 0 @24..@27
+        for (int i = 0; i < 3; i++) {
+            char t[128];
+            snprintf(t, sizeof t, "[CLKSRC-RANGE] SET_CLOCK_SOURCE(%u: %s)",
+                     refused[i], why[i]);
+            c[4] = static_cast<uint8_t>(refused[i] >> 8);
+            c[5] = static_cast<uint8_t>(refused[i]);
+            const std::vector<uint8_t> r = aecp_xact(0x0016, model_sq++, c);
+            char w[224];
+            snprintf(w, sizeof w, "%s answers BAD_ARGUMENTS(7)", t);
+            ck(w, r.size() >= 42 ? aecp_status(r) : -1, 7);
+            snprintf(w, sizeof w, "%s carries the CURRENT index", t);
+            ck(w, r.size() >= 46
+                   ? ((static_cast<unsigned>(r[42]) << 8) | r[43]) : 0xFFFFFFFFul,
+               cur);
+            snprintf(w, sizeof w, "%s: reserved @30 is zero", t);
+            ck(w, r.size() >= 46
+                   ? ((static_cast<unsigned>(r[44]) << 8) | r[45]) : 0xFFFFFFFFul,
+               0);
+            for (int k = 0; k < 8; k++) step();
+            snprintf(w, sizeof w, "%s: the resolved face did not move", t);
+            ck(w, static_cast<long>(dut->rootp
+                   ->milan_datapath__DOT__pp_aecp_clk_src_index_w), cur);
+        }
+        std::vector<uint8_t> g(4, 0);
+        g[0] = 0x00; g[1] = 0x24;
+        const std::vector<uint8_t> rg = aecp_xact(0x0017, model_sq++, g);
+        ck("[CLKSRC-RANGE] GET_CLOCK_SOURCE still reads the current index",
+           rg.size() >= 46
+               ? ((static_cast<unsigned>(rg[42]) << 8) | rg[43]) : 0xFFFFFFFFul,
+           cur);
+        //! the edge from the inside: the last listed index is accepted
+        const uint16_t last = static_cast<uint16_t>(count - 1);
+        c[4] = static_cast<uint8_t>(last >> 8);
+        c[5] = static_cast<uint8_t>(last);
+        const std::vector<uint8_t> ra = aecp_xact(0x0016, model_sq++, c);
+        ck("[CLKSRC-RANGE] SET_CLOCK_SOURCE(count - 1) answers SUCCESS",
+           ra.size() >= 42 ? aecp_status(ra) : -1, 0);
+        for (int k = 0; k < 8; k++) step();
+        ck("[CLKSRC-RANGE] ...and the resolved face follows to count - 1",
+           static_cast<long>(dut->rootp
+               ->milan_datapath__DOT__pp_aecp_clk_src_index_w), last);
+        c[4] = static_cast<uint8_t>(cur >> 8);
+        c[5] = static_cast<uint8_t>(cur);
+        aecp_xact(0x0016, model_sq++, c);
+        for (int k = 0; k < 8; k++) step();
+        ck("[CLKSRC-RANGE] restore: the face is back at the current index",
+           static_cast<long>(dut->rootp
+               ->milan_datapath__DOT__pp_aecp_clk_src_index_w), cur);
     }
 
     // ---- GET_SAMPLING_RATE vs AUDIO_UNIT.current_sampling_rate

@@ -14,7 +14,8 @@
                 exactly this block).
 
                 Closes the loop  talker media clock -> our audio MMCM
-                when clock_source == 2 (the CRF CLOCK_SOURCE descriptor):
+                when clock_source selects the CRF CLOCK_SOURCE descriptor
+                (clk_src_i == crf_src_idx_i):
 
                   error   e = local_rate - crf_rate  (both are "gPTP-ns
                           per 512 ms of media events": KL_crf_rx rate_o
@@ -118,7 +119,7 @@
                 for what DRP is actually for (divider reprogramming,
                 verified/sequenced), fully implemented and TB-proven.
 
-                States (status_o[2:0]): IDLE (clock_source != 2: no DRP
+                States (status_o[2:0]): IDLE (CRF not selected: no DRP
                 access, no PS steps, u = 0), VERIFY, REPAIR, ACQUIRE,
                 LOCKED (|e| < LOCK_THR_P for LOCK_WIN_P windows),
                 HOLDOVER (CRF unlock: u frozen, stepping continues at
@@ -212,11 +213,12 @@ module KL_mmcm_drp_servo #(
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
   input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
-  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal 2: the
-  //! set is internal, one per AAF listener, then CRF, so it is 2 on a
-  //! 1-listener shape and 9 on an 8-listener one. The datapath feeds this
-  //! from the generated AEM (KL_aecp_response_builder.crf_clksrc_o); a wrong
-  //! value here engages the servo on the wrong source, silently.
+  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
+  //! set is internal then CRF (1 on every shipping shape since #389 dropped
+  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
+  //! 8-listener one before). The datapath feeds this from the generated
+  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
+  //! wrong source, silently.
   input  wire [15:0]  crf_src_idx_i,
   input  wire         crf_locked_i,   //! KL_crf_rx locked_o
   input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)

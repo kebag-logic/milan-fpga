@@ -117,7 +117,7 @@ input, are silently refused.
 | 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included — PP pp_top byte-exact |
 | 5.4.2.11 / .12 | SET/GET_NAME | implemented | landed 0x0054; nonvolatile restore stays with persistence (Section 1.7) |
 | 5.4.2.13 / .14 | SET/GET_SAMPLING_RATE | implemented | stored + served; media-plane adoption open (Section 1.8, audit B3) |
-| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain) |
+| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h) |
 | 5.4.2.17 / .18 | SET/GET_CONTROL (Identify, 0/255, volatile) | implemented | PP dyn_state; no public indication output yet (audit B7) |
 | 5.4.2.19 / .20 | START/STOP_STREAMING (inputs; `NOT_SUPPORTED` on outputs) | implemented | binding-record interlock (issue #78); started-state persistence open (audit B12) |
 | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |

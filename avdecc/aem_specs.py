@@ -36,11 +36,13 @@ def builtin_spec() -> dict[str, Any]:
             dict(name="CRF", kind="crf", formats=list(CRF_FORMATS),
                  buffer=2126000)],
         stream_outputs=[dict(name="Stream Output 0", formats=list(OUT_FORMATS))],
+        # #389: INTERNAL and the CRF sink's source only. The per-listener
+        # "Stream Clock" INPUT_STREAM source is gone from every emitter: the
+        # fabric has no stream-derived media-clock recovery, so the
+        # descriptor advertised a selection nothing followed.
         clock_sources=[
             dict(name="Internal", cs_type=0x0000, raw_type="internal",
                  loc_type=CLOCK_SOURCE, loc_index=0),
-            dict(name="Stream Clock", cs_type=0x0002, raw_type="input_stream",
-                 loc_type=STREAM_INPUT, loc_index=0),
             dict(name="CRF Clock", cs_type=0x0002, raw_type="crf",
                  loc_type=STREAM_INPUT, loc_index=1)],
         # Milan v1.2 5.3.3.9: every Stream Port Input is dynamic and carries
