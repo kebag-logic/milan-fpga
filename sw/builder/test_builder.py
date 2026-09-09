@@ -1813,6 +1813,37 @@ def _assert_no_computed_variable_names(makefile, computed_name_references):
         "refused rather than modelled (#162)"
 
 
+def _assert_no_opaque_evals(makefile, opaque_evals):
+    """A Makefile that hands `$(eval)` text this gate cannot read as one
+    literal assignment is REFUSED: make parses the EXPANSION, not the file."""
+    #: (#410) REFUSED where it cannot be walked: $(eval TEXT) expands TEXT
+    #: first and parses the RESULT as makefile syntax, so the text make
+    #: reads is not the text in this file. The one shape the walker can
+    #: prove is an eval on a line of its own whose whole argument is a
+    #: literal `NAME op VALUE`: expansion changes VALUE, never the shape
+    #: or the NAME, so make_rules() walks it as that assignment and the
+    #: origin probe judges its references. Anything else is refused --
+    #: `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested in
+    #: another expansion, a body that is a rule or a directive -- because
+    #: the parsed text is whatever the expansion yields, and measured on
+    #: this round: `$(eval $(MILAN_HOOK))` with MILAN_HOOK='CFLAGS +=
+    #: -include ../shadow.h' in the environment carried the WHOLE
+    #: assignment into the real compile line while every instrument was
+    #: green. The scan is over the whole comment-stripped text, like the
+    #: computed-name refusal, and the COST is the same: an eval that is
+    #: not a whole-line literal assignment is RED anywhere in the
+    #: Makefile, a never-run recipe included.
+    opaque = opaque_evals(makefile)
+    assert not opaque, \
+        "this Makefile hands $(eval) text that is not a whole-line " \
+        "literal assignment (" + ", ".join(opaque) + "): $(eval) " \
+        "expands its argument and parses the RESULT, so the text make " \
+        "reads is not the text in this file; only `$(eval NAME op VALUE)` " \
+        "on a line of its own has a parse the origin walker can prove, " \
+        "and is walked as that assignment; anything else is refused " \
+        "rather than modelled (#410)"
+
+
 def _assert_make_plan_is_determined(plan, hostile, origins):
     """make planned this Makefile, planned it the same way under a
     hostile environment, and defers no pinned-recipe input to it."""
@@ -4442,6 +4473,56 @@ def test_baremetal_profile_contract() -> None:
     make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
+
+    #: (#410) `$(eval TEXT)`, make's parse-time hook: TEXT is EXPANDED first
+    #: and the RESULT is parsed as makefile syntax, so the text make reads is
+    #: not the text in the file. Round two measured a top-level
+    #: `$(eval CFLAGS += $(MILAN_EXTRA_CFLAGS))` green with the environment
+    #: reaching the compile line: no assignment regex ever saw the line. The
+    #: walker can prove exactly one shape -- an eval on a line of its own
+    #: whose whole argument is a literal `NAME op VALUE` assignment, where
+    #: expansion changes VALUE and never the shape or the NAME -- and PARSES
+    #: it as that assignment, so its references join the closure like any
+    #: RHS. Every other eval is reported for make_plan() to REFUSE: an eval
+    #: of a called template, of a plain reference, nested inside another
+    #: expansion, or carrying a rule, because the parsed text is whatever
+    #: the expansion yields and no walk over this file can enumerate it.
+    #: The line-of-its-own test reads the joined, comment-stripped text, so
+    #: a whole-line eval inside a define body or a recipe is walked too (an
+    #: over-approximation when that text never expands, never a miss).
+    def make_evals(text: str) -> tuple[list[tuple[str, str]], list[str]]:
+        """`(assignments, opaque)` for every `$(eval ...)` in comment-stripped,
+        continuation-joined `text`: the whole-line literal assignments the
+        walker reads, and the spelling of each eval it cannot."""
+        assignments, opaque, at, size = [], [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            if opener == "$":
+                at += 2
+                continue
+            if opener not in "({" or not re.match(r"eval[ \t)}]",
+                                                   text[at + 2:at + 7]):
+                at += 2
+                continue
+            closer = ")" if opener == "(" else "}"
+            depth, close = 1, at + 6
+            while close < size and depth:
+                depth += (text[close] == opener) - (text[close] == closer)
+                close += 1
+            line_end = text.find("\n", close)
+            around = text[text.rfind("\n", 0, at) + 1:at] + \
+                text[close:size if line_end < 0 else line_end]
+            literal = target_assign_re.match(text[at + 6:close - 1])
+            if not depth and literal and not around.strip():
+                assignments.append((literal.group(1), literal.group(2)))
+            else:
+                opaque.append(re.sub(r"\s+", " ", text[at:close]).strip())
+            at += 6
+        return assignments, opaque
+
     def make_rules(makefile: str) -> tuple[
             list[tuple[list[str], list[str], list[str]]],
             list[tuple[str, str]]]:
@@ -4487,6 +4568,10 @@ def test_baremetal_profile_contract() -> None:
                     assignments.append((opened[0], "\n".join(opened[1])))
                     continue
             opened[1].append(body)
+        #: (#410) ... and the whole-line literal `$(eval NAME op VALUE)`,
+        #: parsed as the assignment it carries; the evals make_evals()
+        #: cannot read are refused by make_plan() before any plan runs.
+        assignments += make_evals(text)[0]
         for body in text.split("\n"):
             start, at = at, at + len(body) + 1
             if body.startswith("\t"):
@@ -4575,26 +4660,66 @@ def test_baremetal_profile_contract() -> None:
     #: flavour, so make_rules() now parses it as the assignment it is and
     #: the closure walks its references like any other RHS. Both are
     #: pinned as mutations in the table.
+    #:
+    #: ROUND THREE (#410), the two channels round two measured OPEN and
+    #: recorded rather than closed, both reproduced pre-fix reaching the
+    #: real compile line with every instrument green. `$(call NAME,...)`
+    #: and `$(value NAME)` READ a variable by its NAME without the $(NAME)
+    #: spelling make_origin_ref_re models, so the walker never saw the
+    #: name: make_named_ref_re now reads that first argument as the
+    #: reference it is and the closure walks it, so the deferral hits the
+    #: same origin refusal as the plain spelling; a first argument that is
+    #: itself computed, `$(call $(X))`, is the computed name it is and
+    #: computed_name_references() reports it. A top-level `$(eval ...)`
+    #: line carried an assignment no scan over assignment lines saw:
+    #: make_evals() parses the one shape it can prove (a whole-line
+    #: literal assignment) and make_plan() REFUSES every other eval, since
+    #: make parses the expansion and the walker cannot enumerate it. Each
+    #: spelling is a permanent mutation, and each construct has an accepted
+    #: case measured GREEN: a $(call) of a define this Makefile carries and
+    #: an $(eval) of a literal assignment.
     make_origin_ref_re = re.compile(
         r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
+    make_named_ref_re = re.compile(
+        r"[$][({](?:call|value)[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
 
+    def referenced_names(value: str) -> list[str]:
+        """Every literal variable name `value` reads: `$(NAME)`, `$(NAME:...)`
+        and the first argument of `$(call NAME,...)` / `$(value NAME)`."""
+        return (make_origin_ref_re.findall(value) +
+                make_named_ref_re.findall(value))
+
     def computed_name_references(makefile: str) -> list[str]:
         """Every reference whose NAME position itself expands: `$($(X))`,
-        `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix.
+        `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix, and
+        (#410) the first argument of `$(call ...)` / `$(value ...)` when it
+        is computed the same way, `$(call $(X))`.
 
         The name portion is the text from the opening `$(`/`${` up to the
         first whitespace, `:`, `,` or close -- exactly the span
-        make_origin_ref_re models as a literal name. A `$` inside that span
-        means the reference cannot be walked BY CONSTRUCTION -- the name is
-        chosen at expansion time -- so the caller refuses instead of
-        modelling. `$$` is make's escaped literal dollar and opens nothing.
-        A reference nested in a function's ARGUMENTS (`$(patsubst
-        %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and walked
-        normally, so the accepted DEPFILES idiom stays green."""
+        make_origin_ref_re models as a literal name -- and for `call` and
+        `value` the next such span, the NAME they read. A `$` inside that
+        span means the reference cannot be walked BY CONSTRUCTION -- the
+        name is chosen at expansion time -- so the caller refuses instead
+        of modelling. `$$` is make's escaped literal dollar and opens
+        nothing. A reference nested in a function's ARGUMENTS
+        (`$(patsubst %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and
+        walked normally, so the accepted DEPFILES idiom stays green."""
         text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
         found, at, size = [], 0, len(text)
+
+        def name_span(start: int) -> tuple[int, bool]:
+            """`(end, computed)`: where the name opening at `start` stops,
+            and whether a `$` inside it defers the name itself."""
+            scan = start
+            while scan < size and text[scan] not in " \t,:)}\n":
+                if text[scan] == "$":
+                    return scan, True
+                scan += 1
+            return scan, False
+
         while at < size:
             if text[at] != "$":
                 at += 1
@@ -4606,15 +4731,22 @@ def test_baremetal_profile_contract() -> None:
             if opener not in "({":
                 at += 2
                 continue
-            scan = at + 2
-            while scan < size and text[scan] not in " \t,:)}\n":
-                if text[scan] == "$":
-                    found.append(re.sub(
-                        r"\s+", " ", text[at:scan + 8]).strip())
-                    break
-                scan += 1
+            scan, computed = name_span(at + 2)
+            if not computed and text[at + 2:scan] in ("call", "value"):
+                first = scan
+                while first < size and text[first] in " \t":
+                    first += 1
+                scan, computed = name_span(first)
+            if computed:
+                found.append(re.sub(r"\s+", " ", text[at:scan + 8]).strip())
             at += 2
         return found
+
+    def opaque_evals(makefile: str) -> list[str]:
+        """Every `$(eval ...)` in `makefile` the walker cannot read as a
+        whole-line literal assignment, for make_plan() to refuse."""
+        return make_evals(re.sub(r"(?m)#[^\n]*", "",
+                                 re.sub(r"\\\n", " ", makefile)))[1]
 
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
@@ -4624,7 +4756,7 @@ def test_baremetal_profile_contract() -> None:
             by_name.setdefault(name, []).append(value)
         pending = ["CFLAGS", "OBJECTS", "LIBMILAN_BAREMETAL_DIRECTORY",
                    "compile"]
-        pending += make_origin_ref_re.findall(compile_value)
+        pending += referenced_names(compile_value)
         reachable = set()
         while pending:
             name = pending.pop()
@@ -4632,7 +4764,7 @@ def test_baremetal_profile_contract() -> None:
                 continue
             reachable.add(name)
             for value in by_name.get(name, ()):
-                pending.extend(make_origin_ref_re.findall(value))
+                pending.extend(referenced_names(value))
         return sorted(reachable - make_stub_seeded)
 
     def make_plan(makefile: str, expected: str) -> tuple[dict[str, str], list[str]]:
@@ -4648,6 +4780,7 @@ def test_baremetal_profile_contract() -> None:
         processed before makefiles are read and reports empty."""
         _assert_no_computed_variable_names(makefile,
                                           computed_name_references)
+        _assert_no_opaque_evals(makefile, opaque_evals)
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
             root = Path(tmp)
@@ -7541,6 +7674,47 @@ def test_baremetal_profile_contract() -> None:
         "CFLAGS += $(EXTRA)",
         "flags routed through a define body")
 
+    #: ---- (#410) and the two channels the round-two pass measured OPEN
+    #: and recorded, each reproduced pre-fix reaching the real compile
+    #: line (-include ../shadow.h from the environment) with the whole
+    #: gate green. A $(call NAME)/$(value NAME) first argument is a NAME
+    #: the reference regex never read: both are pinned on the origin
+    #: refusal, reached through the walker now reading them, and a
+    #: computed first argument, $(call $(X)), on the computed-name refusal
+    #: it belongs to. A top-level $(eval) carrying a literal assignment is
+    #: pinned on the origin refusal too, through the parsed body; an
+    #: $(eval) of a called template is pinned on its OWN refusal, because
+    #: make parses the EXPANSION and no walk over this file enumerates it.
+    call_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "CFLAGS += $(call MILAN_EXTRA)",
+        "flags routed through a $(call) first argument")
+    value_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "CFLAGS += $(value MILAN_EXTRA_CFLAGS)",
+        "flags routed through a $(value) first argument")
+    eval_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a top-level $(eval) assignment")
+    eval_template_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define inject\n"
+        "CFLAGS += $(1)\n"
+        "endef\n"
+        "$(eval $(call inject,$(MILAN_EXTRA_CFLAGS)))",
+        "flags routed through an $(eval) of a called template")
+    computed_call_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "X = MILAN_EXTRA\n"
+        "CFLAGS += $(call $(X))",
+        "flags routed through a computed $(call) first argument")
+
     #: ---- and the two shapes that made the reset rule vacuous. The reader
     #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
     #: passed by having nothing to check; a deleted reset did the same. Both
@@ -7756,6 +7930,22 @@ def test_baremetal_profile_contract() -> None:
             replace_once(makefile_source, ".PHONY: all clean",
                          ".PHONY: all clean tags\n\ntags:\n\t$(CTAGS) *.c",
                          "extra phony target"),
+        #: (#410) the accepted case of each construct the round-three
+        #: mutations refuse: a $(call) of a define THIS Makefile carries,
+        #: and an $(eval) whose body is a literal assignment of a name the
+        #: Makefile defines. Both print the same compile line, and the
+        #: walker now reads `milan_include` and `MILAN_INCLUDES` into the
+        #: closure, where make reports each as origin `file`.
+        "a $(call) of a define the Makefile carries":
+            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                         "define milan_include\n-I$(1)\nendef\n"
+                         "CFLAGS += $(call milan_include,$(BIOS_DIRECTORY))",
+                         "call of a define"),
+        "an $(eval) of a literal assignment":
+            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+                         "CFLAGS += $(MILAN_INCLUDES)",
+                         "eval of a literal assignment"),
     }
     for label, accepted in accepted_makefiles.items():
         assert accepted != makefile_source, f"{label} changed nothing"
@@ -8268,6 +8458,31 @@ def test_baremetal_profile_contract() -> None:
          firmware_source, docs_source, csr_source,
          "defers a pinned-recipe input to the environment",
          MutantFiles(makefile=define_deferred_flags)),
+        #: (#410) ... and the two channels round two measured OPEN, closed
+        #: the same two ways: a name the walker now READS (a call or value
+        #: first argument, the body of a literal eval) reaches the origin
+        #: refusal; a shape it cannot read (an eval of a called template,
+        #: a computed first argument) is refused on its own instrument.
+        ("compile flags deferred to the environment through a $(call) "
+         "first argument", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=call_deferred_flags)),
+        ("compile flags deferred to the environment through a $(value) "
+         "first argument", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=value_deferred_flags)),
+        ("compile flags deferred to the environment through a top-level "
+         "$(eval) assignment", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=eval_deferred_flags)),
+        ("compile flags injected through an $(eval) of a called template",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) text that is not a whole-line literal assignment",
+         MutantFiles(makefile=eval_template_flags)),
+        ("compile flags routed through a computed $(call) first argument",
+         firmware_source, docs_source, csr_source,
+         "computes a variable NAME at expansion time",
+         MutantFiles(makefile=computed_call_flags)),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
@@ -8884,13 +9099,22 @@ def test_baremetal_profile_contract() -> None:
           "during this gate's own plan run, before a recipe is printed. "
           "Recorded rather than ruled against, because no pin over printed "
           "commands can see them. Two more, measured OPEN by the round-two "
-          "adversarial pass and recorded here because -- unlike the four "
-          "above -- a wider walker COULD close them: a $(call NAME)/"
-          "$(value NAME) first argument is a variable name the assignment "
-          "walker never reads, and a top-level $(eval ...) line carries an "
-          "assignment no regex over assignment lines sees; both were "
-          "measured green while the environment reached the compile line, "
-          "and both stay open on #162")
+          "adversarial pass, are CLOSED this round (#410), each a permanent "
+          "mutation reproduced pre-fix at the real compile line: a "
+          "$(call NAME)/$(value NAME) first argument is now READ as the "
+          "name it is and walked into the closure, so the deferral hits "
+          "the origin refusal, and a computed first argument, $(call $(X)), "
+          "is refused as the computed name it is; a top-level $(eval ...) "
+          "line is PARSED when its whole argument is a literal `NAME op "
+          "VALUE` assignment on a line of its own, walked like any RHS, "
+          "and REFUSED outright anywhere else -- an eval of a called "
+          "template, of a plain reference, or nested in another expansion "
+          "-- because make parses the EXPANSION, which no walk over the "
+          "file can enumerate; the cost is the computed name's: such an "
+          "eval is RED anywhere in the Makefile, a never-run recipe "
+          "included. The accepted cases, a $(call) of a define the "
+          "Makefile carries and an $(eval) of a literal assignment, are "
+          "measured GREEN in the accepted-Makefile loop")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "

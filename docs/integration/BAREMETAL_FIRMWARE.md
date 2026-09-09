@@ -532,13 +532,30 @@ environment; `SHELL := ...`, which changes what executes the printed command;
 `.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
 the gate's own plan run, before any recipe is printed.
 
-Two more channels were measured OPEN by the round-two adversarial pass and
-are recorded here rather than claimed closed — unlike the four above, a
-wider walker COULD close them, so they stay tracked on #162: a
-`$(call NAME)`/`$(value NAME)` first argument is a variable name the
-assignment walker never reads, and a top-level `$(eval ...)` line carries an
-assignment no scan over assignment lines sees. Both were measured green
-while the environment reached the compile line.
+**Round three, the two channels round two measured OPEN (#410).** Unlike
+the four above, a wider walker could close them, and it does: each was
+reproduced before the fix reaching the real compile line with the
+environment variable exported, and each is a permanent mutation. A
+`$(call NAME,...)` or `$(value NAME)` first argument READS a variable by
+its name without the `$(NAME)` spelling the walker modelled, so the name
+never entered the closure. The walker now reads that first argument as the
+reference it is, and the deferral is refused by the same origin probe as
+the plain spelling; a computed first argument, `$(call $(X))`, is refused
+as the computed reference it is. A top-level `$(eval ...)` line carries an
+assignment no scan over assignment lines saw, and `$(eval)` expands its
+argument BEFORE make parses the result, so the text make reads is not the
+text in the file. The walker parses the one shape it can prove, an eval on
+a line of its own whose whole argument is a literal `NAME op VALUE`
+assignment (expansion changes the value, never the shape or the name), and
+walks it like any other right-hand side; every other eval is refused
+outright, the way the computed reference is -- an eval of a called
+template, of a plain reference (`$(eval $(MILAN_HOOK))` was measured
+carrying the whole assignment in from the environment), or nested inside
+another expansion -- at the same cost: such an eval is RED anywhere in the
+Makefile, a never-run recipe included. The accepted case of each construct
+is measured GREEN by the accepted-Makefile loop: a `$(call ...)` of a
+`define` the Makefile itself carries, and an `$(eval ...)` whose body is a
+literal assignment of a name the Makefile defines.
 
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
@@ -569,7 +586,8 @@ The rest are refusals, and each one costs a legitimate edit:
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
-| A computed variable reference — `$($(X))`, `$(CFLAGS_$(VARIANT))` — anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. **Remedy:** spell the reference with a literal name |
+| A computed variable reference -- `$($(X))`, `$(CFLAGS_$(VARIANT))`, and (#410) a computed `$(call ...)`/`$(value ...)` first argument, `$(call $(X))` -- anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. **Remedy:** spell the reference with a literal name |
+| An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |
