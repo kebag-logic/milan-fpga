@@ -28,13 +28,13 @@ Never patch imported behavior inside the parent lane.
 
 Land donor changes before advancing its pin.
 
-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f0f1c055ee5226f08e656c27cb1bf4c355be11ae/docs/HDL_DEVELOPER.md).
+Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/HDL_DEVELOPER.md).
 
 ## Preserve timing
 
-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f0f1c055ee5226f08e656c27cb1bf4c355be11ae/docs/diagrams/wavedrom/rx_accept.svg)
+![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/diagrams/wavedrom/rx_accept.svg)
 
-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f0f1c055ee5226f08e656c27cb1bf4c355be11ae/docs/diagrams/wavedrom/tx_backpressure.svg)
+![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/diagrams/wavedrom/tx_backpressure.svg)
 
 ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
 
@@ -85,4 +85,4 @@ Never convert a refused frame into partial data.
 - Run lint and portability gates.
 - Record exact-head evidence publicly.
 
-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f0f1c055ee5226f08e656c27cb1bf4c355be11ae/docs/SOURCE_EVIDENCE.md).
+Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/SOURCE_EVIDENCE.md).
