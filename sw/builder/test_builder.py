@@ -188,6 +188,12 @@ Gates (gaps item 4, generator round):
       the flow tail its own launcher appends and `--build` included, because
       a guard that reads args.build is invisible to every shape gate in the
       tree.  Two recipes could not launch at all until this gate ran.
+  32. THE KEY MAP IS COMPLETE (issue #404): every config key load_config
+      accepts has a row in docs/ENDSTATION_BUILDER.md section 3 and every
+      key the table names is one the loaders accept.  The key set is READ
+      OFF THE LOADERS - the five tracked configs are loaded through a
+      recording document - never listed in the gate, so a new key cannot
+      land without a row and a stale row cannot survive a key removal.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -223,7 +229,8 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Callable
+import types
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any, NoReturn
 
@@ -16201,6 +16208,171 @@ def test_milan_base_formats_are_rate_complete() -> None:
           f"{DESC_LINE_BYTES}-octet line buffer")
 
 
+# ------------------------------------------------ gate 32: the key map -----
+BUILDER_DOC_MD = ROOT / "docs/ENDSTATION_BUILDER.md"
+#: The heading the key map sits under; the section ends at the next `## `.
+KEY_MAP_HEADING = "## 3. Config schema"
+#: One backticked config key in the table's key column: a top-level name or
+#: a dotted path whose segments are names or `[]` (a list element), with at
+#: most one `{a,b}` group that expands to one path per name.
+KEY_TOKEN_RE = re.compile(
+    r"`([a-z_][a-z0-9_]*(?:\.(?:[a-z0-9_]+|\{[a-z0-9_,]+\})(?:\[\])?)*)`")
+
+
+class _KeyRecorder(dict):
+    """A config mapping that remembers every key path the loaders read.
+
+    `load_config` runs UNCHANGED over one of these. A child mapping (or a
+    list of mappings) comes back wrapped, so its reads land under the
+    parent's path with `[]` standing for a list element. A key the loader
+    reads with a default, or tests with `in`, is recorded whether or not the
+    config declares it - which is what makes the union over the tracked
+    configs the LOADERS' key set rather than the configs'. The overridden
+    `__iter__` also routes `set(raw)`, `dict.update(raw)` and `**raw`
+    through `keys()` and `__getitem__`, so an enumerating loader records
+    the keys it enumerates too.
+    """
+
+    def __init__(self, data: dict, path: str, seen: set[str]) -> None:
+        super().__init__(data)
+        self._path, self._seen = path, seen
+
+    def _note(self, key: object) -> str:
+        path = f"{self._path}.{key}" if self._path else str(key)
+        self._seen.add(path)
+        return path
+
+    def __getitem__(self, key: object) -> Any:
+        value, path = dict.__getitem__(self, key), self._note(key)
+        if isinstance(value, dict):
+            return _KeyRecorder(value, path, self._seen)
+        if isinstance(value, list) and value and all(
+                isinstance(v, dict) for v in value):
+            return [_KeyRecorder(v, path + "[]", self._seen) for v in value]
+        return value
+
+    def get(self, key: object, default: Any = None) -> Any:
+        """The wrapped value, or `default`; the key is recorded either way."""
+        if dict.__contains__(self, key):
+            return self[key]
+        self._note(key)
+        return default
+
+    def __contains__(self, key: object) -> bool:
+        self._note(key)
+        return dict.__contains__(self, key)
+
+    def __iter__(self) -> Iterator[Any]:
+        for key in dict.__iter__(self):
+            self._note(key)
+            yield key
+
+    def keys(self) -> list[Any]:
+        """The keys, each recorded (dict.update and `**raw` come through here)."""
+        return list(iter(self))
+
+    def items(self) -> list[tuple[Any, Any]]:
+        """(key, wrapped value) pairs, each key recorded."""
+        return [(k, self[k]) for k in self]
+
+    def values(self) -> list[Any]:
+        """The wrapped values, each key recorded."""
+        return [self[k] for k in self]
+
+
+def _loader_key_paths() -> set[str]:
+    """Every config key `load_config` accepts, read off the loaders.
+
+    The five tracked configs are loaded through a recording document, and
+    the union of what the loaders touched is the key set - a key gets a
+    path here by being READ, never by being listed. A path a loader only
+    descended through (a section, a list) is a container, not a key, and
+    is dropped. The two loaders that accept by TABLE rather than by read
+    (`load_platform`: `set(raw) - set(PLATFORM_DEFAULTS)`, `_load_soc`:
+    `dict(SOC_DEFAULTS, **soc_raw)`) only touch the keys a config
+    declares, so their accept tables are imported - the loaders' own
+    constants, not a restatement.
+    """
+    seen: set[str] = set()
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(
+        safe_load=lambda fh: _KeyRecorder(real_yaml.safe_load(fh), "", seen))
+    try:
+        for path in CONFIGS.values():
+            eb.load_config(str(path))
+    finally:
+        eb.yaml = real_yaml
+    leaves = {p for p in seen
+              if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
+    leaves |= {f"platform.{k}" for k in eb.PLATFORM_DEFAULTS}
+    leaves |= {f"soc.{k}" for k in eb.SOC_DEFAULTS}
+    return leaves
+
+
+def _key_map_rows(doc: str) -> dict[str, list[str]]:
+    """{config key path: the row numbers that carry it}, from the section 3
+    table's key column. The key column is the second cell of every row
+    below the header; a backticked dotted path is a key, `{a,b}` expands,
+    anything else in the cell (a derived fact, prose) is not a key."""
+    start = doc.index(KEY_MAP_HEADING)
+    end = doc.find("\n## ", start + 1)
+    rows: dict[str, list[str]] = {}
+    for line in doc[start:end if end > 0 else None].splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not line.startswith("|") or len(cells) < 2 or cells[0] in ("#", ""):
+            continue
+        if set(cells[0]) <= set("-"):
+            continue
+        for tok in KEY_TOKEN_RE.findall(cells[1]):
+            m = re.search(r"\{([a-z0-9_,]+)\}", tok)
+            names = m.group(1).split(",") if m else [None]
+            for name in names:
+                key = tok if name is None else tok.replace(m.group(0), name)
+                rows.setdefault(key, []).append(cells[0])
+    return rows
+
+
+def _key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
+    """(keys with no row, rows naming no accepted key) for one table text."""
+    rows = _key_map_rows(doc)
+    return accepted - set(rows), set(rows) - accepted
+
+
+def test_builder_doc_key_map() -> None:
+    """Gate 32: every key `load_config` accepts has a row in the
+    ENDSTATION_BUILDER.md section 3 mapping table, and every key the table
+    names is one the loaders accept - so a new key cannot land without a
+    row and a stale row cannot survive a key removal (#404). The key set
+    is read off the loaders (see _loader_key_paths), never listed here.
+    The bites arm plants both defects in a copy of the table text."""
+    accepted = _loader_key_paths()
+    assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
+    doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
+    rows = _key_map_rows(doc)
+    assert rows, f"{BUILDER_DOC_MD.name}: no key found under {KEY_MAP_HEADING!r}"
+    missing, stale = _key_map_diff(doc, accepted)
+    assert not missing and not stale, (
+        f"{BUILDER_DOC_MD.name} section 3 key map disagrees with the loaders"
+        f" - keys with no row: {sorted(missing)}; rows naming no accepted "
+        f"key: {sorted((k, rows[k]) for k in stale)}")
+    # the bites arm: a planted row must read as stale, a dropped row as
+    # missing, or the equality above proves nothing
+    victim = sorted(accepted)[0]
+    planted = doc.replace(KEY_MAP_HEADING, KEY_MAP_HEADING
+                          + "\n\n| 0 | `planted.key` | - | - | - |", 1)
+    assert _key_map_diff(planted, accepted) == (set(), {"planted.key"}), \
+        "gate 32 bites arm: a planted row was not refused"
+    dropped = doc.replace(f"`{victim}`", "`(dropped)`")
+    assert _key_map_diff(dropped, accepted)[0] == {victim}, \
+        f"gate 32 bites arm: dropping the {victim} row was not refused"
+    multi = {k: r for k, r in rows.items() if len(r) > 1}
+    print(f"  [gate 32] {len(accepted)} loader keys == {len(rows)} keys "
+          f"across {len({r for rs in rows.values() for r in rs})} rows of "
+          f"{BUILDER_DOC_MD.name} section 3"
+          + (f" ({len(multi)} shared)" if multi else "")
+          + "; planted row and dropped row both refused")
+
+
 if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
@@ -16258,7 +16430,8 @@ if __name__ == "__main__":
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,
-               test_per_row_format_facts_are_per_row):
+               test_per_row_format_facts_are_per_row,
+               test_builder_doc_key_map):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and
