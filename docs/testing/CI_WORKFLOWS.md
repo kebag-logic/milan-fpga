@@ -1394,6 +1394,13 @@ syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```
 
+The tsn-gen field campaigns in `tb/verilator/tsn_fuzz/` read
+`TSN_GEN_ROOT` (default `~/tsn-gen`). Check that tree out at the revision
+the exhaustive workflow pins as `TSN_GEN_REV` before recording local
+campaign evidence: the freshness gate compares each committed
+`TEST_RESULTS.md` with a run at that revision, so a report regenerated
+at another one is not the report the hosted gate judges.
+
 The elaboration gates run locally against any interpreter that imports
 LiteX; without one they skip and the verdict says so:
 

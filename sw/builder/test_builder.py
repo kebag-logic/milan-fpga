@@ -15481,9 +15481,9 @@ def _assert_engine_pin_parser_derives(wire):
     fixture = ("P1_C, P2_C = 248, 247\n"
                "CQ_C = 0xF7FD436B\n"
                "# CQ_C = 0x11111111 commented copies are stripped\n"
-               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
-               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
-               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
+               "    e_hdr(p, 0x0, RA, 0xFC, 44)\n"
+               "    e_hdr(p, 0x2, RA, 0x00, 54)\n"
+               "    e_hdr(p, 0xB, RA, 0x01, 76)\n")
     got = eb.gptp_engine_pins(fixture)
     assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
                        offset_scaled_log_variance=0x436B,
@@ -15493,10 +15493,10 @@ def _assert_engine_pin_parser_derives(wire):
             ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
             ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
             ("missing Announce TX",
-             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
+             fixture.replace("    e_hdr(p, 0xB, RA, 0x01, 76)\n",
                              "")),
             ("duplicate Announce TX",
-             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
+             fixture + "    e_hdr(p, 0xB, RA, 0x02, 76)\n")):
         try:
             eb.gptp_engine_pins(broken)
             raise AssertionError(f"{label}: the derivation invented a value "
@@ -15504,6 +15504,14 @@ def _assert_engine_pin_parser_derives(wire):
         except eb.ConfigError as e:
             assert "gen_gptp_ucode.py" in str(e), \
                 f"{label}: refused without naming the authority: {e}"
+    # The removed flags argument must not shift the parsed log interval.
+    old_shape = fixture.replace("e_hdr(p, 0x0, RA, 0xFC, 44)",
+                                "e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)")
+    try:
+        eb.gptp_engine_pins(old_shape)
+        raise AssertionError("old e_hdr signature was accepted")
+    except eb.ConfigError as e:
+        assert "0 live matches for e_hdr Sync TX, need exactly 1" in str(e), e
     #! and the fixture path never poisons the real cache
     assert eb.gptp_engine_pins() == wire
 
@@ -15545,7 +15553,7 @@ def test_gptp_dataset_matches_engine_announce() -> None:
     logints = {}
     for mtype, name in (("0x0", "Sync"), ("0xB", "Announce"),
                         ("0x2", "Pdelay_Req")):
-        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*{n},\s*\w+,\s*({n}),\s*\d+\)\s*$",
+        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*\w+,\s*({n}),\s*\d+\)\s*$",
                 f"{name} e_hdr")
         logints[name] = v - 256 if v >= 128 else v
     wire = dict(priority2=p2,

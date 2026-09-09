@@ -70,6 +70,7 @@ class Campaign(PtpBringUpSections, PtpResponderSections,
         self.seed = seed
         self.seq = {}                     # per-type injected sequence ids
         self.txq = []                     # every frame the plane transmitted
+        self.tx_flags_frames = []         # survives campaign resets
         self.scan = 0                     # wait_tx cursor into txq
         self.master = None                # (gm_identity, p1) we must refresh
 
@@ -82,6 +83,7 @@ class Campaign(PtpBringUpSections, PtpResponderSections,
         st = cosim.parse_state(frames[-1])
         tx = frames[:-1] if st else frames
         self.txq.extend(tx)
+        self.tx_flags_frames.extend(tx)
         return tx, (st or None)
 
     def state(self) -> list[int] | None:
@@ -291,6 +293,51 @@ class Campaign(PtpBringUpSections, PtpResponderSections,
                             % sorted(con))
         return got
 
+    def tx_flags(self, models: dict[str, tsn_model.Message]) -> None:
+        """Every emitted Ethernet flag word, with two independent oracles.
+
+        Milan v1.2 4.2.6 selects IEEE 802.1AS-2011 with Cor1/Cor2.
+        The literals below come from 11.4.1 through 11.4.2.3/Table 11-4,
+        never from the donor or model. Announce has a separate flag table.
+        """
+        self.rep.section("every Ethernet TX flag word: model and Table 11-4")
+        for kind, mtype, required in (
+                ("sync", 0x0, 0x0200),
+                ("follow_up", 0x8, 0x0000),
+                ("pdelay_req", 0x2, 0x0000),
+                ("pdelay_resp", 0x3, 0x0200),
+                ("pdelay_resp_fu", 0xA, 0x0000)):
+            frames = [f for f in self.tx_flags_frames
+                      if len(f) >= 15 and f[12:14] == b"\x88\xf7"
+                      and (f[14] & 0xF) == mtype]
+            label = "tx_%s.flags" % kind
+            self.rep.ck("%s: frames observed" % label, bool(frames))
+            # The sentinel makes a cut flag word fail even for expected zero.
+            words = [int.from_bytes(f[20:22], "big") if len(f) >= 22
+                     else 0x10000 for f in frames]
+            model = models.get(kind)
+            # These TX models declare an exact value (or a finite values
+            # list for the relaxed-oracle control). Missing constraints
+            # must not silently erase the model check.
+            constraint = dict((name, con) for name, _bits, con in model.fields
+                              ).get("flags", {}) if model is not None else {}
+            allowed = []
+            if set(constraint) == {"value"}:
+                allowed = [int(constraint["value"])]
+            elif set(constraint) == {"values"}:
+                allowed = [int(value) for value in constraint["values"]]
+            model_wrong = [word for word in words if word not in allowed]
+            literal_wrong = [word for word in words if word != required]
+            self.rep.ck("%s: model on every frame" % label,
+                        bool(allowed) and not model_wrong,
+                        "allowed=%s wrong=%s" % (allowed, model_wrong[:4]))
+            self.rep.ck("%s: literal 0x%04x on every frame (Table 11-4)"
+                        % (label, required), not literal_wrong,
+                        "wrong=%s expected=0x%04x" %
+                        (["0x%04x" % word for word in literal_wrong[:4]],
+                         required))
+            self.rep.note("%s: %d emitted frames" % (label, len(frames)))
+
     def become_gm(self, budget: int = 10 * SECOND) -> list[int] | None:
         """Wait out the announce-receipt timeout: back to a clean GM baseline.
 
@@ -345,6 +392,7 @@ def main() -> int:
         c.cease()
         c.storms(models, args.rounds)
         c.drought()
+        c.tx_flags(models)
     return rep.done()
 
 

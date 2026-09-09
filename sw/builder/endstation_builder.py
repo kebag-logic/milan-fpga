@@ -3160,7 +3160,7 @@ def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
         logMessageInterval octet, sign-extended."""
         v = _engine_const(
             lines,
-            rf"\s*e_hdr\(p,\s*{mtype},\s*{anum},\s*\w+,\s*{num},\s*{anum}\)$",
+            rf"\s*e_hdr\(p,\s*{mtype},\s*\w+,\s*{num},\s*{anum}\)$",
             f"e_hdr {name} TX")
         if not 0 <= v <= 0xFF:
             raise ConfigError(f"gen_gptp_ucode.py: {name} logMessageInterval "

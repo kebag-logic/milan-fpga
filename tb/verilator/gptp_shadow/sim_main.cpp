@@ -33,6 +33,7 @@
 #include <verilated.h>
 #include "Vgptp_shadow_wrap.h"
 #include "../../common/verilator_harness.hpp"
+#include "../../common/gptp_tx_flags.hpp"
 
 constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
@@ -172,6 +173,12 @@ class GptpShadowHarness {
     check_warm_reset_clears_the_request_owner();
     check_warm_reset_clears_the_sync_owner();
     check_every_stamp_names_its_own_frame();
+
+    milan::tb::GptpTxFlags tx_flags;
+    for (const auto& frame : txf) tx_flags.observe(frame);
+    tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
+      expect(name, got, expected);
+    }, milan::tb::GptpTxFlags::all_types);
 
     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
     return fails ? 1 : 0;
