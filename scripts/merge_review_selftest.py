@@ -73,6 +73,7 @@ CASE_NAMES = (
     "post-merge-positive-cannot-clear",
     "long-introduction-does-not-hide-later-headline",
     "body-closes-open-issue-survives-hydration",
+    "review-submitted-at-null-beyond-first-page-clears",
     # acquisition refusals: unknown, never a product finding
     "gh-absent",
     "gh-nonzero-exit",
@@ -98,8 +99,11 @@ CASE_NAMES = (
     "command-timeout",
     "acquisition-deadline-expired",
     "reviews-stream-failure-refuses",
+    "refusal-retains-complete-stderr",
+    "refusal-retains-complete-graphql-errors",
     "repository-identity-malformed",
     "non-integer-pr-number",
+    "review-submitted-at-absent-refuses",
     # the whole gate, through its real entry points
     "run-clean-exit-0",
     "outer-list-requests-no-nested-projections",
@@ -108,11 +112,14 @@ CASE_NAMES = (
     "prefix-discrimination-anti-vacuity",
     "outer-window-and-limit-preserved",
     "repository-identity-resolved-once",
+    "main-absent-review-timestamp-exit-2",
+    "main-refusal-diagnostic-complete-exit-2",
     # a repository response that is not an object at all, end to end
     "repository-identity-array-refuses-exit-2",
     "repository-identity-string-refuses-exit-2",
     "repository-identity-number-refuses-exit-2",
     "repository-identity-valid-empty-histories-exit-0",
+    "repository-identity-diagnostic-complete",
 )
 
 
@@ -402,9 +409,9 @@ def boundary_cases(env: Env) -> None:
 
     case("empty-histories-complete", empty_history, ([], [], 1, []))
 
-    # A PENDING review carries a null submittedAt in this schema. The core
-    # already reads a missing stamp as the empty string, so it is normalized
-    # rather than refused, and sorts first: a later POSITIVE still clears it.
+    # A PENDING review carries an EXPLICIT null submittedAt: the member is
+    # present, its value null. It normalizes to "" and sorts first, so a later
+    # POSITIVE still clears it; an ABSENT member is refused instead.
     def pending_review() -> tuple[str, list[str]]:
         """The normalized stamp, and what the unchanged core makes of it."""
         pending = nodes("reviews", 2, {1: "[R0] NEGATIVE - pending draft",
@@ -497,6 +504,18 @@ def stream_cases(env: Env) -> None:
              "[A1]\n\nCloses #777. Restores the docs gates.", {777}),
          ["open-issue"])
 
+    # An explicit null BEYOND page one normalizes too; the refusal is not
+    # about nulls: the later POSITIVE still clears.
+    def null_beyond_first_page() -> tuple[str, list[str]]:
+        """The stamp hydrated for the null node on page 2, and the findings."""
+        bank = nodes("reviews", 150, {110: NEGATIVE, 130: POSITIVE})
+        bank[109]["submittedAt"] = None
+        pr, _ = hydrated(env, 432, {(432, "reviews"): bank})
+        return pr["reviews"][109]["submittedAt"], reasons(env, pr)
+
+    case("review-submitted-at-null-beyond-first-page-clears",
+         null_beyond_first_page, ("", []))
+
 
 # ------------------------------------------------------- acquisition refusals
 
@@ -577,14 +596,46 @@ def _drop_page_info(field: str) -> Callable[[list[dict[str, Any]]],
     return mutate
 
 
-def _drop_node_field(field: str) -> Callable[[list[dict[str, Any]]],
-                                             list[dict[str, Any]]]:
-    """A mutator deleting `field` from the first node of the first page."""
+def _drop_node_field(field: str, at: int = 0) -> Callable[
+        [list[dict[str, Any]]], list[dict[str, Any]]]:
+    """A mutator deleting `field` from node `at` of page `at`.
+
+    -1 is the last node of the LAST page and refuses a single-page stream, so
+    the damage it does is provably not a first-page effect.
+    """
     def mutate(pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Delete the named node field and hand the damaged pages back."""
-        del connection_of(pages[0])["nodes"][0][field]
+        if at and len(pages) < 2:
+            raise AssertionError("one page cannot place node %d" % at)
+        del connection_of(pages[at])["nodes"][at][field]
         return pages
     return mutate
+
+
+#: What a refusal must carry whole. Every fixture places it PAST the 400/200
+#: characters the refusals cut at before #426 round 3; `_past` enforces that.
+TAIL = "ACTIONABLE_TAIL: token expired; run the auth refresh"
+
+
+def _past(text: str, width: int) -> str:
+    """`text`, checked to carry `TAIL` only beyond `width` characters."""
+    if text.find(TAIL) <= width:
+        raise AssertionError("tail at %d, not beyond %d" % (text.find(TAIL), width))
+    return text
+
+
+def _long_stderr(pages: list[dict[str, Any]]) -> _Raw:
+    """A nonzero gh exit whose stderr puts the actionable line last."""
+    noise = ["gh: retrying request %02d after HTTP 502" % i for i in range(16)]
+    return _Raw("", _past("\n".join(noise + [TAIL]), 400), 1)
+
+
+def _long_errors(pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Page 0 carrying an `errors` member whose serialization is long."""
+    errors = [{"message": "field context %02d" % i, "path": ["repository"]}
+              for i in range(12)] + [{"message": TAIL}]
+    _past(json.dumps(errors), 400)
+    return [dict(pages[0], errors=errors)] + pages[1:]
 
 
 #: (case name, connection, mutator, the text the refusal must name). Each is a
@@ -633,6 +684,9 @@ PAGE_FAULTS = (
     ("page-bound-exceeded", "comments", _overlong, "page bound"),
     ("reviews-stream-failure-refuses", "reviews",
      lambda pages: _Raw("", "connection reset", 1), "PR #500 reviews"),
+    # F2 (#426 round 3): the refusal carries the WHOLE diagnostic.
+    ("refusal-retains-complete-stderr", "comments", _long_stderr, TAIL),
+    ("refusal-retains-complete-graphql-errors", "comments", _long_errors, TAIL),
 )
 
 
@@ -681,6 +735,15 @@ def refusal_cases(env: Env) -> None:
                       runner=FakeGh(dict(bank))).hydrate([{"number": "500"}]),
                   "no integer number")
 
+    # F1 (#426 round 3): a submittedAt MEMBER absent on the last of three
+    # pages is a partial response, not a PENDING review's null; it used to
+    # normalize to "" and sort the unread NEGATIVE first: a clean verdict.
+    absent = FakeGh({(500, "reviews"): nodes("reviews", 201,
+                                            {5: POSITIVE, 201: NEGATIVE})},
+                    {(500, "reviews"): _drop_node_field("submittedAt", -1)})
+    cases.refuses("review-submitted-at-absent-refuses",
+                  lambda: hydrated(env, 500, {}, absent), "submittedAt")
+
 
 # ------------------------------------------------------ the gate end to end
 
@@ -710,20 +773,34 @@ class FakeGhJson:
         return args[args.index(name) + 1]
 
 
-def drive(env: Env, rows: list[dict[str, Any]], fake: FakeGh,
-          argv: list[str]) -> tuple[int, str, str, FakeGhJson]:
-    """Run the shipped `main()` with both live seams replaced."""
+def drive(env: Env, rows: list[dict[str, Any]], fake: FakeGh, argv: list[str],
+          seen: list[dict[str, Any]] | None = None
+          ) -> tuple[int, str, str, FakeGhJson]:
+    """Run the shipped `main()` with both live seams replaced.
+
+    Each PR the assessor is handed is appended to `seen`: `run()` resolves
+    `assess_pr` from the checker's namespace at call time, so a wrapper there
+    observes every call, and the finally restores it whatever main() does.
+    """
     checker = env.checker
     outer = FakeGhJson(rows, set())
-    saved = (checker._gh_json, checker._new_acquirer)
+    saved = (checker._gh_json, checker._new_acquirer, checker.assess_pr)
+    sink: list[dict[str, Any]] = [] if seen is None else seen
+
+    def observed(pr: dict[str, Any], is_open: Callable[[int], bool]) -> Any:
+        """`assess_pr`, recording the PR it is handed first."""
+        sink.append(pr)
+        return saved[2](pr, is_open)
+
     out, err = io.StringIO(), io.StringIO()
     try:
         checker._gh_json = outer
         checker._new_acquirer = lambda: env.acquire.Acquirer(runner=fake)
+        checker.assess_pr = observed
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             code = checker.main([sys.argv[0], *argv])
     finally:
-        checker._gh_json, checker._new_acquirer = saved
+        checker._gh_json, checker._new_acquirer, checker.assess_pr = saved
     return code, out.getvalue(), err.getvalue(), outer
 
 
@@ -810,6 +887,39 @@ def end_to_end_cases(env: Env) -> None:
          (1, 4))
 
 
+def completeness_cases(env: Env) -> None:
+    """The #426 round-3 corrections, through the real entry point."""
+    case = env.cases.outcome
+    rows = [{"number": 425, "mergedAt": MERGED_AT, "body": "no closes"}]
+    bank = {(425, "reviews"): nodes("reviews", 201,
+                                    {5: POSITIVE, 201: NEGATIVE})}
+    # F1: a last-page review with no submittedAt MEMBER exits 2 naming the
+    # field, and the assessor sees NOTHING; over the complete stream the same
+    # observer sees one PR, so an observer that never fired could not pass.
+    def absent_stamp_run() -> tuple[int, bool, int, int]:
+        """Exit, stderr names the field, PRs assessed; then the live control."""
+        seen: list[dict[str, Any]] = []
+        damaged = FakeGh(bank, {(425, "reviews"):
+                                _drop_node_field("submittedAt", -1)})
+        code, _, err, _ = drive(env, rows, damaged, ["--limit", "1"], seen)
+        refused = len(seen)
+        drive(env, rows, FakeGh(bank), ["--limit", "1"], seen)
+        return code, "submittedAt" in err, refused, len(seen) - refused
+
+    case("main-absent-review-timestamp-exit-2", absent_stamp_run, (2, True, 0, 1))
+
+    # F2: the cannot-run line carries both diagnostics past the old 400 slice.
+    def diagnostic(mutator: Callable[[Any], Any]) -> tuple[int, bool]:
+        """The exit, and whether stderr carries the tail, for one refusal."""
+        fake = FakeGh({}, {(425, "comments"): mutator})
+        code, _, err, _ = drive(env, rows, fake, ["--limit", "1"])
+        return code, TAIL in err
+
+    case("main-refusal-diagnostic-complete-exit-2",
+         lambda: diagnostic(_long_stderr) + diagnostic(_long_errors),
+         (2, True, 2, True))
+
+
 def identity_cases(env: Env) -> None:
     """A repository response that is not an object, through the whole gate.
 
@@ -847,6 +957,18 @@ def identity_cases(env: Env) -> None:
     case("repository-identity-valid-empty-histories-exit-0", valid_identity,
          (0, True))
 
+    # F2 (#426 round 3): a no-owner payload is quoted WHOLE, past the old 200.
+    def diagnostic_complete() -> tuple[int, bool]:
+        """main()'s exit, and whether its diagnostic carries the payload tail."""
+        repo = {"name": "milan-fpga", "context": [
+            "identity context %02d" % i for i in range(12)], "note": TAIL}
+        _past(json.dumps(repo), 200)
+        code, _, err, _ = drive(env, rows, FakeGh({}, repo=repo),
+                                ["--limit", "1"])
+        return code, TAIL in err
+
+    case("repository-identity-diagnostic-complete", diagnostic_complete, (2, True))
+
 
 def selftest(acquire: ModuleType, checker: ModuleType) -> tuple[list[str], int]:
     """Run every acquisition case; (problems, how many cases actually ran)."""
@@ -856,7 +978,7 @@ def selftest(acquire: ModuleType, checker: ModuleType) -> tuple[list[str], int]:
     # traceback: every case it had not reached is then reported by name by the
     # roster arm below, which is what makes an aborted group readable.
     for group in (boundary_cases, stream_cases, refusal_cases,
-                  end_to_end_cases, identity_cases):
+                  end_to_end_cases, completeness_cases, identity_cases):
         try:
             group(env)
         except Exception as exc:

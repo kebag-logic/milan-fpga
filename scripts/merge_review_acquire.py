@@ -49,9 +49,17 @@ page, and a `totalCount` the collected nodes already satisfy.
 
 FAILURE IS UNKNOWN, NEVER A VERDICT. Every refusal raises `AcquisitionError`
 with the connection, the PR and the observed inconsistency named, which the
-caller reports as its existing cannot-run exit 2. A partial, lost, repeated,
-inconsistent, malformed or timed-out acquisition never degrades to the first
-page, the newest page, an empty history or a skipped PR.
+caller reports as its existing cannot-run exit 2, printing the message whole.
+The message carries the COMPLETE diagnostic: a failed command's whole stderr,
+the whole serialized GraphQL `errors` member, the whole repository payload -
+never a prefix of one, because a diagnostic cut at a fixed width loses the
+line that says what to do. A node lacking a member the query asked for is a
+partial page and is refused, whatever the schema says about that member's
+nullability; only a member that is PRESENT and explicitly null is normalized,
+and only where the schema allows the null (`submittedAt` of a PENDING review).
+A partial, lost, repeated, inconsistent, malformed or timed-out acquisition
+never degrades to the first page, the newest page, an empty history or a
+skipped PR.
 """
 
 import json
@@ -102,7 +110,10 @@ class Connection(NamedTuple):
     #: Whether the schema makes that timestamp non-null. `IssueComment
     #: .createdAt` is `DateTime!`; `PullRequestReview.submittedAt` is nullable
     #: and is null for a PENDING review, which the core already reads as the
-    #: empty string, so a null is normalized rather than refused.
+    #: empty string, so an EXPLICIT null is normalized rather than refused.
+    #: Nullable is not optional: the query names the field on every node, so
+    #: the member must be present whatever its value, and a node without it
+    #: is a partial response that is refused for either connection.
     time_required: bool
 
 
@@ -220,7 +231,7 @@ class Acquirer:
                 raise AcquisitionError(
                     "repository identity: gh repo view returned a %s, not a "
                     "JSON object: %s"
-                    % (type(payload).__name__, json.dumps(payload)[:200]))
+                    % (type(payload).__name__, json.dumps(payload)))
             owner = payload.get("owner")
             name = payload.get("name")
             login = owner.get("login") if isinstance(owner, dict) else None
@@ -228,7 +239,7 @@ class Acquirer:
                     or not isinstance(name, str) or not name:
                 raise AcquisitionError(
                     "repository identity: gh repo view returned no owner/name "
-                    "pair: %s" % json.dumps(payload)[:200])
+                    "pair: %s" % json.dumps(payload))
             self._repo = (login, name)
         return self._repo
 
@@ -248,7 +259,7 @@ class Acquirer:
             raise AcquisitionError(
                 "%s: gh %s failed with exit %d: %s"
                 % (what, " ".join(args[:2]), done.returncode,
-                   (done.stderr or "").strip()[:400]))
+                   (done.stderr or "").strip()))
         try:
             return json.loads(done.stdout)
         except json.JSONDecodeError as exc:
@@ -311,7 +322,7 @@ def _connection_object(page: Any, connection: Connection, what: str,
     if page.get("errors"):
         raise AcquisitionError(
             "%s: page %d carries GraphQL errors: %s"
-            % (what, index, json.dumps(page["errors"])[:400]))
+            % (what, index, json.dumps(page["errors"])))
     node: Any = page
     for step in ("data", "repository", "pullRequest", connection.name):
         node = node.get(step) if isinstance(node, dict) else None
@@ -387,7 +398,17 @@ def _check_page_position(conn: dict[str, Any], what: str, index: int,
 
 def _record(node: Any, connection: Connection, what: str,
             index: int) -> dict[str, str]:
-    """One node reduced to what the assessment core reads, fully validated."""
+    """One node reduced to what the assessment core reads, every member checked.
+
+    Presence is tested before value. The query names `id`, the time field and
+    `body` on every node, so a node that lacks any of them is a partial or
+    malformed page and is refused whatever the schema says about nullability:
+    `.get()` read an absent `submittedAt` as the same None an explicit null
+    parses to, and the empty stamp it normalized to sorted an unread NEGATIVE
+    ahead of an earlier POSITIVE (#426, review round 3). Only a time field
+    that is PRESENT and explicitly null is normalized, and only for a
+    nullable connection.
+    """
     if not isinstance(node, dict):
         raise AcquisitionError("%s: page %d holds a non-object node (%s)"
                                % (what, index, type(node).__name__))
@@ -395,9 +416,13 @@ def _record(node: Any, connection: Connection, what: str,
     if not isinstance(ident, str) or not ident:
         raise AcquisitionError(
             "%s: page %d holds a node with no stable id" % (what, index))
-    when = node.get(connection.time_field)
+    if connection.time_field not in node:
+        raise AcquisitionError(
+            "%s: node %s has no %s member; the query asked for it, so the "
+            "page is partial" % (what, ident, connection.time_field))
+    when = node[connection.time_field]
     if when is None and not connection.time_required:
-        when = ""                      # a PENDING review has no submittedAt
+        when = ""                 # an explicit null: a PENDING review
     if not isinstance(when, str) or (connection.time_required and not when):
         raise AcquisitionError(
             "%s: node %s has no %s" % (what, ident, connection.time_field))
