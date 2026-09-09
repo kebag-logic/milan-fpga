@@ -107,6 +107,21 @@ HTML_BLOCK_TAGS = (
     "|title|tr|track|ul")
 HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
                                 re.IGNORECASE)
+#: CommonMark's type-7 raw HTML block: ONE complete open or closing tag of
+#: any other name (`<span>`, `<b>`, `<custom-tag>`, `</b>`), alone on its
+#: line, opens it, and a blank line closes it exactly as a type-6 block. The
+#: tag grammar is the specification's: a name is an ASCII letter then
+#: letters, digits or hyphens; an attribute has an XML name and an optional
+#: unquoted, single-quoted or double-quoted value. Unlike type 6, this kind
+#: cannot interrupt a paragraph, so `_opens()` reads it only after a blank
+#: line, as it reads an indented code run. A type-1 name is read first and
+#: never reaches here, which is the specification's exclusion (#413).
+_HTML_TAG_NAME = r"[A-Za-z][A-Za-z0-9-]*"
+_HTML_ATTRIBUTE = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+                   r"(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+HTML_TAG_LINE_RE = re.compile(
+    r"^ {0,3}(?:<%s%s*[ \t]*/?>|</%s[ \t]*>)[ \t]*$"
+    % (_HTML_TAG_NAME, _HTML_ATTRIBUTE, _HTML_TAG_NAME))
 COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 #: What a line is, for every reader in this repository. The names are what a
 #: finding calls the line, so they read as English in a message.
@@ -134,12 +149,14 @@ def blocks(text: str) -> list[str]:
     three-backtick line inside an old comment made this walk refuse a
     legitimate page).
 
-    Two kinds of raw HTML block are held apart because they end
-    differently: a type-1 block (`pre`, `script`, `style`, `textarea`) ends
-    at its closing tag and survives blank lines; a type-6 block, any other
-    block-level tag on its own line, ends at the first BLANK line. Neither
-    parses its content as Markdown, so a heading or a Contents block
-    written inside either is text.
+    Three kinds of raw HTML block are read, held apart by how they begin
+    and end: a type-1 block (`pre`, `script`, `style`, `textarea`) ends at
+    its closing tag and survives blank lines; a type-6 block, any other
+    block-level tag on its own line, ends at the first BLANK line; a type-7
+    block, one complete tag of any other name alone on its line, ends at
+    the first blank line too but cannot interrupt a paragraph, so it opens
+    only after a blank line. None parses its content as Markdown, so a
+    heading or a Contents block written inside any of them is text.
 
     The rules are CommonMark's, with indentation measured from column 0
     rather than from an enclosing container's content column: a fence
@@ -235,9 +252,11 @@ def _opens(line: str, prev_blank: bool,
         tag = html.group(1)
         closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
         return HTML, (TEXT if closed else HTML), "", tag
-    if HTML_BLOCK_OPEN_RE.match(line):
-        # Type 6 carries no tag here: the blank line, not a closing tag,
-        # is what ends it.
+    if HTML_BLOCK_OPEN_RE.match(line) or (prev_blank
+                                          and HTML_TAG_LINE_RE.match(line)):
+        # Types 6 and 7 carry no tag here: the blank line, not a closing
+        # tag, is what ends them. A lone `<span>` after visible text is
+        # paragraph continuation, not a block, so that line stays TEXT.
         return HTML, HTML, "", ""
     if COMMENT_OPEN in line:
         after = COMMENT if _comment_after(line, False) else TEXT
@@ -579,6 +598,24 @@ def _walk_arms() -> list[tuple[str, str, object]]:
         ("a details block hides its heading the same way",
          "<details>\n<summary>s</summary>\n## Alpha\n</details>\n\n## Real\n",
          lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
+        ("a tight type-7 block on an unknown tag hides the heading it wraps",
+         '<custom-tag data-x="1" y>\n## Alpha\n</custom-tag>\n\n## Real\n',
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("an inline tag alone on its line opens a type-7 block the same way",
+         "<span>\n## Alpha\n</span>\n\n## Real\n",
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("a lone closing tag opens a type-7 block",
+         "</b>\n## Alpha\n\n## Real\n",
+         lambda k: k[:2] == [HTML] * 2 and k[3] == TEXT),
+        ("a type-7 block ends at the blank line, so the heading renders",
+         "<span>\n\n## Alpha\n\n</span>\n",
+         lambda k: k[0] == HTML and k[2] == TEXT),
+        ("a lone inline tag after visible text continues the paragraph",
+         "text\n<span>\n## Real\n</span>\n",
+         lambda k: k[:3] == [TEXT] * 3),
+        ("a tag line carrying anything but the tag opens no type-7 block",
+         "<span>x\n## Real\n",
+         lambda k: k[:2] == [TEXT] * 2),
         ("a comment opened after visible text leaves that line alone",
          "## Head <!-- note\n-->\n## B\n",
          lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
@@ -623,6 +660,12 @@ def _provenance_arms() -> list[tuple[str, str, object]]:
          lambda t: [a for _, _, a in headings(t)] == ["beta"]),
         ("a heading inside a type-6 block that closed IS a heading",
          "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
+        ("a heading inside a tight type-7 block is no heading",
+         "<span>\n## Alpha\n</span>\n\n## Beta\n",
+         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+        ("a heading after a tag that continues a paragraph IS a heading",
+         "text\n<span>\n## Alpha\n</span>\n\n## Beta\n",
          lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
         ("a heading inside a comment is no heading",
          "<!--\n## Alpha\n-->\n\n## Beta\n",
