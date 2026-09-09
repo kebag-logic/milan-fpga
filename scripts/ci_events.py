@@ -827,7 +827,9 @@ EM_DASH_STEP_ENV = {
 #: identity (its literal `name`, or its `uses`), each step's exact key set
 #: and env bindings, each recorded `if` verbatim and each recorded `with`
 #: mapping exactly. An entry records only the keys the tree carries today;
-#: anything else on the step is a surplus key refused by name.
+#: anything else on the step is a surplus key refused by name. The seven
+#: RTL jobs' lists are RTL_STEP_LISTS (#406), and STEP_LISTS is the union
+#: the rule reads.
 CARRIER_STEP_LISTS = {
     (DOCS, "docs-check"): (
         {"uses": "actions/checkout@v4",
@@ -1612,6 +1614,153 @@ RESULT_CACHE_RESTORE = "yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.s
 RESULT_CACHE_FLAG = '--cache "$RUNNER_TEMP/yosys-result-cache"'
 RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache",
                              "`restore-keys`")
+#: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
+#: from #295): the two shard workers, the two exhaustive aggregates,
+#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, held exactly
+#: as CARRIER_STEP_LISTS holds the four non-RTL carriers -- count, order,
+#: identity, exact key set, env bindings, recorded `if` verbatim, recorded
+#: `with` exactly -- and, where a step records one, its `id`, its
+#: `continue-on-error` and its `working-directory`. The workers'
+#: `strategy.matrix` stays with check_shard_denominator; the result cache's
+#: `with` is the one #350 pins, read from its constants rather than
+#: restated. The cost is stated on the policy page: a legitimate step change
+#: in any of these jobs is refused until its entry here changes with it.
+VERILATOR_CACHE_WITH = {
+    "path": "/opt/verilator",
+    "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+}
+YOSYS_CACHE_WITH = {
+    "path": "/opt/yosys",
+    "key": "yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}",
+}
+VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}"
+YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
+NETLIST_OWNER_IF = "${{ matrix.shard == 3 }}"
+TSN_GEN_OWNER_IF = "${{ matrix.shard == 1 }}"
+ALWAYS_IF = "${{ always() }}"
+#: The worker's record step binds TARGET_SHA to the same gate output the
+#: aggregate's verifier reads as GATE_SHA; the ownership proof binds the
+#: shard pair to the matrix.
+TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
+SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
+RTL_STEP_LISTS = {
+    (RTL_FULL, "verilator-shards"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Record the tree this worker validates",
+         "env": TARGET_SHA_STEP_ENV},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF},
+        {"name": "Put Verilator on PATH and prove the version"},
+        {"name": "Prove specialized suite ownership", "env": SHARD_STEP_ENV},
+        {"name": "Cache the pinned Yosys build for the netlist-level suite "
+                 "owner",
+         "if": NETLIST_OWNER_IF, "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": "${{ matrix.shard == 3 && "
+               "steps.cache-yosys.outputs.cache-hit != 'true' }}"},
+        {"name": "Install the pinned Yosys and prove the version",
+         "if": NETLIST_OWNER_IF},
+        {"name": "Install sv2v for the netlist-level suite owner",
+         "if": NETLIST_OWNER_IF},
+        {"name": "Build the pinned tsn-gen field oracle on its suite owner",
+         "if": TSN_GEN_OWNER_IF},
+        {"name": "Run this exhaustive suite shard"},
+        {"name": "Upload this shard's suite logs", "if": ALWAYS_IF,
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "suite-logs-${{ matrix.shard }}",
+                  "path": "${{ runner.temp }}/suite-logs",
+                  "if-no-files-found": "error",
+                  "retention-days": 3}},
+    ),
+    (RTL_FULL, "verilator-suites"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Download every shard's logs", "id": "download-logs",
+         "continue-on-error": True, "uses": "actions/download-artifact@v4",
+         "with": {"pattern": "suite-logs-*",
+                  "path": "${{ runner.temp }}/all-suite-logs"}},
+        {"name": "Require every shard to have validated this run's SHA",
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
+        {"name": "Prove exhaustive ownership and tally every log",
+         "if": ALWAYS_IF},
+        {"name": "Require every Verilator worker to pass", "if": ALWAYS_IF,
+         "env": {"SHARD_RESULT": needs_result_ref("verilator-shards")}},
+    ),
+    (RTL_FULL, YOSYS_SHARDS_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Record the tree this worker validates",
+         "env": TARGET_SHA_STEP_ENV},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF},
+        {"name": "Install the pinned Yosys and prove the version"},
+        {"name": "Install the pinned sv2v release"},
+        {"name": "Restore the portability result cache seeded from dev",
+         "uses": "actions/cache@v4",
+         "with": {"path": RESULT_CACHE_PATH, "key": RESULT_CACHE_KEY,
+                  "restore-keys": RESULT_CACHE_RESTORE}},
+        {"name": "Run this weighted portability shard"},
+        {"name": "Upload per-top and structural evidence", "if": ALWAYS_IF,
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "yosys-results-${{ matrix.shard }}",
+                  "path": "${{ runner.temp }}/yosys-results",
+                  "if-no-files-found": "error",
+                  "retention-days": 3}},
+    ),
+    (RTL_FULL, "yosys-portability"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Download every shard's evidence", "id": "download-results",
+         "continue-on-error": True, "uses": "actions/download-artifact@v4",
+         "with": {"pattern": "yosys-results-*",
+                  "path": "${{ runner.temp }}/all-yosys-results"}},
+        {"name": "Require every shard to have validated this run's SHA",
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
+        {"name": "Reconcile the live inventory and structural gates",
+         "if": ALWAYS_IF},
+        {"name": "Require every Yosys worker to pass", "if": ALWAYS_IF,
+         "env": {"SHARD_RESULT": needs_result_ref(YOSYS_SHARDS_JOB)}},
+    ),
+    (RTL_FAST, "verilator-lint"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF},
+        {"name": "Run the ratcheted whole-tree lint gate"},
+        {"name": "Prove protocol-processor source lists are derived"},
+    ),
+    (RTL_FAST, "bdd-conformance"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch the processor model inputs"},
+        {"name": "Install behave"},
+        {"name": "Run the specification-facing suite",
+         "working-directory": "tests"},
+    ),
+    (RTL_FAST, OOC_SH_SELFTEST_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF},
+        {"name": "Install the pinned Yosys and prove the version"},
+        {"name": "Install the pinned sv2v release"},
+        {"name": "Elaborate the integration-heavy tops"},
+        {"name": "Prove the OOC read sets come from run.sh and refuse a bad "
+                 "one"},
+        {"name": "Prove ooc.sh generates the ROMs and fails on a failed top"},
+        {"name": "Prove the result cache refuses a planted entry"},
+    ),
+}
+#: Every pinned step list, keyed by (file, job id): the one mapping
+#: check_carrier_steps reads.
+STEP_LISTS = {**CARRIER_STEP_LISTS, **RTL_STEP_LISTS}
 
 
 def check_yosys_result_cache(c: Contract, path: str, wf: YamlMap,
@@ -2889,12 +3038,15 @@ def check_scope_step(c: Contract, wf: YamlMap) -> None:
 def carrier_entry_keys(entry: YamlMap) -> tuple[str, ...]:
     """The exact key set a step-list entry licenses, derived from the entry
     rather than restated per step: a `run:` step carries its recorded
-    `name`, `id`, `env` and `if` plus `run`; a `uses:` step carries its
-    recorded `name`, `if` and `with` plus `uses`."""
+    `name`, `id`, `env`, `if` and `working-directory` plus `run`; a `uses:`
+    step carries its recorded `name`, `id`, `if`, `continue-on-error` and
+    `with` plus `uses`. A key recorded outside these vocabularies licenses
+    nothing, so an entry that drifts turns the pristine tree red at once."""
     if "uses" in entry:
-        return tuple(k for k in ("name", "uses", "if", "with") if k in entry)
-    return tuple(k for k in ("name", "id", "env", "if") if k in entry) + (
-        "run",)
+        return tuple(k for k in ("name", "uses", "id", "if",
+                                 "continue-on-error", "with") if k in entry)
+    return tuple(k for k in ("name", "id", "env", "if", "working-directory")
+                 if k in entry) + ("run",)
 
 
 def carrier_entry_want(entry: YamlMap) -> str:
@@ -2906,15 +3058,17 @@ def carrier_entry_want(entry: YamlMap) -> str:
 
 
 def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
-    """A carrier's whole step list, pinned the way item 4 pins the gate
-    job's (#295, closing [R4] round 6 on PR #293): count, order, each
-    step's identity, key set, env bindings, recorded `if` and recorded
-    `with`. The declared allowlists hold what a step says; only this holds
-    WHICH steps the required context runs, so an inserted `run:` step
-    writing `BASH_ENV=...` to `$GITHUB_ENV`, one prepending
-    `$GITHUB_PATH`, an inserted `uses:` of any action, or an inserted step
-    of any content at all is refused naming the job and the position."""
-    spec = CARRIER_STEP_LISTS[(path, jid)]
+    """A job's whole step list, pinned the way item 4 pins the gate job's
+    (#295, closing [R4] round 6 on PR #293, for the four carriers; #406 for
+    the seven RTL jobs): count, order, each step's identity, key set, env
+    bindings, recorded `if`, recorded `with`, and the `id`,
+    `continue-on-error` and `working-directory` a step records. The
+    declared allowlists hold what a step says; only this holds WHICH steps
+    the job runs, so an inserted `run:` step writing `BASH_ENV=...` to
+    `$GITHUB_ENV`, one prepending `$GITHUB_PATH`, an inserted `uses:` of
+    any action, or an inserted step of any content at all is refused naming
+    the job and the position."""
+    spec = STEP_LISTS[(path, jid)]
     job = jobs(wf).get(jid)
     if not isinstance(job, dict):
         return  # check_required_context_carriers names the missing job
@@ -2957,8 +3111,19 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
             got = str(at.get("if", "")).strip()
             c.item(got == entry["if"], path, f"{what} `if` must be exactly "
                    f"`{entry['if']}` (found `{got}`): any other condition "
-                   "changes when this step runs, and the guarded steps of "
-                   "this job legitimately carry exactly the scope guard")
+                   "changes when this step runs, and the recorded guard -- "
+                   "a scope answer, a cache miss, a shard's suite ownership "
+                   "or `always()` -- is the one this job legitimately "
+                   "carries")
+        for key in ("continue-on-error", "working-directory"):
+            if key in entry:
+                c.item(at.get(key) == entry[key], path, f"{what} `{key}` "
+                       f"must be exactly {entry[key]!r} (found "
+                       f"{at.get(key)!r}): the recorded value is the "
+                       "contract -- `continue-on-error` is how a failed "
+                       "download reaches the verifier that refuses it, and "
+                       "`working-directory` names the one tree the suite "
+                       "may read")
         if "uses" in entry:
             got_with = at.get("with")
             want_with = entry.get("with")
@@ -2966,8 +3131,9 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
                    f"exactly {want_with!r} (found {got_with!r}): a `with` "
                    "decides what an action reads and restores -- a widened "
                    "cache key hands over generated metadata from another "
-                   "toolchain head, and a moved upload path publishes "
-                   "other bytes")
+                   "toolchain head, a moved upload path publishes other "
+                   "bytes, and a widened download pattern feeds the "
+                   "verifier evidence from other workers")
 
 
 def check_docs(c: Contract, wf: YamlMap) -> None:
@@ -3081,12 +3247,23 @@ def check_global_carriers(c: Contract, parsed: World) -> None:
                "does not distinguish the workflow that published it")
 
 
+def check_rtl_step_lists(c: Contract, parsed: World) -> None:
+    """The seven RTL jobs' step lists (#406), RTL_STEP_LISTS through the
+    carriers' rule. With these, every job in the four files carries a
+    sequence pin: the gate job's (check_gate_steps), the physical leg's
+    whole-job pin, the fast selector's two-step and the fast verdict's
+    one-step pins, the four carriers' (CARRIER_STEP_LISTS) and these."""
+    for path, jid in RTL_STEP_LISTS:
+        check_carrier_steps(c, path, parsed[path], jid)
+
+
 def check(parsed: World) -> Contract:
     """The whole contract over a parsed world. Returns a Contract."""
     c = Contract()
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_rtl_fast(c, parsed[RTL_FAST])
+    check_rtl_step_lists(c, parsed)
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
     for rel in WORKFLOWS:
@@ -3242,6 +3419,41 @@ def _strip_steps(w: World, path: str, jid: str, needle: str) -> None:
     kept = [s for s in ss if needle not in step_text(s)]
     assert len(kept) < len(ss), f"fixture drift: no step mentions {needle}"
     jobs(w[path])[jid]["steps"] = kept
+
+
+def _m_strip_steps(path: str, jid: str, needle: str) -> Mutator:
+    """_strip_steps as a mutator, for arms built in a loop."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _strip_steps(w, path, jid, needle)
+    return f
+
+
+def _named_step(w: World, path: str, jid: str, ident: str) -> YamlMap:
+    """The one step of `jid` a step-list entry identifies as `ident`: its
+    `name`, or its `uses` when it carries no name."""
+    found = [s for s in _job_steps(w, path, jid)
+             if s.get("name", s.get("uses")) == ident]
+    assert len(found) == 1, f"fixture drift: {ident!r} in {jid}"
+    return found[0]
+
+
+def _m_named_step_key(path: str, jid: str, ident: str, key: str,
+                      value: Any) -> Mutator:
+    """Set `key` to `value` on the step of `jid` identified by `ident`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _named_step(w, path, jid, ident)[key] = value
+    return f
+
+
+def _m_named_step_key_dropped(path: str, jid: str, ident: str,
+                              key: str) -> Mutator:
+    """Delete `key` from the step of `jid` identified by `ident`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        del _named_step(w, path, jid, ident)[key]
+    return f
 
 
 def _m_push_main(path: str) -> Mutator:
@@ -5940,6 +6152,121 @@ def _carrier_step_list_arms() -> list[Arm]:
     ]
 
 
+class StepListLevers(NamedTuple):
+    """Where the nine #406 levers land in one RTL job: the run-text needle
+    of the step an arm removes, the zero-based adjacent pair it swaps, the
+    step it renames, the step whose `if` it drops (or, in a job recording
+    no gated step, gives `if: false`), and the action step whose `with` it
+    rewrites with one (key, value). Positions and counts come from the
+    recorded table, never from a restated number."""
+    path: str
+    jid: str
+    removed: str
+    swapped: tuple[int, int]
+    renamed: str
+    guarded: str
+    action: str
+    rewrite: tuple[str, Any]
+
+
+RTL_STEP_LIST_LEVERS = (
+    StepListLevers(RTL_FULL, "verilator-shards", "suite_shards.py --selftest",
+                   (5, 6), "Prove specialized suite ownership",
+                   "Install sv2v for the netlist-level suite owner",
+                   "Cache the pinned Verilator build",
+                   ("restore-keys", "verilator-")),
+    StepListLevers(RTL_FULL, "verilator-suites", "suite_tally.py", (2, 3),
+                   "Require every Verilator worker to pass",
+                   "Prove exhaustive ownership and tally every log",
+                   "Download every shard's logs", ("pattern", "*")),
+    StepListLevers(RTL_FULL, YOSYS_SHARDS_JOB, "sv2v --version", (4, 5),
+                   "Run this weighted portability shard",
+                   "Upload per-top and structural evidence",
+                   "Cache the pinned Yosys build", ("restore-keys", "yosys-")),
+    StepListLevers(RTL_FULL, "yosys-portability", "yosys_tally.py", (2, 3),
+                   "Require every Yosys worker to pass",
+                   "Reconcile the live inventory and structural gates",
+                   "Download every shard's evidence",
+                   ("path", "${{ runner.temp }}/decoy")),
+    StepListLevers(RTL_FAST, "verilator-lint", "pp_srcs.py", (1, 2),
+                   "Fetch RTL dependencies",
+                   "Build Verilator from source on cache miss",
+                   "Cache the pinned Verilator build",
+                   ("key", "verilator-${{ runner.os }}")),
+    StepListLevers(RTL_FAST, "bdd-conformance", "pip install --quiet behave",
+                   (1, 2), "Install behave",
+                   "Run the specification-facing suite",
+                   "actions/checkout@v4", ("fetch-depth", 0)),
+    StepListLevers(RTL_FAST, OOC_SH_SELFTEST_JOB, "cache_selftest.py", (5, 6),
+                   "Elaborate the integration-heavy tops",
+                   "Build Yosys from source on cache miss",
+                   "Cache the pinned Yosys build", ("restore-keys", "yosys-")),
+)
+#: The three measured insertions of [R4] round 6 on PR #293 and the benign
+#: one, each inserted at position 2 of a pinned job.
+STEP_LIST_PROBES = (
+    ("BASH_ENV writer",
+     {"name": "prep",
+      "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+    ("GITHUB_PATH prepend",
+     {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+    ("third-party action", {"uses": "attacker/action@v1"}),
+    ("step of benign content", {"name": "tidy", "run": "true"}),
+)
+
+
+def _rtl_guard_arm(lv: StepListLevers, gated: bool) -> Arm:
+    """The `if` lever on one RTL job: the recorded guard dropped from a
+    gated step, or -- in `bdd-conformance`, which records no gated step --
+    an `if: false` added to its behave step, refused as a surplus key."""
+    if gated:
+        return (f"#406 {lv.jid} gated step `if` dropped",
+                _m_named_step_key_dropped(lv.path, lv.jid, lv.guarded, "if"),
+                f"(`{lv.guarded}`) `if` must be exactly")
+    return (f"#406 {lv.jid} ungated step given if: false",
+            _m_named_step_key(lv.path, lv.jid, lv.guarded, "if", False),
+            f"(`{lv.guarded}`) must carry no `if`")
+
+
+def _rtl_step_list_arms() -> list[Arm]:
+    """#406: the nine step-list levers of #295 on each of the seven RTL
+    jobs, generated from RTL_STEP_LIST_LEVERS against the recorded table,
+    so every expectation names the job and the position the table records
+    and a table that grows moves the arms with it."""
+    arms: list[Arm] = []
+    for lv in RTL_STEP_LIST_LEVERS:
+        spec = STEP_LISTS[(lv.path, lv.jid)]
+        idents = [e.get("name", e.get("uses")) for e in spec]
+        job = f"job `{lv.jid}`"
+        i, j = lv.swapped
+        action = spec[idents.index(lv.action)]
+        key, value = lv.rewrite
+        for what, probe in STEP_LIST_PROBES:
+            arms.append((f"#406 {lv.jid} inserted {what} breaks the sequence",
+                         _m_insert_step(lv.path, lv.jid, probe),
+                         f"{job} step 2 must be {carrier_entry_want(spec[1])}"))
+        arms += [
+            (f"#406 {lv.jid} recognised step removed",
+             _m_strip_steps(lv.path, lv.jid, lv.removed),
+             f"{job} must carry exactly {len(spec)} steps, in the recorded "
+             f"order (found {len(spec) - 1})"),
+            (f"#406 {lv.jid} recognised steps swapped",
+             _m_swap_steps(lv.path, lv.jid, i, j),
+             f"{job} step {i + 1} must be {carrier_entry_want(spec[i])}"),
+            (f"#406 {lv.jid} recognised step renamed",
+             _m_rename_step(lv.path, lv.jid, lv.renamed,
+                            lv.renamed + " (renamed)"),
+             f"{job} step {idents.index(lv.renamed) + 1} must be the step "
+             f"named `{lv.renamed}`"),
+            _rtl_guard_arm(lv, "if" in spec[idents.index(lv.guarded)]),
+            (f"#406 {lv.jid} action step `with` rewritten",
+             _m_named_step_key(lv.path, lv.jid, lv.action, "with",
+                               {**(action.get("with") or {}), key: value}),
+             f"(`{lv.action}`) `with` must be exactly"),
+        ]
+    return arms
+
+
 def _em_dash_step(w: World) -> YamlMap:
     """docs-check's one em-dash gate step, by its script."""
     found = [s for s in _job_steps(w, DOCS, "docs-check")
@@ -6114,6 +6441,7 @@ def _mutations() -> list[Arm]:
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
+            + _rtl_step_list_arms()
             + _result_cache_arms()
             + _physical_gptp_arms())
 

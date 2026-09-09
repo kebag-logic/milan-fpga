@@ -257,7 +257,13 @@ is exactly these twelve things:
    part of it too, because a step inserted anywhere runs before everything
    after it and can change what those steps read, and an entry appended to
    `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
-   position, what belongs there, and what it found. The contract step is
+   position, what belongs there, and what it found. The same pin reaches
+   every job in the four files: the four non-RTL carriers through item 11
+   (#295), the seven RTL jobs -- the two shard workers, the two exhaustive
+   aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
+   -- through item 12 (#406), the physical leg by its whole-job pin, and
+   the fast selector and verdict jobs by their two-step and one-step
+   pins. The contract step is
    this gate's SECOND hosted runner (#261, maintainer review on PR #293):
    its script is exactly `python3 -m pip install --quiet pyyaml` followed by
    `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
@@ -572,25 +578,36 @@ is exactly these twelve things:
     the key, and on that step any other value, redirects a gate to a
     checked-in decoy tree ([R4] round 7, [R3] round 10 on PR #293) -- and a
     non-mapping `env` is refused at every level. #295 closed the step-list
-    class for the four non-RTL carriers (item 11): their step lists are
-    pinned by count, order, identity, key set, recorded `if` and recorded
-    `with`, so an inserted step of ANY content -- one reaching the
-    runner's environment file without spelling its name included (the
+    class for the four non-RTL carriers (item 11) and #406 closed it for
+    the seven RTL jobs -- the two shard workers, the two exhaustive
+    aggregates, `verilator-lint`, `yosys-elaboration` and
+    `bdd-conformance` -- so every job in the four files now carries the
+    sequence pin of item 4: its step list is pinned by count, order,
+    identity, key set, env bindings, recorded `if` verbatim and recorded
+    `with` exactly, plus the `id`, `continue-on-error` and
+    `working-directory` a step records (the workers' `strategy.matrix`
+    stays with the shard-denominator rule, the result cache's `with` with
+    #350's). An inserted step of ANY content -- one reaching
+    the runner's environment file without spelling its name included (the
     `_runner_file_commands` glob, an indirect expansion, a checked-in
-    script) -- is refused there naming the job and the position, and so is
-    an `if: false` on any of their steps. What this still cannot hold is
-    the same class in the seven RTL jobs whose step lists are not pinned
-    the way the gate's is (item 4) -- the two shard workers, the two
-    exhaustive aggregates, `verilator-lint`, `yosys-elaboration` and
-    `bdd-conformance` -- where an inserted step that stays inside every
-    allowlist above still passes, and the CONTENT of the recognised
-    non-gate steps in the four carriers: `docs-check`'s gates other than
-    the ci_events step (`docs_check`, `check_feature_status`, the
-    traceability matrix, the builder gates and the rest) can still be
-    rewritten or swallowed with the context green, and the second runner
-    backs up only `ci_events --check`. A sequence-and-content pin on
-    every job closes that; it is #295's widened acceptance row and stays
-    open there.
+    script) -- is refused naming the job and the position, and so are a
+    removed, reordered or renamed step, an `if: false` on an ungated
+    step, a dropped or loosened guard on a gated one, and a rewritten
+    cache, upload or download `with`. The cost is deliberate: a legitimate
+    step change in an RTL job -- a bumped cache key, a new toolchain step,
+    a renamed step -- is refused until the job's entry in `RTL_STEP_LISTS`
+    (`scripts/ci_events.py`; the four carriers' entries are
+    `CARRIER_STEP_LISTS`) changes with it in the same commit, and the
+    refusal names the job, the position, what belongs there and what it
+    found. What this
+    still cannot hold is the CONTENT of the recognised non-gate steps:
+    `docs-check`'s gates other than the ci_events step (`docs_check`,
+    `check_feature_status`, the traceability matrix, the builder gates and
+    the rest) and every RTL step no rule above holds by script can still
+    be rewritten or swallowed under the recorded name with the context
+    green, and the second runner backs up only `ci_events --check`. A
+    content pin on every recognised step closes that; the four carriers'
+    is #407.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -684,7 +701,14 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
+and an upload `with` rewritten; the same nine levers on each of the seven
+RTL jobs (#406) -- a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
+third-party-`uses:` and a benign step inserted, a recognised step removed,
+swapped and renamed, a gated step's `if` dropped (`bdd-conformance`, which
+records no gated step, given `if: false` on its behave step instead), and
+a cache, download or upload `with` rewritten (`bdd-conformance`'s checkout
+given one) -- each refused naming the job and the position; the em-dash
+gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
 `if: false` and removed, its body replaced by `true`, judging from HEAD,
