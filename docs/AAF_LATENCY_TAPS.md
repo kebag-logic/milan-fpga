@@ -87,8 +87,8 @@ flowchart LR
   the fixed delay from the crossbar's grid to each interface (TDM frame pin,
   I2S) is tabled there. The stage's fill, prefill, convergence and rail
   counters are Verilator taps today; the CSR word is the #390 follow-up. The
-  silicon figure at the TDM frame pin (tap host capture against these taps)
-  rides #117.
+  silicon figure at the TDM frame pin (the inline tap's capture record on the
+  capture server, compared against these fabric taps) rides #117.
 
 ## Tap → trigger → CSR (the authoritative map)
 
