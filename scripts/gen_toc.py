@@ -113,15 +113,46 @@ HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
 #: tag grammar is the specification's: a name is an ASCII letter then
 #: letters, digits or hyphens; an attribute has an XML name and an optional
 #: unquoted, single-quoted or double-quoted value. Unlike type 6, this kind
-#: cannot interrupt a paragraph, so `_opens()` reads it only after a blank
-#: line, as it reads an indented code run. A type-1 name is read first and
-#: never reaches here, which is the specification's exclusion (#413).
+#: may not interrupt a paragraph, so `_opens()` reads it only while no
+#: paragraph is open, which `blocks()` tracks line by line: under a
+#: heading, a thematic break, a closing fence, a closing comment, a list
+#: item, a block quote or a table row the tag opens a block with no blank
+#: line before it; under paragraph text it is that paragraph's
+#: continuation ([R85] F1 and [R86] F1, round 1 on PR #428). A type-1 name
+#: is read first and never reaches here, which is the specification's
+#: exclusion (#413).
 _HTML_TAG_NAME = r"[A-Za-z][A-Za-z0-9-]*"
 _HTML_ATTRIBUTE = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
                    r"(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
 HTML_TAG_LINE_RE = re.compile(
     r"^ {0,3}(?:<%s%s*[ \t]*/?>|</%s[ \t]*>)[ \t]*$"
     % (_HTML_TAG_NAME, _HTML_ATTRIBUTE, _HTML_TAG_NAME))
+#: Whether a paragraph is open, for the one block that may not interrupt
+#: one. NO_PARAGRAPH: none is, and the next plain line starts one.
+#: PARAGRAPH: a top-level paragraph is open. HELD: a list item, a block
+#: quote or a table holds the plain lines that follow (CommonMark's lazy
+#: continuation, GFM's rows without a pipe), so no top-level paragraph is
+#: open and a plain line does not start one; a blank line or a block that
+#: interrupts ends the hold. The lines that decide it are read flat, as the
+#: whole walk is: at most three spaces of indentation, no container.
+NO_PARAGRAPH, PARAGRAPH, HELD = "no paragraph", "paragraph", "held"
+#: CommonMark's ATX opener, not `HEAD_RE`: an indented or empty heading
+#: ends a paragraph even though `headings()` lists neither.
+ATX_HEADING_RE = re.compile(r"^ {0,3}#{1,6}(?:[ \t]|$)")
+THEMATIC_BREAK_RE = re.compile(
+    r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$")
+SETEXT_UNDERLINE_RE = re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$")
+BLOCK_QUOTE_RE = re.compile(r"^ {0,3}>")
+#: A list item: group 1 is the ordinal (None for a bullet), group 2 the
+#: first character of its content (None when the item is empty).
+#: Interrupting a paragraph takes content and, when ordered, the ordinal 1.
+LIST_ITEM_RE = re.compile(
+    r"^ {0,3}(?:[-+*]|(\d{1,9})[.)])(?:[ \t]+(\S)|[ \t]*$)")
+#: GFM's table delimiter row, which makes the paragraph line above it a
+#: header row: hyphen cells with optional colons between pipes. It must
+#: carry a pipe, or it is a setext underline or a thematic break.
+TABLE_DELIMITER_RE = re.compile(
+    r"^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
 COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 #: What a line is, for every reader in this repository. The names are what a
 #: finding calls the line, so they read as English in a message.
@@ -154,9 +185,12 @@ def blocks(text: str) -> list[str]:
     its closing tag and survives blank lines; a type-6 block, any other
     block-level tag on its own line, ends at the first BLANK line; a type-7
     block, one complete tag of any other name alone on its line, ends at
-    the first blank line too but cannot interrupt a paragraph, so it opens
-    only after a blank line. None parses its content as Markdown, so a
-    heading or a Contents block written inside any of them is text.
+    the first blank line too but may not interrupt a paragraph, so it
+    opens only while none is open: under a heading, a thematic break, a
+    closing fence or comment, a list item, a block quote or a table row as
+    well as after a blank line, never under paragraph text. None parses
+    its content as Markdown, so a heading or a Contents block written
+    inside any of them is text.
 
     The rules are CommonMark's, with indentation measured from column 0
     rather than from an enclosing container's content column: a fence
@@ -165,23 +199,59 @@ def blocks(text: str) -> list[str]:
     after the run, so a three-backtick line inside a four-backtick block is
     content; a backtick opener's info string may not contain a backtick,
     while a tilde opener's may. An indented code run needs a blank line
-    before it, because it cannot interrupt a paragraph. A comment runs to
-    its closing delimiter and a type-1 raw HTML block to its closing tag,
-    both across blank lines. A line that mixes commented and visible text
-    is labelled by the block it STARTS in, which can only withhold a
-    heading or a Contents block from a reader, never invent one.
+    before it, because it cannot interrupt a paragraph and, containers
+    being flat here, a line indented under a list item is that item's
+    content. A comment runs to its closing delimiter and a type-1 raw HTML
+    block to its closing tag, both across blank lines. A line that mixes
+    commented and visible text is labelled by the block it STARTS in,
+    which can only withhold a heading or a Contents block from a reader,
+    never invent one. Containers are flat the same way for the paragraph a
+    type-7 tag may not interrupt (`_paragraph_after`): a block quote or
+    list-item line holds the plain lines after it as that container's
+    paragraph whatever the container itself held, and a tag indented into
+    a list item's content column opens a block where CommonMark continues
+    the item's paragraph; both withhold, neither invents.
     """
     out, state, delim, tag = [], TEXT, "", ""
-    prev_blank = True
+    prev_blank, para = True, NO_PARAGRAPH
     for line in text.split("\n"):
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
         else:
-            label, state, delim, tag = _opens(line, prev_blank, state)
+            label, state, delim, tag = _opens(line, prev_blank, para, state)
             out.append(label)
         prev_blank = not line.strip()
+        para = _paragraph_after(line, out[-1], para)
     return out
+
+
+def _paragraph_after(line: str, label: str, para: str) -> str:
+    """The paragraph state after a line, from the line's own label, its
+    text and the state before it.
+
+    Only a plain TEXT line starts or continues a paragraph. A heading, a
+    thematic break or a setext underline ends one and starts none; a list
+    item, a block quote or a table delimiter row starts a HOLD, which a
+    plain line continues rather than ending; an ordered item not numbered
+    1, or an empty item, cannot interrupt a paragraph and continues it
+    instead ([R85] F1 and [R86] F1, round 1 on PR #428, where the blank
+    line stood in for all of this and a tag under any of these nine lines
+    stayed paragraph text).
+    """
+    if label != TEXT or not line.strip() or ATX_HEADING_RE.match(line) \
+            or THEMATIC_BREAK_RE.match(line):
+        return NO_PARAGRAPH
+    if para == PARAGRAPH and SETEXT_UNDERLINE_RE.match(line):
+        return NO_PARAGRAPH
+    item = LIST_ITEM_RE.match(line)
+    interrupts = bool(item and item.group(2) and int(item.group(1) or 1) == 1)
+    if BLOCK_QUOTE_RE.match(line) or (item and (para != PARAGRAPH
+                                                or interrupts)):
+        return HELD
+    if para == PARAGRAPH and "|" in line and TABLE_DELIMITER_RE.match(line):
+        return HELD
+    return HELD if para == HELD else PARAGRAPH
 
 
 def _comment_after(line: str, inside: bool) -> bool:
@@ -230,15 +300,18 @@ def _still_open(line: str, state: str, delim: str,
     return FENCE, delim, ""
 
 
-def _opens(line: str, prev_blank: bool,
+def _opens(line: str, prev_blank: bool, para: str,
            state: str) -> tuple[str, str, str, str]:
     """(what this line is, the state after it, fence delimiter, HTML tag)
     for a line that no block encloses.
 
     The order is CommonMark's: an indented code run swallows the line
-    before any delimiter on it is read; a comment that opens after visible
-    text leaves THIS line ordinary and starts the span on the next one, so
-    a heading with a trailing comment is still a heading.
+    before any delimiter on it is read; a type-1 tag is read before the
+    type-7 grammar, so `<pre>` opens the block that survives blank lines;
+    a comment that opens after visible text leaves THIS line ordinary and
+    starts the span on the next one, so a heading with a trailing comment
+    is still a heading. `prev_blank` gates the code run and `para` the
+    type-7 tag, the two blocks that may not interrupt a paragraph.
     """
     if state == CODE and (not line.strip() or INDENT_CODE_RE.match(line)):
         return CODE, CODE, "", ""      # the run continues across blank lines
@@ -252,11 +325,12 @@ def _opens(line: str, prev_blank: bool,
         tag = html.group(1)
         closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
         return HTML, (TEXT if closed else HTML), "", tag
-    if HTML_BLOCK_OPEN_RE.match(line) or (prev_blank
+    if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
                                           and HTML_TAG_LINE_RE.match(line)):
         # Types 6 and 7 carry no tag here: the blank line, not a closing
-        # tag, is what ends them. A lone `<span>` after visible text is
-        # paragraph continuation, not a block, so that line stays TEXT.
+        # tag, is what ends them. A lone `<span>` under paragraph text is
+        # that paragraph's continuation, not a block, so the line stays
+        # TEXT; under anything else it opens the block.
         return HTML, HTML, "", ""
     if COMMENT_OPEN in line:
         after = COMMENT if _comment_after(line, False) else TEXT
@@ -631,6 +705,71 @@ def _walk_arms() -> list[tuple[str, str, object]]:
     ]
 
 
+def _tag_arms() -> list[tuple[str, str, object]]:
+    """The type-7 opener's own arms, one per behaviour that shipped with no
+    arm to hold it ([R86] F2, round 1 on PR #428): the order that reads a
+    type-1 tag first, the three spaces of indentation the grammar allows
+    and the four that make code instead, and the self-closing form."""
+    return [
+        ("a type-1 tag is read before the type-7 grammar, so its block "
+         "survives a blank line",
+         "<pre>\n\n## Alpha\n</pre>\n\n## Real\n",
+         lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
+        ("a tag indented three spaces opens a type-7 block",
+         "   <span>\n## Alpha\n</span>\n\n## Real\n",
+         lambda k: k[:3] == [HTML] * 3 and k[4] == TEXT),
+        ("a tag indented four spaces after a blank line is code",
+         "    <span>\n## Alpha\n", lambda k: k[0] == CODE and k[1] == TEXT),
+        ("a self-closing tag alone on its line opens a type-7 block",
+         '<img src="x" />\n## Alpha\n\n## Real\n',
+         lambda k: k[:2] == [HTML] * 2 and k[3] == TEXT),
+    ]
+
+
+def _expects(anchors: list[str]) -> object:
+    """A predicate over a page: `headings()` assigns exactly these anchors."""
+    return lambda text: [a for _, _, a in headings(text)] == anchors
+
+
+def _predecessor_arms() -> list[tuple[str, str, object]]:
+    """`headings()` under a lone tag that follows each line after which no
+    paragraph is open: with no blank line between, the tag opens a type-7
+    block and the heading tucked inside it is text. The blank-line reading
+    kept that heading in the first nine shapes ([R85] F1 and [R86] F1,
+    round 1 on PR #428). The last four are lines after which a paragraph
+    IS open: the same tag continues it, and the heading renders."""
+    tick = "`" * 3
+    hides = [
+        ("an ATX heading", "## Alpha", ["alpha"]),
+        ("a closing fence", f"{tick}\ncode\n{tick}", []),
+        ("a thematic break", "***", []),
+        ("a closing comment line", "<!-- note\n-->", []),
+        ("a list item", "- item", []),
+        ("a block quote", "> quoted", []),
+        ("a table row", "| a | b |\n|---|---|\n| c | d |", []),
+        ("a setext underline", "Alpha\n===", []),
+        ("a type-1 block's closing tag", "<pre>\ncode\n</pre>", []),
+        ("an indented code line", "    code", []),
+        ("a plain line lazily continuing a list item", "- item\nlazy", []),
+        ("a table row without a pipe", "| a |\n|---|\nrow", []),
+        ("an empty list item", "-", []),
+    ]
+    keeps = [
+        ("paragraph text", "text"),
+        ("a pipe-led line with no delimiter row under it", "| a |"),
+        ("an ordered item that cannot interrupt a paragraph",
+         "text\n2. item"),
+        ("an equals-sign line that no paragraph precedes", "==="),
+    ]
+    wrapped = "\n<span>\n## Old\n</span>\n\n## Beta\n"
+    return ([(f"a lone tag directly under {what} hides the heading it wraps",
+              before + wrapped, _expects(own + ["beta"]))
+             for what, before, own in hides]
+            + [(f"a lone tag under {what} continues it, so the heading "
+                "renders", before + wrapped, _expects(["old", "beta"]))
+               for what, before in keeps])
+
+
 def _provenance_arms() -> list[tuple[str, str, object]]:
     """`generated_block`'s arms: what counts as this script's own output."""
     page = _ARM_PAGE
@@ -691,15 +830,17 @@ def selftest() -> int:
     render nothing ([R0] rounds 4 and 5 on PR #384).
     """
     problems = 0
-    for name, page, holds in _walk_arms():
+    on_walk = _walk_arms() + _tag_arms()
+    on_page = _provenance_arms() + _predecessor_arms()
+    for name, page, holds in on_walk:
         if not holds(blocks(page)):
             problems += 1
             print(f"  FAIL [{name}]: {blocks(page)}")
-    for name, page, holds in _provenance_arms():
+    for name, page, holds in on_page:
         if not holds(page):
             problems += 1
             print(f"  FAIL [{name}]")
-    arms = len(_walk_arms()) + len(_provenance_arms())
+    arms = len(on_walk) + len(on_page)
     print(f"TOC selftest: {'PASS' if not problems else 'FAIL'} "
           f"({arms - problems}/{arms} arm(s))")
     return 1 if problems else 0
