@@ -193,7 +193,7 @@ Gates (gaps item 4, generator round):
       key the table names is one the loaders accept.  The key set is what
       the loaders READ (by [], get, in or enumeration; never listed here)
       on the paths the five tracked configs take; a key read only on a
-      branch none takes is outside it (_loader_key_paths names the three).
+      branch none takes is outside it (_loader_key_paths names the four).
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -16290,13 +16290,16 @@ def _loader_key_paths() -> set[str]:
     bound: it holds what the loaders read on the paths those five
     configs take, so a key read only on a branch none of them exercises
     is never recorded and passes gate 32 without a row until a tracked
-    config takes that branch. Three loader arms are in that class today
-    (endstation_builder.py lines): the AES3/S-PDIF serial-clock arm of
+    config takes that branch. Four loader arms are in that class today
+    (endstation_builder.py lines), three statement arms and one
+    conditional expression: the AES3/S-PDIF serial-clock arm of
     `_load_interface` (3570 to 3579; the tracked kinds are i2s_philips,
     tdm8 and tdm32), the literal `entity_model_id` arm of `load_config`
     (3725 to 3726; every tracked config says hash-derived, and
-    arty_current's `model_id_pin` wins before it) and the `map_page` arm
-    of `_streams` (1213 to 1218; no tracked stream declares map_page).
+    arty_current's `model_id_pin` wins before it), the `map_page` arm of
+    `_streams` (1213 to 1218; no tracked stream declares map_page) and
+    the explicit `entity_id` arm of `_load_entity` (the conditional
+    expression at 3234; every tracked config says mac-derived).
     A path a loader only descended through (a section, a list) is a
     container, not a key, and is dropped. The two loaders that
     accept by TABLE rather than by read (`load_platform`: `set(raw) -
@@ -16357,7 +16360,7 @@ def test_builder_doc_key_map() -> None:
     five tracked configs take cannot land without a row, and a stale row
     cannot survive a key removal (#404). The key set is read off the
     loaders (see _loader_key_paths, which states the bound and names the
-    three arms today on which a key read is not recorded), never listed
+    four arms today on which a key read is not recorded), never listed
     here. The bites arm plants both defects in a copy of the table text."""
     accepted = _loader_key_paths()
     assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
