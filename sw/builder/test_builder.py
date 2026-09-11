@@ -191,9 +191,9 @@ Gates (gaps item 4, generator round):
   32. THE KEY MAP IS COMPLETE (issue #404): every config key load_config
       accepts has a row in docs/ENDSTATION_BUILDER.md section 3 and every
       key the table names is one the loaders accept.  The key set is what
-      the loaders READ on the paths the five tracked configs take (recorded,
-      never listed here): a new key on those paths cannot land without a
-      row; a key on a branch no tracked config takes is outside the set.
+      the loaders READ (by [], get, in or enumeration; never listed here)
+      on the paths the five tracked configs take; a key read only on a
+      branch none takes is outside it (_loader_key_paths names the three).
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -16285,14 +16285,20 @@ def _loader_key_paths() -> set[str]:
 
     The five tracked configs are loaded through a recording document, and
     the union of what the loaders touched is the key set - a key gets a
-    path here by being READ, never by being listed. That is also the
-    set's bound: it holds what the loaders read on the paths those five
+    path here by being READ (through the document's `[]`, `get`, `in`
+    and enumeration), never by being listed. That is also the set's
+    bound: it holds what the loaders read on the paths those five
     configs take, so a key read only on a branch none of them exercises
-    (today the AES3/S-PDIF serial-clock arm of `_load_interface`; the
-    tracked kinds are i2s_philips, tdm8 and tdm32) is never recorded and
-    passes gate 32 without a row until a tracked config takes that
-    branch. A path a loader only descended through (a section, a list)
-    is a container, not a key, and is dropped. The two loaders that
+    is never recorded and passes gate 32 without a row until a tracked
+    config takes that branch. Three loader arms are in that class today
+    (endstation_builder.py lines): the AES3/S-PDIF serial-clock arm of
+    `_load_interface` (3570 to 3579; the tracked kinds are i2s_philips,
+    tdm8 and tdm32), the literal `entity_model_id` arm of `load_config`
+    (3725 to 3726; every tracked config says hash-derived, and
+    arty_current's `model_id_pin` wins before it) and the `map_page` arm
+    of `_streams` (1213 to 1218; no tracked stream declares map_page).
+    A path a loader only descended through (a section, a list) is a
+    container, not a key, and is dropped. The two loaders that
     accept by TABLE rather than by read (`load_platform`: `set(raw) -
     set(PLATFORM_DEFAULTS)`, `_load_soc`: `dict(SOC_DEFAULTS, **soc_raw)`)
     only touch the keys a config declares, so their accept tables are
@@ -16346,12 +16352,13 @@ def _key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
 def test_builder_doc_key_map() -> None:
     """Gate 32: every key `load_config` accepts has a row in the
     ENDSTATION_BUILDER.md section 3 mapping table, and every key the table
-    names is one the loaders accept - so a new key on a path the five
-    tracked configs take cannot land without a row, and a stale row cannot
-    survive a key removal (#404). The key set is read off the loaders (see
-    _loader_key_paths, which states the bound: a key read only on a branch
-    no tracked config takes is not in it), never listed here.
-    The bites arm plants both defects in a copy of the table text."""
+    names is one the loaders accept - so a new key read through the
+    recording document's `[]`, `get`, `in` or enumeration on a path the
+    five tracked configs take cannot land without a row, and a stale row
+    cannot survive a key removal (#404). The key set is read off the
+    loaders (see _loader_key_paths, which states the bound and names the
+    three arms today on which a key read is not recorded), never listed
+    here. The bites arm plants both defects in a copy of the table text."""
     accepted = _loader_key_paths()
     assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
     doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
