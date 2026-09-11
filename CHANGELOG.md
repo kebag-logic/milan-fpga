@@ -8,11 +8,26 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** — CRF selection steers the grids.
-- **[Release 0x0002_0056 — ownerless gPTP verification form](#release-0x0002_0056--ownerless-gptp-verification-form)** — Verification only.
-- **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** — Shipping time owner.
-- **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** — Serves generated names and writable overlays.
-- **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** — Adds supported stream setters.
+- **[Release 0x0002_0058 - slip counters readable](#release-0x0002_0058---slip-counters-readable)** -- Two RO words, prefill retired.
+- **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** -- CRF selection steers the grids.
+- **[Release 0x0002_0056 — ownerless gPTP verification form](#release-0x0002_0056--ownerless-gptp-verification-form)** -- Verification only.
+- **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
+- **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+- **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Release 0x0002_0058 - slip counters readable
+
+- `SLIP_LB` (`0x8D4`) and `SLIP_TDM` (`0x8D8`) expose the media-boundary slip counters (#390).
+- `SLIP_LB` counts the loopback ring; `SLIP_TDM` counts the TDM junction.
+- Each word is live RO, `{skip[31:16], dup[15:0]}`, saturating.
+- Read twice and difference for a rate.
+- `SLIP_LB` is a structural zero without the loopback lane.
+- The true-ratio leg feeds the ring at the physical rate.
+- At INTERNAL each fed pair dups once per beat period.
+- Under CRF the same window shows zero: one grid.
+- The `PB_PREFILL_C` bench override is retired.
+- Every suite grades the shipped prefill.
+- No existing CSR address moves.
 
 ## Release 0x0002_0057 — live media-clock selection
 
@@ -23,7 +38,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `KL_media_grid_align` holds the packet grid on the physical fsync grid.
 - The chain runs CRF, MMCM, fsync, then tick.
 - The MMCM status slice belongs to the MMCM alone.
-- INTERNAL remains bit-exact free-run with slips accepted and now counted.
+- INTERNAL remains bit-exact free-run with slips accepted and now counted. Since 0x0002_0058 they read at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`).
 - `KL_chan_map_capture` gains TDM junction slip counters.
 - The true-ratio leg proves the INTERNAL drift.
 - The same leg proves its close under CRF.

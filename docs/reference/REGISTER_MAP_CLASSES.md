@@ -4,8 +4,8 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
-refreshed at VERSION `0x0002_0057` for the sole fabric gPTP owner and the
-ownerless option-OFF elaboration.
+refreshed at VERSION `0x0002_0058` for the sole fabric gPTP owner, the
+ownerless option-OFF elaboration and the media-boundary slip counters.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
 > ACMP, AECP/AEM and lwSRP RTL was deleted in favour of the pinned
@@ -72,7 +72,7 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | VERSION 0x0056 truth | Rationale |
@@ -102,6 +102,7 @@ assumption that AECP answers only one command.
 | `0x800–0x868` | Stream window (SEL/SID/FMT/CTRL/DMAC + per-stream RO views incl `A_STRMW_SRP`/`_CNT`) | **needed** | **mostly live** | The write half provisions the stream table and the RO views are the per-stream field picture — both unaffected. Two sub-ports inside the window are structural zeros: the **ACMP context-table read** (grant never asserts, record reads zero) and the **SRP attribute-row port** (no grant, no "stolen", readback zero) |
 | `0x8B4–0x8C4` | APRB (RX stream-parser probe) | **debug** | live | The pre-match listener view — a scope instrument. Feature-gated (`datapath_probes`) |
 | `0x8C8–0x8D0` | PBK (fabric render-chain probe) | **debug** | live | Same class, same gate |
+| `0x8D4–0x8D8` | SLIP (loopback-ring and TDM-junction dup/skip counters) | **optional** | live | Field observability of the media boundary through a validated CSR session: static = one grid, climbing = the INTERNAL free-run plan or a peer off this media clock. `SLIP_LB` is a structural zero on a shape built without the loopback lane |
 | `0x8F8` | MCSRV_STAT (media-clock servo) | **optional** | **reads its IDLE** | Not a structural zero: the servo is built and, since #74, its selector input follows the live clock-source resolve, so it leaves idle when a controller selects the CRF source. At the power-on INTERNAL selection it reads IDLE honestly, and a reader still cannot distinguish "no servo built" (`MCSERVO_P = 0`) from "servo idle" here — check the build plan, not the register |
 | `0x900–0x908` | Raw chmap WRITE window | **needed** (was *debug*) | live | **RECLASSIFIED.** This is the direct diagnostic programmer of both map RAMs, and `CHMAP_CTRL[0]` is also the local crossbar arm. The processor separately serves GET, ADD, and REMOVE_AUDIO_MAPPINGS against the same live stores. Saved-state restoration remains absent |
 | `0x90C` | CHMAP_STAT | **optional** | live | Reports committed CSR writes and CSR writes refused while the local override is disarmed or entity-locked. It does not tally AECP mapping changes |

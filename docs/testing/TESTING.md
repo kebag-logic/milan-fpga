@@ -591,7 +591,7 @@ The grader exercises direct bare-metal UART commands. It requires
 `ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
 PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
 consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
-advancing PHC. For `VERSION=0x0002_0057`, fabric is the sole product gPTP
+advancing PHC. For `VERSION=0x0002_0058`, fabric is the sole product gPTP
 owner. A direct verification-only option-OFF build instead must expose zero
 GM/parent/path/pdelay, `sync=0`, `asCapable=0`, `time_uncertain=1`, and inert
 legacy writes. Use a validated external JTAG/CSR transport for evidence not

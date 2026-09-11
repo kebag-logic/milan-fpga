@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-09-02, VERSION `0x0002_0057`.** This is the ordered, clause-cited
+**Status 2026-09-10, VERSION `0x0002_0058`.** This is the ordered, clause-cited
 plan from where the device is to a device that satisfies the Milan v1.2
 end-station compliance requirements. The canonical current ledger is
 [`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
@@ -33,7 +33,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |

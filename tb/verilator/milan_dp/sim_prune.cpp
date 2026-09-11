@@ -67,6 +67,7 @@ constexpr uint16_t A_LTAP_CTRL = 0x870;
 constexpr uint16_t A_LTAP_BASE = 0x874;
 constexpr uint16_t A_LTAP_END = 0x8B4;
 constexpr uint16_t A_MCSRV_STAT = 0x8F8;
+constexpr uint16_t A_SLIP_LB = 0x8D4;
 constexpr uint16_t A_MCSRV_CTRL = 0x8FC;
 
 namespace {
@@ -197,7 +198,7 @@ class PrunedShapeHarness {
     void prove_csr_identity_unchanged_by_pruning() {
         printf("[identity] the CSR contract is unchanged by pruning\n");
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020057);
+        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020058);
         {
             uint32_t cap = axi_read(A_CAP);
             ck("CAP.ADP bit12 still set",  (cap >> 12) & 1, 1);
@@ -323,6 +324,12 @@ class PrunedShapeHarness {
            axi_read(A_LTAP_BASE + 4) | axi_read(A_LTAP_BASE + 32), 0);
         ck("LTAP_CTRL STILL 0x2 after traffic", axi_read(A_LTAP_CTRL), 0x2);
         ck("MCSRV_STAT STILL 0 after traffic", axi_read(A_MCSRV_STAT), 0);
+        //! #390: SLIP_LB is a STRUCTURAL zero on this shape - LOOPBACK_P = 0
+        //! folds the loop feed strobe to a constant 0, so the ring's fed and
+        //! primed rails never set and its counters are pruned with it. The
+        //! word reads 0 with AAF traffic on the wire, not for want of frames.
+        ck("SLIP_LB 0x8D4 STILL 0 after traffic (structural: LOOPBACK_P=0)",
+           axi_read(A_SLIP_LB), 0);
         ck("MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT1), 0);
         ck("MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT0), 0);
         ck("I2SPB_STAT STILL 0 after traffic", axi_read(A_I2SPB_STAT), 0);
