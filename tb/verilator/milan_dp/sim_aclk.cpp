@@ -592,7 +592,8 @@ class MediaGridAlignmentHarness {
     //  PHASE 2 - CRF selected: the SAME instrument proves alignment.      //
     // =================================================================== //
     void select_crf_and_prove_the_grids_align(double ppm_int) {
-        printf("\n[CRF] the stored selection goes to this shape's CRF index (2)\n");
+        printf("\n[CRF] the stored selection goes to this shape's CRF index (%u)\n",
+               static_cast<unsigned>(kCrfClksrcIx));
         //! CSR byte offsets, plain integers by intent: each is handed straight to
         //! the AXI BFM as an address, so `constexpr` keeps the call sites
         //! cast-free (Enum.5).
@@ -1083,7 +1084,8 @@ class MediaGridAlignmentHarness {
         start_aaf_feed(0);
         run_fed(3000000);
         move_the_running_feed_past_a_tick("RENDER-LIVE", true);
-        printf("\n[CRF] the stored selection goes to this shape's CRF index (2), the feed running\n");
+        printf("\n[CRF] the stored selection goes to this shape's CRF index (%u),"
+               " the feed running\n", static_cast<unsigned>(kCrfClksrcIx));
         constexpr uint16_t A_MAC_ALO = 0x108;
         constexpr uint16_t A_MAC_AHI = 0x10C;
         constexpr uint16_t A_CRF_CTRL = 0x738;

@@ -1665,7 +1665,13 @@ class NxnDatapathHarness {
         #ifdef NOTIFY_TIMED_TB
         //! THE TIMED LEG ENDS HERE: the image is served, so the
         //! notification section has names to set, and nothing after it
-        //! is clocked for a compressed processor timebase.
+        //! is clocked for a compressed processor timebase. The clock-source
+        //! walk runs first so this leg's AX 1x1 image is graded like the
+        //! other legs' (which walk it inside the whole-model walk below):
+        //! GET_CLOCK_SOURCE against the CLOCK_DOMAIN row, then the set
+        //! against what the fabric follows (#389).
+        grade_get_clock_source_against_the_clock_domain();
+        grade_the_clock_source_set_against_the_fabric();
         notify_section(true);
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);

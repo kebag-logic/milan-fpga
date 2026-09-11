@@ -276,9 +276,9 @@ exist follows from the shape, never from what the bytes happen to be.
 | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
 | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
 | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 31 | **107** |
-| **records** | | | | **46** | **164** |
-| **highest id** | | | | `0x9E` | `0xEA` |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 30 | **99** |
+| **records** | | | | **45** | **156** |
+| **highest id** | | | | `0x9D` | `0xE2` |
 
 The binding block base is not chosen here. It is `REC_ID_BASE_P` in
 `KL_acmp_nvm_shadow`, already fixed in landed gateware, and the gate READS it
@@ -291,7 +291,8 @@ the module is followed rather than missed.
 The blocks are what makes this contract shape-independent. A record is placed at
 `base + index`, and a shape whose index leaves the block is a finding at the
 block boundary rather than a collision discovered later. The name block holds
-128 ordinals against the 107 the largest shipped shape has; a shape with more
+128 ordinals against the 99 the largest shipped shape has since #389 (107
+before it retired the per-listener clock source); a shape with more
 writable names than that is check 3's finding, and a shape whose whole record
 set outgrows the 256-id namespace is check 6's, named as such rather than
 absorbed by a layout nobody decided.
@@ -872,14 +873,18 @@ to be measured before committing, and it is measured above.
 # the before, and the three calibration blocks in the same run
 syn/yosys/ooc.sh KL_nvm_blankflash_sizer KL_maap tcam KL_chan_map_render
 
-# the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column
+# the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column.
+# N_NAME_P is the shape's AEM_NAME_ENTRIES_C, read from its generated header:
+# configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh (30)
+# and configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh (99)
+# since #389; the table above was measured at 31 and 107, the bound before it
 OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 N_SPORT_OUT_P=1 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=31" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=30" \
   syn/yosys/ooc.sh KL_nvm_backend
 
 # the after, at the 8x8 shape
 OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=107" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=99" \
   syn/yosys/ooc.sh KL_nvm_backend
 
 # and what the module actually DOES, at both shapes, with the four

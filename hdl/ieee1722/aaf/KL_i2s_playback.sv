@@ -27,9 +27,11 @@
                 offset vs the talker's 48 kHz (USER rule: internal media
                 clock = free-run, slips accepted). Underrun repeats the
                 last pair, overrun drops - both counted. The NCO trim servo
-                is retired (trim_o reads 0); exact stream-clock recovery
-                for CLOCK_SOURCE=stream returns as MMCM-DRP discipline
-                later. converged_o keeps its fill-window semantics on the
+                is retired (trim_o reads 0). Stream-derived clock recovery
+                is not provided and, since #389, not advertised: no AAF
+                listener carries a CLOCK_SOURCE, and the media clock follows
+                INTERNAL or the CRF sink through KL_mmcm_drp_servo.
+                converged_o keeps its fill-window semantics on the
                 producer-side FIFO.
 
   Company     : Kebag Logic

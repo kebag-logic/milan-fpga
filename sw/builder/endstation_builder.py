@@ -352,7 +352,8 @@ SRP_DMAC_DYNAMIC = "maap"
 OPTIONAL_BLOCKS = {
     "media_clock_servo": ("--no-media-clock-servo", "MCSERVO_P",
                           "KL_mmcm_drp_servo - the audio-MMCM media-clock "
-                          "actuator (CRF / input-stream recovery)"),
+                          "actuator (CRF recovery; the only remote source "
+                          "advertised since #389)"),
     "latency_taps":      ("--no-latency-taps", "LTAP_P",
                           "KL_aaf_latency_taps - the per-stage AAF latency "
                           "instrumentation behind CSR 0x870-0x8B0"),
@@ -4514,9 +4515,10 @@ def emit_platform_section(shape: dict[str, Any]) -> list[str]:
 #: obligation travels with the config, not with the reviewer's memory.
 FEATURE_REMEASURE = {
     "media_clock_servo":
-        "every CRF / input-stream media-clock lock result: with no actuator "
-        "the audio MMCM free-runs, so servo convergence, MCSRV_STAT states "
-        "and any recovered-clock jitter figure are not reproducible",
+        "every CRF media-clock lock result (the only recovered source since "
+        "#389): with no actuator the audio MMCM free-runs, so servo "
+        "convergence, MCSRV_STAT states and any recovered-clock jitter "
+        "figure are not reproducible",
     "latency_taps":
         "ALL of docs/AAF_LATENCY_TAPS.md - the CAP-SOF, SOF-EOF and EOF-MAC "
         "silicon numbers were read out of this block and cannot be re-read "
