@@ -149,8 +149,8 @@ module KL_render_setpoint #(
                                                  //! bind loss, empty it
 
   //! --- to the render crossbar (KL_chan_map_render s_* and tick_i) ---------
-  output logic [63:0]              m_tdata_o,    //! 2 S32BE samples, wire
-                                                 //! order, pad lanes zero
+  output logic [63:0]              m_tdata_o,    //! S32BE sample pair, wire
+                                                 //! order; pad lanes zero
   output logic                     m_tvalid_o,   //! beat strobe (registered)
   output logic                     m_tlast_o,    //! last beat of the event
   output logic [3:0]               m_tuser_o,    //! stream index s
