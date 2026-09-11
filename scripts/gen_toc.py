@@ -82,8 +82,10 @@ GENERATED_SCAN_LINES = 12
 FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
 #: Four spaces or a tab of indentation start an indented code block, which
-#: renders as code. Such a run cannot interrupt a paragraph, so it begins
-#: only after a blank line.
+#: renders as code. Such a run cannot interrupt a paragraph but follows any
+#: block that closed (CommonMark 4.4: `# Heading` then `    foo`), so it
+#: opens only while no paragraph is open and no container holds the line
+#: ([R85] F1, round 3 on PR #428, where it began only after a blank line).
 INDENT_CODE_RE = re.compile(r"^(?: {4}|\t)")
 #: CommonMark's type-1 raw HTML block: its content is not parsed as Markdown
 #: and it survives blank lines, so a Contents block written inside one
@@ -156,9 +158,11 @@ LIST_ITEM_RE = re.compile(
 #: hyphens alone is a setext underline or a thematic break, both read
 #: before it. The row makes a table only when its cells number the header
 #: row's (`_table_cells`); otherwise both lines stay paragraph text ([R86]
-#: F1, round 2 on PR #428, where a pipe was demanded of the row).
+#: F1, round 2 on PR #428, where a pipe was demanded of the row). Its
+#: indentation is bounded at three spaces whether or not a pipe leads it;
+#: at four, or a tab, the line continues the paragraph ([R85] F2, round 3).
 TABLE_DELIMITER_RE = re.compile(
-    r"^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
+    r"^ {0,3}(?:\|[ \t]*)?:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
 #: One cell of a GFM table row, anything up to a pipe with a backslash
 #: escaping the character after it; then the pipe that ends the cell and
 #: the blanks after it.
@@ -177,13 +181,6 @@ COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 TEXT, FENCE, COMMENT, CODE, HTML = ("prose line", "fenced line",
                                     "commented line", "indented code line",
                                     "raw HTML line")
-
-
-def _closes_fence(delim: str, run: str, info: str) -> bool:
-    """Whether a delimiter line closes the fence `delim` opened: same
-    character, at least as long, and nothing after it but whitespace."""
-    return bool(run) and run[0] == delim[0] and len(run) >= len(delim) \
-        and not info.strip()
 
 
 def blocks(text: str) -> list[str]:
@@ -216,10 +213,12 @@ def blocks(text: str) -> list[str]:
     the SAME character, at least as long, carrying nothing but whitespace
     after the run, so a three-backtick line inside a four-backtick block is
     content; a backtick opener's info string may not contain a backtick,
-    while a tilde opener's may. An indented code run needs a blank line
-    before it, because it cannot interrupt a paragraph and, containers
-    being flat here, a line indented under a list item is that item's
-    content. A comment runs to its closing delimiter and a type-1 raw HTML
+    while a tilde opener's may. An indented code run cannot interrupt a
+    paragraph but follows any block that closed ([R85] F1, round 3 on PR
+    #428, where a blank line was demanded of it); containers being flat
+    here, a line indented under a list item, a block quote, a footnote
+    definition or a table row is that container's content and opens no
+    run. A comment runs to its closing delimiter and a type-1 raw HTML
     block to its closing tag, both across blank lines. A line that mixes
     commented and visible text is labelled by the block it STARTS in,
     which can only withhold a heading or a Contents block from a reader,
@@ -232,9 +231,10 @@ def blocks(text: str) -> list[str]:
     constructs are read as GitHub's renderer reads them ([R86] F1, round 2
     on PR #428). A table delimiter row is what GFM 0.29 section 4.10
     defines, cells of hyphens and optional colons between optional pipes,
-    so `:-:` under a paragraph line is a one-cell table, and it makes a
-    table only when its cells number the header row's, so a row that does
-    not match leaves the paragraph open. A footnote definition (`[^1]:
+    indented at most three spaces ([R85] F2, round 3), so `:-:` under a
+    paragraph line is a one-cell table, and it makes a table only when its
+    cells number the header row's, so a row that does not match leaves
+    the paragraph open. A footnote definition (`[^1]:
     note`) has no clause in that specification's text; the renderer reads
     it as a container, which interrupts a paragraph and holds the plain
     lines after it, and opens a type-7 block on a lone tag directly under
@@ -244,18 +244,15 @@ def blocks(text: str) -> list[str]:
     paragraph open where GitHub has none, and let a wrapped heading
     through.
     """
-    out, state, delim, tag = [], TEXT, "", ""
-    prev, para = "", NO_PARAGRAPH
+    out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
     for line in text.split("\n"):
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
         else:
-            label, state, delim, tag = _opens(line, not prev.strip(), para,
-                                              state)
+            label, state, delim, tag = _opens(line, para, state)
             out.append(label)
-        para = _paragraph_after(line, out[-1], para, prev)
-        prev = line
+        para, prev = _paragraph_after(line, out[-1], para, prev), line
     return out
 
 
@@ -349,14 +346,14 @@ def _still_open(line: str, state: str, delim: str,
             return (TEXT if not line.strip() else HTML), "", tag
         return ((TEXT if re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
                  else HTML), "", tag)
-    m = FENCE_RE.match(line)
-    if m and _closes_fence(delim, m.group(1), m.group(2)):
+    m = FENCE_RE.match(line)         # closes on the SAME character, a run
+    if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+            and not m.group(2).strip():  # at least as long, nothing after it
         return TEXT, "", ""
     return FENCE, delim, ""
 
 
-def _opens(line: str, prev_blank: bool, para: str,
-           state: str) -> tuple[str, str, str, str]:
+def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
     """(what this line is, the state after it, fence delimiter, HTML tag)
     for a line that no block encloses.
 
@@ -365,12 +362,13 @@ def _opens(line: str, prev_blank: bool, para: str,
     type-7 grammar, so `<pre>` opens the block that survives blank lines;
     a comment that opens after visible text leaves THIS line ordinary and
     starts the span on the next one, so a heading with a trailing comment
-    is still a heading. `prev_blank` gates the code run and `para` the
-    type-7 tag, the two blocks that may not interrupt a paragraph.
+    is still a heading. `para` gates the two blocks that may not interrupt
+    a paragraph: the code run opens only while none is open and no
+    container holds the line, the type-7 tag whenever none is open.
     """
     if state == CODE and (not line.strip() or INDENT_CODE_RE.match(line)):
         return CODE, CODE, "", ""      # the run continues across blank lines
-    if INDENT_CODE_RE.match(line) and prev_blank:
+    if INDENT_CODE_RE.match(line) and para == NO_PARAGRAPH:
         return CODE, CODE, "", ""
     m = FENCE_RE.match(line)
     if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
@@ -409,12 +407,6 @@ def line_kinds(text: str) -> list[str]:
         else:
             out.append(TEXT)
     return out
-
-
-def fenced(text: str) -> list[bool]:
-    """Per line: is it inside a fenced code block? Derived from `blocks()`,
-    never re-walked."""
-    return [k == FENCE for k in blocks(text)]
 
 
 #: One Contents entry as this script writes it: the label, the anchor, the
@@ -765,10 +757,10 @@ def _tag_arms() -> list[tuple[str, str, object]]:
     arm to hold it ([R86] F2, round 1 on PR #428): the order that reads a
     type-1 tag first, the three spaces of indentation the grammar allows
     and the four that make code instead, and the self-closing form. Four
-    spaces where no blank line precedes the tag open no block either; the
-    code-run arm cannot show that, because after a blank line the code
-    reader answers before the tag grammar is consulted ([R86] F2, round
-    2)."""
+    spaces under a list item reach the tag grammar, no code run opening
+    there, and it must refuse them ([R86] F2, round 2); under a heading
+    they are code, so the lone tag under THEM opens a block ([R85] F1,
+    round 3)."""
     return [
         ("a type-1 tag is read before the type-7 grammar, so its block "
          "survives a blank line",
@@ -782,14 +774,14 @@ def _tag_arms() -> list[tuple[str, str, object]]:
         ("a self-closing tag alone on its line opens a type-7 block",
          '<img src="x" />\n## Alpha\n\n## Real\n',
          lambda k: k[:2] == [HTML] * 2 and k[3] == TEXT),
-        ("a tag indented four spaces under a heading opens no block, so the "
-         "heading under it renders",
-         "## Head\n    <span>\n## Old\n",
-         lambda k: k[1] != HTML and k[2] == TEXT),
-        ("a tag indented four spaces under a thematic break opens no block "
-         "either",
-         "***\n    <span>\n## Old\n",
-         lambda k: k[1] != HTML and k[2] == TEXT),
+        ("a tag indented four spaces under a list item is that item's text, "
+         "so the heading under it renders",
+         "- item\n    <span>\n## Old\n",
+         lambda k: k[1] == TEXT and k[2] == TEXT),
+        ("a tag indented four spaces under a heading is code, so a lone tag "
+         "under it opens a block",
+         "## Head\n    <span>\n<b>\n## Old\n",
+         lambda k: k[1] == CODE and k[2:4] == [HTML] * 2),
     ]
 
 
@@ -805,9 +797,12 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
     kept that heading in the first nine shapes ([R85] F1 and [R86] F1,
     round 1 on PR #428); the pipe once demanded of a delimiter row kept it
     under `:-:`, and a footnote definition was read as paragraph text
-    ([R86] F1, round 2). The `keeps` are lines after which a paragraph IS
-    open: the same tag continues it, and the heading renders, a delimiter
-    row that does not match its header row's cells among them."""
+    ([R86] F1, round 2); an indented line directly under a block that
+    closed was read as paragraph text where CommonMark 4.4 has code ([R85]
+    F1, round 3). The `keeps` are lines after which a paragraph IS open:
+    the same tag continues it, and the heading renders, a delimiter row
+    that does not match its header row's cells, or is indented four
+    spaces, among them."""
     tick = "`" * 3
     hides = [
         ("an ATX heading", "## Alpha", ["alpha"]),
@@ -830,7 +825,16 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
          "text\n[^1]: note", []),
         ("a plain line lazily continuing a footnote definition",
          "[^1]: note\nlazy", []),
+        ("CommonMark 4.4's own `# Heading` then `    foo`",
+         "# Heading\n    foo", ["heading"]),
+        ("a tab-indented line under a heading", "# H\n\tcode", ["h"]),
+        ("a pipeless delimiter row indented three spaces", "text\n   :-:", []),
     ]
+    # The five above that closed, an indented code line between ([R85] F1).
+    closed = ("a closing fence", "a thematic break", "a closing comment line",
+              "a setext underline", "a type-1 block's closing tag")
+    hides += [(f"an indented code line under {what}", before + "\n    code",
+               own) for what, before, own in hides if what in closed]
     keeps = [
         ("paragraph text", "text"),
         ("a pipe-led line with no delimiter row under it", "| a |"),
@@ -843,6 +847,8 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
          "| a |\n|---|---|"),
         ("a delimiter row whose header row's only pipe is escaped",
          "a \\| b\n-|-"),
+        ("a pipeless delimiter row indented four spaces", "text\n    :-:"),
+        ("a pipeless delimiter row indented by a tab", "text\n\t:-:"),
     ]
     wrapped = "\n<span>\n## Old\n</span>\n\n## Beta\n"
     return ([(f"a lone tag directly under {what} hides the heading it wraps",
@@ -878,20 +884,17 @@ def _provenance_arms() -> list[tuple[str, str, object]]:
              "\n## Alpha", "\n</pre>\n\n## Alpha", 1),
          lambda t: generated_block(t) is None),
         ("a heading inside a tight type-6 block is no heading",
-         "<div>\n## Alpha\n</div>\n\n## Beta\n",
-         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+         "<div>\n## Alpha\n</div>\n\n## Beta\n", _expects(["beta"])),
         ("a heading inside a type-6 block that closed IS a heading",
          "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n",
-         lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
+         _expects(["alpha", "beta"])),
         ("a heading inside a tight type-7 block is no heading",
-         "<span>\n## Alpha\n</span>\n\n## Beta\n",
-         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+         "<span>\n## Alpha\n</span>\n\n## Beta\n", _expects(["beta"])),
         ("a heading after a tag that continues a paragraph IS a heading",
          "text\n<span>\n## Alpha\n</span>\n\n## Beta\n",
-         lambda t: [a for _, _, a in headings(t)] == ["alpha", "beta"]),
+         _expects(["alpha", "beta"])),
         ("a heading inside a comment is no heading",
-         "<!--\n## Alpha\n-->\n\n## Beta\n",
-         lambda t: [a for _, _, a in headings(t)] == ["beta"]),
+         "<!--\n## Alpha\n-->\n\n## Beta\n", _expects(["beta"])),
         ("a page this script skips has no provenance", page,
          lambda t: generated_block(t, "docs/README.md") is None),
         ("nor has a historical page", page,
