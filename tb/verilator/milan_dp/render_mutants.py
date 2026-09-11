@@ -13,10 +13,29 @@ rebuilt through the Makefile's own recipe (`make aclk-build` with RSP_SRC and
 ACLK_MDIR overridden) and run with `--render-only`, the half of the leg those
 checks live in. Each mutant must make the leg FAIL by its OWN verdict (a
 `[FAIL]` line or a tally with failures, read by scripts/suite_tally.py), and
-the named check must be among the failures; a crash or a hang is not a
+the named check must be among the failures; a crash or an abort is not a
 catch. The positive control is the clean leg the sweep just ran (obj_aclk):
 it is re-run here in the same short mode so the two verdicts come from the
 same binary shape.
+
+What bounds a livelocking mutant. This driver sets no host-time deadline
+on a run (rule 8's wall-clock ratchet, scripts/test_evidence.budget item
+4). The --render-only leg of sim_aclk.cpp is cycle-bounded by construction,
+not by a cap constant: it steps a fixed count out of reset, binds listener
+0 through fixed step loops and an AXI4-Lite BFM whose every handshake gives
+up after kAxiGuardCycles (2048 cycles), injects each frame through inject()
+(at most 1500 cycles), runs the law window through run_fed (RUN = 12000000
+cycles; run_fed stops at axis_cycle + n) and the recentre windows through
+run_fed (25, 25 and 100 PDU periods), then returns at `if (render_only)
+return report();`. No loop on that path waits on a DUT output without a
+cycle bound, so the leg ends at the same cycle whatever the mutated stage
+does. The host-time bound is the sweep's: scripts/run_all_suites.sh runs
+this suite's `make` (whose `run` recipe ends with `python3
+render_mutants.py`) under its per-suite guard, suite_timeout = 1800 s, and
+reports a kill as TIMEOUT, an UNKNOWN result (exit 92), never a pass or a
+fail. The SIGTERM handler in main() turns that kill into an exit that
+removes the temporary directory and the leg's own process group. Run by
+hand, outside the sweep, nothing but the cycle bound limits a run.
 
 Usage: python3 render_mutants.py      (run from tb/verilator/milan_dp)
 Exit 0 = every mutant was caught and the clean leg still passes.
@@ -34,10 +53,6 @@ RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv"
 CLEAN_EXE = HERE / "obj_aclk/Vmilan_dp_aclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
-
-#: the short leg simulates ~13 M datapath cycles; a run still going after
-#: this many seconds is livelocked, not slow (the guard, never the oracle)
-MUTANT_RUN_TIMEOUT_S = 3600
 
 #: (name, pattern, replacement, the check this defect must break)
 MUTATIONS = [
@@ -66,29 +81,26 @@ def build(rtl_path: Path, mdir: Path) -> Path | None:
     return exe
 
 
-def run_leg(exe: Path) -> tuple[int | str, str]:
-    """(rc, stdout) of one --render-only run; rc is "TIMEOUT" when killed."""
+def run_leg(exe: Path) -> tuple[int, str]:
+    """(rc, stdout) of one --render-only run, waited for with no host
+    deadline: the leg is cycle-bounded (module docstring). The leg is its own
+    session, so the sweep's kill reaches it only through the SIGTERM handler
+    in main(), whose exit runs the kill below."""
     proc = subprocess.Popen([str(exe), "--render-only"], cwd=str(HERE),
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, start_new_session=True)
     try:
-        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
-        return proc.returncode, out
-    except subprocess.TimeoutExpired:
-        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
         out, _ = proc.communicate()
-        return "TIMEOUT", out
+        return proc.returncode, out
     finally:
         if proc.poll() is None:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             proc.wait()
 
 
-def verdict(rc: int | str, out: str, must_fail: str | None) -> str:
+def verdict(rc: int, out: str, must_fail: str | None) -> str:
     """'pass', 'caught', or why the run is not evidence."""
     reason, failed = log_reports_failure(out)
-    if rc == "TIMEOUT":
-        return f"TIMEOUT after {MUTANT_RUN_TIMEOUT_S}s - a hang is not a catch"
     if rc == 0 and not failed:
         return "pass"
     if rc == 0 and failed:

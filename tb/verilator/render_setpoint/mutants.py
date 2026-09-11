@@ -14,9 +14,23 @@ against each mutant through the suite's own Makefile recipe (`make build`
 with SRCS and MDIR overridden), so the flag set is stated once. Every mutant
 must make the harness FAIL by its OWN verdict (a `[FAIL]` line or a tally
 with failures, read by scripts/suite_tally.py); the unmutated build must
-still PASS. A crash, an abort or a hang is not a catch. Each pattern is
-REQUIRED to appear exactly once, so a refactor that moves the code fails
-here instead of silently skipping a mutant.
+still PASS. A crash or an abort is not a catch. Each pattern is REQUIRED
+to appear exactly once, so a refactor that moves the code fails here
+instead of silently skipping a mutant.
+
+What bounds a livelocking mutant. This driver sets no host-time deadline
+on a run (rule 8's wall-clock ratchet, scripts/test_evidence.budget item
+4). The harness is cycle-bounded by construction, not by a cap constant:
+sim_main.cpp advances the stage only through idle(n), a fixed cycle count,
+run_to(target), a fixed cycle target, and push_pdu, a fixed beat count, and
+no loop in it waits on a DUT output, so every run ends at the same cycle
+whatever the mutated stage does. The host-time bound is the sweep's:
+scripts/run_all_suites.sh runs this suite's `make` (the `run` target, then
+`mutants`) under its per-suite guard, suite_timeout = 1800 s, and reports
+a kill as TIMEOUT, an UNKNOWN result (exit 92), never a pass or a fail.
+The SIGTERM handler in main() turns that kill into an exit that removes
+the temporary directory and the harness's own process group. Run by hand,
+outside the sweep, nothing but the cycle bound limits a run.
 
 Usage: python3 mutants.py      (run from tb/verilator/render_setpoint)
 Exit 0 = every mutant was caught and the clean build still passes.
@@ -33,10 +47,6 @@ HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
-
-#: The harness runs in about a second; a mutant still running after this
-#: many seconds is livelocked, not slow.
-MUTANT_RUN_TIMEOUT_S = 120
 
 #: (name, pattern, replacement, the assertion this defect should break)
 MUTATIONS = [
@@ -89,28 +99,25 @@ def build(rtl_path: Path, workdir: Path, tag: str) -> Path | None:
     return exe
 
 
-def run_harness(exe: Path) -> tuple[int | str, str]:
-    """(rc, stdout) of one harness run; rc is "TIMEOUT" when it was killed."""
+def run_harness(exe: Path) -> tuple[int, str]:
+    """(rc, stdout) of one harness run, waited for with no host deadline: the
+    harness is cycle-bounded (module docstring). The harness is its own
+    session, so the sweep's kill reaches it only through the SIGTERM handler
+    in main(), whose exit runs the kill below."""
     proc = subprocess.Popen([str(exe)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, start_new_session=True)
     try:
-        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
-        return proc.returncode, out
-    except subprocess.TimeoutExpired:
-        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
         out, _ = proc.communicate()
-        return "TIMEOUT", out
+        return proc.returncode, out
     finally:
         if proc.poll() is None:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             proc.wait()
 
 
-def verdict(rc: int | str, out: str) -> str:
+def verdict(rc: int, out: str) -> str:
     """How the harness answered: 'pass', 'caught', or why it is not evidence."""
     reason, failed = log_reports_failure(out)
-    if rc == "TIMEOUT":
-        return f"TIMEOUT after {MUTANT_RUN_TIMEOUT_S}s - a hang is not a catch"
     if rc == 0 and not failed:
         return "pass"
     if rc == 0 and failed:
