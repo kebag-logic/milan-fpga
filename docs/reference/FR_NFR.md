@@ -204,7 +204,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-SRP-02 | The entity MUST register the stream VLAN via MVRP. | M | T |
 | FR-SRP-03 | On reservation grant the CBS shaper MUST be configured to the reserved idleSlope; on failure the stream MUST NOT transmit. | M | T |
 
-> **Scope (VERSION `0x0002_0057`):** FR-CONN-02's queue/CBS programming and
+> **Scope (VERSION `0x0002_0058`):** FR-CONN-02's queue/CBS programming and
 > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
 > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
 > The obligation that survives, *no transmit without a grant*, is met at the

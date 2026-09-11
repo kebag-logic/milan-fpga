@@ -145,6 +145,15 @@ constexpr int kLawSkipHead = 40;
 constexpr int kLawSkipTail = 4;
 //! a PHC adjtime of 65 536 ns: any nonzero step is the recentre trigger
 constexpr uint32_t kPhcStepNs = 0x00010000;
+//! The loopback-ring aim (#390, the banner inside the class): land the restart
+//! burst this far after a media tick, and accept it inside the band.
+constexpr double kRingAimPhase = 0.93;
+constexpr long kRingAimCycles = static_cast<long>(kRingAimPhase * kTickCycles + 0.5);
+constexpr long kRingAimBandLo = static_cast<long>(0.90 * kTickCycles);
+constexpr long kRingAimBandHi = static_cast<long>(0.96 * kTickCycles);
+//! one physical frame of the audio clock in half() calls: 512 audio cycles x
+//! 2 edges x 1591/391 = 4166.7 half-steps
+constexpr long kFrameHalfSteps = 4167;
 
 // ---------------------------------------------------------------------- //
 //  The fractional-N audio clock (exact 391/1591 - see the banner).        //
@@ -179,9 +188,19 @@ class MediaGridAlignmentHarness {
     int  aud = 0;
     long axis_cycle = 0;
 
+    //! the TDM-junction slip inducers (#390): hold_steps freezes the audio
+    //! clock for that many half-steps (one frame = one missing marker = one
+    //! dup), boost_steps doubles its rate (two frames per tick = skips)
+    long aud_hold_steps = 0;
+    long aud_boost_steps = 0;
     void half() {
-        acc += AUD_NUM;
-        if (acc >= AUD_DEN) { acc -= AUD_DEN; aud ^= 1; }
+        if (aud_hold_steps > 0) {
+            aud_hold_steps--;
+        } else {
+            acc += (aud_boost_steps > 0) ? 2 * AUD_NUM : AUD_NUM;
+            if (aud_boost_steps > 0) aud_boost_steps--;
+            if (acc >= AUD_DEN) { acc -= AUD_DEN; aud ^= 1; }
+        }
         dut->clk_audio_i = aud;
         dut->clk_tdm_i   = aud;
     }
@@ -292,6 +311,7 @@ class MediaGridAlignmentHarness {
             f_last = axis_cycle; f_n++;
         }
         f_prev = f;
+        observe_the_loop_ring();
     }
     void step() { lo(); hi(); }
 
@@ -676,6 +696,292 @@ class MediaGridAlignmentHarness {
             ck("CRF: the MMCM servo tracks through the live select (ACQUIRE)",
                sv & 0x7, 3);
         }
+    }
+
+    // =================================================================== //
+    //  THE LOOPBACK RING ON THE ONE GRID (#390).                            //
+    //                                                                      //
+    //  The LOOP bucket of KL_chan_map_capture is the last elastic queue at  //
+    //  the media boundary: PUSHED by the depacketizer clone at the UPSTREAM //
+    //  talker's rate, POPPED once per media tick. Nothing in this leg fed   //
+    //  it before, so its dup/skip evidence read zero for want of a feed,    //
+    //  not for want of a slip. The upstream talker is modelled here on the  //
+    //  PHYSICAL grid - the AAF feed at 12500 + 52/391 cycles per PDU, the   //
+    //  cadence a peer disciplined to the same CRF produces - so at INTERNAL //
+    //  the ring sees the -10.64 ppm plan (pop faster than push: one dup per //
+    //  beat period, 1.958 s), and under CRF, the packet grid held on fsync  //
+    //  by KL_media_grid_align, it sees ONE grid.                             //
+    //                                                                      //
+    //  MAKING THE BEAT DETERMINISTIC. The dup fires when a six-event burst  //
+    //  lands AFTER the tick that would have popped its first event. Bursts  //
+    //  repeat every six ticks + 52/391 cycles, so the burst-vs-tick phase   //
+    //  walks 0.133 cycle per PDU and the first dup comes after              //
+    //  (P - phi) / 0.133 PDUs, phi = the burst's landing offset after the   //
+    //  preceding tick (P = 2083.33). The harness AIMS phi: it empties the   //
+    //  queue, waits for a tick and lands the restart PDU 0.93 P after one   //
+    //  (the landing latency is measured on the priming PDU), which puts the //
+    //  first dup ~1100 PDUs = 13.7 M cycles out; the graded window is 1.5x  //
+    //  that. The same aim and window under CRF must show ZERO: a pop grid   //
+    //  drifting by the INTERNAL plan would dup inside it, so the window     //
+    //  exposes any ring drift above (P - phi) / window = 7 ppm.             //
+    //                                                                      //
+    //  The evidence is read TWICE: the tap, and the SLIP_LB / SLIP_TDM CSR  //
+    //  words (0x8D4 / 0x8D8) that make it visible on silicon.               //
+    // =================================================================== //
+    long tick_cycle_last = -1;    //! the last media tick (never reset)
+    long lb_land_cycle   = -1;    //! last accepted tlast at the loop tap
+    long lb_land_tick    = -1;    //! the tick that preceded that landing
+
+    void observe_the_loop_ring() {
+        if (dut->rootp->milan_datapath__DOT__media_tick_p) tick_cycle_last = axis_cycle;
+        if (dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w &&
+            dut->rootp->milan_datapath__DOT__lb_tap_tlast_w) {
+            lb_land_cycle = axis_cycle;
+            lb_land_tick  = tick_cycle_last;
+        }
+    }
+
+    uint32_t slip_lb_tap() const {
+        return (static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w) << 16) |
+               static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w);
+    }
+    uint32_t slip_tdm_tap() const {
+        return (static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w) << 16) |
+               static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w);
+    }
+
+    //! listener 0 through the 0x800 window (the sim_ax1x1gptp provisioning):
+    //! the sid the AAF feed carries and the eight-channel INT32 format
+    void bind_listener_zero_through_the_window() {
+        constexpr uint16_t A_MAC_ALO = 0x108;
+        constexpr uint16_t A_MAC_AHI = 0x10C;
+        constexpr uint16_t A_STRM_SEL = 0x800;
+        constexpr uint16_t A_STRMW_CTRL = 0x810;
+        constexpr uint16_t A_STRMW_SID_LO = 0x814;
+        constexpr uint16_t A_STRMW_SID_HI = 0x818;
+        constexpr uint16_t A_STRMW_FMT_LO = 0x824;
+        constexpr uint16_t A_STRMW_FMT_HI = 0x828;
+        axi_write(A_MAC_ALO, 0x00000002);
+        axi_write(A_MAC_AHI, 0x00000100);
+        axi_write(A_STRM_SEL, 0);
+        axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
+        axi_write(A_STRMW_SID_HI, 0x02000000);
+        axi_write(A_STRMW_FMT_LO, 0x02006000);
+        axi_write(A_STRMW_FMT_HI, 0x02050220);
+        axi_write(A_STRMW_CTRL, 1);
+    }
+
+    //! talker 0's eight channels onto the LOOP bucket of stream 0, pair ch/2
+    //! half ch&1 - the shipping AX7101 loopback lane, programmed through the
+    //! 0x900 window exactly as sim_ax1x1gptp does
+    void map_talker_zero_onto_the_loop_lane() {
+        constexpr uint16_t A_CHMAP_CTRL = 0x900;
+        constexpr uint16_t A_CHMAP_SEL = 0x904;
+        constexpr uint16_t A_CHMAP_WORD = 0x908;
+        axi_write(A_CHMAP_CTRL, 1);
+        for (unsigned ch = 0; ch < static_cast<unsigned>(kAafChans); ch++) {
+            axi_write(A_CHMAP_SEL, 0x100u | ch);
+            axi_write(A_CHMAP_WORD, 0xD000u | ((ch & 1u) << 8) | (ch / 2));
+        }
+    }
+
+    //! feed until the next AAF PDU lands at the loop tap; false = the budget
+    //! ran out first
+    bool run_fed_until_a_pdu_lands(long budget) {
+        const long seen = lb_land_cycle;
+        const long stop = axis_cycle + budget;
+        while (axis_cycle < stop && lb_land_cycle == seen) {
+            if (crf_on && axis_cycle >= next_pdu_at) { send_crf(); next_pdu_at += kCrfPduPeriodCycles; }
+            else if (aaf_on && axis_cycle >= aaf_next_at) { send_aaf(); advance_aaf_slot(); }
+            else step();
+        }
+        return lb_land_cycle != seen;
+    }
+
+    //! feed for `cycles`; returns the cycle at which the ring's dup count
+    //! first left `dup0`, or -1
+    long run_fed_watching_the_ring(long cycles, uint16_t dup0) {
+        long first = -1;
+        const long stop = axis_cycle + cycles;
+        while (axis_cycle < stop) {
+            if (crf_on && axis_cycle >= next_pdu_at) { send_crf(); next_pdu_at += kCrfPduPeriodCycles; }
+            else if (aaf_on && axis_cycle >= aaf_next_at) { send_aaf(); advance_aaf_slot(); }
+            else step();
+            if (first < 0 && dut->rootp->milan_datapath__DOT__lb_dup_cnt_w != dup0) first = axis_cycle;
+        }
+        return first;
+    }
+
+    //! With the feed off and the queue empty: wait for a media tick, then land
+    //! the restart PDU kRingAimCycles after a tick two ticks on (the latency
+    //! fits inside), and keep the physical cadence from there. Every burst
+    //! then leaves six events in the queue and the aimed phase alone decides
+    //! when a slow drift produces the first dup. Returns the landing offset
+    //! after the tick that preceded it, in cycles.
+    long restart_the_feed_at_the_aimed_phase(long landing_latency) {
+        const long seen = tick_cycle_last;
+        while (tick_cycle_last == seen) {
+            if (crf_on && axis_cycle >= next_pdu_at) { send_crf(); next_pdu_at += kCrfPduPeriodCycles; }
+            else step();
+        }
+        aaf_next_at = tick_cycle_last + static_cast<long>(2 * kTickCycles)
+                    + kRingAimCycles - landing_latency;
+        aaf_on = true;
+        if (!run_fed_until_a_pdu_lands(4 * kAafPduPeriodCycles)) return -1;
+        return lb_land_cycle - lb_land_tick;
+    }
+
+    long ring_landing_latency = 0;      //! inject slot -> loop-tap tlast
+    long ring_window_cycles = 0;        //! the window BOTH ring phases grade
+
+    // =================================================================== //
+    //  [RING-INT] the ring slips at INTERNAL, on the beat the plan predicts //
+    // =================================================================== //
+    void prove_the_loop_ring_slips_at_internal() {
+        printf("\n[RING-INT] the loopback ring at INTERNAL: pushed on the physical grid, popped on the packet grid\n");
+        bind_listener_zero_through_the_window();
+        map_talker_zero_onto_the_loop_lane();
+        //! the render-law phases leave a LIVE feed running into here, and
+        //! start_aaf_feed() keeps a running feed's cadence: the first
+        //! landing seen would then be a PDU already in flight and the
+        //! latency would be a whole period out. Drain first, so the feed
+        //! restarts from this phase's own slot.
+        if (aaf_on) { aaf_on = false; run_fed(2 * kAafPduPeriodCycles); }
+        // prime the ring with one PDU at whatever phase; its landing is the
+        // latency the aim below needs
+        start_aaf_feed(kAafPhysFracNum);
+        const long sent_at = aaf_next_at;
+        ck("RING-INT: the priming PDU reached the loop tap",
+           run_fed_until_a_pdu_lands(kAafPduPeriodCycles) ? 1 : 0, 1);
+        ring_landing_latency = lb_land_cycle - sent_at;
+        printf("  loop-tap landing latency: %ld cycles after the inject slot\n",
+               ring_landing_latency);
+        // feed off: the queue drains in six ticks and the primed pair then
+        // counts every empty tick, honestly - that starved run is not graded
+        aaf_on = false;
+        run_fed(2 * kAafPduPeriodCycles);
+        const long phase = restart_the_feed_at_the_aimed_phase(ring_landing_latency);
+        printf("  restart PDU landed %ld cycles after a tick (aim %ld, band %ld..%ld)\n",
+               phase, kRingAimCycles, kRingAimBandLo, kRingAimBandHi);
+        ck("RING-INT: the restart PDU landed inside the aimed band",
+           (phase >= kRingAimBandLo && phase <= kRingAimBandHi) ? 1 : 0, 1);
+        // the prediction: the physical cadence walks each burst 52/391 cycle
+        // later against the packet grid; the first dup is the burst crossing
+        // the next tick
+        const double walk_per_pdu = static_cast<double>(kAafPhysFracNum)
+                                  / static_cast<double>(kAafPhysFracDen);
+        const double pdus_to_dup = (kTickCycles - static_cast<double>(phase)) / walk_per_pdu;
+        const long predicted = static_cast<long>(pdus_to_dup * kAafPduPeriodCycles);
+        ring_window_cycles = predicted + predicted / 2;
+        printf("  predicted first dup: %.0f PDUs = %ld cycles (%.3f s); window %ld cycles\n",
+               pdus_to_dup, predicted, static_cast<double>(predicted) / 100e6, ring_window_cycles);
+        run_fed(64);                          // the burst is queued
+        const uint16_t dup0  = dut->rootp->milan_datapath__DOT__lb_dup_cnt_w;
+        const uint16_t skip0 = dut->rootp->milan_datapath__DOT__lb_skip_cnt_w;
+        const long t0 = axis_cycle;
+        const long first = run_fed_watching_the_ring(ring_window_cycles, dup0);
+        const long dups  = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) - dup0;
+        const long skips = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w) - skip0;
+        const long at = first < 0 ? -1 : first - t0;
+        printf("  ring over the window: %ld dup, %ld skip; first dup at +%ld cycles (%+.1f%% of the prediction)\n",
+               dups, skips, at,
+               at < 0 ? 0.0 : 100.0 * static_cast<double>(at - predicted) / static_cast<double>(predicted));
+        //! one beat = one starved tick, and the ring counts it ONCE PER FED
+        //! PAIR (KL_chan_map_capture: "dups are one per starved fed pair per
+        //! tick"): four pairs of the eight-channel lane repeat one event each
+        ck("RING-INT: one beat period = one repeated event on each of the four fed pairs",
+           dups, kAafChans / 2);
+        ck("RING-INT: no skip - the push side is the slower grid", skips, 0);
+        const long err = at - predicted;
+        ck("RING-INT: the first dup landed within 25% of the -10.64 ppm prediction",
+           (at >= 0 && (err < 0 ? -err : err) * 4 <= predicted) ? 1 : 0, 1);
+        ck("RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}",
+           axi_read(0x8D4), slip_lb_tap());
+    }
+
+    // =================================================================== //
+    //  [SLIP-CSR] the two words read their taps, after induced slips       //
+    // =================================================================== //
+    void prove_the_slip_words_follow_their_taps() {
+        printf("\n[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters\n");
+        constexpr uint16_t A_SLIP_LB = 0x8D4;
+        constexpr uint16_t A_SLIP_TDM = 0x8D8;
+        // the TDM junction: hold the audio clock for one frame (one marker
+        // missing at one tick = one dup), then double it for two frames
+        // (markers over unread markers = skips). Harness clock stimuli, at
+        // INTERNAL, before any loop is engaged on this clock.
+        const uint16_t tdup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
+        const uint16_t tskip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
+        aud_hold_steps = kFrameHalfSteps;
+        run_fed(4 * static_cast<long>(kTickCycles));
+        const long tdups = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w) - tdup0;
+        ck("SLIP-CSR: one held frame = one TDM junction dup", tdups, 1);
+        aud_boost_steps = 2 * kFrameHalfSteps;
+        run_fed(4 * static_cast<long>(kTickCycles));
+        const long tskips = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w) - tskip0;
+        printf("  TDM junction: +%ld dup after the held frame, +%ld skip after the doubled frames\n",
+               tdups, tskips);
+        ck("SLIP-CSR: doubled frames = TDM junction skips", tskips >= 1 ? 1 : 0, 1);
+        uint32_t tap  = slip_tdm_tap();
+        uint32_t word = axi_read(A_SLIP_TDM);
+        printf("  SLIP_TDM 0x%08X (tap 0x%08X)\n", word, tap);
+        ck("SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}", word, tap);
+        tap  = slip_lb_tap();
+        word = axi_read(A_SLIP_LB);
+        printf("  SLIP_LB  0x%08X (tap 0x%08X)\n", word, tap);
+        ck("SLIP-CSR: SLIP_LB carries the ring's {skip, dup}", word, tap);
+        ck("SLIP-CSR: both words are non-zero after the induced slips",
+           ((word & 0xFFFF) != 0 && (slip_tdm_tap() & 0xFFFF) != 0) ? 1 : 0, 1);
+        // read-only: a write lands nowhere
+        axi_write(A_SLIP_LB, 0xFFFFFFFFu);
+        axi_write(A_SLIP_TDM, 0xFFFFFFFFu);
+        ck("SLIP-CSR: SLIP_LB ignores writes",  axi_read(A_SLIP_LB),  slip_lb_tap());
+        ck("SLIP-CSR: SLIP_TDM ignores writes", axi_read(A_SLIP_TDM), slip_tdm_tap());
+    }
+
+    // =================================================================== //
+    //  [RING-CRF] the same instrument with the grids aligned: ONE grid     //
+    // =================================================================== //
+    void prove_the_loop_ring_rides_one_grid_under_crf() {
+        printf("\n[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid\n");
+        constexpr uint16_t A_SLIP_LB = 0x8D4;
+        constexpr uint16_t A_SLIP_TDM = 0x8D8;
+        ck("RING-CRF: the align loop is engaged",
+           dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
+        // the same aim and the same window as [RING-INT]: a pop grid that
+        // drifted by the INTERNAL plan would dup inside it
+        aaf_on = false;
+        run_fed(2 * kAafPduPeriodCycles);
+        const long phase = restart_the_feed_at_the_aimed_phase(ring_landing_latency);
+        printf("  restart PDU landed %ld cycles after a tick (aim %ld, band %ld..%ld)\n",
+               phase, kRingAimCycles, kRingAimBandLo, kRingAimBandHi);
+        ck("RING-CRF: the restart PDU landed inside the aimed band",
+           (phase >= kRingAimBandLo && phase <= kRingAimBandHi) ? 1 : 0, 1);
+        run_fed(64);
+        const uint16_t dup0   = dut->rootp->milan_datapath__DOT__lb_dup_cnt_w;
+        const uint16_t skip0  = dut->rootp->milan_datapath__DOT__lb_skip_cnt_w;
+        const uint16_t tdup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
+        const uint16_t tskip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
+        const long t0 = axis_cycle;
+        const long first = run_fed_watching_the_ring(ring_window_cycles, dup0);
+        const long dups   = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) - dup0;
+        const long skips  = static_cast<long>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w) - skip0;
+        const long tdups  = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w) - tdup0;
+        const long tskips = static_cast<long>(dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w) - tskip0;
+        printf("  ring over the same %ld-cycle window: %ld dup, %ld skip (first dup at %ld); TDM junction %ld dup, %ld skip\n",
+               ring_window_cycles, dups, skips, first < 0 ? -1L : first - t0, tdups, tskips);
+        {
+            long e = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
+            if (e < 0) e = -e;
+            printf("  align-loop phase error at the window's end: %ld cycles\n", e);
+        }
+        ck("RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL", dups, 0);
+        ck("RING-CRF: zero ring skips", skips, 0);
+        ck("RING-CRF: zero TDM junction slips over the same window", tdups + tskips, 0);
+        ck("RING-CRF: the align loop stayed engaged",
+           dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
+        ck("RING-CRF: SLIP_LB still reads its tap under lock",  axi_read(A_SLIP_LB),  slip_lb_tap());
+        ck("RING-CRF: SLIP_TDM still reads its tap under lock", axi_read(A_SLIP_TDM), slip_tdm_tap());
     }
 
     // ---- 4.4.4.3 mr reachability: the received toggle echoes while CRF  //
@@ -1145,14 +1451,24 @@ int MediaGridAlignmentHarness::run() {
 
     //! the stream now stays LIVE through the grid phases: moved one event
     //! off here, carried through the INTERNAL measurement, and judged after
-    //! the CRF selection re-centred it
+    //! the CRF selection re-centred it. #390's ring phases run AFTER the
+    //! move: they re-aim the feed and stimulate the audio clock, so the
+    //! move's own "sat at the setpoint before the move" window has to be
+    //! measured before they touch it, and the selection's recentre is what
+    //! restores the law afterwards (RENDER-LIVE-CRF grades that).
     move_the_running_feed_past_a_tick("RENDER-LIVE", true);
     double ppm_int = 0.0;
     if (!measure_the_internal_free_run_drift(ppm_int)) return 1;
+    prove_the_loop_ring_slips_at_internal();
+    prove_the_slip_words_follow_their_taps();
     select_crf_and_prove_the_grids_align(ppm_int);
     prove_the_live_selection_recentred_once(1100);
     measure_the_render_law_under_crf();
     prove_the_recentre_is_one_shot("RENDER-RC-CRF");
+    //! #390's CRF ring window: the grids are aligned and the render law has
+    //! just been measured on them, so the ring is graded before the feed is
+    //! moved off the setpoint again for the deselect below
+    prove_the_loop_ring_rides_one_grid_under_crf();
     //! ...and the other way for the deselect inside the mr phase
     move_the_running_feed_past_a_tick("RENDER-LIVE", false);
     prove_the_mr_toggle_echoes_only_under_crf();

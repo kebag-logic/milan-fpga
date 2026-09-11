@@ -127,13 +127,13 @@ module milan_csr #(
 //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x0057 makes the media-clock selection live (#74): the stored
-//! SET_CLOCK_SOURCE index arms the MMCM servo, the packet grid follows the
-//! physical fsync grid through KL_media_grid_align when CRF is selected,
-//! and 4.4.4.3 mr fires on both triggers. INTERNAL stays bit-exact
-//! free-run; no CSR addresses move (0x0056's option-off form unchanged).
+  //! 0x0058 makes the media-boundary slip evidence readable (#390): the
+//! loopback ring's and the TDM junction's dup/skip counters land at
+//! SLIP_LB 0x8D4 / SLIP_TDM 0x8D8, live RO, {skip16, dup16}, the first
+//! free pair above the retired 0x8C8 gap. Additive: no existing CSR
+//! address moves (0x0057's live media-clock selection is unchanged).
 //! The register occupies four bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_0057
+  parameter logic [31:0] VERSION = 32'h0002_0058
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -348,6 +348,11 @@ module milan_csr #(
   output wire                    o_ltap_clr,          //! LTAP_CTRL[0] W1S: 1-cycle stats clear
   //! RX stream-parser probe (APRB group, base 0x8B4) - the pre-match view
   input  wire [5*32-1:0]         i_aprb_regs,         //! RO 0x8B4-0x8C4: 5 packed readback words (avtp_stream_parser probe)
+  //! media-boundary slip evidence (SLIP group, 0x8D4/0x8D8, #390): the
+  //! KL_chan_map_capture loopback-ring and TDM-junction dup/skip counters,
+  //! saturating, never cleared - a reader differences two reads
+  input  wire [31:0]             i_slip_lb,           //! RO 0x8D4: {lb_skip16, lb_dup16}
+  input  wire [31:0]             i_slip_tdm,          //! RO 0x8D8: {tdm_skip16, tdm_dup16}
 
   //! chmap 0x900 window (docs/CHANNEL_MAP_64.md §6): render/capture map-RAM
   //! debug write port + fabric bypass arm. Default 0 = today's audio path.
@@ -801,6 +806,11 @@ module milan_csr #(
   //! words so accesses cannot alias the shadow RAM.
   localparam [ADDR_WIDTH-1:0] A_RSVD_GAP_BASE = 'h8C8;
   localparam [ADDR_WIDTH-1:0] A_RSVD_GAP_END  = 'h8D4;
+  //! media-boundary slip counters (#390, VERSION 0x0058): the first free
+  //! pair above the retired gap. Live RO, no arm, no clear; the same
+  //! >=0x800 carve-out as the servo word or they read 0.
+  localparam [ADDR_WIDTH-1:0] A_SLIP_LB  = 'h8D4;   //! RO live: {lb_skip16, lb_dup16}
+  localparam [ADDR_WIDTH-1:0] A_SLIP_TDM = 'h8D8;   //! RO live: {tdm_skip16, tdm_dup16}
   //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm
   //! carve-out as MCSRV (0x8F8/0x8FC): NOT in is_plain_rw (a 0x900 shadow
   //! write would alias word 0x100), a live read arm per word, and its own
@@ -2213,6 +2223,9 @@ module milan_csr #(
       A_TXARB_DIAG: live_mux = i_txarb_diag;
       A_MCSRV_STAT: live_mux = i_mcsrv_stat;
       A_MCSRV_CTRL: live_mux = mcsrv_ctrl;
+      //! junction slip counters: live, free-running from reset
+      A_SLIP_LB:    live_mux = i_slip_lb;
+      A_SLIP_TDM:   live_mux = i_slip_tdm;
       //! LTAP_CTRL: module status ({stage,active}) with enable OR-ed into [1]
       A_LTAP_CTRL:  live_mux = i_ltap_status | {30'd0, ltap_en_r, 1'b0};
       A_CHMAP_CTRL: live_mux = chmap_ctrl;
@@ -2375,6 +2388,9 @@ module milan_csr #(
                       //! reserved inert gap 0x8C8-0x8D0 reads zero
                       ((rd_addr_q >= A_RSVD_GAP_BASE)
                        && (rd_addr_q < A_RSVD_GAP_END)) ||
+                      //! slip counter pair 0x8D4/0x8D8, same carve-out
+                      (rd_addr_q == A_SLIP_LB) ||
+                      (rd_addr_q == A_SLIP_TDM) ||
                       //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);

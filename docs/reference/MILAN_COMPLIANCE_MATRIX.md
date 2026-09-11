@@ -2,7 +2,7 @@
 # Milan v1.2 compliance matrix — all five standards, one page
 
 The per-clause compliance position of this end-station against its five
-normative specifications, at firmware VERSION `0x0002_0057`. The overall
+normative specifications, at firmware VERSION `0x0002_0058`. The overall
 verdict is the audit's:
 [not fully compliant with Milan v1.2](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 — the open rows below are why, and the ordered plan through them is
@@ -14,7 +14,7 @@ Machine-checked anchors from the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |

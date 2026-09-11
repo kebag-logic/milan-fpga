@@ -50,7 +50,6 @@ module KL_i2s_playback #(
   parameter int CLK_FREQ_HZ   = 50_000_000, //! clk_i frequency (kept: the
                                         //! per-ms servo tick derives from it)
   parameter int FIFO_LOG2     = 9,      //! sample-pair FIFO depth (2^N)
-  parameter int PREFILL_C     = 0,      //! underrun-recenter release level
   parameter int SETPOINT_P    = 0       //! steady-state fill = the constant
                                         //! input->cluster latency (task #28);
                                         //! 0 = legacy RAM midpoint
@@ -197,8 +196,10 @@ module KL_i2s_playback #(
       (SETPOINT_C > CONV_BAND_C)  ? (SETPOINT_C - CONV_BAND_C)  : '0;
   localparam logic [FIFO_LOG2:0] RESET_LO_C =
       (SETPOINT_C > RESET_BAND_C) ? (SETPOINT_C - RESET_BAND_C) : '0;
-  localparam logic [FIFO_LOG2:0] PREFILL_LVL_C =
-      (PREFILL_C == 0) ? SETPOINT_C : (FIFO_LOG2+1)'(PREFILL_C);
+  //! the prefill / underrun-recenter release level IS the setpoint (#390
+  //! retired the bench override that shrank it: every suite grades the
+  //! shipped constant)
+  localparam logic [FIFO_LOG2:0] PREFILL_LVL_C = SETPOINT_C;
   assign fill_o = 16'(fill_w);
 
   //! feeder: keep the small CDC FIFO topped up from the main FIFO

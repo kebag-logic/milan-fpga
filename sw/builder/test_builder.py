@@ -5953,7 +5953,7 @@ def test_baremetal_profile_contract() -> None:
                     sources.append(str(source))
                 command = common + [
                     "--top-module", "milan_datapath",
-                    "-GGPTP_PLANE_EN_P=1", "-GPB_PREFILL_C=2",
+                    "-GGPTP_PLANE_EN_P=1",
                     "-GCLKV_QTICK_CYC_P=4096", "-GLDIAG_IVAL_CYC_P=256",
                     "-GDIAG_TICK_CYC_P=256"] + sources
             else:
