@@ -116,11 +116,12 @@ HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
 #: may not interrupt a paragraph, so `_opens()` reads it only while no
 #: paragraph is open, which `blocks()` tracks line by line: under a
 #: heading, a thematic break, a closing fence, a closing comment, a list
-#: item, a block quote or a table row the tag opens a block with no blank
-#: line before it; under paragraph text it is that paragraph's
-#: continuation ([R85] F1 and [R86] F1, round 1 on PR #428). A type-1 name
-#: is read first and never reaches here, which is the specification's
-#: exclusion (#413).
+#: item, a block quote, a footnote definition or a table row the tag opens
+#: a block with no blank line before it; under paragraph text it is that
+#: paragraph's continuation ([R85] F1 and [R86] F1, round 1 on PR #428;
+#: the footnote definition from [R86] F1, round 2). A type-1 name is read
+#: first and never reaches here, which is the specification's exclusion
+#: (#413).
 _HTML_TAG_NAME = r"[A-Za-z][A-Za-z0-9-]*"
 _HTML_ATTRIBUTE = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
                    r"(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
@@ -149,10 +150,27 @@ BLOCK_QUOTE_RE = re.compile(r"^ {0,3}>")
 LIST_ITEM_RE = re.compile(
     r"^ {0,3}(?:[-+*]|(\d{1,9})[.)])(?:[ \t]+(\S)|[ \t]*$)")
 #: GFM's table delimiter row, which makes the paragraph line above it a
-#: header row: hyphen cells with optional colons between pipes. It must
-#: carry a pipe, or it is a setext underline or a thematic break.
+#: header row: cells of hyphens with optional colons, separated by pipes,
+#: a leading and a trailing pipe optional (GFM 0.29 section 4.10), so
+#: `:-:`, `:---`, `---:` and `:-` are one-cell rows. A pipeless row of
+#: hyphens alone is a setext underline or a thematic break, both read
+#: before it. The row makes a table only when its cells number the header
+#: row's (`_table_cells`); otherwise both lines stay paragraph text ([R86]
+#: F1, round 2 on PR #428, where a pipe was demanded of the row).
 TABLE_DELIMITER_RE = re.compile(
     r"^ {0,3}\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$")
+#: One cell of a GFM table row, anything up to a pipe with a backslash
+#: escaping the character after it; then the pipe that ends the cell and
+#: the blanks after it.
+TABLE_CELL_RE = re.compile(r"(?:\\.|[^|])*")
+TABLE_CELL_END_RE = re.compile(r"\|[ \t]*")
+#: GFM's footnote definition (`[^1]: note`): `[^`, a label with no blank
+#: and no `]`, then `]:`, indented at most three spaces. It is outside the
+#: 0.29 specification text; GitHub's renderer reads it as a container like
+#: a list item, so it interrupts a paragraph, holds the plain lines after
+#: it, and a lone tag directly under it opens a type-7 block ([R86] F1,
+#: round 2 on PR #428).
+FOOTNOTE_DEFINITION_RE = re.compile(r"^ {0,3}\[\^[^\]\s]+\]:")
 COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 #: What a line is, for every reader in this repository. The names are what a
 #: finding calls the line, so they read as English in a message.
@@ -187,10 +205,10 @@ def blocks(text: str) -> list[str]:
     block, one complete tag of any other name alone on its line, ends at
     the first blank line too but may not interrupt a paragraph, so it
     opens only while none is open: under a heading, a thematic break, a
-    closing fence or comment, a list item, a block quote or a table row as
-    well as after a blank line, never under paragraph text. None parses
-    its content as Markdown, so a heading or a Contents block written
-    inside any of them is text.
+    closing fence or comment, a list item, a block quote, a footnote
+    definition or a table row as well as after a blank line, never under
+    paragraph text. None parses its content as Markdown, so a heading or a
+    Contents block written inside any of them is text.
 
     The rules are CommonMark's, with indentation measured from column 0
     rather than from an enclosing container's content column: a fence
@@ -210,34 +228,70 @@ def blocks(text: str) -> list[str]:
     list-item line holds the plain lines after it as that container's
     paragraph whatever the container itself held, and a tag indented into
     a list item's content column opens a block where CommonMark continues
-    the item's paragraph; both withhold, neither invents.
+    the item's paragraph; both withhold, neither invents. Two GFM
+    constructs are read as GitHub's renderer reads them ([R86] F1, round 2
+    on PR #428). A table delimiter row is what GFM 0.29 section 4.10
+    defines, cells of hyphens and optional colons between optional pipes,
+    so `:-:` under a paragraph line is a one-cell table, and it makes a
+    table only when its cells number the header row's, so a row that does
+    not match leaves the paragraph open. A footnote definition (`[^1]:
+    note`) has no clause in that specification's text; the renderer reads
+    it as a container, which interrupts a paragraph and holds the plain
+    lines after it, and opens a type-7 block on a lone tag directly under
+    it, so no paragraph is open after one here either. Both decisions were
+    measured against that renderer, and each closes an escape: the pipe
+    once demanded of the row and the footnote read as text both kept a
+    paragraph open where GitHub has none, and let a wrapped heading
+    through.
     """
     out, state, delim, tag = [], TEXT, "", ""
-    prev_blank, para = True, NO_PARAGRAPH
+    prev, para = "", NO_PARAGRAPH
     for line in text.split("\n"):
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
         else:
-            label, state, delim, tag = _opens(line, prev_blank, para, state)
+            label, state, delim, tag = _opens(line, not prev.strip(), para,
+                                              state)
             out.append(label)
-        prev_blank = not line.strip()
-        para = _paragraph_after(line, out[-1], para)
+        para = _paragraph_after(line, out[-1], para, prev)
+        prev = line
     return out
 
 
-def _paragraph_after(line: str, label: str, para: str) -> str:
+def _table_cells(row: str) -> int:
+    """How many cells a GFM table row carries, counted as GitHub's parser
+    counts them: one leading pipe is skipped, a pipe that is not
+    backslash-escaped ends a cell, and a trailing pipe closes the last
+    cell rather than opening an empty one, so `| a |`, `a` and `||` are
+    one cell each and a lone `|` is none."""
+    rest = row.strip()
+    if rest.startswith("|"):
+        rest = rest[1:].lstrip(" \t")
+    cells = 0
+    while rest:
+        cell = TABLE_CELL_RE.match(rest).end()
+        end = TABLE_CELL_END_RE.match(rest, cell)
+        cells += 1
+        rest = rest[end.end() if end else cell:]
+    return cells
+
+
+def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
     """The paragraph state after a line, from the line's own label, its
-    text and the state before it.
+    text, the state before it and the line before it.
 
     Only a plain TEXT line starts or continues a paragraph. A heading, a
     thematic break or a setext underline ends one and starts none; a list
-    item, a block quote or a table delimiter row starts a HOLD, which a
-    plain line continues rather than ending; an ordered item not numbered
-    1, or an empty item, cannot interrupt a paragraph and continues it
-    instead ([R85] F1 and [R86] F1, round 1 on PR #428, where the blank
-    line stood in for all of this and a tag under any of these nine lines
-    stayed paragraph text).
+    item, a block quote, a footnote definition or a table delimiter row
+    starts a HOLD, which a plain line continues rather than ending; an
+    ordered item not numbered 1, or an empty item, cannot interrupt a
+    paragraph and continues it instead ([R85] F1 and [R86] F1, round 1 on
+    PR #428, where the blank line stood in for all of this and a tag under
+    any of these nine lines stayed paragraph text). A delimiter row makes a
+    table of the paragraph line above it, `prev`, only when the two carry
+    the same number of cells, and no pipe is demanded of it ([R86] F1,
+    round 2, where `:-:` left the paragraph open).
     """
     if label != TEXT or not line.strip() or ATX_HEADING_RE.match(line) \
             or THEMATIC_BREAK_RE.match(line):
@@ -246,10 +300,11 @@ def _paragraph_after(line: str, label: str, para: str) -> str:
         return NO_PARAGRAPH
     item = LIST_ITEM_RE.match(line)
     interrupts = bool(item and item.group(2) and int(item.group(1) or 1) == 1)
-    if BLOCK_QUOTE_RE.match(line) or (item and (para != PARAGRAPH
-                                                or interrupts)):
+    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line) \
+            or (item and (para != PARAGRAPH or interrupts)):
         return HELD
-    if para == PARAGRAPH and "|" in line and TABLE_DELIMITER_RE.match(line):
+    if para == PARAGRAPH and TABLE_DELIMITER_RE.match(line) \
+            and _table_cells(line) == _table_cells(prev):
         return HELD
     return HELD if para == HELD else PARAGRAPH
 
@@ -709,7 +764,11 @@ def _tag_arms() -> list[tuple[str, str, object]]:
     """The type-7 opener's own arms, one per behaviour that shipped with no
     arm to hold it ([R86] F2, round 1 on PR #428): the order that reads a
     type-1 tag first, the three spaces of indentation the grammar allows
-    and the four that make code instead, and the self-closing form."""
+    and the four that make code instead, and the self-closing form. Four
+    spaces where no blank line precedes the tag open no block either; the
+    code-run arm cannot show that, because after a blank line the code
+    reader answers before the tag grammar is consulted ([R86] F2, round
+    2)."""
     return [
         ("a type-1 tag is read before the type-7 grammar, so its block "
          "survives a blank line",
@@ -723,6 +782,14 @@ def _tag_arms() -> list[tuple[str, str, object]]:
         ("a self-closing tag alone on its line opens a type-7 block",
          '<img src="x" />\n## Alpha\n\n## Real\n',
          lambda k: k[:2] == [HTML] * 2 and k[3] == TEXT),
+        ("a tag indented four spaces under a heading opens no block, so the "
+         "heading under it renders",
+         "## Head\n    <span>\n## Old\n",
+         lambda k: k[1] != HTML and k[2] == TEXT),
+        ("a tag indented four spaces under a thematic break opens no block "
+         "either",
+         "***\n    <span>\n## Old\n",
+         lambda k: k[1] != HTML and k[2] == TEXT),
     ]
 
 
@@ -736,8 +803,11 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
     paragraph is open: with no blank line between, the tag opens a type-7
     block and the heading tucked inside it is text. The blank-line reading
     kept that heading in the first nine shapes ([R85] F1 and [R86] F1,
-    round 1 on PR #428). The last four are lines after which a paragraph
-    IS open: the same tag continues it, and the heading renders."""
+    round 1 on PR #428); the pipe once demanded of a delimiter row kept it
+    under `:-:`, and a footnote definition was read as paragraph text
+    ([R86] F1, round 2). The `keeps` are lines after which a paragraph IS
+    open: the same tag continues it, and the heading renders, a delimiter
+    row that does not match its header row's cells among them."""
     tick = "`" * 3
     hides = [
         ("an ATX heading", "## Alpha", ["alpha"]),
@@ -753,6 +823,13 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
         ("a plain line lazily continuing a list item", "- item\nlazy", []),
         ("a table row without a pipe", "| a |\n|---|\nrow", []),
         ("an empty list item", "-", []),
+        ("a pipeless delimiter row under a paragraph line", "text\n:-:", []),
+        ("a pipeless delimiter row under a pipe-led line", "| a |\n:-:", []),
+        ("a footnote definition", "[^1]: note", []),
+        ("a footnote definition interrupting a paragraph",
+         "text\n[^1]: note", []),
+        ("a plain line lazily continuing a footnote definition",
+         "[^1]: note\nlazy", []),
     ]
     keeps = [
         ("paragraph text", "text"),
@@ -760,6 +837,12 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
         ("an ordered item that cannot interrupt a paragraph",
          "text\n2. item"),
         ("an equals-sign line that no paragraph precedes", "==="),
+        ("a delimiter row with fewer cells than its header row",
+         "| a | b |\n|---|"),
+        ("a delimiter row with more cells than its header row",
+         "| a |\n|---|---|"),
+        ("a delimiter row whose header row's only pipe is escaped",
+         "a \\| b\n-|-"),
     ]
     wrapped = "\n<span>\n## Old\n</span>\n\n## Beta\n"
     return ([(f"a lone tag directly under {what} hides the heading it wraps",
