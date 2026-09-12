@@ -827,20 +827,31 @@ Every key `load_config` accepts has a row below, and
 the two in step: it loads the five tracked configs through a recording
 document, takes the union of the keys the loaders read, and refuses a key
 without a row or a row naming no accepted key. The bound of that key set is
-the paths those five configs take through the loaders: a key read only on a
-branch none of them exercises is never recorded, so it needs a tracked config
-that takes the branch before the gate can hold its row. Four loader arms are
-in that class today (`endstation_builder.py` lines), three statement arms
-and one conditional expression: the AES3/S-PDIF serial-clock arm of
-`_load_interface` (3570 to 3579; the tracked kinds are `i2s_philips`, `tdm8`
-and `tdm32`), the literal `entity_model_id` arm of `load_config` (3725 to
-3726; every tracked config says `hash-derived`, and `arty_current`'s
-`model_id_pin` wins before it), the `map_page` arm of `_streams` (1213 to
-1218; no tracked stream declares `map_page`) and the explicit `entity_id`
-arm of `_load_entity` (the conditional expression at 3234; every tracked
-config says `mac-derived`). The key column carries each key as a backticked
-dotted path (`{a,b}` expands to one key per name); derived facts (rows 16c,
-24, 25, 26) carry no key.
+the paths those five configs take through the loaders, stated by rule: a
+key read on a loader path that none of the five tracked configs takes is
+never recorded, so it needs a tracked config that takes the path before the
+gate can hold its row. That class includes the one-sided branches of
+conditional expressions and `or` fallbacks, not only statement arms, such
+as (`endstation_builder.py` lines) the AES3/S-PDIF serial-clock arm of
+`_load_interface` (3571 to 3579; the tracked kinds are `i2s_philips`, `tdm8`
+and `tdm32`), the literal `entity_model_id` arm of `load_config` (3726;
+every tracked config says `hash-derived`, and `arty_current`'s
+`model_id_pin` wins before it), the `map_page` arm of `_streams` (1214 to
+1218; no tracked stream declares `map_page`), the explicit `entity_id`
+operand of `_load_entity` (the conditional expression at 3234; every
+tracked config says `mac-derived`), the no-`pilot` operand of `_role_pool`
+(the conditional expression at 1293; both `role-pools` configs declare a
+`pilot` pool) and the `or {}` fallback of `_load_cluster_pools` (3448;
+every tracked config declares `cluster_mapping`). Those are examples, not
+the list: gate 32 derives today's list by a branch census over the same
+five loads (every conditional branch of the loader functions that read the
+raw document with a side no load took, a side that lands on a join or a
+refusal excluded) and prints it as the report line `[gate 32] census: N
+untaken loader arms, where a key read is not recorded:
+endstation_builder.py:<line> ...`, one `file:line` per arm; the census
+reports and does not widen the gate's pass or fail. The key column carries
+each key as a backticked dotted path (`{a,b}` expands to one key per name);
+derived facts (rows 16c, 24, 25, 26) carry no key.
 
 Consumers: **AEM** = the entity model, via `aem_overlay.json`:
 [`avdecc/aem_specs.py`](../avdecc/aem_specs.py) `spec_from_overlay` (lines
@@ -943,7 +954,7 @@ direction and row 27's provisioning half. The build plan's marks live in
 `_marks_*` functions from line 3734). It marks rows 25 and 27 `planned
 (item 5 - NxN AAF streams)` (`_marks_streams`, lines 3738 to 3760: the
 stream counts of the three NxN configs, and the CRF media-clock output on
-the four configs that enable it). Its other mark on a tracked config,
+the four configs that enable it). Its other *planned* mark on a tracked config,
 `planned (item 8 - D7 target-keyed dynamic maps)` for the D8 Pilot fan-out
 (`_marks_cluster_pools`, lines 3830 to 3838, on the two `role-pools`
 configs), is the fan-out limit the D8 status block records in section 2,
