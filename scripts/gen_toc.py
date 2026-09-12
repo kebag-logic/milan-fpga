@@ -33,6 +33,7 @@ Usage:
     python3 scripts/gen_toc.py --write PATH...   # just these pages
     python3 scripts/gen_toc.py --verify-anchors  # anchor algorithm vs real links
 """
+import ast
 import re
 import subprocess
 import sys
@@ -54,6 +55,15 @@ MIN_SECTIONS = 3
 #: 3 and 25), the TOC nests one level deeper or it says nothing useful.
 NEST_WHEN_H2_BELOW = 5
 NEST_WHEN_H3_ATLEAST = 8
+
+#: The arm families `gen_toc_cases` carries, and the arm total measured
+#: here. Nothing in this tree pinned an arm COUNT, so a family dropped
+#: from the runner's import printed a smaller total and exited 0 ([R86]
+#: suggestion, round 6 on PR #428). MIN_ARMS is a floor: it rises with the
+#: corpus and is lowered only by someone who means to remove an arm.
+ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
+                "provenance")
+MIN_ARMS = 191
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -192,9 +202,13 @@ TEXT, FENCE, COMMENT, CODE, HTML = ("prose line", "fenced line",
 def blocks(text: str) -> list[str]:
     """What every line of ``text`` is: TEXT, FENCE, COMMENT, CODE or HTML.
 
-    ONE walk, and the only one in this repository: a gate that re-derived
-    it disagreed with this generator about which lines are navigation, five
-    review rounds running on PR #384. It is a single state machine, so the
+    ONE walk, and the only one in this repository that decides which lines
+    are NAVIGATION: a gate that re-derived it disagreed with this
+    generator about which lines are headings, five review rounds running
+    on PR #384. Two other gates carry a fence and comment toggle of their
+    own, for a different question (`docs_check.py` scopes a wording
+    deny-list, `check_feature_status.py` scopes status tables); neither
+    decides what a line IS ([R86] suggestion, round 6 on PR #428). It is a single state machine, so the
     block already open decides what a delimiter means -- a fence delimiter
     inside an HTML comment does not open a fence, and a comment delimiter
     inside a fence does not open a comment ([R0] round 5 F3, where a
@@ -663,22 +677,87 @@ def verify_anchors() -> int:
     return 1 if bad else 0
 
 
+def _tally_guards(families: dict[str, list], scored: int) -> list[str]:
+    """What the ARM TALLY must satisfy before a single arm is scored: every
+    family present and carrying arms, at least `MIN_ARMS` in all, and every
+    arm the tables hold actually reaching the runner.
+
+    Nothing in this tree pinned an arm count, so a family dropped from the
+    runner's import printed `PASS (94/94 arm(s))` and exited 0 ([R86]
+    suggestion, round 6 on PR #428). `scored` is what the runner will
+    really read, which is the half a count of the tables alone cannot see.
+    """
+    bad = [f"arm family {name!r} is missing or empty"
+           for name in ARM_FAMILIES if not families.get(name)]
+    total = sum(len(arms) for arms in families.values())
+    if total < MIN_ARMS:
+        bad.append(f"{total} arm(s) in all, below the {MIN_ARMS} recorded")
+    if scored != total:
+        bad.append(f"{scored} arm(s) reach the runner of the {total} the "
+                   "tables hold")
+    return bad
+
+
+def _owner_guards(name: str, source: str, values: dict) -> list[str]:
+    """That the case-table module carries no classification of its OWN: it
+    imports no expression engine and holds no compiled expression, so a
+    rule cannot migrate out of this script, which #413 names as the one
+    owner of block classification ([R85] suggestion, round 6 on PR #428,
+    where the property was stated in two docstrings and checked nowhere).
+
+    The imports are read off the module's syntax tree and the compiled
+    expressions off its values, so prose that names the engine cannot trip
+    it and an alias cannot slip past it.
+    """
+    bad, imported = [], set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            imported |= {a.name.split(".")[0] for a in node.names}
+        elif isinstance(node, ast.ImportFrom):
+            imported.add((node.module or "").split(".")[0])
+    if re.__name__ in imported:
+        bad.append(f"{name} imports the expression engine: every expression "
+                   "that classifies a line belongs beside the walk")
+    compiled = sorted(n for n, v in values.items() if isinstance(v, re.Pattern))
+    if compiled:
+        bad.append(f"{name} holds compiled expression(s) {compiled}: "
+                   "the same rule")
+    return bad
+
+
 def selftest() -> int:
-    """Run the block-walk, heading and provenance arms. 0 when every one
-    holds.
+    """Run every arm family. 0 when every one holds.
 
     The RUNNER and every rule it scores live here because this script owns
     the walk: a gate that carried its own copy of it refused a legitimate
     page and exempted three that render nothing ([R0] rounds 4 and 5 on PR
     #384). Only the case TABLES sit next door in `gen_toc_cases.py`, which
     holds fixture pages and expectations and no rule at all ([R86]
-    suggestion, round 5 on PR #428). The import is here rather than at the
-    top of the file because that module imports this one."""
-    from gen_toc_cases import (heading_arms, predecessor_arms,
-                               provenance_arms, tag_arms, walk_arms)
-    problems = 0
-    on_walk = walk_arms() + tag_arms()
-    on_page = provenance_arms() + predecessor_arms() + heading_arms()
+    suggestion, round 5 on PR #428).
+
+    The import is here rather than at the top of the file because that
+    module imports this one, and this module is registered under its own
+    NAME first: run as a script it is `__main__`, so an import by name
+    would load the file a second time and the page families would be
+    scored against a different walk than the one the runner calls ([R85]
+    suggestion, round 6 on PR #428).
+    """
+    sys.modules.setdefault("gen_toc", sys.modules[__name__])
+    import gen_toc_cases as cases
+    families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
+                "guard": cases.guard_arms(), "heading": cases.heading_arms(),
+                "predecessor": cases.predecessor_arms(),
+                "provenance": cases.provenance_arms()}
+    on_walk = families["walk"] + families["tag"]
+    on_page = (families["provenance"] + families["predecessor"]
+               + families["heading"] + families["guard"])
+    arms = len(on_walk) + len(on_page)
+    src = Path(cases.__file__)
+    notes = (_tally_guards(families, arms)
+             + _owner_guards(src.name, src.read_text(), vars(cases)))
+    for note in notes:
+        print(f"  GUARD {note}")
+    problems = len(notes)
     for name, page, holds in on_walk:
         if not holds(blocks(page)):
             problems += 1
@@ -687,7 +766,6 @@ def selftest() -> int:
         if not holds(page):
             problems += 1
             print(f"  FAIL [{name}]")
-    arms = len(on_walk) + len(on_page)
     print(f"TOC selftest: {'PASS' if not problems else 'FAIL'} "
           f"({arms - problems}/{arms} arm(s))")
     return 1 if problems else 0
