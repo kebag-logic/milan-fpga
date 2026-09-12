@@ -79,6 +79,7 @@ from pathlib import Path
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gen_toc import (TOC_ENTRY_RE, generated_block, headings, label,
+                     refusal_notes,
                      line_kinds)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -268,6 +269,11 @@ def judge_page(repo: Path, base: str, change: Change,
     if not hits:
         return
     text = git(repo, "show", f"HEAD:{change.path}")
+    # A page the walk REFUSES to read has no provenance at all, so no
+    # label on it can be exempt; say why, or the author sees only that a
+    # generated line was refused ([R85] F1, [R86] F1, round 9 on PR #428).
+    verdict.findings += [f"{note}, so no Contents label on it is exempt"
+                         for note in refusal_notes(change.path, text)]
     # The PATH is part of the question: `gen_toc.py` does not write a
     # Contents block for the two documentation indexes, for the historical
     # tree or for another generator's pages, so nothing on them is ever
@@ -709,6 +715,17 @@ def _provenance_controls() -> tuple[Control, ...]:
                                 "- **[Gamma](#gamma)** -- What gamma holds.\n"
                                 "\n## Alpha"),
                 1, ("COMMENTED.md", "added prose line"), exempt=0),
+        Control("a page the walk refuses to read exempts nothing",
+                # The same edit as "mirrored label of a pre-existing
+                # heading passes", with one no-break space planted in the
+                # prose: the walk refuses the page, so the label that was
+                # exempt there is judged here and the refusal is named.
+                lambda r: (_edit(r, "NO_TOC.md", _OLD_HEADING,
+                                 _NEW_BLOCK + _OLD_HEADING),
+                           _edit(r, "NO_TOC.md", "Filler sentence 1 ",
+                                 "Filler\u00a0sentence 1 ")),
+                2, ("U+00A0 at column", "no Contents label on it is exempt",
+                    "in an added prose line"), exempt=0),
         Control("a second comment on a closing line still hides the block",
                 lambda r: _fenced_example(r, "<!-- first --> <!-- second",
                                           "-->"),
