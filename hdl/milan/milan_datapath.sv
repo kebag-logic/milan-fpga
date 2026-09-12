@@ -5623,12 +5623,80 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                          (gm_recentre_q_r != 64'd0);
     end
   end : g_gm_recentre
-  //! #386: the render stage re-centres on the SAME discontinuity set
-  //! KL_ptp_clock_validity raises tu on - a GM identity change, a PHC
-  //! adjtime (the plane's step, or CLKV software's when the plane is off)
-  //! and a PHC settime. public: the milan_dp render-law leg counts it.
+  //! #386: a CLOCK-SOURCE CHANGE re-centres the render stage once the
+  //! grid has settled. Neither of the two things a source change does to
+  //! the fill is a GM or PHC event: under CRF the #74 aligner's pull-in
+  //! moves the packet grid by a fraction of a sample and a displacement
+  //! the fill carried into the lock (the INTERNAL walk, a talker phase
+  //! step) is kept once the grids align; back at INTERNAL the grid
+  //! free-runs from the change. SETTLED means, under CRF, the aligner
+  //! engaged with |err| inside SRC_SETTLE_ERR_C cycles (1/64 sample) for
+  //! SRC_SETTLE_TICKS_C media ticks running - the loop is overdamped, so
+  //! what is left of the error is what is left of the movement - or
+  //! engaged for SRC_SETTLE_CEIL_C ticks whatever the error (a feed too
+  //! jittery to rest inside the band still gets its one recentre); at
+  //! INTERNAL the same tick dwell from the change. One pending flag,
+  //! armed by a change of the selected index or by the aligner's
+  //! re-engagement (a physical feed that died and returned), cleared by
+  //! the one pulse it fires: repeated selections re-arm it, never queue.
+  localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
+  localparam int unsigned SRC_SETTLE_TICKS_C = 2048;
+  localparam int unsigned SRC_SETTLE_CEIL_C  = 32768;
+  logic [15:0] src_recentre_q_r;   //! the selected index last seen
+  logic        src_pend_r;         //! a recentre awaits the settle
+  logic        mga_engaged_q_r;
+  logic [15:0] src_band_ticks_r;   //! ticks with the grid inside the band
+  logic [15:0] src_eng_ticks_r;    //! ticks with the aligner engaged
+  //! public: the milan_dp true-ratio leg counts the pulse under a live
+  //! selection
+  logic        src_recentre_p_r /* verilator public_flat_rd */;
+  wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+  wire src_grid_ok_w = !crf_clk_selected_r ||
+                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+  wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
+                       (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
+  always_ff @(posedge axis_clk) begin : g_src_recentre
+    if (!axis_resetn) begin
+      src_recentre_q_r <= 16'd0;
+      src_pend_r       <= 1'b0;
+      mga_engaged_q_r  <= 1'b0;
+      src_band_ticks_r <= 16'd0;
+      src_eng_ticks_r  <= 16'd0;
+      src_recentre_p_r <= 1'b0;
+    end else begin
+      src_recentre_q_r <= media_clk_src_r;
+      mga_engaged_q_r  <= mga_engaged_w;
+      src_recentre_p_r <= 1'b0;
+      if ((media_clk_src_r != src_recentre_q_r) ||
+          (mga_engaged_w && !mga_engaged_q_r)) begin
+        src_pend_r       <= 1'b1;
+        src_band_ticks_r <= 16'd0;
+        src_eng_ticks_r  <= 16'd0;
+      end else if (src_pend_r) begin
+        if (media_tick_p) begin
+          src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
+          src_eng_ticks_r  <= (crf_clk_selected_r && mga_engaged_w)
+                              ? src_eng_ticks_r + 16'd1 : 16'd0;
+        end
+        if (src_settled_w) begin
+          src_pend_r       <= 1'b0;
+          src_recentre_p_r <= 1'b1;
+          src_band_ticks_r <= 16'd0;
+          src_eng_ticks_r  <= 16'd0;
+        end
+      end
+    end
+  end : g_src_recentre
+  //! #386: the render stage re-centres on a GM identity change, a PHC
+  //! adjtime (the plane's step, or CLKV software's when the plane is off),
+  //! a PHC settime and a settled clock-source change. The first three are
+  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
+  //! module additionally takes the plane's pre-commit publication events
+  //! and counts the first 0-to-id publication, which this set leaves out
+  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
   wire render_recentre_p_w /* verilator public_flat_rd */ =
-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load;
+       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
+       | src_recentre_p_r;
 
   generate if (I2SPB_P != 0) begin : g_i2s_player
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
@@ -5690,9 +5758,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  untouched (the assign below resolves to the exact compliance net).
   // ==========================================================================
   localparam int CHMAP_PHYS_C = 10;
-  //! public: the milan_dp render-law leg decodes the rendered vector
-  wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w   /* verilator public_flat_rd */;
-  wire                       chmap_phys_v_w /* verilator public_flat_rd */;
+  wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
+  wire                       chmap_phys_v_w;
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
 
   // --------------------------------------------------------------------------

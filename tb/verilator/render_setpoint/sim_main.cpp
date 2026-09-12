@@ -28,7 +28,19 @@
 //     HOLDS between the bands; the recentre is executed once per pulse at the
 //     next PDU end and counted once, two pulses in one PDU count once, and a
 //     pulse in prefill counts nothing; a flush empties; a tick inside the
-//     schedule is queued; an event completing at a full queue is dropped.
+//     schedule is queued; an event completing at a full queue is dropped;
+//   * the pop is EVENT-ATOMIC: a recentre (prefill entry or snap) and a flush
+//     landing inside a stream's pop window still leave the crossbar PAIRS
+//     back-to-back beats of ONE row with tlast on the last, and carry no
+//     stray walker position into the next stream; a PDU end on the very edge
+//     a pop consumes counts that pop; an event judged full at its first lane
+//     stays dropped past a pop inside it; a wire channel count change on a
+//     running stream re-prefills it;
+//   * a model of the crossbar's walker (ONE position counter for every
+//     stream, restarted at tlast, the channel count m_wire_chans_o names)
+//     renders every channel of every event byte-exact - on the 7-lane build
+//     (`make odd`) that is what proves the pad lane of an odd N_CH_P is a
+//     virtual channel and not a wrap onto channel 0.
 //
 // The build's -G shape reaches this file as -D constants from the Makefile's
 // single statement of it, so the geometry asserted is the geometry built.
@@ -36,10 +48,12 @@
 #include "VKL_render_setpoint.h"
 #include "verilated.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <initializer_list>
 #include <vector>
 
 constexpr int kStreams   = N_STREAMS_TB;   // N_STREAMS_P
@@ -67,9 +81,13 @@ constexpr uint32_t kSampleMask = 0xFFFFFF;
 constexpr uint8_t  kPadByte    = 0xA5;    // a nonzero pad on the way in must be dropped
 constexpr int  kLawPdus     = 24;         // PDUs the law is asserted over (> the dwell)
 constexpr int  kLongPduEvents = 40;       // an event count that overfills a 32-row queue
+constexpr int  kPduBeats    = (kPduEvents * kCh + 1) / 2;   // beats of a cadence PDU
+//! the crossbar's per-stream channel view: the lane count an event carries
+constexpr int  kWalkChans   = 2 * kPairs;
 
 static_assert(kStreams == 2, "the schedule checks assume two streams");
 static_assert(kRows == 32, "the overrun phase counts drops against 32 rows");
+static_assert(kCh >= 5 && kCh <= 8, "the [X] window phases place a pop inside a 6-event PDU");
 
 //! {pdu[11:0], event[3:0], channel[7:0]}: a sample names where it came from
 static uint32_t sample_of(int pdu, int event, int channel) {
@@ -100,6 +118,7 @@ namespace {
 //! one event as the stage presented it to the crossbar
 struct Event {
   long first_beat_cycle = 0;
+  long last_beat_cycle = 0;
   int  stream = 0;
   int  beats = 0;
   bool tlast_on_last = false;
@@ -127,6 +146,25 @@ class RenderSetpointHarness {
   std::array<long, kStreams> push_cycle{};   //! the edge that sampled the last push's first beat
   std::array<int, kStreams> chans{};         //! the wire channel count each stream declares
 
+  // ---- the crossbar's contract, watched on every presented beat --------------
+  //! an event that closed with other than PAIRS beats
+  long shape_bad = 0;
+  //! an event the stage stopped presenting before its tlast (a truncation:
+  //! the beats of one event are back-to-back, so a live event that is not
+  //! continued on the very next cycle was cut)
+  long trunc_bad = 0;
+  //! an event whose lanes (below the stream's channel count) name two
+  //! different {pdu, event} sources (a tear)
+  long mixed_bad = 0;
+  //! an event the crossbar's walker would have rendered on a wrong channel
+  long walker_bad = 0;
+  //! the crossbar's walker: ONE position counter for every stream, the
+  //! channel count m_wire_chans_o names for the beat's stream, restarted at
+  //! tlast; a channel at or beyond N_CH_P is walked and never latched
+  long walk_pos = 0;
+  std::array<std::array<uint32_t, kCh>, kStreams> walk_cur{};
+  long contract_bad() const { return shape_bad + trunc_bad + mixed_bad + walker_bad; }
+
   // ---- the clock, the grid and the observer ----------------------------------
   void set_chans(int stream, int c) {
     chans[stream] = c;
@@ -149,11 +187,20 @@ class RenderSetpointHarness {
     if (dut->render_tick_p_o) render_tick_cycles.push_back(cycle);
     for (int s = 0; s < kStreams; s++)
       if ((dut->pop_p_o >> s) & 1) pop_count[s]++;
-    if (!dut->m_tvalid_o) return;
     const int s = dut->m_tuser_o & 0xF;
+    // a live event not continued on this cycle was truncated: count it once
+    // and drop it, so the stream's next event starts clean
+    for (int v = 0; v < kStreams; v++) {
+      if (!assembling_live[v]) continue;
+      if (dut->m_tvalid_o && v == s && assembling[v].last_beat_cycle == cycle - 1) continue;
+      trunc_bad++;
+      assembling_live[v] = false;
+    }
+    if (!dut->m_tvalid_o) return;
     if (s >= kStreams) { check.fail("a presented beat names a stream beyond the shape"); return; }
     Event& e = assembling[s];
     if (!assembling_live[s]) { e = Event{}; e.first_beat_cycle = cycle; e.stream = s; assembling_live[s] = true; }
+    e.last_beat_cycle = cycle;
     const uint64_t d = dut->m_tdata_o;
     const uint32_t s0 = (static_cast<uint32_t>(d & 0xFF) << 16) |
                         (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
@@ -166,8 +213,25 @@ class RenderSetpointHarness {
     if (lane0 < kCh) e.lane[lane0] = s0;
     if (lane0 + 1 < kCh) e.lane[lane0 + 1] = s1;
     e.beats++;
+    // the crossbar's walker on this beat (KL_chan_map_render's sample_latch)
+    const int wc_raw = (dut->m_wire_chans_o >> (4 * s)) & 0xF;
+    const int wc = wc_raw ? wc_raw : 2;
+    for (const uint32_t smp : {s0, s1}) {
+      const int ch = static_cast<int>(walk_pos % wc);
+      if (ch < kCh) walk_cur[s][ch] = smp;
+      walk_pos++;
+    }
     if (dut->m_tlast_o) {
       e.tlast_on_last = (e.beats == kPairs);
+      if (!e.tlast_on_last) shape_bad++;
+      const int lanes = std::min(chans[s], kCh);
+      const int p = pdu_of(e.lane[0]);
+      const int k = event_of(e.lane[0]);
+      for (int c = 1; c < lanes; c++)
+        if (pdu_of(e.lane[c]) != p || event_of(e.lane[c]) != k) { mixed_bad++; break; }
+      for (int c = 0; c < lanes; c++)
+        if (walk_cur[s][c] != sample_of(p, k, c)) { walker_bad++; break; }
+      walk_pos = 0;
       popped[s].push_back(e);
       assembling_live[s] = false;
     }
@@ -216,6 +280,21 @@ class RenderSetpointHarness {
     return d > kSetpoint * kTickPeriod && d <= (kSetpoint + 1) * kTickPeriod + 2;
   }
 
+  //! push one PDU of `events` events on `stream` so that its LAST beat is
+  //! sampled at `edge`
+  void push_pdu_ending_at(int stream, int pdu, long edge, int events = kPduEvents) {
+    const int beats = (events * chans[stream] + 1) / 2;
+    run_to(edge - beats);
+    push_pdu(stream, pdu, events);
+  }
+  //! the edge that samples a tick: tick_i is high before the edge whose
+  //! post-increment value is a multiple of the period plus one
+  static long tick_edge_after(long edge) { return (edge / kTickPeriod + 1) * kTickPeriod + 1; }
+  //! the tick a cadence PDU of the current slot straddles when it is pushed
+  //! late enough: stream 0's pop then consumes at that edge + 1 and presents
+  //! its beats at that edge + 1 .. + PAIRS
+  long straddled_tick_edge() const { return tick_edge_after(slot_cycle(slot_seq) + cadence_phase); }
+
   // ---- the phases ----------------------------------------------------------------
   void reset();
   void prove_prefill_holds_then_releases_at_the_target();
@@ -226,6 +305,16 @@ class RenderSetpointHarness {
   void prove_the_rails();
   void prove_convergence_and_the_one_shot_recentre();
   void prove_flush_queued_tick_and_overrun();
+  void prove_the_pop_is_event_atomic();
+  void x_prefill_entry_inside_the_window();
+  void x_snap_inside_the_window();
+  void x_flush_inside_the_window();
+  void x_channel_count_change();
+  void x_pdu_end_on_the_pop_edge();
+  void x_full_event_past_a_pop();
+  uint32_t x_rc0 = 0;     //! [X]: the recentre count at the phase's start
+  uint32_t x_rails0 = 0;  //! [X]: the rail count at the phase's start
+  long     x_bad0 = 0;    //! [X]: the contract counters at the phase's start
   long push_next(long extra);
   void pulse_recentre();
   long pdu_seq = 0;      //! the next PDU id on stream 0's cadence
@@ -248,8 +337,8 @@ void RenderSetpointHarness::reset() {
   check.dec("reset: fill 0 on stream 0", fill(0), 0);
   check.dec("reset: fill 0 on stream 1", fill(1), 0);
   check.that("reset: both streams in prefill", prefill(0) && prefill(1));
-  check.dec("reset: crossbar channel view is N_CH_P per stream",
-            dut->m_wire_chans_o, (static_cast<uint32_t>(kCh) << 4) | static_cast<uint32_t>(kCh));
+  check.dec("reset: crossbar channel view is the lane count 2 x PAIRS per stream",
+            dut->m_wire_chans_o, (static_cast<uint32_t>(kWalkChans) << 4) | static_cast<uint32_t>(kWalkChans));
 }
 
 // ============================================================================
@@ -649,6 +738,196 @@ void RenderSetpointHarness::prove_flush_queued_tick_and_overrun() {
   check.that("[F] stream 1 out of prefill", !prefill(1));
 }
 
+// ============================================================================
+// [X] the pop is event-atomic. A recentre consumed as a prefill entry (A), a
+//     recentre snap (B) and a flush (C) each land INSIDE stream 0's pop
+//     window - on the edge after the one that consumed the event - and the
+//     crossbar still receives PAIRS back-to-back beats of one row, tlast on
+//     the last, with no stray walker position carried into stream 1 (C runs
+//     stream 1 in lock beside stream 0 as the walker's next victim). A PDU
+//     end on the very edge a pop consumes counts that pop (D: dev +6 exactly
+//     trips no rail). An event judged full at its first lane stays dropped
+//     past a pop inside it (E: a long PDU overfills the queue in lock with a
+//     pop landing on a dropped event's lanes 4 and 5; only whole rows are
+//     kept). A wire channel count change on a running stream re-prefills it
+//     (G). The walker model and the contract counters watch every beat.
+// ============================================================================
+void RenderSetpointHarness::prove_the_pop_is_event_atomic() {
+  printf("[X] state changes inside the pop window, the coincident pop, the walker\n");
+  // re-lock stream 0 on the cadence after [F]'s queued ticks and stream 1's burst
+  dut->flush_i = 0x3; step(); dut->flush_i = 0;
+  while (slot_cycle(slot_seq) + cadence_phase < cycle + 8) slot_seq++;
+  for (int i = 0; i < 3; i++) push_next(0);
+  idle(2);
+  check.that("[X] stream 0 re-locked", !prefill(0));
+  check.dec("[X] ...at TARGET", fill(0), kTarget);
+  x_rc0 = dut->recentres_o;
+  x_rails0 = dut->rails_o;
+  x_bad0 = contract_bad();
+  x_prefill_entry_inside_the_window();
+  x_snap_inside_the_window();
+  x_flush_inside_the_window();
+  x_channel_count_change();
+  x_pdu_end_on_the_pop_edge();
+  x_full_event_past_a_pop();
+  printf("  contract counters: wrong beat count %ld, truncated %ld, mixed %ld, walker %ld\n",
+         shape_bad, trunc_bad, mixed_bad, walker_bad);
+  check.dec("[X] the crossbar contract held on every beat of the run", contract_bad(), 0);
+}
+
+// ---- A: a recentre consumed at a PDU end inside the window, as a prefill
+//      entry (the window's own pop leaves 13 < TARGET at that end) ----
+void RenderSetpointHarness::x_prefill_entry_inside_the_window() {
+  pulse_recentre();
+  const long T = straddled_tick_edge();
+  push_pdu_ending_at(0, static_cast<int>(pdu_seq), T + 2); pdu_seq++; slot_seq++;
+  idle(2);
+  check.dec("[X] A: the recentre was consumed at the PDU end inside the window", dut->recentres_o - x_rc0, 1);
+  check.that("[X] A: ...as a prefill entry (the window's pop left TARGET - 1)",
+             prefill(0) && fill(0) == kTarget - 1);
+  run_to(T + kTickPeriod + 12);
+  check.dec("[X] A: the event in flight reached the crossbar whole", contract_bad() - x_bad0, 0);
+  push_next(0); idle(2);
+  check.that("[X] A: released by the next PDU end", !prefill(0));
+  check.dec("[X] A: ...at TARGET", fill(0), kTarget);
+
+}
+
+// ---- B: a recentre SNAP at a PDU end inside the window (the read pointer
+//      moves two rows forward while the event is in flight) ----
+void RenderSetpointHarness::x_snap_inside_the_window() {
+  for (int i = 0; i < 2; i++) push_next(0);
+  cadence_phase -= 3 * kTickPeriod;            // three early: fill before push 11
+  push_next(0); idle(2);
+  check.dec("[X] B: three ticks early: fill TARGET + 3, in band", fill(0), kTarget + 3);
+  pulse_recentre();
+  const long T = straddled_tick_edge();
+  push_pdu_ending_at(0, static_cast<int>(pdu_seq), T + 2); pdu_seq++; slot_seq++;
+  idle(2);
+  check.dec("[X] B: the recentre snapped at the PDU end inside the window", dut->recentres_o - x_rc0, 2);
+  check.dec("[X] B: ...to TARGET", fill(0), kTarget);
+  run_to(T + kTickPeriod + 12);
+  check.dec("[X] B: the event in flight reached the crossbar whole (no tear)", contract_bad() - x_bad0, 0);
+  check.dec("[X] B: no rail", dut->rails_o - x_rails0, 0);
+
+}
+
+// ---- C: a FLUSH inside the window; stream 1 in lock beside stream 0 is
+//      the crossbar walker's next victim ----
+void RenderSetpointHarness::x_flush_inside_the_window() {
+  for (int i = 0; i < 3; i++) {
+    push_next(0);
+    run_to(slot_cycle(slot_seq - 1) + cadence_phase + 60); push_pdu(1, pdu_seq1); pdu_seq1++;
+  }
+  idle(2);
+  check.that("[X] C: both streams in lock", !prefill(0) && !prefill(1));
+  const long T = tick_edge_after(slot_cycle(slot_seq) + cadence_phase - kTickPeriod);
+  run_to(T + 1);
+  dut->flush_i = 0x1; step(); dut->flush_i = 0;         // sampled at T + 2: stream 0's second beat
+  check.that("[X] C: stream 0 flushed at once", prefill(0) && fill(0) == 0);
+  idle(12);
+  check.dec("[X] C: stream 0's event completed whole and stream 1's rendered on its own channels",
+            contract_bad() - x_bad0, 0);
+  for (int i = 0; i < 3; i++) {
+    push_next(0);
+    if (i == 2) {
+      idle(2);
+      check.that("[X] C: stream 0 re-locked", !prefill(0));
+      check.dec("[X] C: ...at TARGET", fill(0), kTarget);
+    }
+    run_to(slot_cycle(slot_seq - 1) + cadence_phase + 60); push_pdu(1, pdu_seq1); pdu_seq1++;
+  }
+
+}
+
+// ---- G: a wire channel count change on a running stream re-prefills it ----
+void RenderSetpointHarness::x_channel_count_change() {
+  check.that("[X] G: stream 1 in lock before the change", !prefill(1) && fill(1) > 0);
+  set_chans(1, 3);                                        // no flush: the stage must notice
+  push_next(0);
+  run_to(slot_cycle(slot_seq - 1) + cadence_phase + 60); push_pdu(1, pdu_seq1); pdu_seq1++;
+  idle(2);
+  check.that("[X] G: the first beat at the new count flushed and re-prefilled the stream",
+             prefill(1) && fill(1) <= kPduEvents);
+  for (int i = 0; i < 2; i++) {
+    push_next(0);
+    run_to(slot_cycle(slot_seq - 1) + cadence_phase + 60); push_pdu(1, pdu_seq1); pdu_seq1++;
+  }
+  idle(2);
+  check.that("[X] G: released on the new layout", !prefill(1));
+  check.dec("[X] G: ...at TARGET", fill(1), kTarget);
+  for (int i = 0; i < 2; i++) push_next(0);
+  check.dec("[X] G: the re-laid stream renders whole, byte-exact events", contract_bad() - x_bad0, 0);
+  dut->flush_i = 0x2; step(); dut->flush_i = 0;
+  set_chans(1, kCh);
+
+}
+
+// ---- D: a PDU end on the very edge a pop consumes counts that pop ----
+void RenderSetpointHarness::x_pdu_end_on_the_pop_edge() {
+  cadence_phase -= kTickPeriod;                 // one early: fill before push 9, after 15
+  push_next(0); idle(2);
+  check.dec("[X] D: one tick early: fill TARGET + 1", fill(0), kTarget + 1);
+  const long T = tick_edge_after(push_cycle[0] + kPduBeats);
+  push_pdu_ending_at(0, static_cast<int>(pdu_seq), T + 1); pdu_seq++;
+  idle(2);
+  check.dec("[X] D: a PDU end on the pop's own edge: dev +6 exactly trips no rail",
+            dut->rails_o - x_rails0, 0);
+  check.dec("[X] D: ...the fill counts that pop: TARGET + one PDU", fill(0), kTarget + kPduEvents);
+  pulse_recentre();
+  push_next(0); idle(2);
+  check.dec("[X] D: the recentre snapped the bunched fill back to TARGET", fill(0), kTarget);
+  check.dec("[X] D: ...and was counted", dut->recentres_o - x_rc0, 3);
+
+}
+
+// ---- E: an event judged full at its first lane stays dropped past a pop
+//      inside it ----
+void RenderSetpointHarness::x_full_event_past_a_pop() {
+  for (int i = 0; i < 2; i++) push_next(0);
+  {
+    const long b26 = (26 * kCh + 4) / 2;          // the beat carrying event 26's lanes 4, 5
+    //! the push starts after the slot's tick has popped and before the next
+    //! tick, at the phase that puts a pop edge on that beat
+    long start = slot_cycle(slot_seq) + cadence_phase - kPushPhase + 3;
+    while ((start + 1 + b26) % kTickPeriod != 2) start++;
+    run_to(start);
+    const int f0 = fill(0);
+    check.dec("[X] E: in lock before the long PDU", f0, kSetpoint);
+    //! the pop edges inside [start + 1, edge]: the tick edge is the one whose
+    //! value is 1 mod the period, the pop consumes on the edge after it
+    auto pops_through = [&](long edge) {
+      long n = 0;
+      for (long e = start + 1; e <= edge; e++) if (e % kTickPeriod == 2) n++;
+      return n;
+    };
+    //! what the stage must do: judge each event ONCE, at its first lane,
+    //! against the fill including that edge's pop; a dropped event never
+    //! advances the queue, a stored one always does
+    int stored = 0;
+    int dropped = 0;
+    for (int k = 0; k < kLongPduEvents; k++) {
+      const long first_edge = start + 1 + (k * kCh) / 2;
+      if (f0 + stored - pops_through(first_edge) >= kRows) dropped++; else stored++;
+    }
+    const long end_edge = start + (kLongPduEvents * kCh + 1) / 2;
+    const long fill_end = f0 + stored - pops_through(end_edge);
+    const uint32_t ovr0 = dut->overruns_o;
+    const uint32_t rails_e = dut->rails_o;
+    push_pdu(0, static_cast<int>(pdu_seq), kLongPduEvents); pdu_seq++;
+    idle(2);
+    check.dec("[X] E: dropped = the events judged full at their first lane", dut->overruns_o - ovr0, dropped);
+    check.dec("[X] E: the PDU end snapped the overfilled queue (high rail)",
+              dut->rails_o - rails_e, (fill_end > kTarget + kResetBand) ? 1 : 0);
+    check.dec("[X] E: ...to TARGET", fill(0), kTarget);
+    // the snapped rows pop over the next PDUs: every one a whole event
+    while (slot_cycle(slot_seq) + cadence_phase < cycle + 8) slot_seq++;
+    pulse_recentre();
+    for (int i = 0; i < 4; i++) push_next(0);
+    check.dec("[X] E: every rendered row is one event's (no half-stored row)", contract_bad() - x_bad0, 0);
+  }
+}
+
 int RenderSetpointHarness::run() {
   printf("== KL_render_setpoint: %d streams x %d lanes, %d rows, PDU %d events, setpoint %d, bands %d/%d ==\n",
          kStreams, kCh, kRows, kPduEvents, kSetpoint, kConvBand, kResetBand);
@@ -662,6 +941,7 @@ int RenderSetpointHarness::run() {
   prove_the_rails();
   prove_convergence_and_the_one_shot_recentre();
   prove_flush_queued_tick_and_overrun();
+  prove_the_pop_is_event_atomic();
   return check.report();
 }
 

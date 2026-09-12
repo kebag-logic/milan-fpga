@@ -122,7 +122,8 @@ DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A
 # inside milan_datapath below, which is the number that decides placement.
 tops=(
   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
-  # #386: the render setpoint stage, priced alone at the shipping shape
+  # #386: the render setpoint stage at its module defaults (eight streams);
+  # the shipping one-stream figure needs OOC_CHPARAM=N_STREAMS_P=1
   "KL_render_setpoint|$R/hdl/ieee1722/aaf/KL_render_setpoint.sv"
   "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"

@@ -5105,13 +5105,16 @@ def test_baremetal_profile_contract() -> None:
             "control")
         #: #386: the render stage's recentre pulse is the one consumer the two
         #: census rows above admit beyond the PHC crossing; pin its exact
-        #: term set so the extra reference can only ever be this read.
+        #: term set so the extra reference can only ever be this read. The
+        #: fourth term is the settled clock-source change (round 5), a
+        #: datapath-local pulse that reads no PHC net.
         direct_initializer(
             datapath, r"wire[ \t]+render_recentre_p_w",
             "render_recentre_p_w",
-            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load",
-            "render recentre pulse must read only the GM-change, adjtime and "
-            "settime discontinuities")
+            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load "
+            "| src_recentre_p_r",
+            "render recentre pulse must read only the GM-change, adjtime, "
+            "settime and settled clock-source discontinuities")
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -6465,9 +6468,10 @@ def test_baremetal_profile_contract() -> None:
     #: PHC census count, so only the recentre pin can refuse it.
     render_recentre_adp_term = replace_once(
         datapath_source,
-        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load;",
         "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
-        "       | cfg_adp_enable;",
+        "       | src_recentre_p_r;",
+        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       | src_recentre_p_r | cfg_adp_enable;",
         "ADP-controlled render recentre term")
     phc_effective_adjust_gated_by_adp = replace_once(
         datapath_source,
@@ -8009,8 +8013,8 @@ def test_baremetal_profile_contract() -> None:
          MutantFiles(datapath=phc_wand_second_driver)),
         ("ADP term spliced into the render recentre pulse", firmware_source,
          docs_source, csr_source,
-         "render recentre pulse must read only the GM-change, adjtime and "
-         "settime discontinuities",
+         "render recentre pulse must read only the GM-change, adjtime, "
+         "settime and settled clock-source discontinuities",
          MutantFiles(datapath=render_recentre_adp_term)),
         #: 915cbcc3: the PHC consumer is the ptp_csr_sync crossing; the
         #: reasons follow the re-pointed pins.

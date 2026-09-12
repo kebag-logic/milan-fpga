@@ -8,9 +8,16 @@
 # first-event delay of every PDU at the setpoint, byte-exact beats for 8, 3,
 # 1 and 12 wire channels, the pop schedule and the delayed render tick, the
 # underrun gap, both reset rails, the overrun drop, convergence, the one-shot
-# recentre (counted once), a flush, and a tick queued inside the schedule.
-#   make        - build and run the harness, then the mutation arm
-#   make run    - the harness alone
+# recentre (counted once), a flush, a tick queued inside the schedule, the
+# event-atomic pop (a recentre or a flush inside the pop window leaves the
+# crossbar whole events), a PDU end on a pop's own edge, an event judged
+# full past a pop inside it, a wire channel count change, and a model of
+# the crossbar's walker on every beat - run once on the 8-lane shape and
+# once on a 7-lane one (an odd N_CH_P: the pad lane must be a virtual
+# channel, never a wrap onto channel 0).
+#   make        - build and run the harness on both shapes, then the mutation arm
+#   make run    - the 8-lane harness alone
+#   make odd    - the 7-lane harness alone
 #   make clean  - remove build artifacts
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
@@ -49,9 +56,9 @@ MDIR ?= obj_dir
 EXE   = VKL_render_setpoint_sim
 CPP   = sim_main.cpp
 
-.PHONY: all run build mutants clean
+.PHONY: all run build odd mutants clean
 .DEFAULT_GOAL := all
-all: run mutants
+all: run odd mutants
 
 build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) $(SRCS) $(CPP) -o $(EXE)
@@ -60,13 +67,22 @@ run: build
 	@echo "======================================================================"
 	./$(MDIR)/$(EXE)
 
-# Rule 8: the harness above is load-bearing only if it can fail. Seven defects
-# are injected into the real RTL, one at a time, and each must make the SAME
-# harness fail by its own verdict; the unmutated build must still pass.
+# The same harness on an ODD lane count (N_CH_P = 7), through the same
+# recipe with the one shape value overridden: the crossbar's channel view
+# and the walker model then carry a pad lane, which is what an even count
+# cannot exercise.
+odd:
+	@echo "======================================================================"
+	$(MAKE) -s run N_CH=7 MDIR=obj_odd
+
+# Rule 8: the harness above is load-bearing only if it can fail. Thirteen
+# defects are injected into the real RTL, one at a time (one of them on the
+# 7-lane shape), and each must make the SAME harness fail by its own verdict;
+# the unmutated build must still pass on every shape a mutant uses.
 # Mutants build in a temporary directory, nothing is written into the tree.
 mutants:
 	@echo "======================================================================"
 	python3 mutants.py
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_odd

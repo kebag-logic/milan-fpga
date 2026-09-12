@@ -34,9 +34,22 @@
                 and tlast on the last beat, streams in index order; then
                 render_tick_p_o fires, so the crossbar registers the popped
                 events exactly N_STREAMS_P x PAIRS_C + 2 cycles after the
-                media tick (its phys_valid_o one cycle after that). The
-                crossbar's per-stream channel count is therefore N_CH_P
-                (m_wire_chans_o), whatever the wire says.
+                media tick (its phys_valid_o on that same edge). The
+                crossbar's per-stream channel count is therefore the
+                lane count an event carries, 2 x PAIRS_C
+                (m_wire_chans_o), whatever the wire says: with N_CH_P
+                odd the pad lane of the last beat is a channel the
+                crossbar walks and never latches, not a wrap onto
+                channel 0. THE POP IS EVENT-ATOMIC: whether a stream
+                presents an event this tick, and which row it reads,
+                are decided ONCE at its first beat from the registered
+                pointers (the event is consumed there); the remaining
+                beats read that latched row whatever the stream's
+                state does meanwhile, so a PDU end, a rail, a recentre
+                or a flush inside the pop window lands between events,
+                never inside one (the crossbar's single walker would
+                otherwise carry a truncated or mixed event into the
+                next stream's channels).
 
                 THE LAW (events; T = one media tick):
                   PDU_EVENTS_P    events per accepted PDU (6 at class A, 48k)
@@ -65,8 +78,9 @@
                 so a PDU one class-A interval late never trips it; only
                 drift does (INTERNAL free-run: slips accepted, at a band).
 
-                RECENTRE (task #22 applied to this path): recentre_p_i (a GM
-                identity change or a PHC step) arms a per-stream pending
+                RECENTRE (task #22 applied to this path): recentre_p_i (the
+                integration's set: a GM identity change, a PHC step, a
+                clock-source change once its grid settled) arms a pending
                 flag; the NEXT PDU end consumes it as the prefill snap (or a
                 prefill entry when the queue is short) and counts it ONCE in
                 recentres_o. Nothing walks the fill back at a residual rate.
@@ -76,7 +90,9 @@
                 stream re-enters prefill; the crossbar holds its last event.
                 OVERRUN (an event completes at a full queue): the event is
                 dropped and counted; the rail snaps at that PDU's end.
-                FLUSH (per stream, bind loss): empty, prefill.
+                FLUSH (per stream, bind loss): empty, prefill. A wire
+                channel count that moves on a running stream flushes it
+                the same way: the queued rows carry the old lane layout.
 
                 STORAGE: event rows of N_CH_P lanes kept as PAIR words so a
                 pop reads one 48-bit word per beat with no lane mux: h1 for
@@ -142,9 +158,16 @@ module KL_render_setpoint #(
   input  wire [N_STREAMS_P*4-1:0]  wire_chans_i, //! 4-bit fields; 0 -> 2
 
   //! --- the media grid and the one-shot events -----------------------------
-  input  wire                      tick_i,       //! one pulse per media frame
+  input  wire                      tick_i,       //! one pulse per media frame,
+                                                 //! at least N_STREAMS_P x
+                                                 //! PAIRS_C + 2 cycles apart
+                                                 //! (a tick on the edge a
+                                                 //! queued tick starts is
+                                                 //! not queued again)
   input  wire                      recentre_p_i, //! one-cycle: GM identity
-                                                 //! change or PHC step
+                                                 //! change, PHC step or a
+                                                 //! settled clock-source
+                                                 //! change
   input  wire [N_STREAMS_P-1:0]    flush_i,      //! one-cycle per stream:
                                                  //! bind loss, empty it
 
@@ -155,8 +178,10 @@ module KL_render_setpoint #(
   output logic                     m_tlast_o,    //! last beat of the event
   output logic [3:0]               m_tuser_o,    //! stream index s
   output logic [N_STREAMS_P*4-1:0] m_wire_chans_o, //! every stream presents
-                                                 //! N_CH_P lanes (pad lanes
-                                                 //! carry zero)
+                                                 //! 2 x PAIRS_C lanes (the
+                                                 //! pad lane of an odd
+                                                 //! N_CH_P and lanes >= the
+                                                 //! channel count carry 0)
   output logic                     render_tick_p_o, //! tick_i delayed past
                                                  //! the pop schedule: the
                                                  //! crossbar's tick_i
@@ -169,10 +194,12 @@ module KL_render_setpoint #(
                                                  //! crossbar input grid)
   output logic [N_STREAMS_P*8-1:0] fill_o,       //! per-stream fill, events
   output logic [N_STREAMS_P-1:0]   prefill_o,    //! per-stream: pops held
-  output logic [N_STREAMS_P-1:0]   converged_o,  //! per-stream: fill inside
-                                                 //! the convergence band at
-                                                 //! every PDU end for the
-                                                 //! observer's 100 periods
+  output logic [N_STREAMS_P-1:0]   converged_o,  //! per-stream: the last PDU
+                                                 //! end of each observer
+                                                 //! period inside the
+                                                 //! convergence band, 100
+                                                 //! periods running; held
+                                                 //! between the bands
   output logic [15:0]              underruns_o,  //! ticks that found a stream
                                                  //! empty (saturating)
   output logic [15:0]              overruns_o,   //! events dropped at a full
@@ -211,8 +238,8 @@ module KL_render_setpoint #(
   if (RESET_BAND_EVT_P < CONV_BAND_EVT_P) begin : g_chk_bands
     $error("KL_render_setpoint: RESET_BAND_EVT_P=%0d below CONV_BAND_EVT_P=%0d - the rail would fire inside the convergence band", RESET_BAND_EVT_P, CONV_BAND_EVT_P);
   end : g_chk_bands
-  if (TARGET_C + RESET_BAND_EVT_P >= ROWS_C) begin : g_chk_fit
-    $error("KL_render_setpoint: SETPOINT_EVT_P + PDU_EVENTS_P + RESET_BAND_EVT_P = %0d does not fit below the 2^%0d = %0d rows - the reset rail could never be reached before the queue overruns", TARGET_C + RESET_BAND_EVT_P, DEPTH_LOG2_P, ROWS_C);
+  if (TARGET_C + RESET_BAND_EVT_P + PDU_EVENTS_P > ROWS_C) begin : g_chk_fit
+    $error("KL_render_setpoint: SETPOINT_EVT_P + PDU_EVENTS_P + RESET_BAND_EVT_P + one bunched PDU = %0d exceeds the 2^%0d = %0d rows - the reset rail could not act on a bunched PDU before the queue overruns", TARGET_C + RESET_BAND_EVT_P + PDU_EVENTS_P, DEPTH_LOG2_P, ROWS_C);
   end : g_chk_fit
   if (CLK_FREQ_HZ_P < 2000) begin : g_chk_clk
     $error("KL_render_setpoint: CLK_FREQ_HZ_P=%0d cannot divide to a millisecond observer period", CLK_FREQ_HZ_P);
@@ -261,6 +288,8 @@ module KL_render_setpoint #(
   logic            dev_ok_r    [N_STREAMS_P];  //! last PDU end inside CONV
   logic [6:0]      conv_ms_r   [N_STREAMS_P];  //! observer periods in band
   logic            converged_r [N_STREAMS_P];
+  logic [3:0]      chans_q_r   [N_STREAMS_P];  //! channel count of the last
+                                               //! accepted beat (0 = none yet)
 
   logic [3:0]      chpos_r;      //! wire channel of the current beat's FIRST
                                  //! sample (frames are atomic: one counter)
@@ -272,21 +301,26 @@ module KL_render_setpoint #(
   wire s_ok_w = s_tvalid_i && (32'(s_tuser_i) < N_STREAMS_P);
 
   //! the in-flight stream's channel count and pointers (constant-base mux)
-  logic [3:0]      chans_in_raw_w;
+  logic [3:0]      chans_in_raw_w, chans_q_in_w;
   logic [PW_C-1:0] wptr_in_w, rptr_in_w;
   always_comb begin : in_lookup
     chans_in_raw_w = 4'd0;
+    chans_q_in_w   = 4'd0;
     wptr_in_w      = '0;
     rptr_in_w      = '0;
     for (int unsigned s = 0; s < N_STREAMS_P; s++) begin
       if (32'(s_tuser_i) == s) begin
         chans_in_raw_w = wire_chans_i[s*4 +: 4];
+        chans_q_in_w   = chans_q_r[s];
         wptr_in_w      = wptr_r[s];
         rptr_in_w      = rptr_r[s];
       end
     end
   end : in_lookup
   wire [3:0] c_in_w = (chans_in_raw_w == 4'd0) ? 4'd2 : chans_in_raw_w;
+  //! the stream's wire channel count moved since its last beat: its queued
+  //! rows carry the old lane layout, so the beat flushes it (below)
+  wire chans_moved_w = s_ok_w && (chans_q_in_w != 4'd0) && (chans_q_in_w != c_in_w);
 
   //! the two S32BE samples of the beat (the crossbar's decode: wire byte
   //! first = MSB, lane 3/7 = pad, dropped)
@@ -302,13 +336,13 @@ module KL_render_setpoint #(
   wire start0_w = (ch0_w == 4'd0);
   wire start1_w = (ch1_w == 4'd0);
 
-  //! the pop side may free a row this very cycle; the fill the push sees is
-  //! the one AFTER that pop (rptr_eff_w below), so a full queue is judged on
-  //! the same edge the pointers move
-  logic            pop_last_w;      //! declared with the pop side below
+  //! the pop side may consume a row this very cycle (an event's first
+  //! beat); the fill the push sees is the one AFTER that pop (rptr_eff_w
+  //! below), so a full queue is judged on the same edge the pointers move
+  logic            pop_take_w;      //! declared with the pop side below
   logic [3:0]      slot_r;
   wire  [PW_C-1:0] rptr_eff_in_w = rptr_in_w
-                                 + PW_C'(pop_last_w && (slot_r == s_tuser_i));
+                                 + PW_C'(pop_take_w && (slot_r == s_tuser_i));
   wire  [PW_C-1:0] fill_in_w  = wptr_in_w - rptr_eff_in_w;
   wire             full0_w    = (fill_in_w == PW_C'(ROWS_C));
   //! an event judged full at its first lane stays dropped to its last lane,
@@ -402,19 +436,34 @@ module KL_render_setpoint #(
   end : pop_lookup
   wire [3:0]      c_pop_w    = (chans_pop_raw_w == 4'd0) ? 4'd2 : chans_pop_raw_w;
   wire [PW_C-1:0] fill_pop_w = wptr_pop_w - rptr_pop_w;
-  wire            pop_ok_w   = sched_r && !prefill_pop_w && (fill_pop_w != '0);
+  wire            first_beat_w = (beat_r == 4'd0);
+  //! THE EVENT-ATOMIC POP: whether the scheduled stream presents an event
+  //! is decided once, at its first beat, from the registered state; that
+  //! beat consumes the event (pop_take_w advances rptr) and latches its
+  //! row (ev_row_r), and the remaining beats present the latched row
+  //! whatever the pointers or the prefill flag do meanwhile. A PDU end, a
+  //! rail, a recentre or a flush inside the window therefore lands between
+  //! events, never inside one: the crossbar always receives PAIRS_C beats
+  //! of ONE row with tlast on the last
+  logic                    ev_ok_r;   //! the event in flight is presented
+  logic [DEPTH_LOG2_P-1:0] ev_row_r;  //! its row, latched at the first beat
+  assign pop_take_w = sched_r && first_beat_w && !prefill_pop_w && (fill_pop_w != '0);
+  wire            pop_ok_w   = first_beat_w ? pop_take_w : ev_ok_r;
   //! an empty stream is judged once per tick, at its first beat
-  wire            pop_dry_w  = sched_r && !prefill_pop_w && (fill_pop_w == '0)
-                               && (beat_r == 4'd0);
-  assign pop_last_w = pop_ok_w && last_beat_w;
+  wire            pop_dry_w  = sched_r && first_beat_w && !prefill_pop_w
+                               && (fill_pop_w == '0);
+  //! the row this beat reads: the head at the first beat, the latched row
+  //! after it
+  wire [DEPTH_LOG2_P-1:0] rd_row_w = first_beat_w ? rptr_pop_w[DEPTH_LOG2_P-1:0]
+                                                  : ev_row_r;
 
   //! the beat's two lanes: even lane from h0 (bank by row parity), odd lane
   //! from h1; lanes at or beyond the stream's channel count read zero
   wire [3:0]  lane_e_w = {beat_r[2:0], 1'b0};
   wire [3:0]  lane_o_w = {beat_r[2:0], 1'b1};
-  wire [23:0] rd_e_w   = rptr_pop_w[0] ? h0o_r[h0_addr(slot_r, rptr_pop_w[DEPTH_LOG2_P-1:1], beat_r)]
-                                       : h0e_r[h0_addr(slot_r, rptr_pop_w[DEPTH_LOG2_P-1:1], beat_r)];
-  wire [23:0] rd_o_w   = h1_r[h1_addr(slot_r, rptr_pop_w[DEPTH_LOG2_P-1:0], beat_r)];
+  wire [23:0] rd_e_w   = rd_row_w[0] ? h0o_r[h0_addr(slot_r, rd_row_w[DEPTH_LOG2_P-1:1], beat_r)]
+                                     : h0e_r[h0_addr(slot_r, rd_row_w[DEPTH_LOG2_P-1:1], beat_r)];
+  wire [23:0] rd_o_w   = h1_r[h1_addr(slot_r, rd_row_w, beat_r)];
   wire [23:0] smp_e_w  = (32'(lane_e_w) < 32'(c_pop_w)) ? rd_e_w : 24'd0;
   wire [23:0] smp_o_w  = ((32'(lane_o_w) < 32'(c_pop_w)) && (32'(lane_o_w) < N_CH_P))
                          ? rd_o_w : 24'd0;
@@ -432,6 +481,8 @@ module KL_render_setpoint #(
       tick_d_r   <= 1'b0;
       render_tick_p_o <= 1'b0;
       pop_p_o <= '0;
+      ev_ok_r  <= 1'b0;
+      ev_row_r <= '0;
     end else begin
       //! the presented beat (registered): S32BE wire order, pad lanes zero
       m_tvalid_o <= pop_ok_w;
@@ -441,7 +492,7 @@ module KL_render_setpoint #(
       m_tuser_o  <= slot_r;
       pop_p_o    <= '0;
       for (int unsigned s = 0; s < N_STREAMS_P; s++) begin
-        if (pop_ok_w && (beat_r == 4'd0) && (32'(slot_r) == s)) pop_p_o[s] <= 1'b1;
+        if (pop_take_w && (32'(slot_r) == s)) pop_p_o[s] <= 1'b1;
       end
       tick_d_r        <= sched_r && last_beat_w && last_slot_w;
       render_tick_p_o <= tick_d_r;
@@ -452,6 +503,11 @@ module KL_render_setpoint #(
         slot_r   <= 4'd0;
         beat_r   <= 4'd0;
       end else if (sched_r) begin
+        //! the event-atomic latch: taken at the stream's first beat only
+        if (first_beat_w) begin
+          ev_ok_r  <= pop_take_w;
+          ev_row_r <= rptr_pop_w[DEPTH_LOG2_P-1:0];
+        end
         if (last_beat_w) begin
           beat_r <= 4'd0;
           if (last_slot_w) sched_r <= 1'b0;
@@ -497,11 +553,12 @@ module KL_render_setpoint #(
         dev_ok_r[s]    <= 1'b0;
         conv_ms_r[s]   <= 7'd0;
         converged_r[s] <= 1'b0;
+        chans_q_r[s]   <= 4'd0;
       end
     end else begin
       for (int unsigned s = 0; s < N_STREAMS_P; s++) begin : per_stream
-        //! pop: the last beat of a presented event consumes it
-        if (pop_last_w && (32'(slot_r) == s)) rptr_r[s] <= rptr_r[s] + PW_C'(1);
+        //! pop: the first beat of a presented event consumes it
+        if (pop_take_w && (32'(slot_r) == s)) rptr_r[s] <= rptr_r[s] + PW_C'(1);
         //! underrun rail: one bounded gap, then prefill re-snaps
         if (pop_dry_w && (32'(slot_r) == s)) begin
           prefill_r[s]   <= 1'b1;
@@ -517,7 +574,8 @@ module KL_render_setpoint #(
           else                                    converged_r[s] <= 1'b1;
         end
         if (s_ok_w && (32'(s_tuser_i) == s)) begin
-          wptr_r[s] <= wptr_nxt_w;
+          wptr_r[s]    <= wptr_nxt_w;
+          chans_q_r[s] <= c_in_w;
           if (s_tlast_i) begin
             if (prefill_r[s] || pend_r[s]) begin
               //! prefill release / recentre: snap the fill to TARGET_C at
@@ -553,8 +611,10 @@ module KL_render_setpoint #(
         //! pulse coincident with the snap is a new event for the next one;
         //! a stream in prefill has nothing to recentre
         if (recentre_p_i && !prefill_r[s]) pend_r[s] <= 1'b1;
-        //! flush wins over everything: empty, prefill
-        if (flush_i[s]) begin
+        //! flush wins over everything: empty, prefill. A wire channel count
+        //! that moved on this stream flushes it the same way (the queued
+        //! rows carry the old lane layout; this beat's rows go with them)
+        if (flush_i[s] || (chans_moved_w && (32'(s_tuser_i) == s))) begin
           rptr_r[s]      <= (s_ok_w && (32'(s_tuser_i) == s)) ? wptr_nxt_w : wptr_r[s];
           prefill_r[s]   <= 1'b1;
           pend_r[s]      <= 1'b0;
@@ -618,7 +678,7 @@ module KL_render_setpoint #(
       fill_o[s*8 +: 8]         = 8'(fill_s_w[s]);
       prefill_o[s]             = prefill_r[s];
       converged_o[s]           = converged_r[s];
-      m_wire_chans_o[s*4 +: 4] = 4'(N_CH_P);
+      m_wire_chans_o[s*4 +: 4] = 4'(2 * PAIRS_C);
     end
   end : taps
 

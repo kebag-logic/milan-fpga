@@ -90,9 +90,11 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
                  -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -Wall -Wextra"
 
-# #386: the render setpoint stage, overridable so the render-law mutation
-# arm (render_mutants.py) elaborates a MUTATED COPY through this same recipe
+# #386: the render setpoint stage and the datapath, overridable so the
+# render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
+# either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
+DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -172,7 +174,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
        $(RTL_DIR)/common/csr/milan_csr.sv \
-       $(RTL_DIR)/milan/milan_datapath.sv
+       $(DP_SRC)
 CPP  = sim_main.cpp
 
 .PHONY: all run gptp option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
@@ -209,8 +211,9 @@ endef
 
 # The true-ratio leg's recipe, stated ONCE: the sweep builds obj_aclk with
 # it, and render_mutants.py (#386) builds a MUTATED copy of the setpoint stage
-# through the same recipe (RSP_SRC and ACLK_MDIR overridden) so the negative
-# controls elaborate exactly the gateware the positive leg does.
+# or of the datapath through the same recipe (RSP_SRC or DP_SRC, and
+# ACLK_MDIR, overridden) so the negative controls elaborate exactly the
+# gateware the positive leg does.
 ACLK_MDIR ?= obj_aclk
 define ACLK_BUILD
 $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(ACLK_MDIR) \
@@ -388,7 +391,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	./obj_ax1x1/Vmilan_dp_ax1x1
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
 	./obj_aclk/Vmilan_dp_aclk
-	@echo "---- #386 render law: the same leg against two mutated setpoint stages ----"
+	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
