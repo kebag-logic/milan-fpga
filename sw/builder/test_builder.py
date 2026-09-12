@@ -198,8 +198,13 @@ Gates (gaps item 4, generator round):
       the emitted set is INTERNAL + the CRF sink's INPUT_STREAM source on
       every shipping config (count 2, CRF at 1, in the overlay AND the
       generated header), no source is located on an AAF listener, the set
-      is model shape (1722.1 6.2.2.8), and a config asking for the retired
-      `input_stream` source is refused naming the issue.
+      is model shape (1722.1 6.2.2.8), and the retired `input_stream`
+      source is refused BY NAME, naming the issue, on both paths a
+      descriptor set is built through: the config loader, and
+      `avdecc/aem_specs.py`'s `spec_from_overlay` under the
+      `gen_aem_store.py --overlay` CLI.  The second is defence in depth,
+      the overlay being builder-generated, and its bites arm restores the
+      pre-#389 map to show the retired row rendering again without it.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -10368,8 +10373,9 @@ def test_clock_sources_follow_the_fabric() -> None:
     """Gate 33 (#389): every CLOCK_SOURCE a shipping config advertises is
     one the fabric follows - INTERNAL and the CRF sink's INPUT_STREAM
     source, nothing per AAF listener - in the overlay and the generated
-    header alike; the set is model shape; and a config that asks for the
-    retired `input_stream` source is refused by name."""
+    header alike; the set is model shape; and the retired `input_stream`
+    source is refused by name on both paths a descriptor set is built
+    through, the config loader and `spec_from_overlay`."""
     for name, path in CONFIGS.items():
         r = eb.build(path, OUT)
         ovl, cfg = r["overlay"], r["cfg"]
@@ -10403,9 +10409,58 @@ def test_clock_sources_follow_the_fabric() -> None:
             raise AssertionError("a config declaring input_stream was accepted")
     finally:
         p.unlink()
+    # ...and refused on the OTHER path a descriptor set is built through.
+    # `spec_from_overlay` is where the retired type stayed EXPRESSIBLE: the
+    # overlay it reads is BUILDER-GENERATED, so the refusal above already
+    # means no tracked or emitted overlay can carry such a row, and this
+    # second refusal is defence in depth for a hand-made or future overlay,
+    # not a second rule.
+    import aem_specs
+    bad = copy.deepcopy(eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)["overlay"])
+    bad["clock_sources"].insert(1, dict(
+        index=1, name="Stream Clock", type="input_stream",
+        location_type="STREAM_INPUT", location_index=0))
+    for i, c in enumerate(bad["clock_sources"]):
+        c["index"] = i
+    try:
+        aem_specs.spec_from_overlay(bad)
+    except ValueError as e:
+        assert "input_stream" in str(e) and "#389" in str(e), str(e)
+    else:
+        raise AssertionError("an overlay carrying input_stream was accepted")
+    # the CLI over that same function, which is the entry point a developer
+    # reaches for and the one the report exercised: it must refuse and write
+    # nothing, where it used to emit a store with exit 0
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
+        (td / "aem_overlay.json").write_text(json.dumps(bad),
+                                             encoding="utf-8")
+        cp = subprocess.run(
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--overlay", str(td / "aem_overlay.json"), "--out-dir", str(td)],
+            capture_output=True, text=True, check=False)
+        assert cp.returncode != 0, \
+            "gen_aem_store --overlay built a store for a retired source"
+        assert "input_stream" in cp.stderr and "#389" in cp.stderr, cp.stderr
+        assert sorted(e.name for e in td.iterdir()) == ["aem_overlay.json"], \
+            "gen_aem_store wrote an artifact before refusing"
+    # the arm bites: put the pre-#389 map back with no refusal, and the same
+    # overlay renders the retired row again as a 0x0002 CLOCK_SOURCE located
+    # on the AAF listener - the exact descriptor this issue closed. Remove
+    # the refusal and this gate reddens on the two assertions above.
+    keep_t, keep_r = aem_specs.CS_TYPE, aem_specs.CS_RETIRED
+    aem_specs.CS_TYPE = dict(keep_t, input_stream=0x0002)
+    aem_specs.CS_RETIRED = {}
+    try:
+        row = aem_specs.spec_from_overlay(bad)["clock_sources"][1]
+    finally:
+        aem_specs.CS_TYPE, aem_specs.CS_RETIRED = keep_t, keep_r
+    assert (row["raw_type"], row["cs_type"], row["loc_index"]) \
+        == ("input_stream", 0x0002, 0), row
     print(f"  [gate 33] {len(CONFIGS)}/{len(CONFIGS)} configs advertise "
           "INTERNAL + CRF only (overlay, header and model shape agree); "
-          "input_stream refused")
+          "input_stream refused by the config loader AND by "
+          "spec_from_overlay (CLI included), and the overlay arm bites")
 
 
 def test_dynamic_map_topology_reaches_shape_header() -> None:

@@ -16,6 +16,23 @@ from typing import Any
 from aem_descriptors import (CLOCK_SOURCE, CRF_FORMATS, FORMATS, OUT_FORMATS,
                              RATES, STREAM_INPUT, firmware_version_string)
 
+# 1722.1-2021 7.2.9.2 CLOCK_SOURCE types this consumer can render, keyed by
+# the overlay's own `type` name.
+CS_TYPE = {"internal": 0x0000, "crf": 0x0002}
+# Source types that are RETIRED, each with the issue that retired it. They
+# are refused by name rather than dropped, exactly as the builder's config
+# loader refuses the key that used to ask for one: a source a controller can
+# select and nothing follows is a false advertisement, and a row silently
+# dropped here would be the same lie one layer down.
+#
+# #389 retired `input_stream`: the fabric has no stream-derived media-clock
+# recovery, so an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
+# accepted and stored while nothing followed it. The overlay this consumer
+# reads is BUILDER-GENERATED and can no longer carry such a row - the builder
+# refuses the key and emits nothing - so this refusal is DEFENCE IN DEPTH for
+# a hand-made or future overlay, not a second rule.
+CS_RETIRED = {"input_stream": "#389"}
+
 # ----------------------------------------------------------------- specs ----
 def builtin_spec() -> dict[str, Any]:
     """The compatibility model expressed as a build_model() specification.
@@ -193,7 +210,15 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
     if not any(s["kind"] == "crf" for s in ovl["stream_inputs"]):
         raise ValueError("overlay without a CRF sink is not expressible in "
                          "the svh consumer today (AEM_CRF_FMTS_C)")
-    cs_type = {"internal": 0x0000, "input_stream": 0x0002, "crf": 0x0002}
+    for c in ovl["clock_sources"]:
+        if c["type"] in CS_RETIRED:
+            raise ValueError(
+                f"clock_sources: {c['type']!r} is not a source this fabric "
+                f"can follow ({CS_RETIRED[c['type']]}: no stream-derived "
+                "media-clock recovery exists; only INTERNAL and the CRF sink "
+                "drive the media clock, Milan v1.2 7.2.2) - the builder "
+                "refuses the config key that asked for one and emits no such "
+                "row, so no builder-generated overlay carries it")
     loc_type = {"CLOCK_SOURCE": CLOCK_SOURCE, "STREAM_INPUT": STREAM_INPUT}
     stream_flags_in = 0x0003
     return dict(
@@ -217,7 +242,7 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
                  formats=[int(f, 16) for f in s["formats"]])
             for s in ovl["stream_outputs"]],
         clock_sources=[
-            dict(name=c["name"], cs_type=cs_type[c["type"]],
+            dict(name=c["name"], cs_type=CS_TYPE[c["type"]],
                  raw_type=c["type"],
                  loc_type=loc_type[c["location_type"]],
                  loc_index=int(c["location_index"]))
