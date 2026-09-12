@@ -79,6 +79,7 @@ from pathlib import Path
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gen_toc import (TOC_ENTRY_RE, generated_block, headings, label,
+                     refusal_notes,
                      line_kinds)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -268,6 +269,11 @@ def judge_page(repo: Path, base: str, change: Change,
     if not hits:
         return
     text = git(repo, "show", f"HEAD:{change.path}")
+    # A page the walk REFUSES to read has no provenance at all, so no
+    # label on it can be exempt; say why, or the author sees only that a
+    # generated line was refused ([R85] F1, [R86] F1, round 9 on PR #428).
+    verdict.findings += [f"{note}, so no Contents label on it is exempt"
+                         for note in refusal_notes(change.path, text)]
     # The PATH is part of the question: `gen_toc.py` does not write a
     # Contents block for the two documentation indexes, for the historical
     # tree or for another generator's pages, so nothing on them is ever
@@ -460,6 +466,30 @@ Body.
 Body.
 """
 
+#: A base page whose em-dash heading sits in a TIGHT type-7 HTML block
+#: tucked directly under a heading: no blank line ends the block and none
+#: precedes it, so the heading renders as text and has no anchor to
+#: preserve ([R85] F1 and [R86] F1, round 1 on PR #428).
+_SPAN_BASE = f"""# Span-wrapped heading page
+
+## Wrapper
+<span>
+## Old {EM_DASH} heading
+</span>
+
+## Alpha
+
+Body.
+
+## Beta
+
+Body.
+
+## Gamma
+
+Body.
+"""
+
 #: A base page that opens with a comment carrying a fence marker. Its
 #: Contents block is legitimate and must stay exempt: a walk that let the
 #: marker open a fence refused this page ([R0] round 5 F3 on PR #384).
@@ -491,6 +521,7 @@ def _fixture_repo(repo: Path) -> str:
     (repo / "COMMENTED.md").write_text(_COMMENTED, encoding="utf-8")
     (repo / "FENCE_COMMENT.md").write_text(_FENCE_IN_COMMENT, encoding="utf-8")
     (repo / "DIV.md").write_text(_DIV_BASE, encoding="utf-8")
+    (repo / "SPAN.md").write_text(_SPAN_BASE, encoding="utf-8")
     # One page at a path `gen_toc.py` deliberately skips: it IS a table of
     # contents, so this script writes no block for it and no line of it can
     # be generated navigation.
@@ -525,6 +556,24 @@ def _fenced_example(repo: Path, opener: str, closer: str,
                     for l in _NEW_BLOCK.splitlines(keepends=True))
     quoted = "\n".join(x for x in (opener, block + closer) if x)
     _edit(repo, "NO_TOC.md", "Body.\n\n## Table", f"{quoted}\n\n## Table")
+
+
+def _unwrap(repo: Path, name: str, opener: str, closer: str) -> None:
+    """Take the em-dash heading of one fixture page out of the `opener` ..
+    `closer` lines it sits between and write, above `## Alpha`, a Contents
+    block that copies it, then the heading itself as a real one. The head
+    page is a valid generated block, so provenance holds and the exemption
+    is really asked: the answer is no, because the base rendered no such
+    heading. The heading line itself is not an added line: the base
+    carried the same text inside the wrapper, so git pairs it."""
+    _edit(repo, name, f"{opener}\n{_OLD_HEADING}\n{closer}\n\n", "")
+    _edit(repo, name, "## Alpha",
+          "## Contents\n\n"
+          f"- **[Old {EM_DASH} heading](#old--heading)** -- Copied.\n"
+          "- **[Alpha](#alpha)** -- What alpha holds.\n"
+          "- **[Beta](#beta)** -- What beta holds.\n"
+          "- **[Gamma](#gamma)** -- What gamma holds.\n"
+          f"\n{_OLD_HEADING}\n\nBody.\n\n## Alpha")
 
 
 @dataclass(frozen=True)
@@ -666,6 +715,17 @@ def _provenance_controls() -> tuple[Control, ...]:
                                 "- **[Gamma](#gamma)** -- What gamma holds.\n"
                                 "\n## Alpha"),
                 1, ("COMMENTED.md", "added prose line"), exempt=0),
+        Control("a page the walk refuses to read exempts nothing",
+                # The same edit as "mirrored label of a pre-existing
+                # heading passes", with one no-break space planted in the
+                # prose: the walk refuses the page, so the label that was
+                # exempt there is judged here and the refusal is named.
+                lambda r: (_edit(r, "NO_TOC.md", _OLD_HEADING,
+                                 _NEW_BLOCK + _OLD_HEADING),
+                           _edit(r, "NO_TOC.md", "Filler sentence 1 ",
+                                 "Filler\u00a0sentence 1 ")),
+                2, ("U+00A0 at column", "no Contents label on it is exempt",
+                    "in an added prose line"), exempt=0),
         Control("a second comment on a closing line still hides the block",
                 lambda r: _fenced_example(r, "<!-- first --> <!-- second",
                                           "-->"),
@@ -675,22 +735,17 @@ def _provenance_controls() -> tuple[Control, ...]:
                                 _NEW_BLOCK + _OLD_HEADING),
                 1, ("docs/README.md", "added prose line"), exempt=0),
         Control("a heading wrapped in a tight HTML block authorises nothing",
-                # The head page is a valid generated block, so provenance
-                # holds and the exemption is really asked: the answer is
-                # no, because the base rendered no such heading.
-                lambda r: (_edit(r, "DIV.md", "<div>\n" + _OLD_HEADING
-                                 + "\n</div>\n\n", ""),
-                           _edit(r, "DIV.md", "## Alpha",
-                                 "## Contents\n\n"
-                                 f"- **[Old {EM_DASH} heading]"
-                                 "(#old--heading)** -- Copied.\n"
-                                 "- **[Alpha](#alpha)** -- What alpha holds.\n"
-                                 "- **[Beta](#beta)** -- What beta holds.\n"
-                                 "- **[Gamma](#gamma)** -- What gamma holds.\n"
-                                 "\n## Old " + EM_DASH + " heading\n\nBody."
-                                 "\n\n## Alpha")),
-                # The heading line itself is not an added line: the base
-                # carried the same text inside the block, so git pairs it.
+                lambda r: _unwrap(r, "DIV.md", "<div>", "</div>"),
+                1, ("mirrors no heading",), exempt=0),
+        Control("a heading wrapped in a tight type-7 block under a heading "
+                "authorises nothing",
+                # The twin of the type-6 control, with the wrapper a lone
+                # inline tag that no blank line precedes: the base rendered
+                # no such heading there either. Decided by `headings()`,
+                # so a walk that reads the tag as paragraph text exempts
+                # the label and this arm does not hold.
+                lambda r: _unwrap(r, "SPAN.md", "## Wrapper\n<span>",
+                                  "</span>"),
                 1, ("mirrors no heading",), exempt=0),
         Control("an entry-shaped line outside the block is not exempt",
                 # The page carries a VALID generated block, so only the
