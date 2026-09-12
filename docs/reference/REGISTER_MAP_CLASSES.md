@@ -75,9 +75,9 @@ assumption that AECP answers only one command.
 | `gateware.current-version` | `implemented` | `0x0002_0058` |
 <!-- milan-feature-status:end -->
 
-| Region | Group | Class | VERSION 0x0056 truth | Rationale |
+| Region | Group | Class | VERSION 0x0058 truth | Rationale |
 |---|---|---|---|---|
-| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_0056`) |
+| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_0058`) |
 | `0x204+` | STATS_CAP + RMON counters | **needed** | live | STATS_CAP's declared-unsupported honesty is contract; RMON feeds MAC-level field triage |
 | `0x4xx` | CBS queue window, classifier map | **needed** | live | Production traffic-class configuration; boot software programs it |
 | `0x600–0x65x` | Identity + enables (ADP_CTRL, AAF_CTRL, …) | **needed** | **split** | `S50milan` writes these every boot. `ADP_CTRL.en` is still an entity enable — it is **ORed with `PP_CTRL[0]`**, deliberately, because it is the bit every existing board script writes and there is only one control plane now. But the ADPDU *content* words (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) and the advertise/depart strobes are **WRITE-ONLY SCRATCH**: the processor's ADP engine holds those as internal constants and exposes no port, so a write reads back and **changes nothing observable** |

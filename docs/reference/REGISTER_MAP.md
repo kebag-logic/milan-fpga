@@ -195,7 +195,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
-  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one sample per beat period at INTERNAL by the standing free-run rule, zero under a CRF selection. Read twice for a rate; `SLIP_LB` is a structural zero without the loopback lane.
+  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), zero under a CRF selection. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` measures, and a CRF selection steers from it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
@@ -1691,26 +1691,65 @@ These two words are that evidence on silicon.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (queue empty at a media tick: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). Fed and primed pairs only; an idle lane counts nothing |
+| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing |
 | `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a media tick with no fresh frame marker), `[31:16]` TDM-junction skips (a frame marker over an unread one). One event per frame, gated on the first physical frame |
 
-Both halves saturate at `0xFFFF` and are never cleared: read twice and
-difference for a rate. Live RO, no arm, no snapshot (the same `>= 0x800`
-carve-out as `0x8F8`); writes land nowhere. **Structural zero:** `SLIP_LB` on a
-shape built without the loopback lane (`LOOPBACK_P = 0`, the Arty shapes),
-where the loop feed strobe folds to a constant 0 and the ring's counters are
-pruned with it; `SLIP_TDM` counts on every shape with a physical capture front
-end. A non-zero `SLIP_TDM` dup count beside a healthy align-loop phase error
-can be the detector's known coincidence chatter (the `KL_chan_map_capture`
-banner): false-alarm direction only, never a hidden slip.
+**The counting law, and the ceiling.** A loopback pair is *fed* by its first
+accepted beat and *primed* at its stream's first accepted `tlast`; both stay
+set until a bind wipe (the stream's bind falling) or reset. From then on the
+pair counts one dup on **every** media tick that finds its queue empty, whether
+the upstream talker is slow by 10.64 ppm or has stopped: an upstream pause, a
+pulled cable or a talker that stops without an unbind counts `LB_PAIRS_C` x
+48000 dups per second. The TDM half has the same shape: once the first frame
+has been seen, every tick without a fresh frame marker is a dup, so a stopped
+front-end clock counts 48000 per second. Both halves saturate at `0xFFFF` and
+nothing but reset clears them; a bind wipe un-primes and un-feeds the pair
+without touching the count (`tb/verilator/chmap_capture` [SAT] ticks a
+starved pair to the ceiling and through a wipe). `0xFFFF` therefore means "at
+least 65535, spent", never a rate. Time to the ceiling:
 
-**Reading them** (a loopback pair fed and mapped, the listener bound):
+| event | `SLIP_LB` dups | `SLIP_TDM` dups |
+|---|---|---|
+| upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
+| upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
+| TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
+| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h |
+
+Live RO, no arm, no snapshot (the same `>= 0x800` carve-out as `0x8F8`);
+writes land nowhere. Read twice and difference for a rate while both halves are
+below the ceiling; a half at `0xFFFF` carries no rate information until reset.
+
+**Structural zero, and telling "no lane" from "one grid".** `SLIP_LB` reads
+`0` on a shape built without the loopback lane (`LOOPBACK_P = 0`: the Arty
+shapes, and the 8x8 product shape where the lane was refused for area; the
+loop feed strobe folds to a constant 0 and the ring's counters are pruned with
+it), and that zero is indistinguishable from a present, healthy ring: the word
+carries no presence bit. This is the REQ-CSR-05 / methodology R5 tension,
+decided on #390 as a *documented* structural zero, so establish the lane
+before reading the word: the build's config sets
+`cluster_mapping.fabric.loopback_lane` (the builder's `--loopback-lane`, which
+is what sets `LOOPBACK_P`; without it the AEM model's loopback clusters are
+model-only), and on a `CHMAP_RDBK_P` build a mapped loopback entry reads
+`CHMAP_LOOP[17]` fed = 1 (`0x914`, next section) once audio has reached it.
+`SLIP_TDM` counts on every shape with a physical capture front end, but only
+once the first frame has been seen: a front end that never frames (a TDM slave
+with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
+evidence only beside proof that the front end frames. A non-zero `SLIP_TDM`
+dup count beside a healthy align-loop phase error can be the detector's known
+coincidence chatter (the `KL_chan_map_capture` banner): false-alarm direction
+only, never a hidden slip.
+
+**Reading them** (the lane established, a loopback pair fed and mapped, the
+listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
+upstream talker runs at the physical grid's rate, the disciplined peer
+`obj_aclk` models):
 
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
 | static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock |
-| dups climbing ~0.5/s | dups climbing ~0.5/s | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
+| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups climbing 0.51/s | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
+| `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
