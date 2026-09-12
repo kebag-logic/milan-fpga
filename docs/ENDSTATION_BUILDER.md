@@ -845,13 +845,16 @@ tracked config says `mac-derived`), the no-`pilot` operand of `_role_pool`
 every tracked config declares `cluster_mapping`). Those are examples, not
 the list: gate 32 derives today's list by a branch census over the same
 five loads (every conditional branch of the loader functions that read the
-raw document with a side no load took, a side that lands on a join or a
-refusal excluded) and prints it as the report line `[gate 32] census: N
-untaken loader arms, where a key read is not recorded:
-endstation_builder.py:<line> ...`, one `file:line` per arm; the census
-reports and does not widen the gate's pass or fail. The key column carries
-each key as a backticked dotted path (`{a,b}` expands to one key per name);
-derived facts (rows 16c, 24, 25, 26) carry no key.
+raw document with a side no load took, a side that lands on a join, on a
+refusal or on a compiler re-entry excluded; a compiler re-entry is the
+start of the branch's own statement, which no source path lands on and
+which the 3.14 compiler re-enters for an inlined `any` or `all`) and prints
+it as the report line `[gate 32] census: N untaken loader arms, where a key
+read is not recorded: endstation_builder.py:<line> ...`, one `file:line`
+per arm; the census reports and does not widen the gate's pass or fail.
+The key column carries each key as a backticked dotted path (`{a,b}`
+expands to one key per name); derived facts (rows 16c, 24, 25, 26) carry
+no key.
 
 Consumers: **AEM** = the entity model, via `aem_overlay.json`:
 [`avdecc/aem_specs.py`](../avdecc/aem_specs.py) `spec_from_overlay` (lines

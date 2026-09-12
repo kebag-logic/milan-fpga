@@ -16496,8 +16496,9 @@ def _untaken_arms() -> list[int] | None:
     each branch that went one way only, and dropping an untaken side that
     lands on a join (an offset another path also reaches, so a read there
     IS recorded), on a refusal or on a compiler re-entry (`_arm_kind`). A
-    report, not a bound: it neither widens nor narrows what gate 32 passes.
-    None when the interpreter cannot measure it (`_branch_destinations`)."""
+    report, not a bound: it neither widens nor narrows what gate 32 passes,
+    and a raise out of here is reported, not raised (`_census_line`). None
+    when the interpreter cannot measure it (`_branch_destinations`)."""
     readers: set[types.CodeType] = set()
     taken = _branch_destinations(readers)
     if taken is None:
@@ -16521,6 +16522,35 @@ def _untaken_arms() -> list[int] | None:
                 statements, (line, col), (branch_line, branch_col)) == "arm":
             lines.add(line)
     return sorted(lines)
+
+
+def _census_line() -> str:
+    """Gate 32's census report line, and the one place that decides what
+    "not measured" means. The census is a report and never a pass criterion,
+    so NO way of failing to produce a list may reach the gate's verdict:
+    `_untaken_arms` returns None for the two interpreter cases it declares,
+    and whatever it RAISES is reported the same way rather than failing a
+    gate whose criteria are the key map and the two planted defects. The
+    raise is not hypothetical - `_untaken_side` and `_arm_kind` reason over
+    CPython bytecode shapes that move between releases, and this file
+    already special-cases 3.14's NOT_TAKEN and POP_ITER."""
+    try:
+        arms = _untaken_arms()
+    except Exception as exc:                              # noqa: BLE001
+        return f"not measured ({type(exc).__name__}: {exc})"
+    if arms is None:
+        return ("not measured (branch events need Python 3.12+ and a free"
+                " coverage tool id)")
+    return (f"{len(arms)} untaken loader arms, where a key read is not "
+            "recorded: "
+            + " ".join(f"endstation_builder.py:{n}" for n in arms))
+
+
+def _raising_census() -> list[int] | None:
+    """A census that fails the way a bytecode change in a future interpreter
+    would. `_census_line`'s soft handling is what the gate's raising-census
+    arm plants this in place of."""
+    raise RuntimeError("planted census failure")
 
 
 def _key_map_rows(doc: str) -> dict[str, list[str]]:
@@ -16562,9 +16592,11 @@ def test_builder_doc_key_map() -> None:
     loaders (see _loader_key_paths, which states the bound by rule and
     gives examples of the arms on which a key read is not recorded), never
     listed here. The bites arm plants both defects in a copy of the table
-    text. After the assertions the gate runs `_untaken_arms` and prints
-    today's list of those arms as a report line, one file:line per arm; the
-    census reports and does not widen the gate's pass or fail."""
+    text. After the assertions the gate prints `_census_line`, today's list
+    of those arms, one file:line per arm; the census reports and does not
+    widen the gate's pass or fail, so an unmeasurable census prints as not
+    measured instead - whether it declines (the two interpreter cases) or
+    raises, which the raising-census arm plants and checks."""
     accepted = _loader_key_paths()
     assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
     doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
@@ -16591,12 +16623,20 @@ def test_builder_doc_key_map() -> None:
           f"{BUILDER_DOC_MD.name} section 3"
           + (f" ({len(multi)} shared)" if multi else "")
           + "; planted row and dropped row both refused")
-    arms = _untaken_arms()
-    print("  [gate 32] census: " + (
-        "not measured (branch events need Python 3.12+ and a free coverage tool id)"
-        if arms is None else
-        f"{len(arms)} untaken loader arms, where a key read is not recorded: "
-        + " ".join(f"endstation_builder.py:{n}" for n in arms)))
+    # the raising-census arm: the census reports and never decides, so a
+    # census that RAISES must read as not measured, the way the two
+    # declared interpreter cases already do, and leave the verdict above
+    # untouched. Remove the soft handling in `_census_line` and this arm
+    # raises out of the gate, which is the failure it exists to catch.
+    real_census = globals()["_untaken_arms"]
+    globals()["_untaken_arms"] = _raising_census
+    try:
+        soft = _census_line()
+    finally:
+        globals()["_untaken_arms"] = real_census
+    assert soft == "not measured (RuntimeError: planted census failure)", \
+        f"gate 32 raising-census arm: a raising census did not fail soft: {soft}"
+    print("  [gate 32] census: " + _census_line())
 
 
 if __name__ == "__main__":
