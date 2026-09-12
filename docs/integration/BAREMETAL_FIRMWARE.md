@@ -526,14 +526,23 @@ block as the assignment it is and walks its references like any other RHS;
 the deferral is then refused by the same origin probe as the plain spelling.
 
 **Outside what any recipe pin can reach at all**, and recorded here rather
-than turned into rules, because no pin over printed commands can see them:
-`export CPATH` and `export COMPILER_PATH`, which GCC itself reads from the
-environment; `SHELL := ...`, which changes what executes the printed command;
-`.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
-the gate's own plan run, before any recipe is printed.
+than turned into rules, because no pin over printed commands can see them.
+Read the list as EXAMPLES of the kind, not as the set: `export CPATH` and
+`export COMPILER_PATH`, which GCC itself reads from the environment;
+`SHELL := ...`, which changes what executes the printed command;
+`.EXPORT_ALL_VARIABLES:`; `$(shell ...)`, which runs at parse time, during
+the gate's own plan run, before any recipe is printed; `$(file >frag,TEXT)`,
+which writes at parse time the fragment the pinned `-include` line then
+reads, so the deferred reference never appears in any walked text;
+`$(guile ...)`, which this build's make advertises in `.FEATURES` and which
+injects the same way through `gmk-eval` and `gmk-expand`; and a variable
+name outside `[A-Za-z_][A-Za-z0-9_]*`, such as `MILAN-EXTRA`, which make
+reads and neither reference reader here matches. The first four were the
+recorded set before round three's review; the last three are the same kind,
+measured, and are recorded beside them rather than left to read as absent.
 
 **Round three, the two channels round two measured OPEN (#410).** Unlike
-the four above, a wider walker could close them, and it does: each was
+the ones recorded above, a wider walker could close them, and it does: each was
 reproduced before the fix reaching the real compile line with the
 environment variable exported, and each is a permanent mutation. A
 `$(call NAME,...)` or `$(value NAME)` first argument READS a variable by
@@ -546,8 +555,8 @@ assignment no scan over assignment lines saw, and `$(eval)` expands its
 argument BEFORE make parses the result, so the text make reads is not the
 text in the file. The walker parses the one shape it can prove, an eval on
 a line of its own whose whole argument is a literal `NAME op VALUE`
-assignment (expansion changes the value, never the shape or the name), and
-walks it like any other right-hand side; every other eval is refused
+assignment, and walks it like any other right-hand side; every other eval
+written `$(eval` is refused
 outright, the way the computed reference is -- an eval of a called
 template, of a plain reference (`$(eval $(MILAN_HOOK))` was measured
 carrying the whole assignment in from the environment), or nested inside
@@ -556,6 +565,32 @@ Makefile, a never-run recipe included. The accepted case of each construct
 is measured GREEN by the accepted-Makefile loop: a `$(call ...)` of a
 `define` the Makefile itself carries, and an `$(eval ...)` whose body is a
 literal assignment of a name the Makefile defines.
+
+**Round three's own review, two measurements and what they changed.** The
+first: the paragraph above was FALSE as written for one spelling, and the
+walker is what changed, not the wording. GNU make routes `$(call NAME,...)`
+to a BUILT-IN function when `NAME` names one, so `$(call eval,TEXT)` IS an
+eval; the scan that refuses evals keys on the literal `$(eval` token, the
+line is not an assignment so nothing put it in the origin closure, and
+`$(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))` on a line of its own was
+measured putting `-include ../shadow.h` on the real compile line with the
+name merely exported, while the gate reported every mutation rejected and
+exited 0. Every make built-in reached through `$(call)` is now refused, in
+both bracket spellings, with any padding, and wherever it sits, including
+the right-hand side the pinned closure never walks, which is the position
+the escape used; `$(call file,...)`, which writes at parse time the
+fragment the pinned `-include` reads, is a permanent mutation beside
+`$(call eval,...)`. This does not close the DIRECT spellings `$(file ...)`,
+`$(shell ...)` and `$(guile ...)`, which stay in the recorded list above.
+The second: the parsed shape's bound is narrower than "expansion changes
+the value, never the shape or the name". What holds is that every literal
+reference in the eval's TEXT is walked. A value that expands to a NEWLINE
+changes the shape: with make's `define NL` idiom,
+`$(eval CFLAGS += -I.$(NL)include extra.mak)` is read here as one
+assignment whose only reference is `NL`, origin `file`, while make reads
+two lines and includes a fragment the include-set pin reads the file text
+for and therefore cannot see. That case is refused too, so the include-set
+pin is exact against evals again.
 
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
@@ -584,9 +619,11 @@ The rest are refusals, and each one costs a legitimate edit:
 | The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
 | No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
-| The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
+| The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist. The set is read from the file TEXT, so it is exact over the lines in the file: a line an expansion creates would be outside it, and both routes to one are refused below, but a direct `$(file >frag,TEXT)` write is a recorded channel rather than a ruled one |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
 | A computed variable reference -- `$($(X))`, `$(CFLAGS_$(VARIANT))`, and (#410) a computed `$(call ...)`/`$(value ...)` first argument, `$(call $(X))` -- anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. **Remedy:** spell the reference with a literal name |
+| A `$(call ...)`/`${call ...}` whose first argument names a make BUILT-IN function -- `$(call eval,...)`, `$(call file,...)`, `$(call shell,...)`, and a `$(call subst,...)` written to map a built-in over a list -- anywhere in the Makefile, a never-run recipe included | `call` DISPATCHES to that built-in, so the construct is the built-in written where no scan for the built-in's own token can see it, and `$(call eval,TEXT)` was measured injecting a flag from the environment with every instrument green (#410, round-three review). **Remedy:** spell the built-in directly, `$(subst a,b,$(TEXT))` |
+| A parsed `$(eval NAME op VALUE)` whose value reads a name this Makefile gives a MULTI-LINE value -- make's `define NL` newline idiom, at any remove | `$(eval)` parses the EXPANSION, so such a value adds makefile lines this walker reads as the one assignment it parsed, and an `include` among them is outside the include-set pin, which reads the file text (#410, round-three review). **Remedy:** keep the newline idiom out of an eval's value |
 | An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |

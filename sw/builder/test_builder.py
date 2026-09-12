@@ -1820,9 +1820,12 @@ def _assert_no_opaque_evals(makefile, opaque_evals):
     #: first and parses the RESULT as makefile syntax, so the text make
     #: reads is not the text in this file. The one shape the walker can
     #: prove is an eval on a line of its own whose whole argument is a
-    #: literal `NAME op VALUE`: expansion changes VALUE, never the shape
-    #: or the NAME, so make_rules() walks it as that assignment and the
-    #: origin probe judges its references. Anything else is refused --
+    #: literal `NAME op VALUE`: make_rules() walks it as that assignment
+    #: and the origin probe judges every literal reference in its text.
+    #: That bound is what holds, and it is not "expansion changes the
+    #: VALUE and never the shape": a value that expands to a NEWLINE adds
+    #: a line, which _assert_no_line_adding_evals() refuses beside this.
+    #: Anything else is refused --
     #: `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested in
     #: another expansion, a body that is a rule or a directive -- because
     #: the parsed text is whatever the expansion yields, and measured on
@@ -1832,7 +1835,9 @@ def _assert_no_opaque_evals(makefile, opaque_evals):
     #: green. The scan is over the whole comment-stripped text, like the
     #: computed-name refusal, and the COST is the same: an eval that is
     #: not a whole-line literal assignment is RED anywhere in the
-    #: Makefile, a never-run recipe included.
+    #: Makefile, a never-run recipe included. It keys on the literal
+    #: `$(eval` token, so the eval make reaches through `$(call eval,...)`
+    #: is NOT this rule's -- _assert_no_builtin_calls() has that one.
     opaque = opaque_evals(makefile)
     assert not opaque, \
         "this Makefile hands $(eval) text that is not a whole-line " \
@@ -1842,6 +1847,66 @@ def _assert_no_opaque_evals(makefile, opaque_evals):
         "on a line of its own has a parse the origin walker can prove, " \
         "and is walked as that assignment; anything else is refused " \
         "rather than modelled (#410)"
+
+
+def _assert_no_builtin_calls(makefile, builtin_function_calls):
+    """A Makefile that reaches a make BUILT-IN function through `$(call)` is
+    REFUSED: `call` dispatches to the built-in, in a spelling no scan for
+    that built-in's own token can see."""
+    #: (#410, round-three review) MEASURED OPEN at the previous head and
+    #: reproduced end to end: `$(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))`
+    #: on a line of its own put `-include ../shadow.h` on the real compile
+    #: line with the name merely exported, while this gate reported every
+    #: mutation rejected and exited 0. GNU make routes `$(call NAME,...)`
+    #: to the BUILT-IN when NAME is one (4.4.1, "The call Function"), so
+    #: that line IS an eval: make_evals() keys on the literal `$(eval`
+    #: token and never saw it, the line is not an assignment so nothing
+    #: put it in the origin closure, and computed_name_references() reads
+    #: `eval` as the plain name it is. The rule is the BUILT-IN, not the
+    #: spelling -- `$(call file,>frag,TEXT)` writes at parse time the
+    #: fragment a pinned `-include` then reads (measured) -- so every
+    #: built-in reached this way is refused, over the whole
+    #: comment-stripped text like the computed-name and opaque-eval
+    #: refusals, in both bracket spellings and with any padding. It does
+    #: NOT close the DIRECT spellings `$(shell ...)`, `$(file ...)` and
+    #: `$(guile ...)`: those stay in the recorded-not-ruled list, because
+    #: no pin over printed commands can see them.
+    calls = builtin_function_calls(makefile)
+    assert not calls, \
+        "this Makefile reaches a make BUILT-IN function through $(call) (" \
+        + ", ".join(calls) + "): make dispatches $(call NAME,...) to the " \
+        "built-in when NAME names one, so this is that built-in written " \
+        "where no scan for its own token can see it -- $(call eval,...) " \
+        "parses text make reads, $(call file,...) writes a fragment this " \
+        "build can include -- and it is refused rather than modelled (#410)"
+
+
+def _assert_no_line_adding_evals(makefile, line_adding_evals):
+    """A parsed `$(eval NAME op VALUE)` whose VALUE can expand to a NEWLINE
+    is REFUSED: make parses the expansion, so it adds makefile lines this
+    walker reads as the one assignment it parsed."""
+    #: (#410, round-three review) the parsed shape was justified by
+    #: "expansion changes the VALUE, never the shape or the NAME". Measured
+    #: FALSE: with make's newline idiom in a `define NL`, `$(eval CFLAGS +=
+    #: -I.$(NL)include extra.mak)` is read here as ONE assignment whose only
+    #: reference is NL, origin `file`, while make reads TWO lines and
+    #: includes a fragment the include-set pin cannot see -- that pin reads
+    #: `include` lines out of the file TEXT, so a line an expansion creates
+    #: is outside it by construction. What holds is narrower and is what
+    #: the site and the doc now say: every literal reference in the eval's
+    #: text is walked, and a value whose expansion carries a NEWLINE
+    #: changes the shape. That case is refused here, so the include-set pin
+    #: is exact against evals again. A value the ENVIRONMENT supplies needs
+    #: no rule of its own: the closure walks the name and the origin probe
+    #: refuses it.
+    adding = line_adding_evals(makefile)
+    assert not adding, \
+        "this Makefile hands $(eval) a value that can expand to more than " \
+        "one LINE (" + ", ".join(adding) + "): make parses the EXPANSION, " \
+        "so the eval adds makefile lines this walker reads as the single " \
+        "assignment it parsed -- an `include` among them is outside the " \
+        "include-set pin, which reads the file text; refused rather than " \
+        "modelled (#410)"
 
 
 def _assert_make_plan_is_determined(plan, hostile, origins):
@@ -4474,16 +4539,37 @@ def test_baremetal_profile_contract() -> None:
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
 
+    def expansion_end(text: str, start: int) -> int:
+        """Just past the `$(`/`${` expansion opening at `start`, or the end
+        of its line where the file leaves that expansion unclosed."""
+        opener = text[start + 1]
+        closer = ")" if opener == "(" else "}"
+        depth, scan, size = 1, start + 2, len(text)
+        while scan < size and depth:
+            depth += (text[scan] == opener) - (text[scan] == closer)
+            scan += 1
+        if not depth:
+            return scan
+        line_end = text.find("\n", start)
+        return size if line_end < 0 else line_end
+
     #: (#410) `$(eval TEXT)`, make's parse-time hook: TEXT is EXPANDED first
     #: and the RESULT is parsed as makefile syntax, so the text make reads is
     #: not the text in the file. Round two measured a top-level
     #: `$(eval CFLAGS += $(MILAN_EXTRA_CFLAGS))` green with the environment
     #: reaching the compile line: no assignment regex ever saw the line. The
     #: walker can prove exactly one shape -- an eval on a line of its own
-    #: whose whole argument is a literal `NAME op VALUE` assignment, where
-    #: expansion changes VALUE and never the shape or the NAME -- and PARSES
-    #: it as that assignment, so its references join the closure like any
-    #: RHS. Every other eval is reported for make_plan() to REFUSE: an eval
+    #: whose whole argument is a literal `NAME op VALUE` assignment -- and
+    #: PARSES it as that assignment, so its references join the closure
+    #: like any RHS. The bound that holds there is that every literal
+    #: reference in the eval's TEXT is walked, NOT that expansion cannot
+    #: change the shape: a value expanding to a NEWLINE adds a line, and
+    #: line_adding_evals() below refuses that case rather than model it
+    #: (round-three review, measured with make's `define NL` idiom). This
+    #: scan keys on the literal `$(eval` token, so the eval make reaches
+    #: through `$(call eval,TEXT)` is builtin_function_calls()' to refuse,
+    #: not this one. Every other eval is reported for make_plan() to
+    #: REFUSE: an eval
     #: of a called template, of a plain reference, nested inside another
     #: expansion, or carrying a rule, because the parsed text is whatever
     #: the expansion yields and no walk over this file can enumerate it.
@@ -4684,6 +4770,22 @@ def test_baremetal_profile_contract() -> None:
         r"[$][({](?:call|value)[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
+    #: (#410, round-three review) make's BUILT-IN function names. `$(call
+    #: NAME,...)` dispatches to the built-in when NAME is one of these
+    #: (GNU make 4.4.1, "The call Function", whose own example maps the
+    #: built-in `origin`), so the spelling is the built-in and no scan for
+    #: the built-in's own token sees it. Pinned as the whole set rather
+    #: than the two that were measured, because the next one nobody
+    #: thought of is the point.
+    make_builtin_functions = frozenset("""
+        abspath addprefix addsuffix and basename call dir error eval file
+        filter filter-out findstring firstword flavor foreach guile if
+        info intcmp join lastword let notdir or origin patsubst realpath
+        shell sort strip subst suffix value warning wildcard word
+        wordlist words
+        """.split())
+    make_builtin_call_re = re.compile(
+        r"[$][({][ \t]*call[ \t\n]+([A-Za-z][A-Za-z0-9_-]*)[ \t]*[,)}]")
 
     def referenced_names(value: str) -> list[str]:
         """Every literal variable name `value` reads: `$(NAME)`, `$(NAME:...)`
@@ -4738,7 +4840,12 @@ def test_baremetal_profile_contract() -> None:
                     first += 1
                 scan, computed = name_span(first)
             if computed:
-                found.append(re.sub(r"\s+", " ", text[at:scan + 8]).strip())
+                # Quote the reference, not a fixed span past its name: the
+                # inherited text[at:scan + 8] tail reported `$(call $(X)) O`,
+                # the O being the next line's OBJECTS, so the message named
+                # a span no reader could match against the file.
+                found.append(re.sub(
+                    r"\s+", " ", text[at:expansion_end(text, at)]).strip())
             at += 2
         return found
 
@@ -4747,6 +4854,49 @@ def test_baremetal_profile_contract() -> None:
         whole-line literal assignment, for make_plan() to refuse."""
         return make_evals(re.sub(r"(?m)#[^\n]*", "",
                                  re.sub(r"\\\n", " ", makefile)))[1]
+
+    def builtin_function_calls(makefile: str) -> list[str]:
+        """Every `$(call NAME,...)`/`${call NAME,...}` in `makefile` whose
+        first argument names a make BUILT-IN function, for make_plan() to
+        refuse: `call` dispatches to the built-in, so the construct is that
+        built-in in a spelling no scan for its own token can see."""
+        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        return [re.sub(r"\s+", " ",
+                       text[hit.start():expansion_end(text, hit.start())]
+                       ).strip()
+                for hit in make_builtin_call_re.finditer(text)
+                if hit.group(1) in make_builtin_functions]
+
+    def line_adding_evals(makefile: str) -> list[str]:
+        """Every parsed `$(eval NAME op VALUE)` whose VALUE reads a name this
+        Makefile gives a value that spans LINES, for make_plan() to refuse:
+        make parses the expansion, so such a value adds makefile lines the
+        walker reads as the one assignment it parsed."""
+        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        parsed = make_evals(text)[0]
+        if not parsed:
+            return []
+        by_name: dict[str, list[str]] = {}
+        for name, value in make_rules(makefile)[1]:
+            by_name.setdefault(name, []).append(value)
+        # A value spans lines outright, or reads a name whose does: a
+        # `define NL` body is the newline idiom, and one assignment away
+        # from the eval is still a newline the eval expands to.
+        spanning = {name for name, values in by_name.items()
+                    if any("\n" in value for value in values)}
+        widened = True
+        while widened:
+            widened = False
+            for name, values in by_name.items():
+                if name in spanning:
+                    continue
+                if any(read in spanning for value in values
+                       for read in referenced_names(value)):
+                    spanning.add(name)
+                    widened = True
+        return [f"$(eval {name} ...) reads $({read}), whose value spans lines"
+                for name, value in parsed
+                for read in referenced_names(value) if read in spanning]
 
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
@@ -4780,7 +4930,9 @@ def test_baremetal_profile_contract() -> None:
         processed before makefiles are read and reports empty."""
         _assert_no_computed_variable_names(makefile,
                                           computed_name_references)
+        _assert_no_builtin_calls(makefile, builtin_function_calls)
         _assert_no_opaque_evals(makefile, opaque_evals)
+        _assert_no_line_adding_evals(makefile, line_adding_evals)
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
             root = Path(tmp)
@@ -4888,6 +5040,14 @@ def test_baremetal_profile_contract() -> None:
         # `-include` of a missing file is silently skipped, so the include
         # set stays pinned as an exact set of whole lines. This is the one
         # Makefile rule the plan does not subsume.
+        #
+        # It reads the file TEXT, so it is exact over the lines in the
+        # file and no further: a line an EXPANSION creates is outside it
+        # by construction. Both routes to one are refused before this runs
+        # -- an eval whose value expands to a newline, and the file-writing
+        # built-in reached through $(call) -- but a DIRECT $(file >frag,
+        # TEXT) still writes at parse time the fragment a pinned -include
+        # reads, and that stays in the recorded-not-ruled list above.
         includes = [" ".join(line.split())
                     for line in makefile_include_re.findall(makefile)]
         assert includes == list(makefile_includes), \
@@ -7715,6 +7875,51 @@ def test_baremetal_profile_contract() -> None:
         "CFLAGS += $(call $(X))",
         "flags routed through a computed $(call) first argument")
 
+    #: ---- (#410, round-three review) ... and the spellings that review
+    #: measured OPEN at the previous head, each reproduced reaching the
+    #: real compile line while the whole gate reported 168/168 rejected
+    #: and exited 0. `call` DISPATCHES to a make built-in when its first
+    #: argument names one, so the first four are an eval and a file write
+    #: in a spelling no scan for the built-in's own token can see -- both
+    #: bracket spellings, and on a line of its own AND on a right-hand
+    #: side the pinned closure never walks, which is the position the
+    #: escape used. The fifth is the plain-reference eval the doc cites as
+    #: measured, which had no permanent entry of its own. The sixth is the
+    #: parsed shape's OWN residual: a value that expands to a newline adds
+    #: a line, and the line it adds here is an `include` the include-set
+    #: pin reads the file text for and therefore cannot see.
+    call_eval_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a $(call eval,...) line")
+    call_eval_brace_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "${call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS)}",
+        "flags routed through a ${call eval,...} line")
+    call_eval_unwalked_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_UNUSED = $(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "a $(call eval,...) on a right-hand side the closure never walks")
+    call_file_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(call file,>milan_baremetal.d,CFLAGS += $$(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a $(call file,...) write")
+    eval_hook_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval $(MILAN_HOOK))",
+        "flags routed through an $(eval) of a plain reference")
+    eval_newline_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_NL\n\n\nendef\n"
+        "$(eval CFLAGS += -I.$(MILAN_NL)include extra.mak)",
+        "an $(eval) whose value expands to a second LINE")
+
     #: ---- and the two shapes that made the reset rule vacuous. The reader
     #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
     #: passed by having nothing to check; a deleted reset did the same. Both
@@ -8483,6 +8688,36 @@ def test_baremetal_profile_contract() -> None:
          firmware_source, docs_source, csr_source,
          "computes a variable NAME at expansion time",
          MutantFiles(makefile=computed_call_flags)),
+        #: (#410, round-three review) ... and the six the review measured
+        #: GREEN at the previous head. Four are a built-in reached through
+        #: `call`, pinned on the refusal built for that; one is the plain
+        #: reference eval, pinned on the opaque-eval refusal it always
+        #: landed on but never had an entry for; one is the parsed shape's
+        #: newline residual, pinned on its own refusal.
+        ("compile flags injected through a $(call eval,...) line",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_flags)),
+        ("compile flags injected through a ${call eval,...} line",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_brace_flags)),
+        ("compile flags injected through a $(call eval,...) on an "
+         "unwalked right-hand side", firmware_source, docs_source,
+         csr_source, "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_unwalked_flags)),
+        ("a Makefile fragment written at parse time by $(call file,...)",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_file_flags)),
+        ("compile flags injected through an $(eval) of a plain reference",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) text that is not a whole-line literal assignment",
+         MutantFiles(makefile=eval_hook_flags)),
+        ("a Makefile fragment included by an $(eval) whose value expands "
+         "to a second line", firmware_source, docs_source, csr_source,
+         "hands $(eval) a value that can expand to more than one LINE",
+         MutantFiles(makefile=eval_newline_flags)),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
@@ -9025,13 +9260,32 @@ def test_baremetal_profile_contract() -> None:
           "commands make runs is refused too, a benign AR += v or CC += "
           "-Wall included: that is the price of a rule with no list of "
           "spellings to fall behind. Remedy for that one: add the changed "
-          "command to expected_recipes and a mutation entry beside it. New "
-          "this round, from the computed-name refusal: a computed variable "
+          "command to expected_recipes and a mutation entry beside it. From "
+          "the computed-name refusal (#162, the round before this one): a "
+          "computed variable "
           "reference -- $($(X)), $(CFLAGS_$(VARIANT)) -- is RED anywhere "
           "in the Makefile, a never-run recipe included, where a plain "
           "undefined name like $(CTAGS) stays green there; the scan is "
           "textual and deliberately wider than the origin closure, because "
           "the NAME itself is deferred and modelling it is not possible. "
+          "NEW THIS ROUND (#410), three refusals of the same width and the "
+          "same kind of cost, each RED anywhere in the Makefile with a "
+          "never-run recipe included: an $(eval ...) that is not a "
+          "whole-line literal assignment, so a benign $(eval $(call "
+          "tmpl,...)) or $(eval $(HOOK)) idiom is refused (remedy: write "
+          "the assignment as $(eval NAME op VALUE) on a line of its own, "
+          "or as a plain assignment line); a $(call ...) whose first "
+          "argument names a make BUILT-IN -- $(call eval,...), $(call "
+          "file,...), $(call shell,...), and a $(call subst,...) or "
+          "$(call filter,...) written to map a built-in over a list -- "
+          "because make dispatches it to that built-in and no scan for "
+          "the built-in's own token can see it (remedy: spell the "
+          "built-in directly, $(subst a,b,$(TEXT))); and a parsed $(eval "
+          "NAME op VALUE) whose value reads a name this Makefile gives a "
+          "multi-line value, because make parses the EXPANSION and such a "
+          "value adds lines -- an `include` among them -- that the walker "
+          "reads as one assignment (remedy: keep the newline idiom out of "
+          "an eval's value). "
           "RETIRED this round by the entity-advertise choke point and the "
           "resolver (#153), each with an accepted case measured GREEN "
           "instead of a claim: an extra statement between the two enables, "
@@ -9092,11 +9346,19 @@ def test_baremetal_profile_contract() -> None:
           "picks; and a define body -- `define EXTRA` carrying "
           "$(MILAN_EXTRA_CFLAGS) -- now PARSES as the assignment it is, "
           "so its references are walked and probed like any RHS")
-    print("  [gate 1b] ... and outside what ANY recipe pin can reach: export "
+    print("  [gate 1b] ... and outside what ANY recipe pin can reach, as "
+          "EXAMPLES of the kind and not as a closed set: export "
           "CPATH and COMPILER_PATH, which GCC reads from the environment; "
           "SHELL, which changes what executes the printed command; "
-          ".EXPORT_ALL_VARIABLES; and $(shell ...), which runs at parse time "
-          "during this gate's own plan run, before a recipe is printed. "
+          ".EXPORT_ALL_VARIABLES; $(shell ...), which runs at parse time "
+          "during this gate's own plan run, before a recipe is printed; "
+          "$(file >frag,TEXT), which writes at parse time the fragment a "
+          "pinned -include then reads, so the deferred reference appears "
+          "in no walked text (measured on this round's review); $(guile "
+          "...), which this make advertises in .FEATURES and which injects "
+          "the same way through gmk-eval and gmk-expand; and a variable "
+          "name outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, which make "
+          "reads and neither reference reader here matches. "
           "Recorded rather than ruled against, because no pin over printed "
           "commands can see them. Two more, measured OPEN by the round-two "
           "adversarial pass, are CLOSED this round (#410), each a permanent "
@@ -9112,7 +9374,26 @@ def test_baremetal_profile_contract() -> None:
           "-- because make parses the EXPANSION, which no walk over the "
           "file can enumerate; the cost is the computed name's: such an "
           "eval is RED anywhere in the Makefile, a never-run recipe "
-          "included. The accepted cases, a $(call) of a define the "
+          "included. That claim was measured FALSE for one spelling by "
+          "this round's review and is made true here rather than "
+          "reworded: `call` DISPATCHES to a make built-in when its first "
+          "argument names one, so $(call eval,TEXT) IS an eval that no "
+          "scan for the $(eval token sees, and on a line of its own it "
+          "reached the real compile line while this gate reported every "
+          "mutation rejected and exited 0. Every built-in reached through "
+          "$(call) is now REFUSED, in both bracket spellings, with any "
+          "padding, and wherever it sits -- including the right-hand side "
+          "the pinned closure never walks, which is where the escape was "
+          "-- and $(call file,...) is a permanent mutation beside $(call "
+          "eval,...). The DIRECT spellings above are not closed by that "
+          "and stay recorded. The parsed shape's bound is narrower than "
+          "it was written, too: it is that every literal reference in the "
+          "eval's TEXT is walked, not that expansion cannot change the "
+          "shape -- a value expanding to a NEWLINE adds a line, an "
+          "`include` among them, so an eval whose value reads a name this "
+          "Makefile gives a multi-line value is refused as well, which is "
+          "what keeps the include-set pin exact against evals. The "
+          "accepted cases, a $(call) of a define the "
           "Makefile carries and an $(eval) of a literal assignment, are "
           "measured GREEN in the accepted-Makefile loop")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
