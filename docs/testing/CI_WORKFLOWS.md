@@ -263,7 +263,12 @@ is exactly these twelve things:
    aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
    -- through item 12 (#406), the physical leg by its whole-job pin, and
    the fast selector and verdict jobs by their two-step and one-step
-   pins. The contract step is
+   pins. That enumerates the jobs the four files carry today, not a
+   standing invariant for a job added later: `rtl-fast.yml` closes over
+   its own jobs, because its verdict must `needs` every other job in the
+   file, but a job appended to `rtl.yml` is drawn into the sequence pin
+   only once it is named in `RTL_STEP_LIST_JOBS` and recorded in
+   `RTL_STEP_LISTS`. The contract step is
    this gate's SECOND hosted runner (#261, maintainer review on PR #293):
    its script is exactly `python3 -m pip install --quiet pyyaml` followed by
    `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
@@ -599,7 +604,11 @@ is exactly these twelve things:
     (`scripts/ci_events.py`; the four carriers' entries are
     `CARRIER_STEP_LISTS`) changes with it in the same commit, and the
     refusal names the job, the position, what belongs there and what it
-    found. What this
+    found. WHICH jobs that table must hold is `RTL_STEP_LIST_JOBS`, a
+    constant neither the table nor the self-test's lever rows own, so an
+    entry dropped together with its lever row is refused by name rather
+    than narrowing the pin in silence -- the closure the carriers get from
+    the required-name map. What this
     still cannot hold is the CONTENT of the recognised non-gate steps:
     `docs-check`'s gates other than the ci_events step (`docs_check`,
     `check_feature_status`, the traceability matrix, the builder gates and
@@ -607,7 +616,7 @@ is exactly these twelve things:
     be rewritten or swallowed under the recorded name with the context
     green, and the second runner backs up only `ci_events --check`. A
     content pin on every recognised step closes that; the four carriers'
-    is #407.
+    is #407 and the seven RTL jobs' is #439.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy

@@ -1637,12 +1637,34 @@ VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true'
 YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
 NETLIST_OWNER_IF = "${{ matrix.shard == 3 }}"
 TSN_GEN_OWNER_IF = "${{ matrix.shard == 1 }}"
-ALWAYS_IF = "${{ always() }}"
+#: The aggregates' upload and result steps run under `always()`, and two of
+#: the steps this table records ARE the verify steps check_verify_step pins
+#: with VERIFY_STEP_IF. That is one fact, so it is bound to the one constant
+#: rather than spelled a second time ([R97] on PR #431).
+ALWAYS_IF = VERIFY_STEP_IF
 #: The worker's record step binds TARGET_SHA to the same gate output the
 #: aggregate's verifier reads as GATE_SHA; the ownership proof binds the
 #: shard pair to the matrix.
 TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
 SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
+#: WHICH jobs the table below must hold, and which rows the lever table must
+#: carry: the seven ids, named here and owned by neither table.
+#: check_rtl_step_lists iterates THIS and asserts RTL_STEP_LISTS's key set
+#: against it; _rtl_step_list_arms asserts RTL_STEP_LIST_LEVERS's the same
+#: way. Without it each table was its own membership authority, so an entry
+#: dropped together with its lever row narrowed the contract with the
+#: pristine tree green ([R96]/[R97] MINOR on PR #431) -- the silent
+#: narrowing this file exists to refuse. The carriers never had that gap:
+#: their job set is PUBLIC_NAMES, which CARRIER_STEP_LISTS does not own.
+RTL_STEP_LIST_JOBS = (
+    (RTL_FULL, "verilator-shards"),
+    (RTL_FULL, "verilator-suites"),
+    (RTL_FULL, YOSYS_SHARDS_JOB),
+    (RTL_FULL, "yosys-portability"),
+    (RTL_FAST, "verilator-lint"),
+    (RTL_FAST, "bdd-conformance"),
+    (RTL_FAST, OOC_SH_SELFTEST_JOB),
+)
 RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
@@ -3041,7 +3063,10 @@ def carrier_entry_keys(entry: YamlMap) -> tuple[str, ...]:
     `name`, `id`, `env`, `if` and `working-directory` plus `run`; a `uses:`
     step carries its recorded `name`, `id`, `if`, `continue-on-error` and
     `with` plus `uses`. A key recorded outside these vocabularies licenses
-    nothing, so an entry that drifts turns the pristine tree red at once."""
+    nothing: the derivation drops it, so it pins nothing and reddens
+    nothing. Inside them the derivation is exact, so an entry that records
+    a licensed key the step does not carry turns the pristine tree red at
+    once as a missing key ([R96]/[R97] probe D on PR #431)."""
     if "uses" in entry:
         return tuple(k for k in ("name", "uses", "id", "if",
                                  "continue-on-error", "with") if k in entry)
@@ -3249,11 +3274,21 @@ def check_global_carriers(c: Contract, parsed: World) -> None:
 
 def check_rtl_step_lists(c: Contract, parsed: World) -> None:
     """The seven RTL jobs' step lists (#406), RTL_STEP_LISTS through the
-    carriers' rule. With these, every job in the four files carries a
+    carriers' rule. The loop iterates RTL_STEP_LIST_JOBS and asserts the
+    table against it, so a job dropped from the table is refused by name
+    instead of shrinking the contract in silence ([R96]/[R97] on PR #431):
+    a table that is its own membership authority proves only what it still
+    admits to owing. With these, every job in the four files carries a
     sequence pin: the gate job's (check_gate_steps), the physical leg's
     whole-job pin, the fast selector's two-step and the fast verdict's
     one-step pins, the four carriers' (CARRIER_STEP_LISTS) and these."""
-    for path, jid in RTL_STEP_LISTS:
+    named = set(RTL_STEP_LIST_JOBS)
+    recorded = set(RTL_STEP_LISTS)
+    assert recorded == named, (
+        "RTL_STEP_LISTS must record exactly the jobs RTL_STEP_LIST_JOBS "
+        f"names -- unrecorded: {sorted(named - recorded)}, unnamed: "
+        f"{sorted(recorded - named)}")
+    for path, jid in RTL_STEP_LIST_JOBS:
         check_carrier_steps(c, path, parsed[path], jid)
 
 
@@ -6232,7 +6267,17 @@ def _rtl_step_list_arms() -> list[Arm]:
     """#406: the nine step-list levers of #295 on each of the seven RTL
     jobs, generated from RTL_STEP_LIST_LEVERS against the recorded table,
     so every expectation names the job and the position the table records
-    and a table that grows moves the arms with it."""
+    and a table that grows moves the arms with it. The rows answer to
+    RTL_STEP_LIST_JOBS, the authority check_rtl_step_lists holds the
+    recorded table to, so a lever row dropped with its entry is refused by
+    name here instead of quietly costing nine arms ([R96]/[R97] on PR
+    #431)."""
+    levered = {(lv.path, lv.jid) for lv in RTL_STEP_LIST_LEVERS}
+    assert levered == set(RTL_STEP_LIST_JOBS), (
+        "RTL_STEP_LIST_LEVERS must carry a row for exactly the jobs "
+        "RTL_STEP_LIST_JOBS names -- unlevered: "
+        f"{sorted(set(RTL_STEP_LIST_JOBS) - levered)}, unnamed: "
+        f"{sorted(levered - set(RTL_STEP_LIST_JOBS))}")
     arms: list[Arm] = []
     for lv in RTL_STEP_LIST_LEVERS:
         spec = STEP_LISTS[(lv.path, lv.jid)]
