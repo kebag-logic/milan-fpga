@@ -15,10 +15,12 @@ against each mutant through the suite's own Makefile recipe (`make build`
 with SRCS and MDIR overridden, plus the shape overrides a mutant names), so
 the flag set is stated once. Every mutant must make the harness FAIL by its
 OWN verdict (a `[FAIL]` line or a tally with failures, read by
-scripts/suite_tally.py); the unmutated build must still PASS on every shape a
-mutant uses. A crash or an abort is not a catch. Each pattern is REQUIRED to
-appear exactly once, so a refactor that moves the code fails here instead of
-silently skipping a mutant.
+scripts/suite_tally.py) AND the failure must be the check the mutant names:
+a run that fails some other check proves nothing about that one. The
+unmutated build must still PASS on every shape a mutant uses. A crash or an
+abort is not a catch. Each pattern is REQUIRED to appear exactly once, so a
+refactor that moves the code fails here instead of silently skipping a
+mutant.
 
 The round-5 mutants are the review's own probes, kept as the failing
 controls of the fixes: the pop re-reading the prefill flag every beat (a
@@ -62,8 +64,9 @@ from suite_tally import log_reports_failure  # noqa: E402
 #: lane is the pad the crossbar must never place on channel 0
 ODD_SHAPE = ("N_CH=7",)
 
-#: (name, ((pattern, replacement), ...), the assertion this defect should
-#: break, the Makefile shape overrides the mutant runs under)
+#: (name, ((pattern, replacement), ...), the assertion this defect must
+#: break - one check name, or several, spelled as sim_main.cpp prints
+#: them, the Makefile shape overrides the mutant runs under)
 MUTATIONS = [
     ("prefill target three events high",
      (("localparam int unsigned TARGET_C = SETPOINT_EVT_P + PDU_EVENTS_P;",
@@ -80,7 +83,10 @@ MUTATIONS = [
        "                rptr_r[s]    <= snap_rptr_w;\n"
        "                prefill_r[s] <= 1'b0;\n"
        "                pend_r[s]    <= pend_r[s];\n"),),
-     "[V] counted once, never again", ()),
+     #: [V]:673 still reads one here (the pulse that follows it enters
+     #: prefill, not the snap branch); the phase's closing tally is the
+     #: first check the re-arm moves
+     "[V] still two recentres", ()),
     ("even-lane channel mask dropped",
      (("wire [23:0] smp_e_w  = (32'(lane_e_w) < 32'(c_pop_w)) ? rd_e_w : 24'd0;",
        "wire [23:0] smp_e_w  = rd_e_w;"),),
@@ -88,7 +94,8 @@ MUTATIONS = [
     ("straddled even lane never written to an odd row",
      (("(st1_w && !ch1_w[0] &&  row1_w[0]);",
        "1'b0;"),),
-     "[C] 3 channels (straddle) and mono: lanes < C byte-exact", ()),
+     ("[C] 3 channels (straddle): lanes < C byte-exact",
+      "[C] mono: lanes < C byte-exact"), ()),
     ("underrun leaves prefill off (repeat storm)",
      (("        if (pop_dry_w && (32'(slot_r) == s)) begin\n"
        "          prefill_r[s]   <= 1'b1;\n",
@@ -98,7 +105,10 @@ MUTATIONS = [
     ("high rail never snaps",
      (("              if (high_w) begin",
        "              if (1'b0) begin"),),
-     "[R] two PDUs over: the high rail snapped once", ()),
+     #: rails_o counts both rails, so the count alone cannot tell a
+     #: missing high snap from the low rail that fires in its place;
+     #: the fill after the snap is what distinguishes them
+     "[R] ...to TARGET", ()),
     # ---- round 5: the review's probes as failing controls ----
     ("pop re-reads the prefill flag every beat (a flush or prefill entry inside the window truncates)",
      (("  wire            pop_ok_w   = first_beat_w ? pop_take_w : ev_ok_r;\n",
@@ -159,14 +169,31 @@ def run_harness(exe: Path) -> tuple[int, str]:
             proc.wait()
 
 
-def verdict(rc: int, out: str) -> str:
-    """How the harness answered: 'pass', 'caught', or why it is not evidence."""
+def named_checks(breaks: str | tuple[str, ...]) -> tuple[str, ...]:
+    """The check name(s) a mutant must break, as a tuple."""
+    return (breaks,) if isinstance(breaks, str) else breaks
+
+
+def verdict(rc: int, out: str, must_fail: tuple[str, ...] = ()) -> str:
+    """How the harness answered: 'pass', 'caught', or why it is not evidence.
+
+    A harness failure is a catch only when the check the mutant NAMES is
+    among the reported failures; the datapath driver
+    (tb/verilator/milan_dp/render_mutants.py) makes the same demand.
+    """
     reason, failed = log_reports_failure(out)
     if rc == 0 and not failed:
         return "pass"
     if rc == 0 and failed:
         return f"exited 0 but {reason} - a masked verdict is not evidence"
     if failed:
+        lines = [line.strip() for line in out.splitlines()
+                 if line.strip().startswith("[FAIL]")]
+        missing = [w for w in must_fail
+                   if not any(w in line for line in lines)]
+        if missing:
+            return ("failed, but not the named check(s) "
+                    f"{', '.join(repr(w) for w in missing)}")
         return "caught"
     if rc < 0:
         return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
@@ -223,14 +250,16 @@ def main() -> int:
                 print(f"[FAIL] mutation {name!r} did not compile; a mutant that "
                       f"cannot build proves nothing about the harness")
                 continue
-            answer = verdict(*run_harness(exe))
+            wanted = named_checks(breaks)
+            shown = " and ".join(f'"{w}"' for w in wanted)
+            answer = verdict(*run_harness(exe), wanted)
             if answer == "caught":
                 passes += 1
-                print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+                print(f"[PASS] mutant caught: {name} - breaks {shown}")
             elif answer == "pass":
                 fails += 1
                 print(f"[FAIL] mutant SURVIVED: {name}. The harness does not "
-                      f"prove \"{breaks}\".")
+                      f"prove {shown}.")
             else:
                 fails += 1
                 print(f"[FAIL] mutant {name!r} {answer}")

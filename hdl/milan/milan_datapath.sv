@@ -5877,9 +5877,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_tvalid_i (rsp_tvalid_w),
     .s_tlast_i  (rsp_tlast_w),
     .s_tuser_i  (rsp_tuser_w),
-    //! the stage presents every stream as N_CH_P lanes (its pad lanes
-    //! carry zero), so the per-stream channel view is the stage's, not the
-    //! LCTX wire truth the stage itself de-interleaves by
+    //! the stage presents every stream as 2 x ceil(N_CH_P / 2) lanes
+    //! (the pad lane of an odd count carries zero), so the per-stream
+    //! channel view is the stage's, not the LCTX wire truth the stage
+    //! itself de-interleaves by
     .wire_chans_i (rsp_wire_chans_w),
     //! the media tick delayed past the stage's pop schedule, so the
     //! crossbar renders the events it was just handed (ONE grid: the same

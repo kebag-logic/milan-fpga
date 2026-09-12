@@ -156,7 +156,7 @@ Under CRF the grids align and no rail fires.
 |---|---|---|
 | Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream (60 ns at 100 MHz), 18 at four, 34 at eight | every shape; the reference the rows below add to |
 | I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame; accept to DAC = 8 ticks + the accept phase + 17 frames = 25 to 26 frames (521 to 542 us) | the one clocked listener interface in tree; two setpoint stages in series, each constant |
-| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk (20.83 us + k x 1.30 us + 41 ns) + the tick-to-fsync phase: under one frame, held constant under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL | NOT SHIPPED: no build clocks `KL_tdm_render` (`tdm_bclk_i` tied to 0 on a master build, `render: 0` in the AX7101 configs); the row waits for a render master |
+| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk at 12.288 MHz, the TDM8 bit clock and half the `audio` master input (20.83 us + k x 2.604 us + 81 ns; 8 slots x 2.604 us = one frame) + the tick-to-fsync phase: under one frame, held constant under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL | NOT SHIPPED: no build clocks `KL_tdm_render` (`tdm_bclk_i` tied to 0 on a master build, `render: 0` in the AX7101 configs); the row waits for a render master |
 
 Software reads no delay register: the constants are this table.
 
