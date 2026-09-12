@@ -124,15 +124,15 @@ module milan_csr #(
   //! read in either order. Default 0 retains the addresses as an ownerless,
   //! write-inert ABI; milan_datapath passes its product option.
   parameter bit GPTP_PLANE_EN_P = 1'b0,
-//! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
+  //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
   //! 0x0058 makes the media-boundary slip evidence readable (#390): the
-//! loopback ring's and the TDM junction's dup/skip counters land at
-//! SLIP_LB 0x8D4 / SLIP_TDM 0x8D8, live RO, {skip16, dup16}, the first
-//! free pair above the retired 0x8C8 gap. Additive: no existing CSR
-//! address moves (0x0057's live media-clock selection is unchanged).
-//! The register occupies four bytes and no CSR addresses move.
+  //! loopback ring's and the TDM junction's dup/skip counters land at
+  //! SLIP_LB 0x8D4 / SLIP_TDM 0x8D8, live RO, {skip16, dup16}, the first
+  //! free pair above the retired 0x8C8 gap. Additive: no existing CSR
+  //! address moves (0x0057's live media-clock selection is unchanged).
+  //! The register occupies four bytes and no CSR addresses move.
   parameter logic [31:0] VERSION = 32'h0002_0058
 
 )(

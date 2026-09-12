@@ -49,6 +49,7 @@ constexpr uint16_t A_VERSION = 0x004;
 constexpr uint16_t A_CAP = 0x008;
 constexpr uint16_t A_MAC_ADDR_LO = 0x108;
 constexpr uint16_t A_MAC_ADDR_HI = 0x10C;
+constexpr uint16_t A_PCMRX_CNT = 0x6C4;
 constexpr uint16_t A_MAAP_CTRL = 0x6CC;
 constexpr uint16_t A_MAAP_STAT0 = 0x6D0;
 constexpr uint16_t A_MAAP_STAT1 = 0x6D4;
@@ -69,6 +70,25 @@ constexpr uint16_t A_LTAP_END = 0x8B4;
 constexpr uint16_t A_MCSRV_STAT = 0x8F8;
 constexpr uint16_t A_SLIP_LB = 0x8D4;
 constexpr uint16_t A_MCSRV_CTRL = 0x8FC;
+//! listener 0 through the 0x800 window (the sim_aclk / sim_ax1x1gptp
+//! provisioning): the stream a built loopback ring would accept
+constexpr uint16_t A_STRM_SEL = 0x800;
+constexpr uint16_t A_STRMW_CTRL = 0x810;
+constexpr uint16_t A_STRMW_SID_LO = 0x814;
+constexpr uint16_t A_STRMW_SID_HI = 0x818;
+constexpr uint16_t A_STRMW_FMT_LO = 0x824;
+constexpr uint16_t A_STRMW_FMT_HI = 0x828;
+//! the shipping listener stream as sim_aclk.cpp feeds it: 8 wire channels,
+//! 6 events per class-A PDU, 12 500 axis cycles per PDU at 48 kHz
+constexpr int kAafChans = 8;
+constexpr int kAafEvents = 6;
+constexpr size_t kAafPayloadBytes = static_cast<size_t>(kAafChans) * kAafEvents * 4;
+constexpr size_t kAafFrameBytes = 14 + 24 + kAafPayloadBytes;
+constexpr int kAafPduPeriodCycles = 12500;
+constexpr int kAafPdusFed = 16;
+//! one media tick is 2083.3 axis cycles; twenty of them starve a built ring
+//! well past the six ticks its eight-deep queue drains in
+constexpr int kStarveCycles = 20 * 2084;
 
 namespace {
 
@@ -189,6 +209,73 @@ class PrunedShapeHarness {
         }
         dut->s_axis_mac_rx_tvalid = 0;
         return idx;
+    }
+
+    void run_cycles(int n) {
+        for (int c = 0; c < n; c++) { lo(); sample_pins(); hi(); }
+    }
+
+    //! listener 0 bound through the 0x800 window: the sid the AAF feed below
+    //! carries and the eight-channel INT32 format, exactly as sim_aclk.cpp
+    //! provisions it
+    void bind_listener_zero_through_the_window() {
+        axi_write(A_MAC_ADDR_LO, 0x00000002);
+        axi_write(A_MAC_ADDR_HI, 0x00000100);
+        axi_write(A_STRM_SEL, 0);
+        axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
+        axi_write(A_STRMW_SID_HI, 0x02000000);
+        axi_write(A_STRMW_FMT_LO, 0x02006000);
+        axi_write(A_STRMW_FMT_HI, 0x02050220);
+        axi_write(A_STRMW_CTRL, 1);
+    }
+
+    //! one well-formed AAF PDU into the bound listener: sv and tv set, the
+    //! bound sid, INT32 at 48 kHz, 8 channels x 6 events (sim_aclk's frame)
+    uint8_t aaf_seq = 0;
+    void send_aaf_pdu(int pdu) {
+        uint8_t f[kAafFrameBytes]; memset(f, 0, sizeof f);
+        const uint8_t dmac[6] = {
+            0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
+        memcpy(f, dmac, 6);
+        const uint8_t src[6] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+        memcpy(f + 6, src, 6);
+        f[12] = 0x22; f[13] = 0xF0;
+        f[14] = 0x02;                             // AAF
+        f[15] = 0x81;                             // sv, tv
+        f[16] = aaf_seq++;
+        const uint8_t sid[8] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
+        memcpy(f + 18, sid, 8);
+        f[26] = 0x00; f[27] = 0x00; f[28] = 0x10; f[29] = 0x00;   // avtp_ts
+        f[30] = 0x02;                             // format INT32
+        f[31] = static_cast<uint8_t>(0x05 << 4);  // nsr = 48 kHz
+        f[32] = static_cast<uint8_t>(kAafChans);
+        f[33] = 32;                               // bit depth
+        f[34] = static_cast<uint8_t>(kAafPayloadBytes >> 8);
+        f[35] = static_cast<uint8_t>(kAafPayloadBytes & 0xFF);
+        for (int k = 0; k < kAafEvents; k++)
+            for (int c = 0; c < kAafChans; c++) {
+                const uint32_t v = (static_cast<uint32_t>(pdu & 0xFFF) << 12) |
+                                   (static_cast<uint32_t>(k & 0xF) << 8) |
+                                   static_cast<uint32_t>(c & 0xFF);
+                const size_t o = 38 + 4 * (static_cast<size_t>(k) * kAafChans + c);
+                f[o]     = static_cast<uint8_t>(v >> 16);
+                f[o + 1] = static_cast<uint8_t>(v >> 8);
+                f[o + 2] = static_cast<uint8_t>(v);
+                f[o + 3] = 0;
+            }
+        (void)inject_rx(f, kAafFrameBytes);
+    }
+
+    //! the stream on the class-A cadence (inject_rx spends 400 cycles of each
+    //! period), then the feed stops and the media ticks keep coming
+    void feed_the_bound_listener_then_starve_it() {
+        for (int pdu = 0; pdu < kAafPdusFed; pdu++) {
+            send_aaf_pdu(pdu);
+            run_cycles(kAafPduPeriodCycles - 400);
+        }
+        run_cycles(kStarveCycles);
     }
 
     // ---------------------------------------------------------------- 0 ----
@@ -325,10 +412,25 @@ class PrunedShapeHarness {
         ck("LTAP_CTRL STILL 0x2 after traffic", axi_read(A_LTAP_CTRL), 0x2);
         ck("MCSRV_STAT STILL 0 after traffic", axi_read(A_MCSRV_STAT), 0);
         //! #390: SLIP_LB is a STRUCTURAL zero on this shape - LOOPBACK_P = 0
-        //! folds the loop feed strobe to a constant 0, so the ring's fed and
-        //! primed rails never set and its counters are pruned with it. The
-        //! word reads 0 with AAF traffic on the wire, not for want of frames.
-        ck("SLIP_LB 0x8D4 STILL 0 after traffic (structural: LOOPBACK_P=0)",
+        //! folds the loop feed strobe (milan_datapath's lb_tap_tvalid_w) to a
+        //! constant 0, so the ring's fed and primed rails never set and its
+        //! counters are pruned with it. The ring's ONLY feed is the
+        //! depacketizer's accepted output, so the zero is read behind the
+        //! stream a built ring would accept: listener 0 bound through the
+        //! window and fed well-formed PDUs on the class-A cadence (PCMRX_CNT
+        //! proves the acceptance), then starved for twenty ticks. A built
+        //! ring primes and feeds four pairs on that stream and counts one
+        //! dup per pair per starved tick, so the same harness rebuilt with
+        //! -GLOOPBACK_P=1, or with the LOOPBACK_P fold removed from the feed
+        //! strobe, fails the zero (the two negative controls of PR #436).
+        {
+            const uint32_t pdus0 = axi_read(A_PCMRX_CNT) & 0xFFFF;
+            bind_listener_zero_through_the_window();
+            feed_the_bound_listener_then_starve_it();
+            ck("listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus)",
+               (axi_read(A_PCMRX_CNT) & 0xFFFF) - pdus0, kAafPdusFed);
+        }
+        ck("SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0)",
            axi_read(A_SLIP_LB), 0);
         ck("MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT1), 0);
         ck("MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT0), 0);

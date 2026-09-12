@@ -716,14 +716,21 @@ class MediaGridAlignmentHarness {
     //  lands AFTER the tick that would have popped its first event. Bursts  //
     //  repeat every six ticks + 52/391 cycles, so the burst-vs-tick phase   //
     //  walks 0.133 cycle per PDU and the first dup comes after              //
-    //  (P - phi) / 0.133 PDUs, phi = the burst's landing offset after the   //
-    //  preceding tick (P = 2083.33). The harness AIMS phi: it empties the   //
-    //  queue, waits for a tick and lands the restart PDU 0.93 P after one   //
-    //  (the landing latency is measured on the priming PDU), which puts the //
-    //  first dup ~1100 PDUs = 13.7 M cycles out; the graded window is 1.5x  //
-    //  that. The same aim and window under CRF must show ZERO: a pop grid   //
-    //  drifting by the INTERNAL plan would dup inside it, so the window     //
-    //  exposes any ring drift above (P - phi) / window = 7 ppm.             //
+    //  (P - phi) / 0.133 PDUs, phi = the offset of the burst's FIRST beat   //
+    //  after the preceding tick (P = 2083.33). The dup is decided when that //
+    //  first event commits, 23 beats before the tlast the aim lands, so the //
+    //  closed form is referenced to the first beat. The harness AIMS the    //
+    //  tlast: it empties the queue, waits for a tick and lands the restart  //
+    //  PDU's tlast 0.93 P after one (the landing latency is measured on the //
+    //  priming PDU), which puts the first dup ~1270 PDUs = 15.9 M cycles    //
+    //  out; the graded window is 1.5x that. The same aim and window under   //
+    //  CRF must show ZERO: a pop grid drifting by the INTERNAL plan would   //
+    //  dup inside it. That sensitivity is ONE-SIDED: the window exposes a   //
+    //  pop grid FASTER than the push by more than (P - phi) / window = 7    //
+    //  ppm (a dup); a pop grid SLOWER than the push shows as a skip only    //
+    //  once the burst leads the pop by three events, about 300 ppm over     //
+    //  this window, which the ring phases do not grade (the grids' own      //
+    //  two-sided check is [CRF] |ppm| < 0.5).                               //
     //                                                                      //
     //  The evidence is read TWICE: the tap, and the SLIP_LB / SLIP_TDM CSR  //
     //  words (0x8D4 / 0x8D8) that make it visible on silicon.               //
@@ -731,13 +738,18 @@ class MediaGridAlignmentHarness {
     long tick_cycle_last = -1;    //! the last media tick (never reset)
     long lb_land_cycle   = -1;    //! last accepted tlast at the loop tap
     long lb_land_tick    = -1;    //! the tick that preceded that landing
+    long lb_first_cycle  = -1;    //! that PDU's first beat at the loop tap
+    bool lb_in_pdu       = false;
 
     void observe_the_loop_ring() {
         if (dut->rootp->milan_datapath__DOT__media_tick_p) tick_cycle_last = axis_cycle;
-        if (dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w &&
-            dut->rootp->milan_datapath__DOT__lb_tap_tlast_w) {
-            lb_land_cycle = axis_cycle;
-            lb_land_tick  = tick_cycle_last;
+        if (dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w) {
+            if (!lb_in_pdu) { lb_first_cycle = axis_cycle; lb_in_pdu = true; }
+            if (dut->rootp->milan_datapath__DOT__lb_tap_tlast_w) {
+                lb_land_cycle = axis_cycle;
+                lb_land_tick  = tick_cycle_last;
+                lb_in_pdu     = false;
+            }
         }
     }
 
@@ -866,11 +878,15 @@ class MediaGridAlignmentHarness {
         ck("RING-INT: the restart PDU landed inside the aimed band",
            (phase >= kRingAimBandLo && phase <= kRingAimBandHi) ? 1 : 0, 1);
         // the prediction: the physical cadence walks each burst 52/391 cycle
-        // later against the packet grid; the first dup is the burst crossing
-        // the next tick
+        // later against the packet grid; the first dup is the burst's FIRST
+        // event crossing the next tick, so the closed form is referenced to
+        // the first beat at the tap, the PDU's span before the aimed tlast
+        const long span = lb_land_cycle - lb_first_cycle;
+        printf("  the PDU spans %ld cycles at the loop tap: its first beat landed %ld cycles after the tick\n",
+               span, phase - span);
         const double walk_per_pdu = static_cast<double>(kAafPhysFracNum)
                                   / static_cast<double>(kAafPhysFracDen);
-        const double pdus_to_dup = (kTickCycles - static_cast<double>(phase)) / walk_per_pdu;
+        const double pdus_to_dup = (kTickCycles - static_cast<double>(phase - span)) / walk_per_pdu;
         const long predicted = static_cast<long>(pdus_to_dup * kAafPduPeriodCycles);
         ring_window_cycles = predicted + predicted / 2;
         printf("  predicted first dup: %.0f PDUs = %ld cycles (%.3f s); window %ld cycles\n",

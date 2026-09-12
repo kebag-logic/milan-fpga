@@ -20,7 +20,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `SLIP_LB` (`0x8D4`) and `SLIP_TDM` (`0x8D8`) expose the media-boundary slip counters (#390).
 - `SLIP_LB` counts the loopback ring; `SLIP_TDM` counts the TDM junction.
 - Each word is live RO, `{skip[31:16], dup[15:0]}`, saturating.
-- Read twice and difference for a rate.
+- Read twice and difference for a rate below the ceiling.
+- A starved fed pair counts one dup per tick.
+- A half at `0xFFFF` is spent until reset.
 - `SLIP_LB` is a structural zero without the loopback lane.
 - The true-ratio leg feeds the ring at the physical rate.
 - At INTERNAL each fed pair dups once per beat period.
