@@ -3361,6 +3361,20 @@ def _load_clocking(cfg, path):
         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
+    # #389, the converse, and the same rule as the retired key above: the CRF
+    # CLOCK_SOURCE's location IS the CRF sink's STREAM_INPUT, so without that
+    # sink there is no stream for it to name and _overlay_clock_sources emits
+    # no descriptor for it. Accepted-and-dropped is the shape of lie this
+    # issue exists to remove: the key still entered model_shape, so two
+    # configs whose descriptors are byte-identical carried different
+    # entity_model_ids, and 6.2.2.8 asks a CHANGED model for a new id, not an
+    # unchanged one for a second.
+    if "crf" in srcs and not clocking["crf_sink"]:
+        raise ConfigError(
+            "media_clock_sources offers 'crf' but clocking.crf_sink is "
+            "false - the CRF CLOCK_SOURCE is located on that sink's "
+            "STREAM_INPUT, so no descriptor can be emitted for it (#389). "
+            "Declare the sink, or drop 'crf' from media_clock_sources")
     return clocking
 
 
@@ -4205,7 +4219,9 @@ def _overlay_clock_sources(cfg):
     media-clock recovery, and a CLOCK_SOURCE a controller can select but
     nothing follows is a false advertisement (#389; 1722.1-2021 7.2.9.2,
     Milan v1.2 7.2.2). _load_clocking refuses the key that used to ask for
-    one, so this function cannot be reached with it."""
+    one, so this function cannot be reached with it, and it refuses 'crf'
+    without the sink too, so `n_crf` and `'crf' in media_clock_sources` are
+    the same question here and neither can drop an advertised source."""
     L, clk = cfg["listeners"], cfg["clocking"]
     n_crf = 1 if clk["crf_sink"] else 0
     clock_sources = []

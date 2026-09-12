@@ -10369,13 +10369,56 @@ def test_gen_aem_store_crf_output_overlay() -> None:
     _assert_per_stream_format_tables(svh, dirv, outs)
 
 
+def _assert_crf_needs_its_sink() -> None:
+    """Gate 33's second refusal arm (R102-2-1): a source the emitter would
+    DROP rather than advertise is refused, and the honest posture beside it
+    is accepted.
+
+    Without the refusal the first variant builds, emits one source
+    (`AEM_N_CLKSRC_C = 1`, `AEM_CRF_CLKSRC_C = 16'hFFFF`) and hashes a
+    TWO-source model: descriptors byte-identical to the `[internal]` config,
+    `entity_model_id` different. Milan v1.2 6.2.2.8 asks a changed model for
+    a new id, not an unchanged one for a second."""
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal", "crf"], default_source="internal",
+        crf_sink=False))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "crf_sink" in str(e) and "#389" in str(e), str(e)
+        else:
+            raise AssertionError(
+                "a config offering crf with the sink off was accepted")
+    finally:
+        p.unlink()
+    # the paired POSITIVE case, so the rule is not just a ban: the same
+    # config with 'crf' dropped as well builds, and emits the ONE source it
+    # advertises
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal"], default_source="internal",
+        crf_sink=False))
+    try:
+        r = eb.build(p, OUT)
+        assert [c["type"] for c in r["overlay"]["clock_sources"]] \
+            == ["internal"], r["overlay"]["clock_sources"]
+        assert "localparam int unsigned AEM_N_CLKSRC_C = 1;" \
+            in r["adp_shape_svh"]
+        assert eb.model_shape(r["cfg"])["clock_sources"] == ["internal"]
+    finally:
+        p.unlink()
+
+
 def test_clock_sources_follow_the_fabric() -> None:
     """Gate 33 (#389): every CLOCK_SOURCE a shipping config advertises is
     one the fabric follows - INTERNAL and the CRF sink's INPUT_STREAM
     source, nothing per AAF listener - in the overlay and the generated
-    header alike; the set is model shape; and the retired `input_stream`
+    header alike; the set is model shape; the retired `input_stream`
     source is refused by name on both paths a descriptor set is built
-    through, the config loader and `spec_from_overlay`."""
+    through, the config loader and `spec_from_overlay`; and a source that
+    WOULD be dropped rather than emitted - `crf` with the sink off - is
+    refused for the same reason instead of entering the model-id hash
+    unadvertised."""
     for name, path in CONFIGS.items():
         r = eb.build(path, OUT)
         ovl, cfg = r["overlay"], r["cfg"]
@@ -10409,6 +10452,7 @@ def test_clock_sources_follow_the_fabric() -> None:
             raise AssertionError("a config declaring input_stream was accepted")
     finally:
         p.unlink()
+    _assert_crf_needs_its_sink()
     # ...and refused on the OTHER path a descriptor set is built through.
     # `spec_from_overlay` is where the retired type stayed EXPRESSIBLE: the
     # overlay it reads is BUILDER-GENERATED, so the refusal above already
@@ -10460,7 +10504,9 @@ def test_clock_sources_follow_the_fabric() -> None:
     print(f"  [gate 33] {len(CONFIGS)}/{len(CONFIGS)} configs advertise "
           "INTERNAL + CRF only (overlay, header and model shape agree); "
           "input_stream refused by the config loader AND by "
-          "spec_from_overlay (CLI included), and the overlay arm bites")
+          "spec_from_overlay (CLI included), crf-without-a-sink refused by "
+          "the loader with internal-only accepted beside it, and the "
+          "overlay arm bites")
 
 
 def test_dynamic_map_topology_reaches_shape_header() -> None:
