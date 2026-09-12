@@ -11994,7 +11994,7 @@ def test_optional_block_gates_bite() -> None:
     config stops asking - otherwise the gate would just be a ban."""
     cases = [
         # (label, feature(s) pruned, extra mutation, must-raise?)
-        ("servo pruned but CRF/input-stream clocking offered",
+        ("servo pruned but CRF clocking offered",
          dict(media_clock_servo=False), lambda c: None, True),
         ("servo pruned, internal-only clocking",
          dict(media_clock_servo=False),

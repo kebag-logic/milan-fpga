@@ -62,10 +62,13 @@ module KL_i2s_playback #(
   input  wire         rst_n,            //! active-low sync reset (clk_i)
   input  wire         clk_audio_i,      //! CLEAN audio clock (MMCM, 24.576 MHz
                                         //! nominal; MCLK = /2, fs = /512)
-  input  wire         servo_en_i,       //! USER rule hook: exact recovery only
-                                        //! for bound-stream clock sources.
-                                        //! No NCO actuator remains - kept for
-                                        //! the future MMCM-DRP servo; the
+  input  wire         servo_en_i,       //! USER rule hook: exact recovery
+                                        //! only for the CRF sink, the one
+                                        //! bound stream the media clock
+                                        //! follows (#389). No NCO actuator
+                                        //! remains here: the actuator is
+                                        //! KL_mmcm_drp_servo, driven from
+                                        //! crf_clk_selected_r; the
                                         //! convergence observer still runs.
 
   //! --- PCM tap (depacketizer m_axis, observed transfers) -----------------
