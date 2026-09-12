@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 65 modules · 64 with a dedicated TB · 0 exercised-only · 30 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 66 modules · 65 with a dedicated TB · 0 exercised-only · 31 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,16 +31,16 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "milan", "ieee8021as", "ieee8021q", "common"]
-    y-axis "modules" 0 --> 36
+    y-axis "modules" 0 --> 37
+    bar [36, 1, 4, 7, 8, 10]
     bar [35, 1, 4, 7, 8, 10]
-    bar [34, 1, 4, 7, 8, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| IEEE 1722 (AVTP) | 35 | 34 | 0 | 29 | 0 | 0 |
+| IEEE 1722 (AVTP) | 36 | 35 | 0 | 30 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | Milan integration | 4 | 4 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 7 | 7 | 0 | 0 | 0 | 0 |
@@ -78,6 +78,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · 🔬`make aaf` | -- |
+| ✅ `KL_render_setpoint` | `ieee1722/aaf/KL_render_setpoint.sv` | `milan_dp` · `render_setpoint` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · 🔬`make aaf` | -- |

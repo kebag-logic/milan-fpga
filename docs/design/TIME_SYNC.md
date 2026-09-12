@@ -113,6 +113,78 @@ Never infer clock recovery from CRF lock alone.
 
 Silicon grid comparison remains open on issue #74.
 
+### Listener render latency
+
+The render path holds one constant latency (#386).
+
+`KL_render_setpoint` queues whole media events per stream.
+
+It pops one event per stream per media tick.
+
+The crossbar's input grid is the reference point.
+
+The constant is independent of the audio interface.
+
+| Law term | Value | Derivation |
+|---|---|---|
+| Events per PDU | 6 | class A at 48 kHz: `AAF_SPF_C`, read, never copied |
+| Allowance | 2 events | one tick of accept phase, one of verdict plus drain |
+| Setpoint | 8 events = 166.67 us | fill just before every PDU push |
+| Shipping samples | 64 | 8 events of 8 channels; 16 on a stereo lane |
+| First-event delay | (8, 9] media ticks after accept | the accept phase is the only jitter |
+| Event k of a PDU | k ticks after event 0 | the talker's packetization |
+| Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
+| Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
+| Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
+| Recentre | GM identity change, PHC adjtime or settime, a settled clock-source change | once, at the next PDU end |
+| Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+| Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
+| Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
+| Wire channel count change | the stream is flushed and re-prefilled | its queued rows carry the old lane layout |
+
+Under INTERNAL the grids free-run.
+
+The rail then re-centres every 11.75 s.
+That is six events at the -10.64 ppm offset.
+
+It assumes a talker on the board's physical grid.
+Another talker's rate error sets its own period.
+
+Under CRF the grids align and no rail fires.
+
+| Interface after the grid | Fixed delay | Shipped |
+|---|---|---|
+| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream (60 ns at 100 MHz), 18 at four, 34 at eight | every shape; the reference the rows below add to |
+| I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame; accept to DAC = 8 ticks + the accept phase + 17 frames = 25 to 26 frames (521 to 542 us) | the one clocked listener interface in tree; two setpoint stages in series, each constant |
+| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk at 12.288 MHz, the TDM8 bit clock and half the `audio` master input (20.83 us + k x 2.604 us + 81 ns; 8 slots x 2.604 us = one frame) + the tick-to-fsync phase: under one frame, held constant under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL | NOT SHIPPED: no build clocks `KL_tdm_render` (`tdm_bclk_i` tied to 0 on a master build, `render: 0` in the AX7101 configs); the row waits for a render master |
+
+Software reads no delay register: the constants are this table.
+
+`I2SPB_TRIM[15:0]` (0x6E0) shows the I2S element's live fill.
+The render stage's fill waits for the #390 CSR word.
+
+On the Arty shapes the DAC is crossbar-fed.
+The I2S path therefore renders behind this stage.
+
+Its delay grew by the setpoint, 8 media ticks.
+It stays constant: two setpoint stages in series.
+
+Its silicon figure predates the stage (matrix rows).
+A re-measurement rides the #117 bench.
+
+The I2S element's own recentre re-bases its producer FIFO.
+Its CDC FIFO stays full: up to 16 frames more.
+
+A clock-source change arms one recentre.
+It fires once the grid has settled (table above).
+
+The `milan_dp` leg selects CRF under a running stream.
+One recentre fires; every PDU returns to the setpoint.
+
+Digital proof: `tb/verilator/render_setpoint` and the `milan_dp` true-ratio leg.
+
+Silicon proof at the TDM frame pin rides #117.
+
 ## Presentation validity
 
 The PHC dates AAF and CRF packets.

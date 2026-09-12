@@ -6,6 +6,8 @@
 # it over the AXI4-Lite CSR + MAC AXIS ports.
 #   make        - build and run the self-checking harness
 #   make ax1x1  - run only the eight-channel AX7101 option-OFF baseline
+#   make aclk   - run only the true-ratio leg (grid alignment + the #386
+#                 render law); its mutation arm is render_mutants.py
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -88,6 +90,11 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
                  -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -Wall -Wextra"
 
+# #386: the render setpoint stage and the datapath, overridable so the
+# render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
+# either through this same recipe
+RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
+DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -139,6 +146,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
+       $(RSP_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
@@ -166,10 +174,10 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
        $(RTL_DIR)/common/csr/milan_csr.sv \
-       $(RTL_DIR)/milan/milan_datapath.sv
+       $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -199,6 +207,20 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
   -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -Wall -Wextra" \
   $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
+endef
+
+# The true-ratio leg's recipe, stated ONCE: the sweep builds obj_aclk with
+# it, and render_mutants.py (#386) builds a MUTATED copy of the setpoint stage
+# or of the datapath through the same recipe (RSP_SRC or DP_SRC, and
+# ACLK_MDIR, overridden) so the negative controls elaborate exactly the
+# gateware the positive leg does.
+ACLK_MDIR ?= obj_aclk
+define ACLK_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(ACLK_MDIR) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 endef
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
@@ -252,6 +274,15 @@ gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile
 ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
 	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_ax1x1gptp/aemi.bin
+
+# the true-ratio leg alone (the render-law phases ride it), and its build
+# alone for the mutation arm
+aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(ACLK_BUILD)
+	./obj_aclk/Vmilan_dp_aclk
+
+aclk-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(ACLK_BUILD)
 
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
@@ -327,11 +358,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # rather than an #ifdef through sim_nxn's 380-odd checks: none of those care
 # about the audio clock's rate, and re-clocking them to find out would be a
 # large blast radius for no gain.
-	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_aclk \
-	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
-	  -GAUDIO_IF_MASTER_P=1 \
-	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
+	$(ACLK_BUILD)
 	@echo "======================================================================"
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
@@ -364,6 +391,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	./obj_ax1x1/Vmilan_dp_ax1x1
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
 	./obj_aclk/Vmilan_dp_aclk
+	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
+	python3 render_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 

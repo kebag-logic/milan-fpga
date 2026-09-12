@@ -1615,7 +1615,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! per-context Table 5.22 counter-change pulses (gh #60 F2), the
   //! STREAM_INPUT source of the descriptor arbiter feeding the processor
   wire [N_STREAMS-1:0] avtprx_dirty_p_w;
-  wire        avtprx_accept_p;
+  //! public: the milan_dp render-law leg times accept-to-render from it
+  wire        avtprx_accept_p /* verilator public_flat_rd */;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
   wire [15:0] i2spb_underruns, i2spb_overruns;
@@ -5600,14 +5601,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stays 0 - the identical set of values the block presents before its
   //! first stream. It does NOT backpressure: the render tap is a clone tap,
   //! so pruning the sink cannot stall the listener path.
-  generate if (I2SPB_P != 0) begin : g_i2s_player
+  //!
   //! task #22 (USER 08-06, measured 2 min): a grandmaster change means
   //! the PHC - the presentation timebase - may just have STEPPED by
   //! seconds. Nothing in the media path reacted, so the playback FIFO
   //! walked back into its convergence band at the residual rate error.
   //! One pulse per GM-identity change re-centers it instead; the first
   //! fabric GM publication out of reset (0 -> id) is exempt
-  //! (prefill owns boot).
+  //! (prefill owns boot). ONE detector for both elastic stages (#386):
+  //! it lives outside the I2SPB generate so the shipping shape, which
+  //! prunes the DAC, still derives the render stage's pulse from it.
   logic [63:0] gm_recentre_q_r;
   logic        gm_recentre_p_r;
   always_ff @(posedge axis_clk) begin : g_gm_recentre
@@ -5620,7 +5623,82 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                          (gm_recentre_q_r != 64'd0);
     end
   end : g_gm_recentre
+  //! #386: a CLOCK-SOURCE CHANGE re-centres the render stage once the
+  //! grid has settled. Neither of the two things a source change does to
+  //! the fill is a GM or PHC event: under CRF the #74 aligner's pull-in
+  //! moves the packet grid by a fraction of a sample and a displacement
+  //! the fill carried into the lock (the INTERNAL walk, a talker phase
+  //! step) is kept once the grids align; back at INTERNAL the grid
+  //! free-runs from the change. SETTLED means, under CRF, the aligner
+  //! engaged with |err| inside SRC_SETTLE_ERR_C cycles (1/64 sample) for
+  //! SRC_SETTLE_TICKS_C media ticks running - the loop is overdamped, so
+  //! what is left of the error is what is left of the movement - or
+  //! engaged for SRC_SETTLE_CEIL_C ticks whatever the error (a feed too
+  //! jittery to rest inside the band still gets its one recentre); at
+  //! INTERNAL the same tick dwell from the change. One pending flag,
+  //! armed by a change of the selected index or by the aligner's
+  //! re-engagement (a physical feed that died and returned), cleared by
+  //! the one pulse it fires: repeated selections re-arm it, never queue.
+  localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
+  localparam int unsigned SRC_SETTLE_TICKS_C = 2048;
+  localparam int unsigned SRC_SETTLE_CEIL_C  = 32768;
+  logic [15:0] src_recentre_q_r;   //! the selected index last seen
+  logic        src_pend_r;         //! a recentre awaits the settle
+  logic        mga_engaged_q_r;
+  logic [15:0] src_band_ticks_r;   //! ticks with the grid inside the band
+  logic [15:0] src_eng_ticks_r;    //! ticks with the aligner engaged
+  //! public: the milan_dp true-ratio leg counts the pulse under a live
+  //! selection
+  logic        src_recentre_p_r /* verilator public_flat_rd */;
+  wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+  wire src_grid_ok_w = !crf_clk_selected_r ||
+                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+  wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
+                       (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
+  always_ff @(posedge axis_clk) begin : g_src_recentre
+    if (!axis_resetn) begin
+      src_recentre_q_r <= 16'd0;
+      src_pend_r       <= 1'b0;
+      mga_engaged_q_r  <= 1'b0;
+      src_band_ticks_r <= 16'd0;
+      src_eng_ticks_r  <= 16'd0;
+      src_recentre_p_r <= 1'b0;
+    end else begin
+      src_recentre_q_r <= media_clk_src_r;
+      mga_engaged_q_r  <= mga_engaged_w;
+      src_recentre_p_r <= 1'b0;
+      if ((media_clk_src_r != src_recentre_q_r) ||
+          (mga_engaged_w && !mga_engaged_q_r)) begin
+        src_pend_r       <= 1'b1;
+        src_band_ticks_r <= 16'd0;
+        src_eng_ticks_r  <= 16'd0;
+      end else if (src_pend_r) begin
+        if (media_tick_p) begin
+          src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
+          src_eng_ticks_r  <= (crf_clk_selected_r && mga_engaged_w)
+                              ? src_eng_ticks_r + 16'd1 : 16'd0;
+        end
+        if (src_settled_w) begin
+          src_pend_r       <= 1'b0;
+          src_recentre_p_r <= 1'b1;
+          src_band_ticks_r <= 16'd0;
+          src_eng_ticks_r  <= 16'd0;
+        end
+      end
+    end
+  end : g_src_recentre
+  //! #386: the render stage re-centres on a GM identity change, a PHC
+  //! adjtime (the plane's step, or CLKV software's when the plane is off),
+  //! a PHC settime and a settled clock-source change. The first three are
+  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
+  //! module additionally takes the plane's pre-commit publication events
+  //! and counts the first 0-to-id publication, which this set leaves out
+  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
+  wire render_recentre_p_w /* verilator public_flat_rd */ =
+       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
+       | src_recentre_p_r;
 
+  generate if (I2SPB_P != 0) begin : g_i2s_player
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
                     .PREFILL_C(PB_PREFILL_C),
@@ -5683,6 +5761,102 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
   wire                       chmap_phys_v_w;
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
+
+  // --------------------------------------------------------------------------
+  //  THE RENDER SETPOINT STAGE (#386, option a). The crossbar used to latch
+  //  the latest sample of every (stream, wire channel) straight off the
+  //  clone and render whatever phase the latch held against the tick: no
+  //  setpoint, no band, no fill - the accept-to-render delay of the shipping
+  //  TDM path was undefined. KL_render_setpoint queues whole media EVENTS per
+  //  stream and pops exactly one per stream per media tick into the
+  //  crossbar, so its fill IS the latency and it runs at a constant:
+  //
+  //    RENDER_PDU_EVT_C      = AAF_SPF_C = 6 events per class-A PDU at 48 kHz
+  //                            (the talker's own constant, READ here)
+  //    RENDER_ALLOW_EVT_C    = 2 events: one media tick for the accept
+  //                            instant's phase against the grid, one for the
+  //                            monitor verdict + depacketizer drain + row
+  //                            assembly (all under a tick)
+  //    RENDER_SETPOINT_EVT_C = 6 + 2 = 8 events = 166.67 us at 48 kHz
+  //                            (8 x 8 = 64 samples on the shipping 8-channel
+  //                            stream; 8 x 2 = 16 samples on a stereo lane,
+  //                            the same figure the I2S path's (6*2)+4 states)
+  //
+  //  The law is stated at the crossbar's INPUT grid, independent of the audio
+  //  interface: the first event of every accepted PDU renders SETPOINT media
+  //  ticks (+ the accept phase, under one tick) after its accept, event k of
+  //  the PDU k ticks later. The fixed delays from that grid to each interface
+  //  are documented in docs/design/TIME_SYNC.md. Bands: half a PDU keeps
+  //  convergence, a whole PDU is the reset rail, so a PDU one class-A
+  //  interval late never trips it. DERIVED from the frame shape, not a
+  //  mirrored literal; the I2S path keeps its own instance of the law.
+  // --------------------------------------------------------------------------
+  localparam int RENDER_PDU_EVT_C      = AAF_SPF_C;
+  localparam int RENDER_ALLOW_EVT_C    = 2;
+  localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;
+  localparam int RENDER_CONV_EVT_C     = RENDER_PDU_EVT_C / 2;
+  localparam int RENDER_RESET_EVT_C    = 2 * RENDER_CONV_EVT_C;
+  //! 32 event rows per stream: TARGET 14 + the rail 6 + one bunched PDU 6
+  //! = 26 stay below the depth, so the rail always acts before an overrun
+  localparam int RENDER_DEPTH_LOG2_C   = 5;
+
+  //! public: the render-law leg decodes the popped event's identity off
+  //! the first beat (its samples name their PDU, event and channel)
+  wire [TDATA_WIDTH-1:0] rsp_tdata_w  /* verilator public_flat_rd */;
+  wire                   rsp_tvalid_w /* verilator public_flat_rd */;
+  wire                   rsp_tlast_w;
+  wire [3:0]             rsp_tuser_w;
+  wire [N_STREAMS*4-1:0] rsp_wire_chans_w;
+  wire                   rsp_render_tick_p_w;
+  //! public taps (the #390 debug-window word is the CSR follow-up): the
+  //! milan_dp render-law leg reads the fill law and the four rails directly
+  wire [N_STREAMS-1:0]   rsp_pop_p_w      /* verilator public_flat_rd */;
+  wire [N_STREAMS*8-1:0] rsp_fill_w       /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rsp_prefill_w    /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rsp_converged_w  /* verilator public_flat_rd */;
+  wire [15:0]            rsp_underruns_w  /* verilator public_flat_rd */;
+  wire [15:0]            rsp_overruns_w   /* verilator public_flat_rd */;
+  wire [15:0]            rsp_rails_w      /* verilator public_flat_rd */;
+  wire [15:0]            rsp_recentres_w  /* verilator public_flat_rd */;
+
+  KL_render_setpoint #(
+    .N_STREAMS_P      (N_STREAMS),
+    .N_CH_P           (RX_WIRE_CHANS_C),
+    .DEPTH_LOG2_P     (RENDER_DEPTH_LOG2_C),
+    .PDU_EVENTS_P     (RENDER_PDU_EVT_C),
+    .SETPOINT_EVT_P   (RENDER_SETPOINT_EVT_C),
+    .CONV_BAND_EVT_P  (RENDER_CONV_EVT_C),
+    .RESET_BAND_EVT_P (RENDER_RESET_EVT_C),
+    .CLK_FREQ_HZ_P    (MILAN_CLK_FREQ_HZ)
+  ) render_setpoint (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! the same clone the crossbar consumed directly before #386:
+    //! accepted beats, never backpressured
+    .s_tdata_i    (dpkt_pcm_tdata_w),
+    .s_tvalid_i   (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
+    .s_tlast_i    (dpkt_pcm_tlast_w),
+    .s_tuser_i    (dpkt_pcm_tuser_w),
+    .wire_chans_i (mon_wire_chans_all_w),
+    .tick_i       (media_tick_p),
+    .recentre_p_i (render_recentre_p_w),
+    //! a sink's bind wipe (task #32 eviction pulse) empties its queue, so
+    //! no stale event renders on a rebind - the LOOP bucket's discipline
+    .flush_i      (strtbl_bind_fall_w),
+    .m_tdata_o    (rsp_tdata_w),
+    .m_tvalid_o   (rsp_tvalid_w),
+    .m_tlast_o    (rsp_tlast_w),
+    .m_tuser_o    (rsp_tuser_w),
+    .m_wire_chans_o  (rsp_wire_chans_w),
+    .render_tick_p_o (rsp_render_tick_p_w),
+    .pop_p_o      (rsp_pop_p_w),
+    .fill_o       (rsp_fill_w),
+    .prefill_o    (rsp_prefill_w),
+    .converged_o  (rsp_converged_w),
+    .underruns_o  (rsp_underruns_w),
+    .overruns_o   (rsp_overruns_w),
+    .rails_o      (rsp_rails_w),
+    .recentres_o  (rsp_recentres_w)
+  );
   //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
   //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
   //! independent readers of the same flops, by construction)
@@ -5697,15 +5871,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_PHYS_P     (CHMAP_PHYS_C)
   ) chan_map_render (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! clone tap: accepted-beat strobe (tvalid && tready); never backpressures
-    .s_tdata_i  (dpkt_pcm_tdata_w),
-    .s_tvalid_i (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
-    .s_tlast_i  (dpkt_pcm_tlast_w),
-    .s_tuser_i  (dpkt_pcm_tuser_w),
-    //! per-stream LCTX wire-truth fan-out (follow-up 3 DONE: each stream
-    //! de-interleaves by its OWN wire channels_per_frame)
-    .wire_chans_i (mon_wire_chans_all_w),
-    .tick_i (media_tick_p),
+    //! #386: the setpoint stage's event beats, one event per stream per
+    //! media tick, in the clone format (never backpressured)
+    .s_tdata_i  (rsp_tdata_w),
+    .s_tvalid_i (rsp_tvalid_w),
+    .s_tlast_i  (rsp_tlast_w),
+    .s_tuser_i  (rsp_tuser_w),
+    //! the stage presents every stream as 2 x ceil(N_CH_P / 2) lanes
+    //! (the pad lane of an odd count carries zero), so the per-stream
+    //! channel view is the stage's, not the LCTX wire truth the stage
+    //! itself de-interleaves by
+    .wire_chans_i (rsp_wire_chans_w),
+    //! the media tick delayed past the stage's pop schedule, so the
+    //! crossbar renders the events it was just handed (ONE grid: the same
+    //! rate, a constant N_STREAMS x 4 + 2 cycles behind media_tick_p)
+    .tick_i (rsp_render_tick_p_w),
     //! write mux with the live AECP transaction leg and CSR 0x900 writer.
     //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against

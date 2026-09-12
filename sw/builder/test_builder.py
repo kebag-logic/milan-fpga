@@ -5056,7 +5056,10 @@ def test_baremetal_profile_contract() -> None:
                 "cfg_ptp_adj": 3,
                 "cfg_ptp_tod_wr": 3,
                 "cfg_ptp_offset": 3,
-                "cfg_ptp_cmd_load": 4,
+                #: settime strobe: declaration, CLKV observer port, milan_csr
+                #: port, ptp_sync port, plus the #386 render-setpoint recentre
+                #: OR term (a read-only consumer, pinned below; no driver).
+                "cfg_ptp_cmd_load": 5,
                 "cfg_ptp_cmd_adjust": 4,
                 "cfg_ptp_cmd_snapshot": 3,
                 #: cfg_ptp_ingress_lat/cfg_ptp_egress_lat left the datapath
@@ -5065,7 +5068,9 @@ def test_baremetal_profile_contract() -> None:
                 "ptp_tod_rd_valid": 3,
                 "eff_ptp_adj_w": 2,
                 "eff_ptp_offset_w": 2,
-                "eff_ptp_adjust_w": 2,
+                #: effective adjtime strobe: initializer and ptp_sync port,
+                #: plus the same #386 render-setpoint recentre OR term.
+                "eff_ptp_adjust_w": 3,
                 "gptp_adj_w": 4,
                 # The engine step strobe has its original declaration,
                 # effective-PHC mux, engine port, and option-off tieoff plus
@@ -5105,6 +5110,18 @@ def test_baremetal_profile_contract() -> None:
             "cfg_ptp_cmd_adjust",
             "effective PHC adjust strobe must select only gPTP or CSR "
             "control")
+        #: #386: the render stage's recentre pulse is the one consumer the two
+        #: census rows above admit beyond the PHC crossing; pin its exact
+        #: term set so the extra reference can only ever be this read. The
+        #: fourth term is the settled clock-source change (round 5), a
+        #: datapath-local pulse that reads no PHC net.
+        direct_initializer(
+            datapath, r"wire[ \t]+render_recentre_p_w",
+            "render_recentre_p_w",
+            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load "
+            "| src_recentre_p_r",
+            "render recentre pulse must read only the GM-change, adjtime, "
+            "settime and settled clock-source discontinuities")
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -6454,6 +6471,15 @@ def test_baremetal_profile_contract() -> None:
         "  wand        cfg_ptp_enable;\n"
         "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
         "ADP-controlled second PHC-enable driver")
+    #: #386: an ADP term spliced into the render recentre read keeps every
+    #: PHC census count, so only the recentre pin can refuse it.
+    render_recentre_adp_term = replace_once(
+        datapath_source,
+        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       | src_recentre_p_r;",
+        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       | src_recentre_p_r | cfg_adp_enable;",
+        "ADP-controlled render recentre term")
     phc_effective_adjust_gated_by_adp = replace_once(
         datapath_source,
         "                               ? unsigned'(gptp_adj_w)   : "
@@ -7992,6 +8018,11 @@ def test_baremetal_profile_contract() -> None:
          docs_source, csr_source,
          "datapath PHC nets must retain sole-driver reference ownership",
          MutantFiles(datapath=phc_wand_second_driver)),
+        ("ADP term spliced into the render recentre pulse", firmware_source,
+         docs_source, csr_source,
+         "render recentre pulse must read only the GM-change, adjtime, "
+         "settime and settled clock-source discontinuities",
+         MutantFiles(datapath=render_recentre_adp_term)),
         #: 915cbcc3: the PHC consumer is the ptp_csr_sync crossing; the
         #: reasons follow the re-pointed pins.
         ("PHC crossing consumer gated by ADP", firmware_source,
