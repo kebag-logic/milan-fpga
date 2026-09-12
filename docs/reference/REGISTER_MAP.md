@@ -1730,12 +1730,22 @@ before reading the word: the build's config sets
 `cluster_mapping.fabric.loopback_lane` (the builder's `--loopback-lane`, which
 is what sets `LOOPBACK_P`; without it the AEM model's loopback clusters are
 model-only), and on a `CHMAP_RDBK_P` build a mapped loopback entry reads
-`CHMAP_LOOP[17]` fed = 1 (`0x914`, next section) once audio has reached it.
-Both ring legs of `tb/verilator/milan_dp` execute that instruction rather
-than only stating it: the capture-side readback answers
+`CHMAP_LOOP[17]` fed = 1 (`0x914`, next section) once audio has reached it,
+in a word that is not `0xDEADDEAD`. That second half is not optional:
+`0xDEADDEAD` is the house not-a-measurement sentinel this register reads
+un-armed, timed out or refused (next section), its bit `[17]` is 0, and a
+reader who takes it for an answer reads "no measurement" as "no lane".
+Both ring legs of `tb/verilator/milan_dp` execute the instruction in that
+order rather than only stating it: each grades the WHOLE `0x914` word against
+`0xDEADDEAD`, and `CHMAP_SNAP[1]` valid with it, BEFORE it projects anything,
+because the projection cannot do it (the poison's `{mask_valid, valid, fed}`
+is 1, 1, 0, the pruned leg's own answer; the bits that separate it are
+`[31:28]`, zero on every valid word, which the projection drops). Behind
+those two grades the capture-side readback answers
 `{mask_valid, valid, fed}` = 1, 1, 1 on `obj_aclk`, whose lane is built and
 fed, and 1, 1, 0 on `obj_prune` beside the `SLIP_LB` zero above, so the pair
-separates a MEASURED absent lane from an unarmed word.
+separates a MEASURED absent lane from an UNMEASURED word, and a readback left
+un-armed fails `obj_prune` instead of passing it.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
