@@ -21,6 +21,26 @@ The `rtl` workflow shards the default suites; its physical job runs nightly
 and on manual dispatch. The `docs` workflow owns docs, matrix and builder gates.
 See [`docs/testing/TESTING.md`](../../docs/testing/TESTING.md) for verdict handling.
 
+Ethernet gPTP TX flags have independent root assertions (#422).
+`gptp_plane` checks every emitted Sync, Follow_Up and Pdelay_Req.
+`gptp_shadow` requires and checks all five Ethernet message types.
+The two product-on `milan_dp` harnesses check every captured type.
+Both require all five types after peer Announce expires.
+Peer Pdelay answers continue through that transition.
+The option-off NxN harness has no gPTP transmitter.
+`tsn_fuzz` grades every emitted flag word against both oracles:
+the pinned generator model and separately written root literals.
+Its complete TX log survives campaign resets.
+RX flag variants retain dispatch and pairing checks.
+Malformed framing, identity, domain and sequence controls remain active.
+
+Authority: Milan v1.2 4.2.6; IEEE 802.1AS-2011 with Cor1/Cor2,
+11.4.1 through 11.4.2.3 and Table 11-4.
+Sync and Pdelay_Resp transmit `0x0200`.
+Follow_Up, Pdelay_Req and Pdelay_Resp_Follow_Up transmit `0x0000`.
+Announce uses a separate flag table.
+Reserved bits and twoStepFlag remain ignored on reception.
+
 | Harness | DUT | What it proves | Run |
 |---------|-----|----------------|-----|
 | [`cbs/`](cbs) | `credit_based_shaper.sv` | 802.1Qav credit math (runtime config): bit-exact vs a cycle-accurate fixed-point replica, bounded vs an ideal continuous model, and the accrual/drain/reset/recovery, strict-priority bypass, back-pressure accrual and live-reconfig behaviours (87 k checks). | `cd cbs && make` |

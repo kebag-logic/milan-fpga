@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <verilated.h>
 #include "../../common/verilator_harness.hpp"
+#include "../../common/gptp_tx_flags.hpp"
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 
@@ -1439,7 +1440,24 @@ class GptpPlaneHarness {
     }
   }
 
-  int report() const {
+  // Keep answering Pdelay while the selected peer's Announce expires.
+  // The resulting GM Sync/Follow_Up and one peer request exercise all five
+  // Ethernet TX types at the MAC boundary (11.4.2.3/Table 11-4).
+  void emit_every_gptp_tx_flag_type(Vmilan_datapath *dut) {
+    Frame request = ptp(0x2, 0x7A00, 0, 0x0000, 20);
+    request.ts(0);
+    request.u64(0); request.u16(0);
+    send_wide(dut, request.b);
+    run_peer(dut, 8000000);
+  }
+
+  int report() {
+    milan::tb::GptpTxFlags tx_flags;
+    for (const auto& frame : tx_frames) tx_flags.observe(frame);
+    tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
+      expect(name, got, expected);
+    }, milan::tb::GptpTxFlags::all_types);
+
     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
     return fails ? 1 : 0;
   }
@@ -1467,6 +1485,7 @@ int GptpPlaneHarness::run() {
       prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_empty);
   prove_the_maximum_bounded_path_trace(dut, asp_withdrawn);
   prove_the_three_drop_counters_through_the_csr(dut);
+  emit_every_gptp_tx_flag_type(dut);
 
   return report();
 }

@@ -42,13 +42,13 @@ Simulation never becomes physical evidence.
 | AS-7 | 11.1–11.2 | Sync and Follow_Up operation | Imported engine and PHC | Donor; `gptp_plane` | Covered |
 | AS-8 | 11.2.19 | Peer delay and `asCapable` | Imported engine | Donor; `tsn_fuzz` | Covered |
 | AS-9 | 8.1, 10.6 | Domain zero and profile intervals | Generated microcode | Donor; `tsn_fuzz` | Covered |
-| AS-10 | 11.4 | Milan-selected message formats | Imported engine | `tsn_fuzz` | Covered |
+| AS-10 | 11.4 (11.4.1, 11.4.2.3, Table 11-4) | Milan-selected message formats; exact Ethernet TX flags; ignored RX flags | Imported engine | `tsn_fuzz`; `gptp_plane`; `gptp_shadow`; `milan_dp` | Covered |
 | AS-11 | 12–16 | Non-Ethernet media layers | None | Product scope | Not applicable |
 | AS-12 | 10.3, 10.6 | Traffic-independent receipt timing | Imported engine timers | Donor; `tsn_fuzz` | Partial |
 
 The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
 
-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf812178ea0e0ca843b5c332dd62414f701fad/docs/SOURCE_EVIDENCE.md) maps internals.
+The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/SOURCE_EVIDENCE.md) maps internals.
 
 ## Requirement mapping
 

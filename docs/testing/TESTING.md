@@ -173,13 +173,14 @@ These are operational deadlines, pending completed hosted physical evidence.
 The earlier hosted run expired at 2400 seconds.
 The reference machine needed approximately 2080 simulation seconds.
 That machine has an AMD EPYC 9554P, with 128 logical CPUs.
-Hosted slowdown therefore exceeds approximately 1.15; its upper bound remains unknown.
+Hosted slowdown therefore exceeded approximately 1.15; that run bounded it from below only.
+Completed hosted nightly runs of that scenario later measured a slowdown of up to 1.58.
 Four-core affinity and background load underpin the new local measurements.
 See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
 
 Every physical transition and original timer remains exercised.
 Four missed Pdelay intervals, recovery, and reset require physical seconds.
-The scenario still spans 12.992496440 simulated seconds.
+The scenario spans 16.992496440 simulated seconds over 849624822 cycles.
 The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
 Physical regressions are caught nightly, outside the PR aggregate.
 Run the identical suite on demand:

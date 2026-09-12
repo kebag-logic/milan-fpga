@@ -42,6 +42,7 @@
 #include <verilated.h>
 #include "Vgptp_plane_wrap.h"
 #include "../../common/verilator_harness.hpp"
+#include "../../common/gptp_tx_flags.hpp"
 
 constexpr uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint64_t PEER_CID = 0x0080E1FFFE112233ull;
@@ -109,9 +110,8 @@ static Frame ptp(uint8_t mtype, uint16_t seq, uint64_t corr,
 //! Follow_Up; the parser refuses anything shorter (FPGA-gPTP #11), which is
 //! why the bench cannot send the 44-octet shape it used to.
 static Frame follow_up(uint16_t seq, uint64_t origin_ns) {
-  // flags: ptpTimescale, "Reserved as TRUE, ignored on reception" for
-  // every message type (802.1AS-2011 Table 10-6, clause 10.5.2.2.6,
-  // octet 1 bit 3), which is what wire.py sends too
+  // RX tolerance: reserved 0x0008 is ignored (11.4.1). The strict
+  // transmitted value is zero under 11.4.2.3/Table 11-4.
   Frame g = ptp(0x8, seq, 0, 0x0008, 42);
   g.ts(origin_ns);
   g.u16(0x0003); g.u16(28);              // tlvType, lengthField (11.4.4.3.2/3)
@@ -169,6 +169,12 @@ class GptpPlaneHarness {
     prove_closed_loop_steers_the_real_counter();
     prove_grandmaster_follow_up_rides_the_real_counter();
     grade_every_stamp_return_tag();
+
+    milan::tb::GptpTxFlags tx_flags;
+    for (const auto& frame : txf) tx_flags.observe(frame);
+    tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
+      expect(name, got, expected);
+    }, (1u << 0) | (1u << 2) | (1u << 8));
 
     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
     return fails ? 1 : 0;

@@ -195,7 +195,7 @@ The peer-delay assertion and both payload assertions detected corruption.
 The focused compilation limit is at most four jobs.
 Smaller positive `VERILATOR_JOBS` values remain available.
 
-The original fixed-window scenario spans 14.443565400 simulated seconds.
+The original fixed-window scenario spans 18.443565400 simulated seconds over 922178270 cycles.
 The opt-in extended target retains those windows.
 The default now ends transition windows upon observed public state.
 Polling uses AXI-Lite every simulated millisecond.
@@ -217,7 +217,8 @@ No physical clock, protocol timer, or comparison threshold changes.
 
 The four missed intervals prevent a 600-second default run.
 Acquisition, recovery, and reset also require real Pdelay exchanges.
-The trimmed scenario still requires 12.992496440 simulated seconds.
+The trimmed scenario requires 16.992496440 simulated seconds over 849624822 cycles.
+The closing transmit-flag phase adds four simulated seconds.
 Consequently, the physical leg runs separately from the default sweep:
 
 ```sh
@@ -226,7 +227,8 @@ make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
 ```
 
 The wrapper calls the focused recipe and accounting regressions.
-The physical harness contributes 127 checks.
+The physical harness contributes 137 checks.
+Ten of them grade the transmitted flag words against Table 11-4.
 Setup-abort contributes six; two no-TX controls contribute twenty.
 The missing-response control contributes fourteen additional accounting checks.
 It preserves real unanswered requests and their failed response/publication assertions.
@@ -243,10 +245,10 @@ The former 2400-second hosted budget expired on 2026-09-07.
 Its twelve shard companions passed; the physical result remained unknown.
 The reference machine needed approximately 2080 simulation seconds.
 It uses an AMD EPYC 9554P with 128 logical CPUs.
-This establishes a hosted/local ratio above approximately 1.15.
-The killed run supplies no finite upper bound.
-The scheduling decision uses that conservative, unbounded end.
-It does not treat the lower bound as a prediction.
+That established a hosted/local ratio above approximately 1.15.
+The killed run supplied no finite upper bound.
+The scheduling decision used that conservative, unbounded end.
+It did not treat the lower bound as a prediction.
 
 Round-three measurements used Verilator 5.050 on 2026-09-07.
 Each experiment was confined to four distinct logical CPUs.
@@ -272,9 +274,9 @@ It improves complete local runtime by 2.65 percent.
 
 All three completed simulation transcripts are byte-identical.
 Their SHA-256 is `15e5f27266e8c56a28122492282012dbc4d6361a2b360780742321485886bdad`.
-They retain 649624822 cycles and 12.992496440 simulated seconds.
-Payload/order/sequence comparison counts remain 4981392/622672/103937.
-Every publication value, phase, and assertion result remains unchanged.
+They retained 649624822 cycles and 12.992496440 simulated seconds.
+Their payload/order/sequence comparison counts were 4981392/622672/103937.
+Every publication value, phase, and assertion result was identical across them.
 
 The killed hosted workload divided by the measured baseline exceeds 1.15408.
 The optimistic optimized projection therefore exceeds 2336.36 seconds.
@@ -283,6 +285,26 @@ A 30-percent margin would require at most 1680 seconds.
 Even its optimistic end misses that target substantially.
 The conservative, unbounded end therefore requires decision branch 2.
 The new nightly deadline remains an operational limit awaiting hosted evidence.
+
+The 2026-09-11 remeasurement covers the current scenario.
+It used Verilator 5.052, four compilation jobs, and four confined logical CPUs under background load.
+The fresh build, physical run, and accounting controls took 3303.16 wall seconds.
+The physical simulation alone took 2774.55 seconds for 16.992496440 simulated seconds.
+The whole suite therefore used 61 percent of its 5400-second deadline locally.
+Three hosted nightly runs of the previous scenario completed on 2026-09-08, 2026-09-10 and 2026-09-11.
+Their whole suites took 2730.79, 4021.27 and 4091.59 seconds.
+The two slower runs' physical simulations took 3208.32 and 3261.56 seconds.
+Hosted simulation therefore took up to 1.58 times the 2058.94-second local baseline.
+The projection scales the slowest hosted run.
+Scaling its simulation by the cycle ratio 849624822/649624822 projects 4265.7 seconds.
+The 830-second hosted remainder covers the build, image generation, and three accounting controls.
+That remainder does not scale with the span.
+The projected hosted suite time is therefore about 5096 seconds, 94 percent of the deadline.
+Scaling by the measured local slowdown of 1.3476 instead projects about 5225 seconds, 97 percent.
+The 5400-second deadline therefore still holds on projection, with a margin between 3 and 6 percent.
+The 120-minute job keeps more than 30 minutes of margin on the same projection.
+That margin is smaller than the 50 percent spread between the fastest and slowest hosted runs.
+A completed hosted run of the current scenario remains required to confirm the deadline.
 
 The original spans remain explicitly available:
 
@@ -293,6 +315,7 @@ make -C tb/verilator/milan_dp_gptp extended
 ```
 
 Extended mode retains every original fixed-duration audio window.
+The 2026-09-11 extended run passed 137 checks in 3052.05 simulation seconds.
 Both modes execute the same assertions and comparison thresholds.
 The new elapsed-interval assertion also checks four unanswered Pdelay intervals.
 Extended mode is excluded from the default sweep.
