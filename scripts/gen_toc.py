@@ -80,7 +80,9 @@ GENERATED_SCAN_LINES = 12
 #: and the rest MEAN depends on the block already open, which is why
 #: `blocks()` below and not this expression decides it.
 FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
-HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)\s*$")
+#: An ATX heading and its text, the optional closing sequence of hashes
+#: dropped as CommonMark 4.2 drops it ([R86] suggestion, round 4 on PR #428).
+HEAD_RE = re.compile(r"^(#{1,6}) +(.*?)(?:[ \t]+#+)?\s*$")
 #: Four spaces or a tab of indentation start an indented code block, which
 #: renders as code. Such a run cannot interrupt a paragraph but follows any
 #: block that closed (CommonMark 4.4: `# Heading` then `    foo`), so it
@@ -291,9 +293,8 @@ def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
     round 2, where `:-:` left the paragraph open).
     """
     if label != TEXT or not line.strip() or ATX_HEADING_RE.match(line) \
-            or THEMATIC_BREAK_RE.match(line):
-        return NO_PARAGRAPH
-    if para == PARAGRAPH and SETEXT_UNDERLINE_RE.match(line):
+            or THEMATIC_BREAK_RE.match(line) \
+            or (para == PARAGRAPH and SETEXT_UNDERLINE_RE.match(line)):
         return NO_PARAGRAPH
     item = LIST_ITEM_RE.match(line)
     interrupts = bool(item and item.group(2) and int(item.group(1) or 1) == 1)
@@ -501,8 +502,7 @@ def existing(
     while end < len(lines) and not (kinds[end] == TEXT
                                     and lines[end].startswith("## ")):
         end += 1
-    desc = {}
-    separator = None
+    desc, separator = {}, None
     for i in range(start, end):
         m = TOC_ENTRY_RE.match(lines[i]) if kinds[i] == TEXT else None
         if m:
@@ -616,9 +616,7 @@ def pages() -> Iterator[Path]:
     """
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
                          capture_output=True, text=True, check=True).stdout
-    for p in sorted(out.split("\0")):
-        if not p:
-            continue
+    for p in sorted(filter(None, out.split("\0"))):
         md = REPO / p
         if not md.is_file():
             if owns(p, ""):
@@ -673,11 +671,8 @@ Body.
 
 def _walk_arms() -> list[tuple[str, str, object]]:
     """The block walk's arms: (name, page, predicate over `blocks(page)`).
-
-    Every one of them was an escape or a false refusal measured on PR #384,
-    so each states the rule it holds rather than a shape it happens to
-    accept.
-    """
+    Every one was an escape or a false refusal measured on PR #384, so each
+    states the rule it holds rather than a shape it happens to accept."""
     tick, tilde = "`" * 3, "~" * 3
     return [
         ("a fence delimiter inside a comment opens no fence",
@@ -732,11 +727,9 @@ def _walk_arms() -> list[tuple[str, str, object]]:
          "<span>\n\n## Alpha\n\n</span>\n",
          lambda k: k[0] == HTML and k[2] == TEXT),
         ("a lone inline tag after visible text continues the paragraph",
-         "text\n<span>\n## Real\n</span>\n",
-         lambda k: k[:3] == [TEXT] * 3),
+         "text\n<span>\n## Real\n</span>\n", lambda k: k[:3] == [TEXT] * 3),
         ("a tag line carrying anything but the tag opens no type-7 block",
-         "<span>x\n## Real\n",
-         lambda k: k[:2] == [TEXT] * 2),
+         "<span>x\n## Real\n", lambda k: k[:2] == [TEXT] * 2),
         ("a comment opened after visible text leaves that line alone",
          "## Head <!-- note\n-->\n## B\n",
          lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
@@ -799,10 +792,12 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
     under `:-:`, and a footnote definition was read as paragraph text
     ([R86] F1, round 2); an indented line directly under a block that
     closed was read as paragraph text where CommonMark 4.4 has code ([R85]
-    F1, round 3). The `keeps` are lines after which a paragraph IS open:
-    the same tag continues it, and the heading renders, a delimiter row
-    that does not match its header row's cells, or is indented four
-    spaces, among them."""
+    F1, round 3); a list item interrupting a paragraph had no arm, so the
+    clause that lets it could go with every arm green ([R86] F1, round 4).
+    The `keeps` are lines after which a paragraph IS open, so the same tag
+    continues it and the heading renders: among them a delimiter row that
+    does not match its header row's cells or is indented four spaces, and
+    an empty item, which cannot interrupt a paragraph."""
     tick = "`" * 3
     hides = [
         ("an ATX heading", "## Alpha", ["alpha"]),
@@ -829,6 +824,11 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
          "# Heading\n    foo", ["heading"]),
         ("a tab-indented line under a heading", "# H\n\tcode", ["h"]),
         ("a pipeless delimiter row indented three spaces", "text\n   :-:", []),
+        ("a list item interrupting a paragraph", "text\n- item", []),
+        ("an ordered item interrupting a paragraph", "text\n1. item", []),
+        ("a plain line lazily continuing an item that interrupted a "
+         "paragraph", "text\n- item\nlazy", []),
+        ("a closed ATX heading", "## Alpha ##", ["alpha"]),
     ]
     # The five above that closed, an indented code line between ([R85] F1).
     closed = ("a closing fence", "a thematic break", "a closing comment line",
@@ -849,6 +849,7 @@ def _predecessor_arms() -> list[tuple[str, str, object]]:
          "a \\| b\n-|-"),
         ("a pipeless delimiter row indented four spaces", "text\n    :-:"),
         ("a pipeless delimiter row indented by a tab", "text\n\t:-:"),
+        ("an empty item that cannot interrupt a paragraph", "text\n*"),
     ]
     wrapped = "\n<span>\n## Old\n</span>\n\n## Beta\n"
     return ([(f"a lone tag directly under {what} hides the heading it wraps",
@@ -886,8 +887,7 @@ def _provenance_arms() -> list[tuple[str, str, object]]:
         ("a heading inside a tight type-6 block is no heading",
          "<div>\n## Alpha\n</div>\n\n## Beta\n", _expects(["beta"])),
         ("a heading inside a type-6 block that closed IS a heading",
-         "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n",
-         _expects(["alpha", "beta"])),
+         "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n", _expects(["alpha", "beta"])),
         ("a heading inside a tight type-7 block is no heading",
          "<span>\n## Alpha\n</span>\n\n## Beta\n", _expects(["beta"])),
         ("a heading after a tag that continues a paragraph IS a heading",
@@ -913,8 +913,7 @@ def selftest() -> int:
 
     They live here because this script owns the walk: a gate that carried
     its own copy of it refused a legitimate page and exempted three that
-    render nothing ([R0] rounds 4 and 5 on PR #384).
-    """
+    render nothing ([R0] rounds 4 and 5 on PR #384)."""
     problems = 0
     on_walk = _walk_arms() + _tag_arms()
     on_page = _provenance_arms() + _predecessor_arms()
@@ -944,7 +943,6 @@ def main() -> int:
 
     if "--selftest" in flags:
         return selftest()
-
     if "--verify-anchors" in flags:
         return verify_anchors()
 
