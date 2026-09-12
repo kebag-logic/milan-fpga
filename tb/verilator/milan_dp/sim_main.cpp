@@ -245,7 +245,7 @@ class MilanDatapathHarness {
     void prove_the_csr_identity_and_the_eth_guard() {
         printf("[CSR] identity + reset values\n");
         ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-        ck("VERSION",       axi_read(A_VERSION), 0x00020057);
+        ck("VERSION",       axi_read(A_VERSION), 0x00020058);
         // link guard: TB leaves the eth toggles static -> unarmed = inert
         // (alive/alive, RUN, no reinit) exactly like a no-PHY top
         ck("LINKG unarmed", axi_read(0x774), 0x00000003);

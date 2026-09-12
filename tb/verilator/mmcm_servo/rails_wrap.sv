@@ -82,8 +82,7 @@ module rails_wrap (
   wire [31:0] dbg_frame_unused_w;
 
   KL_i2s_playback #(
-    .FIFO_LOG2 (4),      //! 16-pair FIFO: rails observable in seconds
-    .PREFILL_C (0)
+    .FIFO_LOG2 (4)       //! 16-pair FIFO: rails observable in seconds
   ) i2spb (
     .clk_i        (clk_i),
     .recenter_p_i (1'b0),

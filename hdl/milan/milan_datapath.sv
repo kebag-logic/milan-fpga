@@ -134,8 +134,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! below refuses the combination). 0 (default) = every existing shape,
   //! byte-identical.
   parameter int AUDIO_IF_I2S_PAIR_P = 0,
-parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
-                                   //! TBs shrink it to keep injections short)
   //! task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket
   //! (SRC_LOOP = 5) to the depacketizer payload clone, so a talker slot
   //! naming a loopback AUDIO_CLUSTER really carries that received channel
@@ -157,9 +155,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   parameter int LPF_P = 1,
   //! KL_ptp_clock_validity time base: cycles per 250 ms quarter-tick. The
   //! real value is MILAN_CLK_FREQ_HZ/4; simulation shapes shrink it so a
-  //! grandmaster holdover and an observation interval are reachable in a TB run
-  //! (the -GPB_PREFILL_C precedent). Never shrink it in a real build - the
-  //! Milan Annex B.1.1 holdover is 0.25 s of WALL time.
+  //! grandmaster holdover and an observation interval are reachable in a TB
+  //! run. Never shrink it in a real build - the Milan Annex B.1.1 holdover is
+  //! 0.25 s of WALL time.
   parameter int CLKV_QTICK_CYC_P = MILAN_CLK_FREQ_HZ / 4,
   // ==========================================================================
   //  OPTIONAL-BLOCK PRUNE PARAMETERS (docs/design/AREA_BUDGET.md tier 1).
@@ -1011,8 +1009,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]              lb_tap_tuser_w  /* verilator public_flat_rd */;
   wire [LB_STREAMS_C*4-1:0] lb_tap_chans_w;
   //! 0x0036 queue slip evidence, TB-observable (same discipline as
-  //! rend_pcm_tvalid_w below): not CSR-mapped yet - the debug-window word
-  //! is the documented follow-up
+  //! rend_pcm_tvalid_w below) and, since #390, CSR-readable at SLIP_LB
+  //! 0x8D4 (the csr instance below packs {skip, dup})
   wire [15:0] lb_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
   //! #74: the fsync-grid-vs-media-grid slip at the TDM hold junction. The
@@ -2351,6 +2349,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_ltap_regs        (ltap_regs_w),
     .i_ltap_status      (ltap_status_w),
     .i_aprb_regs        (aprb_regs_w),
+    //! #390: the media-boundary slip evidence, {skip16, dup16} per junction
+    .i_slip_lb          ({lb_skip_cnt_w, lb_dup_cnt_w}),
+    .i_slip_tdm         ({tdm_skip_cnt_w, tdm_dup_cnt_w}),
     .o_ltap_en          (ltap_en_w),
     .o_ltap_clr         (ltap_clr_w),
     .o_chmap_enable     (cfg_chmap_enable),
@@ -5701,7 +5702,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   generate if (I2SPB_P != 0) begin : g_i2s_player
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
-                    .PREFILL_C(PB_PREFILL_C),
                     //! task #28 (USER: constant source-invariant latency,
                     //! samples picked as soon as possible): the setpoint =
                     //! the packetization floor - one class-A frame of this

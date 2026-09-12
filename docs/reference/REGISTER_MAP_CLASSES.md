@@ -4,8 +4,8 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
-refreshed at VERSION `0x0002_0057` for the sole fabric gPTP owner and the
-ownerless option-OFF elaboration.
+refreshed at VERSION `0x0002_0058` for the sole fabric gPTP owner, the
+ownerless option-OFF elaboration and the media-boundary slip counters.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
 > ACMP, AECP/AEM and lwSRP RTL was deleted in favour of the pinned
@@ -72,12 +72,12 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 <!-- milan-feature-status:end -->
 
-| Region | Group | Class | VERSION 0x0056 truth | Rationale |
+| Region | Group | Class | VERSION 0x0058 truth | Rationale |
 |---|---|---|---|---|
-| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_0056`) |
+| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_0058`) |
 | `0x204+` | STATS_CAP + RMON counters | **needed** | live | STATS_CAP's declared-unsupported honesty is contract; RMON feeds MAC-level field triage |
 | `0x4xx` | CBS queue window, classifier map | **needed** | live | Production traffic-class configuration; boot software programs it |
 | `0x600–0x65x` | Identity + enables (ADP_CTRL, AAF_CTRL, …) | **needed** | **split** | `S50milan` writes these every boot. `ADP_CTRL.en` is still an entity enable — it is **ORed with `PP_CTRL[0]`**, deliberately, because it is the bit every existing board script writes and there is only one control plane now. But the ADPDU *content* words (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) and the advertise/depart strobes are **WRITE-ONLY SCRATCH**: the processor's ADP engine holds those as internal constants and exposes no port, so a write reads back and **changes nothing observable** |
@@ -101,7 +101,8 @@ assumption that AECP answers only one command.
 | `0x7DC–0x7E4` | retired AS_PATH publication addresses | **needed** (ABI) | inert LO/HI; live fabric status / zero option OFF | The fabric engine supplies the full bounded PathTrace, preserving count zero for a selected no-TLV Announce. LO/HI always read zero and every legacy write is inert; 0x7E4 reports the live fabric generation/count or zero in option OFF. Table 5.22 compares `(count ? GM : 0, count, active tails)`: fabric 0/1 is a real edge, fabric GM changes at count zero are silent, and GM=0 or inactive bytes remain silent. Solicited responses snapshot the complete fabric path at the first count request |
 | `0x800–0x868` | Stream window (SEL/SID/FMT/CTRL/DMAC + per-stream RO views incl `A_STRMW_SRP`/`_CNT`) | **needed** | **mostly live** | The write half provisions the stream table and the RO views are the per-stream field picture — both unaffected. Two sub-ports inside the window are structural zeros: the **ACMP context-table read** (grant never asserts, record reads zero) and the **SRP attribute-row port** (no grant, no "stolen", readback zero) |
 | `0x8B4–0x8C4` | APRB (RX stream-parser probe) | **debug** | live | The pre-match listener view — a scope instrument. Feature-gated (`datapath_probes`) |
-| `0x8C8–0x8D0` | PBK (fabric render-chain probe) | **debug** | live | Same class, same gate |
+| `0x8C8–0x8D0` | PBK (fabric render-chain probe) | **debug** | **STRUCTURAL ZERO** | Retired with the render-chain telemetry it watched. `milan_csr` answers the whole `A_RSVD_GAP_BASE` to `A_RSVD_GAP_END` range with a literal zero, unconditionally: no input port drives it, and the `datapath_probes` (`DPROBES_P`) arm gates only the APRB group in the row above, so no build restores these three words. Writes cannot reach them either (the same `>= 0x800` carve-out as `0x8F8`). The zero is therefore never "the probe was not built". Render-chain triage uses the chmap readback (`0x910`/`0x914`), the Listener and depacketizer counters, and the `0x8D4` slip pair below |
+| `0x8D4–0x8D8` | SLIP (loopback-ring and TDM-junction dup/skip counters) | **optional** | live | Field observability of the media boundary through a validated CSR session: static = one grid, climbing = the INTERNAL free-run plan or a peer off this media clock. `SLIP_LB` is a structural zero on a shape built without the loopback lane |
 | `0x8F8` | MCSRV_STAT (media-clock servo) | **optional** | **reads its IDLE** | Not a structural zero: the servo is built and, since #74, its selector input follows the live clock-source resolve, so it leaves idle when a controller selects the CRF source. At the power-on INTERNAL selection it reads IDLE honestly, and a reader still cannot distinguish "no servo built" (`MCSERVO_P = 0`) from "servo idle" here — check the build plan, not the register |
 | `0x900–0x908` | Raw chmap WRITE window | **needed** (was *debug*) | live | **RECLASSIFIED.** This is the direct diagnostic programmer of both map RAMs, and `CHMAP_CTRL[0]` is also the local crossbar arm. The processor separately serves GET, ADD, and REMOVE_AUDIO_MAPPINGS against the same live stores. Saved-state restoration remains absent |
 | `0x90C` | CHMAP_STAT | **optional** | live | Reports committed CSR writes and CSR writes refused while the local override is disarmed or entity-locked. It does not tally AECP mapping changes |

@@ -112,6 +112,7 @@ class ChanMapCaptureHarness {
   void pin_mono_wire_rides_the_skid();
   void pin_all_32_pairs_concurrent();
   void pin_tone_one_grid_contract();
+  void pin_starved_pair_pegs_and_holds();
 
   const milan::tb::Model<Vchmap_wrap> model_;
   Vchmap_wrap* dut = model_.get();
@@ -1377,11 +1378,43 @@ int ChanMapCaptureHarness::run() {
   pin_mono_wire_rides_the_skid();
   pin_all_32_pairs_concurrent();
   pin_tone_one_grid_contract();
+  pin_starved_pair_pegs_and_holds();
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",
          checks, fails, fails ? "FAIL" : "PASS");
   return fails ? 1 : 0;
+}
+
+void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {
+  // ====================================================================== //
+  // [SAT] THE CEILING, AT THE SOURCE (#390, REGISTER_MAP.md 0x8D4). A     //
+  // primed, fed pair counts one dup per starved tick, the count saturates //
+  // at 0xFFFF and holds, and a bind wipe un-primes without clearing. The  //
+  // TDM half rides the same ticks: fed once, every tick with no marker is //
+  // a dup, saturating alike. The csr suite pins the CSR pass-through of a //
+  // saturated tap; this is the counter itself reaching the ceiling. Last  //
+  // phase by design: both dup halves are spent from here on.              //
+  // ====================================================================== //
+  printf("\n[SAT] a starved pair pegs its dup count at 0xFFFF and holds\n");
+  dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+  lb_set_chans(4, 2);
+  drv_lb_pdu(4, 2, 2, 1);            // s4 p0 primed and fed with two events
+  a_map_wr(1, ent_lb(1, 4, 0));
+  drv_tdm(0, 0x191919, 0x1A1A1A);    // the TDM half fed (one frame pending)
+  cyc(4);
+  for (int i = 0; i < 3 + 65536; i++) a_tick();   // 2 pops (1 frame), then starved
+  ck("SAT: the LB dup half reads 0xFFFF after 65536 starved ticks",
+     dut->a_dup_cnt_o, 0xFFFF);
+  ck("SAT: the TDM dup half reads 0xFFFF on the same ticks",
+     dut->a_tdm_dup_cnt_o, 0xFFFF);
+  for (int i = 0; i < 8; i++) a_tick();
+  ck("SAT: the LB dup half holds at the ceiling", dut->a_dup_cnt_o, 0xFFFF);
+  ck("SAT: the TDM dup half holds at the ceiling", dut->a_tdm_dup_cnt_o, 0xFFFF);
+  dut->a_lb_flush_i = 1u << 4; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+  for (int i = 0; i < 4; i++) a_tick();
+  ck("SAT: a bind wipe un-primes the pair and leaves the count at 0xFFFF",
+     dut->a_dup_cnt_o, 0xFFFF);
 }
 
 }  // namespace
