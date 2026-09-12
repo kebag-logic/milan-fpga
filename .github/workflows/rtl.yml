@@ -452,6 +452,9 @@ jobs:
         shard: [0, 1, 2, 3]
         total: [4]
     steps:
+      - name: Inserted step for the acceptance-5 measurement
+        run: echo measuring
+
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
