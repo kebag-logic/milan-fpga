@@ -123,6 +123,29 @@ class PrunedShapeHarness {
     void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
     void step() { lo(); hi(); }
 
+    //! docs/reference/REGISTER_MAP.md's structural-zero paragraph tells a
+    //! reader to ESTABLISH THE LANE before believing a `SLIP_LB` zero, and
+    //! offers `CHMAP_LOOP[17]` fed at 0x914 as the pointer. This executes
+    //! it: arm a CAPTURE-side map readback and return
+    //! {mask_valid, valid, loop_fed}. [27] mask_valid is what makes [17] a
+    //! measurement rather than a structural zero, so all three ride in ONE
+    //! graded word, and the two ring legs are the discriminator - 7 on
+    //! obj_aclk (lane built and fed), 6 on obj_prune (LOOPBACK_P = 0).
+    unsigned chmap_loop_lane_flags(unsigned key) {
+        constexpr uint16_t A_CHMAP_SEL = 0x904;
+        constexpr uint16_t A_CHMAP_SNAP = 0x910;
+        constexpr uint16_t A_CHMAP_LOOP = 0x914;
+        constexpr int kSnapPolls = 64;
+        axi_write(A_CHMAP_SEL, 0x100u | key);        // 0x100 = capture side
+        axi_write(A_CHMAP_SNAP, 1);                  // W1S arm
+        for (int g = 0; g < kSnapPolls; g++) {
+            if ((axi_read(A_CHMAP_SNAP) & 1u) == 0) break;
+        }
+        const uint32_t v = axi_read(A_CHMAP_LOOP);
+        return (((v >> 27) & 1u) << 2) | (((v >> 26) & 1u) << 1) |
+               ((v >> 17) & 1u);
+    }
+
     void axi_write(uint16_t a, uint32_t d) {
         dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
         dut->s_axi_wdata = d;  dut->s_axi_wvalid = 1; dut->s_axi_wstrb = 0xF;
@@ -432,6 +455,13 @@ class PrunedShapeHarness {
         }
         ck("SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0)",
            axi_read(A_SLIP_LB), 0);
+        //! ...and the SAME zero read with the lane ESTABLISHED, the
+        //! instruction REGISTER_MAP.md gives and that nothing executed until
+        //! now: the capture readback answers mask_valid and valid 1 with
+        //! loop_fed 0, so the SLIP_LB zero above is a MEASURED absent lane,
+        //! never an unarmed word. obj_aclk reads 7 for the same three bits.
+        ck("CHMAP_LOOP {mask_valid, valid, fed}: no lane",
+           chmap_loop_lane_flags(0), 6);
         ck("MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT1), 0);
         ck("MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT0), 0);
         ck("I2SPB_STAT STILL 0 after traffic", axi_read(A_I2SPB_STAT), 0);

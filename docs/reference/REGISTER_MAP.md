@@ -1731,6 +1731,11 @@ before reading the word: the build's config sets
 is what sets `LOOPBACK_P`; without it the AEM model's loopback clusters are
 model-only), and on a `CHMAP_RDBK_P` build a mapped loopback entry reads
 `CHMAP_LOOP[17]` fed = 1 (`0x914`, next section) once audio has reached it.
+Both ring legs of `tb/verilator/milan_dp` execute that instruction rather
+than only stating it: the capture-side readback answers
+`{mask_valid, valid, fed}` = 1, 1, 1 on `obj_aclk`, whose lane is built and
+fed, and 1, 1, 0 on `obj_prune` beside the `SLIP_LB` zero above, so the pair
+separates a MEASURED absent lane from an unarmed word.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
