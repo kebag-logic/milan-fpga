@@ -8,15 +8,20 @@ repository: the one walk, every rule that decides what a line is, and the
 runner that scores these tables. None of that may live anywhere else, and
 none of it moved here. THIS module owns no rule and no decision. It is
 data: each arm is a name, a fixture page, and the answer that page must
-produce, in five families - the block walk, the type-7 opener, the ATX
-closing sequence, the lines a lone tag may follow, and provenance. An arm
-here says what the generator must answer; `gen_toc.py` says why.
+produce, in six families - the block walk, the type-7 opener, the two
+guards that hold these tables, the ATX closing sequence, the lines a lone
+tag may follow, and provenance. An arm here says what the generator must
+answer; `gen_toc.py` says why. The guard family is the one that carries
+no page: its arms score the guards themselves and ignore theirs.
 
 Split off in round 6 of PR #428 ([R86] suggestion, round 5): the tables
 had grown to where the two halves together ran past rule 12's long-module
 ratchet (docs/development/CODE_QUALITY.md), and the tables are the half
-that carries no classification code. `gen_toc.selftest()` imports the five
-families from inside its own body, so the import below is not a cycle.
+that carries no classification code. `gen_toc.selftest()` imports the
+families from inside its own body, so the import below is not a cycle, and
+it registers itself under its own name first so that this module's import
+binds the runner's own walk rather than a second copy of the file ([R85]
+suggestion, round 6).
 """
 from pathlib import Path
 
@@ -53,8 +58,9 @@ def walk_arms() -> list[tuple[str, str, object]]:
     Every one was an escape or a false refusal measured on PR #384, so each
     states the rule it holds rather than a shape it happens to accept.
 
-    Round 7 adds five, one per bound the systematic enumeration of round 7
-    found with no arm: the blank line an indented code run carries (which
+    Round 7 adds four and extends a fifth, one per bound the systematic
+    enumeration of that round found with no arm: the blank line an
+    indented code run carries (which
     round 6 measured as pre-existing and unreachable, and which is cheaper
     to hold than to argue), a type-6 block interrupting a paragraph where
     a type-7 block may not, the closer of an INDENTED fence, a closer

@@ -208,10 +208,11 @@ def blocks(text: str) -> list[str]:
     on PR #384. Two other gates carry a fence and comment toggle of their
     own, for a different question (`docs_check.py` scopes a wording
     deny-list, `check_feature_status.py` scopes status tables); neither
-    decides what a line IS ([R86] suggestion, round 6 on PR #428). It is a single state machine, so the
-    block already open decides what a delimiter means -- a fence delimiter
-    inside an HTML comment does not open a fence, and a comment delimiter
-    inside a fence does not open a comment ([R0] round 5 F3, where a
+    decides what a line IS ([R86] suggestion, round 6 on PR #428). It is a
+    single state machine, so the block already open decides what a
+    delimiter means -- a fence delimiter inside an HTML comment does not
+    open a fence, and a comment delimiter inside a fence does not open a
+    comment ([R0] round 5 F3, where a
     three-backtick line inside an old comment made this walk refuse a
     legitimate page).
 
