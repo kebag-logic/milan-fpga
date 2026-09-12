@@ -188,6 +188,12 @@ Gates (gaps item 4, generator round):
       the flow tail its own launcher appends and `--build` included, because
       a guard that reads args.build is invisible to every shape gate in the
       tree.  Two recipes could not launch at all until this gate ran.
+  32. THE KEY MAP IS COMPLETE (issue #404): every config key load_config
+      accepts has a row in docs/ENDSTATION_BUILDER.md section 3 and every
+      key the table names is one the loaders accept.  The key set is what
+      the loaders READ (by [], get, in or enumeration; never listed here)
+      on the paths the five tracked configs take; a key read on a loader
+      path none takes is outside it, by rule (the gate prints that census).
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -223,9 +229,10 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Callable
+import types
+from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any, NamedTuple, NoReturn
 
 #: Every path constant below is a `pathlib.Path`, and so is every path this
 #: module derives from one.  The one deliberate exception is `sys.path`, which
@@ -16209,6 +16216,437 @@ def test_milan_base_formats_are_rate_complete() -> None:
           f"{DESC_LINE_BYTES}-octet line buffer")
 
 
+# ------------------------------------------------ gate 32: the key map -----
+BUILDER_DOC_MD = ROOT / "docs/ENDSTATION_BUILDER.md"
+#: The heading the key map sits under; the section ends at the next `## `.
+KEY_MAP_HEADING = "## 3. Config schema"
+#: One backticked config key in the table's key column: a top-level name or
+#: a dotted path whose segments are names or `[]` (a list element), with at
+#: most one `{a,b}` group that expands to one path per name.
+KEY_TOKEN_RE = re.compile(
+    r"`([a-z_][a-z0-9_]*(?:\.(?:[a-z0-9_]+|\{[a-z0-9_,]+\})(?:\[\])?)*)`")
+
+
+def _reading_code() -> types.CodeType | None:
+    """The endstation_builder.py function nearest the top of the stack:
+    the loader whose read the recording document is noting (None when the
+    read came from outside the builder)."""
+    frame = sys._getframe(1)
+    while frame is not None and frame.f_code.co_filename != eb.__file__:
+        frame = frame.f_back
+    return frame.f_code if frame is not None else None
+
+
+class _KeyRecorder(dict):
+    """A config mapping that remembers every key path the loaders read.
+
+    `load_config` runs UNCHANGED over one of these. A child mapping (or a
+    list of mappings) comes back wrapped, so its reads land under the
+    parent's path with `[]` standing for a list element. A key the loader
+    reads with a default, or tests with `in`, is recorded whether or not the
+    config declares it - which is what makes the union over the tracked
+    configs the LOADERS' key set rather than the configs'. The overridden
+    `__iter__` also routes `set(raw)`, `dict.update(raw)` and `**raw`
+    through `keys()` and `__getitem__`, so an enumerating loader records
+    the keys it enumerates too. Given `readers`, every read also records
+    the endstation_builder.py function that made it (`_untaken_arms`'s
+    reader set); gate 32's own key set passes none.
+    """
+
+    def __init__(self, data: dict, path: str, seen: set[str],
+                 readers: set[types.CodeType] | None = None) -> None:
+        super().__init__(data)
+        self._path, self._seen, self._readers = path, seen, readers
+
+    def _note(self, key: object) -> str:
+        path = f"{self._path}.{key}" if self._path else str(key)
+        self._seen.add(path)
+        if self._readers is not None and (code := _reading_code()) is not None:
+            self._readers.add(code)
+        return path
+
+    def __getitem__(self, key: object) -> Any:
+        value, path = dict.__getitem__(self, key), self._note(key)
+        if isinstance(value, dict):
+            return _KeyRecorder(value, path, self._seen, self._readers)
+        if isinstance(value, list) and value and all(
+                isinstance(v, dict) for v in value):
+            return [_KeyRecorder(v, path + "[]", self._seen, self._readers)
+                    for v in value]
+        return value
+
+    def get(self, key: object, default: Any = None) -> Any:
+        """The wrapped value, or `default`; the key is recorded either way."""
+        if dict.__contains__(self, key):
+            return self[key]
+        self._note(key)
+        return default
+
+    def __contains__(self, key: object) -> bool:
+        self._note(key)
+        return dict.__contains__(self, key)
+
+    def __iter__(self) -> Iterator[Any]:
+        for key in dict.__iter__(self):
+            self._note(key)
+            yield key
+
+    def keys(self) -> list[Any]:
+        """The keys, each recorded (dict.update and `**raw` come through here)."""
+        return list(iter(self))
+
+    def items(self) -> list[tuple[Any, Any]]:
+        """(key, wrapped value) pairs, each key recorded."""
+        return [(k, self[k]) for k in self]
+
+    def values(self) -> list[Any]:
+        """The wrapped values, each key recorded."""
+        return [self[k] for k in self]
+
+
+def _loader_key_paths() -> set[str]:
+    """Every config key `load_config` accepts, read off the loaders.
+
+    The five tracked configs are loaded through a recording document, and
+    the union of what the loaders touched is the key set - a key gets a
+    path here by being READ (through the document's `[]`, `get`, `in`
+    and enumeration), never by being listed. That is also the set's
+    bound: it holds what the loaders read on the paths those five
+    configs take, so a key read only on a branch none of them exercises
+    is never recorded and passes gate 32 without a row until a tracked
+    config takes that path. That class is stated by rule, not by count,
+    and it includes the one-sided branches of conditional expressions
+    and `or` fallbacks, not only statement arms: such as, in
+    endstation_builder.py, the AES3/S-PDIF serial-clock arm of
+    `_load_interface` (3571 to 3579; the tracked kinds are i2s_philips,
+    tdm8 and tdm32), the literal `entity_model_id` arm of `load_config`
+    (3726; every tracked config says hash-derived, and arty_current's
+    `model_id_pin` wins before it), the `map_page` arm of `_streams`
+    (1214 to 1218; no tracked stream declares map_page), the explicit
+    `entity_id` operand of `_load_entity` (the conditional expression at
+    3234; every tracked config says mac-derived), the no-pilot operand of
+    `_role_pool` (the conditional expression at 1293; both role-pools
+    configs declare a pilot pool) and the `or {}` fallback of
+    `_load_cluster_pools` (3448; every tracked config declares
+    cluster_mapping). Those are examples, not the list: `_untaken_arms`
+    derives today's list by a branch census over the same five loads,
+    and gate 32 prints it as a report line without failing on it.
+    A path a loader only descended through (a section, a list) is a
+    container, not a key, and is dropped. The two loaders that
+    accept by TABLE rather than by read (`load_platform`: `set(raw) -
+    set(PLATFORM_DEFAULTS)`, `_load_soc`: `dict(SOC_DEFAULTS, **soc_raw)`)
+    only touch the keys a config declares, so their accept tables are
+    imported - the loaders' own constants, not a restatement.
+    """
+    seen: set[str] = set()
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(
+        safe_load=lambda fh: _KeyRecorder(real_yaml.safe_load(fh), "", seen))
+    try:
+        for path in CONFIGS.values():
+            eb.load_config(str(path))
+    finally:
+        eb.yaml = real_yaml
+    leaves = {p for p in seen
+              if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
+    leaves |= {f"platform.{k}" for k in eb.PLATFORM_DEFAULTS}
+    leaves |= {f"soc.{k}" for k in eb.SOC_DEFAULTS}
+    return leaves
+
+
+class _Flow(NamedTuple):
+    """One code object's control flow as `_untaken_arms` reads it: the
+    instructions and fall-through successors by offset, where each jump
+    lands (a `for`'s exhaust past its END_FOR and pop), how many
+    predecessors reach each offset (exception edges aside) and the source
+    position of every code unit."""
+    instructions: dict[int, Any]
+    following: dict[int, int]
+    targets: dict[int, int]
+    preds: collections.Counter
+    positions: list[tuple[int | None, int | None, int | None, int | None]]
+
+
+#: The instructions that leave a basic block without falling through: the
+#: unconditional jumps, then the returns and raises.
+_ALWAYS_JUMPS = frozenset({"JUMP_FORWARD", "JUMP_BACKWARD", "JUMP_BACKWARD_NO_INTERRUPT", "JUMP"})
+_NO_FALL_THROUGH = _ALWAYS_JUMPS | {"RETURN_VALUE", "RETURN_CONST", "RAISE_VARARGS", "RERAISE"}
+
+
+def _control_flow(code: types.CodeType) -> _Flow:
+    """The `_Flow` of one code object. `dis` is imported here rather than at
+    the top of the module so that no line the page cites moves."""
+    import dis
+    jumps = frozenset(getattr(dis, "hasjump", None) or dis.hasjrel + dis.hasjabs)
+    listed = list(dis.get_instructions(code))
+    following = {a.offset: b.offset for a, b in zip(listed, listed[1:])}
+    by_offset = {i.offset: i for i in listed}
+    targets: dict[int, int] = {}
+    preds: collections.Counter = collections.Counter()
+    for instr in listed:
+        if instr.opname not in _NO_FALL_THROUGH and instr.offset in following:
+            preds[following[instr.offset]] += 1
+        if instr.opcode in jumps:
+            landing = instr.argval
+            while (instr.opname == "FOR_ITER"
+                   and by_offset[landing].opname in ("END_FOR", "POP_ITER", "POP_TOP")):
+                landing = following[landing]
+            targets[instr.offset] = landing
+            preds[instr.argval] += 1
+    return _Flow(by_offset, following, targets, preds, list(code.co_positions()))
+
+
+def _untaken_side(flow: _Flow, offset: int, taken: set[int]) -> int | None:
+    """Where the branch at `offset` never went (None when it went both ways,
+    or is no jump): its fall-through past 3.14's NOT_TAKEN when every
+    destination taken was the jump, else where its jump lands; an
+    unconditional jump there is followed to where IT lands, which is where
+    a read would run (a guard inside a `for` body continues the loop
+    through its own JUMP_BACKWARD, so the loop head is that side)."""
+    if offset not in flow.targets:
+        return None
+    fall = flow.following.get(offset)
+    while fall is not None and flow.instructions[fall].opname == "NOT_TAKEN":
+        fall = flow.following.get(fall)
+    if fall in taken and any(d != fall for d in taken):
+        return None
+    side = fall if fall not in taken else flow.targets[offset]
+    while side is not None and flow.instructions[side].opname in _ALWAYS_JUMPS:
+        side = flow.instructions[side].argval
+    return side
+
+
+def _innermost(statements: list[ast.stmt], line: int, col: int) -> ast.stmt | None:
+    """The innermost statement holding source position (line, col)."""
+    inner = None
+    for stmt in statements:
+        if ((stmt.lineno, stmt.col_offset) <= (line, col)
+                <= (stmt.end_lineno, stmt.end_col_offset)
+                and (inner is None
+                     or (stmt.lineno, stmt.col_offset) >= (inner.lineno, inner.col_offset))):
+            inner = stmt
+    return inner
+
+
+def _arm_kind(statements: list[ast.stmt], at: tuple[int, int],
+              branch: tuple[int, int]) -> str:
+    """What a key read at source position `at` of endstation_builder.py
+    would be, `branch` being the position of the one-sided branch that
+    never reached it: 'arm' when the read would run there and on no path
+    the tracked loads take; 'refusal' for a raise or assert, or an operand
+    of a guard whose body only raises (a read there never reaches a config
+    load_config accepts); 'entry' for the start of the branch's own
+    statement, which no source path lands on (3.14 re-enters it for an
+    inlined any/all); 'outside' any statement."""
+    inner = _innermost(statements, *at)
+    if inner is None:
+        return "outside"
+    if isinstance(inner, (ast.Raise, ast.Assert)):
+        return "refusal"
+    test = getattr(inner, "test", None)
+    if test is None:
+        return "arm"
+    if at == (test.lineno, test.col_offset) and _innermost(statements, *branch) is inner:
+        return "entry"
+    in_test = (test.lineno, test.col_offset) < at <= (test.end_lineno, test.end_col_offset)
+    if in_test and all(isinstance(s, ast.Raise) for s in inner.body):
+        return "refusal"
+    return "arm"
+
+
+def _branch_destinations(
+        readers: set[types.CodeType]) -> dict[tuple[types.CodeType, int], set[int]] | None:
+    """{(code, branch offset): destination offsets taken} for every
+    conditional branch endstation_builder.py executed while the five
+    tracked configs loaded through the recording document, `readers`
+    filling with the code objects that read the document. Measured with
+    sys.monitoring's branch events; None on an interpreter without them
+    (before 3.12) or whose coverage tool id another tool holds."""
+    mon = getattr(sys, "monitoring", None)
+    if mon is None:
+        return None
+    names = [n for n in ("BRANCH_LEFT", "BRANCH_RIGHT") if hasattr(mon.events, n)] or ["BRANCH"]
+    taken: dict[tuple[types.CodeType, int], set[int]] = {}
+
+    def on_branch(code: types.CodeType, offset: int, dest: int) -> None:
+        """One branch event: the destination a builder branch just took."""
+        if code.co_filename == eb.__file__:
+            taken.setdefault((code, offset), set()).add(dest)
+
+    try:
+        mon.use_tool_id(mon.COVERAGE_ID, "gate 32 arm census")
+    except ValueError:
+        return None
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(safe_load=lambda fh: _KeyRecorder(
+        real_yaml.safe_load(fh), "", set(), readers))
+    try:
+        events = 0
+        for name in names:
+            mon.register_callback(mon.COVERAGE_ID, getattr(mon.events, name), on_branch)
+            events |= getattr(mon.events, name)
+        mon.set_events(mon.COVERAGE_ID, events)
+        for path in CONFIGS.values():
+            eb.load_config(str(path))
+    finally:
+        mon.set_events(mon.COVERAGE_ID, 0)
+        mon.free_tool_id(mon.COVERAGE_ID)
+        eb.yaml = real_yaml
+    return taken
+
+
+def _untaken_arms() -> list[int] | None:
+    """The census gate 32 prints: the line of every branch arm of the loaders
+    that none of the five tracked loads took, where a key read would
+    therefore go unrecorded. The method is a branch census: sys.monitoring
+    branch events over the five loads, restricted to the
+    endstation_builder.py functions that read the raw document, keeping
+    each branch that went one way only, and dropping an untaken side that
+    lands on a join (an offset another path also reaches, so a read there
+    IS recorded), on a refusal or on a compiler re-entry (`_arm_kind`). A
+    report, not a bound: it neither widens nor narrows what gate 32 passes,
+    and a raise out of here is reported, not raised (`_census_line`). None
+    when the interpreter cannot measure it (`_branch_destinations`)."""
+    readers: set[types.CodeType] = set()
+    taken = _branch_destinations(readers)
+    if taken is None:
+        return None
+    tree = ast.parse(Path(eb.__file__).read_text(encoding="utf-8"))
+    statements = [n for n in ast.walk(tree) if isinstance(n, ast.stmt)]
+    flows: dict[types.CodeType, _Flow] = {}
+    lines: set[int] = set()
+    for (code, offset), dests in taken.items():
+        if code not in readers:
+            continue
+        if code not in flows:
+            flows[code] = _control_flow(code)
+        flow = flows[code]
+        untaken = _untaken_side(flow, offset, dests)
+        if untaken is None or flow.preds[untaken] > 1:
+            continue
+        line, _, col, _ = flow.positions[untaken // 2]
+        branch_line, _, branch_col, _ = flow.positions[offset // 2]
+        if line is not None and _arm_kind(
+                statements, (line, col), (branch_line, branch_col)) == "arm":
+            lines.add(line)
+    return sorted(lines)
+
+
+def _census_line() -> str:
+    """Gate 32's census report line, and the one place that decides what
+    "not measured" means. The census is a report and never a pass criterion,
+    so NO way of failing to produce a list may reach the gate's verdict:
+    `_untaken_arms` returns None for the two interpreter cases it declares,
+    and whatever it RAISES is reported the same way rather than failing a
+    gate whose criteria are the key map and the two planted defects. The
+    raise is not hypothetical - `_untaken_side` and `_arm_kind` reason over
+    CPython bytecode shapes that move between releases, and this file
+    already special-cases 3.14's NOT_TAKEN and POP_ITER."""
+    try:
+        arms = _untaken_arms()
+    except Exception as exc:                              # noqa: BLE001
+        return f"not measured ({type(exc).__name__}: {exc})"
+    if arms is None:
+        return ("not measured (branch events need Python 3.12+ and a free"
+                " coverage tool id)")
+    return (f"{len(arms)} untaken loader arms, where a key read is not "
+            "recorded: "
+            + " ".join(f"endstation_builder.py:{n}" for n in arms))
+
+
+def _raising_census() -> list[int] | None:
+    """A census that fails the way a bytecode change in a future interpreter
+    would. `_census_line`'s soft handling is what the gate's raising-census
+    arm plants this in place of."""
+    raise RuntimeError("planted census failure")
+
+
+def _key_map_rows(doc: str) -> dict[str, list[str]]:
+    """{config key path: the row numbers that carry it}, from the section 3
+    table's key column. The key column is the second cell of every row
+    below the header; a backticked dotted path is a key, `{a,b}` expands,
+    anything else in the cell (a derived fact, prose) is not a key."""
+    start = doc.index(KEY_MAP_HEADING)
+    end = doc.find("\n## ", start + 1)
+    rows: dict[str, list[str]] = {}
+    for line in doc[start:end if end > 0 else None].splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not line.startswith("|") or len(cells) < 2 or cells[0] in ("#", ""):
+            continue
+        if set(cells[0]) <= set("-"):
+            continue
+        for tok in KEY_TOKEN_RE.findall(cells[1]):
+            m = re.search(r"\{([a-z0-9_,]+)\}", tok)
+            names = m.group(1).split(",") if m else [None]
+            for name in names:
+                key = tok if name is None else tok.replace(m.group(0), name)
+                rows.setdefault(key, []).append(cells[0])
+    return rows
+
+
+def _key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
+    """(keys with no row, rows naming no accepted key) for one table text."""
+    rows = _key_map_rows(doc)
+    return accepted - set(rows), set(rows) - accepted
+
+
+def test_builder_doc_key_map() -> None:
+    """Gate 32: every key `load_config` accepts has a row in the
+    ENDSTATION_BUILDER.md section 3 mapping table, and every key the table
+    names is one the loaders accept - so a new key read through the
+    recording document's `[]`, `get`, `in` or enumeration on a path the
+    five tracked configs take cannot land without a row, and a stale row
+    cannot survive a key removal (#404). The key set is read off the
+    loaders (see _loader_key_paths, which states the bound by rule and
+    gives examples of the arms on which a key read is not recorded), never
+    listed here. The bites arm plants both defects in a copy of the table
+    text. After the assertions the gate prints `_census_line`, today's list
+    of those arms, one file:line per arm; the census reports and does not
+    widen the gate's pass or fail, so an unmeasurable census prints as not
+    measured instead - whether it declines (the two interpreter cases) or
+    raises, which the raising-census arm plants and checks."""
+    accepted = _loader_key_paths()
+    assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
+    doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
+    rows = _key_map_rows(doc)
+    assert rows, f"{BUILDER_DOC_MD.name}: no key found under {KEY_MAP_HEADING!r}"
+    missing, stale = _key_map_diff(doc, accepted)
+    assert not missing and not stale, (
+        f"{BUILDER_DOC_MD.name} section 3 key map disagrees with the loaders"
+        f" - keys with no row: {sorted(missing)}; rows naming no accepted "
+        f"key: {sorted((k, rows[k]) for k in stale)}")
+    # the bites arm: a planted row must read as stale, a dropped row as
+    # missing, or the equality above proves nothing
+    victim = sorted(accepted)[0]
+    planted = doc.replace(KEY_MAP_HEADING, KEY_MAP_HEADING
+                          + "\n\n| 0 | `planted.key` | - | - | - |", 1)
+    assert _key_map_diff(planted, accepted) == (set(), {"planted.key"}), \
+        "gate 32 bites arm: a planted row was not refused"
+    dropped = doc.replace(f"`{victim}`", "`(dropped)`")
+    assert _key_map_diff(dropped, accepted)[0] == {victim}, \
+        f"gate 32 bites arm: dropping the {victim} row was not refused"
+    multi = {k: r for k, r in rows.items() if len(r) > 1}
+    print(f"  [gate 32] {len(accepted)} loader keys == {len(rows)} keys "
+          f"across {len({r for rs in rows.values() for r in rs})} rows of "
+          f"{BUILDER_DOC_MD.name} section 3"
+          + (f" ({len(multi)} shared)" if multi else "")
+          + "; planted row and dropped row both refused")
+    # the raising-census arm: the census reports and never decides, so a
+    # census that RAISES must read as not measured, the way the two
+    # declared interpreter cases already do, and leave the verdict above
+    # untouched. Remove the soft handling in `_census_line` and this arm
+    # raises out of the gate, which is the failure it exists to catch.
+    real_census = globals()["_untaken_arms"]
+    globals()["_untaken_arms"] = _raising_census
+    try:
+        soft = _census_line()
+    finally:
+        globals()["_untaken_arms"] = real_census
+    assert soft == "not measured (RuntimeError: planted census failure)", \
+        f"gate 32 raising-census arm: a raising census did not fail soft: {soft}"
+    print("  [gate 32] census: " + _census_line())
+
+
 if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
@@ -16266,7 +16704,8 @@ if __name__ == "__main__":
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,
-               test_per_row_format_facts_are_per_row):
+               test_per_row_format_facts_are_per_row,
+               test_builder_doc_key_map):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and
