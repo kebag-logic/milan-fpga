@@ -805,17 +805,40 @@ class MediaGridAlignmentHarness {
     //! measurement rather than a structural zero, so all three ride in ONE
     //! graded word, and the two ring legs are the discriminator - 7 on
     //! obj_aclk (lane built and fed), 6 on obj_prune (LOOPBACK_P = 0).
+    //!
+    //! THE PROJECTION CANNOT ESTABLISH ITSELF. `CHMAP_LOOP` reads
+    //! CHMAP_LOOP_POISON_C = 0xDEADDEAD whenever no snapshot completed
+    //! behind it - un-armed, timed out or refused (milan_csr.sv, the
+    //! chmap_loop_rd_w mux) - and that poison projects to 1, 1, 0 = 6, byte
+    //! for byte what obj_prune expects: bits 27 and 26 of 0xDEADDEAD are
+    //! both set and bit 17 is clear. The bits that DO separate it are
+    //! [31:28], zero on every valid word, and they are the bits the
+    //! projection drops. So the WHOLE word is graded against the poison,
+    //! and the snapshot's own valid bit with it, BEFORE anything is
+    //! projected: the house idiom of tb/verilator/csr/sim_main.cpp, which
+    //! compares the same whole word against POISON and grades CHMAP_SNAP[1]
+    //! in the direction where poison is the right answer. A poisoned read
+    //! is refused HERE as not-a-measurement; a lane that is genuinely
+    //! absent is the 6 the caller grades next.
     unsigned chmap_loop_lane_flags(unsigned key) {
         constexpr uint16_t A_CHMAP_SEL = 0x904;
         constexpr uint16_t A_CHMAP_SNAP = 0x910;
         constexpr uint16_t A_CHMAP_LOOP = 0x914;
+        constexpr uint32_t kChmapLoopPoison = 0xDEADDEADu;
         constexpr int kSnapPolls = 64;
         axi_write(A_CHMAP_SEL, 0x100u | key);        // 0x100 = capture side
         axi_write(A_CHMAP_SNAP, 1);                  // W1S arm
+        uint32_t snap = 0;
         for (int g = 0; g < kSnapPolls; g++) {
-            if ((axi_read(A_CHMAP_SNAP) & 1u) == 0) break;
+            snap = axi_read(A_CHMAP_SNAP);
+            if ((snap & 1u) == 0) break;
         }
         const uint32_t v = axi_read(A_CHMAP_LOOP);
+        //! graded as the word itself, so a failure prints what it read
+        ck("CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison",
+           (v == kChmapLoopPoison) ? v : 0u, 0u);
+        ck("CHMAP_SNAP valid: a snapshot completed behind that word",
+           (snap >> 1) & 1u, 1u);
         return (((v >> 27) & 1u) << 2) | (((v >> 26) & 1u) << 1) |
                ((v >> 17) & 1u);
     }
@@ -1023,7 +1046,9 @@ class MediaGridAlignmentHarness {
         ck("RING-CRF: SLIP_TDM still reads its tap under lock", axi_read(A_SLIP_TDM), slip_tdm_tap());
         //! the lane ESTABLISHED, which is what REGISTER_MAP.md asks a reader
         //! to do before reading the word: fed = 1 here and 0 on obj_prune,
-        //! both beside mask_valid = 1 so neither answer is an unarmed word
+        //! both beside mask_valid = 1 and both behind the helper's whole-word
+        //! poison and CHMAP_SNAP[1] grades, so neither answer is an unarmed
+        //! word rather than a measurement
         ck("RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}",
            chmap_loop_lane_flags(0), 7);
     }
