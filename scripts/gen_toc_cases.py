@@ -177,9 +177,17 @@ def _refuses(tag: str) -> tuple[str, object]:
 #: the expressions rather than from a report ([R86] F1, round 6 on PR
 #: #428, which named five of them): every alternative, every member of
 #: every character class and every repetition count `_HTML_TAG_NAME`,
-#: `_HTML_ATTRIBUTE` and `HTML_TAG_LINE_RE` state is exercised here, and
-#: each one removed fails an arm below. GitHub's renderer agrees with
-#: every line of it (the fixture oracle over all arms).
+#: `_HTML_ATTRIBUTE` and `HTML_TAG_LINE_RE` state is exercised here, at
+#: EVERY position that states it, and each one removed fails an arm
+#: below. GitHub's renderer agrees with every line of it (the fixture
+#: oracle over all arms).
+#:
+#: Two things the tables held at one point only, and the expressions state
+#: at several, cost round 7 a finding each: the closing-tag branch was
+#: armed at one lowercase letter, and the whitespace class was armed at
+#: the tab alone. Both are now armed per position and per character, so
+#: the rows below outnumber the bounds a reader would count off the
+#: expression text ([R85] F1 and [R86] F1, round 7).
 _TAGS_OPEN = [
     ("a name of letters, digits and hyphens after its first letter",
      "<AbC0-9>"),
@@ -193,6 +201,26 @@ _TAGS_OPEN = [
     ("blanks after the closing angle bracket", "<x> \t"),
     ("blanks inside a CLOSING tag", "</b \t>"),
     ("an attribute name that starts with a capital", "<x Ab>"),
+    # [R85] F1, round 7: the closing-tag branch was armed at one lowercase
+    # letter, and six single edits of its name survived both self-tests.
+    # This row fails under every one of them: drop the branch's optional
+    # continuation, or any member of either of its classes, and the name
+    # no longer matches.
+    ("a CLOSING tag name of letters, digits and hyphens after its first "
+     "letter", "</AbC0-9>"),
+    # [R86] F1, round 7: the whitespace the renderer accepts inside a tag,
+    # one row per character per position. Narrow any of them back to
+    # `[ \t]` and its rows fail.
+    ("a line tabulation between the tag name and an attribute",
+     "<x\va=1>"),
+    ("a form feed between the tag name and an attribute", "<x\fa=1>"),
+    ("line tabulations around an equals sign", "<x a\v=\v1>"),
+    ("form feeds around an equals sign", "<x a\f=\f1>"),
+    ("a line tabulation before the self-closing slash", '<x a="1"\v/>'),
+    ("a form feed before the self-closing slash", '<x a="1"\f/>'),
+    ("a line tabulation inside a CLOSING tag", "</b\v>"),
+    ("a form feed inside a CLOSING tag", "</b\f>"),
+    ("a form feed after the closing angle bracket", "<x>\f"),
 ]
 _TAGS_REFUSED = [
     ("an attribute that no blank separates from the name", "<A::>"),
@@ -207,6 +235,17 @@ _TAGS_REFUSED = [
     ("an unquoted value and then a word no attribute name may start",
      "<x a=1 2>"),
     ("the same past a tab", "<x a=1\t2>"),
+    ("a CLOSING tag name that does not begin with an ASCII letter",
+     "</1>"),
+    # [R86] F1, round 7: the wider class from the other side. After the
+    # closing angle bracket the renderer takes space, tab and form feed
+    # and NOT a line tabulation, so widening that class fails the first
+    # row; a line tabulation and a form feed each END an unquoted value,
+    # so narrowing the value's own bound fails the other two.
+    ("a line tabulation after the closing angle bracket", "<x>\v"),
+    ("an unquoted value a line tabulation ends, and then a word no "
+     "attribute name may start", "<x a=b\v1>"),
+    ("the same past a form feed", "<x a=b\f1>"),
 ]
 
 
@@ -225,7 +264,11 @@ def tag_arms() -> list[tuple[str, str, object]]:
     Round 7 stops taking that list from a report. `_TAGS_OPEN` and
     `_TAGS_REFUSED` above carry one line per bound the grammar states,
     enumerated from the expressions themselves, and each bound removed
-    fails one of them."""
+    fails one of them. Round 8 stops taking the CLASSES from the
+    specification's prose: each is what the renderer was measured to
+    apply at that position, and a sweep of every position against every
+    character of every class the specification names is the receipt
+    ([R85] F1 and [R86] F1, round 7)."""
     return [
         ("a type-1 tag is read before the type-7 grammar, so its block "
          "survives a blank line",
@@ -463,10 +506,10 @@ _OLD_SEPARATOR = chr(0x2014)
 
 
 def guard_arms() -> list[tuple[str, str, object]]:
-    """The two table GUARDS' own arms. They are scored like a page family
-    and ignore the page: what each states is the answer a guard gives for
-    a set of tables, which is the only way a guard ADDED to hold the
-    tables is itself held. Round 6 of PR #428 was asked for the tally
+    """The two table GUARDS' own arms, and the family list they read.
+    They are scored like a page family and ignore the page: what each
+    states is the answer a guard gives for a set of tables, which is the
+    only way a guard ADDED to hold the tables is itself held. Round 6 of PR #428 was asked for the tally
     guard; round 7 adds it and this, because a guard with no arm is the
     same gap one layer up.
 
@@ -477,13 +520,24 @@ def guard_arms() -> list[tuple[str, str, object]]:
     and name a module that imports the expression engine or holds a
     compiled expression. The compiled one is fetched inside this function
     on purpose: bound at the top of the module it would be exactly what
-    the guard refuses."""
+    the guard refuses.
+
+    The first arm below spells the family names AGAIN, as a literal, and
+    not from `ARM_FAMILIES`. Every other arm here builds its fixture from
+    that constant, so the tally guard was reading the list its own arms
+    were made of and all six single edits that drop a name from it
+    survived both self-tests ([R85] suggestion, round 7 on PR #428). Drop
+    a name now and this arm fails, whatever the rest agree on."""
     from gen_toc import HEAD_RE
     plenty = {name: [None] * MIN_ARMS for name in ARM_FAMILIES}
     whole = MIN_ARMS * len(ARM_FAMILIES)
     short = {name: arms for name, arms in plenty.items() if name != "tag"}
     here = Path(__file__)
     return [
+        ("the family names are the six the runner scores, spelled here "
+         "and not read from the constant the guard reads", "",
+         lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
+                                    "predecessor", "provenance")),
         ("the tally guard passes a full set of families", "",
          lambda t: _tally_guards(plenty, whole) == []),
         ("it names a family dropped from the runner's import", "",

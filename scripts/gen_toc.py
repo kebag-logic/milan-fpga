@@ -63,7 +63,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: corpus and is lowered only by someone who means to remove an arm.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance")
-MIN_ARMS = 191
+MIN_ARMS = 206
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -140,11 +140,27 @@ HTML_BLOCK_OPEN_RE = re.compile(r"^ {0,3}</?(%s)([\s/>]|$)" % HTML_BLOCK_TAGS,
 #: the footnote definition from [R86] F1, round 2). A type-1 name is read
 #: first and never reaches here, which is the specification's exclusion
 #: (#413).
+#:
+#: WHITESPACE is spelled as the renderer applies it, which is not the same
+#: class everywhere. INSIDE the tag - before an attribute, on either side
+#: of the equals sign, before the self-closing slash, inside a closing tag,
+#: and as the bound of an unquoted value - it is space, tab, line
+#: tabulation and form feed: the specification's whitespace set less its
+#: two line endings, which CommonMark 2.1 says a line cannot carry at all.
+#: AFTER the closing angle bracket it is narrower still, space, tab and
+#: form feed, a line tabulation there being ordinary text that leaves the
+#: tag not alone on its line. Both were measured against the renderer at
+#: every position, and each character of each class has an arm. Spelled
+#: `[ \t]` this expression was narrower than the renderer in five
+#: positions, and three lone-tag shapes handed a wrapped heading's label
+#: the provenance exemption while the page rendered no such heading ([R86]
+#: F1 and [R85] F1, round 7 on PR #428).
 _HTML_TAG_NAME = r"[A-Za-z][A-Za-z0-9-]*"
-_HTML_ATTRIBUTE = (r"(?:[ \t]+[A-Za-z_:][A-Za-z0-9_.:-]*"
-                   r"(?:[ \t]*=[ \t]*(?:[^ \t\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
+_HTML_ATTRIBUTE = (r"(?:[ \t\v\f]+[A-Za-z_:][A-Za-z0-9_.:-]*"
+                   r"(?:[ \t\v\f]*=[ \t\v\f]*"
+                   r"(?:[^ \t\v\f\"'=<>`]+|'[^']*'|\"[^\"]*\"))?)")
 HTML_TAG_LINE_RE = re.compile(
-    r"^ {0,3}(?:<%s%s*[ \t]*/?>|</%s[ \t]*>)[ \t]*$"
+    r"^ {0,3}(?:<%s%s*[ \t\v\f]*/?>|</%s[ \t\v\f]*>)[ \t\f]*$"
     % (_HTML_TAG_NAME, _HTML_ATTRIBUTE, _HTML_TAG_NAME))
 #: Whether a paragraph is open, for the one block that may not interrupt
 #: one. NO_PARAGRAPH: none is, and the next plain line starts one.
@@ -205,14 +221,16 @@ def blocks(text: str) -> list[str]:
     ONE walk, and the only one in this repository that decides which lines
     are NAVIGATION: a gate that re-derived it disagreed with this
     generator about which lines are headings, five review rounds running
-    on PR #384. Two other gates carry a fence and comment toggle of their
-    own, for a different question (`docs_check.py` scopes a wording
-    deny-list, `check_feature_status.py` scopes status tables); neither
-    decides what a line IS ([R86] suggestion, round 6 on PR #428). It is a
-    single state machine, so the block already open decides what a
-    delimiter means -- a fence delimiter inside an HTML comment does not
-    open a fence, and a comment delimiter inside a fence does not open a
-    comment ([R0] round 5 F3, where a
+    on PR #384. THREE other gates carry a fence and comment toggle of
+    their own, each for a different question (`docs_check.py` scopes a
+    wording deny-list, `check_feature_status.py` scopes status tables,
+    and `check_doc_style.py` scopes the sentence-length limits in its
+    `prose_blocks()`); none of them decides what a line IS ([R86]
+    suggestion, round 6 on PR #428, which named two; the third from [R85]
+    suggestion, round 7). It is a single state machine, so the block
+    already open decides what a delimiter means -- a fence delimiter
+    inside an HTML comment does not open a fence, and a comment delimiter
+    inside a fence does not open a comment ([R0] round 5 F3, where a
     three-backtick line inside an old comment made this walk refuse a
     legitimate page).
 
@@ -278,6 +296,13 @@ def blocks(text: str) -> list[str]:
     once demanded of the row and the footnote read as text both kept a
     paragraph open where GitHub has none, and let a wrapped heading
     through.
+
+    THE LINE MODEL, and the one residue it declares: a line is what
+    `text.split("\n")` gives, so a CARRIAGE RETURN lands inside a line
+    where the renderer ends one. CommonMark 2.1 says a line carries
+    neither line ending, every expression here reads a line the same way,
+    and the base commit reads the two shapes that diverge exactly as this
+    head does; reading them is a line-model change, not a rule.
     """
     out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
     for line in text.split("\n"):
@@ -709,6 +734,15 @@ def _owner_guards(name: str, source: str, values: dict) -> list[str]:
     The imports are read off the module's syntax tree and the compiled
     expressions off its values, so prose that names the engine cannot trip
     it and an alias cannot slip past it.
+
+    WHAT IT CANNOT SEE, so that no reader banks more than it holds: it
+    reads import statements and module-level values, and nothing else. A
+    classification written with plain string methods
+    (`line.lstrip().startswith("#")`), an engine reached at run time
+    through `importlib.import_module`, and a third-party engine all pass
+    it, each measured ([R85] suggestion, round 7 on PR #428). It is a
+    structural proxy for "no rule migrates out of this script", not a
+    proof of it; the proof is that the runner and every arm live here.
     """
     bad, imported = [], set()
     for node in ast.walk(ast.parse(source)):
