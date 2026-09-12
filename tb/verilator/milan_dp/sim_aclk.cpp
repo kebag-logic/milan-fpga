@@ -797,6 +797,29 @@ class MediaGridAlignmentHarness {
         }
     }
 
+    //! docs/reference/REGISTER_MAP.md's structural-zero paragraph tells a
+    //! reader to ESTABLISH THE LANE before believing a `SLIP_LB` zero, and
+    //! offers `CHMAP_LOOP[17]` fed at 0x914 as the pointer. This executes
+    //! it: arm a CAPTURE-side map readback and return
+    //! {mask_valid, valid, loop_fed}. [27] mask_valid is what makes [17] a
+    //! measurement rather than a structural zero, so all three ride in ONE
+    //! graded word, and the two ring legs are the discriminator - 7 on
+    //! obj_aclk (lane built and fed), 6 on obj_prune (LOOPBACK_P = 0).
+    unsigned chmap_loop_lane_flags(unsigned key) {
+        constexpr uint16_t A_CHMAP_SEL = 0x904;
+        constexpr uint16_t A_CHMAP_SNAP = 0x910;
+        constexpr uint16_t A_CHMAP_LOOP = 0x914;
+        constexpr int kSnapPolls = 64;
+        axi_write(A_CHMAP_SEL, 0x100u | key);        // 0x100 = capture side
+        axi_write(A_CHMAP_SNAP, 1);                  // W1S arm
+        for (int g = 0; g < kSnapPolls; g++) {
+            if ((axi_read(A_CHMAP_SNAP) & 1u) == 0) break;
+        }
+        const uint32_t v = axi_read(A_CHMAP_LOOP);
+        return (((v >> 27) & 1u) << 2) | (((v >> 26) & 1u) << 1) |
+               ((v >> 17) & 1u);
+    }
+
     //! feed until the next AAF PDU lands at the loop tap; false = the budget
     //! ran out first
     bool run_fed_until_a_pdu_lands(long budget) {
@@ -998,6 +1021,11 @@ class MediaGridAlignmentHarness {
            dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
         ck("RING-CRF: SLIP_LB still reads its tap under lock",  axi_read(A_SLIP_LB),  slip_lb_tap());
         ck("RING-CRF: SLIP_TDM still reads its tap under lock", axi_read(A_SLIP_TDM), slip_tdm_tap());
+        //! the lane ESTABLISHED, which is what REGISTER_MAP.md asks a reader
+        //! to do before reading the word: fed = 1 here and 0 on obj_prune,
+        //! both beside mask_valid = 1 so neither answer is an unarmed word
+        ck("RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}",
+           chmap_loop_lane_flags(0), 7);
     }
 
     // ---- 4.4.4.3 mr reachability: the received toggle echoes while CRF  //
