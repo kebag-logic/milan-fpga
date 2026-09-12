@@ -177,7 +177,7 @@ jobs:
       # erase block and the port's record_id[7:0]. Only the first was ever
       # checked, and the second overflowed at the 2026-08 8x8 shape (292
       # records against 256 ids); today the allocation is the donor's F07.8
-      # rule and fits at every shipped shape (164 of 256 ids at 8x8).
+      # rule and fits at every shipped shape (156 of 256 ids at 8x8).
       # The gate also ENCODES the KLJ2 image and decodes it back, because three
       # review rounds running found the same class of hole in a check that
       # reasoned about the set as counts rather than bytes. --self-test runs
