@@ -263,12 +263,16 @@ is exactly these twelve things:
    aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
    -- through item 12 (#406), the physical leg by its whole-job pin, and
    the fast selector and verdict jobs by their two-step and one-step
-   pins. That enumerates the jobs the four files carry today, not a
-   standing invariant for a job added later: `rtl-fast.yml` closes over
-   its own jobs, because its verdict must `needs` every other job in the
-   file, but a job appended to `rtl.yml` is drawn into the sequence pin
-   only once it is named in `RTL_STEP_LIST_JOBS` and recorded in
-   `RTL_STEP_LISTS`. The contract step is
+   pins. For the two RTL files that is a standing invariant and not an
+   enumeration of today's jobs: the checker reads both files for their job
+   lists and refuses, by name, any job of either that no sequence rule
+   pins, and any job a sequence rule records that its file no longer
+   declares. A job appended to `rtl.yml` or to `rtl-fast.yml` is therefore
+   red until it is named in `RTL_STEP_LIST_JOBS`, recorded in
+   `RTL_STEP_LISTS` and given a lever row in `RTL_STEP_LIST_LEVERS`; in
+   `rtl-fast.yml` it is red twice over, because the verdict must `needs`
+   every other job in the file and the verdict's new result binding needs
+   an entry in `INHERITED_STEP_ENV`. The contract step is
    this gate's SECOND hosted runner (#261, maintainer review on PR #293):
    its script is exactly `python3 -m pip install --quiet pyyaml` followed by
    `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
@@ -604,11 +608,20 @@ is exactly these twelve things:
     (`scripts/ci_events.py`; the four carriers' entries are
     `CARRIER_STEP_LISTS`) changes with it in the same commit, and the
     refusal names the job, the position, what belongs there and what it
-    found. WHICH jobs that table must hold is `RTL_STEP_LIST_JOBS`, a
-    constant neither the table nor the self-test's lever rows own, so an
-    entry dropped together with its lever row is refused by name rather
-    than narrowing the pin in silence -- the closure the carriers get from
-    the required-name map. What this
+    found. When the step it touches is one the self-test's lever rows
+    name, `RTL_STEP_LIST_LEVERS` moves with the entry: a row whose target
+    the entry no longer records is refused naming the job, the lever field
+    and the row's table, rather than stopping the hosted self-test on a
+    bare index error. WHICH jobs the step-list table must hold is not
+    decided in the checker at all. The two RTL files are read for their
+    job lists, and a job of either that no sequence rule pins is refused
+    by name (item 4), so one edit dropping a job from
+    `RTL_STEP_LIST_JOBS`, `RTL_STEP_LISTS` and `RTL_STEP_LIST_LEVERS`
+    together leaves that job in its workflow and the tree red.
+    `RTL_STEP_LIST_JOBS` stays the authority the three tables answer to,
+    and any disagreement between them is refused by name; the self-test
+    plants a narrowed table, a narrowed lever table, a narrowed authority
+    and a job no authority names, and requires each refusal. What this
     still cannot hold is the CONTENT of the recognised non-gate steps:
     `docs-check`'s gates other than the ci_events step (`docs_check`,
     `check_feature_status`, the traceability matrix, the builder gates and

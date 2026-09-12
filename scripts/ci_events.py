@@ -131,7 +131,7 @@ import pathlib
 import re
 import sys
 import tempfile
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any, NamedTuple
 
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
@@ -147,6 +147,10 @@ YamlMap = dict[str, Any]
 #: workflow entries into `YamlMap`s and leaves POLICY as the page's prose.
 #: The self-test's arms edit a deep copy of a parsed world in place.
 World = dict[str, Any]
+
+#: One job of one workflow file: the file's repository-relative path and
+#: the job's id, the key every step-list table and sequence pin is held by.
+JobKey = tuple[str, str]
 
 #: One self-test arm's edit, applied in place to a deep copy of the world.
 Mutator = Callable[[World], None]
@@ -1637,25 +1641,26 @@ VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true'
 YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
 NETLIST_OWNER_IF = "${{ matrix.shard == 3 }}"
 TSN_GEN_OWNER_IF = "${{ matrix.shard == 1 }}"
-#: The aggregates' upload and result steps run under `always()`, and two of
-#: the steps this table records ARE the verify steps check_verify_step pins
-#: with VERIFY_STEP_IF. That is one fact, so it is bound to the one constant
-#: rather than spelled a second time ([R97] on PR #431).
+#: The workers' upload steps and the aggregates' result steps run under
+#: `always()`, and two of the steps this table records ARE the verify steps
+#: check_verify_step pins with VERIFY_STEP_IF. That is one fact, so it is
+#: bound to the one constant rather than spelled a second time ([R97] on
+#: PR #431).
 ALWAYS_IF = VERIFY_STEP_IF
 #: The worker's record step binds TARGET_SHA to the same gate output the
 #: aggregate's verifier reads as GATE_SHA; the ownership proof binds the
 #: shard pair to the matrix.
 TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
 SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
-#: WHICH jobs the table below must hold, and which rows the lever table must
-#: carry: the seven ids, named here and owned by neither table.
-#: check_rtl_step_lists iterates THIS and asserts RTL_STEP_LISTS's key set
-#: against it; _rtl_step_list_arms asserts RTL_STEP_LIST_LEVERS's the same
-#: way. Without it each table was its own membership authority, so an entry
-#: dropped together with its lever row narrowed the contract with the
-#: pristine tree green ([R96]/[R97] MINOR on PR #431) -- the silent
-#: narrowing this file exists to refuse. The carriers never had that gap:
-#: their job set is PUBLIC_NAMES, which CARRIER_STEP_LISTS does not own.
+#: WHICH jobs the table below must hold, and which rows the lever table
+#: must carry: the seven ids, named here and owned by neither table.
+#: check_rtl_step_lists reads THIS and rtl_step_list_membership refuses any
+#: disagreement between the three; but the set itself answers to the
+#: workflow files, through check_sequence_pin_coverage, because a constant
+#: that lives in the file it polices can be narrowed by the same commit
+#: that unpins the job ([R96]/[R97] round 2 on PR #431). The carriers get
+#: the same closure from PUBLIC_NAMES, which CARRIER_STEP_LISTS does not
+#: own.
 RTL_STEP_LIST_JOBS = (
     (RTL_FULL, "verilator-shards"),
     (RTL_FULL, "verilator-suites"),
@@ -1665,6 +1670,15 @@ RTL_STEP_LIST_JOBS = (
     (RTL_FAST, "bdd-conformance"),
     (RTL_FAST, OOC_SH_SELFTEST_JOB),
 )
+#: Every OTHER sequence pin the two RTL files carry, by the job it holds and
+#: the rule that holds it. With RTL_STEP_LIST_JOBS this is the whole set of
+#: step-pinned RTL jobs, which check_sequence_pin_coverage compares against
+#: the jobs the files actually declare.
+OTHER_SEQUENCE_PINS = {
+    (RTL_FULL, GATE_JOB): "check_gate_steps, item 4's gate pin",
+    (RTL_FULL, PHYSICAL_GPTP_JOB): "PHYSICAL_GPTP_CONTRACT, the whole-job pin",
+    (RTL_FAST, FAST_SELECTOR_JOB): "check_fast_selector, the two-step pin",
+}
 RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
@@ -3062,11 +3076,17 @@ def carrier_entry_keys(entry: YamlMap) -> tuple[str, ...]:
     rather than restated per step: a `run:` step carries its recorded
     `name`, `id`, `env`, `if` and `working-directory` plus `run`; a `uses:`
     step carries its recorded `name`, `id`, `if`, `continue-on-error` and
-    `with` plus `uses`. A key recorded outside these vocabularies licenses
-    nothing: the derivation drops it, so it pins nothing and reddens
-    nothing. Inside them the derivation is exact, so an entry that records
-    a licensed key the step does not carry turns the pristine tree red at
-    once as a missing key ([R96]/[R97] probe D on PR #431)."""
+    `with` plus `uses`. A key NEITHER vocabulary names (`shell`,
+    `timeout-minutes`) licenses nothing: the derivation drops it, so it
+    pins nothing and reddens nothing. A key the OTHER kind's vocabulary
+    names is a different case: the derivation drops it, but the value
+    checks in check_carrier_steps read `env` and the two recorded scalars
+    whatever the kind, so `env` on a `uses:` entry or `continue-on-error`
+    on a `run:` entry turns the pristine tree red as a binding or scalar
+    mismatch rather than passing unread ([R96]/[R97] round 2 on PR #431).
+    Inside a step's own vocabulary the derivation is exact, so an entry
+    that records a licensed key the step does not carry turns the pristine
+    tree red at once as a missing key ([R96]/[R97] probe D on PR #431)."""
     if "uses" in entry:
         return tuple(k for k in ("name", "uses", "id", "if",
                                  "continue-on-error", "with") if k in entry)
@@ -3075,11 +3095,28 @@ def carrier_entry_keys(entry: YamlMap) -> tuple[str, ...]:
 
 
 def carrier_entry_want(entry: YamlMap) -> str:
-    """What a finding calls a step-list entry: its `uses`, or the step named
-    by its `name`."""
+    """What a finding calls a step-list entry: its `uses` together with the
+    `name` it records, or the step named by its `name`. Both identity
+    fields on an action entry, because the rule enforces both and a refusal
+    that prints one leaves the reader to open the file ([R96] round 2 on PR
+    #431)."""
     if "uses" in entry:
-        return f"`uses: {entry['uses']}`"
+        named = f" named `{entry['name']}`" if "name" in entry else ""
+        return f"`uses: {entry['uses']}`{named}"
     return f"the step named `{entry['name']}`"
+
+
+def step_found_label(step: Any) -> str:
+    """What a finding calls the step it FOUND at a pinned position: its
+    `name` with its `uses` when it carries both, so a step that keeps its
+    recorded name while changing what it runs, or an action step that keeps
+    its `uses` under another name, shows the difference in the refusal
+    itself ([R96] round 2 on PR #431). Otherwise step_label's one field."""
+    used = step.get("uses") if isinstance(step, dict) else None
+    named = step.get("name") if isinstance(step, dict) else None
+    if isinstance(used, str) and used.strip() and isinstance(named, str):
+        return f"{step_label(step)} (`uses: {used.strip()}`)"
+    return step_label(step)
 
 
 def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
@@ -3108,6 +3145,13 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
            "`$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action "
            "-- which the declared allowlists cannot see, and a removed one "
            "takes its gate with it")
+    for n, at in enumerate(ss[len(spec):], len(spec) + 1):
+        c.item(False, path,
+               f"job `{jid}` step {n} must be no step (found "
+               f"{step_found_label(at)}): the recorded list ends at step "
+               f"{len(spec)}, so this one runs after every gate the job "
+               "owes and inside the same checkout ([R97] round 2 on PR "
+               "#431)")
     for n, entry in enumerate(spec, 1):
         at = ss[n - 1] if len(ss) >= n else None
         ident = entry.get("name", entry.get("uses"))
@@ -3120,9 +3164,9 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str) -> None:
                   and isinstance(at.get("run"), str))
         c.item(ok, path,
                f"job `{jid}` step {n} must be {carrier_entry_want(entry)} "
-               f"(found {step_label(at)}): the position is the contract -- "
-               "the steps before this one decide what it reads, and the "
-               "steps after it read what it leaves behind")
+               f"(found {step_found_label(at)}): the position is the "
+               "contract -- the steps before this one decide what it reads, "
+               "and the steps after it read what it leaves behind")
         if not ok:
             continue
         pinned_step_keys(c, path, what, at,
@@ -3272,24 +3316,103 @@ def check_global_carriers(c: Contract, parsed: World) -> None:
                "does not distinguish the workflow that published it")
 
 
+def rtl_step_list_membership(named: Iterable[JobKey],
+                             recorded: Iterable[JobKey],
+                             levered: Iterable[JobKey]) -> list[str]:
+    """What the three #406 tables owe each other, as findings: every job the
+    authority names is recorded in RTL_STEP_LISTS and levered by a row of
+    RTL_STEP_LIST_LEVERS, and neither table holds a job the authority does
+    not name. The three sets are ARGUMENTS, not module reads, so
+    _selftest_membership can plant a narrowed table and require the refusal
+    by name instead of describing it ([R97] round 2 on PR #431)."""
+    want, held, rows = set(named), set(recorded), set(levered)
+    drift = (("`RTL_STEP_LISTS` records no step list for it", want - held),
+             ("`RTL_STEP_LISTS` records a step list for it, which "
+              "`RTL_STEP_LIST_JOBS` does not name", held - want),
+             ("`RTL_STEP_LIST_LEVERS` carries no lever row for it",
+              want - rows),
+             ("`RTL_STEP_LIST_LEVERS` carries a lever row for it, which "
+              "`RTL_STEP_LIST_JOBS` does not name", rows - want))
+    return [f"job `{jid}` of `{path}`: {why}"
+            for why, keys in drift for path, jid in sorted(keys)]
+
+
+def rtl_step_pinned(path: str, jid: str) -> bool:
+    """Whether check_rtl_step_lists really pins this job's whole step list:
+    the authority names it AND the table records its steps. Both, because a
+    job named without an entry is pinned by nothing at all, and this is what
+    check_sequence_pin_coverage reads when it asks the workflow files which
+    of their jobs are held."""
+    return (path, jid) in RTL_STEP_LIST_JOBS and (path, jid) in RTL_STEP_LISTS
+
+
+def sequence_pin_holders(path: str, jid: str, job: Any) -> tuple[str, ...]:
+    """Every rule that pins this job's WHOLE step list, named for a finding.
+    The fast verdict answers through the required name it publishes, which
+    is what check_fast_aggregate keys on, so a second job rendering that
+    name is two holders rather than none."""
+    other = OTHER_SEQUENCE_PINS.get((path, jid))
+    held = [other] if other else []
+    if rtl_step_pinned(path, jid):
+        held.append("its entry in `RTL_STEP_LISTS`, item 12's pin")
+    if path == RTL_FAST and display_name(jid, job) in PUBLIC_NAMES[RTL_FAST]:
+        held.append("check_fast_aggregate, the verdict's one-step pin")
+    return tuple(held)
+
+
+def check_sequence_pin_coverage(c: Contract, parsed: World) -> None:
+    """Every job the two RTL files declare is held by exactly one sequence
+    rule, and every job a sequence rule records is declared by its file.
+    Read from the files, so WHICH jobs owe a step list is decided by the
+    repository's own content and not by the tables that answer for them: one
+    edit dropping a job from RTL_STEP_LIST_JOBS, RTL_STEP_LISTS and
+    RTL_STEP_LIST_LEVERS together leaves the job in its workflow, pinned by
+    nothing, and is refused here by name ([R97] round 2 on PR #431). A job
+    appended to either file is refused the same way, which is why item 4 no
+    longer has to disclaim a standing invariant."""
+    for path in (RTL_FULL, RTL_FAST):
+        live = jobs(parsed[path])
+        for jid, job in live.items():
+            held = sequence_pin_holders(path, jid, job)
+            c.item(len(held) == 1, path,
+                   f"job `{jid}` must have its whole step list pinned by "
+                   f"exactly one sequence rule (found {len(held)}: "
+                   f"{'; '.join(held) or 'none'}): an unpinned job runs any "
+                   "step it likes -- a `BASH_ENV` writer, a `$GITHUB_PATH` "
+                   "prepend, a third-party action -- beside the gates and "
+                   "inside the same checkout, and two rules over one job "
+                   "disagree in silence")
+        pins = tuple(RTL_STEP_LIST_JOBS) + tuple(OTHER_SEQUENCE_PINS)
+        for jid in [j for p, j in pins if p == path]:
+            c.item(jid in live, path,
+                   f"job `{jid}` must exist in this file, because a "
+                   f"sequence rule records its step list (found "
+                   f"{', '.join(live) or 'no jobs'}): a job id respelt here "
+                   "leaves its rule pinning nothing and the live job "
+                   "pinned by nothing")
+
+
 def check_rtl_step_lists(c: Contract, parsed: World) -> None:
     """The seven RTL jobs' step lists (#406), RTL_STEP_LISTS through the
-    carriers' rule. The loop iterates RTL_STEP_LIST_JOBS and asserts the
-    table against it, so a job dropped from the table is refused by name
-    instead of shrinking the contract in silence ([R96]/[R97] on PR #431):
-    a table that is its own membership authority proves only what it still
-    admits to owing. With these, every job in the four files carries a
-    sequence pin: the gate job's (check_gate_steps), the physical leg's
-    whole-job pin, the fast selector's two-step and the fast verdict's
-    one-step pins, the four carriers' (CARRIER_STEP_LISTS) and these."""
-    named = set(RTL_STEP_LIST_JOBS)
-    recorded = set(RTL_STEP_LISTS)
-    assert recorded == named, (
-        "RTL_STEP_LISTS must record exactly the jobs RTL_STEP_LIST_JOBS "
-        f"names -- unrecorded: {sorted(named - recorded)}, unnamed: "
-        f"{sorted(recorded - named)}")
+    carriers' rule, plus what the three #406 tables owe each other. WHICH
+    jobs must be here is not decided in this file at all: it is
+    check_sequence_pin_coverage, reading the workflow files, that refuses a
+    job no sequence rule pins ([R96]/[R97] round 2 on PR #431). With these,
+    every job in the four files carries a sequence pin: the gate job's
+    (check_gate_steps), the physical leg's whole-job pin, the fast
+    selector's two-step and the fast verdict's one-step pins, the four
+    carriers' (CARRIER_STEP_LISTS) and these."""
+    drift = rtl_step_list_membership(
+        RTL_STEP_LIST_JOBS, RTL_STEP_LISTS,
+        [(lv.path, lv.jid) for lv in RTL_STEP_LIST_LEVERS])
+    c.item(not drift, RTL_FULL,
+           "the #406 tables must hold exactly the jobs "
+           f"`RTL_STEP_LIST_JOBS` names ({'; '.join(drift) or 'they do'}): "
+           "a table that is its own membership authority proves only what "
+           "it still admits to owing")
     for path, jid in RTL_STEP_LIST_JOBS:
-        check_carrier_steps(c, path, parsed[path], jid)
+        if rtl_step_pinned(path, jid):
+            check_carrier_steps(c, path, parsed[path], jid)
 
 
 def check(parsed: World) -> Contract:
@@ -3299,6 +3422,7 @@ def check(parsed: World) -> Contract:
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_rtl_fast(c, parsed[RTL_FAST])
     check_rtl_step_lists(c, parsed)
+    check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
     for rel in WORKFLOWS:
@@ -6263,28 +6387,44 @@ def _rtl_guard_arm(lv: StepListLevers, gated: bool) -> Arm:
             f"(`{lv.guarded}`) must carry no `if`")
 
 
+def _lever_target(lv: StepListLevers, idents: Sequence[Any], field: str,
+                  target: str) -> int:
+    """Where a lever row's target step sits in its job's recorded entries.
+    A row whose target the table no longer records is refused HERE, naming
+    the job, the lever field and the row's table, instead of stopping the
+    hosted self-test on a bare `list.index(x): x not in list` that names
+    nothing ([R96]/[R97] round 2 on PR #431)."""
+    if target not in idents:
+        raise AssertionError(
+            f"#406 lever drift: the `RTL_STEP_LIST_LEVERS` row for job "
+            f"`{lv.jid}` of `{lv.path}` names `{target}` as its {field} "
+            f"step, which its `RTL_STEP_LISTS` entry no longer records "
+            f"(recorded: {', '.join(str(i) for i in idents)}); move the "
+            "lever row in the same commit as the entry")
+    return idents.index(target)
+
+
 def _rtl_step_list_arms() -> list[Arm]:
     """#406: the nine step-list levers of #295 on each of the seven RTL
     jobs, generated from RTL_STEP_LIST_LEVERS against the recorded table,
     so every expectation names the job and the position the table records
     and a table that grows moves the arms with it. The rows answer to
-    RTL_STEP_LIST_JOBS, the authority check_rtl_step_lists holds the
-    recorded table to, so a lever row dropped with its entry is refused by
-    name here instead of quietly costing nine arms ([R96]/[R97] on PR
+    RTL_STEP_LIST_JOBS: a row dropped alone is refused by name here, and a
+    row dropped together with its entry is refused before any arm is built,
+    by check_rtl_step_lists reading the same membership ([R96]/[R97] on PR
     #431)."""
-    levered = {(lv.path, lv.jid) for lv in RTL_STEP_LIST_LEVERS}
-    assert levered == set(RTL_STEP_LIST_JOBS), (
-        "RTL_STEP_LIST_LEVERS must carry a row for exactly the jobs "
-        "RTL_STEP_LIST_JOBS names -- unlevered: "
-        f"{sorted(set(RTL_STEP_LIST_JOBS) - levered)}, unnamed: "
-        f"{sorted(levered - set(RTL_STEP_LIST_JOBS))}")
+    drift = rtl_step_list_membership(
+        RTL_STEP_LIST_JOBS, RTL_STEP_LISTS,
+        [(lv.path, lv.jid) for lv in RTL_STEP_LIST_LEVERS])
+    if drift:
+        raise AssertionError("#406 table drift: " + "; ".join(drift))
     arms: list[Arm] = []
     for lv in RTL_STEP_LIST_LEVERS:
         spec = STEP_LISTS[(lv.path, lv.jid)]
         idents = [e.get("name", e.get("uses")) for e in spec]
         job = f"job `{lv.jid}`"
         i, j = lv.swapped
-        action = spec[idents.index(lv.action)]
+        action = spec[_lever_target(lv, idents, "action", lv.action)]
         key, value = lv.rewrite
         for what, probe in STEP_LIST_PROBES:
             arms.append((f"#406 {lv.jid} inserted {what} breaks the sequence",
@@ -6301,15 +6441,64 @@ def _rtl_step_list_arms() -> list[Arm]:
             (f"#406 {lv.jid} recognised step renamed",
              _m_rename_step(lv.path, lv.jid, lv.renamed,
                             lv.renamed + " (renamed)"),
-             f"{job} step {idents.index(lv.renamed) + 1} must be the step "
-             f"named `{lv.renamed}`"),
-            _rtl_guard_arm(lv, "if" in spec[idents.index(lv.guarded)]),
+             f"{job} step "
+             f"{_lever_target(lv, idents, 'renamed', lv.renamed) + 1} must "
+             f"be the step named `{lv.renamed}`"),
+            _rtl_guard_arm(
+                lv,
+                "if" in spec[_lever_target(lv, idents, "guarded",
+                                           lv.guarded)]),
             (f"#406 {lv.jid} action step `with` rewritten",
              _m_named_step_key(lv.path, lv.jid, lv.action, "with",
                                {**(action.get("with") or {}), key: value}),
              f"(`{lv.action}`) `with` must be exactly"),
         ]
     return arms
+
+
+def _m_append_job(path: str, jid: str) -> Mutator:
+    """Append a benign, well-formed job `jid` to a workflow."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+                              "timeout-minutes": 5,
+                              "steps": [{"name": "tidy", "run": "true"}]}
+    return f
+
+
+def _m_respell_job(path: str, jid: str, respelt: str) -> Mutator:
+    """Rename job `jid`'s ID to `respelt`, leaving its steps as they are."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[respelt] = jobs(w[path]).pop(jid)
+    return f
+
+
+def _sequence_pin_coverage_arms() -> list[Arm]:
+    """#406: the file-derived closure over WHICH RTL jobs owe a step list
+    ([R97] round 2 on PR #431). A job appended to either file, a pinned job
+    respelt, and a step-pinned job rendering the verdict's required name
+    are each refused by name, so deleting check_sequence_pin_coverage turns
+    these arms red rather than costing the closure in silence."""
+    unpinned = "pinned by exactly one sequence rule"
+    return [
+        ("#406 job appended to rtl.yml is pinned by no sequence rule",
+         _m_append_job(RTL_FULL, "loose-full"),
+         f"job `loose-full` must have its whole step list {unpinned} "
+         "(found 0: none)"),
+        ("#406 job appended to rtl-fast.yml is pinned by no sequence rule",
+         _m_append_job(RTL_FAST, "loose-fast"),
+         f"job `loose-fast` must have its whole step list {unpinned} "
+         "(found 0: none)"),
+        ("#406 step-pinned job respelt in its file",
+         _m_respell_job(RTL_FAST, "bdd-conformance", "bdd-conformance-x"),
+         "job `bdd-conformance` must exist in this file, because a sequence "
+         "rule records its step list"),
+        ("#406 step-pinned job also publishes the verdict's required name",
+         _m_job_key(RTL_FAST, "verilator-lint", "name", "rtl-fast"),
+         f"job `verilator-lint` must have its whole step list {unpinned} "
+         "(found 2: "),
+    ]
 
 
 def _em_dash_step(w: World) -> YamlMap:
@@ -6487,6 +6676,7 @@ def _mutations() -> list[Arm]:
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
             + _rtl_step_list_arms()
+            + _sequence_pin_coverage_arms()
             + _result_cache_arms()
             + _physical_gptp_arms())
 
@@ -6715,6 +6905,44 @@ def _selftest_records() -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_membership() -> tuple[list[str], int]:
+    """The #406 membership refusals, planted rather than described ([R97]
+    round 2 on PR #431): a step-list table missing a job the authority
+    names, a lever table missing that job's row, an authority missing a job
+    a table records, and a table holding a job the authority does not name.
+    Each must be refused BY NAME, so a deleted refusal turns this stage red
+    instead of costing coverage no one sees. Returns (problems, arms run)."""
+    problems, arms = [], 0
+    victim = RTL_STEP_LIST_JOBS[-1]
+    kept = tuple(k for k in RTL_STEP_LIST_JOBS if k != victim)
+    levered = tuple((lv.path, lv.jid) for lv in RTL_STEP_LIST_LEVERS)
+    stray = (RTL_FAST, "planted-job")
+    for name, want, args in (
+        ("step-list table missing a named job", victim[1],
+         (RTL_STEP_LIST_JOBS, kept, levered)),
+        ("lever table missing a named job's row", victim[1],
+         (RTL_STEP_LIST_JOBS, RTL_STEP_LISTS, kept)),
+        ("authority missing a recorded job", victim[1],
+         (kept, RTL_STEP_LISTS, levered)),
+        ("tables holding a job the authority does not name", stray[1],
+         (RTL_STEP_LIST_JOBS, tuple(RTL_STEP_LISTS) + (stray,),
+          levered + (stray,))),
+    ):
+        found = rtl_step_list_membership(*args)
+        if any(f"`{want}`" in f for f in found):
+            print(f"  ok   #406 membership: {name}")
+            arms += 1
+        else:
+            problems.append(f"#406 membership plant [{name}] was not "
+                            f"refused naming `{want}`: {found or 'nothing'}")
+    live = rtl_step_list_membership(RTL_STEP_LIST_JOBS, RTL_STEP_LISTS,
+                                    levered)
+    if live:
+        problems.append("#406 membership: the pristine tables disagree: "
+                        + "; ".join(live))
+    return problems, arms
+
+
 def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
     """The canonical pin is whitespace-invariant: re-indenting and continuing
     the same lines differently is the same script and must pass. Returns
@@ -6851,6 +7079,7 @@ def selftest(root: pathlib.Path) -> int:
                         _selftest_cannot_run(root),
                         _selftest_on_disk(root),
                         _selftest_records(),
+                        _selftest_membership(),
                         _selftest_whitespace(pristine),
                         _selftest_default_branch()):
         problems.extend(found)
