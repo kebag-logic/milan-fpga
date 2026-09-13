@@ -1940,15 +1940,23 @@ def _assert_no_unbindable_evals(makefile, unbindable_evals):
     #: be bound rather than model a binding the file does not fix. The
     #: DIRECT $(foreach)/$(let)/$(if) channels outside an eval are the plain
     #: origin walker's and #162's, and stay recorded, not ruled, below.
+    #: (Round-four review) the SCOPE half of that property was read one line
+    #: at a time and was wrong in both directions -- a recipe-prefixed `endef`
+    #: ended a define body it does not end, and a recipe-prefixed `define`
+    #: opened one that is not there -- so it is read through
+    #: make_line_roles() now, which parses a file the way make does, with
+    #: pure-parser controls beside the reader. The same review's value reader
+    #: raised IndexError on a value ending in a bare $; that end is answered
+    #: by name, and the refusal below says so.
     unbindable = unbindable_evals(makefile)
     assert not unbindable, \
         "this Makefile hands $(eval) an assignment the walker cannot bind (" \
         + ", ".join(unbindable) + "): $(eval) parses the EXPANSION, so a " \
         "value read from a positional parameter, a computed or " \
-        "single-character reference, or an escaped $$, and an eval in a " \
-        "define body or recipe whose expansion context the file does not " \
-        "fix, is decided outside the text this walker read; refused rather " \
-        "than modelled (#410)"
+        "single-character reference, an escaped $$ or a trailing $, and an " \
+        "eval in a define body or recipe whose expansion context the file " \
+        "does not fix, is decided outside the text this walker read; " \
+        "refused rather than modelled (#410)"
 
 
 def _assert_make_plan_is_determined(plan, hostile, origins):
@@ -4578,12 +4586,97 @@ def test_baremetal_profile_contract() -> None:
         r"define[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
         assign_operators + r")?[ \t]*\Z")
     make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
+    #: A `define` OPENER as make reads one, for scoping an eval rather than
+    #: for naming a value: make_define_open_re above reads the NAME, so it is
+    #: an identifier by construction, and a `define MILAN-TMPL` whose name is
+    #: outside that class opens a body just the same -- measured, with a
+    #: $(foreach) over the call rebinding the pinned name the body's eval
+    #: reads. What scopes an eval is what `define` REACHES, a body make
+    #: expands elsewhere, not the spelling of the name it binds.
+    make_define_scope_re = re.compile(
+        r"\A[ \t]*" + assign_prefix + r"define[ \t]+\S")
+    #: The CONDITIONAL directives, the one kind of non-recipe line make reads
+    #: WITHOUT ending the rule context it is in: a conditional is evaluated as
+    #: the makefile is read, so an `ifdef` between two recipe lines leaves the
+    #: recipe it interrupts open (GNU make, "Conditional Parts of Makefiles").
+    make_conditional_re = re.compile(
+        r"\A[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b")
+
+    #: (#410, round-four review) The ROLE make reads each line in, which is
+    #: what decides BOTH the lines a `define` body carries and the scope an
+    #: eval sits in. Neither is a question about one line: make's answer
+    #: depends on the lines before it, and a per-line regex that tolerates a
+    #: leading tab got both directions wrong at the head this replaces.
+    #: Inside a `define` body a line that begins with the recipe prefix is
+    #: BODY TEXT, never a nested `define` and never the `endef` that closes
+    #: one (GNU make, "Defining Multi-Line Variables": lines beginning with
+    #: the recipe prefix character are considered part of a recipe, so a
+    #: define/endef or conditional directive written on one is not recognised
+    #: as a directive). Outside a body a line that begins with the recipe
+    #: prefix is a RECIPE line only in a RULE CONTEXT (GNU make, "How
+    #: Makefiles Are Parsed", step 3: such a line is added to the current
+    #: recipe when make is in a rule context, and is parsed as makefile syntax
+    #: when it is not), which a rule opens and the next line that is not a
+    #: recipe, a blank, a comment or a conditional closes. MEASURED at the
+    #: head this replaces, both directions wrong: a `<TAB>endef` inside a body
+    #: closed that body, so the define's own `$(eval)` read `global` and was
+    #: walked, and a `<TAB>define helper` inside a `tags:` recipe opened a
+    #: body that is not there, so a real global `$(eval)` read `define` and
+    #: was refused. A target-specific assignment (`all: CFLAGS += -g`) opens a
+    #: rule context here like any other target line, which is the SAFE
+    #: direction: a prefixed line after one is that rule's recipe or a file
+    #: make refuses to parse, never the global assignment this walker walks.
+    def make_line_roles(text: str) -> list[tuple[int, int, str, str]]:
+        """`(start, end, line, role)` for every line of comment-stripped,
+        continuation-joined `text`.
+
+        The role is `open` for the line opening an outermost `define`, `body`
+        for the text that body carries, `close` for the `endef` that ends it,
+        `recipe` for a recipe line, and `global` for a line make reads as
+        makefile syntax at global scope."""
+        masked, roles, offset = unexpanded(text), [], 0
+        depth, in_rule = 0, False
+        for body in text.split("\n"):
+            start, offset = offset, offset + len(body) + 1
+            if depth:
+                role = "body"
+                if not body.startswith("\t"):
+                    if make_define_scope_re.match(body):
+                        depth += 1
+                    elif make_endef_re.match(body):
+                        depth -= 1
+                        role = "body" if depth else "close"
+                roles.append((start, offset, body, role))
+                continue
+            if body.startswith("\t") and in_rule:
+                roles.append((start, offset, body, "recipe"))
+                continue
+            if not body.strip() or make_conditional_re.match(body):
+                roles.append((start, offset, body, "global"))
+                continue
+            in_rule = False
+            if make_define_scope_re.match(body):
+                depth = 1
+                roles.append((start, offset, body, "open"))
+                continue
+            if not make_directive_re.match(body):
+                head = masked[start:start + len(body)]
+                colon = re.search(r"::?(?!=)", head)
+                in_rule = bool(colon) and "=" not in head[:colon.start()]
+            roles.append((start, offset, body, "global"))
+        return roles
+
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
 
     def expansion_end(text: str, start: int) -> int:
         """Just past the `$(`/`${` expansion opening at `start`, or the end
-        of its line where the file leaves that expansion unclosed."""
+        of its line where the file leaves that expansion unclosed.
+
+        `start` must BE an opening: its caller reads `text[start + 1]` as the
+        bracket. A `$` at the very end of the text opens nothing, and it is
+        the caller's to answer, not this reader's to index past (#410,
+        round-four review)."""
         opener = text[start + 1]
         closer = ")" if opener == "(" else "}"
         depth, scan, size = 1, start + 2, len(text)
@@ -4694,21 +4787,24 @@ def test_baremetal_profile_contract() -> None:
         #: an accepted make idiom, so it is PARSED rather than refused; a
         #: nested define stays body text, and a `define` make never closes
         #: is left to make, which refuses to plan the file at all.
-        depth, opened = 0, None
-        for body in text.split("\n"):
-            begun = make_define_open_re.match(body)
-            if depth == 0:
-                if begun:
-                    depth, opened = 1, (begun.group(1), [])
-                continue
-            if begun:
-                depth += 1
-            elif make_endef_re.match(body):
-                depth -= 1
-                if depth == 0:
+        #: (#410, round-four review) WHICH lines the body carries is
+        #: make_line_roles()' answer, the same one the eval scope reader
+        #: takes, so the two cannot disagree about where a body ends: a
+        #: recipe-prefixed `endef` is body text here too. A body whose NAME
+        #: is outside the identifier class binds nothing this closure can
+        #: walk, so it is consumed and not recorded -- what such a define
+        #: still REACHES is eval_scope_at()'s to answer.
+        opened = None
+        for _start, _end, body, role in make_line_roles(text):
+            if role == "open":
+                named = make_define_open_re.match(body)
+                opened = (named.group(1), []) if named else None
+            elif role == "close":
+                if opened is not None:
                     assignments.append((opened[0], "\n".join(opened[1])))
-                    continue
-            opened[1].append(body)
+                opened = None
+            elif role == "body" and opened is not None:
+                opened[1].append(body)
         #: (#410) ... and the whole-line literal `$(eval NAME op VALUE)`,
         #: parsed as the assignment it carries; the evals make_evals()
         #: cannot read are refused by make_plan() before any plan runs.
@@ -4963,37 +5059,24 @@ def test_baremetal_profile_contract() -> None:
                 for name, value in parsed
                 for read in referenced_names(value) if read in spanning]
 
-    #: A `define` OPENER as make reads one, for scoping an eval rather than
-    #: for naming a value: make_define_open_re above reads the NAME, so it is
-    #: an identifier by construction, and a `define MILAN-TMPL` whose name is
-    #: outside that class opens a body just the same -- measured, with a
-    #: $(foreach) over the call rebinding the pinned name the body's eval
-    #: reads. What scopes an eval is what `define` REACHES, a body make
-    #: expands elsewhere, not the spelling of the name it binds.
-    make_define_scope_re = re.compile(
-        r"\A[ \t]*" + assign_prefix + r"define[ \t]+\S")
-
     def eval_scope_at(text: str, at: int) -> str:
         """`global`, `define` or `recipe` for the eval opening at offset `at`:
         make expands a define body with the call's arguments and a recipe
         from a rule the environment can trigger, neither of which the walker
-        reconstructs, so only a `global` eval is a candidate to walk. A recipe
-        line under the default tab prefix is read here; under a non-tab
-        `.RECIPEPREFIX` the prefix character leaves the eval's own line
-        non-empty around it, so make_evals() files it opaque instead."""
-        depth, offset = 0, 0
-        for body in text.split("\n"):
-            start, offset = offset, offset + len(body) + 1
-            inside = depth > 0
-            if make_define_scope_re.match(body):
-                depth += 1
-            elif make_endef_re.match(body) and depth:
-                depth -= 1
-                inside = True
-            if start <= at < offset:
-                if inside:
+        reconstructs, so only a `global` eval is a candidate to walk.
+
+        The line's ROLE is make_line_roles()', which reads the file the way
+        make parses it rather than matching one line: the `endef` that closes
+        a body and the body text before it are both `define` here, and a
+        recipe line is one the default tab prefix opens IN A RULE CONTEXT.
+        Under a non-tab `.RECIPEPREFIX` the prefix character leaves the eval's
+        own line non-empty around it, so make_evals() files it opaque
+        instead."""
+        for start, end, _body, role in make_line_roles(text):
+            if start <= at < end:
+                if role in ("body", "close"):
                     return "define"
-                return "recipe" if body.startswith("\t") else "global"
+                return "recipe" if role == "recipe" else "global"
         return "global"
 
     def eval_scoped_assignments(text: str) -> list[tuple[str, str, str, str]]:
@@ -5052,8 +5135,8 @@ def test_baremetal_profile_contract() -> None:
         REFUSE: an eval in a define body or recipe, whose expansion context
         the file does not fix, or one whose value reads (transitively) a
         name the walker cannot bind -- a positional parameter, a computed or
-        single-character reference, or an escaped $$ the eval's expansion
-        turns into a live reference."""
+        single-character reference, an escaped $$ the eval's expansion turns
+        into a live reference, or a value that ENDS in a bare $."""
         text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
         by_name: dict[str, list[str]] = {}
         for name, value in make_rules(makefile)[1]:
@@ -5070,6 +5153,17 @@ def test_baremetal_profile_contract() -> None:
                 opener = value[at + 1:at + 2]
                 if opener == "$":
                     return "$$"                 # expands to a live $ reference
+                if not opener:
+                    #: (#410, round-four review) the END of the value, which
+                    #: has to be answered BEFORE the reads below: the slice is
+                    #: the empty string, `"" in "({"` is TRUE in Python, so
+                    #: the single-character arm let it through to
+                    #: expansion_end(), which indexed past the value and
+                    #: raised IndexError instead of naming anything. make
+                    #: carries a trailing `$` into the expansion the way it
+                    #: carries `$$`, and $(eval) parses that expansion, so it
+                    #: is refused for the same reason and by name.
+                    return "a trailing $"
                 if opener not in "({":
                     return "$" + opener          # $M, $1, $@: single-char ref
                 head = re.match(r"[ \t]*([A-Za-z_][A-Za-z0-9_]*)",
@@ -5106,6 +5200,112 @@ def test_baremetal_profile_contract() -> None:
             if bad is not None:
                 flagged.append(f"{spelling} reads {bad}")
         return flagged
+
+    #: ---- the scope reader's own controls ([R94], round four) -----------
+    #:
+    #: The refusal above rests entirely on WHICH SCOPE an eval is read in,
+    #: and that answer was wrong in both directions at the head these
+    #: controls were written for, because the nesting was maintained by a
+    #: regex that tolerates the recipe prefix. Both misclassifications are
+    #: pinned here as PURE PARSER measurements -- no make run, no compile, no
+    #: environment -- so the property cannot silently come back:
+    #:
+    #:   * `<TAB>endef` inside a `define` body is BODY TEXT, so the body does
+    #:     not end there and the eval after it is the define's. It read
+    #:     `global` and was WALKED (the reviewed head's own fixture), which is
+    #:     the unsafe direction: the whole scope restriction was off for a
+    #:     body written that way.
+    #:   * `<TAB>define helper` inside a `tags:` recipe is RECIPE TEXT and
+    #:     opens nothing, so a later global eval is global. It read `define`
+    #:     and was REFUSED, which is a false refusal of an accepted idiom.
+    #:
+    #: Both are GNU make's own grammar, not a choice made here ("Defining
+    #: Multi-Line Variables" for the body, "How Makefiles Are Parsed" step 3
+    #: for the rule context). The last two rows are the END of a value, where
+    #: the diagnostic reader used to raise IndexError instead of naming
+    #: anything: an empty slice is `in "({"` in Python, so a trailing `$` fell
+    #: through the single-character arm into a reader that indexed past the
+    #: value. The accepted global eval and the define-body and recipe
+    #: refusals are in the table as its ANTI-VACUITY arms: a control that
+    #: cannot tell the three scopes apart proves nothing about any of them.
+    eval_scope_controls = (
+        ("a recipe-prefixed endef is define BODY text, not the end of one",
+         "define helper\n\tendef\n$(eval LABEL := ready)\nendef\n",
+         "define", "in a define body"),
+        ("a recipe-prefixed define in a rule context opens no body",
+         "tags:\n\tdefine helper\n$(eval LABEL := ready)\n",
+         "global", None),
+        ("a recipe-prefixed define inside a body does not nest either",
+         "define MILAN_TMPL\n\tdefine MILAN_INNER\n"
+         "$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body"),
+        ("a recipe-prefixed eval outside a rule context is global",
+         "\t$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None),
+        ("an eval after a rule whose recipe ended is global",
+         "libmilan_baremetal.a: $(OBJECTS)\n\t$(AR) crs $@ $(OBJECTS)\n\n"
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None),
+        ("a define opened after a rule context still scopes its eval",
+         "tags:\n\t$(CTAGS) *.c\ndefine MILAN_TMPL\n"
+         "$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body"),
+        ("the accepted global eval of a literal assignment stays walked",
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+         "CFLAGS += $(MILAN_INCLUDES)\n",
+         "global", None),
+        ("a define-body eval of the call's argument stays refused",
+         "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+         "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))\n",
+         "define", "in a define body"),
+        ("a recipe eval stays refused",
+         "milan_pre:\n\t$(eval CFLAGS += -include ../shadow.h)\n",
+         "recipe", "on a recipe line"),
+        ("a value ending in a bare $ is named, not a crash",
+         "$(eval LABEL := cost$)\n", "global", "reads a trailing $"),
+        ("a value that IS a bare $ is named too",
+         "$(eval MILAN_LATE = $)\n", "global", "reads a trailing $"),
+    )
+    for label, fixture, want_scope, want_refusal in eval_scope_controls:
+        scopes = [scope for *_quoted, scope
+                  in eval_scoped_assignments(fixture)]
+        assert scopes == [want_scope], \
+            f"the eval scope reader reads {label!r} as {scopes} rather than " \
+            f"['{want_scope}']: the scope is what the whole unbindable-eval " \
+            "refusal rests on, and make decides it from the lines BEFORE " \
+            "the eval -- a recipe-prefixed line is define body text inside a " \
+            "body and recipe text in a rule context, never a directive"
+        refused = unbindable_evals(fixture)
+        if want_refusal is None:
+            assert refused == [], \
+                f"{label!r} is refused as {refused}: this fixture is one " \
+                "make expands at global scope over names this file binds, " \
+                "so refusing it is a cost charged for nothing"
+        else:
+            assert len(refused) == 1 and want_refusal in refused[0], \
+                f"{label!r} must be refused naming {want_refusal!r}, and " \
+                f"the reader said {refused}"
+    #: ... and the define READER must carry the same body, or the two answers
+    #: disagree about where a body ends and the closure walks text the scope
+    #: reader has already called unreachable.
+    prefixed_endef_body = [
+        value for name, value in make_rules(eval_scope_controls[0][1])[1]
+        if name == "helper"]
+    assert prefixed_endef_body == ["\tendef\n$(eval LABEL := ready)"], \
+        "the define reader bound `helper` to " \
+        f"{prefixed_endef_body}: a recipe-prefixed `endef` is body text, so " \
+        "the body it carries is every line up to the endef that is NOT " \
+        "prefixed, and the assignment reader and the scope reader must not " \
+        "disagree about which lines those are"
+    eval_scope_control_note = (
+        f"{len(eval_scope_controls)} pure-parser controls hold over the eval "
+        "SCOPE reader, which is what the refusal above rests on: a "
+        "recipe-prefixed `endef` is define BODY text and does not end the "
+        "body (that eval used to read `global` and be walked), a "
+        "recipe-prefixed `define` in a rule context is recipe text and opens "
+        "no body (a real global eval used to read `define` and be refused), "
+        "and a value ending in a bare `$` is refused by name instead of "
+        "raising IndexError out of the diagnostic reader")
 
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
@@ -9718,8 +9918,10 @@ def test_baremetal_profile_contract() -> None:
           "define body or a recipe, whose value is bound where the define or "
           "the rule is reached and not where it is written, and a top-level "
           "eval whose value reads a positional parameter ($(1), ${1}, $1), a "
-          "single-character $M, a computed name, or an escaped $$ that the "
-          "eval's own expansion turns into a live reference, at any remove "
+          "single-character $M, a computed name, an escaped $$ that the "
+          "eval's own expansion turns into a live reference, or a value that "
+          "ENDS in a bare $, which make carries into that expansion the same "
+          "way, at any remove "
           "through this Makefile's own assignments. The COST is the widest "
           "too, and it is the point: a template that EVALs its argument is "
           "refused where the same template RETURNING that argument through "
@@ -9877,6 +10079,10 @@ def test_baremetal_profile_contract() -> None:
           "writes (a $(MILAN_E)-built .RECIPEPREFIX, a .SECONDEXPANSION "
           "prerequisite behind $$), which hides the eval token from every "
           "text reader here, and the plain non-eval channels below")
+    print("  [gate 1b] ... and the SCOPE that sentence rests on is now read "
+          "the way make PARSES a file rather than one line at a time, which "
+          "its round-four review measured wrong in both directions: " +
+          eval_scope_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
