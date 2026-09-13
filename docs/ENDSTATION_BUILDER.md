@@ -74,9 +74,11 @@ and in executable verification where the behavior is implemented.
 ```
 configs/endstation_<shape>.yaml          (single source of truth)
         │  endstation_builder.py
-        ├── soc_params.json   → sw/litex/milan_soc.py design argv
-        │                       (flow flags — --build, threads, directives —
-        │                        stay in sw/litex/sweep.sh)
+        ├── soc_params.json   → sw/litex/milan_soc.py design argv; read by
+        │                       sw/litex/build.sh's named recipes, which
+        │                       regenerate it per launch (#402). Flow flags
+        │                       (--build, threads, directives) stay in
+        │                       sw/litex/sweep.sh and build.sh
         ├── aem_overlay.json  → avdecc/gen_aem_store.py migration contract
         │                       (descriptor counts, formats, cluster/map
         │                        layout, entity identity)
@@ -200,7 +202,7 @@ consumes them. Everything else is regenerated into
 
 | Artefact | What it carries | Read by | Gate in [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
 |---|---|---|---|
-| `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags) | [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) | 2 — argv equals `sweep.sh`'s design flags for arty *and* ax7101 |
+| `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags), and `_source_config`, the config that wrote it | [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py); [`sw/litex/build.sh`](../sw/litex/build.sh), which regenerates and reads it on every launch and refuses one that is missing, unreadable or another config's (#402) | 2 - argv equals `sweep.sh`'s design flags for arty *and* ax7101; [`scripts/check_sweep_shape.py`](../scripts/check_sweep_shape.py) - the artefact each `build.sh` recipe read is that config's current emission |
 | `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay`; `_entity_model_image()` consumes it only during an explicit deployment ownership transfer | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (the former tracked-ROM identity gate), 15–17 (CRF output, dynamic maps), plus image identity and directory-shape gates |
 | `aem_desc.bin` + `aem_desc.json` + `aem_desc.map` | flat processor image, paired manifest with derived base and identity, and readable directory report | generated beside the bitstream only by `--write-fragment` or `--write-rtl`; bare-metal firmware verifies and copies the raw QSPI image before entity enable | image identity, image/manifest pairing, directory shape, and builder artifact gates; root wire `READ_DESCRIPTOR` coverage grades the served result |
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | **the lwSRP RTL tree is DELETED (2026-08-13)** — the engine `.svh` no longer lands anywhere; the JSON is still emitted and still describes the reservation policy the CSR half provisions | 18a–18d covered emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column. The RTL-symbol leg has no target any more; the CSR legs still bite through `lwsrp_csr_defaults.svh` |
@@ -255,7 +257,7 @@ index first; it states which behavior can be relied on today.
 | **D2** | cluster policy is config-selectable; a stream channel maps to a mono MBLA AUDIO_CLUSTER | 1722.1 7.2.16/7.2.16.1; Milan 6.4, 5.3.10.1, 5.4.2.27 | **implemented** — both policies gated (gate 7) |
 | **D3** | talker `clusters` is its own config field, never derived from `channels` | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1, 5.3.9.1, 6.3 | **implemented** — the shapes table above shows 8 vs 2 |
 | **D4** | `entity_model_id` = deterministic hash of the model-shaping fields only, or a pin for flashed silicon | 1722.1 6.2.2.8 (incl. its exclusion list) | **implemented** — determinism, shape-sensitivity and the pin are gated (gate 8) |
-| **D5** | the config is the single source of truth; flow flags stay in `sweep.sh`; `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
+| **D5** | the config is the single source of truth; flow flags stay in the launchers (`sweep.sh` and, since #402, `build.sh`); `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
 | **D6** | AEM store uses a DRAM descriptor tree loaded from a builder-emitted, verified image pair | engineering (area: ~80 RAMB36 vs ~36 free) | **implemented in the tracked flow**: the processor fetches the whole model from DRAM at a compile-time base; the builder emits the image, manifest, and map; bare-metal firmware verifies and copies the raw QSPI image before entity enable. See D6 below |
 | **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **implemented**: generated input geometry and output ownership sideband feed atomic ADD/REMOVE transactions and live projections |
 | **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **model implemented** (2026-07-28) — `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; the loopback **fabric lane** is still pending and marked *planned* |
@@ -442,7 +444,10 @@ model rather than to invent a new id.
 `milan_soc.py` design argv (`soc_params.json`), the AEM overlay, and the
 protocol-processor memory reservation are all emitted from it. Flow flags (`--build`,
 `--vivado-max-threads`, `--place-directive`, output dirs) are explicitly
-*not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh).
+*not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh)
+and [`sw/litex/build.sh`](../sw/litex/build.sh); since #402 the named
+`build.sh` recipes read their design argv out of `soc_params.json` rather
+than restating it.
 
 **Why (engineering, no clause needed).** Today the same fact can live in up to
 three places — `sweep.sh` OPTS, `gen_aem_store.py` constants, and
