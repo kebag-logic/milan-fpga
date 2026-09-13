@@ -14037,6 +14037,25 @@ def test_build_sh_grades_its_own_bindings() -> None:
           f"bindings with BUILD_CFG={Path(other).name} exported")
 
 
+def _plant_rtl_table_config(stem: str) -> Path:
+    """A throwaway config under configs/ whose lwSRP reset words differ.
+
+    Gates 23j and 23k both need a config that really makes a builder run
+    rewrite the tracked, tree-wide CSR header: it inherits the Arty
+    recipe's `srp.rtl_table` ownership and flips the reset state the header
+    encodes.  It lives under configs/ because the launcher's BUILD_CFG rule
+    binds only there.  The caller unlinks it and removes the two
+    directories a run of it writes.
+    """
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    assert cfg["srp"]["rtl_table"], \
+        "the throwaway must inherit the tracked-header ownership it tests"
+    cfg["srp"]["enable_at_reset"] = not cfg["srp"].get("enable_at_reset")
+    planted = ROOT / "configs" / f"{stem}.yaml"
+    planted.write_text(yaml.safe_dump(cfg))
+    return planted
+
+
 def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
     """gate 23j - a dry run never leaves a tracked generated file moved.
 
@@ -14052,22 +14071,18 @@ def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
     """
     csr = ROOT / eb.CSR_DEFAULTS_REL
     before = csr.read_bytes()
-    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
-    assert cfg["srp"]["rtl_table"], \
-        "the throwaway must inherit the tracked-header ownership it tests"
-    cfg["srp"]["enable_at_reset"] = not cfg["srp"].get("enable_at_reset")
-    planted = ROOT / "configs" / "gate23j_planted.yaml"
-    planted.write_text(yaml.safe_dump(cfg))
+    planted = _plant_rtl_table_config("gate23j_planted")
+    gen = ROOT / "configs/generated" / planted.stem
     env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
     try:
         proc = subprocess.run(["bash", str(BUILD_SH), "arty", "--dry-run"],
                               cwd=SOC_DIR, text=True, capture_output=True,
                               env=env)
         after = csr.read_bytes()
+        left = sorted(p.name for p in gen.rglob("*")) if gen.exists() else []
     finally:
         planted.unlink()
-        shutil.rmtree(ROOT / "configs/generated" / planted.stem,
-                      ignore_errors=True)
+        shutil.rmtree(gen, ignore_errors=True)
         shutil.rmtree(OUT / planted.stem, ignore_errors=True)
         csr.write_bytes(before)
     assert proc.returncode != 0, (
@@ -14079,9 +14094,239 @@ def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
         f"the refusal does not name the file it protected\n{proc.stderr[-2000:]}"
     assert after == before, \
         f"the dry run left {eb.CSR_DEFAULTS_REL} modified"
+    # The put-back covers what the run CHANGED; the include directory it
+    # CREATED under the un-ignored configs/generated/<stem>/ is the other
+    # half of "as it found it", and only the refusal path may take it back.
+    assert not left, (f"the refused dry run left {gen.relative_to(ROOT)} "
+                      f"behind, holding {left}")
     print(f"  [gate 23j] a dry run whose builder run would rewrite "
           f"{Path(eb.CSR_DEFAULTS_REL).name} exited {proc.returncode} with no "
-          "launch line, and left the tracked bytes as it found them")
+          "launch line, left the tracked bytes as it found them and left no "
+          f"{gen.relative_to(ROOT)} behind")
+
+
+#  gate 23k (issue #402) - THE PRESERVATION ITSELF CAN FAIL, AND A FAILED
+#  ONE MUST NOT COST THE TREE ITS BYTES.
+#
+#  Gate 23j above grades the preservation when every command in it works.
+#  The commands it is made of can fail, and `regenerate` runs inside a
+#  command substitution where bash drops errexit, so nothing propagates on
+#  its own.  Three consequences were reachable and each is an arm here:
+#
+#    * a snapshot that fails with nothing written let the builder run and
+#      the launch go ahead over a rewritten tracked header;
+#    * a snapshot interrupted part-way was copied back over the original,
+#      which is the operator's bytes replaced by a prefix of themselves;
+#    * a put-back that failed was still reported as "put back unchanged".
+#
+#  The arms break ONE command of the launcher's own PATH per run - the
+#  tracked build.sh is never edited - and grade the bytes on disk, the
+#  absence of a launch and a provenance line, and whether the refusal
+#  describes the state it actually left.  A fourth arm starts with the
+#  protected file ABSENT: the builder would recreate it, which silently
+#  reverses a local deletion, so the launcher refuses before it runs.
+
+
+def _preservation_shim(tmp: Path, broken: str) -> Path:
+    """A PATH entry that breaks ONE command of build.sh's preservation.
+
+    `snapshot` fails the copy INTO the temporary directory with nothing
+    written, `partial` leaves a 32-byte prefix there and fails, `silent`
+    leaves the same prefix and reports SUCCESS - the one a status check
+    alone cannot see - `restore` fails the copy back INTO the repository,
+    and `mktemp` refuses the temporary directory itself.  Every other copy
+    is delegated to the real `cp`, so exactly one command of one run
+    misbehaves; no filesystem is filled and nothing outside the shim's own
+    directory is written.
+    """
+    real = shutil.which("cp", path=os.defpath)
+    assert real, "this host has no cp for the shim to delegate to"
+    into_repo = f'case "${{*: -1}}" in {ROOT}/*)'
+    short = 'head -c 32 "${*: -2:1}" > "${*: -1}"\n'
+    bodies = {
+        "snapshot": f'{into_repo} exec {real} "$@";; esac\nexit 71\n',
+        "partial": f'{into_repo} exec {real} "$@";; esac\n{short}exit 71\n',
+        "silent": f'{into_repo} exec {real} "$@";; esac\n{short}exit 0\n',
+        "restore": f'{into_repo} exit 72;; esac\nexec {real} "$@"\n',
+        "mktemp": "exit 70\n",
+    }
+    where = tmp / broken
+    where.mkdir(exist_ok=True)
+    shim = where / ("mktemp" if broken == "mktemp" else "cp")
+    shim.write_text("#!/bin/bash\n" + bodies[broken])
+    shim.chmod(0o755)
+    return where
+
+
+def _run_broken_preservation(broken: str | None, tmp: Path | None = None,
+                             planted=None, recipe: str = "arty",
+                             launch: bool = False) -> Any:
+    """`build.sh <recipe>`, with one command of its preservation broken.
+
+    `broken` None runs the launcher with its real commands; `planted` binds
+    a throwaway config to the recipe the way an operator's BUILD_CFG does.
+    A LAUNCH (no `--dry-run`) gets a HOME of its own, under which neither
+    the work directory nor the Vivado settings file exists: an arm that
+    failed to refuse would print its LAUNCHED line and start nothing, so
+    the launch half is graded on any box with no bitstream reachable.
+    """
+    env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
+    if planted is not None:
+        env["BUILD_CFG"] = str(planted.relative_to(ROOT))
+    if broken is not None:
+        assert tmp is not None, "a broken command needs a directory to live in"
+        env["PATH"] = f"{_preservation_shim(tmp, broken)}:{env['PATH']}"
+    if launch:
+        assert tmp is not None, "a launch needs a HOME of its own"
+        home = tmp / "home"
+        home.mkdir(exist_ok=True)
+        env["HOME"] = str(home)
+    args = [recipe] if launch else [recipe, "--dry-run"]
+    return subprocess.run(["bash", str(BUILD_SH)] + args, cwd=SOC_DIR,
+                          text=True, capture_output=True, env=env)
+
+
+def _tree_owning_recipe() -> tuple[str, Path] | tuple[None, None]:
+    """The recipe the entity gate lets LAUNCH, and the artefact it reads.
+
+    A real launch is refused by the entity-definition gate before it
+    reaches the preservation, so the launch arm can only be the recipe
+    whose config owns the tracked entity definition.  build.sh's own dry
+    run says which one that is: it PREVIEWS that refusal for every recipe
+    whose config does not own the tree, and its provenance line names the
+    artefact a builder run of the accepted one rewrites.
+    """
+    for name in _build_sh_recipe_names():
+        proc = _run_broken_preservation(None, recipe=name)
+        named = re.search(r"design argv from (\S+) \(regenerated", proc.stdout)
+        if proc.returncode == 0 and "would be REFUSED" not in proc.stdout \
+                and named:
+            return name, Path(named.group(1))
+    return None, None
+
+
+def _assert_refused(proc: Any, why: str, names: str) -> None:
+    """Non-zero, no launch line, no provenance line, and the cause named."""
+    tail = f"\n--- stdout\n{proc.stdout[-1500:]}\n--- stderr\n{proc.stderr[-1500:]}"
+    assert proc.returncode != 0, f"{why}: build.sh exited 0{tail}"
+    for spelling in ("milan_soc.py", "LAUNCHED"):
+        assert spelling not in proc.stdout, \
+            f"{why}: build.sh printed a {spelling} line{tail}"
+    assert "design argv from" not in proc.stdout, \
+        f"{why}: build.sh printed a provenance line for a run it refused{tail}"
+    assert names in proc.stderr, \
+        f"{why}: the refusal does not say {names!r}{tail}"
+
+
+def _kept_copy(stderr: str, rel: str) -> Path:
+    """The recovery copy a refusal names beside a file it could not restore."""
+    found = re.search(rf"{re.escape(rel)} <- (\S+)", stderr)
+    assert found, f"the refusal names no kept copy of {rel}:\n{stderr[-2000:]}"
+    kept = Path(found.group(1))
+    assert kept.is_file(), f"the copy the refusal names is not there: {kept}"
+    return kept
+
+
+def _launch_over_a_failed_snapshot(tmp: Path, before: bytes) -> None:
+    """The launch half: a real launch over a failed snapshot starts nothing.
+
+    Every other arm is a `--dry-run`, and a dry run is the case an operator
+    reaches for; the refusals are the same code either way, but "the same
+    code" is the claim, so one arm runs it as a LAUNCH.  It has to be the
+    recipe the entity gate accepts, because that gate refuses a launch
+    before the preservation is reached, and it is graded on the artefact
+    the accepted recipe reads: a builder run rewrites it, so an unmoved
+    mtime is this arm's proof that nothing ran.
+    """
+    recipe, artefact = _tree_owning_recipe()
+    if recipe is None:
+        skip("gate 23k", "no build.sh recipe's config owns the tracked entity "
+                         "definition, so no recipe can reach a real launch")
+        return
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    stamp = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    proc = _run_broken_preservation("snapshot", tmp, recipe=recipe,
+                                    launch=True)
+    _assert_refused(proc, f"a LAUNCH of {recipe} over a failed snapshot",
+                    "COMPLETE copy")
+    assert csr.read_bytes() == before, (
+        f"a launch over a failed snapshot left {eb.CSR_DEFAULTS_REL} modified")
+    now = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    assert now == stamp, (
+        f"a launch over a failed snapshot still ran the builder: {artefact} "
+        "was rewritten although the file it protects could not be copied")
+
+
+def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
+    """gate 23k - a broken snapshot or put-back never costs tracked bytes.
+
+    Seven arms over the throwaway config of gate 23j, each grading the
+    real file on disk: a refused temporary directory, a snapshot that
+    fails with nothing written, one that comes out short and says so, one
+    that comes out short and reports success, the same broken snapshot as
+    a real LAUNCH rather than a preview, a put-back that fails after the
+    builder really did rewrite the header, and the header ABSENT before
+    the run.  The first five must leave the header byte-identical and
+    prove the builder never ran, by the include directory it would have
+    created not being there.  The put-back arm must say what is still the
+    run's output, keep the operator's bytes in a copy it names, and not
+    claim it put anything back.  The absent arm must leave it absent.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    before = csr.read_bytes()
+    planted = _plant_rtl_table_config("gate23k_planted")
+    gen = ROOT / "configs/generated" / planted.stem
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            for broken, names in (("mktemp", "mktemp -d failed"),
+                                  ("snapshot", "COMPLETE copy"),
+                                  ("partial", "COMPLETE copy"),
+                                  ("silent", "COMPLETE copy")):
+                proc = _run_broken_preservation(broken, Path(td), planted)
+                _assert_refused(proc, f"the {broken} copy failed", names)
+                assert csr.read_bytes() == before, (
+                    f"a failed {broken} snapshot left {eb.CSR_DEFAULTS_REL} "
+                    "modified: the tree lost bytes to a copy that failed")
+                assert not gen.exists(), (
+                    f"a failed {broken} snapshot still let the builder write "
+                    f"{gen.relative_to(ROOT)}")
+            _launch_over_a_failed_snapshot(Path(td), before)
+            proc = _run_broken_preservation("restore", Path(td), planted)
+            _assert_refused(proc, "the put-back failed", "PUTTING THEM BACK")
+            kept = _kept_copy(proc.stderr, eb.CSR_DEFAULTS_REL)
+            assert kept.read_bytes() == before, (
+                f"{kept} is not the bytes this run found; a failed put-back "
+                "discarded the only copy of them")
+            assert csr.read_bytes() != before, (
+                "the arm did not reach a failed put-back: "
+                f"{eb.CSR_DEFAULTS_REL} was never rewritten")
+            assert "put back unchanged" not in proc.stderr, (
+                "the refusal claims it put the file back and it did not:\n"
+                f"{proc.stderr[-2000:]}")
+            assert not gen.exists(), (
+                f"the refused run left {gen.relative_to(ROOT)} behind")
+            shutil.rmtree(kept.parent, ignore_errors=True)
+            csr.write_bytes(before)
+            csr.unlink()
+            proc = _run_broken_preservation(None, planted=planted)
+            _assert_refused(proc, "the protected file was absent",
+                            "MISSING from the tree")
+            assert not csr.exists(), (
+                f"a run that found {eb.CSR_DEFAULTS_REL} absent recreated it, "
+                "silently reversing a local deletion")
+            assert not gen.exists(), \
+                "it ran the builder although it could not preserve the tree"
+    finally:
+        planted.unlink(missing_ok=True)
+        shutil.rmtree(gen, ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+        csr.write_bytes(before)
+    print(f"  [gate 23k] over {Path(eb.CSR_DEFAULTS_REL).name}: a refused "
+          "temporary directory, a copy that failed, one short and loud, one "
+          "short and silent, the first as a real launch, a failed put-back "
+          "and an absent file each refused with no launch line, no "
+          "provenance line, the bytes on disk untouched or named with the "
+          "copy kept for them, and no include directory left behind")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
@@ -16415,6 +16660,7 @@ if __name__ == "__main__":
                test_build_sh_argv_follows_the_config,
                test_build_sh_grades_its_own_bindings,
                test_build_sh_dry_run_leaves_the_tracked_tree,
+               test_build_sh_refuses_a_preservation_it_cannot_complete,
                test_toolchain_patches_are_applied,
                test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,

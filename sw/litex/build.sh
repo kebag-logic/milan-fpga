@@ -18,7 +18,10 @@
 #                                      # A dry run still RUNS THE BUILDER (design_argv):
 #                                      # it rewrites this config's artefacts under
 #                                      # sw/builder/out/, and leaves every tracked
-#                                      # generated file as it found it or refuses.
+#                                      # generated file as it found it - an absent
+#                                      # one included - or refuses; a refusal also
+#                                      # takes back an include directory that run
+#                                      # created.
 #   BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101
 #                                      # a named recipe's flow flags on another config
 #                                      # under configs/ (sweep.sh: SWEEP_CFG)
@@ -208,11 +211,70 @@ tracked_generated_for() {
     # starts writing there is covered the day it appears. A launcher must
     # not move any of them behind the operator, so regenerate() puts back
     # whatever its run changed and refuses - the way the entity definition
-    # already moves only on a deliberate --write-rtl.
+    # already moves only on a deliberate --write-rtl. GEN_DIR is that
+    # include directory: the glob can only name files it ALREADY holds, so
+    # the directory a run creates is regenerate()'s CREATED_GEN instead.
+    GEN_DIR="$REPO_ROOT/configs/generated/$(basename "$1" .yaml)"
     TRACKED_GEN=("$REPO_ROOT/hdl/common/csr/gen/lwsrp_csr_defaults.svh")
-    for tracked in "$REPO_ROOT/configs/generated/$(basename "$1" .yaml)/gen/"*; do
+    for tracked in "$GEN_DIR/gen/"*; do
         if [ -f "$tracked" ]; then TRACKED_GEN+=("$tracked"); fi
     done
+}
+snapshot_tracked_generated() {
+    # ---- put a COMPLETE copy of each protected file in "$SNAP", or REFUSE ----------
+    # Before the builder is allowed to write one of them, and judged: a
+    # snapshot that is not complete is worse than no snapshot at all,
+    # because it is what the put-back would copy over the operator's file.
+    # So each copy is taken from a file that is there, its own status is
+    # read, and the copy is then COMPARED with what it was taken from - an
+    # interrupted or out-of-space `cp` leaves a short file behind and
+    # either half catches it, with the builder not yet run. A protected
+    # file that is MISSING refuses here too: the builder would recreate it,
+    # and putting an absence back is not a launcher's to do.
+    slot=0
+    for tracked in "${TRACKED_GEN[@]}"; do
+        slot=$((slot + 1))
+        rel=${tracked#"$REPO_ROOT/"}
+        if [ ! -f "$tracked" ]; then
+            echo "refusing to build: the tracked generated file $rel that a builder run of this config writes is MISSING from the tree, and regenerating would recreate it - silently undoing its removal. Put it back (git checkout -- $rel), or drop it from tracked_generated_for in this script if it is meant to be gone. Nothing was regenerated." >&2
+            return 1
+        fi
+        if ! cp -p "$tracked" "$SNAP/$slot" || ! cmp -s "$tracked" "$SNAP/$slot"; then
+            echo "refusing to build: could not put a COMPLETE copy of the tracked generated file $rel aside in $SNAP before regenerating (the copy failed or came out short), so a refusal could not put it back. Nothing was regenerated." >&2
+            return 1
+        fi
+    done
+}
+restore_tracked_generated() {
+    # ---- put back whatever the run moved, and PROVE each put-back ------------------
+    # MOVED is what is the operator's again, byte for byte: the put-back is
+    # compared with the snapshot it came from, so a copy that fails or comes
+    # out short is never reported as a restoration. STUCK is the rest - the
+    # file is still the run's output, and the bytes this launcher found stay
+    # in "$SNAP" for the operator rather than being deleted under them.
+    MOVED=""; STUCK=""
+    slot=0
+    for tracked in "${TRACKED_GEN[@]}"; do
+        slot=$((slot + 1))
+        rel=${tracked#"$REPO_ROOT/"}
+        if cmp -s "$SNAP/$slot" "$tracked"; then continue; fi
+        if cp -p "$SNAP/$slot" "$tracked" && cmp -s "$SNAP/$slot" "$tracked"; then
+            MOVED="$MOVED $rel"
+        else
+            STUCK="$STUCK $rel <- $SNAP/$slot"
+        fi
+    done
+}
+drop_created_gen_dir() {
+    # ---- take back the include directory THIS run created, on a refusal ------------
+    # configs/generated/<stem>/gen/ is un-ignored ON PURPOSE (.gitignore),
+    # so a refused run of a config that had no include directory would
+    # otherwise leave a new one in the tree - the generated output of a
+    # launch that did not happen. Only a directory this run created is
+    # removed, and only on the refusal path: an accepted run needs it,
+    # because --entity-gen-dir points the launch at it.
+    [ -n "$CREATED_GEN" ] && [ -d "$CREATED_GEN" ] || return 0
+    rm -rf "$CREATED_GEN" || echo "note: the include directory $CREATED_GEN this refused run created could not be removed; nothing compiles it" >&2
 }
 regenerate() {
     # ---- run the builder for config "$1" in THIS shell, or REFUSE ------------------
@@ -223,33 +285,35 @@ regenerate() {
     # the PREVIOUS artefact on the launch line while the provenance line says
     # it was regenerated - #157's RV64-under-an-RV32-config divergence, back
     # on the failure path (CODE_QUALITY rule 13: a first-party shell script
-    # MUST fail when the thing it runs fails).
+    # MUST fail when the thing it runs fails). The preservation AROUND the
+    # run is held to the same rule, in the order that makes it mean
+    # something: a complete snapshot first, the builder only then, the
+    # put-back proved, and the snapshot dropped only once it is no longer
+    # the only copy of the operator's bytes.
     cfg=$1
     tracked_generated_for "$cfg"
-    snap=$(mktemp -d)
-    slot=0
-    for tracked in "${TRACKED_GEN[@]}"; do
-        slot=$((slot + 1))
-        if [ -f "$tracked" ]; then cp -p "$tracked" "$snap/$slot"; fi
-    done
+    CREATED_GEN=""
+    if [ ! -d "$GEN_DIR" ]; then CREATED_GEN="$GEN_DIR"
+    elif [ ! -d "$GEN_DIR/gen" ]; then CREATED_GEN="$GEN_DIR/gen"; fi
+    SNAP=$(mktemp -d) || { echo "refusing to build: could not create the temporary directory that holds the tracked generated files while the builder runs (mktemp -d failed). Nothing was regenerated." >&2; return 1; }
+    snapshot_tracked_generated || { rm -rf "$SNAP"; return 1; }
     rc=0
     python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null || rc=$?
-    moved=""
-    slot=0
-    for tracked in "${TRACKED_GEN[@]}"; do
-        slot=$((slot + 1))
-        if [ -f "$snap/$slot" ] && ! cmp -s "$snap/$slot" "$tracked"; then
-            cp -p "$snap/$slot" "$tracked"
-            moved="$moved ${tracked#"$REPO_ROOT/"}"
-        fi
-    done
-    rm -rf "$snap"
-    if [ "$rc" != 0 ]; then
-        echo "refusing to build: regenerating $(soc_params_for "$cfg") from $cfg FAILED (endstation_builder.py exited $rc, its error is above). Nothing launched; the design argv already on file was NOT used." >&2
+    restore_tracked_generated
+    if [ -n "$STUCK" ]; then
+        echo "refusing to build: regenerating $cfg rewrote tracked generated file(s) and PUTTING THEM BACK FAILED (endstation_builder.py exited $rc). Put each one back by hand with a cp of the second path over the first, then remove $SNAP yourself - it is deliberately NOT deleted, because it holds the only copy of your bytes. STILL THIS RUN'S OUTPUT, not yours:$STUCK" >&2
+        drop_created_gen_dir
         return 1
     fi
-    if [ -n "$moved" ]; then
-        echo "refusing to build: regenerating $cfg would rewrite tracked generated file(s):$moved - put back unchanged. Moving one is a deliberate act: run python3 sw/builder/endstation_builder.py $cfg yourself, commit the result, then relaunch." >&2
+    rm -rf "$SNAP" || echo "note: $SNAP could not be removed; every tracked generated file is as this run found it" >&2
+    if [ "$rc" != 0 ]; then
+        echo "refusing to build: regenerating $(soc_params_for "$cfg") from $cfg FAILED (endstation_builder.py exited $rc, its error is above). Nothing launched; the design argv already on file was NOT used." >&2
+        drop_created_gen_dir
+        return 1
+    fi
+    if [ -n "$MOVED" ]; then
+        echo "refusing to build: regenerating $cfg would rewrite tracked generated file(s):$MOVED - put back unchanged. Moving one is a deliberate act: run python3 sw/builder/endstation_builder.py $cfg yourself, commit the result, then relaunch." >&2
+        drop_created_gen_dir
         return 1
     fi
 }
@@ -259,7 +323,13 @@ read_design_argv() {
     # in it must stop the run: a partial line reaches argparse as a set of
     # milan_soc.py DEFAULTS, which is how a launch silently becomes a shape
     # nobody chose. The identity check is the same `_source_config` the
-    # shape gate reads.
+    # shape gate reads. What is NOT checked here, stated so the next change
+    # to the builder cannot remove it by accident: that THIS run wrote the
+    # argv being read. It is inferred from regenerate() having succeeded,
+    # which holds only while every builder path writes the artefact of the
+    # config it was given - the same inference sweep.sh's entity_defs makes,
+    # and the one check_sweep_shape.py's freshness arm proves for the
+    # shipped recipes.
     python3 -c 'import json, pathlib, sys
 artefact, want = pathlib.Path(sys.argv[1]), sys.argv[2]
 try:

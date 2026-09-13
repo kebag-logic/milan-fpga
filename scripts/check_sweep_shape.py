@@ -663,9 +663,12 @@ def _self_test_regeneration(build_text):
 
     Every plant keeps the regeneration line and breaks the run itself,
     which is the case a deleted-line control cannot reach. Each must end
-    `build.sh` non-zero with NO launch line and NO provenance line, in a
-    dry run as in a launch, and say what failed. 0 = every one refused,
-    2 = one went through.
+    `build.sh` non-zero with NO launch line and NO provenance line, and
+    say what failed. They run as dry runs, which is the call an operator
+    reaches for and the one this gate reads launch lines from; the launch
+    half of the same path is held by gate 23k in sw/builder/test_builder.py,
+    which refuses one REAL launch. 0 = every one refused, 2 = one went
+    through.
     """
     for why, old, new, named in REGENERATION_PLANTS:
         if build_text.count(old) != 1:
