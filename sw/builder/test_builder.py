@@ -13319,9 +13319,15 @@ def _gptp_without_owner_flag(argv):
 def _launcher_soc_argv(script: Path, args, env=None):
     """The milan_soc.py argv printed by a launcher's real dry-run path.
 
-    `env` is the launcher's environment (the caller's own by default); gate
-    23i passes BUILD_CFG through it.
+    `env` is the launcher's environment. By default it is the caller's with
+    BUILD_CFG REMOVED: that variable rebinds a build.sh recipe to another
+    config, so a shell that exported it (the documented one-call override)
+    would otherwise have every gate below grade ONE config three times
+    under three recipe names and stay green. A gate that is about the
+    override passes it explicitly, the way gate 23i does.
     """
+    if env is None:
+        env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
     proc = subprocess.run(["bash", str(script)] + list(args), cwd=SOC_DIR,
                           text=True, capture_output=True, env=env)
     assert proc.returncode == 0, (
@@ -13996,6 +14002,86 @@ def test_build_sh_argv_follows_the_config() -> None:
           f"{len(after)} with build.sh unedited; the other "
           f"{len(split[0][0])} design tokens and the {len(split[0][2])}-token "
           "flow tail are the unplanted line's, verbatim")
+
+
+def test_build_sh_grades_its_own_bindings() -> None:
+    """gate 23i-b - an exported BUILD_CFG does not regrade the recipes.
+
+    BUILD_CFG is the documented one-call override, so an operator or a CI
+    step can have it exported while a gate runs.  Every gate here that reads
+    a build.sh launch line would then read the SAME config three times under
+    three recipe names and still report three recipes elaborating: the case
+    those gates exist for becomes invisible.  The reader strips it; this is
+    the arm that proves the reader strips it.
+    """
+    own = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+           for name in _build_sh_recipe_names()}
+    other = str(CONFIGS["ax7101_8x8"].relative_to(ROOT))
+    keep = os.environ.get("BUILD_CFG")
+    os.environ["BUILD_CFG"] = other
+    try:
+        under = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+                 for name in _build_sh_recipe_names()}
+    finally:
+        if keep is None:
+            del os.environ["BUILD_CFG"]
+        else:
+            os.environ["BUILD_CFG"] = keep
+    for name, argv in under.items():
+        assert argv == own[name], (
+            f"build.sh {name}: an exported BUILD_CFG={other} moved the "
+            f"launch line this gate reads\n under {argv}\n own   {own[name]}")
+    assert len({tuple(a) for a in own.values()}) == len(own), \
+        "the recipes print identical launch lines, so this arm proves nothing"
+    print(f"  [gate 23i-b] {len(own)} build.sh recipes keep their own "
+          f"bindings with BUILD_CFG={Path(other).name} exported")
+
+
+def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
+    """gate 23j - a dry run never leaves a tracked generated file moved.
+
+    Since #402 every dry run RUNS THE BUILDER, and a builder run writes
+    tracked generated files: this config's shape include, and - for any
+    config carrying `srp.rtl_table` - hdl/common/csr/gen/
+    lwsrp_csr_defaults.svh, the lwSRP CSR reset words that EVERY recipe's
+    gateware compiles.  A preview that rewrote those would change what the
+    next bitstream of any other recipe contains, and nothing on the launch
+    path would refuse it.  build.sh puts back whatever its regeneration
+    moved and refuses; this gate is that arm, planted with a throwaway
+    config whose reset words really do differ.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    before = csr.read_bytes()
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    assert cfg["srp"]["rtl_table"], \
+        "the throwaway must inherit the tracked-header ownership it tests"
+    cfg["srp"]["enable_at_reset"] = not cfg["srp"].get("enable_at_reset")
+    planted = ROOT / "configs" / "gate23j_planted.yaml"
+    planted.write_text(yaml.safe_dump(cfg))
+    env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
+    try:
+        proc = subprocess.run(["bash", str(BUILD_SH), "arty", "--dry-run"],
+                              cwd=SOC_DIR, text=True, capture_output=True,
+                              env=env)
+        after = csr.read_bytes()
+    finally:
+        planted.unlink()
+        shutil.rmtree(ROOT / "configs/generated" / planted.stem,
+                      ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+        csr.write_bytes(before)
+    assert proc.returncode != 0, (
+        "a dry run whose regeneration rewrites the tracked lwSRP CSR reset "
+        f"words exited 0\n{proc.stdout[-2000:]}")
+    assert "milan_soc.py" not in proc.stdout, \
+        f"it printed a launch line anyway\n{proc.stdout[-2000:]}"
+    assert eb.CSR_DEFAULTS_REL in proc.stderr, \
+        f"the refusal does not name the file it protected\n{proc.stderr[-2000:]}"
+    assert after == before, \
+        f"the dry run left {eb.CSR_DEFAULTS_REL} modified"
+    print(f"  [gate 23j] a dry run whose builder run would rewrite "
+          f"{Path(eb.CSR_DEFAULTS_REL).name} exited {proc.returncode} with no "
+          "launch line, and left the tracked bytes as it found them")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
@@ -16327,6 +16413,8 @@ if __name__ == "__main__":
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,
                test_build_sh_argv_follows_the_config,
+               test_build_sh_grades_its_own_bindings,
+               test_build_sh_dry_run_leaves_the_tracked_tree,
                test_toolchain_patches_are_applied,
                test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,

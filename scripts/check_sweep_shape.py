@@ -47,6 +47,7 @@ import json
 import os
 import re
 import subprocess
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -110,7 +111,7 @@ BUILD_PLANTS = [
       "cfg_ax8x8: design flag --num-streams:",
       "cfg_ax8x8: build.sh regenerated")),
     ("the reader drops the first design flag pair",
-     '["argv"]))', '["argv"][2:]))',
+     'print(" ".join(argv))', 'print(" ".join(argv[2:]))',
      ("cfg_ax7101: design flag --board:", "cfg_arty: design flag --board:")),
     ("the launch line drops the sourced argv",
      "exec python3 milan_soc.py $args ", "exec python3 milan_soc.py ",
@@ -118,10 +119,51 @@ BUILD_PLANTS = [
       "cfg_arty: no --entity-gen-dir")),
 ]
 
-#: The regeneration line design_argv runs; the stale-artefact control
-#: deletes it to prove the freshness check needs it.
-REGENERATE_LINE = ('    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" '
-                   '"$REPO_ROOT/$cfg" > /dev/null\n')
+# Ways build.sh's regeneration can FAIL, planted in its text and executed in
+# place. design_argv runs inside a command substitution, where bash drops
+# errexit, so each of these once returned 0 with the PREVIOUS artefact on the
+# launch line under a provenance line that said it had been regenerated: the
+# #157 divergence class on the failure path. Deleting the regeneration line
+# proves nothing about a regeneration that RAN and failed, so every plant
+# keeps the line and breaks the run instead.
+#   (why, old fragment, new fragment, what the refusal must name)
+REGENERATION_PLANTS = [
+    ("the builder run fails",
+     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null',
+     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg"'
+     ' --selftest-no-such-flag > /dev/null',
+     "endstation_builder.py exited"),
+    ("the artefact cannot be read",
+     "json.loads(artefact.read_text())",
+     'json.loads(artefact.read_text() + "!")',
+     "cannot be read"),
+    ("the artefact carries no design argv",
+     'argv = params.get("argv")', 'argv = params.get("argv_absent")',
+     "carries no design argv"),
+    ("the artefact is another config's emission",
+     'echo "$REPO_ROOT/sw/builder/out/$(basename "$1" .yaml)/soc_params.json"',
+     'echo "$REPO_ROOT/sw/builder/out/endstation_ax7101_8x8/soc_params.json"',
+     "was generated from"),
+]
+
+# BUILD_CFG values that must be REFUSED by name, before any builder run: the
+# stem of that path picks BOTH the artefact design_argv reads and the
+# configs/generated include --entity-gen-dir names, so a same-stem config
+# anywhere else pairs one config's argv with another config's shape include.
+# Whether the file exists is not the point; where it is, is.
+#   (why, the BUILD_CFG value)
+#: The phrase build.sh's own refusal carries. A control that accepted any
+#: non-zero exit would be satisfied by "no such config", which is a
+#: DIFFERENT refusal and would let the rule itself be deleted.
+BUILD_CFG_RULE = "DIRECTLY under configs/"
+BUILD_CFG_REJECTS = [
+    ("a file that is not under configs/", "README.md"),
+    ("a config one level below configs/", "configs/generated/probe.yaml"),
+    ("an absolute path to a real config",
+     str(ROOT / "configs/endstation_arty_current.yaml")),
+    ("a .yml spelling, whose artefact path the launcher would miss",
+     "configs/endstation_arty_current.yml"),
+]
 
 
 def _yaml():
@@ -298,19 +340,27 @@ def recipe_names(text: str) -> list[str]:
     return names
 
 
-def dry_run(text: str, name: str) -> DryRun:
-    """`build.sh <name> --dry-run`, executed from `text`, read back.
+def run_build_sh(text: str, args: list[str], build_cfg: str | None = None
+                 ) -> subprocess.CompletedProcess:
+    """`build.sh <args>`, executed from `text`.
 
-    Executed with `bash -c` and $0 set to the real build.sh path, so
-    SOC_DIR and REPO_ROOT resolve as they do for the tracked file while the
-    self-test can run a mutated copy without writing one into sw/litex.
-    BUILD_CFG is stripped from the environment: the gate grades the recipes'
-    own bindings, never a caller's override.
+    `bash -c` with $0 set to the real build.sh path, so SOC_DIR and
+    REPO_ROOT resolve as they do for the tracked file while the self-test
+    runs a mutated copy without writing one into sw/litex. BUILD_CFG is
+    stripped: the gate grades the recipes' own bindings, never a caller's
+    override. A control that is ABOUT BUILD_CFG passes one.
     """
     env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
-    proc = subprocess.run(["bash", "-c", text, str(BUILD), name, "--dry-run"],
+    if build_cfg is not None:
+        env["BUILD_CFG"] = build_cfg
+    return subprocess.run(["bash", "-c", text, str(BUILD)] + args,
                           cwd=BUILD.parent, capture_output=True, text=True,
                           env=env)
+
+
+def dry_run(text: str, name: str) -> DryRun:
+    """`build.sh <name> --dry-run`, executed from `text`, read back."""
+    proc = run_build_sh(text, [name, "--dry-run"])
     argv = artefact = config = None
     for line in proc.stdout.splitlines():
         m = PROVENANCE_RE.match(line)
@@ -496,6 +546,9 @@ def run_static(sweep_path: str | Path = SWEEP,
 #: without it until #362 (2026-09-06), so the two launchers had drifted.
 LAUNCH_SEED = "export PYTHONHASHSEED=0"
 LAUNCH_ENTRY = "milan_soc.py"
+#: The first FLOW flag design_argv appends: everything before it on the launch
+#: line is the design argv the artefact supplied, verbatim.
+LAUNCH_GEN_DIR = "--entity-gen-dir"
 
 
 def launch_seed_position(text: str) -> tuple[int | None, int | None]:
@@ -605,47 +658,183 @@ def _self_test_build_plants(build_text):
     return 0
 
 
-def _self_test_stale_artefact(build_text):
-    """The regeneration is load-bearing: a stale artefact (its --xlen
-    flipped to 64) is overwritten by the tracked build.sh and ACCEPTED,
-    and is carried onto the launch line and REJECTED by a build.sh whose
-    regeneration line is deleted. The planted bytes are restored either
-    way. 0 = both held, 2 = one did not."""
-    name = "arty"
-    unregenerated = build_text.replace(REGENERATE_LINE, "")
-    if unregenerated == build_text:
-        print("self-test: could not delete the regeneration line",
-              file=sys.stderr)
-        return 2
-    run = dry_run(build_text, name)
-    if run.failure:
-        print(f"self-test: {run.failure}", file=sys.stderr)
-        return 2
-    artefact = Path(run.artefact)
-    original = artefact.read_bytes()
-    stale = json.loads(original)
-    stale["argv"][stale["argv"].index("--xlen") + 1] = "64"
-    planted = (json.dumps(stale, indent=1) + "\n").encode()
-    try:
-        artefact.write_bytes(planted)
-        print("  [self-test] stale artefact under the tracked build.sh - "
-              "expecting ACCEPT (regenerated):")
-        if check_build_sh(build_text, quiet=True):
-            print("self-test FAILED: the tracked build.sh launched a stale "
-                  "artefact", file=sys.stderr)
+def _self_test_regeneration(build_text):
+    """The regeneration is JUDGED, not merely run.
+
+    Every plant keeps the regeneration line and breaks the run itself,
+    which is the case a deleted-line control cannot reach. Each must end
+    `build.sh` non-zero with NO launch line and NO provenance line, in a
+    dry run as in a launch, and say what failed. 0 = every one refused,
+    2 = one went through.
+    """
+    for why, old, new, named in REGENERATION_PLANTS:
+        if build_text.count(old) != 1:
+            print(f"self-test: {old!r} matched {build_text.count(old)} times "
+                  f"in build.sh, want 1 ({why})", file=sys.stderr)
             return 2
-        artefact.write_bytes(planted)
-        print("  [self-test] stale artefact, regeneration line deleted - "
-              "expecting REJECT:")
-        bad_mut = check_build_sh(unregenerated, quiet=True)
+        mutated = build_text.replace(old, new)
+        print(f"  [self-test] {why} - expecting REFUSAL:")
+        proc = run_build_sh(mutated, ["arty", "--dry-run"])
+        if proc.returncode == 0 or LAUNCH_ENTRY in proc.stdout or any(
+                PROVENANCE_RE.match(line)
+                for line in proc.stdout.splitlines()):
+            print(f"self-test FAILED: {why} and build.sh exited "
+                  f"{proc.returncode}, printing:\n{proc.stdout[-400:]}",
+                  file=sys.stderr)
+            return 2
+        if named not in proc.stderr:
+            print(f"self-test FAILED: {why} and the refusal did not name "
+                  f"{named!r}: {proc.stderr.strip()[-300:]}", file=sys.stderr)
+            return 2
+        print(f"  [self-test] OK: build.sh exited {proc.returncode}, no "
+              f"launch line, no provenance line, refusal names {named!r}")
+    # The gate must REPORT that refusal rather than read a stale line as a
+    # pass: with the exit status ignored, a launcher that refused would be
+    # graded on whatever its output happened to contain.
+    why, old, new, _ = REGENERATION_PLANTS[0]
+    bad_mut = check_build_sh(build_text.replace(old, new), quiet=True)
+    if not any("--dry-run exited" in drift for drift in bad_mut):
+        print(f"self-test FAILED: the gate did not report {why} as a "
+              f"non-zero exit of build.sh ({bad_mut})", file=sys.stderr)
+        return 2
+    print(f"  [self-test] OK: the gate reports it as a non-zero exit "
+          f"({len(bad_mut)} drift(s))")
+    return 0
+
+
+def _self_test_provenance_agrees(build_text):
+    """The passing case, asserted rather than assumed.
+
+    For every recipe: the provenance line names the config the recipe is
+    bound to, the artefact it names exists, that artefact says the same
+    config wrote it, and the design part of the launch line is that
+    artefact's argv VERBATIM. Without it the negative controls above would
+    all pass on a launcher that refused everything.
+    """
+    for name, cfg_path in sorted(BUILD_CFGS.items()):
+        run = dry_run(build_text, name)
+        if run.failure:
+            print(f"self-test FAILED: {run.failure}", file=sys.stderr)
+            return 2
+        artefact = Path(run.artefact)
+        if run.config != cfg_path or not artefact.is_file():
+            print(f"self-test FAILED: cfg_{name}'s provenance line names "
+                  f"{run.config} and {artefact}", file=sys.stderr)
+            return 2
+        params = json.loads(artefact.read_text())
+        if params.get("_source_config") != cfg_path:
+            print(f"self-test FAILED: {artefact} says "
+                  f"{params.get('_source_config')!r} wrote it, and the "
+                  f"provenance line says {cfg_path}", file=sys.stderr)
+            return 2
+        if LAUNCH_GEN_DIR not in run.argv:
+            print(f"self-test FAILED: cfg_{name}'s launch line has no "
+                  f"{LAUNCH_GEN_DIR} to end its design part at",
+                  file=sys.stderr)
+            return 2
+        design = run.argv[:run.argv.index(LAUNCH_GEN_DIR)]
+        if design != params.get("argv"):
+            print(f"self-test FAILED: cfg_{name}'s launch line is not the "
+                  f"argv of the artefact its provenance line names:\n"
+                  f" line     {design}\n artefact {params.get('argv')}",
+                  file=sys.stderr)
+            return 2
+        print(f"  [self-test] OK: cfg_{name} launched the {len(design)} "
+              f"design tokens of the artefact it says it regenerated from "
+              f"{cfg_path}")
+    return 0
+
+
+def _self_test_artefact_arms():
+    """Each arm of `artefact_drift`, against a planted temporary artefact.
+
+    The comparisons the freshness claim rests on - the config the launcher
+    regenerated, the config the artefact names as its source, and the argv
+    being emit_soc_argv right now - are graded one at a time, so none can
+    be deleted or inverted while every other control stays green. The rows
+    are synthetic: nothing in the tree is written.
+    """
+    name, cfg_path = "arty", BUILD_CFGS["arty"]
+    argv = design_opts_expected(cfg_path)
+    stale = list(argv)
+    stale[stale.index("--xlen") + 1] = "64"
+    rows = [
+        ("an artefact another config wrote", cfg_path,
+         {"_source_config": "configs/endstation_ax7101_8x8.yaml",
+          "argv": argv}, "was generated from"),
+        ("an artefact whose argv is not that config's current emission",
+         cfg_path, {"_source_config": cfg_path, "argv": stale}, "is stale"),
+        ("a launcher that regenerated another config",
+         "configs/endstation_ax7101_8x8.yaml",
+         {"_source_config": cfg_path, "argv": argv}, "build.sh regenerated"),
+    ]
+    tmp = Path(tempfile.mkdtemp()) / "soc_params.json"
+    try:
+        for why, regenerated, params, expected in rows:
+            tmp.write_text(json.dumps(params))
+            print(f"  [self-test] {why} - expecting REJECT:")
+            bad = artefact_drift(name, cfg_path,
+                                 DryRun(argv, str(tmp), regenerated, None))
+            if not any(expected in drift for drift in bad):
+                print(f"self-test FAILED: {why} did not report "
+                      f"{expected!r} ({bad})", file=sys.stderr)
+                return 2
+            print(f"  [self-test] OK: {len(bad)} drift(s) reported")
+        tmp.write_text(json.dumps({"_source_config": cfg_path, "argv": argv}))
+        bad = artefact_drift(name, cfg_path, DryRun(argv, str(tmp),
+                                                    cfg_path, None))
+        if bad:
+            print(f"self-test FAILED: a current artefact was reported as "
+                  f"drifted ({bad})", file=sys.stderr)
+            return 2
+        tmp.unlink()
+        bad = artefact_drift(name, cfg_path, DryRun(argv, str(tmp),
+                                                    cfg_path, None))
+        if not any("does not exist" in drift for drift in bad):
+            print(f"self-test FAILED: a missing artefact was accepted "
+                  f"({bad})", file=sys.stderr)
+            return 2
     finally:
-        artefact.write_bytes(original)
-    want = (f"cfg_{name}: design flag --xlen:", f"cfg_{name}: {artefact} is stale")
-    if not all(any(w in d for d in bad_mut) for w in want):
-        print(f"self-test FAILED: the stale artefact was accepted ({bad_mut})",
+        shutil.rmtree(tmp.parent, ignore_errors=True)
+    print("  [self-test] OK: a current artefact reports nothing, a missing "
+          "one is rejected")
+    return 0
+
+
+def _self_test_build_cfg_scope(build_text):
+    """BUILD_CFG is limited to configs/, and the refusal comes first.
+
+    Every value in BUILD_CFG_REJECTS must be refused BY THE RULE with no
+    launch line, and a config that IS under configs/ must still rebind the
+    recipe - otherwise the rule could be kept by refusing everything.
+    """
+    for why, value in BUILD_CFG_REJECTS:
+        print(f"  [self-test] BUILD_CFG is {why} - expecting REFUSAL:")
+        proc = run_build_sh(build_text, ["arty", "--dry-run"], build_cfg=value)
+        if proc.returncode == 0 or LAUNCH_ENTRY in proc.stdout:
+            print(f"self-test FAILED: BUILD_CFG={value} was accepted "
+                  f"(exit {proc.returncode})", file=sys.stderr)
+            return 2
+        if BUILD_CFG_RULE not in proc.stderr:
+            print(f"self-test FAILED: BUILD_CFG={value} was refused without "
+                  f"naming the rule ({BUILD_CFG_RULE!r}): "
+                  f"{proc.stderr.strip()[-300:]}", file=sys.stderr)
+            return 2
+        print(f"  [self-test] OK: build.sh exited {proc.returncode} naming "
+              f"the rule ({BUILD_CFG_RULE!r})")
+    rebind = BUILD_CFGS["ax8x8"]
+    print(f"  [self-test] BUILD_CFG={rebind} on cfg_arty - expecting ACCEPT:")
+    proc = run_build_sh(build_text, ["arty", "--dry-run"], build_cfg=rebind)
+    if proc.returncode != 0 or LAUNCH_ENTRY not in proc.stdout:
+        print(f"self-test FAILED: a config under configs/ was refused "
+              f"(exit {proc.returncode}): {proc.stderr.strip()[-300:]}",
               file=sys.stderr)
         return 2
-    print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
+    if f"(regenerated from {rebind})" not in proc.stdout:
+        print(f"self-test FAILED: BUILD_CFG={rebind} did not rebind cfg_arty",
+              file=sys.stderr)
+        return 2
+    print("  [self-test] OK: the recipe was rebound to a config under configs/")
     return 0
 
 
@@ -727,7 +916,16 @@ def _run_self_test(sweep_path):
     status = _self_test_build_plants(build_text)
     if status:
         return status
-    status = _self_test_stale_artefact(build_text)
+    status = _self_test_regeneration(build_text)
+    if status:
+        return status
+    status = _self_test_provenance_agrees(build_text)
+    if status:
+        return status
+    status = _self_test_artefact_arms()
+    if status:
+        return status
+    status = _self_test_build_cfg_scope(build_text)
     if status:
         return status
     status = _self_test_unbound_recipe(build_text)

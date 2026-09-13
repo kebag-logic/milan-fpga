@@ -11,8 +11,14 @@
 #                                      # saturate-the-box rule (3 x 32 threads)
 #   TAG=myrun ./build.sh arty          # output dir suffix (default: date +%m%d%H%M)
 #   ./build.sh arty -- --sys-clk-freq 90e6   # append/override milan_soc.py args
-#   ./build.sh ax8x8 --dry-run           # print the launch line, start nothing (the
-#                                      # tracked-shape refusal is previewed, not enforced)
+#   ./build.sh ax8x8 --dry-run           # print the launch line, start nothing.
+#                                      # The entity-definition refusal is PREVIEWED,
+#                                      # not enforced; every other refusal here is
+#                                      # enforced in a dry run exactly as in a launch.
+#                                      # A dry run still RUNS THE BUILDER (design_argv):
+#                                      # it rewrites this config's artefacts under
+#                                      # sw/builder/out/, and leaves every tracked
+#                                      # generated file as it found it or refuses.
 #   BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101
 #                                      # a named recipe's flow flags on another config
 #                                      # under configs/ (sweep.sh: SWEEP_CFG)
@@ -162,6 +168,23 @@ recipe_config() {  # -> the end-station config named recipe "$1" builds
     # config under configs/, named relative to the repository root, so that
     # its generated/ include dir is where design_argv points --entity-gen-dir.
     if [ -n "${BUILD_CFG:-}" ]; then
+        # The STEM of this path picks two different things: the artefact
+        # design_argv reads (sw/builder/out/<stem>/soc_params.json) and the
+        # include dir it points --entity-gen-dir at (configs/generated/<stem>,
+        # which the builder writes only for a config under configs/). A
+        # same-stem config anywhere else therefore pairs ONE config's design
+        # argv with ANOTHER config's shape include - #155's "another config's
+        # artefacts" class - so the rule is checked here, by name, before the
+        # entity gate and before any builder run.
+        case "$BUILD_CFG" in
+            *..*|configs/*/*|*/)  scoped=0;;
+            configs/*.yaml)       scoped=1;;
+            *)                    scoped=0;;
+        esac
+        if [ "$scoped" != 1 ]; then
+            echo "BUILD_CFG=$BUILD_CFG: a recipe rebinds only to a config DIRECTLY under configs/, named relative to the repository root as configs/<name>.yaml - its stem picks both sw/builder/out/<name>/soc_params.json and the configs/generated/<name> include this launch would compile" >&2
+            return 1
+        fi
         [ -f "$REPO_ROOT/$BUILD_CFG" ] || { echo "BUILD_CFG=$BUILD_CFG: no such config under the repository root" >&2; return 1; }
         echo "$BUILD_CFG"; return
     fi
@@ -175,17 +198,97 @@ recipe_config() {  # -> the end-station config named recipe "$1" builds
 soc_params_for() {  # -> the builder artefact design_argv reads for config "$1"
     echo "$REPO_ROOT/sw/builder/out/$(basename "$1" .yaml)/soc_params.json"
 }
+tracked_generated_for() {
+    # ---- TRACKED_GEN: the tracked files a builder run of config "$1" writes --------
+    # On its way to the artefact the builder also rewrites generated files
+    # that are IN the tree: the lwSRP CSR reset words, which are TREE-WIDE
+    # (one config carries srp.rtl_table and owns them, and every recipe's
+    # gateware compiles them), and whatever this config's own include
+    # directory holds - globbed rather than listed, so a file the builder
+    # starts writing there is covered the day it appears. A launcher must
+    # not move any of them behind the operator, so regenerate() puts back
+    # whatever its run changed and refuses - the way the entity definition
+    # already moves only on a deliberate --write-rtl.
+    TRACKED_GEN=("$REPO_ROOT/hdl/common/csr/gen/lwsrp_csr_defaults.svh")
+    for tracked in "$REPO_ROOT/configs/generated/$(basename "$1" .yaml)/gen/"*; do
+        if [ -f "$tracked" ]; then TRACKED_GEN+=("$tracked"); fi
+    done
+}
+regenerate() {
+    # ---- run the builder for config "$1" in THIS shell, or REFUSE ------------------
+    # design_argv is called from a command substitution, and bash drops
+    # `set -e` inside one (no inherit_errexit), so NOTHING here propagates by
+    # itself: every failure is turned into an explicit non-zero return and
+    # expand_jobs makes that exit 2. Without it a failed regeneration leaves
+    # the PREVIOUS artefact on the launch line while the provenance line says
+    # it was regenerated - #157's RV64-under-an-RV32-config divergence, back
+    # on the failure path (CODE_QUALITY rule 13: a first-party shell script
+    # MUST fail when the thing it runs fails).
+    cfg=$1
+    tracked_generated_for "$cfg"
+    snap=$(mktemp -d)
+    slot=0
+    for tracked in "${TRACKED_GEN[@]}"; do
+        slot=$((slot + 1))
+        if [ -f "$tracked" ]; then cp -p "$tracked" "$snap/$slot"; fi
+    done
+    rc=0
+    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null || rc=$?
+    moved=""
+    slot=0
+    for tracked in "${TRACKED_GEN[@]}"; do
+        slot=$((slot + 1))
+        if [ -f "$snap/$slot" ] && ! cmp -s "$snap/$slot" "$tracked"; then
+            cp -p "$snap/$slot" "$tracked"
+            moved="$moved ${tracked#"$REPO_ROOT/"}"
+        fi
+    done
+    rm -rf "$snap"
+    if [ "$rc" != 0 ]; then
+        echo "refusing to build: regenerating $(soc_params_for "$cfg") from $cfg FAILED (endstation_builder.py exited $rc, its error is above). Nothing launched; the design argv already on file was NOT used." >&2
+        return 1
+    fi
+    if [ -n "$moved" ]; then
+        echo "refusing to build: regenerating $cfg would rewrite tracked generated file(s):$moved - put back unchanged. Moving one is a deliberate act: run python3 sw/builder/endstation_builder.py $cfg yourself, commit the result, then relaunch." >&2
+        return 1
+    fi
+}
+read_design_argv() {
+    # ---- the design argv IN the artefact of config "$1", or REFUSE -----------------
+    # An unreadable artefact, one another config wrote, or one with no argv
+    # in it must stop the run: a partial line reaches argparse as a set of
+    # milan_soc.py DEFAULTS, which is how a launch silently becomes a shape
+    # nobody chose. The identity check is the same `_source_config` the
+    # shape gate reads.
+    python3 -c 'import json, pathlib, sys
+artefact, want = pathlib.Path(sys.argv[1]), sys.argv[2]
+try:
+    params = json.loads(artefact.read_text())
+except (OSError, ValueError) as exc:
+    sys.exit(f"refusing to build: {artefact} cannot be read ({exc})")
+source = params.get("_source_config")
+if source != want:
+    sys.exit(f"refusing to build: {artefact} was generated from {source!r}, "
+             f"not {want!r}, so it belongs to another config")
+argv = params.get("argv")
+if not argv:
+    sys.exit(f"refusing to build: {artefact} carries no design argv")
+print(" ".join(argv))' "$(soc_params_for "$1")" "$1"
+}
 design_argv() {
     # ---- the design argv of config "$1", read from the builder's artefact ----------
-    # Regenerated HERE, the way sweep.sh's entity_defs does, so the artefact
-    # can only be stale if this line goes; then read back out of
-    # soc_params.json, the per-config emission every builder run writes. (The
-    # per-board sweep fragment is written only under --write-fragment, and
-    # the two AX recipes would fight over it.) --entity-gen-dir is a flow
+    # Regenerated HERE, the way sweep.sh's entity_defs does, and the
+    # regeneration is JUDGED: regenerate() and read_design_argv() each end
+    # this call non-zero rather than fall through, so the artefact can never
+    # be stale AND used, and expand_jobs prints the provenance line only
+    # after a regeneration that actually happened. The artefact is
+    # soc_params.json, the per-config emission every builder run writes.
+    # (The per-board sweep fragment is written only under --write-fragment,
+    # and the two AX recipes would fight over it.) --entity-gen-dir is a flow
     # flag: where THIS launch reads its generated entity definition from.
     cfg=$1
-    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null
-    argv=$(python3 -c 'import json, pathlib, sys; print(" ".join(json.loads(pathlib.Path(sys.argv[1]).read_text())["argv"]))' "$(soc_params_for "$cfg")")
+    regenerate "$cfg" || return 1
+    argv=$(read_design_argv "$cfg") || return 1
     echo "$argv --entity-gen-dir $REPO_ROOT/configs/generated/$(basename "$cfg" .yaml)"
 }
 cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
@@ -248,12 +351,27 @@ check_entity_shapes() {
     #  themselves, per build, and cannot be another config's.)
     for c in "${CONFIGS[@]}"; do
         ecfg=$(recipe_config "$c") || exit 2
-        python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" && continue
-        # A dry run launches nothing, so it previews the refusal beside the
-        # launch line instead of stopping: the shape gate reads every recipe's
-        # argv out of its dry run, whichever config owns the tree (#402).
-        [ "$DRY" = 1 ] && { echo "DRY [$c] a launch would be REFUSED: the tracked entity definition is not $ecfg's"; continue; }
-        echo "refusing to build '$c': the tracked entity definition is not $ecfg's" >&2; exit 2
+        rc=0
+        python3 "$REPO_ROOT/scripts/check_entity_shape.py" --built-config "$REPO_ROOT/$ecfg" || rc=$?
+        # The message names the CHECK, not just one of its verdicts: the same
+        # non-zero status is how check_entity_shape.py reports a tree that is
+        # another shape's AND how it reports a config it could not load at
+        # all, and calling the second one a shape mismatch sent readers to
+        # --write-rtl for a broken config.
+        if [ "$rc" != 0 ]; then
+            why="check_entity_shape.py --built-config $ecfg exited $rc - the tracked entity definition is not $ecfg's (clear it with: python3 sw/builder/endstation_builder.py $ecfg --write-rtl), or the check could not run on that config; its output is above"
+            # A dry run launches nothing, so it previews this refusal beside
+            # the launch line instead of stopping: the shape gate reads every
+            # recipe's argv out of its dry run, whichever config owns the
+            # tree (#402). Every OTHER refusal in this script is enforced in
+            # a dry run exactly as in a launch.
+            if [ "$DRY" = 1 ]; then
+                echo "DRY [$c] a launch would be REFUSED: $why"
+            else
+                echo "refusing to build '$c': $why" >&2
+                exit 2
+            fi
+        fi
     done
 }
 
@@ -262,7 +380,7 @@ expand_jobs() {
     JOBS=()   # "name|args"
     for c in "${CONFIGS[@]}"; do
         cfg=$(recipe_config "$c") || exit 2
-        design=$(design_argv "$cfg")
+        design=$(design_argv "$cfg") || exit 2
         base_args="$design $("cfg_$c")"
         echo "[$c] design argv from $(soc_params_for "$cfg") (regenerated from $cfg); flow flags from cfg_$c"
         if [ "$SWEEP" = 1 ]; then

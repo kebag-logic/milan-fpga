@@ -25,7 +25,7 @@ The shipping software-profile claims are checked against the
 
 ## Contents
 
-- **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
+- **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the launcher's own refusals are automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
 - **[1. Usage](#1-usage)** -- The invocation table -- two recipes in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
 - **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, fabric streams, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
 - **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gate and the three separate times this class of drift reached silicon.
@@ -40,7 +40,7 @@ I have to check by hand at the end?*
 ```mermaid
 flowchart LR
     CMD["build.sh CONFIG"] --> CFG["design argv from the config's<br/>builder artefact + cfg_ flow flags"]
-    CFG --> GATE{"shape gate"}
+    CFG --> GATE{"build.sh refusals<br/>(section 2.1)"}
     GATE -->|"mismatch"| STOP["REFUSED<br/>nothing launches"]
     GATE -->|"match"| LAUNCH["detached launch<br/>90 s stagger, max 3<br/>32 threads each"]
     LAUNCH --> SWEEP["--sweep<br/>3 place directives"]
@@ -65,12 +65,13 @@ flowchart LR
 
 | step | what it checks | automatic? |
 |---|---|---|
-| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes** - refuses *before* anything launches |
+| **`build.sh`'s own refusals** (section 2.1) | the tracked entity definition is the bound config's; the regeneration of that config's design argv ran and succeeded; the artefact read is that config's own emission; `BUILD_CFG` names a config directly under `configs/`; the regeneration left no tracked generated file moved | **yes** - refuses *before* anything launches. Under `--dry-run` the entity one is previewed instead; every other one is enforced |
+| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
-**Only the first one is automatic**, and that asymmetry is the point: a build
+**Only the first two are automatic**, and that asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
 and nothing in the pipeline will tell you so. Section 5 has the exact rows.
 With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
@@ -93,7 +94,7 @@ cd sw/litex
 | `./build.sh ax7101 --sweep` | 3 builds: the config x the place-directive sweep |
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
-| `./build.sh ... --dry-run` | print the exact launch commands, start nothing; the tracked-shape refusal (section 3.1) is previewed, not enforced |
+| `./build.sh ... --dry-run` | print the exact launch commands, start no build. It still RUNS the builder for the bound config (section 2), so `sw/builder/out/<shape>/` is rewritten; a regeneration that would move a tracked generated file is put back and refused. Only the entity-definition refusal (section 2.1) is previewed rather than enforced |
 | `BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101` | the named recipe's flow flags on another config under `configs/`, for one call (`sweep.sh`'s `SWEEP_CFG`) |
 | `INSTALLED_BUILD=<current> ./build.sh flash <config>[:<target-builddir>]` | prove the current QSPI bitstream, then flash the target set in its owner-safe order — see section 4 |
 
@@ -126,7 +127,21 @@ Until #402 the three recipes restated the design argv as shell literals,
 kept equal to the builder by the shape gate; #155 repaired ten divergences
 at once and #157 and #362 two more. `BUILD_CFG=configs/<other>.yaml` rebinds
 one named recipe to another config under `configs/` for one call, the
-`SWEEP_CFG` counterpart; the entity gate then checks that config.
+`SWEEP_CFG` counterpart; the refusals below then apply to that config.
+
+### 2.1 What `build.sh` refuses, before anything launches
+
+These are the launcher's own checks, in the order it applies them. Each one
+ends the run with a non-zero status and no job started, in a launch and in a
+`--dry-run` alike, except where the table says otherwise.
+
+| Refusal | Why | How to clear it |
+|---|---|---|
+| **the tracked entity definition is not the bound config's** ([`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py) `--built-config`) | `milan_csr.sv` and `milan_datapath.sv` `` `include `` `hdl/common/gen/adp_shape_defaults.svh`, the ADVERTISED shape and the size of the processor's ACMP context arrays. Until 2026-07-27 nothing checked which config wrote it, so an 8x8 build advertised one talker source | `python3 sw/builder/endstation_builder.py <config> --write-rtl`, then commit it. **This is the one that is only PREVIEWED under `--dry-run`** (`DRY [<name>] a launch would be REFUSED: ...`), so the shape gate can read every recipe's argv whichever config owns the tree |
+| **the regeneration failed** | `design_argv` runs the builder in the same shell and reads the argv back out of `sw/builder/out/<shape>/soc_params.json`. `bash` drops `set -e` inside the command substitution it is called from, so until #402 round 2 a failed builder run left the PREVIOUS argv on the launch line under a provenance line that said it had been regenerated | read the builder's own error above the refusal; it is the config or the tree, not the launcher |
+| **the artefact is not that config's** | the artefact names its source config, and a launch reads the design argv only from an artefact that names the config being built and carries an argv | as above |
+| **`BUILD_CFG` is not `configs/<name>.yaml`** | the stem picks BOTH the artefact and the `configs/generated/<name>` include this launch compiles, so a same-stem config anywhere else would pair one config's design argv with another config's shape include | name a config directly under `configs/`, relative to the repository root |
+| **the regeneration would move a tracked generated file** | a builder run also writes this config's own include directory (`configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh` for the Arty recipe), and for a config carrying `srp.rtl_table` the tree-wide `hdl/common/csr/gen/lwsrp_csr_defaults.svh` that EVERY recipe's gateware compiles. `build.sh` puts back whatever its own run moved and refuses, so a preview cannot change the next bitstream of another recipe | run `python3 sw/builder/endstation_builder.py <config>` yourself and commit the result, the way `--write-rtl` already works for the entity definition |
 
 ### `ax7101`  -  Alinx AX7101, the perf/ship platform
 
@@ -288,6 +303,14 @@ naming that config, and the artefact the line was read from being that
 config's current emission (#402). Since #362 it also requires both launchers to export
 `PYTHONHASHSEED=0` before `milan_soc.py` runs. Exit non-zero = no Vivado runs.
 
+`sweep.sh` runs this gate itself, seconds before Vivado. `build.sh` does not:
+it applies its own refusals (section 2.1) and this gate grades its recipes in
+CI and review. Reading a recipe's launch line means RUNNING `build.sh <name>
+--dry-run`, which runs the builder: the static mode rewrites each bound
+config's artefacts under `sw/builder/out/`, and a run that would move a
+tracked generated file is refused by the launcher and reported here as a
+drift.
+
 Why it exists: this class of bug is only visible on silicon and has now bitten
 four times.
 
@@ -304,7 +327,7 @@ rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 
 ```sh
 python3 scripts/check_sweep_shape.py              # static check, no Vivado (runs build.sh --dry-run)
-python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, a hand-appended CPU literal, a rebound recipe, a stale artefact or a launch without the seed is rejected
+python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, a hand-appended CPU literal, a rebound recipe, a failed or foreign regeneration, a BUILD_CFG outside configs/ or a launch without the seed is rejected
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
 ```
 
