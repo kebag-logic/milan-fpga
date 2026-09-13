@@ -261,20 +261,23 @@ is exactly these twelve things:
    every job in the four files: the four non-RTL carriers through item 11
    (#295), the seven RTL jobs -- the two shard workers, the two exhaustive
    aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
-   -- through item 12 (#406), the physical leg by its whole-job pin, and
-   the fast selector and verdict jobs by their two-step and one-step
-   pins. For the two RTL files that is a standing invariant and not an
-   enumeration of today's jobs: the checker reads both files for their job
-   lists and refuses, by name, any job of either that no sequence rule
-   pins, and any job a sequence rule records that its file no longer
-   declares. Whether a rule pins a job is MEASURED, not declared: a benign
-   step is inserted into a copy of the job and every sequence rule is asked
-   which of them then refuses the tree naming it, so a job counts as held
-   only where a rule is observed to hold it, and there is no table of
-   holders to add a line to. A job appended to `rtl.yml` or to
+   -- through item 12 (#406), and this job, the physical leg, the fast
+   selector and the fast verdict through the same comparison, over the
+   lists `RTL_SIBLING_STEP_LISTS` records beside their own rules. For the
+   two RTL files that is a standing invariant and not an enumeration of
+   today's jobs: the checker reads both files for their job lists and
+   refuses, by name, any job of either whose whole step list nothing
+   records, and any job a recorded list names that its file no longer
+   declares. Whether a job is pinned is a COMPARISON, never a claim and
+   never an inference from what some rule refuses: the recorded list is
+   held against the live job by count, order, identity, key set, env
+   bindings, recorded `if`, recorded `with` and the recorded `id`,
+   `continue-on-error` and `working-directory`, and nothing short of that
+   counts as coverage. A rule that refuses something about a job -- a step
+   count, a `run` body, a script -- leaves which steps the job runs
+   unheld, so it is not a pin. A job appended to `rtl.yml` or to
    `rtl-fast.yml` is therefore
-   red until it is named in `RTL_STEP_LIST_JOBS`, recorded in
-   `RTL_STEP_LISTS` and given a lever row in `RTL_STEP_LIST_LEVERS`; in
+   red until its own step list is recorded in `RTL_SEQUENCE_PINS`; in
    `rtl-fast.yml` it is red twice over, because the verdict must `needs`
    every other job in the file and the verdict's new result binding needs
    an entry in `INHERITED_STEP_ENV`. In `docs.yml` and `elaborate.yml` the
@@ -614,29 +617,38 @@ is exactly these twelve things:
     step change in an RTL job -- a bumped cache key, a new toolchain step,
     a renamed step -- is refused until the job's entry in `RTL_STEP_LISTS`
     (`scripts/ci_events.py`; the four carriers' entries are
-    `CARRIER_STEP_LISTS`) changes with it in the same commit, and the
-    refusal names the job, the position, what belongs there and what it
-    found. When the step it touches is one the self-test's lever rows
-    name, `RTL_STEP_LIST_LEVERS` moves with the entry: a row whose target
-    the entry no longer records is refused naming the job, the lever field
-    and the row's table, rather than stopping the hosted self-test on a
-    bare index error, and that holds for the row's `removed` needle too,
-    which names its step by what it runs rather than by a recorded
-    identity. WHICH jobs the step-list table must hold is not
-    decided in the checker at all, and neither is which of them count as
-    held. The two RTL files are read for their job lists, and every job
-    either declares is probed: a benign step is inserted into a copy of it
-    and each sequence rule is asked whether it then refuses the tree by
-    name (item 4). So one edit dropping a job from
-    `RTL_STEP_LIST_JOBS`, `RTL_STEP_LISTS` and `RTL_STEP_LIST_LEVERS`
-    together leaves that job in its workflow refused by nothing, and the
-    tree red; and so does any line claiming a holder the job does not
-    have, because the checker counts refusals it measured, not claims.
-    `RTL_STEP_LIST_JOBS` stays the authority the three tables answer to,
-    and any disagreement between them is refused by name; the self-test
-    plants a narrowed table, a narrowed lever table, a narrowed authority,
-    a job no authority names and a lever row whose target no entry
-    records, and requires each refusal. What this
+    `CARRIER_STEP_LISTS`, and the gate job, the physical leg, the fast
+    selector and the fast verdict are `RTL_SIBLING_STEP_LISTS`) changes
+    with it in the same commit, and the refusal names the job, the
+    position, what belongs there and what it found. WHICH jobs a step list
+    must be recorded for is not decided in the checker at all, and neither
+    is which of them count as held. The two RTL files are read for their
+    job lists, every job either declares is held against its recorded list
+    by that same comparison, and a job no list records is refused by name
+    (item 4). So one edit dropping a job's entry leaves that job in its
+    workflow held by nothing, and the tree red; and so does any line
+    claiming that some other rule covers it, because coverage IS the
+    comparison and there is no holder to claim. A rule that refuses a step
+    count, a `run` body or a script is not a whole-list pin, and a rule
+    that already refuses the live tree reports that refusal in the same
+    verdict rather than anywhere the coverage decision could discard it.
+    The self-test plants the edits rather than describing them: a dropped
+    entry, an entry truncated to two steps, an entry with one recorded key
+    removed, a list recorded for a job the file does not declare, and a
+    job appended WITH its list recorded, which is accepted because
+    recording what a job runs is the remedy rather than an exemption. The
+    arms that hold each job are derived from the live job, not from a
+    table of rows, so dropping a job's entry does not retire its arms
+    either: they go on demanding the position and identity refusals the
+    recorded list made, which the coverage refusal is not one of, so
+    `--selftest` goes red beside `--check`. The trust boundary is the
+    checker's source. Recording a step list for a job pins it to exactly
+    the steps recorded, which is what review reads, and there is no way to
+    mark a job pinned without writing down what it runs; an arbitrary
+    rewrite of the checker is outside that boundary, and what stands
+    against it is the gate's own proof -- the coverage rule uncalled, its
+    recorded-list item, its must-exist item or its comparison removed each
+    fail named `--selftest` arms with `--check` still green. What this
     still cannot hold is the CONTENT of the recognised non-gate steps:
     `docs-check`'s gates other than the ci_events step (`docs_check`,
     `check_feature_status`, the traceability matrix, the builder gates and
@@ -738,24 +750,25 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the same nine levers on each of the seven
-RTL jobs (#406) -- a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
-third-party-`uses:` and a benign step inserted, a recognised step removed,
-swapped and renamed, a gated step's `if` dropped (`bdd-conformance`, which
-records no gated step, given `if: false` on its behave step instead), and
-a cache, download or upload `with` rewritten (`bdd-conformance`'s checkout
-given one) -- each refused naming the job and the position; in the first of
-those jobs whose entry records a named action step, a step appended after
-the recorded last step, refused by the position it sits at, and that action
-step swapped to a third-party action under its recorded name, refused with
-both identity fields of what it found;
-the coverage probe's own arms, a benign job appended to `rtl.yml` and to
-`rtl-fast.yml`, a step-pinned job respelt in its file and a step-pinned job
-made to render the verdict's required name, refused as held by no rule, as
-recorded but absent, and as held by two; and, planted as stages rather than
-edits to the tree, a step-list table narrowed, a lever table narrowed, an
-authority narrowed, a job no authority names, and a lever row whose target
-no entry records, each refused by name; the em-dash
+and an upload `with` rewritten; the same nine levers on EVERY job the two
+RTL files declare (#406), derived from that job's own steps -- a
+`BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a third-party-`uses:` and
+a benign step inserted, a recorded step removed, swapped and renamed, a
+gated step's `if` dropped (a job recording no gated step given `if: false`
+on its first step instead), and a recorded `with` rewritten (a job
+recording none given one) -- plus a step appended after the recorded last
+step, a step given a `shell`, a recorded env binding rebound (a job binding
+none given one), a recorded action swapped to a third-party action under
+its recorded name, and each recorded `id`, `continue-on-error` and
+`working-directory` changed, every one refused naming the job and the
+position; the coverage rule's own arms, a benign job appended to `rtl.yml`
+and to `rtl-fast.yml`, a step-pinned job respelt in its file and a
+step-pinned job made to render the verdict's required name, refused as
+recorded by no step list, as recorded but absent, and as a second carrier
+of a required name; and, planted as a stage rather than as edits to the
+tree, a recorded list dropped, truncated, narrowed by one recorded key, a
+list recorded for a job no file declares and a job appended with its list
+recorded, the first four refused by name and the last accepted; the em-dash
 gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
