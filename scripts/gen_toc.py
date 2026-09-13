@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal")
-MIN_ARMS = 267
+MIN_ARMS = 279
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -60,20 +60,20 @@ SKIP = {
     "docs/README.md":  "documentation index - it IS a table of contents",
 }
 
-#: THE RENDERER'S CHARACTER CLASSES, and the ONLY place this file spells
-#: one. Every expression below is built from these bodies BY NAME, and
-#: `_class_guards()` enumerates the walk's decision sites off this
-#: module's syntax tree and refuses one that spells a class of its own.
-#: Rounds 1 to 8 each closed a position a review had named - `\s` for a
-#: blank line, `[ \t]` for the renderer's padding, `(\S)` for an item's
-#: first content character, four SPACES for four columns - and every round
-#: found another ([R85] F1 and F2, [R86] F1 and F2, round 9 on PR #428).
+#: THE RENDERER'S CHARACTER CLASSES: every CLASS the walk tests is here and
+#: read BY NAME, and `_class_guards()` enumerates the walk's decision sites
+#: off this module's syntax tree and refuses one that spells a class of its
+#: own. What is NOT a class stays at its site, and that guard names those:
+#: the tab of `_indent_columns`, the backtick of `_opens`, the pipe of
+#: `line_kinds` and the `[.)]` closing an ordinal are single characters,
+#: not sets an edit can narrow ([R85] F3, round 10 on PR #428).
 #: Each body is what the RENDERER was measured to accept AT THE POSITION
 #: that reads it, and the case tables spell every body again, so narrowing
 #: or widening one fails an arm. `blank` is CommonMark 2.1's "spaces or
 #: tabs"; `indent` is the space alone, indentation being counted in
 #: COLUMNS (`_indent_columns`); `delimiter blank` is the wider padding
-#: GFM's delimiter-row scanner takes.
+#: GFM's delimiter-row scanner takes; `tag blank` is also what may follow
+#: a type-1 or type-6 NAME, where the renderer reads widest ([R85] F1(b)).
 _BLANK = " \t"
 CLASSES = {
     "blank": _BLANK,
@@ -88,7 +88,9 @@ CLASSES = {
     "unquoted value stop": _BLANK + "\v\f\"'=<>`",
     "single-quoted value stop": "'",
     "double-quoted value stop": '"',
-    "footnote label stop": _BLANK + "\\]\x00\r\n",
+    # NUL is no stop: the renderer replaces it before any scanner reads a
+    # line, so a label carrying one is a label ([R85] F4, round 10)
+    "footnote label stop": _BLANK + "\\]\r\n",
     "ordinal": "0-9",
     "bullet": "-+*",
     "cell stop": "|",
@@ -96,9 +98,9 @@ CLASSES = {
 #: The characters at which PYTHON'S notion of whitespace and the
 #: renderer's disagree: everything `str.isspace()` accepts but the space,
 #: the tab and the line feed. A page carrying one is REFUSED rather than
-#: walked (`refusals()`), which holds every position this file does not
-#: read the renderer's class at, the fence and type-1 closers #440
-#: carries among them. An arm derives the set from the Unicode database.
+#: walked (`refusals()`), on EITHER side a decision is read from, which
+#: holds a position whose only divergence from the renderer is WHICH
+#: whitespace it takes. An arm derives the set from the Unicode database.
 REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
            "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
            "\u2029\u202f\u205f\u3000")
@@ -107,6 +109,11 @@ REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
 #: pair again, so renaming one fails an arm instead of emptying the
 #: enumeration.
 WALK_ROOTS = ("blocks", "line_kinds")
+#: The renderer folds a tag NAME in ASCII, where `re.IGNORECASE` folds
+#: Unicode and matched U+017F to `s` and U+0131 and U+0130 to `i`, opening
+#: and closing type-1 blocks on names the renderer reads as no tag at all
+#: ([R85] F2 and S2, round 10). Every name match below reads it.
+ASCII_FOLD = re.IGNORECASE | re.ASCII
 #: `str` predicates that answer with Python's notion of a character rather
 #: than the renderer's. No decision of the walk may ask one.
 _PYTHON_CLASSES = ("isspace", "isalpha", "isdigit", "isalnum", "isnumeric",
@@ -154,14 +161,15 @@ INDENT_CODE_COLUMNS = 4
 #: CommonMark's type-1 raw HTML block: its content is not parsed as
 #: Markdown and it survives blank lines, so a Contents block inside one
 #: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
-#: its closing tag. The name is followed by a blank, `>` or the END OF THE
-#: LINE: reading `/` as one of those made `<pre/>` a type-1 block where
-#: the renderer reads a type-7 tag, and leaving the line end out made
-#: `<pre` ending a line no block at all ([R85] round 9 on PR #428).
+#: its closing tag. The name is followed by `tag blank`, `>` or the END OF
+#: THE LINE: reading `/` as one of those made `<pre/>` a type-1 block, and
+#: leaving the line end out made `<pre` ending a line none ([R85] round 9
+#: on PR #428); narrowing the follow set to space and tab exempted `<pre`
+#: + a form feed + `>`, which the renderer opens ([R85] F1(b), round 10).
 RAW_HTML_TAGS = ("pre", "script", "style", "textarea")
 RAW_HTML_OPEN_RE = re.compile(r"^%s{0,3}<(%s)(?:%s|>|$)"
                               % (_cc("indent"), "|".join(RAW_HTML_TAGS),
-                                 _cc("blank")), re.IGNORECASE)
+                                 _cc("tag blank")), ASCII_FOLD)
 #: CommonMark's type-6 raw HTML block: a block-level tag on its own line
 #: opens it and a BLANK LINE closes it, and nothing inside is parsed as
 #: Markdown, so a `## Head` between `<div>` and `</div>` with no blank
@@ -171,7 +179,8 @@ RAW_HTML_OPEN_RE = re.compile(r"^%s{0,3}<(%s)(?:%s|>|$)"
 #: `search`. The other way round, `<source>` was a type-7 block that may
 #: not interrupt a paragraph where the renderer interrupts it, and
 #: `<search>` a type-6 block that does where it does not ([R86] F1 R9,
-#: round 9 on PR #428).
+#: round 9 on PR #428). The follow set and the fold are the type-1
+#: opener's, for the same reasons.
 HTML_BLOCK_TAGS = (
     "address|article|aside|base|basefont|blockquote|body|caption|center|col"
     "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
@@ -181,7 +190,7 @@ HTML_BLOCK_TAGS = (
     "|title|tr|track|ul")
 HTML_BLOCK_OPEN_RE = re.compile(r"^%s{0,3}</?(?:%s)(?:%s|/?>|$)"
                                 % (_cc("indent"), HTML_BLOCK_TAGS,
-                                   _cc("blank")), re.IGNORECASE)
+                                   _cc("tag blank")), ASCII_FOLD)
 #: CommonMark's type-7 raw HTML block: ONE complete open or closing tag of
 #: any other name (`<span>`, `<b>`, `<custom-tag>`, `</b>`), alone on its
 #: line, opens it, and a blank line closes it exactly as a type-6 block.
@@ -284,19 +293,28 @@ def refusals(text: str) -> list[tuple[int, int, str]]:
     """Every position this walk REFUSES to read: (line, column, character),
     the second of the two honest answers a decision here can give. Where
     the walk reads the renderer's own class it answers (`CLASSES`); where
-    it does not - the fence and type-1 closers #440 carries, and whatever
-    a later reader finds that this round did not - it must not answer at
-    all, and this is what stops it. Every character at which Python's
-    notion of whitespace and the renderer's disagree is REFUSED, named
-    with its page, line, column and code point, and the page obtains no
-    provenance and so no exemption. There are 26 and no page in the corpus
-    carries one. THE LINE MODEL puts the carriage return among them: a
-    line here is what `text.split("\n")` gives, so a CR lands inside a
-    line where the renderer ends one. Both shipped readers translate line
-    endings first - `Path.read_text()` in the generator, git in text mode
-    in the gate - which is the real reason that residue could not reach
-    the exemption, and not the one round 8 gave ([R85] and [R86]
-    suggestion, round 9).
+    it spells PYTHON'S whitespace instead - the fence closer #440 carries,
+    and whatever a later reader finds that this round did not - it must not
+    answer at all, and this is what stops it. Every character at which the
+    two notions disagree is REFUSED, named with its page, line, column and
+    code point, and the page obtains no provenance and so no exemption.
+
+    IT BINDS EVERY PAGE A DECISION IS READ FROM, or it holds nothing: the
+    branch page provenance comes from AND the base page whose headings
+    decide the label, which round 9 left unrefused and is the page a label
+    is copied FROM (`check_em_dash.base_labels`, [R85] F1, [R86] F2, round
+    10 on PR #428). WHAT NO REFUSAL HOLDS is a position the renderer reads
+    NARROWER than the blank at, where the divergence needs no refused
+    character: the type-1 closers take a space or a tab inside the closing
+    tag where the renderer takes none (`_type_1_end`, #440).
+
+    There are 26 and no page in the corpus carries one. THE LINE MODEL puts
+    the carriage return among them: a line here is what `text.split("\n")`
+    gives, so a CR lands inside a line where the renderer ends one. Both
+    shipped readers translate line endings first - `Path.read_text()` in
+    the generator, git in text mode in the gate - which is the real reason
+    that residue could not reach the exemption, and not the one round 8
+    gave ([R85] and [R86] suggestion, round 9).
     """
     return [(n, col, char)
             for n, line in enumerate(text.split("\n"), 1)
@@ -381,8 +399,11 @@ def _table_cells(row: str) -> int:
     backslash stands immediately before it, and a trailing pipe closes the
     last cell, so `| a |`, `a` and `||` are one cell each and a lone `|`
     is none. That scanner takes the LONGEST match, in which a backslash
-    before a pipe always escapes it, so `a\\|b` is one cell where reading
-    the pair as an escaped backslash made it two ([R86] F1 R7, round 9)."""
+    before a pipe always escapes it, so `a\\|b` is one cell ([R86] F1 R7,
+    round 9). A HEADER ROW whose trailing pipe a line tabulation or a form
+    feed follows counts one cell MORE here than the renderer gives it, so
+    the heading under a tag below such a row is WITHHELD, never invented;
+    both characters are refused, so no such page is walked ([R85] S2)."""
     rest = row.strip(CLASSES["blank"])
     if rest.startswith("|"):
         rest = rest[1:].lstrip(CLASSES["blank"])
@@ -448,6 +469,17 @@ def _comment_after(line: str, inside: bool) -> bool:
     return inside
 
 
+def _type_1_end(line: str, tag: str) -> bool:
+    r"""Whether this line ends the type-1 block `tag` opened. NO REFUSAL
+    HOLDS THIS SITE: the renderer ends such a block on a line carrying the
+    LITERAL `</pre>`, `</script>`, `</style>` or `</textarea>`, any of the
+    four ending any of them, so its class inside the closing tag is EMPTY
+    and the space and the tab `\s*` takes escape with no refused character
+    on the page. Reading the four names is #440's ([R85] F2, [R86] F1,
+    round 10 on PR #428)."""
+    return bool(re.search(r"</%s\s*>" % tag, line, ASCII_FOLD))
+
+
 def _still_open(line: str, state: str, delim: str,
                 tag: str) -> tuple[str, str, str]:
     """The state after a line INSIDE a fence, comment or raw HTML block.
@@ -459,8 +491,7 @@ def _still_open(line: str, state: str, delim: str,
         if not tag:                     # type 6: a blank line ends it
             return (TEXT if not line.strip(CLASSES["blank"])
                     else HTML), "", tag
-        return ((TEXT if re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
-                 else HTML), "", tag)
+        return (TEXT if _type_1_end(line, tag) else HTML), "", tag
     m = FENCE_RE.match(line)         # closes on the SAME character, a run
     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
             and not m.group(2).strip():  # at least as long, nothing after it
@@ -486,7 +517,7 @@ def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
     html = RAW_HTML_OPEN_RE.match(line)
     if html:
         tag = html.group(1)
-        closed = re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)
+        closed = _type_1_end(line, tag)
         return HTML, (TEXT if closed else HTML), "", tag
     if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
                                           and HTML_TAG_LINE_RE.match(line)):
@@ -751,17 +782,17 @@ def _tally_guards(families: dict[str, list], scored: int) -> list[str]:
 
 
 def _owner_guards(name: str, source: str, values: dict) -> list[str]:
-    """That the case-table module carries no classification of its OWN: it
-    imports no expression engine and holds no compiled expression, so a
-    rule cannot migrate out of this script, which #413 names as the one
-    owner of block classification ([R85] suggestion, round 6 on PR #428).
-    The imports are read off its syntax tree and the compiled expressions
-    off its values, so prose naming the engine cannot trip it and an alias
-    cannot slip past it. WHAT IT CANNOT SEE: those two and nothing else,
-    so plain string methods, an engine reached through `importlib` and a
-    third-party engine all pass it, each measured ([R85] suggestion, round
-    7). It is a structural proxy; the proof is that the runner and every
-    arm live here.
+    """That a module beside the walk - the case tables, the site enumerator
+    - carries no classification of its OWN: it imports no expression engine
+    and holds no compiled expression, so a rule cannot migrate out of this
+    script, which #413 names as the one owner of block classification
+    ([R85] suggestion, round 6 on PR #428). The imports are read off its
+    syntax tree and the compiled expressions off its values, so prose
+    naming the engine cannot trip it and an alias cannot slip past it.
+    WHAT IT CANNOT SEE: those two and nothing else, so plain string
+    methods, an engine reached through `importlib` and a third-party
+    engine all pass it, each measured ([R85] suggestion, round 7). It is a
+    structural proxy; the proof is that the runner and every arm live here.
     """
     bad, imported = [], set()
     for node in ast.walk(ast.parse(source)):
@@ -779,105 +810,13 @@ def _owner_guards(name: str, source: str, values: dict) -> list[str]:
     return bad
 
 
-def _pattern_texts(node: ast.AST, assign: dict,
-                   seen: frozenset = frozenset()) -> Iterator[str]:
-    """Every string an expression reaches, `_cc()`'s own argument apart:
-    that call IS the named source, read by name."""
-    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) \
-            and node.func.id == "_cc":
-        return
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        yield node.value
-    elif isinstance(node, ast.Name) and node.id in assign \
-            and node.id not in seen:
-        yield from _pattern_texts(assign[node.id], assign, seen | {node.id})
-    for child in ast.iter_child_nodes(node):
-        yield from _pattern_texts(child, assign, seen)
-
-
-def _class_guards(source: str) -> tuple[list[str], list[str]]:
-    r"""Every DECISION SITE of the walk, classified, and what is wrong with
-    one that is neither honest kind.
-
-    A site is a position that reads a character class: a compiled
-    expression of this module, or a call inside the walk that hands a
-    string to a scanner. They are ENUMERATED from the syntax tree, out
-    from `WALK_ROOTS`, not from a list kept by hand, so a decision added
-    later is in the enumeration whether or not anyone remembers it. Each
-    is one of two things, and `--sites` prints which. SINGLE SOURCE:
-    every class it reads comes from `CLASSES`, whose bodies the case
-    tables spell again, so narrowing or widening one fails an arm.
-    REFUSAL: it spells Python's own whitespace, whose excess over the
-    renderer's blank is exactly `REFUSED`, so a page that could tell the
-    two apart is refused before the site is asked. Anything else is a
-    note and the self-test fails: a
-    class spelled inline, Python's `\d`, `\w`, `\W` or `\D`, a
-    `str.is*()` test, or a strip with a class of its own ([R85] F1 and F2,
-    [R86] F1 and F2, round 9 on PR #428). WHAT IT CANNOT SEE: it reads
-    this module's syntax tree, so a class reached through `getattr`, built
-    at run time or imported passes it, as does a rule the walk never
-    calls. It is a structural proxy; the refusal holds the rest.
-    """
-    tree = ast.parse(source)
-    funcs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
-    assign = {t.id: n.value for n in tree.body if isinstance(n, ast.Assign)
-              for t in n.targets if isinstance(t, ast.Name)}
-    notes = [f"the walk root {root!r} is no function of this module"
-             for root in WALK_ROOTS if root not in funcs]
-    walk, queue = set(), [root for root in WALK_ROOTS if root in funcs]
-    while queue:                        # the calls out of the roots
-        name = queue.pop()
-        if name not in walk:
-            walk.add(name)
-            queue += [c.func.id for c in ast.walk(funcs[name])
-                      if isinstance(c, ast.Call)
-                      and isinstance(c.func, ast.Name) and c.func.id in funcs]
-
-    def judge(where: str, node: ast.AST) -> str:
-        """One site, classified; a class of its own is a note."""
-        kind = "single source"
-        for text in _pattern_texts(node, assign):
-            kind = "refusal" if r"\s" in text or r"\S" in text else kind
-            notes.extend(
-                f"{where} spells {own}, which is Python's class and not "
-                "the renderer's"
-                for own in (r"\d", r"\w", r"\W", r"\D") if own in text)
-            for i, char in enumerate(text):
-                if char in REFUSED or (char in CLASSES["blank"] and not (
-                        text[i - 1:i].isalnum()
-                        and text[i + 1:i + 2].isalnum())):
-                    notes.append(f"{where} spells a blank of its own; every "
-                                 "class the walk reads is in CLASSES")
-                    break
-        return f"{where}: {kind}"
-
-    sites = [judge(name, node) for name, node in assign.items()
-             if any(isinstance(c, ast.Call)
-                    and isinstance(c.func, ast.Attribute)
-                    and c.func.attr == "compile" for c in ast.walk(node))]
-    for name in walk:
-        for call in ast.walk(funcs[name]):
-            if not isinstance(call, ast.Call) \
-                    or not isinstance(call.func, ast.Attribute):
-                continue
-            attr, where = call.func.attr, f"{name}() {call.func.attr}()"
-            if attr in _PYTHON_CLASSES:
-                notes.append(f"{where} asks Python what a character is; the "
-                             "renderer's answer is in CLASSES")
-            elif (attr in _STRIPS or attr == "split") and not call.args:
-                sites.append(f"{where}: refusal")
-            elif attr in _STRIPS:
-                arg = call.args[0]
-                if isinstance(arg, ast.Subscript) \
-                        and isinstance(arg.value, ast.Name) \
-                        and arg.value.id == "CLASSES":
-                    sites.append(f"{where}: single source")
-                else:
-                    notes.append(f"{where} strips a class of its own")
-            elif isinstance(call.func.value, ast.Name) \
-                    and call.func.value.id == "re" and call.args:
-                sites.append(judge(where, call.args[0]))
-    return sorted(sites), notes
+def _sites() -> tuple[list[str], list[str]]:
+    """The walk's decision sites and the notes against them, from
+    `gen_toc_guards`. The import is deferred and this module registered
+    under its own NAME first, for the reason `selftest()` gives."""
+    sys.modules.setdefault("gen_toc", sys.modules[__name__])
+    import gen_toc_guards
+    return gen_toc_guards._class_guards(Path(__file__).read_text())
 
 
 def selftest() -> int:
@@ -904,10 +843,11 @@ def selftest() -> int:
                + families["heading"] + families["guard"]
                + families["refusal"])
     arms = len(on_walk) + len(on_page)
-    src = Path(cases.__file__)
-    notes = (_tally_guards(families, arms)
-             + _owner_guards(src.name, src.read_text(), vars(cases))
-             + _class_guards(Path(__file__).read_text())[1])
+    import gen_toc_guards as guards
+    notes = _tally_guards(families, arms) + _sites()[1]
+    for beside in (cases, guards):        # neither may hold a rule
+        src = Path(beside.__file__)
+        notes += _owner_guards(src.name, src.read_text(), vars(beside))
     for note in notes:
         print(f"  GUARD {note}")
     problems = len(notes)
@@ -927,9 +867,13 @@ def selftest() -> int:
 def main() -> int:
     """Run one arm: `--sites`, `--verify-anchors`, `--write`, or the gate.
 
-    `--check` is the default: it separates a page with no contents list
-    from one whose list has drifted, and refuses a page the walk does not
-    read, because the three need different work from whoever reads it.
+    `--check` is the default and separates a page with no contents list
+    from one whose list has drifted: the two need different work from
+    whoever reads it. A page the walk does not read is NAMED and left
+    alone, neither written nor judged: the refusal is a limit on what this
+    script may answer, not a rule about what a page may carry, and failing
+    the workflow on one made it a rule no authoritative document states
+    ([R85] F5, round 10 on PR #428).
     """
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     flags = {a for a in sys.argv[1:] if a.startswith("--")}
@@ -939,7 +883,7 @@ def main() -> int:
     if "--verify-anchors" in flags:
         return verify_anchors()
     if "--sites" in flags:
-        print("\n".join(_class_guards(Path(__file__).read_text())[0]))
+        print("\n".join(_sites()[0]))
         return 0
 
     targets = [Path(a).resolve() for a in args] if args else list(pages())
@@ -950,7 +894,7 @@ def main() -> int:
         rel = md.relative_to(REPO)
         notes = refusal_notes(str(rel), text)
         for note in notes:
-            print(f"  REFUSED   {note}")
+            print(f"  NOT READ  {note}")
         if notes:
             refused.append(rel)
             continue
@@ -968,30 +912,33 @@ def main() -> int:
             if any(d == TODO or not d for d in desc.values()):
                 stale.append(rel)
 
+    read = [md for md in targets if md.relative_to(REPO) not in refused]
+    unread = f", {len(refused)} page(s) not read" if refused else ""
     if "--write" in flags:
-        todo = sum(1 for md in targets
+        todo = sum(1 for md in read
                    if TOC_HEAD in md.read_text()
                    for d in existing(md.read_text())[0].values() if d == TODO)
-        print(f"TOC: {len(changed)} page(s) written"
+        print(f"TOC: {len(changed)} page(s) written{unread}"
               f"{f', {todo} description(s) still {TODO!r}' if todo else ''}")
         return 0
 
-    if missing or stale or refused:
+    if missing or stale:
         for p in missing:
             print(f"  NO TOC    {p}  (>= {MIN_SECTIONS} sections and no '{TOC_HEAD}')")
         for p in stale:
             print(f"  TOC DRIFT {p}  (headings changed, or a description is "
                   f"still {TODO!r})")
-        print(f"\n{len(missing) + len(stale) + len(refused)} page(s) need "
-              f"attention. Run: python3 scripts/gen_toc.py --write <page>\n"
+        print(f"\n{len(missing) + len(stale)} page(s) need attention. "
+              f"Run: python3 scripts/gen_toc.py --write <page>\n"
               f"then WRITE the description for each entry - the generator "
               f"cannot, and a list that only repeats the headings is not "
               f"worth the space it takes.")
         return 1
 
-    n = sum(1 for md in targets if TOC_HEAD in md.read_text())
+    n = sum(1 for md in read if TOC_HEAD in md.read_text())
     print(f"TOC gate: OK ({n} page(s) carry an annotated contents list, "
-          f"{len(targets) - n} below the {MIN_SECTIONS}-section threshold)")
+          f"{len(read) - n} below the {MIN_SECTIONS}-section "
+          f"threshold{unread})")
     return 0
 
 

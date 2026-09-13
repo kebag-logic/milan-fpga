@@ -207,14 +207,29 @@ def added_lines(repo: Path, base: str, change: Change) -> list[Added]:
     return out
 
 
-def base_labels(repo: Path, base: str, change: Change) -> set[str]:
+def base_labels(repo: Path, base: str,
+                change: Change) -> tuple[set[str], list[str]]:
     """The Contents labels gen_toc writes for the headings the BASE version
-    of the page carries: the whole exemption, decided here and nowhere
-    else."""
+    of the page carries, and why there are none: the whole exemption,
+    decided here and nowhere else.
+
+    SO THE REFUSAL BINDS HERE TOO. `gen_toc.refusals()` names the pages
+    that walk will not read, and a page it will not read authorises no
+    label. Refusing only the HEAD text - which `judge_page` and
+    `generated_block` do, and which is where provenance comes from - left
+    this side, the side a label is copied FROM, walked unrefused: a base
+    page whose fence closer a form feed pads, or whose type-1 opener one
+    follows, listed a heading GitHub renders nowhere and the label
+    mirroring it was exempt, through the shipped gate ([R85] F1, [R86] F2,
+    round 10 on PR #428)."""
     if change.base_path is None:
-        return set()
+        return set(), []
     text = git(repo, "show", f"{base}:{change.base_path}")
-    return {label(raw) for _, raw, _ in headings(text)}
+    notes = [f"{note}, so no Contents label copied from it is exempt"
+             for note in refusal_notes(change.base_path, text)]
+    if notes:
+        return set(), notes
+    return {label(raw) for _, raw, _ in headings(text)}, notes
 
 
 def _entry_findings(where: str, hit: Added, entry: re.Match[str],
@@ -252,6 +267,10 @@ def _entry_findings(where: str, hit: Added, entry: re.Match[str],
 def judge_page(repo: Path, base: str, change: Change,
                verdict: Verdict) -> None:
     """Every finding one page's added lines carry, appended to ``verdict``.
+
+    Both pages are read, and the walk's refusal binds BOTH: the HEAD text,
+    which provenance comes from, and the BASE text, whose headings decide
+    the label (`base_labels`).
 
     The exemption is decided by PROVENANCE, not by context: an added line
     can carry a copied heading label only when it is byte-identical to the
@@ -294,7 +313,8 @@ def judge_page(repo: Path, base: str, change: Change,
                 f"{kinds[at] if at < len(kinds) else 'line'} -- {REMEDY}")
             continue
         if exempt_labels is None:
-            exempt_labels = base_labels(repo, base, change)
+            exempt_labels, notes = base_labels(repo, base, change)
+            verdict.findings += notes
         _entry_findings(where, hit, entry, exempt_labels, verdict)
 
 
@@ -400,6 +420,18 @@ _NEW_BLOCK = f"""## Contents
 - **[Table](#table)** -- Body only.
 
 """
+
+
+#: A base page carrying a character the walk refuses, with the headings of
+#: `_NO_TOC`. The branch takes the character OUT and writes the Contents
+#: block, so the head page is walked, provenance holds and the exemption is
+#: really asked; the answer must still be no, because the page the label is
+#: copied FROM is one this walk does not read ([R85] F1, [R86] F2, round 10
+#: on PR #428). The character is assembled from its code point so this file
+#: carries no literal one.
+_REFUSED_BASE = _NO_TOC.replace(
+    "# Without a contents list", "# Refused at the base", 1).replace(
+    "Filler sentence 1 ", "Filler" + chr(0x00A0) + "sentence 1 ", 1)
 
 
 def _fixture_git(repo: Path, *args: str) -> str:
@@ -522,6 +554,7 @@ def _fixture_repo(repo: Path) -> str:
     (repo / "FENCE_COMMENT.md").write_text(_FENCE_IN_COMMENT, encoding="utf-8")
     (repo / "DIV.md").write_text(_DIV_BASE, encoding="utf-8")
     (repo / "SPAN.md").write_text(_SPAN_BASE, encoding="utf-8")
+    (repo / "REFUSED_BASE.md").write_text(_REFUSED_BASE, encoding="utf-8")
     # One page at a path `gen_toc.py` deliberately skips: it IS a table of
     # contents, so this script writes no block for it and no line of it can
     # be generated navigation.
@@ -726,6 +759,21 @@ def _provenance_controls() -> tuple[Control, ...]:
                                  "Filler\u00a0sentence 1 ")),
                 2, ("U+00A0 at column", "no Contents label on it is exempt",
                     "in an added prose line"), exempt=0),
+        Control("a base page the walk refuses to read authorises no label",
+                # The refused character sits in the BASE page only: the
+                # branch removes it and mirrors the label, so the head page
+                # is walked and has provenance and only the base side can
+                # withhold the exemption. Revert the refusal in
+                # `base_labels` and the label is exempt and this arm fails
+                # three ways at once.
+                lambda r: (_edit(r, "REFUSED_BASE.md",
+                                 "Filler\u00a0sentence 1 ",
+                                 "Filler sentence 1 "),
+                           _edit(r, "REFUSED_BASE.md", _OLD_HEADING,
+                                 _NEW_BLOCK + _OLD_HEADING)),
+                2, ("REFUSED_BASE.md", "U+00A0 at column",
+                    "no Contents label copied from it is exempt",
+                    "mirrors no heading"), exempt=0),
         Control("a second comment on a closing line still hides the block",
                 lambda r: _fenced_example(r, "<!-- first --> <!-- second",
                                           "-->"),
