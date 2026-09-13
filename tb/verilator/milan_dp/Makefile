@@ -69,7 +69,7 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
-         -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
+         -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
@@ -264,7 +264,7 @@ ax1x1: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 AX_GPTP_HZ = 50000000
 AX_GPTP_ARGS =
 AX_GPTP_JOBS = $(if $(filter 1 2 3,$(VERILATOR_JOBS)),$(VERILATOR_JOBS),4)
-AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -GPB_PREFILL_C=2,$(VFLAGS)))
+AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),$(filter-out -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256,$(VFLAGS)))
 # Model-preserving compiler optimization; physical clocks and timers stay above.
 # Three-thread measurements did not establish a safe PR-shard budget.
 AX_GPTP_FLAGS += -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra"

@@ -300,7 +300,7 @@ tracks the TX timestamp reference-plane defect.
 Peer delay alone cannot identify an external inline-device fault.
 
 The retained latency CSRs do not repair this path.
-In VERSION `0x0002_0057`, `0x540`/`0x544` are readable, inert scratch:
+In VERSION `0x0002_0058`, `0x540`/`0x544` are readable, inert scratch:
 
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
 - A read returns the last written value.

@@ -46,7 +46,7 @@ STAGES = [
  ], "cacheless RV32 bare-metal control,\nMilan fabric live"),
  ("4 · VERIFY", "on the bench", PURPLE, [
    ("baremetal_uart_smoke.py --port <UART>", 1),
-   ("UART reports VERSION 0x00020057 + gPTP state", 0),
+   ("UART reports VERSION 0x00020058 + gPTP state", 0),
    ("focused RTL + processor suites", 1),
    ("traceability + builder gates", 0),
    ("#117: physical / one DUT + reference peer pending", 0),
