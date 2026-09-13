@@ -267,12 +267,20 @@ is exactly these twelve things:
    enumeration of today's jobs: the checker reads both files for their job
    lists and refuses, by name, any job of either that no sequence rule
    pins, and any job a sequence rule records that its file no longer
-   declares. A job appended to `rtl.yml` or to `rtl-fast.yml` is therefore
+   declares. Whether a rule pins a job is MEASURED, not declared: a benign
+   step is inserted into a copy of the job and every sequence rule is asked
+   which of them then refuses the tree naming it, so a job counts as held
+   only where a rule is observed to hold it, and there is no table of
+   holders to add a line to. A job appended to `rtl.yml` or to
+   `rtl-fast.yml` is therefore
    red until it is named in `RTL_STEP_LIST_JOBS`, recorded in
    `RTL_STEP_LISTS` and given a lever row in `RTL_STEP_LIST_LEVERS`; in
    `rtl-fast.yml` it is red twice over, because the verdict must `needs`
    every other job in the file and the verdict's new result binding needs
-   an entry in `INHERITED_STEP_ENV`. The contract step is
+   an entry in `INHERITED_STEP_ENV`. In `docs.yml` and `elaborate.yml` the
+   pin covers the jobs those two files carry today: neither is read for its
+   job list, so a job appended to either is not refused by this rule. The
+   contract step is
    this gate's SECOND hosted runner (#261, maintainer review on PR #293):
    its script is exactly `python3 -m pip install --quiet pyyaml` followed by
    `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
@@ -612,16 +620,23 @@ is exactly these twelve things:
     name, `RTL_STEP_LIST_LEVERS` moves with the entry: a row whose target
     the entry no longer records is refused naming the job, the lever field
     and the row's table, rather than stopping the hosted self-test on a
-    bare index error. WHICH jobs the step-list table must hold is not
-    decided in the checker at all. The two RTL files are read for their
-    job lists, and a job of either that no sequence rule pins is refused
-    by name (item 4), so one edit dropping a job from
+    bare index error, and that holds for the row's `removed` needle too,
+    which names its step by what it runs rather than by a recorded
+    identity. WHICH jobs the step-list table must hold is not
+    decided in the checker at all, and neither is which of them count as
+    held. The two RTL files are read for their job lists, and every job
+    either declares is probed: a benign step is inserted into a copy of it
+    and each sequence rule is asked whether it then refuses the tree by
+    name (item 4). So one edit dropping a job from
     `RTL_STEP_LIST_JOBS`, `RTL_STEP_LISTS` and `RTL_STEP_LIST_LEVERS`
-    together leaves that job in its workflow and the tree red.
+    together leaves that job in its workflow refused by nothing, and the
+    tree red; and so does any line claiming a holder the job does not
+    have, because the checker counts refusals it measured, not claims.
     `RTL_STEP_LIST_JOBS` stays the authority the three tables answer to,
     and any disagreement between them is refused by name; the self-test
-    plants a narrowed table, a narrowed lever table, a narrowed authority
-    and a job no authority names, and requires each refusal. What this
+    plants a narrowed table, a narrowed lever table, a narrowed authority,
+    a job no authority names and a lever row whose target no entry
+    records, and requires each refusal. What this
     still cannot hold is the CONTENT of the recognised non-gate steps:
     `docs-check`'s gates other than the ci_events step (`docs_check`,
     `check_feature_status`, the traceability matrix, the builder gates and
@@ -729,7 +744,18 @@ third-party-`uses:` and a benign step inserted, a recognised step removed,
 swapped and renamed, a gated step's `if` dropped (`bdd-conformance`, which
 records no gated step, given `if: false` on its behave step instead), and
 a cache, download or upload `with` rewritten (`bdd-conformance`'s checkout
-given one) -- each refused naming the job and the position; the em-dash
+given one) -- each refused naming the job and the position; in the first of
+those jobs whose entry records a named action step, a step appended after
+the recorded last step, refused by the position it sits at, and that action
+step swapped to a third-party action under its recorded name, refused with
+both identity fields of what it found;
+the coverage probe's own arms, a benign job appended to `rtl.yml` and to
+`rtl-fast.yml`, a step-pinned job respelt in its file and a step-pinned job
+made to render the verdict's required name, refused as held by no rule, as
+recorded but absent, and as held by two; and, planted as stages rather than
+edits to the tree, a step-list table narrowed, a lever table narrowed, an
+authority narrowed, a job no authority names, and a lever row whose target
+no entry records, each refused by name; the em-dash
 gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
