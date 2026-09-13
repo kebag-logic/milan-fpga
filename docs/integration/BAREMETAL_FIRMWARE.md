@@ -538,8 +538,22 @@ reads, so the deferred reference never appears in any walked text;
 injects the same way through `gmk-eval` and `gmk-expand`; and a variable
 name outside `[A-Za-z_][A-Za-z0-9_]*`, such as `MILAN-EXTRA`, which make
 reads and neither reference reader here matches. The first four were the
-recorded set before round three's review; the last three are the same kind,
+recorded set before round three's review; the next three are the same kind,
 measured, and are recorded beside them rather than left to read as absent.
+Round four's review adds four more of the same kind, each measured reaching
+the real compile line and each a PLAIN reference or a computed parse rather
+than the `$(eval)` that round rules on: an unbracketed `$M` on an ordinary
+right-hand side, which the braced reference readers never see; a conditional
+-- `ifdef MILAN_SHADOW`, or an `$(if ...)` inside an assignment's own NAME --
+where the environment decides WHETHER a literal flag is added rather than
+what some name's value is, so no `$(origin)` enumeration answers it; a recipe
+prefix or a prerequisite the file COMPUTES rather than writes (a
+`$(MILAN_E)`-built `.RECIPEPREFIX`, a `.SECONDEXPANSION` prerequisite behind
+`$$`), which moves the eval token out of reach of every text reader here; and
+the one that needs no Makefile edit at all, an environment variable NAMED
+`1`, which LiteX's own `define compile` reads as `$(1)` and this Makefile
+reaches through a plain `$(compile)`, measured putting `-include ../shadow.h`
+on the compile line of the UNMODIFIED tree.
 
 **Round three, the two channels round two measured OPEN (#410).** Unlike
 the ones recorded above, a wider walker could close them, and it does: each was
@@ -592,6 +606,51 @@ two lines and includes a fragment the include-set pin reads the file text
 for and therefore cannot see. That case is refused too, so the include-set
 pin is exact against evals again.
 
+**Round four's own review, the other half of the dichotomy (#410).** Round
+three closed the escape on the BUILT-IN a `$(call)` reaches; what it left
+open was the word PARSED. An eval read here as a benign `NAME op VALUE` can
+still assign a value this file does not fix, and the walker bound a name it
+had not pinned. Measured, and reproduced before the fix: `$(eval CFLAGS +=
+$(1))` in a `define` body, run by `$(call TMPL,$(MILAN_EXTRA_CFLAGS))`, was
+read as the assignment `CFLAGS += $(1)`; `$(1)` is no walkable reference, so
+nothing was deferred and nothing was probed, while the exported environment
+value arrived as the call's ARGUMENT on a line the pinned closure never
+walks and the gate exited 0. The site said the opposite in as many words --
+a whole-line eval in a define body was "an over-approximation ..., never a
+miss" -- and that sentence is deleted rather than softened, because it is a
+miss.
+
+What replaces it is a property, not a list of spellings. **A whole-line eval
+is walked only where this file binds every name its value reads.** That is
+global scope: a define body's eval is expanded where the define is REACHED,
+so `$(1)`..`$(9)` there are that `$(call)`'s arguments, a `$(foreach)` or
+`$(let)` over the call REBINDS even a name the Makefile pins and `$(origin)`
+reports `file` for, and an `$(if)` or a conditional prerequisite decides from
+the environment whether a literal eval runs at all -- all measured. A recipe
+eval is the same: the rule the environment adds decides when it runs. And at
+global scope the value itself must read only names this file binds: never a
+positional parameter in any position or bracket (`$(1)`, `$(2)`, `$(10)`,
+`${1}`, `$1`), never an unbracketed `$M` the braced readers cannot see, never
+a computed name, never an escaped `$$` that the eval's own expansion turns
+into a live reference, and none of them at any remove through this Makefile's
+own assignments. A `define` whose NAME is outside the identifier class opens
+a body just the same, so what scopes an eval is what `define` reaches, not
+the spelling of the name it binds. Everything else is REFUSED outright, on a
+refusal that names what was deferred. Nineteen permanent mutations pin it,
+the review's own plant among them, each reproduced before the fix reaching
+the real compile line with `-include ../shadow.h` merely exported.
+
+The cost is the widest of these refusals and it is the point: a template
+that EVALs its argument is refused where the same template RETURNING that
+argument through `$(call)` stays green, because the call site's argument is
+text the closure walks and the eval's is not. The accepted
+`$(call milan_include,$(BIOS_DIRECTORY))` of a `define milan_include` whose
+body is `-I$(1)` is exactly that green case, and it is measured GREEN here,
+beside `$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))`. **Remedy** for the
+refused shape: return the value and assign it,
+`CFLAGS += $(call tmpl,$(NAME))`, or write the assignment at top level where
+its names are this file's to bind.
+
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
 
@@ -625,6 +684,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | A `$(call ...)`/`${call ...}` whose first argument names a make BUILT-IN function -- `$(call eval,...)`, `$(call file,...)`, `$(call shell,...)`, and a `$(call subst,...)` written to map a built-in over a list -- anywhere in the Makefile, a never-run recipe included | `call` DISPATCHES to that built-in, so the construct is the built-in written where no scan for the built-in's own token can see it, and `$(call eval,TEXT)` was measured injecting a flag from the environment with every instrument green (#410, round-three review). **Remedy:** spell the built-in directly, `$(subst a,b,$(TEXT))` |
 | A parsed `$(eval NAME op VALUE)` whose value reads a name this Makefile gives a MULTI-LINE value -- make's `define NL` newline idiom, at any remove | `$(eval)` parses the EXPANSION, so such a value adds makefile lines this walker reads as the one assignment it parsed, and an `include` among them is outside the include-set pin, which reads the file text (#410, round-three review). **Remedy:** keep the newline idiom out of an eval's value |
 | An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |
+| An `$(eval NAME op VALUE)` whose assignment this walker cannot BIND, even though its shape reads as benign: one in a `define` body or a recipe, wherever that body is reached from, and one at global scope whose value reads a positional parameter (`$(1)`, `$(2)`, `$(10)`, `${1}`, `$1`), an unbracketed `$M`, a computed name, or an escaped `$$`, at any remove through this Makefile's own assignments | a define body's eval is expanded where the define is REACHED, so its `$(1)` is that `$(call)`'s argument, a `$(foreach)`/`$(let)` over the call rebinds even a name `$(origin)` reports `file` for, and an `$(if)` or a conditional prerequisite decides from the environment whether it runs at all; the value assigned is then not the value this walker read (#410, round-four review). **Remedy:** return the value through `$(call)` and assign it, `CFLAGS += $(call tmpl,$(NAME))`, which stays green, or write the assignment at top level where its names are this file's to bind |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |

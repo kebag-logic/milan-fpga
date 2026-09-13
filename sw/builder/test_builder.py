@@ -1909,6 +1909,48 @@ def _assert_no_line_adding_evals(makefile, line_adding_evals):
         "modelled (#410)"
 
 
+def _assert_no_unbindable_evals(makefile, unbindable_evals):
+    """A `$(eval NAME op VALUE)` make reads as a benign assignment but whose
+    VALUE the walker CANNOT bind is REFUSED: make parses the EXPANSION, and
+    the value it expands is not the value the walker read."""
+    #: (#410, round-four review) the round-three fix closed the escape on the
+    #: BUILT-IN reached through $(call); this closes the other half of #410's
+    #: dichotomy, "parsed OR refused outright", one layer in. make_evals()
+    #: reads an eval on a line of its own whose argument is a literal
+    #: `NAME op VALUE` as that assignment and hands its references to the
+    #: origin walker. That is sound only when the eval is expanded at GLOBAL
+    #: scope over names the walker can bind. Measured OPEN at the previous
+    #: head and reproduced end to end: `$(eval CFLAGS += $(1))` inside a
+    #: `define` body, run by `$(call TMPL,$(MILAN_EXTRA_CFLAGS))`, was read
+    #: here as the benign assignment `CFLAGS += $(1)`; $(1) is no walkable
+    #: reference, so nothing was deferred, and the exported environment value
+    #: arrived as the CALL ARGUMENT on a line the pinned closure never walks
+    #: while the gate exited 0. The rule is a PROPERTY, not a spelling: an
+    #: eval is parsed-as-benign only when it sits at global scope (not in a
+    #: define body, whose $(1)..$(9) are the call's arguments and whose names
+    #: a $(foreach)/$(let) can rebind, and not on a recipe line, which a
+    #: conditional prerequisite runs from the environment) AND its value
+    #: reads only names the walker binds -- a literal $(IDENT) whose value it
+    #: pins, transitively -- never a positional parameter ($(1), ${1}, $1,
+    #: $(2)..), a single-character reference ($M), a computed name ($($(X))),
+    #: or an escaped $$ the eval's own expansion turns into a live reference.
+    #: Every other eval that make_evals() reads as an assignment is refused
+    #: here, before any plan, the way $(eval $(call tmpl,...)) already is.
+    #: This is the sound arm of the dichotomy: refuse where the value cannot
+    #: be bound rather than model a binding the file does not fix. The
+    #: DIRECT $(foreach)/$(let)/$(if) channels outside an eval are the plain
+    #: origin walker's and #162's, and stay recorded, not ruled, below.
+    unbindable = unbindable_evals(makefile)
+    assert not unbindable, \
+        "this Makefile hands $(eval) an assignment the walker cannot bind (" \
+        + ", ".join(unbindable) + "): $(eval) parses the EXPANSION, so a " \
+        "value read from a positional parameter, a computed or " \
+        "single-character reference, or an escaped $$, and an eval in a " \
+        "define body or recipe whose expansion context the file does not " \
+        "fix, is decided outside the text this walker read; refused rather " \
+        "than modelled (#410)"
+
+
 def _assert_make_plan_is_determined(plan, hostile, origins):
     """make planned this Makefile, planned it the same way under a
     hostile environment, and defers no pinned-recipe input to it."""
@@ -4573,13 +4615,26 @@ def test_baremetal_profile_contract() -> None:
     #: of a called template, of a plain reference, nested inside another
     #: expansion, or carrying a rule, because the parsed text is whatever
     #: the expansion yields and no walk over this file can enumerate it.
-    #: The line-of-its-own test reads the joined, comment-stripped text, so
-    #: a whole-line eval inside a define body or a recipe is walked too (an
-    #: over-approximation when that text never expands, never a miss).
+    #: The line-of-its-own test reads the joined, comment-stripped text, so a
+    #: whole-line eval inside a define body or a recipe is read here too. That
+    #: used to be recorded as "an over-approximation when that text never
+    #: expands, never a miss", and the round-four review measured the claim
+    #: FALSE: it is a MISS, because such an eval expands where the define or
+    #: the rule is reached, not here, and the value it assigns is bound there
+    #: -- `$(eval CFLAGS += $(1))` in a define body run by
+    #: `$(call TMPL,$(MILAN_EXTRA_CFLAGS))` read here as the benign
+    #: assignment `CFLAGS += $(1)` while the environment arrived as the call
+    #: ARGUMENT. What this function decides is the SHAPE only; whether a
+    #: shape this reads can be bound at all is unbindable_evals()' to judge
+    #: and make_plan()'s to refuse, before any plan runs.
     def make_evals(text: str) -> tuple[list[tuple[str, str]], list[str]]:
         """`(assignments, opaque)` for every `$(eval ...)` in comment-stripped,
         continuation-joined `text`: the whole-line literal assignments the
-        walker reads, and the spelling of each eval it cannot."""
+        walker reads as a SHAPE, and the spelling of each eval it cannot.
+
+        A shape read here is not yet a shape the walker can bind: an eval in
+        a define body or a recipe lands in `assignments` and is refused by
+        unbindable_evals(), which reads the scope this scan does not."""
         assignments, opaque, at, size = [], [], 0, len(text)
         while at < size:
             if text[at] != "$":
@@ -4784,6 +4839,16 @@ def test_baremetal_profile_contract() -> None:
         shell sort strip subst suffix value warning wildcard word
         wordlist words
         """.split())
+    #: (#410, round-three review SUGGESTION, DECLINED with the reason) the
+    #: `[ \t]*` here flags a leading-space `$( call eval,...)` that make does
+    #: NOT dispatch -- make requires the function name to follow `$(`
+    #: immediately -- and the suggestion was to drop it so the reader matches
+    #: make's own rule exactly. It is kept: the over-approximation is in the
+    #: SAFE direction (it refuses an inert construct, and cannot miss a
+    #: dispatching one), no legitimate Makefile writes `$( call`, and
+    #: tightening it would buy message precision on a spelling nobody writes
+    #: at the price of a margin that costs nothing. The paired control is the
+    #: measurement itself: make injects nothing for the leading-space form.
     make_builtin_call_re = re.compile(
         r"[$][({][ \t]*call[ \t\n]+([A-Za-z][A-Za-z0-9_-]*)[ \t]*[,)}]")
 
@@ -4898,6 +4963,150 @@ def test_baremetal_profile_contract() -> None:
                 for name, value in parsed
                 for read in referenced_names(value) if read in spanning]
 
+    #: A `define` OPENER as make reads one, for scoping an eval rather than
+    #: for naming a value: make_define_open_re above reads the NAME, so it is
+    #: an identifier by construction, and a `define MILAN-TMPL` whose name is
+    #: outside that class opens a body just the same -- measured, with a
+    #: $(foreach) over the call rebinding the pinned name the body's eval
+    #: reads. What scopes an eval is what `define` REACHES, a body make
+    #: expands elsewhere, not the spelling of the name it binds.
+    make_define_scope_re = re.compile(
+        r"\A[ \t]*" + assign_prefix + r"define[ \t]+\S")
+
+    def eval_scope_at(text: str, at: int) -> str:
+        """`global`, `define` or `recipe` for the eval opening at offset `at`:
+        make expands a define body with the call's arguments and a recipe
+        from a rule the environment can trigger, neither of which the walker
+        reconstructs, so only a `global` eval is a candidate to walk. A recipe
+        line under the default tab prefix is read here; under a non-tab
+        `.RECIPEPREFIX` the prefix character leaves the eval's own line
+        non-empty around it, so make_evals() files it opaque instead."""
+        depth, offset = 0, 0
+        for body in text.split("\n"):
+            start, offset = offset, offset + len(body) + 1
+            inside = depth > 0
+            if make_define_scope_re.match(body):
+                depth += 1
+            elif make_endef_re.match(body) and depth:
+                depth -= 1
+                inside = True
+            if start <= at < offset:
+                if inside:
+                    return "define"
+                return "recipe" if body.startswith("\t") else "global"
+        return "global"
+
+    def eval_scoped_assignments(text: str) -> list[tuple[str, str, str, str]]:
+        """`(spelling, name, value, scope)` for every `$(eval ...)`
+        make_evals() reads as a whole-line literal assignment, quoted as the
+        file writes it and tagged with the scope it sits in.
+
+        The scan mirrors make_evals()' own: an eval is a whole-line literal
+        assignment when its argument parses as `NAME op VALUE` and its joined
+        line carries nothing else; here each is also tagged by the scope its
+        offset falls in, so make_plan() can refuse the ones the walker cannot
+        expand at global scope."""
+        scoped, at, size = [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            if opener == "$":
+                at += 2
+                continue
+            if opener not in "({" or not re.match(r"eval[ \t)}]",
+                                                   text[at + 2:at + 7]):
+                at += 2
+                continue
+            closer = ")" if opener == "(" else "}"
+            depth, close = 1, at + 6
+            while close < size and depth:
+                depth += (text[close] == opener) - (text[close] == closer)
+                close += 1
+            line_end = text.find("\n", close)
+            around = text[text.rfind("\n", 0, at) + 1:at] + \
+                text[close:size if line_end < 0 else line_end]
+            literal = target_assign_re.match(text[at + 6:close - 1])
+            if not depth and literal and not around.strip():
+                scoped.append((
+                    re.sub(r"\s+", " ", text[at:close]).strip(),
+                    literal.group(1), literal.group(2),
+                    eval_scope_at(text, at)))
+            at += 6
+        return scoped
+
+    #: The first argument of a `$(call ...)` / `$(value ...)`, the name it
+    #: reads; a computed first argument has no literal name and is caught by
+    #: computed_name_references() instead.
+    make_first_arg_re = re.compile(
+        r"[$][({](?:call|value)[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
+    #: A plain `$(IDENT)` / `${IDENT}` / `$(IDENT:sub)` variable read: the
+    #: name whose value the walker can follow, as against a function call
+    #: like `$(strip ...)` whose head is not a variable.
+    make_plain_read_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
+
+    def unbindable_evals(makefile: str) -> list[str]:
+        """Every `$(eval NAME op VALUE)` make_evals() reads as a benign
+        assignment that the walker cannot in fact bind, for make_plan() to
+        REFUSE: an eval in a define body or recipe, whose expansion context
+        the file does not fix, or one whose value reads (transitively) a
+        name the walker cannot bind -- a positional parameter, a computed or
+        single-character reference, or an escaped $$ the eval's expansion
+        turns into a live reference."""
+        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        by_name: dict[str, list[str]] = {}
+        for name, value in make_rules(makefile)[1]:
+            by_name.setdefault(name, []).append(value)
+
+        def value_unbindable(value: str, seen: frozenset) -> str | None:
+            """The first reference in `value`, or in a Makefile name it
+            reads, the walker cannot bind, or None."""
+            follow, at, size = [], 0, len(value)
+            while at < size:
+                if value[at] != "$":
+                    at += 1
+                    continue
+                opener = value[at + 1:at + 2]
+                if opener == "$":
+                    return "$$"                 # expands to a live $ reference
+                if opener not in "({":
+                    return "$" + opener          # $M, $1, $@: single-char ref
+                head = re.match(r"[ \t]*([A-Za-z_][A-Za-z0-9_]*)",
+                                value[at + 2:])
+                spelling = re.sub(
+                    r"\s+", " ", value[at:expansion_end(value, at)]).strip()
+                if not head:
+                    return spelling              # $(1), $($(X)), $(@D) ...
+                if head.group(1) in ("call", "value"):
+                    if not make_first_arg_re.match(value[at:]):
+                        return spelling          # $(call $(X)), computed
+                    follow.append(make_first_arg_re.match(value[at:]).group(1))
+                elif make_plain_read_re.match(value[at:]):
+                    follow.append(head.group(1))
+                at += 2                           # descend, catch a nested ref
+            for name in follow:
+                if name in seen or name not in by_name:
+                    continue
+                for body in by_name[name]:
+                    bad = value_unbindable(body, seen | {name})
+                    if bad is not None:
+                        return f"{bad} via $({name})"
+            return None
+
+        flagged = []
+        where = {"define": "in a define body, bound where that define is "
+                           "reached",
+                 "recipe": "on a recipe line, run only when that rule runs"}
+        for spelling, _name, value, scope in eval_scoped_assignments(text):
+            if scope != "global":
+                flagged.append(f"{spelling} {where[scope]}")
+                continue
+            bad = value_unbindable(value, frozenset())
+            if bad is not None:
+                flagged.append(f"{spelling} reads {bad}")
+        return flagged
+
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
         _rules, assignments = make_rules(makefile)
@@ -4933,6 +5142,7 @@ def test_baremetal_profile_contract() -> None:
         _assert_no_builtin_calls(makefile, builtin_function_calls)
         _assert_no_opaque_evals(makefile, opaque_evals)
         _assert_no_line_adding_evals(makefile, line_adding_evals)
+        _assert_no_unbindable_evals(makefile, unbindable_evals)
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
             root = Path(tmp)
@@ -7920,6 +8130,141 @@ def test_baremetal_profile_contract() -> None:
         "$(eval CFLAGS += -I.$(MILAN_NL)include extra.mak)",
         "an $(eval) whose value expands to a second LINE")
 
+    #: ---- (#410, round-four review) ... and the OTHER half of #410's
+    #: dichotomy, measured OPEN at the previous head: a whole-line eval that
+    #: is PARSED as a benign assignment while the value it assigns is bound
+    #: somewhere the walker never reads. The review's own plant is first, and
+    #: the rest are the respellings of the same REACH, not of its spelling:
+    #: every positional position and bracket, the parameter behind a
+    #: function and behind a named define, the eval wrapped onto a
+    #: continuation, a second define calling the first, and a define whose
+    #: NAME is outside the identifier class the define reader models. Then
+    #: the same reach without a positional parameter at all: a $(foreach) or
+    #: $(let) REBINDS a name the Makefile pins and the origin probe reports
+    #: `file` for, and an $(if) or a conditional prerequisite decides from
+    #: the environment whether a literal eval runs -- all of them a value
+    #: this file does not fix. Each was reproduced pre-fix reaching the real
+    #: compile line with `-include ../shadow.h` merely exported, and each is
+    #: RED here on the refusal that names what was deferred.
+    eval_call_arg_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the call's own argument")
+    eval_call_arg_second_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(2))\nendef\n"
+        "$(call MILAN_TMPL,-I.,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the second call argument")
+    eval_call_arg_tenth_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(10))\nendef\n"
+        "$(call MILAN_TMPL,1,2,3,4,5,6,7,8,9,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the tenth call argument")
+    eval_call_arg_brace_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += ${1})\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of ${1}, the brace spelling")
+    eval_call_arg_bare_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $1)\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of $1, the unbracketed spelling")
+    eval_call_arg_nested_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(strip $(1)))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of $(1) behind a function")
+    eval_call_arg_named_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_ARG\n$(1)\nendef\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_ARG))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reaching $(1) through a named define")
+    eval_call_arg_computed_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "MILAN_T = MILAN_TMPL\n"
+        "$(call $(MILAN_T),$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reached through a computed $(call) name")
+    eval_call_arg_continued_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += \\\n  $(1))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) wrapped onto a continuation line")
+    eval_call_arg_relayed_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "define MILAN_OUTER\n$(call MILAN_TMPL,$(1))\nendef\n"
+        "$(call MILAN_OUTER,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reached through a second define")
+    eval_nonidentifier_define_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN-TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(foreach MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN-TMPL))",
+        "an $(eval) in a define whose NAME is not an identifier")
+    eval_foreach_rebind_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(foreach MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN_TMPL))",
+        "a $(foreach) rebinding the pinned name a define-body eval reads")
+    eval_let_rebind_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(let MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN_TMPL))",
+        "a $(let) rebinding the pinned name a define-body eval reads")
+    eval_conditional_define_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += -include ../shadow.h)\nendef\n"
+        "$(if $(MILAN_SHADOW),$(call MILAN_TMPL))",
+        "a literal define-body $(eval) the environment decides to run")
+    eval_recipe_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "milan_baremetal.o: $(if $(MILAN_SHADOW),milan_pre)\n"
+        "milan_pre:\n\t$(eval CFLAGS += -include ../shadow.h)",
+        "a recipe $(eval) on a rule the environment adds")
+    eval_positional_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $(1))",
+        "a top-level $(eval) of $(1), a name make reads from the environment")
+    eval_single_char_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $M)",
+        "a top-level $(eval) of $M, a reference the braced reader never sees")
+    eval_named_positional_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_ARG\n$(1)\nendef\n"
+        "$(eval CFLAGS += $(MILAN_ARG))",
+        "a top-level $(eval) reaching $(1) through a named define")
+    eval_escaped_dollar_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval MILAN_LATE = $$(1))\n"
+        "CFLAGS += $(MILAN_LATE)",
+        "a top-level $(eval) whose $$ becomes a live reference")
+
     #: ---- and the two shapes that made the reset rule vacuous. The reader
     #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
     #: passed by having nothing to check; a deleted reset did the same. Both
@@ -8718,6 +9063,87 @@ def test_baremetal_profile_contract() -> None:
          "to a second line", firmware_source, docs_source, csr_source,
          "hands $(eval) a value that can expand to more than one LINE",
          MutantFiles(makefile=eval_newline_flags)),
+        #: (#410, round-four review) ... and the nineteen the review measured
+        #: GREEN at the previous head, or that the same reach reopens. All but
+        #: one are pinned on the refusal built for them, which names what was
+        #: deferred; the computed $(call) name is caught one refusal earlier,
+        #: by the instrument that owns a name chosen at expansion time.
+        ("compile flags injected through a define-body $(eval) of the "
+         "call's own argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_flags)),
+        ("compile flags injected through a define-body $(eval) of the "
+         "second call argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_second_flags)),
+        ("compile flags injected through a define-body $(eval) of the "
+         "tenth call argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_tenth_flags)),
+        ("compile flags injected through a define-body $(eval) of ${1}",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_brace_flags)),
+        ("compile flags injected through a define-body $(eval) of $1",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_bare_flags)),
+        ("compile flags injected through a define-body $(eval) of $(1) "
+         "behind a function", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_nested_flags)),
+        ("compile flags injected through a define-body $(eval) reaching "
+         "$(1) through a named define", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_named_flags)),
+        ("compile flags injected through a define-body $(eval) reached by a "
+         "computed $(call) name", firmware_source, docs_source, csr_source,
+         "computes a variable NAME at expansion time",
+         MutantFiles(makefile=eval_call_arg_computed_flags)),
+        ("compile flags injected through a define-body $(eval) wrapped onto "
+         "a continuation line", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_continued_flags)),
+        ("compile flags injected through a define-body $(eval) reached "
+         "through a second define", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_relayed_flags)),
+        ("compile flags injected through an $(eval) in a define whose NAME "
+         "is not an identifier", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_nonidentifier_define_flags)),
+        ("compile flags injected by a $(foreach) rebinding the pinned name a "
+         "define-body $(eval) reads", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_foreach_rebind_flags)),
+        ("compile flags injected by a $(let) rebinding the pinned name a "
+         "define-body $(eval) reads", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_let_rebind_flags)),
+        ("a literal define-body $(eval) the environment decides to run",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_conditional_define_flags)),
+        ("a recipe $(eval) on a rule the environment adds", firmware_source,
+         docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_recipe_flags)),
+        ("compile flags injected through a top-level $(eval) of $(1)",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_positional_top_flags)),
+        ("compile flags injected through a top-level $(eval) of $M",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_single_char_top_flags)),
+        ("compile flags injected through a top-level $(eval) reaching $(1) "
+         "through a named define", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_named_positional_top_flags)),
+        ("compile flags injected through a top-level $(eval) whose $$ "
+         "becomes a live reference", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_escaped_dollar_top_flags)),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
@@ -9286,6 +9712,21 @@ def test_baremetal_profile_contract() -> None:
           "value adds lines -- an `include` among them -- that the walker "
           "reads as one assignment (remedy: keep the newline idiom out of "
           "an eval's value). "
+          "AND ONE MORE (#410, round-four review), the widest of them: an "
+          "$(eval NAME op VALUE) whose assignment the walker cannot BIND is "
+          "refused even though the shape reads as benign -- an eval in a "
+          "define body or a recipe, whose value is bound where the define or "
+          "the rule is reached and not where it is written, and a top-level "
+          "eval whose value reads a positional parameter ($(1), ${1}, $1), a "
+          "single-character $M, a computed name, or an escaped $$ that the "
+          "eval's own expansion turns into a live reference, at any remove "
+          "through this Makefile's own assignments. The COST is the widest "
+          "too, and it is the point: a template that EVALs its argument is "
+          "refused where the same template RETURNING that argument through "
+          "$(call) stays green, because the call site's argument is text the "
+          "closure walks and the eval's is not (remedy: return the value and "
+          "assign it, `CFLAGS += $(call tmpl,$(NAME))`, or write the "
+          "assignment at top level where its names are this file's to bind). "
           "RETIRED this round by the entity-advertise choke point and the "
           "resolver (#153), each with an accepted case measured GREEN "
           "instead of a claim: an extra statement between the two enables, "
@@ -9358,7 +9799,22 @@ def test_baremetal_profile_contract() -> None:
           "...), which this make advertises in .FEATURES and which injects "
           "the same way through gmk-eval and gmk-expand; and a variable "
           "name outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, which make "
-          "reads and neither reference reader here matches. "
+          "reads and neither reference reader here matches. FOUR MORE, "
+          "measured on round four's review and recorded the same way "
+          "because each is a PLAIN reference or a computed parse rather "
+          "than an eval this round rules on: an unbracketed $M on an "
+          "ordinary right-hand side, which the braced reference readers "
+          "never see; a conditional -- ifdef MILAN_SHADOW, or an $(if ...) "
+          "in an assignment's own NAME -- where the environment decides "
+          "WHETHER a literal flag is added rather than what a name's value "
+          "is, which no $(origin) enumeration answers; a recipe prefix or "
+          "prerequisite the file COMPUTES ($(MILAN_E)-built .RECIPEPREFIX, "
+          ".SECONDEXPANSION behind $$), which moves the eval token out of "
+          "every text reader here; and the one that needs no Makefile edit "
+          "at all, an environment variable NAMED 1, which LiteX's own "
+          "`define compile` reads as $(1) and this Makefile reaches through "
+          "a plain $(compile), measured putting -include ../shadow.h on the "
+          "compile line of the UNMODIFIED tree. "
           "Recorded rather than ruled against, because no pin over printed "
           "commands can see them. Two more, measured OPEN by the round-two "
           "adversarial pass, are CLOSED this round (#410), each a permanent "
@@ -9395,7 +9851,32 @@ def test_baremetal_profile_contract() -> None:
           "what keeps the include-set pin exact against evals. The "
           "accepted cases, a $(call) of a define the "
           "Makefile carries and an $(eval) of a literal assignment, are "
-          "measured GREEN in the accepted-Makefile loop")
+          "measured GREEN in the accepted-Makefile loop. ROUND FOUR's "
+          "review measured the OTHER half of that dichotomy open, and it is "
+          "closed here the same way -- by what the construct REACHES, not by "
+          "its spelling. `Parsed` was doing work `refused outright` had to "
+          "do: an eval read as a benign `NAME op VALUE` can still assign a "
+          "value this file does not fix. A define body's eval is expanded "
+          "where the define is REACHED, so $(1)..$(9) are that $(call)'s "
+          "arguments -- `$(eval CFLAGS += $(1))` under "
+          "`$(call TMPL,$(MILAN_EXTRA_CFLAGS))` put -include ../shadow.h on "
+          "the real compile line with the name merely exported while this "
+          "gate exited 0 -- and a $(foreach) or $(let) over that call "
+          "REBINDS even a name the Makefile pins and the origin probe "
+          "reports `file` for, while an $(if) or a conditional prerequisite "
+          "decides from the environment whether a literal eval runs at all. "
+          "So an eval is walked ONLY at global scope, and only when every "
+          "name its value reads is one this file binds: never a positional "
+          "parameter in any bracket or position, never an unbracketed $M, "
+          "never a computed name, never an escaped $$ the eval's expansion "
+          "makes live, and none of them at any remove through this "
+          "Makefile's assignments. Nineteen permanent mutations pin it, the "
+          "review's own plant among them, each reproduced pre-fix at the "
+          "real compile line. What is NOT closed and is recorded instead: a "
+          "recipe prefix or a prerequisite the file COMPUTES rather than "
+          "writes (a $(MILAN_E)-built .RECIPEPREFIX, a .SECONDEXPANSION "
+          "prerequisite behind $$), which hides the eval token from every "
+          "text reader here, and the plain non-eval channels below")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
