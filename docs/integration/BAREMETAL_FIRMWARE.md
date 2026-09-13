@@ -535,11 +535,14 @@ the gate's own plan run, before any recipe is printed; `$(file >frag,TEXT)`,
 which writes at parse time the fragment the pinned `-include` line then
 reads, so the deferred reference never appears in any walked text;
 `$(guile ...)`, which this build's make advertises in `.FEATURES` and which
-injects the same way through `gmk-eval` and `gmk-expand`; and a variable
-name outside `[A-Za-z_][A-Za-z0-9_]*`, such as `MILAN-EXTRA`, which make
-reads and neither reference reader here matches. The first four were the
-recorded set before round three's review; the next three are the same kind,
-measured, and are recorded beside them rather than left to read as absent.
+injects the same way through `gmk-eval` and `gmk-expand`. The first four were
+the recorded set before round three's review; the next three are the same
+kind, measured, and are recorded beside them rather than left to read as
+absent. A variable name outside `[A-Za-z_][A-Za-z0-9_]*`, such as
+`MILAN-EXTRA`, was recorded here until the review of round ten's head and is
+now RULED on instead: make reads that name, no assignment in a Makefile binds
+one, and the read is refused by name rather than left unmatched (the
+whole-name row below).
 Round four's review adds four more of the same kind, each measured reaching
 the real compile line and each a PLAIN reference or a computed parse rather
 than the `$(eval)` that round rules on: an unbracketed `$M` on an ordinary
@@ -856,12 +859,30 @@ WHOLE, with no token boundary in it, exactly as it looks up the plain
 `$(NAME)` reference (GNU make 4.4.1, `src/function.c`). So
 `$(value NAME<VT>)` names the variable those bytes spell while
 `$(call NAME<VT>)` calls `NAME`: the same suffix byte, two functions, two
-answers, both carried in the controls against each other. Where a blank or a
-comma follows the identifier in a `value` argument, the walker keeps asking
-`$(origin)` about the identifier, which is the closest question it can put
-about that construct and not a proof that the read is covered: the name make
-looks up there is outside the `[A-Za-z_][A-Za-z0-9_]*` vocabulary every reader
-here spells, like the `MILAN-EXTRA` case recorded above.
+answers, both carried in the controls against each other.
+
+**A name this walker cannot spell is refused, not approximated** (#410, the
+review of round ten's head). Where a blank, a vertical tab or a comma follows
+the identifier in a `value` argument or inside a plain reference, make looks
+up a name outside the `[A-Za-z_][A-Za-z0-9_]*` vocabulary every reader here
+spells. The walker used to keep asking `$(origin)` about the identifier the
+span starts with, or to drop the read entirely where the suffix byte was one
+no pattern matched, and both were recorded as covered: `$(value NAME,x)` and
+`$(NAME<SP>)` put `NAME` in the origin request, `$(value NAME<VT>)` and
+`$(NAME,x)` put nothing there, and `$(eval LABEL := $(value NAME,x))` was
+classified bindable because `NAME` is bound. An identifier prefix is a
+different variable, and an answer about it proves nothing about the one make
+reads, so each of these is now REFUSED by name, wherever it sits, exactly as a
+computed name is. A later expansion inside any of those spans is the computed
+reference it always was, and is now seen there too:
+`$(value NAME,$(PICK))`, `$(value NAME $(PICK))`, `$(NAME $(PICK))` and
+`$(NAME,$(PICK))` reach the computed-name refusal. The reads that stay
+COVERED are the complete ones, `$(value NAME)`, `$(NAME)`, `$(NAME:.o=.d)`
+and the `$(call NAME,...)` token, and they are carried in the controls beside
+the refusals so the repair cannot be met by refusing every read. make's own
+positional and automatic names, `$(1)` and `$(@D)`, keep the treatment
+recorded above: bound by the call site whose argument text this closure walks
+or by the rule make binds them in, and skipped rather than probed.
 
 **What a clear pre-plan scan says, and what it does not.** These controls
 measure how this walker CLASSIFIES a text, which is a smaller claim than GNU
@@ -923,6 +944,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist. The set is read from the file TEXT, so it is exact over the lines in the file: a line an expansion creates would be outside it, and both routes to one are refused below, but a direct `$(file >frag,TEXT)` write is a recorded channel rather than a ruled one |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
 | A computed variable reference -- `$($(X))`, `$(CFLAGS_$(VARIANT))`, and (#410) a computed `$(call ...)`/`$(value ...)` first argument, `$(call $(X))` and `$(call<VT> $(X))` alike -- anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. Which function an expansion opens, and how much whitespace it then skips, are make's own rules rather than the blank pair, so a wide separator before a computed argument does not hide it (#410, the review of round nine's head). **Remedy:** spell the reference with a literal name |
+| A read whose LITERAL name is outside `[A-Za-z_][A-Za-z0-9_]*` -- `$(value NAME,x)`, `$(value NAME<SP>)`, `$(value NAME<VT>)`, `$(NAME<SP>)`, `$(NAME,x)`, `$(NAME:sub)` with no `=` in it, `$(MILAN-EXTRA)` and a `$(call MILAN-TMPL)` token -- anywhere in the Makefile, a never-run recipe included | make looks a plain reference up by its COMPLETE span and a `$(value ...)` by its WHOLE argument, commas included, so each of these names a real variable that no assignment in a Makefile can bind and no `$(origin)` line this gate writes can ask about, which leaves the ENVIRONMENT deciding its value. The walker answered about the identifier PREFIX instead, or dropped the read with no refusal, and reported both as covered; an answer about `NAME` is an answer about a different variable (#410, the review of round ten's head). make's own positional and automatic names, `$(1)` and `$(@D)`, are not in this row: they are bound by the call site whose argument text the closure walks, or per rule by make. **Remedy:** spell the read with the complete identifier, `$(value NAME)` or `$(NAME)`, and give the variable a name a Makefile can bind |
 | A `$(call ...)`/`${call ...}` whose first argument names a make BUILT-IN function -- `$(call eval,...)`, `$(call file,...)`, `$(call shell,...)`, and a `$(call subst,...)` written to map a built-in over a list -- anywhere in the Makefile, a never-run recipe included | `call` DISPATCHES to that built-in, so the construct is the built-in written where no scan for the built-in's own token can see it, and `$(call eval,TEXT)` was measured injecting a flag from the environment with every instrument green (#410, round-three review). The name it dispatches on is the TOKEN make cuts the argument down to, so `$(call eval<VT>,TEXT)` and `$(call eval junk,TEXT)` are that built-in too (#410, the review of round nine's head). **Remedy:** spell the built-in directly, `$(subst a,b,$(TEXT))` |
 | A parsed `$(eval NAME op VALUE)` whose value reads a name this Makefile gives a MULTI-LINE value -- make's `define NL` newline idiom, at any remove | `$(eval)` parses the EXPANSION, so such a value adds makefile lines this walker reads as the one assignment it parsed, and an `include` among them is outside the include-set pin, which reads the file text (#410, round-three review). **Remedy:** keep the newline idiom out of an eval's value |
 | An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |

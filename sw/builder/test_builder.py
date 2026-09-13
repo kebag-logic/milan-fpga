@@ -1813,6 +1813,41 @@ def _assert_no_computed_variable_names(makefile, computed_name_references):
         "refused rather than modelled (#162)"
 
 
+def _assert_no_unreadable_names(makefile, unreadable_name_references):
+    """A Makefile that reads a variable whose LITERAL name this walker cannot
+    spell is REFUSED: the name exists, and no `$(origin)` line here asks about
+    it."""
+    #: (#410, the review of round ten's head) the companion of the
+    #: computed-name refusal, one step in, and the same sound arm. make looks
+    #: a plain reference up by its COMPLETE span and a `$(value ...)` by its
+    #: WHOLE argument (`src/expand.c:292,404`, `src/function.c:1571,2530`),
+    #: so `$(value NAME,x)`, `$(value NAME<SP>)`, `$(NAME<VT>)`, `$(NAME:sub)`
+    #: and `$(call MILAN-TMPL)` all name variables carrying a byte outside
+    #: `[A-Za-z_][A-Za-z0-9_]*`. No assignment in a Makefile binds such a
+    #: name -- make's own name reader ends a name at a blank -- so its value
+    #: comes from the ENVIRONMENT, which is the one thing this gate exists to
+    #: refuse. Measured at the head this replaces: the closure answered about
+    #: the identifier PREFIX (`NAME` for `$(value NAME,x)`), which is a
+    #: different variable and proves nothing about the one make reads, or
+    #: dropped the read with no refusal at all. Both were reported as
+    #: covered. Refused rather than modelled, over the whole text make reads
+    #: like the refusals above, and the COST is stated: make's own positional
+    #: and automatic names keep their recorded treatment, while a
+    #: make-defined special such as `$(.DEFAULT_GOAL)` is refused with the
+    #: rest. It runs LAST of the pre-plan refusals, so a construct an earlier
+    #: instrument already owns -- a built-in reached through `call`, an eval
+    #: whose assignment cannot be bound -- keeps being named by that one.
+    unreadable = unreadable_name_references(makefile)
+    assert not unreadable, \
+        "this Makefile reads a variable name this walker cannot spell (" + \
+        ", ".join(unreadable) + "): make looks a plain reference up by its " \
+        "complete span and $(value ...) by its whole argument, so these " \
+        "name variables no assignment in this file can bind and no " \
+        "$(origin) line here can ask about; asking about the identifier " \
+        "they start with is a question about a different variable, so the " \
+        "read is refused rather than modelled (#410)"
+
+
 def _assert_no_opaque_evals(makefile, opaque_evals):
     """A Makefile that hands `$(eval)` text this gate cannot read as one
     literal assignment is REFUSED: make parses the EXPANSION, not the file."""
@@ -4988,7 +5023,7 @@ def test_baremetal_profile_contract() -> None:
     #: (#410, the review of round eight's head) The head of an `$(eval ...)`,
     #: shared by the two scans below so they cannot disagree about what one
     #: is. The byte after the name is make's WIDE class, for the reason given
-    #: at make_call_ref_re: `lookup_function()` takes the name only where
+    #: at opened_function(): `lookup_function()` takes the name only where
     #: `MAP_NUL|MAP_SPACE` follows it (`src/function.c:272-287`). So
     #: `$(eval<VT>CFLAGS += $(MILAN_EXTRA_CFLAGS))` is the same parse-time
     #: hook as its blank-separated spelling, and reading only the blank pair
@@ -5225,9 +5260,9 @@ def test_baremetal_profile_contract() -> None:
     #: recorded rather than closed, both reproduced pre-fix reaching the
     #: real compile line with every instrument green. `$(call NAME,...)`
     #: and `$(value NAME)` READ a variable by its NAME without the $(NAME)
-    #: spelling make_origin_ref_re models, so the walker never saw the
-    #: name: make_call_ref_re and make_value_ref_re now read that first
-    #: argument as the reference it is and the closure walks it, each by the
+    #: spelling the reference reader modelled, so the walker never saw the
+    #: name: name_read_at() now reads that first argument as the reference it
+    #: is and the closure walks it, each by the
     #: rule its own function names it with, so the deferral hits the
     #: same origin refusal as the plain spelling; a first argument that is
     #: itself computed, `$(call $(X))`, is the computed name it is and
@@ -5239,66 +5274,9 @@ def test_baremetal_profile_contract() -> None:
     #: spelling is a permanent mutation, and each construct has an accepted
     #: case measured GREEN: a $(call) of a define this Makefile carries and
     #: an $(eval) of a literal assignment.
-    #: (#410, the review of round nine's head) The blank run before the close
-    #: is this reader's ONE approximation, and it is deliberate. make ends a
-    #: plain reference's name at the bracket and nowhere else:
-    #: `reference_variable()` takes the whole span (`src/expand.c:401-404`),
-    #: so `$(NAME<SP>)` names a variable no assignment in this file can even
-    #: spell, since make's own name reader ends a name at a blank. Keeping the
-    #: identifier asks `$(origin)` about the closest name there is rather than
-    #: asking nothing. This is NOT the class the function readers below end a
-    #: TOKEN with, and widening it would claim a read make does not make.
-    make_origin_ref_re = re.compile(
-        r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
-    #: (#410, the review of round eight's head) The run between a built-in's
-    #: NAME and its first argument is make's WIDE class, like every other
-    #: token boundary: `lookup_function()` accepts the name only where
-    #: `MAP_NUL|MAP_SPACE` follows it and `handle_function()` then reaches the
-    #: arguments with `NEXT_TOKEN` (`src/function.c:272-287`, `:2610-2614`).
-    #: So `$(call<VT>NAME,...)` and `$(value<FF>NAME)` are the same reads as
-    #: their blank-separated spellings, and reading only the blank pair left
-    #: this closure blind to the name they defer.
-    #: (The review of round nine's head) ... and the two functions do NOT name
-    #: that argument the same way, so one pattern cannot answer for both and
-    #: widening the shared one would have been wrong in each direction at once.
-    #: `func_call()` cleans its first argument up into a TOKEN --
-    #: `next_token()` and then `end_of_token()` over the argument
-    #: (`src/function.c:2722-2724`) -- so the run AFTER the name is no part of
-    #: it: `$(call HELPER<VT>,ready)` and `$(call HELPER junk,ready)` both call
-    #: HELPER, and reading the blank pair here left that literal dependency out
-    #: of the closure exactly as the blank pair before the name did.
-    #: `func_value()` looks its argument up WHOLE, with no token boundary
-    #: anywhere in it (`src/function.c:1568-1571`), which is how the plain
-    #: `$(NAME)` reference above is read too. So `$(value NAME<VT>)` names the
-    #: variable those bytes spell rather than NAME, and this reader keeps the
-    #: argument span it already had instead of taking `call`'s token rule:
-    #: giving `value` the wide class would put a name in the closure that make
-    #: does not read there. Its trailing blank run stays the
-    #: over-approximation the plain reader's is, and stays for the same
-    #: reason: where a blank or a comma follows the identifier, the name make
-    #: looks up is one no reader here can spell -- the origin probe asks about
-    #: an identifier -- and the identifier is the closest question the walker
-    #: can put about that construct, so dropping it would drop the only one it
-    #: has. What it is NOT is a proof that the read is covered, and the doc row
-    #: says so.
-    make_call_ref_re = re.compile(
-        r"[$][({]call" + make_fn_space +
-        r"+([A-Za-z_][A-Za-z0-9_]*)(?=" + make_fn_space + r"|[,)}])")
-    make_value_ref_re = re.compile(
-        r"[$][({]value" + make_fn_space +
-        r"+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
-    #: ... and the same two names where the reader below has to decide WHICH
-    #: function an expansion opens before it can read a first argument at all.
-    #: This is `lookup_function()` itself for these two entries: the name is
-    #: the one make dispatches on only where the byte after it is in the wide
-    #: map, so `$(call<VT>...)` opens the call that `$(call ...)` opens and
-    #: `$(call$(X))` opens no function -- it is a plain reference whose NAME is
-    #: computed, and the scan that follows says so.
-    make_named_fn_re = re.compile(
-        r"(?:call|value)(?=" + make_fn_space + r")")
-    #: The same class as a set of bytes, for the one consumer that walks the
+    #: The whitespace class as a set of bytes, for the readers that walk the
     #: run with an index rather than matching it (`NEXT_TOKEN` over the
-    #: padding before a first argument).
+    #: padding before a first argument, `end_of_token()` over the argument).
     make_fn_space_bytes = " \t\v\f\r\n"
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
@@ -5327,7 +5305,7 @@ def test_baremetal_profile_contract() -> None:
     #: at the price of a margin that costs nothing. The paired control is the
     #: measurement itself: make injects nothing for the leading-space form.
     #: (The review of round nine's head) The name it dispatches on is the same
-    #: TOKEN make_call_ref_re reads, and for the same reason: `func_call()`
+    #: TOKEN name_read_at() reads, and for the same reason: `func_call()`
     #: hands `lookup_function()` the argument cut at `end_of_token()`, so
     #: `$(call eval<VT>,TEXT)` and `$(call eval junk,TEXT)` are the built-in
     #: `$(call eval,TEXT)` is, and the promised refusal was absent for both.
@@ -5337,13 +5315,187 @@ def test_baremetal_profile_contract() -> None:
         r"[$][({][ \t]*call" + make_fn_space +
         r"+([A-Za-z][A-Za-z0-9_-]*)(?=" + make_fn_space + r"|[,)}])")
 
+    #: ---- (#410, the review of round ten's head) what a construct's NAME
+    #: is, answered ONCE -------------------------------------------------
+    #:
+    #: Three patterns used to answer it and could not agree, and the
+    #: disagreement WAS the defect. Measured at the head this replaces:
+    #: `$(value NAME,x)` and `$(value NAME<SP>)` put NAME in the origin
+    #: request while make reads the variables `NAME,x` and `NAME<SP>`;
+    #: `$(value NAME<VT>)`, `$(NAME,x)` and `$(NAME<VT>)` put nothing there
+    #: at all; `$(value NAME $(PICK))`, `$(value NAME,$(PICK))`,
+    #: `$(NAME $(PICK))` and `$(NAME,$(PICK))` defer the name itself and got
+    #: no computed-name refusal; and `$(eval LABEL := $(value NAME,x))` was
+    #: classified BOUND because NAME is bound. An identifier PREFIX is a
+    #: question about a different variable, and `$(origin)` answering it
+    #: proves nothing about the one make reads.
+    #:
+    #: make's own rules, and they really are three different rules:
+    #:
+    #:   * a PLAIN `$(NAME)` is looked up by its COMPLETE span:
+    #:     `end = strchr (beg, closeparen)`, then
+    #:     `reference_variable (o, beg, end - beg)` (`src/expand.c:292,404`).
+    #:     A `:` splits a substitution reference off the name only where an
+    #:     `=` follows it in that span; with no `=` in sight make punts and
+    #:     the colon belongs to the NAME (`:329-338`). A `$` inside the span
+    #:     makes make expand the name first (`:296-316`) -- the computed
+    #:     reference this walker refuses.
+    #:   * `$(value ARG)` looks its WHOLE argument up
+    #:     (`src/function.c:1571`). The entry takes a maximum of ONE argument
+    #:     (`:2530`), so a comma stays INSIDE it rather than separating it
+    #:     (`:2658`), and only the run BEFORE it is consumed, by `NEXT_TOKEN`
+    #:     (`:2614`).
+    #:   * `$(call NAME,...)` is the one that takes a TOKEN: `func_call()`
+    #:     cleans the first argument up with `next_token()` and
+    #:     `end_of_token()` and dispatches on the result (`:2723-2724`,
+    #:     `:2732`). That argument is EXPANDED before the cut, so a `$`
+    #:     anywhere in it chooses the token too.
+    #:   * WHICH of the three an expansion is, is `lookup_function()`'s
+    #:     answer and not a guess from the name: the maximal run of
+    #:     alphanumerics, `.`, `-` and `_` after the bracket, dispatched only
+    #:     where the byte after it is whitespace or the end of the text
+    #:     (`:272-287`, `src/main.c:664-692`). So `$(callable)`, `$(call)`
+    #:     and `$(value)` open no function and are the plain reads they look
+    #:     like, while `$(patsubst %.o,%.d,$(OBJECTS))` opens one and its
+    #:     arguments are walked on their own `$(`.
+    #:
+    #: A name is ANSWERED where it is this walker's identifier and REFUSED
+    #: where it is not, which is the sound arm the computed name already
+    #: has: a name make looks up and no `$(origin ...)` line here can spell
+    #: is a name the environment can set behind the walker's back.
+    make_identifier_re = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+    #: `lookup_function()`'s own name class, MAP_USERFUNC.
+    make_fn_name_re = re.compile(r"[A-Za-z0-9._-]+")
+    #: make's POSITIONAL and AUTOMATIC names, the only reads outside that
+    #: identifier class this walker does not refuse, and the one pre-existing
+    #: treatment this repair leaves alone: `$(1)` .. `$(N)` are a `$(call)`'s
+    #: arguments, bound at the call site whose argument text this closure
+    #: already walks, and `$(@D)` and the rest are bound per rule by make
+    #: itself. A make-defined special like `$(.DEFAULT_GOAL)` is NOT in the
+    #: set and is refused with everything else outside the class: the sound
+    #: arm, and a disclosed cost rather than a modelled read.
+    make_own_name_re = re.compile(r"[0-9]+|[@%<?^+|*][DF]?")
+
+    def opened_function(text: str, at: int) -> str | None:
+        """The make BUILT-IN the `$(`/`${` at `at` opens, or None where the
+        expansion is a plain variable reference."""
+        found = make_fn_name_re.match(text, at + 2)
+        if not found or found.group() not in make_builtin_functions:
+            return None
+        after = found.end()
+        if after < len(text) and text[after] not in make_fn_space_bytes:
+            return None
+        return found.group()
+
+    def function_argument(text: str, at: int) -> tuple[int, int]:
+        """`(start, stop)` of the whole argument text of the built-in opening
+        at `at`: past its name and the whitespace run `NEXT_TOKEN` consumes,
+        up to the bracket the invocation closes at."""
+        size = len(text)
+        start = make_fn_name_re.match(text, at + 2).end()
+        while start < size and text[start] in make_fn_space_bytes:
+            start += 1
+        stop = expansion_end(text, at)
+        if stop > at and text[stop - 1] in ")}":
+            stop -= 1
+        return start, max(start, stop)
+
+    def first_argument_end(text: str, start: int, stop: int,
+                           opener: str) -> int:
+        """Where the FIRST argument in `text[start:stop]` ends: the comma
+        `find_next_argument()` stops at, counting the invocation's own
+        brackets, or `stop` where the invocation has only the one."""
+        closer = ")" if opener == "(" else "}"
+        depth, scan = 0, start
+        while scan < stop:
+            depth += (text[scan] == opener) - (text[scan] == closer)
+            if text[scan] == "," and not depth:
+                return scan
+            scan += 1
+        return stop
+
+    def name_read_at(text: str, at: int) -> tuple[str, str]:
+        """`(kind, name)` for the `$(`/`${` expansion opening at `at`.
+
+        `kind` is `read` for a literal name this walker can put to
+        `$(origin)`, carried in `name`; `computed` where a `$` inside the
+        name defers it to expansion time; `unspelled` where make looks up a
+        literal name outside this walker's identifier class; `own` for
+        make's own positional and automatic variables; `builtin` for the
+        built-in a `$(call)` token dispatches to, whose refusal
+        builtin_function_calls() owns; `function` for any other built-in,
+        whose arguments are walked on their own `$(` rather than read as a
+        name here; and `none` where the expansion reads no name at all."""
+        function = opened_function(text, at)
+        if function is not None and function not in ("call", "value"):
+            return "function", function
+        if function is None:
+            closer = ")" if text[at + 1] == "(" else "}"
+            stop = text.find(closer, at + 2)
+            span = text[at + 2:len(text) if stop < 0 else stop]
+            colon = span.find(":")
+            if colon >= 0 and "=" in span[colon + 1:]:
+                span = span[:colon]
+        else:
+            start, stop = function_argument(text, at)
+            if function == "call":
+                stop = first_argument_end(text, start, stop, text[at + 1])
+            span = text[start:stop]
+            if function == "call" and "$" not in span:
+                token = start
+                while token < stop and text[token] not in make_fn_space_bytes:
+                    token += 1
+                span = text[start:token]
+        if "$" in span:
+            return "computed", span
+        if not span:
+            #: `$()`, and the `$(call )` make itself calls a no-op.
+            return "none", span
+        if function == "call" and span in make_builtin_functions:
+            #: One construct, one refusal: `call` DISPATCHES to the built-in
+            #: on this token, so naming it here as well would charge it two
+            #: and hide which reader the finding is about.
+            return "builtin", span
+        if make_identifier_re.fullmatch(span):
+            return "read", span
+        if make_own_name_re.fullmatch(span):
+            return "own", span
+        return "unspelled", span
+
+    def name_reads(text: str) -> list[tuple[str, str, str]]:
+        """`(kind, name, spelling)` for every `$(`/`${` expansion in `text`,
+        nested ones included: each is scanned on its own opening, so a
+        reference inside a function's arguments -- the accepted
+        `$(patsubst %.o,%.d,$(OBJECTS))` idiom -- is read as the reference it
+        is. `$$` is make's escaped literal dollar and opens nothing."""
+        found, at, size = [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            #: A `$` at the very end of the text opens nothing, and the
+            #: empty slice is IN every string, so it is answered here rather
+            #: than indexed past (#410, round-four review).
+            if not opener or opener not in "({":
+                at += 2
+                continue
+            kind, name = name_read_at(text, at)
+            # Quote the reference, not a fixed span past its name: the
+            # inherited eight bytes past the name reported `$(call $(X)) O`,
+            # the O being the next line's OBJECTS, so the message named a
+            # span no reader could match against the file.
+            found.append((kind, name, re.sub(
+                r"\s+", " ", text[at:expansion_end(text, at)]).strip()))
+            at += 2
+        return found
+
     def referenced_names(value: str) -> list[str]:
-        """Every literal variable name `value` reads: `$(NAME)`, `$(NAME:...)`
-        and the first argument of `$(call NAME,...)` / `$(value NAME)`, each
-        read by the rule its own function names it with."""
-        return (make_origin_ref_re.findall(value) +
-                make_call_ref_re.findall(value) +
-                make_value_ref_re.findall(value))
+        """Every literal variable name `value` reads, each by the rule its own
+        construct names it with: the COMPLETE span of a plain `$(NAME)` or of
+        a `$(value NAME)` argument, and the TOKEN of a `$(call NAME,...)`."""
+        return [name for kind, name, _spelling in name_reads(value)
+                if kind == "read"]
 
     def computed_name_references(makefile: str) -> list[str]:
         """Every reference whose NAME position itself expands: `$($(X))`,
@@ -5351,70 +5503,44 @@ def test_baremetal_profile_contract() -> None:
         (#410) the first argument of `$(call ...)` / `$(value ...)` when it
         is computed the same way, `$(call $(X))`.
 
-        The name portion is the text from the opening `$(`/`${` up to the
-        first whitespace, `:`, `,` or close -- exactly the span
-        make_origin_ref_re models as a literal name -- and for `call` and
-        `value` the next such span, the NAME they read. A `$` inside that
-        span means the reference cannot be walked BY CONSTRUCTION -- the
-        name is chosen at expansion time -- so the caller refuses instead
-        of modelling. `$$` is make's escaped literal dollar and opens
-        nothing. A reference nested in a function's ARGUMENTS
-        (`$(patsubst %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and
-        walked normally, so the accepted DEPFILES idiom stays green.
+        A `$` inside the name span means the reference cannot be walked BY
+        CONSTRUCTION -- the name is chosen at expansion time -- so the caller
+        refuses instead of modelling. WHICH span that is, is name_read_at()'s
+        answer and each construct's own: the reader that ended every name at
+        a blank or a comma let `$(value NAME $(PICK))`, `$(value NAME,$(PICK))`,
+        `$(NAME $(PICK))` and `$(NAME,$(PICK))` past this refusal, because it
+        stopped before reaching the `$` that defers them (#410, the review of
+        round ten's head).
 
-        Which of the two the text opens is make's OWN test and not that
-        span's (#410, the review of round nine's head): `lookup_function()`
-        takes the name where the byte after it is in the wide map, and
-        `handle_function()` then skips the whole run with `NEXT_TOKEN`
-        (`src/function.c:272-287`, `:2610-2614`). Reading both with the blank
-        pair made `$(call<VT> $(PICK))` a reference to a name ending in that
-        byte, so the reader never reached the first-argument branch at all and
-        the computed name it defers was neither walked nor refused -- while
-        the literal `$(PICK)` inside it was the only thing the scan saw. The
-        span itself stays where it is: for a PLAIN reference make ends the
-        name nowhere but at the close, so `$(FOO<VT>$(X))` is a computed name
-        and has to keep reading as one."""
-        text = make_source(makefile)
-        found, at, size = [], 0, len(text)
+        The scan is over the whole text make reads, recipes of never-run
+        rules included, and it reports every reference in a spelling that can
+        be matched against the file.
+        """
+        return [spelling for kind, _name, spelling
+                in name_reads(make_source(makefile)) if kind == "computed"]
 
-        def name_is_computed(start: int) -> bool:
-            """Whether a `$` inside the name opening at `start` defers the
-            name itself."""
-            scan = start
-            while scan < size and text[scan] not in " \t,:)}\n":
-                if text[scan] == "$":
-                    return True
-                scan += 1
-            return False
+    def unreadable_name_references(makefile: str) -> list[str]:
+        """Every reference whose LITERAL name make looks up is one this
+        walker cannot spell, for make_plan() to refuse.
 
-        while at < size:
-            if text[at] != "$":
-                at += 1
-                continue
-            opener = text[at + 1:at + 2]
-            if opener == "$":
-                at += 2
-                continue
-            if opener not in "({":
-                at += 2
-                continue
-            named_arg = make_named_fn_re.match(text, at + 2)
-            if named_arg:
-                first = named_arg.end()
-                while first < size and text[first] in make_fn_space_bytes:
-                    first += 1
-                computed = name_is_computed(first)
-            else:
-                computed = name_is_computed(at + 2)
-            if computed:
-                # Quote the reference, not a fixed span past its name: the
-                # inherited eight bytes past the name reported `$(call $(X)) O`,
-                # the O being the next line's OBJECTS, so the message named
-                # a span no reader could match against the file.
-                found.append(re.sub(
-                    r"\s+", " ", text[at:expansion_end(text, at)]).strip())
-            at += 2
-        return found
+        The companion of the computed-name refusal, and the same sound arm
+        one step in: make reads `$(value NAME,x)`, `$(value NAME<SP>)`,
+        `$(NAME<VT>)`, `$(NAME:sub)` and `$(call MILAN-TMPL)` as variables
+        whose names carry a byte outside `[A-Za-z_][A-Za-z0-9_]*`. No
+        `$(origin ...)` line this gate writes spells one, and no assignment
+        in this Makefile binds one either, so the ENVIRONMENT decides the
+        value -- which is exactly what the origin probe exists to refuse.
+        The head this replaces answered about the identifier PREFIX instead
+        (`NAME` for `$(value NAME,x)`) or dropped the read with no refusal at
+        all, and both are a covered-looking answer about a variable make does
+        not read (#410, the review of round ten's head).
+
+        make's own positional and automatic names are NOT reported: they are
+        make_own_name_re's, bound by the call site whose argument text this
+        closure walks or by the rule make binds them in.
+        """
+        return [spelling for kind, _name, spelling
+                in name_reads(make_source(makefile)) if kind == "unspelled"]
 
     def opaque_evals(makefile: str) -> list[str]:
         """Every `$(eval ...)` in `makefile` the walker cannot read as a
@@ -5536,36 +5662,15 @@ def test_baremetal_profile_contract() -> None:
             at += 6
         return scoped
 
-    def first_argument_name(text: str) -> str | None:
-        """The name the `$(call ...)` / `$(value ...)` at the START of `text`
-        reads, or None where it reads no literal one.
-
-        Each function's own reader answers for it, because make does not name
-        the two arguments the same way (make_call_ref_re). None is what a
-        computed first argument gives, and computed_name_references() reports
-        that one; the caller here refuses rather than following it."""
-        for reader in (make_call_ref_re, make_value_ref_re):
-            found = reader.match(text)
-            if found:
-                return found.group(1)
-        return None
-
-    #: A plain `$(IDENT)` / `${IDENT}` / `$(IDENT:sub)` variable read: the
-    #: name whose value the walker can follow, as against a function call
-    #: like `$(strip ...)` whose head is not a variable. Its blank run is
-    #: make_origin_ref_re's, deliberately and for that reader's reason: this
-    #: is a whole-name span and not a token, so it does not take the wide
-    #: class the function readers end a token with.
-    make_plain_read_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
-
     def unbindable_evals(makefile: str) -> list[str]:
         """Every `$(eval NAME op VALUE)` make_evals() reads as a benign
         assignment that the walker cannot in fact bind, for make_plan() to
         REFUSE: an eval in a define body or recipe, whose expansion context
         the file does not fix, or one whose value reads (transitively) a
         name the walker cannot bind -- a positional parameter, a computed or
-        single-character reference, an escaped $$ the eval's expansion turns
-        into a live reference, or a value that ENDS in a bare $."""
+        single-character reference, a literal name outside the walker's
+        identifier class, an escaped $$ the eval's expansion turns into a
+        live reference, or a value that ENDS in a bare $."""
         text = make_source(makefile)
         by_name: dict[str, list[str]] = {}
         for name, value in make_rules(makefile)[1]:
@@ -5595,19 +5700,23 @@ def test_baremetal_profile_contract() -> None:
                     return "a trailing $"
                 if opener not in "({":
                     return "$" + opener          # $M, $1, $@: single-char ref
-                head = re.match(r"[ \t]*([A-Za-z_][A-Za-z0-9_]*)",
-                                value[at + 2:])
-                spelling = re.sub(
-                    r"\s+", " ", value[at:expansion_end(value, at)]).strip()
-                if not head:
-                    return spelling              # $(1), $($(X)), $(@D) ...
-                if head.group(1) in ("call", "value"):
-                    first = first_argument_name(value[at:])
-                    if first is None:
-                        return spelling          # $(call $(X)), computed
-                    follow.append(first)
-                elif make_plain_read_re.match(value[at:]):
-                    follow.append(head.group(1))
+                #: WHICH name this read is, is the one reader's answer, so
+                #: this binder cannot disagree with the closure and the
+                #: refusals about it. A name is FOLLOWED only where it is the
+                #: literal identifier the walker can bind; anything else is
+                #: named and refused, because the value the eval expands is
+                #: then not the value read here. Following the identifier
+                #: PREFIX of a longer name -- `NAME` for `$(value NAME,x)`
+                #: or `$(NAME )` -- claimed a binding for a variable make
+                #: does not read (#410, the review of round ten's head).
+                kind, name = name_read_at(value, at)
+                if kind == "read":
+                    follow.append(name)
+                elif kind != "function":
+                    #: $(1), $($(X)), $(@D), $(value NAME,x), $(call eval,..)
+                    return re.sub(
+                        r"\s+", " ",
+                        value[at:expansion_end(value, at)]).strip()
                 at += 2                           # descend, catch a nested ref
             for name in follow:
                 if name in seen or name not in by_name:
@@ -6425,16 +6534,84 @@ def test_baremetal_profile_contract() -> None:
          "CFLAGS += $(value\vMILAN_EXTRA)\n", ("MILAN_EXTRA", "OBJECTS"),
          None),
         ("... while a value whose argument ENDS in that byte names the "
-         "variable those bytes spell, which is not that name",
-         "CFLAGS += $(value MILAN_EXTRA\v)\n", ("OBJECTS",), None),
+         "variable those bytes spell, which is a name this walker cannot "
+         "put to $(origin) and therefore refuses",
+         "CFLAGS += $(value MILAN_EXTRA\v)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA )")),
         ("... and a CALL whose argument ends in it calls the name, which is "
          "the same suffix read by the other function's rule",
          "CFLAGS += $(call MILAN_EXTRA\v)\n", ("MILAN_EXTRA", "OBJECTS"),
          None),
-        ("... and a value whose argument ends in a blank keeps the closest "
-         "name the origin probe can be asked about",
-         "CFLAGS += $(value MILAN_EXTRA )\n", ("MILAN_EXTRA", "OBJECTS"),
+        ("... and a value whose argument ends in a blank is refused too, "
+         "rather than answered about the identifier it starts with",
+         "CFLAGS += $(value MILAN_EXTRA )\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA )")),
+        ("... and a value whose argument carries a COMMA, which make keeps "
+         "inside the one argument it takes",
+         "CFLAGS += $(value MILAN_EXTRA,x)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA,x)")),
+        ("... and the brace spelling of that comma argument",
+         "CFLAGS += ${value MILAN_EXTRA,x}\n", ("OBJECTS",),
+         ("unreadable", "${value MILAN_EXTRA,x}")),
+        ("... and a value argument with a blank INSIDE it, which a token "
+         "rule would have read as the name before it",
+         "CFLAGS += $(value MILAN_EXTRA junk)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA junk)")),
+        ("... while the plain value read of an identifier stays the covered "
+         "dependency it always was",
+         "CFLAGS += $(value MILAN_EXTRA)\n", ("MILAN_EXTRA", "OBJECTS"),
          None),
+        ("a value argument a LATER expansion completes is the computed name "
+         "it is, comma or not",
+         "PICK = LABEL\nCFLAGS += $(value MILAN_EXTRA,$(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(value MILAN_EXTRA,$(PICK))")),
+        ("... and where a blank separates the two",
+         "PICK = LABEL\nCFLAGS += $(value MILAN_EXTRA $(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(value MILAN_EXTRA $(PICK))")),
+        ("... and in the brace spelling",
+         "PICK = LABEL\nCFLAGS += ${value MILAN_EXTRA,${PICK}}\n",
+         ("OBJECTS", "PICK"), ("computed", "${value MILAN_EXTRA,${PICK}}")),
+        ("a PLAIN reference make ends at its bracket is refused where those "
+         "bytes are not a name this walker can spell",
+         "CFLAGS += $(MILAN_EXTRA )\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA )")),
+        ("... and where a vertical tab ends it, which read as nothing at all",
+         "CFLAGS += $(MILAN_EXTRA\v)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA )")),
+        ("... and where a comma is inside the brackets",
+         "CFLAGS += $(MILAN_EXTRA,x)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA,x)")),
+        ("... and where a colon carries no `=`, so make punts and the colon "
+         "is part of the NAME",
+         "CFLAGS += $(MILAN_EXTRA:x)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA:x)")),
+        ("... while a colon that DOES carry one is the substitution "
+         "reference it looks like, and names the variable before it",
+         "CFLAGS += $(MILAN_EXTRA:.o=.d)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... and a hyphen inside the brackets is part of the name make "
+         "looks up, not the end of one",
+         "CFLAGS += $(MILAN-EXTRA)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN-EXTRA)")),
+        ("a plain reference a later expansion completes is the computed "
+         "name it is, whatever byte precedes the $",
+         "PICK = LABEL\nCFLAGS += $(MILAN_EXTRA $(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(MILAN_EXTRA $(PICK))")),
+        ("... and where a comma precedes it",
+         "PICK = LABEL\nCFLAGS += $(MILAN_EXTRA,$(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(MILAN_EXTRA,$(PICK))")),
+        ("a CALL token outside the identifier class is refused, since no "
+         "$(origin) line here spells it either",
+         "CFLAGS += $(call MILAN-TMPL,x)\n", ("OBJECTS",),
+         ("unreadable", "$(call MILAN-TMPL,x)")),
+        ("... while make's own positional parameter is bound by the call "
+         "site this closure already walks, and stays skipped",
+         "define T\n-I$(1)\nendef\nCFLAGS += $(call T,$(BIOS_DIRECTORY))\n",
+         ("OBJECTS", "T"), None),
+        ("... and so is an automatic variable in a recipe make binds per "
+         "rule",
+         "libmilan_baremetal.a: $(OBJECTS)\n\t$(AR) crs $@ $(OBJECTS)\n",
+         ("OBJECTS",), None),
         ("a built-in reached through a call a vertical tab separates is that "
          "built-in, and is refused as one",
          "$(call eval\v,LABEL := ready)\n", ("OBJECTS",),
@@ -6519,6 +6696,7 @@ def test_baremetal_profile_contract() -> None:
         "opaque": opaque_evals,
         "line-adding": line_adding_evals,
         "unbindable": unbindable_evals,
+        "unreadable": unreadable_name_references,
     }
     for label, fixture, want_names, want_refusal in call_argument_controls:
         names = pinned_recipe_names(fixture, "")
@@ -6542,10 +6720,102 @@ def test_baremetal_profile_contract() -> None:
                     "refusal from a reader this fixture is not about is a " \
                     "cost charged for nothing, and hides which reader the " \
                     "row actually measures"
+
+    #: ---- and the EVAL BINDER's own controls (#410, the review of round
+    #: ten's head) --------------------------------------------------------
+    #:
+    #: unbindable_evals() decides whether an eval this walker PARSED as a
+    #: benign assignment reads only names the file itself binds, and it used
+    #: to answer that question about the identifier PREFIX of the name the
+    #: eval really reads: `$(eval LABEL := $(value NAME,x))` was classified
+    #: bindable because NAME is bound, while make reads the variable `NAME,x`
+    #: and the environment decides that one. A prefix cannot establish a
+    #: binding for a different complete name, so the binder refuses by name
+    #: instead.
+    #:
+    #: These rows sit apart from the table above because they measure ONE
+    #: reader deliberately: the same read is present in the fixture's text,
+    #: so the whole-file name refusal names it too, and a row asserting "no
+    #: other scan fires" would be asserting the wrong property. What each row
+    #: states is the binder's own verdict plus the closure, and the
+    #: counterpart rows are complete reads that must stay BINDABLE, so the
+    #: repair cannot be met by refusing every eval.
+    eval_binding_controls = (
+        ("an eval whose value reads a value argument carrying a comma",
+         "NAME = ready\n$(eval LABEL := $(value NAME,x))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME,x)"),
+        ("... and one whose value argument ends in a blank",
+         "NAME = ready\n$(eval LABEL := $(value NAME ))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME )"),
+        ("... and one whose value argument ends in a vertical tab",
+         "NAME = ready\n$(eval LABEL := $(value NAME\v))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME )"),
+        ("... and one whose PLAIN read ends in a blank",
+         "NAME = ready\n$(eval LABEL := $(NAME ))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME )"),
+        ("... and one whose plain read carries a comma",
+         "NAME = ready\n$(eval LABEL := $(NAME,x))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME,x)"),
+        ("... and one whose plain read carries a blank and more text",
+         "NAME = ready\n$(eval LABEL := $(NAME junk))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME junk)"),
+        ("... and one reaching such a read one assignment away",
+         "NAME = ready\nRELAY = $(value NAME,x)\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS", "RELAY"),
+         "reads $(value NAME,x) via $(RELAY)"),
+        ("the eval of a complete value read this Makefile binds stays "
+         "bindable, and both names reach the closure",
+         "NAME = ready\n$(eval LABEL := $(value NAME))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does the eval of a complete plain read",
+         "NAME = ready\n$(eval LABEL := $(NAME))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does the eval of a complete call token",
+         "define NAME\nready\nendef\n$(eval LABEL := $(call NAME))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does one whose read sits behind a function, which is "
+         "no name of its own",
+         "NAME = ready\n$(eval LABEL := $(strip $(NAME)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does one reaching a complete read one assignment away",
+         "NAME = ready\nRELAY = $(value NAME)\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "NAME", "OBJECTS", "RELAY"), None),
+    )
+    for label, fixture, want_names, want_refusal in eval_binding_controls:
+        names = pinned_recipe_names(fixture, "")
+        assert names == list(want_names), \
+            f"with {label}, the origin closure is {names} rather than " \
+            f"{list(want_names)}: an eval this walker parses is walked as " \
+            "the assignment it carries, so the names its value reads are " \
+            "the ones the origin probe is asked about"
+        refused = unbindable_evals(fixture)
+        if want_refusal is None:
+            assert refused == [], \
+                f"with {label}, the eval binder refused {refused}: this eval " \
+                "reads a complete name this Makefile binds, and refusing it " \
+                "would make the repair a refusal of every eval instead of a " \
+                "correction of which name is read"
+        else:
+            assert len(refused) == 1 and want_refusal in refused[0], \
+                f"with {label}, the eval binder said {refused} rather than " \
+                f"naming {want_refusal!r}: the identifier this read starts " \
+                "with is a DIFFERENT variable, so its binding establishes " \
+                "nothing about the name make looks up"
+    eval_binding_control_note = (
+        f"{len(eval_binding_controls)} pure-parser controls hold the eval "
+        "binder to that same reader, over the closure and its own verdict: "
+        "an eval reading $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), "
+        "$(NAME,x) or $(NAME junk), directly or one assignment away, is "
+        "REFUSED by name, while an eval reading the complete $(value NAME), "
+        "$(NAME), a $(call NAME) token or a read behind $(strip ...) stays "
+        "bindable and puts both names in the closure, so the correction "
+        "cannot be met by refusing every eval")
     call_argument_control_note = (
         f"{len(call_argument_controls)} more pure-parser controls hold the "
         "call/value ARGUMENT readers to make's own, over the whole path a "
-        "name travels: the closure that puts it to $(origin) and all five "
+        "name travels: the closure that puts it to $(origin) and all six "
         "pre-plan refusals. A first argument ends where make ends a TOKEN, "
         "so `$(call HELPER<VT>,ready)` and `$(call HELPER junk,ready)` read "
         "HELPER and `$(call eval<VT>,TEXT)` is the built-in it dispatches to "
@@ -6555,10 +6825,11 @@ def test_baremetal_profile_contract() -> None:
         "and is refused rather than read as a reference to a name ending in "
         "that byte. `value` does NOT read its argument that way -- it looks "
         "the whole argument up -- so `$(value NAME<VT>)` names the variable "
-        "those bytes spell while `$(call NAME<VT>)` calls NAME, and the rows "
-        "carry both against each other; a plain `$(NAME)` ends at its close "
-        "bracket, so `$(callable)` is an ordinary read and `$(FOO<VT>$(X))` "
-        "is still a computed name")
+        "those bytes spell, which this walker cannot put to $(origin) and "
+        "therefore refuses by name, while `$(call NAME<VT>)` calls NAME and "
+        "is covered; the rows carry both against each other. A plain "
+        "`$(NAME)` ends at its close bracket, so `$(callable)` is an "
+        "ordinary read and `$(FOO<VT>$(X))` is still a computed name")
 
     def make_plan(makefile: str, expected: str) -> tuple[dict[str, str], list[str]]:
         """`(variables, recipe_lines)` for what make would actually do.
@@ -6577,6 +6848,7 @@ def test_baremetal_profile_contract() -> None:
         _assert_no_opaque_evals(makefile, opaque_evals)
         _assert_no_line_adding_evals(makefile, line_adding_evals)
         _assert_no_unbindable_evals(makefile, unbindable_evals)
+        _assert_no_unreadable_names(makefile, unreadable_name_references)
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
             root = Path(tmp)
@@ -11163,6 +11435,20 @@ def test_baremetal_profile_contract() -> None:
           "closure walks and the eval's is not (remedy: return the value and "
           "assign it, `CFLAGS += $(call tmpl,$(NAME))`, or write the "
           "assignment at top level where its names are this file's to bind). "
+          "AND ONE MORE (#410, the review of round ten's head), the narrowest "
+          "of them and the companion of the computed name: a read whose "
+          "LITERAL name is outside [A-Za-z_][A-Za-z0-9_]* is refused too -- "
+          "$(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), a "
+          "$(NAME:sub) with no `=` in it, $(MILAN-EXTRA) and a "
+          "$(call MILAN-TMPL) token -- because make reads those names, no "
+          "assignment in a Makefile binds one, and no $(origin) line here "
+          "spells one, so the environment decides the value; the walker used "
+          "to answer about the identifier the span starts with, which is a "
+          "different variable, or to drop the read with no refusal at all. "
+          "The COST is a spelling nobody writes on purpose, and one that is "
+          "real: a make-defined special such as $(.DEFAULT_GOAL) is refused "
+          "with the rest (remedy: spell the read with the complete "
+          "identifier, $(value NAME) or $(NAME)). "
           "RETIRED this round by the entity-advertise choke point and the "
           "resolver (#153), each with an accepted case measured GREEN "
           "instead of a claim: an extra statement between the two enables, "
@@ -11233,9 +11519,11 @@ def test_baremetal_profile_contract() -> None:
           "pinned -include then reads, so the deferred reference appears "
           "in no walked text (measured on this round's review); $(guile "
           "...), which this make advertises in .FEATURES and which injects "
-          "the same way through gmk-eval and gmk-expand; and a variable "
-          "name outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, which make "
-          "reads and neither reference reader here matches. FOUR MORE, "
+          "the same way through gmk-eval and gmk-expand. A variable name "
+          "outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, was recorded here "
+          "until the review of round ten's head and is RULED on now: make "
+          "reads that name, no assignment in a Makefile binds one, and the "
+          "read is refused by name. FOUR MORE, "
           "measured on round four's review and recorded the same way "
           "because each is a PLAIN reference or a computed parse rather "
           "than an eval this round rules on: an unbracketed $M on an "
@@ -11322,6 +11610,25 @@ def test_baremetal_profile_contract() -> None:
           "the others, which the review of round nine's head measured wrong "
           "in the missing direction at two more positions: " +
           call_argument_control_note)
+    print("  [gate 1b] ... and WHICH NAME each of those reads is, is now one "
+          "reader's answer rather than three patterns', which the review of "
+          "round ten's head measured disagreeing: make looks a plain "
+          "reference up by its COMPLETE span and a $(value ...) by its WHOLE "
+          "argument, commas included, while $(call ...) takes the TOKEN it "
+          "cuts out -- so $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), "
+          "$(NAME,x), $(NAME:sub) and $(MILAN-EXTRA) name variables this "
+          "walker cannot spell and are REFUSED by name instead of being "
+          "answered about the identifier they start with or dropped without "
+          "a refusal, and a later expansion inside any of those spans -- "
+          "$(value NAME,$(PICK)), $(value NAME $(PICK)), $(NAME $(PICK)), "
+          "$(NAME,$(PICK)) -- reaches the computed-name refusal it always "
+          "belonged to. The eval binder asks the same reader, so an eval "
+          "reading one of them is no longer classified bindable on the "
+          "strength of the identifier prefix. The complete reads stay "
+          "COVERED -- $(value NAME), $(NAME), $(NAME:.o=.d) and the "
+          "$(call NAME,...) token -- and make's own $(1) and $(@D) keep "
+          "their recorded treatment, bound by the call site this closure "
+          "walks or per rule by make. " + eval_binding_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
