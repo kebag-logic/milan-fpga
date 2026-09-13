@@ -5474,6 +5474,51 @@ def test_baremetal_profile_contract() -> None:
             scan += 1
         return -1
 
+    def surviving_separator(text: str, start: int) -> bool:
+        """Whether a substitution `=` is still in `text[start:]` AFTER make
+        has expanded that text.
+
+        make looks for the separator in text it has already expanded
+        (`src/expand.c:314` expands the whole name, `:334` then searches the
+        RESULT), so the only `=` a reader of the FILE can count on is one no
+        expansion takes with it. What takes one with it:
+
+          * a nested `$(`/`${`. Its bytes are its own reference's name or its
+            own function's arguments, and what it leaves behind is its value:
+            `$(subst =,,x)` is `subst` over the three expanded arguments
+            `=`, an empty replacement and `x`, and yields `x`
+            (`src/function.c:2501,2658-2668,699-702`), and
+            `$(PAT:.o=.d)` yields the substituted value of PAT. Neither `=`
+            reaches the enclosing name.
+          * a `$` before any other byte, which is make's ONE-CHARACTER
+            reference (`src/expand.c:410-418`): `$=` reads the variable named
+            `=` and leaves its value, not an `=`.
+
+        What does NOT take one with it is `$$`, which is no expansion at all:
+        it emits a single literal `$` (`:261-266`), so an `=` after it is as
+        literal as any other and `$(NAME:$$=.d)` really is a substitution
+        reference to NAME.
+
+        A nested expansion may of course PRODUCE an `=` -- `$(EQ)` where
+        `EQ = =` -- and then make splits where this reader does not. That is
+        the undecidable case and it is refused rather than answered: the span
+        carries a `$`, so its caller reports the computed name it is."""
+        at, size = start, len(text)
+        while at < size:
+            if text[at] == "=":
+                return True
+            if text[at] != "$":
+                at += 1
+                continue
+            after = text[at + 1:at + 2]
+            if after in ("(", "{"):
+                at = expansion_end(text, at)
+            elif after:
+                at += 2               # `$$`, one literal `$`; or `$=`, a read
+            else:
+                at += 1               # a trailing `$`, carried through whole
+        return False
+
     def name_read_at(text: str, at: int) -> tuple[str, str]:
         """`(kind, name)` for the `$(`/`${` expansion opening at `at`.
 
@@ -5514,13 +5559,20 @@ def test_baremetal_profile_contract() -> None:
             #: just expanded (`:329-338`), so where everything before it is
             #: literal it sits at the offset seen here, and the name before
             #: it is that literal text whatever the rest expands to. It is a
-            #: substitution reference only where an `=` FOLLOWS, and a
-            #: literal `=` survives any expansion between the two. An `=`
-            #: only a nested reference could supply leaves the split
-            #: undecidable from the file, so that span is carried on whole
-            #: and refused as the computed name it is.
+            #: substitution reference only where an `=` follows it IN THAT
+            #: EXPANDED TEXT, which is not the same question as whether the
+            #: file spells one: asking `"=" in span[colon + 1:]` counted the
+            #: `=` inside `$(subst =,,x)` and the one `$=` reads a variable
+            #: by, neither of which any expansion leaves behind, so
+            #: `$(NAME:$(PAT:.o=.d))` was answered about NAME while make
+            #: reads `NAME:.d` (#410, the review of round twelve's head).
+            #: surviving_separator() asks the narrower question. Where no
+            #: separator survives -- and where one only an expansion could
+            #: supply would -- the split is not the file's to make, so the
+            #: span is carried on whole and refused as the computed name it
+            #: is.
             if colon >= 0 and "$" not in span[:colon] \
-                    and "=" in span[colon + 1:]:
+                    and surviving_separator(span, colon + 1):
                 span = span[:colon]
         else:
             start, stop = function_argument(text, at)
@@ -6900,6 +6952,88 @@ def test_baremetal_profile_contract() -> None:
          "PAT = .o\nCFLAGS += $(value MILAN_EXTRA:$(PAT)=.d)\n",
          ("OBJECTS", "PAT"),
          ("computed", "$(value MILAN_EXTRA:$(PAT)=.d)")),
+        #: (#410, the review of round twelve's head) Which `=` MAKES a
+        #: substitution reference, which is not the same question as which
+        #: one the file spells. make looks for the separator in the text it
+        #: has ALREADY expanded (`src/expand.c:314,334`), so an `=` a nested
+        #: expansion takes with it is not one: `$(subst =,,x)` hands its
+        #: three arguments an `=` and yields `x`
+        #: (`src/function.c:2501,2658-2668,699-702`), `$(PAT:.o=.d)` yields
+        #: the substituted value of PAT, and `$=` is make's one-character
+        #: reference to a variable named `=` (`src/expand.c:410-418`). Testing
+        #: the UNEXPANDED text for an `=` counted all three, split the span
+        #: there and answered about the identifier in front of the colon while
+        #: make reads `NAME:.d`, `NAME:.ox` or `NAME:` -- a different variable,
+        #: covered by no origin request and refused by nothing, in the eval
+        #: binder as well. Each row below is the whole path: the closure and
+        #: all six pre-plan scans.
+        #:
+        #: The counterparts are what keeps this a correction of WHICH name is
+        #: read rather than a refusal of every nested substitution. A literal
+        #: `=` outside the nesting survives it, so the same expressions with
+        #: `=.x` or `=.d` after them keep their literal name and raise no
+        #: refusal; an ESCAPED `$$` is no expansion at all -- it emits one
+        #: literal `$` (`:261-266`) -- so `$(MILAN_EXTRA:$$=.d)` is the
+        #: substitution reference it looks like; and a surviving separator in
+        #: front of a name this walker cannot spell still reaches the refusal
+        #: that name has always had, which is how a row proves the split
+        #: happened rather than that nothing did.
+        ("a nested SUBSTITUTION consumes the `=` it carries, so the enclosing "
+         "colon has no surviving separator and the whole span is the computed "
+         "name it is",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT:.o=.d))\n",
+         ("OBJECTS", "PAT"), ("computed", "$(MILAN_EXTRA:$(PAT:.o=.d))")),
+        ("... and the brace spelling of that nested substitution",
+         "PAT = .o\nCFLAGS += ${MILAN_EXTRA:${PAT:.o=.d}}\n",
+         ("OBJECTS", "PAT"), ("computed", "${MILAN_EXTRA:${PAT:.o=.d}}")),
+        ("... and the mixed pair, a braced substitution inside a "
+         "parenthesised reference",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:${PAT:.o=.d})\n",
+         ("OBJECTS", "PAT"), ("computed", "$(MILAN_EXTRA:${PAT:.o=.d})")),
+        ("a nested FUNCTION consumes the `=` in its arguments the same way",
+         "CFLAGS += $(MILAN_EXTRA:$(subst =,,x))\n", ("OBJECTS",),
+         ("computed", "$(MILAN_EXTRA:$(subst =,,x))")),
+        ("... and consumes it behind a nested reference, where the span "
+         "reaches the `=` only through the function's own argument",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(subst =,,x))\n",
+         ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$(subst =,,x))")),
+        ("... and a CONDITIONAL consumes one in the branch it chooses "
+         "between",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(if ,=,x))\n",
+         ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$(if ,=,x))")),
+        ("a SHORT dollar reference consumes it too, because `$=` reads the "
+         "variable that byte names rather than separating anything",
+         "CFLAGS += $(MILAN_EXTRA:$=)\n", ("OBJECTS",),
+         ("computed", "$(MILAN_EXTRA:$=)")),
+        ("... and the brace spelling of that reference",
+         "CFLAGS += ${MILAN_EXTRA:$=}\n", ("OBJECTS",),
+         ("computed", "${MILAN_EXTRA:$=}")),
+        ("... and the same short reference behind a nested one",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$=)\n", ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$=)")),
+        ("a separator OUTSIDE the nested substitution survives it, so that "
+         "reference keeps its literal name and raises no refusal",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT:.o=.d)=.x)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and one outside the nested function survives it as well",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(subst =,,x)=.d)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("an ESCAPED `$$` is no expansion and consumes nothing, so the `=` "
+         "after it is the separator it looks like",
+         "CFLAGS += $(MILAN_EXTRA:$$=.d)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... and one in the REPLACEMENT leaves the separator in front of it "
+         "alone",
+         "CFLAGS += $(MILAN_EXTRA:.o=$$)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("a surviving separator in front of a name this walker cannot spell "
+         "still reaches that name's own refusal, so a row where the split "
+         "happens is told from one where it does not",
+         "PAT = .o\nCFLAGS += $(MILAN-EXTRA:$(PAT)$(subst =,,x)=.d)\n",
+         ("OBJECTS", "PAT"),
+         ("unreadable", "$(MILAN-EXTRA:$(PAT)$(subst =,,x)=.d)")),
     )
     call_argument_scans = {
         "computed": computed_name_references,
@@ -7017,6 +7151,55 @@ def test_baremetal_profile_contract() -> None:
         ("... and one reading it as a call token likewise",
          "NAME = ready\n$(eval LABEL := $(call 1))\nCFLAGS += $(LABEL)\n",
          ("LABEL", "OBJECTS"), "reads $(call 1)"),
+        #: (#410, the review of round twelve's head) The binder asks the same
+        #: reader once more, so the surviving-separator correction arrives
+        #: here too: an eval whose value reads a colon the file gives no
+        #: separator that survives expansion was classified BINDABLE on the
+        #: strength of the identifier in front of it, directly and one
+        #: assignment away. `NAME = ready` says nothing about `NAME:.d`,
+        #: `NAME:.ox` or `NAME:`, which is the name make looks up, so the
+        #: eval is refused by the reference it reads. The rows after them are
+        #: the arm that keeps this a correction rather than a blanket
+        #: refusal: a separator OUTSIDE the nesting survives it, so those
+        #: evals stay bindable with the literal name in the closure.
+        ("an eval whose value reads a colon a nested SUBSTITUTION takes the "
+         "`=` from is refused by that reference",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT:.o=.d)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS", "PAT"),
+         "reads $(NAME:$(PAT:.o=.d))"),
+        ("... and one a nested FUNCTION takes it from",
+         "NAME = ready\n$(eval LABEL := $(NAME:$(subst =,,x)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"),
+         "reads $(NAME:$(subst =,,x))"),
+        ("... and one where the function sits behind a nested reference",
+         "NAME = ready\nPAT = .o\n"
+         "$(eval LABEL := $(NAME:$(PAT)$(subst =,,x)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS", "PAT"),
+         "reads $(NAME:$(PAT)$(subst =,,x))"),
+        ("... and one a SHORT dollar reference takes it from, named by the "
+         "enclosing reference rather than by that sibling read",
+         "NAME = ready\n$(eval LABEL := $(NAME:$=))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME:$=)"),
+        ("... and one reaching such a colon one assignment away",
+         "NAME = ready\nPAT = .o\nRELAY = $(NAME:$(PAT)$(subst =,,x))\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS", "PAT", "RELAY"),
+         "reads $(NAME:$(PAT)$(subst =,,x)) via $(RELAY)"),
+        ("the eval of a substitution whose separator survives the nesting "
+         "stays bindable, and the name in front of the colon reaches the "
+         "closure",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT:.o=.d)=.x))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... and so does one whose separator sits outside a nested function",
+         "NAME = ready\nPAT = .o\n"
+         "$(eval LABEL := $(NAME:$(PAT)$(subst =,,x)=.d))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... while an ESCAPED `$$` before the separator is read as the "
+         "substitution of NAME it is, so the name reaches the closure and "
+         "the refusal that follows is this binder's own recorded one for "
+         "that byte pair rather than the separator rule's",
+         "NAME = ready\n$(eval LABEL := $(NAME:$$=.d))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), "reads $$"),
     )
     for label, fixture, want_names, want_refusal in eval_binding_controls:
         names = pinned_recipe_names(fixture, "")
@@ -7042,13 +7225,17 @@ def test_baremetal_profile_contract() -> None:
         f"{len(eval_binding_controls)} pure-parser controls hold the eval "
         "binder to that same reader, over the closure and its own verdict: "
         "an eval reading $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), "
-        "$(NAME,x), $(NAME junk), $(value 1), $(call 1) or a colon whose `=` "
-        "only an expansion could supply, directly or one assignment away, is "
-        "REFUSED by name, while an eval reading the complete $(value NAME), "
-        "$(NAME), a $(call NAME) token, a read behind $(strip ...) or a "
-        "substitution whose PATTERN is a nested reference stays bindable and "
-        "puts both names in the closure, so the correction cannot be met by "
-        "refusing every eval")
+        "$(NAME,x), $(NAME junk), $(value 1), $(call 1), a colon whose `=` "
+        "only an expansion could supply or one whose `=` an expansion "
+        "CONSUMES -- $(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), "
+        "$(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) -- directly or one "
+        "assignment away, is REFUSED by the reference it reads, while an eval "
+        "reading the complete $(value NAME), $(NAME), a $(call NAME) token, a "
+        "read behind $(strip ...), a substitution whose PATTERN is a nested "
+        "reference or one whose separator SURVIVES the nesting, "
+        "$(NAME:$(PAT:.o=.d)=.x) and $(NAME:$(PAT)$(subst =,,x)=.d), stays "
+        "bindable and puts both names in the closure, so the correction "
+        "cannot be met by refusing every eval")
     call_argument_control_note = (
         f"{len(call_argument_controls)} more pure-parser controls hold the "
         "call/value ARGUMENT readers to make's own, over the whole path a "
@@ -7077,7 +7264,21 @@ def test_baremetal_profile_contract() -> None:
         "reference, so `$(MILAN_EXTRA:$(PAT)=.d)` and its brace and mixed "
         "spellings keep MILAN_EXTRA in the closure and raise no refusal, "
         "while a colon whose `=` only an expansion could supply and a name "
-        "that itself expands stay computed-name refusals")
+        "that itself expands stay computed-name refusals. The rows added for "
+        "the review of round twelve's head hold WHICH `=` makes a "
+        "substitution: make looks for it in the text it has already expanded, "
+        "so one a nested substitution, a nested function or make's "
+        "one-character `$=` reference CONSUMES is not a separator -- "
+        "`$(MILAN_EXTRA:$(PAT:.o=.d))`, `$(MILAN_EXTRA:$(subst =,,x))`, "
+        "`$(MILAN_EXTRA:$(PAT)$(if ,=,x))` and `$(MILAN_EXTRA:$=)` are the "
+        "computed names they are rather than answers about MILAN_EXTRA, which "
+        "make does not read there. A separator OUTSIDE the nesting does "
+        "survive it and an escaped `$$` consumes nothing, so "
+        "`$(MILAN_EXTRA:$(PAT:.o=.d)=.x)`, "
+        "`$(MILAN_EXTRA:$(PAT)$(subst =,,x)=.d)` and "
+        "`$(MILAN_EXTRA:$$=.d)` keep their literal name and raise no refusal, "
+        "and a surviving separator in front of a name this walker cannot "
+        "spell still reaches that name's own refusal")
 
     def make_plan(makefile: str, expected: str) -> tuple[dict[str, str], list[str]]:
         """`(variables, recipe_lines)` for what make would actually do.
@@ -11687,7 +11888,7 @@ def test_baremetal_profile_contract() -> None:
           "of them and the companion of the computed name: a read whose "
           "LITERAL name is outside [A-Za-z_][A-Za-z0-9_]* is refused too -- "
           "$(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), a "
-          "$(NAME:sub) with no `=` in it, $(MILAN-EXTRA), a "
+          "$(NAME:sub) whose colon opens no substitution, $(MILAN-EXTRA), a "
           "$(call MILAN-TMPL) token and (the review of round eleven's head) "
           "a NAMED positional lookup such as $(value 1) or a $(call 1) "
           "token -- because make reads those names and that class is THIS "
@@ -11901,7 +12102,21 @@ def test_baremetal_profile_contract() -> None:
           "raise no refusal, where ending the span at the first close "
           "bracket hid the `=` and refused a supported idiom as a computed "
           "name. A colon whose `=` only an expansion could supply, and a "
-          "name that itself expands, stay computed-name refusals. " +
+          "name that itself expands, stay computed-name refusals. WHICH `=` "
+          "makes that reference a substitution is the boundary corrected "
+          "next (#410, the review of round twelve's head): make looks for "
+          "the separator in the text it has ALREADY expanded, so an `=` a "
+          "nested substitution or function takes with it, or the one make's "
+          "one-character $= reference reads a variable by, is not one. "
+          "$(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), "
+          "$(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) were answered about "
+          "NAME while make reads NAME:.d, NAME:x, NAME:.ox and NAME: -- a "
+          "different variable, covered by no origin request and refused by "
+          "nothing, in the eval binder as well -- and are the computed names "
+          "they are. A separator OUTSIDE the nesting survives it and an "
+          "escaped $$ consumes nothing, so $(NAME:$(PAT:.o=.d)=.x), "
+          "$(NAME:$(PAT)$(subst =,,x)=.d) and $(NAME:$$=.d) stay covered "
+          "reads of NAME. " +
           eval_binding_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
