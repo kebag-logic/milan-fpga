@@ -659,17 +659,19 @@ simply off for a body written that way, and a real global eval after that
 recipe line read `define` and was refused, which is a cost charged for
 nothing. One reader now answers the role of every line, for the scope reader
 and for the define reader that binds a body's value, so the two cannot
-disagree about where a body ends. Sixty-one pure-parser controls hold that
-reader now: thirty-three over the eval SCOPE, nine holding the define reader
-to the same body, seven over make's assignment precedence from the binding
-side, six holding the RULE reader to the same directive token the scope
-reader uses and six over where a `#` is cut at all. Six were RED against the
-head round four replaced, four more against the head after it, fourteen
+disagree about where a body ends. Seventy-five pure-parser controls hold that
+reader now: forty-three over the eval SCOPE, thirteen holding the define
+reader to the same body, seven over make's assignment precedence from the
+binding side, six holding the RULE reader to the same directive token the
+scope reader uses and six over where a `#` is cut at all. Six were RED against
+the head round four replaced, four more against the head after it, fourteen
 against the head after that -- eight of those answering a boundary wrongly
-and six pinning a text reader it does not have at all -- and twelve against
-the head this repair replaces. The remaining forty-nine are carried-forward
-neighbours that answer the same on both sides of this repair, which is what
-they are for. The
+and six pinning a text reader it does not have at all -- twelve against the
+head before this one, and four against the head this repair replaces. The
+remaining seventy-one are carried-forward neighbours that answer the same on
+both sides of this repair, which is what they are for: ten of them are new
+here, and four of those hold the body delimiters against the very class this
+repair widens for the outer reader. The
 round-four review measured the value reader raising `IndexError` where a
 value ENDS in a bare `$`; make carries such a `$` into the expansion the way
 it carries `$$`, so it is refused by name beside it, with its own controls.
@@ -769,6 +771,41 @@ directive and still no rule, and a conditional between two recipe lines still
 leaves that recipe open -- including a bare `endif`, whose token IS the whole
 line (#410, the review of round six's head).
 
+**Which whitespace ends that token, and which whitespace ends no body.** The
+token rule above was right about the whole word and wrong about the whitespace
+that ends it, and the two are not the same class in make. make builds its own
+character map as it starts: space and TAB are its BLANK class, and every
+remaining C whitespace byte joins them in the wider class its token reader
+stops at, the vertical tab and the form feed among them (GNU make 4.4.1,
+`src/main.c`, `src/makeint.h` and `src/misc.c`). Reading only the blank pair
+dropped genuine directives. Writing the two bytes as `<VT>` and `<FF>`,
+`ifdef<VT>LABEL` and `ifeq<FF>(ready,ready)` are conditionals make evaluates
+as it reads the file, leaving the rule they sit in open; here they read as
+ordinary target lines, so a pending rule was CLOSED and the tab-prefixed
+`$(eval LABEL := ready)` after them read `global` and was walked instead of
+being refused for the recipe line it is on. That is round six's missing recipe
+refusal one boundary over, with all five pre-plan scans returning empty for it
+(#410, the review of round seven's head).
+
+The BODY reader keeps the narrower class, because make's body reader does. The
+reader that collects a `define` body skips the body line's leading whitespace
+and then counts a nested `define` or an `endef` only where the keyword is the
+whole line or a BLANK follows it (GNU make 4.4.1, `src/read.c`). So
+`endef<VT>done` and `define<FF>inner` are body TEXT that delimits nothing,
+exactly as `endef#literal` is. Giving every reader the wider class would have
+traded the miss above for its mirror image: a body would end where make
+ends none, and that body's own eval would read `global` and be walked. Two
+read stages, two classes, and the controls carry each stage's fixtures against
+the other's rule.
+
+What this moves is the TOKEN boundary that decides a line's role, not every
+whitespace run a line carries. The blank this reader still requires between
+`define` and the NAME it opens is unchanged, so a `define<VT>MILAN_TMPL`
+opener reads here as it did before: a line that opens no body, with an eval
+written under it read at global scope rather than as that body's. That
+neighbour is recorded rather than ruled on, like the computed recipe prefix
+above, and it is measured identical on both sides of this repair.
+
 **What a clear pre-plan scan says, and what it does not.** These controls
 measure how this walker CLASSIFIES a text, which is a smaller claim than GNU
 make accepting the file, and one control makes the gap visible. A
@@ -832,7 +869,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | A `$(call ...)`/`${call ...}` whose first argument names a make BUILT-IN function -- `$(call eval,...)`, `$(call file,...)`, `$(call shell,...)`, and a `$(call subst,...)` written to map a built-in over a list -- anywhere in the Makefile, a never-run recipe included | `call` DISPATCHES to that built-in, so the construct is the built-in written where no scan for the built-in's own token can see it, and `$(call eval,TEXT)` was measured injecting a flag from the environment with every instrument green (#410, round-three review). **Remedy:** spell the built-in directly, `$(subst a,b,$(TEXT))` |
 | A parsed `$(eval NAME op VALUE)` whose value reads a name this Makefile gives a MULTI-LINE value -- make's `define NL` newline idiom, at any remove | `$(eval)` parses the EXPANSION, so such a value adds makefile lines this walker reads as the one assignment it parsed, and an `include` among them is outside the include-set pin, which reads the file text (#410, round-three review). **Remedy:** keep the newline idiom out of an eval's value |
 | An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |
-| An `$(eval NAME op VALUE)` whose assignment this walker cannot BIND, even though its shape reads as benign: one in a `define` body or a recipe, wherever that body is reached from, and one at global scope whose value reads a positional parameter (`$(1)`, `$(2)`, `$(10)`, `${1}`, `$1`), an unbracketed `$M`, a computed name, an escaped `$$` or a value ending in a bare `$`, at any remove through this Makefile's own assignments | a define body's eval is expanded where the define is REACHED, so its `$(1)` is that `$(call)`'s argument, a `$(foreach)`/`$(let)` over the call rebinds even a name `$(origin)` reports `file` for, and an `$(if)` or a conditional prerequisite decides from the environment whether it runs at all; the value assigned is then not the value this walker read (#410, round-four review). Which scope an eval sits in is read the way make parses a file, tab-prefixed body and recipe text included, and a value's end is a named refusal rather than a reader crash (#410, the review of that round). The `define` spelling that DELIMITS a body is make's, not the one that OPENS it: a bare `define` line nests and a modifier before one does not, so neither an unwalked body nor a falsely refused global assignment follows from writing a body that way (#410, the review of round four's head). Where a comment ENDS a line is make's too, and it is not everywhere: a body keeps its text, so `endef#literal` and `define#literal` delimit nothing while a blank-separated `endef #done` still closes a body, and an ordinary assignment named `define` binds a variable instead of opening one (#410, the review of round five's head). That assignment is recognised in every one of make's seven operators, `:::=` included, and a directive keyword is recognised as the whole TOKEN make compares, so the literal targets `ifdef:`, `define:` and `include-labels:` are rules whose next line is a recipe and the eval on it is refused by name (#410, the review of round six's head). **Remedy:** return the value through `$(call)` and assign it, `CFLAGS += $(call tmpl,$(NAME))`, which stays green, or write the assignment at top level where its names are this file's to bind |
+| An `$(eval NAME op VALUE)` whose assignment this walker cannot BIND, even though its shape reads as benign: one in a `define` body or a recipe, wherever that body is reached from, and one at global scope whose value reads a positional parameter (`$(1)`, `$(2)`, `$(10)`, `${1}`, `$1`), an unbracketed `$M`, a computed name, an escaped `$$` or a value ending in a bare `$`, at any remove through this Makefile's own assignments | a define body's eval is expanded where the define is REACHED, so its `$(1)` is that `$(call)`'s argument, a `$(foreach)`/`$(let)` over the call rebinds even a name `$(origin)` reports `file` for, and an `$(if)` or a conditional prerequisite decides from the environment whether it runs at all; the value assigned is then not the value this walker read (#410, round-four review). Which scope an eval sits in is read the way make parses a file, tab-prefixed body and recipe text included, and a value's end is a named refusal rather than a reader crash (#410, the review of that round). The `define` spelling that DELIMITS a body is make's, not the one that OPENS it: a bare `define` line nests and a modifier before one does not, so neither an unwalked body nor a falsely refused global assignment follows from writing a body that way (#410, the review of round four's head). Where a comment ENDS a line is make's too, and it is not everywhere: a body keeps its text, so `endef#literal` and `define#literal` delimit nothing while a blank-separated `endef #done` still closes a body, and an ordinary assignment named `define` binds a variable instead of opening one (#410, the review of round five's head). That assignment is recognised in every one of make's seven operators, `:::=` included, and a directive keyword is recognised as the whole TOKEN make compares, so the literal targets `ifdef:`, `define:` and `include-labels:` are rules whose next line is a recipe and the eval on it is refused by name (#410, the review of round six's head). That token ends at make's own whitespace class and a body delimiter needs its narrower BLANK class, so a conditional separated from its argument by a vertical tab or a form feed still leaves a pending recipe open and its eval refused, while `endef<VT>done` and `define<FF>inner` stay body text that delimits nothing (#410, the review of round seven's head). **Remedy:** return the value through `$(call)` and assign it, `CFLAGS += $(call tmpl,$(NAME))`, which stays green, or write the assignment at top level where its names are this file's to bind |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` or `entity_advertise()` | containment inside the choke point is not the same as being reached through its verdict test; this is the textual half, and the resolver measures the dominance itself |
 | The address of `aem_loaded` may not be taken | a pointer would write the verdict with no assignment the gate can see |
 | `entity_advertise` may not be exported, its address may not be formed anywhere in the firmware, and no other line of the emitted assembly may name it -- an `__attribute__((alias))` included | the arguments of a function another translation unit can name, or a table can hold, are not the arguments this unit's call sites show, so nothing here can say what verdict the choke point is entered with. The symbol-use rule is a whitelist of the four forms a private direct-called function produces, so a spelling nobody anticipated is refused rather than missed. **Remedy:** keep it `static` and call it directly |

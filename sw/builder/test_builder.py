@@ -4579,10 +4579,42 @@ def test_baremetal_profile_contract() -> None:
     #: parsing for such a line, `:672` takes the next prefixed line into the
     #: recipe). It is a lookahead rather than a consuming group because both
     #: readers below match a PREFIX of the line and a directive's arguments
-    #: follow the blank this stops at. The body-delimiter readers already
-    #: spelled the same rule inline; they share it now, so one token rule
-    #: answers for every place a keyword has to BE the word.
-    make_token_end = r"(?=[ \t]|\Z)"
+    #: follow the whitespace this stops at.
+    #: (#410, the review of round seven's head) That whitespace is make's OWN
+    #: byte class, and reading it as the blank pair alone was the other half
+    #: of the same mistake. `src/main.c:675-694` puts space and TAB in
+    #: `MAP_BLANK` and then marks every REMAINING C `isspace` byte
+    #: `MAP_NEWLINE` -- vertical tab, form feed and carriage return, the
+    #: newline itself being the line break this reader has already split on --
+    #: and `src/makeint.h:435,471` builds `MAP_SPACE` from both halves and
+    #: `END_OF_TOKEN` from `MAP_SPACE|MAP_NUL`. So `ifdef<VT>LABEL` is a
+    #: genuine conditional, which make evaluates as it reads the file WITHOUT
+    #: ending the rule it is in (`src/read.c:769`, `:783-794`, `:1534`), and
+    #: reading it as a target line here was MEASURED wrong in the unsafe
+    #: direction on pure parser fixtures: the pending rule closed, and the
+    #: tab-prefixed `$(eval)` after it read `global` and was walked instead of
+    #: being refused for the recipe line it is on. The class is spelled byte
+    #: by byte rather than as `\s`, which in a Python `str` pattern is a
+    #: UNICODE class wider than make's 8-bit map and would answer for bytes
+    #: make's own map never marks. What this moves is the TOKEN boundary that
+    #: decides a line's ROLE, and nothing else: the blank the opener readers
+    #: below still want between `define` and the NAME they bind is unchanged,
+    #: so a `define<VT>MILAN_TMPL` opener reads here as it did before, and
+    #: that neighbour is RECORDED (measured identical on both sides of this
+    #: repair) rather than ruled on.
+    make_token_end = r"(?=[ \t\v\f\r]|\Z)"
+    #: ... and the suffix a define BODY delimiter needs, which is the NARROWER
+    #: class on purpose and must stay narrower (#410, the same review).
+    #: `do_define()` skips the body line's leading whitespace and then counts
+    #: a nested `define` or an `endef` only where the keyword IS the whole
+    #: line or the byte right after it is `ISBLANK`, the blank pair alone
+    #: (`src/read.c:1462-1476` over `src/makeint.h:467`). So `endef<VT>done`
+    #: is body TEXT that closes nothing and `define<FF>inner` nests nothing,
+    #: while the outer reader's own keywords end at the wider class above.
+    #: Two read stages, two classes: widening the shared suffix for every
+    #: reader would trade this regression for its mirror image, and the
+    #: controls pin both directions.
+    make_body_token_end = r"(?=[ \t]|\Z)"
     #: Directives that are not rules, however many colons they carry.
     make_directive_re = re.compile(
         r"\A[ \t]*(?:-|s)?include" + make_token_end +
@@ -4628,7 +4660,7 @@ def test_baremetal_profile_contract() -> None:
     #: not the delimiter at all. Requiring the line to END after `endef`, as
     #: this pattern did, only ever agreed with make because every `#` in the
     #: file had already been cut out before the body was read.
-    make_endef_re = re.compile(r"\A[ \t]*endef" + make_token_end)
+    make_endef_re = re.compile(r"\A[ \t]*endef" + make_body_token_end)
     #: A `define` OPENER as make reads one, for scoping an eval rather than
     #: for naming a value: make_define_open_re above reads the NAME, so it is
     #: an identifier by construction, and a `define MILAN-TMPL` whose name is
@@ -4654,7 +4686,7 @@ def test_baremetal_profile_contract() -> None:
     #: WALKED and the body bound one line of five, and an `override define
     #: inner` opened a level that is not there, so a real global eval read
     #: `define` and was REFUSED and the body bound nothing at all.
-    make_nested_define_re = re.compile(r"\A[ \t]*define" + make_token_end)
+    make_nested_define_re = re.compile(r"\A[ \t]*define" + make_body_token_end)
     #: The CONDITIONAL directives, the one kind of non-recipe line make reads
     #: WITHOUT ending the rule context it is in: a conditional is evaluated as
     #: the makefile is read, so an `ifdef` between two recipe lines leaves the
@@ -4740,6 +4772,15 @@ def test_baremetal_profile_contract() -> None:
     #: promised recipe refusal was simply absent for an ordinary target whose
     #: name happens to start with a keyword. make_token_end above is that
     #: boundary, and the conditional and directive readers share it.
+    #: (The review of round seven's head) ... and WHICH whitespace ends that
+    #: token is make's class, not the blank pair: a conditional separated
+    #: from its argument by a vertical tab or a form feed is still a
+    #: conditional, so it still leaves the recipe it interrupts OPEN, and
+    #: reading it as a target line here closed the rule and walked the eval on
+    #: the next recipe line. The body branch above keeps the narrower
+    #: make_body_token_end, because `do_define()` tests the byte after its
+    #: delimiter with `ISBLANK`: the two stages disagree in make, so they
+    #: disagree here.
     make_comment_re = re.compile(r"#[^\n]*")
 
     def make_line_roles(makefile: str) -> list[tuple[int, int, str, str]]:
@@ -5468,6 +5509,42 @@ def test_baremetal_profile_contract() -> None:
                              "$(eval LABEL := ready)\n")
     interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\nifdef MILAN_EXTRA\n"
                                   "endif\n\t$(eval LABEL := ready)\n")
+    #: ... and the same genuine conditionals with the REST of make's
+    #: whitespace class between the keyword and its argument (#410, the review
+    #: of round seven's head). `\v` is one vertical-tab byte and `\f` one form
+    #: feed, the two bytes `end_of_token()` stops at and `ISBLANK` does not;
+    #: the `ifeq` condition compares two equal literals, so no row here reads
+    #: an environment. Each has a blank-separated counterpart in the table, so
+    #: a row can only pass by ending the token where make ends it rather than
+    #: by answering `recipe` for every line.
+    vt_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                     "ifdef\vMILAN_EXTRA\n"
+                                     "endif\n\t$(eval LABEL := ready)\n")
+    ff_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                     "ifdef\fMILAN_EXTRA\n"
+                                     "endif\n\t$(eval LABEL := ready)\n")
+    tab_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                      "ifdef\tMILAN_EXTRA\n"
+                                      "endif\n\t$(eval LABEL := ready)\n")
+    guarded_recipe_fixture = ("labels:\nifeq (ready,ready)\n"
+                              "\t$(eval LABEL := ready)\nendif\n")
+    vt_guarded_recipe_fixture = ("labels:\nifeq\v(ready,ready)\n"
+                                 "\t$(eval LABEL := ready)\nendif\n")
+    ff_guarded_recipe_fixture = ("labels:\nifeq\f(ready,ready)\n"
+                                 "\t$(eval LABEL := ready)\nendif\n")
+    #: ... and the BODY delimiters, where those same two bytes separate
+    #: nothing: `do_define` needs a blank after the keyword, so all four of
+    #: these lines are body TEXT and must keep the answers they already have.
+    #: They are the anti-widening arms of the rows above: a repair that gave
+    #: every reader the outer class would pass those and fail these.
+    vt_body_endef_fixture = ("define helper\nendef\vdone\n"
+                             "$(eval LABEL := ready)\nendef\n")
+    ff_body_endef_fixture = ("define helper\nendef\fdone\n"
+                             "$(eval LABEL := ready)\nendef\n")
+    vt_body_define_fixture = ("define helper\ndefine\vinner\nendef\n"
+                              "$(eval LABEL := ready)\n")
+    ff_body_define_fixture = ("define helper\ndefine\finner\nendef\n"
+                              "$(eval LABEL := ready)\n")
     eval_scope_controls = (
         ("a recipe-prefixed endef is define BODY text, not the end of one",
          prefixed_endef_fixture, "define", "in a define body", None),
@@ -5561,6 +5638,30 @@ def test_baremetal_profile_contract() -> None:
         ("a genuine conditional between two recipe lines leaves the recipe "
          "open, so the eval on the second is still refused",
          interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and so does one a vertical tab separates from its argument, "
+         "which is make's token boundary too",
+         vt_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and one a form feed separates",
+         ff_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and one a tab separates, the other blank",
+         tab_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("a conditional opened over a pending rule leaves its recipe line "
+         "recipe-scoped",
+         guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... whatever whitespace follows that keyword: a vertical tab",
+         vt_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... or a form feed",
+         ff_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("an endef a vertical tab separates from its text is BODY text, "
+         "because a body delimiter needs a BLANK after the keyword",
+         vt_body_endef_fixture, "define", "in a define body", None),
+        ("... and a form feed leaves it body text as well",
+         ff_body_endef_fixture, "define", "in a define body", None),
+        ("a define a vertical tab separates from its name nests nothing, so "
+         "the first endef closes the body and the eval after it is global",
+         vt_body_define_fixture, "global", None, "walked"),
+        ("... and a form feed nests nothing either",
+         ff_body_define_fixture, "global", None, "walked"),
         ("a comment cut on an earlier line does not move an eval's own scope",
          "CFLAGS += -g # a comment long enough to shift every offset\n"
          "define helper\n$(eval LABEL := ready)\nendef\n",
@@ -5629,6 +5730,16 @@ def test_baremetal_profile_contract() -> None:
         ("an immediately expanded assignment spelling nests there too",
          nested_expanded_define_fixture,
          "define :::= ready\nendef\n$(eval LABEL := ready)"),
+        ("an endef a vertical tab separates from its text is body text, so "
+         "the body runs past it to the real endef",
+         vt_body_endef_fixture, "endef\vdone\n$(eval LABEL := ready)"),
+        ("... and a form feed leaves the same body",
+         ff_body_endef_fixture, "endef\fdone\n$(eval LABEL := ready)"),
+        ("a define a vertical tab separates from its name is body text, and "
+         "is the whole body",
+         vt_body_define_fixture, "define\vinner"),
+        ("... and a form feed leaves the same one-line body",
+         ff_body_define_fixture, "define\finner"),
     )
     for label, fixture, want_body in define_body_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5771,7 +5882,14 @@ def test_baremetal_profile_contract() -> None:
         "assignment operators, `:::=` included -- a literal target named "
         "`ifdef:`, `define:` or `include-labels:` opens a rule whose next "
         "line is a RECIPE while a genuine conditional or include opens none "
-        "(that recipe eval used to read `global` and be walked), and a value "
+        "(that recipe eval used to read `global` and be walked), a directive "
+        "keyword ends at make's whole whitespace class and a body delimiter "
+        "at its BLANK pair -- `ifdef<VT>LABEL` and `ifeq<FF>(x,x)` are "
+        "genuine conditionals that leave a pending recipe open, while "
+        "`endef<VT>done` and `define<FF>inner` are body TEXT that delimits "
+        "nothing (the recipe eval of the first pair used to read `global` and "
+        "be walked, and one class for both stages would move that miss to the "
+        "second pair) -- and a value "
         "ending in a bare `$` is "
         "refused by name instead of raising IndexError out of the diagnostic "
         "reader. Each is a CLASSIFICATION result; where a row expects no "
