@@ -50,15 +50,28 @@ T1X1 = records_endstation_ax7101_1x1_tdm8.txt
 VFLAGS = --cc --exe --build -j 0 --prefix Vnvm \
          -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
+# The NAME region bound is READ from each shape's regenerated header (the
+# AEM_NAME_ENTRIES_C localparam of its adp_shape_defaults.svh, GEN_HDR below),
+# the value KL_pp_shadow passes the shipping instance, so a model that gains
+# or loses a writable name moves this suite with it (#389 dropped one name
+# per AAF listener: 107 -> 99 and 31 -> 30). A literal here would be a mirror.
+GEN_HDR    = ../../../configs/generated/endstation_$(1)/gen/adp_shape_defaults.svh
+name_bound = $(shell sed -n 's/.*AEM_NAME_ENTRIES_C = \([0-9]*\);.*/\1/p' $(call GEN_HDR,$(1)))
+N_NAME_8X8 := $(call name_bound,ax7101_8x8)
+N_NAME_1X1 := $(call name_bound,ax7101_1x1_tdm8)
+ifeq (,$(and $(N_NAME_8X8),$(N_NAME_1X1)))
+$(error AEM_NAME_ENTRIES_C was not read from a generated header)
+endif
+
 SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
             -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
             -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 \
-            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=107
+            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_8X8)
 
 SHAPE_1X1 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
             -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 \
             -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 \
-            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=31
+            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_1X1)
 
 MUTANTS = alias stride stale_mask blind_read
 

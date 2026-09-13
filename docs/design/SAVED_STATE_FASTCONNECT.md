@@ -52,7 +52,7 @@
 > device behind the processor's NVM port in `KL_pp_shadow`, with the third
 > main-memory master in the SoC, the control face at `0x934`-`0x93C` and the
 > section 9 bits in `PP_STAT`. Its area is measured on the shipping module in
-> section 8.3, and it is above the candidate's bound: 992 LUT-equivalents and
+> section 8.3, and it is above the candidate's bound: 993 LUT-equivalents and
 > 377 FF worst case against 781 and 280.
 >
 > **The firmware half landed (2026-09-06).** `sw/firmware/milan_baremetal/`
@@ -123,10 +123,10 @@ it.
 | The processor emits commit marks | **Landed, unobserved** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
 | A write path on the shipping profile | **Landed** (2026-09-06) | `sw/firmware/milan_baremetal/milan_baremetal.c`: boot validation of both slots, the staged container, the control tuple, the restore walk, the heartbeat, the debounced A/B commit through the LiteSPI command master with erase, page program and read-back; `sw/firmware/nvm_hosttest/test_nvm_firmware.py` grades it per shape against `scripts/nvm_klj2.py` |
-| The record set fits the namespace | **DECIDED HERE** (2026-09-05), gated: the donor's F07.8 rule unchanged, one record per item group and index, 164 of 256 ids at the largest shipped shape | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
+| The record set fits the namespace | **DECIDED HERE** (2026-09-05), gated: the donor's F07.8 rule unchanged, one record per item group and index, 156 of 256 ids at the largest shipped shape | sections 4.2 and 4.3, `scripts/check_nvm_record_space.py` |
 | The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
-| The backend's area | **MEASURED**, on the shipping module | section 8.3: 992 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
-| The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 433 checks at 8x8 and 148 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
+| The backend's area | **MEASURED**, on the shipping module | section 8.3: 993 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
+| The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 417 checks at 8x8 and 146 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
 | The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
@@ -185,9 +185,9 @@ Three things make that the answer rather than a fabric-side flash master:
 
 1. **The whole set fits in one erase block, measured at both shapes.** With the
    allocation of section 4, the donor's own F07.8 rule unchanged,
-   `scripts/check_nvm_record_space.py` measures **2,696 bytes** at the shipping
-   `endstation_ax7101_1x1_tdm8` shape and **9,224 bytes** at
-   `endstation_ax7101_8x8`, which is 14 percent of one 64 KiB slot. Both fit
+   `scripts/check_nvm_record_space.py` measures **2,624 bytes** at the shipping
+   `endstation_ax7101_1x1_tdm8` shape and **8,648 bytes** at
+   `endstation_ax7101_8x8`, which is 13 percent of one 64 KiB slot. Both fit
    one block with margin, so whole-image promotion is not
    a compromise forced by geometry; it is comfortably affordable, and it
    upgrades the durability guarantee from the port's per-record one to "at every
@@ -276,9 +276,9 @@ exist follows from the shape, never from what the bytes happen to be.
 | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
 | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
 | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 31 | **107** |
-| **records** | | | | **46** | **164** |
-| **highest id** | | | | `0x9E` | `0xEA` |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 30 | **99** |
+| **records** | | | | **45** | **156** |
+| **highest id** | | | | `0x9D` | `0xE2` |
 
 The binding block base is not chosen here. It is `REC_ID_BASE_P` in
 `KL_acmp_nvm_shadow`, already fixed in landed gateware, and the gate READS it
@@ -291,7 +291,8 @@ the module is followed rather than missed.
 The blocks are what makes this contract shape-independent. A record is placed at
 `base + index`, and a shape whose index leaves the block is a finding at the
 block boundary rather than a collision discovered later. The name block holds
-128 ordinals against the 107 the largest shipped shape has; a shape with more
+128 ordinals against the 99 the largest shipped shape has since #389 (107
+before it retired the per-listener clock source); a shape with more
 writable names than that is check 3's finding, and a shape whose whole record
 set outgrows the 256-id namespace is check 6's, named as such rather than
 absorbed by a layout nobody decided.
@@ -360,8 +361,13 @@ one 64-byte record at `0x80 + ordinal` (section 4.2). The amendment request to
 the donor is withdrawn and donor issue #24 is to be closed as no longer needed.
 Nothing in this repository asks the donor to change its record contract.
 
-**What the reversal costs, at the shapes that ship today**, measured by the
-gate at both allocations before the banked code was removed:
+**What the reversal cost, at the shapes that shipped then**, measured by the
+gate at both allocations before the banked code was removed. This is the
+PRE-#389 measurement and stays one: the banked column cannot be re-measured,
+because the code that produced it is gone, so re-stating only the decided
+column would compare two different models. The decided column at this head
+is 156 records, top id `0xE2`, 8,648 bytes at 8x8 and 2,624 at 1x1, and the
+conclusion below is unchanged by the move, every figure having fallen:
 
 | | banked (withdrawn) | flat, F07.8 (decided) |
 |---|---|---|
@@ -698,11 +704,11 @@ reserved main-memory window, not in block RAM.
   (the AX7101 shapes place it at `0x7F700000`);
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
-  Adding the measured 9,224-byte record image brings the window to 53,320 of
+  Adding the measured 8,648-byte record image brings the window to 52,744 of
   1,048,576 bytes, about 5 percent. **No new reservation and no change to the
   published memory map.**
 - The BRAM alternative is what is being declined, and its cost is the number
-  that decides it: 9,224 bytes byte-wide is 3 BRAM36 at the 8x8 shape, on a
+  that decides it: 8,648 bytes byte-wide is 3 BRAM36 at the 8x8 shape, on a
   device whose area campaign is fought in single-digit percentages.
 
 ### 8.2 The transfer: ordinary loads and stores, no CSR data window
@@ -783,20 +789,29 @@ a record operation must pass before a byte moves, the control CSRs and the
 section 9 machine with its two deadline counters. Both are registered as tops in
 [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) and measured with the recipe that
 file already carries, `synth_xilinx -family xc7 -flatten`, which is the only
-mapping this repository judges an area lever on.
+mapping this repository judges an area lever on. The four `KL_nvm_backend`
+rows are re-measured at the name bounds the shipping shapes carry since #389,
+`N_NAME_P` 30 and 99, by the reproduce block below. At the bounds before it,
+31 and 107, the same recipe returns the rows this table used to carry
+(756/756/377 and 773/128/901/313, and 855 and 864/128/992 without DSP), so
+what moved is the bound and not the tool. One caveat for whoever re-runs it
+bare: `ooc.sh KL_nvm_backend` with no `OOC_CHPARAM` elaborates the module's
+own parameter defaults, which are the 8x8 shape, and reads
+774/128/**902**/313 rather than the 8x8 row below, because a `chparam -set`
+bound and a default bound do not fold identically.
 
 | top | shape | LUT | LUTRAM | **LUT_TOT** | FF | RAMB36 | DSP | CARRY4 |
 |---|---|---|---|---|---|---|---|---|
 | `KL_nvm_blankflash_sizer` (before) | -- | 35 | 0 | **35** | 21 | 0 | 0 | 5 |
-| `KL_nvm_backend` (shipping) | 1x1 | 756 | 0 | **756** | 377 | 0 | 6 | 108 |
-| `KL_nvm_backend` (shipping) | 8x8 | 773 | 128 | **901** | 313 | 0 | 6 | 107 |
-| `KL_nvm_backend`, `-nodsp` | 1x1 | 855 | 0 | **855** | 377 | 0 | 0 | 134 |
-| `KL_nvm_backend`, `-nodsp` | 8x8 | 864 | 128 | **992** | 313 | 0 | 0 | 133 |
+| `KL_nvm_backend` (shipping) | 1x1 | 772 | 0 | **772** | 377 | 0 | 6 | 108 |
+| `KL_nvm_backend` (shipping) | 8x8 | 787 | 128 | **915** | 313 | 0 | 6 | 107 |
+| `KL_nvm_backend`, `-nodsp` | 1x1 | 857 | 0 | **857** | 377 | 0 | 0 | 134 |
+| `KL_nvm_backend`, `-nodsp` | 8x8 | 865 | 128 | **993** | 313 | 0 | 0 | 133 |
 
 **The shipping module is above the candidate's bound, and the record says so.**
 The sizing candidate this section priced the decision on measured 553, 676, 636
 and 781 LUT-equivalents in the same four columns, with 280 and 216 FF; it is
-retired with the module that replaced it. The shipping module is 211
+retired with the module that replaced it. The shipping module is 212
 LUT-equivalents and 97 FF above the candidate's worst case. The difference is
 what the candidate did not carry and a device on a real port cannot do without:
 the one-lane word cache (a 64-bit lane and its tag, so consecutive byte reads
@@ -822,9 +837,9 @@ are unchanged by it -- the column is additive, not a re-scaling.
 The six `DSP48E1` are the constant-stride multiplies in the region decoder,
 which the default `synth_xilinx` mapping happily hands to a DSP. Both mappings
 are published because either is a legal implementation, and the `-nodsp` column
-is the LUT-only worst case: **the backend costs at most 992 LUT-equivalents and
-377 FF**, which is **1.56 percent of the XC7A100T's 63,400 LUT** and 0.30
-percent of its 126,800 FF. The delta over the responder it replaced is **+957
+is the LUT-only worst case: **the backend costs at most 993 LUT-equivalents and
+377 FF**, which is **1.57 percent of the XC7A100T's 63,400 LUT** and 0.30
+percent of its 126,800 FF. The delta over the responder it replaced is **+958
 LUT and +356 FF** in the LUT-only mapping, taking the worst column of each: 8x8
 for LUT, 1x1 for FF, because the shapes trade one against the other (at 8x8 the
 tables become distributed RAM and stop costing flops).
@@ -834,7 +849,7 @@ free-floating: `KL_maap` is 637 LUT / 268 FF, `tcam` is 678 LUT / 1,680 FF and
 `KL_chan_map_render` is 5,468 LUT / 2,101 FF (re-measured with the shipping
 module on 2026-09-05; the render map grew with the cluster work since round 3,
 the other two are unchanged). **Round 3's claim that the backend is smaller
-than the MAAP engine is withdrawn**: at 992 LUT-equivalents it is larger than
+than the MAAP engine is withdrawn**: at 993 LUT-equivalents it is larger than
 either `KL_maap` or `tcam`, and under a fifth of `KL_chan_map_render`. What the
 calibration still supports is the conclusion the
 decision needs -- a block of this size cannot invalidate the selected
@@ -848,7 +863,7 @@ because in context it shares decode and constants with its neighbours, so the
 in-context delta is always the smaller and truer number. It is also
 pre-placement, and `scripts/area_baseline.py` records that post-synth numbers
 move by thousands of LUT and that out-of-context numbers do not preserve rank
-order. So this bounds the decision -- 992 LUT-equivalents cannot invalidate the
+order. So this bounds the decision -- 993 LUT-equivalents cannot invalidate the
 selected architecture on a device where the area campaign is fought in
 single-digit percentages -- and it does not replace the post-place delta.
 
@@ -872,14 +887,20 @@ to be measured before committing, and it is measured above.
 # the before, and the three calibration blocks in the same run
 syn/yosys/ooc.sh KL_nvm_blankflash_sizer KL_maap tcam KL_chan_map_render
 
-# the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column
+# the after, at the 1x1 shape; prefix OOC_NODSP=1 for the LUT-only column.
+# N_NAME_P is the shape's AEM_NAME_ENTRIES_C, read from its generated header:
+# configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh (30)
+# and configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh (99)
+# since #389. The table above is measured at these two bounds; at 31 and
+# 107, the bounds before #389, the same recipe returns the figures the
+# table carried before this restatement
 OOC_CHPARAM="N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_SPORT_IN_P=1 N_SPORT_OUT_P=1 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=31" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=30" \
   syn/yosys/ooc.sh KL_nvm_backend
 
 # the after, at the 8x8 shape
 OOC_CHPARAM="N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_SPORT_IN_P=8 N_SPORT_OUT_P=8 \
-             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=107" \
+             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=99" \
   syn/yosys/ooc.sh KL_nvm_backend
 
 # and what the module actually DOES, at both shapes, with the four
@@ -927,7 +948,7 @@ device-face handshake, as the processor's port does; on the memory side the
 word cache already coalesces the reads of one lane into one transaction, and a
 write is one strobe-masked lane per byte. A variant that gathered a record's
 write bytes into whole lanes would trade a lane buffer for fewer bus cycles,
-which is tens of LUT either way on a 992-LUT block, and the bus is not what the
+which is tens of LUT either way on a 993-LUT block, and the bus is not what the
 port's byte pace waits on.
 
 ## 9. What the fabric may claim: the durability and liveness contract
@@ -1090,13 +1111,13 @@ T_commit_worst = tSE(max) + ceil(IMG_LEN/256) x tPP(max) + IMG_LEN x 8 / 12.5e6
 
 | shape | image | pages | erase | program | read-back | **worst case** |
 |---|---|---|---|---|---|---|
-| `endstation_ax7101_1x1_tdm8` | 2,696 B | 11 | 3,000 ms | 55 ms | 1.7 ms | **3.06 s** |
-| `endstation_ax7101_8x8` | 9,224 B | 37 | 3,000 ms | 185 ms | 5.9 ms | **3.19 s** |
+| `endstation_ax7101_1x1_tdm8` | 2,624 B | 11 | 3,000 ms | 55 ms | 1.7 ms | **3.06 s** |
+| `endstation_ax7101_8x8` | 8,648 B | 34 | 3,000 ms | 170 ms | 5.5 ms | **3.18 s** |
 
 The erase dominates: 94 percent of the worst case at 8x8 is one `tSE`.
 
 **`T-NVM-COMMIT-TIMEOUT` = 8,000 ms**, required to be at least **2x** the
-worst-case transaction at EVERY shipped shape. That is 2.51x at 8x8 and 2.62x
+worst-case transaction at EVERY shipped shape. That is 2.52x at 8x8 and 2.62x
 at 1x1. The margin covers the byte pump, the CPU's polling loop and a second
 erase if the first slot verify fails. Below 2x the deadline starts declaring
 legal flash operations dead, which is the failure mode the review named.

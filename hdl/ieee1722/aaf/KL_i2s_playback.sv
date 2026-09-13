@@ -27,9 +27,11 @@
                 offset vs the talker's 48 kHz (USER rule: internal media
                 clock = free-run, slips accepted). Underrun repeats the
                 last pair, overrun drops - both counted. The NCO trim servo
-                is retired (trim_o reads 0); exact stream-clock recovery
-                for CLOCK_SOURCE=stream returns as MMCM-DRP discipline
-                later. converged_o keeps its fill-window semantics on the
+                is retired (trim_o reads 0). Stream-derived clock recovery
+                is not provided and, since #389, not advertised: no AAF
+                listener carries a CLOCK_SOURCE, and the media clock follows
+                INTERNAL or the CRF sink through KL_mmcm_drp_servo.
+                converged_o keeps its fill-window semantics on the
                 producer-side FIFO.
 
   Company     : Kebag Logic
@@ -60,10 +62,13 @@ module KL_i2s_playback #(
   input  wire         rst_n,            //! active-low sync reset (clk_i)
   input  wire         clk_audio_i,      //! CLEAN audio clock (MMCM, 24.576 MHz
                                         //! nominal; MCLK = /2, fs = /512)
-  input  wire         servo_en_i,       //! USER rule hook: exact recovery only
-                                        //! for bound-stream clock sources.
-                                        //! No NCO actuator remains - kept for
-                                        //! the future MMCM-DRP servo; the
+  input  wire         servo_en_i,       //! USER rule hook: exact recovery
+                                        //! only for the CRF sink, the one
+                                        //! bound stream the media clock
+                                        //! follows (#389). No NCO actuator
+                                        //! remains here: the actuator is
+                                        //! KL_mmcm_drp_servo, driven from
+                                        //! crf_clk_selected_r; the
                                         //! convergence observer still runs.
 
   //! --- PCM tap (depacketizer m_axis, observed transfers) -----------------

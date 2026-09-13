@@ -338,7 +338,7 @@ so treat them as ordering, not promises.
       followership                    - service-budget                    - TDM/I2S audio
       on silicon                        decision                            as supported
     - stream-clock                      (2nd hart?)                         endpoint I/O
-      honesty                                                             - config surface
+      honesty (done, #389)                                                - config surface
     - ring one-grid                                                         + hardening
       (retire pb                                                          - user manual +
       override)                                                             support policy

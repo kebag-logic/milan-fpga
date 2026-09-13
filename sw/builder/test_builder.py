@@ -194,6 +194,17 @@ Gates (gaps item 4, generator round):
       the loaders READ (by [], get, in or enumeration; never listed here)
       on the paths the five tracked configs take; a key read on a loader
       path none takes is outside it, by rule (the gate prints that census).
+  33. EVERY ADVERTISED CLOCK_SOURCE IS ONE THE FABRIC FOLLOWS (#389):
+      the emitted set is INTERNAL + the CRF sink's INPUT_STREAM source on
+      every shipping config (count 2, CRF at 1, in the overlay AND the
+      generated header), no source is located on an AAF listener, the set
+      is model shape (1722.1 6.2.2.8), and the retired `input_stream`
+      source is refused BY NAME, naming the issue, on both paths a
+      descriptor set is built through: the config loader, and
+      `avdecc/aem_specs.py`'s `spec_from_overlay` under the
+      `gen_aem_store.py --overlay` CLI.  The second is defence in depth,
+      the overlay being builder-generated, and its bites arm restores the
+      pre-#389 map to show the retired row rendering again without it.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -347,7 +358,7 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 # is the gate working, not the gate being relaxed - what it proves is that the
 # PIN still wins over the hash, and the assertion below that hash != pin is
 # what would catch the two being silently reconciled.
-DEPLOYED_MODEL_ID = "0x001BC50AC1000003"
+DEPLOYED_MODEL_ID = "0x001BC50AC1000004"
 
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
@@ -10229,8 +10240,9 @@ def test_crf_output_overlay_structure() -> None:
         assert dc["AUDIO_MAP"] == n_static, (name, dc["AUDIO_MAP"], n_static)
         assert ovl["entity_counts"]["talker_stream_sources"] == n + 1
         # CLOCK_SOURCE set unchanged by the output: 1722.1 7.2.9.2 defines
-        # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + N inputs + CRF sink
-        assert dc["CLOCK_SOURCE"] == 1 + n + 1
+        # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + the CRF sink,
+        # nothing per AAF listener since #389 (gate 33)
+        assert dc["CLOCK_SOURCE"] == 2
         check_port_layout(ovl, n, n)              # port invariants still hold
         print(f"  [gate 15] {name}: CRF STREAM_OUTPUT idx {n} advertised "
               "(no port/cluster/map growth, talker count +1, "
@@ -10355,6 +10367,146 @@ def test_gen_aem_store_crf_output_overlay() -> None:
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
           "4 output ports")
     _assert_per_stream_format_tables(svh, dirv, outs)
+
+
+def _assert_crf_needs_its_sink() -> None:
+    """Gate 33's second refusal arm (R102-2-1): a source the emitter would
+    DROP rather than advertise is refused, and the honest posture beside it
+    is accepted.
+
+    Without the refusal the first variant builds, emits one source
+    (`AEM_N_CLKSRC_C = 1`, `AEM_CRF_CLKSRC_C = 16'hFFFF`) and hashes a
+    TWO-source model: descriptors byte-identical to the `[internal]` config,
+    `entity_model_id` different. Milan v1.2 6.2.2.8 asks a changed model for
+    a new id, not an unchanged one for a second."""
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal", "crf"], default_source="internal",
+        crf_sink=False))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "crf_sink" in str(e) and "#389" in str(e), str(e)
+        else:
+            raise AssertionError(
+                "a config offering crf with the sink off was accepted")
+    finally:
+        p.unlink()
+    # the paired POSITIVE case, so the rule is not just a ban: the same
+    # config with 'crf' dropped as well builds, and emits the ONE source it
+    # advertises
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal"], default_source="internal",
+        crf_sink=False))
+    try:
+        r = eb.build(p, OUT)
+        assert [c["type"] for c in r["overlay"]["clock_sources"]] \
+            == ["internal"], r["overlay"]["clock_sources"]
+        assert "localparam int unsigned AEM_N_CLKSRC_C = 1;" \
+            in r["adp_shape_svh"]
+        assert eb.model_shape(r["cfg"])["clock_sources"] == ["internal"]
+    finally:
+        p.unlink()
+
+
+def test_clock_sources_follow_the_fabric() -> None:
+    """Gate 33 (#389): every CLOCK_SOURCE a shipping config advertises is
+    one the fabric follows - INTERNAL and the CRF sink's INPUT_STREAM
+    source, nothing per AAF listener - in the overlay and the generated
+    header alike; the set is model shape; the retired `input_stream`
+    source is refused by name on both paths a descriptor set is built
+    through, the config loader and `spec_from_overlay`; and a source that
+    WOULD be dropped rather than emitted - `crf` with the sink off - is
+    refused for the same reason instead of entering the model-id hash
+    unadvertised."""
+    for name, path in CONFIGS.items():
+        r = eb.build(path, OUT)
+        ovl, cfg = r["overlay"], r["cfg"]
+        n = len(cfg["listeners"])
+        cs = ovl["clock_sources"]
+        assert [c["type"] for c in cs] == ["internal", "crf"], (name, cs)
+        assert cs[0]["location_type"] == "CLOCK_SOURCE", (name, cs[0])
+        # the CRF source names the CRF sink, the STREAM_INPUT appended
+        # after the n AAF listeners - never one of the listeners
+        assert (cs[1]["location_type"], cs[1]["location_index"]) \
+            == ("STREAM_INPUT", n), (name, cs[1])
+        assert ovl["descriptor_counts"]["CLOCK_SOURCE"] == 2, name
+        assert not any(c["location_type"] == "STREAM_INPUT"
+                       and c["location_index"] < n for c in cs), (name, cs)
+        # ...and the header the media plane compares against says the same
+        svh = r["adp_shape_svh"]
+        assert "localparam int unsigned AEM_N_CLKSRC_C = 2;" in svh, name
+        assert "localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;" in svh, name
+        # the set is descriptor structure, so it is in the model-id hash
+        assert eb.model_shape(cfg)["clock_sources"] == ["internal", "crf"], name
+    # the retired key is refused, by name, citing the issue - a config
+    # cannot claim a source the fabric cannot follow
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal", "input_stream", "crf"]))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "input_stream" in str(e) and "#389" in str(e), str(e)
+        else:
+            raise AssertionError("a config declaring input_stream was accepted")
+    finally:
+        p.unlink()
+    _assert_crf_needs_its_sink()
+    # ...and refused on the OTHER path a descriptor set is built through.
+    # `spec_from_overlay` is where the retired type stayed EXPRESSIBLE: the
+    # overlay it reads is BUILDER-GENERATED, so the refusal above already
+    # means no tracked or emitted overlay can carry such a row, and this
+    # second refusal is defence in depth for a hand-made or future overlay,
+    # not a second rule.
+    import aem_specs
+    bad = copy.deepcopy(eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)["overlay"])
+    bad["clock_sources"].insert(1, dict(
+        index=1, name="Stream Clock", type="input_stream",
+        location_type="STREAM_INPUT", location_index=0))
+    for i, c in enumerate(bad["clock_sources"]):
+        c["index"] = i
+    try:
+        aem_specs.spec_from_overlay(bad)
+    except ValueError as e:
+        assert "input_stream" in str(e) and "#389" in str(e), str(e)
+    else:
+        raise AssertionError("an overlay carrying input_stream was accepted")
+    # the CLI over that same function, which is the entry point a developer
+    # reaches for and the one the report exercised: it must refuse and write
+    # nothing, where it used to emit a store with exit 0
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
+        (td / "aem_overlay.json").write_text(json.dumps(bad),
+                                             encoding="utf-8")
+        cp = subprocess.run(
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--overlay", str(td / "aem_overlay.json"), "--out-dir", str(td)],
+            capture_output=True, text=True, check=False)
+        assert cp.returncode != 0, \
+            "gen_aem_store --overlay built a store for a retired source"
+        assert "input_stream" in cp.stderr and "#389" in cp.stderr, cp.stderr
+        assert sorted(e.name for e in td.iterdir()) == ["aem_overlay.json"], \
+            "gen_aem_store wrote an artifact before refusing"
+    # the arm bites: put the pre-#389 map back with no refusal, and the same
+    # overlay renders the retired row again as a 0x0002 CLOCK_SOURCE located
+    # on the AAF listener - the exact descriptor this issue closed. Remove
+    # the refusal and this gate reddens on the two assertions above.
+    keep_t, keep_r = aem_specs.CS_TYPE, aem_specs.CS_RETIRED
+    aem_specs.CS_TYPE = dict(keep_t, input_stream=0x0002)
+    aem_specs.CS_RETIRED = {}
+    try:
+        row = aem_specs.spec_from_overlay(bad)["clock_sources"][1]
+    finally:
+        aem_specs.CS_TYPE, aem_specs.CS_RETIRED = keep_t, keep_r
+    assert (row["raw_type"], row["cs_type"], row["loc_index"]) \
+        == ("input_stream", 0x0002, 0), row
+    print(f"  [gate 33] {len(CONFIGS)}/{len(CONFIGS)} configs advertise "
+          "INTERNAL + CRF only (overlay, header and model shape agree); "
+          "input_stream refused by the config loader AND by "
+          "spec_from_overlay (CLI included), crf-without-a-sink refused by "
+          "the loader with internal-only accepted beside it, and the "
+          "overlay arm bites")
 
 
 def test_dynamic_map_topology_reaches_shape_header() -> None:
@@ -11888,7 +12040,7 @@ def test_optional_block_gates_bite() -> None:
     config stops asking - otherwise the gate would just be a ban."""
     cases = [
         # (label, feature(s) pruned, extra mutation, must-raise?)
-        ("servo pruned but CRF/input-stream clocking offered",
+        ("servo pruned but CRF clocking offered",
          dict(media_clock_servo=False), lambda c: None, True),
         ("servo pruned, internal-only clocking",
          dict(media_clock_servo=False),
@@ -15154,9 +15306,15 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # the historical clock_accuracy 0x21 / log_sync_interval 0 and derives
     # the engine's announced 0xFE / -3 instead ([R-parallel] on #228):
     # AVB_INTERFACE clock fields are descriptor content, so 6.2.2.8 obliges
-    # the move, while the served id itself stays pinned.
+    # the move, while the served id itself stays pinned,
+    # then -> 0x001BC53BF2977319 when #389 dropped the per-AAF-listener
+    # INPUT_STREAM CLOCK_SOURCE (one descriptor fewer, a shorter CLOCK_DOMAIN
+    # list) and made the clock-source set an UNCONDITIONAL model_shape key:
+    # the descriptor set is the structure 6.2.2.8 names, so every id moved,
+    # and the served pin moved with it (...0003 -> ...0004) because the
+    # model this pin serves changed.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5D471D5A5E1"
+        "0x001BC53BF2977319"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -15180,14 +15338,17 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # constants byte-exactly), and an EIGHTH -> 0x001BC5E53D97FC91 when that
     # restatement was itself retired: clock_accuracy 0x21 / log_sync_interval
     # 0 are deleted and the builder derives the engine's announced 0xFE / -3
-    # ([R-parallel] on #228), which is descriptor content per 7.2.8.
+    # ([R-parallel] on #228), which is descriptor content per 7.2.8, and a
+    # NINTH -> 0x001BC505328AA45F when #389 removed the four per-listener
+    # INPUT_STREAM CLOCK_SOURCE descriptors nothing followed and put the
+    # clock-source set into model_shape unconditionally.
     # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
-    # hash-derived id - that is the mechanism working. What must NOT move is
-    # arty_current's PINNED id above, and it has not: it was re-pinned by hand
-    # with the reflash, which is the only way a pin is allowed to move.
+    # hash-derived id - that is the mechanism working. What must NOT move on
+    # its own is arty_current's PINNED id above: it moves only by hand, with
+    # the model change that obliges it (#389 was one), never with the recipe.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC5E53D97FC91"
+        "0x001BC505328AA45F"
 
 
 def test_d10_cluster_names() -> None:
@@ -15949,8 +16110,11 @@ def test_image_name_table_matches_descriptors() -> None:
             f"name entries for an image containing {n_names}")
 
         if name == "arty_current":
-            assert n_names == 29, (
-                f"shipping model has {n_names} names, expected 29")
+            # 28 since #389: the per-listener "Stream Clock" CLOCK_SOURCE and
+            # its one name are gone (29 before). The pin exists so the RTL
+            # default below is proved to still hold the shipping model.
+            assert n_names == 28, (
+                f"shipping model has {n_names} names, expected 28")
             rtl = "hdl/milan/KL_pp_shadow.sv"
             src = (ROOT / rtl).read_text(encoding="utf-8")
             assert re.search(r"DESC_NAME_ENTRIES_P\s*=\s*32", src), (
@@ -16697,6 +16861,7 @@ if __name__ == "__main__":
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
                test_gen_aem_store_crf_output_overlay,
+               test_clock_sources_follow_the_fabric,
                test_dynamic_map_topology_reaches_shape_header,
                test_dynamic_audio_map_overlay,
                test_lwsrp_reset_words_match_rtl,

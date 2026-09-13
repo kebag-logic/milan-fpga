@@ -352,7 +352,8 @@ SRP_DMAC_DYNAMIC = "maap"
 OPTIONAL_BLOCKS = {
     "media_clock_servo": ("--no-media-clock-servo", "MCSERVO_P",
                           "KL_mmcm_drp_servo - the audio-MMCM media-clock "
-                          "actuator (CRF / input-stream recovery)"),
+                          "actuator (CRF recovery; the only remote source "
+                          "advertised since #389)"),
     "latency_taps":      ("--no-latency-taps", "LTAP_P",
                           "KL_aaf_latency_taps - the per-stage AAF latency "
                           "instrumentation behind CSR 0x870-0x8B0"),
@@ -2507,8 +2508,9 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
     a("  //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so")
     a("  //! the compare is structurally false rather than accidentally true")
     a("  //! (the 0 == 0 trap the milan_datapath banner records). Derived")
-    a("  //! from the config's media_clock_sources - internal first, then one")
-    a("  //! per AAF listener, then CRF - never a hand literal.")
+    a("  //! from the config's media_clock_sources - internal first, then the")
+    a("  //! CRF sink's source; no per-listener source since #389 - never a")
+    a("  //! hand literal.")
     a(f"  localparam int unsigned AEM_N_CLKSRC_C = {n_cs};")
     a(f"  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd{crf_ix};"
       if crf_ix is not None else
@@ -3043,6 +3045,12 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
         "rates_hz": clk["audio_unit_rates_hz"],
         "current_rate_hz": clk["sampling_rate_hz"],
         "crf_sink": clk["crf_sink"],
+        # #389: the CLOCK_SOURCE set is descriptor STRUCTURE (one descriptor
+        # per source, and the CLOCK_DOMAIN list), so it is model shape.
+        # UNCONDITIONAL, because dropping the per-listener INPUT_STREAM
+        # sources changed every tracked config's descriptor set at once and
+        # 6.2.2.8 requires every one of those ids to move with it.
+        "clock_sources": clk["media_clock_sources"],
         "crf_format": clk["crf_format"],
         "crf_output": clk["crf_output"],
         "crf_output_format": clk["crf_output_format"],
@@ -3311,8 +3319,21 @@ def _load_clocking(cfg, path):
     if rate not in BASE_RATE_HZ:
         raise ConfigError(f"sampling_rate_hz {rate} not an AAF base rate "
                           f"(Milan v1.2 6.2: {sorted(BASE_RATE_HZ)})")
-    srcs = clk.get("media_clock_sources", ["internal", "input_stream", "crf"])
-    bad = set(srcs) - {"internal", "input_stream", "crf"}
+    srcs = clk.get("media_clock_sources", ["internal", "crf"])
+    # #389: an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
+    # accepted and stored while nothing in the fabric followed it (the media
+    # plane resolves the stored index against the CRF source alone, and
+    # INTERNAL free-runs). A config may not claim a source the fabric cannot
+    # follow, so the key is REFUSED rather than accepted and dropped: a
+    # silently ignored key is the same shape of lie one layer up.
+    if "input_stream" in srcs:
+        raise ConfigError(
+            "media_clock_sources: 'input_stream' is not a source this "
+            "fabric can follow (#389: no stream-derived media-clock "
+            "recovery exists; only INTERNAL and the CRF sink drive the "
+            "media clock, Milan v1.2 7.2.2) - declare [internal, crf] or "
+            "[internal]")
+    bad = set(srcs) - {"internal", "crf"}
     if bad:
         raise ConfigError(f"media_clock_sources: unknown {sorted(bad)}")
     dflt = clk.get("default_source", srcs[0])
@@ -3340,6 +3361,20 @@ def _load_clocking(cfg, path):
         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
+    # #389, the converse, and the same rule as the retired key above: the CRF
+    # CLOCK_SOURCE's location IS the CRF sink's STREAM_INPUT, so without that
+    # sink there is no stream for it to name and _overlay_clock_sources emits
+    # no descriptor for it. Accepted-and-dropped is the shape of lie this
+    # issue exists to remove: the key still entered model_shape, so two
+    # configs whose descriptors are byte-identical carried different
+    # entity_model_ids, and 6.2.2.8 asks a CHANGED model for a new id, not an
+    # unchanged one for a second.
+    if "crf" in srcs and not clocking["crf_sink"]:
+        raise ConfigError(
+            "media_clock_sources offers 'crf' but clocking.crf_sink is "
+            "false - the CRF CLOCK_SOURCE is located on that sink's "
+            "STREAM_INPUT, so no descriptor can be emitted for it (#389). "
+            "Declare the sink, or drop 'crf' from media_clock_sources")
     return clocking
 
 
@@ -4179,7 +4214,14 @@ def _overlay_streams(cfg):
 
 def _overlay_clock_sources(cfg):
     """The CLOCK_SOURCE set, mirroring media_clock_sources (internal first,
-    then one per AAF listener stream, then CRF - gen_aem_store order)."""
+    then the CRF sink's INPUT_STREAM source - gen_aem_store order). No
+    source is emitted for an AAF listener: the fabric has no stream-derived
+    media-clock recovery, and a CLOCK_SOURCE a controller can select but
+    nothing follows is a false advertisement (#389; 1722.1-2021 7.2.9.2,
+    Milan v1.2 7.2.2). _load_clocking refuses the key that used to ask for
+    one, so this function cannot be reached with it, and it refuses 'crf'
+    without the sink too, so `n_crf` and `'crf' in media_clock_sources` are
+    the same question here and neither can drop an advertised source."""
     L, clk = cfg["listeners"], cfg["clocking"]
     n_crf = 1 if clk["crf_sink"] else 0
     clock_sources = []
@@ -4188,13 +4230,6 @@ def _overlay_clock_sources(cfg):
                                   type="internal",
                                   location_type="CLOCK_SOURCE",
                                   location_index=len(clock_sources)))
-    if "input_stream" in clk["media_clock_sources"]:
-        for i in range(len(L)):
-            nm = "Stream Clock" if len(L) == 1 else f"Stream Clock {i}"
-            clock_sources.append(dict(index=len(clock_sources), name=nm,
-                                      type="input_stream",
-                                      location_type="STREAM_INPUT",
-                                      location_index=i))
     if n_crf:
         clock_sources.append(dict(index=len(clock_sources), name="CRF Clock",
                                   type="crf",
@@ -4496,9 +4531,10 @@ def emit_platform_section(shape: dict[str, Any]) -> list[str]:
 #: obligation travels with the config, not with the reviewer's memory.
 FEATURE_REMEASURE = {
     "media_clock_servo":
-        "every CRF / input-stream media-clock lock result: with no actuator "
-        "the audio MMCM free-runs, so servo convergence, MCSRV_STAT states "
-        "and any recovered-clock jitter figure are not reproducible",
+        "every CRF media-clock lock result (the only recovered source since "
+        "#389): with no actuator the audio MMCM free-runs, so servo "
+        "convergence, MCSRV_STAT states and any recovered-clock jitter "
+        "figure are not reproducible",
     "latency_taps":
         "ALL of docs/AAF_LATENCY_TAPS.md - the CAP-SOF, SOF-EOF and EOF-MAC "
         "silicon numbers were read out of this block and cannot be re-read "

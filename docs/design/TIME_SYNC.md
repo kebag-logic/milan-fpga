@@ -67,6 +67,12 @@ CRF transport measures remote media timing.
 
 The root consumes stored clock selection since issue #74.
 
+Only two sources are advertised since issue #389.
+
+They are INTERNAL and the CRF sink.
+
+An AAF listener carries no CLOCK_SOURCE, because nothing follows one.
+
 INTERNAL remains the power-on selection.
 
 CRF selection activates the MMCM servo.
@@ -100,8 +106,11 @@ Each link has exactly one master.
 |---|---|---|
 | CRF transmit | Yes | Publishes internal media events |
 | CRF receive | Yes | Measures remote phase and rate |
-| Clock-source command | Yes | Stores selected descriptor |
+| Clock-source command | Yes | Stores a listed descriptor; refuses an unlisted index with `BAD_ARGUMENTS` |
 | Root clock selection | Yes | Compares against the generated CRF descriptor |
+| INTERNAL selection | Yes | Free-running media clock, the power-on state |
+| CRF selection | Yes | Drives the media clock through the servo and the aligner |
+| Stream-derived recovery | No | Not advertised: no INPUT_STREAM source on an AAF listener (#389) |
 | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
 | Packet-grid alignment | Conditional | Follows the physical sample grid |
 

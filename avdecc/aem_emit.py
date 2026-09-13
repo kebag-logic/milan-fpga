@@ -207,11 +207,14 @@ def _svh_validation_tables(M):
     # CLOCK_SOURCE shape. Emitted UNCONDITIONALLY (not inside the per-stream
     # block below): every shape has a CLOCK_DOMAIN, and the two facts the RTL
     # needs about it - how many sources exist, and which one is the CRF - were
-    # hardcoded as "3" and "2" until 0x0042. Those literals are only right for
-    # a 1-listener shape: the CLOCK_SOURCE set is internal, then ONE PER AAF
-    # LISTENER, then CRF, so an 8-listener shape has 10 sources with CRF at 9.
-    # A controller could not select the CRF clock there, and the servo would
-    # have engaged on "Stream Clock 1" instead. Derive, never mirror.
+    # hardcoded as "3" and "2" until 0x0042. History: those literals were only
+    # right for a 1-listener shape of the set the builder emitted until #389
+    # (internal, then one source per AAF listener, then CRF: an 8-listener
+    # shape had ten sources with the CRF at index 9, a controller could not
+    # select the CRF clock there, and the servo would have engaged on "Stream
+    # Clock 1" instead). Since #389 the set is INTERNAL and the CRF sink's
+    # INPUT_STREAM source, so every shipping shape reads 2 and 1 here - still
+    # off the model, never restated. Derive, never mirror.
     _n_cs, _crf_ix = M["N_CLKSRC"], M["CRF_CLKSRC"]
     a("// CLOCK_SOURCE set: count, and the index of the CRF source")
     a("// (AEM_CRF_CLKSRC_C = 16'hFFFF when this shape declares no CRF source)")

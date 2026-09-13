@@ -521,7 +521,10 @@ class MediaGridAlignmentHarness {
 
     //! the documented tap (see the pp-side banner on clksrc_r): the STORE is
     //! poked, one hop upstream of the command chain sim_nxn's AECP-FACE arms
-    //! prove end-to-end. AX 1x1 shape: internal 0, Stream Clock 1, CRF 2.
+    //! prove end-to-end. AX 1x1 shape since #389: internal 0, CRF 1 (the
+    //! per-listener Stream Clock source is gone; sim_nxn's [AECP-MODEL] set
+    //! walk reads this index out of the generated descriptors).
+    static constexpr uint16_t kCrfClksrcIx = 1;
     void poke_clksrc(uint16_t v) {
         dut->rootp
             ->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__clksrc_r[0]
@@ -589,7 +592,8 @@ class MediaGridAlignmentHarness {
     //  PHASE 2 - CRF selected: the SAME instrument proves alignment.      //
     // =================================================================== //
     void select_crf_and_prove_the_grids_align(double ppm_int) {
-        printf("\n[CRF] the stored selection goes to this shape's CRF index (2)\n");
+        printf("\n[CRF] the stored selection goes to this shape's CRF index (%u)\n",
+               static_cast<unsigned>(kCrfClksrcIx));
         //! CSR byte offsets, plain integers by intent: each is handed straight to
         //! the AXI BFM as an address, so `constexpr` keeps the call sites
         //! cast-free (Enum.5).
@@ -616,7 +620,7 @@ class MediaGridAlignmentHarness {
         live_rc0     = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
         live_pulses0 = recentre_pulses;
         live_src0    = src_recentre_pulses;
-        poke_clksrc(2);
+        poke_clksrc(kCrfClksrcIx);
         //! a talker on the CRF grid: from here the feed's cadence is the
         //! physical grid's, the one the packet grid is about to follow
         if (aaf_on) aaf_frac_num = kAafPhysFracNum;
@@ -1080,7 +1084,8 @@ class MediaGridAlignmentHarness {
         start_aaf_feed(0);
         run_fed(3000000);
         move_the_running_feed_past_a_tick("RENDER-LIVE", true);
-        printf("\n[CRF] the stored selection goes to this shape's CRF index (2), the feed running\n");
+        printf("\n[CRF] the stored selection goes to this shape's CRF index (%u),"
+               " the feed running\n", static_cast<unsigned>(kCrfClksrcIx));
         constexpr uint16_t A_MAC_ALO = 0x108;
         constexpr uint16_t A_MAC_AHI = 0x10C;
         constexpr uint16_t A_CRF_CTRL = 0x738;
@@ -1095,7 +1100,7 @@ class MediaGridAlignmentHarness {
         live_rc0     = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
         live_pulses0 = recentre_pulses;
         live_src0    = src_recentre_pulses;
-        poke_clksrc(2);
+        poke_clksrc(kCrfClksrcIx);
         aaf_frac_num = kAafPhysFracNum;
         next_pdu_at = axis_cycle;
         crf_on = true;

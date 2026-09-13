@@ -179,10 +179,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Media-clock servo (KL_mmcm_drp_servo, 933 LUT / 807 FF measured).
   //! 0 prunes it and parks the MMCM control ports: no DRP access, no phase
   //! step, MMCM never reset, A_MCSRV_STAT 0x8F8 reads 0. Legal ONLY when the
-  //! media clock is INTERNAL - the servo is the actuator for clock_source ==
-  //! 2 (CRF recovered) and for input_stream lock, so a pruned build cannot
-  //! discipline the audio MMCM to a remote grandmaster at all. The builder
-  //! gate keys on clocking.media_clock_sources == [internal].
+  //! media clock is INTERNAL - the servo is the actuator for the CRF
+  //! selection (clock_source == AEM_CRF_CLKSRC_C; no stream-derived source
+  //! is advertised, #389), so a pruned build cannot discipline the audio
+  //! MMCM to a remote grandmaster at all. The builder gate keys on
+  //! clocking.media_clock_sources == [internal].
   //! Milan Table 5.4 observation interval (KL_talker_diag_ctx), in datapath
   //! clock cycles; the clause bounds it at <= 1 s. TBs shrink it.
   parameter int DIAG_TICK_CYC_P = MILAN_CLK_FREQ_HZ,
