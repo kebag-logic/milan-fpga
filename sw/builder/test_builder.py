@@ -4481,10 +4481,61 @@ def test_baremetal_profile_contract() -> None:
             f"{built.stderr.strip().splitlines()[-2:]}"
         return True
 
+    #: (#410, the review of round eight's head) make's WHITESPACE, which is
+    #: TWO byte classes and not one, and which of them applies is decided by
+    #: the READER rather than by the byte. `src/main.c:675-694` builds the
+    #: map: space and TAB are `MAP_BLANK`, every REMAINING C `isspace` byte
+    #: becomes `MAP_NEWLINE` -- the vertical tab, the form feed and the
+    #: carriage return, the line feed itself being the break this reader has
+    #: already split on -- and `src/makeint.h:435,467-473` builds `MAP_SPACE`
+    #: from both halves, `ISBLANK` from the narrow one, `END_OF_TOKEN` from
+    #: `MAP_SPACE|MAP_NUL` and `NEXT_TOKEN` from the wide one. Three uses,
+    #: spelled once each here so a reader below picks the one make picks
+    #: rather than writing the blank pair out of habit:
+    #:
+    #:   * the WIDE class is what make CONSUMES before it reads a line's
+    #:     first token. `eval()` runs `NEXT_TOKEN` over the line before
+    #:     anything parses it (`src/read.c:721-727`, whose own comment says
+    #:     "including formfeed, vtab, etc."), `parse_var_assignment()` runs
+    #:     it again at `:505` and before every word of the modifier loop at
+    #:     `:527-552`, and `do_define()` runs it over every BODY line before
+    #:     it looks for a delimiter at all (`:1462`).
+    #:   * the WIDE class is also where a TOKEN ends, through
+    #:     `end_of_token()` (`src/misc.c:389`) -- make_token_end below.
+    #:   * the NARROW pair is what a body delimiter's SUFFIX is tested with
+    #:     (`src/read.c:1464-1473`), what must START the one run between a
+    #:     name and its assignment operator (`src/variable.c:1629-1637`), and
+    #:     what a `define` name's trailing run is stripped with (`:1436-1438`).
+    #:
+    #: Reading the narrow pair where make consumes the wide one was measured
+    #: wrong in the UNSAFE direction at the head this replaces, on pure parser
+    #: fixtures: `define<VT>helper` opened no body and `<VT>define helper`
+    #: opened none either, so each body's own `$(eval)` read `global` and was
+    #: WALKED with all five pre-plan scans empty; `<VT>define inner` nested no
+    #: level, so the first `endef` ended a body make does not end there; and a
+    #: `<VT>ifeq` or `<VT>ifdef` over a pending rule read as a target line, so
+    #: that rule CLOSED and the tab-prefixed eval after it read `global` too.
+    #: The classes are spelled byte by byte rather than as `\s`, which in a
+    #: Python `str` pattern is a UNICODE class wider than make's 8-bit map and
+    #: would answer for bytes make's own map never marks.
+    make_space = r"[ \t\v\f\r]"
+    make_blank = r"[ \t]"
+    #: The leading run make skips before a line's first token ...
+    make_lead = make_space + r"*"
+    #: ... and the run between a variable's NAME and its operator, which is
+    #: both classes in one place: `parse_variable_definition()` ENDS the name
+    #: at an `ISBLANK` and then skips what follows it with `NEXT_TOKEN`. So
+    #: `CFLAGS<SP><VT>+= -g` assigns CFLAGS, while `CFLAGS<VT>+= -g` assigns a
+    #: name that ENDS in the vertical tab -- a name no recipe here references
+    #: and no compile line reads (`src/variable.c:1629-1637`).
+    make_name_gap = r"(?:" + make_blank + make_space + r"*)?"
     #: Make's assignment modifiers, as a repeatable group rather than a list
     #: of the ones someone thought of: `export` alone was enough to slip a
-    #: narrower version of this.
-    assign_prefix = r"(?:(?:override|export|unexport|private)[ \t]+)*"
+    #: narrower version of this. Make's modifier loop reaches the next word
+    #: with `next_token()`, so the separator is the WIDE class
+    #: (`src/read.c:527-552`).
+    assign_prefix = (r"(?:(?:override|export|unexport|private)" +
+                     make_space + r"+)*")
     #: ... and make's assignment OPERATORS, all seven of them. The colon run
     #: is written longest first because that is the order make's own reader
     #: resolves it in: `parse_variable_definition()` takes a `:`, then tests
@@ -4501,8 +4552,8 @@ def test_baremetal_profile_contract() -> None:
     #: are the point: reading `OBJECTS =` and stopping reports a
     #: translation-unit count the build does not have.
     objects_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + r"OBJECTS[ \t]*" + assign_operator +
-        r"[ \t]*(.*)$")
+        r"(?m)^" + make_lead + assign_prefix + r"OBJECTS" + make_name_gap +
+        assign_operator + make_space + r"*(.*)$")
     objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
 
     def makefile_objects(makefile: str) -> list[str] | None:
@@ -4602,7 +4653,7 @@ def test_baremetal_profile_contract() -> None:
     #: so a `define<VT>MILAN_TMPL` opener reads here as it did before, and
     #: that neighbour is RECORDED (measured identical on both sides of this
     #: repair) rather than ruled on.
-    make_token_end = r"(?=[ \t\v\f\r]|\Z)"
+    make_token_end = r"(?=" + make_space + r"|\Z)"
     #: ... and the suffix a define BODY delimiter needs, which is the NARROWER
     #: class on purpose and must stay narrower (#410, the same review).
     #: `do_define()` skips the body line's leading whitespace and then counts
@@ -4614,16 +4665,19 @@ def test_baremetal_profile_contract() -> None:
     #: Two read stages, two classes: widening the shared suffix for every
     #: reader would trade this regression for its mirror image, and the
     #: controls pin both directions.
-    make_body_token_end = r"(?=[ \t]|\Z)"
-    #: Directives that are not rules, however many colons they carry.
+    make_body_token_end = r"(?=" + make_blank + r"|\Z)"
+    #: Directives that are not rules, however many colons they carry. The
+    #: leading run is make's WIDE class, because the outer reader has already
+    #: consumed it before it compares the first token (`src/read.c:721-727`).
     make_directive_re = re.compile(
-        r"\A[ \t]*(?:-|s)?include" + make_token_end +
-        r"|\A[ \t]*(?:export|unexport|override|"
+        r"\A" + make_lead + r"(?:-|s)?include" + make_token_end +
+        r"|\A" + make_lead + r"(?:export|unexport|override|"
         r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)" +
         make_token_end)
     #: `include`, `-include` and `sinclude` lines, whole.
     makefile_include_re = re.compile(
-        r"(?m)^[ \t]*((?:-|s)?include[ \t]+[^\n]*)$")
+        r"(?m)^" + make_lead + r"((?:-|s)?include" + make_space +
+        r"+[^\n]*)$")
     #: The include set HEAD carries. The first two are LiteX's; the third is
     #: the compiler's own per-object dependency fragment, which lists
     #: prerequisites and never assigns a variable.
@@ -4635,21 +4689,57 @@ def test_baremetal_profile_contract() -> None:
     #: its modifier keywords. `export` alone was enough to slip a narrower
     #: version of this, so the modifiers are a repeatable group rather than a
     #: list of the ones someone thought of.
-    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
-                   assign_operators + r")[ \t]*")
+    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)" + make_name_gap + r"(?:" +
+                   assign_operators + r")" + make_space + r"*")
     makefile_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + assign_body + r"(.*)$")
+        r"(?m)^" + make_lead + assign_prefix + assign_body + r"(.*)$")
     #: ... and the same assignment written after a target, which make applies
     #: to that target AND inherits down its whole prerequisite chain.
-    target_assign_re = re.compile(r"\A[ \t]*" + assign_prefix + assign_body +
-                                  r"(.*)\Z")
+    target_assign_re = re.compile(r"\A" + make_lead + assign_prefix +
+                                  assign_body + r"(.*)\Z")
+    #: (#410, the review of round eight's head) ... and the precedence
+    #: question asked the way make's OUTER reader asks it, which is what
+    #: decides whether a `define` line opens a body at all. `eval()` calls
+    #: `parse_var_assignment()` before it interprets any directive, and that
+    #: calls `parse_variable_definition()` on the whole line FIRST, ahead of
+    #: the modifier loop it falls back to (`src/read.c:727-752`, `:505-541`).
+    #: The name THAT reader accepts is not this closure's identifier class: it
+    #: is every byte up to a BLANK, a `#`, the end of the line, an `=`, a `:`
+    #: or one of `+`, `?`, `!` that an `=` follows, with a `$(...)` reference
+    #: skipped whole and a `$X` skipped in pairs
+    #: (`src/variable.c:1610-1751`). The vertical tab is in NONE of those, so
+    #: it is an ordinary NAME byte -- and that is what keeps the widened
+    #: opener below honest: `define<VT>= ready` and `define<VT>helper = ready`
+    #: are assignments to the names `define<VT>` and `define<VT>helper` that
+    #: open no body at all, exactly as `define = ready` is an assignment named
+    #: define, while `define MILAN_TMPL =` is two token sets, no assignment
+    #: and a real opener. The identifier-named readers above bind what this
+    #: closure can WALK; this one answers only whether make's outer reader
+    #: took the line as a variable definition, so its name is deliberately
+    #: the wider one and it captures nothing.
+    make_outer_name = (r"(?:[$][({][^)}\n]*[)}]|[$][^({\n]|[+?!](?!=)|"
+                       r"[^ \t#\n=:+?!$])+")
+    make_outer_assign_re = re.compile(
+        r"\A" + make_lead + assign_prefix + make_outer_name + make_name_gap +
+        r"(?:" + assign_operators + r")")
     #: ... and `define NAME` / `endef`, make's sixth assignment flavour: the
     #: opener tolerates the optional flavour suffix (`define NAME =`, `:=`,
     #: ...) and the BODY is the value.
+    #: (#410, the review of round eight's head) The keyword and the NAME are
+    #: separated by make's WIDE class, not by a blank: `parse_var_assignment`
+    #: measures the word with `end_of_token()` and reaches the name with
+    #: `next_token()` (`src/read.c:533-539`), so `define<VT>MILAN_TMPL` opens
+    #: a body named MILAN_TMPL. The flavour suffix keeps its own two classes:
+    #: the run before the operator must START with a blank because
+    #: `parse_variable_definition()` ends the name at an `ISBLANK`, while a
+    #: name with NO operator after it is trailed only by the blanks
+    #: `do_define()` strips (`src/read.c:1436-1438`), so `define NAME<VT>`
+    #: binds a name ending in that byte and is no opener this closure reads.
     make_define_open_re = re.compile(
-        r"\A[ \t]*" + assign_prefix +
-        r"define[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
-        assign_operators + r")?[ \t]*\Z")
+        r"\A" + make_lead + assign_prefix +
+        r"define" + make_space + r"+([A-Za-z_][A-Za-z0-9_]*)"
+        r"(?:" + make_name_gap + r"(?:" + assign_operators + r")" +
+        make_space + r"*|" + make_blank + r"*)\Z")
     #: ... and `endef` as the BODY reader recognises it (#410, the review of
     #: round five's head): `do_define` takes the body line's first token and
     #: ends the body when that token IS `endef` -- `len == 5`, the token is
@@ -4660,7 +4750,14 @@ def test_baremetal_profile_contract() -> None:
     #: not the delimiter at all. Requiring the line to END after `endef`, as
     #: this pattern did, only ever agreed with make because every `#` in the
     #: file had already been cut out before the body was read.
-    make_endef_re = re.compile(r"\A[ \t]*endef" + make_body_token_end)
+    #: (#410, the review of round eight's head) The LEADING run is make's wide
+    #: class, because `do_define()` reaches the body line's first token with
+    #: `next_token()` before it tests any of this (`src/read.c:1462`); only
+    #: the SUFFIX stays the blank pair. The two are independent, and reading
+    #: the leading run as a blank pair left `<VT>endef` as body text that ends
+    #: nothing and `<VT>define` as a level that never opened.
+    make_endef_re = re.compile(r"\A" + make_lead + r"endef" +
+                               make_body_token_end)
     #: A `define` OPENER as make reads one, for scoping an eval rather than
     #: for naming a value: make_define_open_re above reads the NAME, so it is
     #: an identifier by construction, and a `define MILAN-TMPL` whose name is
@@ -4668,8 +4765,13 @@ def test_baremetal_profile_contract() -> None:
     #: $(foreach) over the call rebinding the pinned name the body's eval
     #: reads. What scopes an eval is what `define` REACHES, a body make
     #: expands elsewhere, not the spelling of the name it binds.
+    #: (#410, the review of round eight's head) The separator is make's wide
+    #: class here for the same reason, and the "is there a name at all" test
+    #: is a byte class rather than `\S`, which in a Python `str` pattern is
+    #: Unicode and would call a byte make's own map never marks whitespace.
     make_define_scope_re = re.compile(
-        r"\A[ \t]*" + assign_prefix + r"define[ \t]+\S")
+        r"\A" + make_lead + assign_prefix + r"define" + make_space +
+        r"+[^ \t\v\f\r\n]")
     #: (#410, the review of round four's head) ... and the NESTED delimiter,
     #: which is a DIFFERENT grammar and must not be the opener above. An
     #: OPENER is reached through make's modifier loop, so `override`, `export`,
@@ -4686,7 +4788,8 @@ def test_baremetal_profile_contract() -> None:
     #: WALKED and the body bound one line of five, and an `override define
     #: inner` opened a level that is not there, so a real global eval read
     #: `define` and was REFUSED and the body bound nothing at all.
-    make_nested_define_re = re.compile(r"\A[ \t]*define" + make_body_token_end)
+    make_nested_define_re = re.compile(r"\A" + make_lead + r"define" +
+                                       make_body_token_end)
     #: The CONDITIONAL directives, the one kind of non-recipe line make reads
     #: WITHOUT ending the rule context it is in: a conditional is evaluated as
     #: the makefile is read, so an `ifdef` between two recipe lines leaves the
@@ -4695,7 +4798,8 @@ def test_baremetal_profile_contract() -> None:
     #: `else` is the whole line and still a conditional, while an `ifdef:`
     #: is a TARGET whose rule this reader must open.
     make_conditional_re = re.compile(
-        r"\A[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)" + make_token_end)
+        r"\A" + make_lead + r"(?:ifeq|ifneq|ifdef|ifndef|else|endif)" +
+        make_token_end)
 
     #: (#410, round-four review) The ROLE make reads each line in, which is
     #: what decides BOTH the lines a `define` body carries and the scope an
@@ -4824,7 +4928,7 @@ def test_baremetal_profile_contract() -> None:
                 if body.strip() and not make_conditional_re.match(body):
                     in_rule = False
                     if make_define_scope_re.match(body) and \
-                            not target_assign_re.match(body):
+                            not make_outer_assign_re.match(body):
                         depth, role = 1, "open"
                     elif not make_directive_re.match(body):
                         head = unexpanded(body)
@@ -4869,6 +4973,21 @@ def test_baremetal_profile_contract() -> None:
             return scan
         line_end = text.find("\n", start)
         return size if line_end < 0 else line_end
+
+    #: (#410, the review of round eight's head) The head of an `$(eval ...)`,
+    #: shared by the two scans below so they cannot disagree about what one
+    #: is. The byte after the name is make's WIDE class, for the reason given
+    #: at make_named_ref_re: `lookup_function()` takes the name only where
+    #: `MAP_NUL|MAP_SPACE` follows it (`src/function.c:272-287`). So
+    #: `$(eval<VT>CFLAGS += $(MILAN_EXTRA_CFLAGS))` is the same parse-time
+    #: hook as its blank-separated spelling, and reading only the blank pair
+    #: left BOTH scans blind to it: the assignment was invisible to the
+    #: closure and the eval was invisible to the refusal. The close brackets
+    #: stay in the class as the over-approximation they are -- make reads a
+    #: bare `$(eval)` as a variable REFERENCE, since `)` is not in that map,
+    #: so filing it opaque refuses an inert construct rather than missing a
+    #: live one.
+    make_eval_head_re = re.compile(r"eval[ \t\v\f\r)}]")
 
     #: (#410) `$(eval TEXT)`, make's parse-time hook: TEXT is EXPANDED first
     #: and the RESULT is parsed as makefile syntax, so the text make reads is
@@ -4919,8 +5038,8 @@ def test_baremetal_profile_contract() -> None:
             if opener == "$":
                 at += 2
                 continue
-            if opener not in "({" or not re.match(r"eval[ \t)}]",
-                                                   text[at + 2:at + 7]):
+            if opener not in "({" or not make_eval_head_re.match(
+                    text[at + 2:at + 7]):
                 at += 2
                 continue
             closer = ")" if opener == "(" else "}"
@@ -5103,8 +5222,17 @@ def test_baremetal_profile_contract() -> None:
     #: an $(eval) of a literal assignment.
     make_origin_ref_re = re.compile(
         r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
+    #: (#410, the review of round eight's head) The run between a built-in's
+    #: NAME and its first argument is make's WIDE class, like every other
+    #: token boundary: `lookup_function()` accepts the name only where
+    #: `MAP_NUL|MAP_SPACE` follows it and `handle_function()` then reaches the
+    #: arguments with `NEXT_TOKEN` (`src/function.c:272-287`, `:2610-2614`).
+    #: So `$(call<VT>NAME,...)` and `$(value<FF>NAME)` are the same reads as
+    #: their blank-separated spellings, and reading only the blank pair left
+    #: this closure blind to the name they defer.
     make_named_ref_re = re.compile(
-        r"[$][({](?:call|value)[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
+        r"[$][({](?:call|value)" + make_space +
+        r"+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
     #: (#410, round-three review) make's BUILT-IN function names. `$(call
@@ -5132,7 +5260,8 @@ def test_baremetal_profile_contract() -> None:
     #: at the price of a margin that costs nothing. The paired control is the
     #: measurement itself: make injects nothing for the leading-space form.
     make_builtin_call_re = re.compile(
-        r"[$][({][ \t]*call[ \t\n]+([A-Za-z][A-Za-z0-9_-]*)[ \t]*[,)}]")
+        r"[$][({][ \t]*call[ \t\v\f\r\n]+([A-Za-z][A-Za-z0-9_-]*)[ \t]*"
+        r"[,)}]")
 
     def referenced_names(value: str) -> list[str]:
         """Every literal variable name `value` reads: `$(NAME)`, `$(NAME:...)`
@@ -5295,8 +5424,8 @@ def test_baremetal_profile_contract() -> None:
             if opener == "$":
                 at += 2
                 continue
-            if opener not in "({" or not re.match(r"eval[ \t)}]",
-                                                   text[at + 2:at + 7]):
+            if opener not in "({" or not make_eval_head_re.match(
+                    text[at + 2:at + 7]):
                 at += 2
                 continue
             closer = ")" if opener == "(" else "}"
@@ -5320,7 +5449,8 @@ def test_baremetal_profile_contract() -> None:
     #: reads; a computed first argument has no literal name and is caught by
     #: computed_name_references() instead.
     make_first_arg_re = re.compile(
-        r"[$][({](?:call|value)[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
+        r"[$][({](?:call|value)" + make_space +
+        r"+([A-Za-z_][A-Za-z0-9_]*)[ \t]*[,)}]")
     #: A plain `$(IDENT)` / `${IDENT}` / `$(IDENT:sub)` variable read: the
     #: name whose value the walker can follow, as against a function call
     #: like `$(strip ...)` whose head is not a variable.
@@ -5459,6 +5589,28 @@ def test_baremetal_profile_contract() -> None:
     #: position-dependent answer more, not an exception for a spelling, so
     #: the fixture is in the table on BOTH sides of the boundary.
     #:
+    #: (The review of round eight's head) The last rows are make's WHITESPACE
+    #: CLASSES, the same two directions a fifth time and at the two positions
+    #: the round-seven rows did not reach. The token boundary moved then; the
+    #: run make CONSUMES did not, so an opener separated from its name by a
+    #: vertical tab opened no body and a leading vertical tab hid an opener, a
+    #: nested `define` and a genuine conditional alike -- each body's or
+    #: recipe's own `$(eval)` reading `global` and being WALKED, with all five
+    #: pre-plan scans empty. Every widened row here carries its
+    #: blank-separated counterpart, and the body-SUFFIX rows above are its
+    #: anti-widening arms: `do_define()` consumes the wide class at the head
+    #: of a body line and tests the narrow pair after the keyword, so this
+    #: repair moves the first and leaves the second, and a reader that moved
+    #: both would pass these rows and fail those. The precedence rows are the
+    #: other guard: the vertical tab is an ordinary NAME byte to
+    #: `parse_variable_definition()`, so `define<VT>= ready` and
+    #: `define<VT>MILAN_TMPL =` are assignments to the names those bytes form
+    #: and open nothing, while `define MILAN_TMPL <VT>=` is a genuine opener
+    #: whose flavour operator sits behind the name's own blank. The last pair
+    #: is that class one reader over, at a built-in's NAME, where
+    #: `$(eval<VT>...)` is the parse-time hook `$(eval ...)` is and both eval
+    #: scans were blind to it.
+    #:
     #: The fourth column is what a CLEAR scan MEANS, and it is deliberately
     #: not one answer for every row. `walked` says GNU make reads this text
     #: as a makefile and the eval is one this walker may then walk.
@@ -5545,6 +5697,71 @@ def test_baremetal_profile_contract() -> None:
                               "$(eval LABEL := ready)\n")
     ff_body_define_fixture = ("define helper\ndefine\finner\nendef\n"
                               "$(eval LABEL := ready)\n")
+    #: ... and the OTHER two places those bytes appear, which are the two the
+    #: rows above did not reach (#410, the review of round eight's head). The
+    #: first is the OPENER, whose keyword ends where any other token ends and
+    #: whose NAME make reaches with `next_token()`: `define<VT>helper` opens a
+    #: body named helper, and at the head this replaces it opened none, so the
+    #: body's own `$(eval)` read `global` and was WALKED. The second is the
+    #: LEADING run every one of make's three readers consumes before it reads
+    #: anything -- the outer reader's, the modifier loop's and the body
+    #: collector's -- so `<VT>define helper` opens a body, `<VT>define inner`
+    #: nests one inside a body, and `<VT>ifeq` is the conditional that leaves
+    #: a pending recipe open. Each has its blank-separated counterpart in the
+    #: table, and the body-suffix rows above are the anti-widening arms: this
+    #: repair moves the LEADING run of the body reader and leaves its SUFFIX
+    #: narrow, which is the pair of classes `do_define()` itself uses.
+    vt_open_define_fixture = ("define\vhelper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    ff_open_define_fixture = ("define\fhelper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    tab_open_define_fixture = ("define\thelper\n$(eval LABEL := ready)\n"
+                               "endef\n")
+    vt_lead_define_fixture = ("\vdefine helper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    ff_lead_define_fixture = ("\fdefine helper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    space_lead_define_fixture = (" define helper\n$(eval LABEL := ready)\n"
+                                 "endef\n")
+    vt_lead_body_define_fixture = ("define helper\n\vdefine inner\nendef\n"
+                                   "$(eval LABEL := ready)\nendef\n")
+    ff_lead_body_define_fixture = ("define helper\n\fdefine inner\nendef\n"
+                                   "$(eval LABEL := ready)\nendef\n")
+    space_lead_body_define_fixture = ("define helper\n define inner\nendef\n"
+                                      "$(eval LABEL := ready)\nendef\n")
+    vt_lead_body_endef_fixture = ("define helper\n\vendef\n"
+                                  "$(eval LABEL := ready)\n")
+    vt_lead_guarded_recipe_fixture = ("labels:\n\vifeq (ready,ready)\n"
+                                      "\t$(eval LABEL := ready)\nendif\n")
+    ff_lead_guarded_recipe_fixture = ("labels:\n\fifeq (ready,ready)\n"
+                                      "\t$(eval LABEL := ready)\nendif\n")
+    space_lead_guarded_recipe_fixture = ("labels:\n ifeq (ready,ready)\n"
+                                         "\t$(eval LABEL := ready)\nendif\n")
+    vt_lead_interrupted_recipe_fixture = ("labels:\n\vifdef MILAN_EXTRA\n"
+                                          "endif\n\t$(eval LABEL := ready)\n")
+    ff_lead_interrupted_recipe_fixture = ("labels:\n\fifdef MILAN_EXTRA\n"
+                                          "endif\n\t$(eval LABEL := ready)\n")
+    #: ... and make's assignment precedence at that same widened opener, which
+    #: is what keeps it honest: the vertical tab is an ordinary NAME byte to
+    #: `parse_variable_definition()`, so these three lines are assignments to
+    #: the names `define<VT>`, `define<FF>` and `define<VT>helper` and open no
+    #: body at all, exactly as `define = ready` opens none.
+    vt_assigned_define_fixture = "define\v= ready\n$(eval LABEL := ready)\n"
+    ff_assigned_define_fixture = "define\f:= ready\n$(eval LABEL := ready)\n"
+    vt_named_assigned_define_fixture = ("define\vhelper = ready\n"
+                                        "$(eval LABEL := ready)\n")
+    #: ... and the modifier run before an opener, which make reaches with
+    #: `next_token()` too.
+    vt_modifier_define_fixture = ("override\vdefine helper\n"
+                                  "$(eval LABEL := ready)\nendef\n")
+    #: ... and the same class one reader over, at the built-in's own name:
+    #: `$(eval<VT>...)` is the parse-time hook `$(eval ...)` is, and at the
+    #: head this replaces BOTH eval scans were blind to it -- the assignment
+    #: was invisible to the closure and the eval was invisible to the refusal.
+    vt_eval_head_fixture = ("$(eval\vMILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+                            "CFLAGS += $(MILAN_INCLUDES)\n")
+    vt_eval_head_body_fixture = ("define MILAN_TMPL\n$(eval\vCFLAGS += $(1))\n"
+                                 "endef\n")
     eval_scope_controls = (
         ("a recipe-prefixed endef is define BODY text, not the end of one",
          prefixed_endef_fixture, "define", "in a define body", None),
@@ -5666,6 +5883,65 @@ def test_baremetal_profile_contract() -> None:
          "CFLAGS += -g # a comment long enough to shift every offset\n"
          "define helper\n$(eval LABEL := ready)\nendef\n",
          "define", "in a define body", None),
+        ("a define a vertical tab separates from its NAME still opens a "
+         "body, because the opener's keyword ends at make's token boundary",
+         vt_open_define_fixture, "define", "in a define body", None),
+        ("... and a form feed opens one too",
+         ff_open_define_fixture, "define", "in a define body", None),
+        ("... and a tab, the other blank, which is the answer all four must "
+         "agree on",
+         tab_open_define_fixture, "define", "in a define body", None),
+        ("a vertical tab BEFORE a define opener is whitespace make consumes, "
+         "so the body it opens still scopes its eval",
+         vt_lead_define_fixture, "define", "in a define body", None),
+        ("... and a form feed before one is consumed the same way",
+         ff_lead_define_fixture, "define", "in a define body", None),
+        ("... and a space before one, the counterpart that already worked",
+         space_lead_define_fixture, "define", "in a define body", None),
+        ("a vertical tab before a NESTED define is consumed too, so the "
+         "first endef closes the inner body and the eval is still the "
+         "outer body's",
+         vt_lead_body_define_fixture, "define", "in a define body", None),
+        ("... and a form feed before one nests the same level",
+         ff_lead_body_define_fixture, "define", "in a define body", None),
+        ("... and a space before one, the counterpart",
+         space_lead_body_define_fixture, "define", "in a define body", None),
+        ("a vertical tab before an endef is consumed as well, so that endef "
+         "CLOSES the body and the eval after it is global",
+         vt_lead_body_endef_fixture, "global", None, "walked"),
+        ("a vertical tab before a genuine conditional leaves it a "
+         "conditional, so the pending rule stays open and its recipe eval is "
+         "refused",
+         vt_lead_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and a form feed before one leaves it a conditional too",
+         ff_lead_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and a space before one, the counterpart",
+         space_lead_guarded_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("a vertical tab before a conditional between a rule and its recipe "
+         "leaves that recipe open",
+         vt_lead_interrupted_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("... and a form feed before that one",
+         ff_lead_interrupted_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("an assignment whose NAME ends in a vertical tab is still an "
+         "assignment named define, so it opens no body",
+         vt_assigned_define_fixture, "global", None, "walked"),
+        ("... and one whose name ends in a form feed, in another of make's "
+         "operators",
+         ff_assigned_define_fixture, "global", None, "walked"),
+        ("... and one whose name is define, that byte and a word: two token "
+         "sets are an opener only when no operator follows them",
+         vt_named_assigned_define_fixture, "global", None, "walked"),
+        ("a modifier a vertical tab separates from its define still reaches "
+         "the opener, because make's modifier loop consumes that byte",
+         vt_modifier_define_fixture, "define", "in a define body", None),
+        ("an eval a vertical tab separates from its argument is the same "
+         "parse-time hook, so the assignment it carries is read and walked",
+         vt_eval_head_fixture, "global", None, "walked"),
+        ("... and the same eval inside a define body is refused by name",
+         vt_eval_head_body_fixture, "define", "in a define body", None),
     )
     for label, fixture, want_scope, want_refusal, clear_means in \
             eval_scope_controls:
@@ -5740,6 +6016,24 @@ def test_baremetal_profile_contract() -> None:
          vt_body_define_fixture, "define\vinner"),
         ("... and a form feed leaves the same one-line body",
          ff_body_define_fixture, "define\finner"),
+        ("a define a vertical tab separates from its NAME opens a body, and "
+         "that body is the line under it",
+         vt_open_define_fixture, "$(eval LABEL := ready)"),
+        ("... and a leading vertical tab before the opener leaves the same "
+         "body",
+         vt_lead_define_fixture, "$(eval LABEL := ready)"),
+        ("... and a modifier that byte separates from the opener too",
+         vt_modifier_define_fixture, "$(eval LABEL := ready)"),
+        ("a leading vertical tab before a NESTED define nests it, so the "
+         "body runs past the inner endef to the outer one",
+         vt_lead_body_define_fixture,
+         "\vdefine inner\nendef\n$(eval LABEL := ready)"),
+        ("... and a leading form feed nests the same level",
+         ff_lead_body_define_fixture,
+         "\fdefine inner\nendef\n$(eval LABEL := ready)"),
+        ("a leading vertical tab before an endef CLOSES the body, which is "
+         "the mirror direction and leaves an empty value",
+         vt_lead_body_endef_fixture, ""),
     )
     for label, fixture, want_body in define_body_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5771,6 +6065,30 @@ def test_baremetal_profile_contract() -> None:
         ("... and the TARGET-specific form of that operator is an "
          "assignment this closure walks, not a rule",
          "all: CFLAGS :::= -g\n", "CFLAGS", ["-g"]),
+        ("a genuine opener a vertical tab separates from its name binds its "
+         "BODY under that name",
+         "define\vMILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and a form feed separates the same opener",
+         "define\fMILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and a leading vertical tab before one binds the same body",
+         "\vdefine MILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... while that separator followed by a flavour operator is no "
+         "opener at all: make's own reader takes `define<VT>MILAN_TMPL =` as "
+         "an assignment to the name those two words and the byte make",
+         "define\vMILAN_TMPL =\n-I$(1)\nendef\n", "MILAN_TMPL", []),
+        ("... and a genuine opener whose flavour operator that byte follows "
+         "the name's BLANK of still binds its body, which is the same "
+         "precedence read from the other side",
+         "define MILAN_TMPL \v=\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("a leading vertical tab does not hide an ordinary assignment, "
+         "because make consumes it before it parses one",
+         "\vCFLAGS += -g\n", "CFLAGS", ["-g"]),
+        ("... and neither does one AFTER the blank that ends the name, which "
+         "is the run make skips with next_token",
+         "CFLAGS \v+= -g\n", "CFLAGS", ["-g"]),
+        ("... while a name that ENDS in that byte is a different name, one "
+         "no recipe in this file reads",
+         "CFLAGS\v+= -g\n", "CFLAGS", []),
     )
     for label, fixture, bound_name, want_values in define_precedence_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5809,6 +6127,14 @@ def test_baremetal_profile_contract() -> None:
         ("a genuine include is no rule either, however its argument is "
          "punctuated",
          included_eval_fixture, [], []),
+        ("a target behind a leading vertical tab is still a rule with its "
+         "recipe",
+         "\vlabels:\n\t$(eval LABEL := ready)\n", [["labels"]],
+         ["$(eval LABEL := ready)"]),
+        ("a genuine conditional behind one is still no rule",
+         "\vifdef MILAN_EXTRA\n$(eval LABEL := ready)\nendif\n", [], []),
+        ("a genuine include behind one is no rule either",
+         "\v-include $(OBJECTS:.o=.d)\n$(eval LABEL := ready)\n", [], []),
     )
     for label, fixture, want_targets, want_recipe in \
             directive_target_controls:
@@ -5889,7 +6215,17 @@ def test_baremetal_profile_contract() -> None:
         "`endef<VT>done` and `define<FF>inner` are body TEXT that delimits "
         "nothing (the recipe eval of the first pair used to read `global` and "
         "be walked, and one class for both stages would move that miss to the "
-        "second pair) -- and a value "
+        "second pair), the run make CONSUMES is that same wide class at every "
+        "reader that consumes one -- `define<VT>helper` opens a body, and so "
+        "does `<VT>define helper`, while `<VT>define inner` nests one and "
+        "`<VT>ifeq` leaves a pending recipe open (all four used to read "
+        "`global` and be walked) -- the assignment precedence still decides "
+        "the opener, so `define<VT>= ready` and `define<VT>MILAN_TMPL =` are "
+        "assignments to the names those bytes form while "
+        "`define MILAN_TMPL <VT>=` is a real opener, a built-in's NAME ends "
+        "at that wide class too so `$(eval<VT>...)`, `$(call<VT>NAME,...)` "
+        "and `$(value<FF>NAME)` are the hook and the reads their "
+        "blank-separated spellings are -- and a value "
         "ending in a bare `$` is "
         "refused by name instead of raising IndexError out of the diagnostic "
         "reader. Each is a CLASSIFICATION result; where a row expects no "
