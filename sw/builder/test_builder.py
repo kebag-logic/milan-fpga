@@ -4485,7 +4485,17 @@ def test_baremetal_profile_contract() -> None:
     #: of the ones someone thought of: `export` alone was enough to slip a
     #: narrower version of this.
     assign_prefix = r"(?:(?:override|export|unexport|private)[ \t]+)*"
-    assign_operators = r"=|:=|::=|\+=|\?=|!="
+    #: ... and make's assignment OPERATORS, all seven of them. The colon run
+    #: is written longest first because that is the order make's own reader
+    #: resolves it in: `parse_variable_definition()` takes a `:`, then tests
+    #: for `=`, for a second `:` and then a third, so `:` `:` `:` `=` is the
+    #: immediately expanded `:::=` and not a `::=` with a colon left over
+    #: (GNU make 4.4.1 `src/variable.c:1654-1674`; `doc/make.texi:5733`,
+    #: `:6132`). Omitting it was an ordinary assignment this reader could not
+    #: see at all: `define :::= ready` opened a body that is not there, so
+    #: the assignment bound nothing and a real global `$(eval)` after it read
+    #: `define` and was refused (#410, the review of round six's head).
+    assign_operators = r"=|:::=|::=|:=|\+=|\?=|!="
     assign_operator = r"(" + assign_operators + r")"
     #: One assignment to OBJECTS in any of those flavours. The cumulative ones
     #: are the point: reading `OBJECTS =` and stopping reports a
@@ -4552,10 +4562,33 @@ def test_baremetal_profile_contract() -> None:
             at += 1
         return "".join(out)
 
+    #: (#410, the review of round six's head) The end of a make TOKEN, which
+    #: is what makes a directive a directive. make reads the first word of a
+    #: line with `end_of_token()`, which stops at whitespace or the end of the
+    #: string and at nothing else (`src/misc.c:389`, `END_OF_TOKEN` over
+    #: `MAP_SPACE|MAP_NUL`), MEASURES that whole word (`src/read.c:769`) and
+    #: then compares it by LENGTH AND CONTENTS -- `word1eq` for the directives
+    #: and the include branch (`src/read.c:169`, `:865`), the same macro again
+    #: for the conditionals (`:1534`). So a directive keyword ends where a
+    #: blank or the line does, and `\b` is the wrong boundary for it: `\b`
+    #: ends a word at any punctuation, so an ordinary literal target spelled
+    #: `ifdef:`, `define:` or `include-labels:` read as a directive here, the
+    #: rule context those lines open was never opened, and the tab-prefixed
+    #: `$(eval)` that follows read `global` and was walked instead of being
+    #: refused for the recipe line it is on (`src/read.c:998` reaches target
+    #: parsing for such a line, `:672` takes the next prefixed line into the
+    #: recipe). It is a lookahead rather than a consuming group because both
+    #: readers below match a PREFIX of the line and a directive's arguments
+    #: follow the blank this stops at. The body-delimiter readers already
+    #: spelled the same rule inline; they share it now, so one token rule
+    #: answers for every place a keyword has to BE the word.
+    make_token_end = r"(?=[ \t]|\Z)"
     #: Directives that are not rules, however many colons they carry.
     make_directive_re = re.compile(
-        r"\A[ \t]*(?:-|s)?include\b|\A[ \t]*(?:export|unexport|override|"
-        r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)\b")
+        r"\A[ \t]*(?:-|s)?include" + make_token_end +
+        r"|\A[ \t]*(?:export|unexport|override|"
+        r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)" +
+        make_token_end)
     #: `include`, `-include` and `sinclude` lines, whole.
     makefile_include_re = re.compile(
         r"(?m)^[ \t]*((?:-|s)?include[ \t]+[^\n]*)$")
@@ -4595,7 +4628,7 @@ def test_baremetal_profile_contract() -> None:
     #: not the delimiter at all. Requiring the line to END after `endef`, as
     #: this pattern did, only ever agreed with make because every `#` in the
     #: file had already been cut out before the body was read.
-    make_endef_re = re.compile(r"\A[ \t]*endef(?=[ \t]|\Z)")
+    make_endef_re = re.compile(r"\A[ \t]*endef" + make_token_end)
     #: A `define` OPENER as make reads one, for scoping an eval rather than
     #: for naming a value: make_define_open_re above reads the NAME, so it is
     #: an identifier by construction, and a `define MILAN-TMPL` whose name is
@@ -4621,13 +4654,16 @@ def test_baremetal_profile_contract() -> None:
     #: WALKED and the body bound one line of five, and an `override define
     #: inner` opened a level that is not there, so a real global eval read
     #: `define` and was REFUSED and the body bound nothing at all.
-    make_nested_define_re = re.compile(r"\A[ \t]*define(?=[ \t]|\Z)")
+    make_nested_define_re = re.compile(r"\A[ \t]*define" + make_token_end)
     #: The CONDITIONAL directives, the one kind of non-recipe line make reads
     #: WITHOUT ending the rule context it is in: a conditional is evaluated as
     #: the makefile is read, so an `ifdef` between two recipe lines leaves the
     #: recipe it interrupts open (GNU make, "Conditional Parts of Makefiles").
+    #: Its keywords end where make ends a token, above: a bare `endif` or
+    #: `else` is the whole line and still a conditional, while an `ifdef:`
+    #: is a TARGET whose rule this reader must open.
     make_conditional_re = re.compile(
-        r"\A[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b")
+        r"\A[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)" + make_token_end)
 
     #: (#410, round-four review) The ROLE make reads each line in, which is
     #: what decides BOTH the lines a `define` body carries and the scope an
@@ -4690,7 +4726,20 @@ def test_baremetal_profile_contract() -> None:
     #: while `define MILAN_TMPL =` is two token sets, no assignment, and a
     #: real opener. That precedence belongs to the OUTER reader only: inside
     #: a body `do_define()` never parses an assignment, so the same
-    #: `define = ready` line is a nested delimiter there.
+    #: `define = ready` line is a nested delimiter there. It reaches every
+    #: assignment operator make HAS, `:::=` included, or the operator it
+    #: cannot see takes the precedence away from the line that has it
+    #: (#410, the review of round six's head).
+    #: (The review of round six's head) And the role every branch here picks
+    #: between is decided by make's TOKEN, not by a word boundary: a
+    #: directive keyword ends at a blank or at the end of the line, so
+    #: `ifdef:`, `define:` and `include-labels:` are literal TARGETS that
+    #: open a rule context and the tab-prefixed line after each is that
+    #: rule's recipe. Reading them as directives left the rule unopened, and
+    #: an `$(eval)` on that recipe line read `global` and was walked: the
+    #: promised recipe refusal was simply absent for an ordinary target whose
+    #: name happens to start with a keyword. make_token_end above is that
+    #: boundary, and the conditional and directive readers share it.
     make_comment_re = re.compile(r"#[^\n]*")
 
     def make_line_roles(makefile: str) -> list[tuple[int, int, str, str]]:
@@ -5399,6 +5448,26 @@ def test_baremetal_profile_contract() -> None:
     assigned_define_fixture = "define = ready\n$(eval LABEL := ready)\n"
     nested_assigned_define_fixture = ("define helper\ndefine = ready\nendef\n"
                                       "$(eval LABEL := ready)\nendef\n")
+    #: ... and the same three shapes in make's immediately expanded flavour,
+    #: the operator the reader could not see at all (#410, the review of
+    #: round six's head).
+    expanded_define_fixture = "define :::= ready\n$(eval LABEL := ready)\n"
+    nested_expanded_define_fixture = ("define helper\ndefine :::= ready\n"
+                                      "endef\n$(eval LABEL := ready)\nendef\n")
+    #: ... and the literal targets whose names BEGIN with a directive
+    #: keyword but are not one, beside an ordinary target spelled the same
+    #: way, and the genuine conditional and include those keywords belong to.
+    #: Each tab-prefixed line is the recipe of the rule the line above opens.
+    ifdef_target_fixture = "ifdef:\n\t$(eval LABEL := ready)\n"
+    define_target_fixture = "define:\n\t$(eval LABEL := ready)\n"
+    include_target_fixture = "include-labels:\n\t$(eval LABEL := ready)\n"
+    ordinary_target_fixture = "labels:\n\t$(eval LABEL := ready)\n"
+    guarded_eval_fixture = ("ifdef MILAN_EXTRA\n$(eval LABEL := ready)\n"
+                            "endif\n")
+    included_eval_fixture = ("-include $(OBJECTS:.o=.d)\n"
+                             "$(eval LABEL := ready)\n")
+    interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\nifdef MILAN_EXTRA\n"
+                                  "endif\n\t$(eval LABEL := ready)\n")
     eval_scope_controls = (
         ("a recipe-prefixed endef is define BODY text, not the end of one",
          prefixed_endef_fixture, "define", "in a define body", None),
@@ -5465,6 +5534,33 @@ def test_baremetal_profile_contract() -> None:
          "define", "in a define body", None),
         ("the same assignment spelling INSIDE a body is a nested delimiter",
          nested_assigned_define_fixture, "define", "in a define body", None),
+        ("an ordinary assignment named define opens no body in make's "
+         "immediately expanded flavour either",
+         expanded_define_fixture, "global", None, "walked"),
+        ("... and a modifier before that one is the same assignment too",
+         "override " + expanded_define_fixture, "global", None, "walked"),
+        ("... while the same flavour INSIDE a body nests like any other "
+         "first token",
+         nested_expanded_define_fixture, "define", "in a define body", None),
+        ("a target named for a conditional keyword is a target, so the "
+         "line after it is its recipe",
+         ifdef_target_fixture, "recipe", "on a recipe line", None),
+        ("... and so is one named for a body directive",
+         define_target_fixture, "recipe", "on a recipe line", None),
+        ("... and one whose name merely begins with an include keyword",
+         include_target_fixture, "recipe", "on a recipe line", None),
+        ("an ordinary target reads the same way, which is the answer all "
+         "four must agree on",
+         ordinary_target_fixture, "recipe", "on a recipe line", None),
+        ("a GENUINE conditional is still a directive, so the eval it "
+         "guards is global",
+         guarded_eval_fixture, "global", None, "walked"),
+        ("a genuine include is still a directive, and the eval after it is "
+         "global",
+         included_eval_fixture, "global", None, "walked"),
+        ("a genuine conditional between two recipe lines leaves the recipe "
+         "open, so the eval on the second is still refused",
+         interrupted_recipe_fixture, "recipe", "on a recipe line", None),
         ("a comment cut on an earlier line does not move an eval's own scope",
          "CFLAGS += -g # a comment long enough to shift every offset\n"
          "define helper\n$(eval LABEL := ready)\nendef\n",
@@ -5530,6 +5626,9 @@ def test_baremetal_profile_contract() -> None:
          "the outer endef",
          nested_assigned_define_fixture,
          "define = ready\nendef\n$(eval LABEL := ready)"),
+        ("an immediately expanded assignment spelling nests there too",
+         nested_expanded_define_fixture,
+         "define :::= ready\nendef\n$(eval LABEL := ready)"),
     )
     for label, fixture, want_body in define_body_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5551,6 +5650,16 @@ def test_baremetal_profile_contract() -> None:
          "override " + assigned_define_fixture, "define", ["ready"]),
         ("a genuine opener carrying a flavour operator binds its BODY",
          "define MILAN_TMPL =\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("an immediately expanded assignment named define binds its value",
+         expanded_define_fixture, "define", ["ready"]),
+        ("... and so does the same one behind a modifier",
+         "override " + expanded_define_fixture, "define", ["ready"]),
+        ("a genuine opener carrying THAT flavour operator still binds its "
+         "BODY, because two token sets are no assignment",
+         "define MILAN_TMPL :::=\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and the TARGET-specific form of that operator is an "
+         "assignment this closure walks, not a rule",
+         "all: CFLAGS :::= -g\n", "CFLAGS", ["-g"]),
     )
     for label, fixture, bound_name, want_values in define_precedence_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5560,7 +5669,52 @@ def test_baremetal_profile_contract() -> None:
             f"rather than {want_values}: make parses a variable definition " \
             "BEFORE it interprets a modifier or the `define` directive, so " \
             "an assignment named define is an assignment and a real opener " \
-            "is still an opener"
+            "is still an opener, in every operator make has: one this " \
+            "reader cannot see is a value reaching the compile that nothing " \
+            "here walks"
+    #: ... and the RULE reader must agree with the scope reader about which
+    #: of those lines opened a rule at all, the same way the define reader
+    #: has to agree about a body: a line the scope table above reads as a
+    #: target must be a rule HERE, with its targets and its recipe, and a
+    #: line it reads as a directive must be no rule at all. The two readers
+    #: share one directive pattern, so a boundary that is wrong in one is
+    #: wrong in both, and the recipe a rule carries is the other half of
+    #: "the following line is recipe-scoped". One row per keyword the
+    #: previous boundary mis-read, plus the ordinary target they must all
+    #: match and the genuine directives the correction must not eat.
+    directive_target_controls = (
+        ("a target named for a conditional keyword is a rule",
+         ifdef_target_fixture, [["ifdef"]], ["$(eval LABEL := ready)"]),
+        ("a target named for a body directive is a rule",
+         define_target_fixture, [["define"]], ["$(eval LABEL := ready)"]),
+        ("a target whose name begins with an include keyword is a rule",
+         include_target_fixture, [["include-labels"]],
+         ["$(eval LABEL := ready)"]),
+        ("an ordinary target is the same rule, which is what the three "
+         "above must read as",
+         ordinary_target_fixture, [["labels"]], ["$(eval LABEL := ready)"]),
+        ("a genuine conditional is no rule",
+         guarded_eval_fixture, [], []),
+        ("a genuine include is no rule either, however its argument is "
+         "punctuated",
+         included_eval_fixture, [], []),
+    )
+    for label, fixture, want_targets, want_recipe in \
+            directive_target_controls:
+        got = make_rules(fixture)[0]
+        assert [targets for targets, _prereqs, _recipe in got] == \
+            want_targets, \
+            f"with {label}, the rule reader found targets " \
+            f"{[t for t, _p, _r in got]} rather than {want_targets}: make " \
+            "compares a directive by the whole TOKEN its first word makes, " \
+            "so a literal target whose name merely begins with a keyword " \
+            "is a rule and a real directive is not"
+        assert [line for _targets, _prereqs, recipe in got
+                for line in recipe] == want_recipe, \
+            f"with {label}, the rule reader carried the recipe " \
+            f"{[l for _t, _p, r in got for l in r]} rather than " \
+            f"{want_recipe}: the line the scope reader calls recipe-scoped " \
+            "is the line this rule has to hold"
     #: ... and the `#` cut itself, which is where both of those start, pinned
     #: on the TEXT rather than only through its consequences: what make_source()
     #: leaves is what every reader above scans, and the single whole-file strip
@@ -5598,7 +5752,9 @@ def test_baremetal_profile_contract() -> None:
         "SCOPE reader, which is what the refusal above rests on, "
         f"{len(define_body_controls)} more hold the define reader to the "
         f"same body, {len(define_precedence_controls)} hold make's "
-        "assignment-before-directive precedence from the binding side and "
+        "assignment-before-directive precedence from the binding side, "
+        f"{len(directive_target_controls)} hold the rule reader to the same "
+        "directive TOKEN the scope reader uses and "
         f"{len(make_comment_controls)} pin where a `#` is cut at all: a "
         "recipe-prefixed `endef` is define BODY text and does "
         "not end the body (that eval used to read `global` and be walked), a "
@@ -5611,7 +5767,12 @@ def test_baremetal_profile_contract() -> None:
         "the body (the same two directions again, from cutting every `#` "
         "before the body was read at all), an ordinary assignment named "
         "`define` binds a variable and opens no body while the same "
-        "spelling inside a body nests, and a value ending in a bare `$` is "
+        "spelling inside a body nests -- in every one of make's seven "
+        "assignment operators, `:::=` included -- a literal target named "
+        "`ifdef:`, `define:` or `include-labels:` opens a rule whose next "
+        "line is a RECIPE while a genuine conditional or include opens none "
+        "(that recipe eval used to read `global` and be walked), and a value "
+        "ending in a bare `$` is "
         "refused by name instead of raising IndexError out of the diagnostic "
         "reader. Each is a CLASSIFICATION result; where a row expects no "
         "refusal it also says whether make reads that text as a makefile at "
