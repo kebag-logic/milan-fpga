@@ -9090,11 +9090,17 @@ def test_gptp_product_default_and_legacy_option() -> None:
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
     assert 'self._gptp_owner = "software"' not in soc_source
-    for launcher in ("sw/litex/sweep.sh", "sw/litex/build.sh",
-                     "sw/litex/sweep_extra.sh"):
+    for launcher in ("sw/litex/sweep.sh", "sw/litex/sweep_extra.sh"):
         source = (ROOT / launcher).read_text()
         assert "--fabric-gptp" in source
         assert "--no-fabric-gptp" not in source
+    # build.sh spells no design flag since #402: the owner flag its config
+    # emits is read off the launch line each recipe's own dry run prints.
+    for name in _build_sh_recipe_names():
+        for argv in _launcher_soc_argv(BUILD_SH, [name, "--dry-run"]):
+            assert "--fabric-gptp" in argv, \
+                f"build.sh {name}: no --fabric-gptp on its launch line"
+            assert "--no-fabric-gptp" not in argv
     print("  [gate 1c] fabric ownership is the only product configuration")
 
 
@@ -13500,10 +13506,20 @@ def _gptp_without_owner_flag(argv):
             if a not in ("--fabric-gptp", "--no-fabric-gptp")]
 
 
-def _launcher_soc_argv(script: Path, args):
-    """The milan_soc.py argv printed by a launcher's real dry-run path."""
+def _launcher_soc_argv(script: Path, args, env=None):
+    """The milan_soc.py argv printed by a launcher's real dry-run path.
+
+    `env` is the launcher's environment. By default it is the caller's with
+    BUILD_CFG REMOVED: that variable rebinds a build.sh recipe to another
+    config, so a shell that exported it (the documented one-call override)
+    would otherwise have every gate below grade ONE config three times
+    under three recipe names and stay green. A gate that is about the
+    override passes it explicitly, the way gate 23i does.
+    """
+    if env is None:
+        env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
     proc = subprocess.run(["bash", str(script)] + list(args), cwd=SOC_DIR,
-                          text=True, capture_output=True)
+                          text=True, capture_output=True, env=env)
     assert proc.returncode == 0, (
         f"{script.name} {' '.join(args)} dry-run failed "
         f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n"
@@ -13524,6 +13540,15 @@ def _launcher_soc_argv(script: Path, args):
     assert rows, (f"{script.name} {' '.join(args)} printed no "
                   f"milan_soc.py argv\n{proc.stdout[-2000:]}")
     return rows
+
+
+def _build_sh_recipe_names():
+    """Every `cfg_<name>()` build.sh declares, read out of it, in file order."""
+    names = re.findall(r"^cfg_(\w+)\(\)", BUILD_SH.read_text(encoding="utf-8"),
+                       re.M)
+    assert names, "build.sh declares no cfg_* recipe - the launcher was " \
+                  "reshaped and every gate reading it stopped testing anything"
+    return names
 
 
 def _gptp_instance_runs():
@@ -13805,10 +13830,12 @@ def _shell_recipes(path: Path, pattern, flags=0):
     """{name: argv} from a shell file, one entry per `pattern` match.
 
     `pattern` must capture (name, body).  The body is the raw shell word
-    salad a recipe echoes; `$SOC_DIR` is the only variable a recipe uses and
-    it resolves to sw/litex in every launcher, so it is the only one expanded
-    - anything else left unexpanded is an assertion failure rather than a
-    token silently handed to argparse with a `$` in it.
+    salad a recipe echoes; `$SOC_DIR` is the only variable a launcher's
+    recipe ever used and it resolves to sw/litex, so it is the only one
+    expanded - anything else left unexpanded is an assertion failure rather
+    than a token silently handed to argparse with a `$` in it.  build.sh is
+    no longer read this way (#402): its recipes carry no design literal, so
+    _recipe_cases takes its launch line from its own --dry-run instead.
     """
     text = path.read_text(encoding="utf-8")
     out = {}
@@ -13834,17 +13861,15 @@ def _recipe_cases():
     the recipe is refused for its own reasons and not for a missing one.
     """
     out = []
-    # build.sh: `cfg_<name>() { ... echo "<argv>" }`, tail from its own exec
-    # line, read out of build.sh rather than restated.
-    tail = re.search(r"exec python3 milan_soc\.py \$args \$\{EXTRA\[\*\]:-\}"
-                     r'(.*?)"\s*$', BUILD_SH.read_text(encoding="utf-8"),
-                     re.M)
-    assert tail, "build.sh no longer execs milan_soc.py the way this gate reads"
-    build_tail = shlex.split(tail.group(1).replace("$out", OUT_DIR_TOKEN))
-    for name, argv in _shell_recipes(
-            BUILD_SH, r'^cfg_(\w+)\(\)[^\n]*\n(?:[^\n]*\n)*?\s*echo "(.*?)"\n',
-            re.M | re.S).items():
-        out.append((f"build.sh cfg_{name}", argv + build_tail))
+    # build.sh: the launch line each recipe's own --dry-run prints, flow
+    # tail included (#402: the design argv is the builder's artefact, so
+    # there is no recipe text to read it from).  _launcher_soc_argv has
+    # already put the --output-dir token in place of the launcher's $out.
+    for name in _build_sh_recipe_names():
+        rows = _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])
+        assert len(rows) == 1, \
+            f"build.sh {name} --dry-run printed {len(rows)} launch lines, want 1"
+        out.append((f"build.sh cfg_{name}", rows[0]))
     # sweep.sh: OPTS per board from its own case table, plus the BASE tail and
     # the per-directive launch tail.
     sweep = SWEEP.read_text(encoding="utf-8")
@@ -14099,6 +14124,154 @@ def test_recipe_skip_classifier_bites() -> None:
           "Arty error and scopt's own refusal of an --l2-* argument are the "
           "only skip shapes, a stale #184 row and every other failure fail, "
           "and the toolchain skip fails --require-elaboration")
+
+
+#  gate 23i (issue #402) - build.sh CARRIES A DESIGN FLAG IT NEVER SPELLS.
+#
+#  The three named recipes used to restate the whole design argv as shell
+#  literals, kept equal to emit_soc_argv by scripts/check_sweep_shape.py; a
+#  new builder flag needed three edits and #155/#157/#362 record what the
+#  copies cost.  Since #402 a recipe reads its design argv from the
+#  builder's soc_params.json of the config it binds, regenerated in the same
+#  shell, and appends flow flags only.  This gate is the acceptance line:
+#  a flag planted in a throwaway config reaches the dry-run launch line with
+#  no edit to build.sh.
+
+
+def test_build_sh_argv_follows_the_config() -> None:
+    """gate 23i - a design flag planted in a config rides build.sh unedited.
+
+    A throwaway copy of the Arty recipe's config, under configs/ so the
+    launcher's --entity-gen-dir rule applies, prunes a block the real config
+    keeps; BUILD_CFG puts it on the `arty` recipe.  The launch line must carry
+    the prune flag although build.sh's text never spells it, its design part
+    must be the throwaway's own emit_soc_argv verbatim, and with the flag
+    taken out it must be the unplanted launch line: the flag rode the
+    artefact and nothing else moved.  A dry run needs no LiteX, so this gate
+    runs on every box.
+    """
+    flag = eb.OPTIONAL_BLOCKS["datapath_probes"][0]
+    assert flag not in BUILD_SH.read_text(encoding="utf-8"), \
+        f"build.sh spells {flag}; this gate needs a flag it does not"
+    before = _launcher_soc_argv(BUILD_SH, ["arty", "--dry-run"])[0]
+    assert flag not in before, f"the arty recipe already carries {flag}"
+    planted = ROOT / "configs" / "gate23i_planted.yaml"
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    cfg["board"]["features"]["datapath_probes"] = False
+    # A builder run on an rtl_table config rewrites the tracked CSR header
+    # in its name; a throwaway must never own the tree.
+    cfg["srp"]["rtl_table"] = False
+    planted.write_text(yaml.safe_dump(cfg))
+    try:
+        want = eb.emit_soc_argv(eb.load_config(planted))
+        env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
+        after = _launcher_soc_argv(BUILD_SH, ["arty", "--dry-run"], env)[0]
+    finally:
+        planted.unlink()
+        shutil.rmtree(ROOT / "configs/generated" / planted.stem,
+                      ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+    assert flag in after, f"{flag} did not reach the launch line: {after}"
+    assert flag in want, f"the builder did not emit {flag} for the plant"
+    # (design argv, --entity-gen-dir value, flow tail) of each launch line
+    split = [(argv[:argv.index("--entity-gen-dir")],
+              argv[argv.index("--entity-gen-dir") + 1],
+              argv[argv.index("--entity-gen-dir") + 2:])
+             for argv in (before, after)]
+    assert split[1][0] == want, ("the launch line's design part is not the "
+                                 f"throwaway's emit_soc_argv:\n got  "
+                                 f"{split[1][0]}\n want {want}")
+    assert [a for a in split[1][0] if a != flag] == split[0][0], \
+        "planting one flag moved another design flag on the launch line"
+    assert Path(split[1][1]).name == planted.stem, \
+        f"--entity-gen-dir {split[1][1]} does not name the throwaway config"
+    assert split[1][2] == split[0][2], \
+        f"the flow tail moved: {split[0][2]} -> {split[1][2]}"
+    print(f"  [gate 23i] {flag} planted in a throwaway config reached the "
+          f"build.sh arty launch line at position {after.index(flag)} of "
+          f"{len(after)} with build.sh unedited; the other "
+          f"{len(split[0][0])} design tokens and the {len(split[0][2])}-token "
+          "flow tail are the unplanted line's, verbatim")
+
+
+def test_build_sh_grades_its_own_bindings() -> None:
+    """gate 23i-b - an exported BUILD_CFG does not regrade the recipes.
+
+    BUILD_CFG is the documented one-call override, so an operator or a CI
+    step can have it exported while a gate runs.  Every gate here that reads
+    a build.sh launch line would then read the SAME config three times under
+    three recipe names and still report three recipes elaborating: the case
+    those gates exist for becomes invisible.  The reader strips it; this is
+    the arm that proves the reader strips it.
+    """
+    own = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+           for name in _build_sh_recipe_names()}
+    other = str(CONFIGS["ax7101_8x8"].relative_to(ROOT))
+    keep = os.environ.get("BUILD_CFG")
+    os.environ["BUILD_CFG"] = other
+    try:
+        under = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+                 for name in _build_sh_recipe_names()}
+    finally:
+        if keep is None:
+            del os.environ["BUILD_CFG"]
+        else:
+            os.environ["BUILD_CFG"] = keep
+    for name, argv in under.items():
+        assert argv == own[name], (
+            f"build.sh {name}: an exported BUILD_CFG={other} moved the "
+            f"launch line this gate reads\n under {argv}\n own   {own[name]}")
+    assert len({tuple(a) for a in own.values()}) == len(own), \
+        "the recipes print identical launch lines, so this arm proves nothing"
+    print(f"  [gate 23i-b] {len(own)} build.sh recipes keep their own "
+          f"bindings with BUILD_CFG={Path(other).name} exported")
+
+
+def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
+    """gate 23j - a dry run never leaves a tracked generated file moved.
+
+    Since #402 every dry run RUNS THE BUILDER, and a builder run writes
+    tracked generated files: this config's shape include, and - for any
+    config carrying `srp.rtl_table` - hdl/common/csr/gen/
+    lwsrp_csr_defaults.svh, the lwSRP CSR reset words that EVERY recipe's
+    gateware compiles.  A preview that rewrote those would change what the
+    next bitstream of any other recipe contains, and nothing on the launch
+    path would refuse it.  build.sh puts back whatever its regeneration
+    moved and refuses; this gate is that arm, planted with a throwaway
+    config whose reset words really do differ.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    before = csr.read_bytes()
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    assert cfg["srp"]["rtl_table"], \
+        "the throwaway must inherit the tracked-header ownership it tests"
+    cfg["srp"]["enable_at_reset"] = not cfg["srp"].get("enable_at_reset")
+    planted = ROOT / "configs" / "gate23j_planted.yaml"
+    planted.write_text(yaml.safe_dump(cfg))
+    env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
+    try:
+        proc = subprocess.run(["bash", str(BUILD_SH), "arty", "--dry-run"],
+                              cwd=SOC_DIR, text=True, capture_output=True,
+                              env=env)
+        after = csr.read_bytes()
+    finally:
+        planted.unlink()
+        shutil.rmtree(ROOT / "configs/generated" / planted.stem,
+                      ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+        csr.write_bytes(before)
+    assert proc.returncode != 0, (
+        "a dry run whose regeneration rewrites the tracked lwSRP CSR reset "
+        f"words exited 0\n{proc.stdout[-2000:]}")
+    assert "milan_soc.py" not in proc.stdout, \
+        f"it printed a launch line anyway\n{proc.stdout[-2000:]}"
+    assert eb.CSR_DEFAULTS_REL in proc.stderr, \
+        f"the refusal does not name the file it protected\n{proc.stderr[-2000:]}"
+    assert after == before, \
+        f"the dry run left {eb.CSR_DEFAULTS_REL} modified"
+    print(f"  [gate 23j] a dry run whose builder run would rewrite "
+          f"{Path(eb.CSR_DEFAULTS_REL).name} exited {proc.returncode} with no "
+          "launch line, and left the tracked bytes as it found them")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
@@ -16881,6 +17054,9 @@ if __name__ == "__main__":
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,
+               test_build_sh_argv_follows_the_config,
+               test_build_sh_grades_its_own_bindings,
+               test_build_sh_dry_run_leaves_the_tracked_tree,
                test_toolchain_patches_are_applied,
                test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
