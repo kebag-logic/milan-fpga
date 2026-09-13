@@ -206,18 +206,32 @@ tracked_generated_for() {
     # On its way to the artefact the builder also rewrites generated files
     # that are IN the tree: the lwSRP CSR reset words, which are TREE-WIDE
     # (one config carries srp.rtl_table and owns them, and every recipe's
-    # gateware compiles them), and whatever this config's own include
-    # directory holds - globbed rather than listed, so a file the builder
-    # starts writing there is covered the day it appears. A launcher must
-    # not move any of them behind the operator, so regenerate() puts back
-    # whatever its run changed and refuses - the way the entity definition
-    # already moves only on a deliberate --write-rtl. GEN_DIR is that
-    # include directory: the glob can only name files it ALREADY holds, so
-    # the directory a run creates is regenerate()'s CREATED_GEN instead.
+    # gateware compiles them), and this config's own shape include under
+    # GEN_DIR. A launcher must not move any of them behind the operator,
+    # so regenerate() puts back whatever its run changed and refuses - the
+    # way the entity definition already moves only on a deliberate
+    # --write-rtl.
+    # BOTH are NAMED here, because a file that is NOT there is exactly
+    # what the missing-file refusal in snapshot_tracked_generated exists
+    # for and a glob can only offer files that already exist: until #402
+    # round 4 the per-config half was globbed alone, so DELETING
+    # gen/adp_shape_defaults.svh escaped the protected set entirely and
+    # the next dry run recreated it and reported success. The glob stays
+    # BESIDE the name, for the day the builder starts writing a second
+    # file in there.
+    # The per-config half applies only once that include directory is in
+    # the tree. A config whose configs/generated/<stem>/gen this run
+    # CREATES has nothing in it to preserve - that is a new config's first
+    # build, and the directory is regenerate()'s CREATED_GEN instead.
     GEN_DIR="$REPO_ROOT/configs/generated/$(basename "$1" .yaml)"
     TRACKED_GEN=("$REPO_ROOT/hdl/common/csr/gen/lwsrp_csr_defaults.svh")
+    [ -d "$GEN_DIR/gen" ] || return 0
+    GEN_SHAPE="$GEN_DIR/gen/adp_shape_defaults.svh"
+    TRACKED_GEN+=("$GEN_SHAPE")
     for tracked in "$GEN_DIR/gen/"*; do
-        if [ -f "$tracked" ]; then TRACKED_GEN+=("$tracked"); fi
+        if [ -f "$tracked" ] && [ "$tracked" != "$GEN_SHAPE" ]; then
+            TRACKED_GEN+=("$tracked")
+        fi
     done
 }
 snapshot_tracked_generated() {

@@ -14111,19 +14111,24 @@ def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
 #  Gate 23j above grades the preservation when every command in it works.
 #  The commands it is made of can fail, and `regenerate` runs inside a
 #  command substitution where bash drops errexit, so nothing propagates on
-#  its own.  Three consequences were reachable and each is an arm here:
+#  its own.  Four consequences were reachable and each is an arm here:
 #
 #    * a snapshot that fails with nothing written let the builder run and
 #      the launch go ahead over a rewritten tracked header;
 #    * a snapshot interrupted part-way was copied back over the original,
 #      which is the operator's bytes replaced by a prefix of themselves;
-#    * a put-back that failed was still reported as "put back unchanged".
+#    * a put-back that failed was still reported as "put back unchanged";
+#    * a put-back that came out SHORT and reported success is a put-back
+#      by its exit status alone, so only comparing it with the snapshot it
+#      came from tells the operator's bytes from a prefix of them.
 #
 #  The arms break ONE command of the launcher's own PATH per run - the
 #  tracked build.sh is never edited - and grade the bytes on disk, the
 #  absence of a launch and a provenance line, and whether the refusal
-#  describes the state it actually left.  A fourth arm starts with the
-#  protected file ABSENT: the builder would recreate it, which silently
+#  describes the state it actually left.  Two further arms start with a
+#  protected file ABSENT - the tree-wide header, and the bound config's
+#  OWN include, which is the half a glob over existing files could not
+#  see - because the builder would recreate either, which silently
 #  reverses a local deletion, so the launcher refuses before it runs.
 
 
@@ -14134,10 +14139,12 @@ def _preservation_shim(tmp: Path, broken: str) -> Path:
     written, `partial` leaves a 32-byte prefix there and fails, `silent`
     leaves the same prefix and reports SUCCESS - the one a status check
     alone cannot see - `restore` fails the copy back INTO the repository,
-    and `mktemp` refuses the temporary directory itself.  Every other copy
-    is delegated to the real `cp`, so exactly one command of one run
-    misbehaves; no filesystem is filled and nothing outside the shim's own
-    directory is written.
+    `restore-silent` leaves a 32-byte prefix there and reports SUCCESS -
+    the put-back a status check alone calls a put-back - and `mktemp`
+    refuses the temporary directory itself.  Every other copy is delegated
+    to the real `cp`, so exactly one command of one run misbehaves; no
+    filesystem is filled and nothing outside the shim's own directory and
+    the one protected file is written.
     """
     real = shutil.which("cp", path=os.defpath)
     assert real, "this host has no cp for the shim to delegate to"
@@ -14148,6 +14155,8 @@ def _preservation_shim(tmp: Path, broken: str) -> Path:
         "partial": f'{into_repo} exec {real} "$@";; esac\n{short}exit 71\n',
         "silent": f'{into_repo} exec {real} "$@";; esac\n{short}exit 0\n',
         "restore": f'{into_repo} exit 72;; esac\nexec {real} "$@"\n',
+        "restore-silent": f'{into_repo} {short}exit 0;; esac\n'
+                          f'exec {real} "$@"\n',
         "mktemp": "exit 70\n",
     }
     where = tmp / broken
@@ -14257,20 +14266,112 @@ def _launch_over_a_failed_snapshot(tmp: Path, before: bytes) -> None:
         "was rewritten although the file it protects could not be copied")
 
 
+def _failed_put_back(broken: str, why: str, tmp: Path, planted: Path,
+                     before: bytes, gen: Path) -> bytes:
+    """One arm whose put-back did not complete, and what it left on disk.
+
+    The two ways it can not complete are one requirement: the copy back
+    can FAIL, and it can write a SHORT file and report SUCCESS, which
+    only the comparison with the snapshot it came from tells apart.
+    Either way the refusal must say the file is still the run's output,
+    name a copy that holds the bytes the run found, claim no put-back,
+    and leave no include directory behind.  What the arm left on disk is
+    returned for the caller to grade, and the header is put back here.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    proc = _run_broken_preservation(broken, tmp, planted)
+    _assert_refused(proc, why, "PUTTING THEM BACK")
+    kept = _kept_copy(proc.stderr, eb.CSR_DEFAULTS_REL)
+    assert kept.read_bytes() == before, (
+        f"{kept} is not the bytes this run found; a put-back that did not "
+        "complete discarded the only copy of them")
+    assert "put back unchanged" not in proc.stderr, (
+        "the refusal claims it put the file back and it did not:\n"
+        f"{proc.stderr[-2000:]}")
+    assert not gen.exists(), \
+        f"the refused run left {gen.relative_to(ROOT)} behind"
+    left = csr.read_bytes()
+    shutil.rmtree(kept.parent, ignore_errors=True)
+    csr.write_bytes(before)
+    return left
+
+
+def _bound_config_include(recipe: str) -> Path:
+    """The tracked include a build.sh recipe's own bound config writes.
+
+    Read off the launcher's own `--entity-gen-dir` - the include
+    directory it points THIS launch at - joined with the builder's own
+    `ADP_SHAPE_INCLUDE`, so neither the recipe's config binding nor the
+    name of the file the builder writes there is restated here.
+    """
+    argv = _launcher_soc_argv(BUILD_SH, [recipe, "--dry-run"])[0]
+    gen_dir = Path(argv[argv.index("--entity-gen-dir") + 1])
+    return gen_dir / eb.ADP_SHAPE_INCLUDE
+
+
+def _absent_bound_config_include(before: bytes) -> None:
+    """The absence arm over the BOUND CONFIG's own tracked include.
+
+    The tree-wide CSR header is spelled in the launcher's text; this one
+    lives under `configs/generated/<stem>/gen` and was DISCOVERED, by a
+    glob over the files that were there - so removing it took it out of
+    the protected set altogether and the next dry run recreated it with
+    a launch line, a provenance line and exit 0.  It owes what the
+    header owes: a refusal before the builder runs, the absence left
+    alone, and the artefact not rewritten.  `before` is the header,
+    which this run copies aside and must not move before refusing at the
+    include.
+    """
+    recipe = _build_sh_recipe_names()[0]
+    include = _bound_config_include(recipe)
+    rel = include.relative_to(ROOT)
+    assert include.is_file(), (
+        f"{rel}: the {recipe} recipe's bound config carries no tracked "
+        "include, so this arm would grade nothing")
+    artefact = OUT / include.parent.parent.name / "soc_params.json"
+    keep = include.read_bytes()
+    mode = include.stat().st_mode
+    stamp = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    try:
+        include.unlink()
+        proc = _run_broken_preservation(None, recipe=recipe)
+        _assert_refused(proc, f"{rel} was absent", "MISSING from the tree")
+        assert str(rel) in proc.stderr, \
+            f"the refusal does not name it:\n{proc.stderr[-2000:]}"
+        assert not include.exists(), (
+            f"a run that found {rel} absent recreated it, silently "
+            "reversing a local deletion")
+        now = artefact.stat().st_mtime_ns if artefact.is_file() else None
+        assert now == stamp, (
+            f"it ran the builder although {rel} was absent: {artefact} was "
+            "rewritten")
+    finally:
+        include.write_bytes(keep)
+        include.chmod(mode)
+    assert (ROOT / eb.CSR_DEFAULTS_REL).read_bytes() == before, \
+        f"it refused at {rel} and still moved {eb.CSR_DEFAULTS_REL}"
+
+
 def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
     """gate 23k - a broken snapshot or put-back never costs tracked bytes.
 
-    Seven arms over the throwaway config of gate 23j, each grading the
-    real file on disk: a refused temporary directory, a snapshot that
-    fails with nothing written, one that comes out short and says so, one
-    that comes out short and reports success, the same broken snapshot as
-    a real LAUNCH rather than a preview, a put-back that fails after the
-    builder really did rewrite the header, and the header ABSENT before
-    the run.  The first five must leave the header byte-identical and
-    prove the builder never ran, by the include directory it would have
-    created not being there.  The put-back arm must say what is still the
-    run's output, keep the operator's bytes in a copy it names, and not
-    claim it put anything back.  The absent arm must leave it absent.
+    Nine arms, eight over the throwaway config of gate 23j and each
+    grading the real file on disk: a refused temporary directory, a
+    snapshot that fails with nothing written, one that comes out short
+    and says so, one that comes out short and reports success, the same
+    broken snapshot as a real LAUNCH rather than a preview, a put-back
+    that fails after the builder really did rewrite the header, one that
+    comes out short and reports success, and the header ABSENT before the
+    run.  The ninth starts with the BOUND CONFIG's own tracked include
+    absent instead, the half of the protected set a glob over existing
+    files cannot offer.  The first five must leave the header
+    byte-identical and prove the builder never ran, by the include
+    directory it would have created not being there.  The two put-back
+    arms must say what is still the run's output, keep the operator's
+    bytes in a copy they name, and not claim they put anything back; the
+    short one must leave exactly the prefix that copy wrote, which is the
+    state a status check alone reports as a restoration.  The absent arms
+    must leave it absent.
     """
     csr = ROOT / eb.CSR_DEFAULTS_REL
     before = csr.read_bytes()
@@ -14291,22 +14392,18 @@ def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
                     f"a failed {broken} snapshot still let the builder write "
                     f"{gen.relative_to(ROOT)}")
             _launch_over_a_failed_snapshot(Path(td), before)
-            proc = _run_broken_preservation("restore", Path(td), planted)
-            _assert_refused(proc, "the put-back failed", "PUTTING THEM BACK")
-            kept = _kept_copy(proc.stderr, eb.CSR_DEFAULTS_REL)
-            assert kept.read_bytes() == before, (
-                f"{kept} is not the bytes this run found; a failed put-back "
-                "discarded the only copy of them")
-            assert csr.read_bytes() != before, (
+            left = _failed_put_back("restore", "the put-back failed",
+                                    Path(td), planted, before, gen)
+            assert left != before, (
                 "the arm did not reach a failed put-back: "
                 f"{eb.CSR_DEFAULTS_REL} was never rewritten")
-            assert "put back unchanged" not in proc.stderr, (
-                "the refusal claims it put the file back and it did not:\n"
-                f"{proc.stderr[-2000:]}")
-            assert not gen.exists(), (
-                f"the refused run left {gen.relative_to(ROOT)} behind")
-            shutil.rmtree(kept.parent, ignore_errors=True)
-            csr.write_bytes(before)
+            left = _failed_put_back("restore-silent", "the put-back came out "
+                                    "short and reported success", Path(td),
+                                    planted, before, gen)
+            assert left == before[:32], (
+                "the arm did not reach a put-back that reported success over "
+                f"a short file: {eb.CSR_DEFAULTS_REL} holds neither the "
+                "operator's bytes nor the 32-byte prefix that copy wrote")
             csr.unlink()
             proc = _run_broken_preservation(None, planted=planted)
             _assert_refused(proc, "the protected file was absent",
@@ -14316,6 +14413,8 @@ def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
                 "silently reversing a local deletion")
             assert not gen.exists(), \
                 "it ran the builder although it could not preserve the tree"
+            csr.write_bytes(before)
+            _absent_bound_config_include(before)
     finally:
         planted.unlink(missing_ok=True)
         shutil.rmtree(gen, ignore_errors=True)
@@ -14323,10 +14422,13 @@ def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
         csr.write_bytes(before)
     print(f"  [gate 23k] over {Path(eb.CSR_DEFAULTS_REL).name}: a refused "
           "temporary directory, a copy that failed, one short and loud, one "
-          "short and silent, the first as a real launch, a failed put-back "
-          "and an absent file each refused with no launch line, no "
-          "provenance line, the bytes on disk untouched or named with the "
-          "copy kept for them, and no include directory left behind")
+          "short and silent, the first as a real launch, a failed put-back, "
+          "one short and reporting success, and an absent file each refused "
+          "with no launch line, no provenance line, the bytes on disk "
+          "untouched or named with the copy kept for them, and no include "
+          f"directory left behind; and over {Path(eb.ADP_SHAPE_INCLUDE).name} "
+          "the bound config's own absent include refused the same way, with "
+          "its artefact not rewritten")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
