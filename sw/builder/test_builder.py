@@ -1799,7 +1799,7 @@ def _assert_no_computed_variable_names(makefile, computed_name_references):
     #: origin probe all green -- the walker probed X, origin 'file' --
     #: while MILAN_EXTRA='-include ../shadow.h' in a real build's
     #: environment reached the compile line. The scan is over the whole
-    #: comment-stripped text, recipes of never-run rules included,
+    #: text make reads, recipes of never-run rules included,
     #: deliberately WIDER than the origin closure: refusal is the sound
     #: arm where modelling cannot be, and the COST is stated in the
     #: verdict -- a computed name is RED even where a plain undefined
@@ -1832,7 +1832,7 @@ def _assert_no_opaque_evals(makefile, opaque_evals):
     #: this round: `$(eval $(MILAN_HOOK))` with MILAN_HOOK='CFLAGS +=
     #: -include ../shadow.h' in the environment carried the WHOLE
     #: assignment into the real compile line while every instrument was
-    #: green. The scan is over the whole comment-stripped text, like the
+    #: green. The scan is over the whole text make reads, like the
     #: computed-name refusal, and the COST is the same: an eval that is
     #: not a whole-line literal assignment is RED anywhere in the
     #: Makefile, a never-run recipe included. It keys on the literal
@@ -1865,8 +1865,8 @@ def _assert_no_builtin_calls(makefile, builtin_function_calls):
     #: `eval` as the plain name it is. The rule is the BUILT-IN, not the
     #: spelling -- `$(call file,>frag,TEXT)` writes at parse time the
     #: fragment a pinned `-include` then reads (measured) -- so every
-    #: built-in reached this way is refused, over the whole
-    #: comment-stripped text like the computed-name and opaque-eval
+    #: built-in reached this way is refused, over the whole text make
+    #: reads like the computed-name and opaque-eval
     #: refusals, in both bracket spellings and with any padding. It does
     #: NOT close the DIRECT spellings `$(shell ...)`, `$(file ...)` and
     #: `$(guile ...)`: those stay in the recorded-not-ruled list, because
@@ -4585,7 +4585,17 @@ def test_baremetal_profile_contract() -> None:
         r"\A[ \t]*" + assign_prefix +
         r"define[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
         assign_operators + r")?[ \t]*\Z")
-    make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
+    #: ... and `endef` as the BODY reader recognises it (#410, the review of
+    #: round five's head): `do_define` takes the body line's first token and
+    #: ends the body when that token IS `endef` -- `len == 5`, the token is
+    #: the whole line, or `ISBLANK (p[5])`, something follows a BLANK
+    #: (`src/read.c:1472-1476`). What follows the blank is removed as a
+    #: comment, or reported as extraneous text, AFTER the delimiter has been
+    #: recognised, so `endef #done` closes the body and `endef#literal` is
+    #: not the delimiter at all. Requiring the line to END after `endef`, as
+    #: this pattern did, only ever agreed with make because every `#` in the
+    #: file had already been cut out before the body was read.
+    make_endef_re = re.compile(r"\A[ \t]*endef(?=[ \t]|\Z)")
     #: A `define` OPENER as make reads one, for scoping an eval rather than
     #: for naming a value: make_define_open_re above reads the NAME, so it is
     #: an identifier by construction, and a `define MILAN-TMPL` whose name is
@@ -4650,49 +4660,103 @@ def test_baremetal_profile_contract() -> None:
     #: is the body line's first token and carries no modifier. So the two
     #: patterns are separate above, and this loop picks by POSITION -- inside
     #: a body or not -- rather than by spelling.
-    def make_line_roles(text: str) -> list[tuple[int, int, str, str]]:
-        """`(start, end, line, role)` for every line of comment-stripped,
-        continuation-joined `text`.
+    #: (The review of round five's head) A THIRD thing make decides by
+    #: position is where a `#` ends a line. Every reader below used to scan
+    #: text a single `(?m)#[^\n]*` had already cut out of the whole file, and
+    #: make does not read a file that way: `eval()` collapses continuations
+    #: and calls `remove_comments()` on the line it is about to parse, but a
+    #: `define` body is collected by `do_define()`, which stores the line as
+    #: it stands and cuts a comment only off the REMAINDER of an `endef` it
+    #: has already recognised (GNU make 4.4.1 `src/read.c:718-719` against
+    #: `:1456-1494`). Cutting first is what made `endef#literal` look like a
+    #: delimiter and `define#literal` like a nested one, both MEASURED at the
+    #: head this replaces: the first ended a body that does not end, so the
+    #: body's own `$(eval)` read `global` and was walked and `helper` bound
+    #: the empty string, and the second opened a level that is not there, so
+    #: a real global eval read `define` and was refused and `helper` bound
+    #: nothing. So the comment is cut HERE, per line, by the role make reads
+    #: that line in, and every reader below scans what this leaves.
+    #: A recipe line keeps its `#` for the same reason: make hands the line
+    #: to the shell rather than parsing it (`src/read.c:672-701`, the
+    #: command branch, which returns before `remove_comments()`).
+    #: ... and the last one is that an opener is not a directive at all where
+    #: make's outer reader parses an ASSIGNMENT first: `eval()` calls
+    #: `parse_var_assignment()` on the line before anything interprets a
+    #: modifier or the `define` directive, and that returns as soon as
+    #: `parse_variable_definition()` finds an assignment operator behind at
+    #: most one run of blanks (`src/read.c:727-752`, `src/variable.c:1610`).
+    #: So `define = ready` is an ordinary assignment NAMED define, with no
+    #: body at all, and `override define = ready` is the same assignment --
+    #: while `define MILAN_TMPL =` is two token sets, no assignment, and a
+    #: real opener. That precedence belongs to the OUTER reader only: inside
+    #: a body `do_define()` never parses an assignment, so the same
+    #: `define = ready` line is a nested delimiter there.
+    make_comment_re = re.compile(r"#[^\n]*")
+
+    def make_line_roles(makefile: str) -> list[tuple[int, int, str, str]]:
+        """`(start, end, line, role)` for every line of `makefile` AS MAKE
+        READS IT: continuations joined, and each `#` comment cut where make
+        cuts it rather than everywhere.
 
         The role is `open` for the line opening an outermost `define`, `body`
         for the text that body carries, `close` for the `endef` that ends it,
         `recipe` for a recipe line, and `global` for a line make reads as
         makefile syntax at global scope.
 
-        A `define` line is read as an OPENER only outside a body and as a
-        NESTED delimiter only inside one, because make recognises the word
-        differently in the two places."""
-        masked, roles, offset = unexpanded(text), [], 0
+        A `define` line is read as an OPENER only outside a body, as a NESTED
+        delimiter only inside one, and as an ordinary assignment wherever
+        make's outer reader parses one, because make recognises the word
+        differently in each place.
+
+        The offsets are into make_source() below, the text these lines make
+        up. Reading that text again gives the same lines and the same roles,
+        which is what lets a consumer holding it ask for the role at an
+        offset in it."""
+        roles, offset = [], 0
         depth, in_rule = 0, False
-        for body in text.split("\n"):
-            start, offset = offset, offset + len(body) + 1
+        for raw in re.sub(r"\\\n", " ", makefile).split("\n"):
+            body, role = raw, "body"
             if depth:
-                role = "body"
-                if not body.startswith("\t"):
-                    if make_nested_define_re.match(body):
+                if not raw.startswith("\t"):
+                    if make_nested_define_re.match(raw):
                         depth += 1
-                    elif make_endef_re.match(body):
-                        depth -= 1
-                        role = "body" if depth else "close"
-                roles.append((start, offset, body, role))
-                continue
-            if body.startswith("\t") and in_rule:
-                roles.append((start, offset, body, "recipe"))
-                continue
-            if not body.strip() or make_conditional_re.match(body):
-                roles.append((start, offset, body, "global"))
-                continue
-            in_rule = False
-            if make_define_scope_re.match(body):
-                depth = 1
-                roles.append((start, offset, body, "open"))
-                continue
-            if not make_directive_re.match(body):
-                head = masked[start:start + len(body)]
-                colon = re.search(r"::?(?!=)", head)
-                in_rule = bool(colon) and "=" not in head[:colon.start()]
-            roles.append((start, offset, body, "global"))
+                    else:
+                        ended = make_endef_re.match(raw)
+                        if ended:
+                            body = raw[:ended.end()] + \
+                                make_comment_re.sub("", raw[ended.end():])
+                            depth -= 1
+                            role = "body" if depth else "close"
+            elif raw.startswith("\t") and in_rule:
+                role = "recipe"
+            else:
+                body, role = make_comment_re.sub("", raw), "global"
+                if body.strip() and not make_conditional_re.match(body):
+                    in_rule = False
+                    if make_define_scope_re.match(body) and \
+                            not target_assign_re.match(body):
+                        depth, role = 1, "open"
+                    elif not make_directive_re.match(body):
+                        head = unexpanded(body)
+                        colon = re.search(r"::?(?!=)", head)
+                        in_rule = bool(colon) and \
+                            "=" not in head[:colon.start()]
+            start, offset = offset, offset + len(body) + 1
+            roles.append((start, offset, body, role))
         return roles
+
+    def make_source(makefile: str) -> str:
+        """`makefile` as make reads it: continuations joined, and every `#`
+        comment cut where make cuts one and nowhere else.
+
+        This is the text EVERY reader below scans, so none of them can
+        disagree with the role reader -- or with each other -- about what
+        this file says. It is what the single whole-file comment strip they
+        each used to run was meant to be, and was not: a define body keeps
+        its text, so its delimiters are still the ones make recognises."""
+        return "\n".join(line
+                         for _start, _end, line, _role
+                         in make_line_roles(makefile))
 
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
@@ -4736,7 +4800,7 @@ def test_baremetal_profile_contract() -> None:
     #: of a called template, of a plain reference, nested inside another
     #: expansion, or carrying a rule, because the parsed text is whatever
     #: the expansion yields and no walk over this file can enumerate it.
-    #: The line-of-its-own test reads the joined, comment-stripped text, so a
+    #: The line-of-its-own test reads the joined text make reads, so a
     #: whole-line eval inside a define body or a recipe is read here too. That
     #: used to be recorded as "an over-approximation when that text never
     #: expands, never a miss", and the round-four review measured the claim
@@ -4749,8 +4813,8 @@ def test_baremetal_profile_contract() -> None:
     #: shape this reads can be bound at all is unbindable_evals()' to judge
     #: and make_plan()'s to refuse, before any plan runs.
     def make_evals(text: str) -> tuple[list[tuple[str, str]], list[str]]:
-        """`(assignments, opaque)` for every `$(eval ...)` in comment-stripped,
-        continuation-joined `text`: the whole-line literal assignments the
+        """`(assignments, opaque)` for every `$(eval ...)` in `text` as
+        make_source() leaves it: the whole-line literal assignments the
         walker reads as a SHAPE, and the spelling of each eval it cannot.
 
         A shape read here is not yet a shape the walker can bind: an eval in
@@ -4790,17 +4854,17 @@ def test_baremetal_profile_contract() -> None:
             list[tuple[str, str]]]:
         """`(rules, assignments)` for `makefile`.
 
-        A rule is `(targets, prerequisites, recipe)`. Continuations are joined
-        and comments dropped first, so a rule reads the way make reads it and
-        not the way the file happens to be wrapped. A line whose colon lives
-        inside an expansion is not a rule, and a directive is not a rule
-        however it is punctuated.
+        A rule is `(targets, prerequisites, recipe)`. make_source() joins the
+        continuations and drops the comments make drops first, so a rule
+        reads the way make reads it and not the way the file happens to be
+        wrapped or commented. A line whose colon lives inside an expansion is
+        not a rule, and a directive is not a rule however it is punctuated.
 
         `assignments` carries BOTH global and target-specific ones, because
         make does not distinguish them where it matters here: an
         `all: CFLAGS += -include x.c` reaches the compile of every
         prerequisite of `all`, which is the one object."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         masked, rules, current, at = unexpanded(text), [], None, 0
         assignments = [(m.group(1), m.group(2))
                        for m in makefile_assign_re.finditer(text)]
@@ -4822,6 +4886,10 @@ def test_baremetal_profile_contract() -> None:
         #: is outside the identifier class binds nothing this closure can
         #: walk, so it is consumed and not recorded -- what such a define
         #: still REACHES is eval_scope_at()'s to answer.
+        #: (The review of round five's head) The body carries the BYTES make
+        #: stores, which is why the comment cut moved into that reader: a
+        #: body line is stored as it stands, so `endef#literal` is a line of
+        #: this value and not the end of it.
         opened = None
         for _start, _end, body, role in make_line_roles(text):
             if role == "open":
@@ -4998,7 +5066,7 @@ def test_baremetal_profile_contract() -> None:
         nothing. A reference nested in a function's ARGUMENTS
         (`$(patsubst %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and
         walked normally, so the accepted DEPFILES idiom stays green."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         found, at, size = [], 0, len(text)
 
         def name_span(start: int) -> tuple[int, bool]:
@@ -5041,15 +5109,14 @@ def test_baremetal_profile_contract() -> None:
     def opaque_evals(makefile: str) -> list[str]:
         """Every `$(eval ...)` in `makefile` the walker cannot read as a
         whole-line literal assignment, for make_plan() to refuse."""
-        return make_evals(re.sub(r"(?m)#[^\n]*", "",
-                                 re.sub(r"\\\n", " ", makefile)))[1]
+        return make_evals(make_source(makefile))[1]
 
     def builtin_function_calls(makefile: str) -> list[str]:
         """Every `$(call NAME,...)`/`${call NAME,...}` in `makefile` whose
         first argument names a make BUILT-IN function, for make_plan() to
         refuse: `call` dispatches to the built-in, so the construct is that
         built-in in a spelling no scan for its own token can see."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         return [re.sub(r"\s+", " ",
                        text[hit.start():expansion_end(text, hit.start())]
                        ).strip()
@@ -5061,7 +5128,7 @@ def test_baremetal_profile_contract() -> None:
         Makefile gives a value that spans LINES, for make_plan() to refuse:
         make parses the expansion, so such a value adds makefile lines the
         walker reads as the one assignment it parsed."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         parsed = make_evals(text)[0]
         if not parsed:
             return []
@@ -5099,7 +5166,11 @@ def test_baremetal_profile_contract() -> None:
         recipe line is one the default tab prefix opens IN A RULE CONTEXT.
         Under a non-tab `.RECIPEPREFIX` the prefix character leaves the eval's
         own line non-empty around it, so make_evals() files it opaque
-        instead."""
+        instead.
+
+        `text` is make_source() text, whose comments are already cut where
+        make cuts them; the role reader leaves that text alone, so the
+        offsets its caller scanned are the offsets answered here."""
         for start, end, _body, role in make_line_roles(text):
             if start <= at < end:
                 if role in ("body", "close"):
@@ -5116,7 +5187,15 @@ def test_baremetal_profile_contract() -> None:
         assignment when its argument parses as `NAME op VALUE` and its joined
         line carries nothing else; here each is also tagged by the scope its
         offset falls in, so make_plan() can refuse the ones the walker cannot
-        expand at global scope."""
+        expand at global scope.
+
+        `text` is read through make_source() first, which is what makes the
+        offsets this scan finds the offsets eval_scope_at() answers. Its own
+        caller already hands it that text and the reader is idempotent over
+        it, so this costs nothing there; it is what a caller handing over
+        FILE text needs, because a comment cut on an earlier line moves every
+        offset after it and would answer a later line's role for this one."""
+        text = make_source(text)
         scoped, at, size = [], 0, len(text)
         while at < size:
             if text[at] != "$":
@@ -5165,7 +5244,7 @@ def test_baremetal_profile_contract() -> None:
         name the walker cannot bind -- a positional parameter, a computed or
         single-character reference, an escaped $$ the eval's expansion turns
         into a live reference, or a value that ENDS in a bare $."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         by_name: dict[str, list[str]] = {}
         for name, value in make_rules(makefile)[1]:
             by_name.setdefault(name, []).append(value)
@@ -5257,13 +5336,38 @@ def test_baremetal_profile_contract() -> None:
     #: refusals are in the table as its ANTI-VACUITY arms: a control that
     #: cannot tell the three scopes apart proves nothing about any of them.
     #:
-    #: (The review of round four's head) The last two rows are the DELIMITER
+    #: (The review of round four's head) The next two rows are the DELIMITER
     #: boundary, where the opener's spelling was reused for the nested one
     #: and the same two directions came back one layer in: a bare `define`
     #: token nests in make and did not here, so the body's eval read `global`
     #: and was walked, and an `override define inner` does NOT nest in make
     #: and did here, so a global eval read `define` and was refused. Both are
     #: `src/read.c`'s own two grammars, cited at make_nested_define_re.
+    #:
+    #: (The review of round five's head) The rows after those are the COMMENT
+    #: boundary, the same two directions a third time, from the whole-file
+    #: `#` strip every reader ran before it read anything: `endef#literal` is
+    #: not a delimiter in make and ended a body here, so the body's eval read
+    #: `global` and was walked and the body bound the empty string, and
+    #: `define#literal` does not nest in make and did here, so a global eval
+    #: read `define` and was refused and the body bound nothing. Their
+    #: neighbours are in the table for the same reason the scopes are: a
+    #: whitespace-separated `endef #done` still CLOSES a body, an ordinary
+    #: comment inside one is body text that does not, and a global comment
+    #: still takes its line with it -- a reader that kept every `#` would
+    #: pass the two rows above and be as wrong as the one that cut them all.
+    #: The cut also MOVES every offset after it, so the row before the
+    #: precedence pair reads an eval's scope through a comment cut on an
+    #: earlier line: what a scan finds at an offset and what the role reader
+    #: answers for it have to be the same text.
+    #: The last pair is make's ASSIGNMENT precedence: `eval()` parses a
+    #: variable definition BEFORE anything interprets a modifier or the
+    #: `define` directive, so `define = ready` is an ordinary assignment
+    #: named define and opens no body at all, while `define MILAN_TMPL =` is
+    #: a real opener -- and inside a body, where `do_define` parses no
+    #: assignment, that same `define = ready` line nests. That is one
+    #: position-dependent answer more, not an exception for a spelling, so
+    #: the fixture is in the table on BOTH sides of the boundary.
     #:
     #: The fourth column is what a CLEAR scan MEANS, and it is deliberately
     #: not one answer for every row. `walked` says GNU make reads this text
@@ -5284,6 +5388,17 @@ def test_baremetal_profile_contract() -> None:
                                   "$(eval LABEL := ready)\nendef\n")
     modifier_body_define_fixture = ("define helper\noverride define inner\n"
                                     "endef\n$(eval LABEL := ready)\n")
+    hashed_endef_fixture = ("define helper\nendef#literal\n"
+                            "$(eval LABEL := ready)\nendef\n")
+    hashed_define_fixture = ("define helper\ndefine#literal\nendef\n"
+                             "$(eval LABEL := ready)\n")
+    separated_endef_fixture = ("define helper\nvalue\nendef # done\n"
+                               "$(eval LABEL := ready)\n")
+    body_comment_fixture = ("define helper\n# not a directive\n"
+                            "$(eval LABEL := ready)\nendef\n")
+    assigned_define_fixture = "define = ready\n$(eval LABEL := ready)\n"
+    nested_assigned_define_fixture = ("define helper\ndefine = ready\nendef\n"
+                                      "$(eval LABEL := ready)\nendef\n")
     eval_scope_controls = (
         ("a recipe-prefixed endef is define BODY text, not the end of one",
          prefixed_endef_fixture, "define", "in a define body", None),
@@ -5326,6 +5441,34 @@ def test_baremetal_profile_contract() -> None:
         ("a modifier before a define inside a body is body TEXT, so the "
          "first endef closes the body",
          modifier_body_define_fixture, "global", None, "walked"),
+        ("an endef with a hash attached is body text, so the body runs past "
+         "it to the real endef",
+         hashed_endef_fixture, "define", "in a define body", None),
+        ("a define with a hash attached is body text too, so the first endef "
+         "closes the body",
+         hashed_define_fixture, "global", None, "walked"),
+        ("an endef whose comment is separated by a blank still closes the "
+         "body",
+         separated_endef_fixture, "global", None, "walked"),
+        ("an ordinary comment inside a body is body text and ends nothing",
+         body_comment_fixture, "define", "in a define body", None),
+        ("a global comment still takes its own line with it",
+         "# $(eval CFLAGS += -include ../shadow.h)\n"
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None, "walked"),
+        ("an ordinary assignment named define opens no body",
+         assigned_define_fixture, "global", None, "walked"),
+        ("... and a modifier before it is the same assignment",
+         "override " + assigned_define_fixture, "global", None, "walked"),
+        ("a define opener carrying a flavour operator still opens a body",
+         "define MILAN_TMPL =\n$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body", None),
+        ("the same assignment spelling INSIDE a body is a nested delimiter",
+         nested_assigned_define_fixture, "define", "in a define body", None),
+        ("a comment cut on an earlier line does not move an eval's own scope",
+         "CFLAGS += -g # a comment long enough to shift every offset\n"
+         "define helper\n$(eval LABEL := ready)\nendef\n",
+         "define", "in a define body", None),
     )
     for label, fixture, want_scope, want_refusal, clear_means in \
             eval_scope_controls:
@@ -5372,6 +5515,21 @@ def test_baremetal_profile_contract() -> None:
          "define\nendef\n$(eval LABEL := ready)"),
         ("a modifier before a define inside a body is body text",
          modifier_body_define_fixture, "override define inner"),
+        ("an endef with a hash attached is body text, and the body keeps "
+         "its bytes",
+         hashed_endef_fixture, "endef#literal\n$(eval LABEL := ready)"),
+        ("a define with a hash attached is body text, and is the whole body",
+         hashed_define_fixture, "define#literal"),
+        ("an endef whose comment is separated by a blank closes the body, "
+         "which keeps the line before it",
+         separated_endef_fixture, "value"),
+        ("an ordinary comment inside a body is a line of the value, because "
+         "make stores the body line as it stands",
+         body_comment_fixture, "# not a directive\n$(eval LABEL := ready)"),
+        ("an assignment spelling inside a body nests, so the body runs to "
+         "the outer endef",
+         nested_assigned_define_fixture,
+         "define = ready\nendef\n$(eval LABEL := ready)"),
     )
     for label, fixture, want_body in define_body_controls:
         bound = [value for name, value in make_rules(fixture)[1]
@@ -5381,17 +5539,79 @@ def test_baremetal_profile_contract() -> None:
             f"rather than [{want_body!r}]: the body it carries is every " \
             "line make counts as body text, and the assignment reader and " \
             "the scope reader must not disagree about which lines those are"
+    #: ... and make's own ASSIGNMENT precedence from the binding side, which
+    #: is the other half of "opens no body": a reader that simply dropped the
+    #: line would satisfy the scope row above and lose the variable, and a
+    #: reader that applied the precedence one position too far would lose a
+    #: genuine opener's body. One row per direction.
+    define_precedence_controls = (
+        ("an ordinary assignment named define binds its value",
+         assigned_define_fixture, "define", ["ready"]),
+        ("... and so does the same assignment behind a modifier",
+         "override " + assigned_define_fixture, "define", ["ready"]),
+        ("a genuine opener carrying a flavour operator binds its BODY",
+         "define MILAN_TMPL =\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+    )
+    for label, fixture, bound_name, want_values in define_precedence_controls:
+        bound = [value for name, value in make_rules(fixture)[1]
+                 if name == bound_name]
+        assert bound == want_values, \
+            f"with {label}, the reader bound `{bound_name}` to {bound} " \
+            f"rather than {want_values}: make parses a variable definition " \
+            "BEFORE it interprets a modifier or the `define` directive, so " \
+            "an assignment named define is an assignment and a real opener " \
+            "is still an opener"
+    #: ... and the `#` cut itself, which is where both of those start, pinned
+    #: on the TEXT rather than only through its consequences: what make_source()
+    #: leaves is what every reader above scans, and the single whole-file strip
+    #: it replaces is exactly what moved a body's delimiters before anything
+    #: read them.
+    make_comment_controls = (
+        ("a comment on a global line is cut and the line stays",
+         "CFLAGS += -g # note\n", "CFLAGS += -g \n"),
+        ("a whole-line comment leaves an empty line behind",
+         "# $(eval CFLAGS += -include ../shadow.h)\nCFLAGS += -g\n",
+         "\nCFLAGS += -g\n"),
+        ("a define body keeps its comment, because make stores the body "
+         "line as it stands",
+         body_comment_fixture, body_comment_fixture),
+        ("a delimiter with a hash attached is not a delimiter and its text "
+         "stands",
+         hashed_endef_fixture, hashed_endef_fixture),
+        ("an endef's own comment is cut only AFTER the delimiter is "
+         "recognised",
+         separated_endef_fixture,
+         "define helper\nvalue\nendef \n$(eval LABEL := ready)\n"),
+        ("a recipe line keeps its comment, because make hands the line to "
+         "the shell instead of parsing it",
+         "tags:\n\t$(CTAGS) *.c # keep\n", "tags:\n\t$(CTAGS) *.c # keep\n"),
+    )
+    for label, fixture, want_source in make_comment_controls:
+        assert make_source(fixture) == want_source, \
+            f"with {label}, the reader left {make_source(fixture)!r} rather " \
+            f"than {want_source!r}: make removes a comment on the line it is " \
+            "about to parse, not in a define body it is collecting or a " \
+            "recipe line it is handing to the shell, and where the cut " \
+            "happens decides which words are delimiters at all"
     eval_scope_control_note = (
         f"{len(eval_scope_controls)} pure-parser controls hold over the eval "
-        "SCOPE reader, which is what the refusal above rests on, and "
+        "SCOPE reader, which is what the refusal above rests on, "
         f"{len(define_body_controls)} more hold the define reader to the "
-        "same body: a recipe-prefixed `endef` is define BODY text and does "
+        f"same body, {len(define_precedence_controls)} hold make's "
+        "assignment-before-directive precedence from the binding side and "
+        f"{len(make_comment_controls)} pin where a `#` is cut at all: a "
+        "recipe-prefixed `endef` is define BODY text and does "
         "not end the body (that eval used to read `global` and be walked), a "
         "recipe-prefixed `define` in a rule context is recipe text and opens "
         "no body (a real global eval used to read `define` and be refused), "
         "a bare `define` token nests inside a body and a modifier before one "
         "does not (the same two directions, at the delimiter make spells "
-        "differently from the opener), and a value ending in a bare `$` is "
+        "differently from the opener), `endef#literal` and `define#literal` "
+        "are body TEXT while a blank-separated `endef #done` still closes "
+        "the body (the same two directions again, from cutting every `#` "
+        "before the body was read at all), an ordinary assignment named "
+        "`define` binds a variable and opens no body while the same "
+        "spelling inside a body nests, and a value ending in a bare `$` is "
         "refused by name instead of raising IndexError out of the diagnostic "
         "reader. Each is a CLASSIFICATION result; where a row expects no "
         "refusal it also says whether make reads that text as a makefile at "
