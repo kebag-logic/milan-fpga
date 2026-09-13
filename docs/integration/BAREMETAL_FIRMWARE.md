@@ -540,9 +540,11 @@ the recorded set before round three's review; the next three are the same
 kind, measured, and are recorded beside them rather than left to read as
 absent. A variable name outside `[A-Za-z_][A-Za-z0-9_]*`, such as
 `MILAN-EXTRA`, was recorded here until the review of round ten's head and is
-now RULED on instead: make reads that name, no assignment in a Makefile binds
-one, and the read is refused by name rather than left unmatched (the
-whole-name row below).
+now RULED on instead: make reads that name, this walker has no way to spell it
+in an `$(origin)` request or in the assignment closure, and the read is refused
+by name rather than left unmatched (the whole-name row below). That
+vocabulary is this gate's, not make's: `MILAN-EXTRA = ready` is an ordinary
+variable definition to make's own reader, so the refusal costs that edit too.
 Round four's review adds four more of the same kind, each measured reaching
 the real compile line and each a PLAIN reference or a computed parse rather
 than the `$(eval)` that round rules on: an unbracketed `$M` on an ordinary
@@ -865,7 +867,17 @@ answers, both carried in the controls against each other.
 review of round ten's head). Where a blank, a vertical tab or a comma follows
 the identifier in a `value` argument or inside a plain reference, make looks
 up a name outside the `[A-Za-z_][A-Za-z0-9_]*` vocabulary every reader here
-spells. The walker used to keep asking `$(origin)` about the identifier the
+spells. That vocabulary is THIS WALKER'S and not make's grammar (#410, the
+review of round eleven's head): make ends an assignment's name only at
+whitespace, `#`, an assignment operator or a `:` that opens none, so
+`MILAN-EXTRA = ready`, `NAME,x = ready` and `.DEFAULT_GOAL = ready` are
+ordinary variable definitions make binds, while `NAME<SP>` and `NAME:sub` are
+names no assignment line can bind at all. What the refusal rests on is that
+the `$(origin)` request this gate writes, and every assignment its closure
+records, are written in that one pattern, so a name outside it is a name the
+walker cannot ask about or account for. The cost therefore includes edits make
+would have accepted, and it is disclosed here rather than explained away.
+The walker used to keep asking `$(origin)` about the identifier the
 span starts with, or to drop the read entirely where the suffix byte was one
 no pattern matched, and both were recorded as covered: `$(value NAME,x)` and
 `$(NAME<SP>)` put `NAME` in the origin request, `$(value NAME<VT>)` and
@@ -879,10 +891,41 @@ reference it always was, and is now seen there too:
 `$(NAME,$(PICK))` reach the computed-name refusal. The reads that stay
 COVERED are the complete ones, `$(value NAME)`, `$(NAME)`, `$(NAME:.o=.d)`
 and the `$(call NAME,...)` token, and they are carried in the controls beside
-the refusals so the repair cannot be met by refusing every read. make's own
-positional and automatic names, `$(1)` and `$(@D)`, keep the treatment
-recorded above: bound by the call site whose argument text this closure walks
-or by the rule make binds them in, and skipped rather than probed.
+the refusals so the repair cannot be met by refusing every read. A PLAIN
+`$(1)` or `$(@D)` keeps the treatment recorded above: bound by the call site
+whose argument text this closure walks or by the rule make binds them in, and
+skipped rather than probed.
+
+**That exemption belongs to the plain reference alone** (#410, the review of
+round eleven's head). `$(value 1)` and `$(call 1)` are not positional
+parameters being used; they are lookups of a variable named `1`, and neither
+construct has bound one where it looks up. `value` looks its whole argument up
+with no scope of any kind, and `call` reads its target and can return before
+the `$(1) .. $(N)` scope it pushes exists at all. Treating those two argument
+positions as make's own dropped the read from the closure AND raised no
+refusal, which is the covered-looking answer about a variable the environment
+decides that this whole section is against, so a numeric or automatic name in
+either position is now refused by that name. `$(1)` inside a `define` body
+reached through `$(call T,...)`, and a recipe's `$@`, are unchanged, and both
+are carried in the controls as the counterparts that must stay skipped.
+
+**A substitution reference is read from the COMPLETE reference** (#410, the
+same review). make counts this expansion's own brackets, expands what it finds
+and only then looks for the `:` and the `=` that make it a substitution, so in
+`$(NAME:$(PAT)=.d)` the variable is `NAME` and `PAT` chooses the pattern.
+Ending the name span at the first close bracket instead ended it inside the
+nested reference, where the `=` is not yet in sight: `NAME` left the closure
+and a supported idiom was refused as a computed name, inside an otherwise
+bindable `$(eval ...)` as well. The whole-reference span is now what decides,
+so `$(NAME:$(PAT)=.d)`, `${NAME:${PAT}=.d}`, the mixed bracket spellings,
+`$(NAME:$(PAT)=$(REP))`, `$(NAME:.o=$(REP))` and the
+`$(patsubst $(PAT),$(REP),$(NAME))` counterpart all keep their literal
+dependency and raise no refusal. The refusals that must survive are carried
+beside them: a colon whose `=` only an expansion could supply
+(`$(NAME:$(PAT))`) leaves the split undecidable from the file and stays a
+computed-name refusal, a name that itself expands (`$($(PICK):.o=.d)`) stays
+one, and a `$(value ...)` argument is still looked up WHOLE, so the same bytes
+there are computed rather than a substitution.
 
 **What a clear pre-plan scan says, and what it does not.** These controls
 measure how this walker CLASSIFIES a text, which is a smaller claim than GNU
@@ -944,7 +987,8 @@ The rest are refusals, and each one costs a legitimate edit:
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist. The set is read from the file TEXT, so it is exact over the lines in the file: a line an expansion creates would be outside it, and both routes to one are refused below, but a direct `$(file >frag,TEXT)` write is a recorded channel rather than a ruled one |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
 | A computed variable reference -- `$($(X))`, `$(CFLAGS_$(VARIANT))`, and (#410) a computed `$(call ...)`/`$(value ...)` first argument, `$(call $(X))` and `$(call<VT> $(X))` alike -- anywhere in the Makefile, a never-run recipe included | the NAME itself is deferred to expansion time, so no `$(origin)` enumeration can cover what the environment picks; refused rather than modelled. Which function an expansion opens, and how much whitespace it then skips, are make's own rules rather than the blank pair, so a wide separator before a computed argument does not hide it (#410, the review of round nine's head). **Remedy:** spell the reference with a literal name |
-| A read whose LITERAL name is outside `[A-Za-z_][A-Za-z0-9_]*` -- `$(value NAME,x)`, `$(value NAME<SP>)`, `$(value NAME<VT>)`, `$(NAME<SP>)`, `$(NAME,x)`, `$(NAME:sub)` with no `=` in it, `$(MILAN-EXTRA)` and a `$(call MILAN-TMPL)` token -- anywhere in the Makefile, a never-run recipe included | make looks a plain reference up by its COMPLETE span and a `$(value ...)` by its WHOLE argument, commas included, so each of these names a real variable that no assignment in a Makefile can bind and no `$(origin)` line this gate writes can ask about, which leaves the ENVIRONMENT deciding its value. The walker answered about the identifier PREFIX instead, or dropped the read with no refusal, and reported both as covered; an answer about `NAME` is an answer about a different variable (#410, the review of round ten's head). make's own positional and automatic names, `$(1)` and `$(@D)`, are not in this row: they are bound by the call site whose argument text the closure walks, or per rule by make. **Remedy:** spell the read with the complete identifier, `$(value NAME)` or `$(NAME)`, and give the variable a name a Makefile can bind |
+| A read whose LITERAL name is outside `[A-Za-z_][A-Za-z0-9_]*` -- `$(value NAME,x)`, `$(value NAME<SP>)`, `$(value NAME<VT>)`, `$(NAME<SP>)`, `$(NAME,x)`, `$(NAME:sub)` with no `=` in it, `$(MILAN-EXTRA)`, a `$(call MILAN-TMPL)` token and a NAMED positional or automatic lookup, `$(value 1)`, `${call 1}` or `$(value @D)` -- anywhere in the Makefile, a never-run recipe included | make looks a plain reference up by its COMPLETE span and a `$(value ...)` by its WHOLE argument, commas included, so each of these names a real variable, and that identifier class is THIS GATE's vocabulary: it is the name format of the `$(origin)` line the gate writes and of every assignment its closure records, so the walker cannot ask about the name make reads or account for where its value came from. It is NOT a restriction of make's assignment grammar, which ends a name only at whitespace, `#`, an assignment operator or a `:` opening none, so `MILAN-EXTRA = ready`, `NAME,x = ready` and `.DEFAULT_GOAL = ready` are ordinary definitions make binds and this refusal costs those edits; `NAME<SP>` and `NAME:sub` are names no assignment line binds either way (#410, the review of round eleven's head). The walker answered about the identifier PREFIX instead, or dropped the read with no refusal, and reported both as covered; an answer about `NAME` is an answer about a different variable (#410, the review of round ten's head). A PLAIN `$(1)` or `$(@D)` is not in this row: it is bound by the call site whose argument text the closure walks, or per rule by make. The same bytes as a `$(value ...)` argument or a `$(call ...)` token ARE in it, because `value` builds no argument scope and `call` reads its target before it pushes one, so nothing has bound that name at the lookup being walked. **Remedy:** spell the read with the complete identifier, `$(value NAME)` or `$(NAME)`, and give the variable a name inside that vocabulary |
+| A substitution reference is read from the COMPLETE reference, so `$(NAME:$(PAT)=.d)`, `${NAME:${PAT}=.d}`, the mixed bracket spellings, `$(NAME:$(PAT)=$(REP))` and `$(NAME:.o=$(REP))` keep their literal name in the closure and are NOT refused | make counts this expansion's own brackets and expands what it finds before it looks for the `:` and the `=`, so the pattern and the replacement are outside the NAME. Ending the span at the first close bracket ended it inside the nested reference, hid the `=` and read the pattern as part of the name: the literal dependency left the origin request and a supported idiom was refused as a computed name, inside an otherwise bindable `$(eval ...)` too (#410, the review of round eleven's head). This row is the ACCEPTANCE half of the computed-name row above, and the two refusals it must not swallow are carried beside it: a colon whose `=` only an expansion could supply, `$(NAME:$(PAT))`, and a name that itself expands, `$($(PICK):.o=.d)`, stay computed-name refusals, and a `$(value ...)` argument is still looked up whole rather than split |
 | A `$(call ...)`/`${call ...}` whose first argument names a make BUILT-IN function -- `$(call eval,...)`, `$(call file,...)`, `$(call shell,...)`, and a `$(call subst,...)` written to map a built-in over a list -- anywhere in the Makefile, a never-run recipe included | `call` DISPATCHES to that built-in, so the construct is the built-in written where no scan for the built-in's own token can see it, and `$(call eval,TEXT)` was measured injecting a flag from the environment with every instrument green (#410, round-three review). The name it dispatches on is the TOKEN make cuts the argument down to, so `$(call eval<VT>,TEXT)` and `$(call eval junk,TEXT)` are that built-in too (#410, the review of round nine's head). **Remedy:** spell the built-in directly, `$(subst a,b,$(TEXT))` |
 | A parsed `$(eval NAME op VALUE)` whose value reads a name this Makefile gives a MULTI-LINE value -- make's `define NL` newline idiom, at any remove | `$(eval)` parses the EXPANSION, so such a value adds makefile lines this walker reads as the one assignment it parsed, and an `include` among them is outside the include-set pin, which reads the file text (#410, round-three review). **Remedy:** keep the newline idiom out of an eval's value |
 | An `$(eval ...)` that is not a whole-line literal assignment -- `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested inside another expansion -- anywhere in the Makefile, a never-run recipe included | `$(eval)` expands its argument and parses the RESULT, so the text make reads is not the text in the file and no walk over the file can enumerate it; refused rather than modelled (#410). **Remedy:** write the assignment as `$(eval NAME op VALUE)` on a line of its own, which is parsed and walked like any right-hand side, or as a plain assignment line |
