@@ -4595,6 +4595,23 @@ def test_baremetal_profile_contract() -> None:
     #: expands elsewhere, not the spelling of the name it binds.
     make_define_scope_re = re.compile(
         r"\A[ \t]*" + assign_prefix + r"define[ \t]+\S")
+    #: (#410, the review of round four's head) ... and the NESTED delimiter,
+    #: which is a DIFFERENT grammar and must not be the opener above. An
+    #: OPENER is reached through make's modifier loop, so `override`, `export`,
+    #: `unexport` and `private` may precede it (GNU make 4.4.1
+    #: `src/read.c:527-541`, `parse_var_assignment`). A body is read by
+    #: `do_define`, which never re-enters that loop: it takes the body line's
+    #: FIRST token and counts a level only when that token IS `define` --
+    #: `len == 6`, the token is the whole line, a BARE `define`, or
+    #: `ISBLANK (p[6])`, a `define inner` (`src/read.c:1464-1468`). So a bare
+    #: `define` nests and an `override define inner` is ordinary body TEXT.
+    #: Reusing the opener for both was wrong in both directions at the head
+    #: this replaces, measured on pure parser fixtures: a bare `define` opened
+    #: no level, so the outer body's own `$(eval)` read `global` and was
+    #: WALKED and the body bound one line of five, and an `override define
+    #: inner` opened a level that is not there, so a real global eval read
+    #: `define` and was REFUSED and the body bound nothing at all.
+    make_nested_define_re = re.compile(r"\A[ \t]*define(?=[ \t]|\Z)")
     #: The CONDITIONAL directives, the one kind of non-recipe line make reads
     #: WITHOUT ending the rule context it is in: a conditional is evaluated as
     #: the makefile is read, so an `ifdef` between two recipe lines leaves the
@@ -4626,6 +4643,13 @@ def test_baremetal_profile_contract() -> None:
     #: rule context here like any other target line, which is the SAFE
     #: direction: a prefixed line after one is that rule's recipe or a file
     #: make refuses to parse, never the global assignment this walker walks.
+    #: (The review of round four's head) The other thing this loop must not
+    #: read off one line is WHICH `define` spelling is a delimiter, because
+    #: make has two grammars for that word and they are not the same: the OPENER
+    #: carries the modifier prefix and names a variable, the NESTED delimiter
+    #: is the body line's first token and carries no modifier. So the two
+    #: patterns are separate above, and this loop picks by POSITION -- inside
+    #: a body or not -- rather than by spelling.
     def make_line_roles(text: str) -> list[tuple[int, int, str, str]]:
         """`(start, end, line, role)` for every line of comment-stripped,
         continuation-joined `text`.
@@ -4633,7 +4657,11 @@ def test_baremetal_profile_contract() -> None:
         The role is `open` for the line opening an outermost `define`, `body`
         for the text that body carries, `close` for the `endef` that ends it,
         `recipe` for a recipe line, and `global` for a line make reads as
-        makefile syntax at global scope."""
+        makefile syntax at global scope.
+
+        A `define` line is read as an OPENER only outside a body and as a
+        NESTED delimiter only inside one, because make recognises the word
+        differently in the two places."""
         masked, roles, offset = unexpanded(text), [], 0
         depth, in_rule = 0, False
         for body in text.split("\n"):
@@ -4641,7 +4669,7 @@ def test_baremetal_profile_contract() -> None:
             if depth:
                 role = "body"
                 if not body.startswith("\t"):
-                    if make_define_scope_re.match(body):
+                    if make_nested_define_re.match(body):
                         depth += 1
                     elif make_endef_re.match(body):
                         depth -= 1
@@ -5221,52 +5249,90 @@ def test_baremetal_profile_contract() -> None:
     #:
     #: Both are GNU make's own grammar, not a choice made here ("Defining
     #: Multi-Line Variables" for the body, "How Makefiles Are Parsed" step 3
-    #: for the rule context). The last two rows are the END of a value, where
+    #: for the rule context). The value rows are the END of a value, where
     #: the diagnostic reader used to raise IndexError instead of naming
     #: anything: an empty slice is `in "({"` in Python, so a trailing `$` fell
     #: through the single-character arm into a reader that indexed past the
     #: value. The accepted global eval and the define-body and recipe
     #: refusals are in the table as its ANTI-VACUITY arms: a control that
     #: cannot tell the three scopes apart proves nothing about any of them.
+    #:
+    #: (The review of round four's head) The last two rows are the DELIMITER
+    #: boundary, where the opener's spelling was reused for the nested one
+    #: and the same two directions came back one layer in: a bare `define`
+    #: token nests in make and did not here, so the body's eval read `global`
+    #: and was walked, and an `override define inner` does NOT nest in make
+    #: and did here, so a global eval read `define` and was refused. Both are
+    #: `src/read.c`'s own two grammars, cited at make_nested_define_re.
+    #:
+    #: The fourth column is what a CLEAR scan MEANS, and it is deliberately
+    #: not one answer for every row. `walked` says GNU make reads this text
+    #: as a makefile and the eval is one this walker may then walk.
+    #: `classified` says make refuses the TEXT ITSELF before any expansion,
+    #: so the clear scan pins this reader's classification and claims nothing
+    #: about make accepting anything: the `<TAB>$(eval ...)` row is that case,
+    #: because `parse_variable_definition` skips the operator inside the
+    #: reference (GNU make 4.4.1 `src/variable.c:1710-1744`) so the line is
+    #: not a variable definition, and a recipe-prefixed line that is not one
+    #: and has no preceding target is then `recipe commences before first
+    #: target` (`src/read.c:995`). It is None exactly where a refusal is
+    #: expected, and the loop asserts that, so a row cannot carry a stale
+    #: claim.
+    prefixed_endef_fixture = ("define helper\n\tendef\n"
+                              "$(eval LABEL := ready)\nendef\n")
+    bare_nested_define_fixture = ("define helper\ndefine\nendef\n"
+                                  "$(eval LABEL := ready)\nendef\n")
+    modifier_body_define_fixture = ("define helper\noverride define inner\n"
+                                    "endef\n$(eval LABEL := ready)\n")
     eval_scope_controls = (
         ("a recipe-prefixed endef is define BODY text, not the end of one",
-         "define helper\n\tendef\n$(eval LABEL := ready)\nendef\n",
-         "define", "in a define body"),
+         prefixed_endef_fixture, "define", "in a define body", None),
         ("a recipe-prefixed define in a rule context opens no body",
          "tags:\n\tdefine helper\n$(eval LABEL := ready)\n",
-         "global", None),
+         "global", None, "walked"),
         ("a recipe-prefixed define inside a body does not nest either",
          "define MILAN_TMPL\n\tdefine MILAN_INNER\n"
          "$(eval CFLAGS += $(1))\nendef\n",
-         "define", "in a define body"),
-        ("a recipe-prefixed eval outside a rule context is global",
+         "define", "in a define body", None),
+        ("a recipe-prefixed eval outside a rule context reads global",
          "\t$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
-         "global", None),
+         "global", None, "classified"),
         ("an eval after a rule whose recipe ended is global",
          "libmilan_baremetal.a: $(OBJECTS)\n\t$(AR) crs $@ $(OBJECTS)\n\n"
          "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
-         "global", None),
+         "global", None, "walked"),
         ("a define opened after a rule context still scopes its eval",
          "tags:\n\t$(CTAGS) *.c\ndefine MILAN_TMPL\n"
          "$(eval CFLAGS += $(1))\nendef\n",
-         "define", "in a define body"),
+         "define", "in a define body", None),
         ("the accepted global eval of a literal assignment stays walked",
          "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
          "CFLAGS += $(MILAN_INCLUDES)\n",
-         "global", None),
+         "global", None, "walked"),
         ("a define-body eval of the call's argument stays refused",
          "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
          "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))\n",
-         "define", "in a define body"),
+         "define", "in a define body", None),
         ("a recipe eval stays refused",
          "milan_pre:\n\t$(eval CFLAGS += -include ../shadow.h)\n",
-         "recipe", "on a recipe line"),
+         "recipe", "on a recipe line", None),
         ("a value ending in a bare $ is named, not a crash",
-         "$(eval LABEL := cost$)\n", "global", "reads a trailing $"),
+         "$(eval LABEL := cost$)\n", "global", "reads a trailing $", None),
         ("a value that IS a bare $ is named too",
-         "$(eval MILAN_LATE = $)\n", "global", "reads a trailing $"),
+         "$(eval MILAN_LATE = $)\n", "global", "reads a trailing $", None),
+        ("a bare define token nests, so the eval after the inner endef is "
+         "still the body's",
+         bare_nested_define_fixture, "define", "in a define body", None),
+        ("a modifier before a define inside a body is body TEXT, so the "
+         "first endef closes the body",
+         modifier_body_define_fixture, "global", None, "walked"),
     )
-    for label, fixture, want_scope, want_refusal in eval_scope_controls:
+    for label, fixture, want_scope, want_refusal, clear_means in \
+            eval_scope_controls:
+        assert (clear_means is None) == (want_refusal is not None), \
+            f"the control {label!r} must say what a clear scan means " \
+            "exactly where it expects no refusal, so no row carries a " \
+            "claim about make that nothing here reads"
         scopes = [scope for *_quoted, scope
                   in eval_scoped_assignments(fixture)]
         assert scopes == [want_scope], \
@@ -5274,38 +5340,62 @@ def test_baremetal_profile_contract() -> None:
             f"['{want_scope}']: the scope is what the whole unbindable-eval " \
             "refusal rests on, and make decides it from the lines BEFORE " \
             "the eval -- a recipe-prefixed line is define body text inside a " \
-            "body and recipe text in a rule context, never a directive"
+            "body and recipe text in a rule context, never a directive, and " \
+            "the `define` spelling that delimits a body is not the one that " \
+            "opens it"
         refused = unbindable_evals(fixture)
         if want_refusal is None:
             assert refused == [], \
-                f"{label!r} is refused as {refused}: this fixture is one " \
-                "make expands at global scope over names this file binds, " \
-                "so refusing it is a cost charged for nothing"
+                f"{label!r} is refused as {refused}: " + (
+                    "this fixture is one make reads as a makefile and "
+                    "expands at global scope over names this file binds, so "
+                    "refusing it is a cost charged for nothing"
+                    if clear_means == "walked" else
+                    "this fixture pins the CLASSIFICATION only, since make "
+                    "refuses the text itself before expansion, so a refusal "
+                    "here is this reader answering the wrong question rather "
+                    "than a cost anyone pays")
         else:
             assert len(refused) == 1 and want_refusal in refused[0], \
                 f"{label!r} must be refused naming {want_refusal!r}, and " \
                 f"the reader said {refused}"
-    #: ... and the define READER must carry the same body, or the two answers
-    #: disagree about where a body ends and the closure walks text the scope
-    #: reader has already called unreachable.
-    prefixed_endef_body = [
-        value for name, value in make_rules(eval_scope_controls[0][1])[1]
-        if name == "helper"]
-    assert prefixed_endef_body == ["\tendef\n$(eval LABEL := ready)"], \
-        "the define reader bound `helper` to " \
-        f"{prefixed_endef_body}: a recipe-prefixed `endef` is body text, so " \
-        "the body it carries is every line up to the endef that is NOT " \
-        "prefixed, and the assignment reader and the scope reader must not " \
-        "disagree about which lines those are"
+    #: ... and the define READER must carry the same body at each of those
+    #: boundaries, or the two answers disagree about where a body ends and
+    #: the closure walks text the scope reader has already called
+    #: unreachable -- or, worse, skips text it called reachable. One row per
+    #: boundary the table above pins from the scope side.
+    define_body_controls = (
+        ("a recipe-prefixed endef is body text",
+         prefixed_endef_fixture, "\tendef\n$(eval LABEL := ready)"),
+        ("a bare define token nests, so the body runs to the outer endef",
+         bare_nested_define_fixture,
+         "define\nendef\n$(eval LABEL := ready)"),
+        ("a modifier before a define inside a body is body text",
+         modifier_body_define_fixture, "override define inner"),
+    )
+    for label, fixture, want_body in define_body_controls:
+        bound = [value for name, value in make_rules(fixture)[1]
+                 if name == "helper"]
+        assert bound == [want_body], \
+            f"with {label}, the define reader bound `helper` to {bound} " \
+            f"rather than [{want_body!r}]: the body it carries is every " \
+            "line make counts as body text, and the assignment reader and " \
+            "the scope reader must not disagree about which lines those are"
     eval_scope_control_note = (
         f"{len(eval_scope_controls)} pure-parser controls hold over the eval "
-        "SCOPE reader, which is what the refusal above rests on: a "
-        "recipe-prefixed `endef` is define BODY text and does not end the "
-        "body (that eval used to read `global` and be walked), a "
+        "SCOPE reader, which is what the refusal above rests on, and "
+        f"{len(define_body_controls)} more hold the define reader to the "
+        "same body: a recipe-prefixed `endef` is define BODY text and does "
+        "not end the body (that eval used to read `global` and be walked), a "
         "recipe-prefixed `define` in a rule context is recipe text and opens "
         "no body (a real global eval used to read `define` and be refused), "
-        "and a value ending in a bare `$` is refused by name instead of "
-        "raising IndexError out of the diagnostic reader")
+        "a bare `define` token nests inside a body and a modifier before one "
+        "does not (the same two directions, at the delimiter make spells "
+        "differently from the opener), and a value ending in a bare `$` is "
+        "refused by name instead of raising IndexError out of the diagnostic "
+        "reader. Each is a CLASSIFICATION result; where a row expects no "
+        "refusal it also says whether make reads that text as a makefile at "
+        "all, so a clear scan is never read as make accepting a file")
 
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
