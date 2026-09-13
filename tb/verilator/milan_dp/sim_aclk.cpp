@@ -87,6 +87,8 @@
 //   (the grid-moved-0.6-tick equivalent: the fill sits one event off the
 //   setpoint, the delay outside the band, no rail, converged) and the stream
 //   keeps running through the INTERNAL measurement and the CRF selection.
+//   On the FULL leg #390's ring phases run in between and the stream that
+//   reaches the selection is one event SHORT, not one event long: see run().
 //   The datapath's settled-grid trigger then fires ONE recentre once the
 //   aligner's error has rested inside its band, and every PDU of the aligned
 //   window is back at the setpoint. The deselect (back to INTERNAL) is the
@@ -918,6 +920,16 @@ class MediaGridAlignmentHarness {
         ring_landing_latency = lb_land_cycle - sent_at;
         printf("  loop-tap landing latency: %ld cycles after the inject slot\n",
                ring_landing_latency);
+        //! ...and this is what grades the drain above. Without it the feed
+        //! the render-law phases left running is still going, the first
+        //! landing seen belongs to a PDU already in flight, and the latency
+        //! reads one whole AAF period low (negative). Nothing else can catch
+        //! that: a class-A PDU is exactly six media ticks, so a whole-period
+        //! error moves the aimed restart by six whole ticks and the aim is
+        //! taken modulo a tick. A real transit is one pass through the
+        //! depacketizer and the loop bucket, far inside one period.
+        ck("RING-INT: the priming PDU's loop-tap latency is inside one AAF period",
+           (ring_landing_latency > 0 && ring_landing_latency < kAafPduPeriodCycles) ? 1 : 0, 1);
         // feed off: the queue drains in six ticks and the primed pair then
         // counts every empty tick, honestly - that starved run is not graded
         aaf_on = false;
@@ -1530,6 +1542,18 @@ int MediaGridAlignmentHarness::run() {
     //! move's own "sat at the setpoint before the move" window has to be
     //! measured before they touch it, and the selection's recentre is what
     //! restores the law afterwards (RENDER-LIVE-CRF grades that).
+    //! What that order COSTS, measured rather than assumed: the ring phases
+    //! drain and re-prime the feed and then let it drift a whole ring window
+    //! at INTERNAL, so the stream reaches the CRF selection one event SHORT
+    //! of the setpoint (fill 7 of 8 at accept over the last 40 PDUs), not the
+    //! one event LONG the move set up. RENDER-LIVE-CRF on this leg therefore
+    //! grades the recentre's prefill-re-entry branch; the long-queue snap
+    //! under a live selection is graded by --live-only, the short leg
+    //! render_mutants.py runs. Neither loses its teeth: the datapath mutant
+    //! that drops the clock-source trigger from the recentre set fails the
+    //! fill law on this leg. And the order is not free to reverse: with the
+    //! ring phases placed BEFORE the move, RENDER-LIVE's own "the stream sat
+    //! at the setpoint before the move" fails.
     move_the_running_feed_past_a_tick("RENDER-LIVE", true);
     double ppm_int = 0.0;
     if (!measure_the_internal_free_run_drift(ppm_int)) return 1;

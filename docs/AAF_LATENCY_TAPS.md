@@ -92,7 +92,7 @@ flowchart LR
   the Arty shapes, which now renders behind this stage; the TDM frame pin,
   which no build clocks) is tabled there. The stage's fill, prefill,
   convergence and rail counters are Verilator taps today; the CSR word is the
-  #390 follow-up. The silicon figure at the TDM frame pin (the inline tap's
+  #443 follow-up. The silicon figure at the TDM frame pin (the inline tap's
   capture record on the capture server, compared against these fabric taps)
   rides #117.
 

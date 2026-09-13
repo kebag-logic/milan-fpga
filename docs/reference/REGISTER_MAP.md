@@ -195,7 +195,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
-  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), zero under a CRF selection. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
+  - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), stopping under a CRF selection; they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` measures, and a CRF selection steers from it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
@@ -1685,8 +1685,11 @@ fsync, read on the media tick) - and until `0x0058` those counts reached only
 a simulation tap. At the INTERNAL clock source the free-running grids slip one
 sample every 1.958 s on the shipping divider plan (-10.64 ppm: the standing
 free-run rule, slips accepted, and now readable); under a CRF selection the
-align chain holds the packet grid on fsync and both pairs stay at zero
+align chain holds the packet grid on fsync and both pairs stop climbing
 (`tb/verilator/milan_dp` `obj_aclk`, the [RING-INT] / [RING-CRF] phases).
+Nothing clears them, so a pair that counted at INTERNAL before the selection
+reads a static NON-ZERO word under CRF, not a zero: the reading table below
+grades the pair static, never absolute.
 These two words are that evidence on silicon.
 
 | Offset | Name | Acc | Reset | Description |
@@ -1730,11 +1733,11 @@ before reading the word: the build's config sets
 `cluster_mapping.fabric.loopback_lane` (the builder's `--loopback-lane`, which
 is what sets `LOOPBACK_P`; without it the AEM model's loopback clusters are
 model-only), and on a `CHMAP_RDBK_P` build a mapped loopback entry reads
-`CHMAP_LOOP[17]` fed = 1 (`0x914`, next section) once audio has reached it,
-in a word that is not `0xDEADDEAD`. That second half is not optional:
-`0xDEADDEAD` is the house not-a-measurement sentinel this register reads
-un-armed, timed out or refused (next section), its bit `[17]` is 0, and a
-reader who takes it for an answer reads "no measurement" as "no lane".
+`CHMAP_LOOP[17]` fed = 1 (`0x914`, in the 0x900 section) once audio has
+reached it, in a word that is not `0xDEADDEAD`. That second half is not
+optional: `0xDEADDEAD` is the house not-a-measurement sentinel this register
+reads un-armed, timed out or refused (the 0x900 section), its bit `[17]` is 0,
+and a reader who takes it for an answer reads "no measurement" as "no lane".
 Both ring legs of `tb/verilator/milan_dp` execute the instruction in that
 order rather than only stating it: each grades the WHOLE `0x914` word against
 `0xDEADDEAD`, and `CHMAP_SNAP[1]` valid with it, BEFORE it projects anything,

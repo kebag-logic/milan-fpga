@@ -170,7 +170,7 @@ Under CRF the grids align and no rail fires.
 Software reads no delay register: the constants are this table.
 
 `I2SPB_TRIM[15:0]` (0x6E0) shows the I2S element's live fill.
-The render stage's fill waits for the #390 CSR word.
+The render stage's fill waits for the #443 CSR word.
 
 On the Arty shapes the DAC is crossbar-fed.
 The I2S path therefore renders behind this stage.

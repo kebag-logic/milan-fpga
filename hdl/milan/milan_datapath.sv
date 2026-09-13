@@ -5809,7 +5809,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [3:0]             rsp_tuser_w;
   wire [N_STREAMS*4-1:0] rsp_wire_chans_w;
   wire                   rsp_render_tick_p_w;
-  //! public taps (the #390 debug-window word is the CSR follow-up): the
+  //! public taps (the #443 debug-window word is the CSR follow-up): the
   //! milan_dp render-law leg reads the fill law and the four rails directly
   wire [N_STREAMS-1:0]   rsp_pop_p_w      /* verilator public_flat_rd */;
   wire [N_STREAMS*8-1:0] rsp_fill_w       /* verilator public_flat_rd */;
