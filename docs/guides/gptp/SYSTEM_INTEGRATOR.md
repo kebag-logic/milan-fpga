@@ -50,7 +50,7 @@ Return both timestamp tag fields.
 
 Sequence identifiers alone remain ambiguous.
 
-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/bacf812178ea0e0ca843b5c332dd62414f701fad/docs/INTEGRATION.md).
+Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/INTEGRATION.md).
 
 ## Observe
 

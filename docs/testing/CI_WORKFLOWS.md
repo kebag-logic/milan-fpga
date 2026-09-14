@@ -257,7 +257,33 @@ is exactly these twelve things:
    part of it too, because a step inserted anywhere runs before everything
    after it and can change what those steps read, and an entry appended to
    `GITHUB_PATH` puts another `gh` ahead of the runner's. A refusal names the
-   position, what belongs there, and what it found. The contract step is
+   position, what belongs there, and what it found. The same pin reaches
+   every job in the four files: the four non-RTL carriers through item 11
+   (#295), the seven RTL jobs -- the two shard workers, the two exhaustive
+   aggregates, `verilator-lint`, `bdd-conformance` and `yosys-elaboration`
+   -- through item 12 (#406), and this job, the physical leg, the fast
+   selector and the fast verdict through the same comparison, over the
+   lists `RTL_SIBLING_STEP_LISTS` records beside their own rules. For the
+   two RTL files that is a standing invariant and not an enumeration of
+   today's jobs: the checker reads both files for their job lists and
+   refuses, by name, any job of either whose whole step list nothing
+   records, and any job a recorded list names that its file no longer
+   declares. Whether a job is pinned is a COMPARISON, never a claim and
+   never an inference from what some rule refuses: the recorded list is
+   held against the live job by count, order, identity, key set, env
+   bindings, recorded `if`, recorded `with` and the recorded `id`,
+   `continue-on-error` and `working-directory`, and nothing short of that
+   counts as coverage. A rule that refuses something about a job -- a step
+   count, a `run` body, a script -- leaves which steps the job runs
+   unheld, so it is not a pin. A job appended to `rtl.yml` or to
+   `rtl-fast.yml` is therefore
+   red until its own step list is recorded in `RTL_SEQUENCE_PINS`; in
+   `rtl-fast.yml` it is red twice over, because the verdict must `needs`
+   every other job in the file and the verdict's new result binding needs
+   an entry in `INHERITED_STEP_ENV`. In `docs.yml` and `elaborate.yml` the
+   pin covers the jobs those two files carry today: neither is read for its
+   job list, so a job appended to either is not refused by this rule. The
+   contract step is
    this gate's SECOND hosted runner (#261, maintainer review on PR #293):
    its script is exactly `python3 -m pip install --quiet pyyaml` followed by
    `python3 scripts/ci_events.py --check`, its keys exactly `name` and `run`,
@@ -572,25 +598,65 @@ is exactly these twelve things:
     the key, and on that step any other value, redirects a gate to a
     checked-in decoy tree ([R4] round 7, [R3] round 10 on PR #293) -- and a
     non-mapping `env` is refused at every level. #295 closed the step-list
-    class for the four non-RTL carriers (item 11): their step lists are
-    pinned by count, order, identity, key set, recorded `if` and recorded
-    `with`, so an inserted step of ANY content -- one reaching the
-    runner's environment file without spelling its name included (the
+    class for the four non-RTL carriers (item 11) and #406 closed it for
+    the seven RTL jobs -- the two shard workers, the two exhaustive
+    aggregates, `verilator-lint`, `yosys-elaboration` and
+    `bdd-conformance` -- so every job in the four files now carries the
+    sequence pin of item 4: its step list is pinned by count, order,
+    identity, key set, env bindings, recorded `if` verbatim and recorded
+    `with` exactly, plus the `id`, `continue-on-error` and
+    `working-directory` a step records (the workers' `strategy.matrix`
+    stays with the shard-denominator rule, the result cache's `with` with
+    #350's). An inserted step of ANY content -- one reaching
+    the runner's environment file without spelling its name included (the
     `_runner_file_commands` glob, an indirect expansion, a checked-in
-    script) -- is refused there naming the job and the position, and so is
-    an `if: false` on any of their steps. What this still cannot hold is
-    the same class in the seven RTL jobs whose step lists are not pinned
-    the way the gate's is (item 4) -- the two shard workers, the two
-    exhaustive aggregates, `verilator-lint`, `yosys-elaboration` and
-    `bdd-conformance` -- where an inserted step that stays inside every
-    allowlist above still passes, and the CONTENT of the recognised
-    non-gate steps in the four carriers: `docs-check`'s gates other than
-    the ci_events step (`docs_check`, `check_feature_status`, the
-    traceability matrix, the builder gates and the rest) can still be
-    rewritten or swallowed with the context green, and the second runner
-    backs up only `ci_events --check`. A sequence-and-content pin on
-    every job closes that; it is #295's widened acceptance row and stays
-    open there.
+    script) -- is refused naming the job and the position, and so are a
+    removed, reordered or renamed step, an `if: false` on an ungated
+    step, a dropped or loosened guard on a gated one, and a rewritten
+    cache, upload or download `with`. The cost is deliberate: a legitimate
+    step change in an RTL job -- a bumped cache key, a new toolchain step,
+    a renamed step -- is refused until the job's entry in `RTL_STEP_LISTS`
+    (`scripts/ci_events.py`; the four carriers' entries are
+    `CARRIER_STEP_LISTS`, and the gate job, the physical leg, the fast
+    selector and the fast verdict are `RTL_SIBLING_STEP_LISTS`) changes
+    with it in the same commit, and the refusal names the job, the
+    position, what belongs there and what it found. WHICH jobs a step list
+    must be recorded for is not decided in the checker at all, and neither
+    is which of them count as held. The two RTL files are read for their
+    job lists, every job either declares is held against its recorded list
+    by that same comparison, and a job no list records is refused by name
+    (item 4). So one edit dropping a job's entry leaves that job in its
+    workflow held by nothing, and the tree red; and so does any line
+    claiming that some other rule covers it, because coverage IS the
+    comparison and there is no holder to claim. A rule that refuses a step
+    count, a `run` body or a script is not a whole-list pin, and a rule
+    that already refuses the live tree reports that refusal in the same
+    verdict rather than anywhere the coverage decision could discard it.
+    The self-test plants the edits rather than describing them: a dropped
+    entry, an entry truncated to two steps, an entry with one recorded key
+    removed, a list recorded for a job the file does not declare, and a
+    job appended WITH its list recorded, which is accepted because
+    recording what a job runs is the remedy rather than an exemption. The
+    arms that hold each job are derived from the live job, not from a
+    table of rows, so dropping a job's entry does not retire its arms
+    either: they go on demanding the position and identity refusals the
+    recorded list made, which the coverage refusal is not one of, so
+    `--selftest` goes red beside `--check`. The trust boundary is the
+    checker's source. Recording a step list for a job pins it to exactly
+    the steps recorded, which is what review reads, and there is no way to
+    mark a job pinned without writing down what it runs; an arbitrary
+    rewrite of the checker is outside that boundary, and what stands
+    against it is the gate's own proof -- the coverage rule uncalled, its
+    recorded-list item, its must-exist item or its comparison removed each
+    fail named `--selftest` arms with `--check` still green. What this
+    still cannot hold is the CONTENT of the recognised non-gate steps:
+    `docs-check`'s gates other than the ci_events step (`docs_check`,
+    `check_feature_status`, the traceability matrix, the builder gates and
+    the rest) and every RTL step no rule above holds by script can still
+    be rewritten or swallowed under the recorded name with the context
+    green, and the second runner backs up only `ci_events --check`. A
+    content pin on every recognised step closes that; the four carriers'
+    is #407 and the seven RTL jobs' is #439.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -684,7 +750,26 @@ real file on disk; a `BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a
 third-party-`uses:` and a benign step inserted into the four carriers, a
 recognised step removed, swapped and renamed, a non-gate carrier step
 given `if: false`, a gated `elaborate` step's `if` loosened, and a cache
-and an upload `with` rewritten; the em-dash gate step's `EVENT_NAME`
+and an upload `with` rewritten; the same nine levers on EVERY job the two
+RTL files declare (#406), derived from that job's own steps -- a
+`BASH_ENV`-writing, a `$GITHUB_PATH`-prepending, a third-party-`uses:` and
+a benign step inserted, a recorded step removed, swapped and renamed, a
+gated step's `if` dropped (a job recording no gated step given `if: false`
+on its first step instead), and a recorded `with` rewritten (a job
+recording none given one) -- plus a step appended after the recorded last
+step, a step given a `shell`, a recorded env binding rebound (a job binding
+none given one), a recorded action swapped to a third-party action under
+its recorded name, and each recorded `id`, `continue-on-error` and
+`working-directory` changed, every one refused naming the job and the
+position; the coverage rule's own arms, a benign job appended to `rtl.yml`
+and to `rtl-fast.yml`, a step-pinned job respelt in its file and a
+step-pinned job made to render the verdict's required name, refused as
+recorded by no step list, as recorded but absent, and as a second carrier
+of a required name; and, planted as a stage rather than as edits to the
+tree, a recorded list dropped, truncated, narrowed by one recorded key, a
+list recorded for a job no file declares and a job appended with its list
+recorded, the first four refused by name and the last accepted; the em-dash
+gate step's `EVENT_NAME`
 hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 `PUSH_BEFORE_SHA` dropped, its env given a `BASH_ENV`, the step given
 `if: false` and removed, its body replaced by `true`, judging from HEAD,
@@ -1393,6 +1478,13 @@ scripts/run_all_suites.sh --shard 0/4 --list
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```
+
+The tsn-gen field campaigns in `tb/verilator/tsn_fuzz/` read
+`TSN_GEN_ROOT` (default `~/tsn-gen`). Check that tree out at the revision
+the exhaustive workflow pins as `TSN_GEN_REV` before recording local
+campaign evidence: the freshness gate compares each committed
+`TEST_RESULTS.md` with a run at that revision, so a report regenerated
+at another one is not the report the hosted gate judges.
 
 The elaboration gates run locally against any interpreter that imports
 LiteX; without one they skip and the verdict says so:

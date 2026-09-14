@@ -77,7 +77,8 @@ class AutoRepairHarness {
     int mismatch() const;
     int verified() const;
 
-    // drive the servo back to IDLE, then engage CRF (clock_source == 2)
+    // drive the servo back to IDLE, then engage CRF (clk_src_i at the suite's
+    // crf_src_idx_i, 2)
     void deselect();
     void engage_until_active();
 
@@ -152,7 +153,8 @@ int AutoRepairHarness::state()    const { return static_cast<int>(dut->status_o 
 int AutoRepairHarness::mismatch() const { return static_cast<int>((dut->status_o >> 4) & 1); }
 int AutoRepairHarness::verified() const { return static_cast<int>((dut->status_o >> 3) & 1); }
 
-// drive the servo back to IDLE, then engage CRF (clock_source == 2)
+// drive the servo back to IDLE, then engage CRF (clk_src_i at the suite's
+// crf_src_idx_i, 2)
 void AutoRepairHarness::deselect() { dut->clk_src_i = 0; run_ms(2); }
 void AutoRepairHarness::engage_until_active() {
     dut->clk_src_i = 2; dut->crf_locked_i = 1;
@@ -162,8 +164,11 @@ void AutoRepairHarness::engage_until_active() {
 
 void AutoRepairHarness::reset_and_defaults() {
     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
-    //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
-    //! one AAF listener, CRF). The DUT no longer assumes it.
+    //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
+    //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
+    //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
+    //! follows crf_src_idx_i and assumes nothing about it; an index no
+    //! shipping shape uses is what proves that.
     dut->crf_src_idx_i = 2;
     dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
     dut->mmcm_locked_i = 1;

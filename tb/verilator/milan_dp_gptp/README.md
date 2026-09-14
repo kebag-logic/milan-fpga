@@ -4,9 +4,9 @@ Run `make` here for the physical integration.
 The shared recipe remains in `../milan_dp/Makefile`.
 It builds one eight-channel TDM8 datapath with gPTP enabled.
 It then grades setup, audio-window and missing-response accounting.
-The normal total is 167 checks: 127 physical, 40 accounting.
+The normal total is 177 checks: 137 physical, 40 accounting.
 The original long spans require `make extended` explicitly.
-Extended mode runs the physical harness alone, with 127 checks.
+Extended mode runs the physical harness alone, with 137 checks.
 
 The [model and phase rationale](../milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run)
 document clocks, independent peer events, assertions, exclusions, and measured timings.

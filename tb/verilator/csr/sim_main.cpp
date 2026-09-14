@@ -166,6 +166,7 @@ class MilanCsrHarness {
   void window_idx0_listener_full_width_counters();
   void rx_parser_probe_group();
   void reserved_inert_csr_gap();
+  void junction_slip_counter_words();
   void is_1g_follows_the_mac_reported_speed();
   void chmap_readback_negative_control();
   void retired_as_path_publication_abi_is_inert();
@@ -302,7 +303,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
 void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00020057);
+  ck("VERSION",       axi_read(A_VERSION), 0x00020058);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
@@ -1128,14 +1129,45 @@ void MilanCsrHarness::reserved_inert_csr_gap() {
   ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
   ck("reserved gap 0x8D0 reads 0", axi_read(0x8D0), 0);
-  // the word above the group is unmapped: reads 0, never a shadow alias
-  ck("reserved gap 0x8D4 unmapped reads 0", axi_read(0x8D4), 0);
+  // the word above the SLIP pair (0x8D4/0x8D8, #390) is unmapped: reads 0,
+  // never a shadow alias
+  ck("0x8DC above the slip pair is unmapped, reads 0", axi_read(0x8DC), 0);
   axi_write(0x8C8, 0x5A5A0000u);
   axi_write(0x8CC, 0x5A5A0001u);
   axi_write(0x8D0, 0x5A5A0002u);
   ck("reserved gap 0x8C8 ignores writes", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC ignores writes", axi_read(0x8CC), 0);
   ck("reserved gap 0x8D0 ignores writes", axi_read(0x8D0), 0);
+}
+
+// ---- media-boundary slip counters (SLIP_LB 0x8D4 / SLIP_TDM 0x8D8, #390) --
+// Two live RO words, {skip[31:16], dup[15:0]}, the first free pair above the
+// retired gap, on the same >=0x800 carve-out as the servo word. The negative
+// control is the taps at zero: with no slip source the pair reads 0, and a
+// missing rd_in_window term would read 0 with the taps DRIVEN too - which is
+// what the driven half below catches.
+void MilanCsrHarness::junction_slip_counter_words() {
+  printf("-- media-boundary slip counters (0x8D4/0x8D8) --\n");
+  ck("SLIP_LB reads 0 with no slips (taps at zero)",  axi_read(0x8D4), 0);
+  ck("SLIP_TDM reads 0 with no slips (taps at zero)", axi_read(0x8D8), 0);
+  dut->i_slip_lb  = 0x00030001u;          // 3 skips, 1 dup
+  dut->i_slip_tdm = 0x00020004u;          // 2 skips, 4 dups
+  posedge(); posedge();
+  ck("SLIP_LB follows its tap {skip16, dup16}",  axi_read(0x8D4), 0x00030001u);
+  ck("SLIP_TDM follows its tap {skip16, dup16}", axi_read(0x8D8), 0x00020004u);
+  // live, no arm: the words move with their taps
+  dut->i_slip_lb = 0xFFFFFFFFu;           // both saturated
+  posedge(); posedge();
+  ck("SLIP_LB saturated tap reads back", axi_read(0x8D4), 0xFFFFFFFFu);
+  ck("SLIP_TDM unaffected by the other word", axi_read(0x8D8), 0x00020004u);
+  // read-only: a write lands nowhere
+  axi_write(0x8D4, 0x12345678u);
+  axi_write(0x8D8, 0x9ABCDEF0u);
+  ck("SLIP_LB ignores writes",  axi_read(0x8D4), 0xFFFFFFFFu);
+  ck("SLIP_TDM ignores writes", axi_read(0x8D8), 0x00020004u);
+  dut->i_slip_lb = 0; dut->i_slip_tdm = 0;
+  posedge(); posedge();
+  ck("SLIP_LB back to 0 with the tap", axi_read(0x8D4), 0);
 }
 
 // ---- REQ-MAC-03: is_1g follows the MAC's reported speed ----
@@ -1337,6 +1369,7 @@ int MilanCsrHarness::run() {
   p11_window_at_the_n1_silicon_shape();
   rx_parser_probe_group();
   reserved_inert_csr_gap();
+  junction_slip_counter_words();
   is_1g_follows_the_mac_reported_speed();
   chmap_readback_negative_control();
   retired_as_path_publication_abi_is_inert();

@@ -392,7 +392,8 @@ def clock_source_shape(
     overlay rows carry it under 'type'. Both name the CRF row "crf". The
     generator banner above AEM_N_CLKSRC_C records why this is derived and
     never mirrored: the literals "3"/"2" were only right for a 1-listener
-    shape (an 8-listener shape has 10 sources with CRF at 9)."""
+    shape of the pre-#389 set, and since #389 every shipping shape has two
+    sources with the CRF at index 1 (AEM_CRF_CLKSRC_C)."""
     crf_ix = next((i for i, c in enumerate(clock_sources)
                    if c.get("raw_type", c.get("type")) == "crf"), None)
     return len(clock_sources), crf_ix

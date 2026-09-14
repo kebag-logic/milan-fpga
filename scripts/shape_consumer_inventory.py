@@ -68,6 +68,9 @@ def is_make_consumer(name: str) -> bool:
 CLASSIFIED_CONSUMERS = {
     ("sw/litex/sweep.sh", "$CFG_GEN/gen/adp_shape_defaults.svh"):
         "a per-config copy chosen at build time under configs/generated/",
+    ("sw/litex/build.sh", "$GEN_DIR/gen/adp_shape_defaults.svh"):
+        "the same per-config copy, named by the launcher so that a MISSING "
+        "one is refused rather than silently regenerated (#402)",
     ("tb/verilator/milan_dp/Makefile",
      "gen_divergent/gen/adp_shape_defaults.svh"):
         "written by gen_divergent_shape.py during the suite, never tracked",

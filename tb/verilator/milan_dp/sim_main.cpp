@@ -245,7 +245,7 @@ class MilanDatapathHarness {
     void prove_the_csr_identity_and_the_eth_guard() {
         printf("[CSR] identity + reset values\n");
         ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-        ck("VERSION",       axi_read(A_VERSION), 0x00020057);
+        ck("VERSION",       axi_read(A_VERSION), 0x00020058);
         // link guard: TB leaves the eth toggles static -> unarmed = inert
         // (alive/alive, RUN, no reinit) exactly like a no-PHY top
         ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -1840,7 +1840,7 @@ uint8_t  crf_seq = 0;
             //! ...and the MMCM phase-shift loop stays in IDLE. This is the check
             //! that would have caught the 0 == 0 trap: KL_mmcm_drp_servo selects
             //! on (clk_src_i == crf_src_idx_i), fed the LIVE index against the
-            //! shape's generated AEM_CRF_CLKSRC_C - INTERNAL(0) against 2 here,
+            //! shape's generated AEM_CRF_CLKSRC_C - INTERNAL(0) against 1 here,
             //! so the select is honestly false until a controller selects CRF.
             //! Measured on the broken build: MCSRV_STAT = 0x21, servo out of IDLE
             //! at clock_source = INTERNAL.

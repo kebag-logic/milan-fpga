@@ -116,7 +116,7 @@ gptp:
 clocking:
   sampling_rate_hz: 48000
   audio_unit_rates_hz: [48000]       # honest advertisement: 48k render only
-  media_clock_sources: [internal, input_stream, crf]
+  media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
   default_source: internal
   crf_sink: true
   crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF

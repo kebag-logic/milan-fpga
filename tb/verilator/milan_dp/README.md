@@ -20,9 +20,9 @@ log in the failure so the artifact can be inspected.
 | `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target, retired input-pool posture, dynamic output maps, and loopback lane |
 | `obj_nxn4c` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4, 4 wire channels | the shipping Arty shape (framer width ≠ shadow reset) |
 | `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
-| `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros |
+| `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
-| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative |
+| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
@@ -39,6 +39,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+- **[Render phase records from the mutation controls](#render-phase-records-from-the-mutation-controls)** -- The record the render mutation arm prints around each build and run it already makes: the fields, the fixed case labels, and the limits that keep it an observation rather than a result
 - **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
 
 ## First AX7101 1x1 eight-channel run
@@ -195,7 +196,7 @@ The peer-delay assertion and both payload assertions detected corruption.
 The focused compilation limit is at most four jobs.
 Smaller positive `VERILATOR_JOBS` values remain available.
 
-The original fixed-window scenario spans 14.443565400 simulated seconds.
+The original fixed-window scenario spans 18.443565400 simulated seconds over 922178270 cycles.
 The opt-in extended target retains those windows.
 The default now ends transition windows upon observed public state.
 Polling uses AXI-Lite every simulated millisecond.
@@ -217,7 +218,8 @@ No physical clock, protocol timer, or comparison threshold changes.
 
 The four missed intervals prevent a 600-second default run.
 Acquisition, recovery, and reset also require real Pdelay exchanges.
-The trimmed scenario still requires 12.992496440 simulated seconds.
+The trimmed scenario requires 16.992496440 simulated seconds over 849624822 cycles.
+The closing transmit-flag phase adds four simulated seconds.
 Consequently, the physical leg runs separately from the default sweep:
 
 ```sh
@@ -226,7 +228,8 @@ make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
 ```
 
 The wrapper calls the focused recipe and accounting regressions.
-The physical harness contributes 127 checks.
+The physical harness contributes 137 checks.
+Ten of them grade the transmitted flag words against Table 11-4.
 Setup-abort contributes six; two no-TX controls contribute twenty.
 The missing-response control contributes fourteen additional accounting checks.
 It preserves real unanswered requests and their failed response/publication assertions.
@@ -243,10 +246,10 @@ The former 2400-second hosted budget expired on 2026-09-07.
 Its twelve shard companions passed; the physical result remained unknown.
 The reference machine needed approximately 2080 simulation seconds.
 It uses an AMD EPYC 9554P with 128 logical CPUs.
-This establishes a hosted/local ratio above approximately 1.15.
-The killed run supplies no finite upper bound.
-The scheduling decision uses that conservative, unbounded end.
-It does not treat the lower bound as a prediction.
+That established a hosted/local ratio above approximately 1.15.
+The killed run supplied no finite upper bound.
+The scheduling decision used that conservative, unbounded end.
+It did not treat the lower bound as a prediction.
 
 Round-three measurements used Verilator 5.050 on 2026-09-07.
 Each experiment was confined to four distinct logical CPUs.
@@ -272,9 +275,9 @@ It improves complete local runtime by 2.65 percent.
 
 All three completed simulation transcripts are byte-identical.
 Their SHA-256 is `15e5f27266e8c56a28122492282012dbc4d6361a2b360780742321485886bdad`.
-They retain 649624822 cycles and 12.992496440 simulated seconds.
-Payload/order/sequence comparison counts remain 4981392/622672/103937.
-Every publication value, phase, and assertion result remains unchanged.
+They retained 649624822 cycles and 12.992496440 simulated seconds.
+Their payload/order/sequence comparison counts were 4981392/622672/103937.
+Every publication value, phase, and assertion result was identical across them.
 
 The killed hosted workload divided by the measured baseline exceeds 1.15408.
 The optimistic optimized projection therefore exceeds 2336.36 seconds.
@@ -283,6 +286,26 @@ A 30-percent margin would require at most 1680 seconds.
 Even its optimistic end misses that target substantially.
 The conservative, unbounded end therefore requires decision branch 2.
 The new nightly deadline remains an operational limit awaiting hosted evidence.
+
+The 2026-09-11 remeasurement covers the current scenario.
+It used Verilator 5.052, four compilation jobs, and four confined logical CPUs under background load.
+The fresh build, physical run, and accounting controls took 3303.16 wall seconds.
+The physical simulation alone took 2774.55 seconds for 16.992496440 simulated seconds.
+The whole suite therefore used 61 percent of its 5400-second deadline locally.
+Three hosted nightly runs of the previous scenario completed on 2026-09-08, 2026-09-10 and 2026-09-11.
+Their whole suites took 2730.79, 4021.27 and 4091.59 seconds.
+The two slower runs' physical simulations took 3208.32 and 3261.56 seconds.
+Hosted simulation therefore took up to 1.58 times the 2058.94-second local baseline.
+The projection scales the slowest hosted run.
+Scaling its simulation by the cycle ratio 849624822/649624822 projects 4265.7 seconds.
+The 830-second hosted remainder covers the build, image generation, and three accounting controls.
+That remainder does not scale with the span.
+The projected hosted suite time is therefore about 5096 seconds, 94 percent of the deadline.
+Scaling by the measured local slowdown of 1.3476 instead projects about 5225 seconds, 97 percent.
+The 5400-second deadline therefore still holds on projection, with a margin between 3 and 6 percent.
+The 120-minute job keeps more than 30 minutes of margin on the same projection.
+That margin is smaller than the 50 percent spread between the fastest and slowest hosted runs.
+A completed hosted run of the current scenario remains required to confirm the deadline.
 
 The original spans remain explicitly available:
 
@@ -293,6 +316,7 @@ make -C tb/verilator/milan_dp_gptp extended
 ```
 
 Extended mode retains every original fixed-duration audio window.
+The 2026-09-11 extended run passed 137 checks in 3052.05 simulation seconds.
 Both modes execute the same assertions and comparison thresholds.
 The new elapsed-interval assertion also checks four unanswered Pdelay intervals.
 Extended mode is excluded from the default sweep.
@@ -507,9 +531,9 @@ No row projects unexecuted checks.
 | `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |
 | `obj_nxn4c` (`sim_nxn`) | 378 / — | **1679 / 0** | |
 | `obj_nolpf` (`sim_main`) | 273 / 75 | **230 / 0** | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) |
-| `obj_prune` (`sim_prune`) | 31 / 0 | **28 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there) |
+| `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
-| `obj_aclk` (`sim_aclk`) | 5 / 0 | **22 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added |
+| `obj_aclk` (`sim_aclk`) | 5 / 0 | **139 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 |
 | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
@@ -538,6 +562,90 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
   The check grades the two halves of the new structural truth — the read mux is
   still live, the RAM is empty, `CHMAP_CTRL[0]` is 0 — and will fail the day a
   seeder returns in any form.
+
+## Render phase records from the mutation controls
+
+`render_mutants.py` prints one flushed `RENDER-PHASE` line around each build
+and each short-mode run it already makes (Issue #445). They are an observation
+of WHEN each phase ran and nothing else: they add no check, no tally and no
+verdict, they change no command, argument, status or exit, and the `[PASS]` /
+`[FAIL]` lines and the closing check tally are the ones this driver printed
+before. The measurement they exist for is which case and phase the sweep's
+1800 s guard lands in when the suite is killed with results missing.
+
+Each line is `RENDER-PHASE ` followed by a JSON object. Every record carries
+`seq`, a sequence number that advances even when a write fails, so a lost
+record leaves a visible gap; and `t_s`, seconds since the `origin` record,
+from a monotonic clock read for observation only. Durations compare inside
+one run and mean nothing across runs.
+
+| `event` | when | fields beyond `seq`, `event`, `t_s` |
+|---|---|---|
+| `origin` | once, before any phase | `clock`, `unit`: the origin every later `t_s` counts from |
+| `baseline` | before the positive controls | `case`, `selected`: `prebuilt` when the executable the sweep already built was reused, `fallback-build` when this driver built the unmutated leg itself |
+| `start` | before an existing build or run call | `case`, `phase`, `mode`, `idle_s`: the gap since the previous phase ended, or since the origin |
+| `end` | after that call returned | `case`, `phase`, `mode`, `elapsed_s`, `status`, and `returncode` on a build |
+| `interrupted` | inside the existing SIGTERM handler | `state`: `active` with the running `case`, `phase`, `mode`, `elapsed_s` and `incomplete`, or `idle` with `idle_s` |
+| `end-of-run` | after the last phase, before the tally | `state`, `idle_s` |
+
+`case` is a fixed logical label: `control` for the unmutated leg, and the
+mutation's own name with spaces and hyphens turned into underscores for each
+of the four defects. `phase` is `build` or `simulation`. `mode` is the short
+mode the leg runs, and is `null` on a build, which serves both control legs.
+The six outcomes this arm grades are the two `control` modes and the four
+mutations, and `case` with `mode` names each one.
+
+`status` is what the existing call returned, so it reads differently per
+phase: a `simulation` end carries the child's integer return status (negative
+is the signal that killed it), and a `build` end carries `built` or
+`no-executable`, which is what the build helper returns to its caller.
+
+A `build` end carries `returncode` as well: the exit status the `make` recipe
+itself returned, which the helper does see. The two answer different questions,
+and a diagnostic needs both: a recipe that returned 0 and left no executable
+behind is a different failure from one that returned 2, and `status` alone
+reports them identically. A build that completed always observed the status,
+so a `null` `returncode` would mean it never reached the record.
+
+The limits, so a reader does not over-read a record:
+
+* **A phase with a `start` and no `end` is incomplete.** It earns no pass and
+  no caught mutation, and the driver's own verdict lines stay the only result.
+* **Missing records make the diagnostic incomplete, never a different
+  outcome.** A write that fails, a kill before the handler runs, or a log the
+  sweep truncated loses records; nothing recomputes them, and no case's result
+  is inferred from another's.
+* **A missing timing is `null`, not a number.** Reading the clock is part of
+  the telemetry, so a reading the clock will not give costs that record its
+  `t_s`, `elapsed_s` or `idle_s` and nothing else: no offset is estimated from
+  a neighbour, and the run's results, verdicts, tally, exit 143 and cleanup are
+  the ones it would have had with no instrument at all. A `null` origin makes
+  every later `t_s` `null`, which is a run with the phase order recorded and
+  no durations.
+* **`interrupted` reports which call was running, not which record was last.**
+  A phase stops being the running one before the record that closes it is
+  written, so a kill can never report a phase both ended and incomplete. In
+  the moment between a call returning and its `end` record reaching the log,
+  the driver is genuinely idle and a kill there says `idle`; the `end` record
+  it displaced is then one of the missing records above.
+* **Nothing about the child is recorded**: no path, no environment, no
+  captured output. The captured output still reaches the log through the
+  existing failure paths only.
+* **A case whose pattern check fails builds and runs nothing**, so it
+  contributes no phase record at all; its existing `[FAIL]` line is the report.
+* **The clock is the host's.** A duration includes whatever else that machine
+  was doing, and the per-suite 1800 s guard is unchanged and still owned by
+  `scripts/run_all_suites.sh`.
+
+`test_render_phase_observation.py` holds this contract with pure fixtures: a
+fake clock (including one that refuses readings), a recording stream that can
+hand the kill to the installed handler at a chosen record, stubbed build and
+wait results, and a guard in place of the subprocess handle, so an arm that
+reaches a real process launch fails instead of running one.
+
+```sh
+python3 tb/verilator/milan_dp/test_render_phase_observation.py
+```
 
 ## Rules this suite is held to
 

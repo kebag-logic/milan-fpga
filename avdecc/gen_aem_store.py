@@ -120,7 +120,8 @@ from aem_maps import (KNOWN_MAP_DEVIATIONS, MILAN_BASE_CHANNELS,
                       SMAP_CLUSTER_CHANNELS, SMAP_MAX_PORTS, SMAP_MAX_ROWS,
                       MapDirection, assert_no_map_deviations,
                       base_channel_cover, fmt_channels, static_map_tables)
-from aem_specs import _out_cluster_sources, builtin_spec, spec_from_overlay
+from aem_specs import (CS_RETIRED, CS_TYPE, _out_cluster_sources,
+                       builtin_spec, spec_from_overlay)
 
 #: Re-exported so `from gen_aem_store import *` and a reader both see that
 #: this module's surface is its siblings' surface plus the self-test and the
@@ -128,7 +129,8 @@ from aem_specs import _out_cluster_sources, builtin_spec, spec_from_overlay
 __all__ = [
     "AUDIO_CLUSTER", "AUDIO_MAP", "AUDIO_UNIT", "AVB_INTERFACE",
     "CHMAP_PHYS_DEPTH", "CLOCK_DOMAIN", "CLOCK_SOURCE", "CONFIGURATION",
-    "CONTROL", "CRF_FORMATS", "CTRL_LINEAR_UINT8", "CTRL_TYPE_IDENTIFY",
+    "CONTROL", "CRF_FORMATS", "CS_RETIRED", "CS_TYPE",
+    "CTRL_LINEAR_UINT8", "CTRL_TYPE_IDENTIFY",
     "ENTITY", "FORMATS", "HERE", "KNOWN_MAP_DEVIATIONS", "LOCALE",
     "MILAN_BASE_CHANNELS", "MILAN_CSR_SV", "NAMED", "NO_STRING",
     "OUT_FORMATS", "OVERLAYS", "PortMapBounds", "RATES", "ROM_SIZE", "ROOT",

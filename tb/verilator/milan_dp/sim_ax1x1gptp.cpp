@@ -37,6 +37,7 @@
 // peer residence timestamps and one received audio channel, off by default.
 
 #include "../../common/verilator_harness.hpp"
+#include "../../common/gptp_tx_flags.hpp"
 #include "Vmilan_datapath.h"
 #include <verilated.h>
 #include <algorithm>
@@ -245,6 +246,7 @@ class Harness {
     void receive_drive();
     void receive_edge();
     void transmit_edge();
+    milan::tb::GptpTxFlags tx_flags;
     void complete_tx();
     void answer_pdelay(const std::vector<uint8_t>& request);
     Frame audio_frame();
@@ -258,6 +260,7 @@ class Harness {
     enum class Until { Deadline, Healthy, SyncLost, PeerLost, StalledPtp };
     void audio_window(const char* arm, uint64_t n, int tu, Until until = Until::Deadline);
     void loss_recovery();
+    void emit_every_gptp_tx_flag_type();
     int report();
 };
 
@@ -525,6 +528,7 @@ void Harness::transmit_edge() {
 }
 
 void Harness::complete_tx() {
+    tx_flags.observe(tx_cur);
     const auto& f = tx_cur;
     if (frame_was_stalled && be(f, 12, 2) == 0x88F7) ++stalled_ptp_frames;
     if (f.size() >= 68 && be(f, 12, 2) == 0x88F7 && (f[14] & 15) == 2)
@@ -793,7 +797,26 @@ void Harness::loss_recovery() {
     audio_window("recovered stable", kHz / 50, 0);
 }
 
+// Stop peer Announce/Sync, retain its Pdelay answers, and let the ordinary
+// receipt timer select this station as GM. A peer request also drives both
+// response types, so every Table 11-4 word has a real MAC-bound witness.
+void Harness::emit_every_gptp_tx_flag_type() {
+    next_announce = cyc + kHz * 5;
+    next_sync = cyc + kHz * 5;
+    require_tu = -1;
+    Frame request = ptp(2, 0x7A00, 0x0000, 20);
+    request.ts(0); request.u64(0); request.u16(0);
+    queue({cyc + 500, request});
+    run_cycles(kHz * 4);
+}
+
 int Harness::report() {
+    if (cyc != 0) {
+        tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
+            check.dec(name, got, expected);
+        }, !negative_ && test_control_ == TestControl::Normal
+           ? milan::tb::GptpTxFlags::all_types : 1u << 2);
+    }
     const auto cumulative = [this](const char* label, uint64_t comparisons, uint64_t errors) {
         if (comparisons) check.dec(label, errors, 0);
         else printf("NOT RUN: %s (no comparisons; uncounted)\n", label);
@@ -900,6 +923,7 @@ int Harness::run() {
                         "(no accepted response in this reset epoch; uncounted)\n");
             check.that("all epochs retain real Pdelay cadence",
                        pd_requests >= 2 && pd_cadence_bad == 0);
+            emit_every_gptp_tx_flag_type();
         } else printf("NOT RUN: long loss/backpressure/reset arms in negative-control mode\n");
     } catch (const std::exception& e) {
         check.fail(e.what());

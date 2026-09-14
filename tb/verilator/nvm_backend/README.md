@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # nvm_backend -- the saved-state backing store, graded on bytes
 
-`make` - exit 0 = PASS. **433 checks at the 8x8 shape and 148 at 1x1, 0
+`make` - exit 0 = PASS. **417 checks at the 8x8 shape and 146 at 1x1, 0
 failures**, plus four negative controls that must each go RED. The suite
 carries no `-Wno-*` at all, not even `-Wno-fatal`, so any Verilator warning
 stops the build.

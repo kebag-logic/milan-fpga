@@ -28,7 +28,7 @@
   //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
-  localparam int AEM_NAME_ENTRIES_C = 107;
+  localparam int AEM_NAME_ENTRIES_C = 99;
   //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:
   //! the saved-state record allocation (KL_nvm_backend) is sized by
   //! them, one sampling-rate record per unit and one clock-source and
@@ -47,10 +47,11 @@
   //! to mean CRF. 16'hFFFF when the shape declares no CRF source, so
   //! the compare is structurally false rather than accidentally true
   //! (the 0 == 0 trap the milan_datapath banner records). Derived
-  //! from the config's media_clock_sources - internal first, then one
-  //! per AAF listener, then CRF - never a hand literal.
-  localparam int unsigned AEM_N_CLKSRC_C = 10;
-  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd9;
+  //! from the config's media_clock_sources - internal first, then the
+  //! CRF sink's source; no per-listener source since #389 - never a
+  //! hand literal.
+  localparam int unsigned AEM_N_CLKSRC_C = 2;
+  localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;
   //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set
   //! bit means the descriptor carries no static AUDIO_MAP and the
   //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.

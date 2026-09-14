@@ -508,7 +508,7 @@ def ptp_frame(message_type: int, body: bytes = b"", **fields) -> bytes:
 
 def ptp_sync(sequence_id: int = 0, **kw) -> bytes:
     """Two-step Sync (44 B PDU): origin zero, the Follow_Up carries time."""
-    kw.setdefault("flags", 0x0208)                 # twoStep | ptpTimescale
+    kw.setdefault("flags", 0x0208)                 # RX: ignored reserved bit
     kw.setdefault("control", 0x00)
     kw.setdefault("log_message_interval", 0xFD)    # Milan Table 4.1: 125 ms
     return ptp_frame(PTP_SYNC, ts80(0), sequence_id=sequence_id, **kw)
@@ -536,7 +536,7 @@ def ptp_follow_up(**kw) -> bytes:
     frames.
     """
     own, kw = _split_fields(PTP_FOLLOW_UP_FIELDS, kw)
-    kw.setdefault("flags", 0x0008)                 # ptpTimescale
+    kw.setdefault("flags", 0x0008)                 # RX: ignored reserved bit
     kw.setdefault("control", 0x02)
     kw.setdefault("log_message_interval", 0xFD)
     body = ts80(own["origin_ns"])

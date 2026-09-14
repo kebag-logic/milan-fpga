@@ -2,7 +2,7 @@
 # Milan v1.2 compliance matrix — all five standards, one page
 
 The per-clause compliance position of this end-station against its five
-normative specifications, at firmware VERSION `0x0002_0057`. The overall
+normative specifications, at firmware VERSION `0x0002_0058`. The overall
 verdict is the audit's:
 [not fully compliant with Milan v1.2](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 — the open rows below are why, and the ordered plan through them is
@@ -14,7 +14,7 @@ Machine-checked anchors from the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
@@ -117,7 +117,7 @@ input, are silently refused.
 | 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included — PP pp_top byte-exact |
 | 5.4.2.11 / .12 | SET/GET_NAME | implemented | landed 0x0054; nonvolatile restore stays with persistence (Section 1.7) |
 | 5.4.2.13 / .14 | SET/GET_SAMPLING_RATE | implemented | stored + served; media-plane adoption open (Section 1.8, audit B3) |
-| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain) |
+| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h for the verdict, the carried index and the readback, W10i for the same on a row no controller has set, and W10j for the "moves nothing" half: no store write, no NVM mark, no notification enqueued and no unsolicited frame at a second registered controller) |
 | 5.4.2.17 / .18 | SET/GET_CONTROL (Identify, 0/255, volatile) | implemented | PP dyn_state; no public indication output yet (audit B7) |
 | 5.4.2.19 / .20 | START/STOP_STREAMING (inputs; `NOT_SUPPORTED` on outputs) | implemented | binding-record interlock (issue #78); started-state persistence open (audit B12) |
 | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
@@ -204,10 +204,10 @@ connect and the started-state restore (audit B12).
 | 4.4.3.2–.4 | subtype, h, version — a non-zero-version PDU is discarded whole | implemented — RTL avtp_parser (version gate closed 2026-08-08) |
 | 4.4.4.2 / .8 | sv, stream_id match | implemented — RTL avtp_parser at five shapes |
 | 4.4.4.3 | mr — toggled on media-clock change, held ≥ 8 AVTPDUs | implemented — `KL_media_clock_restart`; RTL tkdiag + milan_dp |
-| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented — RTL avtp_stream, aaf; SILICON latency = presentation offset |
+| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its DAC through the render setpoint stage (8 media ticks more, constant), so that figure predates the shipped gateware and a re-measurement rides #117's bench; the accept-to-render constant is digital-proven in `tb/verilator/milan_dp` (the true-ratio leg, #386); the TDM render lane is not clocked on any shipping build, its silicon figure rides #117 |
 | 4.4.4.6 | sequence_num increment/wrap | implemented — RTL aaf; the SEQ_NUM_MISMATCH counter proves the observer |
 | 4.4.4.7 | tu on gPTP discontinuity | implemented — `KL_ptp_clock_validity` + the plane's clock-validity lease; RTL clkvalid; the retired BDD leg left the tree with #259 |
-| 4.3.2 | AVTP presentation time semantics | implemented — RTL aaf_latency_taps / aaf_latency_tap_bank; SILICON E2E = offset |
+| 4.3.2 | AVTP presentation time semantics | implemented -- RTL aaf_latency_taps / aaf_latency_tap_bank; SILICON E2E = offset was measured on the I2S shape before #386 and predates the stage that shape's DAC now renders behind (a re-measurement rides #117's bench); the render setpoint law (`KL_render_setpoint`, #386) is digital-proven, silicon on #117 |
 | 7.2.3–.5 / 7.3.2–.4 | AAF PCM: format, sp, evt · nsr, channels_per_frame, bit_depth | implemented — RTL aaf + the advertised-vs-emitted wire-accountability gate |
 | 10.4.x | CRF: type `CRF_AUDIO_SAMPLE`, pull, base_frequency, timestamp_interval, mr | implemented — RTL crf_rx / crf_tx |
 

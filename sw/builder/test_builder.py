@@ -188,6 +188,23 @@ Gates (gaps item 4, generator round):
       the flow tail its own launcher appends and `--build` included, because
       a guard that reads args.build is invisible to every shape gate in the
       tree.  Two recipes could not launch at all until this gate ran.
+  32. THE KEY MAP IS COMPLETE (issue #404): every config key load_config
+      accepts has a row in docs/ENDSTATION_BUILDER.md section 3 and every
+      key the table names is one the loaders accept.  The key set is what
+      the loaders READ (by [], get, in or enumeration; never listed here)
+      on the paths the five tracked configs take; a key read on a loader
+      path none takes is outside it, by rule (the gate prints that census).
+  33. EVERY ADVERTISED CLOCK_SOURCE IS ONE THE FABRIC FOLLOWS (#389):
+      the emitted set is INTERNAL + the CRF sink's INPUT_STREAM source on
+      every shipping config (count 2, CRF at 1, in the overlay AND the
+      generated header), no source is located on an AAF listener, the set
+      is model shape (1722.1 6.2.2.8), and the retired `input_stream`
+      source is refused BY NAME, naming the issue, on both paths a
+      descriptor set is built through: the config loader, and
+      `avdecc/aem_specs.py`'s `spec_from_overlay` under the
+      `gen_aem_store.py --overlay` CLI.  The second is defence in depth,
+      the overlay being builder-generated, and its bites arm restores the
+      pre-#389 map to show the retired row rendering again without it.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -223,9 +240,10 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections.abc import Callable
+import types
+from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any, NamedTuple, NoReturn
 
 #: Every path constant below is a `pathlib.Path`, and so is every path this
 #: module derives from one.  The one deliberate exception is `sys.path`, which
@@ -340,7 +358,7 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 # is the gate working, not the gate being relaxed - what it proves is that the
 # PIN still wins over the hash, and the assertion below that hash != pin is
 # what would catch the two being silently reconciled.
-DEPLOYED_MODEL_ID = "0x001BC50AC1000003"
+DEPLOYED_MODEL_ID = "0x001BC50AC1000004"
 
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
@@ -7716,7 +7734,10 @@ def test_baremetal_profile_contract() -> None:
                 "cfg_ptp_adj": 3,
                 "cfg_ptp_tod_wr": 3,
                 "cfg_ptp_offset": 3,
-                "cfg_ptp_cmd_load": 4,
+                #: settime strobe: declaration, CLKV observer port, milan_csr
+                #: port, ptp_sync port, plus the #386 render-setpoint recentre
+                #: OR term (a read-only consumer, pinned below; no driver).
+                "cfg_ptp_cmd_load": 5,
                 "cfg_ptp_cmd_adjust": 4,
                 "cfg_ptp_cmd_snapshot": 3,
                 #: cfg_ptp_ingress_lat/cfg_ptp_egress_lat left the datapath
@@ -7725,7 +7746,9 @@ def test_baremetal_profile_contract() -> None:
                 "ptp_tod_rd_valid": 3,
                 "eff_ptp_adj_w": 2,
                 "eff_ptp_offset_w": 2,
-                "eff_ptp_adjust_w": 2,
+                #: effective adjtime strobe: initializer and ptp_sync port,
+                #: plus the same #386 render-setpoint recentre OR term.
+                "eff_ptp_adjust_w": 3,
                 "gptp_adj_w": 4,
                 # The engine step strobe has its original declaration,
                 # effective-PHC mux, engine port, and option-off tieoff plus
@@ -7765,6 +7788,18 @@ def test_baremetal_profile_contract() -> None:
             "cfg_ptp_cmd_adjust",
             "effective PHC adjust strobe must select only gPTP or CSR "
             "control")
+        #: #386: the render stage's recentre pulse is the one consumer the two
+        #: census rows above admit beyond the PHC crossing; pin its exact
+        #: term set so the extra reference can only ever be this read. The
+        #: fourth term is the settled clock-source change (round 5), a
+        #: datapath-local pulse that reads no PHC net.
+        direct_initializer(
+            datapath, r"wire[ \t]+render_recentre_p_w",
+            "render_recentre_p_w",
+            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load "
+            "| src_recentre_p_r",
+            "render recentre pulse must read only the GM-change, adjtime, "
+            "settime and settled clock-source discontinuities")
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -8596,7 +8631,7 @@ def test_baremetal_profile_contract() -> None:
                     sources.append(str(source))
                 command = common + [
                     "--top-module", "milan_datapath",
-                    "-GGPTP_PLANE_EN_P=1", "-GPB_PREFILL_C=2",
+                    "-GGPTP_PLANE_EN_P=1",
                     "-GCLKV_QTICK_CYC_P=4096", "-GLDIAG_IVAL_CYC_P=256",
                     "-GDIAG_TICK_CYC_P=256"] + sources
             else:
@@ -9114,6 +9149,15 @@ def test_baremetal_profile_contract() -> None:
         "  wand        cfg_ptp_enable;\n"
         "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
         "ADP-controlled second PHC-enable driver")
+    #: #386: an ADP term spliced into the render recentre read keeps every
+    #: PHC census count, so only the recentre pin can refuse it.
+    render_recentre_adp_term = replace_once(
+        datapath_source,
+        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       | src_recentre_p_r;",
+        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       | src_recentre_p_r | cfg_adp_enable;",
+        "ADP-controlled render recentre term")
     phc_effective_adjust_gated_by_adp = replace_once(
         datapath_source,
         "                               ? unsigned'(gptp_adj_w)   : "
@@ -10889,6 +10933,11 @@ def test_baremetal_profile_contract() -> None:
          docs_source, csr_source,
          "datapath PHC nets must retain sole-driver reference ownership",
          MutantFiles(datapath=phc_wand_second_driver)),
+        ("ADP term spliced into the render recentre pulse", firmware_source,
+         docs_source, csr_source,
+         "render recentre pulse must read only the GM-change, adjtime, "
+         "settime and settled clock-source discontinuities",
+         MutantFiles(datapath=render_recentre_adp_term)),
         #: 915cbcc3: the PHC consumer is the ptp_csr_sync crossing; the
         #: reasons follow the re-pointed pins.
         ("PHC crossing consumer gated by ADP", firmware_source,
@@ -12282,11 +12331,17 @@ def test_gptp_product_default_and_legacy_option() -> None:
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
     assert 'self._gptp_owner = "software"' not in soc_source
-    for launcher in ("sw/litex/sweep.sh", "sw/litex/build.sh",
-                     "sw/litex/sweep_extra.sh"):
+    for launcher in ("sw/litex/sweep.sh", "sw/litex/sweep_extra.sh"):
         source = (ROOT / launcher).read_text()
         assert "--fabric-gptp" in source
         assert "--no-fabric-gptp" not in source
+    # build.sh spells no design flag since #402: the owner flag its config
+    # emits is read off the launch line each recipe's own dry run prints.
+    for name in _build_sh_recipe_names():
+        for argv in _launcher_soc_argv(BUILD_SH, [name, "--dry-run"]):
+            assert "--fabric-gptp" in argv, \
+                f"build.sh {name}: no --fabric-gptp on its launch line"
+            assert "--no-fabric-gptp" not in argv
     print("  [gate 1c] fabric ownership is the only product configuration")
 
 
@@ -13432,8 +13487,9 @@ def test_crf_output_overlay_structure() -> None:
         assert dc["AUDIO_MAP"] == n_static, (name, dc["AUDIO_MAP"], n_static)
         assert ovl["entity_counts"]["talker_stream_sources"] == n + 1
         # CLOCK_SOURCE set unchanged by the output: 1722.1 7.2.9.2 defines
-        # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + N inputs + CRF sink
-        assert dc["CLOCK_SOURCE"] == 1 + n + 1
+        # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + the CRF sink,
+        # nothing per AAF listener since #389 (gate 33)
+        assert dc["CLOCK_SOURCE"] == 2
         check_port_layout(ovl, n, n)              # port invariants still hold
         print(f"  [gate 15] {name}: CRF STREAM_OUTPUT idx {n} advertised "
               "(no port/cluster/map growth, talker count +1, "
@@ -13558,6 +13614,146 @@ def test_gen_aem_store_crf_output_overlay() -> None:
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
           "4 output ports")
     _assert_per_stream_format_tables(svh, dirv, outs)
+
+
+def _assert_crf_needs_its_sink() -> None:
+    """Gate 33's second refusal arm (R102-2-1): a source the emitter would
+    DROP rather than advertise is refused, and the honest posture beside it
+    is accepted.
+
+    Without the refusal the first variant builds, emits one source
+    (`AEM_N_CLKSRC_C = 1`, `AEM_CRF_CLKSRC_C = 16'hFFFF`) and hashes a
+    TWO-source model: descriptors byte-identical to the `[internal]` config,
+    `entity_model_id` different. Milan v1.2 6.2.2.8 asks a changed model for
+    a new id, not an unchanged one for a second."""
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal", "crf"], default_source="internal",
+        crf_sink=False))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "crf_sink" in str(e) and "#389" in str(e), str(e)
+        else:
+            raise AssertionError(
+                "a config offering crf with the sink off was accepted")
+    finally:
+        p.unlink()
+    # the paired POSITIVE case, so the rule is not just a ban: the same
+    # config with 'crf' dropped as well builds, and emits the ONE source it
+    # advertises
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal"], default_source="internal",
+        crf_sink=False))
+    try:
+        r = eb.build(p, OUT)
+        assert [c["type"] for c in r["overlay"]["clock_sources"]] \
+            == ["internal"], r["overlay"]["clock_sources"]
+        assert "localparam int unsigned AEM_N_CLKSRC_C = 1;" \
+            in r["adp_shape_svh"]
+        assert eb.model_shape(r["cfg"])["clock_sources"] == ["internal"]
+    finally:
+        p.unlink()
+
+
+def test_clock_sources_follow_the_fabric() -> None:
+    """Gate 33 (#389): every CLOCK_SOURCE a shipping config advertises is
+    one the fabric follows - INTERNAL and the CRF sink's INPUT_STREAM
+    source, nothing per AAF listener - in the overlay and the generated
+    header alike; the set is model shape; the retired `input_stream`
+    source is refused by name on both paths a descriptor set is built
+    through, the config loader and `spec_from_overlay`; and a source that
+    WOULD be dropped rather than emitted - `crf` with the sink off - is
+    refused for the same reason instead of entering the model-id hash
+    unadvertised."""
+    for name, path in CONFIGS.items():
+        r = eb.build(path, OUT)
+        ovl, cfg = r["overlay"], r["cfg"]
+        n = len(cfg["listeners"])
+        cs = ovl["clock_sources"]
+        assert [c["type"] for c in cs] == ["internal", "crf"], (name, cs)
+        assert cs[0]["location_type"] == "CLOCK_SOURCE", (name, cs[0])
+        # the CRF source names the CRF sink, the STREAM_INPUT appended
+        # after the n AAF listeners - never one of the listeners
+        assert (cs[1]["location_type"], cs[1]["location_index"]) \
+            == ("STREAM_INPUT", n), (name, cs[1])
+        assert ovl["descriptor_counts"]["CLOCK_SOURCE"] == 2, name
+        assert not any(c["location_type"] == "STREAM_INPUT"
+                       and c["location_index"] < n for c in cs), (name, cs)
+        # ...and the header the media plane compares against says the same
+        svh = r["adp_shape_svh"]
+        assert "localparam int unsigned AEM_N_CLKSRC_C = 2;" in svh, name
+        assert "localparam logic [15:0] AEM_CRF_CLKSRC_C = 16'd1;" in svh, name
+        # the set is descriptor structure, so it is in the model-id hash
+        assert eb.model_shape(cfg)["clock_sources"] == ["internal", "crf"], name
+    # the retired key is refused, by name, citing the issue - a config
+    # cannot claim a source the fabric cannot follow
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"].update(
+        media_clock_sources=["internal", "input_stream", "crf"]))
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "input_stream" in str(e) and "#389" in str(e), str(e)
+        else:
+            raise AssertionError("a config declaring input_stream was accepted")
+    finally:
+        p.unlink()
+    _assert_crf_needs_its_sink()
+    # ...and refused on the OTHER path a descriptor set is built through.
+    # `spec_from_overlay` is where the retired type stayed EXPRESSIBLE: the
+    # overlay it reads is BUILDER-GENERATED, so the refusal above already
+    # means no tracked or emitted overlay can carry such a row, and this
+    # second refusal is defence in depth for a hand-made or future overlay,
+    # not a second rule.
+    import aem_specs
+    bad = copy.deepcopy(eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)["overlay"])
+    bad["clock_sources"].insert(1, dict(
+        index=1, name="Stream Clock", type="input_stream",
+        location_type="STREAM_INPUT", location_index=0))
+    for i, c in enumerate(bad["clock_sources"]):
+        c["index"] = i
+    try:
+        aem_specs.spec_from_overlay(bad)
+    except ValueError as e:
+        assert "input_stream" in str(e) and "#389" in str(e), str(e)
+    else:
+        raise AssertionError("an overlay carrying input_stream was accepted")
+    # the CLI over that same function, which is the entry point a developer
+    # reaches for and the one the report exercised: it must refuse and write
+    # nothing, where it used to emit a store with exit 0
+    with tempfile.TemporaryDirectory() as made:
+        td = Path(made)
+        (td / "aem_overlay.json").write_text(json.dumps(bad),
+                                             encoding="utf-8")
+        cp = subprocess.run(
+            [sys.executable, str(ROOT / "avdecc/gen_aem_store.py"),
+             "--overlay", str(td / "aem_overlay.json"), "--out-dir", str(td)],
+            capture_output=True, text=True, check=False)
+        assert cp.returncode != 0, \
+            "gen_aem_store --overlay built a store for a retired source"
+        assert "input_stream" in cp.stderr and "#389" in cp.stderr, cp.stderr
+        assert sorted(e.name for e in td.iterdir()) == ["aem_overlay.json"], \
+            "gen_aem_store wrote an artifact before refusing"
+    # the arm bites: put the pre-#389 map back with no refusal, and the same
+    # overlay renders the retired row again as a 0x0002 CLOCK_SOURCE located
+    # on the AAF listener - the exact descriptor this issue closed. Remove
+    # the refusal and this gate reddens on the two assertions above.
+    keep_t, keep_r = aem_specs.CS_TYPE, aem_specs.CS_RETIRED
+    aem_specs.CS_TYPE = dict(keep_t, input_stream=0x0002)
+    aem_specs.CS_RETIRED = {}
+    try:
+        row = aem_specs.spec_from_overlay(bad)["clock_sources"][1]
+    finally:
+        aem_specs.CS_TYPE, aem_specs.CS_RETIRED = keep_t, keep_r
+    assert (row["raw_type"], row["cs_type"], row["loc_index"]) \
+        == ("input_stream", 0x0002, 0), row
+    print(f"  [gate 33] {len(CONFIGS)}/{len(CONFIGS)} configs advertise "
+          "INTERNAL + CRF only (overlay, header and model shape agree); "
+          "input_stream refused by the config loader AND by "
+          "spec_from_overlay (CLI included), crf-without-a-sink refused by "
+          "the loader with internal-only accepted beside it, and the "
+          "overlay arm bites")
 
 
 def test_dynamic_map_topology_reaches_shape_header() -> None:
@@ -15091,7 +15287,7 @@ def test_optional_block_gates_bite() -> None:
     config stops asking - otherwise the gate would just be a ban."""
     cases = [
         # (label, feature(s) pruned, extra mutation, must-raise?)
-        ("servo pruned but CRF/input-stream clocking offered",
+        ("servo pruned but CRF clocking offered",
          dict(media_clock_servo=False), lambda c: None, True),
         ("servo pruned, internal-only clocking",
          dict(media_clock_servo=False),
@@ -16551,10 +16747,20 @@ def _gptp_without_owner_flag(argv):
             if a not in ("--fabric-gptp", "--no-fabric-gptp")]
 
 
-def _launcher_soc_argv(script: Path, args):
-    """The milan_soc.py argv printed by a launcher's real dry-run path."""
+def _launcher_soc_argv(script: Path, args, env=None):
+    """The milan_soc.py argv printed by a launcher's real dry-run path.
+
+    `env` is the launcher's environment. By default it is the caller's with
+    BUILD_CFG REMOVED: that variable rebinds a build.sh recipe to another
+    config, so a shell that exported it (the documented one-call override)
+    would otherwise have every gate below grade ONE config three times
+    under three recipe names and stay green. A gate that is about the
+    override passes it explicitly, the way gate 23i does.
+    """
+    if env is None:
+        env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
     proc = subprocess.run(["bash", str(script)] + list(args), cwd=SOC_DIR,
-                          text=True, capture_output=True)
+                          text=True, capture_output=True, env=env)
     assert proc.returncode == 0, (
         f"{script.name} {' '.join(args)} dry-run failed "
         f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n"
@@ -16575,6 +16781,15 @@ def _launcher_soc_argv(script: Path, args):
     assert rows, (f"{script.name} {' '.join(args)} printed no "
                   f"milan_soc.py argv\n{proc.stdout[-2000:]}")
     return rows
+
+
+def _build_sh_recipe_names():
+    """Every `cfg_<name>()` build.sh declares, read out of it, in file order."""
+    names = re.findall(r"^cfg_(\w+)\(\)", BUILD_SH.read_text(encoding="utf-8"),
+                       re.M)
+    assert names, "build.sh declares no cfg_* recipe - the launcher was " \
+                  "reshaped and every gate reading it stopped testing anything"
+    return names
 
 
 def _gptp_instance_runs():
@@ -16856,10 +17071,12 @@ def _shell_recipes(path: Path, pattern, flags=0):
     """{name: argv} from a shell file, one entry per `pattern` match.
 
     `pattern` must capture (name, body).  The body is the raw shell word
-    salad a recipe echoes; `$SOC_DIR` is the only variable a recipe uses and
-    it resolves to sw/litex in every launcher, so it is the only one expanded
-    - anything else left unexpanded is an assertion failure rather than a
-    token silently handed to argparse with a `$` in it.
+    salad a recipe echoes; `$SOC_DIR` is the only variable a launcher's
+    recipe ever used and it resolves to sw/litex, so it is the only one
+    expanded - anything else left unexpanded is an assertion failure rather
+    than a token silently handed to argparse with a `$` in it.  build.sh is
+    no longer read this way (#402): its recipes carry no design literal, so
+    _recipe_cases takes its launch line from its own --dry-run instead.
     """
     text = path.read_text(encoding="utf-8")
     out = {}
@@ -16885,17 +17102,15 @@ def _recipe_cases():
     the recipe is refused for its own reasons and not for a missing one.
     """
     out = []
-    # build.sh: `cfg_<name>() { ... echo "<argv>" }`, tail from its own exec
-    # line, read out of build.sh rather than restated.
-    tail = re.search(r"exec python3 milan_soc\.py \$args \$\{EXTRA\[\*\]:-\}"
-                     r'(.*?)"\s*$', BUILD_SH.read_text(encoding="utf-8"),
-                     re.M)
-    assert tail, "build.sh no longer execs milan_soc.py the way this gate reads"
-    build_tail = shlex.split(tail.group(1).replace("$out", OUT_DIR_TOKEN))
-    for name, argv in _shell_recipes(
-            BUILD_SH, r'^cfg_(\w+)\(\)[^\n]*\n(?:[^\n]*\n)*?\s*echo "(.*?)"\n',
-            re.M | re.S).items():
-        out.append((f"build.sh cfg_{name}", argv + build_tail))
+    # build.sh: the launch line each recipe's own --dry-run prints, flow
+    # tail included (#402: the design argv is the builder's artefact, so
+    # there is no recipe text to read it from).  _launcher_soc_argv has
+    # already put the --output-dir token in place of the launcher's $out.
+    for name in _build_sh_recipe_names():
+        rows = _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])
+        assert len(rows) == 1, \
+            f"build.sh {name} --dry-run printed {len(rows)} launch lines, want 1"
+        out.append((f"build.sh cfg_{name}", rows[0]))
     # sweep.sh: OPTS per board from its own case table, plus the BASE tail and
     # the per-directive launch tail.
     sweep = SWEEP.read_text(encoding="utf-8")
@@ -17150,6 +17365,501 @@ def test_recipe_skip_classifier_bites() -> None:
           "Arty error and scopt's own refusal of an --l2-* argument are the "
           "only skip shapes, a stale #184 row and every other failure fail, "
           "and the toolchain skip fails --require-elaboration")
+
+
+#  gate 23i (issue #402) - build.sh CARRIES A DESIGN FLAG IT NEVER SPELLS.
+#
+#  The three named recipes used to restate the whole design argv as shell
+#  literals, kept equal to emit_soc_argv by scripts/check_sweep_shape.py; a
+#  new builder flag needed three edits and #155/#157/#362 record what the
+#  copies cost.  Since #402 a recipe reads its design argv from the
+#  builder's soc_params.json of the config it binds, regenerated in the same
+#  shell, and appends flow flags only.  This gate is the acceptance line:
+#  a flag planted in a throwaway config reaches the dry-run launch line with
+#  no edit to build.sh.
+
+
+def test_build_sh_argv_follows_the_config() -> None:
+    """gate 23i - a design flag planted in a config rides build.sh unedited.
+
+    A throwaway copy of the Arty recipe's config, under configs/ so the
+    launcher's --entity-gen-dir rule applies, prunes a block the real config
+    keeps; BUILD_CFG puts it on the `arty` recipe.  The launch line must carry
+    the prune flag although build.sh's text never spells it, its design part
+    must be the throwaway's own emit_soc_argv verbatim, and with the flag
+    taken out it must be the unplanted launch line: the flag rode the
+    artefact and nothing else moved.  A dry run needs no LiteX, so this gate
+    runs on every box.
+    """
+    flag = eb.OPTIONAL_BLOCKS["datapath_probes"][0]
+    assert flag not in BUILD_SH.read_text(encoding="utf-8"), \
+        f"build.sh spells {flag}; this gate needs a flag it does not"
+    before = _launcher_soc_argv(BUILD_SH, ["arty", "--dry-run"])[0]
+    assert flag not in before, f"the arty recipe already carries {flag}"
+    planted = ROOT / "configs" / "gate23i_planted.yaml"
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    cfg["board"]["features"]["datapath_probes"] = False
+    # A builder run on an rtl_table config rewrites the tracked CSR header
+    # in its name; a throwaway must never own the tree.
+    cfg["srp"]["rtl_table"] = False
+    planted.write_text(yaml.safe_dump(cfg))
+    try:
+        want = eb.emit_soc_argv(eb.load_config(planted))
+        env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
+        after = _launcher_soc_argv(BUILD_SH, ["arty", "--dry-run"], env)[0]
+    finally:
+        planted.unlink()
+        shutil.rmtree(ROOT / "configs/generated" / planted.stem,
+                      ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+    assert flag in after, f"{flag} did not reach the launch line: {after}"
+    assert flag in want, f"the builder did not emit {flag} for the plant"
+    # (design argv, --entity-gen-dir value, flow tail) of each launch line
+    split = [(argv[:argv.index("--entity-gen-dir")],
+              argv[argv.index("--entity-gen-dir") + 1],
+              argv[argv.index("--entity-gen-dir") + 2:])
+             for argv in (before, after)]
+    assert split[1][0] == want, ("the launch line's design part is not the "
+                                 f"throwaway's emit_soc_argv:\n got  "
+                                 f"{split[1][0]}\n want {want}")
+    assert [a for a in split[1][0] if a != flag] == split[0][0], \
+        "planting one flag moved another design flag on the launch line"
+    assert Path(split[1][1]).name == planted.stem, \
+        f"--entity-gen-dir {split[1][1]} does not name the throwaway config"
+    assert split[1][2] == split[0][2], \
+        f"the flow tail moved: {split[0][2]} -> {split[1][2]}"
+    print(f"  [gate 23i] {flag} planted in a throwaway config reached the "
+          f"build.sh arty launch line at position {after.index(flag)} of "
+          f"{len(after)} with build.sh unedited; the other "
+          f"{len(split[0][0])} design tokens and the {len(split[0][2])}-token "
+          "flow tail are the unplanted line's, verbatim")
+
+
+def test_build_sh_grades_its_own_bindings() -> None:
+    """gate 23i-b - an exported BUILD_CFG does not regrade the recipes.
+
+    BUILD_CFG is the documented one-call override, so an operator or a CI
+    step can have it exported while a gate runs.  Every gate here that reads
+    a build.sh launch line would then read the SAME config three times under
+    three recipe names and still report three recipes elaborating: the case
+    those gates exist for becomes invisible.  The reader strips it; this is
+    the arm that proves the reader strips it.
+    """
+    own = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+           for name in _build_sh_recipe_names()}
+    other = str(CONFIGS["ax7101_8x8"].relative_to(ROOT))
+    keep = os.environ.get("BUILD_CFG")
+    os.environ["BUILD_CFG"] = other
+    try:
+        under = {name: _launcher_soc_argv(BUILD_SH, [name, "--dry-run"])[0]
+                 for name in _build_sh_recipe_names()}
+    finally:
+        if keep is None:
+            del os.environ["BUILD_CFG"]
+        else:
+            os.environ["BUILD_CFG"] = keep
+    for name, argv in under.items():
+        assert argv == own[name], (
+            f"build.sh {name}: an exported BUILD_CFG={other} moved the "
+            f"launch line this gate reads\n under {argv}\n own   {own[name]}")
+    assert len({tuple(a) for a in own.values()}) == len(own), \
+        "the recipes print identical launch lines, so this arm proves nothing"
+    print(f"  [gate 23i-b] {len(own)} build.sh recipes keep their own "
+          f"bindings with BUILD_CFG={Path(other).name} exported")
+
+
+def _plant_rtl_table_config(stem: str) -> Path:
+    """A throwaway config under configs/ whose lwSRP reset words differ.
+
+    Gates 23j and 23k both need a config that really makes a builder run
+    rewrite the tracked, tree-wide CSR header: it inherits the Arty
+    recipe's `srp.rtl_table` ownership and flips the reset state the header
+    encodes.  It lives under configs/ because the launcher's BUILD_CFG rule
+    binds only there.  The caller unlinks it and removes the two
+    directories a run of it writes.
+    """
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    assert cfg["srp"]["rtl_table"], \
+        "the throwaway must inherit the tracked-header ownership it tests"
+    cfg["srp"]["enable_at_reset"] = not cfg["srp"].get("enable_at_reset")
+    planted = ROOT / "configs" / f"{stem}.yaml"
+    planted.write_text(yaml.safe_dump(cfg))
+    return planted
+
+
+def test_build_sh_dry_run_leaves_the_tracked_tree() -> None:
+    """gate 23j - a dry run never leaves a tracked generated file moved.
+
+    Since #402 every dry run RUNS THE BUILDER, and a builder run writes
+    tracked generated files: this config's shape include, and - for any
+    config carrying `srp.rtl_table` - hdl/common/csr/gen/
+    lwsrp_csr_defaults.svh, the lwSRP CSR reset words that EVERY recipe's
+    gateware compiles.  A preview that rewrote those would change what the
+    next bitstream of any other recipe contains, and nothing on the launch
+    path would refuse it.  build.sh puts back whatever its regeneration
+    moved and refuses; this gate is that arm, planted with a throwaway
+    config whose reset words really do differ.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    before = csr.read_bytes()
+    planted = _plant_rtl_table_config("gate23j_planted")
+    gen = ROOT / "configs/generated" / planted.stem
+    env = dict(os.environ, BUILD_CFG=str(planted.relative_to(ROOT)))
+    try:
+        proc = subprocess.run(["bash", str(BUILD_SH), "arty", "--dry-run"],
+                              cwd=SOC_DIR, text=True, capture_output=True,
+                              env=env)
+        after = csr.read_bytes()
+        left = sorted(p.name for p in gen.rglob("*")) if gen.exists() else []
+    finally:
+        planted.unlink()
+        shutil.rmtree(gen, ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+        csr.write_bytes(before)
+    assert proc.returncode != 0, (
+        "a dry run whose regeneration rewrites the tracked lwSRP CSR reset "
+        f"words exited 0\n{proc.stdout[-2000:]}")
+    assert "milan_soc.py" not in proc.stdout, \
+        f"it printed a launch line anyway\n{proc.stdout[-2000:]}"
+    assert eb.CSR_DEFAULTS_REL in proc.stderr, \
+        f"the refusal does not name the file it protected\n{proc.stderr[-2000:]}"
+    assert after == before, \
+        f"the dry run left {eb.CSR_DEFAULTS_REL} modified"
+    # The put-back covers what the run CHANGED; the include directory it
+    # CREATED under the un-ignored configs/generated/<stem>/ is the other
+    # half of "as it found it", and only the refusal path may take it back.
+    assert not left, (f"the refused dry run left {gen.relative_to(ROOT)} "
+                      f"behind, holding {left}")
+    print(f"  [gate 23j] a dry run whose builder run would rewrite "
+          f"{Path(eb.CSR_DEFAULTS_REL).name} exited {proc.returncode} with no "
+          "launch line, left the tracked bytes as it found them and left no "
+          f"{gen.relative_to(ROOT)} behind")
+
+
+#  gate 23k (issue #402) - THE PRESERVATION ITSELF CAN FAIL, AND A FAILED
+#  ONE MUST NOT COST THE TREE ITS BYTES.
+#
+#  Gate 23j above grades the preservation when every command in it works.
+#  The commands it is made of can fail, and `regenerate` runs inside a
+#  command substitution where bash drops errexit, so nothing propagates on
+#  its own.  Four consequences were reachable and each is an arm here:
+#
+#    * a snapshot that fails with nothing written let the builder run and
+#      the launch go ahead over a rewritten tracked header;
+#    * a snapshot interrupted part-way was copied back over the original,
+#      which is the operator's bytes replaced by a prefix of themselves;
+#    * a put-back that failed was still reported as "put back unchanged";
+#    * a put-back that came out SHORT and reported success is a put-back
+#      by its exit status alone, so only comparing it with the snapshot it
+#      came from tells the operator's bytes from a prefix of them.
+#
+#  The arms break ONE command of the launcher's own PATH per run - the
+#  tracked build.sh is never edited - and grade the bytes on disk, the
+#  absence of a launch and a provenance line, and whether the refusal
+#  describes the state it actually left.  Two further arms start with a
+#  protected file ABSENT - the tree-wide header, and the bound config's
+#  OWN include, which is the half a glob over existing files could not
+#  see - because the builder would recreate either, which silently
+#  reverses a local deletion, so the launcher refuses before it runs.
+
+
+def _preservation_shim(tmp: Path, broken: str) -> Path:
+    """A PATH entry that breaks ONE command of build.sh's preservation.
+
+    `snapshot` fails the copy INTO the temporary directory with nothing
+    written, `partial` leaves a 32-byte prefix there and fails, `silent`
+    leaves the same prefix and reports SUCCESS - the one a status check
+    alone cannot see - `restore` fails the copy back INTO the repository,
+    `restore-silent` leaves a 32-byte prefix there and reports SUCCESS -
+    the put-back a status check alone calls a put-back - and `mktemp`
+    refuses the temporary directory itself.  Every other copy is delegated
+    to the real `cp`, so exactly one command of one run misbehaves; no
+    filesystem is filled and nothing outside the shim's own directory and
+    the one protected file is written.
+    """
+    real = shutil.which("cp", path=os.defpath)
+    assert real, "this host has no cp for the shim to delegate to"
+    into_repo = f'case "${{*: -1}}" in {ROOT}/*)'
+    short = 'head -c 32 "${*: -2:1}" > "${*: -1}"\n'
+    bodies = {
+        "snapshot": f'{into_repo} exec {real} "$@";; esac\nexit 71\n',
+        "partial": f'{into_repo} exec {real} "$@";; esac\n{short}exit 71\n',
+        "silent": f'{into_repo} exec {real} "$@";; esac\n{short}exit 0\n',
+        "restore": f'{into_repo} exit 72;; esac\nexec {real} "$@"\n',
+        "restore-silent": f'{into_repo} {short}exit 0;; esac\n'
+                          f'exec {real} "$@"\n',
+        "mktemp": "exit 70\n",
+    }
+    where = tmp / broken
+    where.mkdir(exist_ok=True)
+    shim = where / ("mktemp" if broken == "mktemp" else "cp")
+    shim.write_text("#!/bin/bash\n" + bodies[broken])
+    shim.chmod(0o755)
+    return where
+
+
+def _run_broken_preservation(broken: str | None, tmp: Path | None = None,
+                             planted=None, recipe: str = "arty",
+                             launch: bool = False) -> Any:
+    """`build.sh <recipe>`, with one command of its preservation broken.
+
+    `broken` None runs the launcher with its real commands; `planted` binds
+    a throwaway config to the recipe the way an operator's BUILD_CFG does.
+    A LAUNCH (no `--dry-run`) gets a HOME of its own, under which neither
+    the work directory nor the Vivado settings file exists: an arm that
+    failed to refuse would print its LAUNCHED line and start nothing, so
+    the launch half is graded on any box with no bitstream reachable.
+    """
+    env = {k: v for k, v in os.environ.items() if k != "BUILD_CFG"}
+    if planted is not None:
+        env["BUILD_CFG"] = str(planted.relative_to(ROOT))
+    if broken is not None:
+        assert tmp is not None, "a broken command needs a directory to live in"
+        env["PATH"] = f"{_preservation_shim(tmp, broken)}:{env['PATH']}"
+    if launch:
+        assert tmp is not None, "a launch needs a HOME of its own"
+        home = tmp / "home"
+        home.mkdir(exist_ok=True)
+        env["HOME"] = str(home)
+    args = [recipe] if launch else [recipe, "--dry-run"]
+    return subprocess.run(["bash", str(BUILD_SH)] + args, cwd=SOC_DIR,
+                          text=True, capture_output=True, env=env)
+
+
+def _tree_owning_recipe() -> tuple[str, Path] | tuple[None, None]:
+    """The recipe the entity gate lets LAUNCH, and the artefact it reads.
+
+    A real launch is refused by the entity-definition gate before it
+    reaches the preservation, so the launch arm can only be the recipe
+    whose config owns the tracked entity definition.  build.sh's own dry
+    run says which one that is: it PREVIEWS that refusal for every recipe
+    whose config does not own the tree, and its provenance line names the
+    artefact a builder run of the accepted one rewrites.
+    """
+    for name in _build_sh_recipe_names():
+        proc = _run_broken_preservation(None, recipe=name)
+        named = re.search(r"design argv from (\S+) \(regenerated", proc.stdout)
+        if proc.returncode == 0 and "would be REFUSED" not in proc.stdout \
+                and named:
+            return name, Path(named.group(1))
+    return None, None
+
+
+def _assert_refused(proc: Any, why: str, names: str) -> None:
+    """Non-zero, no launch line, no provenance line, and the cause named."""
+    tail = f"\n--- stdout\n{proc.stdout[-1500:]}\n--- stderr\n{proc.stderr[-1500:]}"
+    assert proc.returncode != 0, f"{why}: build.sh exited 0{tail}"
+    for spelling in ("milan_soc.py", "LAUNCHED"):
+        assert spelling not in proc.stdout, \
+            f"{why}: build.sh printed a {spelling} line{tail}"
+    assert "design argv from" not in proc.stdout, \
+        f"{why}: build.sh printed a provenance line for a run it refused{tail}"
+    assert names in proc.stderr, \
+        f"{why}: the refusal does not say {names!r}{tail}"
+
+
+def _kept_copy(stderr: str, rel: str) -> Path:
+    """The recovery copy a refusal names beside a file it could not restore."""
+    found = re.search(rf"{re.escape(rel)} <- (\S+)", stderr)
+    assert found, f"the refusal names no kept copy of {rel}:\n{stderr[-2000:]}"
+    kept = Path(found.group(1))
+    assert kept.is_file(), f"the copy the refusal names is not there: {kept}"
+    return kept
+
+
+def _launch_over_a_failed_snapshot(tmp: Path, before: bytes) -> None:
+    """The launch half: a real launch over a failed snapshot starts nothing.
+
+    Every other arm is a `--dry-run`, and a dry run is the case an operator
+    reaches for; the refusals are the same code either way, but "the same
+    code" is the claim, so one arm runs it as a LAUNCH.  It has to be the
+    recipe the entity gate accepts, because that gate refuses a launch
+    before the preservation is reached, and it is graded on the artefact
+    the accepted recipe reads: a builder run rewrites it, so an unmoved
+    mtime is this arm's proof that nothing ran.
+    """
+    recipe, artefact = _tree_owning_recipe()
+    if recipe is None:
+        skip("gate 23k", "no build.sh recipe's config owns the tracked entity "
+                         "definition, so no recipe can reach a real launch")
+        return
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    stamp = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    proc = _run_broken_preservation("snapshot", tmp, recipe=recipe,
+                                    launch=True)
+    _assert_refused(proc, f"a LAUNCH of {recipe} over a failed snapshot",
+                    "COMPLETE copy")
+    assert csr.read_bytes() == before, (
+        f"a launch over a failed snapshot left {eb.CSR_DEFAULTS_REL} modified")
+    now = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    assert now == stamp, (
+        f"a launch over a failed snapshot still ran the builder: {artefact} "
+        "was rewritten although the file it protects could not be copied")
+
+
+def _failed_put_back(broken: str, why: str, tmp: Path, planted: Path,
+                     before: bytes, gen: Path) -> bytes:
+    """One arm whose put-back did not complete, and what it left on disk.
+
+    The two ways it can not complete are one requirement: the copy back
+    can FAIL, and it can write a SHORT file and report SUCCESS, which
+    only the comparison with the snapshot it came from tells apart.
+    Either way the refusal must say the file is still the run's output,
+    name a copy that holds the bytes the run found, claim no put-back,
+    and leave no include directory behind.  What the arm left on disk is
+    returned for the caller to grade, and the header is put back here.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    proc = _run_broken_preservation(broken, tmp, planted)
+    _assert_refused(proc, why, "PUTTING THEM BACK")
+    kept = _kept_copy(proc.stderr, eb.CSR_DEFAULTS_REL)
+    assert kept.read_bytes() == before, (
+        f"{kept} is not the bytes this run found; a put-back that did not "
+        "complete discarded the only copy of them")
+    assert "put back unchanged" not in proc.stderr, (
+        "the refusal claims it put the file back and it did not:\n"
+        f"{proc.stderr[-2000:]}")
+    assert not gen.exists(), \
+        f"the refused run left {gen.relative_to(ROOT)} behind"
+    left = csr.read_bytes()
+    shutil.rmtree(kept.parent, ignore_errors=True)
+    csr.write_bytes(before)
+    return left
+
+
+def _bound_config_include(recipe: str) -> Path:
+    """The tracked include a build.sh recipe's own bound config writes.
+
+    Read off the launcher's own `--entity-gen-dir` - the include
+    directory it points THIS launch at - joined with the builder's own
+    `ADP_SHAPE_INCLUDE`, so neither the recipe's config binding nor the
+    name of the file the builder writes there is restated here.
+    """
+    argv = _launcher_soc_argv(BUILD_SH, [recipe, "--dry-run"])[0]
+    gen_dir = Path(argv[argv.index("--entity-gen-dir") + 1])
+    return gen_dir / eb.ADP_SHAPE_INCLUDE
+
+
+def _absent_bound_config_include(before: bytes) -> None:
+    """The absence arm over the BOUND CONFIG's own tracked include.
+
+    The tree-wide CSR header is spelled in the launcher's text; this one
+    lives under `configs/generated/<stem>/gen` and was DISCOVERED, by a
+    glob over the files that were there - so removing it took it out of
+    the protected set altogether and the next dry run recreated it with
+    a launch line, a provenance line and exit 0.  It owes what the
+    header owes: a refusal before the builder runs, the absence left
+    alone, and the artefact not rewritten.  `before` is the header,
+    which this run copies aside and must not move before refusing at the
+    include.
+    """
+    recipe = _build_sh_recipe_names()[0]
+    include = _bound_config_include(recipe)
+    rel = include.relative_to(ROOT)
+    assert include.is_file(), (
+        f"{rel}: the {recipe} recipe's bound config carries no tracked "
+        "include, so this arm would grade nothing")
+    artefact = OUT / include.parent.parent.name / "soc_params.json"
+    keep = include.read_bytes()
+    mode = include.stat().st_mode
+    stamp = artefact.stat().st_mtime_ns if artefact.is_file() else None
+    try:
+        include.unlink()
+        proc = _run_broken_preservation(None, recipe=recipe)
+        _assert_refused(proc, f"{rel} was absent", "MISSING from the tree")
+        assert str(rel) in proc.stderr, \
+            f"the refusal does not name it:\n{proc.stderr[-2000:]}"
+        assert not include.exists(), (
+            f"a run that found {rel} absent recreated it, silently "
+            "reversing a local deletion")
+        now = artefact.stat().st_mtime_ns if artefact.is_file() else None
+        assert now == stamp, (
+            f"it ran the builder although {rel} was absent: {artefact} was "
+            "rewritten")
+    finally:
+        include.write_bytes(keep)
+        include.chmod(mode)
+    assert (ROOT / eb.CSR_DEFAULTS_REL).read_bytes() == before, \
+        f"it refused at {rel} and still moved {eb.CSR_DEFAULTS_REL}"
+
+
+def test_build_sh_refuses_a_preservation_it_cannot_complete() -> None:
+    """gate 23k - a broken snapshot or put-back never costs tracked bytes.
+
+    Nine arms, eight over the throwaway config of gate 23j and each
+    grading the real file on disk: a refused temporary directory, a
+    snapshot that fails with nothing written, one that comes out short
+    and says so, one that comes out short and reports success, the same
+    broken snapshot as a real LAUNCH rather than a preview, a put-back
+    that fails after the builder really did rewrite the header, one that
+    comes out short and reports success, and the header ABSENT before the
+    run.  The ninth starts with the BOUND CONFIG's own tracked include
+    absent instead, the half of the protected set a glob over existing
+    files cannot offer.  The first five must leave the header
+    byte-identical and prove the builder never ran, by the include
+    directory it would have created not being there.  The two put-back
+    arms must say what is still the run's output, keep the operator's
+    bytes in a copy they name, and not claim they put anything back; the
+    short one must leave exactly the prefix that copy wrote, which is the
+    state a status check alone reports as a restoration.  The absent arms
+    must leave it absent.
+    """
+    csr = ROOT / eb.CSR_DEFAULTS_REL
+    before = csr.read_bytes()
+    planted = _plant_rtl_table_config("gate23k_planted")
+    gen = ROOT / "configs/generated" / planted.stem
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            for broken, names in (("mktemp", "mktemp -d failed"),
+                                  ("snapshot", "COMPLETE copy"),
+                                  ("partial", "COMPLETE copy"),
+                                  ("silent", "COMPLETE copy")):
+                proc = _run_broken_preservation(broken, Path(td), planted)
+                _assert_refused(proc, f"the {broken} copy failed", names)
+                assert csr.read_bytes() == before, (
+                    f"a failed {broken} snapshot left {eb.CSR_DEFAULTS_REL} "
+                    "modified: the tree lost bytes to a copy that failed")
+                assert not gen.exists(), (
+                    f"a failed {broken} snapshot still let the builder write "
+                    f"{gen.relative_to(ROOT)}")
+            _launch_over_a_failed_snapshot(Path(td), before)
+            left = _failed_put_back("restore", "the put-back failed",
+                                    Path(td), planted, before, gen)
+            assert left != before, (
+                "the arm did not reach a failed put-back: "
+                f"{eb.CSR_DEFAULTS_REL} was never rewritten")
+            left = _failed_put_back("restore-silent", "the put-back came out "
+                                    "short and reported success", Path(td),
+                                    planted, before, gen)
+            assert left == before[:32], (
+                "the arm did not reach a put-back that reported success over "
+                f"a short file: {eb.CSR_DEFAULTS_REL} holds neither the "
+                "operator's bytes nor the 32-byte prefix that copy wrote")
+            csr.unlink()
+            proc = _run_broken_preservation(None, planted=planted)
+            _assert_refused(proc, "the protected file was absent",
+                            "MISSING from the tree")
+            assert not csr.exists(), (
+                f"a run that found {eb.CSR_DEFAULTS_REL} absent recreated it, "
+                "silently reversing a local deletion")
+            assert not gen.exists(), \
+                "it ran the builder although it could not preserve the tree"
+            csr.write_bytes(before)
+            _absent_bound_config_include(before)
+    finally:
+        planted.unlink(missing_ok=True)
+        shutil.rmtree(gen, ignore_errors=True)
+        shutil.rmtree(OUT / planted.stem, ignore_errors=True)
+        csr.write_bytes(before)
+    print(f"  [gate 23k] over {Path(eb.CSR_DEFAULTS_REL).name}: a refused "
+          "temporary directory, a copy that failed, one short and loud, one "
+          "short and silent, the first as a real launch, a failed put-back, "
+          "one short and reporting success, and an absent file each refused "
+          "with no launch line, no provenance line, the bytes on disk "
+          "untouched or named with the copy kept for them, and no include "
+          f"directory left behind; and over {Path(eb.ADP_SHAPE_INCLUDE).name} "
+          "the bound config's own absent include refused the same way, with "
+          "its artefact not rewritten")
 
 
 #  gate 23h (issue #185) - THE TOOLCHAIN THIS SOC IS BUILT WITH IS THE ONE
@@ -18357,9 +19067,15 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # the historical clock_accuracy 0x21 / log_sync_interval 0 and derives
     # the engine's announced 0xFE / -3 instead ([R-parallel] on #228):
     # AVB_INTERFACE clock fields are descriptor content, so 6.2.2.8 obliges
-    # the move, while the served id itself stays pinned.
+    # the move, while the served id itself stays pinned,
+    # then -> 0x001BC53BF2977319 when #389 dropped the per-AAF-listener
+    # INPUT_STREAM CLOCK_SOURCE (one descriptor fewer, a shorter CLOCK_DOMAIN
+    # list) and made the clock-source set an UNCONDITIONAL model_shape key:
+    # the descriptor set is the structure 6.2.2.8 names, so every id moved,
+    # and the served pin moved with it (...0003 -> ...0004) because the
+    # model this pin serves changed.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5D471D5A5E1"
+        "0x001BC53BF2977319"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -18383,14 +19099,17 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # constants byte-exactly), and an EIGHTH -> 0x001BC5E53D97FC91 when that
     # restatement was itself retired: clock_accuracy 0x21 / log_sync_interval
     # 0 are deleted and the builder derives the engine's announced 0xFE / -3
-    # ([R-parallel] on #228), which is descriptor content per 7.2.8.
+    # ([R-parallel] on #228), which is descriptor content per 7.2.8, and a
+    # NINTH -> 0x001BC505328AA45F when #389 removed the four per-listener
+    # INPUT_STREAM CLOCK_SOURCE descriptors nothing followed and put the
+    # clock-source set into model_shape unconditionally.
     # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
-    # hash-derived id - that is the mechanism working. What must NOT move is
-    # arty_current's PINNED id above, and it has not: it was re-pinned by hand
-    # with the reflash, which is the only way a pin is allowed to move.
+    # hash-derived id - that is the mechanism working. What must NOT move on
+    # its own is arty_current's PINNED id above: it moves only by hand, with
+    # the model change that obliges it (#389 was one), never with the recipe.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC5E53D97FC91"
+        "0x001BC505328AA45F"
 
 
 def test_d10_cluster_names() -> None:
@@ -18722,9 +19441,9 @@ def _assert_engine_pin_parser_derives(wire):
     fixture = ("P1_C, P2_C = 248, 247\n"
                "CQ_C = 0xF7FD436B\n"
                "# CQ_C = 0x11111111 commented copies are stripped\n"
-               "    e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)\n"
-               "    e_hdr(p, 0x2, 0x0000, RA, 0x00, 54)\n"
-               "    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n")
+               "    e_hdr(p, 0x0, RA, 0xFC, 44)\n"
+               "    e_hdr(p, 0x2, RA, 0x00, 54)\n"
+               "    e_hdr(p, 0xB, RA, 0x01, 76)\n")
     got = eb.gptp_engine_pins(fixture)
     assert got == dict(priority2=247, clock_class=0xF7, clock_accuracy=0xFD,
                        offset_scaled_log_variance=0x436B,
@@ -18734,10 +19453,10 @@ def _assert_engine_pin_parser_derives(wire):
             ("missing CQ_C", fixture.replace("CQ_C = 0xF7FD436B\n", "")),
             ("duplicate CQ_C", fixture + "CQ_C = 0x12345678\n"),
             ("missing Announce TX",
-             fixture.replace("    e_hdr(p, 0xB, 0x0008, RA, 0x01, 76)\n",
+             fixture.replace("    e_hdr(p, 0xB, RA, 0x01, 76)\n",
                              "")),
             ("duplicate Announce TX",
-             fixture + "    e_hdr(p, 0xB, 0x0008, RA, 0x02, 76)\n")):
+             fixture + "    e_hdr(p, 0xB, RA, 0x02, 76)\n")):
         try:
             eb.gptp_engine_pins(broken)
             raise AssertionError(f"{label}: the derivation invented a value "
@@ -18745,6 +19464,14 @@ def _assert_engine_pin_parser_derives(wire):
         except eb.ConfigError as e:
             assert "gen_gptp_ucode.py" in str(e), \
                 f"{label}: refused without naming the authority: {e}"
+    # The removed flags argument must not shift the parsed log interval.
+    old_shape = fixture.replace("e_hdr(p, 0x0, RA, 0xFC, 44)",
+                                "e_hdr(p, 0x0, 0x0208, RA, 0xFC, 44)")
+    try:
+        eb.gptp_engine_pins(old_shape)
+        raise AssertionError("old e_hdr signature was accepted")
+    except eb.ConfigError as e:
+        assert "0 live matches for e_hdr Sync TX, need exactly 1" in str(e), e
     #! and the fixture path never poisons the real cache
     assert eb.gptp_engine_pins() == wire
 
@@ -18786,7 +19513,7 @@ def test_gptp_dataset_matches_engine_announce() -> None:
     logints = {}
     for mtype, name in (("0x0", "Sync"), ("0xB", "Announce"),
                         ("0x2", "Pdelay_Req")):
-        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*{n},\s*\w+,\s*({n}),\s*\d+\)\s*$",
+        v = one(rf"\s*e_hdr\(p,\s*{mtype},\s*\w+,\s*({n}),\s*\d+\)\s*$",
                 f"{name} e_hdr")
         logints[name] = v - 256 if v >= 128 else v
     wire = dict(priority2=p2,
@@ -19144,8 +19871,11 @@ def test_image_name_table_matches_descriptors() -> None:
             f"name entries for an image containing {n_names}")
 
         if name == "arty_current":
-            assert n_names == 29, (
-                f"shipping model has {n_names} names, expected 29")
+            # 28 since #389: the per-listener "Stream Clock" CLOCK_SOURCE and
+            # its one name are gone (29 before). The pin exists so the RTL
+            # default below is proved to still hold the shipping model.
+            assert n_names == 28, (
+                f"shipping model has {n_names} names, expected 28")
             rtl = "hdl/milan/KL_pp_shadow.sv"
             src = (ROOT / rtl).read_text(encoding="utf-8")
             assert re.search(r"DESC_NAME_ENTRIES_P\s*=\s*32", src), (
@@ -19442,6 +20172,437 @@ def test_milan_base_formats_are_rate_complete() -> None:
           f"{DESC_LINE_BYTES}-octet line buffer")
 
 
+# ------------------------------------------------ gate 32: the key map -----
+BUILDER_DOC_MD = ROOT / "docs/ENDSTATION_BUILDER.md"
+#: The heading the key map sits under; the section ends at the next `## `.
+KEY_MAP_HEADING = "## 3. Config schema"
+#: One backticked config key in the table's key column: a top-level name or
+#: a dotted path whose segments are names or `[]` (a list element), with at
+#: most one `{a,b}` group that expands to one path per name.
+KEY_TOKEN_RE = re.compile(
+    r"`([a-z_][a-z0-9_]*(?:\.(?:[a-z0-9_]+|\{[a-z0-9_,]+\})(?:\[\])?)*)`")
+
+
+def _reading_code() -> types.CodeType | None:
+    """The endstation_builder.py function nearest the top of the stack:
+    the loader whose read the recording document is noting (None when the
+    read came from outside the builder)."""
+    frame = sys._getframe(1)
+    while frame is not None and frame.f_code.co_filename != eb.__file__:
+        frame = frame.f_back
+    return frame.f_code if frame is not None else None
+
+
+class _KeyRecorder(dict):
+    """A config mapping that remembers every key path the loaders read.
+
+    `load_config` runs UNCHANGED over one of these. A child mapping (or a
+    list of mappings) comes back wrapped, so its reads land under the
+    parent's path with `[]` standing for a list element. A key the loader
+    reads with a default, or tests with `in`, is recorded whether or not the
+    config declares it - which is what makes the union over the tracked
+    configs the LOADERS' key set rather than the configs'. The overridden
+    `__iter__` also routes `set(raw)`, `dict.update(raw)` and `**raw`
+    through `keys()` and `__getitem__`, so an enumerating loader records
+    the keys it enumerates too. Given `readers`, every read also records
+    the endstation_builder.py function that made it (`_untaken_arms`'s
+    reader set); gate 32's own key set passes none.
+    """
+
+    def __init__(self, data: dict, path: str, seen: set[str],
+                 readers: set[types.CodeType] | None = None) -> None:
+        super().__init__(data)
+        self._path, self._seen, self._readers = path, seen, readers
+
+    def _note(self, key: object) -> str:
+        path = f"{self._path}.{key}" if self._path else str(key)
+        self._seen.add(path)
+        if self._readers is not None and (code := _reading_code()) is not None:
+            self._readers.add(code)
+        return path
+
+    def __getitem__(self, key: object) -> Any:
+        value, path = dict.__getitem__(self, key), self._note(key)
+        if isinstance(value, dict):
+            return _KeyRecorder(value, path, self._seen, self._readers)
+        if isinstance(value, list) and value and all(
+                isinstance(v, dict) for v in value):
+            return [_KeyRecorder(v, path + "[]", self._seen, self._readers)
+                    for v in value]
+        return value
+
+    def get(self, key: object, default: Any = None) -> Any:
+        """The wrapped value, or `default`; the key is recorded either way."""
+        if dict.__contains__(self, key):
+            return self[key]
+        self._note(key)
+        return default
+
+    def __contains__(self, key: object) -> bool:
+        self._note(key)
+        return dict.__contains__(self, key)
+
+    def __iter__(self) -> Iterator[Any]:
+        for key in dict.__iter__(self):
+            self._note(key)
+            yield key
+
+    def keys(self) -> list[Any]:
+        """The keys, each recorded (dict.update and `**raw` come through here)."""
+        return list(iter(self))
+
+    def items(self) -> list[tuple[Any, Any]]:
+        """(key, wrapped value) pairs, each key recorded."""
+        return [(k, self[k]) for k in self]
+
+    def values(self) -> list[Any]:
+        """The wrapped values, each key recorded."""
+        return [self[k] for k in self]
+
+
+def _loader_key_paths() -> set[str]:
+    """Every config key `load_config` accepts, read off the loaders.
+
+    The five tracked configs are loaded through a recording document, and
+    the union of what the loaders touched is the key set - a key gets a
+    path here by being READ (through the document's `[]`, `get`, `in`
+    and enumeration), never by being listed. That is also the set's
+    bound: it holds what the loaders read on the paths those five
+    configs take, so a key read only on a branch none of them exercises
+    is never recorded and passes gate 32 without a row until a tracked
+    config takes that path. That class is stated by rule, not by count,
+    and it includes the one-sided branches of conditional expressions
+    and `or` fallbacks, not only statement arms: such as, in
+    endstation_builder.py, the AES3/S-PDIF serial-clock arm of
+    `_load_interface` (3571 to 3579; the tracked kinds are i2s_philips,
+    tdm8 and tdm32), the literal `entity_model_id` arm of `load_config`
+    (3726; every tracked config says hash-derived, and arty_current's
+    `model_id_pin` wins before it), the `map_page` arm of `_streams`
+    (1214 to 1218; no tracked stream declares map_page), the explicit
+    `entity_id` operand of `_load_entity` (the conditional expression at
+    3234; every tracked config says mac-derived), the no-pilot operand of
+    `_role_pool` (the conditional expression at 1293; both role-pools
+    configs declare a pilot pool) and the `or {}` fallback of
+    `_load_cluster_pools` (3448; every tracked config declares
+    cluster_mapping). Those are examples, not the list: `_untaken_arms`
+    derives today's list by a branch census over the same five loads,
+    and gate 32 prints it as a report line without failing on it.
+    A path a loader only descended through (a section, a list) is a
+    container, not a key, and is dropped. The two loaders that
+    accept by TABLE rather than by read (`load_platform`: `set(raw) -
+    set(PLATFORM_DEFAULTS)`, `_load_soc`: `dict(SOC_DEFAULTS, **soc_raw)`)
+    only touch the keys a config declares, so their accept tables are
+    imported - the loaders' own constants, not a restatement.
+    """
+    seen: set[str] = set()
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(
+        safe_load=lambda fh: _KeyRecorder(real_yaml.safe_load(fh), "", seen))
+    try:
+        for path in CONFIGS.values():
+            eb.load_config(str(path))
+    finally:
+        eb.yaml = real_yaml
+    leaves = {p for p in seen
+              if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
+    leaves |= {f"platform.{k}" for k in eb.PLATFORM_DEFAULTS}
+    leaves |= {f"soc.{k}" for k in eb.SOC_DEFAULTS}
+    return leaves
+
+
+class _Flow(NamedTuple):
+    """One code object's control flow as `_untaken_arms` reads it: the
+    instructions and fall-through successors by offset, where each jump
+    lands (a `for`'s exhaust past its END_FOR and pop), how many
+    predecessors reach each offset (exception edges aside) and the source
+    position of every code unit."""
+    instructions: dict[int, Any]
+    following: dict[int, int]
+    targets: dict[int, int]
+    preds: collections.Counter
+    positions: list[tuple[int | None, int | None, int | None, int | None]]
+
+
+#: The instructions that leave a basic block without falling through: the
+#: unconditional jumps, then the returns and raises.
+_ALWAYS_JUMPS = frozenset({"JUMP_FORWARD", "JUMP_BACKWARD", "JUMP_BACKWARD_NO_INTERRUPT", "JUMP"})
+_NO_FALL_THROUGH = _ALWAYS_JUMPS | {"RETURN_VALUE", "RETURN_CONST", "RAISE_VARARGS", "RERAISE"}
+
+
+def _control_flow(code: types.CodeType) -> _Flow:
+    """The `_Flow` of one code object. `dis` is imported here rather than at
+    the top of the module so that no line the page cites moves."""
+    import dis
+    jumps = frozenset(getattr(dis, "hasjump", None) or dis.hasjrel + dis.hasjabs)
+    listed = list(dis.get_instructions(code))
+    following = {a.offset: b.offset for a, b in zip(listed, listed[1:])}
+    by_offset = {i.offset: i for i in listed}
+    targets: dict[int, int] = {}
+    preds: collections.Counter = collections.Counter()
+    for instr in listed:
+        if instr.opname not in _NO_FALL_THROUGH and instr.offset in following:
+            preds[following[instr.offset]] += 1
+        if instr.opcode in jumps:
+            landing = instr.argval
+            while (instr.opname == "FOR_ITER"
+                   and by_offset[landing].opname in ("END_FOR", "POP_ITER", "POP_TOP")):
+                landing = following[landing]
+            targets[instr.offset] = landing
+            preds[instr.argval] += 1
+    return _Flow(by_offset, following, targets, preds, list(code.co_positions()))
+
+
+def _untaken_side(flow: _Flow, offset: int, taken: set[int]) -> int | None:
+    """Where the branch at `offset` never went (None when it went both ways,
+    or is no jump): its fall-through past 3.14's NOT_TAKEN when every
+    destination taken was the jump, else where its jump lands; an
+    unconditional jump there is followed to where IT lands, which is where
+    a read would run (a guard inside a `for` body continues the loop
+    through its own JUMP_BACKWARD, so the loop head is that side)."""
+    if offset not in flow.targets:
+        return None
+    fall = flow.following.get(offset)
+    while fall is not None and flow.instructions[fall].opname == "NOT_TAKEN":
+        fall = flow.following.get(fall)
+    if fall in taken and any(d != fall for d in taken):
+        return None
+    side = fall if fall not in taken else flow.targets[offset]
+    while side is not None and flow.instructions[side].opname in _ALWAYS_JUMPS:
+        side = flow.instructions[side].argval
+    return side
+
+
+def _innermost(statements: list[ast.stmt], line: int, col: int) -> ast.stmt | None:
+    """The innermost statement holding source position (line, col)."""
+    inner = None
+    for stmt in statements:
+        if ((stmt.lineno, stmt.col_offset) <= (line, col)
+                <= (stmt.end_lineno, stmt.end_col_offset)
+                and (inner is None
+                     or (stmt.lineno, stmt.col_offset) >= (inner.lineno, inner.col_offset))):
+            inner = stmt
+    return inner
+
+
+def _arm_kind(statements: list[ast.stmt], at: tuple[int, int],
+              branch: tuple[int, int]) -> str:
+    """What a key read at source position `at` of endstation_builder.py
+    would be, `branch` being the position of the one-sided branch that
+    never reached it: 'arm' when the read would run there and on no path
+    the tracked loads take; 'refusal' for a raise or assert, or an operand
+    of a guard whose body only raises (a read there never reaches a config
+    load_config accepts); 'entry' for the start of the branch's own
+    statement, which no source path lands on (3.14 re-enters it for an
+    inlined any/all); 'outside' any statement."""
+    inner = _innermost(statements, *at)
+    if inner is None:
+        return "outside"
+    if isinstance(inner, (ast.Raise, ast.Assert)):
+        return "refusal"
+    test = getattr(inner, "test", None)
+    if test is None:
+        return "arm"
+    if at == (test.lineno, test.col_offset) and _innermost(statements, *branch) is inner:
+        return "entry"
+    in_test = (test.lineno, test.col_offset) < at <= (test.end_lineno, test.end_col_offset)
+    if in_test and all(isinstance(s, ast.Raise) for s in inner.body):
+        return "refusal"
+    return "arm"
+
+
+def _branch_destinations(
+        readers: set[types.CodeType]) -> dict[tuple[types.CodeType, int], set[int]] | None:
+    """{(code, branch offset): destination offsets taken} for every
+    conditional branch endstation_builder.py executed while the five
+    tracked configs loaded through the recording document, `readers`
+    filling with the code objects that read the document. Measured with
+    sys.monitoring's branch events; None on an interpreter without them
+    (before 3.12) or whose coverage tool id another tool holds."""
+    mon = getattr(sys, "monitoring", None)
+    if mon is None:
+        return None
+    names = [n for n in ("BRANCH_LEFT", "BRANCH_RIGHT") if hasattr(mon.events, n)] or ["BRANCH"]
+    taken: dict[tuple[types.CodeType, int], set[int]] = {}
+
+    def on_branch(code: types.CodeType, offset: int, dest: int) -> None:
+        """One branch event: the destination a builder branch just took."""
+        if code.co_filename == eb.__file__:
+            taken.setdefault((code, offset), set()).add(dest)
+
+    try:
+        mon.use_tool_id(mon.COVERAGE_ID, "gate 32 arm census")
+    except ValueError:
+        return None
+    real_yaml = eb.yaml
+    eb.yaml = types.SimpleNamespace(safe_load=lambda fh: _KeyRecorder(
+        real_yaml.safe_load(fh), "", set(), readers))
+    try:
+        events = 0
+        for name in names:
+            mon.register_callback(mon.COVERAGE_ID, getattr(mon.events, name), on_branch)
+            events |= getattr(mon.events, name)
+        mon.set_events(mon.COVERAGE_ID, events)
+        for path in CONFIGS.values():
+            eb.load_config(str(path))
+    finally:
+        mon.set_events(mon.COVERAGE_ID, 0)
+        mon.free_tool_id(mon.COVERAGE_ID)
+        eb.yaml = real_yaml
+    return taken
+
+
+def _untaken_arms() -> list[int] | None:
+    """The census gate 32 prints: the line of every branch arm of the loaders
+    that none of the five tracked loads took, where a key read would
+    therefore go unrecorded. The method is a branch census: sys.monitoring
+    branch events over the five loads, restricted to the
+    endstation_builder.py functions that read the raw document, keeping
+    each branch that went one way only, and dropping an untaken side that
+    lands on a join (an offset another path also reaches, so a read there
+    IS recorded), on a refusal or on a compiler re-entry (`_arm_kind`). A
+    report, not a bound: it neither widens nor narrows what gate 32 passes,
+    and a raise out of here is reported, not raised (`_census_line`). None
+    when the interpreter cannot measure it (`_branch_destinations`)."""
+    readers: set[types.CodeType] = set()
+    taken = _branch_destinations(readers)
+    if taken is None:
+        return None
+    tree = ast.parse(Path(eb.__file__).read_text(encoding="utf-8"))
+    statements = [n for n in ast.walk(tree) if isinstance(n, ast.stmt)]
+    flows: dict[types.CodeType, _Flow] = {}
+    lines: set[int] = set()
+    for (code, offset), dests in taken.items():
+        if code not in readers:
+            continue
+        if code not in flows:
+            flows[code] = _control_flow(code)
+        flow = flows[code]
+        untaken = _untaken_side(flow, offset, dests)
+        if untaken is None or flow.preds[untaken] > 1:
+            continue
+        line, _, col, _ = flow.positions[untaken // 2]
+        branch_line, _, branch_col, _ = flow.positions[offset // 2]
+        if line is not None and _arm_kind(
+                statements, (line, col), (branch_line, branch_col)) == "arm":
+            lines.add(line)
+    return sorted(lines)
+
+
+def _census_line() -> str:
+    """Gate 32's census report line, and the one place that decides what
+    "not measured" means. The census is a report and never a pass criterion,
+    so NO way of failing to produce a list may reach the gate's verdict:
+    `_untaken_arms` returns None for the two interpreter cases it declares,
+    and whatever it RAISES is reported the same way rather than failing a
+    gate whose criteria are the key map and the two planted defects. The
+    raise is not hypothetical - `_untaken_side` and `_arm_kind` reason over
+    CPython bytecode shapes that move between releases, and this file
+    already special-cases 3.14's NOT_TAKEN and POP_ITER."""
+    try:
+        arms = _untaken_arms()
+    except Exception as exc:                              # noqa: BLE001
+        return f"not measured ({type(exc).__name__}: {exc})"
+    if arms is None:
+        return ("not measured (branch events need Python 3.12+ and a free"
+                " coverage tool id)")
+    return (f"{len(arms)} untaken loader arms, where a key read is not "
+            "recorded: "
+            + " ".join(f"endstation_builder.py:{n}" for n in arms))
+
+
+def _raising_census() -> list[int] | None:
+    """A census that fails the way a bytecode change in a future interpreter
+    would. `_census_line`'s soft handling is what the gate's raising-census
+    arm plants this in place of."""
+    raise RuntimeError("planted census failure")
+
+
+def _key_map_rows(doc: str) -> dict[str, list[str]]:
+    """{config key path: the row numbers that carry it}, from the section 3
+    table's key column. The key column is the second cell of every row
+    below the header; a backticked dotted path is a key, `{a,b}` expands,
+    anything else in the cell (a derived fact, prose) is not a key."""
+    start = doc.index(KEY_MAP_HEADING)
+    end = doc.find("\n## ", start + 1)
+    rows: dict[str, list[str]] = {}
+    for line in doc[start:end if end > 0 else None].splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not line.startswith("|") or len(cells) < 2 or cells[0] in ("#", ""):
+            continue
+        if set(cells[0]) <= set("-"):
+            continue
+        for tok in KEY_TOKEN_RE.findall(cells[1]):
+            m = re.search(r"\{([a-z0-9_,]+)\}", tok)
+            names = m.group(1).split(",") if m else [None]
+            for name in names:
+                key = tok if name is None else tok.replace(m.group(0), name)
+                rows.setdefault(key, []).append(cells[0])
+    return rows
+
+
+def _key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
+    """(keys with no row, rows naming no accepted key) for one table text."""
+    rows = _key_map_rows(doc)
+    return accepted - set(rows), set(rows) - accepted
+
+
+def test_builder_doc_key_map() -> None:
+    """Gate 32: every key `load_config` accepts has a row in the
+    ENDSTATION_BUILDER.md section 3 mapping table, and every key the table
+    names is one the loaders accept - so a new key read through the
+    recording document's `[]`, `get`, `in` or enumeration on a path the
+    five tracked configs take cannot land without a row, and a stale row
+    cannot survive a key removal (#404). The key set is read off the
+    loaders (see _loader_key_paths, which states the bound by rule and
+    gives examples of the arms on which a key read is not recorded), never
+    listed here. The bites arm plants both defects in a copy of the table
+    text. After the assertions the gate prints `_census_line`, today's list
+    of those arms, one file:line per arm; the census reports and does not
+    widen the gate's pass or fail, so an unmeasurable census prints as not
+    measured instead - whether it declines (the two interpreter cases) or
+    raises, which the raising-census arm plants and checks."""
+    accepted = _loader_key_paths()
+    assert len(accepted) > 40, f"only {len(accepted)} loader keys recorded"
+    doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
+    rows = _key_map_rows(doc)
+    assert rows, f"{BUILDER_DOC_MD.name}: no key found under {KEY_MAP_HEADING!r}"
+    missing, stale = _key_map_diff(doc, accepted)
+    assert not missing and not stale, (
+        f"{BUILDER_DOC_MD.name} section 3 key map disagrees with the loaders"
+        f" - keys with no row: {sorted(missing)}; rows naming no accepted "
+        f"key: {sorted((k, rows[k]) for k in stale)}")
+    # the bites arm: a planted row must read as stale, a dropped row as
+    # missing, or the equality above proves nothing
+    victim = sorted(accepted)[0]
+    planted = doc.replace(KEY_MAP_HEADING, KEY_MAP_HEADING
+                          + "\n\n| 0 | `planted.key` | - | - | - |", 1)
+    assert _key_map_diff(planted, accepted) == (set(), {"planted.key"}), \
+        "gate 32 bites arm: a planted row was not refused"
+    dropped = doc.replace(f"`{victim}`", "`(dropped)`")
+    assert _key_map_diff(dropped, accepted)[0] == {victim}, \
+        f"gate 32 bites arm: dropping the {victim} row was not refused"
+    multi = {k: r for k, r in rows.items() if len(r) > 1}
+    print(f"  [gate 32] {len(accepted)} loader keys == {len(rows)} keys "
+          f"across {len({r for rs in rows.values() for r in rs})} rows of "
+          f"{BUILDER_DOC_MD.name} section 3"
+          + (f" ({len(multi)} shared)" if multi else "")
+          + "; planted row and dropped row both refused")
+    # the raising-census arm: the census reports and never decides, so a
+    # census that RAISES must read as not measured, the way the two
+    # declared interpreter cases already do, and leave the verdict above
+    # untouched. Remove the soft handling in `_census_line` and this arm
+    # raises out of the gate, which is the failure it exists to catch.
+    real_census = globals()["_untaken_arms"]
+    globals()["_untaken_arms"] = _raising_census
+    try:
+        soft = _census_line()
+    finally:
+        globals()["_untaken_arms"] = real_census
+    assert soft == "not measured (RuntimeError: planted census failure)", \
+        f"gate 32 raising-census arm: a raising census did not fail soft: {soft}"
+    print("  [gate 32] census: " + _census_line())
+
+
 if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
@@ -19461,6 +20622,7 @@ if __name__ == "__main__":
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
                test_gen_aem_store_crf_output_overlay,
+               test_clock_sources_follow_the_fabric,
                test_dynamic_map_topology_reaches_shape_header,
                test_dynamic_audio_map_overlay,
                test_lwsrp_reset_words_match_rtl,
@@ -19480,6 +20642,10 @@ if __name__ == "__main__":
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,
+               test_build_sh_argv_follows_the_config,
+               test_build_sh_grades_its_own_bindings,
+               test_build_sh_dry_run_leaves_the_tracked_tree,
+               test_build_sh_refuses_a_preservation_it_cannot_complete,
                test_toolchain_patches_are_applied,
                test_toolchain_patch_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
@@ -19499,7 +20665,8 @@ if __name__ == "__main__":
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,
-               test_per_row_format_facts_are_per_row):
+               test_per_row_format_facts_are_per_row,
+               test_builder_doc_key_map):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and

@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <verilated.h>
 #include "../../common/verilator_harness.hpp"
+#include "../../common/gptp_tx_flags.hpp"
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 
@@ -681,7 +682,7 @@ class GptpPlaneHarness {
     // the RTL default.  Before any peer answers, the engine's committed bank is
     // zero. Retained legacy addresses remain mapped for ABI stability, but every
     // write is inert and cannot manufacture a publication or healthy CLKV claim.
-    expect("default-on VERSION", axi_read(dut, 0x004), 0x00020057);
+    expect("default-on VERSION", axi_read(dut, 0x004), 0x00020058);
     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
     axi_write(dut, 0x6E4, 1234);
     axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
@@ -1439,7 +1440,24 @@ class GptpPlaneHarness {
     }
   }
 
-  int report() const {
+  // Keep answering Pdelay while the selected peer's Announce expires.
+  // The resulting GM Sync/Follow_Up and one peer request exercise all five
+  // Ethernet TX types at the MAC boundary (11.4.2.3/Table 11-4).
+  void emit_every_gptp_tx_flag_type(Vmilan_datapath *dut) {
+    Frame request = ptp(0x2, 0x7A00, 0, 0x0000, 20);
+    request.ts(0);
+    request.u64(0); request.u16(0);
+    send_wide(dut, request.b);
+    run_peer(dut, 8000000);
+  }
+
+  int report() {
+    milan::tb::GptpTxFlags tx_flags;
+    for (const auto& frame : tx_frames) tx_flags.observe(frame);
+    tx_flags.report([this](const char* name, uint64_t got, uint64_t expected) {
+      expect(name, got, expected);
+    }, milan::tb::GptpTxFlags::all_types);
+
     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
     return fails ? 1 : 0;
   }
@@ -1467,6 +1485,7 @@ int GptpPlaneHarness::run() {
       prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_empty);
   prove_the_maximum_bounded_path_trace(dut, asp_withdrawn);
   prove_the_three_drop_counters_through_the_csr(dut);
+  emit_every_gptp_tx_flag_type(dut);
 
   return report();
 }

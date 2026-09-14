@@ -12,9 +12,10 @@
                 drift-lottery rails) + KL_mmcm_drp_servo sharing one modeled
                 audio clock. The C++ harness (sim_rails.cpp) is the MMCM
                 behavioral model: the audio clock period follows the PS
-                steps, so with clock_source == 2 the servo pulls the render
-                clock onto the talker's rate and the FIFO rail events cease;
-                with clock_source == 0 the identical stimulus shows the
+                steps, so with the suite's CRF index selected (clk_src_i at
+                crf_src_idx_i, 2 here) the servo pulls the render clock onto
+                the talker's rate and the FIFO rail events cease; with
+                INTERNAL (clk_src_i 0) the identical stimulus shows the
                 historical drift-lottery rails.
 
                 Sim-compressed servo parameters (silicon values in the
@@ -82,8 +83,7 @@ module rails_wrap (
   wire [31:0] dbg_frame_unused_w;
 
   KL_i2s_playback #(
-    .FIFO_LOG2 (4),      //! 16-pair FIFO: rails observable in seconds
-    .PREFILL_C (0)
+    .FIFO_LOG2 (4)       //! 16-pair FIFO: rails observable in seconds
   ) i2spb (
     .clk_i        (clk_i),
     .recenter_p_i (1'b0),

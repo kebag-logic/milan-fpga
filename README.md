@@ -52,7 +52,7 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0057` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0058` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -62,7 +62,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0057` |
+| `gateware.current-version` | `implemented` | `0x0002_0058` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -330,7 +330,7 @@ so treat them as ordering, not promises.
       listener        raw-flash journal cabled +          run (Milan v1.2)   (TCXO, audio
       latency       - image: validate   failover proof  - 802.1AS            I/O, power)
       (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
-      0x002E)         no retired runtime timing signoff - PCB layout +     - factory
+      0x002F)         no retired runtime timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test
@@ -338,7 +338,7 @@ so treat them as ordering, not promises.
       followership                    - service-budget                    - TDM/I2S audio
       on silicon                        decision                            as supported
     - stream-clock                      (2nd hart?)                         endpoint I/O
-      honesty                                                             - config surface
+      honesty (done, #389)                                                - config surface
     - ring one-grid                                                         + hardening
       (retire pb                                                          - user manual +
       override)                                                             support policy
@@ -346,6 +346,12 @@ so treat them as ordering, not promises.
       latency (open,
       12 to 90 s)
 ```
+
+The setpoint law's first landing was the I2S path in VERSION `0x0001_002F`
+(the listener latency became a setpoint, not a midpoint); #386 carries the
+same law onto the shipping TDM render path through `KL_render_setpoint`, with
+the constant stated at the render crossbar's input grid
+([TIME_SYNC.md](docs/design/TIME_SYNC.md#listener-render-latency)).
 
 Standing invariants across every phase: the ATDECC model stays authoritative
 (no side-channel state), every closed bitstream is flashed and soaked, and

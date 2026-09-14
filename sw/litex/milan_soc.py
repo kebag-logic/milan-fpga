@@ -549,6 +549,9 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv",
     "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv",
     "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv",
+    # #386: the render setpoint stage in front of the crossbar (milan_datapath
+    # instantiates it unconditionally, so every consumer list carries it)
+    "hdl/ieee1722/aaf/KL_render_setpoint.sv",
     "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
     "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv",
     "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
@@ -778,8 +781,10 @@ def add_milan_datapath(host: Module, platform: object,
         # open here - the same TDM-header platform extension that provides
         # bclk/fsync claims it (extra_ports), no RTL change needed then.
         o_tdm_dout_o = Signal(),
-        # audio-MMCM servo boundary: inert ties (servo idles unless
-        # clock_source == 2; locked=1 keeps a future VERIFY from hanging).
+        # audio-MMCM servo boundary: inert ties (servo idles unless the stored
+        # clock source is the CRF sink's index AEM_CRF_CLKSRC_C, 1 on every
+        # shipping shape since #389; locked=1 keeps a future VERIFY from
+        # hanging).
         # The board SoC overrides these with the real MMCME2_ADV wiring
         # (_CRG audio_* bundle) via extra_ports.
         i_i_ps_clk = ClockSignal(milan_cd),
@@ -3195,9 +3200,10 @@ def main() -> None:
     ap.add_argument("--no-media-clock-servo", action="store_true",
                     help="AREA LEVER: prune KL_mmcm_drp_servo (the audio-MMCM "
                          "media-clock actuator). Legal ONLY when the media clock is "
-                         "INTERNAL - the servo is what disciplines the MMCM to a "
-                         "recovered CRF or input-stream clock, so a pruned build "
-                         "cannot slave to a remote grandmaster's media clock at all. "
+                         "INTERNAL - the servo is what disciplines the MMCM to the "
+                         "CRF sink's recovered clock, the only remote source "
+                         "advertised since #389, so a pruned build cannot follow a "
+                         "remote media clock at all. "
                          "A_MCSRV_STAT 0x8F8 then reads 0 STRUCTURALLY. Default off "
                          "=> servo PRESENT.")
     ap.add_argument("--no-latency-taps", action="store_true",

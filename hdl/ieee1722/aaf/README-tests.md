@@ -27,6 +27,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_pair_zero_fill` | `KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_lpf` | `KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_route` | `KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · 🔬`make aaf` | -- |
+| ✅ `KL_render_setpoint` | `KL_render_setpoint.sv` | `milan_dp` · `render_setpoint` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `KL_tdm_capture.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `KL_tdm_capture_master.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `KL_tdm_render.sv` | `milan_dp` · `tdm_render` · 🔬`make aaf` | -- |

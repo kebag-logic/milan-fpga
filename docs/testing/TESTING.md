@@ -173,13 +173,14 @@ These are operational deadlines, pending completed hosted physical evidence.
 The earlier hosted run expired at 2400 seconds.
 The reference machine needed approximately 2080 simulation seconds.
 That machine has an AMD EPYC 9554P, with 128 logical CPUs.
-Hosted slowdown therefore exceeds approximately 1.15; its upper bound remains unknown.
+Hosted slowdown therefore exceeded approximately 1.15; that run bounded it from below only.
+Completed hosted nightly runs of that scenario later measured a slowdown of up to 1.58.
 Four-core affinity and background load underpin the new local measurements.
 See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
 
 Every physical transition and original timer remains exercised.
 Four missed Pdelay intervals, recovery, and reset require physical seconds.
-The scenario still spans 12.992496440 simulated seconds.
+The scenario spans 16.992496440 simulated seconds over 849624822 cycles.
 The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
 Physical regressions are caught nightly, outside the PR aggregate.
 Run the identical suite on demand:
@@ -410,6 +411,7 @@ verdicts and for check counts.
 | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | — |
 | [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |
 | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
+| [`tb/verilator/render_setpoint`](../../tb/verilator/render_setpoint) | `KL_render_setpoint`, the #386 listener render setpoint stage: the fill law per PDU (prefill to the setpoint, the sawtooth, the first-event delay), byte-exact beats for 8, 3, 1 and 12 wire channels, the pop schedule, both rails, the observer, the one-shot recentre, a flush, an overrun, the event-atomic pop (a recentre or a flush inside the pop window leaves the crossbar whole events), a PDU end on a pop's own edge, an event judged full past a pop inside it, a wire channel count change, and a model of the crossbar's walker on every beat, run on an 8-lane and a 7-lane build -- and a thirteen-mutant arm that proves every one of those checks can fail. The datapath-level law rides `milan_dp`'s true-ratio leg (a live clock-source change under the running stream included) with its own four-mutant arm |
 | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
 | [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) | FQTSS/arbitration, incl. the gPTP-not-starved measurement |
 | [`tb/verilator/tcam`](../../tb/verilator/tcam) | the ternary CAM behind the receive shield: exact and ternary match, priority, the multi-hit vector, add/remove/update, a clean miss — **and its mutation arm**: `make` runs `run` then `mutants` (~25 s, four extra Verilator builds), three injected RTL defects must each make the same harness fail by its own verdict, the clean build must pass, and a DUT abort or a hang is not a catch |
@@ -589,7 +591,7 @@ The grader exercises direct bare-metal UART commands. It requires
 `ID=MILN`, the current publication ABI, `AEM=loaded`, enabled
 PTP/ADP/PP, nonzero GM and parent identities, a bounded path and pdelay,
 consistent `CLKV_STAT`, `sync=1`, `asCapable=1`, `time_uncertain=0`, and an
-advancing PHC. For `VERSION=0x0002_0057`, fabric is the sole product gPTP
+advancing PHC. For `VERSION=0x0002_0058`, fabric is the sole product gPTP
 owner. A direct verification-only option-OFF build instead must expose zero
 GM/parent/path/pdelay, `sync=0`, `asCapable=0`, `time_uncertain=1`, and inert
 legacy writes. Use a validated external JTAG/CSR transport for evidence not

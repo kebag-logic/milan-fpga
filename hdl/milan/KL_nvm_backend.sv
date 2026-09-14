@@ -81,14 +81,15 @@ module KL_nvm_backend #(
     //! core clock frequency in Hz; the millisecond tick the deadlines
     //! count in is derived from it
     parameter int unsigned CLK_HZ_P       = 125_000_000,
-    //! shape: the section 4.2 allocation's per-group occupancy
+    //! shape: the section 4.2 allocation's per-group occupancy, defaulted
+    //! to the ax7101_8x8 header's values (KL_pp_shadow passes the live ones)
     parameter int unsigned N_STREAM_IN_P  = 9,
     parameter int unsigned N_STREAM_OUT_P = 9,
     parameter int unsigned N_SPORT_IN_P   = 8,
     parameter int unsigned N_SPORT_OUT_P  = 8,
     parameter int unsigned N_AUDIO_UNIT_P = 1,
     parameter int unsigned N_CLK_DOM_P    = 1,
-    parameter int unsigned N_NAME_P       = 107,
+    parameter int unsigned N_NAME_P       = 99,
     //! design page section 9.4 deadlines, in milliseconds
     parameter int unsigned T_ALIVE_MS_P   = 2000,
     parameter int unsigned T_COMMIT_MS_P  = 8000

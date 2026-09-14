@@ -49,6 +49,7 @@ constexpr uint16_t A_VERSION = 0x004;
 constexpr uint16_t A_CAP = 0x008;
 constexpr uint16_t A_MAC_ADDR_LO = 0x108;
 constexpr uint16_t A_MAC_ADDR_HI = 0x10C;
+constexpr uint16_t A_PCMRX_CNT = 0x6C4;
 constexpr uint16_t A_MAAP_CTRL = 0x6CC;
 constexpr uint16_t A_MAAP_STAT0 = 0x6D0;
 constexpr uint16_t A_MAAP_STAT1 = 0x6D4;
@@ -67,7 +68,27 @@ constexpr uint16_t A_LTAP_CTRL = 0x870;
 constexpr uint16_t A_LTAP_BASE = 0x874;
 constexpr uint16_t A_LTAP_END = 0x8B4;
 constexpr uint16_t A_MCSRV_STAT = 0x8F8;
+constexpr uint16_t A_SLIP_LB = 0x8D4;
 constexpr uint16_t A_MCSRV_CTRL = 0x8FC;
+//! listener 0 through the 0x800 window (the sim_aclk / sim_ax1x1gptp
+//! provisioning): the stream a built loopback ring would accept
+constexpr uint16_t A_STRM_SEL = 0x800;
+constexpr uint16_t A_STRMW_CTRL = 0x810;
+constexpr uint16_t A_STRMW_SID_LO = 0x814;
+constexpr uint16_t A_STRMW_SID_HI = 0x818;
+constexpr uint16_t A_STRMW_FMT_LO = 0x824;
+constexpr uint16_t A_STRMW_FMT_HI = 0x828;
+//! the shipping listener stream as sim_aclk.cpp feeds it: 8 wire channels,
+//! 6 events per class-A PDU, 12 500 axis cycles per PDU at 48 kHz
+constexpr int kAafChans = 8;
+constexpr int kAafEvents = 6;
+constexpr size_t kAafPayloadBytes = static_cast<size_t>(kAafChans) * kAafEvents * 4;
+constexpr size_t kAafFrameBytes = 14 + 24 + kAafPayloadBytes;
+constexpr int kAafPduPeriodCycles = 12500;
+constexpr int kAafPdusFed = 16;
+//! one media tick is 2083.3 axis cycles; twenty of them starve a built ring
+//! well past the six ticks its eight-deep queue drains in
+constexpr int kStarveCycles = 20 * 2084;
 
 namespace {
 
@@ -101,6 +122,52 @@ class PrunedShapeHarness {
     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->eval(); }
     void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
     void step() { lo(); hi(); }
+
+    //! docs/reference/REGISTER_MAP.md's structural-zero paragraph tells a
+    //! reader to ESTABLISH THE LANE before believing a `SLIP_LB` zero, and
+    //! offers `CHMAP_LOOP[17]` fed at 0x914 as the pointer. This executes
+    //! it: arm a CAPTURE-side map readback and return
+    //! {mask_valid, valid, loop_fed}. [27] mask_valid is what makes [17] a
+    //! measurement rather than a structural zero, so all three ride in ONE
+    //! graded word, and the two ring legs are the discriminator - 7 on
+    //! obj_aclk (lane built and fed), 6 on obj_prune (LOOPBACK_P = 0).
+    //!
+    //! THE PROJECTION CANNOT ESTABLISH ITSELF. `CHMAP_LOOP` reads
+    //! CHMAP_LOOP_POISON_C = 0xDEADDEAD whenever no snapshot completed
+    //! behind it - un-armed, timed out or refused (milan_csr.sv, the
+    //! chmap_loop_rd_w mux) - and that poison projects to 1, 1, 0 = 6, byte
+    //! for byte what obj_prune expects: bits 27 and 26 of 0xDEADDEAD are
+    //! both set and bit 17 is clear. The bits that DO separate it are
+    //! [31:28], zero on every valid word, and they are the bits the
+    //! projection drops. So the WHOLE word is graded against the poison,
+    //! and the snapshot's own valid bit with it, BEFORE anything is
+    //! projected: the house idiom of tb/verilator/csr/sim_main.cpp, which
+    //! compares the same whole word against POISON and grades CHMAP_SNAP[1]
+    //! in the direction where poison is the right answer. A poisoned read
+    //! is refused HERE as not-a-measurement; a lane that is genuinely
+    //! absent is the 6 the caller grades next.
+    unsigned chmap_loop_lane_flags(unsigned key) {
+        constexpr uint16_t A_CHMAP_SEL = 0x904;
+        constexpr uint16_t A_CHMAP_SNAP = 0x910;
+        constexpr uint16_t A_CHMAP_LOOP = 0x914;
+        constexpr uint32_t kChmapLoopPoison = 0xDEADDEADu;
+        constexpr int kSnapPolls = 64;
+        axi_write(A_CHMAP_SEL, 0x100u | key);        // 0x100 = capture side
+        axi_write(A_CHMAP_SNAP, 1);                  // W1S arm
+        uint32_t snap = 0;
+        for (int g = 0; g < kSnapPolls; g++) {
+            snap = axi_read(A_CHMAP_SNAP);
+            if ((snap & 1u) == 0) break;
+        }
+        const uint32_t v = axi_read(A_CHMAP_LOOP);
+        //! graded as the word itself, so a failure prints what it read
+        ck("CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison",
+           (v == kChmapLoopPoison) ? v : 0u, 0u);
+        ck("CHMAP_SNAP valid: a snapshot completed behind that word",
+           (snap >> 1) & 1u, 1u);
+        return (((v >> 27) & 1u) << 2) | (((v >> 26) & 1u) << 1) |
+               ((v >> 17) & 1u);
+    }
 
     void axi_write(uint16_t a, uint32_t d) {
         dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
@@ -190,6 +257,73 @@ class PrunedShapeHarness {
         return idx;
     }
 
+    void run_cycles(int n) {
+        for (int c = 0; c < n; c++) { lo(); sample_pins(); hi(); }
+    }
+
+    //! listener 0 bound through the 0x800 window: the sid the AAF feed below
+    //! carries and the eight-channel INT32 format, exactly as sim_aclk.cpp
+    //! provisions it
+    void bind_listener_zero_through_the_window() {
+        axi_write(A_MAC_ADDR_LO, 0x00000002);
+        axi_write(A_MAC_ADDR_HI, 0x00000100);
+        axi_write(A_STRM_SEL, 0);
+        axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
+        axi_write(A_STRMW_SID_HI, 0x02000000);
+        axi_write(A_STRMW_FMT_LO, 0x02006000);
+        axi_write(A_STRMW_FMT_HI, 0x02050220);
+        axi_write(A_STRMW_CTRL, 1);
+    }
+
+    //! one well-formed AAF PDU into the bound listener: sv and tv set, the
+    //! bound sid, INT32 at 48 kHz, 8 channels x 6 events (sim_aclk's frame)
+    uint8_t aaf_seq = 0;
+    void send_aaf_pdu(int pdu) {
+        uint8_t f[kAafFrameBytes]; memset(f, 0, sizeof f);
+        const uint8_t dmac[6] = {
+            0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
+        memcpy(f, dmac, 6);
+        const uint8_t src[6] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+        memcpy(f + 6, src, 6);
+        f[12] = 0x22; f[13] = 0xF0;
+        f[14] = 0x02;                             // AAF
+        f[15] = 0x81;                             // sv, tv
+        f[16] = aaf_seq++;
+        const uint8_t sid[8] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
+        memcpy(f + 18, sid, 8);
+        f[26] = 0x00; f[27] = 0x00; f[28] = 0x10; f[29] = 0x00;   // avtp_ts
+        f[30] = 0x02;                             // format INT32
+        f[31] = static_cast<uint8_t>(0x05 << 4);  // nsr = 48 kHz
+        f[32] = static_cast<uint8_t>(kAafChans);
+        f[33] = 32;                               // bit depth
+        f[34] = static_cast<uint8_t>(kAafPayloadBytes >> 8);
+        f[35] = static_cast<uint8_t>(kAafPayloadBytes & 0xFF);
+        for (int k = 0; k < kAafEvents; k++)
+            for (int c = 0; c < kAafChans; c++) {
+                const uint32_t v = (static_cast<uint32_t>(pdu & 0xFFF) << 12) |
+                                   (static_cast<uint32_t>(k & 0xF) << 8) |
+                                   static_cast<uint32_t>(c & 0xFF);
+                const size_t o = 38 + 4 * (static_cast<size_t>(k) * kAafChans + c);
+                f[o]     = static_cast<uint8_t>(v >> 16);
+                f[o + 1] = static_cast<uint8_t>(v >> 8);
+                f[o + 2] = static_cast<uint8_t>(v);
+                f[o + 3] = 0;
+            }
+        (void)inject_rx(f, kAafFrameBytes);
+    }
+
+    //! the stream on the class-A cadence (inject_rx spends 400 cycles of each
+    //! period), then the feed stops and the media ticks keep coming
+    void feed_the_bound_listener_then_starve_it() {
+        for (int pdu = 0; pdu < kAafPdusFed; pdu++) {
+            send_aaf_pdu(pdu);
+            run_cycles(kAafPduPeriodCycles - 400);
+        }
+        run_cycles(kStarveCycles);
+    }
+
     // ---------------------------------------------------------------- 0 ----
     // The prune is NOT CSR-observable at the identity level: same ID, same
     // VERSION, same CAP. This is the check that says "no VERSION bump was
@@ -197,7 +331,7 @@ class PrunedShapeHarness {
     void prove_csr_identity_unchanged_by_pruning() {
         printf("[identity] the CSR contract is unchanged by pruning\n");
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020057);
+        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020058);
         {
             uint32_t cap = axi_read(A_CAP);
             ck("CAP.ADP bit12 still set",  (cap >> 12) & 1, 1);
@@ -323,6 +457,38 @@ class PrunedShapeHarness {
            axi_read(A_LTAP_BASE + 4) | axi_read(A_LTAP_BASE + 32), 0);
         ck("LTAP_CTRL STILL 0x2 after traffic", axi_read(A_LTAP_CTRL), 0x2);
         ck("MCSRV_STAT STILL 0 after traffic", axi_read(A_MCSRV_STAT), 0);
+        //! #390: SLIP_LB is a STRUCTURAL zero on this shape - LOOPBACK_P = 0
+        //! folds the loop feed strobe (milan_datapath's lb_tap_tvalid_w) to a
+        //! constant 0, so the ring's fed and primed rails never set and its
+        //! counters are pruned with it. The ring's ONLY feed is the
+        //! depacketizer's accepted output, so the zero is read behind the
+        //! stream a built ring would accept: listener 0 bound through the
+        //! window and fed well-formed PDUs on the class-A cadence (PCMRX_CNT
+        //! proves the acceptance), then starved for twenty ticks. A built
+        //! ring primes and feeds four pairs on that stream and counts one
+        //! dup per pair per starved tick, so the same harness rebuilt with
+        //! -GLOOPBACK_P=1, or with the LOOPBACK_P fold removed from the feed
+        //! strobe, fails the zero (the two negative controls of PR #436).
+        {
+            const uint32_t pdus0 = axi_read(A_PCMRX_CNT) & 0xFFFF;
+            bind_listener_zero_through_the_window();
+            feed_the_bound_listener_then_starve_it();
+            ck("listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus)",
+               (axi_read(A_PCMRX_CNT) & 0xFFFF) - pdus0, kAafPdusFed);
+        }
+        ck("SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0)",
+           axi_read(A_SLIP_LB), 0);
+        //! ...and the SAME zero read with the lane ESTABLISHED, the
+        //! instruction REGISTER_MAP.md gives and that nothing executed until
+        //! now. The helper refuses a poisoned word first, so what reaches
+        //! this line IS a measurement: mask_valid and valid 1 with loop_fed
+        //! 0, a MEASURED absent lane and not an unarmed word - an unarmed,
+        //! timed-out or refused readback FAILS the two grades inside the
+        //! helper instead of passing this one, which is the state the
+        //! 0xDEADDEAD poison projects onto this very 6. obj_aclk reads 7
+        //! for the same three bits.
+        ck("CHMAP_LOOP {mask_valid, valid, fed}: no lane",
+           chmap_loop_lane_flags(0), 6);
         ck("MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT1), 0);
         ck("MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1", axi_read(A_MAAP_STAT0), 0);
         ck("I2SPB_STAT STILL 0 after traffic", axi_read(A_I2SPB_STAT), 0);

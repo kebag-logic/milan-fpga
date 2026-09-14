@@ -220,8 +220,9 @@ class PtpTimingSections:
 
     # ------------------------------------------------------- 9 sync pairs
     def _sync_pair(self, delta, domain=0, fu_seq=None, fu_src=PEER_CID,
-                   sync_flags=0x0208):
+                   flags=(0x0208, 0x0008)):
         """Send one Sync + Follow_Up pair and return the state after it."""
+        sync_flags, fu_flags = flags
         sq = self.nseq("sync")
         st = self.state()
         at = self.phc_of(st)
@@ -230,7 +231,7 @@ class PtpTimingSections:
         self.send(wire.ptp_follow_up(
             sequence_id=sq if fu_seq is None else fu_seq,
             origin_ns=at - delta - D_NOM, domain_number=domain,
-            source_clock_identity=fu_src))
+            source_clock_identity=fu_src, flags=fu_flags))
         return self.tick(2)
 
     def _followup_shapes(self):
@@ -361,6 +362,25 @@ class PtpTimingSections:
         off = st[S_OFFSET] - (1 << 32) if st[S_OFFSET] >> 31 else st[S_OFFSET]
         self.rep.ck("recovery pair: offset back near +1000",
                     abs(off - 1000) <= 300, "offset=%d" % off)
+
+        # 11.4.1 and Table 11-4 ignore reserved flags and twoStepFlag on RX.
+        # Distinct offsets ensure that dropping a pair cannot preserve a
+        # previous value that happens to satisfy the next assertion.
+        for sync_flags, fu_flags, delta in ((0x0200, 0x0000, 2000),
+                                           (0x0208, 0x0008, 4000),
+                                           (0x0000, 0x0200, 6000)):
+            self.refresh_master()
+            before = self.state()
+            after = self._sync_pair(delta, flags=(sync_flags, fu_flags))
+            label = "RX flags %04x/%04x" % (sync_flags, fu_flags)
+            off = (after[S_OFFSET] - (1 << 32) if after[S_OFFSET] >> 31
+                   else after[S_OFFSET])
+            self.rep.ck("%s: fresh pair steers" % label,
+                        abs(off - delta) <= 300, "offset=%d" % off)
+            self.rep.eq("%s: no parser drop" % label,
+                        after[S_RXDROP], before[S_RXDROP])
+            self.rep.eq("%s: sync verdict up" % label,
+                        after[S_FLAGS] & FL_SYNCOK, FL_SYNCOK)
 
     # --------------------------------------- 10 the accept side (issue #217)
     def _suffix_steer(self, label, delta, sync_suffix, fu_suffix):
