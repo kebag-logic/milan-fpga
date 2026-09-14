@@ -6963,10 +6963,14 @@ def test_baremetal_profile_contract() -> None:
         #: reference to a variable named `=` (`src/expand.c:410-418`). Testing
         #: the UNEXPANDED text for an `=` counted all three, split the span
         #: there and answered about the identifier in front of the colon while
-        #: make reads `NAME:.d`, `NAME:.ox` or `NAME:` -- a different variable,
-        #: covered by no origin request and refused by nothing, in the eval
-        #: binder as well. Each row below is the whole path: the closure and
-        #: all six pre-plan scans.
+        #: make reads `NAME:.d`, `NAME:.ox` or `NAME:` -- a different
+        #: variable, covered by no origin request and refused by nothing on a
+        #: right-hand side, which is what the rows below measure. The eval
+        #: binder is where the spellings part company, and its own rows keep
+        #: them apart: it classified a nested substitution or function
+        #: bindable on that same identifier, while a short `$=` it already
+        #: refused, for the sibling read itself. Each row below is the whole
+        #: path: the closure and all six pre-plan scans.
         #:
         #: The counterparts are what keeps this a correction of WHICH name is
         #: read rather than a refusal of every nested substitution. A literal
@@ -7153,15 +7157,20 @@ def test_baremetal_profile_contract() -> None:
          ("LABEL", "OBJECTS"), "reads $(call 1)"),
         #: (#410, the review of round twelve's head) The binder asks the same
         #: reader once more, so the surviving-separator correction arrives
-        #: here too: an eval whose value reads a colon the file gives no
-        #: separator that survives expansion was classified BINDABLE on the
+        #: here too: an eval whose value reads a colon a nested SUBSTITUTION
+        #: or FUNCTION takes the `=` from was classified BINDABLE on the
         #: strength of the identifier in front of it, directly and one
         #: assignment away. `NAME = ready` says nothing about `NAME:.d`,
         #: `NAME:.ox` or `NAME:`, which is the name make looks up, so the
-        #: eval is refused by the reference it reads. The rows after them are
-        #: the arm that keeps this a correction rather than a blanket
-        #: refusal: a separator OUTSIDE the nesting survives it, so those
-        #: evals stay bindable with the literal name in the closure.
+        #: eval is refused by the reference it reads. The short `$=` row is
+        #: the one this correction does NOT newly refuse: that eval was
+        #: already refused, by this binder's own rule for the sibling `$=`
+        #: read, and what changes there is which reference the refusal
+        #: NAMES -- the enclosing one, rather than the read inside it. The
+        #: rows after them are the arm that keeps this a correction rather
+        #: than a blanket refusal: a separator OUTSIDE the nesting survives
+        #: it, so those evals stay bindable with the literal name in the
+        #: closure.
         ("an eval whose value reads a colon a nested SUBSTITUTION takes the "
          "`=` from is refused by that reference",
          "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT:.o=.d)))\n"
@@ -12112,11 +12121,16 @@ def test_baremetal_profile_contract() -> None:
           "$(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) were answered about "
           "NAME while make reads NAME:.d, NAME:x, NAME:.ox and NAME: -- a "
           "different variable, covered by no origin request and refused by "
-          "nothing, in the eval binder as well -- and are the computed names "
-          "they are. A separator OUTSIDE the nesting survives it and an "
-          "escaped $$ consumes nothing, so $(NAME:$(PAT:.o=.d)=.x), "
-          "$(NAME:$(PAT)$(subst =,,x)=.d) and $(NAME:$$=.d) stay covered "
-          "reads of NAME. " +
+          "nothing on a right-hand side -- and are the computed names they "
+          "are. The eval binder parts the same spellings rather than "
+          "grouping them: the first three it classified bindable on that "
+          "identifier, directly and one assignment away, and now refuses by "
+          "the reference each reads, while the $= one it already refused, "
+          "for the sibling $= read, and that standing refusal now names the "
+          "enclosing reference instead. A separator OUTSIDE the nesting "
+          "survives it and an escaped $$ consumes nothing, so "
+          "$(NAME:$(PAT:.o=.d)=.x), $(NAME:$(PAT)$(subst =,,x)=.d) and "
+          "$(NAME:$$=.d) stay covered reads of NAME. " +
           eval_binding_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
