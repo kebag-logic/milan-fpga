@@ -31,6 +31,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_tdm_capture` | `KL_tdm_capture.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `KL_tdm_capture_master.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `KL_tdm_render.sv` | `milan_dp` · `tdm_render` · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_render_master` | `KL_tdm_render_master.sv` | `milan_dp` · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · 🔬`make aaf` | -- |
 | ✅ `aaf_talker_i2s` | `aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
 

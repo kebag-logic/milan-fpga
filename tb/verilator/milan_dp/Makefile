@@ -95,6 +95,9 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
+# #447: the TDM master render serializer, overridable the same way so
+# tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
+TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -146,6 +149,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
+       $(TDMRM_SRC) \
        $(RSP_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
@@ -177,7 +181,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp option-off ax1x1 aclk aclk-build tdm8render tdm8render-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -223,6 +227,26 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(ACLK_MDIR) \
   $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 endef
 
+# #447: THE SHIPPING TDM8 RENDER LANE, from the map command to the decoded
+# serial output. Stated ONCE beside ACLK_BUILD for the same reason: the
+# mutation arm (tdm8_render_mutants.py) rebuilds a MUTATED copy of the render
+# master, of the datapath or of the generated shape header through this exact
+# recipe (TDMRM_SRC, DP_SRC, TDM8R_SHAPE and TDM8R_MDIR overridden), so a
+# negative control elaborates the gateware the positive leg does.
+# AUDIO_IF_RENDER_SLOTS_P is what turns the parked lane into a live one; it is
+# the shipping config's own audio_interface.physical_channels.render.
+AX_RENDER = 8
+TDM8R_MDIR ?= obj_tdm8r
+TDM8R_SHAPE ?= $(SHAPE_AX1x1)
+define TDM8R_BUILD
+$(VERILATOR) $(TDM8R_SHAPE) $(GPTP_OFF_VFLAGS) --Mdir $(TDM8R_MDIR) \
+  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
+  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \
+  -GAUDIO_IF_RENDER_SLOTS_P=$(AX_RENDER) \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  $(SRCS) sim_tdm8_render.cpp -o Vmilan_dp_tdm8r
+endef
+
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
 # $$readmemh's it by the relative name below - so it must exist in the RUN
 # directory, not just the build one.
@@ -232,6 +256,18 @@ ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 # ...and the AECP uCPU microcode image, same relative-$readmemh contract.
 ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 	python3 $< -o $@
+
+# ...and the entity image the #447 render leg's AECP face serves. The AECP
+# uCPU validates this image before it enables the entity, so the leg cannot
+# answer a map command without it. Built by the SAME two tools sw/litex loads
+# at PP_DESC_BASE_P, from the tracked shipping config, so the map face under
+# test is the one a board would serve. It sits in the RUN directory, shared by
+# the clean leg and every mutant run.
+tdm8r_aemi.bin: ../../../configs/endstation_ax7101_1x1_tdm8.yaml \
+                ../../../sw/builder/endstation_builder.py \
+                ../../../avdecc/gen_aemi_image.py
+	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_tdm8r_aem
+	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $@
 
 # ...and the gPTP plane's, generated for the leg's 2 MHz sim clock so the
 # boot cadence fires within a runnable window (same relative-$readmemh).
@@ -284,6 +320,14 @@ aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 aclk-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)
 
+# #447: the render-lane leg alone, and its build alone for the mutation arm.
+tdm8render: ltn_rom.hex ucode.hex tdm8r_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
+	$(TDM8R_BUILD)
+	./$(TDM8R_MDIR)/Vmilan_dp_tdm8r
+
+tdm8render-build: ltn_rom.hex ucode.hex tdm8r_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
+	$(TDM8R_BUILD)
+
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
@@ -300,7 +344,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
+run: ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -359,6 +403,9 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # about the audio clock's rate, and re-clocking them to find out would be a
 # large blast radius for no gain.
 	$(ACLK_BUILD)
+# #447: the render-lane leg, built in the sweep beside the others so the
+# mutation arm below has its positive control already on disk.
+	$(TDM8R_BUILD)
 	@echo "======================================================================"
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
@@ -393,6 +440,10 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 	./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
+	@echo "---- #447: the shipping TDM8 render lane, map command to decoded pins ----"
+	./obj_tdm8r/Vmilan_dp_tdm8r
+	@echo "---- #447 render lane: the same leg against mutated gateware and shape ----"
+	python3 tdm8_render_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 
@@ -412,4 +463,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin obj_tdm8r_aem obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_tdm8r obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex

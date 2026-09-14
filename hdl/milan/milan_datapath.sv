@@ -134,6 +134,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! below refuses the combination). 0 (default) = every existing shape,
   //! byte-identical.
   parameter int AUDIO_IF_I2S_PAIR_P = 0,
+  //! issue #447: the RENDER half of the audio interface - how many TDM slots
+  //! this build actually SERIALIZES onto tdm_dout_o. A separate quantity from
+  //! AUDIO_IF_SLOTS_P (the bus width the capture front-end frames), because a
+  //! board may back the header in one direction only, and NOT inferred from a
+  //! channel count: the builder emits it from the same
+  //! audio_interface.physical_channels.render fact that sizes the advertised
+  //! cluster pool, so the width the entity ADVERTISES and the width the fabric
+  //! BACKS come from one place.
+  //!   0 (default) = the render lane is PRUNED and tdm_dout_o is driven low.
+  //!                 Every shape that declares no TDM render lane behaves
+  //!                 exactly as it does today: the parked KL_tdm_render
+  //!                 instance filled a bank that could never shift, because a
+  //!                 MASTER build ties its tdm_bclk_i/tdm_fsync_i to 0.
+  //!   > 0 with AUDIO_IF_MASTER_P != 0 = KL_tdm_render_master, scheduled from
+  //!                 the capture master's exported bit-clock enables.
+  //!   > 0 with AUDIO_IF_MASTER_P == 0 = the proven slave KL_tdm_render on the
+  //!                 externally driven bus.
+  parameter int AUDIO_IF_RENDER_SLOTS_P = 0,
   //! task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket
   //! (SRC_LOOP = 5) to the depacketizer payload clone, so a talker slot
   //! naming a loopback AUDIO_CLUSTER really carries that received channel
@@ -810,6 +828,66 @@ module milan_datapath import ethernet_packet_pkg::*; #(
            AUDIO_IF_SLOTS_P, AIF_WORD_BITS_C, AUDIO_IF_FS_HZ_P, AIF_BCLK_HZ_C,
            AUDIO_IF_CLK_HZ_P, AIF_BCLK_HALF_C);
 
+  // ==========================================================================
+  //  THE RENDER CROSSBAR'S LANE GEOMETRY, NAMED ONCE (issue #447).
+  //
+  //  The render key space is a property of the CROSSBAR, not of a board:
+  //  docs/CHANNEL_MAP_64.md already states it normatively as "I2S left/right
+  //  at indices 0/1 and TDM lane 0 slots 0..7 at indices 2..9". What changed
+  //  is that it stops being three separate literals in three consumers - the
+  //  bank walk's `2`, the DAC feed selector's `0`/`1` and the armed mask's
+  //  `[1:0]` - plus a fourth, the depth 10, and a fifth in the AEM assembler.
+  //  The FIRST physical key of a lane and its COUNT are separate quantities
+  //  and neither is inferred from a channel count: a config that merely raised
+  //  its render width would otherwise project cluster keys 0..7 onto render
+  //  keys 0..7, hitting the two DAC keys a TDM-only shape prunes and leaving
+  //  TDM slots 6 and 7 unreachable.
+  //
+  //  sw/builder/test_builder.py pins these four values against
+  //  avdecc/aem_assemble.py's RENDER_PHYS_LANES, in the same shape as the
+  //  existing AEM_DMAP_PHYS_C vs CHMAP_PHYS_C gate.
+  // ==========================================================================
+  localparam int CHMAP_RPHYS_I2S_BASE_C = 0;
+  localparam int CHMAP_RPHYS_I2S_N_C    = 2;
+  localparam int CHMAP_RPHYS_TDM_BASE_C = CHMAP_RPHYS_I2S_BASE_C +
+                                          CHMAP_RPHYS_I2S_N_C;
+  localparam int CHMAP_RPHYS_TDM_N_C    = 8;
+  localparam int CHMAP_PHYS_C = CHMAP_RPHYS_TDM_BASE_C + CHMAP_RPHYS_TDM_N_C;
+
+  // ==========================================================================
+  //  RENDER LANE ACCOUNTABILITY (issue #447), the same rule as the capture
+  //  guards above: a build may not ADVERTISE a physical render width the
+  //  fabric cannot serialize. The three refusals, in the order they bite:
+  //   - a render lane needs a TDM bus to ride on;
+  //   - it cannot be wider than the bus the capture front-end frames, because
+  //     both directions share one frame;
+  //   - it cannot be wider than the crossbar's TDM key lane, because keys
+  //     beyond it do not exist and would silently truncate onto the DAC lane.
+  // ==========================================================================
+  if (AUDIO_IF_RENDER_SLOTS_P < 0)
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+           AUDIO_IF_RENDER_SLOTS_P);
+  else if (AUDIO_IF_RENDER_SLOTS_P > 0 && AUDIO_IF_SLOTS_P == 0)
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+           AUDIO_IF_RENDER_SLOTS_P);
+  else if (AUDIO_IF_RENDER_SLOTS_P > AUDIO_IF_SLOTS_P)
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+           AUDIO_IF_RENDER_SLOTS_P, AUDIO_IF_SLOTS_P);
+  else if (AUDIO_IF_RENDER_SLOTS_P > CHMAP_RPHYS_TDM_N_C)
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+           AUDIO_IF_RENDER_SLOTS_P, CHMAP_RPHYS_TDM_N_C,
+           CHMAP_RPHYS_TDM_BASE_C,
+           CHMAP_RPHYS_TDM_BASE_C + CHMAP_RPHYS_TDM_N_C - 1);
+
+  //! The MASTER bus timing, exported by its one owner for the render half to
+  //! consume (issue #447). Zero on every shape that elaborates no TDM master,
+  //! which is also every shape whose render lane is pruned.
+  localparam int AIF_FPOS_W_C = (AUDIO_IF_SLOTS_P <= 0) ? 1
+                              : $clog2(AUDIO_IF_SLOTS_P * AIF_WORD_BITS_C);
+  wire                    aifm_bclk_rise_w;
+  wire                    aifm_bclk_fall_w;
+  wire [AIF_FPOS_W_C-1:0] aifm_frame_pos_w;
+
   //! item-4 front-end select: the pair-stream contract is identical, so only
   //! the physical half swaps (I2S master / TDM slave / TDM master). The two
   //! TDM roles are SIBLING MODULES rather than one module with a role
@@ -834,6 +912,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign tdm_bclk_o  = 1'b0;
     assign tdm_fsync_o = 1'b0;
     assign tdm_mclk_o  = 1'b0;
+    //! ...and there is no bus timing to export
+    assign aifm_bclk_rise_w = 1'b0;
+    assign aifm_bclk_fall_w = 1'b0;
+    assign aifm_frame_pos_w = '0;
   end else if (AUDIO_IF_MASTER_P != 0) begin : g_aif_tdm_master
     //! TDM MASTER: we make bclk and fsync, so the front-end needs nobody to
     //! drive it - which is the difference between an interface the config
@@ -849,6 +931,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .clk_audio_i (clk_tdm_i),
       .tdm_mclk_o (i2s_mclk_o), .tdm_bclk_o (tdm_bclk_o),
       .tdm_fsync_o (tdm_fsync_o), .tdm_data_i (tdm_data_i),
+      //! the one timing owner's exported schedule, for the render half
+      .bclk_rise_o (aifm_bclk_rise_w), .bclk_fall_o (aifm_bclk_fall_w),
+      .frame_pos_o (aifm_frame_pos_w),
       .pair_valid_o (aafcap_pv_w), .pair_slot_o (aafcap_slot_w),
       .pair_l_o (aafcap_l_w), .pair_r_o (aafcap_r_w),
       .pairs_captured_o (aaf_pairs_w)
@@ -891,6 +976,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .clk_audio_i (clk_tdm_i),
       .tdm_mclk_o (tdm_mclk_o), .tdm_bclk_o (tdm_bclk_o),
       .tdm_fsync_o (tdm_fsync_o), .tdm_data_i (tdm_data_i),
+      //! the one timing owner's exported schedule, for the render half
+      .bclk_rise_o (aifm_bclk_rise_w), .bclk_fall_o (aifm_bclk_fall_w),
+      .frame_pos_o (aifm_frame_pos_w),
       .pair_valid_o (bl_tdm_pv_w), .pair_slot_o (bl_tdm_slot_w),
       .pair_l_o (bl_tdm_l_w), .pair_r_o (bl_tdm_r_w),
       .pairs_captured_o ()
@@ -931,6 +1019,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign tdm_bclk_o  = 1'b0;
     assign tdm_fsync_o = 1'b0;
     assign tdm_mclk_o  = 1'b0;
+    //! ...and a slave render lane takes its schedule from the bus, not here
+    assign aifm_bclk_rise_w = 1'b0;
+    assign aifm_bclk_fall_w = 1'b0;
+    assign aifm_frame_pos_w = '0;
   end endgenerate
 
   //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4), added alongside.
@@ -5753,14 +5845,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  Channel-map RENDER crossbar (docs/CHANNEL_MAP_64.md §3) — ADD-ALONGSIDE.
   //  A parallel, NEVER-backpressuring tap on the depacketizer PCM AXIS: it
   //  latches every (stream, wire-channel) sample and, on each media tick,
-  //  renders CHMAP_PHYS_C physical channels through RMAP. phys{0,1} feed the
-  //  optional mapped-I2S path above; phys{2..9} feed the parked TDM8 render
-  //  lane. cfg_chmap_enable = 0 leaves rend_pcm_tdata_w -> i2s_playback
-  //  untouched (the assign below resolves to the exact compliance net).
+  //  renders CHMAP_PHYS_C physical channels through RMAP. The I2S lane
+  //  (CHMAP_RPHYS_I2S_BASE_C, CHMAP_RPHYS_I2S_N_C) feeds the optional
+  //  mapped-I2S path above; the TDM lane (CHMAP_RPHYS_TDM_BASE_C,
+  //  CHMAP_RPHYS_TDM_N_C) feeds the render serializer below.
+  //  cfg_chmap_enable = 0 leaves rend_pcm_tdata_w -> i2s_playback untouched
+  //  (the assign below resolves to the exact compliance net).
+  //
+  //  CHMAP_PHYS_C and the two lane windows are declared ONCE beside the
+  //  audio-interface guards above: the depth is their SUM, not a literal.
   // ==========================================================================
-  localparam int CHMAP_PHYS_C = 10;
   wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
-  wire                       chmap_phys_v_w;
+  //! public: the render integration leg uses this pulse as a TIMESTAMP source
+  //! only - it counts post-epoch pulses and correlates the m-th with the m-th
+  //! decoded frame by COUNT. No expected sample value is ever read from it.
+  wire                       chmap_phys_v_w /* verilator public_flat_rd */;
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
 
   // --------------------------------------------------------------------------
@@ -5948,10 +6047,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tap_tlast_i  (rend_pcm_tlast_w),
     .tap_chans_i  (mon_wire_chans_w),
     .lpf_active_i (pcm_lpf_active),
-    .phys_l_i     (chmap_phys_w[0*24 +: 24]),
-    .phys_r_i     (chmap_phys_w[1*24 +: 24]),
+    //! the DAC lane is the crossbar's I2S key window, named once above
+    .phys_l_i     (chmap_phys_w[(CHMAP_RPHYS_I2S_BASE_C + 0)*24 +: 24]),
+    .phys_r_i     (chmap_phys_w[(CHMAP_RPHYS_I2S_BASE_C + 1)*24 +: 24]),
     .phys_valid_i (chmap_phys_v_w),
-    .phys_armed_i (|chmap_mapped_mask_w[1:0]),
+    .phys_armed_i (|chmap_mapped_mask_w[CHMAP_RPHYS_I2S_BASE_C
+                                        +: CHMAP_RPHYS_I2S_N_C]),
     .pcm_tdata_o (i2s_feed_tdata_w), .pcm_tvalid_o (i2s_feed_tvalid_w),
     .pcm_tready_o (i2s_feed_tready_w), .pcm_tlast_o (i2s_feed_tlast_w),
     .chans_o (i2s_feed_chans_w), .lpf_active_o (i2s_feed_lpf_act_w),
@@ -5960,63 +6061,216 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .src_render_o () //! Optional source diagnostic is not published.
   );
 
-  // ---- parked TDM8 render lane (docs §8): phys{2..9} -> 8 slot writes -------
-  //! The render xbar emits the whole phys vector once per media tick; the TDM
-  //! slave serializer wants slot-indexed writes + a frame commit. A tiny burst
-  //! adapter walks phys{2..9} into the bank on each phys_valid, then commits.
-  //! tdm_dout_o IS BONDED - AX7101 J11.5, ball A20, claimed by tdm_pads.dout
-  //! on a master build (milan_soc.py:5233). What keeps the lane dark is the
-  //! CLOCK, not the pin: KL_tdm_render is a bus SLAVE whose serializer runs on
-  //! posedge tdm_bclk_i, and a MASTER build ties tdm_bclk_i/tdm_fsync_i to 0
-  //! (milan_soc.py:751) because the master generates bclk/fsync on the OUTPUT
-  //! side. There is no KL_tdm_render_master sibling - capture got one, render
-  //! did not. So the adapter below fills the bank correctly and the bank never
-  //! shifts. See the `render: 0` note in the AX7101 configs for the other two
-  //! blockers (AEM_DMAP_PHYS_C key cap, CHMAP_PHYS_C blend layout).
-  logic        tdmr_wr_en_r;
-  logic [2:0]  tdmr_slot_r;
-  logic [23:0] tdmr_data_r;
-  logic        tdmr_tick_r;
-  logic        tdmr_busy_r;
-  always_ff @(posedge axis_clk) begin : chmap_tdm_adapter
-    if (!axis_resetn) begin
-      tdmr_wr_en_r <= 1'b0; tdmr_slot_r <= 3'd0; tdmr_data_r <= 24'd0;
-      tdmr_tick_r  <= 1'b0; tdmr_busy_r <= 1'b0;
-    end else begin
-      tdmr_wr_en_r <= 1'b0;
-      tdmr_tick_r  <= 1'b0;
-      if (!tdmr_busy_r) begin
-        if (chmap_phys_v_w) begin
-          tdmr_busy_r  <= 1'b1;
-          tdmr_slot_r  <= 3'd0;
-          tdmr_wr_en_r <= 1'b1;
-          tdmr_data_r  <= chmap_phys_w[2*24 +: 24];   //! slot 0 <- phys 2
-        end
-      end else if (tdmr_slot_r == 3'd7) begin
-        tdmr_busy_r <= 1'b0;
-        tdmr_tick_r <= 1'b1;                           //! commit after slot 7
-      end else begin
-        tdmr_slot_r  <= tdmr_slot_r + 3'd1;
-        tdmr_wr_en_r <= 1'b1;
-        tdmr_data_r  <= chmap_phys_w[(2 + 32'(tdmr_slot_r) + 1)*24 +: 24];
+  // ==========================================================================
+  //  THE TDM RENDER LANE (issue #447): crossbar TDM keys -> slot writes ->
+  //  a frame commit -> the serializer that actually shifts them onto
+  //  tdm_dout_o.
+  //
+  //  WHAT WAS WRONG. tdm_dout_o IS BONDED (AX7101 J11.5, ball A20, claimed by
+  //  tdm_pads.dout on a master build), and the adapter below always filled the
+  //  bank correctly. What kept the lane dark was the CLOCK, not the pin:
+  //  KL_tdm_render is a bus SLAVE whose serializer runs on posedge
+  //  tdm_bclk_i, and a MASTER build ties tdm_bclk_i / tdm_fsync_i to 0
+  //  because the master generates bclk/fsync on the OUTPUT side. The bank
+  //  filled and never shifted. KL_tdm_render_master is the missing sibling:
+  //  capture got one, render did not.
+  //
+  //  THE RENDER EPOCH. Stopping only the upstream queue on a bind loss left
+  //  three live paths to the pins - KL_chan_map_render re-emits its retained
+  //  sel_r on every tick, a map write between events re-seeds it from cur_r,
+  //  and the serializer may already hold a prefetched frame - so the epoch
+  //  cuts at the CONSUMER instead: the adapter commits nothing while the
+  //  epoch is closed and the serial side renders digital silence after the
+  //  frame in flight ends. Because the cut is here and in the serializer
+  //  rather than inside the shared crossbar, no other destination, shape or
+  //  lane changes behavior; KL_chan_map_render and KL_render_setpoint are
+  //  untouched.
+  // ==========================================================================
+  //! public: the integration leg reads the lane's counters and its epoch
+  //! state directly, the precedent the #386 render-law taps set
+  wire [15:0] tdmr_frames_w    /* verilator public_flat_rd */;
+  wire [15:0] tdmr_underruns_w /* verilator public_flat_rd */;
+  wire [15:0] tdmr_skips_w     /* verilator public_flat_rd */;
+  wire [15:0] tdmr_overruns_w  /* verilator public_flat_rd */;
+  wire [15:0] tdmr_epochs_w    /* verilator public_flat_rd */;
+  wire        tdmr_commit_en_w /* verilator public_flat_rd */;
+  //! ...and the three REGISTERED instants a latency measurement needs, so the
+  //! published delay terms follow observed events rather than a model: the
+  //! adapter's frame commit (axis_clk), the serial frame start and the frame
+  //! start that ADOPTS a freshly committed frame (both clk_tdm_i).
+  wire        tdmr_commit_p_w  /* verilator public_flat_rd */;
+  wire        tdmr_frame_p_w   /* verilator public_flat_rd */;
+  wire        tdmr_adopt_p_w   /* verilator public_flat_rd */;
+
+  //! WHICH STREAMS THIS LANE RENDERS. A small combinational reduction over the
+  //! already exported whole-map vector: every TDM-lane key that is enabled and
+  //! names the AVB listener bank (src = 0) contributes its stream index. A
+  //! bind fall on a stream the lane does not render therefore does not silence
+  //! the lane.
+  logic [N_STREAMS-1:0] tdmr_lane_streams_w /* verilator public_flat_rd */;
+  always_comb begin : tdm_lane_streams
+    logic [7:0] rword;
+    tdmr_lane_streams_w = '0;
+    for (int k = 0; k < CHMAP_RPHYS_TDM_N_C; k++) begin
+      rword = rmap_flat_w[(CHMAP_RPHYS_TDM_BASE_C + k)*8 +: 8];
+      if (rword[7] && !rword[6]) begin
+        for (int s = 0; s < N_STREAMS; s++)
+          if (32'(rword[5:3]) == s) tdmr_lane_streams_w[s] = 1'b1;
       end
     end
-  end : chmap_tdm_adapter
+  end : tdm_lane_streams
 
-  wire chmap_tdm_dout_w;   //! parked serial output (no board pin yet)
-  KL_tdm_render #(.SLOTS_P(8), .SLOT_BITS_P(32)) chan_tdm_render (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .smp_wr_en_i   (tdmr_wr_en_r),
-    .smp_wr_slot_i (tdmr_slot_r),
-    .smp_wr_data_i (tdmr_data_r),
-    .tick_i        (tdmr_tick_r),
-    .tdm_bclk_i    (tdm_bclk_i),
-    .tdm_fsync_i   (tdm_fsync_i),
-    .tdm_dout_o    (chmap_tdm_dout_w),   //! exported as tdm_dout_o below
-    .frames_o (), .underruns_o (), .overruns_o ()
-  );
+  //! the qualified bind fall: the ONLY event that closes a render epoch from
+  //! above (a reset closes it from the reset values of the handshake levels)
+  wire tdmr_epoch_evt_w = |(strtbl_bind_fall_w & tdmr_lane_streams_w);
 
-  assign tdm_dout_o = chmap_tdm_dout_w;
+  //! POST-BIND FRESHNESS. The crossbar's retained selection is written from
+  //! the setpoint's OUTPUT beats, not from its queue occupancy, so "the queue
+  //! has refilled" is not the condition that makes it fresh again: the stage
+  //! must have POPPED a post-flush event. pop_p_o already excludes prefill
+  //! (KL_render_setpoint's pop_take_w carries the !prefill term), so one pulse
+  //! per lane stream after the flush is exactly the observable required.
+  logic [N_STREAMS-1:0] tdmr_fresh_r;
+  always_ff @(posedge axis_clk) begin : tdm_lane_freshness
+    if (!axis_resetn) tdmr_fresh_r <= '0;
+    else begin
+      for (int s = 0; s < N_STREAMS; s++) begin
+        if (strtbl_bind_fall_w[s])  tdmr_fresh_r[s] <= 1'b0;
+        else if (rsp_pop_p_w[s])    tdmr_fresh_r[s] <= 1'b1;
+      end
+    end
+  end : tdm_lane_freshness
+  //! a lane with no mapped stream has nothing to be stale about, so the
+  //! reduction is over the mapped streams only
+  wire tdmr_fresh_w = &(tdmr_fresh_r | ~tdmr_lane_streams_w);
+
+  generate if (AUDIO_IF_RENDER_SLOTS_P == 0) begin : g_tdm_render_parked
+    //! No render lane on this build: the serial output is driven low and the
+    //! adapter, the frame CDC and the serializer are not elaborated at all.
+    //! This is what every shape did in effect before - the parked slave's
+    //! serializer never left reset on a clock tied to zero - and now it is a
+    //! structural fact instead of a consequence.
+    assign tdm_dout_o       = 1'b0;
+    assign tdmr_commit_en_w = 1'b0;
+    assign tdmr_commit_p_w  = 1'b0;
+    assign tdmr_frame_p_w   = 1'b0;
+    assign tdmr_adopt_p_w   = 1'b0;
+    assign tdmr_frames_w    = 16'd0;
+    assign tdmr_underruns_w = 16'd0;
+    assign tdmr_skips_w     = 16'd0;
+    assign tdmr_overruns_w  = 16'd0;
+    assign tdmr_epochs_w    = 16'd0;
+  end else begin : g_tdm_render_live
+    localparam int RSLOT_W_C = (AUDIO_IF_RENDER_SLOTS_P <= 1) ? 1
+                             : $clog2(AUDIO_IF_RENDER_SLOTS_P);
+    localparam int RLAST_C   = AUDIO_IF_RENDER_SLOTS_P - 1;
+
+    //! The crossbar emits the whole phys vector once per media tick; the
+    //! serializer wants slot-indexed writes and a frame commit. This burst
+    //! adapter walks the TDM key window into the bank on each phys_valid and
+    //! commits after the last slot, so a committed frame ALWAYS carries a
+    //! freshly written value in every slot.
+    logic                 tdmr_wr_en_r;
+    logic [RSLOT_W_C-1:0] tdmr_slot_r;
+    logic [23:0]          tdmr_data_r;
+    logic                 tdmr_tick_r;
+    logic                 tdmr_busy_r;
+    always_ff @(posedge axis_clk) begin : chmap_tdm_adapter
+      if (!axis_resetn) begin
+        tdmr_wr_en_r <= 1'b0; tdmr_slot_r <= '0; tdmr_data_r <= 24'd0;
+        tdmr_tick_r  <= 1'b0; tdmr_busy_r <= 1'b0;
+      end else begin
+        tdmr_wr_en_r <= 1'b0;
+        tdmr_tick_r  <= 1'b0;
+        //! a closed epoch ABORTS the walk in place: no commit, and the next
+        //! accepted walk rewrites every slot before committing, so a
+        //! partially stale bank can never be committed
+        if (!tdmr_commit_en_w) begin
+          tdmr_busy_r <= 1'b0;
+        end else if (!tdmr_busy_r) begin
+          if (chmap_phys_v_w) begin
+            tdmr_busy_r  <= 1'b1;
+            tdmr_slot_r  <= '0;
+            tdmr_wr_en_r <= 1'b1;
+            tdmr_data_r  <= chmap_phys_w[CHMAP_RPHYS_TDM_BASE_C*24 +: 24];
+          end
+        end else if (32'(tdmr_slot_r) == RLAST_C) begin
+          tdmr_busy_r <= 1'b0;
+          tdmr_tick_r <= 1'b1;             //! commit after the last slot
+        end else begin
+          tdmr_slot_r  <= tdmr_slot_r + 1'b1;
+          tdmr_wr_en_r <= 1'b1;
+          tdmr_data_r  <= chmap_phys_w[(CHMAP_RPHYS_TDM_BASE_C
+                                        + 32'(tdmr_slot_r) + 1)*24 +: 24];
+        end
+      end
+    end : chmap_tdm_adapter
+
+    assign tdmr_commit_p_w = tdmr_tick_r;
+
+    if (AUDIO_IF_MASTER_P != 0) begin : g_master
+      //! The fabric owns this bus, so the serializer consumes the ONE timing
+      //! owner's exported schedule rather than generating a second frame
+      //! phase of its own.
+      KL_tdm_render_master #(
+        .SLOTS_P       (AUDIO_IF_RENDER_SLOTS_P),
+        .SLOT_BITS_P   (AIF_WORD_BITS_C),
+        .FIFO_LOG2_P   (2),
+        .FRAME_POS_W_P (AIF_FPOS_W_C)
+      ) chan_tdm_render (
+        .clk_i (axis_clk), .rst_n (axis_resetn),
+        .smp_wr_en_i   (tdmr_wr_en_r),
+        .smp_wr_slot_i (tdmr_slot_r),
+        .smp_wr_data_i (tdmr_data_r),
+        .tick_i        (tdmr_tick_r),
+        .epoch_evt_i   (tdmr_epoch_evt_w),
+        .fresh_i       (tdmr_fresh_w),
+        .commit_en_o   (tdmr_commit_en_w),
+        .clk_tdm_i     (clk_tdm_i),
+        .bclk_rise_i   (aifm_bclk_rise_w),
+        .bclk_fall_i   (aifm_bclk_fall_w),
+        .frame_pos_i   (aifm_frame_pos_w),
+        .tdm_dout_o    (tdm_dout_o),
+        .frame_start_o (tdmr_frame_p_w),
+        .adopt_p_o     (tdmr_adopt_p_w),
+        .frames_o      (tdmr_frames_w),
+        .underruns_o   (tdmr_underruns_w),
+        .skips_o       (tdmr_skips_w),
+        .overruns_o    (tdmr_overruns_w),
+        .epochs_o      (tdmr_epochs_w)
+      );
+    end else begin : g_slave
+      //! A codec-driven bus: the proven slave serializer, byte-identical, on
+      //! the external bclk/fsync. It carries no epoch protocol - extending
+      //! one into a shipped, separately proven module is outside this issue -
+      //! so its commits are always admitted and a reset asserted and released
+      //! entirely while the EXTERNAL bit clock is stopped keeps the exposure
+      //! that module has always had. No tracked config elaborates this arm;
+      //! the gap is recorded in docs/CHANNEL_MAP_64.md rather than assumed
+      //! away.
+      KL_tdm_render #(
+        .SLOTS_P     (AUDIO_IF_RENDER_SLOTS_P),
+        .SLOT_BITS_P (AIF_WORD_BITS_C)
+      ) chan_tdm_render (
+        .clk_i (axis_clk), .rst_n (axis_resetn),
+        .smp_wr_en_i   (tdmr_wr_en_r),
+        .smp_wr_slot_i (tdmr_slot_r),
+        .smp_wr_data_i (tdmr_data_r),
+        .tick_i        (tdmr_tick_r),
+        .tdm_bclk_i    (tdm_bclk_i),
+        .tdm_fsync_i   (tdm_fsync_i),
+        .tdm_dout_o    (tdm_dout_o),
+        .frames_o      (tdmr_frames_w),
+        .underruns_o   (tdmr_underruns_w),
+        .overruns_o    (tdmr_overruns_w)
+      );
+      assign tdmr_commit_en_w = 1'b1;
+      assign tdmr_skips_w     = 16'd0;   //! drop-NEWEST: no skip counter
+      assign tdmr_epochs_w    = 16'd0;   //! no epoch protocol on this arm
+      assign tdmr_frame_p_w   = 1'b0;    //! the bus, not this module, frames
+      assign tdmr_adopt_p_w   = 1'b0;
+    end
+  end endgenerate
 
   // ==========================================================================
   //  MAAP engine (IEEE 1722 Annex B) — dynamic stream-DMAC allocation.

@@ -165,7 +165,30 @@ Under CRF the grids align and no rail fires.
 |---|---|---|
 | Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream (60 ns at 100 MHz), 18 at four, 34 at eight | every shape; the reference the rows below add to |
 | I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame; accept to DAC = 8 ticks + the accept phase + 17 frames = 25 to 26 frames (521 to 542 us) | the one clocked listener interface in tree; two setpoint stages in series, each constant |
-| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk at 12.288 MHz, the TDM8 bit clock and half the `audio` master input (20.83 us + k x 2.604 us + 81 ns; 8 slots x 2.604 us = one frame) + the tick-to-fsync phase: under one frame, held constant under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL | NOT SHIPPED: no build clocks `KL_tdm_render` (`tdm_bclk_i` tied to 0 on a master build, `render: 0` in the AX7101 configs); the row waits for a render master |
+| TDM8 frame pin, slot k | + 90 ns bank walk and frame commit, + the adopt wait `phi`, + (32k + 1) bit periods at 12.288 MHz (81.4 ns each, so slot k adds 2.6042 us and 8 slots make one 20.834 us frame). `phi` covers the frame CDC and the wait for the next serial frame start, MEASURED at 0.219 to 21.049 us: held constant per slot under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL and stepping by exactly one frame once per 1.958 s beat | SHIPPED on the AX7101 1x1 TDM8 shape (#447): `KL_tdm_render_master` on `tdm.dout`, scheduled from the capture master's exported bit-clock enables. Every term above is measured by `make -C tb/verilator/milan_dp tdm8render`, not modelled. Silicon measurement of this path stays with #386 acceptance 4 and #117 |
+
+That row once charged a frame AND a tick-to-fsync phase.
+
+No separate deterministic frame exists.
+
+The adopt wait IS that phase.
+
+It is now one measured term.
+
+Every term above is measured, not modelled.
+
+- The frame commit strobe is timestamped in `axis_clk`.
+- The crossbar's valid pulse is timestamped beside it.
+- An independent pin decoder timestamps each slot's MSB edge.
+- Drop-oldest accounting names the commit behind each frame.
+- The bank walk measured 9 cycles over 840 pairs.
+- Slot 0 measured 0.300 to 21.130 us.
+- That window covered 838 decoded frames.
+- Its spread stayed inside one serial frame.
+
+Recipe: the shipping shape, `AUDIO_IF_RENDER_SLOTS_P = 8`.
+
+Clocks: the true 391/1591 plan, gPTP plane off.
 
 Software reads no delay register: the constants are this table.
 

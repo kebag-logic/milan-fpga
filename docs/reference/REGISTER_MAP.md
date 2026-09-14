@@ -1830,6 +1830,28 @@ map stores and the authoritative protocol ownership state from non-ATDECC edits.
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | The map word **the RAM actually holds**. `[15:0]` raw fabric readback word — capture side `{1'b0, loop_fed[14], loop_mapped[13], entry[12:0]}` where the entry is the per-channel word `{en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}` (one entry per stream channel since 0x0027). NOTE the two formats: the `CHMAP_WORD` you WRITE is `{EN[15], SRC[14:12], rsvd, HALF[8], IDXH, IDXL}`; the ENTRY you read BACK here re-packs those fields — e.g. word `0xB000` reads back as entry `0x1300`, and mistaking the packing for corruption cost a bench session. `loop_fed`/`loop_mapped`/`LOOP_SUSPECT` grade the LOOP source only, never general slot health, render side `{8'd0, entry[7:0]}`; `[16]` mapped, `[17]` fed, `[18]` **`LOOP_SUSPECT` = mapped & ~fed** (extracted from the raw word's canonical flag bits, stable here whatever the raw layout), `[19]` side, `[25:20]` index, `[26]` **VALID** (this word is a measurement), `[27]` **MASK_VALID** (`[18:16]` are a measurement — capture side only). **`0xDEADDEAD` = there is no measurement behind this word** |
 | `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x93C` are the protocol-processor window**, see the next section |
 
+#### `0x904` - the render side writes by CLUSTER key and reads by PHYSICAL key
+
+This asymmetry is a property of the existing register map, made visible for the
+first time by the AX7101 1x1 TDM8 shape (#447). The `0x908` WRITE arm treats
+`CHMAP_SEL[5:0]` as a GLOBAL CLUSTER key and projects it through the generated
+`ADP_DMAP_IN_RPHYS_C` table before it reaches the crossbar. The `0x910`/`0x914`
+READBACK treats the same field as a PHYSICAL render key with no projection at
+all, which is what keeps the readback a raw RAM dump: the two crossbar keys no
+cluster reaches stay dumpable. On every shape shipped so far the two coincided;
+on this shape they differ by the TDM lane base, so a write to cluster key 4
+lands at physical key 6 and must be read back at physical key 6.
+
+Two behaviours that follow, and are preserved rather than changed:
+
+- A write whose cluster key has NO valid projection is SUPPRESSED at the
+  crossbar write gate: no render RAM word changes. That is a CSR behaviour and
+  is not an AECP status.
+- The same write still MIRRORS into the AECP protocol store whenever the key is
+  in range, the entity is unlocked and no conflicting map transaction is
+  active, exactly as it did before. The suppression gates the crossbar write,
+  not the store, so `GET_AUDIO_MAP` continues to report an in-range CSR write.
+
 #### `0x910`/`0x914` - reading the map RAM, and why the un-armed state is not zero
 
 `CHMAP_WORD` `0x908` has never been able to answer "what does the map RAM

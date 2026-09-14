@@ -13797,12 +13797,32 @@ def test_dynamic_map_topology_reaches_shape_header() -> None:
     assert c8[9:18] == [0x1400, 0x0510, 0x0D10, 0x0511,
                         0x0D11, 0x0512, 0x0D12, 0x0513, 0x0D13]
 
+    # #447: the 1x1 shipping shape's listener is no longer headless. Its eight
+    # physical input clusters project onto the render crossbar's TDM lane -
+    # keys 2..9, spelled {valid, key} = 0x42..0x49 - and NOT onto keys 0..7,
+    # which would put two of them on the stereo DAC lane this shape prunes and
+    # leave TDM slots 6 and 7 unreachable. The lane BASE and the COUNT are
+    # separate quantities, so both are asserted, and no cluster may reach the
+    # I2S lane.
     ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
     h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
-    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 1
-    assert array(h1, "ADP_DMAP_IN_PCLS_C") == [0]
-    assert array(h1, "ADP_DMAP_IN_PNMAPS_C") == [0]
-    assert array(h1, "ADP_DMAP_IN_RPHYS_C") == [0]
+    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 8
+    assert scalar(h1, "ADP_DMAP_IN_PAGE_C") == 8
+    assert array(h1, "ADP_DMAP_IN_PBASE_C") == [0]
+    assert array(h1, "ADP_DMAP_IN_PCLS_C") == [8]
+    assert array(h1, "ADP_DMAP_IN_PNMAPS_C") == [1]
+    tdm_base, tdm_n = eb.RENDER_PHYS_LANES["tdm"]
+    i2s_base, i2s_n = eb.RENDER_PHYS_LANES["i2s"]
+    r1 = array(h1, "ADP_DMAP_IN_RPHYS_C")
+    assert r1 == [0x40 | (tdm_base + n) for n in range(8)], r1
+    for word in r1:
+        assert word & 0x40, f"{word:#04x} is not a valid projection"
+        key = word & 0x3F
+        assert not (i2s_base <= key < i2s_base + i2s_n), (
+            f"cluster projects onto the pruned I2S lane key {key}")
+    assert sorted(w & 0x3F for w in r1) == list(
+        range(tdm_base, tdm_base + tdm_n)), (
+        "every TDM slot position must be reachable, exactly once")
     assert array(h1, "ADP_DMAP_OUT_PCLS_C") == [17]
     c1 = array(h1, "ADP_DMAP_OUT_CSRC_C")
     assert c1[0] == 0x1200 and c1[8] == 0x1400
@@ -14053,11 +14073,10 @@ def _assert_every_listener_dynamic():
                       svh)
         assert m, "svh emits no AEM_DMAP_PHYS_C"
         dp = DATAPATH_SV.read_text()
-        d = re.search(r"localparam int CHMAP_PHYS_C\s*=\s*(\d+);", dp)
-        assert d, "milan_datapath has no CHMAP_PHYS_C localparam"
-        assert int(m.group(1)) == int(d.group(1)), (
+        lanes, phys_c = _render_lanes_pinned_to_the_rtl(dp)
+        assert int(m.group(1)) == phys_c, (
             f"AEM_DMAP_PHYS_C {m.group(1)} != milan_datapath CHMAP_PHYS_C "
-            f"{d.group(1)}: the AEM refusal and the render-map write gate "
+            f"{phys_c}: the AEM refusal and the render-map write gate "
             "would disagree about which cluster keys are reachable")
         # Both physical write arms remain full-width gated. The CSR arm must
         # also require a generated projection instead of comparing the model
@@ -14072,8 +14091,10 @@ def _assert_every_listener_dynamic():
         assert "ADP_DMAP_IN_RPHYS_C[k]" in dp, \
             "milan_datapath: generated input projection table is not consumed"
         print(f"  [gate 17c] AEM_DMAP_PHYS_C {m.group(1)} == milan_datapath "
-              f"CHMAP_PHYS_C {d.group(1)}; RPHYS validity and full-width "
-              "physical-depth gates protect both render-map write arms")
+              f"CHMAP_PHYS_C {phys_c} = lanes {lanes}, mirrored by "
+              "endstation_builder and aem_assemble; RPHYS validity and "
+              "full-width physical-depth gates protect both render-map "
+              "write arms")
     finally:
         p.unlink()
 
@@ -18845,11 +18866,62 @@ def _assert_power_on_map_image(r, P_out, want):
                     f"power-on key {k} names an UNBACKED source template"
 
 
+def _render_lanes_pinned_to_the_rtl(dp: str) -> tuple[dict, int]:
+    """Gate 17c, issue #447: the crossbar's key space is two named LANES and
+    its depth is their sum, not a literal.
+
+    Every lane term is pinned against BOTH Python mirrors - avdecc/
+    aem_assemble.py, which sizes the AEM refusal, and sw/builder/
+    endstation_builder.py, which projects the physical render key - so a lane
+    cannot move in one place and not the others, which is exactly how a
+    projection drifts onto the wrong pin. Returns the lanes read out of the
+    RTL and the depth they imply.
+    """
+    lanes: dict[str, tuple[int, int]] = {}
+    for lane, (base_name, n_name) in (
+            ("i2s", ("CHMAP_RPHYS_I2S_BASE_C", "CHMAP_RPHYS_I2S_N_C")),
+            ("tdm", ("CHMAP_RPHYS_TDM_BASE_C", "CHMAP_RPHYS_TDM_N_C"))):
+        n = re.search(rf"localparam int {n_name}\s*=\s*(\d+);", dp)
+        assert n, f"milan_datapath has no {n_name} localparam"
+        b = re.search(rf"localparam int {base_name}\s*=\s*(\d+);", dp)
+        if b is None:
+            # a lane whose base is DERIVED from the lane below it
+            b = re.search(
+                rf"localparam int {base_name}\s*=\s*"
+                r"CHMAP_RPHYS_I2S_BASE_C\s*\+\s*\n?\s*CHMAP_RPHYS_I2S_N_C;",
+                dp)
+            assert b, f"milan_datapath has no {base_name} localparam"
+            base = lanes["i2s"][0] + lanes["i2s"][1]
+        else:
+            base = int(b.group(1))
+        lanes[lane] = (base, int(n.group(1)))
+    assert lanes == eb.RENDER_PHYS_LANES, (
+        f"milan_datapath render lanes {lanes} != endstation_builder "
+        f"RENDER_PHYS_LANES {eb.RENDER_PHYS_LANES}")
+    import aem_assemble as _aa
+    assert _aa.RENDER_PHYS_LANES == eb.RENDER_PHYS_LANES, (
+        f"aem_assemble RENDER_PHYS_LANES {_aa.RENDER_PHYS_LANES} != "
+        f"endstation_builder {eb.RENDER_PHYS_LANES}")
+    assert re.search(
+        r"localparam int CHMAP_PHYS_C\s*=\s*CHMAP_RPHYS_TDM_BASE_C\s*\+"
+        r"\s*CHMAP_RPHYS_TDM_N_C;", dp), (
+        "milan_datapath: CHMAP_PHYS_C is not derived from the lane windows - "
+        "a restated depth is a depth that drifts")
+    phys_c = max(base + n for base, n in lanes.values())
+    assert _aa.CHMAP_PHYS_DEPTH == phys_c, (
+        f"aem_assemble CHMAP_PHYS_DEPTH {_aa.CHMAP_PHYS_DEPTH} != {phys_c} "
+        "derived from the lanes")
+    return lanes, phys_c
+
+
 def _assert_physical_pool_reappears():
     """Gate 24a (d): declaring routed channels re-introduces the physical
     pool AND moves the static map onto it."""
     # (d) physical pool APPEARS when the platform declares routed channels
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+    # render 8, not 16: this gate's subject is the OUTPUT (capture) pool, and
+    # #447 bounds the render count by the crossbar's TDM key lane rather than
+    # by the interface family width. The dedicated refusal is gate 24a (f).
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 8},
                        {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, OUT / "_pools")
@@ -18892,14 +18964,19 @@ def _assert_overwide_pool_is_marked_not_emitted():
     #     not crash and not silently wrap the 16-bit ROM address space.
     #     With only live fabric roles, loopback widens 64 -> 72 so the
     #     per-output-port total stays 89
-    #     and the deliberate overflow is preserved (840 clusters at 90 B
-    #     put the ROM at 80873 B, still past the 65536 B store).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},
+    #     and the deliberate overflow is preserved: the ROM stays past the
+    #     65536 B store. The INPUT half is the render pool (#447 bounds it at
+    #     the crossbar's 8 TDM keys), so the total is derived below from the
+    #     fixture rather than restated.
+    # render 8, not 16: this gate's subject is the OUTPUT (capture) pool, and
+    # #447 bounds the render count by the crossbar's TDM key lane rather than
+    # by the interface family width. The dedicated refusal is gate 24a (f).
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 8},
                        {"pilot": True, "loopback": 72})
     try:
         r = eb.build(p, OUT / "_pools")
         assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*16 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
+            8*8 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
         assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
         assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
         # builder contract: it VALIDATES and lands in the plan, never errors
@@ -18990,6 +19067,77 @@ def test_d8_role_pools() -> None:
 
 
     _assert_overwide_pool_is_marked_not_emitted()
+
+
+    _assert_render_lane_bounds_the_declared_width()
+
+
+def _assert_render_lane_bounds_the_declared_width():
+    """Gate 24a (f), issue #447: the render count is bounded by the LANE the
+    crossbar renders through, not by the interface family width, and a config
+    with no physical render endpoint at all may not declare one.
+
+    The family bound alone passed a tdm32 shape declaring 16 rendered
+    channels; the crossbar has 8 TDM keys, so eight of those clusters would be
+    advertised with no pin behind them - the class of defect the
+    wire-accountability gate exists to name. The bound is per LANE, and the
+    lane follows from the DAC's presence and the declared bus."""
+    # (base config, physical_channels): each is past its own lane's width.
+    for base, phys in (("ax7101_8x8", {"capture": 16, "render": 16}),
+                       ("arty_4x4", {"capture": 2, "render": 3})):
+        p = _pools_variant(base, phys, {"pilot": True, "loopback": 2})
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert "crossbar key" in str(e), (base, phys, str(e))
+            else:
+                raise AssertionError(
+                    f"{base} with physical_channels {phys} must be refused: "
+                    "the render lane cannot back that many channels")
+        finally:
+            p.unlink()
+    # ...and a shape with NO render endpoint may not declare one either: no
+    # DAC (i2s_playback is already false on this board) and an interface
+    # family outside the TDM set, so the crossbar has no lane at all.
+    def _aes3(c):
+        c["audio_interface"]["kind"] = "aes3"
+        c["audio_interface"]["word_length_bits"] = 24
+    p = _pools_variant("ax7101_8x8", {"capture": 2, "render": 2},
+                       {"pilot": True, "loopback": 2}, mutate=_aes3)
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "no physical render endpoint" in str(e), str(e)
+        else:
+            raise AssertionError(
+                "a build with no DAC and no TDM bus must refuse a render "
+                "count: the render crossbar has no lane to project onto")
+    finally:
+        p.unlink()
+    # The POSITIVE control: every tracked config's declared render width is
+    # inside its own lane, and the lane base is the separately derived term.
+    seen = {}
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        lane = eb.render_lane(cfg)
+        want = int(cfg["interface"]["physical_channels"]["render"])
+        assert want <= eb.render_lane_width(cfg), (name, lane, want)
+        if lane:
+            assert eb.render_lane_base(cfg) == eb.RENDER_PHYS_LANES[lane][0]
+        else:
+            assert want == 0 and eb.render_lane_base(cfg) == 0, name
+        seen[name] = (lane, want, eb.render_lane_base(cfg),
+                      eb.render_slots(cfg))
+    assert seen["ax7101_1x1_tdm8"] == ("tdm", 8, 2, 8), seen["ax7101_1x1_tdm8"]
+    assert seen["ax7101_8x8"] == ("tdm", 0, 2, 0), seen["ax7101_8x8"]
+    assert seen["arty_4x4"][:3] == ("i2s", 2, 0), seen["arty_4x4"]
+    assert seen["arty_4x4"][3] == 0, "a DAC lane elaborates no TDM serializer"
+    print("  [gate 24a] #447 render lane: the declared width is bounded by "
+          "the LANE and not the family, a shape with no render endpoint "
+          f"refuses a nonzero count, and every tracked config sits inside "
+          f"its own lane {seen}")
 
 
 def test_d8_role_pools_reject() -> None:

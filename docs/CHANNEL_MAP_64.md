@@ -92,6 +92,82 @@ working physical route.
 The default physical shape has ten channels: I2S left/right at indices 0/1 and
 TDM lane 0 slots 0..7 at indices 2..9.
 
+That layout is two named LANES, declared once in `milan_datapath` as
+`CHMAP_RPHYS_I2S_BASE_C` / `CHMAP_RPHYS_I2S_N_C` and `CHMAP_RPHYS_TDM_BASE_C` /
+`CHMAP_RPHYS_TDM_N_C`, with `CHMAP_PHYS_C` their sum rather than a literal
+(#447). `avdecc/aem_assemble.py` and `sw/builder/endstation_builder.py` mirror
+the same table as `RENDER_PHYS_LANES`, and a builder gate pins all three
+together. The FIRST key of a lane and its COUNT are separate quantities, and
+neither is inferred from a channel count: a board's physical input clusters
+project to `render_lane_base(cfg) + pool.first + n`, where the lane base is
+chosen by the board (the DAC lane when `board.features.i2s_playback` is set,
+otherwise the TDM lane) and `pool.first` keeps its one existing meaning, the
+audio-interface channel index. Raising a shape's `physical_channels.render`
+without the lane base would have projected cluster keys 0..7 onto render keys
+0..7, putting two clusters on a DAC lane a TDM-only board prunes and leaving
+TDM slots 6 and 7 unreachable.
+
+### 3.1 The TDM render lane on a master bus
+
+`AUDIO_IF_RENDER_SLOTS_P` selects what serializes the TDM key window: 0 prunes
+the lane and drives `tdm_dout_o` low, a nonzero width on a MASTER bus
+elaborates `KL_tdm_render_master`, and a nonzero width on a codec-driven bus
+elaborates the proven slave `KL_tdm_render`. The builder emits it from the same
+`audio_interface.physical_channels.render` fact that sizes the advertised
+cluster pool, so the width the entity advertises and the width the fabric backs
+come from one place, and it is withheld unless the board routes the header the
+serializer drives.
+
+There is exactly ONE TDM bus: `bclk` and `fsync` are shared pins, so the render
+half does not generate a second frame phase. `KL_tdm_capture_master` stays the
+sole timing owner and exports `bclk_rise_o`, `bclk_fall_o` and `frame_pos_o`;
+the render master runs in the same `clk_tdm_i` and consumes them. The pin-level
+contract that follows is:
+
+- `fsync` occupies bit period 0 and data starts in bit period 1, so slot k bit
+  b occupies bit period `1 + 32k + b`.
+- A receiver watching the pins sees `fsync` rise, samples the last pad bit of
+  the previous frame at the next rise, and samples slot 0's MSB at the one
+  after: TWO `bclk` rising edges after the observed `fsync` rise, with the
+  trigger edge EXCLUDED from the countdown. That is the phase the in-tree
+  external codec model of this same master bus already presents to the capture
+  direction.
+- The render master latches the bit for bit period `p + 1` on the rise whose
+  pre-edge frame position is `p`, and launches it on the following falling
+  edge, so the receiver has half a bit period of setup.
+
+The lane carries a four-phase RENDER EPOCH over retained levels, because both
+FIFO sides reset synchronously to their own clock and a reset asserted and
+released entirely while `clk_tdm_i` is stopped would otherwise reset one
+pointer and leave the other. A HARD serial reset interrupts the frame in flight
+and that serial interval is invalid; a GRACEFUL flush (a bind loss, or a reset
+release while the clock keeps running) zeroes the active frame at FRAME STARTS
+only, so the frame in flight completes whole and every frame after it is
+digital silence until the epoch reopens. The epoch reopens only once the bind
+is restored, the setpoint has popped a post-flush event for every stream the
+lane renders, and both FIFO pointers are proven zero.
+
+Surplus is drop-OLDEST and counted: the serializer keeps prefetching while the
+CDC is non-empty, so the newest committed frame is the one adopted and the
+commit-to-pin delay stays bounded instead of ratcheting. A skip is counted when
+a prefetched frame is OVERWRITTEN, which is before the decoded frame whose
+ordinal jump exposes it, so a consumer reconciling counts against decoded
+frames must allow a counted skip to stay pending until the adoption it affects
+is observed.
+
+Three limits are stated rather than assumed:
+
+- A serial clock stopped for longer than the frame CDC's four entries loses
+  commits as counted OVERRUNS whatever the surplus policy is, because the
+  consumer cannot drain a clock that is not running.
+- `SLOT_BITS_P` must be a power of two in the master serializer: its bit
+  schedule is a slice of the timing owner's frame position rather than a
+  divider of its own, and a non-power-of-two width is refused at elaboration.
+- The SLAVE render lane keeps `KL_tdm_render`'s per-side reset behaviour and
+  carries no epoch protocol, so a reset asserted and released entirely while
+  the EXTERNAL bit clock is stopped remains the exposure that module has always
+  had. No tracked config elaborates that arm.
+
 Since #386 the crossbar's clone input is `KL_render_setpoint`, a per-stream
 elastic queue of whole media events that pops exactly one event per stream on
 every media tick and hands the crossbar a render tick delayed past that pop

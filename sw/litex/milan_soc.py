@@ -440,7 +440,7 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, gptp_plane=None,
+                 audio_if_i2s_pair=False, audio_if_render=0, gptp_plane=None,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None):
@@ -456,6 +456,7 @@ class MilanNIC(LiteXModule):
                            talker_wire_chans=talker_wire_chans,
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
+                           audio_if_render=audio_if_render,
                            gptp_plane=gptp_plane,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
@@ -549,6 +550,9 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv",
     "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv",
     "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv",
+    # #447: the MASTER render serializer sibling, scheduled from
+    # KL_tdm_capture_master's exported bit-clock enables
+    "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
     # #386: the render setpoint stage in front of the crossbar (milan_datapath
     # instantiates it unconditionally, so every consumer list carries it)
     "hdl/ieee1722/aaf/KL_render_setpoint.sv",
@@ -708,6 +712,7 @@ def add_milan_datapath(host: Module, platform: object,
                        talker_wire_chans: int = 2,
                        audio_if_master: bool = False,
                        audio_if_i2s_pair: bool = False,
+                       audio_if_render: int = 0,
                        gptp_plane: bool | None = None,
                        loopback_lane: bool = False,
                        render_lpf: bool = True,
@@ -928,6 +933,19 @@ def add_milan_datapath(host: Module, platform: object,
         dp_params["p_AUDIO_IF_CLK_HZ_P"] = (2 * int(audio_if_slots)
                                             * AUDIO_IF_WORD_BITS
                                             * AUDIO_IF_FS_HZ)
+        # #447 AUDIO_IF_RENDER_SLOTS_P: the RENDER half of the audio
+        # interface - how many TDM slots this build SERIALIZES onto
+        # tdm_dout_o. A SEPARATE quantity from audio_if_slots (the bus width
+        # the capture front-end frames): a board may back the header in one
+        # direction only, and the builder emits it from the same
+        # audio_interface.physical_channels.render fact that sizes the
+        # advertised cluster pool, so the width the entity ADVERTISES and the
+        # width the fabric BACKS come from one place. Passed ONLY when nonzero,
+        # so a build that does not ask emits a byte-identical top .v; SAME
+        # character-for-character name rule as above. milan_datapath REFUSES a
+        # width wider than the bus or than the render crossbar's TDM key lane.
+        if int(audio_if_render) > 0:
+            dp_params["p_AUDIO_IF_RENDER_SLOTS_P"] = int(audio_if_render)
         if audio_if_i2s_pair:
             # HANDOVER 8.3b blend: keep the stereo I2S front-end alive beside
             # the TDM master (KL_pair_blend, I2S = pair slot 0). Passed ONLY
@@ -2332,7 +2350,7 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv",
                  board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
-                 audio_if_master=False,
+                 audio_if_master=False, audio_if_render=0,
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
@@ -2743,6 +2761,12 @@ class MilanSoC(SoCCore):
                                   # rebind used; a padless board never blends)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
                                                      and i2s_pads is not None),
+                                  # #447: the RENDER half of the audio
+                                  # interface, elaborated only when the header
+                                  # the serializer drives is really on pins
+                                  audio_if_render=(int(audio_if_render)
+                                                   if self.tdm_pads is not None
+                                                   else 0),
                                   # Preserve None so add_milan_datapath catches
                                   # a severed ownership carrier.
                                   gptp_plane=gptp_plane,
@@ -3285,6 +3309,22 @@ def main() -> None:
                          "VCO serves it and the 24.576 MHz CRF/DAC clock; the "
                          "audio clock's error IMPROVES from -10.6 to -0.66 ppm. "
                          "Default off => byte-identical build.")
+    ap.add_argument("--audio-interface-render", default=0, type=int,
+                    help="issue #447: how many TDM slots this build SERIALIZES "
+                         "onto tdm_dout_o (milan_datapath "
+                         "AUDIO_IF_RENDER_SLOTS_P -> KL_tdm_render_master on a "
+                         "master bus, KL_tdm_render on a codec-driven one). A "
+                         "SEPARATE quantity from the --audio-interface width: "
+                         "that is the bus the capture front-end frames, this is "
+                         "the render half a board may or may not back. The "
+                         "builder emits it from "
+                         "audio_interface.physical_channels.render, the same "
+                         "fact that sizes the advertised physical input cluster "
+                         "pool. Needs --audio-interface tdmN; milan_datapath "
+                         "refuses a width wider than the bus or than the render "
+                         "crossbar's TDM key lane. Default 0 => the lane is "
+                         "pruned, tdm_dout_o is driven low and the build is "
+                         "byte-identical.")
     ap.add_argument("--talker-wire-chans", default=2, type=int,
                     help="item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF "
                          "framer emits per talker (milan_datapath TALKER_WIRE_CHANS_P, "
@@ -3406,6 +3446,19 @@ def main() -> None:
         args.board, args.audio_interface,
         audio_if_master=getattr(args, "audio_interface_master", False))
 
+    # ---- #447: the RENDER half needs the same front-end to exist. Asking for
+    #      a render lane on an I2S build would elaborate a serializer with no
+    #      bus to ride and no pin to drive, which is the same "green build,
+    #      silent wire" shape the refusal above exists to stop.
+    if int(getattr(args, "audio_interface_render", 0)) > 0 \
+       and args.audio_interface not in board_audio_routing.TDM_KINDS:
+        raise SystemExit(
+            "--audio-interface-render %d needs --audio-interface tdmN: the "
+            "render lane serializes TDM slots of the bus the capture "
+            "front-end frames, and --audio-interface %s elaborates the stereo "
+            "I2S front-end instead."
+            % (int(args.audio_interface_render), args.audio_interface))
+
     if args.board == "arty":
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
         # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
@@ -3476,6 +3529,7 @@ def main() -> None:
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
                    audio_if_master=bool(args.audio_interface_master),
+                   audio_if_render=int(args.audio_interface_render),
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    software_profile=args.software_profile,

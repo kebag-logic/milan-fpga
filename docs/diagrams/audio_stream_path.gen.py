@@ -108,7 +108,7 @@ node("i2spb", Rect(2160, 690, 268, 78), "KL_i2s_playback",
      ["CS4344 DAC, clean-clock free-run", "I2SPB_STAT 0x6D8, wire-truth chans"], BLUE)
 node("cxbar", Rect(1640, 820, 220, 92), "KL_chan_map_render",
      ["64 stream-ch -> 10 phys", "wire-truth channels_per_frame", "CSR 0x900 window"], PURPLE)
-node("tdmout", Rect(2160, 820, 268, 92), "KL_tdm_render",
+node("tdmout", Rect(2160, 820, 268, 92), "KL_tdm_render_master",
      ["TDM8 out, lane 0 slots 0..7", "double-buffered frames"], BLUE)
 
 W, H = 2500, 1060

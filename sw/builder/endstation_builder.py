@@ -891,6 +891,122 @@ def i2s_pair_blended(cfg: dict[str, Any],
     return bar.routes_tdm(board) and bar.routes_i2s_pmod(board)
 
 
+#: THE RENDER CROSSBAR'S PHYSICAL KEY LANES, mirroring the milan_datapath
+#: localparams CHMAP_RPHYS_{I2S,TDM}_{BASE,N}_C: {lane: (first key, width)}.
+#: avdecc/aem_assemble.py carries the SAME table and sw/builder/test_builder.py
+#: pins both against the RTL, in the shape of the existing AEM_DMAP_PHYS_C
+#: gate - three literals in three consumers is how a projection drifts.
+RENDER_PHYS_LANES = {"i2s": (0, 2), "tdm": (2, 8)}
+
+
+def validate_render_lane(cfg: dict[str, Any]) -> None:
+    """THE RENDER LANE BOUND (issue #447).
+
+    `physical_channels.render` is already bounded by the interface FAMILY
+    width; that is not the number a build can actually back. The crossbar
+    renders through a per-lane key window, and the lane a build uses follows
+    from the DAC's presence and the declared bus, not from a channel count. A
+    shape declaring more physical input clusters than its lane has keys would
+    advertise AUDIO_CLUSTERs that reach no pin, which is the class of defect
+    the wire-accountability gate exists to stop, so it is refused at build time
+    rather than advertised.
+    """
+    want = int(cfg["interface"]["physical_channels"]["render"])
+    if want <= 0:
+        return
+    lane = render_lane(cfg)
+    if lane is None:
+        raise ConfigError(
+            f"audio_interface.physical_channels.render {want} on a build with "
+            "no physical render endpoint: board.features.i2s_playback is false "
+            "and this build declares no TDM bus, so the render crossbar has no "
+            "lane to project onto. Declare render: 0 (the listeners are "
+            "headless), keep the DAC, or declare a TDM interface.")
+    width = render_lane_width(cfg)
+    if want > width:
+        raise ConfigError(
+            f"audio_interface.physical_channels.render {want} exceeds the "
+            f"{lane} render lane's {width} crossbar key(s). The render lane is "
+            "derived from board.features.i2s_playback and the declared audio "
+            f"interface, not from the interface's {cfg['interface']['channels']}"
+            " channel width; a cluster beyond it would reach no pin.")
+
+
+def render_lane(cfg: dict[str, Any]) -> str | None:
+    """WHICH crossbar render lane this config's physical input clusters land on.
+
+    NOT a new config key: derived from facts the config already declares,
+    because the crossbar's key space is a property of the FABRIC and the lane
+    a board uses is a property of the BOARD.
+
+      i2s   the DAC lane is elaborated (board.features.i2s_playback), so the
+            physical render endpoint is the stereo line-out - which is what
+            every Arty shape has always meant by `render`, TDM capture bus or
+            not.
+      tdm   no DAC, but the config declares a TDM bus, so the physical render
+            endpoint is that bus's serial output.
+      None  neither: this config has no physical render endpoint and its
+            listeners are truthfully headless.
+
+    Read from the DECLARED interface, never from the placeholder answer. The
+    projection this decides is part of the ENTITY MODEL, and the entity model
+    a controller enumerates may not depend on whether some SoC in this tree
+    happens to drive a bus today: that would make the generated descriptors
+    move when an unrelated file is edited. The placeholder rule lives in
+    render_slots() instead, where it belongs - it governs what the GATEWARE
+    elaborates, which is the thing a placeholder must not silently change.
+    """
+    if cfg["features"]["i2s_playback"]:
+        return "i2s"
+    if AUDIO_IF_SLOTS.get(cfg["interface"]["kind"]):
+        return "tdm"
+    return None
+
+
+def render_lane_base(cfg: dict[str, Any]) -> int:
+    """The FIRST render-crossbar physical key of this config's render lane.
+
+    The separately derived term of the input projection. `pool["first"]` keeps
+    its one existing meaning - the audio-interface CHANNEL index, which is also
+    what the cluster NAMER consumes - so cluster object names on every shape
+    stay byte-identical while the physical key lands on the right lane."""
+    lane = render_lane(cfg)
+    return RENDER_PHYS_LANES[lane][0] if lane else 0
+
+
+def render_lane_width(cfg: dict[str, Any]) -> int:
+    """How many physical render channels this config's lane can actually back.
+
+    NOT the interface family width: a TDM8 bus with the DAC lane elaborated
+    renders through TWO crossbar keys, not eight, and a shape declaring more
+    would advertise input clusters the fabric cannot reach."""
+    lane = render_lane(cfg)
+    if lane is None:
+        return 0
+    width = RENDER_PHYS_LANES[lane][1]
+    if lane == "tdm":
+        width = min(width, AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0))
+    return width
+
+
+def render_slots(cfg: dict[str, Any], wired: bool | None = None) -> int:
+    """milan_datapath AUDIO_IF_RENDER_SLOTS_P this config ELABORATES.
+
+    Zero unless the declared render lane is the TDM bus, that bus is a fabric
+    fact rather than a placeholder (audio_if_slots), and the board actually
+    ROUTES the header the serializer drives: the pin is `tdm.dout`, so a
+    render lane on an unrouted header must be a build failure and never a
+    bitstream. The same per-board oracle the SoC's own front-end refusal reads
+    answers the last question, and the same placeholder rule that withholds
+    --audio-interface withholds this."""
+    if render_lane(cfg) != "tdm" or audio_if_slots(cfg, wired) <= 0:
+        return 0
+    n = int(cfg["interface"]["physical_channels"]["render"])
+    if n <= 0:
+        return 0
+    return n if bar.routes_tdm(cfg["board_target"]) else 0
+
+
 def framer_pair_supply(cfg: dict[str, Any],
                        wired: bool | None = None) -> int:
     """Pair slots the capture front-end actually delivers to the packetizer.
@@ -2568,14 +2684,24 @@ def _adp_dmap_in(cfg, dm):
         in_sch = [((int(str(s["formats"][0]), 16) >> 22) & 0x3FF)
                   for s in cfg["listeners"]] or [0]
     in_rphys = [0] * max(1, in_keys)
+    # THE PHYSICAL RENDER KEY IS TWO TERMS, NOT ONE (issue #447). `pool["first"]`
+    # is the audio-interface CHANNEL index and is also what the cluster NAMER
+    # reads, so it stays exactly what it was; the LANE BASE is the separately
+    # derived term that says which crossbar key window this board's render
+    # endpoint occupies. Without it a solo-TDM shape would project cluster keys
+    # 0..7 onto render keys 0..7 - two of them onto the DAC lane the shape
+    # prunes, and TDM slots 6 and 7 unreachable.
+    lane_base = render_lane_base(cfg)
+    lane_width = render_lane_width(cfg)
     for p in cfg["ports_in"]:
         for pool in p.get("pool", []):
             if pool["role"] != "physical":
                 continue
             for n in range(pool["width"]):
                 key = p["base_cluster"] + pool["offset"] + n
-                phys = pool.get("first", 0) + n
-                if key < len(in_rphys) and phys < 64:
+                chan = pool.get("first", 0) + n
+                phys = lane_base + chan
+                if key < len(in_rphys) and chan < lane_width and phys < 64:
                     in_rphys[key] = 0x40 | phys
 
     a(f"  localparam int ADP_DMAP_IN_KEYS_C    = {max(1, in_keys)};")
@@ -3740,6 +3866,7 @@ def load_config(path: str) -> dict[str, Any]:
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
         platform=platform, features=features, gptp=gptp,
     )
+    validate_render_lane(out)
 
     # per-stream port layout (needed by the model-id hash and the overlay)
     out["ports_in"], out["ports_out"] = cluster_layout(
@@ -3959,11 +4086,17 @@ def _marks_srp(cfg):
 
 
 def _marks_render_width(cfg):
-    """Listener formats wider than the physical render interface."""
+    """Listener formats wider than the physical render interface.
+
+    The comparison is against the LANE this build renders through (issue
+    #447), not against a fixed stereo count: an eight-slot TDM render lane
+    backs eight physical channels, and reporting the DAC lane's two would
+    describe a shape this build does not have."""
     marks = []
     kind = cfg["interface"]["kind"]
     max_ch = max(s["channels"] for s in cfg["listeners"])
-    if max_ch > RTL_TODAY["render_channels"] and kind in RTL_TODAY["interfaces"]:
+    lane_w = render_lane_width(cfg) or RTL_TODAY["render_channels"]
+    if max_ch > lane_w and kind in RTL_TODAY["interfaces"]:
         marks.append((f"{max_ch}ch listener formats on a "
                       f"{cfg['interface']['channels']}ch physical interface",
                       "supported",
@@ -4047,6 +4180,16 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
         argv += ["--audio-interface", kind]
         if tdm_bus_master():
             argv += ["--audio-interface-master"]
+        # issue #447: the RENDER half. Emitted only when this build's render
+        # lane IS the TDM bus and the board routes the header the serializer
+        # drives, so the advertised physical input cluster count and the
+        # elaborated serializer width come from the ONE
+        # audio_interface.physical_channels.render fact. Withheld otherwise, so
+        # every shape that renders through the DAC lane (or renders nowhere)
+        # keeps a byte-identical argv and a byte-identical top .v.
+        rslots = render_slots(cfg)
+        if rslots:
+            argv += ["--audio-interface-render", str(rslots)]
     # item-00 wire channel constant: milan_datapath TALKER_WIRE_CHANS_P,
     # emitted only above the default (the same byte-identity discipline).
     wire_chans = framer_wire_channels(cfg)
