@@ -50,11 +50,12 @@ The clock is monotonic and read for observation only: it is injected, no
 argument, status, wait, tally or printed verdict depends on it, and this
 driver still sets no host-time deadline on a run (rule 8's wall-clock
 ratchet, scripts/test_evidence.budget item 4). A phase with a start and no
-end is incomplete and earns no result; a record that cannot be written is a
-gap in the diagnostic, never a changed outcome. The records carry no path,
-no environment and no child output, and their wording matches none of the
-tally shapes scripts/suite_tally.py reads, so they add no check and no
-verdict. README.md documents the fields and the limits.
+end is incomplete and earns no result; a reading the clock would not give,
+and a record that cannot be written, are gaps in the diagnostic - a null
+where a number would have been, never a changed outcome. The records carry
+no path, no environment and no child output, and their wording matches none
+of the tally shapes scripts/suite_tally.py reads, so they add no check and
+no verdict. README.md documents the fields and the limits.
 
 Usage: python3 render_mutants.py      (run from tb/verilator/milan_dp)
 Exit 0 = every mutant was caught and the clean leg still passes.
@@ -136,6 +137,20 @@ class PhaseLog:
     and waits for nothing. A phase is closed only by `end`; one left open is
     incomplete and earns no pass and no caught mutation. The clock is injected
     so the fixtures step it by hand rather than reading the host's.
+
+    Nothing here may raise. Reading the clock is as much a part of the
+    telemetry as writing the record, so a clock that fails - at the origin,
+    around a call, or under the kill - costs a timing and nothing else: the
+    reading is recorded as null, never as a plausible number, and the call's
+    own result, its verdict, the tally, exit 143 and the cleanup are whatever
+    they would have been with no instrument at all. `SystemExit` is not an
+    `Exception` and still leaves through here, so the SIGTERM path is intact.
+
+    `_active` names the call that is running now, and only that: `start` arms
+    it once its record is out, `end` disarms it before writing the record that
+    closes the phase. So a phase whose `end` a reader can see is never also
+    reported active and incomplete by a kill, and a kill between the two is
+    the idle it really is.
     """
 
     def __init__(self, stream: TextIO | None = None,
@@ -143,31 +158,51 @@ class PhaseLog:
         """Take the origin every later record counts from, and state it once."""
         self._stream = sys.stdout if stream is None else stream
         self._clock = clock
-        self._origin = clock()
+        self._origin: float | None = None
+        try:
+            self._origin = clock()
+        except Exception:
+            #! An origin nobody could take leaves every later offset null,
+            #! which is a run with its phase order recorded and no durations.
+            pass
         self._seq = 0
         #: (case, phase, mode, offset) of the phase now running, or None
-        self._active: tuple[str, str, str | None, float] | None = None
+        self._active: tuple[str, str, str | None, float | None] | None = None
         #: offset of the last state change, so a gap between phases is timed
-        self._since = 0.0
-        self._emit("origin", 0.0, clock="monotonic", unit="s")
+        self._since: float | None = 0.0
+        self._emit("origin", None if self._origin is None else 0.0,
+                   clock="monotonic", unit="s")
 
-    def _now(self) -> float:
-        """Seconds since the origin, to the millisecond."""
-        return round(self._clock() - self._origin, 3)
+    def _now(self) -> float | None:
+        """Seconds since the origin, to the millisecond, or None if this
+        telemetry reading cannot be taken: taking it and working it out are as
+        much a part of the instrument as writing the record, so a clock that
+        raises, and an origin that was never taken, both give a gap rather
+        than a number nobody measured."""
+        try:
+            return round(self._clock() - self._origin, 3)
+        except Exception:
+            return None
 
-    def _emit(self, event: str, at: float, **fields: object) -> None:
+    @staticmethod
+    def _span(began: float | None, at: float | None) -> float | None:
+        """Seconds between two readings, or None when either side is missing:
+        a gap is reported as a gap, not as a duration."""
+        return None if began is None or at is None else round(at - began, 3)
+
+    def _emit(self, event: str, at: float | None, **fields: object) -> None:
         """Write one record and flush it, so no buffer can hide the last one."""
         self._seq += 1
-        record = {"seq": self._seq, "event": event, "t_s": at}
-        record.update(fields)
         try:
+            record = {"seq": self._seq, "event": event, "t_s": at}
+            record.update(fields)
             self._stream.write(f"{PHASE_MARKER} {json.dumps(record)}\n")
             self._stream.flush()
         except Exception:
             #! Telemetry never rewrites an outcome. A record that cannot be
-            #! written is a gap in the diagnostic, not a changed verdict,
-            #! status or exit, and there is nowhere left to report it. The
-            #! SIGTERM path still leaves through here: SystemExit is not an
+            #! serialised or written is a gap in the diagnostic, not a changed
+            #! verdict, status or exit, and there is nowhere left to report it.
+            #! The SIGTERM path still leaves through here: SystemExit is not an
             #! Exception.
             pass
 
@@ -180,18 +215,23 @@ class PhaseLog:
         """Open one phase of one case, BEFORE the existing call is made."""
         at = self._now()
         self._emit("start", at, case=case, phase=phase, mode=mode,
-                   idle_s=round(at - self._since, 3))
+                   idle_s=self._span(self._since, at))
         self._active = (case, phase, mode, at)
         self._since = at
 
-    def end(self, status: object) -> None:
-        """Close the phase `start` opened, with what the existing call returned."""
+    def end(self, status: object, **fields: object) -> None:
+        """Close the phase `start` opened, with what the existing call returned.
+
+        The phase stops being the running one BEFORE its record is written: a
+        kill that lands on this record finds the driver idle, which is what it
+        is once the call has returned, and can no longer call a phase a reader
+        has already seen ended both complete and incomplete."""
         at = self._now()
         case, phase, mode, began = self._active or (None, None, None, at)
-        self._emit("end", at, case=case, phase=phase, mode=mode,
-                   elapsed_s=round(at - began, 3), status=status)
         self._active = None
         self._since = at
+        self._emit("end", at, case=case, phase=phase, mode=mode,
+                   elapsed_s=self._span(began, at), status=status, **fields)
 
     def interrupted(self) -> None:
         """Record the state a kill landed in: the case and phase that was
@@ -199,11 +239,11 @@ class PhaseLog:
         at = self._now()
         if self._active is None:
             self._emit("interrupted", at, state="idle", case=None, phase=None,
-                       mode=None, idle_s=round(at - self._since, 3))
+                       mode=None, idle_s=self._span(self._since, at))
             return
         case, phase, mode, began = self._active
         self._emit("interrupted", at, state="active", case=case, phase=phase,
-                   mode=mode, elapsed_s=round(at - began, 3), incomplete=True)
+                   mode=mode, elapsed_s=self._span(began, at), incomplete=True)
 
     def finished(self) -> None:
         """Record that the phase sequence ended, so a truncated log is not
@@ -211,15 +251,23 @@ class PhaseLog:
         at = self._now()
         idle = self._active is None
         self._emit("end-of-run", at, state="idle" if idle else "active",
-                   idle_s=round(at - self._since, 3) if idle else None)
+                   idle_s=self._span(self._since, at) if idle else None)
 
 
-def build(override: str, rtl_path: Path, mdir: Path) -> Path | None:
-    """Build the leg against `rtl_path` through the suite's own recipe."""
+def build(override: str, rtl_path: Path, mdir: Path,
+          observed: Callable[[int], None] | None = None) -> Path | None:
+    """Build the leg against `rtl_path` through the suite's own recipe.
+
+    `observed`, when a caller passes one, is handed the recipe's own exit
+    status: this helper does see it (#445 asks for the returned status where
+    one exists), and the pass/fail decision below, the command, the capture
+    and the returned executable-or-nothing are the ones it always had."""
     out = subprocess.run(
         ["make", "-s", "-C", str(HERE), "aclk-build", f"{override}={rtl_path}",
          f"ACLK_MDIR={mdir}"],
         capture_output=True, text=True)
+    if observed is not None:
+        observed(out.returncode)
     exe = mdir / "Vmilan_dp_aclk"
     if out.returncode != 0 or not exe.is_file():
         sys.stdout.write(out.stdout[-2000:])
@@ -232,11 +280,16 @@ def timed_build(log: PhaseLog, case: str, override: str, rtl_path: Path,
                 mdir: Path) -> Path | None:
     """One build() call, framed by a phase record pair. No try/finally: a call
     that does not return leaves its phase open, which is what incomplete means.
-    `status` is what build() returns, an executable or nothing, because the
-    helper never saw the recipe's own exit status."""
+    The record keeps both halves of the answer, because a recipe that returns 0
+    without leaving a leg and a recipe that returns 2 are different failures:
+    `returncode` is the recipe's own exit status, and `status` stays what
+    build() returned, an executable (`built`) or nothing (`no-executable`).
+    A recipe whose status was never observed records `returncode` null."""
     log.start(case, "build")
-    exe = build(override, rtl_path, mdir)
-    log.end("built" if exe else "no-executable")
+    seen: list[int] = []
+    exe = build(override, rtl_path, mdir, seen.append)
+    log.end("built" if exe else "no-executable",
+            returncode=seen[-1] if seen else None)
     return exe
 
 

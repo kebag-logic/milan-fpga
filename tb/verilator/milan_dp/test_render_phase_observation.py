@@ -20,12 +20,21 @@ What the arms hold, and why each one is here:
   written, so a kill cannot hide the last phase entered;
 * the unmutated leg records whether the already-built executable was reused
   or the existing fallback build ran, with the fallback's frozen arguments;
+* a completed build's record carries the status the recipe returned as well
+  as whether a leg came out of it, and build() returns and prints as before;
 * the driver prints exactly what it printed before, on the passing and on
   the failing paths, and the records add no check and no failure to what
   scripts/suite_tally.py reads out of the same log;
 * a kill names the case and phase it landed in, leaves that phase without an
   end record and with no result, and still exits 143 after the temporary
   directory is removed;
+* a kill delivered from the record stream, the instant a phase's end record
+  is out and the driver's next statement has not run, reports the idle it is
+  in and never calls that finished phase incomplete;
+* a clock that refuses a reading, at the origin, around a call or under the
+  kill, costs that record its number and nothing else: the child results, the
+  verdicts, the tally, exit 143 and the cleanup are untouched, and no lost
+  timing is made up; a call of the driver's own that raises still raises;
 * the child arguments, working directory, session and process-group cleanup
   are the ones the driver always passed, and the frozen six-case inventory
   still plants the frozen replacement.
@@ -49,9 +58,6 @@ import render_mutants as driver  # noqa: E402
 
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure, scan  # noqa: E402
-
-#: the module attributes an arm may stand in for, restored after every run
-PATCHED = ("SOURCES", "CLEAN_EXE", "build", "run_leg", "subprocess", "signal")
 
 #: the two short modes, in the order the driver's positive controls run them
 CONTROL_MODES = ("--live-only", "--render-only")
@@ -119,13 +125,22 @@ class FakeClock:
 
 
 class RecordingStream:
-    """A text stream that keeps every write and every flush, in order, and
-    optionally mirrors the text into the stream the driver prints to."""
+    """A text stream that keeps every write and every flush, in order,
+    optionally mirrors the text into the stream the driver prints to, and
+    optionally delivers the kill to the handler main() installed once a named
+    record has been written AND flushed. That last is the one moment a kill can
+    land with a completed phase's record already out of the driver and the
+    driver's next statement not yet run, and it needs no process and no real
+    signal to reach."""
 
-    def __init__(self, mirror: TextIO | None = None) -> None:
-        """Take an optional mirror, so one arm can interleave and another not."""
+    def __init__(self, mirror: TextIO | None = None, kill_at: str = "",
+                 installed: list | None = None) -> None:
+        """Take an optional mirror, and the record an arm wants killed after."""
         self.events: list[tuple[str, str]] = []
+        self.killed_after: dict | None = None
         self._mirror = mirror
+        self._kill_at = kill_at
+        self._installed = installed
 
     def write(self, text: str) -> int:
         """Record the text, mirror it if asked, and report it written."""
@@ -135,13 +150,40 @@ class RecordingStream:
         return len(text)
 
     def flush(self) -> None:
-        """Record that a flush happened here."""
+        """Record the flush, then deliver the kill if that record was the one."""
         self.events.append(("flush", ""))
+        emitted = self.records()[-1]
+        if (self._installed and self.killed_after is None
+                and emitted["event"] == self._kill_at):
+            self.killed_after = emitted
+            self._installed[0][1](FakeSignal.SIGTERM, None)
 
     def records(self) -> list[dict]:
         """The written records, parsed, in the order they were written."""
         return [json.loads(text.split(" ", 1)[1])
                 for kind, text in self.events if kind == "write"]
+
+
+class UnreadableClock(FakeClock):
+    """A fake clock that counts its readings and refuses the ones an arm names,
+    so an arm can prove a timing nobody can take costs the diagnostic and
+    nothing else. Refusing nothing, it is simply the counter."""
+
+    def __init__(self, failing: frozenset = frozenset(),
+                 fail_from: int | None = None) -> None:
+        """Refuse the numbered readings, and every reading from `fail_from` on."""
+        super().__init__()
+        self.reads = 0
+        self._failing = failing
+        self._fail_from = fail_from
+
+    def __call__(self) -> float:
+        """Count this reading, then give it or refuse it as the arm asked."""
+        self.reads += 1
+        if self.reads in self._failing or (
+                self._fail_from is not None and self.reads >= self._fail_from):
+            raise OSError("the observation clock cannot be read")
+        return super().__call__()
 
 
 class BrokenStream:
@@ -258,10 +300,12 @@ class RecordingSubprocess:
 
 
 class BuildStep(NamedTuple):
-    """One scripted build(): what it costs, and whether it yields a leg."""
+    """One scripted build(): what it costs, whether it yields a leg, and the
+    exit status the recipe itself returned."""
 
     seconds: float
     ok: bool = True
+    returncode: int = 0
 
 
 class LegStep(NamedTuple):
@@ -322,14 +366,19 @@ def planted_sources(root: Path, override: dict | None) -> dict:
 
 
 def build_stub(clock: FakeClock, plan: Plan, calls: list) -> Callable:
-    """A stand-in build(): charge the scripted time, answer as scripted, and
-    read back what was planted (a mutated copy lives beside its object dir;
-    the control's fallback names the unmutated source, which is not read)."""
-    def stub(flag: str, rtl_path: Path, mdir: Path) -> Path | None:
+    """A stand-in build(): charge the scripted time, hand the scripted recipe
+    status to the recorder the wrapper passes, answer as scripted, and read
+    back what was planted (a mutated copy lives beside its object dir; the
+    control's fallback names the unmutated source, which is not read)."""
+    def stub(flag: str, rtl_path: Path, mdir: Path,
+             observed: Callable | None = None) -> Path | None:
+        """Answer one framed build the way the plan's next step says to."""
         planted = rtl_path.read_text() if rtl_path.parent == mdir.parent else None
         calls.append((flag, rtl_path, mdir, planted))
         step = plan.builds[len(calls) - 1]
         clock.advance(step.seconds)
+        if observed is not None:
+            observed(step.returncode)
         return mdir / "Vmilan_dp_aclk" if step.ok else None
     return stub
 
@@ -338,6 +387,7 @@ def leg_stub(clock: FakeClock, plan: Plan, calls: list, installed: list) -> Call
     """A stand-in run_leg(): charge the scripted time, answer as scripted, and
     deliver the kill inside the scripted phase when the plan asks for one."""
     def stub(exe: Path, mode: str) -> tuple[int, str]:
+        """Answer one framed leg the way the plan's next step says to."""
         calls.append((exe, mode))
         index = len(calls) - 1
         step = plan.legs[index]
@@ -361,15 +411,18 @@ def stood_in(replacements: dict) -> Iterator[None]:
             setattr(driver, name, value)
 
 
-def run_driver(plan: Plan, mirror: bool = True, stream: object = None) -> DriverRun:
-    """Run the driver's main() against `plan` under pure stand-ins."""
-    clock = FakeClock()
+def run_driver(plan: Plan, mirror: bool = True, stream: object = None,
+               clock: FakeClock | None = None,
+               installed: list | None = None) -> DriverRun:
+    """Run the driver's main() against `plan` under pure stand-ins. An arm that
+    breaks the clock, or reaches the installed handler from its own stream,
+    supplies its own."""
+    clock = FakeClock() if clock is None else clock
     printed = io.StringIO()
     stream = RecordingStream(printed if mirror else None) if stream is None else stream
     builds: list = []
     legs: list = []
-    installed: list = []
-    work: list = []
+    installed = [] if installed is None else installed
     with tempfile.TemporaryDirectory(prefix="a115-fixture-") as td:
         root = Path(td)
         clean = root / "obj_aclk" / "Vmilan_dp_aclk"
@@ -559,7 +612,8 @@ def failing_plan() -> Plan:
                "datapath": frozen_source("datapath")}
     legs = (LegStep(1.0, 1), LegStep(2.0), LegStep(3.0),
             LegStep(4.0, 1, catch_log(MUTANT_IDENTITY[3][3])))
-    return Plan(builds=(BuildStep(5.0, ok=False), BuildStep(6.0), BuildStep(7.0)),
+    return Plan(builds=(BuildStep(5.0, ok=False, returncode=2), BuildStep(6.0),
+                        BuildStep(7.0)),
                 legs=legs, sources=sources)
 
 
@@ -578,7 +632,9 @@ def arm_failures_are_reported_exactly_as_before() -> None:
     assert "mutant SURVIVED: recentre counted and cleared" in joined, joined
     ends = [rec for rec in run.records if rec["event"] == "end"]
     assert ends[2]["status"] == "no-executable", ends[2]
+    assert ends[2]["returncode"] == 2, ends[2]
     assert ends[3]["status"] == "built", ends[3]
+    assert ends[3]["returncode"] == 0, ends[3]
     assert [rec["status"] for rec in ends if rec["phase"] == "simulation"] == [
         1, 0, 0, 1], ends
 
@@ -659,6 +715,27 @@ def arm_a_kill_between_phases_says_so() -> None:
     assert (tail["event"], tail["state"]) == ("end-of-run", "idle"), tail
 
 
+def arm_a_kill_on_a_completed_end_record_never_calls_it_active() -> None:
+    """Delivered at the one boundary that could contradict the log - a phase's
+    end record written and flushed, the driver's next statement not yet run -
+    the kill reports the idle the driver is in, and never the phase a reader
+    has just seen complete. The exit and the cleanup are the usual ones."""
+    installed: list = []
+    stream = RecordingStream(kill_at="end", installed=installed)
+    run = run_driver(caught_plan(prebuilt=False), stream=stream,
+                     installed=installed)
+    assert run.status == 143, run.output
+    ended = [rec for rec in run.records if rec["event"] == "end"]
+    assert len(ended) == 1 and stream.killed_after == ended[0], run.records
+    assert (ended[0]["case"], ended[0]["phase"]) == ("control", "build")
+    assert (ended[0]["status"], ended[0]["returncode"]) == ("built", 0), ended[0]
+    last = run.records[-1]
+    assert (last["event"], last["state"]) == ("interrupted", "idle"), last
+    assert (last["case"], last["phase"], last["mode"]) == (None, None, None)
+    assert "incomplete" not in last and last["seq"] == ended[0]["seq"] + 1, last
+    assert run.lines == [] and run.work_exists is False, run.lines
+
+
 def arm_the_handler_is_installed_for_sigterm() -> None:
     """The driver still arms exactly one handler, on SIGTERM, and that handler
     exits 143 whenever it runs."""
@@ -685,6 +762,83 @@ def arm_a_record_nobody_can_write_changes_no_outcome() -> None:
     assert killed.work_exists is False, "the temporary directory outlived the kill"
 
 
+def arm_a_clock_that_cannot_be_read_loses_only_the_timing() -> None:
+    """A reading the clock refuses is a telemetry loss like a record nobody can
+    write. Refused at the origin, every offset is null and the run still
+    reports what it always reported. Refused at one start and at the end that
+    closes it, those two records and the next gap lose their numbers, and no
+    other offset, status or printed line moves. None is ever made up."""
+    origin = run_driver(caught_plan(), clock=UnreadableClock(frozenset({1})))
+    assert origin.status == 0 and origin.lines == list(CAUGHT_RUN_LINES)
+    assert phase_shape(origin.records) == expected_shape(True), origin.records
+    assert [rec["seq"] for rec in origin.records] == list(range(1, 24))
+    assert all(rec["t_s"] is None for rec in origin.records), origin.records
+    assert [(rec["status"], rec["elapsed_s"]) for rec in origin.records
+            if rec["event"] == "end"] == [(0, None), (0, None)] + [
+        ("built", None), (1, None)] * 4, origin.records
+
+    clean = run_driver(caught_plan())
+    broken = run_driver(caught_plan(), clock=UnreadableClock(frozenset({7, 8})))
+    assert broken.status == 0 and broken.lines == list(CAUGHT_RUN_LINES)
+    assert phase_shape(broken.records) == phase_shape(clean.records)
+    assert [index for index, rec in enumerate(broken.records)
+            if rec["t_s"] is None] == [6, 7], broken.records
+    assert (broken.records[6]["idle_s"], broken.records[7]["elapsed_s"],
+            broken.records[8]["idle_s"]) == (None, None, None), broken.records
+    assert broken.records[7]["returncode"] == 0, broken.records[7]
+    assert broken.records[9]["elapsed_s"] == clean.records[9]["elapsed_s"]
+    kept = [(rec.get("status"), rec["t_s"]) for index, rec
+            in enumerate(broken.records) if index not in (6, 7)]
+    assert kept == [(rec.get("status"), rec["t_s"]) for index, rec
+                    in enumerate(clean.records) if index not in (6, 7)], kept
+
+
+def arm_a_clock_that_fails_under_the_kill_still_exits_143() -> None:
+    """The reading the SIGTERM handler takes is telemetry too. Refused from
+    that reading on, the kill still names its case and phase, still says
+    incomplete, still exits 143 and still leaves the temporary directory
+    removed; the two numbers are all that is gone."""
+    plan = caught_plan(prebuilt=False)._replace(interrupt_at=1)
+    counted = UnreadableClock()
+    timed = run_driver(plan, clock=counted)
+    assert timed.status == 143, timed.output
+    run = run_driver(plan, clock=UnreadableClock(fail_from=counted.reads))
+    assert run.status == 143, run.output
+    last = run.records[-1]
+    assert (last["event"], last["state"]) == ("interrupted", "active"), last
+    assert (last["case"], last["phase"], last["mode"]) == (
+        "control", "simulation", "--render-only"), last
+    assert (last["incomplete"], last["t_s"], last["elapsed_s"]) == (
+        True, None, None), last
+    assert phase_shape(run.records) == phase_shape(timed.records)
+    assert run.work_exists is False, "the temporary directory outlived the kill"
+
+
+def angry_leg(exe: Path, mode: str) -> tuple[int, str]:
+    """A stand-in run_leg() that fails the way an unrunnable leg would."""
+    raise OSError("the leg could not be started")
+
+
+def arm_a_real_failure_still_leaves_the_wrapper() -> None:
+    """The instrument contains its own failures and not the driver's: a call
+    that raises still raises, through a phase that keeps a start, no end and
+    no result, which is what incomplete means."""
+    stream = RecordingStream()
+    log = driver.PhaseLog(stream=stream, clock=FakeClock())
+    with stood_in({"run_leg": angry_leg}):
+        try:
+            driver.timed_leg(log, "control", Path("obj_aclk"), "--live-only")
+        except OSError as failure:
+            assert str(failure) == "the leg could not be started", failure
+        else:
+            raise AssertionError("the instrument swallowed a real failure")
+    assert [rec["event"] for rec in stream.records()] == ["origin", "start"]
+    log.interrupted()
+    last = stream.records()[-1]
+    assert (last["state"], last["incomplete"], last["case"], last["phase"]) == (
+        "active", True, "control", "simulation"), last
+
+
 def arm_records_carry_nothing_private() -> None:
     """No path, no environment and no child output reaches a record."""
     plan = caught_plan(prebuilt=False)
@@ -700,31 +854,44 @@ def arm_records_carry_nothing_private() -> None:
     assert "was not restored" not in joined, joined
 
 
-def arm_the_build_command_is_unchanged() -> None:
+def arm_the_build_command_is_unchanged_and_its_status_recorded() -> None:
     """build() still runs the suite's own recipe, with the same arguments in
-    the same order, captures both streams and reports the tails of a failure."""
+    the same order, captures both streams, returns the leg or nothing and
+    prints the tails of a failure. Its framed record keeps both halves of the
+    answer: `returncode`, the status the recipe returned and this helper does
+    see, and `status`, whether a leg came out of it."""
+    #: (recipe status, leaves a leg, override, `status`, what build() prints):
+    #: returning 0 with no leg, and returning 2, are the two failures `status`
+    #: on its own reports identically
+    cases = ((0, True, "RSP_SRC", "built", ""),
+             (0, False, "DP_SRC", "no-executable", "out-tailerr-tail"),
+             (2, True, "RSP_SRC", "no-executable", "out-tailerr-tail"))
     with tempfile.TemporaryDirectory(prefix="a115-fixture-") as td:
         root = Path(td)
-        mdir = root / "obj_case"
-        mdir.mkdir()
-        (mdir / "Vmilan_dp_aclk").write_text("stand-in leg\n")
         source = root / "stage_copy.sv"
-        recorder = RecordingSubprocess(FakeCompleted(0, "", ""))
-        with stood_in({"subprocess": recorder}):
-            exe = driver.build("RSP_SRC", source, mdir)
-        argv, kwargs = recorder.calls[0]
-        assert argv == ("make", "-s", "-C", str(driver.HERE), "aclk-build",
-                        f"RSP_SRC={source}", f"ACLK_MDIR={mdir}"), argv
-        assert kwargs == {"capture_output": True, "text": True}, kwargs
-        assert exe == mdir / "Vmilan_dp_aclk", exe
-
-        failed = RecordingSubprocess(FakeCompleted(2, "out-tail", "err-tail"))
-        printed = io.StringIO()
-        with stood_in({"subprocess": failed}), contextlib.redirect_stdout(printed):
-            assert driver.build("DP_SRC", source, mdir) is None
-        assert printed.getvalue() == "out-tailerr-tail", printed.getvalue()
-        assert failed.calls[0][0][:5] == ("make", "-s", "-C", str(driver.HERE),
-                                          "aclk-build")
+        for index, (status, leg, override, label, tails) in enumerate(cases):
+            mdir = root / f"obj_case{index}"
+            mdir.mkdir()
+            if leg:
+                (mdir / "Vmilan_dp_aclk").write_text("stand-in leg\n")
+            stream = RecordingStream()
+            printed = io.StringIO()
+            log = driver.PhaseLog(stream=stream, clock=FakeClock())
+            recorder = RecordingSubprocess(
+                FakeCompleted(status, "out-tail", "err-tail"))
+            with stood_in({"subprocess": recorder}), \
+                    contextlib.redirect_stdout(printed):
+                exe = driver.timed_build(log, "control", override, source, mdir)
+            argv, kwargs = recorder.calls[0]
+            assert argv == ("make", "-s", "-C", str(driver.HERE), "aclk-build",
+                            f"{override}={source}", f"ACLK_MDIR={mdir}"), argv
+            assert kwargs == {"capture_output": True, "text": True}, kwargs
+            assert exe == (mdir / "Vmilan_dp_aclk" if label == "built"
+                           else None), (exe, label)
+            assert printed.getvalue() == tails, printed.getvalue()
+            record = stream.records()[-1]
+            assert (record["event"], record["phase"]) == ("end", "build"), record
+            assert (record["status"], record["returncode"]) == (label, status), record
 
 
 def arm_the_leg_command_and_session_are_unchanged() -> None:
@@ -793,10 +960,14 @@ ARMS = (
     arm_records_add_no_check_and_no_failure,
     arm_a_kill_names_the_phase_and_still_exits_143,
     arm_a_kill_between_phases_says_so,
+    arm_a_kill_on_a_completed_end_record_never_calls_it_active,
     arm_the_handler_is_installed_for_sigterm,
     arm_a_record_nobody_can_write_changes_no_outcome,
+    arm_a_clock_that_cannot_be_read_loses_only_the_timing,
+    arm_a_clock_that_fails_under_the_kill_still_exits_143,
+    arm_a_real_failure_still_leaves_the_wrapper,
     arm_records_carry_nothing_private,
-    arm_the_build_command_is_unchanged,
+    arm_the_build_command_is_unchanged_and_its_status_recorded,
     arm_the_leg_command_and_session_are_unchanged,
     arm_the_six_case_inventory_is_frozen,
     arm_the_verdict_classifier_is_unchanged,

@@ -584,7 +584,7 @@ one run and mean nothing across runs.
 | `origin` | once, before any phase | `clock`, `unit`: the origin every later `t_s` counts from |
 | `baseline` | before the positive controls | `case`, `selected`: `prebuilt` when the executable the sweep already built was reused, `fallback-build` when this driver built the unmutated leg itself |
 | `start` | before an existing build or run call | `case`, `phase`, `mode`, `idle_s`: the gap since the previous phase ended, or since the origin |
-| `end` | after that call returned | `case`, `phase`, `mode`, `elapsed_s`, `status` |
+| `end` | after that call returned | `case`, `phase`, `mode`, `elapsed_s`, `status`, and `returncode` on a build |
 | `interrupted` | inside the existing SIGTERM handler | `state`: `active` with the running `case`, `phase`, `mode`, `elapsed_s` and `incomplete`, or `idle` with `idle_s` |
 | `end-of-run` | after the last phase, before the tally | `state`, `idle_s` |
 
@@ -598,8 +598,14 @@ mutations, and `case` with `mode` names each one.
 `status` is what the existing call returned, so it reads differently per
 phase: a `simulation` end carries the child's integer return status (negative
 is the signal that killed it), and a `build` end carries `built` or
-`no-executable`, because the build helper returns the leg or nothing and never
-saw the recipe's own exit status.
+`no-executable`, which is what the build helper returns to its caller.
+
+A `build` end carries `returncode` as well: the exit status the `make` recipe
+itself returned, which the helper does see. The two answer different questions,
+and a diagnostic needs both: a recipe that returned 0 and left no executable
+behind is a different failure from one that returned 2, and `status` alone
+reports them identically. A build that completed always observed the status,
+so a `null` `returncode` would mean it never reached the record.
 
 The limits, so a reader does not over-read a record:
 
@@ -609,6 +615,19 @@ The limits, so a reader does not over-read a record:
   outcome.** A write that fails, a kill before the handler runs, or a log the
   sweep truncated loses records; nothing recomputes them, and no case's result
   is inferred from another's.
+* **A missing timing is `null`, not a number.** Reading the clock is part of
+  the telemetry, so a reading the clock will not give costs that record its
+  `t_s`, `elapsed_s` or `idle_s` and nothing else: no offset is estimated from
+  a neighbour, and the run's results, verdicts, tally, exit 143 and cleanup are
+  the ones it would have had with no instrument at all. A `null` origin makes
+  every later `t_s` `null`, which is a run with the phase order recorded and
+  no durations.
+* **`interrupted` reports which call was running, not which record was last.**
+  A phase stops being the running one before the record that closes it is
+  written, so a kill can never report a phase both ended and incomplete. In
+  the moment between a call returning and its `end` record reaching the log,
+  the driver is genuinely idle and a kill there says `idle`; the `end` record
+  it displaced is then one of the missing records above.
 * **Nothing about the child is recorded**: no path, no environment, no
   captured output. The captured output still reaches the log through the
   existing failure paths only.
@@ -619,9 +638,10 @@ The limits, so a reader does not over-read a record:
   `scripts/run_all_suites.sh`.
 
 `test_render_phase_observation.py` holds this contract with pure fixtures: a
-fake clock, a recording stream, stubbed build and wait results, and a guard in
-place of the subprocess handle, so an arm that reaches a real process launch
-fails instead of running one.
+fake clock (including one that refuses readings), a recording stream that can
+hand the kill to the installed handler at a chosen record, stubbed build and
+wait results, and a guard in place of the subprocess handle, so an arm that
+reaches a real process launch fails instead of running one.
 
 ```sh
 python3 tb/verilator/milan_dp/test_render_phase_observation.py
