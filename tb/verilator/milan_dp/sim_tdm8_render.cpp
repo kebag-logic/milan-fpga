@@ -58,9 +58,35 @@
 // by the mutation arm's explicitly modelled bit-arrival skew, whose limits are
 // stated there. Physical acceptance stays with #386 acceptance 4 and #117.
 //
-// Modes: no argument runs every phase. --serial-only and --epoch-only are the
-// short legs tdm8_render_mutants.py runs, and --defect-stopped-clock and
-// --defect-one-sample are its two leg-side defect arms.
+// THE CLOCK SOURCE. The serial window above runs at INTERNAL, where the
+// packet grid and the physical frame grid free-run apart by the divider
+// plan's -10.64 ppm. The [CRF] phase selects this shape's CRF CLOCK_SOURCE
+// through the REAL command path - a SET_CLOCK_SOURCE on CLOCK_DOMAIN 0 over
+// the same AECP face the map commands use - with the AAF stream STILL
+// RUNNING, feeds a real CRF stream into the provisioned sink, and grades the
+// same pins again once KL_media_grid_align holds the packet grid on the
+// physical one. Two claims separate the aligned state from the free-running
+// one, and both are the construction contract's own: the lane's skip and
+// underrun counters stay at ZERO across the aligned window (at INTERNAL the
+// surplus is one counted skip per beat period), and the commit-to-pin
+// interval stops sweeping a whole frame. The transition is then made the
+// other way, back to INTERNAL, under the same running stream.
+//
+// WHAT THE MULTI-STREAM BUILD ADDS (-DTDM8R_MULTI_TB). The shipping shape
+// carries one listener, so two properties are unobservable on it: the render
+// epoch's bind-fall mask is STREAM QUALIFIED, and a legal cluster key with no
+// physical projection does not exist. gen_tdm8r_multi_shape.py writes a
+// second end-station config (a second listener; the wire-truth cluster
+// policy, which makes that listener's clusters honestly virtual) and the same
+// builder derives its shape header and entity image. The [MULTI] phase binds
+// both listeners and grades the two halves of the qualification against each
+// other at the pins.
+//
+// Modes: no argument runs every phase. --serial-only, --epoch-only and
+// --crf-only are the short legs tdm8_render_mutants.py runs, and
+// --defect-stopped-clock, --defect-one-sample and --defect-internal-select
+// are its three leg-side defect arms. The multi-stream build takes no mode:
+// its one phase IS its leg.
 
 #include "../../common/verilator_harness.hpp"
 #include "Vmilan_datapath.h"
@@ -68,6 +94,7 @@
 #include "verilated.h"
 
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -84,8 +111,28 @@ constexpr int kChans = 8;
 constexpr int kEvents = 6;
 constexpr size_t kPayloadBytes = static_cast<size_t>(kChans) * kEvents * 4;
 constexpr size_t kFrameBytes = 14 + 24 + kPayloadBytes;
-//! six events per PDU at 48 kHz on the 100 MHz axis clock
+//! six events per PDU at 48 kHz on the 100 MHz axis clock. On the PHYSICAL
+//! grid - the cadence a talker disciplined to the same CRF produces - the
+//! fsync period is 512 x 1591/391 cycles, so six of them are 12 500 + 52/391.
 constexpr long kPduPeriodCycles = 12500;
+constexpr long kPduPhysFracNum = 52;
+constexpr long kPduPhysFracDen = 391;
+//! the CRF cadence: 96 samples per PDU at 48 kHz is 2 ms, and 2 ms of the
+//! 100 MHz axis clock is 200 000 cycles
+constexpr long kCrfPduPeriodCycles = 200000;
+//! one media tick on the packet grid, in axis cycles (100 MHz / 48 kHz)
+constexpr double kTickCycles = 100e6 / 48000.0;
+//! #386's render setpoint as milan_datapath derives it: one class-A PDU of
+//! events plus the two-tick allowance. Stated here as the LAW under test,
+//! never read back from the DUT.
+constexpr int kRenderSetpointEvt = kEvents + 2;
+//! registration slack on the band's upper edge: the accept pulse and the pop
+//! pulse are each one register behind their events
+constexpr long kBandSlackCycles = 64;
+//! this shape's CRF CLOCK_SOURCE index. Not trusted: the SET_CLOCK_SOURCE
+//! below is graded SUCCESS and the media plane's own registered resolve is
+//! then required to read CRF, so a wrong index fails rather than passes.
+constexpr uint16_t kCrfClksrcIx = 1;
 //! the exact fractional-N product clock plan: clk_audio_i = clk_tdm_i =
 //! axis_clk x 391/1591 = 24,575,738.5292 Hz, BCLK_HALF_P = 1
 constexpr long kAudNum = 391;
@@ -102,9 +149,49 @@ constexpr int kI2sN = 2;
 //! the permutation the map programs: no fixed point, so an identity
 //! projection cannot pass by accident
 constexpr std::array<int, kSlots> kPerm = {3, 5, 0, 7, 2, 6, 1, 4};
+//! the MULTI-STREAM shape's key geometry, stated as the LAW under test rather
+//! than read back from the DUT: STREAM_PORT_INPUT 1's cluster block starts
+//! where port 0's ends, and the model declares sixteen keys in all.
+constexpr int kMultiPort1Base = 8;
+constexpr int kMultiInKeys = 16;
+//! which shape THIS build elaborated. A constant rather than a preprocessor
+//! branch around the phases, so BOTH sets stay compiled and a change that
+//! breaks the one this build does not run is still caught here.
+#ifdef TDM8R_MULTI_TB
+constexpr bool kMultiShape = true;
+#else
+constexpr bool kMultiShape = false;
+#endif
+//! ...and the generated entity image that shape's AECP face serves, named by
+//! the Makefile target that produces it, so a missing image prints the
+//! command that makes it.
+constexpr const char* kAemImage =
+    kMultiShape ? "tdm8rm_aemi.bin" : "tdm8r_aemi.bin";
+
+//! One classification-table entry's stream id, whatever width the tap has:
+//! Verilator presents a ONE-entry table as a 64-bit scalar and a wider one as
+//! an array of 32-bit words, and this leg elaborates both shapes.
+inline uint64_t sid_of_entry(uint64_t flat, int s) {
+    return (s == 0) ? flat : 0;
+}
+template <typename T>
+inline uint64_t sid_of_entry(const T& flat, int s) {
+    return (static_cast<uint64_t>(flat[2 * s + 1]) << 32) | flat[2 * s];
+}
 //! how far the grading cursor may advance over one decoded frame before the
 //! frame is a failure rather than a counted skip
 constexpr int kMaxAdvance = 4;
+//! the serial geometry in AXIS cycles on the shipping 391/1591 plan, stated
+//! once: one bit period, one whole frame, and the frame CDC's own registered
+//! depth (the floor no commit closer than that can have met - see
+//! measure_the_commit_to_pin_terms).
+constexpr double kAxisPerHalf = 0.5;
+constexpr double kBitAxis =
+    2.0 * static_cast<double>(kAudDen) / static_cast<double>(kAudNum);
+constexpr double kFrameAxis =
+    512.0 * static_cast<double>(kAudDen) / static_cast<double>(kAudNum);
+constexpr double kCdcFloorAxis =
+    6.0 * static_cast<double>(kAudDen) / static_cast<double>(kAudNum);
 
 //! One decoded serial frame: the eight 32-bit slot words, exactly as the pins
 //! delivered them, and the harness time of slot 0's MSB sampling edge.
@@ -127,8 +214,15 @@ class TdmRenderHarness {
 
     bool serial_only = false;
     bool epoch_only = false;
+    bool crf_only = false;
     bool defect_stopped_clock = false;
     bool defect_one_sample = false;
+    //! the [CRF] phase's own defect arm: the command path is exercised in
+    //! full, but it NAMES INTERNAL. Everything else about the phase is
+    //! unchanged - the CRF stream is still fed, the sink still locks - so
+    //! what fails is exactly the set of claims that depend on the SELECTION
+    //! having happened, which is what makes those claims evidence.
+    bool defect_internal_select = false;
 
     // ---------------------------------------------------------------- //
     //  The fractional-N product clock, and the freeze this leg needs    //
@@ -171,6 +265,20 @@ class TdmRenderHarness {
         observe_axis();
         observe();
         sniff_probe();
+        drp_respond();
+    }
+
+    //! The minimal DRP responder the media-clock servo needs once CRF is
+    //! selected: DRDY a few cycles after DEN, data 0. With auto_repair off a
+    //! VERIFY mismatch is informative-only and the servo proceeds, which is
+    //! all this leg needs of it - the MMCM's real ClkReg contents are
+    //! tb/verilator/mmcm_servo's subject, not this one's.
+    int drp_lat = 0;
+    void drp_respond() {
+        dut->i_mmcm_drp_rdy = 0;
+        if (drp_lat > 0 && --drp_lat == 0) dut->i_mmcm_drp_rdy = 1;
+        if (dut->o_mmcm_drp_en) drp_lat = 3;
+        dut->i_mmcm_drp_do = 0;
     }
 
     // ---------------------------------------------------------------- //
@@ -343,6 +451,10 @@ class TdmRenderHarness {
     uint64_t lane_skips()  const { return dut->rootp->milan_datapath__DOT__tdmr_skips_w; }
     uint64_t lane_over()   const { return dut->rootp->milan_datapath__DOT__tdmr_overruns_w; }
     uint64_t lane_epochs() const { return dut->rootp->milan_datapath__DOT__tdmr_epochs_w; }
+    //! the classification table's stream id for entry `s`
+    uint64_t table_sid(int s) const {
+        return sid_of_entry(dut->rootp->milan_datapath__DOT__strtbl_sid_w, s);
+    }
 
     std::vector<long> phys_valid_cycle;  //! axis cycle of each crossbar pulse
     std::vector<long> commit_cycle;      //! axis cycle of each frame commit
@@ -357,7 +469,68 @@ class TdmRenderHarness {
     long counter_impossible = 0;
     long counter_worst_lead = 0;
 
+    // ---------------------------------------------------------------- //
+    //  THE #386 LAW INSTRUMENT, the one sim_aclk uses, kept here so the  //
+    //  setpoint law is observed in the SAME run that decodes the pins.   //
+    //  Records are kept by the PDU's own 12-bit wire id; the accept      //
+    //  pulse carries no id, so accepts are matched to injections in      //
+    //  order, which the depacketizer keeps and this leg never breaks.    //
+    // ---------------------------------------------------------------- //
+    static constexpr size_t kIdSpace = 4096;
+    std::vector<int> sent_ids;              //! wire ids, in injection order
+    size_t accepts_seen = 0;
+    std::array<long, kIdSpace> accept_at{}; //! axis cycle of the accept pulse
+    std::array<int, kIdSpace> fill_at{};    //! the stage's fill at that instant
+    std::array<long, kIdSpace> pop_at{};    //! ...and of its event 0's pop
+    long recentre_pulses = 0;               //! render_recentre_p_w edges
+    long src_recentre_pulses = 0;           //! the clock-source trigger's own
+    //! ...and, for the multi-stream arm, the two per-stream observations that
+    //! stop "the second stream is live" from being an assumption: how many
+    //! PDUs the monitor ACCEPTED for each stream, and how many events the
+    //! render stage POPPED for each.
+    std::array<long, 2> accepts_by_stream{};
+    std::array<long, 2> pops_by_stream{};
+
+    void law_reset() {
+        sent_ids.clear();
+        accepts_seen = 0;
+        accept_at.fill(-1);
+        fill_at.fill(-1);
+        pop_at.fill(-1);
+    }
+
+    void observe_law() {
+        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p) {
+            const size_t s = static_cast<size_t>(
+                dut->rootp->milan_datapath__DOT__avtprx_idx) & 1u;
+            ++accepts_by_stream[s];
+        }
+        for (size_t s = 0; s < pops_by_stream.size(); s++)
+            if ((dut->rootp->milan_datapath__DOT__rsp_pop_p_w >> s) & 1)
+                ++pops_by_stream[s];
+        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p &&
+            accepts_seen < sent_ids.size()) {
+            const size_t id = static_cast<size_t>(sent_ids[accepts_seen++]);
+            accept_at[id] = axis_cycle;
+            fill_at[id] =
+                static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
+        }
+        if (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1) {
+            const uint64_t d = dut->rootp->milan_datapath__DOT__rsp_tdata_w;
+            const uint32_t s0 = (static_cast<uint32_t>(d & 0xFF) << 16) |
+                                (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
+                                static_cast<uint32_t>((d >> 16) & 0xFF);
+            const size_t id = (s0 >> 12) & 0xFFF;
+            if (((s0 >> 8) & 0xF) == 0 && pop_at[id] < 0)
+                pop_at[id] = axis_cycle;
+        }
+        if (dut->rootp->milan_datapath__DOT__render_recentre_p_w) ++recentre_pulses;
+        if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) ++src_recentre_pulses;
+    }
+
     void observe_axis() {
+        observe_law();
+        observe_epoch();
         if (dut->rootp->milan_datapath__DOT__chmap_phys_v_w)
             phys_valid_cycle.push_back(axis_cycle);
         if (dut->rootp->milan_datapath__DOT__tdmr_commit_p_w)
@@ -377,6 +550,26 @@ class TdmRenderHarness {
         const long lead = static_cast<long>(fr - frames_base) - fsync_rises;
         if (lead > counter_worst_lead) counter_worst_lead = lead;
         if (lead > 3) ++counter_impossible;
+    }
+
+    //! The stream-qualified epoch's two observations, accumulated every cycle
+    //! rather than sampled: which streams the bind table actually dropped, and
+    //! whether the adapter's commit gate EVER fell. A "the lane kept running"
+    //! verdict read from one end-of-window sample would miss a gate that
+    //! closed and reopened inside it.
+    uint32_t bind_falls_seen = 0;
+    long commit_gate_closed_cycles = 0;
+
+    void observe_epoch() {
+        bind_falls_seen |= static_cast<uint32_t>(
+            dut->rootp->milan_datapath__DOT__strtbl_bind_fall_w);
+        if (!dut->rootp->milan_datapath__DOT__tdmr_commit_en_w)
+            ++commit_gate_closed_cycles;
+    }
+
+    void epoch_watch_reset() {
+        bind_falls_seen = 0;
+        commit_gate_closed_cycles = 0;
     }
 
     void taps_reset() {
@@ -474,28 +667,42 @@ class TdmRenderHarness {
                 inj.push_back(ev);
             }
         injected_events = 0;
+        law_reset();
     }
 
     bool feed_on = false;
     long next_pdu_at = 0;
     uint8_t wire_seq = 0;
     long pdu_cursor = 0;
+    //! the SECOND stream, on the multi-stream shape only: its own cadence,
+    //! its own wire sequence and its own event cursor
+    bool feed1_on = false;
+    long next_pdu1_at = 0;
+    uint8_t wire_seq1 = 0;
+    long injected1_events = 0;
 
-    void send_pdu() {
+    //! stream 1's sample word. The same {pdu, event} identity as stream 0's,
+    //! with the channel field marked 0x80 | c - a value NO stream-0 sample
+    //! can hold, because the record's channel field is 0..7. That is what
+    //! makes "this slot is fed from stream 1" readable at the pins without a
+    //! second ordinal oracle.
+    static uint32_t stream1_word(long event, int chan) {
+        return (static_cast<uint32_t>((event / kEvents) & 0xFFF) << 12) |
+               (static_cast<uint32_t>(event % kEvents) << 8) |
+               (0x80u | static_cast<uint32_t>(chan & 0x7F));
+    }
+
+    void send_pdu(int stream = 0) {
         uint8_t f[kFrameBytes]; memset(f, 0, sizeof f);
-        const uint8_t dmac[6] = {
-            0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
-        memcpy(f, dmac, 6);
+        memcpy(f, kStreamDmac[stream], 6);
         const uint8_t src[6] = {
             0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
         memcpy(f + 6, src, 6);
         f[12] = 0x22; f[13] = 0xF0;
         f[14] = 0x02;                               // AAF
         f[15] = 0x81;                               // sv, tv
-        f[16] = wire_seq++;
-        const uint8_t sid[8] = {
-            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
-        memcpy(f + 18, sid, 8);
+        f[16] = (stream == 0) ? wire_seq++ : wire_seq1++;
+        memcpy(f + 18, kSid[stream], 8);
         f[26] = 0x00; f[27] = 0x00; f[28] = 0x10; f[29] = 0x00;
         f[30] = 0x02;                               // INT32
         f[31] = static_cast<uint8_t>(0x05 << 4);    // 48 kHz
@@ -503,11 +710,14 @@ class TdmRenderHarness {
         f[33] = 32;
         f[34] = static_cast<uint8_t>(kPayloadBytes >> 8);
         f[35] = static_cast<uint8_t>(kPayloadBytes & 0xFF);
+        const long base = (stream == 0) ? injected_events : injected1_events;
         for (int k = 0; k < kEvents; k++) {
-            const size_t e = static_cast<size_t>(injected_events) + static_cast<size_t>(k);
-            if (e >= inj.size()) break;
+            const size_t e = static_cast<size_t>(base) + static_cast<size_t>(k);
+            if (stream == 0 && e >= inj.size()) break;
             for (int c = 0; c < kChans; c++) {
-                uint32_t v = inj[e][static_cast<size_t>(c)];
+                uint32_t v = (stream == 0)
+                           ? inj[e][static_cast<size_t>(c)]
+                           : stream1_word(static_cast<long>(e), c);
                 // the ONE arm that deliberately puts a different word on the
                 // wire than the record holds (N4): the record keeps the
                 // intended value, so the identity check is the thing that has
@@ -521,19 +731,83 @@ class TdmRenderHarness {
                 f[o + 3] = 0;
             }
         }
-        injected_events += kEvents;
-        ++pdu_cursor;
+        if (stream == 0) {
+            //! the #386 law instrument follows stream 0's accepts in order;
+            //! it is read only by the single-stream [CRF] phase
+            sent_ids.push_back(
+                static_cast<int>(injected_events / kEvents) & 0xFFF);
+            injected_events += kEvents;
+            ++pdu_cursor;
+        } else {
+            injected1_events += kEvents;
+        }
         inject(f, kFrameBytes);
     }
     long corrupt_at = 1 << 30;
 
+    //! the AAF cadence: an integer period plus a fraction. 0 is the PACKET
+    //! grid (the INTERNAL case, where the two grids free-run apart); 52/391 is
+    //! the PHYSICAL one, the cadence a talker disciplined to the same CRF
+    //! produces and the one the aligned packet grid follows.
+    long pdu_frac_num = 0;
+    long pdu_frac_acc = 0;
+    void advance_pdu_slot() {
+        next_pdu_at += kPduPeriodCycles;
+        pdu_frac_acc += pdu_frac_num;
+        if (pdu_frac_acc >= kPduPhysFracDen) {
+            pdu_frac_acc -= kPduPhysFracDen;
+            next_pdu_at += 1;
+        }
+    }
+
+    // ---------------------------------------------------------------- //
+    //  THE CRF MEDIA CLOCK INPUT stream, at its 2 ms cadence. Timestamps  //
+    //  advance at the NOMINAL 48 kHz rate, so the servo reads the audio   //
+    //  clock's honest deviation rather than one this leg invented.        //
+    // ---------------------------------------------------------------- //
+    bool crf_on = false;
+    long crf_next_at = 0;
+    uint64_t crf_ts = 1000000000ULL;
+    uint8_t crf_wire_seq = 0;
+
+    void send_crf() {
+        uint8_t f[64]; memset(f, 0, sizeof f);
+        const uint8_t dmac[6] = {
+            0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x03};
+        memcpy(f, dmac, 6);
+        const uint8_t src[6] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+        memcpy(f + 6, src, 6);
+        f[12] = 0x22; f[13] = 0xF0;
+        f[14] = 0x04;                               // CRF subtype
+        f[15] = 0x80;                               // sv
+        f[16] = crf_wire_seq++;
+        f[17] = 0x01;                               // CRF_AUDIO_SAMPLE
+        const uint8_t sid[8] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01};
+        memcpy(f + 18, sid, 8);
+        f[26] = 0x00; f[27] = 0x00; f[28] = 0xBB; f[29] = 0x80;  // pull0|48000
+        f[30] = 0x00; f[31] = 0x08;                 // crf_data_length 8
+        f[32] = 0x00; f[33] = 96;                   // timestamp_interval
+        for (int i = 0; i < 8; i++)
+            f[34 + i] = static_cast<uint8_t>(crf_ts >> (8 * (7 - i)));
+        crf_ts += 2000000ULL;
+        inject(f, 64);
+    }
+
     void run_fed(long n) {
         const long stop = axis_cycle + n;
         while (axis_cycle < stop) {
-            if (feed_on && axis_cycle >= next_pdu_at &&
-                static_cast<size_t>(injected_events) + kEvents <= inj.size()) {
-                send_pdu();
-                next_pdu_at += kPduPeriodCycles;
+            if (crf_on && axis_cycle >= crf_next_at) {
+                send_crf();
+                crf_next_at += kCrfPduPeriodCycles;
+            } else if (feed_on && axis_cycle >= next_pdu_at &&
+                       static_cast<size_t>(injected_events) + kEvents <= inj.size()) {
+                send_pdu(0);
+                advance_pdu_slot();
+            } else if (feed1_on && axis_cycle >= next_pdu1_at) {
+                send_pdu(1);
+                next_pdu1_at += kPduPeriodCycles;
             } else {
                 step();
             }
@@ -543,15 +817,22 @@ class TdmRenderHarness {
     // ---------------------------------------------------------------- //
     //  THE ROUTE RECORD - issued commands only                         //
     // ---------------------------------------------------------------- //
-    //! route[co] = the stream wire channel feeding global cluster key co, or
-    //! -1 for a cluster with no mapping. Written only from an ADD/REMOVE this
-    //! leg issued that returned SUCCESS.
+    //! route[co] = the stream wire channel feeding global cluster key co, and
+    //! route_stream[co] = the STREAM INDEX it names; -1 for a cluster with no
+    //! mapping. Written only from an ADD/REMOVE this leg issued that returned
+    //! SUCCESS. The stream is a separate dimension from the channel because a
+    //! mapping carries both, and on a multi-stream shape a lane key may name
+    //! a stream whose ordinals the stream-0 injection record does not hold.
     std::array<int, kSlots> route{};
+    std::array<int, kSlots> route_stream{};
 
-    void route_reset() { route.fill(-1); }
+    void route_reset() { route.fill(-1); route_stream.fill(-1); }
     //! serial slot k is fed by the cluster whose key is k (PBASE 0), so its
     //! source channel is route[k]
     int src_of_slot(int k) const { return route[static_cast<size_t>(k)]; }
+    int stream_of_slot(int k) const {
+        return route_stream[static_cast<size_t>(k)];
+    }
 
     // ---------------------------------------------------------------- //
     //  AECP command face                                               //
@@ -623,10 +904,10 @@ class TdmRenderHarness {
         return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
     }
 
-    //! One ADD or REMOVE of n {stream_channel, cluster_offset} rows on
-    //! STREAM_PORT_INPUT 0. Returns the AEM status.
+    //! One ADD or REMOVE of n {stream_channel, cluster_offset} rows on a
+    //! STREAM_PORT_INPUT, each naming `stream`. Returns the AEM status.
     long map_cmd(uint16_t cmd, const std::vector<std::pair<int, int>>& rows,
-                 int port = 0) {
+                 int port = 0, int stream = 0) {
         std::vector<uint8_t> pl = {
             static_cast<uint8_t>(kDescStreamPortIn >> 8),
             static_cast<uint8_t>(kDescStreamPortIn),
@@ -634,7 +915,8 @@ class TdmRenderHarness {
             0x00, static_cast<uint8_t>(rows.size()), 0x00, 0x00};
         for (const auto& r : rows) {
             const uint8_t row[8] = {
-                0, 0, 0, static_cast<uint8_t>(r.first),
+                0, static_cast<uint8_t>(stream),
+                0, static_cast<uint8_t>(r.first),
                                     0, static_cast<uint8_t>(r.second), 0, 0};
             pl.insert(pl.end(), row, row + 8);
         }
@@ -647,11 +929,16 @@ class TdmRenderHarness {
                 std::printf(" %02X", resp[i]);
             std::printf("\n");
         }
-        if (st == 0) {
+        //! the route record models the SERIAL SLOTS, which are fed by global
+        //! cluster keys 0..7 - STREAM_PORT_INPUT 0's own block. A mapping on
+        //! another port reaches no slot, so recording it here would make the
+        //! oracle describe a lane that does not exist.
+        if (st == 0 && port == 0) {
             for (const auto& r : rows) {
                 if (r.second < 0 || r.second >= kSlots) continue;
-                route[static_cast<size_t>(r.second)] =
-                    (cmd == kCmdAddMappings) ? r.first : -1;
+                const bool add = (cmd == kCmdAddMappings);
+                route[static_cast<size_t>(r.second)] = add ? r.first : -1;
+                route_stream[static_cast<size_t>(r.second)] = add ? stream : -1;
             }
         }
         return st;
@@ -740,15 +1027,24 @@ class TdmRenderHarness {
         sniff_fr.clear();
     }
 
-    void acmp_connect_rx(uint16_t seq) {
-        uint8_t f[72]; memset(f, 0, sizeof f);
+    //! The two AAF stream identities this leg binds: listener k takes the
+    //! talker's stream k. Stream 1 exists only on the multi-stream shape, and
+    //! its DMAC and stream id are BOTH distinct, so nothing about the second
+    //! stream can be mistaken for the first at the classifier or the filter.
+    static constexpr uint8_t kSid[2][8] = {
+        {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00},
+        {0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02}};
+    static constexpr uint8_t kStreamDmac[2][6] = {
+        {0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02},
+        {0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x04}};
+
+    //! the fixed ACMP identities, written into every command and answer
+    static void acmp_head(uint8_t* f, uint8_t msg_type, int listener,
+                          int talker) {
         const uint8_t mc[6] = {
             0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
         memcpy(f, mc, 6);
-        const uint8_t csrc[6] = {
-            0x68, 0x05, 0xCA, 0x95, 0xB2, 0xD1};
-        memcpy(f + 6, csrc, 6);
-        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x06;
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = msg_type;
         f[16] = 0x00; f[17] = 44;
         for (int i = 26; i < 34; i++) f[i] = static_cast<uint8_t>(i);
         const uint8_t tk[8] = {
@@ -757,33 +1053,28 @@ class TdmRenderHarness {
         const uint8_t ls[8] = {
             0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x01};
         memcpy(f + 42, ls, 8);
+        f[51] = static_cast<uint8_t>(talker);      // talker_unique_id
+        f[53] = static_cast<uint8_t>(listener);    // listener_unique_id
+    }
+
+    void acmp_connect_rx(uint16_t seq, int listener = 0, int talker = 0) {
+        uint8_t f[72]; memset(f, 0, sizeof f);
+        acmp_head(f, 0x06, listener, talker);
+        const uint8_t csrc[6] = {
+            0x68, 0x05, 0xCA, 0x95, 0xB2, 0xD1};
+        memcpy(f + 6, csrc, 6);
         f[62] = static_cast<uint8_t>(seq >> 8); f[63] = static_cast<uint8_t>(seq);
         inject(f, 70);
     }
 
-    void acmp_play_talker_response() {
+    void acmp_play_talker_response(int listener = 0, int talker = 0) {
         uint8_t f[72]; memset(f, 0, sizeof f);
-        const uint8_t mc[6] = {
-            0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
-        memcpy(f, mc, 6);
+        acmp_head(f, 0x01, listener, talker);
         const uint8_t tsrc[6] = {
             0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
         memcpy(f + 6, tsrc, 6);
-        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x01;
-        f[16] = 0x00; f[17] = 44;
-        const uint8_t sid[8] = {
-            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
-        memcpy(f + 18, sid, 8);
-        for (int i = 26; i < 34; i++) f[i] = static_cast<uint8_t>(i);
-        const uint8_t tk[8] = {
-            0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x02};
-        memcpy(f + 34, tk, 8);
-        const uint8_t ls[8] = {
-            0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x01};
-        memcpy(f + 42, ls, 8);
-        const uint8_t dm[6] = {
-            0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
-        memcpy(f + 54, dm, 6);
+        memcpy(f + 18, kSid[talker], 8);
+        memcpy(f + 54, kStreamDmac[talker], 6);
         f[62] = static_cast<uint8_t>(probe_seq >> 8);
         f[63] = static_cast<uint8_t>(probe_seq & 0xFF);
         inject(f, 70);
@@ -792,37 +1083,39 @@ class TdmRenderHarness {
     //! DISCONNECT_RX alone drops the bind: the record's enable falls without
     //! a talker answer, which is exactly the qualified bind fall the render
     //! epoch watches for.
-    void acmp_disconnect_rx(uint16_t seq) {
+    void acmp_disconnect_rx(uint16_t seq, int listener = 0, int talker = 0) {
         uint8_t f[72]; memset(f, 0, sizeof f);
-        const uint8_t mc[6] = {
-            0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
-        memcpy(f, mc, 6);
+        acmp_head(f, 0x08, listener, talker);
         const uint8_t csrc[6] = {
             0x68, 0x05, 0xCA, 0x95, 0xB2, 0xD1};
         memcpy(f + 6, csrc, 6);
-        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x08;
-        f[16] = 0x00; f[17] = 44;
-        const uint8_t sid[8] = {
-            0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00};
-        memcpy(f + 18, sid, 8);
-        for (int i = 26; i < 34; i++) f[i] = static_cast<uint8_t>(i);
-        const uint8_t tk[8] = {
-            0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x02};
-        memcpy(f + 34, tk, 8);
-        const uint8_t ls[8] = {
-            0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x01};
-        memcpy(f + 42, ls, 8);
+        memcpy(f + 18, kSid[talker], 8);
         f[62] = static_cast<uint8_t>(seq >> 8); f[63] = static_cast<uint8_t>(seq);
         inject(f, 70);
     }
 
     void bring_out_of_reset();
     void bind_listener_zero();
+    void run_the_bind_ladder(int listener, int talker, uint16_t seq,
+                             const char* tag);
     void phase_map();
+    void phase_multistream();
+    void prove_an_unrelated_stream_loss_leaves_the_lane_running();
+    void prove_the_lane_renders_a_second_stream(int slot, int chan);
+    void prove_a_rendered_stream_loss_closes_the_epoch(int slot, int chan);
+    void prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
     void phase_serial();
     void phase_csr();
     void phase_reset();
     void phase_bind_loss();
+    void phase_crf();
+    long set_clock_source(uint16_t index);
+    long get_clock_source();
+    void provision_the_crf_sink();
+    void select_crf_under_the_running_stream();
+    void prove_the_setpoint_law_still_holds(long first_id, long last_id,
+                                            const char* tag);
+    void deselect_back_to_internal(uint64_t epochs_before);
 
     //! THE GRADING RULE. Every published frame is matched against the
     //! injection record at some advance a in 0..kMaxAdvance; the smallest a
@@ -849,6 +1142,67 @@ class TdmRenderHarness {
         std::vector<long> advances;
     };
     Grade grade_frames(long first_event, const char* tag);
+
+    //! Where in the IMMUTABLE injection record one decoded frame sits, or -1
+    //! when no ordinal matches it. Searched, never assumed: the preserved
+    //! prefill snap and the epoch admission decide which event renders first,
+    //! and a slot fed from another stream carries its own ordinal and takes
+    //! no part in the match.
+    long find_the_ordinal(const DecodedFrame& fr) const {
+        for (size_t e = 0; e + 1 < inj.size(); e++) {
+            bool all = true;
+            for (int k = 0; k < kSlots && all; k++) {
+                if (stream_of_slot(k) > 0) continue;
+                const int s = src_of_slot(k);
+                const uint32_t want = (s < 0) ? 0u
+                                    : inj[e][static_cast<size_t>(s)];
+                if ((fr.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
+            }
+            if (all) return static_cast<long>(e);
+        }
+        return -1;
+    }
+
+    //! WHICH COMMIT PRODUCED THE FIRST DECODED FRAME is not a guess. The
+    //! frame CDC cannot deliver a committed frame to the serial side faster
+    //! than its own registered depth, and slot 0 carries one bit period of
+    //! serial position on top, so the newest commit that old is a floor no
+    //! closer commit can have met. Returns its index in `commit_cycle`, or -1
+    //! when the window opened before any commit could qualify.
+    long seat_the_commit_cursor(long pin0_half) const {
+        const double pin0 = static_cast<double>(pin0_half) * kAxisPerHalf;
+        long cursor = -1;
+        for (size_t j = 0; j < commit_cycle.size(); j++)
+            if (static_cast<double>(commit_cycle[j])
+                    <= pin0 - kCdcFloorAxis - kBitAxis)
+                cursor = static_cast<long>(j);
+        return cursor;
+    }
+
+    //! One decoded window's verdict, so the INTERNAL and CRF windows are
+    //! graded by ONE instrument and their numbers are comparable.
+    struct Window {
+        Grade g;
+        uint64_t skips = 0;             //! counted over the window
+        uint64_t unders = 0;
+        uint64_t epochs = 0;
+        long phi_min = 0;               //! commit-to-pin, axis cycles
+        long phi_max = 0;
+        long phi_n = 0;
+        //! ...and its WALK: the first and last correlated measurements and
+        //! the harness time between them, which is what turns a spread into
+        //! a RATE the divider plan can be compared against
+        long phi_first = 0;
+        long phi_last = 0;
+        long t_first = 0;
+        long t_last = 0;
+        double walk_ppm = 0.0;
+        long start = -1;                //! the first decoded ordinal
+    };
+    Window decode_and_grade_a_window(long cycles, const char* tag);
+    void report_a_window(const Window& w, const char* tag);
+    void prove_the_aligned_window_is_the_acceptance_state(const Window& intr,
+                                                          const Window& crf);
 
     //! The arms phase_serial and the two epoch phases run, each named for what
     //! it proves rather than for the order it happens to sit in.
@@ -916,15 +1270,27 @@ void TdmRenderHarness::bind_listener_zero() {
     axi_write(kAdpEidLo, 0xFE000001);
     axi_write(kAdpCtrl, 0x00001F01);
     steps(2000);
-    probe_seen = false;
-    acmp_connect_rx(0x1122);
-    for (int c = 0; c < 4000 && !probe_seen; c++) step();
-    check.dec("T1 BIND: the listener launched a PROBE_TX at the named talker",
-              probe_seen ? 1 : 0, 1);
-    acmp_play_talker_response();
-    steps(3000);
+    run_the_bind_ladder(0, 0, 0x1122, "T1 BIND");
     check.dec("T1 BIND: listener 0 bound (0x6A4[3], the class-D record)",
               (axi_read(kAcmplState) >> 3) & 1, 1);
+}
+
+//! The sim_main ACMP ladder for ONE listener: BIND_RX, the harvested
+//! PROBE_TX, a played CONNECT_TX_RESPONSE. The probe's sequence id is taken
+//! off the egress rather than assumed, so a listener that never asked is a
+//! failure here and not a silent non-bind two hundred lines later.
+void TdmRenderHarness::run_the_bind_ladder(int listener, int talker,
+                                           uint16_t seq, const char* tag) {
+    char what[160];
+    probe_seen = false;
+    acmp_connect_rx(seq, listener, talker);
+    for (int c = 0; c < 4000 && !probe_seen; c++) step();
+    std::snprintf(what, sizeof what,
+                  "%s: listener %d launched a PROBE_TX at the named talker",
+                  tag, listener);
+    check.dec(what, probe_seen ? 1 : 0, 1);
+    acmp_play_talker_response(listener, talker);
+    steps(3000);
 }
 
 TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
@@ -961,7 +1327,17 @@ TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
                 const int s = src_of_slot(k);
                 if (s < 0) continue;
                 const uint32_t v = data[static_cast<size_t>(k)];
-                if ((v & 0xFFu) != static_cast<uint32_t>(s)) chan_ok = false;
+                //! the channel field is graded for EVERY routed slot, and a
+                //! slot fed from another stream carries that stream's own
+                //! channel marking - which is the whole point of grading it
+                const uint32_t want_chan =
+                    (stream_of_slot(k) == 0) ? static_cast<uint32_t>(s)
+                                             : (0x80u | static_cast<uint32_t>(s));
+                if ((v & 0xFFu) != want_chan) chan_ok = false;
+                //! ...but only slots fed from THIS record's stream share one
+                //! media event identity, so the coherence and distinctness
+                //! terms are over those
+                if (stream_of_slot(k) != 0) continue;
                 if (!have_sid) { sid = v >> 8; have_sid = true; }
                 else if ((v >> 8) != sid) coherent = false;
                 for (int j = 0; j < n0; j++)
@@ -978,6 +1354,11 @@ TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
             if (e >= inj.size()) break;
             bool all = true;
             for (int k = 0; k < kSlots && all; k++) {
+                //! a slot fed from another stream has its own ordinal, so it
+                //! takes no part in THIS record's match; its structure is
+                //! graded above and its stream is proved at the pins by the
+                //! multi-stream arm
+                if (stream_of_slot(k) > 0) continue;
                 const int s = src_of_slot(k);
                 const uint32_t want = (s < 0) ? 0u
                                     : inj[e][static_cast<size_t>(s)];
@@ -1142,17 +1523,8 @@ void TdmRenderHarness::grade_the_decoded_window(long first_event,
     // SEARCHED for in the injection record around the first decoded frame
     // rather than assumed, and what is graded is that every later frame
     // follows from it by a permitted advance.
-    long start = -1;
     const DecodedFrame& f0 = decoded.front();
-    for (size_t e = 0; e + 1 < inj.size() && start < 0; e++) {
-        bool all = true;
-        for (int k = 0; k < kSlots && all; k++) {
-            const int s = src_of_slot(k);
-            const uint32_t want = (s < 0) ? 0u : inj[e][static_cast<size_t>(s)];
-            if ((f0.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
-        }
-        if (all) start = static_cast<long>(e);
-    }
+    const long start = find_the_ordinal(f0);
     check.that("T6 IDENTITY: the first decoded frame is an injected media "
                "event", start >= 0);
     if (start < 0) {
@@ -1265,30 +1637,15 @@ void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
         // REGISTERED events: the adapter's frame commit and the receiver's
         // sampling edge of that frame's slot 0 MSB. The commit that produced
         // a frame is the newest one that landed before its adoption, which is
-        // drop-oldest's own rule, so the cursor is SEATED once that way and
-        // then walked by the grading's own advances - counted events, never a
-        // guessed alignment.
-        const double kAxisPerHalf = 0.5;
-        const double bit_axis0 = 2.0 * static_cast<double>(kAudDen)
-                               / static_cast<double>(kAudNum);
-        // WHICH COMMIT PRODUCED THIS FRAME is not a guess. The frame CDC
-        // cannot deliver a committed frame to the serial side faster than its
-        // own registered depth: the write pointer's gray value crosses two
-        // flops and sets the empty flag (3 read edges), the prefetch read
+        // drop-oldest's own rule, so the cursor is SEATED once that way (the
+        // CDC's registered depth: the write pointer's gray value crosses two
+        // flops and sets the empty flag - 3 read edges - the prefetch read
         // enable is one more, the FIFO's registered read data and the
         // fetch-valid flag one more, and the load of the double buffer one
-        // more. Six clk_tdm periods, plus slot 0's own one bit period of
-        // serial position, is therefore a floor no commit closer than that can
-        // have met - which seats the cursor unambiguously. After that it walks
-        // by the grading's own advances, because drop-oldest consumes exactly
-        // one commit per adoption plus one per counted skip.
-        const double kCdcFloorAxis = 6.0 * static_cast<double>(kAudDen)
-                                   / static_cast<double>(kAudNum);
-        long cursor = -1;
-        const double pin0 = static_cast<double>(decoded.front().half_step) * kAxisPerHalf;
-        for (size_t j = 0; j < commit_cycle.size(); j++)
-            if (static_cast<double>(commit_cycle[j]) <= pin0 - kCdcFloorAxis - bit_axis0)
-                cursor = static_cast<long>(j);
+        // more) and then walked by the grading's own advances, because
+        // drop-oldest consumes exactly one commit per adoption plus one per
+        // counted skip. Counted events, never a guessed alignment.
+        long cursor = seat_the_commit_cursor(decoded.front().half_step);
         long tmin = 1 << 30;
     long tmax = -(1 << 30);
     long span_n = 0;
@@ -1310,11 +1667,10 @@ void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
         }
         if (span_n > 16) {
             // one serial frame is 256 bit periods = 512 clk_tdm cycles =
-            // 512 x 1591/391 axis cycles
-            const double frame_axis = 512.0 * static_cast<double>(kAudDen)
-                                    / static_cast<double>(kAudNum);
-            const double bit_axis = 2.0 * static_cast<double>(kAudDen)
-                                  / static_cast<double>(kAudNum);
+            // 512 x 1591/391 axis cycles (kFrameAxis), and one bit period is
+            // two of them (kBitAxis)
+            const double frame_axis = kFrameAxis;
+            const double bit_axis = kBitAxis;
             check.that("T7 LATENCY: the commit-to-pin interval spreads by at "
                        "most one serial frame, so the delay does not ratchet",
                        static_cast<double>(tmax - tmin) <= frame_axis * 1.05);
@@ -1359,7 +1715,6 @@ void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
 //! POSITION on the wire rather than a label in the bank.
 void TdmRenderHarness::prove_each_slot_sits_at_its_own_position(
         double bit_axis) {
-    const double kAxisPerHalf = 0.5;
     long slot_pos_faults = 0;
     for (const DecodedFrame& fr : decoded) {
         for (int k = 1; k < kSlots; k++) {
@@ -1417,19 +1772,7 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
         run_fed(30 * kPduPeriodCycles);
         collect = false;
         if (!decoded.empty() && !commit_cycle.empty()) {
-            const double kAxisPerHalf = 0.5;
-            const double bit_axis = 2.0 * static_cast<double>(kAudDen)
-                                  / static_cast<double>(kAudNum);
-            const double cdc_floor = 6.0 * static_cast<double>(kAudDen)
-                                   / static_cast<double>(kAudNum);
-            const double frame_axis = 512.0 * static_cast<double>(kAudDen)
-                                    / static_cast<double>(kAudNum);
-            long cur = -1;
-            const double pin0 =
-                static_cast<double>(decoded.front().half_step) * kAxisPerHalf;
-            for (size_t j = 0; j < commit_cycle.size(); j++)
-                if (static_cast<double>(commit_cycle[j]) <= pin0 - cdc_floor - bit_axis)
-                    cur = static_cast<long>(j);
+            const long cur = seat_the_commit_cursor(decoded.front().half_step);
             long worst = 0;
             if (cur >= 0) {
                 const double pin_axis =
@@ -1440,7 +1783,7 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
             check.that("T14 SKIP LAW: the commit-to-pin delay after the hold "
                        "is still inside one frame, so it did not ratchet",
                        cur >= 0 && static_cast<double>(worst)
-                                   <= frame_axis + cdc_floor + bit_axis);
+                                   <= kFrameAxis + kCdcFloorAxis + kBitAxis);
             std::printf("  [i]    T14: commit-to-pin after the hold = %ld axis "
                         "cycles (%.3f us)\n", worst,
                         static_cast<double>(worst) / 100.0);
@@ -1490,17 +1833,7 @@ void TdmRenderHarness::prove_a_removal_silences_only_its_own_slots() {
                "decoded frame",
                !decoded.empty() && silent == static_cast<long>(decoded.size()));
     if (!decoded.empty()) {
-        long start2 = -1;
-        const DecodedFrame& h = decoded.front();
-        for (size_t e = 0; e + 1 < inj.size() && start2 < 0; e++) {
-            bool all = true;
-            for (int k = 0; k < kSlots && all; k++) {
-                const int s = src_of_slot(k);
-                const uint32_t want = (s < 0) ? 0u : inj[e][static_cast<size_t>(s)];
-                if ((h.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
-            }
-            if (all) start2 = static_cast<long>(e);
-        }
+        const long start2 = find_the_ordinal(decoded.front());
         check.that("T8 REMOVE: the six surviving slots still grade against the "
                    "injection record", start2 >= 0);
         if (start2 >= 0) {
@@ -1535,44 +1868,45 @@ void TdmRenderHarness::phase_csr() {
     check.hex("T10 CSR: the route is restored", render_ram(phys),
               0x80u | static_cast<uint32_t>(src_of_slot(cluster) & 0x3F));
 
-    // T11: an in-range cluster key whose RPHYS is INVALID. On this shape
-    // every declared key is projected, so the unprojected key is one past the
-    // declared block: it is out of the generated table's range, the crossbar
-    // write is suppressed, and - the correction this arm exists for - the
-    // AECP protocol store STILL MIRRORS an in-range CSR write, subject to the
-    // existing lock and transaction gates. The store is read back through
-    // GET_AUDIO_MAP, which is the authority for it.
-    const int unprojected = kSlots;       // key 8: declared block is 0..7
+    // T11: the OUT-OF-RANGE cluster key, named for what it is. On THIS shape
+    // every declared key is projected, so a key with no projection is one PAST
+    // the declared block - which is a different defect class from a legal
+    // cluster whose RPHYS entry is invalid, and the two must not be graded as
+    // one. The nonphysical IN-RANGE key needs a shape that has one; it is
+    // graded, on both observations, by the multi-stream leg's M6.
+    const int out_of_range = kSlots;      // key 8: the declared block is 0..7
     std::array<uint32_t, 16> ram_before{};
     for (int k = 0; k < kI2sN + kSlots; k++)
         ram_before[static_cast<size_t>(k)] = render_ram(k);
-    csr_map_write(unprojected, 0x8001u);
+    csr_map_write(out_of_range, 0x8001u);
     long ram_same = 0;
     for (int k = 0; k < kI2sN + kSlots; k++)
         if (render_ram(k) == ram_before[static_cast<size_t>(k)]) ++ram_same;
-    check.dec("T11 CSR SUPPRESSION: a cluster key with no valid projection "
+    check.dec("T11 OUT OF RANGE: a cluster key past this model's declared keys "
               "changes no render RAM word",
               static_cast<uint64_t>(ram_same), kI2sN + kSlots);
     const auto page = get_audio_map(0, 0);
     long rows_out_of_block = 0;
     for (const auto& r : page)
         if (r[2] >= kSlots) ++rows_out_of_block;
-    check.dec("T11 CSR SUPPRESSION: no mapping outside this port's declared "
+    check.dec("T11 OUT OF RANGE: no mapping outside this port's declared "
               "cluster block appears in the GET page",
               static_cast<uint64_t>(rows_out_of_block), 0);
-    std::printf("  [i]    T11: CSR suppression is a CSR behaviour; no AECP "
-                "status is asserted for it. The in-range protocol-store "
-                "mirror is exercised by T11b below.\n");
+    std::printf("  [i]    T11: a suppressed CSR write is a CSR behaviour; no "
+                "AECP status is asserted for it. The in-range PROJECTED mirror "
+                "is T11b below; the in-range NONPHYSICAL one is the "
+                "multi-stream leg's M6.\n");
 
     // T11b: the PRESERVED behaviour the suppression must not have changed.
     // An unlocked CSR write at an IN-RANGE cluster key writes the AECP
     // protocol store whatever its physical projection says; only the crossbar
     // write is gated by the projection. Here the key IS projected, so both
-    // effects are visible and are checked independently.
+    // effects are visible and are checked independently - and it is a
+    // PHYSICAL key, which is why it cannot stand in for the nonphysical case.
     const int mirror_key = 6;
     csr_map_write(mirror_key, 0x8007u);   // stream 0, channel 7
-    check.hex("T11b MIRROR: the in-range CSR write reached the render RAM",
-              render_ram(kTdmBase + mirror_key), 0x87u);
+    check.hex("T11b MIRROR: the in-range PROJECTED CSR write reached the "
+              "render RAM", render_ram(kTdmBase + mirror_key), 0x87u);
     const auto page_b = get_audio_map(0, 0);
     long mirrored = 0;
     for (const auto& r : page_b)
@@ -1718,19 +2052,8 @@ void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
     collect = true;
     run_fed(40 * kPduPeriodCycles);
     collect = false;
-    long recovered = -1;
-    if (!decoded.empty()) {
-        const DecodedFrame& h = decoded.front();
-        for (size_t e = 0; e + 1 < inj.size() && recovered < 0; e++) {
-            bool all = true;
-            for (int k = 0; k < kSlots && all; k++) {
-                const int s = src_of_slot(k);
-                const uint32_t want = (s < 0) ? 0u : inj[e][static_cast<size_t>(s)];
-                if ((h.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
-            }
-            if (all) recovered = static_cast<long>(e);
-        }
-    }
+    const long recovered =
+        decoded.empty() ? -1 : find_the_ordinal(decoded.front());
     check.that("T18 RECOVERY: complete fresh frames decode after the epoch "
                "reopens", recovered >= 0);
     feed_on = false;
@@ -1817,11 +2140,7 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
               "never reaches a slot", static_cast<uint64_t>(leaked), 0);
 
     // Restore the bind and a disjoint injection epoch.
-    probe_seen = false;
-    acmp_connect_rx(0x3344);
-    for (int c = 0; c < 4000 && !probe_seen; c++) step();
-    acmp_play_talker_response();
-    steps(3000);
+    run_the_bind_ladder(0, 0, 0x3344, "T23 REBIND");
     build_injection_record(200);
     injected_events = 0;
     feed_on = true;
@@ -1833,19 +2152,7 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
     collect = false;
     check.that("T23 REBIND: the lane serializes again after the rebind",
                !decoded.empty());
-    long post = -1;
-    if (!decoded.empty()) {
-        const DecodedFrame& h = decoded.front();
-        for (size_t e = 0; e + 1 < inj.size() && post < 0; e++) {
-            bool all = true;
-            for (int k = 0; k < kSlots && all; k++) {
-                const int s = src_of_slot(k);
-                const uint32_t want = (s < 0) ? 0u : inj[e][static_cast<size_t>(s)];
-                if ((h.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
-            }
-            if (all) post = static_cast<long>(e);
-        }
-    }
+    const long post = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
     check.that("T23 REBIND: the first nonzero frame after the rebind is a "
                "post-rebind injected event routed by the NEW map", post >= 0);
     if (post >= 0) {
@@ -1866,13 +2173,728 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
     feed_on = false;
 }
 
+// ====================================================================== //
+//  [CRF] the clock source, changed under the running stream               //
+// ====================================================================== //
+
+//! One decoded window, graded by the SAME instrument whichever clock source
+//! is selected, so the INTERNAL and CRF numbers are comparable rather than
+//! merely both printed.
+TdmRenderHarness::Window TdmRenderHarness::decode_and_grade_a_window(
+        long cycles, const char* tag) {
+    Window w;
+    decoder_reset();
+    taps_reset();
+    const uint64_t skips0 = lane_skips();
+    const uint64_t unders0 = lane_unders();
+    const uint64_t epochs0 = lane_epochs();
+    collect = true;
+    run_fed(cycles);
+    collect = false;
+    w.skips = lane_skips() - skips0;
+    w.unders = lane_unders() - unders0;
+    w.epochs = lane_epochs() - epochs0;
+    if (decoded.empty()) return w;
+    const DecodedFrame& f0 = decoded.front();
+    w.start = find_the_ordinal(f0);
+    w.g = grade_frames(w.start >= 0 ? w.start : 0, tag);
+    // ...and the commit-to-pin interval over the same frames, seated on the
+    // CDC floor and walked by the grading's own advances
+    long cursor = seat_the_commit_cursor(f0.half_step);
+    w.phi_min = 1 << 30;
+    w.phi_max = -(1 << 30);
+    //! phi is bounded by one serial frame BY CONSTRUCTION - the frame is
+    //! adopted at the first frame start the CDC floor allows - so when the
+    //! walk reaches a frame boundary the measurement steps by exactly one
+    //! frame and the adoption moves to the neighbouring frame start. That
+    //! step is the BEAT, not a discontinuity in the underlying rate, so the
+    //! sequence is unwrapped before the rate is taken. Without it a window
+    //! that happens to straddle a beat reports a rate of thousands of ppm.
+    long unwrap = 0;
+    long prev = 0;
+    for (size_t i = 0; i < decoded.size() && i < w.g.advances.size(); i++) {
+        cursor += w.g.advances[i];
+        if (cursor < 0 || cursor >= static_cast<long>(commit_cycle.size()))
+            continue;
+        const double pin_axis =
+            static_cast<double>(decoded[i].half_step) * kAxisPerHalf;
+        const long d = static_cast<long>(pin_axis)
+                     - commit_cycle[static_cast<size_t>(cursor)];
+        if (d < 0 || d > 8000) continue;
+        if (d < w.phi_min) w.phi_min = d;
+        if (d > w.phi_max) w.phi_max = d;
+        if (w.phi_n > 0) {
+            while (d + unwrap - prev > static_cast<long>(kFrameAxis / 2.0))
+                unwrap -= static_cast<long>(kFrameAxis);
+            while (d + unwrap - prev < -static_cast<long>(kFrameAxis / 2.0))
+                unwrap += static_cast<long>(kFrameAxis);
+        }
+        prev = d + unwrap;
+        if (w.phi_n == 0) { w.phi_first = prev; w.t_first = static_cast<long>(pin_axis); }
+        w.phi_last = prev;
+        w.t_last = static_cast<long>(pin_axis);
+        ++w.phi_n;
+    }
+    //! a window that correlated nothing reports zeros rather than the
+    //! sentinels, so the printed record cannot be read as a measurement; the
+    //! arms that need one check `phi_n` themselves
+    if (w.phi_n == 0) { w.phi_min = 0; w.phi_max = 0; }
+    // THE WALK, in ppm of the harness clock. phi is the wait from a frame's
+    // commit to its slot-0 sampling edge, so a commit grid that runs FASTER
+    // than the frame grid lengthens the wait by exactly their rate
+    // difference: this number IS the two grids' relative rate, measured at
+    // the pins, with no model in it.
+    if (w.phi_n > 2 && w.t_last > w.t_first)
+        w.walk_ppm = 1e6 * static_cast<double>(w.phi_last - w.phi_first)
+                   / static_cast<double>(w.t_last - w.t_first);
+    return w;
+}
+
+void TdmRenderHarness::report_a_window(const Window& w, const char* tag) {
+    std::printf("  [i]    %s: %ld frames decoded from ordinal %ld, %ld "
+                "repeat(s), %ld skipped event(s); lane deltas skips %llu "
+                "underruns %llu epochs %llu; commit-to-pin %ld..%ld axis "
+                "cycles (%.3f..%.3f us) over %ld frames, spread %ld of one "
+                "frame = %.0f\n",
+                tag, w.g.frames, w.start, w.g.repeats, w.g.skipped,
+                static_cast<unsigned long long>(w.skips),
+                static_cast<unsigned long long>(w.unders),
+                static_cast<unsigned long long>(w.epochs),
+                w.phi_min, w.phi_max, static_cast<double>(w.phi_min) / 100.0,
+                static_cast<double>(w.phi_max) / 100.0, w.phi_n,
+                w.phi_max - w.phi_min, kFrameAxis);
+    //! ...and the walk that spread came from, with the beat period it
+    //! implies: one whole frame of phi is one counted skip, so the two grids
+    //! cost the lane one media event every frame / (rate x frame rate).
+    const double beat_s = (w.walk_ppm == 0.0) ? 0.0
+                        : kFrameAxis / (std::fabs(w.walk_ppm) * 1e-6) / 100e6;
+    std::printf("  [i]    %s: the commit-to-pin interval WALKS at %+.4f ppm "
+                "over %ld axis cycles, which is one whole frame of phi - one "
+                "counted skip - every %.4f s\n",
+                tag, w.walk_ppm, w.t_last - w.t_first, beat_s);
+}
+
+//! SET_CLOCK_SOURCE on CLOCK_DOMAIN 0, over the SAME AECP face this leg's map
+//! commands use. This is the production control path, not a poke at the
+//! store: the command is parsed, range checked against the model's declared
+//! CLOCK_SOURCE count and committed by the processor, and the media plane
+//! resolves it. Returns the AEM status.
+long TdmRenderHarness::set_clock_source(uint16_t index) {
+    const std::vector<uint8_t> pl = {
+        0x00, 0x24,                                     // CLOCK_DOMAIN
+        0x00, 0x00,                                     // descriptor index 0
+        static_cast<uint8_t>(index >> 8), static_cast<uint8_t>(index),
+        0x00, 0x00};
+    const auto r = aecp_xact(0x0016, pl);
+    steps(16);
+    return aecp_status(r);
+}
+
+//! ...and GET_CLOCK_SOURCE, so the selection is read back over the same face
+//! rather than only observed inside the fabric. Returns the index, or -1.
+long TdmRenderHarness::get_clock_source() {
+    const std::vector<uint8_t> pl = {0x00, 0x24, 0x00, 0x00};
+    const auto r = aecp_xact(0x0017, pl);
+    if (aecp_status(r) != 0 || r.size() < 46) return -1;
+    return (static_cast<long>(r[42]) << 8) | r[43];
+}
+
+//! The CRF Media Clock Input sink, provisioned over the CSR pair exactly as
+//! the shipping bench lever does. The station MAC is deliberately NOT touched
+//! here: this leg addresses AECP to the station's own reset-zero unicast
+//! address (see bind_listener_zero), the CRF sink keys on STREAM ID alone,
+//! and the CRF PDUs arrive on a multicast stream address the RX filter
+//! already passes.
+void TdmRenderHarness::provision_the_crf_sink() {
+    constexpr uint16_t kCrfCtrl = 0x738;
+    constexpr uint16_t kCrfSidLo = 0x73C;
+    constexpr uint16_t kCrfSidHi = 0x740;
+    dut->i_mmcm_locked = 1;
+    axi_write(kCrfSidLo, 0x00020001);
+    axi_write(kCrfSidHi, 0x02000000);
+    axi_write(kCrfCtrl, 0x1);
+    crf_next_at = axis_cycle;
+    crf_on = true;
+    run_fed(2000000);                       // 8 clean PDUs at the 2 ms cadence
+    check.dec("T30 CRF: the Media Clock Input sink locked on the fed stream",
+              static_cast<uint64_t>(axi_read(kCrfCtrl) >> 31), 1);
+}
+
+//! The LIVE transition: the AAF stream never stops, so the stage sees exactly
+//! the sub-tick phase step a moved grid shows it, which is the case a
+//! restarted feed never reaches.
+void TdmRenderHarness::select_crf_under_the_running_stream() {
+    const uint16_t ix = defect_internal_select ? 0 : kCrfClksrcIx;
+    if (defect_internal_select)
+        std::printf("  [i]    DEFECT ARM: the selection names INTERNAL, not "
+                    "this shape's CRF source\n");
+    check.dec("T30 CRF: SET_CLOCK_SOURCE(CRF) over the real AECP face answers "
+              "SUCCESS", static_cast<uint64_t>(set_clock_source(ix)), 0);
+    check.dec("T30 CRF: GET_CLOCK_SOURCE reads the CRF index back",
+              static_cast<uint64_t>(get_clock_source()), kCrfClksrcIx);
+    check.dec("T30 CRF: the media plane's one registered resolve reads CRF",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__crf_clk_selected_r), 1);
+    check.dec("T30 CRF: the NCO servo gate rose with it",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__mnco_servo_en_w), 1);
+    //! from here the talker's cadence is the PHYSICAL grid's, the one the
+    //! packet grid is about to be held on
+    pdu_frac_num = kPduPhysFracNum;
+    pdu_frac_acc = 0;
+}
+
+//! THE CONTRAST THAT MAKES THE CRF WINDOW EVIDENCE. The construction contract
+//! states the aligned state exactly: at INTERNAL the producer leads the frame
+//! grid by the divider plan and each beat costs one counted skip, and under
+//! CRF the grids are held together so both counters stay at ZERO. The
+//! commit-to-pin interval says the same thing the other way: free-running it
+//! sweeps a whole frame, aligned it stops sweeping.
+void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
+        const Window& intr, const Window& crf) {
+    check.dec("T30 CRF: every decoded frame under CRF is a complete 24-bit "
+              "match against the injection record",
+              static_cast<uint64_t>(crf.g.identity_failures), 0);
+    check.dec("T30 CRF: the eight pad bits of every slot are zero under CRF",
+              static_cast<uint64_t>(crf.g.pad_failures), 0);
+    check.dec("T30 CRF: each slot's channel field is its routed source under "
+              "CRF", static_cast<uint64_t>(crf.g.channel_field_failures), 0);
+    check.dec("T30 CRF: the eight slots carry one media event's identity under "
+              "CRF", static_cast<uint64_t>(crf.g.coherence_failures), 0);
+    check.dec("T30 CRF: the eight slots are distinct samples under CRF",
+              static_cast<uint64_t>(crf.g.distinct_failures), 0);
+    check.dec("T30 CRF: every repeat is a counted underrun under CRF",
+              static_cast<uint64_t>(crf.g.uncounted_repeats), 0);
+    check.dec("T30 CRF: every skipped event is covered by a counted skip under "
+              "CRF", static_cast<uint64_t>(crf.g.uncounted_skips), 0);
+    check.that("T30 CRF: the aligned window decoded whole frames",
+               crf.g.frames > 200 && crf.start >= 0);
+    // the acceptance state itself
+    check.dec("T30 CRF ALIGNED: the aligned window costs the lane NO counted "
+              "skip", crf.skips, 0);
+    check.dec("T30 CRF ALIGNED: ...and NO underrun",  crf.unders, 0);
+    check.dec("T30 CRF ALIGNED: a clock-source change is not a bind fall, so "
+              "no render epoch closed", crf.epochs, 0);
+    check.dec("T30 CRF ALIGNED: the align loop is engaged on the physical "
+              "frame marker",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__mga_engaged_w), 1);
+    // THE DISCRIMINATION, and why it is a RATE and not a skip count. The
+    // divider plan's surplus is one counted skip per 1.9582 s BEAT PERIOD, and
+    // a window that long is not affordable here - so what separates the two
+    // states inside a 37 ms window is the WALK the skip eventually comes from.
+    // At INTERNAL the commit grid (the NCO's exact 48 kHz) leads the frame
+    // grid (clk_tdm / 512 = 47,999.4893 Hz) by the plan's +10.6393 ppm and phi
+    // lengthens at exactly that rate; under CRF the aligner holds the packet
+    // grid ON the physical one and the walk stops. Both are measured at the
+    // pins, in the same window length, by the same instrument.
+    //! the closed form: commits arrive every kTickCycles and frames start
+    //! every kFrameAxis, so each commit waits (kFrameAxis - kTickCycles)
+    //! longer than the one before it - the divider plan's 10.6393 ppm, with
+    //! the sign phi walks in.
+    const double plan_ppm = 1e6 * (kFrameAxis - kTickCycles) / kTickCycles;
+    check.that("T30 INTERNAL: the free-running commit-to-pin interval walks, "
+               "and at the divider plan's own rate",
+               intr.phi_n > 200 &&
+               std::fabs(intr.walk_ppm - plan_ppm) < 2.0);
+    check.that("T30 CRF ALIGNED: the walk STOPPED once the grids were held "
+               "together, which is what the aligner buys the lane",
+               crf.phi_n > 200 && std::fabs(crf.walk_ppm) < 2.0);
+    check.that("T30 CRF ALIGNED: ...and the two rates are a real separation, "
+               "not two numbers inside one band",
+               std::fabs(intr.walk_ppm - crf.walk_ppm) > 4.0);
+    std::printf("  [i]    T30: the divider plan's closed form is %+.4f ppm; "
+                "measured %+.4f ppm at INTERNAL and %+.4f ppm under CRF\n",
+                plan_ppm, intr.walk_ppm, crf.walk_ppm);
+}
+
+//! #386's law, measured in THIS run rather than cited from another: the fill
+//! at accept is the 8-event setpoint and the first event's delay is inside
+//! (SETPOINT, SETPOINT + 1] media ticks.
+void TdmRenderHarness::prove_the_setpoint_law_still_holds(long first_id,
+                                                          long last_id,
+                                                          const char* tag) {
+    const double lo = kRenderSetpointEvt * kTickCycles;
+    const double hi = (kRenderSetpointEvt + 1) * kTickCycles
+                    + static_cast<double>(kBandSlackCycles);
+    long n = 0;
+    long in_band = 0;
+    long fill_ok = 0;
+    long dmin = 0;
+    long dmax = 0;
+    for (long id = first_id; id < last_id && id < static_cast<long>(kIdSpace);
+         id++) {
+        const size_t i = static_cast<size_t>(id);
+        if (accept_at[i] < 0 || pop_at[i] < 0) continue;
+        const long d = pop_at[i] - accept_at[i];
+        if (n == 0 || d < dmin) dmin = d;
+        if (n == 0 || d > dmax) dmax = d;
+        if (static_cast<double>(d) > lo && static_cast<double>(d) <= hi)
+            ++in_band;
+        if (fill_at[i] == kRenderSetpointEvt) ++fill_ok;
+        ++n;
+    }
+    std::printf("  [i]    %s: %ld PDUs, first-event delay %ld..%ld cycles = "
+                "%.3f..%.3f media ticks; the law is %d < d/T <= %d (+%ld "
+                "cycles of registration slack)\n",
+                tag, n, dmin, dmax, static_cast<double>(dmin) / kTickCycles,
+                static_cast<double>(dmax) / kTickCycles, kRenderSetpointEvt,
+                kRenderSetpointEvt + 1, kBandSlackCycles);
+    char what[160];
+    std::snprintf(what, sizeof what,
+                  "%s: PDUs measured for the #386 law in this window", tag);
+    check.that(what, n >= 100);
+    std::snprintf(what, sizeof what,
+                  "%s: the fill at accept is the 8-event setpoint for every "
+                  "PDU", tag);
+    check.dec(what, static_cast<uint64_t>(fill_ok), static_cast<uint64_t>(n));
+    std::snprintf(what, sizeof what,
+                  "%s: every PDU's first event is inside the law band", tag);
+    check.dec(what, static_cast<uint64_t>(in_band), static_cast<uint64_t>(n));
+}
+
+//! ...and the transition the OTHER way, still under the running stream. The
+//! deselect is the same law: one settled-grid recentre, and the lane keeps
+//! rendering the record.
+void TdmRenderHarness::deselect_back_to_internal(uint64_t epochs_before) {
+    const long src0 = src_recentre_pulses;
+    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    check.dec("T31 DESELECT: SET_CLOCK_SOURCE(INTERNAL) answers SUCCESS",
+              static_cast<uint64_t>(set_clock_source(0)), 0);
+    check.dec("T31 DESELECT: the registered resolve falls back to INTERNAL",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__crf_clk_selected_r), 0);
+    pdu_frac_num = 0;
+    pdu_frac_acc = 0;
+    crf_on = false;
+    //! the dwell at INTERNAL is the same 2048 media ticks from the change
+    run_fed(6000000);
+    check.dec("T31 DESELECT: the deselect fired the settled-grid trigger ONCE",
+              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
+    check.dec("T31 DESELECT: ...and the stage executed exactly one recentre",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
+    const Window back = decode_and_grade_a_window(40 * kPduPeriodCycles,
+                                                  "T31");
+    report_a_window(back, "T31 back at INTERNAL");
+    check.that("T31 DESELECT: the lane is still serializing the record after "
+               "the deselect", back.start >= 0 && back.g.frames > 100);
+    check.dec("T31 DESELECT: identity holds across the second live transition",
+              static_cast<uint64_t>(back.g.identity_failures), 0);
+    check.dec("T31 DESELECT: no render epoch closed across either transition",
+              lane_epochs(), epochs_before);
+}
+
+void TdmRenderHarness::phase_crf() {
+    std::printf("\n[CRF] the CRF clock source selected under the running "
+                "stream, and the same pins decoded again\n");
+    build_injection_record(2400);
+    feed_on = true;
+    pdu_frac_num = 0;
+    pdu_frac_acc = 0;
+    next_pdu_at = axis_cycle + 64;
+    run_fed(40 * kPduPeriodCycles);         // prefill, lock, epoch admission
+    const uint64_t epochs_before = lane_epochs();
+
+    // the FREE-RUNNING reference, on the same pins and the same oracle
+    const long int_first = injected_events / kEvents;
+    const Window intr = decode_and_grade_a_window(300 * kPduPeriodCycles,
+                                                  "T30 INTERNAL");
+    report_a_window(intr, "T30 INTERNAL");
+    prove_the_setpoint_law_still_holds(int_first + 4,
+                                       injected_events / kEvents - 4,
+                                       "T30 INTERNAL LAW");
+
+    provision_the_crf_sink();
+    const long src0 = src_recentre_pulses;
+    const long pulses0 = recentre_pulses;
+    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    select_crf_under_the_running_stream();
+    //! the aligner engages within a frame and its error rests inside the
+    //! trigger's band once the proportional peak has passed; the dwell is
+    //! 2048 media ticks (43 ms), so 12 M cycles cover the pull-in
+    run_fed(12000000);
+    check.dec("T30 CRF: the selection under the running stream fired the "
+              "settled-grid trigger ONCE",
+              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
+    check.dec("T30 CRF: ...as exactly one render recentre pulse",
+              static_cast<uint64_t>(recentre_pulses - pulses0), 1);
+    check.dec("T30 CRF: ...and the stage executed exactly one recentre",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
+
+    const long crf_first = injected_events / kEvents;
+    const Window crf = decode_and_grade_a_window(300 * kPduPeriodCycles,
+                                                 "T30 CRF");
+    report_a_window(crf, "T30 CRF aligned");
+    prove_the_aligned_window_is_the_acceptance_state(intr, crf);
+    prove_the_setpoint_law_still_holds(crf_first + 4,
+                                       injected_events / kEvents - 4,
+                                       "T30 CRF LAW");
+    check.dec("T30 CRF: no second recentre followed the settled one",
+              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
+
+    deselect_back_to_internal(epochs_before);
+    //! ...and the margin the whole phase stands on, checked rather than
+    //! assumed: a feed that ran out of record would decode repeats and every
+    //! window above would be grading a stream that had stopped.
+    std::printf("  [i]    T31: %ld of the record's %zu events were injected\n",
+                injected_events, inj.size());
+    check.that("T31: the injection record OUTLASTED the phase, so no window "
+               "graded a feed that had stopped",
+               static_cast<size_t>(injected_events) + kEvents <= inj.size());
+    feed_on = false;
+}
+
+// ====================================================================== //
+//  [MULTI] the stream-qualified render epoch, and the legal cluster key   //
+//  with no pin. Both need a shape with more than one listener stream,     //
+//  which is what gen_tdm8r_multi_shape.py writes and this build           //
+//  elaborates: STREAM_PORT_INPUT 0's eight clusters are the TDM slots,    //
+//  STREAM_PORT_INPUT 1's eight are honestly NONPHYSICAL.                  //
+// ====================================================================== //
+
+//! THE QUALIFICATION, half one: a bind fall on a stream this lane does NOT
+//! render must leave the lane alone. Graded at the pins and at the gate, and
+//! - the part that stops this from passing vacuously - the fall is required
+//! to have actually FIRED on that stream.
+void TdmRenderHarness::prove_an_unrelated_stream_loss_leaves_the_lane_running() {
+    const uint64_t epochs_before = lane_epochs();
+    epoch_watch_reset();
+    acmp_disconnect_rx(0x2244, 1, 1);
+    feed1_on = false;                   // its talker is gone with its bind
+    const Window w = decode_and_grade_a_window(60 * kPduPeriodCycles, "M3");
+    report_a_window(w, "M3 after the UNRELATED stream's loss");
+    check.that("M3 UNRELATED LOSS: the bind fall really fired on stream 1, so "
+               "this arm is not passing on an event that never happened",
+               (bind_falls_seen & 0x2) != 0);
+    check.dec("M3 UNRELATED LOSS: ...and it did NOT fire on stream 0, which "
+              "the lane does render",
+              static_cast<uint64_t>(bind_falls_seen & 0x1), 0);
+    check.dec("M3 UNRELATED LOSS: stream 0 is still bound",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__strtbl_en_w & 0x1), 1);
+    check.dec("M3 UNRELATED LOSS: stream 1 is not",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__strtbl_en_w & 0x2), 0);
+    check.dec("M3 UNRELATED LOSS: the adapter's commit gate never closed, not "
+              "for one cycle",
+              static_cast<uint64_t>(commit_gate_closed_cycles), 0);
+    check.dec("M3 UNRELATED LOSS: no render epoch closed", lane_epochs(),
+              epochs_before);
+    long silent = 0;
+    for (const DecodedFrame& fr : decoded) {
+        bool all_zero = true;
+        for (int k = 0; k < kSlots; k++)
+            if (fr.slot[static_cast<size_t>(k)] != 0) all_zero = false;
+        if (all_zero) ++silent;
+    }
+    check.dec("M3 UNRELATED LOSS: not one decoded frame fell to digital "
+              "silence", static_cast<uint64_t>(silent), 0);
+    check.that("M3 UNRELATED LOSS: the lane kept rendering the record",
+               w.start >= 0 && w.g.frames > 100);
+    check.dec("M3 UNRELATED LOSS: identity holds through the unrelated loss",
+              static_cast<uint64_t>(w.g.identity_failures), 0);
+    check.dec("M3 UNRELATED LOSS: ...and so does the per-slot structure",
+              static_cast<uint64_t>(w.g.channel_field_failures
+                                    + w.g.pad_failures), 0);
+}
+
+//! ...and the routing that makes half two mean anything: one lane key is
+//! moved to the OTHER stream through the real map command, and that stream's
+//! audio has to appear in that slot at the pins.
+void TdmRenderHarness::prove_the_lane_renders_a_second_stream(int slot,
+                                                              int chan) {
+    run_the_bind_ladder(1, 1, 0x3355, "M4 REBIND");
+    feed1_on = true;
+    next_pdu1_at = axis_cycle + 128;
+    //! A cluster already claimed by a different mapping is not silently
+    //! re-pointed: 1722.1-2021 7.4.44 makes ADD_AUDIO_MAPPINGS on a mapped
+    //! cluster an error unless it repeats the mapping, so the stream-0 one is
+    //! REMOVED first. That refusal is itself worth pinning here, because it
+    //! is what stops a controller moving a slot to another stream by halves.
+    check.dec("M4 SECOND STREAM: re-pointing a CLAIMED cluster without "
+              "removing it first is BAD_ARGUMENTS",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdAddMappings, {{chan, slot}}, 0, 1)), 7);
+    check.dec("M4 SECOND STREAM: the stream-0 mapping is removed from the "
+              "lane key",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdRemoveMappings,
+                          {{kPerm[static_cast<size_t>(slot)], slot}}, 0, 0)), 0);
+    check.dec("M4 SECOND STREAM: ...and the key is remapped to stream 1 "
+              "through ADD_AUDIO_MAPPINGS",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdAddMappings, {{chan, slot}}, 0, 1)), 0);
+    check.dec("M4 SECOND STREAM: the lane's stream mask now names both "
+              "streams",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_lane_streams_w), 0x3);
+    //! the remap takes effect at the crossbar's next media tick, so the frame
+    //! straddling it is neither the old mapping's nor the new one's. The
+    //! window opens AFTER that boundary rather than being allowed to carry an
+    //! ungraded frame inside it.
+    run_fed(10 * kPduPeriodCycles);
+    const Window w = decode_and_grade_a_window(60 * kPduPeriodCycles, "M4");
+    report_a_window(w, "M4 with one slot fed from stream 1");
+    long wrong_stream = 0;
+    long nonzero = 0;
+    for (const DecodedFrame& fr : decoded) {
+        const uint32_t v = fr.slot[static_cast<size_t>(slot)] >> 8;
+        if ((v & 0xFFu) != (0x80u | static_cast<uint32_t>(chan))) ++wrong_stream;
+        if (v != 0) ++nonzero;
+    }
+    check.that("M4 SECOND STREAM: the remapped slot carries real audio",
+               nonzero > 100);
+    check.dec("M4 SECOND STREAM: every frame's remapped slot carries STREAM "
+              "1's channel marking, which no stream-0 sample can hold",
+              static_cast<uint64_t>(wrong_stream), 0);
+    check.dec("M4 SECOND STREAM: the other seven slots still match the "
+              "stream-0 record",
+              static_cast<uint64_t>(w.g.identity_failures), 0);
+    check.dec("M4 SECOND STREAM: ...and every slot's channel field is its own "
+              "stream's", static_cast<uint64_t>(w.g.channel_field_failures), 0);
+}
+
+//! THE QUALIFICATION, half two: the same bind fall, on a stream the lane now
+//! DOES render, must close the epoch, flush to digital silence and reopen on
+//! a fresh post-flush event.
+void TdmRenderHarness::prove_a_rendered_stream_loss_closes_the_epoch(int slot,
+                                                                     int chan) {
+    const uint64_t epochs_before = lane_epochs();
+    epoch_watch_reset();
+    std::vector<std::array<uint32_t, kSlots>> pre_loss;
+    for (const DecodedFrame& fr : decoded) pre_loss.push_back(fr.slot);
+    acmp_disconnect_rx(0x2255, 1, 1);
+    decoder_reset();
+    collect = true;
+    run_fed(60000);
+    collect = false;
+    feed1_on = false;
+    check.that("M5 RENDERED LOSS: the bind fall fired on stream 1",
+               (bind_falls_seen & 0x2) != 0);
+    check.that("M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the "
+               "unrelated loss never did", commit_gate_closed_cycles > 0);
+    bool boundary = false;
+    long carried = 0;
+    for (const DecodedFrame& fr : decoded) {
+        bool all_zero = true;
+        for (int k = 0; k < kSlots; k++)
+            if (fr.slot[static_cast<size_t>(k)] != 0) all_zero = false;
+        if (all_zero) { boundary = true; continue; }
+        if (!boundary) continue;
+        for (const auto& old : pre_loss)
+            for (int k = 0; k < kSlots; k++)
+                if (fr.slot[static_cast<size_t>(k)] != 0 &&
+                    fr.slot[static_cast<size_t>(k)] == old[static_cast<size_t>(k)])
+                    ++carried;
+    }
+    check.that("M5 RENDERED LOSS: the lane reached digital silence", boundary);
+    check.dec("M5 RENDERED LOSS: no frame after the boundary carries a "
+              "pre-loss sample in any slot", static_cast<uint64_t>(carried), 0);
+    // ...and the freshness gate: the lane reopens only once BOTH rendered
+    // streams have popped a post-flush event, so the rebind alone is not
+    // enough and the feed has to be back too
+    run_the_bind_ladder(1, 1, 0x3366, "M5 REOPEN");
+    feed1_on = true;
+    next_pdu1_at = axis_cycle + 128;
+    run_fed(40 * kPduPeriodCycles);
+    check.that("M5 REOPEN: the epoch reopened and was counted",
+               lane_epochs() > epochs_before);
+    check.dec("M5 REOPEN: the adapter's commit gate is open again",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_commit_en_w), 1);
+    const Window w = decode_and_grade_a_window(40 * kPduPeriodCycles, "M5");
+    report_a_window(w, "M5 after the reopen");
+    check.that("M5 REOPEN: the lane serializes the record again",
+               w.start >= 0 && w.g.frames > 100);
+    check.dec("M5 REOPEN: identity holds after the rendered-stream recovery",
+              static_cast<uint64_t>(w.g.identity_failures), 0);
+    long wrong_stream = 0;
+    for (const DecodedFrame& fr : decoded)
+        if ((((fr.slot[static_cast<size_t>(slot)] >> 8)) & 0xFFu)
+                != (0x80u | static_cast<uint32_t>(chan)))
+            ++wrong_stream;
+    check.dec("M5 REOPEN: the stream-1 slot is still fed from stream 1",
+              static_cast<uint64_t>(wrong_stream), 0);
+}
+
+//! [R152] THE NONPHYSICAL IN-RANGE KEY, graded apart from the out-of-range
+//! one and apart from a physical one. Three CSR writes, three different
+//! answers, and the two observations - the render RAM and the AECP protocol
+//! store through GET_AUDIO_MAP - taken SEPARATELY for each:
+//!
+//!   key 3   PHYSICAL:     reaches the render RAM AND the store
+//!   key 9   NONPHYSICAL:  reaches the store ONLY. It is a legal declared
+//!                         cluster of STREAM_PORT_INPUT 1 with no physical
+//!                         projection, so the crossbar write is suppressed
+//!                         at the projection gate while the store mirror,
+//!                         which the projection does not gate, still happens.
+//!   key 16  OUT OF RANGE: reaches neither.
+void TdmRenderHarness::prove_the_nonphysical_key_mirrors_without_reaching_a_pin() {
+    std::printf("  [i]    M6: the three cluster-key classes, each graded on "
+                "BOTH observations\n");
+    std::array<uint32_t, kI2sN + kSlots> ram_before{};
+    for (int k = 0; k < kI2sN + kSlots; k++)
+        ram_before[static_cast<size_t>(k)] = render_ram(k);
+
+    // ---- the NONPHYSICAL in-range key
+    const int nonphys_offset = 1;                     // port 1, cluster 1
+    const int nonphys_key = kMultiPort1Base + nonphys_offset;
+    csr_map_write(nonphys_key, 0x8000u | 0x0005u);    // stream 0, channel 5
+    long ram_same = 0;
+    for (int k = 0; k < kI2sN + kSlots; k++)
+        if (render_ram(k) == ram_before[static_cast<size_t>(k)]) ++ram_same;
+    check.dec("M6 NONPHYSICAL: a legal in-range cluster key with no physical "
+              "projection changes NO render RAM word",
+              static_cast<uint64_t>(ram_same), kI2sN + kSlots);
+    long mirrored = 0;
+    for (const auto& r : get_audio_map(1, 0))
+        if (r[2] == nonphys_offset && r[1] == 5 && r[0] == 0) ++mirrored;
+    check.dec("M6 NONPHYSICAL: ...and the SAME write is still mirrored into "
+              "the AECP protocol store, read back through GET_AUDIO_MAP",
+              static_cast<uint64_t>(mirrored), 1);
+
+    // ---- the OUT-OF-RANGE key: a different defect class, and it must NOT
+    //      reach the store either
+    csr_map_write(kMultiInKeys, 0x8000u | 0x0004u);
+    long ram_same2 = 0;
+    for (int k = 0; k < kI2sN + kSlots; k++)
+        if (render_ram(k) == ram_before[static_cast<size_t>(k)]) ++ram_same2;
+    check.dec("M6 OUT OF RANGE: a key past the model's declared cluster keys "
+              "changes no render RAM word",
+              static_cast<uint64_t>(ram_same2), kI2sN + kSlots);
+    long rows_out = 0;
+    for (const auto& r : get_audio_map(0, 0))
+        if (r[1] == 4 && r[2] >= kSlots) ++rows_out;
+    for (const auto& r : get_audio_map(1, 0))
+        if (r[1] == 4 && r[2] >= kSlots) ++rows_out;
+    check.dec("M6 OUT OF RANGE: ...and nothing appears in either port's "
+              "GET_AUDIO_MAP page, so the store refused it too",
+              static_cast<uint64_t>(rows_out), 0);
+
+    // ---- the PHYSICAL control: both observations MOVE, so the two zeros
+    //      above are a suppression and not a dead CSR path
+    const int phys_cluster = 3;
+    csr_map_write(phys_cluster, 0x8000u | 0x0006u);   // stream 0, channel 6
+    check.hex("M6 PHYSICAL: an in-range PROJECTED key reaches the render RAM",
+              render_ram(kTdmBase + phys_cluster), 0x86u);
+    long phys_mirror = 0;
+    for (const auto& r : get_audio_map(0, 0))
+        if (r[2] == phys_cluster && r[1] == 6 && r[0] == 0) ++phys_mirror;
+    check.dec("M6 PHYSICAL: ...and the protocol store as well",
+              static_cast<uint64_t>(phys_mirror), 1);
+}
+
+void TdmRenderHarness::phase_multistream() {
+    std::printf("\n[MULTI] the stream-qualified render epoch on a two-stream "
+                "shape, and a legal cluster key with no pin\n");
+    constexpr uint16_t kAdpCtrl = 0x600;
+    constexpr uint16_t kAdpEidLo = 0x604;
+    constexpr uint16_t kAdpEidHi = 0x608;
+    axi_write(kAdpEidHi, 0x020000FF);
+    axi_write(kAdpEidLo, 0xFE000001);
+    axi_write(kAdpCtrl, 0x00001F01);
+    steps(2000);
+    //! STREAM 1'S LISTENER CONTEXT. Stream 0's current format reaches the RX
+    //! monitor through the legacy fmt0 path; every stream above it is served
+    //! from the per-stream LCTX, which the 0x800 window provisions - the same
+    //! face the NxN legs use. A CTRL commit with NO staged stream id leaves
+    //! the table entry to the ACMP alias (the idx-0 alias protection), so
+    //! this provisions the FORMAT and nothing else. The words are the entity's
+    //! own declared listener format: AAF, INT32, 48 kHz, 32-bit.
+    constexpr uint16_t kStrmSel = 0x800;
+    constexpr uint16_t kSwCtrl = 0x810;
+    constexpr uint16_t kSwFmtLo = 0x824;
+    constexpr uint16_t kSwFmtHi = 0x828;
+    axi_write(kStrmSel, 0x001);
+    axi_write(kSwFmtLo, 0x02006000);
+    axi_write(kSwFmtHi, 0x02050220);
+    axi_write(kSwCtrl, 0x1);
+    check.hex("M1 CONTEXT: stream 1's listener format reads back out of the "
+              "LCTX", axi_read(kSwFmtHi), 0x02050220);
+    run_the_bind_ladder(0, 0, 0x1122, "M1 BIND");
+    run_the_bind_ladder(1, 1, 0x1133, "M1 BIND");
+    check.dec("M1 BIND: both listener streams are bound",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__strtbl_en_w & 0x3), 0x3);
+    {
+        //! the classifier's own view of what was bound: two entries, two
+        //! DIFFERENT stream ids, each the one its ACMP answer carried. The
+        //! tap is a flat vector of 32-bit words, so an entry is two of them.
+        const uint64_t sid0 = table_sid(0);
+        const uint64_t sid1 = table_sid(1);
+        std::printf("  [i]    M1: the stream table holds %016llX and "
+                    "%016llX\n",
+                    static_cast<unsigned long long>(sid0),
+                    static_cast<unsigned long long>(sid1));
+        check.that("M1 BIND: the two entries carry DIFFERENT stream ids, so "
+                   "the two streams are really two", sid0 != sid1);
+    }
+    check.that("M1: the AECP descriptor store fetched this shape's entity "
+               "image", desc_requests > 0);
+
+    route_reset();
+    std::vector<std::pair<int, int>> rows;
+    for (int co = 0; co < kSlots; co++)
+        rows.emplace_back(kPerm[static_cast<size_t>(co)], co);
+    check.dec("M1 MAP: eight permuted stream-0 mappings accepted on "
+              "STREAM_PORT_INPUT 0",
+              static_cast<uint64_t>(map_cmd(kCmdAddMappings, rows, 0, 0)), 0);
+    long projected = 0;
+    for (int k = 0; k < kSlots; k++)
+        if (render_ram(kTdmBase + k) ==
+            (0x80u | static_cast<uint32_t>(src_of_slot(k) & 0x3F))) ++projected;
+    check.dec("M1 MAP: physical keys 2..9 hold the routed sources on this "
+              "shape too", static_cast<uint64_t>(projected), kSlots);
+    check.dec("M1 MAP: the lane's stream mask names stream 0 ALONE",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_lane_streams_w), 0x1);
+
+    build_injection_record(1200);
+    feed_on = true;
+    feed1_on = true;
+    next_pdu_at = axis_cycle + 64;
+    next_pdu1_at = axis_cycle + 128;
+    run_fed(60 * kPduPeriodCycles);
+    const Window warm = decode_and_grade_a_window(40 * kPduPeriodCycles, "M2");
+    report_a_window(warm, "M2 both streams live");
+    check.that("M2 WARM: the lane is serializing stream 0 with stream 1 live "
+               "beside it", warm.start >= 0 && warm.g.frames > 100);
+    check.dec("M2 WARM: identity holds with a second stream running",
+              static_cast<uint64_t>(warm.g.identity_failures), 0);
+    //! ...and stream 1 is not merely bound: its PDUs are ACCEPTED and its
+    //! events are POPPED by the render stage. Without this the whole
+    //! qualification below could be graded against a stream that was never
+    //! delivering anything.
+    std::printf("  [i]    M2: PDUs accepted per stream %ld / %ld; render-stage "
+                "pops per stream %ld / %ld\n",
+                accepts_by_stream[0], accepts_by_stream[1],
+                pops_by_stream[0], pops_by_stream[1]);
+    check.that("M2 WARM: stream 1's PDUs are ACCEPTED by the monitor",
+               accepts_by_stream[1] > 50);
+    check.that("M2 WARM: ...and its events are popped by the render stage",
+               pops_by_stream[1] > 500);
+
+    prove_an_unrelated_stream_loss_leaves_the_lane_running();
+    const int lane1_slot = 7;
+    const int lane1_chan = 2;
+    prove_the_lane_renders_a_second_stream(lane1_slot, lane1_chan);
+    prove_a_rendered_stream_loss_closes_the_epoch(lane1_slot, lane1_chan);
+    feed_on = false;
+    feed1_on = false;
+    prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
+}
+
 int TdmRenderHarness::run(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         const std::string a = argv[i];
         if (a == "--serial-only") serial_only = true;
         else if (a == "--epoch-only") epoch_only = true;
+        else if (a == "--crf-only") crf_only = true;
         else if (a == "--defect-stopped-clock") { defect_stopped_clock = true; serial_only = true; }
         else if (a == "--defect-one-sample") { defect_one_sample = true; serial_only = true; corrupt_at = 400; }
+        else if (a == "--defect-internal-select") { defect_internal_select = true; crf_only = true; }
     }
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
@@ -1880,16 +2902,31 @@ int TdmRenderHarness::run(int argc, char** argv) {
     // READ_DESCRIPTOR from main memory and validates the image header before
     // it enables the entity, so a leg that leaves this face unanswered gets
     // no AECP response at all - which is a stalled harness, not a verdict.
-    if (!check.that("the generated entity image is on disk "
-                    "(make tdm8r_aemi.bin)",
-                    load_descriptor_image("tdm8r_aemi.bin")))
+    char image_check[96];
+    std::snprintf(image_check, sizeof image_check,
+                  "the generated entity image is on disk (make %s)",
+                  kAemImage);
+    if (!check.that(image_check, load_descriptor_image(kAemImage)))
         return check.report();
+    law_reset();
     route_reset();
     bring_out_of_reset();
 
+    if (kMultiShape) {
+        // The MULTI-STREAM build runs the one phase its shape exists for. The
+        // shipping-shape phases are not repeated there: they would prove the
+        // same things a second time on a shape no board flashes.
+        phase_multistream();
+        return check.report();
+    }
     phase_map();
+    if (crf_only) {
+        phase_crf();
+        return check.report();
+    }
     if (!epoch_only) phase_serial();
     if (!serial_only) {
+        phase_crf();
         phase_csr();
         phase_reset();
         phase_bind_loss();

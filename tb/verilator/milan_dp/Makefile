@@ -181,7 +181,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 aclk aclk-build tdm8render tdm8render-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp option-off ax1x1 aclk aclk-build tdm8render tdm8render-build tdm8render-multi tdm8render-multi-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -247,6 +247,27 @@ $(VERILATOR) $(TDM8R_SHAPE) $(GPTP_OFF_VFLAGS) --Mdir $(TDM8R_MDIR) \
   $(SRCS) sim_tdm8_render.cpp -o Vmilan_dp_tdm8r
 endef
 
+# #447: THE SAME RENDER LANE ON A MULTI-STREAM SHAPE. Two properties of the
+# lane cannot be observed on the shipping one-stream image at all - the
+# epoch's bind-fall mask is STREAM QUALIFIED, and a legal cluster key with no
+# physical projection does not exist there - so gen_tdm8r_multi_shape.py
+# writes a second end-station config (a second listener, the wire-truth
+# cluster policy) and the REAL builder derives the shape header and the served
+# entity image from it, exactly as for the shipping one. Same leg binary, its
+# multi-stream phase selected by -DTDM8R_MULTI_TB.
+TDM8RM_GEN = obj_tdm8rm_aem/endstation_tdm8r_multi
+TDM8RM_MDIR ?= obj_tdm8rm
+TDM8RM_SHAPE ?= +incdir+$(TDM8RM_GEN)
+define TDM8RM_BUILD
+$(VERILATOR) $(TDM8RM_SHAPE) $(GPTP_OFF_VFLAGS) --Mdir $(TDM8RM_MDIR) \
+  -GN_STREAMS=2 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
+  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \
+  -GAUDIO_IF_RENDER_SLOTS_P=$(AX_RENDER) \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DTDM8R_MULTI_TB=1 -Wall -Wextra" \
+  $(SRCS) sim_tdm8_render.cpp -o Vmilan_dp_tdm8rm
+endef
+
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
 # $$readmemh's it by the relative name below - so it must exist in the RUN
 # directory, not just the build one.
@@ -268,6 +289,19 @@ tdm8r_aemi.bin: ../../../configs/endstation_ax7101_1x1_tdm8.yaml \
                 ../../../avdecc/gen_aemi_image.py
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_tdm8r_aem
 	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $@
+
+# ...and the MULTI-STREAM shape's config, header and entity image. One builder
+# invocation writes both the include directory the leg elaborates and the
+# overlay its AECP face serves, so the two cannot describe different entities.
+gen_tdm8r_multi/endstation_tdm8r_multi.yaml: gen_tdm8r_multi_shape.py \
+                ../../../configs/endstation_ax7101_1x1_tdm8.yaml \
+                ../../../sw/builder/endstation_builder.py
+	python3 gen_tdm8r_multi_shape.py
+
+tdm8rm_aemi.bin: gen_tdm8r_multi/endstation_tdm8r_multi.yaml \
+                ../../../avdecc/gen_aemi_image.py
+	python3 ../../../sw/builder/endstation_builder.py gen_tdm8r_multi/endstation_tdm8r_multi.yaml -o obj_tdm8rm_aem
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(TDM8RM_GEN)/aem_overlay.json --line-bytes 576 -o $@
 
 # ...and the gPTP plane's, generated for the leg's 2 MHz sim clock so the
 # boot cadence fires within a runnable window (same relative-$readmemh).
@@ -328,6 +362,15 @@ tdm8render: ltn_rom.hex ucode.hex tdm8r_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
 tdm8render-build: ltn_rom.hex ucode.hex tdm8r_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
 	$(TDM8R_BUILD)
 
+# ...and the same leg on the MULTI-STREAM shape, for the stream-qualified
+# epoch mask and the nonphysical in-range cluster key.
+tdm8render-multi: ltn_rom.hex ucode.hex tdm8rm_aemi.bin $(GEN_CSR)
+	$(TDM8RM_BUILD)
+	./$(TDM8RM_MDIR)/Vmilan_dp_tdm8rm
+
+tdm8render-multi-build: ltn_rom.hex ucode.hex tdm8rm_aemi.bin $(GEN_CSR)
+	$(TDM8RM_BUILD)
+
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
@@ -344,7 +387,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin $(GEN_ALL) $(SHAPE_DV_F) gptp
+run: ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin tdm8rm_aemi.bin $(GEN_ALL) $(SHAPE_DV_F) gptp
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -406,6 +449,10 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin $(GEN_ALL) $(SHAPE_DV_F
 # #447: the render-lane leg, built in the sweep beside the others so the
 # mutation arm below has its positive control already on disk.
 	$(TDM8R_BUILD)
+# ...and the same leg on the multi-stream shape, which is the ONLY shape where
+# the stream-qualified bind-fall mask and the nonphysical in-range cluster key
+# are observable at all.
+	$(TDM8RM_BUILD)
 	@echo "======================================================================"
 # Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
 # 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
@@ -442,6 +489,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin $(GEN_ALL) $(SHAPE_DV_F
 	python3 render_mutants.py
 	@echo "---- #447: the shipping TDM8 render lane, map command to decoded pins ----"
 	./obj_tdm8r/Vmilan_dp_tdm8r
+	@echo "---- #447: the same render lane on a TWO-STREAM shape ----"
+	./obj_tdm8rm/Vmilan_dp_tdm8rm
 	@echo "---- #447 render lane: the same leg against mutated gateware and shape ----"
 	python3 tdm8_render_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
@@ -463,4 +512,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin obj_tdm8r_aem obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_tdm8r obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex tdm8r_aemi.bin obj_tdm8r_aem tdm8rm_aemi.bin obj_tdm8rm_aem gen_tdm8r_multi obj_tdm8rm obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_tdm8r obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex

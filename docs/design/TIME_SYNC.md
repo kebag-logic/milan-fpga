@@ -190,6 +190,35 @@ Recipe: the shipping shape, `AUDIO_IF_RENDER_SLOTS_P = 8`.
 
 Clocks: the true 391/1591 plan, gPTP plane off.
 
+The `phi` walk is now measured on both sources.
+
+One run, one instrument, one live selection.
+
+The command is a real `SET_CLOCK_SOURCE` on `CLOCK_DOMAIN` 0.
+
+| Selected source | `phi` walk, measured | Closed form |
+|---|---|---|
+| INTERNAL | `+10.6844` ppm over 3.74 M axis cycles | `+10.6394` ppm, the divider plan |
+| CRF, aligner engaged | `-0.8009` ppm over 3.75 M axis cycles | zero, the aligner holding both grids |
+
+The sign is `phi`'s own.
+
+Commits arrive one media tick apart.
+
+Frames start one serial frame apart.
+
+The wait lengthens by their difference.
+
+The settled-grid trigger fires once across the transition.
+
+The stage re-centres once.
+
+The fill at accept stays the setpoint.
+
+Every first event stays inside the law band.
+
+The deselect back to INTERNAL is the same.
+
 Software reads no delay register: the constants are this table.
 
 `I2SPB_TRIM[15:0]` (0x6E0) shows the I2S element's live fill.

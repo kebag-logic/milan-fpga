@@ -168,6 +168,45 @@ Three limits are stated rather than assumed:
   the EXTERNAL bit clock is stopped remains the exposure that module has always
   had. No tracked config elaborates that arm.
 
+### 3.1.1 Which streams the lane renders, and which clock it follows
+
+The epoch closes on a bind fall, and that fall is STREAM QUALIFIED. The lane's
+stream set is a combinational reduction over the render map itself: every
+TDM-lane key that is enabled and names the AVB listener bank contributes the
+stream index its word carries, so a lane fed only from stream 0 is untouched by
+a bind fall on any other stream, and a lane with one key pointed at another
+stream watches that stream too. The post-bind freshness gate is over the same
+set: the epoch reopens once every stream the lane renders has popped a
+post-flush event, which is what stops the crossbar's retained selection from
+being re-emitted as though it were fresh audio.
+
+The shipping AX7101 image carries ONE listener stream, so neither half of that
+qualification is observable on it, and neither is a legal cluster key with no
+physical projection. `tb/verilator/milan_dp/gen_tdm8r_multi_shape.py` writes a
+second end-station config - the shipping one with a second listener and the
+wire-truth cluster policy - and the builder derives its shape header and its
+entity image, so the two halves are exercised against each other on a real
+elaboration: STREAM_PORT_INPUT 0's eight clusters are the TDM slots and
+STREAM_PORT_INPUT 1's eight are honestly nonphysical.
+
+The CLOCK SOURCE does not change the lane's structure, only its rate. Measured
+at the pins on the shipping shape, with the commit-to-pin interval taken
+between the adapter's registered frame commit and the receiver's sampling edge
+of slot 0's MSB:
+
+| Clock source | Commit-to-pin walk | What the lane pays |
+|---|---|---|
+| INTERNAL | `+10.68` ppm measured, against the divider plan's `+10.6394` ppm closed form | one whole frame of `phi` every ~1.95 s |
+| CRF, aligner engaged | `-0.80` ppm measured | nothing: the skip and underrun counters do not move across the window |
+
+The INTERNAL row is the accepted free-run, not a defect: the same `10.64` ppm
+the capture junction already publishes. What the pins show at each beat is not
+one isolated skip but a CLUSTER of repeat/skip pairs as the commit instant
+dithers across the frame boundary - measured on this head as 10 repeats against
+11 skips over one crossing, netting exactly one dropped media event per beat
+period. The drop-oldest law and the counted-skip accounting hold through it;
+what was too smooth was the description "one skip per beat", not the design.
+
 Since #386 the crossbar's clone input is `KL_render_setpoint`, a per-stream
 elastic queue of whole media events that pops exactly one event per stream on
 every media tick and hands the crossbar a render tick delayed past that pop

@@ -4838,11 +4838,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
   //! below).
   localparam int NSIDX_W_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
-  wire [64*N_STREAMS-1:0] strtbl_sid_w;
-  wire [N_STREAMS-1:0]    strtbl_en_w;
+  //! public: the #447 multi-stream render arm reads the two entries back, so
+  //! "these are two different streams" is observed at the classifier rather
+  //! than assumed from the two commands that bound them
+  wire [64*N_STREAMS-1:0] strtbl_sid_w /* verilator public_flat_rd */;
+  //! public: the #447 render-lane leg's stream-qualified epoch arm reads the
+  //! per-stream bind LEVEL and the per-stream bind FALL, so "a bind fall on a
+  //! stream this lane does not render left the lane alone" is graded against
+  //! the fall actually firing rather than against nothing having happened.
+  wire [N_STREAMS-1:0]    strtbl_en_w        /* verilator public_flat_rd */;
   wire [N_STREAMS-1:0]    strtbl_bind_rise_w;
-  wire [N_STREAMS-1:0]    strtbl_bind_fall_w;  //! task #32: the wipe pulse
-  wire [NSIDX_W_C-1:0]    avtprx_idx;
+  wire [N_STREAMS-1:0]    strtbl_bind_fall_w /* verilator public_flat_rd */;
+                                             //! task #32: the wipe pulse
+  //! public: the #447 multi-stream render arm counts accepts PER STREAM, so
+  //! "the second stream really is delivering" is observed and not assumed
+  wire [NSIDX_W_C-1:0]    avtprx_idx /* verilator public_flat_rd */;
 
   //! P12 window commit glue (NXN §1.1/§1.3): the CSR window's listener
   //! writes land in the LCTX (monitor CFG words); the classification table

@@ -1852,6 +1852,22 @@ Two behaviours that follow, and are preserved rather than changed:
   active, exactly as it did before. The suppression gates the crossbar write,
   not the store, so `GET_AUDIO_MAP` continues to report an in-range CSR write.
 
+Those are THREE key classes, not two, and each answers the two observations -
+the render RAM and the protocol store - differently:
+
+| Cluster key | Render RAM | AECP protocol store |
+|---|---|---|
+| in range, PROJECTED | written at the projected physical key | mirrored |
+| in range, NONPHYSICAL (a declared cluster whose `ADP_DMAP_IN_RPHYS_C` entry is invalid) | UNCHANGED | mirrored, and listed by `GET_AUDIO_MAP` for the port that owns the cluster |
+| OUT OF RANGE (past the model's declared cluster keys) | UNCHANGED | not written; nothing appears in any port's page |
+
+The middle row is the one that needs a shape to exist at all: every cluster the
+shipping AX7101 TDM8 image declares is projected, so its unprojected key is one
+PAST the declared block, which is the third row and a different defect class.
+The multi-stream verification shape described in
+[the channel map](../CHANNEL_MAP_64.md) supplies a genuinely nonphysical
+in-range key, and all three rows are graded there on both observations.
+
 #### `0x910`/`0x914` - reading the map RAM, and why the un-armed state is not zero
 
 `CHMAP_WORD` `0x908` has never been able to answer "what does the map RAM
