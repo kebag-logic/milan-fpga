@@ -39,6 +39,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+- **[Render phase records from the mutation controls](#render-phase-records-from-the-mutation-controls)** -- The record the render mutation arm prints around each build and run it already makes: the fields, the fixed case labels, and the limits that keep it an observation rather than a result
 - **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
 
 ## First AX7101 1x1 eight-channel run
@@ -561,6 +562,70 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
   The check grades the two halves of the new structural truth — the read mux is
   still live, the RAM is empty, `CHMAP_CTRL[0]` is 0 — and will fail the day a
   seeder returns in any form.
+
+## Render phase records from the mutation controls
+
+`render_mutants.py` prints one flushed `RENDER-PHASE` line around each build
+and each short-mode run it already makes (Issue #445). They are an observation
+of WHEN each phase ran and nothing else: they add no check, no tally and no
+verdict, they change no command, argument, status or exit, and the `[PASS]` /
+`[FAIL]` lines and the closing check tally are the ones this driver printed
+before. The measurement they exist for is which case and phase the sweep's
+1800 s guard lands in when the suite is killed with results missing.
+
+Each line is `RENDER-PHASE ` followed by a JSON object. Every record carries
+`seq`, a sequence number that advances even when a write fails, so a lost
+record leaves a visible gap; and `t_s`, seconds since the `origin` record,
+from a monotonic clock read for observation only. Durations compare inside
+one run and mean nothing across runs.
+
+| `event` | when | fields beyond `seq`, `event`, `t_s` |
+|---|---|---|
+| `origin` | once, before any phase | `clock`, `unit`: the origin every later `t_s` counts from |
+| `baseline` | before the positive controls | `case`, `selected`: `prebuilt` when the executable the sweep already built was reused, `fallback-build` when this driver built the unmutated leg itself |
+| `start` | before an existing build or run call | `case`, `phase`, `mode`, `idle_s`: the gap since the previous phase ended, or since the origin |
+| `end` | after that call returned | `case`, `phase`, `mode`, `elapsed_s`, `status` |
+| `interrupted` | inside the existing SIGTERM handler | `state`: `active` with the running `case`, `phase`, `mode`, `elapsed_s` and `incomplete`, or `idle` with `idle_s` |
+| `end-of-run` | after the last phase, before the tally | `state`, `idle_s` |
+
+`case` is a fixed logical label: `control` for the unmutated leg, and the
+mutation's own name with spaces and hyphens turned into underscores for each
+of the four defects. `phase` is `build` or `simulation`. `mode` is the short
+mode the leg runs, and is `null` on a build, which serves both control legs.
+The six outcomes this arm grades are the two `control` modes and the four
+mutations, and `case` with `mode` names each one.
+
+`status` is what the existing call returned, so it reads differently per
+phase: a `simulation` end carries the child's integer return status (negative
+is the signal that killed it), and a `build` end carries `built` or
+`no-executable`, because the build helper returns the leg or nothing and never
+saw the recipe's own exit status.
+
+The limits, so a reader does not over-read a record:
+
+* **A phase with a `start` and no `end` is incomplete.** It earns no pass and
+  no caught mutation, and the driver's own verdict lines stay the only result.
+* **Missing records make the diagnostic incomplete, never a different
+  outcome.** A write that fails, a kill before the handler runs, or a log the
+  sweep truncated loses records; nothing recomputes them, and no case's result
+  is inferred from another's.
+* **Nothing about the child is recorded**: no path, no environment, no
+  captured output. The captured output still reaches the log through the
+  existing failure paths only.
+* **A case whose pattern check fails builds and runs nothing**, so it
+  contributes no phase record at all; its existing `[FAIL]` line is the report.
+* **The clock is the host's.** A duration includes whatever else that machine
+  was doing, and the per-suite 1800 s guard is unchanged and still owned by
+  `scripts/run_all_suites.sh`.
+
+`test_render_phase_observation.py` holds this contract with pure fixtures: a
+fake clock, a recording stream, stubbed build and wait results, and a guard in
+place of the subprocess handle, so an arm that reaches a real process launch
+fails instead of running one.
+
+```sh
+python3 tb/verilator/milan_dp/test_render_phase_observation.py
+```
 
 ## Rules this suite is held to
 
