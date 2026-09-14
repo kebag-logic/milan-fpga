@@ -1817,7 +1817,7 @@ def _assert_no_computed_variable_names(makefile, computed_name_references):
     #: origin probe all green -- the walker probed X, origin 'file' --
     #: while MILAN_EXTRA='-include ../shadow.h' in a real build's
     #: environment reached the compile line. The scan is over the whole
-    #: comment-stripped text, recipes of never-run rules included,
+    #: text make reads, recipes of never-run rules included,
     #: deliberately WIDER than the origin closure: refusal is the sound
     #: arm where modelling cannot be, and the COST is stated in the
     #: verdict -- a computed name is RED even where a plain undefined
@@ -1829,6 +1829,198 @@ def _assert_no_computed_variable_names(makefile, computed_name_references):
         "): a computed variable name defers the NAME itself, so no " \
         "origin probe can enumerate what the environment decides; " \
         "refused rather than modelled (#162)"
+
+
+def _assert_no_unreadable_names(makefile, unreadable_name_references):
+    """A Makefile that reads a variable whose LITERAL name this walker cannot
+    spell is REFUSED: the name exists, and no `$(origin)` line here asks about
+    it."""
+    #: (#410, the review of round ten's head) the companion of the
+    #: computed-name refusal, one step in, and the same sound arm. make looks
+    #: a plain reference up by its COMPLETE span and a `$(value ...)` by its
+    #: WHOLE argument (`src/expand.c:292,404`, `src/function.c:1571,2530`),
+    #: so `$(value NAME,x)`, `$(value NAME<SP>)`, `$(NAME<VT>)`, `$(NAME:sub)`
+    #: and `$(call MILAN-TMPL)` all name variables carrying a byte outside
+    #: `[A-Za-z_][A-Za-z0-9_]*`. That class is THIS WALKER'S vocabulary --
+    #: the name format of the `$(origin ...)` request this gate writes, and
+    #: of every assignment its closure records -- and NOT a restriction of
+    #: make's assignment grammar, which ends a name only at whitespace, `#`,
+    #: an assignment operator or a `:` opening none
+    #: (`src/variable.c:1609-1753`, `doc/make.texi:5433`). So the walker
+    #: cannot say where such a value came from, and refuses instead of
+    #: answering (#410, the review of round eleven's head; the earlier
+    #: wording here claimed no Makefile assignment could bind these names,
+    #: and `MILAN-EXTRA = ready` and `NAME,x = ready` are counterexamples).
+    #: Measured at the head this replaces: the closure answered about
+    #: the identifier PREFIX (`NAME` for `$(value NAME,x)`), which is a
+    #: different variable and proves nothing about the one make reads, or
+    #: dropped the read with no refusal at all. Both were reported as
+    #: covered. Refused rather than modelled, over the whole text make reads
+    #: like the refusals above, and the COST is stated: a PLAIN positional or
+    #: automatic name keeps its recorded treatment, while a name a Makefile
+    #: could bind, a make-defined special such as `$(.DEFAULT_GOAL)`, and a
+    #: positional name looked up THROUGH `$(value ...)` or a `$(call ...)`
+    #: token are all refused with the rest. It runs LAST of the pre-plan
+    #: refusals, so a construct an earlier instrument already owns -- a
+    #: built-in reached through `call`, an eval whose assignment cannot be
+    #: bound -- keeps being named by that one.
+    unreadable = unreadable_name_references(makefile)
+    assert not unreadable, \
+        "this Makefile reads a variable name this walker cannot spell (" + \
+        ", ".join(unreadable) + "): make looks a plain reference up by its " \
+        "complete span and $(value ...) by its whole argument, so each of " \
+        "these names a variable outside the [A-Za-z_][A-Za-z0-9_]* " \
+        "vocabulary this gate's $(origin) request and assignment closure " \
+        "are written in -- make itself can bind some of them, this walker " \
+        "cannot represent any of them, and asking about the identifier they " \
+        "start with is a question about a different variable, so the read " \
+        "is refused rather than modelled (#410)"
+
+
+def _assert_no_opaque_evals(makefile, opaque_evals):
+    """A Makefile that hands `$(eval)` text this gate cannot read as one
+    literal assignment is REFUSED: make parses the EXPANSION, not the file."""
+    #: (#410) REFUSED where it cannot be walked: $(eval TEXT) expands TEXT
+    #: first and parses the RESULT as makefile syntax, so the text make
+    #: reads is not the text in this file. The one shape the walker can
+    #: prove is an eval on a line of its own whose whole argument is a
+    #: literal `NAME op VALUE`: make_rules() walks it as that assignment
+    #: and the origin probe judges every literal reference in its text.
+    #: That bound is what holds, and it is not "expansion changes the
+    #: VALUE and never the shape": a value that expands to a NEWLINE adds
+    #: a line, which _assert_no_line_adding_evals() refuses beside this.
+    #: Anything else is refused --
+    #: `$(eval $(call tmpl,...))`, `$(eval $(HOOK))`, an eval nested in
+    #: another expansion, a body that is a rule or a directive -- because
+    #: the parsed text is whatever the expansion yields, and measured on
+    #: this round: `$(eval $(MILAN_HOOK))` with MILAN_HOOK='CFLAGS +=
+    #: -include ../shadow.h' in the environment carried the WHOLE
+    #: assignment into the real compile line while every instrument was
+    #: green. The scan is over the whole text make reads, like the
+    #: computed-name refusal, and the COST is the same: an eval that is
+    #: not a whole-line literal assignment is RED anywhere in the
+    #: Makefile, a never-run recipe included. It keys on the literal
+    #: `$(eval` token, so the eval make reaches through `$(call eval,...)`
+    #: is NOT this rule's -- _assert_no_builtin_calls() has that one.
+    opaque = opaque_evals(makefile)
+    assert not opaque, \
+        "this Makefile hands $(eval) text that is not a whole-line " \
+        "literal assignment (" + ", ".join(opaque) + "): $(eval) " \
+        "expands its argument and parses the RESULT, so the text make " \
+        "reads is not the text in this file; only `$(eval NAME op VALUE)` " \
+        "on a line of its own has a parse the origin walker can prove, " \
+        "and is walked as that assignment; anything else is refused " \
+        "rather than modelled (#410)"
+
+
+def _assert_no_builtin_calls(makefile, builtin_function_calls):
+    """A Makefile that reaches a make BUILT-IN function through `$(call)` is
+    REFUSED: `call` dispatches to the built-in, in a spelling no scan for
+    that built-in's own token can see."""
+    #: (#410, round-three review) MEASURED OPEN at the previous head and
+    #: reproduced end to end: `$(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))`
+    #: on a line of its own put `-include ../shadow.h` on the real compile
+    #: line with the name merely exported, while this gate reported every
+    #: mutation rejected and exited 0. GNU make routes `$(call NAME,...)`
+    #: to the BUILT-IN when NAME is one (4.4.1, "The call Function"), so
+    #: that line IS an eval: make_evals() keys on the literal `$(eval`
+    #: token and never saw it, the line is not an assignment so nothing
+    #: put it in the origin closure, and computed_name_references() reads
+    #: `eval` as the plain name it is. The rule is the BUILT-IN, not the
+    #: spelling -- `$(call file,>frag,TEXT)` writes at parse time the
+    #: fragment a pinned `-include` then reads (measured) -- so every
+    #: built-in reached this way is refused, over the whole text make
+    #: reads like the computed-name and opaque-eval
+    #: refusals, in both bracket spellings and with any padding. It does
+    #: NOT close the DIRECT spellings `$(shell ...)`, `$(file ...)` and
+    #: `$(guile ...)`: those stay in the recorded-not-ruled list, because
+    #: no pin over printed commands can see them.
+    calls = builtin_function_calls(makefile)
+    assert not calls, \
+        "this Makefile reaches a make BUILT-IN function through $(call) (" \
+        + ", ".join(calls) + "): make dispatches $(call NAME,...) to the " \
+        "built-in when NAME names one, so this is that built-in written " \
+        "where no scan for its own token can see it -- $(call eval,...) " \
+        "parses text make reads, $(call file,...) writes a fragment this " \
+        "build can include -- and it is refused rather than modelled (#410)"
+
+
+def _assert_no_line_adding_evals(makefile, line_adding_evals):
+    """A parsed `$(eval NAME op VALUE)` whose VALUE can expand to a NEWLINE
+    is REFUSED: make parses the expansion, so it adds makefile lines this
+    walker reads as the one assignment it parsed."""
+    #: (#410, round-three review) the parsed shape was justified by
+    #: "expansion changes the VALUE, never the shape or the NAME". Measured
+    #: FALSE: with make's newline idiom in a `define NL`, `$(eval CFLAGS +=
+    #: -I.$(NL)include extra.mak)` is read here as ONE assignment whose only
+    #: reference is NL, origin `file`, while make reads TWO lines and
+    #: includes a fragment the include-set pin cannot see -- that pin reads
+    #: `include` lines out of the file TEXT, so a line an expansion creates
+    #: is outside it by construction. What holds is narrower and is what
+    #: the site and the doc now say: every literal reference in the eval's
+    #: text is walked, and a value whose expansion carries a NEWLINE
+    #: changes the shape. That case is refused here, so the include-set pin
+    #: is exact against evals again. A value the ENVIRONMENT supplies needs
+    #: no rule of its own: the closure walks the name and the origin probe
+    #: refuses it.
+    adding = line_adding_evals(makefile)
+    assert not adding, \
+        "this Makefile hands $(eval) a value that can expand to more than " \
+        "one LINE (" + ", ".join(adding) + "): make parses the EXPANSION, " \
+        "so the eval adds makefile lines this walker reads as the single " \
+        "assignment it parsed -- an `include` among them is outside the " \
+        "include-set pin, which reads the file text; refused rather than " \
+        "modelled (#410)"
+
+
+def _assert_no_unbindable_evals(makefile, unbindable_evals):
+    """A `$(eval NAME op VALUE)` make reads as a benign assignment but whose
+    VALUE the walker CANNOT bind is REFUSED: make parses the EXPANSION, and
+    the value it expands is not the value the walker read."""
+    #: (#410, round-four review) the round-three fix closed the escape on the
+    #: BUILT-IN reached through $(call); this closes the other half of #410's
+    #: dichotomy, "parsed OR refused outright", one layer in. make_evals()
+    #: reads an eval on a line of its own whose argument is a literal
+    #: `NAME op VALUE` as that assignment and hands its references to the
+    #: origin walker. That is sound only when the eval is expanded at GLOBAL
+    #: scope over names the walker can bind. Measured OPEN at the previous
+    #: head and reproduced end to end: `$(eval CFLAGS += $(1))` inside a
+    #: `define` body, run by `$(call TMPL,$(MILAN_EXTRA_CFLAGS))`, was read
+    #: here as the benign assignment `CFLAGS += $(1)`; $(1) is no walkable
+    #: reference, so nothing was deferred, and the exported environment value
+    #: arrived as the CALL ARGUMENT on a line the pinned closure never walks
+    #: while the gate exited 0. The rule is a PROPERTY, not a spelling: an
+    #: eval is parsed-as-benign only when it sits at global scope (not in a
+    #: define body, whose $(1)..$(9) are the call's arguments and whose names
+    #: a $(foreach)/$(let) can rebind, and not on a recipe line, which a
+    #: conditional prerequisite runs from the environment) AND its value
+    #: reads only names the walker binds -- a literal $(IDENT) whose value it
+    #: pins, transitively -- never a positional parameter ($(1), ${1}, $1,
+    #: $(2)..), a single-character reference ($M), a computed name ($($(X))),
+    #: or an escaped $$ the eval's own expansion turns into a live reference.
+    #: Every other eval that make_evals() reads as an assignment is refused
+    #: here, before any plan, the way $(eval $(call tmpl,...)) already is.
+    #: This is the sound arm of the dichotomy: refuse where the value cannot
+    #: be bound rather than model a binding the file does not fix. The
+    #: DIRECT $(foreach)/$(let)/$(if) channels outside an eval are the plain
+    #: origin walker's and #162's, and stay recorded, not ruled, below.
+    #: (Round-four review) the SCOPE half of that property was read one line
+    #: at a time and was wrong in both directions -- a recipe-prefixed `endef`
+    #: ended a define body it does not end, and a recipe-prefixed `define`
+    #: opened one that is not there -- so it is read through
+    #: make_line_roles() now, which parses a file the way make does, with
+    #: pure-parser controls beside the reader. The same review's value reader
+    #: raised IndexError on a value ending in a bare $; that end is answered
+    #: by name, and the refusal below says so.
+    unbindable = unbindable_evals(makefile)
+    assert not unbindable, \
+        "this Makefile hands $(eval) an assignment the walker cannot bind (" \
+        + ", ".join(unbindable) + "): $(eval) parses the EXPANSION, so a " \
+        "value read from a positional parameter, a computed or " \
+        "single-character reference, an escaped $$ or a trailing $, and an " \
+        "eval in a define body or recipe whose expansion context the file " \
+        "does not fix, is decided outside the text this walker read; " \
+        "refused rather than modelled (#410)"
 
 
 def _assert_make_plan_is_determined(plan, hostile, origins):
@@ -4353,18 +4545,90 @@ def test_baremetal_profile_contract() -> None:
             f"{built.stderr.strip().splitlines()[-2:]}"
         return True
 
+    #: (#410, the review of round eight's head) make's WHITESPACE, which is
+    #: TWO byte classes and not one, and which of them applies is decided by
+    #: the READER rather than by the byte. `src/main.c:675-694` builds the
+    #: map: space and TAB are `MAP_BLANK`, every REMAINING C `isspace` byte
+    #: becomes `MAP_NEWLINE` -- the vertical tab, the form feed and the
+    #: carriage return, the line feed itself being the break this reader has
+    #: already split on -- and `src/makeint.h:435,467-473` builds `MAP_SPACE`
+    #: from both halves, `ISBLANK` from the narrow one, `END_OF_TOKEN` from
+    #: `MAP_SPACE|MAP_NUL` and `NEXT_TOKEN` from the wide one. Three uses,
+    #: spelled once each here so a reader below picks the one make picks
+    #: rather than writing the blank pair out of habit:
+    #:
+    #:   * the WIDE class is what make CONSUMES before it reads a line's
+    #:     first token. `eval()` runs `NEXT_TOKEN` over the line before
+    #:     anything parses it (`src/read.c:721-727`, whose own comment says
+    #:     "including formfeed, vtab, etc."), `parse_var_assignment()` runs
+    #:     it again at `:505` and before every word of the modifier loop at
+    #:     `:527-552`, and `do_define()` runs it over every BODY line before
+    #:     it looks for a delimiter at all (`:1462`).
+    #:   * the WIDE class is also where a TOKEN ends, through
+    #:     `end_of_token()` (`src/misc.c:389`) -- make_token_end below.
+    #:   * the NARROW pair is what a body delimiter's SUFFIX is tested with
+    #:     (`src/read.c:1464-1473`), what must START the one run between a
+    #:     name and its assignment operator (`src/variable.c:1629-1637`), and
+    #:     what a `define` name's trailing run is stripped with (`:1436-1438`).
+    #:
+    #: Reading the narrow pair where make consumes the wide one was measured
+    #: wrong in the UNSAFE direction at the head this replaces, on pure parser
+    #: fixtures: `define<VT>helper` opened no body and `<VT>define helper`
+    #: opened none either, so each body's own `$(eval)` read `global` and was
+    #: WALKED with all five pre-plan scans empty; `<VT>define inner` nested no
+    #: level, so the first `endef` ended a body make does not end there; and a
+    #: `<VT>ifeq` or `<VT>ifdef` over a pending rule read as a target line, so
+    #: that rule CLOSED and the tab-prefixed eval after it read `global` too.
+    #: The classes are spelled byte by byte rather than as `\s`, which in a
+    #: Python `str` pattern is a UNICODE class wider than make's 8-bit map and
+    #: would answer for bytes make's own map never marks.
+    make_space = r"[ \t\v\f\r]"
+    make_blank = r"[ \t]"
+    #: ... and the same wide class INSIDE an expansion, where the line feed
+    #: belongs to it as well (#410, the review of round nine's head). The
+    #: readers above have already split the file into lines, so the byte
+    #: cannot appear in what they scan; a function name and its arguments are
+    #: read out of TEXT that can carry one, because a `define` body keeps its
+    #: newlines and is expanded whole. `lookup_function()` accepts the name
+    #: where `MAP_NUL|MAP_SPACE` follows it and MAP_SPACE is built from BOTH
+    #: halves of the map (`src/function.c:272-287`, `src/makeint.h:435`), so
+    #: `$(call<NL>NAME,...)` in such a body is the call its blank-separated
+    #: spelling is.
+    make_fn_space = r"[ \t\v\f\r\n]"
+    #: The leading run make skips before a line's first token ...
+    make_lead = make_space + r"*"
+    #: ... and the run between a variable's NAME and its operator, which is
+    #: both classes in one place: `parse_variable_definition()` ENDS the name
+    #: at an `ISBLANK` and then skips what follows it with `NEXT_TOKEN`. So
+    #: `CFLAGS<SP><VT>+= -g` assigns CFLAGS, while `CFLAGS<VT>+= -g` assigns a
+    #: name that ENDS in the vertical tab -- a name no recipe here references
+    #: and no compile line reads (`src/variable.c:1629-1637`).
+    make_name_gap = r"(?:" + make_blank + make_space + r"*)?"
     #: Make's assignment modifiers, as a repeatable group rather than a list
     #: of the ones someone thought of: `export` alone was enough to slip a
-    #: narrower version of this.
-    assign_prefix = r"(?:(?:override|export|unexport|private)[ \t]+)*"
-    assign_operators = r"=|:=|::=|\+=|\?=|!="
+    #: narrower version of this. Make's modifier loop reaches the next word
+    #: with `next_token()`, so the separator is the WIDE class
+    #: (`src/read.c:527-552`).
+    assign_prefix = (r"(?:(?:override|export|unexport|private)" +
+                     make_space + r"+)*")
+    #: ... and make's assignment OPERATORS, all seven of them. The colon run
+    #: is written longest first because that is the order make's own reader
+    #: resolves it in: `parse_variable_definition()` takes a `:`, then tests
+    #: for `=`, for a second `:` and then a third, so `:` `:` `:` `=` is the
+    #: immediately expanded `:::=` and not a `::=` with a colon left over
+    #: (GNU make 4.4.1 `src/variable.c:1654-1674`; `doc/make.texi:5733`,
+    #: `:6132`). Omitting it was an ordinary assignment this reader could not
+    #: see at all: `define :::= ready` opened a body that is not there, so
+    #: the assignment bound nothing and a real global `$(eval)` after it read
+    #: `define` and was refused (#410, the review of round six's head).
+    assign_operators = r"=|:::=|::=|:=|\+=|\?=|!="
     assign_operator = r"(" + assign_operators + r")"
     #: One assignment to OBJECTS in any of those flavours. The cumulative ones
     #: are the point: reading `OBJECTS =` and stopping reports a
     #: translation-unit count the build does not have.
     objects_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + r"OBJECTS[ \t]*" + assign_operator +
-        r"[ \t]*(.*)$")
+        r"(?m)^" + make_lead + assign_prefix + r"OBJECTS" + make_name_gap +
+        assign_operator + make_space + r"*(.*)$")
     objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
 
     def makefile_objects(makefile: str) -> list[str] | None:
@@ -4424,13 +4688,71 @@ def test_baremetal_profile_contract() -> None:
             at += 1
         return "".join(out)
 
-    #: Directives that are not rules, however many colons they carry.
+    #: (#410, the review of round six's head) The end of a make TOKEN, which
+    #: is what makes a directive a directive. make reads the first word of a
+    #: line with `end_of_token()`, which stops at whitespace or the end of the
+    #: string and at nothing else (`src/misc.c:389`, `END_OF_TOKEN` over
+    #: `MAP_SPACE|MAP_NUL`), MEASURES that whole word (`src/read.c:769`) and
+    #: then compares it by LENGTH AND CONTENTS -- `word1eq` for the directives
+    #: and the include branch (`src/read.c:169`, `:865`), the same macro again
+    #: for the conditionals (`:1534`). So a directive keyword ends where a
+    #: blank or the line does, and `\b` is the wrong boundary for it: `\b`
+    #: ends a word at any punctuation, so an ordinary literal target spelled
+    #: `ifdef:`, `define:` or `include-labels:` read as a directive here, the
+    #: rule context those lines open was never opened, and the tab-prefixed
+    #: `$(eval)` that follows read `global` and was walked instead of being
+    #: refused for the recipe line it is on (`src/read.c:998` reaches target
+    #: parsing for such a line, `:672` takes the next prefixed line into the
+    #: recipe). It is a lookahead rather than a consuming group because both
+    #: readers below match a PREFIX of the line and a directive's arguments
+    #: follow the whitespace this stops at.
+    #: (#410, the review of round seven's head) That whitespace is make's OWN
+    #: byte class, and reading it as the blank pair alone was the other half
+    #: of the same mistake. `src/main.c:675-694` puts space and TAB in
+    #: `MAP_BLANK` and then marks every REMAINING C `isspace` byte
+    #: `MAP_NEWLINE` -- vertical tab, form feed and carriage return, the
+    #: newline itself being the line break this reader has already split on --
+    #: and `src/makeint.h:435,471` builds `MAP_SPACE` from both halves and
+    #: `END_OF_TOKEN` from `MAP_SPACE|MAP_NUL`. So `ifdef<VT>LABEL` is a
+    #: genuine conditional, which make evaluates as it reads the file WITHOUT
+    #: ending the rule it is in (`src/read.c:769`, `:783-794`, `:1534`), and
+    #: reading it as a target line here was MEASURED wrong in the unsafe
+    #: direction on pure parser fixtures: the pending rule closed, and the
+    #: tab-prefixed `$(eval)` after it read `global` and was walked instead of
+    #: being refused for the recipe line it is on. The class is spelled byte
+    #: by byte rather than as `\s`, which in a Python `str` pattern is a
+    #: UNICODE class wider than make's 8-bit map and would answer for bytes
+    #: make's own map never marks. What this moves is the TOKEN boundary that
+    #: decides a line's ROLE, and nothing else: the blank the opener readers
+    #: below still want between `define` and the NAME they bind is unchanged,
+    #: so a `define<VT>MILAN_TMPL` opener reads here as it did before, and
+    #: that neighbour is RECORDED (measured identical on both sides of this
+    #: repair) rather than ruled on.
+    make_token_end = r"(?=" + make_space + r"|\Z)"
+    #: ... and the suffix a define BODY delimiter needs, which is the NARROWER
+    #: class on purpose and must stay narrower (#410, the same review).
+    #: `do_define()` skips the body line's leading whitespace and then counts
+    #: a nested `define` or an `endef` only where the keyword IS the whole
+    #: line or the byte right after it is `ISBLANK`, the blank pair alone
+    #: (`src/read.c:1462-1476` over `src/makeint.h:467`). So `endef<VT>done`
+    #: is body TEXT that closes nothing and `define<FF>inner` nests nothing,
+    #: while the outer reader's own keywords end at the wider class above.
+    #: Two read stages, two classes: widening the shared suffix for every
+    #: reader would trade this regression for its mirror image, and the
+    #: controls pin both directions.
+    make_body_token_end = r"(?=" + make_blank + r"|\Z)"
+    #: Directives that are not rules, however many colons they carry. The
+    #: leading run is make's WIDE class, because the outer reader has already
+    #: consumed it before it compares the first token (`src/read.c:721-727`).
     make_directive_re = re.compile(
-        r"\A[ \t]*(?:-|s)?include\b|\A[ \t]*(?:export|unexport|override|"
-        r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)\b")
+        r"\A" + make_lead + r"(?:-|s)?include" + make_token_end +
+        r"|\A" + make_lead + r"(?:export|unexport|override|"
+        r"define|endef|vpath|ifeq|ifneq|ifdef|ifndef|else|endif)" +
+        make_token_end)
     #: `include`, `-include` and `sinclude` lines, whole.
     makefile_include_re = re.compile(
-        r"(?m)^[ \t]*((?:-|s)?include[ \t]+[^\n]*)$")
+        r"(?m)^" + make_lead + r"((?:-|s)?include" + make_space +
+        r"+[^\n]*)$")
     #: The include set HEAD carries. The first two are LiteX's; the third is
     #: the compiler's own per-object dependency fragment, which lists
     #: prerequisites and never assigns a variable.
@@ -4442,40 +4764,398 @@ def test_baremetal_profile_contract() -> None:
     #: its modifier keywords. `export` alone was enough to slip a narrower
     #: version of this, so the modifiers are a repeatable group rather than a
     #: list of the ones someone thought of.
-    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
-                   assign_operators + r")[ \t]*")
+    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)" + make_name_gap + r"(?:" +
+                   assign_operators + r")" + make_space + r"*")
     makefile_assign_re = re.compile(
-        r"(?m)^[ \t]*" + assign_prefix + assign_body + r"(.*)$")
+        r"(?m)^" + make_lead + assign_prefix + assign_body + r"(.*)$")
     #: ... and the same assignment written after a target, which make applies
     #: to that target AND inherits down its whole prerequisite chain.
-    target_assign_re = re.compile(r"\A[ \t]*" + assign_prefix + assign_body +
-                                  r"(.*)\Z")
+    target_assign_re = re.compile(r"\A" + make_lead + assign_prefix +
+                                  assign_body + r"(.*)\Z")
+    #: (#410, the review of round eight's head) ... and the precedence
+    #: question asked the way make's OUTER reader asks it, which is what
+    #: decides whether a `define` line opens a body at all. `eval()` calls
+    #: `parse_var_assignment()` before it interprets any directive, and that
+    #: calls `parse_variable_definition()` on the whole line FIRST, ahead of
+    #: the modifier loop it falls back to (`src/read.c:727-752`, `:505-541`).
+    #: The name THAT reader accepts is not this closure's identifier class: it
+    #: is every byte up to a BLANK, a `#`, the end of the line, an `=`, a `:`
+    #: or one of `+`, `?`, `!` that an `=` follows, with a `$(...)` reference
+    #: skipped whole and a `$X` skipped in pairs
+    #: (`src/variable.c:1610-1751`). The vertical tab is in NONE of those, so
+    #: it is an ordinary NAME byte -- and that is what keeps the widened
+    #: opener below honest: `define<VT>= ready` and `define<VT>helper = ready`
+    #: are assignments to the names `define<VT>` and `define<VT>helper` that
+    #: open no body at all, exactly as `define = ready` is an assignment named
+    #: define, while `define MILAN_TMPL =` is two token sets, no assignment
+    #: and a real opener. The identifier-named readers above bind what this
+    #: closure can WALK; this one answers only whether make's outer reader
+    #: took the line as a variable definition, so its name is deliberately
+    #: the wider one and it captures nothing.
+    make_outer_name = (r"(?:[$][({][^)}\n]*[)}]|[$][^({\n]|[+?!](?!=)|"
+                       r"[^ \t#\n=:+?!$])+")
+    make_outer_assign_re = re.compile(
+        r"\A" + make_lead + assign_prefix + make_outer_name + make_name_gap +
+        r"(?:" + assign_operators + r")")
     #: ... and `define NAME` / `endef`, make's sixth assignment flavour: the
     #: opener tolerates the optional flavour suffix (`define NAME =`, `:=`,
     #: ...) and the BODY is the value.
+    #: (#410, the review of round eight's head) The keyword and the NAME are
+    #: separated by make's WIDE class, not by a blank: `parse_var_assignment`
+    #: measures the word with `end_of_token()` and reaches the name with
+    #: `next_token()` (`src/read.c:533-539`), so `define<VT>MILAN_TMPL` opens
+    #: a body named MILAN_TMPL. The flavour suffix keeps its own two classes:
+    #: the run before the operator must START with a blank because
+    #: `parse_variable_definition()` ends the name at an `ISBLANK`, while a
+    #: name with NO operator after it is trailed only by the blanks
+    #: `do_define()` strips (`src/read.c:1436-1438`), so `define NAME<VT>`
+    #: binds a name ending in that byte and is no opener this closure reads.
     make_define_open_re = re.compile(
-        r"\A[ \t]*" + assign_prefix +
-        r"define[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
-        assign_operators + r")?[ \t]*\Z")
-    make_endef_re = re.compile(r"\A[ \t]*endef[ \t]*\Z")
+        r"\A" + make_lead + assign_prefix +
+        r"define" + make_space + r"+([A-Za-z_][A-Za-z0-9_]*)"
+        r"(?:" + make_name_gap + r"(?:" + assign_operators + r")" +
+        make_space + r"*|" + make_blank + r"*)\Z")
+    #: ... and `endef` as the BODY reader recognises it (#410, the review of
+    #: round five's head): `do_define` takes the body line's first token and
+    #: ends the body when that token IS `endef` -- `len == 5`, the token is
+    #: the whole line, or `ISBLANK (p[5])`, something follows a BLANK
+    #: (`src/read.c:1472-1476`). What follows the blank is removed as a
+    #: comment, or reported as extraneous text, AFTER the delimiter has been
+    #: recognised, so `endef #done` closes the body and `endef#literal` is
+    #: not the delimiter at all. Requiring the line to END after `endef`, as
+    #: this pattern did, only ever agreed with make because every `#` in the
+    #: file had already been cut out before the body was read.
+    #: (#410, the review of round eight's head) The LEADING run is make's wide
+    #: class, because `do_define()` reaches the body line's first token with
+    #: `next_token()` before it tests any of this (`src/read.c:1462`); only
+    #: the SUFFIX stays the blank pair. The two are independent, and reading
+    #: the leading run as a blank pair left `<VT>endef` as body text that ends
+    #: nothing and `<VT>define` as a level that never opened.
+    make_endef_re = re.compile(r"\A" + make_lead + r"endef" +
+                               make_body_token_end)
+    #: A `define` OPENER as make reads one, for scoping an eval rather than
+    #: for naming a value: make_define_open_re above reads the NAME, so it is
+    #: an identifier by construction, and a `define MILAN-TMPL` whose name is
+    #: outside that class opens a body just the same -- measured, with a
+    #: $(foreach) over the call rebinding the pinned name the body's eval
+    #: reads. What scopes an eval is what `define` REACHES, a body make
+    #: expands elsewhere, not the spelling of the name it binds.
+    #: (#410, the review of round eight's head) The separator is make's wide
+    #: class here for the same reason, and the "is there a name at all" test
+    #: is a byte class rather than `\S`, which in a Python `str` pattern is
+    #: Unicode and would call a byte make's own map never marks whitespace.
+    make_define_scope_re = re.compile(
+        r"\A" + make_lead + assign_prefix + r"define" + make_space +
+        r"+[^ \t\v\f\r\n]")
+    #: (#410, the review of round four's head) ... and the NESTED delimiter,
+    #: which is a DIFFERENT grammar and must not be the opener above. An
+    #: OPENER is reached through make's modifier loop, so `override`, `export`,
+    #: `unexport` and `private` may precede it (GNU make 4.4.1
+    #: `src/read.c:527-541`, `parse_var_assignment`). A body is read by
+    #: `do_define`, which never re-enters that loop: it takes the body line's
+    #: FIRST token and counts a level only when that token IS `define` --
+    #: `len == 6`, the token is the whole line, a BARE `define`, or
+    #: `ISBLANK (p[6])`, a `define inner` (`src/read.c:1464-1468`). So a bare
+    #: `define` nests and an `override define inner` is ordinary body TEXT.
+    #: Reusing the opener for both was wrong in both directions at the head
+    #: this replaces, measured on pure parser fixtures: a bare `define` opened
+    #: no level, so the outer body's own `$(eval)` read `global` and was
+    #: WALKED and the body bound one line of five, and an `override define
+    #: inner` opened a level that is not there, so a real global eval read
+    #: `define` and was REFUSED and the body bound nothing at all.
+    make_nested_define_re = re.compile(r"\A" + make_lead + r"define" +
+                                       make_body_token_end)
+    #: The CONDITIONAL directives, the one kind of non-recipe line make reads
+    #: WITHOUT ending the rule context it is in: a conditional is evaluated as
+    #: the makefile is read, so an `ifdef` between two recipe lines leaves the
+    #: recipe it interrupts open (GNU make, "Conditional Parts of Makefiles").
+    #: Its keywords end where make ends a token, above: a bare `endif` or
+    #: `else` is the whole line and still a conditional, while an `ifdef:`
+    #: is a TARGET whose rule this reader must open.
+    make_conditional_re = re.compile(
+        r"\A" + make_lead + r"(?:ifeq|ifneq|ifdef|ifndef|else|endif)" +
+        make_token_end)
+
+    #: (#410, round-four review) The ROLE make reads each line in, which is
+    #: what decides BOTH the lines a `define` body carries and the scope an
+    #: eval sits in. Neither is a question about one line: make's answer
+    #: depends on the lines before it, and a per-line regex that tolerates a
+    #: leading tab got both directions wrong at the head this replaces.
+    #: Inside a `define` body a line that begins with the recipe prefix is
+    #: BODY TEXT, never a nested `define` and never the `endef` that closes
+    #: one (GNU make, "Defining Multi-Line Variables": lines beginning with
+    #: the recipe prefix character are considered part of a recipe, so a
+    #: define/endef or conditional directive written on one is not recognised
+    #: as a directive). Outside a body a line that begins with the recipe
+    #: prefix is a RECIPE line only in a RULE CONTEXT (GNU make, "How
+    #: Makefiles Are Parsed", step 3: such a line is added to the current
+    #: recipe when make is in a rule context, and is parsed as makefile syntax
+    #: when it is not), which a rule opens and the next line that is not a
+    #: recipe, a blank, a comment or a conditional closes. MEASURED at the
+    #: head this replaces, both directions wrong: a `<TAB>endef` inside a body
+    #: closed that body, so the define's own `$(eval)` read `global` and was
+    #: walked, and a `<TAB>define helper` inside a `tags:` recipe opened a
+    #: body that is not there, so a real global `$(eval)` read `define` and
+    #: was refused. A target-specific assignment (`all: CFLAGS += -g`) opens a
+    #: rule context here like any other target line, which is the SAFE
+    #: direction: a prefixed line after one is that rule's recipe or a file
+    #: make refuses to parse, never the global assignment this walker walks.
+    #: (The review of round four's head) The other thing this loop must not
+    #: read off one line is WHICH `define` spelling is a delimiter, because
+    #: make has two grammars for that word and they are not the same: the OPENER
+    #: carries the modifier prefix and names a variable, the NESTED delimiter
+    #: is the body line's first token and carries no modifier. So the two
+    #: patterns are separate above, and this loop picks by POSITION -- inside
+    #: a body or not -- rather than by spelling.
+    #: (The review of round five's head) A THIRD thing make decides by
+    #: position is where a `#` ends a line. Every reader below used to scan
+    #: text a single `(?m)#[^\n]*` had already cut out of the whole file, and
+    #: make does not read a file that way: `eval()` collapses continuations
+    #: and calls `remove_comments()` on the line it is about to parse, but a
+    #: `define` body is collected by `do_define()`, which stores the line as
+    #: it stands and cuts a comment only off the REMAINDER of an `endef` it
+    #: has already recognised (GNU make 4.4.1 `src/read.c:718-719` against
+    #: `:1456-1494`). Cutting first is what made `endef#literal` look like a
+    #: delimiter and `define#literal` like a nested one, both MEASURED at the
+    #: head this replaces: the first ended a body that does not end, so the
+    #: body's own `$(eval)` read `global` and was walked and `helper` bound
+    #: the empty string, and the second opened a level that is not there, so
+    #: a real global eval read `define` and was refused and `helper` bound
+    #: nothing. So the comment is cut HERE, per line, by the role make reads
+    #: that line in, and every reader below scans what this leaves.
+    #: A recipe line keeps its `#` for the same reason: make hands the line
+    #: to the shell rather than parsing it (`src/read.c:672-701`, the
+    #: command branch, which returns before `remove_comments()`).
+    #: ... and the last one is that an opener is not a directive at all where
+    #: make's outer reader parses an ASSIGNMENT first: `eval()` calls
+    #: `parse_var_assignment()` on the line before anything interprets a
+    #: modifier or the `define` directive, and that returns as soon as
+    #: `parse_variable_definition()` finds an assignment operator behind at
+    #: most one run of blanks (`src/read.c:727-752`, `src/variable.c:1610`).
+    #: So `define = ready` is an ordinary assignment NAMED define, with no
+    #: body at all, and `override define = ready` is the same assignment --
+    #: while `define MILAN_TMPL =` is two token sets, no assignment, and a
+    #: real opener. That precedence belongs to the OUTER reader only: inside
+    #: a body `do_define()` never parses an assignment, so the same
+    #: `define = ready` line is a nested delimiter there. It reaches every
+    #: assignment operator make HAS, `:::=` included, or the operator it
+    #: cannot see takes the precedence away from the line that has it
+    #: (#410, the review of round six's head).
+    #: (The review of round six's head) And the role every branch here picks
+    #: between is decided by make's TOKEN, not by a word boundary: a
+    #: directive keyword ends at a blank or at the end of the line, so
+    #: `ifdef:`, `define:` and `include-labels:` are literal TARGETS that
+    #: open a rule context and the tab-prefixed line after each is that
+    #: rule's recipe. Reading them as directives left the rule unopened, and
+    #: an `$(eval)` on that recipe line read `global` and was walked: the
+    #: promised recipe refusal was simply absent for an ordinary target whose
+    #: name happens to start with a keyword. make_token_end above is that
+    #: boundary, and the conditional and directive readers share it.
+    #: (The review of round seven's head) ... and WHICH whitespace ends that
+    #: token is make's class, not the blank pair: a conditional separated
+    #: from its argument by a vertical tab or a form feed is still a
+    #: conditional, so it still leaves the recipe it interrupts OPEN, and
+    #: reading it as a target line here closed the rule and walked the eval on
+    #: the next recipe line. The body branch above keeps the narrower
+    #: make_body_token_end, because `do_define()` tests the byte after its
+    #: delimiter with `ISBLANK`: the two stages disagree in make, so they
+    #: disagree here.
+    make_comment_re = re.compile(r"#[^\n]*")
+
+    def make_line_roles(makefile: str) -> list[tuple[int, int, str, str]]:
+        """`(start, end, line, role)` for every line of `makefile` AS MAKE
+        READS IT: continuations joined, and each `#` comment cut where make
+        cuts it rather than everywhere.
+
+        The role is `open` for the line opening an outermost `define`, `body`
+        for the text that body carries, `close` for the `endef` that ends it,
+        `recipe` for a recipe line, and `global` for a line make reads as
+        makefile syntax at global scope.
+
+        A `define` line is read as an OPENER only outside a body, as a NESTED
+        delimiter only inside one, and as an ordinary assignment wherever
+        make's outer reader parses one, because make recognises the word
+        differently in each place.
+
+        The offsets are into make_source() below, the text these lines make
+        up. Reading that text again gives the same lines and the same roles,
+        which is what lets a consumer holding it ask for the role at an
+        offset in it."""
+        roles, offset = [], 0
+        depth, in_rule = 0, False
+        for raw in re.sub(r"\\\n", " ", makefile).split("\n"):
+            body, role = raw, "body"
+            if depth:
+                if not raw.startswith("\t"):
+                    if make_nested_define_re.match(raw):
+                        depth += 1
+                    else:
+                        ended = make_endef_re.match(raw)
+                        if ended:
+                            body = raw[:ended.end()] + \
+                                make_comment_re.sub("", raw[ended.end():])
+                            depth -= 1
+                            role = "body" if depth else "close"
+            elif raw.startswith("\t") and in_rule:
+                role = "recipe"
+            else:
+                body, role = make_comment_re.sub("", raw), "global"
+                if body.strip() and not make_conditional_re.match(body):
+                    in_rule = False
+                    if make_define_scope_re.match(body) and \
+                            not make_outer_assign_re.match(body):
+                        depth, role = 1, "open"
+                    elif not make_directive_re.match(body):
+                        head = unexpanded(body)
+                        colon = re.search(r"::?(?!=)", head)
+                        in_rule = bool(colon) and \
+                            "=" not in head[:colon.start()]
+            start, offset = offset, offset + len(body) + 1
+            roles.append((start, offset, body, role))
+        return roles
+
+    def make_source(makefile: str) -> str:
+        """`makefile` as make reads it: continuations joined, and every `#`
+        comment cut where make cuts one and nowhere else.
+
+        This is the text EVERY reader below scans, so none of them can
+        disagree with the role reader -- or with each other -- about what
+        this file says. It is what the single whole-file comment strip they
+        each used to run was meant to be, and was not: a define body keeps
+        its text, so its delimiters are still the ones make recognises."""
+        return "\n".join(line
+                         for _start, _end, line, _role
+                         in make_line_roles(makefile))
+
     #: A variable reference, for deriving which names decide the compiled text.
     make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
+
+    def expansion_end(text: str, start: int) -> int:
+        """Just past the `$(`/`${` expansion opening at `start`, or the end
+        of its line where the file leaves that expansion unclosed.
+
+        `start` must BE an opening: its caller reads `text[start + 1]` as the
+        bracket. A `$` at the very end of the text opens nothing, and it is
+        the caller's to answer, not this reader's to index past (#410,
+        round-four review)."""
+        opener = text[start + 1]
+        closer = ")" if opener == "(" else "}"
+        depth, scan, size = 1, start + 2, len(text)
+        while scan < size and depth:
+            depth += (text[scan] == opener) - (text[scan] == closer)
+            scan += 1
+        if not depth:
+            return scan
+        line_end = text.find("\n", start)
+        return size if line_end < 0 else line_end
+
+    #: (#410, the review of round eight's head) The head of an `$(eval ...)`,
+    #: shared by the two scans below so they cannot disagree about what one
+    #: is. The byte after the name is make's WIDE class, for the reason given
+    #: at opened_function(): `lookup_function()` takes the name only where
+    #: `MAP_NUL|MAP_SPACE` follows it (`src/function.c:272-287`). So
+    #: `$(eval<VT>CFLAGS += $(MILAN_EXTRA_CFLAGS))` is the same parse-time
+    #: hook as its blank-separated spelling, and reading only the blank pair
+    #: left BOTH scans blind to it: the assignment was invisible to the
+    #: closure and the eval was invisible to the refusal. The close brackets
+    #: stay in the class as the over-approximation they are -- make reads a
+    #: bare `$(eval)` as a variable REFERENCE, since `)` is not in that map,
+    #: so filing it opaque refuses an inert construct rather than missing a
+    #: live one.
+    #: (The review of round nine's head) The LINE FEED is in that class here,
+    #: because this reader scans the text a `define` body carries rather than
+    #: one line: `define T` holding `$(eval<NL>CFLAGS += $(1))` is expanded
+    #: where the body is reached, and make's own name lookup stops at that
+    #: byte like any other whitespace. Both scans were blind to it, so the
+    #: eval was neither parsed nor refused -- the round-four escape in one
+    #: more spelling.
+    make_eval_head_re = re.compile(r"eval(?:" + make_fn_space + r"|[)}])")
+
+    #: (#410) `$(eval TEXT)`, make's parse-time hook: TEXT is EXPANDED first
+    #: and the RESULT is parsed as makefile syntax, so the text make reads is
+    #: not the text in the file. Round two measured a top-level
+    #: `$(eval CFLAGS += $(MILAN_EXTRA_CFLAGS))` green with the environment
+    #: reaching the compile line: no assignment regex ever saw the line. The
+    #: walker can prove exactly one shape -- an eval on a line of its own
+    #: whose whole argument is a literal `NAME op VALUE` assignment -- and
+    #: PARSES it as that assignment, so its references join the closure
+    #: like any RHS. The bound that holds there is that every literal
+    #: reference in the eval's TEXT is walked, NOT that expansion cannot
+    #: change the shape: a value expanding to a NEWLINE adds a line, and
+    #: line_adding_evals() below refuses that case rather than model it
+    #: (round-three review, measured with make's `define NL` idiom). This
+    #: scan keys on the literal `$(eval` token, so the eval make reaches
+    #: through `$(call eval,TEXT)` is builtin_function_calls()' to refuse,
+    #: not this one. Every other eval is reported for make_plan() to
+    #: REFUSE: an eval
+    #: of a called template, of a plain reference, nested inside another
+    #: expansion, or carrying a rule, because the parsed text is whatever
+    #: the expansion yields and no walk over this file can enumerate it.
+    #: The line-of-its-own test reads the joined text make reads, so a
+    #: whole-line eval inside a define body or a recipe is read here too. That
+    #: used to be recorded as "an over-approximation when that text never
+    #: expands, never a miss", and the round-four review measured the claim
+    #: FALSE: it is a MISS, because such an eval expands where the define or
+    #: the rule is reached, not here, and the value it assigns is bound there
+    #: -- `$(eval CFLAGS += $(1))` in a define body run by
+    #: `$(call TMPL,$(MILAN_EXTRA_CFLAGS))` read here as the benign
+    #: assignment `CFLAGS += $(1)` while the environment arrived as the call
+    #: ARGUMENT. What this function decides is the SHAPE only; whether a
+    #: shape this reads can be bound at all is unbindable_evals()' to judge
+    #: and make_plan()'s to refuse, before any plan runs.
+    def make_evals(text: str) -> tuple[list[tuple[str, str]], list[str]]:
+        """`(assignments, opaque)` for every `$(eval ...)` in `text` as
+        make_source() leaves it: the whole-line literal assignments the
+        walker reads as a SHAPE, and the spelling of each eval it cannot.
+
+        A shape read here is not yet a shape the walker can bind: an eval in
+        a define body or a recipe lands in `assignments` and is refused by
+        unbindable_evals(), which reads the scope this scan does not."""
+        assignments, opaque, at, size = [], [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            if opener == "$":
+                at += 2
+                continue
+            if opener not in "({" or not make_eval_head_re.match(
+                    text[at + 2:at + 7]):
+                at += 2
+                continue
+            closer = ")" if opener == "(" else "}"
+            depth, close = 1, at + 6
+            while close < size and depth:
+                depth += (text[close] == opener) - (text[close] == closer)
+                close += 1
+            line_end = text.find("\n", close)
+            around = text[text.rfind("\n", 0, at) + 1:at] + \
+                text[close:size if line_end < 0 else line_end]
+            literal = target_assign_re.match(text[at + 6:close - 1])
+            if not depth and literal and not around.strip():
+                assignments.append((literal.group(1), literal.group(2)))
+            else:
+                opaque.append(re.sub(r"\s+", " ", text[at:close]).strip())
+            at += 6
+        return assignments, opaque
+
     def make_rules(makefile: str) -> tuple[
             list[tuple[list[str], list[str], list[str]]],
             list[tuple[str, str]]]:
         """`(rules, assignments)` for `makefile`.
 
-        A rule is `(targets, prerequisites, recipe)`. Continuations are joined
-        and comments dropped first, so a rule reads the way make reads it and
-        not the way the file happens to be wrapped. A line whose colon lives
-        inside an expansion is not a rule, and a directive is not a rule
-        however it is punctuated.
+        A rule is `(targets, prerequisites, recipe)`. make_source() joins the
+        continuations and drops the comments make drops first, so a rule
+        reads the way make reads it and not the way the file happens to be
+        wrapped or commented. A line whose colon lives inside an expansion is
+        not a rule, and a directive is not a rule however it is punctuated.
 
         `assignments` carries BOTH global and target-specific ones, because
         make does not distinguish them where it matters here: an
         `all: CFLAGS += -include x.c` reaches the compile of every
         prerequisite of `all`, which is the one object."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        text = make_source(makefile)
         masked, rules, current, at = unexpanded(text), [], None, 0
         assignments = [(m.group(1), m.group(2))
                        for m in makefile_assign_re.finditer(text)]
@@ -4490,21 +5170,32 @@ def test_baremetal_profile_contract() -> None:
         #: an accepted make idiom, so it is PARSED rather than refused; a
         #: nested define stays body text, and a `define` make never closes
         #: is left to make, which refuses to plan the file at all.
-        depth, opened = 0, None
-        for body in text.split("\n"):
-            begun = make_define_open_re.match(body)
-            if depth == 0:
-                if begun:
-                    depth, opened = 1, (begun.group(1), [])
-                continue
-            if begun:
-                depth += 1
-            elif make_endef_re.match(body):
-                depth -= 1
-                if depth == 0:
+        #: (#410, round-four review) WHICH lines the body carries is
+        #: make_line_roles()' answer, the same one the eval scope reader
+        #: takes, so the two cannot disagree about where a body ends: a
+        #: recipe-prefixed `endef` is body text here too. A body whose NAME
+        #: is outside the identifier class binds nothing this closure can
+        #: walk, so it is consumed and not recorded -- what such a define
+        #: still REACHES is eval_scope_at()'s to answer.
+        #: (The review of round five's head) The body carries the BYTES make
+        #: stores, which is why the comment cut moved into that reader: a
+        #: body line is stored as it stands, so `endef#literal` is a line of
+        #: this value and not the end of it.
+        opened = None
+        for _start, _end, body, role in make_line_roles(text):
+            if role == "open":
+                named = make_define_open_re.match(body)
+                opened = (named.group(1), []) if named else None
+            elif role == "close":
+                if opened is not None:
                     assignments.append((opened[0], "\n".join(opened[1])))
-                    continue
-            opened[1].append(body)
+                opened = None
+            elif role == "body" and opened is not None:
+                opened[1].append(body)
+        #: (#410) ... and the whole-line literal `$(eval NAME op VALUE)`,
+        #: parsed as the assignment it carries; the evals make_evals()
+        #: cannot read are refused by make_plan() before any plan runs.
+        assignments += make_evals(text)[0]
         for body in text.split("\n"):
             start, at = at, at + len(body) + 1
             if body.startswith("\t"):
@@ -4593,26 +5284,533 @@ def test_baremetal_profile_contract() -> None:
     #: flavour, so make_rules() now parses it as the assignment it is and
     #: the closure walks its references like any other RHS. Both are
     #: pinned as mutations in the table.
-    make_origin_ref_re = re.compile(
-        r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[ \t]*[:)}]")
+    #:
+    #: ROUND THREE (#410), the two channels round two measured OPEN and
+    #: recorded rather than closed, both reproduced pre-fix reaching the
+    #: real compile line with every instrument green. `$(call NAME,...)`
+    #: and `$(value NAME)` READ a variable by its NAME without the $(NAME)
+    #: spelling the reference reader modelled, so the walker never saw the
+    #: name: name_read_at() now reads that first argument as the reference it
+    #: is and the closure walks it, each by the
+    #: rule its own function names it with, so the deferral hits the
+    #: same origin refusal as the plain spelling; a first argument that is
+    #: itself computed, `$(call $(X))`, is the computed name it is and
+    #: computed_name_references() reports it. A top-level `$(eval ...)`
+    #: line carried an assignment no scan over assignment lines saw:
+    #: make_evals() parses the one shape it can prove (a whole-line
+    #: literal assignment) and make_plan() REFUSES every other eval, since
+    #: make parses the expansion and the walker cannot enumerate it. Each
+    #: spelling is a permanent mutation, and each construct has an accepted
+    #: case measured GREEN: a $(call) of a define this Makefile carries and
+    #: an $(eval) of a literal assignment.
+    #: The whitespace class as a set of bytes, for the readers that walk the
+    #: run with an index rather than matching it (`NEXT_TOKEN` over the
+    #: padding before a first argument, `end_of_token()` over the argument).
+    make_fn_space_bytes = " \t\v\f\r\n"
     make_stub_seeded = frozenset(make_sentinels) | {
         "SOC_DIRECTORY", "LIBMILAN_BAREMETAL_DIRECTORY", "compile"}
+    #: (#410, round-three review) make's BUILT-IN function names. `$(call
+    #: NAME,...)` dispatches to the built-in when NAME is one of these
+    #: (GNU make 4.4.1, "The call Function", whose own example maps the
+    #: built-in `origin`), so the spelling is the built-in and no scan for
+    #: the built-in's own token sees it. Pinned as the whole set rather
+    #: than the two that were measured, because the next one nobody
+    #: thought of is the point.
+    make_builtin_functions = frozenset("""
+        abspath addprefix addsuffix and basename call dir error eval file
+        filter filter-out findstring firstword flavor foreach guile if
+        info intcmp join lastword let notdir or origin patsubst realpath
+        shell sort strip subst suffix value warning wildcard word
+        wordlist words
+        """.split())
+    #: (#410, round-three review SUGGESTION, DECLINED with the reason) the
+    #: `[ \t]*` here flags a leading-space `$( call eval,...)` that make does
+    #: NOT dispatch -- make requires the function name to follow `$(`
+    #: immediately -- and the suggestion was to drop it so the reader matches
+    #: make's own rule exactly. It is kept: the over-approximation is in the
+    #: SAFE direction (it refuses an inert construct, and cannot miss a
+    #: dispatching one), no legitimate Makefile writes `$( call`, and
+    #: tightening it would buy message precision on a spelling nobody writes
+    #: at the price of a margin that costs nothing. The paired control is the
+    #: measurement itself: make injects nothing for the leading-space form.
+    #: (The review of round nine's head) The name it dispatches on is the same
+    #: TOKEN name_read_at() reads, and for the same reason: `func_call()`
+    #: hands `lookup_function()` the argument cut at `end_of_token()`, so
+    #: `$(call eval<VT>,TEXT)` and `$(call eval junk,TEXT)` are the built-in
+    #: `$(call eval,TEXT)` is, and the promised refusal was absent for both.
+    #: The name class stays wider than an identifier because make's own is:
+    #: `filter-out` is a built-in whose token carries a hyphen.
+    make_builtin_call_re = re.compile(
+        r"[$][({][ \t]*call" + make_fn_space +
+        r"+([A-Za-z][A-Za-z0-9_-]*)(?=" + make_fn_space + r"|[,)}])")
+
+    #: ---- (#410, the review of round ten's head) what a construct's NAME
+    #: is, answered ONCE -------------------------------------------------
+    #:
+    #: Three patterns used to answer it and could not agree, and the
+    #: disagreement WAS the defect. Measured at the head this replaces:
+    #: `$(value NAME,x)` and `$(value NAME<SP>)` put NAME in the origin
+    #: request while make reads the variables `NAME,x` and `NAME<SP>`;
+    #: `$(value NAME<VT>)`, `$(NAME,x)` and `$(NAME<VT>)` put nothing there
+    #: at all; `$(value NAME $(PICK))`, `$(value NAME,$(PICK))`,
+    #: `$(NAME $(PICK))` and `$(NAME,$(PICK))` defer the name itself and got
+    #: no computed-name refusal; and `$(eval LABEL := $(value NAME,x))` was
+    #: classified BOUND because NAME is bound. An identifier PREFIX is a
+    #: question about a different variable, and `$(origin)` answering it
+    #: proves nothing about the one make reads.
+    #:
+    #: make's own rules, and they really are three different rules:
+    #:
+    #:   * a PLAIN `$(NAME)` is looked up by its COMPLETE span:
+    #:     `end = strchr (beg, closeparen)`, then
+    #:     `reference_variable (o, beg, end - beg)` (`src/expand.c:292,404`).
+    #:     A `:` splits a substitution reference off the name only where an
+    #:     `=` follows it in that span; with no `=` in sight make punts and
+    #:     the colon belongs to the NAME (`:329-338`). A `$` inside the span
+    #:     makes make expand the name first (`:296-316`) -- the computed
+    #:     reference this walker refuses.
+    #:   * `$(value ARG)` looks its WHOLE argument up
+    #:     (`src/function.c:1571`). The entry takes a maximum of ONE argument
+    #:     (`:2530`), so a comma stays INSIDE it rather than separating it
+    #:     (`:2658`), and only the run BEFORE it is consumed, by `NEXT_TOKEN`
+    #:     (`:2614`).
+    #:   * `$(call NAME,...)` is the one that takes a TOKEN: `func_call()`
+    #:     cleans the first argument up with `next_token()` and
+    #:     `end_of_token()` and dispatches on the result (`:2723-2724`,
+    #:     `:2732`). That argument is EXPANDED before the cut, so a `$`
+    #:     anywhere in it chooses the token too.
+    #:   * WHICH of the three an expansion is, is `lookup_function()`'s
+    #:     answer and not a guess from the name: the maximal run of
+    #:     alphanumerics, `.`, `-` and `_` after the bracket, dispatched only
+    #:     where the byte after it is whitespace or the end of the text
+    #:     (`:272-287`, `src/main.c:664-692`). So `$(callable)`, `$(call)`
+    #:     and `$(value)` open no function and are the plain reads they look
+    #:     like, while `$(patsubst %.o,%.d,$(OBJECTS))` opens one and its
+    #:     arguments are walked on their own `$(`.
+    #:
+    #: A name is ANSWERED where it is this walker's identifier and REFUSED
+    #: where it is not, which is the sound arm the computed name already
+    #: has: a name make looks up and no `$(origin ...)` line here can spell
+    #: is a name the environment can set behind the walker's back.
+    #:
+    #: This vocabulary is THIS WALKER'S, and saying otherwise was the
+    #: remaining wrong claim (#410, the review of round eleven's head). make's
+    #: own assignment reader ends a name only at whitespace, `#`, an
+    #: assignment operator or a `:` that does not open one
+    #: (`src/variable.c:1609-1753`), and the manual puts it the same way at
+    #: `doc/make.texi:5433`, so `MILAN-EXTRA = ready`, `NAME,x = ready` and
+    #: `.DEFAULT_GOAL = ready` are ordinary variable definitions that GNU make
+    #: binds in a Makefile. What cannot spell them is the pattern below,
+    #: which is also the name format of the `$(origin ...)` request this gate
+    #: writes and of every assignment the closure records. So the refusal is
+    #: this representation's, and its COST includes names a Makefile could
+    #: legitimately bind -- which is the honest reason to disclose it rather
+    #: than to call it a rule of make's grammar.
+    make_identifier_re = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+    #: `lookup_function()`'s own name class, MAP_USERFUNC.
+    make_fn_name_re = re.compile(r"[A-Za-z0-9._-]+")
+    #: make's POSITIONAL and AUTOMATIC names, the only reads outside that
+    #: identifier class this walker does not refuse, and the one pre-existing
+    #: treatment this repair leaves alone: a PLAIN `$(1)` .. `$(N)` is a
+    #: `$(call)`'s argument, bound at the call site whose argument text this
+    #: closure already walks, and a plain `$(@D)` and the rest are bound per
+    #: rule by make itself. A make-defined special like `$(.DEFAULT_GOAL)` is
+    #: NOT in the set and is refused with everything else outside the class:
+    #: the sound arm, and a disclosed cost rather than a modelled read.
+    #:
+    #: The exemption belongs to the PLAIN reference and to nothing else
+    #: (#410, the review of round eleven's head). It says that those bytes,
+    #: written as a reference, are make's to bind; it does not say that a
+    #: variable NAMED `1` is bound wherever the name is looked up. A
+    #: `$(value 1)` or `$(call 1)` looks exactly that variable up -- with no
+    #: scope at all in the first case and before the scope exists in the
+    #: second -- so name_read_at() applies this pattern only where the
+    #: expansion opens no function. Granting it to those two argument
+    #: positions dropped the read from the closure and raised no refusal
+    #: either, which is the covered-looking answer about a variable the
+    #: environment decides that this whole repair is against.
+    make_own_name_re = re.compile(r"[0-9]+|[@%<?^+|*][DF]?")
+
+    def opened_function(text: str, at: int) -> str | None:
+        """The make BUILT-IN the `$(`/`${` at `at` opens, or None where the
+        expansion is a plain variable reference."""
+        found = make_fn_name_re.match(text, at + 2)
+        if not found or found.group() not in make_builtin_functions:
+            return None
+        after = found.end()
+        if after < len(text) and text[after] not in make_fn_space_bytes:
+            return None
+        return found.group()
+
+    def function_argument(text: str, at: int) -> tuple[int, int]:
+        """`(start, stop)` of the whole argument text of the built-in opening
+        at `at`: past its name and the whitespace run `NEXT_TOKEN` consumes,
+        up to the bracket the invocation closes at."""
+        size = len(text)
+        start = make_fn_name_re.match(text, at + 2).end()
+        while start < size and text[start] in make_fn_space_bytes:
+            start += 1
+        stop = expansion_end(text, at)
+        if stop > at and text[stop - 1] in ")}":
+            stop -= 1
+        return start, max(start, stop)
+
+    def first_argument_end(text: str, start: int, stop: int,
+                           opener: str) -> int:
+        """Where the FIRST argument in `text[start:stop]` ends: the comma
+        `find_next_argument()` stops at, counting the invocation's own
+        brackets, or `stop` where the invocation has only the one."""
+        closer = ")" if opener == "(" else "}"
+        depth, scan = 0, start
+        while scan < stop:
+            depth += (text[scan] == opener) - (text[scan] == closer)
+            if text[scan] == "," and not depth:
+                return scan
+            scan += 1
+        return stop
+
+    def counted_span_end(text: str, at: int) -> int:
+        """The closer make's OWN counting loop stops at for the expansion
+        opening at `at`, or `-1` where the count never comes out.
+
+        `src/expand.c:301-308` counts from just past the opening bracket and
+        breaks at the first closer that takes the count below zero, counting
+        only THIS expansion's bracket pair whatever the other one does. Where
+        the text runs out with the count still up -- the `$($(a)` case the
+        source names at `:309-311` -- make goes to the simple case and keeps
+        the first closer instead, and `-1` is how that is said here."""
+        opener = text[at + 1]
+        closer = ")" if opener == "(" else "}"
+        depth, scan, size = 0, at + 2, len(text)
+        while scan < size:
+            if text[scan] == opener:
+                depth += 1
+            elif text[scan] == closer:
+                depth -= 1
+                if depth < 0:
+                    return scan
+            scan += 1
+        return -1
+
+    def surviving_separator(text: str, start: int) -> bool:
+        """Whether a substitution `=` is still in `text[start:]` AFTER make
+        has expanded that text.
+
+        make looks for the separator in text it has already expanded
+        (`src/expand.c:314` expands the whole name, `:334` then searches the
+        RESULT), so the only `=` a reader of the FILE can count on is one no
+        expansion takes with it. What takes one with it:
+
+          * a nested `$(`/`${`. Its bytes are its own reference's name or its
+            own function's arguments, and what it leaves behind is its value:
+            `$(subst =,,x)` is `subst` over the three expanded arguments
+            `=`, an empty replacement and `x`, and yields `x`
+            (`src/function.c:2501,2658-2668,699-702`), and
+            `$(PAT:.o=.d)` yields the substituted value of PAT. Neither `=`
+            reaches the enclosing name.
+          * a `$` before any other byte, which is make's ONE-CHARACTER
+            reference (`src/expand.c:410-418`): `$=` reads the variable named
+            `=` and leaves its value, not an `=`.
+
+        What does NOT take one with it is `$$`, which is no expansion at all:
+        it emits a single literal `$` (`:261-266`), so an `=` after it is as
+        literal as any other and `$(NAME:$$=.d)` really is a substitution
+        reference to NAME.
+
+        A nested expansion may of course PRODUCE an `=` -- `$(EQ)` where
+        `EQ = =` -- and then make splits where this reader does not. That is
+        the undecidable case and it is refused rather than answered: the span
+        carries a `$`, so its caller reports the computed name it is."""
+        at, size = start, len(text)
+        while at < size:
+            if text[at] == "=":
+                return True
+            if text[at] != "$":
+                at += 1
+                continue
+            after = text[at + 1:at + 2]
+            if after in ("(", "{"):
+                at = expansion_end(text, at)
+            elif after:
+                at += 2               # `$$`, one literal `$`; or `$=`, a read
+            else:
+                at += 1               # a trailing `$`, carried through whole
+        return False
+
+    def name_read_at(text: str, at: int) -> tuple[str, str]:
+        """`(kind, name)` for the `$(`/`${` expansion opening at `at`.
+
+        `kind` is `read` for a literal name this walker can put to
+        `$(origin)`, carried in `name`; `computed` where a `$` inside the
+        name defers it to expansion time; `unspelled` where make looks up a
+        literal name outside this walker's identifier class; `own` for
+        make's own positional and automatic variables, which only a PLAIN
+        reference can be; `builtin` for the built-in a `$(call)` token
+        dispatches to, whose refusal builtin_function_calls() owns;
+        `function` for any other built-in, whose arguments are walked on
+        their own `$(` rather than read as a name here; and `none` where the
+        expansion reads no name at all."""
+        function = opened_function(text, at)
+        if function is not None and function not in ("call", "value"):
+            return "function", function
+        if function is None:
+            closer = ")" if text[at + 1] == "(" else "}"
+            stop = text.find(closer, at + 2)
+            span = text[at + 2:len(text) if stop < 0 else stop]
+            if "$" in span:
+                #: make COUNTS this expansion's brackets before it reads any
+                #: name out of it: a `$` before the first closer sends it
+                #: into the loop at `src/expand.c:296-316`, which walks to
+                #: the closer that MATCHES this opening and expands the whole
+                #: of what it found. Ending the span at the first closer
+                #: instead ended it INSIDE the nested reference, so
+                #: `$(NAME:$(PAT)=.d)` never showed the `=` that makes it a
+                #: substitution reference and its pattern was read as part of
+                #: the NAME: a supported idiom lost its literal dependency
+                #: and was refused as a computed name (#410, the review of
+                #: round eleven's head).
+                counted = counted_span_end(text, at)
+                if counted >= 0:
+                    span = text[at + 2:counted]
+            colon = span.find(":")
+            #: The colon make splits on is the first one in the text it has
+            #: just expanded (`:329-338`), so where everything before it is
+            #: literal it sits at the offset seen here, and the name before
+            #: it is that literal text whatever the rest expands to. It is a
+            #: substitution reference only where an `=` follows it IN THAT
+            #: EXPANDED TEXT, which is not the same question as whether the
+            #: file spells one: asking `"=" in span[colon + 1:]` counted the
+            #: `=` inside `$(subst =,,x)` and the one `$=` reads a variable
+            #: by, neither of which any expansion leaves behind, so
+            #: `$(NAME:$(PAT:.o=.d))` was answered about NAME while make
+            #: reads `NAME:.d` (#410, the review of round twelve's head).
+            #: surviving_separator() asks the narrower question. Where no
+            #: separator survives -- and where one only an expansion could
+            #: supply would -- the split is not the file's to make, so the
+            #: span is carried on whole and refused as the computed name it
+            #: is.
+            if colon >= 0 and "$" not in span[:colon] \
+                    and surviving_separator(span, colon + 1):
+                span = span[:colon]
+        else:
+            start, stop = function_argument(text, at)
+            if function == "call":
+                stop = first_argument_end(text, start, stop, text[at + 1])
+            span = text[start:stop]
+            if function == "call" and "$" not in span:
+                token = start
+                while token < stop and text[token] not in make_fn_space_bytes:
+                    token += 1
+                span = text[start:token]
+        if "$" in span:
+            return "computed", span
+        if not span:
+            #: `$()`, and the `$(call )` make itself calls a no-op.
+            return "none", span
+        if function == "call" and span in make_builtin_functions:
+            #: One construct, one refusal: `call` DISPATCHES to the built-in
+            #: on this token, so naming it here as well would charge it two
+            #: and hide which reader the finding is about.
+            return "builtin", span
+        if make_identifier_re.fullmatch(span):
+            return "read", span
+        #: ... and make's own names are a PLAIN reference's answer only. The
+        #: exemption says that `$(1)` is the argument of the `$(call)` whose
+        #: text this closure walks and `$(@D)` is bound per rule by make; it
+        #: does not say that a variable NAMED `1` is bound wherever those
+        #: bytes are spelled. `$(value 1)` and `$(call 1)` are named lookups
+        #: of exactly that variable: `func_value()` looks its whole argument
+        #: up with no scope of any kind (`src/function.c:1571`), and
+        #: `func_call()` looks its target up at `:2745` and can return at
+        #: `:2750`, BEFORE the `$(1) .. $(N)` scope it pushes at `:2762-2769`
+        #: exists. So a numeric or automatic spelling in that position proves
+        #: no binding at the lookup being walked, and inheriting the
+        #: exemption there dropped the read from the closure with no refusal
+        #: either (#410, the review of round eleven's head).
+        if function is None and make_own_name_re.fullmatch(span):
+            return "own", span
+        return "unspelled", span
+
+    def name_reads(text: str) -> list[tuple[str, str, str]]:
+        """`(kind, name, spelling)` for every `$(`/`${` expansion in `text`,
+        nested ones included: each is scanned on its own opening, so a
+        reference inside a function's arguments -- the accepted
+        `$(patsubst %.o,%.d,$(OBJECTS))` idiom -- is read as the reference it
+        is. `$$` is make's escaped literal dollar and opens nothing."""
+        found, at, size = [], 0, len(text)
+        while at < size:
+            if text[at] != "$":
+                at += 1
+                continue
+            opener = text[at + 1:at + 2]
+            #: A `$` at the very end of the text opens nothing, and the
+            #: empty slice is IN every string, so it is answered here rather
+            #: than indexed past (#410, round-four review).
+            if not opener or opener not in "({":
+                at += 2
+                continue
+            kind, name = name_read_at(text, at)
+            # Quote the reference, not a fixed span past its name: the
+            # inherited eight bytes past the name reported `$(call $(X)) O`,
+            # the O being the next line's OBJECTS, so the message named a
+            # span no reader could match against the file.
+            found.append((kind, name, re.sub(
+                r"\s+", " ", text[at:expansion_end(text, at)]).strip()))
+            at += 2
+        return found
+
+    def referenced_names(value: str) -> list[str]:
+        """Every literal variable name `value` reads, each by the rule its own
+        construct names it with: the COMPLETE span of a plain `$(NAME)` or of
+        a `$(value NAME)` argument, and the TOKEN of a `$(call NAME,...)`."""
+        return [name for kind, name, _spelling in name_reads(value)
+                if kind == "read"]
 
     def computed_name_references(makefile: str) -> list[str]:
         """Every reference whose NAME position itself expands: `$($(X))`,
-        `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix.
+        `${${X}}`, `$(PRE_$(X))`, whatever the brace spelling or mix, and
+        (#410) the first argument of `$(call ...)` / `$(value ...)` when it
+        is computed the same way, `$(call $(X))`.
 
-        The name portion is the text from the opening `$(`/`${` up to the
-        first whitespace, `:`, `,` or close -- exactly the span
-        make_origin_ref_re models as a literal name. A `$` inside that span
-        means the reference cannot be walked BY CONSTRUCTION -- the name is
-        chosen at expansion time -- so the caller refuses instead of
-        modelling. `$$` is make's escaped literal dollar and opens nothing.
-        A reference nested in a function's ARGUMENTS (`$(patsubst
-        %.o,%.d,$(OBJECTS))`) is scanned on its own `$(` and walked
-        normally, so the accepted DEPFILES idiom stays green."""
-        text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
-        found, at, size = [], 0, len(text)
+        A `$` inside the name span means the reference cannot be walked BY
+        CONSTRUCTION -- the name is chosen at expansion time -- so the caller
+        refuses instead of modelling. WHICH span that is, is name_read_at()'s
+        answer and each construct's own: the reader that ended every name at
+        a blank or a comma let `$(value NAME $(PICK))`, `$(value NAME,$(PICK))`,
+        `$(NAME $(PICK))` and `$(NAME,$(PICK))` past this refusal, because it
+        stopped before reaching the `$` that defers them (#410, the review of
+        round ten's head).
+
+        The scan is over the whole text make reads, recipes of never-run
+        rules included, and it reports every reference in a spelling that can
+        be matched against the file.
+        """
+        return [spelling for kind, _name, spelling
+                in name_reads(make_source(makefile)) if kind == "computed"]
+
+    def unreadable_name_references(makefile: str) -> list[str]:
+        """Every reference whose LITERAL name make looks up is one this
+        walker cannot spell, for make_plan() to refuse.
+
+        The companion of the computed-name refusal, and the same sound arm
+        one step in: make reads `$(value NAME,x)`, `$(value NAME<SP>)`,
+        `$(NAME<VT>)`, `$(NAME:sub)`, `$(call MILAN-TMPL)` and the named
+        `$(value 1)` as variables whose names carry a byte outside
+        `[A-Za-z_][A-Za-z0-9_]*`. That class is THIS WALKER'S, not make's:
+        no `$(origin ...)` line this gate writes spells such a name, and no
+        assignment this closure records can bind one, so the walker has no
+        way to say where the value came from and refuses instead of
+        answering. Some of these names a Makefile could bind perfectly well
+        -- `MILAN-EXTRA = ready` is an ordinary definition to make's own
+        reader (`src/variable.c:1609-1753`, `doc/make.texi:5433`) -- and the
+        refusal costs those edits too; others, `NAME<SP>` and `NAME:sub`
+        among them, no assignment line can bind, so the environment really is
+        what is left. The head this replaces answered about the identifier
+        PREFIX instead (`NAME` for `$(value NAME,x)`) or dropped the read
+        with no refusal at all, and both are a covered-looking answer about a
+        variable make does not read (#410, the review of round ten's head).
+
+        A PLAIN `$(1)` or `$(@D)` is NOT reported: it is make_own_name_re's,
+        bound by the call site whose argument text this closure walks or by
+        the rule make binds it in. The same bytes as a `$(call)` or
+        `$(value)` ARGUMENT are reported, because there they are a lookup of
+        a variable by that name and neither construct has bound one at the
+        point it looks up (#410, the review of round eleven's head).
+        """
+        return [spelling for kind, _name, spelling
+                in name_reads(make_source(makefile)) if kind == "unspelled"]
+
+    def opaque_evals(makefile: str) -> list[str]:
+        """Every `$(eval ...)` in `makefile` the walker cannot read as a
+        whole-line literal assignment, for make_plan() to refuse."""
+        return make_evals(make_source(makefile))[1]
+
+    def builtin_function_calls(makefile: str) -> list[str]:
+        """Every `$(call NAME,...)`/`${call NAME,...}` in `makefile` whose
+        first argument names a make BUILT-IN function, for make_plan() to
+        refuse: `call` dispatches to the built-in, so the construct is that
+        built-in in a spelling no scan for its own token can see."""
+        text = make_source(makefile)
+        return [re.sub(r"\s+", " ",
+                       text[hit.start():expansion_end(text, hit.start())]
+                       ).strip()
+                for hit in make_builtin_call_re.finditer(text)
+                if hit.group(1) in make_builtin_functions]
+
+    def line_adding_evals(makefile: str) -> list[str]:
+        """Every parsed `$(eval NAME op VALUE)` whose VALUE reads a name this
+        Makefile gives a value that spans LINES, for make_plan() to refuse:
+        make parses the expansion, so such a value adds makefile lines the
+        walker reads as the one assignment it parsed."""
+        text = make_source(makefile)
+        parsed = make_evals(text)[0]
+        if not parsed:
+            return []
+        by_name: dict[str, list[str]] = {}
+        for name, value in make_rules(makefile)[1]:
+            by_name.setdefault(name, []).append(value)
+        # A value spans lines outright, or reads a name whose does: a
+        # `define NL` body is the newline idiom, and one assignment away
+        # from the eval is still a newline the eval expands to.
+        spanning = {name for name, values in by_name.items()
+                    if any("\n" in value for value in values)}
+        widened = True
+        while widened:
+            widened = False
+            for name, values in by_name.items():
+                if name in spanning:
+                    continue
+                if any(read in spanning for value in values
+                       for read in referenced_names(value)):
+                    spanning.add(name)
+                    widened = True
+        return [f"$(eval {name} ...) reads $({read}), whose value spans lines"
+                for name, value in parsed
+                for read in referenced_names(value) if read in spanning]
+
+    def eval_scope_at(text: str, at: int) -> str:
+        """`global`, `define` or `recipe` for the eval opening at offset `at`:
+        make expands a define body with the call's arguments and a recipe
+        from a rule the environment can trigger, neither of which the walker
+        reconstructs, so only a `global` eval is a candidate to walk.
+
+        The line's ROLE is make_line_roles()', which reads the file the way
+        make parses it rather than matching one line: the `endef` that closes
+        a body and the body text before it are both `define` here, and a
+        recipe line is one the default tab prefix opens IN A RULE CONTEXT.
+        Under a non-tab `.RECIPEPREFIX` the prefix character leaves the eval's
+        own line non-empty around it, so make_evals() files it opaque
+        instead.
+
+        `text` is make_source() text, whose comments are already cut where
+        make cuts them; the role reader leaves that text alone, so the
+        offsets its caller scanned are the offsets answered here."""
+        for start, end, _body, role in make_line_roles(text):
+            if start <= at < end:
+                if role in ("body", "close"):
+                    return "define"
+                return "recipe" if role == "recipe" else "global"
+        return "global"
+
+    def eval_scoped_assignments(text: str) -> list[tuple[str, str, str, str]]:
+        """`(spelling, name, value, scope)` for every `$(eval ...)`
+        make_evals() reads as a whole-line literal assignment, quoted as the
+        file writes it and tagged with the scope it sits in.
+
+        The scan mirrors make_evals()' own: an eval is a whole-line literal
+        assignment when its argument parses as `NAME op VALUE` and its joined
+        line carries nothing else; here each is also tagged by the scope its
+        offset falls in, so make_plan() can refuse the ones the walker cannot
+        expand at global scope.
+
+        `text` is read through make_source() first, which is what makes the
+        offsets this scan finds the offsets eval_scope_at() answers. Its own
+        caller already hands it that text and the reader is idempotent over
+        it, so this costs nothing there; it is what a caller handing over
+        FILE text needs, because a comment cut on an earlier line moves every
+        offset after it and would answer a later line's role for this one."""
+        text = make_source(text)
+        scoped, at, size = [], 0, len(text)
         while at < size:
             if text[at] != "$":
                 at += 1
@@ -4621,18 +5819,808 @@ def test_baremetal_profile_contract() -> None:
             if opener == "$":
                 at += 2
                 continue
-            if opener not in "({":
+            if opener not in "({" or not make_eval_head_re.match(
+                    text[at + 2:at + 7]):
                 at += 2
                 continue
-            scan = at + 2
-            while scan < size and text[scan] not in " \t,:)}\n":
-                if text[scan] == "$":
-                    found.append(re.sub(
-                        r"\s+", " ", text[at:scan + 8]).strip())
-                    break
-                scan += 1
-            at += 2
-        return found
+            closer = ")" if opener == "(" else "}"
+            depth, close = 1, at + 6
+            while close < size and depth:
+                depth += (text[close] == opener) - (text[close] == closer)
+                close += 1
+            line_end = text.find("\n", close)
+            around = text[text.rfind("\n", 0, at) + 1:at] + \
+                text[close:size if line_end < 0 else line_end]
+            literal = target_assign_re.match(text[at + 6:close - 1])
+            if not depth and literal and not around.strip():
+                scoped.append((
+                    re.sub(r"\s+", " ", text[at:close]).strip(),
+                    literal.group(1), literal.group(2),
+                    eval_scope_at(text, at)))
+            at += 6
+        return scoped
+
+    def unbindable_evals(makefile: str) -> list[str]:
+        """Every `$(eval NAME op VALUE)` make_evals() reads as a benign
+        assignment that the walker cannot in fact bind, for make_plan() to
+        REFUSE: an eval in a define body or recipe, whose expansion context
+        the file does not fix, or one whose value reads (transitively) a
+        name the walker cannot bind -- a positional parameter, a computed or
+        single-character reference, a literal name outside the walker's
+        identifier class, an escaped $$ the eval's expansion turns into a
+        live reference, or a value that ENDS in a bare $."""
+        text = make_source(makefile)
+        by_name: dict[str, list[str]] = {}
+        for name, value in make_rules(makefile)[1]:
+            by_name.setdefault(name, []).append(value)
+
+        def value_unbindable(value: str, seen: frozenset) -> str | None:
+            """The first reference in `value`, or in a Makefile name it
+            reads, the walker cannot bind, or None."""
+            follow, at, size = [], 0, len(value)
+            while at < size:
+                if value[at] != "$":
+                    at += 1
+                    continue
+                opener = value[at + 1:at + 2]
+                if opener == "$":
+                    return "$$"                 # expands to a live $ reference
+                if not opener:
+                    #: (#410, round-four review) the END of the value, which
+                    #: has to be answered BEFORE the reads below: the slice is
+                    #: the empty string, `"" in "({"` is TRUE in Python, so
+                    #: the single-character arm let it through to
+                    #: expansion_end(), which indexed past the value and
+                    #: raised IndexError instead of naming anything. make
+                    #: carries a trailing `$` into the expansion the way it
+                    #: carries `$$`, and $(eval) parses that expansion, so it
+                    #: is refused for the same reason and by name.
+                    return "a trailing $"
+                if opener not in "({":
+                    return "$" + opener          # $M, $1, $@: single-char ref
+                #: WHICH name this read is, is the one reader's answer, so
+                #: this binder cannot disagree with the closure and the
+                #: refusals about it. A name is FOLLOWED only where it is the
+                #: literal identifier the walker can bind; anything else is
+                #: named and refused, because the value the eval expands is
+                #: then not the value read here. Following the identifier
+                #: PREFIX of a longer name -- `NAME` for `$(value NAME,x)`
+                #: or `$(NAME )` -- claimed a binding for a variable make
+                #: does not read (#410, the review of round ten's head).
+                kind, name = name_read_at(value, at)
+                if kind == "read":
+                    follow.append(name)
+                elif kind != "function":
+                    #: $(1), $($(X)), $(@D), $(value NAME,x), $(call eval,..)
+                    return re.sub(
+                        r"\s+", " ",
+                        value[at:expansion_end(value, at)]).strip()
+                at += 2                           # descend, catch a nested ref
+            for name in follow:
+                if name in seen or name not in by_name:
+                    continue
+                for body in by_name[name]:
+                    bad = value_unbindable(body, seen | {name})
+                    if bad is not None:
+                        return f"{bad} via $({name})"
+            return None
+
+        flagged = []
+        where = {"define": "in a define body, bound where that define is "
+                           "reached",
+                 "recipe": "on a recipe line, run only when that rule runs"}
+        for spelling, _name, value, scope in eval_scoped_assignments(text):
+            if scope != "global":
+                flagged.append(f"{spelling} {where[scope]}")
+                continue
+            bad = value_unbindable(value, frozenset())
+            if bad is not None:
+                flagged.append(f"{spelling} reads {bad}")
+        return flagged
+
+    #: ---- the scope reader's own controls ([R94], round four) -----------
+    #:
+    #: The refusal above rests entirely on WHICH SCOPE an eval is read in,
+    #: and that answer was wrong in both directions at the head these
+    #: controls were written for, because the nesting was maintained by a
+    #: regex that tolerates the recipe prefix. Both misclassifications are
+    #: pinned here as PURE PARSER measurements -- no make run, no compile, no
+    #: environment -- so the property cannot silently come back:
+    #:
+    #:   * `<TAB>endef` inside a `define` body is BODY TEXT, so the body does
+    #:     not end there and the eval after it is the define's. It read
+    #:     `global` and was WALKED (the reviewed head's own fixture), which is
+    #:     the unsafe direction: the whole scope restriction was off for a
+    #:     body written that way.
+    #:   * `<TAB>define helper` inside a `tags:` recipe is RECIPE TEXT and
+    #:     opens nothing, so a later global eval is global. It read `define`
+    #:     and was REFUSED, which is a false refusal of an accepted idiom.
+    #:
+    #: Both are GNU make's own grammar, not a choice made here ("Defining
+    #: Multi-Line Variables" for the body, "How Makefiles Are Parsed" step 3
+    #: for the rule context). The value rows are the END of a value, where
+    #: the diagnostic reader used to raise IndexError instead of naming
+    #: anything: an empty slice is `in "({"` in Python, so a trailing `$` fell
+    #: through the single-character arm into a reader that indexed past the
+    #: value. The accepted global eval and the define-body and recipe
+    #: refusals are in the table as its ANTI-VACUITY arms: a control that
+    #: cannot tell the three scopes apart proves nothing about any of them.
+    #:
+    #: (The review of round four's head) The next two rows are the DELIMITER
+    #: boundary, where the opener's spelling was reused for the nested one
+    #: and the same two directions came back one layer in: a bare `define`
+    #: token nests in make and did not here, so the body's eval read `global`
+    #: and was walked, and an `override define inner` does NOT nest in make
+    #: and did here, so a global eval read `define` and was refused. Both are
+    #: `src/read.c`'s own two grammars, cited at make_nested_define_re.
+    #:
+    #: (The review of round five's head) The rows after those are the COMMENT
+    #: boundary, the same two directions a third time, from the whole-file
+    #: `#` strip every reader ran before it read anything: `endef#literal` is
+    #: not a delimiter in make and ended a body here, so the body's eval read
+    #: `global` and was walked and the body bound the empty string, and
+    #: `define#literal` does not nest in make and did here, so a global eval
+    #: read `define` and was refused and the body bound nothing. Their
+    #: neighbours are in the table for the same reason the scopes are: a
+    #: whitespace-separated `endef #done` still CLOSES a body, an ordinary
+    #: comment inside one is body text that does not, and a global comment
+    #: still takes its line with it -- a reader that kept every `#` would
+    #: pass the two rows above and be as wrong as the one that cut them all.
+    #: The cut also MOVES every offset after it, so the row before the
+    #: precedence pair reads an eval's scope through a comment cut on an
+    #: earlier line: what a scan finds at an offset and what the role reader
+    #: answers for it have to be the same text.
+    #: The last pair is make's ASSIGNMENT precedence: `eval()` parses a
+    #: variable definition BEFORE anything interprets a modifier or the
+    #: `define` directive, so `define = ready` is an ordinary assignment
+    #: named define and opens no body at all, while `define MILAN_TMPL =` is
+    #: a real opener -- and inside a body, where `do_define` parses no
+    #: assignment, that same `define = ready` line nests. That is one
+    #: position-dependent answer more, not an exception for a spelling, so
+    #: the fixture is in the table on BOTH sides of the boundary.
+    #:
+    #: (The review of round eight's head) The last rows are make's WHITESPACE
+    #: CLASSES, the same two directions a fifth time and at the two positions
+    #: the round-seven rows did not reach. The token boundary moved then; the
+    #: run make CONSUMES did not, so an opener separated from its name by a
+    #: vertical tab opened no body and a leading vertical tab hid an opener, a
+    #: nested `define` and a genuine conditional alike -- each body's or
+    #: recipe's own `$(eval)` reading `global` and being WALKED, with all five
+    #: pre-plan scans empty. Every widened row here carries its
+    #: blank-separated counterpart, and the body-SUFFIX rows above are its
+    #: anti-widening arms: `do_define()` consumes the wide class at the head
+    #: of a body line and tests the narrow pair after the keyword, so this
+    #: repair moves the first and leaves the second, and a reader that moved
+    #: both would pass these rows and fail those. The precedence rows are the
+    #: other guard: the vertical tab is an ordinary NAME byte to
+    #: `parse_variable_definition()`, so `define<VT>= ready` and
+    #: `define<VT>MILAN_TMPL =` are assignments to the names those bytes form
+    #: and open nothing, while `define MILAN_TMPL <VT>=` is a genuine opener
+    #: whose flavour operator sits behind the name's own blank. The last pair
+    #: is that class one reader over, at a built-in's NAME, where
+    #: `$(eval<VT>...)` is the parse-time hook `$(eval ...)` is and both eval
+    #: scans were blind to it.
+    #:
+    #: The fourth column is what a CLEAR scan MEANS, and it is deliberately
+    #: not one answer for every row. `walked` says GNU make reads this text
+    #: as a makefile and the eval is one this walker may then walk.
+    #: `classified` says make refuses the TEXT ITSELF before any expansion,
+    #: so the clear scan pins this reader's classification and claims nothing
+    #: about make accepting anything: the `<TAB>$(eval ...)` row is that case,
+    #: because `parse_variable_definition` skips the operator inside the
+    #: reference (GNU make 4.4.1 `src/variable.c:1710-1744`) so the line is
+    #: not a variable definition, and a recipe-prefixed line that is not one
+    #: and has no preceding target is then `recipe commences before first
+    #: target` (`src/read.c:995`). It is None exactly where a refusal is
+    #: expected, and the loop asserts that, so a row cannot carry a stale
+    #: claim.
+    prefixed_endef_fixture = ("define helper\n\tendef\n"
+                              "$(eval LABEL := ready)\nendef\n")
+    bare_nested_define_fixture = ("define helper\ndefine\nendef\n"
+                                  "$(eval LABEL := ready)\nendef\n")
+    modifier_body_define_fixture = ("define helper\noverride define inner\n"
+                                    "endef\n$(eval LABEL := ready)\n")
+    hashed_endef_fixture = ("define helper\nendef#literal\n"
+                            "$(eval LABEL := ready)\nendef\n")
+    hashed_define_fixture = ("define helper\ndefine#literal\nendef\n"
+                             "$(eval LABEL := ready)\n")
+    separated_endef_fixture = ("define helper\nvalue\nendef # done\n"
+                               "$(eval LABEL := ready)\n")
+    body_comment_fixture = ("define helper\n# not a directive\n"
+                            "$(eval LABEL := ready)\nendef\n")
+    assigned_define_fixture = "define = ready\n$(eval LABEL := ready)\n"
+    nested_assigned_define_fixture = ("define helper\ndefine = ready\nendef\n"
+                                      "$(eval LABEL := ready)\nendef\n")
+    #: ... and the same three shapes in make's immediately expanded flavour,
+    #: the operator the reader could not see at all (#410, the review of
+    #: round six's head).
+    expanded_define_fixture = "define :::= ready\n$(eval LABEL := ready)\n"
+    nested_expanded_define_fixture = ("define helper\ndefine :::= ready\n"
+                                      "endef\n$(eval LABEL := ready)\nendef\n")
+    #: ... and the literal targets whose names BEGIN with a directive
+    #: keyword but are not one, beside an ordinary target spelled the same
+    #: way, and the genuine conditional and include those keywords belong to.
+    #: Each tab-prefixed line is the recipe of the rule the line above opens.
+    ifdef_target_fixture = "ifdef:\n\t$(eval LABEL := ready)\n"
+    define_target_fixture = "define:\n\t$(eval LABEL := ready)\n"
+    include_target_fixture = "include-labels:\n\t$(eval LABEL := ready)\n"
+    ordinary_target_fixture = "labels:\n\t$(eval LABEL := ready)\n"
+    guarded_eval_fixture = ("ifdef MILAN_EXTRA\n$(eval LABEL := ready)\n"
+                            "endif\n")
+    included_eval_fixture = ("-include $(OBJECTS:.o=.d)\n"
+                             "$(eval LABEL := ready)\n")
+    interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\nifdef MILAN_EXTRA\n"
+                                  "endif\n\t$(eval LABEL := ready)\n")
+    #: ... and the same genuine conditionals with the REST of make's
+    #: whitespace class between the keyword and its argument (#410, the review
+    #: of round seven's head). `\v` is one vertical-tab byte and `\f` one form
+    #: feed, the two bytes `end_of_token()` stops at and `ISBLANK` does not;
+    #: the `ifeq` condition compares two equal literals, so no row here reads
+    #: an environment. Each has a blank-separated counterpart in the table, so
+    #: a row can only pass by ending the token where make ends it rather than
+    #: by answering `recipe` for every line.
+    vt_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                     "ifdef\vMILAN_EXTRA\n"
+                                     "endif\n\t$(eval LABEL := ready)\n")
+    ff_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                     "ifdef\fMILAN_EXTRA\n"
+                                     "endif\n\t$(eval LABEL := ready)\n")
+    tab_interrupted_recipe_fixture = ("tags:\n\t$(CTAGS) *.c\n"
+                                      "ifdef\tMILAN_EXTRA\n"
+                                      "endif\n\t$(eval LABEL := ready)\n")
+    guarded_recipe_fixture = ("labels:\nifeq (ready,ready)\n"
+                              "\t$(eval LABEL := ready)\nendif\n")
+    vt_guarded_recipe_fixture = ("labels:\nifeq\v(ready,ready)\n"
+                                 "\t$(eval LABEL := ready)\nendif\n")
+    ff_guarded_recipe_fixture = ("labels:\nifeq\f(ready,ready)\n"
+                                 "\t$(eval LABEL := ready)\nendif\n")
+    #: ... and the BODY delimiters, where those same two bytes separate
+    #: nothing: `do_define` needs a blank after the keyword, so all four of
+    #: these lines are body TEXT and must keep the answers they already have.
+    #: They are the anti-widening arms of the rows above: a repair that gave
+    #: every reader the outer class would pass those and fail these.
+    vt_body_endef_fixture = ("define helper\nendef\vdone\n"
+                             "$(eval LABEL := ready)\nendef\n")
+    ff_body_endef_fixture = ("define helper\nendef\fdone\n"
+                             "$(eval LABEL := ready)\nendef\n")
+    vt_body_define_fixture = ("define helper\ndefine\vinner\nendef\n"
+                              "$(eval LABEL := ready)\n")
+    ff_body_define_fixture = ("define helper\ndefine\finner\nendef\n"
+                              "$(eval LABEL := ready)\n")
+    #: ... and the OTHER two places those bytes appear, which are the two the
+    #: rows above did not reach (#410, the review of round eight's head). The
+    #: first is the OPENER, whose keyword ends where any other token ends and
+    #: whose NAME make reaches with `next_token()`: `define<VT>helper` opens a
+    #: body named helper, and at the head this replaces it opened none, so the
+    #: body's own `$(eval)` read `global` and was WALKED. The second is the
+    #: LEADING run every one of make's three readers consumes before it reads
+    #: anything -- the outer reader's, the modifier loop's and the body
+    #: collector's -- so `<VT>define helper` opens a body, `<VT>define inner`
+    #: nests one inside a body, and `<VT>ifeq` is the conditional that leaves
+    #: a pending recipe open. Each has its blank-separated counterpart in the
+    #: table, and the body-suffix rows above are the anti-widening arms: this
+    #: repair moves the LEADING run of the body reader and leaves its SUFFIX
+    #: narrow, which is the pair of classes `do_define()` itself uses.
+    vt_open_define_fixture = ("define\vhelper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    ff_open_define_fixture = ("define\fhelper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    tab_open_define_fixture = ("define\thelper\n$(eval LABEL := ready)\n"
+                               "endef\n")
+    vt_lead_define_fixture = ("\vdefine helper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    ff_lead_define_fixture = ("\fdefine helper\n$(eval LABEL := ready)\n"
+                              "endef\n")
+    space_lead_define_fixture = (" define helper\n$(eval LABEL := ready)\n"
+                                 "endef\n")
+    vt_lead_body_define_fixture = ("define helper\n\vdefine inner\nendef\n"
+                                   "$(eval LABEL := ready)\nendef\n")
+    ff_lead_body_define_fixture = ("define helper\n\fdefine inner\nendef\n"
+                                   "$(eval LABEL := ready)\nendef\n")
+    space_lead_body_define_fixture = ("define helper\n define inner\nendef\n"
+                                      "$(eval LABEL := ready)\nendef\n")
+    vt_lead_body_endef_fixture = ("define helper\n\vendef\n"
+                                  "$(eval LABEL := ready)\n")
+    vt_lead_guarded_recipe_fixture = ("labels:\n\vifeq (ready,ready)\n"
+                                      "\t$(eval LABEL := ready)\nendif\n")
+    ff_lead_guarded_recipe_fixture = ("labels:\n\fifeq (ready,ready)\n"
+                                      "\t$(eval LABEL := ready)\nendif\n")
+    space_lead_guarded_recipe_fixture = ("labels:\n ifeq (ready,ready)\n"
+                                         "\t$(eval LABEL := ready)\nendif\n")
+    vt_lead_interrupted_recipe_fixture = ("labels:\n\vifdef MILAN_EXTRA\n"
+                                          "endif\n\t$(eval LABEL := ready)\n")
+    ff_lead_interrupted_recipe_fixture = ("labels:\n\fifdef MILAN_EXTRA\n"
+                                          "endif\n\t$(eval LABEL := ready)\n")
+    #: ... and make's assignment precedence at that same widened opener, which
+    #: is what keeps it honest: the vertical tab is an ordinary NAME byte to
+    #: `parse_variable_definition()`, so these three lines are assignments to
+    #: the names `define<VT>`, `define<FF>` and `define<VT>helper` and open no
+    #: body at all, exactly as `define = ready` opens none.
+    vt_assigned_define_fixture = "define\v= ready\n$(eval LABEL := ready)\n"
+    ff_assigned_define_fixture = "define\f:= ready\n$(eval LABEL := ready)\n"
+    vt_named_assigned_define_fixture = ("define\vhelper = ready\n"
+                                        "$(eval LABEL := ready)\n")
+    #: ... and the modifier run before an opener, which make reaches with
+    #: `next_token()` too.
+    vt_modifier_define_fixture = ("override\vdefine helper\n"
+                                  "$(eval LABEL := ready)\nendef\n")
+    #: ... and the same class one reader over, at the built-in's own name:
+    #: `$(eval<VT>...)` is the parse-time hook `$(eval ...)` is, and at the
+    #: head this replaces BOTH eval scans were blind to it -- the assignment
+    #: was invisible to the closure and the eval was invisible to the refusal.
+    vt_eval_head_fixture = ("$(eval\vMILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+                            "CFLAGS += $(MILAN_INCLUDES)\n")
+    vt_eval_head_body_fixture = ("define MILAN_TMPL\n$(eval\vCFLAGS += $(1))\n"
+                                 "endef\n")
+    eval_scope_controls = (
+        ("a recipe-prefixed endef is define BODY text, not the end of one",
+         prefixed_endef_fixture, "define", "in a define body", None),
+        ("a recipe-prefixed define in a rule context opens no body",
+         "tags:\n\tdefine helper\n$(eval LABEL := ready)\n",
+         "global", None, "walked"),
+        ("a recipe-prefixed define inside a body does not nest either",
+         "define MILAN_TMPL\n\tdefine MILAN_INNER\n"
+         "$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body", None),
+        ("a recipe-prefixed eval outside a rule context reads global",
+         "\t$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None, "classified"),
+        ("an eval after a rule whose recipe ended is global",
+         "libmilan_baremetal.a: $(OBJECTS)\n\t$(AR) crs $@ $(OBJECTS)\n\n"
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None, "walked"),
+        ("a define opened after a rule context still scopes its eval",
+         "tags:\n\t$(CTAGS) *.c\ndefine MILAN_TMPL\n"
+         "$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body", None),
+        ("the accepted global eval of a literal assignment stays walked",
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+         "CFLAGS += $(MILAN_INCLUDES)\n",
+         "global", None, "walked"),
+        ("a define-body eval of the call's argument stays refused",
+         "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+         "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))\n",
+         "define", "in a define body", None),
+        ("a recipe eval stays refused",
+         "milan_pre:\n\t$(eval CFLAGS += -include ../shadow.h)\n",
+         "recipe", "on a recipe line", None),
+        ("a value ending in a bare $ is named, not a crash",
+         "$(eval LABEL := cost$)\n", "global", "reads a trailing $", None),
+        ("a value that IS a bare $ is named too",
+         "$(eval MILAN_LATE = $)\n", "global", "reads a trailing $", None),
+        ("a bare define token nests, so the eval after the inner endef is "
+         "still the body's",
+         bare_nested_define_fixture, "define", "in a define body", None),
+        ("a modifier before a define inside a body is body TEXT, so the "
+         "first endef closes the body",
+         modifier_body_define_fixture, "global", None, "walked"),
+        ("an endef with a hash attached is body text, so the body runs past "
+         "it to the real endef",
+         hashed_endef_fixture, "define", "in a define body", None),
+        ("a define with a hash attached is body text too, so the first endef "
+         "closes the body",
+         hashed_define_fixture, "global", None, "walked"),
+        ("an endef whose comment is separated by a blank still closes the "
+         "body",
+         separated_endef_fixture, "global", None, "walked"),
+        ("an ordinary comment inside a body is body text and ends nothing",
+         body_comment_fixture, "define", "in a define body", None),
+        ("a global comment still takes its own line with it",
+         "# $(eval CFLAGS += -include ../shadow.h)\n"
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n",
+         "global", None, "walked"),
+        ("an ordinary assignment named define opens no body",
+         assigned_define_fixture, "global", None, "walked"),
+        ("... and a modifier before it is the same assignment",
+         "override " + assigned_define_fixture, "global", None, "walked"),
+        ("a define opener carrying a flavour operator still opens a body",
+         "define MILAN_TMPL =\n$(eval CFLAGS += $(1))\nendef\n",
+         "define", "in a define body", None),
+        ("the same assignment spelling INSIDE a body is a nested delimiter",
+         nested_assigned_define_fixture, "define", "in a define body", None),
+        ("an ordinary assignment named define opens no body in make's "
+         "immediately expanded flavour either",
+         expanded_define_fixture, "global", None, "walked"),
+        ("... and a modifier before that one is the same assignment too",
+         "override " + expanded_define_fixture, "global", None, "walked"),
+        ("... while the same flavour INSIDE a body nests like any other "
+         "first token",
+         nested_expanded_define_fixture, "define", "in a define body", None),
+        ("a target named for a conditional keyword is a target, so the "
+         "line after it is its recipe",
+         ifdef_target_fixture, "recipe", "on a recipe line", None),
+        ("... and so is one named for a body directive",
+         define_target_fixture, "recipe", "on a recipe line", None),
+        ("... and one whose name merely begins with an include keyword",
+         include_target_fixture, "recipe", "on a recipe line", None),
+        ("an ordinary target reads the same way, which is the answer all "
+         "four must agree on",
+         ordinary_target_fixture, "recipe", "on a recipe line", None),
+        ("a GENUINE conditional is still a directive, so the eval it "
+         "guards is global",
+         guarded_eval_fixture, "global", None, "walked"),
+        ("a genuine include is still a directive, and the eval after it is "
+         "global",
+         included_eval_fixture, "global", None, "walked"),
+        ("a genuine conditional between two recipe lines leaves the recipe "
+         "open, so the eval on the second is still refused",
+         interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and so does one a vertical tab separates from its argument, "
+         "which is make's token boundary too",
+         vt_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and one a form feed separates",
+         ff_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and one a tab separates, the other blank",
+         tab_interrupted_recipe_fixture, "recipe", "on a recipe line", None),
+        ("a conditional opened over a pending rule leaves its recipe line "
+         "recipe-scoped",
+         guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... whatever whitespace follows that keyword: a vertical tab",
+         vt_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... or a form feed",
+         ff_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("an endef a vertical tab separates from its text is BODY text, "
+         "because a body delimiter needs a BLANK after the keyword",
+         vt_body_endef_fixture, "define", "in a define body", None),
+        ("... and a form feed leaves it body text as well",
+         ff_body_endef_fixture, "define", "in a define body", None),
+        ("a define a vertical tab separates from its name nests nothing, so "
+         "the first endef closes the body and the eval after it is global",
+         vt_body_define_fixture, "global", None, "walked"),
+        ("... and a form feed nests nothing either",
+         ff_body_define_fixture, "global", None, "walked"),
+        ("a comment cut on an earlier line does not move an eval's own scope",
+         "CFLAGS += -g # a comment long enough to shift every offset\n"
+         "define helper\n$(eval LABEL := ready)\nendef\n",
+         "define", "in a define body", None),
+        ("a define a vertical tab separates from its NAME still opens a "
+         "body, because the opener's keyword ends at make's token boundary",
+         vt_open_define_fixture, "define", "in a define body", None),
+        ("... and a form feed opens one too",
+         ff_open_define_fixture, "define", "in a define body", None),
+        ("... and a tab, the other blank, which is the answer all four must "
+         "agree on",
+         tab_open_define_fixture, "define", "in a define body", None),
+        ("a vertical tab BEFORE a define opener is whitespace make consumes, "
+         "so the body it opens still scopes its eval",
+         vt_lead_define_fixture, "define", "in a define body", None),
+        ("... and a form feed before one is consumed the same way",
+         ff_lead_define_fixture, "define", "in a define body", None),
+        ("... and a space before one, the counterpart that already worked",
+         space_lead_define_fixture, "define", "in a define body", None),
+        ("a vertical tab before a NESTED define is consumed too, so the "
+         "first endef closes the inner body and the eval is still the "
+         "outer body's",
+         vt_lead_body_define_fixture, "define", "in a define body", None),
+        ("... and a form feed before one nests the same level",
+         ff_lead_body_define_fixture, "define", "in a define body", None),
+        ("... and a space before one, the counterpart",
+         space_lead_body_define_fixture, "define", "in a define body", None),
+        ("a vertical tab before an endef is consumed as well, so that endef "
+         "CLOSES the body and the eval after it is global",
+         vt_lead_body_endef_fixture, "global", None, "walked"),
+        ("a vertical tab before a genuine conditional leaves it a "
+         "conditional, so the pending rule stays open and its recipe eval is "
+         "refused",
+         vt_lead_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and a form feed before one leaves it a conditional too",
+         ff_lead_guarded_recipe_fixture, "recipe", "on a recipe line", None),
+        ("... and a space before one, the counterpart",
+         space_lead_guarded_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("a vertical tab before a conditional between a rule and its recipe "
+         "leaves that recipe open",
+         vt_lead_interrupted_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("... and a form feed before that one",
+         ff_lead_interrupted_recipe_fixture, "recipe", "on a recipe line",
+         None),
+        ("an assignment whose NAME ends in a vertical tab is still an "
+         "assignment named define, so it opens no body",
+         vt_assigned_define_fixture, "global", None, "walked"),
+        ("... and one whose name ends in a form feed, in another of make's "
+         "operators",
+         ff_assigned_define_fixture, "global", None, "walked"),
+        ("... and one whose name is define, that byte and a word: two token "
+         "sets are an opener only when no operator follows them",
+         vt_named_assigned_define_fixture, "global", None, "walked"),
+        ("a modifier a vertical tab separates from its define still reaches "
+         "the opener, because make's modifier loop consumes that byte",
+         vt_modifier_define_fixture, "define", "in a define body", None),
+        ("an eval a vertical tab separates from its argument is the same "
+         "parse-time hook, so the assignment it carries is read and walked",
+         vt_eval_head_fixture, "global", None, "walked"),
+        ("... and the same eval inside a define body is refused by name",
+         vt_eval_head_body_fixture, "define", "in a define body", None),
+    )
+    for label, fixture, want_scope, want_refusal, clear_means in \
+            eval_scope_controls:
+        assert (clear_means is None) == (want_refusal is not None), \
+            f"the control {label!r} must say what a clear scan means " \
+            "exactly where it expects no refusal, so no row carries a " \
+            "claim about make that nothing here reads"
+        scopes = [scope for *_quoted, scope
+                  in eval_scoped_assignments(fixture)]
+        assert scopes == [want_scope], \
+            f"the eval scope reader reads {label!r} as {scopes} rather than " \
+            f"['{want_scope}']: the scope is what the whole unbindable-eval " \
+            "refusal rests on, and make decides it from the lines BEFORE " \
+            "the eval -- a recipe-prefixed line is define body text inside a " \
+            "body and recipe text in a rule context, never a directive, and " \
+            "the `define` spelling that delimits a body is not the one that " \
+            "opens it"
+        refused = unbindable_evals(fixture)
+        if want_refusal is None:
+            assert refused == [], \
+                f"{label!r} is refused as {refused}: " + (
+                    "this fixture is one make reads as a makefile and "
+                    "expands at global scope over names this file binds, so "
+                    "refusing it is a cost charged for nothing"
+                    if clear_means == "walked" else
+                    "this fixture pins the CLASSIFICATION only, since make "
+                    "refuses the text itself before expansion, so a refusal "
+                    "here is this reader answering the wrong question rather "
+                    "than a cost anyone pays")
+        else:
+            assert len(refused) == 1 and want_refusal in refused[0], \
+                f"{label!r} must be refused naming {want_refusal!r}, and " \
+                f"the reader said {refused}"
+    #: ... and the define READER must carry the same body at each of those
+    #: boundaries, or the two answers disagree about where a body ends and
+    #: the closure walks text the scope reader has already called
+    #: unreachable -- or, worse, skips text it called reachable. One row per
+    #: boundary the table above pins from the scope side.
+    define_body_controls = (
+        ("a recipe-prefixed endef is body text",
+         prefixed_endef_fixture, "\tendef\n$(eval LABEL := ready)"),
+        ("a bare define token nests, so the body runs to the outer endef",
+         bare_nested_define_fixture,
+         "define\nendef\n$(eval LABEL := ready)"),
+        ("a modifier before a define inside a body is body text",
+         modifier_body_define_fixture, "override define inner"),
+        ("an endef with a hash attached is body text, and the body keeps "
+         "its bytes",
+         hashed_endef_fixture, "endef#literal\n$(eval LABEL := ready)"),
+        ("a define with a hash attached is body text, and is the whole body",
+         hashed_define_fixture, "define#literal"),
+        ("an endef whose comment is separated by a blank closes the body, "
+         "which keeps the line before it",
+         separated_endef_fixture, "value"),
+        ("an ordinary comment inside a body is a line of the value, because "
+         "make stores the body line as it stands",
+         body_comment_fixture, "# not a directive\n$(eval LABEL := ready)"),
+        ("an assignment spelling inside a body nests, so the body runs to "
+         "the outer endef",
+         nested_assigned_define_fixture,
+         "define = ready\nendef\n$(eval LABEL := ready)"),
+        ("an immediately expanded assignment spelling nests there too",
+         nested_expanded_define_fixture,
+         "define :::= ready\nendef\n$(eval LABEL := ready)"),
+        ("an endef a vertical tab separates from its text is body text, so "
+         "the body runs past it to the real endef",
+         vt_body_endef_fixture, "endef\vdone\n$(eval LABEL := ready)"),
+        ("... and a form feed leaves the same body",
+         ff_body_endef_fixture, "endef\fdone\n$(eval LABEL := ready)"),
+        ("a define a vertical tab separates from its name is body text, and "
+         "is the whole body",
+         vt_body_define_fixture, "define\vinner"),
+        ("... and a form feed leaves the same one-line body",
+         ff_body_define_fixture, "define\finner"),
+        ("a define a vertical tab separates from its NAME opens a body, and "
+         "that body is the line under it",
+         vt_open_define_fixture, "$(eval LABEL := ready)"),
+        ("... and a leading vertical tab before the opener leaves the same "
+         "body",
+         vt_lead_define_fixture, "$(eval LABEL := ready)"),
+        ("... and a modifier that byte separates from the opener too",
+         vt_modifier_define_fixture, "$(eval LABEL := ready)"),
+        ("a leading vertical tab before a NESTED define nests it, so the "
+         "body runs past the inner endef to the outer one",
+         vt_lead_body_define_fixture,
+         "\vdefine inner\nendef\n$(eval LABEL := ready)"),
+        ("... and a leading form feed nests the same level",
+         ff_lead_body_define_fixture,
+         "\fdefine inner\nendef\n$(eval LABEL := ready)"),
+        ("a leading vertical tab before an endef CLOSES the body, which is "
+         "the mirror direction and leaves an empty value",
+         vt_lead_body_endef_fixture, ""),
+    )
+    for label, fixture, want_body in define_body_controls:
+        bound = [value for name, value in make_rules(fixture)[1]
+                 if name == "helper"]
+        assert bound == [want_body], \
+            f"with {label}, the define reader bound `helper` to {bound} " \
+            f"rather than [{want_body!r}]: the body it carries is every " \
+            "line make counts as body text, and the assignment reader and " \
+            "the scope reader must not disagree about which lines those are"
+    #: ... and make's own ASSIGNMENT precedence from the binding side, which
+    #: is the other half of "opens no body": a reader that simply dropped the
+    #: line would satisfy the scope row above and lose the variable, and a
+    #: reader that applied the precedence one position too far would lose a
+    #: genuine opener's body. One row per direction.
+    define_precedence_controls = (
+        ("an ordinary assignment named define binds its value",
+         assigned_define_fixture, "define", ["ready"]),
+        ("... and so does the same assignment behind a modifier",
+         "override " + assigned_define_fixture, "define", ["ready"]),
+        ("a genuine opener carrying a flavour operator binds its BODY",
+         "define MILAN_TMPL =\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("an immediately expanded assignment named define binds its value",
+         expanded_define_fixture, "define", ["ready"]),
+        ("... and so does the same one behind a modifier",
+         "override " + expanded_define_fixture, "define", ["ready"]),
+        ("a genuine opener carrying THAT flavour operator still binds its "
+         "BODY, because two token sets are no assignment",
+         "define MILAN_TMPL :::=\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and the TARGET-specific form of that operator is an "
+         "assignment this closure walks, not a rule",
+         "all: CFLAGS :::= -g\n", "CFLAGS", ["-g"]),
+        ("a genuine opener a vertical tab separates from its name binds its "
+         "BODY under that name",
+         "define\vMILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and a form feed separates the same opener",
+         "define\fMILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... and a leading vertical tab before one binds the same body",
+         "\vdefine MILAN_TMPL\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("... while that separator followed by a flavour operator is no "
+         "opener at all: make's own reader takes `define<VT>MILAN_TMPL =` as "
+         "an assignment to the name those two words and the byte make",
+         "define\vMILAN_TMPL =\n-I$(1)\nendef\n", "MILAN_TMPL", []),
+        ("... and a genuine opener whose flavour operator that byte follows "
+         "the name's BLANK of still binds its body, which is the same "
+         "precedence read from the other side",
+         "define MILAN_TMPL \v=\n-I$(1)\nendef\n", "MILAN_TMPL", ["-I$(1)"]),
+        ("a leading vertical tab does not hide an ordinary assignment, "
+         "because make consumes it before it parses one",
+         "\vCFLAGS += -g\n", "CFLAGS", ["-g"]),
+        ("... and neither does one AFTER the blank that ends the name, which "
+         "is the run make skips with next_token",
+         "CFLAGS \v+= -g\n", "CFLAGS", ["-g"]),
+        ("... while a name that ENDS in that byte is a different name, one "
+         "no recipe in this file reads",
+         "CFLAGS\v+= -g\n", "CFLAGS", []),
+    )
+    for label, fixture, bound_name, want_values in define_precedence_controls:
+        bound = [value for name, value in make_rules(fixture)[1]
+                 if name == bound_name]
+        assert bound == want_values, \
+            f"with {label}, the reader bound `{bound_name}` to {bound} " \
+            f"rather than {want_values}: make parses a variable definition " \
+            "BEFORE it interprets a modifier or the `define` directive, so " \
+            "an assignment named define is an assignment and a real opener " \
+            "is still an opener, in every operator make has: one this " \
+            "reader cannot see is a value reaching the compile that nothing " \
+            "here walks"
+    #: ... and the RULE reader must agree with the scope reader about which
+    #: of those lines opened a rule at all, the same way the define reader
+    #: has to agree about a body: a line the scope table above reads as a
+    #: target must be a rule HERE, with its targets and its recipe, and a
+    #: line it reads as a directive must be no rule at all. The two readers
+    #: share one directive pattern, so a boundary that is wrong in one is
+    #: wrong in both, and the recipe a rule carries is the other half of
+    #: "the following line is recipe-scoped". One row per keyword the
+    #: previous boundary mis-read, plus the ordinary target they must all
+    #: match and the genuine directives the correction must not eat.
+    directive_target_controls = (
+        ("a target named for a conditional keyword is a rule",
+         ifdef_target_fixture, [["ifdef"]], ["$(eval LABEL := ready)"]),
+        ("a target named for a body directive is a rule",
+         define_target_fixture, [["define"]], ["$(eval LABEL := ready)"]),
+        ("a target whose name begins with an include keyword is a rule",
+         include_target_fixture, [["include-labels"]],
+         ["$(eval LABEL := ready)"]),
+        ("an ordinary target is the same rule, which is what the three "
+         "above must read as",
+         ordinary_target_fixture, [["labels"]], ["$(eval LABEL := ready)"]),
+        ("a genuine conditional is no rule",
+         guarded_eval_fixture, [], []),
+        ("a genuine include is no rule either, however its argument is "
+         "punctuated",
+         included_eval_fixture, [], []),
+        ("a target behind a leading vertical tab is still a rule with its "
+         "recipe",
+         "\vlabels:\n\t$(eval LABEL := ready)\n", [["labels"]],
+         ["$(eval LABEL := ready)"]),
+        ("a genuine conditional behind one is still no rule",
+         "\vifdef MILAN_EXTRA\n$(eval LABEL := ready)\nendif\n", [], []),
+        ("a genuine include behind one is no rule either",
+         "\v-include $(OBJECTS:.o=.d)\n$(eval LABEL := ready)\n", [], []),
+    )
+    for label, fixture, want_targets, want_recipe in \
+            directive_target_controls:
+        got = make_rules(fixture)[0]
+        assert [targets for targets, _prereqs, _recipe in got] == \
+            want_targets, \
+            f"with {label}, the rule reader found targets " \
+            f"{[t for t, _p, _r in got]} rather than {want_targets}: make " \
+            "compares a directive by the whole TOKEN its first word makes, " \
+            "so a literal target whose name merely begins with a keyword " \
+            "is a rule and a real directive is not"
+        assert [line for _targets, _prereqs, recipe in got
+                for line in recipe] == want_recipe, \
+            f"with {label}, the rule reader carried the recipe " \
+            f"{[l for _t, _p, r in got for l in r]} rather than " \
+            f"{want_recipe}: the line the scope reader calls recipe-scoped " \
+            "is the line this rule has to hold"
+    #: ... and the `#` cut itself, which is where both of those start, pinned
+    #: on the TEXT rather than only through its consequences: what make_source()
+    #: leaves is what every reader above scans, and the single whole-file strip
+    #: it replaces is exactly what moved a body's delimiters before anything
+    #: read them.
+    make_comment_controls = (
+        ("a comment on a global line is cut and the line stays",
+         "CFLAGS += -g # note\n", "CFLAGS += -g \n"),
+        ("a whole-line comment leaves an empty line behind",
+         "# $(eval CFLAGS += -include ../shadow.h)\nCFLAGS += -g\n",
+         "\nCFLAGS += -g\n"),
+        ("a define body keeps its comment, because make stores the body "
+         "line as it stands",
+         body_comment_fixture, body_comment_fixture),
+        ("a delimiter with a hash attached is not a delimiter and its text "
+         "stands",
+         hashed_endef_fixture, hashed_endef_fixture),
+        ("an endef's own comment is cut only AFTER the delimiter is "
+         "recognised",
+         separated_endef_fixture,
+         "define helper\nvalue\nendef \n$(eval LABEL := ready)\n"),
+        ("a recipe line keeps its comment, because make hands the line to "
+         "the shell instead of parsing it",
+         "tags:\n\t$(CTAGS) *.c # keep\n", "tags:\n\t$(CTAGS) *.c # keep\n"),
+    )
+    for label, fixture, want_source in make_comment_controls:
+        assert make_source(fixture) == want_source, \
+            f"with {label}, the reader left {make_source(fixture)!r} rather " \
+            f"than {want_source!r}: make removes a comment on the line it is " \
+            "about to parse, not in a define body it is collecting or a " \
+            "recipe line it is handing to the shell, and where the cut " \
+            "happens decides which words are delimiters at all"
+    eval_scope_control_note = (
+        f"{len(eval_scope_controls)} pure-parser controls hold over the eval "
+        "SCOPE reader, which is what the refusal above rests on, "
+        f"{len(define_body_controls)} more hold the define reader to the "
+        f"same body, {len(define_precedence_controls)} hold make's "
+        "assignment-before-directive precedence from the binding side, "
+        f"{len(directive_target_controls)} hold the rule reader to the same "
+        "directive TOKEN the scope reader uses and "
+        f"{len(make_comment_controls)} pin where a `#` is cut at all: a "
+        "recipe-prefixed `endef` is define BODY text and does "
+        "not end the body (that eval used to read `global` and be walked), a "
+        "recipe-prefixed `define` in a rule context is recipe text and opens "
+        "no body (a real global eval used to read `define` and be refused), "
+        "a bare `define` token nests inside a body and a modifier before one "
+        "does not (the same two directions, at the delimiter make spells "
+        "differently from the opener), `endef#literal` and `define#literal` "
+        "are body TEXT while a blank-separated `endef #done` still closes "
+        "the body (the same two directions again, from cutting every `#` "
+        "before the body was read at all), an ordinary assignment named "
+        "`define` binds a variable and opens no body while the same "
+        "spelling inside a body nests -- in every one of make's seven "
+        "assignment operators, `:::=` included -- a literal target named "
+        "`ifdef:`, `define:` or `include-labels:` opens a rule whose next "
+        "line is a RECIPE while a genuine conditional or include opens none "
+        "(that recipe eval used to read `global` and be walked), a directive "
+        "keyword ends at make's whole whitespace class and a body delimiter "
+        "at its BLANK pair -- `ifdef<VT>LABEL` and `ifeq<FF>(x,x)` are "
+        "genuine conditionals that leave a pending recipe open, while "
+        "`endef<VT>done` and `define<FF>inner` are body TEXT that delimits "
+        "nothing (the recipe eval of the first pair used to read `global` and "
+        "be walked, and one class for both stages would move that miss to the "
+        "second pair), the run make CONSUMES is that same wide class at every "
+        "reader that consumes one -- `define<VT>helper` opens a body, and so "
+        "does `<VT>define helper`, while `<VT>define inner` nests one and "
+        "`<VT>ifeq` leaves a pending recipe open (all four used to read "
+        "`global` and be walked) -- the assignment precedence still decides "
+        "the opener, so `define<VT>= ready` and `define<VT>MILAN_TMPL =` are "
+        "assignments to the names those bytes form while "
+        "`define MILAN_TMPL <VT>=` is a real opener, a built-in's NAME ends "
+        "at that wide class too so `$(eval<VT>...)`, `$(call<VT>NAME,...)` "
+        "and `$(value<FF>NAME)` are the hook and the reads their "
+        "blank-separated spellings are -- and a value "
+        "ending in a bare `$` is "
+        "refused by name instead of raising IndexError out of the diagnostic "
+        "reader. Each is a CLASSIFICATION result; where a row expects no "
+        "refusal it also says whether make reads that text as a makefile at "
+        "all, so a clear scan is never read as make accepting a file")
 
     def pinned_recipe_names(makefile: str, compile_value: str) -> list[str]:
         """Every variable name whose value can reach the pinned recipes."""
@@ -4642,7 +6630,7 @@ def test_baremetal_profile_contract() -> None:
             by_name.setdefault(name, []).append(value)
         pending = ["CFLAGS", "OBJECTS", "LIBMILAN_BAREMETAL_DIRECTORY",
                    "compile"]
-        pending += make_origin_ref_re.findall(compile_value)
+        pending += referenced_names(compile_value)
         reachable = set()
         while pending:
             name = pending.pop()
@@ -4650,8 +6638,674 @@ def test_baremetal_profile_contract() -> None:
                 continue
             reachable.add(name)
             for value in by_name.get(name, ()):
-                pending.extend(make_origin_ref_re.findall(value))
+                pending.extend(referenced_names(value))
         return sorted(reachable - make_stub_seeded)
+
+    #: ---- the function-argument readers' own controls (#410, the review of
+    #: round nine's head) -------------------------------------------------
+    #:
+    #: These sit HERE, after the closure they measure, because a control over
+    #: the regexes alone would have passed at the head this replaces: the
+    #: defects were in what the closure and the five pre-plan scans ANSWER,
+    #: and a widened pattern that no consumer reads is a repair of nothing.
+    #: So every row asks the whole path -- the names pinned_recipe_names()
+    #: puts to `$(origin)`, and all five refusals make_plan() runs before any
+    #: plan -- and a row states the complete answer, refusals it does NOT
+    #: expect included, because a refusal arriving from the wrong scan is a
+    #: reader answering a question nobody asked.
+    #:
+    #: Both reported defects are the same boundary read with the blank pair
+    #: where make reads its wide one, at the two positions round eight's
+    #: repair did not reach:
+    #:
+    #:   * the first argument's OWN end. `func_call()` cleans the argument up
+    #:     with `next_token()` and `end_of_token()` (`src/function.c:2722`),
+    #:     so `$(call HELPER<VT>,ready)` and `$(call HELPER junk,ready)` call
+    #:     HELPER; the closure held neither, and the built-in refusal was
+    #:     absent for `$(call eval<VT>,TEXT)`, which IS an eval.
+    #:   * the run BEFORE a computed one. `lookup_function()` ends the
+    #:     function name at that class and `handle_function()` skips the whole
+    #:     run with `NEXT_TOKEN` (`:272-287`, `:2610-2614`), so
+    #:     `$(call<VT> $(PICK))` defers its name exactly as `$(call $(PICK))`
+    #:     does; the computed-name refusal fired for the second and not the
+    #:     first, and the only name the scan saw was the inner literal.
+    #:
+    #: The anti-widening arms are `value`'s, and they are why one pattern
+    #: cannot serve both: `func_value()` looks its argument up WHOLE
+    #: (`:1568-1571`), so `$(value NAME<VT>)` names the variable those bytes
+    #: spell while `$(call NAME<VT>)` calls NAME -- the same suffix byte, two
+    #: functions, two answers, and a repair that gave `value` the token rule
+    #: would pass the call rows and put a name in the closure make never reads
+    #: there. The plain-reference rows are the other arm: make ends a plain
+    #: `$(NAME)` at its close bracket and nowhere else, so `$(FOO<VT>$(X))` is
+    #: a computed name, `$(callable)` is an ordinary read, and a bare
+    #: `$(call)` is the variable reference make takes it for.
+    call_argument_controls = (
+        ("a call a vertical tab separates from its first argument still "
+         "reads that argument's name into the closure",
+         "CFLAGS += $(call HELPER\v,ready)\n", ("HELPER", "OBJECTS"), None),
+        ("... and a form feed separates the same call",
+         "CFLAGS += $(call HELPER\f,ready)\n", ("HELPER", "OBJECTS"), None),
+        ("... and a carriage return, the third byte of that class",
+         "CFLAGS += $(call HELPER\r,ready)\n", ("HELPER", "OBJECTS"), None),
+        ("... and a space, the counterpart that already worked",
+         "CFLAGS += $(call HELPER ,ready)\n", ("HELPER", "OBJECTS"), None),
+        ("... and a tab, the other blank",
+         "CFLAGS += $(call HELPER\t,ready)\n", ("HELPER", "OBJECTS"), None),
+        ("a first argument make ends at a blank is that TOKEN, not the text "
+         "up to the comma",
+         "CFLAGS += $(call HELPER junk,ready)\n", ("HELPER", "OBJECTS"),
+         None),
+        ("... and the same token where a vertical tab ends it",
+         "CFLAGS += $(call HELPER\vjunk,ready)\n", ("HELPER", "OBJECTS"),
+         None),
+        ("a call with no argument at all still names what it calls",
+         "CFLAGS += $(call HELPER)\n", ("HELPER", "OBJECTS"), None),
+        ("the brace spelling reads the same name",
+         "CFLAGS += ${call HELPER,ready}\n", ("HELPER", "OBJECTS"), None),
+        ("a call written across a define body's own newline is the call its "
+         "blank-separated spelling is",
+         "define T\n$(call\nHELPER,ready)\nendef\nCFLAGS += $(T)\n",
+         ("HELPER", "OBJECTS", "T"), None),
+        ("a value a vertical tab separates from its argument reads that "
+         "name too, because the run before an argument is consumed",
+         "CFLAGS += $(value\vMILAN_EXTRA)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... while a value whose argument ENDS in that byte names the "
+         "variable those bytes spell, which is a name this walker cannot "
+         "put to $(origin) and therefore refuses",
+         "CFLAGS += $(value MILAN_EXTRA\v)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA )")),
+        ("... and a CALL whose argument ends in it calls the name, which is "
+         "the same suffix read by the other function's rule",
+         "CFLAGS += $(call MILAN_EXTRA\v)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... and a value whose argument ends in a blank is refused too, "
+         "rather than answered about the identifier it starts with",
+         "CFLAGS += $(value MILAN_EXTRA )\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA )")),
+        ("... and a value whose argument carries a COMMA, which make keeps "
+         "inside the one argument it takes",
+         "CFLAGS += $(value MILAN_EXTRA,x)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA,x)")),
+        ("... and the brace spelling of that comma argument",
+         "CFLAGS += ${value MILAN_EXTRA,x}\n", ("OBJECTS",),
+         ("unreadable", "${value MILAN_EXTRA,x}")),
+        ("... and a value argument with a blank INSIDE it, which a token "
+         "rule would have read as the name before it",
+         "CFLAGS += $(value MILAN_EXTRA junk)\n", ("OBJECTS",),
+         ("unreadable", "$(value MILAN_EXTRA junk)")),
+        ("... while the plain value read of an identifier stays the covered "
+         "dependency it always was",
+         "CFLAGS += $(value MILAN_EXTRA)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("a value argument a LATER expansion completes is the computed name "
+         "it is, comma or not",
+         "PICK = LABEL\nCFLAGS += $(value MILAN_EXTRA,$(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(value MILAN_EXTRA,$(PICK))")),
+        ("... and where a blank separates the two",
+         "PICK = LABEL\nCFLAGS += $(value MILAN_EXTRA $(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(value MILAN_EXTRA $(PICK))")),
+        ("... and in the brace spelling",
+         "PICK = LABEL\nCFLAGS += ${value MILAN_EXTRA,${PICK}}\n",
+         ("OBJECTS", "PICK"), ("computed", "${value MILAN_EXTRA,${PICK}}")),
+        ("a PLAIN reference make ends at its bracket is refused where those "
+         "bytes are not a name this walker can spell",
+         "CFLAGS += $(MILAN_EXTRA )\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA )")),
+        ("... and where a vertical tab ends it, which read as nothing at all",
+         "CFLAGS += $(MILAN_EXTRA\v)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA )")),
+        ("... and where a comma is inside the brackets",
+         "CFLAGS += $(MILAN_EXTRA,x)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA,x)")),
+        ("... and where a colon carries no `=`, so make punts and the colon "
+         "is part of the NAME",
+         "CFLAGS += $(MILAN_EXTRA:x)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN_EXTRA:x)")),
+        ("... while a colon that DOES carry one is the substitution "
+         "reference it looks like, and names the variable before it",
+         "CFLAGS += $(MILAN_EXTRA:.o=.d)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... and a hyphen inside the brackets is part of the name make "
+         "looks up, not the end of one",
+         "CFLAGS += $(MILAN-EXTRA)\n", ("OBJECTS",),
+         ("unreadable", "$(MILAN-EXTRA)")),
+        ("a plain reference a later expansion completes is the computed "
+         "name it is, whatever byte precedes the $",
+         "PICK = LABEL\nCFLAGS += $(MILAN_EXTRA $(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(MILAN_EXTRA $(PICK))")),
+        ("... and where a comma precedes it",
+         "PICK = LABEL\nCFLAGS += $(MILAN_EXTRA,$(PICK))\n",
+         ("OBJECTS", "PICK"), ("computed", "$(MILAN_EXTRA,$(PICK))")),
+        ("a CALL token outside the identifier class is refused, since no "
+         "$(origin) line here spells it either",
+         "CFLAGS += $(call MILAN-TMPL,x)\n", ("OBJECTS",),
+         ("unreadable", "$(call MILAN-TMPL,x)")),
+        ("... while make's own positional parameter is bound by the call "
+         "site this closure already walks, and stays skipped",
+         "define T\n-I$(1)\nendef\nCFLAGS += $(call T,$(BIOS_DIRECTORY))\n",
+         ("OBJECTS", "T"), None),
+        ("... and so is an automatic variable in a recipe make binds per "
+         "rule",
+         "libmilan_baremetal.a: $(OBJECTS)\n\t$(AR) crs $@ $(OBJECTS)\n",
+         ("OBJECTS",), None),
+        ("a built-in reached through a call a vertical tab separates is that "
+         "built-in, and is refused as one",
+         "$(call eval\v,LABEL := ready)\n", ("OBJECTS",),
+         ("builtin", "$(call eval ,LABEL := ready)")),
+        ("... and a form feed leaves the same built-in",
+         "$(call eval\f,LABEL := ready)\n", ("OBJECTS",),
+         ("builtin", "$(call eval ,LABEL := ready)")),
+        ("... and a blank with text after it, which ends the token as well",
+         "$(call eval junk,LABEL := ready)\n", ("OBJECTS",),
+         ("builtin", "$(call eval junk,LABEL := ready)")),
+        ("... and the blank-separated counterpart that already worked",
+         "$(call eval,LABEL := ready)\n", ("OBJECTS",),
+         ("builtin", "$(call eval,LABEL := ready)")),
+        ("a hyphenated built-in is one too, because make's function token "
+         "carries the hyphen",
+         "CFLAGS += $(call filter-out,a,$(OBJECTS))\n", ("OBJECTS",),
+         ("builtin", "$(call filter-out,a,$(OBJECTS))")),
+        ("a name that merely BEGINS with a built-in's is an ordinary call, "
+         "walked rather than refused",
+         "CFLAGS += $(call evaluate,x)\n", ("OBJECTS", "evaluate"), None),
+        ("a computed first argument behind a vertical tab is the computed "
+         "name it is",
+         "PICK = LABEL\nCFLAGS += $(call\v $(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(call $(PICK))")),
+        ("... and behind a form feed",
+         "PICK = LABEL\nCFLAGS += $(call\f $(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(call $(PICK))")),
+        ("... and behind a space, the counterpart",
+         "PICK = LABEL\nCFLAGS += $(call $(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(call $(PICK))")),
+        ("... and the same for value, whose argument is computed the same "
+         "way",
+         "PICK = LABEL\nCFLAGS += $(value\v $(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(value $(PICK))")),
+        ("... and for value behind a tab, the counterpart",
+         "PICK = LABEL\nCFLAGS += $(value\t $(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(value $(PICK))")),
+        ("... and in the brace spelling",
+         "PICK = LABEL\nCFLAGS += ${call\v ${PICK}}\n", ("OBJECTS", "PICK"),
+         ("computed", "${call ${PICK}}")),
+        ("a call with NO whitespace before a computed argument opens no "
+         "function at all, and is refused as the computed name it is",
+         "PICK = LABEL\nCFLAGS += $(call$(PICK))\n", ("OBJECTS", "PICK"),
+         ("computed", "$(call$(PICK))")),
+        ("a plain reference whose name begins with a built-in's is a plain "
+         "read, because make ends it at the close bracket",
+         "CFLAGS += $(callable)\n", ("OBJECTS", "callable"), None),
+        ("... and a bare $(call) is the variable reference make takes it "
+         "for",
+         "CFLAGS += $(call)\n", ("OBJECTS", "call"), None),
+        ("a plain reference whose NAME carries that byte and a $ is still a "
+         "computed name, which is the span this repair leaves alone",
+         "X = MILAN_EXTRA\nCFLAGS += $(FOO\v$(X))\n", ("OBJECTS", "X"),
+         ("computed", "$(FOO $(X))")),
+        ("an eval written across a define body's newline is the parse-time "
+         "hook, and is refused for the text it hands make",
+         "define MILAN_TMPL\n$(eval\nCFLAGS += $(1))\nendef\n"
+         "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))\n", ("OBJECTS",),
+         ("opaque", "$(eval CFLAGS += $(1))")),
+        ("... and its vertical-tab counterpart is refused for the body it "
+         "sits in",
+         "define MILAN_TMPL\n$(eval\vCFLAGS += $(1))\nendef\n"
+         "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))\n", ("OBJECTS",),
+         ("unbindable", "in a define body")),
+        ("the accepted global eval of a literal assignment is walked, and "
+         "its name reaches the closure",
+         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+         "CFLAGS += $(MILAN_INCLUDES)\n", ("MILAN_INCLUDES", "OBJECTS"),
+         None),
+        ("the accepted call of a define this Makefile carries stays green "
+         "and names it",
+         "define milan_include\n-I$(1)\nendef\n"
+         "CFLAGS += $(call milan_include,$(BIOS_DIRECTORY))\n",
+         ("OBJECTS", "milan_include"), None),
+        ("the accepted DEPFILES idiom is untouched by any of it",
+         "DEPFILES = $(patsubst %.o,%.d,$(OBJECTS))\n"
+         "OBJECTS = milan_baremetal.o\n", ("OBJECTS",), None),
+        #: (#410, the review of round eleven's head) A NAMED lookup whose
+        #: target happens to be numeric. make's own positional exemption is
+        #: about a PLAIN `$(1)`, which is the argument of the `$(call)` whose
+        #: text the closure walks; `$(value 1)` and `$(call 1)` are lookups
+        #: of a variable called `1`, and neither construct has bound one at
+        #: the point it looks up -- `func_value()` makes no scope at all and
+        #: `func_call()` reads its target before it pushes one. Letting the
+        #: exemption reach these dropped them from the closure AND left them
+        #: unrefused, which is the covered-looking answer the whole-name
+        #: repair exists to remove. The identifier rows below carry digits
+        #: inside a name the walker CAN spell, so the refusal is about the
+        #: vocabulary and not about the digits.
+        ("a value argument that is a positional NAME is looked up with no "
+         "call to bind it, so it is refused rather than skipped",
+         "CFLAGS += $(value 1)\n", ("OBJECTS",),
+         ("unreadable", "$(value 1)")),
+        ("... and the brace spelling of it",
+         "CFLAGS += ${value 1}\n", ("OBJECTS",),
+         ("unreadable", "${value 1}")),
+        ("... and the second parameter, which no more binds itself",
+         "CFLAGS += $(value 2)\n", ("OBJECTS",),
+         ("unreadable", "$(value 2)")),
+        ("... and $(0), which make gives a call's own NAME",
+         "CFLAGS += $(value 0)\n", ("OBJECTS",),
+         ("unreadable", "$(value 0)")),
+        ("... and a two-digit one, so the refusal is not a single-byte rule",
+         "CFLAGS += $(value 10)\n", ("OBJECTS",),
+         ("unreadable", "$(value 10)")),
+        ("... and the same name behind make's wide separator class",
+         "CFLAGS += $(value\v1)\n", ("OBJECTS",),
+         ("unreadable", "$(value 1)")),
+        ("a CALL whose TOKEN is that name is looked up before the call "
+         "creates the scope that would bind it",
+         "CFLAGS += $(call 1,x)\n", ("OBJECTS",),
+         ("unreadable", "$(call 1,x)")),
+        ("... and its brace spelling",
+         "CFLAGS += ${call 1}\n", ("OBJECTS",),
+         ("unreadable", "${call 1}")),
+        ("an AUTOMATIC name in that same argument position is a lookup too, "
+         "not a rule make binds here",
+         "CFLAGS += $(value @D)\n", ("OBJECTS",),
+         ("unreadable", "$(value @D)")),
+        ("... while a name this walker CAN spell keeps its digits and stays "
+         "the covered dependency it is",
+         "CFLAGS += $(value MILAN_EXTRA1)\n", ("MILAN_EXTRA1", "OBJECTS"),
+         None),
+        ("... and so does the call token of one",
+         "CFLAGS += $(call MILAN_EXTRA1,x)\n", ("MILAN_EXTRA1", "OBJECTS"),
+         None),
+        #: (#410, the same review) The substitution reference, whose name is
+        #: decided by the COMPLETE reference and not by the first close
+        #: bracket in it. make counts this expansion's brackets, expands what
+        #: it finds and only then looks for the `:` and the `=`
+        #: (`src/expand.c:296-338`), so a nested PATTERN or REPLACEMENT
+        #: leaves the name in front of the colon exactly where it is. Ending
+        #: the span at the first closer hid the `=` and read the pattern as
+        #: part of the NAME: the literal dependency left the closure and a
+        #: supported idiom was refused as a computed name. The refusal rows
+        #: after them are the arm that must survive: a `=` only an expansion
+        #: could supply, and a name that is itself computed, stay refused.
+        ("a substitution whose PATTERN is a nested reference still names the "
+         "variable in front of the colon",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)=.d)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and the brace spelling of both brackets",
+         "PAT = .o\nCFLAGS += ${MILAN_EXTRA:${PAT}=.d}\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and the mixed pair, which make counts by the OUTER bracket",
+         "PAT = .o\nCFLAGS += ${MILAN_EXTRA:$(PAT)=.d}\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and the other mix, a braced pattern inside a parenthesised "
+         "reference, which never reached the first-closer boundary at all",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:${PAT}=.d)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and a nested pattern AND replacement together",
+         "PAT = .o\nREP = .d\nCFLAGS += $(MILAN_EXTRA:$(PAT)=$(REP))\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT", "REP"), None),
+        ("... and a nested REPLACEMENT alone, the counterpart the first "
+         "closer happened to fall past",
+         "REP = .d\nCFLAGS += $(MILAN_EXTRA:.o=$(REP))\n",
+         ("MILAN_EXTRA", "OBJECTS", "REP"), None),
+        ("... and the function spelling of the same substitution, which is "
+         "walked on its arguments' own brackets",
+         "PAT = %.o\nREP = %.d\n"
+         "CFLAGS += $(patsubst $(PAT),$(REP),$(MILAN_EXTRA))\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT", "REP"), None),
+        ("a colon whose `=` only an expansion could supply leaves the split "
+         "undecidable, so the whole span is the computed name it is",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT))\n", ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT))")),
+        ("a substitution whose NAME is one this walker cannot spell is "
+         "refused by name, nested pattern or not",
+         "PAT = .o\nCFLAGS += $(MILAN-EXTRA:$(PAT)=.d)\n",
+         ("OBJECTS", "PAT"), ("unreadable", "$(MILAN-EXTRA:$(PAT)=.d)")),
+        ("a substitution whose NAME itself expands is still the computed "
+         "reference it always was",
+         "PICK = LABEL\nCFLAGS += $($(PICK):.o=.d)\n", ("OBJECTS", "PICK"),
+         ("computed", "$($(PICK):.o=.d)")),
+        ("... and a value argument is looked up WHOLE, so the same bytes "
+         "there are a computed name rather than a substitution",
+         "PAT = .o\nCFLAGS += $(value MILAN_EXTRA:$(PAT)=.d)\n",
+         ("OBJECTS", "PAT"),
+         ("computed", "$(value MILAN_EXTRA:$(PAT)=.d)")),
+        #: (#410, the review of round twelve's head) Which `=` MAKES a
+        #: substitution reference, which is not the same question as which
+        #: one the file spells. make looks for the separator in the text it
+        #: has ALREADY expanded (`src/expand.c:314,334`), so an `=` a nested
+        #: expansion takes with it is not one: `$(subst =,,x)` hands its
+        #: three arguments an `=` and yields `x`
+        #: (`src/function.c:2501,2658-2668,699-702`), `$(PAT:.o=.d)` yields
+        #: the substituted value of PAT, and `$=` is make's one-character
+        #: reference to a variable named `=` (`src/expand.c:410-418`). Testing
+        #: the UNEXPANDED text for an `=` counted all three, split the span
+        #: there and answered about the identifier in front of the colon while
+        #: make reads `NAME:.d`, `NAME:.ox` or `NAME:` -- a different
+        #: variable, covered by no origin request and refused by nothing on a
+        #: right-hand side, which is what the rows below measure. The eval
+        #: binder is where the spellings part company, and its own rows keep
+        #: them apart: it classified a nested substitution or function
+        #: bindable on that same identifier, while a short `$=` it already
+        #: refused, for the sibling read itself. Each row below is the whole
+        #: path: the closure and all six pre-plan scans.
+        #:
+        #: The counterparts are what keeps this a correction of WHICH name is
+        #: read rather than a refusal of every nested substitution. A literal
+        #: `=` outside the nesting survives it, so the same expressions with
+        #: `=.x` or `=.d` after them keep their literal name and raise no
+        #: refusal; an ESCAPED `$$` is no expansion at all -- it emits one
+        #: literal `$` (`:261-266`) -- so `$(MILAN_EXTRA:$$=.d)` is the
+        #: substitution reference it looks like; and a surviving separator in
+        #: front of a name this walker cannot spell still reaches the refusal
+        #: that name has always had, which is how a row proves the split
+        #: happened rather than that nothing did.
+        ("a nested SUBSTITUTION consumes the `=` it carries, so the enclosing "
+         "colon has no surviving separator and the whole span is the computed "
+         "name it is",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT:.o=.d))\n",
+         ("OBJECTS", "PAT"), ("computed", "$(MILAN_EXTRA:$(PAT:.o=.d))")),
+        ("... and the brace spelling of that nested substitution",
+         "PAT = .o\nCFLAGS += ${MILAN_EXTRA:${PAT:.o=.d}}\n",
+         ("OBJECTS", "PAT"), ("computed", "${MILAN_EXTRA:${PAT:.o=.d}}")),
+        ("... and the mixed pair, a braced substitution inside a "
+         "parenthesised reference",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:${PAT:.o=.d})\n",
+         ("OBJECTS", "PAT"), ("computed", "$(MILAN_EXTRA:${PAT:.o=.d})")),
+        ("a nested FUNCTION consumes the `=` in its arguments the same way",
+         "CFLAGS += $(MILAN_EXTRA:$(subst =,,x))\n", ("OBJECTS",),
+         ("computed", "$(MILAN_EXTRA:$(subst =,,x))")),
+        ("... and consumes it behind a nested reference, where the span "
+         "reaches the `=` only through the function's own argument",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(subst =,,x))\n",
+         ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$(subst =,,x))")),
+        ("... and a CONDITIONAL consumes one in the branch it chooses "
+         "between",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(if ,=,x))\n",
+         ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$(if ,=,x))")),
+        ("a SHORT dollar reference consumes it too, because `$=` reads the "
+         "variable that byte names rather than separating anything",
+         "CFLAGS += $(MILAN_EXTRA:$=)\n", ("OBJECTS",),
+         ("computed", "$(MILAN_EXTRA:$=)")),
+        ("... and the brace spelling of that reference",
+         "CFLAGS += ${MILAN_EXTRA:$=}\n", ("OBJECTS",),
+         ("computed", "${MILAN_EXTRA:$=}")),
+        ("... and the same short reference behind a nested one",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$=)\n", ("OBJECTS", "PAT"),
+         ("computed", "$(MILAN_EXTRA:$(PAT)$=)")),
+        ("a separator OUTSIDE the nested substitution survives it, so that "
+         "reference keeps its literal name and raises no refusal",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT:.o=.d)=.x)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("... and one outside the nested function survives it as well",
+         "PAT = .o\nCFLAGS += $(MILAN_EXTRA:$(PAT)$(subst =,,x)=.d)\n",
+         ("MILAN_EXTRA", "OBJECTS", "PAT"), None),
+        ("an ESCAPED `$$` is no expansion and consumes nothing, so the `=` "
+         "after it is the separator it looks like",
+         "CFLAGS += $(MILAN_EXTRA:$$=.d)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("... and one in the REPLACEMENT leaves the separator in front of it "
+         "alone",
+         "CFLAGS += $(MILAN_EXTRA:.o=$$)\n", ("MILAN_EXTRA", "OBJECTS"),
+         None),
+        ("a surviving separator in front of a name this walker cannot spell "
+         "still reaches that name's own refusal, so a row where the split "
+         "happens is told from one where it does not",
+         "PAT = .o\nCFLAGS += $(MILAN-EXTRA:$(PAT)$(subst =,,x)=.d)\n",
+         ("OBJECTS", "PAT"),
+         ("unreadable", "$(MILAN-EXTRA:$(PAT)$(subst =,,x)=.d)")),
+    )
+    call_argument_scans = {
+        "computed": computed_name_references,
+        "builtin": builtin_function_calls,
+        "opaque": opaque_evals,
+        "line-adding": line_adding_evals,
+        "unbindable": unbindable_evals,
+        "unreadable": unreadable_name_references,
+    }
+    for label, fixture, want_names, want_refusal in call_argument_controls:
+        names = pinned_recipe_names(fixture, "")
+        assert names == list(want_names), \
+            f"with {label}, the origin closure is {names} rather than " \
+            f"{list(want_names)}: the name a $(call)/$(value) first argument " \
+            "reads is a name the environment decides the value of unless " \
+            "this Makefile binds it, and a name that never enters the " \
+            "closure is never put to $(origin) at all"
+        for scan, reader in call_argument_scans.items():
+            found = reader(fixture)
+            if want_refusal and scan == want_refusal[0]:
+                assert len(found) == 1 and want_refusal[1] in found[0], \
+                    f"with {label}, the {scan} scan said {found} rather than " \
+                    f"naming {want_refusal[1]!r}: this construct reaches " \
+                    "make through a spelling no other scan here sees, so " \
+                    "its refusal is the only one it has"
+            else:
+                assert found == [], \
+                    f"with {label}, the {scan} scan refused {found}: a " \
+                    "refusal from a reader this fixture is not about is a " \
+                    "cost charged for nothing, and hides which reader the " \
+                    "row actually measures"
+
+    #: ---- and the EVAL BINDER's own controls (#410, the review of round
+    #: ten's head) --------------------------------------------------------
+    #:
+    #: unbindable_evals() decides whether an eval this walker PARSED as a
+    #: benign assignment reads only names the file itself binds, and it used
+    #: to answer that question about the identifier PREFIX of the name the
+    #: eval really reads: `$(eval LABEL := $(value NAME,x))` was classified
+    #: bindable because NAME is bound, while make reads the variable `NAME,x`
+    #: and the environment decides that one. A prefix cannot establish a
+    #: binding for a different complete name, so the binder refuses by name
+    #: instead.
+    #:
+    #: These rows sit apart from the table above because they measure ONE
+    #: reader deliberately: the same read is present in the fixture's text,
+    #: so the whole-file name refusal names it too, and a row asserting "no
+    #: other scan fires" would be asserting the wrong property. What each row
+    #: states is the binder's own verdict plus the closure, and the
+    #: counterpart rows are complete reads that must stay BINDABLE, so the
+    #: repair cannot be met by refusing every eval.
+    eval_binding_controls = (
+        ("an eval whose value reads a value argument carrying a comma",
+         "NAME = ready\n$(eval LABEL := $(value NAME,x))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME,x)"),
+        ("... and one whose value argument ends in a blank",
+         "NAME = ready\n$(eval LABEL := $(value NAME ))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME )"),
+        ("... and one whose value argument ends in a vertical tab",
+         "NAME = ready\n$(eval LABEL := $(value NAME\v))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"), "reads $(value NAME )"),
+        ("... and one whose PLAIN read ends in a blank",
+         "NAME = ready\n$(eval LABEL := $(NAME ))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME )"),
+        ("... and one whose plain read carries a comma",
+         "NAME = ready\n$(eval LABEL := $(NAME,x))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME,x)"),
+        ("... and one whose plain read carries a blank and more text",
+         "NAME = ready\n$(eval LABEL := $(NAME junk))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME junk)"),
+        ("... and one reaching such a read one assignment away",
+         "NAME = ready\nRELAY = $(value NAME,x)\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS", "RELAY"),
+         "reads $(value NAME,x) via $(RELAY)"),
+        ("the eval of a complete value read this Makefile binds stays "
+         "bindable, and both names reach the closure",
+         "NAME = ready\n$(eval LABEL := $(value NAME))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does the eval of a complete plain read",
+         "NAME = ready\n$(eval LABEL := $(NAME))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does the eval of a complete call token",
+         "define NAME\nready\nendef\n$(eval LABEL := $(call NAME))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does one whose read sits behind a function, which is "
+         "no name of its own",
+         "NAME = ready\n$(eval LABEL := $(strip $(NAME)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), None),
+        ("... and so does one reaching a complete read one assignment away",
+         "NAME = ready\nRELAY = $(value NAME)\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "NAME", "OBJECTS", "RELAY"), None),
+        #: (#410, the review of round eleven's head) The binder asks the same
+        #: reader, so both repairs arrive here as well: a substitution whose
+        #: pattern is nested reads a name this file binds and must stay
+        #: BINDABLE with that name in the closure, while a named positional
+        #: lookup must stay refused by the name it looks up.
+        ("the eval of a substitution whose PATTERN is a nested reference "
+         "stays bindable, and the name before the colon reaches the closure",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT)=.d))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... and so does the brace spelling of it",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := ${NAME:${PAT}=.d})\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... while a colon whose `=` only an expansion could supply is "
+         "refused, because which name is read is not decided by the file",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS", "PAT"),
+         "reads $(NAME:$(PAT))"),
+        ("... and an eval reading a positional NAME through value is refused "
+         "by that name, since no call here binds it",
+         "NAME = ready\n$(eval LABEL := $(value 1))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(value 1)"),
+        ("... and one reading it as a call token likewise",
+         "NAME = ready\n$(eval LABEL := $(call 1))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(call 1)"),
+        #: (#410, the review of round twelve's head) The binder asks the same
+        #: reader once more, so the surviving-separator correction arrives
+        #: here too: an eval whose value reads a colon a nested SUBSTITUTION
+        #: or FUNCTION takes the `=` from was classified BINDABLE on the
+        #: strength of the identifier in front of it, directly and one
+        #: assignment away. `NAME = ready` says nothing about `NAME:.d`,
+        #: `NAME:.ox` or `NAME:`, which is the name make looks up, so the
+        #: eval is refused by the reference it reads. The short `$=` row is
+        #: the one this correction does NOT newly refuse: that eval was
+        #: already refused, by this binder's own rule for the sibling `$=`
+        #: read, and what changes there is which reference the refusal
+        #: NAMES -- the enclosing one, rather than the read inside it. The
+        #: rows after them are the arm that keeps this a correction rather
+        #: than a blanket refusal: a separator OUTSIDE the nesting survives
+        #: it, so those evals stay bindable with the literal name in the
+        #: closure.
+        ("an eval whose value reads a colon a nested SUBSTITUTION takes the "
+         "`=` from is refused by that reference",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT:.o=.d)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS", "PAT"),
+         "reads $(NAME:$(PAT:.o=.d))"),
+        ("... and one a nested FUNCTION takes it from",
+         "NAME = ready\n$(eval LABEL := $(NAME:$(subst =,,x)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS"),
+         "reads $(NAME:$(subst =,,x))"),
+        ("... and one where the function sits behind a nested reference",
+         "NAME = ready\nPAT = .o\n"
+         "$(eval LABEL := $(NAME:$(PAT)$(subst =,,x)))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "OBJECTS", "PAT"),
+         "reads $(NAME:$(PAT)$(subst =,,x))"),
+        ("... and one a SHORT dollar reference takes it from, named by the "
+         "enclosing reference rather than by that sibling read",
+         "NAME = ready\n$(eval LABEL := $(NAME:$=))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS"), "reads $(NAME:$=)"),
+        ("... and one reaching such a colon one assignment away",
+         "NAME = ready\nPAT = .o\nRELAY = $(NAME:$(PAT)$(subst =,,x))\n"
+         "$(eval LABEL := $(RELAY))\nCFLAGS += $(LABEL)\n",
+         ("LABEL", "OBJECTS", "PAT", "RELAY"),
+         "reads $(NAME:$(PAT)$(subst =,,x)) via $(RELAY)"),
+        ("the eval of a substitution whose separator survives the nesting "
+         "stays bindable, and the name in front of the colon reaches the "
+         "closure",
+         "NAME = ready\nPAT = .o\n$(eval LABEL := $(NAME:$(PAT:.o=.d)=.x))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... and so does one whose separator sits outside a nested function",
+         "NAME = ready\nPAT = .o\n"
+         "$(eval LABEL := $(NAME:$(PAT)$(subst =,,x)=.d))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS", "PAT"), None),
+        ("... while an ESCAPED `$$` before the separator is read as the "
+         "substitution of NAME it is, so the name reaches the closure and "
+         "the refusal that follows is this binder's own recorded one for "
+         "that byte pair rather than the separator rule's",
+         "NAME = ready\n$(eval LABEL := $(NAME:$$=.d))\n"
+         "CFLAGS += $(LABEL)\n", ("LABEL", "NAME", "OBJECTS"), "reads $$"),
+    )
+    for label, fixture, want_names, want_refusal in eval_binding_controls:
+        names = pinned_recipe_names(fixture, "")
+        assert names == list(want_names), \
+            f"with {label}, the origin closure is {names} rather than " \
+            f"{list(want_names)}: an eval this walker parses is walked as " \
+            "the assignment it carries, so the names its value reads are " \
+            "the ones the origin probe is asked about"
+        refused = unbindable_evals(fixture)
+        if want_refusal is None:
+            assert refused == [], \
+                f"with {label}, the eval binder refused {refused}: this eval " \
+                "reads a complete name this Makefile binds, and refusing it " \
+                "would make the repair a refusal of every eval instead of a " \
+                "correction of which name is read"
+        else:
+            assert len(refused) == 1 and want_refusal in refused[0], \
+                f"with {label}, the eval binder said {refused} rather than " \
+                f"naming {want_refusal!r}: the identifier this read starts " \
+                "with is a DIFFERENT variable, so its binding establishes " \
+                "nothing about the name make looks up"
+    eval_binding_control_note = (
+        f"{len(eval_binding_controls)} pure-parser controls hold the eval "
+        "binder to that same reader, over the closure and its own verdict: "
+        "an eval reading $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), "
+        "$(NAME,x), $(NAME junk), $(value 1), $(call 1), a colon whose `=` "
+        "only an expansion could supply or one whose `=` an expansion "
+        "CONSUMES -- $(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), "
+        "$(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) -- directly or one "
+        "assignment away, is REFUSED by the reference it reads, while an eval "
+        "reading the complete $(value NAME), $(NAME), a $(call NAME) token, a "
+        "read behind $(strip ...), a substitution whose PATTERN is a nested "
+        "reference or one whose separator SURVIVES the nesting, "
+        "$(NAME:$(PAT:.o=.d)=.x) and $(NAME:$(PAT)$(subst =,,x)=.d), stays "
+        "bindable and puts both names in the closure, so the correction "
+        "cannot be met by refusing every eval")
+    call_argument_control_note = (
+        f"{len(call_argument_controls)} more pure-parser controls hold the "
+        "call/value ARGUMENT readers to make's own, over the whole path a "
+        "name travels: the closure that puts it to $(origin) and all six "
+        "pre-plan refusals. A first argument ends where make ends a TOKEN, "
+        "so `$(call HELPER<VT>,ready)` and `$(call HELPER junk,ready)` read "
+        "HELPER and `$(call eval<VT>,TEXT)` is the built-in it dispatches to "
+        "(the closure held neither name and the refusal was absent for "
+        "both); the run BEFORE a computed argument is consumed the same way, "
+        "so `$(call<VT> $(PICK))` is the computed name `$(call $(PICK))` is "
+        "and is refused rather than read as a reference to a name ending in "
+        "that byte. `value` does NOT read its argument that way -- it looks "
+        "the whole argument up -- so `$(value NAME<VT>)` names the variable "
+        "those bytes spell, which this walker cannot put to $(origin) and "
+        "therefore refuses by name, while `$(call NAME<VT>)` calls NAME and "
+        "is covered; the rows carry both against each other. A plain "
+        "`$(NAME)` ends at its close bracket, so `$(callable)` is an "
+        "ordinary read and `$(FOO<VT>$(X))` is still a computed name. The "
+        "same rows now also hold the two boundaries the review of round "
+        "eleven's head measured: a NAMED positional lookup, `$(value 1)` or "
+        "a `$(call 1)` token, is refused by that name rather than skipped as "
+        "make's own, because `value` makes no argument scope and `call` "
+        "reads its target before it pushes one, while a PLAIN `$(1)` in a "
+        "called define body and a recipe's `$@` keep their recorded "
+        "treatment; and a substitution reference is read from the COMPLETE "
+        "reference, so `$(MILAN_EXTRA:$(PAT)=.d)` and its brace and mixed "
+        "spellings keep MILAN_EXTRA in the closure and raise no refusal, "
+        "while a colon whose `=` only an expansion could supply and a name "
+        "that itself expands stay computed-name refusals. The rows added for "
+        "the review of round twelve's head hold WHICH `=` makes a "
+        "substitution: make looks for it in the text it has already expanded, "
+        "so one a nested substitution, a nested function or make's "
+        "one-character `$=` reference CONSUMES is not a separator -- "
+        "`$(MILAN_EXTRA:$(PAT:.o=.d))`, `$(MILAN_EXTRA:$(subst =,,x))`, "
+        "`$(MILAN_EXTRA:$(PAT)$(if ,=,x))` and `$(MILAN_EXTRA:$=)` are the "
+        "computed names they are rather than answers about MILAN_EXTRA, which "
+        "make does not read there. A separator OUTSIDE the nesting does "
+        "survive it and an escaped `$$` consumes nothing, so "
+        "`$(MILAN_EXTRA:$(PAT:.o=.d)=.x)`, "
+        "`$(MILAN_EXTRA:$(PAT)$(subst =,,x)=.d)` and "
+        "`$(MILAN_EXTRA:$$=.d)` keep their literal name and raise no refusal, "
+        "and a surviving separator in front of a name this walker cannot "
+        "spell still reaches that name's own refusal")
 
     def make_plan(makefile: str, expected: str) -> tuple[dict[str, str], list[str]]:
         """`(variables, recipe_lines)` for what make would actually do.
@@ -4666,6 +7320,11 @@ def test_baremetal_profile_contract() -> None:
         processed before makefiles are read and reports empty."""
         _assert_no_computed_variable_names(makefile,
                                           computed_name_references)
+        _assert_no_builtin_calls(makefile, builtin_function_calls)
+        _assert_no_opaque_evals(makefile, opaque_evals)
+        _assert_no_line_adding_evals(makefile, line_adding_evals)
+        _assert_no_unbindable_evals(makefile, unbindable_evals)
+        _assert_no_unreadable_names(makefile, unreadable_name_references)
         stem = expected[:-2]
         with tempfile.TemporaryDirectory(prefix="milan-make-") as tmp:
             root = Path(tmp)
@@ -4773,6 +7432,14 @@ def test_baremetal_profile_contract() -> None:
         # `-include` of a missing file is silently skipped, so the include
         # set stays pinned as an exact set of whole lines. This is the one
         # Makefile rule the plan does not subsume.
+        #
+        # It reads the file TEXT, so it is exact over the lines in the
+        # file and no further: a line an EXPANSION creates is outside it
+        # by construction. Both routes to one are refused before this runs
+        # -- an eval whose value expands to a newline, and the file-writing
+        # built-in reached through $(call) -- but a DIRECT $(file >frag,
+        # TEXT) still writes at parse time the fragment a pinned -include
+        # reads, and that stays in the recorded-not-ruled list above.
         includes = [" ".join(line.split())
                     for line in makefile_include_re.findall(makefile)]
         assert includes == list(makefile_includes), \
@@ -7585,6 +10252,227 @@ def test_baremetal_profile_contract() -> None:
         "CFLAGS += $(EXTRA)",
         "flags routed through a define body")
 
+    #: ---- (#410) and the two channels the round-two pass measured OPEN
+    #: and recorded, each reproduced pre-fix reaching the real compile
+    #: line (-include ../shadow.h from the environment) with the whole
+    #: gate green. A $(call NAME)/$(value NAME) first argument is a NAME
+    #: the reference regex never read: both are pinned on the origin
+    #: refusal, reached through the walker now reading them, and a
+    #: computed first argument, $(call $(X)), on the computed-name refusal
+    #: it belongs to. A top-level $(eval) carrying a literal assignment is
+    #: pinned on the origin refusal too, through the parsed body; an
+    #: $(eval) of a called template is pinned on its OWN refusal, because
+    #: make parses the EXPANSION and no walk over this file enumerates it.
+    call_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "CFLAGS += $(call MILAN_EXTRA)",
+        "flags routed through a $(call) first argument")
+    value_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "CFLAGS += $(value MILAN_EXTRA_CFLAGS)",
+        "flags routed through a $(value) first argument")
+    eval_deferred_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a top-level $(eval) assignment")
+    eval_template_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define inject\n"
+        "CFLAGS += $(1)\n"
+        "endef\n"
+        "$(eval $(call inject,$(MILAN_EXTRA_CFLAGS)))",
+        "flags routed through an $(eval) of a called template")
+    computed_call_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "X = MILAN_EXTRA\n"
+        "CFLAGS += $(call $(X))",
+        "flags routed through a computed $(call) first argument")
+
+    #: ---- (#410, round-three review) ... and the spellings that review
+    #: measured OPEN at the previous head, each reproduced reaching the
+    #: real compile line while the whole gate reported 168/168 rejected
+    #: and exited 0. `call` DISPATCHES to a make built-in when its first
+    #: argument names one, so the first four are an eval and a file write
+    #: in a spelling no scan for the built-in's own token can see -- both
+    #: bracket spellings, and on a line of its own AND on a right-hand
+    #: side the pinned closure never walks, which is the position the
+    #: escape used. The fifth is the plain-reference eval the doc cites as
+    #: measured, which had no permanent entry of its own. The sixth is the
+    #: parsed shape's OWN residual: a value that expands to a newline adds
+    #: a line, and the line it adds here is an `include` the include-set
+    #: pin reads the file text for and therefore cannot see.
+    call_eval_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a $(call eval,...) line")
+    call_eval_brace_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "${call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS)}",
+        "flags routed through a ${call eval,...} line")
+    call_eval_unwalked_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_UNUSED = $(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))",
+        "a $(call eval,...) on a right-hand side the closure never walks")
+    call_file_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(call file,>milan_baremetal.d,CFLAGS += $$(MILAN_EXTRA_CFLAGS))",
+        "flags routed through a $(call file,...) write")
+    eval_hook_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval $(MILAN_HOOK))",
+        "flags routed through an $(eval) of a plain reference")
+    eval_newline_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_NL\n\n\nendef\n"
+        "$(eval CFLAGS += -I.$(MILAN_NL)include extra.mak)",
+        "an $(eval) whose value expands to a second LINE")
+
+    #: ---- (#410, round-four review) ... and the OTHER half of #410's
+    #: dichotomy, measured OPEN at the previous head: a whole-line eval that
+    #: is PARSED as a benign assignment while the value it assigns is bound
+    #: somewhere the walker never reads. The review's own plant is first, and
+    #: the rest are the respellings of the same REACH, not of its spelling:
+    #: every positional position and bracket, the parameter behind a
+    #: function and behind a named define, the eval wrapped onto a
+    #: continuation, a second define calling the first, and a define whose
+    #: NAME is outside the identifier class the define reader models. Then
+    #: the same reach without a positional parameter at all: a $(foreach) or
+    #: $(let) REBINDS a name the Makefile pins and the origin probe reports
+    #: `file` for, and an $(if) or a conditional prerequisite decides from
+    #: the environment whether a literal eval runs -- all of them a value
+    #: this file does not fix. Each was reproduced pre-fix reaching the real
+    #: compile line with `-include ../shadow.h` merely exported, and each is
+    #: RED here on the refusal that names what was deferred.
+    eval_call_arg_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the call's own argument")
+    eval_call_arg_second_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(2))\nendef\n"
+        "$(call MILAN_TMPL,-I.,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the second call argument")
+    eval_call_arg_tenth_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(10))\nendef\n"
+        "$(call MILAN_TMPL,1,2,3,4,5,6,7,8,9,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of the tenth call argument")
+    eval_call_arg_brace_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += ${1})\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of ${1}, the brace spelling")
+    eval_call_arg_bare_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $1)\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of $1, the unbracketed spelling")
+    eval_call_arg_nested_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(strip $(1)))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) of $(1) behind a function")
+    eval_call_arg_named_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_ARG\n$(1)\nendef\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_ARG))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reaching $(1) through a named define")
+    eval_call_arg_computed_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "MILAN_T = MILAN_TMPL\n"
+        "$(call $(MILAN_T),$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reached through a computed $(call) name")
+    eval_call_arg_continued_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += \\\n  $(1))\nendef\n"
+        "$(call MILAN_TMPL,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) wrapped onto a continuation line")
+    eval_call_arg_relayed_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(1))\nendef\n"
+        "define MILAN_OUTER\n$(call MILAN_TMPL,$(1))\nendef\n"
+        "$(call MILAN_OUTER,$(MILAN_EXTRA_CFLAGS))",
+        "a define-body $(eval) reached through a second define")
+    eval_nonidentifier_define_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN-TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(foreach MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN-TMPL))",
+        "an $(eval) in a define whose NAME is not an identifier")
+    eval_foreach_rebind_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(foreach MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN_TMPL))",
+        "a $(foreach) rebinding the pinned name a define-body eval reads")
+    eval_let_rebind_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "MILAN_FLAG = -I.\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += $(MILAN_FLAG))\nendef\n"
+        "$(let MILAN_FLAG,$(MILAN_EXTRA_CFLAGS),$(call MILAN_TMPL))",
+        "a $(let) rebinding the pinned name a define-body eval reads")
+    eval_conditional_define_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_TMPL\n$(eval CFLAGS += -include ../shadow.h)\nendef\n"
+        "$(if $(MILAN_SHADOW),$(call MILAN_TMPL))",
+        "a literal define-body $(eval) the environment decides to run")
+    eval_recipe_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "milan_baremetal.o: $(if $(MILAN_SHADOW),milan_pre)\n"
+        "milan_pre:\n\t$(eval CFLAGS += -include ../shadow.h)",
+        "a recipe $(eval) on a rule the environment adds")
+    eval_positional_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $(1))",
+        "a top-level $(eval) of $(1), a name make reads from the environment")
+    eval_single_char_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval CFLAGS += $M)",
+        "a top-level $(eval) of $M, a reference the braced reader never sees")
+    eval_named_positional_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "define MILAN_ARG\n$(1)\nendef\n"
+        "$(eval CFLAGS += $(MILAN_ARG))",
+        "a top-level $(eval) reaching $(1) through a named define")
+    eval_escaped_dollar_top_flags = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "$(eval MILAN_LATE = $$(1))\n"
+        "CFLAGS += $(MILAN_LATE)",
+        "a top-level $(eval) whose $$ becomes a live reference")
+
     #: ---- and the two shapes that made the reset rule vacuous. The reader
     #: saw `<=` only, so a BLOCKING reset left it nothing to iterate and it
     #: passed by having nothing to check; a deleted reset did the same. Both
@@ -7800,6 +10688,22 @@ def test_baremetal_profile_contract() -> None:
             replace_once(makefile_source, ".PHONY: all clean",
                          ".PHONY: all clean tags\n\ntags:\n\t$(CTAGS) *.c",
                          "extra phony target"),
+        #: (#410) the accepted case of each construct the round-three
+        #: mutations refuse: a $(call) of a define THIS Makefile carries,
+        #: and an $(eval) whose body is a literal assignment of a name the
+        #: Makefile defines. Both print the same compile line, and the
+        #: walker now reads `milan_include` and `MILAN_INCLUDES` into the
+        #: closure, where make reports each as origin `file`.
+        "a $(call) of a define the Makefile carries":
+            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                         "define milan_include\n-I$(1)\nendef\n"
+                         "CFLAGS += $(call milan_include,$(BIOS_DIRECTORY))",
+                         "call of a define"),
+        "an $(eval) of a literal assignment":
+            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                         "$(eval MILAN_INCLUDES = -I$(BIOS_DIRECTORY))\n"
+                         "CFLAGS += $(MILAN_INCLUDES)",
+                         "eval of a literal assignment"),
     }
     for label, accepted in accepted_makefiles.items():
         assert accepted != makefile_source, f"{label} changed nothing"
@@ -8317,6 +11221,142 @@ def test_baremetal_profile_contract() -> None:
          firmware_source, docs_source, csr_source,
          "defers a pinned-recipe input to the environment",
          MutantFiles(makefile=define_deferred_flags)),
+        #: (#410) ... and the two channels round two measured OPEN, closed
+        #: the same two ways: a name the walker now READS (a call or value
+        #: first argument, the body of a literal eval) reaches the origin
+        #: refusal; a shape it cannot read (an eval of a called template,
+        #: a computed first argument) is refused on its own instrument.
+        ("compile flags deferred to the environment through a $(call) "
+         "first argument", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=call_deferred_flags)),
+        ("compile flags deferred to the environment through a $(value) "
+         "first argument", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=value_deferred_flags)),
+        ("compile flags deferred to the environment through a top-level "
+         "$(eval) assignment", firmware_source, docs_source, csr_source,
+         "defers a pinned-recipe input to the environment",
+         MutantFiles(makefile=eval_deferred_flags)),
+        ("compile flags injected through an $(eval) of a called template",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) text that is not a whole-line literal assignment",
+         MutantFiles(makefile=eval_template_flags)),
+        ("compile flags routed through a computed $(call) first argument",
+         firmware_source, docs_source, csr_source,
+         "computes a variable NAME at expansion time",
+         MutantFiles(makefile=computed_call_flags)),
+        #: (#410, round-three review) ... and the six the review measured
+        #: GREEN at the previous head. Four are a built-in reached through
+        #: `call`, pinned on the refusal built for that; one is the plain
+        #: reference eval, pinned on the opaque-eval refusal it always
+        #: landed on but never had an entry for; one is the parsed shape's
+        #: newline residual, pinned on its own refusal.
+        ("compile flags injected through a $(call eval,...) line",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_flags)),
+        ("compile flags injected through a ${call eval,...} line",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_brace_flags)),
+        ("compile flags injected through a $(call eval,...) on an "
+         "unwalked right-hand side", firmware_source, docs_source,
+         csr_source, "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_eval_unwalked_flags)),
+        ("a Makefile fragment written at parse time by $(call file,...)",
+         firmware_source, docs_source, csr_source,
+         "reaches a make BUILT-IN function through $(call)",
+         MutantFiles(makefile=call_file_flags)),
+        ("compile flags injected through an $(eval) of a plain reference",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) text that is not a whole-line literal assignment",
+         MutantFiles(makefile=eval_hook_flags)),
+        ("a Makefile fragment included by an $(eval) whose value expands "
+         "to a second line", firmware_source, docs_source, csr_source,
+         "hands $(eval) a value that can expand to more than one LINE",
+         MutantFiles(makefile=eval_newline_flags)),
+        #: (#410, round-four review) ... and the nineteen the review measured
+        #: GREEN at the previous head, or that the same reach reopens. All but
+        #: one are pinned on the refusal built for them, which names what was
+        #: deferred; the computed $(call) name is caught one refusal earlier,
+        #: by the instrument that owns a name chosen at expansion time.
+        ("compile flags injected through a define-body $(eval) of the "
+         "call's own argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_flags)),
+        ("compile flags injected through a define-body $(eval) of the "
+         "second call argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_second_flags)),
+        ("compile flags injected through a define-body $(eval) of the "
+         "tenth call argument", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_tenth_flags)),
+        ("compile flags injected through a define-body $(eval) of ${1}",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_brace_flags)),
+        ("compile flags injected through a define-body $(eval) of $1",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_bare_flags)),
+        ("compile flags injected through a define-body $(eval) of $(1) "
+         "behind a function", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_nested_flags)),
+        ("compile flags injected through a define-body $(eval) reaching "
+         "$(1) through a named define", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_named_flags)),
+        ("compile flags injected through a define-body $(eval) reached by a "
+         "computed $(call) name", firmware_source, docs_source, csr_source,
+         "computes a variable NAME at expansion time",
+         MutantFiles(makefile=eval_call_arg_computed_flags)),
+        ("compile flags injected through a define-body $(eval) wrapped onto "
+         "a continuation line", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_continued_flags)),
+        ("compile flags injected through a define-body $(eval) reached "
+         "through a second define", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_call_arg_relayed_flags)),
+        ("compile flags injected through an $(eval) in a define whose NAME "
+         "is not an identifier", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_nonidentifier_define_flags)),
+        ("compile flags injected by a $(foreach) rebinding the pinned name a "
+         "define-body $(eval) reads", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_foreach_rebind_flags)),
+        ("compile flags injected by a $(let) rebinding the pinned name a "
+         "define-body $(eval) reads", firmware_source, docs_source,
+         csr_source, "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_let_rebind_flags)),
+        ("a literal define-body $(eval) the environment decides to run",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_conditional_define_flags)),
+        ("a recipe $(eval) on a rule the environment adds", firmware_source,
+         docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_recipe_flags)),
+        ("compile flags injected through a top-level $(eval) of $(1)",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_positional_top_flags)),
+        ("compile flags injected through a top-level $(eval) of $M",
+         firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_single_char_top_flags)),
+        ("compile flags injected through a top-level $(eval) reaching $(1) "
+         "through a named define", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_named_positional_top_flags)),
+        ("compile flags injected through a top-level $(eval) whose $$ "
+         "becomes a live reference", firmware_source, docs_source, csr_source,
+         "hands $(eval) an assignment the walker cannot bind",
+         MutantFiles(makefile=eval_escaped_dollar_top_flags)),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
          "the commands make would run are pinned",
@@ -8859,13 +11899,72 @@ def test_baremetal_profile_contract() -> None:
           "commands make runs is refused too, a benign AR += v or CC += "
           "-Wall included: that is the price of a rule with no list of "
           "spellings to fall behind. Remedy for that one: add the changed "
-          "command to expected_recipes and a mutation entry beside it. New "
-          "this round, from the computed-name refusal: a computed variable "
+          "command to expected_recipes and a mutation entry beside it. From "
+          "the computed-name refusal (#162, the round before this one): a "
+          "computed variable "
           "reference -- $($(X)), $(CFLAGS_$(VARIANT)) -- is RED anywhere "
           "in the Makefile, a never-run recipe included, where a plain "
           "undefined name like $(CTAGS) stays green there; the scan is "
           "textual and deliberately wider than the origin closure, because "
           "the NAME itself is deferred and modelling it is not possible. "
+          "NEW THIS ROUND (#410), three refusals of the same width and the "
+          "same kind of cost, each RED anywhere in the Makefile with a "
+          "never-run recipe included: an $(eval ...) that is not a "
+          "whole-line literal assignment, so a benign $(eval $(call "
+          "tmpl,...)) or $(eval $(HOOK)) idiom is refused (remedy: write "
+          "the assignment as $(eval NAME op VALUE) on a line of its own, "
+          "or as a plain assignment line); a $(call ...) whose first "
+          "argument names a make BUILT-IN -- $(call eval,...), $(call "
+          "file,...), $(call shell,...), and a $(call subst,...) or "
+          "$(call filter,...) written to map a built-in over a list -- "
+          "because make dispatches it to that built-in and no scan for "
+          "the built-in's own token can see it (remedy: spell the "
+          "built-in directly, $(subst a,b,$(TEXT))); and a parsed $(eval "
+          "NAME op VALUE) whose value reads a name this Makefile gives a "
+          "multi-line value, because make parses the EXPANSION and such a "
+          "value adds lines -- an `include` among them -- that the walker "
+          "reads as one assignment (remedy: keep the newline idiom out of "
+          "an eval's value). "
+          "AND ONE MORE (#410, round-four review), the widest of them: an "
+          "$(eval NAME op VALUE) whose assignment the walker cannot BIND is "
+          "refused even though the shape reads as benign -- an eval in a "
+          "define body or a recipe, whose value is bound where the define or "
+          "the rule is reached and not where it is written, and a top-level "
+          "eval whose value reads a positional parameter ($(1), ${1}, $1), a "
+          "single-character $M, a computed name, an escaped $$ that the "
+          "eval's own expansion turns into a live reference, or a value that "
+          "ENDS in a bare $, which make carries into that expansion the same "
+          "way, at any remove "
+          "through this Makefile's own assignments. The COST is the widest "
+          "too, and it is the point: a template that EVALs its argument is "
+          "refused where the same template RETURNING that argument through "
+          "$(call) stays green, because the call site's argument is text the "
+          "closure walks and the eval's is not (remedy: return the value and "
+          "assign it, `CFLAGS += $(call tmpl,$(NAME))`, or write the "
+          "assignment at top level where its names are this file's to bind). "
+          "AND ONE MORE (#410, the review of round ten's head), the narrowest "
+          "of them and the companion of the computed name: a read whose "
+          "LITERAL name is outside [A-Za-z_][A-Za-z0-9_]* is refused too -- "
+          "$(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), a "
+          "$(NAME:sub) whose colon opens no substitution, $(MILAN-EXTRA), a "
+          "$(call MILAN-TMPL) token and (the review of round eleven's head) "
+          "a NAMED positional lookup such as $(value 1) or a $(call 1) "
+          "token -- because make reads those names and that class is THIS "
+          "GATE's vocabulary: it is the name format of the $(origin) request "
+          "and of every assignment the closure records, so the walker cannot "
+          "say where such a value came from. It is NOT a rule of make's "
+          "assignment grammar, which ends a name at whitespace, #, an "
+          "assignment operator or a : opening none, so MILAN-EXTRA = ready "
+          "and NAME,x = ready are ordinary definitions make binds. The "
+          "walker used "
+          "to answer about the identifier the span starts with, which is a "
+          "different variable, or to drop the read with no refusal at all. "
+          "The COST is stated rather than argued away: a make-defined "
+          "special such as $(.DEFAULT_GOAL), and every name make would let "
+          "this file bind, are refused with the rest, while a PLAIN $(1) and "
+          "$(@D) keep their recorded treatment (remedy: spell the read with "
+          "the complete identifier, $(value NAME) or $(NAME), and give the "
+          "variable a name in that vocabulary). "
           "RETIRED this round by the entity-advertise choke point and the "
           "resolver (#153), each with an accepted case measured GREEN "
           "instead of a claim: an extra statement between the two enables, "
@@ -8926,20 +12025,162 @@ def test_baremetal_profile_contract() -> None:
           "picks; and a define body -- `define EXTRA` carrying "
           "$(MILAN_EXTRA_CFLAGS) -- now PARSES as the assignment it is, "
           "so its references are walked and probed like any RHS")
-    print("  [gate 1b] ... and outside what ANY recipe pin can reach: export "
+    print("  [gate 1b] ... and outside what ANY recipe pin can reach, as "
+          "EXAMPLES of the kind and not as a closed set: export "
           "CPATH and COMPILER_PATH, which GCC reads from the environment; "
           "SHELL, which changes what executes the printed command; "
-          ".EXPORT_ALL_VARIABLES; and $(shell ...), which runs at parse time "
-          "during this gate's own plan run, before a recipe is printed. "
+          ".EXPORT_ALL_VARIABLES; $(shell ...), which runs at parse time "
+          "during this gate's own plan run, before a recipe is printed; "
+          "$(file >frag,TEXT), which writes at parse time the fragment a "
+          "pinned -include then reads, so the deferred reference appears "
+          "in no walked text (measured on this round's review); $(guile "
+          "...), which this make advertises in .FEATURES and which injects "
+          "the same way through gmk-eval and gmk-expand. A variable name "
+          "outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, was recorded here "
+          "until the review of round ten's head and is RULED on now: make "
+          "reads that name, this walker has no way to spell it in an "
+          "$(origin) request or in its assignment closure -- though make "
+          "itself would bind MILAN-EXTRA = ready -- and the read is refused "
+          "by name. FOUR MORE, "
+          "measured on round four's review and recorded the same way "
+          "because each is a PLAIN reference or a computed parse rather "
+          "than an eval this round rules on: an unbracketed $M on an "
+          "ordinary right-hand side, which the braced reference readers "
+          "never see; a conditional -- ifdef MILAN_SHADOW, or an $(if ...) "
+          "in an assignment's own NAME -- where the environment decides "
+          "WHETHER a literal flag is added rather than what a name's value "
+          "is, which no $(origin) enumeration answers; a recipe prefix or "
+          "prerequisite the file COMPUTES ($(MILAN_E)-built .RECIPEPREFIX, "
+          ".SECONDEXPANSION behind $$), which moves the eval token out of "
+          "every text reader here; and the one that needs no Makefile edit "
+          "at all, an environment variable NAMED 1, which LiteX's own "
+          "`define compile` reads as $(1) and this Makefile reaches through "
+          "a plain $(compile), measured putting -include ../shadow.h on the "
+          "compile line of the UNMODIFIED tree. "
           "Recorded rather than ruled against, because no pin over printed "
           "commands can see them. Two more, measured OPEN by the round-two "
-          "adversarial pass and recorded here because -- unlike the four "
-          "above -- a wider walker COULD close them: a $(call NAME)/"
-          "$(value NAME) first argument is a variable name the assignment "
-          "walker never reads, and a top-level $(eval ...) line carries an "
-          "assignment no regex over assignment lines sees; both were "
-          "measured green while the environment reached the compile line, "
-          "and both stay open on #162")
+          "adversarial pass, are CLOSED this round (#410), each a permanent "
+          "mutation reproduced pre-fix at the real compile line: a "
+          "$(call NAME)/$(value NAME) first argument is now READ as the "
+          "name it is and walked into the closure, so the deferral hits "
+          "the origin refusal, and a computed first argument, $(call $(X)), "
+          "is refused as the computed name it is; a top-level $(eval ...) "
+          "line is PARSED when its whole argument is a literal `NAME op "
+          "VALUE` assignment on a line of its own, walked like any RHS, "
+          "and REFUSED outright anywhere else -- an eval of a called "
+          "template, of a plain reference, or nested in another expansion "
+          "-- because make parses the EXPANSION, which no walk over the "
+          "file can enumerate; the cost is the computed name's: such an "
+          "eval is RED anywhere in the Makefile, a never-run recipe "
+          "included. That claim was measured FALSE for one spelling by "
+          "this round's review and is made true here rather than "
+          "reworded: `call` DISPATCHES to a make built-in when its first "
+          "argument names one, so $(call eval,TEXT) IS an eval that no "
+          "scan for the $(eval token sees, and on a line of its own it "
+          "reached the real compile line while this gate reported every "
+          "mutation rejected and exited 0. Every built-in reached through "
+          "$(call) is now REFUSED, in both bracket spellings, with any "
+          "padding, and wherever it sits -- including the right-hand side "
+          "the pinned closure never walks, which is where the escape was "
+          "-- and $(call file,...) is a permanent mutation beside $(call "
+          "eval,...). The DIRECT spellings above are not closed by that "
+          "and stay recorded. The parsed shape's bound is narrower than "
+          "it was written, too: it is that every literal reference in the "
+          "eval's TEXT is walked, not that expansion cannot change the "
+          "shape -- a value expanding to a NEWLINE adds a line, an "
+          "`include` among them, so an eval whose value reads a name this "
+          "Makefile gives a multi-line value is refused as well, which is "
+          "what keeps the include-set pin exact against evals. The "
+          "accepted cases, a $(call) of a define the "
+          "Makefile carries and an $(eval) of a literal assignment, are "
+          "measured GREEN in the accepted-Makefile loop. ROUND FOUR's "
+          "review measured the OTHER half of that dichotomy open, and it is "
+          "closed here the same way -- by what the construct REACHES, not by "
+          "its spelling. `Parsed` was doing work `refused outright` had to "
+          "do: an eval read as a benign `NAME op VALUE` can still assign a "
+          "value this file does not fix. A define body's eval is expanded "
+          "where the define is REACHED, so $(1)..$(9) are that $(call)'s "
+          "arguments -- `$(eval CFLAGS += $(1))` under "
+          "`$(call TMPL,$(MILAN_EXTRA_CFLAGS))` put -include ../shadow.h on "
+          "the real compile line with the name merely exported while this "
+          "gate exited 0 -- and a $(foreach) or $(let) over that call "
+          "REBINDS even a name the Makefile pins and the origin probe "
+          "reports `file` for, while an $(if) or a conditional prerequisite "
+          "decides from the environment whether a literal eval runs at all. "
+          "So an eval is walked ONLY at global scope, and only when every "
+          "name its value reads is one this file binds: never a positional "
+          "parameter in any bracket or position, never an unbracketed $M, "
+          "never a computed name, never an escaped $$ the eval's expansion "
+          "makes live, and none of them at any remove through this "
+          "Makefile's assignments. Nineteen permanent mutations pin it, the "
+          "review's own plant among them, each reproduced pre-fix at the "
+          "real compile line. What is NOT closed and is recorded instead: a "
+          "recipe prefix or a prerequisite the file COMPUTES rather than "
+          "writes (a $(MILAN_E)-built .RECIPEPREFIX, a .SECONDEXPANSION "
+          "prerequisite behind $$), which hides the eval token from every "
+          "text reader here, and the plain non-eval channels below")
+    print("  [gate 1b] ... and the SCOPE that sentence rests on is now read "
+          "the way make PARSES a file rather than one line at a time, which "
+          "its round-four review measured wrong in both directions: " +
+          eval_scope_control_note)
+    print("  [gate 1b] ... and the ARGUMENT each of those functions names is "
+          "read by that function's own rule rather than by one shared with "
+          "the others, which the review of round nine's head measured wrong "
+          "in the missing direction at two more positions: " +
+          call_argument_control_note)
+    print("  [gate 1b] ... and WHICH NAME each of those reads is, is now one "
+          "reader's answer rather than three patterns', which the review of "
+          "round ten's head measured disagreeing: make looks a plain "
+          "reference up by its COMPLETE span and a $(value ...) by its WHOLE "
+          "argument, commas included, while $(call ...) takes the TOKEN it "
+          "cuts out -- so $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), "
+          "$(NAME,x), $(NAME:sub) and $(MILAN-EXTRA) name variables this "
+          "walker cannot spell and are REFUSED by name instead of being "
+          "answered about the identifier they start with or dropped without "
+          "a refusal, and a later expansion inside any of those spans -- "
+          "$(value NAME,$(PICK)), $(value NAME $(PICK)), $(NAME $(PICK)), "
+          "$(NAME,$(PICK)) -- reaches the computed-name refusal it always "
+          "belonged to. The eval binder asks the same reader, so an eval "
+          "reading one of them is no longer classified bindable on the "
+          "strength of the identifier prefix. The complete reads stay "
+          "COVERED -- $(value NAME), $(NAME), $(NAME:.o=.d) and the "
+          "$(call NAME,...) token -- and a PLAIN $(1) and $(@D) keep "
+          "their recorded treatment, bound by the call site this closure "
+          "walks or per rule by make. TWO BOUNDARIES of that reader were "
+          "wrong and are corrected (#410, the review of round eleven's "
+          "head): those same bytes as a $(value ...) argument or a "
+          "$(call ...) token are a NAMED lookup of a variable nothing here "
+          "binds -- value makes no argument scope and call reads its target "
+          "before it pushes one -- so $(value 1), $(call 1) and $(value @D) "
+          "are refused by name instead of inheriting the plain reference's "
+          "exemption and leaving the closure with no entry and no refusal; "
+          "and a SUBSTITUTION reference is read from the complete reference "
+          "make counts out, so $(NAME:$(PAT)=.d), its brace and mixed "
+          "spellings and $(NAME:$(PAT)=$(REP)) keep NAME in the closure and "
+          "raise no refusal, where ending the span at the first close "
+          "bracket hid the `=` and refused a supported idiom as a computed "
+          "name. A colon whose `=` only an expansion could supply, and a "
+          "name that itself expands, stay computed-name refusals. WHICH `=` "
+          "makes that reference a substitution is the boundary corrected "
+          "next (#410, the review of round twelve's head): make looks for "
+          "the separator in the text it has ALREADY expanded, so an `=` a "
+          "nested substitution or function takes with it, or the one make's "
+          "one-character $= reference reads a variable by, is not one. "
+          "$(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), "
+          "$(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) were answered about "
+          "NAME while make reads NAME:.d, NAME:x, NAME:.ox and NAME: -- a "
+          "different variable, covered by no origin request and refused by "
+          "nothing on a right-hand side -- and are the computed names they "
+          "are. The eval binder parts the same spellings rather than "
+          "grouping them: the first three it classified bindable on that "
+          "identifier, directly and one assignment away, and now refuses by "
+          "the reference each reads, while the $= one it already refused, "
+          "for the sibling $= read, and that standing refusal now names the "
+          "enclosing reference instead. A separator OUTSIDE the nesting "
+          "survives it and an escaped $$ consumes nothing, so "
+          "$(NAME:$(PAT:.o=.d)=.x), $(NAME:$(PAT)$(subst =,,x)=.d) and "
+          "$(NAME:$$=.d) stay covered reads of NAME. " +
+          eval_binding_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
