@@ -74,6 +74,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! Absolute in SoC builds, relative in self-contained Verilator benches.
   //! The image bakes in the config's station MAC, priority1 and fabric clock.
   parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
+  //! THE PHC'S OWN TICK in whole nanoseconds, when it is not the fabric
+  //! period (issue #360). The egress reconstruction subtracts whole ticks of
+  //! the period the counter really advances by, and the counter's nominal
+  //! increment is derived from MILAN_CLK_FREQ_HZ, so in the product these
+  //! are the same number and 0 selects it. A BENCH that compresses the
+  //! fabric clock to shorten a protocol timer while programming the counter
+  //! at the real rate has to say so here: a plane told the compressed
+  //! period would subtract that period from every timestamp, and
+  //! KL_gptp_txret refuses the mismatch at elaboration rather than
+  //! reconstructing from it.
+  parameter int unsigned GPTP_PHC_TICK_NS_P = 0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -2240,6 +2251,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_gptp_tap_drop      (gptp_tap_drop_w),
     .i_gptp_rx_drop       (gptp_rx_drop_w),
     .i_gptp_ev_drop       (gptp_ev_drop_w),
+    .i_gptp_txts_lost     (gptp_txts_lost_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -6314,6 +6326,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+  //! #360: egress launch records that closed with no timestamp. Published
+  //! at GPTP_DROPE[31:16] beside the event-queue losses, because a lost
+  //! timestamp and a lost event are the same class of fact about the
+  //! plane and an integrator reads them in one access.
+  wire [15:0] gptp_txts_lost_w;
 
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
@@ -6322,7 +6339,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
-        .UCODE_HEX_P   (GPTP_UCODE_HEX_P)
+        .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
+        .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),
@@ -6390,14 +6408,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
         .dbg_tspop_v_o   (),
+        //! THE ONE AN INTEGRATOR READS: frames the plane admitted and
+        //! could not time. It is published at GPTP_DROPE[31:16], beside
+        //! the event-queue losses, because a lost timestamp and a lost
+        //! event are the same class of fact about this plane.
+        .dbg_txts_lost_o (gptp_txts_lost_w),
         //! Per-cause egress-timestamp forensics. They are module outputs
         //! with no CSR of their own: the shipping build publishes the
-        //! aggregate at GPTP_DROPE and the benches read these through the
+        //! aggregate above and the benches read these through the
         //! hierarchy, which is the idiom tb/verilator/milan_dp already
         //! uses for the plane's internals. Left open here deliberately -
         //! a CSR per cause would take addresses the register map does not
         //! have for a diagnostic only a bench reads.
-        .dbg_txts_lost_o (),
         .dbg_txts_disc_o (),
         .dbg_txts_barr_o (),
         .dbg_txts_stall_o(),
@@ -6449,6 +6471,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;
+    assign gptp_txts_lost_w = '0;
     //! no plane, so no launch observer to seal and nothing to recover:
     //! the seal outputs and the recovery request are defined zeros like
     //! every other plane signal in this arm

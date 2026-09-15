@@ -132,6 +132,13 @@ SOURCE_TOKENS = {
         "KL_gptp_txret #(",
         "assign tx_tvalid_o = txf_out_valid_w & (fn_S == FN_OPEN);",
     ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": (
+        #: one entry per ADMITTED frame, and admitted means accepted: the
+        #: allocation seam is the engine's byte face, which the plane-slice
+        #: bench cannot stall on its own, so the line is held here
+        "assign alloc_w = beat_w & tx_eof_i;",
+        "assign tx_credit_o = ~credit_hold_i &",
+    ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": (
         #: the observation point, the reference octet and the measured
         #: cycle distance: the three facts the whole repair rests on
@@ -145,6 +152,17 @@ SOURCE_TOKENS = {
         #: derived from its terms rather than written down
         "assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &",
         "localparam int unsigned TXTS_CORR_NS_P =",
+        #: The four acceptance terms and the one line that says an expiry
+        #: is NOT a retirement. `tb/verilator/gptp_shadow/mutants.py`
+        #: records which of these its own defect controls cannot see from
+        #: outside - two independent cross-checks on one fact, a predicate
+        #: about an order no interface reports - and these tokens are where
+        #: those laws are held instead.
+        "assign oidx_ok_w    = (cap_oidx_r == exp_oidx_r);",
+        "assign departed_w   = (n_dep_i != '0);",
+        "assign push_res_w = resolve_w | pre_resolve_w;",
+        #: the abort arm is written FIRST, on purpose
+        "      if (!epi_busy_i && !epi_done_i)     epi_cover_r <= 1'b0;",
         "if (barrier_w) begin\n        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;",
         "assign destroyed_w   = destroyed_r & ~mac_reinit_i & ~mac_eth_rst_i &",
     ),

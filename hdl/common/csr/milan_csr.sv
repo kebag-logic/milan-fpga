@@ -225,6 +225,12 @@ module milan_csr #(
   input  wire [15:0]             i_gptp_tap_drop,     //! frames lost at the plane's tap FIFO (free-running, wraps)
   input  wire [15:0]             i_gptp_rx_drop,      //! frames the plane's parser refused (free-running, wraps)
   input  wire [15:0]             i_gptp_ev_drop,      //! events lost at the plane's queue (free-running, wraps)
+  //! egress launch records that closed with no timestamp (issue #360): a
+  //! frame the plane admitted whose launch was never reconstructed, whether
+  //! its entry was cancelled by a barrier, its record aborted by the
+  //! observer, or its reconstruction refused because the PHC trajectory
+  //! across the interval was outside the model. Free-running, wraps.
+  input  wire [15:0]             i_gptp_txts_lost,
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
@@ -783,7 +789,7 @@ module milan_csr #(
   //! 16-bit free-running and wrap; software reads deltas. Each word serves
   //! its counts in ONE access, so a wire/event pair is coherent.
   localparam [ADDR_WIDTH-1:0] A_GPTP_DROPW = 'h7E8;  //! RO live {tap_drop16, rx_drop16}
-  localparam [ADDR_WIDTH-1:0] A_GPTP_DROPE = 'h7EC;  //! RO live {16'd0, ev_drop16}
+  localparam [ADDR_WIDTH-1:0] A_GPTP_DROPE = 'h7EC;  //! RO live {txts_lost16, ev_drop16}
   //! MMCM-DRP media-clock servo status. Deliberately parked at the 0x8F8
   //! tail (after the 0x800-0x85C indexed window) so parallel feature lanes
   //! extending the 0x700 group cannot collide; 0x8FC stays reserved next
@@ -2155,7 +2161,7 @@ module milan_csr #(
         else                 live_mux = 32'd0;
       end
       A_GPTP_DROPE: begin
-        if (GPTP_PLANE_EN_P) live_mux = {16'd0, i_gptp_ev_drop};
+        if (GPTP_PLANE_EN_P) live_mux = {i_gptp_txts_lost, i_gptp_ev_drop};
         else                 live_mux = 32'd0;
       end
       A_ADP_DIAG:   live_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};

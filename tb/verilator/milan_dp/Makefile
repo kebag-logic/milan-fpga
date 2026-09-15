@@ -242,9 +242,16 @@ gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
 $(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstation_builder.py
 	python3 gen_divergent_shape.py
 
+# This leg compresses the fabric clock to 2 MHz so the plane's boot cadence
+# fits a runnable window, and then programs the PHC at its real 8 ns tick
+# (sim_gptp.cpp writes PTP_INCR itself, to match its own cycle model). The
+# egress reconstruction subtracts whole PHC ticks, so the plane is told the
+# tick the counter really advances by; without it KL_gptp_txret refuses the
+# 500 ns the compressed clock implies, at elaboration, rather than
+# reconstructing every timestamp from a period nothing runs at.
 gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptp \
-	  -GMILAN_CLK_FREQ_HZ=2000000 \
+	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 	./obj_gptp/Vmilan_dp_gptp
 

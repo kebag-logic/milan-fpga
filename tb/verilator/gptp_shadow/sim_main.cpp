@@ -194,8 +194,10 @@ class GptpShadowHarness {
     check_warm_reset_clears_the_request_owner();
     check_warm_reset_clears_the_sync_owner();
     check_every_stamp_names_its_own_frame();
+    check_a_record_that_is_not_this_frames_is_refused();
     check_recovery_demand_survives_an_unaccepted_request();
     check_phc_trajectory_qualification();
+    check_an_aged_head_is_not_retired();
 
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : txf) tx_flags.observe(frame);
@@ -618,6 +620,7 @@ class GptpShadowHarness {
     dut->tx_tready_i = 1;
     dut->rechold_en_i = 0; dut->rechold_type_i = 0;
     dut->rechold_release_i = 0;
+    dut->recfault_en_i = 0; dut->recfault_mode_i = 0;
     dut->linkg_dis_i = 0; dut->linkg_freeze_i = 0;
     dut->cfg_mac_reinit_i = 0; dut->eth_alive_i = 1; dut->obs_rst_i = 0;
     //! the PHC's own controls at their product values: running, at the
@@ -1726,6 +1729,162 @@ class GptpShadowHarness {
   // drops both outputs at once without the sequence ever completing. These
   // arms drive the REAL guard FSM inside the wrapper and require that the
   // demand survives everything short of an accepted, completed episode.
+  //! ONE BAD FIELD, AT THE RECORD INTERFACE.
+  //!
+  //! The ledger's identity is POSITION, and the generation and the frame's
+  //! own tag are the two independent cross-checks on it. The observer reset
+  //! the recovery phases use moves BOTH the position and the generation at
+  //! once, so it cannot tell a plane that checks the generation from one
+  //! that does not - and a bench that cannot tell them apart is not
+  //! evidence about either. These phases corrupt exactly ONE field of one
+  //! record on its way to the ledger, leave the position correct, and
+  //! require the refusal each time: a barrier, a seal, and a recovery that
+  //! ends in an unsealed plane.
+  void check_one_corrupt_field_is_refused(unsigned mode, const char *what) {
+    char label[96];
+    const auto say = [&](const char *tail) {
+      std::snprintf(label, sizeof label, "%s: %s", what, tail);
+      return label;
+    };
+    drop_epoch();
+    expect(say("the plane starts this phase unsealed"),
+           wait_unsealed(4000000) ? 1 : 0, 1);
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    dut->recfault_mode_i = static_cast<uint8_t>(mode);
+    dut->recfault_en_i = 1;
+    //! polled FINELY: the refusal, the seal and the recovery that follows
+    //! it all complete within a few thousand cycles, so a coarse poll would
+    //! read the plane after it had already recovered and call the seal
+    //! absent
+    bool fired = false;
+    for (int k = 0; k < 2000000 && !fired; k++) {
+      idle(4);
+      fired = dut->dbg_recfault_fired_o != 0;
+    }
+    expect(say("the corrupted record reached the ledger"), fired ? 1 : 0, 1);
+    expect(say("the ledger refused it and raised a barrier"),
+           wait_barrier(barr0, 4000000) ? 1 : 0, 1);
+    expect(say("the barrier sealed the plane"), sealed() ? 1 : 0, 1);
+    //! WHAT THE BARRIER OWES. The entries it cancels are marked, never
+    //! removed: each one still closes, in order, as a counted loss. A
+    //! barrier that simply forgot them would leave this counter still and
+    //! the occupancy at zero, which is why both are graded.
+    const unsigned owed = dut->dbg_txts_state_o & 0xF;
+    const uint16_t lost0 = dut->dbg_txts_lost_o;
+    dut->recfault_en_i = 0;
+    dut->recfault_mode_i = 0;
+    expect(say("a completed episode follows"),
+           wait_epi_done(done0, 8000000) ? 1 : 0, 1);
+    expect(say("and the plane unseals again"),
+           wait_unsealed(8000000) ? 1 : 0, 1);
+    expect(say("every cancelled entry closed as a counted loss"),
+           static_cast<unsigned>(uint16_t(dut->dbg_txts_lost_o - lost0)) >= owed
+               ? 1 : 0, 1);
+    expect(say("and none is left owed"), dut->dbg_txts_state_o & 0xF, 0);
+    drop_epoch();
+  }
+
+  void check_a_record_that_is_not_this_frames_is_refused() {
+    check_one_corrupt_field_is_refused(1, "generation zero");
+    check_one_corrupt_field_is_refused(2, "foreign tag");
+    check_one_corrupt_field_is_refused(3, "lost record");
+    check_the_seal_waits_for_the_echo();
+  }
+
+  //! AN EXPIRED HEAD IS A DIAGNOSTIC, NOT A RETIREMENT.
+  //!
+  //! The ledger's head can wait a long time - a record crosses a clock
+  //! domain behind a frame that is still on the wire - and the age counter
+  //! exists to SAY when that wait became implausible, not to end it.
+  //! Retiring the head on age would hand the next record to the wrong
+  //! entry, which is the one failure the whole positional scheme exists to
+  //! prevent. So here one record is held past the age limit and then
+  //! released, and the frame it belongs to still gets its own time.
+  void check_an_aged_head_is_not_retired() {
+    drop_epoch();
+    expect("aged head: the plane starts this phase unsealed",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+    const uint16_t stall0 = dut->dbg_txts_stall_o;
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    dut->rechold_type_i = 0x2;      //! the plane's own Pdelay_Req cadence
+    dut->rechold_en_i = 1;
+    bool held = false;
+    for (int k = 0; k < 400000 && !held; k++) {
+      idle(16);
+      held = dut->dbg_rec_held_o != 0;
+    }
+    expect("aged head: a record is held back", held ? 1 : 0, 1);
+    const uint16_t held_seq = dut->dbg_rec_held_seq_o;
+    const uint8_t held_type = dut->dbg_rec_held_type_o;
+    //! past the million-cycle age limit, with room to spare
+    idle(1200000);
+    expect("aged head: the age expired and was counted",
+           dut->dbg_txts_stall_o != stall0 ? 1 : 0, 1);
+    expect("aged head: the entry is still owed",
+           (dut->dbg_txts_state_o & 0xF) != 0 ? 1 : 0, 1);
+    expect("aged head: an expiry is not a barrier",
+           dut->dbg_txts_barr_o, barr0);
+    const size_t res0 = stamps.size();
+    dut->rechold_release_i = 1;
+    idle(64);
+    dut->rechold_release_i = 0;
+    dut->rechold_en_i = 0;
+    idle(200000);
+    //! a MEASUREMENT, not a loss: a plane that retired the head on age
+    //! would close this very entry with an explicit loss carrying the same
+    //! identity, and that is the answer this phase exists to refuse
+    bool delivered = false;
+    for (size_t i = res0; i < stamps.size(); i++)
+      if (stamps[i].seq == held_seq && stamps[i].type == held_type
+          && stamps[i].ok)
+        delivered = true;
+    expect("aged head: the late record still delivers its own frame",
+           delivered ? 1 : 0, 1);
+    drop_epoch();
+  }
+
+  //! THE ECHO IS THE ACKNOWLEDGEMENT, and nothing else is.
+  //!
+  //! A completed recovery episode discharges the DEMAND - it proves the
+  //! frames this plane handed over were destroyed. It says nothing about
+  //! where the observer now is, and the plane cannot credit a position it
+  //! has not re-established. So the seal has to outlast an episode that
+  //! completed while the observer was still in reset, and lift only when
+  //! the observer answers for the generation it was sealed with.
+  void check_the_seal_waits_for_the_echo() {
+    drop_epoch();
+    expect("echo: the plane starts this phase unsealed",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    //! raise the barrier at the RECORD interface, so the observer itself is
+    //! untouched until this phase chooses to hold it
+    dut->recfault_mode_i = 1;
+    dut->recfault_en_i = 1;
+    bool fired = false;
+    for (int k = 0; k < 2000000 && !fired; k++) {
+      idle(4);
+      fired = dut->dbg_recfault_fired_o != 0;
+    }
+    expect("echo: a barrier was raised", fired ? 1 : 0, 1);
+    //! ...and from here the observer cannot answer at all
+    dut->obs_rst_i = 1;
+    dut->recfault_en_i = 0;
+    dut->recfault_mode_i = 0;
+    expect("echo: the plane is sealed", sealed() ? 1 : 0, 1);
+    expect("echo: an episode completes while the observer is held",
+           wait_epi_done(done0, 8000000) ? 1 : 0, 1);
+    const size_t res0 = stamps.size();
+    idle(200000);
+    expect("echo: the seal outlasts it", sealed() ? 1 : 0, 1);
+    expect("echo: and nothing is resolved without a position",
+           stamps.size(), res0);
+    dut->obs_rst_i = 0;
+    expect("echo: releasing the observer unseals the plane",
+           wait_unsealed(8000000) ? 1 : 0, 1);
+    drop_epoch();
+  }
+
   void check_recovery_demand_survives_an_unaccepted_request() {
     drop_epoch();
     expect("recovery: the plane starts this phase unsealed and stamping",

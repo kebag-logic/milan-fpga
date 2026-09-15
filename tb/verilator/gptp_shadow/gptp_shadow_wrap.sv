@@ -69,6 +69,21 @@ module gptp_shadow_wrap #(
     input  wire [3:0]  rechold_type_i,
     input  wire        rechold_release_i,
 
+    //! Test-only RECORD FAULT. One field of the next frame record is
+    //! corrupted on its way to the ledger, which is what a record that is
+    //! not this frame's looks like at that interface. The frames, the
+    //! observer and the ledger stay the product's: only this one record's
+    //! field is altered, and only when a phase asks for it.
+    //!   1 = generation zero, the value a crossing whose source was reset
+    //!       presents, and the one a ledger must never credit;
+    //!   2 = a sequenceId that is not the head entry's, which is a record
+    //!       belonging to some other frame;
+    //!   3 = the record is DROPPED, so the next one carries a position one
+    //!       ahead of the one the ledger expects - a lost record, with the
+    //!       generation still correct.
+    input  wire        recfault_en_i,
+    input  wire [1:0]  recfault_mode_i,
+
     //! THE REAL LINK GUARD runs inside this wrapper, at a scaled settle so
     //! a bench can afford a whole episode. Its FSM, its trigger set, its
     //! sequenced eth-then-sys release and its disable behaviour are the
@@ -159,6 +174,9 @@ module gptp_shadow_wrap #(
     output wire         dbg_dut_rec_v_o,
     output wire         dbg_dut_rec_kind_o,
     output wire         dbg_dut_rec_delayed_o,
+    //! the injected fault actually reached the ledger, so a phase grades a
+    //! refusal that happened rather than one it hoped for
+    output wire         dbg_recfault_fired_o,
 
     //! the tuple the engine ACCEPTED, sampled at its accepted beat
     output wire        dbg_eng_txts_v_o,
@@ -602,16 +620,44 @@ module gptp_shadow_wrap #(
   assign rq_head_w = rq_mem_r[rq_rp_r];
 
   logic       rq_head_kind_w, rq_head_abort_w, rq_head_delayed_w;
-  logic [3:0] rq_head_type_w;
+  logic [3:0] rq_head_type_w, rq_head_gen_w;
   logic [15:0] rq_head_seq_w;
-  assign {rq_head_kind_w, dut_rec_oidx_w, dut_rec_gen_w, rq_head_type_w,
+  assign {rq_head_kind_w, dut_rec_oidx_w, rq_head_gen_w, rq_head_type_w,
           rq_head_seq_w, dut_rec_delta_w, rq_head_abort_w,
           rq_head_delayed_w} = rq_head_w;
   assign dut_rec_kind_w  = rq_head_kind_w;
   assign dut_rec_type_w  = rq_head_type_w;
-  assign dut_rec_seq_w   = rq_head_seq_w;
   assign dut_rec_abort_w = rq_head_abort_w;
 
+  //! THE RECORD FAULT, applied to exactly one frame record on its way out
+  //! of this queue. `fault_now_w` is the cycle it reaches the ledger, which
+  //! is also the cycle the arming register clears, so a phase gets one
+  //! corrupted record and every record after it is the observer's own.
+  logic fault_arm_r;
+  logic fault_now_w;
+  assign fault_now_w = fault_arm_r & dut_rec_v_w & ~rq_head_kind_w;
+  assign dut_rec_gen_w = (fault_now_w && recfault_mode_i == 2'd1)
+                       ? 4'd0 : rq_head_gen_w;
+  assign dut_rec_seq_w = (fault_now_w && recfault_mode_i == 2'd2)
+                       ? (rq_head_seq_w ^ 16'h8000) : rq_head_seq_w;
+
+  always_ff @(posedge clk_i) begin : record_fault
+    if (!rst_n) begin
+      fault_arm_r          <= 1'b0;
+      dbg_recfault_fired_r <= 1'b0;
+    end else begin
+      if (recfault_en_i && !fault_arm_r && !dbg_recfault_fired_r)
+        fault_arm_r <= 1'b1;
+      if (fault_now_w | rec_drop_w) begin
+        fault_arm_r          <= 1'b0;
+        dbg_recfault_fired_r <= 1'b1;
+      end
+      if (!recfault_en_i) dbg_recfault_fired_r <= 1'b0;
+    end
+  end : record_fault
+  assign dbg_recfault_fired_o = dbg_recfault_fired_r;
+
+  logic dbg_recfault_fired_r;
   logic head_match_w, hold_now_w;
   assign head_match_w = (rq_n_r != 4'd0) & ~rq_head_kind_w &
                         (rq_head_type_w == rechold_type_i);
@@ -621,7 +667,15 @@ module gptp_shadow_wrap #(
   //! produce them are a whole inter-frame gap apart - and KL_gptp_txret
   //! asserts that. This queue must not manufacture a spacing the wire never
   //! produces, so a drained record is followed by two idle cycles.
-  assign dut_rec_v_w  = (rq_n_r != 4'd0) & ~hold_now_w & (rq_gap_r == 2'd0);
+  //! A DROPPED RECORD (fault mode 3) is popped without being presented:
+  //! the observer counted the frame, the ledger never sees it, and the
+  //! next record carries a position one ahead of the expected one.
+  logic rec_drop_w;
+  assign rec_drop_w = fault_arm_r & (recfault_mode_i == 2'd3) &
+                      (rq_n_r != 4'd0) & ~hold_now_w & (rq_gap_r == 2'd0) &
+                      ~rq_head_kind_w;
+  assign dut_rec_v_w  = (rq_n_r != 4'd0) & ~hold_now_w & (rq_gap_r == 2'd0) &
+                        ~rec_drop_w;
 
   always_ff @(posedge clk_i) begin : record_queue
     if (!rst_n) begin
@@ -638,9 +692,9 @@ module gptp_shadow_wrap #(
         rq_mem_r[rq_wp_r] <= rq_in_w;
         rq_wp_r           <= rq_wp_r + 3'd1;
       end
-      if (dut_rec_v_w) rq_rp_r <= rq_rp_r + 3'd1;
-      if (rec_v_w & ~dut_rec_v_w)      rq_n_r <= rq_n_r + 4'd1;
-      else if (~rec_v_w & dut_rec_v_w) rq_n_r <= rq_n_r - 4'd1;
+      if (dut_rec_v_w | rec_drop_w) rq_rp_r <= rq_rp_r + 3'd1;
+      if (rec_v_w & ~(dut_rec_v_w | rec_drop_w))      rq_n_r <= rq_n_r + 4'd1;
+      else if (~rec_v_w & (dut_rec_v_w | rec_drop_w)) rq_n_r <= rq_n_r - 4'd1;
 
       if (rechold_en_i && !held_r)              arm_r  <= 1'b1;
       if (arm_r && head_match_w && !held_r)     held_r <= 1'b1;

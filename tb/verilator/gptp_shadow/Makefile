@@ -32,9 +32,23 @@ SRCS = gptp_shadow_wrap.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
 
+.PHONY: all run mutants clean
+
+all: mutants
+
 run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_shadow_sim
 	./obj_dir/Vgptp_shadow_sim
+
+#: A green suite and a suite that cannot go red look the same from outside.
+#: `mutants.py` plants one plane defect at a time - what a ledger entry is,
+#: when it may resolve, what a barrier destroys, what discharges a recovery
+#: demand, and which measured terms the reconstruction is made of - and
+#: requires this suite to notice, restoring the exact source afterwards. It
+#: is the default target, so the evidence comes from the command the sweep
+#: already runs.
+mutants: run
+	python3 mutants.py
 
 gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
 	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@

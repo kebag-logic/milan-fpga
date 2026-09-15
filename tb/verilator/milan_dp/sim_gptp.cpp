@@ -29,6 +29,7 @@
 #include <verilated.h>
 #include "../../common/verilator_harness.hpp"
 #include "../../common/gptp_tx_flags.hpp"
+#include "../../common/gptp_launch_observer.hpp"
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 
@@ -286,8 +287,30 @@ class GptpPlaneHarness {
   std::vector<uint8_t> tx_cur;
   bool tx_open = false;
   uint64_t sim_cyc = 0;
+  //! THE MAC THIS LEG STANDS IN FOR (#360). There is no MAC behind
+  //! `m_axis_mac_tx_*` here, so this harness is the launch observer: it
+  //! reports each gPTP frame it accepted and answers the plane's seal.
+  //! Without it the plane never discharges its boot fence and transmits
+  //! nothing at all. This leg programs the PHC at 8 ns per fabric cycle
+  //! (PTP_INCR below) and the plane is told the same tick, so the launch
+  //! this model reports and the one the plane reconstructs are one number.
+  milan::tb::GptpLaunchObserver observer{8};
   bool pp_ctr_avb_seen = false;
   bool pp_ctr_ckd_seen = false;
+
+  //! The PHC THIS CYCLE, read where the plane reads it, so the launch this
+  //! harness reports carries no assumption about the counter's rate. The
+  //! plane reads `timestamp_out`, which is the integer-nanosecond field of
+  //! the counter's own accumulator (`timestamp_counter.sv`: `assign
+  //! timestamp_out = acc[ACC_WIDTH-1 -: COUNTER_WIDTH]`); the wire itself is
+  //! inlined away in this elaboration, so the harness reads the accumulator
+  //! and takes the same field.
+  static uint64_t phc_ns(Vmilan_datapath *dut) {
+    const auto &acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+    return (static_cast<uint64_t>(acc[2]) << 40)
+         | (static_cast<uint64_t>(acc[1]) << 8)
+         | (acc[0] >> 24);
+  }
 
   struct CycleFires {
     bool rx = false;
@@ -320,11 +343,13 @@ class GptpPlaneHarness {
         if ((dut->m_axis_mac_tx_tkeep >> i) & 1)
           tx_cur.push_back((d >> (8 * i)) & 0xFF);
       if (dut->m_axis_mac_tx_tlast) {
+        observer.offer(tx_cur, sim_cyc);
         tx_frames.push_back(tx_cur);
         tx_cur.clear();
         tx_open = false;
       }
     }
+    observer.edge(dut, sim_cyc, phc_ns(dut));
     if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
       const unsigned type =
           dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
@@ -418,19 +443,36 @@ class GptpPlaneHarness {
   int64_t pd_expect = 0;
   void service_pdelay(Vmilan_datapath *dut) {
     while (pd_scan < tx_frames.size()) {
-      const size_t req_ix = pd_scan++;
-      const std::vector<uint8_t> req = tx_frames[req_ix];
+      const std::vector<uint8_t> req = tx_frames[pd_scan];
       if (req.size() < 54 || req[12] != 0x88 || req[13] != 0xF7
-          || (req[14] & 0xF) != 0x2)
+          || (req[14] & 0xF) != 0x2) {
+        pd_scan++;
         continue;
+      }
       const uint16_t seq = static_cast<uint16_t>((req[44] << 8) | req[45]);
-      const uint64_t t1 = tx_sof_ns[req_ix];
+      //! t1 IS THE LAUNCH THIS HARNESS'S OWN OBSERVER REPORTED (#360), not
+      //! the beat the datapath handed the frame over on: the second is the
+      //! quantity this issue retires, and it precedes the first by the whole
+      //! MAC pipeline. Until the observer has reported the frame there is no
+      //! launch to answer for, so the peer waits rather than inventing one.
+      uint64_t t1 = 0;
+      if (!observer.t1_of(0x2, seq, &t1)) return;
+      pd_scan++;
       run(dut, 300);
-      const uint64_t now = sim_cyc * 8;
+      //! ONE TIME BASE for all four instants: the PHC's. t1 is the launch
+      //! the observer reported off the PHC, so the residence this peer
+      //! manufactures and the t4 it predicts have to be read off the same
+      //! counter. Taking `now` from the harness's cycle count instead
+      //! measures the residence across the step this leg's own PTP_INCR
+      //! write puts between the two, and every published delay inherits
+      //! half of it.
+      const uint64_t now = phc_ns(dut);
       const uint64_t t2 = 5000000ull + now;
       const int64_t residence = static_cast<int64_t>(now - t1) - 2 * pd_target;
       const uint64_t t3 = t2 + static_cast<uint64_t>(residence);
-      const uint64_t t4_est = (sim_cyc + 1) * 8;
+      //! the response's first beat is accepted on the next cycle, and this
+      //! leg runs the PHC at 8 ns per cycle (PTP_INCR above)
+      const uint64_t t4_est = now + 8;
       pd_expect = (static_cast<int64_t>(t4_est - t1) - residence) / 2;
       Frame resp = ptp(0x3, seq, 0, 0x0200, 20);
       resp.ts(t2);
