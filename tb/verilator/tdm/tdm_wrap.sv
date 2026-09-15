@@ -136,6 +136,9 @@ module tdm_wrap (
     .clk_i (clk), .rst_n (rst_n), .clk_audio_i (clk_tdm),
     .tdm_mclk_o (m_mclk_o), .tdm_bclk_o (m_bclk_o),
     .tdm_fsync_o (m_fsync_o), .tdm_data_i (m_data_i),
+    //! #447: the timing owner's exported schedule; this suite proves
+    //! the bus it generates, not the render half that consumes it
+    .bclk_rise_o (), .bclk_fall_o (), .frame_pos_o (),
     .pair_valid_o (m_pv_o), .pair_slot_o (m_slot_o),
     .pair_l_o (m_l_o), .pair_r_o (m_r_o),
     .pairs_captured_o (m_pairs_o)
@@ -150,6 +153,9 @@ module tdm_wrap (
     .clk_i (clk), .rst_n (rst_n), .clk_audio_i (clk_tdm),
     .tdm_mclk_o (), .tdm_bclk_o (m2_bclk_o),
     .tdm_fsync_o (m2_fsync_o), .tdm_data_i (m2_data_i),
+    //! #447: the timing owner's exported schedule; this suite proves
+    //! the bus it generates, not the render half that consumes it
+    .bclk_rise_o (), .bclk_fall_o (), .frame_pos_o (),
     .pair_valid_o (m2_pv_o), .pair_slot_o (m2_slot_o),
     .pair_l_o (m2_l_o), .pair_r_o (m2_r_o),
     .pairs_captured_o ()
@@ -167,6 +173,9 @@ module tdm_wrap (
     .clk_i (clk), .rst_n (rst_n), .clk_audio_i (clk_tdm),
     .tdm_mclk_o (), .tdm_bclk_o (m3_bclk_o),
     .tdm_fsync_o (m3_fsync_o), .tdm_data_i (1'b0),
+    //! #447: the timing owner's exported schedule; this suite proves
+    //! the bus it generates, not the render half that consumes it
+    .bclk_rise_o (), .bclk_fall_o (), .frame_pos_o (),
     .pair_valid_o (), .pair_slot_o (),
     .pair_l_o (), .pair_r_o (),
     .pairs_captured_o ()

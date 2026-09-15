@@ -114,3 +114,71 @@ Feature: the chmap64 render-crossbar binding contract
     When I ADD 64 copies of stream_channel 1 at cluster_offset 1
     Then the audio-map model responds status 7
     And the fabric render crossbar has 1 enabled words
+
+  # (g) issue #447: PROTOCOL VALIDITY AND PHYSICAL PROJECTION ARE SEPARATE
+  # questions, and this model used to answer both with one rule. The fabric
+  # accepts an ADD on a dynamic Stream Port Input from the cluster bound, the
+  # stream bound and the mono-cluster rule; it consults the generated
+  # projection table only when deciding whether to write the render RAM.
+  # 7.4.45.1 delegates that: "The ADDING of a mapping is subject to the
+  # validity of the mapping as defined by the vendor of the ATDECC Entity."
+  # The scenarios below hold the two apart on two TRACKED shapes.
+  @class:action @fabric @roadmap23
+  Scenario: a legal cluster with no physical destination maps, lists and clears
+    Given a Milan audio-map model on the arty 4x4 render projection
+    Then the global cluster key 2 has no physical destination
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 2
+    Then the audio-map model responds status 0
+    And the fabric render crossbar has 0 enabled words
+    When the audio-map model GETs input port 0 page 0
+    Then the audio-map model responds status 0
+    And the last GET lists 1 mappings
+    And the last GET contains stream 0 channel 3 at cluster_offset 2
+    When on input port 0 I REMOVE stream 0 channel 3 at cluster_offset 2
+    Then the audio-map model responds status 0
+    And the fabric render crossbar has 0 enabled words
+
+  @class:action @fabric @roadmap23
+  Scenario: an entirely non-physical port still owns protocol-visible mappings
+    Given a Milan audio-map model on the arty 4x4 render projection
+    Then the global cluster key 12 has no physical destination
+    When on input port 3 I ADD stream 3 channel 1 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the fabric render crossbar has 0 enabled words
+    When the audio-map model GETs input port 3 page 0
+    Then the audio-map model responds status 0
+    And the last GET lists 1 mappings
+    And the last GET contains stream 3 channel 1 at cluster_offset 0
+    # ...while the two BACKED clusters of port 0 still reach their pins, so a
+    # shape with unprojected keys has not simply stopped projecting
+    When on input port 0 I ADD stream 0 channel 5 at cluster_offset 1
+    Then the audio-map model responds status 0
+    And the render crossbar physical key 1 is en 1 stream 0 ch 5
+    And the fabric render crossbar has 1 enabled words
+
+  @class:action @negative @roadmap23
+  Scenario: a cluster_offset past the port is refused, which a missing pin is not
+    Given a Milan audio-map model on the arty 4x4 render projection
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 4
+    Then the audio-map model responds status 7
+    And the fabric render crossbar has 0 enabled words
+
+  @class:action @fabric @roadmap23
+  Scenario: the shipping TDM8 shape projects its eight clusters onto keys 2..9
+    Given a Milan audio-map model on the shipping tdm8 render projection
+    Then the global cluster key 0 projects to physical key 2
+    And the global cluster key 7 projects to physical key 9
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the render crossbar physical key 2 is en 1 stream 0 ch 3
+    And the render crossbar physical key 0 is en 0 stream 0 ch 0
+    And the render crossbar physical key 1 is en 0 stream 0 ch 0
+    When on input port 0 I ADD stream 0 channel 4 at cluster_offset 7
+    Then the audio-map model responds status 0
+    And the render crossbar physical key 9 is en 1 stream 0 ch 4
+    And the fabric render crossbar has 2 enabled words
+    # offset 8 is past this port's own eight clusters: a CLUSTER-BOUND
+    # refusal, and not a statement about any pin
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 8
+    Then the audio-map model responds status 7
+    And the fabric render crossbar has 2 enabled words

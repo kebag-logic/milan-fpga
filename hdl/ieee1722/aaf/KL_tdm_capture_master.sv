@@ -60,6 +60,16 @@
                 ONCE - never also in a TB chip model (the double-Philips-delay
                 history, 78bbabe).
 
+                ONE TIMING OWNER (2026-09-14, issue #447). bclk and fsync are
+                SHARED pins of one bus, so the render direction must not
+                generate a second frame phase beside this one. This module
+                stays the sole owner and EXPORTS its timing -
+                bclk_rise_o / bclk_fall_o / frame_pos_o - for a same-domain
+                render serializer (KL_tdm_render_master) to consume. The three
+                ports are continuous assigns off wires that already existed:
+                no flop, expression or reset here changed, so the capture
+                waveform and the proven deserializer phase are untouched.
+
                 CHANNEL MAP. Pair k carries TDM slots {2k, 2k+1}, so a
                 C-channel stream consumes C/2 consecutive pair slots exactly
                 as the packetizer's TCTX chans prefix-sum expects. Slots 0/1
@@ -97,6 +107,27 @@ module KL_tdm_capture_master #(
   output wire         tdm_bclk_o,        //! generated bit clock
   output wire         tdm_fsync_o,       //! generated frame sync (1-bclk pulse)
   input  wire         tdm_data_i,        //! serial data, MSB first
+
+  // ---- exported bus TIMING (clk_audio_i domain; RTL consumers only) ----
+  //! THE ONE TIMING OWNER. There is exactly one TDM bus: bclk and fsync are
+  //! shared pins and only this module drives them. A render serializer on the
+  //! same bus therefore CONSUMES this timing instead of generating a second,
+  //! unconstrained frame phase of its own. All three are continuous assigns
+  //! off wires that already drive the deserializer, so no flop, expression or
+  //! reset in this module changes and the pin waveform is bit for bit what it
+  //! was. They are clk_audio_i-domain RTL signals, never a pin and never a
+  //! clock: a pin-level receiver model must read bclk/fsync/dout and nothing
+  //! here.
+  output wire         bclk_rise_o,       //! one clk_audio_i cycle: at the END
+                                         //! of this cycle the bclk pin goes
+                                         //! 0 -> 1
+  output wire         bclk_fall_o,       //! one clk_audio_i cycle: at the END
+                                         //! of this cycle the bclk pin goes
+                                         //! 1 -> 0
+  //! PRE-EDGE frame position during a bclk_rise_o cycle. After that edge the
+  //! position is (frame_pos_o + 1) mod SLOTS_P*WORD_BITS_P and the fsync pin
+  //! is (frame_pos_o == SLOTS_P*WORD_BITS_P - 1).
+  output wire [$clog2(SLOTS_P*WORD_BITS_P)-1:0] frame_pos_o,
 
   // ---- pair stream out (clk_i domain; one pulse per slot pair) ---------
   output logic        pair_valid_o,      //! one-cycle pulse per pair
@@ -177,6 +208,11 @@ module KL_tdm_capture_master #(
     end
   end : t_frame
   assign tdm_fsync_o = fsync_r;
+
+  //! the exported timing, one continuous assign each - see the port banner
+  assign bclk_rise_o = brise_w;
+  assign bclk_fall_o = tick_w && bclk_r;
+  assign frame_pos_o = fpos_r;
 
   // ======================================================================
   //  Deserializer - the slave's state machine, driven by brise_w instead of

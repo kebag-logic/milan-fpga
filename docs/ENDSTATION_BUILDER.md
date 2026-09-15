@@ -588,7 +588,35 @@ The processor validates `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` as
 atomic transactions. The root commits the authoritative protocol stores and
 projects only backed clusters into the render and capture crossbars. The
 `0x900` window remains a local debug and override path, but its map writes are
-refused while `LOCK_ENTITY` is held. Reset replay from nonvolatile storage
+refused while `LOCK_ENTITY` is held.
+
+**Protocol validity and physical projection are separate questions.** A legal
+`ADD` / `GET_AUDIO_MAP` / `REMOVE_AUDIO_MAPPINGS` on a cluster with no physical
+projection SUCCEEDS, is stored, appears in the GET page, and changes no render
+RAM word: 1722.1-2021 7.4.45.1 delegates that judgement to the entity, and the
+generated headers say the same in words. A cluster offset outside the addressed
+port's own cluster count is a different defect class and stays BAD_ARGUMENTS.
+A `0x908` CSR write whose cluster key has no valid projection is suppressed at
+the crossbar write gate and still MIRRORS into the in-range protocol store,
+subject to the existing lock and transaction gates: the suppression is a CSR
+behaviour and is not an AECP status.
+
+**The physical render key is two terms.** The projection is
+`render_lane_base(cfg) + pool.first + n`. `pool.first` keeps its one existing
+meaning, the audio-interface channel index, which is also what the cluster
+namer consumes, so cluster object names never move; the LANE BASE is the
+separately derived term, chosen by the board (`i2s` when
+`board.features.i2s_playback` is set, `tdm` when the config declares a TDM bus,
+otherwise no lane at all). `physical_channels.render` is bounded by that lane's
+width, not by the interface family width, and a shape declaring more is refused
+at build time rather than advertising clusters that reach no pin (#447). The
+lane table is `RENDER_PHYS_LANES`, mirrored in `avdecc/aem_assemble.py` and
+pinned against the `milan_datapath` localparams by a builder gate. The shipping
+AX7101 1x1 TDM8 shape's eight channels are published row by row, every
+dimension kept distinct and every value derived from what the build emits, in
+[`CHANNEL_MAP_64.md` section 3.1.2](CHANNEL_MAP_64.md); gate 16d fails on a row
+that drifts from the generated shape header, the AEM overlay, the lane table or
+the platform pin. Reset replay from nonvolatile storage
 remains open in issue #70. The fabric contract is
 [`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) section 7.
 
@@ -625,7 +653,7 @@ every pool width is read out of the platform declaration:
 
 | Pool | Width from | Where |
 |---|---|---|
-| `physical` | `audio_interface.physical_channels.{capture,render}` | both directions |
+| `physical` | `audio_interface.physical_channels.{capture,render}` | both directions; the RENDER count is additionally bounded by the render LANE (#447), and it also selects `AUDIO_IF_RENDER_SLOTS_P` when the lane is the TDM bus and the board routes its header |
 | `virtual` | the declared stream width beyond the physical channels | both directions under the two non-pool policies |
 | `pilot` | `cluster_mapping.pools.pilot` (one `KL_tone_gen` cluster) | **talker ports only** |
 | `loopback` | `cluster_mapping.pools.loopback` | **talker ports only** |

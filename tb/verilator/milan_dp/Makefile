@@ -95,6 +95,9 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
+# #447: the TDM master render serializer, overridable the same way so
+# tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
+TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -146,6 +149,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
+       $(TDMRM_SRC) \
        $(RSP_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
@@ -222,6 +226,14 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(ACLK_MDIR) \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
   $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 endef
+
+# #447: the shipping TDM8 render lane's two elaborations, its leg source and
+# its mutation campaign live in tb/verilator/milan_dp_render, their own suite
+# directory. They are still built from THIS suite's datapath source list and
+# elaboration flag set (print-srcs and print-dp-vflags below), so there is one
+# statement of how this datapath is built; what moved is the schedule. The
+# reason is wall clock and is recorded in that suite's Makefile header and in
+# docs/testing/TESTING.md, not a reduction in what is checked.
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
 # $$readmemh's it by the relative name below - so it must exist in the RUN
@@ -402,7 +414,7 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
 # thing every leg here depends on is that SRCS is the list that elaborates.
 # Paths are relative to a tb/verilator/<suite>/ directory, which every consumer
 # of this target also is.
-.PHONY: print-srcs print-pp-srcs
+.PHONY: print-srcs print-pp-srcs print-dp-vflags
 print-srcs:
 	@echo $(SRCS)
 
@@ -410,6 +422,16 @@ print-srcs:
 # own datapath list but must still build the plane inside it.
 print-pp-srcs:
 	@echo $(PP_SRCS)
+
+# ...and the ELABORATION FLAG SET, for the same reason and for the suite that
+# needs the same one: tb/verilator/milan_dp_render elaborates this datapath at
+# the shipping TDM8 parameters, and a second copy of these flags would be a
+# second statement of how it is built. The quotes around -CFLAGS survive the
+# round trip - the recipe that consumes this hands the line to one shell, which
+# groups them again - and every path in it is relative to a
+# tb/verilator/<suite>/ directory, which the consumer also is.
+print-dp-vflags:
+	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex

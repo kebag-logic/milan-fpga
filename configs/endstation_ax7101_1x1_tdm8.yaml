@@ -130,22 +130,29 @@ audio_interface:
                                      # idx=ch/2, so all four pair slots reach
                                      # a cluster instead of collapsing onto
                                      # the single-pair I2S hold.
-    render: 0                        # STILL 0, and NOT an oversight. Three
-                                     # things must land first:
-                                     #  (1) KL_tdm_render is a bus SLAVE - its
-                                     #      serializer runs on posedge
-                                     #      tdm_bclk_i, and a MASTER build
-                                     #      ties tdm_bclk_i/tdm_fsync_i to 0
-                                     #      (milan_soc.py:751), so the clock
-                                     #      is constant zero and tdm_dout_o
-                                     #      never leaves reset. There is no
-                                     #      KL_tdm_render_master sibling; the
-                                     #      capture side got one, render did
-                                     #      not.
-                                     #  (2) CHMAP_PHYS_C = 10 bakes the blend
-                                     #      layout (2 I2S + 8 TDM) into the
-                                     #      fabric, so phys 0/1 render into a
-                                     #      DAC this shape prunes.
+    render: 8                        # BACKED as of issue #447: the same TDM8
+                                     # bus, in the other direction, out of
+                                     # J11.5 (tdm.dout). What was missing was
+                                     # the CLOCK, not the pin -
+                                     # KL_tdm_render was a bus SLAVE whose
+                                     # serializer ran on posedge tdm_bclk_i,
+                                     # and a MASTER build ties that input to
+                                     # 0, so the bank filled and never
+                                     # shifted. KL_tdm_render_master is the
+                                     # sibling that consumes the capture
+                                     # master's exported bit-clock enables,
+                                     # and this count is what elaborates it
+                                     # (milan_datapath
+                                     # AUDIO_IF_RENDER_SLOTS_P).
+                                     #
+                                     # The render crossbar's key space is two
+                                     # LANES - the stereo DAC at keys 0/1 and
+                                     # the TDM slots at keys 2..9 - and this
+                                     # shape prunes the DAC, so its eight
+                                     # physical input clusters project onto
+                                     # keys 2..9. The first key and the count
+                                     # are separate quantities; neither is
+                                     # inferred from the eight below.
   channel_names: [FL, FR, FC, LFE, RL, RR, SL, SR]
                                      # USER 2026-08-05: the 7.1 order, as a
                                      # PARAMETER. Names the physical clusters
@@ -171,9 +178,13 @@ audio_interface:
 
 streams:
   listeners:
-    # map_mode dynamic (Milan v1.2 5.3.3.9 shall). There is no physical
-    # render lane, so the Stream Port Input truthfully has zero
-    # clusters and no AUDIO_MAP descriptor; the runtime map page remains one.
+    # map_mode dynamic (Milan v1.2 5.3.3.9 shall). The physical render lane is
+    # the TDM8 bus (issue #447), so the Stream Port Input owns eight
+    # AUDIO_CLUSTER descriptors, one per serial slot, and the runtime map page
+    # holds all eight. Advertising them MOVES entity_model_id, which is the
+    # required consequence of a different data-model shape
+    # (1722.1-2021 6.2.2.8): a controller's cached model of the headless shape
+    # must not describe this one.
     # No `formats` list: the builder states the current format as the Milan
     # 6.2 Base format for `channels` at clocking.sampling_rate_hz
     # (0x0205022002006000 = AAF PCM32 48 kHz 8ch) and DERIVES 6.4's family

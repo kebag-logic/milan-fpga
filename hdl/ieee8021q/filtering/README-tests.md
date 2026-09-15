@@ -10,6 +10,6 @@ hand-edit. Part of the IEEE 802.1Q family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `rx_mac_filter` | `rx_mac_filter.sv` | `milan_dp` · `rx_filter` · `tcam_csr` | -- |
-| ✅ `tcam` | `tcam.sv` | `milan_dp` · `rx_filter` · `tcam` · `tcam_csr` | -- |
+| ✅ `rx_mac_filter` | `rx_mac_filter.sv` | `milan_dp` · `rx_filter` · `tcam_csr` · ➰milan_dp_render | -- |
+| ✅ `tcam` | `tcam.sv` | `milan_dp` · `rx_filter` · `tcam` · `tcam_csr` · ➰milan_dp_render | -- |
 

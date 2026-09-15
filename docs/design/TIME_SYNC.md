@@ -163,9 +163,59 @@ Under CRF the grids align and no rail fires.
 
 | Interface after the grid | Fixed delay | Shipped |
 |---|---|---|
-| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream (60 ns at 100 MHz), 18 at four, 34 at eight | every shape; the reference the rows below add to |
+| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream, 18 at four, 34 at eight. Convert at the shape's own axis clock: 6 cycles are 60 ns at 100 MHz and 120 ns on the AX7101, whose `milan` domain is 50 MHz | every shape; the reference the rows below add to |
 | I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame; accept to DAC = 8 ticks + the accept phase + 17 frames = 25 to 26 frames (521 to 542 us) | the one clocked listener interface in tree; two setpoint stages in series, each constant |
-| TDM8 frame pin, slot k | one frame + (k x 32 + 1) bclk at 12.288 MHz, the TDM8 bit clock and half the `audio` master input (20.83 us + k x 2.604 us + 81 ns; 8 slots x 2.604 us = one frame) + the tick-to-fsync phase: under one frame, held constant under CRF by #74's aligner, walking at -10.64 ppm at INTERNAL | NOT SHIPPED: no build clocks `KL_tdm_render` (`tdm_bclk_i` tied to 0 on a master build, `render: 0` in the AX7101 configs); the row waits for a render master |
+| TDM8 frame pin, slot k | + the bank walk and frame commit, MEASURED at 9 axis cycles, which is 180 ns on the shipping AX7101 (its `milan` axis clock is 50 MHz) and 90 ns on the leg's 100 MHz model axis clock, + the adopt wait `phi`, + (32k + 1) bit periods at 12.288 MHz (81.4 ns each, so slot k adds 2.6042 us and 8 slots make one 20.834 us frame). `phi` covers the frame CDC and the wait for the next serial frame start: one axis cycle plus serial-domain time, MEASURED at 0.219 to 21.049 us on the model axis clock and therefore 0.229 to 21.059 us as shipped. It is held constant per slot under CRF by #74's aligner, walks at `+10.6844` ppm at INTERNAL and steps by exactly one frame once per 1.958 s beat. That sign is the MEASURED one, the same the walk table below and the [channel map](../CHANNEL_MAP_64.md) carry: the instrument divides `(phi_last - phi_first)` by the elapsed time, so a positive walk is a LENGTHENING wait. It is not the audio clock's own free-running offset, which the loop table above states separately as -10.64 ppm; the two are different quantities | SHIPPED on the AX7101 1x1 TDM8 shape (#447): `KL_tdm_render_master` on `tdm.dout`, scheduled from the capture master's exported bit-clock enables. Every term above is measured by `make -C tb/verilator/milan_dp_render tdm8render`, not modelled. Silicon measurement of this path stays with #386 acceptance 4 and #117 |
+
+That row once charged a frame AND a tick-to-fsync phase. No separate
+deterministic frame exists.
+
+The adopt wait IS that phase. It is one measured term.
+
+Which clock a term belongs to decides its nanoseconds. Serial terms are
+absolute: the audio clock ships unchanged.
+
+Axis-cycle terms are not. The leg models 100 MHz; `milan` ships at 50.
+
+Every term above is measured, not modelled.
+
+- The frame commit strobe is timestamped in `axis_clk`.
+- The crossbar's valid pulse is timestamped beside it.
+- An independent pin decoder timestamps each slot's MSB edge.
+- Drop-oldest accounting names the commit behind each frame.
+- The bank walk measured 9 axis cycles over 840 pairs.
+- Slot 0 measured 0.300 to 21.130 us.
+- Both of those are on the model axis clock.
+- That window covered 838 decoded frames.
+- Its spread stayed inside one serial frame.
+
+Recipe: the shipping shape, `AUDIO_IF_RENDER_SLOTS_P = 8`. Clocks: the true
+391/1591 plan, gPTP plane off.
+
+The `phi` walk is measured on both sources. One run, one instrument, one live
+selection.
+
+The command is a real `SET_CLOCK_SOURCE` on `CLOCK_DOMAIN` 0.
+
+| Selected source | `phi` walk, measured | Closed form |
+|---|---|---|
+| INTERNAL | `+10.6844` ppm over 3.74 M axis cycles | `+10.6394` ppm, the divider plan |
+| CRF, aligner engaged | `-0.8009` ppm over 3.75 M axis cycles | zero, the aligner holding both grids |
+
+A walk divides two intervals of one clock. The rate is rate-free; the window
+is model-clock time.
+
+The sign is `phi`'s own. Commits arrive one media tick apart.
+
+Frames start one serial frame apart. The wait lengthens by their difference.
+
+The settled-grid trigger fires once across the transition. The stage
+re-centres once.
+
+The fill at accept stays the setpoint. Every first event stays inside the law
+band.
+
+The deselect back to INTERNAL is the same.
 
 Software reads no delay register: the constants are this table.
 

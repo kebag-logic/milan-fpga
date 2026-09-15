@@ -606,7 +606,16 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
 #: still maps onto a parked wire - that is the separate, pre-existing
 #: physical source-coverage gap, graded by scripts/check_wire_accountability.py
 #: and deliberately NOT silently closed here.
-CHMAP_PHYS_DEPTH = 10
+#:
+#: DERIVED FROM THE LANES, not restated (issue #447): the crossbar's key space
+#: is two windows - the stereo DAC lane and the TDM lane - and the depth is
+#: their sum. {lane: (first key, width)}, mirroring the milan_datapath
+#: localparams CHMAP_RPHYS_{I2S,TDM}_{BASE,N}_C. endstation_builder.py carries
+#: the same table for the input projection, and the builder gate pins all
+#: three together so a lane cannot move in one and not the others.
+RENDER_PHYS_LANES = {"i2s": (0, 2), "tdm": (2, 8)}
+CHMAP_PHYS_DEPTH = max(base + width
+                       for base, width in RENDER_PHYS_LANES.values())
 
 SRC_IDS = {name: n for n, name in enumerate(
     ["ENTITY_ID", "MODEL_ID", "ECAPS", "TALKER_SRC", "TALKER_CAP",
