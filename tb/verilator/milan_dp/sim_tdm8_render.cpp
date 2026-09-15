@@ -1305,6 +1305,7 @@ class TdmRenderHarness {
     void prove_a_reset_inside_an_outstanding_round_trip();
     void prove_two_bind_falls_in_one_round_trip_count_twice();
     void prove_the_lane_recovers_after_a_reset();
+    void prove_the_graceful_flush_left_the_frame_in_flight_whole();
     void prove_a_rebind_carries_only_post_rebind_audio(uint64_t epochs_before,
                                                        long events_at_loss);
 
@@ -2388,10 +2389,17 @@ void TdmRenderHarness::phase_bind_loss() {
     const uint64_t epochs_before = lane_epochs();
     const long events_at_loss = injected_events;
 
-    // Drop the bind with every mapping in place, and WITHOUT resetting.
-    acmp_disconnect_rx(0x2233);
+    // THE WINDOW OPENS BEFORE THE BIND FALLS, so it STRADDLES the flush: the
+    // last frame the pins carry and the first silent one are both inside it.
+    // Opening it after the disconnect (as this arm used to) leaves the
+    // boundary outside the window, and the flush boundary is then ungraded -
+    // which is what T27 below grades. The loss and silence checks are
+    // unaffected: they skip every frame before the first all-zero one.
     decoder_reset();
     collect = true;
+    run_fed(4 * kPduPeriodCycles);
+    // Drop the bind with every mapping in place, and WITHOUT resetting.
+    acmp_disconnect_rx(0x2233);
     steps(40000);
     collect = false;
     feed_on = false;
@@ -2425,8 +2433,61 @@ void TdmRenderHarness::phase_bind_loss() {
               "epoch is",
               static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__tdmr_commit_en_w),
               0);
+    prove_the_graceful_flush_left_the_frame_in_flight_whole();
 
     prove_a_rebind_carries_only_post_rebind_audio(epochs_before, events_at_loss);
+}
+
+//! T27: THE GRACEFUL FLUSH BOUNDARY ITSELF, which the loss and silence checks
+//! above cannot see. They classify each decoded frame as all-zero or not and
+//! skip everything before the first all-zero one, so a frame that is part
+//! pre-loss audio and part zeros - the artifact a flush that cut the frame in
+//! flight would put on the wire - is neither counted nor failed by them.
+//!
+//! The contract the module banner and docs/CHANNEL_MAP_64.md 3.1 state is that
+//! a HARD RESET interrupts the frame in flight while the GRACEFUL FLUSH zeroes
+//! the active frame at FRAME STARTS ONLY, so the last frame the pins carry
+//! before digital silence completes WHOLE. This arm grades exactly that, from
+//! the pins and the immutable injection record: the frame immediately before
+//! the boundary must carry audio in EVERY routed slot and all of those slots
+//! must hold ONE media event's identity. A flush that zeroed the active frame
+//! off a frame start leaves the slots after the cut at zero, so that frame
+//! matches no ordinal at all and this fails by name. The hard reset's own
+//! interrupted interval is T20's and T22's and is deliberately untouched here.
+void TdmRenderHarness::prove_the_graceful_flush_left_the_frame_in_flight_whole() {
+    const int routed = routed_slots();
+    check.that("T27 FLUSH BOUNDARY: the window is graded over a non-empty "
+               "route, so a whole frame is a claim about real slots",
+               routed > 0);
+    //! the boundary is the FIRST all-zero frame: the flush reached the
+    //! serializer there, and the frame before it is the last one on the wire
+    long boundary = -1;
+    for (size_t i = 0; i < decoded.size() && boundary < 0; i++) {
+        bool all_zero = true;
+        for (int k = 0; k < kSlots; k++)
+            if (decoded[i].slot[static_cast<size_t>(k)] != 0) all_zero = false;
+        if (all_zero) boundary = static_cast<long>(i);
+    }
+    const bool graded = check.that("T27 FLUSH BOUNDARY: the window holds audio "
+                                   "and then digital silence, so there IS a "
+                                   "last non-silent frame", boundary > 0);
+    if (!graded || routed <= 0) return;
+
+    const DecodedFrame& last = decoded[static_cast<size_t>(boundary) - 1];
+    long torn_slots = 0;
+    for (int k = 0; k < kSlots; k++)
+        if (route[static_cast<size_t>(k)] >= 0 &&
+            last.slot[static_cast<size_t>(k)] == 0) ++torn_slots;
+    check.dec("T27 FLUSH BOUNDARY: the last frame before digital silence is a "
+              "COMPLETE frame - no routed slot was zeroed by the flush",
+              static_cast<uint64_t>(torn_slots), 0);
+    const long ordinal = find_the_ordinal(last);
+    check.that("T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE "
+               "media event's identity", ordinal >= 0);
+    std::printf("  [i]    T27: boundary at decoded frame %ld of %zu; the last "
+                "non-silent frame is ordinal %ld with %d routed slot(s), %ld "
+                "of them zeroed\n", boundary, decoded.size(), ordinal, routed,
+                torn_slots);
 }
 
 //! T26 and T23: a map write inside the CLOSED epoch may not reach a slot, and

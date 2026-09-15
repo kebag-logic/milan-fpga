@@ -219,6 +219,24 @@ MUTATIONS = [
      "ship", "--epoch-only",
      "T21 COMMIT AROUND RELEASE: the adapter committed no frame between the "
      "reset release and the epoch reopening"),
+    # THE OTHER HALF OF C2's CONTRACT. A hard reset interrupts the frame in
+    # flight; the GRACEFUL flush zeroes the active frame at FRAME STARTS only,
+    # so the frame in flight completes WHOLE and no partial frame reaches the
+    # wire at a bind loss. Zeroing active_r on the flush REQUEST cuts the
+    # frame where the request lands and sends zeros for every slot after the
+    # cut. Nothing that classifies a frame as all-zero or not can see that, so
+    # T27 grades the boundary frame itself.
+    ("the graceful flush tears the frame in flight", "render",
+     [("        next_r      <= '0;\n"
+       "        have_next_r <= 1'b0;\n"
+       "      end else if (ser_flush_r && ser_ack_r && frame_start_w) begin",
+       "        next_r      <= '0;\n"
+       "        have_next_r <= 1'b0;\n"
+       "        active_r    <= '0;                 //! MUTANT: cut it in flight\n"
+       "      end else if (ser_flush_r && ser_ack_r && frame_start_w) begin")],
+     "ship", "--epoch-only",
+     "T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media "
+     "event's identity"),
     # The PRESERVED prefill snap decides which injected event is the first one
     # this lane may ever render, and T6 PREFILL derives that ordinal from the
     # rule rather than searching for whatever came out. Move the target by one
