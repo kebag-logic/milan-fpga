@@ -98,10 +98,10 @@ module KL_gptp_shadow #(
     //! MAC RX tap: INPUT ONLY, a beat is real when tvalid && tready
     //! (the gh #65 hazard: a stalled downstream path parks tvalid-held data)
     input  wire [TDATA_WIDTH_P-1:0]   rx_tdata_i,   //! little lane order
-    input  wire [TDATA_WIDTH_P/8-1:0] rx_tkeep_i,
-    input  wire                       rx_tvalid_i,
-    input  wire                       rx_tready_i,
-    input  wire                       rx_tlast_i,
+    input  wire [TDATA_WIDTH_P/8-1:0] rx_tkeep_i,  //! per-lane byte enables
+    input  wire                       rx_tvalid_i, //! the tap's valid
+    input  wire                       rx_tready_i, //! the consumer's ready
+    input  wire                       rx_tlast_i,  //! last beat of a frame
 
     //! live PHC value for ingress timestamp capture
     input  wire [63:0] phc_ns_i,
@@ -124,12 +124,12 @@ module KL_gptp_shadow #(
     //! that knows how many register stages its own measurement carries.
     input  wire                      rec_valid_i,
     input  wire                      rec_kind_i,    //! 0 = frame, 1 = echo
-    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,
-    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,
-    input  wire                [3:0] rec_type_i,
-    input  wire               [15:0] rec_seq_i,
-    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,
-    input  wire                      rec_abort_i,
+    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,   //! observer position
+    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,    //! adopted generation
+    input  wire                [3:0] rec_type_i,   //! messageType octet
+    input  wire               [15:0] rec_seq_i,    //! sequenceId octets
+    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,  //! measured cycle distance
+    input  wire                      rec_abort_i,  //! no measurement here
 
     //! the seal offered back to that observer, and the crossing's own
     //! delivery report (which is NOT the observer's acknowledgement)
@@ -141,6 +141,15 @@ module KL_gptp_shadow #(
     //! edge of either raises the plane's barrier
     input  wire mac_reinit_i,
     input  wire mac_eth_rst_i,
+    //! the guard's own episode evidence, and this plane's request for one.
+    //! The levels above cannot distinguish a completed recovery from an
+    //! aborted one, so the plane reads the episode rather than the levels
+    //! when it decides that the frames it fenced off are really gone.
+    input  wire epi_start_i,
+    input  wire epi_done_i,
+    input  wire epi_busy_i,
+    input  wire epi_dis_i,
+    output wire recov_req_o,
 
     //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
@@ -945,6 +954,11 @@ module KL_gptp_shadow #(
       .seal_ack_i    (seal_ack_i),
       .mac_reinit_i  (mac_reinit_i),
       .mac_eth_rst_i (mac_eth_rst_i),
+      .epi_start_i   (epi_start_i),
+      .epi_done_i    (epi_done_i),
+      .epi_busy_i    (epi_busy_i),
+      .epi_dis_i     (epi_dis_i),
+      .recov_req_o   (recov_req_o),
       .txts_valid_o  (eng_txts_valid_w),
       .txts_ready_i  (eng_txts_ready_w),
       .txts_ns_o     (eng_txts_ns_w),

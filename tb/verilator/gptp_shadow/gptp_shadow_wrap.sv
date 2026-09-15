@@ -69,10 +69,16 @@ module gptp_shadow_wrap #(
     input  wire [3:0]  rechold_type_i,
     input  wire        rechold_release_i,
 
-    //! MAC recovery levels, driven by the harness (the link guard is not in
-    //! this slice)
-    input  wire        mac_reinit_i,
-    input  wire        mac_eth_rst_i,
+    //! THE REAL LINK GUARD runs inside this wrapper, at a scaled settle so
+    //! a bench can afford a whole episode. Its FSM, its trigger set, its
+    //! sequenced eth-then-sys release and its disable behaviour are the
+    //! product's; only `SETTLE_CYC_C` is smaller. The harness drives its
+    //! controls, not its outputs, so the plane's recovery demand is graded
+    //! against a guard that can refuse it.
+    input  wire        linkg_dis_i,      //! LINK_CTRL[2]
+    input  wire        linkg_freeze_i,   //! LINK_CTRL[3]
+    input  wire        cfg_mac_reinit_i, //! LINK_CTRL[1], the firmware hand
+    input  wire        eth_alive_i,      //! 0 stops both eth clocks
     //! hold the observer in reset without touching the plane: the
     //! independent-observer-reset arm
     input  wire        obs_rst_i,
@@ -152,6 +158,16 @@ module gptp_shadow_wrap #(
     output wire        dbg_eng_txts_ok_o,
     output wire  [3:0] dbg_eng_txts_gen_o,
 
+    //! the guard, observed
+    output wire        dbg_linkg_reinit_o,
+    output wire        dbg_linkg_eth_rst_o,
+    output wire        dbg_linkg_epi_start_o,
+    output wire        dbg_linkg_epi_done_o,
+    output wire        dbg_linkg_epi_busy_o,
+    output wire        dbg_recov_req_o,
+    output logic [15:0] dbg_recov_req_cnt_o,
+    output logic [15:0] dbg_epi_done_cnt_o,
+
     //! ledger diagnostics
     output wire [15:0] dbg_txts_lost_o,
     output wire [15:0] dbg_txts_disc_o,
@@ -192,6 +208,11 @@ module gptp_shadow_wrap #(
   logic        gmii_v_r;
   logic  [7:0] gmii_d_r;
   logic        lane_ready_w, lane_beat_w;
+  logic        linkg_reinit_w, linkg_eth_rst_w;
+  logic        epi_start_w, epi_done_w, epi_busy_w;
+  logic        recov_req_w;
+  logic        eth_tgl_r;
+  logic        mac_rst_n_w;
 
   timestamp_counter #(
       .COUNTER_WIDTH (64),
@@ -247,8 +268,13 @@ module gptp_shadow_wrap #(
       .seal_req_o      (seal_req_w),
       .seal_gen_o      (seal_gen_w),
       .seal_ack_i      (seal_ack_w),
-      .mac_reinit_i    (mac_reinit_i),
-      .mac_eth_rst_i   (mac_eth_rst_i),
+      .mac_reinit_i    (linkg_reinit_w),
+      .mac_eth_rst_i   (linkg_eth_rst_w),
+      .epi_start_i     (epi_start_w),
+      .epi_done_i      (epi_done_w),
+      .epi_busy_i      (epi_busy_w),
+      .epi_dis_i       (linkg_dis_i),
+      .recov_req_o     (recov_req_w),
       .pub_gm_id_o     (pub_gm_id_o),
       .pub_parent_id_o (pub_parent_id_o),
       .pub_flags_o     (pub_flags_o),
@@ -275,6 +301,60 @@ module gptp_shadow_wrap #(
       .dbg_txts_state_o(dbg_txts_state_o),
       .dbg_txts_torn_o (dbg_txts_torn_o)
   );
+
+  // ======================================================================= //
+  //  The real link guard, at a bench-scaled settle                          //
+  // ======================================================================= //
+  //! One divide-by-2 toggle per eth clock, exactly as the SoC builds them,
+  //! so `eth_alive_i` low is a stopped clock and not a poked status bit.
+  always_ff @(posedge clk_i) begin : eth_toggles
+    if (!rst_n)          eth_tgl_r <= 1'b0;
+    else if (eth_alive_i) eth_tgl_r <= ~eth_tgl_r;
+  end : eth_toggles
+
+  KL_link_guard #(
+      .DEAD_CYC_C   (64),
+      .SETTLE_CYC_C (1024)
+  ) u_guard (
+      .clk_i        (clk_i),
+      .rst_n        (rst_n),
+      .rx_tgl_i     (eth_tgl_r),
+      .tx_tgl_i     (eth_tgl_r),
+      .act_tgl_i    (1'b0),
+      .dis_i        (linkg_dis_i),
+      .freeze_i     (linkg_freeze_i),
+      .man_reinit_i (cfg_mac_reinit_i | recov_req_w),
+      .reinit_o     (linkg_reinit_w),
+      .eth_rst_o    (linkg_eth_rst_w),
+      .link_est_o   (),
+      .stat_o       (),
+      .epi_start_o  (epi_start_w),
+      .epi_done_o   (epi_done_w),
+      .epi_busy_o   (epi_busy_w)
+  );
+
+  assign dbg_linkg_reinit_o    = linkg_reinit_w;
+  assign dbg_linkg_eth_rst_o   = linkg_eth_rst_w;
+  assign dbg_linkg_epi_start_o = epi_start_w;
+  assign dbg_linkg_epi_done_o  = epi_done_w;
+  assign dbg_linkg_epi_busy_o  = epi_busy_w;
+  assign dbg_recov_req_o       = recov_req_w;
+
+  always_ff @(posedge clk_i) begin : guard_counts
+    if (!rst_n) begin
+      dbg_recov_req_cnt_o <= 16'd0;
+      dbg_epi_done_cnt_o  <= 16'd0;
+    end else begin
+      if (recov_req_w) dbg_recov_req_cnt_o <= dbg_recov_req_cnt_o + 16'd1;
+      if (epi_done_w)  dbg_epi_done_cnt_o  <= dbg_epi_done_cnt_o + 16'd1;
+    end
+  end : guard_counts
+
+  //! The MAC side this wrapper stands in for: the framer and the observer
+  //! are cleared by the guard's eth-side reset, which is exactly what
+  //! `eth_rst` does to the LiteEth transmit side, the PHY transmit stage
+  //! and the real observer in the product.
+  assign mac_rst_n_w = rst_n & ~linkg_eth_rst_w;
 
   assign pub_disc_o = pub_disc_w;
   assign pub_path_tail0_o = pub_path_w[0*64 +: 64];
@@ -317,7 +397,7 @@ module gptp_shadow_wrap #(
   assign pop_frame_w  = fo_pop_w & fo_rd_w[8];
 
   always_ff @(posedge clk_i) begin : framer_push
-    if (!rst_n) begin
+    if (!mac_rst_n_w) begin
       fo_wp_r     <= '0;
       fo_frames_r <= 8'd0;
     end else begin
@@ -342,7 +422,7 @@ module gptp_shadow_wrap #(
   end : framer_push
 
   always_ff @(posedge clk_i) begin : framer_emit
-    if (!rst_n) begin
+    if (!mac_rst_n_w) begin
       fr_S       <= FR_IDLE;
       fr_cnt_r   <= 4'd0;
       fo_rp_r    <= '0;
@@ -402,7 +482,7 @@ module gptp_shadow_wrap #(
                               : 8'd0;
 
   always_ff @(posedge clk_i) begin : launch_tag
-    if (!rst_n) begin
+    if (!mac_rst_n_w) begin
       lo_idx_r          <= 8'd0;
       lo_inf_r          <= 1'b0;
       dbg_launch_v_o    <= 1'b0;
@@ -430,7 +510,7 @@ module gptp_shadow_wrap #(
   // ======================================================================= //
   //  The real observer, on the framed octet stream                          //
   // ======================================================================= //
-  assign obs_rst_n_w = rst_n & ~obs_rst_i;
+  assign obs_rst_n_w = mac_rst_n_w & ~obs_rst_i;
 
   KL_gptp_gmii_launch #(
       .REF_IDX_P        (8),

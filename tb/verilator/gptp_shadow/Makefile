@@ -20,6 +20,7 @@ SRCS = gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/common/KL_link_guard.sv \
        $(RTL_DIR)/common/cdc_pulse.sv \
        $(RTL_DIR)/common/cdc_handshake.sv \
        $(AXIS_DIR)/axis_fifo.v \

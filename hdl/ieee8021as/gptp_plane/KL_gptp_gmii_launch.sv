@@ -127,25 +127,27 @@ module KL_gptp_gmii_launch #(
     parameter int unsigned GAP_CLOSE_CYC_P  = 4
 ) (
     // ---- transmit domain (the MAC's eth_tx clock and its reset) ----------
-    input  wire eth_clk_i,
-    input  wire eth_rst_n,
+    input  wire eth_clk_i,   //! the MAC transmit clock the pads launch on
+    input  wire eth_rst_n,   //! synchronous active-low reset, `eth_clk_i`;
+                             //! the same reset that clears the LiteEth
+                             //! transmit side and the PHY transmit stage
     //! `phy.sink`, OBSERVED ONLY
     input  wire       gmii_tvalid_i,
     input  wire [7:0] gmii_tdata_i,
 
     // ---- fabric domain (the plane's axis_clk) ----------------------------
-    input  wire dp_clk_i,
-    input  wire dp_rst_n,
+    input  wire dp_clk_i,    //! the plane's clock, which is the PHC's
+    input  wire dp_rst_n,    //! synchronous active-low reset, `dp_clk_i`
 
     //! one record, one cycle in the fabric domain
     output wire                      rec_valid_o,
     output wire                      rec_kind_o,    //! 0 = frame, 1 = echo
-    output wire [TXTS_OIDX_W_P-1:0]  rec_oidx_o,
-    output wire  [TXTS_GEN_W_P-1:0]  rec_gen_o,
-    output wire                [3:0] rec_type_o,
-    output wire               [15:0] rec_seq_o,
-    output wire [TXTS_DELTA_W_P-1:0] rec_delta_o,
-    output wire                      rec_abort_o,
+    output wire [TXTS_OIDX_W_P-1:0]  rec_oidx_o,   //! observer position
+    output wire  [TXTS_GEN_W_P-1:0]  rec_gen_o,    //! adopted generation
+    output wire                [3:0] rec_type_o,   //! messageType octet
+    output wire               [15:0] rec_seq_o,    //! sequenceId octets
+    output wire [TXTS_DELTA_W_P-1:0] rec_delta_o,  //! measured cycle distance
+    output wire                      rec_abort_o,  //! no measurement here
 
     //! the seal: the fabric offers a generation and re-offers it until the
     //! echo comes back. `seal_ack_o` says the crossing delivered it, which

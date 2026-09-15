@@ -110,7 +110,15 @@ module KL_gptp_txret #(
     //! crossing's destination side is in the observer's reset domain, so an
     //! offer made while the observer is held in reset is simply not seen and
     //! the next one carries the same generation.
-    parameter int unsigned SEAL_RETRY_CYC_P = 256
+    parameter int unsigned SEAL_RETRY_CYC_P = 256,
+    //! fabric cycles between two recovery requests while a demand is
+    //! unmet. It is a REQUEST CADENCE and never a completion authority:
+    //! nothing is resolved or unsealed because this expired. It exists so
+    //! a request the guard could not accept - because it was busy, or
+    //! because the firmware's own manual level masked the edge - is tried
+    //! again instead of being lost, and so the request line spends most of
+    //! its time low, which is what lets the guard's edge detector re-arm.
+    parameter int unsigned RECOV_RETRY_CYC_P = 1024
 ) (
     input  wire clk_i,                 //! plane clock (axis_clk)
     input  wire rst_n,                 //! synchronous active-low reset
@@ -129,12 +137,12 @@ module KL_gptp_txret #(
     //! launch records from KL_gptp_gmii_launch, already in this domain
     input  wire                      rec_valid_i,
     input  wire                      rec_kind_i,   //! 0 = frame, 1 = echo
-    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,
-    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,
-    input  wire                [3:0] rec_type_i,
-    input  wire               [15:0] rec_seq_i,
-    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,
-    input  wire                      rec_abort_i,
+    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,   //! observer position
+    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,    //! adopted generation
+    input  wire                [3:0] rec_type_i,   //! messageType octet
+    input  wire               [15:0] rec_seq_i,    //! sequenceId octets
+    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,  //! measured cycle distance
+    input  wire                      rec_abort_i,  //! no measurement here
 
     //! frames this plane has handed to the MAC and not yet resolved
     input  wire [$clog2(TXTS_CAP_N_P + 1):0] n_dep_i,
@@ -154,9 +162,24 @@ module KL_gptp_txret #(
     output logic [TXTS_GEN_W_P-1:0] seal_gen_o,
     input  wire                     seal_ack_i,
 
-    //! MAC recovery levels, the barrier trigger
+    //! MAC recovery levels, the barrier trigger. They are LEVELS and
+    //! nothing more: `mac_reinit_i` also carries the firmware's own manual
+    //! request, so neither of them can tell a completed episode from an
+    //! aborted one. That is what the three episode signals below are for.
     input  wire mac_reinit_i,
     input  wire mac_eth_rst_i,
+    //! the link guard's own episode evidence, and whether it is disabled
+    input  wire epi_start_i,
+    input  wire epi_done_i,
+    input  wire epi_busy_i,
+    //! the guard is disabled: it will refuse every trigger, so a request
+    //! would only put a one-cycle pulse on the shared manual net and
+    //! disturb the MAC system side for nothing. The demand stands and the
+    //! seal stays closed, which is the stated behaviour for a disabled
+    //! guard; re-enabling it is what lets the demand make progress.
+    input  wire epi_dis_i,
+    //! one-cycle recovery request, OR-ed into the guard's manual trigger
+    output logic recov_req_o,
 
     //! the engine's result face (FPGA-gPTP #31): the whole tuple is held
     //! until the engine takes it
@@ -200,6 +223,7 @@ module KL_gptp_txret #(
   localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
   localparam int unsigned AGE_W_C = $clog2(STALL_AGE_CYC_P + 1);
   localparam int unsigned SRT_W_C = $clog2(SEAL_RETRY_CYC_P + 1);
+  localparam int unsigned RTW_C   = $clog2(RECOV_RETRY_CYC_P + 1);
 
   // ---- elaboration contract ---------------------------------------------
   //! ONE format string per $error: later arguments print as values.
@@ -252,6 +276,14 @@ module KL_gptp_txret #(
   logic [OCC_W_C-1:0]       n_pre_r;
   logic                     n_pre_v_r;
   logic                     fence_held_r;
+  //! THE RECOVERY DEMAND. It is owed to the LATEST fence and it is only
+  //! discharged by an episode that the guard actually accepted and
+  //! sequenced to completion after that fence.
+  logic                     demand_r;    //! a fence is owed an episode
+  logic                     epi_cover_r; //! an episode that began after it
+  logic                     destroyed_r; //! ...and completed its sequence
+  logic [RTW_C-1:0]         retry_r;
+  logic                     eth_rst_r;
   logic [SRT_W_C-1:0]       seal_tmr_r;
   logic [AGE_W_C-1:0]       age_r;
   logic                     mac_rst_r;
@@ -352,8 +384,19 @@ module KL_gptp_txret #(
   //! to arrive, so each entry is closed with its OWN tag and no
   //! measurement. Nothing here is a timeout: the prefix is a count fixed at
   //! the fence, and it is only resolved once destruction is established.
+  //! DESTRUCTION IS ESTABLISHED, not inferred. All four of these, together:
+  //!  - an episode that BEGAN after this fence completed its full sequence
+  //!    (`destroyed_r`), which a disable, a reset or an aborted episode can
+  //!    never set, because the guard publishes completion on one path only;
+  //!  - both recovery levels are low NOW, so a firmware hand still holding
+  //!    LINK_CTRL[1] keeps the MAC system side in reset and keeps the seal
+  //!    closed with it;
+  //!  - the pre-fence prefix is known, which means the fence really closed;
+  //!  - the observer has echoed THIS generation, so it is out of reset and
+  //!    its position base is re-established.
   logic destroyed_w, pre_resolve_w;
-  assign destroyed_w   = n_pre_v_r & echo_ok_r;
+  assign destroyed_w   = destroyed_r & ~mac_reinit_i & ~mac_eth_rst_i &
+                         n_pre_v_r & echo_ok_r;
   assign pre_resolve_w = seal_r & destroyed_w & (n_pre_r != OCC_W_C'(0)) &
                          have_entry_w & departed_w;
 
@@ -392,7 +435,15 @@ module KL_gptp_txret #(
   //! observer answers every generation it adopts and a re-offer in flight
   //! can land just after the seal lifts - so it is counted and discarded
   //! rather than treated as a barrier.
-  assign barrier_w = (mac_rst_w & ~mac_rst_r) | mismatch_w;
+  //! A barrier while ALREADY SEALED is not a new fence: the egress has
+  //! been held since the last one, so nothing has departed since and the
+  //! prefix cannot have grown. Re-fencing on the very episode this module
+  //! asked for is also how a recovery request turns into a self-trigger
+  //! loop, which is why the edge is qualified on `~seal_r` rather than
+  //! suppressed by a timer. What a reset DOES invalidate while sealed is
+  //! handled separately below: an eth-side reset clears the observer, so
+  //! its echo has to be earned again.
+  assign barrier_w = (~seal_r & (mac_rst_w & ~mac_rst_r)) | mismatch_w;
 
   // ======================================================================= //
   //  The ledger                                                             //
@@ -410,21 +461,26 @@ module KL_gptp_txret #(
         led_live_r[li] <= 1'b0;
       end
     end else begin
-      //! one entry per admitted frame, in allocation order
+      //! CANCELLATION MARKS. A barrier clears the `live` flag of every
+      //! entry that ALREADY EXISTS and removes none of them, so each
+      //! admitted frame keeps its ordered owner and closes as a counted
+      //! loss when its own record arrives or its destruction is proved.
+      if (barrier_w) begin
+        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;
+      end
+
+      //! one entry per admitted frame, in allocation order. An entry
+      //! allocated AFTER the fence is live: the egress is held, so its
+      //! frame cannot have departed, its record cannot arrive before the
+      //! echo re-establishes the position base, and when it does arrive it
+      //! is that frame's own. Written after the cancellation above so a
+      //! frame admitted in the same cycle as a barrier is the new epoch's,
+      //! not the old one's.
       if (alloc_i && (n_led_r != OCC_W_C'(TXTS_CAP_N_P))) begin
         led_type_r[led_tail_w] <= alloc_type_i;
         led_seq_r [led_tail_w] <= alloc_seq_i;
         led_tag_r [led_tail_w] <= alloc_tagged_i;
-        //! an entry admitted while the plane is sealed is created NOT live:
-        //! the association context is not trusted, and it still owns its own
-        //! position until its own record arrives
-        led_live_r[led_tail_w] <= ~seal_r;
-      end
-
-      //! CANCELLATION MARKS. A barrier clears every entry's `live` flag and
-      //! removes nothing, so each admitted frame keeps its ordered owner.
-      if (barrier_w) begin
-        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;
+        led_live_r[led_tail_w] <= 1'b1;
       end
 
       //! resolution consumes the head, whichever kind it was
@@ -528,9 +584,60 @@ module KL_gptp_txret #(
       n_pre_r       <= OCC_W_C'(0);
       n_pre_v_r     <= 1'b1;
       fence_held_r  <= 1'b0;
+      //! Root startup follows the SAME rule. A root reset erases this
+      //! plane's own state, but it does not clear the store-and-forward
+      //! FIFO or the MAC core that still hold the frames this plane handed
+      //! over before it, so an episode is owed here too. The only
+      //! exception is the erased epoch itself: nothing is returned for an
+      //! entry the reset removed, and the plane says so.
+      demand_r     <= 1'b1;
+      epi_cover_r  <= 1'b0;
+      destroyed_r  <= 1'b0;
+      retry_r      <= '0;
+      recov_req_o  <= 1'b0;
+      eth_rst_r    <= 1'b0;
     end else begin
       mac_rst_r    <= mac_rst_w;
       fence_held_r <= fence_held_i;
+      eth_rst_r    <= mac_eth_rst_i;
+      recov_req_o  <= 1'b0;
+
+      // ---- the recovery demand ----------------------------------------
+      //! AN EPISODE THAT STOPPED WITHOUT COMPLETING IS NOT EVIDENCE. The
+      //! guard leaves its running state for a disable or a reset with both
+      //! outputs low and no completion, which is precisely the abort that
+      //! must not be mistaken for recovery. Withdraw the cover; the demand
+      //! stays and is requested again. This is written FIRST so the two
+      //! arms below, which describe an episode that is really happening,
+      //! take precedence on the edges where both would apply.
+      if (!epi_busy_i && !epi_done_i)     epi_cover_r <= 1'b0;
+      //! An episode that begins while a demand is unmet is the one that
+      //! covers this fence. An episode already running when the fence was
+      //! taken is NOT: it cannot assert a reset after the fence, which is
+      //! the whole point.
+      if (epi_start_i && demand_r)        epi_cover_r <= 1'b1;
+      //! ...and only its completion discharges anything.
+      if (epi_done_i && epi_cover_r) begin
+        destroyed_r <= 1'b1;
+        epi_cover_r <= 1'b0;
+      end
+      //! An eth-side reset while sealed resets the observer with the MAC,
+      //! so the generation it had adopted is gone and the echo has to be
+      //! earned again.
+      if (seal_r && mac_eth_rst_i && !eth_rst_r) echo_ok_r <= 1'b0;
+
+      //! THE REQUEST. One cycle high, then low for a whole retry interval,
+      //! so a guard that could not accept this edge - busy, or masked by a
+      //! firmware level held on the same net - sees a fresh rising edge on
+      //! the next attempt. An ignored pulse discharges nothing: `demand_r`
+      //! is cleared by the unseal below and by nothing else.
+      if (|retry_r) begin
+        retry_r <= retry_r - RTW_C'(1);
+      end else if (demand_r && !destroyed_r && !epi_cover_r && !epi_busy_i &&
+                   !epi_dis_i) begin
+        recov_req_o <= 1'b1;
+        retry_r     <= RTW_C'(RECOV_RETRY_CYC_P);
+      end
 
       //! The observer position advances on every frame record taken off the
       //! crossing, credited or not, so a discarded record does not break the
@@ -547,10 +654,17 @@ module KL_gptp_txret #(
         seal_tmr_r <= '0;
         //! TAKE THE FENCE. A NESTED barrier retakes it and forgets the
         //! prefix it had measured, because a count taken before this
-        //! barrier does not describe what this one has to destroy.
+        //! barrier does not describe what this one has to destroy - and it
+        //! invalidates every piece of recovery evidence with it, because
+        //! an episode that completed before this fence cannot have
+        //! destroyed what departed after it.
         egress_hold_o <= 1'b1;
         n_pre_v_r     <= 1'b0;
         n_pre_r       <= OCC_W_C'(0);
+        demand_r      <= 1'b1;
+        epi_cover_r   <= epi_start_i;
+        destroyed_r   <= 1'b0;
+        retry_r       <= '0;
       end else begin
         //! the fence has closed: the prefix is exactly the entries already
         //! handed over, including any frame this plane had to tear
@@ -587,10 +701,12 @@ module KL_gptp_txret #(
         //! observer has answered for THIS generation AND the whole
         //! pre-fence prefix has been resolved. A retained frame launches
         //! after that and resolves its own entry.
-        if (seal_r && echo_ok_r && n_pre_v_r &&
+        if (seal_r && destroyed_w &&
             (n_pre_r == OCC_W_C'(0)) && !pre_resolve_w) begin
           seal_r        <= 1'b0;
           egress_hold_o <= 1'b0;
+          demand_r      <= 1'b0;
+          destroyed_r   <= 1'b0;
         end
       end
     end
@@ -622,7 +738,7 @@ module KL_gptp_txret #(
     end
   end : diagnostics
 
-  assign dbg_state_o = {seal_r, echo_ok_r, 2'b00, 4'(gen_r),
+  assign dbg_state_o = {seal_r, echo_ok_r, demand_r, destroyed_r, 4'(gen_r),
                         4'(n_res_r), 4'(n_led_r)};
 
   //! `seal_ack_i` reports that the seal crossing delivered a generation. It

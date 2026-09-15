@@ -188,6 +188,7 @@ class GptpShadowHarness {
     check_warm_reset_clears_the_request_owner();
     check_warm_reset_clears_the_sync_owner();
     check_every_stamp_names_its_own_frame();
+    check_recovery_demand_survives_an_unaccepted_request();
 
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : txf) tx_flags.observe(frame);
@@ -610,7 +611,8 @@ class GptpShadowHarness {
     dut->tx_tready_i = 1;
     dut->rechold_en_i = 0; dut->rechold_type_i = 0;
     dut->rechold_release_i = 0;
-    dut->mac_reinit_i = 0; dut->mac_eth_rst_i = 0; dut->obs_rst_i = 0;
+    dut->linkg_dis_i = 0; dut->linkg_freeze_i = 0;
+    dut->cfg_mac_reinit_i = 0; dut->eth_alive_i = 1; dut->obs_rst_i = 0;
     for (int i = 0; i < kResetTicks; i++) tick();
     dut->rst_n = 1;
   }
@@ -1659,6 +1661,289 @@ class GptpShadowHarness {
       expect("warm reset Sync: Follow_Up carries a fresh reconstruction",
              timestamp_field_ns(fresh_fu, 48) != 0 ? 1 : 0, 1);
     }
+  }
+
+  //! Drop the harness's per-epoch views without folding them into the
+  //! whole-run laws. The recovery phases deliberately TEAR a frame at the
+  //! fence: that frame never reaches the wire, so it has a result and no
+  //! record, and the positional views stop lining up by design. Their own
+  //! assertions are the point, and the laws say plainly which frames they
+  //! covered.
+  void drop_epoch() {
+    epoch_txf_base = txf.size();
+    stamps.clear();
+    records.clear();
+    launch_ns.clear();
+    rec_delayed.clear();
+    cur.clear();
+    in_tx = false;
+    tx_first = true;
+  }
+
+  //! Bit layout of `dbg_txts_state_o`, as KL_gptp_txret publishes it.
+  bool sealed() const { return (dut->dbg_txts_state_o >> 15) & 1; }
+  bool demand() const { return (dut->dbg_txts_state_o >> 13) & 1; }
+
+  //! Run until `n` cycles have passed, answering the peer as usual.
+  void idle(uint64_t n) { run_svc(n); }
+
+  //! Wait for a barrier count to move past `before`, or give up.
+  bool wait_barrier(uint16_t before, uint64_t max_cycles) {
+    for (uint64_t k = 0; k < max_cycles; k++) {
+      if (dut->dbg_txts_barr_o != before) return true;
+      tick();
+      if ((k & 255) == 0) service_pdelay();
+    }
+    return false;
+  }
+
+  bool wait_unsealed(uint64_t max_cycles) {
+    for (uint64_t k = 0; k < max_cycles; k++) {
+      if (!sealed()) return true;
+      tick();
+      if ((k & 255) == 0) service_pdelay();
+    }
+    return false;
+  }
+
+  // ---- 17: the recovery demand (issue #360) ------------------------------
+  // A fence is owed a recovery episode that REALLY destroys the frames it
+  // fenced off. The two reset levels cannot say whether one happened:
+  // `reinit` also carries the firmware's own hand, and disabling the guard
+  // drops both outputs at once without the sequence ever completing. These
+  // arms drive the REAL guard FSM inside the wrapper and require that the
+  // demand survives everything short of an accepted, completed episode.
+  void check_recovery_demand_survives_an_unaccepted_request() {
+    drop_epoch();
+    expect("recovery: the plane starts this phase unsealed and stamping",
+           wait_unsealed(2000000) ? 1 : 0, 1);
+
+    check_disabled_guard_holds_the_seal();
+    check_masked_request_keeps_its_demand();
+    check_aborted_episode_is_not_a_completion();
+    check_held_firmware_reinit_holds_the_seal();
+    check_stopped_eth_clock_holds_the_seal();
+    check_torn_frame_is_discarded_and_counted();
+  }
+
+  //! A DISABLED GUARD refuses every trigger, so the demand cannot be met
+  //! and nothing may be resolved or unsealed. The plane must also stop
+  //! asking: each request rides the shared manual net, and a request the
+  //! guard will certainly refuse would only disturb the MAC system side.
+  void check_disabled_guard_holds_the_seal() {
+    dut->linkg_dis_i = 1;
+    idle(2000);
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    // Reset the observer alone: its records then carry generation 0 and a
+    // position the plane never expected, which is an internal invariant
+    // violation and raises a barrier with no reset level involved.
+    dut->obs_rst_i = 1;
+    idle(200);
+    dut->obs_rst_i = 0;
+    expect("recovery: an observer reset raises a barrier",
+           wait_barrier(barr0, 4000000) ? 1 : 0, 1);
+    expect("recovery: the barrier seals the plane", sealed() ? 1 : 0, 1);
+    expect("recovery: the barrier leaves a demand standing", demand() ? 1 : 0, 1);
+
+    const uint16_t req0 = dut->dbg_recov_req_cnt_o;
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    const size_t res0 = stamps.size();
+    idle(400000);
+    expect("recovery: a disabled guard is not asked",
+           dut->dbg_recov_req_cnt_o, req0);
+    expect("recovery: a disabled guard completes no episode",
+           dut->dbg_epi_done_cnt_o, done0);
+    expect("recovery: nothing is resolved while the demand is unmet",
+           stamps.size(), res0);
+    expect("recovery: the seal is still closed", sealed() ? 1 : 0, 1);
+
+    dut->linkg_dis_i = 0;
+    expect("recovery: re-enabling the guard obtains an accepted episode",
+           wait_epi_done(done0, 4000000) ? 1 : 0, 1);
+    expect("recovery: the plane asked for exactly that episode",
+           dut->dbg_recov_req_cnt_o > req0 ? 1 : 0, 1);
+    expect("recovery: the completed episode unseals the plane",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+    expect("recovery: stamping resumes", wait_result_growth(stamps.size(),
+                                                            8000000) ? 1 : 0, 1);
+  }
+
+  //! A REQUEST THE GUARD CANNOT SEE discharges nothing. With the firmware's
+  //! own LINK_CTRL[1] held high the shared manual net is already high, so
+  //! the plane's one-cycle request creates no edge at all. The demand has
+  //! to survive that, the request has to be retried - which means the line
+  //! has to go low again - and releasing the firmware level has to let the
+  //! very next attempt through.
+  void check_masked_request_keeps_its_demand() {
+    drop_epoch();
+    dut->linkg_dis_i = 1;
+    idle(2000);
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    dut->obs_rst_i = 1;
+    idle(200);
+    dut->obs_rst_i = 0;
+    expect("masked request: a barrier is raised",
+           wait_barrier(barr0, 4000000) ? 1 : 0, 1);
+    // Mask the trigger BEFORE the guard is re-enabled, so the level is
+    // already high when the plane starts asking and no edge can form.
+    dut->cfg_mac_reinit_i = 1;
+    idle(64);
+    dut->linkg_dis_i = 0;
+    const uint16_t req0 = dut->dbg_recov_req_cnt_o;
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    idle(400000);
+    expect("masked request: the plane keeps asking",
+           dut->dbg_recov_req_cnt_o > req0 ? 1 : 0, 1);
+    expect("masked request: no episode was accepted",
+           dut->dbg_epi_done_cnt_o, done0);
+    expect("masked request: the demand still stands", demand() ? 1 : 0, 1);
+    expect("masked request: the seal still holds", sealed() ? 1 : 0, 1);
+
+    dut->cfg_mac_reinit_i = 0;
+    expect("masked request: releasing the mask lets a request through",
+           wait_epi_done(done0, 4000000) ? 1 : 0, 1);
+    expect("masked request: the plane unseals after that episode",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+  }
+
+  //! DISABLING THE GUARD MID-EPISODE drops both reset outputs at once,
+  //! which is indistinguishable from a completed episode to anything
+  //! watching the levels. It is not a completion, and it must not unseal.
+  void check_aborted_episode_is_not_a_completion() {
+    drop_epoch();
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    // one firmware edge starts a real episode, and its reset levels raise
+    // the plane's barrier at the same instant
+    dut->cfg_mac_reinit_i = 1;
+    tick();
+    dut->cfg_mac_reinit_i = 0;
+    expect("aborted episode: the barrier is raised",
+           wait_barrier(barr0, 100000) ? 1 : 0, 1);
+    // let the episode reach the half of SETTLE where the eth reset has
+    // already been released and only the system side is still held
+    for (int k = 0; k < 200000 &&
+                    !(dut->dbg_linkg_epi_busy_o && !dut->dbg_linkg_eth_rst_o &&
+                      dut->dbg_linkg_reinit_o); k++)
+      tick();
+    expect("aborted episode: the guard released eth first",
+           (dut->dbg_linkg_epi_busy_o && !dut->dbg_linkg_eth_rst_o &&
+            dut->dbg_linkg_reinit_o) ? 1 : 0, 1);
+    // abort it there: both outputs go low together, with no completion
+    dut->linkg_dis_i = 1;
+    idle(200);
+    expect("aborted episode: both reset levels are low",
+           (dut->dbg_linkg_reinit_o || dut->dbg_linkg_eth_rst_o) ? 1 : 0, 0);
+    expect("aborted episode: the guard published no completion",
+           dut->dbg_epi_done_cnt_o, done0);
+    const size_t res0 = stamps.size();
+    idle(200000);
+    expect("aborted episode: low reset levels do NOT unseal the plane",
+           sealed() ? 1 : 0, 1);
+    expect("aborted episode: nothing is resolved by an abort",
+           stamps.size(), res0);
+    expect("aborted episode: the demand survives it", demand() ? 1 : 0, 1);
+
+    dut->linkg_dis_i = 0;
+    expect("aborted episode: a later episode completes",
+           wait_epi_done(done0, 8000000) ? 1 : 0, 1);
+    expect("aborted episode: only then does the plane unseal",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+  }
+
+  //! A HELD FIRMWARE LINK_CTRL[1] keeps the MAC system side in reset after
+  //! the episode has completed. The plane must not resolve anything while
+  //! that level stands, and must resolve as soon as it is released.
+  void check_held_firmware_reinit_holds_the_seal() {
+    drop_epoch();
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    dut->cfg_mac_reinit_i = 1;          // held, not pulsed
+    expect("held reinit: the episode it triggered completes",
+           wait_epi_done(done0, 4000000) ? 1 : 0, 1);
+    const size_t res0 = stamps.size();
+    idle(200000);
+    expect("held reinit: the plane stays sealed while the level stands",
+           sealed() ? 1 : 0, 1);
+    expect("held reinit: nothing is resolved while the level stands",
+           stamps.size(), res0);
+    dut->cfg_mac_reinit_i = 0;
+    expect("held reinit: releasing it unseals the plane",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+  }
+
+  //! A STOPPED ETH CLOCK is what the guard exists for. The episode it
+  //! starts cannot finish while the clock is dead, so the seal legitimately
+  //! holds; the plane claims nothing and recovers when the clock returns.
+  void check_stopped_eth_clock_holds_the_seal() {
+    drop_epoch();
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    dut->eth_alive_i = 0;
+    for (int k = 0; k < 20000 && !dut->dbg_linkg_epi_busy_o; k++) tick();
+    expect("stopped clock: the guard declares the clock dead",
+           dut->dbg_linkg_epi_busy_o, 1);
+    const size_t res0 = stamps.size();
+    idle(200000);
+    expect("stopped clock: no episode completes while it is dead",
+           dut->dbg_epi_done_cnt_o, done0);
+    expect("stopped clock: the plane stays sealed", sealed() ? 1 : 0, 1);
+    expect("stopped clock: nothing is resolved", stamps.size(), res0);
+    dut->eth_alive_i = 1;
+    expect("stopped clock: the episode completes when it returns",
+           wait_epi_done(done0, 4000000) ? 1 : 0, 1);
+    expect("stopped clock: the plane unseals",
+           wait_unsealed(4000000) ? 1 : 0, 1);
+  }
+
+  //! A FRAME MID-EGRESS AT THE FENCE is completed by local discard,
+  //! independent of downstream ready, and counted as departed: its leading
+  //! beats are already past this plane and the episode destroys them with
+  //! everything else the MAC path held.
+  void check_torn_frame_is_discarded_and_counted() {
+    drop_epoch();
+    const uint16_t torn0 = dut->dbg_txts_torn_o;
+    const uint16_t done0 = dut->dbg_epi_done_cnt_o;
+    bool armed = false;
+    for (int k = 0; k < 8000000 && !armed; k++) {
+      tick();
+      if ((k & 255) == 0) service_pdelay();
+      if (in_tx && cur.size() >= 8) {
+        // a frame is part way out of this plane: fence it here
+        dut->cfg_mac_reinit_i = 1;
+        tick();
+        dut->cfg_mac_reinit_i = 0;
+        armed = true;
+      }
+    }
+    expect("torn frame: a frame was mid-egress when the fence closed",
+           armed ? 1 : 0, 1);
+    idle(4000);
+    expect("torn frame: the plane discarded it locally and counted it",
+           dut->dbg_txts_torn_o > torn0 ? 1 : 0, 1);
+    expect("torn frame: the episode that destroys it completes",
+           wait_epi_done(done0, 8000000) ? 1 : 0, 1);
+    expect("torn frame: the plane unseals afterwards",
+           wait_unsealed(8000000) ? 1 : 0, 1);
+    expect("torn frame: every entry was resolved, none left owed",
+           (dut->dbg_txts_state_o & 0xF), 0);
+    drop_epoch();
+  }
+
+  bool wait_epi_done(uint16_t before, uint64_t max_cycles) {
+    for (uint64_t k = 0; k < max_cycles; k++) {
+      if (dut->dbg_epi_done_cnt_o != before) return true;
+      tick();
+      if ((k & 255) == 0) service_pdelay();
+    }
+    return false;
+  }
+
+  bool wait_result_growth(size_t before, uint64_t max_cycles) {
+    for (uint64_t k = 0; k < max_cycles; k++) {
+      if (stamps.size() > before) return true;
+      tick();
+      if ((k & 255) == 0) service_pdelay();
+    }
+    return false;
   }
 
   //! The full-run laws: one result per transmitted frame within each

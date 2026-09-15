@@ -492,12 +492,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! delivers no timestamp and says so through its counters.
   input  wire        i_gptp_txrec_valid,
   input  wire        i_gptp_txrec_kind,     //! 0 = frame, 1 = echo
-  input  wire [11:0] i_gptp_txrec_oidx,
-  input  wire  [3:0] i_gptp_txrec_gen,
-  input  wire  [3:0] i_gptp_txrec_type,
-  input  wire [15:0] i_gptp_txrec_seq,
-  input  wire  [7:0] i_gptp_txrec_delta,
-  input  wire        i_gptp_txrec_abort,
+  input  wire [11:0] i_gptp_txrec_oidx,  //! observer position of this frame
+  input  wire  [3:0] i_gptp_txrec_gen,   //! generation the observer adopted
+  input  wire  [3:0] i_gptp_txrec_type,  //! messageType read off the wire
+  input  wire [15:0] i_gptp_txrec_seq,   //! sequenceId read off the wire
+  input  wire  [7:0] i_gptp_txrec_delta, //! measured cycle distance
+  input  wire        i_gptp_txrec_abort, //! no measurement in this record
   //! the seal the plane offers that observer, and the crossing's delivery
   //! report. The observer's ECHO is the acknowledgement the plane waits for;
   //! this input reports only that the crossing delivered the generation.
@@ -2618,6 +2618,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] linkg_stat_w;
   wire        cfg_linkg_dis, cfg_linkg_freeze;
   wire        linkg_reinit_w, linkg_eth_rst_w, linkg_est_w;
+  wire        linkg_epi_start_w, linkg_epi_done_w, linkg_epi_busy_w;
+  //! The gPTP plane's own recovery request (#360). When the plane fences
+  //! its egress it owes the frames it fenced off a recovery episode that
+  //! really destroys them, and it cannot wait for a cable to bounce: it
+  //! joins the EXISTING manual trigger instead, which runs the same
+  //! sequenced eth-then-sys reset the firmware's LINK_CTRL[1] does. No
+  //! reset source, net or topology is added by this - one more requester
+  //! on one existing trigger.
+  wire        gptp_recov_req_w;
 
   KL_link_guard link_guard (
     .clk_i        (axis_clk),
@@ -2627,11 +2636,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .act_tgl_i    (i_ethact_tgl),
     .dis_i        (cfg_linkg_dis),
     .freeze_i     (cfg_linkg_freeze),
-    .man_reinit_i (cfg_mac_reinit),
+    .man_reinit_i (cfg_mac_reinit | gptp_recov_req_w),
     .reinit_o     (linkg_reinit_w),
     .eth_rst_o    (linkg_eth_rst_w),
     .link_est_o   (linkg_est_w),
-    .stat_o       (linkg_stat_w)
+    .stat_o       (linkg_stat_w),
+    .epi_start_o  (linkg_epi_start_w),
+    .epi_done_o   (linkg_epi_done_w),
+    .epi_busy_o   (linkg_epi_busy_w)
   );
 
   assign eff_link_w = i_link_up & cfg_sw_link &
@@ -6341,6 +6353,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .seal_ack_i      (i_gptp_txseal_ack),
         .mac_reinit_i    (linkg_reinit_w),
         .mac_eth_rst_i   (linkg_eth_rst_w),
+        .epi_start_i     (linkg_epi_start_w),
+        .epi_done_i      (linkg_epi_done_w),
+        .epi_busy_i      (linkg_epi_busy_w),
+        .epi_dis_i       (cfg_linkg_dis),
+        .recov_req_o     (gptp_recov_req_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),
@@ -6360,6 +6377,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
         .dbg_tspop_v_o   (),
+        //! Per-cause egress-timestamp forensics. They are module outputs
+        //! with no CSR of their own: the shipping build publishes the
+        //! aggregate at GPTP_DROPE and the benches read these through the
+        //! hierarchy, which is the idiom tb/verilator/milan_dp already
+        //! uses for the plane's internals. Left open here deliberately -
+        //! a CSR per cause would take addresses the register map does not
+        //! have for a diagnostic only a bench reads.
         .dbg_txts_lost_o (),
         .dbg_txts_disc_o (),
         .dbg_txts_barr_o (),
@@ -6410,10 +6434,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;
-    //! no plane, so no launch observer to seal: the seal outputs are
-    //! defined zeros like every other plane signal in this arm
+    //! no plane, so no launch observer to seal and nothing to recover:
+    //! the seal outputs and the recovery request are defined zeros like
+    //! every other plane signal in this arm
     assign o_gptp_txseal_req = 1'b0;
     assign o_gptp_txseal_gen = '0;
+    assign gptp_recov_req_w  = 1'b0;
   end endgenerate
 
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
