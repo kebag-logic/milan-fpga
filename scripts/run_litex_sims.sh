@@ -18,14 +18,20 @@
 # command runs every supported simulation" stops being true the day a new
 # test arrives that only its author knows to run.
 #
-# WHY THE INVENTORY IS TWO. The issue was filed against a tree where
+# WHERE THE INVENTORY CAME FROM. The issue was filed against a tree where
 # sw/litex/ carried twelve test_*.py scripts. Ten of them tested the
 # bare-metal ring/DMA product that #259 retired; commit ecf18de2 ("Finish
 # bare-metal product and fabric gPTP ownership", merged by PR #294) deleted
 # them together with the RTL they proved. The two survivors are the
 # protocol-processor memory-path checks the bare-metal SoC still owns. This
 # aggregate covers the survivors and records that reconciliation instead of
-# resurrecting deliberately retired tests.
+# resurrecting deliberately retired tests. The third member arrived with
+# #360: test_gptp_tx_timestamp drives one stimulus through the converted MAC
+# transmit chain and through the migen objects it was converted from, and
+# requires the two pad traces to agree - the behavioural half of the claim
+# that the gPTP egress closed loop contains the product's own MAC. It builds
+# what it needs (tb/verilator/gptp_txts, target `padtrace`) itself, so it
+# needs Verilator on PATH as well as the pinned stack.
 #
 # WHAT IS DELIBERATELY OUTSIDE. sw/builder/test_builder.py is the builder
 # gate with its own hosted owners (docs.yml and elaborate.yml).
@@ -89,6 +95,7 @@ SIM_DIR="$ROOT/sw/litex"
 #: a red run, and docs/testing/TESTING.md section 2 names the rule.
 INVENTORY=(
   test_cpu_memory_port_cdc
+  test_gptp_tx_timestamp
   test_pp_boot_bus_freeze
   test_pp_mem_bridge
 )
@@ -186,7 +193,7 @@ run_aggregate() {
     (cd "$SIM_DIR" && timeout -k 10 "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1 \
       || rc=$?
     # Rule 6: a script that PRINTS a failure (or nothing) and exits 0 is a
-    # masked verdict. Both members end with an explicit `RESULT: PASS`.
+    # masked verdict. Every member ends with an explicit `RESULT: PASS`.
     if [ "$rc" -eq 0 ] && ! grep -q '^RESULT: PASS$' "$out/$t.log"; then
       rc=93
     fi
