@@ -910,6 +910,14 @@ def validate_render_lane(cfg: dict[str, Any]) -> None:
     advertise AUDIO_CLUSTERs that reach no pin, which is the class of defect
     the wire-accountability gate exists to stop, so it is refused at build time
     rather than advertised.
+
+    THE TDM LANE IS ALL-OR-NOTHING, which the width bound alone does not say.
+    Capture and render ride ONE serial frame and the master serializer
+    schedules its bits off the bus frame position its capture half exports, so
+    its frame IS the bus frame: a TDM render lane is the full bus width or it
+    is pruned. A narrower count passed every bound here and then failed inside
+    KL_tdm_render_master on an internal parameter guard, which tells a config
+    author nothing about the product rule, so it is named here instead.
     """
     want = int(cfg["interface"]["physical_channels"]["render"])
     if want <= 0:
@@ -930,6 +938,20 @@ def validate_render_lane(cfg: dict[str, Any]) -> None:
             "derived from board.features.i2s_playback and the declared audio "
             f"interface, not from the interface's {cfg['interface']['channels']}"
             " channel width; a cluster beyond it would reach no pin.")
+    if lane == "tdm":
+        slots = AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
+        if want != slots:
+            keys = RENDER_PHYS_LANES["tdm"][1]
+            fix = (f"declare render: {slots}" if slots <= keys else
+                   f"the crossbar's {keys}-key TDM lane cannot back a "
+                   f"{slots}-slot frame, so this bus backs no render lane")
+            raise ConfigError(
+                f"audio_interface.physical_channels.render {want} on a "
+                f"{cfg['interface']['kind']} bus of {slots} slots. Both "
+                "directions ride ONE frame and the master render serializer "
+                "schedules its bits off the bus frame position, so a TDM "
+                f"render lane is the FULL bus width: {fix}, or render: 0 to "
+                "leave the lane pruned.")
 
 
 def render_lane(cfg: dict[str, Any]) -> str | None:

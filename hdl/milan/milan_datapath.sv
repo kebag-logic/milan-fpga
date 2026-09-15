@@ -857,12 +857,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  RENDER LANE ACCOUNTABILITY (issue #447), the same rule as the capture
   //  guards above: a build may not ADVERTISE a physical render width the
-  //  fabric cannot serialize. The three refusals, in the order they bite:
+  //  fabric cannot serialize. The four refusals, in the order they bite:
   //   - a render lane needs a TDM bus to ride on;
   //   - it cannot be wider than the bus the capture front-end frames, because
   //     both directions share one frame;
   //   - it cannot be wider than the crossbar's TDM key lane, because keys
-  //     beyond it do not exist and would silently truncate onto the DAC lane.
+  //     beyond it do not exist and would silently truncate onto the DAC lane;
+  //   - and it cannot be NARROWER than the bus either. The serializer's bit
+  //     schedule is indexed by the bus frame position the capture master
+  //     exports, so its own frame is the WHOLE bus frame: a master render
+  //     lane is the full bus width or it is pruned. Without this the case
+  //     reached KL_tdm_render_master's FRAME_POS_W_P guard and failed there,
+  //     which is an internal parameter message rather than the product rule.
   // ==========================================================================
   if (AUDIO_IF_RENDER_SLOTS_P < 0)
     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
@@ -878,6 +884,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
            AUDIO_IF_RENDER_SLOTS_P, CHMAP_RPHYS_TDM_N_C,
            CHMAP_RPHYS_TDM_BASE_C,
            CHMAP_RPHYS_TDM_BASE_C + CHMAP_RPHYS_TDM_N_C - 1);
+  else if (AUDIO_IF_RENDER_SLOTS_P > 0 &&
+           AUDIO_IF_RENDER_SLOTS_P < AUDIO_IF_SLOTS_P)
+    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame, and the render serializer schedules its bits off the bus frame position the capture master exports, so a MASTER render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. A bus wider than the crossbar's TDM key lane (CHMAP_RPHYS_TDM_N_C=%0d) therefore backs no render lane at all.",
+           AUDIO_IF_RENDER_SLOTS_P, AUDIO_IF_SLOTS_P, AUDIO_IF_SLOTS_P,
+           CHMAP_RPHYS_TDM_N_C);
 
   //! The MASTER bus timing, exported by its one owner for the render half to
   //! consume (issue #447). Zero on every shape that elaborates no TDM master,

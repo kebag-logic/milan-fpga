@@ -19200,7 +19200,14 @@ def _assert_render_lane_bounds_the_declared_width():
     channels; the crossbar has 8 TDM keys, so eight of those clusters would be
     advertised with no pin behind them - the class of defect the
     wire-accountability gate exists to name. The bound is per LANE, and the
-    lane follows from the DAC's presence and the declared bus."""
+    lane follows from the DAC's presence and the declared bus.
+
+    A NARROWER lane is refused here too. Capture and render ride one serial
+    frame and the master serializer schedules its bits off the bus frame
+    position, so a TDM render lane is the full bus width or it is pruned;
+    `render: 4` on a tdm8 bus passed every named refusal and then failed
+    inside KL_tdm_render_master on FRAME_POS_W_P, which tells a config author
+    about an internal parameter rather than about the product rule."""
     # (base config, physical_channels): each is past its own lane's width.
     for base, phys in (("ax7101_8x8", {"capture": 16, "render": 16}),
                        ("arty_4x4", {"capture": 2, "render": 3})):
@@ -19235,6 +19242,29 @@ def _assert_render_lane_bounds_the_declared_width():
                 "count: the render crossbar has no lane to project onto")
     finally:
         p.unlink()
+    # ...and the NARROW case, which is the one that used to reach the module.
+    # `render: 4` on the shipping tdm8 bus is inside the crossbar's key lane
+    # and inside the family width, so every bound above admits it; the rule it
+    # breaks is that both directions ride ONE frame. A tdm32 bus is the same
+    # rule seen from the other side: 8 is the widest lane the crossbar has and
+    # the bus is 32 slots, so that shape backs no render lane at all.
+    for base, phys, bus in (("ax7101_1x1_tdm8", {"capture": 8, "render": 4}, 8),
+                            ("ax7101_8x8", {"capture": 8, "render": 8}, 32)):
+        def _narrow(c, phys=phys):
+            c["audio_interface"]["physical_channels"] = phys
+        p = _variant(CONFIGS[base], _narrow)
+        try:
+            try:
+                eb.load_config(p)
+            except eb.ConfigError as e:
+                assert "FULL bus width" in str(e), (base, phys, str(e))
+                assert f"{bus} slots" in str(e), (base, phys, str(e))
+            else:
+                raise AssertionError(
+                    f"{base} with physical_channels {phys} must be refused: a "
+                    "master render lane is the full bus width or it is pruned")
+        finally:
+            p.unlink()
     # The POSITIVE control: every tracked config's declared render width is
     # inside its own lane, and the lane base is the separately derived term.
     seen = {}
@@ -19255,7 +19285,8 @@ def _assert_render_lane_bounds_the_declared_width():
     assert seen["arty_4x4"][3] == 0, "a DAC lane elaborates no TDM serializer"
     print("  [gate 24a] #447 render lane: the declared width is bounded by "
           "the LANE and not the family, a shape with no render endpoint "
-          f"refuses a nonzero count, and every tracked config sits inside "
+          "refuses a nonzero count, a TDM lane narrower than its own bus is "
+          f"refused with the full-bus-width rule, and every tracked config sits inside "
           f"its own lane {seen}")
 
 
