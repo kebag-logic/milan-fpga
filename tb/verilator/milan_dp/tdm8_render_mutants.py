@@ -151,14 +151,16 @@ MUTATIONS = [
     # not retain a request across a reset", so the mutant removes both; a
     # single-sided edit would only prove that the other side still works.
     ("the epoch request does not RETAIN across a reset", "render",
-     [("      epoch_req_r <= 1'b1;               //! reset IS an epoch event\n"
-       "      commit_en_r <= 1'b0;",
-       "      epoch_req_r <= 1'b0;               //! MUTANT: no retained request\n"
-       "      commit_en_r <= 1'b1;"),
-      ("      flush_s_r <= 2'b11;                //! assume flushed until proven otherwise",
-       "      flush_s_r <= 2'b00;                //! MUTANT: assume running")],
+     [("      epoch_req_r  <= 1'b1;              //! reset IS an epoch event\n"
+       "      epoch_pend_r <= 1'b0;\n"
+       "      commit_en_r  <= 1'b0;",
+       "      epoch_req_r  <= 1'b0;              //! MUTANT: no retained request\n"
+       "      epoch_pend_r <= 1'b0;\n"
+       "      commit_en_r  <= 1'b1;"),
+      ("      rst_s_r <= 2'b11;                  //! assume the serial side has reset",
+       "      rst_s_r <= 2'b00;                  //! MUTANT: assume running")],
      "ship", "--epoch-only",
-     "T18 RESET: the epoch reopened and was counted"),
+     "T18 RESET: the reset epoch reopened EXACTLY once"),
     # ONE DEFECT, TWO PLACES again: the epoch gates commits at the adapter
     # (through commit_en_o) and again at the FIFO write itself, and either
     # alone stops a closed epoch admitting a frame. The defect is "a closed
@@ -171,6 +173,62 @@ MUTATIONS = [
      "ship", "--epoch-only",
      "T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never "
      "reaches a slot"),
+    # THE EPOCH'S OWN CROSSING, rebuilt the way it must not be. The serial
+    # side's flush and acknowledgement levels clear on the SAME clk_tdm_i edge
+    # at a reopen, so a producer that reconstructs "flushed and never
+    # acknowledged" from two independently synchronised copies of them decides
+    # on their ARRIVAL ORDER: one cycle of skew on the flush copy and the
+    # condition is true for one cycle at every reopen, which re-requests an
+    # epoch the reopen just completed. The shipping module crosses ONE level
+    # for that decision; this mutant puts the reconvergence back, with the
+    # modelled skew that makes it observable in a zero-delay run, and the
+    # lane then counts a reopening per serial frame instead of per event.
+    ("the serial reset rebuilt from two reconverged levels, with arrival skew",
+     "render",
+     [("  logic [1:0] rst_s_r, ack_s_r;",
+       "  logic [1:0] rst_s_r, ack_s_r;\n"
+       "  logic [2:0] flush_s_r;               //! MUTANT: the flush level, "
+       "crossed again"),
+      ("      rst_s_r <= 2'b11;                  //! assume the serial side has reset",
+       "      rst_s_r <= 2'b11;                  //! assume the serial side has reset\n"
+       "      flush_s_r <= 3'b111;"),
+      ("      rst_s_r <= {rst_s_r[0], ser_rst_r};",
+       "      rst_s_r <= {rst_s_r[0], ser_rst_r};\n"
+       "      flush_s_r <= {flush_s_r[1:0], ser_flush_r};"),
+      ("  wire ser_reset_w   = rst_s_w;",
+       "  wire ser_reset_w   = flush_s_r[2] && !ack_s_w;")],
+     "ship", "--epoch-only",
+     "T18 RESET: the reset epoch reopened EXACTLY once"),
+    # ...and the OTHER half of the same handshake: a request raised straight
+    # onto an acknowledgement that is still visible is cleared by it one cycle
+    # later, so a second event inside one round trip is counted as none.
+    ("the epoch request races the acknowledgement instead of waiting",
+     "render",
+     [("        if (epoch_evt_i) epoch_pend_r <= 1'b1;",
+       "        if (epoch_evt_i) epoch_req_r <= 1'b1;  //! MUTANT: race it")],
+     "ship", "--epoch-only",
+     "T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted "
+     "reopenings, not one"),
+    # The epoch gates commits in TWO places - the adapter's walk and the FIFO
+    # write - and this mutant removes the first one only, so the closed epoch
+    # still admits nothing but the adapter commits inside it anyway. That is
+    # exactly the defect T21 names, and it is invisible at the pins.
+    ("the epoch gate reaches the FIFO but not the adapter", "render",
+     [("  assign commit_en_o = commit_en_r;",
+       "  assign commit_en_o = 1'b1;         //! MUTANT: the adapter is ungated")],
+     "ship", "--epoch-only",
+     "T21 COMMIT AROUND RELEASE: the adapter committed no frame between the "
+     "reset release and the epoch reopening"),
+    # The PRESERVED prefill snap decides which injected event is the first one
+    # this lane may ever render, and T6 PREFILL derives that ordinal from the
+    # rule rather than searching for whatever came out. Move the target by one
+    # event and the derived ordinal no longer matches the pins.
+    ("the preserved prefill snap keeps a different fill", "datapath",
+     [("  localparam int RENDER_ALLOW_EVT_C    = 2;",
+       "  localparam int RENDER_ALLOW_EVT_C    = 3;")],
+     "ship", "--serial-only",
+     "T6 PREFILL: the first event the lane renders is the one the preserved "
+     "prefill snap leaves at the head, plus its own counted skips"),
     ("modelled bit-arrival skew, raw binary transport", "render",
      [("  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r;",
        "  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r, fr_d_r;"),
@@ -231,7 +289,45 @@ MUTATIONS = [
 #: the CLEAN controls under the same modelled fault: the crossing this design
 #: actually uses must survive it, or the discrimination above would only mean
 #: that the model itself breaks everything.
+#:
+#: THE ARRIVAL-SKEW PAIR is the same kind of statement for the EPOCH's
+#: crossing. Two levels cross from clk_tdm_i into clk_i - the serial side's
+#: unacknowledged-reset level and its acknowledgement - and a destination
+#: cannot know which of two independently synchronised levels it will see
+#: first. The model is concrete and bounded: one extra clk_i register on ONE
+#: of them, which is one cycle of arrival skew in the adverse direction, run
+#: once for each level. The shipping module must PASS both, because every
+#: decision it takes on those levels needs either the acknowledgement alone or
+#: a state BOTH skewed orders leave rather than enter. The mutant beside them
+#: ("the serial reset rebuilt from two reconverged levels") is the same model
+#: applied to a producer that reconstructs its reset condition from two
+#: crossings, and it FAILS - which is what makes this pair evidence rather
+#: than a build that could not tell the difference either way.
 CLEAN_CONTROLS = [
+    ("modelled arrival skew, one extra cycle on the acknowledgement level",
+     "render",
+     [("  logic [1:0] rst_s_r, ack_s_r;",
+       "  logic [1:0] rst_s_r;\n"
+       "  logic [2:0] ack_s_r;                 //! CONTROL: one cycle of skew"),
+      ("      ack_s_r <= 2'b00;                  //! and acknowledged nothing",
+       "      ack_s_r <= 3'b000;                 //! and acknowledged nothing"),
+      ("      ack_s_r <= {ack_s_r[0], ser_ack_r};",
+       "      ack_s_r <= {ack_s_r[1:0], ser_ack_r};"),
+      ("  wire ack_s_w = ack_s_r[1];",
+       "  wire ack_s_w = ack_s_r[2];")],
+     "ship", "--epoch-only"),
+    ("modelled arrival skew, one extra cycle on the serial-reset level",
+     "render",
+     [("  logic [1:0] rst_s_r, ack_s_r;",
+       "  logic [2:0] rst_s_r;                 //! CONTROL: one cycle of skew\n"
+       "  logic [1:0] ack_s_r;"),
+      ("      rst_s_r <= 2'b11;                  //! assume the serial side has reset",
+       "      rst_s_r <= 3'b111;                 //! assume the serial side has reset"),
+      ("      rst_s_r <= {rst_s_r[0], ser_rst_r};",
+       "      rst_s_r <= {rst_s_r[1:0], ser_rst_r};"),
+      ("  wire rst_s_w = rst_s_r[1];",
+       "  wire rst_s_w = rst_s_r[2];")],
+     "ship", "--epoch-only"),
     ("modelled bit-arrival skew, gray retained", "render",
      [("  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r;",
        "  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r, fr_d_r;"),

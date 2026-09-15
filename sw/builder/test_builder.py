@@ -13831,6 +13831,125 @@ def test_dynamic_map_topology_reaches_shape_header() -> None:
           "output CSRC tables match both AX7101 entity models")
 
 
+#: gate 16d: the published channel map of the shipping shape, one row per
+#: channel. The row shape is the DOCUMENT's; every value in it is derived
+#: below from what the build emits, so a typed table cannot drift from the
+#: image it describes.
+CHANNEL_MAP_MD = ROOT / "docs/CHANNEL_MAP_64.md"
+CHANNEL_MAP_ROW = re.compile(
+    r"^\|\s*(?P<stream>\d+) / c\s*\|\s*(?P<port>\d+)\s*\|\s*(?P<off>\d+)\s*\|"
+    r"\s*(?P<glob>\d+)\s*\|\s*`(?P<name>[^`]+)`\s*\|\s*(?P<key>\d+)"
+    r"\s*\(`7'h(?P<rphys>[0-9A-Fa-f]{2})`\)\s*\|\s*TDM lane 0, slot "
+    r"(?P<slot>\d+)\s*\|\s*(?P<pin>[^|]+?)\s*\|$", re.M)
+
+
+def _channel_map_rows(doc: str) -> list[dict[str, str]]:
+    """The published rows, in document order."""
+    return [m.groupdict() for m in CHANNEL_MAP_ROW.finditer(doc)]
+
+
+def _channel_map_faults(doc: str, want: list[dict[str, str]]) -> list[str]:
+    """Every disagreement between the published table and the derived one."""
+    rows = _channel_map_rows(doc)
+    if len(rows) != len(want):
+        return [f"the table publishes {len(rows)} row(s), the build emits "
+                f"{len(want)}"]
+    out = []
+    for i, (got, exp) in enumerate(zip(rows, want)):
+        for k, v in exp.items():
+            if got[k].lower() != v.lower():
+                out.append(f"row {i} column {k}: table says {got[k]!r}, the "
+                           f"build emits {v!r}")
+    return out
+
+
+def test_shipping_channel_map_table() -> None:
+    """Gate 16d - #447 acceptance 2: the published eight-row mapping table of
+    the shipping AX7101 1x1 TDM8 shape agrees, dimension by dimension, with
+    what the build emits. Every column is DERIVED here and none is repeated
+    from the document: the stream index and its channel count from the
+    generated shape header's AAF/stream-channel arrays, the port index,
+    cluster offset, global cluster index and AUDIO_CLUSTER name from the AEM
+    overlay the builder produces from the shipping config, the physical
+    render key from ADP_DMAP_IN_RPHYS_C and the RENDER_PHYS_LANES lane table,
+    the serial slot from that key less the lane base, and the package signal
+    from the AX7101 platform's own `tdm` dout subsignal. A row that drifts
+    from any of them fails here, which is what makes the table checked rather
+    than typed. The bites arm plants a wrong key and a dropped row."""
+    cfg = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+    overlay = eb.emit_aem_overlay(cfg)
+    header = eb.emit_adp_shape_svh(cfg, overlay)
+
+    def array(name: str) -> list[int]:
+        """The based-literal array `name` the shape header states, read back
+        as integers whatever base each element is spelled in."""
+        m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", header)
+        assert m, f"shape header has no {name}"
+        out = []
+        for token in m.group(1).split(", "):
+            q = re.search(r"'([hdb])([0-9A-Fa-f]+)", token)
+            assert q, f"{name}: cannot parse {token}"
+            out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
+        return out
+
+    # the ONE AAF listener stream and its wire-channel count, from the header
+    saaf = array("ADP_DMAP_IN_SAAF_C")
+    sch = array("ADP_DMAP_IN_SCH_C")
+    aaf_streams = [s for s, v in enumerate(saaf) if v]
+    assert aaf_streams == [0], (
+        f"the shipping shape declares AAF listener stream(s) {aaf_streams}; "
+        "the published table names stream 0 on every row")
+    assert sch[0] == 8, (
+        f"stream 0 carries {sch[0]} wire channels, so `0 / c` in the table is "
+        "not bounded by 0..7 any more")
+    rphys = array("ADP_DMAP_IN_RPHYS_C")
+    tdm_base, tdm_n = eb.RENDER_PHYS_LANES["tdm"]
+    ports = [p for p in overlay["stream_ports"]["input"]]
+    assert len(ports) == 1 and ports[0]["index"] == 0
+    clusters = [c for c in overlay["audio_clusters"]
+                if c["direction"] == "input"]
+    assert len(clusters) == len(rphys) == tdm_n, (
+        f"{len(clusters)} input clusters, {len(rphys)} projections, "
+        f"{tdm_n} TDM slots - the table's one-row-per-channel shape assumes "
+        "these are the same number")
+    # ...and the pin every slot time-shares, read off the platform
+    plat = (ROOT / "sw/litex/platforms/alinx_ax7101.py").read_text()
+    m = re.search(r'Subsignal\("dout",\s*Pins\("([A-Z]+\d+)"\)\),\s*#\s*'
+                  r'(J\d+\.\d+)', plat)
+    assert m, ("alinx_ax7101.py no longer routes the tdm `dout` subsignal to "
+               "a named ball and header pin")
+    pin = f"{m.group(2)}, ball {m.group(1)}"
+
+    want = []
+    for n, cl in enumerate(clusters):
+        assert rphys[n] & 0x40, f"cluster {n} has no valid projection"
+        key = rphys[n] & 0x3F
+        want.append({"stream": "0", "port": str(ports[0]["index"]),
+                     "off": str(cl["offset"]),
+                     "glob": str(cl["index"]), "name": cl["name"],
+                     "key": str(key), "rphys": f"{rphys[n]:02X}",
+                     "slot": str(key - tdm_base), "pin": pin})
+    doc = CHANNEL_MAP_MD.read_text(encoding="utf-8")
+    faults = _channel_map_faults(doc, want)
+    assert not faults, (f"{CHANNEL_MAP_MD.name}: the published channel map "
+                        f"disagrees with the build: {faults}")
+    # the bites arm: a wrong key and a dropped row must both be refused, or
+    # the agreement above proves nothing
+    planted = doc.replace("| 4 (`7'h44`) | TDM lane 0, slot 2 |",
+                          "| 1 (`7'h41`) | TDM lane 0, slot 2 |", 1)
+    assert _channel_map_faults(planted, want), \
+        "gate 16d bites arm: a wrong physical key was not refused"
+    dropped = doc.replace(
+        "| 0 / c | 0 | 7 | 7 | `TDM8 Out SR` | 9 (`7'h49`) | "
+        "TDM lane 0, slot 7 | " + pin + " |\n", "", 1)
+    assert _channel_map_faults(dropped, want), \
+        "gate 16d bites arm: a dropped row was not refused"
+    print(f"  [gate 16d] {len(want)} published channel-map rows match the "
+          f"generated shape header, the AEM overlay, the {tdm_base}-based TDM "
+          f"lane table and the platform pin ({pin}); a wrong key and a "
+          "dropped row both refused")
+
+
 def _dynmap_candidate(cfg_path: Path, td: Path) -> tuple[Path, Path]:
     """The tracked pair `--write-rtl <cfg>` WOULD install for cfg_path,
     written to td.  Same technique as gate 10's candidate pairs - the real
@@ -20772,6 +20891,7 @@ if __name__ == "__main__":
                test_gen_aem_store_crf_output_overlay,
                test_clock_sources_follow_the_fabric,
                test_dynamic_map_topology_reaches_shape_header,
+               test_shipping_channel_map_table,
                test_dynamic_audio_map_overlay,
                test_lwsrp_reset_words_match_rtl,
                test_lwsrp_class_constants_match_rtl,

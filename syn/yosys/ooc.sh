@@ -61,7 +61,13 @@ F="$R/hdl/ieee8021q/filtering"
 # it this gate priced whichever config last ran --write-rtl, which is how
 # its figures came to describe a different entity than the one run.sh
 # elaborates.
-S="$R/configs/generated/endstation_arty_current"
+#
+# OOC_SHAPE names ANOTHER generated config directory, and it is the minimum a
+# caller needs to price a shape this list does not default to (#447: the
+# shipping AX7101 1x1 TDM8 entity, whose render lane the Arty defaults park).
+# It changes no default: unset, this is the same Arty directory it always was,
+# and the tops list is elaborated exactly as before.
+S="${OOC_SHAPE:-$R/configs/generated/endstation_arty_current}"
 INC="-DSYNTHESIS -I $S -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
 TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 # An OOC_TMP the caller spelled RELATIVELY is resolved once, here. yosys runs
@@ -125,6 +131,15 @@ tops=(
   # #386: the render setpoint stage at its module defaults (eight streams);
   # the shipping one-stream figure needs OOC_CHPARAM=N_STREAMS_P=1
   "KL_render_setpoint|$R/hdl/ieee1722/aaf/KL_render_setpoint.sv"
+  # #447: the TDM MASTER render serializer, at its module defaults (8 slots,
+  # 32-bit words, a 4-frame CDC). It is in DP_SRCS too, but the milan_datapath
+  # row below prices the shape $S selects - the ARTY one, whose
+  # AUDIO_IF_RENDER_SLOTS_P is 0 - and that parks the lane, so that row
+  # measures none of this module. The IN-CONTEXT figure for the shipping
+  # AX7101 1x1 TDM8 shape needs the shape override below (OOC_SHAPE) together
+  # with the patched-default copy of milan_datapath.sv this script's chparam
+  # note describes; the PR that added the lane records both numbers.
+  "KL_tdm_render_master|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv"
   "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
   "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"

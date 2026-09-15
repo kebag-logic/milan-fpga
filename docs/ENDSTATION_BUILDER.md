@@ -611,7 +611,12 @@ otherwise no lane at all). `physical_channels.render` is bounded by that lane's
 width, not by the interface family width, and a shape declaring more is refused
 at build time rather than advertising clusters that reach no pin (#447). The
 lane table is `RENDER_PHYS_LANES`, mirrored in `avdecc/aem_assemble.py` and
-pinned against the `milan_datapath` localparams by a builder gate. Reset replay from nonvolatile storage
+pinned against the `milan_datapath` localparams by a builder gate. The shipping
+AX7101 1x1 TDM8 shape's eight channels are published row by row, every
+dimension kept distinct and every value derived from what the build emits, in
+[`CHANNEL_MAP_64.md` section 3.1.2](CHANNEL_MAP_64.md); gate 16d fails on a row
+that drifts from the generated shape header, the AEM overlay, the lane table or
+the platform pin. Reset replay from nonvolatile storage
 remains open in issue #70. The fabric contract is
 [`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) section 7.
 

@@ -64,15 +64,34 @@
                                                    held in reset
                   ser_ack_r   (clk_tdm_i, reset 0) the serial side has
                                                    acknowledged a request
+                  ser_rst_r   (clk_tdm_i, reset 1) the serial side has reset
+                                                   and has not seen a request
+                                                   since
                   commit_en_r (clk_i,     reset 0) commits and FIFO writes are
                                                    permitted
 
-                A serial-domain reset shows as ser_flush_r high with ser_ack_r
-                low, which the producer answers with a request, so there is no
-                state in which one side waits for a round trip the other never
-                started. The FIFO reset ports are driven from the epoch
-                (wrst_n = rst_n && !epoch_req_r, rrst_n = srst && !ser_flush_r)
-                so both pointers are proven zero before any commit is admitted.
+                A serial-domain reset shows as ser_rst_r, which the producer
+                answers with a request, so there is no state in which one side
+                waits for a round trip the other never started. The FIFO reset
+                ports are driven from the epoch (wrst_n = rst_n &&
+                !epoch_req_r, rrst_n = srst && !ser_flush_r) so both pointers
+                are proven zero before any commit is admitted.
+
+                TWO LEVELS CROSS, AND NO DECISION RECONVERGES THEM. ser_rst_r
+                is a level of its OWN rather than flush AND NOT ack rebuilt in
+                the destination: ser_flush_r and ser_ack_r clear on the SAME
+                clk_tdm_i edge at a reopen, so a destination that rebuilt the
+                reset condition from two independently synchronised copies of
+                them would see "flushed, never acknowledged" for one clk_i
+                cycle whenever the ack copy arrived first, and would re-request
+                at every reopen. The two levels that DO cross - ser_rst_r and
+                ser_ack_r - change together at exactly one instant, the
+                acknowledgement (rst falls as ack rises), and every producer
+                decision below is insensitive to the order they arrive in:
+                each term needs either ack alone, or rst high WITH ack low,
+                which is the state BEFORE that instant and is left by both
+                skewed orders ((1,1) and (0,0)) rather than entered by one.
+                The reopen moves ONE crossed level, the acknowledgement.
 
                 HARD RESET AND GRACEFUL FLUSH ARE DIFFERENT. A hard serial
                 reset clears the serializer state where it stands: it INTERRUPTS
@@ -202,9 +221,11 @@ module KL_tdm_render_master #(
   wire srst_n_w = srst_n_r[1];
 
   logic       epoch_req_r;               //! clk_i:     retained request level
+  logic       epoch_pend_r;              //! clk_i:     an event is deferred
   logic       commit_en_r;               //! clk_i:     commits permitted
   logic       ser_flush_r;               //! clk_tdm_i: retained flush level
   logic       ser_ack_r;                 //! clk_tdm_i: retained ack level
+  logic       ser_rst_r;                 //! clk_tdm_i: reset, no request seen
 
   logic [1:0] req_s_r;                   //! epoch_req_r into clk_tdm_i
   always_ff @(posedge clk_tdm_i) begin : t_req_sync
@@ -213,47 +234,83 @@ module KL_tdm_render_master #(
   end : t_req_sync
   wire req_s_w = req_s_r[1];
 
-  logic [1:0] flush_s_r, ack_s_r;        //! the two serial levels into clk_i
+  //! the two serial levels into clk_i. They change together at ONE instant -
+  //! the acknowledgement, where rst falls as ack rises - and no decision below
+  //! can be entered by either skewed order of that instant.
+  logic [1:0] rst_s_r, ack_s_r;
   always_ff @(posedge clk_i) begin : t_ser_sync
     if (!rst_n) begin
-      flush_s_r <= 2'b11;                //! assume flushed until proven otherwise
-      ack_s_r   <= 2'b00;
+      rst_s_r <= 2'b11;                  //! assume the serial side has reset
+      ack_s_r <= 2'b00;                  //! and acknowledged nothing
     end else begin
-      flush_s_r <= {flush_s_r[0], ser_flush_r};
-      ack_s_r   <= {ack_s_r[0], ser_ack_r};
+      rst_s_r <= {rst_s_r[0], ser_rst_r};
+      ack_s_r <= {ack_s_r[0], ser_ack_r};
     end
   end : t_ser_sync
-  wire flush_s_w = flush_s_r[1];
-  wire ack_s_w   = ack_s_r[1];
+  wire rst_s_w = rst_s_r[1];
+  wire ack_s_w = ack_s_r[1];
 
   // ======================================================================
   //  clk_i domain: the producer half of the four-phase epoch.
   //
   //  Phase 0 idle    : commit_en_r = 1, epoch_req_r = 0
-  //  Phase 1 request : an epoch event, or a serial side that is flushed
-  //                    WITHOUT having acknowledged anything (its own reset),
-  //                    raises epoch_req_r and drops commit_en_r. The FIFO
-  //                    write side is now held in reset.
+  //  Phase 1 request : an epoch event, or a serial side that has RESET
+  //                    without having seen a request, raises epoch_req_r and
+  //                    drops commit_en_r. The FIFO write side is now held in
+  //                    reset. The request is raised only with the handshake
+  //                    FREE - no request standing, no acknowledgement still
+  //                    visible - because a request raised onto a stale
+  //                    acknowledgement is cleared by it one cycle later, and
+  //                    a one-cycle request level can be missed by the serial
+  //                    side's own two-flop synchroniser. An event that lands
+  //                    on a busy handshake is HELD in epoch_pend_r and gets a
+  //                    round trip of its own, so two bind falls inside one
+  //                    round trip are two counted reopenings and not one.
+  //                    (A second event arriving while one is ALREADY pending
+  //                    joins it: the flush it demands is the one the pending
+  //                    round trip will perform, and commits are blocked from
+  //                    the cycle of the event either way.)
   //  Phase 2 clear   : the acknowledgement clears epoch_req_r. Commits stay
   //                    blocked.
   //  Phase 3 resume  : the acknowledgement has fallen (so the serial side is
-  //                    out of flush with both pointers at zero) AND the
-  //                    upstream selection is fresh: commit_en_r rises.
+  //                    out of flush with both pointers at zero), nothing is
+  //                    pending AND the upstream selection is fresh:
+  //                    commit_en_r rises.
+  //
+  //  The serial-reset term is ONE synchronised level, never a condition
+  //  rebuilt from two of them (see THE RENDER EPOCH above).
   // ======================================================================
-  wire ser_reset_w = flush_s_w && !ack_s_w;
+  wire ser_reset_w   = rst_s_w;
+  wire epoch_close_w = epoch_evt_i || ser_reset_w;
+  wire hs_free_w     = !epoch_req_r && !ack_s_w;
 
   always_ff @(posedge clk_i) begin : t_epoch_producer
     if (!rst_n) begin
-      epoch_req_r <= 1'b1;               //! reset IS an epoch event
-      commit_en_r <= 1'b0;
-    end else if (epoch_evt_i || ser_reset_w) begin
-      epoch_req_r <= 1'b1;
-      commit_en_r <= 1'b0;
-    end else if (ack_s_w) begin
-      epoch_req_r <= 1'b0;
-      commit_en_r <= 1'b0;
-    end else if (!epoch_req_r && fresh_i) begin
-      commit_en_r <= 1'b1;
+      epoch_req_r  <= 1'b1;              //! reset IS an epoch event
+      epoch_pend_r <= 1'b0;
+      commit_en_r  <= 1'b0;
+    end else begin
+      //! a close stimulus stops commits in the cycle it arrives, whatever the
+      //! handshake is doing; only the REQUEST waits for a free handshake
+      if (epoch_close_w) commit_en_r <= 1'b0;
+      if (hs_free_w) begin
+        if (epoch_close_w || epoch_pend_r) begin
+          epoch_req_r  <= 1'b1;          //! phase 1
+          epoch_pend_r <= 1'b0;
+          commit_en_r  <= 1'b0;
+        end else if (fresh_i) begin
+          commit_en_r  <= 1'b1;          //! phase 3
+        end
+      end else begin
+        //! the serial reset is a retained LEVEL and re-raises its own request
+        //! as soon as the handshake frees, so only the one-cycle EVENT is
+        //! held here - deferring the level would count one reset twice
+        if (epoch_evt_i) epoch_pend_r <= 1'b1;
+        if (ack_s_w) begin
+          epoch_req_r <= 1'b0;           //! phase 2
+          commit_en_r <= 1'b0;
+        end
+      end
     end
   end : t_epoch_producer
 
@@ -361,6 +418,7 @@ module KL_tdm_render_master #(
       //! existing timing owner's behavior, preserved rather than softened.
       ser_flush_r <= 1'b1;
       ser_ack_r   <= 1'b0;
+      ser_rst_r   <= 1'b1;               //! ...and say so in ONE level
       active_r    <= '0;
       next_r      <= '0;
       have_next_r <= 1'b0;
@@ -408,6 +466,10 @@ module KL_tdm_render_master #(
       if (req_s_w) begin
         ser_flush_r <= 1'b1;
         ser_ack_r   <= 1'b1;
+        //! the producer is asking, so it is no longer unaware of this side's
+        //! reset: the reset level clears on the SAME edge the acknowledgement
+        //! rises, and the two therefore never disagree at a reopen
+        ser_rst_r   <= 1'b0;
         next_r      <= '0;
         have_next_r <= 1'b0;
       end else if (ser_flush_r && ser_ack_r && frame_start_w) begin

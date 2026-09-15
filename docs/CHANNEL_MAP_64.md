@@ -143,9 +143,25 @@ pointer and leave the other. A HARD serial reset interrupts the frame in flight
 and that serial interval is invalid; a GRACEFUL flush (a bind loss, or a reset
 release while the clock keeps running) zeroes the active frame at FRAME STARTS
 only, so the frame in flight completes whole and every frame after it is
-digital silence until the epoch reopens. The epoch reopens only once the bind
-is restored, the setpoint has popped a post-flush event for every stream the
-lane renders, and both FIFO pointers are proven zero.
+digital silence until the epoch reopens. The serial side reopens at the first
+frame start after the request clears, with both FIFO pointers proven zero, and
+COMMITS resume later still: only once the bind is restored and the setpoint has
+popped a post-flush event for every stream the lane renders.
+
+The handshake is strictly four-phase, and `epochs_o` counts one REOPENING per
+epoch event because of it. A request is raised only with the handshake free -
+no request standing and no acknowledgement still visible - so a stale
+acknowledgement cannot clear a request one cycle after it was raised; an event
+that lands on a busy handshake is held and gets a round trip of its own, so two
+bind falls inside one round trip are two counted reopenings. The hold is one
+bit: a third event arriving while one is already held joins it, which costs a
+count and no flush, since the round trip it joins performs exactly the flush it
+asked for. The producer's view of the serial side is two levels that change
+together only at the acknowledgement, and no decision it takes reconverges
+them: the serial-reset condition is a level of its own rather than "flushed and
+not acknowledged" rebuilt in the destination, which at a reopening - where the
+flush and the acknowledgement clear on ONE serial edge - would depend on which
+of two synchronisers happened to answer first.
 
 Surplus is drop-OLDEST and counted: the serializer keeps prefetching while the
 CDC is non-empty, so the newest committed frame is the one adopted and the
@@ -224,6 +240,63 @@ atomically: the stage decides at a stream's first beat whether it presents
 this tick and which row, so a rail, a recentre or a flush inside the pop
 window lands between events and the crossbar's single walker never receives a
 partial or mixed event.
+
+### 3.1.2 The shipping eight channels, every dimension at once
+
+One row per channel of the shipping AX7101 1x1 TDM8 image, with every semantic
+dimension of the path kept DISTINCT (#447 acceptance 2). The table is CHECKED,
+not typed: `test_builder.py` gate 16d derives each row from the same sources
+the build emits - the generated shape header's `ADP_DMAP_IN_RPHYS_C`, the AEM
+overlay the builder produces from `configs/endstation_ax7101_1x1_tdm8.yaml`,
+the `RENDER_PHYS_LANES` lane table and the AX7101 platform's own `tdm`
+subsignal - and a row that drifts from any of them fails that gate.
+
+| Stream index / channel | Stream Port Input | Cluster offset | Global cluster | AUDIO_CLUSTER name | Physical render key | Audio interface | Package signal |
+|---|---|---|---|---|---|---|---|
+| 0 / c | 0 | 0 | 0 | `TDM8 Out FL` | 2 (`7'h42`) | TDM lane 0, slot 0 | J11.5, ball A20 |
+| 0 / c | 0 | 1 | 1 | `TDM8 Out FR` | 3 (`7'h43`) | TDM lane 0, slot 1 | J11.5, ball A20 |
+| 0 / c | 0 | 2 | 2 | `TDM8 Out FC` | 4 (`7'h44`) | TDM lane 0, slot 2 | J11.5, ball A20 |
+| 0 / c | 0 | 3 | 3 | `TDM8 Out LFE` | 5 (`7'h45`) | TDM lane 0, slot 3 | J11.5, ball A20 |
+| 0 / c | 0 | 4 | 4 | `TDM8 Out RL` | 6 (`7'h46`) | TDM lane 0, slot 4 | J11.5, ball A20 |
+| 0 / c | 0 | 5 | 5 | `TDM8 Out RR` | 7 (`7'h47`) | TDM lane 0, slot 5 | J11.5, ball A20 |
+| 0 / c | 0 | 6 | 6 | `TDM8 Out SL` | 8 (`7'h48`) | TDM lane 0, slot 6 | J11.5, ball A20 |
+| 0 / c | 0 | 7 | 7 | `TDM8 Out SR` | 9 (`7'h49`) | TDM lane 0, slot 7 | J11.5, ball A20 |
+
+How to read the columns, because several of them are commonly conflated:
+
+- STREAM INDEX / CHANNEL. This image binds ONE AAF listener stream, index 0,
+  carrying eight wire channels. Which of those channels feeds which cluster is
+  not fixed here: it is whatever `ADD_AUDIO_MAPPINGS` assigned, one mapping per
+  cluster, so the column reads `0 / c` on every row. `c` is `stream_channel`
+  in the mapping and must lie inside the stream's format, 0..7.
+- STREAM PORT INPUT and CLUSTER OFFSET. `cluster_offset` is PORT-RELATIVE
+  (1722.1-2021 7.2.19), so it means nothing without the port index beside it.
+  This shape declares one input port with eight clusters, which is why the
+  offset and the global index coincide here and would not on a multi-port
+  shape.
+- GLOBAL CLUSTER. The AUDIO_CLUSTER descriptor index the entity model
+  advertises, `base_cluster + pool.offset + n`.
+- PHYSICAL RENDER KEY. The render crossbar destination,
+  `render_lane_base(cfg) + pool.first + n`. The generated header spells it
+  `{valid, key[5:0]}`, so key 2 is `7'h42`. Keys 0 and 1 are the I2S DAC lane
+  this shape PRUNES, and no cluster reaches them.
+- AUDIO INTERFACE. The serial position: `AUDIO_IF_RENDER_SLOTS_P` slots of TDM
+  lane 0, slot k occupying bit periods `1 + 32k` through `32k + 32` of the
+  frame.
+- PACKAGE SIGNAL. All eight slots TIME-SHARE one pin. This header carries
+  exactly one data output, so the last column is the same ball on every row;
+  what separates the channels on the wire is the slot, not a pin.
+
+One corner the table does not show, recorded because it is reachable from the
+protocol face. A mapping may point a lane key at a stream that is NOT
+delivering - for example a stream whose bind fell while this lane did not
+render it, so no epoch was owed and none was raised. The render crossbar keeps
+its latest-sample latch per `{stream, channel}` and seeds the destination from
+it, so that slot then carries ONE constant sample of that stream's own last
+delivered audio until that stream pops again, and the other slots are
+untouched. It is a bounded DC re-seed on one slot, never another stream's
+audio and never a torn value; the multi-stream leg's M7 arm visits it at the
+pins and states exactly that.
 
 ## 4. Capture mux contract (KL_chmap_capture, phase-1 name)
 

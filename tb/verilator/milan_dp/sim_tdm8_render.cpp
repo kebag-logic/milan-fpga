@@ -58,6 +58,16 @@
 // by the mutation arm's explicitly modelled bit-arrival skew, whose limits are
 // stated there. Physical acceptance stays with #386 acceptance 4 and #117.
 //
+// THE AXIS RATE HERE IS A MODEL RATE. This leg runs axis_clk at 100 MHz, with
+// clk_audio_i = clk_tdm_i = axis_clk x 391/1591 = 24.575739 MHz - the
+// SHIPPING audio clock's absolute frequency, so every serial term below (the
+// 81.4 ns bit period, the 20.834 us frame, the fsync rate) is the shipping
+// one. The shipping AX7101 image clocks axis_clk at 50 MHz (`--milan-clk-freq
+// 50e6`, docs/litex/CLOCK_DOMAINS.md `milan`), so a term MEASURED IN AXIS
+// CYCLES is twice as long in nanoseconds there as it is here. Axis-cycle
+// measurements are therefore printed as cycles first and converted at BOTH
+// rates, and docs/design/TIME_SYNC.md publishes the shipping conversion.
+//
 // THE CLOCK SOURCE. The serial window above runs at INTERNAL, where the
 // packet grid and the physical frame grid free-run apart by the divider
 // plan's -10.64 ppm. The [CRF] phase selects this shape's CRF CLOCK_SOURCE
@@ -111,21 +121,44 @@ constexpr int kChans = 8;
 constexpr int kEvents = 6;
 constexpr size_t kPayloadBytes = static_cast<size_t>(kChans) * kEvents * 4;
 constexpr size_t kFrameBytes = 14 + 24 + kPayloadBytes;
-//! six events per PDU at 48 kHz on the 100 MHz axis clock. On the PHYSICAL
-//! grid - the cadence a talker disciplined to the same CRF produces - the
-//! fsync period is 512 x 1591/391 cycles, so six of them are 12 500 + 52/391.
+//! six events per PDU at 48 kHz on the 100 MHz MODEL axis clock (the shipping
+//! image's axis clock is 50 MHz; see THE AXIS RATE HERE IS A MODEL RATE). On
+//! the PHYSICAL grid - the cadence a talker disciplined to the same CRF
+//! produces - the fsync period is 512 x 1591/391 cycles, so six of them are
+//! 12 500 + 52/391.
 constexpr long kPduPeriodCycles = 12500;
 constexpr long kPduPhysFracNum = 52;
 constexpr long kPduPhysFracDen = 391;
 //! the CRF cadence: 96 samples per PDU at 48 kHz is 2 ms, and 2 ms of the
 //! 100 MHz axis clock is 200 000 cycles
 constexpr long kCrfPduPeriodCycles = 200000;
+//! the MODEL axis clock, and the one the shipping AX7101 image runs. Every
+//! interval this leg measures in axis cycles is published in cycles and
+//! converted at both: ns = cycles x 1e9 / rate.
+constexpr double kModelAxisHz = 100e6;
+constexpr double kShipAxisHz = 50e6;
+constexpr double kModelNsPerAxis = 1e9 / kModelAxisHz;
+constexpr double kShipNsPerAxis = 1e9 / kShipAxisHz;
 //! one media tick on the packet grid, in axis cycles (100 MHz / 48 kHz)
-constexpr double kTickCycles = 100e6 / 48000.0;
+constexpr double kTickCycles = kModelAxisHz / 48000.0;
 //! #386's render setpoint as milan_datapath derives it: one class-A PDU of
 //! events plus the two-tick allowance. Stated here as the LAW under test,
 //! never read back from the DUT.
 constexpr int kRenderSetpointEvt = kEvents + 2;
+//! THE PRESERVED PREFILL SNAP, as a derivation rather than a search. The
+//! render stage holds every pop until a PDU END finds its queue at or above
+//! TARGET = setpoint + one PDU of events, then snaps the read pointer to
+//! wptr - TARGET and DROPS the oldest excess. This leg pushes kEvents per
+//! PDU, so the first PDU end at or above the target is the third (18 events
+//! pushed, 14 kept) and the first event the lane may ever render is ordinal
+//! 18 - 14 = 4. Stated here as the LAW under test: a stage that discarded a
+//! different count would leave a different ordinal at the head, and T6
+//! PREFILL asserts the equality rather than searching for whatever came out.
+constexpr int kPrefillTargetEvt = kRenderSetpointEvt + kEvents;
+constexpr long kPrefillPdus =
+    (kPrefillTargetEvt + kEvents - 1) / kEvents;
+constexpr long kFirstEligibleEvent =
+    kPrefillPdus * kEvents - kPrefillTargetEvt;
 //! registration slack on the band's upper edge: the accept pulse and the pop
 //! pulse are each one register behind their events
 constexpr long kBandSlackCycles = 64;
@@ -381,6 +414,10 @@ class TdmRenderHarness {
     int  q = 0;                          //! free-running bit position
     long rises = 0;                      //! bclk rises since reset release
     long rises_at_last_fsync = -1;
+    long rises_at_first_fsync = -1;      //! ...of the FIRST one, so the gap
+                                         //! between a re-arm and the boundary
+                                         //! that ends the invalid interval is
+                                         //! a pin observation
     long fsync_rises = 0;
     std::array<uint32_t, kSlots> word{};
     std::array<long, kSlots> msb_half{};
@@ -404,6 +441,7 @@ class TdmRenderHarness {
             if (rises_at_last_fsync >= 0 && rises - rises_at_last_fsync != kFrameBclks)
                 ++gap_faults;
             rises_at_last_fsync = rises;
+            if (fsync_rises == 0) rises_at_first_fsync = rises;
             ++fsync_rises;
             pend = 2;
         } else if (pend > 0 && --pend == 0) {
@@ -435,7 +473,8 @@ class TdmRenderHarness {
 
     void decoder_reset() {
         armed = false; pend = 0; framed = false; q = 0;
-        rises = 0; rises_at_last_fsync = -1; fsync_rises = 0;
+        rises = 0; rises_at_last_fsync = -1; rises_at_first_fsync = -1;
+        fsync_rises = 0;
         framing_faults = 0; gap_faults = 0;
         word.fill(0); msb_half.fill(0);
         decoded.clear();
@@ -531,6 +570,7 @@ class TdmRenderHarness {
     void observe_axis() {
         observe_law();
         observe_epoch();
+        observe_commit_watch();
         if (dut->rootp->milan_datapath__DOT__chmap_phys_v_w)
             phys_valid_cycle.push_back(axis_cycle);
         if (dut->rootp->milan_datapath__DOT__tdmr_commit_p_w)
@@ -570,6 +610,44 @@ class TdmRenderHarness {
     void epoch_watch_reset() {
         bind_falls_seen = 0;
         commit_gate_closed_cycles = 0;
+    }
+
+    //! T21's window, watched PER CYCLE rather than sampled by a step loop:
+    //! from the instant it is armed until the lane's epoch counter moves,
+    //! every frame commit strobe is counted. The window closes on the epoch
+    //! COUNTER, which is the same clk_i view of the reopening the producer
+    //! itself gets (the counter and the acknowledgement cross with the same
+    //! latency), so "before the epoch reopened" means the same thing to this
+    //! observer and to the gateware.
+    //!
+    //! The crossbar's own pulses are counted beside them, because "no commit
+    //! was made" means nothing in a window where the adapter was never asked
+    //! to make one: the window has to contain WORK.
+    bool commit_watch_armed = false;
+    bool commit_watch_closed = false;
+    uint64_t commit_watch_base = 0;
+    long commits_before_reopen = 0;
+    long phys_offers_in_window = 0;
+
+    void arm_the_commit_watch() {
+        commit_watch_armed = true;
+        commit_watch_closed = false;
+        commit_watch_base = lane_epochs();
+        commits_before_reopen = 0;
+        phys_offers_in_window = 0;
+    }
+
+    void observe_commit_watch() {
+        if (!commit_watch_armed) return;
+        if (lane_epochs() != commit_watch_base) {
+            commit_watch_armed = false;
+            commit_watch_closed = true;
+            return;
+        }
+        if (dut->rootp->milan_datapath__DOT__chmap_phys_v_w)
+            ++phys_offers_in_window;
+        if (dut->rootp->milan_datapath__DOT__tdmr_commit_p_w)
+            ++commits_before_reopen;
     }
 
     void taps_reset() {
@@ -1101,6 +1179,7 @@ class TdmRenderHarness {
     void phase_map();
     void phase_multistream();
     void prove_an_unrelated_stream_loss_leaves_the_lane_running();
+    void prove_a_stale_stream_repoint_is_bounded(int slot, int chan);
     void prove_the_lane_renders_a_second_stream(int slot, int chan);
     void prove_a_rendered_stream_loss_closes_the_epoch(int slot, int chan);
     void prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
@@ -1206,10 +1285,13 @@ class TdmRenderHarness {
 
     //! The arms phase_serial and the two epoch phases run, each named for what
     //! it proves rather than for the order it happens to sit in.
+    void prove_the_first_rendered_event_is_the_derived_one();
     void grade_the_decoded_window(long first_event, uint64_t skips_before,
                                   uint64_t unders_before);
     void measure_the_bank_term(long* walk_min, long* walk_max);
     void measure_the_commit_to_pin_terms(const Grade& g);
+    void publish_the_measured_terms(long walk_min, long walk_max, long tmin,
+                                    long tmax, double bit_axis);
     void prove_each_slot_sits_at_its_own_position(double bit_axis);
     void prove_the_lane_counters_are_coherent(uint64_t skips_before,
                                               uint64_t unders_before);
@@ -1218,6 +1300,10 @@ class TdmRenderHarness {
     void prove_a_stopped_clock_reset_reopens_one_epoch(
             const std::array<uint32_t, kSlots>& pre_epoch,
             uint64_t epochs_before);
+    void prove_a_hard_reset_interrupts_and_rearms(const char* tag,
+                                                  bool at_frame_wrap);
+    void prove_a_reset_inside_an_outstanding_round_trip();
+    void prove_two_bind_falls_in_one_round_trip_count_twice();
     void prove_the_lane_recovers_after_a_reset();
     void prove_a_rebind_carries_only_post_rebind_audio(uint64_t epochs_before,
                                                        long events_at_loss);
@@ -1480,9 +1566,18 @@ void TdmRenderHarness::phase_serial() {
                     "serial window\n");
         tdm_frozen = true;
     }
-    // prefill and lock: the setpoint's own 18-to-14 snap happens here, and
-    // the first EEGIBLE event is decided by it, not by the first injection
-    run_fed(60 * kPduPeriodCycles);
+    // PREFILL AND LOCK, WITH THE DECODER ALREADY OPEN. The setpoint's own
+    // 18-to-14 snap happens here, and the first ELIGIBLE event is decided by
+    // it, not by the first injection: the window below opens before the snap,
+    // so the first event that ever reaches the pins is observed rather than
+    // searched for, and it is graded against the derived ordinal.
+    decoder_reset();
+    taps_reset();
+    collect = true;
+    run_fed(10 * kPduPeriodCycles);
+    collect = false;
+    prove_the_first_rendered_event_is_the_derived_one();
+    run_fed(50 * kPduPeriodCycles);
     decoder_reset();
     taps_reset();
     collect = true;
@@ -1510,19 +1605,57 @@ void TdmRenderHarness::phase_serial() {
     grade_the_decoded_window(first_event, skips_before, unders_before);
 }
 
+//! T6 PREFILL: the FIRST event this lane ever renders, DERIVED and then
+//! observed. The window this runs on opened before the prefill snap, so the
+//! lane is watched from digital silence through its first audio frame. The
+//! expected ordinal is kFirstEligibleEvent, computed from the preserved
+//! prefill rule and this leg's own feed rate; the only law allowed to move it
+//! is drop-oldest, which counts every frame it overwrites, so the ordinal is
+//! corrected by the lane's OWN counted skips and the remainder is an equality.
+void TdmRenderHarness::prove_the_first_rendered_event_is_the_derived_one() {
+    check.that("T6 PREFILL: the window opened at prefill decoded whole frames",
+               decoded.size() > 4);
+    long first_nz = -1;
+    for (size_t i = 0; i < decoded.size() && first_nz < 0; i++)
+        for (int k = 0; k < kSlots; k++)
+            if (decoded[i].slot[static_cast<size_t>(k)] != 0) {
+                first_nz = static_cast<long>(i);
+                break;
+            }
+    check.that("T6 PREFILL: the lane rendered digital silence before its "
+               "first eligible event, and then rendered one", first_nz > 0);
+    if (first_nz <= 0) return;
+    const DecodedFrame& fr = decoded[static_cast<size_t>(first_nz)];
+    const long ordinal = find_the_ordinal(fr);
+    const long skips = static_cast<long>(fr.skips_at - decoded.front().skips_at);
+    std::printf("  [i]    T6 PREFILL: silence for %ld frame(s), then ordinal "
+                "%ld with %ld counted skip(s); derived first eligible ordinal "
+                "%ld (%ld events pushed at the snap, %d kept)\n",
+                first_nz, ordinal, skips, kFirstEligibleEvent,
+                kPrefillPdus * kEvents, kPrefillTargetEvt);
+    check.that("T6 PREFILL: the first rendered frame is an injected media "
+               "event", ordinal >= 0);
+    if (ordinal < 0) return;
+    check.dec("T6 PREFILL: the first event the lane renders is the one the "
+              "preserved prefill snap leaves at the head, plus its own "
+              "counted skips",
+              static_cast<uint64_t>(ordinal - skips),
+              static_cast<uint64_t>(kFirstEligibleEvent));
+}
+
 //! The decoded window, graded against the immutable injection record: the
 //! first eligible ordinal, the per-frame identity, padding and structure, the
 //! order rules, and the arms that follow from them.
 void TdmRenderHarness::grade_the_decoded_window(long first_event,
                                                 uint64_t skips_before,
                                                 uint64_t unders_before) {
-    // THE FIRST ELIGIBLE EVENT. It is NOT the first injected event: the
-    // preserved setpoint snaps the queue to TARGET_C = 14 events at a PDU
-    // end, discarding the oldest excess, and a closed render epoch suppresses
-    // events while its handshake is outstanding. The cursor is therefore
-    // SEARCHED for in the injection record around the first decoded frame
-    // rather than assumed, and what is graded is that every later frame
-    // follows from it by a permitted advance.
+    // WHERE THIS WINDOW STARTS. This window opens in mid-stream, long after
+    // the prefill snap T6 PREFILL derived and graded, so its first ordinal is
+    // whichever event the lane had reached - SEARCHED for in the injection
+    // record rather than assumed, with the grading then requiring every later
+    // frame to follow from it by a permitted advance. The DERIVED claim about
+    // the first eligible event is the one above; this is the cursor for the
+    // identity and order grading below.
     const DecodedFrame& f0 = decoded.front();
     const long start = find_the_ordinal(f0);
     check.that("T6 IDENTITY: the first decoded frame is an injected media "
@@ -1533,8 +1666,8 @@ void TdmRenderHarness::grade_the_decoded_window(long first_event,
             std::printf(" %08X", f0.slot[static_cast<size_t>(k)]);
         std::printf("\n");
     } else {
-        check.that("T6 PREFILL: the first eligible event follows the preserved "
-                   "prefill snap and epoch admission, not the first injection",
+        check.that("T6 WINDOW: the first ordinal of this mid-stream window is "
+                   "one the feed had already injected when it opened",
                    start <= first_event);
     }
     std::printf("  [i]    first decoded ordinal %ld; %ld events had been "
@@ -1619,10 +1752,20 @@ void TdmRenderHarness::measure_the_bank_term(long* walk_min, long* walk_max) {
     check.that("T7 BANK TERM: the adapter's commit follows its crossbar pulse "
                "by a fixed number of cycles",
                *walk_max >= *walk_min && *walk_min >= 1 && *walk_max <= 32);
+    //! AXIS CYCLES FIRST. The bank walk is an axis_clk interval, so its
+    //! nanosecond value belongs to the clock that is running: this leg's
+    //! model 100 MHz, and the shipping image's 50 MHz `milan` clock.
     std::printf("  [i]    T7 bank walk and commit: %ld..%ld axis cycles "
-                "(%.1f..%.1f ns at 100 MHz) over %zu pairs\n",
-                *walk_min, *walk_max, 10.0 * static_cast<double>(*walk_min),
-                10.0 * static_cast<double>(*walk_max), n);
+                "(%.1f..%.1f ns at this leg's %.0f MHz model axis clock; "
+                "%.1f..%.1f ns at the shipping %.0f MHz milan clock) over "
+                "%zu pairs\n",
+                *walk_min, *walk_max,
+                kModelNsPerAxis * static_cast<double>(*walk_min),
+                kModelNsPerAxis * static_cast<double>(*walk_max),
+                kModelAxisHz / 1e6,
+                kShipNsPerAxis * static_cast<double>(*walk_min),
+                kShipNsPerAxis * static_cast<double>(*walk_max),
+                kShipAxisHz / 1e6, n);
 }
 
 void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
@@ -1688,18 +1831,8 @@ void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
                         static_cast<double>(tmax) / 100.0, span_n,
                         tail_unpaired, frame_axis / 100.0, bit_axis / 100.0,
                         kCdcFloorAxis);
-            // THE PUBLISHED TERMS, derived from those measurements: the bank
-            // walk is walk_min..walk_max, and the CDC-plus-adopt wait phi is
-            // what is left after the slot's own serial position is removed.
-            std::printf("  [i]    T7 published terms, measured: bank walk and "
-                        "commit %.1f..%.1f ns; adopt wait phi %.3f..%.3f us "
-                        "(the measured interval less slot 0's one bit period "
-                        "of serial position); slot k adds %.4f us\n",
-                        10.0 * static_cast<double>(walk_min),
-                        10.0 * static_cast<double>(walk_max),
-                        (static_cast<double>(tmin) - bit_axis) / 100.0,
-                        (static_cast<double>(tmax) - bit_axis) / 100.0,
-                        32.0 * bit_axis / 100.0);
+            publish_the_measured_terms(walk_min, walk_max, tmin, tmax,
+                                       bit_axis);
             prove_each_slot_sits_at_its_own_position(bit_axis);
         } else {
             check.fail("T7 LATENCY: too few correlated frames to measure the "
@@ -1708,6 +1841,45 @@ void TdmRenderHarness::measure_the_commit_to_pin_terms(const Grade& g) {
     } else {
         check.fail("T7 LATENCY: no commit or crossbar pulse was observed");
     }
+}
+
+//! THE PUBLISHED TERMS, derived from the measurements above: the bank walk is
+//! walk_min..walk_max, and the CDC-plus-adopt wait phi is what is left after
+//! slot 0's own serial position is removed.
+//!
+//! WHICH CLOCK EACH TERM BELONGS TO. The bank walk is whole axis cycles and
+//! doubles in nanoseconds on the shipping 50 MHz milan clock. phi is almost
+//! all SERIAL time - the CDC's own read-side registers and the wait for the
+//! next frame start, both in clk_tdm_i, whose absolute rate here IS the
+//! shipping one - plus exactly ONE axis-domain register, the FIFO write
+//! pointer the commit strobe advances. So phi as shipped is this measurement
+//! plus that one cycle again. docs/design/TIME_SYNC.md publishes both.
+void TdmRenderHarness::publish_the_measured_terms(long walk_min, long walk_max,
+                                                  long tmin, long tmax,
+                                                  double bit_axis) {
+    const double phi_min_axis = static_cast<double>(tmin) - bit_axis;
+    const double phi_max_axis = static_cast<double>(tmax) - bit_axis;
+    std::printf("  [i]    T7 published terms, measured: bank walk and commit "
+                "%ld..%ld axis cycles = %.1f..%.1f ns at the model axis "
+                "clock, %.1f..%.1f ns at the shipping milan clock; adopt wait "
+                "phi %.3f..%.3f us (the measured interval less slot 0's one "
+                "bit period of serial position) = 1 axis cycle + %.3f..%.3f "
+                "us of serial-domain wait, so %.3f..%.3f us on the shipping "
+                "image; slot k adds %.4f us\n",
+                walk_min, walk_max,
+                kModelNsPerAxis * static_cast<double>(walk_min),
+                kModelNsPerAxis * static_cast<double>(walk_max),
+                kShipNsPerAxis * static_cast<double>(walk_min),
+                kShipNsPerAxis * static_cast<double>(walk_max),
+                phi_min_axis * kModelNsPerAxis / 1000.0,
+                phi_max_axis * kModelNsPerAxis / 1000.0,
+                (phi_min_axis - 1.0) * kModelNsPerAxis / 1000.0,
+                (phi_max_axis - 1.0) * kModelNsPerAxis / 1000.0,
+                ((phi_min_axis - 1.0) * kModelNsPerAxis + kShipNsPerAxis)
+                    / 1000.0,
+                ((phi_max_axis - 1.0) * kModelNsPerAxis + kShipNsPerAxis)
+                    / 1000.0,
+                32.0 * bit_axis / 100.0);
 }
 
 //! T7 SLOT POSITION: slot k's MSB must sit exactly 32k bit periods after
@@ -1940,6 +2112,12 @@ void TdmRenderHarness::phase_reset() {
     const uint64_t epochs_before = lane_epochs();
 
     prove_a_stopped_clock_reset_reopens_one_epoch(pre_epoch, epochs_before);
+    //! the two placements C2's validation list names, and the one it already
+    //! had: a reset inside the frame, a reset ON the frame wrap, and a reset
+    //! while a round trip is outstanding
+    prove_a_hard_reset_interrupts_and_rearms("T22", false);
+    prove_a_hard_reset_interrupts_and_rearms("T20", true);
+    prove_a_reset_inside_an_outstanding_round_trip();
     prove_the_lane_recovers_after_a_reset();
 }
 
@@ -1949,9 +2127,16 @@ void TdmRenderHarness::phase_reset() {
 //! the clock returns is the producer's RETAINED request, not a pulse.
 void TdmRenderHarness::prove_a_stopped_clock_reset_reopens_one_epoch(
         const std::array<uint32_t, kSlots>& pre_epoch, uint64_t epochs_before) {
-    feed_on = false;
+    // THE FEED KEEPS RUNNING ACROSS THE ASSERTION AND THE RELEASE. The
+    // producer therefore has a live crossbar walk to commit at every media
+    // tick throughout, before the reset, under it and after it, so what stops
+    // a commit reaching the pins is the epoch and not an absence of traffic.
+    // T21 below counts the commits in the release-to-reopen window at the
+    // commit strobe, so a commit that carried no audible sample still counts.
+    feed_on = true;
+    next_pdu_at = axis_cycle + 64;
     tdm_frozen = true;
-    steps(200);
+    run_fed(200);
     const int dout_frozen = dut->tdm_dout_o;
     const uint64_t frames_frozen = lane_frames();
     // A STOPPED CLOCK DELIVERS NOTHING, and that is the property to state -
@@ -1961,7 +2146,7 @@ void TdmRenderHarness::prove_a_stopped_clock_reset_reopens_one_epoch(
     // which is what makes a stopped clock unreadable as delivered audio. The
     // statement is made BEFORE the reset, because a reset zeroes the
     // destination side of the counter export and would answer it trivially.
-    steps(4000);
+    run_fed(4000);
     check.dec("T18 STOPPED CLOCK: nothing shifts while clk_tdm_i is stopped, "
               "so the serial pin holds its last launched level",
               static_cast<uint64_t>(dut->tdm_dout_o),
@@ -1969,22 +2154,34 @@ void TdmRenderHarness::prove_a_stopped_clock_reset_reopens_one_epoch(
     check.that("T18 STOPPED CLOCK: no serial frame is counted while the clock "
                "is stopped", lane_frames() == frames_frozen);
     dut->axis_resetn = 0;
-    steps(400);
+    run_fed(400);
     // The reset is RELEASED while the clock is still stopped, so the serial
     // domain never observes it as an edge at all. What it does observe, when
     // its clock returns, is the producer's RETAINED epoch request - the whole
     // reason the handshake is a level and not a pulse.
     dut->axis_resetn = 1;
-    steps(400);
+    //! ...and once the counter export has re-synchronised after the reset -
+    //! its clk_i side is zeroed by rst_n while the serial side, which never
+    //! saw the reset, still holds the real count - the commit watch is armed.
+    //! T21's window is then the DUT's own, from here to the counted
+    //! reopening, rather than a step count this loop happened to choose. The
+    //! serial clock stays STOPPED for a dozen media ticks inside it, which is
+    //! what gives the window its content: the crossbar keeps offering the
+    //! adapter a walk on every media tick while the epoch is closed and
+    //! cannot reopen.
+    run_fed(400);
+    arm_the_commit_watch();
+    run_fed(2 * kPduPeriodCycles);
     tdm_frozen = false;
-    steps(4000);
+    run_fed(4000);
     check.dec("T18 RESET: once the serial clock returns, the retained request "
               "flushes the lane and the pin is driven low",
               static_cast<uint64_t>(dut->tdm_dout_o), 0);
     decoder_reset();
     collect = true;
-    steps(6000);
+    run_fed(6000);
     collect = false;
+    feed_on = false;
     long nonzero = 0;
     for (const DecodedFrame& fr : decoded)
         for (int k = 0; k < kSlots; k++)
@@ -2000,36 +2197,145 @@ void TdmRenderHarness::prove_a_stopped_clock_reset_reopens_one_epoch(
                 ++pre_epoch_seen;
     check.dec("T18 RESET: no pre-reset sample survives the stopped-clock reset",
               static_cast<uint64_t>(pre_epoch_seen), 0);
-    check.that("T18 RESET: the epoch reopened and was counted",
-               lane_epochs() > epochs_before);
+    //! EXACTLY ONE. One epoch event is one round trip and one counted
+    //! reopening: a lane that re-requested at its own reopening would still
+    //! satisfy "the counter advanced", and that is the defect this equality
+    //! exists to refuse.
+    check.dec("T18 RESET: the reset epoch reopened EXACTLY once", lane_epochs(),
+              epochs_before + 1);
     std::printf("  [i]    epochs %llu -> %llu across the stopped-clock reset\n",
                 static_cast<unsigned long long>(epochs_before),
                 static_cast<unsigned long long>(lane_epochs()));
     check.dec("T18 RESET: the FIFO write side admitted nothing before the "
               "round trip completed", static_cast<uint64_t>(lane_over()), 0);
 
-    // T22: a reset asserted MID-FRAME interrupts the frame in flight and that
-    // serial interval is INVALID. The distinction from a graceful epoch flush
-    // - which completes the frame whole - is the correction this arm carries.
+    // T21: the commits the running feed placed before, during and after the
+    // release may not be ADMITTED from a closed epoch. Counted at the frame
+    // commit strobe over the DUT's own window - the release to the counted
+    // reopening - so the claim is about the gate and not about whether the
+    // frames would have carried audible samples.
+    check.that("T21 COMMIT AROUND RELEASE: the window really closed on a "
+               "counted reopening, so it is a window", commit_watch_closed);
+    check.that("T21 COMMIT AROUND RELEASE: the crossbar offered the adapter a "
+               "walk inside that window, so a zero below is a refusal and not "
+               "an absence of work", phys_offers_in_window > 4);
+    check.dec("T21 COMMIT AROUND RELEASE: the adapter committed no frame "
+              "between the reset release and the epoch reopening",
+              static_cast<uint64_t>(commits_before_reopen), 0);
+    std::printf("  [i]    T21: %ld crossbar offer(s) and %ld commit(s) between "
+                "the reset release and the counted reopening\n",
+                phys_offers_in_window, commits_before_reopen);
+    check.dec("T21 COMMIT AROUND RELEASE: ...and nothing it might have "
+              "committed reached the pins", static_cast<uint64_t>(nonzero), 0);
+}
+
+//! T22 and T20: A HARD RESET INTERRUPTS THE FRAME IN FLIGHT, wherever it
+//! lands. The distinction from a graceful epoch flush - which completes the
+//! frame WHOLE - is what this arm carries, and both placements C2's validation
+//! list names are exercised: one inside the frame and one ON the wrap. Graded
+//! from the PINS: the interval after the release is invalid, it is bounded by
+//! one frame, the boundary that ends it carries the frame cadence back, and
+//! what follows is digital silence rather than stale audio.
+void TdmRenderHarness::prove_a_hard_reset_interrupts_and_rearms(
+        const char* tag, bool at_frame_wrap) {
+    char what[200];
+    if (at_frame_wrap) {
+        //! land the reset ON the wrap: step to the fsync rise the PINS show
+        //! and assert immediately, so the frame it interrupts is the one that
+        //! has just begun
+        int prev = dut->tdm_fsync_o;
+        for (int c = 0; c < 40000; c++) {
+            step();
+            const int f = dut->tdm_fsync_o;
+            if (f && !prev) break;
+            prev = f;
+        }
+    } else {
+        steps(8);
+    }
+    const long into = (rises_at_last_fsync >= 0) ? rises - rises_at_last_fsync
+                                                 : -1;
     dut->axis_resetn = 0;
-    steps(8);
-    const long rises_at_reset = rises;
     steps(600);
     dut->axis_resetn = 1;
     decoder_reset();
-    steps(8000);
-    check.that("T22 HARD RESET: the interrupted interval is bounded - a fresh "
-               "frame boundary is observed after the release",
-               fsync_rises >= 1);
-    std::printf("  [i]    T22: the reset landed %ld bclk rises into the "
-                "frame; the decoder re-armed and saw %ld fsync rise(s) after "
-                "release\n", rises_at_reset % kFrameBclks, fsync_rises);
+    collect = true;
+    steps(12000);
+    collect = false;
+    std::snprintf(what, sizeof what,
+                  "%s HARD RESET: the reset landed where this arm placed it "
+                  "(%s)", tag, at_frame_wrap ? "on the frame wrap"
+                                             : "inside the frame");
+    check.that(what, at_frame_wrap ? (into >= 0 && into <= 4)
+                                   : (into > 4 && into < kFrameBclks));
+    std::snprintf(what, sizeof what,
+                  "%s HARD RESET: a fresh frame boundary ends the interrupted "
+                  "interval, and it comes within one frame of bclk", tag);
+    check.that(what, rises_at_first_fsync >= 0
+                     && rises_at_first_fsync <= kFrameBclks);
+    std::snprintf(what, sizeof what,
+                  "%s HARD RESET: the frame cadence after the release is 256 "
+                  "bclk rises again, from the pins alone", tag);
+    check.that(what, fsync_rises >= 3 && gap_faults == 0
+                     && framing_faults == 0);
+    long nonzero = 0;
+    for (const DecodedFrame& fr : decoded)
+        for (int k = 0; k < kSlots; k++)
+            if (fr.slot[static_cast<size_t>(k)] != 0) ++nonzero;
+    std::snprintf(what, sizeof what,
+                  "%s HARD RESET: every frame decoded after that boundary is "
+                  "digital silence, not the interrupted frame's audio", tag);
+    check.dec(what, static_cast<uint64_t>(nonzero), 0);
+    std::printf("  [i]    %s: the reset landed %ld bclk rise(s) into the "
+                "frame; the decoder re-armed, saw its first boundary %ld bclk "
+                "rise(s) later and %ld in all, and decoded %zu frame(s)\n",
+                tag, into, rises_at_first_fsync, fsync_rises, decoded.size());
+}
 
-    // T21: commits placed immediately before, during and after the release
-    // may not reach the pins from a closed epoch.
-    check.dec("T21 COMMIT AROUND RELEASE: no commit made before the epoch "
-              "reopened reached the pins", static_cast<uint64_t>(nonzero), 0);
-
+//! T19: A RESET WHILE THE ROUND TRIP IS OUTSTANDING (C2's validation list).
+//! The serial clock is stopped first, so the round trip the first reset
+//! starts CANNOT complete; the second reset then lands inside it. What the
+//! lane owes afterwards is one epoch, not two, and no commit before it.
+void TdmRenderHarness::prove_a_reset_inside_an_outstanding_round_trip() {
+    tdm_frozen = true;
+    steps(200);
+    const uint64_t epochs_before = lane_epochs();
+    dut->axis_resetn = 0;
+    steps(300);
+    dut->axis_resetn = 1;
+    steps(300);
+    //! the round trip is outstanding and cannot be acknowledged: the serial
+    //! clock is stopped, so the counter cannot move. Asserted, not assumed.
+    check.dec("T19 RESET IN FLIGHT: the first round trip is still outstanding "
+              "with the serial clock stopped", lane_epochs(), epochs_before);
+    dut->axis_resetn = 0;
+    steps(300);
+    dut->axis_resetn = 1;
+    //! the counter export's clk_i side is zeroed by rst_n and re-synchronises
+    //! from the serial side, which never saw either reset; the watch is armed
+    //! after that, so its window closes on the REOPENING and not on a
+    //! resynchronising counter
+    steps(400);
+    check.dec("T19 RESET IN FLIGHT: ...and still outstanding after the second "
+              "reset lands inside it", lane_epochs(), epochs_before);
+    arm_the_commit_watch();
+    steps(2 * static_cast<long>(kPduPeriodCycles));
+    tdm_frozen = false;
+    steps(20000);
+    check.dec("T19 RESET IN FLIGHT: the two nested resets reopened the epoch "
+              "EXACTLY once", lane_epochs(), epochs_before + 1);
+    check.that("T19 RESET IN FLIGHT: the crossbar offered the adapter a walk "
+               "while that round trip was outstanding",
+               phys_offers_in_window > 4);
+    check.dec("T19 RESET IN FLIGHT: no frame was committed before that "
+              "reopening", static_cast<uint64_t>(commits_before_reopen), 0);
+    check.dec("T19 RESET IN FLIGHT: and none was admitted into a full CDC "
+              "either", static_cast<uint64_t>(lane_over()), 0);
+    std::printf("  [i]    T19: %ld crossbar offer(s) and %ld commit(s) while "
+                "the round trip was outstanding; epochs %llu -> %llu\n",
+                phys_offers_in_window, commits_before_reopen,
+                static_cast<unsigned long long>(epochs_before),
+                static_cast<unsigned long long>(lane_epochs()));
 }
 
 //! ...and the lane comes back: rebind, remap, and the first nonzero frame is a
@@ -2037,6 +2343,7 @@ void TdmRenderHarness::prove_a_stopped_clock_reset_reopens_one_epoch(
 void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
     // ...and the lane comes back: rebind, remap, and the first nonzero frame
     // is a post-reset injected event.
+    const uint64_t epochs_before = lane_epochs();
     bind_listener_zero();
     route_reset();
     std::vector<std::pair<int, int>> rows;
@@ -2056,6 +2363,10 @@ void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
         decoded.empty() ? -1 : find_the_ordinal(decoded.front());
     check.that("T18 RECOVERY: complete fresh frames decode after the epoch "
                "reopens", recovered >= 0);
+    //! a rebind and a remap are not epoch events - only a bind FALL on a
+    //! stream this lane renders is - so the recovery reopens nothing
+    check.dec("T18 RECOVERY: the rebind and remap counted no further "
+              "reopening", lane_epochs(), epochs_before);
     feed_on = false;
 }
 
@@ -2105,9 +2416,11 @@ void TdmRenderHarness::phase_bind_loss() {
                "boundary", boundary_passed);
     check.dec("T23 BIND LOSS: no frame after the boundary carries a pre-loss "
               "sample in any slot", static_cast<uint64_t>(carried), 0);
-    check.that("T23 BIND LOSS: the epoch closed and was counted on reopening "
-               "or is still closed",
-               lane_epochs() >= epochs_before);
+    //! ONE bind fall, ONE reopening. The serial side reopens as soon as the
+    //! request clears - the audio waits for freshness, the reopening does not
+    //! - so the count is exact by the time this window has run.
+    check.dec("T23 BIND LOSS: the one bind fall reopened the epoch EXACTLY "
+              "once", lane_epochs(), epochs_before + 1);
     check.dec("T23 BIND LOSS: the adapter commit gate is closed while the "
               "epoch is",
               static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__tdmr_commit_en_w),
@@ -2164,13 +2477,46 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
         check.dec("T23 REBIND: every skipped event is still covered by a "
                   "counted skip", static_cast<uint64_t>(g.uncounted_skips), 0);
     }
-    check.that("T28 EPOCHS: the epoch counter advanced across the loss and "
-               "recovery", lane_epochs() > epochs_before);
+    check.dec("T28 EPOCHS: the loss and its recovery counted EXACTLY one "
+              "reopening between them", lane_epochs(), epochs_before + 1);
     std::printf("  [i]    events injected before the loss: %ld; epochs %llu -> "
                 "%llu\n", events_at_loss,
                 static_cast<unsigned long long>(epochs_before),
                 static_cast<unsigned long long>(lane_epochs()));
     feed_on = false;
+    prove_two_bind_falls_in_one_round_trip_count_twice();
+}
+
+//! T25: TWO BIND FALLS INSIDE ONE ROUND TRIP ARE TWO COUNTED REOPENINGS.
+//! The serial clock is held, so the round trip the first fall starts cannot
+//! be acknowledged and everything below happens INSIDE it - which is asserted
+//! from the counter rather than assumed. A producer that raised its request
+//! straight onto the outstanding handshake would have the second fall cleared
+//! by the first one's acknowledgement and count one reopening for two events.
+void TdmRenderHarness::prove_two_bind_falls_in_one_round_trip_count_twice() {
+    const uint64_t epochs_before = lane_epochs();
+    tdm_frozen = true;
+    steps(200);
+    acmp_disconnect_rx(0x2266);                     // the first bind fall
+    steps(2000);
+    check.dec("T25 DOUBLE EVENT: the first fall's round trip is outstanding "
+              "with the serial clock stopped", lane_epochs(), epochs_before);
+    check.dec("T25 DOUBLE EVENT: ...and it closed the adapter's commit gate",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_commit_en_w), 0);
+    run_the_bind_ladder(0, 0, 0x4455, "T25 REBIND");
+    acmp_disconnect_rx(0x2277);                     // the second, inside it
+    steps(2000);
+    check.dec("T25 DOUBLE EVENT: the second bind fall landed inside the same "
+              "round trip", lane_epochs(), epochs_before);
+    tdm_frozen = false;
+    steps(30000);
+    check.dec("T25 DOUBLE EVENT: two bind falls inside one round trip are TWO "
+              "counted reopenings, not one", lane_epochs(), epochs_before + 2);
+    std::printf("  [i]    T25: epochs %llu -> %llu across two bind falls "
+                "inside one round trip\n",
+                static_cast<unsigned long long>(epochs_before),
+                static_cast<unsigned long long>(lane_epochs()));
 }
 
 // ====================================================================== //
@@ -2600,6 +2946,82 @@ void TdmRenderHarness::prove_an_unrelated_stream_loss_leaves_the_lane_running() 
                                     + w.g.pad_failures), 0);
 }
 
+//! M7: THE CORNER BETWEEN THE TWO HALVES. A map write points a lane key at a
+//! stream whose bind fell WHILE THE LANE DID NOT RENDER IT. No epoch is owed
+//! and none is raised - the qualified fall is the only thing that closes one,
+//! and at the fall that stream was not in the lane's set - so the slot is
+//! served by the crossbar's RETAINED per-{stream, channel} latch until that
+//! stream pops again. This arm visits that corner and states the BOUND rather
+//! than assuming it is silence: one constant sample of THAT stream's own
+//! audio, never another stream's, never a torn or moving value, on that slot
+//! alone, and self-clearing at the first pop (which is M4's half, on its own
+//! lane key). The retention is KL_chan_map_render's documented behaviour, one
+//! stage above this lane and shared with every other destination; the lane
+//! neither creates it nor can see it, and docs/CHANNEL_MAP_64.md 3.1 records
+//! it as the bounded case it is.
+void TdmRenderHarness::prove_a_stale_stream_repoint_is_bounded(int slot,
+                                                               int chan) {
+    const uint64_t epochs_before = lane_epochs();
+    const int was = src_of_slot(slot);
+    epoch_watch_reset();
+    check.dec("M7 STALE REPOINT: stream 1 is unbound before the re-point, so "
+              "its bind fall is already behind us",
+              static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__strtbl_en_w & 0x2), 0);
+    check.dec("M7 STALE REPOINT: the stream-0 mapping is removed from the "
+              "lane key",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdRemoveMappings, {{was, slot}}, 0, 0)), 0);
+    check.dec("M7 STALE REPOINT: ...and the key is re-pointed at the stream "
+              "that is no longer delivering",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdAddMappings, {{chan, slot}}, 0, 1)), 0);
+    //! the re-point takes effect at the crossbar's next media tick, so the
+    //! frame straddling it is neither mapping's; the window opens after that
+    //! boundary rather than carrying an ungraded frame inside it (M4's rule)
+    run_fed(10 * kPduPeriodCycles);
+    const Window w = decode_and_grade_a_window(30 * kPduPeriodCycles, "M7");
+    report_a_window(w, "M7 with one lane key on a stream that stopped");
+    check.dec("M7 STALE REPOINT: the re-point raised no epoch, because no "
+               "qualified bind fall happened", lane_epochs(), epochs_before);
+    check.dec("M7 STALE REPOINT: ...and the adapter's commit gate never "
+              "closed", static_cast<uint64_t>(commit_gate_closed_cycles), 0);
+    long moving = 0;
+    long wrong_stream = 0;
+    uint32_t held = 0;
+    bool have_held = false;
+    for (const DecodedFrame& fr : decoded) {
+        const uint32_t v = fr.slot[static_cast<size_t>(slot)] >> 8;
+        if (!have_held) { held = v; have_held = true; }
+        else if (v != held) ++moving;
+        if (v != 0 && (v & 0xFFu) != (0x80u | static_cast<uint32_t>(chan)))
+            ++wrong_stream;
+    }
+    check.dec("M7 STALE REPOINT: the re-pointed slot holds ONE value in every "
+              "decoded frame - a bounded DC re-seed, not moving audio",
+              static_cast<uint64_t>(moving), 0);
+    check.dec("M7 STALE REPOINT: and that value is digital silence or that "
+              "stream's own retained sample, never another stream's",
+              static_cast<uint64_t>(wrong_stream), 0);
+    check.dec("M7 STALE REPOINT: the other seven slots keep grading against "
+              "the stream-0 record",
+              static_cast<uint64_t>(w.g.identity_failures), 0);
+    std::printf("  [i]    M7: lane key %d re-pointed at stream 1 channel %d "
+                "while that stream is down holds %06X in all %zu decoded "
+                "frames (%s)\n", slot, chan, held, decoded.size(),
+                held == 0 ? "digital silence"
+                          : "the crossbar's retained sample of that stream");
+    // restore the stream-0 claim this key had, so the next arm starts where
+    // it expects to
+    check.dec("M7 STALE REPOINT: the key is returned to stream 0",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdRemoveMappings, {{chan, slot}}, 0, 1)), 0);
+    check.dec("M7 STALE REPOINT: ...and its original mapping restored",
+              static_cast<uint64_t>(
+                  map_cmd(kCmdAddMappings, {{was, slot}}, 0, 0)), 0);
+    run_fed(10 * kPduPeriodCycles);
+}
+
 //! ...and the routing that makes half two mean anything: one lane key is
 //! moved to the OTHER stream through the real map command, and that stream's
 //! audio has to appear in that slot at the pins.
@@ -2699,8 +3121,8 @@ void TdmRenderHarness::prove_a_rendered_stream_loss_closes_the_epoch(int slot,
     feed1_on = true;
     next_pdu1_at = axis_cycle + 128;
     run_fed(40 * kPduPeriodCycles);
-    check.that("M5 REOPEN: the epoch reopened and was counted",
-               lane_epochs() > epochs_before);
+    check.dec("M5 REOPEN: the one rendered-stream loss reopened the epoch "
+              "EXACTLY once", lane_epochs(), epochs_before + 1);
     check.dec("M5 REOPEN: the adapter's commit gate is open again",
               static_cast<uint64_t>(
                   dut->rootp->milan_datapath__DOT__tdmr_commit_en_w), 1);
@@ -2877,6 +3299,7 @@ void TdmRenderHarness::phase_multistream() {
                pops_by_stream[1] > 500);
 
     prove_an_unrelated_stream_loss_leaves_the_lane_running();
+    prove_a_stale_stream_repoint_is_bounded(5, 4);
     const int lane1_slot = 7;
     const int lane1_chan = 2;
     prove_the_lane_renders_a_second_stream(lane1_slot, lane1_chan);

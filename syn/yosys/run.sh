@@ -263,6 +263,11 @@ build_inventory() {
     "KL_i2s_playback|$C/cdc_pair_fifo.sv $C/cdc_pulse.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
     "KL_i2s_feed_mux|$R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv"
     "KL_render_setpoint|$R/hdl/ieee1722/aaf/KL_render_setpoint.sv"
+    # #447: the TDM MASTER render serializer. It is in the milan_datapath list
+    # below as well, but that top prices the Arty shape, whose
+    # AUDIO_IF_RENDER_SLOTS_P is 0 and prunes this module away entirely - so
+    # without its own row nothing here would elaborate it at all.
+    "KL_tdm_render_master|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv"
     "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
     "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
     "KL_tone_gen|$R/hdl/ieee1722/aaf/KL_tone_gen.sv"
