@@ -24,7 +24,11 @@ NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 # so these hints describe the retired tool until #286's measurement harness
 # re-takes them on the pinned one under its own comparability rules.
 # Unlisted tops are small and receive one unit. These values are scheduling
-# hints, never pass criteria.
+# hints, never pass criteria. The three gPTP egress tops added by #360 -
+# KL_gptp_txticket, KL_gptp_txret and KL_gptp_gmii_launch, all named in
+# syn/yosys/run.sh, which is the inventory this script shards - are
+# deliberately unlisted: no measurement from the run above covers them, and a
+# number invented here would read like one that was taken.
 WEIGHTS: dict[str, int] = {
     "milan_datapath": 1550,
     "KL_pp_shadow": 465,
