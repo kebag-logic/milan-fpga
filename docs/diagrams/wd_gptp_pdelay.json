@@ -1,33 +1,90 @@
 {
-  "config": {"hscale": 1},
-  "head": {"text": "Parent pdelay timestamp ownership (unstalled 64-bit path)"},
+  "config": {
+    "hscale": 1
+  },
+  "head": {
+    "text": "Parent pdelay timestamp ownership (fabric cycles, unstalled 64-bit path)"
+  },
   "signal": [
-    ["Egress request",
-      {"name": "accepted MAC SOF", "wave": "010......................", "node": ".a......................."},
-      {"name": "TX PHC capture", "wave": "010......................", "node": ".b......................."},
-      {"name": "accepted beat 5", "wave": "0.....10.................", "node": "......c.................."},
-      {"name": "returned tuple", "wave": "x......=..x..............", "data": ["{t1, seq, type=2}"], "node": ".......d................."},
-      {"name": "accepted MAC EOF", "wave": "0........10..............", "node": ".........e..............."}
+    [
+      "Egress",
+      {
+        "name": "accepted MAC EOF",
+        "wave": "010.................................................",
+        "node": ".a.................................................."
+      },
+      {
+        "name": "reference octet launched",
+        "wave": "0....10.............................................",
+        "node": ".....b.............................................."
+      },
+      {
+        "name": "tag octets observed",
+        "wave": "0......................10...........................",
+        "node": ".......................c............................"
+      },
+      {
+        "name": "launch record accepted",
+        "wave": "0........................10.........................",
+        "node": ".........................d.........................."
+      },
+      {
+        "name": "returned tuple",
+        "wave": "x........................=...x......................",
+        "data": [
+          "{t1, seq, type=2}"
+        ],
+        "node": ".........................e.........................."
+      }
     ],
     {},
-    ["Ingress response",
-      {"name": "accepted tap SOF", "wave": "0..........10............", "node": "...........f............."},
-      {"name": "RX PHC capture", "wave": "0..........10............", "node": "...........g............."},
-      {"name": "accepted tap EOF", "wave": "0..................10....", "node": "...................h....."},
-      {"name": "frame FIFO commit", "wave": "0...................10...", "node": "....................i...."},
-      {"name": "engine RX SOF", "wave": "0......................10", "node": ".......................j."},
-      {"name": "paired ingress time", "wave": "x......................=.", "data": ["t4"]}
+    [
+      "Ingress",
+      {
+        "name": "accepted tap SOF",
+        "wave": "0...............................10..................",
+        "node": "................................f..................."
+      },
+      {
+        "name": "RX PHC capture",
+        "wave": "0...............................10..................",
+        "node": "................................g..................."
+      },
+      {
+        "name": "accepted tap EOF",
+        "wave": "0.......................................10..........",
+        "node": "........................................h..........."
+      },
+      {
+        "name": "frame FIFO commit",
+        "wave": "0........................................10.........",
+        "node": ".........................................i.........."
+      },
+      {
+        "name": "engine RX SOF",
+        "wave": "0...........................................10......",
+        "node": "............................................j......."
+      },
+      {
+        "name": "paired ingress time",
+        "wave": "x............................................=...x..",
+        "data": [
+          "t4"
+        ]
+      }
     ]
   ],
   "edge": [
-    "a~>b capture t1",
-    "b~>d preserve t1",
-    "c~>d return tags",
-    "d~>e return precedes EOF",
+    "a~>b allocate, then queue",
+    "b~>c 45 transmit cycles",
+    "c~>d cross into the fabric",
+    "d~>e resolve the head",
     "f~>g capture t4",
     "g~>h preserve through nine beats",
     "h~>i push after EOF commit",
     "i~>j pop by position"
   ],
-  "foot": {"text": "68-byte Pdelay_Resp: nine accepted 64-bit beats (SOF..EOF); meanLinkDelay=((t4-t1)-(t3-t2))/2; sequence plus message type selects TX claims"}
+  "foot": {
+    "text": "t1 = PHC at the accepted record - ((45 + 2) x 8 ns + 2 x 20 ns + 10 ns) = 426 ns; the queue between EOF and launch is what that removes. 68-byte Pdelay_Resp: nine accepted 64-bit beats (SOF..EOF); meanLinkDelay=((t4-t1)-(t3-t2))/2; sequence plus message type selects TX claims"
+  }
 }

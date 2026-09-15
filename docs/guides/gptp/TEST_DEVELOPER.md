@@ -38,8 +38,9 @@ Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/382e
 | Donor `gaskets` | Bench MII gasket loopback and FIFO wedge |
 | Parent `ptp` | PHC accumulator arithmetic |
 | Parent `ptp_ts` | Stand-alone record stamper, absent from the product |
-| Parent `gptp_shadow` | Transport, pairing, publication |
+| Parent `gptp_shadow` | Transport, pairing, publication, ledger laws |
 | Parent `gptp_plane` | Closed-loop PHC steering |
+| Parent `gptp_txts` | Egress launch time over the converted product MAC |
 | Parent `clkvalid` | Discontinuity and holdover |
 | Parent `milan_dp` | Product wiring and public consumers |
 | Parent `tsn_fuzz` | Independent wire-model campaigns |
@@ -58,6 +59,11 @@ Finish with complete donor and parent gates.
 - Include malformed and truncated inputs.
 - Include backpressure and timeouts.
 - Include reset during activity.
+- Convert product software rather than modelling it.
+- Then prove the conversion behaves like its source.
+- `sw/litex/test_gptp_tx_timestamp.py` is that proof.
+- Record the defects a suite cannot see.
+- `tb/verilator/gptp_shadow/mutants.py` carries such a record.
 - Withhold and reorder timestamp returns.
 - Plant one deliberate mutation.
 - Confirm that mutation fails.

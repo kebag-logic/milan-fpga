@@ -8,12 +8,34 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
 - **[Release 0x0002_0058 - slip counters readable](#release-0x0002_0058---slip-counters-readable)** -- Two RO words, prefill retired.
 - **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** -- CRF selection steers the grids.
 - **[Release 0x0002_0056 — ownerless gPTP verification form](#release-0x0002_0056--ownerless-gptp-verification-form)** -- Verification only.
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - gPTP egress launch time
+
+- The egress timestamp was the first accepted MAC-boundary beat.
+- Two crossings and a store-and-forward buffer follow that beat.
+- That queue entered t1 and biased the peer delay (#360).
+- t1 is now the frame's launch.
+- It is observed one register stage before the pads.
+- `KL_gptp_gmii_launch` reports one ordered record per frame.
+- `KL_gptp_txticket` allocates one entry per admitted frame.
+- `KL_gptp_txret` owns the ledger and the correction.
+- It also owns the fence and the recovery demand.
+- Identity is position; generation and tags cross-check it.
+- The correction is 426 ns of register stages.
+- No term of it is a queue allowance.
+- An unreconstructable launch is a counted loss.
+- `GPTP_DROPE[31:16]` publishes that count.
+- The word's low half is unchanged.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/gptp_txts` closes the loop over the converted MAC.
+- `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
 
 ## Release 0x0002_0058 - slip counters readable
 

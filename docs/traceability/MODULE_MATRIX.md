@@ -121,7 +121,9 @@ _gPTP timestamping / pdelay / sync_
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `milan_dp` · `tsn_fuzz` | 8.4.3 |
-| ✅ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | `gptp_shadow` · `milan_dp` · `tsn_fuzz` | 8.4.3 |
+| ✅ `KL_gptp_txticket` | `ieee8021as/gptp_plane/KL_gptp_txticket.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` | 8.4.3 |
+| ✅ `KL_gptp_txret` | `ieee8021as/gptp_plane/KL_gptp_txret.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` | 8.4.3 |
+| ✅ `KL_gptp_gmii_launch` | `ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv` | `gptp_shadow` · `gptp_txts` | 8.4.3 |
 | ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `milan_dp` · `tsn_fuzz` | -- |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `milan_dp` · `ptp_sync` · `ptp_ts` | -- |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `ptp_ts` | -- |

@@ -272,11 +272,14 @@ Current TX path:
 ```text
 Milan 50 MHz                         macsys 100 MHz        maceth_tx 125 MHz
 TX arbitration
-  -> AXIS first-beat stamp
+  -> ledger entry at the accepted EOF beat
   -> mac_tx_cdc -------------------> tx_sf PacketFIFO
                                       -> LiteEth TX CDC -> width/framing
                                                           -> GMII registers
                                                           -> PHY -> wire
+                                                             |
+                                       launch record <-------+ KL_gptp_gmii_launch
+                                       (2 fabric cycles)       observes phy.sink
 ```
 
 Current RX path:
@@ -287,16 +290,30 @@ Wire -> PHY -> GMII RX 125 MHz -> LiteEth framing/width conversion
   -> Milan 50 MHz -> RX filter -> fabric gPTP first-beat stamp
 ```
 
-- TX captures PHC time at the first accepted AXIS beat.
+- TX allocates a ledger entry at the accepted EOF beat.
+- TX times nothing at that beat.
+- TX time is the frame's own launch.
+- `KL_gptp_gmii_launch` observes it at `phy.sink`, in `maceth_tx`.
+- One ordered record per frame is reported back.
+- The plane reconstructs `PHC at the record - 426 ns`.
+- That is `(45 + 2) x 8 ns + 2 x 20 ns + 10 ns`.
 - RX captures PHC time at the first accepted tap beat.
-- Neither timestamp is a PHY-pad or wire-SFD timestamp.
+- Neither timestamp is a PHY-pad timestamp.
+- The TX one is one register stage before the pad.
+- That stage is measured, not assumed.
 - TX `tx_sf` is a 512-word, eight-frame store-and-forward buffer.
 - Each payload word carries eight bytes in this configuration.
 - Its wait depends on frame completion and queued traffic.
-- A fixed offset cannot remove variable queueing latency.
+- That wait is now outside the timestamp.
+- The queue sits between the entry and the launch.
+- No fixed offset stands in for it.
+- The 426 ns above is a sum of register stages.
 
-Issue [#360](https://github.com/kebag-logic/milan-fpga/issues/360)
-tracks the TX timestamp reference-plane defect.
+Issue [#360](https://github.com/kebag-logic/milan-fpga/issues/360) repaired the
+TX reference plane.
+
+`tb/verilator/gptp_txts` grades every frame against a pad oracle.
+
 Peer delay alone cannot identify an external inline-device fault.
 
 The retained latency CSRs do not repair this path.
@@ -358,9 +375,7 @@ The [testing guide](../testing/TESTING.md) defines the required evidence.
 
 Recorded, not repaired; each has an owner elsewhere.
 
-- **FR-CLK-02 names a clock the design does not use.** The [requirements ledger](../reference/FR_NFR.md) requires a fixed 125 MHz PHC clock. It cites `REQ-PTP-07`, which covers atomic state publication. The reference SoC clocks the PHC from `milan` at 50 MHz. The requirement text and its cross-reference are the gap.
-- **FR-CLK-05 requires GMII SFD timestamps.** The same ledger marks it MET. Neither stamp here is a pad or wire-SFD stamp. [#360](https://github.com/kebag-logic/milan-fpga/issues/360) owns the reconciliation.
-- **TX timestamps** are taken at the first accepted AXIS beat. That beat precedes a store-and-forward buffer and two crossings. [#360](https://github.com/kebag-logic/milan-fpga/issues/360) owns the reference plane.
+- **The PHC's physical error budget is not measured here.** [FR-CLK-02](../reference/FR_NFR.md) requires the declared configuration frequency. This board declares 50 MHz, a 20 ns tick. The row also requires a documented, verified error budget. The digital half is stated above and in [GPTP_PLANE.md](../design/GPTP_PLANE.md). The physical half is a qualification measurement. This repository does not hold it.
 - **Source comments carry the 100 MHz guard figures.** They state 21 ms settling and 41 us detection. They sit in `KL_link_guard.sv`, `milan_datapath.sv` and `milan_soc.py`. This configuration runs the guard at 50 MHz. [#374](https://github.com/kebag-logic/milan-fpga/issues/374) owns the comment text.
 - **Audio-domain resets are not uniform.** Some audio-clocked processes take `axis_resetn` directly. Others synchronize it locally. MMCM-unlock resets cover the Migen domains, not every RTL register.
 - **CPU memory-port crossing evidence is netlist evidence.** LiteX's `clock_domain` label proved nothing; the asynchronous FIFO count did. Any CPU wrapper or bus change needs that measurement again.

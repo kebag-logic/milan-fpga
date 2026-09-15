@@ -393,6 +393,9 @@ verdicts and for check counts.
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
 | [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | — |
+| [`tb/verilator/gptp_plane`](../../tb/verilator/gptp_plane) | the plane's servo closed over the REAL `timestamp_counter`: an engine rate write becomes a counter addend and a phase write becomes a step |
+| [`tb/verilator/gptp_shadow`](../../tb/verilator/gptp_shadow) | the plane slice: RX tap, TX lane, pairing, publication, and since #360 the ledger's own laws - a record that is not this frame's, the seal that waits for the observer's echo, an aged head that is not retired, and the recovery demand that only a completed episode discharges. `make` runs the suite then `mutants.py`, which also RECORDS the defects this slice cannot see and where each is carried instead |
+| [`tb/verilator/gptp_txts`](../../tb/verilator/gptp_txts) | **the gPTP egress timestamp closed loop** (#360): the donor engine, the plane, the ledger, the PHC, the launch observer, the link guard and the SHIPPING MAC TRANSMIT CHAIN, converted from `sw/litex/milan_soc.py` by `sw/litex/gen_mac_tx_model.py`. It grades the time the plane returns against an independent oracle that counts octets at the PADS, at the product's 125:50 clock ratio with a swept phase, and measures the retired capture in the same run. `make` runs the suite then `mutants.py`; a stale converted chain is a red before anything is compiled |
 | [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
 | [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
@@ -428,7 +431,8 @@ above rather than smoothed over.
 ## 2. LiteX integration checks - `sw/litex/test_*.py`
 
 Self-checking behavioral checks cover the protocol processor's two main-memory
-bridges and the boot/freeze path. One aggregate owns all of them (#297):
+bridges, the boot/freeze path, and the MAC transmit chain the gPTP egress
+closed loop is built on. One aggregate owns all of them (#297):
 
 ```sh
 scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation

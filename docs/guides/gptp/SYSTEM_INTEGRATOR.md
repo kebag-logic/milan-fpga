@@ -40,15 +40,23 @@ Reset stays synchronous and active-low.
 |---|---|
 | RX tap | Present accepted MAC receive beats |
 | TX leg | Preserve valid-ready backpressure |
-| TX stamper | Observe actual MAC-boundary acceptance |
+| Launch records | Report every launched frame, in order |
+| Seal | Answer it with the observer's echo |
+| Recovery | Give the plane the guard's episode evidence |
 | PHC | Apply rate levels and phase pulses |
 | Publication | Consume only committed generations |
 
 Never drive receive readiness from this observer.
 
-Return both timestamp tag fields.
+The launch observer must watch the MAC's own transmit stream.
 
-Sequence identifiers alone remain ambiguous.
+An earlier seam would time the queue again.
+
+Give it the MAC's own transmit reset.
+
+A build without a MAC ties the record face off.
+
+That plane then delivers no timestamp and counts the loss.
 
 Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/382ebaf77afa2a22fbdcf71d89f413840430d4e5/docs/INTEGRATION.md).
 
@@ -63,6 +71,7 @@ Sample public state after commit.
 | `GET_AVB_INFO` | Coherent selected-owner summary |
 | `GET_AS_PATH` | Coherent selected PathTrace |
 | Drop counters | Tap, parser, and queue refusals |
+| `GPTP_DROPE[31:16]` | Frames whose launch was not reconstructed |
 
 Zero PathTrace count means no published trace.
 
@@ -75,6 +84,7 @@ Read [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md) for transition beh
 - Run the imported engine suite.
 - Run `gptp_shadow` for transport wiring.
 - Run `gptp_plane` for PHC steering.
+- Run `gptp_txts` for the egress launch time.
 - Run `milan_dp` for product consumers.
 - Stall transmit traffic deliberately.
 - Reset during active exchanges.

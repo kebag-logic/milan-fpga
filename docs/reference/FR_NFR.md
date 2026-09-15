@@ -214,10 +214,10 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-CLK-01 | The entity MUST run 802.1AS gPTP as a time-aware endpoint (Class A), sync to the grandmaster, and report GM changes. | M | T |
-| FR-CLK-02 | The PHC MUST be disciplined from a fixed 125 MHz free-running clock (REQ-PTP-07), independent of link speed. | M | A,T |
+| FR-CLK-02 | The PHC MUST use a fixed, free-running clock at the frequency declared by the product configuration, independent of link speed. Its increment and fractional adjustment MUST implement REQ-PTP-01 at that frequency. The timestamp resolution and error budget MUST be documented and verified against the existing synchronization requirement. | M | A,T |
 | FR-CLK-03 | The media clock MUST be selectable (CLOCK_DOMAIN → CLOCK_SOURCE) among the sources the media plane follows, and only those: INTERNAL and the CRF sink's INPUT_STREAM source. No CLOCK_SOURCE is advertised on an AAF listener, and an index the CLOCK_DOMAIN does not list MUST be refused with `BAD_ARGUMENTS` (decision recorded on #389). | M | T |
 | FR-CLK-04 | As a media-clock talker the entity MUST source a CRF stream; as a follower it MUST recover the media clock from CRF. Stream-derived recovery from an AAF input stream is neither provided nor advertised (#389). | M | T |
-| FR-CLK-05 | HW ingress/egress timestamps MUST be captured at the GMII SFD and delivered directly to the fabric gPTP plane and diagnostic counters. | M | T |
+| FR-CLK-05 | Hardware ingress and egress timestamps MUST represent each frame's event at the timestamp reference point required by the selected protocol edition. They MUST be delivered with correct frame identity to the fabric gPTP plane and diagnostics. Direct capture or reconstruction from a per-frame hardware observation is permitted only with an independently verified error bound. The digital observation point, clock-domain transfer error and measured physical correction MUST be documented separately; variable frame queueing MUST NOT be replaced by a guessed constant correction. | M | T |
 
 ### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 Section 7; Milan Section 6)*
 | ID | Requirement | Pri | Ver |

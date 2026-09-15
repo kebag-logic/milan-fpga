@@ -99,9 +99,10 @@ flowchart LR
 > measured `D2` maximum to a shaper slot; that attribution cannot be right for
 > this lane, whatever the measurement itself shows.
 
-The gPTP egress timestamp is taken independently of all of this, at the MAC
-boundary by `KL_gptp_txstamp` (armed by the plane's own lane) — which is why
-merge order does not perturb gPTP accuracy
+The gPTP egress timestamp is taken independently of all of this: the frame's
+LAUNCH is observed at the MAC's own transmit stream by `KL_gptp_gmii_launch`
+and reconstructed by `KL_gptp_txret` (#360). Neither merge order nor queue
+occupancy perturbs gPTP accuracy
 ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
 
 ## 2. Egress: where the classifier/queue/shaper chain went

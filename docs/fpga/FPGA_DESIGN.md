@@ -109,7 +109,8 @@ TX: fabric sources (AAF talkers ► crf_dp_mux ◄ CRF talker; KL_pp_shadow + KL
     ► ctl_tx_mux ► ctl_ifg ► gptp_ctl_mux ◄ gPTP plane) ──► adp_tx_mux ──► MAC
     (no classifier/queue/shaper chain and no ptp_ts_top TX stamper since
     0x0002_0056: their only source was the transmit path that #259 removed;
-    KL_gptp_txstamp watches the MAC boundary for the plane's own frames)
+    KL_gptp_gmii_launch observes the MAC's own transmit stream and reports
+    every launched gPTP frame back to the plane's ledger)
 RX: MAC ──► rx_axis_from_mac ─┬─► rx_mac_filter(TCAM) ───► KL_pp_shadow (a pure
                               │      monitor of the post-filter stream: classify
                               │      first, control frames only, then 1 B/clk into

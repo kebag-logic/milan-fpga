@@ -50,8 +50,10 @@ flowchart LR
   and [Section 0 of `fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md#0-the-one-thing-to-know-first). Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
   why the envelope (min/max) matters more than a single sample here.
-* The gPTP plane's `KL_gptp_txstamp` stamps its own frames at the MAC boundary
-  independently (the `ptp_ts_top` TX record stamper is no longer instantiated);
+* The gPTP plane times its own frames independently of this boundary: since
+  #360 it takes their LAUNCH from `KL_gptp_gmii_launch` at the MAC's own
+  transmit stream (the `ptp_ts_top` TX record stamper is no longer
+  instantiated);
   `TX_EPOCH` records the gPTP ns at the CAP edge so the fabric delta and an
   on-wire capture can be reconciled.
 
