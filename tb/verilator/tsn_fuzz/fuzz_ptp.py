@@ -5,7 +5,8 @@
 gPTP / 802.1AS field campaign against the fabric plane slice.
 
 The DUT is the WHOLE slice the datapath splice instantiates — KL_gptp_shadow
-(tap + engine + lane), the real timestamp_counter it steers, KL_gptp_txstamp
+(tap + engine + lane + egress ledger), the real timestamp_counter it steers,
+KL_gptp_gmii_launch
 as the MAC boundary — at the bench's 2 MHz scaling. gPTP is a timer-driven
 plane, so the campaign grades BOTH directions:
 
@@ -365,10 +366,12 @@ def main() -> int:
 
     rep = cosim.Report(
         "gPTP/802.1AS field campaign (tsn-gen driven)",
-        dut="KL_gptp_shadow + timestamp_counter + KL_gptp_txstamp "
+        dut="KL_gptp_shadow + timestamp_counter + KL_gptp_gmii_launch "
             "(the fabric slice, gptp-processor engine)",
         rtl_files=["hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
-                   "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv",
+                   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+                   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+                   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
                    "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
                    "gptp-processor/hdl/top/KL_gptp_engine.sv",
                    "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",

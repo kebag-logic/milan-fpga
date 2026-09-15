@@ -7756,15 +7756,21 @@ def test_baremetal_profile_contract() -> None:
                 "gptp_step_we_w": 5,
                 "gptp_step_w": 4,
                 #: the ptp_sync -> ts_counter crossing nets (915cbcc3):
-                #: declaration plus the two instance ports, nothing else.
-                "phc_enable_ts_w": 3,
-                "phc_incr_ts_w": 3,
-                "phc_adj_ts_w": 3,
+                #: declaration plus the two instance ports. Five of them
+                #: gained ONE more reference in #360 - the gPTP plane's
+                #: egress reconstruction reads the counter's own effective
+                #: enable, increment, addend, settime and adjtime, because
+                #: those are the only signals that say what the accumulator
+                #: actually did. They are READS: the plane drives none of
+                #: them, and this census is what keeps it that way.
+                "phc_enable_ts_w": 4,
+                "phc_incr_ts_w": 4,
+                "phc_adj_ts_w": 4,
                 "phc_tod_wr_ts_w": 3,
                 "phc_offset_ts_w": 3,
                 "phc_tod_snap_ts_w": 3,
-                "phc_load_ts_w": 3,
-                "phc_adjust_ts_w": 3,
+                "phc_load_ts_w": 4,
+                "phc_adjust_ts_w": 4,
                 "phc_snapshot_ts_w": 3,
                 "phc_tod_snap_valid_ts_w": 3,
             }, phc_net_reason)
@@ -7969,9 +7975,11 @@ def test_baremetal_profile_contract() -> None:
         for port, value in (
                 ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
                 #: 915cbcc3: the plane's ingress tap moved from the departed
-                #: post-filter hop to the shared fabric tap; the TX
-                #: timestamp channel gained its message-type rail
-                #: (txts_type_i/gts_type_w) in d6d2195c.
+                #: post-filter hop to the shared fabric tap. #360 replaced
+                #: the boundary stamper's txts_* channel with the launch
+                #: RECORD face: the observer lives beside the MAC in the
+                #: SoC, so the datapath's job is to carry its records in
+                #: and its seal out, unconditionally.
                 ("rx_tdata_i", "rx_axis_fabric.tdata"),
                 ("rx_tkeep_i", "rx_axis_fabric.tkeep"),
                 ("rx_tvalid_i", "rx_axis_fabric.tvalid"),
@@ -7981,11 +7989,17 @@ def test_baremetal_profile_contract() -> None:
                 ("phc_adj_o", "gptp_adj_w"),
                 ("phc_step_we_o", "gptp_step_we_w"),
                 ("phc_step_o", "gptp_step_w"),
-                ("txts_valid_i", "gts_valid_w"),
-                ("txts_ns_i", "gts_ns_w"),
-                ("txts_seq_i", "gts_seq_w"),
-                ("txts_type_i", "gts_type_w"),
-                ("tx_sent_o", "gtx_sent_w")):
+                ("rec_valid_i", "i_gptp_txrec_valid"),
+                ("rec_kind_i", "i_gptp_txrec_kind"),
+                ("rec_oidx_i", "i_gptp_txrec_oidx"),
+                ("rec_gen_i", "i_gptp_txrec_gen"),
+                ("rec_type_i", "i_gptp_txrec_type"),
+                ("rec_seq_i", "i_gptp_txrec_seq"),
+                ("rec_delta_i", "i_gptp_txrec_delta"),
+                ("rec_abort_i", "i_gptp_txrec_abort"),
+                ("seal_req_o", "o_gptp_txseal_req"),
+                ("seal_gen_o", "o_gptp_txseal_gen"),
+                ("seal_ack_i", "i_gptp_txseal_ack")):
             direct_port(
                 shadow_ports, port, value,
                 "fabric gPTP RX and control inputs must observe the live "
@@ -8022,25 +8036,49 @@ def test_baremetal_profile_contract() -> None:
                 "fabric gPTP TX must traverse gptp_ctl_mux directly, "
                 "independent of AEM, ADP and protocol-processor gates")
 
-        txstamp_reason = (
-            "fabric gPTP TX timestamp feedback must remain direct and "
-            "independent of AEM, ADP and protocol-processor gates")
-        txstamp_ports = instance_ports(
-            gptp_plane.group("body"), "KL_gptp_txstamp", "u_gptp_txstamp",
-            txstamp_reason)
+        #: #360 RECOVERY CONTROL. The plane may only resolve the entries it
+        #: fenced off once a recovery episode it asked for has actually been
+        #: accepted and sequenced to completion. That verdict is the guard's
+        #: own, published on three dedicated signals; the two reset LEVELS
+        #: cannot give it, because `reinit_o` also carries the firmware's
+        #: manual hand and a disable drops both outputs at once without
+        #: completing anything. A build that fed the plane the levels alone,
+        #: or tied the episode evidence off, would release timestamps whose
+        #: frames were never destroyed - so the wiring is a gate, not a
+        #: convention.
+        recov_reason = (
+            "fabric gPTP recovery control must observe the link guard's own "
+            "episode evidence and join its existing manual trigger")
         for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("tx_tdata_i", "tx_axis_to_mac.tdata"),
-                ("tx_tvalid_i", "tx_axis_to_mac.tvalid"),
-                ("tx_tready_i", "tx_axis_to_mac.tready"),
-                ("tx_tlast_i", "tx_axis_to_mac.tlast"),
-                ("phc_ns_i", "ptp_now_w"),
-                ("armed_i", "gtx_sent_w"),
-                ("ts_valid_o", "gts_valid_w"),
-                ("ts_ns_o", "gts_ns_w"),
-                ("ts_seq_o", "gts_seq_w"),
-                ("ts_type_o", "gts_type_w")):
-            direct_port(txstamp_ports, port, value, txstamp_reason)
+                ("mac_reinit_i", "linkg_reinit_w"),
+                ("mac_eth_rst_i", "linkg_eth_rst_w"),
+                ("epi_start_i", "linkg_epi_start_w"),
+                ("epi_done_i", "linkg_epi_done_w"),
+                ("epi_busy_i", "linkg_epi_busy_w"),
+                ("epi_dis_i", "cfg_linkg_dis"),
+                ("recov_req_o", "gptp_recov_req_w")):
+            direct_port(shadow_ports, port, value, recov_reason)
+        #: the guard takes no parameter override, so its instance is matched
+        #: on its own shape rather than through the parameterised helper
+        guard_match = list(re.finditer(
+            r"\bKL_link_guard\s+link_guard\s*\((?P<ports>.*?)\)\s*;",
+            datapath, re.DOTALL))
+        assert len(guard_match) == 1, \
+            f"{recov_reason}: expected exactly one KL_link_guard instance"
+        assert_direct_scope(datapath, guard_match[0].start(), recov_reason)
+        guard_ports = guard_match[0].group("ports")
+        for port, value in (
+                ("epi_start_o", "linkg_epi_start_w"),
+                ("epi_done_o", "linkg_epi_done_w"),
+                ("epi_busy_o", "linkg_epi_busy_w")):
+            direct_port(guard_ports, port, value, recov_reason)
+        #: ONE trigger, two requesters. The plane's request joins the
+        #: firmware's LINK_CTRL[1] on the guard's existing manual input; no
+        #: reset source, net or topology is added. A build that gave the
+        #: plane its own reset path, or dropped it from this OR, is refused.
+        direct_port(
+            guard_ports, "man_reinit_i", "cfg_mac_reinit | gptp_recov_req_w",
+            recov_reason)
 
         boundary_ports = instance_ports(
             datapath, "adp_tx_arbiter", "adp_tx_mux",

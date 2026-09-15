@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // tsn-gen <-> Verilator co-simulation server for the gPTP fabric slice
-// (KL_gptp_shadow + the real timestamp_counter + KL_gptp_txstamp, wired by
+// (KL_gptp_shadow + the real timestamp_counter + KL_gptp_gmii_launch on the
+// wrapper's framed octet stream, wired by
 // the gptp_shadow TB's wrapper — the same slice the datapath splice
 // instantiates, clocked at the bench's 2 MHz scaling).
 //
@@ -128,7 +129,13 @@ class GptpCosimServer {
     void tick() {
         dut->clk_i = 0; dut->eval();
         dut->clk_i = 1; dut->eval();
-        if (dut->dbg_txts_v_o) { last_txts_seq = dut->dbg_txts_seq_o; txts_cnt++; }
+        //! #360: the plane's egress result face, one accepted tuple per
+        //! admitted frame. The stamper this used to read is gone; the
+        //! ledger's delivery is the observable the model grades.
+        if (dut->dbg_eng_txts_v_o) {
+            last_txts_seq = dut->dbg_eng_txts_seq_o;
+            txts_cnt++;
+        }
         if (dut->tx_tvalid_o && dut->tx_tready_i) {
             if (tx_first) { cur.clear(); tx_sof_phc.push_back(phc()); }
             for (int i = 0; i < 8; i++)
@@ -220,6 +227,9 @@ class GptpCosimServer {
         dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
         dut->rx_tkeep_i = 0;  dut->rx_tready_i = 1;
         dut->tx_tready_i = 1;
+        dut->rechold_en_i = 0; dut->rechold_type_i = 0;
+        dut->rechold_release_i = 0;
+        dut->mac_reinit_i = 0; dut->mac_eth_rst_i = 0; dut->obs_rst_i = 0;
         for (int i = 0; i < kResetCycles; i++) tick();
         dut->rst_n = 1;
         for (int i = 0; i < kResetCycles; i++) tick();

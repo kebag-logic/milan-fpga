@@ -373,7 +373,7 @@ Recorded, not repaired; each has an owner elsewhere.
 | [AX7101 platform](../../sw/litex/platforms/alinx_ax7101.py) | Board clock, GMII pads, TDM pins, board input constraint |
 | [Example configuration](../../configs/endstation_ax7101_1x1_tdm8.yaml) | System/Milan clocks, PHY choice, audio geometry |
 | [Datapath](../../hdl/milan/milan_datapath.sv) | Clock/reset ports, PHC wiring, gPTP taps, selected audio modules |
-| [gPTP TX stamp](../../hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv) | First-accepted-beat timestamp capture and frame association |
+| [gPTP TX launch observer](../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv) | Per-frame launch observation at the MAC's transmit stream, one register stage before the GMII pads, and the record crossing back into the plane |
 | [gPTP wrapper](../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv) | RX timestamp capture and fabric engine clock |
 | [Audio actuator](../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv) | Audio measurement, DRP, phase-command crossing, local resets |
 | [TDM master](../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv) | Clock-enable serialization and sample-pair FIFO |

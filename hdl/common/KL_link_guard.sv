@@ -99,7 +99,23 @@ module KL_link_guard #(
   output wire        eth_rst_o,      //! sequenced eth-side CDC reset request
                                      //! (released mid-settle, before reinit_o)
   output wire        link_est_o,     //! hardware link estimate (rx alive)
-  output wire [31:0] stat_o          //! LINKG_STAT readback
+  output wire [31:0] stat_o,         //! LINKG_STAT readback
+
+  //! EPISODE EVIDENCE, for a consumer that has to know whether a recovery
+  //! it asked for actually happened (issue #360). The two reset LEVELS
+  //! cannot answer that: `reinit_o` also carries the firmware's manual
+  //! level, and disabling the guard drops both outputs at once, so a
+  //! consumer watching levels alone cannot tell an aborted episode from a
+  //! completed one and will release state that was never destroyed.
+  output logic       epi_start_o,    //! 1 cycle: a NEW episode begins here,
+                                     //! with both resets asserted together
+  output logic       epi_done_o,     //! 1 cycle: the episode completed its
+                                     //! full sequence - hold, both eth
+                                     //! clocks clean for SETTLE_CYC_C, eth
+                                     //! released mid-settle and then sys.
+                                     //! Never asserted for a disable, a
+                                     //! reset or a re-death fallback.
+  output wire        epi_busy_o      //! an episode is running
 );
 
   // ------------------------------------------------------------------ //
@@ -212,14 +228,23 @@ module KL_link_guard #(
       guard_rst_r  <= 1'b0;
       eth_rst_r    <= 1'b0;
       bounced_r    <= 1'b0;
+      epi_start_o  <= 1'b0;
+      epi_done_o   <= 1'b0;
     end
     else if (dis_i) begin
       state_r     <= RUN_S;
       guard_rst_r <= 1'b0;
       eth_rst_r   <= 1'b0;
       bounced_r   <= 1'b0;
+      //! A DISABLE IS NOT A COMPLETION. Both outputs go low here without
+      //! the sequence ever finishing, which looks exactly like a completed
+      //! episode to anyone watching the levels. No completion is published.
+      epi_start_o <= 1'b0;
+      epi_done_o  <= 1'b0;
     end
     else begin
+      epi_start_o <= 1'b0;
+      epi_done_o  <= 1'b0;
       unique case (state_r)
         RUN_S : begin
           guard_rst_r <= 1'b0;
@@ -230,6 +255,7 @@ module KL_link_guard #(
             state_r      <= HOLD_S;
             guard_rst_r  <= 1'b1;
             eth_rst_r    <= 1'b1;
+            epi_start_o  <= 1'b1;
             //! count only genuine physical link bounces (clock death), not
             //! software-requested reinits, so LINKG_STAT.bounce_cnt stays a
             //! true cable-event counter
@@ -270,6 +296,12 @@ module KL_link_guard #(
             state_r     <= RUN_S;
             guard_rst_r <= 1'b0;
             bounced_r   <= 1'b0;   //! episode done - re-arm bounce counting
+            //! THE ONLY PATH THAT PUBLISHES COMPLETION: the eth side has
+            //! had at least SETTLE_CYC_C/2 clean clocked reset cycles and
+            //! was released first, the sys side was held for the rest, and
+            //! both clocks stayed alive throughout. A re-death above takes
+            //! the FSM back to HOLD_S without passing here.
+            epi_done_o  <= 1'b1;
           end
           else begin
             settle_r <= settle_r + 1'b1;
@@ -286,6 +318,7 @@ module KL_link_guard #(
   assign reinit_o   = guard_rst_r || man_reinit_i;
   assign eth_rst_o  = eth_rst_r;
   assign link_est_o = rx_alive_r;
+  assign epi_busy_o = (state_r != RUN_S);
 
   assign stat_o = {bounce_cnt_r,                       // [31:16]
                    6'b0,                               // [15:10]

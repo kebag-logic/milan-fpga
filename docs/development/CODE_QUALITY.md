@@ -667,7 +667,7 @@ Every raw EtherType site outside the package, from
 | `hdl/milan/KL_pp_shadow.sv`, `ET_1722_C` | `16'h22F0` | `ETH_TYPE_AVTP` | no |
 | `hdl/milan/KL_pp_shadow.sv`, `ET_MSRP_C` | `16'h22EA` | `ETH_TYPE_MSRP` | no |
 | `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv`, `ET_GPTP_C` | `16'h88F7` | `ETH_TYPE_PTP` | no |
-| `hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv`, `ET_GPTP_C` | `16'h88F7` | `ETH_TYPE_PTP` | no |
+| `hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv`, `ET_GPTP_C` | `16'h88F7` | `ETH_TYPE_PTP` | no |
 | `hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | no |
 | `hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv`, `ETH_TYPE` default | `'h88F7` | `ETH_TYPE_PTP` | yes |
 
