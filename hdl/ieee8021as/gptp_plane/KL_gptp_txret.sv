@@ -56,8 +56,8 @@
                 the destination edge therefore represents an instant a fixed
                 number of register stages after the launch:
 
-                  (delta + OBS_LAT_E_P) transmit cycles  observer pipeline
-                  CDC_LAT_D_P fabric cycles              crossing pipeline
+                  (delta + OBS_LAT_E_CYC_P) transmit cycles  observer pipeline
+                  CDC_LAT_D_CYC_P fabric cycles              crossing pipeline
                   half a fabric tick                     mean of the uniform
                                                          sampling phase
 
@@ -97,10 +97,10 @@ module KL_gptp_txret #(
     parameter int unsigned DP_TICK_NS_P     = 20,
     //! observer pipeline, transmit cycles, from the tag octet to the cycle
     //! the crossing source latches the record
-    parameter int unsigned OBS_LAT_E_P      = 2,
+    parameter int unsigned OBS_LAT_E_CYC_P  = 2,
     //! crossing pipeline, fabric cycles, from the synchronised request to
     //! the edge this module registers the PHC on
-    parameter int unsigned CDC_LAT_D_P      = 2,
+    parameter int unsigned CDC_LAT_D_CYC_P  = 2,
     //! the only cycle distance a whole frame can produce
     parameter int unsigned TXTS_DELTA_EXP_P = 45,
     //! consecutive ELIGIBLE fabric cycles a capture needs behind it. It
@@ -155,8 +155,8 @@ module KL_gptp_txret #(
     //! trajectory - or ineligible while it was not. The whole point of
     //! this qualification is that it describes what the accumulator DID.
     input  wire        phc_en_eff_i,        //! counter enable, effective
-    input  wire [31:0] phc_incr_eff_i,      //! Q8.24 nominal step, ns
-    input  wire signed [31:0] phc_adj_eff_i,//! Q8.24 signed addend, ns
+    input  wire [31:0] phc_incr_eff_ns_i,   //! Q8.24 nominal step, ns
+    input  wire signed [31:0] phc_adj_eff_ns_i, //! Q8.24 signed addend, ns
     input  wire        phc_load_eff_i,      //! settime applied here
     input  wire        phc_adjust_eff_i,    //! adjtime applied here
 
@@ -174,7 +174,7 @@ module KL_gptp_txret #(
     input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,   //! observer position
     input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,    //! adopted generation
     input  wire                [3:0] rec_type_i,   //! messageType octet
-    input  wire               [15:0] rec_seq_i,    //! sequenceId octets
+    input  wire               [15:0] rec_seq_i,    //! the frame's sequenceId
     input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,  //! measured cycle distance
     input  wire                      rec_abort_i,  //! no measurement here
 
@@ -244,7 +244,7 @@ module KL_gptp_txret #(
     //! the history guard itself: how many more eligible cycles a capture
     //! still needs behind it. Published so a bench can prove the reload
     //! and the countdown rather than infer them from the refusals.
-    output wire   [7:0] dbg_phc_dirty_o,
+    output wire   [7:0] dbg_phc_dirty_cyc_o,
     //! {seal, echo established, ledger occupancy}
     output wire  [15:0] dbg_state_o
 );
@@ -256,8 +256,8 @@ module KL_gptp_txret #(
   //! than written down. Removing any term changes this number, which is what
   //! makes a dropped stage a measurable bias instead of a comment.
   localparam int unsigned TXTS_CORR_NS_P =
-      (TXTS_DELTA_EXP_P + OBS_LAT_E_P) * ETH_TICK_NS_P
-    + CDC_LAT_D_P * DP_TICK_NS_P
+      (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) * ETH_TICK_NS_P
+    + CDC_LAT_D_CYC_P * DP_TICK_NS_P
     + DP_TICK_NS_P / 2;
 
   localparam int unsigned PTR_W_C = $clog2(TXTS_CAP_N_P);
@@ -405,16 +405,16 @@ module KL_gptp_txret #(
   //! the guard was reloaded while the excursion stood.
   logic signed [31:0] adj_eff_w;
   logic [31:0]        adj_abs_w;
-  assign adj_eff_w = phc_adj_eff_i;
+  assign adj_eff_w = phc_adj_eff_ns_i;
   assign adj_abs_w = adj_eff_w[31] ? unsigned'(-adj_eff_w) : unsigned'(adj_eff_w);
 
   logic elig_now_w, phc_chg_w;
   assign elig_now_w = phc_en_eff_i
-                   && (phc_incr_eff_i == PHC_INCR_NOM_C)
+                   && (phc_incr_eff_ns_i == PHC_INCR_NOM_C)
                    && (longint'(adj_abs_w) <= PHC_ADJ_MAX_C);
   assign phc_chg_w  = (phc_en_eff_i   != phc_en_d_r)
-                   || (phc_incr_eff_i != phc_incr_d_r)
-                   || (phc_adj_eff_i  != phc_adj_d_r)
+                   || (phc_incr_eff_ns_i != phc_incr_d_r)
+                   || (phc_adj_eff_ns_i  != phc_adj_d_r)
                    || phc_load_eff_i || phc_adjust_eff_i;
 
   always_ff @(posedge clk_i) begin : phc_history
@@ -427,8 +427,8 @@ module KL_gptp_txret #(
       dirty_d_r    <= GDW_C'(RECON_GUARD_CYC_P);
     end else begin
       phc_en_d_r   <= phc_en_eff_i;
-      phc_incr_d_r <= phc_incr_eff_i;
-      phc_adj_d_r  <= phc_adj_eff_i;
+      phc_incr_d_r <= phc_incr_eff_ns_i;
+      phc_adj_d_r  <= phc_adj_eff_ns_i;
       elig_d_r     <= elig_now_w & ~phc_chg_w;
       dirty_d_r    <= phc_dirty_r;
 
@@ -451,7 +451,7 @@ module KL_gptp_txret #(
   // ======================================================================= //
   //! The crossing presents `dest_req` across exactly one edge, and the PHC
   //! value present over that interval is the one written on the previous
-  //! edge. Registering both here is what fixes `CDC_LAT_D_P`: change this
+  //! edge. Registering both here is what fixes `CDC_LAT_D_CYC_P`: change this
   //! stage and the correction above is wrong by a whole fabric tick.
   always_ff @(posedge clk_i) begin : record_capture
     if (!rst_n) begin
@@ -702,7 +702,7 @@ module KL_gptp_txret #(
   assign txts_gen_o   = res_gen_r [res_head_r];
 
   assign dep_take_o    = resolve_w | pre_resolve_w;
-  assign dbg_phc_dirty_o = 8'(phc_dirty_r);
+  assign dbg_phc_dirty_cyc_o = 8'(phc_dirty_r);
   assign credit_hold_o = seal_r;
 
   // ======================================================================= //

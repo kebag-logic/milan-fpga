@@ -1970,7 +1970,7 @@ class GptpShadowHarness {
     drop_epoch();
     idle(4000);
     expect("phc: the guard is clear on a nominal trajectory",
-           dut->dbg_phc_dirty_o, 0);
+           dut->dbg_phc_dirtcyc_o, 0);
 
     check_held_disable_refuses_every_capture();
     check_non_nominal_increment_refuses_every_capture();
@@ -1987,7 +1987,7 @@ class GptpShadowHarness {
     dut->phc_en_i = 0;
     idle(400000);
     expect("phc: a held disable keeps the guard loaded",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     expect("phc: every capture inside the hold is an explicit loss",
            dut->dbg_txts_phcl_o > pl0 ? 1 : 0, 1);
     expect("phc: not one of them was published as a measurement",
@@ -1995,13 +1995,13 @@ class GptpShadowHarness {
     dut->phc_en_i = 1;
     tick();                              // the edge that reloads the guard
     expect("phc: returning to nominal reloads the guard once more",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     for (int k = 0; k < kReconGuardCyc - 1; k++) tick();
     expect("phc: the guard is still loaded one cycle short of the window",
-           dut->dbg_phc_dirty_o != 0 ? 1 : 0, 1);
+           dut->dbg_phc_dirtcyc_o != 0 ? 1 : 0, 1);
     tick();
     expect("phc: the guard clears after exactly the full window",
-           dut->dbg_phc_dirty_o, 0);
+           dut->dbg_phc_dirtcyc_o, 0);
   }
 
   //! A NON-NOMINAL INCREMENT is a different clock, not a slow one: the
@@ -2012,7 +2012,7 @@ class GptpShadowHarness {
     dut->phc_incr_i = 0x08000001u;      // one Q8.24 unit off nominal
     idle(400000);
     expect("phc: one unit off nominal keeps the guard loaded",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     expect("phc: every capture at a non-nominal step is an explicit loss",
            dut->dbg_txts_phcl_o > pl0 ? 1 : 0, 1);
     expect("phc: not one of them was published as a measurement",
@@ -2020,7 +2020,7 @@ class GptpShadowHarness {
     dut->phc_incr_i = 0x08000000u;
     idle(4000);
     expect("phc: the guard clears when the nominal step returns",
-           dut->dbg_phc_dirty_o, 0);
+           dut->dbg_phc_dirtcyc_o, 0);
   }
 
   //! AN EXCURSION RESTORED JUST BEFORE A CAPTURE still fails. This is the
@@ -2032,17 +2032,17 @@ class GptpShadowHarness {
     dut->phc_adj_ovr_i = kAdjExcursion;
     idle(4000);
     expect("phc: an excessive addend keeps the guard loaded",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     dut->phc_adj_ovr_i = 0;             // restored, inside the envelope
     tick();                              // the edge that reloads the guard
     expect("phc: restoring the addend reloads the guard once more",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     for (int k = 0; k < kReconGuardCyc - 1; k++) tick();
     expect("phc: still loaded one cycle short of a full eligible window",
-           dut->dbg_phc_dirty_o != 0 ? 1 : 0, 1);
+           dut->dbg_phc_dirtcyc_o != 0 ? 1 : 0, 1);
     tick();
     expect("phc: and clear only after the full window",
-           dut->dbg_phc_dirty_o, 0);
+           dut->dbg_phc_dirtcyc_o, 0);
     dut->phc_adj_ovr_en_i = 0;
     idle(4000);
   }
@@ -2051,7 +2051,7 @@ class GptpShadowHarness {
   //! it can be reconstructed from anything after it.
   void check_settime_reloads_the_guard() {
     expect("phc: the guard is clear before the settime",
-           dut->dbg_phc_dirty_o, 0);
+           dut->dbg_phc_dirtcyc_o, 0);
     // load the counter with the value it already holds: the smallest
     // disturbance that is still a real settime
     dut->phc_tod_wr_i = dut->phc_ns_o;
@@ -2059,9 +2059,9 @@ class GptpShadowHarness {
     tick();
     dut->phc_load_i = 0;
     expect("phc: a settime reloads the guard",
-           dut->dbg_phc_dirty_o, kReconGuardCyc);
+           dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     idle(4000);
-    expect("phc: and it clears again afterwards", dut->dbg_phc_dirty_o, 0);
+    expect("phc: and it clears again afterwards", dut->dbg_phc_dirtcyc_o, 0);
   }
 
   //! Measurements delivered since the PHC-loss count was `pl0`. Every

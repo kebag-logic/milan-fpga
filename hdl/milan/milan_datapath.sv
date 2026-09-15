@@ -6341,8 +6341,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         //! call a window eligible while the accumulator was still on the
         //! previous trajectory.
         .phc_en_eff_i    (phc_enable_ts_w),
-        .phc_incr_eff_i  (phc_incr_ts_w),
-        .phc_adj_eff_i   (signed'(phc_adj_ts_w)),
+        .phc_incr_eff_ns_i(phc_incr_ts_w),
+        .phc_adj_eff_ns_i(signed'(phc_adj_ts_w)),
         .phc_load_eff_i  (phc_load_ts_w),
         .phc_adjust_eff_i(phc_adjust_ts_w),
         .phc_adj_o       (gptp_adj_w),
@@ -6402,7 +6402,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_txts_barr_o (),
         .dbg_txts_stall_o(),
         .dbg_txts_phcl_o (),
-        .dbg_txts_dirty_o(),
+        .dbg_txts_dirt_cyc_o(),
         .dbg_txts_state_o(),
         .dbg_txts_torn_o ()
     );

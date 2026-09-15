@@ -110,12 +110,12 @@
 module KL_gptp_gmii_launch #(
     //! observation index of the reference octet: frame octet 0, the first
     //! symbol after the start-of-frame delimiter
-    parameter int unsigned REF_IDX_P        = 8,
+    parameter int unsigned REF_OCTET_P        = 8,
     //! observation index of the PTP header octet carrying messageType
-    parameter int unsigned TYPE_IDX_P       = 22,
+    parameter int unsigned TYPE_OCTET_P       = 22,
     //! observation indices of the sequenceId octets, high then low
-    parameter int unsigned TAG_IDX_HI_P     = 52,
-    parameter int unsigned TAG_IDX_LO_P     = 53,
+    parameter int unsigned TAG_OCTET_HI_P     = 52,
+    parameter int unsigned TAG_OCTET_LO_P     = 53,
     //! the only cycle distance a whole frame can produce
     parameter int unsigned TXTS_DELTA_EXP_P = 45,
     parameter int unsigned TXTS_DELTA_W_P   = 8,
@@ -145,7 +145,7 @@ module KL_gptp_gmii_launch #(
     output wire [TXTS_OIDX_W_P-1:0]  rec_oidx_o,   //! observer position
     output wire  [TXTS_GEN_W_P-1:0]  rec_gen_o,    //! adopted generation
     output wire                [3:0] rec_type_o,   //! messageType octet
-    output wire               [15:0] rec_seq_o,    //! sequenceId octets
+    output wire               [15:0] rec_seq_o,    //! the frame's sequenceId
     output wire [TXTS_DELTA_W_P-1:0] rec_delta_o,  //! measured cycle distance
     output wire                      rec_abort_o,  //! no measurement here
 
@@ -174,8 +174,8 @@ module KL_gptp_gmii_launch #(
 
   //! the observation index only has to reach the last tag octet and then
   //! stop; nothing past it is parsed
-  localparam int unsigned IDX_W_C = $clog2(TAG_IDX_LO_P + 2);
-  localparam logic [IDX_W_C-1:0] IDX_MAX_C = IDX_W_C'(TAG_IDX_LO_P + 1);
+  localparam int unsigned IDX_W_C = $clog2(TAG_OCTET_LO_P + 2);
+  localparam logic [IDX_W_C-1:0] IDX_MAX_C = IDX_W_C'(TAG_OCTET_LO_P + 1);
   localparam int unsigned GAP_W_C = $clog2(GAP_CLOSE_CYC_P + 1);
   //! record payload: kind, position, generation and the frame's own facts
   localparam int unsigned REC_W_C = 1 + TXTS_OIDX_W_P + TXTS_GEN_W_P + 4 + 16
@@ -184,9 +184,9 @@ module KL_gptp_gmii_launch #(
 
   // ---- elaboration contract ---------------------------------------------
   //! ONE format string per $error: later arguments print as values.
-  if (TXTS_DELTA_EXP_P != TAG_IDX_LO_P - REF_IDX_P) begin : g_refuse_delta
-    $error("KL_gptp_gmii_launch: TXTS_DELTA_EXP_P=%0d is not TAG_IDX_LO_P-REF_IDX_P=%0d. The expected cycle distance IS the octet distance on a whole frame; a literal that does not derive from the two indices would let a fragmented frame produce a plausible timestamp.",
-           TXTS_DELTA_EXP_P, TAG_IDX_LO_P - REF_IDX_P);
+  if (TXTS_DELTA_EXP_P != TAG_OCTET_LO_P - REF_OCTET_P) begin : g_refuse_delta
+    $error("KL_gptp_gmii_launch: TXTS_DELTA_EXP_P=%0d is not TAG_OCTET_LO_P-REF_OCTET_P=%0d. The expected cycle distance IS the octet distance on a whole frame; a literal that does not derive from the two indices would let a fragmented frame produce a plausible timestamp.",
+           TXTS_DELTA_EXP_P, TAG_OCTET_LO_P - REF_OCTET_P);
   end else if (TXTS_DELTA_EXP_P >= (1 << TXTS_DELTA_W_P) - 1)
   begin : g_refuse_delta_width
     $error("KL_gptp_gmii_launch: TXTS_DELTA_W_P=%0d cannot carry TXTS_DELTA_EXP_P=%0d below its saturation value, so a saturated count would be indistinguishable from the expected one.",
@@ -251,7 +251,7 @@ module KL_gptp_gmii_launch #(
   //! in wire order and the selection stays portable
   logic [2:0] da_j_w;
   logic [7:0] da_oct_w;
-  assign da_j_w = 3'(nidx_w - IDX_W_C'(REF_IDX_P));
+  assign da_j_w = 3'(nidx_w - IDX_W_C'(REF_OCTET_P));
   always_comb begin : da_octet
     unique case (da_j_w)
       3'd0:    da_oct_w = DA_GPTP_C[47:40];
@@ -269,21 +269,21 @@ module KL_gptp_gmii_launch #(
   logic chk_w;
   always_comb begin : attribution_check
     chk_w = 1'b1;
-    if (nidx_w < IDX_W_C'(REF_IDX_P - 1))
+    if (nidx_w < IDX_W_C'(REF_OCTET_P - 1))
       chk_w = (gmii_tdata_i == PREAMBLE_C);
-    else if (nidx_w == IDX_W_C'(REF_IDX_P - 1))
+    else if (nidx_w == IDX_W_C'(REF_OCTET_P - 1))
       chk_w = (gmii_tdata_i == SFD_C);
-    else if (nidx_w < IDX_W_C'(REF_IDX_P + 6))
+    else if (nidx_w < IDX_W_C'(REF_OCTET_P + 6))
       chk_w = (gmii_tdata_i == da_oct_w);
-    else if (nidx_w == IDX_W_C'(REF_IDX_P + 12))
+    else if (nidx_w == IDX_W_C'(REF_OCTET_P + 12))
       chk_w = (gmii_tdata_i == ET_GPTP_C[15:8]);
-    else if (nidx_w == IDX_W_C'(REF_IDX_P + 13))
+    else if (nidx_w == IDX_W_C'(REF_OCTET_P + 13))
       chk_w = (gmii_tdata_i == ET_GPTP_C[7:0]);
   end : attribution_check
 
   //! the last octet of the header the frame has to prove its identity with
   logic att_done_w;
-  assign att_done_w = (nidx_w == IDX_W_C'(REF_IDX_P + 13));
+  assign att_done_w = (nidx_w == IDX_W_C'(REF_OCTET_P + 13));
   logic cand_w;
   assign cand_w = (inf_r ? cand_r : 1'b1) & chk_w;
 
@@ -351,14 +351,14 @@ module KL_gptp_gmii_launch #(
         end
         cand_r <= cand_w;
         //! the reference octet: frame octet 0, launched at this edge
-        if ((nidx_w == IDX_W_C'(REF_IDX_P)) && cand_w) begin
+        if ((nidx_w == IDX_W_C'(REF_OCTET_P)) && cand_w) begin
           ref_r   <= 1'b1;
           delta_r <= '0;
         end
         if (att_done_w) mine_r <= cand_w;
-        if (nidx_w == IDX_W_C'(TYPE_IDX_P))   type_r      <= gmii_tdata_i[3:0];
-        if (nidx_w == IDX_W_C'(TAG_IDX_HI_P)) seq_r[15:8] <= gmii_tdata_i;
-        if ((nidx_w == IDX_W_C'(TAG_IDX_LO_P)) && mine_r && !done_r) begin
+        if (nidx_w == IDX_W_C'(TYPE_OCTET_P))   type_r      <= gmii_tdata_i[3:0];
+        if (nidx_w == IDX_W_C'(TAG_OCTET_HI_P)) seq_r[15:8] <= gmii_tdata_i;
+        if ((nidx_w == IDX_W_C'(TAG_OCTET_LO_P)) && mine_r && !done_r) begin
           seq_r[7:0]  <= gmii_tdata_i;
           done_r      <= 1'b1;
           //! the record leaves on the NEXT edge, by which time `delta_r`

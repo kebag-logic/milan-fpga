@@ -103,6 +103,8 @@ module KL_gptp_txticket #(
     //! 0 = the frame ended before its sequenceId octets, so it can only ever
     //! retire as a loss; no gPTP PDU is that short
     output logic                     alloc_tagged_o,
+    //! free-running allocation index, carried for diagnostics and for
+    //! wrap detection; it is not part of the frame's identity
     output logic [TXTS_AIDX_W_P-1:0] alloc_aidx_o,
 
     //! one pulse per result accepted at the donor face

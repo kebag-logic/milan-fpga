@@ -184,7 +184,7 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_txts_barr_o,
     output wire [15:0] dbg_txts_stall_o,
     output wire [15:0] dbg_txts_phcl_o,
-    output wire  [7:0] dbg_phc_dirty_o,
+    output wire  [7:0] dbg_phc_dirtcyc_o,
     output wire signed [31:0] dbg_phc_adj_o,
     output wire [15:0] dbg_txts_state_o,
     output wire [15:0] dbg_txts_torn_o
@@ -269,8 +269,8 @@ module gptp_shadow_wrap #(
       .phc_ns_i        (phc_ns_o),
       //! the SAME nets the counter is driven with, which is the point
       .phc_en_eff_i    (phc_en_i),
-      .phc_incr_eff_i  (phc_incr_i),
-      .phc_adj_eff_i   (adj_eff_w),
+      .phc_incr_eff_ns_i(phc_incr_i),
+      .phc_adj_eff_ns_i(adj_eff_w),
       .phc_load_eff_i  (phc_load_i),
       .phc_adjust_eff_i(step_we_w),
       .phc_adj_o       (adj_w),
@@ -323,7 +323,7 @@ module gptp_shadow_wrap #(
       .dbg_txts_barr_o (dbg_txts_barr_o),
       .dbg_txts_stall_o(dbg_txts_stall_o),
       .dbg_txts_phcl_o (dbg_txts_phcl_o),
-      .dbg_txts_dirty_o(dbg_phc_dirty_o),
+      .dbg_txts_dirt_cyc_o(dbg_phc_dirtcyc_o),
       .dbg_txts_state_o(dbg_txts_state_o),
       .dbg_txts_torn_o (dbg_txts_torn_o)
   );
@@ -540,10 +540,10 @@ module gptp_shadow_wrap #(
   assign obs_rst_n_w = mac_rst_n_w & ~obs_rst_i;
 
   KL_gptp_gmii_launch #(
-      .REF_IDX_P        (8),
-      .TYPE_IDX_P       (22),
-      .TAG_IDX_HI_P     (52),
-      .TAG_IDX_LO_P     (53),
+      .REF_OCTET_P      (8),
+      .TYPE_OCTET_P     (22),
+      .TAG_OCTET_HI_P   (52),
+      .TAG_OCTET_LO_P   (53),
       .TXTS_DELTA_EXP_P (45)
   ) u_launch (
       .eth_clk_i     (clk_i),

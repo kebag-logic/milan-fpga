@@ -112,8 +112,8 @@ module KL_gptp_shadow #(
     //! signals that say what the accumulator actually did. The CSR side
     //! and this plane's own upstream addend both change earlier.
     input  wire        phc_en_eff_i,
-    input  wire [31:0] phc_incr_eff_i,       //! Q8.24 nominal step, ns
-    input  wire signed [31:0] phc_adj_eff_i, //! Q8.24 signed addend, ns
+    input  wire [31:0] phc_incr_eff_ns_i,    //! Q8.24 nominal step, ns
+    input  wire signed [31:0] phc_adj_eff_ns_i, //! Q8.24 signed addend, ns
     input  wire        phc_load_eff_i,       //! settime applied here
     input  wire        phc_adjust_eff_i,     //! adjtime applied here
 
@@ -138,7 +138,7 @@ module KL_gptp_shadow #(
     input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,   //! observer position
     input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,    //! adopted generation
     input  wire                [3:0] rec_type_i,   //! messageType octet
-    input  wire               [15:0] rec_seq_i,    //! sequenceId octets
+    input  wire               [15:0] rec_seq_i,    //! the frame's sequenceId
     input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,  //! measured cycle distance
     input  wire                      rec_abort_i,  //! no measurement here
 
@@ -194,7 +194,7 @@ module KL_gptp_shadow #(
     output wire  [15:0] dbg_txts_stall_o, //! head-entry age expiries
     output wire  [15:0] dbg_txts_phcl_o,  //! results refused by the PHC
                                           //! history guard
-    output wire   [7:0] dbg_txts_dirty_o, //! eligible cycles still owed
+    output wire   [7:0] dbg_txts_dirt_cyc_o, //! eligible cycles still owed
     output wire  [15:0] dbg_txts_state_o, //! seal, echo, generation, depths
     output logic [15:0] dbg_txts_torn_o   //! frames the fence tore and this
                                           //! plane discarded locally
@@ -948,8 +948,8 @@ module KL_gptp_shadow #(
       .rst_n            (rst_n),
       .phc_ns_i         (phc_ns_i),
       .phc_en_eff_i     (phc_en_eff_i),
-      .phc_incr_eff_i   (phc_incr_eff_i),
-      .phc_adj_eff_i    (phc_adj_eff_i),
+      .phc_incr_eff_ns_i   (phc_incr_eff_ns_i),
+      .phc_adj_eff_ns_i    (phc_adj_eff_ns_i),
       .phc_load_eff_i   (phc_load_eff_i),
       .phc_adjust_eff_i (phc_adjust_eff_i),
       .alloc_i       (alloc_w),
@@ -993,7 +993,7 @@ module KL_gptp_shadow #(
       .dbg_barrier_o (dbg_txts_barr_o),
       .dbg_stall_o   (dbg_txts_stall_o),
       .dbg_phc_lost_o(dbg_txts_phcl_o),
-      .dbg_phc_dirty_o(dbg_txts_dirty_o),
+      .dbg_phc_dirty_cyc_o(dbg_txts_dirt_cyc_o),
       .dbg_state_o   (dbg_txts_state_o)
   );
 

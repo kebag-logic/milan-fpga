@@ -112,20 +112,41 @@ SOURCE_TOKENS = {
         "pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C",
         "KL_media_grid_align #(",
         "KL_gptp_shadow #(",
-        "KL_gptp_txstamp #(",
+        #: #360: the egress timestamp is an observed launch, so the
+        #: datapath's job is to carry the observer's records in, the seal
+        #: out, and the guard's episode evidence across - all three
+        #: unconditionally, because a build that tied any of them off
+        #: would release timestamps for frames nothing ever observed.
+        ".rec_valid_i     (i_gptp_txrec_valid)",
+        ".epi_done_i      (linkg_epi_done_w)",
+        ".man_reinit_i (cfg_mac_reinit | gptp_recov_req_w)",
     ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": (
         "assign beat_w = rx_tvalid_i & rx_tready_i",
-        "input  wire [3:0]  txts_type_i",
         "output logic        pub_commit_o",
         "output wire         pub_disc_o",
+        #: the plane allocates its identity where the frame becomes
+        #: unstoppable, and it fences its own egress when it can no longer
+        #: trust the association context
+        "KL_gptp_txticket #(",
+        "KL_gptp_txret #(",
+        "assign tx_tvalid_o = txf_out_valid_w & (fn_S == FN_OPEN);",
     ),
-    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv": (
-        "assign beat_w = tx_tvalid_i & tx_tready_i",
-        "if ((bcnt_r == 3'd5) && is_gptp_r && take_r) begin",
-        "if (tx_tlast_i)          bcnt_r <= 3'd0;",
-        "output logic [15:0] ts_seq_o",
-        "output logic [3:0]  ts_type_o",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": (
+        #: the observation point, the reference octet and the measured
+        #: cycle distance: the three facts the whole repair rests on
+        "input  wire       gmii_tvalid_i,",
+        "localparam logic [47:0] DA_GPTP_C  = 48'h01_80_C2_00_00_0E;",
+        "if ((nidx_w == IDX_W_C'(REF_OCTET_P)) && cand_w) begin",
+        "(delta_r != TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P))};",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": (
+        #: identity is position, cancellation marks, and the correction is
+        #: derived from its terms rather than written down
+        "assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &",
+        "localparam int unsigned TXTS_CORR_NS_P =",
+        "if (barrier_w) begin\n        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;",
+        "assign destroyed_w   = destroyed_r & ~mac_reinit_i & ~mac_eth_rst_i &",
     ),
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": (
         "assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w",
