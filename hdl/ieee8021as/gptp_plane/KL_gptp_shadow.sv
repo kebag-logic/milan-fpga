@@ -129,7 +129,9 @@ module KL_gptp_shadow #(
     output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
     output wire  [63:0] dbg_tspush_o,
     output wire         dbg_tspop_v_o,    //! side-FIFO pop (engine sof)
-    output wire  [3:0]  dbg_txts_type_o   //! the stamp's type tag, live
+    output wire  [3:0]  dbg_txts_type_o,  //! the stamp's type tag, live
+    output wire  [15:0] dbg_txts_lost_o   //! egress results retired without
+                                          //! a measurement, wrapping
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
@@ -450,12 +452,59 @@ module KL_gptp_shadow #(
   logic       eng_tx_valid_w, eng_tx_sof_w, eng_tx_eof_w, eng_tx_ready_w;
   logic [7:0] eng_tx_data_w;
   logic       adj_we_w;
+  logic       eng_txts_ready_w;
   logic [31:0] adj_val_w;
   logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
   logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
   logic  [3:0] pub_path_count_raw_w;
   logic [7*64-1:0] pub_path_raw_w;
   logic        pub_commit_raw_w;
+
+  // ======================================================================= //
+  //  Egress result offer: the engine's valid/ready result face              //
+  // ======================================================================= //
+  //! The engine ACCEPTS a result tuple on a valid/ready beat and refuses a
+  //! second offer while the first is still owed to the micro-code
+  //! (FPGA-gPTP #31), so a producer that pulses would lose a result the
+  //! moment two frames finish close together. The donor contract puts that
+  //! bounded storage on this side of the face, and this is the parent's
+  //! entry: ONE offer, whole, held until the engine takes it, with an
+  //! overrun count rather than a silent overwrite.
+  //!
+  //! One entry is what the boundary stamper needs; the frame ledger that
+  //! replaces the stamper carries the full capacity derivation and its own
+  //! result queue, and takes this face over with it.
+  logic        off_v_r;
+  logic [63:0] off_ns_r;
+  logic [15:0] off_seq_r;
+  logic  [3:0] off_type_r;
+  logic [15:0] off_lost_r;
+  logic        off_take_w, off_load_w;
+  assign off_take_w = off_v_r & eng_txts_ready_w;
+  assign off_load_w = txts_valid_i & (~off_v_r | off_take_w);
+
+  always_ff @(posedge clk_i) begin : egress_result_offer
+    if (!rst_n) begin
+      off_v_r    <= 1'b0;
+      off_ns_r   <= 64'd0;
+      off_seq_r  <= 16'd0;
+      off_type_r <= 4'd0;
+      off_lost_r <= 16'd0;
+    end else begin
+      if (off_load_w) begin
+        off_v_r    <= 1'b1;
+        off_ns_r   <= txts_ns_i;
+        off_seq_r  <= txts_seq_i;
+        off_type_r <= txts_type_i;
+      end else if (off_take_w) begin
+        off_v_r <= 1'b0;
+      end
+      //! an offer that arrives while the held one has not been taken is the
+      //! result donor #31 used to overwrite: counted here, never hidden
+      if (txts_valid_i & off_v_r & ~off_take_w)
+        off_lost_r <= off_lost_r + 16'd1;
+    end
+  end : egress_result_offer
 
   //! Canonical public sequence. A tail has no identity without a GM. With a
   //! GM, preserve the donor's raw distinction: count zero means the selected
@@ -519,10 +568,19 @@ module KL_gptp_shadow #(
       .tx_sof_o           (eng_tx_sof_w),
       .tx_eof_o           (eng_tx_eof_w),
       .tx_ready_i         (eng_tx_ready_w),
-      .txts_valid_i       (txts_valid_i),
-      .txts_ns_i          (txts_ns_i),
-      .txts_seq_i         (txts_seq_i),
-      .txts_type_i        (txts_type_i),
+      .txts_valid_i       (off_v_r),
+      .txts_ready_o       (eng_txts_ready_w),
+      .txts_ns_i          (off_ns_r),
+      .txts_seq_i         (off_seq_r),
+      .txts_type_i        (off_type_r),
+      //! the boundary stamper reports only measurements and the plane has no
+      //! generation or admission mechanism yet: every offer is a measured
+      //! result, generation 1 (never 0, which the engine reserves for a
+      //! reset replay), and the three gated initiating legs keep their
+      //! pre-repair cadence
+      .txts_ok_i          (1'b1),
+      .txts_gen_i         (4'd1),
+      .tx_credit_i        (1'b1),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),
@@ -593,20 +651,17 @@ module KL_gptp_shadow #(
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
   end
 
-  //! The stamper's messageType tag, passed straight through. NOT
-  //! registered here, deliberately: the stamper already holds
-  //! {ts_ns_o, ts_seq_o, ts_type_o} in registers, and the engine samples
-  //! the txts_* face COMBINATIONALLY in the cycle txts_valid_i is high
-  //! (KL_gptp_engine's `if (txts_valid_i)` latches both tag fields there;
-  //! no line number, the pin moves). A register in this path would add no
-  //! persistence and one cycle of lag, so at the
-  //! sampling cycle it would still carry the PREVIOUS stamp's type and a
-  //! consumer would credit one leg's egress time to another's claim --
-  //! the mis-crediting of Mister-M-alt/FPGA-gPTP#28 over again, off by a
-  //! leg instead of a sequence. This same wire feeds the engine's type
-  //! port; tb/verilator/gptp_shadow asserts the equality AT the valid
-  //! cycle so the lag cannot come back.
+  //! The stamper's messageType tag, passed straight through, so a bench can
+  //! compare the tag the producer offers against the one the engine finally
+  //! consumes. The hazard this observation exists for is a type field that
+  //! lags its own timestamp by a leg, which would credit one leg's egress
+  //! time to another's claim -- the mis-crediting of
+  //! Mister-M-alt/FPGA-gPTP#28 over again, off by a leg instead of a
+  //! sequence. It cannot arise across the offer register above, which
+  //! writes ns, sequence and type from ONE condition, but it can arise the
+  //! moment something else drives the face, so the observation stays.
   assign dbg_txts_type_o = txts_type_i;
+  assign dbg_txts_lost_o = off_lost_r;
 
   // ======================================================================= //
   //  TX gearbox: 1 B/clk up to wide beats, whole frames onto the lane      //

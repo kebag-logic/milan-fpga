@@ -60,6 +60,10 @@ constexpr uint64_t kBootPdelayReqTicks = 3200000;   // boot -> first Pdelay_Req
 constexpr uint64_t kAsCapableTicks = 6000000ull;    // second exchange->capable
 constexpr uint64_t kGrandmasterTicks = 10000000ull; // announce timeout ride-out
 constexpr uint64_t kTxWaitTicks = 800000;           // a frame reaches the wire
+// The engine refuses a result while it still owes one to the micro-code, and
+// the dispatch that clears the debt needs an idle serializer. A held tuple is
+// therefore normal for a few cycles; never for this many.
+constexpr int kTxtsAcceptTicks = 4096;              // result offer -> accepted
 
 // One sync interval at --clk-hz 2000000 (see the timescale note above).
 constexpr uint64_t kSyncIntervalTicks = 250000;
@@ -223,6 +227,11 @@ class GptpPlaneHarness {
       auto_pend = -1;
     }
     dut->clk_i = 0; dut->eval();
+    //! The transfer is the pair presented immediately before the active edge.
+    //! Dropping valid unconditionally after the edge, as this harness did
+    //! while the engine had no ready, silently discards a result the engine
+    //! refused because it still owed one (FPGA-gPTP #31).
+    const bool txts_taken = dut->txts_valid_i && dut->txts_ready_o;
     dut->clk_i = 1; dut->eval();
     if (dut->tap_adj_we_o) adj_seen.push_back(dut->tap_adj_o);
     if (dut->tap_step_we_o) steps_seen.push_back(dut->tap_step_o);
@@ -236,7 +245,7 @@ class GptpPlaneHarness {
         in_tx = false;
       }
     }
-    dut->txts_valid_i = 0;
+    if (txts_taken) dut->txts_valid_i = 0;
     cyc++;
   }
 
@@ -255,6 +264,9 @@ class GptpPlaneHarness {
     dut->rx_valid_i = 0; dut->rx_sof_i = 0; dut->rx_eof_i = 0;
   }
 
+  //! Offer one result and HOLD the whole tuple until the engine takes it.
+  //! tick() clears valid on the accepted beat, so the loop ends on the
+  //! transfer and never on a cycle count.
   void txts_idx(size_t idx, uint64_t ns) {
     dut->txts_valid_i = 1;
     dut->txts_ns_i = ns;
@@ -262,8 +274,14 @@ class GptpPlaneHarness {
     dut->txts_type_i = idx < txf.size() ? type_of(txf[idx]) : 0;
     stamp_returns.push_back({idx, static_cast<uint16_t>(dut->txts_seq_i),
                              static_cast<uint8_t>(dut->txts_type_i), false});
-    tick();
-    dut->txts_valid_i = 0;
+    for (int guard = 0; guard < kTxtsAcceptTicks && dut->txts_valid_i; guard++)
+      tick();
+    if (dut->txts_valid_i) {
+      printf("FAIL txts_idx %zu: engine never took the result\n", idx);
+      fails++;
+      dut->txts_valid_i = 0;
+    }
+    checks++;
   }
 
   // ---- auto peer: answers every Pdelay_Req the plane transmits --------------
@@ -339,6 +357,11 @@ class GptpPlaneHarness {
     dut->tx_ready_i = 1;
     dut->txts_valid_i = 0; dut->txts_ns_i = 0; dut->txts_seq_i = 0;
     dut->txts_type_i = 0;
+    //! every result this harness returns is a measurement, from one
+    //! generation, and this bench has no admission mechanism to exercise:
+    //! credit stays high so the three gated initiating legs keep their
+    //! cadence and the sequences below are the pre-repair ones.
+    dut->txts_ok_i = 1; dut->txts_gen_i = 1; dut->tx_credit_i = 1;
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
   }

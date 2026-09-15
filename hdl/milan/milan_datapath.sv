@@ -6337,7 +6337,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
         .dbg_tspop_v_o   (),
-        .dbg_txts_type_o ()
+        .dbg_txts_type_o (),
+        .dbg_txts_lost_o ()
     );
 
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (

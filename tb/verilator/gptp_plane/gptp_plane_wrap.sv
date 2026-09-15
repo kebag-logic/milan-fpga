@@ -52,13 +52,21 @@ module gptp_plane_wrap #(
     output logic        tx_eof_o,
     input  wire         tx_ready_i,
 
-    //! egress timestamp return. This direct-engine bench derives both tags
-    //! from the selected TX frame in its harness; it has no boundary stamper
-    //! and therefore does not prove boundary extraction or claim collisions.
+    //! egress timestamp RESULT return. This direct-engine bench derives both
+    //! tags from the selected TX frame in its harness; it has no boundary
+    //! observer and therefore does not prove boundary extraction or claim
+    //! collisions. The face is the donor's valid/ready one: the harness holds
+    //! the whole tuple until txts_ready_o takes it (FPGA-gPTP #31), so a
+    //! result offered while the engine still owes one waits rather than
+    //! replacing it.
     input  wire         txts_valid_i,
+    output wire         txts_ready_o,
     input  wire  [63:0] txts_ns_i,
     input  wire  [15:0] txts_seq_i,
     input  wire   [3:0] txts_type_i,
+    input  wire         txts_ok_i,      //! 0 = retired without a measurement
+    input  wire   [3:0] txts_gen_i,     //! producer generation, never 0
+    input  wire         tx_credit_i,    //! admission credit, a level
 
     //! the steered clock, observable
     output wire  [63:0] phc_ns_o,
@@ -130,9 +138,13 @@ module gptp_plane_wrap #(
       .tx_eof_o           (tx_eof_o),
       .tx_ready_i         (tx_ready_i),
       .txts_valid_i       (txts_valid_i),
+      .txts_ready_o       (txts_ready_o),
       .txts_ns_i          (txts_ns_i),
       .txts_seq_i         (txts_seq_i),
       .txts_type_i        (txts_type_i),
+      .txts_ok_i          (txts_ok_i),
+      .txts_gen_i         (txts_gen_i),
+      .tx_credit_i        (tx_credit_i),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (step_we_w),

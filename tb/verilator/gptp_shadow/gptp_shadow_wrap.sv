@@ -107,7 +107,11 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_eng_txts_seq_o,
     output wire [3:0]  dbg_eng_txts_type_o,
     output wire [15:0] dbg_txts_gate_conflict_o,
-    output wire [15:0] dbg_ev_drop_o
+    output wire [15:0] dbg_ev_drop_o,
+    //! egress results the slice retired without handing a measurement to the
+    //! engine: with the boundary stamper that is an offer the engine had no
+    //! room for, which donor #31 used to overwrite in silence
+    output wire [15:0] dbg_txts_lost_o
 );
 
   logic               busy_w;
@@ -200,7 +204,8 @@ module gptp_shadow_wrap #(
       .dbg_tspush_v_o  (dbg_tspush_v_o),
       .dbg_tspush_o    (dbg_tspush_o),
       .dbg_tspop_v_o   (dbg_tspop_v_o),
-      .dbg_txts_type_o (dbg_slice_type_o)
+      .dbg_txts_type_o (dbg_slice_type_o),
+      .dbg_txts_lost_o (dbg_txts_lost_o)
   );
 
   assign pub_disc_o = pub_disc_w;
