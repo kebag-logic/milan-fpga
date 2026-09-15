@@ -127,8 +127,9 @@ GPTP_DIR = ../../../gptp-processor/hdl
 GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
        $(GPTP_DIR)/wire/KL_gptp_rx_parser.sv $(GPTP_DIR)/wire/KL_gptp_tx_slot.sv \
        $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
-       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
-       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv
 
 SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_arb_mux.v \

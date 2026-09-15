@@ -6,21 +6,41 @@
 //  File        : gptp_shadow_wrap.sv
 //  Project     : Milan AVB end-station -- gPTP fabric-slice bench
 //
-//  Description : Testbench wrap of the WHOLE fabric slice the splice will
-//                instantiate: KL_gptp_shadow (tap + engine + lane), the
-//                real timestamp_counter it steers, and KL_gptp_txstamp
-//                observing the TX lane as the stand-in MAC boundary (in
-//                fabric the stamper sits after the merges; the pairing
-//                contract is identical). NO timestamp enters from the
-//                harness: ingress stamps come from the tap's commit-FIFO
-//                transport, egress stamps from the boundary observer --
-//                the loop closes entirely in fabric.
+//  Description : Testbench wrap of the WHOLE fabric slice the splice
+//                instantiates: KL_gptp_shadow (tap + engine + lane + the
+//                egress ledger), the real timestamp_counter it steers, and
+//                the REAL KL_gptp_gmii_launch observing an octet stream this
+//                wrapper frames out of the plane's own transmit lane. NO
+//                timestamp enters from the harness: ingress stamps come from
+//                the tap's commit-FIFO transport, egress results from the
+//                observer and the ledger -- the loop closes entirely in
+//                fabric.
+//
+//                WHAT THE FRAMER IS, AND WHAT IT IS NOT. `bench_framer`
+//                below turns the plane's 64-bit lane into a contiguous
+//                octet stream with a preamble, a start-of-frame delimiter
+//                and an inter-frame gap, store-and-forward so a frame never
+//                starts until it is whole. That is enough to drive the real
+//                observer and to give this bench an INDEPENDENT launch
+//                reference (`dbg_launch_*`, the PHC sampled at the edge the
+//                framer presents frame octet 0). It is NOT the product MAC:
+//                it has no width converter, no FCS, no padding, no
+//                clock-domain crossing and no queueing behind other
+//                traffic, so it proves NOTHING about launch latency through
+//                the shipping transmit chain. The causal proof over the
+//                generated production MAC is tb/verilator/gptp_txts; this
+//                bench proves the plane's own ownership, ordering and
+//                reconstruction arithmetic.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
 module gptp_shadow_wrap #(
     parameter string       UCODE_HEX_P = "gptp_ucode.hex",
-    parameter int unsigned CLK_HZ_P    = 2_000_000
+    parameter int unsigned CLK_HZ_P    = 2_000_000,
+    //! the PHC in this bench runs the 125 MHz shape (8.0 ns per tick) while
+    //! the bench clock is CLK_HZ_P, so the plane is TOLD the shape rather
+    //! than deriving a tick from a clock that does not carry it
+    parameter int unsigned PHC_TICK_NS_P = 8
 ) (
     input  wire clk_i,
     input  wire rst_n,
@@ -32,20 +52,30 @@ module gptp_shadow_wrap #(
     input  wire        rx_tready_i,
     input  wire        rx_tlast_i,
 
-    //! the TX lane out (wide; the harness is the merge/MAC)
+    //! the TX lane out (wide), observed by the harness; the bench framer
+    //! below is its consumer, gated by this ready so a phase can still stall
+    //! the lane between frames
     output wire [63:0] tx_tdata_o,
     output wire [7:0]  tx_tkeep_o,
     output wire        tx_tvalid_o,
     output wire        tx_tlast_o,
     input  wire        tx_tready_i,
 
-    //! Test-only return-order control. The held tuple always comes from the
-    //! real boundary stamper; the harness can delay one selected type and
-    //! later replay that exact tuple to prove engine tag matching without
-    //! fabricating a timestamp. A live raw return wins over release.
-    input  wire        txts_hold_en_i,
-    input  wire [3:0]  txts_hold_type_i,
-    input  wire        txts_release_i,
+    //! Test-only RECORD delay. The launch record of one selected
+    //! messageType can be held back and released later, which is what a
+    //! record that arrives late looks like to the ledger. Nothing is
+    //! fabricated: the held record is the observer's own.
+    input  wire        rechold_en_i,
+    input  wire [3:0]  rechold_type_i,
+    input  wire        rechold_release_i,
+
+    //! MAC recovery levels, driven by the harness (the link guard is not in
+    //! this slice)
+    input  wire        mac_reinit_i,
+    input  wire        mac_eth_rst_i,
+    //! hold the observer in reset without touching the plane: the
+    //! independent-observer-reset arm
+    input  wire        obs_rst_i,
 
     //! the steered clock, observable
     output wire [63:0] phc_ns_o,
@@ -75,69 +105,92 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_tap_drop_o,
     output wire [15:0] dbg_rx_drop_o,
     output wire [63:0] dbg_rx_ts_o,
-    output wire [63:0] dbg_txts_o,
-    output wire        dbg_txts_v_o,
     output wire        dbg_tspush_v_o,
     output wire [63:0] dbg_tspush_o,
     output wire        dbg_tspop_v_o,
-    output wire [15:0] dbg_txts_seq_o,
-    //! how many times the engine's uCPU has STARTED a program. The engine
-    //! brings `dbg_busy_o` out of the slice already; this wrapper counts
-    //! its rising edges so a bench can ask "did anything dispatch?" of a
-    //! window rather than of an instant. A frame the parser refuses must
-    //! never move this: the refusal and the dispatch are exclusive, which
-    //! is the invariant the tsn_fuzz unlisted-messageType probe rests on
+    //! how many times the engine's uCPU has STARTED a program
     output wire [15:0] dbg_prog_run_o,
-    //! the stamper's messageType tag, beside the sequence tag: a returning
-    //! stamp must name the frame it belongs to by BOTH (milan-fpga #214)
-    output wire [3:0]  dbg_txts_type_o,
-    //! the same tag where the engine boundary sees it: the slice PORT,
-    //! combinational, so it must equal the stamper's in the very cycle
-    //! txts_valid_i is high. A register here would lag by a leg
-    output wire [3:0]  dbg_slice_type_o,
-    //! Test-gate diagnostics: expose both the atomically held real tuple and
-    //! the exact tuple delivered at the engine face. These are observations,
-    //! not alternate timestamp sources.
-    output wire        dbg_txts_held_o,
-    output wire [63:0] dbg_txts_held_ns_o,
-    output wire [15:0] dbg_txts_held_seq_o,
-    output wire [3:0]  dbg_txts_held_type_o,
+    output wire [15:0] dbg_ev_drop_o,
+
+    //! THE INDEPENDENT LAUNCH REFERENCE: the PHC sampled at the edge the
+    //! framer presents frame octet 0, the octet the standard's message
+    //! timestamp point names. It is taken at the framer, not inside the
+    //! observer, so the reconstruction under test is compared against
+    //! something it did not produce.
+    output logic        dbg_launch_v_o,
+    output logic [63:0] dbg_launch_phc_o,
+    output logic  [3:0] dbg_launch_type_o,
+    output logic [15:0] dbg_launch_seq_o,
+
+    //! the observer's own records, before the test-only delay
+    output wire        dbg_rec_v_o,
+    output wire        dbg_rec_kind_o,
+    output wire [11:0] dbg_rec_oidx_o,
+    output wire  [3:0] dbg_rec_gen_o,
+    output wire  [3:0] dbg_rec_type_o,
+    output wire [15:0] dbg_rec_seq_o,
+    output wire  [7:0] dbg_rec_delta_o,
+    output wire        dbg_rec_abort_o,
+    output wire [15:0] dbg_rec_ovr_o,
+    //! the held record, if any
+    output wire         dbg_rec_held_o,
+    output wire   [3:0] dbg_rec_held_type_o,
+    output wire  [15:0] dbg_rec_held_seq_o,
+    //! the record as the plane finally receives it, and whether the
+    //! test-only queue delayed it. A delayed record is captured against a
+    //! LATER PHC value, which is a fixture artefact and not a behaviour the
+    //! wire can produce, so the reconstruction law excludes exactly these.
+    output wire         dbg_dut_rec_v_o,
+    output wire         dbg_dut_rec_kind_o,
+    output wire         dbg_dut_rec_delayed_o,
+
+    //! the tuple the engine ACCEPTED, sampled at its accepted beat
     output wire        dbg_eng_txts_v_o,
     output wire [63:0] dbg_eng_txts_ns_o,
     output wire [15:0] dbg_eng_txts_seq_o,
-    output wire [3:0]  dbg_eng_txts_type_o,
-    output wire [15:0] dbg_txts_gate_conflict_o,
-    output wire [15:0] dbg_ev_drop_o,
-    //! egress results the slice retired without handing a measurement to the
-    //! engine: with the boundary stamper that is an offer the engine had no
-    //! room for, which donor #31 used to overwrite in silence
-    output wire [15:0] dbg_txts_lost_o
+    output wire  [3:0] dbg_eng_txts_type_o,
+    output wire        dbg_eng_txts_ok_o,
+    output wire  [3:0] dbg_eng_txts_gen_o,
+
+    //! ledger diagnostics
+    output wire [15:0] dbg_txts_lost_o,
+    output wire [15:0] dbg_txts_disc_o,
+    output wire [15:0] dbg_txts_barr_o,
+    output wire [15:0] dbg_txts_stall_o,
+    output wire [15:0] dbg_txts_state_o
 );
 
+  localparam int unsigned FO_DEPTH_C = 512;
+  localparam int unsigned FO_AW_C    = 9;    //! $clog2(FO_DEPTH_C)
+  localparam int unsigned IFG_C      = 12;
+  localparam logic [7:0]  PREAMBLE_C = 8'h55;
+  localparam logic [7:0]  SFD_C      = 8'hD5;
+
   logic               busy_w;
-  logic [3:0]         tst_w;
   logic signed [31:0] adj_w;
   logic               step_we_w;
   logic [63:0]        step_w;
-  logic               sent_w;
-  logic               tsv_w;
-  logic [63:0]        tsn_w;
-  logic [15:0]        tsq_w;
-  logic               eng_tsv_w;
-  logic [63:0]        eng_tsn_w;
-  logic [15:0]        eng_tsq_w;
-  logic [3:0]         eng_tst_w;
-  logic               held_v_r;
-  logic [63:0]        held_n_r;
-  logic [15:0]        held_q_r;
-  logic [3:0]         held_t_r;
-  logic               hold_hit_w;
-  logic               raw_pass_w;
-  logic               release_w;
-  logic               gate_conflict_w;
-  logic [15:0]        gate_conflict_r;
   logic               pub_disc_w;
   logic [7*64-1:0]    pub_path_w;
+  logic               obs_rst_n_w;
+
+  logic        rec_v_w, rec_kind_w, rec_abort_w;
+  logic [11:0] rec_oidx_w;
+  logic  [3:0] rec_gen_w, rec_type_w;
+  logic [15:0] rec_seq_w;
+  logic  [7:0] rec_delta_w;
+  logic        seal_req_w, seal_ack_w;
+  logic  [3:0] seal_gen_w;
+
+  logic        dut_rec_v_w, dut_rec_kind_w, dut_rec_abort_w;
+  logic [11:0] dut_rec_oidx_w;
+  logic  [3:0] dut_rec_gen_w, dut_rec_type_w;
+  logic [15:0] dut_rec_seq_w;
+  logic  [7:0] dut_rec_delta_w;
+
+  logic        gmii_v_r;
+  logic  [7:0] gmii_d_r;
+  logic        lane_ready_w, lane_beat_w;
 
   timestamp_counter #(
       .COUNTER_WIDTH (64),
@@ -162,7 +215,9 @@ module gptp_shadow_wrap #(
   KL_gptp_shadow #(
       .TDATA_WIDTH_P (64),
       .CLK_HZ_P      (CLK_HZ_P),
-      .UCODE_HEX_P   (UCODE_HEX_P)
+      .UCODE_HEX_P   (UCODE_HEX_P),
+      .PHC_TICK_NS_P (PHC_TICK_NS_P),
+      .ETH_TICK_NS_P (PHC_TICK_NS_P)
   ) u_shadow (
       .clk_i           (clk_i),
       .rst_n           (rst_n),
@@ -179,12 +234,20 @@ module gptp_shadow_wrap #(
       .tx_tkeep_o      (tx_tkeep_o),
       .tx_tvalid_o     (tx_tvalid_o),
       .tx_tlast_o      (tx_tlast_o),
-      .tx_tready_i     (tx_tready_i),
-      .txts_valid_i    (eng_tsv_w),
-      .txts_ns_i       (eng_tsn_w),
-      .txts_seq_i      (eng_tsq_w),
-      .txts_type_i     (eng_tst_w),
-      .tx_sent_o       (sent_w),
+      .tx_tready_i     (lane_ready_w),
+      .rec_valid_i     (dut_rec_v_w),
+      .rec_kind_i      (dut_rec_kind_w),
+      .rec_oidx_i      (dut_rec_oidx_w),
+      .rec_gen_i       (dut_rec_gen_w),
+      .rec_type_i      (dut_rec_type_w),
+      .rec_seq_i       (dut_rec_seq_w),
+      .rec_delta_i     (dut_rec_delta_w),
+      .rec_abort_i     (dut_rec_abort_w),
+      .seal_req_o      (seal_req_w),
+      .seal_gen_o      (seal_gen_w),
+      .seal_ack_i      (seal_ack_w),
+      .mac_reinit_i    (mac_reinit_i),
+      .mac_eth_rst_i   (mac_eth_rst_i),
       .pub_gm_id_o     (pub_gm_id_o),
       .pub_parent_id_o (pub_parent_id_o),
       .pub_flags_o     (pub_flags_o),
@@ -204,14 +267,306 @@ module gptp_shadow_wrap #(
       .dbg_tspush_v_o  (dbg_tspush_v_o),
       .dbg_tspush_o    (dbg_tspush_o),
       .dbg_tspop_v_o   (dbg_tspop_v_o),
-      .dbg_txts_type_o (dbg_slice_type_o),
-      .dbg_txts_lost_o (dbg_txts_lost_o)
+      .dbg_txts_lost_o (dbg_txts_lost_o),
+      .dbg_txts_disc_o (dbg_txts_disc_o),
+      .dbg_txts_barr_o (dbg_txts_barr_o),
+      .dbg_txts_stall_o(dbg_txts_stall_o),
+      .dbg_txts_state_o(dbg_txts_state_o)
   );
 
   assign pub_disc_o = pub_disc_w;
   assign pub_path_tail0_o = pub_path_w[0*64 +: 64];
   assign pub_path_tail1_o = pub_path_w[1*64 +: 64];
   assign pub_path_tail6_o = pub_path_w[6*64 +: 64];
+
+  // ======================================================================= //
+  //  Bench framer: the plane's 64-bit lane -> a contiguous octet stream     //
+  // ======================================================================= //
+  //! Store and forward, like the boundary it stands in for: a frame starts
+  //! only once it is whole, so the observer never sees a fragment this
+  //! wrapper created rather than one a phase asked for.
+  logic [8:0]        fo_mem_r [0:FO_DEPTH_C-1];
+  logic [FO_AW_C-1:0] fo_wp_r, fo_rp_r;
+  logic [7:0]        fo_frames_r;
+
+  //! the framer takes a beat whenever it has room; a phase can still stall
+  //! the lane through `tx_tready_i`, which parks whole frames in the plane's
+  //! own transmit FIFO exactly as downstream backpressure does
+  assign lane_ready_w = tx_tready_i;
+  assign lane_beat_w  = tx_tvalid_o & lane_ready_w;
+
+  logic [2:0] lane_top_w;
+  always_comb begin : lane_top
+    lane_top_w = 3'd0;
+    for (int unsigned i = 0; i < 8; i++) if (tx_tkeep_o[i]) lane_top_w = 3'(i);
+  end : lane_top
+
+  typedef enum logic [1:0] {FR_IDLE, FR_PRE, FR_DATA, FR_GAP} fr_state_e;
+  fr_state_e  fr_S;
+  logic [3:0] fr_cnt_r;
+  logic [8:0] fo_rd_w;
+  assign fo_rd_w = fo_mem_r[fo_rp_r];
+
+  logic fo_pop_w;
+  assign fo_pop_w = (fr_S == FR_DATA);
+
+  logic push_frame_w, pop_frame_w;
+  assign push_frame_w = lane_beat_w & tx_tlast_o;
+  assign pop_frame_w  = fo_pop_w & fo_rd_w[8];
+
+  always_ff @(posedge clk_i) begin : framer_push
+    if (!rst_n) begin
+      fo_wp_r     <= '0;
+      fo_frames_r <= 8'd0;
+    end else begin
+      if (lane_beat_w) begin
+        int unsigned n;
+        n = 0;
+        for (int unsigned k = 0; k < 8; k++) begin
+          if (tx_tkeep_o[k]) begin
+            fo_mem_r[FO_AW_C'(fo_wp_r + FO_AW_C'(n))] <=
+                {tx_tlast_o & (3'(k) == lane_top_w), tx_tdata_o[8*k +: 8]};
+            n = n + 1;
+          end
+        end
+        fo_wp_r <= FO_AW_C'(fo_wp_r + FO_AW_C'(n));
+      end
+      //! a whole frame arrives and a whole frame leaves in the same cycle:
+      //! the count is unchanged, which is why these are netted rather than
+      //! written one after the other
+      if (push_frame_w & ~pop_frame_w)      fo_frames_r <= fo_frames_r + 8'd1;
+      else if (~push_frame_w & pop_frame_w) fo_frames_r <= fo_frames_r - 8'd1;
+    end
+  end : framer_push
+
+  always_ff @(posedge clk_i) begin : framer_emit
+    if (!rst_n) begin
+      fr_S       <= FR_IDLE;
+      fr_cnt_r   <= 4'd0;
+      fo_rp_r    <= '0;
+      gmii_v_r   <= 1'b0;
+      gmii_d_r   <= 8'd0;
+    end else begin
+      gmii_v_r <= 1'b0;
+      unique case (fr_S)
+        FR_IDLE: begin
+          if (|fo_frames_r) begin
+            fr_S     <= FR_PRE;
+            fr_cnt_r <= 4'd0;
+            gmii_v_r <= 1'b1;
+            gmii_d_r <= PREAMBLE_C;
+          end
+        end
+        FR_PRE: begin
+          gmii_v_r <= 1'b1;
+          gmii_d_r <= (fr_cnt_r == 4'd6) ? SFD_C : PREAMBLE_C;
+          if (fr_cnt_r == 4'd6) fr_S <= FR_DATA;
+          fr_cnt_r <= fr_cnt_r + 4'd1;
+        end
+        FR_DATA: begin
+          gmii_v_r <= 1'b1;
+          gmii_d_r <= fo_rd_w[7:0];
+          fo_rp_r  <= FO_AW_C'(fo_rp_r + FO_AW_C'(1));
+          if (fo_rd_w[8]) begin
+            fr_S     <= FR_GAP;
+            fr_cnt_r <= 4'd0;
+          end else if (fr_cnt_r != 4'd15) begin
+            fr_cnt_r <= fr_cnt_r + 4'd1;
+          end
+        end
+        default: begin   //! FR_GAP
+          if (fr_cnt_r == 4'(IFG_C - 1)) begin
+            fr_S     <= FR_IDLE;
+            fr_cnt_r <= 4'd0;
+          end else begin
+            fr_cnt_r <= fr_cnt_r + 4'd1;
+          end
+        end
+      endcase
+    end
+  end : framer_emit
+
+  //! THE INDEPENDENT LAUNCH REFERENCE. Counted over the octets the framer
+  //! PRESENTS, so it shares no state with the observer's own pipeline. The
+  //! PHC is sampled one edge after the reference octet, because the
+  //! accumulator value present over an interval is the one written at its
+  //! start: sampling at the reference edge itself would report the tick
+  //! before the launch.
+  logic [7:0] lo_idx_r;
+  logic       lo_inf_r;
+  logic [7:0] lo_nidx_w;
+  assign lo_nidx_w = lo_inf_r ? ((lo_idx_r == 8'd255) ? lo_idx_r
+                                                      : lo_idx_r + 8'd1)
+                              : 8'd0;
+
+  always_ff @(posedge clk_i) begin : launch_tag
+    if (!rst_n) begin
+      lo_idx_r          <= 8'd0;
+      lo_inf_r          <= 1'b0;
+      dbg_launch_v_o    <= 1'b0;
+      dbg_launch_phc_o  <= 64'd0;
+      dbg_launch_type_o <= 4'd0;
+      dbg_launch_seq_o  <= 16'd0;
+    end else begin
+      dbg_launch_v_o <= 1'b0;
+      if (gmii_v_r) begin
+        lo_idx_r <= lo_nidx_w;
+        lo_inf_r <= 1'b1;
+        if (lo_nidx_w == 8'd9) begin
+          dbg_launch_v_o   <= 1'b1;
+          dbg_launch_phc_o <= phc_ns_o;
+        end
+        if (lo_nidx_w == 8'd22) dbg_launch_type_o      <= gmii_d_r[3:0];
+        if (lo_nidx_w == 8'd52) dbg_launch_seq_o[15:8] <= gmii_d_r;
+        if (lo_nidx_w == 8'd53) dbg_launch_seq_o[7:0]  <= gmii_d_r;
+      end else begin
+        lo_inf_r <= 1'b0;
+      end
+    end
+  end : launch_tag
+
+  // ======================================================================= //
+  //  The real observer, on the framed octet stream                          //
+  // ======================================================================= //
+  assign obs_rst_n_w = rst_n & ~obs_rst_i;
+
+  KL_gptp_gmii_launch #(
+      .REF_IDX_P        (8),
+      .TYPE_IDX_P       (22),
+      .TAG_IDX_HI_P     (52),
+      .TAG_IDX_LO_P     (53),
+      .TXTS_DELTA_EXP_P (45)
+  ) u_launch (
+      .eth_clk_i     (clk_i),
+      .eth_rst_n     (obs_rst_n_w),
+      .gmii_tvalid_i (gmii_v_r),
+      .gmii_tdata_i  (gmii_d_r),
+      .dp_clk_i      (clk_i),
+      .dp_rst_n      (rst_n),
+      .rec_valid_o   (rec_v_w),
+      .rec_kind_o    (rec_kind_w),
+      .rec_oidx_o    (rec_oidx_w),
+      .rec_gen_o     (rec_gen_w),
+      .rec_type_o    (rec_type_w),
+      .rec_seq_o     (rec_seq_w),
+      .rec_delta_o   (rec_delta_w),
+      .rec_abort_o   (rec_abort_w),
+      .seal_req_i    (seal_req_w),
+      .seal_gen_i    (seal_gen_w),
+      .seal_ack_o    (seal_ack_w),
+      .dbg_overrun_o (dbg_rec_ovr_o)
+  );
+
+  assign dbg_rec_v_o     = rec_v_w;
+  assign dbg_rec_kind_o  = rec_kind_w;
+  assign dbg_rec_oidx_o  = rec_oidx_w;
+  assign dbg_rec_gen_o   = rec_gen_w;
+  assign dbg_rec_type_o  = rec_type_w;
+  assign dbg_rec_seq_o   = rec_seq_w;
+  assign dbg_rec_delta_o = rec_delta_w;
+  assign dbg_rec_abort_o = rec_abort_w;
+
+  // ======================================================================= //
+  //  Test-only record delay, ORDER PRESERVING                               //
+  // ======================================================================= //
+  //! One record of a selected messageType is held at the head of an ordered
+  //! queue and released later. Every record behind it waits, which is what
+  //! a late record really does to an ordered ledger: the phases that use
+  //! this are proving exactly that, and that nothing is mis-credited while
+  //! it is held. Nothing is fabricated - the held record is the observer's.
+  localparam int unsigned RQ_DEPTH_C = 8;
+  localparam int unsigned RQ_W_C     = 1 + 12 + 4 + 4 + 16 + 8 + 1 + 1;
+
+  logic [RQ_W_C-1:0] rq_mem_r [0:RQ_DEPTH_C-1];
+  logic        [2:0] rq_wp_r, rq_rp_r;
+  logic        [3:0] rq_n_r;
+  logic        [1:0] rq_gap_r;
+  logic              arm_r, held_r;
+
+  logic [RQ_W_C-1:0] rq_in_w, rq_head_w;
+  //! a record that cannot be drained on the very next cycle has been
+  //! delayed by this fixture; the flag travels with it
+  logic push_delayed_w;
+  assign push_delayed_w = (rq_n_r != 4'd0) | hold_now_w | (|rq_gap_r);
+  assign rq_in_w   = {rec_kind_w, rec_oidx_w, rec_gen_w, rec_type_w,
+                      rec_seq_w, rec_delta_w, rec_abort_w, push_delayed_w};
+  assign rq_head_w = rq_mem_r[rq_rp_r];
+
+  logic       rq_head_kind_w, rq_head_abort_w, rq_head_delayed_w;
+  logic [3:0] rq_head_type_w;
+  logic [15:0] rq_head_seq_w;
+  assign {rq_head_kind_w, dut_rec_oidx_w, dut_rec_gen_w, rq_head_type_w,
+          rq_head_seq_w, dut_rec_delta_w, rq_head_abort_w,
+          rq_head_delayed_w} = rq_head_w;
+  assign dut_rec_kind_w  = rq_head_kind_w;
+  assign dut_rec_type_w  = rq_head_type_w;
+  assign dut_rec_seq_w   = rq_head_seq_w;
+  assign dut_rec_abort_w = rq_head_abort_w;
+
+  logic head_match_w, hold_now_w;
+  assign head_match_w = (rq_n_r != 4'd0) & ~rq_head_kind_w &
+                        (rq_head_type_w == rechold_type_i);
+  assign hold_now_w   = held_r | (arm_r & head_match_w);
+  //! The real crossing cannot present two records back to back - its
+  //! request/acknowledge round trip is many cycles and the frames that
+  //! produce them are a whole inter-frame gap apart - and KL_gptp_txret
+  //! asserts that. This queue must not manufacture a spacing the wire never
+  //! produces, so a drained record is followed by two idle cycles.
+  assign dut_rec_v_w  = (rq_n_r != 4'd0) & ~hold_now_w & (rq_gap_r == 2'd0);
+
+  always_ff @(posedge clk_i) begin : record_queue
+    if (!rst_n) begin
+      rq_wp_r <= 3'd0;
+      rq_rp_r <= 3'd0;
+      rq_n_r   <= 4'd0;
+      rq_gap_r <= 2'd0;
+      arm_r    <= 1'b0;
+      held_r   <= 1'b0;
+    end else begin
+      if (dut_rec_v_w)          rq_gap_r <= 2'd2;
+      else if (|rq_gap_r)       rq_gap_r <= rq_gap_r - 2'd1;
+      if (rec_v_w) begin
+        rq_mem_r[rq_wp_r] <= rq_in_w;
+        rq_wp_r           <= rq_wp_r + 3'd1;
+      end
+      if (dut_rec_v_w) rq_rp_r <= rq_rp_r + 3'd1;
+      if (rec_v_w & ~dut_rec_v_w)      rq_n_r <= rq_n_r + 4'd1;
+      else if (~rec_v_w & dut_rec_v_w) rq_n_r <= rq_n_r - 4'd1;
+
+      if (rechold_en_i && !held_r)              arm_r  <= 1'b1;
+      if (arm_r && head_match_w && !held_r)     held_r <= 1'b1;
+      if (held_r && rechold_release_i) begin
+        held_r <= 1'b0;
+        arm_r  <= 1'b0;
+      end
+    end
+  end : record_queue
+
+  //! a head that has been held at least one cycle was delayed even if it
+  //! found the queue empty when it arrived
+  logic head_held_r;
+  always_ff @(posedge clk_i) begin : head_held
+    if (!rst_n)              head_held_r <= 1'b0;
+    else if (hold_now_w)     head_held_r <= 1'b1;
+    else if (dut_rec_v_w)    head_held_r <= 1'b0;
+  end : head_held
+
+  assign dbg_rec_held_o       = hold_now_w;
+  assign dbg_rec_held_type_o  = rq_head_type_w;
+  assign dbg_rec_held_seq_o   = rq_head_seq_w;
+  assign dbg_dut_rec_v_o      = dut_rec_v_w;
+  assign dbg_dut_rec_kind_o   = dut_rec_kind_w;
+  assign dbg_dut_rec_delayed_o = rq_head_delayed_w | head_held_r;
+
+  // ======================================================================= //
+  //  The engine's accepted result, observed at its accepted beat            //
+  // ======================================================================= //
+  assign dbg_eng_txts_v_o    = u_shadow.eng_txts_valid_w & u_shadow.eng_txts_ready_w;
+  assign dbg_eng_txts_ns_o   = u_shadow.eng_txts_ns_w;
+  assign dbg_eng_txts_seq_o  = u_shadow.eng_txts_seq_w;
+  assign dbg_eng_txts_type_o = u_shadow.eng_txts_type_w;
+  assign dbg_eng_txts_ok_o   = u_shadow.eng_txts_ok_w;
+  assign dbg_eng_txts_gen_o  = u_shadow.eng_txts_gen_w;
 
   KL_ptp_clock_validity #(
       .QTICK_CYC_P   (64),
@@ -242,82 +597,7 @@ module gptp_shadow_wrap #(
       crf_launch_tu_o     <= ts_uncertain_o;
       disc_launch_count_o <= disc_launch_count_o + 16'd1;
     end
-  end
-
-  KL_gptp_txstamp #(
-      .TDATA_WIDTH_P (64)
-  ) u_txstamp (
-      .clk_i      (clk_i),
-      .rst_n      (rst_n),
-      .tx_tdata_i (tx_tdata_o),
-      .tx_tvalid_i(tx_tvalid_o),
-      .tx_tready_i(tx_tready_i),
-      .tx_tlast_i (tx_tlast_o),
-      .phc_ns_i   (phc_ns_o),
-      .armed_i    (sent_w),
-      .ts_valid_o (tsv_w),
-      .ts_ns_o    (tsn_w),
-      .ts_seq_o   (tsq_w),
-      .ts_type_o  (tst_w)
-  );
-
-  //! Return-order fault injection for the two #214 collision proofs. This is
-  //! deliberately outside shipping RTL. It captures a complete tuple emitted
-  //! by KL_gptp_txstamp and can delay only the first matching return. While a
-  //! tuple is held, every later raw return passes normally. Release waits for
-  //! an idle raw cycle, so neither path can overwrite the other (donor #31).
-  assign hold_hit_w = tsv_w && txts_hold_en_i && !held_v_r &&
-                      (tst_w == txts_hold_type_i);
-  assign raw_pass_w = tsv_w && !hold_hit_w;
-  assign release_w  = held_v_r && txts_release_i && !tsv_w;
-  //! A second selected capture while the slot is full, or a release request
-  //! coincident with a raw return, would make the intended delivery order
-  //! ambiguous. Count either condition so every collision phase can prove
-  //! that its test-only reordering was lossless and serialized.
-  assign gate_conflict_w =
-      (tsv_w && txts_hold_en_i && held_v_r &&
-       (tst_w == txts_hold_type_i)) ||
-      (txts_release_i && held_v_r && tsv_w);
-  assign eng_tsv_w  = raw_pass_w || release_w;
-  assign eng_tsn_w  = raw_pass_w ? tsn_w : held_n_r;
-  assign eng_tsq_w  = raw_pass_w ? tsq_w : held_q_r;
-  //! Show the raw tag during its capture cycle as well; the engine-valid pulse
-  //! is suppressed then, and the held value is selected on replay.
-  assign eng_tst_w  = (raw_pass_w || hold_hit_w) ? tst_w : held_t_r;
-
-  always_ff @(posedge clk_i) begin : hold_one_real_stamp
-    if (!rst_n) begin
-      held_v_r <= 1'b0;
-      held_n_r <= '0;
-      held_q_r <= '0;
-      held_t_r <= '0;
-      gate_conflict_r <= '0;
-    end else begin
-      if (gate_conflict_w) gate_conflict_r <= gate_conflict_r + 16'd1;
-      if (hold_hit_w) begin
-        held_v_r <= 1'b1;
-        held_n_r <= tsn_w;
-        held_q_r <= tsq_w;
-        held_t_r <= tst_w;
-      end else if (release_w) begin
-        held_v_r <= 1'b0;
-      end
-    end
-  end : hold_one_real_stamp
-
-  assign dbg_txts_o    = tsn_w;
-  assign dbg_txts_v_o  = tsv_w;
-  assign dbg_txts_seq_o = tsq_w;
-  assign dbg_txts_type_o = tst_w;
-  assign dbg_txts_held_o = held_v_r;
-  assign dbg_txts_held_ns_o = held_n_r;
-  assign dbg_txts_held_seq_o = held_q_r;
-  assign dbg_txts_held_type_o = held_t_r;
-  assign dbg_eng_txts_v_o = eng_tsv_w;
-  assign dbg_eng_txts_ns_o = eng_tsn_w;
-  assign dbg_eng_txts_seq_o = eng_tsq_w;
-  assign dbg_eng_txts_type_o = eng_tst_w;
-  assign dbg_txts_gate_conflict_o = gate_conflict_r;
+  end : same_edge_talker_sampling
 
   //! program-start counter: one per rising edge of the engine's busy line
   logic        busy_r;
@@ -330,7 +610,7 @@ module gptp_shadow_wrap #(
       busy_r <= busy_w;
       if (busy_w && !busy_r) prog_run_r <= prog_run_r + 16'd1;
     end
-  end
+  end : prog_run
   assign dbg_prog_run_o = prog_run_r;
 
 endmodule : gptp_shadow_wrap

@@ -16,8 +16,12 @@ VFLAGS = --cc --exe --build -j 0 \
 SRCS = gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
-       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv \
+       $(RTL_DIR)/common/cdc_pulse.sv \
+       $(RTL_DIR)/common/cdc_handshake.sv \
        $(AXIS_DIR)/axis_fifo.v \
        $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \
        $(GPTP_DIR)/hdl/ucpu/KL_gptp_ucpu.sv \

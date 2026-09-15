@@ -32,17 +32,28 @@
 //                The ingress point is the tap (axis domain), not the MAC
 //                SFD: the constant MAC->tap pipeline offset belongs in the
 //                ingress-latency correction (REQ-PTP-06 lineage), and the
-//                silicon round (#117) measures it. The EGRESS timestamp
-//                comes back from KL_gptp_txstamp at the MAC boundary via
-//                the txts_* face, tagged with the transmitted frame's
-//                sequenceId AND messageType, because the control lane does
-//                not traverse ptp_ts_top's stamper. The engine consumes
-//                BOTH tags at that boundary, with messageType presented
-//                live on the PORT rather than a register so it is valid
-//                in the same cycle the engine samples the face. The pair
-//                closes milan-fpga #214 / Mister-M-alt/FPGA-gPTP#28:
-//                sequenceId alone cannot separate a Pdelay_Req from a
-//                Pdelay_Resp when the two counters coincide.
+//                silicon round (#117) measures it.
+//
+//                THE EGRESS TIMESTAMP IS AN OBSERVED LAUNCH, NOT A
+//                BOUNDARY CAPTURE (issue #360). It used to be latched at
+//                the first accepted beat of the frame at the datapath's MAC
+//                boundary, which precedes the wire by two AXIS crossings, a
+//                store-and-forward packet FIFO, width conversion, padding,
+//                FCS, preamble and gap insertion and one registered output
+//                stage - a queue-dependent delay that went straight into t1
+//                and biased the computed peer delay. The plane now allocates
+//                one ordered LEDGER ENTRY per frame at the accepted end of
+//                its last byte (KL_gptp_txticket), a first-party observer at
+//                the MAC's own transmit stream reports each launched frame
+//                (KL_gptp_gmii_launch, instantiated by the SoC beside the
+//                MAC), and this wrapper's KL_gptp_txret reconstructs the
+//                launch instant and serves the engine's result face. The
+//                frame's {messageType, sequenceId} still travels with the
+//                result, because sequenceId alone cannot separate a
+//                Pdelay_Req from a Pdelay_Resp when the two counters
+//                coincide (milan-fpga #214, Mister-M-alt/FPGA-gPTP#28) - but
+//                it is now a CHECK on an identity the two ordered positions
+//                have already established, not the identity itself.
 //
 //                A control frame offered while the FIFO cannot take it is
 //                LOST and counted, never hidden (the tap cannot
@@ -62,7 +73,24 @@ module KL_gptp_shadow #(
     parameter string       UCODE_HEX_P     = "gptp_ucode.hex",
     parameter int unsigned RX_FIFO_BYTES_P = 2048,
     parameter int unsigned TX_FIFO_BYTES_P = 2048,
-    parameter int unsigned TS_FIFO_LOG2_P  = 5
+    parameter int unsigned TS_FIFO_LOG2_P  = 5,
+    //! egress identities live at once; the ledger and the result queue are
+    //! both this deep and the admission credit is derived from the same
+    //! number (issue #360)
+    parameter int unsigned TXTS_CAP_N_P    = 8,
+    parameter int unsigned MAND_RSV_C      = 4,
+    parameter int unsigned TXTS_OIDX_W_P   = 12,
+    parameter int unsigned TXTS_GEN_W_P    = 4,
+    parameter int unsigned TXTS_DELTA_W_P  = 8,
+    //! transmit-clock period in nanoseconds at the observation point: 8 ns
+    //! is the 1 Gb/s GMII shape and no other link speed is qualified
+    parameter int unsigned ETH_TICK_NS_P   = 8,
+    //! nanoseconds the PHC advances per clock of this plane. 0 DERIVES it
+    //! from CLK_HZ_P, which is what a product build wants. A bench whose
+    //! counter runs a different shape from its own clock states the shape
+    //! here rather than misdeclaring its clock, because the egress
+    //! reconstruction subtracts whole ticks of this period.
+    parameter int unsigned PHC_TICK_NS_P   = 0
 ) (
     input  wire clk_i,                    //! axis_clk
     input  wire rst_n,                    //! active-low reset
@@ -90,19 +118,29 @@ module KL_gptp_shadow #(
     output wire                       tx_tlast_o,
     input  wire                       tx_tready_i,
 
-    //! egress timestamp return (KL_gptp_txstamp, type+sequence matched)
-    input  wire        txts_valid_i,
-    input  wire [63:0] txts_ns_i,
-    input  wire [15:0] txts_seq_i,
-    input  wire [3:0]  txts_type_i,   //! messageType of the stamped frame
+    //! LAUNCH RECORDS from KL_gptp_gmii_launch, one per frame the MAC
+    //! actually launched. Already in this clock domain: the observer owns
+    //! the crossing, because the module that measures the event is the one
+    //! that knows how many register stages its own measurement carries.
+    input  wire                      rec_valid_i,
+    input  wire                      rec_kind_i,    //! 0 = frame, 1 = echo
+    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,
+    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,
+    input  wire                [3:0] rec_type_i,
+    input  wire               [15:0] rec_seq_i,
+    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,
+    input  wire                      rec_abort_i,
 
-    //! pulses at the FIRST accepted beat of each plane frame entering the
-    //! merge chain -- the boundary stamper's take decision samples at a
-    //! frame's beat 0, and the gasketed merges can pass that beat through
-    //! combinationally in the same cycle, so an eof-timed arm would lose
-    //! the race (an sof-timed arm covers both the same-cycle and the
-    //! queued case)
-    output logic tx_sent_o,
+    //! the seal offered back to that observer, and the crossing's own
+    //! delivery report (which is NOT the observer's acknowledgement)
+    output wire                     seal_req_o,
+    output wire [TXTS_GEN_W_P-1:0]  seal_gen_o,
+    input  wire                     seal_ack_i,
+
+    //! the MAC recovery levels the link guard drives, observed: a rising
+    //! edge of either raises the plane's barrier
+    input  wire mac_reinit_i,
+    input  wire mac_eth_rst_i,
 
     //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
@@ -129,13 +167,48 @@ module KL_gptp_shadow #(
     output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
     output wire  [63:0] dbg_tspush_o,
     output wire         dbg_tspop_v_o,    //! side-FIFO pop (engine sof)
-    output wire  [3:0]  dbg_txts_type_o,  //! the stamp's type tag, live
-    output wire  [15:0] dbg_txts_lost_o   //! egress results retired without
+    output wire  [15:0] dbg_txts_lost_o,  //! egress results retired without
                                           //! a measurement, wrapping
+    output wire  [15:0] dbg_txts_disc_o,  //! launch records discarded
+    output wire  [15:0] dbg_txts_barr_o,  //! barriers raised
+    output wire  [15:0] dbg_txts_stall_o, //! head-entry age expiries
+    output wire  [15:0] dbg_txts_state_o  //! seal, echo, generation, depths
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
   localparam logic [15:0] ET_GPTP_C = 16'h88F7;
+
+  //! occupancy width shared by the allocator, the ledger and the departure
+  //! count, so the three cannot drift apart silently
+  localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
+  //! this plane's own PHC tick in nanoseconds. It is DERIVED from the
+  //! configured frequency unless a bench states the shape, because the
+  //! reconstruction subtracts whole ticks of it and a mirrored literal
+  //! would go stale the first time the datapath clock moved.
+  localparam int unsigned DP_TICK_NS_C =
+      (PHC_TICK_NS_P != 0) ? PHC_TICK_NS_P : 1_000_000_000 / CLK_HZ_P;
+
+  //! Beats the plane's transmit FIFO holds. The pinned `axis_fifo` takes
+  //! DEPTH in OCTETS when KEEP_ENABLE is set - `ADDR_WIDTH =
+  //! $clog2(DEPTH/KEEP_WIDTH)` - and rounds the beat count up to a power of
+  //! two, so this is the exact capacity and not an estimate.
+  localparam int unsigned TXF_BEATS_C =
+      2 ** $clog2(TX_FIFO_BYTES_P / KEEP_W_C);
+  //! the largest plane frame, in beats: the donor's own transmit slot size
+  //! is the authority for the octet count
+  localparam int unsigned PLANE_BEATS_C =
+      (gptp_ucpu_pkg::TXSLOT_BYTES_C + KEEP_W_C - 1) / KEEP_W_C;
+
+  // ---- elaboration contract ---------------------------------------------
+  //! ONE format string per $error: later arguments print as values.
+  if (TXTS_CAP_N_P * PLANE_BEATS_C > TXF_BEATS_C) begin : g_refuse_txfifo
+    $error("KL_gptp_shadow: the plane transmit FIFO holds %0d beats and TXTS_CAP_N_P=%0d maximum plane frames need %0d. Admission is bounded by the ledger, not by this FIFO, so a FIFO that cannot hold the admitted frames would back-pressure the engine byte face - which stalls the very dispatch that releases the previous result.",
+           TXF_BEATS_C, TXTS_CAP_N_P, TXTS_CAP_N_P * PLANE_BEATS_C);
+  end else if ((PHC_TICK_NS_P == 0) && (DP_TICK_NS_C * CLK_HZ_P != 1_000_000_000))
+  begin : g_refuse_tick
+    $error("KL_gptp_shadow: CLK_HZ_P=%0d does not divide 1 GHz into whole nanoseconds (nearest tick %0d ns). The egress reconstruction subtracts whole ticks of this period, so a rounded tick would be a silent bias on every timestamp; state the shape through PHC_TICK_NS_P if the counter really runs at another rate.",
+           CLK_HZ_P, DP_TICK_NS_C);
+  end
 
   // ======================================================================= //
   //  RX classify (the KL_pp_shadow idiom: aligned lanes, no byte muxes)    //
@@ -452,59 +525,19 @@ module KL_gptp_shadow #(
   logic       eng_tx_valid_w, eng_tx_sof_w, eng_tx_eof_w, eng_tx_ready_w;
   logic [7:0] eng_tx_data_w;
   logic       adj_we_w;
-  logic       eng_txts_ready_w;
+  //! the engine's result face, served by the ledger below
+  logic        eng_txts_valid_w, eng_txts_ready_w, eng_txts_ok_w;
+  logic [63:0] eng_txts_ns_w;
+  logic [15:0] eng_txts_seq_w;
+  logic  [3:0] eng_txts_type_w;
+  logic [TXTS_GEN_W_P-1:0] eng_txts_gen_w;
+  logic        eng_tx_credit_w;
   logic [31:0] adj_val_w;
   logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
   logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
   logic  [3:0] pub_path_count_raw_w;
   logic [7*64-1:0] pub_path_raw_w;
   logic        pub_commit_raw_w;
-
-  // ======================================================================= //
-  //  Egress result offer: the engine's valid/ready result face              //
-  // ======================================================================= //
-  //! The engine ACCEPTS a result tuple on a valid/ready beat and refuses a
-  //! second offer while the first is still owed to the micro-code
-  //! (FPGA-gPTP #31), so a producer that pulses would lose a result the
-  //! moment two frames finish close together. The donor contract puts that
-  //! bounded storage on this side of the face, and this is the parent's
-  //! entry: ONE offer, whole, held until the engine takes it, with an
-  //! overrun count rather than a silent overwrite.
-  //!
-  //! One entry is what the boundary stamper needs; the frame ledger that
-  //! replaces the stamper carries the full capacity derivation and its own
-  //! result queue, and takes this face over with it.
-  logic        off_v_r;
-  logic [63:0] off_ns_r;
-  logic [15:0] off_seq_r;
-  logic  [3:0] off_type_r;
-  logic [15:0] off_lost_r;
-  logic        off_take_w, off_load_w;
-  assign off_take_w = off_v_r & eng_txts_ready_w;
-  assign off_load_w = txts_valid_i & (~off_v_r | off_take_w);
-
-  always_ff @(posedge clk_i) begin : egress_result_offer
-    if (!rst_n) begin
-      off_v_r    <= 1'b0;
-      off_ns_r   <= 64'd0;
-      off_seq_r  <= 16'd0;
-      off_type_r <= 4'd0;
-      off_lost_r <= 16'd0;
-    end else begin
-      if (off_load_w) begin
-        off_v_r    <= 1'b1;
-        off_ns_r   <= txts_ns_i;
-        off_seq_r  <= txts_seq_i;
-        off_type_r <= txts_type_i;
-      end else if (off_take_w) begin
-        off_v_r <= 1'b0;
-      end
-      //! an offer that arrives while the held one has not been taken is the
-      //! result donor #31 used to overwrite: counted here, never hidden
-      if (txts_valid_i & off_v_r & ~off_take_w)
-        off_lost_r <= off_lost_r + 16'd1;
-    end
-  end : egress_result_offer
 
   //! Canonical public sequence. A tail has no identity without a GM. With a
   //! GM, preserve the donor's raw distinction: count zero means the selected
@@ -568,19 +601,14 @@ module KL_gptp_shadow #(
       .tx_sof_o           (eng_tx_sof_w),
       .tx_eof_o           (eng_tx_eof_w),
       .tx_ready_i         (eng_tx_ready_w),
-      .txts_valid_i       (off_v_r),
+      .txts_valid_i       (eng_txts_valid_w),
       .txts_ready_o       (eng_txts_ready_w),
-      .txts_ns_i          (off_ns_r),
-      .txts_seq_i         (off_seq_r),
-      .txts_type_i        (off_type_r),
-      //! the boundary stamper reports only measurements and the plane has no
-      //! generation or admission mechanism yet: every offer is a measured
-      //! result, generation 1 (never 0, which the engine reserves for a
-      //! reset replay), and the three gated initiating legs keep their
-      //! pre-repair cadence
-      .txts_ok_i          (1'b1),
-      .txts_gen_i         (4'd1),
-      .tx_credit_i        (1'b1),
+      .txts_ns_i          (eng_txts_ns_w),
+      .txts_seq_i         (eng_txts_seq_w),
+      .txts_type_i        (eng_txts_type_w),
+      .txts_ok_i          (eng_txts_ok_w),
+      .txts_gen_i         (eng_txts_gen_w),
+      .tx_credit_i        (eng_tx_credit_w),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),
@@ -650,18 +678,6 @@ module KL_gptp_shadow #(
     if (!rst_n)        phc_adj_o <= '0;
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
   end
-
-  //! The stamper's messageType tag, passed straight through, so a bench can
-  //! compare the tag the producer offers against the one the engine finally
-  //! consumes. The hazard this observation exists for is a type field that
-  //! lags its own timestamp by a leg, which would credit one leg's egress
-  //! time to another's claim -- the mis-crediting of
-  //! Mister-M-alt/FPGA-gPTP#28 over again, off by a leg instead of a
-  //! sequence. It cannot arise across the offer register above, which
-  //! writes ns, sequence and type from ONE condition, but it can arise the
-  //! moment something else drives the face, so the observation stays.
-  assign dbg_txts_type_o = txts_type_i;
-  assign dbg_txts_lost_o = off_lost_r;
 
   // ======================================================================= //
   //  TX gearbox: 1 B/clk up to wide beats, whole frames onto the lane      //
@@ -767,17 +783,125 @@ module KL_gptp_shadow #(
 
   assign tx_tvalid_o = txf_out_valid_w;
   assign tx_tlast_o  = txf_out_last_w;
+  assign txf_out_ready_w = tx_tready_i;
 
-  //! sof tracking on the lane output: the arm fires with beat 0
+  //! start-of-frame tracking on the lane output: 1 means the next accepted
+  //! beat begins a frame, so the egress is at a frame boundary
   logic txo_sof_r;
-  always_ff @(posedge clk_i) begin
-    if (!rst_n)                              txo_sof_r <= 1'b1;
-    else if (txf_out_valid_w && tx_tready_i) txo_sof_r <= txf_out_last_w;
-  end
-  assign tx_sent_o = txf_out_valid_w & tx_tready_i & txo_sof_r;
+  always_ff @(posedge clk_i) begin : lane_sof
+    if (!rst_n)                                   txo_sof_r <= 1'b1;
+    else if (txf_out_valid_w && txf_out_ready_w)  txo_sof_r <= txf_out_last_w;
+  end : lane_sof
 
+  // ======================================================================= //
+  //  Departures: frames this plane has handed to the MAC                    //
+  // ======================================================================= //
+  //! A record can only be credited to a frame the plane has actually handed
+  //! over. This counter is that positive gate's source: it rises at each
+  //! accepted last beat at the lane egress and falls as the ledger resolves
+  //! those frames, so it is the number of departed entries still owed a
+  //! record rather than a free-running total.
+  logic [OCC_W_C-1:0] n_dep_r;
+  logic dep_add_w, dep_take_w;
+  assign dep_add_w = txf_out_valid_w & txf_out_ready_w & txf_out_last_w;
+
+  always_ff @(posedge clk_i) begin : departures
+    if (!rst_n) begin
+      n_dep_r <= '0;
+    end else if (dep_add_w & ~dep_take_w) begin
+      n_dep_r <= n_dep_r + 1'b1;
+    end else if (~dep_add_w & dep_take_w) begin
+      if (|n_dep_r) n_dep_r <= n_dep_r - 1'b1;
+    end
+  end : departures
+
+  // ======================================================================= //
+  //  Egress timestamp ownership: allocation, ledger, result face            //
+  // ======================================================================= //
+  logic       alloc_w, alloc_tag_w;
+  logic [3:0] alloc_type_w;
+  logic [15:0] alloc_seq_w;
+  logic [11:0] alloc_aidx_w;
+  logic [OCC_W_C-1:0] outstanding_w;
+  logic       res_accept_w, credit_hold_w;
+  logic [15:0] dbg_alloc_ovf_w;
+
+  KL_gptp_txticket #(
+      .TXTS_CAP_N_P  (TXTS_CAP_N_P),
+      .MAND_RSV_C    (MAND_RSV_C),
+      .TXTS_AIDX_W_P (12)
+  ) u_txticket (
+      .clk_i           (clk_i),
+      .rst_n           (rst_n),
+      .tx_valid_i      (eng_tx_valid_w),
+      .tx_ready_i      (eng_tx_ready_w),
+      .tx_sof_i        (eng_tx_sof_w),
+      .tx_eof_i        (eng_tx_eof_w),
+      .tx_data_i       (eng_tx_data_w),
+      .alloc_o         (alloc_w),
+      .alloc_type_o    (alloc_type_w),
+      .alloc_seq_o     (alloc_seq_w),
+      .alloc_tagged_o  (alloc_tag_w),
+      .alloc_aidx_o    (alloc_aidx_w),
+      .res_accept_i    (res_accept_w),
+      .credit_hold_i   (credit_hold_w),
+      .tx_credit_o     (eng_tx_credit_w),
+      .outstanding_o   (outstanding_w),
+      .dbg_alloc_ovf_o (dbg_alloc_ovf_w)
+  );
+
+  KL_gptp_txret #(
+      .TXTS_CAP_N_P   (TXTS_CAP_N_P),
+      .TXTS_OIDX_W_P  (TXTS_OIDX_W_P),
+      .TXTS_GEN_W_P   (TXTS_GEN_W_P),
+      .TXTS_DELTA_W_P (TXTS_DELTA_W_P),
+      .ETH_TICK_NS_P  (ETH_TICK_NS_P),
+      .DP_TICK_NS_P   (DP_TICK_NS_C)
+  ) u_txret (
+      .clk_i         (clk_i),
+      .rst_n         (rst_n),
+      .phc_ns_i      (phc_ns_i),
+      .alloc_i       (alloc_w),
+      .alloc_type_i  (alloc_type_w),
+      .alloc_seq_i   (alloc_seq_w),
+      .alloc_tagged_i(alloc_tag_w),
+      .outstanding_i (outstanding_w),
+      .rec_valid_i   (rec_valid_i),
+      .rec_kind_i    (rec_kind_i),
+      .rec_oidx_i    (rec_oidx_i),
+      .rec_gen_i     (rec_gen_i),
+      .rec_type_i    (rec_type_i),
+      .rec_seq_i     (rec_seq_i),
+      .rec_delta_i   (rec_delta_i),
+      .rec_abort_i   (rec_abort_i),
+      .n_dep_i       (n_dep_r),
+      .dep_take_o    (dep_take_w),
+      .seal_req_o    (seal_req_o),
+      .seal_gen_o    (seal_gen_o),
+      .seal_ack_i    (seal_ack_i),
+      .mac_reinit_i  (mac_reinit_i),
+      .mac_eth_rst_i (mac_eth_rst_i),
+      .txts_valid_o  (eng_txts_valid_w),
+      .txts_ready_i  (eng_txts_ready_w),
+      .txts_ns_o     (eng_txts_ns_w),
+      .txts_seq_o    (eng_txts_seq_w),
+      .txts_type_o   (eng_txts_type_w),
+      .txts_ok_o     (eng_txts_ok_w),
+      .txts_gen_o    (eng_txts_gen_w),
+      .credit_hold_o (credit_hold_w),
+      .res_accept_o  (res_accept_w),
+      .dbg_lost_o    (dbg_txts_lost_o),
+      .dbg_disc_o    (dbg_txts_disc_o),
+      .dbg_barrier_o (dbg_txts_barr_o),
+      .dbg_stall_o   (dbg_txts_stall_o),
+      .dbg_state_o   (dbg_txts_state_o)
+  );
+
+  //! the allocation index and the allocator's own overflow count are
+  //! diagnostics the benches read through the hierarchy; naming them keeps
+  //! the observation deliberate
   logic unused_w;
-  assign unused_w = eng_tx_sof_w;
+  assign unused_w = ^{alloc_aidx_w, dbg_alloc_ovf_w, txo_sof_r};
 
 endmodule : KL_gptp_shadow
 `default_nettype wire

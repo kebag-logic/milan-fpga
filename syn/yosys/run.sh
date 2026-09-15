@@ -229,7 +229,7 @@ derive_sources() {
   # row and the milan_datapath row; otherwise the standalone check stays green
   # while hierarchy -check on the shipping default sees unresolved instances.
   GPTP_ENGINE_SRCS="$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $R/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $R/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $R/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $R/gptp-processor/hdl/common/KL_gptp_timer.sv $R/gptp-processor/hdl/top/KL_gptp_engine.sv"
-  GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
+  GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
 }
 
 build_inventory() {
@@ -241,8 +241,10 @@ build_inventory() {
     "adp_tx_arbiter|$D/adp_tx_arbiter.sv"
     "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv"
     "milan_csr|$R/hdl/common/csr/milan_csr.sv"
-    "KL_gptp_txstamp|$R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
-    "KL_gptp_shadow|$GPTP_ENGINE_SRCS $A/axis_fifo.v $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
+    "KL_gptp_txticket|$R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv"
+    "KL_gptp_txret|$R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv"
+    "KL_gptp_gmii_launch|$C/cdc_pulse.sv $C/cdc_handshake.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv"
+    "KL_gptp_shadow|$GPTP_ENGINE_SRCS $A/axis_fifo.v $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
     "KL_avtp_rx_monitor|$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
     "KL_stream_table|$R/hdl/ieee1722/avtp/KL_stream_table.sv"
     "avtp_stream_parser|$C/ethernet_packet_pkg.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv"

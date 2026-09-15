@@ -483,6 +483,27 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire        i_ethrx_tgl,
   input  wire        i_ethtx_tgl,
   input  wire        i_ethact_tgl,
+  //! gPTP EGRESS LAUNCH RECORDS from the SoC's first-party observer at the
+  //! MAC's own transmit stream (KL_gptp_gmii_launch, issue #360). The
+  //! observer owns the clock-domain crossing, so these arrive already
+  //! synchronised into axis_clk; one record per frame the MAC launched,
+  //! plus the echo that re-establishes the observer position after a reset.
+  //! Tie 0 on a build with no MAC attached: a plane that receives no record
+  //! delivers no timestamp and says so through its counters.
+  input  wire        i_gptp_txrec_valid,
+  input  wire        i_gptp_txrec_kind,     //! 0 = frame, 1 = echo
+  input  wire [11:0] i_gptp_txrec_oidx,
+  input  wire  [3:0] i_gptp_txrec_gen,
+  input  wire  [3:0] i_gptp_txrec_type,
+  input  wire [15:0] i_gptp_txrec_seq,
+  input  wire  [7:0] i_gptp_txrec_delta,
+  input  wire        i_gptp_txrec_abort,
+  //! the seal the plane offers that observer, and the crossing's delivery
+  //! report. The observer's ECHO is the acknowledgement the plane waits for;
+  //! this input reports only that the crossing delivered the generation.
+  output wire        o_gptp_txseal_req,
+  output wire  [3:0] o_gptp_txseal_gen,
+  input  wire        i_gptp_txseal_ack,
   //! RMON event pulses from the external MAC (lane index == ethernet_events_t
   //! enum). Lanes TX_FIFO_GOOD_FRAME/RX_FIFO_GOOD_FRAME are IGNORED here: the
   //! datapath derives them itself from the MAC AXIS boundary handshake (RMON
@@ -6286,12 +6307,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
     wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
     wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
-    wire                     gtx_sent_w;
-    wire                     gts_valid_w;
-    wire [63:0]              gts_ns_w;
-    wire [15:0]              gts_seq_w;
-    wire [3:0]               gts_type_w;
-
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
@@ -6313,11 +6328,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .tx_tvalid_o     (gtx_tvalid_w),
         .tx_tlast_o      (gtx_tlast_w),
         .tx_tready_i     (gtx_tready_w),
-        .txts_valid_i    (gts_valid_w),
-        .txts_ns_i       (gts_ns_w),
-        .txts_seq_i      (gts_seq_w),
-        .txts_type_i     (gts_type_w),
-        .tx_sent_o       (gtx_sent_w),
+        .rec_valid_i     (i_gptp_txrec_valid),
+        .rec_kind_i      (i_gptp_txrec_kind),
+        .rec_oidx_i      (i_gptp_txrec_oidx),
+        .rec_gen_i       (i_gptp_txrec_gen),
+        .rec_type_i      (i_gptp_txrec_type),
+        .rec_seq_i       (i_gptp_txrec_seq),
+        .rec_delta_i     (i_gptp_txrec_delta),
+        .rec_abort_i     (i_gptp_txrec_abort),
+        .seal_req_o      (o_gptp_txseal_req),
+        .seal_gen_o      (o_gptp_txseal_gen),
+        .seal_ack_i      (i_gptp_txseal_ack),
+        .mac_reinit_i    (linkg_reinit_w),
+        .mac_eth_rst_i   (linkg_eth_rst_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),
@@ -6337,8 +6360,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
         .dbg_tspop_v_o   (),
-        .dbg_txts_type_o (),
-        .dbg_txts_lost_o ()
+        .dbg_txts_lost_o (),
+        .dbg_txts_disc_o (),
+        .dbg_txts_barr_o (),
+        .dbg_txts_stall_o(),
+        .dbg_txts_state_o()
     );
 
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
@@ -6356,20 +6382,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
     );
 
-    KL_gptp_txstamp #(.TDATA_WIDTH_P (TDATA_WIDTH)) u_gptp_txstamp (
-        .clk_i      (axis_clk),
-        .rst_n      (axis_resetn),
-        .tx_tdata_i (tx_axis_to_mac.tdata),
-        .tx_tvalid_i(tx_axis_to_mac.tvalid),
-        .tx_tready_i(tx_axis_to_mac.tready),
-        .tx_tlast_i (tx_axis_to_mac.tlast),
-        .phc_ns_i   (ptp_now_w),
-        .armed_i    (gtx_sent_w),
-        .ts_valid_o (gts_valid_w),
-        .ts_ns_o    (gts_ns_w),
-        .ts_seq_o   (gts_seq_w),
-        .ts_type_o  (gts_type_w)
-    );
   end else begin : g_gptp_off
     //! option off: the control lane passes straight through, the PHC
     //! knobs constant-fold to the CSR face, the publish words read zero
@@ -6397,6 +6409,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;
+    //! no plane, so no launch observer to seal: the seal outputs are
+    //! defined zeros like every other plane signal in this arm
+    assign o_gptp_txseal_req = 1'b0;
+    assign o_gptp_txseal_gen = '0;
   end endgenerate
 
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (

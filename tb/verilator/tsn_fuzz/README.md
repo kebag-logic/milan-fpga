@@ -17,7 +17,7 @@ traffic, validate every field of every message, and prove the end-station's
 state machines are unmoved by malformed input. AAF fuzzes the 1722 data plane;
 `ptp` (added 2026-08-19 for issue #117) fuzzes the 802.1AS **gPTP fabric
 plane** — the slice `KL_gptp_shadow` + the real `timestamp_counter` +
-`KL_gptp_txstamp`, driving the `gptp-processor` engine both ways. (Four
+`KL_gptp_gmii_launch`, driving the `gptp-processor` engine both ways. (Four
 1722.1 campaigns ran until 2026-08-13 — see the banner above for what went
 and why.)
 

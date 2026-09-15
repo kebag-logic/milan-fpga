@@ -100,7 +100,7 @@ PP="$R/protocol-processor/hdl"
 PP_DERIVED="$(python3 "$R/scripts/pp_srcs.py" --prefix "$PP")" || exit 2
 PP_SRCS="$PP_DERIVED $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv $R/hdl/milan/KL_nvm_backend.sv"
 GPTP_ENGINE_SRCS="$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $R/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $R/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $R/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $R/gptp-processor/hdl/common/KL_gptp_timer.sv $R/gptp-processor/hdl/top/KL_gptp_engine.sv"
-GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
+GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
 
 # THE ARGUMENTS ARE VALIDATED FIRST. Everything below this block - the pin
 # read, the geometry parse, both ROM generations, the digest ledger - is
