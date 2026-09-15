@@ -90,7 +90,9 @@ DOCUMENT_TOKENS = {
     ),
     "docs/guides/gptp/HDL_DEVELOPER.md": (
         "KL_gptp_shadow",
-        "KL_gptp_txstamp",
+        "KL_gptp_txticket",
+        "KL_gptp_gmii_launch",
+        "KL_gptp_txret",
         "rx_accept.svg",
         "tx_backpressure.svg",
         "wd_gptp_pdelay.svg",
@@ -173,9 +175,10 @@ SOURCE_TOKENS = {
 }
 
 WAVEDROM_TOKENS = (
-    "accepted MAC SOF",
-    "TX PHC capture",
-    "accepted beat 5",
+    "accepted MAC EOF",
+    "reference octet launched",
+    "tag octets observed",
+    "launch record accepted",
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
@@ -187,29 +190,41 @@ WAVEDROM_TOKENS = (
     "sequence plus message type",
 )
 
-# KL_gptp_txstamp captures sequenceId on accepted beat 5 and raises its
-# registered tuple before a normal Pdelay frame reaches tx_tlast_i. This order
-# is the interface contract; labels alone cannot prove it.
+# EGRESS, since #360. The ledger allocates the frame's entry at the EOF beat
+# the MAC boundary ACCEPTED, and nothing is timed there: what the plane
+# returns is built from the frame's LAUNCH, observed at the MAC's own
+# transmit stream. The order below is the interface contract - allocate,
+# queue for as long as the MAC needs, launch, measure to the tag octets,
+# cross, resolve - and the two distances that are not free are pinned
+# exactly. Labels alone cannot prove either.
 WAVEDROM_ORDER = (
-    ("accepted MAC SOF", "accepted beat 5"),
-    ("accepted beat 5", "returned tuple"),
-    ("returned tuple", "accepted MAC EOF"),
+    ("accepted MAC EOF", "reference octet launched"),
+    ("reference octet launched", "tag octets observed"),
+    ("tag octets observed", "launch record accepted"),
+    #: the tuple is returned ON the record's own cycle, which
+    #: WAVEDROM_SAME_CYCLE below states exactly
     ("accepted tap SOF", "accepted tap EOF"),
     ("accepted tap EOF", "frame FIFO commit"),
     ("frame FIFO commit", "engine RX SOF"),
 )
 
-# The published diagram is explicitly the unstalled 64-bit parent path. A
-# 68-byte Pdelay_Resp occupies nine accepted beats, hence eight cycle intervals
-# from the accepted SOF beat to the accepted EOF beat. axis_fifo commits on the
-# following cycle; its RAM read register plus its one-stage output pipeline
-# present the first beat two cycles after that, and the shadow serializer
-# registers it once more, so engine SOF is three cycles after the commit pulse.
+# The published diagram is explicitly the unstalled 64-bit parent path, drawn
+# in FABRIC cycles. A 68-byte Pdelay_Resp occupies nine accepted beats, hence
+# eight cycle intervals from the accepted SOF beat to the accepted EOF beat.
+# axis_fifo commits on the following cycle; its RAM read register plus its
+# one-stage output pipeline present the first beat two cycles after that, and
+# the shadow serializer registers it once more, so engine SOF is three cycles
+# after the commit pulse. On the egress side the reference octet and the tag
+# octets are TXTS_DELTA_EXP_P = 45 transmit cycles apart, which at the
+# product's 125:50 ratio is eighteen fabric cycles, and the record crossing
+# is CDC_LAT_D_CYC_P = 2 fabric cycles.
 WAVEDROM_SAME_CYCLE = (
-    ("accepted MAC SOF", "TX PHC capture"),
+    ("launch record accepted", "returned tuple"),
     ("accepted tap SOF", "RX PHC capture"),
 )
 WAVEDROM_EXACT_DELTA = (
+    ("reference octet launched", "tag octets observed", 18),
+    ("tag octets observed", "launch record accepted", 2),
     ("accepted tap SOF", "accepted tap EOF", 8),
     ("accepted tap EOF", "frame FIFO commit", 1),
     ("frame FIFO commit", "engine RX SOF", 3),
@@ -738,18 +753,19 @@ def wavedrom_selftest() -> int:
 
 def wavedrom_shape_selftest() -> int:
     """The wave-shape arms: the value form of the returned tuple is read as
-    its event, so displacing that `=` past EOF is caught as an order defect;
-    then a `period`, a `phase` and a `|` stall on an oracle signal are each
-    refused."""
+    its event, so moving that `=` off the record's own cycle is caught -
+    since #360 the tuple is what the ACCEPTED RECORD produces, not something
+    that precedes the frame's EOF; then a `period`, a `phase` and a `|`
+    stall on an oracle signal are each refused."""
     production = json.loads(WAVEDROM.read_text(encoding="utf-8"))
     waves = named_waves(production)
     if not set(waves["returned tuple"][0]) & VALUE_SYMBOLS:
         raise SelftestFailure("production returned tuple is not a value wave")
-    eof_cycle = waves["accepted MAC EOF"][0].index("1")
-    if move_event(production, "returned tuple", eof_cycle + 1) != 1:
+    record_cycle = waves["launch record accepted"][0].index("1")
+    if move_event(production, "returned tuple", record_cycle + 1) != 1:
         raise SelftestFailure("value fixture drift")
     if not any(
-        "'returned tuple' must precede 'accepted MAC EOF'" in finding
+        "must occur in the same cycle" in finding
         for finding in wavedrom_value_findings(production, "fixture")
     ):
         raise SelftestFailure("displaced value symbol escaped")
