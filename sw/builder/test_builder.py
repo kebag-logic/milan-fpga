@@ -19037,10 +19037,14 @@ def _assert_physical_pool_reappears():
     """Gate 24a (d): declaring routed channels re-introduces the physical
     pool AND moves the static map onto it."""
     # (d) physical pool APPEARS when the platform declares routed channels
-    # render 8, not 16: this gate's subject is the OUTPUT (capture) pool, and
-    # #447 bounds the render count by the crossbar's TDM key lane rather than
-    # by the interface family width. The dedicated refusal is gate 24a (f).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 8},
+    # render 0, not 8 or 16: this gate's subject is the OUTPUT (capture) pool
+    # and the render count is incidental to it. #447 bounds the render count by
+    # the crossbar's TDM key lane AND requires a TDM render lane to be the full
+    # bus width, and this variant's bus is tdm32, which the crossbar's 8-key
+    # lane cannot back at all - so any nonzero render count here would declare
+    # a shape the fabric refuses to elaborate. The dedicated refusals, in both
+    # directions, are gate 24a (f).
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
                        {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, OUT / "_pools")
@@ -19084,18 +19088,20 @@ def _assert_overwide_pool_is_marked_not_emitted():
     #     With only live fabric roles, loopback widens 64 -> 72 so the
     #     per-output-port total stays 89
     #     and the deliberate overflow is preserved: the ROM stays past the
-    #     65536 B store. The INPUT half is the render pool (#447 bounds it at
-    #     the crossbar's 8 TDM keys), so the total is derived below from the
-    #     fixture rather than restated.
-    # render 8, not 16: this gate's subject is the OUTPUT (capture) pool, and
-    # #447 bounds the render count by the crossbar's TDM key lane rather than
-    # by the interface family width. The dedicated refusal is gate 24a (f).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 8},
+    #     65536 B store.
+    # render 0, not 8 or 16: this gate's subject is the OUTPUT (capture) pool
+    # and the deliberate overflow it produces, both of which this variant still
+    # reaches. #447 requires a TDM render lane to be the FULL bus width, and
+    # this variant's bus is tdm32, which the crossbar's 8-key lane cannot back
+    # at all - so any nonzero render count here would declare a shape the
+    # fabric refuses to elaborate. The dedicated refusals are gate 24a (f), and
+    # the INPUT half is then empty, which the total below states.
+    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
                        {"pilot": True, "loopback": 72})
     try:
         r = eb.build(p, OUT / "_pools")
         assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*8 + 8*(16+1+72), r["overlay"]["descriptor_counts"]
+            8*(16+1+72), r["overlay"]["descriptor_counts"]
         assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
         assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
         # builder contract: it VALIDATES and lands in the plan, never errors
