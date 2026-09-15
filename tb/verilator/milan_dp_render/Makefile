@@ -25,10 +25,11 @@
 # and measured 1037.7 s uncontended on a 16-CPU set - a 1.73x headroom under
 # scripts/run_all_suites.sh's 1800 s per-suite guard, against a hosted
 # slowdown that docs/testing/TESTING.md measures at up to 1.58x. The two legs
-# add about 137 s, which takes that headroom to 1.53x and puts the suite over
-# the hosted bar. Splitting them out is the milan_dp_gptp move of #367: every
-# check stays, nothing is shortened, and the sweep discovers and shards this
-# directory on its own with the default 1800 s budget.
+# added 108.7 s to that target, measured, which takes the headroom to 1.57x
+# and puts the suite over the hosted bar at the measured factor. Splitting
+# them out is the milan_dp_gptp move of #367: every check stays, nothing is
+# shortened, and the sweep discovers and shards this directory on its own with
+# the default 1800 s budget.
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
