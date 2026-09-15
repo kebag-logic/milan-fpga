@@ -80,6 +80,18 @@ uint64_t be(const std::vector<uint8_t>& b, size_t off, size_t n) {
     return v;
 }
 
+//! The PHC THIS CYCLE, read where the plane reads it. The plane reads
+//! `timestamp_out`, the integer-nanosecond field of the counter's own
+//! accumulator (`timestamp_counter.sv`: `assign timestamp_out =
+//! acc[ACC_WIDTH-1 -: COUNTER_WIDTH]`); the wire is inlined away in this
+//! elaboration, so the harness reads the accumulator and takes that field.
+static uint64_t phc_ns(Vmilan_datapath* dut) {
+    const auto& acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+    return (static_cast<uint64_t>(acc[2]) << 40)
+         | (static_cast<uint64_t>(acc[1]) << 8)
+         | (acc[0] >> 24);
+}
+
 // The peer clock has its own epoch and edge quantization. It never reads PHC.
 uint64_t peer_clock(uint64_t ns) { return (ns / 8) * 8 + 10000; }
 
@@ -261,7 +273,8 @@ class Harness {
     milan::tb::GptpTxFlags tx_flags;
     void complete_tx();
     void observer_edge();
-    void answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1);
+    void answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
+                       uint64_t record_cycle);
     Frame audio_frame();
     void grade_audio(const std::vector<uint8_t>& f);
     void reset();
@@ -481,7 +494,9 @@ void Harness::receive_edge() {
     if (cyc > rx_deadline) throw std::runtime_error("MAC RX beat timeout");
     if (!dut->s_axis_mac_rx_tvalid || !dut->s_axis_mac_rx_tready) return;
     if (rx_off == 0 && rx.pdelay) {
-        const uint64_t t4 = cyc * 20 + 10;
+        //! the same counter t1 came from: mixing a cycle-derived t4 with a
+        //! PHC-derived t1 would measure the offset between the two clocks
+        const uint64_t t4 = phc_ns(dut);
         // Only event times enter this oracle; publication is read afterwards.
         oracle_delay = (static_cast<int64_t>(t4 - rx.t1)
                          - static_cast<int64_t>(rx.t3 - rx.t2)) / 2;
@@ -509,34 +524,30 @@ void Harness::receive_edge() {
 //! quantity #360 retires, and it precedes the first by the whole MAC
 //! pipeline. The peer therefore waits for its own observer before answering,
 //! which is also why the cadence below is measured between launches.
-//! The PHC THIS CYCLE, read where the plane reads it. The plane reads
-//! `timestamp_out`, the integer-nanosecond field of the counter's own
-//! accumulator (`timestamp_counter.sv`: `assign timestamp_out =
-//! acc[ACC_WIDTH-1 -: COUNTER_WIDTH]`); the wire is inlined away in this
-//! elaboration, so the harness reads the accumulator and takes that field.
-static uint64_t phc_ns(Vmilan_datapath* dut) {
-    const auto& acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
-    return (static_cast<uint64_t>(acc[2]) << 40)
-         | (static_cast<uint64_t>(acc[1]) << 8)
-         | (acc[0] >> 24);
-}
-
 void Harness::observer_edge() {
     observer.edge(dut, cyc, phc_ns(dut));
     while (!pd_pending.empty()) {
         uint64_t t1 = 0;
-        if (!observer.t1_of(2, be(pd_pending.front(), 44, 2), &t1)) break;
+        uint64_t at = 0;
+        if (!observer.t1_of(2, be(pd_pending.front(), 44, 2), &t1, &at)) break;
         const std::vector<uint8_t> request = pd_pending.front();
         pd_pending.pop_front();
-        answer_pdelay(request, t1);
+        answer_pdelay(request, t1, at);
     }
 }
 
-void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1) {
-    if (!pd_requests) pd_first = t1;
-    if (pd_requests && (t1 - pd_last < 999900000
-                       || t1 - pd_last > 1000100000)) ++pd_cadence_bad;
-    pd_last = t1; ++pd_requests;
+void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
+                            uint64_t record_cycle) {
+    //! CADENCE IS A REAL-TIME PROPERTY, so it is measured on this harness's
+    //! own clock and not on the PHC. The engine disciplines the PHC to the
+    //! peer, so a step lands between two requests that were exactly one
+    //! second apart on the wire; reading the cadence off the stepped
+    //! counter would call that discipline a cadence fault.
+    const uint64_t launch_ns = record_cycle * 20 - observer.correction_ns();
+    if (!pd_requests) pd_first = launch_ns;
+    if (pd_requests && (launch_ns - pd_last < 999900000
+                       || launch_ns - pd_last > 1000100000)) ++pd_cadence_bad;
+    pd_last = launch_ns; ++pd_requests;
     if (!peer_on || test_control_ == TestControl::NoPdelay) return;
     const uint64_t arrival = t1 + kPropagation;
     const uint64_t depart = arrival + kResidence;
@@ -546,7 +557,13 @@ void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1) {
     Frame resp = ptp(3, seq, 0x0200, 20); resp.ts(t2);
     Frame fu = ptp(0xA, seq, 0, 20); fu.ts(t3 + (negative_ ? 2000 : 0));
     for (size_t i = 34; i < 44; ++i) { resp.u8(request[i]); fu.u8(request[i]); }
-    const uint64_t at = (depart + kPropagation - 10) / 20;
+    //! SCHEDULED IN CYCLES, not in PHC nanoseconds: the PHC restarts with
+    //! every reset arm while this harness's cycle count does not, so a
+    //! schedule derived from a PHC instant would land in another epoch. The
+    //! record was delivered `correction_ns()` after the launch, so the
+    //! arrival is that much closer than the event times alone suggest.
+    const uint64_t at = record_cycle
+        + (2 * kPropagation + kResidence - observer.correction_ns()) / 20;
     queue({at, resp, true, t1, t2, t3});
     queue({at + 200, fu});
 }
@@ -636,6 +653,12 @@ void Harness::reset() {
     dut->i2s_sdout_i = 0; dut->tdm_data_i = 0;
     dut->tdm_bclk_i = 0; dut->tdm_fsync_i = 0;
     mem_busy = false; mem_done = false; desc_busy = false; desc_wait = 0;
+    //! the MAC this harness stands in for is reset with the datapath, so its
+    //! observer loses its position, its generation and anything it had not
+    //! yet reported - exactly as `KL_gptp_gmii_launch` does
+    observer.reset();
+    pd_pending.clear();
+    milan::tb::GptpLaunchObserver::tie_off(dut);
     run_cycles(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     stamp_origin = cyc * 20;

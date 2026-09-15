@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <deque>
 #include <map>
+#include <utility>
 #include <vector>
 
 namespace milan::tb {
@@ -108,18 +109,38 @@ class GptpLaunchObserver {
         dut->i_gptp_txrec_seq = rec.echo ? 0 : rec.seq;
         dut->i_gptp_txrec_delta = rec.echo ? 0 : kDeltaCyc;
         dut->i_gptp_txrec_abort = 0;
-        if (!rec.echo) t1_ns_[key(rec.type, rec.seq)] = phc_ns - corr_ns_;
+        if (!rec.echo)
+            t1_ns_[key(rec.type, rec.seq)] = {phc_ns - corr_ns_, cyc};
     }
 
     //! The launch instant this observer reported for that frame, if it has
-    //! reported it yet. A harness that answers a Pdelay_Req before its own
-    //! observer has reported the request is answering for a launch that has
-    //! not happened.
-    bool t1_of(unsigned type, unsigned seq, uint64_t* out) const {
+    //! reported it yet, and the cycle it reported it on. A harness that
+    //! answers a Pdelay_Req before its own observer has reported the request
+    //! is answering for a launch that has not happened.
+    //!
+    //! BOTH are returned because a harness needs two different clocks: the
+    //! launch instant is a PHC time, and the PHC restarts whenever the
+    //! design is reset, so anything the harness has to SCHEDULE must be
+    //! counted in its own cycles instead.
+    bool t1_of(unsigned type, unsigned seq, uint64_t* out,
+               uint64_t* at_cycle = nullptr) const {
         const auto it = t1_ns_.find(key(type, seq));
         if (it == t1_ns_.end()) return false;
-        *out = it->second;
+        *out = it->second.first;
+        if (at_cycle != nullptr) *at_cycle = it->second.second;
         return true;
+    }
+
+    //! Reset the modelled observer with the MAC it stands in for. The real
+    //! one takes the MAC's transmit reset: its position, its generation and
+    //! anything it had not yet reported go with it.
+    void reset() {
+        pending_.clear();
+        t1_ns_.clear();
+        oidx_ = 0;
+        gen_ = 0;
+        seal_req_prev_ = false;
+        last_rec_cyc_ = 0;
     }
 
     //! Tie the face off, for a phase that drives the plane no records.
@@ -156,7 +177,7 @@ class GptpLaunchObserver {
 
     const uint64_t corr_ns_;
     std::deque<Record> pending_;
-    std::map<uint32_t, uint64_t> t1_ns_;
+    std::map<uint32_t, std::pair<uint64_t, uint64_t>> t1_ns_;
     unsigned oidx_ = 0;
     unsigned gen_ = 0;
     bool seal_req_prev_ = false;
