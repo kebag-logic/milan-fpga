@@ -141,6 +141,14 @@ module KL_gptp_txret #(
     //! one pulse per resolution, so the shadow can retire its departure
     output logic dep_take_o,
 
+    //! THE DEPARTURE FENCE. `egress_hold_o` asks the plane to stop its own
+    //! egress at a frame boundary; `fence_held_i` reports that it has, with
+    //! any torn frame already discarded and counted as departed. The fence
+    //! is what splits the ledger into the entries a recovery episode will
+    //! destroy and the entries still whole inside the plane.
+    output logic egress_hold_o,
+    input  wire  fence_held_i,
+
     //! the seal offered to the observer, and the crossing's delivery report
     output logic                    seal_req_o,
     output logic [TXTS_GEN_W_P-1:0] seal_gen_o,
@@ -239,6 +247,11 @@ module KL_gptp_txret #(
   logic [TXTS_OIDX_W_P-1:0] exp_oidx_r;
   logic                     seal_r;
   logic                     echo_ok_r;
+  //! the pre-fence prefix: how many ledger entries had already been handed
+  //! to the MAC when the fence closed, and whether that count is known yet
+  logic [OCC_W_C-1:0]       n_pre_r;
+  logic                     n_pre_v_r;
+  logic                     fence_held_r;
   logic [SRT_W_C-1:0]       seal_tmr_r;
   logic [AGE_W_C-1:0]       age_r;
   logic                     mac_rst_r;
@@ -334,6 +347,16 @@ module KL_gptp_txret #(
   assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &
                      have_entry_w & departed_w & tag_ok_w;
 
+  //! THE PRE-FENCE PREFIX, resolved in order and only as counted loss. Its
+  //! frames are past this plane and their records can no longer be trusted
+  //! to arrive, so each entry is closed with its OWN tag and no
+  //! measurement. Nothing here is a timeout: the prefix is a count fixed at
+  //! the fence, and it is only resolved once destruction is established.
+  logic destroyed_w, pre_resolve_w;
+  assign destroyed_w   = n_pre_v_r & echo_ok_r;
+  assign pre_resolve_w = seal_r & destroyed_w & (n_pre_r != OCC_W_C'(0)) &
+                         have_entry_w & departed_w;
+
   //! a frame record that is not credited is counted and discarded; a record
   //! that contradicts an established position is also an invariant
   //! violation and raises the barrier
@@ -348,14 +371,14 @@ module KL_gptp_txret #(
   //! The head entry's outcome. Only a live, tagged entry whose record
   //! carries the expected cycle distance can produce a measurement; every
   //! other path delivers an explicit loss and is counted.
-  assign res_ok_w = led_live_r[led_head_r] & led_tag_r[led_head_r] &
+  assign res_ok_w = resolve_w & led_live_r[led_head_r] & led_tag_r[led_head_r] &
                     ~cap_abort_r &
                     (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));
   //! modular by construction: the PHC wraps and a launch a few hundred
   //! nanoseconds before a wrap must reconstruct to the value before it
   assign res_ns_w = res_ok_w ? (cap_phc_r - 64'(TXTS_CORR_NS_P)) : 64'd0;
 
-  assign push_res_w = resolve_w;
+  assign push_res_w = resolve_w | pre_resolve_w;
 
   // ======================================================================= //
   //  Barrier                                                                //
@@ -365,8 +388,11 @@ module KL_gptp_txret #(
   logic mac_rst_w;
   assign mac_rst_w = mac_reinit_i | mac_eth_rst_i;
 
-  assign barrier_w = (mac_rst_w & ~mac_rst_r) | mismatch_w |
-                     (echo_rec_w & ~seal_r);
+  //! An echo outside a seal is not evidence that a frame was lost - the
+  //! observer answers every generation it adopts and a re-offer in flight
+  //! can land just after the seal lifts - so it is counted and discarded
+  //! rather than treated as a barrier.
+  assign barrier_w = (mac_rst_w & ~mac_rst_r) | mismatch_w;
 
   // ======================================================================= //
   //  The ledger                                                             //
@@ -401,15 +427,15 @@ module KL_gptp_txret #(
         for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;
       end
 
-      //! resolution consumes the head
-      if (resolve_w) begin
+      //! resolution consumes the head, whichever kind it was
+      if (resolve_w || pre_resolve_w) begin
         led_head_r <= (led_head_r == PTR_W_C'(TXTS_CAP_N_P - 1))
                       ? PTR_W_C'(0) : led_head_r + PTR_W_C'(1);
       end
 
-      if (alloc_i && !resolve_w) begin
+      if (alloc_i && !(resolve_w || pre_resolve_w)) begin
         if (n_led_r != OCC_W_C'(TXTS_CAP_N_P)) n_led_r <= n_led_r + OCC_W_C'(1);
-      end else if (!alloc_i && resolve_w) begin
+      end else if (!alloc_i && (resolve_w || pre_resolve_w)) begin
         n_led_r <= n_led_r - OCC_W_C'(1);
       end
 
@@ -473,7 +499,7 @@ module KL_gptp_txret #(
   assign txts_ok_o    = res_ok_r  [res_head_r];
   assign txts_gen_o   = res_gen_r [res_head_r];
 
-  assign dep_take_o    = resolve_w;
+  assign dep_take_o    = resolve_w | pre_resolve_w;
   assign credit_hold_o = seal_r;
 
   // ======================================================================= //
@@ -492,8 +518,19 @@ module KL_gptp_txret #(
       seal_req_o <= 1'b0;
       seal_gen_o <= TXTS_GEN_W_P'(1);
       mac_rst_r  <= 1'b0;
+      //! A ROOT RESET starts the plane sealed AND fenced. The ledger is
+      //! empty, but the observer was not reset with it and the MAC path
+      //! still holds whatever this plane handed over before the reset, so
+      //! nothing may launch until the observer's position base is
+      //! re-established. The pre-reset epoch is DISCARDED: its entries are
+      //! gone and no result is promised for them.
+      egress_hold_o <= 1'b1;
+      n_pre_r       <= OCC_W_C'(0);
+      n_pre_v_r     <= 1'b1;
+      fence_held_r  <= 1'b0;
     end else begin
-      mac_rst_r <= mac_rst_w;
+      mac_rst_r    <= mac_rst_w;
+      fence_held_r <= fence_held_i;
 
       //! The observer position advances on every frame record taken off the
       //! crossing, credited or not, so a discarded record does not break the
@@ -508,7 +545,21 @@ module KL_gptp_txret #(
         echo_ok_r  <= 1'b0;
         seal_req_o <= 1'b0;
         seal_tmr_r <= '0;
+        //! TAKE THE FENCE. A NESTED barrier retakes it and forgets the
+        //! prefix it had measured, because a count taken before this
+        //! barrier does not describe what this one has to destroy.
+        egress_hold_o <= 1'b1;
+        n_pre_v_r     <= 1'b0;
+        n_pre_r       <= OCC_W_C'(0);
       end else begin
+        //! the fence has closed: the prefix is exactly the entries already
+        //! handed over, including any frame this plane had to tear
+        if (fence_held_i && !fence_held_r && !n_pre_v_r) begin
+          n_pre_r   <= n_dep_i;
+          n_pre_v_r <= 1'b1;
+        end
+        if (pre_resolve_w && (n_pre_r != OCC_W_C'(0)))
+          n_pre_r <= n_pre_r - OCC_W_C'(1);
         //! the echo establishes the base and is not a frame
         if (echo_take_w) begin
           exp_oidx_r <= cap_oidx_r;
@@ -532,8 +583,15 @@ module KL_gptp_txret #(
           seal_tmr_r <= '0;
         end
 
-        //! the seal lifts once the observer has answered for THIS generation
-        if (seal_r && echo_ok_r) seal_r <= 1'b0;
+        //! The seal lifts, and the egress releases with it, once the
+        //! observer has answered for THIS generation AND the whole
+        //! pre-fence prefix has been resolved. A retained frame launches
+        //! after that and resolves its own entry.
+        if (seal_r && echo_ok_r && n_pre_v_r &&
+            (n_pre_r == OCC_W_C'(0)) && !pre_resolve_w) begin
+          seal_r        <= 1'b0;
+          egress_hold_o <= 1'b0;
+        end
       end
     end
   end : seal_state

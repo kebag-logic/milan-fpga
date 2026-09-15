@@ -172,7 +172,9 @@ module KL_gptp_shadow #(
     output wire  [15:0] dbg_txts_disc_o,  //! launch records discarded
     output wire  [15:0] dbg_txts_barr_o,  //! barriers raised
     output wire  [15:0] dbg_txts_stall_o, //! head-entry age expiries
-    output wire  [15:0] dbg_txts_state_o  //! seal, echo, generation, depths
+    output wire  [15:0] dbg_txts_state_o, //! seal, echo, generation, depths
+    output logic [15:0] dbg_txts_torn_o   //! frames the fence tore and this
+                                          //! plane discarded locally
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
@@ -781,10 +783,6 @@ module KL_gptp_shadow #(
     .pause_ack          ()
   );
 
-  assign tx_tvalid_o = txf_out_valid_w;
-  assign tx_tlast_o  = txf_out_last_w;
-  assign txf_out_ready_w = tx_tready_i;
-
   //! start-of-frame tracking on the lane output: 1 means the next accepted
   //! beat begins a frame, so the egress is at a frame boundary
   logic txo_sof_r;
@@ -792,6 +790,68 @@ module KL_gptp_shadow #(
     if (!rst_n)                                   txo_sof_r <= 1'b1;
     else if (txf_out_valid_w && txf_out_ready_w)  txo_sof_r <= txf_out_last_w;
   end : lane_sof
+
+  // ======================================================================= //
+  //  THE DEPARTURE FENCE                                                    //
+  // ======================================================================= //
+  //! When the ledger raises a barrier it has to fix, once and for all, which
+  //! of its entries had already been handed to the MAC: those are the ones a
+  //! recovery episode will destroy, and the ones behind them are still whole
+  //! inside this plane's own transmit FIFO and will launch later. The fence
+  //! is what makes that split a fact rather than a guess.
+  //!
+  //! IT MUST NOT DEPEND ON DOWNSTREAM READY. If the fence waited for the
+  //! merge chain to accept the rest of a frame that was mid-egress, a
+  //! downstream stall - which is one of the very conditions that raises a
+  //! barrier - would hold the fence open for as long as the stall lasted,
+  //! and the pre-fence set would keep growing. The remaining beats of a torn
+  //! frame are therefore popped and DISCARDED HERE, independent of
+  //! `tx_tready_i`, and the frame is counted as departed, because its
+  //! leading beats are already downstream and will be destroyed with them.
+  //!
+  //! THE COST, stated rather than hidden: the merge arbiter downstream is
+  //! locked to this source from that frame's first beat to its last, and it
+  //! now never sees that last beat. It releases the lock through its own
+  //! no-progress watchdog (2^16 axis cycles at the plane mux, 1.31 ms at
+  //! 50 MHz), counting one abort. That is well inside the recovery episode
+  //! the barrier also requests, and the partial frame it flushes enters a
+  //! MAC path that is held in reset for the whole episode.
+  typedef enum logic [1:0] {FN_OPEN, FN_DISCARD, FN_HELD} fn_state_e;
+  fn_state_e fn_S;
+  logic fence_held_w;
+  logic egress_hold_w;
+
+  assign fence_held_w = (fn_S == FN_HELD);
+  assign txf_out_ready_w = (fn_S == FN_DISCARD) ? 1'b1
+                         : ((fn_S == FN_HELD)   ? 1'b0 : tx_tready_i);
+  assign tx_tvalid_o = txf_out_valid_w & (fn_S == FN_OPEN);
+  assign tx_tlast_o  = txf_out_last_w;
+
+  always_ff @(posedge clk_i) begin : departure_fence
+    if (!rst_n) begin
+      fn_S            <= FN_OPEN;
+      dbg_txts_torn_o <= 16'd0;
+    end else begin
+      unique case (fn_S)
+        FN_OPEN: begin
+          if (egress_hold_w) begin
+            //! at a frame boundary the fence is immediate; mid-frame it
+            //! takes one local discard first
+            fn_S <= txo_sof_r ? FN_HELD : FN_DISCARD;
+            if (!txo_sof_r) dbg_txts_torn_o <= dbg_txts_torn_o + 16'd1;
+          end
+        end
+        FN_DISCARD: begin
+          //! the discarded beats still count as this frame's departure: its
+          //! leading beats left, so the entry is pre-fence
+          if (txf_out_valid_w && txf_out_last_w) fn_S <= FN_HELD;
+        end
+        default: begin   //! FN_HELD
+          if (!egress_hold_w) fn_S <= FN_OPEN;
+        end
+      endcase
+    end
+  end : departure_fence
 
   // ======================================================================= //
   //  Departures: frames this plane has handed to the MAC                    //
@@ -803,6 +863,8 @@ module KL_gptp_shadow #(
   //! record rather than a free-running total.
   logic [OCC_W_C-1:0] n_dep_r;
   logic dep_add_w, dep_take_w;
+  //! a departure is an accepted last beat at this plane's own egress,
+  //! whether the merge chain accepted it or the fence discarded it
   assign dep_add_w = txf_out_valid_w & txf_out_ready_w & txf_out_last_w;
 
   always_ff @(posedge clk_i) begin : departures
@@ -876,6 +938,8 @@ module KL_gptp_shadow #(
       .rec_abort_i   (rec_abort_i),
       .n_dep_i       (n_dep_r),
       .dep_take_o    (dep_take_w),
+      .egress_hold_o (egress_hold_w),
+      .fence_held_i  (fence_held_w),
       .seal_req_o    (seal_req_o),
       .seal_gen_o    (seal_gen_o),
       .seal_ack_i    (seal_ack_i),

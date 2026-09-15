@@ -6364,7 +6364,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_txts_disc_o (),
         .dbg_txts_barr_o (),
         .dbg_txts_stall_o(),
-        .dbg_txts_state_o()
+        .dbg_txts_state_o(),
+        .dbg_txts_torn_o ()
     );
 
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (

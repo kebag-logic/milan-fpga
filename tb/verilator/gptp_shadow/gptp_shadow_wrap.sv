@@ -157,7 +157,8 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_txts_disc_o,
     output wire [15:0] dbg_txts_barr_o,
     output wire [15:0] dbg_txts_stall_o,
-    output wire [15:0] dbg_txts_state_o
+    output wire [15:0] dbg_txts_state_o,
+    output wire [15:0] dbg_txts_torn_o
 );
 
   localparam int unsigned FO_DEPTH_C = 512;
@@ -271,7 +272,8 @@ module gptp_shadow_wrap #(
       .dbg_txts_disc_o (dbg_txts_disc_o),
       .dbg_txts_barr_o (dbg_txts_barr_o),
       .dbg_txts_stall_o(dbg_txts_stall_o),
-      .dbg_txts_state_o(dbg_txts_state_o)
+      .dbg_txts_state_o(dbg_txts_state_o),
+      .dbg_txts_torn_o (dbg_txts_torn_o)
   );
 
   assign pub_disc_o = pub_disc_w;
