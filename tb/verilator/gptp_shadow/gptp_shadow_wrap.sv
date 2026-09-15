@@ -83,6 +83,16 @@ module gptp_shadow_wrap #(
     //! independent-observer-reset arm
     input  wire        obs_rst_i,
 
+    //! THE PHC's OWN CONTROLS, driven into the real counter. A phase that
+    //! wants to prove the reconstruction refuses a trajectory outside the
+    //! model moves the counter itself, not a status bit the plane reads.
+    input  wire        phc_en_i,        //! 0 holds the counter
+    input  wire [31:0] phc_incr_i,      //! Q8.24 nominal step, ns
+    input  wire        phc_adj_ovr_en_i,//! 1 = force the addend below
+    input  wire signed [31:0] phc_adj_ovr_i,
+    input  wire        phc_load_i,      //! settime strobe
+    input  wire [63:0] phc_tod_wr_i,
+
     //! the steered clock, observable
     output wire [63:0] phc_ns_o,
 
@@ -173,6 +183,9 @@ module gptp_shadow_wrap #(
     output wire [15:0] dbg_txts_disc_o,
     output wire [15:0] dbg_txts_barr_o,
     output wire [15:0] dbg_txts_stall_o,
+    output wire [15:0] dbg_txts_phcl_o,
+    output wire  [7:0] dbg_phc_dirty_o,
+    output wire signed [31:0] dbg_phc_adj_o,
     output wire [15:0] dbg_txts_state_o,
     output wire [15:0] dbg_txts_torn_o
 );
@@ -214,6 +227,11 @@ module gptp_shadow_wrap #(
   logic        eth_tgl_r;
   logic        mac_rst_n_w;
 
+  //! the addend the counter really sees: the plane's servo, or the
+  //! phase's override when it is proving the envelope
+  logic signed [31:0] adj_eff_w;
+  assign adj_eff_w = phc_adj_ovr_en_i ? phc_adj_ovr_i : adj_w;
+
   timestamp_counter #(
       .COUNTER_WIDTH (64),
       .INCR_WIDTH    (32),
@@ -221,11 +239,11 @@ module gptp_shadow_wrap #(
   ) u_phc (
       .clk                  (clk_i),
       .resetn               (rst_n),
-      .enable_i             (1'b1),
-      .incr_i               (32'h0800_0000),   // 8.0 ns, the 125 MHz shape
-      .adj_i                (adj_w),
-      .tod_wr_i             (64'd0),
-      .cmd_load_i           (1'b0),
+      .enable_i             (phc_en_i),
+      .incr_i               (phc_incr_i),
+      .adj_i                (adj_eff_w),
+      .tod_wr_i             (phc_tod_wr_i),
+      .cmd_load_i           (phc_load_i),
       .offset_i             ($signed(step_w)),
       .cmd_adjust_i         (step_we_w),
       .cmd_snapshot_i       (1'b0),
@@ -249,6 +267,12 @@ module gptp_shadow_wrap #(
       .rx_tready_i     (rx_tready_i),
       .rx_tlast_i      (rx_tlast_i),
       .phc_ns_i        (phc_ns_o),
+      //! the SAME nets the counter is driven with, which is the point
+      .phc_en_eff_i    (phc_en_i),
+      .phc_incr_eff_i  (phc_incr_i),
+      .phc_adj_eff_i   (adj_eff_w),
+      .phc_load_eff_i  (phc_load_i),
+      .phc_adjust_eff_i(step_we_w),
       .phc_adj_o       (adj_w),
       .phc_step_we_o   (step_we_w),
       .phc_step_o      (step_w),
@@ -298,6 +322,8 @@ module gptp_shadow_wrap #(
       .dbg_txts_disc_o (dbg_txts_disc_o),
       .dbg_txts_barr_o (dbg_txts_barr_o),
       .dbg_txts_stall_o(dbg_txts_stall_o),
+      .dbg_txts_phcl_o (dbg_txts_phcl_o),
+      .dbg_txts_dirty_o(dbg_phc_dirty_o),
       .dbg_txts_state_o(dbg_txts_state_o),
       .dbg_txts_torn_o (dbg_txts_torn_o)
   );
@@ -356,6 +382,7 @@ module gptp_shadow_wrap #(
   //! and the real observer in the product.
   assign mac_rst_n_w = rst_n & ~linkg_eth_rst_w;
 
+  assign dbg_phc_adj_o = adj_eff_w;
   assign pub_disc_o = pub_disc_w;
   assign pub_path_tail0_o = pub_path_w[0*64 +: 64];
   assign pub_path_tail1_o = pub_path_w[1*64 +: 64];

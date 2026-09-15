@@ -6332,6 +6332,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .rx_tready_i     (rx_axis_fabric.tready),
         .rx_tlast_i      (rx_axis_fabric.tlast),
         .phc_ns_i        (ptp_now_w),
+        //! THE COUNTER'S OWN INPUT NETS, not the CSR face and not the
+        //! plane's own upstream addend: `gptp_adj_w` above is what this
+        //! plane ASKS for and `cfg_ptp_*` is what software asked for,
+        //! while these five are what `ts_counter` is actually being
+        //! driven with, in its own clock domain, after `ptp_csr_sync`.
+        //! Qualifying a reconstruction against anything earlier would
+        //! call a window eligible while the accumulator was still on the
+        //! previous trajectory.
+        .phc_en_eff_i    (phc_enable_ts_w),
+        .phc_incr_eff_i  (phc_incr_ts_w),
+        .phc_adj_eff_i   (signed'(phc_adj_ts_w)),
+        .phc_load_eff_i  (phc_load_ts_w),
+        .phc_adjust_eff_i(phc_adjust_ts_w),
         .phc_adj_o       (gptp_adj_w),
         .phc_step_we_o   (gptp_step_we_w),
         .phc_step_o      (gptp_step_w),
@@ -6388,6 +6401,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_txts_disc_o (),
         .dbg_txts_barr_o (),
         .dbg_txts_stall_o(),
+        .dbg_txts_phcl_o (),
+        .dbg_txts_dirty_o(),
         .dbg_txts_state_o(),
         .dbg_txts_torn_o ()
     );

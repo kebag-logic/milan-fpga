@@ -106,6 +106,17 @@ module KL_gptp_shadow #(
     //! live PHC value for ingress timestamp capture
     input  wire [63:0] phc_ns_i,
 
+    //! THE PHC COUNTER'S OWN EFFECTIVE CONTROL NETS, in its clock domain
+    //! and after every synchroniser: the egress reconstruction is only
+    //! valid across a trajectory these describe, and they are the only
+    //! signals that say what the accumulator actually did. The CSR side
+    //! and this plane's own upstream addend both change earlier.
+    input  wire        phc_en_eff_i,
+    input  wire [31:0] phc_incr_eff_i,       //! Q8.24 nominal step, ns
+    input  wire signed [31:0] phc_adj_eff_i, //! Q8.24 signed addend, ns
+    input  wire        phc_load_eff_i,       //! settime applied here
+    input  wire        phc_adjust_eff_i,     //! adjtime applied here
+
     //! PHC knobs out: adjfine as a latched LEVEL, adjtime as a pulse
     output logic signed [31:0] phc_adj_o,
     output logic               phc_step_we_o,
@@ -181,6 +192,9 @@ module KL_gptp_shadow #(
     output wire  [15:0] dbg_txts_disc_o,  //! launch records discarded
     output wire  [15:0] dbg_txts_barr_o,  //! barriers raised
     output wire  [15:0] dbg_txts_stall_o, //! head-entry age expiries
+    output wire  [15:0] dbg_txts_phcl_o,  //! results refused by the PHC
+                                          //! history guard
+    output wire   [7:0] dbg_txts_dirty_o, //! eligible cycles still owed
     output wire  [15:0] dbg_txts_state_o, //! seal, echo, generation, depths
     output logic [15:0] dbg_txts_torn_o   //! frames the fence tore and this
                                           //! plane discarded locally
@@ -927,11 +941,17 @@ module KL_gptp_shadow #(
       .TXTS_GEN_W_P   (TXTS_GEN_W_P),
       .TXTS_DELTA_W_P (TXTS_DELTA_W_P),
       .ETH_TICK_NS_P  (ETH_TICK_NS_P),
-      .DP_TICK_NS_P   (DP_TICK_NS_C)
+      .DP_TICK_NS_P   (DP_TICK_NS_C),
+      .PHC_CLK_HZ_P   (CLK_HZ_P)
   ) u_txret (
-      .clk_i         (clk_i),
-      .rst_n         (rst_n),
-      .phc_ns_i      (phc_ns_i),
+      .clk_i            (clk_i),
+      .rst_n            (rst_n),
+      .phc_ns_i         (phc_ns_i),
+      .phc_en_eff_i     (phc_en_eff_i),
+      .phc_incr_eff_i   (phc_incr_eff_i),
+      .phc_adj_eff_i    (phc_adj_eff_i),
+      .phc_load_eff_i   (phc_load_eff_i),
+      .phc_adjust_eff_i (phc_adjust_eff_i),
       .alloc_i       (alloc_w),
       .alloc_type_i  (alloc_type_w),
       .alloc_seq_i   (alloc_seq_w),
@@ -972,6 +992,8 @@ module KL_gptp_shadow #(
       .dbg_disc_o    (dbg_txts_disc_o),
       .dbg_barrier_o (dbg_txts_barr_o),
       .dbg_stall_o   (dbg_txts_stall_o),
+      .dbg_phc_lost_o(dbg_txts_phcl_o),
+      .dbg_phc_dirty_o(dbg_txts_dirty_o),
       .dbg_state_o   (dbg_txts_state_o)
   );
 

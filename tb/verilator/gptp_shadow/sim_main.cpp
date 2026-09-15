@@ -75,6 +75,12 @@ constexpr int64_t kReconNominalNs = 12;
 //! move, which is what makes a dropped register stage - a whole 8 ns tick -
 //! a failure rather than noise.
 constexpr int64_t kPhcTruncNs = 1;
+//! The plane's own history window, in its own cycles, and an addend far
+//! outside the declared envelope. The envelope is the producer's own
+//! integrator clamp at this configuration; three times it is unambiguously
+//! outside, whatever rounding either side uses.
+constexpr int kReconGuardCyc = 64;
+constexpr int32_t kAdjExcursion = 3 * 1677722;
 
 struct Frame {
   std::vector<uint8_t> b;
@@ -189,6 +195,7 @@ class GptpShadowHarness {
     check_warm_reset_clears_the_sync_owner();
     check_every_stamp_names_its_own_frame();
     check_recovery_demand_survives_an_unaccepted_request();
+    check_phc_trajectory_qualification();
 
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : txf) tx_flags.observe(frame);
@@ -613,6 +620,12 @@ class GptpShadowHarness {
     dut->rechold_release_i = 0;
     dut->linkg_dis_i = 0; dut->linkg_freeze_i = 0;
     dut->cfg_mac_reinit_i = 0; dut->eth_alive_i = 1; dut->obs_rst_i = 0;
+    //! the PHC's own controls at their product values: running, at the
+    //! 8.0 ns Q8.24 step this bench's counter is sized for, with the
+    //! plane's own servo owning the addend
+    dut->phc_en_i = 1; dut->phc_incr_i = 0x08000000u;
+    dut->phc_adj_ovr_en_i = 0; dut->phc_adj_ovr_i = 0;
+    dut->phc_load_i = 0; dut->phc_tod_wr_i = 0;
     for (int i = 0; i < kResetTicks; i++) tick();
     dut->rst_n = 1;
   }
@@ -1944,6 +1957,120 @@ class GptpShadowHarness {
       if ((k & 255) == 0) service_pdelay();
     }
     return false;
+  }
+
+  // ---- 18: the PHC trajectory the reconstruction is valid across -------
+  // The egress timestamp is a captured PHC value minus a fixed number of
+  // clock periods. That arithmetic is only true if the counter was
+  // running, at its nominal step, with a bounded addend, for the WHOLE
+  // interval it reaches back across - so the qualification is over a
+  // window of history and its guard is observable here, not inferred from
+  // the refusals it causes.
+  void check_phc_trajectory_qualification() {
+    drop_epoch();
+    idle(4000);
+    expect("phc: the guard is clear on a nominal trajectory",
+           dut->dbg_phc_dirty_o, 0);
+
+    check_held_disable_refuses_every_capture();
+    check_non_nominal_increment_refuses_every_capture();
+    check_restored_excursion_still_refuses();
+    check_settime_reloads_the_guard();
+    drop_epoch();
+  }
+
+  //! A DISABLE HELD BEYOND THE WINDOW. The counter stops, so no interval
+  //! that overlaps the hold can be reconstructed; the guard stays loaded
+  //! for the whole hold and for a full window after it.
+  void check_held_disable_refuses_every_capture() {
+    const uint16_t pl0 = dut->dbg_txts_phcl_o;
+    dut->phc_en_i = 0;
+    idle(400000);
+    expect("phc: a held disable keeps the guard loaded",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    expect("phc: every capture inside the hold is an explicit loss",
+           dut->dbg_txts_phcl_o > pl0 ? 1 : 0, 1);
+    expect("phc: not one of them was published as a measurement",
+           measurements_since(pl0), 0);
+    dut->phc_en_i = 1;
+    tick();                              // the edge that reloads the guard
+    expect("phc: returning to nominal reloads the guard once more",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    for (int k = 0; k < kReconGuardCyc - 1; k++) tick();
+    expect("phc: the guard is still loaded one cycle short of the window",
+           dut->dbg_phc_dirty_o != 0 ? 1 : 0, 1);
+    tick();
+    expect("phc: the guard clears after exactly the full window",
+           dut->dbg_phc_dirty_o, 0);
+  }
+
+  //! A NON-NOMINAL INCREMENT is a different clock, not a slow one: the
+  //! correction is a count of nominal periods and it does not describe
+  //! this trajectory at all.
+  void check_non_nominal_increment_refuses_every_capture() {
+    const uint16_t pl0 = dut->dbg_txts_phcl_o;
+    dut->phc_incr_i = 0x08000001u;      // one Q8.24 unit off nominal
+    idle(400000);
+    expect("phc: one unit off nominal keeps the guard loaded",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    expect("phc: every capture at a non-nominal step is an explicit loss",
+           dut->dbg_txts_phcl_o > pl0 ? 1 : 0, 1);
+    expect("phc: not one of them was published as a measurement",
+           measurements_since(pl0), 0);
+    dut->phc_incr_i = 0x08000000u;
+    idle(4000);
+    expect("phc: the guard clears when the nominal step returns",
+           dut->dbg_phc_dirty_o, 0);
+  }
+
+  //! AN EXCURSION RESTORED JUST BEFORE A CAPTURE still fails. This is the
+  //! arm a guard that only looked at the capture instant would pass: the
+  //! addend is back inside the envelope by then, and the interval behind
+  //! it is not.
+  void check_restored_excursion_still_refuses() {
+    dut->phc_adj_ovr_en_i = 1;
+    dut->phc_adj_ovr_i = kAdjExcursion;
+    idle(4000);
+    expect("phc: an excessive addend keeps the guard loaded",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    dut->phc_adj_ovr_i = 0;             // restored, inside the envelope
+    tick();                              // the edge that reloads the guard
+    expect("phc: restoring the addend reloads the guard once more",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    for (int k = 0; k < kReconGuardCyc - 1; k++) tick();
+    expect("phc: still loaded one cycle short of a full eligible window",
+           dut->dbg_phc_dirty_o != 0 ? 1 : 0, 1);
+    tick();
+    expect("phc: and clear only after the full window",
+           dut->dbg_phc_dirty_o, 0);
+    dut->phc_adj_ovr_en_i = 0;
+    idle(4000);
+  }
+
+  //! A SETTIME inside the window re-bases the counter, so nothing before
+  //! it can be reconstructed from anything after it.
+  void check_settime_reloads_the_guard() {
+    expect("phc: the guard is clear before the settime",
+           dut->dbg_phc_dirty_o, 0);
+    // load the counter with the value it already holds: the smallest
+    // disturbance that is still a real settime
+    dut->phc_tod_wr_i = dut->phc_ns_o;
+    dut->phc_load_i = 1;
+    tick();
+    dut->phc_load_i = 0;
+    expect("phc: a settime reloads the guard",
+           dut->dbg_phc_dirty_o, kReconGuardCyc);
+    idle(4000);
+    expect("phc: and it clears again afterwards", dut->dbg_phc_dirty_o, 0);
+  }
+
+  //! Measurements delivered since the PHC-loss count was `pl0`. Every
+  //! result the window produced must be a loss, so this has to be zero.
+  int measurements_since(uint16_t pl0) {
+    (void)pl0;
+    int n = 0;
+    for (const Stamp &s : stamps) if (s.ok) n++;
+    return n;
   }
 
   //! The full-run laws: one result per transmitted frame within each

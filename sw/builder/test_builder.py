@@ -7756,15 +7756,21 @@ def test_baremetal_profile_contract() -> None:
                 "gptp_step_we_w": 5,
                 "gptp_step_w": 4,
                 #: the ptp_sync -> ts_counter crossing nets (915cbcc3):
-                #: declaration plus the two instance ports, nothing else.
-                "phc_enable_ts_w": 3,
-                "phc_incr_ts_w": 3,
-                "phc_adj_ts_w": 3,
+                #: declaration plus the two instance ports. Five of them
+                #: gained ONE more reference in #360 - the gPTP plane's
+                #: egress reconstruction reads the counter's own effective
+                #: enable, increment, addend, settime and adjtime, because
+                #: those are the only signals that say what the accumulator
+                #: actually did. They are READS: the plane drives none of
+                #: them, and this census is what keeps it that way.
+                "phc_enable_ts_w": 4,
+                "phc_incr_ts_w": 4,
+                "phc_adj_ts_w": 4,
                 "phc_tod_wr_ts_w": 3,
                 "phc_offset_ts_w": 3,
                 "phc_tod_snap_ts_w": 3,
-                "phc_load_ts_w": 3,
-                "phc_adjust_ts_w": 3,
+                "phc_load_ts_w": 4,
+                "phc_adjust_ts_w": 4,
                 "phc_snapshot_ts_w": 3,
                 "phc_tod_snap_valid_ts_w": 3,
             }, phc_net_reason)
