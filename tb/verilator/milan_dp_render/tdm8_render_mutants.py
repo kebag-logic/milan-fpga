@@ -48,11 +48,28 @@ run. Every mode of sim_tdm8_render.cpp is cycle bounded by construction: it
 steps fixed counts, every AXI4-Lite handshake gives up after a guard, every
 frame injection is bounded, every AECP wait has a cycle limit, and no loop
 waits on a DUT output without one. A leg therefore ends at the same cycle
-whatever the mutated gateware does. The host-time bound is the sweep's:
-scripts/run_all_suites.sh runs this suite's `make` under its per-suite guard
-and reports a kill as TIMEOUT, never as a pass or a fail.
+whatever the mutated gateware does. A host-time bound still applies wherever
+this campaign is launched under one: scripts/run_all_suites.sh runs a suite's
+`make` under its per-suite guard and reports a kill as TIMEOUT, never as a
+pass or a fail, and the SIGTERM handler in main() leaves with the status that
+reads as.
 
-Usage: python3 tdm8_render_mutants.py    (run from tb/verilator/milan_dp)
+WHERE THIS RUNS. A per-mutant rebuild of the elaborated leg costs tens of
+minutes, which does not fit a PR shard's 1800 s per-suite wall clock, so the
+full campaign is the explicit `tdm8render-mutants` target of this suite and
+the schedule that runs it is recorded in docs/testing/TESTING.md. Nothing in
+the inventory is shortened for that: a full invocation runs every mutant,
+every clean control and every leg-defect arm.
+
+`--leg-defects` runs the part of the same inventory that needs NO
+elaboration: the three arms whose defect is in the stimulus, with the two
+clean modes they are the negative of. That is what this suite's default
+target carries, so the sweep still holds an executable negative arm that
+proves these assertions can fail, inside its own wall clock.
+
+Usage: python3 tdm8_render_mutants.py [--leg-defects]
+                                       (run from tb/verilator/milan_dp_render)
+   or: make -C tb/verilator/milan_dp_render tdm8render-mutants
 Exit 0 = every mutant was caught, and every clean control still passes.
 """
 
@@ -378,6 +395,12 @@ LEG_DEFECTS = [
      "which is what the aligner buys the lane"),
 ]
 
+#: the CLEAN modes the leg-defect arms above are the negative of, so a
+#: --leg-defects round takes its own positive control instead of inheriting
+#: one. The first two defect arms select the leg's serial phase and the third
+#: its CRF phase, so these two modes are exactly what must pass beside them.
+LEG_DEFECT_CONTROLS = (("ship", "--serial-only"), ("ship", "--crf-only"))
+
 
 def build(leg: str, overrides: dict[str, str], mdir: Path) -> Path | None:
     """Build one ELABORATION through the suite's own recipe, `overrides`
@@ -458,6 +481,145 @@ def plant(source: str, edits: list[tuple[str, str]], work: Path,
     return str(out), ""
 
 
+def parse_args(argv: list[str]) -> bool:
+    """True when only the LEG-SIDE defect arms are asked for. An unrecognised
+    argument is a refusal rather than a silently full or silently empty run."""
+    rest = [a for a in argv if a != "--leg-defects"]
+    if rest:
+        print(f"unknown argument(s): {' '.join(rest)}", file=sys.stderr)
+        print("usage: tdm8_render_mutants.py [--leg-defects]", file=sys.stderr)
+        raise SystemExit(2)
+    return "--leg-defects" in argv
+
+
+#: (passes, fails) of one round of arms, so every caller adds the same way
+Tally = tuple[int, int]
+
+
+def run_positive_controls(clean: dict[str, Path | None],
+                          controls: list[tuple[str, str | None]]) -> Tally:
+    """The unmutated leg in each mode a later arm uses. A verdict taken in a
+    mode whose clean run does not pass is not evidence, so this is counted."""
+    passes = fails = 0
+    for leg, mode in controls:
+        answer = (verdict(*run_leg(clean[leg], mode), None) if clean[leg]
+                  else "did not compile")
+        if answer == "pass":
+            passes += 1
+            print(f"[PASS] the unmutated gateware still passes the render "
+                  f"lane leg ({leg} {mode or 'whole'})")
+        else:
+            fails += 1
+            print(f"[FAIL] the unmutated gateware does NOT pass ({leg} "
+                  f"{mode or 'whole'}: {answer}) - every mutant result in "
+                  "that mode is meaningless")
+    return passes, fails
+
+
+def run_leg_defects(clean: dict[str, Path | None]) -> Tally:
+    """The leg's own defect arms: the stimulus is wrong, the gateware is not,
+    so each runs the clean binary and requires its named check to fail."""
+    passes = fails = 0
+    for name, leg, mode, breaks in LEG_DEFECTS:
+        if clean[leg] is None:
+            fails += 1
+            print(f"[FAIL] leg defect arm {name!r}: no clean executable")
+            continue
+        answer = verdict(*run_leg(clean[leg], mode), breaks)
+        if answer == "caught":
+            passes += 1
+            print(f"[PASS] leg defect caught ({leg} {mode}): {name} - "
+                  f"breaks \"{breaks}\"")
+        else:
+            fails += 1
+            print(f"[FAIL] leg defect {name!r} {answer}")
+    return passes, fails
+
+
+def run_clean_controls(work: Path) -> Tally:
+    """The explicitly modelled faults a SOUND design survives. One that broke
+    the leg would discriminate nothing, so each of these must still pass."""
+    passes = fails = 0
+    for name, source, edits, leg, mode in CLEAN_CONTROLS:
+        tag = name.replace(" ", "_").replace(",", "").replace("-", "_")
+        value, why = plant(source, edits, work, tag)
+        if value is None:
+            fails += 1
+            print(f"[FAIL] clean control {name!r}: {why}")
+            continue
+        mexe = build(leg, {SOURCES[source][1]: value}, work / f"obj_{tag}")
+        if mexe is None:
+            fails += 1
+            print(f"[FAIL] clean control {name!r} did not compile")
+            continue
+        answer = verdict(*run_leg(mexe, mode), None)
+        if answer == "pass":
+            passes += 1
+            print(f"[PASS] clean control still passes ({leg} "
+                  f"{mode or 'whole'}): {name}")
+        else:
+            fails += 1
+            print(f"[FAIL] clean control {name!r} did not pass: {answer}. "
+                  "The modelled fault breaks the sound crossing too, so "
+                  "it discriminates nothing.")
+    return passes, fails
+
+
+def run_mutations(work: Path) -> Tally:
+    """One gateware or generated-shape defect at a time, each rebuilt through
+    the suite's own recipe and required to break the check it names."""
+    passes = fails = 0
+    for name, source, edits, leg, mode, breaks in MUTATIONS:
+        tag = name.replace(" ", "_").replace(":", "").replace(",", "")
+        tag = tag.replace("-", "_").replace(".", "").replace("'", "")
+        value, why = plant(source, edits, work, tag)
+        if value is None:
+            fails += 1
+            print(f"[FAIL] mutation {name!r}: {why}")
+            continue
+        mexe = build(leg, {SOURCES[source][1]: value}, work / f"obj_{tag}")
+        if mexe is None:
+            fails += 1
+            print(f"[FAIL] mutation {name!r} did not compile; a mutant "
+                  "that cannot build proves nothing about the leg")
+            continue
+        answer = verdict(*run_leg(mexe, mode), breaks)
+        if answer == "caught":
+            passes += 1
+            print(f"[PASS] mutant caught ({leg} {mode or 'whole'}): {name}"
+                  f" - breaks \"{breaks}\"")
+        elif answer == "pass":
+            fails += 1
+            print(f"[FAIL] mutant SURVIVED: {name}. The leg does not "
+                  f"prove \"{breaks}\".")
+        else:
+            fails += 1
+            print(f"[FAIL] mutant {name!r} {answer}")
+    return passes, fails
+
+
+def clean_legs(work: Path, leg_defects_only: bool) -> dict[str, Path | None]:
+    """The positive control per elaboration: the clean build the suite left on
+    disk, or a fresh one when this runner is invoked alone. A --leg-defects
+    round needs only the elaborations its own arms and their controls name, so
+    it never builds one to leave it unused."""
+    wanted = ({leg for _, leg, _, _ in LEG_DEFECTS}
+              | {leg for leg, _ in LEG_DEFECT_CONTROLS}
+              if leg_defects_only else set(LEGS))
+    return {leg: (on_disk if on_disk.is_file()
+                  else build(leg, {}, work / f"obj_clean_{leg}"))
+            for leg, (_, _, _, on_disk) in LEGS.items() if leg in wanted}
+
+
+def control_modes(leg_defects_only: bool) -> list[tuple[str, str | None]]:
+    """Which (elaboration, mode) pairs need a clean run this round."""
+    if leg_defects_only:
+        return sorted(LEG_DEFECT_CONTROLS)
+    return sorted({(m[3], m[4]) for m in MUTATIONS}
+                  | {(c[3], c[4]) for c in CLEAN_CONTROLS},
+                  key=lambda x: (x[0], x[1] or ""))
+
+
 def main() -> int:
     """Run the clean controls and every mutant; 1 if any survived."""
     def on_sigterm(*_: object) -> None:
@@ -465,96 +627,24 @@ def main() -> int:
         a TIMEOUT, so a killed mutation round is never a pass or a fail."""
         sys.exit(143)
 
+    leg_defects_only = parse_args(sys.argv[1:])
     signal.signal(signal.SIGTERM, on_sigterm)
-    passes = fails = 0
+    rounds = []
     with tempfile.TemporaryDirectory(prefix="tdm8-render-mutants-") as td:
         work = Path(td)
-        #: the positive controls, one per elaboration: the clean build the
-        #: sweep left on disk, or a fresh one when this runner is invoked
-        #: alone. Every verdict below comes from the same binary shape.
-        clean: dict[str, Path | None] = {}
-        for leg, (_, _, _, on_disk) in LEGS.items():
-            clean[leg] = (on_disk if on_disk.is_file()
-                          else build(leg, {}, work / f"obj_clean_{leg}"))
-        for leg, mode in sorted({(m[3], m[4]) for m in MUTATIONS}
-                                | {(c[3], c[4]) for c in CLEAN_CONTROLS},
-                                key=lambda x: (x[0], x[1] or "")):
-            answer = (verdict(*run_leg(clean[leg], mode), None) if clean[leg]
-                      else "did not compile")
-            if answer == "pass":
-                passes += 1
-                print(f"[PASS] the unmutated gateware still passes the render "
-                      f"lane leg ({leg} {mode or 'whole'})")
-            else:
-                fails += 1
-                print(f"[FAIL] the unmutated gateware does NOT pass ({leg} "
-                      f"{mode or 'whole'}: {answer}) - every mutant result in "
-                      "that mode is meaningless")
-        # the leg's own defect arms: the stimulus is wrong, the gateware is not
-        for name, leg, mode, breaks in LEG_DEFECTS:
-            if clean[leg] is None:
-                fails += 1
-                print(f"[FAIL] leg defect arm {name!r}: no clean executable")
-                continue
-            answer = verdict(*run_leg(clean[leg], mode), breaks)
-            if answer == "caught":
-                passes += 1
-                print(f"[PASS] leg defect caught ({leg} {mode}): {name} - "
-                      f"breaks \"{breaks}\"")
-            else:
-                fails += 1
-                print(f"[FAIL] leg defect {name!r} {answer}")
-        # the clean controls under an explicitly modelled fault
-        for name, source, edits, leg, mode in CLEAN_CONTROLS:
-            tag = name.replace(" ", "_").replace(",", "").replace("-", "_")
-            value, why = plant(source, edits, work, tag)
-            if value is None:
-                fails += 1
-                print(f"[FAIL] clean control {name!r}: {why}")
-                continue
-            mexe = build(leg, {SOURCES[source][1]: value}, work / f"obj_{tag}")
-            if mexe is None:
-                fails += 1
-                print(f"[FAIL] clean control {name!r} did not compile")
-                continue
-            answer = verdict(*run_leg(mexe, mode), None)
-            if answer == "pass":
-                passes += 1
-                print(f"[PASS] clean control still passes ({leg} "
-                      f"{mode or 'whole'}): {name}")
-            else:
-                fails += 1
-                print(f"[FAIL] clean control {name!r} did not pass: {answer}. "
-                      "The modelled fault breaks the sound crossing too, so "
-                      "it discriminates nothing.")
-        for name, source, edits, leg, mode, breaks in MUTATIONS:
-            tag = name.replace(" ", "_").replace(":", "").replace(",", "")
-            tag = tag.replace("-", "_").replace(".", "").replace("'", "")
-            value, why = plant(source, edits, work, tag)
-            if value is None:
-                fails += 1
-                print(f"[FAIL] mutation {name!r}: {why}")
-                continue
-            mexe = build(leg, {SOURCES[source][1]: value}, work / f"obj_{tag}")
-            if mexe is None:
-                fails += 1
-                print(f"[FAIL] mutation {name!r} did not compile; a mutant "
-                      "that cannot build proves nothing about the leg")
-                continue
-            answer = verdict(*run_leg(mexe, mode), breaks)
-            if answer == "caught":
-                passes += 1
-                print(f"[PASS] mutant caught ({leg} {mode or 'whole'}): {name}"
-                      f" - breaks \"{breaks}\"")
-            elif answer == "pass":
-                fails += 1
-                print(f"[FAIL] mutant SURVIVED: {name}. The leg does not "
-                      f"prove \"{breaks}\".")
-            else:
-                fails += 1
-                print(f"[FAIL] mutant {name!r} {answer}")
-    total = passes + fails
-    print(f"\n{total} checks: {passes} PASS, {fails} FAIL")
+        clean = clean_legs(work, leg_defects_only)
+        rounds.append(run_positive_controls(clean,
+                                            control_modes(leg_defects_only)))
+        rounds.append(run_leg_defects(clean))
+        if not leg_defects_only:
+            rounds.append(run_clean_controls(work))
+            rounds.append(run_mutations(work))
+    passes = sum(p for p, _ in rounds)
+    fails = sum(f for _, f in rounds)
+    scope = (" (--leg-defects: the arms that need no elaboration; the gateware "
+             "and shape mutants are the tdm8render-mutants target)"
+             if leg_defects_only else "")
+    print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL{scope}")
     return 1 if fails else 0
 
 

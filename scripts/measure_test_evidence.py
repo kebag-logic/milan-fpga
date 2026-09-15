@@ -602,9 +602,11 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
-    "tb/verilator/milan_dp/tdm8_render_mutants.py":
-        "mutation campaign; it plants one of thirteen render-lane defects into a copy "
-        "or runs a leg-side defect arm, and requires the named check to fail",
+    "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+        "mutation campaign; it plants one render-lane defect from its own table into "
+        "a copy or runs a leg-side defect arm, and requires the named check to fail. "
+        "The suite's default target runs its --leg-defects arms; the gateware and "
+        "shape mutants are the explicit tdm8render-mutants target",
     "tb/verilator/nvm_backend/mutate.py":
         "mutation campaign; it plants one of four backend defects into a copy and requires failure",
     "tb/verilator/render_setpoint/mutants.py":

@@ -198,7 +198,7 @@ being re-emitted as though it were fresh audio.
 
 The shipping AX7101 image carries ONE listener stream, so neither half of that
 qualification is observable on it, and neither is a legal cluster key with no
-physical projection. `tb/verilator/milan_dp/gen_tdm8r_multi_shape.py` writes a
+physical projection. `tb/verilator/milan_dp_render/gen_tdm8r_multi_shape.py` writes a
 second end-station config - the shipping one with a second listener and the
 wire-truth cluster policy - and the builder derives its shape header and its
 entity image, so the two halves are exercised against each other on a real

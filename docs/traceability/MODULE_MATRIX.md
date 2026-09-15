@@ -82,7 +82,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `milan_dp` · `tdm` · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · 🔬`make aaf` | -- |
-| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `milan_dp` · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `milan_dp_render` · `milan_dp` · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · 🔬`make aaf` | -- |
 | ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
 | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | -- |
