@@ -151,8 +151,17 @@ SOURCE_TOKENS = {
     ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": (
         #: identity is position, cancellation marks, and the correction is
-        #: derived from its terms rather than written down
-        "assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &",
+        #: derived from its terms rather than written down.
+        #:
+        #: BOTH LINES OF THE EXPRESSION, deliberately. The first line alone
+        #: was the pin until this round, and `departed_w` - the term
+        #: mutants.py declares unobservable and names this file as the holder
+        #: of - is on the SECOND one. It could be deleted with the old token
+        #: still matching and every suite still green, which is the one thing
+        #: a structural pin exists to stop. A pin that stops short of the
+        #: term it stands in for is not a pin.
+        "assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &\n"
+        "                     have_entry_w & departed_w & tag_ok_w;",
         "localparam int unsigned TXTS_CORR_NS_P =",
         #: The four acceptance terms and the one line that says an expiry
         #: is NOT a retirement. `tb/verilator/gptp_shadow/mutants.py`
@@ -162,6 +171,18 @@ SOURCE_TOKENS = {
         #: those laws are held instead.
         "assign oidx_ok_w    = (cap_oidx_r == exp_oidx_r);",
         "assign departed_w   = (n_dep_i != '0);",
+        #: THE WHOLE OUTCOME EXPRESSION, for the same reason and one more.
+        #: The cycle-distance term is what refuses a plausible time for a
+        #: frame that was fragmented on the wire, and it is the difference
+        #: between a measurement and a guess; no bench here can produce that
+        #: fragmentation at this interface, so nothing observed its removal.
+        #: Pinning the line alone would not do: `phc_lost_w` below carries a
+        #: character-identical term, so either could go while the other kept
+        #: a one-line token matching.
+        "assign res_ok_w = resolve_w & led_live_r[led_head_r] & "
+        "led_tag_r[led_head_r] &\n"
+        "                    ~cap_abort_r & cap_elig_r &\n"
+        "                    (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));",
         "assign push_res_w = resolve_w | pre_resolve_w;",
         #: the abort arm is written FIRST, on purpose
         "      if (!epi_busy_i && !epi_done_i)     epi_cover_r <= 1'b0;",

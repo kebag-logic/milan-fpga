@@ -150,7 +150,10 @@ NOT_SEPARATELY_OBSERVABLE = [
         "so removing the predicate changes only WHEN an entry resolves "
         "relative to the departure it is already behind, and no interface "
         "here observes that order. Pinned structurally in "
-        "scripts/check_gptp_docs.py.",
+        "scripts/check_gptp_docs.py, on the USE in `resolve_w` and not only "
+        "on the declaration: until #360 round three the pin was the first "
+        "line of that expression and the term is on the second, so the "
+        "sentence above was true of a token that did not hold it.",
     ),
     (
         "no_position_check",
