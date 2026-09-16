@@ -57,8 +57,11 @@
 #            UNLISTED extras, and masked verdicts (a script that exited 0
 #            while its log lacks `RESULT: PASS` is a FAIL here - an
 #            assertion that only logs is the false green Rule 6 exists for)
-#   90       nothing failed, but some member was SKIPPED (no LiteX
-#            interpreter), so a green here is NOT the full aggregate
+#   90       nothing failed, but some member was SKIPPED - either no LiteX
+#            interpreter, or a member that DECLARED a skip because its host
+#            lacks a tool it needs (`RESULT: SKIP <reason>` and exit 0, which
+#            is the one exit-0-without-PASS shape that is not a masked
+#            verdict) - so a green here is NOT the full aggregate
 #   91       REFUSED: a set $MILAN_LITEX_PYTHON that cannot import
 #            migen + litex (an explicit pin is never silently substituted)
 #   92       some member was KILLED BY THE WALL CLOCK - result UNKNOWN,
@@ -194,11 +197,25 @@ run_aggregate() {
       || rc=$?
     # Rule 6: a script that PRINTS a failure (or nothing) and exits 0 is a
     # masked verdict. Every member ends with an explicit `RESULT: PASS`.
+    #
+    # A MEMBER MAY ALSO DECLARE A SKIP, and that is not a masked verdict: a
+    # member whose host lacks a tool it needs (test_gptp_tx_timestamp without
+    # Verilator, #360) prints `RESULT: SKIP <reason>` and exits 0. It is
+    # counted SKIPPED, never passed and never failed - an absent tool is not
+    # evidence either way, and a skip reported as a failure buries the real
+    # ones. It still makes the sweep INCOMPLETE below, exactly as the
+    # interpreter skip does, so no green here claims a run that did not
+    # happen. The reason is quoted from the member's own line, because a skip
+    # whose reason lives only in a log nobody opens is the silence this
+    # aggregate exists to end.
     if [ "$rc" -eq 0 ] && ! grep -q '^RESULT: PASS$' "$out/$t.log"; then
-      rc=93
+      if grep -q '^RESULT: SKIP' "$out/$t.log"; then rc=94; else rc=93; fi
     fi
     case "$rc" in
       0)   pass=$((pass + 1)); printf 'PASS     %s\n' "$t" ;;
+      94)  skip=$((skip + 1))
+           printf 'SKIP     %s   (declared by the member: %s)\n' "$t" \
+                  "$(sed -n 's/^RESULT: SKIP[[:space:]]*//p' "$out/$t.log" | head -n1)" ;;
       93)  fail=$((fail + 1)); failed="$failed $t"
            printf 'FAIL     %s   (exited 0 without `RESULT: PASS` - a masked verdict)\n' "$t" ;;
       124|137)
@@ -319,6 +336,19 @@ selftest() {
   rc=0; out="$(arm "$sand/g" bin-ok MILAN_LITEX_PYTHON="$sand/no-such-python")" || rc=$?
   ck "an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED" 91 "$rc" \
      "REFUSED" "$out"
+
+  # The member-declared skip, both halves: it must be COUNTED as a skip
+  # rather than as the masked verdict arm (c) above, and it must not be
+  # counted as a pass. The reason has to reach the summary, so the needle is
+  # the member's own text and not just the word SKIP.
+  make_tree "$sand/i"
+  printf 'import sys\nprint("RESULT: SKIP (no widget on PATH)")\nsys.exit(0)\n' \
+         > "$sand/i/sw/litex/test_pp_mem_bridge.py"
+  rc=0; out="$(arm "$sand/i" bin-ok)" || rc=$?
+  ck "a member-declared skip is SKIPPED with its reason, exit 90" 90 "$rc" \
+     "declared by the member: (no widget on PATH)" "$out"
+  ck "a member-declared skip is not counted as a pass" 90 "$rc" \
+     "passed: $(( ${#INVENTORY[@]} - 1 ))\b" "$out"
 
   make_tree "$sand/h"
   printf 'import time\ntime.sleep(30)\n' > "$sand/h/sw/litex/test_pp_mem_bridge.py"

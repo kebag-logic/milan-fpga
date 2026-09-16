@@ -459,8 +459,21 @@ INHERITED_WORKFLOW_ENV = {
     RTL_FULL: ("VERILATOR_VERSION", "YOSYS_VERSION", "TSN_GEN_REV"),
     RTL_FAST: ("VERILATOR_VERSION", "YOSYS_VERSION"),
     DOCS: (),
-    ELABORATE: (),
+    # The elaboration job gained a Verilator (#360). One member of its LiteX
+    # simulation aggregate compares the CONVERTED MAC transmit chain against
+    # the migen objects it was converted from, which needs Verilator and the
+    # pinned LiteX stack in ONE job, and this is the only job in the tree
+    # that carries the stack. The pin is the string rtl.yml carries, under
+    # the same cache key, so the two workflows restore one artifact.
+    ELABORATE: ("VERILATOR_VERSION",),
 }
+#: THE VERILATOR PIN IS ONE VALUE. Three workflow files now name it and they
+#: share a cache key, so a bump in one and not the others would have two
+#: builds answering to one key - the file that bumped would read the other's
+#: binary out of the cache and its version proof would be the only thing that
+#: noticed. Held here as a value rather than as "they are equal", so the
+#: version a reviewer reads in this table is the version CI runs.
+VERILATOR_PIN = "v5.050"
 #: THE KEY SETS, by exact allowlist ([R4] round 6 on PR #293). `env` was
 #: not the only key that reaches every step's shell: `jobs.<id>.container`
 #: carries its own `env` map and chooses the image whose `python3` the steps
@@ -537,6 +550,11 @@ ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove 
     'set -euo pipefail',
     *ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")],
 )
+#: The elaboration job's copy (#360), the physical job's script exactly: one
+#: recipe for putting this tool on PATH, so a reviewer comparing the three
+#: reads one thing and a hostile line has nowhere quiet to sit.
+ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the version")] = \
+    ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
 #: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
@@ -932,6 +950,20 @@ CARRIER_STEP_LISTS = {
          "if": BUILDER_IF},
         {"name": "Apply the toolchain patch series", "if": BUILDER_IF},
         {"name": "Elaboration gates", "if": BUILDER_IF},
+        # Verilator, for the aggregate's converted-versus-source MAC
+        # comparison (#360). Same cache key and same three steps as rtl.yml,
+        # and BEFORE the aggregate: the PATH entry the third one appends is
+        # what the member reads, so their order is the contract.
+        {"name": "Cache the pinned Verilator build", "uses": "actions/cache@v4",
+         "id": "cache-verilator", "if": BUILDER_IF,
+         "with": {"path": "/opt/verilator",
+                  "key": "verilator-${{ env.VERILATOR_VERSION }}-"
+                         "${{ runner.os }}"}},
+        {"name": "Build Verilator from source on cache miss",
+         "if": "${{ steps.scope.outputs.rtl == 'true' && "
+               "steps.cache-verilator.outputs.cache-hit != 'true' }}"},
+        {"name": "Put Verilator on PATH and prove the version",
+         "if": BUILDER_IF},
         {"name": "Standalone LiteX simulation aggregate", "if": BUILDER_IF},
         {"name": "Keep the generated CPU netlist arguments for the next run",
          "if": "${{ always() && steps.scope.outputs.rtl == 'true' }}"},
@@ -2321,6 +2353,13 @@ def check_inherited_env(c: Contract, path: str, wf: YamlMap) -> None:
            "a name set here reaches every step's shell of every job before "
            "any pinned script runs, and `BASH_ENV` makes a checked-in file "
            "the startup script of each of them")
+    if "VERILATOR_VERSION" in have:
+        c.item(str(top["VERILATOR_VERSION"]) == VERILATOR_PIN, path,
+               f"the workflow-level `VERILATOR_VERSION` must be "
+               f"{VERILATOR_PIN} (found {top.get('VERILATOR_VERSION')!r}): "
+               "the three files that name it share one cache key, so a bump "
+               "in one of them reads another file's binary out of that key "
+               "and only its own version proof would notice")
     for jid, job in jobs(wf).items():
         if not isinstance(job, dict):
             continue
@@ -5786,6 +5825,19 @@ def _contract_step_and_env_arms() -> list[Arm]:
         ("#261 rtl-fast.yml workflow-level env with a benign name",
          _m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
          "the workflow-level `env` must name exactly ['VERILATOR_VERSION', 'YOSYS_VERSION']"),
+        # #360: three files name this pin and share one cache key, so the
+        # drift that matters is a VALUE, not a missing name. Each file that
+        # carries it gets an arm, because a check written against one of them
+        # would leave the other two free to move.
+        ("#360 elaborate.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(ELABORATE, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
+        ("#360 rtl.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(RTL_FULL, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
+        ("#360 rtl-fast.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(RTL_FAST, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
         ("#261 docs-check ci_events step-level BASH_ENV",
          _m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist "
@@ -6209,7 +6261,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 elaborate inserted third-party action breaks the sequence",
          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
-         "job `elaborate` must carry exactly 15 steps"),
+         "job `elaborate` must carry exactly 18 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
          "job `docs-check` must carry exactly 42 steps"),
@@ -6221,7 +6273,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
-         "job `elaborate` must carry exactly 15 steps"),
+         "job `elaborate` must carry exactly 18 steps"),
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
@@ -6231,7 +6283,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
-         "job `elaborate` must carry exactly 15 steps, in the recorded order (found 14)"),
+         "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
         ("#295 docs-check recognised steps swapped",
          _m_swap_steps(DOCS, "docs-check", 37, 38),
          "job `docs-check` step 39 must be the step named `Archive integrity gate`"),

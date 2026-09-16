@@ -51,11 +51,25 @@ Usage:
     python3 sw/litex/test_gptp_tx_timestamp.py
     python3 sw/litex/test_gptp_tx_timestamp.py --keep <dir>   # keep traces
 
-Exit 0 = the two traces agree; 1 = they do not, or a trace could not be
-produced.
+WHAT HAPPENS WITHOUT VERILATOR. The converted half of the comparison is a
+Verilator build, so a host without Verilator cannot run this comparison at
+all. That is a DECLARED SKIP (`RESULT: SKIP`, exit 0), the shape
+scripts/run_litex_sims.sh counts as skipped and never as a pass: an absent
+tool is not evidence either way, and reporting a comparison that did not
+happen as a failure buries a real one. The skip is narrow on purpose. It is
+declared ONLY when the Verilator executable is not on PATH; Verilator present
+and the build failing stays a FAIL, because that is a broken conversion, a
+broken artifact or a broken suite, and each of those is a finding. The
+comparison itself is never relaxed.
+
+Exit 0 = the two traces agree, or the comparison was declared skipped for
+want of Verilator; 1 = they do not agree, or a trace could not be produced on
+a host that has the tool to produce it.
 """
 
 import argparse
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -64,6 +78,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent.parent
 SUITE = REPO / "tb" / "verilator" / "gptp_txts"
 PAD_SIM = SUITE / "obj_pad" / "Vmac_tx_chain_pads"
+#: The suite Makefile's own `VERILATOR ?= verilator`, read the same way, so a
+#: host that points the suite at another build is asked about THAT build.
+VERILATOR = os.environ.get("VERILATOR", "verilator")
 
 #: The stimulus, in payload octets. It is the list
 #: `tb/verilator/gptp_txts/pad_trace_main.cpp` drives, and the two are
@@ -274,6 +291,15 @@ def main() -> int:
     parser.add_argument("--keep", type=Path, default=None,
                         help="write both traces into this directory")
     args = parser.parse_args()
+
+    if shutil.which(VERILATOR) is None:
+        print(f"the converted half of this comparison is a Verilator build "
+              f"and `{VERILATOR}` is not on PATH, so there is nothing to "
+              f"compare the migen source against here.")
+        print("\ntest_gptp_tx_timestamp: 0 checks: 0 PASS, 0 FAIL")
+        print(f"RESULT: SKIP (no {VERILATOR} on PATH; this comparison needs "
+              f"it to build the converted chain)")
+        return 0
 
     scratch = tempfile.TemporaryDirectory()
     out = args.keep if args.keep else Path(scratch.name)

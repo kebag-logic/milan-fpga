@@ -469,12 +469,17 @@ is a failure (`MISSING`), and a `test_*.py` present but unlisted is a failure
 a new test must join the inventory to land. Each script's output goes to its
 own `<logdir>/<script>.log` and a failure names the exact script. Exit 0 is a
 complete pass; 1-89 counts the findings; 90 means nothing failed but a member
-was skipped for a declared reason (no interpreter importing `migen` + `litex`
-- point `MILAN_LITEX_PYTHON` at one); 91 REFUSES a set `MILAN_LITEX_PYTHON`
+was skipped for a declared reason - either no interpreter importing `migen` +
+`litex` (point `MILAN_LITEX_PYTHON` at one), or a member that DECLARED its own
+skip because this host lacks a tool it needs, printing `RESULT: SKIP <reason>`
+and exiting 0: `test_gptp_tx_timestamp` without Verilator does exactly that,
+since its converted half cannot be built at all, and it is counted skipped,
+never failed; 91 REFUSES a set `MILAN_LITEX_PYTHON`
 that cannot import them (an explicit pin is never silently substituted);
 92 means a wall-clock kill left a result UNKNOWN. The hosted owner is the `elaborate` job
 ([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the selftest and
-then the aggregate on the interpreter it just installed and patched.
+then the aggregate on the interpreter it just installed and patched, with the
+pinned Verilator on PATH so that comparison runs there rather than skipping.
 
 The population was twelve scripts when #297 was filed; ten tested the
 bare-metal ring/DMA product that #259 retired, and PR #294 deleted them with
