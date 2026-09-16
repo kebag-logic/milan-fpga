@@ -82,11 +82,15 @@ Use the [traceability table](../../traceability/ieee8021as.md).
 
 ## Acceptance evidence for the egress launch timestamp
 
-Each contracted acceptance item for the egress launch timestamp resolves here
-to a named check, in the source, under one command.
+Each contracted acceptance item resolves to a named check.
 
-The checks carry the same identifier as an `ACCEPTANCE` comment, so the
-mapping is greppable from either end: `grep -rn "ACCEPTANCE B5" tb/`.
+Each check is in the source, under one command.
+
+The checks carry the item as an `ACCEPTANCE` comment.
+
+So the mapping is greppable from either end.
+
+Try `grep -rn "ACCEPTANCE B5" tb/`.
 
 | Item | Named check | Command |
 |---|---|---|
@@ -109,14 +113,18 @@ mapping is greppable from either end: `grep -rn "ACCEPTANCE B5" tb/`.
 | D1 to D5 | the donor's own labelled sections in `gptp-processor/tb/verilator/engine/sim_main.cpp` | `make -C gptp-processor` |
 | D6 | the whole donor suite, at the pin this tree consumes | `make -C gptp-processor` |
 
-Two suites answer for most of this, and deliberately so.
+Two suites answer for most of this.
 
-`gptp_txts` owns everything graded against an independent pad oracle over the
-converted product MAC.
+`gptp_txts` owns what an independent pad oracle grades.
 
-`gptp_shadow` owns the ledger, pairing, guard and PHC-qualification laws,
-where a stand-in MAC is enough.
+That oracle runs over the converted product MAC.
 
-The defects each suite CANNOT see are recorded beside it, in
-`tb/verilator/gptp_shadow/mutants.py` and `tb/verilator/gptp_txts/mutants.py`,
-each with the structural pin that holds it instead.
+`gptp_shadow` owns the ledger, pairing, guard and PHC laws.
+
+A stand-in MAC is enough there.
+
+Each suite records the defects it CANNOT see.
+
+`tb/verilator/gptp_shadow/mutants.py` and `tb/verilator/gptp_txts/mutants.py` carry those records.
+
+Each names the structural pin that holds it instead.

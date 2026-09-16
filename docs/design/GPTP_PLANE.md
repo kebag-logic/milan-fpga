@@ -120,7 +120,9 @@ The queue sits between the ledger entry and the launch.
 
 The reconstructed interval never crosses it.
 
-The published digital bound is +/-11.2 ns, and these are its terms.
+The published digital bound is +/-11.2 ns.
+
+These are its terms.
 
 | Term | Bound | Basis |
 |---|---|---|
@@ -134,21 +136,37 @@ The published digital bound is +/-11.2 ns, and these are its terms.
 
 The assumptions are declared, not inherited.
 
-`RECON_REL_PPM_P` is a design constraint the bench sweeps, not a claim about this board's oscillators.
+`RECON_REL_PPM_P` is a design constraint the bench sweeps.
 
-The total is insensitive to it: at 1000 ppm the two frequency terms reach 0.85 ns together and the total 11.9 ns.
+It is not a claim about this board's oscillators.
 
-Every term above is digital; no term is a measured physical latency.
+The total is insensitive to it.
+
+At 1000 ppm those two terms reach 0.85 ns.
+
+The total would then be 11.9 ns.
+
+Every term above is digital.
+
+No term is a measured physical latency.
 
 This is a component bound, not the system obligation.
 
-[NFR-TIME-01](../reference/FR_NFR.md) requires synchronization to the grandmaster within 1 us, and this bound is one contributor to it.
+[NFR-TIME-01](../reference/FR_NFR.md) requires 1 us to the grandmaster.
 
-Through `t1` alone the contribution to a computed peer delay is at most half the bound, +/-5.6 ns.
+This bound is one contributor to that.
 
-The physical terms - PHY latency, pad clock-to-out, cable - belong to the qualification issues that own them and are not in this table.
+Through `t1` alone it contributes at most +/-5.6 ns.
 
-`tb/verilator/gptp_txts` grades every frame against a pad oracle at `kBoundNs`, which is 11 ns and so never looser than the figure published here.
+The physical terms are not in this table.
+
+PHY latency, pad clock-to-out and cable belong elsewhere.
+
+`tb/verilator/gptp_txts` grades every frame against a pad oracle.
+
+Its `kBoundNs` is 11 ns.
+
+That is never looser than the figure published here.
 
 That oracle is independent of the design under test.
 
