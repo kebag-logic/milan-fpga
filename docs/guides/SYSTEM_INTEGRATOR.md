@@ -37,6 +37,7 @@ flowchart LR
 | Response memory | `o_resp_mem_*`, `i_resp_mem_*` | Complete every accepted response operation | Set `i_resp_mem_req_ready=0`, `i_resp_mem_wr_ready=0`; clear response and completion inputs |
 | Record image memory | `o_nvm_mem_*`, `i_nvm_mem_*` | Complete every accepted saved-state record operation | Set `i_nvm_mem_req_ready=0`, `i_nvm_mem_wr_ready=0`; clear response and completion inputs |
 | MAC control and status | `o_mac_*`, `i_mac_*`, link, PHY, Ethernet guards | Report honest capabilities and status | Set `i_mac_speed=2'b10`, `i_link_up=1`, `i_full_duplex=1`; clear events, capabilities, toggles |
+| gPTP egress launch records | `i_gptp_txrec_*`, `o_gptp_txseal_*`, `i_gptp_txseal_ack` | Carry the launch observer's records in and the plane's seal back | Clear every `i_gptp_txrec_*` and `i_gptp_txseal_ack`; leave the seal outputs open |
 | Interrupt | `o_irq_csr` | Route the aggregate CSR interrupt | Leave the output open during smoke tests |
 | Identify output | `o_identify` | Route the requested visual indication | Leave the output open during smoke tests |
 | MMCM controls | `o_mmcm_*`, `i_mmcm_*`, `i_ps_clk` | Bridge DRP and phase handshakes | Set `i_ps_clk=axis_clk`, DRP inputs zero, `i_mmcm_locked=1`, `i_mmcm_ps_done=0` |
