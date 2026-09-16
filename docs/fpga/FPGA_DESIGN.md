@@ -135,7 +135,7 @@ flowchart LR
     CM --> PKT[KL_aaf_packetizer] --> MERGE[fabric traffic merge] --> MAC[MilanMAC + PTP stamp] --> WIRE((wire))
     WIRE --> RX[classifier + depacketizer] --> ROUTE[KL_pcm_route\nRENDER / reserved]
     ROUTE --> LPF[KL_pcm_lpf] --> I2S[KL_i2s_playback]
-    RX -. accepted-beat clone .-> XBAR[chmap render xbar] --> TDM[KL_tdm_render / mapped I2S out]
+    RX -. accepted-beat clone .-> XBAR[chmap render xbar] --> TDM[KL_tdm_render_master / KL_tdm_render / mapped I2S out]
 ```
 
 With `chmap_enable=0`, the physical capture pair drives the packetizer
@@ -262,7 +262,8 @@ this table whenever `hdl/` changes shape.
 | `KL_pcm_lpf` | 2nd-order IIR low-pass (Butterworth fc 20 kHz @ fs 48 kHz) |
 | `KL_pcm_route` | NxN fabric-render policy (`{RENDER, reserved}`, lowest-index RENDER wins) |
 | `KL_tdm_capture` / `KL_tdm_capture_master` | TDM slave and TDM master audio-capture front-ends (item-4 family) |
-| `KL_tdm_render` | TDM slave audio-render front-end |
+| `KL_tdm_render` | TDM slave audio-render front-end (a codec-driven bus) |
+| `KL_tdm_render_master` | TDM master audio-render front-end: the sibling that consumes `KL_tdm_capture_master`'s exported bit-clock enables instead of generating a second frame phase, and carries the four-phase render epoch |
 | `KL_tone_gen` | 1 kHz / 0 dBFS pilot tone: 48-sample exact-period 24-bit sine table |
 | `aaf_talker_i2s` | the original single-stream fabric talker |
 

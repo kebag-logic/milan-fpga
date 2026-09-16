@@ -61,7 +61,13 @@ F="$R/hdl/ieee8021q/filtering"
 # it this gate priced whichever config last ran --write-rtl, which is how
 # its figures came to describe a different entity than the one run.sh
 # elaborates.
-S="$R/configs/generated/endstation_arty_current"
+#
+# OOC_SHAPE names ANOTHER generated config directory, and it is the minimum a
+# caller needs to price a shape this list does not default to (#447: the
+# shipping AX7101 1x1 TDM8 entity, whose render lane the Arty defaults park).
+# It changes no default: unset, this is the same Arty directory it always was,
+# and the tops list is elaborated exactly as before.
+S="${OOC_SHAPE:-$R/configs/generated/endstation_arty_current}"
 INC="-DSYNTHESIS -I $S -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
 TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 # An OOC_TMP the caller spelled RELATIVELY is resolved once, here. yosys runs
@@ -109,7 +115,7 @@ GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv
 # generated and published both ROMs and then, on a freshly bumped pin,
 # refused with "no recorded content digest" for a top that does not exist.
 # The tops list needs nothing but the path variables and $PP_SRCS.
-DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/crf/KL_media_grid_align.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_render_setpoint.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
+DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/crf/KL_media_grid_align.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_render_setpoint.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
 
 # The area-relevant tops: the zero-BRAM LUT hogs of the placer-overflow report,
 # their parents, and the crf_rx precedent for calibration.
@@ -125,6 +131,15 @@ tops=(
   # #386: the render setpoint stage at its module defaults (eight streams);
   # the shipping one-stream figure needs OOC_CHPARAM=N_STREAMS_P=1
   "KL_render_setpoint|$R/hdl/ieee1722/aaf/KL_render_setpoint.sv"
+  # #447: the TDM MASTER render serializer, at its module defaults (8 slots,
+  # 32-bit words, a 4-frame CDC). It is in DP_SRCS too, but the milan_datapath
+  # row below prices the shape $S selects - the ARTY one, whose
+  # AUDIO_IF_RENDER_SLOTS_P is 0 - and that parks the lane, so that row
+  # measures none of this module. The IN-CONTEXT figure for the shipping
+  # AX7101 1x1 TDM8 shape needs the shape override below (OOC_SHAPE) together
+  # with the patched-default copy of milan_datapath.sv this script's chparam
+  # note describes; the PR that added the lane records both numbers.
+  "KL_tdm_render_master|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv"
   "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
   "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"

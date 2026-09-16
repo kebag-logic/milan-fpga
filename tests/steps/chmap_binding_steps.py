@@ -66,13 +66,22 @@ class MapShape:
 
     `ports=None` asks for the single-port default shape, which the model then
     derives from its own `keys`/`nmaps` declaration.
+
+    `rphys` is the generated ADP_DMAP_IN_RPHYS_C table, one 7-bit word
+    {valid[6], render_key[5:0]} per GLOBAL cluster key. It decides which keys
+    reach a PHYSICAL render channel and which do not - a separate question
+    from whether a mapping is legal. `None` keeps the identity projection
+    every scenario written before it assumed: key k reaches render channel k
+    while k < `phys`.
     """
 
-    def __init__(self, ports=None, page=4, stream_channels=8, phys=10):
+    def __init__(self, ports=None, page=4, stream_channels=8, phys=10,
+                 rphys=None):
         self.ports = ports
         self.page = page
         self.stream_channels = stream_channels
         self.phys = phys
+        self.rphys = rphys
 
 
 class MilanAudioMapModel:
@@ -128,8 +137,16 @@ class MilanAudioMapModel:
                                               (list, tuple))
                                 else [shape.stream_channels])
         #: render-crossbar DEPTH (AEM_DMAP_PHYS_C = milan_datapath
-        #: CHMAP_PHYS_C): keys past it are model-only and refused
+        #: CHMAP_PHYS_C): the size of the physical key space
         self.phys = shape.phys
+        #: PROTOCOL VALIDITY AND PHYSICAL PROJECTION ARE SEPARATE. The
+        #: generated ADP_DMAP_IN_RPHYS_C table says which global cluster keys
+        #: are BACKED by a render channel and which key each reaches; a
+        #: cluster with no projection is a legal, protocol-visible mapping
+        #: that changes no physical destination. The identity default is the
+        #: shape every scenario written before this table assumed.
+        self.rphys = (list(shape.rphys) if shape.rphys is not None
+                      else [0x40 | k for k in range(self.phys)])
         self.store = {}               # global key -> (stream_index, stream_ch)
         self.fabric_map = {}          # global key -> {en,stream,ch} word
         self.last_get = None          # rows returned by the last GET page
@@ -141,14 +158,24 @@ class MilanAudioMapModel:
     # -- validity (5.4.2.27) ------------------------------------------------
     def _shape_ok(self, port, si, sc, co, cc):
         # mono cluster (cluster_channel 0), offset inside THIS port's own
-        # cluster block, a mappable (non-CRF) Stream Input, and a cluster the
-        # render crossbar can physically reach. 7.4.45.1 delegates the last
-        # one: "The ADDING of a mapping is subject to the validity of the
-        # mapping as defined by the vendor of the ATDECC Entity."
+        # cluster block, and a mappable (non-CRF) Stream Input.
+        #
+        # A MISSING PHYSICAL PROJECTION IS NOT A REFUSAL, and this model used
+        # to say it was. The fabric accepts an ADD on a dynamic
+        # STREAM_PORT_INPUT from the cluster bound, the stream bound and the
+        # mono-cluster rule alone; it consults the projection table only when
+        # deciding whether to write the render RAM. The generated headers say
+        # the same in words - "non-physical clusters remain protocol-visible
+        # mappings without aliasing a physical pin" - and a preserved tracked
+        # shape (Arty 4x4) ships exactly that: port 0 offsets 2 and 3, and
+        # ports 1 to 3 entirely, are legal clusters with no pin behind them.
+        # A cluster offset past the addressed port's own block is a different
+        # defect class and stays BAD_ARGUMENTS below.
+        del sc                              # graded by _ch_ok
         base, n = port
+        del base
         return (cc == 0 and co < n and 0 <= si < len(self.stream_channels)
-                and self.stream_channels[si] is not None
-                and base + co < self.phys)
+                and self.stream_channels[si] is not None)
 
     def _ch_ok(self, si, sc):
         # stream_channel inside the current format of THAT Stream Input
@@ -156,11 +183,25 @@ class MilanAudioMapModel:
         return sc < self.stream_channels[si] and sc < 8
 
     # -- fabric projection --------------------------------------------------
+    def phys_key(self, key: int) -> int | None:
+        """The render channel global cluster `key` reaches, or None when the
+        cluster is legal but has no physical destination."""
+        if not 0 <= key < len(self.rphys):
+            return None
+        word = self.rphys[key]
+        return (word & 0x3F) if (word & 0x40) else None
+
     def _project_add(self, si, sc, key):
-        self.fabric_map[key] = {'en': 1, 'stream': si, 'ch': sc}
+        pk = self.phys_key(key)
+        if pk is None:
+            return                       # legal, stored, reaches no pin
+        self.fabric_map[pk] = {'en': 1, 'stream': si, 'ch': sc}
 
     def _project_remove(self, key):
-        self.fabric_map[key] = {'en': 0, 'stream': 0, 'ch': 0}
+        pk = self.phys_key(key)
+        if pk is None:
+            return
+        self.fabric_map[pk] = {'en': 0, 'stream': 0, 'ch': 0}
 
     def word(self, key: int) -> int:
         """The 7-bit chmap64 map word {en[6], stream[5:3], ch[2:0]}."""
@@ -275,6 +316,71 @@ def step_fresh_audiomap_ports(context: Context, n: int, cl: int,
     context.amap = MilanAudioMapModel(MapShape(
         page=page, ports=[(p * cl, cl) for p in range(n)],
         stream_channels=[8] * n + [None]))
+
+
+#: The generated ADP_DMAP_IN_RPHYS_C tables of two TRACKED shapes, named so a
+#: scenario says WHICH fabric it stands in rather than spelling seven-bit
+#: words. Words are {valid[6], render_key[5:0]}; 0x00 is a legal cluster with
+#: no physical destination.
+#:
+#:   arty 4x4      the preserved shape that already separates the two
+#:                 questions: four ports of four clusters, and only port 0
+#:                 offsets 0 and 1 are backed - by the stereo DAC lane.
+#:   shipping tdm8 the AX7101 1x1 shape: one port of eight clusters, every one
+#:                 backed by the TDM lane at render keys 2..9. The lane BASE
+#:                 (2) and the COUNT (8) are separate quantities.
+PROJECTION_TABLES = {
+    'arty 4x4': dict(
+        ports=[(0, 4), (4, 4), (8, 4), (12, 4)], page=4,
+        stream_channels=[8, 8, 8, 8, None],
+        rphys=[0x40, 0x41] + [0x00] * 14),
+    'shipping tdm8': dict(
+        ports=[(0, 8)], page=8, stream_channels=[8, None],
+        rphys=[0x42 + n for n in range(8)]),
+}
+
+
+@given('a Milan audio-map model on the {name} render projection')
+def step_amap_projection(context: Context, name: str) -> None:
+    """A model shaped by a TRACKED generated projection table, so a scenario
+    can tell a cluster-bound refusal apart from a missing physical
+    destination instead of conflating the two."""
+    spec = PROJECTION_TABLES.get(name)
+    assert spec is not None, (
+        f'unknown render projection {name!r}; '
+        f'known: {", ".join(sorted(PROJECTION_TABLES))}')
+    context.amap = MilanAudioMapModel(MapShape(**spec))
+
+
+@then('the render crossbar physical key {pk:d} is en {en:d} stream {s:d} '
+      'ch {ch:d}')
+def step_phys_key_word(context: Context, pk: int, en: int, s: int,
+                       ch: int) -> None:
+    """Grade a word at a PHYSICAL render key, which is the address the
+    crossbar RAM actually has - not the global cluster key the protocol
+    command names. On a projected shape the two differ by the lane base."""
+    m = context.amap.fabric_map.get(pk, {'en': 0, 'stream': 0, 'ch': 0})
+    assert (m['en'], m['stream'], m['ch']) == (en, s, ch), \
+        (f'physical key {pk}: fabric word {m}, '
+         f'expected en={en} stream={s} ch={ch}')
+
+
+@then('the global cluster key {key:d} has no physical destination')
+def step_key_unprojected(context: Context, key: int) -> None:
+    """Assert a cluster is legal but reaches no pin - the state a refusal
+    would hide and an aliasing projection would break."""
+    assert context.amap.phys_key(key) is None, \
+        (f'global cluster key {key} projects to render key '
+         f'{context.amap.phys_key(key)}, expected none')
+
+
+@then('the global cluster key {key:d} projects to physical key {pk:d}')
+def step_key_projected(context: Context, key: int, pk: int) -> None:
+    """Assert the derived projection itself, so the lane base is under test
+    and not only the words a command happened to write."""
+    assert context.amap.phys_key(key) == pk, \
+        (f'global cluster key {key} projects to '
+         f'{context.amap.phys_key(key)}, expected {pk}')
 
 
 @when('I ADD mapping stream_channel {sc:d} at cluster_offset {co:d}')

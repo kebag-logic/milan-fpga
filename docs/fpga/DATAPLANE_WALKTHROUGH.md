@@ -155,7 +155,7 @@ flowchart TB
     DEPKT -.->|"accepted-beat clone"| RSP["KL_render_setpoint<br/>one event per stream per tick"]
     RSP --> RMAP["KL_chan_map_render"]
     RMAP --> FMUX
-    RMAP --> TDM["KL_tdm_render"]
+    RMAP --> TDM["KL_tdm_render_master / KL_tdm_render"]
 ```
 
 | # | hop | instance | what happens | read it at |
@@ -168,7 +168,7 @@ flowchart TB
 | 5 | **depacketize** | `aaf_rx_depkt` (`KL_aaf_rx_depacketizer`) | replays the same tapped stream, gated by the monitor's accept pulse, and emits the payload as full 8-byte beats in wire order (S32BE interleaved), tagged with the stream index in `tuser` | `PCMRX_CNT` `0x6C4`; `LTAP_RX_D1` `0x8A4` |
 | 6 | **route** | `pcm_route` (`KL_pcm_route`) | the 2-bit ABI word is `{RENDER, reserved}`. Bit 1 feeds the direct fabric render tap; lowest-indexed RENDER stream wins. Bit 0 is forced to zero on write and ignored; `0b00` discards after counting | written by the `0x800` window `CTRL[2:1]` commit; `LTAP_RX_D2` `0x8AC` closes at the selected fabric-render edge |
 | 7a | **direct DAC render** | `pcm_lpf` → `i2s_feed_mux` → `KL_i2s_playback` | the selected listener tap is band-limited and serialized to the DAC with wire-truth channel stride | `I2SPB_STAT` `0x6D8` |
-| 7b | **mapped physical render** | `KL_chan_map_render` → `i2s_feed_mux` / `KL_tdm_render` | an accepted-beat clone is de-interleaved by each PDU's own channel count; the map projects stream channels onto I2S physical channels 0/1 and the TDM render bank | `CHMAP_CTRL` `0x900`, `CHMAP_SNAP` `0x910`, `CHMAP_LOOP` `0x914` |
+| 7b | **mapped physical render** | `KL_chan_map_render` → `i2s_feed_mux` / `KL_tdm_render_master` (master bus) or `KL_tdm_render` (codec-driven bus) | an accepted-beat clone is de-interleaved by each PDU's own channel count; the map projects stream channels onto the crossbar's two named lanes, the I2S keys 0/1 and the TDM keys 2..9, and a burst adapter walks the TDM window into the serializer's bank and commits it as one frame. A four-phase render epoch over retained levels silences the lane across a reset, a stopped serial clock and a bind loss | `CHMAP_CTRL` `0x900`, `CHMAP_SNAP` `0x910`, `CHMAP_LOOP` `0x914` |
 
 ### Reading the ingress path when nothing arrives
 
