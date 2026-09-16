@@ -65,6 +65,34 @@ TRACKED_RASTERS = {
         "docs/diagrams/wd_gptp_pdelay.json"
     ),
 }
+# THE PUBLISHED RASTER WIDTH IS A PROPERTY OF THE DIAGRAM, not of whoever
+# happens to run this script: every consumer, the docs workflow's --check
+# included, must render the same pixels the committed PNG carries, and only
+# an explicit --width overrides this.
+#
+# 1600 px suits a short chronogram. It does not suit the peer-delay one: its
+# column count is not a drawing choice but a design fact, pinned exactly by
+# scripts/check_gptp_docs.py (eighteen fabric cycles from the reference
+# octet to the tag octets, two across the record crossing, eight from the
+# accepted tap SOF to the accepted tap EOF, three from the FIFO commit to
+# engine SOF). Those distances make it 52 columns wide, and 52 columns
+# rasterised to 1600 px come out 315 px high, under the 500 px floor
+# scripts/check_diagram_pngs.py holds every published diagram to, with edge
+# labels too small to follow. The width gives, not the floor and not the
+# cycle counts.
+DEFAULT_RASTER_WIDTH = 1600
+RASTER_WIDTHS = {
+    "docs/diagrams/wd_gptp_pdelay.png": 2800,
+}
+
+
+def published_width(source: Path) -> int:
+    """The raster width this diagram is published at, by its own name."""
+    try:
+        name = source.with_suffix(".png").resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return DEFAULT_RASTER_WIDTH
+    return RASTER_WIDTHS.get(name, DEFAULT_RASTER_WIDTH)
 
 
 def tracked_names(output: Path, source: Path) -> tuple[str, str] | None:
@@ -213,7 +241,7 @@ def main() -> int:
         print(__doc__)
         return 2
     src = Path(sys.argv[1])
-    width = 1600
+    width = published_width(src)
     checking = False
     background = None
     for arg in sys.argv[2:]:
