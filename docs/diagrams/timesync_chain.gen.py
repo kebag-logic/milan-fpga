@@ -49,21 +49,31 @@ SOURCE_TOKENS = {
         "pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C",
         "KL_media_grid_align #(",
         "KL_gptp_shadow #(",
-        "KL_gptp_txstamp #(",
+        "input  wire        i_gptp_txrec_valid,",
+        "output wire        o_gptp_txseal_req,",
         "timestamp_counter #(",
     ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": (
         "module KL_gptp_shadow #(",
         "assign beat_w = rx_tvalid_i & rx_tready_i",
-        "input  wire [3:0]  txts_type_i",
+        "input  wire                      rec_valid_i,",
+        "KL_gptp_txticket #(",
+        "KL_gptp_txret #(",
         "output logic        pub_commit_o",
         "output wire         pub_disc_o",
     ),
-    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv": (
-        "module KL_gptp_txstamp #(",
-        "assign beat_w = tx_tvalid_i & tx_tready_i",
-        "output logic [15:0] ts_seq_o",
-        "output logic [3:0]  ts_type_o",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": (
+        "module KL_gptp_txticket #(",
+        "output logic                     alloc_o,",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": (
+        "module KL_gptp_txret #(",
+        "parameter int unsigned TXTS_DELTA_EXP_P = 45,",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": (
+        "module KL_gptp_gmii_launch #(",
+        "input  wire       gmii_tvalid_i,",
+        "output wire                      rec_valid_o,",
     ),
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": (
         "assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w",
@@ -208,8 +218,9 @@ def nodes(facts: Facts) -> dict[str, Node]:
         ),
         "consumers": Node(900, 350, 310, 135, "Public consumers", ("CSR and protocol", "AVTP tu and status"), *purple),
         "stamp": Node(
-            1260, 350, 285, 135, "MAC-boundary timestamp",
-            ("first accepted TX beat", "sequence plus type"), *gold,
+            1260, 350, 285, 135, "Egress launch timestamp",
+            ("the frame's own launch", "one stage before the pads",
+             "sequence plus type"), *gold,
         ),
         "avtp": Node(115, 650, 330, 135, "AVTP timeline", ("PHC dates AAF and CRF", "tu reports uncertainty"), *orange),
         "crf": Node(565, 650, 330, 135, "CRF measurement", ("remote phase and rate", "selection reaches root"), *green),
@@ -238,7 +249,7 @@ EDGES = (
     Edge("engine", "phc", "rate / phase", True, ((620, 265), (620, 310), (450, 310), (450, 418)), (535, 300)),
     Edge("engine", "publish", "commit", False, ((695, 265), (695, 350)), (730, 315)),
     Edge("publish", "consumers", "state", False, ((845, 418), (900, 418)), (872, 408)),
-    Edge("mac", "stamp", "accepted TX", False, ((1277, 240), (1277, 350)), (1320, 305)),
+    Edge("mac", "stamp", "launched frame", False, ((1277, 240), (1277, 350)), (1330, 305)),
     Edge("stamp", "engine", "return tuple", False, ((1402, 350), (1402, 290), (800, 290), (800, 265)), (1100, 280)),
     Edge("phc", "avtp", "presentation time", True, ((300, 485), (300, 650)), (360, 575)),
     Edge("phc", "crf", "common time", True, ((450, 450), (500, 450), (500, 610), (730, 610), (730, 650)), (620, 600)),
@@ -305,8 +316,9 @@ def svg(facts: Facts) -> str:
     lines.extend(
         [
             '<text x="35" y="865" font-size="12" fill="#78909C">'
-            'Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, '
-            'KL_ptp_clock_validity, feature ledger, and exact Gitlink.</text>',
+            'Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, '
+            'KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, '
+            'feature ledger, and exact Gitlink.</text>',
             '</svg>',
         ]
     )
@@ -364,8 +376,9 @@ def drawio_annotations(facts: Facts) -> tuple[tuple[str, str, int, int, int, int
         ),
         (
             "sources",
-            "Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, "
-            "KL_ptp_clock_validity, feature ledger, and exact Gitlink.",
+            "Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, "
+            "KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, "
+            "feature ledger, and exact Gitlink.",
             35,
             840,
             1250,
@@ -485,7 +498,7 @@ def selftest() -> int:
         "Product owner: implemented. Media consumption: implemented.",
         "TIMESTAMP AND PUBLICATION BOUNDARIES",
         "PRESENTATION AND MEDIA BOUNDARY",
-        "KL_gptp_txstamp",
+        "KL_gptp_txret",
     ):
         if annotation not in source_drawio:
             print(f"time-sync selftest: Draw.io lacks annotation: {annotation}")

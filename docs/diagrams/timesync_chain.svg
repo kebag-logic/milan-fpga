@@ -22,7 +22,7 @@
 <path d="M845,418 L900,418" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
 <text x="872" y="408" text-anchor="middle" font-size="12" fill="#37474F">state</text>
 <path d="M1277,240 L1277,350" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
-<text x="1320" y="305" text-anchor="middle" font-size="12" fill="#37474F">accepted TX</text>
+<text x="1330" y="305" text-anchor="middle" font-size="12" fill="#37474F">launched frame</text>
 <path d="M1402,350 L1402,290 L800,290 L800,265" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)"/>
 <text x="1100" y="280" text-anchor="middle" font-size="12" fill="#37474F">return tuple</text>
 <path d="M300,485 L300,650" fill="none" stroke="#455A64" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="7,6"/>
@@ -44,7 +44,7 @@
 <text x="372.5" y="210" text-anchor="middle" font-size="14" fill="#37474F">first-beat PHC time</text>
 <rect id="engine" x="545" y="115" width="300" height="150" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
 <text x="695.0" y="149" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Fabric gPTP engine</text>
-<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 6e6237f4cccc</text>
+<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin c1b617435824</text>
 <text x="695.0" y="200" text-anchor="middle" font-size="14" fill="#37474F">protocol, timers, servo</text>
 <rect id="tx" x="895" y="125" width="245" height="130" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
 <text x="1017.5" y="159" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Parent TX seam</text>
@@ -66,9 +66,10 @@
 <text x="1055.0" y="412" text-anchor="middle" font-size="14" fill="#37474F">CSR and protocol</text>
 <text x="1055.0" y="435" text-anchor="middle" font-size="14" fill="#37474F">AVTP tu and status</text>
 <rect id="stamp" x="1260" y="350" width="285" height="135" rx="12" fill="#FFF8E1" stroke="#F9A825" stroke-width="2.5"/>
-<text x="1402.5" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">MAC-boundary timestamp</text>
-<text x="1402.5" y="412" text-anchor="middle" font-size="14" fill="#37474F">first accepted TX beat</text>
-<text x="1402.5" y="435" text-anchor="middle" font-size="14" fill="#37474F">sequence plus type</text>
+<text x="1402.5" y="384" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Egress launch timestamp</text>
+<text x="1402.5" y="412" text-anchor="middle" font-size="14" fill="#37474F">the frame&#x27;s own launch</text>
+<text x="1402.5" y="435" text-anchor="middle" font-size="14" fill="#37474F">one stage before the pads</text>
+<text x="1402.5" y="458" text-anchor="middle" font-size="14" fill="#37474F">sequence plus type</text>
 <rect id="avtp" x="115" y="650" width="330" height="135" rx="12" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2.5"/>
 <text x="280.0" y="684" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">AVTP timeline</text>
 <text x="280.0" y="712" text-anchor="middle" font-size="14" fill="#37474F">PHC dates AAF and CRF</text>
@@ -85,5 +86,5 @@
 <text x="1042.5" y="559" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">CRF steering gates</text>
 <text x="1042.5" y="587" text-anchor="middle" font-size="14" fill="#37474F">status: implemented</text>
 <text x="1042.5" y="610" text-anchor="middle" font-size="14" fill="#37474F">rate and grid loops</text>
-<text x="35" y="865" font-size="12" fill="#78909C">Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txstamp, KL_ptp_clock_validity, feature ledger, and exact Gitlink.</text>
+<text x="35" y="865" font-size="12" fill="#78909C">Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink.</text>
 </svg>
