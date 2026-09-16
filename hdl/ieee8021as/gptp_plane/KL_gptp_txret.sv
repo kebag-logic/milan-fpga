@@ -65,7 +65,10 @@
                 missing term is an elaboration fact rather than a silent bias
                 a bench with a wide enough window would absorb.
 
-  Spec refs   : IEEE Std 802.1AS-2020 10.2 (egress event ownership);
+  Spec refs   : IEEE Std 802.1AS-2020 11.3.9 (the message timestamp point of
+                a transmitted event message is the beginning of the first
+                symbol following the start-of-frame delimiter - the instant
+                every result below is reconstructed to);
                 docs/design/GPTP_PLANE.md; docs/litex/CLOCK_DOMAINS.md
   Company     : Kebag Logic
   Project     : Milan AVB endstation

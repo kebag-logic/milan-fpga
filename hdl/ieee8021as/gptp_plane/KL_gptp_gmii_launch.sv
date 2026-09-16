@@ -84,9 +84,11 @@
                 `delta` reports the fragmentation. A longer low run is the
                 inter-frame gap, whose legal minimum is twelve octets.
 
-  Spec refs   : IEEE Std 802.1AS-2020 10.2 and 11.3.2 (the message timestamp
-                point is the beginning of the first symbol after the
-                start-of-frame delimiter); docs/design/GPTP_PLANE.md;
+  Spec refs   : IEEE Std 802.1AS-2020 11.3.9 (the message timestamp point is
+                the beginning of the first symbol following the
+                start-of-frame delimiter); 11.3.4 and Table 11-3 (the
+                destination address of a gPTP message on a full-duplex
+                point-to-point link); docs/design/GPTP_PLANE.md;
                 docs/litex/CLOCK_DOMAINS.md
   Company     : Kebag Logic
   Project     : Milan AVB endstation
@@ -165,8 +167,8 @@ module KL_gptp_gmii_launch #(
     output logic [15:0] dbg_overrun_o
 );
 
-  //! the gPTP destination address, IEEE Std 802.1AS-2020 Table 10-1, in wire
-  //! octet order: octet 0 is the most significant field below
+  //! the gPTP destination address, IEEE Std 802.1AS-2020 11.3.4 Table 11-3,
+  //! in wire octet order: octet 0 is the most significant field below
   localparam logic [47:0] DA_GPTP_C  = 48'h01_80_C2_00_00_0E;
   localparam logic [15:0] ET_GPTP_C  = 16'h88F7;
   localparam logic  [7:0] PREAMBLE_C = 8'h55;
