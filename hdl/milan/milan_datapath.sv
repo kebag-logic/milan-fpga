@@ -6611,6 +6611,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
     wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
     wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
+    //! The crossing's addend under the name both ends already read it by:
+    //! Q8.24 SIGNED nanoseconds. `ptp_csr_sync` declares `t_adj` unsigned,
+    //! while `ts_counter.adj_i` and this plane's `phc_adj_eff_ns_i` are both
+    //! declared signed; the widths are equal at 32 bits either way, so
+    //! nothing is extended and no value changes here. The sign is put in a
+    //! DECLARATION rather than written as a cast inside the port connection
+    //! below, which is the boundary-type rule of
+    //! docs/development/CODE_QUALITY.md Rule 4: a cast at the consumer
+    //! decides the sign where no reader of either end can see it.
+    wire signed [31:0] phc_adj_eff_ns_ts_w = signed'(phc_adj_ts_w);
+
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
@@ -6635,7 +6646,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         //! previous trajectory.
         .phc_en_eff_i    (phc_enable_ts_w),
         .phc_incr_eff_ns_i(phc_incr_ts_w),
-        .phc_adj_eff_ns_i(signed'(phc_adj_ts_w)),
+        .phc_adj_eff_ns_i(phc_adj_eff_ns_ts_w),
         .phc_load_eff_i  (phc_load_ts_w),
         .phc_adjust_eff_i(phc_adjust_ts_w),
         .phc_adj_o       (gptp_adj_w),
