@@ -227,9 +227,25 @@ class GptpCosimServer {
         dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
         dut->rx_tkeep_i = 0;  dut->rx_tready_i = 1;
         dut->tx_tready_i = 1;
+        //! EVERY CONTROL THE WRAPPER OWNS, AT ITS PRODUCT IDLE. This campaign
+        //! is the wrapper's second consumer and it grades fields, not defect
+        //! injection, so every test-only lever is held inert and every
+        //! product control is held at the value the plane runs at. Naming
+        //! them is not decoration: Verilator initialises an undriven input to
+        //! zero, and zero is the ACTIVE value for two of these - `eth_alive_i`
+        //! low is a stopped eth clock, which the link guard reads as a dead
+        //! link, and `phc_en_i` low is a frozen counter under a campaign
+        //! whose peer-delay arithmetic assumes the PHC advances 8 ns a cycle.
+        //! The idle set is ../gptp_shadow/sim_main.cpp's, because the DUT is
+        //! that suite's wrapper.
         dut->rechold_en_i = 0; dut->rechold_type_i = 0;
         dut->rechold_release_i = 0;
-        dut->mac_reinit_i = 0; dut->mac_eth_rst_i = 0; dut->obs_rst_i = 0;
+        dut->recfault_en_i = 0; dut->recfault_mode_i = 0;
+        dut->linkg_dis_i = 0; dut->linkg_freeze_i = 0;
+        dut->cfg_mac_reinit_i = 0; dut->eth_alive_i = 1; dut->obs_rst_i = 0;
+        dut->phc_en_i = 1; dut->phc_incr_i = 0x08000000u;
+        dut->phc_adj_ovr_en_i = 0; dut->phc_adj_ovr_i = 0;
+        dut->phc_load_i = 0; dut->phc_tod_wr_i = 0;
         for (int i = 0; i < kResetCycles; i++) tick();
         dut->rst_n = 1;
         for (int i = 0; i < kResetCycles; i++) tick();
