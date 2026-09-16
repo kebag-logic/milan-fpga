@@ -758,6 +758,8 @@ class GptpShadowHarness {
   // resolve. The ledger resolves it by POSITION: nothing is delivered while
   // the older record is held, and on release each frame receives its own
   // result, in the order the frames left.
+  //! ACCEPTANCE B5: two frames carrying the same legal sequenceId in one
+  //! interval are both credited, each to its own transaction.
   void check_equal_sequence_request_collision(const std::vector<uint8_t> &req) {
     expect("boot request record is held for collision", dut->dbg_rec_held_o, 1);
     dut->rechold_en_i = 0;
@@ -824,6 +826,8 @@ class GptpShadowHarness {
   }
 
   // ---- 2: fabric-timed exchanges; not capable at one --------------------
+  //! ACCEPTANCE B4: a complete exchange through the real donor and the real return path
+  //! yields the expected peer delay.
   void check_one_exchange_measures_the_delay() {
     pd_seen = 0;                      // answer the boot request too
     pd_on = true;
@@ -844,6 +848,7 @@ class GptpShadowHarness {
   }
 
   // ---- 3: the second exchange raises asCapable ---------------------------
+  //! ACCEPTANCE B4: and establishes asCapable.
   void check_second_exchange_raises_capability() {
     expect("capable at the second exchange",
            wait_flags(FL_ASCAP, FL_ASCAP, 6000000ull), 1);
@@ -1368,6 +1373,8 @@ class GptpShadowHarness {
 
   //! With the plane its own grandmaster, Announce, Sync and Follow_Up all
   //! reach the lane, so the stamp tag is proved for every type it emits.
+  //! ACCEPTANCE B5: every message type this device originates gets exactly
+  //! one result.
   void check_master_emits_all_three_types(size_t before) {
     run_svc(1400000);                  // an announce interval and then some
     int saw_ann = 0;
@@ -1393,6 +1400,8 @@ class GptpShadowHarness {
   // test gate holds response 1's REAL stamper tuple: request 2 must stay
   // behind the open response owner, retain its event snapshot through that
   // bank churn, and keep its own requester identity and boundary time.
+  //! ACCEPTANCE B5 and B6: a claimed type clears exactly its own claim, and a held
+  //! result is still its own transaction's after the banks have churned.
   void check_same_type_response_ownership() {
     pd_on = false;
     service_pdelay();
@@ -1440,6 +1449,7 @@ class GptpShadowHarness {
 
   //! Phase 14's lane half: a stalled production frame must hold its start
   //! beat and its mid-frame beat without losing or inventing a byte.
+  //! ACCEPTANCE B8: with the lane back-pressured, no mandatory frame is lost or invented.
   void check_backpressure_holds_the_lane() {
     for (int k = 0; k < 200000 && !dut->tx_tvalid_o; k++) tick();
     expect("backpressure: a production frame is presented",
@@ -1579,6 +1589,7 @@ class GptpShadowHarness {
   // survives warm reset for Milan cease history, but a pre-reset egress owner
   // must be hidden until a fresh transmitter writes one; otherwise every
   // later timer request remains suppressed forever.
+  //! ACCEPTANCE B7: a warm reset retires the outstanding work exactly once.
   void check_warm_reset_clears_the_request_owner() {
     pd_on = false;
     pd_seen = txf.size();
@@ -1633,6 +1644,7 @@ class GptpShadowHarness {
   // case. Boot must re-arm both cadence and announce-receipt timers: the
   // plane re-earns capability, becomes master again, and emits a fresh Sync
   // plus Follow_Up without any harness-supplied timestamp.
+  //! ACCEPTANCE B7: for every originating type, not just the one.
   void check_warm_reset_clears_the_sync_owner() {
     dut->rechold_type_i = 0x0;
     dut->rechold_en_i = 1;
@@ -1790,6 +1802,7 @@ class GptpShadowHarness {
     drop_epoch();
   }
 
+  //! ACCEPTANCE B6: a record that contradicts an established position is refused.
   void check_a_record_that_is_not_this_frames_is_refused() {
     check_one_corrupt_field_is_refused(1, "generation zero");
     check_one_corrupt_field_is_refused(2, "foreign tag");
@@ -1806,6 +1819,8 @@ class GptpShadowHarness {
   //! entry, which is the one failure the whole positional scheme exists to
   //! prevent. So here one record is held past the age limit and then
   //! released, and the frame it belongs to still gets its own time.
+  //! ACCEPTANCE B6 and B9: an implausible wait is a counted diagnostic, never a
+  //! retirement - the honest-stall law, with the claim left live.
   void check_an_aged_head_is_not_retired() {
     drop_epoch();
     expect("aged head: the plane starts this phase unsealed",
@@ -1857,6 +1872,7 @@ class GptpShadowHarness {
   //! has not re-established. So the seal has to outlast an episode that
   //! completed while the observer was still in reset, and lift only when
   //! the observer answers for the generation it was sealed with.
+  //! ACCEPTANCE B12: positions are re-established before any retained frame resolves.
   void check_the_seal_waits_for_the_echo() {
     drop_epoch();
     expect("echo: the plane starts this phase unsealed",
@@ -1890,6 +1906,8 @@ class GptpShadowHarness {
     drop_epoch();
   }
 
+  //! ACCEPTANCE B9 and B13: the demand outlives a pulse the guard never accepted, so the
+  //! plane makes progress instead of waiting on an episode that never ran.
   void check_recovery_demand_survives_an_unaccepted_request() {
     drop_epoch();
     expect("recovery: the plane starts this phase unsealed and stamping",
@@ -1907,6 +1925,7 @@ class GptpShadowHarness {
   //! and nothing may be resolved or unsealed. The plane must also stop
   //! asking: each request rides the shared manual net, and a request the
   //! guard will certainly refuse would only disturb the MAC system side.
+  //! ACCEPTANCE B13: a disabled guard cannot complete an episode, so the seal holds.
   void check_disabled_guard_holds_the_seal() {
     dut->linkg_dis_i = 1;
     idle(2000);
@@ -1951,6 +1970,7 @@ class GptpShadowHarness {
   //! to survive that, the request has to be retried - which means the line
   //! has to go low again - and releasing the firmware level has to let the
   //! very next attempt through.
+  //! ACCEPTANCE B13: a masked request keeps its demand.
   void check_masked_request_keeps_its_demand() {
     drop_epoch();
     dut->linkg_dis_i = 1;
@@ -1986,6 +2006,7 @@ class GptpShadowHarness {
   //! DISABLING THE GUARD MID-EPISODE drops both reset outputs at once,
   //! which is indistinguishable from a completed episode to anything
   //! watching the levels. It is not a completion, and it must not unseal.
+  //! ACCEPTANCE B13: an aborted episode cannot unseal the plane.
   void check_aborted_episode_is_not_a_completion() {
     drop_epoch();
     const uint16_t done0 = dut->dbg_epi_done_cnt_o;
@@ -2031,6 +2052,7 @@ class GptpShadowHarness {
   //! A HELD FIRMWARE LINK_CTRL[1] keeps the MAC system side in reset after
   //! the episode has completed. The plane must not resolve anything while
   //! that level stands, and must resolve as soon as it is released.
+  //! ACCEPTANCE B13: a held firmware hand keeps the seal closed.
   void check_held_firmware_reinit_holds_the_seal() {
     drop_epoch();
     const uint16_t done0 = dut->dbg_epi_done_cnt_o;
@@ -2051,6 +2073,7 @@ class GptpShadowHarness {
   //! A STOPPED ETH CLOCK is what the guard exists for. The episode it
   //! starts cannot finish while the clock is dead, so the seal legitimately
   //! holds; the plane claims nothing and recovers when the clock returns.
+  //! ACCEPTANCE B13: and so does a stopped transmit clock.
   void check_stopped_eth_clock_holds_the_seal() {
     drop_epoch();
     const uint16_t done0 = dut->dbg_epi_done_cnt_o;
@@ -2075,6 +2098,7 @@ class GptpShadowHarness {
   //! independent of downstream ready, and counted as departed: its leading
   //! beats are already past this plane and the episode destroys them with
   //! everything else the MAC path held.
+  //! ACCEPTANCE B12: a frame torn at the fence has a terminal outcome of its own.
   void check_torn_frame_is_discarded_and_counted() {
     drop_epoch();
     const uint16_t torn0 = dut->dbg_txts_torn_o;
@@ -2130,6 +2154,7 @@ class GptpShadowHarness {
   // interval it reaches back across - so the qualification is over a
   // window of history and its guard is observable here, not inferred from
   // the refusals it causes.
+  //! ACCEPTANCE B10: the reconstruction is qualified against the PHC's own history.
   void check_phc_trajectory_qualification() {
     drop_epoch();
     idle(4000);
@@ -2146,6 +2171,7 @@ class GptpShadowHarness {
   //! A DISABLE HELD BEYOND THE WINDOW. The counter stops, so no interval
   //! that overlaps the hold can be reconstructed; the guard stays loaded
   //! for the whole hold and for a full window after it.
+  //! ACCEPTANCE B10: a held disable yields explicit loss, never a plausible wrong time.
   void check_held_disable_refuses_every_capture() {
     const uint16_t pl0 = dut->dbg_txts_phcl_o;
     dut->phc_en_i = 0;
@@ -2171,6 +2197,7 @@ class GptpShadowHarness {
   //! A NON-NOMINAL INCREMENT is a different clock, not a slow one: the
   //! correction is a count of nominal periods and it does not describe
   //! this trajectory at all.
+  //! ACCEPTANCE B10: so does a non-nominal increment.
   void check_non_nominal_increment_refuses_every_capture() {
     const uint16_t pl0 = dut->dbg_txts_phcl_o;
     dut->phc_incr_i = 0x08000001u;      // one Q8.24 unit off nominal
@@ -2191,6 +2218,7 @@ class GptpShadowHarness {
   //! arm a guard that only looked at the capture instant would pass: the
   //! addend is back inside the envelope by then, and the interval behind
   //! it is not.
+  //! ACCEPTANCE B10: and so does a rate excursion that has since been restored.
   void check_restored_excursion_still_refuses() {
     dut->phc_adj_ovr_en_i = 1;
     dut->phc_adj_ovr_i = kAdjExcursion;
@@ -2213,6 +2241,7 @@ class GptpShadowHarness {
 
   //! A SETTIME inside the window re-bases the counter, so nothing before
   //! it can be reconstructed from anything after it.
+  //! ACCEPTANCE B10: an absolute load reloads the history guard.
   void check_settime_reloads_the_guard() {
     expect("phc: the guard is clear before the settime",
            dut->dbg_phc_dirtcyc_o, 0);
@@ -2241,6 +2270,8 @@ class GptpShadowHarness {
   //! transaction epoch, every result naming its own frame, every
   //! reconstruction inside its bound against an independent reference, and
   //! a publication bank that moved only on its commit pulse.
+  //! ACCEPTANCE B6 and B12: every frame's terminal outcome, one result per frame per
+  //! epoch, each naming its own frame.
   void check_every_stamp_names_its_own_frame() {
     close_epoch();
     expect("the run transmitted frames", law_frames > 0, 1);

@@ -576,6 +576,16 @@ void TxtsHarness::send_background(size_t len, uint8_t tag) {
 //! `background_len` octets. The plane answers with a Pdelay_Resp and, once
 //! that frame's own result comes back, its Follow_Up. Returns whether both
 //! reached the wire.
+//!
+//! ACCEPTANCE A3: this is where this suite's stimulus set is built.
+//! `background_len` 0 is the isolated case and any non-zero value makes the
+//! background CONTINUOUS, so the plane's frame is queued behind whatever is
+//! already on the wire; the response and its Follow_Up are two plane frames
+//! back to back. The rest of the contracted stimulus set is carried at the
+//! other end of the plane by `tb/verilator/gptp_shadow`: source stalls by
+//! `check_backpressure_holds_the_lane`, burst and occupancy by
+//! `check_burst_never_laps_the_stamp_ring`, and a frame torn mid-egress by
+//! `check_torn_frame_is_discarded_and_counted`.
 bool TxtsHarness::exchange(size_t background_len) {
   const size_t pads_before = pads_.size();
   const uint16_t seq = peer_seq_++;
