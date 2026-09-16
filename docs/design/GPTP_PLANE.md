@@ -120,9 +120,35 @@ The queue sits between the ledger entry and the launch.
 
 The reconstructed interval never crosses it.
 
-The published digital bound is +/-11.2 ns.
+The published digital bound is +/-11.2 ns, and these are its terms.
 
-`tb/verilator/gptp_txts` grades every frame against a pad oracle.
+| Term | Bound | Basis |
+|---|---|---|
+| Clock-domain transfer: the crossing's sampling phase, mean corrected | +/-10.00 ns | half of `DP_TICK_NS_P` = 20 ns. The dominant term, and a direct consequence of the adopted 50 MHz PHC. The correction above subtracts the mean of that phase, so what remains is its spread |
+| PHC integer truncation | +/-1.00 ns | `timestamp_out` is the integer field of a Q(64).24 accumulator, so with a non-zero adjustment the reported value trails the accumulator by up to one integer nanosecond |
+| Transmit clock against PHC, relative frequency over the 426 ns window | +/-0.09 ns | 426 ns x `RECON_REL_PPM_P` = 200 ppm, rounded up |
+| Applied PHC rate correction over the same window | +/-0.09 ns | the same product, enforced rather than assumed: a record whose `abs(phc_adj)` exceeds `PHC_ADJ_MAX_P` is returned as a loss |
+| Digital observation point: reference edge and `delta` quantisation | 0.00 ns | `delta` is an exact transmit-clock cycle count, and any value other than `TXTS_DELTA_EXP_P` aborts the record instead of reconstructing from it |
+| PHC discontinuity inside the window | not a bound | invalidated and returned as counted loss, never absorbed |
+| **Total** | **+/-11.18 ns, published as +/-11.2 ns** | sum of magnitudes, rounded up and never down |
+
+The assumptions are declared, not inherited.
+
+`RECON_REL_PPM_P` is a design constraint the bench sweeps, not a claim about this board's oscillators.
+
+The total is insensitive to it: at 1000 ppm the two frequency terms reach 0.85 ns together and the total 11.9 ns.
+
+Every term above is digital; no term is a measured physical latency.
+
+This is a component bound, not the system obligation.
+
+[NFR-TIME-01](../reference/FR_NFR.md) requires synchronization to the grandmaster within 1 us, and this bound is one contributor to it.
+
+Through `t1` alone the contribution to a computed peer delay is at most half the bound, +/-5.6 ns.
+
+The physical terms - PHY latency, pad clock-to-out, cable - belong to the qualification issues that own them and are not in this table.
+
+`tb/verilator/gptp_txts` grades every frame against a pad oracle at `kBoundNs`, which is 11 ns and so never looser than the figure published here.
 
 That oracle is independent of the design under test.
 

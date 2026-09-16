@@ -58,6 +58,14 @@ constexpr uint32_t kPhcIncrNominal = 20u << 24;
 //! The published digital bound, and the bench's own tolerance on it. The
 //! error a correct reconstruction shows is the crossing's sampling phase
 //! minus its mean, plus at most one nanosecond of PHC integer truncation.
+//!
+//! THE BUDGET IS PUBLISHED, not kept here: docs/design/GPTP_PLANE.md carries
+//! every term, its basis and the assumptions it declares. This line used to
+//! be the only decomposition the tree held, which made a figure a reader
+//! could not check without reading a testbench. It is 11 where the published
+//! total is 11.2, so the grading here is never LOOSER than what is published
+//! - a bench that graded to a wider bound than the document would be
+//! evidence for a claim nobody made.
 constexpr int64_t kBoundNs = 11;
 //! Frames the bias oracle needs before its mean means anything.
 constexpr int kBiasFrames = 200;
