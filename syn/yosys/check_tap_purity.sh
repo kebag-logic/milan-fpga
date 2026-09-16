@@ -83,7 +83,7 @@ READER_FILES=(
     # and owns its own TX lane. Listing it is what makes GPTP_PLANE.md's
     # "check_tap_purity holds" claim NON-vacuous.
     #
-    # KL_gptp_txstamp.sv USED TO BE LISTED HERE and was deleted with the
+    # THE BOUNDARY STAMPER USED TO BE LISTED HERE and was deleted with its
     # module (#360). It watched tx_axis_to_mac, which is the datapath's MAC
     # boundary - upstream of the queueing this issue is about - so the
     # observation moved to the MAC's own transmit stream. Its replacement,

@@ -1362,7 +1362,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! MAC-facing RX -> the shared pre-filter tap. The ptp_ts_top RX stamper
   //! that sat on this hop was a combinational pass-through whose records
   //! nothing consumed; the fabric gPTP plane stamps its own ingress off
-  //! rx_axis_fabric and its egress at the MAC boundary (KL_gptp_txstamp).
+  //! rx_axis_fabric. Its EGRESS time is NOT taken at this boundary (#360):
+  //! this hop's mirror image is upstream of the MAC's queueing, so a time
+  //! taken there carries however much traffic was ahead of the frame. The
+  //! plane reconstructs each frame's launch from an observation of the MAC's
+  //! own transmit stream instead.
   assign rx_axis_from_mac.tdata  = s_axis_mac_rx_tdata;
   assign rx_axis_from_mac.tkeep  = s_axis_mac_rx_tkeep;
   assign rx_axis_from_mac.tvalid = s_axis_mac_rx_tvalid;
@@ -2662,8 +2666,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! both directions' records drained into an always-ready sink, so
   //! IRQ_STATUS[0] and PTP_INGRESS/EGRESS_LAT had no consumer. o_ptp_now is
   //! what the AAF/CRF talkers, the latency taps and the fabric gPTP plane
-  //! read; the plane stamps its own frames (KL_gptp_txstamp at the MAC
-  //! boundary, its ingress tap off rx_axis_fabric).
+  //! read; the plane times its own frames, its ingress tap off
+  //! rx_axis_fabric and its egress reconstructed from a launch observation
+  //! at the MAC's own transmit stream rather than taken at this datapath's
+  //! MAC boundary, which sits upstream of the MAC's queueing (#360).
   wire        phc_enable_ts_w;
   wire [31:0] phc_incr_ts_w, phc_adj_ts_w;
   wire [63:0] phc_tod_wr_ts_w, phc_offset_ts_w, phc_tod_snap_ts_w;

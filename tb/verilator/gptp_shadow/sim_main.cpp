@@ -1,14 +1,19 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// gPTP fabric slice: KL_gptp_shadow (tap + engine + lane) + the real
-// timestamp_counter + KL_gptp_txstamp as the boundary -- the loop closes
-// ENTIRELY in fabric. Unlike tb/verilator/gptp_plane (byte faces, exact
+// gPTP fabric slice: KL_gptp_shadow (tap + engine + lane + ticket +
+// ledger) + the real timestamp_counter + the real KL_link_guard +
+// KL_gptp_gmii_launch observing the wrapper's framed octet stream as the
+// stand-in MAC -- the loop closes ENTIRELY in fabric. That observation
+// point is the #360 repair: a time taken where the datapath hands a frame
+// to the MAC is upstream of everything the MAC queues, so the egress time
+// is RECONSTRUCTED from an observed launch rather than captured at the
+// handover. Unlike tb/verilator/gptp_plane (byte faces, exact
 // integer model), this bench drives the WIDE faces the datapath splice
 // will connect and NO timestamp ever enters from the harness: ingress
-// stamps ride the tap's commit-pulse side FIFO, egress stamps come from
-// the boundary observer, and the pdelay/offset checks are RANGE
-// assertions around harness-recorded fabric time.
+// stamps ride the tap's commit-pulse side FIFO, egress results come from
+// the launch observer through the ledger, and the pdelay/offset checks are
+// RANGE assertions around harness-recorded fabric time.
 //
 //  1  boot -> Pdelay_Req appears on the wide lane, header byte-exact
 //     through the gearbox; the boundary stamper supplies t1 by itself

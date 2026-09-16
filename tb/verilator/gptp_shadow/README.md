@@ -3,14 +3,20 @@
 
 The whole slice the #114 splice instantiates: `KL_gptp_shadow` (the
 0x88F7 tap, frame FIFO, byte serializer, the gptp-processor engine, the
-adjfine latch, the TX gearbox and lane) beside the real
-`timestamp_counter` and `KL_gptp_txstamp` observing the TX lane as the
-stand-in MAC boundary. Unlike `tb/verilator/gptp_plane` (byte faces,
+adjfine latch, the TX gearbox and lane, the ticket and the ledger) beside
+the real `timestamp_counter`, `KL_ptp_clock_validity`, the real
+`KL_link_guard`, and `KL_gptp_gmii_launch` observing the wrapper's framed
+octet stream as the stand-in MAC. The egress observation moved there with
+[#360](https://github.com/kebag-logic/milan-fpga/issues/360): the stamper
+that used to sit on the TX lane took its time at the datapath's MAC
+boundary, which is upstream of everything the MAC queues, so the egress
+time is now RECONSTRUCTED from an observed launch rather than captured
+where the datapath passes the frame to the MAC. Unlike `tb/verilator/gptp_plane` (byte faces,
 exact-integer model), this bench drives the WIDE faces and NO timestamp
 ever enters from the harness: ingress stamps ride the tap's
-commit-pulse side FIFO, egress stamps come from the boundary observer,
-and delay/offset checks are range assertions around harness-recorded
-fabric time. The three collision phases may DELAY one complete real
+commit-pulse side FIFO, egress results come from the launch observer
+through the ledger, and delay/offset checks are range assertions around
+harness-recorded fabric time. The three collision phases may DELAY one complete real
 boundary tuple and replay that exact tuple after later raw returns; the
 harness still supplies no timestamp or tag. The one-slot test gate lets
 later returns pass and releases only on an idle raw cycle, so it does not
