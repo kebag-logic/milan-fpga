@@ -106,8 +106,8 @@ The egress time is reconstructed, not captured:
 ```text
 t1 = PHC at the accepted record
      - (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) x ETH_TICK_NS_P
-     - CDC_LAT_D_CYC_P x DP_TICK
-     - DP_TICK / 2
+     - CDC_LAT_D_CYC_P x DP_TICK_NS_P
+     - DP_TICK_NS_P / 2
 ```
 
 The shipping shape makes that **426 ns**.
@@ -129,7 +129,7 @@ These are its terms.
 | Clock-domain transfer: the crossing's sampling phase, mean corrected | +/-10.00 ns | half of `DP_TICK_NS_P` = 20 ns. The dominant term, and a direct consequence of the adopted 50 MHz PHC. The correction above subtracts the mean of that phase, so what remains is its spread |
 | PHC integer truncation | +/-1.00 ns | `timestamp_out` is the integer field of a Q(64).24 accumulator, so with a non-zero adjustment the reported value trails the accumulator by up to one integer nanosecond |
 | Transmit clock against PHC, relative frequency over the 426 ns window | +/-0.09 ns | 426 ns x `RECON_REL_PPM_P` = 200 ppm, rounded up |
-| Applied PHC rate correction over the same window | +/-0.09 ns | the same product, enforced rather than assumed: a record whose `abs(phc_adj)` exceeds `PHC_ADJ_MAX_P` is returned as a loss |
+| Applied PHC rate correction over the same window | +/-0.09 ns | the same product, enforced rather than assumed: a record whose `adj_abs_w` exceeds `PHC_ADJ_MAX_C` is returned as a loss |
 | Digital observation point: reference edge and `delta` quantisation | 0.00 ns | `delta` is an exact transmit-clock cycle count, and any value other than `TXTS_DELTA_EXP_P` aborts the record instead of reconstructing from it |
 | PHC discontinuity inside the window | not a bound | invalidated and returned as counted loss, never absorbed |
 | **Total** | **+/-11.18 ns, published as +/-11.2 ns** | sum of magnitudes, rounded up and never down |
