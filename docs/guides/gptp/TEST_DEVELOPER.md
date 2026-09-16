@@ -7,11 +7,11 @@ Use this page for verification changes.
 
 ## Contents
 
-- **[Choose a language](#choose-a-language)** — Match tools with observable boundaries.
-- **[Choose a suite](#choose-a-suite)** — Start with the smallest useful layer.
-- **[Build an oracle](#build-an-oracle)** — Detect failures independently.
-- **[Publish evidence](#publish-evidence)** — Make every result reproducible.
-- **[Acceptance evidence for the egress launch timestamp](#acceptance-evidence-for-the-egress-launch-timestamp)** — Map each contracted acceptance item to the named check and command that proves it
+- **[Choose a language](#choose-a-language)** -- Match tools with observable boundaries.
+- **[Choose a suite](#choose-a-suite)** -- Start with the smallest useful layer.
+- **[Build an oracle](#build-an-oracle)** -- Detect failures independently.
+- **[Publish evidence](#publish-evidence)** -- Make every result reproducible.
+- **[Acceptance evidence for the egress launch timestamp](#acceptance-evidence-for-the-egress-launch-timestamp)** -- Map each contracted acceptance item to the named check and command that proves it
 
 ## Choose a language
 
