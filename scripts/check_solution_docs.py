@@ -17,6 +17,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOC = Path("sw/litex/milan_soc.py")
 DEPLOY = Path("sw/litex/deploy.sh")
+#: Where the generated per-board shape fragments live. The deployment recipe
+#: names the one it sources; only its directory is knowledge this gate keeps.
+FRAGMENT_DIR = Path("configs/generated")
+DEPLOY_FRAGMENT = FRAGMENT_DIR / "sweep_opts_ax7101.sh"
 DATAPATH = Path("hdl/milan/milan_datapath.sv")
 LITEX_DOC = Path("docs/litex/LITEX_SOC.md")
 SOLUTION_DOC = Path("docs/overview/FULL_FPGA_SOLUTION.md")
@@ -270,13 +274,50 @@ def argparse_defaults(
     return {option: values[0] for option, values in found.items()}
 
 
-def deploy_override(path: Path, option: str) -> str | None:
-    """Read one optional value from the fixed deployment recipe."""
+def deploy_shape_source(path: Path) -> Path:
+    """The generated fragment the deployment recipe reads its shape from.
+
+    Named by deploy.sh itself rather than spelled here: the fragment is
+    per-board and this gate must follow whichever one the recipe reads."""
+    text = path.read_text(encoding="utf-8")
+    matches = re.findall(r'^SHAPE_FRAGMENT="([^"\n]*)"$', text, re.MULTILINE)
+    if len(matches) != 1:
+        raise ValueError("expected one double-quoted SHAPE_FRAGMENT assignment")
+    return path.parents[2] / FRAGMENT_DIR / Path(matches[0]).name
+
+
+def deploy_recipe(path: Path) -> list[str]:
+    """The deployment recipe's EFFECTIVE milan_soc.py options, as tokens.
+
+    Since #453 deploy.sh does not spell the shape: it sources the generated
+    fragment of the end-station config it deploys and expands that `OPTS`
+    into its launcher options, so a hand-kept second copy of the shipping
+    shape cannot drift out of the product contract again. The expansion is
+    resolved here for the same reason - reading the assignment alone would
+    grade a variable name instead of the flags the board is built with."""
     text = path.read_text(encoding="utf-8")
     matches = re.findall(r'^MILAN_OPTS="([^"\n]*)"$', text, re.MULTILINE)
     if len(matches) != 1:
         raise ValueError("expected one double-quoted MILAN_OPTS assignment")
-    tokens = shlex.split(matches[0])
+    recipe = matches[0]
+    if re.search(r"\$\{?OPTS\b", recipe):
+        fragment = deploy_shape_source(path)
+        shape = re.findall(
+            r'^OPTS="([^"\n]*)"$',
+            fragment.read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if len(shape) != 1:
+            raise ValueError(
+                f"{fragment.name}: expected one double-quoted OPTS assignment"
+            )
+        recipe = re.sub(r"\$\{OPTS\}|\$OPTS", lambda _match: shape[0], recipe)
+    return shlex.split(recipe)
+
+
+def deploy_override(path: Path, option: str) -> str | None:
+    """Read one optional value from the fixed deployment recipe."""
+    tokens = deploy_recipe(path)
     values: list[str] = []
     index = 0
     while index < len(tokens):
@@ -304,11 +345,7 @@ def deploy_override(path: Path, option: str) -> str | None:
 
 def deploy_options(path: Path) -> dict[str, str]:
     """Read required values from the fixed deployment recipe."""
-    text = path.read_text(encoding="utf-8")
-    matches = re.findall(r'^MILAN_OPTS="([^"\n]*)"$', text, re.MULTILINE)
-    if len(matches) != 1:
-        raise ValueError("expected one double-quoted MILAN_OPTS assignment")
-    tokens = shlex.split(matches[0])
+    tokens = deploy_recipe(path)
     found: dict[str, list[str]] = {option: [] for option in PRODUCT_OPTIONS}
     index = 0
     while index < len(tokens):
@@ -706,6 +743,7 @@ def copy_fixture(destination: Path) -> None:
     for relative in (
         SOC,
         DEPLOY,
+        DEPLOY_FRAGMENT,
         DATAPATH,
         LITEX_DOC,
         SOLUTION_DOC,
@@ -732,15 +770,19 @@ def _source_fact_mutations() -> list[tuple[str, Path, str, str, str]]:
         "CLI defaults differ",
     ),
     (
+        # The deployment values live in the generated fragment deploy.sh
+        # sources (#453), so that is where they are mutated: an arm planted
+        # in deploy.sh's own text would prove only that the recipe still
+        # mentions a flag it no longer spells.
         "deployment CPU",
-        DEPLOY,
+        DEPLOY_FRAGMENT,
         "--cpu vexiiriscv",
         "--cpu naxriscv",
         "deployment values differ",
     ),
     (
         "deployment clock",
-        DEPLOY,
+        DEPLOY_FRAGMENT,
         "--milan-clk-freq 50e6",
         "--milan-clk-freq 100e6",
         "deployment values differ",
@@ -754,10 +796,20 @@ def _source_fact_mutations() -> list[tuple[str, Path, str, str, str]]:
     ),
     (
         "deployment system clock override",
-        DEPLOY,
+        DEPLOY_FRAGMENT,
         "--milan-clk-freq 50e6",
         "--sys-clk-freq 80e6 --milan-clk-freq 50e6",
         "deployment system clock differs",
+    ),
+    (
+        # The recipe must keep READING the fragment: a deploy.sh that stopped
+        # expanding it would carry no product option at all, and this gate
+        # would have nothing to grade rather than a value to disagree with.
+        "deployment shape derivation",
+        DEPLOY,
+        'MILAN_OPTS="$OPTS',
+        'MILAN_OPTS="--board ax7101',
+        "solution source facts unavailable",
     ),
     ]
 

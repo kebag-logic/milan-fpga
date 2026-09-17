@@ -28,7 +28,7 @@ The shipping software-profile claims are checked against the
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the launcher's own refusals are automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
 - **[1. Usage](#1-usage)** -- The invocation table -- two recipes in parallel, the place sweep, `TAG=`, argument passthrough, `--dry-run`, and the `flash` verb. Plus where outputs land and the one-liner that tells you which Vivado phase a detached build is in.
 - **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, fabric streams, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
-- **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gate and the three separate times this class of drift reached silicon.
+- **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gates and the four separate times this class of drift reached silicon.
 - **[4. After the build: load, console and bench roles](#4-after-the-build-load-console-and-bench-roles)** -- The AX7101 JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the bare-metal bitstream+AEM flash layout, the bench host roles with the one-DUT acceptance contract, and the UART smoke on the build box that is mandatory after every flash.
 - **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds, including two hard-won caveats: keep AX margin above +0.03 because QSPI flashboot corrupted below it, and OOC-synth a module before believing its hierarchical utilization line.
 
@@ -67,11 +67,12 @@ flowchart LR
 |---|---|---|
 | **`build.sh`'s own refusals** (section 2.1) | the tracked entity definition is the bound config's; the regeneration of that config's design argv ran and succeeded; the artefact read is that config's own emission; `BUILD_CFG` names a config directly under `configs/`; every tracked generated file that regeneration writes was there before it, was copied aside complete, and is as the run found it afterwards | **yes** - refuses *before* anything launches. Under `--dry-run` the entity one is previewed instead; every other one is enforced |
 | **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
+| **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **review only** so far; `deploy.sh` itself refuses a fragment that belongs to another config. It is the review gate for the deploy path (section 3.1); wiring it into the `docs-check` CI job is a maintainer follow-up (this change could not edit the workflow file) |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
-**Only the first two are automatic**, and that asymmetry is the point: a build
+**Only the first two run automatically in CI** (the deploy-shape gate is runnable and enforced in review, its CI wiring pending), and that asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
 and nothing in the pipeline will tell you so. Section 5 has the exact rows.
 With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
@@ -320,6 +321,7 @@ four times.
 | 2026-07-22 | `i_mac_events` | RMON counters fully tested, permanently zero on hardware (tied off in SoC glue) |
 | 2026-07-26 | `--num-streams` | `sweep.sh` passed **nothing**, so `sweep.sh ax7101` built the default 1x1 datapath while the config, the docs and the build directories all called it 8x8 |
 | 2026-08-22 | `--xlen` / `--cpu-count` | `build.sh cfg_ax8x8` and `cfg_arty` passed no `--xlen`; `milan_soc.py` defaults to 64 where the builder defaults to 32, so both elaborated RV64 under configs, a sweep table and a boot chain that are RV32 single-hart (#157) |
+| 2026-09-17 | `--audio-interface-render` | `deploy.sh` kept its own copy of the shape and the copy had drifted: no render flag, so a deploy-built bitstream elaborated `AUDIO_IF_RENDER_SLOTS_P = 0`, took `milan_datapath`'s `g_tdm_render_parked` arm and held J11.5 low while every sweep-built image rendered (#453) |
 
 Per board, `sweep.sh` sets the design defaults first and *then* sources
 `configs/generated/sweep_opts_<board>.sh`, so a fragment that predates a knob
@@ -330,6 +332,23 @@ rides as `NS=`; `sweep.sh` sets it per board and emits the flag exactly once.
 python3 scripts/check_sweep_shape.py              # static check, no Vivado (runs build.sh --dry-run)
 python3 scripts/check_sweep_shape.py --self-test  # + prove a wrong NS, a hand-appended CPU literal, a rebound recipe, a failed or foreign regeneration, a BUILD_CFG outside configs/ or a launch without the seed is rejected
 SWEEP_CFG=configs/endstation_arty_4x4.yaml sw/litex/sweep.sh arty 4x4   # non-default shape
+```
+
+The deploy path is graded by its own gate,
+[`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py), for the
+same reason and out of the same dry run. `deploy.sh` no longer spells the
+AX7101 shape: it sources `configs/generated/sweep_opts_ax7101.sh`, refuses one
+that names another config as its source (the fragment is per board, and the
+8x8 writes the same file), and appends only `--entity-gen-dir` and its
+per-step flow flags. The gate proves the design part of the launch line is
+that fragment's `OPTS` token for token, that every flag is the config's
+emission, and that a config declaring a TDM render lane never launches
+without it -- `--audio-interface-render` absent is not a missing flag, it is
+`AUDIO_IF_RENDER_SLOTS_P = 0`, the parked arm, and `tdm_dout_o` tied low.
+
+```sh
+python3 scripts/check_deploy_shape.py             # deploy.sh vs the generated fragment and its config
+python3 scripts/check_deploy_shape.py --selftest  # + prove the #453 hand-kept string, a stripped render flag, a hand-appended design flag and another board's fragment are all rejected
 ```
 
 ## 4. After the build: load, console and bench roles
