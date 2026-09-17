@@ -32,16 +32,19 @@
 //     crossbar pulse is correlated with the m-th decoded frame BY COUNT, never
 //     by reading its payload.
 //
-// THE DECODER'S PHASE, and why it is not the slave suite's model. On this
-// MASTER-driven bus fsync occupies bit period 0 and data starts in bit period
-// 1, so a pin-level receiver sees fsync rise, then samples the last pad bit of
-// the previous frame, and only THEN slot 0's MSB: TWO bclk rising edges after
-// the observed fsync rise, with the TRIGGER EDGE EXCLUDED FROM THE COUNTDOWN.
-// That is the rule the in-tree external codec model of this same bus already
-// presents to the capture direction (it arms on a rising edge and counts LATER
-// edges). tb/verilator/tdm_render's golden de-serializer models a SLAVE bus
-// whose driving master presents fsync with half a bit period of setup and
-// takes the MSB one rise earlier; it is deliberately NOT reused here, and both
+// THE DECODER'S PHASE: A REAL dsp_a RECEIVER (issue #452). The master launches
+// fsync on the bclk FALL, so the pulse is CENTRED on the rise it marks: fsync
+// is high across exactly ONE rising edge, with half a bit period of setup and
+// of hold, and nothing on the bus moves at a rise. This decoder is therefore
+// the McASP one at RDATDLY = 1 - sample fsync on the rise, take slot 0's MSB
+// on the rise that FOLLOWS the one where fsync read high, with the TRIGGER
+// EDGE EXCLUDED FROM THE COUNTDOWN - which is the same rule the in-tree
+// external codec model of this bus presents to the capture direction. Before
+// #452 fsync changed ON the rising edge, so this decoder counted TWO rises
+// from a transition it read early; the framing instant it produces is the same
+// rise either way, and what changed is that the reading is no longer a
+// function of which pin arrives first. tb/verilator/tdm_render's golden
+// de-serializer models a SLAVE bus and is deliberately NOT reused here; both
 // it and KL_tdm_render stay untouched and green on their own bench.
 //
 // WHAT THE FRAMING COUNTER CAN AND CANNOT SEE. The decoder's free-running
@@ -423,7 +426,7 @@ class TdmRenderHarness {
     std::array<long, kSlots> msb_half{};
     long frame_msb_half = 0;
     std::vector<DecodedFrame> decoded;
-    long framing_faults = 0;             //! q != 0 at a two-rise expiry
+    long framing_faults = 0;             //! q != 0 at a one-rise expiry
     long gap_faults = 0;                 //! fsync-to-fsync != 256 bclk rises
     bool collect = false;                //! publish frames into `decoded`
 
@@ -434,8 +437,11 @@ class TdmRenderHarness {
         if (!(b && !p_bclk)) { p_bclk = b; return; }
         p_bclk = b;
         ++rises;
-        // THE COUNTDOWN EXCLUDES ITS OWN TRIGGER EDGE. Setting the delay on
-        // the fsync rise and decrementing on that same edge would put the
+        observe_late(f, d);
+        // THE COUNTDOWN EXCLUDES ITS OWN TRIGGER EDGE. fsync is high across
+        // exactly one rise and slot 0's MSB is on the NEXT one, so the delay
+        // is set on the rise that reads fsync high and expires on the rise
+        // after it - decrementing on the trigger edge itself would put the
         // first decoded MSB one rise early, which this bus does not deliver.
         if (f && !p_fsync && armed) {
             if (rises_at_last_fsync >= 0 && rises - rises_at_last_fsync != kFrameBclks)
@@ -443,7 +449,7 @@ class TdmRenderHarness {
             rises_at_last_fsync = rises;
             if (fsync_rises == 0) rises_at_first_fsync = rises;
             ++fsync_rises;
-            pend = 2;
+            pend = 1;
         } else if (pend > 0 && --pend == 0) {
             if (framed && q != 0) ++framing_faults;
             q = 0;
@@ -471,6 +477,44 @@ class TdmRenderHarness {
         if (++q == kFrameBclks) q = 0;
     }
 
+    // ---------------------------------------------------------------- //
+    //  THE NEGATIVE-CONTROL DECODER (issue #452). The SAME three pins,  //
+    //  one difference: it attributes the pulse to the rise where fsync  //
+    //  reads LOW again rather than to the one where it reads HIGH. On   //
+    //  the OLD bus, whose fsync changed ON the rising edge, that was    //
+    //  one of the two readings an unconstrained pin skew could hand a   //
+    //  receiver - and it was the RIGHT one. On a bus that launches      //
+    //  fsync on the fall it is one rise late, so every word it recovers //
+    //  is the injected one shifted up one place and it reproduces no    //
+    //  media event at all. Put the RTL edge back on the rise and this   //
+    //  decoder becomes the correct one, which is how its two checks     //
+    //  below discriminate between the two buses instead of passing on   //
+    //  either.                                                          //
+    // ---------------------------------------------------------------- //
+    int  late_p_fsync = 0;
+    bool late_armed = false;
+    int  late_pend = 0;
+    bool late_framed = false;
+    int  late_q = 0;
+    std::array<uint32_t, kSlots> late_word{};
+    std::vector<std::array<uint32_t, kSlots>> late_frames;
+
+    void observe_late(int f, int d) {
+        if (!f && late_p_fsync && late_armed) {
+            late_pend = 1;
+        } else if (late_pend > 0 && --late_pend == 0) {
+            late_q = 0;
+            late_framed = true;
+        }
+        if (f) late_armed = true;        //! a pulse must be SEEN before its fall
+        late_p_fsync = f;
+        if (!late_framed) return;
+        const size_t slot = static_cast<size_t>(late_q / kSlotBits);
+        late_word[slot] = (late_word[slot] << 1) | static_cast<uint32_t>(d);
+        if (late_q == kFrameBclks - 1 && collect) late_frames.push_back(late_word);
+        if (++late_q == kFrameBclks) late_q = 0;
+    }
+
     void decoder_reset() {
         armed = false; pend = 0; framed = false; q = 0;
         rises = 0; rises_at_last_fsync = -1; rises_at_first_fsync = -1;
@@ -478,8 +522,11 @@ class TdmRenderHarness {
         framing_faults = 0; gap_faults = 0;
         word.fill(0); msb_half.fill(0);
         decoded.clear();
+        late_armed = false; late_pend = 0; late_framed = false; late_q = 0;
+        late_word.fill(0); late_frames.clear();
         p_bclk = dut->tdm_bclk_o;
         p_fsync = dut->tdm_fsync_o;
+        late_p_fsync = dut->tdm_fsync_o;
     }
 
     // ---------------------------------------------------------------- //
@@ -1228,14 +1275,24 @@ class TdmRenderHarness {
     //! and a slot fed from another stream carries its own ordinal and takes
     //! no part in the match.
     long find_the_ordinal(const DecodedFrame& fr) const {
+        return find_the_ordinal_raw(fr.slot, /*slip=*/false);
+    }
+
+    //! ...over a raw slot array, so the negative-control decoder is graded by
+    //! the same search. `slip` grades against the injected words shifted UP
+    //! one place, which is what a reading one rise late recovers: the 24-bit
+    //! field of a slot window started one bclk late is (injected << 1), the
+    //! carried-in bit landing below it among the eight pad bits.
+    long find_the_ordinal_raw(const std::array<uint32_t, kSlots>& slot,
+                              bool slip) const {
         for (size_t e = 0; e + 1 < inj.size(); e++) {
             bool all = true;
             for (int k = 0; k < kSlots && all; k++) {
                 if (stream_of_slot(k) > 0) continue;
                 const int s = src_of_slot(k);
-                const uint32_t want = (s < 0) ? 0u
-                                    : inj[e][static_cast<size_t>(s)];
-                if ((fr.slot[static_cast<size_t>(k)] >> 8) != want) all = false;
+                uint32_t want = (s < 0) ? 0u : inj[e][static_cast<size_t>(s)];
+                if (slip) want = (want << 1) & 0xFFFFFFu;
+                if ((slot[static_cast<size_t>(k)] >> 8) != want) all = false;
             }
             if (all) return static_cast<long>(e);
         }
@@ -1286,6 +1343,7 @@ class TdmRenderHarness {
     //! The arms phase_serial and the two epoch phases run, each named for what
     //! it proves rather than for the order it happens to sit in.
     void prove_the_first_rendered_event_is_the_derived_one();
+    void prove_the_late_attribution_reading_is_one_bit_late();
     void grade_the_decoded_window(long first_event, uint64_t skips_before,
                                   uint64_t unders_before);
     void measure_the_bank_term(long* walk_min, long* walk_max);
@@ -1590,9 +1648,10 @@ void TdmRenderHarness::phase_serial() {
 
     check.that("T5 FRAMING: consecutive fsync rises are exactly 256 bclk rises "
                "apart", gap_faults == 0 && fsync_rises > 4);
-    check.that("T5 FRAMING: the free-running position is 0 at every two-rise "
+    check.that("T5 FRAMING: the free-running position is 0 at every one-rise "
                "expiry", framing_faults == 0);
     check.that("T5 FRAMING: the window decoded whole frames", !decoded.empty());
+    prove_the_late_attribution_reading_is_one_bit_late();
     // An oracle over an EMPTY route matches every ordinal trivially, so the
     // route the grading stands on is stated before anything is graded.
     check.dec("T6 PRECONDITION: every serial slot is routed, so no frame can "
@@ -1604,6 +1663,29 @@ void TdmRenderHarness::phase_serial() {
     }
 
     grade_the_decoded_window(first_event, skips_before, unders_before);
+}
+
+//! T5 NEGATIVE CONTROL (issue #452): the OLD bus's other reading, graded on
+//! the SAME window and the SAME three pins. A check that would pass whichever
+//! edge fsync launches on is worth nothing, so this one is stated as the two
+//! halves of "one bit late": the late-attribution decoder reproduces NO
+//! injected media event, and every frame it does produce is an injected one
+//! shifted up a place. Move the RTL edge back onto the rise and this decoder
+//! is the correct one - both halves then fail, by name.
+void TdmRenderHarness::prove_the_late_attribution_reading_is_one_bit_late() {
+    long plain = 0;
+    long slipped = 0;
+    for (const auto& w : late_frames) {
+        if (find_the_ordinal_raw(w, /*slip=*/false) >= 0) ++plain;
+        if (find_the_ordinal_raw(w, /*slip=*/true) >= 0) ++slipped;
+    }
+    check.that("T5 NEGATIVE CONTROL: the late-attribution decoder framed and "
+               "decoded whole frames", late_frames.size() > 4);
+    check.dec("T5 NEGATIVE CONTROL: it reproduces NO injected media event",
+              static_cast<uint64_t>(plain), 0);
+    check.dec("T5 NEGATIVE CONTROL: every frame it decodes is an injected one "
+              "read ONE BIT LATE", static_cast<uint64_t>(slipped),
+              static_cast<uint64_t>(late_frames.size()));
 }
 
 //! T6 PREFILL: the FIRST event this lane ever renders, DERIVED and then
@@ -2251,6 +2333,13 @@ void TdmRenderHarness::prove_a_hard_reset_interrupts_and_rearms(
             if (f && !prev) break;
             prev = f;
         }
+        //! ...and then on to the RISE that pulse marks. Since #452 fsync is
+        //! launched on the bclk fall, half a bit period AHEAD of the rise a
+        //! receiver reads it on, so the pin transition above is not yet the
+        //! frame boundary - the rise the decoder counts as the wrap is the
+        //! next one, and landing the reset between the two would place it 255
+        //! rises into the PREVIOUS frame rather than on the wrap.
+        for (int c = 0; c < 40000 && rises != rises_at_last_fsync; c++) step();
     } else {
         steps(8);
     }
@@ -2269,11 +2358,21 @@ void TdmRenderHarness::prove_a_hard_reset_interrupts_and_rearms(
                                              : "inside the frame");
     check.that(what, at_frame_wrap ? (into >= 0 && into <= 4)
                                    : (into > 4 && into < kFrameBclks));
+    //! THE BOUND IS ONE FRAME PLUS ONE RISE (#452). bclk parks LOW and fsync
+    //! parks HIGH across the reset, so the first rise after the release
+    //! carries the first frame's sync as a LEVEL the decoder was reset into
+    //! rather than as an edge - and a level is never an edge here, the same
+    //! rule the slave suite's armed detector has always applied to a 50%-duty
+    //! frame sync. The decoder therefore arms on the fall that follows that
+    //! rise and takes the NEXT frame's edge, one whole frame and that one rise
+    //! after the release. A decoder that never re-armed, or a bus whose
+    //! cadence did not come back, still fails this.
     std::snprintf(what, sizeof what,
                   "%s HARD RESET: a fresh frame boundary ends the interrupted "
-                  "interval, and it comes within one frame of bclk", tag);
+                  "interval, and it comes within one frame of bclk plus the "
+                  "rise the reset-parked level spans", tag);
     check.that(what, rises_at_first_fsync >= 0
-                     && rises_at_first_fsync <= kFrameBclks);
+                     && rises_at_first_fsync <= kFrameBclks + 1);
     std::snprintf(what, sizeof what,
                   "%s HARD RESET: the frame cadence after the release is 256 "
                   "bclk rises again, from the pins alone", tag);

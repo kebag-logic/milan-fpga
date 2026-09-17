@@ -177,6 +177,11 @@ _io = [
     # OUTPUTS.  If an external word clock is ever fed IN, move that signal to
     # the bank-16 SRCC pair D19/E19 (J11 23/24) or the MRCC pair C19/C18
     # (J11 31/32).
+    # IOB PACKING. The three registered OUTPUTS of this bus - bclk, fsync and
+    # dout - are pulled into their own IOB flops by `do_finalize` below, so the
+    # half-bit-period launch margin the RTL builds is not spent on a
+    # placement-dependent fabric-to-pad route. The bound that buys is stated
+    # there (issue #452).
     ("tdm", 0,
         Subsignal("mclk",  Pins("B22")),   # J11.3
         Subsignal("dout",  Pins("A20")),   # J11.5  fabric -> codec (render)
@@ -267,6 +272,32 @@ class Platform(Xilinx7SeriesPlatform):
         """
         Xilinx7SeriesPlatform.do_finalize(self, fragment)
         self.add_period_constraint(self.lookup_request("clk200", loose=True), 1e9 / 200e6)
+        # THE TDM BUS LEAVES FROM IOB FLOPS (issue #452). bclk, fsync and dout
+        # are the three registered outputs of one bus, read by one external
+        # receiver against one edge: fsync launches on the bclk FALLING edge,
+        # half a bit period (40.7 ns at the shipping 12.288 MHz) from the rise
+        # that samples it, and dout has always launched there. That margin is
+        # only worth the RTL it is written in if the three pins leave the die
+        # together, so each is packed into the flop inside its own IOB. WHAT
+        # THAT BUYS, exactly: all three then launch from IOB flops clocked by
+        # the same clk_audio, so the skew between the pins is the IOB-to-pad
+        # difference alone - package and IO-buffer spread - instead of a
+        # per-seed fabric-to-pad route, which is the term that made the GMII TX
+        # launch a placement lottery on this very part (MilanMAC in
+        # milan_soc.py; measured 1-2 ns at a slice next to the IO column
+        # against 4-6 ns fourteen columns in).
+        #
+        # Emitted ONLY when the board build asked for the header, because XDC
+        # executes no TCL control flow: a guard written into the constraint
+        # would be silently skipped, and `set_property` over a `get_ports` that
+        # matched nothing is an error, not a no-op. A build that prunes the
+        # render lane drives tdm_dout low from a constant, so its dout has no
+        # flop to pack and the property is inert on that port.
+        tdm = self.lookup_request("tdm", loose=True)
+        if tdm is not None:
+            for pad in (tdm.bclk, tdm.fsync, tdm.dout):
+                self.add_platform_command(
+                    "set_property IOB TRUE [get_ports {pad}]", pad=pad)
         # NOTE: the GMII TX IOB-packing constraint lives in MilanMAC (milan_soc.py), which
         # emits it only when the MAC/pads exist. It must be plain `set_property` lines: XDC
         # does NOT execute TCL control flow, so an `if {...}` guard here is silently skipped
