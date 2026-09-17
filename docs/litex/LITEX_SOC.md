@@ -106,7 +106,8 @@ Release recipes explicitly select:
 - RV32 single-hart CPU parameters.
 
 The builder and sweep-shape gate compare the effective command line with the
-selected YAML configuration before a build launches. The direct fabric-gPTP
+selected YAML configuration before a build launches, and the deploy-shape gate
+holds `deploy.sh` to the same emission. The direct fabric-gPTP
 option-OFF shape exists only for verification and is not flashable.
 
 ## 5. Build and elaborate
@@ -116,7 +117,9 @@ the AEM image and fabric-gPTP ROM from the same YAML input. For a quick source
 closure check, run `python3 scripts/check_soc_sources.py`; for full release
 instructions see [`../integration/BUILDING.md`](../integration/BUILDING.md).
 
-The fixed AX7101 recipe remains directly inspectable and runnable:
+The AX7101 deploy recipe reads its shape from the generated fragment of
+`configs/endstation_ax7101_1x1_tdm8.yaml`, the one `sweep.sh` sources, and
+remains directly inspectable and runnable:
 
 ```sh
 cd sw/litex

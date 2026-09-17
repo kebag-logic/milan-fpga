@@ -23,6 +23,7 @@ python3 -c "import sys; sys.path.insert(0, 'sw/litex'); import milan_soc"
 python3 sw/builder/test_builder.py
 python3 scripts/check_soc_sources.py
 python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_deploy_shape.py --selftest
 ```
 
 For a full SoC elaboration without launching Vivado, invoke the intended

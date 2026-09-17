@@ -77,15 +77,52 @@ FLASH_SIZE=$((16*1024*1024))  # N25Q128 = 16 MB
 # (a bitstream carries the part; raw data doesn't → "missing device-package information").
 FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 
-# Current AX7101 shipping profile: one cacheless RV32I VexiiRiscv hart in
-# machine mode. The fabric, protocol processor, physical TDM capture and
-# render-free talker datapath remain present.
+# Current AX7101 shipping profile, as the end-station config declares it: one
+# cacheless RV32I VexiiRiscv hart in machine mode, the fabric, the protocol
+# processor, and the TDM8 bus master in BOTH directions - physical capture off
+# J11.3-J11.8 and the 8-slot render lane out of J11.5.
 # --gtx-tx-invert is REQUIRED on this board: the GMII TX FFs are IOB-packed (deterministic
 # skew ~0 vs the forwarded gtx_clk), so edge-aligned sampling is hold-marginal at the
 # RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
 # The protocol processor retains its dedicated CPU memory attachment; the
 # cacheless CPU does not elaborate a cache-coherency hub.
-MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --full --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0"
+#
+# THE SHAPE IS NOT SPELLED HERE. It is the generated emission of the config
+# below, the same fragment sweep.sh sources, because a second hand-kept copy of
+# the option string is a second shipping shape: this one had drifted and lost
+# --audio-interface-render 8 and --num-streams 1, so a
+# deploy-built bitstream elaborated AUDIO_IF_RENDER_SLOTS_P = 0, took
+# milan_datapath's g_tdm_render_parked arm and held J11.5 low while every
+# sweep-built image rendered (#453). One source, or two shapes from one commit.
+REPO="$(cd "$HERE/../.." && pwd)"
+DEPLOY_CFG=configs/endstation_ax7101_1x1_tdm8.yaml   # the one shape fact this script states
+SHAPE_FRAGMENT="$REPO/configs/generated/sweep_opts_ax7101.sh"
+[ -f "$SHAPE_FRAGMENT" ] || {
+    echo "deploy: no $SHAPE_FRAGMENT. Regenerate it with" >&2
+    echo "  python3 sw/builder/endstation_builder.py $DEPLOY_CFG --write-fragment" >&2
+    exit 2
+}
+# The fragment is PER BOARD and the board's last-built config OWNS it - the 8x8
+# writes this very file - so sourcing it blind would deploy whichever shape was
+# built last. Refuse unless it names the config this script deploys.
+grep -q "$(basename "$DEPLOY_CFG")" "$SHAPE_FRAGMENT" || {
+    echo "deploy: $SHAPE_FRAGMENT does not name $(basename "$DEPLOY_CFG") as its source;" >&2
+    echo "  it belongs to another config. Regenerate it with" >&2
+    echo "  python3 sw/builder/endstation_builder.py $DEPLOY_CFG --write-fragment" >&2
+    exit 2
+}
+# Sourced whole: deploy.sh defines no OPTS/NS/L2 of its own, so the fragment's
+# NS and L2 land unused beside the OPTS this recipe launches (both are already
+# inside OPTS, as --num-streams and --l2-bytes).
+. "$SHAPE_FRAGMENT"
+[ -n "${OPTS:-}" ] || {
+    echo "deploy: $SHAPE_FRAGMENT defines no OPTS" >&2; exit 2; }
+# The one deploy-only addition: --entity-gen-dir, a FLOW flag naming where THIS
+# launch reads its generated entity definition from (build.sh's design_argv
+# appends the same one). The per-step --uart-baudrate "$BAUD" stays last on the
+# argv, so BAUD= still overrides the config's baud exactly as it always did.
+GEN_DIR="$REPO/configs/generated/$(basename "$DEPLOY_CFG" .yaml)"
+MILAN_OPTS="$OPTS --entity-gen-dir $GEN_DIR"
 run_milan_soc() {
     local label="$1"; shift
     # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting
