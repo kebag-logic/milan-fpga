@@ -34,14 +34,19 @@
                 THE PIN-LEVEL EDGE CONTRACT. Write E(p) for the bclk pin rise
                 produced at the end of the bclk_rise_i cycle whose pre-edge
                 frame_pos_i is p, and "bit period p" for the interval in which
-                frame_pos_i == p. fsync occupies bit period 0 and data starts
-                in bit period 1, so slot k bit b occupies bit period
-                1 + SLOT_BITS_P*k + b. An external receiver sees fsync rise at
-                E(FRAME_C - 1) and samples slot 0's MSB at E(1): TWO bclk rises
-                after the observed fsync rise. That is the phase the in-tree
-                external codec model of this same master bus already presents
+                frame_pos_i == p. Data starts in bit period 1, so slot k bit b
+                occupies bit period 1 + SLOT_BITS_P*k + b. The timing owner's
+                fsync is a one-bclk pulse CENTRED on E(0) (issue #452): it goes
+                high at the fall inside bit period 0 and low at the fall inside
+                bit period 1, so an external receiver sampling on the rise
+                reads it high at E(0) and at no other rise, and samples slot
+                0's MSB at E(1) - ONE bclk rise later, which is a one-bit data
+                delay (dsp_a, a McASP at RDATDLY = 1). That is the phase the
+                in-tree external codec model of this same master bus presents
                 to the capture direction, so both directions read one bus the
-                same way. Concretely, on the bclk_rise_i cycle with pre-edge
+                same way. THIS module's schedule did not move with that pulse:
+                it is framed by frame_pos_i, never by the fsync pin.
+                Concretely, on the bclk_rise_i cycle with pre-edge
                 position p this module latches the bit for bit period p + 1 -
                 slot p / SLOT_BITS_P, bit p % SLOT_BITS_P - and registers it
                 onto tdm_dout_o on the following bclk_fall_i cycle, which lies

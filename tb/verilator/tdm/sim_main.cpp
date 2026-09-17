@@ -52,7 +52,10 @@
 //          slot->pair map, (2) a master whose data line is held 0 must still
 //          produce pairs - at the right rate and all-zero - which is exactly
 //          the pmoda-less AX7101 failure mode (digital silence at the right
-//          frame width, not silence of frames).
+//          frame width, not silence of frames), (3) a codec that attributes
+//          the fsync pulse to the rise where fsync reads LOW again - the
+//          reading the OLD bus allowed, when fsync changed ON the rising edge
+//          - must slip exactly one bit and must NOT verify (issue #452).
 //   [MPDU] master -> KL_aaf_packetizer(WIRE_CHANS_P=8): the end-to-end claim.
 //          A 234-byte EIGHT-channel AAF PDU, byte-exact, sourced from a
 //          front-end that nobody drives.  This is the shape the AX7101 8x8
@@ -91,6 +94,13 @@ struct BusMon {
     std::vector<long> fs_gaps;          // rises between consecutive fsync highs
     std::vector<long> fs_widths;        // consecutive fsync-high rises (burst len)
     long fs_run = 0;
+    // WHERE fsync MOVES, which is the #452 property. A fsync transition on the
+    // step that carries a bclk RISE is a transition ON the receiver's sampling
+    // edge: zero setup and zero hold, and which rise the pulse belongs to is
+    // then decided by pin skew. A transition on any step that is not a bclk
+    // FALL is the same defect in its general form.
+    long fs_chg_on_rise = 0;
+    long fs_chg_off_fall = 0;
     bool armed = false;                 // measurements enabled (post-reset)
 };
 
@@ -114,6 +124,10 @@ static void bus_observe(BusMon& m, int bclk, int fsync, int mclk, bool have_mclk
                 m.mlvl_since = 0;
             }
         }
+        if(fsync != m.prev_fsync){
+            if(bclk && !m.prev_bclk)      ++m.fs_chg_on_rise;
+            if(!(!bclk && m.prev_bclk))   ++m.fs_chg_off_fall;
+        }
         if(bclk && !m.prev_bclk){            // bclk RISE: the sampling edge
             m.rises++;
             if(fsync){
@@ -135,11 +149,17 @@ constexpr int kTdataBytes = 8;
 // bclk FALLING edge and it samples on the RISING edge (KL_tdm_capture_master's
 // documented convention, and the slave's - so a loopback interoperates).
 //
-// DATA_DELAY_P = 1 (DSP mode B / Philips heritage): fsync is asserted for the
-// whole of bclk 0 of the frame, `startp_r` registers on the NEXT rise, and the
-// slot-0 MSB is sampled on the rise AFTER that.  So from the rise where fsync
-// is seen high we must let ONE falling edge pass before presenting bit 0.
-// That is asserted, not assumed - [MPAIR] fails visibly on a one-bit slip.
+// THE RECEIVER MODEL IS A REAL dsp_a ONE (issue #452). We SAMPLE fsync on the
+// bclk rising edge, exactly as a McASP at CLKRP = 1 does, and the master now
+// launches fsync on the FALL, so that sample is unambiguous: fsync is high
+// across exactly ONE rise and nothing on the bus moves at a rise.
+//
+// DATA_DELAY_P = 1 is one bit period of delay - DSP mode A, the Philips
+// heritage, McASP RDATDLY = 1. `startp_r` registers on the rise where fsync
+// reads high and the slot-0 MSB is sampled on the rise AFTER it, so from the
+// rise where fsync is seen high we present bit 0 on the very next FALL.
+// That is asserted, not assumed - [MPAIR] fails visibly on a one-bit slip,
+// and [MNEG] runs a decoder that slips on purpose.
 constexpr int MSLOTS=32;
 constexpr int M2SLOTS=8;
 constexpr int WB=32;
@@ -158,7 +178,14 @@ struct SerDrv {
     int  f = -1;             // frame number
     int  pend = 0;           // falling edges to skip after an fsync-high rise
     bool silent = false;     // hold the line at 0 (the digital-silence control)
+    // NEGATIVE control: attribute the pulse to the rise where fsync reads LOW
+    // again instead of the one where it reads high. On the OLD bus - fsync
+    // changing ON the rising edge - that was one of the two readings pin skew
+    // could hand a receiver, and it was the RIGHT one; on this bus it is one
+    // bit late, which is exactly what makes it a control.
+    bool late = false;
     int  prev_bclk = 0;
+    int  fs_at_rise = 0;     // fsync as sampled at the previous bclk rise
 };
 
 static int ser_bit(SerDrv& d){
@@ -171,7 +198,11 @@ static int ser_bit(SerDrv& d){
 // called every step, BEFORE eval, with the bclk/fsync sampled after the last eval
 static int ser_next(SerDrv& d, int bclk, int fsync, int cur_bit){
     int out = cur_bit;
-    if(bclk && !d.prev_bclk && fsync) d.pend = 2;   // rise with fsync asserted
+    if(bclk && !d.prev_bclk){                        // RISE: sample fsync
+        const bool trig = d.late ? (!fsync && d.fs_at_rise) : (fsync != 0);
+        if(trig) d.pend = 1;                         // bit 0 on the NEXT fall
+        d.fs_at_rise = fsync;
+    }
     if(!bclk && d.prev_bclk){                        // FALL: present the next bit
         if(d.pend && --d.pend == 0){ d.n = 0; d.f++; }
         out = ser_bit(d);
@@ -236,25 +267,46 @@ static Frame build_ref(int C, uint8_t seq, uint64_t dmac, uint64_t smac,
 // contract, and what KL_aaf_packetizer's TCTX chans prefix-sum assumes).
 // `xslot` deliberately mangles that map: passing it must make the check FAIL,
 // which is how we know the check can fail at all.
+//
+// `slip1` is the ONE-BIT-LATE reading (issue #452). A codec that attributes
+// the fsync pulse one rise too late presents every slot one bclk late, while
+// the DUT's 32-bit slot window stays where the fabric put it: the window then
+// holds the pattern shifted one place RIGHT, with the previous slot's last pad
+// bit (a zero) in the MSB. That is the silent audio defect the issue names -
+// {0, true[23:1]}: 6 dB down with the sign bit destroyed - and predicting it
+// EXACTLY is what turns "it did not verify" into "it decoded one bit late".
 static bool master_pairs_ok(const std::vector<Pair>& ps, size_t from,
-                            int slots, int nframes, int* f0_out, bool xslot=false){
+                            int slots, int nframes, int* f0_out,
+                            bool xslot=false, bool slip1=false){
     int pf = slots/2;                          // pairs per TDM frame
     // find the start of a clean frame: slot 0 with a decodable sample
     size_t i0 = from;
     while(i0 + static_cast<size_t>(pf)*nframes <= ps.size() &&
           !(ps[i0].slot==0 && (ps[i0].l & 0xFFFF))) i0++;
     if(i0 + static_cast<size_t>(pf)*nframes > ps.size()) return false;
-    int f0 = static_cast<int>(ps[i0].l & 0xFFFF) - 1;
-    if(f0_out) *f0_out = f0;
-    for(int n=0;n<pf*nframes;n++){
-        const Pair& p = ps[i0+n];
-        int f = f0 + n/pf;
-        int k = n%pf;
-        int ks = xslot ? (pf-1-k) : k;         // the mangled map for the control
-        if(p.slot != ks) return false;
-        if(p.l != msmp(f, 2*k) || p.r != msmp(f, 2*k+1)) return false;
+    auto want = [&](int f, int s){ const uint32_t v = msmp(f, s);
+                                   return slip1 ? (v >> 1) : v; };
+    auto walk = [&](int f0){
+        for(int n=0;n<pf*nframes;n++){
+            const Pair& p = ps[i0+n];
+            int f = f0 + n/pf;
+            int k = n%pf;
+            int ks = xslot ? (pf-1-k) : k;     // the mangled map for the control
+            if(p.slot != ks) return false;
+            if(p.l != want(f, 2*k) || p.r != want(f, 2*k+1)) return false;
+        }
+        return true; };
+    if(slip1){
+        // the frame number rides in the sample's low bits, and the word has
+        // lost its lowest one, so it names TWO consecutive frames: try both
+        const int q = static_cast<int>(ps[i0].l & 0x7FFF);
+        for(int f0 = 2*q - 1; f0 <= 2*q; f0++)
+            if(walk(f0)){ if(f0_out) *f0_out = f0; return true; }
+        return false;
     }
-    return true;
+    const int f0 = static_cast<int>(ps[i0].l & 0xFFFF) - 1;
+    if(f0_out) *f0_out = f0;
+    return walk(f0);
 }
 
 // The four MAC identities the wrapper is brought up with. They were locals of
@@ -298,6 +350,7 @@ class TdmFrontEndFamilyHarness {
     void check_the_arty_shipping_master();
     void check_a_silent_line_still_frames();
     void check_the_master_pair_map();
+    void check_the_late_fsync_attribution_control();
     void check_the_master_fed_eight_channel_pdu();
     int  report();
 
@@ -325,6 +378,7 @@ class TdmFrontEndFamilyHarness {
     long na=0;              // absolute bit index (persists across drive_tdm calls)
     int f0a = -1;           // cap A's first captured frame: [SLOT] finds it, [PDU] needs it
     size_t m2_mark = 0;     // pairs captured before the silent M2 line came up
+    size_t m2_late_mark = 0;   // ...and before it went late-attribution
 };
 
 void TdmFrontEndFamilyHarness::ck(const char* t, long got, long exp){
@@ -518,11 +572,13 @@ void TdmFrontEndFamilyHarness::check_the_bus_the_master_generates(){
     ck("M mclk high width = 1 clk_tdm cycle", mmon.mhi_max, 1);
     ck("M mclk low  width = 1 clk_tdm cycle", mmon.mlo_max, 1);
     // fsync: a ONE-BCLK pulse (TI/McASP shape), one per SLOTS_P*WORD_BITS_P
-    // bclks. KL_tdm_capture accepts both this and the 50%-duty long frame, so
-    // our own master loops back into our own slave.
+    // bclks, SAMPLED ON THE RISING EDGE the way a dsp_a receiver samples it.
+    // KL_tdm_capture accepts both this and the 50%-duty long frame, so our own
+    // master loops back into our own slave.
     {   bool w1 = !mmon.fs_widths.empty();
         for(long w : mmon.fs_widths) if(w != 1) w1 = false;
-        ck("M fsync is exactly ONE bclk wide, every frame", w1, 1);
+        ck("M fsync is exactly ONE bclk wide, every frame "
+           "(sampled on the rise)", w1, 1);
         bool g = !mmon.fs_gaps.empty();
         for(long v : mmon.fs_gaps) if(v != MFRAME_BITS) g = false;
         ck("M fsync cadence = SLOTS_P*WORD_BITS_P = 1024 bclks", g, 1);
@@ -530,6 +586,18 @@ void TdmFrontEndFamilyHarness::check_the_bus_the_master_generates(){
         snprintf(b,sizeof b,"M frames observed (fsync gaps measured)");
         ck(b, static_cast<long>(mmon.fs_gaps.size()) >= 8, 1);
     }
+    // WHERE fsync MOVES (issue #452). The pulse must not change on the edge
+    // the receiver samples it with: it launches on the FALL, which is where
+    // tdm_dout_o launches, and then it carries half a bit period of setup and
+    // half of hold to a rise-sampling receiver. These two count pin
+    // transitions, so they fail on the bus that changed fsync on the rise
+    // whatever any decoder makes of it.
+    ck("M fsync never changes on a bclk RISING edge", mmon.fs_chg_on_rise, 0);
+    ck("M fsync changes only on a bclk FALLING edge", mmon.fs_chg_off_fall, 0);
+    ck("M2 fsync changes only on a bclk FALLING edge (BCLK_HALF_P=2)",
+       m2mon.fs_chg_off_fall, 0);
+    ck("M3 fsync never changes on a bclk RISING edge (shipping TDM8)",
+       m3mon.fs_chg_on_rise, 0);
 }
 
 void TdmFrontEndFamilyHarness::check_the_boundary_master_divider(){
@@ -602,6 +670,32 @@ void TdmFrontEndFamilyHarness::check_the_master_pair_map(){
     // "the checker ignores the map" look identical.
     ck("M pair map check REJECTS a reversed map (proves it can fail)",
        master_pairs_ok(mpairs, 0, MSLOTS, 6, nullptr, /*xslot=*/true), 0);
+}
+
+// NEGATIVE control #3 (issue #452): the OLD bus's other reading, run as a
+// codec. `late` attributes the fsync pulse to the rise where fsync reads LOW
+// again - which is what a receiver got when the fsync path was slower than the
+// bclk path and both changed on the same edge. On a bus whose fsync launches
+// on the FALL that reading is one bit late, and one bit late is not a small
+// error: every 24-bit word reads as {0, true[23:1]}, 6 dB down with the sign
+// bit destroyed. The window immediately before this one is the same driver,
+// the same pattern and the same master, decoded correctly ([MPAIR] M2 above),
+// so the only difference graded here is which rise the pulse was attributed
+// to.
+void TdmFrontEndFamilyHarness::check_the_late_fsync_attribution_control(){
+    printf("\n[MNEG] negative control: the OLD bus's late fsync attribution\n");
+    m2_late_mark = m2pairs.size();
+    m2drv.late = true;
+    cyc(8L*M2FRAME_BITS*4);                   // 8 TDM8 frames at bclk = clk/4
+    cyc(400);                                 // drain the CDC
+    ck("M2 late-attribution codec still produced pairs",
+       static_cast<long>(m2pairs.size() > m2_late_mark), 1);
+    ck("M2 late fsync attribution does NOT verify against the true pattern",
+       master_pairs_ok(m2pairs, m2_late_mark, M2SLOTS, 4, nullptr), 0);
+    ck("M2 late fsync attribution slips EXACTLY one bit ({0, true[23:1]})",
+       master_pairs_ok(m2pairs, m2_late_mark, M2SLOTS, 4, nullptr,
+                       /*xslot=*/false, /*slip1=*/true), 1);
+    m2drv.late = false;
 }
 
 void TdmFrontEndFamilyHarness::check_the_master_fed_eight_channel_pdu(){
@@ -681,6 +775,7 @@ int TdmFrontEndFamilyHarness::run(){
     check_the_arty_shipping_master();
     check_a_silent_line_still_frames();
     check_the_master_pair_map();
+    check_the_late_fsync_attribution_control();
     check_the_master_fed_eight_channel_pdu();
 
     return report();

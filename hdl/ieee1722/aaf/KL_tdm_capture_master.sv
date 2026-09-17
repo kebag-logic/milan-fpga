@@ -60,6 +60,28 @@
                 ONCE - never also in a TB chip model (the double-Philips-delay
                 history, 78bbabe).
 
+                FSYNC LAUNCHES ON THE BCLK FALL (2026-09-17, issue #452).
+                fsync used to be registered on brise_w, the same clk_audio_i
+                edge on which the bclk pin goes 0 -> 1, so at the PINS it
+                changed together with the receiver's sampling edge: zero
+                nominal setup and zero hold, and which rise a receiver
+                attributed the pulse to was decided by the sign of an
+                unconstrained pin skew rather than by a margin. It is now
+                registered on the bclk FALL - the edge tdm_dout_o already
+                launches on (KL_tdm_render_master, "latch on the rise, launch
+                on the fall") - so the pulse is CENTRED on the rise that
+                carries it: fsync goes high half a bit period BEFORE that rise
+                and low half a bit period AFTER it. A receiver sampling fsync
+                on the rise (a McASP at CLKRP = 1) then has half a bit period
+                of setup and half of hold, sees fsync high across EXACTLY ONE
+                rise, and with a one-bit data delay (dsp_a, RDATDLY = 1) takes
+                slot 0's MSB on the very next rise.
+
+                What did NOT move: fpos_r still advances on brise_w, the three
+                exported timing ports are the same wires, and the deserializer
+                samples tdm_data_i on the same rises it always did. The change
+                is half a bit period of delay on ONE pin.
+
                 ONE TIMING OWNER (2026-09-14, issue #447). bclk and fsync are
                 SHARED pins of one bus, so the render direction must not
                 generate a second frame phase beside this one. This module
@@ -95,17 +117,28 @@ module KL_tdm_capture_master #(
   //! 24.576 MHz / 2 = 12.288 MHz = TDM8 x 32 bits x 48 kHz, so 1 is the
   //! shipping value. Never 0 - that would ask for a clock, not a divider.
   parameter int unsigned BCLK_HALF_P  = 1,
-  parameter bit          DATA_DELAY_P = 1'b1  //! fsync->MSB offset (0 = DSP A,
-                                              //! 1 = DSP B / Philips-heritage)
+  parameter bit          DATA_DELAY_P = 1'b1  //! fsync->MSB offset (0 = DSP B,
+                                              //! slot-0 MSB on the fsync edge
+                                              //! itself; 1 = one bclk later,
+                                              //! i.e. DSP A / Philips-heritage)
 )(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
   input  wire         clk_audio_i,       //! clean MMCM audio clock (24.576 MHz)
 
   // ---- TDM bus (we are MASTER: bclk/fsync are OUTPUTS) -----------------
+  //! DURING RESET THE BUS PARKS: bclk LOW and fsync HIGH, and no bclk edge
+  //! happens at all while rst_n is low, so nothing on the bus is clocked. The
+  //! first rise after the release is therefore already the first frame's
+  //! sync, and slot 0 starts from it. A receiver that needs an observable
+  //! fsync EDGE rather than a level takes the next frame's, one frame later.
   output wire         tdm_mclk_o,        //! clk_audio_i/2 codec master clock
   output wire         tdm_bclk_o,        //! generated bit clock
-  output wire         tdm_fsync_o,       //! generated frame sync (1-bclk pulse)
+  //! generated frame sync: one bclk period wide, registered on the bclk FALL.
+  //! It goes high half a bit period BEFORE the rise it marks and low half a
+  //! bit period AFTER it, so it is high across exactly ONE rise with half a
+  //! bit period of setup and of hold there (issue #452).
+  output wire         tdm_fsync_o,
   input  wire         tdm_data_i,        //! serial data, MSB first
 
   // ---- exported bus TIMING (clk_audio_i domain; RTL consumers only) ----
@@ -125,8 +158,10 @@ module KL_tdm_capture_master #(
                                          //! of this cycle the bclk pin goes
                                          //! 1 -> 0
   //! PRE-EDGE frame position during a bclk_rise_o cycle. After that edge the
-  //! position is (frame_pos_o + 1) mod SLOTS_P*WORD_BITS_P and the fsync pin
-  //! is (frame_pos_o == SLOTS_P*WORD_BITS_P - 1).
+  //! position is (frame_pos_o + 1) mod SLOTS_P*WORD_BITS_P. The fsync pin is
+  //! HIGH ACROSS the rise whose pre-edge position is 0 (it went high at the
+  //! fall before it and goes low at the fall after it), so a pin-level
+  //! receiver reads the sync on that rise.
   output wire [$clog2(SLOTS_P*WORD_BITS_P)-1:0] frame_pos_o,
 
   // ---- pair stream out (clk_i domain; one pulse per slot pair) ---------
@@ -193,25 +228,38 @@ module KL_tdm_capture_master #(
   end : t_bclk_gen
   assign tdm_bclk_o = bclk_r;
 
-  //! frame position, advanced once per bclk RISE. fsync is asserted for the
-  //! whole of bclk 0 of the frame (a one-bclk pulse), which KL_tdm_capture
-  //! and every McASP-style slave read as the frame start.
+  //! the cycle on which bclk goes 1 -> 0: the LAUNCH edge of this bus, which
+  //! is where tdm_dout_o changes too
+  wire              bfall_w = tick_w && bclk_r;
+
+  //! frame position, advanced once per bclk RISE - unchanged, and it is what
+  //! the deserializer and the exported ports are scheduled from.
+  //!
+  //! fsync is a one-bclk pulse taken on the bclk FALL (issue #452). The fall
+  //! that sees fpos_r == 0 is the one half a bit period before the rise that
+  //! ENDS bit period 0, and it carries the decision "the COMING rise is the
+  //! frame sync": the pin is then high across that one rise, with half a bit
+  //! period of setup and of hold, and the rise after it is where a one-bit
+  //! delay (dsp_a) receiver takes slot 0's MSB. Registering fsync on brise_w
+  //! instead put the transition ON the sampling edge.
   logic [$clog2(FRAME_C)-1:0] fpos_r;
   logic                       fsync_r;
   always_ff @(posedge clk_audio_i) begin : t_frame
     if (!arst_n_w) begin
       fpos_r  <= '0;
-      fsync_r <= 1'b1;          //! first bclk of the first frame IS slot 0
-    end else if (brise_w) begin
-      fpos_r  <= (32'(fpos_r) == FRAME_C - 1) ? '0 : fpos_r + 1'b1;
-      fsync_r <= (32'(fpos_r) == FRAME_C - 1);
+      fsync_r <= 1'b1;          //! parked HIGH: the first rise after the
+                                //! release IS the first frame's sync
+    end else begin
+      if (brise_w)
+        fpos_r  <= (32'(fpos_r) == FRAME_C - 1) ? '0 : fpos_r + 1'b1;
+      if (bfall_w) fsync_r <= (32'(fpos_r) == 0);
     end
   end : t_frame
   assign tdm_fsync_o = fsync_r;
 
   //! the exported timing, one continuous assign each - see the port banner
   assign bclk_rise_o = brise_w;
-  assign bclk_fall_o = tick_w && bclk_r;
+  assign bclk_fall_o = bfall_w;
   assign frame_pos_o = fpos_r;
 
   // ======================================================================

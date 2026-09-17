@@ -124,14 +124,22 @@ sole timing owner and exports `bclk_rise_o`, `bclk_fall_o` and `frame_pos_o`;
 the render master runs in the same `clk_tdm_i` and consumes them. The pin-level
 contract that follows is:
 
-- `fsync` occupies bit period 0 and data starts in bit period 1, so slot k bit
-  b occupies bit period `1 + 32k + b`.
-- A receiver watching the pins sees `fsync` rise, samples the last pad bit of
-  the previous frame at the next rise, and samples slot 0's MSB at the one
-  after: TWO `bclk` rising edges after the observed `fsync` rise, with the
-  trigger edge EXCLUDED from the countdown. That is the phase the in-tree
-  external codec model of this same master bus already presents to the capture
-  direction.
+- Data starts in bit period 1, so slot k bit b occupies bit period
+  `1 + 32k + b`.
+- `fsync` is a one-`bclk` pulse CENTRED on the rise that ends bit period 0: it
+  is launched on the `bclk` FALLING edge, half a bit period before that rise
+  and half a bit period after it (issue #452). A receiver sampling `fsync` on
+  the rising edge therefore reads it high across exactly ONE rise, with half a
+  bit period of setup and of hold, and samples slot 0's MSB on the rise that
+  FOLLOWS it - a one-bit data delay, which is a TI McASP at `RDATDLY = 1`.
+  That is the phase the in-tree external codec model of this same master bus
+  presents to the capture direction.
+- Before #452 `fsync` changed ON the `bclk` rising edge, so it reached a
+  rise-sampling receiver with zero nominal setup and zero hold and which rise
+  the pulse belonged to was decided by pin skew. The pulse now moves with
+  `dout`, and the three registered outputs are packed into their IOB flops
+  (`sw/litex/platforms/alinx_ax7101.py`), so the pin-to-pin skew is the
+  IOB-to-pad difference alone.
 - The render master latches the bit for bit period `p + 1` on the rise whose
   pre-edge frame position is `p`, and launches it on the following falling
   edge, so the receiver has half a bit period of setup.
