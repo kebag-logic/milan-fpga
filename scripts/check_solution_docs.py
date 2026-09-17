@@ -209,6 +209,7 @@ PORT_GROUPS = (
         "Set `i2s_sdout_i=0`, every `tdm_*_i=0`; leave outputs open",
         (r"i2s_.*", r"tdm_.*", r"media_lrclk_o"),
     ),
+    PortGroup("PPS output", "`pps_o`", "Carry the PHC second boundary to a pin", "Leave the output open", (r"pps_o",)),
 )
 
 STALE_DEFAULT_PHRASES = (

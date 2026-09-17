@@ -36,6 +36,20 @@
                 and lint-clean; apply the usual ASYNC_REG/false-path constraints
                 on the *_meta/*_sync flops.
 
+                PPS ALARM CROSSING (PPS_P, default OFF - issue #260). The same
+                three shapes, once more: the runtime enable is quasi-static and
+                takes the plain 2-flop vector synchroniser; the 64-bit armed
+                target is held stable by software and sampled when its toggle-
+                synchronised arm strobe lands; the live target returns on a
+                PERIODIC PUBLISH rather than on the pulse that changes it. The
+                publish beat is what makes the return coherent: the target can
+                change every ts_clk tick while a target armed in the past
+                catches up, and a value that moves every tick cannot be sampled
+                safely by a toggle protocol. Capturing it once every 2^PUB_LOG2
+                ticks holds each published word still for far longer than the
+                three aclk edges the toggle needs, so the reading software gets
+                a whole 64-bit target and never a torn one.
+
   Company     : Kebag Logic
   Project     : PTP Timestamping for Custom RGMII MAC
 ------------------------------------------------------------------------------
@@ -45,7 +59,8 @@
 
 module ptp_csr_sync #(
   parameter int TS_WIDTH   = 64, //! Integer-ns time width
-  parameter int INCR_WIDTH = 32  //! Increment/addend width
+  parameter int INCR_WIDTH = 32, //! Increment/addend width
+  parameter bit PPS_P      = 1'b0 //! 1 = carry the PPS alarm controls/readback; 0 = prune them
 )(
   // ---- source domain: aclk (milan_csr) ----
   input  wire                    aclk,
@@ -60,6 +75,10 @@ module ptp_csr_sync #(
   input  wire                    a_cmd_snapshot,//! gettime strobe (1 aclk cycle)
   output wire [TS_WIDTH-1:0]     a_tod_rd,     //! gettime result (aclk)
   output wire                    a_tod_rd_valid,//! gettime result valid (1 aclk pulse)
+  input  wire                    a_pps_enable, //! PPS runtime enable (quasi-static, PPS_P only)
+  input  wire [TS_WIDTH-1:0]     a_pps_target_ns, //! PPS armed target, ns (held stable at the arm strobe)
+  input  wire                    a_pps_arm,    //! PPS arm strobe (1 aclk cycle)
+  output wire [TS_WIDTH-1:0]     a_pps_target_rd_ns,//! Live PPS target published back (aclk). 0 when PPS_P = 0
 
   // ---- destination domain: ts_clk (timestamp_counter) ----
   input  wire                    ts_clk,
@@ -73,8 +92,17 @@ module ptp_csr_sync #(
   output wire                    t_cmd_adjust, //! Synchronised adjtime pulse
   output wire                    t_cmd_snapshot,//! Synchronised gettime pulse
   input  wire [TS_WIDTH-1:0]     t_tod_snapshot,      //! Snapshot value (ts_clk)
-  input  wire                    t_tod_snapshot_valid //! Snapshot valid pulse (ts_clk)
+  input  wire                    t_tod_snapshot_valid,//! Snapshot valid pulse (ts_clk)
+  output wire                    t_pps_enable,        //! Synchronised PPS enable (ts_clk). 0 when PPS_P = 0
+  output wire [TS_WIDTH-1:0]     t_pps_target_ns,        //! Sampled PPS target (ts_clk). 0 when PPS_P = 0
+  output wire                    t_pps_arm,           //! Synchronised PPS arm pulse (ts_clk). 0 when PPS_P = 0
+  input  wire [TS_WIDTH-1:0]     t_pps_target_live_ns    //! Live PPS target from the counter (ts_clk)
 );
+
+  //! Publish beat for the PPS target return path: one capture every 2^PUB_LOG2
+  //! ts_clk ticks (2.05 us at 125 MHz), which is what bounds how fast the
+  //! published word can move while an aclk toggle is in flight.
+  localparam int PPS_PUB_LOG2 = 8;
 
   // --------------------------------------------------------------------------
   //  Quasi-static rate config: 2-flop vector synchronisers into ts_clk.
@@ -179,6 +207,88 @@ module ptp_csr_sync #(
   end
   assign a_tod_rd       = tod_rd_reg;
   assign a_tod_rd_valid = tod_rd_valid_reg;
+
+  // --------------------------------------------------------------------------
+  //  PPS alarm crossing (#260). Same three shapes as above, PPS_P gated.
+  // --------------------------------------------------------------------------
+  generate
+    if (PPS_P) begin : g_pps_sync
+      //! Quasi-static enable: plain 2-flop vector synchroniser.
+      (* ASYNC_REG = "TRUE" *) logic pps_en_meta, pps_en_sync;
+      always_ff @(posedge ts_clk) begin : pps_en_cdc
+        if (!ts_resetn) begin
+          pps_en_meta <= 1'b0; pps_en_sync <= 1'b0;
+        end else begin
+          pps_en_meta <= a_pps_enable; pps_en_sync <= pps_en_meta;
+        end
+      end : pps_en_cdc
+
+      //! Arm strobe: source toggle, destination edge-detect, payload sampled
+      //! when the toggle lands and the pulse delayed one tick behind it.
+      logic pps_arm_tgl;
+      always_ff @(posedge aclk) begin : pps_arm_src
+        if (!aresetn)          pps_arm_tgl <= 1'b0;
+        else if (a_pps_arm)    pps_arm_tgl <= ~pps_arm_tgl;
+      end : pps_arm_src
+
+      (* ASYNC_REG = "TRUE" *) logic [2:0] pps_arm_s;
+      logic [TS_WIDTH-1:0] pps_target_cap;
+      logic                pps_arm_pulse_q;
+      always_ff @(posedge ts_clk) begin : pps_arm_dst
+        if (!ts_resetn) begin
+          pps_arm_s <= '0; pps_target_cap <= '0; pps_arm_pulse_q <= 1'b0;
+        end else begin
+          pps_arm_s <= {pps_arm_s[1:0], pps_arm_tgl};
+          if (pps_arm_s[2] ^ pps_arm_s[1]) pps_target_cap <= a_pps_target_ns;
+          pps_arm_pulse_q <= pps_arm_s[2] ^ pps_arm_s[1];
+        end
+      end : pps_arm_dst
+
+      //! Return path: periodic publish, then the same toggle protocol. The
+      //! beat is free-running, so the published word is still for 2^PUB_LOG2
+      //! ts_clk ticks no matter how fast the live target is moving.
+      logic [PPS_PUB_LOG2-1:0] pub_cnt_ts;
+      logic [TS_WIDTH-1:0]     pub_val_ts;
+      logic                    pub_tgl_ts;
+      always_ff @(posedge ts_clk) begin : pps_publish
+        if (!ts_resetn) begin
+          pub_cnt_ts <= '0; pub_val_ts <= '0; pub_tgl_ts <= 1'b0;
+        end else begin
+          pub_cnt_ts <= pub_cnt_ts + 1'b1;
+          if (pub_cnt_ts == '0) begin
+            pub_val_ts <= t_pps_target_live_ns;
+            pub_tgl_ts <= ~pub_tgl_ts;
+          end
+        end
+      end : pps_publish
+
+      (* ASYNC_REG = "TRUE" *) logic [2:0] pub_ret_s;
+      logic [TS_WIDTH-1:0] pps_target_rd_ns_reg;
+      always_ff @(posedge aclk) begin : pps_return_sync
+        if (!aresetn) begin
+          pub_ret_s <= '0; pps_target_rd_ns_reg <= '0;
+        end else begin
+          pub_ret_s <= {pub_ret_s[1:0], pub_tgl_ts};
+          if (pub_ret_s[2] ^ pub_ret_s[1])
+            pps_target_rd_ns_reg <= pub_val_ts;  // stable for the whole publish beat
+        end
+      end : pps_return_sync
+
+      assign t_pps_enable    = pps_en_sync;
+      assign t_pps_target_ns    = pps_target_cap;
+      assign t_pps_arm       = pps_arm_pulse_q;
+      assign a_pps_target_rd_ns = pps_target_rd_ns_reg;
+    end : g_pps_sync
+    else begin : g_pps_sync_parked
+      //! Option OFF: no synchroniser, no publish beat, no readback register.
+      assign t_pps_enable    = 1'b0;
+      assign t_pps_target_ns    = '0;
+      assign t_pps_arm       = 1'b0;
+      assign a_pps_target_rd_ns = '0;
+      wire _unused_pps_sync = &{1'b0, a_pps_enable, a_pps_target_ns, a_pps_arm,
+                                t_pps_target_live_ns, 1'b0};
+    end : g_pps_sync_parked
+  endgenerate
 
 endmodule
 

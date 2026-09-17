@@ -78,11 +78,19 @@ struct Harness {
     Model m;
     long checks = 0;
     long fails = 0;
+    bool pps_fired = false;   // sticky: did the pruned pin ever go high?
     explicit Harness(Vtimestamp_counter* d) : dut(d) {}
 
     void cycle(bool resetn, bool en, uint32_t incr, int32_t adj,
                uint64_t tod_wr, bool load, int64_t offset, bool adjust, bool snapshot,
                const char* tag) {
+        // The PPS alarm is pruned in this build (PPS_P = 0), and every cycle
+        // here drives its inputs HARD: enabled, armed, and pointing at a target
+        // the clock has already passed. A comparator that survived the prune
+        // would fire within a tick. See pps_stays_pruned() below.
+        dut->pps_enable_i = 1;
+        dut->pps_target_ns_i = 0;
+        dut->pps_arm_i = 1;
         dut->resetn = resetn;
         dut->enable_i = en;
         dut->incr_i = incr;
@@ -102,6 +110,12 @@ struct Harness {
         expect(dut->timestamp_out, m.ns(), tag, "timestamp");
         expect(dut->tod_snapshot_o, m.snap, tag, "snapshot");
         expect(dut->tod_snapshot_valid_o & 1, m.snap_valid ? 1 : 0, tag, "snap_valid");
+        // Option OFF is checked on EVERY cycle, not once at the end: a pruned
+        // pin that glitched for one tick would still be a pin that is not
+        // pruned, and a scope on the board would see it.
+        expect(dut->pps_o & 1, 0, tag, "pps_pruned");
+        expect(dut->pps_target_ns_o, 0, tag, "pps_target_pruned");
+        if (dut->pps_o & 1) pps_fired = true;
         checks++;
     }
 
@@ -138,6 +152,7 @@ class PhcScenarios {
     void gettime_snapshot_stays_frozen();
     void disable_holds_the_clock();
     void randomized_stream_tracks_the_model();
+    void pps_stays_pruned();
 
     const milan::tb::Model<Vtimestamp_counter> model;
     Vtimestamp_counter* const dut = model.get();
@@ -263,6 +278,18 @@ void PhcScenarios::randomized_stream_tracks_the_model() {
            (h.fails == f0) ? "PASS" : "FAIL");
 }
 
+// ---- Scenario 9: PPS_P = 0 really prunes the alarm (issue #260) ----
+// The shipping default builds no comparator, no target register and no pulse
+// stretcher, so pps_o is a STRUCTURAL zero rather than a signal that happens to
+// be low. Every cycle above drove the PPS inputs as hard as they can be driven;
+// this scenario is the verdict on all of them at once.
+void PhcScenarios::pps_stays_pruned() {
+    bool ok = !h.pps_fired && (dut->pps_o & 1) == 0 && dut->pps_target_ns_o == 0;
+    printf("  [%s] PPS_P=0 prunes the alarm: pps_o never rose in %ld driven cycles\n",
+           ok ? "PASS" : "FAIL", h.checks);
+    if (!ok) h.fails++;
+}
+
 int PhcScenarios::run() {
     printf("== timestamp_counter PHC harness (INT=64, FRAC=%d; nominal 8ns/tick) ==\n", FRAC);
 
@@ -276,6 +303,7 @@ int PhcScenarios::run() {
     gettime_snapshot_stays_frozen();
     disable_holds_the_clock();
     randomized_stream_tracks_the_model();
+    pps_stays_pruned();
 
     printf("--------------------------------------------------------------\n");
     printf("cycle checks: %ld   mismatches: %ld\n", h.checks, h.fails);

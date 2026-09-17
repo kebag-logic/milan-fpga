@@ -155,6 +155,14 @@ tops=(
   "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv"
   "tcam|$F/tcam.sv"
   "KL_pcm_lpf|$R/hdl/ieee1722/aaf/KL_pcm_lpf.sv"
+  # #260: the PHC itself, so the PPS alarm's parameter can be priced. The
+  # module's own default is PPS_P=0, which is the OFF arm; the ON arm is
+  # OOC_CHPARAM=PPS_P=1, and chparam works here because this is a leaf top.
+  # The DIFFERENCE between the two rows is the whole cost of the feature -
+  # comparator, target register, adder and pulse stretcher - and the OFF row
+  # must equal the pre-#260 counter exactly, which is what "default off prunes
+  # to zero added area" means as a measurement rather than a claim.
+  "timestamp_counter|$P/timestamp_counter.sv"
   "milan_datapath|$DP_SRCS"
   # The saved-state backing store's BEFORE/AFTER pair
   # (docs/design/SAVED_STATE_FASTCONNECT.md section 8.3). The BEFORE is a

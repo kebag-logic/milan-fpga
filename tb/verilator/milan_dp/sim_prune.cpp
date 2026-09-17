@@ -331,7 +331,7 @@ class PrunedShapeHarness {
     void prove_csr_identity_unchanged_by_pruning() {
         printf("[identity] the CSR contract is unchanged by pruning\n");
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020058);
+        ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020059);
         {
             uint32_t cap = axi_read(A_CAP);
             ck("CAP.ADP bit12 still set",  (cap >> 12) & 1, 1);

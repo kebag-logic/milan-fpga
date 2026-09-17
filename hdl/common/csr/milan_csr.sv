@@ -124,16 +124,27 @@ module milan_csr #(
   //! read in either order. Default 0 retains the addresses as an ownerless,
   //! write-inert ABI; milan_datapath passes its product option.
   parameter bit GPTP_PLANE_EN_P = 1'b0,
+  //! Declared by the INSTANTIATOR, like CHMAP_RDBK_P: 1 only when the PHC
+  //! really elaborated the PPS comparator. It is published RO in
+  //! PTP_PPS_CTRL[16] so software reads UNSUPPORTED instead of a structural
+  //! zero, and so "not built" can never be mistaken for "built and idle".
+  parameter bit PPS_P = 1'b0,
+  //! PPS pulse width in PHC clock CYCLES (not seconds), published RO in
+  //! PTP_PPS_WIDTH. The reader converts with the PHC frequency it already
+  //! knows from PTP_INCR; nothing here mirrors a per-board constant.
+  parameter int unsigned PPS_WIDTH_CYC_P = 125_000,
   //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x0058 makes the media-boundary slip evidence readable (#390): the
-  //! loopback ring's and the TDM junction's dup/skip counters land at
-  //! SLIP_LB 0x8D4 / SLIP_TDM 0x8D8, live RO, {skip16, dup16}, the first
-  //! free pair above the retired 0x8C8 gap. Additive: no existing CSR
-  //! address moves (0x0057's live media-clock selection is unchanged).
-  //! The register occupies four bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_0058
+  //! 0x0059 puts the PHC's pulse-per-second output under software control
+  //! (#260): PTP_PPS_CTRL 0x548, the armed target TGT_LO/HI 0x54C/0x550, the
+  //! live-target readback RD_LO/HI 0x554/0x558 and the elaborated pulse width
+  //! PTP_PPS_WIDTH 0x55C - 24 bytes in the free block above the egress
+  //! latency scratch at 0x544. CTRL[16] publishes whether the comparator was
+  //! elaborated at all, so "not built" is readable rather than inferred from
+  //! a silent pin. Additive: 0x0058's media-boundary slip counters are
+  //! unchanged. The register occupies four bytes and no CSR addresses move.
+  parameter logic [31:0] VERSION = 32'h0002_0059
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -204,6 +215,11 @@ module milan_csr #(
   //! They have no port: the ptp_ts_core record path left with the general-data chain.
   input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
   input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
+  //! --- PPS alarm (0x548..0x55C, #260). Inert unless the PHC elaborated it ---
+  output wire                    o_pps_enable,      //! PTP_PPS_CTRL[0] AND PPS_P: runtime PPS enable
+  output wire [63:0]             o_pps_target_ns,      //! PTP_PPS_TGT_{HI,LO}: absolute target to arm, ns
+  output wire                    o_pps_arm,         //! PTP_PPS_CTRL[1] W1S: load the target (1 aclk pulse)
+  input  wire [63:0]             i_pps_target_rd_ns,   //! Live target published back by the PHC (PTP_PPS_RD_{LO,HI})
 
   // ---- ADP advertiser identity/control (IEEE 1722.1 / Milan v1.2, FR-DISC-*) ----
   output wire                    o_adp_enable,        //! ADP advertising enable (ADP_CTRL[0])
@@ -626,6 +642,12 @@ module milan_csr #(
   //    0x210..0x230 STAT0..STAT8              +0x08 LO_CREDIT  0x534 PTP_TOD_RD_HI
   //                                           +0x0C CTRL       0x540 PTP_INGRESS_LAT
   //                                                            0x544 PTP_EGRESS_LAT
+  //                                                            0x548 PTP_PPS_CTRL
+  //                                                            0x54C PTP_PPS_TGT_LO
+  //                                                            0x550 PTP_PPS_TGT_HI
+  //                                                            0x554 PTP_PPS_RD_LO
+  //                                                            0x558 PTP_PPS_RD_HI
+  //                                                            0x55C PTP_PPS_WIDTH
   // --------------------------------------------------------------------------
   localparam [ADDR_WIDTH-1:0]
     A_ID          = 'h000, A_VERSION = 'h004, A_CAP     = 'h008, A_SCRATCH  = 'h00C,
@@ -639,6 +661,9 @@ module milan_csr #(
     A_PTP_TWLO    = 'h510, A_PTP_TWHI= 'h514, A_PTP_OFLO= 'h518, A_PTP_OFHI = 'h51C,
     A_PTP_CMD     = 'h520, A_PTP_TRLO= 'h530, A_PTP_TRHI= 'h534,
     A_PTP_ILAT    = 'h540, A_PTP_ELAT= 'h544,
+    //! ---- 0x548 PPS alarm (#260). The first free words of the 0x5xx block ----
+    A_PPS_CTRL    = 'h548, A_PPS_TGLO= 'h54C, A_PPS_TGHI = 'h550,
+    A_PPS_RDLO    = 'h554, A_PPS_RDHI= 'h558, A_PPS_WIDTH= 'h55C,
     // ---- 0x600 ADP advertiser (IEEE 1722.1 / Milan v1.2) ----
     A_ADP_CTRL    = 'h600, A_ADP_EIDLO= 'h604, A_ADP_EIDHI= 'h608, A_ADP_MIDLO = 'h60C,
     A_ADP_MIDHI   = 'h610, A_ADP_ECAPS= 'h614, A_ADP_TALK = 'h618, A_ADP_LIST  = 'h61C,
@@ -1078,6 +1103,9 @@ module milan_csr #(
   logic [31:0] ptp_oflo;                 //! PTP_OFFSET_LO: adjtime delta low
   logic [31:0] ptp_ofhi;                 //! PTP_OFFSET_HI: adjtime delta high
   logic [63:0] ptp_tod_rd;               //! PTP_TOD_RD: TOD latched on snapshot (gettime)
+  logic [31:0] pps_ctrl;                 //! PTP_PPS_CTRL: [0] runtime PPS enable
+  logic [31:0] pps_tglo;                 //! PTP_PPS_TGT_LO: armed target low
+  logic [31:0] pps_tghi;                 //! PTP_PPS_TGT_HI: armed target high
   logic [31:0] stat_snap [0:NS-1];       //! Coherent snapshot of the RMON counters
 
   logic stats_snap_p;                    //! Stats snapshot command strobe (1 cycle)
@@ -1087,6 +1115,7 @@ module milan_csr #(
   logic ptp_load_p;                      //! PTP settime apply strobe (1 cycle)
   logic ptp_adj_p;                       //! PTP adjtime apply strobe (1 cycle)
   logic ptp_snap_p;                      //! PTP gettime snapshot strobe (1 cycle)
+  logic pps_arm_p;                       //! PPS target arm strobe (1 cycle)
 
   // ADP advertiser identity/control registers (0x600 group)
   logic [31:0] adp_ctrl;                 //! ADP_CTRL: [0]=enable, [12:8]=valid_time
@@ -1422,6 +1451,9 @@ module milan_csr #(
       //! free-run increment = the TRUE clock period (see MILAN_CLK_FREQ_HZ_P)
       ptp_ctrl <= 32'h1; ptp_incr <= PTP_INCR_RST_C; ptp_adj <= 32'h0;
       ptp_twlo <= 32'h0; ptp_twhi <= 32'h0; ptp_oflo <= 32'h0; ptp_ofhi <= 32'h0;
+      //! PPS resets DISABLED with a zero target: a build that elaborated the
+      //! comparator must still be told to fire by software.
+      pps_ctrl <= 32'h0; pps_tglo <= 32'h0; pps_tghi <= 32'h0;
       ptp_tod_rd <= 64'h0;
       for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
       adp_ctrl <= 32'h0000_0A00;   // enable=0, valid_time=10 (Milan 5.6.2 "shall be set to 10"; validity 20 s)
@@ -1478,11 +1510,16 @@ module milan_csr #(
       jnl_abort_p <= 1'b0; jnl_data_r <= 32'h0;
       aemp_sel_p <= 1'b0; aemp_field_p <= 1'b0; aemp_data_p <= 1'b0;
       aemp_commit_p <= 1'b0; aemp_abort_p <= 1'b0; aemp_wdata_r <= 32'h0;
+      //! The PPS arm strobe IS reset here, unlike its older neighbours below:
+      //! it crosses into the PHC domain, where an X out of reset would be a
+      //! target load nobody asked for.
+      pps_arm_p <= 1'b0;
     end else begin
       // command strobes are single-cycle: default low, pulsed by writes below
       stats_snap_p <= 1'b0; stats_rst_p <= 1'b0;
       i2spb_clru_p <= 1'b0; i2spb_clro_p <= 1'b0;
       ptp_load_p <= 1'b0; ptp_adj_p <= 1'b0; ptp_snap_p <= 1'b0;
+      pps_arm_p <= 1'b0;
       adp_adv_p <= 1'b0; adp_dep_p <= 1'b0;
       tcam_wr_p <= 1'b0;
       ltap_clr_p <= 1'b0;
@@ -1538,6 +1575,19 @@ module milan_csr #(
             if (s_axi_wdata[1]) ptp_adj_p  <= 1'b1;
             if (s_axi_wdata[2]) ptp_snap_p <= 1'b1; // gettime; PTP_TOD_RD latched on i_ptp_tod_valid
           end
+          //! PPS: [0] is a stored enable, [1] a self-clearing arm strobe that
+          //! hands PPS_TGT_{HI,LO} to the comparator. Writing both in one word
+          //! is the normal sequence (arm, then let it run), and it is SAFE in
+          //! that order: the two bits take different crossings into the PHC
+          //! domain and enable lands first, but the comparator there is gated
+          //! on having been armed, so the lead cycles produce no pulse rather
+          //! than a runt against an unloaded target.
+          A_PPS_CTRL: begin
+            pps_ctrl <= {s_axi_wdata[31:2], 1'b0, s_axi_wdata[0]};
+            if (s_axi_wdata[1]) pps_arm_p <= 1'b1;
+          end
+          A_PPS_TGLO:  pps_tglo <= s_axi_wdata;
+          A_PPS_TGHI:  pps_tghi <= s_axi_wdata;
           A_AAF_CTRL:   aaf_ctrl  <= s_axi_wdata;
           A_ACMP_LOBS:  acmp_lobs <= s_axi_wdata;
           A_LWSRP_CTRL: lwsrp_ctrl <= s_axi_wdata;
@@ -1879,6 +1929,9 @@ module milan_csr #(
       A_CLS_CTRL, A_CLS_DPCP, A_CLS_MAP, A_CLS_REGEN, A_CLS_TCQ,
       A_PTP_CTRL, A_PTP_INCR, A_PTP_ADJ, A_PTP_TWLO, A_PTP_TWHI,
       A_PTP_OFLO, A_PTP_OFHI, A_PTP_ILAT, A_PTP_ELAT,
+      //! A_PPS_CTRL is NOT here: live read (the RO built bit and the
+      //! self-clearing arm strobe sit above/beside the stored enable)
+      A_PPS_TGLO, A_PPS_TGHI,
       A_ADP_CTRL, A_ADP_EIDLO, A_ADP_EIDHI, A_ADP_MIDLO, A_ADP_MIDHI,
       //! A_ADP_TALK / A_ADP_LIST are NOT here: RO shape (VERSION 0x0015)
       A_ADP_ECAPS, A_ADP_CCAPS, A_ADP_IDX0, A_ADP_IDX1, A_ADP_ASLO, A_ADP_ASHI,
@@ -2126,6 +2179,19 @@ module milan_csr #(
       A_STATS_CAP:  live_mux = i_stats_cap;
       A_PTP_TRLO:   live_mux = ptp_tod_rd[31:0];
       A_PTP_TRHI:   live_mux = ptp_tod_rd[63:32];
+      //! PPS alarm (#260). [16] is the ELABORATION fact and [0] the RUNTIME
+      //! one, and they are deliberately different bits: a build that pruned
+      //! the comparator reads 0 in [16] no matter what software writes to
+      //! [0], so "no pulses" can be diagnosed without a scope.
+      A_PPS_CTRL:   live_mux = {15'h0, PPS_P, 14'h0, 1'b0, pps_ctrl[0] & PPS_P};
+      //! The LIVE target, not the armed one: it advances by exactly 1e9 per
+      //! pulse, so reading it twice a second apart is the drift measurement.
+      //! Structural zero when the comparator was never built.
+      A_PPS_RDLO:   live_mux = i_pps_target_rd_ns[31:0];
+      A_PPS_RDHI:   live_mux = i_pps_target_rd_ns[63:32];
+      //! Pulse width in PHC CYCLES. Seconds = this / f_PHC, and f_PHC is
+      //! the period PTP_INCR already reports - no board constant is mirrored.
+      A_PPS_WIDTH:  live_mux = PPS_P ? 32'(PPS_WIDTH_CYC_P) : 32'h0;
       A_ADP_STATUS: live_mux = i_adp_available_index;       // RO available_index
       //! #116: the fabric publication bank is the sole runtime owner. These
       //! legacy addresses remain mapped, but option-off reads are structural
@@ -2463,6 +2529,13 @@ module milan_csr #(
   assign o_ptp_cmd_load     = ptp_load_p;
   assign o_ptp_cmd_adjust   = ptp_adj_p;
   assign o_ptp_cmd_snapshot = ptp_snap_p;
+
+  //! PPS alarm face. The enable is ANDed with the elaboration parameter so an
+  //! option-off build cannot be talked into driving a comparator it does not
+  //! have, and the CSR's own readback above reports the same AND.
+  assign o_pps_enable       = pps_ctrl[0] & PPS_P;
+  assign o_pps_target_ns       = {pps_tghi, pps_tglo};
+  assign o_pps_arm          = pps_arm_p;
 
   assign o_aaf_enable          = aaf_ctrl[0];
   assign o_aaf_bypass          = aaf_ctrl[1];

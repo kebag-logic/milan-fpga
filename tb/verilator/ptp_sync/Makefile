@@ -25,10 +25,26 @@ CPP  = sim_main.cpp
 .PHONY: all run clean
 all: run
 
+# TWO SHAPES, for the PPS alarm crossing (#260). The PPS ports are on the
+# boundary in both, so one harness serves both and the expectations are
+# parameterised on the flag rather than copied:
+#
+#   obj_dir  PPS_P=0 - the shipping default. The command/snapshot scenarios,
+#                      plus the proof that the PARKED arm is a structural
+#                      zero while the CSR-side PPS inputs are driven hard.
+#   obj_pps  PPS_P=1 - the crossing itself: the enable reaches ts_clk, the arm
+#                      lands as exactly one pulse with its 64-bit target
+#                      already captured, and the live target publishes back
+#                      to aclk on the free-running beat.
 run:
-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vptp_sync_sim
+	$(VERILATOR) $(VFLAGS) --Mdir obj_dir $(SRCS) $(CPP) -o Vptp_sync_sim
+	$(VERILATOR) $(VFLAGS) --Mdir obj_pps -GPPS_P=1 \
+	    -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DPTP_SYNC_PPS_P=1" \
+	    $(SRCS) $(CPP) -o Vptp_sync_pps_sim
 	@echo "======================================================================"
 	./obj_dir/Vptp_sync_sim
+	@echo "======================================================================"
+	./obj_pps/Vptp_sync_pps_sim
 
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_pps

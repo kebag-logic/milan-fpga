@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_0059 - PPS output](#release-0x0002_0059---pps-output)** -- Six CSR words, one metrology pin.
 - **[Release 0x0002_0058 - slip counters readable](#release-0x0002_0058---slip-counters-readable)** -- Two RO words, prefill retired.
 - **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** -- CRF selection steers the grids.
 - **[Release 0x0002_0056 — ownerless gPTP verification form](#release-0x0002_0056--ownerless-gptp-verification-form)** -- Verification only.
@@ -36,6 +37,23 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_0059 - PPS output
+
+- The PHC can drive a pulse-per-second pin (#260).
+- Six words land at `0x548`-`0x55C`.
+- `PTP_PPS_CTRL` holds the enable, the arm strobe and a built bit.
+- `PTP_PPS_TGT_{LO,HI}` carries the second boundary to arm.
+- `PTP_PPS_RD_{LO,HI}` reads the live target back.
+- It advances by exactly `1e9` per pulse, so drift is measurable.
+- `PTP_PPS_WIDTH` publishes the elaborated width in PHC cycles.
+- `PPS_CTRL[16]` reads 0 when the comparator was never built.
+- Arm and enable can go in one word.
+- That write emits no pulse before the boundary.
+- The comparator is gated on having been armed.
+- The output is off by default and needs `--pps` to exist.
+- On the AX7101 it is J11 pin 35, ball `C17`.
+- No existing CSR address moves.
 
 ## Release 0x0002_0058 - slip counters readable
 

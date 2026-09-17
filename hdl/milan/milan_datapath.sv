@@ -220,6 +220,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! <= 1 s. TBs shrink it so counter checks see interval boundaries.
   parameter int LDIAG_IVAL_CYC_P = MILAN_CLK_FREQ_HZ,
   parameter int MCSERVO_P = 1,
+  //! PPS metrology output (#260). 0 prunes the comparator, the target
+  //! register, the pulse stretcher and the CSR-side crossing, and parks
+  //! pps_o at a STRUCTURAL zero - the same distinction LTAP_P draws. 1
+  //! builds them; PTP_PPS_CTRL[0] then decides whether the pin ever fires,
+  //! so "not built" and "built but idle" stay separately observable.
+  parameter bit PPS_P = 1'b0,
+  //! PPS pulse width in gtx_clk CYCLES, not seconds: width = this / f_gtx.
+  //! The default is one millisecond of the datapath clock, which is the
+  //! conventional PPS width and wide enough for any scope to trigger on.
+  //! Only the RISING edge carries time.
+  parameter int PPS_WIDTH_CYC_P = MILAN_CLK_FREQ_HZ / 1000,
   //! AAF latency taps (KL_aaf_latency_taps, 696 LUT / 614 FF measured).
   //! PURE INSTRUMENTATION: nothing in the media path reads a tap output -
   //! the whole block feeds the LTAP CSR window 0x870-0x8B0 and nothing else.
@@ -463,6 +474,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! different clock, -10.64 ppm by construction. Probing the two together
   //! measures that difference with no peer device involved.
   output wire                     media_lrclk_o,
+  //! PPS METROLOGY OUTPUT (AX7101 J11.35, ball C17 - issue #260). One rising
+  //! edge per PHC second, emitted by the timestamp counter's own comparator in
+  //! gtx_clk, so the edge is deterministic to a single tick rather than
+  //! carrying any engine's dispatch latency. This is the ONLY way this device's
+  //! gPTP accuracy can be measured against an external reference instead of
+  //! read back from its own servo. Structural 0 unless PPS_P = 1.
+  output wire                     pps_o,
   output wire                     tdm_mclk_o,     //! MASTER role: codec master clock (clk_tdm_i/2). On a blend build (AUDIO_IF_I2S_PAIR_P) the TDM header gets its OWN mclk pad so i2s_mclk_o can stay on the Pmod I2S2 (Arty D13, the CS5343 - HANDOVER 8.3b work item 1); solo-master builds keep mclk on i2s_mclk_o exactly as before and may leave this open.
   output wire                     tdm_dout_o,     //! chmap follow-up 4: KL_tdm_render serial out (TDM8, ext-clocked by tdm_bclk/fsync)
   input  wire                     tdm_data_i,
@@ -1396,6 +1414,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        cfg_ptp_cmd_load, cfg_ptp_cmd_adjust, cfg_ptp_cmd_snapshot;
   wire [63:0] ptp_tod_rd;
   wire        ptp_tod_rd_valid;
+  //! PPS alarm CSR face (#260). cfg_* are axis_clk register outputs;
+  //! pps_target_rd_ns is the live target published back for PTP_PPS_RD_{LO,HI}.
+  wire        cfg_pps_enable, cfg_pps_arm;
+  wire [63:0] cfg_pps_target_ns;
+  wire [63:0] pps_target_rd_ns;
 
   wire        cfg_adp_enable;
   wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
@@ -2283,7 +2306,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! carries the {loop_fed, loop_mapped} mask. Published at CHMAP_SNAP[9:8]
     //! so software reads UNSUPPORTED rather than a structural zero on a build
     //! that does not wire them (the parameter's default is 0 for that reason).
-    .CHMAP_RDBK_P(3)
+    .CHMAP_RDBK_P(3),
+    //! The PPS capability is DECLARED here, by the integration that knows
+    //! whether the comparator was actually elaborated - the CHMAP_RDBK_P
+    //! rule. PTP_PPS_CTRL[16] publishes it so a pruned build reads
+    //! UNSUPPORTED rather than a silent structural zero.
+    .PPS_P(PPS_P),
+    .PPS_WIDTH_CYC_P(PPS_WIDTH_CYC_P)
     //! No ADP shape parameters: milan_csr `include-s the SAME generated
     //! gen/adp_shape_defaults.svh this module does, so the config is the
     //! one definition and nothing threads a second copy through a port map.
@@ -2338,6 +2367,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
     .i_ptp_tod         (ptp_tod_rd),
     .i_ptp_tod_valid   (ptp_tod_rd_valid),
+    // PPS alarm (0x548..0x55C, #260)
+    .o_pps_enable      (cfg_pps_enable),
+    .o_pps_target_ns      (cfg_pps_target_ns),
+    .o_pps_arm         (cfg_pps_arm),
+    .i_pps_target_rd_ns   (pps_target_rd_ns),
     // ADP advertiser identity/control (0x600 group, FR-DISC-*)
     .o_adp_enable         (cfg_adp_enable),
     .o_adp_valid_time     (),
@@ -2675,11 +2709,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [63:0] phc_tod_wr_ts_w, phc_offset_ts_w, phc_tod_snap_ts_w;
   wire        phc_load_ts_w, phc_adjust_ts_w, phc_snapshot_ts_w;
   wire        phc_tod_snap_valid_ts_w;
+  //! PPS alarm, PHC side (#260). All four are structural zero when PPS_P = 0.
+  wire        phc_pps_enable_ts_w, phc_pps_arm_ts_w;
+  wire [63:0] phc_pps_target_ns_ts_w, phc_pps_target_live_ns_ts_w;
 
   //! CSR -> PHC clock-domain crossing (axis_clk -> gtx_clk + snapshot return).
   ptp_csr_sync #(
     .TS_WIDTH   (64),
-    .INCR_WIDTH (32)
+    .INCR_WIDTH (32),
+    .PPS_P      (PPS_P)
   ) ptp_sync (
     .aclk           (axis_clk),
     .aresetn        (axis_resetn),
@@ -2693,6 +2731,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .a_cmd_snapshot (cfg_ptp_cmd_snapshot),
     .a_tod_rd       (ptp_tod_rd),
     .a_tod_rd_valid (ptp_tod_rd_valid),
+    .a_pps_enable   (cfg_pps_enable),
+    .a_pps_target_ns   (cfg_pps_target_ns),
+    .a_pps_arm      (cfg_pps_arm),
+    .a_pps_target_rd_ns(pps_target_rd_ns),
 
     .ts_clk         (gtx_clk),
     .ts_resetn      (gtx_resetn),
@@ -2705,7 +2747,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .t_cmd_adjust   (phc_adjust_ts_w),
     .t_cmd_snapshot (phc_snapshot_ts_w),
     .t_tod_snapshot       (phc_tod_snap_ts_w),
-    .t_tod_snapshot_valid (phc_tod_snap_valid_ts_w)
+    .t_tod_snapshot_valid (phc_tod_snap_valid_ts_w),
+    .t_pps_enable         (phc_pps_enable_ts_w),
+    .t_pps_target_ns         (phc_pps_target_ns_ts_w),
+    .t_pps_arm            (phc_pps_arm_ts_w),
+    .t_pps_target_live_ns    (phc_pps_target_live_ns_ts_w)
   );
 
   //! the 64-bit PHC (REQ-PTP-01/02): gtx_clk == axis_clk in every real
@@ -2713,7 +2759,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   timestamp_counter #(
     .COUNTER_WIDTH (64),
     .INCR_WIDTH    (32),
-    .FRAC_WIDTH    (24)
+    .FRAC_WIDTH    (24),
+    .PPS_P             (PPS_P),
+    .PPS_WIDTH_CYC_P (PPS_WIDTH_CYC_P)
   ) ts_counter (
     .clk                  (gtx_clk),
     .resetn               (gtx_resetn),
@@ -2725,9 +2773,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .offset_i             (phc_offset_ts_w),
     .cmd_adjust_i         (phc_adjust_ts_w),
     .cmd_snapshot_i       (phc_snapshot_ts_w),
+    .pps_enable_i         (phc_pps_enable_ts_w),
+    .pps_target_ns_i         (phc_pps_target_ns_ts_w),
+    .pps_arm_i            (phc_pps_arm_ts_w),
     .timestamp_out        (ptp_now_w),
     .tod_snapshot_o       (phc_tod_snap_ts_w),
-    .tod_snapshot_valid_o (phc_tod_snap_valid_ts_w)
+    .tod_snapshot_valid_o (phc_tod_snap_valid_ts_w),
+    .pps_o                (pps_o),
+    .pps_target_ns_o         (phc_pps_target_live_ns_ts_w)
   );
 
   // ==========================================================================

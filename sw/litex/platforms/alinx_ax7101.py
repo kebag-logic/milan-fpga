@@ -207,6 +207,60 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # PPS metrology output on J11.35 (issue #260) - the pin that turns every
+    # gPTP accuracy claim this project makes from self-reported into measured.
+    # Today the device reads its own servo error and grades itself; with this
+    # pin a scope compares the board's second boundary against a GPS receiver
+    # or against the peer, and a systematic error in the servo, the timestamp
+    # path or the latency constants becomes visible instead of invisible.
+    #
+    # THE PIN, and why C17 and not another.  J11 is otherwise untouched by this
+    # design: none of its 34 signal pins appears in any constraints/*.xdc here,
+    # and the five the TDM header claims are J11.3-J11.9 at the far end of the
+    # connector, so a probe on 35 shares nothing with the audio bus.
+    #
+    #   ball  J11  evidence
+    #   C17    35  EX_IO1_17N.  AX7101_EX_SCH.pdf sheet 10 of 11 (its title
+    #              block reads "Sheet 10 of 11", and it is the tenth page of
+    #              the PDF) prints the J11 pin table outright: pin 1/2 (+5.0V
+    #              on 2), then EX_IO1_kN on every ODD pin and EX_IO1_kP on
+    #              every EVEN pin for k = 1..17, so the 17th pair is pins
+    #              35/36 and its _N half is pin 35.
+    #              The ball is fixed by the vendor's own two J11 daughterboards:
+    #              SRC/06_3_an070_lcd_test/.../lcd_test.xdc ("AN070 LCD on
+    #              AX7101 J11") enumerates 32 balls that fill J11.3-J11.34
+    #              exactly, anchored at B22 = J11.3 by pll.xdc's "J11PIN3"
+    #              comment; and SRC/10_dual_ov5640_an5642_vga/.../
+    #              ddr3_ov5640_vga.xdc ("AN5642 on ax7101 J11") gives cmos1
+    #              SIXTEEN balls, fifteen of which are J11.20-J11.34 with no
+    #              gap, plus C17.  A sixteen-pin contiguous block ending at 34
+    #              can only continue at 35, and J11.19 is H19 in the LCD map,
+    #              so C17 is J11.35 and nothing else.
+    #
+    # IOSTANDARD.  LVCMOS33, for the same reason the TDM pins above are: J11 is
+    # entirely on banks 15/16, AC7100_CORE_SCH.pdf groups VCCO_13/14/15/16
+    # under +3.3V VCCIO, and the vendor constrains C17 itself as LVCMOS33 in
+    # four separate designs (cmos1_rst_n in the 10_/11_/19_/21_ camera builds).
+    #
+    # GROUND RETURN.  J11 pins 1, 37 and 38 ARE ground: sheet 10 of 11 draws a
+    # ground symbol on each (pin 1 is the ground half of the 1/2 power pair
+    # whose pin 2 is +5.0V).  They carry no net label in the PDF's text layer,
+    # which is why a grep of the extracted text finds nothing there and why an
+    # earlier revision of this comment wrongly called the claim unestablished;
+    # the drawing settles it.  J11 is a 20x2 header (HEADER 20x2/M on sheet 10)
+    # numbered in pairs, so pin 37 is the adjacent contact to pin 35 along the
+    # odd row, one pitch away and directly beside it - a short scope-probe
+    # ground return with no flying lead, which is why pin 35 was chosen.  Pin 36
+    # is NOT between them physically: it faces pin 35 across the two rows and is
+    # the PPS net's own differential partner (EX_IO1_17P to the signal's
+    # EX_IO1_17N), so keep the probe ground on pin 37, not pin 36.
+    #
+    # REQUESTED ONLY WHEN THE PPS IS BUILT (milan_soc --pps -> milan_datapath
+    # PPS_P).  An unrequested resource emits no constraint at all, which is how
+    # this stays parameter-gated: XDC executes no TCL control flow, so a
+    # constraint that is written and then guarded is a constraint that runs.
+    ("pps", 0, Pins("C17"), IOStandard("LVCMOS33")),   # J11.35
+
     # DDR3 — 512 MB (2× MT41J256M16, 32-bit). Parsed from the AX7101 MIG UCF (ddr3.ucf).
     ("ddram", 0,
         Subsignal("a", Pins("AA4 AB2 AA5 AB5 AB1 U3 W1 T1 V2 U2 Y1 W2 Y2 U1 V3"), IOStandard("SSTL15")),
