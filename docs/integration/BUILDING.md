@@ -388,6 +388,48 @@ UART:
 python3 scripts/baremetal_uart_smoke.py --port /dev/serial/by-id/<adapter>
 ```
 
+**The first cold boot after a `flash-pair` prints the LiteX BIOS banner
+twice.** That is expected, and it is the only boot that does it. How far the
+first pass gets varies, and nothing in the console output predicts it: captures
+show the pass cut off during the SDRAM bring-up before any memtest result, and
+also running clean through read leveling and the memtest to the Milan console
+before stopping. Either way the core then returns to its reset vector and
+re-runs the boot ROM. The invariant is the count and the outcome, not the
+point: exactly one restart, then a second pass that completes read leveling and
+the memtest, copies and CRC-checks the AEM, and reaches the Milan console, so
+the board is usable at the end of that first boot. Every cold boot after it,
+with no flash transaction in between, runs a single pass.
+
+The origin is a core reset with the fabric configuration retained, not a
+MultiBoot, `IPROG` or fallback reconfiguration. Establishing that takes the
+WHOLE of
+`BOOTSTS`, which is 16 bits in two groups: `status_0` (bits 7 down to 0) is the
+most recent configuration attempt, `status_1` (bits 15 down to 8) the previous
+one. `openFPGALoader --read-register BOOTSTS` prints a raw value line, then the
+eight `status_0` fields, then the eight `status_1` fields, each field name
+suffixed with its group number. Keep both groups: a capture holding `status_1`
+alone says nothing about the attempt that produced the second banner.
+
+A complete read taken before the flash transaction, and again once the double
+boot has settled, is identical across the event: raw value 0x1, which is
+`VALID` in `status_0` and nothing else set anywhere. So the most recent attempt
+is a single valid configuration with `IPROG` (internal reprogram) clear, normal
+configuration rather than fallback, and no CRC, watchdog, ID, wrap or HMAC
+error; `status_1` `VALID` is 0, no earlier attempt latched. `STAT` agrees,
+reporting `Done` 1 in startup state 4 with no decryption or ID error.
+`BOOTSTS` latches only the configuration logic's own re-entry paths: a MultiBoot
+`IPROG` attempt during the restart would have set `IPROG` in `status_0` and
+shifted the pre-flash configuration into `status_1`, and a fallback would show
+in `status_0`; an unmoved register rules out those re-entry reloads. It does not
+by itself exclude a supply dip or a `PROGRAM_B` reconfiguration, which reloads
+the fabric yet leaves `BOOTSTS` reading a fresh single configuration; the single
+core restart in the console, with the design running for minutes afterwards
+under the grader, is what argues against those. A fallback status or a set
+`IPROG` bit read after a first boot is a different fault, not this one.
+
+The UART smoke above is unaffected: it drives the console that the boot leaves
+behind, so the number of BIOS passes before that prompt is not its business.
+
 ### 4.1 Bench hosts and the one-DUT acceptance contract
 
 The physical acceptance of #110 and #117 runs one AX7101 DUT against the

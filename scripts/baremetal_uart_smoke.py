@@ -258,6 +258,12 @@ def main() -> int:
     A port that cannot be opened, a malformed reply and a timed-out one all
     exit 1 the same way a failed check does: for a post-flash smoke test,
     "the board did not answer" is a failure, not an error to be distinguished.
+
+    The first cold boot after a flash-pair prints the BIOS banner twice: one
+    documented core reset, with the fabric configuration retained
+    (docs/integration/BUILDING.md section 4). This test speaks only to the
+    console that boot leaves behind, so however many BIOS passes preceded the
+    prompt is deliberately none of its business.
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", help="UART device, for example /dev/ttyUSB0")
