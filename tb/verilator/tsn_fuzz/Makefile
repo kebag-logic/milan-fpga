@@ -73,15 +73,28 @@ VCOMMON = --cc --exe --build -j 0 \
 
 # ---- gPTP fabric slice (wrapper lives with the gptp_shadow TB) -------------
 # The same slice the datapath splice instantiates: KL_gptp_shadow (tap +
-# engine + lane) + the real timestamp_counter + KL_gptp_txstamp as the MAC
+# engine + lane + ledger) + the real timestamp_counter + KL_gptp_gmii_launch
+# on the wrapper's framed octet stream as the MAC
 # boundary. Bench scaling (2 MHz, cease resume 3 s) so the campaign's timer
 # waits stay affordable.
+#
+# THE WRAPPER IS SHARED, SO THIS LIST IS NOT FREE TO DIVERGE from the one in
+# ../gptp_shadow/Makefile: the two build the SAME top from the same file, and
+# a module the wrapper gains reaches this campaign whether or not the
+# campaign's own drivers exercise it. KL_link_guard arrived that way (#360
+# wired the wrapper's recovery demand through it) and this list did not
+# follow, so the cosim stopped building while the suite that owns the wrapper
+# stayed green. Keep the two in the same order; `diff` is then the review.
 GPTP_DIR  = ../../../gptp-processor
 PTP_SRCS = ../gptp_shadow/gptp_shadow_wrap.sv \
             $(RTL)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
             $(RTL)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \
-            $(RTL)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
-           $(RTL)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv \
+            $(RTL)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
+           $(RTL)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
+           $(RTL)/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv \
+           $(RTL)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+           $(RTL)/common/KL_link_guard.sv \
+           $(RTL)/common/cdc_pulse.sv $(RTL)/common/cdc_handshake.sv \
            $(TP)/verilog-axis/rtl/axis_fifo.v \
            $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \
            $(GPTP_DIR)/hdl/ucpu/KL_gptp_ucpu.sv \

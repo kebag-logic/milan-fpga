@@ -35,7 +35,7 @@ Simulation never becomes physical evidence.
 |---|---|---|---|---|---|
 | AS-1 | 8.2 | Adjustable nanosecond PHC | `timestamp_counter` | `ptp` | Covered |
 | AS-2 | Annex B.1 | Accurate adjustable local clock | PHC and board clock | `ptp`; board records | Partial |
-| AS-3 | 8.4.3 | Correct timestamp reference planes | `KL_gptp_shadow`; `KL_gptp_txstamp` | `gptp_shadow` | Covered |
+| AS-3 | 8.4.3 | Correct timestamp reference planes | `KL_gptp_shadow`; `KL_gptp_gmii_launch`; `KL_gptp_txret` | `gptp_txts`; `gptp_shadow` | Covered, digitally: the egress reference is the frame's launch one register stage before the pads, graded against an independent pad oracle over the product's own converted MAC (#360). The remaining offset to the pad itself is AS-4 |
 | AS-4 | 8.4.3 | Per-unit latency calibration | Issue #64 | No complete procedure | Missing |
 | AS-5 | 11.3 | Timestamp event messages only | Engine parser and timestamp paths | Donor; `gptp_shadow` | Covered |
 | AS-6 | 10.2–10.3 | Best-master selection | Imported engine | Donor; `tsn_fuzz` | Partial |
@@ -48,7 +48,7 @@ Simulation never becomes physical evidence.
 
 The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
 
-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/SOURCE_EVIDENCE.md) maps internals.
+The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/SOURCE_EVIDENCE.md) maps internals.
 
 ## Requirement mapping
 

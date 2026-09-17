@@ -21,6 +21,14 @@
 #      (rx_axis_*/tx_axis_* members, [sm]_axis_* boundary
 #      lanes) must be an INPUT of that module - reads only, never drives.
 #      The bindings-checked count is printed so a vacuous pass is visible.
+#   3. the same two rules at the MAC site (#360): the gPTP launch observer
+#      watches the MAC's own transmit stream, one register stage before the
+#      GMII pads, so its wiring file is sw/litex/milan_soc.py and its
+#      observed nets are that PHY endpoint's members rather than AXIS ones.
+#      Its Migen bindings are read with the direction the instantiator
+#      claims AND the direction its SV header declares, and a drive needs
+#      only one of the two to say so. Its own bindings-checked count is
+#      printed for the same anti-vacuity reason.
 #
 # A negative SELF-TEST runs first on a deliberately-broken fixture; if the
 # checker fails to flag it, the checker itself is declared broken (exit 3).
@@ -41,6 +49,12 @@
 set -euo pipefail
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 DP="$R/hdl/milan/milan_datapath.sv"
+# The second wiring file. Not every observer hangs off the datapath: the gPTP
+# launch observer watches the MAC's OWN transmit stream, so its site is the
+# LiteX MAC wrapper and its instantiation is a Migen `Instance(...)`, not an
+# SV instantiation (#360). A gate that only ever parsed milan_datapath.sv
+# would report PASS on that observer while never having read its site.
+SOC="$R/sw/litex/milan_soc.py"
 
 # PURE observers: telemetry-only modules - both checks apply. The *_tap_bank.sv
 # glob is load-bearing: the LTAP adapter Rule 1 cut out of milan_datapath is
@@ -65,21 +79,47 @@ READER_FILES=(
     # rx_axis as a monitor tap and owns its own TX lane, so it must never
     # appear on the drive side of an observed stream net.
     "$R/hdl/milan/KL_pp_shadow.sv"
-    # The gPTP plane's two observers (#114): the shadow taps rx_axis_fabric
-    # and owns its own TX lane; the boundary stamper watches tx_axis_to_mac
-    # and must never drive it. Listing them is what makes GPTP_PLANE.md's
+    # The gPTP plane's fabric observer (#114): the shadow taps rx_axis_fabric
+    # and owns its own TX lane. Listing it is what makes GPTP_PLANE.md's
     # "check_tap_purity holds" claim NON-vacuous.
+    #
+    # THE BOUNDARY STAMPER USED TO BE LISTED HERE and was deleted with its
+    # module (#360). It watched tx_axis_to_mac, which is the datapath's MAC
+    # boundary - upstream of the queueing this issue is about - so the
+    # observation moved to the MAC's own transmit stream. Its replacement,
+    # KL_gptp_gmii_launch, does not appear on this list because its site is
+    # not milan_datapath.sv; it is covered by LITEX_PURE_FILES below. A
+    # retired path left here is not a harmless leftover: run_checks reports a
+    # missing tap source as a violation, which is how this entry was found.
     "$R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
-    "$R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
+)
+
+# PURE observers wired in the LiteX MAC rather than in milan_datapath.sv.
+# Both checks apply, against $SOC as the wiring file: the module-level rule
+# reads the SV header exactly as above, and the site-level rule reads the
+# Migen binding prefixes, which carry the direction the same way `.port(net)`
+# plus the header does.
+LITEX_PURE_FILES=(
+    # #360's launch observer. It declares itself a PURE OBSERVER over
+    # `phy.sink`, the source feeding the PHY's transmit register stage, and
+    # this is where that claim is held: it may read those octets and must
+    # never appear on their drive side.
+    "$R/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv"
 )
 
 STREAM_TERM='t(valid|ready|data|keep|last|user)'
 # nets a tap may READ but never DRIVE (datapath interface members + flat
 # boundary lanes of milan_datapath)
 STREAM_NET_RE='((rx_axis_from_mac|rx_axis_fabric|tx_axis_to_mac)\.t(valid|ready|data|keep|last|user)|[sm]_axis_[a-z_]*t(valid|ready|data|keep|last|user))'
+# The MAC-side equivalent: the PHY-facing stream endpoints of the LiteEth PHY
+# the launch observer watches. Migen names them as attribute paths, so the
+# member set is the LiteEth endpoint's (valid/ready/data/last/first/error),
+# not the AXIS spelling.
+GMII_NET_RE='phy\.(sink|source)\.(valid|ready|data|last|first|error)'
 
 n_bind=0    # stream-net bindings actually resolved (anti-vacuity witness)
 n_rx_fabric=0 # bindings on the live post-filter fabric-observer seam
+n_gmii=0    # bindings resolved on the MAC's own transmit stream (#360)
 
 # ---- helpers ---------------------------------------------------------------
 # port_dirs FILE -> lines "dir name" for every ANSI header port in the file
@@ -122,10 +162,39 @@ inst_bindings() {
            | sed -E 's/^\.([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*\((.*)\)$/\1|\2/'
 }
 
-# run_checks MODE(pure|reader) WIRING_FILE FILE... -> prints violations, returns count
+# migen_bindings WIRING_FILE MODULE -> lines "port|expr" for each i_/o_ keyword
+# argument of every `Instance("MODULE", ...)` in a Migen wiring file.
+#
+# THE PREFIX IS NOT THE ANSWER, only a second opinion. Migen's `i_`/`o_` says
+# which way the instantiator believes the port goes; the module header says
+# which way it actually goes, and a drive needs BOTH to agree. So the prefix
+# is stripped here and the port name handed on exactly as the SV parser hands
+# its own on - the direction verdict below comes from port_dirs either way -
+# and a prefix that DISAGREES with the header is reported separately, because
+# `o_gmii_tvalid_i = phy.sink.valid` is a drive whatever the header says.
+migen_bindings() {
+    sed -e 's:#.*$::' "$1" | awk -v mod="$2" '
+        BEGIN { on = 0; depth = 0 }
+        {
+            if (!on && match($0, "Instance\\([ \t]*\"" mod "\"")) { on = 1 }
+            if (on) {
+                # the Instance call ends at the line whose running paren
+                # balance returns to zero, so a nested ClockSignal() or a
+                # ~ResetSignal() argument cannot close it early
+                line = $0
+                n = gsub(/\(/, "(", line); depth += n
+                n = gsub(/\)/, ")", line); depth -= n
+                print $0
+                if (depth <= 0) { on = 0; depth = 0 }
+            }
+        }' | grep -oE '(^|[^A-Za-z0-9_])[io]_[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=[^,]*' \
+           | sed -E 's/^[^A-Za-z0-9_]*([io])_([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*(.*)$/\1|\2|\3/'
+}
+
+# run_checks MODE(pure|reader|litex) WIRING_FILE FILE... -> prints violations, returns count
 run_checks() {
     local mode="$1" wiring="$2"; shift 2
-    local viol=0 f m dirs dir name port expr m_bind
+    local viol=0 f m dirs dir name port expr m_bind site_bindings site_net_re claim
     for f in "$@"; do
         [ -r "$f" ] || { echo "  [ERROR] missing tap source $f"; viol=$((viol+1)); continue; }
         # An empty parse is a FINDING below, not a reason to stop: the awk
@@ -135,7 +204,7 @@ run_checks() {
         [ -n "$dirs" ] || { echo "  [ERROR] no ports parsed from $f (header drifted?)"; viol=$((viol+1)); continue; }
         for m in $(module_names "$f"); do  # shellcheck disable=SC2086 - deliberate split: one word per module name declared in the file
             m_bind=0
-            if [ "$mode" = "pure" ]; then
+            if [ "$mode" = "pure" ] || [ "$mode" = "litex" ]; then
                 # 1) module level: no stream-handshake-named OUTPUT
                 while read -r dir name; do
                     [ "$dir" = "output" ] || continue
@@ -145,14 +214,34 @@ run_checks() {
                     fi
                 done <<< "$dirs"
             fi
-            # 2) site level: observed stream nets land on INPUT ports only
+            # 2) site level: observed stream nets land on INPUT ports only.
+            # The two site parsers hand back the same "port|expr" shape, so
+            # the verdict below is one rule with two front ends; `litex`
+            # prefixes a third field, the instantiator's own claimed
+            # direction.
+            if [ "$mode" = "litex" ]; then
+                site_bindings="$(migen_bindings "$wiring" "$m")" || site_bindings=""
+                site_net_re="$GMII_NET_RE"
+            else
+                site_bindings="$(inst_bindings "$wiring" "$m")" || site_bindings=""
+                site_net_re="$STREAM_NET_RE"
+            fi
             while IFS='|' read -r port expr; do
+                claim=""
+                if [ "$mode" = "litex" ]; then
+                    claim="$port"; port="${expr%%|*}"; expr="${expr#*|}"
+                fi
                 [ -n "$port" ] || continue
-                echo "$expr" | grep -qE "$STREAM_NET_RE" || continue
+                echo "$expr" | grep -qE "$site_net_re" || continue
                 n_bind=$((n_bind+1))
                 m_bind=$((m_bind+1))
                 if echo "$expr" | grep -qE 'rx_axis_fabric\.'; then
                     n_rx_fabric=$((n_rx_fabric+1))
+                fi
+                [ "$mode" != "litex" ] || n_gmii=$((n_gmii+1))
+                if [ "$claim" = "o" ]; then
+                    echo "  [VIOLATION] $m.$port: instantiated as an OUTPUT onto observed stream '$(echo "$expr" | tr -s ' ')'"
+                    viol=$((viol+1))
                 fi
                 dir="$(echo "$dirs" | awk -v p="$port" '$2 == p { print $1; exit }')"
                 if [ -z "$dir" ]; then
@@ -162,9 +251,9 @@ run_checks() {
                     echo "  [VIOLATION] $m.$port ($dir) drives stream net '$(echo "$expr" | tr -s ' ')'"
                     viol=$((viol+1))
                 fi
-            done < <(inst_bindings "$wiring" "$m")
-            if [ "$mode" = "reader" ] && [ "$m_bind" -eq 0 ]; then
-                echo "  [VIOLATION] $m: no observed-stream binding resolved at its datapath site"
+            done <<< "$site_bindings"
+            if [ "$mode" != "pure" ] && [ "$m_bind" -eq 0 ]; then
+                echo "  [VIOLATION] $m: no observed-stream binding resolved at its $([ "$mode" = litex ] && echo MAC || echo datapath) site"
                 viol=$((viol+1))
             fi
         done
@@ -211,26 +300,71 @@ EOF
         echo "TAP-PURITY RESULT: CHECKER-BROKEN"
         exit 3
     fi
+
+    # The SECOND front end gets its own broken fixture. The Migen site parser
+    # is new code on the same rule (#360), and a site parser that silently
+    # matches nothing reports PASS forever; this fixture plants both halves of
+    # the mistake it exists to catch - a port turned OUTPUT in the header, and
+    # an `o_` binding onto the observed stream - so a parse that goes blind
+    # fails here rather than in the tree.
+    cat > "$TMP/bad_launch_obs.sv" <<'EOF'
+module bad_launch_obs (
+  input  wire       eth_clk_i,
+  output wire       gmii_tvalid_x,
+  input  wire [7:0] gmii_tdata_i,
+  output wire       rec_valid_o
+);
+endmodule
+EOF
+    cat > "$TMP/fixture_soc.py" <<'EOF'
+self.specials += Instance("bad_launch_obs",
+    i_eth_clk_i     = ClockSignal("maceth_tx"),
+    o_gmii_tvalid_x = self.phy.sink.valid,
+    i_gmii_tdata_i  = self.phy.sink.data,
+    o_rec_valid_o   = self.gptp_txrec_valid,
+)
+EOF
+    self_n=0
+    self_out="$(run_checks litex "$TMP/fixture_soc.py" "$TMP/bad_launch_obs.sv")" \
+        || self_n=$?
+    # three: the stream-named OUTPUT, the `o_` claim on an observed net, and
+    # the header direction behind it
+    if [ "$self_n" -ge 3 ]; then
+        echo "  negative self-test: checker flags the broken MAC-site fixture ($self_n violations) - OK"
+    else
+        echo "  negative self-test FAILED: broken MAC-site fixture produced only $self_n finding(s):"
+        echo "$self_out"
+        echo "TAP-PURITY RESULT: CHECKER-BROKEN"
+        exit 3
+    fi
 }
 
 # ---- the real tree ----------------------------------------------------------
 check_tree() {
     [ -r "$DP" ] || { echo "  missing $DP"; exit 2; }
+    [ -r "$SOC" ] || { echo "  missing $SOC"; exit 2; }
     # in-shell runs (redirects, no subshell) so the n_bind witness accumulates
     n_bind=0
     n_rx_fabric=0
+    n_gmii=0
     viol=0
-    rc=0; run_checks pure   "$DP" "${PURE_FILES[@]}"   > "$TMP/pure.log"   || rc=$?; viol=$((viol+rc))
-    rc=0; run_checks reader "$DP" "${READER_FILES[@]}" > "$TMP/reader.log" || rc=$?; viol=$((viol+rc))
-    cat "$TMP/pure.log" "$TMP/reader.log" | grep -v '^$' || true
+    rc=0; run_checks pure   "$DP"  "${PURE_FILES[@]}"       > "$TMP/pure.log"   || rc=$?; viol=$((viol+rc))
+    rc=0; run_checks reader "$DP"  "${READER_FILES[@]}"     > "$TMP/reader.log" || rc=$?; viol=$((viol+rc))
+    rc=0; run_checks litex  "$SOC" "${LITEX_PURE_FILES[@]}" > "$TMP/litex.log"  || rc=$?; viol=$((viol+rc))
+    cat "$TMP/pure.log" "$TMP/reader.log" "$TMP/litex.log" | grep -v '^$' || true
     echo "--------------------------------------------------------------"
-    echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   stream-net bindings checked: $n_bind (rx_axis_fabric: $n_rx_fabric)   violations: $viol"
+    echo "pure observers: ${#PURE_FILES[@]} file(s)   tap readers: ${#READER_FILES[@]} file(s)   MAC-site observers: ${#LITEX_PURE_FILES[@]} file(s)"
+    echo "stream-net bindings checked: $n_bind (rx_axis_fabric: $n_rx_fabric, MAC transmit stream: $n_gmii)   violations: $viol"
     if [ "$n_bind" -eq 0 ]; then
         echo "  [ERROR] zero stream-net bindings resolved - the wiring parse went vacuous"
         viol=$((viol+1))
     fi
     if [ "$n_rx_fabric" -eq 0 ]; then
         echo "  [ERROR] zero bindings resolved on the live rx_axis_fabric observer seam"
+        viol=$((viol+1))
+    fi
+    if [ "$n_gmii" -eq 0 ]; then
+        echo "  [ERROR] zero bindings resolved on the MAC's own transmit stream - the Migen site parse went vacuous"
         viol=$((viol+1))
     fi
     echo "TAP-PURITY RESULT: $([ "$viol" -eq 0 ] && echo PASS || echo FAIL)"

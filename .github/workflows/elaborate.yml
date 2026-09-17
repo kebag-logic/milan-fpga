@@ -50,6 +50,22 @@ concurrency:
   group: elaborate-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # The same pin rtl.yml carries, under the same cache key, so the two
+  # workflows share one build rather than each keeping its own.
+  #
+  # WHY A VERILATOR LIVES IN THE ELABORATION JOB. One member of the LiteX
+  # simulation aggregate below - test_gptp_tx_timestamp (#360) - drives one
+  # stimulus through the CONVERTED MAC transmit chain and through the migen
+  # objects it was converted from, and requires the two pad traces to agree.
+  # The converted half is a Verilator build and the source half needs the
+  # pinned LiteX stack, so the comparison needs BOTH tools in one job. This
+  # is the only job in the tree that carries that stack. Without Verilator
+  # here the member declares a skip, the aggregate says INCOMPLETE, and the
+  # claim that the closed loop contains the product's own MAC goes unchecked
+  # in CI - which is exactly what it did until this step arrived.
+  VERILATOR_VERSION: v5.050
+
 jobs:
   elaborate:
     runs-on: ubuntu-latest
@@ -229,14 +245,51 @@ jobs:
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: python3 sw/builder/test_builder.py --require-elaboration
 
+      # Verilator for the converted-versus-source MAC comparison in the
+      # aggregate below (see the VERILATOR_VERSION comment at the top of this
+      # file). Cache key, build recipe and version proof are rtl.yml's, so
+      # the two workflows restore one artifact and neither can drift onto a
+      # Verilator the other never validated.
+      - name: Cache the pinned Verilator build
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$(nproc)"
+          sudo make install
+
+      - name: Put Verilator on PATH and prove the version
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+
       # The standalone LiteX simulations, under their one owned aggregate
       # (#297): a pinned inventory reconciled against sw/litex/ in both
       # directions, so a deleted test cannot vanish silently and a new one
       # cannot arrive unlisted. The selftest runs first - it plants a failing
-      # simulation, a masked verdict, a missing member and an unlisted extra
-      # in a sandbox and requires red each time - so the aggregate cannot rot
-      # into a green that proves nothing. This step needs exactly the
-      # interpreter the two steps above already installed and patched.
+      # simulation, a masked verdict, a missing member, an unlisted extra and
+      # a member-declared skip in a sandbox and requires the verdict each
+      # time - so the aggregate cannot rot into a green that proves nothing.
+      # This step needs exactly the interpreter the steps above installed and
+      # patched, and the Verilator the three steps above put on PATH.
       - name: Standalone LiteX simulation aggregate
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |

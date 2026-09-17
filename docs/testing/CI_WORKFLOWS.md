@@ -866,16 +866,30 @@ their mutation arms. Upstream LiteX elaborates no configuration in this tree
 (#185), so the series is a required install step and gate 23h proves the
 installed trees are upstream plus exactly that series.
 
-After those gates the same job runs `scripts/run_litex_sims.sh`, the one
-aggregate that owns the standalone LiteX simulations in `sw/litex/` (#297):
-its inventory is pinned in the runner and reconciled against the directory in
-both directions, so a deleted test cannot vanish silently and an unlisted new
-one is a red run, and its `--selftest` executes first - it plants a failing
-simulation, a masked verdict, a missing member and an unlisted extra in a
-sandbox and requires red each time. The aggregate reuses the interpreter this
-job just installed and patched; locally the same command runs against any
+After those gates the same job installs Verilator and runs
+`scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
+simulations in `sw/litex/` (#297): its inventory is pinned in the runner and
+reconciled against the directory in both directions, so a deleted test cannot
+vanish silently and an unlisted new one is a red run, and its `--selftest`
+executes first - it plants a failing simulation, a masked verdict, a missing
+member, an unlisted extra and a member-declared skip in a sandbox and
+requires the verdict each time. The aggregate reuses the interpreter this job
+just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
 (exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
+
+The Verilator is there for one member. `test_gptp_tx_timestamp` (#360) drives
+one stimulus through the CONVERTED MAC transmit chain and through the migen
+objects it was converted from, and requires the two pad traces to agree; the
+converted half is a Verilator build and the source half needs the pinned
+LiteX stack, so the comparison needs both tools in one job and this is the
+only job in the tree that carries the stack. Its cache key, build recipe and
+version proof are the ones `rtl.yml` uses, so the two workflows restore one
+artifact and `scripts/ci_events.py --check` refuses a `VERILATOR_VERSION`
+that has drifted in any of the three files that name it. On a host without
+Verilator the member declares a skip (`RESULT: SKIP`, counted skipped, never
+failed) and the aggregate reports INCOMPLETE rather than a green that would
+claim a comparison nobody ran.
 
 `actions/checkout` does not populate submodules. Both this job and the hosted
 `docs-check` job run the full builder, whose source gates consume

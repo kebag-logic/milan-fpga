@@ -661,8 +661,8 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 
 Both reset to 0 = uncorrected, and both were the register half of REQ-PTP-06
 for the record stampers the retired target consumed. The fabric gPTP plane stamps
-its own frames (`KL_gptp_txstamp` at the MAC boundary, `KL_gptp_shadow` off the
-RX tap) and does not read these words; its reference-plane offset is #117's
+its own frames (`KL_gptp_gmii_launch` at the MAC's own transmit stream since
+#360, `KL_gptp_shadow` off the RX tap) and does not read these words; its reference-plane offset is #117's
 physical measurement, not a CSR constant (gh #64: the ingress/egress SPLIT was
 never measured, only their sum).
 
@@ -1328,7 +1328,7 @@ parameter gate itself, never a floating count, and every write is discarded.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x7E8` | `GPTP_DROPW` | RO live / W inert | `0` | `[31:16]` tap-FIFO drop count, `[15:0]` parser refusal count; both 16-bit wrapping; option OFF reads zero. |
-| `0x7EC` | `GPTP_DROPE` | RO live / W inert | `0` | `[15:0]` events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context; 16-bit wrapping, zero-extended; option OFF reads zero. |
+| `0x7EC` | `GPTP_DROPE` | RO live / W inert | `0` | `[31:16]` `GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one. `[15:0]` events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context. Both 16-bit wrapping; option OFF reads zero. |
 
 ### 0x800  -  Indexed per-stream window
 

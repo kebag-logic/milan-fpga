@@ -7756,15 +7756,21 @@ def test_baremetal_profile_contract() -> None:
                 "gptp_step_we_w": 5,
                 "gptp_step_w": 4,
                 #: the ptp_sync -> ts_counter crossing nets (915cbcc3):
-                #: declaration plus the two instance ports, nothing else.
-                "phc_enable_ts_w": 3,
-                "phc_incr_ts_w": 3,
-                "phc_adj_ts_w": 3,
+                #: declaration plus the two instance ports. Five of them
+                #: gained ONE more reference in #360 - the gPTP plane's
+                #: egress reconstruction reads the counter's own effective
+                #: enable, increment, addend, settime and adjtime, because
+                #: those are the only signals that say what the accumulator
+                #: actually did. They are READS: the plane drives none of
+                #: them, and this census is what keeps it that way.
+                "phc_enable_ts_w": 4,
+                "phc_incr_ts_w": 4,
+                "phc_adj_ts_w": 4,
                 "phc_tod_wr_ts_w": 3,
                 "phc_offset_ts_w": 3,
                 "phc_tod_snap_ts_w": 3,
-                "phc_load_ts_w": 3,
-                "phc_adjust_ts_w": 3,
+                "phc_load_ts_w": 4,
+                "phc_adjust_ts_w": 4,
                 "phc_snapshot_ts_w": 3,
                 "phc_tod_snap_valid_ts_w": 3,
             }, phc_net_reason)
@@ -7969,9 +7975,11 @@ def test_baremetal_profile_contract() -> None:
         for port, value in (
                 ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
                 #: 915cbcc3: the plane's ingress tap moved from the departed
-                #: post-filter hop to the shared fabric tap; the TX
-                #: timestamp channel gained its message-type rail
-                #: (txts_type_i/gts_type_w) in d6d2195c.
+                #: post-filter hop to the shared fabric tap. #360 replaced
+                #: the boundary stamper's txts_* channel with the launch
+                #: RECORD face: the observer lives beside the MAC in the
+                #: SoC, so the datapath's job is to carry its records in
+                #: and its seal out, unconditionally.
                 ("rx_tdata_i", "rx_axis_fabric.tdata"),
                 ("rx_tkeep_i", "rx_axis_fabric.tkeep"),
                 ("rx_tvalid_i", "rx_axis_fabric.tvalid"),
@@ -7981,11 +7989,17 @@ def test_baremetal_profile_contract() -> None:
                 ("phc_adj_o", "gptp_adj_w"),
                 ("phc_step_we_o", "gptp_step_we_w"),
                 ("phc_step_o", "gptp_step_w"),
-                ("txts_valid_i", "gts_valid_w"),
-                ("txts_ns_i", "gts_ns_w"),
-                ("txts_seq_i", "gts_seq_w"),
-                ("txts_type_i", "gts_type_w"),
-                ("tx_sent_o", "gtx_sent_w")):
+                ("rec_valid_i", "i_gptp_txrec_valid"),
+                ("rec_kind_i", "i_gptp_txrec_kind"),
+                ("rec_oidx_i", "i_gptp_txrec_oidx"),
+                ("rec_gen_i", "i_gptp_txrec_gen"),
+                ("rec_type_i", "i_gptp_txrec_type"),
+                ("rec_seq_i", "i_gptp_txrec_seq"),
+                ("rec_delta_i", "i_gptp_txrec_delta"),
+                ("rec_abort_i", "i_gptp_txrec_abort"),
+                ("seal_req_o", "o_gptp_txseal_req"),
+                ("seal_gen_o", "o_gptp_txseal_gen"),
+                ("seal_ack_i", "i_gptp_txseal_ack")):
             direct_port(
                 shadow_ports, port, value,
                 "fabric gPTP RX and control inputs must observe the live "
@@ -8022,25 +8036,49 @@ def test_baremetal_profile_contract() -> None:
                 "fabric gPTP TX must traverse gptp_ctl_mux directly, "
                 "independent of AEM, ADP and protocol-processor gates")
 
-        txstamp_reason = (
-            "fabric gPTP TX timestamp feedback must remain direct and "
-            "independent of AEM, ADP and protocol-processor gates")
-        txstamp_ports = instance_ports(
-            gptp_plane.group("body"), "KL_gptp_txstamp", "u_gptp_txstamp",
-            txstamp_reason)
+        #: #360 RECOVERY CONTROL. The plane may only resolve the entries it
+        #: fenced off once a recovery episode it asked for has actually been
+        #: accepted and sequenced to completion. That verdict is the guard's
+        #: own, published on three dedicated signals; the two reset LEVELS
+        #: cannot give it, because `reinit_o` also carries the firmware's
+        #: manual hand and a disable drops both outputs at once without
+        #: completing anything. A build that fed the plane the levels alone,
+        #: or tied the episode evidence off, would release timestamps whose
+        #: frames were never destroyed - so the wiring is a gate, not a
+        #: convention.
+        recov_reason = (
+            "fabric gPTP recovery control must observe the link guard's own "
+            "episode evidence and join its existing manual trigger")
         for port, value in (
-                ("clk_i", "axis_clk"), ("rst_n", "axis_resetn"),
-                ("tx_tdata_i", "tx_axis_to_mac.tdata"),
-                ("tx_tvalid_i", "tx_axis_to_mac.tvalid"),
-                ("tx_tready_i", "tx_axis_to_mac.tready"),
-                ("tx_tlast_i", "tx_axis_to_mac.tlast"),
-                ("phc_ns_i", "ptp_now_w"),
-                ("armed_i", "gtx_sent_w"),
-                ("ts_valid_o", "gts_valid_w"),
-                ("ts_ns_o", "gts_ns_w"),
-                ("ts_seq_o", "gts_seq_w"),
-                ("ts_type_o", "gts_type_w")):
-            direct_port(txstamp_ports, port, value, txstamp_reason)
+                ("mac_reinit_i", "linkg_reinit_w"),
+                ("mac_eth_rst_i", "linkg_eth_rst_w"),
+                ("epi_start_i", "linkg_epi_start_w"),
+                ("epi_done_i", "linkg_epi_done_w"),
+                ("epi_busy_i", "linkg_epi_busy_w"),
+                ("epi_dis_i", "cfg_linkg_dis"),
+                ("recov_req_o", "gptp_recov_req_w")):
+            direct_port(shadow_ports, port, value, recov_reason)
+        #: the guard takes no parameter override, so its instance is matched
+        #: on its own shape rather than through the parameterised helper
+        guard_match = list(re.finditer(
+            r"\bKL_link_guard\s+link_guard\s*\((?P<ports>.*?)\)\s*;",
+            datapath, re.DOTALL))
+        assert len(guard_match) == 1, \
+            f"{recov_reason}: expected exactly one KL_link_guard instance"
+        assert_direct_scope(datapath, guard_match[0].start(), recov_reason)
+        guard_ports = guard_match[0].group("ports")
+        for port, value in (
+                ("epi_start_o", "linkg_epi_start_w"),
+                ("epi_done_o", "linkg_epi_done_w"),
+                ("epi_busy_o", "linkg_epi_busy_w")):
+            direct_port(guard_ports, port, value, recov_reason)
+        #: ONE trigger, two requesters. The plane's request joins the
+        #: firmware's LINK_CTRL[1] on the guard's existing manual input; no
+        #: reset source, net or topology is added. A build that gave the
+        #: plane its own reset path, or dropped it from this OR, is refused.
+        direct_port(
+            guard_ports, "man_reinit_i", "cfg_mac_reinit | gptp_recov_req_w",
+            recov_reason)
 
         boundary_ports = instance_ports(
             datapath, "adp_tx_arbiter", "adp_tx_mux",
@@ -12343,6 +12381,159 @@ def test_gptp_product_default_and_legacy_option() -> None:
                 f"build.sh {name}: no --fabric-gptp on its launch line"
             assert "--no-fabric-gptp" not in argv
     print("  [gate 1c] fabric ownership is the only product configuration")
+
+
+#: The RTL sources the SoC synthesises in which the gPTP EtherType may
+#: appear at all: the package that names it once, the plane that emits it,
+#: and the observer that attributes a frame by it. Anywhere else in this
+#: source set a 0x88F7 is a second emitter or a second attribution rule.
+GPTP_ETHERTYPE_OWNERS = frozenset((
+    #: names it, once
+    "hdl/common/ethernet_packet_pkg.sv",
+    #: emits it: the plane builds the frame header
+    "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+    #: attributes a launched frame by it, at the MAC's transmit stream
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+    #: attributes a RECEIVED frame by it, inside the donor engine - the
+    #: ingress half of the same rule, and no part of the egress path
+    "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+))
+
+
+def test_gptp_launch_observer_seam() -> None:
+    """Gate 1d: the egress launch observer sits on the MAC's own transmit
+    stream, in the MAC's own domain, and nothing else emits or buffers a
+    gPTP frame behind it (issue #360).
+
+    WHY EACH ARM IS HERE. The plane's t1 is now the instant a frame was
+    LAUNCHED, and it learns that instant from this observer alone. Four
+    things about the wiring make that timestamp mean what it says, and each
+    of them is invisible in a build that got it wrong:
+
+      * THE SEAM. The observer must read `self.phy.sink` - the stream the
+        PHY's transmit register stage consumes - and no other. Moved one
+        stage earlier it times a queue again, which is the defect; moved to
+        the pads it would need a second load on nets that are pad-locked.
+      * THE DOMAIN. It must run in `maceth_tx`, whose reset is the one that
+        clears the LiteEth transmit side and the PHY stage, or "the observer
+        was reset with the frames it was watching" stops being true and the
+        ledger's generation cannot mean what it means.
+      * ONE EMITTER, ONE BUFFER. Exactly one thing may put a gPTP frame on
+        this path and exactly one thing may write the store-and-forward
+        FIFO, or a second producer's frames take positions in the observer's
+        ordered record stream that the plane's ledger never allocated.
+      * THE TIE-OFFS. A build with no MAC, and the verification-only
+        option-off build, must tie the record face to ZERO rather than
+        manufacture records: a plane that receives none delivers no
+        timestamp and says so through its counters, which is the honest
+        answer and the one `GPTP_TXTS_LOST` publishes.
+    """
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    _gptp_observer_reads_the_mac_stream(soc)
+    _gptp_one_emitter_one_buffer_one_clock(soc)
+    _gptp_record_face_is_tied_off_without_an_observer(soc)
+    print("  [gate 1d] the launch observer reads the MAC's own transmit "
+          "stream in the MAC's own domain; one gPTP emitter, one "
+          "store-and-forward writer, one fabric clock, and both record "
+          "faces tied off where there is no observer")
+
+
+def _gptp_observer_reads_the_mac_stream(soc):
+    """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
+    instances = re.findall(
+        r"Instance\(\s*\"KL_gptp_gmii_launch\"(?P<ports>.*?)\n\s*\)\n",
+        soc, re.DOTALL)
+    assert len(instances) == 1, \
+        "gate 1d: the SoC must instantiate exactly one launch observer, " \
+        f"found {len(instances)}"
+    ports = instances[0]
+    for port, value in (
+            ("i_eth_clk_i", 'ClockSignal("maceth_tx")'),
+            ("i_eth_rst_n", '~ResetSignal("maceth_tx")'),
+            ("i_gmii_tvalid_i", "self.phy.sink.valid"),
+            ("i_gmii_tdata_i", "self.phy.sink.data"),
+            ("i_dp_clk_i", "ClockSignal(milan_cd)"),
+            ("i_dp_rst_n", "~ResetSignal(milan_cd)")):
+        assert re.search(rf"{re.escape(port)}\s*=\s*{re.escape(value)}\s*,",
+                         ports), \
+            f"gate 1d: the launch observer's {port} must be {value}"
+    #: the observation is the ONLY thing it does with that stream: a driven
+    #: `phy.sink` from this instance would make the observer part of the
+    #: path it is timing
+    assert "o_gmii_" not in ports, \
+        "gate 1d: the launch observer may not drive the stream it observes"
+    #: ...and the stream it reads is read, never written, by the MAC around
+    #: it: `phy.sink` is connected by `core.source.connect(phy.sink)` inside
+    #: LiteEth and appears here only as this observation
+    seam_uses = re.findall(r"self\.phy\.sink\.\w+", soc)
+    assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.valid"], \
+        ("gate 1d: the MAC's `phy.sink` is touched somewhere other than the "
+         f"launch observation: {sorted(seam_uses)}")
+
+
+def _gptp_one_emitter_one_buffer_one_clock(soc):
+    """Nothing else may put a gPTP frame, or any frame, behind that seam."""
+    #: ONE WRITER of the store-and-forward FIFO. The two `sink.valid`
+    #: assignments are the loopback mux's two arms, which is one writer with
+    #: two states, and the rest are the boundary fields.
+    writers = sorted(set(re.findall(r"self\.tx_sf\.sink\.(\w+)", soc)))
+    assert writers == ["data", "last", "last_be", "ready", "valid"], \
+        f"gate 1d: the store-and-forward FIFO has other writers: {writers}"
+
+    #: the datapath's two clock inputs are ONE net. The launch observer's
+    #: crossing lands in `milan_cd` and the plane's PHC runs on `gtx_clk`;
+    #: the reconstruction subtracts whole ticks of one period, so a build
+    #: that drove them from two oscillators would be subtracting the wrong
+    #: one.
+    dp_clocks = re.findall(r"i_(axis_clk|gtx_clk)\s*=\s*([^,]+),", soc)
+    assert len(dp_clocks) == 2 and dp_clocks[0][1] == dp_clocks[1][1], \
+        f"gate 1d: axis_clk and gtx_clk must be one net, got {dp_clocks}"
+
+    #: ONE EMITTER of the gPTP EtherType across the synthesised source set,
+    #: read the way Python reads the SoC's own list rather than by a regex
+    #: over its text, so a commented-out row is not a row.
+    import check_soc_sources
+    sources, _derived, why = check_soc_sources.vivado_sources()
+    assert sources is not None, f"gate 1d: the SoC source list: {why}"
+    #: the literal form only: a comment saying "0x88F7" is prose, while
+    #: `'h88F7` is a constant this build puts on a wire
+    emitters = []
+    for rel in sources:
+        path = ROOT / rel
+        if not path.is_file():
+            continue
+        if re.search(r"'h88F7", path.read_text(), re.IGNORECASE) \
+                and rel not in GPTP_ETHERTYPE_OWNERS:
+            emitters.append(rel)
+    assert not emitters, \
+        ("gate 1d: the gPTP EtherType appears in a source that neither names "
+         f"it, emits it, nor attributes a frame by it: {emitters}")
+
+
+def _gptp_record_face_is_tied_off_without_an_observer(soc):
+    """A build with no observer receives no record, and says so."""
+    #: THE NO-MAC STUB ties the record face off and nothing else.
+    for port in ("valid", "kind", "oidx", "gen", "type", "seq", "delta",
+                 "abort"):
+        assert re.search(rf"i_i_gptp_txrec_{port}\s*=\s*0\s*,", soc), \
+            f"gate 1d: the no-MAC stub must tie i_gptp_txrec_{port} to zero"
+    assert re.search(r"i_i_gptp_txseal_ack\s*=\s*0\s*,", soc), \
+        "gate 1d: the no-MAC stub must tie i_gptp_txseal_ack to zero"
+
+    #: THE OPTION-OFF ARM of the datapath publishes defined zeros for the
+    #: seal and the recovery request, so a build with no plane asks for
+    #: nothing and seals nobody.
+    datapath = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    off_arm = re.search(
+        r"\bend\s+else\s+begin\s*:\s*g_gptp_off\b(?P<body>.*?)\n  end endgenerate",
+        datapath, re.DOTALL)
+    assert off_arm, "gate 1d: the datapath has no g_gptp_off arm"
+    for lhs, rhs in (("o_gptp_txseal_req", "1'b0"),
+                     ("o_gptp_txseal_gen", "'0"),
+                     ("gptp_recov_req_w", "1'b0")):
+        assert re.search(rf"assign\s+{re.escape(lhs)}\s*=\s*{re.escape(rhs)}\s*;",
+                         off_arm.group("body")), \
+            f"gate 1d: the option-off arm must assign {lhs} = {rhs}"
 
 
 def test_qspi_owner_transition_completed_write_prefixes() -> None:
@@ -20913,6 +21104,7 @@ if __name__ == "__main__":
         sys.exit(0)
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
+               test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
                test_gptp_plane_instance_gate_bites,

@@ -29,9 +29,14 @@ real counter only to the engine's PHC adjustment outputs; ingress and egress
 timestamps enter through `rx_ts_i` and `txts_ns_i` for their specific events.
 
 That removal does not apply to the fabric slice's live counter wire. It is read by
-`KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and `KL_gptp_txstamp.sv`'s
-first-beat `ts_r <= phc_ns_i` and remains covered:
-tying both slice consumers in `tb/verilator/gptp_shadow`'s wrapper to
+`KL_gptp_shadow.sv`'s `ts_arr_r <= phc_ns_i` and, on the egress side since
+[#360](https://github.com/kebag-logic/milan-fpga/issues/360), by
+`KL_gptp_txret.sv`, which captures the PHC when a launch record crosses into
+the plane's domain and reconstructs the frame's launch from it. The
+first-beat stamper that used to read the counter here was retired with that
+change: it took its time at the datapath's MAC boundary, upstream of the
+MAC's queueing. The wire remains covered: tying the slice's counter consumers
+in `tb/verilator/gptp_shadow`'s wrapper to
 `64'd0` turns that bench red across its delay, capability, publication, servo,
 and timestamp-ring checks. So a mis-wire of the counter into the shipped slice
 is still caught. The distinction and removal decision are tracked by

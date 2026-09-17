@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // tsn-gen <-> Verilator co-simulation server for the gPTP fabric slice
-// (KL_gptp_shadow + the real timestamp_counter + KL_gptp_txstamp, wired by
+// (KL_gptp_shadow + the real timestamp_counter + KL_gptp_gmii_launch on the
+// wrapper's framed octet stream, wired by
 // the gptp_shadow TB's wrapper — the same slice the datapath splice
 // instantiates, clocked at the bench's 2 MHz scaling).
 //
@@ -22,7 +23,7 @@
 //   arg 1/0  pdelay auto-responder on/off — the proven sim_main.cpp
 //            responder: answers the plane's Pdelay_Req with a fabric-timed
 //            Resp + Resp_Follow_Up so the measured delay lands near
-//            D_NOM = 600 ns and asCapable can climb
+//            kPdelayExpectNs and asCapable can climb
 //   arg 3/2  TX lane backpressure on/off (tx_tready low/high)
 //
 // Usage: Vptp_cosim <socket-path>
@@ -43,6 +44,62 @@ constexpr uint64_t kTickBlockCycles = 10000; // one CTRL_TICK unit (5 ms @2 MHz)
 constexpr uint64_t kServiceCycles = 3000;    // parse + dispatch + response TX
 constexpr uint64_t kTurnaroundCycles = 300;  // pdelay turnaround, > 2*D_NOM
 constexpr uint64_t kFrameGapCycles = 50;     // let the plane take one frame
+
+// ---- WHERE THE REQUEST LEAVES, and what the peer must therefore expect ---
+//
+// This responder is an A PRIORI peer. It fixes the one-way physical delay
+// (D_NOM), derives from it the residence that makes the exchange consistent,
+// and states the delay a correct requester must then compute. It never reads
+// the plane's own t1 back to build that expectation: a peer that did would
+// agree with the plane by construction and could not fail.
+//
+// The responder's reference for "the request departed" is its observation of
+// the frame's first beat on the plane's datapath lane (`tx_sof_phc`), which
+// is where its residence arithmetic below starts. The plane's OWN egress
+// timestamp is no longer taken there. It is taken at the frame's launch
+// instant - the first symbol following the start-of-frame delimiter, the
+// message timestamp point of IEEE Std 802.1AS-2020 11.3.9 - which the bench
+// MAC model launches `kTxLaunchNs` after that beat.
+//
+// So the request leg the PLANE measures is kTxLaunchNs shorter than the leg
+// this responder's residence was built around, while the response leg is
+// unchanged: the plane's t4 is the same instant the responder presents the
+// response's first beat. The mean of the two legs, which is what the peer
+// delay is, is therefore D_NOM - kTxLaunchNs / 2.
+//
+// Every term of kTxLaunchNs belongs to the BENCH, not to the DUT. The
+// wrapper's framer is store and forward, like the boundary it stands in for,
+// and it emits one octet per fabric cycle:
+constexpr int64_t kPhcTickNs      = 8;   // this bench's PHC tick
+constexpr int64_t kPdReqOctets    = 68;  // 14 Ethernet + 54 PTP octets
+constexpr int64_t kLaneOctets     = 8;   // the datapath lane's width
+//! beats the request occupies on the lane; nothing launches until the last
+//! of them is in, because the framer forwards only whole frames
+constexpr int64_t kLaneBeats =
+    (kPdReqOctets + kLaneOctets - 1) / kLaneOctets;
+//! the whole-frame count lands one edge after that last beat, and the framer
+//! presents its first octet one edge after reading the count
+constexpr int64_t kFramerStartCycles = 2;
+//! preamble and start-of-frame delimiter, one octet a cycle: this is
+//! REF_OCTET_P, the observation index of the reference octet
+constexpr int64_t kPreambleOctets = 8;
+//! the PHC present over an interval is the value written at its start, so
+//! the launch reference is read one edge after the reference octet
+constexpr int64_t kLaunchReadCycles = 1;
+//! the residue the ledger's reconstruction leaves in THIS bench: half a tick
+//! of mean-corrected crossing phase, plus the one tick the wrapper's ordered
+//! record queue costs. It is ../gptp_shadow/sim_main.cpp's kReconNominalNs,
+//! the number the wrapper's own suite holds the reconstruction to.
+constexpr int64_t kReconResidueNs = 12;
+//! first lane beat to the plane's egress timestamp: 19 cycles, then the
+//! residue. 164 ns at this bench's tick.
+constexpr int64_t kTxLaunchNs =
+    ((kLaneBeats - 1) + kFramerStartCycles + kPreambleOctets
+     + kLaunchReadCycles) * kPhcTickNs + kReconResidueNs;
+//! ...and the peer delay that implies: 518 ns. Before the egress timestamp
+//! moved to the launch instant it was D_NOM, because the plane's t1 was the
+//! lane beat this responder watches.
+constexpr int64_t kPdelayExpectNs = D_NOM - kTxLaunchNs / 2;
 
 // ---- the auto-responder: sim_main.cpp's fabric-timed pdelay peer --------
 namespace {
@@ -128,7 +185,13 @@ class GptpCosimServer {
     void tick() {
         dut->clk_i = 0; dut->eval();
         dut->clk_i = 1; dut->eval();
-        if (dut->dbg_txts_v_o) { last_txts_seq = dut->dbg_txts_seq_o; txts_cnt++; }
+        //! #360: the plane's egress result face, one accepted tuple per
+        //! admitted frame. The stamper this used to read is gone; the
+        //! ledger's delivery is the observable the model grades.
+        if (dut->dbg_eng_txts_v_o) {
+            last_txts_seq = dut->dbg_eng_txts_seq_o;
+            txts_cnt++;
+        }
         if (dut->tx_tvalid_o && dut->tx_tready_i) {
             if (tx_first) { cur.clear(); tx_sof_phc.push_back(phc()); }
             for (int i = 0; i < 8; i++)
@@ -168,7 +231,9 @@ class GptpCosimServer {
             pd_seen++;
             if (!pd_on) continue;
             uint16_t seq = static_cast<uint16_t>((txf[i][44] << 8) | txf[i][45]);
-            uint64_t t1 = tx_sof_phc[i];         // = the boundary stamp
+            // the responder's OWN view of the departure: the frame's first
+            // beat on the lane, not the plane's egress timestamp
+            uint64_t t1 = tx_sof_phc[i];
             run(kTurnaroundCycles);              // a real turnaround, > 2*D_NOM
             uint64_t t2 = 5000000ull + phc();
             std::vector<uint8_t> f = ptp_hdr(0x3, seq, 0x0200, 20);
@@ -177,8 +242,10 @@ class GptpCosimServer {
             // the tap stamps t4 within a beat of the first wide beat below
             uint64_t resid = (phc() - t1) - 2 * static_cast<uint64_t>(D_NOM);
             uint64_t t3 = t2 + resid;
-            uint64_t t4_est = phc() + 8;         // the next tick's beat 0
-            pd_expect = static_cast<int64_t>((t4_est - t1) - resid) / 2;
+            // ...and what that exchange implies the plane must measure. It is
+            // the constant derived at the top of this file, published here per
+            // exchange so a check made before any exchange still reads 0.
+            pd_expect = kPdelayExpectNs;
             send_wide(f);
             run(kFrameGapCycles);
             std::vector<uint8_t> g = ptp_hdr(0xA, seq, 0x0000, 20);
@@ -220,6 +287,25 @@ class GptpCosimServer {
         dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tdata_i = 0;
         dut->rx_tkeep_i = 0;  dut->rx_tready_i = 1;
         dut->tx_tready_i = 1;
+        //! EVERY CONTROL THE WRAPPER OWNS, AT ITS PRODUCT IDLE. This campaign
+        //! is the wrapper's second consumer and it grades fields, not defect
+        //! injection, so every test-only lever is held inert and every
+        //! product control is held at the value the plane runs at. Naming
+        //! them is not decoration: Verilator initialises an undriven input to
+        //! zero, and zero is the ACTIVE value for two of these - `eth_alive_i`
+        //! low is a stopped eth clock, which the link guard reads as a dead
+        //! link, and `phc_en_i` low is a frozen counter under a campaign
+        //! whose peer-delay arithmetic assumes the PHC advances 8 ns a cycle.
+        //! The idle set is ../gptp_shadow/sim_main.cpp's, because the DUT is
+        //! that suite's wrapper.
+        dut->rechold_en_i = 0; dut->rechold_type_i = 0;
+        dut->rechold_release_i = 0;
+        dut->recfault_en_i = 0; dut->recfault_mode_i = 0;
+        dut->linkg_dis_i = 0; dut->linkg_freeze_i = 0;
+        dut->cfg_mac_reinit_i = 0; dut->eth_alive_i = 1; dut->obs_rst_i = 0;
+        dut->phc_en_i = 1; dut->phc_incr_i = 0x08000000u;
+        dut->phc_adj_ovr_en_i = 0; dut->phc_adj_ovr_i = 0;
+        dut->phc_load_i = 0; dut->phc_tod_wr_i = 0;
         for (int i = 0; i < kResetCycles; i++) tick();
         dut->rst_n = 1;
         for (int i = 0; i < kResetCycles; i++) tick();

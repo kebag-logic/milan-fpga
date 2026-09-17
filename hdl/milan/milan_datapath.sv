@@ -74,6 +74,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! Absolute in SoC builds, relative in self-contained Verilator benches.
   //! The image bakes in the config's station MAC, priority1 and fabric clock.
   parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
+  //! THE PHC'S OWN TICK in whole nanoseconds, when it is not the fabric
+  //! period (issue #360). The egress reconstruction subtracts whole ticks of
+  //! the period the counter really advances by, and the counter's nominal
+  //! increment is derived from MILAN_CLK_FREQ_HZ, so in the product these
+  //! are the same number and 0 selects it. A BENCH that compresses the
+  //! fabric clock to shorten a protocol timer while programming the counter
+  //! at the real rate has to say so here: a plane told the compressed
+  //! period would subtract that period from every timestamp, and
+  //! KL_gptp_txret refuses the mismatch at elaboration rather than
+  //! reconstructing from it.
+  parameter int unsigned GPTP_PHC_TICK_NS_P = 0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -501,6 +512,27 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   input  wire        i_ethrx_tgl,
   input  wire        i_ethtx_tgl,
   input  wire        i_ethact_tgl,
+  //! gPTP EGRESS LAUNCH RECORDS from the SoC's first-party observer at the
+  //! MAC's own transmit stream (KL_gptp_gmii_launch, issue #360). The
+  //! observer owns the clock-domain crossing, so these arrive already
+  //! synchronised into axis_clk; one record per frame the MAC launched,
+  //! plus the echo that re-establishes the observer position after a reset.
+  //! Tie 0 on a build with no MAC attached: a plane that receives no record
+  //! delivers no timestamp and says so through its counters.
+  input  wire        i_gptp_txrec_valid,
+  input  wire        i_gptp_txrec_kind,     //! 0 = frame, 1 = echo
+  input  wire [11:0] i_gptp_txrec_oidx,  //! observer position of this frame
+  input  wire  [3:0] i_gptp_txrec_gen,   //! generation the observer adopted
+  input  wire  [3:0] i_gptp_txrec_type,  //! messageType read off the wire
+  input  wire [15:0] i_gptp_txrec_seq,   //! sequenceId read off the wire
+  input  wire  [7:0] i_gptp_txrec_delta, //! measured cycle distance
+  input  wire        i_gptp_txrec_abort, //! no measurement in this record
+  //! the seal the plane offers that observer, and the crossing's delivery
+  //! report. The observer's ECHO is the acknowledgement the plane waits for;
+  //! this input reports only that the crossing delivered the generation.
+  output wire        o_gptp_txseal_req,
+  output wire  [3:0] o_gptp_txseal_gen,
+  input  wire        i_gptp_txseal_ack,
   //! RMON event pulses from the external MAC (lane index == ethernet_events_t
   //! enum). Lanes TX_FIFO_GOOD_FRAME/RX_FIFO_GOOD_FRAME are IGNORED here: the
   //! datapath derives them itself from the MAC AXIS boundary handshake (RMON
@@ -1330,7 +1362,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! MAC-facing RX -> the shared pre-filter tap. The ptp_ts_top RX stamper
   //! that sat on this hop was a combinational pass-through whose records
   //! nothing consumed; the fabric gPTP plane stamps its own ingress off
-  //! rx_axis_fabric and its egress at the MAC boundary (KL_gptp_txstamp).
+  //! rx_axis_fabric. Its EGRESS time is NOT taken at this boundary (#360):
+  //! this hop's mirror image is upstream of the MAC's queueing, so a time
+  //! taken there carries however much traffic was ahead of the frame. The
+  //! plane reconstructs each frame's launch from an observation of the MAC's
+  //! own transmit stream instead.
   assign rx_axis_from_mac.tdata  = s_axis_mac_rx_tdata;
   assign rx_axis_from_mac.tkeep  = s_axis_mac_rx_tkeep;
   assign rx_axis_from_mac.tvalid = s_axis_mac_rx_tvalid;
@@ -2322,6 +2358,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_gptp_tap_drop      (gptp_tap_drop_w),
     .i_gptp_rx_drop       (gptp_rx_drop_w),
     .i_gptp_ev_drop       (gptp_ev_drop_w),
+    .i_gptp_txts_lost     (gptp_txts_lost_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -2629,8 +2666,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! both directions' records drained into an always-ready sink, so
   //! IRQ_STATUS[0] and PTP_INGRESS/EGRESS_LAT had no consumer. o_ptp_now is
   //! what the AAF/CRF talkers, the latency taps and the fabric gPTP plane
-  //! read; the plane stamps its own frames (KL_gptp_txstamp at the MAC
-  //! boundary, its ingress tap off rx_axis_fabric).
+  //! read; the plane times its own frames, its ingress tap off
+  //! rx_axis_fabric and its egress reconstructed from a launch observation
+  //! at the MAC's own transmit stream rather than taken at this datapath's
+  //! MAC boundary, which sits upstream of the MAC's queueing (#360).
   wire        phc_enable_ts_w;
   wire [31:0] phc_incr_ts_w, phc_adj_ts_w;
   wire [63:0] phc_tod_wr_ts_w, phc_offset_ts_w, phc_tod_snap_ts_w;
@@ -2700,6 +2739,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] linkg_stat_w;
   wire        cfg_linkg_dis, cfg_linkg_freeze;
   wire        linkg_reinit_w, linkg_eth_rst_w, linkg_est_w;
+  wire        linkg_epi_start_w, linkg_epi_done_w, linkg_epi_busy_w;
+  //! The gPTP plane's own recovery request (#360). When the plane fences
+  //! its egress it owes the frames it fenced off a recovery episode that
+  //! really destroys them, and it cannot wait for a cable to bounce: it
+  //! joins the EXISTING manual trigger instead, which runs the same
+  //! sequenced eth-then-sys reset the firmware's LINK_CTRL[1] does. No
+  //! reset source, net or topology is added by this - one more requester
+  //! on one existing trigger.
+  wire        gptp_recov_req_w;
 
   KL_link_guard link_guard (
     .clk_i        (axis_clk),
@@ -2709,11 +2757,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .act_tgl_i    (i_ethact_tgl),
     .dis_i        (cfg_linkg_dis),
     .freeze_i     (cfg_linkg_freeze),
-    .man_reinit_i (cfg_mac_reinit),
+    .man_reinit_i (cfg_mac_reinit | gptp_recov_req_w),
     .reinit_o     (linkg_reinit_w),
     .eth_rst_o    (linkg_eth_rst_w),
     .link_est_o   (linkg_est_w),
-    .stat_o       (linkg_stat_w)
+    .stat_o       (linkg_stat_w),
+    .epi_start_o  (linkg_epi_start_w),
+    .epi_done_o   (linkg_epi_done_w),
+    .epi_busy_o   (linkg_epi_busy_w)
   );
 
   assign eff_link_w = i_link_up & cfg_sw_link &
@@ -6556,21 +6607,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+  //! #360: egress launch records that closed with no timestamp. Published
+  //! at GPTP_DROPE[31:16] beside the event-queue losses, because a lost
+  //! timestamp and a lost event are the same class of fact about the
+  //! plane and an integrator reads them in one access.
+  wire [15:0] gptp_txts_lost_w;
 
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
     wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
     wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
-    wire                     gtx_sent_w;
-    wire                     gts_valid_w;
-    wire [63:0]              gts_ns_w;
-    wire [15:0]              gts_seq_w;
-    wire [3:0]               gts_type_w;
+    //! The crossing's addend under the name both ends already read it by:
+    //! Q8.24 SIGNED nanoseconds. `ptp_csr_sync` declares `t_adj` unsigned,
+    //! while `ts_counter.adj_i` and this plane's `phc_adj_eff_ns_i` are both
+    //! declared signed; the widths are equal at 32 bits either way, so
+    //! nothing is extended and no value changes here. The sign is put in a
+    //! DECLARATION rather than written as a cast inside the port connection
+    //! below, which is the boundary-type rule of
+    //! docs/development/CODE_QUALITY.md Rule 4: a cast at the consumer
+    //! decides the sign where no reader of either end can see it.
+    wire signed [31:0] phc_adj_eff_ns_ts_w = signed'(phc_adj_ts_w);
 
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
-        .UCODE_HEX_P   (GPTP_UCODE_HEX_P)
+        .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
+        .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),
@@ -6580,6 +6642,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .rx_tready_i     (rx_axis_fabric.tready),
         .rx_tlast_i      (rx_axis_fabric.tlast),
         .phc_ns_i        (ptp_now_w),
+        //! THE COUNTER'S OWN INPUT NETS, not the CSR face and not the
+        //! plane's own upstream addend: `gptp_adj_w` above is what this
+        //! plane ASKS for and `cfg_ptp_*` is what software asked for,
+        //! while these five are what `ts_counter` is actually being
+        //! driven with, in its own clock domain, after `ptp_csr_sync`.
+        //! Qualifying a reconstruction against anything earlier would
+        //! call a window eligible while the accumulator was still on the
+        //! previous trajectory.
+        .phc_en_eff_i    (phc_enable_ts_w),
+        .phc_incr_eff_ns_i(phc_incr_ts_w),
+        .phc_adj_eff_ns_i(phc_adj_eff_ns_ts_w),
+        .phc_load_eff_i  (phc_load_ts_w),
+        .phc_adjust_eff_i(phc_adjust_ts_w),
         .phc_adj_o       (gptp_adj_w),
         .phc_step_we_o   (gptp_step_we_w),
         .phc_step_o      (gptp_step_w),
@@ -6588,11 +6663,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .tx_tvalid_o     (gtx_tvalid_w),
         .tx_tlast_o      (gtx_tlast_w),
         .tx_tready_i     (gtx_tready_w),
-        .txts_valid_i    (gts_valid_w),
-        .txts_ns_i       (gts_ns_w),
-        .txts_seq_i      (gts_seq_w),
-        .txts_type_i     (gts_type_w),
-        .tx_sent_o       (gtx_sent_w),
+        .rec_valid_i     (i_gptp_txrec_valid),
+        .rec_kind_i      (i_gptp_txrec_kind),
+        .rec_oidx_i      (i_gptp_txrec_oidx),
+        .rec_gen_i       (i_gptp_txrec_gen),
+        .rec_type_i      (i_gptp_txrec_type),
+        .rec_seq_i       (i_gptp_txrec_seq),
+        .rec_delta_i     (i_gptp_txrec_delta),
+        .rec_abort_i     (i_gptp_txrec_abort),
+        .seal_req_o      (o_gptp_txseal_req),
+        .seal_gen_o      (o_gptp_txseal_gen),
+        .seal_ack_i      (i_gptp_txseal_ack),
+        .mac_reinit_i    (linkg_reinit_w),
+        .mac_eth_rst_i   (linkg_eth_rst_w),
+        .epi_start_i     (linkg_epi_start_w),
+        .epi_done_i      (linkg_epi_done_w),
+        .epi_busy_i      (linkg_epi_busy_w),
+        .epi_dis_i       (cfg_linkg_dis),
+        .recov_req_o     (gptp_recov_req_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),
@@ -6612,7 +6700,25 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_tspush_v_o  (),
         .dbg_tspush_o    (),
         .dbg_tspop_v_o   (),
-        .dbg_txts_type_o ()
+        //! THE ONE AN INTEGRATOR READS: frames the plane admitted and
+        //! could not time. It is published at GPTP_DROPE[31:16], beside
+        //! the event-queue losses, because a lost timestamp and a lost
+        //! event are the same class of fact about this plane.
+        .dbg_txts_lost_o (gptp_txts_lost_w),
+        //! Per-cause egress-timestamp forensics. They are module outputs
+        //! with no CSR of their own: the shipping build publishes the
+        //! aggregate above and the benches read these through the
+        //! hierarchy, which is the idiom tb/verilator/milan_dp already
+        //! uses for the plane's internals. Left open here deliberately -
+        //! a CSR per cause would take addresses the register map does not
+        //! have for a diagnostic only a bench reads.
+        .dbg_txts_disc_o (),
+        .dbg_txts_barr_o (),
+        .dbg_txts_stall_o(),
+        .dbg_txts_phcl_o (),
+        .dbg_txts_dirt_cyc_o(),
+        .dbg_txts_state_o(),
+        .dbg_txts_torn_o ()
     );
 
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
@@ -6630,20 +6736,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
     );
 
-    KL_gptp_txstamp #(.TDATA_WIDTH_P (TDATA_WIDTH)) u_gptp_txstamp (
-        .clk_i      (axis_clk),
-        .rst_n      (axis_resetn),
-        .tx_tdata_i (tx_axis_to_mac.tdata),
-        .tx_tvalid_i(tx_axis_to_mac.tvalid),
-        .tx_tready_i(tx_axis_to_mac.tready),
-        .tx_tlast_i (tx_axis_to_mac.tlast),
-        .phc_ns_i   (ptp_now_w),
-        .armed_i    (gtx_sent_w),
-        .ts_valid_o (gts_valid_w),
-        .ts_ns_o    (gts_ns_w),
-        .ts_seq_o   (gts_seq_w),
-        .ts_type_o  (gts_type_w)
-    );
   end else begin : g_gptp_off
     //! option off: the control lane passes straight through, the PHC
     //! knobs constant-fold to the CSR face, the publish words read zero
@@ -6671,6 +6763,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;
+    assign gptp_txts_lost_w = '0;
+    //! no plane, so no launch observer to seal and nothing to recover:
+    //! the seal outputs and the recovery request are defined zeros like
+    //! every other plane signal in this arm
+    assign o_gptp_txseal_req = 1'b0;
+    assign o_gptp_txseal_gen = '0;
+    assign gptp_recov_req_w  = 1'b0;
   end endgenerate
 
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (

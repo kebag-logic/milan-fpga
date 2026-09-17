@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 67 modules · 66 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 69 modules · 68 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -30,10 +30,10 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 ```mermaid
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
-    x-axis ["ieee1722", "ieee17221", "milan", "ieee8021as", "ieee8021q", "common"]
+    x-axis ["ieee1722", "ieee17221", "milan", "ieee8021q", "ieee8021as", "common"]
     y-axis "modules" 0 --> 38
-    bar [37, 1, 4, 7, 8, 10]
-    bar [36, 1, 4, 7, 8, 10]
+    bar [37, 1, 4, 8, 9, 10]
+    bar [36, 1, 4, 8, 9, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -43,8 +43,8 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | IEEE 1722 (AVTP) | 37 | 36 | 0 | 31 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | Milan integration | 4 | 4 | 0 | 0 | 0 | 0 |
-| IEEE 802.1AS | 7 | 7 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
+| IEEE 802.1AS | 9 | 9 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 
 ## IEEE 1722.1 (ATDECC)
@@ -53,7 +53,7 @@ _TX arbitration only - the ADP / ACMP / AECP engines are the protocol-processor 
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `milan_dp` · ➰milan_dp_render | -- |
+| ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `gptp_txts` · `milan_dp` · ➰milan_dp_render | -- |
 
 ## IEEE 1722 (AVTP)
 
@@ -121,13 +121,15 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | 8.4.3 |
-| ✅ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | `gptp_shadow` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | 8.4.3 |
+| ✅ `KL_gptp_gmii_launch` | `ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv` | `gptp_shadow` · `gptp_txts` · `tsn_fuzz` | 8.4.3 |
+| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | 8.4.3 |
+| ✅ `KL_gptp_txret` | `ieee8021as/gptp_plane/KL_gptp_txret.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | 8.4.3 |
+| ✅ `KL_gptp_txticket` | `ieee8021as/gptp_plane/KL_gptp_txticket.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `milan_dp` · `ptp_sync` · `ptp_ts` · ➰milan_dp_render | -- |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `ptp_ts` | -- |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `ptp_ts` | -- |
-| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | 8.2 |
+| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | 8.2 |
 
 ## Common / integration
 
@@ -135,11 +137,11 @@ _CSR, CDC, RMON, utilities_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `link_guard` · `milan_dp` · ➰milan_dp_render | -- |
+| ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · ➰milan_dp_render | -- |
+| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_render | -- |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · ➰milan_dp_render | -- |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · ➰milan_dp_render | -- |

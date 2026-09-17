@@ -500,18 +500,24 @@ _MILAN_DATAPATH_SOURCES = [
     # processor's NVM device face (docs/design/SAVED_STATE_FASTCONNECT.md).
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
     "hdl/milan/KL_nvm_backend.sv",
-    # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
-    # KL_gptp_txstamp under GPTP_PLANE_EN_P (product default ON), so Vivado must see
-    # the wrappers and the gptp-processor engine they wrap. No copy of this
+    # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow under
+    # GPTP_PLANE_EN_P (product default ON), so Vivado must see the wrappers
+    # and the gptp-processor engine they wrap. No copy of this
     # list is authoritative - not this one, and not GPTP_SRCS in the milan_dp
     # Verilator Makefile, which this comment once called so: the RTL is, and
     # scripts/check_rtl_source_lists.py checks every copy against the engine
     # files the datapath really reaches. The package first, its importers after.
+    # KL_gptp_gmii_launch is instantiated by MilanMAC rather than by the
+    # datapath (#360: it observes the MAC's own transmit stream), and it is
+    # listed here for the same reason KL_mac_rmon_events is - this function is
+    # the one place RTL sources are registered.
     "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv", "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
     "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv", "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
     "gptp-processor/hdl/common/KL_gptp_timer.sv", "gptp-processor/hdl/top/KL_gptp_engine.sv",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
     "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
-    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv",
     "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv",
     "third_party/verilog-axis/rtl/axis_fifo.v",
     "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
@@ -769,6 +775,18 @@ def add_milan_datapath(host: Module, platform: object,
         i_i_mac_events_cap = 0,
         # no PHY in the stub: static toggles keep the link guard unarmed/inert
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+        # No MAC, so no launch observer: the plane receives no record, keeps
+        # every ledger entry it allocates, delivers no timestamp and says so
+        # through its counters. A tie that MANUFACTURED records would be the
+        # decorative-ABI class this file has a history with, so the stub ties
+        # the record face to zero and nothing else. MilanMAC overrides all of
+        # these with the live observer.
+        i_i_gptp_txrec_valid = 0, i_i_gptp_txrec_kind = 0,
+        i_i_gptp_txrec_oidx = 0, i_i_gptp_txrec_gen = 0,
+        i_i_gptp_txrec_type = 0, i_i_gptp_txrec_seq = 0,
+        i_i_gptp_txrec_delta = 0, i_i_gptp_txrec_abort = 0,
+        i_i_gptp_txseal_ack = 0,
+        o_o_gptp_txseal_req = Signal(), o_o_gptp_txseal_gen = Signal(4),
         # TDM bus, SLAVE role (item-4 front-end family): only sampled when
         # AUDIO_IF_SLOTS_P > 0 AND AUDIO_IF_MASTER_P == 0. These stay tied to
         # 0 - which is precisely why a SLAVE TDM build yields no pairs at all
@@ -1788,9 +1806,82 @@ class MilanMAC(LiteXModule):
             o_cap_o           = mac_events_cap,
         )
 
+        # ---- gPTP egress launch observer (#360) -------------------------------------
+        # WHERE THE EGRESS TIMESTAMP EVENT ACTUALLY HAPPENS. The plane used to
+        # latch the PHC at the first accepted beat of its frame at the datapath's
+        # MAC boundary - upstream of `mac_tx_cdc`, `tx_sf`, the LiteEth TX
+        # crossing, width conversion, padding, FCS, preamble and gap insertion
+        # and the PHY register stage. That is a queue-dependent delay, and all of
+        # it went into t1. The observer below watches `self.phy.sink`, the stream
+        # the PHY's transmit register stage consumes, so the event is observed
+        # where it leaves.
+        #
+        # NOT THE PADS, deliberately: `eth%d_tx_data`/`eth%d_tx_en` are pad-locked
+        # with `set_property IOB TRUE` above because an unlocked GMII launch is a
+        # per-seed clock-to-out lottery on this board, and a second load on those
+        # nets would defeat the packing. `LiteEthPHYGMIITX` registers
+        # `sink.valid`/`sink.data` straight into the pads on the same edge and
+        # holds `sink.ready` at 1, so this seam and the pad are one register stage
+        # apart, which the closed-loop bench MEASURES rather than assumes.
+        #
+        # RTL, not glue: the record has to carry a measured cycle distance and an
+        # ordered position across a clock-domain crossing, and glue is what has
+        # tied working blocks off in this file before (`i_mac_events = 0`).
+        # It runs in `maceth_tx` - the MAC's own transmit-side domain, whose reset
+        # is `ResetSignal("eth_tx") | eth_rst`, the same reset that clears the
+        # LiteEth transmit side and the PHY stage. That is what makes "the
+        # observer was reset with the frames it was watching" a fact of the
+        # wiring rather than a claim.
+        self.gptp_txrec_valid = Signal(name="gptp_txrec_valid")
+        self.gptp_txrec_kind  = Signal(name="gptp_txrec_kind")
+        self.gptp_txrec_oidx  = Signal(12, name="gptp_txrec_oidx")
+        self.gptp_txrec_gen   = Signal(4,  name="gptp_txrec_gen")
+        self.gptp_txrec_type  = Signal(4,  name="gptp_txrec_type")
+        self.gptp_txrec_seq   = Signal(16, name="gptp_txrec_seq")
+        self.gptp_txrec_delta = Signal(8,  name="gptp_txrec_delta")
+        self.gptp_txrec_abort = Signal(name="gptp_txrec_abort")
+        self.gptp_txseal_req  = Signal(name="gptp_txseal_req")
+        self.gptp_txseal_gen  = Signal(4, name="gptp_txseal_gen")
+        self.gptp_txseal_ack  = Signal(name="gptp_txseal_ack")
+        self.gptp_txobs_ovr   = Signal(16, name="gptp_txobs_ovr")
+        self.specials += Instance("KL_gptp_gmii_launch",
+            i_eth_clk_i     = ClockSignal("maceth_tx"),
+            i_eth_rst_n     = ~ResetSignal("maceth_tx"),
+            i_gmii_tvalid_i = self.phy.sink.valid,
+            i_gmii_tdata_i  = self.phy.sink.data,
+            i_dp_clk_i      = ClockSignal(milan_cd),
+            i_dp_rst_n      = ~ResetSignal(milan_cd),
+            o_rec_valid_o   = self.gptp_txrec_valid,
+            o_rec_kind_o    = self.gptp_txrec_kind,
+            o_rec_oidx_o    = self.gptp_txrec_oidx,
+            o_rec_gen_o     = self.gptp_txrec_gen,
+            o_rec_type_o    = self.gptp_txrec_type,
+            o_rec_seq_o     = self.gptp_txrec_seq,
+            o_rec_delta_o   = self.gptp_txrec_delta,
+            o_rec_abort_o   = self.gptp_txrec_abort,
+            i_seal_req_i    = self.gptp_txseal_req,
+            i_seal_gen_i    = self.gptp_txseal_gen,
+            o_seal_ack_o    = self.gptp_txseal_ack,
+            o_dbg_overrun_o = self.gptp_txobs_ovr,
+        )
+
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
+            # gPTP egress launch records and the seal that re-bases the
+            # observer position after a reset (#360). The observer owns its
+            # own crossing, so these are already in `milan_cd`.
+            i_i_gptp_txrec_valid = self.gptp_txrec_valid,
+            i_i_gptp_txrec_kind  = self.gptp_txrec_kind,
+            i_i_gptp_txrec_oidx  = self.gptp_txrec_oidx,
+            i_i_gptp_txrec_gen   = self.gptp_txrec_gen,
+            i_i_gptp_txrec_type  = self.gptp_txrec_type,
+            i_i_gptp_txrec_seq   = self.gptp_txrec_seq,
+            i_i_gptp_txrec_delta = self.gptp_txrec_delta,
+            i_i_gptp_txrec_abort = self.gptp_txrec_abort,
+            o_o_gptp_txseal_req  = self.gptp_txseal_req,
+            o_o_gptp_txseal_gen  = self.gptp_txseal_gen,
+            i_i_gptp_txseal_ack  = self.gptp_txseal_ack,
             # ETH GUARD (USER 08-06): exported for future SoC-side gating of
             # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
             # levers inside the datapath; the CSR remains the control boundary

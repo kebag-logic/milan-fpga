@@ -38,7 +38,9 @@
 
 #include "../../common/verilator_harness.hpp"
 #include "../../common/gptp_tx_flags.hpp"
+#include "../../common/gptp_launch_observer.hpp"
 #include "Vmilan_datapath.h"
+#include "Vmilan_datapath___024root.h"
 #include <verilated.h>
 #include <algorithm>
 #include <array>
@@ -76,6 +78,18 @@ uint64_t be(const std::vector<uint8_t>& b, size_t off, size_t n) {
     uint64_t v = 0;
     for (size_t i = 0; i < n; ++i) v = (v << 8) | b[off + i];
     return v;
+}
+
+//! The PHC THIS CYCLE, read where the plane reads it. The plane reads
+//! `timestamp_out`, the integer-nanosecond field of the counter's own
+//! accumulator (`timestamp_counter.sv`: `assign timestamp_out =
+//! acc[ACC_WIDTH-1 -: COUNTER_WIDTH]`); the wire is inlined away in this
+//! elaboration, so the harness reads the accumulator and takes that field.
+static uint64_t phc_ns(Vmilan_datapath* dut) {
+    const auto& acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+    return (static_cast<uint64_t>(acc[2]) << 40)
+         | (static_cast<uint64_t>(acc[1]) << 8)
+         | (acc[0] >> 24);
 }
 
 // The peer clock has its own epoch and edge quantization. It never reads PHC.
@@ -177,7 +191,17 @@ class Harness {
     uint64_t stamp_origin = 0;
     int64_t oracle_delay = 0;
     std::vector<uint8_t> tx_cur;
-    uint64_t tx_sof = 0;
+    //! THE MAC THIS LEG STANDS IN FOR (#360). Nothing sits behind
+    //! `m_axis_mac_tx_*` here, so this harness is the launch observer the
+    //! plane now takes its t1 from: it reports each gPTP frame it accepted
+    //! and answers the seal. Without it the plane never discharges its boot
+    //! fence and emits no gPTP frame at all. This build runs the fabric and
+    //! the PHC at 50 MHz, so the modelled MAC's tick is the product's 20 ns.
+    milan::tb::GptpLaunchObserver observer{20};
+    //! Pdelay_Req frames whose launch this harness has not reported yet. A
+    //! peer answers a request that was LAUNCHED; until the observer reports
+    //! it there is no launch instant to answer for.
+    std::deque<std::vector<uint8_t>> pd_pending;
     bool stalled = false;
     uint64_t held_data = 0;
     uint8_t held_keep = 0;
@@ -248,7 +272,9 @@ class Harness {
     void transmit_edge();
     milan::tb::GptpTxFlags tx_flags;
     void complete_tx();
-    void answer_pdelay(const std::vector<uint8_t>& request);
+    void observer_edge();
+    void answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
+                       uint64_t record_cycle);
     Frame audio_frame();
     void grade_audio(const std::vector<uint8_t>& f);
     void reset();
@@ -373,6 +399,7 @@ Harness::Fires Harness::tick() {
     if (dut->axis_resetn) {
         receive_edge(); transmit_edge(); memory_edge(); descriptor_edge();
     }
+    observer_edge();
     for (unsigned q = 4; q < 8; ++q) clocks(q);
     ++cyc;
     if (cyc % (kHz / 4) == 0) printf("PROGRESS simulated_seconds=%.2f rx_aaf=%llu tx_aaf=%llu\n", double(cyc) / kHz, static_cast<unsigned long long>(rx_audio), static_cast<unsigned long long>(tx_audio));
@@ -467,7 +494,9 @@ void Harness::receive_edge() {
     if (cyc > rx_deadline) throw std::runtime_error("MAC RX beat timeout");
     if (!dut->s_axis_mac_rx_tvalid || !dut->s_axis_mac_rx_tready) return;
     if (rx_off == 0 && rx.pdelay) {
-        const uint64_t t4 = cyc * 20 + 10;
+        //! the same counter t1 came from: mixing a cycle-derived t4 with a
+        //! PHC-derived t1 would measure the offset between the two clocks
+        const uint64_t t4 = phc_ns(dut);
         // Only event times enter this oracle; publication is read afterwards.
         oracle_delay = (static_cast<int64_t>(t4 - rx.t1)
                          - static_cast<int64_t>(rx.t3 - rx.t2)) / 2;
@@ -487,13 +516,40 @@ void Harness::receive_edge() {
     }
 }
 
-void Harness::answer_pdelay(const std::vector<uint8_t>& request) {
-    if (!pd_requests) pd_first = tx_sof;
-    if (pd_requests && (tx_sof - pd_last < 999900000
-                       || tx_sof - pd_last > 1000100000)) ++pd_cadence_bad;
-    pd_last = tx_sof; ++pd_requests;
+//! Report what the modelled MAC launched, and answer the requests whose
+//! launch has been reported.
+//!
+//! The request's t1 is the LAUNCH this harness's own observer reported, not
+//! the beat the datapath handed the frame over on - the second is the
+//! quantity #360 retires, and it precedes the first by the whole MAC
+//! pipeline. The peer therefore waits for its own observer before answering,
+//! which is also why the cadence below is measured between launches.
+void Harness::observer_edge() {
+    observer.edge(dut, cyc, phc_ns(dut));
+    while (!pd_pending.empty()) {
+        uint64_t t1 = 0;
+        uint64_t at = 0;
+        if (!observer.t1_of(2, be(pd_pending.front(), 44, 2), &t1, &at)) break;
+        const std::vector<uint8_t> request = pd_pending.front();
+        pd_pending.pop_front();
+        answer_pdelay(request, t1, at);
+    }
+}
+
+void Harness::answer_pdelay(const std::vector<uint8_t>& request, uint64_t t1,
+                            uint64_t record_cycle) {
+    //! CADENCE IS A REAL-TIME PROPERTY, so it is measured on this harness's
+    //! own clock and not on the PHC. The engine disciplines the PHC to the
+    //! peer, so a step lands between two requests that were exactly one
+    //! second apart on the wire; reading the cadence off the stepped
+    //! counter would call that discipline a cadence fault.
+    const uint64_t launch_ns = record_cycle * 20 - observer.correction_ns();
+    if (!pd_requests) pd_first = launch_ns;
+    if (pd_requests && (launch_ns - pd_last < 999900000
+                       || launch_ns - pd_last > 1000100000)) ++pd_cadence_bad;
+    pd_last = launch_ns; ++pd_requests;
     if (!peer_on || test_control_ == TestControl::NoPdelay) return;
-    const uint64_t arrival = tx_sof + kPropagation;
+    const uint64_t arrival = t1 + kPropagation;
     const uint64_t depart = arrival + kResidence;
     const uint64_t t2 = peer_clock(arrival);
     const uint64_t t3 = peer_clock(depart);
@@ -501,8 +557,14 @@ void Harness::answer_pdelay(const std::vector<uint8_t>& request) {
     Frame resp = ptp(3, seq, 0x0200, 20); resp.ts(t2);
     Frame fu = ptp(0xA, seq, 0, 20); fu.ts(t3 + (negative_ ? 2000 : 0));
     for (size_t i = 34; i < 44; ++i) { resp.u8(request[i]); fu.u8(request[i]); }
-    const uint64_t at = (depart + kPropagation - 10) / 20;
-    queue({at, resp, true, tx_sof, t2, t3});
+    //! SCHEDULED IN CYCLES, not in PHC nanoseconds: the PHC restarts with
+    //! every reset arm while this harness's cycle count does not, so a
+    //! schedule derived from a PHC instant would land in another epoch. The
+    //! record was delivered `correction_ns()` after the launch, so the
+    //! arrival is that much closer than the event times alone suggest.
+    const uint64_t at = record_cycle
+        + (2 * kPropagation + kResidence - observer.correction_ns()) / 20;
+    queue({at, resp, true, t1, t2, t3});
     queue({at + 200, fu});
 }
 
@@ -516,7 +578,6 @@ void Harness::transmit_edge() {
         held_keep = dut->m_axis_mac_tx_tkeep; held_last = dut->m_axis_mac_tx_tlast;
     }
     if (!dut->m_axis_mac_tx_tvalid || !dut->m_axis_mac_tx_tready) return;
-    if (tx_cur.empty()) tx_sof = cyc * 20 + 10;
     for (unsigned i = 0; i < 8; ++i)
         if (dut->m_axis_mac_tx_tkeep & (1u << i))
             tx_cur.push_back(dut->m_axis_mac_tx_tdata >> (8 * i));
@@ -531,8 +592,10 @@ void Harness::complete_tx() {
     tx_flags.observe(tx_cur);
     const auto& f = tx_cur;
     if (frame_was_stalled && be(f, 12, 2) == 0x88F7) ++stalled_ptp_frames;
+    //! the modelled MAC sees every frame; only the gPTP ones become records
+    observer.offer(f, cyc);
     if (f.size() >= 68 && be(f, 12, 2) == 0x88F7 && (f[14] & 15) == 2)
-        answer_pdelay(f);
+        pd_pending.push_back(f);
     const size_t v = be(f, 12, 2) == 0x8100 ? 4 : 0;
     if (f.size() > 38 + v && be(f, 12 + v, 2) == 0x22F0 && f[14 + v] == 2)
         grade_audio(f);
@@ -590,6 +653,12 @@ void Harness::reset() {
     dut->i2s_sdout_i = 0; dut->tdm_data_i = 0;
     dut->tdm_bclk_i = 0; dut->tdm_fsync_i = 0;
     mem_busy = false; mem_done = false; desc_busy = false; desc_wait = 0;
+    //! the MAC this harness stands in for is reset with the datapath, so its
+    //! observer loses its position, its generation and anything it had not
+    //! yet reported - exactly as `KL_gptp_gmii_launch` does
+    observer.reset();
+    pd_pending.clear();
+    milan::tb::GptpLaunchObserver::tie_off(dut);
     run_cycles(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     stamp_origin = cyc * 20;

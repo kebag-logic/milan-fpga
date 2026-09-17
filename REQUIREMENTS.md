@@ -105,6 +105,20 @@ last written value returned, no timestamp-correction consumer at this VERSION;
 latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.
 
+Scope note (egress reference plane, #360): the egress timestamp is the
+frame's LAUNCH, observed by `KL_gptp_gmii_launch` at the MAC's own transmit
+stream one register stage before the pads, reported back as one ordered
+record per frame, and reconstructed by `KL_gptp_txret` as the PHC at that
+record minus a sum of register stages (426 ns at the shipping shape). It is
+NOT a capture at the MAC boundary and NOT a queue allowance: the
+store-and-forward wait sits between the ledger entry and the launch, outside
+the reconstructed interval. A frame whose launch cannot be reconstructed is
+published as an explicit loss at `GPTP_DROPE[31:16]`, never as a substitute
+time. The DIGITAL bound is verified in `tb/verilator/gptp_txts` against an
+independent pad oracle over the product's own converted MAC; the remaining
+offset from that register stage to the pad, and every physical term with it,
+is #117's and #64's to measure.
+
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
 clock-validity, CSR, and full-datapath benches with #117's wire and
 publication correlation of the one AX7101 DUT against the Milan-validated

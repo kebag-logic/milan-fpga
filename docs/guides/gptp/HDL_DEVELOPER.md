@@ -18,7 +18,9 @@ Use this page for parent RTL changes.
 |---|---|
 | Protocol state | `gptp-processor/` |
 | Parent transport | `KL_gptp_shadow` |
-| Egress capture | `KL_gptp_txstamp` |
+| Egress identity | `KL_gptp_txticket` allocates one ledger entry per admitted frame |
+| Egress launch | `KL_gptp_gmii_launch` observes the MAC's own transmit stream |
+| Egress reconstruction | `KL_gptp_txret` owns the ledger, the fence and the recovery demand |
 | PHC arithmetic | `timestamp_counter` |
 | PHC clock domain | `milan_soc.py` ties `gtx_clk` to `axis_clk` at the `milan_datapath` instantiation |
 | Time validity | `KL_ptp_clock_validity` |
@@ -28,20 +30,24 @@ Never patch imported behavior inside the parent lane.
 
 Land donor changes before advancing its pin.
 
-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/HDL_DEVELOPER.md).
+Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/HDL_DEVELOPER.md).
 
 ## Preserve timing
 
-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/diagrams/wavedrom/rx_accept.svg)
+![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/c1b617435824929a790739ea8585c3fe1a328cc0/docs/diagrams/wavedrom/rx_accept.svg)
 
-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/diagrams/wavedrom/tx_backpressure.svg)
+![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/c1b617435824929a790739ea8585c3fe1a328cc0/docs/diagrams/wavedrom/tx_backpressure.svg)
 
 ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
 
-The parent chronogram proves three orderings:
+The parent chronogram proves the egress and ingress orderings:
 
-- Accepted beat 5 registers the tuple.
-- It is visible one cycle later, before EOF.
+- The accepted EOF beat allocates the entry.
+- Nothing is timed at that beat.
+- The queue after it is drawn, never corrected for.
+- Reference octet to tag octets is 45 transmit cycles.
+- The record crosses in two fabric cycles.
+- The tuple returns on the record's own cycle.
 - Ingress commit follows nine accepted beats.
 - Engine SOF follows the commit by three cycles.
 
@@ -49,7 +55,15 @@ Clock-domain precondition:
 
 - The PHC counts on `gtx_clk`.
 - The shadow samples `phc_ns_i` on `axis_clk`.
-- Every real instantiation ties `gtx_clk` to `axis_clk`.
+- Every real instantiation ties `gtx_clk` to `axis_clk`, and
+  `sw/builder/test_builder.py` gate 1d refuses a build that does not.
+- The egress reconstruction subtracts whole PHC ticks.
+- A bench may run the counter at another rate.
+- It must then declare `GPTP_PHC_TICK_NS_P`.
+- `KL_gptp_txret` refuses that mismatch at elaboration.
+- The launch observer runs in `maceth_tx`.
+- It takes the MAC's own transmit reset.
+- It owns both record crossings itself.
 - `ptp_csr_sync` crosses CSR commands only.
 
 Timing rules:
@@ -85,4 +99,4 @@ Never convert a refused frame into partial data.
 - Run lint and portability gates.
 - Record exact-head evidence publicly.
 
-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/6e6237f4ccccb8053d6db55266742eb9d1f63acf/docs/SOURCE_EVIDENCE.md).
+Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/SOURCE_EVIDENCE.md).

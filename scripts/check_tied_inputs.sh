@@ -78,11 +78,32 @@ require_inputs() {
 }
 
 #! input ports of the RTL wrapper (flat ANSI header, `input wire ...`)
+#
+#  PARSE FROM THE FRONT, NEVER FROM THE BACK. This used to strip everything up
+#  to the LAST `wire|logic` on the line, which is the whole line when a
+#  trailing `//!` comment happens to end in one of those words - and two ports
+#  whose comment said "read off the wire" parsed to the empty string, dropped
+#  out of the inventory, and turned their (correctly wired) dict entries into
+#  reported STALE drift. A port's declaration is a prefix, so it is peeled off
+#  a prefix at a time: comments first, then `input`, then the type keyword,
+#  then signedness, then the width.
+#
+#  A DROPPED PORT IS A GATE FAILURE, not a quiet zero. The bug above was
+#  invisible precisely because a line that parsed to nothing simply vanished,
+#  so the counts are compared and a mismatch exits 2 rather than reporting on
+#  an inventory that is missing entries.
 read_rtl_inputs() {
-  rtl_inputs="$(sed -n '/^module milan_datapath/,/^);/p' "$RTL" \
-    | grep -E '^\s*input\s' \
-    | sed -E 's/.*(wire|logic)\s*(\[[^]]*\]\s*)?//; s/[,)].*$//; s/\s+$//; s/^\s+//' \
+  local hdr n_lines n_names
+  hdr="$(sed -n '/^module milan_datapath/,/^);/p' "$RTL" | sed -E 's://.*$::')"
+  rtl_inputs="$(grep -E '^\s*input\s' <<< "$hdr" \
+    | sed -E 's/^\s*input\s+//; s/^(wire|logic|reg)\s+//; s/^(signed|unsigned)\s+//; s/^\[[^]]*\]\s*//; s/[,)].*$//; s/\s+$//; s/^\s+//' \
     | grep -E '^[A-Za-z_][A-Za-z0-9_]*$')" || true
+  n_lines="$(grep -cE '^\s*input\s' <<< "$hdr")" || n_lines=0
+  n_names=0; [ -z "$rtl_inputs" ] || n_names="$(grep -c . <<< "$rtl_inputs")"
+  if [ "$n_lines" -ne "$n_names" ]; then
+    echo "check_tied_inputs: parsed $n_names port name(s) from $n_lines 'input' line(s) of the milan_datapath header - refusing to report drift against an inventory this gate could not read in full"
+    exit 2
+  fi
 }
 
 #! constant-tied i_* entries in the add_milan_datapath ports dict.

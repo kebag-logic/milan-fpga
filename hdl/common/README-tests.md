@@ -10,11 +10,11 @@ hand-edit. Part of the Common / integration family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_link_guard` | `KL_link_guard.sv` | `link_guard` · `milan_dp` · ➰milan_dp_render | -- |
+| ✅ `KL_link_guard` | `KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · ➰milan_dp_render | -- |
+| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `cdc_pair_fifo.sv` | `aaf` · `aes3` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_render | -- |
-| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · ➰milan_dp_render | -- |
+| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰milan_dp_render | -- |
 

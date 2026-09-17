@@ -412,6 +412,9 @@ verdicts and for check counts.
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
 | [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | — |
+| [`tb/verilator/gptp_plane`](../../tb/verilator/gptp_plane) | the plane's servo closed over the REAL `timestamp_counter`: an engine rate write becomes a counter addend and a phase write becomes a step |
+| [`tb/verilator/gptp_shadow`](../../tb/verilator/gptp_shadow) | the plane slice: RX tap, TX lane, pairing, publication, and since #360 the ledger's own laws - a record that is not this frame's, the seal that waits for the observer's echo, an aged head that is not retired, and the recovery demand that only a completed episode discharges. `make` runs the suite then `mutants.py`, which also RECORDS the defects this slice cannot see and where each is carried instead |
+| [`tb/verilator/gptp_txts`](../../tb/verilator/gptp_txts) | **the gPTP egress timestamp closed loop** (#360): the donor engine, the plane, the ledger, the PHC, the launch observer, the link guard and the SHIPPING MAC TRANSMIT CHAIN, converted from `sw/litex/milan_soc.py` by `sw/litex/gen_mac_tx_model.py`. It grades the time the plane returns against an independent oracle that counts octets at the PADS, at the product's 125:50 clock ratio with a swept phase, and measures the retired capture in the same run. `make` runs the suite then `mutants.py`; a stale converted chain is a red before anything is compiled |
 | [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
 | [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
@@ -450,7 +453,8 @@ above rather than smoothed over.
 ## 2. LiteX integration checks - `sw/litex/test_*.py`
 
 Self-checking behavioral checks cover the protocol processor's two main-memory
-bridges and the boot/freeze path. One aggregate owns all of them (#297):
+bridges, the boot/freeze path, and the MAC transmit chain the gPTP egress
+closed loop is built on. One aggregate owns all of them (#297):
 
 ```sh
 scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation
@@ -465,12 +469,17 @@ is a failure (`MISSING`), and a `test_*.py` present but unlisted is a failure
 a new test must join the inventory to land. Each script's output goes to its
 own `<logdir>/<script>.log` and a failure names the exact script. Exit 0 is a
 complete pass; 1-89 counts the findings; 90 means nothing failed but a member
-was skipped for a declared reason (no interpreter importing `migen` + `litex`
-- point `MILAN_LITEX_PYTHON` at one); 91 REFUSES a set `MILAN_LITEX_PYTHON`
+was skipped for a declared reason - either no interpreter importing `migen` +
+`litex` (point `MILAN_LITEX_PYTHON` at one), or a member that DECLARED its own
+skip because this host lacks a tool it needs, printing `RESULT: SKIP <reason>`
+and exiting 0: `test_gptp_tx_timestamp` without Verilator does exactly that,
+since its converted half cannot be built at all, and it is counted skipped,
+never failed; 91 REFUSES a set `MILAN_LITEX_PYTHON`
 that cannot import them (an explicit pin is never silently substituted);
 92 means a wall-clock kill left a result UNKNOWN. The hosted owner is the `elaborate` job
 ([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the selftest and
-then the aggregate on the interpreter it just installed and patched.
+then the aggregate on the interpreter it just installed and patched, with the
+pinned Verilator on PATH so that comparison runs there rather than skipping.
 
 The population was twelve scripts when #297 was filed; ten tested the
 bare-metal ring/DMA product that #259 retired, and PR #294 deleted them with

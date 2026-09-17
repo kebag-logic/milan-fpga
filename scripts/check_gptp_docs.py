@@ -90,7 +90,9 @@ DOCUMENT_TOKENS = {
     ),
     "docs/guides/gptp/HDL_DEVELOPER.md": (
         "KL_gptp_shadow",
-        "KL_gptp_txstamp",
+        "KL_gptp_txticket",
+        "KL_gptp_gmii_launch",
+        "KL_gptp_txret",
         "rx_accept.svg",
         "tx_backpressure.svg",
         "wd_gptp_pdelay.svg",
@@ -112,20 +114,80 @@ SOURCE_TOKENS = {
         "pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C",
         "KL_media_grid_align #(",
         "KL_gptp_shadow #(",
-        "KL_gptp_txstamp #(",
+        #: #360: the egress timestamp is an observed launch, so the
+        #: datapath's job is to carry the observer's records in, the seal
+        #: out, and the guard's episode evidence across - all three
+        #: unconditionally, because a build that tied any of them off
+        #: would release timestamps for frames nothing ever observed.
+        ".rec_valid_i     (i_gptp_txrec_valid)",
+        ".epi_done_i      (linkg_epi_done_w)",
+        ".man_reinit_i (cfg_mac_reinit | gptp_recov_req_w)",
     ),
     "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": (
         "assign beat_w = rx_tvalid_i & rx_tready_i",
-        "input  wire [3:0]  txts_type_i",
         "output logic        pub_commit_o",
         "output wire         pub_disc_o",
+        #: the plane allocates its identity where the frame becomes
+        #: unstoppable, and it fences its own egress when it can no longer
+        #: trust the association context
+        "KL_gptp_txticket #(",
+        "KL_gptp_txret #(",
+        "assign tx_tvalid_o = txf_out_valid_w & (fn_S == FN_OPEN);",
     ),
-    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv": (
-        "assign beat_w = tx_tvalid_i & tx_tready_i",
-        "if ((bcnt_r == 3'd5) && is_gptp_r && take_r) begin",
-        "if (tx_tlast_i)          bcnt_r <= 3'd0;",
-        "output logic [15:0] ts_seq_o",
-        "output logic [3:0]  ts_type_o",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": (
+        #: one entry per ADMITTED frame, and admitted means accepted: the
+        #: allocation seam is the engine's byte face, which the plane-slice
+        #: bench cannot stall on its own, so the line is held here
+        "assign alloc_w = beat_w & tx_eof_i;",
+        "assign tx_credit_o = ~credit_hold_i &",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": (
+        #: the observation point, the reference octet and the measured
+        #: cycle distance: the three facts the whole repair rests on
+        "input  wire       gmii_tvalid_i,",
+        "localparam logic [47:0] DA_GPTP_C  = 48'h01_80_C2_00_00_0E;",
+        "if ((nidx_w == IDX_W_C'(REF_OCTET_P)) && cand_w) begin",
+        "(delta_r != TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P))};",
+    ),
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": (
+        #: identity is position, cancellation marks, and the correction is
+        #: derived from its terms rather than written down.
+        #:
+        #: BOTH LINES OF THE EXPRESSION, deliberately. The first line alone
+        #: was the pin until this round, and `departed_w` - the term
+        #: mutants.py declares unobservable and names this file as the holder
+        #: of - is on the SECOND one. It could be deleted with the old token
+        #: still matching and every suite still green, which is the one thing
+        #: a structural pin exists to stop. A pin that stops short of the
+        #: term it stands in for is not a pin.
+        "assign resolve_w = frame_rec_w & ~seal_r & gen_ok_w & oidx_ok_w &\n"
+        "                     have_entry_w & departed_w & tag_ok_w;",
+        "localparam int unsigned TXTS_CORR_NS_P =",
+        #: The four acceptance terms and the one line that says an expiry
+        #: is NOT a retirement. `tb/verilator/gptp_shadow/mutants.py`
+        #: records which of these its own defect controls cannot see from
+        #: outside - two independent cross-checks on one fact, a predicate
+        #: about an order no interface reports - and these tokens are where
+        #: those laws are held instead.
+        "assign oidx_ok_w    = (cap_oidx_r == exp_oidx_r);",
+        "assign departed_w   = (n_dep_i != '0);",
+        #: THE WHOLE OUTCOME EXPRESSION, for the same reason and one more.
+        #: The cycle-distance term is what refuses a plausible time for a
+        #: frame that was fragmented on the wire, and it is the difference
+        #: between a measurement and a guess; no bench here can produce that
+        #: fragmentation at this interface, so nothing observed its removal.
+        #: Pinning the line alone would not do: `phc_lost_w` below carries a
+        #: character-identical term, so either could go while the other kept
+        #: a one-line token matching.
+        "assign res_ok_w = resolve_w & led_live_r[led_head_r] & "
+        "led_tag_r[led_head_r] &\n"
+        "                    ~cap_abort_r & cap_elig_r &\n"
+        "                    (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));",
+        "assign push_res_w = resolve_w | pre_resolve_w;",
+        #: the abort arm is written FIRST, on purpose
+        "      if (!epi_busy_i && !epi_done_i)     epi_cover_r <= 1'b0;",
+        "if (barrier_w) begin\n        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;",
+        "assign destroyed_w   = destroyed_r & ~mac_reinit_i & ~mac_eth_rst_i &",
     ),
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": (
         "assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w",
@@ -134,9 +196,10 @@ SOURCE_TOKENS = {
 }
 
 WAVEDROM_TOKENS = (
-    "accepted MAC SOF",
-    "TX PHC capture",
-    "accepted beat 5",
+    "accepted MAC EOF",
+    "reference octet launched",
+    "tag octets observed",
+    "launch record accepted",
     "{t1, seq, type=2}",
     "accepted tap SOF",
     "RX PHC capture",
@@ -148,29 +211,41 @@ WAVEDROM_TOKENS = (
     "sequence plus message type",
 )
 
-# KL_gptp_txstamp captures sequenceId on accepted beat 5 and raises its
-# registered tuple before a normal Pdelay frame reaches tx_tlast_i. This order
-# is the interface contract; labels alone cannot prove it.
+# EGRESS, since #360. The ledger allocates the frame's entry at the EOF beat
+# the MAC boundary ACCEPTED, and nothing is timed there: what the plane
+# returns is built from the frame's LAUNCH, observed at the MAC's own
+# transmit stream. The order below is the interface contract - allocate,
+# queue for as long as the MAC needs, launch, measure to the tag octets,
+# cross, resolve - and the two distances that are not free are pinned
+# exactly. Labels alone cannot prove either.
 WAVEDROM_ORDER = (
-    ("accepted MAC SOF", "accepted beat 5"),
-    ("accepted beat 5", "returned tuple"),
-    ("returned tuple", "accepted MAC EOF"),
+    ("accepted MAC EOF", "reference octet launched"),
+    ("reference octet launched", "tag octets observed"),
+    ("tag octets observed", "launch record accepted"),
+    #: the tuple is returned ON the record's own cycle, which
+    #: WAVEDROM_SAME_CYCLE below states exactly
     ("accepted tap SOF", "accepted tap EOF"),
     ("accepted tap EOF", "frame FIFO commit"),
     ("frame FIFO commit", "engine RX SOF"),
 )
 
-# The published diagram is explicitly the unstalled 64-bit parent path. A
-# 68-byte Pdelay_Resp occupies nine accepted beats, hence eight cycle intervals
-# from the accepted SOF beat to the accepted EOF beat. axis_fifo commits on the
-# following cycle; its RAM read register plus its one-stage output pipeline
-# present the first beat two cycles after that, and the shadow serializer
-# registers it once more, so engine SOF is three cycles after the commit pulse.
+# The published diagram is explicitly the unstalled 64-bit parent path, drawn
+# in FABRIC cycles. A 68-byte Pdelay_Resp occupies nine accepted beats, hence
+# eight cycle intervals from the accepted SOF beat to the accepted EOF beat.
+# axis_fifo commits on the following cycle; its RAM read register plus its
+# one-stage output pipeline present the first beat two cycles after that, and
+# the shadow serializer registers it once more, so engine SOF is three cycles
+# after the commit pulse. On the egress side the reference octet and the tag
+# octets are TXTS_DELTA_EXP_P = 45 transmit cycles apart, which at the
+# product's 125:50 ratio is eighteen fabric cycles, and the record crossing
+# is CDC_LAT_D_CYC_P = 2 fabric cycles.
 WAVEDROM_SAME_CYCLE = (
-    ("accepted MAC SOF", "TX PHC capture"),
+    ("launch record accepted", "returned tuple"),
     ("accepted tap SOF", "RX PHC capture"),
 )
 WAVEDROM_EXACT_DELTA = (
+    ("reference octet launched", "tag octets observed", 18),
+    ("tag octets observed", "launch record accepted", 2),
     ("accepted tap SOF", "accepted tap EOF", 8),
     ("accepted tap EOF", "frame FIFO commit", 1),
     ("frame FIFO commit", "engine RX SOF", 3),
@@ -699,18 +774,19 @@ def wavedrom_selftest() -> int:
 
 def wavedrom_shape_selftest() -> int:
     """The wave-shape arms: the value form of the returned tuple is read as
-    its event, so displacing that `=` past EOF is caught as an order defect;
-    then a `period`, a `phase` and a `|` stall on an oracle signal are each
-    refused."""
+    its event, so moving that `=` off the record's own cycle is caught -
+    since #360 the tuple is what the ACCEPTED RECORD produces, not something
+    that precedes the frame's EOF; then a `period`, a `phase` and a `|`
+    stall on an oracle signal are each refused."""
     production = json.loads(WAVEDROM.read_text(encoding="utf-8"))
     waves = named_waves(production)
     if not set(waves["returned tuple"][0]) & VALUE_SYMBOLS:
         raise SelftestFailure("production returned tuple is not a value wave")
-    eof_cycle = waves["accepted MAC EOF"][0].index("1")
-    if move_event(production, "returned tuple", eof_cycle + 1) != 1:
+    record_cycle = waves["launch record accepted"][0].index("1")
+    if move_event(production, "returned tuple", record_cycle + 1) != 1:
         raise SelftestFailure("value fixture drift")
     if not any(
-        "'returned tuple' must precede 'accepted MAC EOF'" in finding
+        "must occur in the same cycle" in finding
         for finding in wavedrom_value_findings(production, "fixture")
     ):
         raise SelftestFailure("displaced value symbol escaped")

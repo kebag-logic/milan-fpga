@@ -75,9 +75,10 @@ which is conservative: no stream can transmit against an unbudgeted slope.
 Fabric gPTP has its own timer-driven transmit source and merges directly onto
 the control lane; there is no classifier/shaper chain in the shipped trunk for
 it to sit below. It therefore cannot be delayed by queue occupancy or firmware
-service. TX/RX event timestamps are captured at the MAC boundary
-(`KL_gptp_txstamp`) and off the RX tap, and the fabric plane consumes its
-dedicated timestamp handshake. The rule this section is named for - gPTP
+service. The RX event timestamp is captured off the RX tap; the TX one is not
+captured at this boundary at all - since #360 it is the frame's observed
+LAUNCH, reported back from the MAC's own transmit stream, so whatever the
+merge and the MAC queue cost the frame is outside the timestamp. The rule this section is named for - gPTP
 must never queue behind a shaped class - is what any future class-A shaping
 lane over the fabric's own sources has to preserve.
 

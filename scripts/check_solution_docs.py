@@ -171,6 +171,13 @@ PORT_GROUPS = (
         ),
     ),
     PortGroup(
+        "gPTP egress launch records",
+        "`i_gptp_txrec_*`, `o_gptp_txseal_*`, `i_gptp_txseal_ack`",
+        "Carry the launch observer's records in and the plane's seal back",
+        "Clear every `i_gptp_txrec_*` and `i_gptp_txseal_ack`; leave the seal outputs open",
+        (r"i_gptp_txrec_.*", r"[io]_gptp_txseal_.*"),
+    ),
+    PortGroup(
         "Interrupt",
         "`o_irq_csr`",
         "Route the aggregate CSR interrupt",
