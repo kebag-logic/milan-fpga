@@ -171,6 +171,7 @@ def constants_header(shape: Shape, donor: Donor, ident: Ident) -> str:
         "MILAN_MODEL_ID_HI": ident.model_id >> 32,
         "MILAN_STATION_MAC_LO": 0x0403_0201, "MILAN_STATION_MAC_HI": 0x0605,
         "MILAN_N_TALKERS": 1, "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0,
+        "MILAN_CRF_TX_CTRL_BOOT": 3,
         "MILAN_AEM_FLASH_OFFSET": AEM_OFFSET,
         "MILAN_AEM_IMAGE_BYTES": len(AEM_STUB),
         "MILAN_AEM_IMAGE_CRC32": zlib.crc32(AEM_STUB) & 0xFFFF_FFFF,

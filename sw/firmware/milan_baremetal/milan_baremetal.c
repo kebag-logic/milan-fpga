@@ -32,7 +32,6 @@
 #define MILAN_ADP_EID_HI     0x608u
 #define MILAN_ADP_MID_LO     0x60cu
 #define MILAN_ADP_MID_HI     0x610u
-#define MILAN_ADP_CAPS       0x614u
 #define MILAN_ADP_GM_LO      0x624u
 #define MILAN_ADP_GM_HI      0x628u
 #define MILAN_AAF_CTRL       0x654u
@@ -51,7 +50,6 @@
 #define MILAN_ID_MAGIC       0x4d494c4eu
 #define MILAN_PTP_LOAD       0x1u
 #define MILAN_PTP_SNAPSHOT   0x4u
-#define MILAN_ADP_CAPS_VALUE 0x00008588u
 
 static int aem_loaded;
 
@@ -289,17 +287,19 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define NVM_SR_WIP     0x01u
 
 /*
- * Timing. The heartbeat period is half the section 9.4 maximum (500 ms), the
- * erase timeout covers the datasheet tSE maximum (3 s) inside the 8 s commit
- * deadline, and the debounce is the provisional value section 14 leaves open:
- * a power cut inside it loses exactly the changes nvm_dirty is reporting.
+ * Timing, generated (MILAN_NVM_*_MS, scripts/nvm_shape.py WRITER_TIMING_MS,
+ * which cites the design-page section behind each). The heartbeat period is
+ * half the section 9.4 maximum (500 ms), the erase timeout covers the
+ * datasheet tSE maximum (3 s) inside the 8 s commit deadline, and the
+ * debounce is the provisional value section 14 leaves open: a power cut
+ * inside it loses exactly the changes nvm_dirty is reporting.
  */
 #define NVM_MS(n)              ((uint64_t)(n) * 1000000ull)
-#define NVM_HEARTBEAT_NS       NVM_MS(250)
-#define NVM_DEBOUNCE_NS        NVM_MS(1000)
-#define NVM_ERASE_TIMEOUT_NS   NVM_MS(3500)
-#define NVM_PROGRAM_TIMEOUT_NS NVM_MS(50)
-#define NVM_RESTORE_TIMEOUT_NS NVM_MS(3000)
+#define NVM_HEARTBEAT_NS       NVM_MS(MILAN_NVM_HEARTBEAT_MS)
+#define NVM_DEBOUNCE_NS        NVM_MS(MILAN_NVM_DEBOUNCE_MS)
+#define NVM_ERASE_TIMEOUT_NS   NVM_MS(MILAN_NVM_ERASE_TIMEOUT_MS)
+#define NVM_PROGRAM_TIMEOUT_NS NVM_MS(MILAN_NVM_PROGRAM_TIMEOUT_MS)
+#define NVM_RESTORE_TIMEOUT_NS NVM_MS(MILAN_NVM_RESTORE_TIMEOUT_MS)
 
 void set_idle_hook(void (*fptr)(void));
 
@@ -991,7 +991,6 @@ static void configure_fabric(void)
 	milan_write(MILAN_ADP_EID_HI, MILAN_ENTITY_ID_HI);
 	milan_write(MILAN_ADP_MID_LO, MILAN_MODEL_ID_LO);
 	milan_write(MILAN_ADP_MID_HI, MILAN_MODEL_ID_HI);
-	milan_write(MILAN_ADP_CAPS, MILAN_ADP_CAPS_VALUE);
 	milan_write(MILAN_MAC_ADDR_LO, MILAN_STATION_MAC_LO);
 	milan_write(MILAN_MAC_ADDR_HI, MILAN_STATION_MAC_HI);
 	/* Receive the link-local multicast control groups without promiscuous mode. */
@@ -1002,7 +1001,8 @@ static void configure_fabric(void)
 	milan_write(MILAN_LWSRP_VID, MILAN_SR_VID);
 	milan_write(MILAN_LWSRP_CTRL, MILAN_LWSRP_CTRL_RESET | 3u);
 	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
-	milan_write(MILAN_CRF_TX_CTRL, 3u);
+	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
 }
 
 /*
