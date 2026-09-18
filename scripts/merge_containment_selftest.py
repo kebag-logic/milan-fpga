@@ -13,7 +13,10 @@ two reasons.  The cases patch the very namespace ``main()`` and ``contained()``
 resolve their helpers from -- the same reach the in-file ``globals()[...]``
 assignments had while this lived in one file -- and neither file has to import
 the other, so the entry point stays a script.  The content-equivalence half of
-the suite is in ``merge_containment_selftest_content.py``.
+the suite is in ``merge_containment_selftest_content.py``, and the temporary
+trees both halves build in, with the Git settings that keep them quiet and the
+exit code for one that cannot be removed, are in
+``merge_containment_selftest_scratch.py`` (#438).
 """
 
 import contextlib
@@ -23,10 +26,13 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
 from collections.abc import Sequence
 from pathlib import Path
 from types import ModuleType
+
+from merge_containment_selftest_scratch import (init_quiet_bare, quiet_git,
+                                                scratch, scratch_cases,
+                                                verdict)
 
 
 def _write(path, text, mode="w"):
@@ -45,10 +51,13 @@ class _Fixture:
         self.td = None            # the primary fixture repository
         self.remote = None        # its bare origin, while that block is open
         self.base_oid = None      # the object ID of its `base` branch
+        self.leftovers = []       # temporary trees that could not be removed
 
 
 def selftest(module: ModuleType) -> int:
-    """Run every case against `module`; 0 when they all pass, 1 otherwise."""
+    """Run every case against `module`: 0 when they all pass, 1 when one
+    fails, and `module.RC_CLEANUP_FAILED` when they all pass but a temporary
+    tree could not be removed (#438)."""
     bad = 0
 
     def case(name: str, got: object, want: object, why: str) -> None:
@@ -78,14 +87,24 @@ def selftest(module: ModuleType) -> int:
         return rc, buf.getvalue()
 
     fx = _Fixture(module, case, run)
-    if not _direct_predicate_cases(fx):
-        return 1
+    #! Every Git started below, and every Git those start in the same
+    #! repository, runs without the housekeeping that once outlived its
+    #! command and refilled a tree while it was being removed (#438).
+    with quiet_git():
+        if not _direct_predicate_cases(fx):
+            return 1
+        scratch_cases(module, case, fx.leftovers)
+        _fixture_cases(fx)
+    return verdict(bad, fx.leftovers, module.RC_CLEANUP_FAILED)
 
+
+def _fixture_cases(fx):
+    """Every case that runs in the primary fixture repository."""
     #! Imported here, not at the top: the content half imports `_write` back
     #! out of this module, and no case ever runs outside this call.
     from merge_containment_selftest_content import content_cases
 
-    with tempfile.TemporaryDirectory() as td:
+    with scratch(fx.leftovers) as td:
         cwd = os.getcwd()
         fx.td = td
         try:
@@ -97,8 +116,8 @@ def selftest(module: ModuleType) -> int:
             # Fetch updates origin/work but not the checked-out local work
             # branch.  The default path must assess the fetched tip, or the
             # exact incident this command guards becomes a quiet rc 0.
-            _rc, fx.base_oid = module._git("rev-parse", "base")
-            with tempfile.TemporaryDirectory() as remote:
+            _rc, fx.base_oid = fx.mc._git("rev-parse", "base")
+            with scratch(fx.leftovers) as remote:
                 fx.remote = remote
                 _fetched_tip_cases(fx)
                 _deleted_ref_cases(fx)
@@ -112,9 +131,6 @@ def selftest(module: ModuleType) -> int:
             content_cases(fx)
         finally:
             os.chdir(cwd)
-
-    print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
-    return 1 if bad else 0
 
 
 def _direct_predicate_cases(fx):
@@ -280,7 +296,7 @@ def _git_minimum_cases(fx):
     real_git = shutil.which("git")
     #! Outside the fixture repository: an untracked directory inside it would
     #! ride along with a later `add -A` and change what the content cases see.
-    with tempfile.TemporaryDirectory() as shim_home:
+    with scratch(fx.leftovers) as shim_home:
         _git_minimum_shim_cases(fx, Path(shim_home) / "git", real_git)
 
 
@@ -370,7 +386,7 @@ def _fetched_tip_cases(fx):
     def _git(*args):
         return mc._git(*args)
 
-    _git("init", "--bare", "-q", remote)
+    init_quiet_bare(_git, remote)
     _git("remote", "add", "origin", remote)
     _git("push", "-q", "origin", "base", "work")
     _git("checkout", "-q", "work")
@@ -833,7 +849,7 @@ def _deleted_origin_cases(fx):
     # the remote.  Reproduce the incident shape in a separate repo:
     # H was merged, S was pushed later, then origin/feature vanished
     # while the checker's local feature remained at H.
-    with tempfile.TemporaryDirectory() as deleted_parent:
+    with scratch(fx.leftovers) as deleted_parent:
         #! str, not Path: all three go straight into git's argv.
         parent = Path(deleted_parent)
         checker = str(parent / "checker")
@@ -851,7 +867,7 @@ def _deleted_origin_cases(fx):
         _git("add", "merged"); _git("commit", "-qm", "H")
         _git("checkout", "-q", "base")
         _git("merge", "-q", "--no-ff", "feature", "-m", "M")
-        _git("init", "--bare", "-q", deleted_remote)
+        init_quiet_bare(_git, deleted_remote)
         _git("remote", "add", "origin", deleted_remote)
         _git("push", "-q", "origin", "base", "feature")
         _git("clone", "-q", deleted_remote, writer)
@@ -881,7 +897,7 @@ def _deleted_origin_cases(fx):
     # deepens the clone before answering.
     _git("--git-dir", remote, "symbolic-ref", "HEAD",
          "refs/heads/work")
-    with tempfile.TemporaryDirectory() as shallow_parent:
+    with scratch(fx.leftovers) as shallow_parent:
         #! str, for the same reason: `git clone` is handed this word.
         shallow_repo = str(Path(shallow_parent) / "repo")
         _git("clone", "-q", "--depth", "1",
