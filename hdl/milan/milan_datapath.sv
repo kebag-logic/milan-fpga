@@ -126,16 +126,27 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int AUDIO_IF_MASTER_P = 0,
   //! MASTER-only: the frequency of clk_tdm_i, in Hz, and the sample rate its
   //! frame sync must run at. Together with AUDIO_IF_SLOTS_P they FIX the bclk
-  //! divider - bclk = SLOTS x 32 x fs and clk_tdm_i = 2 x BCLK_HALF x bclk -
-  //! and the guard below REFUSES any combination that is not an exact integer
-  //! division. That refusal is the whole point: TDM32 x 32-bit slots at 48 kHz
-  //! needs a 49.152 MHz bit clock and therefore a 98.304 MHz clk_tdm_i, which
-  //! the shipping 24.576 MHz audio MMCM cannot divide down to. A silent
-  //! wrong-rate front-end is exactly the class of defect roadmap item 00
-  //! exists to make loud. Defaults describe the shipping audio clock, at which
-  //! only TDM8 x 32 @ 48 kHz is realisable (24.576 MHz = 2 x 1 x 12.288 MHz).
+  //! divider - bclk = SLOTS x WORD_BITS x fs and clk_tdm_i = 2 x BCLK_HALF x
+  //! bclk - and the guard below REFUSES any combination that is not an exact
+  //! integer division. That refusal is the whole point: TDM32 x 32-bit slots
+  //! at 48 kHz needs a 49.152 MHz bit clock and therefore a 98.304 MHz
+  //! clk_tdm_i, which the shipping 24.576 MHz audio MMCM cannot divide down
+  //! to. A silent wrong-rate front-end is exactly the class of defect roadmap
+  //! item 00 exists to make loud. Defaults describe the shipping audio clock,
+  //! at which only TDM8 x 32 @ 48 kHz is realisable (24.576 MHz = 2 x 1 x
+  //! 12.288 MHz).
   parameter int AUDIO_IF_CLK_HZ_P = 24576000,
   parameter int AUDIO_IF_FS_HZ_P  = 48000,
+  //! BIT CLOCKS PER TDM SLOT (issue #399) - the SLOT WIDTH, not the sample's
+  //! valid-bit count. The two are different facts and the config declares the
+  //! second: `audio_interface.word_length_bits: 24` means 24 valid bits
+  //! MSB-aligned inside a 32-bclk slot ("24-in-32"), which is what the
+  //! default here elaborates and what every shipping build runs. The
+  //! front-ends take the top 24 bits of the slot whatever this is, so a
+  //! narrower valid-bit declaration needs no parameter; a narrower BUS does,
+  //! and that is this one. Feeds the KL_tdm_capture[_master] WORD_BITS_P and
+  //! the bclk arithmetic below, so the master's clock guard follows it.
+  parameter int AUDIO_IF_WORD_BITS_P = 32,
   //! HANDOVER 8.3b (USER 2026-07-28) - the Arty audio shape: 1 = keep the
   //! stereo I2S front-end ALIVE BESIDE a TDM MASTER and blend the two pair
   //! streams (KL_pair_blend): the I2S pair is pair slot 0 - "channels 1/2
@@ -862,7 +873,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //
   //  ONE format string.
   // ==========================================================================
-  localparam int AIF_WORD_BITS_C = 32;                   //! bclks per TDM slot
+  localparam int AIF_WORD_BITS_C = AUDIO_IF_WORD_BITS_P; //! bclks per TDM slot
   localparam int AIF_BCLK_HZ_C   = AUDIO_IF_SLOTS_P * AIF_WORD_BITS_C *
                                    AUDIO_IF_FS_HZ_P;
   //! guarded against 0 so the DEFAULT (I2S, SLOTS 0) elaboration never divides
@@ -1059,11 +1070,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   end else begin : g_aif_tdm
     //! TDM slave (pulse or 50%-duty fsync, Philips-heritage 1-bit data
-    //! delay, 32-bclk slots). The TONE_CTRL pilot override is an I2S-bench
-    //! feature and does not reach this front-end (tone_smp unused here).
+    //! delay, AIF_WORD_BITS_C-bclk slots - the same ONE slot-width fact the
+    //! master arm frames with, so the two cannot disagree). The TONE_CTRL
+    //! pilot override is an I2S-bench feature and does not reach this
+    //! front-end (tone_smp unused here).
     KL_tdm_capture #(
       .SLOTS_P      (AUDIO_IF_SLOTS_P),
-      .WORD_BITS_P  (32),
+      .WORD_BITS_P  (AIF_WORD_BITS_C),
       .DATA_DELAY_P (1'b1)
     ) aaf_capture (
       .clk_i (axis_clk), .rst_n (axis_resetn),

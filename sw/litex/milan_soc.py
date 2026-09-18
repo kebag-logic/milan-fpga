@@ -81,13 +81,30 @@ MILAN_CSR_SIZE = 0x0001_0000  # 64 KB
 # A TDM slot is 32 bit clocks wide whatever the sample word inside it is - the
 # configs' `word_length_bits: 24` means "24-in-32", which is what
 # milan_datapath's AIF_WORD_BITS_C = 32 elaborates. The frame rate IS the
-# sample rate, so bclk = SLOTS x 32 x fs and a bus MASTER, which toggles a
-# divider to make bclk, needs a clock at 2 x that. These two constants are the
-# only place that arithmetic is written on the Python side; milan_datapath
-# re-derives it in SV and REFUSES any clock that is not an exact multiple, so
-# the two cannot silently disagree.
-AUDIO_IF_WORD_BITS = 32
-AUDIO_IF_FS_HZ     = 48000
+# sample rate, so bclk = SLOTS x SLOT BITS x fs and a bus MASTER, which toggles
+# a divider to make bclk, needs a clock at 2 x that. This is the only place
+# that arithmetic is written on the Python side; milan_datapath re-derives it
+# in SV and REFUSES any clock that is not an exact multiple, so the two cannot
+# silently disagree.
+#
+# Since #399 the two numbers are argv DEFAULTS, not constants: --audio-fs-hz
+# and --audio-word-bits carry the end-station declaration
+# (clocking.sampling_rate_hz and the slot width audio_interface.word_length_bits
+# rides) into AUDIO_IF_FS_HZ_P / AUDIO_IF_WORD_BITS_P and into the audio MMCM
+# plan. The defaults below ARE the shipping shape, and each parameter is passed
+# to the Instance only when it is off its default, so every build that does not
+# ask for another rate or slot width emits a byte-identical top .v.
+AUDIO_IF_WORD_BITS_DEFAULT = 32
+AUDIO_IF_FS_HZ_DEFAULT     = 48000
+
+# The audio MMCM's CONTRACT rate in Hz. NOT a knob: _CRG produces it from a
+# fixed two-stage integer chain whose error (-0.66 ppm on the TDM-master plan,
+# -10.64 ppm otherwise) is the achievable optimum from a 100 MHz reference,
+# and KL_crf_tx divides it /512 for the 48 kHz CRF event, KL_i2s_playback
+# /2 /8 /512 for the DAC and KL_mmcm_drp_servo measures it. Named here so the
+# end-station builder can REFUSE a clocking.audio_pll_hz this fabric does not
+# produce (#399) by reading the rate rather than restating it.
+AUDIO_CLK_HZ = 24_576_000
 
 # ---- QSPI flash boot -------------------------------------------------------
 # The 16 MiB product map contains the self-configuring bitstream, the raw AEM
@@ -440,7 +457,9 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, audio_if_render=0, pps=False,
+                 audio_if_i2s_pair=False, audio_if_render=0,
+                 audio_fs_hz=AUDIO_IF_FS_HZ_DEFAULT,
+                 audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  gptp_plane=None,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -458,6 +477,8 @@ class MilanNIC(LiteXModule):
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            audio_if_render=audio_if_render,
+                           audio_fs_hz=audio_fs_hz,
+                           audio_word_bits=audio_word_bits,
                            pps=pps,
                            gptp_plane=gptp_plane,
                            loopback_lane=loopback_lane,
@@ -721,6 +742,8 @@ def add_milan_datapath(host: Module, platform: object,
                        audio_if_master: bool = False,
                        audio_if_i2s_pair: bool = False,
                        audio_if_render: int = 0,
+                       audio_fs_hz: int = AUDIO_IF_FS_HZ_DEFAULT,
+                       audio_word_bits: int = AUDIO_IF_WORD_BITS_DEFAULT,
                        pps: bool = False,
                        gptp_plane: bool | None = None,
                        loopback_lane: bool = False,
@@ -969,8 +992,22 @@ def add_milan_datapath(host: Module, platform: object,
         # module does not have - it silently drops it.
         dp_params["p_AUDIO_IF_MASTER_P"] = 1
         dp_params["p_AUDIO_IF_CLK_HZ_P"] = (2 * int(audio_if_slots)
-                                            * AUDIO_IF_WORD_BITS
-                                            * AUDIO_IF_FS_HZ)
+                                            * int(audio_word_bits)
+                                            * int(audio_fs_hz))
+        # #399 AUDIO_IF_FS_HZ_P / AUDIO_IF_WORD_BITS_P: the DECLARED media
+        # clock and TDM slot width, so `clocking.sampling_rate_hz` and the slot
+        # `audio_interface.word_length_bits` rides stop being two numbers this
+        # file hardcodes. Each is passed ONLY when it is off the SV default
+        # (48000 Hz, 32 bclks), so the shipping shapes' Instance - and their
+        # generated top .v - are byte-identical to the build before this
+        # existed, and the SAME character-for-character name rule as above
+        # applies. The clock above already follows both: milan_datapath
+        # re-derives bclk = SLOTS x WORD_BITS x fs from them and REFUSES a
+        # clk_tdm_i that is not an exact even multiple of it.
+        if int(audio_fs_hz) != AUDIO_IF_FS_HZ_DEFAULT:
+            dp_params["p_AUDIO_IF_FS_HZ_P"] = int(audio_fs_hz)
+        if int(audio_word_bits) != AUDIO_IF_WORD_BITS_DEFAULT:
+            dp_params["p_AUDIO_IF_WORD_BITS_P"] = int(audio_word_bits)
         # #447 AUDIO_IF_RENDER_SLOTS_P: the RENDER half of the audio
         # interface - how many TDM slots this build SERIALIZES onto
         # tdm_dout_o. A SEPARATE quantity from audio_if_slots (the bus width
@@ -2461,7 +2498,9 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv",
                  board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
-                 audio_if_master=False, audio_if_render=0, pps=False,
+                 audio_if_master=False, audio_if_render=0,
+                 audio_fs_hz=AUDIO_IF_FS_HZ_DEFAULT,
+                 audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
@@ -2604,10 +2643,12 @@ class MilanSoC(SoCCore):
         self.add_config("BIOS_NO_BOOT")
 
         # item-4 TDM MASTER: the front-end generates the bus, so it needs a
-        # clock at 2 x bclk = 2 x SLOTS x 32 x 48 kHz. Only a master build asks
-        # for one, and only then does _CRG switch to the re-derived two-stage
-        # plan (see its comment) - so every existing build's MMCM, and every
-        # bench number measured through it, is untouched.
+        # clock at 2 x bclk = 2 x SLOTS x slot bits x fs - the DECLARED rate
+        # and slot width since #399, defaulting to the shipping 32 x 48 kHz.
+        # Only a master build asks for one, and only then does _CRG switch to
+        # the re-derived two-stage plan (see its comment) - so every existing
+        # build's MMCM, and every bench number measured through it, is
+        # untouched.
         if audio_if_master and not int(audio_if_slots):
             # REFUSE, do not ignore. A flag that is accepted and does nothing
             # is a silent configuration defect: the build
@@ -2620,9 +2661,9 @@ class MilanSoC(SoCCore):
                 "front-end is elaborated (the I2S capture front-end is "
                 "already an I2S clock master). milan_datapath refuses the "
                 "same combination at elaboration.")
-        audio_tdm_hz = (2 * int(audio_if_slots) * AUDIO_IF_WORD_BITS
-                        * AUDIO_IF_FS_HZ) if (audio_if_master and
-                                              int(audio_if_slots)) else None
+        audio_tdm_hz = (2 * int(audio_if_slots) * int(audio_word_bits)
+                        * int(audio_fs_hz)) if (audio_if_master and
+                                                int(audio_if_slots)) else None
         # HANDOVER 8.3b: a TDM8 master's serial clock is 24.576 MHz - the
         # audio MMCM's own contract rate. Reuse cd_audio directly: no CLKOUT1,
         # no cd_audio_tdm, no new closure surface, and plan A (with its
@@ -2630,7 +2671,7 @@ class MilanSoC(SoCCore):
         # the second output and plan B. The datapath still sees
         # AUDIO_IF_CLK_HZ_P = 24576000 and derives BCLK_HALF_P = 1 -> a
         # 12.288 MHz bclk, exactly.
-        if audio_tdm_hz == 24_576_000:
+        if audio_tdm_hz == AUDIO_CLK_HZ:
             audio_tdm_hz = None
         self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
                         milan_clk_freq=milan_clk_freq, board=board,
@@ -2895,6 +2936,14 @@ class MilanSoC(SoCCore):
                                   audio_if_render=(int(audio_if_render)
                                                    if self.tdm_pads is not None
                                                    else 0),
+                                  # #399: the declared media clock and TDM
+                                  # slot width, the same two numbers that
+                                  # derived audio_tdm_hz above - one fact,
+                                  # one derivation, so the MMCM the master
+                                  # divides and the rate the datapath frames
+                                  # at cannot come apart.
+                                  audio_fs_hz=int(audio_fs_hz),
+                                  audio_word_bits=int(audio_word_bits),
                                   pps=bool(pps),
                                   # Preserve None so add_milan_datapath catches
                                   # a severed ownership carrier.
@@ -3469,6 +3518,37 @@ def main() -> None:
                          "crossbar's TDM key lane. Default 0 => the lane is "
                          "pruned, tdm_dout_o is driven low and the build is "
                          "byte-identical.")
+    ap.add_argument("--audio-fs-hz", default=AUDIO_IF_FS_HZ_DEFAULT, type=int,
+                    help="issue #399: the media clock the TDM bus frames at, "
+                         "in Hz (milan_datapath AUDIO_IF_FS_HZ_P, and the fs "
+                         "in bclk = SLOTS x slot bits x fs that sets "
+                         "AUDIO_IF_CLK_HZ_P and the audio MMCM's TDM output). "
+                         "The builder emits it from clocking.sampling_rate_hz, "
+                         "so the rate the entity advertises and the rate the "
+                         "fabric frames at come from ONE declaration instead "
+                         "of this file hardcoding 48000. Needs "
+                         "--audio-interface tdmN --audio-interface-master: "
+                         "those are the only builds with a rate to set, and a "
+                         "flag that is accepted and does nothing is the defect "
+                         "class this issue closes. milan_datapath refuses a "
+                         "clk_tdm_i that is not an exact even multiple of the "
+                         "resulting bit clock, and _CRG refuses a TDM clock "
+                         "its VCO cannot divide to. Default 48000 => the "
+                         "parameter is withheld and the build is "
+                         "byte-identical.")
+    ap.add_argument("--audio-word-bits", default=AUDIO_IF_WORD_BITS_DEFAULT,
+                    type=int, choices=(16, 24, 32),
+                    help="issue #399: BIT CLOCKS PER TDM SLOT - the slot WIDTH "
+                         "(milan_datapath AUDIO_IF_WORD_BITS_P -> the "
+                         "KL_tdm_capture[_master] WORD_BITS_P and the same "
+                         "bclk arithmetic). NOT the sample's valid-bit count: "
+                         "audio_interface.word_length_bits: 24 means 24 valid "
+                         "bits MSB-aligned inside a 32-bclk slot (\"24-in-32\"), "
+                         "which the front-ends take off the top of the slot "
+                         "whatever this is. Same --audio-interface tdmN "
+                         "--audio-interface-master requirement and the same "
+                         "reason. Default 32 => the parameter is withheld and "
+                         "the build is byte-identical.")
     ap.add_argument("--talker-wire-chans", default=2, type=int,
                     help="item-00 WIRE CHANNEL CONSTANT: channels_per_frame the AAF "
                          "framer emits per talker (milan_datapath TALKER_WIRE_CHANS_P, "
@@ -3603,6 +3683,31 @@ def main() -> None:
             "I2S front-end instead."
             % (int(args.audio_interface_render), args.audio_interface))
 
+    # ---- #399: the declared media clock and slot width reach the fabric only
+    #      through the TDM MASTER's bclk arithmetic. On any other build the
+    #      audio clock is the fixed 24.576 MHz contract rate and the I2S
+    #      front-end divides 48 kHz out of it, so an off-default value here
+    #      would be accepted and elaborate nothing - the exact shape of lie
+    #      #399 exists to remove. REFUSE it by name instead, the same rule as
+    #      the two refusals above.
+    for _flag, _val, _dflt in (("--audio-fs-hz", int(args.audio_fs_hz),
+                                AUDIO_IF_FS_HZ_DEFAULT),
+                               ("--audio-word-bits", int(args.audio_word_bits),
+                                AUDIO_IF_WORD_BITS_DEFAULT)):
+        if _val != _dflt and not (
+                args.audio_interface in board_audio_routing.TDM_KINDS
+                and args.audio_interface_master):
+            raise SystemExit(
+                "%s %d needs --audio-interface tdmN --audio-interface-master: "
+                "only a TDM bus MASTER generates a frame, so only it has a "
+                "rate and a slot width to set. Every other build runs the "
+                "24.576 MHz audio clock by contract (KL_crf_tx /512, "
+                "KL_i2s_playback /2 /8 /512) at %d Hz in %d-bclk slots, and "
+                "accepting this flag there would record an intent the "
+                "gateware does not carry."
+                % (_flag, _val, AUDIO_IF_FS_HZ_DEFAULT,
+                   AUDIO_IF_WORD_BITS_DEFAULT))
+
     if args.board == "arty":
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
         # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
@@ -3674,6 +3779,8 @@ def main() -> None:
                    talker_wire_chans=int(args.talker_wire_chans),
                    audio_if_master=bool(args.audio_interface_master),
                    audio_if_render=int(args.audio_interface_render),
+                   audio_fs_hz=int(args.audio_fs_hz),
+                   audio_word_bits=int(args.audio_word_bits),
                    pps=bool(args.pps),
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
