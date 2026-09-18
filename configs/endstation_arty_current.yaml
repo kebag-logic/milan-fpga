@@ -9,11 +9,14 @@
 # avdecc/gen_aem_store.py --overlay, reproduces the tracked
 # hdl/ieee17221/aecp/gen/aecp_aem_rom.svh BYTE-IDENTICALLY.
 #
-# Schema (normative for v1.1): every key below; optional keys carry their
-# defaults in sw/builder/endstation_builder.py.
+# Schema (normative for v1.2): every key below; optional keys carry their
+# defaults in sw/builder/endstation_builder.py. The keys schema 1.2 added
+# (names:, entity.locale, entity.vendor_oui, entity.entity_capabilities) are
+# all optional and absent here, so this shape serves the literals it always
+# served (sw/builder/README-parameters.md, Entity identity).
 
 schema: kebag-logic/milan-endstation-config
-schema_version: "1.1.0"
+schema_version: "1.2.0"
 
 entity:
   name: "Milan FPGA Talker"          # AEM ENTITY object_name (<=63 bytes)

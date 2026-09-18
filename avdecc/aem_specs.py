@@ -13,8 +13,9 @@ from what `sw/builder/endstation_builder.py` emitted for a config.
 """
 from typing import Any
 
-from aem_descriptors import (CLOCK_SOURCE, CRF_FORMATS, FORMATS, OUT_FORMATS,
-                             RATES, STREAM_INPUT, firmware_version_string)
+from aem_descriptors import (CLOCK_SOURCE, CRF_FORMATS, FORMATS, OBJECT_NAMES,
+                             OUT_FORMATS, RATES, STREAM_INPUT,
+                             firmware_version_string)
 
 # 1722.1-2021 7.2.9.2 CLOCK_SOURCE types this consumer can render, keyed by
 # the overlay's own `type` name.
@@ -180,6 +181,21 @@ def _out_cluster_sources(ovl, j, p):
     return srcs
 
 
+def _overlay_names(ovl: dict[str, Any]) -> dict[str, str]:
+    """The singleton object_names an overlay declares (schema 1.2 `names:`;
+    the builder emits the key only when a config states one). A key no
+    descriptor here renders is refused rather than dropped - the CS_RETIRED
+    rule, for the same reason: a name that lands nowhere is a declaration
+    the image contradicts."""
+    names = ovl.get("names") or {}
+    unknown = sorted(set(names) - set(OBJECT_NAMES))
+    if unknown:
+        raise ValueError(
+            f"names: {unknown} name no descriptor this consumer renders "
+            f"(known: {sorted(OBJECT_NAMES)})")
+    return dict(names)
+
+
 def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
     """Map a builder-emitted AEM overlay (kebag-logic/aem-overlay 2.x, see
     sw/builder/endstation_builder.py emit_aem_overlay) onto a build_model()
@@ -227,6 +243,8 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
                     group_name=ent.get("group_name", ""),
                     serial_number=ent["serial_number"],
                     vendor_name=ent.get("vendor_name", "Kebag Logic")),
+        names=_overlay_names(ovl),      # singleton object_names (schema 1.2)
+        locale=ent.get("locale"),       # LOCALE identifier (schema 1.2)
         gptp=ovl.get("gptp"),           # AVB_INTERFACE clock attributes
                                         # (one source, the config overlay)
         rates=rates_hz,                 # pull-0 encoding == Hz value

@@ -142,6 +142,17 @@ Gates (gaps item 4, generator round):
       the modules; the non-biphase kinds emit nothing;
   21b. reject paths: a word length the AES3 subframe cannot carry, and an
       audio PLL that cannot divide to the serial clock, raise ConfigError;
+  25. THE SCHEMA 1.2 IDENTITY DECLARATIONS REACH THE SERVED DESCRIPTOR (issue
+      #401): the `names:` block, entity.locale, entity.vendor_oui and
+      entity.entity_capabilities.  25a: the five tracked configs, which
+      declare none, serve the pre-1.2 literals field for field; a config
+      declaring every key serves each one out of the image
+      avdecc/gen_aemi_image.py packs; names and the locale move no
+      entity_model_id and the OUI moves only its prefix; one mutant per key
+      severs that key's hop and must be named alone.  25b: the refusals,
+      each by its reason, the divergent entity_capabilities naming
+      pp_adp_pkg.sv's file and line.  25c: a 1.1.0 config is accepted
+      unchanged, argv, model id and image byte for byte;
   27. THE PROTOCOL PROCESSOR'S MEMORY WINDOW IS SINGLE-SOURCED for every
       config: platform_shape.json publishes the configured base and extent,
       and milan_soc.py derives PP_DESC_BASE_P / PP_RESP_BASE_P from that
@@ -20569,13 +20580,16 @@ def test_image_name_table_matches_descriptors() -> None:
     table back out of the finished image, then compare every entry with the
     corresponding 64 bytes in the packed descriptor. This catches an omitted,
     shifted, non-contiguous or stale name independently of the join's document.
+    Besides the tracked configs it reads gate 25's config, which declares
+    every schema 1.2 name (#401), one of them filling the 64-octet field.
     """
     NAME_NONE = 0xFFFF
     named_types = {
         0x0000, 0x0001, 0x0002, 0x0005, 0x0006, 0x0009, 0x000A,
         0x0014, 0x001A, 0x0024,
     }
-    for name, path in CONFIGS.items():
+    for name, path in {**CONFIGS,
+                       "schema_12_declared": _schema_12_config()}.items():
         cfg = eb.load_config(path)
         overlay = eb.emit_aem_overlay(cfg)
         blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
@@ -20643,6 +20657,381 @@ def test_image_name_table_matches_descriptors() -> None:
             src = (ROOT / rtl).read_text(encoding="utf-8")
             assert re.search(r"DESC_NAME_ENTRIES_P\s*=\s*32", src), (
                 f"{rtl}: standalone default cannot fit the shipping model")
+
+
+# ---------------------------------- schema 1.2 identity declarations (25) --
+#: The config gate 25 declares every schema 1.2 key on (#401): hash-derived,
+#: so a declared OUI reaches the served id; both CLOCK_SOURCEs (INTERNAL and
+#: the CRF sink's); and no srp.rtl_table, so a build of it writes nothing
+#: tracked.
+SCHEMA_12_BASE = "ax7101_1x1_tdm8"
+
+#: What every tracked image served BEFORE schema 1.2, key by key. Written out
+#: rather than imported, because the gate holds the image to today's bytes,
+#: not to the table that now generates them. entity_capabilities is absent:
+#: it is pp_adp_pkg.sv's value, read at run time by `_adp_entity_caps`.
+SCHEMA_12_DEFAULTS = {
+    "names.configuration": "Default",
+    "names.audio_unit": "Audio Unit",
+    "names.avb_interface": "AVB Interface 0",
+    "names.clock_domain": "Clock Reference Format",
+    "names.control_identify": "Identify",
+    "names.clock_sources.internal": "Internal",
+    "names.clock_sources.crf": "CRF Clock",
+    "entity.locale": "en-EN",
+    "entity.vendor_oui": 0x001BC5,
+}
+
+#: One declared value per key, each unlike its default, so a key that never
+#: reached the image reads back as the default and fails BY NAME. The audio
+#: unit's name fills the 64-octet field exactly with two-octet characters:
+#: the boundary cstr() must not cut and the name table must round-trip.
+SCHEMA_12_DECLARED = {
+    "names.configuration": "Stage Rack",
+    "names.audio_unit": "Main Unit " + "é" * 27,
+    "names.avb_interface": "Media Port",
+    "names.clock_domain": "Word Clock",
+    "names.control_identify": "Locate",
+    "names.clock_sources.internal": "Crystal",
+    "names.clock_sources.crf": "House CRF",
+    "entity.locale": "fr-FR",
+    "entity.vendor_oui": 0x123456,
+}
+
+
+def _setting(*pairs: tuple[str, object]) -> Callable[[dict], None]:
+    """A `_variant` mutation setting each dotted config key to its value."""
+    def mutate(c: dict) -> None:
+        """Set every pair on config document `c`, creating parents."""
+        for dotted, value in pairs:
+            *parents, leaf = dotted.split(".")
+            node = c
+            for k in parents:
+                node = node.setdefault(k, {})
+            node[leaf] = value
+    return mutate
+
+
+def _schema_12_config() -> Path:
+    """SCHEMA_12_BASE with every schema 1.2 key declared, entity_capabilities
+    at the one value it may carry. Written under OUT, like every other gate
+    output, so gates 25a and 28b read one file; it lives outside configs/,
+    so a build of it writes nothing tracked."""
+    doc = yaml.safe_load(CONFIGS[SCHEMA_12_BASE].read_text())
+    _setting(*SCHEMA_12_DECLARED.items(),
+             ("entity.entity_capabilities", _adp_entity_caps()))(doc)
+    path = OUT / "_schema_12" / "endstation_schema_12_declared.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump(doc))
+    return path
+
+
+def _served_schema_12(blob: bytes) -> dict[str, object]:
+    """What the packed image SERVES for every schema 1.2 key, read out of the
+    image the way the store reads it (image_descriptor), never out of the
+    overlay that asked for it. CLOCK_SOURCEs are told apart by their
+    1722.1-2021 7.2.9.2 type (INTERNAL 0, INPUT_STREAM 2 = the CRF sink's),
+    not by their position."""
+    def text(field: bytes) -> str:
+        """One 64-octet AEM string field as the text it serves."""
+        return field.split(b"\0")[0].decode("utf-8")
+
+    served = {}
+    for key, dtype in (("configuration", 0x0001), ("audio_unit", 0x0002),
+                       ("avb_interface", 0x0009), ("clock_domain", 0x0024),
+                       ("control_identify", 0x001A)):
+        served[f"names.{key}"] = text(image_descriptor(blob, dtype)[4:68])
+    n_sources = _be_uint(image_descriptor(blob, 0x0024), 74, 2)
+    for index in range(n_sources):
+        cs = image_descriptor(blob, 0x000A, index)
+        kind = {0x0000: "internal", 0x0002: "crf"}[_be_uint(cs, 72, 2)]
+        served[f"names.clock_sources.{kind}"] = text(cs[4:68])
+    served["entity.locale"] = text(image_descriptor(blob, 0x000C)[4:68])
+    ent = image_descriptor(blob, _ENTITY_DESC)
+    served["entity.vendor_oui"] = _be_uint(ent, 12, 8) >> 40
+    served["entity.entity_capabilities"] = _be_uint(ent, 20, 4)
+    return served
+
+
+def _gen_aemi_image(overlay: Path) -> bytes:
+    """aem_desc.bin as `avdecc/gen_aemi_image.py --overlay` packs it: the
+    CLI in its own process, reading the overlay file the builder wrote."""
+    out = overlay.parent / "aem_desc.bin"
+    run = subprocess.run(
+        [sys.executable, str(ROOT / "avdecc/gen_aemi_image.py"),
+         "--overlay", str(overlay), "-o", str(out)],
+        capture_output=True, text=True)
+    assert run.returncode == 0, (
+        f"gen_aemi_image.py exited {run.returncode}: {run.stderr.strip()}")
+    return out.read_bytes()
+
+
+def _schema_12_mutants(result: dict[str, Any], declared: dict[str, object],
+                       aemi: types.ModuleType) -> int:
+    """Gate 25a's teeth: sever ONE key's hop at a time and require the served
+    comparison to name that key and no other. A name, the locale or the OUI
+    is cut out of the overlay the image is packed from, as a builder that
+    dropped it would emit it; entity_capabilities is the processor's value,
+    not the overlay's, so its cut is the authority read itself. Returns how
+    many mutants were caught."""
+    cfg, overlay = result["cfg"], result["overlay"]
+    mask = (1 << eb.MODEL_ID_HASH_BITS) - 1
+
+    def diff(ovl: dict[str, Any]) -> set[str]:
+        """The keys the image packed from `ovl` serves unlike `declared`."""
+        got = _served_schema_12(eb._entity_model_image(cfg, ovl)["aem_desc.bin"])
+        return {k for k, v in declared.items() if got[k] != v}
+
+    def cut(key: str) -> dict[str, Any]:
+        """`overlay` as a builder that forgot `key` would have written it."""
+        ovl = copy.deepcopy(overlay)
+        section, _, leaf = key.rpartition(".")
+        if section == "names":
+            del ovl["names"][leaf]
+        elif section == "names.clock_sources":
+            src = next(c for c in ovl["clock_sources"] if c["type"] == leaf)
+            src["name"] = eb.CLOCK_SOURCE_NAMES[leaf]
+        elif key == "entity.locale":
+            del ovl["entity"]["locale"]
+        else:
+            assert key == "entity.vendor_oui", f"no cut for {key}"
+            low = int(ovl["entity"]["entity_model_id"], 16) & mask
+            ovl["entity"]["entity_model_id"] = \
+                f"0x{(eb.MODEL_ID_OUI << eb.MODEL_ID_HASH_BITS) | low:016X}"
+        return ovl
+
+    caught = 0
+    for key in sorted(declared):
+        if key == "entity.entity_capabilities":
+            real = aemi.adp_entity_capabilities
+            aemi.adp_entity_capabilities = \
+                lambda bad=declared[key] ^ 0x0080: bad
+            try:
+                named = diff(overlay)
+            finally:
+                aemi.adp_entity_capabilities = real
+        else:
+            named = diff(cut(key))
+        assert named == {key}, (
+            f"gate 25a mutant {key}: the served comparison named "
+            f"{sorted(named)}, not {key} alone - it cannot tell that key's "
+            f"declaration from its absence")
+        caught += 1
+    return caught
+
+
+def test_schema_12_keys_reach_the_image() -> None:
+    """Gate 25a (#401): every schema 1.2 key reaches the descriptor the
+    processor SERVES, and a config that declares none serves exactly what
+    every image served before the keys existed.
+
+    Three legs. (1) The five tracked configs, which declare none, serve the
+    pre-1.2 literals field for field (SCHEMA_12_DEFAULTS, written out) and
+    pp_adp_pkg.sv's entity_capabilities. (2) One config declares EVERY key,
+    and the image `avdecc/gen_aemi_image.py` packs from the builder's overlay,
+    in its own process, serves each declared value; the key set is the
+    loader's own tables, so a key added there without a value here fails.
+    Names and the locale move no entity_model_id (1722.1-2021 6.2.2.8 keeps
+    object_name out of model structure, and the decision on #401 keeps the
+    locale out too); the OUI replaces the id's top 24 bits and nothing else.
+    (3) The mutants of `_schema_12_mutants`, one per key, each named alone."""
+    sys.path.insert(0, str(ROOT / "protocol-processor/hdl/aecp/desc"))
+    import gen_aemi_image as aemi                  # noqa: E402
+
+    caps = _adp_entity_caps()
+    declared = {**SCHEMA_12_DECLARED, "entity.entity_capabilities": caps}
+    tables = ({f"names.{k}" for k in eb.OBJECT_NAMES}
+              | {f"names.clock_sources.{k}" for k in eb.CLOCK_SOURCE_NAMES})
+    assert set(declared) == tables | {"entity.locale", "entity.vendor_oui",
+                                      "entity.entity_capabilities"}, (
+        f"gate 25a declares {sorted(declared)} but the loader accepts "
+        f"{sorted(tables)} under names:")
+    same = [k for k, v in SCHEMA_12_DEFAULTS.items() if declared[k] == v]
+    assert not same, f"declared values equal to their default prove nothing: {same}"
+
+    # 1. no declaration: today's literals, for every tracked config
+    want = {**SCHEMA_12_DEFAULTS, "entity.entity_capabilities": caps}
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        got = _served_schema_12(
+            eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"])
+        drift = {k: (got[k], v) for k, v in want.items() if got[k] != v}
+        assert not drift, (
+            f"{name} declares no schema 1.2 key, yet serves (served, every "
+            f"earlier image) {drift}")
+
+    # 2. every key declared, served through the gen_aemi_image.py CLI
+    r = eb.build(_schema_12_config(), OUT / "_schema_12")
+    got = _served_schema_12(_gen_aemi_image(Path(r["paths"]["aem_overlay"])))
+    miss = {k: (got[k], v) for k, v in declared.items() if got[k] != v}
+    assert not miss, f"declared keys the image does not serve (got, declared): {miss}"
+    mask = (1 << eb.MODEL_ID_HASH_BITS) - 1
+    base_id = int(eb.load_config(CONFIGS[SCHEMA_12_BASE])["model_id"]["value"], 16)
+    new_id = int(r["cfg"]["model_id"]["value"], 16)
+    assert r["cfg"]["model_id"]["source"] == "hash"
+    assert new_id & mask == base_id & mask, (
+        f"declaring names and a locale moved the hashed half of the id: "
+        f"0x{base_id:016X} -> 0x{new_id:016X}")
+    assert new_id >> eb.MODEL_ID_HASH_BITS == declared["entity.vendor_oui"]
+
+    # 3. the teeth
+    caught = _schema_12_mutants(r, declared, aemi)
+    assert caught == len(declared)
+    print(f"  [gate 25a] {len(CONFIGS)} tracked configs serve the pre-1.2 "
+          f"literals; all {len(declared)} schema 1.2 keys reach the image "
+          f"gen_aemi_image.py packs (id 0x{base_id:016X} -> 0x{new_id:016X}: "
+          f"OUI only); {caught}/{len(declared)} single-key mutants named alone")
+
+
+def _adp_caps_line() -> str:
+    """`path:line` of the ADP_ENTITY_CAPS_C declaration, found by this gate's
+    own scan of the file, so gate 25b grades the builder's refusal against
+    pp_adp_pkg.sv rather than against the parser the refusal quotes."""
+    rel = "protocol-processor/hdl/adp/pp_adp_pkg.sv"
+    lines = (ROOT / rel).read_text().splitlines()
+    hits = [n for n, ln in enumerate(lines, 1)
+            if re.search(r"\bADP_ENTITY_CAPS_C\s*=", ln)]
+    assert len(hits) == 1, f"{rel}: {len(hits)} ADP_ENTITY_CAPS_C declarations"
+    return f"{rel}:{hits[0]}"
+
+
+def _schema_12_refusal_cases(caps: int) -> list[tuple[str, str, Callable[[dict], None], str]]:
+    """Gate 25b's table: (label, base config, mutation, the text the refusal
+    must carry - its REASON, so a case refused for another one fails)."""
+    base, pinned = SCHEMA_12_BASE, "arty_current"
+    return [
+        ("entity_capabilities diverges from the ADP constant", base,
+         _setting(("entity.entity_capabilities", caps ^ 0x4000)),
+         _adp_caps_line()),
+        ("entity_capabilities past 32 bits", base,
+         _setting(("entity.entity_capabilities", 1 << 32)), "outside 32 bits"),
+        ("entity_capabilities not a number", base,
+         _setting(("entity.entity_capabilities", "fast")), "not a hex integer"),
+        ("vendor_oui past 24 bits", base,
+         _setting(("entity.vendor_oui", 0x1000000)), "outside 24 bits"),
+        ("vendor_oui negative", base,
+         _setting(("entity.vendor_oui", -1)), "outside 24 bits"),
+        ("vendor_oui a bool", base,
+         _setting(("entity.vendor_oui", True)), "is not an integer"),
+        ("vendor_oui with the I/G bit", base,
+         _setting(("entity.vendor_oui", 0x011BC5)), "I/G bit"),
+        ("vendor_oui the pin contradicts", pinned,
+         _setting(("entity.vendor_oui", 0x123456)), "contradicts the pin"),
+        ("locale empty", base, _setting(("entity.locale", "")), "non-empty"),
+        ("locale past 64 bytes", base,
+         _setting(("entity.locale", "x" * 65)), "exceeds 64 bytes"),
+        ("name ending mid-character at byte 65", base,
+         _setting(("names.audio_unit", "x" * 63 + "é")), "exceeds 64 bytes"),
+        ("name with a NUL", base,
+         _setting(("names.configuration", "Stage\0Rack")), "contains a NUL"),
+        ("name not a string", base,
+         _setting(("names.avb_interface", 7)), "non-empty string"),
+        ("names not a mapping", base,
+         _setting(("names", ["Default"])), "must be a mapping"),
+        ("unknown names key", base,
+         _setting(("names.jack_input", "Line In")), "unknown ['jack_input']"),
+        ("the retired Stream Clock (#389)", base,
+         _setting(("names.clock_sources.stream", "Stream Clock")), "#389"),
+        ("unknown clock source", base,
+         _setting(("names.clock_sources.ptp", "PTP")), "keys among"),
+        ("a CRF name with no CRF source", base,
+         _setting(("clocking.media_clock_sources", ["internal"]),
+                  ("clocking.crf_sink", False),
+                  ("names.clock_sources.crf", "House CRF")),
+         "emits no crf CLOCK_SOURCE"),
+        ("an INTERNAL name with no INTERNAL source", base,
+         _setting(("clocking.media_clock_sources", ["crf"]),
+                  ("clocking.default_source", "crf"),
+                  ("names.clock_sources.internal", "Crystal")),
+         "emits no internal CLOCK_SOURCE"),
+    ]
+
+
+def test_schema_12_refusals() -> None:
+    """Gate 25b (#401): what schema 1.2 refuses, each case by its reason.
+
+    Acceptance 3 is the first row: an entity_capabilities that differs from
+    pp_adp_pkg.sv is a ConfigError naming the submodule file AND line, graded
+    against this gate's own scan of the file. The rest bound the other keys:
+    an OUI outside 24 bits, with the group bit, or contradicted by a pinned
+    id; a name or locale that is empty, carries a NUL, or would be served cut
+    (one row ends mid-character); a key naming nothing, including the Stream
+    Clock #389 retired; a CLOCK_SOURCE name for a source the config does not
+    emit. Two arms show the key is load-bearing and not only restrictive: an
+    OUI the pin agrees with is accepted and moves nothing, and with the
+    capabilities refusal severed the divergent config builds an image that
+    serves a value other than the one it declared."""
+    caps = _adp_entity_caps()
+    cases = _schema_12_refusal_cases(caps)
+    for label, base, mutate, reason in cases:
+        p = _variant(CONFIGS[base], mutate)
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert reason in str(e), f"{label}: refused for another reason: {e}"
+        else:
+            raise AssertionError(f"{label}: ACCEPTED")
+        finally:
+            p.unlink()
+    agreed = _variant(CONFIGS["arty_current"],
+                      _setting(("entity.vendor_oui", 0x001BC5)))
+    try:
+        assert eb.load_config(agreed)["model_id"]["value"] == DEPLOYED_MODEL_ID
+    finally:
+        agreed.unlink()
+    bad = caps ^ 0x4000
+    p = _variant(CONFIGS[SCHEMA_12_BASE],
+                 _setting(("entity.entity_capabilities", bad)))
+    real = eb._verify_entity_capabilities
+    eb._verify_entity_capabilities = lambda ent: None
+    try:
+        cfg = eb.load_config(p)
+    finally:
+        eb._verify_entity_capabilities = real
+        p.unlink()
+    served = _served_schema_12(
+        eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"])
+    assert served["entity.entity_capabilities"] == caps != bad, (
+        "with the refusal severed the image should serve pp_adp_pkg.sv's "
+        f"value, not the declared 0x{bad:08X}: {served}")
+    print(f"  [gate 25b] {len(cases)} schema 1.2 misdeclarations refused by "
+          f"reason, the divergent entity_capabilities naming "
+          f"{_adp_caps_line()}; an OUI the pin agrees with is accepted; "
+          f"with the refusal severed the image contradicts the declaration")
+
+
+def test_schema_11_configs_accepted_unchanged() -> None:
+    """Gate 25c (#401): schema 1.2 only adds optional keys. Every tracked
+    config declares 1.2.0, and the same config re-declared as 1.1.0 loads to
+    the same SoC argv, the same entity_model_id and the same served image
+    byte for byte, so a config written against 1.1 needs no edit. A 2.x
+    config is still refused before any section is read."""
+    for name, path in CONFIGS.items():
+        declared = yaml.safe_load(path.read_text())["schema_version"]
+        assert declared == "1.2.0", f"{name} declares schema {declared}"
+        tracked = eb.load_config(path)
+        old = _variant(path, _setting(("schema_version", "1.1.0")))
+        try:
+            legacy = eb.load_config(old)
+        finally:
+            old.unlink()
+        assert eb.emit_soc_argv(legacy) == eb.emit_soc_argv(tracked), name
+        assert legacy["model_id"] == tracked["model_id"], name
+        images = [eb._entity_model_image(c, eb.emit_aem_overlay(c))["aem_desc.bin"]
+                  for c in (tracked, legacy)]
+        assert images[0] == images[1], f"{name}: the 1.1.0 image differs"
+    two = _variant(CONFIGS[SCHEMA_12_BASE], _setting(("schema_version", "2.0.0")))
+    try:
+        eb.load_config(two)
+    except eb.ConfigError as e:
+        assert "need 1.x" in str(e), e
+    else:
+        raise AssertionError("schema_version 2.0.0 was ACCEPTED")
+    finally:
+        two.unlink()
+    print(f"  [gate 25c] {len(CONFIGS)} tracked configs declare 1.2.0 and "
+          f"load, re-declared 1.1.0, to the same argv, model id and image "
+          f"bytes; 2.0.0 refused")
 
 
 # ------------------------------------------- Milan Base Stream Formats (29) --
@@ -21051,11 +21440,15 @@ def _loader_key_paths() -> set[str]:
     derives today's list by a branch census over the same five loads,
     and gate 32 prints it as a report line without failing on it.
     A path a loader only descended through (a section, a list) is a
-    container, not a key, and is dropped. The two loaders that
+    container, not a key, and is dropped. The three loaders that
     accept by TABLE rather than by read (`load_platform`: `set(raw) -
-    set(PLATFORM_DEFAULTS)`, `_load_soc`: `dict(SOC_DEFAULTS, **soc_raw)`)
-    only touch the keys a config declares, so their accept tables are
-    imported - the loaders' own constants, not a restatement.
+    set(PLATFORM_DEFAULTS)`, `_load_soc`: `dict(SOC_DEFAULTS, **soc_raw)`,
+    `_load_names`: the schema 1.2 `names:` block against OBJECT_NAMES and
+    CLOCK_SOURCE_NAMES) only touch the keys a config declares, so their
+    accept tables are imported - the loaders' own constants, not a
+    restatement. No tracked config declares `names:`, so its table joins
+    the reads BEFORE containers are dropped: the one read the loads make
+    there, of the absent section itself, is a container of those keys.
     """
     seen: set[str] = set()
     real_yaml = eb.yaml
@@ -21066,6 +21459,8 @@ def _loader_key_paths() -> set[str]:
             eb.load_config(str(path))
     finally:
         eb.yaml = real_yaml
+    seen |= {f"names.{k}" for k in eb.OBJECT_NAMES}
+    seen |= {f"names.clock_sources.{k}" for k in eb.CLOCK_SOURCE_NAMES}
     leaves = {p for p in seen
               if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
     leaves |= {f"platform.{k}" for k in eb.PLATFORM_DEFAULTS}
@@ -21800,6 +22195,9 @@ if __name__ == "__main__":
                test_pp_window_contract,
                test_image_identity_is_baked,
                test_image_name_table_matches_descriptors,
+               test_schema_12_keys_reach_the_image,
+               test_schema_12_refusals,
+               test_schema_11_configs_accepted_unchanged,
                test_milan_base_formats_are_rate_complete,
                test_per_row_format_facts_are_per_row,
                test_builder_doc_key_map,
