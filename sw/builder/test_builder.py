@@ -205,6 +205,16 @@ Gates (gaps item 4, generator round):
       `gen_aem_store.py --overlay` CLI.  The second is defence in depth,
       the overlay being builder-generated, and its bites arm restores the
       pre-#389 map to show the retired row rendering again without it.
+  34. THE DECLARED CLOCK PLAN REACHES THE RTL PARAMETER (gate 23l, issue
+      #399): `clocking.sampling_rate_hz` and the slot width
+      `audio_interface.word_length_bits` rides used to stop at the build
+      plan while milan_soc.py hardcoded 48 kHz and 32-bclk slots, so a
+      config at another rate built a MODEL the FABRIC could not run.  Four
+      real elaborations grade both halves - off-default the declaration
+      lands as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and drags
+      p_AUDIO_IF_CLK_HZ_P with it; at the shipping values both are ABSENT,
+      which is what keeps the tracked configs' top .v byte-identical.
+      Seven negative controls sever the chain hop by hop.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -13076,14 +13086,46 @@ def test_current_shape_matches_gen_aem_store() -> None:
           f"rates, port layout)")
 
 
+def _grade_clock_plan_marks(planned, name):
+    """Grade a config's planned marks against its clock-plan DECLARATIONS,
+    and return them (#399).
+
+    The deployed shape's FABRIC is fully supported, and since #399 that is
+    stated precisely instead of as a blanket zero: the only planned marks it
+    may carry are the declarations the fabric does not elaborate - each
+    `audio_unit_rates_hz` entry the render path cannot run (one mark each,
+    never one mark for the set) and the `audio_pll_hz` row, which names the
+    AES3 reference and the fixed MMCM plan. Expected from the config's OWN
+    declaration, so this needs no edit when a rate list moves, and anything
+    else planned still fails the gate."""
+    cur = eb.load_config(CONFIGS[name])
+    want = {f"{hz} Hz AUDIO_UNIT sampling rate "
+            f"(clocking.audio_unit_rates_hz)"
+            for hz in cur["clocking"]["audio_unit_rates_hz"]
+            if hz not in eb.RTL_TODAY["sampling_rates"]}
+    want.add(f"{cur['clocking']['audio_pll_hz']} Hz audio clock "
+             f"(clocking.audio_pll_hz)")
+    assert {m[0] for m in planned} == want, (
+        f"{name}: the fabric must be fully supported, and every clock-plan "
+        f"declaration must carry its OWN mark (#399): "
+        f"{sorted({m[0] for m in planned} ^ want)}")
+    assert len(planned) == len(want), \
+        f"{name}: a declaration is marked twice: {planned}"
+    for el, st, note in planned:
+        assert "item 6" in st and note, \
+            f"{name}: a clock-plan mark must name item 6 and say why: {(el, st)}"
+    return want
+
+
 def test_capability_marks() -> None:
     """Gate 4: every capability mark states the FABRIC fact. A declared
     front-end nothing drives is a planned mark naming the missing
     half; a mastered one is supported and names the master module;
-    the deployed shape carries no planned mark at all."""
+    the deployed shape carries no planned FABRIC mark at all, only the
+    clock-plan declarations _grade_clock_plan_marks owns."""
     r = eb.build(CONFIGS["arty_current"], OUT)
     planned = [m for m in r["marks"] if m[1].startswith("planned")]
-    assert planned == [], f"current shape must be fully supported: {planned}"
+    want_planned = _grade_clock_plan_marks(planned, "arty_current")
     for name, want in (("arty_4x4", "4x4"), ("ax7101_8x8", "8x8")):
         r = eb.build(CONFIGS[name], OUT)
         planned = [m[1] for m in r["marks"] if m[1].startswith("planned")]
@@ -13164,7 +13206,9 @@ def test_capability_marks() -> None:
         print(f"  [gate 4] {kind} variant: ser/des supported "
               f"({eb.AES3_RX_MODULE} + {eb.AES3_TX_MODULE}), datapath/SoC "
               f"plumbing still planned")
-    print("  [gate 4] arty_current: zero planned marks")
+    print(f"  [gate 4] arty_current: zero planned FABRIC marks; the "
+          f"{len(want_planned)} clock-plan declaration(s) the fabric does not "
+          f"elaborate each carry their own item-6 mark (#399)")
 
 
 def test_bad_configs_rejected() -> None:
@@ -15370,9 +15414,21 @@ def test_aes3_rejects() -> None:
          lambda c: (c["audio_interface"].__setitem__("kind", "aes3"),
                     c["audio_interface"].__setitem__("word_length_bits", 32)),
          "word_length_bits 32 invalid for aes3"),
-        ("audio PLL cannot divide to the serial clock",
+        # #399: a declared audio PLL the fabric does not produce is refused by
+        # _load_clocking now, BEFORE the serial-clock arithmetic below can be
+        # done against a reference that does not exist. The refusal names the
+        # rate it read out of the SoC glue.
+        ("audio PLL the fabric does not produce",
          lambda c: (c["audio_interface"].__setitem__("kind", "spdif"),
                     c["clocking"].__setitem__("audio_pll_hz", 25_000_000)),
+         "is not the audio clock this fabric produces"),
+        # ...and the serial-clock refusal stays LIVE, reached by the other
+        # declaration that can break the divide: the transport needs
+        # rate x 128 UI x 4 oversample, and at 96 kHz that is 49.152 MHz,
+        # which the 24.576 MHz audio clock cannot divide down to.
+        ("serial clock is not an integer divide of the audio PLL",
+         lambda c: (c["audio_interface"].__setitem__("kind", "spdif"),
+                    c["clocking"].__setitem__("sampling_rate_hz", 96_000)),
          "not an integer divide"),
     ]
     for label, mutate, needle in cases:
@@ -17359,6 +17415,196 @@ def test_optional_block_instance_gate_bites() -> None:
           "add_milan_datapath, a suppressed parameter, a renamed parameter, "
           "and both prune polarities inverted; gate 1e separately owns the "
           "profile-aware gPTP chain")
+
+
+# =============================================================== gate 23l ===
+#  THE CLOCK-PLAN DECLARATIONS REACH THE INSTANCE (issue #399).
+#
+#  `clocking.sampling_rate_hz` and the slot width
+#  `audio_interface.word_length_bits` rides used to stop at the build plan:
+#  milan_soc.py hardcoded 48000 and 32, so a config declaring another rate
+#  built a MODEL at that rate over a FABRIC at 48 kHz and every gate agreed
+#  with every other gate.  Gate 23f's grader is reused here because the
+#  question is the same one it exists to answer - not "is the flag spelled
+#  right" (gate 23d) but "what does elaboration HAND the module".
+#
+#  Two halves, and both are load-bearing:
+#
+#    OFF-DEFAULT, the declaration must land as its own p_* kwarg AND move
+#      p_AUDIO_IF_CLK_HZ_P with it, because the bit clock is
+#      2 x SLOTS x slot bits x fs and a rate that moved the frame without
+#      moving the clock would be a front-end framing at the wrong rate - the
+#      exact defect this issue closes, one layer down.
+#    AT THE DEFAULT, the kwarg must be ABSENT, because that is what keeps the
+#      five tracked configs' generated top .v byte-identical to the build
+#      before this flag existed.  A gate that only checked the off-default
+#      half would pass a tree that always passed the parameter.
+#
+#  Every case below is a bus the fabric can really clock off the two-stage
+#  integer plan (0.66 ppm at 12.288 / 24.576 / 49.152 MHz), so a failure here
+#  is the chain breaking, never the clock plan refusing.
+
+#: (label, extra argv, expected p_* overrides). `None` means the parameter
+#: must be ABSENT from the Instance.  p_AUDIO_IF_CLK_HZ_P is stated for every
+#: case rather than derived, so this table is a written-down expectation the
+#: arithmetic under test cannot satisfy by restating itself.
+CLOCK_PLAN_CASES = (
+    ("clock plan declared default", [],
+     {"p_AUDIO_IF_FS_HZ_P": None, "p_AUDIO_IF_WORD_BITS_P": None,
+      "p_AUDIO_IF_CLK_HZ_P": 24_576_000}),
+    ("clock plan 96 kHz", ["--audio-fs-hz", "96000"],
+     {"p_AUDIO_IF_FS_HZ_P": 96_000, "p_AUDIO_IF_WORD_BITS_P": None,
+      "p_AUDIO_IF_CLK_HZ_P": 49_152_000}),
+    ("clock plan 16-bclk slots", ["--audio-word-bits", "16"],
+     {"p_AUDIO_IF_FS_HZ_P": None, "p_AUDIO_IF_WORD_BITS_P": 16,
+      "p_AUDIO_IF_CLK_HZ_P": 12_288_000}),
+    ("clock plan 96 kHz in 16-bclk slots",
+     ["--audio-fs-hz", "96000", "--audio-word-bits", "16"],
+     {"p_AUDIO_IF_FS_HZ_P": 96_000, "p_AUDIO_IF_WORD_BITS_P": 16,
+      "p_AUDIO_IF_CLK_HZ_P": 24_576_000}),
+)
+
+
+def _clock_plan_runs():
+    """(cfg, [(label, argv)], {label: expected}) for the gate 23l case set.
+
+    Built on the SHIPPING AX TDM8 master argv, so every case differs from a
+    real command line by exactly the declaration under test and the baseline
+    row IS that command line."""
+    cfg, argv = _config_argv(BEHAVIOURAL_CFG)
+    assert "--audio-interface-master" in argv, (
+        f"{cfg['name']} is no longer a TDM bus MASTER, and only a master has "
+        f"a frame rate and a slot width to declare - move this gate to a "
+        f"config that is one")
+    for flag in ("--audio-fs-hz", "--audio-word-bits"):
+        assert flag not in argv, (
+            f"{cfg['name']} now emits {flag}: the shipping shape must declare "
+            f"the SoC default, or the byte-identity half of this gate grades "
+            f"nothing")
+    runs = [(label, argv + extra) for label, extra, _want in CLOCK_PLAN_CASES]
+    return cfg, runs, {label: want for label, _e, want in CLOCK_PLAN_CASES}
+
+
+def _clock_plan_contract(got, expected):
+    """Every clock-plan violation in one probe result set, as text."""
+    bad, params = [], {}
+    for label, want in expected.items():
+        row = got.get(label) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{label}: never reached the datapath Instance: "
+                       f"{_why_failed(row)}")
+            continue
+        p = params[label] = row["params"]
+        for param, value in want.items():
+            if value is None:
+                if param in p:
+                    bad.append(f"{label}: {param}={p[param]!r} is passed at "
+                               f"the SV default - the top .v is no longer "
+                               f"byte-identical to the build before #399")
+            elif p.get(param) != value:
+                bad.append(f"{label}: {param}="
+                           f"{p.get(param, '<absent>')!r}, want {value}")
+    # ...and NOTHING ELSE moves. A declaration that reached the right
+    # parameter and a wrong second one is the same silent lie as one that
+    # reached none.
+    base = params.get("clock plan declared default")
+    if base is not None:
+        for label, p in params.items():
+            if label == "clock plan declared default":
+                continue
+            moved = {k for k in set(base) | set(p)
+                     if base.get(k) != p.get(k)}
+            unexpected = moved - set(expected[label])
+            if unexpected:
+                bad.append(f"{label}: moved {sorted(unexpected)} as well as "
+                           f"the clock plan")
+    return bad
+
+
+def test_clock_plan_reaches_the_instance() -> None:
+    """gate 23l - the declared media clock and slot width, at Instance()."""
+    python = _litex_or_skip("gate 23l")
+    if python is None:
+        return
+    cfg, runs, expected = _clock_plan_runs()
+    t0 = time.time()
+    got = _instance_params(python, runs)
+    bad = _clock_plan_contract(got, expected)
+    assert not bad, "gate 23l:\n  " + "\n  ".join(bad)
+    print(f"  [gate 23l] {len(runs)} real milan_soc.py elaborations of "
+          f"{cfg['name']} in {time.time() - t0:.0f} s: --audio-fs-hz and "
+          f"--audio-word-bits land as p_AUDIO_IF_FS_HZ_P / "
+          f"p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P "
+          f"(2 x SLOTS x slot bits x fs) with them, singly and together, "
+          f"moving NOTHING else; at the declared shipping values both are "
+          f"ABSENT, so the tracked configs' top .v is byte-identical to the "
+          f"build before #399. This grades what elaboration HANDS the "
+          f"module, not that the bitstream places or boots")
+
+
+#: Each cut of the #399 chain, and the case whose row must go red for it.
+#: Same shape and same reason as the gate 23f controls above: every hop from
+#: the parsed flag to the Instance is a place a value can be dropped silently,
+#: because LiteX does not diagnose a parameter the module does not have.
+CLOCK_PLAN_MUTATIONS = (
+    ("the CLI handoff is dropped in main()",
+     [("                   audio_fs_hz=int(args.audio_fs_hz),", "", 1)],
+     "clock plan 96 kHz"),
+    ("the constructor keyword is dropped on the way to MilanNIC",
+     [("                                  audio_word_bits=int(audio_word_bits),",
+       "", 1)],
+     "clock plan 16-bclk slots"),
+    ("the keyword is dropped inside add_milan_datapath",
+     [("                           audio_fs_hz=audio_fs_hz,", "", 1)],
+     "clock plan 96 kHz"),
+    ("the rate parameter is suppressed at the Instance",
+     [('            dp_params["p_AUDIO_IF_FS_HZ_P"] = int(audio_fs_hz)',
+       "            pass", 1)],
+     "clock plan 96 kHz"),
+    ("the slot-width parameter is RENAMED on its way to the Instance",
+     [('dp_params["p_AUDIO_IF_WORD_BITS_P"] = int(audio_word_bits)',
+       'dp_params["p_AUDIO_IF_WORD_BITS_X"] = int(audio_word_bits)', 1)],
+     "clock plan 16-bclk slots"),
+    ("the bit clock stops following the declaration",
+     [("                                            * int(audio_word_bits)\n"
+       "                                            * int(audio_fs_hz))",
+       "                                            * 32\n"
+       "                                            * 48000)", 1)],
+     "clock plan 96 kHz"),
+    ("the parameter is passed even at the SV default",
+     [("        if int(audio_fs_hz) != AUDIO_IF_FS_HZ_DEFAULT:",
+       "        if True:", 1)],
+     "clock plan declared default"),
+)
+
+
+def test_clock_plan_instance_gate_bites() -> None:
+    """Gate 23l negative controls: every cut of the chain turns it red."""
+    python = _litex_or_skip("gate 23l mutation")
+    if python is None:
+        return
+    _cfg, runs, expected = _clock_plan_runs()
+    cases = dict(runs)
+    t0 = time.time()
+    for why, mutations, label in CLOCK_PLAN_MUTATIONS:
+        labels = ["clock plan declared default"]
+        if label not in labels:
+            labels.append(label)
+        got = _instance_params(python, [(lbl, cases[lbl]) for lbl in labels],
+                               mutations)
+        bad = _clock_plan_contract(got, {lbl: expected[lbl]
+                                         for lbl in labels})
+        assert bad, (f"gate 23l accepted a milan_soc.py in which {why} "
+                     f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+        assert any(line.startswith(f"{label}:") for line in bad), \
+            f"{why}: gate 23l went red for the wrong row: {bad}"
+    print(f"  [gate 23l mutation] {len(CLOCK_PLAN_MUTATIONS)}/"
+          f"{len(CLOCK_PLAN_MUTATIONS)} broken links of the declaration -> "
+          f"Instance chain rejected in {time.time() - t0:.0f} s: a dropped "
+          f"CLI handoff, a dropped constructor keyword, a dropped keyword "
+          f"inside add_milan_datapath, a suppressed parameter, a renamed "
+          f"parameter, a bit clock that stopped following the declaration, "
+          f"and a parameter passed at the default")
 
 
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
@@ -21136,6 +21382,8 @@ if __name__ == "__main__":
                test_optional_block_consumption_gate_bites,
                test_optional_blocks_reach_the_instance,
                test_optional_block_instance_gate_bites,
+               test_clock_plan_reaches_the_instance,
+               test_clock_plan_instance_gate_bites,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,

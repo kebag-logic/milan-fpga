@@ -763,6 +763,16 @@ AUDIO_IF_SLOTS = {"tdm8": 8, "tdm16": 16, "tdm32": 32}
 #: KL_aaf_packetizer MAX_CHANS_C / the even-2..8 rule of its chans field.
 WIRE_CHANS_MIN, WIRE_CHANS_MAX = 2, 8
 
+#: Bit clocks per TDM slot the whole family rides (#399). See tdm_slot_bits()
+#: for why a 24-bit word length does not make a 24-bclk slot.
+TDM_SLOT_BITS = 32
+
+#: The widest sample the capture front-ends and the pair bus between them and
+#: KL_aaf_packetizer carry (KL_tdm_capture_master smp_w, 24 bits). A declared
+#: word length above it is carried TRUNCATED, which is a plan mark, not a
+#: silent acceptance.
+AUDIO_SAMPLE_BITS = 24
+
 
 SOC_PY = HERE.parent / "litex" / "milan_soc.py"
 _TDM_WIRED_CACHE = {}
@@ -826,6 +836,30 @@ def tdm_bus_wired(soc_text: str | None = None) -> bool:
     return bool(vals) and any(v != "0" for v in vals)
 
 
+def soc_audio_const(name: str, fallback: int,
+                    soc_text: str | None = None) -> int:
+    """A named integer audio constant READ OUT of sw/litex/milan_soc.py (#399).
+
+    Same rule as the two oracles around this one: the SoC glue owns what the
+    fabric elaborates, so the builder READS those numbers instead of keeping a
+    second copy that can drift. Three are asked for -
+    `AUDIO_IF_FS_HZ_DEFAULT` and `AUDIO_IF_WORD_BITS_DEFAULT` (the argv
+    defaults, so a flag is emitted only when the declaration is OFF the shape
+    that ships) and `AUDIO_CLK_HZ` (the fixed audio-MMCM contract rate a
+    `clocking.audio_pll_hz` declaration is refused against). `fallback` covers
+    a tree whose SoC glue is not readable; it is the value that file carries
+    today, and the gate compares the two.
+    """
+    if soc_text is None:
+        try:
+            soc_text = SOC_PY.read_text()
+        except OSError:
+            return fallback
+    m = re.search(r"^%s\s*=\s*([0-9_]+)\s*$" % re.escape(name),
+                  soc_text, re.M)
+    return int(m.group(1).replace("_", "")) if m else fallback
+
+
 def tdm_bus_master(soc_text: str | None = None) -> bool:
     """Is the TDM bus real because the FABRIC drives it (vs a codec)?
 
@@ -870,6 +904,24 @@ def audio_if_slots(cfg: dict[str, Any],
     if interface_is_placeholder(cfg, wired):
         return 0
     return AUDIO_IF_SLOTS.get(cfg["interface"]["kind"], 0)
+
+
+def tdm_slot_bits(cfg: dict[str, Any]) -> int:
+    """Bit clocks per TDM slot this config elaborates (milan_datapath
+    AUDIO_IF_WORD_BITS_P) - THE ONE PLACE the 24-in-32 rule is written (#399).
+
+    `audio_interface.word_length_bits` declares the sample's VALID bits, not
+    the slot they ride in, and the two are different facts: `24` means 24 valid
+    bits MSB-aligned inside a 32-bclk slot, which is what every config in this
+    tree says in prose and what the fabric elaborates. The front-ends take the
+    top 24 bits of the slot whatever its width, and the pair bus between them
+    and the packetizer is 24 bits, so a narrower VALID-bit declaration changes
+    no wire and needs no parameter - only a narrower BUS would, and no shape
+    here asks for one. Hence 32 for the whole TDM family today; the day a
+    16-bclk bus is declared, this function is the only thing that changes and
+    `--audio-word-bits` carries it the rest of the way.
+    """
+    return TDM_SLOT_BITS if audio_if_slots(cfg) else 0
 
 
 def i2s_pair_blended(cfg: dict[str, Any],
@@ -3503,10 +3555,30 @@ def _load_clocking(cfg, path):
         crf_output=bool(co.get("enabled", False)),
         crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
                                  "clocking.crf_output.format"),
-        audio_pll_hz=int(clk.get("audio_pll_hz", 24_576_000)),
+        audio_pll_hz=int(clk.get("audio_pll_hz", soc_audio_const(
+            "AUDIO_CLK_HZ", 24_576_000))),
     )
     if rate not in clocking["audio_unit_rates_hz"]:
         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
+    # #399: the audio MMCM plan is FIXED. _CRG derives the audio clock from a
+    # two-stage integer chain whose error is the achievable optimum from a
+    # 100 MHz reference, and that clock is 24.576 MHz BY CONTRACT - KL_crf_tx
+    # divides it /512 for the 48 kHz CRF event, KL_i2s_playback /2 /8 /512 for
+    # the DAC, KL_mmcm_drp_servo measures it. Re-rating it is roadmap item 6,
+    # so this key cannot DRIVE the plan; what it must not do is be accepted
+    # while disagreeing with it, because then the AES3 serial clock below is
+    # divided out of a reference the gateware does not have. Refuse by name,
+    # against the rate read out of the SoC glue rather than a second copy.
+    soc_pll = soc_audio_const("AUDIO_CLK_HZ", 24_576_000)
+    if clocking["audio_pll_hz"] != soc_pll:
+        raise ConfigError(
+            f"clocking.audio_pll_hz {clocking['audio_pll_hz']} is not the "
+            f"audio clock this fabric produces ({soc_pll} Hz, "
+            f"sw/litex/milan_soc.py AUDIO_CLK_HZ): the audio MMCM is a fixed "
+            f"two-stage integer plan and re-rating it is the MMCM-DRP "
+            f"media-clock servo (roadmap item 6), so a build would elaborate "
+            f"{soc_pll} Hz whatever this says and the AES3 serial clock would "
+            f"be divided out of a reference that does not exist")
     if clocking["crf_sink"] and "crf" not in srcs:
         raise ConfigError("crf_sink needs 'crf' in media_clock_sources")
     # #389, the converse, and the same rule as the retired key above: the CRF
@@ -3992,7 +4064,47 @@ def _marks_interface(cfg):
                       "milan_datapath front-end generate for the AES3 family "
                       "and the milan_soc.py --audio-interface value that "
                       "selects it (the tdm kinds' path, reused)"))
+    marks += _marks_word_length(cfg)
     return marks
+
+
+def _marks_word_length(cfg):
+    """Where audio_interface.word_length_bits is elaborated, per family (#399).
+
+    The AES3 family's mark above already names its `WORD_BITS_P`. For the TDM
+    and I2S families the key declares VALID bits, the slot is
+    `tdm_slot_bits()` wide, and the front-ends take the top
+    AUDIO_SAMPLE_BITS of it - so a declaration at or below that width is
+    carried bit-exact and one above it is TRUNCATED. Both are stated; neither
+    is dropped."""
+    kind = cfg["interface"]["kind"]
+    if INTERFACES[kind]["rtl"] == "serdes":
+        return []
+    wl = cfg["interface"]["word_length_bits"]
+    slot = tdm_slot_bits(cfg) or TDM_SLOT_BITS
+    where = (f"the slot width reaches milan_datapath AUDIO_IF_WORD_BITS_P "
+             f"(--audio-word-bits, withheld at the {slot} default) and from "
+             f"there the KL_tdm_capture[_master] WORD_BITS_P"
+             if audio_if_slots(cfg) else
+             "the I2S front-end frames 32-bclk half-frames off the fixed "
+             "audio clock and no argv flag carries a width")
+    if wl <= AUDIO_SAMPLE_BITS:
+        return [(f"audio_interface.word_length_bits {wl}-in-{slot}",
+                 "supported",
+                 f"{wl} valid bits MSB-aligned in a {slot}-bclk slot: "
+                 f"{where}, and the front-end takes the top "
+                 f"{AUDIO_SAMPLE_BITS} bits of the slot onto a "
+                 f"{AUDIO_SAMPLE_BITS}-bit pair bus, which carries "
+                 f"{wl} MSB-aligned valid bits without loss")]
+    return [(f"audio_interface.word_length_bits {wl}-in-{slot}",
+             "planned (item 4 subtask - TDM header + SoC wiring)",
+             f"{wl} valid bits do not fit the fabric's "
+             f"{AUDIO_SAMPLE_BITS}-bit sample: {where}, but the pair bus "
+             f"between the front-end and KL_aaf_packetizer is "
+             f"{AUDIO_SAMPLE_BITS} bits wide, so the low "
+             f"{wl - AUDIO_SAMPLE_BITS} bit(s) of every sample are dropped "
+             f"and the AAF PCM32 payload carries "
+             f"{AUDIO_SAMPLE_BITS} significant bits")]
 
 
 def _marks_cluster_pools(cfg):
@@ -4057,15 +4169,63 @@ def _marks_cluster_pools(cfg):
 
 
 def _marks_media_clock(cfg):
-    """Whether today's render path can run at the declared sampling rate."""
+    """Whether today's render path can run at the declared sampling rate, at
+    EVERY rate the AUDIO_UNIT advertises, and off the declared audio PLL."""
     marks = []
-    rate = cfg["clocking"]["sampling_rate_hz"]
+    clk = cfg["clocking"]
+    rate = clk["sampling_rate_hz"]
+    master = bool(audio_if_slots(cfg)) and tdm_bus_master()
     if rate in RTL_TODAY["sampling_rates"]:
-        marks.append((f"{rate} Hz media clock", "supported", ""))
+        marks.append((f"{rate} Hz media clock", "supported",
+                      "clocking.sampling_rate_hz -> --audio-fs-hz -> "
+                      "milan_datapath AUDIO_IF_FS_HZ_P and the bclk it fixes "
+                      "(AUDIO_IF_CLK_HZ_P = 2 x SLOTS x slot bits x fs, the "
+                      "same number _CRG gives the TDM master's MMCM output); "
+                      "withheld at the 48000 default, which is the value "
+                      "elaborated here" if master else
+                      "the I2S front-end divides it out of the fixed "
+                      "24.576 MHz audio clock (/2 /8 /512); no argv flag "
+                      "carries it because there is no other rate to reach"))
     else:
         marks.append((f"{rate} Hz media clock",
                       "planned (item 6 - MMCM-DRP media-clock servo)",
-                      "render path is 48k-only today"))
+                      "render path is 48k-only today" if master else
+                      "render path is 48k-only today, and on this shape the "
+                      "rate reaches NO argv flag at all: --audio-fs-hz needs "
+                      "a TDM bus master, and every other front-end divides "
+                      "48 kHz out of the fixed 24.576 MHz audio clock"))
+    # #399 acceptance 3: EVERY rate the AUDIO_UNIT advertises as a
+    # SET_SAMPLING_RATE target is a rate a controller may ask for, so each one
+    # the render path cannot run gets its OWN mark. Marking only the current
+    # rate published two promises and checked one.
+    for extra in clk["audio_unit_rates_hz"]:
+        if extra == rate or extra in RTL_TODAY["sampling_rates"]:
+            continue
+        marks.append((f"{extra} Hz AUDIO_UNIT sampling rate "
+                      f"(clocking.audio_unit_rates_hz)",
+                      "planned (item 6 - MMCM-DRP media-clock servo)",
+                      "advertised as a SET_SAMPLING_RATE target (1722.1 "
+                      "7.2.3) that the render path cannot run: the audio "
+                      "clock is the fixed 24.576 MHz two-stage plan and "
+                      "nothing re-rates it at runtime, so a controller "
+                      "setting this rate would move the AUDIO_UNIT's "
+                      "current_sampling_rate over a fabric still framing at "
+                      f"{rate} Hz"))
+    # #399: clocking.audio_pll_hz names the audio clock but does not DRIVE it.
+    # Carried explicitly rather than dropped, so the plan states where the key
+    # is elaborated and where it is not.
+    marks.append((f"{clk['audio_pll_hz']} Hz audio clock "
+                  f"(clocking.audio_pll_hz)",
+                  "planned (item 6 - MMCM-DRP media-clock servo)",
+                  "the AES3/S-PDIF serial-clock REFERENCE (the family's "
+                  "serial clock must be an integer divide of it, refused "
+                  "here otherwise) and nothing else: _CRG builds the audio "
+                  "clock from a fixed two-stage integer chain - 24.576 MHz "
+                  "by contract for KL_crf_tx /512, KL_i2s_playback and "
+                  "KL_mmcm_drp_servo - so no argv flag carries this key and "
+                  "re-rating the plan is item 6. What the key can no longer "
+                  "do is disagree: a value other than the rate this fabric "
+                  "produces is a ConfigError (_load_clocking)"))
     return marks
 
 
@@ -4202,6 +4362,20 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
         argv += ["--audio-interface", kind]
         if tdm_bus_master():
             argv += ["--audio-interface-master"]
+            # #399: the declared media clock and TDM slot width. Only a bus
+            # MASTER generates a frame, so only it has either to set - every
+            # other build runs the fixed 24.576 MHz audio clock and milan_soc
+            # REFUSES the flags there. Emitted only when the declaration is
+            # OFF the SoC's own default (read from milan_soc.py, never
+            # restated), so a config that declares the shipping shape keeps a
+            # byte-identical argv, fragment and top .v, exactly like
+            # --sys-clk-freq off the board default.
+            fs_hz = cfg["clocking"]["sampling_rate_hz"]
+            if fs_hz != soc_audio_const("AUDIO_IF_FS_HZ_DEFAULT", 48000):
+                argv += ["--audio-fs-hz", str(fs_hz)]
+            slot_bits = tdm_slot_bits(cfg)
+            if slot_bits != soc_audio_const("AUDIO_IF_WORD_BITS_DEFAULT", 32):
+                argv += ["--audio-word-bits", str(slot_bits)]
         # issue #447: the RENDER half. Emitted only when this build's render
         # lane IS the TDM bus and the board routes the header the serializer
         # drives, so the advertised physical input cluster count and the
