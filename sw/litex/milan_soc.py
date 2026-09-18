@@ -440,7 +440,8 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, audio_if_render=0, gptp_plane=None,
+                 audio_if_i2s_pair=False, audio_if_render=0, pps=False,
+                 gptp_plane=None,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None):
@@ -457,6 +458,7 @@ class MilanNIC(LiteXModule):
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            audio_if_render=audio_if_render,
+                           pps=pps,
                            gptp_plane=gptp_plane,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
@@ -719,6 +721,7 @@ def add_milan_datapath(host: Module, platform: object,
                        audio_if_master: bool = False,
                        audio_if_i2s_pair: bool = False,
                        audio_if_render: int = 0,
+                       pps: bool = False,
                        gptp_plane: bool | None = None,
                        loopback_lane: bool = False,
                        render_lpf: bool = True,
@@ -800,6 +803,12 @@ def add_milan_datapath(host: Module, platform: object,
         i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
         # media-grid test point: left open unless the board has a J11 header
         o_media_lrclk_o = Signal(),
+        # PPS metrology output (#260): a STRUCTURAL zero unless the build asked
+        # for PPS_P, and open here even then - the board SoC overrides it with
+        # the platform's `pps` pad via extra_ports, exactly as it does for the
+        # media-grid test point above. A board with no `pps` resource still
+        # elaborates; it simply has no pin to measure against.
+        o_pps_o = Signal(),
         # chmap follow-up 4: KL_tdm_render serial out is EXPORTED (tdm_dout_o);
         # open here - the same TDM-header platform extension that provides
         # bclk/fsync claims it (extra_ports), no RTL change needed then.
@@ -856,6 +865,17 @@ def add_milan_datapath(host: Module, platform: object,
                      # Always pass the option: an explicit legacy build must
                      # override milan_datapath's product-default 1.
                      p_GPTP_PLANE_EN_P=int(bool(gptp_plane)))
+    # PPS metrology output (#260). ADDITIVE and OPT-IN, the mirror image of the
+    # MILAN_OPTIONAL_BLOCKS levers below: those default PRESENT and emit a
+    # parameter only to prune, this defaults ABSENT and emits one only to
+    # build, so either way a default build's generated top .v carries no new
+    # parameter and no existing bitstream changes by this option existing.
+    # The pulse width is DERIVED from the same milan_clk_hz the PHC increment
+    # is derived from - one millisecond of that clock - so the two can never
+    # disagree about how long a cycle is.
+    if pps:
+        dp_params["p_PPS_P"] = 1
+        dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
     if gptp_plane:
         # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
@@ -2441,7 +2461,7 @@ class MilanSoC(SoCCore):
                  extra_scala_args=None, cpu="naxriscv",
                  board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
-                 audio_if_master=False, audio_if_render=0,
+                 audio_if_master=False, audio_if_render=0, pps=False,
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
@@ -2780,6 +2800,23 @@ class MilanSoC(SoCCore):
                           "this platform - bclk/fsync/dout float and the "
                           "capture front-end frames DIGITAL SILENCE at the "
                           "declared width")
+            # ---- PPS metrology output (#260) ----
+            # The pin constraint is emitted by REQUESTING the resource and by
+            # nothing else, which is what makes the constraint follow the
+            # parameter: a build without --pps never asks, so no PACKAGE_PIN
+            # for C17 reaches the XDC and the pad is free for anything else.
+            # `loose=True` so a board that declares no `pps` resource still
+            # elaborates - it gets the comparator and no way to observe it,
+            # which is a real (if useless) shape and not an error.
+            self.pps_pads = None
+            if pps:
+                self.pps_pads = platform.request("pps", loose=True)
+                if self.pps_pads is None:
+                    print("[milan] --pps: no `pps` pad on this platform - the "
+                          "comparator is BUILT and its CSR window live, but "
+                          "the pulse reaches no package pin")
+                else:
+                    dp_ports["o_pps_o"] = self.pps_pads
             # WHERE THE ENTITY MODEL LIVES. The processor's descriptor store
             # fetches the AEM image from main memory at a COMPILE-TIME base -
             # its design holds no base register, so software cannot point it
@@ -2858,6 +2895,7 @@ class MilanSoC(SoCCore):
                                   audio_if_render=(int(audio_if_render)
                                                    if self.tdm_pads is not None
                                                    else 0),
+                                  pps=bool(pps),
                                   # Preserve None so add_milan_datapath catches
                                   # a severed ownership carrier.
                                   gptp_plane=gptp_plane,
@@ -3377,6 +3415,21 @@ def main() -> None:
                          "byte-identical. The endstation config "
                          "declares it (cluster_mapping.fabric.loopback_lane) so the AEM's "
                          "power-on map and this flag can never disagree.")
+    ap.add_argument("--pps", action="store_true",
+                    help="METROLOGY: build the PPS output (milan_datapath "
+                         "PPS_P -> the timestamp counter's own comparator) and "
+                         "route it to the board's `pps` pad - AX7101 J11.35, "
+                         "ball C17, LVCMOS33. One rising edge per PHC second, "
+                         "1 ms wide, emitted in gtx_clk so the edge is "
+                         "deterministic to a single tick. This is the only way "
+                         "this device's gPTP accuracy can be MEASURED against "
+                         "an external reference: without it every accuracy "
+                         "figure is the device reading its own servo error. "
+                         "Measured OOC at +118 LUT / +83 FF (yosys xc7, "
+                         "flattened). Default off => no comparator, "
+                         "no constraint, pin free. Building it does not start "
+                         "it: software must arm PTP_PPS_TGT_{LO,HI} at a "
+                         "second boundary and set PTP_PPS_CTRL[0].")
     ap.add_argument("--audio-interface", default="i2s_philips",
                     choices=("i2s_philips", "tdm8", "tdm16", "tdm32"),
                     help="item-4 audio-interface family: capture front-end generate "
@@ -3621,6 +3674,7 @@ def main() -> None:
                    talker_wire_chans=int(args.talker_wire_chans),
                    audio_if_master=bool(args.audio_interface_master),
                    audio_if_render=int(args.audio_interface_render),
+                   pps=bool(args.pps),
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
                    software_profile=args.software_profile,

@@ -165,7 +165,49 @@ priority1 and 50 MHz fabric clock. It uses
 three-directive placement sweep. See
 [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-The current CSR ABI is `VERSION=0x0002_0058`. With the plane enabled, fabric
+#### The J11 expansion header  -  what is claimed, and by what
+
+J11 is the board's only 40-pin expansion header (`FPGA 40 PIN External IO`,
+`HEADER 20x2/M`). Odd pins are `EX_IO1_kN` and even pins `EX_IO1_kP` for
+k = 1..17, so the signal pins are 3..36; pin 2 is +5.0V and pins 39/40 are
++3.3V. Everything the design puts on it, in one place, so the next pin can be
+chosen without re-deriving the connector:
+
+| J11 pin | Ball | Signal | Emitted when |
+|---|---|---|---|
+| 3 | `B22` | `tdm mclk` | `--audio-interface-master` with a `tdm` resource |
+| 5 | `A20` | `tdm dout` (render) | as above |
+| 6 | `B20` | `tdm bclk` | as above |
+| 7 | `F20` | `tdm din` (capture) | as above |
+| 8 | `F19` | `tdm fsync` | as above |
+| 9 | `J16` | `media_lrclk_o` media-grid test point | as above |
+| 35 | `C17` | **`PPS_OUT`** (issue #260) | `--pps` |
+| 37 | - | `GND`, the probe return for the pin above | always |
+
+Pin numbers and nets come from `AX7101_EX_SCH.pdf` sheet 10 of 11, which prints
+the J11 table. Pins 1, 37 and 38 are drawn as ground symbols and carry no text
+label, so a text search of the PDF misses them. J11 is a 20x2 header numbered
+in pairs, so J11.37 (ground) is the contact directly beside the PPS pin along
+the odd row - a probe ground return with no flying lead. J11.36 is not between
+them physically: it faces J11.35 across the two rows and is the PPS net's
+differential partner (EX_IO1_17P).
+
+`PPS_OUT` is one rising edge per PHC second, 1 ms wide, LVCMOS33, driven from
+the timestamp counter's own comparator in the PHC clock domain. It is the
+instrument that makes a gPTP accuracy figure a measurement against an external
+reference instead of the device reading back its own servo error; without it
+every such figure is self-reported. The pin is emitted **only** when the build
+asks for it: `--pps` both elaborates the comparator (`PPS_P`) and requests the
+platform resource, and an unrequested resource produces no `PACKAGE_PIN`
+constraint at all, so a build without the flag leaves C17 free.
+
+Building it does not start it. Software must write a second boundary (a
+multiple of 1e9 in PHC nanoseconds) to `PTP_PPS_TGT_{LO,HI}`, strobe
+`PTP_PPS_CTRL[1]` to arm, and set `PTP_PPS_CTRL[0]`; `PTP_PPS_CTRL[16]` reads
+back whether the comparator exists at all. See the `0x500` block in
+[REGISTER_MAP.md](../reference/REGISTER_MAP.md).
+
+The current CSR ABI is `VERSION=0x0002_0059`. With the plane enabled, fabric
 is the sole gPTP owner. The direct, verification-only option-OFF elaboration is
 ownerless: GM identity, parent identity, path data and pdelay read zero;
 `sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy publication write

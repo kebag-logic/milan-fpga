@@ -55,6 +55,12 @@ constexpr uint32_t A_PTP_TRLO     = 0x530;
 constexpr uint32_t A_PTP_TRHI     = 0x534;
 constexpr uint32_t A_PTP_ILAT     = 0x540;
 constexpr uint32_t A_PTP_ELAT     = 0x544;
+constexpr uint32_t A_PPS_CTRL     = 0x548;
+constexpr uint32_t A_PPS_TGLO     = 0x54C;
+constexpr uint32_t A_PPS_TGHI     = 0x550;
+constexpr uint32_t A_PPS_RDLO     = 0x554;
+constexpr uint32_t A_PPS_RDHI     = 0x558;
+constexpr uint32_t A_PPS_WIDTH    = 0x55C;
 constexpr uint32_t A_ADP_CTRL     = 0x600;
 constexpr uint32_t A_ADP_EIDLO    = 0x604;
 constexpr uint32_t A_ADP_EIDHI    = 0x608;
@@ -93,6 +99,22 @@ constexpr int kAxiGuard = 2048;
 //! macro. The `#define` survives only because the Makefile overrides it with
 //! `-CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL` for the 100 MHz leg.
 constexpr uint64_t kCsrMilanClkHz = CSR_MILAN_CLK_HZ;
+
+//! Whether THIS leg elaborated the PPS alarm (issue #260), and the pulse width
+//! it was elaborated with. Same pattern as the clock above: the Makefile's
+//! obj_pps leg passes `-GPPS_P=1` to the RTL and `-DCSR_PPS_P=1` here from one
+//! variable, so the two cannot drift apart silently. The PPS registers decode
+//! in BOTH legs - only `PTP_PPS_CTRL[0]`, `[16]` and `PTP_PPS_WIDTH` are
+//! gated - so every expectation below is written once and parameterised on
+//! this flag, and the default leg is the structural-zero negative control.
+#ifndef CSR_PPS_P
+#define CSR_PPS_P 0
+#endif
+#ifndef CSR_PPS_WIDTH_CYC
+#define CSR_PPS_WIDTH_CYC 125000u
+#endif
+constexpr bool     kCsrPpsBuilt = CSR_PPS_P != 0;
+constexpr uint32_t kCsrPpsWidthCyc = CSR_PPS_WIDTH_CYC;
 
 //! PTP_INCR reset = the nominal per-tick increment in 24.8 fixed point,
 //! computed here the same way milan_csr.sv's PTP_INCR_RST_C computes it.
@@ -144,6 +166,7 @@ class MilanCsrHarness {
   void ptp_ctrl_owns_phc_enable_independent_of_adp();
   void mac_control_and_cbs_scratch_read_back();
   void ptp_latency_scratch_read_back();
+  void pps_alarm_registers_and_output_wiring();
   void irq_latch_mask_and_w1c();
   void ptp_command_strobes_and_tod_snapshot();
   void statistics_snapshot();
@@ -187,6 +210,7 @@ class MilanCsrHarness {
   bool seen_adp_dep = false;
   bool seen_i2spb_clru = false;
   bool seen_i2spb_clro = false;
+  bool seen_pps_arm = false;
   // TCAM entry-write capture (o_tcam_wr_en is a 1-cycle strobe)
   bool     seen_tcam_wr = false;
   uint32_t tcam_wr_index = 0;
@@ -207,6 +231,7 @@ void MilanCsrHarness::posedge() {
   seen_adp_dep     |= dut->o_adp_depart_p;
   seen_i2spb_clru  |= dut->o_i2spb_clr_under;
   seen_i2spb_clro  |= dut->o_i2spb_clr_over;
+  seen_pps_arm     |= dut->o_pps_arm;
   if (dut->o_tcam_wr_en) {          // latch the committed entry
     seen_tcam_wr = true;
     tcam_wr_index = dut->o_tcam_wr_index; tcam_wr_valid = dut->o_tcam_wr_valid;
@@ -303,7 +328,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
 void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00020058);
+  ck("VERSION",       axi_read(A_VERSION), 0x00020059);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
@@ -487,6 +512,70 @@ void MilanCsrHarness::ptp_latency_scratch_read_back() {
   axi_write(A_PTP_ELAT, 0);
   ck("PTP_ELAT zero after nonzero", axi_read(A_PTP_ELAT), 0);
   ck("PTP_ILAT retained on clear", axi_read(A_PTP_ILAT), 0);
+}
+
+//! PPS alarm registers (0x548..0x55C, #260), in BOTH elaborations.
+//!
+//! The two arms are one scenario on purpose. `PPS_P` gates three things and
+//! only three: `PTP_PPS_CTRL[0]`'s readback, the built bit `[16]`, and
+//! `PTP_PPS_WIDTH`. The target words, the arm strobe and the live readback
+//! decode identically either way, so writing this twice would be two copies
+//! that drift. With the default `PPS_P=0` leg the gated expectations become
+//! the negative control the register map promises software: a build without
+//! the comparator reads UNSUPPORTED and drives a structural zero at
+//! `o_pps_enable`, rather than accepting an enable that nothing answers.
+void MilanCsrHarness::pps_alarm_registers_and_output_wiring() {
+  printf("-- PPS alarm registers (PPS_P=%d) --\n", kCsrPpsBuilt ? 1 : 0);
+  ck("PPS_CTRL[16] publishes the build", (axi_read(A_PPS_CTRL) >> 16) & 1,
+     kCsrPpsBuilt ? 1 : 0);
+  ck("PPS_CTRL reset (disabled)", axi_read(A_PPS_CTRL) & 1, 0);
+  ck("PPS_TGT_LO reset", axi_read(A_PPS_TGLO), 0);
+  ck("PPS_TGT_HI reset", axi_read(A_PPS_TGHI), 0);
+  ck("PPS_WIDTH publishes the elaborated width", axi_read(A_PPS_WIDTH),
+     kCsrPpsBuilt ? kCsrPpsWidthCyc : 0);
+  dut->eval();
+  ck("o_pps_enable at reset", dut->o_pps_enable, 0);
+
+  // The armed target is a plain 64-bit pair: both halves reach the PHC port.
+  axi_write(A_PPS_TGLO, 0x3B9ACA00);        // 1e9 ns - a second boundary
+  axi_write(A_PPS_TGHI, 0x00000007);
+  ck("PPS_TGT_LO read back", axi_read(A_PPS_TGLO), 0x3B9ACA00);
+  ck("PPS_TGT_HI read back", axi_read(A_PPS_TGHI), 0x00000007);
+  dut->eval();
+  ck("o_pps_target_ns carries both halves", dut->o_pps_target_ns,
+     0x00000007'3B9ACA00ULL);
+
+  // CTRL[1] is W1S: it arms with a one-cycle strobe and must never store.
+  seen_pps_arm = false;
+  axi_write(A_PPS_CTRL, 0x2);
+  ck("CTRL[1] arm strobes o_pps_arm", seen_pps_arm ? 1 : 0, 1);
+  ck("CTRL[1] does not store", (axi_read(A_PPS_CTRL) >> 1) & 1, 0);
+  seen_pps_arm = false;
+  axi_write(A_PPS_CTRL, 0x1);
+  ck("a plain enable write does not re-arm", seen_pps_arm ? 1 : 0, 0);
+
+  // ...and the enable is the gated bit: it answers only where the comparator
+  // was elaborated, at the readback AND at the port.
+  ck("CTRL[0] follows the build", axi_read(A_PPS_CTRL) & 1, kCsrPpsBuilt ? 1 : 0);
+  dut->eval();
+  ck("o_pps_enable follows the build", dut->o_pps_enable, kCsrPpsBuilt ? 1 : 0);
+  ck("CTRL[16] unchanged by a write", (axi_read(A_PPS_CTRL) >> 16) & 1,
+     kCsrPpsBuilt ? 1 : 0);
+
+  // The live target is the PHC's, not the armed copy: a readback that mirrored
+  // TGT_{LO,HI} would report an alarm that the PHC had not accepted yet.
+  dut->i_pps_target_rd_ns = 0x0000000B'2D05E000ULL;
+  posedge();
+  ck("PPS_RD_LO is the live PHC target", axi_read(A_PPS_RDLO), 0x2D05E000);
+  ck("PPS_RD_HI is the live PHC target", axi_read(A_PPS_RDHI), 0x0000000B);
+  ck("PPS_TGT_LO still the armed copy", axi_read(A_PPS_TGLO), 0x3B9ACA00);
+
+  axi_write(A_PPS_CTRL, 0x0);
+  dut->eval();
+  ck("o_pps_enable clears", dut->o_pps_enable, 0);
+  axi_write(A_PPS_TGLO, 0); axi_write(A_PPS_TGHI, 0);
+  dut->i_pps_target_rd_ns = 0;
+  posedge();
 }
 
 void MilanCsrHarness::irq_latch_mask_and_w1c() {
@@ -1350,6 +1439,7 @@ int MilanCsrHarness::run() {
   ptp_ctrl_owns_phc_enable_independent_of_adp();
   mac_control_and_cbs_scratch_read_back();
   ptp_latency_scratch_read_back();
+  pps_alarm_registers_and_output_wiring();
   irq_latch_mask_and_w1c();
   ptp_command_strobes_and_tod_snapshot();
   statistics_snapshot();

@@ -18,11 +18,12 @@ Only the PHC represents gPTP time.
 
 ## Contents
 
-- **[Clock ownership](#clock-ownership)** — Separate network, processor, and media clocks.
-- **[Network-time path](#network-time-path)** — Follow timestamps into PHC discipline.
-- **[Media boundary](#media-boundary)** — Distinguish measurement from clock selection.
-- **[Presentation validity](#presentation-validity)** — Protect consumers during uncertain time.
-- **[Evidence](#evidence)** — Locate executable verification and status.
+- **[Clock ownership](#clock-ownership)** -- Separate network, processor, and media clocks.
+- **[Network-time path](#network-time-path)** -- Follow timestamps into PHC discipline.
+- **[Media boundary](#media-boundary)** -- Distinguish measurement from clock selection.
+- **[Presentation validity](#presentation-validity)** -- Protect consumers during uncertain time.
+- **[External measurement](#external-measurement)** -- Replace self-reported accuracy with a scope-readable second boundary.
+- **[Evidence](#evidence)** -- Locate executable verification and status.
 
 ## Clock ownership
 
@@ -270,11 +271,81 @@ That representation wraps every 4.295 seconds.
 
 Read [grandmaster recovery](GM_LOSS_RECOVERY.md).
 
+## External measurement
+
+Every accuracy statement above is internal.
+
+The device reads its own offset and grades itself.
+
+A systematic error stays invisible while every gate stays green.
+
+The PPS output closes that gap (issue #260).
+
+It is one comparator: `hit = (phc_ns >= target)`.
+
+It lives in the PHC's own clock domain.
+
+One rising edge per PHC second reaches a pin.
+
+A scope then reads this board against an external reference.
+
+It is deliberately not an engine product.
+
+The gPTP engine is microcoded and event-queued.
+
+Anything it emitted would carry dispatch latency.
+
+That is microseconds of jitter, which is not a PPS.
+
+At the counter the edge is deterministic to one tick.
+
+The target advances by exactly 1 000 000 000 nanoseconds.
+
+It never re-arms from the current time.
+
+The error therefore does not accumulate.
+
+Each edge lands within one counter increment of its boundary.
+
+That bound is measured at the compare's own sample.
+
+The pin is one register stage after it.
+
+The pad adds one more clock period.
+
+That offset is fixed and calibrates out.
+
+One edge's residue is never carried into the next.
+
+`PTP_PPS_RD_{LO,HI}` publishes the live target.
+
+Software watches the grid advance rather than assuming it.
+
+Two gates stay deliberately separate.
+
+`PPS_P` decides whether the logic exists at all.
+
+It is off by default.
+
+Building it costs +118 LUT and +83 FF, measured OOC.
+
+`PTP_PPS_CTRL[0]` decides whether a built comparator fires.
+
+`PTP_PPS_CTRL[16]` says which of the two a silent pin is.
+
+The pin and the build flag are in [BUILDING.md](../integration/BUILDING.md).
+
+The registers are in the [register map](../reference/REGISTER_MAP.md).
+
+The bench proof against a reference is not yet taken.
+
+
 ## Evidence
 
 | Concern | Authority | Executable evidence |
 |---|---|---|
 | PHC arithmetic | `timestamp_counter.sv` | `make -C tb/verilator/ptp` |
+| PPS grid and alignment | `timestamp_counter.sv` (`PPS_P`) | `make -C tb/verilator/ptp` |
 | Engine discipline | `gptp-processor/` | `make -C gptp-processor` |
 | Parent transport | `KL_gptp_shadow.sv` | `make -C tb/verilator/gptp_shadow` |
 | Clock validity | `KL_ptp_clock_validity.sv` | `make -C tb/verilator/clkvalid` |

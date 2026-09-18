@@ -184,6 +184,12 @@ module ptp_ts_top#(
     .a_cmd_snapshot (i_ptp_cmd_snapshot),
     .a_tod_rd       (o_ptp_tod_rd),
     .a_tod_rd_valid (o_ptp_tod_rd_valid),
+    //! PPS alarm (#260) is a milan_datapath product; this legacy top carries
+    //! the pruned arm, so every PPS port is tied off at its option-OFF value.
+    .a_pps_enable   (1'b0),
+    .a_pps_target_ns   ('0),
+    .a_pps_arm      (1'b0),
+    .a_pps_target_rd_ns(),
 
     .ts_clk         (gtx_clk),
     .ts_resetn      (gtx_resetn),
@@ -196,7 +202,15 @@ module ptp_ts_top#(
     .t_cmd_adjust   (ptp_cmd_adjust_ts),
     .t_cmd_snapshot (ptp_cmd_snapshot_ts),
     .t_tod_snapshot       (ptp_tod_snapshot_ts),
-    .t_tod_snapshot_valid (ptp_tod_snapshot_valid_ts)
+    .t_tod_snapshot_valid (ptp_tod_snapshot_valid_ts),
+    //! PPS alarm (#260) is a milan_datapath product and PPS_P is 0 here, so
+    //! the crossing's PHC face is pruned to constants: nothing can consume an
+    //! output that is structurally zero, and the live-target input has no
+    //! comparator behind it to report.
+    .t_pps_enable         (),
+    .t_pps_target_ns         (),
+    .t_pps_arm            (),
+    .t_pps_target_live_ns    ('0)
   );
 
   timestamp_counter #(
@@ -215,9 +229,20 @@ module ptp_ts_top#(
     .offset_i(ptp_offset_ts),
     .cmd_adjust_i(ptp_cmd_adjust_ts),
     .cmd_snapshot_i(ptp_cmd_snapshot_ts),
+    //! PPS alarm (#260): this legacy top carries the OPTION-OFF arm of the
+    //! counter (PPS_P defaults 0), so the comparator, its target register and
+    //! its stretcher are not elaborated. The inputs are tied to the values a
+    //! pruned alarm would see and the outputs are structural zeros with no
+    //! pin to reach - the PPS product is wired in milan_datapath.
+    .pps_enable_i(1'b0),
+    .pps_target_ns_i('0),
+    .pps_arm_i(1'b0),
     .timestamp_out(timestamp),
     .tod_snapshot_o(ptp_tod_snapshot_ts),
-    .tod_snapshot_valid_o(ptp_tod_snapshot_valid_ts)
+    .tod_snapshot_valid_o(ptp_tod_snapshot_valid_ts),
+    //! see the PPS note above: no consumer, nothing to observe
+    .pps_o(),
+    .pps_target_ns_o()
   );
 
   // ---------------------------------------------------------------------------

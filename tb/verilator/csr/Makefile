@@ -44,6 +44,11 @@ SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_csr
 
+# The PPS alarm's elaborated pulse width (#260), passed to BOTH the RTL
+# parameter and the harness's expectation from this one variable so the two
+# cannot drift. 125_000 is the RTL default: at 125 MHz it is the shipping 1 ms.
+PPS_WIDTH_CYC ?= 125000
+
 # milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh (generated from the
 # end-station config by sw/builder/endstation_builder.py), so hdl/common/csr
 # must be an include dir here exactly as it already is in tb/verilator/milan_dp,
@@ -103,13 +108,29 @@ obj_gptp/Vcsr_gptp: $(SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_gptp.cpp
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_gptp --top-module $(TOP) \
 	  -GGPTP_PLANE_EN_P=1 $(SRCS) sim_gptp.cpp -o Vcsr_gptp
 
+# The SAME sim_main with the PPS alarm ELABORATED (#260). The registers at
+# 0x548..0x55C decode in every build, but PPS_P gates what software is
+# allowed to see: CTRL[0]'s readback, the built bit CTRL[16] and PPS_WIDTH.
+# The default leg above therefore proves the UNSUPPORTED arm (a structural
+# zero at o_pps_enable no matter what is written) and this one proves the
+# supported arm, from one harness rather than two that drift. Without it the
+# only elaboration anywhere in the suites had PPS_P=0 and the three gated
+# bits were never observed in their 1 state.
+obj_pps/Vcsr_pps: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_pps --top-module $(TOP) \
+	  -GPPS_P=1 -GPPS_WIDTH_CYC_P=$(PPS_WIDTH_CYC) \
+	  -CFLAGS "-DCSR_PPS_P=1 -DCSR_PPS_WIDTH_CYC=$(PPS_WIDTH_CYC)u -Wall -Wextra" \
+	  $(SRCS) sim_main.cpp -o Vcsr_pps
 
-run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp
+
+run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp \
+     obj_pps/Vcsr_pps
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
 	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
 	./obj_gptp/Vcsr_gptp
+	./obj_pps/Vcsr_pps
 
 clean:
-	rm -rf obj_dir obj_100m obj_win obj_gptp
+	rm -rf obj_dir obj_100m obj_win obj_gptp obj_pps
