@@ -130,10 +130,36 @@ def commit_worst_ms(image: int) -> float:
 #: set always names sixteen and a shape's absent ports carry zero clusters.
 FW_MAP_PORTS = 16
 
+#: The writer's five waits in milliseconds, which the firmware scales to
+#: nanoseconds (#398). The values are the C literals they replaced, unchanged,
+#: and each comment cites what docs/design/SAVED_STATE_FASTCONNECT.md says.
+WRITER_TIMING_MS = {
+    # 9.4: the heartbeat period is at most T-NVM-WRITER-ALIVE / 4 = 500 ms,
+    # so four heartbeats fit the 2,000 ms liveness deadline; this is half
+    # that maximum.
+    "MILAN_NVM_HEARTBEAT_MS": 250,
+    # 14: T-NVM-DEBOUNCE is not decided there, being a wear-versus-loss trade
+    # that needs a bench; the firmware ships 1,000 ms as the provisional
+    # value, and section 13 states the loss window it opens.
+    "MILAN_NVM_DEBOUNCE_MS": 1000,
+    # 9.4: one sector erase takes at most tSE = 3 s (N25Q128 Table 32) and a
+    # commit must be acknowledged within T-NVM-COMMIT-TIMEOUT = 8,000 ms; the
+    # erase wait is longer than the first and fits inside the second.
+    "MILAN_NVM_ERASE_TIMEOUT_MS": 3500,
+    # 9.4: one page program of up to 256 bytes takes at most tPP = 5 ms; this
+    # is the wait for one page.
+    "MILAN_NVM_PROGRAM_TIMEOUT_MS": 50,
+    # 10, item 6: the firmware starts the restore walk through PP_CTRL[1] and
+    # waits for it. The page sets no bound on that wait: this is the
+    # firmware's own ceiling, and the firmware heartbeats while it waits.
+    "MILAN_NVM_RESTORE_TIMEOUT_MS": 3000,
+}
+
 
 def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
     """The generated constants the bare-metal writer derives its record set
-    from: `MILAN_NVM_*` in the LiteX `generated/soc.h`.
+    and its five waits (`WRITER_TIMING_MS`) from: `MILAN_NVM_*` in the LiteX
+    `generated/soc.h`.
 
     ONE derivation for two consumers. `sw/litex/milan_soc.py` publishes these
     for the firmware it links, and the firmware host test publishes the same
@@ -160,6 +186,7 @@ def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
         clusters = {p["index"]: p["clusters"] for p in ports}
         for k in range(FW_MAP_PORTS):
             out[f"MILAN_NVM_MAP{label}_CLUSTERS_{k}"] = clusters.get(k, 0)
+    out.update(WRITER_TIMING_MS)
     return out
 
 

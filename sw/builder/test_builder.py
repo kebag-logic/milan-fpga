@@ -215,6 +215,16 @@ Gates (gaps item 4, generator round):
       p_AUDIO_IF_CLK_HZ_P with it; at the shipping values both are ABSENT,
       which is what keeps the tracked configs' top .v byte-identical.
       Seven negative controls sever the chain hop by hop.
+  35. THE BOOT WORDS FOLLOW THE DECLARATION (gate 35, issue #398): the
+      firmware as shipped is compiled on a host against the constants
+      milan_soc.py publishes (sw/litex/boot_policy.py) for every tracked
+      config and for the shipping 1x1 with its CRF output switched off, and
+      configure_fabric()'s ordered CSR write list must be the pinned one:
+      CRFT_CTRL gets the talker enable and class-A declare only where
+      `clocking.crf_output.enabled` asks for them, and nothing writes
+      ADP_CAPS (0x614).  Four planted defects must each be refused for the
+      rule it breaks, and the saved-state writer's five waits must be the
+      generated `MILAN_NVM_*_MS` constants, a literal planted back refused.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -273,6 +283,13 @@ import yaml  # noqa: E402
 import endstation_builder as eb  # noqa: E402
 import check_gptp_owner_pair as gptp_pair  # noqa: E402
 import qspi_owner_transition as qspi_transition  # noqa: E402
+#: The boot-policy words milan_soc.py publishes (#398) and the writer's
+#: constants beside them: gate 35 compiles the firmware against both, and the
+#: gate 1b census stubs carry their names.
+import boot_policy  # noqa: E402
+import flash_map  # noqa: E402
+import nvm_contract  # noqa: E402
+import nvm_shape  # noqa: E402
 #: The ONE reader of "which config owns the tracked entity definition"
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
@@ -3383,6 +3400,11 @@ def test_baremetal_profile_contract() -> None:
         **{f"MILAN_NVM_MAPIN_CLUSTERS_{k}": 0 for k in range(16)},
         **{f"MILAN_NVM_MAPOUT_CLUSTERS_{k}": (17 if k == 0 else 0)
            for k in range(16)},
+        # #398: the writer's five waits as milan_soc.py publishes them, and
+        # the CRF talker's boot word a declared CRF output gets
+        **nvm_shape.WRITER_TIMING_MS,
+        "MILAN_CRF_TX_CTRL_BOOT": (boot_policy.CRFT_TALKER_ENABLE |
+                                   boot_policy.CRFT_CLASS_A_DECLARE),
     }
     #: The RV32 cross compiler is the real target and the only one that can
     #: assemble the firmware's RISC-V asm; a host compiler answers every
@@ -21344,6 +21366,375 @@ def test_builder_doc_key_map() -> None:
     print("  [gate 32] census: " + _census_line())
 
 
+# ------------------------------------------------ boot policy (35, #398) ----
+FIRMWARE_C = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
+#: The two edits gate 35 makes to the copy it compiles, besides appending an
+#: entrance to the static configure_fabric(): the RISC-V fences a host cannot
+#: assemble become no-ops, and the one CSR store, which gate 1b pins
+#: milan_write() to, is routed to the host lister.
+_FENCE_RE = re.compile(r'__asm__ volatile\("fence[^"]*" ::: "memory"\);')
+_CSR_STORE = "\t*milan_reg(offset) = value;\n"
+#: The LiteX headers the firmware includes, as host stand-ins: every base is a
+#: host array and every LiteSPI and BIOS call a stub. Nothing models a
+#: register: a read returns the seeded word or the last value written.
+_FABRIC_HOST_STUBS = {
+    "generated/mem.h": (
+        "#pragma once\n#include <stdint.h>\n"
+        "extern uint32_t fabric_host_csr[];\nextern uint8_t fabric_host_flash[];\n"
+        "#define MILAN_CSR_BASE ((uintptr_t)fabric_host_csr)\n"
+        "#define SPIFLASH_BASE ((uintptr_t)fabric_host_flash)\n"),
+    "generated/csr.h": (
+        "#pragma once\n#include <stdint.h>\n"
+        "#define CSR_SPIFLASH_MASTER_PHYCONFIG_LEN_OFFSET 0\n"
+        "#define CSR_SPIFLASH_MASTER_PHYCONFIG_WIDTH_OFFSET 8\n"
+        "#define CSR_SPIFLASH_MASTER_PHYCONFIG_MASK_OFFSET 16\n"
+        "#define CSR_SPIFLASH_MASTER_STATUS_TX_READY_OFFSET 0\n"
+        "#define CSR_SPIFLASH_MASTER_STATUS_RX_READY_OFFSET 1\n"
+        "uint32_t spiflash_master_status_read(void);\n"
+        "void spiflash_master_cs_write(uint32_t v);\n"
+        "void spiflash_master_phyconfig_write(uint32_t v);\n"
+        "uint32_t spiflash_master_rxtx_read(void);\n"
+        "void spiflash_master_rxtx_write(uint32_t v);\n"),
+    "hw/common.h": "#pragma once\n",
+    "libbase/crc.h": ("#pragma once\n"
+                      "unsigned int crc32(const unsigned char *b, unsigned int n);\n"),
+    "system.h": "#pragma once\nvoid cdelay(int i);\n",
+    "command.h": ("#pragma once\n#define SYSTEM_CMDS 0\n"
+                  "#define define_command(n, h, d, g) "
+                  "void (*const fabric_host_cmd_##n)(int, char **) = h\n"),
+    "init.h": ("#pragma once\n#define define_init_func(f) "
+               "void (*const fabric_host_init_##f)(void) = f\n"),
+}
+#: The host side: the CSR window as a word array seeded by _fabric_seed()'s
+#: rule, the lister, the stubs the headers above declare, and a main() that
+#: runs configure_fabric() once.
+_FABRIC_HOST_C = """\
+#include <stdint.h>
+#include <stdio.h>
+
+#define FABRIC_HOST_WORDS 0x4000u
+
+uint32_t fabric_host_csr[FABRIC_HOST_WORDS];
+uint8_t fabric_host_flash[0x1000000];
+uint8_t fabric_host_ram[0x20000];
+
+void fabric_host_write(unsigned int offset, uint32_t value);
+void fabric_host_configure(void);
+void set_idle_hook(void (*fptr)(void));
+
+void fabric_host_write(unsigned int offset, uint32_t value)
+{
+    printf("W 0x%03x 0x%08x\\n", offset, (unsigned int)value);
+    fabric_host_csr[offset / 4u] = value;
+}
+
+uint32_t spiflash_master_status_read(void) { return 0u; }
+void spiflash_master_cs_write(uint32_t v) { (void)v; }
+void spiflash_master_phyconfig_write(uint32_t v) { (void)v; }
+uint32_t spiflash_master_rxtx_read(void) { return 0u; }
+void spiflash_master_rxtx_write(uint32_t v) { (void)v; }
+void cdelay(int i) { (void)i; }
+unsigned int crc32(const unsigned char *b, unsigned int n)
+{
+    (void)b;
+    (void)n;
+    return 0u;
+}
+void set_idle_hook(void (*fptr)(void)) { (void)fptr; }
+
+int main(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < FABRIC_HOST_WORDS; ++i)
+        fabric_host_csr[i] = 0x5a000001u | (i << 10);
+    fabric_host_configure();
+    return 0;
+}
+"""
+
+
+def _fabric_seed(offset: int) -> int:
+    """The word gate 35's host CSR file holds at byte `offset` before any
+    write, the rule _FABRIC_HOST_C's main() applies per word: bit 0 set and
+    bit 3 clear, so clearing bit 0 or setting bit 3 changes the word, and the
+    offset in the middle names the word it came from."""
+    return 0x5A00_0001 | (offset << 8)
+
+
+def _expected_fabric_writes(k: dict[str, int]) -> list[tuple[int, int]]:
+    """configure_fabric()'s CSR writes, in order, as (offset, value) over the
+    seeded register file for the generated words `k`: the list the firmware
+    wrote before #398, less the ADP_CAPS (0x614) write, with CRFT_CTRL's word
+    taken from `k` instead of the literal 3."""
+    seed = _fabric_seed
+    return [
+        (0x600, seed(0x600) & ~0x1),                    # ADP_CTRL[0], pre-AEM
+        (0x920, seed(0x920) & ~0x1),                    # PP_CTRL[0], pre-AEM
+        (0x604, k["MILAN_ENTITY_ID_LO"]), (0x608, k["MILAN_ENTITY_ID_HI"]),
+        (0x60C, k["MILAN_MODEL_ID_LO"]), (0x610, k["MILAN_MODEL_ID_HI"]),
+        (0x108, k["MILAN_STATION_MAC_LO"]), (0x10C, k["MILAN_STATION_MAC_HI"]),
+        (0x100, seed(0x100) | 0x8),                     # MAC_CTRL, #403
+        (0x654, (k["MILAN_SR_VID"] << 16) | 0x1),       # AAF_CTRL
+        (0x684, k["MILAN_SR_VID"]),                     # LWSRP_VID
+        (0x680, k["MILAN_LWSRP_CTRL_RESET"] | 0x3),     # LWSRP_CTRL, #400
+        (0x6CC, ((k["MILAN_N_TALKERS"] + 1) << 8) | 0x1),  # MAAP_CTRL
+        (0x750, k["MILAN_CRF_TX_CTRL_BOOT"]),           # CRFT_CTRL
+    ]
+
+
+def _fabric_host_header(consts: dict[str, int], overlay: dict[str, Any]) -> str:
+    """The stub generated/soc.h: the boot words `consts` under test, the
+    writer's constants for the same shape from nvm_shape.firmware_constants
+    (the derivation milan_soc.py publishes them from), and the flash map read
+    out of milan_soc.py. configure_fabric() reads only `consts`."""
+    dc = overlay["descriptor_counts"]
+    shape = nvm_contract.Shape(
+        cfg=Path(overlay["_source_config"]), names=nvm_shape.expected_names(dc),
+        dc=dc, spi=overlay["stream_ports"]["input"],
+        spo=overlay["stream_ports"]["output"])
+    donor = nvm_contract.Donor(base=nvm_shape.binding_base(),
+                               layout=nvm_shape.layout_version())
+    journal = flash_map.literal("FLASHBOOT_RESERVED")["journal"]
+    values = {**consts, **nvm_shape.firmware_constants(shape, donor),
+              "MILAN_AEM_FLASH_OFFSET":
+                  flash_map.literal("FLASHBOOT_LAYOUT")["aem"]["offset"],
+              "MILAN_AEM_IMAGE_BYTES": 4, "MILAN_AEM_IMAGE_CRC32": 0,
+              "MILAN_FLASH_JOURNAL_OFFSET": journal["offset"],
+              "MILAN_FLASH_JOURNAL_SIZE": journal["size"],
+              "MILAN_NVM_IMAGE_MAX": flash_map.literal("FLASH_ERASE_BLOCK")}
+    lines = ["#pragma once", "#include <stdint.h>",
+             "extern uint8_t fabric_host_ram[];"]
+    lines += [f"#define {name} {value}u" for name, value in values.items()]
+    lines += ["#define MILAN_AEM_DESC_BASE ((uintptr_t)fabric_host_ram)",
+              "#define MILAN_NVM_IMAGE_BASE ((uintptr_t)fabric_host_ram + 0x10000u)"]
+    return "\n".join(lines) + "\n"
+
+
+def _fabric_host_source(firmware_text: str) -> str:
+    """The firmware as shipped, fences blanked, its one CSR store listed, and
+    an entrance to configure_fabric() appended; each edit must apply exactly
+    where gate 1b pins the text it replaces."""
+    text, fences = _FENCE_RE.subn("(void)0;", firmware_text)
+    assert fences == 2, \
+        f"gate 35: the firmware carries {fences} fences, not the two gate 1b pins"
+    assert text.count(_CSR_STORE) == 1, \
+        "gate 35: milan_write() no longer stores exactly once through " \
+        "milan_reg(); re-point the host lister at the store gate 1b pins"
+    text = text.replace(_CSR_STORE, "\tfabric_host_write(offset, value);\n")
+    return ("#include <stdint.h>\n"
+            "void fabric_host_write(unsigned int offset, uint32_t value);\n"
+            "void fabric_host_configure(void);\n" + text +
+            "\nvoid fabric_host_configure(void)\n{\n\tconfigure_fabric();\n}\n")
+
+
+def _fabric_host_run(cc: str, firmware_text: str, header: str,
+                     work: Path) -> list[tuple[int, int]]:
+    """Compile the firmware on the host against `header` and return the CSR
+    writes configure_fabric() makes, in order."""
+    stubs = work / "stubs"
+    for rel, text in {**_FABRIC_HOST_STUBS, "generated/soc.h": header}.items():
+        (stubs / rel).parent.mkdir(parents=True, exist_ok=True)
+        (stubs / rel).write_text(text)
+    (work / "fw.c").write_text(_fabric_host_source(firmware_text))
+    (work / "host.c").write_text(_FABRIC_HOST_C)
+    binary = work / "fabric_host"
+    built = subprocess.run(
+        [cc, "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
+         f"-I{stubs}", str(work / "fw.c"), str(work / "host.c"),
+         "-o", str(binary)], capture_output=True, text=True)
+    assert built.returncode == 0, \
+        f"gate 35: the host build of the firmware failed:\n{built.stderr[-3000:]}"
+    ran = subprocess.run([str(binary)], capture_output=True, text=True)
+    assert ran.returncode == 0, \
+        f"gate 35: configure_fabric() did not run to completion:\n{ran.stderr}"
+    return [(int(a, 16), int(v, 16)) for a, v in re.findall(
+        r"(?m)^W 0x([0-9a-f]+) 0x([0-9a-f]{8})$", ran.stdout)]
+
+
+def _assert_fabric_writes(label: str, got: list[tuple[int, int]],
+                          consts: dict[str, int], crf_declared: bool) -> None:
+    """The write list against the config's own declaration first, then
+    against the pinned list, so each failure names the rule it breaks. The
+    declared word is 0x3, talker enable and class-A declare, the literal the
+    firmware wrote for every config before #398; it is spelled here rather
+    than read from boot_policy, which is what this checks."""
+    crft = [value for offset, value in got if offset == 0x750]
+    want = 0x3 if crf_declared else 0x0
+    assert crft == [want], (
+        f"gate 35: {label}: CRFT_CTRL (0x750) written {[hex(v) for v in crft]} "
+        f"while clocking.crf_output.enabled is {str(crf_declared).lower()}: "
+        f"the declaration owns the CRF talker, so the one write must be "
+        f"{want:#x} (an undeclared output keeps CRFT_CTRL[0] clear)")
+    assert all(offset != 0x614 for offset, _ in got), \
+        f"gate 35: {label}: ADP_CAPS (0x614) written; nothing reads it (#398)"
+    expected = _expected_fabric_writes(consts)
+    assert got == expected, (
+        f"gate 35: {label}: configure_fabric() wrote "
+        f"{[(hex(a), hex(v)) for a, v in got]}, and the pinned list is "
+        f"{[(hex(a), hex(v)) for a, v in expected]}")
+
+
+def _planted(source: str, old: str, new: str, label: str) -> str:
+    """`source` with `old`, which must occur exactly once, replaced by `new`:
+    a planted defect that lands nowhere, or in two places, proves nothing."""
+    assert source.count(old) == 1, \
+        f"gate 35 control '{label}' matches {source.count(old)} places, not 1"
+    return source.replace(old, new)
+
+
+class _BootCase(NamedTuple):
+    """One config gate 35 runs: its label, what the builder emitted for it
+    and what its YAML declares."""
+
+    label: str
+    overlay: dict[str, Any]
+    lwsrp: dict[str, Any]
+    crf_declared: bool
+
+
+def _boot_case(label: str, path: Path, out: Path) -> _BootCase:
+    """Build `path` and read back the two files milan_soc.py reads."""
+    r = eb.build(path, out)
+    return _BootCase(
+        label=label,
+        overlay=json.loads(Path(r["paths"]["aem_overlay"]).read_text()),
+        lwsrp=json.loads(Path(r["paths"]["lwsrp_table"]).read_text()),
+        crf_declared=bool(r["cfg"]["clocking"]["crf_output"]))
+
+
+def _boot_policy_controls(cc: str, firmware: str, cases: dict[str, _BootCase],
+                          work: Path) -> list[str]:
+    """Four planted defects, each of which the write-list check must refuse
+    for the rule it breaks. Returns their labels."""
+    off, on = cases["ax7101_1x1_tdm8, crf_output off"], cases["ax7101_1x1_tdm8"]
+    # the derivation a regression would ship: one that reads every overlay
+    # as declaring the output, whatever the YAML said
+    real_declared = boot_policy.crf_output_declared
+    boot_policy.crf_output_declared = lambda overlay: True
+    try:
+        ignoring = boot_policy.fabric_constants(off.overlay, off.lwsrp)
+    finally:
+        boot_policy.crf_output_declared = real_declared
+    lwsrp_vid = "\tmilan_write(MILAN_LWSRP_VID, MILAN_SR_VID);\n"
+    mid_hi = "\tmilan_write(MILAN_ADP_MID_HI, MILAN_MODEL_ID_HI);\n"
+    controls = (
+        ("the literal 3 back in CRFT_CTRL", off, None, _planted(
+            firmware, "MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT)",
+            "MILAN_CRF_TX_CTRL, 3u)", "literal CRF word"), "CRFT_CTRL (0x750)"),
+        ("a derivation that ignores the declaration", off, ignoring, firmware,
+         "CRFT_CTRL (0x750)"),
+        ("the 0x8588 ADP_CAPS write back", on, None, _planted(
+            firmware, mid_hi, mid_hi + "\tmilan_write(0x614u, 0x00008588u);\n",
+            "ADP_CAPS write"), "ADP_CAPS (0x614)"),
+        ("the LWSRP_VID write dropped", on, None, _planted(
+            firmware, lwsrp_vid, "", "LWSRP_VID write"), "the pinned list is"),
+    )
+    for n, (label, case, consts, source, because) in enumerate(controls):
+        consts = consts or boot_policy.fabric_constants(case.overlay, case.lwsrp)
+        got = _fabric_host_run(cc, source, _fabric_host_header(consts, case.overlay),
+                               work / f"control{n}")
+        try:
+            _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+        except AssertionError as exc:
+            assert because in str(exc), \
+                f"gate 35 control '{label}' refused for the wrong reason: {exc}"
+        else:
+            raise AssertionError(f"gate 35 control '{label}' was NOT refused")
+    return [label for label, *_ in controls]
+
+
+def _assert_writer_waits_generated(firmware: str) -> str:
+    """The saved-state writer's five waits are generated constants whose
+    values sit where design page section 9.4 puts them. Returns a summary."""
+    waits = nvm_shape.WRITER_TIMING_MS
+    for name in waits:
+        wait_ns = name[len("MILAN_"):-len("_MS")] + "_NS"
+        assert re.search(rf"(?m)^#define[ \t]+{wait_ns}[ \t]+NVM_MS\({name}\)$",
+                         firmware), \
+            f"gate 35: the firmware's {wait_ns} is not the generated {name}"
+    assert not re.search(r"NVM_MS\(\s*\d", firmware), \
+        "gate 35: a literal writer wait is back in the firmware"
+    assert waits["MILAN_NVM_HEARTBEAT_MS"] <= nvm_contract.T_NVM_HEARTBEAT_MS, \
+        "gate 35: the heartbeat period exceeds section 9.4's maximum"
+    assert nvm_contract.T_SE_MAX_MS < waits["MILAN_NVM_ERASE_TIMEOUT_MS"] \
+        < nvm_contract.FIXED.T_NVM_COMMIT_TIMEOUT_MS, \
+        "gate 35: the erase wait is not between tSE max and the commit deadline"
+    assert waits["MILAN_NVM_PROGRAM_TIMEOUT_MS"] > nvm_contract.T_PP_MAX_MS, \
+        "gate 35: the page-program wait is not above tPP max"
+    return ", ".join(f"{name} {ms} ms" for name, ms in waits.items())
+
+
+def test_boot_policy_follows_the_declaration() -> None:
+    """Gate 35 (#398): the words the bare-metal firmware programs at boot
+    come from the declaration, measured on the firmware as shipped.
+
+    For every tracked config, and for the shipping 1x1 with
+    `clocking.crf_output.enabled: false`, the builder's overlay and lwSRP
+    table go through boot_policy.fabric_constants, the derivation milan_soc.py
+    publishes with add_constant; the firmware is compiled on a host against
+    those values with its one CSR store routed to a lister; configure_fabric()
+    runs once; and the ordered (offset, value) list it writes must be the
+    pinned list, with CRFT_CTRL's word the one the config's own YAML asks for:
+    the talker enable and class-A declare when the output is declared, and
+    CRFT_CTRL[0] clear when it is not. ADP_CAPS (0x614) is written by none.
+    Four planted defects must be refused for the rule each breaks, and the
+    writer's five waits must be the generated constants, a literal planted
+    back refused. The waits need no compiler, so they are checked first."""
+    firmware = FIRMWARE_C.read_text(encoding="utf-8")
+    waits = _assert_writer_waits_generated(firmware)
+    try:
+        _assert_writer_waits_generated(_planted(
+            firmware, "NVM_MS(MILAN_NVM_HEARTBEAT_MS)", "NVM_MS(250)",
+            "literal heartbeat"))
+    except AssertionError as exc:
+        assert "NVM_HEARTBEAT_NS" in str(exc), \
+            f"gate 35: the literal heartbeat was refused for the wrong reason: {exc}"
+    else:
+        raise AssertionError("gate 35: a literal heartbeat wait was NOT refused")
+    print(f"  [gate 35] the writer's waits are generated: {waits}; the "
+          "literal NVM_MS(250) planted back is refused")
+    cc = shutil.which("cc") or shutil.which("gcc")
+    if cc is None:
+        skip("gate 35", "no host C compiler (cc or gcc) on this runner, so "
+             "configure_fabric() was not run and its CSR write list, the "
+             "CRF talker's word and the 0x614 absence were not measured")
+        return
+    soc = MILAN_SOC_PY.read_text(encoding="utf-8")
+    assert re.search(r"(?m)^from boot_policy import fabric_constants$", soc) \
+        and re.search(r"\bfabric_constants\(\s*_baremetal_ovl\s*,\s*"
+                      r"_baremetal_srp\s*\)", soc), \
+        "gate 35: milan_soc.py no longer publishes boot_policy.fabric_constants"
+    with tempfile.TemporaryDirectory(prefix="gate35.") as tmp:
+        work = Path(tmp)
+        off = _variant(CONFIGS["ax7101_1x1_tdm8"], lambda c: c["clocking"][
+            "crf_output"].__setitem__("enabled", False))
+        try:
+            cases = {name: _boot_case(name, path, work / "out")
+                     for name, path in CONFIGS.items()}
+            cases["ax7101_1x1_tdm8, crf_output off"] = _boot_case(
+                "ax7101_1x1_tdm8, crf_output off", off, work / "out")
+        finally:
+            off.unlink()
+        for name, case in cases.items():
+            consts = boot_policy.fabric_constants(case.overlay, case.lwsrp)
+            for key in consts:
+                assert f'add_constant("{key}"' not in soc, \
+                    f"gate 35: milan_soc.py publishes {key} a second way"
+            got = _fabric_host_run(cc, firmware,
+                                   _fabric_host_header(consts, case.overlay),
+                                   work / name.replace(", ", "_").replace(" ", "_"))
+            _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+            print(f"  [gate 35] {case.label}: configure_fabric() wrote the "
+                  f"{len(got)} pinned CSR words in order, CRFT_CTRL "
+                  f"<- {dict(got)[0x750]:#x} for crf_output "
+                  f"{'declared' if case.crf_declared else 'not declared'}, "
+                  "no ADP_CAPS (0x614) write")
+        caught = _boot_policy_controls(cc, firmware, cases, work)
+    print(f"  [gate 35] {len(caught)}/{len(caught)} planted defects refused "
+          f"for the rule each breaks: {'; '.join(caught)}")
+
+
 if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
@@ -21411,7 +21802,8 @@ if __name__ == "__main__":
                test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,
                test_per_row_format_facts_are_per_row,
-               test_builder_doc_key_map):
+               test_builder_doc_key_map,
+               test_boot_policy_follows_the_declaration):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and

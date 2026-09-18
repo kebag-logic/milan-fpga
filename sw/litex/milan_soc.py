@@ -29,6 +29,7 @@ import argparse
 import binascii
 from pathlib import Path
 
+from boot_policy import fabric_constants
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
 
@@ -3870,27 +3871,19 @@ def main() -> None:
         soc.add_constant("MILAN_AEM_DESC_BASE", soc._pp_windows["desc_base"])
         with open(_desc_overlay, encoding="utf-8") as fh:
             _baremetal_ovl = json.load(fh)
-        _eid = int(_baremetal_ovl["adp"]["entity_id"], 16)
-        _mid = int(_baremetal_ovl["entity"]["entity_model_id"], 16)
-        _mac = bytes.fromhex(_baremetal_ovl["adp"]["mac_address"].replace(":", ""))
-        _aaf_talkers = sum(s.get("kind", "aaf") == "aaf"
-                           for s in _baremetal_ovl["stream_outputs"])
         with open(_builder_out(args.entity_gen_dir, "lwsrp_table.json"),
                   encoding="utf-8") as fh:
             _baremetal_srp = json.load(fh)
-        soc.add_constant("MILAN_ENTITY_ID_LO", _eid & 0xFFFF_FFFF)
-        soc.add_constant("MILAN_ENTITY_ID_HI", _eid >> 32)
-        soc.add_constant("MILAN_MODEL_ID_LO", _mid & 0xFFFF_FFFF)
-        soc.add_constant("MILAN_MODEL_ID_HI", _mid >> 32)
-        soc.add_constant("MILAN_STATION_MAC_LO", int.from_bytes(_mac[:4], "little"))
-        soc.add_constant("MILAN_STATION_MAC_HI", int.from_bytes(_mac[4:], "little"))
-        soc.add_constant("MILAN_N_TALKERS", _aaf_talkers)
-        soc.add_constant("MILAN_SR_VID",
-                         int(_baremetal_srp["reset_words"]["LWSRP_VID"], 16))
-        soc.add_constant("MILAN_LWSRP_CTRL_RESET",
-                         int(_baremetal_srp["reset_words"]["LWSRP_CTRL"], 16))
+        # The words configure_fabric() programs: identity, talker count, the
+        # lwSRP words and the CRF talker's boot word, which
+        # clocking.crf_output.enabled owns (#398). One derivation, shared with
+        # the builder gate that runs configure_fabric() on the same values.
+        for _name, _value in fabric_constants(_baremetal_ovl,
+                                              _baremetal_srp).items():
+            soc.add_constant(_name, _value)
         # The saved-state writer (#70): where the KLJ2 container is staged,
-        # and the record set it enumerates. Counts, never sums: the firmware
+        # the record set it enumerates and the five waits it runs on
+        # (nvm_shape.WRITER_TIMING_MS, #398). Counts, never sums: the firmware
         # derives the record area exactly as KL_nvm_backend derives it from
         # its parameters, and sw/firmware/nvm_hosttest grades the two against
         # scripts/nvm_shape.py's inventory of the same overlay.

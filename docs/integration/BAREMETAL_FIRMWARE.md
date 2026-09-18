@@ -168,6 +168,34 @@ A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
 fabric gPTP plane continue independently. The UART status line then reports
 `AEM=disabled`; it is not treated as a quiet healthy boot.
 
+### What step 2 writes, and who owns each word
+
+`configure_fabric()` writes these words in this order and no others. Each
+generated value is a `generated/soc.h` constant that `sw/litex/milan_soc.py`
+publishes from [`sw/litex/boot_policy.py`](../../sw/litex/boot_policy.py),
+which reads the builder's `aem_overlay.json` and `lwsrp_table.json` for the
+config being built. Gate 35 of `sw/builder/test_builder.py` compiles this
+firmware on a host against those values for every tracked config, and for the
+shipping 1x1 with its CRF output off, and holds the ordered list below (#398).
+
+| Word | Value written | Owner |
+|---|---|---|
+| `ADP_CTRL` (`0x600`) | read, bit 0 cleared | firmware-internal: the pre-AEM clear the entity-enable choke point relies on |
+| `PP_CTRL` (`0x920`) | read, bit 0 cleared | firmware-internal, for the same reason |
+| `ADP_ENTITY_ID_LO/HI` (`0x604`, `0x608`) | `MILAN_ENTITY_ID_LO/HI` | generated from `entity.entity_id`, which defaults to the EUI-64 of `platform.mac_address` |
+| `ADP_MODEL_ID_LO/HI` (`0x60C`, `0x610`) | `MILAN_MODEL_ID_LO/HI` | generated from `entity.entity_model_id` and `entity.model_id_pin` |
+| `MAC_ADDR_LO/HI` (`0x108`, `0x10C`) | `MILAN_STATION_MAC_LO/HI` | generated from `platform.mac_address` |
+| `MAC_CTRL` (`0x100`) | read, bit 3 (all-multicast) set | pending #403, which decides the receive-filter posture |
+| `AAF_CTRL` (`0x654`) | `MILAN_SR_VID` in `[27:16]`, talker enable `[0]`, bypass `[1]` clear | VID generated from `srp.vid`; the enable is firmware-internal bring-up sequencing |
+| `LWSRP_VID` (`0x684`) | `MILAN_SR_VID` | generated from `srp.vid` |
+| `LWSRP_CTRL` (`0x680`) | `MILAN_LWSRP_CTRL_RESET` with bits 1:0 forced on | reset word generated from `srp.*`; the forced bits override `srp.enable_at_reset` and `srp.talker_declare_at_reset`, pending #400 |
+| `MAAP_CTRL` (`0x6CC`) | block count `MILAN_N_TALKERS` + 1 in `[15:8]`, enable `[0]` | count generated from the declared AAF talkers; the enable is firmware-internal bring-up sequencing |
+| `CRFT_CTRL` (`0x750`) | `MILAN_CRF_TX_CTRL_BOOT` | generated from `clocking.crf_output.enabled`: `0x3`, talker enable and class-A declare, when the output is declared; `0x0` when it is not, so `CRFT_CTRL[0]` stays clear and nothing is declared |
+| `ADP_ENTITY_CAPS` (`0x614`) | not written | nothing reads the word: the ADPDU carries the processor's `ADP_ENTITY_CAPS_C` (#398) |
+
+Setting the entity-enable bits is step 5's alone: only the choke point above
+sets them.
+
 ### Editing contract for this firmware
 
 Gate 1b in `sw/builder/test_builder.py` checks the shipped boot-order spelling
@@ -1071,7 +1099,9 @@ is the erase block directly below the response buffer inside the reserved
 processor window, and the record set (`MILAN_NVM_N_*`, the per-port
 channel-map cluster counts, the donor's binding base and layout version) is
 one derivation in `scripts/nvm_shape.py` shared with the record-space gate and
-the host test, so the firmware never restates a count.
+the host test, so the firmware never restates a count. Its five waits come from
+the same file (`WRITER_TIMING_MS`, published as `MILAN_NVM_*_MS`), each beside
+the design-page section it answers to (#398).
 
 **Boot.** `nvm_boot()` runs after the fabric is configured and before the
 entity model is loaded. It reads both slots through the QSPI mapping and applies
