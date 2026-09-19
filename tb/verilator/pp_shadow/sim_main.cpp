@@ -146,6 +146,7 @@ class PpShadowHarness {
         grade_response_buffer_memory();
         grade_shared_control_lane();
         grade_global_anti_wedge_invariant();
+        grade_a_registered_listener_as_a_controller_reads_it();
         grade_heal_before_answer();
         grade_backend_rejection_reaches_the_processor();
 
@@ -501,6 +502,7 @@ class PpShadowHarness {
     static constexpr uint16_t A_ADP_GMLO    = 0x624;
     static constexpr uint16_t A_ADP_GMHI    = 0x628;
     static constexpr uint16_t A_ADP_GDOM    = 0x62C;
+    static constexpr uint16_t A_LWSRP_STATUS = 0x694;
     static constexpr uint16_t A_MAAP_CTRL   = 0x6CC;
     static constexpr uint16_t A_MAAP_STAT0  = 0x6D0;
     static constexpr uint16_t A_MAAP_STAT1  = 0x6D4;
@@ -696,6 +698,41 @@ class PpShadowHarness {
         return 70;
     }
 
+    // Milan GET_TX_STATE (ACMP message_type 4) to OUR talker source `uid`: the
+    // PROBE_TX frame above with the same two load-bearing offsets, the
+    // listener fields zero and a caller's sequence_id.
+    size_t build_get_tx_state(uint8_t* f, uint16_t uid, uint16_t seq) {
+        const size_t n = build_probe_tx(f, TEST_EID, uid);
+        f[15] = 0x04;                                // message_type GET_TX_STATE
+        put64be(f + 42, 0);                          // @28 listener_entity_id
+        put16be(f + 62, seq);                        // @48 sequence_id
+        return n;
+    }
+
+    // One MSRP Listener attribute (IEEE 802.1Q 10.8.1.2 MRPDU, 35.2.2): a
+    // bridge port declaring `decl` (35.2.2.7.4 FourPackedEvents: 1 Asking
+    // Failed, 2 Ready, 3 Ready Failed) for `sid` with the three-packed
+    // attribute event `ev` (35.2.2.7.2: 1 JoinIn, 5 Lv). One vector of one
+    // value, padded to the 60-octet minimum; the two EndMarks frame the PDU.
+    size_t build_msrp_listener(uint8_t* f, uint64_t sid, int ev, int decl) {
+        memset(f, 0, 60);
+        const uint8_t da[6] = {
+            0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};  // the Nearest Bridge group
+        const uint8_t sa[6] = {
+            0x02, 0x0B, 0x21, 0x00, 0x00, 0x0E};  // the bridge port
+        memcpy(f, da, 6); memcpy(f + 6, sa, 6);
+        f[12] = 0x22; f[13] = 0xEA;                  // EtherType MSRP
+        f[14] = 0x00;                                // ProtocolVersion
+        f[15] = 3;                                   // AttributeType Listener
+        f[16] = 8;                                   // AttributeLength
+        put16be(f + 17, 14);                         // AttributeListLength: 12 + EndMark
+        put16be(f + 19, 1);                          // LeaveAllEvent 0, NumberOfValues 1
+        put64be(f + 21, sid);                        // FirstValue: the StreamID
+        f[29] = static_cast<uint8_t>(ev * 36);       // ThreePackedEvents {ev, 0, 0}
+        f[30] = static_cast<uint8_t>(decl << 6);     // FourPackedEvents {decl, 0, 0, 0}
+        return 60;                                   // @31, @33: the two EndMarks
+    }
+
     // ---- the AEM descriptor image (hdl/aecp/desc/gen_desc_image.py layout) -----
     // Built here rather than shelled out to the generator so the harness OWNS the
     // bytes it will compare the wire against: an image produced by the same tool
@@ -724,15 +761,22 @@ class PpShadowHarness {
     //! whose 0xFFF mask the L5 series grades must exist here and index 9 must
     //! not
     static constexpr uint16_t DTY_STRIN_C  = 0x0005;
+    //! STREAM_OUTPUT (0x0006), ONE of them - the 1x1 shape's talker source.
+    //! GET_STREAM_INFO takes the image as its EXISTENCE authority and gathers
+    //! every field from this repository's faces, so group [T] can read Stream
+    //! Output 0 only if the image carries it
+    static constexpr uint16_t DTY_STROUT_C = 0x0006;
     static constexpr size_t   ENT_LEN_C    = 40;
     static constexpr size_t   CFG_LEN_C    = 24;
     static constexpr size_t   SPI_LEN_C    = 20;                 // Table 7-23
     static constexpr size_t   STRIN_LEN_C  = 24;                 // existence is enough
-    static constexpr uint32_t ENT_OFF_C    = 0x60;               // 4 index entries now
-    static constexpr uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x88
-    static constexpr uint32_t STRIN_OFF_C  = CFG_OFF_C + 2 * 24; // 0xB8
-    static constexpr uint32_t SPI_OFF_C    = STRIN_OFF_C + 24;   // 0xD0
-    static constexpr uint32_t IMG_END_C    = SPI_OFF_C + 24;     // 0xE8 (8-aligned)
+    static constexpr size_t   STROUT_LEN_C = 24;                 // existence is enough
+    static constexpr uint32_t ENT_OFF_C    = 0x70;               // 5 index entries now
+    static constexpr uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x98
+    static constexpr uint32_t STRIN_OFF_C  = CFG_OFF_C + 2 * 24; // 0xC8
+    static constexpr uint32_t SPI_OFF_C    = STRIN_OFF_C + 24;   // 0xE0
+    static constexpr uint32_t STROUT_OFF_C = SPI_OFF_C + 24;     // 0xF8
+    static constexpr uint32_t IMG_END_C    = STROUT_OFF_C + 24;  // 0x110 (8-aligned)
 
     void put32be_v(std::vector<uint8_t>& v, size_t off, uint32_t x) {
         for (int i = 0; i < 4; i++) v[off + i] = static_cast<uint8_t>(x >> (8 * (3 - i)));
@@ -745,7 +789,8 @@ class PpShadowHarness {
     std::vector<uint8_t> desc_bytes(uint16_t type, uint16_t index) {
         const size_t n = (type == DTY_ENTITY_C) ? ENT_LEN_C
                        : (type == DTY_SPI_C)    ? SPI_LEN_C
-                       : (type == DTY_STRIN_C)  ? STRIN_LEN_C : CFG_LEN_C;
+                       : (type == DTY_STRIN_C)  ? STRIN_LEN_C
+                       : (type == DTY_STROUT_C) ? STROUT_LEN_C : CFG_LEN_C;
         std::vector<uint8_t> d(n, 0);
         put16be_v(d, 0, type);
         put16be_v(d, 2, index);
@@ -792,13 +837,21 @@ class PpShadowHarness {
         put32be_v(desc_img, 0x40 + 0x8, STRIN_OFF_C);
         put16be_v(desc_img, 0x40 + 0xC, 0xFFFF);
         put16be_v(desc_img, 0x40 + 0xE, 24);             // stride (8-aligned)
+        // ...and 0x0006 between STREAM_INPUT and SPI
         put16be_v(desc_img, 0x50 + 0x0, 0);
-        put16be_v(desc_img, 0x50 + 0x2, DTY_SPI_C);
-        put16be_v(desc_img, 0x50 + 0x4, 1);              // the 1x1 listener port
-        put16be_v(desc_img, 0x50 + 0x6, static_cast<uint16_t>(SPI_LEN_C));
-        put32be_v(desc_img, 0x50 + 0x8, SPI_OFF_C);
+        put16be_v(desc_img, 0x50 + 0x2, DTY_STROUT_C);
+        put16be_v(desc_img, 0x50 + 0x4, 1);              // STREAM_OUTPUT[0] only
+        put16be_v(desc_img, 0x50 + 0x6, static_cast<uint16_t>(STROUT_LEN_C));
+        put32be_v(desc_img, 0x50 + 0x8, STROUT_OFF_C);
         put16be_v(desc_img, 0x50 + 0xC, 0xFFFF);
         put16be_v(desc_img, 0x50 + 0xE, 24);             // stride (8-aligned)
+        put16be_v(desc_img, 0x60 + 0x0, 0);
+        put16be_v(desc_img, 0x60 + 0x2, DTY_SPI_C);
+        put16be_v(desc_img, 0x60 + 0x4, 1);              // the 1x1 listener port
+        put16be_v(desc_img, 0x60 + 0x6, static_cast<uint16_t>(SPI_LEN_C));
+        put32be_v(desc_img, 0x60 + 0x8, SPI_OFF_C);
+        put16be_v(desc_img, 0x60 + 0xC, 0xFFFF);
+        put16be_v(desc_img, 0x60 + 0xE, 24);             // stride (8-aligned)
         // --- descriptors -------------------------------------------------------
         {
             auto e = desc_bytes(DTY_ENTITY_C, 0);
@@ -811,12 +864,14 @@ class PpShadowHarness {
             memcpy(&desc_img[STRIN_OFF_C], t0.data(), t0.size());
             auto s0 = desc_bytes(DTY_SPI_C, 0);
             memcpy(&desc_img[SPI_OFF_C], s0.data(), s0.size());
+            auto o0 = desc_bytes(DTY_STROUT_C, 0);
+            memcpy(&desc_img[STROUT_OFF_C], o0.data(), o0.size());
         }
         // --- header @0x00, checksum LAST ---------------------------------------
         put32be_v(desc_img, 0x00, 0x41454D49u);          // "AEMI"
         put16be_v(desc_img, 0x04, 1);                    // layout_version
         put16be_v(desc_img, 0x06, 1);                    // n_config
-        put16be_v(desc_img, 0x08, 4);                    // n_entries
+        put16be_v(desc_img, 0x08, 5);                    // n_entries
         put16be_v(desc_img, 0x0A, 0);                    // n_names
         put32be_v(desc_img, 0x0C, 0x20);                 // index_off
         put32be_v(desc_img, 0x10, IMG_END_C);            // names_off (empty)
@@ -2354,6 +2409,139 @@ class PpShadowHarness {
         // red, which is the reminder to bring that path under test HERE too.
         ck("no RELEASE_DA is reachable while every source is pinned enabled",
            static_cast<uint32_t>(mo.released), 0u);
+    }
+
+    // ---- T. A REGISTERED LISTENER, AS A CONTROLLER READS IT ----------------
+    // The processor publishes the Listener attribute registered against each
+    // talker source as a two-bit class-D word, lstn_reg_state (snapshot word
+    // 13 [1:0] for source 0 in this shape). Its codes are the SRP engine's own
+    // FourPackedEvents (802.1Q 35.2.2.7.4, the processor's srp_decl_e):
+    // 1 Asking Failed, 2 Ready, 3 Ready Failed. This group puts a real MSRP
+    // Listener declaration for source 0's stream on the MAC RX port, lets the
+    // processor's SRP engine register it, and reads back what a controller
+    // and software see:
+    //   * ACMP GET_TX_STATE (Milan 5.5.4.3), answered INSIDE the processor:
+    //     REGISTERING_FAILED (0x0040) iff a Listener Asking Failed is
+    //     registered (protocol-processor #46: its talker keyed on the code
+    //     the engine publishes for Ready Failed);
+    //   * AECP GET_STREAM_INFO on STREAM_OUTPUT 0 (Milan 5.4.2.10), whose
+    //     flags THIS repository gathers (milan_datapath gsi_flag_law):
+    //     REGISTERING_FAILED iff declaring and Asking Failed, flags_ex
+    //     REGISTERING iff declaring and any Listener;
+    //   * LWSRP_STATUS[2] "listener registered", printed and NOT graded: it
+    //     reads bit 1 of the word, so it is set for Ready and Ready Failed and
+    //     clear for Asking Failed, and whether that is the field's meaning is
+    //     an open question for this repository, filed on its own.
+    // It runs after [J] and before [M2]: a Ready Listener lets the
+    // reservation go ACTIVE and stream frames onto the wire, which [K]'s
+    // census must not count, and [M2]'s reset wipes whatever this leaves.
+    static constexpr uint64_t SRC0_SID = 0x0200000000010000ull;  // {station MAC, uid 0}
+
+    void grade_a_registered_listener_as_a_controller_reads_it() {
+        printf("[T] a registered Listener, as a controller reads it\n");
+        reopen_source_0();
+        struct Arm { const char* what; int decl; bool rf; uint16_t seq; };
+        const Arm arms[] = {
+            {"Asking Failed", 1, true,  0x0401},
+            {"Ready Failed",  3, false, 0x0402},
+            {"Ready",         2, false, 0x0403},
+        };
+        for (const Arm& a : arms) {
+            register_listener(1, a.decl);                // JoinIn
+            grade_listener_arm(a.what, a.decl, a.rf, a.seq);
+        }
+        register_listener(5, 1);                         // Lv
+        grade_listener_arm("left", 0, false, 0x0404);
+    }
+
+    //! a fresh PROBE_TX restarts source 0's T-SRP-DAFRESH window, so the DA
+    //! gate is open and the SRP engine declares Talker Advertise for its
+    //! stream whatever time the groups above spent
+    void reopen_source_0() {
+        uint8_t pf[128];
+        const size_t pn = build_probe_tx(pf, TEST_EID, 0);
+        inject_rx(pf, pn, 400);
+        run_idle(8000);
+        ck("T: source 0's DA gate is open (acmp_declaring = 1)",
+           dut->rootp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u, 1u);
+        uint32_t w13 = 0;
+        for (int r = 0; r < 100; r++) {
+            bool ok = false;
+            w13 = sp_read(SP_SNAPSHOT + 13, &ok);
+            if (ok && ((w13 >> 16) & 3u) == 1u) break;
+            run_idle(1000);
+        }
+        ck("T: source 0 declares Talker Advertise (word 13 [17:16])",
+           (w13 >> 16) & 3u, 1u);
+        ck("T: no Listener is registered yet (word 13 [1:0])", w13 & 3u, 0u);
+    }
+
+    void register_listener(int ev, int decl) {
+        uint8_t mf[64];
+        const size_t mn = build_msrp_listener(mf, SRC0_SID, ev, decl);
+        inject_rx(mf, mn, 400);
+        run_idle(3000);                                  // 30 ms
+    }
+
+    //! GET_TX_STATE to source 0: the SUCCESS response's flags word, or ~0
+    //! when none egressed
+    uint32_t get_tx_state_flags(uint16_t seq) {
+        uint8_t cf[128];
+        const size_t at = tx_frames.size();
+        const size_t cn = build_get_tx_state(cf, 0, seq);
+        inject_rx(cf, cn, 400);
+        run_idle(8000);
+        for (size_t i = tx_frames.size(); i-- > at; ) {
+            const std::vector<uint8_t>& b = tx_frames[i].bytes;
+            if (classify(tx_frames[i]) == FR_ACMP && b.size() >= 70
+                && (b[15] & 0xF) == 5 && get_be(b, 62, 2) == static_cast<uint64_t>(seq)
+                && ((b[16] >> 3) & 0x1F) == 0)
+                return static_cast<uint32_t>(get_be(b, 64, 2));
+        }
+        return 0xFFFFFFFFu;
+    }
+
+    //! GET_STREAM_INFO on STREAM_OUTPUT 0 (the Milan 80-byte body: flags @28,
+    //! flags_ex @72); true when a SUCCESS answer egressed
+    bool get_stream_info_output0(uint16_t seq, uint32_t* flags, uint32_t* flags_ex) {
+        uint8_t cf[128];
+        const uint8_t pl[4] = {
+            0x00, 0x06, 0x00, 0x00};                     // STREAM_OUTPUT 0
+        const size_t at = tx_frames.size();
+        const size_t cn = build_aecp(cf, 0, TEST_EID, 0x000F, seq, pl, sizeof pl);
+        inject_rx(cf, cn, 400);
+        run_idle(20000);
+        const int k = last_aecp(at);
+        if (k < 0) return false;
+        const std::vector<uint8_t>& b = tx_frames[k].bytes;
+        if (b.size() < 90 || ((b[16] >> 3) & 0x1F) != 0 || get_be(b, 36, 2) != 0x000F)
+            return false;
+        *flags = static_cast<uint32_t>(get_be(b, 42, 4));
+        *flags_ex = static_cast<uint32_t>(get_be(b, 86, 4));
+        return true;
+    }
+
+    void grade_listener_arm(const char* what, int decl, bool rf, uint16_t seq) {
+        char w[112];
+        bool ok = false;
+        const uint32_t w13 = sp_read(SP_SNAPSHOT + 13, &ok);
+        snprintf(w, sizeof w, "T %s: the engine publishes lstn_reg_state %d", what, decl);
+        ck(w, ok ? (w13 & 3u) : 0xFFu, static_cast<uint32_t>(decl));
+        snprintf(w, sizeof w, "T %s: GET_TX_STATE flags (REGISTERING_FAILED)", what);
+        ck(w, get_tx_state_flags(seq), rf ? 0x0040u : 0u);
+        uint32_t gsi_flags = 0;
+        uint32_t gsi_flags_ex = 0;
+        const bool gsi_ok = get_stream_info_output0(static_cast<uint16_t>(seq + 0x10),
+                                                    &gsi_flags, &gsi_flags_ex);
+        snprintf(w, sizeof w, "T %s: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS", what);
+        ck_true(w, gsi_ok, gsi_ok ? "answered" : "no SUCCESS answer");
+        snprintf(w, sizeof w, "T %s: GET_STREAM_INFO REGISTERING_FAILED", what);
+        ck(w, gsi_flags & 0x00000040u, rf ? 0x40u : 0u);
+        snprintf(w, sizeof w, "T %s: GET_STREAM_INFO flags_ex REGISTERING", what);
+        ck(w, gsi_flags_ex & 1u, decl != 0 ? 1u : 0u);
+        const uint32_t st = axi_read(A_LWSRP_STATUS);
+        printf("  [i]    T %s: LWSRP_STATUS 0x694 = 0x%08X, [2] listener registered = %u\n",
+               what, st, (st >> 2) & 1u);
     }
 
     // ---- M2. HEAL BEFORE ANSWER: the silicon arrangement, end to end ------
