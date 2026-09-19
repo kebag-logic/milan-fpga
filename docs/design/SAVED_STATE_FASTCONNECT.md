@@ -1315,6 +1315,10 @@ allocation that rounds 3 and 4 listed here is decided in section 4.2.
   rows -- including a correction, because it currently describes `nvm_backed` as
   a **constant**, which section 9 makes wrong.
 
+The snapshot-ownership and acknowledgement-identity contract of issue #419 is
+proposed, not decided, on [its own page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md);
+sections 9.1 and 9.2 here change only when that contract is implemented.
+
 ## 15. Sequencing
 
 The parent-side work starts when issue #69's submodule pin is on `dev`: that pin
