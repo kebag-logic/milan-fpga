@@ -6,6 +6,12 @@ stable SHA-256 digest assigns each suite to one worker. Unlike position-based
 round robin, adding or deleting one suite does not move every later suite to a
 different worker. The rule is deterministic, reviewable, and cannot silently
 omit a suite when the inventory changes.
+
+A suite named in DEDICATED_SUITES runs alone on one of the LAST workers, and
+every other suite hashes over the workers before them, so the hashed owners at
+N + len(DEDICATED_SUITES) workers are exactly the plain owners at N. With no
+more workers than dedicated suites (the serial 0/1 default) nothing is set
+aside.
 """
 
 import argparse
@@ -19,6 +25,13 @@ from pathlib import Path
 
 SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
 SCHEDULED_SUITES = frozenset({"milan_dp_gptp"})
+#: #444: milan_dp is the one default suite whose hosted wall clock is most of
+#: a worker's. It measured 1726-1773 s passing on the slower hosted runner
+#: class, and it shared worker 0 with eleven suites that ran after it, so that
+#: worker set the required context's latency. The suites of a worker run one
+#: at a time, so a dedicated worker changes no suite's deadline (the driver's
+#: suite_timeout table owns that); it takes the other suites off its path.
+DEDICATED_SUITES = ("milan_dp",)
 
 
 def parse_shard(value: str) -> tuple[int, int]:
@@ -47,15 +60,25 @@ def sweep_suites(root: str | Path, *, physical: bool = False) -> list[str]:
             if (suite in SCHEDULED_SUITES) == physical]
 
 
-def select_suites(suites: Sequence[str], index: int, total: int) -> list[str]:
-    """Select one stable-hash shard from an already ordered inventory."""
-    return [suite for suite in suites if shard_owner(suite, total) == index]
+def select_suites(suites: Sequence[str], index: int, total: int,
+                  dedicated: Sequence[str] = DEDICATED_SUITES) -> list[str]:
+    """Select one shard from an already ordered inventory."""
+    return [suite for suite in suites
+            if shard_owner(suite, total, dedicated) == index]
 
 
-def shard_owner(suite: str, total: int) -> int:
-    """Return the stable zero-based owner of one suite name."""
+def shard_owner(suite: str, total: int,
+                dedicated: Sequence[str] = DEDICATED_SUITES) -> int:
+    """Return the stable zero-based owner of one suite name.
+
+    A dedicated suite owns one of the last workers alone once there are more
+    workers than dedicated suites; every other suite hashes over the rest.
+    """
+    hashed = total - len(dedicated) if total > len(dedicated) else total
+    if hashed != total and suite in dedicated:
+        return hashed + list(dedicated).index(suite)
     digest = hashlib.sha256(suite.encode("utf-8")).digest()
-    return int.from_bytes(digest[:8], "big") % total
+    return int.from_bytes(digest[:8], "big") % hashed
 
 
 def scheduled_partition_selftest() -> bool:
@@ -71,23 +94,54 @@ def scheduled_partition_selftest() -> bool:
         default = sweep_suites(root)
         physical = sweep_suites(root, physical=True)
         ok = (SCHEDULED_SUITES == frozenset({"milan_dp_gptp"})
+              and not SCHEDULED_SUITES & set(DEDICATED_SUITES)
               and default == ["future_suite", "milan_dp"]
               and physical == ["milan_dp_gptp"]
               and sorted(default + physical) == sorted(names)
-              and all("milan_dp_gptp" not in select_suites(default, i, 4)
-                      for i in range(4)))
+              and all("milan_dp_gptp" not in select_suites(default, i, total)
+                      for total in (4, 5) for i in range(total)))
         print(f"  {'ok  ' if ok else 'FAIL'} scheduled/default partition: "
               f"default={default} physical={physical}")
         return ok
 
 
+def dedicated_alone(suites: Sequence[str], total: int,
+                    dedicated: Sequence[str]) -> bool:
+    """Whether each DEDICATED_SUITES name is the only suite of its own worker."""
+    first = total - len(DEDICATED_SUITES)
+    return all(select_suites(suites, first + offset, total, dedicated) == [suite]
+               for offset, suite in enumerate(DEDICATED_SUITES))
+
+
+def dedicated_selftest(suites: Sequence[str]) -> int:
+    """Prove the dedicated workers hold their suite alone and move no other."""
+    bad = 0
+    for total in (2, 4, 5, 7, 23):
+        alone = dedicated_alone(suites, total, DEDICATED_SUITES)
+        # Every other suite keeps the owner it has with no worker set aside.
+        stable = all(shard_owner(suite, total) ==
+                     shard_owner(suite, total - len(DEDICATED_SUITES), ())
+                     for suite in suites if suite not in DEDICATED_SUITES)
+        ok = alone and stable
+        print(f"  {'ok  ' if ok else 'FAIL'} {total:>2} shard(s): "
+              f"dedicated alone={alone} hashed owners unchanged={stable}")
+        bad += 0 if ok else 1
+
+    # Negative control: the same check over a rule that sets nothing aside
+    # must fail, or the arm above proves nothing about the rule.
+    caught = not dedicated_alone(suites, 5, ())
+    print(f"  {'ok  ' if caught else 'FAIL'} a rule without the dedicated "
+          "worker is caught")
+    return bad + (0 if caught else 1)
+
 
 def selftest() -> int:
     """Prove the split stays complete, disjoint and stable; 0 when it does."""
-    suites = [f"suite-{number:02d}" for number in range(17)]
+    suites = sorted([f"suite-{number:02d}" for number in range(17)]
+                    + list(DEDICATED_SUITES))
     bad = 0
 
-    for total in (1, 2, 4, 7, 23):
+    for total in (1, 2, 4, 5, 7, 23):
         shards = [select_suites(suites, index, total)
                   for index in range(total)]
         flattened = [suite for shard in shards for suite in shard]
@@ -101,19 +155,22 @@ def selftest() -> int:
               f"deterministic={deterministic}")
         bad += 0 if ok else 1
 
-    # Pin runtime landmarks and the two specialized dependency owners. The
-    # workflow installs tsn-gen only for tsn_fuzz's worker and Yosys/sv2v only
-    # for chmap_capture's worker, so an assignment-rule change must fail here.
+    bad += dedicated_selftest(suites)
+
+    # Pin runtime landmarks and the three specialized owners. The workflow
+    # installs tsn-gen only for tsn_fuzz's worker and Yosys/sv2v only for
+    # chmap_capture's worker, and proves the last worker runs milan_dp alone,
+    # so an assignment-rule change must fail here.
     landmarks = {
-        "milan_dp": 0,
+        "milan_dp": 4,
         "pp_shadow": 1,
         "mmcm_servo": 2,
         "tsn_fuzz": 1,
         "chmap_capture": 3,
     }
-    got = {suite: shard_owner(suite, 4) for suite in landmarks}
+    got = {suite: shard_owner(suite, 5) for suite in landmarks}
     ok = got == landmarks
-    print(f"  {'ok  ' if ok else 'FAIL'} four-worker runtime landmarks: {got}")
+    print(f"  {'ok  ' if ok else 'FAIL'} five-worker runtime landmarks: {got}")
     bad += 0 if ok else 1
 
     bad += 0 if scheduled_partition_selftest() else 1

@@ -237,7 +237,7 @@ The unchanged acquisition deadline expires before the acquired-publication check
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
-Every default suite retains its 1800-second deadline.
+Every other default suite retains its 1800-second deadline; `milan_dp` has 2700 seconds (#444).
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
 Physical regressions are therefore caught nightly, outside the PR aggregate.
 Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
@@ -332,7 +332,7 @@ The `milan_dp` default retains its eleven existing legs.
 It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
 The nightly/manual job runs that selection without sharding.
-The historical `milan_dp` directory remains on shard 0/4.
+The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
 
@@ -571,7 +571,7 @@ of WHEN each phase ran and nothing else: they add no check, no tally and no
 verdict, they change no command, argument, status or exit, and the `[PASS]` /
 `[FAIL]` lines and the closing check tally are the ones this driver printed
 before. The measurement they exist for is which case and phase the sweep's
-1800 s guard lands in when the suite is killed with results missing.
+per-suite guard lands in when the suite is killed with results missing.
 
 Each line is `RENDER-PHASE ` followed by a JSON object. Every record carries
 `seq`, a sequence number that advances even when a write fails, so a lost
@@ -634,8 +634,8 @@ The limits, so a reader does not over-read a record:
 * **A case whose pattern check fails builds and runs nothing**, so it
   contributes no phase record at all; its existing `[FAIL]` line is the report.
 * **The clock is the host's.** A duration includes whatever else that machine
-  was doing, and the per-suite 1800 s guard is unchanged and still owned by
-  `scripts/run_all_suites.sh`.
+  was doing, and the per-suite guard (2700 s for this suite since #444) is
+  still owned by `scripts/run_all_suites.sh`.
 
 `test_render_phase_observation.py` holds this contract with pure fixtures: a
 fake clock (including one that refuses readings), a recording stream that can

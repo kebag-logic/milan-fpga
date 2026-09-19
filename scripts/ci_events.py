@@ -434,6 +434,13 @@ CANONICAL_DECIDE_SCRIPT = (
     'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
     'echo "run_full=$run_full" >> "$GITHUB_OUTPUT"',
     'echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"',
+    # #444: the skipped required aggregates leave no log of their own, so
+    # the gate says why they skip.
+    'if [ "$rtl" = false ]; then',
+    'echo "docs-only: the diff touches no RTL, test bench, script, submodule '
+    'or workflow path; the exhaustive workers and both required aggregates '
+    'skip"',
+    "fi",
 )
 #: The selector's own proof, and the line that consumes the selector's
 #: answer: the proof runs once, and before the answer is read.
@@ -1636,6 +1643,43 @@ def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
            RTL_FULL, "default Verilator shards must use the pinned default inventory command")
     for token in ("physical-gptp", "--physical-gptp", "5400", "120", "nightly"):
         c.item(token in policy, POLICY, f"must document physical gPTP policy token `{token}`")
+
+
+#: #444: the Verilator workers' ownership proof, pinned verbatim after
+#: whitespace normalization like the decision step. Its `case` arms are the
+#: run-time half of suite_shards.py's landmarks: the tsn-gen and Yosys/sv2v
+#: installs are keyed to shards 1 and 3, and shard 4 is milan_dp's own worker.
+#: An arm dropped or widened here lets an assignment drift run green on a
+#: worker that no longer owns what it installs, or on a milan_dp worker that
+#: runs more than milan_dp.
+OWNERSHIP_STEP = "Prove specialized suite ownership"
+CANONICAL_OWNERSHIP_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/suite_shards.py --selftest",
+    'scripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list > '
+    '"$RUNNER_TEMP/owned-suites"',
+    'echo "Shard $SHARD owns:"',
+    "sed 's/^/ /' \"$RUNNER_TEMP/owned-suites\"",
+    'case "$SHARD" in',
+    '1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;',
+    '3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;',
+    '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
+    "esac",
+)
+
+
+def check_ownership_step(c: Contract, wf: YamlMap) -> None:
+    """Pin the Verilator workers' ownership proof, the dedicated arm included."""
+    shard = jobs(wf).get("verilator-shards", {})
+    found = [s for s in steps(shard) if s.get("name") == OWNERSHIP_STEP]
+    run = found[0].get("run") if len(found) == 1 else ""
+    lines = normalize_script(run if isinstance(run, str) else "")
+    c.item(len(found) == 1 and tuple(lines) == CANONICAL_OWNERSHIP_SCRIPT,
+           RTL_FULL,
+           f"the `{OWNERSHIP_STEP}` step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_OWNERSHIP_SCRIPT)
+           + "; its arms prove the specialized and dedicated owners at run "
+           "time")
 
 
 #: #350: the Yosys workers' content-addressed result cache. The trust
@@ -3463,6 +3507,7 @@ def check(parsed: World) -> Contract:
     c = Contract()
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
+    check_ownership_step(c, parsed[RTL_FULL])
     check_rtl_fast(c, parsed[RTL_FAST])
     check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
@@ -4408,9 +4453,61 @@ def _restate_shards(w: World, jid: str, value: str) -> None:
 def _m_shard_denominator_stale(w: World) -> None:
     """O9: the Verilator matrix grows, the restated denominator does not."""
     # O9: the matrix grows, the restated denominator does not.
-    _restate_shards(w, "verilator-shards", "4")
-    jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
-        "shard"].append(4)
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+    _restate_shards(w, "verilator-shards", "5")
+    shard.append(5)
+
+
+def _m_dedicated_worker_dropped(w: World) -> None:
+    """#444: milan_dp's own worker leaves the matrix, `total` stays five."""
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard[-1] == 4, "fixture drift: verilator-shards matrix"
+    shard.pop()
+
+
+def _m_dedicated_worker_reverted(w: World) -> None:
+    """#444: the matrix and its `total` return to four, `--expect` stays."""
+    matrix = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]
+    assert matrix["shard"][-1] == 4, "fixture drift: verilator-shards matrix"
+    matrix["shard"].pop()
+    matrix["total"] = [4]
+
+
+def _ownership_step(w: World) -> YamlMap:
+    """The Verilator workers' ownership proof step."""
+    found = [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+             if s.get("name") == OWNERSHIP_STEP]
+    assert len(found) == 1, "fixture drift: no ownership proof step"
+    return found[0]
+
+
+def _m_ownership_dedicated_arm_dropped(w: World) -> None:
+    """#444: the proof that shard 4 runs milan_dp alone is deleted."""
+    s = _ownership_step(w)
+    arm = '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+    assert arm in s["run"], "fixture drift: no dedicated ownership arm"
+    s["run"] = "\n".join(l for l in s["run"].splitlines() if arm not in l)
+
+
+def _m_ownership_dedicated_arm_widened(w: World) -> None:
+    """#444: shard 4 need only include milan_dp, not run it alone."""
+    s = _ownership_step(w)
+    alone = 'test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp'
+    assert alone in s["run"], "fixture drift: no dedicated ownership arm"
+    s["run"] = s["run"].replace(
+        alone, 'grep -Fx milan_dp "$RUNNER_TEMP/owned-suites"')
+
+
+def _m_decide_docs_only_line_dropped(w: World) -> None:
+    """#444: the gate stops saying why both aggregates skip."""
+    s = _decide_step(w)
+    assert 'if [ "$rtl" = false ]; then' in s["run"], (
+        "fixture drift: no docs-only line in the decision step")
+    head, _, _ = s["run"].partition('if [ "$rtl" = false ]; then')
+    s["run"] = head
 
 
 def _m_shard_total_missing(w: World) -> None:
@@ -4523,13 +4620,16 @@ def _m_verify_expect_wrong(w: World) -> None:
 def _m_verify_expect_missing(w: World) -> None:
     """verilator-suites' verifier passes no `--expect`."""
     s = _verify_step(w, "verilator-suites")
-    assert "--expect 4 " in s["run"]
-    s["run"] = s["run"].replace("--expect 4 ", "")
+    assert "--expect 5 " in s["run"]
+    s["run"] = s["run"].replace("--expect 5 ", "")
 
 
 def _m_matrix_grows_expect_stays(w: World) -> None:
     """verilator-shards' matrix grows, the verifier's `--expect` does not."""
-    jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]["shard"].append(4)
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+    shard.append(5)
 
 
 def _m_aggregate_if_loosened(w: World) -> None:
@@ -5171,7 +5271,7 @@ def _gate_escape_arms() -> list[Arm]:
         ("R4 verifier without --expect", _m_verify_expect_missing,
          "no --expect"),
         ("R4 matrix grows, --expect stays", _m_matrix_grows_expect_stays,
-         "--expect 5"),
+         "--expect 6"),
         ("aggregate job if loosened", _m_aggregate_if_loosened,
          "`if` must be exactly"),
         ("aggregate job if dropped", _m_aggregate_if_dropped,
@@ -5466,6 +5566,21 @@ def _shard_and_fast_arms() -> list[Arm]:
          "must not define `include` or `exclude`"),
         ("O9e sharded matrix excludes a worker", _m_shard_matrix_exclude,
          "must not define `include` or `exclude`"),
+        # #444: milan_dp's dedicated fifth worker, its run-time proof and the
+        # gate's docs-only line are each refused when removed.
+        ("#444 the dedicated milan_dp worker leaves the matrix",
+         _m_dedicated_worker_dropped, "shard denominator matrix `total`"),
+        ("#444 the matrix and total return to four, --expect stays",
+         _m_dedicated_worker_reverted, "--expect 4"),
+        ("#444 ownership proof loses the dedicated milan_dp arm",
+         _m_ownership_dedicated_arm_dropped,
+         f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
+        ("#444 ownership proof widens the dedicated arm to membership",
+         _m_ownership_dedicated_arm_widened,
+         f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
+        ("#444 the gate stops saying why the aggregates skip",
+         _m_decide_docs_only_line_dropped,
+         "the decision step script is not the canonical form"),
         ("rtl public name verilator-suites renamed",
          _m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
         ("rtl public name yosys-portability renamed",
@@ -7147,6 +7262,10 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
         if s.get("id") == DECIDE_STEP_ID:
             s["run"] = "\n".join("   " + l if l.strip() else ""
                                   for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FULL])["verilator-shards"]):
+        if s.get("name") == OWNERSHIP_STEP:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FAST])[FAST_SELECTOR_JOB]):
         if s.get("id") == FAST_SCOPE_STEP_ID:
             s["run"] = "\n".join("   " + l if l.strip() else ""
@@ -7182,7 +7301,8 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
                         f"was refused: {check(world).findings}")
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
-              "decision step, fast scope step, fast verdict step, verifier "
+              "decision step, ownership step, fast scope step, fast verdict "
+              "step, verifier "
               "step, the four documentation gate steps and the elaborate "
               "scope step)")
     return problems, 1

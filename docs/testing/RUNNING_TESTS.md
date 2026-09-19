@@ -64,14 +64,15 @@ but a temporary tree it built could not be removed; the runner prints a
 other failure still aborts the sweep.
 The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
-check count cannot be read. The default selection contains 51 suites, each
-with an 1800-second deadline. The separate `milan_dp_gptp` selection uses
+check count cannot be read. The default selection contains 54 suites, each
+with an 1800-second deadline except `milan_dp`, which has 2700 seconds (#444).
+The separate `milan_dp_gptp` selection uses
 5400 seconds, including compilation, and preserves physical clock and timer
 rates. CI shards the default selection; the physical job runs nightly and on
 manual dispatch. Inspect both selections without compiling with:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/4 --list
+scripts/run_all_suites.sh --shard 0/5 --list
 scripts/run_all_suites.sh --physical-gptp --list
 ```
 

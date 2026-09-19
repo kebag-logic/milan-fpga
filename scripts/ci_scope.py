@@ -8,6 +8,11 @@ read from `.gitmodules` and classified relevant before any documentation rule
 is consulted ([R1] on PR #204). Without `.gitmodules` the rule has nothing to
 read and the documentation rules alone decide, which still classifies a bare
 gitlink path as relevant because it carries no documentation suffix.
+
+Documentation is only what #444 lists: anything under `docs/` or `LICENSES/`,
+any `*.md`, and the diagram assets (`*.drawio` masters, `*.svg` and `*.png`
+renders), which only the docs job reads. Everything else, an Issue template
+and the root `LICENSE` included, is relevant.
 """
 
 from __future__ import annotations
@@ -18,21 +23,10 @@ import re
 import sys
 from collections.abc import Iterable, Sequence
 
-DOC_PREFIXES = (
-    "docs/",
-    ".github/ISSUE_TEMPLATE/",
-)
-DOC_FILES = {
-    "AGENTS.md",
-    "CHANGELOG.md",
-    "CODE_OF_CONDUCT.md",
-    "CONTRIBUTING.md",
-    "LICENSE",
-    "README.md",
-    "REQUIREMENTS.md",
-    "SECURITY.md",
-}
-DOC_SUFFIXES = (".md", ".rst")
+#: LISTS, not tuples, for the same reason as SUBMODULE_PATHS below: the
+#: selftest's mutation arm edits the real rule table in place.
+DOC_PREFIXES = ["docs/", "LICENSES/"]
+DOC_SUFFIXES = [".md", ".drawio", ".svg", ".png"]
 
 GITMODULES = pathlib.Path(__file__).resolve().parent.parent / ".gitmodules"
 
@@ -73,11 +67,9 @@ def is_doc_only_path(path: str) -> bool:
         return True
     if is_submodule_path(clean):
         return False
-    if clean in DOC_FILES:
+    if clean.startswith(tuple(DOC_PREFIXES)):
         return True
-    if clean.startswith(DOC_PREFIXES):
-        return True
-    return clean.endswith(DOC_SUFFIXES)
+    return clean.endswith(tuple(DOC_SUFFIXES))
 
 
 def is_rtl_relevant(paths: Iterable[str]) -> bool:
@@ -94,8 +86,16 @@ def selftest() -> int:
     cases = [
         (["docs/testing/CI_WORKFLOWS.md"], False),
         (["README.md", "AGENTS.md"], False),
-        ([".github/ISSUE_TEMPLATE/task.yml"], False),
+        (["tb/verilator/milan_dp/README.md"], False),
         (["docs/notes.txt"], False),
+        (["LICENSES/CERN-OHL-W-2.0.txt"], False),
+        (["cdc_census.drawio", "cdc_census.svg",
+          "hdl/ieee1722/aaf/doc/x.svg", "docs/diagrams/x.png"], False),
+        # #444: outside those four classes nothing is documentation.
+        ([".github/ISSUE_TEMPLATE/task.yml"], True),
+        (["LICENSE"], True),
+        (["notes.rst"], True),
+        (["docs/x.md", "hdl/ieee1722/aaf/doc/x.svg.in"], True),
         (["requirements.txt"], True),
         (["hdl/milan/milan_datapath.sv"], True),
         (["scripts/lint_rtl.py"], True),
@@ -128,22 +128,35 @@ def selftest() -> int:
     # Mutation arm: a classifier whose rules file any one pointer as
     # documentation must be caught by the cases above, or they bind nothing.
     # The mutation edits the real rule tables, not a copy of the logic.
-    pristine_paths, pristine_files = list(SUBMODULE_PATHS), set(DOC_FILES)
+    pristine_paths, pristine_prefixes = list(SUBMODULE_PATHS), list(DOC_PREFIXES)
+    pristine_suffixes = list(DOC_SUFFIXES)
     try:
         for victim in ("gptp-processor", "protocol-processor", "external",
                        "third_party/verilog-axis", ".gitmodules"):
             SUBMODULE_PATHS[:] = [x for x in pristine_paths if x != victim]
-            DOC_FILES.add(victim)
+            DOC_PREFIXES[:] = pristine_prefixes + [victim]
             caught = any(is_rtl_relevant(paths) != expected
                          for paths, expected in cases)
-            DOC_FILES.discard(victim)
+            DOC_PREFIXES[:] = pristine_prefixes
             print(f"  {'ok  ' if caught else 'FAIL'} mutation: {victim} filed "
+                  "as docs-only is rejected")
+            failures += 0 if caught else 1
+        # #444: each widening of the documentation classes back past the
+        # listed four is caught by a case.
+        for table, widened in ((DOC_PREFIXES, ".github/ISSUE_TEMPLATE/"),
+                               (DOC_PREFIXES, "LICENSE"),
+                               (DOC_SUFFIXES, ".rst")):
+            table.append(widened)
+            caught = any(is_rtl_relevant(paths) != expected
+                         for paths, expected in cases)
+            table.remove(widened)
+            print(f"  {'ok  ' if caught else 'FAIL'} mutation: {widened} filed "
                   "as docs-only is rejected")
             failures += 0 if caught else 1
     finally:
         SUBMODULE_PATHS[:] = pristine_paths
-        DOC_FILES.clear()
-        DOC_FILES.update(pristine_files)
+        DOC_PREFIXES[:] = pristine_prefixes
+        DOC_SUFFIXES[:] = pristine_suffixes
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
     return 1 if failures else 0
 

@@ -101,7 +101,7 @@ CONTAINER_MEMORY = "16g"
 #: each building its toolchain. The flag bounds jobs, not matrix legs: act
 #: runs a matrix job's legs ``strategy.max-parallel`` wide (default 4)
 #: inside that job's slot, so one job at a time still lets each of
-#: rtl-full's four-shard jobs fan out to four containers, each held to
+#: rtl-full's sharded jobs fan out to four containers, each held to
 #: CONTAINER_MEMORY: at most 64 GB at once. Below one, act falls back to
 #: one job per host CPU. A replica-shape decision, as above; the hosted
 #: runner gives every job its own machine.
