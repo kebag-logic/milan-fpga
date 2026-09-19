@@ -67,12 +67,12 @@ flowchart LR
 |---|---|---|
 | **`build.sh`'s own refusals** (section 2.1) | the tracked entity definition is the bound config's; the regeneration of that config's design argv ran and succeeded; the artefact read is that config's own emission; `BUILD_CFG` names a config directly under `configs/`; every tracked generated file that regeneration writes was there before it, was copied aside complete, and is as the run found it afterwards | **yes** - refuses *before* anything launches. Under `--dry-run` the entity one is previewed instead; every other one is enforced |
 | **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
-| **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **review only** so far; `deploy.sh` itself refuses a fragment that belongs to another config. It is the review gate for the deploy path (section 3.1); wiring it into the `docs-check` CI job is a maintainer follow-up (this change could not edit the workflow file) |
+| **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **yes in CI**: the `docs-check` job runs it and its self-test on every pull request and every push to `dev` and `main` (section 3.1). `deploy.sh` does NOT run it; by itself it refuses only a fragment that belongs to another config |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
-**Only the first two run automatically in CI** (the deploy-shape gate is runnable and enforced in review, its CI wiring pending), and that asymmetry is the point: a build
+**Only the first three run automatically in CI**, and that asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
 and nothing in the pipeline will tell you so. Section 5 has the exact rows.
 With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
@@ -387,6 +387,10 @@ that fragment's `OPTS` token for token, that every flag is the config's
 emission, and that a config declaring a TDM render lane never launches
 without it -- `--audio-interface-render` absent is not a missing flag, it is
 `AUDIO_IF_RENDER_SLOTS_P = 0`, the parked arm, and `tdm_dout_o` tied low.
+
+`deploy.sh` does not run this gate itself. The `docs-check` CI job runs it and
+its self-test, right after the shape gate, on every pull request and every
+push to `dev` and `main` (#466).
 
 ```sh
 python3 scripts/check_deploy_shape.py             # deploy.sh vs the generated fragment and its config

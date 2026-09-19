@@ -375,6 +375,16 @@ jobs:
       - name: Sweep/build shape gate
         run: python3 scripts/check_sweep_shape.py --self-test
 
+      # Deploy-shape gate (#453): the launch line `deploy.sh build --dry-run`
+      # prints must be the generated AX7101 fragment's OPTS token for token and
+      # the config's emission flag for flag; a hand-kept copy had lost
+      # --audio-interface-render 8 and held J11.5 low. The dry run only prints
+      # (no LiteX), but loading the config reads the gPTP engine generator, so
+      # this needs the submodule fetch above. --self-test grades the tracked
+      # deploy.sh first, then proves each planted drift IS rejected.
+      - name: Deploy shape gate
+        run: python3 scripts/check_deploy_shape.py --self-test
+
       # Advertised-shape gate: the ADPDU stream counts (milan_csr 0x618/0x61C),
       # the AEM STREAM_INPUT/STREAM_OUTPUT descriptor counts and the ACMP
       # context counts the gateware elaborates must be the SAME number. They
