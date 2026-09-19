@@ -118,10 +118,13 @@ UNBAKED_SPANS = {
 }
 
 
-def adp_entity_capabilities() -> int:
-    """entity_capabilities as the ADP engine advertises it."""
-    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
-                  _PP_ADP_PKG.read_text(encoding="utf-8"))
+def adp_entity_capabilities_declaration() -> tuple[int, str]:
+    """entity_capabilities as the ADP engine advertises it, and where it is
+    declared as `path:line`. The location is for a refusal that has to send
+    its reader to the constant: sw/builder checks a config's optional
+    `entity.entity_capabilities` against this one parse and names it."""
+    text = _PP_ADP_PKG.read_text(encoding="utf-8")
+    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;", text)
     if not m:
         raise image.ImageError(
             f"no ADP_ENTITY_CAPS_C in {_PP_ADP_PKG.relative_to(_REPO)} - "
@@ -133,7 +136,13 @@ def adp_entity_capabilities() -> int:
             f"ADP advertises entity_capabilities 0x{caps:08X} with "
             "AEM_SUPPORTED clear (Table 6-3), so this image is an entity "
             "model no controller will ever ask for")
-    return caps
+    line = text.count("\n", 0, m.start()) + 1
+    return caps, f"{_PP_ADP_PKG.relative_to(_REPO)}:{line}"
+
+
+def adp_entity_capabilities() -> int:
+    """entity_capabilities as the ADP engine advertises it."""
+    return adp_entity_capabilities_declaration()[0]
 
 
 def identity_from_overlay(ovl: dict[str, Any]) -> dict[str, bytes]:

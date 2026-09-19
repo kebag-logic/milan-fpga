@@ -143,6 +143,23 @@ CRF_FORMATS = [0x041060010000BB80]
 # IDENTIFY control (byte-exact)
 CTRL_TYPE_IDENTIFY = 0x90E0F00000000001
 CTRL_LINEAR_UINT8 = 0x0001
+#: The object_name of each singleton descriptor when a build declares none,
+#: keyed the way sw/builder's schema 1.2 `names:` block spells it. These are
+#: the literals every shipped image has carried, so a config that declares
+#: nothing serves the same bytes. 1722.1-2021 6.2.2.8 keeps object_name out
+#: of model structure, so a declared name moves no entity_model_id. The
+#: builder imports this table as its accept list rather than restating it.
+OBJECT_NAMES = {
+    "configuration": "Default",                 # CONFIGURATION (7.2.2)
+    "audio_unit": "Audio Unit",                 # AUDIO_UNIT (7.2.3)
+    "avb_interface": "AVB Interface 0",         # AVB_INTERFACE (7.2.8)
+    "clock_domain": "Clock Reference Format",   # CLOCK_DOMAIN (7.2.32)
+    "control_identify": "Identify",             # the IDENTIFY CONTROL (7.2.22)
+}
+#: The LOCALE descriptor's locale_identifier when a build declares none
+#: (sw/builder schema 1.2 `entity.locale`), the literal every shipped image
+#: has carried.
+LOCALE_IDENTIFIER = "en-EN"
 
 def cstr(s: str, n: int = 64) -> bytes:
     """A fixed-size AEM string field: UTF-8, truncated at `n`, zero-padded.
@@ -196,7 +213,8 @@ def d_entity(e: dict[str, str]) -> bytes:
     b += be16(0)                        # current_configuration (overlay)
     return b
 
-def d_configuration(n_inputs: int, n_outputs: int, n_clk_sources: int) -> bytes:
+def d_configuration(n_inputs: int, n_outputs: int, n_clk_sources: int,
+                    name: str = OBJECT_NAMES["configuration"]) -> bytes:
     """CONFIGURATION descriptor (7.2.2): the top-level descriptor_counts list.
 
     These counts are what a controller enumerates the tree from, so a type
@@ -210,7 +228,7 @@ def d_configuration(n_inputs: int, n_outputs: int, n_clk_sources: int) -> bytes:
               (CLOCK_SOURCE, n_clk_sources),
               (CONTROL, 1), (LOCALE, 1)]
     b = be16(CONFIGURATION) + be16(0)
-    b += cstr("Default")                # object_name (SET_NAME)
+    b += cstr(name)                     # object_name (SET_NAME)
     b += be16(1)                        # localized_description -> STRINGS[1]
     b += be16(len(counts))              # descriptor_counts_count
     b += be16(74)                       # descriptor_counts_offset (fixed)
@@ -220,7 +238,8 @@ def d_configuration(n_inputs: int, n_outputs: int, n_clk_sources: int) -> bytes:
     return b
 
 def d_audio_unit(rates: list[int], current_rate: int, n_in_ports: int,
-                 n_out_ports: int) -> bytes:
+                 n_out_ports: int,
+                 name: str = OBJECT_NAMES["audio_unit"]) -> bytes:
     """AUDIO_UNIT descriptor (7.2.3): the sampling rates this unit offers.
 
     `rates` are Table 7-5 encoded words (pull 0, so the word IS the Hz value)
@@ -229,7 +248,7 @@ def d_audio_unit(rates: list[int], current_rate: int, n_in_ports: int,
     controller could ask for.
     """
     b = be16(AUDIO_UNIT) + be16(0)
-    b += cstr("Audio Unit")             # object_name (SET_NAME)
+    b += cstr(name)                     # object_name (SET_NAME)
     b += be16(NO_STRING)
     b += be16(0)                        # clock_domain_index
     b += be16(n_in_ports) + be16(0)     # stream input ports @ base 0
@@ -295,7 +314,8 @@ def d_stream(dtype: int, index: int, name: str, flags: int,
         b += be64(f)
     return b
 
-def d_avb_interface(gp: dict[str, int] | None = None) -> bytes:
+def d_avb_interface(gp: dict[str, int] | None = None,
+                    name: str = OBJECT_NAMES["avb_interface"]) -> bytes:
     """gp = the builder-RESOLVED `gptp:` dataset (overlay key "gptp").
     Since [R-parallel] on #228 the builder derives every field the fabric
     engine does not consume (priority2, clockQuality, the log intervals)
@@ -307,7 +327,7 @@ def d_avb_interface(gp: dict[str, int] | None = None) -> bytes:
     cache descriptor content by model id, so their bytes must not move."""
     gp = gp or {}
     b = be16(AVB_INTERFACE) + be16(0)
-    b += cstr("AVB Interface 0")        # object_name (SET_NAME)
+    b += cstr(name)                     # object_name (SET_NAME)
     b += be16(NO_STRING)
     b += bytes(6)                       # mac_address (overlay)
     b += be16(0x0007)                   # GPTP_GM_SUPPORTED|GPTP|SRP
@@ -418,7 +438,8 @@ def d_clock_source(index: int, name: str, cs_type: int, loc_type: int,
     assert len(b) == 86
     return b
 
-def d_clock_domain(n_sources: int) -> bytes:
+def d_clock_domain(n_sources: int,
+                   name: str = OBJECT_NAMES["clock_domain"]) -> bytes:
     """CLOCK_DOMAIN descriptor (7.2.32) listing sources 0..n_sources-1.
 
     The list is the identity permutation on purpose: clock_sources_offset
@@ -427,7 +448,7 @@ def d_clock_domain(n_sources: int) -> bytes:
     """
     sources = list(range(n_sources))
     b = be16(CLOCK_DOMAIN) + be16(0)
-    b += cstr("Clock Reference Format") # object_name
+    b += cstr(name)                     # object_name
     b += be16(NO_STRING)
     b += be16(0)                        # clock_source_index (SET_CLOCK_SOURCE)
     b += be16(76)                       # clock_sources_offset (fixed)
@@ -437,15 +458,15 @@ def d_clock_domain(n_sources: int) -> bytes:
         b += be16(s)
     return b
 
-def d_control_identify() -> bytes:
-    """The IDENTIFY CONTROL descriptor (7.2.22), byte-exact.
+def d_control_identify(name: str = OBJECT_NAMES["control_identify"]) -> bytes:
+    """The IDENTIFY CONTROL descriptor (7.2.22), byte-exact but for its name.
 
     signal_type/index are INVALID/zero because 7.2.22 says so for a control
     that acts on no signal: IDENTIFY acts on the PAAD. Its parent is the
     CONFIGURATION, never the AVB_INTERFACE - see d_avb_interface().
     """
     b = be16(CONTROL) + be16(0)
-    b += cstr("Identify")               # object_name
+    b += cstr(name)                     # object_name
     b += be16(NO_STRING)
     b += be32(500)                      # block_latency
     b += be32(500)                      # control_latency
@@ -463,10 +484,10 @@ def d_control_identify() -> bytes:
     b += be16(NO_STRING)                # value string ref
     return b
 
-def d_locale() -> bytes:
-    """The single LOCALE descriptor (7.2.11): en-EN, one STRINGS child."""
+def d_locale(identifier: str = LOCALE_IDENTIFIER) -> bytes:
+    """The single LOCALE descriptor (7.2.11) with one STRINGS child."""
     b = be16(LOCALE) + be16(0)
-    b += cstr("en-EN")                  # locale_identifier
+    b += cstr(identifier)               # locale_identifier
     b += be16(1)                        # number_of_strings (STRINGS descriptors)
     b += be16(0)                        # base_strings
     assert len(b) == 72

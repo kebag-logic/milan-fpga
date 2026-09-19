@@ -26,8 +26,11 @@ With --write-rtl, the selected configuration also takes ownership of the
 tracked ADP shape include. Product identity is carried by the AEM image that
 the SoC build pairs with its bitstream.
 
-Input schema: kebag-logic/milan-endstation-config, version 1.1.x. See the
-annotated configs/endstation_*.yaml examples and README-parameters.md.
+Input schema: kebag-logic/milan-endstation-config, version 1.2.x. Schema 1.2
+added only optional keys (the `names:` block, entity.locale, entity.vendor_oui
+and entity.entity_capabilities), each defaulting to the value every image
+before it carried, so a 1.1.x config is accepted unchanged. See the annotated
+configs/endstation_*.yaml examples and README-parameters.md.
 
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
@@ -95,6 +98,9 @@ OVERLAY_SCHEMA_VERSION = "2.2.0"     # 2.x: per-stream STREAM_PORT layout
                                      # 2.2: the "adp" identity block - the
                                      #      Table 7-2 fields the descriptor
                                      #      image must repeat
+                                     # (schema 1.2's "names" block and
+                                     # entity "locale" appear only when a
+                                     # config declares them, so 2.2 stands)
 
 LWSRP_SCHEMA_ID = "kebag-logic/lwsrp-table"
 LWSRP_SCHEMA_VERSION = "1.0.0"       # 1.x: SR class + 0x680 resets + rows
@@ -102,11 +108,32 @@ LWSRP_SCHEMA_VERSION = "1.0.0"       # 1.x: SR class + 0x680 resets + rows
 PLATFORM_SCHEMA_ID = "kebag-logic/platform-shape"
 PLATFORM_SCHEMA_VERSION = "2.0.0"    # 2.x: gateware DRAM reservation only
 
-# Base EUI-64 prefix for hash-derived entity_model_id values (see module
-# docstring step 3). Schema-level constant: changing it re-identifies every
-# hash-derived model - never change it casually.
+# Base EUI-64 prefix for hash-derived entity_model_id values, and the default
+# of the schema 1.2 `entity.vendor_oui` key (derive_model_id). Changing it,
+# here or by declaring the key, re-identifies every hash-derived model - never
+# change it casually.
 MODEL_ID_OUI = 0x001BC5              # Kebag Logic vendor OUI (00-1B-C5)
 MODEL_ID_HASH_BITS = 40              # EUI-64 bits taken from the sha256
+
+#: The singleton object_names a config may declare (schema 1.2 `names:`),
+#: with the literal each descriptor carries when it does not. IMPORTED from
+#: the descriptor layer that writes them, so the accepted keys and their
+#: defaults have one owner (avdecc/aem_descriptors.py).
+sys.path.insert(0, str(ROOT / "avdecc"))
+from aem_descriptors import OBJECT_NAMES  # noqa: E402
+
+#: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
+#: keys a config may declare (schema 1.2). This builder owns these literals:
+#: _overlay_clock_sources writes them into the overlay the image is built
+#: from. There is no `stream` entry: #389 retired the per-listener
+#: INPUT_STREAM source that carried "Stream Clock", so nothing is left to
+#: name (_load_names refuses the key by name).
+CLOCK_SOURCE_NAMES = {"internal": "Internal", "crf": "CRF Clock"}
+
+#: An AEM string field (1722.1-2021 7.2): 64 octets of UTF-8, with no NUL
+#: when the text fills it. cstr() truncates on the encoded bytes, so a longer
+#: declaration would be served cut, possibly through a character.
+AEM_STRING_BYTES = 64
 
 CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
                     "role-pools")
@@ -2512,10 +2539,12 @@ def overlay_adp_block(cfg: dict[str, Any]) -> dict[str, Any]:
     board's milan-entity.conf carries, so there is no third derivation to go
     stale: one function, three artifacts.
 
-    entity_capabilities is deliberately absent, for the reason emit_entity_
-    conf() states: the builder does not compute it.  It is a fixed RTL
-    constant (pp_adp_pkg::ADP_ENTITY_CAPS_C) and gen_aemi_image reads it from
-    there, which is the only place it exists.
+    entity_capabilities is deliberately absent: the builder does not compute
+    it.  It is a fixed RTL constant (pp_adp_pkg::ADP_ENTITY_CAPS_C) and
+    gen_aemi_image reads it from there, which is the only place it exists.
+    A config's optional `entity.entity_capabilities` (schema 1.2) does not
+    change that: _verify_entity_capabilities refuses any other value, so the
+    declaration is checked and never forwarded.
     """
     sh = adp_shape(cfg)
     return {
@@ -3294,13 +3323,15 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
     return shape
 
 
-def derive_model_id(shape: dict[str, Any]) -> int:
-    """Deterministic EUI-64 from the model shape (recipe in the module
-    docstring + sw/builder/README-parameters.md)."""
+def derive_model_id(shape: dict[str, Any], oui: int = MODEL_ID_OUI) -> int:
+    """Deterministic EUI-64 from the model shape, under the vendor `oui`
+    (`entity.vendor_oui`, default MODEL_ID_OUI; recipe in
+    sw/builder/README-parameters.md). The OUI is the prefix, not a hash
+    input, so a declared one moves the top 24 bits and nothing else."""
     canon = json.dumps(shape, sort_keys=True, separators=(",", ":")).encode()
     top8 = int.from_bytes(hashlib.sha256(canon).digest()[:8], "big")
     mask = (1 << MODEL_ID_HASH_BITS) - 1
-    return (MODEL_ID_OUI << MODEL_ID_HASH_BITS) | (top8 & mask)
+    return (oui << MODEL_ID_HASH_BITS) | (top8 & mask)
 
 
 # ---------------------------------------------- gPTP engine pinned dataset --
@@ -3443,7 +3474,150 @@ def _load_entity(cfg, path):
     for k in ("name", "serial_number", "group_name", "firmware_version"):
         if len(str(n[k]).encode()) > 63:
             raise ConfigError(f"entity.{k}: exceeds 63 bytes (AEM cstr64)")
+    # schema 1.2: the LOCALE identifier. Carried ONLY when declared, so a
+    # config that states none keeps a byte-identical overlay and the
+    # descriptor layer's own literal (aem_descriptors.LOCALE_IDENTIFIER).
+    locale = ent.get("locale")
+    if locale is not None:
+        n["locale"] = _aem_string(locale, "entity.locale")
+    _verify_entity_capabilities(ent)
     return n
+
+
+def _aem_string(v, ctx):
+    """One declared AEM string (schema 1.2): non-empty UTF-8 that fills at
+    most the 64-octet field, with no NUL. Longer text would be served cut by
+    cstr(), possibly through a character, and a NUL would end the name early
+    in READ_DESCRIPTOR while the image's name table refuses the bytes after
+    it (avdecc/gen_aemi_image.py _text_from_name)."""
+    if not isinstance(v, str) or not v:
+        raise ConfigError(f"{ctx}: must be a non-empty string")
+    try:
+        raw = v.encode("utf-8")
+    except UnicodeEncodeError as e:
+        raise ConfigError(f"{ctx}: not encodable as UTF-8 ({e.reason})") from e
+    if b"\0" in raw:
+        raise ConfigError(f"{ctx}: contains a NUL, which ends an AEM string")
+    if len(raw) > AEM_STRING_BYTES:
+        raise ConfigError(f"{ctx}: exceeds {AEM_STRING_BYTES} bytes (AEM cstr64)")
+    return v
+
+
+def _declared_uint(v, bits, ctx):
+    """An unsigned field a config may spell as a YAML integer or a hex
+    string, refused outside `bits` bits. A bool is refused too: YAML reads
+    `yes` as True, and True == 1 would pass for a value."""
+    if isinstance(v, bool) or not isinstance(v, (int, str)):
+        raise ConfigError(f"{ctx}: {v!r} is not an integer")
+    try:
+        n = v if isinstance(v, int) else int(v, 16)
+    except ValueError:
+        raise ConfigError(f"{ctx}: {v!r} is not a hex integer") from None
+    if not 0 <= n < 1 << bits:
+        raise ConfigError(f"{ctx}: {v!r} is outside {bits} bits")
+    return n
+
+
+def _vendor_oui(ent):
+    """entity.vendor_oui (schema 1.2): the 24-bit OUI a hash-derived
+    entity_model_id is folded under, default MODEL_ID_OUI. The I/G bit of the
+    first octet is refused: an OUI never carries it, and D4
+    (docs/ENDSTATION_BUILDER.md) records that 6.2.2.8 uses that bit of the
+    EUI-64 for dynamically assigned ids, which this builder never emits."""
+    raw = ent.get("vendor_oui")
+    if raw is None:
+        return MODEL_ID_OUI
+    oui = _declared_uint(raw, 24, "entity.vendor_oui")
+    if oui & 0x010000:
+        raise ConfigError(
+            f"entity.vendor_oui 0x{oui:06X} sets the I/G bit of its first "
+            f"octet: that is a group address, not an OUI, and it would mark "
+            f"every hash-derived entity_model_id as dynamically assigned")
+    return oui
+
+
+def _verify_entity_capabilities(ent):
+    """entity.entity_capabilities (schema 1.2): DECLARED AND VERIFIED, never
+    chosen. The ADP engine sends pp_adp_pkg::ADP_ENTITY_CAPS_C with no CSR in
+    the path and avdecc/gen_aemi_image.py bakes the same constant into the
+    ENTITY descriptor (1722.1-2021 Table 7-2: the field 'is the same as' the
+    ADPDU's), so a config may state that value and nothing else - the
+    gptp_engine_pins rule for the Announce dataset. Absent, nothing changes:
+    the image derives it as before. One parser: gen_aemi_image's."""
+    raw = ent.get("entity_capabilities")
+    if raw is None:
+        return
+    declared = _declared_uint(raw, 32, "entity.entity_capabilities")
+    desc = ROOT / "protocol-processor" / "hdl" / "aecp" / "desc"
+    if not (desc / "gen_desc_image.py").is_file():
+        raise ConfigError(
+            "entity.entity_capabilities is checked against the protocol "
+            "processor's ADP_ENTITY_CAPS_C, and that submodule is not checked "
+            "out: run `git submodule update --init protocol-processor`")
+    for d in (ROOT / "avdecc", desc):
+        if str(d) not in sys.path:
+            sys.path.insert(0, str(d))
+    import gen_aemi_image as _join
+    try:
+        caps, where = _join.adp_entity_capabilities_declaration()
+    except _join.image.ImageError as e:
+        raise ConfigError(
+            f"entity.entity_capabilities cannot be verified: {e}") from e
+    if declared != caps:
+        raise ConfigError(
+            f"entity.entity_capabilities 0x{declared:08X} diverges from "
+            f"ADP_ENTITY_CAPS_C = 0x{caps:08X} at {where}: the ADP engine "
+            f"advertises that constant and the image's ENTITY descriptor "
+            f"repeats it (1722.1-2021 Table 7-2), so a config cannot choose "
+            f"another value. State 0x{caps:08X} or omit the key")
+
+
+def _load_names(cfg, clocking):
+    """The schema 1.2 `names:` block. Returns {"objects": {key: name},
+    "clock_sources": {source type: name}} holding what the config DECLARES,
+    nothing else: the defaults stay with their owners (OBJECT_NAMES in the
+    descriptor layer, CLOCK_SOURCE_NAMES here). Accepted by TABLE, those two
+    being the whole key set, and a name for a CLOCK_SOURCE this config does
+    not emit is refused: a name that lands nowhere is a declaration the
+    image contradicts. 1722.1-2021 6.2.2.8 keeps object_name out of model
+    structure, so none of these reaches model_shape()."""
+    raw = cfg.get("names")
+    if raw is None:
+        return {"objects": {}, "clock_sources": {}}
+    known = sorted(OBJECT_NAMES) + ["clock_sources"]
+    if not isinstance(raw, dict) or set(raw) - set(known):
+        raise ConfigError(
+            f"names: must be a mapping with keys among {known}"
+            + (f" (unknown {sorted(set(raw) - set(known))})"
+               if isinstance(raw, dict) else ""))
+    objects = {k: _aem_string(raw[k], f"names.{k}")
+               for k in OBJECT_NAMES if k in raw}
+    cs = raw.get("clock_sources")
+    if cs is None:
+        return {"objects": objects, "clock_sources": {}}
+    if isinstance(cs, dict) and "stream" in cs:
+        raise ConfigError(
+            "names.clock_sources.stream: there is no stream-derived "
+            "CLOCK_SOURCE to name. #389 retired the per-listener INPUT_STREAM "
+            "source ('Stream Clock') because the fabric follows no "
+            "stream-derived media clock; the CRF sink's source is "
+            "names.clock_sources.crf")
+    if not isinstance(cs, dict) or set(cs) - set(CLOCK_SOURCE_NAMES):
+        raise ConfigError(
+            f"names.clock_sources: must be a mapping with keys among "
+            f"{sorted(CLOCK_SOURCE_NAMES)}")
+    sources = {}
+    for k in CLOCK_SOURCE_NAMES:
+        if k not in cs:
+            continue
+        if k not in clocking["media_clock_sources"]:
+            raise ConfigError(
+                f"names.clock_sources.{k}: this config emits no {k} "
+                f"CLOCK_SOURCE (clocking.media_clock_sources "
+                f"{clocking['media_clock_sources']}), so the name would land "
+                f"nowhere")
+        sources[k] = _aem_string(cs[k], f"names.clock_sources.{k}")
+    return {"objects": objects, "clock_sources": sources}
 
 
 
@@ -3915,6 +4089,7 @@ def load_config(path: str) -> dict[str, Any]:
     target, cons = _load_board(cfg, path)
     clocking = _load_clocking(cfg, path)
     gptp = _load_gptp(cfg)
+    names = _load_names(cfg, clocking)
     interface = _load_interface(cfg, path, clocking)
     policy = interface["cluster_policy"]
     phys, pools = interface["physical_channels"], interface["cluster_pools"]
@@ -3958,7 +4133,7 @@ def load_config(path: str) -> dict[str, Any]:
         entity=entity, board_target=target, constraints=cons,
         clocking=clocking, interface=interface,
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
-        platform=platform, features=features, gptp=gptp,
+        platform=platform, features=features, gptp=gptp, names=names,
     )
     validate_render_lane(out)
 
@@ -3969,9 +4144,12 @@ def load_config(path: str) -> dict[str, Any]:
             policy, interface["channels"], phys=phys, pools=pools,
             lb_backed=interface["cluster_fabric"]["loopback_lane"]))
 
-    # entity_model_id resolution: pin > hash-derived > literal
+    # entity_model_id resolution: pin > hash-derived > literal. The vendor OUI
+    # (schema 1.2) prefixes the hash; a pin or a literal is a whole EUI-64 and
+    # wins, so a DECLARED OUI its prefix contradicts is refused, not ignored.
     shape = model_shape(out)
-    hashed = derive_model_id(shape)
+    oui = _vendor_oui(ent)
+    hashed = derive_model_id(shape, oui)
     raw = _req(ent, "entity_model_id", "entity")
     pin = ent.get("model_id_pin")
     if pin is not None:
@@ -3980,6 +4158,13 @@ def load_config(path: str) -> dict[str, Any]:
         mid, src = hashed, "hash"
     else:
         mid, src = _eui64(raw, "entity.entity_model_id"), "literal"
+    if src != "hash" and "vendor_oui" in ent \
+            and (mid >> MODEL_ID_HASH_BITS) != oui:
+        raise ConfigError(
+            f"entity.vendor_oui 0x{oui:06X} contradicts the {src} "
+            f"entity_model_id 0x{mid:016X} (OUI "
+            f"0x{mid >> MODEL_ID_HASH_BITS:06X}): that id wins, so the "
+            f"declared OUI would reach no descriptor")
     entity["entity_model_id"] = f"0x{mid:016X}"
     out["model_id"] = dict(value=f"0x{mid:016X}", source=src,
                            hash=f"0x{hashed:016X}")
@@ -4560,17 +4745,21 @@ def _overlay_clock_sources(cfg):
     Milan v1.2 7.2.2). _load_clocking refuses the key that used to ask for
     one, so this function cannot be reached with it, and it refuses 'crf'
     without the sink too, so `n_crf` and `'crf' in media_clock_sources` are
-    the same question here and neither can drop an advertised source."""
+    the same question here and neither can drop an advertised source. Each
+    name is CLOCK_SOURCE_NAMES' unless `names.clock_sources` declares one."""
     L, clk = cfg["listeners"], cfg["clocking"]
     n_crf = 1 if clk["crf_sink"] else 0
+    name = {**CLOCK_SOURCE_NAMES,
+            **(cfg.get("names") or {}).get("clock_sources", {})}
     clock_sources = []
     if "internal" in clk["media_clock_sources"]:
-        clock_sources.append(dict(index=len(clock_sources), name="Internal",
+        clock_sources.append(dict(index=len(clock_sources),
+                                  name=name["internal"],
                                   type="internal",
                                   location_type="CLOCK_SOURCE",
                                   location_index=len(clock_sources)))
     if n_crf:
-        clock_sources.append(dict(index=len(clock_sources), name="CRF Clock",
+        clock_sources.append(dict(index=len(clock_sources), name=name["crf"],
                                   type="crf",
                                   location_type="STREAM_INPUT",
                                   location_index=len(L)))
@@ -4682,6 +4871,7 @@ def _overlay_document(cfg, parts):
     in_clusters = sum(p["clusters"] for p in P_in)
     out_clusters = sum(p["clusters"] for p in P_out)
     clock_sources, audio_maps = parts.clock_sources, parts.audio_maps
+    objects = (cfg.get("names") or {}).get("objects")
     return {
         "_schema": OVERLAY_SCHEMA_ID,
         "_schema_version": OVERLAY_SCHEMA_VERSION,
@@ -4705,6 +4895,10 @@ def _overlay_document(cfg, parts):
         #! second copy is a second thing to go stale.
         "adp": overlay_adp_block(cfg),
         **({"gptp": cfg["gptp"]} if cfg.get("gptp") is not None else {}),
+        # schema 1.2 singleton object_names, emitted ONLY when declared so a
+        # config that states none keeps a byte-identical overlay; what is
+        # absent keeps the descriptor layer's literal (OBJECT_NAMES)
+        **({"names": objects} if objects else {}),
         "sampling_rates_hz": clk["audio_unit_rates_hz"],
         "current_sampling_rate_hz": clk["sampling_rate_hz"],
         "entity_counts": {

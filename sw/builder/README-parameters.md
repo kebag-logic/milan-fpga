@@ -118,12 +118,48 @@ that the built datapath cannot provide.
 
 `entity.model_id_pin`, when present, wins. Otherwise a literal
 `entity_model_id` is used or `hash-derived` folds the canonical model shape
-under the Kebag Logic OUI. Instance-only fields such as the station MAC,
-serial, and display name do not affect a hash-derived model ID.
+under the vendor OUI, `entity.vendor_oui`. Instance-only fields such as the
+station MAC, serial, and display name do not affect a hash-derived model ID.
 
 The descriptor image bakes the derived entity ID, resolved model ID, stream
 counts, capabilities, MAC, and clock identity. No runtime companion file
 restates those values.
+
+Schema 1.2 (the version the tracked configs declare) added the keys below.
+Every one is optional and defaults to what every earlier image carried, so a
+config that states none, including any 1.1 config, builds the same image byte
+for byte. A name or locale is non-empty UTF-8 of at most 64 octets with no
+NUL.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `names.configuration` | `Default` | CONFIGURATION object name. |
+| `names.audio_unit` | `Audio Unit` | AUDIO_UNIT object name. |
+| `names.avb_interface` | `AVB Interface 0` | AVB_INTERFACE object name. |
+| `names.clock_domain` | `Clock Reference Format` | CLOCK_DOMAIN object name. |
+| `names.control_identify` | `Identify` | IDENTIFY CONTROL object name. |
+| `names.clock_sources.internal` | `Internal` | INTERNAL CLOCK_SOURCE name; refused unless the config offers `internal`. |
+| `names.clock_sources.crf` | `CRF Clock` | CRF sink CLOCK_SOURCE name; refused unless the config offers `crf`. |
+| `entity.locale` | `en-EN` | LOCALE `locale_identifier`. |
+| `entity.vendor_oui` | `0x001BC5` | The 24-bit OUI a hash-derived model ID is folded under. |
+| `entity.entity_capabilities` | derived | Verified only: must equal the ADP engine's `ADP_ENTITY_CAPS_C`. |
+
+Names and the locale are not model-shape inputs, so they never move a
+hash-derived model ID. `entity.vendor_oui` is part of the model ID by
+construction: changing it re-identifies the entity, and every controller
+cache keyed by the old ID misses. A pinned or literal model ID that carries
+another OUI refuses the key, as does an OUI outside 24 bits or with the I/G
+bit of its first octet set. `entity.entity_capabilities` never chooses a
+value: a declaration that differs from
+`protocol-processor/hdl/adp/pp_adp_pkg.sv` is refused with that file and
+line. There is no `names.clock_sources.stream`: the per-listener Stream Clock
+source it would name was retired by #389, and the key is refused.
+
+Three descriptor fields are generator-owned and have no key: AVB_INTERFACE
+`interface_flags` (`0x0007`) and `port_number` (`0`), and the IDENTIFY
+CONTROL's `reset_time` (`3`).
+[ENDSTATION_BUILDER.md](../../docs/ENDSTATION_BUILDER.md#3-config-schema--aem-descriptor-mapping)
+section 3 rows 33a to 33c state why.
 
 ## Reservation table and resource estimate
 

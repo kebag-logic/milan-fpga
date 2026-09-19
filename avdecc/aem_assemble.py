@@ -21,7 +21,8 @@ from typing import Any
 from aem_descriptors import (AUDIO_CLUSTER, AUDIO_MAP, AUDIO_UNIT,
                              AVB_INTERFACE, CLOCK_DOMAIN, CLOCK_SOURCE,
                              CONFIGURATION, CONTROL, ENTITY, LOCALE,
-                             NO_STRING, STREAM_INPUT, STREAM_OUTPUT,
+                             LOCALE_IDENTIFIER, NO_STRING, OBJECT_NAMES,
+                             STREAM_INPUT, STREAM_OUTPUT,
                              STREAM_PORT_INPUT, STREAM_PORT_OUTPUT, STRINGS,
                              PortMapBounds, clock_source_shape,
                              d_audio_cluster, d_audio_map, d_audio_unit,
@@ -197,13 +198,19 @@ def _port_bounds(p):
 def _entity_descriptors(spec):
     """ENTITY through STRINGS: the descriptors a configuration always has."""
     si, so = spec["stream_inputs"], spec["stream_outputs"]
+    # Schema 1.2 declarations (sw/builder `names:`, `entity.locale`) arrive in
+    # the spec; a name the spec does not carry keeps the descriptor layer's
+    # own literal, which is what every image before them served.
+    names = {**OBJECT_NAMES, **(spec.get("names") or {})}
     descs = [
         (ENTITY,        0, d_entity(spec["entity"])),
         (CONFIGURATION, 0, d_configuration(len(si), len(so),
-                                           len(spec["clock_sources"]))),
+                                           len(spec["clock_sources"]),
+                                           names["configuration"])),
         (AUDIO_UNIT,    0, d_audio_unit(spec["rates"], spec["current_rate"],
                                         len(spec["ports_in"]),
-                                        len(spec["ports_out"]))),
+                                        len(spec["ports_out"]),
+                                        names["audio_unit"])),
     ]
     for k, s in enumerate(si):
         descs.append((STREAM_INPUT, k,
@@ -219,14 +226,16 @@ def _entity_descriptors(spec):
         descs.append((STREAM_OUTPUT, k,
                       d_stream(STREAM_OUTPUT, k, s["name"], flags,
                                s["formats"])))
-    descs.append((AVB_INTERFACE, 0, d_avb_interface(spec.get("gptp"))))
+    descs.append((AVB_INTERFACE, 0, d_avb_interface(spec.get("gptp"),
+                                                    names["avb_interface"])))
     for k, cs in enumerate(spec["clock_sources"]):
         descs.append((CLOCK_SOURCE, k,
                       d_clock_source(k, cs["name"], cs["cs_type"],
                                      cs["loc_type"], cs["loc_index"])))
-    descs.append((CLOCK_DOMAIN, 0, d_clock_domain(len(spec["clock_sources"]))))
-    descs.append((CONTROL, 0, d_control_identify()))
-    descs.append((LOCALE, 0, d_locale()))
+    descs.append((CLOCK_DOMAIN, 0, d_clock_domain(len(spec["clock_sources"]),
+                                                  names["clock_domain"])))
+    descs.append((CONTROL, 0, d_control_identify(names["control_identify"])))
+    descs.append((LOCALE, 0, d_locale(spec.get("locale") or LOCALE_IDENTIFIER)))
     descs.append((STRINGS, 0, d_strings(
         [spec["entity"]["name"], spec["rates_string"],
          spec["entity"]["vendor_name"], "", "", "", ""])))
