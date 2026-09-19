@@ -24,6 +24,7 @@ python3 sw/builder/test_builder.py
 python3 scripts/check_soc_sources.py
 python3 scripts/check_sweep_shape.py --self-test
 python3 scripts/check_deploy_shape.py --selftest
+python3 sw/litex/iob_pack_selftest.py
 ```
 
 For a full SoC elaboration without launching Vivado, invoke the intended
@@ -35,6 +36,13 @@ The small `sw/litex/test_*.py` inventory now covers only integration helpers
 that remain in the bare-metal SoC. The deleted memory-delivery engines and
 their behavioral models are not a product contract. Treat `ls sw/litex/test_*.py`
 as the inventory and run each tracked script directly with Python.
+
+One local check sits outside that inventory, because it is not a `test_*.py`
+file: [`sw/litex/iob_pack_selftest.py`](../../sw/litex/iob_pack_selftest.py)
+drives [`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl)
+(issue #475) in `tclsh` over stubbed netlists, which is the only gate that
+check has outside a Vivado build. It is in the list above, and the
+`docs-check` job runs it.
 
 ## 2. Verilator suites
 

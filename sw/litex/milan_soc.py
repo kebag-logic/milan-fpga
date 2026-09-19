@@ -3855,8 +3855,17 @@ def main() -> None:
     # (MilanMAC above) are both covered, and a port with no IOB constraint is
     # never looked at. LiteX passes both strings through
     # str.format(build_name=...), hence the doubled braces.
+    # Refuse here, not inside Vivado: `source` of a missing file is a script
+    # error too, but it is raised about twenty-five minutes in, after
+    # placement, like every other gate this file checks before launching.
+    iob_check_tcl = SOC_DIR.resolve() / "iob_pack_check.tcl"
+    if not iob_check_tcl.is_file():
+        raise RuntimeError(
+            f"missing {iob_check_tcl}: the IOB packing check (#475) runs in "
+            "every Vivado build, and a build without it cannot report an "
+            "unpacked port")
     soc.platform.toolchain.pre_routing_commands.append(
-        "source {{%s}}" % (SOC_DIR.resolve() / "iob_pack_check.tcl"))
+        "source {{%s}}" % iob_check_tcl)
     soc.platform.toolchain.pre_routing_commands.append(
         "kl_iob_pack_check {build_name}_iob_pack.rpt")
     # Use as many CPU cores as Vivado allows for synth/place/route (`set_param

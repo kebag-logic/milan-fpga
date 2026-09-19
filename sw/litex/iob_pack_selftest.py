@@ -14,8 +14,9 @@ ZHOLD_DELAY that opt_design inserts in front of it.
   - the shipping shape, every constrained port packed: exit 0, and tdm_mclk /
     tdm_din, which carry no IOB constraint, are never looked at even though
     their registers sit in slices;
-  - a pruned render lane (tdm_dout driven by a constant) and an input nothing
-    reads: INERT, exit 0;
+  - a pruned render lane (tdm_dout driven by a constant) and eth0_rx_er,
+    which synthesis kept no net for because nothing reads the pin: INERT,
+    exit 0;
   - eth0_rx_dv as it places: its flop in the ILOGIC and four fabric LUTs
     reading the same pad. PASS: the register packed, and the LUTs are
     counted in the line, not failed;
@@ -24,7 +25,17 @@ ZHOLD_DELAY that opt_design inserts in front of it.
     pad, an input flop in the fabric with and without the ILOGIC delay in
     front of it, an input read by a second fabric flop, an input read only
     by LUTs, and a bidirectional port: exit 1, the error names exactly that
-    port and the report carries its FAIL row.
+    port and the report carries its FAIL row;
+  - one hop of the traversal answering nothing while the port's register
+    sits in a slice - no pin on the port's net, no data pin on the pad
+    buffer, no load on the buffer's net - and the per-port IOB read
+    answering nothing for every port: exit 1 each. These are the cases that
+    read INERT, or "0 port(s) checked", before the #475 review; a query that
+    answers nothing must not be the verdict that lets a build through.
+
+The stubs mirror the two answers Vivado gives: nothing MATCHED is an empty
+list, and a query handed no object at all raises, as it does live (Common
+17-697). That is the distinction the check now rests on.
 
 Every mutant of the .tcl in MUTANTS must then make at least one arm stop
 holding, which is what shows the arms can fail for the defects they name.
@@ -73,7 +84,12 @@ proc kl_stub_args {argv} {
     }
     return [list $of $filter]
 }
-proc get_ports {args} { return [lsort [array names ::PORT]] }
+proc get_ports {args} {
+    lassign [kl_stub_args $args] of filter
+    set all [lsort [array names ::PORT]]
+    if {$filter eq ""} { return $all }
+    return [filter $all $filter]
+}
 proc get_property {args} {
     set argv [lsearch -all -inline -not -exact $args -quiet]
     lassign $argv key obj
@@ -86,17 +102,28 @@ proc get_property {args} {
     }
     error "stub get_property: no object '$obj'"
 }
+proc kl_stub_objs {cmd of} {
+    if {[llength $of] == 0} {
+        error "stub $cmd: -of_objects with no object (Vivado: Common 17-697)"
+    }
+}
 proc get_nets {args} {
     lassign [kl_stub_args $args] of
+    kl_stub_objs get_nets $of
     set out {}
     foreach o $of {
-        if {[info exists ::PORT($o)]} { lappend out [dict get $::PORT($o) NET] }
-        if {[info exists ::PIN($o)]} { lappend out [dict get $::PIN($o) NET] }
+        foreach arr {::PORT ::PIN} {
+            if {[info exists ${arr}($o)]} {
+                set net [dict get [set ${arr}($o)] NET]
+                if {$net ne ""} { lappend out $net }
+            }
+        }
     }
     return [lsort -unique $out]
 }
 proc get_pins {args} {
     lassign [kl_stub_args $args] of filter
+    kl_stub_objs get_pins $of
     set out {}
     foreach p [array names ::PIN] {
         set d $::PIN($p)
@@ -109,6 +136,7 @@ proc get_pins {args} {
 }
 proc get_cells {args} {
     lassign [kl_stub_args $args] of
+    kl_stub_objs get_cells $of
     set out {}
     foreach p $of { lappend out [dict get $::PIN($p) CELL] }
     return [lsort -unique $out]
@@ -135,6 +163,24 @@ class Netlist:
         """Disconnect every cell built for `port`, before rebuilding it."""
         for name in [p for p, v in self.pins.items() if v[0].startswith(port)]:
             del self.pins[name]
+
+    def blind(self, *pins: str) -> None:
+        """Delete `pins`, so the query that asks for them answers nothing.
+
+        This is how a netlist query that came back empty looks to the check:
+        the structure the traversal needs is not there to be found.
+        """
+        for name in pins:
+            del self.pins[name]
+
+    def dangling_port(self, port: str, direction: str, iob: str) -> None:
+        """A constrained port with no net and no buffer at all.
+
+        How eth0_rx_er really places: the pin is read by nothing, so
+        synthesis keeps no IBUF and `get_nets -of_objects` on the port
+        answers nothing (probed on the AX7101 TDM8 placed checkpoint).
+        """
+        self.ports[port] = (direction, iob, "")
 
     def out_port(self, port: str, iob: str, driver: Cell) -> None:
         """An output port through an OBUF from `driver`."""
@@ -179,7 +225,7 @@ class Netlist:
         lines = []
         for name, (direction, iob, net) in self.ports.items():
             lines.append(f"set {{::PORT({name})}} "
-                         f"{{DIRECTION {direction} IOB {{{iob}}} NET {net}}}")
+                         f"{{DIRECTION {direction} IOB {{{iob}}} NET {{{net}}}}}")
         for name, (cell, ref_pin, direction, net) in self.pins.items():
             lines.append(f"set {{::PIN({name})}} {{CELL {cell} REF_PIN_NAME "
                          f"{ref_pin} DIRECTION {direction} NET {net}}}")
@@ -201,8 +247,8 @@ def shipping() -> Netlist:
     net.out_port("tdm_dout", "TRUE", ("FDRE", "OLOGIC_X0Y167"))
     net.out_port("eth0_tx_en", "TRUE", ("FDRE", "OLOGIC_X0Y151"))
     net.in_port(RX, "TRUE", [("FDRE", "ILOGIC_X0Y120")], zhold="ILOGIC_X0Y120")
-    # rx_er is constrained and read by nothing: no register, nothing to pack
-    net.in_port("eth0_rx_er", "TRUE", [])
+    # rx_er is constrained and read by nothing, so it keeps no net at all
+    net.dangling_port("eth0_rx_er", "IN", "TRUE")
     # no IOB constraint: registers in slices, and the check must not care
     net.out_port("tdm_mclk", "", ("FDRE", "SLICE_X0Y170"))
     net.in_port("tdm_din", "FALSE", [("FDRE", "SLICE_X5Y16")])
@@ -250,6 +296,54 @@ def inout() -> Netlist:
     return net
 
 
+def blinded_out(port: str, pin: str) -> Netlist:
+    """`port`'s register in a slice, and one hop of the traversal deleted.
+
+    Without that hop every query about it answers nothing, which is what a
+    query that ERRORED looked like while they all carried -quiet. The
+    register is left unpacked, so only the traversal rule can catch it.
+    """
+    net = planted_out(port, ("FDRE", "SLICE_X1Y168"))
+    net.blind(pin)
+    return net
+
+
+def blinded_in(port: str) -> Netlist:
+    """`port`'s capture flop in the fabric, and nothing reading the pad net."""
+    net = planted_in(port, [("FDRE", "SLICE_X0Y90")])
+    net.blind(f"{port}_dst0/D")
+    return net
+
+
+def unconstrained() -> Netlist:
+    """The shipping shape with every IOB property answering nothing."""
+    net = shipping()
+    for name, (direction, _iob, port_net) in list(net.ports.items()):
+        net.ports[name] = (direction, "", port_net)
+    return net
+
+
+#: Three `set_property IOB TRUE` lines, as LiteX writes the generated .xdc
+#: beside the report: what the build ASKED for, outside the netlist.
+XDC_IOB_TRUE = """set_property IOSTANDARD LVCMOS33 [get_ports tdm_bclk]
+set_property IOB TRUE [get_ports {eth0_tx_data[*]}]
+set_property IOB TRUE [get_ports eth0_tx_en]
+set_property IOB TRUE [get_ports tdm_bclk]
+"""
+
+#: The per-port IOB read answers nothing for tdm_bclk alone, the way a query
+#: that errored answered under -quiet. The port drops out of the loop, and
+#: only the second opinion (the same question as one filter) still sees it.
+BLIND_ONE_IOB_READ = r"""
+rename get_property kl_stub_real_get_property
+proc get_property {args} {
+    if {[lindex $args 0] eq "-quiet" && [lindex $args 1] eq "IOB"
+        && [lindex $args 2] eq "tdm_bclk"} { return "" }
+    return [kl_stub_real_get_property {*}$args]
+}
+"""
+
+
 @dataclass
 class Arm:
     """One netlist, the exit status it must give, and the port it must name."""
@@ -259,6 +353,14 @@ class Arm:
     status: int
     failed: str = ""
     rows: tuple[str, ...] = ()
+    #: extra Tcl between the netlist and the check: a query made to answer
+    #: nothing, which no netlist can express.
+    twist: str = ""
+    #: constraints written beside the report, for the rules that cross the
+    #: netlist against what the build asked for.
+    xdc: str = ""
+    #: text the error must carry, where no single port is at fault.
+    says: str = ""
 
 
 ARMS = (
@@ -292,6 +394,22 @@ ARMS = (
         (f"FAIL  {RX}: IN, no register reads the pad, only:",)),
     Arm("bidirectional port", inout(), 1, "eth0_mdio",
         ("FAIL  eth0_mdio: direction INOUT",)),
+    Arm("unpacked output, and the port's net answers no pin",
+        blinded_out("tdm_bclk", "tdm_bclk_OBUF_inst/O"), 1, "tdm_bclk",
+        ("FAIL  tdm_bclk: OUT, net tdm_bclk reaches no cell",)),
+    Arm("unpacked output, and the pad buffer answers no data pin",
+        blinded_out("tdm_bclk", "tdm_bclk_OBUF_inst/I"), 1, "tdm_bclk",
+        ("FAIL  tdm_bclk: OUT, nothing answered behind tdm_bclk_OBUF_inst",)),
+    Arm("unpacked input, and the pad buffer's net answers no load",
+        blinded_in(RX), 1, RX,
+        (f"FAIL  {RX}: IN, nothing answered behind {RX}_IBUF_inst",)),
+    Arm("unpacked output whose IOB read answers nothing: it leaves the loop",
+        planted_out("tdm_bclk", ("FDRE", "SLICE_X1Y168")), 1,
+        twist=BLIND_ONE_IOB_READ, xdc=XDC_IOB_TRUE,
+        says="did not read the same way twice"),
+    Arm("no port answers IOB TRUE, but the constraints carry it",
+        unconstrained(), 1, xdc=XDC_IOB_TRUE,
+        says="no port answered IOB TRUE"),
 )
 
 #: (name, original text, replacement): each must make some arm stop holding.
@@ -300,8 +418,18 @@ MUTANTS = (
     ("final error removed", '        error "IOB-PACK FAIL:',
      '        puts "IOB-PACK FAIL:'),
     ("delay elements not looked through",
-     "[filter -quiet $loads {REF_NAME == ZHOLD_DELAY || REF_NAME == IDELAYE2}]",
+     "[filter $loads {REF_NAME == ZHOLD_DELAY || REF_NAME == IDELAYE2}]",
      "{}"),
+    ("a port whose net reaches no cell taken for INERT",
+     'return [list FAIL "$dir, net [join $nets {, }] reaches no cell',
+     'return [list INERT "$dir, net [join $nets {, }] reaches no cell'),
+    ("a far side that answered nothing taken for INERT",
+     'return [list FAIL "$dir, nothing answered behind',
+     'return [list INERT "$dir, nothing answered behind'),
+    ("the two counts of constrained ports not crossed",
+     "[llength $rows] != [llength $constrained]", "0"),
+    ("a run that selected no port taken for a clean one",
+     "[llength $rows] == 0 && $lines != 0", "0"),
     ("every input load taken for a register",
      "![string is true -strict [get_property IS_SEQUENTIAL $cell]]", "0"),
     ("an input with no register taken for INERT",
@@ -316,9 +444,13 @@ def run_arm(tclsh: str, check: Path, arm: Arm, work: Path) -> list[str]:
     """Run one arm against `check`; return what did not hold (empty = held)."""
     report = work / "iob_pack.rpt"
     report.unlink(missing_ok=True)
+    xdc = work / "arm.xdc"
+    xdc.unlink(missing_ok=True)
+    if arm.xdc:
+        xdc.write_text(arm.xdc, encoding="utf-8")
     driver = work / "arm.tcl"
     driver.write_text(
-        STUBS + arm.netlist.tcl() + f"source {{{check}}}\n"
+        STUBS + arm.netlist.tcl() + arm.twist + f"source {{{check}}}\n"
         f"if {{[catch {{kl_iob_pack_check {{{report}}}}} msg]}} "
         "{ puts stderr $msg; exit 1 }\nexit 0\n", encoding="utf-8")
     proc = subprocess.run([tclsh, str(driver)], capture_output=True, text=True,
@@ -332,6 +464,9 @@ def run_arm(tclsh: str, check: Path, arm: Arm, work: Path) -> list[str]:
                  or f" {p}," in proc.stderr]
         if named != [arm.failed]:
             problems.append(f"error names {named}, want [{arm.failed!r}]")
+    if arm.says and arm.says not in proc.stderr:
+        problems.append(f"error does not say {arm.says!r}: "
+                        f"{proc.stderr.strip()!r}")
     text = report.read_text(encoding="utf-8") if report.is_file() else ""
     problems += [f"report lacks {row!r}" for row in arm.rows if row not in text]
     problems += [f"report looks at {p}, which carries no IOB constraint"

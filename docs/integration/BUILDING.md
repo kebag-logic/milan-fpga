@@ -516,8 +516,15 @@ are not required. Bench roles as of 2026-09-06:
 
 A build that reached a bitstream has already passed the IOB packing check
 (section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
-port's register is in a slice: its row in `*_iob_pack.rpt` names the cell and
-its site, and the fix is in the RTL or the constraint, never in the check.
+port's row in `*_iob_pack.rpt` says what was found: a register in a slice or
+left unplaced, a pad driven or read only by logic that is not a register, a
+second fabric register on an input, a bidirectional port, or a pad the check
+could not traverse. Vivado raises Place 30-722 for the placement cases only;
+the rest are the check refusing to grade what it could not see. The fix is in
+the RTL or the constraint, never in the check. An `INERT` row is not a
+failure: that port carries no net at all, or its only driver is a constant,
+so there is nothing to pack. `IOB-PACK ERROR` says the run selected no port,
+or read the netlist two ways that disagree, and so graded nothing.
 
 1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
    row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted
