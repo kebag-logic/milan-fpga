@@ -207,7 +207,7 @@ multiple of 1e9 in PHC nanoseconds) to `PTP_PPS_TGT_{LO,HI}`, strobe
 back whether the comparator exists at all. See the `0x500` block in
 [REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
-The current CSR ABI is `VERSION=0x0002_0059`. With the plane enabled, fabric
+The current CSR ABI is `VERSION=0x0002_005A`. With the plane enabled, fabric
 is the sole gPTP owner. The direct, verification-only option-OFF elaboration is
 ownerless: GM identity, parent identity, path data and pdelay read zero;
 `sync=0`, `asCapable=0`, and `time_uncertain=1`; every legacy publication write

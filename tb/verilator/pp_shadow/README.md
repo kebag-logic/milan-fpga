@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # pp_shadow — milan_datapath with the protocol processor AS the control plane
 
-`make` - exit 0 = PASS. **248 checks, 0 failures, 0 warnings** at the time of
+`make` - exit 0 = PASS. **318 checks, 0 failures, 0 warnings** at the time of
 writing. The suite carries no `-Wno-*` at all (not even `-Wno-fatal`), so any
 Verilator warning stops the build; gate on the **exit code**, never on a warning
 count.
@@ -53,6 +53,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | M | **no descriptor memory** | with the memory model withdrawn, the failed header probe exposes zero configurations and `READ_DESCRIPTOR` degrades to a well-formed `BAD_ARGUMENTS` rather than hanging the µCPU; the store serves again once memory returns |
 | K | **the shared control lane** | both legs of `ctl_tx_mux` transmitted, every frame is well formed, and no TX-trunk arbiter aborted or stalled. AECP responses are in that census, so a response that was well formed in isolation but corrupted by the shared lane fails here |
 | J | global anti-wedge invariant | `accepted == answered` over every cycle simulated, and **no `RELEASE_DA` is reachable in this shape**: `milan_datapath` ties `cfg_src_en_i` to all-ones, so no talker source can leave the configuration. Graded rather than assumed, because the owed-release law (a release booked per source and retried until the face ACCEPTS it, ahead of any `ALLOC_DA`) is proven in `protocol-processor/tb/acmp_talker` section L. Wire `cfg_src_en_i` to anything live and this check goes red, which is the reminder to bring that path under test here too |
+| T | **a registered Listener, as a controller reads it** | an MSRP Listener declaration for source 0's stream is injected on the MAC RX port and registered by the processor's own SRP engine, which must publish the IEEE 802.1Q Section 35.2.2.7.4 code on snapshot word 13 (1 Asking Failed, 3 Ready Failed, 2 Ready, 0 once the Listener leaves). For each, ACMP `GET_TX_STATE` must carry `REGISTERING_FAILED` (0x0040) for Asking Failed only (Milan v1.2 Section 5.5.4.3, answered inside the processor: protocol-processor #46), and AECP `GET_STREAM_INFO` on `STREAM_OUTPUT` 0, whose flags this repository gathers, must carry `REGISTERING_FAILED` for Asking Failed only and `flags_ex` `REGISTERING` while any Listener is registered. `LWSRP_STATUS[2]` is printed per arm and not graded: it reads 0 for a registered Asking Failed. The image carries a `STREAM_OUTPUT[0]` for this group, because the image is the existence authority `GET_STREAM_INFO` answers from. It runs after J and before M2, so K's census never sees the stream a Ready Listener starts and M2's reset wipes what it leaves |
 
 ### Group F — why a decode and not a count
 

@@ -1520,8 +1520,8 @@ class NxnDatapathHarness {
 
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION 0x0059 carries the PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
-           axi_read(A_VERSION), 0x00020059);
+        ck("VERSION 0x005A carries the GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+           axi_read(A_VERSION), 0x0002005A);
 
         //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
         //! These two writes used to sit inside the N-sink ACMP ctx2 section,

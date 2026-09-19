@@ -136,15 +136,14 @@ module milan_csr #(
   //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x0059 puts the PHC's pulse-per-second output under software control
-  //! (#260): PTP_PPS_CTRL 0x548, the armed target TGT_LO/HI 0x54C/0x550, the
-  //! live-target readback RD_LO/HI 0x554/0x558 and the elaborated pulse width
-  //! PTP_PPS_WIDTH 0x55C - 24 bytes in the free block above the egress
-  //! latency scratch at 0x544. CTRL[16] publishes whether the comparator was
-  //! elaborated at all, so "not built" is readable rather than inferred from
-  //! a silent pin. Additive: 0x0058's media-boundary slip counters are
-  //! unchanged. The register occupies four bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_0059
+  //! 0x005A moves the protocol-processor pin to 6a9a124 (#473): ACMP
+  //! GET_TX_STATE REGISTERING_FAILED now follows the registered Listener
+  //! Asking Failed attribute (Milan v1.2 5.5.4.3). The processor's talker had
+  //! read its own SRP engine's Listener code in a private order, so it flagged
+  //! Ready Failed and never Asking Failed. The answer is built inside the
+  //! processor, so no CSR changes: 0x0059's PPS words are unchanged. The
+  //! register occupies four bytes and no CSR addresses move.
+  parameter logic [31:0] VERSION = 32'h0002_005A
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

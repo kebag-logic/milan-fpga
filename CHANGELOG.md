@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005A - GET_TX_STATE Listener code](#release-0x0002_005a---get_tx_state-listener-code)** -- Asking Failed sets the flag.
 - **[Release 0x0002_0059 - PPS output](#release-0x0002_0059---pps-output)** -- Six CSR words, one metrology pin.
 - **[Release 0x0002_0058 - slip counters readable](#release-0x0002_0058---slip-counters-readable)** -- Two RO words, prefill retired.
 - **[Release 0x0002_0057 — live media-clock selection](#release-0x0002_0057--live-media-clock-selection)** -- CRF selection steers the grids.
@@ -37,6 +38,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_005A - GET_TX_STATE Listener code
+
+- The protocol-processor pin moves to `6a9a124` (#473).
+- GET_TX_STATE now flags a registered Listener Asking Failed.
+- REGISTERING_FAILED no longer follows a Listener Ready Failed.
+- That is Milan v1.2 Section 5.5.4.3.
+- The talker had used a private Listener code order.
+- It now reads `srp_pkg::srp_decl_e`, the engine's own codes.
+- GET_STREAM_INFO already read those codes and is unchanged.
+- `tb/verilator/pp_shadow` group T grades all four Listener cases.
+- Only `VERSION` moves in this repository's RTL.
+- No CSR address moves.
+- This build also carries the gPTP egress entry above.
 
 ## Release 0x0002_0059 - PPS output
 
