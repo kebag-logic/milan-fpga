@@ -52,7 +52,8 @@ jobs:
           if [ -n "$base" ] \
              && [ "$base" != 0000000000000000000000000000000000000000 ] \
              && git cat-file -e "$base^{commit}" 2>/dev/null; then
-            git diff --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"
+            git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed-files"
           else
             # An unknown base must never turn a real change into docs-only.
             git ls-files > "$RUNNER_TEMP/changed-files"

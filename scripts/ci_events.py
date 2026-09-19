@@ -131,6 +131,7 @@ import pathlib
 import re
 import sys
 import tempfile
+import unicodedata
 from collections.abc import Callable, Iterator, Sequence
 from typing import Any, NamedTuple
 
@@ -419,8 +420,8 @@ CANONICAL_DECIDE_SCRIPT = (
     "fi",
     'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
     "2>/dev/null; then",
-    'git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > '
-    '"$RUNNER_TEMP/changed-files"',
+    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    '> "$RUNNER_TEMP/changed-files"',
     "else",
     'git ls-files > "$RUNNER_TEMP/changed-files"',
     "fi",
@@ -440,8 +441,8 @@ CANONICAL_DECIDE_SCRIPT = (
     'if [ "$rtl" = false ]; then',
     'echo "docs-only: every changed path is a top-level *.md, under '
     'LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no '
-    'skipped gate reads; the exhaustive workers and both required '
-    'aggregates skip"',
+    'skipped gate reads unless docs-check reads it too; the exhaustive '
+    'workers and both required aggregates skip"',
     "fi",
 )
 #: The selector's own proof, and the line that consumes the selector's
@@ -823,8 +824,8 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     "fi",
     'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
     "2>/dev/null; then",
-    'git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > '
-    '"$RUNNER_TEMP/changed"',
+    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    '> "$RUNNER_TEMP/changed"',
     "else",
     'git ls-files > "$RUNNER_TEMP/changed"',
     "fi",
@@ -1024,7 +1025,7 @@ CANONICAL_FAST_SCOPE_SCRIPT = (
     'if [ -n "$base" ] && [ "$base" != '
     '0000000000000000000000000000000000000000 ] && '
     'git cat-file -e "$base^{commit}" 2>/dev/null; then',
-    'git diff --name-only "$base" "$GITHUB_SHA" > '
+    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
     '"$RUNNER_TEMP/changed-files"',
     "else",
     "# An unknown base must never turn a real change into docs-only.",
@@ -2778,14 +2779,60 @@ def check_sha_sources(c: Contract, path: str, jid: str, step: YamlMap) -> None:
     # pinned_step_keys, with every other pinned step's env.
 
 
+#: #444 ([R197] F4, [R198] N1): the shell's own whitespace, and nothing
+#: else. bash separates words on space and tab, breaks lines on LF, and
+#: removes a backslash-newline with NOTHING in its place. Python's
+#: `str.split()` and `str.splitlines()` separate on U+00A0, U+2028, U+2029,
+#: U+0085 and the rest of the Unicode spaces, and the old normalizer joined a
+#: continuation with a space, so a pinned script could normalize to the
+#: canonical lines while bash read a different script: `!=\<LF>success` became
+#: the single word `!=success`, `[` answered "unary operator expected", and
+#: both worker-result steps exited 0 on a failed, cancelled or timed-out
+#: worker. Anything outside SHELL_BLANKS, SHELL_BREAK and the printable
+#: characters is therefore refused by name instead of normalized away.
+SHELL_BLANKS = " \t"
+SHELL_BREAK = "\n"
+REFUSED_PREFIX = "<<refused>> "
+SHELL_WORDS = re.compile(f"[{SHELL_BLANKS}]+")
+CONTINUATION = re.compile(r"\\\n")
+
+
+def refused_character(text: str) -> str | None:
+    """The first character of a step script that bash would read as part of a
+    word while a normalizer might read as whitespace, named with its code
+    point and position, or None when the script carries none. Space, tab and
+    LF are the shell's; every other space, separator, control or otherwise
+    unprintable character is refused."""
+    for number, line in enumerate(text.split(SHELL_BREAK), 1):
+        for column, char in enumerate(line, 1):
+            if char in SHELL_BLANKS or char.isprintable():
+                continue
+            name = unicodedata.name(char, "an unnamed character")
+            return (f"line {number} column {column} carries "
+                    f"U+{ord(char):04X} {name}; a pinned script may separate "
+                    "words with space or tab and lines with LF only, because "
+                    "bash reads every other space, separator or control "
+                    "character as part of a word")
+    return None
+
+
 def normalize_script(run: str | None) -> list[str]:
-    """Whitespace-normalized lines of a step script: continuation lines
-    joined, runs of blanks collapsed, blank lines dropped. Comment lines stay,
-    because a comment is not canonical either."""
-    joined = re.sub(r"\\\n", " ", run or "")
+    """The lines of a step script, normalized the way the SHELL reads them:
+    continuation lines joined with nothing, runs of spaces and tabs collapsed,
+    lines broken on LF, blank lines dropped. Comment lines stay, because a
+    comment is not canonical either.
+
+    A script carrying any other whitespace or unprintable character
+    normalizes to one refusal line naming that character. No canonical form
+    is one such line, so every pin that shares this function fails closed and
+    says what it refused ([R197] F4, [R198] N1)."""
+    text = run or ""
+    refusal = refused_character(text)
+    if refusal is not None:
+        return [REFUSED_PREFIX + refusal]
     lines = []
-    for raw in joined.splitlines():
-        line = " ".join(raw.split())
+    for raw in CONTINUATION.sub("", text).split(SHELL_BREAK):
+        line = " ".join(word for word in SHELL_WORDS.split(raw) if word)
         if line:
             lines.append(line)
     return lines
@@ -4597,6 +4644,43 @@ def _m_aggregate_script(jid: str, name: str, old: str, new: str) -> Mutator:
     return f
 
 
+def _m_step_text(get: Callable[[World], YamlMap], old: str,
+                 new: str) -> Mutator:
+    """#444: replace `old` with `new` in the script of the step `get` finds."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = get(w)
+        assert old in step["run"], f"fixture drift: {old!r} is not in the step"
+        step["run"] = step["run"].replace(old, new)
+    return f
+
+
+#: #444 ([R197] F4, D2/D3/D23; [R198] N1, D6/D28): the three edits that read
+#: as whitespace and are not. bash joins a backslash-newline with nothing, so
+#: `!=\<LF>success` is the single word `!=success` and `[` answers "unary
+#: operator expected"; U+00A0 and U+2028 are ordinary characters to bash and
+#: word or line separators to Python. Each is planted on both worker-result
+#: steps, where the accepted script then exits 0 on a failed, cancelled or
+#: timed-out worker, and on the decision step, where it leaves
+#: `run_full=false` for a ready RTL pull request.
+_RESULT_INVISIBLES = (
+    ("a continuation inside its comparison", '!= success ]; then',
+     '!=\\\nsuccess ]; then', None),
+    ("a no-break space inside its comparison", '!= success',
+     '!= success', "U+00A0 NO-BREAK SPACE"),
+    ("a line separator before its exit", '>&2\n', '>&2 ',
+     "U+2028 LINE SEPARATOR"),
+)
+_DECIDE_INVISIBLES = (
+    ("a continuation inside its comparison", '[ "$rtl" = true ]',
+     '[ "$rtl" =\\\ntrue ]', None),
+    ("a no-break space inside its comparison", '[ "$rtl" = true ]',
+     '[ "$rtl" = true ]', "U+00A0 NO-BREAK SPACE"),
+    ("a line separator before its decision", "run_full=false\n",
+     "run_full=false ", "U+2028 LINE SEPARATOR"),
+)
+
+
 #: #444: judging the Verilator workers without the fifth. The combined
 #: result still reddens, but only when a log from workers 0 to 3 shows a
 #: failure, so a milan_dp TIMEOUT on shard 4 turns green.
@@ -5696,7 +5780,42 @@ def _aggregate_script_arms() -> list[Arm]:
          _m_aggregate_script("yosys-portability", YOSYS_TALLY_STEP,
                              "--require-structural", ""),
          f"`{YOSYS_TALLY_STEP}` step script of `yosys-portability`"),
-    ]
+    ] + _invisible_whitespace_arms()
+
+
+def _invisible_whitespace_arms() -> list[Arm]:
+    """#444 ([R197] F4, [R198] N1): an edit that normalizes away under
+    Python's notion of whitespace but changes what bash executes. Each is
+    planted on both worker-result steps and on the decision step, and the
+    arm names the character the contract refuses, or the line that moved
+    when the character is a legitimate continuation."""
+    arms: list[Arm] = []
+    for jid, name, kind in (("verilator-suites", VERILATOR_RESULT_STEP,
+                             "Verilator"),
+                            ("yosys-portability", YOSYS_RESULT_STEP, "Yosys")):
+        for title, old, new, refused in _RESULT_INVISIBLES:
+            arms.append((f"#444 the {kind} worker-result step carries {title}",
+                         _m_aggregate_script(jid, name, old, new),
+                         refused or f"`{name}` step script of `{jid}`"))
+    for title, old, new, refused in _DECIDE_INVISIBLES:
+        arms.append((f"#444 the decision step carries {title}",
+                     _m_step_text(_decide_step, old, new),
+                     refused
+                     or "the decision step script is not the canonical form"))
+    # [R198] N2: the changed-path list each classifier-gated workflow builds
+    # must name both sides of a rename, so a gate-read file renamed to a
+    # documentation path cannot classify as docs-only.
+    for title, get, want in (
+            ("the decision step", _decide_step,
+             "the decision step script is not the canonical form"),
+            ("the fast selector scope step", _fast_scope_step,
+             "the fast selector scope script is not the canonical form"),
+            ("the elaborate scope step", _elab_scope_step,
+             "the elaborate scope step script is not the canonical form")):
+        arms.append((f"#444 {title} detects renames in its changed-path list",
+                     _m_step_text(get, "git diff --no-renames --name-only",
+                                  "git diff --name-only"), want))
+    return arms
 
 
 def _shard_and_fast_arms() -> list[Arm]:

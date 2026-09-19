@@ -130,13 +130,25 @@ def dedicated_selftest(suites: Sequence[str]) -> int:
               f"dedicated alone={alone} hashed owners unchanged={stable}")
         bad += 0 if ok else 1
 
-    # Negative control: under a rule that sets nothing aside no worker holds
-    # a dedicated suite alone, or the arm above proves nothing about the rule.
+    # Negative control, and it runs through the helper itself ([R197] S2):
+    # under a rule that sets nothing aside no worker holds a dedicated suite
+    # alone, and `dedicated_alone` must say so for the arm above to prove
+    # anything about the rule. Its two answers here are the ones a weakened
+    # helper gets wrong: with nothing set aside a helper that always returns
+    # True says yes, and with no more workers than dedicated suites the
+    # dedicated suite shares worker 0 with every other, so a helper that
+    # tests membership instead of equality says yes as well.
     plain = [select_suites(suites, index, 5, ()) for index in range(5)]
-    caught = bool(DEDICATED_SUITES) and all(
-        [suite] not in plain for suite in DEDICATED_SUITES)
+    unset = dedicated_alone(suites, 5, ())
+    shared = (len(suites) > len(DEDICATED_SUITES)
+              and dedicated_alone(suites, len(DEDICATED_SUITES),
+                                  DEDICATED_SUITES))
+    caught = (bool(DEDICATED_SUITES)
+              and all([suite] not in plain for suite in DEDICATED_SUITES)
+              and not unset and not shared)
     print(f"  {'ok  ' if caught else 'FAIL'} a rule without the dedicated "
-          "worker is caught")
+          f"worker is caught (alone with none set aside={unset}, alone "
+          f"while sharing worker 0={shared})")
     return bad + (0 if caught else 1)
 
 

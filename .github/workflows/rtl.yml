@@ -113,7 +113,7 @@ jobs:
 
           if [ -n "$PR_BASE_SHA" ] \
              && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+            git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
               > "$RUNNER_TEMP/changed-files"
           else
             git ls-files > "$RUNNER_TEMP/changed-files"
@@ -130,7 +130,7 @@ jobs:
           echo "run_full=$run_full" >> "$GITHUB_OUTPUT"
           echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"
           if [ "$rtl" = false ]; then
-            echo "docs-only: every changed path is a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no skipped gate reads; the exhaustive workers and both required aggregates skip"
+            echo "docs-only: every changed path is a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no skipped gate reads unless docs-check reads it too; the exhaustive workers and both required aggregates skip"
           fi
 
   # The exhaustive inventory is five-way and fail-closed: four hashed workers

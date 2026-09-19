@@ -102,7 +102,8 @@ jobs:
           fi
           if [ -n "$PR_BASE_SHA" ] \
              && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"
+            git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed"
           else
             git ls-files > "$RUNNER_TEMP/changed"
           fi

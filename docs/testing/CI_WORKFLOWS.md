@@ -41,10 +41,11 @@ pull-request update and on every push to `dev`. It produces one stable
   with no flag to soften it.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs. Documentation is a path that no gate the docs-only path skips can read
-(#444): a top-level `*.md`, anything under `LICENSES/`, or a `*.md`,
-`*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated module
-reads. Everything else is RTL relevant whatever its suffix: every file under
+jobs. Documentation is a path that no gate the docs-only path skips reads
+without `docs-check` reading it too (#444): a top-level `*.md`, anything under
+`LICENSES/`, or a `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less
+the pages a gated module reads. Everything else is RTL relevant whatever its
+suffix: every file under
 `tb/`, `hdl/`, `sw/`, `syn/`, `scripts/`, `tests/` and `configs/`, the diagram
 assets outside `docs/`, every generator, manifest and budget under `docs/`, an
 Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
@@ -59,8 +60,8 @@ asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 catalogue generator's `--check` compares
 [TRACE_EVENTS.md](../reference/TRACE_EVENTS.md). The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
-Python under `tests/`, `tb/`, `syn/`, `sw/`, `hdl/` and `avdecc/` and
-refuses a table that differs from it. A page
+Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
+`hdl/` and `avdecc/` and refuses a table that differs from it. A page
 that a skipped gate reads stays documentation only when an always-run
 `docs-check` step runs the same check on it:
 
@@ -69,6 +70,27 @@ that a skipped gate reads stays documentation only when an always-run
 | `sw/builder/test_builder.py`: six pages under `docs/` | `elaborate` (`--require-elaboration` grades only the LiteX arms) | yes, every arm that reads a page |
 | `docs/traceability/gen_module_matrix.py --check`: the matrix artifacts | the `tsn_fuzz` suite | yes, the same command |
 | `scripts/ci_events.py --check`: this page | none, it runs in `full-ci-gate` before the decision | yes, the same command |
+
+The derivation is a net, not a proof, and the table above stays the author's
+to keep true (#444, [R197] F5, [R198] N3). It resolves a page named by its
+whole path, by a path a literal ends in (a relative literal, or an f-string
+whose head is a variable), and by a bare file name, which is what an
+`os.path.join` piece, a pathlib join or a `$(DOCS)/NAME.md` recipe leaves
+behind; `scripts/ci_scope.py --selftest` plants a new reader in each of those
+spellings and requires the scan to name it. It cannot see a name computed at
+run time (`DOCS / f"{name}.md"`), a glob over a `docs/` directory, a page
+named only inside a message, a reader outside those six roots (a script under
+`scripts/` that a suite calls, a C++ bench, a workflow step), or a file kind
+it does not read. A reader written that way must be added to `GATE_READ_DOCS`
+by hand.
+
+All three classifier-gated workflows build the changed-path list with
+`git diff --no-renames --name-only`, so a rename reaches the classifier as
+both of its sides ([R198] N2). With git's default rename detection the list
+holds the destination alone, and renaming a gate-read page or an RTL source
+to a documentation path classified the pull request as docs-only while the
+gate that reads it skipped. `scripts/ci_events.py` pins the flag in each of
+the three scripts.
 
 The aggregate still completes,
 so a docs-only PR does not leave a required verdict pending. Mixed changes are
@@ -394,7 +416,17 @@ is exactly these twelve things:
    names the step, the variable, the expression required and the one found.
 7. **The decision step's script.** Pinned verbatim after whitespace
    normalization, the way the default-branch step's is, and refused by naming
-   the first line that differs rather than dumping the script. The bindings in
+   the first line that differs rather than dumping the script. The
+   normalization every pin shares is the shell's, not Python's (#444,
+   [R197] F4, [R198] N1): a backslash-newline joins with nothing, words
+   separate on space and tab, lines break on LF, and any other space,
+   separator, control or unprintable character is refused by name instead of
+   normalized away, because bash reads those as part of a word. Under the
+   older rule a continuation inside a comparison (`!=\` then `success`), a
+   no-break space or a U+2028 normalized to the canonical text while bash
+   read a different script: both exhaustive aggregates' worker-result steps
+   then exited 0 on a failed, cancelled or timed-out worker, and this step
+   published `run_full=false` for a ready RTL pull request. The bindings in
    item 6 hold what the step reads; this holds what it does with what it read,
    because `run_full=true` rewritten to `run_full=false` changes no pinned
    name and no pinned key and publishes the explicit no-op on every ready RTL
@@ -1034,7 +1066,7 @@ name that the pull request cannot produce. A skipped job leaves no log, so
 the gate's decision step prints the reason in its own, in the words of the
 rule the classifier applied: `docs-only: every changed path is a top-level
 *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that
-no skipped gate reads`.
+no skipped gate reads unless docs-check reads it too`.
 
 ## Act-first local replication
 
