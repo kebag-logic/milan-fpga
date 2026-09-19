@@ -341,6 +341,18 @@ class Platform(Xilinx7SeriesPlatform):
         # milan_soc.py; measured 1-2 ns at a slice next to the IO column
         # against 4-6 ns fourteen columns in).
         #
+        # WHAT IT ASKS OF THE RTL. An IOB output flop has no D-pin inverter and
+        # its Q can drive the output buffer only, so the flop behind each of
+        # the three ports must take a D that is not an inversion and must have
+        # no load but its pad. A self-toggling bclk flop broke the first rule,
+        # and every seed of the first sweep after #454 stopped at placement
+        # (Place 30-1008); KL_tdm_capture_master therefore makes the bit clock
+        # a pad flop that copies a fabric complement. The second rule fails
+        # QUIETLY: a flop with a fabric load is left in a slice under a
+        # CRITICAL WARNING (Place 30-722) and the build completes, so packing
+        # is proven from the placed design, where the flop's site is an
+        # OLOGIC, never from a finished bitstream.
+        #
         # Emitted ONLY when the board build asked for the header, because XDC
         # executes no TCL control flow: a guard written into the constraint
         # would be silently skipped, and `set_property` over a `get_ports` that
