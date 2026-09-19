@@ -10,8 +10,8 @@ g++    cosim_bridge.o cosim_cases.o verilated.o verilated_dpi.o verilated_thread
 rm Vcosim_top__ALL.verilator_deplist.tmp
 make: Leaving directory '<CHECKOUT>/proposal-evidence/build/mut-M03_close_on_partial_write/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
-- Verilator: Built from 0.456 MB sources in 7 modules, into 0.489 MB in 7 C++ files needing 0.000 MB
-- Verilator: Walltime 6.440 s (elab=0.026, cvt=0.061, bld=6.330); cpu 0.117 s on 2 threads; allocated 25.328 MB
+- Verilator: Built from 0.458 MB sources in 7 modules, into 0.490 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 6.581 s (elab=0.026, cvt=0.061, bld=6.470); cpu 0.117 s on 2 threads; allocated 25.289 MB
 %Warning-SYNCASYNCNET: <CHECKOUT>/proposal-evidence/build/mut-M03_close_on_partial_write/cosim_top.sv:50:25: Signal flopped as both synchronous and async: 'rst_n'
                        <CHECKOUT>/proposal-evidence/build/mut-M03_close_on_partial_write/cosim_top.sv:360:10: ... Location of async usage
   360 |     if (!rst_n) begin

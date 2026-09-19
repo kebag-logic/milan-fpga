@@ -14,6 +14,40 @@ Owner decision recorded 2026-09-18: question 11(a) is decided, accepted
 producer work not yet represented in a verified slot is reported on a
 SEPARATE pending bit. Question 11(b) is answered in section 16.
 
+## REVISION C (after the re-review of revision b, pull request 470 at 53b2026e)
+
+The design page docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md carries the
+revised contract in full; where this file disagrees with it, the page wins.
+The evidence in this directory is re-run in full from a clean state for
+revision c (COMMAND_RESULTS.md).
+
+1. The boot window load closes on an accepted RELOAD AND the first time the
+   window GOES LIVE: a device-face operation the load sequence did not
+   bracket is granted on a configured image (the restore walk's first read,
+   or an enabled producer). So no sequence of boot outcomes and writer
+   restarts lets an accepted RELOAD close records or clear a dirty half once
+   the producer has been able to write the window since reset. PP_NVM_STAT[3]
+   therefore reads "a boot window load may still be accepted". The writer
+   rule that goes with it: load pending 1 with the restore walk already
+   sequenced means the writer stays disabled, never the cold-boot path. Cases
+   U9 and W2; mutants R05 (the backend term) and R06 (revision b's rule in
+   both places, which reproduces the re-review's finding).
+2. The four-refusal terminal row is stated bit by bit, and a writer that
+   reaches it RETIRES: it stops answering the liveness deadline, so
+   nvm_backed reads 0 and the state reads as a port with no writer rather
+   than as a commit in flight. Case U9; mutant F10.
+3. The capture hold's bound holds across chained captures by construction: an
+   ARM is refused while a mutating request this backend already deferred is
+   still waiting, so one request is deferred by at most one capture. Case
+   U10; mutant M20.
+4. The grant-wins-over-re-base priority is executed. Case U8; mutant R04.
+5. The repeat of a refused window load waits, bounded, for the device face to
+   go idle.
+6. Stated as contract obligations, not as facts about today's product: one
+   sequential writer, one reset domain for the CPU and the fabric, no
+   device-face initiator before the restore walk, and the live window
+   surviving a writer restart (page section 7, O1 to O4; UNRESOLVED 8 to 10).
+
 ## REVISION B (after the contract review of pull request 470)
 
 The design page docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md on branch

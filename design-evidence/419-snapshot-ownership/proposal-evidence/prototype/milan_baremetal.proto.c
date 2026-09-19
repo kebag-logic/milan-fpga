@@ -384,6 +384,11 @@ static const char *const nvm_verdict_name[VD_COUNT] = {
 };
 
 static int nvm_ready;
+/* revision c: this writer has disabled itself for the rest of this reset and
+ * will never commit again. It stops answering the liveness deadline, so the
+ * fabric revokes nvm_backed and a controller reads the state as what it is,
+ * a port with no writer -- never as a commit that is merely in flight. */
+static int nvm_retired;
 static int nvm_in_commit;
 static uint32_t nvm_seq;
 static uint32_t nvm_auth_slot = NVM_SLOT_NONE;
@@ -722,6 +727,9 @@ static void nvm_heartbeat_tick(void)
 {
 	uint64_t now = gettime_ns();
 
+	/* a retired writer answers no more: nvm_backed must fall */
+	if (nvm_retired)
+		return;
 	if (nvm_hb_last == 0 || now < nvm_hb_last ||
 	    now - nvm_hb_last >= NVM_HEARTBEAT_NS) {
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
@@ -1052,6 +1060,22 @@ static uint32_t nvm_pick_slot(unsigned int vd_a, uint32_t seq_a,
 	return (vd_b == VD_OK) ? NVM_SLOT_B : NVM_SLOT_NONE;
 }
 
+/* Revision c: wait, bounded, for the device face to go idle, heartbeating.
+ * A window load repeated while an operation is still in flight would meet
+ * the same refusal every time; one that is merely slow converges here. */
+static void nvm_wait_dev_idle(void)
+{
+	uint64_t start = gettime_ns();
+
+	while (milan_read(MILAN_PP_NVM_STAT) & NVM_RD_DEV_BUSY) {
+		nvm_heartbeat_tick();
+		if (gettime_ns() - start > NVM_RESTORE_TIMEOUT_NS) {
+			printf("Milan NVM: the device face did not go idle before the repeated window load.\n");
+			return;
+		}
+	}
+}
+
 /* Start the boot restore walk and wait for it to sequence, heartbeating. */
 static void nvm_restore_walk(void)
 {
@@ -1110,9 +1134,12 @@ static int nvm_load_window(uint32_t chosen)
  * restore walk, then the idle hook. Runs after the AEM image is in place and
  * before the entity is advertised, the order Milan 5.5.3.5.2 requires.
  *
- * Revision b: the backend says which boot this is. Load pending (no RELOAD
- * accepted since its reset) is a cold boot: re-base, load, RELOAD, publish,
- * restore walk. Load NOT pending is a WRITER RESTART WITHOUT A FABRIC RESET:
+ * Revision b: the backend says which boot this is. Load pending (the boot
+ * load may still be accepted) with no restore walk sequenced yet is a cold
+ * boot: re-base, load, RELOAD, publish, restore walk. Load pending with the
+ * walk ALREADY sequenced is neither (revision c): the window is live and
+ * unvalidated, and this writer stays disabled rather than reload over a
+ * producer. Load NOT pending is a WRITER RESTART WITHOUT A FABRIC RESET:
  * the backend has kept ownership since its boot load and the window is the
  * producer's live image, so the writer re-attaches: it never re-bases,
  * loads or RELOADs (the backend would refuse the RELOAD anyway), releases
@@ -1162,10 +1189,27 @@ static void nvm_boot(void)
 		nvm_publish(verdict);
 		nvm_ready = 1;
 		printf("Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.\n");
+	} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {
+		/* revision c, the writer rule that goes with the backend's:
+		 * load pending 1 with the restore walk ALREADY SEQUENCED is
+		 * not a cold boot. The producer has been able to write the
+		 * window since the fabric's reset and nothing would re-derive
+		 * the entity's state from a load, so this writer never takes
+		 * the cold-boot path over it: it stays disabled until the
+		 * next reset. (The backend refuses that RELOAD anyway: the
+		 * window went live at the walk's first read.) */
+		nvm_retired = 1;
+		printf("Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.\n");
 	} else {
 		while (!loaded && tries < NVM_LOAD_TRIES) {
 			loaded = nvm_load_window(chosen);
 			tries++;
+			/* revision c: an operation that is merely SLOW must
+			 * not spend every attempt in flight. Wait, bounded,
+			 * for the device face to go idle before repeating;
+			 * the deadline is the restore walk's. */
+			if (!loaded && tries < NVM_LOAD_TRIES)
+				nvm_wait_dev_idle();
 		}
 		if (loaded) {
 			/* the window now holds a validated container: every
@@ -1177,6 +1221,13 @@ static void nvm_boot(void)
 				printf("Milan NVM: the backend refused %u window load(s); accepted at attempt %u.\n",
 				       tries - 1u, tries);
 		} else {
+			/* revision c: this writer will never commit again, so
+			 * it stops answering the liveness deadline and the
+			 * fabric revokes nvm_backed. The restore walk below
+			 * still runs, blind, and the entity comes up on
+			 * defaults; the status says so (img_valid 0, restore
+			 * fail 1, pending 1, and shortly backed 0). */
+			nvm_retired = 1;
 			printf("Milan NVM: the backend refused %u window loads; the window is not validated and the writer is disabled until the next reset.\n",
 			       tries);
 		}

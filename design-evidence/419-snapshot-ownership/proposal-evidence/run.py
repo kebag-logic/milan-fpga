@@ -233,7 +233,7 @@ def host_firmware(text: str, fences: int) -> str:
 
 #: the writer's file-scope state and its initial value: what a CPU-only reset
 #: gives back (the C start-up zeroes .bss and reloads .data)
-WRITER_STATICS = {"nvm_ready": "0", "nvm_in_commit": "0", "nvm_seq": "0",
+WRITER_STATICS = {"nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
                   "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
                   "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
                   "nvm_commits_failed": "0", "nvm_captures_refused": "0",
@@ -287,9 +287,13 @@ RTL_MUT = {
         "  assign cert_ok_w   = cert_w & cap_open_r & ~cap_cert_r & cap_valid_r\n"
         "                     & ~void_grant_w & ~void_hard_w;\n",
         "  assign cert_ok_w   = cert_w & cap_open_r & ~cap_cert_r & ~void_hard_w;\n")],
+    # re-seamed for revision c, which adds the deferred-request term to the
+    # line this mutant deletes the "no capture open" term from
     "M09_second_arm_accepted": [(
-        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w;\n",
-        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~void_hard_w;\n")],
+        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w\n"
+        "                     & ~mut_defer_r;\n",
+        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~void_hard_w\n"
+        "                     & ~mut_defer_r;\n")],
     "M10_release_forgets_work": [(
         "                        : drop_w      ? (dirty_live_r | dirty_cap_r)\n",
         "                        : drop_w      ? dirty_live_r\n")],
@@ -340,6 +344,24 @@ RTL_MUT = {
     "M19_arm_edge_grant_not_deferred": [(
         "                     && !((cap_hold_r | arm_ok_w) && mut_req_w);\n",
         "                     && !(cap_hold_r && mut_req_w);\n")],
+    # revision c. The priority between the two arms of the load flag: a
+    # re-base wins over a mutating grant on its own edge (the other
+    # reviewer's mutant RV1, as offered)
+    "R04_rebase_wins_over_same_edge_grant": [(
+        "      ld_ok_r <= gnt_opmut_w ? 1'b0\n               : reconf_w    ? ~inflight_w\n",
+        "      ld_ok_r <= reconf_w    ? ~inflight_w\n               : gnt_opmut_w ? 1'b0\n")],
+    # revision c. The window-live term: "once per reset" is keyed to an
+    # ACCEPTED load again, so a boot that never got one leaves the load
+    # pending over a live window
+    "R05_boot_load_stays_pending_when_live": [(
+        "      if (reload_ok_w | win_live_w) ld_pend_r <= 1'b0;\n",
+        "      if (reload_ok_w) ld_pend_r <= 1'b0;\n")],
+    # revision c. The arm is accepted while a deferred mutating request
+    # waits, so captures can chain and the hold's bound is per capture
+    "M20_arm_accepted_while_request_deferred": [(
+        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w\n"
+        "                     & ~mut_defer_r;\n",
+        "  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w;\n")],
     # NOT a mutant: the REJECTED ALTERNATIVE of the owner's question 11(a),
     # executed so its rejection has an executed reason. The pending work is
     # folded into nvm_dirty (the status bit, the writer's commit trigger and
@@ -385,6 +407,26 @@ FW_MUT = {
     "F08_restart_reloads_window": [(
         "\t} else if (!(stat & NVM_RD_LOAD_PEND)) {\n",
         "\t} else if (0) {\n")],
+    # revision c: a retired writer keeps answering the liveness deadline, so
+    # nvm_backed reads 1 for ever from a writer that will never commit
+    "F10_retired_writer_keeps_heartbeating": [(
+        "\tif (nvm_retired)\n\t\treturn;\n", "\tif (0)\n\t\treturn;\n")],
+}
+#: the writer half of revision c's load rule: a restart over a live window
+#: never takes the cold-boot path. Deleted ALONE it changes nothing, because
+#: the backend's window-live term already sends that boot down the re-attach
+#: branch; it is mutated only in COMBINED_MUT below, with that term.
+FW_MUT_WRITER_LOAD_RULE = [(
+    "\t} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {\n",
+    "\t} else if (0) {\n")]
+#: NOT single-seam mutants: a rule restored in BOTH places it lives, so an
+#: executed finding of a review round is reproduced whole and shown killed.
+#: R06 is revision b's load rule exactly -- "once per reset" keyed to an
+#: accepted RELOAD alone, and a writer that reads load pending 1 as a cold
+#: boot -- which is the ordering the re-review executed on revision b.
+COMBINED_MUT = {
+    "R06_revision_b_load_rule": (RTL_MUT["R05_boot_load_stays_pending_when_live"],
+                                 FW_MUT_WRITER_LOAD_RULE),
 }
 GLUE_MUT = {
     "G01_pending_from_edge_detector": [(
@@ -421,6 +463,16 @@ KILLER = {
                                         "arm_edge_request_deferred:0x20"),
     "F07_reload_refusal_ignored": ("R1_reload_after_failed_erase", "converged@end"),
     "F08_restart_reloads_window": ("W1_writer_restart_reattaches", "converged@end"),
+    "R04_rebase_wins_over_same_edge_grant": ("U8_grant_on_rebase_edge",
+                                             "grant_wins_over_rebase_edge@after:0x20"),
+    "R05_boot_load_stays_pending_when_live": ("U9_four_window_loads_refused",
+                                              "boot_load_closed_when_live@boot"),
+    "M20_arm_accepted_while_request_deferred": ("U10_arm_refused_while_request_deferred",
+                                                "hold_bounded_across_captures:0x21"),
+    "R06_revision_b_load_rule": ("W2_restart_after_refused_loads",
+                                 "later_record_persists@end:0x21"),
+    "F10_retired_writer_keeps_heartbeating": ("U9_four_window_loads_refused",
+                                              "writer_absent_when_retired@end"),
     "A01_composite_durable_bit": ("E1_dyn_change_ack_then_second_change", "pending_drives_no_commit@end"),
     "F06_ack_after_failed_slot": ("F2_reported_flash_failure", "converged@end"),
     "F01_certificate_not_checked": ("C2_hold_expiry_then_erase_with_stale_mask", "last_verified_kept@after:0x21"),
@@ -1208,6 +1260,140 @@ def c_reattached(tag):
     return ck(f"restart_reattaches@{tag}", f)
 
 
+def c_grant_wins_rebase(tag, rid):
+    """Revision c: the mutating grant landed on the LAST re-base write's own
+    edge, and the load flag stayed clear -- the RELOAD is refused and the
+    record the ERASE blanked still reads open. Nothing was in flight at that
+    edge, so only the priority between the two arms can refuse it."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no RELOAD on this build"
+        ops = op_evts(c, "bfm", rid, 2)
+        rb = c.r.notes.get("rebase_cycle", {}).get("value")
+        if not ops or rb is None:
+            return False, "no ERASE and no recorded re-base cycle"
+        # dev_gnt_o is REGISTERED: a grant decided on the edge that ends
+        # cycle N (the edge the re-base write is applied on) is seen at N+1
+        same = ops[0]["gnt"] == rb + 1
+        ref, bit = (c.o(tag)["stat"] >> 11) & 1, own_bit(c, tag, rid)
+        return same and ref == 1 and bit == 1, \
+            (f"grant registered at {ops[0]['gnt']}, decided on the re-base write's own edge "
+             f"{rb} ({same}), reload refused {ref}, record 0x{rid:02x} open {bit}")
+    return ck(f"grant_wins_over_rebase_edge@{tag}:0x{rid:02x}", f)
+
+
+def c_hold_bounded_chained(rid):
+    """Revision c: a request deferred by one capture is granted at most
+    T_HOLD_MS_P after it was raised, THOUGH a second arm followed the first
+    capture's end in the adjacent cycle."""
+    def f(c):
+        ops, arms = op_evts(c, "bfm", rid, 2), all_strobes(c, 0x8)
+        if not ops or len(arms) < 2:
+            return None, "no chained captures on this build"
+        op = ops[0]
+        d = op["gnt"] - op["req"]
+        return d <= (T_HOLD_MS + 1) * 1000, \
+            (f"{len(arms)} arms, the second {arms[1] - arms[0]} cycles after the first; "
+             f"request granted {d} cycles after it was raised (bound {(T_HOLD_MS + 1) * 1000})")
+    return ck(f"hold_bounded_across_captures:0x{rid:02x}", f)
+
+
+def c_arm_refused_while_deferred(tag):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no capture state on this build"
+        st = c.o(tag)["stat"]
+        ref, open_b = (st >> 21) & 1, (st >> 16) & 1
+        return ref == 1 and open_b == 0, f"arm refused {ref}, capture open {open_b}"
+    return ck(f"arm_refused_while_request_deferred@{tag}", f)
+
+
+#: the four-refusal terminal row of section 5.3, bit by bit (revision c)
+TERMINAL_ROW = {"open": (16, 0), "hold": (17, 0), "attested": (19, 0),
+                "cap_valid": (18, 0), "ack_refused": (20, 0), "arm_refused": (21, 0),
+                "unres": (23, 1), "pend_bit": (22, 1), "committable": (8, 0),
+                "commit_busy": (10, 0), "stale": (9, 0), "img_cfg": (5, 1),
+                "img_valid": (7, 0), "load_pending": (3, 0), "reload_refused": (11, 1)}
+
+
+def c_terminal_row(tag):
+    """Revision c: what a controller reads after four refused window loads.
+    The saved state is NOT restored in that boot although a verified slot
+    exists: img_valid 0 and the walk reports fail and blank say so, the
+    pending bit is 1, and the boot load is over (load pending 0), so no
+    later RELOAD can close a record over the live window."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no window load on this build"
+        o = c.o(tag)
+        st = o["stat"]
+        bad = {k: (st >> b) & 1 for k, (b, v) in TERMINAL_ROW.items() if (st >> b) & 1 != v}
+        for k, v in (("restore_done", 1), ("restore_fail", 1), ("blank", 1),
+                     ("pend", 1), ("dirty_pub", 0), ("stale", 0), ("erases", 0)):
+            if o[k] != v:
+                bad[k] = o[k]
+        said = any("refused 4 window loads" in ln for ln in c.r.fw)
+        return not bad and said, f"mismatches {bad or 'none'}, the writer reported four refusals {said}"
+    return ck(f"four_refusal_terminal_row@{tag}", f)
+
+
+def c_boot_load_closed(tag):
+    """Revision c, the construction itself: once the window has gone live --
+    the restore walk's first read, or an enabled producer -- the boot load is
+    over, whether or not one was ever accepted."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no window load on this build"
+        st = c.o(tag)["stat"]
+        return (st >> 3) & 1 == 0, f"load pending {(st >> 3) & 1}, reload refused {(st >> 11) & 1}"
+    return ck(f"boot_load_closed_when_live@{tag}", f)
+
+
+def c_writer_retired(tag):
+    """A writer that has disabled itself for this reset answers the liveness
+    deadline no more, so the state reads as a port with NO writer and never
+    as a commit in flight."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no window load on this build"
+        o = c.o(tag)
+        return o["backed"] == 0 and o["erases"] == 0, \
+            f"backed {o['backed']}, pending {o['pend']}, flash erases {o['erases']}"
+    return ck(f"writer_absent_when_retired@{tag}", f)
+
+
+def c_landed_or_reported(tag, rid, key):
+    """The change the producer accepted ends in a verified slot, or is still
+    reported as owned; never a durable reading over work no slot holds."""
+    def f(c):
+        got = c.rec(tag, rid)
+        in_slot = got == F[key]
+        o = c.o(tag)
+        reported = c.dirty_img(tag) == 1 or o["pend"] == 1
+        claim = c.durable_claim(tag)
+        return (in_slot or reported) and not claim, \
+            (f"record 0x{rid:02x} in the newest verified slot {in_slot}, still reported "
+             f"{reported}, status claims durable {claim}")
+    return ck(f"change_landed_or_reported@{tag}:0x{rid:02x}", f)
+
+
+def c_restart_takes_no_cold_boot(tag):
+    """Revision c: a writer restarted over a live window never reloads it.
+    No RELOAD is accepted after the restart (the boot load is over), the
+    change stays in the window and stays owned."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no restart model on this build"
+        o = c.o(tag)
+        st = o["stat"]
+        cold = sum("refused 4 window loads" in ln for ln in c.r.fw) > 1
+        said = any("re-attached" in ln or "stays disabled" in ln for ln in c.r.fw)
+        ok = said and not cold and (st >> 3) & 1 == 0 and c.dirty_img(tag) == 1
+        return ok, (f"restart reported {said}, cold-boot path taken {cold}, load pending "
+                    f"{(st >> 3) & 1}, committable work kept {c.dirty_img(tag)}")
+    return ck(f"restart_never_reloads_live_window@{tag}", f)
+
+
 def later(tag, rid, key):
     return c_rec(tag, rid, key, "later_record_persists")
 
@@ -1312,6 +1498,20 @@ CHECKS = {
     "W1_writer_restart_reattaches": [c_reattached("restarted"),
                                      c_no_durable_claim("restarted", {0x20: "X2"}),
                                      c_converged("end", {0x20: "X2", 0x21: "Z"})],
+    # revision c
+    "U8_grant_on_rebase_edge": [c_grant_wins_rebase("after", 0x20),
+                                c_closed_equals_load("after", 0x20, "X")],
+    "U10_arm_refused_while_request_deferred": [c_hold_bounded_chained(0x21),
+                                               c_arm_refused_while_deferred("arm2")],
+    "U9_four_window_loads_refused": [c_terminal_row("boot"), c_boot_load_closed("boot"),
+                                     c_writer_retired("end"),
+                                     kept("end", 0x20, "X"), c_every_slot("end", 0x20, "X"),
+                                     c_no_claim_over_erased_live("boot", 0x20),
+                                     c_landed_or_reported("end", 0x21, "Z2")],
+    "W2_restart_after_refused_loads": [c_restart_takes_no_cold_boot("restarted"),
+                                       c_no_claim_over_erased_live("restarted", 0x20),
+                                       kept("end", 0x20, "X"), later("end", 0x21, "Z2"),
+                                       c_landed_or_reported("end", 0x21, "Z2")],
 }
 for name in ("B1_erase_error_full_span", "B2_erase_error_partial_span",
              "B3_erase_error_no_byte", "B4_write_error_after_erase"):
@@ -1341,10 +1541,14 @@ CONTRACT_ONLY = {"A6_late_ack_while_new_capture_open", "A8_identity_wrap",
                  "U2_close_on_arm_edge", "U3_grant_on_certify_edge",
                  "U4_grant_request_on_arm_edge", "U5_reload_refused_inflight_at_rebase",
                  "U6_reload_refused_after_boot", "U7_reset_row_and_pre_reset_ack",
-                 "R1_reload_after_failed_erase", "W1_writer_restart_reattaches"}
+                 "R1_reload_after_failed_erase", "W1_writer_restart_reattaches",
+                 "U8_grant_on_rebase_edge", "U10_arm_refused_while_request_deferred",
+                 "U9_four_window_loads_refused", "W2_restart_after_refused_loads"}
 #: cases that run AFTER another case of the same build, on the slots it left
 #: (the reviewers' RELOAD ordering starts from a verified slot A holding X)
-DEPENDENT = {"R1_reload_after_failed_erase": "A1_stable_no_change"}
+DEPENDENT = {"R1_reload_after_failed_erase": "A1_stable_no_change",
+             "U9_four_window_loads_refused": "A1_stable_no_change",
+             "W2_restart_after_refused_loads": "A1_stable_no_change"}
 #: the prototype's EXPECTED failures, each with its reason
 PROTO_EXPECTED_FAIL = {
     ("E3_binding_inside_manager_debounce", "d1=0", "no_durable_claim@in_debounce"):
@@ -1374,7 +1578,11 @@ PRODUCER = {'A11_inflight_write_closes_after_arm': 'real + bfm', 'A12_last_byte_
 PRODUCER.update({"U4_grant_request_on_arm_edge": "unit", "U5_reload_refused_inflight_at_rebase": "unit",
                  "U6_reload_refused_after_boot": "unit", "U7_reset_row_and_pre_reset_ack": "unit",
                  "R1_reload_after_failed_erase": "real + bfm, slots of A1",
-                 "W1_writer_restart_reattaches": "real, writer restart model"})
+                 "W1_writer_restart_reattaches": "real, writer restart model",
+                 "U8_grant_on_rebase_edge": "unit",
+                 "U10_arm_refused_while_request_deferred": "unit",
+                 "U9_four_window_loads_refused": "real + bfm, slots of A1",
+                 "W2_restart_after_refused_loads": "real + bfm, restart model, slots of A1"})
 
 
 def grade(run: Run, s: ShapeInfo) -> dict:
@@ -1477,6 +1685,8 @@ def all_builds(quick: bool) -> list[Build]:
         builds += [Build(f"mut-{m}", "1x1", True, True, rtl_mut=s) for m, s in RTL_MUT.items()]
         builds += [Build(f"mut-{m}", "1x1", True, True, fw_mut=s) for m, s in FW_MUT.items()]
         builds += [Build(f"mut-{m}", "1x1", True, True, glue_mut=s) for m, s in GLUE_MUT.items()]
+        builds += [Build(f"mut-{m}", "1x1", True, True, rtl_mut=r, fw_mut=f)
+                   for m, (r, f) in COMBINED_MUT.items()]
     for b in builds:
         b.binary = BUILD / b.name / "obj" / "cosim"
     return builds

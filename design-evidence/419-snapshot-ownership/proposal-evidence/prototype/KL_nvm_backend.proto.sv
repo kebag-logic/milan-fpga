@@ -37,6 +37,17 @@
 //  accepted RELOAD never meets an operation that ended without closing its
 //  record, and a record is never closed on device idle.
 //
+//  REVISION C, two bounds by construction. (1) "Once per reset" is no longer
+//  keyed to an ACCEPTED load alone: the boot load is also over the first time
+//  a device-face operation the load sequence did not bracket is granted on a
+//  configured image (win_live_w), which is the restore walk's first read or
+//  an enabled producer. So no sequence of boot outcomes and writer restarts
+//  can let an accepted RELOAD close records or clear a dirty half once the
+//  producer has been able to write the window. (2) An ARM is refused while a
+//  mutating request this module already deferred still waits, so a request
+//  is deferred by at most ONE capture and T_HOLD_MS_P bounds it across
+//  chained captures.
+//
 //  File        : KL_nvm_backend.sv
 //  Project     : Milan FPGA -- saved state and fast connect
 //                (docs/design/SAVED_STATE_FASTCONNECT.md sections 4, 8, 9)
@@ -524,7 +535,11 @@ module KL_nvm_backend #(
   //! ld_pend_r, no RELOAD accepted since reset (RELOAD is the boot load);
   //! rl_ref_r, the last RELOAD strobe was refused
   logic                  ld_ok_r, ld_pend_r, rl_ref_r;
-  logic                  inflight_w;
+  logic                  inflight_w, win_live_w;
+  //! revision c: a mutating request a capture DEFERRED, registered. It may
+  //! not be deferred a second time by a later capture, so an arm is refused
+  //! while it waits and the bound of one hold holds per request
+  logic                  mut_wait_w, mut_defer_r;
   //! THE PENDING BIT, one wire for the port and the status word's [22]
   logic                  pend_w;
 
@@ -670,7 +685,14 @@ module KL_nvm_backend #(
   //! resurrect nvm_backed)
   logic void_hard_w;
   assign void_hard_w = reload_ok_w | reconf_w;
-  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w;
+  //! REVISION C: an ARM is REFUSED while a mutating request this module
+  //! already deferred is still waiting for its grant. The request takes the
+  //! cycle the hold drops instead, and the writer re-arms at its next
+  //! service call, so one request is deferred by AT MOST ONE capture and
+  //! the T_HOLD_MS_P bound holds by construction across chained captures,
+  //! not by a property of the writer's timing.
+  assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w
+                     & ~mut_defer_r;
   assign hold_exp_w  = cap_hold_r & ms_tick_w & (hold_r == HOLD_W_C'(1));
   //! a mutating grant between the arm and the certificate: only reachable
   //! after the hold lapsed, and it makes every copy taken so far suspect
@@ -806,6 +828,16 @@ module KL_nvm_backend #(
                      && (eff_len_w != 16'd0);
   //! a whole-record WRITE that completed without error closes its record
   assign rec_close_w = done_r & was_write_r & op_mut_r & op_full_r;
+
+  //! revision c: a mutating request the device could serve NOW and only the
+  //! capture is holding back. Registered, it refuses the next arm (arm_ok_w
+  //! above), so the request cannot be handed from one hold to the next.
+  assign mut_wait_w  = dev_req_i & mut_req_w & (st_r == S_IDLE) & ~gnt_now_w;
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) mut_defer_r <= 1'b0;
+    else        mut_defer_r <= mut_wait_w;
+  end
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
@@ -1026,6 +1058,16 @@ module KL_nvm_backend #(
   //! producer has been writing since
   assign reload_ok_w = reload_w & ld_ok_r & ld_pend_r;
 
+  //! REVISION C: THE WINDOW HAS GONE LIVE. A device-face operation that the
+  //! load sequence did not bracket was granted on a configured image: the
+  //! restore walk's reads, or a producer face that has been enabled. From
+  //! that grant the boot load is OVER, accepted or not, so no later RELOAD
+  //! is ever accepted -- whatever outcome a restarted writer finds, it can
+  //! no longer close records or clear a dirty half over a live window. A
+  //! load the writer REPEATS is not this: inside one bracket the flag is
+  //! still set when the first grant after the re-base arrives.
+  assign win_live_w = gnt_now_w & img_cfg_w & ~ld_ok_r;
+
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ld_ok_r   <= 1'b0;
@@ -1038,7 +1080,7 @@ module KL_nvm_backend #(
       ld_ok_r <= gnt_opmut_w ? 1'b0
                : reconf_w    ? ~inflight_w
                              : ld_ok_r;
-      if (reload_ok_w) ld_pend_r <= 1'b0;
+      if (reload_ok_w | win_live_w) ld_pend_r <= 1'b0;
       if (reload_w)    rl_ref_r  <= ~reload_ok_w;
     end
   end

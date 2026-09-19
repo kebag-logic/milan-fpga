@@ -146,28 +146,28 @@ module KL_nvm_backend (
 	localparam [31:0] B_MAPI_C = B_PTOF_C + (N_STREAM_OUT_P * SZ_PTOF_C);
 	generate
 		if ((((N_STREAM_IN_P < 1) || (N_STREAM_IN_P > 16)) || (N_STREAM_OUT_P < 1)) || (N_STREAM_OUT_P > 16)) begin : g_refuse_streams
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:265:5 - KL_nvm_backend.g_refuse_streams\n msg: ", "KL_nvm_backend: N_STREAM_IN_P=%0d / N_STREAM_OUT_P=%0d outside 1..16: the BINDING, FORMAT and OFFSET blocks hold sixteen ids each (0x20, 0x30, 0x40, 0x50).", N_STREAM_IN_P, N_STREAM_OUT_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:276:5 - KL_nvm_backend.g_refuse_streams\n msg: ", "KL_nvm_backend: N_STREAM_IN_P=%0d / N_STREAM_OUT_P=%0d outside 1..16: the BINDING, FORMAT and OFFSET blocks hold sixteen ids each (0x20, 0x30, 0x40, 0x50).", N_STREAM_IN_P, N_STREAM_OUT_P);
 		end
 		else if ((((N_SPORT_IN_P < 1) || (N_SPORT_IN_P > 16)) || (N_SPORT_OUT_P < 1)) || (N_SPORT_OUT_P > 16)) begin : g_refuse_sports
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:268:5 - KL_nvm_backend.g_refuse_sports\n msg: ", "KL_nvm_backend: N_SPORT_IN_P=%0d / N_SPORT_OUT_P=%0d outside 1..16: the channel-map blocks hold sixteen ids each (0x60, 0x70) and the tables are indexed by csr_addr_i[3:0].", N_SPORT_IN_P, N_SPORT_OUT_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:279:5 - KL_nvm_backend.g_refuse_sports\n msg: ", "KL_nvm_backend: N_SPORT_IN_P=%0d / N_SPORT_OUT_P=%0d outside 1..16: the channel-map blocks hold sixteen ids each (0x60, 0x70) and the tables are indexed by csr_addr_i[3:0].", N_SPORT_IN_P, N_SPORT_OUT_P);
 		end
 		else if ((((N_AUDIO_UNIT_P < 1) || (N_AUDIO_UNIT_P > 8)) || (N_CLK_DOM_P < 1)) || (N_CLK_DOM_P > 8)) begin : g_refuse_units
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:271:5 - KL_nvm_backend.g_refuse_units\n msg: ", "KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.", N_AUDIO_UNIT_P, N_CLK_DOM_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:282:5 - KL_nvm_backend.g_refuse_units\n msg: ", "KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.", N_AUDIO_UNIT_P, N_CLK_DOM_P);
 		end
 		else if ((N_NAME_P < 1) || (N_NAME_P > 128)) begin : g_refuse_names
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:274:5 - KL_nvm_backend.g_refuse_names\n msg: ", "KL_nvm_backend: N_NAME_P=%0d outside 1..128: the NAME block is 0x80..0xFF.", N_NAME_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:285:5 - KL_nvm_backend.g_refuse_names\n msg: ", "KL_nvm_backend: N_NAME_P=%0d outside 1..128: the NAME block is 0x80..0xFF.", N_NAME_P);
 		end
 		else if (CLK_HZ_P < 1000) begin : g_refuse_clock
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:277:5 - KL_nvm_backend.g_refuse_clock\n msg: ", "KL_nvm_backend: CLK_HZ_P=%0d is below 1 kHz, so no millisecond tick can be derived for the section 9.4 deadlines.", CLK_HZ_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:288:5 - KL_nvm_backend.g_refuse_clock\n msg: ", "KL_nvm_backend: CLK_HZ_P=%0d is below 1 kHz, so no millisecond tick can be derived for the section 9.4 deadlines.", CLK_HZ_P);
 		end
 		else if ((((T_ALIVE_MS_P < 1) || (T_ALIVE_MS_P > 65535)) || (T_COMMIT_MS_P < 1)) || (T_COMMIT_MS_P > 65535)) begin : g_refuse_deadlines
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:280:5 - KL_nvm_backend.g_refuse_deadlines\n msg: ", "KL_nvm_backend: T_ALIVE_MS_P=%0d / T_COMMIT_MS_P=%0d outside 1..65535: the deadline down-counters are sixteen bits wide.", T_ALIVE_MS_P, T_COMMIT_MS_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:291:5 - KL_nvm_backend.g_refuse_deadlines\n msg: ", "KL_nvm_backend: T_ALIVE_MS_P=%0d / T_COMMIT_MS_P=%0d outside 1..65535: the deadline down-counters are sixteen bits wide.", T_ALIVE_MS_P, T_COMMIT_MS_P);
 		end
 		else if ((T_HOLD_MS_P < 1) || (T_HOLD_MS_P >= T_COMMIT_MS_P)) begin : g_refuse_hold
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:283:5 - KL_nvm_backend.g_refuse_hold\n msg: ", "KL_nvm_backend: T_HOLD_MS_P=%0d must be at least 1 and below T_COMMIT_MS_P=%0d: the hold bounds a copy, never a flash transaction.", T_HOLD_MS_P, T_COMMIT_MS_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:294:5 - KL_nvm_backend.g_refuse_hold\n msg: ", "KL_nvm_backend: T_HOLD_MS_P=%0d must be at least 1 and below T_COMMIT_MS_P=%0d: the hold bounds a copy, never a flash transaction.", T_HOLD_MS_P, T_COMMIT_MS_P);
 		end
 		else if ((CAP_ID_W_P < 2) || (CAP_ID_W_P > 16)) begin : g_refuse_capid
-			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:286:5 - KL_nvm_backend.g_refuse_capid\n msg: ", "KL_nvm_backend: CAP_ID_W_P=%0d outside 2..16: the identity rides the acknowledgement word's upper half.", CAP_ID_W_P);
+			initial $display("Error [elaboration] <CHECKOUT>/proposal-evidence/prototype/KL_nvm_backend.proto.sv:297:5 - KL_nvm_backend.g_refuse_capid\n msg: ", "KL_nvm_backend: CAP_ID_W_P=%0d outside 2..16: the identity rides the acknowledgement word's upper half.", CAP_ID_W_P);
 		end
 	endgenerate
 	localparam [31:0] IDW_C = 9;
@@ -405,6 +405,9 @@ module KL_nvm_backend (
 	reg ld_pend_r;
 	reg rl_ref_r;
 	wire inflight_w;
+	wire win_live_w;
+	wire mut_wait_w;
+	reg mut_defer_r;
 	wire pend_w;
 	assign unres_w = |open_r;
 	assign dirty_img_w = dirty_live_r | dirty_cap_r;
@@ -497,7 +500,7 @@ module KL_nvm_backend (
 		end
 	wire void_hard_w;
 	assign void_hard_w = reload_ok_w | reconf_w;
-	assign arm_ok_w = (((arm_w & img_cfg_w) & img_valid_r) & ~cap_open_r) & ~void_hard_w;
+	assign arm_ok_w = ((((arm_w & img_cfg_w) & img_valid_r) & ~cap_open_r) & ~void_hard_w) & ~mut_defer_r;
 	function automatic signed [HOLD_W_C - 1:0] sv2v_cast_BEA96_signed;
 		input reg signed [HOLD_W_C - 1:0] inp;
 		sv2v_cast_BEA96_signed = inp;
@@ -582,6 +585,12 @@ module KL_nvm_backend (
 	assign gnt_now_w = ((st_r == 4'd0) && dev_req_i) && !((cap_hold_r | arm_ok_w) && mut_req_w);
 	assign gnt_opmut_w = (((gnt_now_w && mut_req_w) && img_cfg_w) && span_ok_w) && (eff_len_w != 16'd0);
 	assign rec_close_w = ((done_r & was_write_r) & op_mut_r) & op_full_r;
+	assign mut_wait_w = ((dev_req_i & mut_req_w) & (st_r == 4'd0)) & ~gnt_now_w;
+	always @(posedge clk_i)
+		if (!rst_n)
+			mut_defer_r <= 1'b0;
+		else
+			mut_defer_r <= mut_wait_w;
 	always @(posedge clk_i)
 		if (!rst_n) begin
 			st_r <= 4'd0;
@@ -786,6 +795,7 @@ module KL_nvm_backend (
 	endfunction
 	assign inflight_w = (st_r != 4'd0) & op_mut_r;
 	assign reload_ok_w = (reload_w & ld_ok_r) & ld_pend_r;
+	assign win_live_w = (gnt_now_w & img_cfg_w) & ~ld_ok_r;
 	always @(posedge clk_i)
 		if (!rst_n) begin
 			ld_ok_r <= 1'b0;
@@ -794,7 +804,7 @@ module KL_nvm_backend (
 		end
 		else begin
 			ld_ok_r <= (gnt_opmut_w ? 1'b0 : (reconf_w ? ~inflight_w : ld_ok_r));
-			if (reload_ok_w)
+			if (reload_ok_w | win_live_w)
 				ld_pend_r <= 1'b0;
 			if (reload_w)
 				rl_ref_r <= ~reload_ok_w;

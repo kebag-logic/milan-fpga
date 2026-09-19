@@ -938,6 +938,92 @@ void register_cases() {
     idle(3000);
     snap("end");
   };
+  cases["U8_grant_on_rebase_edge"] = [] {                       // unit
+    // Revision c, the fourth same-edge rule EXECUTED (the other reviewer's
+    // probe as offered). A mutating request rises so that its grant lands
+    // on the edge of the LAST re-base write: nothing is in flight at that
+    // edge, so only the grant-wins-over-re-base PRIORITY can keep the load
+    // flag clear. The ERASE then blanks the record the writer has just
+    // loaded and ends in err without a done pulse.
+    unit_rebase();
+    fault(0x20, 27, 0, 1);                   // the last byte fails: err, no done
+    bfm_erase(0x20);                         // its request rises on the next edge...
+    note("rebase_cycle", cyc);
+    cosim_rtl_csr_write(0, uint32_t(uintptr_t(cosim::area())));   // ...the re-base's
+    load_record(0x20, bind_frame(X));        // the writer's load
+    bfm_run();                               // the ERASE blanks it and errs
+    faults.clear();
+    cosim_rtl_csr_write(3, 0x10u);
+    stray(4, 0x40u);                         // RELOAD
+    snap("after");
+  };
+  cases["U10_arm_refused_while_request_deferred"] = [] {        // unit
+    // Revision c, the hold's bound ACROSS captures. A mutating request
+    // deferred by one capture may not be deferred by the next: an ARM in
+    // the cycle the first hold drops is REFUSED and the waiting request
+    // takes that cycle's grant, so no chain of captures can extend one
+    // request's wait past T_HOLD_MS_P.
+    unit_configure();
+    bfm_erase(0x20);
+    bfm_write(0x20, bind_frame(X));
+    bfm_run();                               // record 0x20 closed
+    stray(4, 0x8u);                          // capture 1: the hold is on
+    bfm_erase(0x21);                         // requested inside the hold: deferred
+    run_cycles(20000);                       // 20 ms into the hold
+    note("dev_busy_in_hold", levels().dev_busy);
+    stray(4, 0x20u);                         // RELEASE inside the hold
+    stray(4, 0x8u);                          // ARM on the very next edge
+    note("arm2_cycle", evlog.strobes.back().cyc);
+    snap("arm2");
+    bfm_run();                               // the deferred ERASE runs
+    snap("end");
+  };
+  cases["U9_four_window_loads_refused"] = [] {                  // real + bfm, slots of A1
+    // Revision c: the TERMINAL state of section 5.3, executed. Every one of
+    // the writer's four window loads meets an ERASE of 0x20 that blanks the
+    // span and ends in err without done, between the load and its RELOAD.
+    // The boot ends with the window unvalidated, the restore walk blind and
+    // the writer retired; a controller change after it is reported, never
+    // read durable, and no slot is touched.
+    for (unsigned k = 1; k <= 4; ++k)
+      at("s_reload", hooks("s_reload") + k, [] {
+        fault(0x20, 27, 0, 1);
+        bfm_erase(0x20);
+        bfm_run();
+        faults.clear();
+      });
+    boot();                                  // snap("boot"): the terminal row
+    bind(Z2);                                // a controller change on the live entity
+    idle(3000);                              // longer than T-NVM-WRITER-ALIVE
+    snap("end");
+  };
+  cases["W2_restart_after_refused_loads"] = [] {                // real, writer restart model
+    // Revision c: the composition the re-review found. Four refused window
+    // loads, the entity live, a controller change accepted, then a WRITER
+    // RESTART WITHOUT A FABRIC RESET. The restarted writer must not take
+    // the cold-boot path over the live window: the window went live at the
+    // restore walk, so the boot load is over and the writer re-attaches,
+    // which keeps the change owned until a slot holds it.
+    if (!nvm_host_writer_restart) {          // only the prototype writer has it
+      on_next("no_restart_model", [] {});
+      return;
+    }
+    for (unsigned k = 1; k <= 4; ++k)
+      at("s_reload", hooks("s_reload") + k, [] {
+        fault(0x20, 27, 0, 1);
+        bfm_erase(0x20);
+        bfm_run();
+        faults.clear();
+      });
+    boot();
+    bind(Z2);
+    idle(600);
+    snap("live");
+    nvm_host_writer_restart();
+    snap("restarted");
+    idle(6000);
+    snap("end");
+  };
   cases["W1_writer_restart_reattaches"] = [] {                   // real
     // A CPU-only reset: the writer restarts, the fabric keeps its state,
     // with a newer binding in the window that no slot holds yet.

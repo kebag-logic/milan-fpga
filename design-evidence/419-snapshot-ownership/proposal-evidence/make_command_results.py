@@ -35,7 +35,55 @@ EXAMINED_EXTRA = [
 ]
 
 SESSION = """\
-## Session narrative, revision b (this record)
+## Session narrative, revision c (this record)
+
+Revision c answers the re-review of revision b (pull request 470 at
+53b2026e, one NEGATIVE and one POSITIVE) and the manager direction of issue
+419 comment 5744994840. Every command ran in the foreground from the checkout
+root with rtk in front; compiling and simulating steps ran under taskset -c
+96-127 with at most 8 workers (run.py adds both to every command it spawns).
+
+What changed in the evidence sources. The prototype backend: the boot window
+load also closes the first time the window GOES LIVE (a device-face grant on
+a configured image that the load sequence did not bracket, which is the
+restore walk's first read or an enabled producer), so no later RELOAD is
+accepted over a live window; and an ARM is refused while a mutating request
+the backend already deferred is still waiting, so one request is deferred by
+at most one capture and the T_HOLD_MS_P bound holds across chained captures.
+The prototype writer: a writer whose four window loads were all refused
+RETIRES (it stops answering the liveness deadline, so nvm_backed falls); it
+waits, bounded, for the device face to go idle before repeating a refused
+load; and it never takes the cold-boot path when it finds the boot load open
+with the restore walk already sequenced. The harness gains U8 (a mutating
+grant on the last re-base write's own edge), U10 (a capture ended while held
+with an ARM in the adjacent cycle), U9 (all four window loads refused: the
+terminal row) and W2 (a writer restart from that state). run.py gains the
+mutants R04, R05, M20 and F10, the combined mutant R06 (revision b's load
+rule restored in both places it lives), the checks those cases grade, and
+nvm_retired in the restart model's static list.
+
+| Step | Command | Exit | Result |
+|---|---|---|---|
+| 1 | remove build/, runs/, logs/, tmp/, results.* (clean state) | 0 | - |
+| 2 | python3 -B proposal-evidence/run.py --jobs 8 --phase build | 1 | 40 s; REFUSED: mutant M09's seam is the arm_ok_w line, which revision c extends with the deferred-request term (console/revc-0-build-seam-failure.log). M09 re-seamed on the whole new two-line assignment; every seam of every mutant then re-checked to hit exactly once |
+| 3 | clean state again, then python3 -B proposal-evidence/run.py --jobs 8 --phase build | 0 | 80 s, 42 builds |
+| 4 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "prod-*,proto-*,mix-*" | 0 | 58 s, 162 runs |
+| 5 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "mut-M*" | 0 | 344 s |
+| 6 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "mut-R*,mut-F*,mut-G*,mut-A*" | 0 | 312 s; 2250 runs in all |
+| 7 | python3 -B proposal-evidence/run.py --jobs 8 --phase grade | 0 | 62 s; NO FINDINGS: every expectation holds |
+| 8 | python3 -B proposal-evidence/make_command_results.py | 0 | this file |
+
+The run phase was split in three so each foreground call stays inside the
+session's command time limit; the split changes nothing a run sees (every
+run is its own process and each build's dependent runs follow its own runs).
+
+Stopped steps: NONE. No tool call or step was refused or stopped by an
+automatic safety filter in this session. No compiler-callback or binary
+instrumentation was used; the only source adaptations are run.py's counted
+textual seams and, in the host build of the prototype writer only, an
+appended function that models a CPU-only reset.
+
+## Session narrative, revision b (history)
 
 Revision b answers the contract review of pull request 470 at b6ae45a5 (one
 NEGATIVE, one POSITIVE) and the manager direction of issue 419 comment
@@ -130,7 +178,7 @@ def git(*a, cwd=ROOT) -> str:
 
 def main() -> None:
     res = json.loads((HERE / "results.json").read_text())
-    out = ["# Command results for the issue 419 round-3 proposal, revision b", "",
+    out = ["# Command results for the issue 419 round-3 proposal, revision c", "",
            "Paths are relative to the checkout root; <CHECKOUT> in a recorded "
            "command stands for it.", "", "## Source", ""]
     out.append(f"- dev {git('rev-parse', 'HEAD')}")
