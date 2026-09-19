@@ -91,10 +91,16 @@
                 inverter into its D pin and every AX7101 placement stopped at
                 Place 30-1008. Now bclk_n_r toggles in the fabric and bclk_r,
                 the pad flop, copies it on every tick: the pad flop's D is a
-                flop output and its one load is the pin, and brise_w/bfall_w
-                read bclk_n_r, which is !bclk_r from reset on. The pin
-                waveform, the enable cycles and the reset values are what
-                they were. Two flops that swap values would not do: the pad
+                flop output, and brise_w/bfall_w read bclk_n_r, which is
+                !bclk_r from reset on. At BCLK_HALF_P = 1 (the shipping
+                shape) every cycle is a tick, so bclk_r has no enable and its
+                one load is the pin. Above 1 it HOLDS between ticks, and that
+                stays true only while synthesis maps the hold to the flop's CE
+                pin: a hold built as a feedback LUT reading bclk_r is a fabric
+                load, and the flop cannot pack (Place 30-722, which the build
+                now fails on, issue #475). The pin waveform, the enable
+                cycles and the reset values are what they were. Two flops
+                that swap values would not do: the pad
                 flop would then feed its partner, and a single fabric load is
                 enough for the placer to leave it in a slice. fsync_r and
                 KL_tdm_render_master's tdm_dout_o already had the packable
@@ -217,6 +223,15 @@ module KL_tdm_capture_master #(
   wire arst_n_w = arst_n_r[1];
 
   //! convenience MCLK: clk_audio_i/2, same as the slave's
+  //!
+  //! UNPACKABLE AS WRITTEN (issue #475). mdiv_r is a self-toggling flop, the
+  //! shape bclk_r had before issue #452: its D is an inversion of its own Q
+  //! (a LUT1 reading Q in the placed AX7101 build), so the pin is not its
+  //! only load. tdm_mclk carries no IOB constraint today. One added as it
+  //! stands either stops placement at Place 30-1008, as the bit clock did
+  //! once the inverter was folded into its D pin, or leaves the flop in a
+  //! slice (Place 30-722, a build failure since issue #475). Split it the
+  //! same way first: a fabric toggle and a pad flop that copies it.
   logic mdiv_r;
   always_ff @(posedge clk_audio_i) begin : t_mclk_div
     if (!arst_n_w) mdiv_r <= 1'b0;
@@ -234,7 +249,8 @@ module KL_tdm_capture_master #(
   //! and bclk_r drives the pin and nothing else.
   localparam int unsigned PHW_C = (BCLK_HALF_P <= 1) ? 1 : $clog2(BCLK_HALF_P);
   logic [PHW_C-1:0] phase_r;
-  logic             bclk_r;             //! PAD flop: its only load is the pin
+  logic             bclk_r;             //! PAD flop: only the pin loads it
+                                        //! (BCLK_HALF_P = 1; see the banner)
   logic             bclk_n_r;           //! fabric complement: always !bclk_r
   wire              tick_w  = (32'(phase_r) == BCLK_HALF_P - 1);
   //! the enable that REPLACES `posedge tdm_bclk_i`: the cycle on which bclk

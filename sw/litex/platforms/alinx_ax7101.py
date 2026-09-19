@@ -348,10 +348,15 @@ class Platform(Xilinx7SeriesPlatform):
         # and every seed of the first sweep after #454 stopped at placement
         # (Place 30-1008); KL_tdm_capture_master therefore makes the bit clock
         # a pad flop that copies a fabric complement. The second rule fails
-        # QUIETLY: a flop with a fabric load is left in a slice under a
-        # CRITICAL WARNING (Place 30-722) and the build completes, so packing
-        # is proven from the placed design, where the flop's site is an
-        # OLOGIC, never from a finished bitstream.
+        # QUIETLY in Vivado: a flop with a fabric load is left in a slice
+        # under a CRITICAL WARNING (Place 30-722) and the build would
+        # complete. So packing is proven from the placed design, where the
+        # flop's site is an OLOGIC, never from a finished bitstream: the
+        # pre-routing check milan_soc.py adds (sw/litex/iob_pack_check.tcl,
+        # issue #475) fails the build naming any IOB TRUE port whose register
+        # is not in its IOB. tdm_mclk and tdm_din carry no constraint and are
+        # not checked; mclk's flop could not pack as written (see mdiv_r in
+        # KL_tdm_capture_master).
         #
         # Emitted ONLY when the board build asked for the header, because XDC
         # executes no TCL control flow: a guard written into the constraint

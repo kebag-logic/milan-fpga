@@ -68,11 +68,13 @@ flowchart LR
 | **`build.sh`'s own refusals** (section 2.1) | the tracked entity definition is the bound config's; the regeneration of that config's design argv ran and succeeded; the artefact read is that config's own emission; `BUILD_CFG` names a config directly under `configs/`; every tracked generated file that regeneration writes was there before it, was copied aside complete, and is as the run found it afterwards | **yes** - refuses *before* anything launches. Under `--dry-run` the entity one is previewed instead; every other one is enforced |
 | **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
 | **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **yes in CI**: the `docs-check` job runs it and its self-test on every pull request and every push to `dev` and `main` (section 3.1). `deploy.sh` does NOT run it; by itself it refuses only a fragment that belongs to another config |
+| **IOB packing** ([`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl), issue #475) | after placement, every port constrained `IOB TRUE` (the TDM bclk, fsync and dout, the GMII TX and RX pins) has its register in the OLOGIC or ILOGIC of its own IOB. Vivado itself only raises the critical warning Place 30-722 and carries on | **yes, inside Vivado**: `milan_soc.py` runs it before routing, and one unpacked port fails the build naming the port, with no bitstream. `<outdir>/gateware/*_iob_pack.rpt` lists every checked port. Its offline self-test runs in the `docs-check` job |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
-**Only the first three run automatically in CI**, and that asymmetry is the point: a build
+**Only the first three run automatically in CI**, and the fourth in every Vivado
+build. That asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
 and nothing in the pipeline will tell you so. Section 5 has the exact rows.
 With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
@@ -511,6 +513,11 @@ are not required. Bench roles as of 2026-09-06:
 | `pw0` | retired; it holds no bench role |
 
 ## 5. Gates before a build is "good"
+
+A build that reached a bitstream has already passed the IOB packing check
+(section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
+port's register is in a slice: its row in `*_iob_pack.rpt` names the cell and
+its site, and the fix is in the RTL or the constraint, never in the check.
 
 1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
    row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted
