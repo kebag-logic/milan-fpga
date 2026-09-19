@@ -139,7 +139,10 @@ contract that follows is:
   the pulse belonged to was decided by pin skew. The pulse now moves with
   `dout`, and the three registered outputs are packed into their IOB flops
   (`sw/litex/platforms/alinx_ax7101.py`), so the pin-to-pin skew is the
-  IOB-to-pad difference alone.
+  IOB-to-pad difference alone. An IOB flop takes no inverted D and drives
+  nothing but its pad, so the bit clock is a pad flop that copies a fabric
+  complement rather than a self-toggling flop, which the placer refused
+  (#452), and the internal rise and fall enables read the complement.
 - The render master latches the bit for bit period `p + 1` on the rise whose
   pre-edge frame position is `p`, and launches it on the following falling
   edge, so the receiver has half a bit period of setup.

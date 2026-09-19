@@ -82,6 +82,24 @@
                 samples tdm_data_i on the same rises it always did. The change
                 is half a bit period of delay on ONE pin.
 
+                THE BCLK PIN LEAVES FROM AN IOB FLOP (2026-09-19, issue #452).
+                The platform packs bclk, fsync and dout into the output flop
+                of their own IOBs, and that flop has no D-pin inverter and no
+                route back into the fabric: its Q reaches the pad and nothing
+                else. bclk used to be ONE self-toggling flop (bclk_r <=
+                !bclk_r) that the enables also read, so Vivado folded the
+                inverter into its D pin and every AX7101 placement stopped at
+                Place 30-1008. Now bclk_n_r toggles in the fabric and bclk_r,
+                the pad flop, copies it on every tick: the pad flop's D is a
+                flop output and its one load is the pin, and brise_w/bfall_w
+                read bclk_n_r, which is !bclk_r from reset on. The pin
+                waveform, the enable cycles and the reset values are what
+                they were. Two flops that swap values would not do: the pad
+                flop would then feed its partner, and a single fabric load is
+                enough for the placer to leave it in a slice. fsync_r and
+                KL_tdm_render_master's tdm_dout_o already had the packable
+                shape (a fabric D, no load but the pin).
+
                 ONE TIMING OWNER (2026-09-14, issue #447). bclk and fsync are
                 SHARED pins of one bus, so the render direction must not
                 generate a second frame phase beside this one. This module
@@ -206,22 +224,32 @@ module KL_tdm_capture_master #(
   end : t_mclk_div
   assign tdm_mclk_o = mdiv_r;
 
-  //! bclk generation: toggle every BCLK_HALF_P cycles of clk_audio_i
+  //! bclk generation: toggle every BCLK_HALF_P cycles of clk_audio_i.
+  //!
+  //! TWO FLOPS, AND ONLY ONE OF THEM IS THE PIN (see the banner). bclk_r is
+  //! the PAD flop, packed into the bclk pin's IOB, and it takes bclk_n_r - a
+  //! flop output, never an inversion - so nothing folds an inverter into its
+  //! D. bclk_n_r toggles in the fabric and is !bclk_r from reset on (1 vs 0,
+  //! and both move on every tick), so the two enables below read bclk_n_r
+  //! and bclk_r drives the pin and nothing else.
   localparam int unsigned PHW_C = (BCLK_HALF_P <= 1) ? 1 : $clog2(BCLK_HALF_P);
   logic [PHW_C-1:0] phase_r;
-  logic             bclk_r;
+  logic             bclk_r;             //! PAD flop: its only load is the pin
+  logic             bclk_n_r;           //! fabric complement: always !bclk_r
   wire              tick_w  = (32'(phase_r) == BCLK_HALF_P - 1);
   //! the enable that REPLACES `posedge tdm_bclk_i`: the cycle on which bclk
   //! goes 0 -> 1. Everything the slave does on its clock edge, we do here.
-  wire              brise_w = tick_w && !bclk_r;
+  wire              brise_w = tick_w && bclk_n_r;
 
   always_ff @(posedge clk_audio_i) begin : t_bclk_gen
     if (!arst_n_w) begin
-      phase_r <= '0;
-      bclk_r  <= 1'b0;
+      phase_r  <= '0;
+      bclk_r   <= 1'b0;
+      bclk_n_r <= 1'b1;
     end else if (tick_w) begin
-      phase_r <= '0;
-      bclk_r  <= !bclk_r;
+      phase_r  <= '0;
+      bclk_r   <= bclk_n_r;
+      bclk_n_r <= !bclk_n_r;
     end else begin
       phase_r <= phase_r + 1'b1;
     end
@@ -230,7 +258,7 @@ module KL_tdm_capture_master #(
 
   //! the cycle on which bclk goes 1 -> 0: the LAUNCH edge of this bus, which
   //! is where tdm_dout_o changes too
-  wire              bfall_w = tick_w && bclk_r;
+  wire              bfall_w = tick_w && !bclk_n_r;
 
   //! frame position, advanced once per bclk RISE - unchanged, and it is what
   //! the deserializer and the exported ports are scheduled from.
