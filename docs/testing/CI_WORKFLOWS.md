@@ -41,17 +41,44 @@ pull-request update and on every push to `dev`. It produces one stable
   with no flag to soften it.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs. Documentation is exactly four classes (#444): anything under `docs/` or
-`LICENSES/`, any `*.md`, and the diagram assets (`*.drawio`, `*.svg`,
-`*.png`), which only the docs job reads. Everything else is RTL relevant, an
-Issue template and the root `LICENSE` included. The aggregate still completes,
+jobs. Documentation is a path that no gate the docs-only path skips can read
+(#444): a top-level `*.md`, anything under `LICENSES/`, or a `*.md`,
+`*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated module
+reads. Everything else is RTL relevant whatever its suffix: every file under
+`tb/`, `hdl/`, `sw/`, `syn/`, `scripts/`, `tests/` and `configs/`, the diagram
+assets outside `docs/`, every generator, manifest and budget under `docs/`, an
+Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
+[the AVTP record](../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) and
+[the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
+the campaign it runs, so those two records are relevant by directory.
+
+Three pages under `docs/` are relevant because Python in a classifier-gated
+job names them. The behave suite of `bdd-conformance`, which no docs job runs,
+asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
+[MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
+catalogue generator's `--check` compares
+[TRACE_EVENTS.md](../reference/TRACE_EVENTS.md). The classifier's
+self-test, `scripts/ci_scope.py --selftest`, derives that list from the
+Python under `tests/`, `tb/`, `syn/`, `sw/`, `hdl/` and `avdecc/` and
+refuses a table that differs from it. A page
+that a skipped gate reads stays documentation only when an always-run
+`docs-check` step runs the same check on it:
+
+| Reader | Skipped job that runs it | `docs-check` runs it too |
+|---|---|---|
+| `sw/builder/test_builder.py`: six pages under `docs/` | `elaborate` (`--require-elaboration` grades only the LiteX arms) | yes, every arm that reads a page |
+| `docs/traceability/gen_module_matrix.py --check`: the matrix artifacts | the `tsn_fuzz` suite | yes, the same command |
+| `scripts/ci_events.py --check`: this page | none, it runs in `full-ci-gate` before the decision | yes, the same command |
+
+The aggregate still completes,
 so a docs-only PR does not leave a required verdict pending. Mixed changes are
 treated as RTL relevant. An empty or unresolvable diff is also treated as RTL
 relevant. A submodule pointer (`protocol-processor`, `gptp-processor`,
 `external`, `third_party/...`, read from `.gitmodules`) or `.gitmodules` itself
 is never docs-only: it moves the RTL the sweep elaborates without touching a
 file under `hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier
-that files any one of them, or widens the four classes, is rejected.
+that files any one of them, or widens the documentation classes, is
+rejected.
 
 The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
@@ -94,7 +121,11 @@ installed only by their stable owners: `tsn_fuzz` owns the pinned packet
 generator, and `chmap_capture` owns the Yosys/sv2v netlist leg. The shard
 selector self-test pins those owners and the dedicated worker, and the
 workers' ownership step proves them again at run time; `ci_events.py` pins
-that step's script.
+that step's script. It pins the aggregate's tally script and its
+worker-result script the same way, and the Yosys aggregate's two twins. The
+worker-result step is the only step that turns a failed or timed-out worker
+red: a killed suite's partial log still tallies and its SHA record still
+verifies, so on both hosted `milan_dp` timeouts only that step failed.
 
 Each suite runs under a per-suite wall clock from the table in
 `scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
@@ -1000,8 +1031,10 @@ A docs-only ready PR remains cheap: the long workflow starts, classifies the
 diff, and skips its RTL workers with explicit skipped results. The two stable
 aggregate contexts are still emitted, so the ruleset never waits for a check
 name that the pull request cannot produce. A skipped job leaves no log, so
-the gate's decision step prints the reason in its own: `docs-only: the diff
-touches no RTL, test bench, script, submodule or workflow path`.
+the gate's decision step prints the reason in its own, in the words of the
+rule the classifier applied: `docs-only: every changed path is a top-level
+*.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that
+no skipped gate reads`.
 
 ## Act-first local replication
 
@@ -1491,7 +1524,7 @@ become current with the base. Reviewers still own exact-head and candidate-
 merge validation under [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 Conditional job skipping is part of the contract. A documentation-only PR
-(the four classes in [Fast feedback](#fast-feedback)) must emit the two
+(the documentation classes in [Fast feedback](#fast-feedback)) must emit the two
 exhaustive aggregate checks as skipped and must complete the
 fast aggregate and `elaborate` check after their expensive steps skip. That is
 permitted only when `full-ci-gate` itself succeeds and explicitly publishes

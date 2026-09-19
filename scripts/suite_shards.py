@@ -107,10 +107,13 @@ def scheduled_partition_selftest() -> bool:
 
 def dedicated_alone(suites: Sequence[str], total: int,
                     dedicated: Sequence[str]) -> bool:
-    """Whether each DEDICATED_SUITES name is the only suite of its own worker."""
-    first = total - len(DEDICATED_SUITES)
-    return all(select_suites(suites, first + offset, total, dedicated) == [suite]
-               for offset, suite in enumerate(DEDICATED_SUITES))
+    """Whether each name in `dedicated` is the only suite of its own worker.
+    An empty `dedicated` sets nothing apart and proves nothing, so it is
+    False rather than vacuously True."""
+    first = total - len(dedicated)
+    return bool(dedicated) and all(
+        select_suites(suites, first + offset, total, dedicated) == [suite]
+        for offset, suite in enumerate(dedicated))
 
 
 def dedicated_selftest(suites: Sequence[str]) -> int:
@@ -127,9 +130,11 @@ def dedicated_selftest(suites: Sequence[str]) -> int:
               f"dedicated alone={alone} hashed owners unchanged={stable}")
         bad += 0 if ok else 1
 
-    # Negative control: the same check over a rule that sets nothing aside
-    # must fail, or the arm above proves nothing about the rule.
-    caught = not dedicated_alone(suites, 5, ())
+    # Negative control: under a rule that sets nothing aside no worker holds
+    # a dedicated suite alone, or the arm above proves nothing about the rule.
+    plain = [select_suites(suites, index, 5, ()) for index in range(5)]
+    caught = bool(DEDICATED_SUITES) and all(
+        [suite] not in plain for suite in DEDICATED_SUITES)
     print(f"  {'ok  ' if caught else 'FAIL'} a rule without the dedicated "
           "worker is caught")
     return bad + (0 if caught else 1)

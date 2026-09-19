@@ -435,11 +435,13 @@ CANONICAL_DECIDE_SCRIPT = (
     'echo "run_full=$run_full" >> "$GITHUB_OUTPUT"',
     'echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"',
     # #444: the skipped required aggregates leave no log of their own, so
-    # the gate says why they skip.
+    # the gate says why they skip, in the words of the rule ci_scope.py
+    # applied ([R197] F3).
     'if [ "$rtl" = false ]; then',
-    'echo "docs-only: the diff touches no RTL, test bench, script, submodule '
-    'or workflow path; the exhaustive workers and both required aggregates '
-    'skip"',
+    'echo "docs-only: every changed path is a top-level *.md, under '
+    'LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no '
+    'skipped gate reads; the exhaustive workers and both required '
+    'aggregates skip"',
     "fi",
 )
 #: The selector's own proof, and the line that consumes the selector's
@@ -1682,6 +1684,78 @@ def check_ownership_step(c: Contract, wf: YamlMap) -> None:
            "time")
 
 
+def canonical_worker_result_script(kind: str, job_id: str) -> tuple[str, ...]:
+    """An exhaustive aggregate's worker-result script: red unless
+    SHARD_RESULT, the matrix job's combined result, is exactly `success`."""
+    return (
+        'if [ "$SHARD_RESULT" != success ]; then',
+        f'echo "one or more {kind} workers ended: $SHARD_RESULT" >&2',
+        "exit 1",
+        "fi",
+        f'echo "{job_id}: every worker succeeded at $GITHUB_SHA"',
+    )
+
+
+#: #444 ([R197] F1, [R198] F1): the two exhaustive aggregates' judging
+#: scripts, pinned verbatim after whitespace normalization like the ownership
+#: proof above. RTL_STEP_LISTS holds each step's name, `if` and env binding,
+#: which is what the step READS; this holds what it DOES. The worker-result
+#: step is the only step that turns a failed or timed-out worker red: a
+#: killed suite's partial log still tallies and its SHA record still
+#: verifies, so on both hosted milan_dp timeouts (35351270355 and
+#: 35382045355, attempt 1) the verifier and the tally passed and only this
+#: step failed. Reduced to its final echo, made to tolerate `failure`, or
+#: turned into `exit 0`, it kept every recorded key green. The tally steps
+#: are held for the same reason: a glob narrowed to four workers, or the
+#: tally replaced by `true`, drops the missing and duplicate suite refusal.
+VERILATOR_TALLY_STEP = "Prove exhaustive ownership and tally every log"
+VERILATOR_RESULT_STEP = "Require every Verilator worker to pass"
+YOSYS_TALLY_STEP = "Reconcile the live inventory and structural gates"
+YOSYS_RESULT_STEP = "Require every Yosys worker to pass"
+AGGREGATE_SCRIPTS = {
+    ("verilator-suites", VERILATOR_TALLY_STEP): (
+        "shopt -s nullglob",
+        'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
+        'if [ "${#roots[@]}" -eq 0 ]; then',
+        'mkdir -p "$RUNNER_TEMP/all-suite-logs/none"',
+        'roots=("$RUNNER_TEMP/all-suite-logs/none")',
+        "fi",
+        'python3 scripts/suite_tally.py "${roots[@]}" --quiet '
+        "--expect-suite-root tb/verilator",
+    ),
+    ("verilator-suites", VERILATOR_RESULT_STEP):
+        canonical_worker_result_script("Verilator", "verilator-suites"),
+    ("yosys-portability", YOSYS_TALLY_STEP): (
+        "set -euo pipefail",
+        'syn/yosys/run.sh --list > "$RUNNER_TEMP/expected-yosys-tops"',
+        "shopt -s nullglob",
+        'roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)',
+        'if [ "${#roots[@]}" -eq 0 ]; then',
+        'mkdir -p "$RUNNER_TEMP/all-yosys-results/none"',
+        'roots=("$RUNNER_TEMP/all-yosys-results/none")',
+        "fi",
+        'python3 scripts/yosys_tally.py "${roots[@]}" --expected '
+        '"$RUNNER_TEMP/expected-yosys-tops" --require-structural',
+    ),
+    ("yosys-portability", YOSYS_RESULT_STEP):
+        canonical_worker_result_script("Yosys", "yosys-portability"),
+}
+
+
+def check_aggregate_scripts(c: Contract, wf: YamlMap) -> None:
+    """Pin each exhaustive aggregate's tally and worker-result scripts."""
+    for (jid, name), want in AGGREGATE_SCRIPTS.items():
+        found = [s for s in steps(jobs(wf).get(jid, {}))
+                 if s.get("name") == name]
+        run = found[0].get("run") if len(found) == 1 else ""
+        lines = normalize_script(run if isinstance(run, str) else "")
+        c.item(len(found) == 1 and tuple(lines) == want, RTL_FULL,
+               f"the `{name}` step script of `{jid}` is not the canonical "
+               "form: " + script_difference(lines, want)
+               + "; it alone carries a failed, timed-out or missing worker "
+               "into the required context")
+
+
 #: #350: the Yosys workers' content-addressed result cache. The trust
 #: boundary is GitHub's cache scoping, so the contract pins the exact shape
 #: that makes the scoping do the work: one restore of one path, a save key
@@ -1781,9 +1855,8 @@ RTL_STEP_LISTS = {
                   "path": "${{ runner.temp }}/all-suite-logs"}},
         {"name": "Require every shard to have validated this run's SHA",
          "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
-        {"name": "Prove exhaustive ownership and tally every log",
-         "if": ALWAYS_IF},
-        {"name": "Require every Verilator worker to pass", "if": ALWAYS_IF,
+        {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF},
+        {"name": VERILATOR_RESULT_STEP, "if": ALWAYS_IF,
          "env": {"SHARD_RESULT": needs_result_ref("verilator-shards")}},
     ),
     (RTL_FULL, YOSYS_SHARDS_JOB): (
@@ -1817,9 +1890,8 @@ RTL_STEP_LISTS = {
                   "path": "${{ runner.temp }}/all-yosys-results"}},
         {"name": "Require every shard to have validated this run's SHA",
          "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
-        {"name": "Reconcile the live inventory and structural gates",
-         "if": ALWAYS_IF},
-        {"name": "Require every Yosys worker to pass", "if": ALWAYS_IF,
+        {"name": YOSYS_TALLY_STEP, "if": ALWAYS_IF},
+        {"name": YOSYS_RESULT_STEP, "if": ALWAYS_IF,
          "env": {"SHARD_RESULT": needs_result_ref(YOSYS_SHARDS_JOB)}},
     ),
     (RTL_FAST, "verilator-lint"): (
@@ -3508,6 +3580,7 @@ def check(parsed: World) -> Contract:
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_ownership_step(c, parsed[RTL_FULL])
+    check_aggregate_scripts(c, parsed[RTL_FULL])
     check_rtl_fast(c, parsed[RTL_FAST])
     check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
@@ -4508,6 +4581,36 @@ def _m_decide_docs_only_line_dropped(w: World) -> None:
         "fixture drift: no docs-only line in the decision step")
     head, _, _ = s["run"].partition('if [ "$rtl" = false ]; then')
     s["run"] = head
+
+
+def _m_aggregate_script(jid: str, name: str, old: str, new: str) -> Mutator:
+    """#444: replace `old` with `new` in one aggregate's judging script; an
+    empty `old` replaces the whole script."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, RTL_FULL, jid)
+                 if s.get("name") == name]
+        assert len(found) == 1 and old in found[0]["run"], (
+            f"fixture drift: `{name}` of `{jid}`")
+        found[0]["run"] = (found[0]["run"].replace(old, new) if old
+                           else new)
+    return f
+
+
+#: #444: judging the Verilator workers without the fifth. The combined
+#: result still reddens, but only when a log from workers 0 to 3 shows a
+#: failure, so a milan_dp TIMEOUT on shard 4 turns green.
+_FOUR_WORKER_RESULT = (
+    'if [ "$SHARD_RESULT" != success ]; then\n'
+    "  for shard in 0 1 2 3; do\n"
+    "    if grep -rqs -e TIMEOUT -e FAIL "
+    '"$RUNNER_TEMP/all-suite-logs/suite-logs-$shard"; then\n'
+    '      echo "one or more Verilator workers ended: $SHARD_RESULT" >&2\n'
+    "      exit 1\n"
+    "    fi\n"
+    "  done\n"
+    "fi\n"
+    'echo "verilator-suites: every worker succeeded at $GITHUB_SHA"\n')
 
 
 def _m_shard_total_missing(w: World) -> None:
@@ -5543,6 +5646,56 @@ def _fast_verdict_arms() -> list[Arm]:
          _set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
                         {"EVENT_NAME": "pull_request"}),
          "must carry no `env`"),
+    ]
+
+
+def _aggregate_script_arms() -> list[Arm]:
+    """#444 ([R197] F1, [R198] F1): each exhaustive aggregate's tally and
+    worker-result scripts, the only steps that carry a failed or timed-out
+    worker into the required context."""
+    return [
+        ("#444 the Verilator worker-result step only echoes",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
+                             'echo "verilator-suites: every worker '
+                             'succeeded at $GITHUB_SHA"\n'),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step also tolerates failure",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
+                             '[ "$SHARD_RESULT" != success ]',
+                             '[ "$SHARD_RESULT" != success ] && '
+                             '[ "$SHARD_RESULT" != failure ]'),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step exits 0 on a failed worker",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
+                             "exit 1", "exit 0"),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step judges workers 0 to 3 only",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
+                             _FOUR_WORKER_RESULT),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator tally globs workers 0 to 3 only",
+         _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP,
+                             "suite-logs-*)", "suite-logs-[0-3])"),
+         f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator tally is replaced by true",
+         _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP, "",
+                             "true\n"),
+         f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
+        ("#444 the Yosys worker-result step only echoes",
+         _m_aggregate_script("yosys-portability", YOSYS_RESULT_STEP, "",
+                             'echo "yosys-portability: every worker '
+                             'succeeded at $GITHUB_SHA"\n'),
+         f"`{YOSYS_RESULT_STEP}` step script of `yosys-portability`"),
+        ("#444 the Yosys worker-result step also tolerates failure",
+         _m_aggregate_script("yosys-portability", YOSYS_RESULT_STEP,
+                             '[ "$SHARD_RESULT" != success ]',
+                             '[ "$SHARD_RESULT" != success ] && '
+                             '[ "$SHARD_RESULT" != failure ]'),
+         f"`{YOSYS_RESULT_STEP}` step script of `yosys-portability`"),
+        ("#444 the Yosys reconcile step drops --require-structural",
+         _m_aggregate_script("yosys-portability", YOSYS_TALLY_STEP,
+                             "--require-structural", ""),
+         f"`{YOSYS_TALLY_STEP}` step script of `yosys-portability`"),
     ]
 
 
@@ -6938,6 +7091,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _fast_selector_arms()
             + _fast_verdict_arms()
             + _shard_and_fast_arms()
+            + _aggregate_script_arms()
             + _docs_builder_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
@@ -7266,6 +7420,11 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
         if s.get("name") == OWNERSHIP_STEP:
             s["run"] = "\n".join("   " + l if l.strip() else ""
                                   for l in s["run"].splitlines()) + "\n"
+    for jid, name in AGGREGATE_SCRIPTS:
+        for s in steps(jobs(world[RTL_FULL])[jid]):
+            if s.get("name") == name:
+                s["run"] = "\n".join("   " + l if l.strip() else ""
+                                      for l in s["run"].splitlines()) + "\n"
     for s in steps(jobs(world[RTL_FAST])[FAST_SELECTOR_JOB]):
         if s.get("id") == FAST_SCOPE_STEP_ID:
             s["run"] = "\n".join("   " + l if l.strip() else ""
@@ -7301,8 +7460,9 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
                         f"was refused: {check(world).findings}")
     else:
         print("  ok   canonical pins are whitespace-invariant (assert step, "
-              "decision step, ownership step, fast scope step, fast verdict "
-              "step, verifier "
+              "decision step, ownership step, the aggregates' tally and "
+              "worker-result steps, fast scope step, fast verdict step, "
+              "verifier "
               "step, the four documentation gate steps and the elaborate "
               "scope step)")
     return problems, 1
