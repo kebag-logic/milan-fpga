@@ -68,6 +68,7 @@ Publish conflicts before continuing.
 | Integrate the reference SoC | [LiteX SoC](litex/LITEX_SOC.md) |
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
+| Review saved-state snapshot ownership | [Snapshot ownership, proposed](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
 
 ## Verification
 
