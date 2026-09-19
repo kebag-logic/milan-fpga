@@ -1,0 +1,46 @@
+title:	Define saved-state snapshot ownership and acknowledgement identity after the reproduced ACK race
+state:	OPEN
+author:	<forge-account-1> (<forge-account-2>)
+labels:	
+comments:	13
+assignees:	
+projects:	Road to milan v1.2 Task (In progress)
+milestone:	Board to Board testing 1x1 TDM Milan V1.2
+issue-type:	
+parent:	
+sub-issues:	
+sub-issues-completed:	
+blocked-by:	
+blocking:	
+number:	419
+--
+[A20] Design-contract follow-up to #418 and #70. No production repair is approved by this issue's creation.
+
+## Evidence and authority
+
+#418 reproduced a completed WRITE followed by an older firmware ACK clearing dirty, while the exact-cycle control retained it. Cleared <agent-system-2> R29 and external <agent-system-1> R28 independently approved the evidence, with full-system timing explicitly unproven. Public reproduction: https://github.com/kebag-logic/milan-fpga/issues/418#issuecomment-5571549944 . Separate initial repair proposal: https://github.com/kebag-logic/milan-fpga/issues/418#issuecomment-5572009699 .
+
+Authority: REQUIREMENTS.md saved-state obligations; docs/design/SAVED_STATE_FASTCONNECT.md sections 6, 7 and 9; #70's ratified erased-record/default rule and unchanged KLJ2 format. The dirty/status meaning is retained: an ACK may retire only changes represented in its verified slot. Control-plane SET handling must continue while flash is slow or unavailable.
+
+## Settled design task
+
+Produce and independently challenge a concrete cross-repository repair contract before implementation. Define a stable completed-record capture boundary, the image identity acknowledged by firmware, ownership across live image/capture/flash verification/ACK, current-cycle ordering, failure/reset/timeout behavior, and eventual convergence after changes stop.
+
+The logical record write includes separate ERASE_REGION and WRITE device commands. Device-idle between them is not automatically a completed-record boundary. A valid erased span can also mean first boot, so a content-only rule cannot distinguish an in-progress erase gap. Production nvm_commit seals and validates the live image before its current START strobe and continues reading live bytes during programming and comparison. A sticky flag cleared only at that existing START does not by itself prove stable capture.
+
+Compare feasible minimal designs against actual source interfaces: generation or sticky identity qualified at a stable capture, and bounded capture ownership with an immutable firmware snapshot. State why the selected design is correct and maintainable. Do not assume that a fixed-size result buffer, CRC, repeated status read or a second busy check establishes atomicity. Any donor interface dependency must have its own settled scope; preserve the active donor #14 and PR #26 lanes.
+
+## Acceptance for this design phase
+
+- Specify exact producer, backend and firmware handshakes and ownership, including already-granted logical writes, deferred requests and concurrent capture requests.
+- ACK cannot clear newer work before/on/after its edge; no-change service still converges and dirty cannot remain asserted merely to make the safety test pass.
+- Capture cannot promote a transient erased record as the newest completed state; preserve valid first-boot erased records and the last verified flash slot on failed capture/commit.
+- Keep the control plane responsive through slow/missing flash. Quantify any producer pause and its timeout instead of freezing it across a multi-second erase without a contract.
+- Define reset/re-arm, abandoned or duplicate acknowledgements, counter wrap if used, CRC/sequence promotion and writer liveness/stale interactions.
+- Provide a bounded executable model/prototype tied to production interfaces, reusing #418's ordinary firmware service and real backend where applicable; test the missing orderings and meaningful mutations. State omitted physical timing clearly.
+- Publish an ADR/proposal, exact source hashes, command results and an independently accepted review ledger before assigning product edits.
+
+## State and ownership
+
+Backlog: the implementation contract is unresolved. The evidence-backed design exploration is authorized; tracked production changes are not. Manager [A20] will assign <agent-system-1> proposal work and cleared <agent-system-2>/external review. No hardware operation, pin change or acceptance reduction is included.
+

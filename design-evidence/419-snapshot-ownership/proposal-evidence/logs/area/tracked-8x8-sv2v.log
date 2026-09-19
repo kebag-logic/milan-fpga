@@ -1,0 +1,643 @@
+`default_nettype none
+module KL_nvm_backend (
+	clk_i,
+	rst_n,
+	dev_req_i,
+	dev_gnt_o,
+	dev_op_i,
+	dev_region_i,
+	dev_offset_i,
+	dev_len_i,
+	dev_wvalid_i,
+	dev_wready_o,
+	dev_wdata_i,
+	dev_rvalid_o,
+	dev_rdata_o,
+	dev_rready_i,
+	dev_busy_o,
+	dev_done_o,
+	dev_err_o,
+	mem_req_valid_o,
+	mem_req_ready_i,
+	mem_req_addr_o,
+	mem_req_beats_o,
+	mem_rsp_valid_i,
+	mem_rsp_ready_o,
+	mem_rsp_data_i,
+	mem_rsp_last_i,
+	mem_rsp_err_i,
+	mem_wr_valid_o,
+	mem_wr_ready_i,
+	mem_wr_addr_o,
+	mem_wr_data_o,
+	mem_wr_strb_o,
+	mem_wr_done_i,
+	mem_wr_err_i,
+	csr_sel_i,
+	csr_we_i,
+	csr_addr_i,
+	csr_wdata_i,
+	csr_rdata_o,
+	change_i,
+	nvm_backed_o,
+	nvm_dirty_o,
+	nvm_stale_o,
+	nvm_verdict_o,
+	img_valid_o
+);
+	reg _sv2v_0;
+	parameter [31:0] CLK_HZ_P = 125000000;
+	parameter [31:0] N_STREAM_IN_P = 9;
+	parameter [31:0] N_STREAM_OUT_P = 9;
+	parameter [31:0] N_SPORT_IN_P = 8;
+	parameter [31:0] N_SPORT_OUT_P = 8;
+	parameter [31:0] N_AUDIO_UNIT_P = 1;
+	parameter [31:0] N_CLK_DOM_P = 1;
+	parameter [31:0] N_NAME_P = 99;
+	parameter [31:0] T_ALIVE_MS_P = 2000;
+	parameter [31:0] T_COMMIT_MS_P = 8000;
+	input wire clk_i;
+	input wire rst_n;
+	input wire dev_req_i;
+	output wire dev_gnt_o;
+	input wire [1:0] dev_op_i;
+	input wire [7:0] dev_region_i;
+	input wire [15:0] dev_offset_i;
+	input wire [15:0] dev_len_i;
+	input wire dev_wvalid_i;
+	output wire dev_wready_o;
+	input wire [7:0] dev_wdata_i;
+	output wire dev_rvalid_o;
+	output wire [7:0] dev_rdata_o;
+	input wire dev_rready_i;
+	output wire dev_busy_o;
+	output wire dev_done_o;
+	output wire dev_err_o;
+	output wire mem_req_valid_o;
+	input wire mem_req_ready_i;
+	output wire [31:0] mem_req_addr_o;
+	output wire [8:0] mem_req_beats_o;
+	input wire mem_rsp_valid_i;
+	output wire mem_rsp_ready_o;
+	input wire [63:0] mem_rsp_data_i;
+	input wire mem_rsp_last_i;
+	input wire mem_rsp_err_i;
+	output wire mem_wr_valid_o;
+	input wire mem_wr_ready_i;
+	output wire [31:0] mem_wr_addr_o;
+	output wire [63:0] mem_wr_data_o;
+	output wire [7:0] mem_wr_strb_o;
+	input wire mem_wr_done_i;
+	input wire mem_wr_err_i;
+	input wire csr_sel_i;
+	input wire csr_we_i;
+	input wire [5:0] csr_addr_i;
+	input wire [31:0] csr_wdata_i;
+	output reg [31:0] csr_rdata_o;
+	input wire change_i;
+	output wire nvm_backed_o;
+	output wire nvm_dirty_o;
+	output wire nvm_stale_o;
+	output wire [3:0] nvm_verdict_o;
+	output wire img_valid_o;
+	localparam [1:0] OP_READ_C = 2'd0;
+	localparam [1:0] OP_WRITE_C = 2'd1;
+	localparam [1:0] OP_ERASE_C = 2'd2;
+	localparam [31:0] REC_HDR_C = 8;
+	localparam [31:0] NAME_C = 64;
+	localparam [31:0] ID_CFG_C = 'h0;
+	localparam [31:0] ID_SUID_C = 'h1;
+	localparam [31:0] ID_RATE_C = 'h2;
+	localparam [31:0] ID_CLKS_C = 'ha;
+	localparam [31:0] ID_MCR_C = 'h12;
+	localparam [31:0] ID_BIND_C = 'h20;
+	localparam [31:0] ID_FMTI_C = 'h30;
+	localparam [31:0] ID_FMTO_C = 'h40;
+	localparam [31:0] ID_PTOF_C = 'h50;
+	localparam [31:0] ID_MAPI_C = 'h60;
+	localparam [31:0] ID_MAPO_C = 'h70;
+	localparam [31:0] ID_NAME_C = 'h80;
+	localparam [31:0] SZ_CFG_C = 10;
+	localparam [31:0] SZ_SUID_C = 16;
+	localparam [31:0] SZ_RATE_C = 12;
+	localparam [31:0] SZ_CLKS_C = 10;
+	localparam [31:0] SZ_MCR_C = 74;
+	localparam [31:0] SZ_BIND_C = 28;
+	localparam [31:0] SZ_FMT_C = 16;
+	localparam [31:0] SZ_PTOF_C = 12;
+	localparam [31:0] SZ_NAME_C = REC_HDR_C + NAME_C;
+	localparam [31:0] B_CFG_C = 0;
+	localparam [31:0] B_SUID_C = B_CFG_C + SZ_CFG_C;
+	localparam [31:0] B_RATE_C = B_SUID_C + SZ_SUID_C;
+	localparam [31:0] B_CLKS_C = B_RATE_C + (N_AUDIO_UNIT_P * SZ_RATE_C);
+	localparam [31:0] B_MCR_C = B_CLKS_C + (N_CLK_DOM_P * SZ_CLKS_C);
+	localparam [31:0] B_BIND_C = B_MCR_C + (N_CLK_DOM_P * SZ_MCR_C);
+	localparam [31:0] B_FMTI_C = B_BIND_C + (N_STREAM_IN_P * SZ_BIND_C);
+	localparam [31:0] B_FMTO_C = B_FMTI_C + (N_STREAM_IN_P * SZ_FMT_C);
+	localparam [31:0] B_PTOF_C = B_FMTO_C + (N_STREAM_OUT_P * SZ_FMT_C);
+	localparam [31:0] B_MAPI_C = B_PTOF_C + (N_STREAM_OUT_P * SZ_PTOF_C);
+	generate
+		if ((((N_STREAM_IN_P < 1) || (N_STREAM_IN_P > 16)) || (N_STREAM_OUT_P < 1)) || (N_STREAM_OUT_P > 16)) begin : g_refuse_streams
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:215:5 - KL_nvm_backend.g_refuse_streams\n msg: ", "KL_nvm_backend: N_STREAM_IN_P=%0d / N_STREAM_OUT_P=%0d outside 1..16: the BINDING, FORMAT and OFFSET blocks hold sixteen ids each (0x20, 0x30, 0x40, 0x50).", N_STREAM_IN_P, N_STREAM_OUT_P);
+		end
+		else if ((((N_SPORT_IN_P < 1) || (N_SPORT_IN_P > 16)) || (N_SPORT_OUT_P < 1)) || (N_SPORT_OUT_P > 16)) begin : g_refuse_sports
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:218:5 - KL_nvm_backend.g_refuse_sports\n msg: ", "KL_nvm_backend: N_SPORT_IN_P=%0d / N_SPORT_OUT_P=%0d outside 1..16: the channel-map blocks hold sixteen ids each (0x60, 0x70) and the tables are indexed by csr_addr_i[3:0].", N_SPORT_IN_P, N_SPORT_OUT_P);
+		end
+		else if ((((N_AUDIO_UNIT_P < 1) || (N_AUDIO_UNIT_P > 8)) || (N_CLK_DOM_P < 1)) || (N_CLK_DOM_P > 8)) begin : g_refuse_units
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:221:5 - KL_nvm_backend.g_refuse_units\n msg: ", "KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.", N_AUDIO_UNIT_P, N_CLK_DOM_P);
+		end
+		else if ((N_NAME_P < 1) || (N_NAME_P > 128)) begin : g_refuse_names
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:224:5 - KL_nvm_backend.g_refuse_names\n msg: ", "KL_nvm_backend: N_NAME_P=%0d outside 1..128: the NAME block is 0x80..0xFF.", N_NAME_P);
+		end
+		else if (CLK_HZ_P < 1000) begin : g_refuse_clock
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:227:5 - KL_nvm_backend.g_refuse_clock\n msg: ", "KL_nvm_backend: CLK_HZ_P=%0d is below 1 kHz, so no millisecond tick can be derived for the section 9.4 deadlines.", CLK_HZ_P);
+		end
+		else if ((((T_ALIVE_MS_P < 1) || (T_ALIVE_MS_P > 65535)) || (T_COMMIT_MS_P < 1)) || (T_COMMIT_MS_P > 65535)) begin : g_refuse_deadlines
+			initial $display("Error [elaboration] <CHECKOUT>/hdl/milan/KL_nvm_backend.sv:230:5 - KL_nvm_backend.g_refuse_deadlines\n msg: ", "KL_nvm_backend: T_ALIVE_MS_P=%0d / T_COMMIT_MS_P=%0d outside 1..65535: the deadline down-counters are sixteen bits wide.", T_ALIVE_MS_P, T_COMMIT_MS_P);
+		end
+	endgenerate
+	localparam [31:0] IDW_C = 9;
+	reg [15:0] mapi_pref_r [0:N_SPORT_IN_P - 1];
+	reg [15:0] mapi_len_r [0:N_SPORT_IN_P - 1];
+	reg [15:0] mapo_pref_r [0:N_SPORT_OUT_P - 1];
+	reg [15:0] mapo_len_r [0:N_SPORT_OUT_P - 1];
+	localparam [31:0] MAPI_IW_C = (N_SPORT_IN_P > 1 ? $clog2(N_SPORT_IN_P) : 1);
+	localparam [31:0] MAPO_IW_C = (N_SPORT_OUT_P > 1 ? $clog2(N_SPORT_OUT_P) : 1);
+	reg [17:0] rec_base_w;
+	reg [11:0] rec_len_w;
+	reg rec_hit_w;
+	wire [MAPI_IW_C - 1:0] mapi_idx_w;
+	wire [MAPO_IW_C - 1:0] mapo_idx_w;
+	wire [17:0] b_mapo_w;
+	wire [17:0] b_name_w;
+	wire [8:0] region_w;
+	assign region_w = {1'b0, dev_region_i};
+	function automatic [7:0] sv2v_cast_8;
+		input reg [7:0] inp;
+		sv2v_cast_8 = inp;
+	endfunction
+	function automatic [MAPI_IW_C - 1:0] sv2v_cast_049A4;
+		input reg [MAPI_IW_C - 1:0] inp;
+		sv2v_cast_049A4 = inp;
+	endfunction
+	assign mapi_idx_w = sv2v_cast_049A4(dev_region_i - sv2v_cast_8(ID_MAPI_C));
+	function automatic [MAPO_IW_C - 1:0] sv2v_cast_C3F22;
+		input reg [MAPO_IW_C - 1:0] inp;
+		sv2v_cast_C3F22 = inp;
+	endfunction
+	assign mapo_idx_w = sv2v_cast_C3F22(dev_region_i - sv2v_cast_8(ID_MAPO_C));
+	function automatic [17:0] sv2v_cast_18;
+		input reg [17:0] inp;
+		sv2v_cast_18 = inp;
+	endfunction
+	assign b_mapo_w = (sv2v_cast_18(B_MAPI_C) + sv2v_cast_18(mapi_pref_r[sv2v_cast_049A4(N_SPORT_IN_P - 1)])) + sv2v_cast_18(mapi_len_r[sv2v_cast_049A4(N_SPORT_IN_P - 1)]);
+	assign b_name_w = (b_mapo_w + sv2v_cast_18(mapo_pref_r[sv2v_cast_C3F22(N_SPORT_OUT_P - 1)])) + sv2v_cast_18(mapo_len_r[sv2v_cast_C3F22(N_SPORT_OUT_P - 1)]);
+	function automatic [8:0] sv2v_cast_8B400;
+		input reg [8:0] inp;
+		sv2v_cast_8B400 = inp;
+	endfunction
+	function automatic [11:0] sv2v_cast_12;
+		input reg [11:0] inp;
+		sv2v_cast_12 = inp;
+	endfunction
+	always @(*) begin
+		if (_sv2v_0)
+			;
+		rec_base_w = 18'd0;
+		rec_len_w = 12'd0;
+		rec_hit_w = 1'b0;
+		if (region_w == sv2v_cast_8B400(ID_CFG_C)) begin
+			rec_base_w = sv2v_cast_18(B_CFG_C);
+			rec_len_w = sv2v_cast_12(SZ_CFG_C);
+			rec_hit_w = 1'b1;
+		end
+		else if (region_w == sv2v_cast_8B400(ID_SUID_C)) begin
+			rec_base_w = sv2v_cast_18(B_SUID_C);
+			rec_len_w = sv2v_cast_12(SZ_SUID_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_RATE_C)) && (region_w < sv2v_cast_8B400(ID_RATE_C + N_AUDIO_UNIT_P))) begin
+			rec_base_w = sv2v_cast_18(B_RATE_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_RATE_C)) * sv2v_cast_18(SZ_RATE_C));
+			rec_len_w = sv2v_cast_12(SZ_RATE_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_CLKS_C)) && (region_w < sv2v_cast_8B400(ID_CLKS_C + N_CLK_DOM_P))) begin
+			rec_base_w = sv2v_cast_18(B_CLKS_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_CLKS_C)) * sv2v_cast_18(SZ_CLKS_C));
+			rec_len_w = sv2v_cast_12(SZ_CLKS_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_MCR_C)) && (region_w < sv2v_cast_8B400(ID_MCR_C + N_CLK_DOM_P))) begin
+			rec_base_w = sv2v_cast_18(B_MCR_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_MCR_C)) * sv2v_cast_18(SZ_MCR_C));
+			rec_len_w = sv2v_cast_12(SZ_MCR_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_BIND_C)) && (region_w < sv2v_cast_8B400(ID_BIND_C + N_STREAM_IN_P))) begin
+			rec_base_w = sv2v_cast_18(B_BIND_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_BIND_C)) * sv2v_cast_18(SZ_BIND_C));
+			rec_len_w = sv2v_cast_12(SZ_BIND_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_FMTI_C)) && (region_w < sv2v_cast_8B400(ID_FMTI_C + N_STREAM_IN_P))) begin
+			rec_base_w = sv2v_cast_18(B_FMTI_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_FMTI_C)) * sv2v_cast_18(SZ_FMT_C));
+			rec_len_w = sv2v_cast_12(SZ_FMT_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_FMTO_C)) && (region_w < sv2v_cast_8B400(ID_FMTO_C + N_STREAM_OUT_P))) begin
+			rec_base_w = sv2v_cast_18(B_FMTO_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_FMTO_C)) * sv2v_cast_18(SZ_FMT_C));
+			rec_len_w = sv2v_cast_12(SZ_FMT_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_PTOF_C)) && (region_w < sv2v_cast_8B400(ID_PTOF_C + N_STREAM_OUT_P))) begin
+			rec_base_w = sv2v_cast_18(B_PTOF_C) + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_PTOF_C)) * sv2v_cast_18(SZ_PTOF_C));
+			rec_len_w = sv2v_cast_12(SZ_PTOF_C);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_MAPI_C)) && (region_w < sv2v_cast_8B400(ID_MAPI_C + N_SPORT_IN_P))) begin
+			rec_base_w = sv2v_cast_18(B_MAPI_C) + sv2v_cast_18(mapi_pref_r[mapi_idx_w]);
+			rec_len_w = sv2v_cast_12(mapi_len_r[mapi_idx_w]);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_MAPO_C)) && (region_w < sv2v_cast_8B400(ID_MAPO_C + N_SPORT_OUT_P))) begin
+			rec_base_w = b_mapo_w + sv2v_cast_18(mapo_pref_r[mapo_idx_w]);
+			rec_len_w = sv2v_cast_12(mapo_len_r[mapo_idx_w]);
+			rec_hit_w = 1'b1;
+		end
+		else if ((region_w >= sv2v_cast_8B400(ID_NAME_C)) && (region_w < sv2v_cast_8B400(ID_NAME_C + N_NAME_P))) begin
+			rec_base_w = b_name_w + (sv2v_cast_18(dev_region_i - sv2v_cast_8(ID_NAME_C)) * sv2v_cast_18(SZ_NAME_C));
+			rec_len_w = sv2v_cast_12(SZ_NAME_C);
+			rec_hit_w = 1'b1;
+		end
+	end
+	localparam [4:0] R_IMG_BASE_C = 5'd0;
+	localparam [4:0] R_IMG_LEN_C = 5'd1;
+	localparam [4:0] R_SEQ_C = 5'd2;
+	localparam [4:0] R_STAT_C = 5'd3;
+	localparam [4:0] R_ACK_C = 5'd4;
+	reg [31:0] img_base_r;
+	reg [31:0] img_len_r;
+	reg [31:0] seq_r;
+	reg [3:0] verdict_r;
+	reg img_valid_r;
+	reg backed_r;
+	reg dirty_r;
+	reg stale_r;
+	reg ever_backed_r;
+	wire reg_we_w;
+	wire hb_kick_w;
+	wire commit_ack_w;
+	wire commit_start_w;
+	wire img_cfg_w;
+	wire img_live_w;
+	wire write_commit_w;
+	wire dirty_set_w;
+	assign reg_we_w = (csr_sel_i & csr_we_i) & ~csr_addr_i[5];
+	assign hb_kick_w = (reg_we_w & (csr_addr_i[4:0] == R_ACK_C)) & csr_wdata_i[0];
+	assign commit_ack_w = (reg_we_w & (csr_addr_i[4:0] == R_ACK_C)) & csr_wdata_i[1];
+	assign commit_start_w = (reg_we_w & (csr_addr_i[4:0] == R_ACK_C)) & csr_wdata_i[2];
+	assign img_cfg_w = img_len_r != 32'd0;
+	assign img_live_w = img_cfg_w & img_valid_r;
+	always @(posedge clk_i)
+		if (!rst_n) begin
+			img_base_r <= 32'd0;
+			img_len_r <= 32'd0;
+			seq_r <= 32'd0;
+			verdict_r <= 4'd0;
+			img_valid_r <= 1'b0;
+		end
+		else if (reg_we_w)
+			case (csr_addr_i[4:0])
+				R_IMG_BASE_C: begin
+					img_base_r <= csr_wdata_i;
+					img_valid_r <= 1'b0;
+				end
+				R_IMG_LEN_C: begin
+					img_len_r <= csr_wdata_i;
+					img_valid_r <= 1'b0;
+				end
+				R_SEQ_C: seq_r <= csr_wdata_i;
+				R_STAT_C: begin
+					verdict_r <= csr_wdata_i[3:0];
+					img_valid_r <= csr_wdata_i[4];
+				end
+				default:
+					;
+			endcase
+	function automatic [31:0] sv2v_cast_32;
+		input reg [31:0] inp;
+		sv2v_cast_32 = inp;
+	endfunction
+	always @(posedge clk_i)
+		if ((csr_sel_i && csr_we_i) && csr_addr_i[5]) begin
+			if (!csr_addr_i[4]) begin
+				if (sv2v_cast_32(csr_addr_i[3:0]) < N_SPORT_IN_P) begin
+					mapi_pref_r[sv2v_cast_049A4(csr_addr_i[3:0])] <= csr_wdata_i[15:0];
+					mapi_len_r[sv2v_cast_049A4(csr_addr_i[3:0])] <= csr_wdata_i[31:16];
+				end
+			end
+			else if (sv2v_cast_32(csr_addr_i[3:0]) < N_SPORT_OUT_P) begin
+				mapo_pref_r[sv2v_cast_C3F22(csr_addr_i[3:0])] <= csr_wdata_i[15:0];
+				mapo_len_r[sv2v_cast_C3F22(csr_addr_i[3:0])] <= csr_wdata_i[31:16];
+			end
+		end
+	reg commit_busy_r;
+	wire dev_busy_w;
+	always @(*) begin
+		if (_sv2v_0)
+			;
+		if (csr_addr_i[5]) begin
+			if (!csr_addr_i[4])
+				csr_rdata_o = {mapi_len_r[sv2v_cast_049A4(csr_addr_i[3:0])], mapi_pref_r[sv2v_cast_049A4(csr_addr_i[3:0])]};
+			else
+				csr_rdata_o = {mapo_len_r[sv2v_cast_C3F22(csr_addr_i[3:0])], mapo_pref_r[sv2v_cast_C3F22(csr_addr_i[3:0])]};
+		end
+		else
+			case (csr_addr_i[4:0])
+				R_IMG_BASE_C: csr_rdata_o = img_base_r;
+				R_IMG_LEN_C: csr_rdata_o = img_len_r;
+				R_SEQ_C: csr_rdata_o = seq_r;
+				R_STAT_C: csr_rdata_o = {16'd0, verdict_r, 1'b0, commit_busy_r, nvm_stale_o, dirty_r, img_valid_r, backed_r, img_cfg_w, dev_busy_w, 4'd0};
+				default: csr_rdata_o = 32'd0;
+			endcase
+	end
+	localparam [31:0] MS_DIV_C = (CLK_HZ_P >= 1000 ? CLK_HZ_P / 1000 : 1);
+	localparam [31:0] MS_W_C = (MS_DIV_C > 1 ? $clog2(MS_DIV_C) : 1);
+	reg [MS_W_C - 1:0] ms_div_r;
+	wire ms_tick_w;
+	reg [15:0] alive_r;
+	reg [15:0] commit_r;
+	assign ms_tick_w = ms_div_r == {MS_W_C {1'sb0}};
+	function automatic [MS_W_C - 1:0] sv2v_cast_63AC9;
+		input reg [MS_W_C - 1:0] inp;
+		sv2v_cast_63AC9 = inp;
+	endfunction
+	always @(posedge clk_i)
+		if (!rst_n)
+			ms_div_r <= sv2v_cast_63AC9(MS_DIV_C - 1);
+		else
+			ms_div_r <= (ms_tick_w ? sv2v_cast_63AC9(MS_DIV_C - 1) : ms_div_r - 1'b1);
+	wire alive_exp_w;
+	wire commit_exp_w;
+	wire loss_w;
+	wire backed_n_w;
+	wire dirty_n_w;
+	wire stale_n_w;
+	assign alive_exp_w = (ms_tick_w & (alive_r == 16'd1)) & ~hb_kick_w;
+	assign commit_exp_w = (((commit_busy_r & ms_tick_w) & (commit_r == 16'd1)) & ~commit_start_w) & ~commit_ack_w;
+	assign loss_w = (alive_exp_w | commit_exp_w) & ever_backed_r;
+	assign backed_n_w = (alive_exp_w | commit_exp_w ? 1'b0 : (hb_kick_w ? 1'b1 : backed_r));
+	assign dirty_set_w = change_i | write_commit_w;
+	assign dirty_n_w = (dirty_set_w ? 1'b1 : (commit_ack_w ? 1'b0 : dirty_r));
+	assign stale_n_w = (loss_w ? 1'b1 : (backed_n_w & ~dirty_n_w ? 1'b0 : stale_r));
+	function automatic [15:0] sv2v_cast_16;
+		input reg [15:0] inp;
+		sv2v_cast_16 = inp;
+	endfunction
+	always @(posedge clk_i)
+		if (!rst_n) begin
+			alive_r <= 16'd0;
+			commit_r <= 16'd0;
+			commit_busy_r <= 1'b0;
+			backed_r <= 1'b0;
+			dirty_r <= 1'b0;
+			stale_r <= 1'b0;
+			ever_backed_r <= 1'b0;
+		end
+		else begin
+			if (hb_kick_w) begin
+				alive_r <= sv2v_cast_16(T_ALIVE_MS_P);
+				ever_backed_r <= 1'b1;
+			end
+			else if (ms_tick_w && (alive_r != 16'd0))
+				alive_r <= alive_r - 16'd1;
+			if (commit_start_w) begin
+				commit_r <= sv2v_cast_16(T_COMMIT_MS_P);
+				commit_busy_r <= 1'b1;
+			end
+			else if (commit_ack_w)
+				commit_busy_r <= 1'b0;
+			else if ((commit_busy_r && ms_tick_w) && (commit_r != 16'd0)) begin
+				commit_r <= commit_r - 16'd1;
+				if (commit_r == 16'd1)
+					commit_busy_r <= 1'b0;
+			end
+			backed_r <= backed_n_w;
+			dirty_r <= dirty_n_w;
+			stale_r <= stale_n_w;
+		end
+	assign nvm_backed_o = backed_r;
+	assign nvm_dirty_o = dirty_r;
+	assign nvm_stale_o = stale_r;
+	assign nvm_verdict_o = verdict_r;
+	assign img_valid_o = img_valid_r;
+	reg [3:0] st_r;
+	reg [31:0] addr_r;
+	reg [15:0] cnt_r;
+	reg [7:0] byte_r;
+	reg gnt_r;
+	reg done_r;
+	reg err_r;
+	reg was_write_r;
+	wire [15:0] eff_len_w;
+	wire [31:0] span_end_w;
+	wire span_ok_w;
+	reg wc_valid_r;
+	reg [28:0] wc_addr_r;
+	reg [63:0] wc_data_r;
+	wire wc_hit_w;
+	assign eff_len_w = ((dev_op_i == OP_ERASE_C) && (dev_len_i == 16'd0) ? sv2v_cast_16(rec_len_w) : dev_len_i);
+	assign span_end_w = (sv2v_cast_32(rec_base_w) + sv2v_cast_32(dev_offset_i)) + sv2v_cast_32(eff_len_w);
+	assign span_ok_w = (rec_hit_w && (({16'd0, dev_offset_i} + {16'd0, eff_len_w}) <= sv2v_cast_32(rec_len_w))) && (span_end_w <= img_len_r);
+	assign wc_hit_w = wc_valid_r && (wc_addr_r == addr_r[31:3]);
+	assign write_commit_w = done_r & was_write_r;
+	always @(posedge clk_i)
+		if (!rst_n) begin
+			st_r <= 4'd0;
+			addr_r <= 32'd0;
+			cnt_r <= 16'd0;
+			byte_r <= 8'd0;
+			gnt_r <= 1'b0;
+			done_r <= 1'b0;
+			err_r <= 1'b0;
+			was_write_r <= 1'b0;
+			wc_valid_r <= 1'b0;
+			wc_addr_r <= 29'd0;
+			wc_data_r <= 64'd0;
+		end
+		else begin
+			gnt_r <= 1'b0;
+			done_r <= 1'b0;
+			err_r <= 1'b0;
+			if (reg_we_w && (csr_addr_i[4:0] == R_IMG_BASE_C))
+				wc_valid_r <= 1'b0;
+			case (st_r)
+				4'd0:
+					if (dev_req_i) begin
+						gnt_r <= 1'b1;
+						addr_r <= (img_base_r + sv2v_cast_32(rec_base_w)) + sv2v_cast_32(dev_offset_i);
+						cnt_r <= eff_len_w;
+						was_write_r <= dev_op_i == OP_WRITE_C;
+						if (!img_cfg_w) begin
+							if ((dev_op_i == OP_READ_C) && (dev_len_i != 16'd0))
+								st_r <= 4'd1;
+							else if ((dev_op_i == OP_WRITE_C) && (dev_len_i != 16'd0))
+								st_r <= 4'd8;
+							else
+								st_r <= 4'd11;
+						end
+						else if (!span_ok_w)
+							st_r <= 4'd12;
+						else if (eff_len_w == 16'd0)
+							st_r <= 4'd11;
+						else
+							case (dev_op_i)
+								OP_READ_C: st_r <= (img_live_w ? 4'd2 : 4'd1);
+								OP_WRITE_C: begin
+									st_r <= 4'd5;
+									wc_valid_r <= 1'b0;
+								end
+								default: begin
+									st_r <= 4'd9;
+									wc_valid_r <= 1'b0;
+								end
+							endcase
+					end
+				4'd1:
+					if (dev_rready_i) begin
+						if (cnt_r <= 16'd1)
+							st_r <= 4'd11;
+						else
+							cnt_r <= cnt_r - 16'd1;
+					end
+				4'd2:
+					if (wc_hit_w) begin
+						byte_r <= wc_data_r[63 - (8 * addr_r[2:0])-:8];
+						st_r <= 4'd4;
+					end
+					else if (mem_req_ready_i)
+						st_r <= 4'd3;
+				4'd3:
+					if (mem_rsp_valid_i) begin
+						if (mem_rsp_err_i) begin
+							wc_valid_r <= 1'b0;
+							st_r <= 4'd12;
+						end
+						else if (mem_rsp_last_i) begin
+							wc_valid_r <= 1'b1;
+							wc_addr_r <= addr_r[31:3];
+							wc_data_r <= mem_rsp_data_i;
+							byte_r <= mem_rsp_data_i[63 - (8 * addr_r[2:0])-:8];
+							st_r <= 4'd4;
+						end
+					end
+				4'd4:
+					if (dev_rready_i) begin
+						addr_r <= addr_r + 32'd1;
+						if (cnt_r <= 16'd1)
+							st_r <= 4'd11;
+						else begin
+							cnt_r <= cnt_r - 16'd1;
+							st_r <= 4'd2;
+						end
+					end
+				4'd5:
+					if (dev_wvalid_i) begin
+						byte_r <= dev_wdata_i;
+						st_r <= 4'd6;
+					end
+				4'd6:
+					if (mem_wr_ready_i) begin
+						if (mem_wr_done_i) begin
+							if (mem_wr_err_i)
+								st_r <= 4'd12;
+							else begin
+								addr_r <= addr_r + 32'd1;
+								if (cnt_r <= 16'd1)
+									st_r <= 4'd11;
+								else begin
+									cnt_r <= cnt_r - 16'd1;
+									st_r <= 4'd5;
+								end
+							end
+						end
+						else
+							st_r <= 4'd7;
+					end
+				4'd7:
+					if (mem_wr_done_i) begin
+						if (mem_wr_err_i)
+							st_r <= 4'd12;
+						else begin
+							addr_r <= addr_r + 32'd1;
+							if (cnt_r <= 16'd1)
+								st_r <= 4'd11;
+							else begin
+								cnt_r <= cnt_r - 16'd1;
+								st_r <= 4'd5;
+							end
+						end
+					end
+				4'd8:
+					if (dev_wvalid_i) begin
+						if (cnt_r <= 16'd1)
+							st_r <= 4'd11;
+						else
+							cnt_r <= cnt_r - 16'd1;
+					end
+				4'd9:
+					if (mem_wr_ready_i) begin
+						if (mem_wr_done_i) begin
+							if (mem_wr_err_i)
+								st_r <= 4'd12;
+							else begin
+								addr_r <= addr_r + 32'd1;
+								if (cnt_r <= 16'd1)
+									st_r <= 4'd11;
+								else
+									cnt_r <= cnt_r - 16'd1;
+							end
+						end
+						else
+							st_r <= 4'd10;
+					end
+				4'd10:
+					if (mem_wr_done_i) begin
+						if (mem_wr_err_i)
+							st_r <= 4'd12;
+						else begin
+							addr_r <= addr_r + 32'd1;
+							if (cnt_r <= 16'd1)
+								st_r <= 4'd11;
+							else begin
+								cnt_r <= cnt_r - 16'd1;
+								st_r <= 4'd9;
+							end
+						end
+					end
+				4'd11: begin
+					done_r <= 1'b1;
+					st_r <= 4'd0;
+				end
+				default: begin
+					err_r <= 1'b1;
+					st_r <= 4'd0;
+				end
+			endcase
+		end
+	assign mem_req_valid_o = (st_r == 4'd2) && !wc_hit_w;
+	assign mem_req_addr_o = {addr_r[31:3], 3'b000};
+	assign mem_req_beats_o = 9'd1;
+	assign mem_rsp_ready_o = st_r == 4'd3;
+	assign mem_wr_valid_o = (st_r == 4'd6) || (st_r == 4'd9);
+	assign mem_wr_addr_o = {addr_r[31:3], 3'b000};
+	assign mem_wr_data_o = (st_r == 4'd9 ? {64 {1'b1}} : {8 {byte_r}});
+	assign mem_wr_strb_o = 8'd1 << addr_r[2:0];
+	assign dev_busy_w = st_r != 4'd0;
+	assign dev_gnt_o = gnt_r;
+	assign dev_wready_o = (st_r == 4'd5) || (st_r == 4'd8);
+	assign dev_rvalid_o = (st_r == 4'd4) || (st_r == 4'd1);
+	assign dev_rdata_o = (st_r == 4'd1 ? 8'hff : byte_r);
+	assign dev_busy_o = dev_busy_w;
+	assign dev_done_o = done_r;
+	assign dev_err_o = err_r;
+	initial _sv2v_0 = 0;
+endmodule
+`default_nettype wire

@@ -1,0 +1,32 @@
+[
+ {
+  "argv": [
+   "python3",
+   "-B",
+   "scripts/check_nvm_record_space.py",
+   "--emit-record-table",
+   "<CHECKOUT>/configs/endstation_ax7101_1x1_tdm8.yaml",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/shape-1x1/records.txt"
+  ],
+  "start": "2026-09-18T19:13:11+00:00",
+  "wall_s": 0.363,
+  "exit": 0,
+  "log": "logs/shape-1x1-record-table.log"
+ },
+ {
+  "argv": [
+   "python3",
+   "-B",
+   "scripts/check_nvm_record_space.py",
+   "--emit-record-table",
+   "<CHECKOUT>/configs/endstation_ax7101_8x8.yaml",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/shape-8x8/records.txt"
+  ],
+  "start": "2026-09-18T19:13:12+00:00",
+  "wall_s": 0.376,
+  "exit": 0,
+  "log": "logs/shape-8x8-record-table.log"
+ }
+]
