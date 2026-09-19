@@ -902,6 +902,7 @@ CARRIER_STEP_LISTS = {
         {"name": "Archive integrity gate"},
         {"name": "Per-page contents gate"},
         {"name": "Sweep/build shape gate"},
+        {"name": "Deploy shape gate"},
         {"name": "Entity shape gate"},
     ),
     (DOCS, "wire-accountability"): (
@@ -6250,7 +6251,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 42 steps"),
+         "job `docs-check` must carry exactly 43 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -6264,7 +6265,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `elaborate` must carry exactly 18 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 42 steps"),
+         "job `docs-check` must carry exactly 43 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -6277,10 +6278,10 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
          "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
@@ -6326,7 +6327,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 42 steps, in the recorded order (found 41)"),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
     ]
 
 

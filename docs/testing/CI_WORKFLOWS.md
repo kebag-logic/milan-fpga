@@ -912,6 +912,22 @@ without sv2v turns the builder gate red rather than green, and the mutation
 suite drops the install, drifts its version, moves it after the call, and
 disables its condition.
 
+The `docs-check` job ends with three shape gates, in this order:
+`Sweep/build shape gate` (`scripts/check_sweep_shape.py --self-test`),
+`Deploy shape gate` (`scripts/check_deploy_shape.py --self-test`, wired by
+#466) and `Entity shape gate` (`scripts/check_entity_shape.py --self-test`).
+The deploy shape gate holds `sw/litex/deploy.sh` to the shape `sweep.sh`
+builds (#453): the launch line `deploy.sh build --dry-run` prints must be the
+`OPTS` of `configs/generated/sweep_opts_ax7101.sh` token for token and the
+emission of `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag. The dry
+run only prints, so the gate needs no LiteX, but loading the config reads the
+gPTP engine generator, so it needs the `gptp-processor` checkout above and
+fails, never passes, without it. `--self-test` grades the tracked `deploy.sh`
+first and then proves its planted drifts are rejected. `CARRIER_STEP_LISTS`
+records all three steps by name and position, so removing or reordering one
+is refused naming it; like the other recognised steps, their commands are not
+pinned yet (#407).
+
 Three caches, deliberately split. The Scala toolchain is content-addressed
 and keeps a broad fallback. The pip download cache is keyed on the pin file
 with a prefix fallback and runs only under the RTL scope, safe because the
