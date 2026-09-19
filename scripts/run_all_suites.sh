@@ -209,7 +209,8 @@ suite_timeout() {
 }
 
 #! every self-test that has to hold before a 40-minute sweep is worth
-#! starting. Each aborts with exit 2 and says which tool it distrusts.
+#! starting. Each aborts with exit 2 and says which tool it distrusts; the
+#! containment self-test's exit 3, a leftover temporary tree, is reported only.
 run_preflight_gates() {
   # The tallying tool gets its own gate, run BEFORE the 40-minute sweep rather
   # than after: if the thing that turns logs into the headline number is broken,
@@ -234,13 +235,25 @@ run_preflight_gates() {
   # run it. The CHECK itself is a post-merge act nobody can schedule from here,
   # but its self-test can be gated exactly like the tally's, so the tool cannot
   # rot into a green that means nothing between merges.
-  if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1); then
-    echo "$selftest_out" >&2
-    echo "ABORTING: scripts/check_merge_containment.py fails its own self-test," >&2
-    echo "so its 'contained' verdicts cannot be trusted either." >&2
-    exit 2
-  fi
+  #
+  # Exit 3 is not a failing self-test (#438): every arm passed and only a
+  # temporary tree it built could not be removed. Nothing the arms measured is
+  # in doubt, so the sweep prints the leftover and goes on; aborting there once
+  # stranded a required context on a change that never touched the checker.
+  # Every other non-zero status still aborts.
+  selftest_out=$(cd "$ROOT" && \
+          python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
+  selftest_rc=$?
+  case "$selftest_rc" in
+    0) ;;
+    3) echo "$selftest_out" >&2
+       echo "CLEANUP: scripts/check_merge_containment.py passed every self-test arm" >&2
+       echo "but left a temporary tree behind; its verdicts stand, the sweep goes on." >&2 ;;
+    *) echo "$selftest_out" >&2
+       echo "ABORTING: scripts/check_merge_containment.py fails its own self-test," >&2
+       echo "so its 'contained' verdicts cannot be trusted either." >&2
+       exit 2 ;;
+  esac
 
   # Third gate of the same family: check_results_fresh.py decides whether a
   # committed TEST_RESULTS.md still says what its campaign produces. It runs

@@ -70,8 +70,11 @@ from pathlib import Path
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
-#! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run
-RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+#! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run ·
+#! rc 3, --selftest only (#438): every arm passed, but a temporary tree it
+#! built was left behind -- housekeeping, which run_all_suites.sh reports and
+#! runs past
+RC_OK, RC_FINDING, RC_CANNOT_RUN, RC_CLEANUP_FAILED = 0, 1, 2, 3
 DEFAULT_BASE = "origin/dev"
 RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
                   "--ignore-submodules=none")

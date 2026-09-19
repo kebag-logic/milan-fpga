@@ -15,13 +15,13 @@ under test.
 """
 
 import os
-import tempfile
 from pathlib import Path
 
 #! The fixture type and the managed-write helper are the other half's;
 #! importing them keeps one definition of each. That module imports this one
 #! only from inside a call, so this top-level import is not a cycle.
 from merge_containment_selftest import _Fixture, _write
+from merge_containment_selftest_scratch import scratch
 
 
 def content_cases(fx: _Fixture) -> None:
@@ -43,7 +43,7 @@ def _hostile_diff_config_cases(fx):
     # fallback, while ignoreSubmodules=all can hide a missing gitlink update.
     # Each fixture uses a separate repo so its deliberately hostile
     # configuration cannot leak onward.
-    with tempfile.TemporaryDirectory() as config_parent:
+    with scratch(fx.leftovers) as config_parent:
         _textconv_path_cases(fx, config_parent)
         _textconv_patch_cases(fx, config_parent)
         _submodule_pin_cases(fx, config_parent)

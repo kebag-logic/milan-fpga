@@ -58,7 +58,11 @@ scripts/run_all_suites.sh "$physical_suite_logs" --physical-gptp
 
 The runner needs Git 2.39.0 or newer: it gates the post-merge containment
 self-test, which uses `git patch-id --verbatim`, and an older Git is refused
-by name before any suite runs. The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+by name before any suite runs. That self-test exits 3 when every arm passed
+but a temporary tree it built could not be removed; the runner prints a
+`CLEANUP:` notice and carries on, because no verdict is in doubt, while any
+other failure still aborts the sweep.
+The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
 check count cannot be read. The default selection contains 51 suites, each
 with an 1800-second deadline. The separate `milan_dp_gptp` selection uses
