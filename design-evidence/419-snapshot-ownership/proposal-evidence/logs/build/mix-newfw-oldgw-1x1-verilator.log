@@ -11,7 +11,7 @@ rm Vcosim_top__ALL.verilator_deplist.tmp
 make: Leaving directory '<CHECKOUT>/proposal-evidence/build/mix-newfw-oldgw-1x1/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
 - Verilator: Built from 0.435 MB sources in 7 modules, into 0.383 MB in 7 C++ files needing 0.000 MB
-- Verilator: Walltime 6.235 s (elab=0.011, cvt=0.043, bld=6.160); cpu 0.077 s on 2 threads; allocated 21.688 MB
+- Verilator: Walltime 6.213 s (elab=0.011, cvt=0.041, bld=6.142); cpu 0.076 s on 2 threads; allocated 21.730 MB
 %Warning-SYNCASYNCNET: <CHECKOUT>/proposal-evidence/build/mix-newfw-oldgw-1x1/cosim_top.sv:50:25: Signal flopped as both synchronous and async: 'rst_n'
                        <CHECKOUT>/proposal-evidence/build/mix-newfw-oldgw-1x1/cosim_top.sv:349:10: ... Location of async usage
   349 |     if (!rst_n) dyn_dirty_q <= 1'b0;

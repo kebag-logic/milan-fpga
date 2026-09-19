@@ -3,7 +3,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #419 round 3: the ONE run script behind PROPOSAL.md.
 
-    python3 -B proposal-evidence/run.py [--jobs 8] [--quick] [--skip-area]
+    python3 -B proposal-evidence/run.py [--jobs 8] [--quick] [--skip-area] [--cpus 96-127]
+
+Revision b (after the contract review of pull request 470): the backend checks
+RELOAD (a load flag armed by a re-base with nothing in flight and cleared by
+any mutating grant, and once per reset), a mutating request on the arm's own
+edge is deferred, and PP_NVM_STAT[22] carries nvm_pend. New cases R1, U4 to
+U7 and W1; new mutants R01, R02, R03, M19, F07 and F08.
 
 What it does, in order, writing only under proposal-evidence/:
 
@@ -80,6 +86,11 @@ SHAPES = {"1x1": "configs/endstation_ax7101_1x1_tdm8.yaml",
 CLK_HZ = 1_000_000      # the co-simulation's backend clock in MODEL time
 T_HOLD_MS = 50
 TAG_C3 = 0xC3
+#: the CPUs every build and run is pinned to (--cpus overrides)
+CPUS = "96-127"
+#: `fence rw, rw` statements in each writer: the prototype's capture, its
+#: window load (revision b) and the AEM image check; the tracked writer's one
+FENCES_PROTO, FENCES_TRACKED = 3, 1
 
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "sw" / "firmware" / "nvm_hosttest"))
@@ -101,7 +112,7 @@ def now() -> str:
 def cmd(argv: list[str], log: Path, cwd: Path = ROOT, check: bool = True,
         timeout: int = 1800) -> subprocess.CompletedProcess:
     """Run one command with rtk and taskset in front, log it, manifest it."""
-    full = ["rtk", "proxy", "taskset", "-c", "16-31", *argv]
+    full = ["rtk", "proxy", "taskset", "-c", CPUS, *argv]
     t0, s0 = time.time(), now()
     p = subprocess.run(full, cwd=cwd, text=True, capture_output=True, timeout=timeout,
                        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1",
@@ -220,6 +231,33 @@ def host_firmware(text: str, fences: int) -> str:
     return text.replace(FENCE_RW, "(void)0;")
 
 
+#: the writer's file-scope state and its initial value: what a CPU-only reset
+#: gives back (the C start-up zeroes .bss and reloads .data)
+WRITER_STATICS = {"nvm_ready": "0", "nvm_in_commit": "0", "nvm_seq": "0",
+                  "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
+                  "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
+                  "nvm_commits_failed": "0", "nvm_captures_refused": "0",
+                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0"}
+
+
+def host_restart(text: str) -> str:
+    """HOST MODEL ONLY, appended to the host build of the prototype writer: a
+    CPU-only reset, the writer's restart without a fabric reset. Refuses
+    unless it names every file-scope variable of the writer, so a new one
+    cannot survive the modelled reset unnoticed."""
+    found = set(re.findall(r"^static (?:int|uint32_t|uint64_t|unsigned int) (nvm_\w+)(?: = [^;(]+)?;$",
+                           text, re.M))
+    if found != set(WRITER_STATICS):
+        raise SystemExit(f"writer statics {sorted(found)} != restart model {sorted(WRITER_STATICS)}")
+    body = "".join(f"\t{k} = {v};\n" for k, v in WRITER_STATICS.items())
+    return ("\n/* HOST MODEL ONLY, appended by run.py: a CPU-only reset of the writer. The\n"
+            " * fabric, the backend and the media keep their state; every static of the\n"
+            " * writer returns to its initial value and the writer boots again. */\n"
+            "void nvm_host_writer_restart(void);\n"
+            "void nvm_host_writer_restart(void)\n{\n" + body +
+            "\tset_idle_hook(0);\n\tnvm_boot();\n}\n")
+
+
 # ------------------------------------------------------------------- mutants
 RTL_MUT = {
     "M01_open_at_erase_completion": [(
@@ -235,11 +273,12 @@ RTL_MUT = {
         "                     & (ack_id_w == cap_id_r) & ~void_hard_w;\n",
         "                     & ~void_hard_w;\n")],
     "M05_ack_retires_live_work": [(
-        "  assign dirty_live_n_w = rec_close_w ? 1'b1\n                        : reload_w    ? 1'b0\n",
+        "  assign dirty_live_n_w = rec_close_w ? 1'b1\n                        : reload_ok_w ? 1'b0\n",
         "  assign dirty_live_n_w = rec_close_w ? 1'b1\n                        : ack_ok_w    ? 1'b0\n"
-        "                        : reload_w    ? 1'b0\n")],
+        "                        : reload_ok_w ? 1'b0\n")],
     "M06_hold_does_not_defer": [(
-        "  assign gnt_now_w   = (st_r == S_IDLE) && dev_req_i && !(cap_hold_r && mut_req_w);\n",
+        "  assign gnt_now_w   = (st_r == S_IDLE) && dev_req_i\n"
+        "                     && !((cap_hold_r | arm_ok_w) && mut_req_w);\n",
         "  assign gnt_now_w   = (st_r == S_IDLE) && dev_req_i;\n")],
     "M07_hold_never_expires": [(
         "  assign hold_exp_w  = cap_hold_r & ms_tick_w & (hold_r == HOLD_W_C'(1));\n",
@@ -264,11 +303,11 @@ RTL_MUT = {
         "  assign loss_ev_w = alive_exp_w | commit_exp_w | fail_rep_w | alarm_i;\n",
         "  assign loss_ev_w = alive_exp_w | commit_exp_w | alarm_i;\n")],
     "M14_pending_bit_misses_producer": [(
-        "  assign nvm_pend_o    = pend_r | unres_w;\n",
-        "  assign nvm_pend_o    = unres_w;\n")],
+        "  assign pend_w        = pend_r | unres_w;\n",
+        "  assign pend_w        = unres_w;\n")],
     "M15_pending_bit_misses_open_record": [(
-        "  assign nvm_pend_o    = pend_r | unres_w;\n",
-        "  assign nvm_pend_o    = pend_r;\n")],
+        "  assign pend_w        = pend_r | unres_w;\n",
+        "  assign pend_w        = pend_r;\n")],
     "M17_hold_expiry_voids_capture": [(
         "                   : (close_w | void_grant_w) ? 1'b0 : cap_valid_r;\n",
         "                   : (close_w | void_grant_w | hold_exp_w) ? 1'b0 : cap_valid_r;\n")],
@@ -276,8 +315,31 @@ RTL_MUT = {
     # simply held at 1 passes every "no false durable claim" check, and must
     # be caught by convergence instead
     "M18_pending_bit_stuck": [(
-        "  assign nvm_pend_o    = pend_r | unres_w;\n",
-        "  assign nvm_pend_o    = 1'b1;\n")],
+        "  assign pend_w        = pend_r | unres_w;\n",
+        "  assign pend_w        = 1'b1;\n")],
+    # revision b. The load check has three terms and each is deleted alone.
+    # R01 is the reviewers' mutant on its new seam: the in-flight exception
+    # of the reviewed RELOAD became the in-flight term of the load flag (a
+    # re-base with a mutating operation in flight does not arm it), and R01
+    # deletes that term, which lets a RELOAD close a record an operation was
+    # still writing.
+    "R01_reload_ignores_inflight": [(
+        "               : reconf_w    ? ~inflight_w\n",
+        "               : reconf_w    ? 1'b1\n")],
+    # the since-re-base guard: a mutating grant after the re-base no longer
+    # refuses the RELOAD
+    "R02_reload_ignores_grant_since_rebase": [(
+        "      ld_ok_r <= gnt_opmut_w ? 1'b0\n               : reconf_w    ? ~inflight_w\n",
+        "      ld_ok_r <= reconf_w    ? ~inflight_w\n")],
+    # the once-per-reset rule: a re-base after the boot re-arms a RELOAD
+    "R03_reload_not_once_per_reset": [(
+        "  assign reload_ok_w = reload_w & ld_ok_r & ld_pend_r;\n",
+        "  assign reload_ok_w = reload_w & ld_ok_r;\n")],
+    # the arm edge: a mutating request in the arm's own cycle is granted
+    # (the reviewed prototype's behaviour)
+    "M19_arm_edge_grant_not_deferred": [(
+        "                     && !((cap_hold_r | arm_ok_w) && mut_req_w);\n",
+        "                     && !(cap_hold_r && mut_req_w);\n")],
     # NOT a mutant: the REJECTED ALTERNATIVE of the owner's question 11(a),
     # executed so its rejection has an executed reason. The pending work is
     # folded into nvm_dirty (the status bit, the writer's commit trigger and
@@ -313,6 +375,16 @@ FW_MUT = {
         "\t\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);\n",
         "\t\tnvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | vd);\n"
         "\t\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap_id << 16));\n")],
+    # revision b: the writer takes a refused window load as accepted, so
+    # nothing is reloaded and every record stays open
+    "F07_reload_refusal_ignored": [(
+        "\treturn !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_RELOAD_REF);\n",
+        "\t(void)milan_read(MILAN_PP_NVM_STAT);\n\treturn 1;\n")],
+    # revision b: a restarted writer reloads the window instead of
+    # re-attaching (the backend refuses that RELOAD)
+    "F08_restart_reloads_window": [(
+        "\t} else if (!(stat & NVM_RD_LOAD_PEND)) {\n",
+        "\t} else if (0) {\n")],
 }
 GLUE_MUT = {
     "G01_pending_from_edge_detector": [(
@@ -339,6 +411,16 @@ KILLER = {
     "M15_pending_bit_misses_open_record": ("B5_erase_then_no_write_yet", "no_durable_claim@gap"),
     "M17_hold_expiry_voids_capture": ("C3_hold_expiry_without_producer", "slow_copy_certifies"),
     "M18_pending_bit_stuck": ("A1_stable_no_change", "converged@end"),
+    "R01_reload_ignores_inflight": ("U5_reload_refused_inflight_at_rebase",
+                                    "reload_refused_inflight_at_rebase@after:0x20"),
+    "R02_reload_ignores_grant_since_rebase": ("R1_reload_after_failed_erase",
+                                              "last_verified_kept@end:0x20"),
+    "R03_reload_not_once_per_reset": ("U6_reload_refused_after_boot",
+                                      "held_work_survives_post_boot_reload@reload"),
+    "M19_arm_edge_grant_not_deferred": ("U4_grant_request_on_arm_edge",
+                                        "arm_edge_request_deferred:0x20"),
+    "F07_reload_refusal_ignored": ("R1_reload_after_failed_erase", "converged@end"),
+    "F08_restart_reloads_window": ("W1_writer_restart_reattaches", "converged@end"),
     "A01_composite_durable_bit": ("E1_dyn_change_ack_then_second_change", "pending_drives_no_commit@end"),
     "F06_ack_after_failed_slot": ("F2_reported_flash_failure", "converged@end"),
     "F01_certificate_not_checked": ("C2_hold_expiry_then_erase_with_stale_mask", "last_verified_kept@after:0x21"),
@@ -382,7 +464,10 @@ def do_build(b: Build, shapes: dict[str, ShapeInfo]) -> Build:
     (work / "generated" / "soc.h").write_text(header)
     fw_src = PROTO_FW.read_text() if b.fw_proto else (ROOT / PRODUCTION[3]).read_text()
     fw_src = mutate(fw_src, b.fw_mut, b.name)
-    (work / "milan_baremetal.host.c").write_text(host_firmware(fw_src, 2 if b.fw_proto else 1))
+    host = host_firmware(fw_src, FENCES_PROTO if b.fw_proto else FENCES_TRACKED)
+    if b.fw_proto:
+        host += host_restart(fw_src)
+    (work / "milan_baremetal.host.c").write_text(host)
     be = PROTO_SV.read_text() if b.proto else (ROOT / PRODUCTION[0]).read_text()
     (work / "KL_nvm_backend.sv").write_text(mutate(be, b.rtl_mut, b.name))
     (work / "cosim_top.sv").write_text(mutate(WRAPPER.read_text(), b.glue_mut, b.name))
@@ -442,7 +527,7 @@ def run_case(b: Build, shapes: dict[str, ShapeInfo], case: str, variant: str = "
     argv = [str(b.binary), "--case", case, "--out", str(out), "--records", str(s.records),
             *extra]
     t0 = time.time()
-    p = subprocess.run(["taskset", "-c", "16-31", *argv], text=True, capture_output=True,
+    p = subprocess.run(["taskset", "-c", CPUS, *argv], text=True, capture_output=True,
                        timeout=900)
     wall = time.time() - t0
     (out / "stdout.log").write_text(p.stdout)
@@ -614,6 +699,22 @@ def c_arm_in_gap(rid):
         return ok, (f"ERASE done at {er[-1]['end']}, arm at {arm}, WRITE requested at "
                     f"{wr[0]['req']} and granted at {wr[0]['gnt']}")
     return ck(f"arm_inside_erase_write_gap:0x{rid:02x}", f)
+
+
+def c_inflight_at_arm(rid):
+    """Revision b premise of A11: the BFM WRITE was GRANTED before the arm
+    edge and was still in flight at it (not requested on the arm's own
+    edge, which is deferred now)."""
+    def f(c):
+        wr = [o for o in op_evts(c, "bfm", rid, 1)]
+        arms = strobes(c, 0x8)
+        if not wr or not arms:
+            return None, "no WRITE or no arm on this build"
+        w = wr[-1]
+        arm = min([a for a in arms if a >= w["gnt"]], default=None)
+        ok = arm is not None and w["gnt"] < arm < w["end"]
+        return ok, f"WRITE granted {w['gnt'] - arm if arm else None} relative to the arm, ends {w['end'] - arm if arm else None}"
+    return ck(f"write_in_flight_at_arm:0x{rid:02x}", f)
 
 
 def c_copy_in_gap(rid):
@@ -923,6 +1024,190 @@ def c_restore(tag, want):
     return ck(f"restores_last_verified@{tag}", f)
 
 
+def c_pend_bit():
+    """PP_NVM_STAT[22] IS the pending bit the port publishes, at every
+    observation of a build that carries the contract (revision b: one wire)."""
+    def f(c):
+        bad = [t for t, o in c.r.obs.items()
+               if (o["stat"] >> 24) == TAG_C3 and ((o["stat"] >> 22) & 1) != o["pend"]]
+        return not bad, f"observations where PP_NVM_STAT[22] differs from nvm_pend: {bad or 'none'}"
+    return ck("pending_bit_is_status_bit_22", f)
+
+
+# ---------------------------------------------------- revision b: the load
+def all_strobes(c, bit):
+    """Every strobe carrying `bit`, stray or not: the unit cases write theirs
+    by hand, so they are all stray."""
+    return [e["cyc"] for e in c.r.evts if e["k"] == "strobe" and e["v"] & bit]
+
+
+def live_rec(c, tag, rid):
+    """The record's bytes in the LIVE window at the observation."""
+    raw = (c.r.outdir / f"{tag}-live.bin").read_bytes()
+    off, ln = c.s.recs[rid]
+    return raw[40 + off:40 + off + ln]
+
+
+def own_bit(c, tag, rid):
+    return (c.o(tag)["own"][rid >> 5] >> (rid & 31)) & 1
+
+
+def show(b, key):
+    return "expected " + key if b == F[key] else ("ERASED" if erased(b) else b.hex())
+
+
+def c_every_slot(tag, rid, key):
+    """EVERY slot that validates holds the record, not just the newest: what a
+    power cycle at any later point could restore."""
+    def f(c):
+        got = []
+        for letter in "AB":
+            raw = (c.r.outdir / f"{tag}-slot{letter}.bin").read_bytes()
+            n = struct.unpack_from("<I", raw, 16)[0] if raw[:4] != b"\xff" * 4 else 0
+            blob = raw[:n] if 44 <= n <= 65536 else raw[:44]
+            vd, _ = klj2_decode(blob, c.s.donor, c.s.ident, c.s.expect)
+            if vd == VD_OK:
+                off, ln = c.s.recs[rid]
+                got.append(f"{letter}: {show(blob[40 + off:40 + off + ln], key)}")
+        ok = bool(got) and all(g.endswith("expected " + key) for g in got)
+        return ok, f"verified slots {got or 'none'}"
+    return ck(f"every_verified_slot_keeps@{tag}:0x{rid:02x}", f)
+
+
+def c_no_claim_over_erased_live(tag, rid):
+    def f(c):
+        live, claim = live_rec(c, tag, rid), c.durable_claim(tag)
+        return not (erased(live) and claim), \
+            f"live record 0x{rid:02x} erased {erased(live)}, status claims durable {claim}"
+    return ck(f"no_durable_reading_over_erased_live@{tag}:0x{rid:02x}", f)
+
+
+def c_reload_retried(tag):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no RELOAD on this build"
+        st = c.o(tag)["stat"]
+        said = any("refused 1 window load(s); accepted at attempt 2" in ln for ln in c.r.fw)
+        return said and not (st >> 3) & 1, \
+            f"one refusal then acceptance reported {said}, load pending {(st >> 3) & 1}"
+    return ck(f"reload_refused_then_reloaded@{tag}", f)
+
+
+def c_arm_edge_deferred(rid):
+    """The ERASE was requested in the ARM's own cycle and granted only after
+    the attestation: the hold covers the arm edge itself."""
+    def f(c):
+        if not c.contract("arm"):
+            return None, "no arm on this build"
+        arms, att = all_strobes(c, 0x8), all_strobes(c, 0x10)
+        ops = [o for o in op_evts(c, "bfm", rid, 2) if arms and o["req"] == arms[-1]]
+        if not arms or not att or not ops:
+            return False, "no ERASE requested in the arm's own cycle"
+        op, arm = ops[0], arms[-1]
+        a = min([x for x in att if x > arm], default=None)
+        ok = a is not None and op["gnt"] > a
+        return ok, (f"ERASE requested in the arm's cycle, granted {op['gnt'] - arm} cycles after "
+                    f"it, attestation at {a - arm if a is not None else None}")
+    return ck(f"arm_edge_request_deferred:0x{rid:02x}", f)
+
+
+def c_own_exact_after_arm(tag, rid):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no ownership vector on this build"
+        busy, bit = c.o(tag)["dev_busy"], own_bit(c, tag, rid)
+        return not (busy and not bit), \
+            f"first cycle after the arm edge: dev_busy {busy}, record 0x{rid:02x} open {bit}"
+    return ck(f"ownership_exact_after_arm@{tag}:0x{rid:02x}", f)
+
+
+def c_attest_intact(tag, rid, key):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no attestation on this build"
+        att, live = (c.o(tag)["stat"] >> 19) & 1, live_rec(c, tag, rid)
+        return att == 1 and live == F[key], f"attested {att}, live record 0x{rid:02x} {show(live, key)}"
+    return ck(f"attested_over_intact_record@{tag}:0x{rid:02x}", f)
+
+
+def c_refused_open(tag, rid, label):
+    """The RELOAD was refused and the record still reads open."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no RELOAD on this build"
+        ref, bit = (c.o(tag)["stat"] >> 11) & 1, own_bit(c, tag, rid)
+        return ref == 1 and bit == 1, f"reload refused {ref}, record 0x{rid:02x} open {bit}"
+    return ck(f"{label}@{tag}:0x{rid:02x}", f)
+
+
+def c_closed_equals_load(tag, rid, key):
+    """A record that reads closed holds exactly what the load wrote."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no ownership vector on this build"
+        bit, live = own_bit(c, tag, rid), live_rec(c, tag, rid)
+        return bit == 1 or live == F[key], f"record 0x{rid:02x} open {bit}, live {show(live, key)}"
+    return ck(f"closed_record_equals_load@{tag}:0x{rid:02x}", f)
+
+
+def c_held_work(tag):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no RELOAD on this build"
+        o = c.o(tag)
+        ref = (o["stat"] >> 11) & 1
+        ok = c.dirty_img(tag) == 1 and o["pend"] == 1 and ref == 1
+        return ok, f"committable work {c.dirty_img(tag)}, pending {o['pend']}, reload refused {ref}"
+    return ck(f"held_work_survives_post_boot_reload@{tag}", f)
+
+
+RESET_ROW = {"open": (16, 0), "hold": (17, 0), "valid": (18, 0), "attested": (19, 0),
+             "ack_refused": (20, 0), "arm_refused": (21, 0), "pend_bit": (22, 1),
+             "committable": (8, 0), "img_cfg": (5, 0), "img_valid": (7, 0),
+             "load_pending": (3, 1), "reload_refused": (11, 0)}
+
+
+def c_reset_row(tag):
+    """The reset row of the capture machine: the page's table, bit by bit."""
+    def f(c):
+        if not c.contract(tag):
+            return None, "no capture state on this build"
+        o = c.o(tag)
+        st = o["stat"]
+        bad = {k: (st >> b) & 1 for k, (b, v) in RESET_ROW.items() if (st >> b) & 1 != v}
+        for k, v in (("capid", 0), ("pend", 1), ("backed", 0), ("stale", 0)):
+            if o[k] != v:
+                bad[k] = o[k]
+        own = sorted(w * 32 + b for w in range(8) for b in range(32) if (o["own"][w] >> b) & 1)
+        every = own == sorted(c.s.recs)
+        return not bad and every, (f"mismatches {bad or 'none'}; every allocated record open "
+                                   f"{every} ({len(own)} of {len(c.s.recs)})")
+    return ck(f"reset_row@{tag}", f)
+
+
+def c_early_ack(tag):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no capture state on this build"
+        o = c.o(tag)
+        st = o["stat"]
+        ok = (st >> 20) & 1 and not (st >> 16) & 1 and o["capid"] == 0
+        return bool(ok), f"ack refused {(st >> 20) & 1}, capture open {(st >> 16) & 1}, id {o['capid']}"
+    return ck(f"pre_reset_ack_refused@{tag}", f)
+
+
+def c_reattached(tag):
+    def f(c):
+        if not c.contract(tag):
+            return None, "no restart model on this build"
+        ref = (c.o(tag)["stat"] >> 11) & 1
+        said = any("re-attached" in ln for ln in c.r.fw)
+        ok = said and not ref and c.dirty_img(tag) == 1
+        return ok, (f"re-attach reported {said}, reload refused {ref}, "
+                    f"committable work kept {c.dirty_img(tag)}")
+    return ck(f"restart_reattaches@{tag}", f)
+
+
 def later(tag, rid, key):
     return c_rec(tag, rid, key, "later_record_persists")
 
@@ -945,7 +1230,8 @@ CHECKS = {
     "A8_identity_wrap": [c_ack_only_slot("end", 0x20, "X2")],
     "A9_updates_during_slow_erase": [c_converged("end", {0x20: "X3", 0x21: "Z"}), c_no_loss(),
                                      c_hb_gap(500)],
-    "A11_inflight_write_closes_after_arm": [c_rec("first", 0x21, "Z", "inflight_record_excluded"),
+    "A11_inflight_write_closes_after_arm": [c_inflight_at_arm(0x21),
+                                            c_rec("first", 0x21, "Z", "inflight_record_excluded"),
                                             c_converged("end", {0x20: "X2", 0x21: "Z2"})],
     "A12_last_byte_before_arm_done_after": [c_converged("end", {0x20: "X2", 0x21: "Z2"})],
     "B5_erase_then_no_write_yet": [kept("gap", 0x20, "X"), later("gap", 0x21, "Z2"),
@@ -1007,6 +1293,25 @@ CHECKS = {
     "U1_post_reset_ack": [c_dirty_img("after", 1, "post_reset_ack_retires_nothing")],
     "U2_close_on_arm_edge": [c_dirty_img("acked", 1, "close_on_arm_edge_stays_live")],
     "U3_grant_on_certify_edge": [c_cert_voided("cert")],
+    # revision b
+    "U4_grant_request_on_arm_edge": [c_arm_edge_deferred(0x20), c_own_exact_after_arm("arm", 0x20),
+                                     c_attest_intact("attest", 0x20, "X")],
+    "U5_reload_refused_inflight_at_rebase": [
+        c_refused_open("after", 0x20, "reload_refused_inflight_at_rebase"),
+        c_closed_equals_load("after", 0x20, "X")],
+    "U6_reload_refused_after_boot": [c_refused_open("gap", 0x21, "gap_record_stays_open"),
+                                     c_refused_open("inflight", 0x21, "inflight_record_stays_open"),
+                                     c_held_work("reload")],
+    "U7_reset_row_and_pre_reset_ack": [c_reset_row("reset"), c_early_ack("early_ack"),
+                                       c_dirty_img("after", 1, "post_reset_ack_retires_nothing")],
+    "R1_reload_after_failed_erase": [c_reload_retried("boot"), kept("end", 0x20, "X"),
+                                     c_every_slot("end", 0x20, "X"), later("end", 0x21, "Z2"),
+                                     c_no_claim_over_erased_live("boot", 0x20),
+                                     c_no_claim_over_erased_live("end", 0x20),
+                                     c_converged("end", {0x20: "X", 0x21: "Z2"})],
+    "W1_writer_restart_reattaches": [c_reattached("restarted"),
+                                     c_no_durable_claim("restarted", {0x20: "X2"}),
+                                     c_converged("end", {0x20: "X2", 0x21: "Z"})],
 }
 for name in ("B1_erase_error_full_span", "B2_erase_error_partial_span",
              "B3_erase_error_no_byte", "B4_write_error_after_erase"):
@@ -1033,7 +1338,13 @@ CONTRACT_ONLY = {"A6_late_ack_while_new_capture_open", "A8_identity_wrap",
                  "C1_request_during_hold_is_deferred", "C2_hold_expiry_then_erase_with_stale_mask",
                  "C3_hold_expiry_without_producer", "C5_concurrent_arm_refused",
                  "C8_ack_refused_after_verified_slot", "D4e_silent_inside_capture",
-                 "U2_close_on_arm_edge", "U3_grant_on_certify_edge"}
+                 "U2_close_on_arm_edge", "U3_grant_on_certify_edge",
+                 "U4_grant_request_on_arm_edge", "U5_reload_refused_inflight_at_rebase",
+                 "U6_reload_refused_after_boot", "U7_reset_row_and_pre_reset_ack",
+                 "R1_reload_after_failed_erase", "W1_writer_restart_reattaches"}
+#: cases that run AFTER another case of the same build, on the slots it left
+#: (the reviewers' RELOAD ordering starts from a verified slot A holding X)
+DEPENDENT = {"R1_reload_after_failed_erase": "A1_stable_no_change"}
 #: the prototype's EXPECTED failures, each with its reason
 PROTO_EXPECTED_FAIL = {
     ("E3_binding_inside_manager_debounce", "d1=0", "no_durable_claim@in_debounce"):
@@ -1050,10 +1361,20 @@ CORE_8X8 = ["A2_write_between_verify_and_ack", "A3_write_done_on_ack_edge", "B1_
             "B2_erase_error_partial_span", "B5_erase_then_no_write_yet", "B6_two_failed_records_partial",
             "B9_abandoned_write_stream", "C1_request_during_hold_is_deferred",
             "C2_hold_expiry_then_erase_with_stale_mask", "D1_writer_loss_and_recovery",
-            "E1_dyn_change_ack_then_second_change"]
+            "E1_dyn_change_ack_then_second_change",
+            # revision b: the load, the arm edge and the reset row at the other shape
+            "A1_stable_no_change", "R1_reload_after_failed_erase", "U4_grant_request_on_arm_edge",
+            "U5_reload_refused_inflight_at_rebase", "U6_reload_refused_after_boot",
+            "U7_reset_row_and_pre_reset_ack"]
 
 
 PRODUCER = {'A11_inflight_write_closes_after_arm': 'real + bfm', 'A12_last_byte_before_arm_done_after': 'real + bfm', 'A1_stable_no_change': 'real', 'A2_write_between_verify_and_ack': 'real, #418', 'A3_write_done_on_ack_edge': 'bfm, #418 control', 'A4_write_after_ack': 'real', 'A5_stray_duplicate_ack': 'real + stray', 'A6_late_ack_while_new_capture_open': 'real + stray', 'A8_identity_wrap': 'real + stray', 'A9_updates_during_slow_erase': 'real', 'B10_partial_write_never_closes': 'real + bfm', 'B1_erase_error_full_span': 'real', 'B2_erase_error_partial_span': 'real', 'B3_erase_error_no_byte': 'real', 'B4_write_error_after_erase': 'real', 'B5_erase_then_no_write_yet': 'real + bfm', 'B6_two_failed_records_partial': 'real + bfm', 'B6b_two_failed_records_full': 'real + bfm', 'B7_first_boot_erased_records': 'real', 'B8_first_boot_failed_erase': 'real + bfm', 'B9_abandoned_write_stream': 'real + bfm', 'C1_request_during_hold_is_deferred': 'real + bfm', 'C1r_real_port_request_deferred': 'real', 'C2_hold_expiry_then_erase_with_stale_mask': 'real + bfm', 'C2r_real_port_torn_record_under_stale_mask': 'real', 'C3_hold_expiry_without_producer': 'real', 'C5_concurrent_arm_refused': 'real + stray', 'C7_late_ack_after_commit_deadline': 'real', 'C8_ack_refused_after_verified_slot': 'real + stray', 'D1_writer_loss_and_recovery': 'real', 'D4c_accepted_write_silent': 'real', 'D4d_readiness_withheld': 'real', 'D4e_silent_inside_capture': 'real', 'E1_dyn_change_ack_then_second_change': 'real dyn store', 'E3_binding_inside_manager_debounce': 'real', 'F2_reported_flash_failure': 'real', 'F3_flash_absent_producer_unblocked': 'real', 'U1_post_reset_ack': 'unit', 'U2_close_on_arm_edge': 'unit', 'U3_grant_on_certify_edge': 'unit', 'C2e_real_port_erased_span_under_stale_mask': 'real', 'C1a_real_port_arm_after_erase_done': 'real', 'C1g_real_port_copy_inside_erase_write_gap': 'real'}
+
+
+PRODUCER.update({"U4_grant_request_on_arm_edge": "unit", "U5_reload_refused_inflight_at_rebase": "unit",
+                 "U6_reload_refused_after_boot": "unit", "U7_reset_row_and_pre_reset_ack": "unit",
+                 "R1_reload_after_failed_erase": "real + bfm, slots of A1",
+                 "W1_writer_restart_reattaches": "real, writer restart model"})
 
 
 def grade(run: Run, s: ShapeInfo) -> dict:
@@ -1066,7 +1387,7 @@ def grade(run: Run, s: ShapeInfo) -> dict:
         base = run.variant.split("@")[0]
         return {n: ("pass" if ok else "fail", d) for n, (ok, d) in
                 [(nm, f(c)) for nm, f in [c_restore("restored", POWER_CYCLE[base])]]}
-    checks = list(CHECKS.get(run.case, [])) + [c_no_101()]
+    checks = list(CHECKS.get(run.case, [])) + [c_no_101(), c_pend_bit()]
     if run.pending:
         return {n: ("n/a", "the hook this case needs never fired on this build")
                 for n, _ in checks}
@@ -1168,6 +1489,8 @@ def case_jobs(b: Build, cases: list[str]) -> list[tuple]:
     for case in (CORE_8X8 if b.shape == "8x8" else cases):
         if b.name == "proto-w2-1x1" and case != "A8_identity_wrap":
             continue
+        if case in DEPENDENT:
+            continue
         if case == "E3_binding_inside_manager_debounce":
             out += [(b, case, f"d1={d}", ("--d1", d)) for d in ("0", "1")]
         else:
@@ -1210,6 +1533,15 @@ def phase_run(builds, shapes, cases, jobs):
            ("--slot-a", str(r.outdir / "end-slotA.bin"),
             "--slot-b", str(r.outdir / "end-slotB.bin")))
           for r in runs if r.case in POWER_CYCLE and "end" in r.obs]
+    # a dependent case runs on the slots its parent case of the same build
+    # left, on every build that runs that parent (not the mixed build and
+    # not the 2-bit identity build, which run one case each)
+    pc += [(next(x for x in builds if x.name == r.build), dep, "",
+            ("--slot-a", str(r.outdir / "end-slotA.bin"),
+             "--slot-b", str(r.outdir / "end-slotB.bin")))
+           for dep, parent in DEPENDENT.items() for r in runs
+           if r.case == parent and "end" in r.obs and not r.build.startswith("mix-")
+           and r.build != "proto-w2-1x1"]
     with cf.ThreadPoolExecutor(max_workers=jobs) as ex:
         list(ex.map(lambda j: save_run(run_case(j[0], shapes, j[1], j[2], j[3])), pc))
 
@@ -1234,8 +1566,18 @@ def phase_grade(builds, shapes, before, skip_area) -> int:
         for chk, (st, det) in g.items():
             if st == "fail" and (case, variant, chk) not in PROTO_EXPECTED_FAIL:
                 findings.append(f"PROTOTYPE {bname} {case} {variant} {chk}: {det}")
-            if st == "n/a" and case not in CONTRACT_ONLY:
-                findings.append(f"PROTOTYPE {bname} {case} {variant} {chk}: not expressible")
+            # revision b: no check of any case may grade n/a on the
+            # prototype, so a hook that never fired cannot pass quietly
+            if st == "n/a":
+                findings.append(f"PROTOTYPE {bname} {case} {variant} {chk}: n/a ({det})")
+    # every case with checks was graded on each prototype shape it belongs to
+    for bname, want in (("proto-1x1", list(CHECKS)), ("proto-8x8", CORE_8X8)):
+        if not any(bn == bname for (bn, _, _) in graded):
+            continue
+        ran = {case for (bn, case, _) in graded if bn == bname}
+        for case in want:
+            if case not in ran:
+                findings.append(f"PROTOTYPE {bname} {case}: never graded")
     for (case, variant, chk), why in PROTO_EXPECTED_FAIL.items():
         if res("proto-1x1", case, variant, chk) != "fail":
             findings.append(f"EXPECTED-FAIL control did not fail: {case} {variant} {chk} ({why})")
@@ -1274,7 +1616,8 @@ def phase_grade(builds, shapes, before, skip_area) -> int:
         w = BUILD / f"refusal-{label}"
         (w / "generated").mkdir(parents=True, exist_ok=True)
         (w / "generated" / "soc.h").write_text(hdr)
-        (w / "fw.c").write_text(host_firmware(fw, 2 if "new_writer" in label else 1))
+        (w / "fw.c").write_text(host_firmware(fw, FENCES_PROTO if "new_writer" in label
+                                              else FENCES_TRACKED))
         p = cmd(["gcc", "-std=gnu11", "-fsyntax-only", "-Wall", "-Wextra", "-Werror",
                  "-Wno-format", f"-I{w}", f"-I{STUBS}", str(w / "fw.c")],
                 LOGS / f"refusal-{label}.log", check=False)
@@ -1346,8 +1689,11 @@ def main() -> int:
     ap.add_argument("--quick", action="store_true", help="1x1 tracked and prototype only")
     ap.add_argument("--skip-area", action="store_true")
     ap.add_argument("--phase", choices=("all", "build", "run", "grade"), default="all")
-    ap.add_argument("--builds", default="*", help="fnmatch pattern over build names")
+    ap.add_argument("--builds", default="*",
+                    help="fnmatch pattern over build names, or a comma list of them")
+    ap.add_argument("--cpus", default=CPUS, help="taskset CPU list for every command")
     args = ap.parse_args()
+    globals()["CPUS"] = args.cpus
     jobs = min(args.jobs, 8)
     for d in (BUILD, RUNS, LOGS, HERE / "tmp"):
         d.mkdir(parents=True, exist_ok=True)
@@ -1355,7 +1701,7 @@ def main() -> int:
     shapes = {n: shape(n) for n in (("1x1",) if args.quick else ("1x1", "8x8"))}
     builds = all_builds(args.quick)
     import fnmatch
-    sel = [b for b in builds if fnmatch.fnmatch(b.name, args.builds)]
+    sel = [b for b in builds if any(fnmatch.fnmatch(b.name, p) for p in args.builds.split(","))]
     if args.phase in ("all", "build"):
         with cf.ThreadPoolExecutor(max_workers=max(1, jobs // 2)) as ex:
             list(ex.map(lambda b: do_build(b, shapes), sel))

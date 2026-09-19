@@ -10,8 +10,8 @@ g++    cosim_bridge.o cosim_cases.o verilated.o verilated_dpi.o verilated_thread
 rm Vcosim_top__ALL.verilator_deplist.tmp
 make: Leaving directory '<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
-- Verilator: Built from 0.451 MB sources in 7 modules, into 0.497 MB in 7 C++ files needing 0.000 MB
-- Verilator: Walltime 6.339 s (elab=0.028, cvt=0.067, bld=6.209); cpu 0.132 s on 2 threads; allocated 25.496 MB
+- Verilator: Built from 0.453 MB sources in 7 modules, into 0.490 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 6.443 s (elab=0.027, cvt=0.061, bld=6.333); cpu 0.115 s on 2 threads; allocated 25.438 MB
 %Warning-SYNCASYNCNET: <CHECKOUT>/proposal-evidence/build/proto-w2-1x1/cosim_top.sv:50:25: Signal flopped as both synchronous and async: 'rst_n'
                        <CHECKOUT>/proposal-evidence/build/proto-w2-1x1/cosim_top.sv:360:10: ... Location of async usage
   360 |     if (!rst_n) begin

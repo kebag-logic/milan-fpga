@@ -14,6 +14,36 @@ Owner decision recorded 2026-09-18: question 11(a) is decided, accepted
 producer work not yet represented in a verified slot is reported on a
 SEPARATE pending bit. Question 11(b) is answered in section 16.
 
+## REVISION B (after the contract review of pull request 470)
+
+The design page docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md on branch
+419-snapshot-ownership-adr carries the revised contract in full; the text
+below this section is round 3 as reviewed, and where it disagrees with this
+section, this section and the page win. The evidence in this directory is
+re-run in full for revision b (COMMAND_RESULTS.md).
+
+1. RELOAD is checked by the backend. A load flag is armed by a re-base (a
+   write to the image base, the image length or a channel-map table) only
+   when no mutating operation is in flight on that edge, and every mutating
+   grant after it clears the flag. RELOAD is accepted only with the flag set
+   and only once per reset (load pending, PP_NVM_STAT[3]). An accepted
+   RELOAD closes every record and clears both dirty halves, as before; the
+   in-flight exception is gone, because an accepted RELOAD can no longer
+   meet an operation in flight. A refused RELOAD changes nothing and sets
+   PP_NVM_STAT[11]. The writer re-bases, loads the window, strobes RELOAD,
+   repeats a refused load up to four times, and publishes the sequence and
+   the validity bit only after an accepted one. A writer restart without a
+   fabric reset (load pending 0) re-attaches: no re-base, no load, no
+   RELOAD; RELEASE; publish. Cases R1 (the reviewers' ordering, on A1's
+   slots), U5, U6, W1; mutants R01, R02, R03, F07, F08.
+2. The arm edge defers: a mutating request in the arm's own cycle is not
+   granted; the open vector is exact from the first cycle after the arm.
+   Case U4; mutant M19. A11 now lets its WRITE be granted before the arm.
+3. Reset row and identity across reset: case U7 (the reset row bit by bit,
+   a pre-reset acknowledgement before and after the post-reset boot load).
+4. PP_NVM_STAT[22] is nvm_pend (the port and the status bit are one wire);
+   check pending_bit_is_status_bit_22 on every run.
+
 ## Contents
 
 1. Context

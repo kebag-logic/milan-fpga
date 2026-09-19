@@ -246,8 +246,9 @@ void bfm_run() {
 uint32_t ack_word(uint32_t id) { return 0x2u | (id << 16); }
 
 //! unit cases: the control face configured by hand, exactly as the writer
-//! configures it, with no firmware running
-void unit_configure() {
+//! configures it, with no firmware running. The RE-BASE: base, length and
+//! the channel-map tables (every record reads open; the load flag arms).
+void unit_rebase() {
   cosim_rtl_csr_write(0, uint32_t(uintptr_t(cosim::area())));
   unsigned len = 0;
   for (auto &r : recs) len = std::max(len, r.second.off + r.second.len);
@@ -263,11 +264,40 @@ void unit_configure() {
       po += r.second.len;
     }
   }
+  host_catch_up();
+}
+
+void unit_configure() {
+  unit_rebase();
   cosim_rtl_csr_write(3, 0x10u);   // validated, VD_OK
   cosim_rtl_csr_write(4, 0x40u);   // reload (no such strobe on the tracked module)
   cosim_rtl_csr_write(4, 0x1u);    // heartbeat
   host_catch_up();
 }
+
+//! what a writer's window load does to one record: its framed bytes,
+//! written straight into the live record area by the CPU
+void load_record(unsigned rid, const std::vector<uint8_t> &f) {
+  std::memcpy(cosim::area() + off_of(rid), f.data(), f.size());
+}
+
+//! the record's bytes in the live record area, as a hex string
+std::string live_hex(unsigned rid) {
+  const auto it = recs.find(rid);
+  if (it == recs.end()) fatal("record id not in the table");
+  std::string s;
+  char b[4];
+  for (unsigned i = 0; i < it->second.len; ++i) {
+    std::snprintf(b, sizeof b, "%02x", cosim::area()[it->second.off + i]);
+    s += b;
+  }
+  return s;
+}
+
+//! the writer's restart: appended by run.py to the HOST build of the
+//! prototype writer only (a CPU-only reset returns every static of the
+//! writer to its initial value and runs its boot again); absent elsewhere
+extern "C" void nvm_host_writer_restart(void) __attribute__((weak));
 
 std::map<std::string, std::function<void()>> cases;
 
@@ -380,7 +410,15 @@ void register_cases() {
     bfm_run();                               // record 0x21 open, not closed
     bind(X2);
     on_next("s_arm", [] {
-      bfm_write(0x21, bind_frame(Z2), -1, 20);   // in flight at the arm edge
+      // GRANTED BEFORE the arm edge and still in flight at it: a request in
+      // the arm's own cycle is deferred since revision b (U4 is that edge)
+      bfm_write(0x21, bind_frame(Z2), -1, 20);
+      if (!run_until([] { return !evlog.ops.empty() && evlog.ops.back().bfm &&
+                                 evlog.ops.back().op == 1 && evlog.ops.back().rid == 0x21; },
+                     1000))
+        fatal("the WRITE was not granted");
+      run_cycles(5);
+      note("write_granted_before_arm", evlog.ops.back().gnt);
     });
     idle_until([] { return hooks("s_ack") >= 2; }, 6000);
     snap("first");
@@ -796,6 +834,125 @@ void register_cases() {
     // the next edge grants the deferred ERASE: certify on that same edge
     stray(4, 0x10u);
     snap("cert");
+  };
+  cases["U4_grant_request_on_arm_edge"] = [] {                   // unit
+    // Both reviews' ordering: a mutating request on a CLOSED record rises
+    // in the ARM's own cycle. It must be deferred like any request inside
+    // the hold, so no operation runs in a capture whose vector reads the
+    // record closed.
+    unit_configure();
+    bfm_erase(0x20);
+    bfm_write(0x20, bind_frame(X));
+    bfm_run();                               // record 0x20 CLOSED, committable
+    bfm_erase(0x20);                         // its request rises on the next edge...
+    stray(4, 0x8u);                          // ...which is the ARM's own edge
+    note("arm_cycle", evlog.strobes.back().cyc);
+    snap("arm");                             // the first cycle after the arm edge
+    run_cycles(300);                         // longer than the whole ERASE takes
+    stray(4, 0x10u);                         // ATTEST
+    snap("attest");
+    bfm_run();                               // the deferred ERASE runs after it
+    stray(4, ack_word(csr_peek(5)));
+    snap("acked");
+  };
+  cases["U5_reload_refused_inflight_at_rebase"] = [] {           // unit
+    // Before the boot load is declared: an ERASE of 0x20 is granted, is
+    // still writing when the image is re-based, and ends in err without
+    // done after the writer's load of X. No grant follows the re-base, so
+    // only the in-flight term can refuse the RELOAD.
+    unit_rebase();
+    fault(0x20, 10, 3, 1, 1, 400);           // byte 10 completes 400 cycles late
+    fault(0x20, 27, 0, 1);                   // the last byte fails: err, no done
+    bfm_erase(0x20);
+    if (!run_until([] { return evlog.slow >= 1; }, 200000)) fatal("no slow byte");
+    note("dev_busy_at_rebase", levels().dev_busy);
+    cosim_rtl_csr_write(0, uint32_t(uintptr_t(cosim::area())));   // re-base, ERASE in flight
+    load_record(0x20, bind_frame(X));        // the writer's load
+    bfm_run();                               // the ERASE goes on over the load, then errs
+    faults.clear();
+    cosim_rtl_csr_write(3, 0x10u);
+    stray(4, 0x40u);                         // RELOAD
+    snap("after");
+  };
+  cases["U6_reload_refused_after_boot"] = [] {                   // unit
+    unit_configure();                        // the boot load, accepted
+    bfm_erase(0x20);
+    bfm_write(0x20, bind_frame(X));
+    bfm_run();                               // 0x20 closed: committable work
+    // (a) review probe P5: the ERASE-to-WRITE gap, then a RELOAD, no re-base
+    bfm_erase(0x21);
+    bfm_run();                               // 0x21 erased, open, device idle
+    stray(4, 0x40u);
+    snap("gap");
+    // (b) review probe P3: a RELOAD with a whole-record WRITE in flight
+    bfm_write(0x21, bind_frame(Z), -1, 50);
+    run_cycles(40);
+    note("dev_busy_at_reload", levels().dev_busy);
+    stray(4, 0x40u);
+    snap("inflight");
+    bfm_run();                               // 0x21 closes: committable work
+    // (c) a window load after the boot, over held work: a re-base with
+    //     nothing in flight and no grant after it, the load of the older
+    //     binding, a RELOAD. Only the once-per-reset rule can refuse it.
+    cosim_rtl_csr_write(0, uint32_t(uintptr_t(cosim::area())));
+    load_record(0x20, bind_frame(X2));
+    stray(4, 0x40u);
+    snap("reload");
+  };
+  cases["U7_reset_row_and_pre_reset_ack"] = [] {                 // unit
+    unit_configure();
+    bfm_erase(0x20);
+    bfm_write(0x20, bind_frame(X));
+    bfm_run();
+    stray(4, 0x8u);                          // capture 1
+    stray(4, 0x10u);                         // attested
+    note("pre_reset_id", csr_peek(5));
+    reset_rtl();
+    snap("reset");                           // the reset row
+    stray(4, ack_word(1));                   // the pre-reset ACK, nothing configured yet
+    snap("early_ack");
+    unit_configure();                        // the post-reset boot load
+    bfm_erase(0x20);
+    bfm_write(0x20, bind_frame(X2));
+    bfm_run();                               // post-reset work, committable
+    stray(4, ack_word(1));                   // the pre-reset ACK before any post-reset ARM
+    snap("after");
+  };
+
+  // R. THE LOAD WITH THE REAL WRITER (revision b) ------------------------------
+  cases["R1_reload_after_failed_erase"] = [] {                   // real + bfm, slots preloaded
+    // The reviewers' ordering, on the slots of an A1 run (slot A: X in
+    // record 0x20). Between the writer's window load and its RELOAD strobe
+    // an ERASE of 0x20 blanks the whole span and ends in err without done
+    // (the round-1 shape). The backend refuses that RELOAD; the writer
+    // re-bases and loads again; a later change commits.
+    on_next("s_reload", [] {
+      fault(0x20, 27, 0, 1);
+      bfm_erase(0x20);
+      bfm_run();
+      faults.clear();
+      note("own1_before_reload", csr_peek(9));
+    });
+    boot();
+    bind(Z2);
+    idle(3000);
+    snap("end");
+  };
+  cases["W1_writer_restart_reattaches"] = [] {                   // real
+    // A CPU-only reset: the writer restarts, the fabric keeps its state,
+    // with a newer binding in the window that no slot holds yet.
+    if (!nvm_host_writer_restart) {          // only the prototype writer has it
+      on_next("no_restart_model", [] {});
+      return;
+    }
+    base();
+    bind(X2);
+    idle(600);                               // flushed; the writer's debounce runs
+    snap("before");
+    nvm_host_writer_restart();
+    snap("restarted");
+    idle(3000);
+    snap("end");
   };
 }
 

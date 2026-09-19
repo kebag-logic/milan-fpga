@@ -27,6 +27,16 @@
 //  owner decision on issue #419, 2026-09-18). The manager alarm and a
 //  reported flash failure revoke nvm_backed, as section 9.2 lists.
 //
+//  THE LOAD (revision b). RELOAD, the firmware's claim that the window now
+//  holds a verified container it just loaded, is CHECKED here the way the
+//  capture's certificate is: a load flag is armed by a re-base (a write to
+//  the image base, length or a channel-map table) only while no mutating
+//  operation is in flight, and any mutating grant after it clears the flag.
+//  A RELOAD is accepted only with the flag set and only once per reset (the
+//  boot load); a refused RELOAD changes nothing but its refusal bit. So an
+//  accepted RELOAD never meets an operation that ended without closing its
+//  record, and a record is never closed on device idle.
+//
 //  File        : KL_nvm_backend.sv
 //  Project     : Milan FPGA -- saved state and fast connect
 //                (docs/design/SAVED_STATE_FASTCONNECT.md sections 4, 8, 9)
@@ -414,6 +424,8 @@ module KL_nvm_backend #(
   logic        img_cfg_w, img_live_w;
   //! PROTOTYPE strobes and events
   logic        arm_w, cert_w, release_w, reload_w, reconf_w, map_we_w, fail_rep_w;
+  //! PROTOTYPE (revision b): the RELOAD strobe after the backend's check
+  logic        reload_ok_w;
   logic [CAP_ID_W_P-1:0] ack_id_w;
 
   assign reg_we_w       = csr_sel_i & csr_we_i & ~csr_addr_i[5];
@@ -502,11 +514,19 @@ module KL_nvm_backend #(
   logic [7:0]            op_region_r;
   logic                  op_mut_r, op_full_r;
   //! the grant's set, applied from op_region_r one cycle later so that one
-  //! comparator per record serves the set, the close and the reload. Safe
-  //! because the writer reads ownership only after its arm and the hold
-  //! defers every mutating grant from the arm on: a grant the arm could race
-  //! is one cycle before it, and its set lands on the arm edge
+  //! comparator per record serves the set and the close. Exact from the first
+  //! cycle after an arm: the arm's own edge defers every mutating request
+  //! (gnt_now_w below), so the last grant an arm can follow is on the edge
+  //! before it, and that grant's set lands on the arm edge
   logic                  set_q_r;
+  //! the load (revision b): ld_ok_r, armed by a re-base with no mutating
+  //! operation in flight and cleared by every mutating grant after it;
+  //! ld_pend_r, no RELOAD accepted since reset (RELOAD is the boot load);
+  //! rl_ref_r, the last RELOAD strobe was refused
+  logic                  ld_ok_r, ld_pend_r, rl_ref_r;
+  logic                  inflight_w;
+  //! THE PENDING BIT, one wire for the port and the status word's [22]
+  logic                  pend_w;
 
   assign unres_w     = |open_r;
   assign dirty_img_w = dirty_live_r | dirty_cap_r;
@@ -529,15 +549,20 @@ module KL_nvm_backend #(
         R_IMG_LEN_C:  csr_rdata_o = img_len_r;
         R_SEQ_C:      csr_rdata_o = seq_r;
         //! the status word: [31:24] the capture-contract tag, [23] unres,
-        //! [22] pend, [21] arm refused, [20] ack refused, [19] certified,
-        //! [18] valid, [17] hold, [16] open, then the tracked layout below
-        //! with [8] now the COMMITTABLE image work that drives a commit
-        R_STAT_C:     csr_rdata_o = {CAP_TAG_C, unres_w, pend_r, arm_ref_r,
+        //! [22] nvm_pend (the pending bit, the same wire as the port),
+        //! [21] arm refused, [20] ack refused, [19] certified, [18] valid,
+        //! [17] hold, [16] open, then the tracked layout below with [8] now
+        //! the COMMITTABLE image work that drives a commit, and two load
+        //! bits in positions the tracked layout keeps zero: [11] the last
+        //! RELOAD was refused, [3] load pending (no RELOAD accepted since
+        //! reset)
+        R_STAT_C:     csr_rdata_o = {CAP_TAG_C, unres_w, pend_w, arm_ref_r,
                                      ack_ref_r, cap_cert_r, cap_valid_r,
                                      cap_hold_r, cap_open_r,
-                                     verdict_r, 1'b0, commit_busy_r,
+                                     verdict_r, rl_ref_r, commit_busy_r,
                                      nvm_stale_o, dirty_img_w, img_valid_r,
-                                     backed_r, img_cfg_w, dev_busy_w, 4'd0};
+                                     backed_r, img_cfg_w, dev_busy_w,
+                                     ld_pend_r, 3'd0};
         R_CAPID_C:    csr_rdata_o = 32'(cap_id_r);
         default:      csr_rdata_o = 32'd0;
       endcase
@@ -623,7 +648,7 @@ module KL_nvm_backend #(
       if (commit_start_w) begin
         commit_r      <= 16'(T_COMMIT_MS_P);
         commit_busy_r <= 1'b1;
-      end else if (ack_ok_w || release_w || reload_w || reconf_w) begin
+      end else if (ack_ok_w || release_w || reload_ok_w || reconf_w) begin
         commit_busy_r <= 1'b0;
       end else if (commit_busy_r && ms_tick_w && (commit_r != 16'd0)) begin
         commit_r <= commit_r - 16'd1;
@@ -639,11 +664,12 @@ module KL_nvm_backend #(
   //  PROTOTYPE: the capture machine. ONE capture at a time; its identity
   //  advances only on an accepted arm, so it names captures, not attempts.
   // -----------------------------------------------------------------------
-  //! reload and reconf end any capture; a lapsed commit deadline does NOT
-  //! (design page section 16: a late-but-valid completion is accepted as
-  //! data and does not by itself resurrect nvm_backed)
+  //! an ACCEPTED reload and reconf end any capture; a refused reload changes
+  //! nothing; a lapsed commit deadline does NOT (design page section 16: a
+  //! late-but-valid completion is accepted as data and does not by itself
+  //! resurrect nvm_backed)
   logic void_hard_w;
-  assign void_hard_w = reload_w | reconf_w;
+  assign void_hard_w = reload_ok_w | reconf_w;
   assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w;
   assign hold_exp_w  = cap_hold_r & ms_tick_w & (hold_r == HOLD_W_C'(1));
   //! a mutating grant between the arm and the certificate: only reachable
@@ -668,11 +694,11 @@ module KL_nvm_backend #(
   //! or after its edge is never retired by it. A completion on the arm edge
   //! stays live (it may or may not be in the copy; one extra commit).
   assign dirty_live_n_w = rec_close_w ? 1'b1
-                        : reload_w    ? 1'b0
+                        : reload_ok_w ? 1'b0
                         : arm_ok_w    ? 1'b0
                         : drop_w      ? (dirty_live_r | dirty_cap_r)
                                       : dirty_live_r;
-  assign dirty_cap_n_w  = reload_w           ? 1'b0
+  assign dirty_cap_n_w  = reload_ok_w        ? 1'b0
                         : arm_ok_w           ? dirty_live_r
                         : (ack_ok_w | drop_w) ? 1'b0
                                              : dirty_cap_r;
@@ -712,12 +738,13 @@ module KL_nvm_backend #(
     end
   end
 
+  assign pend_w        = pend_r | unres_w;
   assign nvm_backed_o  = backed_r;
   assign nvm_dirty_o   = dirty_img_w;
   assign nvm_stale_o   = stale_r;
   assign nvm_verdict_o = verdict_r;
   assign img_valid_o   = img_valid_r;
-  assign nvm_pend_o    = pend_r | unres_w;
+  assign nvm_pend_o    = pend_w;
   assign nvm_unres_o   = unres_w;
 
   // =======================================================================
@@ -765,11 +792,15 @@ module KL_nvm_backend #(
 
   //! PROTOTYPE: a WRITE or ERASE request is DEFERRED (no grant, the port
   //! holds its request) while a capture holds the image; a READ never is.
-  //! The hold is bounded by T_HOLD_MS_P, after which the request is granted
-  //! and the capture it overlaps can no longer be certified.
+  //! The hold starts ON the arm edge: a request in the arm's own cycle is
+  //! deferred like any later one, so no mutating operation starts inside a
+  //! capture before its record reads open (revision b). The hold is bounded
+  //! by T_HOLD_MS_P, after which the request is granted and the capture it
+  //! overlaps can no longer be certified.
   logic mut_req_w, gnt_now_w;
   assign mut_req_w   = (dev_op_i == OP_WRITE_C) || (dev_op_i == OP_ERASE_C);
-  assign gnt_now_w   = (st_r == S_IDLE) && dev_req_i && !(cap_hold_r && mut_req_w);
+  assign gnt_now_w   = (st_r == S_IDLE) && dev_req_i
+                     && !((cap_hold_r | arm_ok_w) && mut_req_w);
   //! the grant of an operation that WILL present memory writes to its record
   assign gnt_opmut_w = gnt_now_w && mut_req_w && img_cfg_w && span_ok_w
                      && (eff_len_w != 16'd0);
@@ -981,10 +1012,36 @@ module KL_nvm_backend #(
         || (id >= ID_NAME_C && id < ID_NAME_C + N_NAME_P);
   endfunction
 
-  logic       inflight_w;
-
   //! an operation is still in flight and will keep writing its own record
   assign inflight_w = (st_r != S_IDLE) & op_mut_r;
+
+  // -----------------------------------------------------------------------
+  //  PROTOTYPE (revision b): the load check, the capture's valid flag in
+  //  reverse. The firmware re-bases, loads the window from a verified slot
+  //  and strobes RELOAD; nothing but the load may have written the window in
+  //  between, and the backend, not the firmware, decides whether that held.
+  // -----------------------------------------------------------------------
+  //! accepted only while the load flag is set AND the boot load is still
+  //! pending: once per reset, so a RELOAD can never replace a window the
+  //! producer has been writing since
+  assign reload_ok_w = reload_w & ld_ok_r & ld_pend_r;
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      ld_ok_r   <= 1'b0;
+      ld_pend_r <= 1'b1;
+      rl_ref_r  <= 1'b0;
+    end else begin
+      //! PRIORITY: a mutating grant clears the flag, even on a re-base
+      //! edge; a re-base arms it only with no mutating operation in flight,
+      //! because such an operation keeps writing its record after the load
+      ld_ok_r <= gnt_opmut_w ? 1'b0
+               : reconf_w    ? ~inflight_w
+                             : ld_ok_r;
+      if (reload_ok_w) ld_pend_r <= 1'b0;
+      if (reload_w)    rl_ref_r  <= ~reload_ok_w;
+    end
+  end
 
   for (genvar gi = 0; gi < 256; gi++) begin : g_own
     if (alloc_f(gi)) begin : g_alloc
@@ -993,13 +1050,12 @@ module KL_nvm_backend #(
       //! PRIORITY, highest first: a re-based image makes every record
       //! unknown; a grant opens its record, one cycle after the grant (it
       //! wins a same-edge close or reload, because the operation is still to
-      //! come); a reload
-      //! makes every record a completed one except the one still in flight;
-      //! a whole-record completion closes its record.
+      //! come); an ACCEPTED reload makes every record a completed one (it
+      //! meets no operation in flight: see reload_ok_w); a whole-record
+      //! completion closes its record. Nothing closes a record on idle.
       assign open_n_w = reconf_w
                           | (set_q_r & hit_w)
-                          | (reload_w & inflight_w & hit_w)
-                          | (~reload_w & open_r[gi] & ~(rec_close_w & hit_w));
+                          | (~reload_ok_w & open_r[gi] & ~(rec_close_w & hit_w));
       always_ff @(posedge clk_i) begin
         if (!rst_n) open_r[gi] <= 1'b1;   // unknown until the writer reloads
         else        open_r[gi] <= open_n_w;

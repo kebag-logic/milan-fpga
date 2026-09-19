@@ -35,7 +35,56 @@ EXAMINED_EXTRA = [
 ]
 
 SESSION = """\
-## Session narrative
+## Session narrative, revision b (this record)
+
+Revision b answers the contract review of pull request 470 at b6ae45a5 (one
+NEGATIVE, one POSITIVE) and the manager direction of issue 419 comment
+5743971020. Every command ran in the foreground from the checkout root with
+rtk in front; compiling and simulating steps ran under taskset -c 96-127 with
+at most 8 workers (run.py adds both to every command it spawns; the CPU list
+is run.py's CPUS, 16-31 in the reviewed record).
+
+What changed in the evidence sources: the prototype backend checks RELOAD
+(a load flag armed by a re-base with no mutating operation in flight and
+cleared by any mutating grant, accepted once per reset, refusal published at
+PP_NVM_STAT[11], load pending at [3]); a mutating request in the arm's own
+cycle is deferred; PP_NVM_STAT[22] is nvm_pend itself. The prototype writer
+re-bases before it loads the window, repeats a refused load (at most four
+times), publishes only after an accepted RELOAD, and re-attaches without a
+reload when the backend reports no load pending (a writer restart without a
+fabric reset). The harness gains cases R1, U4, U5, U6, U7 and W1, A11 now
+waits for its WRITE's grant before the arm, and run.py gains the mutants R01,
+R02, R03, M19, F07 and F08, the check pending_bit_is_status_bit_22 on every
+run, and the rule that no check of any case may grade n/a on a prototype
+build. The reviewed record's console logs are kept, unpublished, in
+prior-session/round3-reviewed-console/.
+
+| Step | Command | Exit | Result |
+|---|---|---|---|
+| 1 | remove build/, runs/, logs/, tmp/, results.* (clean state) | 0 | - |
+| 2 | python3 -B proposal-evidence/run.py --jobs 8 --phase build | 1 | 30 s; refused: mutant M06's seam missed the grant line that revision b splits in two (console/revb-0-build-seam-failure.log). M06 re-seamed on the whole new line; every seam then checked to hit exactly once |
+| 3 | clean state again, then python3 -B proposal-evidence/run.py --jobs 8 --phase build | 0 | 72 s, 37 builds |
+| 4 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "prod-*,proto-*,mix-*" | 0 | 55 s, 150 runs |
+| 5 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "mut-M*" | 0 | 321 s |
+| 6 | python3 -B proposal-evidence/run.py --jobs 8 --phase run --builds "mut-R*,mut-F*,mut-G*,mut-A*" | 0 | 234 s; 1824 runs in all |
+| 7 | python3 -B proposal-evidence/run.py --jobs 8 --phase grade | 0 | NO FINDINGS: every expectation holds |
+| 8 | python3 -B proposal-evidence/make_command_results.py | 0 | this file |
+
+The run phase was split in three so each foreground call stays inside the
+session's command time limit; the split changes nothing a run sees (every
+run is its own process and each build's dependent runs follow its own runs).
+
+Stopped steps: NONE. No tool call or step was refused or stopped by an
+automatic safety filter in this session. No compiler-callback or binary
+instrumentation was used; the only source adaptations are run.py's counted
+textual seams (the firmware's two CSR primitives and its three fences, the
+single counted replacement of each mutant) and, in the host build of the
+prototype writer only, an appended function that models a CPU-only reset (it
+returns the writer's file-scope variables to their initial values and runs
+the writer's boot again; run.py refuses to build it unless it names every
+such variable).
+
+## Session narrative, round 3 as reviewed (history)
 
 Every command below ran in the foreground from the checkout root with rtk in
 front; compiling and simulating steps also ran under taskset -c 16-31 with at
@@ -65,13 +114,9 @@ prior-session/unused-drafts/, and the empty mutants/ directory was removed
 | 9 | clean state, then run.py --phase build, --phase run, --phase grade | 0, 0, 0 | FINAL: 1278 runs, no findings |
 | 10 | M02's named killer changed from B5 to the real-port C1g in run.py; run.py --phase grade | 0 | no findings |
 | 11 | the rejected composite-bit alternative added as build mut-A01_composite_durable_bit; run.py --phase build --builds 'mut-A01*', --phase run --builds 'mut-A01*', --phase grade | 0, 0, 0 | FINAL results.txt: 1326 runs, NO FINDINGS |
-| 12 | python3 -B proposal-evidence/make_command_results.py | 0 | this file |
+| 12 | python3 -B proposal-evidence/make_command_results.py | 0 | the reviewed record |
 
-Stopped steps: NONE. No tool call or step was refused or stopped by an
-automatic safety filter in this session. No compiler-callback or binary
-instrumentation was used; the only source adaptation is run.py's counted
-textual seams (the firmware's two CSR primitives and its fences, and the
-single counted replacement of each mutant).
+Stopped steps in that session: NONE.
 """
 
 
@@ -85,7 +130,7 @@ def git(*a, cwd=ROOT) -> str:
 
 def main() -> None:
     res = json.loads((HERE / "results.json").read_text())
-    out = ["# Command results for the issue 419 round-3 proposal", "",
+    out = ["# Command results for the issue 419 round-3 proposal, revision b", "",
            "Paths are relative to the checkout root; <CHECKOUT> in a recorded "
            "command stands for it.", "", "## Source", ""]
     out.append(f"- dev {git('rev-parse', 'HEAD')}")
