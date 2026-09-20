@@ -23,7 +23,8 @@ struct cosim_levels {
 
 struct host_counters {
 	unsigned erases, programs, rdsr, pagewrap, hb;
-	uint64_t hb_max_gap_ns, now_ns;
+	uint64_t hb_max_gap_ns;
+	uint64_t now_ns;
 };
 
 /* RTL side (cosim_bridge.cpp) */

@@ -42,7 +42,8 @@ struct Binding {
   unsigned sink = 0;
   unsigned bound = 1, started = 1, sw = 0;
   unsigned uid = 1;
-  uint64_t teid = 0, ceid = 0;
+  uint64_t teid = 0;
+  uint64_t ceid = 0;
 };
 
 struct Preload {
@@ -56,7 +57,9 @@ struct Preload {
 struct OpRec {
   bool bfm;
   unsigned op, rid;
-  uint64_t req, gnt, end;
+  uint64_t req;
+  uint64_t gnt;
+  uint64_t end;
   std::string res;
   unsigned bytes;
 };

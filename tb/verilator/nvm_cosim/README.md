@@ -19,6 +19,15 @@ one-pulse re-arm failure of issue #420, the capture hold, the window load, the
 identity an acknowledgement quotes and the writer's restart. Neither is a
 superset of the other, and both run in the sweep.
 
+## Contents
+
+- **[What is real here, and what is a model](#what-is-real-here-and-what-is-a-model)** -- The donor, the backend and the writer are real; the flash, the DDR and the clock are not, and no physical timing is.
+- **[Running it](#running-it)** -- Three targets, and the one tally line the sweep counts.
+- **[How a case is graded](#how-a-case-is-graded)** -- The case file is stimulus only; every verdict is a NAMED check over a decoded journal.
+- **[Three ways this suite tries to show its checks are not vacuous](#three-ways-this-suite-tries-to-show-its-checks-are-not-vacuous)** -- A mutant per named check, an identity that must alias, and the pre-contract source that must go red.
+- **[The one expected failure](#the-one-expected-failure)** -- E3 without donor scope D1, labelled with its reason and its donor issue.
+- **[Files](#files)** -- What each file in the suite is.
+
 ## What is real here, and what is a model
 
 REAL, at the pinned revision:
@@ -126,7 +135,10 @@ which models the export, passes.
 
 | File | What it is |
 |---|---|
-| `run_cases.py` | builds, runs, grades; the oracle and every named check |
+| `run_cases.py` | builds every build, runs the cases, reports |
+| `cosim_oracle.py` | what a container SHOULD hold, framed independently |
+| `cosim_checks.py` | every named check, built over that oracle |
+| `cosim_case_map.py` | which checks each case is graded by, and where it runs |
 | `mutate.py` | the 39 named mutants and their exact seams |
 | `cosim_top.sv` | the RTL wrapper: donor, backend and the transcribed parent glue |
 | `cosim_cases.cpp` | the case scripts, stimulus only |

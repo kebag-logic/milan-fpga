@@ -150,6 +150,7 @@ class NvmBackendHarness {
   void expect_bits(const char *what, int b, int d, int s);
   void expect_pend(const char *what, int want);
   void test_stale();
+  void test_stale_deadlines();
   void test_ownership();
 
   static constexpr uint32_t IMG_BASE = 0x40000000u;
@@ -948,6 +949,14 @@ void NvmBackendHarness::test_stale() {
   tick();
   expect_bits("and is cleared again by the recovery", 1, 0, 0);
 
+  test_stale_deadlines();
+}
+
+// (e) to (h): the two deadlines, the separate pending bit and the reported
+// transaction failure. Split from the rows above because Rule 11 bounds a
+// function's length; `watch_stale_` and `hb_during_cmd_` stay set across
+// both, so the unreachable-row watch covers every cycle of either.
+void NvmBackendHarness::test_stale_deadlines() {
   // (e) the commit deadline: a started commit nobody acknowledges is a loss
   reset_dut();
   boot_load();

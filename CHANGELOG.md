@@ -45,27 +45,32 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Release 0x0002_005F - saved-state snapshot ownership
 
-- Every allocated record carries an OPEN bit in the backend.
-- A mutating grant sets it; only a whole-record WRITE with done clears it.
-- The writer captures closed records into a private stage under a hold.
-- The backend attests the copy, and only an attested one reaches flash.
+- Every allocated record carries an OPEN bit.
+- A mutating grant sets it.
+- Only a whole-record WRITE with done clears it.
+- The writer copies closed records into a private stage.
+- A bounded hold defers mutating requests during that copy.
+- The backend attests the copy.
+- Only an attested copy reaches flash.
 - The acknowledgement quotes the capture identity word.
-- So a completion between the read-back and the acknowledgement stays owned.
-- `nvm_dirty` is now the committable work that drives a commit.
-- Accepted work no slot holds is published on `PP_STAT[11]` `nvm_pend`.
+- A completion after the arm therefore stays owned.
+- `nvm_dirty` is now the committable work.
+- `PP_STAT[11]` `nvm_pend` carries the rest.
 - The durable reading gains that bit 0.
-- RELOAD is checked by the backend and accepted once per reset.
-- A boot that accepted no window load opens no capture at all.
-- A reported flash failure and the manager alarm revoke `nvm_backed`.
-- The generator withdraws `MILAN_NVM_IMAGE_BASE` for a live and a stage base.
-- An older writer therefore does not compile against this gateware.
-- `tb/verilator/nvm_cosim` grades 469 checks over both shipped shapes.
-- Each of the 39 mutants it plants is killed by one named check.
-- KNOWN LIMITATION: donor scope D1 is not exported by the pinned processor.
-- A binding accepted inside the manager's debounce can still read durable.
-- It is filed as protocol-processor-control-plane-avb-milan issue 90.
-- `KL_pp_shadow` ties the term to zero at the one place it will connect.
-- Issue 484 carries the contract, the evidence and the cost.
+- The backend checks RELOAD and accepts one per reset.
+- A boot accepting no load opens no capture.
+- A reported flash failure revokes `nvm_backed`.
+- So does the manager alarm.
+- The generator withdraws `MILAN_NVM_IMAGE_BASE`.
+- It publishes a live base and a stage base.
+- An older writer no longer compiles against this gateware.
+- `tb/verilator/nvm_cosim` grades 469 checks at both shapes.
+- One named check kills each of its 39 mutants.
+- KNOWN LIMITATION: the pinned processor does not export D1.
+- A binding inside the manager's debounce reads durable.
+- The donor issue is 90 in the processor repository.
+- `KL_pp_shadow` ties that term to zero.
+- Issue 484 carries the contract and the evidence.
 
 ## Release 0x0002_005E - board timestamp latency
 

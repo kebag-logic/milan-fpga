@@ -116,7 +116,8 @@ struct OpTrack {
   bool active = false;
   bool bfm = false;
   unsigned op = 0, rid = 0;
-  uint64_t req = 0, gnt = 0;
+  uint64_t req = 0;
+  uint64_t gnt = 0;
   unsigned bytes = 0;
 };
 OpTrack cur;
@@ -172,7 +173,9 @@ void bfm_start_if_possible() {
   bst = Bst::Req;
 }
 
-void edge() {
+// The cycle's inputs: the BFM, the listener-capture port and the uCPU
+// state-port write, all driven before the clock goes high.
+static void drive_cycle() {
   dut->clk_i = 0;
   bfm_start_if_possible();
   drive_bfm();
@@ -209,12 +212,14 @@ void edge() {
   dut->mem_wr_ready_i = ready;
   dut->eval();
 
-  // ---- sample the cycle -------------------------------------------------
-  const bool wtake = dut->mem_wr_valid_o && dut->mem_wr_ready_i;
-  const bool wfin = dut->mem_wr_done_i;
-  const bool rtake = dut->mem_req_valid_o && dut->mem_req_ready_i;
-  const bool rfin = dut->mem_rsp_valid_i && dut->mem_rsp_ready_o;
+}
 
+// What the cycle SHOWED, in two halves. THE FACES: the device-face operation
+// trace, the BFM's own handshake and the preload face. `wtake` is the memory
+// write handshake, which the operation trace counts bytes on and the memory
+// half below also reads -- both take it from the SAME sample, so a split
+// cannot make the two disagree.
+static void sample_faces(bool wtake) {
   // device-face operation tracking (the backend's view)
   if (dut->dev_req_o && !req_seen) {
     req_seen = true;
@@ -266,6 +271,12 @@ void edge() {
                                unsigned(dut->pre_talker_uid_o), dut->pre_ctlr_eid_o,
                                unsigned(dut->pre_sw_o), unsigned(dut->pre_started_o)});
 
+}
+
+// And THE MEMORY AND THE STATUS: what the edge wrote, and every bit a check
+// later reads, including every fall of nvm_backed.
+static void sample_memory_and_status(bool wtake, bool wfin, bool rtake,
+                                     bool rfin) {
   // memory effects at the edge
   if (wfin) {
     if (!wr.err) mem_apply(wr.addr, wr.data, wr.strb);
@@ -310,6 +321,22 @@ void edge() {
   dyn.on = false;
   dut->clk_i = 0;
   dut->eval();
+}
+
+static void sample_cycle() {
+  // ---- sample the cycle -------------------------------------------------
+  const bool wtake = dut->mem_wr_valid_o && dut->mem_wr_ready_i;
+  const bool wfin = dut->mem_wr_done_i;
+  const bool rtake = dut->mem_req_valid_o && dut->mem_req_ready_i;
+  const bool rfin = dut->mem_rsp_valid_i && dut->mem_rsp_ready_o;
+
+  sample_faces(wtake);
+  sample_memory_and_status(wtake, wfin, rtake, rfin);
+}
+
+void edge() {
+  drive_cycle();
+  sample_cycle();
 }
 
 [[noreturn]] void fatal(const char *why) {

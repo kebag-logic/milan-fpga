@@ -302,7 +302,7 @@ extern "C" void nvm_host_writer_restart(void) __attribute__((weak));
 
 std::map<std::string, std::function<void()>> cases;
 
-void register_cases() {
+static void acknowledgement_cases_1() {
   // A. ACKNOWLEDGEMENT IDENTITY AND ORDERING --------------------------------
   cases["A1_stable_no_change"] = [] {                            // real
     base();
@@ -361,6 +361,9 @@ void register_cases() {
     idle(4000);
     snap("end");
   };
+}
+
+static void acknowledgement_cases_2() {
   cases["A6_late_ack_while_new_capture_open"] = [] {             // real + stray ACK
     base();
     bind(X2);
@@ -447,6 +450,14 @@ void register_cases() {
     snap("end");
   };
 
+}
+
+static void acknowledgement_cases() {
+  acknowledgement_cases_1();
+  acknowledgement_cases_2();
+}
+
+static void capture_cases() {
   // B. CAPTURE, ERASE AND FAILED OPERATIONS -------------------------------
   auto erase_fault_case = [](unsigned byte, int kind) {
     return [byte, kind] {                                          // real
@@ -542,6 +553,9 @@ void register_cases() {
     snap("end");
   };
 
+}
+
+static void hold_cases_1a() {
   // C. THE HOLD, THE ATTESTATION AND THE ROUND-2 CONCERN ----------------------
   cases["C1_request_during_hold_is_deferred"] = [] {             // real + bfm
     base();
@@ -587,6 +601,9 @@ void register_cases() {
     idle(4000);
     snap("end");
   };
+}
+
+static void hold_cases_1b() {
   cases["C2r_real_port_torn_record_under_stale_mask"] = [] {     // real
     base();
     bind(X2);
@@ -649,6 +666,14 @@ void register_cases() {
     idle(4000);
     snap("end");
   };
+}
+
+static void hold_cases_1() {
+  hold_cases_1a();
+  hold_cases_1b();
+}
+
+static void hold_cases_2() {
   cases["C1g_real_port_copy_inside_erase_write_gap"] = [] {      // real
     base();
     bind(X2);
@@ -717,6 +742,14 @@ void register_cases() {
     snap("end");
   };
 
+}
+
+static void hold_cases() {
+  hold_cases_1();
+  hold_cases_2();
+}
+
+static void liveness_cases() {
   // D. LIVENESS, DEADLINES AND THE FOUR MEMORY OUTCOMES ----------------------
   cases["D1_writer_loss_and_recovery"] = [] {                    // real
     base();
@@ -756,6 +789,9 @@ void register_cases() {
     snap("stuck");
   };
 
+}
+
+static void producer_cases() {
   // E. PRODUCER-HELD AND UNMATERIALISED CHANGES (#420) -------------------------
   cases["E1_dyn_change_ack_then_second_change"] = [] {           // real dyn store
     boot();
@@ -775,6 +811,9 @@ void register_cases() {
     snap("end");
   };
 
+}
+
+static void revocation_cases() {
   // F. REVOCATION CAUSES OF SECTION 9.2 ----------------------------------------
   cases["F2_reported_flash_failure"] = [] {                      // real
     base();
@@ -799,6 +838,9 @@ void register_cases() {
     snap("end");
   };
 
+}
+
+static void unit_cases_1() {
   // U. UNIT CASES: THE CONTROL FACE ALONE ---------------------------------------
   cases["U1_post_reset_ack"] = [] {                               // unit
     unit_configure();
@@ -856,6 +898,9 @@ void register_cases() {
     stray(4, ack_word(csr_peek(5)));
     snap("acked");
   };
+}
+
+static void unit_cases_2() {
   cases["U5_reload_refused_inflight_at_rebase"] = [] {           // unit
     // Before the boot load is declared: an ERASE of 0x20 is granted, is
     // still writing when the image is re-based, and ends in err without
@@ -920,6 +965,14 @@ void register_cases() {
     snap("after");
   };
 
+}
+
+static void unit_cases() {
+  unit_cases_1();
+  unit_cases_2();
+}
+
+static void load_cases_1() {
   // R. THE LOAD WITH THE REAL WRITER (revision b) ------------------------------
   cases["R1_reload_after_failed_erase"] = [] {                   // real + bfm, slots preloaded
     // The reviewers' ordering, on the slots of an A1 run (slot A: X in
@@ -998,6 +1051,9 @@ void register_cases() {
     idle(3000);                              // longer than T-NVM-WRITER-ALIVE
     snap("end");
   };
+}
+
+static void load_cases_2() {
   cases["W2_restart_after_refused_loads"] = [] {                // real, writer restart model
     // Revision c: the composition the re-review found. Four refused window
     // loads, the entity live, a controller change accepted, then a WRITER
@@ -1083,6 +1139,9 @@ void register_cases() {
     idle(3000);                              // past T-NVM-WRITER-ALIVE
     snap("end");                             // backed 0, stale 1, never durable
   };
+}
+
+static void load_cases_3() {
   cases["W3_write_across_refused_fill_then_restart"] = [] {      // real + bfm, restart, slots of A1
     // The re-review's probe H1 on revision d. Three refused loads as in U9;
     // then a whole-record WRITE of 0x21 carrying Z2 is granted just before
@@ -1163,6 +1222,26 @@ void register_cases() {
   };
 }
 
+static void load_cases() {
+  load_cases_1();
+  load_cases_2();
+  load_cases_3();
+}
+
+// The case table, in the groups the contract page's section 9 reads
+// them in. Split by group because Rule 11 bounds a function's length,
+// and a table this long is easier to read by group in any case.
+void register_cases() {
+  acknowledgement_cases();
+  capture_cases();
+  hold_cases();
+  liveness_cases();
+  producer_cases();
+  revocation_cases();
+  unit_cases();
+  load_cases();
+}
+
 // ------------------------------------------------------------------- main
 void load_records(const std::string &path) {
   std::ifstream f(path);
@@ -1184,6 +1263,19 @@ void load_records(const std::string &path) {
 
 }  // namespace
 
+// One 0/1 command-line flag, refused rather than defaulted: strtoul reports
+// what it consumed, which atoi cannot, and a --d1 nobody parsed would model
+// the donor export as ABSENT and quietly turn E3 into its expected failure.
+static unsigned arg_flag(const char *text) {
+  char *end = nullptr;
+  const unsigned long value = std::strtoul(text, &end, 10);
+  if (end == text || *end != '\0' || value > 1UL) {
+    std::fprintf(stderr, "a 0/1 flag was expected, got %s\n", text);
+    std::exit(2);
+  }
+  return static_cast<unsigned>(value);
+}
+
 int main(int argc, char **argv) {
   std::string name, table, slot_a, slot_b;
   unsigned d1 = 0;
@@ -1193,7 +1285,10 @@ int main(int argc, char **argv) {
     if (a == "--case" && v) name = argv[++i];
     else if (a == "--out" && v) out_dir = argv[++i];
     else if (a == "--records" && v) table = argv[++i];
-    else if (a == "--d1" && v) d1 = unsigned(std::atoi(argv[++i]));
+    // strtoul, not atoi: Rule 11 refuses an unbounded C call, and the
+    // reason is the same here as anywhere -- atoi reports nothing, so a
+    // typed --d1 would silently model the donor export as absent
+    else if (a == "--d1" && v) d1 = arg_flag(argv[++i]);
     else if (a == "--slot-a" && v) slot_a = argv[++i];
     else if (a == "--slot-b" && v) slot_b = argv[++i];
     else if (a == "--list") name = "--list";

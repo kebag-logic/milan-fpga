@@ -204,7 +204,10 @@ COMBINED = {'R06_revision_b_load_rule': {'fw': [('\t} else if (milan_read(MILAN_
                                        "      if (reload_ok_w) ld_pend_r <= 1'b0;\n")]}}
 
 
-def apply(text: str, subs, what: str) -> str:
+def apply(text: str, subs: list[tuple[str, str]], what: str) -> str:
+    """`text` with every seam of `subs` replaced. A seam that does not hit
+    EXACTLY once refuses: a line that moved must break this file rather than
+    let a mutant compile unchanged and report a vacuous pass."""
     for old, new in subs:
         if text.count(old) != 1:
             raise SystemExit(f"mutant {what}: seam hit {text.count(old)} times: {old[:70]!r}")
@@ -213,6 +216,7 @@ def apply(text: str, subs, what: str) -> str:
 
 
 def main() -> int:
+    """Plant one named defect in a copy of a shipping source."""
     if len(sys.argv) != 5:
         raise SystemExit(__doc__)
     kind, name, src, dst = sys.argv[1:]
