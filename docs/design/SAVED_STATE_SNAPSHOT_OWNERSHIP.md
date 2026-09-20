@@ -50,6 +50,22 @@
 > 50 MHz CPU clock (section 18). Four cases and five mutants are added and the
 > evidence was re-run in full from a clean state. Section 21 maps every
 > re-review finding to its answer.
+>
+> **Revision d** answers the re-review at `e2d98d88` (one POSITIVE, one
+> NEGATIVE; the public summary and the manager's direction are
+> [issue comment 5746130783](https://github.com/kebag-logic/milan-fpga/issues/419#issuecomment-5746130783)).
+> It SHRINKS THE STATE SPACE rather than closing one more ordering: **no
+> capture without an accepted load.** The backend keeps one registered flag,
+> set by an accepted RELOAD and cleared only by reset, and the arm condition
+> gains one term reading it, so a boot whose window load was never accepted
+> opens no capture, writes no slot and retires nothing, and its status can
+> never read durable (section 5.3, rule 9). A writer restarted in that state
+> does not re-attach and stays retired, and the writer stops re-basing and
+> refilling the window once it has gone live. The terminal row is restated as
+> the bits the state fixes and the bits the ordering decides, with its reading
+> after a restart. Five cases and three mutants are added, two earlier cases
+> are re-graded, and the evidence was re-run in full from a clean state.
+> Section 21 maps every re-review finding to its answer.
 
 Source examined: dev `36ee8a37` (protocol-processor `8f2f58fb`, gptp-processor
 `c1b61743`, third_party/verilog-axis `48ff7a7e`). Where this page says the
@@ -80,29 +96,30 @@ The executable evidence is kept out of this tree, on a branch that is never
 merged. Every evidence citation on this page names the branch, the commit and a
 path in it:
 
-- the proposal as delivered, with a revision-b and a revision-c note at its
-  top:
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/PROPOSAL.md`;
+- the proposal as delivered, with a revision-b, a revision-c and a revision-d
+  note at its top:
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/PROPOSAL.md`;
 - the command record, with every command, exit code and digest:
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md`;
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md`;
 - the run script:
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/proposal-evidence/run.py`;
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/proposal-evidence/run.py`;
 - its graded results:
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/proposal-evidence/results.txt`
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/proposal-evidence/results.txt`
   and
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/proposal-evidence/results.json`.
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/proposal-evidence/results.json`.
 
 On that branch the checkout root, two forge account names and two agent-system
-names are replaced by placeholders. The command record lists 83 digests of the
-evidence itself, 65 sources and 18 outputs (and, separately, 31 digests of
+names are replaced by placeholders. The command record lists 88 digests of the
+evidence itself, 65 sources and 23 outputs (and, separately, 31 digests of
 production files, which are repository files and not part of the evidence
-tree). Of those 83, 15 source copies under `proposal-evidence/sources/` differ
+tree). Of those 88, 15 source copies under `proposal-evidence/sources/` differ
 from their digests because of the placeholders, and the 11 files under
 `proposal-evidence/prior-session/` (round-3 history, including earlier
-sessions' console logs) are left out; the other 57 match. The evidence as
+sessions' console logs) are left out; the other 62 match. The evidence as
 first reviewed is commit `08f019ff3f3c51d365ce49f0cca53341c9a49c2a` on the
 same branch, revision b `739b9099c5521a2cf79cc2b7ad1c593b2869e5cc` is its
-child, and revision c is the child of that.
+child, revision c `47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8` the child of
+that, and revision d the child of revision c.
 
 Two repository gates refuse words the evidence uses: the documentation wording
 gate refuses one stem in any committed Markdown (`DENY_CI` in
@@ -249,9 +266,23 @@ work after it (U1).
    sequence of boot outcomes and writer restarts lets an accepted RELOAD
    close records or clear a dirty half once the producer has been able to
    write the window since reset. A writer restart without a fabric reset
-   therefore never reloads: it re-attaches, or, if it finds the boot load
-   still open with the restore walk already sequenced, it stays disabled
-   (section 5.3).
+   therefore never reloads: it re-attaches if the backend accepted this
+   boot's load (rule 9); it stays RETIRED if none was accepted; and if it
+   finds the boot load still open with the restore walk already sequenced, it
+   stays disabled (section 5.3).
+9. **No capture without an accepted load** (revision d). The backend keeps
+   one registered flag, set by an ACCEPTED RELOAD and cleared only by reset,
+   and no capture is armed while it is 0. A boot whose window load was never
+   accepted -- because every attempt was refused, or because the window went
+   live first -- therefore opens no capture at all: the capture identity
+   never advances, no acknowledgement can quote a capture, no slot is
+   written, no flash erase is issued, the committable bit never falls and the
+   status can never read durable. The saved state stays at the last verified
+   slot, the pending bit reads 1, nvm_backed reads 0, and only a reset leaves
+   the state. Rule 8 keeps a later RELOAD from retiring work; this rule keeps
+   the boot that validated nothing from retiring any. A writer restarted in
+   that state does not re-attach: it reads the flag and stays retired, and
+   this rule is what makes a writer that ignores that harmless (section 5.3).
 
 ## 4. Record ownership: the open vector
 
@@ -336,7 +367,7 @@ PP_NVM_STAT read layout (tracked bits unchanged in place):
 | [31:24] | contract tag, value 0xC3 (0 on older gateware) |
 | [23] | unres: at least one record is open (diagnostic) |
 | [22] | nvm_pend: the pending bit of section 6.1, pend OR any record open; the same wire as the backend's nvm_pend output |
-| [21] | arm refused (the last ARM found a capture open or no valid image) |
+| [21] | arm refused: the last ARM was not accepted. Its causes are a capture already open, an unconfigured or unvalidated image, a mutating request this backend already deferred still waiting, and, from revision d, no RELOAD accepted since reset ([2] = 0) |
 | [20] | ack refused (the last ACK was not accepted) |
 | [19] | attested |
 | [18] | valid (no mutating grant since the arm) |
@@ -348,7 +379,14 @@ PP_NVM_STAT read layout (tracked bits unchanged in place):
 | [9] | nvm_stale (unchanged) |
 | [8] | nvm_dirty = dirty_live OR dirty_cap, committable image work |
 | [7] | img_valid, [6] nvm_backed, [5] img_cfg, [4] dev_busy (unchanged) |
-| [3] | load pending: no RELOAD accepted since reset (reserved zero in the tracked layout) |
+| [3] | load pending: a boot window load may STILL BE ACCEPTED (reserved zero in the tracked layout). Read it as that, not as "no RELOAD has been accepted": it falls both on an accepted RELOAD and the first time the window goes live, and the two are told apart by [2] |
+| [2] | load accepted: a RELOAD HAS been accepted since reset (revision d; reserved zero in the tracked layout). While it is 0 the backend arms no capture, so nothing in that boot can be captured, committed or retired |
+
+The pair ([3], [2]) is the boot's whole load history, and only three of its
+four values occur: (1, 0) the boot load is still open, (0, 1) a load was
+accepted and the window is the backend's, (0, 0) the boot load is over and
+none was accepted, which is the terminal state of section 5.3. (1, 1) cannot
+occur, because accepting a RELOAD clears [3] in the same cycle it sets [2].
 
 In revision b, bit [22] carries nvm_pend itself. At the reviewed head the
 prototype drove it from the producer half alone, and its console printed
@@ -365,9 +403,10 @@ names captures, not attempts.
 | From | Event | Condition | To | Effect |
 |---|---|---|---|---|
 | any | reset | - | IDLE | the reset row of section 5.4 |
-| IDLE | ARM | image configured and validated, no accepted reload or re-base on the edge, and no mutating request this backend already deferred still waiting | HELD | identity + 1; dirty_cap = dirty_live; dirty_live = 0 unless a completion lands on the same edge; hold timer = T_HOLD_MS_P; valid = 1; attested = 0; a mutating request on this edge is deferred |
+| IDLE | ARM | a RELOAD has been accepted since reset, image configured and validated, no accepted reload or re-base on the edge, and no mutating request this backend already deferred still waiting | HELD | identity + 1; dirty_cap = dirty_live; dirty_live = 0 unless a completion lands on the same edge; hold timer = T_HOLD_MS_P; valid = 1; attested = 0; a mutating request on this edge is deferred |
 | open | ARM | - | unchanged | arm refused = 1; identity unchanged |
 | IDLE | ARM | a mutating request this backend already deferred is still waiting | unchanged | arm refused = 1; identity unchanged; that request takes this cycle's grant |
+| IDLE | ARM | no RELOAD accepted since reset ([2] = 0) | unchanged | arm refused = 1; identity unchanged; nothing else changes (revision d) |
 | HELD | hold timer reaches its bound | - | UNHELD | hold = 0; deferred requests are granted |
 | HELD or UNHELD | mutating grant | reachable only when hold = 0 | same | valid = 0 (the copy is void) |
 | HELD or UNHELD | ATTEST | valid, and no mutating grant on the same edge | ATTESTED | hold = 0; attested = 1 |
@@ -440,17 +479,47 @@ The rule, in the backend (revision b, with the two bounds revision c adds):
 - **A refused RELOAD** changes nothing but reload refused, PP_NVM_STAT[11].
   Every record stays as the last re-base left it, which is open, so nvm_pend
   reads 1, no durable reading is possible and nothing is retired.
+- **Load accepted**, PP_NVM_STAT[2] (revision d). 0 at reset. An accepted
+  RELOAD sets it. NOTHING clears it but a reset. **No capture is armed while
+  it is 0**: the arm condition of section 5.2 reads it directly. So a boot
+  whose window load was never accepted opens no capture at all, and rule 9
+  below is what that buys.
 
-The window-live term is what makes the promise universal. Inside one boot the
-load flag is still set when the first grant after a re-base arrives, so a load
-the writer REPEATS does not close its own boot; the walk's first read, or any
-producer operation once the entity is up, does. **The invariant it buys**: no
+The window-live term is what makes the promise universal. **What "the load
+sequence brackets a grant" means, exactly** (revision d states it, because
+revision c's wording implied more): the bracket holds for the FIRST mutating
+grant after a re-base, and for no other. That grant clears the load flag, so
+any further grant before the next re-base meets a clear flag on a configured
+image, which is the window going live. A load the writer REPEATS therefore
+survives exactly ONE unbracketed grant per attempt; a second grant in the
+same attempt closes the boot load for the whole reset, and every remaining
+attempt is refused. An ordinary complete record update is two grants, ERASE
+then WRITE, so **the terminal state below is reachable from a single
+disturbed attempt**, not only from four. **The invariant it buys**: no
 sequence of boot outcomes and writer restarts can let an accepted RELOAD close
 records or clear a dirty half once the producer has been able to write the
 configured window since reset, because from that grant on no RELOAD is ever
 accepted. Where a load IS accepted, the restore walk follows it in the same
 boot (section 7 step 1.6), so the entity's state is re-derived from what was
 loaded.
+
+**Rule 9, the accepted-load term** (revision d), is what makes the promise
+hold without a per-record repair. The window-live term stops a later RELOAD
+from retiring work; it does not stop the OTHER half of the ownership rule
+from being wrong in such a boot. A record's close rule is "a whole-record
+WRITE that ended with done", and it assumes nothing else wrote the record's
+bytes while that WRITE streamed. A REFUSED load has still WRITTEN the whole
+window: for attempts 1 to 3 the next re-base re-opens every record, so
+nothing survives, but after the last attempt nothing re-opens them, and a
+record closed across that last fill reads CLOSED over bytes the fill wrote.
+The re-review promoted exactly that record with a restarted writer. Rule 9
+removes the promotion instead of repairing the record: **in a boot in which
+no RELOAD was accepted, no capture opens**, so the capture identity never
+advances, no acknowledgement can quote a capture, no slot is written, no
+flash erase is issued, the committable bit never falls, and the status can
+never read durable. The record still reads closed; it is REPORTED, never
+retired, and a producer rewrite or a reset resolves it, which is the same
+convergence every record the refused loads left open already had.
 
 Each term and the mutant that deletes it:
 
@@ -461,6 +530,7 @@ Each term and the mutant that deletes it:
 | the boot load is open once per reset | after the boot load the window is the producer's live image; a later re-base, load and RELOAD would overwrite and clear work the backend still owns | R03_reload_not_once_per_reset | U6 : held_work_survives_post_boot_reload@reload | "committable work 0, pending 0, reload refused 0" |
 | a GRANT WINS over a re-base on the same edge (revision c executes the priority) | nothing is in flight on that edge, so only the priority keeps the flag clear; without it an operation granted on the last re-base write's edge blanks the loaded record and the RELOAD closes it | R04_rebase_wins_over_same_edge_grant | U8 : grant_wins_over_rebase_edge@after:0x20 | "grant registered at 14, decided on the re-base write's own edge 13 (True), reload refused 0, record 0x20 open 0", and closed_record_equals_load fails with the record closed over erased bytes |
 | the boot load also closes when the WINDOW GOES LIVE (revision c) | otherwise a boot whose loads were all refused leaves load pending 1 over a window the producer then writes, and a restarted writer's RELOAD is accepted over it | R05_boot_load_stays_pending_when_live | U9 : boot_load_closed_when_live@boot | "load pending 1, reload refused 1"; the terminal row fails with it |
+| NO CAPTURE until a RELOAD has been ACCEPTED since reset (revision d, rule 9) | img_valid is the writer's claim about the window; without the backend's own record of having validated one, a boot that accepted no load can still capture, commit and retire on that claim alone, over records a refused load's fill closed | R07_arm_without_accepted_load | U11 : arm_refused_without_accepted_load@stray | "load accepted 0, img valid 1, arm refused 0, capture open 1, capture identity 1": the capture opens, and U11's second check then reads "capture identity 1, attested 0, committable work 0", so the acknowledgement retired work no slot holds |
 
 **The cold-boot sequence** (section 7 step 1) is re-base, load, RELOAD, then
 read [11]. On a refusal the writer waits, bounded, for the device face to go
@@ -476,9 +546,22 @@ configured image, and for the same reason the window cannot GO LIVE before the
 writer's first re-base. The writer still re-bases before it loads, so the
 order does not depend on that.
 
-A refusal means something outside that sequence wrote the window. The
-repeat's re-base re-arms the flag and its load rewrites the window, so the
-repeat is accepted and the entity restores the verified bytes. EXECUTED:
+A refusal means something outside that sequence wrote the window. **After a
+refusal the writer reads PP_NVM_STAT[3]** (revision d). If it still reads 1
+the boot load is open, the repeat's re-base re-arms the flag and its load
+rewrites the window, so the repeat is accepted and the entity restores the
+verified bytes. If it reads 0 the window has GONE LIVE, no later RELOAD can
+be accepted, and the writer STOPS: it does not spend the remaining attempts
+re-basing and refilling a window the producer now owns. Revision c performed
+those three further attempts, which bought nothing and wrote the window three
+more times; revision d makes them one refusal and a stop. EXECUTED:
+U12_window_live_stops_the_repeat gives the first attempt the ordinary
+two-grant disturbance (an ERASE then a whole-record WRITE of 0x21) and grades
+window_live_stops_the_repeat@boot, "window went live True, RELOAD strobes 1
+(want 1), load pending 0, load accepted 0". F12_repeat_ignores_window_live
+deletes the read and is killed by it: "window went live False, RELOAD strobes
+4 (want 1)". The end state is the terminal row below, reached in one attempt.
+EXECUTED:
 R1_reload_after_failed_erase runs on the slots of an A1 run, where slot A
 holds X in record 0x20. An ERASE of 0x20 blanks the whole span and ends in err
 without done between the window load and the strobe, and a later change
@@ -500,59 +583,118 @@ flash erase. Nothing is lost, and the reason is not the load rule: it is that
 **the restore walk follows the accepted load in the same boot**, so the entity
 is re-derived from exactly the container that was loaded. That is an
 obligation on scope D3 (section 13): no device-face initiator may be enabled
-before the restore walk.
+before the restore walk. It is true of a LONE such WRITE: the WRITE is the
+one grant the bracket survives, so the attempt that follows it is accepted.
+Two grants in one attempt end in the terminal state instead, and that is the
+paragraph above, not this one.
 
-**When all four attempts are refused** the writer leaves the window
-unvalidated and RETIRES for this reset: it never commits, and it stops
-answering the liveness deadline, so nvm_backed is revoked and the state reads
-as a port with no writer rather than as a commit in flight. The restore walk
-still runs and reads blank, so the entity comes up on defaults although a
-verified slot exists. EXECUTED, not derived: U9_four_window_loads_refused
-places a failed ERASE of record 0x20 before each of the four RELOAD strobes on
-the slots of an A1 run. The terminal row, graded bit by bit by
-four_refusal_terminal_row@boot ("mismatches none, the writer reported four
-refusals True"):
+**What this paragraph does NOT say** (revision d withdraws the claim
+revision c made here). It does not say that a record closed across a REFUSED
+load's fill is sound. It is not: the fill wrote the record's bytes while the
+WRITE streamed, so the record reads closed over bytes the producer did not
+write, and after the LAST attempt no re-base re-opens it. Revision c argued
+that the load rule alone was safe without obligation O3. That was false for
+this one class of records, and the re-review promoted one. Rule 9 is what is
+safe without O3 now, and it is safe by removing the capture rather than by
+repairing the record: the record still reads closed, nothing can retire it,
+and section 7 obligation O3 is restated accordingly.
+
+**When no attempt is accepted** the writer leaves the window unvalidated and
+RETIRES for this reset: it never commits, and it stops answering the liveness
+deadline, so nvm_backed is revoked and the state reads as a port with no
+writer rather than as a commit in flight. The restore walk still runs and
+reads blank, so the entity comes up on defaults although a verified slot
+exists. This is the TERMINAL STATE, and it is reached by four refusals or by
+one disturbed attempt whose window then went live.
+
+The table has two halves, because **not every bit of the row is fixed by the
+state**: some are decided by the ordering that reached it, and a lane that
+built its test from a single row would fail a conforming implementation.
+Fixed by the state:
 
 | What a controller reads | Value | Meaning |
 |---|---|---|
-| PP_NVM_STAT[3] load pending | 0 | the boot load is OVER: the window went live at the walk's first read, so no later RELOAD is accepted |
+| PP_NVM_STAT[3] load pending | 0 | the boot load is OVER: the window went live, so no later RELOAD is accepted |
+| PP_NVM_STAT[2] load accepted | 0 | none was ever accepted, so **nothing in this boot can be captured, committed or retired** (rule 9) |
 | PP_NVM_STAT[11] reload refused | 1 | the last window load was refused |
-| PP_NVM_STAT[7] img_valid | 0 | the window was never validated: THE SAVED STATE WAS NOT RESTORED IN THIS BOOT, although a verified slot exists |
 | PP_STAT restore done / fail / blank | 1 / 1 / 1 | the walk ran, failed and read the window blank |
-| PP_NVM_STAT[23] unres, [22] nvm_pend | 1, 1 | every record is open: nothing is represented in a slot |
-| PP_NVM_STAT[8] committable (nvm_dirty) | 0 at the boot, 1 after a later change | a controller change is reported, and stays reported |
-| nvm_backed | 0 | the retired writer answers the liveness deadline no more. In this ordering it never set at all, because the writer retires before the restore walk, which is where a boot with no flash write heartbeats; had it set earlier it would fall within T-NVM-WRITER-ALIVE. U9 grades it at the end, 3 s after the boot |
-| nvm_stale, [21] arm refused, [20] ack refused, [19] attested, [18] valid, [17] hold, [16] open, [10] commit busy | 0 | no capture, no loss, no commit bracket |
+| PP_NVM_STAT[23] unres, [22] nvm_pend | 1, 1 | every record the fills left open is open: nothing is represented in a slot |
+| PP_NVM_STAT[5] img_cfg | 1 | the image IS configured, which is why producer writes still land in a window whose reads come back blank |
+| PP_NVM_STAT[7] img_valid | 0 | the window was never validated: THE SAVED STATE WAS NOT RESTORED IN THIS BOOT, although a verified slot exists |
+| PP_NVM_STAT[21] arm refused, [20] ack refused, [19] attested, [18] valid, [17] hold, [16] open, [10] commit busy | 0 | no capture was ever opened, so there is nothing to refuse yet and nothing to attest |
 | flash erases | 0 | no slot is touched: the last verified slot is intact |
+| the capture identity, PP_NVM_SEL word 5 | 0 | it advances only on an accepted ARM, and rule 9 accepts none |
 
-The whole status word at 1x1 is `0xc3c00820` at the boot and `0xc3c00920`
-after the change (the same two words at 8x8), and the writer's own line is
-"the backend refused 4 window loads; the window is not validated and the
-writer is disabled until the next reset."
+Decided by the ordering, with its cause:
 
-So the reading is (backed 0, dirty 0 then 1, stale 0) with pend 1: NOT the
-(1,1,0) "commit in flight" row a heartbeating disabled writer would show, and
-never durable. The two bits that name this state exactly are img_valid 0 and
-restore fail 1. **Decision on nvm_backed**: it must read 0. nvm_backed is
-evidence that a writer is keeping the state, and a writer that will never
-commit again is, to a controller, absent; leaving it at 1 would be true about
-a program that is running and false about the only thing the bit is read for.
+| Bit | Reading | When |
+|---|---|---|
+| nvm_backed | 0 throughout | the writer retired before it ever heartbeated. A boot with no flash write heartbeats at the restore walk, and this writer retires before it |
+| nvm_backed | 1, then 0 no later than T-NVM-WRITER-ALIVE after the boot | the refusing operation was SLOW, so the bounded wait of the repeat ran, and that wait heartbeats |
+| nvm_stale | 0 | nvm_backed never set: losing a writer that was never live is not a loss |
+| nvm_stale | 1, from the same deadline | nvm_backed had set: losing a writer that WAS live is a loss, by the saved-state page's section 9.2 |
+| PP_NVM_STAT[8] committable (nvm_dirty) | 0 at the boot, 1 after a later change | the disturbance was on the device face alone |
+| PP_NVM_STAT[8] committable | 1 already at the boot | the disturbance was a paced WRITE the writer was still waiting on |
+
+Both readings are honest and **neither is ever durable**: the first because
+nvm_backed is 0, the second because the committable bit is 1 and then
+nvm_backed falls too. EXECUTED, both:
+
+- U9_four_window_loads_refused, a failed ERASE of record 0x20 before each of
+  four RELOAD strobes on the slots of an A1 run. four_refusal_terminal_row@boot
+  grades the fixed bits and (0, 0, 0) for the three above: "mismatches none,
+  status 0xc3c00820, the writer reported it True"; `0xc3c00920` after the
+  change. The writer's line is "the backend refused 4 window loads; the window
+  is not validated and the writer is disabled until the next reset."
+- U13_four_refusals_with_the_device_busy, the same state reached with a paced
+  whole-record WRITE still streaming at every strobe, which is exactly the
+  case the bounded wait was added for. terminal_row_writer_was_live@boot reads
+  "mismatches none, status 0xc3c00960" (backed 1, committable 1, stale 0) and
+  terminal_row_after_the_loss@end, 3 s later, reads "mismatches none, status
+  0xc3c00b20" (backed 0, stale 1). Both at 1x1 and at 8x8.
+
+**Decision on nvm_backed**: it must end at 0. nvm_backed is evidence that a
+writer is keeping the state, and a writer that will never commit again is, to
+a controller, absent; leaving it at 1 would be true about a program that is
+running and false about the only thing the bit is read for.
 F10_retired_writer_keeps_heartbeating restores the heartbeat and is killed by
 U9 : writer_absent_when_retired@end ("backed 1, pending 1, flash erases 0").
 A writer disabled for a shape or tag mismatch (section 14) predates this
-contract and still heartbeats; UNRESOLVED 8 carries that.
+contract; UNRESOLVED 8 carries that, and it is the TAG mismatch alone, since
+on a shape mismatch the writer returns before it installs its service hook
+and nothing heartbeats.
+
+**The row after a writer restart is the same row** (revision d). Under
+revision c a restarted writer re-attached here and published img_valid 1 and
+nvm_backed 1, so the two bits that named the state stopped naming it. Under
+rule 9 and the writer rule below it does not re-attach: img_valid stays 0,
+nvm_backed stays 0, the capture identity stays 0 and no bit of either table
+moves. That is the whole difference a controller sees, and it is why the
+state now reads one of exactly two rows rather than four.
 
 **A writer restart without a fabric reset** is a CPU-only reset: the fabric
 keeps its ownership state, and what the writer does depends on the two bits
 the backend publishes, never on an assumption about the previous boot.
 
-- **Load pending 0** (the ordinary case: the boot load was accepted, or the
-  window has gone live): the writer RE-ATTACHES. It does not re-base, load or
-  RELOAD, and the backend would refuse a RELOAD anyway. It strobes RELEASE,
-  which ends any capture the previous run left open and hands that capture's
-  work back to dirty_live; it re-derives the authoritative slot and the
-  sequence from the media, publishes them and resumes service. It does not
-  re-run a restore walk the fabric has already sequenced.
+- **Load pending 0 with load accepted 1** (the ordinary case: the boot load
+  was accepted and the backend has kept ownership since): the writer
+  RE-ATTACHES. It does not re-base, load or RELOAD, and the backend would
+  refuse a RELOAD anyway. It strobes RELEASE, which ends any capture the
+  previous run left open and hands that capture's work back to dirty_live; it
+  re-derives the authoritative slot and the sequence from the media,
+  publishes them and resumes service. It does not re-run a restore walk the
+  fabric has already sequenced.
+- **Load pending 0 with load accepted 0** (revision d; the terminal state
+  above): the writer does NOT re-attach. No window load was accepted in this
+  boot, so nothing in it may be captured or committed, and a re-attach could
+  only publish a validity bit over a window no accepted load vouches for. It
+  stays RETIRED until the next reset: it never commits and stops answering
+  the liveness deadline, exactly as the writer that reached the state did.
+  This is the WRITER RULE; **rule 9 is what makes a writer that ignores it
+  harmless**, because the backend refuses every ARM in that boot whatever the
+  writer claims. The two are not redundant: the rule keeps a conforming
+  writer from publishing a false validity bit, and the term keeps any writer
+  from capturing.
 - **Load pending 1 with the restore walk already sequenced**: not a cold boot
   either. The producer has been able to write the window since the fabric's
   reset and nothing would re-derive the entity's state from a load, so the
@@ -571,22 +713,57 @@ and converged@end holds with X2 in the slot. F08_restart_reloads_window, a
 restart that takes the cold-boot path, is refused at every attempt, never
 claims durability and never converges; it is killed by W1 : converged@end.
 
-EXECUTED, the composition the re-review found:
+EXECUTED, the composition the first re-review found:
 W2_restart_after_refused_loads is the four-refusal boot above, a controller
-change Z2 accepted on the live entity, and then the restart.
-restart_never_reloads_live_window@restarted reads "restart reported True,
-cold-boot path taken False, load pending 0, committable work kept 1", and the
-run ends with Z2 IN A VERIFIED SLOT (later_record_persists@end:0x21 "record
-0x21 at end: expected Z2") beside the intact slot A
-(last_verified_kept@end:0x20 "record 0x20 at end: expected X"), because the
-re-attached writer commits what the window holds and the capture prefills the
-records that are still open from the authoritative slot. The pending bit stays
-1 for those open records, so no durable reading is claimed over them.
-R06_revision_b_load_rule restores revision b's rule in BOTH places it lives
-(the backend's window-live term and the writer's rule) and reproduces the
-re-review's finding exactly: killed by W2 : later_record_persists@end:0x21,
-with change_landed_or_reported@end:0x21 reading "record 0x21 in the newest
-verified slot False, still reported False, status claims durable True".
+change Z2 accepted on the live entity, and then the restart. **Its expected
+outcome CHANGES in revision d**, and the change is the point of the revision,
+so it is stated rather than quietly re-graded. Under revision c the
+re-attached writer committed what the window held, and Z2 ended in a verified
+slot. Under revision d it does not re-attach: restart_stays_retired_without_load@restarted
+reads "stayed retired True, re-attached False, load accepted 0, capture
+identity 0, capture open 0, status claims durable False", and the run ends
+with Z2 still REPORTED beside the intact slot A, not committed into a slot:
+change_landed_or_reported@end:0x21 "record 0x21 in the newest verified slot
+False, still reported True, status claims durable False", and
+last_verified_kept@end:0x20 "record 0x20 at end: expected X". Availability is
+what is traded: an accepted change now waits for a reset instead of landing
+after a restart. It is the right trade here, because the boot that reaches
+this state never validated the window, so "what the window holds" is exactly
+what no accepted load vouches for.
+
+F11_restart_reattaches_without_load restores revision c's re-attach and is
+killed by W2 : restart_stays_retired_without_load@restarted ("stayed retired
+False, re-attached True, load accepted 0"), and W2 also fails
+writer_absent_when_retired@end under it ("backed 1"). R06_revision_b_load_rule
+restores revision b's rule in BOTH places it lives (the backend's window-live
+term and the writer's rule) and still reproduces the first re-review's finding
+whole; its named killer is re-aimed in revision d at the check that names the
+invariant rather than at the one that named where the change landed, because
+where it lands is what changed: killed by W2 : change_landed_or_reported@end:0x21,
+reading "record 0x21 in the newest verified slot False, still reported False,
+status claims durable True".
+
+EXECUTED, the composition the second re-review found (its probes H1 and H2):
+
+- W3_write_across_refused_fill_then_restart places a whole-record WRITE of
+  0x21 carrying Z2 across the LAST refused load's fill, so the record ends
+  CLOSED over bytes the fill wrote. The premise is graded, not assumed:
+  write_spans_refused_fill@live:0x21 reads "WRITE granted 448, last RELOAD
+  strobe 461, ended 8582 (done), record 0x21 open 0". Then the writer
+  restarts. It stays retired, the last verified slot is intact, the work is
+  still reported and nothing reads durable.
+- W4_all_records_rewritten_after_refused_fill is W3 and then every OTHER
+  allocated record rewritten whole on the device face, which is what removed
+  the last thing still reporting under revision c. It no longer helps:
+  no_durable_reading_when_nothing_open@end2 reads "records open 0, pending 0,
+  backed 0, committable 1, status claims durable False, flash erases 0". Note
+  which bits carry it. The pending bit DOES fall to 0 once no record is open,
+  because the disturbance was on the device face and no producer work is
+  outstanding; what refuses the durable reading is the committable bit, which
+  stays 1 because nothing was ever committed, and nvm_backed, which is 0
+  because the writer retired. Under revision c the re-attached writer
+  committed, the committable bit fell and nvm_backed stayed 1, and the same
+  reading came out durable.
 
 The reviewers' other RELOAD orderings are now refused (U6_reload_refused_after_boot):
 the ERASE-to-WRITE gap, then a RELOAD with no re-base, reads "reload refused 1,
@@ -663,7 +840,7 @@ priorities written out:
 close        = done AND no error AND the operation was a whole-record WRITE
 reload_ok    = RELOAD AND load_flag AND load_pending
 arm_ok       = ARM AND image configured AND img_valid AND NOT open AND NOT (reload_ok OR re-base)
-                   AND NOT deferred_wait
+                   AND NOT deferred_wait AND load_accepted
 grant        = request AND device idle AND NOT ((hold OR arm_ok) AND the request is a WRITE or ERASE)
 mut_wait     = a WRITE or ERASE request AND device idle AND NOT grant
 deferred_wait' = mut_wait                            (one cycle: the request this capture holds back)
@@ -676,6 +853,7 @@ drop         = end_cap AND NOT ack_ok
 
 load_flag'   = mutating grant ? 0 : re-base ? NOT (a mutating operation in flight) : load_flag
 load_pending' = (reload_ok OR window_live) ? 0 : load_pending
+load_accepted' = reload_ok ? 1 : load_accepted       (revision d; only reset clears it)
 reload_ref'  = RELOAD ? NOT reload_ok : reload_ref
 open[r]'     = re-base OR (grant set on r) OR (NOT reload_ok AND open[r] AND NOT close on r)
 
@@ -755,7 +933,7 @@ passes every "no false durable claim" check and is killed by convergence
 ## 7. The writer sequence
 
 The ordinary firmware service, as the prototype translation unit
-`branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/proposal-evidence/prototype/milan_baremetal.proto.c`
+`branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/proposal-evidence/prototype/milan_baremetal.proto.c`
 implements it:
 
 1. Boot, in this order (nvm_boot):
@@ -764,20 +942,29 @@ implements it:
    2. Read PP_NVM_STAT. If [31:24] is not 0xC3, load the window, configure
       the backend and publish the verdict for the restore walk, then disable
       the writer (the runtime cross-check of section 14).
-   3. If [3], load pending, is 0, this is a writer restart on a live backend:
-      re-attach as section 5.3 says (RELEASE, publish, ready) and skip to
-      step 1.6.
+   3. If [3], load pending, is 0, the boot load is over, and [2], load
+      accepted, says what that means (revision d).
+      - **[2] = 1**: a writer restart on a live backend the fabric owns by a
+        load it accepted. Re-attach as section 5.3 says (RELEASE, publish,
+        ready) and skip to step 1.6.
+      - **[2] = 0**: no window load was ever accepted in this boot, so
+        nothing in it may be captured or committed (rule 9). Do NOT
+        re-attach and do not publish a validity bit. Retire the writer for
+        this reset, as step 1.6 does, and report it.
    4. Otherwise, if the fabric has ALREADY sequenced a restore walk since its
       reset, the window is live and unvalidated: do not load it. Retire the
-      writer for this reset (no heartbeat, step 1.6 is skipped too, since the
-      walk in step 1.7 runs only if the fabric has not) and report it. This
-      is the writer rule that goes with the
-      backend's window-live term; under that term the backend has already
-      closed the boot load, so this branch is unreachable in the model and is
-      stated for an implementation that weakens one of the two.
+      writer for this reset (no heartbeat) and report it. Step 1.6 is skipped
+      because the writer is retired, and the walk in step 1.7 is skipped
+      because the fabric has already sequenced it. This is the writer rule
+      that goes with the backend's window-live term; under that term the
+      backend has already closed the boot load, so this branch is unreachable
+      in the model and is stated for an implementation that weakens one of
+      the two.
    5. Otherwise re-base the backend (image base, length and channel-map
       tables), copy the chosen slot or the blank image into the live window,
-      fence, strobe RELOAD and read [11]. If it is refused, wait (bounded)
+      fence, strobe RELOAD and read [11]. If it is refused, read [3]
+      (revision d): if it is 0 the window has gone live, no later RELOAD can
+      be accepted, and the writer stops repeating. Otherwise wait (bounded)
       for the device face to go idle and repeat this step from the re-base,
       at most four attempts in all (section 5.3).
    6. Once a RELOAD is accepted, publish the sequence and the verdict with
@@ -797,8 +984,15 @@ implements it:
       [section 6.1](SAVED_STATE_FASTCONNECT.md#61-the-container) blank image
       when no slot was ever accepted (F03_prefill_from_blank is
       killed by B1: a blank prefill writes erased records over verified ones).
-   2. ARM, then read the status. Not open, or arm refused: RELEASE and retry
-      at the next service call.
+   2. ARM, then read the status. Not open, or arm refused ([21]): RELEASE and
+      retry at the next service call. **The writer's behaviour on a refusal
+      is unchanged by revision d, and needs no new bit.** A refused ARM is
+      reported on [21] whatever refused it, and the writer treats every cause
+      the same way: it gives the capture up and tries again later, never
+      repeating the arm in the same service call. A conforming writer never
+      meets the rule-9 cause at all, because it has retired in step 1.3 or
+      1.6 before it ever reaches a capture; a writer that reaches one anyway
+      is refused, and [2] tells it and a controller which cause it was.
    3. Read the capture identity (word 5) and the open vector (words 8 to 15).
    4. Copy every CLOSED record from the live window into the stage; an open
       record keeps its prefilled bytes (F02_copies_open_records is killed by
@@ -843,15 +1037,25 @@ cannot be guaranteed from this page.
   breaks the argument in section 5.4 and must re-answer the alias.
 - **O3. No device-face initiator before the restore walk.** The entity enable
   and every other device-face initiator (donor scope D3) come up only after
-  step 1.7. The load rule is safe without this -- a live window refuses the
-  load -- but the RESTORE is not: it is what makes an accepted load re-derive
-  the entity's state.
+  step 1.7. What is safe without this, and what is not, is stated exactly
+  (revision d corrects revision c, which claimed more). SAFE without it: no
+  accepted RELOAD can retire work no slot holds, because a live window
+  refuses the load; and nothing in a boot that accepted no load can be
+  captured, committed or retired, because rule 9 arms no capture there. NOT
+  safe without it: the RESTORE, which is what makes an accepted load
+  re-derive the entity's state; and the per-record ownership reading, since a
+  record closed across a refused load's fill reads closed over bytes the
+  producer did not write. That record is reported and never retired, and only
+  a producer rewrite or a reset resolves it.
 - **O4. The live window and the fabric's view of it survive a writer
   restart.** The re-attach branch of step 1.3 assumes that the memory holding
   the window still holds what the backend believes it holds. A CPU-only
   restart whose path re-initialises that memory breaks the assumption without
   contradicting any other rule here; UNRESOLVED 10 states the two honest ways
-  out and neither is decided on this page.
+  out and neither is decided on this page. Revision d narrows what rests on
+  it: the branch is now taken only when [2] says the backend itself accepted
+  the load, so the obligation covers a window the backend vouches for rather
+  than any window a previous run left behind.
 
 ## 8. The round-2 concern, answered
 
@@ -920,15 +1124,20 @@ strobe the harness writes on the control face.
 | Mutating grant on the LAST re-base write's own edge, then RELOAD | U8 | unit | grant_wins_over_rebase_edge@after:0x20, closed_record_equals_load@after:0x20 | n/a |
 | A capture ended while HELD, an ARM in the adjacent cycle, a request waiting | U10 | unit | hold_bounded_across_captures:0x21, arm_refused_while_request_deferred@arm2 | n/a |
 | All four window loads refused: the terminal row, and a change after it | U9 | real + BFM, slots of an A1 run | four_refusal_terminal_row@boot, boot_load_closed_when_live@boot, writer_absent_when_retired@end, last_verified_kept@end:0x20, every_verified_slot_keeps@end:0x20, change_landed_or_reported@end:0x21 | n/a |
-| A writer restart from the four-refusal state, with a change accepted after it | W2 | real + BFM, restart model, slots of an A1 run | restart_never_reloads_live_window@restarted, later_record_persists@end:0x21, last_verified_kept@end:0x20, change_landed_or_reported@end:0x21 | n/a |
+| A writer restart from the four-refusal state, with a change accepted after it | W2 | real + BFM, restart model, slots of an A1 run | restart_never_reloads_live_window@restarted, restart_stays_retired_without_load@restarted, writer_absent_when_retired@end, last_verified_kept@end:0x20, every_verified_slot_keeps@end:0x20, change_landed_or_reported@end:0x21 | n/a |
+| An ARM on a window the control face validated exactly as a writer does, in a boot that accepted no load | U11 | unit | arm_refused_without_accepted_load@stray, no_capture_without_accepted_load@end | n/a |
+| One disturbed attempt of two grants (ERASE then WRITE): the window goes live and the writer stops repeating | U12 | real + BFM, slots of an A1 run | window_live_stops_the_repeat@boot, writer_absent_when_retired@end, last_verified_kept@end:0x20, every_verified_slot_keeps@end:0x20, change_landed_or_reported@end:0x21 | n/a |
+| The terminal state reached with the device BUSY at every strobe, so the bounded wait heartbeats: the row's second reading | U13 | real + BFM, slots of an A1 run | terminal_row_writer_was_live@boot, terminal_row_after_the_loss@end, last_verified_kept@end:0x20, every_verified_slot_keeps@end:0x20, change_landed_or_reported@end:0x21 | n/a |
+| A whole-record WRITE across the LAST refused load's fill, then a writer restart (the re-review's probe H1) | W3 | real + BFM, restart model, slots of an A1 run | write_spans_refused_fill@live:0x21, restart_stays_retired_without_load@restarted, writer_absent_when_retired@end, last_verified_kept@end:0x20, every_verified_slot_keeps@end:0x20, change_landed_or_reported@end:0x21 | n/a |
+| W3, and then every other allocated record rewritten whole, so nothing is left open by accident (probe H2) | W4 | real + BFM, restart model, slots of an A1 run | write_spans_refused_fill@live:0x21, restart_stays_retired_without_load@restarted, no_durable_reading_when_nothing_open@rewritten and @end2, last_verified_kept@end2:0x20, every_verified_slot_keeps@end2:0x20 | n/a |
 
 Every run grades unreachable_row_never_held, and every run of a build that
 carries the contract also grades pending_bit_is_status_bit_22 (a tracked or
 firmware-mutant build where a hook never fires grades neither). No check of
 any case may grade n/a on a prototype build. The 8x8 prototype passes the
-seventeen-case core set, which includes A1, R1 and U4 to U7, together with
-U9 and W2, which follow A1 on every build that runs it: 114 checks. U8 and
-U10 are unit cases and run at 1x1.
+core set, which includes A1, R1 and U4 to U7, together with U9, U12, U13,
+W2, W3 and W4, which follow A1 on every build that runs it: 26 case runs,
+146 checks, all passing. U8, U10 and U11 are unit cases and run at 1x1.
 
 ## 10. The four outcomes of a record operation
 
@@ -1112,6 +1321,8 @@ the real port in C1r, C2r, C2e and C1g) or for the alarm (already exported).
 | A grant on the arm edge voiding the capture instead of being deferred | A capture voided on its own arm edge is a certain wasted attempt; deferring costs one term in the grant | EXECUTED: M19, the request granted on the arm edge, killed by U4 |
 | Leaving the 50 ms bound per CAPTURE and stating the writer premise that makes it per request (that a capture's end and the next ARM are never adjacent) | The premise is a property of the writer's timing and of the bus between it and the control face, and nothing on either side is obliged to keep it; one flip-flop and one term make the bound hold whatever writes the strobe word | EXECUTED: M20, the arm accepted while a deferred request waits, killed by U10 ("granted 69733 cycles after it was raised") |
 | Closing the F6 restart hole by the writer rule alone (load pending 1 with the walk sequenced means stay disabled), with no backend term | The same objection the reviewed RELOAD met: a writer's promise cannot be checked by anything, and the state it must avoid is exactly the one where the previous writer did not behave as promised. The backend term costs no flip-flop (it retimes an existing one) | EXECUTED: R06, both halves reverted to revision b, reproduces the finding ("record 0x21 in the newest verified slot False, still reported False, status claims durable True") and is killed by W2 |
+| **Repairing the closed record instead of removing the capture** (revision d): a refused RELOAD re-opens every record as a re-base does, and an operation in flight at a re-base or at a refused RELOAD does not close its record when it completes (the re-review's sketch RS1, one flip-flop and two terms) | It repairs one symptom of a boot that validated nothing, per record and with new per-record behaviour on a path that already has four cases. Rule 9 removes the promotion itself, for every record and every ordering, with one flip-flop, one term and NO per-record state, and it is the stronger statement: not "this record is not promoted" but "this boot captures nothing". The sketch is a correct repair and is not needed once rule 9 holds; nothing else in revision d needs it, and the page does not adopt it | EXECUTED: R07, rule 9's term deleted, opens the capture and retires the work (U11, section 5.3 term table); W3 and W4 end with the record still closed, still reported and never durable |
+| **Reporting a rule-9 refusal on a NEW status bit** instead of the existing [21] | A refused ARM is a refused ARM: the writer's response is the same for every cause, and [2] already distinguishes the cause for a controller and for a diagnostic read. A second refusal bit would add a controller-visible field that no rule in this contract reads | DERIVED; the writer's behaviour on [21] is step 3.2 of section 7 and is unchanged by revision d |
 
 ## 16. Per-record reporting versus one summary bit
 
@@ -1156,12 +1367,23 @@ that no rule consumes and that races the producer by construction.
   after the window has gone live. A writer restart without a fabric reset
   re-attaches instead of reloading, and a run-time reload would need a later
   contract to change the backend's rule. A boot repeats a refused load at
-  most four times, waiting for the device face between attempts.
-- A writer whose four window loads were all refused RETIRES for that reset:
-  it never commits, it stops heartbeating, nvm_backed falls, and the entity
-  runs on defaults with nvm_pend 1 until the next reset. The saved state is
-  not lost (no slot is touched); it is not restored either, and the status
-  says so through img_valid 0 and the restore-fail bit.
+  most four times, waiting for the device face between attempts, and stops
+  earlier if the window has gone live.
+- **A boot in which no window load was accepted can write nothing.** No
+  capture is armed there, so no slot is written, no flash erase is issued and
+  no acknowledgement retires anything; the writer RETIRES for that reset; the
+  entity runs on defaults; nvm_pend reads 1 and nvm_backed 0 until the next
+  reset. The saved state is not lost (no slot is touched); it is not restored
+  either, and the status says so through img_valid 0 and the restore-fail
+  bit. **Only a reset leaves that state**, and a writer restart does not: it
+  reads the load-accepted bit and stays retired. The trade is availability,
+  and it is deliberate: a change accepted in such a boot waits for a reset
+  instead of being committed out of a window that no accepted load vouches
+  for.
+- A record closed by a whole-record WRITE that streamed across a refused
+  load's fill reads CLOSED over bytes the fill wrote. Nothing promotes it,
+  because that boot captures nothing, and it is reported until a producer
+  rewrites it or the fabric is reset (UNRESOLVED 11).
 - An implementation inherits the four obligations O1 to O4 of section 7. They
   are not properties this page can prove of a later system; each is an
   acceptance item of the implementation lane.
@@ -1189,36 +1411,41 @@ without DSP, exactly the
 
 | Shape | Tracked LUT (with LUTRAM) | Prototype LUT | Delta | Tracked FF | Prototype FF | Delta | DSP |
 |---|---|---|---|---|---|---|---|
-| 1x1 | 782 | 1072 | +290 | 377 | 475 | +98 | 6 and 6 |
-| 1x1, no DSP | 846 | 1147 | +301 | 377 | 475 | +98 | 0 |
-| 8x8 | 915 (787 + 128) | 1463 (1335 + 128) | +548 | 313 | 514 | +201 | 6 and 6 |
-| 8x8, no DSP | 993 (865 + 128) | 1549 (1421 + 128) | +556 | 313 | 514 | +201 | 0 |
+| 1x1 | 782 | 1051 | +269 | 377 | 476 | +99 | 6 and 6 |
+| 1x1, no DSP | 846 | 1129 | +283 | 377 | 476 | +99 | 0 |
+| 8x8 | 915 (787 + 128) | 1476 (1348 + 128) | +561 | 313 | 515 | +202 | 6 and 6 |
+| 8x8, no DSP | 993 (865 + 128) | 1553 (1425 + 128) | +560 | 313 | 515 | +202 | 0 |
 
 Revision b against the reviewed prototype, by the same method: +34, +26, -22
 and +39 LUT in the four rows, and +3 flip-flops in each (the load flag, load
 pending and reload refused). The reviewed RELOAD's per-record in-flight term
 is gone; the arm-edge deferral adds one term to the grant. **Revision c
 against revision b**: -20, +3, -3 and -61 LUT, and +1 flip-flop in each row
-(the deferred-request bit; the window-live term is a wire). The two new terms
-are one gate each on paths the synthesiser was already mapping, so the LUT
-figures move by less than the tool's own noise between otherwise identical
-runs and the sign is not meaningful; what is measured is that neither bound
-costs area worth naming.
+(the deferred-request bit; the window-live term is a wire). **Revision d
+against revision c**: -21, -18, +13 and +4 LUT, and +1 flip-flop in each row,
+which is `load_accepted` itself; rule 9 adds one term to an assignment that
+already had six. The new terms of all three revisions are one gate each on
+paths the synthesiser was already mapping, so the LUT figures move by less
+than the tool's own noise between otherwise identical runs and the sign is
+not meaningful; what is measured is that no bound and no rule here costs area
+worth naming, and that revision d costs exactly the one flip-flop the
+direction budgeted.
 
 DERIVED breakdown: the open vector is one flip-flop per allocated record, 53
 at 1x1 and 156 at 8x8 by the record table of the run, and its per-record
 compare against the operation's region drives most of the LUT delta at 8x8;
 the rest is the capture state, a 16-bit identity, the hold counter, the two
-dirty halves, the three load bits and the deferred-request bit (about 45
+dirty halves, the four load bits and the deferred-request bit (about 46
 flip-flops). Against the XC7A100T's 63,400 LUT the 8x8 delta is 0.9 percent
 (0.9 without DSP). Post-place figures are owed by a bitstream build.
 
 MEASURED firmware, RV32I at -Os against the same target stubs: text 9790 to
-12250 bytes at 1x1 (+2460) and 9906 to 12410 at 8x8 (+2504); bss +12 bytes;
+12550 bytes at 1x1 (+2760) and 9906 to 12710 at 8x8 (+2804); bss +12 bytes;
 data unchanged. Revision b's window load, re-attach path and messages account
-for 640 and 676 of those bytes, and revision c's retirement, its bounded wait
-for the device face, its restart rule and their messages for 360 more in each
-(bss +4: one flag).
+for 640 and 676 of those bytes, revision c's retirement, its bounded wait for
+the device face, its restart rule and their messages for 360 more in each
+(bss +4: one flag), and revision d's two-bit restart split, its stop on a
+live window and their messages for 300 more in each, with no new static.
 
 Memory shape: the stage is one container, 3264 bytes at 1x1 and 8648 at 8x8.
 
@@ -1254,7 +1481,7 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
 - ONE process per build: the real donor KL_acmp_nvm_shadow, KL_pp_nvm_port
   and KL_aecp_dyn_state at 8f2f58fb, the backend (tracked file or the
   prototype copy
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/proposal-evidence/prototype/KL_nvm_backend.proto.sv`),
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/proposal-evidence/prototype/KL_nvm_backend.proto.sv`),
   parent glue transcribed from KL_pp_shadow, and the ordinary firmware service
   compiled for the host (the tracked translation unit or the prototype copy),
   routed to the RTL through its two CSR primitives exactly as the
@@ -1274,12 +1501,13 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
   bus latency and arbitration, clock-domain crossings, the product's clock
   rate, and real flash timing (the flash is a host model with injectable
   failures and one 3 s erase in A9). No hardware was run.
-- The writer restart of W1 and W2 is modelled on the host by a function the
-  run script appends to the host build of the prototype writer only. It
+- The writer restart of W1, W2, W3 and W4 is modelled on the host by a
+  function the run script appends to the host build of the prototype writer
+  only. It
   returns every file-scope variable of the writer to its initial value and
   runs the writer's boot again; the run script refuses to build it unless it
   names every such variable. **Nothing else of a CPU reset is modelled**, and
-  the omissions matter to the reading of W1 and W2: the boot code's own memory
+  the omissions matter to the reading of those four cases: the boot code's own memory
   initialisation is not modelled, nor is any test or re-initialisation of the
   memory that holds the live window, nor the bus fabric's state. The model
   therefore ASSUMES obligation O4 of section 7 (the window and the fabric's
@@ -1290,17 +1518,18 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
   CPU reads what the backend wrote) and the load (the backend's flag vouches
   that nothing else wrote) both assume it. The model has one memory and no
   port ordering. It belongs with the hardware measurement, UNRESOLVED 6.
-- Totals, revision c, from a clean state: 2250 graded runs over 42 builds: 3
+- Totals, revision d, from a clean state: 2637 graded runs over 45 builds: 3
   prototype builds (1x1, 8x8, and a 2-bit identity build for the wrap
   control), 2 tracked builds, 1 mixed build (the new writer on tracked
-  gateware), 35 mutants and 1 executed alternative; 10,982 graded checks
-  (10,389 pass, 364 fail, 229 not expressible). The 1x1 prototype passes 282
+  gateware), 38 mutants and 1 executed alternative; 13,371 graded checks
+  (12,608 pass, 418 fail, 345 not expressible). The 1x1 prototype passes 318
   checks with 1 listed expected failure (E3 without D1); the 8x8 prototype
-  passes 114 of 114; every mutant is killed by its named check; the tracked
-  build still fails the three checks of section 2 at both shapes. Revision b
-  had 1824 runs over 37 builds, 258 plus 1 and 98 of 98; the reviewed record
-  had 1326 runs over 31 builds, 180 plus 1 and 55 of 55. See
-  `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md`.
+  passes 146 of 146; every one of the 39 mutants is killed by its named
+  check; the tracked build still fails the three checks of section 2 at both
+  shapes. Revision c had 2250 runs over 42 builds, 282 plus 1 and 114 of 114;
+  revision b had 1824 runs over 37 builds, 258 plus 1 and 98 of 98; the
+  reviewed record had 1326 runs over 31 builds, 180 plus 1 and 55 of 55. See
+  `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md`.
 
 ## 20. UNRESOLVED
 
@@ -1338,9 +1567,11 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
    verified commit of the record, is not defined here.
 8. A writer disabled for a SHAPE or TAG mismatch (section 14) keeps
    heartbeating, so it reads as a live writer that never commits: (backed 1,
-   dirty 0 or 1, stale 0) with pend 1. That predates this contract and this
-   page does not change it; revision c retires the writer only in the state
-   it introduces, the four-refusal terminal row. Making every disabled writer
+   dirty 0 or 1, stale 0) with pend 1. It is the TAG mismatch alone: on a
+   SHAPE mismatch the writer returns before it installs its service hook, so
+   nothing heartbeats. That predates this contract and this page does not
+   change it; revisions c and d retire the writer only in the state they
+   introduce, the terminal row of section 5.3. Making every disabled writer
    stop heartbeating would be a one-line change with a wider blast radius
    (the mixed-build case reads backed 1 today) and belongs to the
    implementation lane, with the saved-state section 9.3 rows re-read.
@@ -1368,8 +1599,29 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
     CPU reset a fabric reset, in which case load pending reads 1 with no walk
     sequenced and the cold-boot path runs. Whichever is chosen belongs in the
     implementation lane's acceptance. Not reachable in the cold-boot contract
-    and not a defect of the backend rules; W1 and W2 cannot see it
-    (section 19).
+    and not a defect of the backend rules; W1 to W4 cannot see it
+    (section 19). Revision d narrows the exposure but does not close the item:
+    the re-attach branch is now taken only when PP_NVM_STAT[2] says the
+    backend accepted the load, so a boot that validated nothing no longer
+    re-attaches at all; a boot that DID accept its load still re-attaches over
+    a window this page cannot prove survived the restart.
+
+11. **A record closed across a refused load's fill stays closed until a
+    producer rewrites it or the fabric is reset** (revision d, from the second
+    re-review). A refused RELOAD does not un-write the window: the fill wrote
+    the whole window, so a whole-record WRITE streaming across the last
+    attempt's fill ends with done over bytes the fill wrote, and its record
+    reads CLOSED although the producer did not write those bytes. Rule 9 makes
+    this safe rather than absent: nothing in that boot can capture, commit or
+    retire, so the record is REPORTED and never promoted, the last verified
+    slot is untouched and no reading is durable (W3, W4). What is not resolved
+    is convergence WITHIN that reset: the record's bytes are wrong until
+    something rewrites it, and only a producer rewrite or a reset does. The
+    honest alternative, not taken here, is the re-review's RS1 (a refused
+    RELOAD re-opens every record, and an operation in flight at a re-base or a
+    refused RELOAD does not close its record); section 15 says why rule 9 was
+    preferred. An implementation lane may adopt RS1 in addition, and nothing
+    in this contract forbids it.
 
 ## 21. Traceability
 
@@ -1378,12 +1630,12 @@ Issue body, acceptance for this design phase:
 | Bullet | Where | Executed by |
 |---|---|---|
 | Exact handshakes and ownership: already-granted writes, deferred requests, concurrent captures | 4, 5, 7 | A11, A12, C1g, C1, C1r, C5, U4 (a request on the arm's own edge) |
-| ACK cannot clear newer work before, on or after its edge; no-change converges; dirty not held to pass | 5, 6 | A2, A3, A4, A1; convergence requires the durable reading (M18) |
-| No transient erased record promoted; first-boot erased records kept; last verified slot kept on failure | 3, 4, 7, 8 | B1 to B5, C1g, C2, C2e, B7, B8, F2, R_power_cycle |
+| ACK cannot clear newer work before, on or after its edge; no-change converges; dirty not held to pass | 5, 6 | A2, A3, A4, A1; convergence requires the durable reading (M18); U11 (no capture opens in a boot that accepted no load, so no ACK there can retire anything) |
+| No transient erased record promoted; first-boot erased records kept; last verified slot kept on failure | 3, 4, 7, 8 | B1 to B5, C1g, C2, C2e, B7, B8, F2, R_power_cycle; W3 and W4 (a record closed across a refused load's fill is reported, never promoted) |
 | Control plane responsive; producer pause quantified with a timeout | 3, 5, 18 | C1 and C1r (deferral ends at the attestation, 23 cycles after the arm), C2 and C2e (bounded at 50 ms, then the capture is void), U10 (the bound across chained captures), A9, F3 |
-| Reset and re-arm, abandoned and duplicate ACKs, counter wrap, CRC and sequence promotion, liveness and stale | 5, 5.3, 5.4, 6, 7 | U1, U7 (reset row), A5, A6, A8, C7, C8, D1, F2; R1, U5, U6, U8 (the window load), U9 (all four loads refused), W1 and W2 (writer restarts) |
-| Bounded executable model on production interfaces, missing orderings, meaningful mutations, omitted timing stated | 9, 15, 19 | 2250 runs; 35 mutants each killed by a named check, and one executed alternative |
-| ADR, source hashes, command results; review ledger before product edits | this page; `branch 419-design-evidence, commit 47ec64d48d58fd69ce4f2490f4dc0989cbe3e8f8, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md` | the review ledger belongs to the independent reviewers |
+| Reset and re-arm, abandoned and duplicate ACKs, counter wrap, CRC and sequence promotion, liveness and stale | 5, 5.3, 5.4, 6, 7 | U1, U7 (reset row), A5, A6, A8, C7, C8, D1, F2; R1, U5, U6, U8 (the window load), U9, U12, U13 (a boot that accepts no load: the terminal row in both its readings), U11 (no capture there), W1, W2, W3, W4 (writer restarts) |
+| Bounded executable model on production interfaces, missing orderings, meaningful mutations, omitted timing stated | 9, 15, 19 | 2637 runs; 38 mutants each killed by a named check, and one executed alternative |
+| ADR, source hashes, command results; review ledger before product edits | this page; `branch 419-design-evidence, commit bf523a78402ebf4ab0a1c8977bd0288a4e61ef2f, path design-evidence/419-snapshot-ownership/COMMAND_RESULTS.md` | the review ledger belongs to the independent reviewers |
 
 [Comment 5670792796](https://github.com/kebag-logic/milan-fpga/issues/419#issuecomment-5670792796),
 obligations incorporated from issue #420:
@@ -1436,3 +1688,20 @@ to G6 and S5 to S7):
 | Memory-port ordering between the two checked copies (S7) | Named in section 19 and folded into UNRESOLVED 6 | 19, 20 (item 6) | - |
 | A completed WRITE between the load and the RELOAD is sound only because the restore walk follows (MS1) | Said, and made an obligation on scope D3 (O3) | 5.3, 7 | R1 |
 | "77 evidence sources" and "every run also grades" (MS2) | Counted and qualified | the preamble, 9 | - |
+
+The re-review at `e2d98d88`, revision c (the NEGATIVE review's findings are
+K1 to K3 and its suggestion S8 here; the POSITIVE review's are F9 to F11 and
+four suggestions). Both reviewers found the same two MINOR defects
+independently, so the rows below carry both labels:
+
+| Finding | Answer | Where | Executed by |
+|---|---|---|---|
+| A record closed across a refused load's fill is promoted by a re-attached writer, its work is retired by an accepted acknowledgement, and the status can read durable over it (K1, MAJOR) | Rule 9: no capture is armed until a RELOAD has been ACCEPTED since reset (one registered flag, one term). A boot that accepted no load opens no capture, so nothing in it can be captured, committed or retired; the record stays closed and REPORTED. The restarted writer does not re-attach in that state. The two sentences that claimed more (O3's second, and 5.3's "commits what the window holds") are corrected, and the residual is carried as UNRESOLVED 11 | 5.1, 5.2, 5.3 (rule 9 and the term table), 6, 7 (step 1.3, step 3.2, O3, O4), 15, 20 (item 11) | U11, W3, W4 (the reviewer's probes H1 and H2), W2 re-graded; R07 and F11 killed |
+| Once the window has gone live the writer still re-bases and refills it three more times, and a two-grant disturbance is terminal although the page describes the repeat as converging (K2, MINOR; F9, MINOR) | What "bracket" means is stated exactly (the FIRST mutating grant after a re-base, and no other), the page says the terminal state is reachable from one disturbed attempt, and the writer reads [3] after a refusal and stops repeating once it reads 0 | 5.3, 7 (step 1.5), 9 | U12; F12 killed |
+| The terminal row is the row of ONE ordering, and it has no reading after a restart (K3, MINOR; F10, MINOR) | The row is split into the bits the STATE fixes and the bits the ORDERING decides, each with its cause; the second reading is executed; and the row after a restart is the same row, because the writer no longer re-attaches | 5.3, 9 | U9 (the cold row), U13 (the row after a heartbeating wait), W2, W3, W4 |
+| Bit [3]'s dictionary row still reads "no RELOAD accepted since reset", the reading 5.3 tells a reader not to use, and the prototype's two comments carry it too (F11, MINOR; S8) | The dictionary row carries the reading 5.3 uses, the new bit [2] is what distinguishes the two, and both prototype comments are corrected | 5.1, the prototype backend and writer at the cited commit | - |
+| The terminal row could name [5] img_cfg 1 beside img_valid 0 (S8) | Named, with the reason: it is why producer writes land in a window whose reads come back blank | 5.3 | U9, U13 |
+| UNRESOLVED 8 overstates: a writer disabled for a SHAPE mismatch does not heartbeat (suggestion) | Corrected; it is the tag mismatch alone | 20 (item 8) | - |
+| "step 1.6 is skipped too, since the walk in step 1.7 runs only if the fabric has not" justifies skipping 1.7, not 1.6 (suggestion) | Reworded: 1.6 is skipped because the writer is retired | 7 (step 1.4) | - |
+| c_hold_bounded_chained has no contract guard and grades vacuously on the tracked build (suggestion) | NOT adopted in revision d. The check's vacuous pass is disclosed and is not what makes it non-vacuous where it matters, which is M20; adding a guard changes run.py's grading surface for no finding, and this revision was directed to add no mechanism beyond the one term. Carried for the implementation lane | 19 | M20 |
+| Section 20 items 8 to 10 and O1 to O4 should be copied verbatim into the implementation Issue's acceptance criteria, and the re-attach branch should not ship before item 10 is decided (suggestion) | Accepted as an instruction to the lane that opens that Issue; this page cannot open it. UNRESOLVED 11 joins the list | 7, 20 | - |
