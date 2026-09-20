@@ -47,6 +47,11 @@ T1X1 = records_endstation_ax7101_1x1_tdm8.txt
 # CLK_HZ_P is dropped to 10 kHz so one "millisecond" is ten clocks and the
 # section 9.4 deadlines are reachable in simulation; the deadline VALUES are
 # what the design page fixes and are exercised as relations, not as durations.
+# T_HOLD_MS_P is scaled with them: the module REFUSES a hold at or above the
+# commit deadline (it bounds a copy, never a flash transaction), so leaving
+# the shipping 50 ms beside a 6 ms commit deadline is an elaboration error
+# here, not a silent mismatch. The capture hold itself is exercised in
+# tb/verilator/nvm_cosim, with the firmware in the loop.
 VFLAGS = --cc --exe --build -j 0 --prefix Vnvm \
          -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
@@ -63,12 +68,12 @@ ifeq (,$(and $(N_NAME_8X8),$(N_NAME_1X1)))
 $(error AEM_NAME_ENTRIES_C was not read from a generated header)
 endif
 
-SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
+SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 \
             -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
             -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 \
             -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_8X8)
 
-SHAPE_1X1 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 \
+SHAPE_1X1 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 \
             -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 \
             -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 \
             -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_1X1)

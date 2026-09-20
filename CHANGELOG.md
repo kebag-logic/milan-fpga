@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005F - saved-state snapshot ownership](#release-0x0002_005f---saved-state-snapshot-ownership)** -- Durable means in a slot.
 - **[Release 0x0002_005E - board timestamp latency](#release-0x0002_005e---board-timestamp-latency)** -- The fabric corrects its stamps.
 - **[Release 0x0002_005C - SRP status words](#release-0x0002_005c---srp-status-words)** -- Four bits read their subject.
 - **[Release 0x0002_005B - SET_SAMPLING_RATE list check](#release-0x0002_005b---set_sampling_rate-list-check)** -- An unlisted rate is refused.
@@ -41,6 +42,30 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_005F - saved-state snapshot ownership
+
+- Every allocated record carries an OPEN bit in the backend.
+- A mutating grant sets it; only a whole-record WRITE with done clears it.
+- The writer captures closed records into a private stage under a hold.
+- The backend attests the copy, and only an attested one reaches flash.
+- The acknowledgement quotes the capture identity word.
+- So a completion between the read-back and the acknowledgement stays owned.
+- `nvm_dirty` is now the committable work that drives a commit.
+- Accepted work no slot holds is published on `PP_STAT[11]` `nvm_pend`.
+- The durable reading gains that bit 0.
+- RELOAD is checked by the backend and accepted once per reset.
+- A boot that accepted no window load opens no capture at all.
+- A reported flash failure and the manager alarm revoke `nvm_backed`.
+- The generator withdraws `MILAN_NVM_IMAGE_BASE` for a live and a stage base.
+- An older writer therefore does not compile against this gateware.
+- `tb/verilator/nvm_cosim` grades 469 checks over both shipped shapes.
+- Each of the 39 mutants it plants is killed by one named check.
+- KNOWN LIMITATION: donor scope D1 is not exported by the pinned processor.
+- A binding accepted inside the manager's debounce can still read durable.
+- It is filed as protocol-processor-control-plane-avb-milan issue 90.
+- `KL_pp_shadow` ties the term to zero at the one place it will connect.
+- Issue 484 carries the contract, the evidence and the cost.
 
 ## Release 0x0002_005E - board timestamp latency
 

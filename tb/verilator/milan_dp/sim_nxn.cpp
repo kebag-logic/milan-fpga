@@ -1520,8 +1520,8 @@ class NxnDatapathHarness {
 
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION 0x005E publishes the applied gPTP timestamp latency corrections at 0x7F0, and carries 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
-           axi_read(A_VERSION), 0x0002005E);
+        ck("VERSION 0x005F carries the saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+           axi_read(A_VERSION), 0x0002005F);
 
         //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
         //! These two writes used to sit inside the N-sink ACMP ctx2 section,

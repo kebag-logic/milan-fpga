@@ -155,7 +155,27 @@ module milan_csr #(
   //! Nothing else moves, and the ONLY live consumer of a latency correction
   //! remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D is taken
   //! by a parallel lane and is deliberately skipped here.
-  parameter logic [31:0] VERSION = 32'h0002_005E
+  //!
+  //! 0x005F lands the saved-state SNAPSHOT OWNERSHIP contract (#484,
+  //! docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md). PP_STAT 0x924 gains
+  //! [11] nvm_pend: accepted work that no verified slot holds and nvm_dirty
+  //! does not report - a change the producer still holds, or a record whose
+  //! logical write has not completed - so the durable reading of the
+  //! saved-state page's 9.3 becomes (backed 1, dirty 0, stale 0) AND pend 0.
+  //! PP_STAT[11] read 0 before and was reserved. The backend's own status
+  //! word behind PP_NVM_STAT 0x93C gains a constant contract tag 0xC3 in
+  //! [31:24] and the capture face the contract defines - [23] unres, [22]
+  //! nvm_pend, [21] arm refused, [20] ack refused, [19] attested, [18] valid,
+  //! [17] hold, [16] open, [11] reload refused, [3] load pending, [2] load
+  //! accepted - and PP_NVM_SEL 0x934 gains word 5, the capture identity, and
+  //! words 8 to 15, the per-record ownership vector; [8] nvm_dirty there now
+  //! means the COMMITTABLE image work that drives a commit. The strobe word
+  //! gains [3] ARM, [4] ATTEST, [5] RELEASE and [6] RELOAD, and [1]'s
+  //! acknowledgement must quote the capture identity in [31:16]. 0x005C's
+  //! SRP status words are unchanged. No CSR ADDRESS, width or access moves:
+  //! this is one new PP_STAT bit and new meaning inside the backend's
+  //! existing indexed window. The register occupies four bytes.
+  parameter logic [31:0] VERSION = 32'h0002_005F
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

@@ -140,12 +140,17 @@ class NvmBackendHarness {
   void test_bounds_and_errors();
   void test_status_word();
   void hb();
-  void commit_ack();
+  void commit_ack(uint32_t cap_id);
   void commit_start();
-  void change();
+  void pend(int level);
+  void boot_load();
+  void close_record();
+  uint32_t capture();
   void idle_ms(int n);
   void expect_bits(const char *what, int b, int d, int s);
+  void expect_pend(const char *what, int want);
   void test_stale();
+  void test_ownership();
 
   static constexpr uint32_t IMG_BASE = 0x40000000u;
   static constexpr int RESET_CYCLES = 8;
@@ -159,7 +164,24 @@ class NvmBackendHarness {
   static constexpr uint32_t STAT_DIRTY = 1u << 8;
   static constexpr uint32_t STAT_STALE = 1u << 9;
   static constexpr uint32_t STAT_IMG_CFG = 1u << 5;
+  // the snapshot-ownership contract's own bits
+  // (docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 5.1)
+  static constexpr uint32_t STAT_LOAD_ACC = 1u << 2;
+  static constexpr uint32_t STAT_LOAD_PEND = 1u << 3;
+  static constexpr uint32_t STAT_RELOAD_REF = 1u << 11;
+  static constexpr uint32_t STAT_CAP_OPEN = 1u << 16;
+  static constexpr uint32_t STAT_ATTESTED = 1u << 19;
+  static constexpr uint32_t STAT_ACK_REF = 1u << 20;
+  static constexpr uint32_t STAT_ARM_REF = 1u << 21;
+  static constexpr uint32_t STAT_PEND = 1u << 22;
+  static constexpr uint32_t STAT_UNRES = 1u << 23;
+  static constexpr uint32_t STAT_TAG = 0xC3u << 24;
+  static constexpr unsigned R_CAPID = 5;
+  static constexpr unsigned R_OWN0 = 8;
 
+  //! heartbeat the backend from inside a long device-face command: see
+  //! dev_cmd(). Off by default, so every existing case is unchanged.
+  bool hb_during_cmd_ = false;
   int checks_ = 0;
   int fails_ = 0;
 
@@ -414,7 +436,8 @@ uint32_t NvmBackendHarness::csr_read(unsigned addr) {
 void NvmBackendHarness::reset_dut() {
   dut_->rst_n = 0;
   dut_->csr_sel_i = dut_->csr_we_i = 0;
-  dut_->change_i = 0;
+  dut_->pend_i = 0;
+  dut_->alarm_i = 0;
   dut_->dev_req_i = dut_->dev_wvalid_i = dut_->dev_rready_i = 0;
   br_ = Bridge();
   for (int i = 0; i < RESET_CYCLES; i++) tick();
@@ -458,7 +481,27 @@ bool NvmBackendHarness::dev_cmd(int op, unsigned region, unsigned offset,
     // and ready are high, so the next byte may only appear after that edge --
     // exactly as KL_pp_nvm_port drives its device face
     bool took = wr && dut_->dev_wvalid_i && dut_->dev_wready_o;
+    //! A live writer answers the liveness deadline THROUGH a long operation
+    //! (design page 9.4, and case A9 of the snapshot-ownership page keeps a
+    //! 250 ms heartbeat gap through a 3 s erase). At this suite's scaled
+    //! clock one "millisecond" is ten clocks, so a whole-record WRITE
+    //! outlives T_ALIVE_MS_P, and section 9.2's rows would be measuring the
+    //! scaled deadline instead of the rule under test. The strobe rides THIS
+    //! cycle's edge: it must add no edge of its own, or the byte handshake
+    //! below loses a byte and the command never completes.
+    bool hb_now = hb_during_cmd_ && guard && (guard % 8) == 0;
+    if (hb_now) {
+      dut_->csr_sel_i = 1;
+      dut_->csr_we_i = 1;
+      dut_->csr_addr_i = 4;
+      dut_->csr_wdata_i = 1u;
+      settle();
+    }
     posedge();
+    if (hb_now) {
+      dut_->csr_sel_i = 0;
+      dut_->csr_we_i = 0;
+    }
     if (took) {
       wi++;
       if (wi < len) dut_->dev_wdata_i = wr[wi];
@@ -527,9 +570,18 @@ void NvmBackendHarness::test_unconfigured() {
         "%s: unconfigured: the bus saw %u read(s) and %u write(s); blank flash "
         "must cause none", shape_.c_str(), br_.reads - reads0,
         br_.writes - writes0);
-  check(dut_->nvm_dirty_o == 1,
-        "%s: unconfigured: an accepted-and-discarded WRITE did not set "
-        "nvm_dirty -- the change is not durable and the bit must say so",
+  // Under the snapshot-ownership contract nvm_dirty is COMMITTABLE image
+  // work, and a WRITE with no configured image mutates no record: it is
+  // accepted and discarded, no record opens and none closes, so the bit
+  // stays 0. The change is still not durable and the status still says so,
+  // on the PENDING bit, which reads 1 here because every allocated record is
+  // open until the boot window load is accepted (sections 4 and 6.1).
+  check(dut_->nvm_dirty_o == 0,
+        "%s: unconfigured: a discarded WRITE set nvm_dirty; it mutates no "
+        "record, so there is nothing committable to report", shape_.c_str());
+  check(dut_->nvm_pend_o == 1 && (csr_read(3) & (1u << 23)),
+        "%s: unconfigured: a discarded WRITE is not reported on the pending "
+        "bit, and every record is open until the boot load is accepted",
         shape_.c_str());
   check(dut_->nvm_backed_o == 0,
         "%s: unconfigured: nvm_backed is 1 with no writer ever heard from",
@@ -669,9 +721,17 @@ void NvmBackendHarness::test_writes_and_erase(bool posted) {
               !memcmp(got.data(), pat.data(), 8),
           "%s: %s: a READ after the WRITE served the cached old word",
           shape_.c_str(), mode);
-    check(dut_->nvm_dirty_o == 1,
-          "%s: %s: a committed WRITE did not set nvm_dirty", shape_.c_str(),
+    // A PARTIAL write is not a completed logical record, so it does NOT
+    // close its record and does NOT make the image committable: what it does
+    // is OPEN the record, and the open bit and the pending bit report it
+    // (snapshot-ownership section 4; mutant M03 of the contract page is
+    // exactly the rule that closes on a partial write).
+    check(dut_->nvm_dirty_o == 0,
+          "%s: %s: a PARTIAL WRITE made the image committable", shape_.c_str(),
           mode);
+    check((csr_read(R_OWN0 + (r.id >> 5)) >> (r.id & 31u)) & 1u,
+          "%s: %s: a PARTIAL WRITE into 0x%02X left its record closed",
+          shape_.c_str(), mode, r.id);
     memcpy(&mem_[r.off + 16], &area_[r.off + 16], 8);  // restore
   }
   // ERASE of one whole record: exactly its span reads 0xFF afterwards
@@ -752,14 +812,53 @@ void NvmBackendHarness::test_status_word() {
 
 // ---------------------------------------------------------------------------
 void NvmBackendHarness::hb() { csr_write(4, 1u << 0); }
-void NvmBackendHarness::commit_ack() { csr_write(4, 1u << 1); }
+void NvmBackendHarness::commit_ack(uint32_t cap_id) {
+  csr_write(4, (1u << 1) | (cap_id << 16));
+}
 void NvmBackendHarness::commit_start() { csr_write(4, 1u << 2); }
 
-// the processor reports a persisted field moved: one-cycle fabric evidence
-void NvmBackendHarness::change() {
-  dut_->change_i = 1;
+// The producer holds an accepted change it has not yet written through the
+// device face. A LEVEL, and no acknowledgement retires it: it reaches
+// nvm_pend_o and never nvm_dirty_o (snapshot-ownership section 6.1).
+void NvmBackendHarness::pend(int level) {
+  dut_->pend_i = level;
   tick();
-  dut_->change_i = 0;
+}
+
+// The boot window load of section 5.3: a re-base with nothing in flight arms
+// the load flag, and the RELOAD the backend then ACCEPTS closes every record
+// and is what lets any capture be armed at all (rule 9).
+void NvmBackendHarness::boot_load() {
+  configure_image();
+  set_valid(true, 0);
+  csr_write(4, 1u << 6);   // RELOAD
+}
+
+// A whole-record WRITE that completes with done: the ONE event that closes a
+// record and is therefore the only thing that makes the image committable.
+void NvmBackendHarness::close_record() {
+  const Rec &r = recs_[0];
+  std::vector<uint8_t> pat(r.flen, 0x5Au);
+  check(dev_cmd(1 /*WRITE*/, r.id, 0, r.flen, 0, pat.data()),
+        "%s: a whole-record WRITE of 0x%02X was refused", shape_.c_str(), r.id);
+  tick();
+  check(!((csr_read(R_OWN0 + (r.id >> 5)) >> (r.id & 31u)) & 1u) &&
+            dut_->nvm_dirty_o,
+        "%s: a whole-record WRITE of 0x%02X did not close it and make the "
+        "image committable", shape_.c_str(), r.id);
+}
+
+// One capture, acknowledged: ARM, read the identity, ATTEST, ACK quoting it.
+// Returns the identity the acknowledgement quoted, 0 if the ARM was refused.
+uint32_t NvmBackendHarness::capture() {
+  csr_write(4, 1u << 3);   // ARM
+  uint32_t s = csr_read(3);
+  if (!(s & STAT_CAP_OPEN) || (s & STAT_ARM_REF)) return 0;
+  uint32_t id = csr_read(R_CAPID);
+  csr_write(4, 1u << 4);   // ATTEST
+  if (!(csr_read(3) & STAT_ATTESTED)) return 0;
+  commit_ack(id);
+  return id;
 }
 
 void NvmBackendHarness::idle_ms(int n) {
@@ -785,16 +884,25 @@ void NvmBackendHarness::test_stale() {
 
   // (a) a build that never had a writer is never stale
   reset_dut();
+  boot_load();
   idle_ms(12);
   expect_bits("never backed, nothing outstanding", 0, 0, 0);
-  change();
+  close_record();
   idle_ms(12);
   expect_bits("never backed, changes accepted", 0, 1, 0);
+
+  //! From here on a WRITER IS LIVE, so the long device-face commands below
+  //! answer the liveness deadline as one does (dev_cmd). Case (a) above must
+  //! NOT: it is the build that never had a writer, and a heartbeat inside its
+  //! WRITE would make the idle that follows a LOSS rather than the honest
+  //! never-backed state.
+  hb_during_cmd_ = true;
 
   // (b) a loss with NOTHING outstanding, a clean recovery, and then an
   //     ordinary controller change. This is the row round 3 contradicted: the
   //     recovery made the loss good, so a later SET must not republish it.
   reset_dut();
+  boot_load();
   hb();
   expect_bits("the writer answered", 1, 0, 0);
   idle_ms(12);
@@ -802,20 +910,24 @@ void NvmBackendHarness::test_stale() {
   hb();
   tick();
   expect_bits("a clean recovery clears the loss", 1, 0, 0);
-  change();
+  close_record();
   tick();
   expect_bits("an ordinary change after a healed outage is in flight, not "
               "stale",
               1, 1, 0);
-  commit_ack();
+  check(capture() != 0,
+        "%s: the capture that retires the work was not acknowledged",
+        shape_.c_str());
+  hb();
   tick();
   expect_bits("the commit is acknowledged", 1, 0, 0);
 
   // (c) a loss WITH data outstanding stays stale through the recovery and
   //     clears only when the commit that makes it durable completes
   reset_dut();
+  boot_load();
   hb();
-  change();
+  close_record();
   tick();
   expect_bits("in flight", 1, 1, 0);
   idle_ms(12);
@@ -823,7 +935,9 @@ void NvmBackendHarness::test_stale() {
   hb();
   tick();
   expect_bits("recovering: answering again, not yet durable", 1, 1, 1);
-  commit_ack();
+  check(capture() != 0, "%s: the recovery capture was not acknowledged",
+        shape_.c_str());
+  hb();
   tick();
   expect_bits("the outage is made good by the commit", 1, 0, 0);
 
@@ -836,26 +950,159 @@ void NvmBackendHarness::test_stale() {
 
   // (e) the commit deadline: a started commit nobody acknowledges is a loss
   reset_dut();
+  boot_load();
   hb();
   commit_start();
   for (int i = 0; i < 3; i++) { hb(); idle_ms(2); }   // T_COMMIT_MS_P is 6
   expect_bits("a commit that outlives T-NVM-COMMIT-TIMEOUT revokes backing "
               "even with the heartbeat serviced", 0, 0, 1);
-  // (f) a commit acknowledged in time is not
+  // (f) a commit acknowledged in time is not. The acknowledgement must quote
+  // an OPEN, ATTESTED capture to disarm the deadline: one that names nothing
+  // this backend holds is refused and the deadline runs on.
   reset_dut();
+  boot_load();
   hb();
   commit_start();
   hb(); idle_ms(2);
-  commit_ack();
+  check(capture() != 0, "%s: the in-deadline capture was refused",
+        shape_.c_str());
   hb(); idle_ms(2);
   expect_bits("a commit acknowledged inside the deadline keeps backing",
               1, 0, 0);
 
+  // (g) THE SEPARATE PENDING BIT (snapshot-ownership 6.1). A producer-held
+  // change is reported on its own bit, drives no commit and is retired by
+  // NO acknowledgement: only the producer dropping the level clears it.
+  reset_dut();
+  boot_load();
+  hb();
+  pend(1);
+  tick();
+  expect_bits("a producer-held change is NOT committable image work", 1, 0, 0);
+  expect_pend("a producer-held change is reported on the pending bit", 1);
+  check(capture() != 0, "%s: an arm was refused with a producer change held",
+        shape_.c_str());
+  tick();
+  expect_pend("no acknowledgement retires a producer-held change", 1);
+  pend(0);
+  tick();
+  expect_pend("the producer dropping the level clears it", 0);
+
+  // (h) A REPORTED TRANSACTION FAILURE revokes when it is REPORTED, which is
+  // the section 12 resolution: waiting for the 8000 ms commit deadline
+  // advertises durability for up to eight seconds after a known failure.
+  reset_dut();
+  boot_load();
+  hb();
+  expect_bits("the writer answered", 1, 0, 0);
+  set_valid(true, 0xD);   // VD_VERIFY
+  tick();
+  expect_bits("a reported read-back-verify failure revokes at once",
+              0, 0, 1);
+
   watch_stale_ = false;
+  hb_during_cmd_ = false;
   check(bad_pair_ == 0,
         "%s: (backed=1, dirty=0, stale=1) was observable on %d cycle(s), and "
         "section 9.3 calls that row unreachable",
         shape_.c_str(), bad_pair_);
+}
+
+void NvmBackendHarness::expect_pend(const char *what, int want) {
+  uint32_t s = csr_read(3);
+  int face = static_cast<int>(dut_->nvm_pend_o);
+  check(face == want && ((s >> 22) & 1) == static_cast<uint32_t>(want),
+        "%s: %s -- nvm_pend_o %d and status [22] %u, wanted %d",
+        shape_.c_str(), what, face, (s >> 22) & 1, want);
+}
+
+// The open vector of section 4, the contract tag, and the two terms that
+// refuse an arm. Everything here is read on the backend's OWN face, which is
+// where the contract puts the per-record detail (section 16, option A).
+void NvmBackendHarness::test_ownership() {
+  reset_dut();
+  uint32_t s = csr_read(3);
+  check((s & 0xFF000000u) == STAT_TAG,
+        "%s: the status word does not carry the contract tag 0xC3 (0x%08X)",
+        shape_.c_str(), s);
+  // the reset row: every allocated record OPEN, the boot load still open and
+  // none accepted, so an ARM is refused even once the image is validated
+  check((s & STAT_UNRES) && (s & STAT_PEND) && (s & STAT_LOAD_PEND) &&
+            !(s & STAT_LOAD_ACC) && !(s & STAT_CAP_OPEN),
+        "%s: the reset row is wrong (0x%08X)", shape_.c_str(), s);
+  unsigned open_at_reset = 0;
+  for (unsigned w = 0; w < 8; w++) {
+    uint32_t bits = csr_read(R_OWN0 + w);
+    for (unsigned b = 0; b < 32; b++) if ((bits >> b) & 1u) open_at_reset++;
+  }
+  check(open_at_reset == recs_.size(),
+        "%s: %u record(s) open at reset, and this shape allocates %zu",
+        shape_.c_str(), open_at_reset, recs_.size());
+  configure_image();
+  set_valid(true, 0);
+  csr_write(4, 1u << 3);   // ARM, before any accepted RELOAD
+  s = csr_read(3);
+  check((s & STAT_ARM_REF) && !(s & STAT_CAP_OPEN) && csr_read(R_CAPID) == 0,
+        "%s: an ARM was accepted with load accepted 0, and rule 9 refuses it "
+        "(0x%08X)", shape_.c_str(), s);
+
+  // the accepted boot load closes every record and lets a capture be armed
+  reset_dut();
+  boot_load();
+  s = csr_read(3);
+  check(!(s & STAT_RELOAD_REF) && (s & STAT_LOAD_ACC) && !(s & STAT_LOAD_PEND),
+        "%s: the boot window load was refused (0x%08X)", shape_.c_str(), s);
+  check(!(s & STAT_UNRES) && !(s & STAT_PEND),
+        "%s: an accepted RELOAD did not close every record (0x%08X)",
+        shape_.c_str(), s);
+
+  // a mutating GRANT opens its record and NOTHING else's; only a
+  // whole-record WRITE with done closes it again
+  const Rec &r = recs_[0];
+  std::vector<uint8_t> blank(r.flen, 0xFFu);
+  check(dev_cmd(2 /*ERASE*/, r.id, 0, 0, 0, 0),
+        "%s: an ERASE of 0x%02X was refused", shape_.c_str(), r.id);
+  tick();
+  check((csr_read(R_OWN0 + (r.id >> 5)) >> (r.id & 31u)) & 1u,
+        "%s: an ERASE of 0x%02X left its record closed", shape_.c_str(), r.id);
+  check((csr_read(3) & STAT_UNRES) && (csr_read(3) & STAT_PEND),
+        "%s: an open record is not reported", shape_.c_str());
+  close_record();
+  check(!((csr_read(R_OWN0 + (r.id >> 5)) >> (r.id & 31u)) & 1u),
+        "%s: a whole-record WRITE of 0x%02X did not close it", shape_.c_str(),
+        r.id);
+  // a PARTIAL write never closes a record: the logical record is not complete
+  check(dev_cmd(2 /*ERASE*/, r.id, 0, 0, 0, 0) &&
+            dev_cmd(1 /*WRITE*/, r.id, 0, 4, 0, blank.data()),
+        "%s: the partial-write setup was refused", shape_.c_str());
+  tick();
+  check((csr_read(R_OWN0 + (r.id >> 5)) >> (r.id & 31u)) & 1u,
+        "%s: a PARTIAL WRITE closed record 0x%02X", shape_.c_str(), r.id);
+
+  // a second RELOAD after the boot is REFUSED and changes nothing
+  csr_write(4, 1u << 6);
+  s = csr_read(3);
+  check((s & STAT_RELOAD_REF) && (s & STAT_UNRES),
+        "%s: a RELOAD after the boot load was accepted (0x%08X)",
+        shape_.c_str(), s);
+
+  // an acknowledgement quoting ANOTHER capture names nothing this backend
+  // holds: refused, and the work it aimed at stays owned
+  reset_dut();
+  boot_load();
+  close_record();
+  csr_write(4, 1u << 3);
+  uint32_t id = csr_read(R_CAPID);
+  csr_write(4, 1u << 4);
+  commit_ack(id + 7u);
+  s = csr_read(3);
+  check((s & STAT_ACK_REF) && (s & STAT_CAP_OPEN) && dut_->nvm_dirty_o,
+        "%s: a stale acknowledgement retired work (0x%08X)", shape_.c_str(), s);
+  commit_ack(id);
+  tick();
+  check(!dut_->nvm_dirty_o,
+        "%s: the acknowledgement quoting the open capture retired nothing",
+        shape_.c_str());
 }
 
 // ---------------------------------------------------------------------------
@@ -889,6 +1136,7 @@ int NvmBackendHarness::run(int argc, char **argv) {
   test_bounds_and_errors();
   test_status_word();
   test_stale();
+  test_ownership();
 
   printf("nvm_backend[%s]: checks: %d  failures: %d\n", shape_.c_str(),
          checks_, fails_);
