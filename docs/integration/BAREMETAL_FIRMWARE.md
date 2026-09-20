@@ -193,6 +193,22 @@ shipping 1x1 with its CRF output off, and holds the ordered list below (#398).
 | `CRFT_CTRL` (`0x750`) | `MILAN_CRF_TX_CTRL_BOOT` | generated from `clocking.crf_output.enabled`: `0x3`, talker enable and class-A declare, when the output is declared; `0x0` when it is not, so `CRFT_CTRL[0]` stays clear and nothing is declared |
 | `ADP_ENTITY_CAPS` (`0x614`) | not written | nothing reads the word: the ADPDU carries the processor's `ADP_ENTITY_CAPS_C` (#398) |
 
+**Both of the last two rows are statements about the WHOLE firmware now**
+(#465). Gate 35 enters it through `configure_fabric()` alone, so a
+`CRFT_CTRL` write anywhere else was invisible to it: both reviewers of PR
+#459 planted `milan_write(MILAN_CRF_TX_CTRL, 3u)` in `entity_advertise()`
+and gate 35, gate 1b and `check_baremetal_only.py --check` all stayed green.
+Gate 1b's resolver now censuses both addresses across every function the
+compiler emitted, off the same resolved call operands the entity-enable
+census uses: exactly one write to `0x750`, from `configure_fabric()`,
+carrying the generated `MILAN_CRF_TX_CTRL_BOOT`, and none at all to `0x614`.
+Each plant is a permanent mutation. The hop that PUBLISHES those words --
+the loops in `sw/litex/milan_soc.py` that hand `boot_policy.fabric_constants`
+and `nvm_shape.firmware_constants` to `add_constant` -- is pinned line for
+line by gate 35, because a value substituted there reaches the firmware with
+every derivation gate green; the planted
+`3 if _name.endswith("CTRL_BOOT") else _value` is refused.
+
 Setting the entity-enable bits is step 5's alone: only the choke point above
 sets them.
 
@@ -243,6 +259,31 @@ One constraint is answered by a tool rather than by reading text:
   refused without any of them being named, and it is also why a benign
   `AR += v` is refused: the rule has no list, so it has nothing to fall
   behind and no way to make an exception.
+
+**The text this gate reads is the text the compiler compiles, and that is
+MEASURED rather than defended by refusals** (#408). The same compiler, under
+the same flags, preprocesses the firmware with `-E`; the boot path this gate
+reads is compared row for row against the boot path of that unit, counting
+each of `milan_init()`, `configure_fabric()`, `entity_advertise()` and the
+three CSR accessors for the CSR primitives and boot steps it calls; and no
+preprocessing directive may survive into the unit at all. Those tokens are
+macro-invariant, so the two texts can be compared although one has its
+register names expanded. A conditional that adds or removes a boot step, a
+backslash-newline that joins `milan_` to `write`, and a `##` that pastes a
+call name are all one disagreement, reported rather than anticipated -- and
+a conditional around a debug `printf`, inside `milan_init()` or in a UART
+handler, changes nothing and is GREEN.
+
+**And which FILE each pinned include name reaches is measured too**, by
+`-H`: the preprocessor lists the files it opened, by resolved path, and no
+pinned name may reach a file beside the firmware. That replaced a listing pin
+which cost any new file in the directory, a README included, and still said
+nothing about which file a name actually got. The caveat belongs with the
+instrument and is written at its site as well as here: **`-H` proves
+resolution in the tree it is HANDED** -- the firmware's own directory plus
+the census's stub header root -- so a different `-I` set, sysroot or working
+directory is outside this measurement, and the CONTENTS behind each resolved
+third-party name stay trusted rather than read.
 
 A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
@@ -315,11 +356,13 @@ result, each rejected with the property named:
 None of the four is recognised as a construct. Each is answered by a value or
 by an edge, so a fifth spelling of the same defect needs no new rule.
 
-The source store instrument has an uncovered class, and the resolver is what
-covers it. The cast set only recognises a cast whose text contains a `*`, and
-the store set only recognises a left-hand side that starts with `*` or is
-`name[...]`. A cast with no `*` combined with a `->` or subscript store is
-therefore outside the source instrument:
+The source store instrument HAD two uncovered classes, and the resolver is
+what covers both; they are why the cast, store and asm sets retired onto it
+with #409 rather than being widened again. The cast set only recognised a
+cast whose text contained a `*`, and the store set only recognised a
+left-hand side that started with `*` or was `name[...]`. So a cast with no
+`*` combined with a `->` or subscript store was outside the source
+instrument:
 
 ```c
 typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
@@ -339,7 +382,17 @@ static unsigned int csr_page = 0x9000u;
 ((milan_csr_page_p)((csr_page << 16) | MILAN_PP_CTRL))[0] = 1u;
 ```
 
-Both were measured GREEN on the whole gate before the resolver existed.
+The second class is the one both reviews of PR #491 reported and #495
+records: the store set took a left-hand side back to the last `;{}`, so a
+store behind a BRACE-LESS `if` read as `if (c) *p`, began with neither a `*`
+nor a subscript, and was not a store at all to that rule, whatever it pointed
+at. The tripwire did not fire for a whole statement class. A RESOLVED store
+address has no such shape to miss, and that spelling is a permanent mutation:
+a brace-less `if` storing through a paged base into `ADP_CTRL` is refused on
+the address it resolves to.
+
+Both paged-base stores were measured GREEN on the whole gate before the
+resolver existed.
 The resolver
 rejects both, because it computes the store address rather than matching one:
 `the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000)
@@ -1020,10 +1073,11 @@ Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
 
 - **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
-  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
-  casts, the set of pointer stores and the set of inline-asm statements in the
-  file are each pinned, so a fifth cast, a fifth store or a third `asm` is
-  refused until it is added to the gate.
+  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. That is one name
+  and one spelling, and it is all that is left of this constraint as a TEXT
+  rule: the set of pointer casts, the set of pointer stores and the set of
+  inline-asm statements retired with #409, onto the resolver, which answers
+  the same question by the address a store RESOLVES to.
 
 The rest are refusals, and each one costs a legitimate edit:
 
@@ -1036,12 +1090,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
-| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation; a store planted inside the address helper the census exempts by name is measured invisible to the census on every run where the census is live, which is why those 2 mutants stay reason-pinned on the cast set rather than on the helper's own return-provenance rule (that rule keeps its own mutant, "milan_reg() ignores its offset") |
-| No C backslash-newline that JOINS two tokens | translation phase 2 deletes the pair and can join tokens before an offset-preserving text census; independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts. An ordinary continuation, which puts whitespace before the backslash, is GREEN |
-| No `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors, and none carrying a `#define`/`#undef`/`#include` wherever it sits | the gate would read one arm while the compiler takes the other where a TEXT rule still reads, and the address model reads every definition as unconditional text. A conditional in a UART command handler is GREEN |
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
-| The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
-| No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
+| An `#ifdef`/`#if` carrying a `#define`, `#undef` or `#include`, wherever it sits | the address model reads every definition out of this file's own TEXT, so an arm this gate cannot evaluate chooses what a register name resolves to, and comparing the two texts does not answer that. The reach half of this row retired with #408; this half did not |
+| The `#include` set is exactly the twelve headers listed in the gate | a twelfth include is text in the translation unit no rule reads. Kept as a NAME pin after #408, with the reason stated: a name that names no existing file cannot be RESOLVED at all, so the `-H` measurement cannot refuse one and the name set is what does |
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist. The set is read from the file TEXT, so it is exact over the lines in the file: a line an expansion creates would be outside it, and both routes to one are refused below, but a direct `$(file >frag,TEXT)` write is a recorded channel rather than a ruled one |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
@@ -1062,9 +1113,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
 | Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
 | Renaming the verdict `aem_loaded` | same, and the message says so rather than reporting a boot-order defect |
-| REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
 | A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
-| `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
 | FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
 | Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
 | ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
@@ -1079,6 +1128,26 @@ and each left with an accepted case measured GREEN rather than with a claim:
 | no `#ifdef`/`#if` outside `load_aem_image()` | `#ifdef MILAN_DEBUG_TOD` around a debug `printf` in a UART command handler |
 | no multi-line `#define` anywhere in the file | a two-line `#define MILAN_BOOT_BANNER` |
 
+**Six more left it with #408 and #409**, in the same form and for the same
+reason: each was standing in for a measurement nobody had taken, and each
+leaves with the replacing instrument named and an accepted case the gate
+runs on every live run.
+
+| Retired refusal | What replaced it | Accepted case now measured GREEN |
+|---|---|---|
+| a fifth pointer cast (#409) | the resolver's store census, which classifies every store the compiler emits by the address it RESOLVES to and exempts nobody | `*(volatile unsigned int *)&milan_scratch = 1u;` at the end of `configure_fabric()` |
+| a fifth pointer store (#409) | the same census | a `milan_poke(volatile uint32_t *)` helper storing through its parameter into a private static |
+| a third inline-`asm` statement (#409) | the same census, which reads the template's own instructions: a `lui`-based store into the window is refused by its resolved address | measured on the hostile side only; see the note below |
+| REORDERING two existing functions (#409) | nothing: the ordered-list comparison went with the sets it compared | `print_tod()` and `gettime_ns()` exchanged, nothing added or removed |
+| a token-joining backslash-newline, an `#ifdef` reaching the boot path, and `##`, `%:` or `??` anywhere (#408) | the preprocessed unit: the same compiler under the same flags with `-E`, and the boot path this gate reads compared row for row against the one it compiles | an `#ifdef MILAN_DEBUG_BOOT` printf inside `milan_init()`, and a `##` paste building a call in a UART handler |
+| any new file in `sw/firmware/milan_baremetal/`, a README included (#408) | the include-resolution measurement: `-H` reports the files the preprocessor OPENED, and no pinned name may reach one beside the firmware | `README.md` and `notes.txt` beside a copy of the firmware |
+
+The asm row has no accepted case because the firmware's four fences are the
+only `asm` it has and a fifth benign one would be an invention, not an edit
+anybody wants; what the row costs is stated instead of demonstrated. Its
+hostile side is measured: a `lui`-based template storing into the window is a
+permanent mutation, refused on the resolved store address.
+
 What carries those properties now is a measurement over resolved values, not a
 narrowing by exception: control reaching an enable write is answered by
 removing the choke point's verdict edge, and an enable hidden in a continued
@@ -1086,6 +1155,17 @@ macro body is answered by reading the compiled call, where the macro is
 already expanded. Retiring the remaining store-recognition families still
 requires #162's Makefile half. No further refusal family is deleted until a
 replacement rejects the recorded escapes by measurement.
+
+**What a retirement costs on a runner with no RV32 compiler**, stated here
+because it is the price of every row above. The `-E` comparison, the `-H`
+resolution measurement and the resolved store census all take the census's
+compiler, so its stand-down stands them down too. On such a machine nothing
+compares the boot path this gate reads against the one the compiler compiles,
+nothing measures which file a pinned include name reached, and nothing but
+the one `(volatile uint32_t *)` spelling and the `MILAN_CSR_BASE` name bounds
+address formation. That stand-down is REGISTERED, so the suite's closing line
+reads `ALL GATES PASS EXCEPT n NOT RUN` and names the arm; it is never a
+silent pass.
 
 ## Saved state: the flash writer
 
@@ -1101,7 +1181,14 @@ channel-map cluster counts, the donor's binding base and layout version) is
 one derivation in `scripts/nvm_shape.py` shared with the record-space gate and
 the host test, so the firmware never restates a count. Its five waits come from
 the same file (`WRITER_TIMING_MS`, published as `MILAN_NVM_*_MS`), each beside
-the design-page section it answers to (#398).
+the design-page section it answers to (#398), and each PINNED to its value
+beside that bound (#465): a bound is a range and a wait is a value, so four of
+the five could move with every gate green -- heartbeat 250 to 300, erase 3,500
+to 3,200, program 50 to 20, restore 3,000 to 2,000 -- and only the debounce was
+held, by the host test. Gate 35 carries the pin and a planted heartbeat of
+300 ms, inside section 9.4's own maximum, is refused by it. The restore wait
+had no bound at all and has one now: it must outlast a heartbeat period, or
+the firmware's claim that it heartbeats while it waits says nothing.
 
 **Boot.** `nvm_boot()` runs after the fabric is configured and before the
 entity model is loaded. It reads both slots through the QSPI mapping and applies
