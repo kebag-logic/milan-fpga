@@ -175,7 +175,25 @@ module milan_csr #(
   //! SRP status words are unchanged. No CSR ADDRESS, width or access moves:
   //! this is one new PP_STAT bit and new meaning inside the backend's
   //! existing indexed window. The register occupies four bytes.
-  parameter logic [31:0] VERSION = 32'h0002_005F
+  //!
+  //! 0x0060 WIDENS what PP_STAT 0x924 [11] nvm_pend REPORTS (#496, and
+  //! protocol-processor issue 90, merged). 0x005F defined the bit but could
+  //! only raise it for a dynamic-state field held by the AECP store, because
+  //! the pinned processor exported nothing else; two of its terms read a
+  //! constant zero. The pinned processor now exports the binding manager's
+  //! unflushed sinks and the AECP commit marks, so [11] also reads 1 while a
+  //! binding accepted INSIDE the manager's debounce has not yet committed,
+  //! and after a committed channel-map (ADD/REMOVE_AUDIO_MAPPINGS) or user
+  //! name (SET_NAME) change, which no record writer materializes and which
+  //! therefore clears only at reset. For a controller host this makes the
+  //! saved-state page's 9.3 durable reading - (backed 1, dirty 0, stale 0)
+  //! AND pend 0 - honest for those three cases: a host that polled it over
+  //! one of them was told durable while the change was not. Nothing here
+  //! loosens the bit: 0 still means no accepted work is outstanding. No CSR
+  //! address, width, access or OTHER field moves, and PP_NVM_STAT 0x93C,
+  //! PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged. The
+  //! register occupies four bytes.
+  parameter logic [31:0] VERSION = 32'h0002_0060
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

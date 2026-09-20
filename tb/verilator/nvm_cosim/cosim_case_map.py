@@ -236,11 +236,11 @@ DEPENDENT = {"R1_reload_after_failed_erase": "A1_stable_no_change",
              "U13_four_refusals_with_the_device_busy": "A1_stable_no_change",
              "W3_write_across_refused_fill_then_restart": "A1_stable_no_change",
              "W4_all_records_rewritten_after_refused_fill": "A1_stable_no_change"}
-#: the prototype's EXPECTED failures, each with its reason
-PROTO_EXPECTED_FAIL = {
-    ("E3_binding_inside_manager_debounce", "d1=0", "no_durable_claim@in_debounce"):
-        "without donor scope D1 the parent cannot see a change the manager is debouncing",
-}
+#: the prototype's EXPECTED failures, each with its reason. EMPTY since donor
+#: scope D1 landed (issue 90): E3's entry was the only one, and it named a
+#: modelled absence of nvm_unflushed_o that the pinned processor now exports,
+#: so the case runs once and passes like any other.
+PROTO_EXPECTED_FAIL: dict = {}
 #: checks the TRACKED build must fail: the #418 race, the ERASE-error
 #: counterexample and the #420 one-pulse re-arm failure
 PROD_MUST_FAIL = [

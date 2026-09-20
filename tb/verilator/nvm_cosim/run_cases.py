@@ -540,10 +540,7 @@ def jobs_for(b: Build, shapes: dict[str, ShapeInfo]) -> list[tuple]:
     for case in one_shape_cases(b.shape, b.contract):
         if case in DEPENDENT:
             continue
-        if case == "E3_binding_inside_manager_debounce":
-            out += [(b, case, f"d1={d}", ("--d1", d)) for d in ("0", "1")]
-        else:
-            out.append((b, case, "", ()))
+        out.append((b, case, "", ()))
     return out
 
 
@@ -647,14 +644,13 @@ def grade_builds(builds: list[Build], shapes: dict[str, ShapeInfo],
     for b in builds:
         if b.name.startswith(("mut-", "idw")):
             continue
-        expect = {}
-        if b.contract:
-            expect = {("E3_binding_inside_manager_debounce", "d1=0",
-                       "no_durable_claim@in_debounce"):
-                      "KNOWN LIMITATION: without donor scope D1 (filed as "
-                      "protocol-processor-control-plane-avb-milan issue 90) "
-                      "the parent cannot see a binding the manager is "
-                      "debouncing"}
+        #! No labelled failure is left on a contract build. E3, a binding
+        #! accepted inside the manager's debounce, was the one, and it was
+        #! labelled because the pinned processor exported nothing the parent
+        #! could see it with; donor scope D1 landed that export (issue 90) and
+        #! the case is an ORDINARY passing case now. The UNEXPECTED-PASS arm of
+        #! report() stays: it is what retires the next such label on time.
+        expect: dict = {}
         runs = run_build(b, shapes, pool)
         p, f, n = report(runs, shapes, b.name, expect, control=not b.contract)
         if b.contract:
@@ -695,14 +691,13 @@ def grade_mutants(builds: list[Build], shapes: dict[str, ShapeInfo],
     print("---- mutants: each MUST be killed by its NAMED check -----------------")
     for name, (_kind, case, variant, check) in MUTANTS.items():
         b = next(x for x in builds if x.name == f"mut-{name}")
-        extra = ("--d1", variant.split("=")[1]) if variant.startswith("d1=") else ()
-        todo = [(b, case, variant, extra)]
+        todo = [(b, case, variant, ())]
         if case in DEPENDENT:
             runs = run_build(b, shapes, pool,
                              only=[(b, DEPENDENT[case], "", ())])
             todo = [(b, case, variant,
                      ("--slot-a", str(runs[0].outdir / "end-slotA.bin"),
-                      "--slot-b", str(runs[0].outdir / "end-slotB.bin")) + extra)]
+                      "--slot-b", str(runs[0].outdir / "end-slotB.bin")))]
         runs = run_build(b, shapes, pool, only=todo)
         #! run_build also runs the power-cycle and dependent follow-ups of
         #! whatever it ran, so the killer's own run is selected by NAME, never

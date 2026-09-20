@@ -22,12 +22,16 @@
 > case W4's check grades its own premise; and the accepted-load unit case U11
 > runs at 8x8 as well (section 9).
 >
-> **One donor dependency did NOT land with it**, and is a KNOWN LIMITATION of
-> the shipping build rather than a defect of this contract: scope D1 of
-> section 13 is filed as `protocol-processor-control-plane-avb-milan` issue 90
-> and the pinned processor does not export it, so a binding accepted inside
-> the manager's debounce can read durable (case E3, and UNRESOLVED 3).
-> `KL_pp_shadow.sv` ties the term to zero at the one place it will connect.
+> **The two donor interface dependencies LANDED at the pinned revision**
+> (`protocol-processor-control-plane-avb-milan` issue 90): scope D1 exports
+> the binding manager's unflushed sinks and scope D2 the AECP commit marks,
+> both of section 13, and `KL_pp_shadow.sv` binds all three ports at the one
+> place that was reserved for them. A binding accepted inside the manager's
+> debounce now reads PENDING (case E3, an ordinary passing case since), and a
+> channel map or user name change is reported instead of reading durable.
+> What is still a KNOWN LIMITATION of the shipping build, and a scope rather
+> than a defect of this contract, is MATERIALIZATION: no record writer exists
+> for the non-binding groups, which is scope D3 and UNRESOLVED 1.
 >
 > Two product decisions are recorded, and the contract is built on both:
 >
@@ -1164,7 +1168,7 @@ strobe the harness writes on the control face.
 | Partial WRITE | B10 | real + BFM | later_record_persists@end:0x21 | FAILS |
 | Power cycle after B1, B2, B4, B9 | R_power_cycle | slots of the run | restores_last_verified@restored | FAILS (B1, B2, B4) |
 | Writer loss and recovery | D1 | real | status rows (0,0,1), (1,0,0), (0,1,1), (1,0,0) | passes |
-| Change inside the manager's debounce | E3 | real | no_durable_claim@in_debounce | FAILS; prototype fails without D1 (expected) |
+| Change inside the manager's debounce | E3 | real | no_durable_claim@in_debounce | FAILS; passes in the tree since donor scope D1 landed |
 | Flash absent | F3 | real | producer_wait_bounded_by_hold, work_still_owned@end | passes |
 | ACK from before a reset | U1 | unit | post_reset_ack_retires_nothing@after | FAILS |
 | Completion on the ARM edge | U2 | unit | close_on_arm_edge_stays_live@acked | FAILS |
@@ -1197,10 +1201,14 @@ all passing. U8 and U10 are unit cases and run at 1x1.
 **In the tree, at the shipping source**, all of this is `tb/verilator/nvm_cosim`
 (issue #484), which runs the same cases against `hdl/milan/KL_nvm_backend.sv`
 and `sw/firmware/milan_baremetal/milan_baremetal.c` rather than against the
-prototype: 469 checks over 90 case runs at the two shapes, with E3 at `d1=0`
-the one labelled expected failure, every mutant below killed by its named
-check, and the three defects of section 2 reproduced RED against a
-pre-contract backend and writer.
+prototype: 465 checks over 89 case runs at the two shapes, with NO labelled
+expected failure left, every mutant below killed by its named check, and the
+three defects of section 2 reproduced RED against a pre-contract backend and
+writer. It was 469 over 90 while donor scope D1 was modelled rather than
+exported: E3 ran twice, at `d1=0` and `d1=1`, and the `d1=0` run was the one
+labelled failure. With the export bound (issue 90) the modelled variant has
+no subject, so E3 runs once and passes, and the four checks of the retired
+variant are the whole difference in both counts.
 
 ## 10. The four outcomes of a record operation
 
@@ -1233,19 +1241,20 @@ are
 | 0x02 to 0x09 | sampling rate | KL_aecp_dyn_state, selector 1 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x0A to 0x11 | clock source | KL_aecp_dyn_state, selector 2 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x12 to 0x19 | media clock reference | no AECP program writes it | none | NONE | nothing changes, nothing to report |
-| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty (dbg_dirty_o, unconnected today, donor scope D1), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY record writer | the whole contract; pending inside the manager's debounce only with D1 |
+| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY record writer | the whole contract, pending from the accept inside the manager's debounce |
 | 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
 | 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x60 to 0x7F | channel maps in and out | the AECP engine's mapping state | NONE: its commit mark, class 6, ends on an unconnected wire in protocol_processor_top | NONE | nothing: a mapping change reads durable (UNRESOLVED 2) |
-| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | NONE: commit mark class 7, unconnected | NONE | nothing: a name change reads durable (UNRESOLVED 2) |
+| 0x60 to 0x7F | channel maps in and out | the AECP engine's mapping state | its commit mark, class 6, on aecp_nvm_stb_o / aecp_nvm_mark_o (donor scope D2, landed) | NONE | nvm_pend 1 from the first marked change until reset; never durable, and never written (UNRESOLVED 1) |
+| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | commit mark class 7, on the same pair | NONE | as the maps row: reported from the mark, never written (UNRESOLVED 1) |
 
 Acknowledgement identity repairs none of the NONE rows; what this contract
 guarantees for them is only that the status never claims durability over a
 change it can see (E1 on the prototype: no_durable_claim_unmaterialized@first
 and @end pass, and the tracked build fails both). Materialization itself is
-UNRESOLVED 1, and the channel-map and name rows cannot even be reported
-until donor scope D2 lands.
+UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
+scope D2 landed and the glue makes either mark sticky; what they still lack
+is a writer, which is the same UNRESOLVED 1.
 
 ## 12. The section 9.2 revocation discrepancy
 
@@ -1301,39 +1310,62 @@ M13_report_not_revoking by F2 : failure_revokes.
 None of these touches donor PR 26 or donor issues 14, 15 and 20, which stay in
 their own lanes.
 
-**D1, export the binding manager's unflushed state.** Scope: protocol-processor
-only, one new output port, no behaviour change.
+**D1, export the binding manager's unflushed state. LANDED** at the pinned
+revision 424c688f (issue 90, merged): one new output port, no behaviour change.
 
-- Port: protocol_processor_top gains
+- Port: protocol_processor_top carries
   `output logic [N_STREAM_IN_P-1:0] nvm_unflushed_o`, driven by
-  `u_nvm_shadow.dbg_dirty_o`, which today ends on `nvm_dbg_dirty_nc_w`
-  (protocol_processor_top.sv, the u_nvm_shadow instance, line 2365).
-- Meaning: bit k is 1 from the cycle the manager takes a change on sink k
-  until it flushes it with done, or gives up after RETRY_MAX_P retries (and
-  raises alarm_o).
+  `u_nvm_shadow.dbg_dirty_o`, which used to end on `nvm_dbg_dirty_nc_w`.
+  It is a combinational read of the manager's `dirty_r` register, clk_i.
+- Meaning, read off the manager rather than off the request: bit k is 1 from
+  the cycle the manager ACCEPTS a change on sink k until it flushes it with
+  done, or gives up after RETRY_MAX_P retries, which is the same cycle it
+  raises alarm_o. Two refinements the export's own suite grades and this page
+  had not stated: the accept is two clk_i cycles after the listener's record
+  write, because the capture is pipelined one stage and the accept is the
+  compare against the shadow, so a write-back that moves no persisted field
+  never raises the bit at all; and a capture that lands mid-flush HOLDS it
+  (the burst re-serializes), so the bit spans the whole unflushed interval
+  and not just the first attempt. Neither weakens the parent use: both make
+  the vector report exactly the changes the manager still owes.
 - Parent use: KL_pp_shadow drives the backend's
-  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_o)`.
-- EXECUTED: E3_binding_inside_manager_debounce passes with the export
-  modelled (d1=1) and FAILS without it (d1=0, the one listed expected failure
-  of the prototype): without D1 a binding inside the manager's debounce reads
-  durable.
+  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_o) | <the D2 sticky bit>`.
+- EXECUTED: E3_binding_inside_manager_debounce is an ordinary PASSING case of
+  `tb/verilator/nvm_cosim` with the export bound. It was the suite's one
+  labelled expected failure while the term was tied to zero, and the label is
+  retired with the tie. On the donor side the export is graded at its source
+  (`protocol-processor/tb/acmp_nvm` group X: raised on the accepted change, held to the commit's
+  done, and dropped on the give-up cycle only with alarm_o) and at the pin
+  (`protocol-processor/tb/pp_top` S9).
 
-**D2, export the AECP commit marks.** Scope: protocol-processor only, two
-new output ports, no behaviour change.
+**D2, export the AECP commit marks. LANDED** at the pinned revision
+424c688f (issue 90, merged): two new output ports, no behaviour change.
 
 - Ports: `output logic aecp_nvm_stb_o` and
   `output logic [7:0] aecp_nvm_mark_o`, driven by KL_aecp_engine's
-  `eff_nvm_stb_o` and `eff_nvm_mark_o`, which today end on
-  `aecp_eff_nvm_stb_nc_w` and `aecp_eff_nvm_mark_nc_w` (declared at lines
-  2884 and 2885, bound at 3164 and 3165).
-- Parent use: a mark of class 6 (channel maps) or class 7 (names) sets a
-  sticky pend_i source until the record that materializes it is written, or
-  until reset while no writer exists.
-- DERIVED only (the pinned donor does not export them;
+  `eff_nvm_stb_o` and `eff_nvm_mark_o`, which used to end on
+  `aecp_eff_nvm_stb_nc_w` and `aecp_eff_nvm_mark_nc_w`. Both are
+  combinational reads of the uCPU's E-stage registers (KL_aecp_ucpu
+  `effects`), clk_i, one cycle per advanced OP_NVM_MARK, and the mark is the
+  micro-op immediate, meaningful only while the strobe is 1.
+- Mark encoding, from the microprograms that carry the op: **1** a
+  dynamic-state field (SET_SAMPLING_RATE, SET_CLOCK_SOURCE,
+  SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO), **6** channel maps
+  (ADD/REMOVE_AUDIO_MAPPINGS), **7** user names (SET_NAME).
+- Parent use: a mark of class 6 or class 7 sets a sticky pend_i source until
+  the record that materializes it is written, or until reset while no writer
+  exists -- and none does (section 11 is NONE for both), so at this revision
+  it clears only at reset. Class 1 is deliberately not taken: the processor
+  already publishes that group as the aecp_dyn_dirty_o level.
+- EXECUTED at the pin: `protocol-processor/tb/pp_top` R21 grades a committed
+  ADD_AUDIO_MAPPINGS raising one strobe carrying 6, a committed SET_NAME one
+  carrying 7, and a GET raising none; tying `aecp_nvm_stb_o` to zero fails
+  R21 and R21c by name. The program inventory stays
   [section 12.1](SAVED_STATE_FASTCONNECT.md#121-the-inventory-derived-from-the-donor)
-  of the saved-state page is the program inventory).
+  of the saved-state page.
 
-**D3, materialization of the non-binding fields.** Not settled here and not
+**D3, materialization of the non-binding fields. STILL OPEN** -- the only
+donor dependency of this contract that is. Not settled here and not
 only an interface: a record writer must exist for every NONE row of section
 11 before those fields can reach a slot at all. Whether it is a donor-side
 manager per group or a parent-side writer behind a second device-face
@@ -1459,8 +1491,8 @@ that no rule consumes and that races the producer by construction.
 - The KLJ2 format, the erased-record rule and the A/B rule of
   [section 7](SAVED_STATE_FASTCONNECT.md#7-durability-the-ab-contract) are
   unchanged.
-- Until D2 and D3 land, channel-map and name changes can read durable when
-  they are not (section 11): this proposal does not hide that.
+- Until D3 lands, channel-map and name changes are reported pending but are
+  never made durable (section 11): this proposal does not hide that.
 
 ## 18. Cost
 
@@ -1601,11 +1633,14 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
    channel maps or names at the current source; only bindings have a writer.
    The pending bit reports the dynamic-state fields truthfully (1 until
    reset); making them durable needs scope D3.
-2. Channel-map and name changes do not reach the parent at all (their commit
-   marks end on unconnected wires), so the status can read durable over them.
-   Reporting them needs D2; making them durable needs D3.
-3. D1 is not landed: until it is, a binding inside the manager's debounce
-   reads durable (E3 without D1 fails, as listed).
+2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
+   name commit marks reach the parent on `aecp_nvm_stb_o` /
+   `aecp_nvm_mark_o`, and either sets a sticky pending source, so the status
+   no longer reads durable over them. Making them durable still needs D3,
+   which is item 1.
+3. CLOSED by donor scope D1 (issue 90): `nvm_unflushed_o` is bound in
+   `KL_pp_shadow`, a binding inside the manager's debounce reads pending from
+   the accept, and E3 passes as an ordinary case.
 4. Whether the shipping memory bridge can withhold a write completion forever
    is not established. The contract relies on neither answer, but a silent
    write wedges the single-outstanding device face, so no later record
