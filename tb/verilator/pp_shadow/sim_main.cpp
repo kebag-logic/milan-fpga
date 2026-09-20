@@ -754,8 +754,12 @@ class PpShadowHarness {
     static constexpr uint16_t DTY_ENTITY_C = 0x0000;
     static constexpr uint16_t DTY_CONFIG_C = 0x0001;
     //! AUDIO_UNIT (0x0002): only index 0 is in this image, so index 7 is the
-    //! locate miss [L3] asks for
-    static constexpr uint16_t DTY_ABSENT_C = 0x0002;
+    //! INDEX miss [L3] asks for: the index map carries the type and the
+    //! index is beyond its count
+    static constexpr uint16_t DTY_IDX_MISS_C = 0x0002;
+    //! STREAM_PORT_OUTPUT (Table 7-1 0x000F): this image carries none, so it
+    //! is the TYPE miss [L3t] asks for: no index-map entry matches at all
+    static constexpr uint16_t DTY_ABSENT_C = 0x000F;
     //! AUDIO_UNIT[0], the target group [R] sets and reads the sampling rate
     //! of. IEEE 1722.1-2021 Table 7-5 body with the rate list the shipping
     //! image of the shape this suite elaborates carries:
@@ -1499,7 +1503,12 @@ class PpShadowHarness {
         printf("[L] AECP: the device ANSWERS — decoded, not counted\n");
         grade_read_descriptor_hit();
         grade_read_descriptor_index_stride();
-        grade_read_descriptor_locate_miss();
+        grade_read_descriptor_locate_miss(
+            "L3", "L3 READ_DESCRIPTOR(index beyond the count) was ANSWERED",
+            DTY_IDX_MISS_C, 0x0103);
+        grade_read_descriptor_locate_miss(
+            "L3t", "L3t READ_DESCRIPTOR(absent type) was ANSWERED",
+            DTY_ABSENT_C, 0x0113);
         grade_read_descriptor_bad_configuration();
         grade_unassigned_opcode_echoes();
         grade_get_counters_for_a_live_sink();
@@ -1640,30 +1649,36 @@ class PpShadowHarness {
         }
     }
 
-    // --- L3. a locate MISS: NO_SUCH_DESCRIPTOR + the §7.4.5 stub -------
-    // The type AND the index are both NON-ZERO on purpose: a stub check
-    // against {0, 0} would be satisfied by the zero padding of a frame
-    // that never wrote a stub at all.
-    void grade_read_descriptor_locate_miss() {
+    // --- L3, L3t. a locate MISS: NO_SUCH_DESCRIPTOR + the §7.4.5 stub --
+    // Two different branches of the table walk, one probe each: [L3] names
+    // a type the index map carries with an index beyond its count, [L3t]
+    // a type no entry matches. The type AND the index are both NON-ZERO on
+    // purpose: a stub check against {0, 0} would be satisfied by the zero
+    // padding of a frame that never wrote a stub at all.
+    void grade_read_descriptor_locate_miss(const char* tag,
+                                           const char* answered,
+                                           uint16_t dtype, uint16_t seq) {
         uint8_t cf[128];
         size_t  cn = 0;
         size_t at = tx_frames.size();
-        cn = build_read_desc(cf, 0, DTY_ABSENT_C, 7, 0x0103);
+        cn = build_read_desc(cf, 0, dtype, 7, seq);
         inject_rx(cf, cn, 400);
         run_idle(20000);
         int k = last_aecp(at);
-        ck_true("L3 READ_DESCRIPTOR(absent type) was ANSWERED", k >= 0,
+        ck_true(answered, k >= 0,
                 k >= 0 ? "an AECPDU egressed" : "SILENCE");
         if (k >= 0) {
             const std::vector<uint8_t>& b = tx_frames[k].bytes;
-            grade_common(b, "L3", 0x0004, 0x0103, 1);
-            grade_len(b, "L3", 8);          // cfg + reserved + the 4 B stub
-            ck("L3: status NO_SUCH_DESCRIPTOR(2)",
-               (b[16] >> 3) & 0x1F, 2u);
-            ck("L3: the IEEE 7.4.5 stub names the descriptor_type",
-               static_cast<uint32_t>(get_be(b, 42, 2)), DTY_ABSENT_C);
-            ck("L3: ...and the descriptor_index",
-               static_cast<uint32_t>(get_be(b, 44, 2)), 7u);
+            char w[96];
+            grade_common(b, tag, 0x0004, seq, 1);
+            grade_len(b, tag, 8);           // cfg + reserved + the 4 B stub
+            snprintf(w, sizeof w, "%s: status NO_SUCH_DESCRIPTOR(2)", tag);
+            ck(w, (b[16] >> 3) & 0x1F, 2u);
+            snprintf(w, sizeof w,
+                     "%s: the IEEE 7.4.5 stub names the descriptor_type", tag);
+            ck(w, static_cast<uint32_t>(get_be(b, 42, 2)), dtype);
+            snprintf(w, sizeof w, "%s: ...and the descriptor_index", tag);
+            ck(w, static_cast<uint32_t>(get_be(b, 44, 2)), 7u);
         }
     }
 

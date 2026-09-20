@@ -59,7 +59,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
 | N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
 | N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
-| VERSION      | logic [31:0]  | 32'h0002_0056  | Value returned by the read-only VERSION register. [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI authority for the same number. |
+| VERSION      | logic [31:0]  | 32'h0002_005B  | Value returned by the read-only VERSION register. [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI authority for the same number. |
 
 ## Generated includes
 
