@@ -458,6 +458,10 @@ class Arm:
     xdc: str = ""
     #: text the error must carry, where no single port is at fault.
     says: str = ""
+    #: text the check must PRINT before it ends: live, Vivado does not echo a
+    #: re-raised error whose cause is a Vivado ERROR, so the printed line is
+    #: the only place a build log names the port.
+    prints: str = ""
 
 
 ARMS = (
@@ -521,7 +525,7 @@ ARMS = (
         unconstrained(), 1, says="no .xdc file sits beside it"),
     Arm("a query answers names, not objects: the next one raises",
         shipping(), 1, twist=CELLS_ANSWER_NAMES,
-        says="Invalid option value"),
+        says="Invalid option value", prints="raised while grading "),
 )
 
 #: (name, original text, replacement): each must make some arm stop holding.
@@ -563,12 +567,15 @@ MUTANTS = (
     ("the same rebuild spelled with eval", "lappend groups $cells",
      "eval lappend groups [list $cells]"),
     ("the same rebuild spelled with lmap", "lappend groups $cells",
-     "set groups [lmap g [concat $groups [list $cells]] {set g}]"),
+     "lappend groups [lmap c $cells {set c}]"),
     ("the same rebuild spelled with join and split", "lappend groups $cells",
      "lappend groups [split [join $cells] { }]"),
     ("a query that raised while grading a port taken for INERT",
      'error "IOB-PACK ERROR: grading $port ended the run: $answer"',
      'set answer [list INERT "the query raised"]'),
+    ("the graded port not printed before the re-raise",
+     'puts "IOB-PACK ERROR: a query, or the code',
+     'set printed "IOB-PACK ERROR: a query, or the code'),
 )
 
 PORTS = ("tdm_bclk", "tdm_fsync", "tdm_dout", "tdm_mclk", "tdm_din",
@@ -604,6 +611,9 @@ def run_arm(tclsh: str, check: Path, arm: Arm, work: Path) -> list[str]:
     if arm.says and arm.says not in stderr:
         problems.append(f"error does not say {arm.says!r}: "
                         f"{stderr.strip()!r}")
+    if arm.prints and arm.prints not in proc.stdout:
+        problems.append(f"nothing printed says {arm.prints!r} before the "
+                        "run ended")
     text = (report.read_text(encoding="utf-8").replace(OBJ, "")
             if report.is_file() else "")
     problems += [f"report lacks {row!r}" for row in arm.rows if row not in text]
@@ -629,14 +639,17 @@ def quiet_reads(source: str) -> list[str]:
 
 
 #: Tcl spellings MEASURED on the placed checkpoint under 2026.1 to hand a
-#: Vivado query answer back as plain names, with the number of times each may
-#: stand in the check's code lines. `split` is allowed once: the report text
-#: cut into lines, which is no query answer.
+#: Vivado query answer back as plain names, each with the ONE code line it may
+#: stand on, if any. `split` has one: the text of a constraint file read
+#: beside the report, cut into lines, which is no query answer. The allowance
+#: is that line and not a count, so a rebuild cannot spend it when the
+#: constraint read moves.
 REBUILD_FORMS = (
-    ("{*}", re.compile(r"\{\*\}"), 0),
-    ("eval", re.compile(r"(?<![\w$])eval(?!\w)"), 0),
-    ("lmap", re.compile(r"(?<![\w$])lmap(?!\w)"), 0),
-    ("split", re.compile(r"(?<![\w$])split(?!\w)"), 1),
+    ("{*}", re.compile(r"\{\*\}"), ""),
+    ("eval", re.compile(r"(?<![\w$])eval(?!\w)"), ""),
+    ("lmap", re.compile(r"(?<![\w$])lmap(?!\w)"), ""),
+    ("split", re.compile(r"(?<![\w$])split(?!\w)"),
+     r'foreach line [split $text "\n"] {'),
 )
 
 
@@ -661,12 +674,13 @@ def rebuilt_answers(source: str) -> list[str]:
     problems = []
     for form, pattern, allowed in REBUILD_FORMS:
         lines = [line.strip() for line in code if pattern.search(line)]
-        if len(lines) > allowed:
+        extra = [line for line in lines if line != allowed]
+        if extra or lines.count(allowed) > 1:
             problems.append(
-                f"the check carries `{form}` on {len(lines)} code line(s), "
-                f"want at most {allowed}: {lines!r}. A Vivado object list is "
-                "passed whole or not at all; rebuilt by value, its elements "
-                "come back as names the next query rejects")
+                f"the check carries `{form}` outside its one allowed line "
+                f"({allowed or 'none'}): {extra or lines!r}. A Vivado object "
+                "list is passed whole or not at all; rebuilt by value, its "
+                "elements come back as names the next query rejects")
     return problems
 
 

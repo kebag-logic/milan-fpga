@@ -553,9 +553,9 @@ answer hands the next query plain names (so do `eval lappend`, `lmap` and
 `join` then `split`), which raises `[Common 17-161]`. That error is catchable;
 the check prints the port it was grading and re-raises, and the uncaught error
 ends the batch run before any report is written. The self-test refuses those
-measured spellings by text and cannot see another one. A revision that only touched how emptiness is graded shipped that
-once and stopped every build at the check with the self-test green. Four Tcl
-lines against any saved `*_place.dcp` answer it in about half a minute:
+measured spellings by text and cannot see another one. A revision that only
+touched how emptiness is graded shipped that once and stopped every build at
+the check with the self-test green. Four Tcl lines against any saved `*_place.dcp` answer it in about half a minute:
 
 ```tcl
 open_checkpoint <outdir>/gateware/<build_name>_place.dcp

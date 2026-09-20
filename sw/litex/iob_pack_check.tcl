@@ -61,9 +61,9 @@
 # as an absence ONLY because nothing in this file swallows it: a Vivado
 # ERROR is an ordinary catchable Tcl error, and a `catch` that did not
 # re-raise would turn it back into an absence (the first cut of this check
-# handed `-of_objects` a name and read every input INERT). So every step below tests its input first, grades the
-# emptiness itself, and passes Vivado object lists whole, never rebuilt from
-# names. The one `-quiet` left is marked where it is read, and crossed
+# handed `-of_objects` a name and read every input INERT). So every step
+# below tests its input first, grades the emptiness itself, and passes
+# Vivado object lists whole, never rebuilt from names. The one `-quiet` left is marked where it is read, and crossed
 # against two counts that do not depend on it.
 #
 # One FAIL is a Tcl error, and a Tcl error ends the batch run: no routing, no
@@ -282,7 +282,8 @@ proc kl_iob_pack_check {report} {
             # printed first: measured, Vivado does not echo the re-raised
             # text when the cause is a Vivado ERROR, so without this line
             # no log names the port.
-            puts "IOB-PACK ERROR: a query raised while grading $port"
+            puts "IOB-PACK ERROR: a query, or the code grading it, raised\
+                while grading $port"
             error "IOB-PACK ERROR: grading $port ended the run: $answer"
         }
         lassign $answer verdict detail
