@@ -3412,7 +3412,9 @@ def test_baremetal_profile_contract() -> None:
         # asserted outside the control window below
         "MILAN_FLASH_JOURNAL_OFFSET": 0x00EE_0000,
         "MILAN_FLASH_JOURNAL_SIZE": 0x0002_0000,
-        "MILAN_NVM_IMAGE_BASE": 0x7F7E_F000, "MILAN_NVM_IMAGE_MAX": 0x1_0000,
+        "MILAN_NVM_LIVE_BASE": 0x7F7E_F000,
+        "MILAN_NVM_STAGE_BASE": 0x7F7D_F000,
+        "MILAN_NVM_CONTRACT": 3, "MILAN_NVM_IMAGE_MAX": 0x1_0000,
         "MILAN_NVM_N_STREAM_IN": 2, "MILAN_NVM_N_STREAM_OUT": 2,
         "MILAN_NVM_N_SPORT_IN": 1, "MILAN_NVM_N_SPORT_OUT": 1,
         "MILAN_NVM_N_AUDIO_UNIT": 1, "MILAN_NVM_N_CLK_DOM": 1,
@@ -21821,7 +21823,9 @@ _FABRIC_HOST_C = """\
 
 uint32_t fabric_host_csr[FABRIC_HOST_WORDS];
 uint8_t fabric_host_flash[0x1000000];
-uint8_t fabric_host_ram[0x20000];
+/* the AEM image band, the saved-state LIVE window at +0x10000 and the
+   writer's private STAGE at +0x20000 (snapshot-ownership section 17) */
+uint8_t fabric_host_ram[0x30000];
 
 void fabric_host_write(unsigned int offset, uint32_t value);
 void fabric_host_configure(void);
@@ -21912,7 +21916,9 @@ def _fabric_host_header(consts: dict[str, int], overlay: dict[str, Any]) -> str:
              "extern uint8_t fabric_host_ram[];"]
     lines += [f"#define {name} {value}u" for name, value in values.items()]
     lines += ["#define MILAN_AEM_DESC_BASE ((uintptr_t)fabric_host_ram)",
-              "#define MILAN_NVM_IMAGE_BASE ((uintptr_t)fabric_host_ram + 0x10000u)"]
+              "#define MILAN_NVM_LIVE_BASE ((uintptr_t)fabric_host_ram + 0x10000u)",
+              "#define MILAN_NVM_STAGE_BASE ((uintptr_t)fabric_host_ram + 0x20000u)",
+              "#define MILAN_NVM_CONTRACT 3u"]
     return "\n".join(lines) + "\n"
 
 

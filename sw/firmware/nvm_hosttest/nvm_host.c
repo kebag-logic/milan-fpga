@@ -69,7 +69,7 @@ struct backend {
 	int img_valid;
 	unsigned int verdict;
 	int backed;
-	int dirty;
+	int dirty;             /* DERIVED: dirty_live OR dirty_cap */
 	int stale;
 	int ever_backed;
 	int commit_busy;
@@ -82,6 +82,32 @@ struct backend {
 	uint64_t max_hb_gap_ns;
 	int base_ok;
 	unsigned int losses;   /* deadline expiries after the writer was live */
+	/* The snapshot-ownership contract of
+	 * docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md, as far as a model
+	 * with NO DEVICE-FACE PRODUCER can carry it: the window load and the
+	 * capture handshake. There is no producer here, so no record ever
+	 * re-opens after an accepted RELOAD, no grant ever voids a capture
+	 * and the hold never has anything to defer; what this model grades is
+	 * the WRITER's sequence, and tb/verilator/nvm_cosim grades the rules
+	 * this model cannot reach against the real RTL and the real donor. */
+	int ld_ok;             /* a re-base armed the load flag */
+	int ld_pend;           /* a boot window load may still be accepted */
+	int ld_acc;            /* one HAS been accepted since reset (rule 9) */
+	int rl_ref;            /* the last RELOAD strobe was refused */
+	int cap_open;
+	int cap_valid;
+	int cap_att;
+	int ack_ref;
+	int arm_ref;
+	unsigned int cap_id;
+	int dirty_live;
+	int dirty_cap;
+	int unres;             /* at least one record is open */
+	unsigned int arm_count;
+	unsigned int reload_count;
+	/* modelled disturbance: the next N window loads are refused, as a
+	 * mutating grant after the re-base would refuse them in the fabric */
+	unsigned int refuse_loads;
 };
 
 struct walk {
@@ -141,7 +167,20 @@ unsigned int crc32(const unsigned char *buffer, unsigned int len)
 	return ~crc;
 }
 
-/* ---- the control face: section 9.2 as the model keeps it -------------- */
+/* ---- the control face: section 9.2 and the capture handshake ---------- */
+static void rebase(void);
+
+static void end_capture(int acked)
+{
+	if (!acked)
+		be.dirty_live |= be.dirty_cap;
+	be.dirty_cap = 0;
+	be.cap_open = 0;
+	be.cap_valid = 0;
+	be.cap_att = 0;
+	be.commit_busy = 0;
+}
+
 static void strobes(uint32_t v)
 {
 	if (v & 1u) {
@@ -153,10 +192,59 @@ static void strobes(uint32_t v)
 		be.alive_deadline = now_ns + MS(T_ALIVE_MS);
 		be.hb_count++;
 	}
-	if (v & 2u) {
-		be.dirty = 0;
-		be.commit_busy = 0;
-		be.ack_count++;
+	if (v & 0x40u) {       /* RELOAD, checked by the backend (5.3) */
+		int ok;
+
+		if (be.refuse_loads) {
+			be.refuse_loads--;
+			be.ld_ok = 0;  /* something else wrote the window */
+		}
+		ok = be.ld_ok && be.ld_pend;
+
+		be.rl_ref = !ok;
+		be.reload_count++;
+		if (ok) {
+			be.ld_pend = 0;
+			be.ld_acc = 1;
+			be.unres = 0;          /* every record closed */
+			be.dirty_live = 0;
+			end_capture(1);
+		}
+	}
+	if (v & 8u) {          /* ARM */
+		int ok = be.words[1] != 0u && be.img_valid && !be.cap_open &&
+			 be.ld_acc;
+
+		be.arm_ref = !ok;
+		if (ok) {
+			be.cap_id++;
+			be.arm_count++;
+			be.dirty_cap = be.dirty_live;
+			be.dirty_live = 0;
+			be.cap_open = 1;
+			be.cap_valid = 1;
+			be.cap_att = 0;
+			be.ack_ref = 0;
+		}
+	}
+	if (v & 0x10u) {       /* ATTEST */
+		if (be.cap_open && !be.cap_att && be.cap_valid)
+			be.cap_att = 1;
+	}
+	if (v & 2u) {          /* ACK, quoting the capture identity */
+		unsigned int id = v >> 16;
+		int ok = be.cap_open && be.cap_att && be.cap_valid &&
+			 id == be.cap_id;
+
+		be.ack_ref = !ok;
+		if (be.cap_open && id == be.cap_id)
+			end_capture(ok);
+		if (ok)
+			be.ack_count++;
+	}
+	if (v & 0x20u) {       /* RELEASE */
+		if (be.cap_open)
+			end_capture(0);
 	}
 	if (v & 4u) {
 		be.commit_busy = 1;
@@ -170,6 +258,17 @@ static void on_store(unsigned int offset, uint32_t v)
 	switch (offset) {
 	case A_PP_NVM_SEL:
 		be.sel = v & 0x3fu;
+		/* A RE-BASE begins when the writer addresses word 0, the image
+		 * base. The fabric arms its load flag on the WRITE of word 0,
+		 * word 1 or a channel-map table; this model settles stores by
+		 * DIFFING the register file, so a repeated load that rewrites
+		 * the same base and length is invisible to it as a write and
+		 * visible only as this word index. The two agree for the
+		 * writer's sequence, which always addresses word 0 first
+		 * (nvm_rebase_backend); the fabric's own priority rules are
+		 * graded against the RTL in tb/verilator/nvm_cosim. */
+		if (be.sel == 0u)
+			rebase();
 		break;
 	case A_PP_NVM_DATA:
 		if (be.sel & 0x20u) {
@@ -179,7 +278,19 @@ static void on_store(unsigned int offset, uint32_t v)
 		} else if (be.sel == 3u) {
 			be.verdict = v & 0xfu;
 			be.img_valid = (v >> 4) & 1u;
-		} else {
+			/* snapshot-ownership section 12: a REPORTED erase,
+			 * program or read-back-verify failure revokes
+			 * nvm_backed when it is reported, not eight seconds
+			 * later when the commit deadline lapses */
+			if (be.verdict >= 11u && be.verdict <= 13u) {
+				be.backed = 0;
+				be.alive_deadline = 0;
+				if (be.ever_backed) {
+					be.stale = 1;
+					be.losses++;
+				}
+			}
+		} else if (be.sel < 5u) {
 			be.words[be.sel] = v;
 			if (be.sel < 2u)
 				be.img_valid = 0;
@@ -201,6 +312,17 @@ static void on_store(unsigned int offset, uint32_t v)
 	default:
 		break;
 	}
+}
+
+/* A RE-BASE: the image moved or changed shape. Every record reads open
+ * again, the load flag arms (nothing is ever in flight in this model, which
+ * has no device-face producer) and any capture ends. */
+static void rebase(void)
+{
+	be.unres = 1;
+	be.ld_ok = 1;
+	if (be.cap_open)
+		end_capture(0);
 }
 
 static uintptr_t image_base_seen(void)
@@ -241,6 +363,7 @@ static void advance(void)
 			be.losses++;
 		}
 	}
+	be.dirty = be.dirty_live || be.dirty_cap;
 	if (be.backed && !be.dirty)
 		be.stale = 0;
 	if (walk.pending && now_ns >= walk.at) {
@@ -264,7 +387,16 @@ static uint32_t data_readback(void)
 		return 0;
 	if (be.sel == 3u)
 		return ((uint32_t)be.img_valid << 4) | be.verdict;
-	return be.words[be.sel];
+	if (be.sel == 5u)
+		return be.cap_id;
+	/* the ownership vector, words 8..15. With no producer here, every
+	 * record is open until the boot RELOAD is accepted and closed after
+	 * it, so the model answers the whole word from one flag. */
+	if (be.sel >= 8u && be.sel < 16u)
+		return be.unres ? 0xffffffffu : 0u;
+	if (be.sel < 5u)
+		return be.words[be.sel];
+	return 0;
 }
 
 static void recompose(void)
@@ -278,14 +410,25 @@ static void recompose(void)
 			     ((uint32_t)walk.done << 2) | ((uint32_t)walk.fail << 3) |
 			     ((uint32_t)be.backed << 6) | ((uint32_t)walk.blank << 7) |
 			     ((uint32_t)be.dirty << 8) | ((uint32_t)be.stale << 9) |
-			     ((uint32_t)be.img_valid << 10) | (be.verdict << 12);
+			     ((uint32_t)be.img_valid << 10) |
+			     ((uint32_t)be.unres << 11) | (be.verdict << 12);
 	csr[A_PP_NVM_SEL / 4] = be.sel;
 	csr[A_PP_NVM_DATA / 4] = data_readback();
-	csr[A_PP_NVM_STAT / 4] = (be.verdict << 12) |
+	csr[A_PP_NVM_STAT / 4] = 0xc3000000u |
+				 ((uint32_t)be.unres << 23) |
+				 ((uint32_t)be.unres << 22) |
+				 ((uint32_t)be.arm_ref << 21) |
+				 ((uint32_t)be.ack_ref << 20) |
+				 ((uint32_t)be.cap_att << 19) |
+				 ((uint32_t)be.cap_valid << 18) |
+				 ((uint32_t)be.cap_open << 16) |
+				 (be.verdict << 12) | ((uint32_t)be.rl_ref << 11) |
 				 ((uint32_t)be.commit_busy << 10) |
 				 ((uint32_t)be.stale << 9) | ((uint32_t)be.dirty << 8) |
 				 ((uint32_t)be.img_valid << 7) | ((uint32_t)be.backed << 6) |
-				 ((uint32_t)(be.words[1] != 0) << 5);
+				 ((uint32_t)(be.words[1] != 0) << 5) |
+				 ((uint32_t)be.ld_pend << 3) |
+				 ((uint32_t)be.ld_acc << 2);
 	memcpy(shadow, csr, sizeof(csr));
 }
 
@@ -460,7 +603,7 @@ static void apply_change(const char *spec)
 		hex += 2;
 		i++;
 	}
-	be.dirty = 1;
+	be.dirty_live = 1;
 	printf("HOST change %zu B at image offset %lu\n", i, off);
 }
 
@@ -502,11 +645,15 @@ static void summary(void)
 {
 	printf("HOST hb=%u acks=%u starts=%u erases=%u programs=%u max_hb_gap_ms=%llu pagewrap=%u "
 	       "backed=%d dirty=%d stale=%d valid=%d verdict=%u blank=%d fail=%d done=%d "
-	       "seq=%u base_ok=%d img_len=%u losses=%u now_ms=%llu\n",
+	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
+	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
+	       "cap_id=%u now_ms=%llu\n",
 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
 	       walk.fail, walk.done, be.words[2], be.base_ok, be.words[1], be.losses,
+	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
+	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
 	       (unsigned long long)(now_ns / 1000000ull));
 }
 
@@ -528,6 +675,13 @@ int main(int argc, char **argv)
 	memset(nvm_host_flash, 0xff, sizeof(nvm_host_flash));
 	memset(nvm_host_ddr, 0xa5, sizeof(nvm_host_ddr));
 	fl.erase_ns = MS(20);
+	/* the reset row of snapshot-ownership section 5.4: every allocated
+	 * record open, a boot window load still acceptable and none accepted */
+	be.unres = 1;
+	be.ld_pend = 1;
+	/* not word 0, so the writer's first re-base is a CHANGE this model's
+	 * diffing settle can see */
+	be.sel = 0x3fu;
 	for (i = 1; i < argc; ++i) {
 		const char *a = argv[i];
 		const char *v = (i + 1 < argc) ? argv[i + 1] : NULL;
@@ -539,6 +693,12 @@ int main(int argc, char **argv)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
+		else if (strcmp(a, "--refuse-loads") == 0 && v)
+			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);
+		else if (strcmp(a, "--stray-ack") == 0 && v)
+			/* an acknowledgement quoting ANOTHER capture: it names
+			 * nothing the backend holds and must be refused */
+			strobes(2u | ((uint32_t)strtoul(v, NULL, 0) << 16));
 		else if (strcmp(a, "--fail") == 0 && v) {
 			fl.fail_erase = strcmp(v, "erase") == 0;
 			fl.fail_program = strcmp(v, "program") == 0;
@@ -559,7 +719,7 @@ int main(int argc, char **argv)
 		} else if (strcmp(a, "--change") == 0 && v)
 			apply_change(v);
 		else if (strcmp(a, "--dirty") == 0) {
-			be.dirty = 1;
+			be.dirty_live = 1;
 			takes = 0;
 		} else if (strcmp(a, "--idle-ms") == 0 && v)
 			run_idle(strtoul(v, NULL, 0));

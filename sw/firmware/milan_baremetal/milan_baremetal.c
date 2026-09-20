@@ -162,13 +162,47 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define NVM_STROBE_HB    0x1u
 #define NVM_STROBE_ACK   0x2u
 #define NVM_STROBE_START 0x4u
-/* PP_NVM_STAT read bits. */
+/* The snapshot-ownership contract (docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+ * section 5.1): the capture strobes, the capture identity word and the eight
+ * ownership words. */
+#define NVM_STROBE_ARM     0x8u
+#define NVM_STROBE_ATTEST  0x10u
+#define NVM_STROBE_RELEASE 0x20u
+#define NVM_STROBE_RELOAD  0x40u
+#define NVM_W_CAPID        5u
+#define NVM_W_OWN0         8u
+#define NVM_OWN_WORDS      8u
+#define NVM_CAP_TAG        0xc3u
+/* PP_NVM_STAT read bits. [3], [11] and [2] are the load bits: load pending
+ * (a boot window load MAY STILL BE ACCEPTED -- read it as that, not as "no
+ * RELOAD has been accepted"), the last RELOAD refused, and load accepted (a
+ * RELOAD HAS been accepted since the backend's reset; while it is 0 the
+ * backend arms no capture). */
+#define NVM_RD_LOAD_ACC    (1u << 2)
+#define NVM_RD_LOAD_PEND   (1u << 3)
 #define NVM_RD_DEV_BUSY    (1u << 4)
 #define NVM_RD_BACKED      (1u << 6)
 #define NVM_RD_IMG_VALID   (1u << 7)
-#define NVM_RD_DIRTY       (1u << 8)
+#define NVM_RD_DIRTY       (1u << 8)   /* committable image work */
 #define NVM_RD_STALE       (1u << 9)
 #define NVM_RD_COMMIT_BUSY (1u << 10)
+#define NVM_RD_RELOAD_REF  (1u << 11)
+#define NVM_RD_CAP_OPEN    (1u << 16)
+#define NVM_RD_CAP_ATTEST  (1u << 19)
+#define NVM_RD_ACK_REF     (1u << 20)
+#define NVM_RD_ARM_REF     (1u << 21)
+#define NVM_RD_PEND        (1u << 22)
+#define NVM_RD_UNRES       (1u << 23)
+
+/* The build-time refusal of section 14. A writer is compiled only against the
+ * gateware contract it implements: the generator that emits contract 3
+ * withdraws the older writer's image-base constant and publishes
+ * MILAN_NVM_LIVE_BASE and MILAN_NVM_STAGE_BASE instead, so an older writer
+ * does not compile against it, and this refusal keeps this writer from
+ * compiling against an older generator. */
+#if !defined(MILAN_NVM_CONTRACT) || MILAN_NVM_CONTRACT != 3
+#error "saved-state writer implements contract 3; the gateware generator did not publish MILAN_NVM_CONTRACT 3"
+#endif
 
 /* KLJ2, design page section 6.1. */
 #define KLJ2_MAGIC     0x324a4c4bu
@@ -305,6 +339,11 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define NVM_ERASE_TIMEOUT_NS   NVM_MS(MILAN_NVM_ERASE_TIMEOUT_MS)
 #define NVM_PROGRAM_TIMEOUT_NS NVM_MS(MILAN_NVM_PROGRAM_TIMEOUT_MS)
 #define NVM_RESTORE_TIMEOUT_NS NVM_MS(MILAN_NVM_RESTORE_TIMEOUT_MS)
+/* How many times the boot repeats a window load the backend refused. At a
+ * cold boot no producer is enabled before the restore walk, so the first load
+ * is accepted; a refusal means something outside that sequence wrote the
+ * window, and each repeat re-bases and reloads from the start (section 5.3). */
+#define NVM_LOAD_TRIES         4u
 
 void set_idle_hook(void (*fptr)(void));
 
@@ -355,6 +394,12 @@ static const char *const nvm_verdict_name[VD_COUNT] = {
 };
 
 static int nvm_ready;
+/* This writer has disabled itself for the rest of this reset and will never
+ * commit again. It stops answering the liveness deadline, so the fabric
+ * revokes nvm_backed and a controller reads the state as what it is, a port
+ * with no writer -- never as a commit that is merely in flight (section
+ * 5.3, the terminal row). */
+static int nvm_retired;
 static int nvm_in_commit;
 static uint32_t nvm_seq;
 static uint32_t nvm_auth_slot = NVM_SLOT_NONE;
@@ -363,15 +408,22 @@ static unsigned int nvm_verdict_b;
 static unsigned int nvm_last_verdict;
 static unsigned int nvm_commits_ok;
 static unsigned int nvm_commits_failed;
+static unsigned int nvm_captures_refused;
+static unsigned int nvm_acks_refused;
 static uint64_t nvm_hb_last;
 static uint64_t nvm_dirty_since;
 
 /*
- * The staged container. A macro rather than a helper on purpose: every store
- * into it is then a constant base plus a loop index the compiler bounds,
- * which is what lets the builder gate's compiled census place each one.
+ * The live window and the private stage. Macros rather than helpers on
+ * purpose: every store into either is then a constant base plus a loop index
+ * the compiler bounds, which is what lets the builder gate's compiled census
+ * place each one. The backend reads and writes the LIVE window's record area
+ * in place; nothing but this firmware ever touches the STAGE, which is why an
+ * attested copy in it cannot move under the seal, the program or the
+ * read-back.
  */
-#define NVM_IMG ((volatile uint8_t *)MILAN_NVM_IMAGE_BASE)
+#define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
+#define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
 
 static const volatile uint8_t *nvm_slot(uint32_t offset)
 {
@@ -600,36 +652,37 @@ static uint32_t nvm_hdr_word(unsigned int k, uint32_t seq)
 	return (k == 2u) ? seq : nvm_hdr_const[k % 10u];
 }
 
-/* The header, for sequence `seq`, into the staged image. */
+/* The header, for sequence `seq`, into the private stage. */
 static void nvm_write_header(uint32_t seq)
 {
 	unsigned int i;
 
 	for (i = 0; i < KLJ2_HDR; ++i)
-		NVM_IMG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
+		NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
 }
 
-/* The trailer: CRC-32 over every preceding byte of the staged image. */
+/* The trailer: CRC-32 over every preceding byte of the private stage. */
 static void nvm_seal(void)
 {
-	uint32_t crc = nvm_crc32(NVM_IMG, NVM_IMG_LEN - KLJ2_TRAILER);
+	uint32_t crc = nvm_crc32(NVM_STG, NVM_IMG_LEN - KLJ2_TRAILER);
 	unsigned int i;
 
 	for (i = 0; i < KLJ2_TRAILER; ++i)
-		NVM_IMG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i));
+		NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i));
 }
 
 /* Blank media behind a validated image: every record erased, the section
- * 6.1 alignment pad zero, sequence 0. Two plain loops rather than one with a
- * conditional value, so the census can bound each store by its loop. */
+ * 6.1 alignment pad zero, sequence 0, into the stage. Two plain loops rather
+ * than one with a conditional value, so the census can bound each store by
+ * its loop. */
 static void nvm_stage_blank_image(void)
 {
 	unsigned int i;
 
 	for (i = 0; i < NVM_IMG_LEN; ++i)
-		NVM_IMG[i] = NVM_ERASED;
+		NVM_STG[i] = NVM_ERASED;
 	for (i = 0; i < NVM_PAD_LEN; ++i)
-		NVM_IMG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u;
+		NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u;
 	nvm_write_header(0);
 	nvm_seal();
 }
@@ -641,16 +694,17 @@ static void nvm_csr_write(unsigned int word, uint32_t value)
 }
 
 /*
- * The control tuple of section 8.2: where the record area is, how long it
- * is, the per-port channel-map tables (framed length and running prefix
- * inside the group, direction distinct), the sequence and the verdict with
- * the validity bit. Validity is asserted only here, after nvm_validate.
+ * The control tuple of section 8.2, in two steps. The RE-BASE: where the
+ * record area is, how long it is, the per-port channel-map tables (framed
+ * length and running prefix inside the group, direction distinct). Each of
+ * these writes makes every record read open and arms the backend's load flag,
+ * so it comes BEFORE the window load (snapshot-ownership section 5.3).
  */
-static void nvm_configure_backend(unsigned int verdict)
+static void nvm_rebase_backend(void)
 {
 	unsigned int dir;
 
-	nvm_csr_write(NVM_W_IMG_BASE, MILAN_NVM_IMAGE_BASE + KLJ2_HDR);
+	nvm_csr_write(NVM_W_IMG_BASE, MILAN_NVM_LIVE_BASE + KLJ2_HDR);
 	nvm_csr_write(NVM_W_IMG_LEN, NVM_AREA_LEN);
 	for (dir = 0; dir < 2; ++dir) {
 		unsigned int n = dir ? MILAN_NVM_N_SPORT_OUT : MILAN_NVM_N_SPORT_IN;
@@ -667,6 +721,13 @@ static void nvm_configure_backend(unsigned int verdict)
 			prefix += flen;
 		}
 	}
+}
+
+/* The PUBLISH: the sequence and the verdict with the validity bit. Validity
+ * is asserted only here, after nvm_validate and after the backend accepted
+ * the load. */
+static void nvm_publish(unsigned int verdict)
+{
 	nvm_csr_write(NVM_W_SEQ, nvm_seq);
 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | (verdict & 0xfu));
 }
@@ -677,6 +738,9 @@ static void nvm_heartbeat_tick(void)
 {
 	uint64_t now = gettime_ns();
 
+	/* a retired writer answers no more: nvm_backed must fall */
+	if (nvm_retired)
+		return;
 	if (nvm_hb_last == 0 || now < nvm_hb_last ||
 	    now - nvm_hb_last >= NVM_HEARTBEAT_NS) {
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
@@ -793,7 +857,7 @@ static int nvm_slot_program(uint32_t slot)
 		nvm_flash_write_enable();
 		nvm_flash_command(NVM_CMD_PP, slot + off);
 		for (i = 0; i < n; ++i)
-			nvm_spi_xfer(NVM_IMG[off + i]);
+			nvm_spi_xfer(NVM_STG[off + i]);
 		nvm_spi_close();
 		if (!nvm_flash_wait(NVM_PROGRAM_TIMEOUT_NS))
 			return 0;
@@ -808,7 +872,7 @@ static int nvm_slot_matches(uint32_t slot)
 	unsigned int i;
 
 	for (i = 0; i < NVM_IMG_LEN; ++i)
-		if (back[i] != NVM_IMG[i])
+		if (back[i] != NVM_STG[i])
 			return 0;
 	return 1;
 }
@@ -820,28 +884,109 @@ static char nvm_slot_letter(uint32_t slot)
 	return (slot == NVM_SLOT_B) ? 'B' : '-';
 }
 
+static uint32_t nvm_word_read(unsigned int word)
+{
+	milan_write(MILAN_PP_NVM_SEL, word);
+	return milan_read(MILAN_PP_NVM_DATA);
+}
+
+/* The stage starts every capture as the last VERIFIED container: the
+ * authoritative slot, or the blank image when no slot was ever accepted. A
+ * record the backend reports open keeps exactly these bytes. */
+static void nvm_prefill_stage(void)
+{
+	unsigned int i;
+
+	if (nvm_auth_slot == NVM_SLOT_NONE) {
+		nvm_stage_blank_image();
+		return;
+	}
+	for (i = 0; i < NVM_IMG_LEN; ++i)
+		NVM_STG[i] = nvm_slot(nvm_auth_slot)[i];
+}
+
 /*
- * The A/B promotion of section 7: seal the staged image under the next
- * sequence, refuse to open a commit bracket over a torn record area, then
- * erase, program and read back the slot that is NOT authoritative. Only a
- * verified slot is acknowledged; a failure publishes its transaction verdict
- * and withholds the acknowledgement, so the commit deadline revokes the
- * durability claim instead of this firmware asserting one.
+ * The capture (snapshot-ownership sections 4 and 7 step 3). Everything
+ * between the arm and the attest runs under the backend's grant hold: a WRITE
+ * or ERASE the producer requests now is deferred, never refused. Only records
+ * the backend reports as completed are copied; an open record keeps its last
+ * verified bytes. The attestation is the backend's, latched in hardware: it
+ * is false if any mutating operation was granted after the arm, which can
+ * only happen once the hold lapsed, and a copy it does not attest never
+ * reaches flash.
+ */
+static int nvm_capture(uint32_t *cap_id)
+{
+	uint32_t own[NVM_OWN_WORDS];
+	uint32_t stat;
+	unsigned int w;
+	unsigned int off = 0;
+	struct nvm_rec rec;
+
+	nvm_prefill_stage();
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ARM);
+	stat = milan_read(MILAN_PP_NVM_STAT);
+	if (!(stat & NVM_RD_CAP_OPEN) || (stat & NVM_RD_ARM_REF)) {
+		/* not armed, or a capture an unfinished attempt left open:
+		 * close it, so the next service call arms afresh */
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+		return 0;
+	}
+	*cap_id = nvm_word_read(NVM_W_CAPID);
+	for (w = 0; w < NVM_OWN_WORDS; ++w)
+		own[w] = nvm_word_read(NVM_W_OWN0 + w);
+	rec = nvm_rec_after(-1);
+	while (rec.ok) {
+		unsigned int i;
+
+		if (!((own[rec.id >> 5] >> (rec.id & 31u)) & 1u))
+			for (i = 0; i < REC_HDR + rec.plen; ++i)
+				NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
+		off += REC_HDR + rec.plen;
+		rec = nvm_rec_after((int)rec.id);
+	}
+	/* the copy's loads complete before the attest strobe leaves */
+	__asm__ volatile("fence rw, rw" ::: "memory");
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ATTEST);
+	if (!(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_CAP_ATTEST)) {
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+		return 0;
+	}
+	return 1;
+}
+
+/*
+ * The A/B promotion of section 7, over an ATTESTED capture: seal the private
+ * stage under the next sequence, then erase, program and read back the slot
+ * that is NOT authoritative. The slot can only ever hold attested content, so
+ * it is promoted as soon as it verifies, whatever the acknowledgement is told
+ * afterwards; the acknowledgement quotes the capture identity and retires
+ * only the work that capture holds. A transaction failure publishes its
+ * verdict, which revokes nvm_backed in the backend (section 9.2), and
+ * releases the capture, which hands its work back to the dirty state.
  */
 static int nvm_commit(const char *why)
 {
 	uint32_t next = nvm_seq + 1u;
 	uint32_t target = (nvm_auth_slot == NVM_SLOT_A) ? NVM_SLOT_B : NVM_SLOT_A;
+	uint32_t cap_id = 0;
 	unsigned int vd;
 
 	nvm_in_commit = 1;
+	if (!nvm_capture(&cap_id)) {
+		printf("Milan NVM: commit (%s) deferred, the capture was not attested.\n",
+		       why);
+		nvm_captures_refused++;
+		nvm_dirty_since = 0;
+		nvm_in_commit = 0;
+		return 0;
+	}
 	nvm_write_header(next);
 	nvm_seal();
-	vd = nvm_validate(NVM_IMG);
+	vd = nvm_validate(NVM_STG);
 	if (vd != VD_OK) {
-		/* a record is mid-write: re-arm the debounce rather than retry
-		 * on every idle call while the span settles */
-		printf("Milan NVM: commit (%s) deferred, the staged image reads %s.\n",
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+		printf("Milan NVM: commit (%s) deferred, the attested capture reads %s.\n",
 		       why, nvm_verdict_name[vd]);
 		nvm_dirty_since = 0;
 		nvm_in_commit = 0;
@@ -860,8 +1005,9 @@ static int nvm_commit(const char *why)
 	nvm_in_commit = 0;
 	if (vd != VD_OK) {
 		nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | vd);
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		nvm_commits_failed++;
-		printf("Milan NVM: commit (%s) seq %lu to slot %c FAILED: %s; not acknowledged.\n",
+		printf("Milan NVM: commit (%s) seq %lu to slot %c FAILED: %s; released, not acknowledged.\n",
 		       why, (unsigned long)next, nvm_slot_letter(target),
 		       nvm_verdict_name[vd]);
 		return 0;
@@ -870,18 +1016,28 @@ static int nvm_commit(const char *why)
 	nvm_auth_slot = target;
 	nvm_csr_write(NVM_W_SEQ, next);
 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | VD_OK);
-	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK);
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap_id << 16));
+	if (milan_read(MILAN_PP_NVM_STAT) & NVM_RD_ACK_REF) {
+		nvm_acks_refused++;
+		printf("Milan NVM: commit (%s) seq %lu -> slot %c, %u B, verified; acknowledgement REFUSED, the captured work stays owned.\n",
+		       why, (unsigned long)next, nvm_slot_letter(target),
+		       (unsigned int)NVM_IMG_LEN);
+		return 0;
+	}
 	nvm_commits_ok++;
-	printf("Milan NVM: commit (%s) seq %lu -> slot %c, %u B, acknowledged.\n",
+	printf("Milan NVM: commit (%s) seq %lu -> slot %c, %u B, capture %lu acknowledged.\n",
 	       why, (unsigned long)next, nvm_slot_letter(target),
-	       (unsigned int)NVM_IMG_LEN);
+	       (unsigned int)NVM_IMG_LEN, (unsigned long)cap_id);
 	return 1;
 }
 
 /*
  * The console's idle hook: heartbeat, then commit once the backend has
- * reported changes for the whole debounce window with no record operation
- * and no commit bracket in flight.
+ * reported committable work for the whole debounce window with no commit
+ * bracket in flight. A record operation in flight does NOT block a commit:
+ * its record is open and the capture keeps that record's last verified bytes,
+ * so a wedged producer cannot stop every other record from being saved
+ * (snapshot-ownership section 7 step 2).
  */
 static void nvm_service(void)
 {
@@ -896,7 +1052,7 @@ static void nvm_service(void)
 		nvm_dirty_since = 0;
 		return;
 	}
-	if (stat & (NVM_RD_DEV_BUSY | NVM_RD_COMMIT_BUSY))
+	if (stat & NVM_RD_COMMIT_BUSY)
 		return;
 	now = gettime_ns();
 	if (nvm_dirty_since == 0 || now < nvm_dirty_since) {
@@ -917,6 +1073,22 @@ static uint32_t nvm_pick_slot(unsigned int vd_a, uint32_t seq_a,
 	return (vd_b == VD_OK) ? NVM_SLOT_B : NVM_SLOT_NONE;
 }
 
+/* Wait, bounded, for the device face to go idle, heartbeating. A window load
+ * repeated while an operation is still in flight would meet the same refusal
+ * every time; one that is merely slow converges here (section 5.3). */
+static void nvm_wait_dev_idle(void)
+{
+	uint64_t start = gettime_ns();
+
+	while (milan_read(MILAN_PP_NVM_STAT) & NVM_RD_DEV_BUSY) {
+		nvm_heartbeat_tick();
+		if (gettime_ns() - start > NVM_RESTORE_TIMEOUT_NS) {
+			printf("Milan NVM: the device face did not go idle before the repeated window load.\n");
+			return;
+		}
+	}
+}
+
 /* Start the boot restore walk and wait for it to sequence, heartbeating. */
 static void nvm_restore_walk(void)
 {
@@ -934,11 +1106,66 @@ static void nvm_restore_walk(void)
 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~0x2u);
 }
 
+/* The live window becomes the chosen verified slot, or the blank image when
+ * no slot was ever accepted. */
+static void nvm_fill_window(uint32_t chosen)
+{
+	unsigned int i;
+
+	if (chosen != NVM_SLOT_NONE) {
+		const volatile uint8_t *src = nvm_slot(chosen);
+
+		for (i = 0; i < NVM_IMG_LEN; ++i)
+			NVM_IMG[i] = src[i];
+	} else {
+		nvm_stage_blank_image();
+		for (i = 0; i < NVM_IMG_LEN; ++i)
+			NVM_IMG[i] = NVM_STG[i];
+	}
+}
+
+/*
+ * One window load (section 5.3): re-base, load, RELOAD, in that order, and
+ * the backend's answer. The backend accepts the RELOAD only if no mutating
+ * operation was granted after the re-base and none was in flight at it, so
+ * nothing but this load wrote the window in between; it refuses it, and
+ * changes nothing, otherwise. Returns 1 when accepted.
+ */
+static int nvm_load_window(uint32_t chosen)
+{
+	nvm_rebase_backend();
+	nvm_fill_window(chosen);
+	/* the load's stores complete before the RELOAD strobe leaves */
+	__asm__ volatile("fence rw, rw" ::: "memory");
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELOAD);
+	return !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_RELOAD_REF);
+}
+
 /*
  * Boot: read both slots, offer the newer accepted one, or blank media
  * behind a validated all-erased image when neither is accepted; then the
  * restore walk, then the idle hook. Runs after the AEM image is in place and
  * before the entity is advertised, the order Milan 5.5.3.5.2 requires.
+ *
+ * The backend says which boot this is (section 7 step 1). Load pending (the
+ * boot load may still be accepted) with no restore walk sequenced yet is a
+ * cold boot: re-base, load, RELOAD, publish, restore walk. Load pending with
+ * the walk ALREADY sequenced is neither: the window is live and unvalidated,
+ * and this writer stays disabled rather than reload over a producer. Load NOT
+ * pending is a WRITER RESTART WITHOUT A FABRIC RESET, split on the second bit
+ * the backend publishes:
+ *
+ *   [3] 0 with [2] LOAD ACCEPTED 1: the backend has kept ownership since a
+ *   window load it accepted, so the writer RE-ATTACHES: it never re-bases,
+ *   loads or RELOADs (the backend would refuse the RELOAD anyway), releases
+ *   whatever capture the previous run left open, which hands the captured
+ *   work back, and publishes the sequence the media holds.
+ *
+ *   [3] 0 with [2] 0: no window load was ever accepted in this boot, so
+ *   nothing in it may be captured or committed (the backend arms no capture
+ *   while [2] is 0, which is rule 9). The writer does NOT re-attach and does
+ *   not validate a window no load vouches for: it stays retired until the
+ *   next reset.
  */
 static void nvm_boot(void)
 {
@@ -947,7 +1174,9 @@ static void nvm_boot(void)
 	uint32_t chosen;
 	uint32_t stat;
 	unsigned int verdict;
-	unsigned int i;
+	unsigned int tries = 0;
+	int loaded = 0;
+	int live = 0;			/* the window went live */
 
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
@@ -959,29 +1188,101 @@ static void nvm_boot(void)
 	seq_b = (nvm_verdict_b == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_B)) : 0;
 	chosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);
 	if (chosen != NVM_SLOT_NONE) {
-		const volatile uint8_t *src = nvm_slot(chosen);
-
-		for (i = 0; i < NVM_IMG_LEN; ++i)
-			NVM_IMG[i] = src[i];
 		nvm_seq = (chosen == NVM_SLOT_A) ? seq_a : seq_b;
 		verdict = VD_OK;
 	} else {
-		nvm_stage_blank_image();
 		nvm_seq = 0;
 		verdict = (nvm_verdict_a != VD_BLANK) ? nvm_verdict_a : nvm_verdict_b;
 	}
 	nvm_auth_slot = chosen;
 	nvm_last_verdict = verdict;
-	nvm_configure_backend(verdict);
-	nvm_ready = 1;
-	nvm_restore_walk();
+	stat = milan_read(MILAN_PP_NVM_STAT);
+	if ((stat >> 24) != NVM_CAP_TAG) {
+		/* the runtime cross-check of the build-time refusal (section
+		 * 14): a writer of contract 3 never acknowledges under an older
+		 * rule; the window is still loaded and published for the walk */
+		nvm_fill_window(chosen);
+		nvm_rebase_backend();
+		nvm_publish(verdict);
+		printf("Milan NVM: the backend does not carry saved-state contract 3 (tag %02lx); the writer is disabled.\n",
+		       (unsigned long)(stat >> 24));
+	} else if (!(stat & NVM_RD_LOAD_PEND) && !(stat & NVM_RD_LOAD_ACC)) {
+		/* the boot load is OVER and no load was ever accepted, so this
+		 * boot may capture nothing. A re-attach could commit nothing; it
+		 * would only publish a validity bit over a window no accepted
+		 * load vouches for. The writer stays retired: it never commits
+		 * and stops answering the liveness deadline. */
+		nvm_retired = 1;
+		printf("Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.\n");
+	} else if (!(stat & NVM_RD_LOAD_PEND)) {
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+		nvm_publish(verdict);
+		nvm_ready = 1;
+		printf("Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.\n");
+	} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {
+		/* the writer rule that goes with the backend's window-live term:
+		 * load pending 1 with the restore walk ALREADY SEQUENCED is not a
+		 * cold boot. The producer has been able to write the window since
+		 * the fabric's reset and nothing would re-derive the entity's
+		 * state from a load, so this writer never takes the cold-boot
+		 * path over it: it stays disabled until the next reset. (The
+		 * backend refuses that RELOAD anyway: the window went live at the
+		 * walk's first read.) */
+		nvm_retired = 1;
+		printf("Milan NVM: the window went live without a validated load; the writer stays disabled until the next reset.\n");
+	} else {
+		while (!loaded && tries < NVM_LOAD_TRIES) {
+			loaded = nvm_load_window(chosen);
+			tries++;
+			/* read [3] after a refusal. Load pending 0 without an
+			 * accepted load is the window having GONE LIVE: no later
+			 * RELOAD can be accepted, and a repeat would only re-base
+			 * and refill a window the producer owns. Stop here. */
+			if (!loaded && !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_LOAD_PEND)) {
+				live = 1;
+				break;
+			}
+			/* an operation that is merely SLOW must not spend every
+			 * attempt in flight. Wait, bounded, for the device face
+			 * to go idle before repeating. */
+			if (!loaded && tries < NVM_LOAD_TRIES)
+				nvm_wait_dev_idle();
+		}
+		if (loaded) {
+			/* the window now holds a validated container: every
+			 * record in it is a completed record, owned by the last
+			 * verified state */
+			nvm_publish(verdict);
+			nvm_ready = 1;
+			if (tries > 1)
+				printf("Milan NVM: the backend refused %u window load(s); accepted at attempt %u.\n",
+				       tries - 1u, tries);
+		} else {
+			/* this writer will never commit again, so it stops
+			 * answering the liveness deadline and the fabric revokes
+			 * nvm_backed. The restore walk below still runs, blind,
+			 * and the entity comes up on defaults; the status says so
+			 * (img_valid 0, restore fail 1, pending 1, backed 0). */
+			nvm_retired = 1;
+			if (live)
+				printf("Milan NVM: the backend refused %u window load(s) and the window then went live; the writer is disabled until the next reset.\n",
+				       tries);
+			else
+				printf("Milan NVM: the backend refused %u window loads; the window is not validated and the writer is disabled until the next reset.\n",
+				       tries);
+		}
+	}
+	/* a restore walk the fabric already sequenced since its reset is not run
+	 * again: a re-attached writer finds the entity live */
+	if (!(milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE))
+		nvm_restore_walk();
 	stat = milan_read(MILAN_PP_STAT);
 	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu.\n",
 	       nvm_verdict_name[nvm_verdict_a], (unsigned long)seq_a,
 	       nvm_verdict_name[nvm_verdict_b], (unsigned long)seq_b,
 	       nvm_slot_letter(chosen), (unsigned long)nvm_seq,
 	       nvm_verdict_name[verdict], (unsigned int)NVM_IMG_LEN,
-	       (unsigned int)MILAN_NVM_IMAGE_BASE,
+	       (unsigned int)MILAN_NVM_LIVE_BASE,
 	       (unsigned long)((stat >> 2) & 1u), (unsigned long)((stat >> 3) & 1u),
 	       (unsigned long)((stat >> 7) & 1u), (unsigned long)((stat >> 6) & 1u));
 	set_idle_hook(nvm_service);
@@ -1151,15 +1452,36 @@ static void nvm_print_status(void)
 	       nvm_verdict_name[vd_b], (unsigned long)seq_b,
 	       nvm_slot_letter(nvm_auth_slot), (unsigned long)nvm_seq,
 	       (unsigned int)NVM_N_REC, (unsigned int)NVM_IMG_LEN,
-	       (unsigned int)MILAN_NVM_IMAGE_BASE,
-	       nvm_ready ? "writer live" : "writer disabled");
-	printf("NVM: PP_NVM_STAT=%08lx backed=%lu dirty=%lu stale=%lu valid=%lu commit_busy=%lu dev_busy=%lu verdict=%s; commits ok=%u failed=%u last=%s\n",
+	       (unsigned int)MILAN_NVM_LIVE_BASE,
+	       nvm_ready ? "writer live" : (nvm_retired ? "writer retired"
+						       : "writer disabled"));
+	printf("NVM: PP_NVM_STAT=%08lx backed=%lu dirty=%lu stale=%lu valid=%lu commit_busy=%lu dev_busy=%lu pend=%lu unres=%lu load_pend=%lu load_acc=%lu reload_ref=%lu verdict=%s; commits ok=%u failed=%u captures refused=%u acks refused=%u last=%s\n",
 	       (unsigned long)stat,
 	       (unsigned long)((stat >> 6) & 1u), (unsigned long)((stat >> 8) & 1u),
 	       (unsigned long)((stat >> 9) & 1u), (unsigned long)((stat >> 7) & 1u),
 	       (unsigned long)((stat >> 10) & 1u), (unsigned long)((stat >> 4) & 1u),
+	       (unsigned long)((stat >> 22) & 1u), (unsigned long)((stat >> 23) & 1u),
+	       (unsigned long)((stat >> 3) & 1u), (unsigned long)((stat >> 2) & 1u),
+	       (unsigned long)((stat >> 11) & 1u),
 	       nvm_verdict_name[(stat >> 12) & 0xfu], nvm_commits_ok,
-	       nvm_commits_failed, nvm_verdict_name[nvm_last_verdict]);
+	       nvm_commits_failed, nvm_captures_refused, nvm_acks_refused,
+	       nvm_verdict_name[nvm_last_verdict]);
+	/* Section 16, option A: the controller reads one summary bit and the
+	 * per-record detail stays here, on the backend's own face. */
+	if (stat & NVM_RD_UNRES) {
+		unsigned int w;
+
+		printf("NVM: unresolved records, their last verified bytes stand:");
+		for (w = 0; w < NVM_OWN_WORDS; ++w) {
+			uint32_t bits = nvm_word_read(NVM_W_OWN0 + w);
+			unsigned int b;
+
+			for (b = 0; b < 32u; ++b)
+				if ((bits >> b) & 1u)
+					printf(" 0x%02x", w * 32u + b);
+		}
+		printf("\n");
+	}
 }
 
 static void milan_nvm_handler(int nb_params, char **params)

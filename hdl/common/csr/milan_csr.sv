@@ -614,6 +614,14 @@ module milan_csr #(
   input  wire                    i_pp_nvm_dirty,      //! PP_STAT[8]
   input  wire                    i_pp_nvm_stale,      //! PP_STAT[9]
   input  wire                    i_pp_nvm_img_valid,  //! PP_STAT[10]
+  //! Accepted work that no verified slot holds and nvm_dirty does not report
+  //! -- a change the producer still holds, or a record whose logical write
+  //! has not completed, and from reset until the boot window load is accepted
+  //! EVERY record, because none is known yet
+  //! (docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 6.1). The durable
+  //! reading of saved-state section 9.3 is (backed 1, dirty 0, stale 0) AND
+  //! this bit 0.
+  input  wire                    i_pp_nvm_pend,       //! PP_STAT[11]
   input  wire [3:0]              i_pp_nvm_verdict,    //! PP_STAT[15:12]
   //! The backend's indexed control face (section 8.2: a control tuple, never
   //! record data). PP_NVM_SEL names a word, PP_NVM_DATA reads or writes it,
@@ -887,7 +895,9 @@ module milan_csr #(
   //! be confused with "the plane is present and idle" - the STATS_CAP 0x204
   //! rule, and the reason PP_STAT is the register software must read FIRST.
   localparam [ADDR_WIDTH-1:0] A_PP_CTRL   = 'h920;  //! RW: [0] enable (entity_enable), [1] restore_go
-  //! RO: [31:24] 0x5B tag, [7] nvm_blank, [6] nvm_backed, [5] sp_err,
+  //! RO: [31:24] 0x5B tag, [15:12] nvm verdict, [11] nvm_pend, [10]
+  //! nvm_img_valid, [9] nvm_stale, [8] nvm_dirty, [7] nvm_blank,
+  //! [6] nvm_backed, [5] sp_err,
   //! [4:0] {alarm,fail,done,busy,sp_busy}. THE SAVED-STATE VERDICT IS FOUR
   //! BITS, NOT ONE: done says the boot walk sequenced, and every per-record
   //! vendor-default arm sets it, so done alone is identical on a device with
@@ -901,11 +911,15 @@ module milan_csr #(
   //! ---- the saved-state backend's control window, 0x934-0x93C --------------
   //! An INDEXED window (design page section 8.2): SEL names one of the
   //! backend's words - 0 image base, 1 image length, 2 sequence number,
-  //! 3 status/verdict, 4 heartbeat and commit strobes, 0x20-0x2F the input
-  //! channel-map table, 0x30-0x3F the output one - and DATA reads or writes
-  //! it. STAT is the backend's status word on read (word 3) and, on write,
-  //! its strobe word (word 4): [0] heartbeat, [1] commit acknowledged,
-  //! [2] commit started. Record data never crosses here.
+  //! 3 status/verdict, 4 heartbeat and commit strobes, 5 the capture
+  //! identity, 8-15 the record ownership vector (32 ids per word),
+  //! 0x20-0x2F the input channel-map table, 0x30-0x3F the output one - and
+  //! DATA reads or writes it. STAT is the backend's status word on read
+  //! (word 3) and, on write, its strobe word (word 4): [0] heartbeat,
+  //! [1] commit acknowledged with the capture identity in [31:16], [2] commit
+  //! started, [3] ARM a capture, [4] ATTEST it, [5] RELEASE it, [6] RELOAD
+  //! the window (docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 5.1).
+  //! Record data never crosses here.
   localparam [ADDR_WIDTH-1:0] A_PP_NVM_SEL  = 'h934;  //! RW: [5:0] backend word index
   localparam [ADDR_WIDTH-1:0] A_PP_NVM_DATA = 'h938;  //! RW: the word SEL names
   localparam [ADDR_WIDTH-1:0] A_PP_NVM_STAT = 'h93C;  //! R: status word; W1P: strobes
@@ -2152,11 +2166,11 @@ module milan_csr #(
       pp_rd_data_w = 32'h0;
       unique case (rd_addr_q)
         A_PP_CTRL:   pp_rd_data_w = pp_ctrl_r;
-        //! [15:12] verdict, [10] img_valid, [9] stale, [8] dirty: the section
-        //! 9.1 bits beside the original [7:0]; nvm_backed is LIVE evidence
-        //! now, not a constant (KL_pp_shadow's banner)
+        //! [15:12] verdict, [11] nvm_pend, [10] img_valid, [9] stale, [8]
+        //! dirty: the section 9.1 bits beside the original [7:0]; nvm_backed
+        //! is LIVE evidence now, not a constant (KL_pp_shadow's banner)
         A_PP_STAT:   pp_rd_data_w = {PP_PRESENT_TAG_C, 8'd0,
-                                     i_pp_nvm_verdict, 1'b0,
+                                     i_pp_nvm_verdict, i_pp_nvm_pend,
                                      i_pp_nvm_img_valid, i_pp_nvm_stale,
                                      i_pp_nvm_dirty,
                                      i_pp_nvm_blank, i_pp_nvm_backed,

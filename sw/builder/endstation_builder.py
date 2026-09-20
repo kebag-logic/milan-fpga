@@ -2225,9 +2225,11 @@ def _entity_model_image(cfg, overlay):
     manifest = {
         "desc_base": base,
         "resp_base": base + int(cfg["platform"]["pp_mem_bytes"]) - 0x1000,
-        # the saved-state container's staging band: the 64 KiB erase block
+        # the saved-state container's live window: the 64 KiB erase block
         # directly below the response buffer (milan_soc.py derives the same)
         "nvm_base": base + int(cfg["platform"]["pp_mem_bytes"]) - 0x1000 - 0x10000,
+        # and the writer's private stage, one erase block below it
+        "nvm_stage_base": base + int(cfg["platform"]["pp_mem_bytes"]) - 0x1000 - 0x20000,
         "window_bytes": int(cfg["platform"]["pp_mem_bytes"]),
         "image": "aem_desc.bin",
         "image_bytes": len(blob),
