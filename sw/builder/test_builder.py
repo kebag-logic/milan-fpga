@@ -10010,10 +10010,13 @@ def test_baremetal_profile_contract() -> None:
     #: removed, which the retired ordered-list comparison refused by
     #: construction. Neither calls the other, so the move is behaviour for
     #: behaviour identical and the compiler accepts it.
+    #: Both hold one of the pinned pointer stores, so exchanging them moved
+    #: the ORDER of that list and was refused; two functions holding neither
+    #: would have been green all along and would demonstrate nothing.
     reordered_functions = swapped_definitions(
-        firmware_source, "static void print_tod(uint64_t ns)",
-        "static uint64_t gettime_ns(void)",
-        "static void settime_ns(uint64_t ns)")
+        firmware_source, "static int parse_u64(const char *text",
+        "static int seconds_to_ns(uint64_t seconds",
+        "/*\n * ---- Saved state:")
     #: ... and an inline-asm store, whose template carries no C construct at
     #: all. The address is spliced from the same derived constant.
     asm_store_enable = stored_before_aem(
