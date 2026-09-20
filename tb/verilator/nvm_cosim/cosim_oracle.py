@@ -48,7 +48,6 @@ class Run:
     build: str
     variant: str
     exit: int
-    wall_s: float
     obs: dict
     notes: dict
     evts: list

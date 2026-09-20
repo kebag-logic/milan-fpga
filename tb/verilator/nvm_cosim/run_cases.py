@@ -42,7 +42,6 @@ import shutil
 import struct
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -74,11 +73,16 @@ from cosim_case_map import (     # noqa: E402
     grade)
 
 
-def cmd(argv: list[str], log: Path, cwd: Path = ROOT,
-        timeout: int = 3600) -> subprocess.CompletedProcess:
-    """Run one build command, log it, and refuse on a non-zero exit."""
+def cmd(argv: list[str], log: Path, cwd: Path = ROOT) -> subprocess.CompletedProcess:
+    """Run one build command, log it, and refuse on a non-zero exit.
+
+    NO WALL CLOCK HERE. `scripts/run_all_suites.sh` already guards every suite
+    with one `timeout` around the whole make, so a second, per-command
+    deadline would only be a host-time judgement this suite has no business
+    making -- and a build that is merely slow on a loaded box would read as a
+    failure."""
     log.parent.mkdir(parents=True, exist_ok=True)
-    p = subprocess.run(argv, cwd=cwd, text=True, capture_output=True, timeout=timeout,
+    p = subprocess.run(argv, cwd=cwd, text=True, capture_output=True,
                        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
     log.write_text(p.stdout + p.stderr)
     if p.returncode:
@@ -294,9 +298,7 @@ def run_case(b: Build, shapes: dict[str, ShapeInfo], case: str, variant: str = "
     out.mkdir(parents=True)
     argv = [str(b.binary), "--case", case, "--out", str(out), "--records", str(s.records),
             *extra]
-    t0 = time.time()
-    p = subprocess.run(argv, text=True, capture_output=True, timeout=900)
-    wall = time.time() - t0
+    p = subprocess.run(argv, text=True, capture_output=True)
     (out / "stdout.log").write_text(p.stdout)
     (out / "stderr.log").write_text(p.stderr)
     obs, notes, evts, fw, done, pending = {}, {}, [], [], False, False
@@ -314,8 +316,8 @@ def run_case(b: Build, shapes: dict[str, ShapeInfo], case: str, variant: str = "
         elif ln.startswith("CASE_DONE"):
             done = True
             pending = ln.endswith("hooks_pending=1")
-    return Run(case, b.name, variant, p.returncode, wall, obs, notes, evts, fw, done, pending,
-               out)
+    return Run(case, b.name, variant, p.returncode, obs, notes, evts, fw,
+               done, pending, out)
 
 
 
