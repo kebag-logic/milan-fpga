@@ -1024,6 +1024,126 @@ void register_cases() {
     idle(6000);
     snap("end");
   };
+  // REVISION D: NO CAPTURE WITHOUT AN ACCEPTED LOAD ---------------------------
+  cases["U11_arm_refused_without_accepted_load"] = [] {          // unit
+    // The new term, alone. The control face is re-based and VALIDATED
+    // exactly as a writer validates it, but no RELOAD is ever accepted: a
+    // mutating grant clears the load flag before the strobe, and a second
+    // grant takes the window live. A writer that ignores the rule and arms
+    // anyway -- revision c's re-attach is one -- is refused by the
+    // backend's own flag and not by its own claim, so no capture opens, no
+    // identity advances and an acknowledgement retires nothing.
+    unit_rebase();
+    bfm_erase(0x20);                         // the bracket's one grant
+    bfm_run();
+    cosim_rtl_csr_write(3, 0x10u);           // the writer's claim: validated
+    stray(4, 0x40u);                         // RELOAD: refused, the flag is clear
+    snap("refused");
+    bfm_erase(0x21);                         // a grant the load did not bracket:
+    bfm_write(0x21, bind_frame(Z));          // the window GOES LIVE, and this
+    bfm_run();                               // whole-record WRITE closes 0x21
+    snap("live");
+    stray(4, 0x8u);                          // ARM: refused, no accepted load
+    snap("stray");
+    stray(4, 0x10u);                         // ATTEST over no capture
+    stray(4, ack_word(1));                   // an ACK quoting capture 1
+    snap("end");
+  };
+  cases["U12_window_live_stops_the_repeat"] = [] {               // real + bfm, slots of A1
+    // Revision d, the writer half: one disturbed attempt of TWO grants, the
+    // ordinary shape of a real record update (ERASE then WRITE). The second
+    // grant meets a clear load flag, so the window goes live and no later
+    // RELOAD can be accepted. The writer reads [3] after the refusal and
+    // stops: it does not re-base and refill a window the producer owns.
+    on_next("s_reload", [] {
+      bfm_erase(0x21);
+      bfm_write(0x21, bind_frame(Z));
+      bfm_run();
+    });
+    boot();                                  // snap("boot")
+    bind(Z2);                                // a controller change, reported
+    idle(3000);
+    snap("end");
+  };
+  cases["U13_four_refusals_with_the_device_busy"] = [] {         // real + bfm, slots of A1
+    // The SECOND reading of the terminal row. Each of the four window loads
+    // meets a paced whole-record WRITE still streaming at the strobe, which
+    // is the case the bounded wait was added for; the wait heartbeats, so
+    // nvm_backed SETS before the writer retires and the loss of a writer
+    // that was once live raises nvm_stale. Same state, different row, and
+    // never durable in either.
+    for (unsigned k = 1; k <= 4; ++k)
+      at("s_reload", hooks("s_reload") + k, [] {
+        bfm_write(0x21, bind_frame(Z), -1, 60);
+        if (!run_until([] { return levels().dev_busy != 0; }, 20000))
+          fatal("the paced WRITE was not granted");
+      });
+    boot();                                  // snap("boot"): backed 1, dirty 1
+    idle(3000);                              // past T-NVM-WRITER-ALIVE
+    snap("end");                             // backed 0, stale 1, never durable
+  };
+  cases["W3_write_across_refused_fill_then_restart"] = [] {      // real + bfm, restart, slots of A1
+    // The re-review's probe H1 on revision d. Three refused loads as in U9;
+    // then a whole-record WRITE of 0x21 carrying Z2 is granted just before
+    // the LAST re-base -- the writer's status read has already told it the
+    // device face is idle -- and is still streaming while the writer
+    // re-bases and refills the window, so it ends with done over bytes the
+    // FILL wrote and its record reads CLOSED. Then the writer restarts.
+    // Nothing may promote that record: no load was accepted in this boot.
+    if (!nvm_host_writer_restart) {          // only the prototype writer has it
+      on_next("no_restart_model", [] {});
+      return;
+    }
+    for (unsigned k = 1; k <= 3; ++k)
+      at("s_reload", hooks("s_reload") + k, [] {
+        fault(0x20, 27, 0, 1);
+        bfm_erase(0x20);
+        bfm_run();
+        faults.clear();
+        if (hooks("s_reload") != 3)
+          return;
+        // the writer now reads [11], reads [3], then asks whether the
+        // device face is idle; the value of that last read is sampled
+        // BEFORE this hook runs, so the WRITE below is granted after the
+        // writer has decided to repeat and before its re-base
+        at("r_stat", hooks("r_stat") + 3, [] {
+          bfm_write(0x21, bind_frame(Z2), -1, 300);
+          if (!run_until([] { return levels().dev_busy != 0; }, 20000))
+            fatal("the overlapping WRITE was not granted");
+          note("overlap_grant", cyc);
+        });
+      });
+    boot();
+    snap("live");                            // 0x21 closed over the fill's bytes
+    nvm_host_writer_restart();
+    snap("restarted");
+    idle(6000);
+    snap("end");
+  };
+  cases["W4_all_records_rewritten_after_refused_fill"] = [] {    // real + bfm, restart, slots of A1
+    // The re-review's probe H2: W3, and then every OTHER allocated record
+    // rewritten whole on the device face, so that no record is left open by
+    // accident. Under revision c that removed the last thing still
+    // reporting and the status read durable over the lost change. Here the
+    // boot accepted no load, so nothing was ever captured: the last
+    // verified slot is untouched and the reading is not durable.
+    if (!nvm_host_writer_restart) {
+      on_next("no_restart_model", [] {});
+      return;
+    }
+    cases["W3_write_across_refused_fill_then_restart"]();
+    for (auto &r : recs) {
+      if (r.first == 0x21 || r.second.len < 8u)
+        continue;
+      std::vector<uint8_t> pl(r.second.len - 8u, 0x5au);
+      bfm_erase(r.first);
+      bfm_write(r.first, frame(r.first, pl));
+      bfm_run();
+    }
+    snap("rewritten");
+    idle(3000);
+    snap("end2");
+  };
   cases["W1_writer_restart_reattaches"] = [] {                   // real
     // A CPU-only reset: the writer restarts, the fabric keeps its state,
     // with a newer binding in the window that no slot holds yet.

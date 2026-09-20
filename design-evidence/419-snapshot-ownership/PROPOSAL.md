@@ -14,6 +14,98 @@ Owner decision recorded 2026-09-18: question 11(a) is decided, accepted
 producer work not yet represented in a verified slot is reported on a
 SEPARATE pending bit. Question 11(b) is answered in section 16.
 
+## REVISION D (after the re-review of revision c, pull request 470 at e2d98d88)
+
+The design page docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md carries the
+revised contract in full; where this file disagrees with it, the page wins.
+The evidence in this directory is re-run in full from a clean state for
+revision d (COMMAND_RESULTS.md). This revision SHRINKS THE STATE SPACE
+instead of closing one more ordering: it removes a class of boots from the
+contract rather than repairing what those boots can do.
+
+1. NO CAPTURE WITHOUT AN ACCEPTED LOAD. The backend registers one flag,
+   ld_acc_r, set by an ACCEPTED RELOAD and cleared only by reset, and adds
+   one term to the arm condition:
+
+       assign arm_ok_w = arm_w & img_cfg_w & img_valid_r & ~cap_open_r
+                       & ~void_hard_w & ~mut_defer_r & ld_acc_r;
+
+   img_valid_r is the WRITER'S claim about the window; ld_acc_r is the
+   BACKEND'S own record of having validated one. Until the backend has
+   accepted a window load since reset, no ARM is granted, so in a boot whose
+   window load was never accepted (four refusals, or the window went live
+   first) no capture ever opens. The consequences are the whole point and
+   they are a closed list: the capture identity never advances, so no
+   acknowledgement can quote a capture and none can retire anything; no
+   slot is ever written and no flash erase is issued; the committable bit
+   stays 1 and the pending bit reads 1, so accepted producer work is
+   REPORTED and never retired; the saved state stays at the LAST VERIFIED
+   SLOT; nvm_backed reads 0 once the writer has retired; the status can
+   never read durable in that boot; and only a reset leaves the state.
+   A REFUSED ARM is reported on the EXISTING arm-refused bit PP_NVM_STAT[21],
+   not on a new one: the writer's behaviour on it is unchanged, because the
+   writer never reaches an ARM in that boot (it has already retired), and a
+   writer that arms anyway is refused and may not repeat the arm. The flag
+   itself is published on PP_NVM_STAT[2], "load accepted", so a controller
+   and a restarted writer can read the cause rather than infer it.
+   Case U11 (the term alone, on a control face that validates the window
+   exactly as a writer does), U13 (the second reading of the terminal row),
+   W3 and W4 (the re-review's probes H1 and H2 on revision d); mutant R07,
+   which deletes the term, killed by
+   arm_refused_without_accepted_load@stray.
+2. A RESTARTED WRITER IN THAT STATE DOES NOT RE-ATTACH. Revision c split a
+   writer restart on PP_NVM_STAT[3] alone; revision d splits it on the pair.
+   Load pending 0 with load accepted 1 is the restart revision b and c
+   describe: the backend has kept ownership since a load it accepted, so the
+   writer re-attaches, releases whatever capture the previous run left open
+   and publishes the sequence the media holds. Load pending 0 with load
+   accepted 0 is a boot in which nothing may be captured: the writer does
+   NOT re-attach, does not re-base, does not load and does not publish a
+   validity bit over a window no accepted load vouches for. It stays RETIRED
+   until the next reset, which means it stops answering the liveness
+   deadline, so nvm_backed falls to 0 exactly as in the cold four-refusal
+   row. This is the WRITER RULE; the backend term of item 1 is what makes a
+   writer that ignores it harmless, so the two are not redundant: the rule
+   keeps a conforming writer from publishing a false validity bit, and the
+   term keeps ANY writer from capturing. Section 5.3 is corrected
+   accordingly, and obligation O3's second sentence ("the load rule is safe
+   without this") is withdrawn: it was false for a record closed across a
+   refused load's fill, and it is item 1, not the load rule, that is safe
+   without O3. Case W3 and W4; mutant F11, which restores revision c's
+   re-attach, killed by restart_stays_retired_without_load@restarted.
+   R194's one-flip-flop backend sketch (RS1: a refused RELOAD re-opens every
+   record, and an operation in flight at a re-base or a refused RELOAD does
+   not close its record) is NOT adopted and is not needed for another
+   reason. It repairs the per-record open vector so that a record closed
+   across a fill is not promoted; item 1 removes the promotion itself, for
+   every record and every ordering, with no per-record state. A record
+   closed over the fill's bytes still READS closed under revision d, and the
+   page says so plainly: it is reported, not retired, and only a producer
+   rewrite or a reset resolves it. That is the same convergence revision c
+   already had for every record the refused loads left open.
+3. Once the window has GONE LIVE (load pending 0 with no accepted load) the
+   writer stops re-basing and refilling it: it reads PP_NVM_STAT[3] after a
+   refusal and stops repeating, instead of spending the remaining attempts
+   on a load the backend can no longer accept and on fills over a window the
+   producer owns. Case U12; mutant F12, killed by
+   window_live_stops_the_repeat@boot. (R194 K2, R193 F9.)
+4. The terminal row is stated as the bits the STATE fixes and the bits the
+   ORDERING decides, it gains its reading AFTER a restart, and the page says
+   the state reads one of two rows and which. The state fixes load pending 0,
+   load accepted 0, reload refused 1, pending 1, unresolved 1, no capture
+   bit, 0 flash erases and the walk's done/fail/blank; the ordering decides
+   nvm_backed, nvm_stale and the committable bit, according to whether the
+   writer ever heartbeated before it retired. Cases U9 (the cold row) and
+   U13 (the row after a bounded wait that heartbeated: backed 1 at the boot,
+   then backed 0 and stale 1 once the liveness deadline lapses). After a
+   restart the row is UNCHANGED under revision d, because the writer no
+   longer re-attaches and no longer publishes img_valid: that is the whole
+   difference from revision c, where it read img_valid 1 and backed 1.
+   (R194 K3, R193 F10.)
+5. PP_NVM_STAT[3] is named "a boot window load may still be accepted" in the
+   prototype's two comments as well as on the page, and the terminal row
+   names img_cfg 1 beside img_valid 0. (R194 S8, R193 F11.)
+
 ## REVISION C (after the re-review of revision b, pull request 470 at 53b2026e)
 
 The design page docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md carries the

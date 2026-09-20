@@ -532,9 +532,15 @@ module KL_nvm_backend #(
   logic                  set_q_r;
   //! the load (revision b): ld_ok_r, armed by a re-base with no mutating
   //! operation in flight and cleared by every mutating grant after it;
-  //! ld_pend_r, no RELOAD accepted since reset (RELOAD is the boot load);
+  //! ld_pend_r, A BOOT WINDOW LOAD MAY STILL BE ACCEPTED (revision c: it
+  //! falls on an accepted RELOAD and the first time the window goes live);
   //! rl_ref_r, the last RELOAD strobe was refused
   logic                  ld_ok_r, ld_pend_r, rl_ref_r;
+  //! REVISION D: a RELOAD HAS BEEN ACCEPTED since reset. Set by an accepted
+  //! RELOAD, cleared only by reset, published at PP_NVM_STAT[2]. No capture
+  //! is armed while it is 0, so a boot whose window load was never accepted
+  //! can write no slot and retire nothing
+  logic                  ld_acc_r;
   logic                  inflight_w, win_live_w;
   //! revision c: a mutating request a capture DEFERRED, registered. It may
   //! not be deferred a second time by a later capture, so an arm is refused
@@ -567,17 +573,18 @@ module KL_nvm_backend #(
         //! [22] nvm_pend (the pending bit, the same wire as the port),
         //! [21] arm refused, [20] ack refused, [19] certified, [18] valid,
         //! [17] hold, [16] open, then the tracked layout below with [8] now
-        //! the COMMITTABLE image work that drives a commit, and two load
+        //! the COMMITTABLE image work that drives a commit, and three load
         //! bits in positions the tracked layout keeps zero: [11] the last
-        //! RELOAD was refused, [3] load pending (no RELOAD accepted since
-        //! reset)
+        //! RELOAD was refused, [3] load pending (a boot window load may
+        //! still be accepted), [2] load accepted (a RELOAD has been
+        //! accepted since reset; without it no capture is armed)
         R_STAT_C:     csr_rdata_o = {CAP_TAG_C, unres_w, pend_w, arm_ref_r,
                                      ack_ref_r, cap_cert_r, cap_valid_r,
                                      cap_hold_r, cap_open_r,
                                      verdict_r, rl_ref_r, commit_busy_r,
                                      nvm_stale_o, dirty_img_w, img_valid_r,
                                      backed_r, img_cfg_w, dev_busy_w,
-                                     ld_pend_r, 3'd0};
+                                     ld_pend_r, ld_acc_r, 2'd0};
         R_CAPID_C:    csr_rdata_o = 32'(cap_id_r);
         default:      csr_rdata_o = 32'd0;
       endcase
@@ -691,8 +698,13 @@ module KL_nvm_backend #(
   //! service call, so one request is deferred by AT MOST ONE capture and
   //! the T_HOLD_MS_P bound holds by construction across chained captures,
   //! not by a property of the writer's timing.
+  //! REVISION D: and only once a RELOAD HAS BEEN ACCEPTED since reset
+  //! (ld_acc_r). img_valid_r is the writer's claim about the window; this
+  //! term is the backend's own record of having validated one, so a boot
+  //! whose window load was never accepted captures nothing however the
+  //! writer behaves, and no acknowledgement in it can retire anything.
   assign arm_ok_w    = arm_w & img_cfg_w & img_valid_r & ~cap_open_r & ~void_hard_w
-                     & ~mut_defer_r;
+                     & ~mut_defer_r & ld_acc_r;
   assign hold_exp_w  = cap_hold_r & ms_tick_w & (hold_r == HOLD_W_C'(1));
   //! a mutating grant between the arm and the certificate: only reachable
   //! after the hold lapsed, and it makes every copy taken so far suspect
@@ -1072,6 +1084,7 @@ module KL_nvm_backend #(
     if (!rst_n) begin
       ld_ok_r   <= 1'b0;
       ld_pend_r <= 1'b1;
+      ld_acc_r  <= 1'b0;
       rl_ref_r  <= 1'b0;
     end else begin
       //! PRIORITY: a mutating grant clears the flag, even on a re-base
@@ -1081,6 +1094,8 @@ module KL_nvm_backend #(
                : reconf_w    ? ~inflight_w
                              : ld_ok_r;
       if (reload_ok_w | win_live_w) ld_pend_r <= 1'b0;
+      //! revision d: set by an accepted RELOAD, cleared only by reset
+      if (reload_ok_w) ld_acc_r <= 1'b1;
       if (reload_w)    rl_ref_r  <= ~reload_ok_w;
     end
   end

@@ -10,8 +10,8 @@ g++    cosim_bridge.o cosim_cases.o verilated.o verilated_dpi.o verilated_thread
 rm Vcosim_top__ALL.verilator_deplist.tmp
 make: Leaving directory '<CHECKOUT>/proposal-evidence/build/mut-R04_rebase_wins_over_same_edge_grant/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
-- Verilator: Built from 0.460 MB sources in 7 modules, into 0.491 MB in 7 C++ files needing 0.001 MB
-- Verilator: Walltime 6.641 s (elab=0.026, cvt=0.061, bld=6.531); cpu 0.115 s on 2 threads; allocated 25.305 MB
+- Verilator: Built from 0.460 MB sources in 7 modules, into 0.492 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 6.739 s (elab=0.028, cvt=0.063, bld=6.624); cpu 0.121 s on 2 threads; allocated 25.273 MB
 %Warning-SYNCASYNCNET: <CHECKOUT>/proposal-evidence/build/mut-R04_rebase_wins_over_same_edge_grant/cosim_top.sv:50:25: Signal flopped as both synchronous and async: 'rst_n'
                        <CHECKOUT>/proposal-evidence/build/mut-R04_rebase_wins_over_same_edge_grant/cosim_top.sv:360:10: ... Location of async usage
   360 |     if (!rst_n) begin

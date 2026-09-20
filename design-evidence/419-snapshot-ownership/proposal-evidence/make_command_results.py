@@ -35,7 +35,69 @@ EXAMINED_EXTRA = [
 ]
 
 SESSION = """\
-## Session narrative, revision c (this record)
+## Session narrative, revision d (this record)
+
+Revision d answers the re-review of revision c (pull request 470 at
+e2d98d88, one POSITIVE and one NEGATIVE) and the manager direction of issue
+419 comment 5746145128. Every command ran in the foreground from the
+checkout root with rtk in front; compiling and simulating steps ran under
+taskset -c 112-127 with at most 8 workers (run.py adds both to every command
+it spawns).
+
+What changed in the evidence sources. The prototype backend gains ONE
+registered flag and ONE term: ld_acc_r is set by an accepted RELOAD and
+cleared only by reset, and arm_ok_w gains `& ld_acc_r`, so no capture is
+armed until the backend has itself accepted a window load. In a boot whose
+window load was never accepted no capture opens, the capture identity never
+advances, no acknowledgement can retire anything, no slot is written and no
+flash erase is issued. The flag is published on PP_NVM_STAT[2]; a refused
+ARM is reported on the existing PP_NVM_STAT[21], not on a new bit. The
+prototype writer: a restart that reads load pending 0 with load accepted 0
+does NOT re-attach and stays retired; and after a refused load it reads
+PP_NVM_STAT[3] and stops repeating once the window has gone live, instead of
+re-basing and refilling a window the producer owns. The two comments that
+still defined PP_NVM_STAT[3] as "no RELOAD accepted since reset" now carry
+the reading the page uses. The harness gains U11 (the new term alone, on a
+control face that validates the window exactly as a writer does), U12 (the
+writer stops repeating once the window is live), U13 (the terminal row
+reached with the device busy, so the bounded wait heartbeats), W3 and W4
+(the re-review's probes H1 and H2 on revision d: a whole-record WRITE across
+the last refused load's fill, then a writer restart, and then every other
+record rewritten). run.py gains the mutants R07 (the new backend term), F11
+(revision c's re-attach restored) and F12 (the repeat ignores a live
+window), the checks those cases grade, a terminal-row check parameterised on
+the three bits the ORDERING decides, and a re-aimed killer for R06. U9 and
+W2 are re-graded against the new behaviour; W2's expectation changes, since
+its accepted change now ends REPORTED beside the intact slot instead of
+committed into a verified slot.
+
+| Step | Command | Exit | Result |
+|---|---|---|---|
+| 1 | remove build/, runs/, logs/, tmp/, results.* (clean state) | 0 | - |
+| 2 | every RTL_MUT, FW_MUT, GLUE_MUT and COMBINED_MUT seam counted against the edited prototype and glue before any build | 0 | 39 mutants, 0 broken seams, every mutant has a named killer |
+| 3 | python3 -B proposal-evidence/run.py --jobs 8 --cpus 112-127 --phase build | 0 | 90 s, 45 builds |
+| 4 | python3 -B proposal-evidence/run.py --jobs 8 --cpus 112-127 --phase run --builds "prod-*,proto-*,mix-*" | 0 | 61 s, 180 runs |
+| 5 | python3 -B proposal-evidence/run.py --jobs 8 --cpus 112-127 --phase run --builds "mut-M*" | 0 | 367 s, 1197 runs |
+| 6 | python3 -B proposal-evidence/run.py --jobs 8 --cpus 112-127 --phase run --builds "mut-R*,mut-F*,mut-G*,mut-A*" | 0 | 389 s, 1260 runs; 2637 runs in all |
+| 7 | python3 -B proposal-evidence/run.py --jobs 8 --cpus 112-127 --phase grade | 0 | 65 s; NO FINDINGS: every expectation holds |
+| 8 | python3 -B proposal-evidence/make_command_results.py | 0 | this file |
+
+Step 2 is a standing precaution, not a finding: editing the prototype is
+what broke mutant M06's seam in revision b and M09's in revision c, and each
+was found only when the build phase refused it. It found nothing this time;
+the build phase still checks the same thing and would still refuse.
+
+The run phase was split in three so each foreground call stays inside the
+session's command time limit; the split changes nothing a run sees (every
+run is its own process and each build's dependent runs follow its own runs).
+
+Stopped steps: NONE. No tool call or step was refused or stopped by an
+automatic safety filter in this session. No compiler-callback or binary
+instrumentation was used; the only source adaptations are run.py's counted
+textual seams and, in the host build of the prototype writer only, an
+appended function that models a CPU-only reset.
+
+## Session narrative, revision c (history)
 
 Revision c answers the re-review of revision b (pull request 470 at
 53b2026e, one NEGATIVE and one POSITIVE) and the manager direction of issue
@@ -178,7 +240,7 @@ def git(*a, cwd=ROOT) -> str:
 
 def main() -> None:
     res = json.loads((HERE / "results.json").read_text())
-    out = ["# Command results for the issue 419 round-3 proposal, revision c", "",
+    out = ["# Command results for the issue 419 round-3 proposal, revision d", "",
            "Paths are relative to the checkout root; <CHECKOUT> in a recorded "
            "command stands for it.", "", "## Source", ""]
     out.append(f"- dev {git('rev-parse', 'HEAD')}")

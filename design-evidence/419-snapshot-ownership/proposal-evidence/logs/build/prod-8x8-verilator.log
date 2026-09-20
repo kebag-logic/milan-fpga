@@ -11,7 +11,7 @@ rm Vcosim_top__ALL.verilator_deplist.tmp
 make: Leaving directory '<CHECKOUT>/proposal-evidence/build/prod-8x8/obj'
 - V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
 - Verilator: Built from 0.433 MB sources in 7 modules, into 0.388 MB in 7 C++ files needing 0.000 MB
-- Verilator: Walltime 6.319 s (elab=0.011, cvt=0.042, bld=6.245); cpu 0.079 s on 2 threads; allocated 22.082 MB
+- Verilator: Walltime 6.512 s (elab=0.012, cvt=0.042, bld=6.438); cpu 0.080 s on 2 threads; allocated 21.840 MB
 %Warning-SYNCASYNCNET: <CHECKOUT>/proposal-evidence/build/prod-8x8/cosim_top.sv:50:25: Signal flopped as both synchronous and async: 'rst_n'
                        <CHECKOUT>/proposal-evidence/build/prod-8x8/cosim_top.sv:349:10: ... Location of async usage
   349 |     if (!rst_n) dyn_dirty_q <= 1'b0;

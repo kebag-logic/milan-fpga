@@ -404,6 +404,7 @@ module KL_nvm_backend (
 	reg ld_ok_r;
 	reg ld_pend_r;
 	reg rl_ref_r;
+	reg ld_acc_r;
 	wire inflight_w;
 	wire win_live_w;
 	wire mut_wait_w;
@@ -427,7 +428,7 @@ module KL_nvm_backend (
 				R_IMG_BASE_C: csr_rdata_o = img_base_r;
 				R_IMG_LEN_C: csr_rdata_o = img_len_r;
 				R_SEQ_C: csr_rdata_o = seq_r;
-				R_STAT_C: csr_rdata_o = {CAP_TAG_C, unres_w, pend_w, arm_ref_r, ack_ref_r, cap_cert_r, cap_valid_r, cap_hold_r, cap_open_r, verdict_r, rl_ref_r, commit_busy_r, nvm_stale_o, dirty_img_w, img_valid_r, backed_r, img_cfg_w, dev_busy_w, ld_pend_r, 3'd0};
+				R_STAT_C: csr_rdata_o = {CAP_TAG_C, unres_w, pend_w, arm_ref_r, ack_ref_r, cap_cert_r, cap_valid_r, cap_hold_r, cap_open_r, verdict_r, rl_ref_r, commit_busy_r, nvm_stale_o, dirty_img_w, img_valid_r, backed_r, img_cfg_w, dev_busy_w, ld_pend_r, ld_acc_r, 2'd0};
 				R_CAPID_C: csr_rdata_o = sv2v_cast_32(cap_id_r);
 				default: csr_rdata_o = 32'd0;
 			endcase
@@ -500,7 +501,7 @@ module KL_nvm_backend (
 		end
 	wire void_hard_w;
 	assign void_hard_w = reload_ok_w | reconf_w;
-	assign arm_ok_w = ((((arm_w & img_cfg_w) & img_valid_r) & ~cap_open_r) & ~void_hard_w) & ~mut_defer_r;
+	assign arm_ok_w = (((((arm_w & img_cfg_w) & img_valid_r) & ~cap_open_r) & ~void_hard_w) & ~mut_defer_r) & ld_acc_r;
 	function automatic signed [HOLD_W_C - 1:0] sv2v_cast_BEA96_signed;
 		input reg signed [HOLD_W_C - 1:0] inp;
 		sv2v_cast_BEA96_signed = inp;
@@ -800,12 +801,15 @@ module KL_nvm_backend (
 		if (!rst_n) begin
 			ld_ok_r <= 1'b0;
 			ld_pend_r <= 1'b1;
+			ld_acc_r <= 1'b0;
 			rl_ref_r <= 1'b0;
 		end
 		else begin
 			ld_ok_r <= (gnt_opmut_w ? 1'b0 : (reconf_w ? ~inflight_w : ld_ok_r));
 			if (reload_ok_w | win_live_w)
 				ld_pend_r <= 1'b0;
+			if (reload_ok_w)
+				ld_acc_r <= 1'b1;
 			if (reload_w)
 				rl_ref_r <= ~reload_ok_w;
 		end

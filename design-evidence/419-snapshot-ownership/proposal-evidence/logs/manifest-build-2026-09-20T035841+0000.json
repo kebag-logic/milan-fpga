@@ -9,8 +9,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/shape-1x1/records.txt"
   ],
-  "start": "2026-09-19T22:21:45+00:00",
-  "wall_s": 0.374,
+  "start": "2026-09-20T03:57:12+00:00",
+  "wall_s": 0.373,
   "exit": 0,
   "log": "logs/shape-1x1-record-table.log"
  },
@@ -24,8 +24,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/shape-8x8/records.txt"
   ],
-  "start": "2026-09-19T22:21:45+00:00",
-  "wall_s": 0.379,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.38,
   "exit": 0,
   "log": "logs/shape-8x8-record-table.log"
  },
@@ -49,35 +49,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/prod-1x1/host.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.192,
   "exit": 0,
   "log": "logs/build/prod-1x1-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/proto-w2-1x1",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/host.o"
-  ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.141,
-  "exit": 0,
-  "log": "logs/build/proto-w2-1x1-host.log"
  },
  {
   "argv": [
@@ -99,10 +74,35 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/proto-1x1/host.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.15,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.214,
   "exit": 0,
   "log": "logs/build/proto-1x1-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/proto-w2-1x1",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/host.o"
+  ],
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.238,
+  "exit": 0,
+  "log": "logs/build/proto-w2-1x1-host.log"
  },
  {
   "argv": [
@@ -124,8 +124,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mix-newfw-oldgw-1x1/host.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.169,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.267,
   "exit": 0,
   "log": "logs/build/mix-newfw-oldgw-1x1-host.log"
  },
@@ -147,33 +147,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/prod-1x1/fw.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.307,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.319,
   "exit": 0,
   "log": "logs/build/prod-1x1-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/proto-w2-1x1",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/fw.o"
-  ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.358,
-  "exit": 0,
-  "log": "logs/build/proto-w2-1x1-fw.log"
  },
  {
   "argv": [
@@ -193,10 +170,33 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/proto-1x1/fw.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.356,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.364,
   "exit": 0,
   "log": "logs/build/proto-1x1-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/proto-w2-1x1",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/proto-w2-1x1/fw.o"
+  ],
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.374,
+  "exit": 0,
+  "log": "logs/build/proto-w2-1x1-fw.log"
  },
  {
   "argv": [
@@ -216,8 +216,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mix-newfw-oldgw-1x1/fw.o"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 0.348,
+  "start": "2026-09-20T03:57:13+00:00",
+  "wall_s": 0.36,
   "exit": 0,
   "log": "logs/build/mix-newfw-oldgw-1x1-fw.log"
  },
@@ -264,8 +264,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 6.328,
+  "start": "2026-09-20T03:57:14+00:00",
+  "wall_s": 6.738,
   "exit": 0,
   "log": "logs/build/prod-1x1-verilator.log"
  },
@@ -312,8 +312,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 6.336,
+  "start": "2026-09-20T03:57:14+00:00",
+  "wall_s": 6.692,
   "exit": 0,
   "log": "logs/build/mix-newfw-oldgw-1x1-verilator.log"
  },
@@ -337,8 +337,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/prod-8x8/host.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:57:20+00:00",
+  "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/prod-8x8-host.log"
  },
@@ -362,8 +362,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/proto-8x8/host.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 0.145,
   "exit": 0,
   "log": "logs/build/proto-8x8-host.log"
  },
@@ -412,8 +412,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 6.665,
+  "start": "2026-09-20T03:57:14+00:00",
+  "wall_s": 6.983,
   "exit": 0,
   "log": "logs/build/proto-w2-1x1-verilator.log"
  },
@@ -462,8 +462,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:46+00:00",
-  "wall_s": 6.699,
+  "start": "2026-09-20T03:57:14+00:00",
+  "wall_s": 7.07,
   "exit": 0,
   "log": "logs/build/proto-1x1-verilator.log"
  },
@@ -485,8 +485,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/prod-8x8/fw.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.312,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 0.314,
   "exit": 0,
   "log": "logs/build/prod-8x8-fw.log"
  },
@@ -510,7 +510,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M01_open_at_erase_completion/host.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
+  "start": "2026-09-20T03:57:21+00:00",
   "wall_s": 0.135,
   "exit": 0,
   "log": "logs/build/mut-M01_open_at_erase_completion-host.log"
@@ -535,7 +535,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M02_close_on_any_completion/host.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
+  "start": "2026-09-20T03:57:21+00:00",
   "wall_s": 0.138,
   "exit": 0,
   "log": "logs/build/mut-M02_close_on_any_completion-host.log"
@@ -558,8 +558,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/proto-8x8/fw.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.365,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 0.363,
   "exit": 0,
   "log": "logs/build/proto-8x8-fw.log"
  },
@@ -581,8 +581,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M01_open_at_erase_completion/fw.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.353,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 0.361,
   "exit": 0,
   "log": "logs/build/mut-M01_open_at_erase_completion-fw.log"
  },
@@ -604,8 +604,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M02_close_on_any_completion/fw.o"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 0.374,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 0.356,
   "exit": 0,
   "log": "logs/build/mut-M02_close_on_any_completion-fw.log"
  },
@@ -652,8 +652,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 6.395,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 6.596,
   "exit": 0,
   "log": "logs/build/prod-8x8-verilator.log"
  },
@@ -677,8 +677,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M03_close_on_partial_write/host.o"
   ],
-  "start": "2026-09-19T22:21:59+00:00",
-  "wall_s": 0.143,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.144,
   "exit": 0,
   "log": "logs/build/mut-M03_close_on_partial_write-host.log"
  },
@@ -700,8 +700,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M03_close_on_partial_write/fw.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.36,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.356,
   "exit": 0,
   "log": "logs/build/mut-M03_close_on_partial_write-fw.log"
  },
@@ -750,8 +750,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 6.692,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 6.847,
   "exit": 0,
   "log": "logs/build/mut-M01_open_at_erase_completion-verilator.log"
  },
@@ -800,8 +800,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 7.061,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 7.139,
   "exit": 0,
   "log": "logs/build/proto-8x8-verilator.log"
  },
@@ -850,8 +850,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:21:53+00:00",
-  "wall_s": 6.71,
+  "start": "2026-09-20T03:57:21+00:00",
+  "wall_s": 6.848,
   "exit": 0,
   "log": "logs/build/mut-M02_close_on_any_completion-verilator.log"
  },
@@ -875,8 +875,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/host.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.141,
   "exit": 0,
   "log": "logs/build/mut-M04_ack_ignores_identity-host.log"
  },
@@ -900,8 +900,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M05_ack_retires_live_work/host.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.136,
   "exit": 0,
   "log": "logs/build/mut-M05_ack_retires_live_work-host.log"
  },
@@ -925,8 +925,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M06_hold_does_not_defer/host.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.136,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.135,
   "exit": 0,
   "log": "logs/build/mut-M06_hold_does_not_defer-host.log"
  },
@@ -948,8 +948,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/fw.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.414,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.356,
   "exit": 0,
   "log": "logs/build/mut-M04_ack_ignores_identity-fw.log"
  },
@@ -971,8 +971,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M05_ack_retires_live_work/fw.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.348,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.359,
   "exit": 0,
   "log": "logs/build/mut-M05_ack_retires_live_work-fw.log"
  },
@@ -994,8 +994,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M06_hold_does_not_defer/fw.o"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 0.352,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 0.351,
   "exit": 0,
   "log": "logs/build/mut-M06_hold_does_not_defer-fw.log"
  },
@@ -1044,8 +1044,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:00+00:00",
-  "wall_s": 6.656,
+  "start": "2026-09-20T03:57:28+00:00",
+  "wall_s": 6.866,
   "exit": 0,
   "log": "logs/build/mut-M03_close_on_partial_write-verilator.log"
  },
@@ -1069,8 +1069,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M07_hold_never_expires/host.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 0.138,
+  "start": "2026-09-20T03:57:35+00:00",
+  "wall_s": 0.146,
   "exit": 0,
   "log": "logs/build/mut-M07_hold_never_expires-host.log"
  },
@@ -1092,10 +1092,60 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M07_hold_never_expires/fw.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 0.365,
+  "start": "2026-09-20T03:57:35+00:00",
+  "wall_s": 0.362,
   "exit": 0,
   "log": "logs/build/mut-M07_hold_never_expires-fw.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/host.o <CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:57:29+00:00",
+  "wall_s": 6.84,
+  "exit": 0,
+  "log": "logs/build/mut-M04_ack_ignores_identity-verilator.log"
  },
  {
   "argv": [
@@ -1142,8 +1192,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:01+00:00",
-  "wall_s": 6.673,
+  "start": "2026-09-20T03:57:29+00:00",
+  "wall_s": 6.834,
   "exit": 0,
   "log": "logs/build/mut-M05_ack_retires_live_work-verilator.log"
  },
@@ -1192,60 +1242,10 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:01+00:00",
-  "wall_s": 6.667,
+  "start": "2026-09-20T03:57:29+00:00",
+  "wall_s": 6.83,
   "exit": 0,
   "log": "logs/build/mut-M06_hold_does_not_defer-verilator.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/host.o <CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M04_ack_ignores_identity/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:01+00:00",
-  "wall_s": 6.738,
-  "exit": 0,
-  "log": "logs/build/mut-M04_ack_ignores_identity-verilator.log"
  },
  {
   "argv": [
@@ -1267,7 +1267,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M08_certificate_ignores_grant/host.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
+  "start": "2026-09-20T03:57:36+00:00",
   "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-M08_certificate_ignores_grant-host.log"
@@ -1292,7 +1292,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M09_second_arm_accepted/host.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
+  "start": "2026-09-20T03:57:36+00:00",
   "wall_s": 0.14,
   "exit": 0,
   "log": "logs/build/mut-M09_second_arm_accepted-host.log"
@@ -1317,8 +1317,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/host.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 0.149,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 0.14,
   "exit": 0,
   "log": "logs/build/mut-M10_release_forgets_work-host.log"
  },
@@ -1340,8 +1340,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M08_certificate_ignores_grant/fw.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 0.371,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 0.363,
   "exit": 0,
   "log": "logs/build/mut-M08_certificate_ignores_grant-fw.log"
  },
@@ -1363,8 +1363,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M09_second_arm_accepted/fw.o"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 0.376,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 0.355,
   "exit": 0,
   "log": "logs/build/mut-M09_second_arm_accepted-fw.log"
  },
@@ -1386,8 +1386,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/fw.o"
   ],
-  "start": "2026-09-19T22:22:08+00:00",
-  "wall_s": 0.351,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 0.354,
   "exit": 0,
   "log": "logs/build/mut-M10_release_forgets_work-fw.log"
  },
@@ -1436,8 +1436,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:07+00:00",
-  "wall_s": 6.694,
+  "start": "2026-09-20T03:57:35+00:00",
+  "wall_s": 6.82,
   "exit": 0,
   "log": "logs/build/mut-M07_hold_never_expires-verilator.log"
  },
@@ -1461,8 +1461,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M11_dirty_from_bytes_not_close/host.o"
   ],
-  "start": "2026-09-19T22:22:14+00:00",
-  "wall_s": 0.138,
+  "start": "2026-09-20T03:57:42+00:00",
+  "wall_s": 0.141,
   "exit": 0,
   "log": "logs/build/mut-M11_dirty_from_bytes_not_close-host.log"
  },
@@ -1484,10 +1484,60 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M11_dirty_from_bytes_not_close/fw.o"
   ],
-  "start": "2026-09-19T22:22:14+00:00",
-  "wall_s": 0.362,
+  "start": "2026-09-20T03:57:42+00:00",
+  "wall_s": 0.364,
   "exit": 0,
   "log": "logs/build/mut-M11_dirty_from_bytes_not_close-fw.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/host.o <CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 6.787,
+  "exit": 0,
+  "log": "logs/build/mut-M10_release_forgets_work-verilator.log"
  },
  {
   "argv": [
@@ -1534,8 +1584,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:08+00:00",
-  "wall_s": 6.634,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 6.845,
   "exit": 0,
   "log": "logs/build/mut-M08_certificate_ignores_grant-verilator.log"
  },
@@ -1584,60 +1634,10 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:08+00:00",
-  "wall_s": 6.631,
+  "start": "2026-09-20T03:57:36+00:00",
+  "wall_s": 6.84,
   "exit": 0,
   "log": "logs/build/mut-M09_second_arm_accepted-verilator.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/host.o <CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M10_release_forgets_work/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:08+00:00",
-  "wall_s": 6.638,
-  "exit": 0,
-  "log": "logs/build/mut-M10_release_forgets_work-verilator.log"
  },
  {
   "argv": [
@@ -1659,35 +1659,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/host.o"
   ],
-  "start": "2026-09-19T22:22:14+00:00",
-  "wall_s": 0.138,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-M12_alarm_not_revoking-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/host.o"
-  ],
-  "start": "2026-09-19T22:22:14+00:00",
-  "wall_s": 0.136,
-  "exit": 0,
-  "log": "logs/build/mut-M13_report_not_revoking-host.log"
  },
  {
   "argv": [
@@ -1709,10 +1684,35 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M14_pending_bit_misses_producer/host.o"
   ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 0.135,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.127,
   "exit": 0,
   "log": "logs/build/mut-M14_pending_bit_misses_producer-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/host.o"
+  ],
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.148,
+  "exit": 0,
+  "log": "logs/build/mut-M13_report_not_revoking-host.log"
  },
  {
   "argv": [
@@ -1732,33 +1732,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/fw.o"
   ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 0.354,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.356,
   "exit": 0,
   "log": "logs/build/mut-M12_alarm_not_revoking-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/fw.o"
-  ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 0.355,
-  "exit": 0,
-  "log": "logs/build/mut-M13_report_not_revoking-fw.log"
  },
  {
   "argv": [
@@ -1778,10 +1755,33 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M14_pending_bit_misses_producer/fw.o"
   ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 0.352,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.357,
   "exit": 0,
   "log": "logs/build/mut-M14_pending_bit_misses_producer-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/fw.o"
+  ],
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 0.358,
+  "exit": 0,
+  "log": "logs/build/mut-M13_report_not_revoking-fw.log"
  },
  {
   "argv": [
@@ -1828,8 +1828,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:14+00:00",
-  "wall_s": 6.683,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 6.892,
   "exit": 0,
   "log": "logs/build/mut-M11_dirty_from_bytes_not_close-verilator.log"
  },
@@ -1853,8 +1853,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M15_pending_bit_misses_open_record/host.o"
   ],
-  "start": "2026-09-19T22:22:21+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.138,
   "exit": 0,
   "log": "logs/build/mut-M15_pending_bit_misses_open_record-host.log"
  },
@@ -1876,110 +1876,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M15_pending_bit_misses_open_record/fw.o"
   ],
-  "start": "2026-09-19T22:22:21+00:00",
-  "wall_s": 0.366,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.364,
   "exit": 0,
   "log": "logs/build/mut-M15_pending_bit_misses_open_record-fw.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/host.o <CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 6.65,
-  "exit": 0,
-  "log": "logs/build/mut-M13_report_not_revoking-verilator.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/host.o <CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 6.671,
-  "exit": 0,
-  "log": "logs/build/mut-M12_alarm_not_revoking-verilator.log"
  },
  {
   "argv": [
@@ -2026,10 +1926,110 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:15+00:00",
-  "wall_s": 6.702,
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 6.8,
   "exit": 0,
   "log": "logs/build/mut-M14_pending_bit_misses_producer-verilator.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/host.o <CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M12_alarm_not_revoking/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 6.845,
+  "exit": 0,
+  "log": "logs/build/mut-M12_alarm_not_revoking-verilator.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/host.o <CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M13_report_not_revoking/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:57:43+00:00",
+  "wall_s": 6.855,
+  "exit": 0,
+  "log": "logs/build/mut-M13_report_not_revoking-verilator.log"
  },
  {
   "argv": [
@@ -2051,7 +2051,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/host.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
+  "start": "2026-09-20T03:57:50+00:00",
   "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-M17_hold_expiry_voids_capture-host.log"
@@ -2076,8 +2076,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M18_pending_bit_stuck/host.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.142,
   "exit": 0,
   "log": "logs/build/mut-M18_pending_bit_stuck-host.log"
  },
@@ -2101,7 +2101,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R01_reload_ignores_inflight/host.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
+  "start": "2026-09-20T03:57:50+00:00",
   "wall_s": 0.136,
   "exit": 0,
   "log": "logs/build/mut-R01_reload_ignores_inflight-host.log"
@@ -2124,8 +2124,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/fw.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 0.352,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.364,
   "exit": 0,
   "log": "logs/build/mut-M17_hold_expiry_voids_capture-fw.log"
  },
@@ -2147,8 +2147,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M18_pending_bit_stuck/fw.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 0.354,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.36,
   "exit": 0,
   "log": "logs/build/mut-M18_pending_bit_stuck-fw.log"
  },
@@ -2170,8 +2170,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R01_reload_ignores_inflight/fw.o"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 0.352,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 0.354,
   "exit": 0,
   "log": "logs/build/mut-R01_reload_ignores_inflight-fw.log"
  },
@@ -2220,8 +2220,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:21+00:00",
-  "wall_s": 6.659,
+  "start": "2026-09-20T03:57:50+00:00",
+  "wall_s": 6.853,
   "exit": 0,
   "log": "logs/build/mut-M15_pending_bit_misses_open_record-verilator.log"
  },
@@ -2245,10 +2245,60 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R02_reload_ignores_grant_since_rebase/host.o"
   ],
-  "start": "2026-09-19T22:22:28+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:57:57+00:00",
+  "wall_s": 0.137,
   "exit": 0,
   "log": "logs/build/mut-R02_reload_ignores_grant_since_rebase-host.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/host.o <CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:57:51+00:00",
+  "wall_s": 6.829,
+  "exit": 0,
+  "log": "logs/build/mut-M17_hold_expiry_voids_capture-verilator.log"
  },
  {
   "argv": [
@@ -2268,8 +2318,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R02_reload_ignores_grant_since_rebase/fw.o"
   ],
-  "start": "2026-09-19T22:22:28+00:00",
-  "wall_s": 0.365,
+  "start": "2026-09-20T03:57:57+00:00",
+  "wall_s": 0.374,
   "exit": 0,
   "log": "logs/build/mut-R02_reload_ignores_grant_since_rebase-fw.log"
  },
@@ -2318,60 +2368,10 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 6.633,
+  "start": "2026-09-20T03:57:51+00:00",
+  "wall_s": 6.836,
   "exit": 0,
   "log": "logs/build/mut-M18_pending_bit_stuck-verilator.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/host.o <CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-M17_hold_expiry_voids_capture/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 6.661,
-  "exit": 0,
-  "log": "logs/build/mut-M17_hold_expiry_voids_capture-verilator.log"
  },
  {
   "argv": [
@@ -2418,8 +2418,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:22+00:00",
-  "wall_s": 6.69,
+  "start": "2026-09-20T03:57:51+00:00",
+  "wall_s": 6.842,
   "exit": 0,
   "log": "logs/build/mut-R01_reload_ignores_inflight-verilator.log"
  },
@@ -2443,7 +2443,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/host.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
+  "start": "2026-09-20T03:57:57+00:00",
   "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-R03_reload_not_once_per_reset-host.log"
@@ -2468,7 +2468,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M19_arm_edge_grant_not_deferred/host.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
+  "start": "2026-09-20T03:57:58+00:00",
   "wall_s": 0.141,
   "exit": 0,
   "log": "logs/build/mut-M19_arm_edge_grant_not_deferred-host.log"
@@ -2493,7 +2493,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R04_rebase_wins_over_same_edge_grant/host.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
+  "start": "2026-09-20T03:57:58+00:00",
   "wall_s": 0.137,
   "exit": 0,
   "log": "logs/build/mut-R04_rebase_wins_over_same_edge_grant-host.log"
@@ -2516,8 +2516,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/fw.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 0.355,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 0.389,
   "exit": 0,
   "log": "logs/build/mut-R03_reload_not_once_per_reset-fw.log"
  },
@@ -2539,8 +2539,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M19_arm_edge_grant_not_deferred/fw.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 0.347,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 0.385,
   "exit": 0,
   "log": "logs/build/mut-M19_arm_edge_grant_not_deferred-fw.log"
  },
@@ -2562,8 +2562,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R04_rebase_wins_over_same_edge_grant/fw.o"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 0.352,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 0.356,
   "exit": 0,
   "log": "logs/build/mut-R04_rebase_wins_over_same_edge_grant-fw.log"
  },
@@ -2612,8 +2612,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 6.715,
+  "start": "2026-09-20T03:57:57+00:00",
+  "wall_s": 6.879,
   "exit": 0,
   "log": "logs/build/mut-R02_reload_ignores_grant_since_rebase-verilator.log"
  },
@@ -2637,83 +2637,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live/host.o"
   ],
-  "start": "2026-09-19T22:22:35+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:58:04+00:00",
+  "wall_s": 0.136,
   "exit": 0,
   "log": "logs/build/mut-R05_boot_load_stays_pending_when_live-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live/fw.o"
-  ],
-  "start": "2026-09-19T22:22:35+00:00",
-  "wall_s": 0.36,
-  "exit": 0,
-  "log": "logs/build/mut-R05_boot_load_stays_pending_when_live-fw.log"
- },
- {
-  "argv": [
-   "verilator",
-   "--cc",
-   "--exe",
-   "--build",
-   "-j",
-   "2",
-   "--top-module",
-   "cosim_top",
-   "--Mdir",
-   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/obj",
-   "-Wall",
-   "-Wno-fatal",
-   "-Wno-UNUSEDSIGNAL",
-   "-Wno-UNUSEDPARAM",
-   "--x-assign",
-   "unique",
-   "--x-initial",
-   "unique",
-   "+define+PROTO",
-   "-GN_STREAM_IN_P=2",
-   "-GN_STREAM_OUT_P=2",
-   "-GN_SPORT_IN_P=1",
-   "-GN_SPORT_OUT_P=1",
-   "-GN_AUDIO_UNIT_P=1",
-   "-GN_CLK_DOM_P=1",
-   "-GN_NAME_P=38",
-   "-GCLK_HZ_P=1000000",
-   "-GCAP_ID_W_P=16",
-   "-CFLAGS",
-   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-LDFLAGS",
-   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/host.o <CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/fw.o",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/KL_nvm_backend.sv",
-   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/cosim_top.sv",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
-   "-o",
-   "cosim"
-  ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 6.632,
-  "exit": 0,
-  "log": "logs/build/mut-R03_reload_not_once_per_reset-verilator.log"
  },
  {
   "argv": [
@@ -2760,60 +2687,60 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 6.66,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 6.797,
   "exit": 0,
   "log": "logs/build/mut-M19_arm_edge_grant_not_deferred-verilator.log"
  },
  {
   "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/obj",
    "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-M20_arm_accepted_while_request_deferred",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/host.o <CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-R03_reload_not_once_per_reset/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-M20_arm_accepted_while_request_deferred/host.o"
+   "cosim"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.14,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 6.822,
   "exit": 0,
-  "log": "logs/build/mut-M20_arm_accepted_while_request_deferred-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-A01_composite_durable_bit",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-A01_composite_durable_bit/host.o"
-  ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.136,
-  "exit": 0,
-  "log": "logs/build/mut-A01_composite_durable_bit-host.log"
+  "log": "logs/build/mut-R03_reload_not_once_per_reset-verilator.log"
  },
  {
   "argv": [
@@ -2860,8 +2787,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:29+00:00",
-  "wall_s": 6.708,
+  "start": "2026-09-20T03:57:58+00:00",
+  "wall_s": 6.807,
   "exit": 0,
   "log": "logs/build/mut-R04_rebase_wins_over_same_edge_grant-verilator.log"
  },
@@ -2874,7 +2801,30 @@
    "-Wall",
    "-Wextra",
    "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-R05_boot_load_stays_pending_when_live/fw.o"
+  ],
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.356,
+  "exit": 0,
+  "log": "logs/build/mut-R05_boot_load_stays_pending_when_live-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-M20_arm_accepted_while_request_deferred",
    "-I<CHECKOUT>/proposal-evidence/harness",
    "-I<CHECKOUT>/proposal-evidence/harness/stubs",
    "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
@@ -2883,12 +2833,62 @@
    "-c",
    "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/host.o"
+   "<CHECKOUT>/proposal-evidence/build/mut-M20_arm_accepted_while_request_deferred/host.o"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.141,
   "exit": 0,
-  "log": "logs/build/mut-F01_certificate_not_checked-host.log"
+  "log": "logs/build/mut-M20_arm_accepted_while_request_deferred-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/host.o"
+  ],
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.142,
+  "exit": 0,
+  "log": "logs/build/mut-R07_arm_without_accepted_load-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-A01_composite_durable_bit",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-A01_composite_durable_bit/host.o"
+  ],
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.137,
+  "exit": 0,
+  "log": "logs/build/mut-A01_composite_durable_bit-host.log"
  },
  {
   "argv": [
@@ -2908,10 +2908,33 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-M20_arm_accepted_while_request_deferred/fw.o"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.353,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.359,
   "exit": 0,
   "log": "logs/build/mut-M20_arm_accepted_while_request_deferred-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/fw.o"
+  ],
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.354,
+  "exit": 0,
+  "log": "logs/build/mut-R07_arm_without_accepted_load-fw.log"
  },
  {
   "argv": [
@@ -2931,33 +2954,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-A01_composite_durable_bit/fw.o"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.357,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 0.358,
   "exit": 0,
   "log": "logs/build/mut-A01_composite_durable_bit-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/fw.o"
-  ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 0.352,
-  "exit": 0,
-  "log": "logs/build/mut-F01_certificate_not_checked-fw.log"
  },
  {
   "argv": [
@@ -3004,8 +3004,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 6.695,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 6.826,
   "exit": 0,
   "log": "logs/build/mut-R05_boot_load_stays_pending_when_live-verilator.log"
  },
@@ -3018,7 +3018,7 @@
    "-Wall",
    "-Wextra",
    "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked",
    "-I<CHECKOUT>/proposal-evidence/harness",
    "-I<CHECKOUT>/proposal-evidence/harness/stubs",
    "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
@@ -3027,12 +3027,12 @@
    "-c",
    "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/host.o"
+   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/host.o"
   ],
-  "start": "2026-09-19T22:22:42+00:00",
-  "wall_s": 0.142,
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.137,
   "exit": 0,
-  "log": "logs/build/mut-F02_copies_open_records-host.log"
+  "log": "logs/build/mut-F01_certificate_not_checked-host.log"
  },
  {
   "argv": [
@@ -3079,33 +3079,60 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 6.605,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 6.765,
   "exit": 0,
   "log": "logs/build/mut-M20_arm_accepted_while_request_deferred-verilator.log"
  },
  {
   "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/obj",
    "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/milan_baremetal.host.c",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/host.o <CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-R07_arm_without_accepted_load/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/fw.o"
+   "cosim"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.366,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 6.812,
   "exit": 0,
-  "log": "logs/build/mut-F02_copies_open_records-fw.log"
+  "log": "logs/build/mut-R07_arm_without_accepted_load-verilator.log"
  },
  {
   "argv": [
@@ -3152,10 +3179,58 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:36+00:00",
-  "wall_s": 6.634,
+  "start": "2026-09-20T03:58:05+00:00",
+  "wall_s": 6.828,
   "exit": 0,
   "log": "logs/build/mut-A01_composite_durable_bit-verilator.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F01_certificate_not_checked/fw.o"
+  ],
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.356,
+  "exit": 0,
+  "log": "logs/build/mut-F01_certificate_not_checked-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/host.o"
+  ],
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.136,
+  "exit": 0,
+  "log": "logs/build/mut-F02_copies_open_records-host.log"
  },
  {
   "argv": [
@@ -3177,7 +3252,7 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank/host.o"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
+  "start": "2026-09-20T03:58:12+00:00",
   "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-F03_prefill_from_blank-host.log"
@@ -3202,10 +3277,79 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity/host.o"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.135,
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.134,
   "exit": 0,
   "log": "logs/build/mut-F04_ack_without_identity-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F02_copies_open_records/fw.o"
+  ],
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.358,
+  "exit": 0,
+  "log": "logs/build/mut-F02_copies_open_records-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank/fw.o"
+  ],
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.352,
+  "exit": 0,
+  "log": "logs/build/mut-F03_prefill_from_blank-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity/fw.o"
+  ],
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 0.362,
+  "exit": 0,
+  "log": "logs/build/mut-F04_ack_without_identity-fw.log"
  },
  {
   "argv": [
@@ -3252,8 +3396,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:37+00:00",
-  "wall_s": 6.646,
+  "start": "2026-09-20T03:58:12+00:00",
+  "wall_s": 6.819,
   "exit": 0,
   "log": "logs/build/mut-F01_certificate_not_checked-verilator.log"
  },
@@ -3277,79 +3421,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept/host.o"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.14,
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.137,
   "exit": 0,
   "log": "logs/build/mut-F05_device_busy_gate_kept-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F03_prefill_from_blank/fw.o"
-  ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.352,
-  "exit": 0,
-  "log": "logs/build/mut-F03_prefill_from_blank-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F04_ack_without_identity/fw.o"
-  ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.353,
-  "exit": 0,
-  "log": "logs/build/mut-F04_ack_without_identity-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept/fw.o"
-  ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 0.352,
-  "exit": 0,
-  "log": "logs/build/mut-F05_device_busy_gate_kept-fw.log"
  },
  {
   "argv": [
@@ -3396,35 +3471,10 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 6.635,
+  "start": "2026-09-20T03:58:13+00:00",
+  "wall_s": 6.754,
   "exit": 0,
   "log": "logs/build/mut-F02_copies_open_records-verilator.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/host.o"
-  ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.139,
-  "exit": 0,
-  "log": "logs/build/mut-F06_ack_after_failed_slot-host.log"
  },
  {
   "argv": [
@@ -3471,8 +3521,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:43+00:00",
-  "wall_s": 6.658,
+  "start": "2026-09-20T03:58:13+00:00",
+  "wall_s": 6.773,
   "exit": 0,
   "log": "logs/build/mut-F03_prefill_from_blank-verilator.log"
  },
@@ -3488,16 +3538,18 @@
    "-I<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot",
    "-I<CHECKOUT>/proposal-evidence/harness",
    "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
    "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/milan_baremetal.host.c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/fw.o"
+   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/host.o"
   ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.384,
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.14,
   "exit": 0,
-  "log": "logs/build/mut-F06_ack_after_failed_slot-fw.log"
+  "log": "logs/build/mut-F06_ack_after_failed_slot-host.log"
  },
  {
   "argv": [
@@ -3544,10 +3596,33 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:44+00:00",
-  "wall_s": 6.634,
+  "start": "2026-09-20T03:58:13+00:00",
+  "wall_s": 6.823,
   "exit": 0,
   "log": "logs/build/mut-F04_ack_without_identity-verilator.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F05_device_busy_gate_kept/fw.o"
+  ],
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.365,
+  "exit": 0,
+  "log": "logs/build/mut-F05_device_busy_gate_kept-fw.log"
  },
  {
   "argv": [
@@ -3569,8 +3644,8 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored/host.o"
   ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.139,
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.135,
   "exit": 0,
   "log": "logs/build/mut-F07_reload_refusal_ignored-host.log"
  },
@@ -3594,10 +3669,79 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window/host.o"
   ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.137,
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.136,
   "exit": 0,
   "log": "logs/build/mut-F08_restart_reloads_window-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F06_ack_after_failed_slot/fw.o"
+  ],
+  "start": "2026-09-20T03:58:19+00:00",
+  "wall_s": 0.367,
+  "exit": 0,
+  "log": "logs/build/mut-F06_ack_after_failed_slot-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored/fw.o"
+  ],
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 0.351,
+  "exit": 0,
+  "log": "logs/build/mut-F07_reload_refusal_ignored-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window/fw.o"
+  ],
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 0.381,
+  "exit": 0,
+  "log": "logs/build/mut-F08_restart_reloads_window-fw.log"
  },
  {
   "argv": [
@@ -3644,8 +3788,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:44+00:00",
-  "wall_s": 6.629,
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 6.875,
   "exit": 0,
   "log": "logs/build/mut-F05_device_busy_gate_kept-verilator.log"
  },
@@ -3669,79 +3813,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating/host.o"
   ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.136,
+  "start": "2026-09-20T03:58:26+00:00",
+  "wall_s": 0.139,
   "exit": 0,
   "log": "logs/build/mut-F10_retired_writer_keeps_heartbeating-host.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F07_reload_refusal_ignored/fw.o"
-  ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.346,
-  "exit": 0,
-  "log": "logs/build/mut-F07_reload_refusal_ignored-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F08_restart_reloads_window/fw.o"
-  ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.351,
-  "exit": 0,
-  "log": "logs/build/mut-F08_restart_reloads_window-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating/milan_baremetal.host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating/fw.o"
-  ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 0.358,
-  "exit": 0,
-  "log": "logs/build/mut-F10_retired_writer_keeps_heartbeating-fw.log"
  },
  {
   "argv": [
@@ -3788,35 +3863,10 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:50+00:00",
-  "wall_s": 6.696,
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 6.797,
   "exit": 0,
   "log": "logs/build/mut-F06_ack_after_failed_slot-verilator.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-G01_pending_from_edge_detector",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-G01_pending_from_edge_detector/host.o"
-  ],
-  "start": "2026-09-19T22:22:57+00:00",
-  "wall_s": 0.142,
-  "exit": 0,
-  "log": "logs/build/mut-G01_pending_from_edge_detector-host.log"
  },
  {
   "argv": [
@@ -3863,10 +3913,35 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:51+00:00",
-  "wall_s": 6.663,
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 6.788,
   "exit": 0,
   "log": "logs/build/mut-F07_reload_refusal_ignored-verilator.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/host.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.139,
+  "exit": 0,
+  "log": "logs/build/mut-F11_restart_reattaches_without_load-host.log"
  },
  {
   "argv": [
@@ -3913,10 +3988,129 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:51+00:00",
-  "wall_s": 6.664,
+  "start": "2026-09-20T03:58:20+00:00",
+  "wall_s": 6.808,
   "exit": 0,
   "log": "logs/build/mut-F08_restart_reloads_window-verilator.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/host.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.144,
+  "exit": 0,
+  "log": "logs/build/mut-F12_repeat_ignores_window_live-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F10_retired_writer_keeps_heartbeating/fw.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.362,
+  "exit": 0,
+  "log": "logs/build/mut-F10_retired_writer_keeps_heartbeating-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-G01_pending_from_edge_detector",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-G01_pending_from_edge_detector/host.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.137,
+  "exit": 0,
+  "log": "logs/build/mut-G01_pending_from_edge_detector-host.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/fw.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.355,
+  "exit": 0,
+  "log": "logs/build/mut-F11_restart_reattaches_without_load-fw.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/fw.o"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.354,
+  "exit": 0,
+  "log": "logs/build/mut-F12_repeat_ignores_window_live-fw.log"
  },
  {
   "argv": [
@@ -3936,35 +4130,10 @@
    "-o",
    "<CHECKOUT>/proposal-evidence/build/mut-G01_pending_from_edge_detector/fw.o"
   ],
-  "start": "2026-09-19T22:22:57+00:00",
-  "wall_s": 0.35,
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 0.359,
   "exit": 0,
   "log": "logs/build/mut-G01_pending_from_edge_detector-fw.log"
- },
- {
-  "argv": [
-   "gcc",
-   "-std=gnu11",
-   "-O2",
-   "-g",
-   "-Wall",
-   "-Wextra",
-   "-Werror",
-   "-I<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule",
-   "-I<CHECKOUT>/proposal-evidence/harness",
-   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
-   "-DNVM_HOST_AEM_OFFSET=0x400000u",
-   "-DNVM_HOST_IMAGE_OFF=0xef000u",
-   "-c",
-   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
-   "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/host.o"
-  ],
-  "start": "2026-09-19T22:22:57+00:00",
-  "wall_s": 0.14,
-  "exit": 0,
-  "log": "logs/build/mut-R06_revision_b_load_rule-host.log"
  },
  {
   "argv": [
@@ -4011,8 +4180,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:51+00:00",
-  "wall_s": 6.657,
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 6.878,
   "exit": 0,
   "log": "logs/build/mut-F10_retired_writer_keeps_heartbeating-verilator.log"
  },
@@ -4028,16 +4197,118 @@
    "-I<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule",
    "-I<CHECKOUT>/proposal-evidence/harness",
    "-I<CHECKOUT>/proposal-evidence/harness/stubs",
-   "-Wno-format",
+   "-DNVM_HOST_JOURNAL_OFFSET=0xee0000u",
+   "-DNVM_HOST_AEM_OFFSET=0x400000u",
+   "-DNVM_HOST_IMAGE_OFF=0xef000u",
    "-c",
-   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/milan_baremetal.host.c",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_host.c",
    "-o",
-   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/fw.o"
+   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/host.o"
   ],
-  "start": "2026-09-19T22:22:57+00:00",
-  "wall_s": 0.351,
+  "start": "2026-09-20T03:58:34+00:00",
+  "wall_s": 0.141,
   "exit": 0,
-  "log": "logs/build/mut-R06_revision_b_load_rule-fw.log"
+  "log": "logs/build/mut-R06_revision_b_load_rule-host.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/host.o <CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-F12_repeat_ignores_window_live/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 6.732,
+  "exit": 0,
+  "log": "logs/build/mut-F12_repeat_ignores_window_live-verilator.log"
+ },
+ {
+  "argv": [
+   "verilator",
+   "--cc",
+   "--exe",
+   "--build",
+   "-j",
+   "2",
+   "--top-module",
+   "cosim_top",
+   "--Mdir",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/obj",
+   "-Wall",
+   "-Wno-fatal",
+   "-Wno-UNUSEDSIGNAL",
+   "-Wno-UNUSEDPARAM",
+   "--x-assign",
+   "unique",
+   "--x-initial",
+   "unique",
+   "+define+PROTO",
+   "-GN_STREAM_IN_P=2",
+   "-GN_STREAM_OUT_P=2",
+   "-GN_SPORT_IN_P=1",
+   "-GN_SPORT_OUT_P=1",
+   "-GN_AUDIO_UNIT_P=1",
+   "-GN_CLK_DOM_P=1",
+   "-GN_NAME_P=38",
+   "-GCLK_HZ_P=1000000",
+   "-GCAP_ID_W_P=16",
+   "-CFLAGS",
+   "-std=c++17 -O2 -I<CHECKOUT>/proposal-evidence/harness -I<CHECKOUT>/proposal-evidence/harness/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u",
+   "-LDFLAGS",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/host.o <CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/fw.o",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+   "<CHECKOUT>/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
+   "<CHECKOUT>/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+   "<CHECKOUT>/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/KL_nvm_backend.sv",
+   "<CHECKOUT>/proposal-evidence/build/mut-F11_restart_reattaches_without_load/cosim_top.sv",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_bridge.cpp",
+   "<CHECKOUT>/proposal-evidence/harness/cosim_cases.cpp",
+   "-o",
+   "cosim"
+  ],
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 6.797,
+  "exit": 0,
+  "log": "logs/build/mut-F11_restart_reattaches_without_load-verilator.log"
  },
  {
   "argv": [
@@ -4084,10 +4355,33 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:57+00:00",
-  "wall_s": 6.773,
+  "start": "2026-09-20T03:58:27+00:00",
+  "wall_s": 6.905,
   "exit": 0,
   "log": "logs/build/mut-G01_pending_from_edge_detector-verilator.log"
+ },
+ {
+  "argv": [
+   "gcc",
+   "-std=gnu11",
+   "-O2",
+   "-g",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-I<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule",
+   "-I<CHECKOUT>/proposal-evidence/harness",
+   "-I<CHECKOUT>/proposal-evidence/harness/stubs",
+   "-Wno-format",
+   "-c",
+   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/milan_baremetal.host.c",
+   "-o",
+   "<CHECKOUT>/proposal-evidence/build/mut-R06_revision_b_load_rule/fw.o"
+  ],
+  "start": "2026-09-20T03:58:34+00:00",
+  "wall_s": 0.355,
+  "exit": 0,
+  "log": "logs/build/mut-R06_revision_b_load_rule-fw.log"
  },
  {
   "argv": [
@@ -4134,8 +4428,8 @@
    "-o",
    "cosim"
   ],
-  "start": "2026-09-19T22:22:58+00:00",
-  "wall_s": 6.596,
+  "start": "2026-09-20T03:58:34+00:00",
+  "wall_s": 6.78,
   "exit": 0,
   "log": "logs/build/mut-R06_revision_b_load_rule-verilator.log"
  }

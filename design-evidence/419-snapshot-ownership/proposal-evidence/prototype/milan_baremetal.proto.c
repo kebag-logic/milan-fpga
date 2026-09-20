@@ -169,10 +169,13 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define NVM_W_OWN0         8u
 #define NVM_OWN_WORDS      8u
 #define NVM_CAP_TAG        0xc3u
-/* PP_NVM_STAT read bits. [3] and [11] are the load bits of revision b:
- * load pending (no RELOAD accepted since the backend's reset) and the last
- * RELOAD refused. */
+/* PP_NVM_STAT read bits. [3] and [11] are the load bits of revision b and
+ * [2] is revision d's: load pending (a boot window load MAY STILL BE
+ * ACCEPTED -- read it as that, not as "no RELOAD has been accepted"), the
+ * last RELOAD refused, and load accepted (a RELOAD HAS been accepted since
+ * the backend's reset; while it is 0 the backend arms no capture). */
 #define NVM_RD_LOAD_PEND   (1u << 3)
+#define NVM_RD_LOAD_ACC    (1u << 2)
 #define NVM_RD_RELOAD_REF  (1u << 11)
 #define NVM_RD_DEV_BUSY    (1u << 4)
 #define NVM_RD_BACKED      (1u << 6)
@@ -1139,12 +1142,19 @@ static int nvm_load_window(uint32_t chosen)
  * boot: re-base, load, RELOAD, publish, restore walk. Load pending with the
  * walk ALREADY sequenced is neither (revision c): the window is live and
  * unvalidated, and this writer stays disabled rather than reload over a
- * producer. Load NOT pending is a WRITER RESTART WITHOUT A FABRIC RESET:
- * the backend has kept ownership since its boot load and the window is the
- * producer's live image, so the writer re-attaches: it never re-bases,
- * loads or RELOADs (the backend would refuse the RELOAD anyway), releases
- * whatever capture the previous run left open, which hands the captured
- * work back, and publishes the sequence the media holds.
+ * producer. Load NOT pending is a WRITER RESTART WITHOUT A FABRIC RESET,
+ * and revision d splits it on the second bit the backend publishes:
+ *
+ *   [3] 0 with [2] LOAD ACCEPTED 1: the backend has kept ownership since a
+ *   window load it accepted, so the writer RE-ATTACHES: it never re-bases,
+ *   loads or RELOADs (the backend would refuse the RELOAD anyway), releases
+ *   whatever capture the previous run left open, which hands the captured
+ *   work back, and publishes the sequence the media holds.
+ *
+ *   [3] 0 with [2] 0: no window load was ever accepted in this boot, so
+ *   nothing in it may be captured or committed (the backend arms no capture
+ *   while [2] is 0). The writer does NOT re-attach and does not validate a
+ *   window no load vouches for: it stays retired until the next reset.
  */
 static void nvm_boot(void)
 {
@@ -1155,6 +1165,7 @@ static void nvm_boot(void)
 	unsigned int verdict;
 	unsigned int tries = 0;
 	int loaded = 0;
+	int live = 0;			/* revision d: the window went live */
 
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
@@ -1184,6 +1195,15 @@ static void nvm_boot(void)
 		nvm_publish(verdict);
 		printf("Milan NVM: the backend does not carry saved-state contract 3 (tag %02lx); the writer is disabled.\n",
 		       (unsigned long)(stat >> 24));
+	} else if (!(stat & NVM_RD_LOAD_PEND) && !(stat & NVM_RD_LOAD_ACC)) {
+		/* revision d: the boot load is OVER and no load was ever
+		 * accepted, so this boot may capture nothing (the backend
+		 * arms no capture while [2] is 0). A re-attach could commit
+		 * nothing; it would only publish a validity bit over a window
+		 * no accepted load vouches for. The writer stays retired: it
+		 * never commits and stops answering the liveness deadline. */
+		nvm_retired = 1;
+		printf("Milan NVM: no window load was accepted in this boot; the writer stays retired until the next reset.\n");
 	} else if (!(stat & NVM_RD_LOAD_PEND)) {
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		nvm_publish(verdict);
@@ -1204,6 +1224,15 @@ static void nvm_boot(void)
 		while (!loaded && tries < NVM_LOAD_TRIES) {
 			loaded = nvm_load_window(chosen);
 			tries++;
+			/* revision d: read [3] after a refusal. Load pending 0
+			 * without an accepted load is the window having GONE
+			 * LIVE: no later RELOAD can be accepted, and a repeat
+			 * would only re-base and refill a window the producer
+			 * owns. The writer stops repeating here. */
+			if (!loaded && !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_LOAD_PEND)) {
+				live = 1;
+				break;
+			}
 			/* revision c: an operation that is merely SLOW must
 			 * not spend every attempt in flight. Wait, bounded,
 			 * for the device face to go idle before repeating;
@@ -1228,8 +1257,12 @@ static void nvm_boot(void)
 			 * defaults; the status says so (img_valid 0, restore
 			 * fail 1, pending 1, and shortly backed 0). */
 			nvm_retired = 1;
-			printf("Milan NVM: the backend refused %u window loads; the window is not validated and the writer is disabled until the next reset.\n",
-			       tries);
+			if (live)
+				printf("Milan NVM: the backend refused %u window load(s) and the window then went live; the writer is disabled until the next reset.\n",
+				       tries);
+			else
+				printf("Milan NVM: the backend refused %u window loads; the window is not validated and the writer is disabled until the next reset.\n",
+				       tries);
 		}
 	}
 	/* a restore walk the fabric already sequenced since its reset is not

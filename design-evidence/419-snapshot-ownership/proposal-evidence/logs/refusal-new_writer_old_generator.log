@@ -1,97 +1,97 @@
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:195:2: error: #error "saved-state writer implements contract 3; the gateware generator did not publish MILAN_NVM_CONTRACT 3"
-  195 | #error "saved-state writer implements contract 3; the gateware generator did not publish MILAN_NVM_CONTRACT 3"
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:198:2: error: #error "saved-state writer implements contract 3; the gateware generator did not publish MILAN_NVM_CONTRACT 3"
+  198 | #error "saved-state writer implements contract 3; the gateware generator did not publish MILAN_NVM_CONTRACT 3"
       |  ^~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_write_header’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:649:17: note: in expansion of macro ‘NVM_STG’
-  649 |                 NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:652:17: note: in expansion of macro ‘NVM_STG’
+  652 |                 NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
       |                 ^~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: note: each undeclared identifier is reported only once for each function it appears in
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:649:17: note: in expansion of macro ‘NVM_STG’
-  649 |                 NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: note: each undeclared identifier is reported only once for each function it appears in
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:652:17: note: in expansion of macro ‘NVM_STG’
+  652 |                 NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)));
       |                 ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_seal’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:655:34: note: in expansion of macro ‘NVM_STG’
-  655 |         uint32_t crc = nvm_crc32(NVM_STG, NVM_IMG_LEN - KLJ2_TRAILER);
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:658:34: note: in expansion of macro ‘NVM_STG’
+  658 |         uint32_t crc = nvm_crc32(NVM_STG, NVM_IMG_LEN - KLJ2_TRAILER);
       |                                  ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_stage_blank_image’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:671:17: note: in expansion of macro ‘NVM_STG’
-  671 |                 NVM_STG[i] = NVM_ERASED;
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:674:17: note: in expansion of macro ‘NVM_STG’
+  674 |                 NVM_STG[i] = NVM_ERASED;
       |                 ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_rebase_backend’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:695:39: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
-  695 |         nvm_csr_write(NVM_W_IMG_BASE, MILAN_NVM_LIVE_BASE + KLJ2_HDR);
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:698:39: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
+  698 |         nvm_csr_write(NVM_W_IMG_BASE, MILAN_NVM_LIVE_BASE + KLJ2_HDR);
       |                                       ^~~~~~~~~~~~~~~~~~~
       |                                       MILAN_NVM_BIND_BASE
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_slot_program’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:848:38: note: in expansion of macro ‘NVM_STG’
-  848 |                         nvm_spi_xfer(NVM_STG[off + i]);
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:851:38: note: in expansion of macro ‘NVM_STG’
+  851 |                         nvm_spi_xfer(NVM_STG[off + i]);
       |                                      ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_slot_matches’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:863:32: note: in expansion of macro ‘NVM_STG’
-  863 |                 if (back[i] != NVM_STG[i])
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:866:32: note: in expansion of macro ‘NVM_STG’
+  866 |                 if (back[i] != NVM_STG[i])
       |                                ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_prefill_stage’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:893:17: note: in expansion of macro ‘NVM_STG’
-  893 |                 NVM_STG[i] = nvm_slot(nvm_auth_slot)[i];
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:896:17: note: in expansion of macro ‘NVM_STG’
+  896 |                 NVM_STG[i] = nvm_slot(nvm_auth_slot)[i];
       |                 ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_capture’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:931:33: note: in expansion of macro ‘NVM_STG’
-  931 |                                 NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:934:33: note: in expansion of macro ‘NVM_STG’
+  934 |                                 NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
       |                                 ^~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:413:38: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
-  413 | #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:416:38: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
+  416 | #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:931:63: note: in expansion of macro ‘NVM_IMG’
-  931 |                                 NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:934:63: note: in expansion of macro ‘NVM_IMG’
+  934 |                                 NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
       |                                                               ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_commit’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:973:27: note: in expansion of macro ‘NVM_STG’
-  973 |         vd = nvm_validate(NVM_STG);
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:976:27: note: in expansion of macro ‘NVM_STG’
+  976 |         vd = nvm_validate(NVM_STG);
       |                           ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_fill_window’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:413:38: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
-  413 | #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:416:38: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
+  416 | #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1105:25: note: in expansion of macro ‘NVM_IMG’
- 1105 |                         NVM_IMG[i] = src[i];
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1108:25: note: in expansion of macro ‘NVM_IMG’
+ 1108 |                         NVM_IMG[i] = src[i];
       |                         ^~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:414:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
-  414 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:417:38: error: ‘MILAN_NVM_STAGE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_IMAGE_BASE’?
+  417 | #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
       |                                      ^~~~~~~~~~~~~~~~~~~~
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1109:38: note: in expansion of macro ‘NVM_STG’
- 1109 |                         NVM_IMG[i] = NVM_STG[i];
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1112:38: note: in expansion of macro ‘NVM_STG’
+ 1112 |                         NVM_IMG[i] = NVM_STG[i];
       |                                      ^~~~~~~
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_boot’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1244:30: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
- 1244 |                (unsigned int)MILAN_NVM_LIVE_BASE,
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1277:30: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
+ 1277 |                (unsigned int)MILAN_NVM_LIVE_BASE,
       |                              ^~~~~~~~~~~~~~~~~~~
       |                              MILAN_NVM_BIND_BASE
 <CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c: In function ‘nvm_print_status’:
-<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1411:30: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
- 1411 |                (unsigned int)MILAN_NVM_LIVE_BASE,
+<CHECKOUT>/proposal-evidence/build/refusal-new_writer_old_generator/fw.c:1444:30: error: ‘MILAN_NVM_LIVE_BASE’ undeclared (first use in this function); did you mean ‘MILAN_NVM_BIND_BASE’?
+ 1444 |                (unsigned int)MILAN_NVM_LIVE_BASE,
       |                              ^~~~~~~~~~~~~~~~~~~
       |                              MILAN_NVM_BIND_BASE
