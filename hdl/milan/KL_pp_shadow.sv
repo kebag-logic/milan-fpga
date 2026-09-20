@@ -615,7 +615,10 @@ module KL_pp_shadow #(
     output logic                         srp_domain_adopted_o,    //! 1 = adopted a bridge Domain
     output logic                         srp_domain_change_o,     //! one-cycle DOMAIN_CHANGE
     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,     //! per-source self-declared Talker attr
-    output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,    //! per-source registered Listener attr
+    //! per-source registered Listener attr as its FourPackedEvents value
+    //! (802.1Q 35.2.2.7.4, srp_pkg::srp_decl_e): 0 none/Ignore,
+    //! 1 AskingFailed, 2 Ready, 3 ReadyFailed - a code, never a one-hot
+    output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,
     //! THE AVTP transmit gate — never rebuild it from the terms below
     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
     //! RAW Sigma-slope verdict; lags srp_active_o by up to three admission rounds
@@ -625,8 +628,10 @@ module KL_pp_shadow #(
     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,   //! per-source self-declared FailureInformation
     output logic [31:0]                  srp_sum_slope_bps_o,     //! Sigma granted idleSlope over admitted sources
     output logic                         srp_over_limit_o,        //! a source was refused against the port ceiling
-    output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,      //! per-sink registered Talker attr
-    output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,   //! per-sink our Listener declaration
+    //! per-sink registered Talker attr, a code: 0 NONE, 1 ADVERTISE, 2 FAILED
+    output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,
+    //! per-sink our Listener declaration: 0 NONE, 1 ASKING_FAILED, 2 READY
+    output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,
     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,       //! per-sink registered accumulated_latency, ns, RAW
     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,     //! per-sink registered Failed code
 

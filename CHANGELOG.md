@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005C - SRP status words](#release-0x0002_005c---srp-status-words)** -- Four bits read their subject.
 - **[Release 0x0002_005B - SET_SAMPLING_RATE list check](#release-0x0002_005b---set_sampling_rate-list-check)** -- An unlisted rate is refused.
 - **[Release 0x0002_005A - GET_TX_STATE Listener code](#release-0x0002_005a---get_tx_state-listener-code)** -- Asking Failed sets the flag.
 - **[Release 0x0002_0059 - PPS output](#release-0x0002_0059---pps-output)** -- Six CSR words, one metrology pin.
@@ -39,6 +40,25 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_005C - SRP status words
+
+- `LWSRP_STATUS` `0x694` `[3:0]` describes one subject again.
+- That subject is the Listener attribute registered on source 0.
+- `[2]` listener registered now counts Asking Failed in.
+- It had read bit 1 of that value instead.
+- So an asking Listener reported that nobody wanted the stream.
+- `[1:0]` and `[3]` had described our own Listener.
+- `[3]` listener ready is the Milan 5.3.7.3 pair.
+- `ACMPL_STATE` `0x6A4` `[6]` is live for sink 0.
+- It compares the registered Talker code against ADVERTISE.
+- Bit 1 of that code is FAILED, reading backwards.
+- The map had called `[6]` and `[7]` structural zeros.
+- Both are real, and the map now says so.
+- `tb/verilator/pp_shadow` groups T and U grade all four bits.
+- Their registrations are real MSRP frames on the RX port.
+- No CSR address, width or access moves.
+- Issues 471 and 472 carry the measurements.
 
 ## Release 0x0002_005B - SET_SAMPLING_RATE list check
 

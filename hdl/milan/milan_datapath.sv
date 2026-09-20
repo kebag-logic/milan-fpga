@@ -1619,8 +1619,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! follow-up); the flat CSR status keeps bit 0 only. The top slot is the
   //! CRF Media Clock Output when this shape has one.
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
-  //! per-TALKER "registering a Listener Asking Failed attribute", SAME
-  //! index law as lwsrp_stream_gate (gh #56 A2: -> ACMP REGISTERING_FAILED)
+  //! the per-TALKER "registering a Listener Asking Failed attribute" vector
+  //! (gh #56 A2: -> ACMP REGISTERING_FAILED) that used to be declared here
+  //! has no net: the ACMP talker context that consumed it is deleted. The
+  //! level itself is still observable per source, from the registered
+  //! attribute's four-packed value - see the class-D SRP block below.
   wire        lwsrp_slope_en, lwsrp_res_active;
   //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
   wire        lwsrp_ctx_oor_w;
@@ -1838,9 +1841,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! FRAMER admission gate below reads it.
   wire [N_STREAMS-1:0]     acmp_talker_active_aaf_w =
                                acmp_talker_active_v[N_STREAMS-1:0];
-  //! A_ACMP_LOBS + the SRP Listener-Ready level, kept for the 0x6E8
-  //! forensics word only (i_tlk_lobs_v): "a listener is observed for
-  //! talker j", composed from the manual socket and the reservation.
+  //! A_ACMP_LOBS + the SRP Listener-Ready level: "a listener is observed for
+  //! talker j", composed from the manual socket and the reservation. Its one
+  //! reader is i_tlk_lobs_v, which is the 0x800 snapshot window's per-stream
+  //! talker STATE bit 2 (milan_csr.sv:2835-2839) - NOT the 0x6E8 forensics
+  //! word this comment used to name, which is a structural zero.
   wire [ACMP_SRC_C-1:0] acmp_lobs_v_w;
   generate
     for (genvar gj = 0; gj < ACMP_SRC_C; gj++) begin : g_acmp_lobs
@@ -2474,9 +2479,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! ACMP listener status (0x6A4 group, RO); bit 31 = CRF sink bound.
     //! MOST OF THIS WORD IS A STRUCTURAL ZERO NOW. The processor publishes a
     //! BOUND RECORD, not a state machine, so the fields that described the
-    //! ladder (state, probing, acmp_status, tk_avail, lstn_declare) and the
-    //! per-sink SRP registrar levels have no source. What is still real:
-    //! bit 31 (CRF sink bound), acmpl_bound and acmpl_active.
+    //! ladder (state, probing, acmp_status, tk_avail, lstn_declare) have no
+    //! source. What is still real: bit 31 (CRF sink bound), acmpl_bound,
+    //! acmpl_active, and the two per-sink SRP registrar bits [7:6] - [6]
+    //! "TalkerAdvertise registered" is sink 0's tk_reg_state compared to the
+    //! ADVERTISE code and [7] is its registered-Failed code (#472).
     .i_acmpl_state        ({acmpl1_bound, 3'd0, acmpl_vlan_w, acmpl_tk_avail,
                             acmpl_probing, acmpl_status,
                             lwsrp_ta_failed, lwsrp_ta_registered,
@@ -6512,27 +6519,57 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! per-source Talker failure (802.1Q 35.2.2.8.6 FailureCode + BridgeID)
   assign lwsrp_tfail_code   = pp_cd_srp_src_fail_code_w[7:0];
   assign lwsrp_tfail_valid  = |pp_cd_srp_src_fail_code_w[7:0];
-  //! SINK 0's registrar levels - the flat 0x6A4/0x690 status words are
-  //! scalars and always described sink 0. [2*k +: 2] is the per-sink slice;
-  //! bit 1 of it is "a Talker Advertise for this sink's stream is REGISTERED"
-  //! (802.1Q 35.2.4.4.1), which is exactly what the deleted TA registrar
-  //! published. The per-sink Failure BridgeID and registered VLAN are NOT on
-  //! the class-D face (it carries the per-SOURCE bridge id only), so the CSR
+  //! SINK 0's registrar level - the flat 0x6A4/0x690 status words are
+  //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
+  //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
+  //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
+  //! hdl/srp/KL_srp_top.sv:193, driven at hdl/srp/KL_srp_listener_fsm.sv:
+  //! 783-784), so bit 1 of the slice is set for a registered Talker FAILED
+  //! and clear for the registered Talker ADVERTISE this field is named for -
+  //! the inversion #472 measured. The compare is against the ADVERTISE code,
+  //! named below because the processor spells this word's codes in a port
+  //! comment and not in srp_pkg (the Listener four-pack below IS in the
+  //! package, and is taken from it). 802.1Q 35.2.4.4.1 is the registrar.
+  //! The per-sink Failure BridgeID and registered VLAN are NOT on the
+  //! class-D face (it carries the per-SOURCE bridge id only), so the CSR
   //! fields that carried them are gone from this file rather than wearing a
   //! source's value under a sink's name.
-  assign lwsrp_ta_registered = pp_cd_srp_tk_reg_state_w[1];
+  localparam logic [1:0] SRP_TK_REG_ADVERTISE_C = 2'd1;
+  assign lwsrp_ta_registered = (pp_cd_srp_tk_reg_state_w[1:0] ==
+                                SRP_TK_REG_ADVERTISE_C);
   assign lwsrp_ta_failed     = |pp_cd_srp_snk_fail_code_w[7:0];
   assign lwsrp_ta_fail_code  = pp_cd_srp_snk_fail_code_w[7:0];
-  assign lwsrp_listener_reg   = pp_cd_srp_lstn_reg_state_w[1];
-  assign lwsrp_listener_decl  = pp_cd_srp_lstn_decl_state_w[1:0];
-  assign lwsrp_listener_ready = (pp_cd_srp_lstn_decl_state_w[1:0] == 2'd1);
+  //! LWSRP_STATUS[3:0] DESCRIBES ONE SUBJECT, as it did before the lwSRP
+  //! engine was deleted (eff99a9c): the Listener attribute REGISTERED on
+  //! talker SOURCE 0. Its four-packed value is what the processor publishes
+  //! on lstn_reg_state (802.1Q 35.2.2.7.4 FourPackedEvents, encoded by
+  //! srp_pkg::srp_decl_e, which this file compares against by name rather
+  //! than by bit index). [1:0] is that value; [2] "registered" is any value
+  //! but Ignore, AskingFailed INCLUDED - that inclusion is the whole point
+  //! of the field: eff99a9c^:hdl/ieee8021q/srp/KL_lwsrp_top.sv:429 needed
+  //! listener_reg_o set for an AskingFailed Listener, and the talker term at
+  //! eff99a9c^:hdl/milan/milan_datapath.sv:3608-3614 took the registration
+  //! DELIBERATELY and not listener_ready, because an AskingFailed Listener
+  //! must still see our TalkerAdvertise or it can never become Ready. [3]
+  //! "ready" is the Ready/ReadyFailed pair of the same value. lstn_decl_state
+  //! - THIS station's own Listener declaration for sink 0 - is a different
+  //! subject and is not this word's; the sink side is read where it belongs,
+  //! in the GET_STREAM_INFO path above.
+  wire [1:0]  lwsrp_lstn_reg0_w = pp_cd_srp_lstn_reg_state_w[1:0];
+  assign lwsrp_listener_decl  = lwsrp_lstn_reg0_w;
+  assign lwsrp_listener_reg   = (lwsrp_lstn_reg0_w != srp_pkg::SRP_DECL_IGNORE);
+  assign lwsrp_listener_ready =
+      (lwsrp_lstn_reg0_w == srp_pkg::SRP_DECL_READY) ||
+      (lwsrp_lstn_reg0_w == srp_pkg::SRP_DECL_READY_FAILED);
   assign lwsrp_talker_declared= |pp_cd_srp_tk_decl_state_w;
-  //! GONE, and worth naming: the per-talker "a Listener Asking Failed
-  //! attribute is registered" level (gh #56 A2) that promoted an ACMP talker
-  //! context to REGISTERING_FAILED. The class-D face reports a per-source
-  //! failure CODE, not the attribute type it arrived on, so this fabric can
-  //! no longer observe that level at all - it is not tied to zero here, it
-  //! has no net.
+  //! OBSERVABLE AFTER ALL: the per-talker "a Listener AskingFailed attribute
+  //! is registered" level (gh #56 A2) that promoted an ACMP talker context to
+  //! REGISTERING_FAILED. This file used to record it as unobservable, on the
+  //! ground that the class-D face reports a per-source failure CODE and not
+  //! the attribute type; lstn_reg_state carries the registered attribute's
+  //! four-packed value, so the level is exactly lstn_reg_state == AskingFailed
+  //! and the GET_STREAM_INFO path above already reads it (:4481). What is
+  //! gone is the ACMP talker CONTEXT that consumed it, not the observation.
   //! MRPDU tx/rx accounting lived in the deleted serializer/ingress pair
   assign lwsrp_tx_count = 16'd0;
   assign lwsrp_rx_pdus  = 16'd0;
