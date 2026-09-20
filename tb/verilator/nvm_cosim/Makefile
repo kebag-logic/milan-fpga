@@ -21,9 +21,10 @@
 #              the page names, each of which MUST be killed by the ONE check
 #              the page names for it.
 #   quick      the shipping builds at 1x1 only, no mutants: the local loop.
-#   wrap       the identity-wrap arm alone: the same cases at 1, 2 and 16
-#              identity bits, where the writer's report must not move with
-#              the width (issue #484 round 2).
+#   wrap       the identity-wrap arm alone: the same cases at 2 and 16
+#              identity bits (2 is the backend contract's minimum; a build
+#              at 1 is refused), where the writer's report must not move
+#              with the width (issue #484 rounds 2 and 3).
 #   control    additionally builds a backend and a writer from BEFORE the
 #              contract (LEGACY_DIR) and requires the three historical defects
 #              to reproduce there. That is the non-vacuity proof in the
