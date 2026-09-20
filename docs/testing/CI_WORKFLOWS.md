@@ -40,15 +40,67 @@ pull-request update and on every push to `dev`. It produces one stable
   ([R0] on PR #240, rounds one to three), so a missing front end is a refusal
   with no flag to soften it.
 
-A change containing only living documentation or an Issue template skips the
-Verilator and Yosys setup jobs. The aggregate still completes, so a docs-only PR
-does not leave a required verdict pending. Mixed changes are treated as RTL
-relevant. An empty or unresolvable diff is also treated as RTL relevant. A
-submodule pointer (`protocol-processor`, `gptp-processor`, `external`,
-`third_party/...`, read from `.gitmodules`) or `.gitmodules` itself is never
-docs-only: it moves the RTL the sweep elaborates without touching a file under
-`hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier that files
-any one of them as documentation is rejected.
+A change containing only documentation skips the Verilator and Yosys setup
+jobs. Documentation is a path that no gate the docs-only path skips reads
+without `docs-check` reading it too (#444): a top-level `*.md`, anything under
+`LICENSES/`, or a `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less
+the pages a gated module reads. Everything else is RTL relevant whatever its
+suffix: every file under
+`tb/`, `hdl/`, `sw/`, `syn/`, `scripts/`, `tests/` and `configs/`, the diagram
+assets outside `docs/`, every generator, manifest and budget under `docs/`, an
+Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
+[the AVTP record](../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) and
+[the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
+the campaign it runs, so those two records are relevant by directory.
+
+Three pages under `docs/` are relevant because Python in a classifier-gated
+job names them. The behave suite of `bdd-conformance`, which no docs job runs,
+asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
+[MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
+catalogue generator's `--check` compares
+[TRACE_EVENTS.md](../reference/TRACE_EVENTS.md). The classifier's
+self-test, `scripts/ci_scope.py --selftest`, derives that list from the
+Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
+`hdl/` and `avdecc/` and refuses a table that differs from it. A page
+that a skipped gate reads stays documentation only when an always-run
+`docs-check` step runs the same check on it:
+
+| Reader | Skipped job that runs it | `docs-check` runs it too |
+|---|---|---|
+| `sw/builder/test_builder.py`: six pages under `docs/` | `elaborate` (`--require-elaboration` grades only the LiteX arms) | yes, every arm that reads a page |
+| `docs/traceability/gen_module_matrix.py --check`: the matrix artifacts | the `tsn_fuzz` suite | yes, the same command |
+| `scripts/ci_events.py --check`: this page | none, it runs in `full-ci-gate` before the decision | yes, the same command |
+
+The derivation is a net, not a proof, and the table above stays the author's
+to keep true (#444, [R197] F5, [R198] N3). It resolves a page named by its
+whole path, by a path a literal ends in (a relative literal, or an f-string
+whose head is a variable), and by a bare file name, which is what an
+`os.path.join` piece, a pathlib join or a `$(DOCS)/NAME.md` recipe leaves
+behind; `scripts/ci_scope.py --selftest` plants a new reader in each of those
+spellings and requires the scan to name it. It cannot see a name computed at
+run time (`DOCS / f"{name}.md"`), a glob over a `docs/` directory, a page
+named only inside a message, a reader outside those six roots (a script under
+`scripts/` that a suite calls, a C++ bench, a workflow step), or a file kind
+it does not read. A reader written that way must be added to `GATE_READ_DOCS`
+by hand.
+
+All three classifier-gated workflows build the changed-path list with
+`git diff --no-renames --name-only`, so a rename reaches the classifier as
+both of its sides ([R198] N2). With git's default rename detection the list
+holds the destination alone, and renaming a gate-read page or an RTL source
+to a documentation path classified the pull request as docs-only while the
+gate that reads it skipped. `scripts/ci_events.py` pins the flag in each of
+the three scripts.
+
+The aggregate still completes,
+so a docs-only PR does not leave a required verdict pending. Mixed changes are
+treated as RTL relevant. An empty or unresolvable diff is also treated as RTL
+relevant. A submodule pointer (`protocol-processor`, `gptp-processor`,
+`external`, `third_party/...`, read from `.gitmodules`) or `.gitmodules` itself
+is never docs-only: it moves the RTL the sweep elaborates without touching a
+file under `hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier
+that files any one of them, or widens the documentation classes, is
+rejected.
 
 The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
@@ -78,17 +130,47 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator runs the default suite inventory on four workers. The aggregate
+Verilator runs the default suite inventory on five workers. Four split the
+inventory by a stable hash; the fifth, shard 4/5, runs `milan_dp` alone
+(#444). A worker runs its suites one at a time, so the fifth worker changes
+no suite's deadline. It takes the other suites of the old shard 0/4 off
+`milan_dp`'s path: that shard carried `milan_dp` plus eleven suites and set
+the context's latency at 1745-2514 s, of which the eleven took 492-725 s.
+The hashed owners of every other suite are unchanged. The aggregate
 rejects missing, unexpected, or duplicate suite logs before it trusts the
-combined tally. Specialized dependencies are installed only by their stable
-owners: `tsn_fuzz` owns the pinned packet generator, and `chmap_capture` owns
-the Yosys/sv2v netlist leg. The shard selector self-test pins both assumptions.
+combined tally, and requires all five workers. Specialized dependencies are
+installed only by their stable owners: `tsn_fuzz` owns the pinned packet
+generator, and `chmap_capture` owns the Yosys/sv2v netlist leg. The shard
+selector self-test pins those owners and the dedicated worker, and the
+workers' ownership step proves them again at run time; `ci_events.py` pins
+that step's script. It pins the aggregate's tally script and its
+worker-result script the same way, and the Yosys aggregate's two twins. The
+worker-result step is the only step that turns a failed or timed-out worker
+red: a killed suite's partial log still tallies and its SHA record still
+verifies, so on both hosted `milan_dp` timeouts only that step failed.
+
+Each suite runs under a per-suite wall clock from the table in
+`scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
+margin sets each named entry:
+
+| Suite | Budget | Basis |
+|---|---|---|
+| every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
+| `milan_dp` | 2700 s | hosted worst case about 1815 s, plus 885 s (49%) |
+| `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+
+The `milan_dp` figures come from the 37 hosted runs of the current suite,
+from 2026-09-15, when #447 split out `milan_dp_render`, to 2026-09-19.
+Passing runs took 1055-1773 s, and the slowest runner class, 19 of them,
+took 1726-1773 s. Two runs of that class were killed at 1800 s, 1 s and 13 s
+short of the end. A timeout stays a red context: the driver exits 92 and the
+worker fails. `scripts/measure_test_evidence.py` pins the table.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The four default shards retain every other suite.
+The five default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
 Its separate four-core `ubuntu-latest` job permits 120 minutes total.
@@ -334,7 +416,17 @@ is exactly these twelve things:
    names the step, the variable, the expression required and the one found.
 7. **The decision step's script.** Pinned verbatim after whitespace
    normalization, the way the default-branch step's is, and refused by naming
-   the first line that differs rather than dumping the script. The bindings in
+   the first line that differs rather than dumping the script. The
+   normalization every pin shares is the shell's, not Python's (#444,
+   [R197] F4, [R198] N1): a backslash-newline joins with nothing, words
+   separate on space and tab, lines break on LF, and any other space,
+   separator, control or unprintable character is refused by name instead of
+   normalized away, because bash reads those as part of a word. Under the
+   older rule a continuation inside a comparison (`!=\` then `success`), a
+   no-break space or a U+2028 normalized to the canonical text while bash
+   read a different script: both exhaustive aggregates' worker-result steps
+   then exited 0 on a failed, cancelled or timed-out worker, and this step
+   published `run_full=false` for a ready RTL pull request. The bindings in
    item 6 hold what the step reads; this holds what it does with what it read,
    because `run_full=true` rewritten to `run_full=false` changes no pinned
    name and no pinned key and publishes the explicit no-op on every ready RTL
@@ -800,8 +892,9 @@ validates one tree. The workflow makes that explicit and machine-checked
   uploads. The file is neither a `*.log` nor a `*.result`, so neither tally
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
-  downloaded shards before they tally anything, passing `--expect 4` (the
-  worker matrix size) and exactly three sources, `--sha gate="$GATE_SHA"`
+  downloaded shards before they tally anything, passing `--expect` the
+  worker matrix size (`--expect 5` for Verilator, `--expect 4` for Yosys)
+  and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
   verdict. The verifier refuses any other source set, a dropped source or an
@@ -969,7 +1062,11 @@ flipped ready and back.
 A docs-only ready PR remains cheap: the long workflow starts, classifies the
 diff, and skips its RTL workers with explicit skipped results. The two stable
 aggregate contexts are still emitted, so the ruleset never waits for a check
-name that the pull request cannot produce.
+name that the pull request cannot produce. A skipped job leaves no log, so
+the gate's decision step prints the reason in its own, in the words of the
+rule the classifier applied: `docs-only: every changed path is a top-level
+*.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that
+no skipped gate reads unless docs-check reads it too`.
 
 ## Act-first local replication
 
@@ -1260,8 +1357,9 @@ host, so `act` starts one of a stage's jobs at a time (`--concurrent-jobs 1`;
 `CONCURRENT_JOB_LIMIT`): with the CPU set alone, an `rtl-full` replica
 launched all eight shard jobs together, each building its toolchain. That flag
 bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
-(default 4) inside one job's slot, so each of `rtl.yml`'s four-shard jobs
-still fans out to four containers, each held to 16 GB: at most 64 GB at once.
+(default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (five
+Verilator workers, four Yosys workers) still fans out to at most four
+containers at once, each held to 16 GB: at most 64 GB at once.
 The bounds are replica-shape decisions, not trust-boundary ones; the offline
 self-test pins the word's four tokens in order, the CPU ceiling for host
 counts above, at, and below the limit, the memory and swap limits, the single
@@ -1425,12 +1523,13 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The four exhaustive workers carry their checked denominator through the
-singleton `matrix.total` dimension. `scripts/ci_events.py` proves that value
+The sharded exhaustive workers (five Verilator, four Yosys) carry their
+checked denominator through the singleton `matrix.total` dimension.
+`scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
 uses it. Sharded matrices may not use `include` or `exclude`, because either can
 change the produced job set independently of that list and carrier. This retains
-GitHub's four-worker behavior and avoids the negative `strategy.job-total`
+GitHub's worker counts and avoids the negative `strategy.job-total`
 values produced by `act` 0.2.89 without a local workflow edit.
 
 Local success is early exact-head evidence, not a locally manufactured GitHub
@@ -1457,7 +1556,8 @@ become current with the base. Reviewers still own exact-head and candidate-
 merge validation under [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 Conditional job skipping is part of the contract. A documentation-only PR
-must emit the two exhaustive aggregate checks as skipped and must complete the
+(the documentation classes in [Fast feedback](#fast-feedback)) must emit the two
+exhaustive aggregate checks as skipped and must complete the
 fast aggregate and `elaborate` check after their expensive steps skip. That is
 permitted only when `full-ci-gate` itself succeeds and explicitly publishes
 `run_full=false`; a gate failure, cancellation, or missing output makes both
@@ -1504,7 +1604,8 @@ syn/yosys/run.sh
 Useful read-only inspection commands are:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/4 --list
+scripts/run_all_suites.sh --shard 0/5 --list
+scripts/run_all_suites.sh --shard 4/5 --list   # milan_dp alone
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```
@@ -1541,6 +1642,8 @@ worker result to be `success`.
 
 Workflow concurrency retains the PR number or branch ref.
 Push/PR runs share the default category; newer updates replace older runs.
+A force-push to a PR branch is the same `synchronize` event under the same PR
+number, so it cancels the superseded run like any other push.
 Schedule/dispatch runs share a separate physical category for each ref.
 A newer physical run replaces an older physical run.
 Pushes cannot cancel physical evidence without starting a replacement.

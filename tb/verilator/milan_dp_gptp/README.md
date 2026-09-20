@@ -28,7 +28,7 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
 The reference machine uses an EPYC 9554P with 128 logical CPUs.
 Measurements restrict each job to four cores under background load.
 Completed hosted physical evidence remains required to validate that deadline.
-The historical `milan_dp` suite retains its 1800-second default.
+The historical `milan_dp` suite has its own 2700-second budget (#444).
 
 The accounting verifier retains each failing DUT control transcript.
 They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.

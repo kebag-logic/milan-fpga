@@ -30,7 +30,8 @@
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
-#                        Defaults: 1800 s; scheduled milan_dp_gptp gets 5400 s.
+#                        Defaults: 1800 s; milan_dp gets 2700 s and the
+#                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
@@ -200,9 +201,13 @@ acquire_lock() {
 }
 
 #! Declared per-suite defaults; an explicit caller override retains its meaning.
-#! The CI runner contract pins both budgets and the sole exception's name.
+#! The CI runner contract pins every budget and each named suite.
+#! milan_dp (#444): hosted worst case about 1815 s (1726-1773 s passing on the
+#! slower runner class; two runs killed at 1800 s, 1 s and 13 s short of the
+#! end), plus a stated 885 s (49%) margin.
 suite_timeout() {
   case "$1" in
+    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-2700}" ;;
     milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac

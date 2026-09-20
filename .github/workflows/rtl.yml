@@ -113,7 +113,7 @@ jobs:
 
           if [ -n "$PR_BASE_SHA" ] \
              && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+            git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
               > "$RUNNER_TEMP/changed-files"
           else
             git ls-files > "$RUNNER_TEMP/changed-files"
@@ -129,10 +129,15 @@ jobs:
           echo "rtl=$rtl" >> "$GITHUB_OUTPUT"
           echo "run_full=$run_full" >> "$GITHUB_OUTPUT"
           echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"
+          if [ "$rtl" = false ]; then
+            echo "docs-only: every changed path is a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no skipped gate reads unless docs-check reads it too; the exhaustive workers and both required aggregates skip"
+          fi
 
-  # The exhaustive inventory remains four-way and fail-closed. Specialized
-  # setup is installed only on the stable shard that owns the relevant suite;
-  # scripts/suite_shards.py self-tests those ownership assumptions.
+  # The exhaustive inventory is five-way and fail-closed: four hashed workers
+  # and a fifth that runs milan_dp alone (#444), so its wall clock no longer
+  # sets the other suites' latency. Specialized setup is installed only on the
+  # stable shard that owns the relevant suite; scripts/suite_shards.py
+  # self-tests those ownership assumptions and the step below proves them.
   #
   # The shard COUNT is carried into each worker as matrix.total. GitHub and
   # act both resolve matrix values; act v0.2.89 does not resolve
@@ -148,8 +153,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3]
-        total: [4]
+        shard: [0, 1, 2, 3, 4]
+        total: [5]
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
@@ -214,6 +219,7 @@ jobs:
           case "$SHARD" in
             1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
             3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+            4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
           esac
 
       - name: Cache the pinned Yosys build for the netlist-level suite owner
@@ -412,7 +418,7 @@ jobs:
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
-          python3 scripts/ci_events.py --require-target-sha --expect 4 \
+          python3 scripts/ci_events.py --require-target-sha --expect 5 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
 

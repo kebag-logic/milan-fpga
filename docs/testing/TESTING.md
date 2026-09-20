@@ -163,7 +163,9 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 
-The default driver permits 1800 seconds per suite.
+The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
+That figure is the suite's measured hosted worst case plus a stated margin (#444).
+The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
 It excludes only the scheduled `milan_dp_gptp` directory.
 The separate physical job permits 5400 seconds, including compilation.
 Its workflow job permits 120 minutes, including toolchain setup.
@@ -199,7 +201,7 @@ It runs the physical harness without those separate accounting regressions.
 
 `suite_shards.py` owns the default/physical partition.
 `suite_tally.py` shares that inventory and rejects misplaced logs.
-`measure_test_evidence.py` pins both deadlines and explicit physical selection.
+`measure_test_evidence.py` pins all three deadlines and explicit physical selection.
 Its self-test rejects widened budgets and implicit physical selection.
 An explicit `SUITE_TIMEOUT` still overrides selected suite deadlines locally.
 CI unsets that override for the physical job.
@@ -207,6 +209,7 @@ Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
 
 A long mutation campaign is an explicit target, never a raised deadline.
 #367 settled that rule and this page keeps the list of such targets.
+The `milan_dp` budget is no exception to it: it covers the unchanged suite on the slower hosted runner.
 Each rebuilds its elaborated leg once per mutant, which costs tens of minutes.
 Neither the campaign nor any suite check is trimmed to fit a shard.
 
@@ -329,13 +332,14 @@ contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
 With no options the script remains the mandatory serial local sweep. GitHub
-uses four isolated `--shard INDEX/4` workers to reduce wall time, then keeps
+uses five isolated `--shard INDEX/5` workers to reduce wall time, the last of
+them running `milan_dp` alone, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
 the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the
-combined tally. `scripts/run_all_suites.sh --shard 0/4 --list` shows a worker's
+combined tally. `scripts/run_all_suites.sh --shard 0/5 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one quarter locally.
+not permission to validate only one fifth locally.
 
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
