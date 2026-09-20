@@ -17,9 +17,13 @@
 # the writer's restart.
 #
 #   run        every executed case of section 9 at BOTH shipped shapes, then
-#              the identity control and every mutant the page names, each of
-#              which MUST be killed by the ONE check the page names for it.
+#              the identity control, the identity-wrap arm and every mutant
+#              the page names, each of which MUST be killed by the ONE check
+#              the page names for it.
 #   quick      the shipping builds at 1x1 only, no mutants: the local loop.
+#   wrap       the identity-wrap arm alone: the same cases at 1, 2 and 16
+#              identity bits, where the writer's report must not move with
+#              the width (issue #484 round 2).
 #   control    additionally builds a backend and a writer from BEFORE the
 #              contract (LEGACY_DIR) and requires the three historical defects
 #              to reproduce there. That is the non-vacuity proof in the
@@ -45,7 +49,7 @@ PP      = ../../../protocol-processor/hdl
 DONOR   = $(PP)/acmp/pp_acmp_pkg.sv $(PP)/aecp/KL_aecp_dyn_state.sv \
           $(PP)/acmp/KL_acmp_nvm_shadow.sv $(PP)/packet_engine/KL_pp_nvm_port.sv
 
-.PHONY: all run quick control lint clean
+.PHONY: all run quick wrap control lint clean
 all: run
 
 run:
@@ -53,6 +57,9 @@ run:
 
 quick:
 	$(PYTHON) -B run_cases.py --shapes 1x1 --jobs $(JOBS) --pool $(POOL) --skip-mutants
+
+wrap:
+	$(PYTHON) -B run_cases.py --shapes 1x1 --jobs $(JOBS) --pool $(POOL) --wrap-only
 
 control:
 	@test -n "$(LEGACY_DIR)" || { echo "control needs LEGACY_DIR=<dir with the"\

@@ -22,9 +22,9 @@ superset of the other, and both run in the sweep.
 ## Contents
 
 - **[What is real here, and what is a model](#what-is-real-here-and-what-is-a-model)** -- The donor, the backend and the writer are real; the flash, the DDR and the clock are not, and no physical timing is.
-- **[Running it](#running-it)** -- Three targets, and the one tally line the sweep counts.
+- **[Running it](#running-it)** -- Four targets, and the one tally line the sweep counts.
 - **[How a case is graded](#how-a-case-is-graded)** -- The case file is stimulus only; every verdict is a NAMED check over a decoded journal.
-- **[Three ways this suite tries to show its checks are not vacuous](#three-ways-this-suite-tries-to-show-its-checks-are-not-vacuous)** -- A mutant per named check, an identity that must alias, and the pre-contract source that must go red.
+- **[Four ways this suite tries to show its checks are not vacuous](#four-ways-this-suite-tries-to-show-its-checks-are-not-vacuous)** -- A mutant per named check, an identity that must alias, an identity that must wrap, and the pre-contract source that must go red.
 - **[The one expected failure](#the-one-expected-failure)** -- E3 without donor scope D1, labelled with its reason and its donor issue.
 - **[Files](#files)** -- What each file in the suite is.
 
@@ -70,8 +70,10 @@ obligation O4 of the page and cannot test it.
 
 ```sh
 make            # every executed case of section 9 at BOTH shapes, the
-                # identity control, and every mutant the page names
+                # identity control, the identity-wrap arm, and every mutant
+                # the page names
 make quick      # the shipping builds at 1x1 only: the local loop
+make wrap       # the identity-wrap arm alone (issue #484 round 2)
 make lint       # Verilator lint of the shipping module and the wrapper
 ```
 
@@ -89,7 +91,7 @@ carries a NAME (`last_verified_kept@end:0x20`, `converged@end`,
 `four_refusal_terminal_row@boot`), and that name is what the contract page
 cites and what the mutant table below aims at.
 
-## Three ways this suite tries to show its checks are not vacuous
+## Four ways this suite tries to show its checks are not vacuous
 
 1. **Mutants, each with ONE named killer.** `mutate.py` plants one defect in a
    copy of the shipping backend, the shipping writer or this suite's parent
@@ -102,7 +104,21 @@ cites and what the mutant table below aims at.
 2. **The identity control.** A 2-bit capture identity MUST alias on `A8`,
    which is what makes the 16-bit one evidence rather than an assumption.
 
-3. **The pre-contract control, the direction a mutant cannot give.** With
+3. **The identity-wrap arm** (`make wrap`), which asks the opposite question
+   of the same narrow builds. The backend's identity is a plain wrapping
+   counter (section 5.4), so one capture in every `2**CAP_ID_W_P` carries the
+   identity 0; at 1 and 2 bits that capture lands INSIDE a case that commits
+   more than once, where at the shipping 16 bits it is the 65,536th. Five
+   cases are run at a narrow identity and compared with THEMSELVES at 16:
+   how many acknowledgements the writer strobed, how many commits it deferred
+   for an unattested capture, and its own `commits ok`, `captures refused` and
+   `acks refused` counters (`--status`) must all be the same, and at least one
+   acknowledgement must quote the identity 0. `C2` runs at both widths: it is
+   the only case here reaching a fourth capture, and the only one with a
+   capture the backend genuinely does not attest, so the arm cannot be
+   satisfied by a writer that has merely stopped refusing.
+
+4. **The pre-contract control, the direction a mutant cannot give.** With
    `LEGACY_DIR` pointing at a checkout of `KL_nvm_backend.sv` and
    `milan_baremetal.c` from before the contract:
 
@@ -130,6 +146,12 @@ binding can read durable. It is filed as
 `protocol-processor-control-plane-avb-milan` issue 90; `KL_pp_shadow.sv` ties
 the term to zero at the one place it will connect. The same case at `d1=1`,
 which models the export, passes.
+
+The label cannot outlive the limitation: the expectation is keyed on the exact
+`(case, variant, check)` triple, any other check of that case fails the suite
+normally, and that check PASSING is reported as `UNEXPECTED-PASS` and fails
+the suite too. So the round that lands donor scope D1 is told to retire the
+label rather than inheriting a green run that still carries it.
 
 ## Files
 

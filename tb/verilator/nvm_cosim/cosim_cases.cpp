@@ -1278,7 +1278,7 @@ static unsigned arg_flag(const char *text) {
 
 int main(int argc, char **argv) {
   std::string name, table, slot_a, slot_b;
-  unsigned d1 = 0;
+  unsigned d1 = 0, status = 0;
   for (int i = 1; i < argc; ++i) {
     const std::string a = argv[i];
     const char *v = (i + 1 < argc) ? argv[i + 1] : nullptr;
@@ -1291,6 +1291,11 @@ int main(int argc, char **argv) {
     else if (a == "--d1" && v) d1 = arg_flag(argv[++i]);
     else if (a == "--slot-a" && v) slot_a = argv[++i];
     else if (a == "--slot-b" && v) slot_b = argv[++i];
+    // the writer's own counters, asked for on the console AFTER the case
+    // body and its observations: the identity-wrap arm reads
+    // `captures refused` from it. It strobes nothing, so a case graded
+    // without it is graded the same way with it.
+    else if (a == "--status") status = 1;
     else if (a == "--list") name = "--list";
     else {
       std::fprintf(stderr, "unknown argument %s\n", a.c_str());
@@ -1323,6 +1328,7 @@ int main(int argc, char **argv) {
     }
     it->second();
   }
+  if (status) host_uart("milan_nvm");
   dump_log();
   std::printf("CASE_DONE %s hooks_pending=%d\n", name.c_str(), all_fired() ? 0 : 1);
   cosim::finish();

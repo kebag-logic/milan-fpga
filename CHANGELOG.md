@@ -66,10 +66,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - An older writer no longer compiles against this gateware.
 - `tb/verilator/nvm_cosim` grades 469 checks at both shapes.
 - One named check kills each of its 39 mutants.
-- KNOWN LIMITATION: the pinned processor does not export D1.
+- A 2-bit capture identity must alias.
+- The shipping 16 bits must not.
+- A capture identity that wraps to 0 is ordinary.
+- The writer acknowledges it like any other.
+- KNOWN LIMITATION 1: the pinned processor does not export D1.
 - A binding inside the manager's debounce reads durable.
 - The donor issue is 90 in the processor repository.
 - `KL_pp_shadow` ties that term to zero.
+- KNOWN LIMITATION 2: a channel map change reads durable.
+- So does a user name change.
+- Those record ids have no record writer at this version.
+- That is donor scope D2, UNRESOLVED 2 on the page.
+- Neither limitation is new.
+- Neither is in issue 484's scope.
 - Issue 484 carries the contract and the evidence.
 
 ## Release 0x0002_005E - board timestamp latency

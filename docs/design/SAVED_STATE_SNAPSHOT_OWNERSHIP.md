@@ -466,7 +466,9 @@ M20_arm_accepted_while_request_deferred deletes the refusal and is killed by
 that check: "request granted 69733 cycles after it was raised". The writer
 loses nothing by the refusal: it reads arm refused, strobes RELEASE and arms
 afresh at its next service call, which is the path it already takes for every
-refused arm (nvm_capture returns 0).
+refused arm (nvm_capture reports no capture; the identity it carries beside
+that answer is never the answer, because section 5.4's wrap gives one capture
+in every 2**CAP_ID_W_P the identity 0).
 
 ### 5.3 The window load: RELOAD checked by the backend
 
@@ -819,6 +821,20 @@ at most once per commit attempt, so a 16-bit identity repeats only after
 captures earlier arrives while the current capture is attested. EXECUTED
 control: A8 passes with 16 bits and FAILS on the 2-bit build (proto-w2-1x1),
 as the run script requires.
+
+The identity is a plain counter and its VALUE carries nothing else -- in
+particular not "no capture", because the wrap gives one capture in every
+2**CAP_ID_W_P the identity 0. A writer that spelled a refusal in that value
+domain would read that capture, attested and holding real work, as a refusal:
+it would defer the commit, print a refusal that did not happen, count it, and
+issue none of the RELEASE step 3.5 defines for the opposite case. So the
+writer reports the capture in a word BESIDE the identity, never in it
+(#484 round 2, found by both reviewers of the implementation). EXECUTED:
+`make -C tb/verilator/nvm_cosim wrap` runs five committing cases at 1 and 2
+identity bits, where the wrap lands inside the case, and requires each to
+report what it reports at 16 -- the same acknowledgements, the same deferrals
+and the same `captures refused` -- with at least one acknowledgement quoting
+the identity 0.
 
 Across a reset the alias distance is zero, not 65,536: the identity restarts
 at 0, so the first capture after every reset is 1, like the first one before

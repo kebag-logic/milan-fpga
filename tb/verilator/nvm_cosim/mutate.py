@@ -44,7 +44,7 @@ MUTANTS = {'A01_composite_durable_bit': ('rtl',
                               '\t\tnvm_stage_blank_image();\n',
                               '\tif (1) {\n\t\tnvm_stage_blank_image();\n')]),
  'F04_ack_without_identity': ('fw',
-                              [('\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap_id << '
+                              [('\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap.id << '
                                 '16));\n',
                                 '\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK);\n')]),
  'F05_device_busy_gate_kept': ('fw',
@@ -55,7 +55,7 @@ MUTANTS = {'A01_composite_durable_bit': ('rtl',
                                [('\t\tnvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | vd);\n'
                                  '\t\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);\n',
                                  '\t\tnvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | vd);\n'
-                                 '\t\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap_id '
+                                 '\t\tmilan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap.id '
                                  '<< 16));\n')]),
  'F07_reload_refusal_ignored': ('fw',
                                 [('\treturn !(milan_read(MILAN_PP_NVM_STAT) & '

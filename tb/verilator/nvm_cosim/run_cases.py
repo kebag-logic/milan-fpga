@@ -408,6 +408,89 @@ MUTANTS = {
     'R07_arm_without_accepted_load':
         ('rtl', 'U11_arm_refused_without_accepted_load', "", 'arm_refused_without_accepted_load@stray'),
 }
+#: ---- the identity WRAP arm (issue #484, round 2) --------------------------
+#: The backend's capture identity is a PLAIN WRAPPING counter -- section 5.4
+#: states the wrap and treats it as an ordinary event -- so one capture in
+#: every 2**CAP_ID_W_P carries the identity 0. These cases commit more than
+#: once, so a build at 1 or 2 identity bits reaches that capture INSIDE the
+#: case, where the shipping 16 bits would need 65,536 of them. What is graded
+#: is that the WIDTH changes nothing the writer reports: the capture whose
+#: identity is 0 is attested, acknowledged and never counted as refused.
+#: Width 1 wraps on the second capture; width 2 on the fourth, which only
+#: C2 reaches -- and C2 is also the one case here with a capture the backend
+#: genuinely does NOT attest, so the arm cannot be satisfied by a writer that
+#: has simply stopped refusing.
+WRAP_CASES = {
+    "A4_write_after_ack": (1,),
+    "A9_updates_during_slow_erase": (1,),
+    "B1_erase_error_full_span": (1,),
+    "C8_ack_refused_after_verified_slot": (1,),
+    "C2_hold_expiry_then_erase_with_stale_mask": (1, 2),
+}
+#: the writer's own report of a run, compared field by field across widths
+WRAP_FIELDS = ("acknowledged", "not attested", "commits ok=", "failed=",
+               "captures refused=", "acks refused=")
+
+
+def writer_report(r: Run) -> dict:
+    """What the WRITER said about its captures in one run: how many
+    acknowledgements it strobed and which identity each quoted, how many
+    commits it deferred for an unattested capture, and the counters its own
+    status line carries (`--status`, asked for after the case body)."""
+    acks = [e["v"] >> 16 for e in r.evts if e["k"] == "strobe" and e["v"] & 0x2]
+    status = [ln for ln in (r.outdir / "stdout.log").read_text().splitlines()
+              if "captures refused=" in ln]
+    if not status:
+        raise SystemExit(f"{r.case} on {r.build}: the writer printed no status line")
+    rep = {"acknowledged": len(acks),
+           "not attested": sum("not attested" in ln for ln in r.fw)}
+    for field in WRAP_FIELDS[2:]:
+        rep[field] = status[-1].split(field)[1].split()[0]
+    rep["ids"] = acks
+    return rep
+
+
+def grade_wrap(builds: list[Build], shapes: dict[str, ShapeInfo],
+               pool: int) -> int:
+    """Every wrap case, at a narrow identity, against ITSELF at the shipping
+    width. The identity width is the only thing that moves between the two
+    runs, so every difference is the writer reading the identity's VALUE as
+    an answer it does not carry."""
+    rc, zeroes = 0, 0
+    print("---- identity wrap: a capture whose identity is 0 is a capture -------")
+    base = next(b for b in builds if b.name == "contract-1x1")
+    for case, widths in WRAP_CASES.items():
+        want = writer_report(run_case(base, shapes, case, "wrap", ("--status",)))
+        for w in widths:
+            b = next(x for x in builds if x.name == f"idw{w}-1x1")
+            got = writer_report(run_case(b, shapes, case, "wrap", ("--status",)))
+            zeroes += got["ids"].count(0)
+            bad = [f"{f}: {got[f]} (width {w}) against {want[f]} (width 16)"
+                   for f in WRAP_FIELDS if got[f] != want[f]]
+            if bad:
+                print(f"  SELF-TEST FAILED: {case} at CAP_ID_W_P={w} reports "
+                      f"what it does not report at 16 -- {'; '.join(bad)}. "
+                      f"Identities acknowledged: {got['ids']} against "
+                      f"{want['ids']}.")
+                rc = 1
+            else:
+                print(f"  {case} at CAP_ID_W_P={w}: identities {got['ids']}, "
+                      f"{got['acknowledged']} acknowledged, "
+                      f"{got['not attested']} deferred as unattested, "
+                      f"captures refused={got['captures refused=']} -- the "
+                      f"same report as at 16")
+    #! and the arm is only worth anything if the wrap was REACHED: a case
+    #! list that stopped short of the second capture would pass every
+    #! comparison above without ever quoting the identity this is about
+    if not zeroes:
+        print("  SELF-TEST FAILED: no run acknowledged a capture whose "
+              "identity is 0, so this arm never reached the wrap.")
+        rc = 1
+    else:
+        print(f"  {zeroes} acknowledgement(s) quoted the capture identity 0")
+    return rc
+
+
 def one_shape_cases(shape: str, contract: bool) -> list[str]:
     """Which cases run at this shape on this kind of build."""
     if shape == "8x8":
@@ -468,10 +551,22 @@ def report(runs: list[Run], shapes: dict[str, ShapeInfo], label: str,
         s = shapes[next(b.shape for b in ALL_BUILDS if b.name == r.build)]
         for name, (verdict, detail) in grade(r, s).items():
             key = (r.case, r.variant, name)
-            if verdict == "fail" and key in expect_fail:
-                print(f"  EXPECTED-FAIL {label} {r.case}{'~' + r.variant if r.variant else ''} "
-                      f": {name} -- {expect_fail[key]}")
-                npass += 1
+            if key in expect_fail:
+                if verdict == "fail":
+                    print(f"  EXPECTED-FAIL {label} {r.case}{'~' + r.variant if r.variant else ''} "
+                          f": {name} -- {expect_fail[key]}")
+                    npass += 1
+                    continue
+                #! ... and the label must not OUTLIVE the limitation. A check
+                #! this suite says cannot pass here, passing, means the
+                #! limitation is gone or the case stopped reaching it; either
+                #! way the expectation is stale and the suite says so rather
+                #! than counting the run green and keeping the label
+                print(f"  UNEXPECTED-PASS {label} "
+                      f"{r.case}{'~' + r.variant if r.variant else ''} "
+                      f": {name} reads {verdict}, and it is labelled as a "
+                      f"known failure -- retire the label ({expect_fail[key]})")
+                nfail += 1
                 continue
             if verdict == "fail":
                 print(f"  {'REPRODUCED' if control else 'FAIL'} {label} "
@@ -494,13 +589,15 @@ def plan(a: argparse.Namespace, want: list[str]) -> list[Build]:
     mutant."""
     builds = [Build(f"contract-{n}", n) for n in want]
     if "1x1" in want:
-        # the identity-wrap control: a 2-bit identity MUST alias, which is
-        # what shows the 16-bit one is doing work (A8)
-        builds.append(Build("idw2-1x1", "1x1", cap_id_w=2))
+        # the NARROW identity builds, which two arms share: a 2-bit identity
+        # MUST alias, which is what shows the 16-bit one is doing work (A8),
+        # and both widths wrap inside a case, which is what grade_wrap()
+        # grades
+        builds += [Build(f"idw{w}-1x1", "1x1", cap_id_w=w) for w in (1, 2)]
     if a.legacy_dir:
         builds.append(Build("legacy-1x1", "1x1", contract=False,
                             legacy=Path(a.legacy_dir).resolve()))
-    if not a.skip_mutants:
+    if not a.skip_mutants and not a.wrap_only:
         for name, (kind, _case, _variant, _check) in MUTANTS.items():
             kw = {f"{k}_mut": name for k in kind.split("+")}
             builds.append(Build(f"mut-{name}", "1x1", **kw))
@@ -513,7 +610,7 @@ def grade_builds(builds: list[Build], shapes: dict[str, ShapeInfo],
     and the pre-contract one, whose failures ARE the evidence."""
     rc, totals = 0, [0, 0, 0]
     for b in builds:
-        if b.name.startswith("mut-") or b.name == "idw2-1x1":
+        if b.name.startswith(("mut-", "idw")):
             continue
         expect = {}
         if b.contract:
@@ -598,6 +695,9 @@ def main() -> int:
     ap.add_argument("--pool", type=int, default=8)
     ap.add_argument("--skip-mutants", action="store_true",
                     help="grade the shipping builds only (a fast local loop)")
+    ap.add_argument("--wrap-only", action="store_true",
+                    help="the identity-wrap arm alone: the narrow-identity "
+                         "builds and the cases that reach the wrap")
     ap.add_argument("--legacy-dir", default="",
                     help="a directory holding KL_nvm_backend.sv and milan_baremetal.c from "
                          "BEFORE the contract; with it the suite also runs the non-vacuity "
@@ -612,9 +712,13 @@ def main() -> int:
     with cf.ThreadPoolExecutor(max_workers=max(1, a.jobs // 2)) as ex:
         list(ex.map(lambda b: do_build(b, shapes, 2), builds))
 
-    rc, totals = grade_builds(builds, shapes, a.pool)
+    rc, totals = (0, [0, 0, 0]) if a.wrap_only else \
+        grade_builds(builds, shapes, a.pool)
 
-    if "1x1" in want and not a.skip_mutants:
+    if "1x1" in want and (a.wrap_only or not a.skip_mutants):
+        rc = grade_wrap(builds, shapes, a.pool) or rc
+
+    if "1x1" in want and not a.skip_mutants and not a.wrap_only:
         b = next(x for x in builds if x.name == "idw2-1x1")
         runs = run_build(b, shapes, a.pool,
                          only=[(b, "A8_identity_wrap", "", ())])
@@ -629,9 +733,12 @@ def main() -> int:
             print("  identity control: a 2-bit identity aliases on A8 as required")
         rc = grade_mutants(builds, shapes, a.pool) or rc
 
-    #! THE suite tally, in the shape scripts/suite_tally.py reads first
-    print(f"nvm_cosim: {totals[0] + totals[1]} checks: {totals[0]} PASS, "
-          f"{totals[1]} FAIL ({totals[2]} not expressible)")
+    #! THE suite tally, in the shape scripts/suite_tally.py reads first. NOT
+    #! printed by --wrap-only, which grades one arm and no case's checks: a
+    #! tally of zero is not this suite's result
+    if not a.wrap_only:
+        print(f"nvm_cosim: {totals[0] + totals[1]} checks: {totals[0]} PASS, "
+              f"{totals[1]} FAIL ({totals[2]} not expressible)")
     print("RESULT: PASS" if rc == 0 else "RESULT: FAIL")
     return rc
 

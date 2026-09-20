@@ -367,6 +367,19 @@ struct nvm_rec {
 	int ok;
 };
 
+/*
+ * One capture, by value: `ok` is 0 when no capture was opened or the backend
+ * did not attest the one that was, and `id` is the backend's capture identity
+ * beside it. The identity CANNOT carry that answer itself: the backend
+ * advances a plain wrapping counter (snapshot-ownership section 5.4), so one
+ * capture in every 2**CAP_ID_W_P has the identity 0, and a writer reading 0
+ * as "no capture" would defer a commit the backend had attested.
+ */
+struct nvm_cap {
+	uint32_t id;
+	int ok;
+};
+
 static const uint8_t nvm_mapin_clusters[16] = {
 	MILAN_NVM_MAPIN_CLUSTERS_0, MILAN_NVM_MAPIN_CLUSTERS_1, MILAN_NVM_MAPIN_CLUSTERS_2, MILAN_NVM_MAPIN_CLUSTERS_3,
 	MILAN_NVM_MAPIN_CLUSTERS_4, MILAN_NVM_MAPIN_CLUSTERS_5, MILAN_NVM_MAPIN_CLUSTERS_6, MILAN_NVM_MAPIN_CLUSTERS_7,
@@ -921,11 +934,11 @@ static void nvm_prefill_stage(void)
  * only happen once the hold lapsed, and a copy it does not attest never
  * reaches flash.
  */
-static uint32_t nvm_capture(void)
+static struct nvm_cap nvm_capture(void)
 {
+	struct nvm_cap cap = {0u, 0};
 	uint32_t own[NVM_OWN_WORDS];
 	uint32_t stat;
-	uint32_t cap_id;
 	unsigned int i;
 	unsigned int next;
 	unsigned int off = 0;
@@ -939,13 +952,17 @@ static uint32_t nvm_capture(void)
 		/* not armed, or a capture an unfinished attempt left open:
 		 * close it, so the next service call arms afresh */
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
-		return 0;
+		return cap;
 	}
-	/* The identity is RETURNED, never written through a pointer: the
+	/* The result is RETURNED, never written through a pointer: the
 	 * builder gate's compiled census places a store by computing its
 	 * address, and a store through an out-parameter is one it refuses
-	 * rather than omits. An accepted ARM advances the identity from 0,
-	 * so 0 is an unambiguous "no capture" here. */
+	 * rather than omits. It carries the identity BESIDE a separate
+	 * success word, because the backend's identity is a plain wrapping
+	 * counter (section 5.4) and one capture in every 2**CAP_ID_W_P
+	 * therefore has the identity 0: "no capture" cannot be spelled in
+	 * the identity's own value domain without reading that capture --
+	 * attested, and holding real work -- as a refusal. */
 	/* THE WHOLE OWNERSHIP VECTOR, read BEFORE the copy and not during it
 	 * (section 7 step 3.3): the vector is exact between the arm and the
 	 * attestation, and sampling it per record instead would read a bit the
@@ -961,7 +978,7 @@ static uint32_t nvm_capture(void)
 	 * pinned stores, because that gate takes a statement back to the last
 	 * ';', '{' or '}' and would otherwise read this text as part of the
 	 * first store's spelling. */
-	cap_id = nvm_word_read(NVM_W_CAPID);
+	cap.id = nvm_word_read(NVM_W_CAPID);
 	own[0] = nvm_word_read(NVM_W_OWN0 + 0u);
 	own[1] = nvm_word_read(NVM_W_OWN0 + 1u);
 	own[2] = nvm_word_read(NVM_W_OWN0 + 2u);
@@ -1003,9 +1020,10 @@ static uint32_t nvm_capture(void)
 	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ATTEST);
 	if (!(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_CAP_ATTEST)) {
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
-		return 0;
+		return cap;
 	}
-	return cap_id;
+	cap.ok = 1;
+	return cap;
 }
 
 /*
@@ -1022,12 +1040,12 @@ static int nvm_commit(const char *why)
 {
 	uint32_t next = nvm_seq + 1u;
 	uint32_t target = (nvm_auth_slot == NVM_SLOT_A) ? NVM_SLOT_B : NVM_SLOT_A;
-	uint32_t cap_id;
+	struct nvm_cap cap;
 	unsigned int vd;
 
 	nvm_in_commit = 1;
-	cap_id = nvm_capture();
-	if (cap_id == 0) {
+	cap = nvm_capture();
+	if (!cap.ok) {
 		printf("Milan NVM: commit (%s) deferred, the capture was not attested.\n",
 		       why);
 		nvm_captures_refused++;
@@ -1070,7 +1088,7 @@ static int nvm_commit(const char *why)
 	nvm_auth_slot = target;
 	nvm_csr_write(NVM_W_SEQ, next);
 	nvm_csr_write(NVM_W_STAT, NVM_STAT_VALID | VD_OK);
-	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap_id << 16));
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap.id << 16));
 	if (milan_read(MILAN_PP_NVM_STAT) & NVM_RD_ACK_REF) {
 		nvm_acks_refused++;
 		printf("Milan NVM: commit (%s) seq %lu -> slot %c, %u B, verified; acknowledgement REFUSED, the captured work stays owned.\n",
@@ -1081,7 +1099,7 @@ static int nvm_commit(const char *why)
 	nvm_commits_ok++;
 	printf("Milan NVM: commit (%s) seq %lu -> slot %c, %u B, capture %lu acknowledged.\n",
 	       why, (unsigned long)next, nvm_slot_letter(target),
-	       (unsigned int)NVM_IMG_LEN, (unsigned long)cap_id);
+	       (unsigned int)NVM_IMG_LEN, (unsigned long)cap.id);
 	return 1;
 }
 
