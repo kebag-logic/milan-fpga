@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_0060 - saved-state pending bit widened](#release-0x0002_0060---saved-state-pending-bit-widened)** -- Pending covers more cases.
 - **[Release 0x0002_005F - saved-state snapshot ownership](#release-0x0002_005f---saved-state-snapshot-ownership)** -- Durable means in a slot.
 - **[Release 0x0002_005E - board timestamp latency](#release-0x0002_005e---board-timestamp-latency)** -- The fabric corrects its stamps.
 - **[Release 0x0002_005C - SRP status words](#release-0x0002_005c---srp-status-words)** -- Four bits read their subject.
@@ -43,6 +44,39 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
 
+## Release 0x0002_0060 - saved-state pending bit widened
+
+- 0x005F defined `PP_STAT[11]` `nvm_pend` but could not fully raise it.
+- The pinned processor exported only the AECP store's dirty level.
+- Two of the bit's three terms read a constant zero.
+- The pinned processor now exports the other two.
+- `nvm_unflushed_o` is the binding manager's per-sink dirty vector.
+- `aecp_nvm_stb_o` and `aecp_nvm_mark_o` are a committed command's mark.
+- `KL_pp_shadow` binds both in the one place reserved for them.
+- The dirty vector is ORed into the backend's `pend_i`.
+- Class 6 is a channel map, class 7 a name.
+- Either mark sets a sticky pending source.
+- Class 1 is not taken; `aecp_dyn_dirty_o` already publishes it.
+- A binding accepted inside the manager's debounce now reads pending.
+- So does an uncommitted channel map or user name change.
+- No record writer exists for either group.
+- Only reset clears that source.
+- The durable reading is honest for a controller host.
+- Before, those cases could be polled as durable.
+- No CSR address, width, access or other field moves.
+- Donor scopes D1 and D2 are retired.
+- KNOWN LIMITATION: donor scope D3 stays open.
+- It is materialization of the non-binding fields, UNRESOLVED 1.
+- A map or name change is reported, never made durable.
+- `tb/verilator/nvm_cosim` case E3 is now an ordinary passing case.
+- It was the suite's one labelled expected failure.
+- The suite grades 465 checks at both shapes.
+- No labelled failure is left.
+- The protocol-processor pin moves to `424c688f` (processor issue 90).
+- Both ROM images are byte-identical at the new pin.
+- Only the pin column of `syn/yosys/rom_digests.tsv` moves.
+- Issue 496 carries this step and the ledgers.
+
 ## Release 0x0002_005F - saved-state snapshot ownership
 
 - Every allocated record carries an OPEN bit.
@@ -72,16 +106,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The writer acknowledges it like any other.
 - That arm runs at 2 identity bits, the contract's minimum.
 - A width outside 2..16 is refused at elaboration.
-- KNOWN LIMITATION 1: the pinned processor does not export D1.
-- A binding inside the manager's debounce reads durable.
-- The donor issue is 90 in the processor repository.
-- `KL_pp_shadow` ties that term to zero.
-- KNOWN LIMITATION 2: a channel map change reads durable.
-- So does a user name change.
-- Those record ids have no record writer at this version.
-- That is donor scope D2, UNRESOLVED 2 on the page.
-- Neither limitation is new.
-- Neither is in issue 484's scope.
 - Issue 484 carries the contract and the evidence.
 
 ## Release 0x0002_005E - board timestamp latency

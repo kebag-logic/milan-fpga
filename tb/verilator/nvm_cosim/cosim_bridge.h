@@ -98,7 +98,7 @@ extern uint64_t cyc;
 extern std::vector<Preload> preloads;
 
 [[noreturn]] void fatal(const char *why);
-void init(unsigned d1_en);
+void init();
 void finish();
 void edge();
 void run_cycles(uint64_t n);

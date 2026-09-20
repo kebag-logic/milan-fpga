@@ -1284,19 +1284,6 @@ void load_records(const std::string &path) {
 
 }  // namespace
 
-// One 0/1 command-line flag, refused rather than defaulted: strtoul reports
-// what it consumed, which atoi cannot, and a --d1 nobody parsed would model
-// the donor export as ABSENT and quietly turn E3 into its expected failure.
-static unsigned arg_flag(const char *text) {
-  char *end = nullptr;
-  const unsigned long value = std::strtoul(text, &end, 10);
-  if (end == text || *end != '\0' || value > 1UL) {
-    std::fprintf(stderr, "a 0/1 flag was expected, got %s\n", text);
-    std::exit(2);
-  }
-  return static_cast<unsigned>(value);
-}
-
 // The identity-wrap arm's tail length, BOUNDED rather than defaulted, for
 // the same reason and with the same call: a --commits nobody parsed would
 // leave the arm short of the wrap and green because it never got there.
@@ -1312,17 +1299,13 @@ static unsigned arg_count(const char *text) {
 
 int main(int argc, char **argv) {
   std::string name, table, slot_a, slot_b;
-  unsigned d1 = 0, status = 0, commits = 0;
+  unsigned status = 0, commits = 0;
   for (int i = 1; i < argc; ++i) {
     const std::string a = argv[i];
     const char *v = (i + 1 < argc) ? argv[i + 1] : nullptr;
     if (a == "--case" && v) name = argv[++i];
     else if (a == "--out" && v) out_dir = argv[++i];
     else if (a == "--records" && v) table = argv[++i];
-    // strtoul, not atoi: Rule 11 refuses an unbounded C call, and the
-    // reason is the same here as anywhere -- atoi reports nothing, so a
-    // typed --d1 would silently model the donor export as absent
-    else if (a == "--d1" && v) d1 = arg_flag(argv[++i]);
     else if (a == "--slot-a" && v) slot_a = argv[++i];
     else if (a == "--slot-b" && v) slot_b = argv[++i];
     // the writer's own counters, asked for on the console AFTER the case
@@ -1352,7 +1335,7 @@ int main(int argc, char **argv) {
   if (!slot_b.empty() &&
       !host_load_file(slot_b.c_str(), nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u))
     fatal("cannot load slot B");
-  cosim::init(d1);
+  cosim::init();
   if (name == "R_power_cycle") {
     // a retained-media boot: the slots of an earlier run, a fresh fabric
     boot();

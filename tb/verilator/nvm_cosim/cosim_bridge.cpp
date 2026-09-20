@@ -135,7 +135,6 @@ struct DynPulse {
   uint64_t val = 0;
 } dyn;
 unsigned restore_go = 0;
-unsigned d1 = 0;
 unsigned prev_backed = 0;
 
 std::vector<Preload> preloads;
@@ -192,7 +191,6 @@ static void drive_cycle() {
   dut->dyn_idx_i = dyn.idx;
   dut->dyn_val_i = dyn.val;
   dut->restore_go_i = restore_go;
-  dut->d1_en_i = d1;
   dut->mem_req_ready_i = !rd.busy;
   dut->mem_rsp_valid_i = rd.busy && rd.delay == 0;
   dut->mem_rsp_data_i = rd.busy ? lane(rd.addr) : 0;
@@ -451,10 +449,9 @@ void reset_rtl() {
   host_catch_up();
 }
 
-void init(unsigned d1_en) {
+void init() {
   ctx = std::make_unique<VerilatedContext>();
   dut = std::make_unique<Vcosim_top>(ctx.get());
-  d1 = d1_en;
   dut->rst_n = 0;
   dut->csr_sel_i = dut->csr_we_i = 0;
   for (int n = 0; n < 8; ++n) edge();

@@ -88,9 +88,6 @@ module cosim_top
     input  wire  [7:0]  bfm_wdata_i,
     input  wire         bfm_rready_i,
 
-    //! ---- donor scope D1 modelled: export the manager's unflushed state --
-    input  wire         d1_en_i,
-
     //! ---- the backend's memory face, to the C++ memory model -------------
     output logic        mem_req_valid_o,
     input  wire         mem_req_ready_i,
@@ -344,11 +341,19 @@ module cosim_top
   // ---- the parent glue ------------------------------------------------------
 `ifdef NVM_CONTRACT_3
   //! The sticky level IS the ownership of an unmaterialised change, so it is
-  //! passed as a level (snapshot-ownership section 6.1); d1_en_i models the
-  //! manager's unflushed sinks that donor scope D1 will export; the alarm the
-  //! processor already exports reaches the backend.
+  //! passed as a level (snapshot-ownership section 6.1); the manager's
+  //! unflushed sinks are the second term, and at the pinned processor they
+  //! are a real output port (donor scope D1, nvm_unflushed_o) rather than
+  //! something this harness models — the same dbg_dirty_o the shadow above
+  //! drives. The alarm the processor already exports reaches the backend.
+  //!
+  //! The glue's THIRD term, the sticky bit an AECP commit mark of class 6 or
+  //! 7 sets (donor scope D2), has no producer here: this harness elaborates
+  //! the dynamic-state store and the binding manager, not the AECP engine, so
+  //! no mark can be raised and the term would be a constant. It is graded
+  //! where its producer is, in the processor's own pp_top suite.
   logic pend_w;
-  assign pend_w = aecp_dyn_dirty_w | (d1_en_i & (|mgr_dirty_w));
+  assign pend_w = aecp_dyn_dirty_w | (|mgr_dirty_w);
 `else
   //! TRANSCRIBED from the parent glue BEFORE the contract: the rising edge
   //! of the sticky dyn level was the backend's change_i, which is the issue
@@ -360,8 +365,6 @@ module cosim_top
     if (!rst_n) dyn_dirty_q <= 1'b0;
     else        dyn_dirty_q <= aecp_dyn_dirty_w;
   end
-  logic d1_nc_w;
-  assign d1_nc_w = d1_en_i;
 `endif
 
   //! TRANSCRIBED from hdl/milan/KL_pp_shadow.sv:890-907 and :1391-1392: a

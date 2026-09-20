@@ -889,7 +889,9 @@ module KL_pp_shadow #(
   //!     reset, cleared by reset only) and is passed straight through; the
   //!     edge detector the tracked glue derived from it is GONE, because it
   //!     lost every change after the first (issue #420). Two further sources
-  //!     wait on donor exports that do not exist yet and are tied off below.
+  //!     come from the pinned processor's own exports below: the binding
+  //!     manager's unflushed sinks, and a sticky bit set by an AECP commit
+  //!     mark for a record group nothing writes.
   //!   * a blind walk: whether a validated image stood behind the device face
   //!     for EVERY cycle of the restore walk. Latched per walk, because the
   //!     verdict is about the bytes the walk read, not about the image's
@@ -902,23 +904,46 @@ module KL_pp_shadow #(
   logic        nvm_backed_w, nvm_img_valid_w, nvm_pend_w, nvm_alarm_w;
   logic        restore_busy_q, walk_blind_r;
 
-  //! KNOWN LIMITATION, donor scopes D1 and D2 of the snapshot-ownership page
-  //! section 13. They are one protocol-processor output port and one pair of
-  //! them, filed as protocol-processor-control-plane-avb-milan issue 90, and
-  //! the pinned processor exports neither. These are the two terms of pend_i
-  //! they will feed, and THIS IS THE ONE PLACE THEY WILL CONNECT: when D1
-  //! lands, nvm_unflushed_w binds to the donor's nvm_unflushed_o; when D2
-  //! lands, aecp_mark_pend_w is driven from its mark strobe and class. Until
-  //! then a binding accepted inside the manager's debounce, and any channel
-  //! map or name change, can read durable (section 9 case E3, and UNRESOLVED
-  //! 2 and 3). Tied to zero here rather than omitted, so the term that is
-  //! missing is visible in the source that would carry it.
-  logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
-  logic                     aecp_mark_pend_w;
-  assign nvm_unflushed_w  = '0;
-  assign aecp_mark_pend_w = 1'b0;
+  //! Donor scopes D1 and D2 of the snapshot-ownership page section 13 LANDED
+  //! at the pinned revision (protocol-processor-control-plane-avb-milan issue
+  //! 90), and this is the place they were reserved for. Both feed pend_i:
+  //!
+  //!   * D1, nvm_unflushed_o: the binding manager's own per-sink dirty
+  //!     vector, 1 from the accepted change until its record commits with
+  //!     done or its retries are exhausted (the cycle nvm_alarm_o rises). A
+  //!     binding accepted inside the manager's debounce is pending from the
+  //!     accept, which is section 9 case E3.
+  //!   * D2, aecp_nvm_stb_o / aecp_nvm_mark_o: the committed command's mark.
+  //!     A mark of class 6 (channel maps) or class 7 (user names) sets a
+  //!     STICKY pend source, because no record writer exists for either group
+  //!     (section 11, all NONE): nothing can retire it, so it clears only at
+  //!     reset, which is what "until the record that materializes it is
+  //!     written, or until reset while no writer exists" reduces to here.
+  //!     Class 1 marks a dynamic-state field and is NOT taken: the processor
+  //!     already publishes that as the aecp_dyn_dirty_o level below, and
+  //!     counting it twice would say nothing new.
+  //!
+  //! What is still open is MATERIALIZATION (donor scope D3, UNRESOLVED 1):
+  //! the status now reports a map or name change instead of reading durable
+  //! over it, but nothing writes those records.
+  localparam logic [7:0] NVM_MARK_MAPS_C  = 8'd6;
+  localparam logic [7:0] NVM_MARK_NAMES_C = 8'd7;
 
-  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_mark_pend_w;
+  logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
+  logic                     aecp_nvm_stb_w;
+  logic [7:0]               aecp_nvm_mark_w;
+  logic                     aecp_mark_pend_r;
+
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      aecp_mark_pend_r <= 1'b0;
+    end else if (aecp_nvm_stb_w && ((aecp_nvm_mark_w == NVM_MARK_MAPS_C)
+                                 || (aecp_nvm_mark_w == NVM_MARK_NAMES_C))) begin
+      aecp_mark_pend_r <= 1'b1;
+    end
+  end
+
+  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_mark_pend_r;
 
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
@@ -1044,6 +1069,8 @@ module KL_pp_shadow #(
       .aecp_fmt_out_o      (aecp_fmt_out_o),
       .aecp_fmt_out_v_o    (aecp_fmt_out_v_o),
       .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
+      .aecp_nvm_stb_o      (aecp_nvm_stb_w),
+      .aecp_nvm_mark_o     (aecp_nvm_mark_w),
       .aecp_lock_held_o    (aecp_lock_held_o),
 
       .entity_id_i         (entity_id_i),
@@ -1164,6 +1191,7 @@ module KL_pp_shadow #(
       .restore_fail_o      (pp_restore_fail_w),
       .restore_blank_o     (pp_restore_blank_w),
       .nvm_alarm_o         (nvm_alarm_w),
+      .nvm_unflushed_o     (nvm_unflushed_w),
 
       .nvm_dev_req_o       (nvm_req_w),
       .nvm_dev_gnt_i       (nvm_gnt_w),

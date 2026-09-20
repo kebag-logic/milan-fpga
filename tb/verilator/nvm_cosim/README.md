@@ -25,7 +25,7 @@ superset of the other, and both run in the sweep.
 - **[Running it](#running-it)** -- Four targets, and the one tally line the sweep counts.
 - **[How a case is graded](#how-a-case-is-graded)** -- The case file is stimulus only; every verdict is a NAMED check over a decoded journal.
 - **[Four ways this suite tries to show its checks are not vacuous](#four-ways-this-suite-tries-to-show-its-checks-are-not-vacuous)** -- A mutant per named check, an identity that must alias, an identity that must wrap, and the pre-contract source that must go red.
-- **[The one expected failure](#the-one-expected-failure)** -- E3 without donor scope D1, labelled with its reason and its donor issue.
+- **[The expected failure that was retired](#the-expected-failure-that-was-retired)** -- E3 was the one labelled failure; donor scope D1 landed and it is an ordinary passing case.
 - **[Files](#files)** -- What each file in the suite is.
 
 ## What is real here, and what is a model
@@ -150,24 +150,29 @@ cites and what the mutant table below aims at.
    printed as REPRODUCED, not as failures: they are the defects the contract
    answers, on the source they were reported against.
 
-## The one expected failure
+## The expected failure that was retired
 
-`E3_binding_inside_manager_debounce` at `d1=0` fails
-`no_durable_claim@in_debounce`, and is labelled EXPECTED-FAIL with its reason.
-It is a KNOWN LIMITATION, not a defect of this change: donor scope D1 of the
-page's section 13 (one `protocol_processor_top` output port exporting the
-binding manager's unflushed sinks) does not exist at the pinned processor, so
-the parent cannot see a binding the manager is still debouncing and that
-binding can read durable. It is filed as
-`protocol-processor-control-plane-avb-milan` issue 90; `KL_pp_shadow.sv` ties
-the term to zero at the one place it will connect. The same case at `d1=1`,
-which models the export, passes.
+`E3_binding_inside_manager_debounce` used to be the one labelled failure of
+this suite: at `d1=0` it failed `no_durable_claim@in_debounce`, because the
+pinned processor exported nothing the parent could see a debouncing binding
+with, and `KL_pp_shadow.sv` tied that term of `pend_i` to zero. Donor scope D1
+of the page's section 13 landed that export
+(`protocol_processor_top.nvm_unflushed_o`,
+`protocol-processor-control-plane-avb-milan` issue 90), the glue binds it, and
+the case is an ORDINARY case now: it runs ONCE, with no variant, and passes.
+The `--d1` flag that modelled the export's absence is gone with it, from
+`cosim_top.sv`, the bridge and the case runner.
 
-The label cannot outlive the limitation: the expectation is keyed on the exact
+There is no labelled failure left on a contract build. The machinery that
+retires such a label stays: an expectation is keyed on the exact
 `(case, variant, check)` triple, any other check of that case fails the suite
-normally, and that check PASSING is reported as `UNEXPECTED-PASS` and fails
-the suite too. So the round that lands donor scope D1 is told to retire the
-label rather than inheriting a green run that still carries it.
+normally, and a labelled check that PASSES is reported as `UNEXPECTED-PASS`
+and fails the suite too, so the next limitation cannot outlive its fix
+quietly.
+
+What D1 does NOT close is materialization (donor scope D3, UNRESOLVED 1): the
+status reports a change it cannot make durable, which is the honest reading
+and not a durable claim.
 
 ## Files
 

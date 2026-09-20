@@ -76,12 +76,12 @@ MUTANTS = {'A01_composite_durable_bit': ('rtl',
                                       'NVM_RD_LOAD_PEND)) {\n',
                                       '\t\t\tif (0) {\n')]),
  'G01_edge_detected_change': ('glue',
-                              [('  assign pend_w = aecp_dyn_dirty_w | (d1_en_i & '
-                                '(|mgr_dirty_w));\n',
+                              [('  assign pend_w = aecp_dyn_dirty_w | '
+                                '(|mgr_dirty_w);\n',
                                 '  logic dyn_q_mut;\n'
                                 '  always_ff @(posedge clk_i) dyn_q_mut <= aecp_dyn_dirty_w;\n'
-                                '  assign pend_w = (aecp_dyn_dirty_w & ~dyn_q_mut) | (d1_en_i '
-                                '& (|mgr_dirty_w));\n')]),
+                                '  assign pend_w = (aecp_dyn_dirty_w & ~dyn_q_mut) | '
+                                '(|mgr_dirty_w);\n')]),
  'M01_open_at_erase_completion': ('rtl',
                                   [('                          | (set_q_r & hit_w)\n',
                                     '                          | (done_r & ~was_write_r & '
