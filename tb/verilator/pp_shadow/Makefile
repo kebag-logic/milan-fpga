@@ -54,6 +54,17 @@ TIM_D  = -DPP_MS_CYCLES=100
 MAAP_G = -GMAAP_CLK_HZ_P=100000
 MAAP_D = -DMAAP_MS_CYCLES=100
 
+# THE ADPDU's entity_capabilities IS THE ENGINE'S CONSTANT, NOT A CSR FIELD
+# (#398, #465). KL_adp_engine sends pp_adp_pkg::ADP_ENTITY_CAPS_C and nothing
+# reads 0x614, so a harness that wrote that CSR and then rebuilt its expected
+# frame from the READBACK was grading the wire against a value it had written
+# itself. The word is read out of the package here instead, with no pipeline
+# so the recipe's own verdict is never a `grep`'s; an empty result fails the
+# C++ side loudly, because the header refuses to compile without it.
+ADP_PKG    = $(PP_DIR)/adp/pp_adp_pkg.sv
+CAPS_RAW  := $(shell sed -n "s/.*ADP_ENTITY_CAPS_C[[:space:]]*=[[:space:]]*32'h\([0-9A-Fa-f_]*\).*/\1/p" $(ADP_PKG))
+CAPS_D     = -DPP_ADP_ENTITY_CAPS_C=0x$(subst _,,$(CAPS_RAW))u
+
 # THE TALKER SOURCE ENABLE IS NO LONGER A -G. KL_pp_shadow's SRC_EN_MASK_P
 # parameter is deleted; milan_datapath drives cfg_src_en_i from the ENTITY
 # SHAPE ({ACMP_SRC_C{1'b1}} - every declared STREAM_OUTPUT enabled, and no
@@ -80,7 +91,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
-         -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D) -Wall -Wextra"
+         -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D) $(CAPS_D) -Wall -Wextra"
 
 # ONE SOURCE LIST, AND IT ALREADY CONTAINS THE PROCESSOR. milan_dp's SRCS now
 # begins with the protocol-processor sources plus KL_pp_shadow/KL_pp_maap_shim,
