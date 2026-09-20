@@ -95,6 +95,10 @@ PROSE_OK = {
     "sw/litex/milan_soc.py": (
         {"protocol-processor/hdl/top/protocol_processor_top.sv"},
         "a comment citing a submodule line number, not a source entry"),
+    "tb/verilator/pp_shadow/Makefile": (
+        {"$(PP_DIR)/adp/pp_adp_pkg.sv"},
+        "the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); "
+        "it is not a verilator source entry, and the source list stays derived"),
     "tests/steps/aecp_engine_steps.py": (
         {"protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
          "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
