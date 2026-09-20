@@ -543,6 +543,34 @@ reads `INERT` naming the constant cell, which the 8x8 configuration's
 `tdm_dout` is the first build to take. Widening the check to those shapes is
 separate work.
 
+**Any change to [`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl)
+requires a live run on a placed checkpoint**, whatever the change looks like.
+The offline self-test does not stand in for one: it drives the real Tcl over
+stubbed netlists, so it grades the verdict rules, and what it cannot model is
+Vivado's own object system. A Vivado query answers OBJECTS whose string form
+is their names, and only some Tcl forms keep them - `{*}` expansion of an
+answer hands the next query plain names, which raises `[Common 17-161]`, and
+a Vivado ERROR ends the batch session where it is raised, before any report
+is written. A revision that only touched how emptiness is graded shipped that
+once and stopped every build at the check with the self-test green. Four Tcl
+lines against any saved `*_place.dcp` answer it in about half a minute:
+
+```tcl
+open_checkpoint <outdir>/gateware/<build_name>_place.dcp
+file copy -force <outdir>/gateware/<build_name>.xdc <scratch>/<build_name>.xdc
+source sw/litex/iob_pack_check.tcl
+kl_iob_pack_check <scratch>/<build_name>_iob_pack.rpt
+```
+
+Run them with `vivado -mode batch -nojournal -nolog -notrace -source
+live.tcl`. The copied `.xdc` is what the constraint cross-check reads beside
+the report, so a run without it is not the flow's run. A pass is one row per
+constrained port, `IOB-PACK OK`, and exit 0; anything else names the port and
+exits 1. Prove the red side on the same checkpoint in memory, and write
+nothing back to it: connect a `LUT1` to an IOB flop's `Q`, `unplace_cell` the
+flop and `place_design`. Vivado then raises Place 30-722 and leaves it in a
+slice, and the check must `FAIL` naming that port.
+
 1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
    row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted
    below +0.03 at 112.5 MHz; the -1 arty die will run tighter at 100 MHz.

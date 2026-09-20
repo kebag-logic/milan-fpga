@@ -68,6 +68,22 @@
 # bitstream. A port with no IOB constraint (tdm_mclk, tdm_din today) is not
 # looked at. sw/litex/iob_pack_selftest.py drives this file in tclsh with the
 # Vivado netlist queries stubbed; that is its gate outside Vivado.
+#
+# OBJECTS, NEVER NAMES, AND NEVER `{*}`. A Vivado query answers a list of
+# OBJECTS whose string form happens to be their names, and only some Tcl
+# operations keep the objects. Measured on the placed checkpoint under
+# 2026.1: `foreach`, `lindex`, `lrange`, `lsort`, `filter`, `concat`, and
+# `list`/`lappend` of a WHOLE answer all keep them; `{*}` expansion of an
+# answer into another list does NOT - its elements come back as plain names.
+# The next query then rejects them: `get_property` raises Common 17-161
+# ("Invalid option value 'eth0_tx_data_reg[0]' specified for 'object'") and
+# `-of_objects` raises Common 17-697. That is not a soft failure to grade a
+# port: a Vivado ERROR ends the `-mode batch` session where it is raised,
+# before the `catch` below can name the port and before any report is
+# written, so every build stops at this check. So no list below is ever
+# taken apart and rebuilt - a per-pin answer is carried as its own GROUP -
+# and a name is never handed back to a query. The one string form used is
+# for messages (`join`, which leaves the object list itself usable).
 
 # The cells on the far side of `pins` (their net's leaf pins facing `dir`), as
 # {reached cells}. `reached` is 0 when the pins carry no net: their far side
@@ -99,16 +115,19 @@ proc kl_iob_far_groups {bufs dir} {
             return [list 0 {}]
         }
         # one followed pin at a time: an OBUFT whose T answers a grounded
-        # driver must not answer for an I whose net came back empty.
-        set drivers {}
+        # driver must not answer for an I whose net came back empty. Each
+        # pin's answer is kept WHOLE, as its own group, because a Vivado
+        # object list must never be taken apart and rebuilt: see the note on
+        # `{*}` above the file's first proc.
+        set groups {}
         foreach pin $pins {
             lassign [kl_iob_net_cells $pin OUT] reached cells
             if {!$reached || [llength $cells] == 0} {
                 return [list 0 {}]
             }
-            lappend drivers {*}$cells
+            lappend groups $cells
         }
-        return [list 1 [list $drivers]]
+        return [list 1 $groups]
     }
     set pins [get_pins -of_objects $bufs -filter {REF_PIN_NAME == O}]
     if {[llength $pins] == 0} {
@@ -248,9 +267,10 @@ proc kl_iob_pack_check {report} {
             continue
         }
         lappend graded $port
-        # re-raised, never swallowed: a query that fails inside the verdict
-        # ends the build either way, but a bare Tcl trace does not say which
-        # port it was grading.
+        # re-raised, never swallowed: it names the port for an error Tcl
+        # raises here, and a bare Tcl trace does not. It cannot rescue a
+        # Vivado ERROR message, which ends the batch session where it is
+        # raised - measured, and why the rule above is structural.
         if {[catch {kl_iob_port_verdict $port} answer]} {
             error "IOB-PACK ERROR: grading $port ended the run: $answer"
         }

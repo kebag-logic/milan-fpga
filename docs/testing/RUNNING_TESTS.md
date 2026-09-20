@@ -42,7 +42,9 @@ file: [`sw/litex/iob_pack_selftest.py`](../../sw/litex/iob_pack_selftest.py)
 drives [`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl)
 (issue #475) in `tclsh` over stubbed netlists, which is the only gate that
 check has outside a Vivado build. It is in the list above, and the
-`docs-check` job runs it.
+`docs-check` job runs it. It does not stand in for a live run: changing that
+Tcl requires one on a placed checkpoint, in the four lines
+[BUILDING](../integration/BUILDING.md) section 5 gives.
 
 ## 2. Verilator suites
 

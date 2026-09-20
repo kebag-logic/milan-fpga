@@ -34,16 +34,30 @@ ILOGIC behind the ZHOLD_DELAY that opt_design inserts in front of it.
     nothing for every port, or no .xdc beside the report: exit 1 each. These
     are the cases that read INERT, or "0 port(s) checked", before the #475
     review; a query that answers nothing must not be the verdict that lets a
-    build through.
+    build through;
+  - a query answering NAMES instead of objects, which is what `{*}` does to
+    an answer live: the next query raises, the run ends, and the error says
+    which port was being graded. Nothing packs a name back into an object,
+    so this arm holds only while the traversal carries objects end to end.
 
-The stubs mirror the two answers Vivado gives: nothing MATCHED is an empty
-list, and a query handed no object at all raises, as it does live (Common
-17-697). That is the distinction the check now rests on. They ignore
-`-quiet`, so the flag is counted in the file instead (`quiet_reads`).
+The stubs mirror the three answers Vivado gives. Nothing MATCHED is an empty
+list. A query handed no object at all raises (Common 17-697). And a query
+handed a NAME where an object is required raises too (Common 17-161), which
+is what ended a real build at this check: an object here is its name behind
+a marker byte no netlist name carries, every stub answers objects, every
+stub rejects a name, and the harness strips the marker from what the check
+prints. `-quiet` is ignored, so the flag is counted in the file instead
+(`quiet_reads`).
+
+One thing no stub can see, because Tcl values carry no object identity: live
+it is `{*}` expansion of a query answer that turns the objects back into
+names - `foreach`, `lindex`, `lassign`, `lsort`, `filter` and `lappend` of
+the whole answer all keep them, measured on the placed checkpoint. So the
+file is read as text for that one rule as well (`expanded_answers`).
 
 Every mutant of the .tcl in MUTANTS must then be noticed by an arm that
-stops holding or by that count, which is what shows the checks here can fail
-for the defects they name.
+stops holding or by one of those two counts, which is what shows the checks
+here can fail for the defects they name.
 Needs `tclsh` (package `tcl`); exits 2 without it.
 """
 
@@ -58,10 +72,34 @@ from pathlib import Path
 
 CHECK_TCL = Path(__file__).resolve().parent / "iob_pack_check.tcl"
 
+#: The marker an object carries and a name does not. \x02 cannot appear in a
+#: netlist name, and the harness strips it from everything the check prints,
+#: so a report row and an error read exactly as they do live.
+OBJ = "\x02"
+
 #: The Vivado queries the check uses, answered from the ::PORT, ::PIN and
 #: ::CELL arrays each arm fills in. A pin's net is its NET field; a net is
-#: nothing but the name its pins and its port share.
+#: nothing but the name its pins and its port share. Every query ANSWERS
+#: objects and every query REJECTS a name, as the live tool does.
 STUBS = r"""
+set ::KL_OBJ "\x02"
+proc kl_stub_obj {name} {
+    return "$::KL_OBJ$name"
+}
+proc kl_stub_mint {names} {
+    set out {}
+    foreach name $names { lappend out [kl_stub_obj $name] }
+    return $out
+}
+# The name behind an object, and a raise when there is no object there: a
+# name in an object's place is Common 17-161 live, which ends the run.
+proc kl_stub_name {cmd what value} {
+    if {[string index $value 0] ne $::KL_OBJ} {
+        error "stub $cmd: Invalid option value '$value' specified for\
+               '$what' (Vivado: Common 17-161)"
+    }
+    return [string range $value 1 end]
+}
 proc kl_stub_match {obj filter} {
     foreach alt [split [string map {"||" "\x01"} $filter] "\x01"] {
         set ok 1
@@ -91,32 +129,37 @@ proc kl_stub_args {argv} {
 }
 proc get_ports {args} {
     lassign [kl_stub_args $args] of filter
-    set all [lsort [array names ::PORT]]
+    set all [kl_stub_mint [lsort [array names ::PORT]]]
     if {$filter eq ""} { return $all }
     return [filter $all $filter]
 }
 proc get_property {args} {
     set argv [lsearch -all -inline -not -exact $args -quiet]
     lassign $argv key obj
+    set name [kl_stub_name get_property object $obj]
     foreach arr {::PORT ::PIN ::CELL} {
-        if {[info exists ${arr}($obj)]} {
-            set d [set ${arr}($obj)]
+        if {[info exists ${arr}($name)]} {
+            set d [set ${arr}($name)]
             if {[dict exists $d $key]} { return [dict get $d $key] }
             return ""
         }
     }
-    error "stub get_property: no object '$obj'"
+    error "stub get_property: no object '$name'"
 }
+# The names behind `-of_objects`: no object at all is Common 17-697 live, a
+# name where an object belongs is 17-161, and both end the run.
 proc kl_stub_objs {cmd of} {
     if {[llength $of] == 0} {
         error "stub $cmd: -of_objects with no object (Vivado: Common 17-697)"
     }
+    set out {}
+    foreach o $of { lappend out [kl_stub_name $cmd objects $o] }
+    return $out
 }
 proc get_nets {args} {
     lassign [kl_stub_args $args] of
-    kl_stub_objs get_nets $of
     set out {}
-    foreach o $of {
+    foreach o [kl_stub_objs get_nets $of] {
         foreach arr {::PORT ::PIN} {
             if {[info exists ${arr}($o)]} {
                 set net [dict get [set ${arr}($o)] NET]
@@ -124,27 +167,29 @@ proc get_nets {args} {
             }
         }
     }
-    return [lsort -unique $out]
+    return [kl_stub_mint [lsort -unique $out]]
 }
 proc get_pins {args} {
     lassign [kl_stub_args $args] of filter
-    kl_stub_objs get_pins $of
+    set names [kl_stub_objs get_pins $of]
     set out {}
     foreach p [array names ::PIN] {
         set d $::PIN($p)
-        if {[dict get $d NET] in $of || [dict get $d CELL] in $of} {
+        if {[dict get $d NET] in $names || [dict get $d CELL] in $names} {
             lappend out $p
         }
     }
-    if {$filter eq ""} { return [lsort $out] }
-    return [filter [lsort $out] $filter]
+    set out [kl_stub_mint [lsort $out]]
+    if {$filter eq ""} { return $out }
+    return [filter $out $filter]
 }
 proc get_cells {args} {
     lassign [kl_stub_args $args] of
-    kl_stub_objs get_cells $of
     set out {}
-    foreach p $of { lappend out [dict get $::PIN($p) CELL] }
-    return [lsort -unique $out]
+    foreach p [kl_stub_objs get_cells $of] {
+        lappend out [dict get $::PIN($p) CELL]
+    }
+    return [kl_stub_mint [lsort -unique $out]]
 }
 """
 
@@ -356,8 +401,23 @@ BLIND_ONE_IOB_READ = r"""
 rename get_property kl_stub_real_get_property
 proc get_property {args} {
     if {[lindex $args 0] eq "-quiet" && [lindex $args 1] eq "IOB"
-        && [lindex $args 2] eq "tdm_bclk"} { return "" }
+        && [lindex $args 2] eq [kl_stub_obj tdm_bclk]} { return "" }
     return [kl_stub_real_get_property {*}$args]
+}
+"""
+
+#: get_cells answers NAMES instead of objects, which is what `{*}` expansion
+#: of an answer does to it live. Nothing downstream can pack a name back
+#: into an object, so the next query raises Common 17-161 and the run ends -
+#: the failure a real build hit, reproduced where tclsh can see it.
+CELLS_ANSWER_NAMES = r"""
+rename get_cells kl_stub_real_get_cells
+proc get_cells {args} {
+    set out {}
+    foreach obj [kl_stub_real_get_cells {*}$args] {
+        lappend out [kl_stub_name get_cells object $obj]
+    }
+    return $out
 }
 """
 
@@ -454,6 +514,9 @@ ARMS = (
         says="no port answered IOB TRUE"),
     Arm("no port answers IOB TRUE, and no .xdc sits beside the report",
         unconstrained(), 1, says="no .xdc file sits beside it"),
+    Arm("a query answers names, not objects: the next one raises",
+        shipping(), 1, twist=CELLS_ANSWER_NAMES,
+        says="Invalid option value"),
 )
 
 #: (name, original text, replacement): each must make some arm stop holding.
@@ -490,6 +553,11 @@ MUTANTS = (
      "        return -1", "        return 0"),
     ("-quiet back on the port's net query", "set nets [get_nets -of_objects $port]",
      "set nets [get_nets -quiet -of_objects $port]"),
+    ("a per-pin answer taken apart and rebuilt", "lappend groups $cells",
+     "lappend groups {*}$cells"),
+    ("a query that raised while grading a port taken for INERT",
+     'error "IOB-PACK ERROR: grading $port ended the run: $answer"',
+     'set answer [list INERT "the query raised"]'),
 )
 
 PORTS = ("tdm_bclk", "tdm_fsync", "tdm_dout", "tdm_mclk", "tdm_din",
@@ -511,19 +579,22 @@ def run_arm(tclsh: str, check: Path, arm: Arm, work: Path) -> list[str]:
         "{ puts stderr $msg; exit 1 }\nexit 0\n", encoding="utf-8")
     proc = subprocess.run([tclsh, str(driver)], capture_output=True, text=True,
                           check=False)
+    # what the check printed, with the stub's object marker taken back off:
+    # live, an object prints as its bare name.
+    stderr = proc.stderr.replace(OBJ, "")
     problems = []
     if proc.returncode != arm.status:
         problems.append(f"exit {proc.returncode}, want {arm.status}: "
-                        f"{proc.stderr.strip() or proc.stdout.strip()}")
+                        f"{stderr.strip() or proc.stdout.replace(OBJ, '').strip()}")
     if arm.failed:
-        named = [p for p in PORTS if f" {p}." in proc.stderr
-                 or f" {p}," in proc.stderr]
+        named = [p for p in PORTS if f" {p}." in stderr or f" {p}," in stderr]
         if named != [arm.failed]:
             problems.append(f"error names {named}, want [{arm.failed!r}]")
-    if arm.says and arm.says not in proc.stderr:
+    if arm.says and arm.says not in stderr:
         problems.append(f"error does not say {arm.says!r}: "
-                        f"{proc.stderr.strip()!r}")
-    text = report.read_text(encoding="utf-8") if report.is_file() else ""
+                        f"{stderr.strip()!r}")
+    text = (report.read_text(encoding="utf-8").replace(OBJ, "")
+            if report.is_file() else "")
     problems += [f"report lacks {row!r}" for row in arm.rows if row not in text]
     problems += [f"report looks at {p}, which carries no IOB constraint"
                  for p in ("tdm_mclk", "tdm_din") if f" {p}:" in text]
@@ -546,8 +617,29 @@ def quiet_reads(source: str) -> list[str]:
             "want exactly one (the per-port IOB property)"]
 
 
+def expanded_answers(source: str) -> list[str]:
+    """`{*}` on a query answer: the one Tcl form that loses the objects.
+
+    Measured on the placed checkpoint under 2026.1: `foreach`, `lindex`,
+    `lassign`, `lsort`, `lrange`, `lreverse`, `filter`, `concat`, and
+    `lappend` of a whole answer or of elements taken out of it, all keep a
+    Vivado object list's objects; `{*}` expansion of an answer into another
+    list hands back plain NAMES, the next query raises Common 17-161, and a
+    Vivado ERROR ends the batch session, so the build stops at this check.
+    No Tcl value carries that difference, so no stub here can see it - a
+    marked object survives `{*}` in tclsh. The check's code lines are read
+    for the form itself instead.
+    """
+    code = [line for line in source.splitlines()
+            if not line.lstrip().startswith("#")]
+    return [f"the check expands a query answer with {{*}}: {line.strip()!r}. "
+            "A Vivado object list is passed whole or not at all; expanded, "
+            "its elements come back as names the next query rejects"
+            for line in code if "{*}" in line]
+
+
 def mutant_arms(tclsh: str, work: Path) -> list[str]:
-    """Every mutant must be noticed: by an arm, or by the `-quiet` count."""
+    """Every mutant must be noticed: by an arm, or by one of the two counts."""
     failures = []
     source = CHECK_TCL.read_text(encoding="utf-8")
     for name, old, new in MUTANTS:
@@ -560,6 +652,7 @@ def mutant_arms(tclsh: str, work: Path) -> list[str]:
         mutant.write_text(text, encoding="utf-8")
         caught = [a.name for a in ARMS if run_arm(tclsh, mutant, a, work)]
         caught += ["the -quiet count"] if quiet_reads(text) else []
+        caught += ["the {*} count"] if expanded_answers(text) else []
         print(f"  [{'KILL' if caught else 'LIVE'}] mutant '{name}': "
               f"{len(caught)} check(s) notice it")
         if not caught:
@@ -574,9 +667,14 @@ def main() -> int:
         print("iob_pack_selftest: tclsh not found (install the `tcl` package)",
               file=sys.stderr)
         return 2
-    failures = quiet_reads(CHECK_TCL.read_text(encoding="utf-8"))
+    source = CHECK_TCL.read_text(encoding="utf-8")
+    failures = quiet_reads(source)
     print(f"  [{'FAIL' if failures else 'PASS'}] one -quiet read in the "
           "check's code lines")
+    expanded = expanded_answers(source)
+    print(f"  [{'FAIL' if expanded else 'PASS'}] no query answer taken apart "
+          "with {*} in the check's code lines")
+    failures += expanded
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         for arm in ARMS:
