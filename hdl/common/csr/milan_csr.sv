@@ -148,7 +148,14 @@ module milan_csr #(
   //! SET_SAMPLING_RATE list check is unchanged and this is a value change in
   //! four bits of two existing read-only words. The register occupies four
   //! bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_005C
+  //!
+  //! 0x005E (issue #358) ADDS ONE ADDRESS: `A_GPTP_LAT` at 0x7F0, RO live,
+  //! writes inert, option OFF zero - the timestamp latency corrections the
+  //! fabric gPTP plane is applying, {ingress_ns[31:16], egress_ns[15:0]}.
+  //! Nothing else moves, and the ONLY live consumer of a latency correction
+  //! remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D is taken
+  //! by a parallel lane and is deliberately skipped here.
+  parameter logic [31:0] VERSION = 32'h0002_005E
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -251,6 +258,13 @@ module milan_csr #(
   //! observer, or its reconstruction refused because the PHC trajectory
   //! across the interval was outside the model. Free-running, wraps.
   input  wire [15:0]             i_gptp_txts_lost,
+  //! THE TIMESTAMP LATENCY CORRECTIONS THE PLANE IS APPLYING (issue #358),
+  //! nanoseconds: {ingress[31:16], egress[15:0]}. Elaboration constants the
+  //! builder carried from the board configuration, republished so a
+  //! controller host and the UART status can read what is actually applied
+  //! rather than what a configuration file elsewhere claims. Option OFF
+  //! reads zero, as every other plane publication does.
+  input  wire [31:0]             i_gptp_lat_ns,
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
@@ -819,6 +833,13 @@ module milan_csr #(
   //! its counts in ONE access, so a wire/event pair is coherent.
   localparam [ADDR_WIDTH-1:0] A_GPTP_DROPW = 'h7E8;  //! RO live {tap_drop16, rx_drop16}
   localparam [ADDR_WIDTH-1:0] A_GPTP_DROPE = 'h7EC;  //! RO live {txts_lost16, ev_drop16}
+  //! The board's applied timestamp latency corrections (issue #358): RO
+  //! live, writes inert, option OFF reads zero, the same contract as the
+  //! two drop words above. One word so a reader gets both directions in one
+  //! access and can never pair an ingress value with another build's
+  //! egress. This is the ONLY live latency-correction publication: 0x540
+  //! and 0x544 remain inert scratch with no timestamp consumer.
+  localparam [ADDR_WIDTH-1:0] A_GPTP_LAT   = 'h7F0;  //! RO live {ingress_ns16, egress_ns16}
   //! MMCM-DRP media-clock servo status. Deliberately parked at the 0x8F8
   //! tail (after the 0x800-0x85C indexed window) so parallel feature lanes
   //! extending the 0x700 group cannot collide; 0x8FC stays reserved next
@@ -2228,6 +2249,10 @@ module milan_csr #(
       A_ASP_LO, A_ASP_HI: live_mux = 32'd0;
       A_GPTP_DROPW: begin
         if (GPTP_PLANE_EN_P) live_mux = {i_gptp_tap_drop, i_gptp_rx_drop};
+        else                 live_mux = 32'd0;
+      end
+      A_GPTP_LAT: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_lat_ns;
         else                 live_mux = 32'd0;
       end
       A_GPTP_DROPE: begin

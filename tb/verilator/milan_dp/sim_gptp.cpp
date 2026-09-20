@@ -54,6 +54,50 @@ constexpr uint32_t PEER_CQ = 0xF8FE436A;
 //! the #error above refuses a build that forgot to pass it.
 constexpr uint64_t kPpMsCyc = PP_MS_CYC_TB;
 
+//! THE BOARD LATENCY CORRECTIONS THIS ELABORATION CARRIES (issue #358),
+//! nanoseconds. The Makefile sets each -D from the same variable that sets
+//! the matching -G, so the harness's expectation and the gateware's constant
+//! are one number. The default build carries zeros and therefore requires
+//! the UNCORRECTED stamps, bit for bit; the `gptp-lat` leg carries non-zero,
+//! unequal values and requires exactly those shifts.
+#ifndef GPTP_LAT_ING_TB
+#define GPTP_LAT_ING_TB 0
+#endif
+#ifndef GPTP_LAT_EGR_TB
+#define GPTP_LAT_EGR_TB 0
+#endif
+constexpr int64_t kLatIngNs = GPTP_LAT_ING_TB;
+constexpr int64_t kLatEgrNs = GPTP_LAT_EGR_TB;
+
+//! Nanoseconds the PHC advances per fabric cycle in THIS leg. The recipe
+//! programs the counter at the product's 8 ns tick (-GGPTP_PHC_TICK_NS_P=8
+//! and the PTP_INCR write below) even though the fabric clock is
+//! compressed, so a nanosecond figure divided by this is a cycle count.
+constexpr int64_t kPhcTickNs = 8;
+
+//! THE PROVED DIGITAL RECEIVE DISTANCE (issue #358 decision D2), in
+//! nanoseconds of this leg's PHC, from the first receive beat accepted at
+//! `s_axis_mac_rx_*` - the datapath's own MAC boundary - to the instant the
+//! plane samples the arrival stamp. It is ZERO because `rx_mac_filter` is a
+//! combinational pass (`assign m_tvalid = s_tvalid & pass_now`) and
+//! `KL_gptp_shadow` latches `phc_ns_i` on the same edge that accepts the
+//! beat: inside `milan_datapath` nothing stands between the MAC boundary and
+//! the stamp point.
+//!
+//! IT IS PINNED HERE AS A RATCHET, not as a comment. A later pipeline change
+//! that inserts one register between that boundary and the tap moves this by
+//! a whole tick and fails the named check below, which is what forces the
+//! board constants to be measured again instead of silently inheriting a
+//! distance that no longer holds.
+//!
+//! WHAT IT DOES NOT COVER, and this is the reason the split carries an open
+//! bound: the receive path from the GMII pins to that MAC boundary is inside
+//! the LiteEth chain, which this repository converts for TRANSMIT only
+//! (`sw/litex/gen_mac_tx_model.py`) and therefore cannot count here. That
+//! distance is digital and it is real; it lands in the unproved remainder
+//! together with the PHY, and docs/design/GPTP_PLANE.md says so.
+constexpr int64_t kRxStampLagNs = 0;
+
 namespace {
 
 //! The whole option-ON gPTP plane leg: the model's memory faces, the peer
@@ -319,6 +363,12 @@ class GptpPlaneHarness {
     bool axi_ar = false;
     bool axi_r = false;
     uint32_t axi_rdata = 0;
+    //! The PHC this cycle, read at the SAME point the plane's flops sample
+    //! it (issue #358). A harness that grades an arrival stamp has to hold
+    //! the arrival instant in the stamp's own time base, and reading it
+    //! after the edge would be one tick late on every frame.
+    uint64_t phc = 0;
+    uint64_t cyc = 0;
   };
 
   CycleFires tick(Vmilan_datapath *dut) {
@@ -333,6 +383,8 @@ class GptpPlaneHarness {
     fire.axi_ar = dut->s_axi_arvalid && dut->s_axi_arready;
     fire.axi_r = dut->s_axi_rvalid && dut->s_axi_rready;
     fire.axi_rdata = dut->s_axi_rdata;
+    fire.phc = phc_ns(dut);
+    fire.cyc = sim_cyc;
     if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
       if (!tx_open) {
         tx_sof_ns.push_back(sim_cyc * 8);
@@ -398,6 +450,14 @@ class GptpPlaneHarness {
     while (n--) tick(dut);
   }
 
+  //! The MAC-boundary arrival of the frame `send_wide` last drove: the PHC
+  //! at its FIRST ACCEPTED beat, and the cycle that beat was accepted on
+  //! (issue #358). This is the harness's own observation of the instant the
+  //! datapath took the frame, and it is the reference the ingress stamp is
+  //! graded against - nothing inside the plane is read to obtain it.
+  uint64_t rx_sof_phc = 0;
+  uint64_t rx_sof_cyc = 0;
+
   void send_wide(Vmilan_datapath *dut,
                         const std::vector<uint8_t> &bytes) {
     for (size_t off = 0; off < bytes.size(); off += 8) {
@@ -411,7 +471,12 @@ class GptpPlaneHarness {
       dut->s_axis_mac_rx_tkeep = keep;
       dut->s_axis_mac_rx_tvalid = 1;
       dut->s_axis_mac_rx_tlast = off + 8 >= bytes.size();
-      while (!tick(dut).rx) {}
+      for (;;) {
+        const CycleFires fire = tick(dut);
+        if (!fire.rx) continue;
+        if (off == 0) { rx_sof_phc = fire.phc; rx_sof_cyc = fire.cyc; }
+        break;
+      }
     }
     dut->s_axis_mac_rx_tvalid = 0;
     dut->s_axis_mac_rx_tlast = 0;
@@ -468,12 +533,36 @@ class GptpPlaneHarness {
       //! half of it.
       const uint64_t now = phc_ns(dut);
       const uint64_t t2 = 5000000ull + now;
-      const int64_t residence = static_cast<int64_t>(now - t1) - 2 * pd_target;
+      //! WHERE THIS PEER STANDS (issue #358). The two instants this harness
+      //! can see are both INSIDE the DUT: `t1` is the launch its observer
+      //! reported at the transmit reference plane, and `now` is a PHC read
+      //! at the boundary the response's first beat will be accepted on. The
+      //! WIRE is neither of those - it is `kLatEgrNs` after the first and
+      //! `kLatIngNs` before the second, because that is precisely what the
+      //! two board constants declare the physical path to be.
+      //!
+      //! So a peer that manufactures its turnaround against the DUT's
+      //! internal instants is modelling a link with no physical latency at
+      //! all, and a correctly corrected DUT would then report LESS than the
+      //! true delay - which is the defect, wearing the other sign. The
+      //! residence is taken against the WIRE instants instead, so the link
+      //! this peer presents really is `pd_target` one way, whatever the
+      //! elaboration's constants are. At the zero defaults the term
+      //! vanishes and the manufactured turnaround is bit for bit today's.
+      const int64_t residence = static_cast<int64_t>(now - t1)
+                              - (kLatIngNs + kLatEgrNs) - 2 * pd_target;
       const uint64_t t3 = t2 + static_cast<uint64_t>(residence);
       //! the response's first beat is accepted on the next cycle, and this
       //! leg runs the PHC at 8 ns per cycle (PTP_INCR above)
       const uint64_t t4_est = now + 8;
-      pd_expect = (static_cast<int64_t>(t4_est - t1) - residence) / 2;
+      //! ...and what the DUT should therefore publish: the SAME number in
+      //! both legs. Its own two corrections cancel the physical latency
+      //! this peer just put on the link, which is the whole acceptance
+      //! property of the issue - a corrected board reports the true delay,
+      //! not a smaller one. A correction of the wrong sign doubles the
+      //! error instead of cancelling it and this prediction goes red.
+      pd_expect = (static_cast<int64_t>(t4_est - t1) - residence) / 2
+                - (kLatIngNs + kLatEgrNs) / 2;
       Frame resp = ptp(0x3, seq, 0, 0x0200, 20);
       resp.ts(t2);
       for (int i = 0; i < 10; i++) resp.u8(req[34 + i]);
@@ -724,7 +813,7 @@ class GptpPlaneHarness {
     // the RTL default.  Before any peer answers, the engine's committed bank is
     // zero. Retained legacy addresses remain mapped for ABI stability, but every
     // write is inert and cannot manufacture a publication or healthy CLKV claim.
-    expect("default-on VERSION", axi_read(dut, 0x004), 0x0002005C);
+    expect("default-on VERSION", axi_read(dut, 0x004), 0x0002005E);
     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
     axi_write(dut, 0x6E4, 1234);
     axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
@@ -1482,6 +1571,137 @@ class GptpPlaneHarness {
     }
   }
 
+  //! One PTP timestamp field off the wire: 48-bit seconds then 32-bit
+  //! nanoseconds, big-endian, as IEEE Std 1588 5.3.3 defines the type.
+  static uint64_t wire_ts_ns(const std::vector<uint8_t> &f, size_t off) {
+    uint64_t sec = 0;
+    for (int i = 0; i < 6; i++) sec = (sec << 8) | f[off + i];
+    uint64_t ns = 0;
+    for (int i = 0; i < 4; i++) ns = (ns << 8) | f[off + 6 + i];
+    return sec * 1000000000ull + ns;
+  }
+
+  //! The gPTP frame of this messageType and sequenceId the DUT put on the
+  //! MAC transmit boundary, if it sent one. Wire offsets: EtherType at 12,
+  //! the PTP header at 14, so messageType is the low nibble of 14 and
+  //! sequenceId is the 16-bit field at 44; the message body starts at 48.
+  bool tx_of(unsigned type, uint16_t seq, std::vector<uint8_t> *out) const {
+    for (const std::vector<uint8_t> &f : tx_frames) {
+      if (f.size() < 58 || f[12] != 0x88 || f[13] != 0xF7) continue;
+      if ((f[14] & 0xF) != type) continue;
+      if (static_cast<uint16_t>((f[44] << 8) | f[45]) != seq) continue;
+      *out = f;
+      return true;
+    }
+    return false;
+  }
+
+  //! [T-LAT] THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, on the wire, in
+  //! both directions (issue #358).
+  //!
+  //! The bench finding of 2026-09-20 measured the DUT's ingress-late plus
+  //! egress-early stamp error as a SUM, from outside. Neither half can be
+  //! measured from one tap clock, so the fabric applies two declared
+  //! per-board constants and THIS check is what proves each one reaches the
+  //! stamp it is meant for, separately, at the value the configuration
+  //! declared.
+  //!
+  //! WHY THE RESPONDER EXCHANGE AND NOT THE INITIATOR ONE. As the initiator
+  //! the DUT publishes only a mean delay, in which the two corrections are
+  //! already summed and halved - a swap of the two constants would pass.
+  //! As the RESPONDER it puts both of its own stamps on the wire: the
+  //! Pdelay_Resp carries `requestReceiptTimestamp` (t2, an arrival stamp)
+  //! and the Pdelay_Resp_Follow_Up carries `responseOriginTimestamp` (t3, a
+  //! launch stamp), IEEE Std 802.1AS 11.4.3 and 11.4.4. So the two
+  //! directions are graded against two independent harness references: t2
+  //! against the PHC this harness read at the first accepted beat of its
+  //! own request, and t3 against the launch its own observer reported for
+  //! the response.
+  //!
+  //! AND WHY THE DISTANCE IS GRADED AS WELL AS THE SHIFT. The two
+  //! differences also ARE the D2 digital measurement: printed as cycles of
+  //! this leg's PHC tick, pinned as constants, and therefore a ratchet. A
+  //! later change that moves either stamp point one register earlier or
+  //! later fails this check rather than quietly changing what the board
+  //! constants are supposed to absorb.
+  void prove_the_board_latency_corrections_reach_both_stamps(
+      Vmilan_datapath *dut) {
+    constexpr uint16_t kSeq = 0x5801;
+    Frame request = ptp(0x2, kSeq, 0, 0x0000, 20);
+    request.ts(0);
+    request.u64(0); request.u16(0);
+    send_wide(dut, request.b);
+    const uint64_t req_arrival = rx_sof_phc;
+    const uint64_t req_arr_cyc = rx_sof_cyc;
+
+    //! Give the plane time to answer and its observer time to report the
+    //! response's launch. A response the observer has not reported yet has
+    //! no reconstructed t3 to publish, so the Follow_Up simply has not been
+    //! sent; waiting is the only correct thing to do.
+    std::vector<uint8_t> resp;
+    std::vector<uint8_t> fup;
+    uint64_t resp_launch = 0;
+    for (int n = 0; n < 400; n++) {
+      run_peer(dut, 2000);
+      if (tx_of(0x3, kSeq, &resp) && tx_of(0xA, kSeq, &fup)
+          && observer.t1_of(0x3, kSeq, &resp_launch))
+        break;
+    }
+    expect("[T-LAT] the DUT answered the Pdelay_Req it was sent",
+           tx_of(0x3, kSeq, &resp) ? 1 : 0, 1);
+    expect("[T-LAT] the DUT sent the two-step Follow_Up",
+           tx_of(0xA, kSeq, &fup) ? 1 : 0, 1);
+    expect("[T-LAT] this harness's observer reported the response launch",
+           observer.t1_of(0x3, kSeq, &resp_launch) ? 1 : 0, 1);
+    if (resp.size() < 58 || fup.size() < 58 || resp_launch == 0) return;
+
+    const uint64_t t2 = wire_ts_ns(resp, 48);
+    const uint64_t t3 = wire_ts_ns(fup, 48);
+    //! The DUT's arrival stamp is LATE of the boundary by the digital
+    //! distance and EARLY of it again by the correction it applies, so what
+    //! the harness sees is one number carrying both. It is graded as one
+    //! number for that reason: splitting it here would need the plane's own
+    //! internals, which is the thing under test.
+    const int64_t ing_gap = static_cast<int64_t>(req_arrival)
+                          - static_cast<int64_t>(t2);
+    const int64_t egr_gap = static_cast<int64_t>(t3)
+                          - static_cast<int64_t>(resp_launch);
+    printf("[T-LAT] ingress: boundary PHC %llu ns (cycle %llu), t2 %llu ns, "
+           "gap %lld ns = %lld cycles (pinned digital %lld ns + configured "
+           "%lld ns)\n",
+           static_cast<unsigned long long>(req_arrival),
+           static_cast<unsigned long long>(req_arr_cyc),
+           static_cast<unsigned long long>(t2),
+           static_cast<long long>(ing_gap),
+           static_cast<long long>(ing_gap / kPhcTickNs),
+           static_cast<long long>(kRxStampLagNs),
+           static_cast<long long>(kLatIngNs));
+    printf("[T-LAT] egress: observed launch %llu ns, t3 %llu ns, "
+           "gap %lld ns = %lld cycles (configured %lld ns)\n",
+           static_cast<unsigned long long>(resp_launch),
+           static_cast<unsigned long long>(t3),
+           static_cast<long long>(egr_gap),
+           static_cast<long long>(egr_gap / kPhcTickNs),
+           static_cast<long long>(kLatEgrNs));
+    expect("[T-LAT] ingress stamp = boundary - digital - correction",
+           static_cast<uint64_t>(ing_gap),
+           static_cast<uint64_t>(kRxStampLagNs + kLatIngNs));
+    expect("[T-LAT] egress stamp = observed launch + correction",
+           static_cast<uint64_t>(egr_gap),
+           static_cast<uint64_t>(kLatEgrNs));
+    //! The two constants are UNEQUAL in the corrected leg, so this refuses a
+    //! build that applied one of them to both stamps or swapped them - the
+    //! failure a summed measurement cannot see.
+    expect("[T-LAT] the two directions carry different corrections",
+           (kLatIngNs == kLatEgrNs) ? 1 : (ing_gap != egr_gap ? 1 : 0), 1);
+    //! ...and the applied pair is PUBLISHED, so a controller host reads what
+    //! the fabric is doing rather than what a file elsewhere says (0x7F0).
+    expect("[T-LAT] GPTP_LAT publishes the applied pair",
+           axi_read(dut, 0x7F0),
+           (static_cast<uint32_t>(kLatIngNs) << 16)
+             | static_cast<uint32_t>(kLatEgrNs));
+  }
+
   // Keep answering Pdelay while the selected peer's Announce expires.
   // The resulting GM Sync/Follow_Up and one peer request exercise all five
   // Ethernet TX types at the MAC boundary (11.4.2.3/Table 11-4).
@@ -1527,6 +1747,7 @@ int GptpPlaneHarness::run() {
       prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_empty);
   prove_the_maximum_bounded_path_trace(dut, asp_withdrawn);
   prove_the_three_drop_counters_through_the_csr(dut);
+  prove_the_board_latency_corrections_reach_both_stamps(dut);
   emit_every_gptp_tx_flag_type(dut);
 
   return report();

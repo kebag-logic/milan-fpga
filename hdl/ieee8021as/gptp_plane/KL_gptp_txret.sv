@@ -134,6 +134,17 @@ module KL_gptp_txret #(
     //! offer made while the observer is held in reset is simply not seen and
     //! the next one carries the same generation.
     parameter int unsigned SEAL_RETRY_CYC_P = 256,
+    //! THE BOARD'S EGRESS LATENCY, nanoseconds (issue #358): the physical
+    //! transmit path beyond this reconstruction's reference plane. The
+    //! reconstruction below lands on the frame's LAUNCH as the observer saw
+    //! it, one register stage before the pads; the wire departure is that
+    //! much LATER, so the published t1 is EARLY by this constant and the
+    //! constant is ADDED. It is a per-board fact the builder carries from
+    //! the board configuration, not a measured property of this logic, so
+    //! it is kept OUT of the derived digital correction below and folded
+    //! into the same single subtraction. Zero reproduces the uncorrected
+    //! reconstruction bit for bit.
+    parameter int unsigned EGRESS_LAT_NS_P = 0,
     //! fabric cycles between two recovery requests while a demand is
     //! unmet. It is a REQUEST CADENCE and never a completion authority:
     //! nothing is resolved or unsealed because this expired. It exists so
@@ -262,6 +273,14 @@ module KL_gptp_txret #(
       (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) * ETH_TICK_NS_P
     + CDC_LAT_D_CYC_P * DP_TICK_NS_P
     + DP_TICK_NS_P / 2;
+  //! ...and what the single subtraction below actually removes: the digital
+  //! correction MINUS the board's egress latency (issue #358), because
+  //! subtracting less is adding. Kept as one SIGNED constant so a board
+  //! whose physical transmit path exceeds the digital stages still lands on
+  //! one subtractor at the same width, and so the digital term above stays
+  //! readable as the derived sum of register stages it is.
+  localparam longint signed TXTS_NET_NS_C =
+      longint'(TXTS_CORR_NS_P) - longint'(EGRESS_LAT_NS_P);
 
   localparam int unsigned PTR_W_C = $clog2(TXTS_CAP_N_P);
   localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
@@ -565,7 +584,7 @@ module KL_gptp_txret #(
                       (cap_delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P));
   //! modular by construction: the PHC wraps and a launch a few hundred
   //! nanoseconds before a wrap must reconstruct to the value before it
-  assign res_ns_w = res_ok_w ? (cap_phc_r - 64'(TXTS_CORR_NS_P)) : 64'd0;
+  assign res_ns_w = res_ok_w ? (cap_phc_r - 64'(TXTS_NET_NS_C)) : 64'd0;
 
   assign push_res_w = resolve_w | pre_resolve_w;
 

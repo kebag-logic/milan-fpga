@@ -32,7 +32,12 @@
 //                The ingress point is the tap (axis domain), not the MAC
 //                SFD: the constant MAC->tap pipeline offset belongs in the
 //                ingress-latency correction (REQ-PTP-06 lineage), and the
-//                silicon round (#117) measures it.
+//                silicon round (#117) measures it. THAT CORRECTION IS NOW
+//                HERE (issue #358): INGRESS_LAT_NS_P is subtracted from the
+//                arrival stamp and EGRESS_LAT_NS_P is added to the
+//                reconstructed launch, both per-board constants the builder
+//                carries from the board configuration. This plane is their
+//                only consumer.
 //
 //                THE EGRESS TIMESTAMP IS AN OBSERVED LAUNCH, NOT A
 //                BOUNDARY CAPTURE (issue #360). It used to be latched at
@@ -90,7 +95,25 @@ module KL_gptp_shadow #(
     //! counter runs a different shape from its own clock states the shape
     //! here rather than misdeclaring its clock, because the egress
     //! reconstruction subtracts whole ticks of this period.
-    parameter int unsigned PHC_TICK_NS_P   = 0
+    parameter int unsigned PHC_TICK_NS_P   = 0,
+    //! THE BOARD'S OWN TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue
+    //! #358). They are per-board physical facts - PHY receive and transmit
+    //! latency and whatever pipeline sits outside this plane's own measured
+    //! register stages - so they are declared in the board configuration,
+    //! carried here by the builder, and applied ONCE, here. Every other
+    //! layer carries zero: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544)
+    //! remain inert scratch with no timestamp consumer, so a correction
+    //! cannot be applied twice by two owners who each think they are the
+    //! only one.
+    //!
+    //! INGRESS is SUBTRACTED from the arrival stamp: the tap sees the frame
+    //! AFTER the physical and MAC receive path, so the raw stamp is LATE by
+    //! this much. EGRESS is ADDED to the reconstructed launch: the observed
+    //! launch precedes the wire by the transmit path, so the raw
+    //! reconstruction is EARLY by this much. The two defaults are zero,
+    //! which reproduces the uncorrected stamps bit for bit.
+    parameter int unsigned INGRESS_LAT_NS_P = 0,
+    parameter int unsigned EGRESS_LAT_NS_P  = 0
 ) (
     input  wire clk_i,                    //! axis_clk
     input  wire rst_n,                    //! active-low reset
@@ -233,6 +256,17 @@ module KL_gptp_shadow #(
   begin : g_refuse_tick
     $error("KL_gptp_shadow: CLK_HZ_P=%0d does not divide 1 GHz into whole nanoseconds (nearest tick %0d ns). The egress reconstruction subtracts whole ticks of this period, so a rounded tick would be a silent bias on every timestamp; state the shape through PHC_TICK_NS_P if the counter really runs at another rate.",
            CLK_HZ_P, DP_TICK_NS_C);
+  end else if ((INGRESS_LAT_NS_P > 16'hFFFF) || (EGRESS_LAT_NS_P > 16'hFFFF))
+  begin : g_refuse_lat
+    //! The applied value has to be the PUBLISHED value (issue #358). The
+    //! parent serves both constants as one read-only word, sixteen bits per
+    //! direction, so a larger number would be applied to every timestamp
+    //! and read back truncated - a correction nobody could audit. A real
+    //! 1000BASE-T path is hundreds of nanoseconds; 65535 ns is already two
+    //! orders of magnitude past it, so this bound refuses a typo rather
+    //! than a board.
+    $error("KL_gptp_shadow: INGRESS_LAT_NS_P=%0d and EGRESS_LAT_NS_P=%0d must each fit 16 bits (0..65535 ns). The parent publishes both in one read-only word at that width, so a wider value would be applied and read back truncated.",
+           INGRESS_LAT_NS_P, EGRESS_LAT_NS_P);
   end
 
   // ======================================================================= //
@@ -301,8 +335,14 @@ module KL_gptp_shadow #(
     endcase
   end
 
-  //! the arrival stamp for the frame currently entering the tap
+  //! the arrival stamp for the frame currently entering the tap, with the
+  //! board's ingress latency already removed (issue #358). One subtractor on
+  //! a constant, folded into the existing capture: the tap stamps LATE by
+  //! the receive path ahead of it, so the corrected arrival is the raw PHC
+  //! value minus that path. At the default zero this is the raw value.
   logic [63:0] ts_arr_r;
+  logic [63:0] ts_arr_corr_w;
+  assign ts_arr_corr_w = phc_ns_i - 64'(INGRESS_LAT_NS_P);
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
@@ -312,7 +352,7 @@ module KL_gptp_shadow #(
     end else if (beat_w) begin
       unique case (fw_S)
         FW_HEAD0: begin
-          ts_arr_r <= phc_ns_i;
+          ts_arr_r <= ts_arr_corr_w;
           // shed the WHOLE frame when the ts ring is full at sof (issue
           // #122). A one-beat runt at full stays uncounted -- no EtherType
           // verdict lands, matching today's bad-frame reclaim.
@@ -942,7 +982,8 @@ module KL_gptp_shadow #(
       .TXTS_DELTA_W_P (TXTS_DELTA_W_P),
       .ETH_TICK_NS_P  (ETH_TICK_NS_P),
       .DP_TICK_NS_P   (DP_TICK_NS_C),
-      .PHC_CLK_HZ_P   (CLK_HZ_P)
+      .PHC_CLK_HZ_P   (CLK_HZ_P),
+      .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P)
   ) u_txret (
       .clk_i            (clk_i),
       .rst_n            (rst_n),

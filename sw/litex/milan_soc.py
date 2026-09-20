@@ -462,6 +462,7 @@ class MilanNIC(LiteXModule):
                  audio_fs_hz=AUDIO_IF_FS_HZ_DEFAULT,
                  audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  gptp_plane=None,
+                 gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None):
@@ -482,6 +483,8 @@ class MilanNIC(LiteXModule):
                            audio_word_bits=audio_word_bits,
                            pps=pps,
                            gptp_plane=gptp_plane,
+                           gptp_ingress_lat_ns=gptp_ingress_lat_ns,
+                           gptp_egress_lat_ns=gptp_egress_lat_ns,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            entity_gen_dir=entity_gen_dir)
@@ -747,6 +750,8 @@ def add_milan_datapath(host: Module, platform: object,
                        audio_word_bits: int = AUDIO_IF_WORD_BITS_DEFAULT,
                        pps: bool = False,
                        gptp_plane: bool | None = None,
+                       gptp_ingress_lat_ns: int = 0,
+                       gptp_egress_lat_ns: int = 0,
                        loopback_lane: bool = False,
                        render_lpf: bool = True,
                        optional_blocks: dict[str, bool] | None = None,
@@ -900,6 +905,14 @@ def add_milan_datapath(host: Module, platform: object,
     if pps:
         dp_params["p_PPS_P"] = 1
         dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
+    # issue #358: emitted ONLY when non-zero, so every board that applies no
+    # correction keeps a byte-identical generated top .v and no existing
+    # bitstream changes by this option existing - the same additive
+    # discipline p_PPS_P above follows. milan_datapath defaults both to 0.
+    if gptp_ingress_lat_ns:
+        dp_params["p_GPTP_INGRESS_LAT_NS_P"] = int(gptp_ingress_lat_ns)
+    if gptp_egress_lat_ns:
+        dp_params["p_GPTP_EGRESS_LAT_NS_P"] = int(gptp_egress_lat_ns)
     if gptp_plane:
         # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
@@ -2506,6 +2519,7 @@ class MilanSoC(SoCCore):
                  bus_standard="wishbone",
                  software_profile="baremetal",
                  gptp_plane=None,
+                 gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, **kwargs):
         self._cpu_xlen = int(xlen)
@@ -2949,6 +2963,8 @@ class MilanSoC(SoCCore):
                                   # Preserve None so add_milan_datapath catches
                                   # a severed ownership carrier.
                                   gptp_plane=gptp_plane,
+                                  gptp_ingress_lat_ns=int(gptp_ingress_lat_ns),
+                                  gptp_egress_lat_ns=int(gptp_egress_lat_ns),
                                   loopback_lane=bool(loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
@@ -3381,6 +3397,27 @@ def main() -> None:
                                  "has no gPTP owner, is not a supported "
                                  "product image, and the flash tools refuse "
                                  "its artifacts")
+    # issue #358: the board's own timestamp latency corrections. The
+    # end-station config states both keys for every board and the builder
+    # emits a flag only for a NON-ZERO one, so a board that applies no
+    # correction keeps a byte-identical argv and generated top .v - the
+    # default-absent discipline the audio and prune flags already follow.
+    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert.
+    gptp_group2 = ap.add_argument_group("gPTP timestamp latency")
+    gptp_group2.add_argument("--gptp-ingress-lat-ns", default=0, type=int,
+                             help="nanoseconds the fabric gPTP plane "
+                                  "SUBTRACTS from every arrival timestamp "
+                                  "(milan_datapath GPTP_INGRESS_LAT_NS_P). "
+                                  "Per-board physical receive latency; "
+                                  "0..65535, and the applied pair is "
+                                  "published read-only at CSR 0x7F0")
+    gptp_group2.add_argument("--gptp-egress-lat-ns", default=0, type=int,
+                             help="nanoseconds the fabric gPTP plane ADDS to "
+                                  "every reconstructed launch timestamp "
+                                  "(milan_datapath GPTP_EGRESS_LAT_NS_P). "
+                                  "Per-board physical transmit latency, on "
+                                  "top of the plane's own measured register "
+                                  "stages; 0..65535")
     # Resolve omission after parsing because --no-milan has no gPTP owner.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
@@ -3762,6 +3799,8 @@ def main() -> None:
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
                    gptp_plane=args.fabric_gptp,
+                   gptp_ingress_lat_ns=args.gptp_ingress_lat_ns,
+                   gptp_egress_lat_ns=args.gptp_egress_lat_ns,
                    loopback_lane=args.loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the

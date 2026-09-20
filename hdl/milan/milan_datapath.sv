@@ -85,6 +85,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! KL_gptp_txret refuses the mismatch at elaboration rather than
   //! reconstructing from it.
   parameter int unsigned GPTP_PHC_TICK_NS_P = 0,
+  //! THIS BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  //! Per-board physical facts - PHY receive and transmit latency, plus the
+  //! receive path ahead of the plane's tap - declared in the board
+  //! configuration's `gptp:` section and carried here by the builder. The
+  //! plane SUBTRACTS the ingress value from every arrival stamp and ADDS
+  //! the egress value to every reconstructed launch. THE FABRIC IS THE ONLY
+  //! OWNER: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544) stay inert
+  //! scratch with no timestamp consumer, so nothing can apply a correction
+  //! twice. Both are published read-only at `A_GPTP_LAT` (0x7F0) so a
+  //! controller host and the UART status read what is actually applied.
+  //! The defaults are zero, which is the uncorrected build.
+  parameter int unsigned GPTP_INGRESS_LAT_NS_P = 0,
+  parameter int unsigned GPTP_EGRESS_LAT_NS_P  = 0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -1453,6 +1466,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                               ? gptp_pub_gm_w : 64'd0;
   wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
                               ? gptp_pub_pdelay_w : 32'd0;
+  //! THE APPLIED LATENCY CORRECTIONS, republished (issue #358). The plane's
+  //! two elaboration constants, served at A_GPTP_LAT (0x7F0) so a
+  //! controller host reads what the fabric IS applying rather than what a
+  //! configuration file elsewhere says it should be. The plane is the only
+  //! consumer of the values themselves; this is a mirror of the same
+  //! parameters, taken from the parameters and not from the plane, because
+  //! there is nothing inside the plane to read them back from and a
+  //! readback port would be a second copy of a constant.
+  wire [31:0] gptp_lat_ns_pub_w = (GPTP_PLANE_EN_P != 1'b0)
+                             ? {16'(GPTP_INGRESS_LAT_NS_P),
+                                16'(GPTP_EGRESS_LAT_NS_P)} : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
   //! value. This alias retains the post-#227 name used by both consumers.
   wire [31:0] eff_gptp_pdelay_w = cfg_gptp_pdelay;
@@ -2411,6 +2435,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_gptp_rx_drop       (gptp_rx_drop_w),
     .i_gptp_ev_drop       (gptp_ev_drop_w),
     .i_gptp_txts_lost     (gptp_txts_lost_w),
+    .i_gptp_lat_ns           (gptp_lat_ns_pub_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -6738,7 +6763,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
         .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
-        .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P)
+        .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P),
+        .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
+        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),

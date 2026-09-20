@@ -267,6 +267,32 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 	./obj_gptp/Vmilan_dp_gptp
 
+# issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
+# target above leaves both constants at their zero defaults and therefore
+# grades the UNCORRECTED stamps bit for bit; this one elaborates non-zero,
+# UNEQUAL values and requires each stamp to move by exactly its own one. The
+# pair being unequal is the point: a summed measurement cannot tell a swap
+# from a correct split, and the initiator's published mean delay - which is
+# all the bench instrument can see - is exactly such a sum.
+#
+# Each -D is set from the SAME variable as its -G, the discipline the AX
+# geometry above already uses, so the expectation the harness grades against
+# and the constant the gateware applies are one number and not two.
+# Deliberately NOT the product values: 656/219 differ by a factor near three
+# and a defect that scaled both by the same ratio would still land inside a
+# window sized for them, while 296/104 are small, coprime and unrelated to
+# any figure in the RTL.
+GPTP_LAT_ING = 296
+GPTP_LAT_EGR = 104
+gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptplat \
+	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+	  -GGPTP_INGRESS_LAT_NS_P=$(GPTP_LAT_ING) \
+	  -GGPTP_EGRESS_LAT_NS_P=$(GPTP_LAT_EGR) \
+	  -CFLAGS "-DGPTP_LAT_ING_TB=$(GPTP_LAT_ING) -DGPTP_LAT_EGR_TB=$(GPTP_LAT_EGR) -Wall -Wextra" \
+	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptplat
+	./obj_gptplat/Vmilan_dp_gptplat
+
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
 option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -320,7 +346,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -442,4 +468,4 @@ print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex

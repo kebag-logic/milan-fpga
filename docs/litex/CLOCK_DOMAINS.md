@@ -299,6 +299,15 @@ Wire -> PHY -> GMII RX 125 MHz -> LiteEth framing/width conversion
 - That is `(45 + 2) x 8 ns + 2 x 20 ns + 10 ns`.
 - RX captures PHC time at the first accepted tap beat.
 - Neither timestamp is a PHY-pad timestamp.
+- The gap to the pad is CORRECTED per board (#358).
+- `GPTP_INGRESS_LAT_NS_P` is subtracted from the arrival stamp.
+- `GPTP_EGRESS_LAT_NS_P` is added to the reconstructed launch.
+- The board configuration declares both.
+- The builder carries them into elaboration.
+- The applied pair reads back at `GPTP_LAT` (`0x7F0`).
+- Their SUM is measured. Their split is assigned.
+- The RX chain above is part of the ingress constant.
+- No converted model counts that chain here.
 - The TX one is one register stage before the pad.
 - That stage is measured, not assumed.
 - TX `tx_sf` is a 512-word, eight-frame store-and-forward buffer.
@@ -317,11 +326,13 @@ TX reference plane.
 Peer delay alone cannot identify an external inline-device fault.
 
 The retained latency CSRs do not repair this path.
-In VERSION `0x0002_005C`, `0x540`/`0x544` are readable, inert scratch:
+In VERSION `0x0002_005E`, `0x540`/`0x544` are readable, inert scratch:
 
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` are plain RW shadow words.
 - A read returns the last written value.
 - No timestamp path consumes them at this VERSION.
+- The live correction is the plane's, at `0x7F0` (#358).
+- They stay inert so nothing corrects twice.
 - Source: `is_plain_rw` and `shadow_mem` in [`milan_csr`](../../hdl/common/csr/milan_csr.sv).
 
 See the [register map](../reference/REGISTER_MAP.md) and
@@ -375,6 +386,7 @@ The [testing guide](../testing/TESTING.md) defines the required evidence.
 
 Recorded, not repaired; each has an owner elsewhere.
 
+- **The split between the two corrections is assigned.** Only their sum is measured. See [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md) for the method. It gives 875 ns on this board. One tap clock cannot separate the halves. Both enter the Pdelay turnaround with one sign. So the peer delay is unaffected. The synchronized offset moves by half the split error. The LiteEth receive chain is the largest known contributor. No converted model of that chain exists here. [#488](https://github.com/kebag-logic/milan-fpga/issues/488) owns the instrument. [#64](https://github.com/kebag-logic/milan-fpga/issues/64) owns the physical calibration.
 - **The PHC's physical error budget is not measured here.** [FR-CLK-02](../reference/FR_NFR.md) requires the declared configuration frequency. This board declares 50 MHz, a 20 ns tick. The row also requires a documented, verified error budget. The digital half is stated above and in [GPTP_PLANE.md](../design/GPTP_PLANE.md). That page decomposes it term by term. The crossing's mean-corrected sampling phase dominates at +/-10.00 ns. That term is half this domain's tick. It belongs to the clock plan, not the plane. The physical half is a qualification measurement. This repository does not hold it.
 - **Source comments carry the 100 MHz guard figures.** They state 21 ms settling and 41 us detection. They sit in `KL_link_guard.sv`, `milan_datapath.sv` and `milan_soc.py`. This configuration runs the guard at 50 MHz. [#374](https://github.com/kebag-logic/milan-fpga/issues/374) owns the comment text.
 - **Audio-domain resets are not uniform.** Some audio-clocked processes take `axis_resetn` directly. Others synchronize it locally. MMCM-unlock resets cover the Migen domains, not every RTL register.

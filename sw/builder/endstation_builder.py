@@ -3311,8 +3311,21 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
     # and controllers cache descriptor content by entity_model_id - so a
     # config that states them must rotate its hash when they change.
     # CONDITIONAL: configs without the section hash exactly as before.
+    #
+    # THE TWO LATENCY CORRECTIONS ARE NOT (issue #358). They change what the
+    # fabric does to a TIMESTAMP, not one field of one descriptor: the AEM
+    # is byte-identical with them at 0 and at 656/219. 1722.1 6.2.2.8 ties
+    # the id to "the structure of the data model", and a controller that
+    # cached this entity's descriptors has nothing to re-read when a board
+    # is recalibrated - so rotating the id here would invalidate every
+    # cached model to publish a number that is not in any of them. They are
+    # excluded BY NAME rather than by an allow-list, so a future gptp key
+    # that IS descriptor content joins the hash by default, which is the
+    # safe direction for this particular mistake.
     if cfg.get("gptp") is not None:
-        shape["gptp"] = cfg["gptp"]
+        shape["gptp"] = {k: v for k, v in cfg["gptp"].items()
+                         if k not in ("ingress_latency_ns",
+                                      "egress_latency_ns")}
     if i["cluster_policy"] == "role-pools":
         shape["cluster_pools"] = {
             "physical": [i["physical_channels"]["capture"],
@@ -3772,6 +3785,83 @@ def _load_clocking(cfg, path):
     return clocking
 
 
+def _gptp_domain_key(gp_raw):
+    """gptp.domain, and the ONLY legal value is 0 (USER 2026-08-11).
+
+    Milan v1.2 section 2 pins [802.1AS] to IEEE Std 802.1AS-2011 plus
+    Cor1-2013 and Cor2-2015 - explicitly NOT 802.1AS-2020 - and
+    802.1AS-2011 8.1 states: "The domain number of a gPTP domain shall
+    be 0."  Multiple gPTP domains are an 802.1AS-2020 feature that
+    Milan v1.2 does not adopt, so on a Milan network the number is a
+    constant the entity REPORTS, never a parameter it chooses.
+
+    This is not pedantry about an unused field.  Milan defines "the
+    same gPTP domain" OPERATIONALLY, by grandmaster identity - 5.5.2:
+    the source and sink "are located in the same gPTP domain (gPTP
+    grandmaster IDs are the same)".  So the discriminator in ACMP
+    binding is the GM id at CSR 0x624/0x628, and a non-zero
+    domainNumber here would not select a second domain - it would
+    simply make our ADPDU byte 48 disagree with every conformant peer
+    on the wire while changing nothing about who we bind to.
+
+    DO NOT confuse this with a CLOCK_DOMAIN.  Milan uses the word
+    "domain" for five different things and the media-clock sense
+    outnumbers this one 56 to 5: `clock domain` is the AEM
+    CLOCK_DOMAIN descriptor and the `clock_domain_index` every STREAM
+    descriptor carries, and it has nothing to do with 802.1AS.
+    Redundancy is NOT a domain either - Milan 8.2.3 calls those the
+    "Primary network and secondary network", paired by
+    `redundant_streams` (8.2.5), and this build does not implement
+    Section 8 at all."""
+    v = int(gp_raw.get("domain", 0))
+    if v != 0:
+        raise ConfigError(
+            f"gptp.domain {v} is not 0: Milan v1.2 section 2 pins "
+            f"802.1AS-2011, whose 8.1 says 'The domain number of a "
+            f"gPTP domain shall be 0'. Multi-domain is an 802.1AS-2020 "
+            f"feature Milan does not adopt. If you meant a media clock "
+            f"domain, that is the CLOCK_DOMAIN descriptor, not this.")
+    return v
+
+
+def _gptp_latency_key(gp_raw, k):
+    """One per-board timestamp latency correction, nanoseconds
+    (issue #358).
+
+    IT HAS NO DEFAULT, and that is the point. The fabric gPTP plane
+    is the only consumer of these two numbers and it applies them to
+    every timestamp, so a generated zero would not mean "no
+    correction is needed here" - it would mean "nobody measured this
+    board", written in a way no reader can tell from the first. A
+    board that really needs none states 0 and says why, which is a
+    claim somebody made; an absent key is refused instead.
+
+    The sixteen-bit ceiling is the publication width: `milan_csr`
+    serves the applied pair as one read-only word at 0x7F0, so a
+    larger value would be applied to every timestamp and read back
+    truncated. `KL_gptp_shadow` refuses the same range at
+    elaboration; this is the same rule at the layer that can name
+    the config key."""
+    if k not in gp_raw:
+        raise ConfigError(
+            f"gptp.{k} is required: the fabric gPTP plane is this "
+            f"board's time owner (board.features.fabric_gptp) and it "
+            f"applies both latency corrections to every timestamp. "
+            f"State the measured value in nanoseconds, or 0 with a "
+            f"comment saying the board is unmeasured - a generated "
+            f"default would hide an unmeasured board (#358). The "
+            f"measurement method is in "
+            f"docs/integration/BOARD_PORTING_AX7101.md")
+    v = int(gp_raw[k])
+    if not 0 <= v <= 0xFFFF:
+        raise ConfigError(
+            f"gptp.{k} {v} outside 0..65535 ns: the applied pair is "
+            f"published as one read-only CSR word with sixteen bits "
+            f"per direction, so a wider value would be applied and "
+            f"read back truncated (#358)")
+    return v
+
+
 def _load_gptp(cfg):
     """The gPTP clock attributes, or None when the config has no
     `gptp:` section. Every field the fabric engine hardcodes is taken
@@ -3789,7 +3879,8 @@ def _load_gptp(cfg):
         _known_gp = {"priority1", "priority2", "clock_class",
                      "clock_accuracy", "offset_scaled_log_variance",
                      "domain", "log_sync_interval", "log_announce_interval",
-                     "log_pdelay_interval"}
+                     "log_pdelay_interval",
+                     "ingress_latency_ns", "egress_latency_ns"}
         if not isinstance(gp_raw, dict) or set(gp_raw) - _known_gp:
             raise ConfigError(f"gptp: unknown keys "
                               f"{sorted(set(gp_raw) - _known_gp)} "
@@ -3799,44 +3890,6 @@ def _load_gptp(cfg):
             if not 0 <= v <= 255:
                 raise ConfigError(f"gptp.{k} {v} outside 0..255")
             return v
-        def _gp_domain():
-            """gptp.domain, and the ONLY legal value is 0 (USER 2026-08-11).
-
-            Milan v1.2 section 2 pins [802.1AS] to IEEE Std 802.1AS-2011 plus
-            Cor1-2013 and Cor2-2015 - explicitly NOT 802.1AS-2020 - and
-            802.1AS-2011 8.1 states: "The domain number of a gPTP domain shall
-            be 0."  Multiple gPTP domains are an 802.1AS-2020 feature that
-            Milan v1.2 does not adopt, so on a Milan network the number is a
-            constant the entity REPORTS, never a parameter it chooses.
-
-            This is not pedantry about an unused field.  Milan defines "the
-            same gPTP domain" OPERATIONALLY, by grandmaster identity - 5.5.2:
-            the source and sink "are located in the same gPTP domain (gPTP
-            grandmaster IDs are the same)".  So the discriminator in ACMP
-            binding is the GM id at CSR 0x624/0x628, and a non-zero
-            domainNumber here would not select a second domain - it would
-            simply make our ADPDU byte 48 disagree with every conformant peer
-            on the wire while changing nothing about who we bind to.
-
-            DO NOT confuse this with a CLOCK_DOMAIN.  Milan uses the word
-            "domain" for five different things and the media-clock sense
-            outnumbers this one 56 to 5: `clock domain` is the AEM
-            CLOCK_DOMAIN descriptor and the `clock_domain_index` every STREAM
-            descriptor carries, and it has nothing to do with 802.1AS.
-            Redundancy is NOT a domain either - Milan 8.2.3 calls those the
-            "Primary network and secondary network", paired by
-            `redundant_streams` (8.2.5), and this build does not implement
-            Section 8 at all."""
-            v = int(gp_raw.get("domain", 0))
-            if v != 0:
-                raise ConfigError(
-                    f"gptp.domain {v} is not 0: Milan v1.2 section 2 pins "
-                    f"802.1AS-2011, whose 8.1 says 'The domain number of a "
-                    f"gPTP domain shall be 0'. Multi-domain is an 802.1AS-2020 "
-                    f"feature Milan does not adopt. If you meant a media clock "
-                    f"domain, that is the CLOCK_DOMAIN descriptor, not this.")
-            return v
-
         #! Engine-pinned fields ([R-parallel] on #228): the fabric engine
         #! consumes only MAC, priority1 and the clock frequency; priority2,
         #! clockQuality and the log intervals are constants in
@@ -3857,13 +3910,17 @@ def _load_gptp(cfg):
                     f"{pins[k]} or omit the key ([R-parallel] on #228)")
             return pins[k]
         gptp = dict(
+            ingress_latency_ns=_gptp_latency_key(gp_raw,
+                                                 "ingress_latency_ns"),
+            egress_latency_ns=_gptp_latency_key(gp_raw,
+                                                "egress_latency_ns"),
             priority1=_gp_u8("priority1", 248),
             priority2=_gp_pinned("priority2"),
             clock_class=_gp_pinned("clock_class"),
             clock_accuracy=_gp_pinned("clock_accuracy"),
             offset_scaled_log_variance=_gp_pinned(
                 "offset_scaled_log_variance"),
-            domain=_gp_domain(),
+            domain=_gptp_domain_key(gp_raw),
             log_sync_interval=_gp_pinned("log_sync_interval"),
             log_announce_interval=_gp_pinned("log_announce_interval"),
             log_pdelay_interval=_gp_pinned("log_pdelay_interval"),
@@ -4594,6 +4651,17 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     # fabric_gptp false never survives load_config (#259), so the emitted
     # owner flag is unconditionally the fabric plane.
     argv += ["--fabric-gptp"]
+    # issue #358: the board's timestamp latency corrections. The CONFIG must
+    # state both keys for every board (load_config refuses a missing one, so
+    # an unmeasured board is visible), but the ARGV carries only a non-zero
+    # one: the RTL default is 0 and milan_soc.py emits the parameter only
+    # when it is passed, so a board that applies no correction keeps a
+    # byte-identical argv, sweep fragment and generated top .v - the same
+    # default-absent discipline --audio-fs-hz and the prune flags follow.
+    for flag, key in (("--gptp-ingress-lat-ns", "ingress_latency_ns"),
+                      ("--gptp-egress-lat-ns", "egress_latency_ns")):
+        if cfg["gptp"][key]:
+            argv += [flag, str(cfg["gptp"][key])]
     return argv
 
 
@@ -4894,7 +4962,17 @@ def _overlay_document(cfg, parts):
         #! entity_model_id is NOT restated here - it is already above, and a
         #! second copy is a second thing to go stale.
         "adp": overlay_adp_block(cfg),
-        **({"gptp": cfg["gptp"]} if cfg.get("gptp") is not None else {}),
+        #! The gPTP clock attributes the AVB_INTERFACE descriptor is built
+        #! from, and ONLY those: the two timestamp latency corrections are
+        #! stripped for the same reason they are kept out of the model hash
+        #! (issue #358). They reach the fabric through the SoC argv, no
+        #! descriptor field carries them, and an overlay that named them
+        #! would put a build-shaping number in the one artefact whose job is
+        #! to be the descriptor set - where the next reader would have to
+        #! work out that nothing consumes it.
+        **({"gptp": {k: v for k, v in cfg["gptp"].items()
+                     if k not in ("ingress_latency_ns", "egress_latency_ns")}}
+           if cfg.get("gptp") is not None else {}),
         # schema 1.2 singleton object_names, emitted ONLY when declared so a
         # config that states none keeps a byte-identical overlay; what is
         # absent keeps the descriptor layer's literal (OBJECT_NAMES)

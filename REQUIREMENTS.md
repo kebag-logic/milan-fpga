@@ -1,6 +1,6 @@
 # TSN/Milan FPGA requirements
 
-This document is the normative product contract for VERSION `0x0002_005C`.
+This document is the normative product contract for VERSION `0x0002_005E`.
 The supported product is an Artix-7 end station with RV32I bare-metal firmware,
 a memory-mapped CSR plane at `0x9000_0000`, fabric protocol processing, and a
 1-Gbit/s MAC datapath. Superseded platform briefs and campaign narratives are
@@ -82,8 +82,14 @@ field values. Receivers ignore that deprecated field as required by the later
 - **REQ-PTP-05 (MUST):** The fabric engine implements the Milan gPTP message
   set, best-master selection, peer delay, receipt timers, and PHC servo.
 - **REQ-PTP-06 (MUST):** Ingress correction is subtracted and egress correction
-  is added at the documented timestamp boundary. #64 owns physical measurement
-  of the split.
+  is added at the documented timestamp boundary. The fabric gPTP plane is the
+  sole owner: the two corrections are per-board elaboration constants declared
+  in the end-station configuration and applied inside `KL_gptp_shadow`, and
+  the applied pair is published read-only at `GPTP_LAT` (`0x7F0`). The legacy
+  `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` words are NOT that control and must not
+  become it, so no correction can be applied twice. A board whose plane is on
+  and whose configuration omits either key is refused. #64 owns physical
+  measurement of the split; the sum is measured per board.
 - **REQ-PTP-07 (MUST):** GM, parent, PathTrace, peer delay, sync and asCapable
   publish atomically from the fabric bank to every CSR/protocol consumer.
 - **REQ-PTP-08 (MUST):** AVTP `tu` asserts on loss of sync and on the same edge
@@ -92,15 +98,17 @@ field values. Receivers ignore that deprecated field as required by the later
 - **REQ-PTP-09 (MUST):** No write outside the fabric engine can manufacture
   live gPTP health. Option OFF remains ownerless under adversarial writes.
 
-Scope note (VERSION `0x0002_005C`): the shipping datapath instantiates the PHC
+Scope note (VERSION `0x0002_005E`): the shipping datapath instantiates the PHC
 (`timestamp_counter` + `ptp_csr_sync`) and the fabric engine's own ingress and
 egress stamps. The `ptp_ts_top`/`ptp_ts_core` record path that carried
 REQ-PTP-03, REQ-PTP-04 and REQ-PTP-06 in the retired product is no longer
 instantiated: its records had no consumer once #259 removed the transmit path.
-Those three requirements bind the record cores stand-alone (`ptp_ts` suite)
-and are not product claims: `IRQ_STATUS[0]` is a structural zero and
-`PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are readable, inert scratch (plain RW, the
-last written value returned, no timestamp-correction consumer at this VERSION;
+REQ-PTP-03 and REQ-PTP-04 bind the record cores stand-alone (`ptp_ts` suite)
+and are not product claims: `IRQ_STATUS[0]` is a structural zero. REQ-PTP-06
+IS a product claim again at this VERSION, but its owner is the fabric plane
+and not those cores, so `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` remain readable,
+inert scratch (plain RW, the last written value returned, no
+timestamp-correction consumer; the live publication is `GPTP_LAT` at `0x7F0`,
 [REGISTER_MAP.md](docs/reference/REGISTER_MAP.md)). Per-frame pairing and the
 latency reference plane of the shipped gPTP path are the fabric engine's
 (REQ-PTP-05) and #117's to measure.
@@ -126,7 +134,7 @@ reference peer.
 
 ## 5. Credit-based shaping
 
-Scope note (VERSION `0x0002_005C`): the 802.1Q classifier / queue / 802.1Qav
+Scope note (VERSION `0x0002_005E`): the 802.1Q classifier / queue / 802.1Qav
 shaper chain (`traffic_controller_802_1q`) is verified stand-alone (the
 `classifier`, `queues`, `cbs`, `shaper_core`, `datapath` and `controller_rate`
 suites) and is **not instantiated in the shipping datapath**: its only packet

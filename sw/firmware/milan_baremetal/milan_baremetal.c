@@ -44,6 +44,11 @@
 #define MILAN_CRF_TX_CTRL    0x750u
 #define MILAN_CLKV_STAT      0x77cu
 #define MILAN_AS_PATH_CMD    0x7e4u
+/* issue #358: the timestamp latency corrections the fabric gPTP plane
+ * is applying, {ingress_ns[31:16], egress_ns[15:0]}. RO live, option
+ * OFF reads zero. Published so a bench reading this console sees what
+ * the gateware IS applying, rather than what a config file says. */
+#define MILAN_GPTP_LAT       0x7f0u
 #define MILAN_PP_CTRL        0x920u
 #define MILAN_PP_STAT        0x924u
 
@@ -1086,6 +1091,7 @@ static void milan_status_handler(int nb_params, char **params)
 	uint32_t pdelay_ns;
 	uint32_t as_path;
 	uint32_t clkv_stat;
+	uint32_t gptp_lat;
 
 	(void)nb_params;
 	(void)params;
@@ -1097,6 +1103,7 @@ static void milan_status_handler(int nb_params, char **params)
 	pdelay_ns = milan_read(MILAN_GPTP_PDELAY);
 	as_path = milan_read(MILAN_AS_PATH_CMD);
 	clkv_stat = milan_read(MILAN_CLKV_STAT);
+	gptp_lat = milan_read(MILAN_GPTP_LAT);
 	printf("ID=%08lx VERSION=%08lx PTP_CTRL=%08lx ADP_CTRL=%08lx PP_CTRL=%08lx PP_STAT=%08lx AEM=%s\n",
 	       (unsigned long)milan_read(MILAN_ID),
 	       (unsigned long)milan_read(MILAN_VERSION),
@@ -1105,7 +1112,7 @@ static void milan_status_handler(int nb_params, char **params)
 	       (unsigned long)milan_read(MILAN_PP_CTRL),
 	       (unsigned long)milan_read(MILAN_PP_STAT),
 	       aem_loaded ? "loaded" : "disabled");
-	printf("GPTP_GM=%08lx%08lx GPTP_PARENT=%08lx%08lx PDELAY_NS=%lu AS_PATH_COUNT=%lu AS_PATH_GEN=%lu CLKV_STAT=%08lx SYNC=%lu ASCAPABLE=%lu TU=%lu\n",
+	printf("GPTP_GM=%08lx%08lx GPTP_PARENT=%08lx%08lx PDELAY_NS=%lu AS_PATH_COUNT=%lu AS_PATH_GEN=%lu CLKV_STAT=%08lx SYNC=%lu ASCAPABLE=%lu TU=%lu GPTP_LAT=%08lx\n",
 	       (unsigned long)gm_hi, (unsigned long)gm_lo,
 	       (unsigned long)parent_hi, (unsigned long)parent_lo,
 	       (unsigned long)pdelay_ns,
@@ -1114,7 +1121,8 @@ static void milan_status_handler(int nb_params, char **params)
 	       (unsigned long)clkv_stat,
 	       (unsigned long)((clkv_stat >> 1) & 1u),
 	       (unsigned long)((clkv_stat >> 16) & 1u),
-	       (unsigned long)(clkv_stat & 1u));
+	       (unsigned long)(clkv_stat & 1u),
+	       (unsigned long)gptp_lat);
 	print_tod(gettime_ns());
 }
 
