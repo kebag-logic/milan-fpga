@@ -3,13 +3,31 @@
 
 # Saved-state snapshot ownership and acknowledgement identity
 
-> **Status: PROPOSED CONTRACT.** This page is the design phase of issue #419.
-> No product RTL or firmware change is made by this page: it states the
-> contract an implementation lane would build, and nothing on the
-> [saved-state page](SAVED_STATE_FASTCONNECT.md) moves until that lane lands.
-> Implementing it is a separate lane under issue #70, with the two
-> donor-interface scopes D1 and D2 of section 13. The contract is accepted only
-> on two POSITIVE independent reviews of the pull request that adds this page.
+> **Status: ACCEPTED, AND IMPLEMENTED.** This page was the design phase of
+> issue #419; the implementation lane is issue #484, under issue #70, and it
+> landed the contract in the product RTL and firmware:
+> `hdl/milan/KL_nvm_backend.sv`, `hdl/milan/KL_pp_shadow.sv`,
+> `hdl/common/csr/milan_csr.sv` and
+> `sw/firmware/milan_baremetal/milan_baremetal.c`, with the
+> [saved-state page](SAVED_STATE_FASTCONNECT.md) sections 9.1, 9.2 and 9.3
+> carrying what it changed. The suite that grades it against the SHIPPING pair
+> -- not against the prototype this page was designed on -- is
+> `tb/verilator/nvm_cosim`.
+>
+> **Four corrections the acceptance reviews asked for** are applied to this
+> page's tables and to that suite's checks, and are marked **(#484)** where
+> they land: the terminal row's two halves are re-split, because `[23]` and
+> `[22]` are decided by the ordering and not by the state (section 5.3); the
+> reset row states `[2]` and the term that refuses an ARM there (section 5.4);
+> case W4's check grades its own premise; and the accepted-load unit case U11
+> runs at 8x8 as well (section 9).
+>
+> **One donor dependency did NOT land with it**, and is a KNOWN LIMITATION of
+> the shipping build rather than a defect of this contract: scope D1 of
+> section 13 is filed as `protocol-processor-control-plane-avb-milan` issue 90
+> and the pinned processor does not export it, so a binding accepted inside
+> the manager's debounce can read durable (case E3, and UNRESOLVED 3).
+> `KL_pp_shadow.sv` ties the term to zero at the one place it will connect.
 >
 > Two product decisions are recorded, and the contract is built on both:
 >
@@ -359,7 +377,10 @@ carries the capture identity.
 | [6] | RELOAD | the writer's boot load is complete; the backend accepts or refuses it (section 5.3) |
 
 New read words: word 5, the capture identity (CAP_ID_W_P bits, 16 by
-default); words 8 to 15, the open vector.
+default, and an implementation must REFUSE a width outside 2..16 at
+elaboration: the identity rides the acknowledgement word's upper half, and
+one bit cannot distinguish the capture being acknowledged from the one
+before it); words 8 to 15, the open vector.
 
 PP_NVM_STAT read layout (tracked bits unchanged in place):
 
@@ -448,7 +469,9 @@ M20_arm_accepted_while_request_deferred deletes the refusal and is killed by
 that check: "request granted 69733 cycles after it was raised". The writer
 loses nothing by the refusal: it reads arm refused, strobes RELEASE and arms
 afresh at its next service call, which is the path it already takes for every
-refused arm (nvm_capture returns 0).
+refused arm (nvm_capture reports no capture; the identity it carries beside
+that answer is never the answer, because section 5.4's wrap gives one capture
+in every 2**CAP_ID_W_P the identity 0).
 
 ### 5.3 The window load: RELOAD checked by the backend
 
@@ -619,10 +642,9 @@ Fixed by the state:
 | PP_NVM_STAT[2] load accepted | 0 | none was ever accepted, so **nothing in this boot can be captured, committed or retired** (rule 9) |
 | PP_NVM_STAT[11] reload refused | 1 | the last window load was refused |
 | PP_STAT restore done / fail / blank | 1 / 1 / 1 | the walk ran, failed and read the window blank |
-| PP_NVM_STAT[23] unres, [22] nvm_pend | 1, 1 | every record the fills left open is open: nothing is represented in a slot |
 | PP_NVM_STAT[5] img_cfg | 1 | the image IS configured, which is why producer writes still land in a window whose reads come back blank |
 | PP_NVM_STAT[7] img_valid | 0 | the window was never validated: THE SAVED STATE WAS NOT RESTORED IN THIS BOOT, although a verified slot exists |
-| PP_NVM_STAT[21] arm refused, [20] ack refused, [19] attested, [18] valid, [17] hold, [16] open, [10] commit busy | 0 | no capture was ever opened, so there is nothing to refuse yet and nothing to attest |
+| PP_NVM_STAT[19] attested, [18] valid, [17] hold, [16] open, [10] commit busy | 0 | no capture was ever opened, so there is nothing to hold and nothing to attest |
 | flash erases | 0 | no slot is touched: the last verified slot is intact |
 | the capture identity, PP_NVM_SEL word 5 | 0 | it advances only on an accepted ARM, and rule 9 accepts none |
 
@@ -630,6 +652,9 @@ Decided by the ordering, with its cause:
 
 | Bit | Reading | When |
 |---|---|---|
+| PP_NVM_STAT[23] unres, [22] nvm_pend (#484) | 1, 1 at the boot | every record the fills left open is open: nothing is represented in a slot. **These are NOT fixed by the state**, which is the first correction: they FALL to 0, 0 once nothing is left open, which W4 reaches by rewriting every allocated record whole on the device face. What refuses the durable reading there is the committable bit, which stays 1 because nothing was ever committed, and nvm_backed, which is 0 because the writer retired |
+| PP_NVM_STAT[11] reload refused (#484) | 1 after a refused RELOAD, 0 if none was strobed | decided by whether THE WRITER STROBED, not by the state. A writer that reaches the state through the window going live before it ever loaded strobes none |
+| PP_NVM_STAT[21] arm refused, [20] ack refused (#484) | 0 in every ordering a conforming writer produces | same reason: a conforming writer retires in step 1.3 or 1.6 and never arms, so neither bit is ever set. A writer that ignores the rule and arms anyway reads [21] 1, and the state is unchanged, because rule 9 refuses that ARM |
 | nvm_backed | 0 throughout | the writer retired before it ever heartbeated. A boot with no flash write heartbeats at the restore walk, and this writer retires before it |
 | nvm_backed | 1, then 0 no later than T-NVM-WRITER-ALIVE after the boot | the refusing operation was SLOW, so the bounded wait of the repeat ran, and that wait heartbeats |
 | nvm_stale | 0 | nvm_backed never set: losing a writer that was never live is not a loss |
@@ -755,7 +780,11 @@ EXECUTED, the composition the second re-review found (its probes H1 and H2):
   still reported and nothing reads durable.
 - W4_all_records_rewritten_after_refused_fill is W3 and then every OTHER
   allocated record rewritten whole on the device face, which is what removed
-  the last thing still reporting under revision c. It no longer helps:
+  the last thing still reporting under revision c. **Its check grades its own
+  premise** (#484): the reading it is about is the one in which NOTHING IS
+  OPEN, so "records open 0 and pending 0" is REQUIRED, not merely printed --
+  a run that left a record open would reach the same verdict for a reason the
+  check is not about and would pass vacuously. It no longer helps:
   no_durable_reading_when_nothing_open@end2 reads "records open 0, pending 0,
   backed 0, committable 1, status claims durable False, flash erases 0". Note
   which bits carry it. The pending bit DOES fall to 0 once no record is open,
@@ -784,8 +813,9 @@ graded bit by bit ("mismatches none; every allocated record open True (53 of
 | identity | 0; the first accepted ARM names capture 1 |
 | dirty_live, dirty_cap | 0 and 0, so nvm_dirty is 0 |
 | open vector | every allocated record open, so nvm_pend (PP_NVM_STAT[22]) reads 1 until the first accepted RELOAD |
-| load | load flag 0, load pending 1, reload refused 0; a RELOAD before a re-base is refused (the flag is not readable, so U7 does not grade that clause bit by bit; the same term is executed by U5 and by U8) |
-| image | length 0 (not configured) and img_valid 0, so an ARM is refused until a writer configures and validates the image |
+| load | load flag 0, load pending PP_NVM_STAT[3] 1, **load accepted PP_NVM_STAT[2] 0** (#484), reload refused 0; a RELOAD before a re-base is refused (the flag is not readable, so U7 does not grade that clause bit by bit; the same term is executed by U5 and by U8) |
+| image | length 0 (not configured) and img_valid 0 |
+| an ARM here (#484) | REFUSED, and it stays refused after a writer configures and validates the image: load accepted is 0, and the arm condition reads it directly (rule 9). An implementation that refused only on the unconfigured image would pass a reset-row test and still open a capture in a boot that accepted no load |
 | status | nvm_backed 0 and nvm_stale 0, because no writer has been live |
 
 Identity wrap within one reset: the identity advances once per accepted ARM,
@@ -794,6 +824,28 @@ at most once per commit attempt, so a 16-bit identity repeats only after
 captures earlier arrives while the current capture is attested. EXECUTED
 control: A8 passes with 16 bits and FAILS on the 2-bit build (proto-w2-1x1),
 as the run script requires.
+
+The identity is a plain counter and its VALUE carries nothing else -- in
+particular not "no capture", because the wrap gives one capture in every
+2**CAP_ID_W_P the identity 0. A writer that spelled a refusal in that value
+domain would read that capture, attested and holding real work, as a refusal:
+it would defer the commit, print a refusal that did not happen, count it, and
+issue none of the RELEASE step 3.5 defines for the opposite case. So the
+writer reports the capture in a word BESIDE the identity, never in it
+(#484 round 2, found by both reviewers of the implementation). EXECUTED:
+`make -C tb/verilator/nvm_cosim wrap` runs five committing cases at 2
+identity bits, the contract's minimum, where the identity is 0 on the fourth
+accepted arm rather than the 65,536th, and requires each to report what it
+reports at 16 -- the same acknowledgements, the same deferrals and the same
+`captures refused` -- with at least one acknowledgement quoting the identity
+0. Five pairs, five acknowledgements quoting 0. Cases that commit fewer than
+four times carry a commit tail (`--commits`) applied identically at both
+widths, so the identity width stays the only thing that moves between the two
+runs of a pair. **No narrower build is run**, and none can be: 2 is the
+minimum `CAP_ID_W_P` section 5.1 requires an implementation to admit, and the
+suite passes `-Werror-USERERROR` on every Verilator invocation, so a build
+outside 2..16 is refused at elaboration instead of being graded (#484 round
+3, found by review of round 2's test arm).
 
 Across a reset the alias distance is zero, not 65,536: the identity restarts
 at 0, so the first capture after every reset is 1, like the first one before
@@ -1137,8 +1189,18 @@ carries the contract also grades pending_bit_is_status_bit_22 (a tracked or
 firmware-mutant build where a hook never fires grades neither). No check of
 any case may grade n/a on a prototype build. The 8x8 prototype passes the
 core set, which includes A1, R1 and U4 to U7, together with U9, U12, U13,
-W2, W3 and W4, which follow A1 on every build that runs it: 26 case runs,
-146 checks, all passing. U8, U10 and U11 are unit cases and run at 1x1.
+W2, W3 and W4, which follow A1 on every build that runs it, **and U11, which
+issue #484 adds there because the accepted-load term is shape-independent and
+an acceptance review asked for it to be shown so**: 27 case runs, 150 checks,
+all passing. U8 and U10 are unit cases and run at 1x1.
+
+**In the tree, at the shipping source**, all of this is `tb/verilator/nvm_cosim`
+(issue #484), which runs the same cases against `hdl/milan/KL_nvm_backend.sv`
+and `sw/firmware/milan_baremetal/milan_baremetal.c` rather than against the
+prototype: 469 checks over 90 case runs at the two shapes, with E3 at `d1=0`
+the one labelled expected failure, every mutant below killed by its named
+check, and the three defects of section 2 reproduced RED against a
+pre-contract backend and writer.
 
 ## 10. The four outcomes of a record operation
 

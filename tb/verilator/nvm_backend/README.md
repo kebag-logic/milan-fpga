@@ -1,10 +1,24 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # nvm_backend -- the saved-state backing store, graded on bytes
 
-`make` - exit 0 = PASS. **417 checks at the 8x8 shape and 146 at 1x1, 0
+`make` - exit 0 = PASS. **469 checks at the 8x8 shape and 201 at 1x1, 0
 failures**, plus four negative controls that must each go RED. The suite
 carries no `-Wno-*` at all, not even `-Wno-fatal`, so any Verilator warning
 stops the build.
+
+**What this suite owns, and what it does not.** It grades the module's region
+decode against a byte-exact image, its memory face, its bounds refusals, its
+section 9 status machine and -- since issue #484 -- the parts of the
+[snapshot-ownership contract](../../../docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md)
+that are properties of the MODULE: the reset row, the contract tag, the open
+vector and what opens and closes a record, the checked window load, the
+accepted-load term that refuses an ARM, the capture identity an
+acknowledgement must quote, and the separate pending bit. The contract's
+ORDERINGS -- a producer request deferred inside a hold, an acknowledgement
+racing a completion, a writer restart -- need the firmware and the real donor
+producer in the loop and are graded in
+[`tb/verilator/nvm_cosim`](../nvm_cosim/README.md). Neither suite is a superset
+of the other.
 
 ## Contents
 

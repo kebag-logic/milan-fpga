@@ -4,7 +4,7 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
-refreshed at VERSION `0x0002_005E` for the sole fabric gPTP owner, the
+refreshed at VERSION `0x0002_005F` for the sole fabric gPTP owner, the
 ownerless option-OFF elaboration and the media-boundary slip counters.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
@@ -72,12 +72,12 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_005E` |
+| `gateware.current-version` | `implemented` | `0x0002_005F` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | VERSION 0x0058 truth | Rationale |
 |---|---|---|---|---|
-| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_005E`) |
+| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_005F`) |
 | `0x204+` | STATS_CAP + RMON counters | **needed** | live | STATS_CAP's declared-unsupported honesty is contract; RMON feeds MAC-level field triage |
 | `0x4xx` | CBS queue window, classifier map | **needed** | live | Production traffic-class configuration; boot software programs it |
 | `0x600–0x65x` | Identity + enables (ADP_CTRL, AAF_CTRL, …) | **needed** | **split** | `S50milan` writes these every boot. `ADP_CTRL.en` is still an entity enable — it is **ORed with `PP_CTRL[0]`**, deliberately, because it is the bit every existing board script writes and there is only one control plane now. But the ADPDU *content* words (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) and the advertise/depart strobes are **WRITE-ONLY SCRATCH**: the processor's ADP engine holds those as internal constants and exposes no port, so a write reads back and **changes nothing observable** |
@@ -108,6 +108,7 @@ assumption that AECP answers only one command.
 | `0x90C` | CHMAP_STAT | **optional** | live | Reports committed CSR writes and CSR writes refused while the local override is disarmed or entity-locked. It does not tally AECP mapping changes |
 | `0x910/0x914` | CHMAP_SNAP / CHMAP_LOOP (readback + LOOP_SUSPECT) | **optional** | live | Was "the auditor that catches store-vs-hardware divergence". There is no store to diverge from; it is now the **only** way to read the map back, and `LOOP_SUSPECT` (mapped & ~fed) is unchanged |
 | `0x920–0x930` | PP_CTRL / PP_STAT / PP_SPADDR / PP_SPDATA / PP_DIAG | **needed** | live, **unconditional** | The protocol-processor window. `milan_csr`'s `PP_PLANE_P` parameter is **gone**, so the window is always decoded and `PP_STAT` always carries its `0x5B` tag. `PP_CTRL[0]` is ORed with `ADP_CTRL.en`. **`PP_SPADDR`/`PP_SPDATA` are how the AECP engine's own tallies are read** — command, response, drop, locate-miss, last status, last length, image-valid, image-fault all live in the processor's side-port snapshot window, not at `0x648`; the side port is the diagnostic adapter to them |
+| `0x934–0x93C` | PP_NVM_SEL / PP_NVM_DATA / PP_NVM_STAT | **needed** | live | The saved-state backing store's indexed control face (design page 8.2: a control tuple, never record data), and the snapshot-ownership contract's control face on top of it. `PP_NVM_STAT[31:24]` is a **constant contract tag `0xC3`**, the register to read first here: a writer that reads `0` predates nothing -- the GATEWARE does -- and must disable itself rather than acknowledge under an older rule. What a controller needs from this window is one bit, `PP_NVM_STAT[22]` `nvm_pend`, which `PP_STAT[11]` also carries; the rest -- the capture identity at word `5`, the per-record ownership vector at words `8`-`15`, the arm, attest, release and reload strobes -- belongs to the ONE writer that owns the face (snapshot-ownership page 16, option A) and is **debug** to anything else |
 | latency-tap CSRs | AAF per-stage TX/RX taps | **debug** | live | Pure instrumentation (`latency_taps` feature) |
 
 ## The rules behind the table

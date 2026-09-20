@@ -15,6 +15,10 @@ tb/verilator/nvm_backend/obj_1x1/
 tb/verilator/nvm_backend/obj_mut_alias/
 tb/verilator/nvm_backend/obj_mut_stride/
 tb/verilator/nvm_backend/obj_mut_stale/
+# nvm_cosim builds one directory per build and one per run, both named
+# from the build, so a wildcard on the two roots is the whole set
+tb/verilator/nvm_cosim/build/
+tb/verilator/nvm_cosim/runs/
 tb/verilator/mac_rmon/obj_full/
 tb/verilator/mac_rmon/obj_nochk/
 obj_dir/

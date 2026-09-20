@@ -152,7 +152,19 @@ EXCLUDED_PREFIXES = ("sw/trace/generated/",)
 
 #: Translation units that are freestanding C99, not C++. Checks that ask for a
 #: C++ construct do not run here - there is no `static_cast` in C.
-C_ROOTS = ("sw/trace/", "sw/firmware/")
+#:
+#: The third entry is a testbench path and looks out of place beside two
+#: firmware ones, so the reason is stated rather than left to the reader:
+#: `tb/verilator/nvm_cosim/` compiles the SHIPPING writer
+#: (sw/firmware/milan_baremetal/milan_baremetal.c) for the host, and its host
+#: model and header stubs are the C world that writer is compiled against --
+#: the same artifact class as sw/firmware/nvm_hosttest's, which this list
+#: already covers by its path. The C++ half of that suite (the .cpp and .h
+#: files) is judged as C++ and is not named here, so the exemption is the
+#: file's LANGUAGE and not its directory.
+C_ROOTS = ("sw/trace/", "sw/firmware/",
+           "tb/verilator/nvm_cosim/cosim_host.c",
+           "tb/verilator/nvm_cosim/stubs/")
 
 #: The population must reach each of these, or the scan is measuring a tree
 #: that is not there. A missing processor reports zero of everything, and zero

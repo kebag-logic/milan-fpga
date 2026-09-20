@@ -972,6 +972,7 @@ is free:
 | `[6]` | `nvm_backed` | **live**: a writer answered within `T-NVM-WRITER-ALIVE` and no unrevoked failure is outstanding |
 | `[8]` | `nvm_dirty` | the fabric image holds committed changes that no slot yet holds |
 | `[9]` | `nvm_stale` | `nvm_backed` was true since reset and is now false, and the loss has not been made good; cleared by the recovery rule of section 9.2, never by a writer merely answering again |
+| `[11]` | `nvm_pend` | accepted work that no verified slot holds and `nvm_dirty` does not report: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet |
 | `[15:12]` | `nvm_verdict` | the section 6.2 verdict code of the last image offered |
 
 `nvm_backed` remains **fabric-derived evidence and never a knob**: no CSR write
@@ -990,6 +991,19 @@ verdict that flipped to success on it would be this page's false success moved
 up one level. `tb/verilator/pp_shadow` drives exactly that sequence: a walk, then
 a heartbeat that makes the writer live, and `restore_fail` stays raised.
 
+**Landed (issue #484), the snapshot-ownership contract.** `PP_STAT[11]`
+`nvm_pend` is published beside them, and `nvm_dirty` now means the
+**committable** image work that drives a commit -- record completions the
+current capture does not hold, plus what the open capture holds -- with
+everything else accepted but not in a slot reported on the pending bit
+instead. Which bit carries what is decided on the
+[snapshot-ownership page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md) section 6.1, and
+the reason the two are separate rather than folded into one durable bit is
+recorded there (the composite bit triggers a full A/B commit every debounce
+window for a field nothing materializes). The backend's own face carries the
+per-record detail at `PP_NVM_STAT[23]` and `PP_NVM_SEL` words `8`-`15`; the
+controller-visible status carries one summary bit.
+
 ### 9.2 When it sets, when it is revoked, and when the loss is forgiven
 
 **`nvm_backed` sets** on the first firmware answer after reset that completes a
@@ -1003,6 +1017,26 @@ completed transaction.
 within `T-NVM-COMMIT-TIMEOUT`; a reported erase, program or read-back-verify
 failure; a reported JEDEC identity mismatch; the port's `nvm_alarm` raised by
 bounded-retry exhaustion.
+
+**Landed (issue #484): the RTL now evaluates four of those five**, which is
+the discrepancy the
+[snapshot-ownership page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md) section 12
+resolved in favour of this prose rather than the other way round:
+
+```
+loss_event = ALIVE expired OR COMMIT expired
+             OR a reported VD_ERASE, VD_PROGRAM or VD_VERIFY verdict
+             OR alarm (a level)
+```
+
+The alarm matters most of the five: on retry exhaustion the binding manager
+drops its dirty bit and raises it, so after that neither `nvm_dirty` nor the
+pending bit can report the change it abandoned, and without the revocation the
+status reads durable over a lost controller change. It is sticky in the donor
+until reset, so one exhaustion holds `nvm_backed` at 0 and `nvm_stale` at 1
+until reset -- a permanent false negative, never a false durable claim; when
+and whether it may be forgiven is open. The JEDEC cause still has no reporter:
+the writer performs no identity check.
 
 **`nvm_stale` sets** whenever `nvm_backed` falls after having been 1 at any
 point since reset. It is not set by a build that never had a writer: that is
@@ -1075,7 +1109,7 @@ than left off the table. Round 2's version of this table had five rows and used
 
 | `nvm_backed` | `nvm_dirty` | `nvm_stale` | Reachable | Meaning |
 |---|---|---|---|---|
-| `1` | `0` | `0` | yes | **Durable.** Everything committed is in a slot |
+| `1` | `0` | `0` | yes | **Durable** -- **and `PP_STAT[11]` `nvm_pend` 0 as well**, since issue #484. Everything accepted is in a slot. With `nvm_pend` 1 this row reads "everything COMMITTABLE is in a slot, and something accepted is not yet committable": a change the producer still holds, or a record whose logical write has not completed |
 | `1` | `1` | `0` | yes | **In flight.** A commit is inside the debounce window or in progress; a power cut here loses the marked changes and nothing else |
 | `1` | `0` | `1` | **no** | Unreachable by construction: the recovery arm of section 9.2 clears the latch on exactly this condition, and a loss forces `backed` to 0 in the same cycle, so no cycle holds the pair and no read can observe it |
 | `1` | `1` | `1` | yes | **Recovering.** The writer is answering again, but changes accepted during the outage are still not durable. Reads as backed, because a commit will now complete, and as stale, because one has not yet |
@@ -1316,8 +1350,10 @@ allocation that rounds 3 and 4 listed here is decided in section 4.2.
   a **constant**, which section 9 makes wrong.
 
 The snapshot-ownership and acknowledgement-identity contract of issue #419 is
-proposed, not decided, on [its own page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md);
-sections 9.1 and 9.2 here change only when that contract is implemented.
+accepted and implemented, on [its own page](SAVED_STATE_SNAPSHOT_OWNERSHIP.md)
+(issue #484); sections 9.1, 9.2 and 9.3 here carry what it changed, and
+`tb/verilator/nvm_cosim` grades it against this module and the shipping
+writer.
 
 ## 15. Sequencing
 

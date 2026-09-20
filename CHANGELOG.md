@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005F - saved-state snapshot ownership](#release-0x0002_005f---saved-state-snapshot-ownership)** -- Durable means in a slot.
 - **[Release 0x0002_005E - board timestamp latency](#release-0x0002_005e---board-timestamp-latency)** -- The fabric corrects its stamps.
 - **[Release 0x0002_005C - SRP status words](#release-0x0002_005c---srp-status-words)** -- Four bits read their subject.
 - **[Release 0x0002_005B - SET_SAMPLING_RATE list check](#release-0x0002_005b---set_sampling_rate-list-check)** -- An unlisted rate is refused.
@@ -42,6 +43,47 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
 
+## Release 0x0002_005F - saved-state snapshot ownership
+
+- Every allocated record carries an OPEN bit.
+- A mutating grant sets it.
+- Only a whole-record WRITE with done clears it.
+- The writer copies closed records into a private stage.
+- A bounded hold defers mutating requests during that copy.
+- The backend attests the copy.
+- Only an attested copy reaches flash.
+- The acknowledgement quotes the capture identity word.
+- A completion after the arm therefore stays owned.
+- `nvm_dirty` is now the committable work.
+- `PP_STAT[11]` `nvm_pend` carries the rest.
+- The durable reading gains that bit 0.
+- The backend checks RELOAD and accepts one per reset.
+- A boot accepting no load opens no capture.
+- A reported flash failure revokes `nvm_backed`.
+- So does the manager alarm.
+- The generator withdraws `MILAN_NVM_IMAGE_BASE`.
+- It publishes a live base and a stage base.
+- An older writer no longer compiles against this gateware.
+- `tb/verilator/nvm_cosim` grades 469 checks at both shapes.
+- One named check kills each of its 39 mutants.
+- A 2-bit capture identity must alias.
+- The shipping 16 bits must not.
+- A capture identity that wraps to 0 is ordinary.
+- The writer acknowledges it like any other.
+- That arm runs at 2 identity bits, the contract's minimum.
+- A width outside 2..16 is refused at elaboration.
+- KNOWN LIMITATION 1: the pinned processor does not export D1.
+- A binding inside the manager's debounce reads durable.
+- The donor issue is 90 in the processor repository.
+- `KL_pp_shadow` ties that term to zero.
+- KNOWN LIMITATION 2: a channel map change reads durable.
+- So does a user name change.
+- Those record ids have no record writer at this version.
+- That is donor scope D2, UNRESOLVED 2 on the page.
+- Neither limitation is new.
+- Neither is in issue 484's scope.
+- Issue 484 carries the contract and the evidence.
+
 ## Release 0x0002_005E - board timestamp latency
 
 - The fabric gPTP plane applies two per-board latency corrections.
@@ -66,7 +108,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - This PHY's datasheet states no latency figure.
 - The split moves the synchronized offset, not the peer delay.
 - Issue 488 owns the instrument that would close it.
-- 0x005D is reserved by a parallel lane.
+- 0x005D was never released.
+- A parallel lane held it and landed as 0x005F.
 - Part of issue 358; the board's ten checks close it.
 
 ## Release 0x0002_005C - SRP status words

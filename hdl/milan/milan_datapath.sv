@@ -2215,6 +2215,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [5:0]  pp_nvm_csr_addr_w;
   logic [31:0] pp_nvm_csr_wdata_w, pp_nvm_csr_rdata_w;
   logic        pp_nvm_dirty_w, pp_nvm_stale_w, pp_nvm_img_valid_w;
+  //! the pending bit of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 6.1,
+  //! published to a controller at PP_STAT[11]
+  logic        pp_nvm_pend_w;
   logic [3:0]  pp_nvm_verdict_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
@@ -2709,6 +2712,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_pp_nvm_dirty     (pp_nvm_dirty_w),
     .i_pp_nvm_stale     (pp_nvm_stale_w),
     .i_pp_nvm_img_valid (pp_nvm_img_valid_w),
+    .i_pp_nvm_pend      (pp_nvm_pend_w),
     .i_pp_nvm_verdict   (pp_nvm_verdict_w),
     .o_pp_nvm_csr_sel   (pp_nvm_csr_sel_w),
     .o_pp_nvm_csr_we    (pp_nvm_csr_we_w),
@@ -7493,6 +7497,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .nvm_alarm_o       (pp_nvm_alarm_w),
       .nvm_dirty_o       (pp_nvm_dirty_w),
       .nvm_stale_o       (pp_nvm_stale_w),
+      .nvm_pend_o        (pp_nvm_pend_w),
       .nvm_verdict_o     (pp_nvm_verdict_w),
       .nvm_img_valid_o   (pp_nvm_img_valid_w),
       .rx_frames_o       (pp_rx_frames_w),

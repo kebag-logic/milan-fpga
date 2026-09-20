@@ -39,12 +39,19 @@ MUTATIONS: dict[str, list[tuple[str, str]]] = {
          "  assign b_mapo_w = 18'(B_MAPI_C) + 18'(N_SPORT_IN_P * (REC_HDR_C + 256));\n"),
     ],
     "stale_mask": [
-        ("  assign stale_n_w = loss_w                    ? 1'b1\n"
-         "                   : (backed_n_w & ~dirty_n_w) ? 1'b0\n"
-         "                                               : stale_r;\n",
+        ("  assign stale_n_w = loss_w                   ? 1'b1\n"
+         "                   : (backed_n_w & ~comp_n_w) ? 1'b0\n"
+         "                                              : stale_r;\n",
          "  assign stale_n_w = loss_w ? 1'b1 : stale_r;\n"),
+        # the recovery arm was the only reader of the composite next dirty,
+        # so the mutant retires it too: this suite builds with -Wall and NO
+        # -Wno-fatal, and a dangling signal would stop the build instead of
+        # producing the red run the control exists to produce
+        ("  logic backed_n_w, stale_n_w, comp_n_w;\n",
+         "  logic backed_n_w, stale_n_w;\n"),
+        ("  assign comp_n_w  = dirty_live_n_w | dirty_cap_n_w;\n", ""),
         ("  assign nvm_stale_o   = stale_r;\n",
-         "  assign nvm_stale_o   = stale_r & ~(backed_r & ~dirty_r);\n"),
+         "  assign nvm_stale_o   = stale_r & ~(backed_r & ~dirty_img_w);\n"),
     ],
     "blind_read": [
         ("                OP_READ_C:  st_r <= img_live_w ? S_RDFETCH : S_RDBLANK;\n",

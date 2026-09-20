@@ -2921,8 +2921,15 @@ class MilanSoC(SoCCore):
             # 0x100000 - 0x1000 - 0x10000 = 978,944 bytes above the model's
             # first byte, forty-two times the largest model in the tree. The
             # firmware is not told the base twice: it is compiled in as
-            # MILAN_NVM_IMAGE_BASE below and published in the manifest.
+            # MILAN_NVM_LIVE_BASE below and published in the manifest.
             _nvm_base = _resp_base - FLASH_ERASE_BLOCK
+            # ...AND THE PRIVATE STAGE beside it (snapshot-ownership section
+            # 17): a second container-sized buffer nothing but the firmware
+            # ever touches, so an attested capture cannot move under the seal,
+            # the program or the read-back. One more erase block below the
+            # live window, which leaves 913,408 bytes above the model's first
+            # byte - thirty-nine times the largest model in the tree.
+            _nvm_stage_base = _nvm_base - FLASH_ERASE_BLOCK
             # Published for the manifest that ships with the image. The loader
             # must not restate this address: it is compiled into the gateware,
             # so a loader that guesses it writes the model somewhere the store
@@ -2930,6 +2937,7 @@ class MilanSoC(SoCCore):
             self._pp_windows = {"desc_base": _desc_base,
                                 "resp_base": _resp_base,
                                 "nvm_base": _nvm_base,
+                                "nvm_stage_base": _nvm_stage_base,
                                 "window_bytes": _PP_WINDOW}
             self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
@@ -3948,7 +3956,16 @@ def main() -> None:
         # derives the record area exactly as KL_nvm_backend derives it from
         # its parameters, and sw/firmware/nvm_hosttest grades the two against
         # scripts/nvm_shape.py's inventory of the same overlay.
-        soc.add_constant("MILAN_NVM_IMAGE_BASE", soc._pp_windows["nvm_base"])
+        # The snapshot-ownership contract (section 14, the build-time
+        # refusal): MILAN_NVM_IMAGE_BASE is WITHDRAWN, so a writer that names
+        # it does not compile against this gateware, and the live window, the
+        # private stage and the contract number are published instead. The
+        # writer carries the matching #error on MILAN_NVM_CONTRACT, so it does
+        # not compile against an older generator either.
+        soc.add_constant("MILAN_NVM_LIVE_BASE", soc._pp_windows["nvm_base"])
+        soc.add_constant("MILAN_NVM_STAGE_BASE",
+                         soc._pp_windows["nvm_stage_base"])
+        soc.add_constant("MILAN_NVM_CONTRACT", 3)
         soc.add_constant("MILAN_NVM_IMAGE_MAX", FLASH_ERASE_BLOCK)
         _nvm_shape = NvmShape(
             cfg=Path(args.entity_gen_dir),
@@ -3977,6 +3994,7 @@ def main() -> None:
             "desc_base": soc._pp_windows["desc_base"],
             "resp_base": soc._pp_windows["resp_base"],
             "nvm_base": soc._pp_windows["nvm_base"],
+            "nvm_stage_base": soc._pp_windows["nvm_stage_base"],
             "window_bytes": soc._pp_windows["window_bytes"],
             "image": "aem_desc.bin",
             "image_bytes": len(_desc_blob),

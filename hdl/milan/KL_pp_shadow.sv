@@ -107,9 +107,14 @@
                                  page section 9.2). No CSR write can set it,
                                  the property the old localparam had, kept
                                  now that the level moves.
-                  nvm_dirty_o    the image holds committed changes no slot
+                  nvm_dirty_o    the image holds committable work no slot
                                  holds yet (section 9.1)
                   nvm_stale_o    a writer loss not yet made good (9.1, 9.2)
+                  nvm_pend_o     accepted work that no verified slot holds
+                                 and nvm_dirty does not report: a change the
+                                 producer still holds, or a record whose
+                                 logical write has not completed
+                                 (SAVED_STATE_SNAPSHOT_OWNERSHIP.md 6.1)
                   nvm_verdict_o  the firmware's verdict on the last image
                   nvm_img_valid_o the firmware validated the image in place
                   restore_blank_o  the walk validated zero records - blank or
@@ -651,8 +656,9 @@ module KL_pp_shadow #(
     output logic       nvm_backed_o,       //! LIVE: the firmware behind the device face answered in time (section 9.2)
     output logic       restore_blank_o,    //! the completed walk validated ZERO records
     output logic       nvm_alarm_o,        //! commit retries exhausted
-    output logic       nvm_dirty_o,        //! the image holds committed changes no slot holds
+    output logic       nvm_dirty_o,        //! the image holds committable work no slot holds
     output logic       nvm_stale_o,        //! a writer loss that has not been made good
+    output logic       nvm_pend_o,         //! accepted work no verified slot holds and nvm_dirty does not report (snapshot-ownership 6.1)
     output logic [3:0] nvm_verdict_o,      //! the firmware's verdict on the last image offered
     output logic       nvm_img_valid_o,    //! the firmware validated the image in the window
     output logic [15:0] rx_frames_o,       //! control frames handed to the PP
@@ -871,17 +877,19 @@ module KL_pp_shadow #(
   //  Saved-state backing store (design page sections 4, 8 and 9)           //
   // ======================================================================= //
   //! KL_nvm_backend answers the processor's NVM device face out of the KLJ2
-  //! record image in main memory and publishes the section 9 status. What
-  //! this wrapper adds is exactly two things, both fabric evidence:
+  //! record image in main memory and publishes the section 9 status and the
+  //! snapshot-ownership contract of
+  //! docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md. What this wrapper adds is
+  //! exactly two things, both fabric evidence:
   //!
-  //!   * change: the processor's aecp_dyn_dirty_o is a STICKY LEVEL (set by
-  //!     the first persisted-field write since reset, cleared by reset only)
-  //!     and the backend's change_i is an EVENT. The rising edge is the event
-  //!     the level carries; every later change reaches the backend as the
-  //!     device-face WRITE the processor issues to persist it, and the
-  //!     backend marks the image dirty on the write itself. Feeding the level
-  //!     would re-mark dirty every cycle and make the commit acknowledgement
-  //!     a no-op.
+  //!   * pend: the backend's pend_i is a LEVEL (snapshot-ownership section
+  //!     6.1), 1 while the producer holds accepted work it has not yet
+  //!     written through the device face. The processor's aecp_dyn_dirty_o is
+  //!     exactly such a level (set by the first persisted-field write since
+  //!     reset, cleared by reset only) and is passed straight through; the
+  //!     edge detector the tracked glue derived from it is GONE, because it
+  //!     lost every change after the first (issue #420). Two further sources
+  //!     wait on donor exports that do not exist yet and are tied off below.
   //!   * a blind walk: whether a validated image stood behind the device face
   //!     for EVERY cycle of the restore walk. Latched per walk, because the
   //!     verdict is about the bytes the walk read, not about the image's
@@ -891,19 +899,33 @@ module KL_pp_shadow #(
   logic [1:0]  nvm_op_w;
   logic [7:0]  nvm_region_w, nvm_wdata_w, nvm_rdata_w;
   logic [15:0] nvm_offset_w, nvm_len_w;
-  logic        nvm_backed_w, nvm_img_valid_w, nvm_change_w;
-  logic        dyn_dirty_q, restore_busy_q, walk_blind_r;
+  logic        nvm_backed_w, nvm_img_valid_w, nvm_pend_w, nvm_alarm_w;
+  logic        restore_busy_q, walk_blind_r;
 
-  assign nvm_change_w = aecp_dyn_dirty_o & ~dyn_dirty_q;
+  //! KNOWN LIMITATION, donor scopes D1 and D2 of the snapshot-ownership page
+  //! section 13. They are one protocol-processor output port and one pair of
+  //! them, filed as protocol-processor-control-plane-avb-milan issue 90, and
+  //! the pinned processor exports neither. These are the two terms of pend_i
+  //! they will feed, and THIS IS THE ONE PLACE THEY WILL CONNECT: when D1
+  //! lands, nvm_unflushed_w binds to the donor's nvm_unflushed_o; when D2
+  //! lands, aecp_mark_pend_w is driven from its mark strobe and class. Until
+  //! then a binding accepted inside the manager's debounce, and any channel
+  //! map or name change, can read durable (section 9 case E3, and UNRESOLVED
+  //! 2 and 3). Tied to zero here rather than omitted, so the term that is
+  //! missing is visible in the source that would carry it.
+  logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
+  logic                     aecp_mark_pend_w;
+  assign nvm_unflushed_w  = '0;
+  assign aecp_mark_pend_w = 1'b0;
+
+  assign nvm_pend_w = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_mark_pend_w;
 
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      dyn_dirty_q    <= 1'b0;
       restore_busy_q <= 1'b0;
       //! no walk has run yet: a done with no walk behind it is blind
       walk_blind_r   <= 1'b1;
     end else begin
-      dyn_dirty_q    <= aecp_dyn_dirty_o;
       restore_busy_q <= restore_busy_o;
       //! fresh evidence when a walk starts, then any blind cycle sticks
       if (restore_busy_o && !restore_busy_q)       walk_blind_r <= ~nvm_img_valid_w;
@@ -961,15 +983,23 @@ module KL_pp_shadow #(
       .csr_addr_i      (nvm_csr_addr_i),
       .csr_wdata_i     (nvm_csr_wdata_i),
       .csr_rdata_o     (nvm_csr_rdata_o),
-      .change_i        (nvm_change_w),
+      .pend_i          (nvm_pend_w),
+      .alarm_i         (nvm_alarm_w),
       .nvm_backed_o    (nvm_backed_w),
       .nvm_dirty_o     (nvm_dirty_o),
       .nvm_stale_o     (nvm_stale_o),
       .nvm_verdict_o   (nvm_verdict_o),
-      .img_valid_o     (nvm_img_valid_w)
+      .img_valid_o     (nvm_img_valid_w),
+      .nvm_pend_o      (nvm_pend_o),
+      //! the per-record diagnostic is read on the backend's OWN status word,
+      //! PP_NVM_STAT[23], and the writer prints the open ids from words 8..15
+      //! (snapshot-ownership section 16, option A): the parent publishes the
+      //! one summary bit and no shape-sized vector
+      .nvm_unres_o     ()
   );
 
   assign nvm_img_valid_o = nvm_img_valid_w;
+  assign nvm_alarm_o     = nvm_alarm_w;
 
   // ======================================================================= //
   //  The processor                                                          //
@@ -1133,7 +1163,7 @@ module KL_pp_shadow #(
       .restore_done_o      (pp_restore_done_w),
       .restore_fail_o      (pp_restore_fail_w),
       .restore_blank_o     (pp_restore_blank_w),
-      .nvm_alarm_o         (nvm_alarm_o),
+      .nvm_alarm_o         (nvm_alarm_w),
 
       .nvm_dev_req_o       (nvm_req_w),
       .nvm_dev_gnt_i       (nvm_gnt_w),

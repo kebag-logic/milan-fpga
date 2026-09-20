@@ -92,9 +92,12 @@ LAYOUT = literal("FLASHBOOT_LAYOUT")
 JOURNAL = RESERVED["journal"]["offset"]
 SLOT = RESERVED["journal"]["size"] // 2
 AEM_OFFSET = LAYOUT["aem"]["offset"]
-#: the staged container's band inside the host's window array: the same
-#: place milan_soc.py puts it, the erase block below the response buffer
+#: the LIVE window's band inside the host's window array: the same place
+#: milan_soc.py puts it, the erase block below the response buffer
 IMAGE_OFF = 0x100000 - 0x1000 - 0x10000
+#: the writer's PRIVATE STAGE, one erase block below the live window
+#: (snapshot-ownership section 17), derived here the same way
+STAGE_OFF = IMAGE_OFF - 0x10000
 AEM_STUB = b"AEMI"
 FENCE_RE = re.compile(r'__asm__ volatile\("fence[^"]*" ::: "memory"\);')
 BOOT_RE = re.compile(
@@ -182,7 +185,12 @@ def constants_header(shape: Shape, donor: Donor, ident: Ident) -> str:
     values.update(firmware_constants(shape, donor))
     lines += [f"#define {n} {v}u" for n, v in values.items()]
     lines.append("#define MILAN_AEM_DESC_BASE ((uintptr_t)nvm_host_ddr)")
-    lines.append(f"#define MILAN_NVM_IMAGE_BASE ((uintptr_t)nvm_host_ddr + 0x{IMAGE_OFF:x}u)")
+    # The contract-3 generator (snapshot-ownership section 14):
+    # MILAN_NVM_IMAGE_BASE is withdrawn and the live window, the private
+    # stage and the contract number are published instead.
+    lines.append(f"#define MILAN_NVM_LIVE_BASE ((uintptr_t)nvm_host_ddr + 0x{IMAGE_OFF:x}u)")
+    lines.append(f"#define MILAN_NVM_STAGE_BASE ((uintptr_t)nvm_host_ddr + 0x{STAGE_OFF:x}u)")
+    lines.append("#define MILAN_NVM_CONTRACT 3u")
     return "\n".join(lines) + "\n"
 
 
@@ -425,10 +433,13 @@ def grade_parity(bench: Bench) -> list[str]:
 def grade_failures(bench: Bench) -> list[str]:
     """Check 7: erase, program and read-back failures, each by name.
 
-    With nothing outstanding the loss the commit deadline inflicts heals on
-    the next heartbeat (section 9.2's clean recovery), so the loss is counted
-    rather than sampled; with a change outstanding, `nvm_stale` must still
-    stand after the deadline, because the retry fails the same way.
+    The REPORTED verdict is what revokes the claim now, not the 8 s commit
+    deadline behind it (SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 12: waiting
+    for the deadline advertises durability for up to eight seconds after a
+    known failure). With nothing outstanding the loss heals on the next
+    heartbeat (section 9.2's clean recovery), so the loss is counted rather
+    than sampled; with a change outstanding, `nvm_stale` must still stand,
+    because the retry fails the same way.
     """
     f = []
     for mode, code in (("erase", VD_ERASE), ("program", VD_PROGRAM), ("verify", VD_VERIFY)):
@@ -439,7 +450,7 @@ def grade_failures(bench: Bench) -> list[str]:
         _check(f, f"FAILED: {VERDICT_NAME[code]}" in out,
                f"a failed {mode} was not named on the console")
         _check(f, s.get("losses", 0) >= 1,
-               f"the commit deadline did not revoke the claim after a failed {mode}: {s}")
+               f"the reported verdict did not revoke the claim after a failed {mode}: {s}")
     _, s, _ = run(bench, "--fail", "erase", "--boot", "--dirty", "--idle-ms", "12000")
     _check(f, s.get("acks") == 0 and s.get("starts") >= 1 and s.get("dirty") == 1
            and s.get("stale") == 1 and s.get("losses", 0) >= 1,
@@ -465,8 +476,63 @@ def grade_liveness(bench: Bench) -> list[str]:
     return f
 
 
+def grade_snapshot_contract(bench: Bench) -> list[str]:
+    """Checks 11 to 14: the window load, the capture and the retired state.
+
+    The writer sequence of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 7. What
+    this bench can reach is the WRITER's side of it, because the host backend
+    model has no device-face producer: the orderings that need one (a grant
+    inside a hold, a record left open, an acknowledgement racing a completion)
+    are graded against the real RTL and the real donor in
+    tb/verilator/nvm_cosim.
+    """
+    f = []
+    # 11. the cold boot loads the window once and the backend accepts it, so
+    # every record closes and the pending bit falls
+    out, s, _ = run(bench, "--boot")
+    _check(f, s.get("reloads") == 1 and s.get("ld_acc") == 1 and
+           s.get("ld_pend") == 0 and s.get("rl_ref") == 0 and s.get("unres") == 0,
+           f"the cold boot did not load the window exactly once: {s}")
+    # 12. a commit arms a capture and the acknowledgement quotes its identity
+    out, s, _ = run(bench, "--boot", "--uart", "milan_nvm commit")
+    _check(f, s.get("arms") == 1 and s.get("cap_id") == 1 and s.get("acks") == 1
+           and s.get("ack_ref") == 0 and s.get("arm_ref") == 0,
+           f"the commit did not acknowledge under capture 1: {s}")
+    _check(f, "capture 1 acknowledged" in out,
+           "the commit did not name the capture it acknowledged")
+    # ... and one quoting ANOTHER capture names nothing the backend holds
+    _, s, _ = run(bench, "--boot", "--stray-ack", "4242", "--uart", "milan_nvm commit")
+    _check(f, s.get("ack_ref") == 0 and s.get("acks") == 1 and s.get("dirty") == 0,
+           f"a stray acknowledgement was not refused before the real one: {s}")
+    # 13. one refused load: the writer repeats from the re-base and converges
+    out, s, _ = run(bench, "--refuse-loads", "1", "--boot", "--uart", "milan_nvm commit")
+    _check(f, s.get("reloads") == 2 and s.get("ld_acc") == 1 and
+           s.get("acks") == 1 and s.get("unres") == 0,
+           f"a refused window load did not converge on the repeat: {s}")
+    _check(f, "refused 1 window load(s); accepted at attempt 2" in out,
+           "the repeated window load was not named on the console")
+    # 14. four refused loads: the terminal row of section 5.3. The writer
+    # retires, so nothing is captured, no slot is touched, nvm_backed falls
+    # and the pending bit stands
+    out, s, _ = run(bench, "--refuse-loads", "4", "--boot", "--uart", "milan_nvm commit",
+                    "--idle-ms", "9000", "--uart", "milan_nvm")
+    _check(f, s.get("reloads") == 4 and s.get("ld_acc") == 0 and s.get("rl_ref") == 1,
+           f"four refused loads did not leave the load unaccepted: {s}")
+    _check(f, s.get("arms") == 0 and s.get("acks") == 0 and s.get("erases") == 0
+           and s.get("valid") == 0 and s.get("unres") == 1 and s.get("cap_id") == 0,
+           f"the terminal state captured, committed or validated something: {s}")
+    _check(f, s.get("backed") == 0,
+           f"a retired writer kept nvm_backed asserted: {s}")
+    _check(f, "refused 4 window loads" in out and "disabled until the next reset" in out,
+           "the terminal state was not named on the console")
+    _check(f, "unresolved records" in out,
+           "the console did not name the records the terminal state leaves open")
+    return f
+
+
 GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
-          grade_parity, grade_failures, grade_liveness)
+          grade_parity, grade_failures, grade_liveness,
+          grade_snapshot_contract)
 
 
 def grade(bench: Bench) -> list[str]:

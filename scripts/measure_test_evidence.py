@@ -609,6 +609,14 @@ DUT_READER_DISPOSITIONS = {
         "shape mutants are the explicit tdm8render-mutants target",
     "tb/verilator/nvm_backend/mutate.py":
         "mutation campaign; it plants one of four backend defects into a copy and requires failure",
+    "tb/verilator/nvm_cosim/run_cases.py":
+        "co-simulation driver; it reads the SHIPPING backend and the "
+        "SHIPPING writer because they ARE the pair under test -- it "
+        "compiles that writer for the host and Verilates that backend "
+        "behind it, planting a named defect through mutate.py or taking a "
+        "pre-contract copy for the non-vacuity control. It grades nothing "
+        "from the text: every verdict is a named check in cosim_checks.py "
+        "over a dumped journal",
     "tb/verilator/render_setpoint/mutants.py":
         "mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure",
     "tb/verilator/rx_filter/binding_mutant.py":
