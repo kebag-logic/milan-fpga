@@ -3850,8 +3850,8 @@ def _gptp_latency_key(gp_raw, k):
             f"State the measured value in nanoseconds, or 0 with a "
             f"comment saying the board is unmeasured - a generated "
             f"default would hide an unmeasured board (#358). The "
-            f"measurement method is in "
-            f"docs/integration/BOARD_PORTING_AX7101.md")
+            f"measurement method is section 6 of the AX7101 board "
+            f"porting guide, under docs/integration")
     v = int(gp_raw[k])
     if not 0 <= v <= 0xFFFF:
         raise ConfigError(
