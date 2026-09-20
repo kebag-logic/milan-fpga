@@ -153,8 +153,8 @@ module milan_csr #(
   //! writes inert, option OFF zero - the timestamp latency corrections the
   //! fabric gPTP plane is applying, {ingress_ns[31:16], egress_ns[15:0]}.
   //! Nothing else moves, and the ONLY live consumer of a latency correction
-  //! remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D is taken
-  //! by a parallel lane and is deliberately skipped here.
+  //! remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D was never
+  //! released: a parallel lane held it and landed as 0x005F.
   //!
   //! 0x005F lands the saved-state SNAPSHOT OWNERSHIP contract (#484,
   //! docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md). PP_STAT 0x924 gains

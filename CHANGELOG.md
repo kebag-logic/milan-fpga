@@ -108,7 +108,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - This PHY's datasheet states no latency figure.
 - The split moves the synchronized offset, not the peer delay.
 - Issue 488 owns the instrument that would close it.
-- 0x005D is reserved by a parallel lane.
+- 0x005D was never released.
+- A parallel lane held it and landed as 0x005F.
 - Part of issue 358; the board's ten checks close it.
 
 ## Release 0x0002_005C - SRP status words
