@@ -49,11 +49,15 @@ stub rejects a name, and the harness strips the marker from what the check
 prints. `-quiet` is ignored, so the flag is counted in the file instead
 (`quiet_reads`).
 
-One thing no stub can see, because Tcl values carry no object identity: live
-it is `{*}` expansion of a query answer that turns the objects back into
-names - `foreach`, `lindex`, `lassign`, `lsort`, `filter` and `lappend` of
-the whole answer all keep them, measured on the placed checkpoint. So the
-file is read as text for that one rule as well (`expanded_answers`).
+One thing no stub can see, because Tcl values carry no object identity: live,
+REBUILDING a query answer by value turns its objects back into names.
+Measured on the placed checkpoint: `{*}` expansion, `eval`, `lmap` and
+`join` then `split` all do; `foreach`, `lindex`, `lassign`, `lsort`, `filter`
+and `lappend` of the whole answer keep the objects. So the file is read as
+text for the measured spellings (`rebuilt_answers`). A text rule sees only
+the spellings it lists: the live run on a placed checkpoint that
+docs/integration/BUILDING.md requires for any change to the check is what
+covers the class.
 
 Every mutant of the .tcl in MUTANTS must then be noticed by an arm that
 stops holding or by one of those two counts, which is what shows the checks
@@ -63,6 +67,7 @@ Needs `tclsh` (package `tcl`); exits 2 without it.
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -555,6 +560,12 @@ MUTANTS = (
      "set nets [get_nets -quiet -of_objects $port]"),
     ("a per-pin answer taken apart and rebuilt", "lappend groups $cells",
      "lappend groups {*}$cells"),
+    ("the same rebuild spelled with eval", "lappend groups $cells",
+     "eval lappend groups [list $cells]"),
+    ("the same rebuild spelled with lmap", "lappend groups $cells",
+     "set groups [lmap g [concat $groups [list $cells]] {set g}]"),
+    ("the same rebuild spelled with join and split", "lappend groups $cells",
+     "lappend groups [split [join $cells] { }]"),
     ("a query that raised while grading a port taken for INERT",
      'error "IOB-PACK ERROR: grading $port ended the run: $answer"',
      'set answer [list INERT "the query raised"]'),
@@ -617,25 +628,46 @@ def quiet_reads(source: str) -> list[str]:
             "want exactly one (the per-port IOB property)"]
 
 
-def expanded_answers(source: str) -> list[str]:
-    """`{*}` on a query answer: the one Tcl form that loses the objects.
+#: Tcl spellings MEASURED on the placed checkpoint under 2026.1 to hand a
+#: Vivado query answer back as plain names, with the number of times each may
+#: stand in the check's code lines. `split` is allowed once: the report text
+#: cut into lines, which is no query answer.
+REBUILD_FORMS = (
+    ("{*}", re.compile(r"\{\*\}"), 0),
+    ("eval", re.compile(r"(?<![\w$])eval(?!\w)"), 0),
+    ("lmap", re.compile(r"(?<![\w$])lmap(?!\w)"), 0),
+    ("split", re.compile(r"(?<![\w$])split(?!\w)"), 1),
+)
+
+
+def rebuilt_answers(source: str) -> list[str]:
+    """The measured spellings that rebuild a query answer by value.
 
     Measured on the placed checkpoint under 2026.1: `foreach`, `lindex`,
     `lassign`, `lsort`, `lrange`, `lreverse`, `filter`, `concat`, and
     `lappend` of a whole answer or of elements taken out of it, all keep a
-    Vivado object list's objects; `{*}` expansion of an answer into another
-    list hands back plain NAMES, the next query raises Common 17-161, and a
-    Vivado ERROR ends the batch session, so the build stops at this check.
-    No Tcl value carries that difference, so no stub here can see it - a
-    marked object survives `{*}` in tclsh. The check's code lines are read
-    for the form itself instead.
+    Vivado object list's objects; `{*}` expansion (`list {*}` included),
+    `eval lappend`, `lmap` over an answer, and `join` then `split` all hand
+    back plain NAMES, the next query raises Common 17-161, and the check
+    re-raises it uncaught, so the build stops at this check. No Tcl value
+    carries that difference, so no stub here can see it - a marked object
+    survives every one of them in tclsh. The check's code lines are read for
+    the spellings instead. The list is what was measured, not a closure:
+    another spelling of the same rebuild passes here, and only the live run
+    stops it.
     """
     code = [line for line in source.splitlines()
             if not line.lstrip().startswith("#")]
-    return [f"the check expands a query answer with {{*}}: {line.strip()!r}. "
-            "A Vivado object list is passed whole or not at all; expanded, "
-            "its elements come back as names the next query rejects"
-            for line in code if "{*}" in line]
+    problems = []
+    for form, pattern, allowed in REBUILD_FORMS:
+        lines = [line.strip() for line in code if pattern.search(line)]
+        if len(lines) > allowed:
+            problems.append(
+                f"the check carries `{form}` on {len(lines)} code line(s), "
+                f"want at most {allowed}: {lines!r}. A Vivado object list is "
+                "passed whole or not at all; rebuilt by value, its elements "
+                "come back as names the next query rejects")
+    return problems
 
 
 def mutant_arms(tclsh: str, work: Path) -> list[str]:
@@ -652,7 +684,7 @@ def mutant_arms(tclsh: str, work: Path) -> list[str]:
         mutant.write_text(text, encoding="utf-8")
         caught = [a.name for a in ARMS if run_arm(tclsh, mutant, a, work)]
         caught += ["the -quiet count"] if quiet_reads(text) else []
-        caught += ["the {*} count"] if expanded_answers(text) else []
+        caught += ["the rebuild count"] if rebuilt_answers(text) else []
         print(f"  [{'KILL' if caught else 'LIVE'}] mutant '{name}': "
               f"{len(caught)} check(s) notice it")
         if not caught:
@@ -671,10 +703,10 @@ def main() -> int:
     failures = quiet_reads(source)
     print(f"  [{'FAIL' if failures else 'PASS'}] one -quiet read in the "
           "check's code lines")
-    expanded = expanded_answers(source)
-    print(f"  [{'FAIL' if expanded else 'PASS'}] no query answer taken apart "
-          "with {*} in the check's code lines")
-    failures += expanded
+    rebuilt = rebuilt_answers(source)
+    print(f"  [{'FAIL' if rebuilt else 'PASS'}] no measured rebuild of a query "
+          "answer in the check's code lines")
+    failures += rebuilt
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         for arm in ARMS:

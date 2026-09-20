@@ -58,8 +58,10 @@
 # an unknown or renamed property is answered EMPTY by Vivado, with the flag
 # or without it, measured on this design. `-of_objects` handed a name, or an
 # empty list, DOES raise, and a raise ends the batch run rather than reading
-# as an absence (the first cut of this check handed it a name and read every
-# input INERT). So every step below tests its input first, grades the
+# as an absence ONLY because nothing in this file swallows it: a Vivado
+# ERROR is an ordinary catchable Tcl error, and a `catch` that did not
+# re-raise would turn it back into an absence (the first cut of this check
+# handed `-of_objects` a name and read every input INERT). So every step below tests its input first, grades the
 # emptiness itself, and passes Vivado object lists whole, never rebuilt from
 # names. The one `-quiet` left is marked where it is read, and crossed
 # against two counts that do not depend on it.
@@ -69,18 +71,22 @@
 # looked at. sw/litex/iob_pack_selftest.py drives this file in tclsh with the
 # Vivado netlist queries stubbed; that is its gate outside Vivado.
 #
-# OBJECTS, NEVER NAMES, AND NEVER `{*}`. A Vivado query answers a list of
-# OBJECTS whose string form happens to be their names, and only some Tcl
-# operations keep the objects. Measured on the placed checkpoint under
+# OBJECTS, NEVER NAMES, NEVER REBUILT BY VALUE. A Vivado query answers a
+# list of OBJECTS whose string form happens to be their names, and only some
+# Tcl operations keep the objects. Measured on the placed checkpoint under
 # 2026.1: `foreach`, `lindex`, `lrange`, `lsort`, `filter`, `concat`, and
 # `list`/`lappend` of a WHOLE answer all keep them; `{*}` expansion of an
-# answer into another list does NOT - its elements come back as plain names.
+# answer into another list, `eval lappend`, `lmap` over an answer, and `join`
+# then `split` do NOT - the elements come back as plain names.
 # The next query then rejects them: `get_property` raises Common 17-161
 # ("Invalid option value 'eth0_tx_data_reg[0]' specified for 'object'") and
 # `-of_objects` raises Common 17-697. That is not a soft failure to grade a
-# port: a Vivado ERROR ends the `-mode batch` session where it is raised,
-# before the `catch` below can name the port and before any report is
-# written, so every build stops at this check. So no list below is ever
+# port. Measured: the error is catchable and a session that swallows it
+# runs on; the `catch` below prints the port it was grading and re-raises,
+# and that uncaught error ends the `-mode batch` run before any report is
+# written, so every build stops at this check. Measured too: on its way out
+# Vivado echoes its own ERROR line and not the re-raised text, which is why
+# the port is printed before the re-raise. So no list below is ever
 # taken apart and rebuilt - a per-pin answer is carried as its own GROUP -
 # and a name is never handed back to a query. The one string form used is
 # for messages (`join`, which leaves the object list itself usable).
@@ -267,11 +273,16 @@ proc kl_iob_pack_check {report} {
             continue
         }
         lappend graded $port
-        # re-raised, never swallowed: it names the port for an error Tcl
-        # raises here, and a bare Tcl trace does not. It cannot rescue a
-        # Vivado ERROR message, which ends the batch session where it is
-        # raised - measured, and why the rule above is structural.
+        # re-raised, NEVER swallowed: a Vivado ERROR is catchable
+        # (measured), so this catch is the one place a raise could be turned
+        # into an absence, and the re-raise going uncaught is what ends the
+        # batch run, on purpose. A named port is still a stopped build,
+        # which is why the rule above is structural.
         if {[catch {kl_iob_port_verdict $port} answer]} {
+            # printed first: measured, Vivado does not echo the re-raised
+            # text when the cause is a Vivado ERROR, so without this line
+            # no log names the port.
+            puts "IOB-PACK ERROR: a query raised while grading $port"
             error "IOB-PACK ERROR: grading $port ended the run: $answer"
         }
         lassign $answer verdict detail
