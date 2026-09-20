@@ -267,8 +267,17 @@ def do_build(b: Build, shapes: dict[str, ShapeInfo], jobs: int) -> Build:
     gparams = [f"-G{k}={v}" for k, v in s.params.items()] + [f"-GCLK_HZ_P={CLK_HZ}"]
     if b.contract:
         gparams += [f"-GT_HOLD_MS_P={T_HOLD_MS}", f"-GCAP_ID_W_P={b.cap_id_w}"]
+    #! -Werror-USERERROR beside -Wno-fatal, never -Wno-fatal alone: the
+    #! backend states its legal parameter ranges as elaboration $errors
+    #! (KL_nvm_backend.sv, the g_refuse_* guards), and -Wno-fatal on its own
+    #! demotes a $error to a warning nothing here reads, so a build outside
+    #! a declared range would elaborate, simulate and be GRADED. Every -G
+    #! this function passes is therefore checked by the module itself. The
+    #! rule is docs/development/CODE_QUALITY.md, rule 6, "Where the contract
+    #! is enforced, and where it is not".
     vl = ["verilator", "--cc", "--exe", "--build", "-j", str(jobs), "--top-module", "cosim_top",
-          "--Mdir", str(work / "obj"), "-Wall", "-Wno-fatal", "-Wno-UNUSEDSIGNAL",
+          "--Mdir", str(work / "obj"), "-Wall", "-Wno-fatal", "-Werror-USERERROR",
+          "-Wno-UNUSEDSIGNAL",
           "-Wno-UNUSEDPARAM", "--x-assign", "unique", "--x-initial", "unique"]
     if b.contract:
         vl.append("+define+NVM_CONTRACT_3")
@@ -411,22 +420,36 @@ MUTANTS = {
 #: ---- the identity WRAP arm (issue #484, round 2) --------------------------
 #: The backend's capture identity is a PLAIN WRAPPING counter -- section 5.4
 #: states the wrap and treats it as an ordinary event -- so one capture in
-#: every 2**CAP_ID_W_P carries the identity 0. These cases commit more than
-#: once, so a build at 1 or 2 identity bits reaches that capture INSIDE the
-#: case, where the shipping 16 bits would need 65,536 of them. What is graded
-#: is that the WIDTH changes nothing the writer reports: the capture whose
-#: identity is 0 is attested, acknowledged and never counted as refused.
-#: Width 1 wraps on the second capture; width 2 on the fourth, which only
-#: C2 reaches -- and C2 is also the one case here with a capture the backend
-#: genuinely does NOT attest, so the arm cannot be satisfied by a writer that
-#: has simply stopped refusing.
+#: every 2**CAP_ID_W_P carries the identity 0. What is graded is that the
+#: WIDTH changes nothing the writer reports: the capture whose identity is 0
+#: is attested, acknowledged and never counted as refused.
+#:
+#: The narrow width is 2, the MINIMUM the backend's own elaboration contract
+#: admits (KL_nvm_backend.sv, g_refuse_capid: CAP_ID_W_P in 2..16), and it is
+#: the only narrow width built. A build outside that range is refused at
+#: elaboration by -Werror-USERERROR in do_build(), so this arm cannot grade
+#: the shipping module in a shape the module disclaims (#484 round 3, found
+#: by review of round 2's own test arm).
+#:
+#: At 2 bits the identity is 0 on the FOURTH accepted arm, where the shipping
+#: 16 bits would need 65,536 of them. Most of these cases commit two or three
+#: times on their own, so each carries a COMMIT TAIL (`--commits`, run after
+#: the case body and all of its observations) that takes it past the wrap.
+#: The tail is applied identically to both members of a pair, so the identity
+#: width remains the only thing that moves between the two runs. C2 reaches a
+#: fourth capture unaided and is also the one case here with a capture the
+#: backend genuinely does NOT attest, so the arm cannot be satisfied by a
+#: writer that has simply stopped refusing.
 WRAP_CASES = {
-    "A4_write_after_ack": (1,),
-    "A9_updates_during_slow_erase": (1,),
-    "B1_erase_error_full_span": (1,),
-    "C8_ack_refused_after_verified_slot": (1,),
-    "C2_hold_expiry_then_erase_with_stale_mask": (1, 2),
+    "A4_write_after_ack": 3,
+    "A9_updates_during_slow_erase": 3,
+    "B1_erase_error_full_span": 3,
+    "C8_ack_refused_after_verified_slot": 3,
+    "C2_hold_expiry_then_erase_with_stale_mask": 0,
 }
+#: the narrow identity width this arm runs, and the ONLY narrow width built:
+#: the minimum the backend's elaboration contract admits
+WRAP_WIDTH = 2
 #: the writer's own report of a run, compared field by field across widths
 WRAP_FIELDS = ("acknowledged", "not attested", "commits ok=", "failed=",
                "captures refused=", "acks refused=")
@@ -436,8 +459,14 @@ def writer_report(r: Run) -> dict:
     """What the WRITER said about its captures in one run: how many
     acknowledgements it strobed and which identity each quoted, how many
     commits it deferred for an unattested capture, and the counters its own
-    status line carries (`--status`, asked for after the case body)."""
-    acks = [e["v"] >> 16 for e in r.evts if e["k"] == "strobe" and e["v"] & 0x2]
+    status line carries (`--status`, asked for after the case body).
+
+    `stray == 0` is required, not incidental: a case may INJECT an
+    acknowledgement at the device face, and one of those counted here would
+    let the arm's "at least one acknowledgement quoted the identity 0" guard
+    be satisfied by the harness rather than by the writer."""
+    acks = [e["v"] >> 16 for e in r.evts
+            if e["k"] == "strobe" and e["v"] & 0x2 and not e["stray"]]
     status = [ln for ln in (r.outdir / "stdout.log").read_text().splitlines()
               if "captures refused=" in ln]
     if not status:
@@ -457,30 +486,34 @@ def grade_wrap(builds: list[Build], shapes: dict[str, ShapeInfo],
     runs, so every difference is the writer reading the identity's VALUE as
     an answer it does not carry."""
     rc, zeroes = 0, 0
+    w = WRAP_WIDTH
     print("---- identity wrap: a capture whose identity is 0 is a capture -------")
     base = next(b for b in builds if b.name == "contract-1x1")
-    for case, widths in WRAP_CASES.items():
-        want = writer_report(run_case(base, shapes, case, "wrap", ("--status",)))
-        for w in widths:
-            b = next(x for x in builds if x.name == f"idw{w}-1x1")
-            got = writer_report(run_case(b, shapes, case, "wrap", ("--status",)))
-            zeroes += got["ids"].count(0)
-            bad = [f"{f}: {got[f]} (width {w}) against {want[f]} (width 16)"
-                   for f in WRAP_FIELDS if got[f] != want[f]]
-            if bad:
-                print(f"  SELF-TEST FAILED: {case} at CAP_ID_W_P={w} reports "
-                      f"what it does not report at 16 -- {'; '.join(bad)}. "
-                      f"Identities acknowledged: {got['ids']} against "
-                      f"{want['ids']}.")
-                rc = 1
-            else:
-                print(f"  {case} at CAP_ID_W_P={w}: identities {got['ids']}, "
-                      f"{got['acknowledged']} acknowledged, "
-                      f"{got['not attested']} deferred as unattested, "
-                      f"captures refused={got['captures refused=']} -- the "
-                      f"same report as at 16")
+    b = next(x for x in builds if x.name == f"idw{w}-1x1")
+    for case, tail in WRAP_CASES.items():
+        #! the SAME tail on both members of the pair: the identity width must
+        #! stay the only thing that differs between the two runs
+        extra = ("--status",) + (("--commits", str(tail)) if tail else ())
+        want = writer_report(run_case(base, shapes, case, "wrap", extra))
+        got = writer_report(run_case(b, shapes, case, "wrap", extra))
+        zeroes += got["ids"].count(0)
+        bad = [f"{f}: {got[f]} (width {w}) against {want[f]} (width 16)"
+               for f in WRAP_FIELDS if got[f] != want[f]]
+        if bad:
+            print(f"  SELF-TEST FAILED: {case} at CAP_ID_W_P={w} reports "
+                  f"what it does not report at 16 -- {'; '.join(bad)}. "
+                  f"Identities acknowledged: {got['ids']} against "
+                  f"{want['ids']}.")
+            rc = 1
+        else:
+            print(f"  {case} at CAP_ID_W_P={w} (+{tail} committing changes): "
+                  f"identities {got['ids']}, "
+                  f"{got['acknowledged']} acknowledged, "
+                  f"{got['not attested']} deferred as unattested, "
+                  f"captures refused={got['captures refused=']} -- the "
+                  f"same report as at 16")
     #! and the arm is only worth anything if the wrap was REACHED: a case
-    #! list that stopped short of the second capture would pass every
+    #! list that stopped short of the fourth capture would pass every
     #! comparison above without ever quoting the identity this is about
     if not zeroes:
         print("  SELF-TEST FAILED: no run acknowledged a capture whose "
@@ -589,11 +622,13 @@ def plan(a: argparse.Namespace, want: list[str]) -> list[Build]:
     mutant."""
     builds = [Build(f"contract-{n}", n) for n in want]
     if "1x1" in want:
-        # the NARROW identity builds, which two arms share: a 2-bit identity
+        # ONE narrow identity build, which two arms share: a 2-bit identity
         # MUST alias, which is what shows the 16-bit one is doing work (A8),
-        # and both widths wrap inside a case, which is what grade_wrap()
-        # grades
-        builds += [Build(f"idw{w}-1x1", "1x1", cap_id_w=w) for w in (1, 2)]
+        # and it wraps inside a case, which is what grade_wrap() grades. Two
+        # bits is the MINIMUM the backend's elaboration contract admits, and
+        # a build outside 2..16 is refused by do_build()'s -Werror-USERERROR
+        # rather than graded.
+        builds.append(Build(f"idw{WRAP_WIDTH}-1x1", "1x1", cap_id_w=WRAP_WIDTH))
     if a.legacy_dir:
         builds.append(Build("legacy-1x1", "1x1", contract=False,
                             legacy=Path(a.legacy_dir).resolve()))
@@ -697,7 +732,7 @@ def main() -> int:
                     help="grade the shipping builds only (a fast local loop)")
     ap.add_argument("--wrap-only", action="store_true",
                     help="the identity-wrap arm alone: the narrow-identity "
-                         "builds and the cases that reach the wrap")
+                         "build and the cases that reach the wrap")
     ap.add_argument("--legacy-dir", default="",
                     help="a directory holding KL_nvm_backend.sv and milan_baremetal.c from "
                          "BEFORE the contract; with it the suite also runs the non-vacuity "
@@ -719,7 +754,7 @@ def main() -> int:
         rc = grade_wrap(builds, shapes, a.pool) or rc
 
     if "1x1" in want and not a.skip_mutants and not a.wrap_only:
-        b = next(x for x in builds if x.name == "idw2-1x1")
+        b = next(x for x in builds if x.name == f"idw{WRAP_WIDTH}-1x1")
         runs = run_build(b, shapes, a.pool,
                          only=[(b, "A8_identity_wrap", "", ())])
         v = grade(runs[0], shapes["1x1"]).get(

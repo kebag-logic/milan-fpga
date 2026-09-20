@@ -212,6 +212,27 @@ void base() {
   snap("base");
 }
 
+//! the identity-wrap arm's TAIL (`--commits`): `n` further committing
+//! changes, run AFTER the case body and all of its observations, so a case
+//! graded without the tail is graded exactly as before. The backend counts
+//! one capture identity per ACCEPTED ARM, and the contract's MINIMUM width
+//! is 2 bits (KL_nvm_backend.sv, g_refuse_capid), so the identity reaches 0
+//! on the FOURTH accepted arm -- which most cases here never take on their
+//! own. The bindings ALTERNATE on one record because the manager takes a
+//! CHANGE and re-binding the same value is not one.
+void commit_tail(unsigned n) {
+  for (unsigned i = 0; i < n; ++i) {
+    const unsigned want = hooks("s_ack") + 1;
+    bind((i % 2u) ? X2 : X);
+    // BOUNDED, and it must be: a commit the flash refuses never acknowledges
+    // and the tail must not hang waiting for it. The arm compares one case
+    // with ITSELF across two identity widths, so a commit that does not land
+    // does not land at either width.
+    idle_until([want] { return hooks("s_ack") >= want; }, 8000);
+    idle(200);
+  }
+}
+
 void bfm_erase(unsigned rid) { bfm(BfmOp{2, rid, {}, 0, 0}); }
 
 void bfm_write(unsigned rid, const std::vector<uint8_t> &f, int stop = -1, int pace = 0) {
@@ -1276,9 +1297,22 @@ static unsigned arg_flag(const char *text) {
   return static_cast<unsigned>(value);
 }
 
+// The identity-wrap arm's tail length, BOUNDED rather than defaulted, for
+// the same reason and with the same call: a --commits nobody parsed would
+// leave the arm short of the wrap and green because it never got there.
+static unsigned arg_count(const char *text) {
+  char *end = nullptr;
+  const unsigned long value = std::strtoul(text, &end, 10);
+  if (end == text || *end != '\0' || value > 8UL) {
+    std::fprintf(stderr, "a commit count in 0..8 was expected, got %s\n", text);
+    std::exit(2);
+  }
+  return static_cast<unsigned>(value);
+}
+
 int main(int argc, char **argv) {
   std::string name, table, slot_a, slot_b;
-  unsigned d1 = 0, status = 0;
+  unsigned d1 = 0, status = 0, commits = 0;
   for (int i = 1; i < argc; ++i) {
     const std::string a = argv[i];
     const char *v = (i + 1 < argc) ? argv[i + 1] : nullptr;
@@ -1296,6 +1330,10 @@ int main(int argc, char **argv) {
     // `captures refused` from it. It strobes nothing, so a case graded
     // without it is graded the same way with it.
     else if (a == "--status") status = 1;
+    // further committing changes appended AFTER the case body and its
+    // observations, so that a case which commits twice still reaches the
+    // capture identity's fourth value -- 0 at the contract's minimum width
+    else if (a == "--commits" && v) commits = arg_count(argv[++i]);
     else if (a == "--list") name = "--list";
     else {
       std::fprintf(stderr, "unknown argument %s\n", a.c_str());
@@ -1328,6 +1366,7 @@ int main(int argc, char **argv) {
     }
     it->second();
   }
+  if (commits) commit_tail(commits);
   if (status) host_uart("milan_nvm");
   dump_log();
   std::printf("CASE_DONE %s hooks_pending=%d\n", name.c_str(), all_fired() ? 0 : 1);

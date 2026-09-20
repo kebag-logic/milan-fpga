@@ -70,12 +70,21 @@ control:
 # `-Wall` with NO `-Wno-fatal` on the shipping module: a Verilator warning on
 # it stops this build. The wrapper and the donor carry -Wno-fatal, because
 # neither is this suite's subject.
+#
+# `-Werror-USERERROR` on EVERY invocation here, including the one that would
+# already be fatal: the backend states its legal parameter ranges as
+# elaboration $errors (KL_nvm_backend.sv g_refuse_* guards), and -Wno-fatal
+# on its own demotes a $error to a warning nothing reads, so an out-of-range
+# build would elaborate, simulate and be graded. The rule, and the review
+# that found a suite grading an illegal shape with rc 0 before the flag was
+# added there, are in docs/development/CODE_QUALITY.md under rule 6, "Where
+# the contract is enforced, and where it is not".
 lint:
-	verilator --lint-only -Wall --top-module KL_nvm_backend \
+	verilator --lint-only -Wall -Werror-USERERROR --top-module KL_nvm_backend \
 	  -GCLK_HZ_P=1000000 -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
 	  -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 \
 	  -GN_NAME_P=99 -GT_HOLD_MS_P=50 -GCAP_ID_W_P=16 $(BACKEND)
-	verilator --lint-only -Wall -Wno-fatal --top-module cosim_top \
+	verilator --lint-only -Wall -Wno-fatal -Werror-USERERROR --top-module cosim_top \
 	  +define+NVM_CONTRACT_3 \
 	  -GCLK_HZ_P=1000000 -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
 	  -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 \
