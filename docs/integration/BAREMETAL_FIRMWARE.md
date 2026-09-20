@@ -1142,11 +1142,16 @@ runs on every live run.
 | a token-joining backslash-newline, an `#ifdef` reaching the boot path, and `##`, `%:` or `??` anywhere (#408) | the preprocessed unit: the same compiler under the same flags with `-E`, and the boot path this gate reads compared row for row against the one it compiles | an `#ifdef MILAN_DEBUG_BOOT` printf inside `milan_init()`, and a `##` paste building a call in a UART handler |
 | any new file in `sw/firmware/milan_baremetal/`, a `README` included (#408) | the include-resolution measurement: `-H` reports the files the preprocessor OPENED, and no pinned name may reach one beside the firmware | a `README` and a `notes.txt` beside a copy of the firmware |
 
-The asm row has no accepted case because the firmware's four fences are the
-only `asm` it has and a fifth benign one would be an invention, not an edit
-anybody wants; what the row costs is stated instead of demonstrated. Its
-hostile side is measured: a `lui`-based template storing into the window is a
-permanent mutation, refused on the resolved store address.
+Two of those rows carry no accepted case of their own, and both say so rather
+than borrow one. The asm row: the firmware's four fences are the only `asm` it
+has and a fifth benign one would be an invention, not an edit anybody wants.
+The token-joining splice: the edits that rule allowed -- an ordinary
+continuation, a multi-line `#define` -- were GREEN before it retired, so there
+is nothing new to measure. What carries each of them is its hostile side, and
+that is measured: a `lui`-based template storing into the window, and five
+splice mutants that hand the compiler one identifier where this gate reads
+two, are permanent mutations refused on the resolved store address and on the
+boot-path comparison respectively.
 
 What carries those properties now is a measurement over resolved values, not a
 narrowing by exception: control reaching an enable write is answered by
