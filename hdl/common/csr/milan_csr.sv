@@ -136,14 +136,16 @@ module milan_csr #(
   //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x005A moves the protocol-processor pin to 6a9a124 (#473): ACMP
-  //! GET_TX_STATE REGISTERING_FAILED now follows the registered Listener
-  //! Asking Failed attribute (Milan v1.2 5.5.4.3). The processor's talker had
-  //! read its own SRP engine's Listener code in a private order, so it flagged
-  //! Ready Failed and never Asking Failed. The answer is built inside the
-  //! processor, so no CSR changes: 0x0059's PPS words are unchanged. The
-  //! register occupies four bytes and no CSR addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_005A
+  //! 0x005B moves the protocol-processor pin to ce448dd (#483): AECP
+  //! SET_SAMPLING_RATE now refuses a rate the AUDIO_UNIT sampling_rates list
+  //! does not hold, answering BAD_ARGUMENTS and carrying the current rate
+  //! (Milan v1.2 5.4.2.13). The microprogram had checked the lock and the
+  //! descriptor and then stored any rate, so an unlisted rate was accepted,
+  //! read back and announced to every registered controller. The check is
+  //! built inside the processor, so no CSR changes: 0x005A's GET_TX_STATE
+  //! Listener code is unchanged. The register occupies four bytes and no CSR
+  //! addresses move.
+  parameter logic [31:0] VERSION = 32'h0002_005B
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

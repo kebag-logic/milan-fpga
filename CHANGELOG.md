@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005B - SET_SAMPLING_RATE list check](#release-0x0002_005b---set_sampling_rate-list-check)** -- An unlisted rate is refused.
 - **[Release 0x0002_005A - GET_TX_STATE Listener code](#release-0x0002_005a---get_tx_state-listener-code)** -- Asking Failed sets the flag.
 - **[Release 0x0002_0059 - PPS output](#release-0x0002_0059---pps-output)** -- Six CSR words, one metrology pin.
 - **[Release 0x0002_0058 - slip counters readable](#release-0x0002_0058---slip-counters-readable)** -- Two RO words, prefill retired.
@@ -38,6 +39,21 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_005B - SET_SAMPLING_RATE list check
+
+- The protocol-processor pin moves to `ce448dd` (#483).
+- SET_SAMPLING_RATE now refuses a rate the AUDIO_UNIT list omits.
+- The refusal is BAD_ARGUMENTS carrying the current rate.
+- That is Milan v1.2 Section 5.4.2.13.
+- The microprogram had checked the lock and stored any rate.
+- An unlisted rate was accepted, read back and announced.
+- The refusal stores nothing, marks nothing and notifies nothing.
+- `tb/verilator/pp_shadow` group R grades both rates end to end.
+- No parent consumer reads the rate, so no grid moved.
+- Only `VERSION` moves in this repository's RTL.
+- No CSR address moves.
+- This build also carries the gPTP egress entry above.
 
 ## Release 0x0002_005A - GET_TX_STATE Listener code
 

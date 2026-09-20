@@ -1,6 +1,6 @@
 # Fabric and bare-metal firmware ownership
 
-This page defines the supported product boundary at VERSION `0x0002_005A`.
+This page defines the supported product boundary at VERSION `0x0002_005B`.
 The AX7101 image contains one RV32I bare-metal firmware and a fabric-owned
 Milan datapath/control plane. There is no alternate product runtime.
 
