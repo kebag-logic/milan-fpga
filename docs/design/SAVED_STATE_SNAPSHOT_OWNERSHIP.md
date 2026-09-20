@@ -377,7 +377,10 @@ carries the capture identity.
 | [6] | RELOAD | the writer's boot load is complete; the backend accepts or refuses it (section 5.3) |
 
 New read words: word 5, the capture identity (CAP_ID_W_P bits, 16 by
-default); words 8 to 15, the open vector.
+default, and an implementation must REFUSE a width outside 2..16 at
+elaboration: the identity rides the acknowledgement word's upper half, and
+one bit cannot distinguish the capture being acknowledged from the one
+before it); words 8 to 15, the open vector.
 
 PP_NVM_STAT read layout (tracked bits unchanged in place):
 
@@ -830,11 +833,19 @@ it would defer the commit, print a refusal that did not happen, count it, and
 issue none of the RELEASE step 3.5 defines for the opposite case. So the
 writer reports the capture in a word BESIDE the identity, never in it
 (#484 round 2, found by both reviewers of the implementation). EXECUTED:
-`make -C tb/verilator/nvm_cosim wrap` runs five committing cases at 1 and 2
-identity bits, where the wrap lands inside the case, and requires each to
-report what it reports at 16 -- the same acknowledgements, the same deferrals
-and the same `captures refused` -- with at least one acknowledgement quoting
-the identity 0.
+`make -C tb/verilator/nvm_cosim wrap` runs five committing cases at 2
+identity bits, the contract's minimum, where the identity is 0 on the fourth
+accepted arm rather than the 65,536th, and requires each to report what it
+reports at 16 -- the same acknowledgements, the same deferrals and the same
+`captures refused` -- with at least one acknowledgement quoting the identity
+0. Five pairs, five acknowledgements quoting 0. Cases that commit fewer than
+four times carry a commit tail (`--commits`) applied identically at both
+widths, so the identity width stays the only thing that moves between the two
+runs of a pair. **No narrower build is run**, and none can be: 2 is the
+minimum `CAP_ID_W_P` section 5.1 requires an implementation to admit, and the
+suite passes `-Werror-USERERROR` on every Verilator invocation, so a build
+outside 2..16 is refused at elaboration instead of being graded (#484 round
+3, found by review of round 2's test arm).
 
 Across a reset the alias distance is zero, not 65,536: the identity restarts
 at 0, so the first capture after every reset is 1, like the first one before

@@ -73,7 +73,8 @@ make            # every executed case of section 9 at BOTH shapes, the
                 # identity control, the identity-wrap arm, and every mutant
                 # the page names
 make quick      # the shipping builds at 1x1 only: the local loop
-make wrap       # the identity-wrap arm alone (issue #484 round 2)
+make wrap       # the identity-wrap arm alone, at 2 identity bits, the
+                # contract's minimum (issue #484 rounds 2 and 3)
 make lint       # Verilator lint of the shipping module and the wrapper
 ```
 
@@ -105,18 +106,33 @@ cites and what the mutant table below aims at.
    which is what makes the 16-bit one evidence rather than an assumption.
 
 3. **The identity-wrap arm** (`make wrap`), which asks the opposite question
-   of the same narrow builds. The backend's identity is a plain wrapping
+   of the same narrow build. The backend's identity is a plain wrapping
    counter (section 5.4), so one capture in every `2**CAP_ID_W_P` carries the
-   identity 0; at 1 and 2 bits that capture lands INSIDE a case that commits
-   more than once, where at the shipping 16 bits it is the 65,536th. Five
-   cases are run at a narrow identity and compared with THEMSELVES at 16:
-   how many acknowledgements the writer strobed, how many commits it deferred
-   for an unattested capture, and its own `commits ok`, `captures refused` and
-   `acks refused` counters (`--status`) must all be the same, and at least one
-   acknowledgement must quote the identity 0. `C2` runs at both widths: it is
-   the only case here reaching a fourth capture, and the only one with a
-   capture the backend genuinely does not attest, so the arm cannot be
-   satisfied by a writer that has merely stopped refusing.
+   identity 0; at 2 bits that capture is the fourth, INSIDE a case, where at
+   the shipping 16 bits it is the 65,536th. Five cases are run at 2 bits and
+   compared with THEMSELVES at 16: how many acknowledgements the writer
+   strobed, how many commits it deferred for an unattested capture, and its
+   own `commits ok`, `captures refused` and `acks refused` counters
+   (`--status`) must all be the same, and at least one acknowledgement must
+   quote the identity 0 -- one the WRITER strobed, never one a case injected
+   at the device face, which is why the arm counts only `stray == 0`.
+   Five pairs, five acknowledgements quoting 0. `C2`
+   reaches a fourth capture unaided and is the only case here with a capture
+   the backend genuinely does not attest, so the arm cannot be satisfied by a
+   writer that has merely stopped refusing; the other four carry a commit
+   tail (`--commits`, three further committing changes run after the case
+   body and all of its observations) that takes them past the wrap. The tail
+   is applied identically to both members of a pair, so the identity width
+   stays the only thing that moves between the two runs.
+
+   **Two bits, and nothing narrower.** `CAP_ID_W_P` outside `2..16` is an
+   elaboration error the backend raises itself (`g_refuse_capid`), so this
+   suite passes `-Werror-USERERROR` on every Verilator invocation, here and
+   in `make lint`. `-Wno-fatal` alone would demote that `$error` to a warning
+   nothing reads, and the arm would grade the shipping module in a shape the
+   module disclaims and still print `RESULT: PASS`. The rule is
+   [`docs/development/CODE_QUALITY.md`](../../../docs/development/CODE_QUALITY.md)
+   under rule 6, "Where the contract is enforced, and where it is not".
 
 4. **The pre-contract control, the direction a mutant cannot give.** With
    `LEGACY_DIR` pointing at a checkout of `KL_nvm_backend.sv` and

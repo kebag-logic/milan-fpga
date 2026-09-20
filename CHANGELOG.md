@@ -70,6 +70,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The shipping 16 bits must not.
 - A capture identity that wraps to 0 is ordinary.
 - The writer acknowledges it like any other.
+- That arm runs at 2 identity bits, the contract's minimum.
+- A width outside 2..16 is refused at elaboration.
 - KNOWN LIMITATION 1: the pinned processor does not export D1.
 - A binding inside the manager's debounce reads durable.
 - The donor issue is 90 in the processor repository.
