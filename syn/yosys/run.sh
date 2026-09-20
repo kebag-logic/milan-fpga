@@ -270,6 +270,13 @@ build_inventory() {
     # AUDIO_IF_RENDER_SLOTS_P is 0 and prunes this module away entirely - so
     # without its own row nothing here would elaborate it at all.
     "KL_tdm_render_master|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv"
+    # #475: the TDM MASTER capture front-end, the bus timing owner, at its
+    # module defaults. Those ARE the shipping AX7101 TDM8 instantiation
+    # (milan_datapath g_aif_tdm_master.g_solo): SLOTS_P 8, WORD_BITS_P 32,
+    # BCLK_HALF_P 1 (24.576 MHz / (2 x 12.288 MHz)) and DATA_DELAY_P 1. The
+    # milan_datapath row runs that module's default AUDIO_IF_SLOTS_P = 0, the
+    # stereo I2S front-end, and elaborates none of this one.
+    "KL_tdm_capture_master|$C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv"
     "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
     "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
     "KL_tone_gen|$R/hdl/ieee1722/aaf/KL_tone_gen.sv"

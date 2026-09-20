@@ -68,11 +68,13 @@ flowchart LR
 | **`build.sh`'s own refusals** (section 2.1) | the tracked entity definition is the bound config's; the regeneration of that config's design argv ran and succeeded; the artefact read is that config's own emission; `BUILD_CFG` names a config directly under `configs/`; every tracked generated file that regeneration writes was there before it, was copied aside complete, and is as the run found it afterwards | **yes** - refuses *before* anything launches. Under `--dry-run` the entity one is previewed instead; every other one is enforced |
 | **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
 | **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **yes in CI**: the `docs-check` job runs it and its self-test on every pull request and every push to `dev` and `main` (section 3.1). `deploy.sh` does NOT run it; by itself it refuses only a fragment that belongs to another config |
+| **IOB packing** ([`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl), issue #475) | after placement, every port constrained `IOB TRUE` (the TDM bclk, fsync and dout, the GMII TX and RX pins) has its register in the OLOGIC or ILOGIC of its own IOB. Vivado itself only raises the critical warning Place 30-722 and carries on | **yes, inside Vivado**: `milan_soc.py` runs it before routing, and one unpacked port fails the build naming the port, with no bitstream. `<outdir>/gateware/*_iob_pack.rpt` lists every checked port. Its offline self-test runs in the `docs-check` job |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
-**Only the first three run automatically in CI**, and that asymmetry is the point: a build
+**Only the first three run automatically in CI**, and the fourth in every Vivado
+build. That asymmetry is the point: a build
 that passes timing and area but regresses the TX gate is **not** ship-cleared,
 and nothing in the pipeline will tell you so. Section 5 has the exact rows.
 With `--sweep`, placement is noise-dominated — keep the best WNS/slices build
@@ -511,6 +513,65 @@ are not required. Bench roles as of 2026-09-06:
 | `pw0` | retired; it holds no bench role |
 
 ## 5. Gates before a build is "good"
+
+A build that reached a bitstream has already passed the IOB packing check
+(section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
+port's row in `*_iob_pack.rpt` says what was found: a register in a slice or
+left unplaced, a pad driven or read only by logic that is not a register, a
+second fabric register on an input, a bidirectional port, or a pad the check
+could not traverse. Vivado raises Place 30-722 for the placement cases only;
+the rest are the check refusing to grade what it could not see. For a port
+shape the check models, the fix is in the RTL or the constraint, never in the
+check; for one it does not model (the three below), it is in the check.
+
+An `INERT` row is not a failure, and exactly two structures reach it: a port
+that carries no net at all, and an output every driver of which is a constant
+cell. An input that has a net never reads `INERT`. Any hop of its traversal
+that answers nothing - the hop behind the ILOGIC delay element, which is the
+path every GMII RX pin takes, included - is a `FAIL` naming the port, and so
+is a load the check's delay partition cannot account for. `IOB-PACK ERROR`
+says the run selected no port, read the netlist two ways that disagree, or
+could not finish grading one port, and so graded nothing.
+
+Three legal port shapes are outside what the check models today, and it is
+loud rather than silent about each: a tristate output whose enable comes from
+a LUT instead of a register, and the N leg of a differential output, both
+`FAIL` a placement Vivado is content with; an `ODELAYE2` between an output
+register and its buffer would do the same, on a part neither board carries.
+No constrained port has any of those shapes. An output parked by a constant
+reads `INERT` naming the constant cell, which the 8x8 configuration's
+`tdm_dout` is the first build to take. Widening the check to those shapes is
+separate work.
+
+**Any change to [`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl)
+requires a live run on a placed checkpoint**, whatever the change looks like.
+The offline self-test does not stand in for one: it drives the real Tcl over
+stubbed netlists, so it grades the verdict rules, and what it cannot model is
+Vivado's own object system. A Vivado query answers OBJECTS whose string form
+is their names, and only some Tcl forms keep them - `{*}` expansion of an
+answer hands the next query plain names (so do `eval lappend`, `lmap` and
+`join` then `split`), which raises `[Common 17-161]`. That error is catchable;
+the check prints the port it was grading and re-raises, and the uncaught error
+ends the batch run before any report is written. The self-test refuses those
+measured spellings by text and cannot see another one. A revision that only
+touched how emptiness is graded shipped that once and stopped every build at
+the check with the self-test green. Four Tcl lines against any saved `*_place.dcp` answer it in about half a minute:
+
+```tcl
+open_checkpoint <outdir>/gateware/<build_name>_place.dcp
+file copy -force <outdir>/gateware/<build_name>.xdc <scratch>/<build_name>.xdc
+source sw/litex/iob_pack_check.tcl
+kl_iob_pack_check <scratch>/<build_name>_iob_pack.rpt
+```
+
+Run them with `vivado -mode batch -nojournal -nolog -notrace -source
+live.tcl`. The copied `.xdc` is what the constraint cross-check reads beside
+the report, so a run without it is not the flow's run. A pass is one row per
+constrained port, `IOB-PACK OK`, and exit 0; anything else names the port and
+exits 1. Prove the red side on the same checkpoint in memory, and write
+nothing back to it: connect a `LUT1` to an IOB flop's `Q`, `unplace_cell` the
+flop and `place_design`. Vivado then raises Place 30-722 and leaves it in a
+slice, and the check must `FAIL` naming that port.
 
 1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
    row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted

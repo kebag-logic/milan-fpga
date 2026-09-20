@@ -3846,6 +3846,28 @@ def main() -> None:
         # denser into slices (control_sets.rpt suggestion)
         soc.platform.toolchain.pre_placement_commands.append(
             "opt_design -control_set_merge -merge_equivalent_drivers")
+    # #475: a port constrained IOB TRUE whose register did not pack is at most
+    # a CRITICAL WARNING (Place 30-722), and the build completes with that pin
+    # launching or sampling from a slice. On the placed design, before
+    # routing, every such port is checked and the build FAILS naming it - no
+    # bitstream is written. Board-independent: it reads the IOB property
+    # Vivado holds, so the TDM pins (alinx_ax7101.py) and the MAC pins
+    # (MilanMAC above) are both covered, and a port with no IOB constraint is
+    # never looked at. LiteX passes both strings through
+    # str.format(build_name=...), hence the doubled braces.
+    # Refuse here, not inside Vivado: `source` of a missing file is a script
+    # error too, but it is raised about twenty-five minutes in, after
+    # placement, like every other gate this file checks before launching.
+    iob_check_tcl = SOC_DIR.resolve() / "iob_pack_check.tcl"
+    if not iob_check_tcl.is_file():
+        raise RuntimeError(
+            f"missing {iob_check_tcl}: the IOB packing check (#475) runs in "
+            "every Vivado build, and a build without it cannot report an "
+            "unpacked port")
+    soc.platform.toolchain.pre_routing_commands.append(
+        "source {{%s}}" % iob_check_tcl)
+    soc.platform.toolchain.pre_routing_commands.append(
+        "kl_iob_pack_check {build_name}_iob_pack.rpt")
     # Use as many CPU cores as Vivado allows for synth/place/route (`set_param
     # general.maxThreads N`). Vivado caps this at 32 regardless of host cores, so
     # request min(cores, 32)  -  the rest of the box is idle during a single P&R run.

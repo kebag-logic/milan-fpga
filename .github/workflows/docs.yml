@@ -198,10 +198,22 @@ jobs:
       # to redden. Needs the builder (the shapes) and a host gcc.
       - name: Saved-state writer gate
         run: python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+      # The same step also drives the post-placement IOB packing check
+      # (#475), Tcl that only a Vivado build runs, so nothing else would see
+      # it stop failing. The real .tcl is sourced in tclsh with Vivado's
+      # netlist queries stubbed: packed ports pass, each planted unpacked
+      # port fails by name, and every mutant of the check is caught by some
+      # arm. It shares this step because scripts/ci_events.py pins the job's
+      # step list.
       - name: SoC source-list gate (Vivado would fail 40 min in without this)
         run: |
           python3 scripts/check_soc_sources.py
           python3 scripts/check_soc_sources.py --selftest
+          command -v tclsh >/dev/null || {
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends tcl
+          }
+          python3 sw/litex/iob_pack_selftest.py
 
       # The other four lists of the same RTL. check_soc_sources.py guards the
       # Vivado one; this gate derives the whole milan_datapath file closure
