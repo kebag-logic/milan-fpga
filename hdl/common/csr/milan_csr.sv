@@ -136,16 +136,19 @@ module milan_csr #(
   //! Value returned by the read-only 32-bit VERSION register. [31:16] is the major
   //! redesign number; [15:0] is the flat, continuously increasing compliance
   //! revision. The ENTITY firmware_version renders this as major.minor.rev.
-  //! 0x005B moves the protocol-processor pin to ce448dd (#483): AECP
-  //! SET_SAMPLING_RATE now refuses a rate the AUDIO_UNIT sampling_rates list
-  //! does not hold, answering BAD_ARGUMENTS and carrying the current rate
-  //! (Milan v1.2 5.4.2.13). The microprogram had checked the lock and the
-  //! descriptor and then stored any rate, so an unlisted rate was accepted,
-  //! read back and announced to every registered controller. The check is
-  //! built inside the processor, so no CSR changes: 0x005A's GET_TX_STATE
-  //! Listener code is unchanged. The register occupies four bytes and no CSR
-  //! addresses move.
-  parameter logic [31:0] VERSION = 32'h0002_005B
+  //! 0x005C corrects what three RO status fields MEAN (#471, #472).
+  //! LWSRP_STATUS 0x694 [3:0] describes ONE subject again - the Listener
+  //! attribute registered on talker source 0 - so [1:0] is its four-packed
+  //! value, [2] "registered" counts Asking Failed IN, and [3] "ready" is the
+  //! Ready/Ready Failed pair; the substituted plane had [2] reading bit 1 of
+  //! that value and [1:0]/[3] describing sink 0's own declaration instead.
+  //! ACMPL_STATE 0x6A4 [6] "TalkerAdvertise registered" compares sink 0's
+  //! registered Talker code against ADVERTISE, where it had taken bit 1, the
+  //! FAILED bit. No CSR address, width or access moves: 0x005B's
+  //! SET_SAMPLING_RATE list check is unchanged and this is a value change in
+  //! four bits of two existing read-only words. The register occupies four
+  //! bytes and no CSR addresses move.
+  parameter logic [31:0] VERSION = 32'h0002_005C
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)

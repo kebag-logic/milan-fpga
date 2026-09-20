@@ -4,7 +4,7 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
-refreshed at VERSION `0x0002_005B` for the sole fabric gPTP owner, the
+refreshed at VERSION `0x0002_005C` for the sole fabric gPTP owner, the
 ownerless option-OFF elaboration and the media-boundary slip counters.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
@@ -72,12 +72,12 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_005B` |
+| `gateware.current-version` | `implemented` | `0x0002_005C` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | VERSION 0x0058 truth | Rationale |
 |---|---|---|---|---|
-| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_005B`) |
+| `0x000–0x00C` | ID / VERSION / CAP | **needed** | live | Contract root; VERSION gates every compatibility check made by firmware, scripts and gates. Major is **2** (`0x0002_005C`) |
 | `0x204+` | STATS_CAP + RMON counters | **needed** | live | STATS_CAP's declared-unsupported honesty is contract; RMON feeds MAC-level field triage |
 | `0x4xx` | CBS queue window, classifier map | **needed** | live | Production traffic-class configuration; boot software programs it |
 | `0x600–0x65x` | Identity + enables (ADP_CTRL, AAF_CTRL, …) | **needed** | **split** | `S50milan` writes these every boot. `ADP_CTRL.en` is still an entity enable — it is **ORed with `PP_CTRL[0]`**, deliberately, because it is the bit every existing board script writes and there is only one control plane now. But the ADPDU *content* words (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) and the advertise/depart strobes are **WRITE-ONLY SCRATCH**: the processor's ADP engine holds those as internal constants and exposes no port, so a write reads back and **changes nothing observable** |
@@ -87,7 +87,7 @@ assumption that AECP answers only one command.
 | `0x674` | ADP_DIAG2 | **optional** | **STRUCTURAL ZERO** | Created from a real field ambiguity (2026-07-30) about advertiser liveness; the advertiser it watched is deleted and the processor publishes no equivalent state word |
 | `0x648–0x650` | AECP/ACMP status (locked, current config, cmd/resp counts, probe_armed) | **optional** | **STRUCTURAL ZERO** | The processor serves LOCK_ENTITY and configuration operations, but its dynamic-state outputs are not wired into this legacy CSR group. Command/response diagnostics instead live in the processor side-port snapshot window at `0x928`/`0x92C`. `probe_armed` has no fabric ACMP state machine to count. **`acmp talker_active` is the exception and remains live** through the processor's `acmp_declaring_o` |
 | `0x680–0x694` | SRP CTRL / TSPEC / STATUS | **needed** | **split** | Reservation policy plus the licence word `0x694` and its `[11]` row-shortfall flag. Repointed to the processor's class-D SRP face: the **DOMAIN word (adopted/priority/VID), the granted slope and the over-limit bit are LIVE**. The **MRPDU tx/rx counts and rx drops are STRUCTURAL ZEROS** (the serializer/ingress pair that counted them is deleted), and the provisioning words the deleted applicant read — DMAC, MaxFrameSize, MaxIntervalFrames, the declare-bypass bit — are **WRITE-ONLY SCRATCH** |
-| `0x6A4` | ACMPL_STATE | **optional** | **split** | Still the first stop in connection triage, but read it differently: **`bound`, `active` and bit 31 (CRF sink bound) are real**, published from the processor's bind record. The state-machine fields (state, probing, acmp_status, tk_avail, lstn_declare) and the per-sink SRP registrar bits are **STRUCTURAL ZEROS** — `ACMPL_STATE` no longer tracks PROBING/SETTLED and **a reader must take `bound` as the truth** |
+| `0x6A4` | ACMPL_STATE | **optional** | **split** | Still the first stop in connection triage, but read it differently: **`bound`, `active` and bit 31 (CRF sink bound) are real**, published from the processor's bind record. The state-machine fields (state, probing, acmp_status, tk_avail, lstn_declare) are **STRUCTURAL ZEROS**: `ACMPL_STATE` no longer tracks PROBING/SETTLED and **a reader must take `bound` as the truth**. The two per-sink SRP registrar bits `[6]` TalkerAdvertise registered and `[7]` TalkerFailed registered are **LIVE, REPOINTED** for sink 0 from the processor's class-D face (VERSION `0x005C`; `[6]` compares the registered Talker attribute against the ADVERTISE code, which is what its name always claimed) |
 | `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | AAF STREAM_INPUT counters remain readable locally and through GET_COUNTERS. The declared CRF input is excluded from that gather face. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |

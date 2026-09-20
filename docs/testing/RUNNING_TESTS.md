@@ -158,7 +158,7 @@ python3 scripts/baremetal_uart_smoke.py \
   --port /dev/serial/by-id/<adapter>
 ```
 
-Require `ID=MILN`, `VERSION=0x0002_005B`, a loaded AEM image, enabled
+Require `ID=MILN`, `VERSION=0x0002_005C`, a loaded AEM image, enabled
 PTP/ADP/protocol processing, nonzero GM and parent identities, a bounded
 measured peer delay, a published path, `sync=1`, `asCapable=1`,
 `time_uncertain=0`, and two increasing PHC reads.

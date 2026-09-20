@@ -148,6 +148,7 @@ class PpShadowHarness {
         grade_global_anti_wedge_invariant();
         grade_a_registered_listener_as_a_controller_reads_it();
         grade_sampling_rate_as_a_controller_sets_it();
+        grade_a_registered_talker_as_a_bound_sink_reads_it();
         grade_heal_before_answer();
         grade_backend_rejection_reaches_the_processor();
 
@@ -504,6 +505,8 @@ class PpShadowHarness {
     static constexpr uint16_t A_ADP_GMHI    = 0x628;
     static constexpr uint16_t A_ADP_GDOM    = 0x62C;
     static constexpr uint16_t A_LWSRP_STATUS = 0x694;
+    static constexpr uint16_t A_ACMPL_STATE = 0x6A4;
+    static constexpr uint16_t A_ACMPL_TUID  = 0x6B4;
     static constexpr uint16_t A_MAAP_CTRL   = 0x6CC;
     static constexpr uint16_t A_MAAP_STAT0  = 0x6D0;
     static constexpr uint16_t A_MAAP_STAT1  = 0x6D4;
@@ -732,6 +735,50 @@ class PpShadowHarness {
         f[29] = static_cast<uint8_t>(ev * 36);       // ThreePackedEvents {ev, 0, 0}
         f[30] = static_cast<uint8_t>(decl << 6);     // FourPackedEvents {decl, 0, 0, 0}
         return 60;                                   // @31, @33: the two EndMarks
+    }
+
+    // One MSRP Talker attribute for `sid`: Talker Advertise (AttributeType 1,
+    // FirstValue 25 octets, IEEE 802.1Q 35.2.2.8.1) or Talker Failed
+    // (AttributeType 2, 34 octets = the same 25 + FailureInformation's
+    // BridgeID 8 + FailureCode 1, 35.2.2.8.6), with the three-packed
+    // attribute event `ev` (1 JoinIn, 5 Lv). The FirstValue's
+    // DataFrameParameters MUST carry the destination address and VLAN the
+    // sink was bound with: the processor's registrar matches the exact
+    // {stream_id, DA, VID} triple (KL_srp_listener_fsm reg_rx_hit_w), so a
+    // frame that got any one of the three wrong would register nothing and
+    // the group below would read its zeros as a passing "not registered".
+    // There are no FourPackedEvents on a Talker attribute - that field is
+    // the Listener's alone - so the vector is FirstValue + ThreePacked, and
+    // AttributeListLength counts the 2-octet VectorHeader, the FirstValue,
+    // the ThreePackedEvents octet and the two EndMark octets.
+    size_t build_msrp_talker(uint8_t* f, uint64_t sid, int ev, bool failed) {
+        memset(f, 0, 60);
+        const uint8_t da[6] = {
+            0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};  // the Nearest Bridge group
+        const uint8_t sa[6] = {
+            0x02, 0x0B, 0x21, 0x00, 0x00, 0x0E};  // the bridge port
+        memcpy(f, da, 6); memcpy(f + 6, sa, 6);
+        f[12] = 0x22; f[13] = 0xEA;                  // EtherType MSRP
+        f[14] = 0x00;                                // ProtocolVersion
+        f[15] = static_cast<uint8_t>(failed ? 2 : 1);   // AttributeType
+        f[16] = static_cast<uint8_t>(failed ? 34 : 25); // AttributeLength
+        put16be(f + 17, static_cast<uint16_t>(failed ? 39 : 30));
+        put16be(f + 19, 1);                          // LeaveAll 0, NumberOfValues 1
+        put64be(f + 21, sid);                        // FirstValue @0  StreamID
+        memcpy(f + 29, U_DMAC, 6);                   //            @8  Destination_Address
+        put16be(f + 35, U_VID);                      //            @14 VLAN_Identifier
+        put16be(f + 37, 128);                        //            @16 MaxFrameSize
+        put16be(f + 39, 1);                          //            @18 MaxIntervalFrames
+        f[41] = 0x60;                                //            @20 PriorityAndRank (3)
+        put16be(f + 42, 0); put16be(f + 44, 5000);   //            @21 AccumulatedLatency
+        if (failed) {
+            put64be(f + 46, 0x0000020B21000000ull);  //            @25 BridgeID
+            f[54] = 1;                               //            @33 FailureCode
+            f[55] = static_cast<uint8_t>(ev * 36);   // ThreePackedEvents {ev, 0, 0}
+        } else {
+            f[46] = static_cast<uint8_t>(ev * 36);   // ThreePackedEvents {ev, 0, 0}
+        }
+        return 60;                                   // the zero pad carries both EndMarks
     }
 
     // ---- the AEM descriptor image (hdl/aecp/desc/gen_desc_image.py layout) -----
@@ -2488,10 +2535,14 @@ class PpShadowHarness {
     //     flags THIS repository gathers (milan_datapath gsi_flag_law):
     //     REGISTERING_FAILED iff declaring and Asking Failed, flags_ex
     //     REGISTERING iff declaring and any Listener;
-    //   * LWSRP_STATUS[2] "listener registered", printed and NOT graded: it
-    //     reads bit 1 of the word, so it is set for Ready and Ready Failed and
-    //     clear for Asking Failed, and whether that is the field's meaning is
-    //     an open question for this repository, filed on its own.
+    //   * LWSRP_STATUS (0x694) [3:0], GRADED since #471/#472 decided what the
+    //     nibble describes: ONE subject, this same registered attribute.
+    //     [1:0] is its four-packed value, [2] "a Listener attribute is
+    //     registered" is that value != none WITH Asking Failed counted in,
+    //     and [3] "listener ready" is the Ready/Ready Failed pair. Until this
+    //     lane, [2] read bit 1 of the value (so the Asking Failed arm below
+    //     reported "nobody wants this stream" to exactly the Listener that is
+    //     asking) and [1:0]/[3] described sink 0's own declaration instead.
     // It runs after [J] and before [M2]: a Ready Listener lets the
     // reservation go ACTIVE and stream frames onto the wire, which [K]'s
     // census must not count, and [M2]'s reset wipes whatever this leaves.
@@ -2599,9 +2650,22 @@ class PpShadowHarness {
         ck(w, gsi_flags & 0x00000040u, rf ? 0x40u : 0u);
         snprintf(w, sizeof w, "T %s: GET_STREAM_INFO flags_ex REGISTERING", what);
         ck(w, gsi_flags_ex & 1u, decl != 0 ? 1u : 0u);
+        //! LWSRP_STATUS[3:0], GRADED (#471, #472). The whole nibble describes
+        //! ONE subject - the Listener attribute REGISTERED on source 0 - so
+        //! all three fields are read off the SAME arm: [1:0] the registered
+        //! four-packed value, [2] "a Listener attribute is registered" with
+        //! AskingFailed INCLUDED (the level a talker must keep declaring for,
+        //! or the asking Listener can never become Ready), [3] the Milan
+        //! v1.2 5.3.7.3 Ready/ReadyFailed pair. Each is a separate check so a
+        //! failure names the field, and the printed word stays as context.
         const uint32_t st = axi_read(A_LWSRP_STATUS);
-        printf("  [i]    T %s: LWSRP_STATUS 0x694 = 0x%08X, [2] listener registered = %u\n",
-               what, st, (st >> 2) & 1u);
+        printf("  [i]    T %s: LWSRP_STATUS 0x694 = 0x%08X\n", what, st);
+        snprintf(w, sizeof w, "T %s: LWSRP_STATUS[1:0] = the registered four-pack", what);
+        ck(w, st & 3u, static_cast<uint32_t>(decl));
+        snprintf(w, sizeof w, "T %s: LWSRP_STATUS[2] listener registered", what);
+        ck(w, (st >> 2) & 1u, decl != 0 ? 1u : 0u);
+        snprintf(w, sizeof w, "T %s: LWSRP_STATUS[3] listener ready", what);
+        ck(w, (st >> 3) & 1u, (decl == 2 || decl == 3) ? 1u : 0u);
     }
 
     // ---- R. the sampling rate, as a controller sets and reads it ----------
@@ -2756,6 +2820,133 @@ class PpShadowHarness {
     }
     static bool grid_same(uint32_t a, uint32_t b) {
         return (a > b ? a - b : b - a) <= 1u;
+    }
+
+    // ---- U. a registered Talker attribute, as a bound sink reads it -------
+    // ACMPL_STATE (0x6A4) bit 6 is named "TalkerAdvertise registered", and it
+    // is the sink-side twin of [T]: the processor publishes the Talker
+    // attribute REGISTERED against each bound sink as a two-bit class-D word,
+    // tk_reg_state, whose codes are 0 NONE / 1 ADVERTISE / 2 FAILED
+    // (protocol-processor hdl/srp/KL_srp_top.sv:193). It is a CODE, not a
+    // one-hot, so the bit-1 read this repository used reported a registered
+    // Talker FAILED as an ADVERTISE and a registered ADVERTISE as nothing
+    // (#472) - and the register map called the field a structural zero, so
+    // neither the documentation nor the RTL was right about it.
+    //
+    // The registration is REAL, on the MAC RX port, and it needs a real bind
+    // first: the processor's registrar matches the exact {stream_id, DA, VID}
+    // triple the sink settled with and ignores every attribute until the sink
+    // is armed. So this group binds STREAM_INPUT 0 over ACMP the way a
+    // controller does - BIND_RX, then play the talker that answers the
+    // listener's probe - and only then declares attributes for that stream
+    // from the bridge port. It runs after [R] and before [M2], whose reset
+    // wipes both the bind and the registration.
+    static constexpr uint64_t U_TALKER_EID = 0x001BC50CAC000002ull;
+    static constexpr uint64_t U_SID        = 0x0200000000020000ull;
+    static constexpr uint16_t U_VID        = 2;      // the only SR VID here
+    static constexpr uint8_t  U_DMAC[6]    = {
+        0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
+
+    void grade_a_registered_talker_as_a_bound_sink_reads_it() {
+        printf("[U] a registered Talker attribute, as a bound sink reads it\n");
+        bind_sink_zero_over_acmp();
+        //! the armed, unregistered baseline: both registrar bits clear, so
+        //! the ADVERTISE arm below cannot pass on a stuck-at-1
+        grade_talker_arm("armed, nothing registered", 0);
+        register_talker(1, false);                   // JoinIn, Talker Advertise
+        grade_talker_arm("Advertise", 1);
+        register_talker(1, true);                    // JoinIn, Talker Failed
+        grade_talker_arm("Failed", 2);
+        register_talker(1, false);                   // back to Advertise
+        grade_talker_arm("Advertise again", 1);
+    }
+
+    //! BIND_RX (CONNECT_RX_COMMAND, msg 6) for STREAM_INPUT 0, then the
+    //! talker half: the CONNECT_TX_RESPONSE that answers the listener's probe
+    //! names the stream_id, destination MAC and VLAN the sink settles with,
+    //! which is exactly what arms the SRP registrar for that sink.
+    void bind_sink_zero_over_acmp() {
+        uint8_t f[70];
+        memset(f, 0, sizeof f);
+        const uint8_t mc[6] = {
+            0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
+        memcpy(f, mc, 6);
+        const uint8_t csrc[6] = {
+            0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+        memcpy(f + 6, csrc, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x06;   // BIND_RX
+        f[16] = 0x00; f[17] = 44;                                 // status, cdl
+        put64be(f + 26, 0xC0FFEE00DEADBEEFull);      // @12 controller
+        put64be(f + 34, U_TALKER_EID);               // @20 talker
+        put64be(f + 42, TEST_EID);                   // @28 listener = us
+        put16be(f + 50, 0);                          // @36 talker unique id
+        put16be(f + 52, 0);                          // @38 listener unique id
+        put16be(f + 62, 0x0501);                     // @48 sequence_id
+        const size_t at = tx_frames.size();
+        inject_rx(f, 70, 400);
+        run_idle(20000);
+        //! the listener's own probe at the named talker: a CONNECT_TX_COMMAND
+        //! (msg 0) this harness must echo the sequence_id of, or the response
+        //! is not the answer to this probe and the bind never settles
+        int pk = -1;
+        for (size_t i = tx_frames.size(); i-- > at; ) {
+            const std::vector<uint8_t>& b = tx_frames[i].bytes;
+            if (classify(tx_frames[i]) == FR_ACMP && b.size() >= 70
+                && (b[15] & 0xF) == 0 && get_be(b, 34, 8) == U_TALKER_EID) {
+                pk = static_cast<int>(i);
+                break;
+            }
+        }
+        ck_true("U: the listener launched a probe at the named talker",
+                pk >= 0, pk >= 0 ? "CONNECT_TX_COMMAND seen" : "no probe egressed");
+        const uint16_t pseq = (pk >= 0)
+            ? static_cast<uint16_t>(get_be(tx_frames[pk].bytes, 62, 2)) : 0;
+        memset(f, 0, sizeof f);
+        memcpy(f, mc, 6);
+        const uint8_t tsrc[6] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+        memcpy(f + 6, tsrc, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x01;   // CONNECT_TX_RESPONSE
+        f[16] = 0x00; f[17] = 44;                                 // SUCCESS, cdl
+        put64be(f + 18, U_SID);                      // @4  stream_id
+        put64be(f + 26, 0xC0FFEE00DEADBEEFull);      // @12 controller
+        put64be(f + 34, U_TALKER_EID);               // @20 talker
+        put64be(f + 42, TEST_EID);                   // @28 listener = us
+        put16be(f + 50, 0);                          // @36 talker unique id
+        put16be(f + 52, 0);                          // @38 listener unique id
+        memcpy(f + 54, U_DMAC, 6);                   // @40 stream_dest_mac
+        put16be(f + 62, pseq);                       // @48 echo the probe's seq
+        put16be(f + 66, U_VID);                      // @52 stream_vlan_id
+        inject_rx(f, 70, 400);
+        run_idle(20000);
+        const uint32_t st = axi_read(A_ACMPL_STATE);
+        ck("U: the sink is BOUND (0x6A4[3], the class-D record)",
+           (st >> 3) & 1u, 1u);
+        ck("U: ...and settled on the VLAN this harness named (0x6A4[27:16])",
+           (st >> 16) & 0xFFFu, static_cast<uint32_t>(U_VID));
+    }
+
+    //! one MSRP Talker attribute for the bound stream, from the bridge port
+    void register_talker(int ev, bool failed) {
+        uint8_t mf[64];
+        const size_t mn = build_msrp_talker(mf, U_SID, ev, failed);
+        inject_rx(mf, mn, 400);
+        run_idle(3000);                                  // 30 ms
+    }
+
+    //! `code` is the processor's tk_reg_state for sink 0 (0 NONE, 1 ADVERTISE,
+    //! 2 FAILED); ACMPL_STATE[6] is TRUE for ADVERTISE alone and [7], the
+    //! registered-Failed bit beside it, for FAILED alone.
+    void grade_talker_arm(const char* what, int code) {
+        char w[112];
+        const uint32_t st = axi_read(A_ACMPL_STATE);
+        printf("  [i]    U %s: ACMPL_STATE 0x6A4 = 0x%08X\n", what, st);
+        snprintf(w, sizeof w, "U %s: ACMPL_STATE[6] TalkerAdvertise registered", what);
+        ck(w, (st >> 6) & 1u, code == 1 ? 1u : 0u);
+        snprintf(w, sizeof w, "U %s: ACMPL_STATE[7] TalkerFailed registered", what);
+        ck(w, (st >> 7) & 1u, code == 2 ? 1u : 0u);
+        snprintf(w, sizeof w, "U %s: ACMPL_TUID[23:16] MSRP failure code", what);
+        ck(w, (axi_read(A_ACMPL_TUID) >> 16) & 0xFFu, code == 2 ? 1u : 0u);
     }
 
     // ---- M2. HEAL BEFORE ANSWER: the silicon arrangement, end to end ------
