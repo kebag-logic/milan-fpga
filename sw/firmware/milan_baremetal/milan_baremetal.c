@@ -172,6 +172,12 @@ static int seconds_to_ns(uint64_t seconds, uint64_t nanoseconds,
 #define NVM_W_CAPID        5u
 #define NVM_W_OWN0         8u
 #define NVM_OWN_WORDS      8u
+/* The ownership vector is the record-id space, not a shape: 256 ids at 32
+ * bits each. nvm_capture() unrolls its read with literal indices, so a
+ * different count would silently read fewer words; this refuses it at
+ * compile time without spending the one #error directive the builder gate
+ * pins. */
+typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
 #define NVM_CAP_TAG        0xc3u
 /* PP_NVM_STAT read bits. [3], [11] and [2] are the load bits: load pending
  * (a boot window load MAY STILL BE ACCEPTED -- read it as that, not as "no
@@ -915,12 +921,15 @@ static void nvm_prefill_stage(void)
  * only happen once the hold lapsed, and a copy it does not attest never
  * reaches flash.
  */
-static int nvm_capture(uint32_t *cap_id)
+static uint32_t nvm_capture(void)
 {
 	uint32_t own[NVM_OWN_WORDS];
 	uint32_t stat;
-	unsigned int w;
+	uint32_t cap_id;
+	unsigned int i;
+	unsigned int next;
 	unsigned int off = 0;
+	int copy;
 	struct nvm_rec rec;
 
 	nvm_prefill_stage();
@@ -932,17 +941,61 @@ static int nvm_capture(uint32_t *cap_id)
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		return 0;
 	}
-	*cap_id = nvm_word_read(NVM_W_CAPID);
-	for (w = 0; w < NVM_OWN_WORDS; ++w)
-		own[w] = nvm_word_read(NVM_W_OWN0 + w);
+	/* The identity is RETURNED, never written through a pointer: the
+	 * builder gate's compiled census places a store by computing its
+	 * address, and a store through an out-parameter is one it refuses
+	 * rather than omits. An accepted ARM advances the identity from 0,
+	 * so 0 is an unambiguous "no capture" here. */
+	/* THE WHOLE OWNERSHIP VECTOR, read BEFORE the copy and not during it
+	 * (section 7 step 3.3): the vector is exact between the arm and the
+	 * attestation, and sampling it per record instead would read a bit the
+	 * hold's lapse had already moved -- a capture that quietly skipped a
+	 * record it had been told to copy, rather than one the attestation
+	 * refuses. UNROLLED with literal indices because the builder gate's
+	 * compiled census places a store by computing its address, and a store
+	 * into an array at a variable index is one it refuses rather than
+	 * places. Eight words is the record-id space (256 ids, 32 bits each)
+	 * and not a shape, and the typedef above refuses any other count.
+	 *
+	 * The comment sits HERE, above a statement that is not one of the
+	 * pinned stores, because that gate takes a statement back to the last
+	 * ';', '{' or '}' and would otherwise read this text as part of the
+	 * first store's spelling. */
+	cap_id = nvm_word_read(NVM_W_CAPID);
+	own[0] = nvm_word_read(NVM_W_OWN0 + 0u);
+	own[1] = nvm_word_read(NVM_W_OWN0 + 1u);
+	own[2] = nvm_word_read(NVM_W_OWN0 + 2u);
+	own[3] = nvm_word_read(NVM_W_OWN0 + 3u);
+	own[4] = nvm_word_read(NVM_W_OWN0 + 4u);
+	own[5] = nvm_word_read(NVM_W_OWN0 + 5u);
+	own[6] = nvm_word_read(NVM_W_OWN0 + 6u);
+	own[7] = nvm_word_read(NVM_W_OWN0 + 7u);
+	/* The copy, record by record, with the STORE ITSELF guarded by the
+	 * generated constant NVM_AREA_RAW. That guard is what the builder
+	 * gate's compiled census reads: it places a store by the branch that
+	 * dominates it, so the index is a bounded range inside the stage and
+	 * not a running offset it would have to refuse. The guard is not
+	 * decoration either -- nvm_rec_after() walks the live window, and a
+	 * record area that disagreed with the generated length would otherwise
+	 * write past the stage.
+	 *
+	 * BRACED on purpose: the gate's pinned-store rule takes a statement
+	 * back to the last ';', '{' or '}', so a store behind a brace-less
+	 * `if` reads as part of the condition and the rule never sees it.
+	 * Every store in this file is to be visible to it. */
 	rec = nvm_rec_after(-1);
 	while (rec.ok) {
-		unsigned int i;
-
-		if (!((own[rec.id >> 5] >> (rec.id & 31u)) & 1u))
-			for (i = 0; i < REC_HDR + rec.plen; ++i)
-				NVM_STG[KLJ2_HDR + off + i] = NVM_IMG[KLJ2_HDR + off + i];
-		off += REC_HDR + rec.plen;
+		copy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 1u);
+		next = off + REC_HDR + rec.plen;
+		if (copy) {
+			for (i = off; i < NVM_AREA_RAW; ++i) {
+				if (i >= next) {
+					break;
+				}
+				NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
+			}
+		}
+		off = next;
 		rec = nvm_rec_after((int)rec.id);
 	}
 	/* the copy's loads complete before the attest strobe leaves */
@@ -952,7 +1005,7 @@ static int nvm_capture(uint32_t *cap_id)
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		return 0;
 	}
-	return 1;
+	return cap_id;
 }
 
 /*
@@ -969,11 +1022,12 @@ static int nvm_commit(const char *why)
 {
 	uint32_t next = nvm_seq + 1u;
 	uint32_t target = (nvm_auth_slot == NVM_SLOT_A) ? NVM_SLOT_B : NVM_SLOT_A;
-	uint32_t cap_id = 0;
+	uint32_t cap_id;
 	unsigned int vd;
 
 	nvm_in_commit = 1;
-	if (!nvm_capture(&cap_id)) {
+	cap_id = nvm_capture();
+	if (cap_id == 0) {
 		printf("Milan NVM: commit (%s) deferred, the capture was not attested.\n",
 		       why);
 		nvm_captures_refused++;

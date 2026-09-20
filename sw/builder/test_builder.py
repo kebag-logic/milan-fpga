@@ -3105,16 +3105,44 @@ def test_baremetal_profile_contract() -> None:
         "*milan_reg(offset) = value",
         "*value = (uint64_t)parsed",
         "*value = seconds * 1000000000ull + nanoseconds",
-        # The saved-state writer's five (#70): every one is a byte store
-        # into the staged KLJ2 container at MILAN_NVM_IMAGE_BASE, a
+        # The saved-state writer's (#70, and the snapshot-ownership contract
+        # of #484): every one is a byte store into a KLJ2 container at a
         # constant base inside the reserved processor window, under a loop
         # the compiler bounds by a constant; none can reach the control
         # window, and the compiled census places each as a bounded range.
-        "NVM_IMG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))",
-        "NVM_IMG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))",
-        "NVM_IMG[i] = NVM_ERASED",
-        "NVM_IMG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u",
+        # TWO windows now, and the split is the contract's: NVM_STG is the
+        # writer's PRIVATE stage, which nothing but this firmware touches and
+        # which is why an attested capture cannot move under the seal, the
+        # program or the read-back; NVM_IMG is the LIVE window the backend
+        # reads and writes in place. The stage carries the header, the
+        # trailer, the blank image, the prefill and the per-record copy; the
+        # live window carries the boot load alone.
+        "NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))",
+        "NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))",
+        "NVM_STG[i] = NVM_ERASED",
+        "NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u",
+        "NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]",
+        # the capture's read of the whole ownership vector, before the copy:
+        # UNROLLED with literal indices, so every one is a constant
+        # displacement from the frame pointer and the census places it on the
+        # stack. A loop over a variable index is a store it refuses rather
+        # than places, and so is a store through an out-parameter, which is
+        # why the capture identity is RETURNED instead.
+        "own[0] = nvm_word_read(NVM_W_OWN0 + 0u)",
+        "own[1] = nvm_word_read(NVM_W_OWN0 + 1u)",
+        "own[2] = nvm_word_read(NVM_W_OWN0 + 2u)",
+        "own[3] = nvm_word_read(NVM_W_OWN0 + 3u)",
+        "own[4] = nvm_word_read(NVM_W_OWN0 + 4u)",
+        "own[5] = nvm_word_read(NVM_W_OWN0 + 5u)",
+        "own[6] = nvm_word_read(NVM_W_OWN0 + 6u)",
+        "own[7] = nvm_word_read(NVM_W_OWN0 + 7u)",
+        # the capture copy: a CLOSED record moves from the live window into
+        # the private stage. The loop head's bound is the generated constant
+        # NVM_AREA_RAW, so the census places the store as a range inside the
+        # stage.
+        "NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]",
         "NVM_IMG[i] = src[i]",
+        "NVM_IMG[i] = NVM_STG[i]",
         "dst[i] = src[i]",
     )
     #: ... and every cast to a POINTER, pinned the same way and for a reason
@@ -3127,8 +3155,10 @@ def test_baremetal_profile_contract() -> None:
     #: register in the first place.
     firmware_pointer_casts = (
         "(volatile uint32_t *)",
-        # the saved-state writer's two (#70): the staged container in the
-        # reserved window, and a journal slot through the QSPI mapping
+        # the saved-state writer's three (#70, #484): the LIVE window and the
+        # private STAGE, both in the reserved window, and a journal slot
+        # through the QSPI mapping
+        "(volatile uint8_t *)",
         "(volatile uint8_t *)",
         "(const volatile uint8_t *)",
         # the AEM verifier's three
@@ -3199,8 +3229,15 @@ def test_baremetal_profile_contract() -> None:
     #: address in an asm template reaches a control register past all of
     #: them. The firmware already uses asm for its fences, so this is
     #: idiomatic here rather than exotic.
+    #: ORDERED, and the list is the shipping order: one device fence in
+    #: milan_write(), then the three `rw` fences the writer needs -- the AEM
+    #: image check, the capture's copy before the ATTEST strobe leaves, and
+    #: the window load's stores before the RELOAD strobe leaves (the
+    #: saved-state snapshot-ownership contract, sections 5.3 and 7).
     firmware_asm = (
         '__asm__ volatile("fence iorw, iorw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")',
         '__asm__ volatile("fence rw, rw" ::: "memory")')
     asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
 
@@ -3268,8 +3305,19 @@ def test_baremetal_profile_contract() -> None:
     #: is REFUSED rather than ignored: an #undef can retire a register
     #: constant the address model read, and #pragma, #line, #include_next and
     #: #import are outside every rule here.
+    #:
+    #: `#error` is in the set, and its rule is that it has no reach: it emits
+    #: no token, defines nothing and retires nothing, so it cannot move an
+    #: address, a store or a constant this gate reads -- the only thing it can
+    #: do is REFUSE the translation. The firmware carries exactly one, the
+    #: saved-state contract check of
+    #: docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 14, which is what
+    #: stops this writer compiling against a generator that does not publish
+    #: MILAN_NVM_CONTRACT 3. The count is pinned below for the same reason
+    #: every other spelling here is: a second one would be a second refusal
+    #: this gate has not read.
     firmware_directives = ("include", "define", "if", "ifdef", "ifndef",
-                           "elif", "else", "endif")
+                           "elif", "else", "endif", "error")
     directive_re = re.compile(r"(?m)^[ \t]*#[ \t]*([A-Za-z_]\w*)?")
     include_operand_re = re.compile(
         r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z")
@@ -3329,10 +3377,12 @@ def test_baremetal_profile_contract() -> None:
         translations above preserve them too.
 
         COST: a twelfth include even `<string.h>`, and any `#pragma`,
-        `#line`, `#error` or `#undef`, are RED until added here. That is the
-        tripwire and not a defect: whoever adds one has to decide, in this
+        `#line` or `#undef`, are RED until added here, as is a SECOND
+        `#error`. That is the tripwire and not a defect: whoever adds one has
+        to decide, in this
         gate, whether the new text can store into a CSR."""
         text, raw = spliced(code), spliced(source)
+        errors = 0
         for directive in directive_re.finditer(text):
             kind = directive.group(1)
             assert kind in firmware_directives, \
@@ -3340,6 +3390,9 @@ def test_baremetal_profile_contract() -> None:
                 f"'#{kind or ''}' is not one of them: a directive this gate " \
                 "has no rule for is text in the translation unit that no " \
                 "rule reads"
+            if kind == "error":
+                errors += 1
+                continue
             if kind != "include":
                 continue
             stop = text.find("\n", directive.end())
@@ -3360,6 +3413,12 @@ def test_baremetal_profile_contract() -> None:
                 "keeps the object count at one, so the " \
                 "single-translation-unit check is satisfied honestly while " \
                 "the closure reads the wrong file"
+        assert errors == 1, \
+            f"the firmware carries {errors} #error directive(s) and exactly " \
+            "one is pinned: the saved-state contract check that stops this " \
+            "writer compiling against a generator which does not publish " \
+            "MILAN_NVM_CONTRACT 3. A second refusal is one this gate has not " \
+            "read"
 
     #: ---- the compiled census -------------------------------------------
     #:
@@ -21927,8 +21986,8 @@ def _fabric_host_source(firmware_text: str) -> str:
     an entrance to configure_fabric() appended; each edit must apply exactly
     where gate 1b pins the text it replaces."""
     text, fences = _FENCE_RE.subn("(void)0;", firmware_text)
-    assert fences == 2, \
-        f"gate 35: the firmware carries {fences} fences, not the two gate 1b pins"
+    assert fences == 4, \
+        f"gate 35: the firmware carries {fences} fences, not the four gate 1b pins"
     assert text.count(_CSR_STORE) == 1, \
         "gate 35: milan_write() no longer stores exactly once through " \
         "milan_reg(); re-point the host lister at the store gate 1b pins"

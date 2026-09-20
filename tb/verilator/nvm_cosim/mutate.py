@@ -37,8 +37,8 @@ MUTANTS = {'A01_composite_durable_bit': ('rtl',
                                    '\tif (!(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_CAP_ATTEST) '
                                    '&& 0) {\n')]),
  'F02_copies_open_records': ('fw',
-                             [('\t\tif (!((own[rec.id >> 5] >> (rec.id & 31u)) & 1u))\n',
-                               '\t\tif (!((own[rec.id >> 5] >> (rec.id & 31u)) & 0u))\n')]),
+                             [('\t\tcopy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 1u);\n',
+                               '\t\tcopy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 0u);\n')]),
  'F03_prefill_from_blank': ('fw',
                             [('\tif (nvm_auth_slot == NVM_SLOT_NONE) {\n'
                               '\t\tnvm_stage_blank_image();\n',
