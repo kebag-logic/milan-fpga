@@ -1140,7 +1140,7 @@ runs on every live run.
 | a third inline-`asm` statement (#409) | the same census, which reads the template's own instructions: a `lui`-based store into the window is refused by its resolved address | measured on the hostile side only; see the note below |
 | REORDERING two existing functions (#409) | nothing: the ordered-list comparison went with the sets it compared | `print_tod()` and `gettime_ns()` exchanged, nothing added or removed |
 | a token-joining backslash-newline, an `#ifdef` reaching the boot path, and `##`, `%:` or `??` anywhere (#408) | the preprocessed unit: the same compiler under the same flags with `-E`, and the boot path this gate reads compared row for row against the one it compiles | an `#ifdef MILAN_DEBUG_BOOT` printf inside `milan_init()`, and a `##` paste building a call in a UART handler |
-| any new file in `sw/firmware/milan_baremetal/`, a README included (#408) | the include-resolution measurement: `-H` reports the files the preprocessor OPENED, and no pinned name may reach one beside the firmware | `README.md` and `notes.txt` beside a copy of the firmware |
+| any new file in `sw/firmware/milan_baremetal/`, a `README` included (#408) | the include-resolution measurement: `-H` reports the files the preprocessor OPENED, and no pinned name may reach one beside the firmware | a `README` and a `notes.txt` beside a copy of the firmware |
 
 The asm row has no accepted case because the firmware's four fences are the
 only `asm` it has and a fifth benign one would be an invention, not an edit

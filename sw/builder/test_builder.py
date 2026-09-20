@@ -11050,7 +11050,7 @@ def test_baremetal_profile_contract() -> None:
     #: file no include names changes nothing and is measured GREEN here,
     #: while the same measurement refuses a planted `command.h` in the
     #: mutation table above.
-    accepted_beside = ("README.md", "notes.txt")
+    accepted_beside = ("README", "notes.txt")
     if baseline_census_verdict["ran"]:
         try:
             assert_boot_contract(firmware_source, docs_source, csr_source,
