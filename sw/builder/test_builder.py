@@ -2094,7 +2094,29 @@ def _assert_make_plan_is_determined(plan, hostile, origins):
         "pinned commands cannot show the deferral (#162)"
 
 
-def _assert_primitive_spelling_is_readable(code):
+def _assert_no_token_joining_splice(source, fallback):
+    """FALLBACK ARM (#408): refuse a backslash-newline whose deletion JOINS
+    two tokens - the phase-2 hazard that hides a CSR primitive name from a
+    text reader.
+
+    Retired onto the preprocessed-unit comparison, and restored here as the
+    arm that grades when that comparison cannot run. `fallback` is the
+    message it refuses with, which says so and names what would lift it."""
+    # Translation phase 2 runs before comments, strings and preprocessing
+    # tokens exist. It DELETES this pair, so `milan_\`-newline-`write` is
+    # the one identifier `milan_write` to the compiler while an offset-
+    # preserving reader that substitutes spaces sees two identifiers.
+    # Scan RAW source and refuse the language construct; blanked text is
+    # already too late, and line_spliced() intentionally preserves
+    # offsets. Narrowed to the splices that actually JOIN two tokens:
+    # a continuation with whitespace on either side of the deleted pair
+    # cannot merge anything and is ordinary C.
+    splice = re.search(r"(?<=\S)\\[ \t\f\v]*(?:\r\n|[\n\r])(?=\S)",
+                       source)
+    assert not splice, fallback
+
+
+def _assert_primitive_spelling_is_readable(code, paste_fallback=None):
     """Rules 3 and 4: milan_write is always CALLED, and no macro body hides
     a CSR primitive from the census."""
     # 3. milan_write is CALLED, never used as a value: taking its address
@@ -2106,12 +2128,17 @@ def _assert_primitive_spelling_is_readable(code):
     # 4. A `##`, `%:` or `??` ANYWHERE in the file used to be refused here,
     #    because a pasted call name builds a CSR store a text reader cannot
     #    see and an alternate spelling of `#` builds a directive it cannot
-    #    read either. Both are RETIRED (#408) and neither is unmeasured:
-    #    the paste is performed in the preprocessed unit, where
+    #    read either. Both are RETIRED (#408) where the preprocessed unit
+    #    can be taken: the paste is performed there, where
     #    assert_preprocessed_boot_path() reads the call it built, and the
     #    alternate spellings are translated before the directive set is
     #    read, which is where `%:include` has always been refused. A paste
     #    outside the boot path is GREEN and is an accepted case.
+    #    Where that unit CANNOT be taken, the retired refusal is the arm
+    #    that grades, under the message `paste_fallback` carries.
+    if paste_fallback is not None:
+        assert "##" not in code and "%:" not in code and "??" not in code, \
+            paste_fallback
     for name, body in re.findall(
             r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
             r"([^\r\n]*)$", code):
@@ -2225,6 +2252,13 @@ def test_baremetal_profile_contract() -> None:
     datapath_source = datapath_path.read_text(encoding="utf-8")
     makefile_source = (firmware_path.parent / "Makefile").read_text(
         encoding="utf-8")
+    #: Bare entry NAMES, not paths: the shadowed-include arms below
+    #: concatenate this tuple with `("command.h",)` and compare it against
+    #: the pinned directory, so it stays a tuple of `str` on purpose. Read
+    #: by the FALLBACK ARM only; where `-H` can run, the file each pinned
+    #: name RESOLVED to is what is measured instead.
+    firmware_listing = tuple(sorted(
+        entry.name for entry in firmware_path.parent.iterdir()))
     firmware_object = firmware_path.with_suffix(".o").name
 
     def braced_span(source: str, guard: re.Match[str] | None,
@@ -2448,8 +2482,32 @@ def test_baremetal_profile_contract() -> None:
         this gate cannot evaluate still chooses what a register name
         resolves to, and no comparison of the two texts answers that.  The
         ONE conditional inside load_aem_image() is tolerated as before and
-        CLASSIFIED by the verifier's return rule."""
+        CLASSIFIED by the verifier's return rule.
+
+        FALLBACK ARM: where the comparison cannot be taken, the REACH
+        refusal is restored and grades instead -- a conditional group
+        reaching any of the six functions a text rule still reads is
+        refused, exactly as it was before #408, under a message that says
+        which arm refused."""
         directives, _ = cpp_arms(code)
+        #: The bodies the restored reach ban protects, taken from the same
+        #: anchor list the instrument counts, so the two arms are about the
+        #: same six functions and neither can drift from the other.
+        protected = []
+        if census_stood_down():
+            for header, what in boot_path_anchors:
+                found = re.search(header, code)
+                if not found:
+                    continue
+                try:
+                    _body, close = braced_span(code, found, what)
+                except AssertionError:
+                    # A body this gate cannot brace-match is a firmware the
+                    # compiler will refuse; let a later rule say so rather
+                    # than report a preprocessor verdict about text nobody
+                    # can parse.
+                    continue
+                protected.append((found.start(), close + 1, what))
         opened = []
         for directive in directives:
             kind = directive.group(1)
@@ -2464,6 +2522,12 @@ def test_baremetal_profile_contract() -> None:
             stop = len(code) if stop < 0 else stop
             if load_span[0] <= at and stop <= load_span[1]:
                 continue
+            for guard_at, guard_to, what in protected:
+                assert stop <= guard_at or at >= guard_to, fallback_says(
+                    "firmware must not select boot code with the "
+                    f"preprocessor (a conditional group reaching {what}): "
+                    "this gate would read one arm while the compiler takes "
+                    "the other")
             defines = re.search(
                 r"(?m)^[ \t]*#[ \t]*(define|undef|include)\b", code[at:stop])
             assert not defines, \
@@ -3018,11 +3082,13 @@ def test_baremetal_profile_contract() -> None:
                                use.start()), \
                 "milan_reg() may be called only by milan_read()/milan_write(): " \
                 "a store through it bypasses the bit-0 census"
-        _assert_primitive_spelling_is_readable(code)
-        # 5. ... and the cast set, the store set and the asm set USED to run
-        #    here. They are retired (#409): the resolver answers the same
-        #    question by VALUE, and the comment block below records what
-        #    each of them caught and which instrument catches it now.
+        _assert_primitive_spelling_is_readable(code, paste_ban_fallback())
+        # 5. ... and the cast set and the store set, retired (#409) WHERE
+        #    THE RESOLVER RUNS -- it answers the same question by VALUE, and
+        #    the comment block below records what each of them caught -- and
+        #    the arm that grades where it cannot run.
+        if census_stood_down():
+            assert_store_set_is_closed(code, source)
         _assert_read_side_preserves_offset(code, reg_span, reg_def,
                                            read_span, read_def)
     #: ---- RETIRED by the value-resolving census (#409) ----------------
@@ -3057,9 +3123,179 @@ def test_baremetal_profile_contract() -> None:
     #: spelling is a mutation-table entry.
     #:
     #: COST, and it is what this trade buys with: where no RV32 compiler is
-    #: present the resolver stands down and nothing here bounds address
-    #: formation but rule 1's one cast spelling and the base name. The
-    #: stand-down is REGISTERED, so the closing verdict names it.
+    #: present the resolver stands down, so the sets below are RESTORED as
+    #: the fallback arm and grade instead. The stand-down is REGISTERED and
+    #: the closing verdict names the arm that graded.
+    #:
+    #: RETIRED means retired WHERE THE INSTRUMENT EXISTS, and nothing more
+    #: than that: the three accepted cases are GREEN under the resolver and
+    #: REFUSED under these sets, which is a cost stated rather than a claim
+    #: withdrawn.
+    firmware_pointer_stores = (
+        "*milan_reg(offset) = value",
+        "*value = (uint64_t)parsed",
+        "*value = seconds * 1000000000ull + nanoseconds",
+        # The saved-state writer's (#70, and the snapshot-ownership contract
+        # of #484): every one is a byte store into a KLJ2 container at a
+        # constant base inside the reserved processor window, under a loop
+        # the compiler bounds by a constant; none can reach the control
+        # window, and the compiled census places each as a bounded range.
+        # TWO windows now, and the split is the contract's: NVM_STG is the
+        # writer's PRIVATE stage, which nothing but this firmware touches and
+        # which is why an attested capture cannot move under the seal, the
+        # program or the read-back; NVM_IMG is the LIVE window the backend
+        # reads and writes in place. The stage carries the header, the
+        # trailer, the blank image, the prefill and the per-record copy; the
+        # live window carries the boot load alone.
+        "NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))",
+        "NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))",
+        "NVM_STG[i] = NVM_ERASED",
+        "NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u",
+        "NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]",
+        # the capture's read of the whole ownership vector, before the copy:
+        # UNROLLED with literal indices, so every one is a constant
+        # displacement from the frame pointer and the census places it on the
+        # stack. A loop over a variable index is a store it refuses rather
+        # than places, and so is a store through an out-parameter, which is
+        # why the capture identity is RETURNED instead.
+        "own[0] = nvm_word_read(NVM_W_OWN0 + 0u)",
+        "own[1] = nvm_word_read(NVM_W_OWN0 + 1u)",
+        "own[2] = nvm_word_read(NVM_W_OWN0 + 2u)",
+        "own[3] = nvm_word_read(NVM_W_OWN0 + 3u)",
+        "own[4] = nvm_word_read(NVM_W_OWN0 + 4u)",
+        "own[5] = nvm_word_read(NVM_W_OWN0 + 5u)",
+        "own[6] = nvm_word_read(NVM_W_OWN0 + 6u)",
+        "own[7] = nvm_word_read(NVM_W_OWN0 + 7u)",
+        # the capture copy: a CLOSED record moves from the live window into
+        # the private stage. The loop head's bound is the generated constant
+        # NVM_AREA_RAW, so the census places the store as a range inside the
+        # stage.
+        "NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]",
+        "NVM_IMG[i] = src[i]",
+        "NVM_IMG[i] = NVM_STG[i]",
+        "dst[i] = src[i]",
+    )
+    #: ... and every cast to a POINTER, pinned the same way and for a reason
+    #: the store set alone does not cover. A store can be spelled `*p = v`,
+    #: `p[i] = v`, `p->m = v`, `(*p)++` or a memcpy, and enumerating THOSE is
+    #: the trap the round that wrote them was about. A cast is where an
+    #: address BECOMES a pointer, so pinning the casts bounds address
+    #: formation whatever the store looks like: every one of those spellings
+    #: still needs a cast (or MILAN_CSR_BASE, or milan_reg(), both already
+    #: pinned) to name a control register in the first place.
+    firmware_pointer_casts = (
+        "(volatile uint32_t *)",
+        # the saved-state writer's three (#70, #484): the LIVE window and the
+        # private STAGE, both in the reserved window, and a journal slot
+        # through the QSPI mapping
+        "(volatile uint8_t *)",
+        "(volatile uint8_t *)",
+        "(const volatile uint8_t *)",
+        # the AEM verifier's three
+        "(const volatile uint8_t *)",
+        "(volatile uint8_t *)",
+        "(const unsigned char *)",
+    )
+    pointer_cast_re = re.compile(
+        r"\([ \t]*[A-Za-z_][A-Za-z0-9_ \t]*\*(?:[ \t]*\*)*[ \t]*\)")
+    #: An assignment operator, simple or compound, and never a comparison.
+    assign_op_re = re.compile(
+        r"(?<![=!<>+\-*/%&|^])(?:[-+*/%&|^]|<<|>>)?=(?!=)")
+    subscript_lhs_re = re.compile(r"\A\w+[ \t]*\[[^\]]*\]\Z")
+
+    def pointer_stores(code: str) -> list[tuple[int, int]]:
+        """`(start, stop)` for every store through a pointer in `code`.
+
+        The left-hand side is taken back to the statement's start. A
+        DECLARATION with an initialiser is not a store, because its `*` is a
+        pointer declarator and its text names a type first; an assignment
+        inside a call's argument list is skipped for the same reason its
+        parentheses do not balance.
+
+        KNOWN HOLE, and it is why this is the fallback rather than the
+        instrument (#495): a store behind a BRACE-LESS `if` reads as
+        `if (c) *p` and matches neither shape, so this arm is strictly
+        weaker than the resolver it stands in for. It is still the arm that
+        refuses the mutants the resolver cannot be asked about here."""
+        found = []
+        for op in assign_op_re.finditer(code):
+            start = max(code.rfind(char, 0, op.start()) for char in ";{}") + 1
+            lhs = code[start:op.start()]
+            # A `for (i = 0; ...)` head leaves an unmatched `)` behind; step
+            # the statement's start past it so the loop BODY's store is seen
+            # and reported as itself rather than with the loop head attached.
+            while lhs.count("(") < lhs.count(")"):
+                cut = lhs.index(")") + 1
+                start, lhs = start + cut, lhs[cut:]
+            if lhs.count("(") > lhs.count(")"):
+                continue
+            text = lhs.strip()
+            if not (text.startswith("*") or subscript_lhs_re.match(text)):
+                continue
+            stop = code.find(";", op.end())
+            found.append((start, len(code) if stop < 0 else stop))
+        return found
+
+    def assert_store_set_is_closed(code: str, source: str) -> None:
+        """FALLBACK ARM (#409): the firmware's casts to a pointer and stores
+        through one are pinned as ORDERED lists, so a CSR store cannot be
+        built from a cast this gate never thought to name.
+
+        COST: one more pointer store is RED until it is added above, and so
+        is REORDERING two functions that hold one. That is the tripwire the
+        resolver replaced; on a machine with no RV32 compiler it is what is
+        left."""
+        casts = [" ".join(m.group(0).split())
+                 for m in pointer_cast_re.finditer(code)]
+        assert casts == list(firmware_pointer_casts), fallback_says(
+            "the firmware's casts to a pointer are pinned: a cast is where "
+            "an address becomes a pointer, so naming ONE cast spelling "
+            "leaves `volatile unsigned int *`, `uint32_t volatile *` and "
+            f"`(void *)` free to name a control register; found {casts}")
+        found = [" ".join(source[at:to].split())
+                 for at, to in pointer_stores(code)]
+        assert found == list(firmware_pointer_stores), fallback_says(
+            "the firmware's stores through a pointer are pinned: a store is "
+            "a store whatever cast formed the pointer, and naming one cast "
+            "spelling leaves `volatile unsigned int *`, `uint32_t volatile "
+            f"*` and a (void *) into a local all reaching a CSR; found "
+            f"{found}")
+
+    #: The firmware's inline asm, pinned the way the include set is, and
+    #: restored for the same reason as the two sets above. An asm store
+    #: carries NO textual signature any other rule here matches: no
+    #: milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal
+    #: address in an asm template reaches a control register past all of
+    #: them.
+    #: ORDERED, and the list is the shipping order: one device fence in
+    #: milan_write(), then the three `rw` fences the writer needs -- the AEM
+    #: image check, the capture's copy before the ATTEST strobe leaves, and
+    #: the window load's stores before the RELOAD strobe leaves (the
+    #: saved-state snapshot-ownership contract, sections 5.3 and 7).
+    firmware_asm = (
+        '__asm__ volatile("fence iorw, iorw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")')
+    asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
+
+    def assert_asm_set_is_closed(code: str, source: str) -> None:
+        """FALLBACK ARM (#409): inline asm is pinned to the four fences the
+        firmware ships.
+
+        COST: a fifth asm statement is RED until it is added above. Whoever
+        adds one has to decide, in this gate, whether its template can store
+        into a control register."""
+        found = []
+        for use in asm_re.finditer(code):
+            stop = code.find(";", use.start())
+            assert stop >= 0, "an inline-asm statement is never closed"
+            found.append(" ".join(source[use.start():stop].split()))
+        assert found == list(firmware_asm), fallback_says(
+            "the firmware's inline asm is pinned: an asm template carries "
+            "no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, "
+            "so a literal address in one stores to a control register past "
+            f"every rule in the CSR store closure; found {found}")
 
     #: The firmware's translation unit is milan_baremetal.c plus exactly
     #: these. Pinned as a SET rather than derived, because there is nothing
@@ -3168,6 +3404,27 @@ def test_baremetal_profile_contract() -> None:
             f"preprocessor answered {answered} for {wanted}: every rule in " \
             "this gate reads ONE file, so an include it does not know about " \
             "is text in the translation unit that no rule reads"
+
+    #: FALLBACK ARM (#408): the DIRECTORY pin the `-H` measurement retired.
+    #: It cannot say which file a pinned name reached, so it refuses any
+    #: file beside the firmware at all -- a README included, which is the
+    #: cost the retirement bought back and which returns with it here.
+    firmware_directory = ("Makefile", "milan_baremetal.c")
+
+    def assert_directory_is_pinned(listing: tuple[str, ...]) -> None:
+        """No file beside the firmware but the two it ships with.
+
+        The axis is NOT who wrote the file: it is whether this repository
+        can decide which file a pinned name resolves to. Where `-H` runs,
+        the resolved PATH answers that and a file no include names is
+        GREEN; where it does not, the directory is what is pinned."""
+        assert sorted(listing) == sorted(firmware_directory), fallback_says(
+            "the firmware's directory is pinned to "
+            f"{sorted(firmware_directory)}: a quoted include resolves "
+            "against this directory FIRST, so a file dropped in here "
+            "answers to a pinned include name and puts this repository's "
+            "text behind it with no name changing anywhere; found "
+            f"{sorted(listing)}")
 
     #: Taken ONCE over the firmware's real directory, which is the tree the
     #: claim is about. Every other caller hands a copy, so the measurement
@@ -3559,6 +3816,72 @@ def test_baremetal_profile_contract() -> None:
                            target=False, flags=())
         return census_used["compiler"]
 
+    #: ---- WHICH ARM GRADES THIS RUN (#408, #409) ------------------------
+    #:
+    #: Every instrument that retired a text refusal runs the census's own
+    #: compile: `-E` for the boot-path comparison, `-H` for the
+    #: include-resolution measurement, and the emitted assembly for the
+    #: resolved store census. So a machine with no RV32-capable compiler
+    #: stands all three down at once -- and that is every hosted runner
+    #: this repository uses today, not a hypothetical box.
+    #:
+    #: At PR #498's first head the retirement was unconditional, so on such
+    #: a machine NOTHING refused what the text rules used to refuse: the
+    #: phase-2 splice that joins `milan_` to `write` inside
+    #: configure_fabric() passed the whole gate, and the hosted docs-check,
+    #: elaborate and rtl-fast jobs failed on that mutant. #408 asked for
+    #: the opposite of a silent pass, and a refusal that disappears exactly
+    #: where the merge gate runs is the opposite of standing down loudly.
+    #:
+    #: So the retired rules are still here, as the FALLBACK ARM: the tool
+    #: wins where it exists, the text rule grades where it does not, and
+    #: the closing verdict says which one did. What the fallback costs is
+    #: the six accepted cases -- each is GREEN under the instrument and
+    #: REFUSED under the text rule -- and each refusal says it is the
+    #: no-compiler arm and names the compiler that would lift it. Nothing
+    #: passes in one mode that the other refuses for a hostile reason:
+    #: every mutant BOTH arms carry is RED in both, and the shapes only the
+    #: compile can see are named in the stand-down rather than counted,
+    #: which is what they were before these instruments existed.
+    #: Set only by the forced-fallback self-test below, which is how a box
+    #: that HAS the compiler still runs the arm the hosted runners grade on.
+    census_forced_down = {"on": False}
+
+    def census_stood_down() -> bool:
+        """True when no candidate here is the RV32 target, which is exactly
+        when every #408/#409 instrument declines and the fallback grades."""
+        if census_forced_down["on"]:
+            return True
+        census_compiler()
+        return not census_used.get("target")
+
+    def fallback_says(rule: str) -> str:
+        """What a fallback refusal says: the rule that refused, that this is
+        the no-compiler arm, and the compiler that would lift it."""
+        declined = Path(census_used.get("compiler") or "no").name
+        return (
+            f"{rule}. NO-COMPILER FALLBACK: this is the TEXT rule #408/#409 "
+            "retired, and it graded because the instrument that replaced it "
+            f"is not on this machine -- {declined} is not the RV32 target "
+            "and no flag set here drives it as one, so the -E boot-path "
+            "comparison, the -H include-resolution measurement and the "
+            "resolved store census could not be taken. Install a compiler "
+            "that answers as the RV32 target, one of "
+            f"{[Path(name).name for name in census_compilers]} bare or "
+            "under -march=rv32i -mabi=ilp32, and the instrument grades "
+            "instead, where this edit is accepted")
+
+    def paste_ban_fallback() -> str | None:
+        """The paste/digraph/trigraph ban's refusal message, or None where
+        the preprocessed-unit comparison grades and the ban stays retired."""
+        if not census_stood_down():
+            return None
+        return fallback_says(
+            "firmware must not paste tokens, and must not spell one with a "
+            "digraph or a trigraph: a pasted call name builds a CSR store "
+            "this gate cannot read, and an alternate spelling of `#` builds "
+            "a directive it cannot read either")
+
     #: The CSR address helper's name, derived from the shipping firmware so
     #: the printed summary cannot drift from what the census enforces. A
     #: firmware with no such helper -- an EMPTY milan_baremetal.c is the
@@ -3617,6 +3940,29 @@ def test_baremetal_profile_contract() -> None:
     #: at all, was green everywhere. Both are resolved from the emitted
     #: operands here, so the statement covers every function.
     RESOLVER_BOOT_WORD_PIN = "resolved boot-word census"
+    #: ... and the sentences the FALLBACK ARM answers on, one per retired
+    #: text rule, because the two arms refuse for different TRUE reasons and
+    #: a mutant must never be pinned on a sentence the grading arm cannot
+    #: print. Each is a fragment of the restored rule's own message, so the
+    #: pin still names WHICH rule refused rather than merely that something
+    #: did -- the reason-pin negative control below is what keeps that
+    #: honest in either mode.
+    FALLBACK_SPLICE_PIN = "where the pair JOINS two tokens"
+    FALLBACK_PASTE_PIN = "must not paste tokens"
+    FALLBACK_REACH_PIN = "a conditional group reaching"
+    FALLBACK_CAST_PIN = "casts to a pointer are pinned"
+    FALLBACK_STORE_PIN = "stores through a pointer are pinned"
+    FALLBACK_LISTING_PIN = "the firmware's directory is pinned to"
+    #: The mode is decided ONCE, here, and every pin below reads it: a run
+    #: that probed the compiler twice could pin a mutant on one arm and
+    #: grade it with the other.
+    fallback_grades = census_stood_down()
+    SPLICE_PIN = FALLBACK_SPLICE_PIN if fallback_grades else PREPROCESSED_PIN
+    PASTE_PIN = FALLBACK_PASTE_PIN if fallback_grades else PREPROCESSED_PIN
+    REACH_PIN = FALLBACK_REACH_PIN if fallback_grades else PREPROCESSED_PIN
+    RESOLUTION_PIN = (
+        FALLBACK_LISTING_PIN if fallback_grades else
+        "a pinned include resolved to a file this repository supplies")
     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
     #: #241).
     #:
@@ -8347,7 +8693,16 @@ def test_baremetal_profile_contract() -> None:
         # a `listing` argument plants those names beside a COPY of the
         # firmware and measures that, which is how the shadowing arm and its
         # accepted README are answered by the path each name resolved to.
-        if listing is None:
+        # ... and where the preprocessor cannot be asked, the DIRECTORY pin
+        # it retired is the arm that answers.
+        if census_stood_down():
+            assert_directory_is_pinned(
+                firmware_listing if listing is None else listing)
+            # ... as is the inline-asm set, which no text rule but this one
+            # covers: an asm template names no primitive, no base and no
+            # cast, so nothing else here sees it.
+            assert_asm_set_is_closed(firmware, source)
+        elif listing is None:
             if not shipping_includes:
                 shipping_includes.update(
                     include_resolution_take(firmware_path.parent))
@@ -8377,7 +8732,17 @@ def test_baremetal_profile_contract() -> None:
         # the compiler compiles. The conditional carrying a definition is a
         # refusal over this file's own text; the boot path itself is a
         # MEASUREMENT against the preprocessed unit (#408).
+        # ... and where that unit cannot be taken, the phase-2 splice ban it
+        # retired is the arm that answers. Kept in the order the reach ban
+        # runs in, which is the order these two refused in before #408.
         assert_preprocessor_visible(firmware, (load_start, load_end))
+        if census_stood_down():
+            _assert_no_token_joining_splice(source, fallback_says(
+                "firmware must not splice physical source lines with "
+                "backslash-newline where the pair JOINS two tokens: C "
+                "translation phase 2 deletes it before preprocessing tokens "
+                "are formed, so the physical-text whole-firmware store "
+                "census can miss a joined CSR primitive name"))
         assert_preprocessed_boot_path(firmware, preprocess_take(source))
         init_start = anchored(firmware, "static void milan_init(void)",
                               "the boot entry point")
@@ -8740,14 +9105,19 @@ def test_baremetal_profile_contract() -> None:
              "verdict test dominates the enable writes, and no proof that "
              "the CRC-equality edge dominates every non-zero verdict or that "
              "the CRC was taken over MILAN_AEM_DESC_BASE, so its "
-             "mutations did not run either. THREE MORE THINGS ARE OPEN ON "
-             "THIS RUNNER than were before (#408, #409): the -E comparison "
-             "of the boot path this gate reads against the one the compiler "
-             "compiles, the -H include-resolution measurement, and the "
-             "resolved store census that replaced the pointer-cast, "
-             "pointer-store and inline-asm text sets, so on this machine "
-             "nothing but rule 1's one cast spelling and the CSR base name "
-             "bounds address formation")
+             "mutations did not run either. THE THREE INSTRUMENTS #408 AND "
+             "#409 ADDED ARE DOWN WITH THEM -- the -E comparison of the "
+             "boot path this gate reads against the one the compiler "
+             "compiles, the -H include-resolution measurement and the "
+             "resolved store census -- so THE TEXT RULES THEY RETIRED "
+             "GRADED THIS RUN INSTEAD: the conditional-reach ban, the "
+             "token-joining splice ban, the paste/digraph/trigraph ban, the "
+             "pointer-cast, pointer-store and inline-asm sets and the "
+             "directory pin. That arm is strictly weaker than the "
+             "instruments and it is also strictly stronger than nothing, "
+             "which is what stood here at this PR's first head; the six "
+             "edits the instruments accept are REFUSED by it and asserted "
+             "as mutations above")
 
     def replace_once(source: str, old: str, new: str, label: str) -> str:
         """`source` with the FIRST `old` replaced, refusing a mutation that
@@ -10952,28 +11322,6 @@ def test_baremetal_profile_contract() -> None:
                          "#define MILAN_BOOT_BANNER \\\n"
                          "\t\"Milan baremetal: fabric entity\"\n\n"
                          "static int aem_loaded;", "multi-line #define"),
-        #: ---- the refusals the PREPROCESSED unit retires (#408). Each was
-        #: a cost row, and each is a measurement that it is GREEN now.
-        "an #ifdef around a debug printf INSIDE milan_init()":
-            replace_once(firmware_source, guard_statement + "\n}",
-                         guard_statement + "\n#ifdef MILAN_DEBUG_BOOT\n"
-                         "\tprintf(\"boot: advertise decided\\n\");\n#endif\n}",
-                         "conditional debug printf on the boot path"),
-        "a ## token paste building a call outside the boot path":
-            replace_once(firmware_source, "\tprint_tod(gettime_ns());\n}",
-                         "#define MILAN_CAT(a, b) a##b\n"
-                         "\tMILAN_CAT(print, _tod)(gettime_ns());\n}",
-                         "token paste outside the boot path"),
-        #: ---- and the three the value-resolving census retires (#409).
-        #: The first two were the cost rows for the cast set and the store
-        #: set; the third is the ordered-list comparison's own, and no
-        #: ordered set can ever accept it.
-        "a fifth cast to a pointer, resolving outside the window":
-            scratch_cast_store,
-        "a fifth store through a pointer, resolving outside the window":
-            helper_pointer_store,
-        "two existing functions reordered, with nothing added or removed":
-            reordered_functions,
         "the pre-AEM clears relocated into milan_init()":
             replace_once(
                 replace_once(firmware_source,
@@ -10984,6 +11332,45 @@ def test_baremetal_profile_contract() -> None:
                 accepted_adp_clear + ";\n\t" + accepted_pp_clear + ";\n\t"
                 + configure_statement, "clears relocated into milan_init()"),
     }
+    #: ---- the six the INSTRUMENT accepts and the FALLBACK refuses -------
+    #:
+    #: Each is an edit #408 or #409 made legitimate by replacing a text
+    #: refusal with a measurement. The measurement needs the RV32 compiler,
+    #: so where there is none the refusal is what grades and the edit is
+    #: RED again -- which is the honest price of the retirement and is
+    #: exactly what the gate said before #408. Each carries the sentence its
+    #: fallback rule refuses on, so this dict is both the accepted-case set
+    #: of one mode and the mutation set of the other, from one statement of
+    #: what the edit is. The first five are firmware edits; the sixth is the
+    #: DIRECTORY edit, handled with the other `listing` arms below.
+    instrument_accepted_cases = {
+        #: ---- the refusals the PREPROCESSED unit retires (#408).
+        "an #ifdef around a debug printf INSIDE milan_init()": (
+            replace_once(firmware_source, guard_statement + "\n}",
+                         guard_statement + "\n#ifdef MILAN_DEBUG_BOOT\n"
+                         "\tprintf(\"boot: advertise decided\\n\");\n#endif\n}",
+                         "conditional debug printf on the boot path"),
+            FALLBACK_REACH_PIN),
+        "a ## token paste building a call outside the boot path": (
+            replace_once(firmware_source, "\tprint_tod(gettime_ns());\n}",
+                         "#define MILAN_CAT(a, b) a##b\n"
+                         "\tMILAN_CAT(print, _tod)(gettime_ns());\n}",
+                         "token paste outside the boot path"),
+            FALLBACK_PASTE_PIN),
+        #: ---- and the three the value-resolving census retires (#409).
+        #: The first two were the cost rows for the cast set and the store
+        #: set; the third is the ordered-list comparison's own, and no
+        #: ordered set can ever accept it.
+        "a fifth cast to a pointer, resolving outside the window": (
+            scratch_cast_store, FALLBACK_CAST_PIN),
+        "a fifth store through a pointer, resolving outside the window": (
+            helper_pointer_store, FALLBACK_STORE_PIN),
+        "two existing functions reordered, with nothing added or removed": (
+            reordered_functions, FALLBACK_STORE_PIN),
+    }
+    if not fallback_grades:
+        accepted_cases.update({label: accepted for label, (accepted, _)
+                               in instrument_accepted_cases.items()})
     if reflowed_firmware != firmware_source:
         accepted_cases["reflowed milan_reg() return type and argument"] = \
             reflowed_firmware
@@ -11052,9 +11439,12 @@ def test_baremetal_profile_contract() -> None:
     #: what replaces it asks which file each pinned name RESOLVED to, so a
     #: file no include names changes nothing and is measured GREEN here,
     #: while the same measurement refuses a planted `command.h` in the
-    #: mutation table above.
+    #: mutation table above. It is the SIXTH instrument-accepted case, and
+    #: where the preprocessor cannot be asked the directory pin refuses it
+    #: again -- as a mutation below rather than a silent omission, which is
+    #: what it was at this PR's first head.
     accepted_beside = ("README", "notes.txt")
-    if baseline_census_verdict["ran"]:
+    if not fallback_grades:
         try:
             assert_boot_contract(firmware_source, docs_source, csr_source,
                                  listing=accepted_beside)
@@ -11062,6 +11452,36 @@ def test_baremetal_profile_contract() -> None:
             raise AssertionError(
                 "a LEGITIMATE file beside the firmware is refused: "
                 f"{list(accepted_beside)}; gate said: {exc}") from exc
+    #: ---- THE FALLBACK ARM RUNS ON EVERY MACHINE ------------------------
+    #:
+    #: A dev box has an RV32 cross compiler and the hosted runners do not,
+    #: so without this the arm that grades the MERGE gate is the one arm
+    #: nobody ever runs where the work is done. That is exactly how this
+    #: PR's first head shipped a mode in which nothing refused a phase-2
+    #: splice: every local run took the instrument path, and the defect was
+    #: only visible on a machine the author could not reproduce.
+    #:
+    #: So the mode is FORCED here, the way the census's own stand-down
+    #: self-tests force theirs, and the whole fallback is exercised: the
+    #: shipping firmware must pass it, and each of the six edits the
+    #: instruments legitimise must be REFUSED by it on that rule's own
+    #: sentence. On a live box the instruments are still running underneath
+    #: -- they accept all six, which is what the loop above measured -- so
+    #: these refusals can only come from the forced arm, and a flag that
+    #: forced nothing would leave every one of them passing the gate.
+    census_forced_down["on"] = True
+    try:
+        assert_boot_contract(firmware_source, docs_source, csr_source)
+        for label, (accepted, because) in instrument_accepted_cases.items():
+            assert_rejected(f"FORCED no-compiler fallback: {label}", accepted,
+                            docs_source, csr_source, because)
+        assert_rejected(
+            "FORCED no-compiler fallback: a file beside the firmware",
+            firmware_source, docs_source, csr_source, FALLBACK_LISTING_PIN,
+            MutantFiles(listing=accepted_beside))
+    finally:
+        census_forced_down["on"] = False
+    forced_fallback_arms = len(instrument_accepted_cases) + 1
 
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
@@ -11208,7 +11628,7 @@ def test_baremetal_profile_contract() -> None:
          f"{adp_label} bit 0 may be set only inside the"),
         ("entity enabled through a phase-2-spliced call name",
          phase2_spliced_call_enable, docs_source, csr_source,
-         PREPROCESSED_PIN),
+         SPLICE_PIN),
         ("entity enabled through a function pointer", pointer_call_enable,
          docs_source, csr_source,
          "milan_write must always be called, never used as a value"),
@@ -11229,11 +11649,12 @@ def test_baremetal_profile_contract() -> None:
         ("entity enabled through a raw CSR pointer", raw_store_enable,
          docs_source, csr_source,
          "only milan_reg() may form a CSR address"),
-        # The `##` BAN that used to pin this is retired (#408): the paste is
-        # performed in the preprocessed unit, where the call it built is one
-        # this gate reads and the source text does not.
+        # The `##` BAN that used to pin this is retired (#408) where the
+        # preprocessed unit can be taken: the paste is performed there, and
+        # the call it built is one this gate reads and the source text does
+        # not. Where it cannot, the ban is the arm that refuses this.
         ("entity enabled through a pasted call name", pasted_call_enable,
-         docs_source, csr_source, PREPROCESSED_PIN),
+         docs_source, csr_source, PASTE_PIN),
         # Without the pre-AEM clear a warm reboot advertises a stale entity
         # while the image is still unverified.
         ("PP pre-AEM clear removed",
@@ -11414,9 +11835,9 @@ def test_baremetal_profile_contract() -> None:
         # (#408); what refuses both of these now is the disagreement itself,
         # measured against the preprocessed unit.
         ("AEM guard selected by a build flag", preprocessor_guard,
-         docs_source, csr_source, PREPROCESSED_PIN),
+         docs_source, csr_source, REACH_PIN),
         ("pre-AEM clear behind a build flag", preprocessor_clear,
-         docs_source, csr_source, PREPROCESSED_PIN),
+         docs_source, csr_source, REACH_PIN),
         # ... and the same defect without the preprocessor: a compile-time
         # constant condition deletes a boot step from the image while every
         # line this gate reads stays exactly where it was.
@@ -11508,8 +11929,7 @@ def test_baremetal_profile_contract() -> None:
         # ---- and RESOLUTION: a pinned NAME is not a pinned FILE, measured
         # by preprocessing a directory that carries the planted file (#408).
         ("pinned include shadowed by a file beside the firmware",
-         firmware_source, docs_source, csr_source,
-         "a pinned include resolved to a file this repository supplies",
+         firmware_source, docs_source, csr_source, RESOLUTION_PIN,
          MutantFiles(listing=shadowed_quoted_include)),
         ("pinned include shadowed by an added -I search path",
          firmware_source, docs_source, csr_source,
@@ -11782,7 +12202,7 @@ def test_baremetal_profile_contract() -> None:
     #: pin them is retired (#408) and the disagreement itself is the pin.
     mutations += tuple(
         (f"entity enabled through a {name} phase-2 token splice", mutation,
-         docs_source, csr_source, PREPROCESSED_PIN)
+         docs_source, csr_source, SPLICE_PIN)
         for name, mutation in phase2_whitespace_splices)
     #: The four shapes ONLY the compiled census catches, plus the four that
     #: used to be pinned on the asm set and the cast set and are pinned on
@@ -11914,14 +12334,37 @@ def test_baremetal_profile_contract() -> None:
     #: live, that the compiled census is blind to a store inside the helper
     #: it exempts by name while the RESOLVER -- which exempts nobody --
     #: refuses it on the resolved store address.
+    #: ... and under the FALLBACK ARM the cast set is back and answers
+    #: first again, which is the ordering these two were written for before
+    #: #409. The pin follows the arm rather than the arm being bent to the
+    #: pin: a mutant pinned on a rule the grading arm never reaches is a
+    #: mutant nothing checks.
     mutations += tuple(
         (f"entity enabled by a store inside the address helper the census "
          f"exempts, invisible to that census ({label} baseline)",
          mutation, docs_source, csr_source,
+         FALLBACK_CAST_PIN if fallback_grades else
          "milan_reg() must return exactly MILAN_CSR_BASE plus the offset")
         for label, mutation in helper_body_store_mutations)
     if baseline_census_verdict["ran"]:
         mutations += census_only_mutations + resolver_only_mutations
+    else:
+        #: THE FALLBACK ARM'S OWN TABLE. The six edits the instrument
+        #: accepts are refusals here, and they are asserted as mutations
+        #: rather than left out: a retirement whose cost is invisible in the
+        #: mode that pays it is the shape this round is fixing. Each is
+        #: pinned on the sentence its own fallback rule prints, so a mutant
+        #: refused by some other rule is still a finding.
+        mutations += tuple(
+            (f"{label} -- refused by the no-compiler fallback", accepted,
+             docs_source, csr_source, because)
+            for label, (accepted, because)
+            in instrument_accepted_cases.items())
+        mutations += (
+            ("a file beside the firmware -- refused by the no-compiler "
+             "fallback", firmware_source, docs_source, csr_source,
+             FALLBACK_LISTING_PIN, MutantFiles(listing=accepted_beside)),
+        )
     #: `MAKEFLAGS += -e` only lets the environment override on a make that
     #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
     #: say so where it does not, rather than ship a mutant whose verdict
@@ -12114,9 +12557,22 @@ def test_baremetal_profile_contract() -> None:
         preprocessed_note = (
             "NOT measured on this runner: the -E and -H instruments take "
             "the census's compiler, so its stand-down stands them down too, "
-            "and on this machine nothing compares the boot path this gate "
-            "reads against the one the compiler compiles")
-    print("  [gate 1b] bounded boot-contract model: the PHC CSR output, "
+            "and the TEXT RULES THEY RETIRED graded this run instead")
+    #: WHICH ARM GRADED, first and in the same sentence as the verdict.
+    #: A reader who takes one line off this gate has to take this one: a
+    #: fallback run is a weaker statement than a tool run, and a verdict
+    #: that does not say which it is cannot be read at all.
+    arm_note = (
+        "INSTRUMENT ARM (an RV32-target compiler answered, so the -E "
+        "comparison, the -H resolution measurement and the resolved store "
+        "census graded and the six edits they legitimise are accepted): "
+        if not fallback_grades else
+        "NO-COMPILER FALLBACK ARM (no candidate here is the RV32 target, so "
+        "the six text refusals #408 and #409 retired graded this run and "
+        "the six edits those instruments legitimise are REFUSED, each as a "
+        "mutation with the compiler that would lift it named): ")
+    print("  [gate 1b] " + arm_note + "bounded boot-contract model: "
+          "the PHC CSR output, "
           "datapath binding and PHC-crossing consumer are direct, and "
           "comment-blanked CSR, MAC, PHC, both RXFILT_P-arm, shadow "
           "and TX-mux facts are direct in their inspected generate arms and "
@@ -12163,7 +12619,13 @@ def test_baremetal_profile_contract() -> None:
           "equivalent object-list spellings accepted; and "
           f"{len(accepted_cases)}/{len(accepted_cases)} legitimate firmware "
           f"edits and {len(accepted_makefiles)}/{len(accepted_makefiles)} "
-          "legitimate Makefile edits accepted, which until this round were "
+          "legitimate Makefile edits accepted; "
+          f"the no-compiler fallback arm was FORCED and run on this machine "
+          f"whichever arm graded, the shipping firmware passing it and all "
+          f"{forced_fallback_arms}/{forced_fallback_arms} edits the "
+          "instruments legitimise refused by it on their own rules' "
+          "sentences, so the arm the hosted runners grade on is exercised "
+          "here and not only there; the accepted edits until this round were "
           "prose in a PR body and are now the only executable statement this "
           "gate has of what a legitimate edit IS; deterministic host-only "
           "and 64-bit-candidate stand-down execution/wording self-tests "
@@ -12267,9 +12729,12 @@ def test_baremetal_profile_contract() -> None:
           "decode arm, each driving its enable port from bit 0, and each "
           "reset with that bit CLEAR, read over BOTH assignment operators so "
           "a blocking reset cannot pass by leaving the rule nothing to check")
-    print("  [gate 1b] COSTS, and SIX of them are gone this round, each with "
-          "an accepted case measured GREEN in the loop above rather than a "
-          "claim. RETIRED by the value-resolving census (#409): a fifth "
+    print("  [gate 1b] COSTS, and SIX of them are gone this round WHERE THE "
+          "INSTRUMENT RUNS -- each with an accepted case measured GREEN in "
+          "the loop above rather than a claim, and each RESTORED as the "
+          "fallback arm where it does not, so the six read as retired on "
+          "this run only if the arm line above says INSTRUMENT. "
+          "RETIRED by the value-resolving census (#409): a fifth "
           "store through a pointer, a fifth cast to a pointer, a third "
           "inline-asm statement, and REORDERING two existing functions -- "
           "the cast and store sets were compared as ORDERED lists, so "
@@ -12397,17 +12862,19 @@ def test_baremetal_profile_contract() -> None:
             "this machine.")
     else:
         store_gap = (
-            "The source rules do not recognise a cast with no * plus an -> "
-            "or subscript store, and they no longer pin the cast, store and "
-            "asm SETS either (#409, retired onto the resolver), and the "
-            "compiled census and the resolver both stood down with the "
-            "compiler they share. In this condition "
-            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is outside every "
-            "active instrument, creates a durable pre-AEM entity advertise, "
-            "and passes this gate; so does a non-zero verdict reached past "
-            "the CRC comparison, since the CFG measurement needs the same "
-            "compile, and so does a store spelled with any cast but "
-            "`(volatile uint32_t *)`.")
+            "The compiled census and the resolver both stood down with the "
+            "compiler they share, so the cast, store and asm SETS #409 "
+            "retired onto the resolver are the arm that graded, and a store "
+            "spelled with any cast but `(volatile uint32_t *)` is refused "
+            "by the cast set exactly as it was before that retirement. What "
+            "no ACTIVE rule reaches here is what none of them reached then: "
+            "a cast with no * plus an -> or subscript store, and a store "
+            "behind a brace-less `if`, which the store set was measured "
+            "blind to (#495). In that condition "
+            "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` creates a durable "
+            "pre-AEM entity advertise and passes this gate, and so does a "
+            "non-zero verdict reached past the CRC comparison, since the "
+            "CFG measurement needs the same compile.")
     print("  [gate 1b] NOT PROVED on every supported runner: " + store_gap +
           " Closing the unconditional property remains tracked on #153 and "
           "#162")

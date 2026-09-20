@@ -285,6 +285,13 @@ the census's stub header root -- so a different `-I` set, sysroot or working
 directory is outside this measurement, and the CONTENTS behind each resolved
 third-party name stay trusted rather than read.
 
+Both instruments take the census's RV32 compiler, so both stand down where
+there is none -- which is every hosted runner today. The refusals they
+replaced are **not** deleted: they are the fallback arm, and gate 1b's
+verdict names the arm that graded on every run. The paragraph headed "what a
+retirement costs on a runner with no RV32 compiler", at the end of the
+refusal-cost section below, states that arm exactly.
+
 A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
 compiles the firmware and requires that no function except `milan_reg()`
@@ -1075,9 +1082,11 @@ recognise, and they cost real edits to do it.
 - **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
   use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. That is one name
   and one spelling, and it is all that is left of this constraint as a TEXT
-  rule: the set of pointer casts, the set of pointer stores and the set of
-  inline-asm statements retired with #409, onto the resolver, which answers
-  the same question by the address a store RESOLVES to.
+  rule **where the resolver runs**: the set of pointer casts, the set of
+  pointer stores and the set of inline-asm statements retired with #409 onto
+  the resolver, which answers the same question by the address a store
+  RESOLVES to. Where no RV32 compiler is present all three sets grade again,
+  as the fallback arm described at the end of this page.
 
 The rest are refusals, and each one costs a legitimate edit:
 
@@ -1091,6 +1100,11 @@ The rest are refusals, and each one costs a legitimate edit:
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
+| **FALLBACK ARM ONLY** -- no `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | the gate would read one arm while the compiler takes the other. Retired onto the `-E` comparison (#408); it grades where no RV32 compiler answers, and the refusal says so and names what would lift it |
+| **FALLBACK ARM ONLY** -- no C backslash-newline that JOINS two tokens | translation phase 2 deletes the pair before tokens exist, so a splice inside `milan_write` hands the compiler one identifier where a text reader sees two. Retired onto the same comparison (#408). An ordinary continuation, which puts whitespace before the backslash, is GREEN under both arms |
+| **FALLBACK ARM ONLY** -- no `##`, `%:` or `??` anywhere in the file | a pasted call name builds a CSR store a text reader cannot see, and an alternate spelling of `#` builds a directive it cannot read. Retired onto the same comparison (#408) |
+| **FALLBACK ARM ONLY** -- no new file in `sw/firmware/milan_baremetal/`, a `README` included | a quoted include resolves against this directory FIRST, so a file here answers to a pinned name. Retired onto the `-H` measurement (#408), which reads the PATH each name resolved to instead |
+| **FALLBACK ARM ONLY** -- one more pointer cast, one more pointer store or a fifth `asm`, and REORDERING two functions that hold a pinned store | the three sets are ORDERED lists, which is what makes the reorder a cost. Retired onto the resolver (#409), which answers by the address a store RESOLVES to and has no order to compare |
 | An `#ifdef`/`#if` carrying a `#define`, `#undef` or `#include`, wherever it sits | the address model reads every definition out of this file's own TEXT, so an arm this gate cannot evaluate chooses what a register name resolves to, and comparing the two texts does not answer that. The reach half of this row retired with #408; this half did not |
 | The `#include` set is exactly the twelve headers listed in the gate | a twelfth include is text in the translation unit no rule reads. Kept as a NAME pin after #408, with the reason stated: a name that names no existing file cannot be RESOLVED at all, so the `-H` measurement cannot refuse one and the name set is what does |
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
@@ -1128,10 +1142,19 @@ and each left with an accepted case measured GREEN rather than with a claim:
 | no `#ifdef`/`#if` outside `load_aem_image()` | `#ifdef MILAN_DEBUG_TOD` around a debug `printf` in a UART command handler |
 | no multi-line `#define` anywhere in the file | a two-line `#define MILAN_BOOT_BANNER` |
 
-**Six more left it with #408 and #409**, in the same form and for the same
-reason: each was standing in for a measurement nobody had taken, and each
-leaves with the replacing instrument named and an accepted case the gate
-runs on every live run.
+**Six more left it with #408 and #409 WHERE THE INSTRUMENT EXISTS**, in the
+same form and for the same reason: each was standing in for a measurement
+nobody had taken, and each leaves with the replacing instrument named and an
+accepted case the gate runs on every live run.
+
+Read "left it" with that condition attached, because the condition is not
+rare: every instrument below takes the census's RV32 compiler, and no hosted
+runner this repository uses has one. So each refusal below is still in the
+gate as the **fallback arm**, and which arm graded is the first thing gate
+1b's verdict says. The accepted cases in the third column are accepted by the
+instrument and REFUSED by the fallback, each refusal naming the compiler that
+would lift it -- that is the cost of the retirement, paid wherever the tool
+is absent, rather than a refusal that silently disappears there.
 
 | Retired refusal | What replaced it | Accepted case now measured GREEN |
 |---|---|---|
@@ -1164,13 +1187,64 @@ replacement rejects the recorded escapes by measurement.
 **What a retirement costs on a runner with no RV32 compiler**, stated here
 because it is the price of every row above. The `-E` comparison, the `-H`
 resolution measurement and the resolved store census all take the census's
-compiler, so its stand-down stands them down too. On such a machine nothing
-compares the boot path this gate reads against the one the compiler compiles,
-nothing measures which file a pinned include name reached, and nothing but
-the one `(volatile uint32_t *)` spelling and the `MILAN_CSR_BASE` name bounds
-address formation. That stand-down is REGISTERED, so the suite's closing line
-reads `ALL GATES PASS EXCEPT n NOT RUN` and names the arm; it is never a
-silent pass.
+compiler, so its stand-down stands them down too.
+
+The first head of PR #498 let that stand-down retire the text rules anyway,
+and the result is the case this section exists to prevent. On the hosted
+runners -- which have `cc` and `gcc` and no RISC-V compiler at all -- nothing
+was left to refuse a phase-2 token splice, so
+`milan_\`+newline+`write(ADP_CTRL, 1u)` advertised the entity before the AEM
+verdict and PASSED the complete gate; `docs-check`, `elaborate` and
+`rtl-fast` failed on that mutant. #408 asks for a gate that stands down
+LOUDLY where no cross compiler is present and never passes silently, and a
+refusal that disappears exactly on the machines that run the merge gate is
+the opposite of that.
+
+**So the tool wins where it exists and the text rule is the fallback where it
+does not.** Gate 1b uses each retired refusal WHEN AND ONLY WHEN its
+instrument is unavailable, and the verdict's first clause names the arm that
+graded: `INSTRUMENT ARM` or `NO-COMPILER FALLBACK ARM`. Concretely, on a
+machine with no RV32-capable compiler:
+
+| Instrument that stood down | Fallback rule that grades instead |
+|---|---|
+| the `-E` boot-path comparison | the conditional-reach ban (no `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors), the token-joining backslash-newline ban, and the `##`/`%:`/`??` ban |
+| the `-H` include-resolution measurement | the directory pin: `sw/firmware/milan_baremetal/` is exactly `Makefile` and `milan_baremetal.c`, a `README` included |
+| the resolved store census | the ordered pointer-cast set, the ordered pointer-store set and the inline-`asm` set |
+
+Every mutation an arm runs is RED under that arm, and every mutation both arms
+carry -- the five splices, the pasted call name, the two conditional-selected
+boot edits, the shadowed include and the two helper-body stores -- is RED
+under both, pinned each time on the sentence the grading arm actually prints,
+so a mutant refused by some other rule is still a finding. The 31 shapes only
+the compiled census and the resolver can see are not in the fallback's table
+at all: they need the compile, and they are named in its stand-down rather
+than counted, exactly as before these instruments existed. What the fallback
+adds instead is the six accepted cases, GREEN under the instrument and
+REFUSED here, with the refusal saying it is the no-compiler arm and naming the
+compilers that would lift it. Nothing passes in one mode that the other
+refuses for a hostile reason.
+
+The fallback arm is also **forced and run on every machine**, in the gate
+itself: the shipping firmware must pass it, and all six instrument-accepted
+edits must be refused by it on their own rules' sentences, whichever arm
+graded the rest of the run. Without that, the arm that decides the merge gate
+would be the one arm never exercised where the work is done -- which is
+precisely how the first head shipped.
+
+What the fallback does NOT recover is the width the instruments bought. It is
+strictly weaker: a cast with no `*` combined with an `->` or subscript store
+is outside it, so is a store behind a brace-less `if` (#495), and the
+verifier's CFG and CRC provenance need the same compile and are simply not
+measured. The stand-down is REGISTERED, so the suite's closing line reads
+`ALL GATES PASS EXCEPT n NOT RUN` and names the arm; it is never a silent
+pass.
+
+**Making the compiled census a hosted gate is follow-up work and is not
+claimed here.** Installing an RV32-capable compiler in the workflows would
+put every hosted run on the instrument arm, which is the right end state; no
+workflow file is touched by this change, and until one is, the hosted runners
+grade in fallback mode.
 
 ## Saved state: the flash writer
 
