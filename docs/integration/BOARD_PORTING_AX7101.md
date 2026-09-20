@@ -7,11 +7,12 @@ board-gated. The result is [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex
 
 ## Contents
 
-- **[1. Board facts (from the official Alinx repo)](#1-board-facts-from-the-official-alinx-repo)** — The pin-and-part table with a source citation per row: XC7A100T-2FGG484I, 200 MHz differential on R4/T4, reset T6, four RTL8211E PHYs, 512 MB DDR3. Also which two PHYs the NIC uses (`e1`/`e2`) and that `e3`/`e4` are spare.
-- **[2. Porting method (reproducible)](#2-porting-method-reproducible)** — The four-step derivation from the vendor's own XDC/UCF files (with the 68 DDR3 pins parsed programmatically rather than transcribed), so the pinout can be re-derived on a board revision. Contains the hardware-bring-up CORRECTION worth the visit: this PHY is strapped GMII 8-bit SDR, not RGMII — porting it as RGMII gave 100 % MAC preamble errors on silicon.
-- **[3. What changed](#3-what-changed)** — The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000`.
-- **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** — What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, the platform shape regenerating from `csr.json`.
-- **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** — The three items that could not be closed from source alone, all three since cleared: the MDIO pins came out of the schematic PDF in July, and the bitstream and bring-up gates cleared on silicon. What the MDIO pins did *not* buy is the useful part — the block behind them is a software bit-bang, so `MAC_STATUS` stays software-published and the data path still runs on the PHY power-on straps.
+- **[1. Board facts (from the official Alinx repo)](#1-board-facts-from-the-official-alinx-repo)** -- The pin-and-part table with a source citation per row: XC7A100T-2FGG484I, 200 MHz differential on R4/T4, reset T6, four RTL8211E PHYs, 512 MB DDR3. Also which two PHYs the NIC uses (`e1`/`e2`) and that `e3`/`e4` are spare.
+- **[2. Porting method (reproducible)](#2-porting-method-reproducible)** -- The four-step derivation from the vendor's own XDC/UCF files (with the 68 DDR3 pins parsed programmatically rather than transcribed), so the pinout can be re-derived on a board revision. Contains the hardware-bring-up CORRECTION worth the visit: this PHY is strapped GMII 8-bit SDR, not RGMII -- porting it as RGMII gave 100 % MAC preamble errors on silicon.
+- **[3. What changed](#3-what-changed)** -- The two files edited and what landed in each: the real pinout replacing AX7203 placeholders, and the 512 MB LiteDRAM addition (A7DDRPHY, `sys4x`/idelay clocks, `--with-dram`) that moves main RAM to `0x4000_0000`.
+- **[4. Verification (open toolchain, no Vivado)](#4-verification-open-toolchain-no-vivado)** -- What `--full --xlen 64` proves without a synthesis run: DDR3 PHY and LiteDRAM instantiated, 284 `ddram` constraint lines in the generated XDC, NIC plus MAC/PHY present, the platform shape regenerating from `csr.json`.
+- **[5. Board-gated (needs the schematic / Vivado / the board)](#5-board-gated-needs-the-schematic--vivado--the-board)** -- The three items that could not be closed from source alone, all three since cleared: the MDIO pins came out of the schematic PDF in July, and the bitstream and bring-up gates cleared on silicon. What the MDIO pins did *not* buy is the useful part -- the block behind them is a software bit-bang, so `MAC_STATUS` stays software-published and the data path still runs on the PHY power-on straps.
+- **[6. Measuring a port's own timestamp latency](#6-measuring-a-ports-own-timestamp-latency)** -- The inline-tap method a new board uses to obtain its own `gptp.ingress_latency_ns` and `gptp.egress_latency_ns`: compare the Pdelay turnaround seen at the tap with the one the responder claims, zero the instrument against a Milan-validated reference peer, and split the measured sum 3:1 receive to transmit when no PHY datasheet figure exists. The sum is measurable; the split is not.
 
 ## 1. Board facts (from the official Alinx repo)
 
@@ -121,3 +122,64 @@ gateware** (exit 0):
   physical run: this board as the one DUT against the Milan-validated
   reference peer, with the bench roles recorded in
   [the build guide](BUILDING.md#41-bench-hosts-and-the-one-dut-acceptance-contract).
+
+## 6. Measuring a port's own timestamp latency
+
+A new board's PHY and MAC receive chain are not this board's, so it must
+measure its own `gptp.ingress_latency_ns` and `gptp.egress_latency_ns`
+before the fabric can correct them. The builder refuses a board that omits
+either key, so this is a porting step and not an optional one. What the
+plane does with the two values is in
+[GPTP_PLANE.md](../design/GPTP_PLANE.md#the-boards-own-latency-corrections).
+
+### What the measurement is
+
+The quantity is the port's own timestamp error: how late its ingress stamp
+is plus how early its egress stamp is. It is measurable from OUTSIDE the
+device, with one capture tap and no access to the design.
+
+Put a capture tap inline on the link under test, so it timestamps every
+frame in both directions on ONE clock. For each complete Pdelay exchange,
+compare two turnarounds:
+
+- the turnaround SEEN AT THE TAP: the response's capture time minus the
+  request's;
+- the turnaround the responder CLAIMS: `t3 - t2` from its Pdelay_Resp and
+  Pdelay_Resp_Follow_Up, correction fields included.
+
+Their difference is the tap's own transit for the request, twice the cable
+between tap and responder, and the responder's timestamp error.
+
+Measure a MILAN-VALIDATED reference peer through the same tap first. Such a device
+compensates its own stamps, so its difference IS the tap transit plus cable,
+and it is the instrument's zero. Subtract it from the port's difference and
+what remains is the port's own error, which is the sum to declare.
+
+Forty exchanges per direction over about forty seconds is enough: the
+quantity is a fixed offset, and the spread across those exchanges is the
+uncertainty to record beside it.
+
+### What it establishes, and what it does not
+
+It establishes the SUM. It cannot establish the SPLIT between ingress and
+egress, and no arrangement of one tap clock can: both errors enter the
+turnaround with the same sign.
+
+So split the measured sum 3:1 receive to transmit unless the port's PHY
+datasheet states 1000BASE-T transmit and receive latencies, in which case
+use those and say so in the configuration comment. Record the assignment as
+an assignment. The split error does not move the peer delay - both
+corrections enter the mean-delay expression with the same sign, so only
+their sum appears - but it moves the synchronized offset by its whole value,
+because a Sync rides the ingress path alone and the unmoved peer delay
+absorbs none of it.
+
+### Checking the result
+
+The applied pair is published read-only at `GPTP_LAT` (`0x7F0`) and on the
+`milan_status` console line, so the value in the bitstream can be read back
+rather than assumed. With the correction in place the port's published peer
+delay should fall to the true path delay, and a conformant bridge whose own
+measurement then sits inside the 800 ns admission bound begins sending
+Announce and Sync.
+

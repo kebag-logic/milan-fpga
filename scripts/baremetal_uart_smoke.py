@@ -22,7 +22,14 @@ STATUS_RE = re.compile(
     r"GPTP_PARENT=([0-9A-Fa-f]{16})\s+"
     r"PDELAY_NS=([0-9]+)\s+AS_PATH_COUNT=([0-9]+)\s+"
     r"AS_PATH_GEN=([0-9]+)\s+CLKV_STAT=([0-9A-Fa-f]{8})\s+"
-    r"SYNC=([01])\s+ASCAPABLE=([01])\s+TU=([01])"
+    r"SYNC=([01])\s+ASCAPABLE=([01])\s+TU=([01])\s+"
+    #! issue #358: the timestamp latency corrections the fabric is applying,
+    #! {ingress_ns[31:16], egress_ns[15:0]}, read from CSR 0x7F0. Demanded
+    #! like every other field, because a status printed by firmware that
+    #! predates the correction is a status from a board where the peer-delay
+    #! defect is still live, and grading it on the fields it does carry
+    #! would call that board healthy.
+    r"GPTP_LAT=([0-9A-Fa-f]{8})"
 )
 TAI_RE = re.compile(r"TAI_NS=0x([0-9A-Fa-f]{16})")
 BAUDS = {
@@ -61,6 +68,7 @@ def parse_status(text: str) -> dict[str, int | str]:
         "sync": int(match.group(14), 10),
         "as_capable": int(match.group(15), 10),
         "tu": int(match.group(16), 10),
+        "gptp_lat": int(match.group(17), 16),
     }
 
 
@@ -185,7 +193,7 @@ class Console:
 
 
 def self_test() -> None:
-    """Grade the grader against a known-good transcript and 12 broken ones.
+    """Grade the grader against a known-good transcript and 13 broken ones.
 
     Every arm mutates ONE field of a passing status and asserts that exactly
     the check owning that field turns red, so a check cannot silently stop
@@ -197,13 +205,16 @@ def self_test() -> None:
               "GPTP_GM=001bc5fffe001122 "
               "GPTP_PARENT=001bc5fffe334455 PDELAY_NS=600 "
               "AS_PATH_COUNT=3 AS_PATH_GEN=7 CLKV_STAT=00010002 "
-              "SYNC=1 ASCAPABLE=1 TU=0\n"
+              "SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db\n"
               "TAI_NS=0x0000000100000000\n")
     parsed = parse_status(status)
     assert parsed["gm"] == 0x001BC5FFFE001122
     assert parsed["parent"] == 0x001BC5FFFE334455
     assert parsed["pdelay_ns"] == 600
     assert parsed["path_count"] == 3 and parsed["path_gen"] == 7
+    #! 0x0290 = 656 ns ingress, 0x00DB = 219 ns egress: the AX7101 pair, so
+    #! the arm reads as the board it grades rather than as a made-up word.
+    assert parsed["gptp_lat"] == 0x029000DB
     checks = grade(status, "TAI_NS=0x0000000100001000\n",
                    "TAI_NS=0x0000000100002000\n")
     assert all(ok for _name, ok, _detail in checks)
@@ -241,6 +252,10 @@ def self_test() -> None:
         "ID=not-a-status",
         status.splitlines()[0],  # The pre-publication status is now refused.
         status.replace(" ASCAPABLE=1", ""),
+        #! A board flashed before #358 prints no GPTP_LAT, and its peer
+        #! delay is the one this issue is about: refuse it rather than
+        #! grade it on the fields it does have.
+        status.replace(" GPTP_LAT=029000db", ""),
     ]
     for candidate in malformed:
         try:
@@ -249,7 +264,7 @@ def self_test() -> None:
             pass
         else:
             raise AssertionError(f"malformed status was accepted: {candidate!r}")
-    print("BAREMETAL UART SMOKE SELF-TEST: PASS (12 negative arms)")
+    print("BAREMETAL UART SMOKE SELF-TEST: PASS (13 negative arms)")
 
 
 def main() -> int:

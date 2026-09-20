@@ -19,7 +19,7 @@ Only the PHC represents gPTP time.
 ## Contents
 
 - **[Clock ownership](#clock-ownership)** -- Separate network, processor, and media clocks.
-- **[Network-time path](#network-time-path)** -- Follow timestamps into PHC discipline.
+- **[Network-time path](#network-time-path)** -- Follow corrected timestamps into PHC discipline.
 - **[Media boundary](#media-boundary)** -- Distinguish measurement from clock selection.
 - **[Presentation validity](#presentation-validity)** -- Protect consumers during uncertain time.
 - **[External measurement](#external-measurement)** -- Replace self-reported accuracy with a scope-readable second boundary.
@@ -54,11 +54,20 @@ flowchart LR
 ```
 
 - RX timestamps capture accepted tap traffic.
-- TX timestamps capture accepted MAC-boundary traffic.
+- TX timestamps capture the frame's observed launch.
+- Each board's own latency correction is applied there (#358).
+- Ingress is subtracted; egress is added.
+- The fabric plane is their only consumer.
+- `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch.
+- `GPTP_LAT` (`0x7F0`) publishes what is applied.
 - The engine runs peer delay and synchronization.
 - Rate updates steer PHC frequency.
 - Phase updates step PHC time.
 - Publication commits expose synchronized state atomically.
+
+A correction's SUM is measured per board. Its split is assigned.
+
+The split moves the synchronized offset, never the peer delay.
 
 Read the [fabric-plane contract](GPTP_PLANE.md).
 

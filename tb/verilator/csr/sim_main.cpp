@@ -328,7 +328,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
 void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0002005C);
+  ck("VERSION",       axi_read(A_VERSION), 0x0002005E);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain
@@ -1404,12 +1404,23 @@ void MilanCsrHarness::retired_as_path_publication_abi_is_inert() {
 // The inputs are driven hard so the zero is the parameter gate's doing,
 // not the harness's: software on a plane-OFF build reads an explicit
 // absent-plane zero, never a floating count.
+//
+// 0x7F0 joins them (issue #358): the applied timestamp latency corrections
+// are published on the same contract, and a plane-OFF build applies none -
+// so a nonzero read there would be a build claiming a correction that no
+// instantiated plane is making. The word is also NOT plain RW, so a write
+// must leave the read where it was rather than shadowing: a latency
+// correction software could poke is the double-owner this issue forbids.
 void MilanCsrHarness::gptp_drop_words_are_zero_with_the_plane_off() {
   dut->i_gptp_tap_drop = 0xFFFF; dut->i_gptp_rx_drop = 0xFFFF;
   dut->i_gptp_ev_drop = 0xFFFF;
+  dut->i_gptp_lat_ns = 0x029000DB;      // the AX7101 pair, 656 ns / 219 ns
   dut->eval();
   ck("0x7E8 plane-OFF zero", axi_read(0x7E8), 0);
   ck("0x7EC plane-OFF zero", axi_read(0x7EC), 0);
+  ck("0x7F0 plane-OFF zero", axi_read(0x7F0), 0);
+  axi_write(0x7F0, 0xDEADBEEF);
+  ck("0x7F0 write is inert", axi_read(0x7F0), 0);
 }
 
 // =====================================================================

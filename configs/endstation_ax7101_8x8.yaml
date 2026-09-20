@@ -113,6 +113,33 @@ gptp:
   log_announce_interval: 0
   log_pdelay_interval: 0
 
+  # THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  # MANDATORY for every board whose gPTP plane is on: the builder refuses a
+  # config that omits them, because a generated default would hide an
+  # unmeasured board behind a number nobody took.
+  #
+  # The fabric gPTP plane is the ONLY consumer. It subtracts the ingress
+  # value from every arrival stamp and adds the egress value to every
+  # reconstructed launch. PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544)
+  # stay inert scratch with no timestamp consumer, so nothing applies a
+  # correction twice; the applied pair is published read-only at 0x7F0.
+  #
+  # THE SUM IS MEASURED, THE SPLIT IS NOT. An inline tap on the DUT link
+  # (2026-09-20) compared the Pdelay turnaround seen on the wire with the
+  # t3 - t2 this board claims, against a certified peer on the same tap:
+  # 875 ns of total stamp error, +/-25 ns. The digital distance inside
+  # milan_datapath is PROVED ZERO in both directions by
+  # tb/verilator/milan_dp's gPTP leg, which prints and grades the counted
+  # cycles, so the whole 875 ns is physical plus the LiteEth receive chain.
+  # Splitting it needs a second instrument the project does not have, so
+  # the split is 3:1 receive:transmit - the 1000BASE-T receive DSP
+  # dominates - because the RTL8211E datasheet states no latency figure to
+  # use instead. 656 + 219 = 875. The split error moves the synchronized
+  # offset by its WHOLE value (the peer delay does not move, so nothing
+  # absorbs it); issue #488 owns the instrument that would close it.
+  ingress_latency_ns: 656
+  egress_latency_ns: 219
+
 clocking:
   sampling_rate_hz: 48000
   audio_unit_rates_hz: [48000]       # honest advertisement: 48k render only

@@ -236,6 +236,16 @@ Gates (gaps item 4, generator round):
       ADP_CAPS (0x614).  Four planted defects must each be refused for the
       rule it breaks, and the saved-state writer's five waits must be the
       generated `MILAN_NVM_*_MS` constants, a literal planted back refused.
+  36. THE BOARD'S TIMESTAMP LATENCY CORRECTIONS ARE DECLARED, CARRIED AND
+      UNAVOIDABLE (gate 36, issue #358): every tracked config states both
+      `gptp.ingress_latency_ns` and `gptp.egress_latency_ns`, dropping
+      either one is REFUSED - a generated zero cannot be told apart from a
+      measured zero, so an unmeasured board would ship looking calibrated.
+      A value wider than the 0x7F0 publication is refused, a NON-ZERO value
+      reaches the argv while a zero one does not, the measured boards split
+      the tap's 875 ns unevenly and inside 10 ns of it, and recalibrating
+      moves neither `entity_model_id` nor the AEM overlay: a correction is
+      a timestamp fact, not descriptor content.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -22059,6 +22069,149 @@ def _assert_writer_waits_generated(firmware: str) -> str:
         "gate 35: the page-program wait is not above tPP max"
     return ", ".join(f"{name} {ms} ms" for name, ms in waits.items())
 
+# ================================================================= gate 36 ===
+#  THE BOARD'S TIMESTAMP LATENCY CORRECTIONS ARE DECLARED, CARRIED AND
+#  UNAVOIDABLE (issue #358).
+#
+#  The inline-tap round of 2026-09-20 measured this board's ingress-late plus
+#  egress-early stamp error at 875 ns, which is why its published peer delay
+#  sat above the 800 ns admission bound and the bridge withheld Announce and
+#  Sync.  The fabric gPTP plane now applies two per-board constants, and this
+#  gate is the layer between the YAML that states them and the elaboration
+#  that receives them.
+#
+#  THREE PROPERTIES, and the middle one is the one a default would destroy:
+#
+#    DECLARED - every tracked config states BOTH keys, and a config that
+#      omits either is REFUSED.  The point is not validation for its own
+#      sake: a generated zero cannot be told apart from a measured zero, so
+#      a board nobody measured would ship looking calibrated.  The Arty
+#      configs state 0 explicitly and say in the file that the sum is
+#      unmeasured on this plane, which is a claim somebody made.
+#    CARRIED - a non-zero value reaches the argv and a zero one does not, so
+#      the boards that apply no correction keep a byte-identical argv,
+#      sweep fragment and generated top .v.
+#    NOT DESCRIPTOR CONTENT - moving either value must NOT move the
+#      entity_model_id.  A correction changes a timestamp, not one field of
+#      one descriptor; 1722.1 6.2.2.8 ties the id to the data model's
+#      structure, and rotating it would make every controller re-read a
+#      descriptor set that did not change.
+#
+#  The sum is asserted against the MEASUREMENT, not against itself: the two
+#  AX7101 values have to add up to the 875 ns the tap measured, inside the
+#  10 ns the decision allows.  A future recalibration changes both numbers
+#  and this row together, which is the point of writing the measurement down
+#  in the gate instead of in a comment.
+
+#: The measured total stamp error of the AX7101, nanoseconds, and the
+#: tolerance the split is allowed to miss it by. From the bench finding
+#: posted on issue #358; docs/design/GPTP_PLANE.md carries its method.
+GPTP_LAT_MEASURED_SUM_NS = 875
+GPTP_LAT_SUM_TOL_NS = 10
+#: Which tracked configs carry a measured sum, and which declare zero
+#: because no one has measured them on this plane.
+GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8")
+
+
+def test_gptp_latency_corrections_are_declared_and_carried() -> None:
+    """Gate 36 (#358): both keys, on every board, reaching the argv."""
+    seen = {}
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        gp = cfg["gptp"]
+        for key in ("ingress_latency_ns", "egress_latency_ns"):
+            assert key in gp, f"gate 36: {name} did not load gptp.{key}"
+            assert isinstance(gp[key], int) and 0 <= gp[key] <= 0xFFFF, (
+                f"gate 36: {name} gptp.{key}={gp[key]!r} is not 0..65535 ns")
+        seen[name] = (gp["ingress_latency_ns"], gp["egress_latency_ns"])
+        argv = eb.emit_design_opts(cfg)
+        for flag, value in (("--gptp-ingress-lat-ns", gp["ingress_latency_ns"]),
+                            ("--gptp-egress-lat-ns", gp["egress_latency_ns"])):
+            if value:
+                assert (flag in argv
+                        and argv[argv.index(flag) + 1] == str(value)), (
+                    f"gate 36: {name} declares {flag} {value} and the argv "
+                    f"does not carry it: {argv}")
+            else:
+                assert flag not in argv, (
+                    f"gate 36: {name} declares {flag} 0 and the argv carries "
+                    f"it anyway - a zero board's top .v is no longer "
+                    f"byte-identical")
+    # The measured boards carry the measured sum; the rest carry an explicit
+    # zero, which the YAML says is unmeasured rather than calibrated.
+    for name, (ing, egr) in seen.items():
+        if name in GPTP_LAT_MEASURED:
+            assert ing and egr, (
+                f"gate 36: {name} is a measured board and declares a zero")
+            off = abs(ing + egr - GPTP_LAT_MEASURED_SUM_NS)
+            assert off <= GPTP_LAT_SUM_TOL_NS, (
+                f"gate 36: {name} splits {ing} + {egr} = {ing + egr} ns, "
+                f"{off} ns off the measured {GPTP_LAT_MEASURED_SUM_NS} ns "
+                f"(tolerance {GPTP_LAT_SUM_TOL_NS} ns). The SUM is what the "
+                f"tap measured; only the split between the two is open")
+            assert ing != egr, (
+                f"gate 36: {name} splits the sum evenly, so no gate in this "
+                f"tree could tell the two directions apart if they were "
+                f"swapped")
+        else:
+            assert (ing, egr) == (0, 0), (
+                f"gate 36: {name} declares {ing}/{egr} with no measurement")
+    # A missing key is refused - ON EITHER SIDE, because a board with one
+    # measured direction is a board with one guessed one.
+    for key in ("ingress_latency_ns", "egress_latency_ns"):
+        bad = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                       lambda c, k=key: c["gptp"].pop(k))
+        try:
+            eb.load_config(bad)
+        except eb.ConfigError as exc:
+            assert key in str(exc) and "#358" in str(exc), (
+                f"gate 36: dropping gptp.{key} was refused for another reason")
+        else:
+            raise AssertionError(
+                f"gate 36: a config with no gptp.{key} was ACCEPTED - the "
+                f"generated default this issue exists to forbid is back")
+        finally:
+            bad.unlink()
+    # ...and so is a value the publication cannot carry.
+    bad = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                   lambda c: c["gptp"].update(ingress_latency_ns=0x10000))
+    try:
+        eb.load_config(bad)
+    except eb.ConfigError as exc:
+        assert "65535" in str(exc), (
+            "gate 36: an over-wide correction was refused for another reason")
+    else:
+        raise AssertionError(
+            "gate 36: a correction wider than the 0x7F0 publication was "
+            "ACCEPTED, so it would be applied and read back truncated")
+    finally:
+        bad.unlink()
+    # The descriptor set does not move with a recalibration.
+    base = eb.load_config(CONFIGS[BEHAVIOURAL_CFG])
+    moved = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                     lambda c: c["gptp"].update(ingress_latency_ns=400,
+                                                egress_latency_ns=475))
+    try:
+        other = eb.load_config(moved)
+        assert other["model_id"]["hash"] == base["model_id"]["hash"], (
+            "gate 36: recalibrating the board rotated entity_model_id "
+            f"{base['model_id']['hash']} -> {other['model_id']['hash']}. "
+            "1722.1 6.2.2.8 ties the id to the data model's structure and "
+            "no descriptor changed, so every controller would re-read a "
+            "descriptor set that is byte-identical")
+        #! `_source_config` names the file the overlay came from, so the
+        #! temp-file variant differs there by construction; every other key
+        #! has to be identical, including the `gptp` block, which carries
+        #! the descriptor's clock attributes and must NOT carry these two.
+        got = {k: v for k, v in eb.emit_aem_overlay(other).items()
+               if k != "_source_config"}
+        want = {k: v for k, v in eb.emit_aem_overlay(base).items()
+                if k != "_source_config"}
+        assert got == want, \
+            "gate 36: a latency correction changed the AEM overlay"
+    finally:
+        moved.unlink()
+
 
 def test_boot_policy_follows_the_declaration() -> None:
     """Gate 35 (#398): the words the bare-metal firmware programs at boot
@@ -22201,7 +22354,8 @@ if __name__ == "__main__":
                test_milan_base_formats_are_rate_complete,
                test_per_row_format_facts_are_per_row,
                test_builder_doc_key_map,
-               test_boot_policy_follows_the_declaration):
+               test_boot_policy_follows_the_declaration,
+               test_gptp_latency_corrections_are_declared_and_carried):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and

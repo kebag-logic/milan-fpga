@@ -219,3 +219,16 @@ gptp:
   domain: 0
   log_announce_interval: 0
   log_pdelay_interval: 0
+
+  # THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  # MANDATORY for every board whose gPTP plane is on; stated here as ZERO,
+  # which is this board's present behaviour preserved exactly.
+  #
+  # ZERO IS A DECLARATION, NOT A MEASUREMENT. The Arty's stamp error sum has
+  # never been measured on this plane - the inline-tap round of 2026-09-20
+  # ran on the AX7101 only - so this board applies no correction and its
+  # published peer delay still carries whatever its own path costs. Measure
+  # it with the method in docs/integration/BOARD_PORTING_AX7101.md before
+  # putting a number here; a borrowed one would be another board's.
+  ingress_latency_ns: 0
+  egress_latency_ns: 0

@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[Release 0x0002_005E - board timestamp latency](#release-0x0002_005e---board-timestamp-latency)** -- The fabric corrects its stamps.
 - **[Release 0x0002_005C - SRP status words](#release-0x0002_005c---srp-status-words)** -- Four bits read their subject.
 - **[Release 0x0002_005B - SET_SAMPLING_RATE list check](#release-0x0002_005b---set_sampling_rate-list-check)** -- An unlisted rate is refused.
 - **[Release 0x0002_005A - GET_TX_STATE Listener code](#release-0x0002_005a---get_tx_state-listener-code)** -- Asking Failed sets the flag.
@@ -40,6 +41,33 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## Release 0x0002_005E - board timestamp latency
+
+- The fabric gPTP plane applies two per-board latency corrections.
+- Ingress is subtracted from every arrival stamp.
+- Egress is added to every reconstructed launch.
+- An inline tap measured 875 ns of total stamp error.
+- The published peer delay sat above the 800 ns bound.
+- A conformant bridge withholds Announce and Sync above it.
+- The two values are declared in the board configuration.
+- `gptp.ingress_latency_ns` and `gptp.egress_latency_ns`, both required.
+- The builder refuses a board that omits either.
+- A generated default would hide an unmeasured board.
+- The Arty configurations declare zero and say so.
+- `GPTP_LAT` `0x7F0` publishes the applied pair, read-only.
+- `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch.
+- A correction two owners apply is applied twice.
+- The digital distance inside `milan_datapath` measures zero both ways.
+- `tb/verilator/milan_dp` prints and grades that count.
+- So the remainder is physical plus the LiteEth chain.
+- The split is 3:1 receive to transmit.
+- That is 656 ns and 219 ns.
+- This PHY's datasheet states no latency figure.
+- The split moves the synchronized offset, not the peer delay.
+- Issue 488 owns the instrument that would close it.
+- 0x005D is reserved by a parallel lane.
+- Part of issue 358; the board's ten checks close it.
 
 ## Release 0x0002_005C - SRP status words
 

@@ -174,16 +174,166 @@ A launch that cannot be reconstructed is an explicit loss.
 
 `GPTP_DROPE[31:16]` counts those, and no substitute time is published.
 
-No ingress correction is applied today.
+### The board's own latency corrections
 
-`KL_gptp_shadow` stores the raw PHC value at `FW_HEAD0`.
+Two per-board constants correct what the digital terms cannot reach.
 
-`PTP_INGRESS_LAT` (`0x540`) is readable, inert scratch. It is a plain RW word
-with no timestamp consumer.
+`INGRESS_LAT_NS_P` is SUBTRACTED from the arrival stamp at `FW_HEAD0`.
 
-A future ingress correction belongs at the tap boundary.
+`EGRESS_LAT_NS_P` is ADDED to the reconstructed launch.
 
-Physical calibration remains tracked by issue #64.
+The plane is their only consumer.
+
+They are declared per board in the configuration's `gptp:` section.
+
+The builder carries them into elaboration parameters.
+
+`GPTP_LAT` (`0x7F0`) publishes the applied pair, read-only.
+
+So a controller host reads what is applied.
+
+`PTP_INGRESS_LAT` (`0x540`) stays readable, inert scratch.
+
+So does `PTP_EGRESS_LAT` (`0x544`).
+
+Neither has a timestamp consumer.
+
+One owner cannot be two.
+
+A correction two layers each apply is applied twice.
+
+The builder REFUSES a board that omits either key.
+
+A generated default looks exactly like a measured zero.
+
+#### What is measured, and what is assigned
+
+The SUM is measured. The SPLIT is not.
+
+An inline tap on the link measures the sum.
+
+It compares the wire's Pdelay turnaround against the claimed `t3 - t2`.
+
+A Milan-validated reference peer gives the instrument's zero.
+
+On 2026-09-20 this board showed **875 ns** of error.
+
+Its uncertainty is about 25 ns.
+
+The method needs no new instrument.
+
+[BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md) states it for a new port.
+
+The digital distance INSIDE `milan_datapath` is measured, and it is zero.
+
+`tb/verilator/milan_dp`'s gPTP legs count it both ways.
+
+They print it as cycles and grade it.
+
+Receive is 0 cycles, MAC beat to stamp.
+
+`rx_mac_filter` passes combinationally.
+
+The tap latches on that same edge.
+
+Transmit already lands on the observed launch.
+
+`tb/verilator/gptp_txts` grades that against a pad oracle inside 11 ns.
+
+A pipeline change moving either stamp point fails those checks.
+
+That is what forces these constants to be measured again.
+
+So the whole 875 ns lies OUTSIDE this module.
+
+It is not all analog.
+
+From the GMII pins the receive path crosses LiteEth.
+
+That is framing, width conversion and two clock-domain crossings.
+
+This repository converts that chain for TRANSMIT only.
+
+`sw/litex/gen_mac_tx_model.py` is the converter.
+
+So the receive chain's distance cannot be counted here.
+
+The split is therefore ASSIGNED, not derived.
+
+The board reference's PHY datasheet states no 1000BASE-T latency.
+
+It states only the RGMII clock-skew straps.
+
+This board is strapped GMII and does not use them.
+
+No figure exists elsewhere in this repository.
+
+The default applies: 3:1 receive to transmit.
+
+The 1000BASE-T receive DSP dominates.
+
+That is **656 ns ingress and 219 ns egress**.
+
+They sum to the measured 875 ns.
+
+| Quantity | Value | How it is known |
+|---|---|---|
+| Total stamp error | 875 ns, +/-25 ns | measured, inline tap, 40 exchanges per direction |
+| Digital receive, inside `milan_datapath` | 0 ns | counted and graded in `tb/verilator/milan_dp` |
+| Digital transmit, beyond the 426 ns already corrected | 0 ns, bounded +/-11 ns | the `tb/verilator/gptp_txts` pad oracle |
+| Remainder: PHY plus the LiteEth receive chain | 875 ns | the measured sum, less a proved zero |
+| Assigned ingress | 656 ns | 3:1 default, no datasheet figure |
+| Assigned egress | 219 ns | 3:1 default, no datasheet figure |
+
+#### The open bound on the split
+
+Nothing measured here bounds the split error.
+
+A one-way error of `e` leaves the SUM right.
+
+The two constants are then wrong by `+e` and `-e`.
+
+Both published stamps move the SAME way, late by `e`.
+
+An ingress stamp under-corrected by `e` is late by `e`.
+
+An egress stamp over-corrected by `e` is late by `e` as well.
+
+**It does not move the peer delay.**
+
+Mean link delay is `((t4 - t1) - (t3 - t2)) / 2`.
+
+Both corrections enter that with the same sign.
+
+So only their sum appears.
+
+A common shift of both stamps cancels.
+
+The 800 ns bound is met by the sum alone.
+
+That is the measured quantity.
+
+**It moves the synchronized offset by the whole split error.**
+
+A Sync arrives on the ingress path only.
+
+The ingress constant alone corrects it.
+
+Its receive stamp is left late by `e`.
+
+The mean link delay does not move.
+
+So it absorbs none of that.
+
+So the computed offset from the grandmaster carries `e`, not `e/2`.
+
+The LiteEth receive chain is the largest known contributor to `e`.
+
+Counting it as PHY assigns too little ingress.
+
+Closing that needs the second instrument of issue #488.
+
+The physical calibration itself remains issue #64.
 
 Both seams stamp per frame.
 
@@ -228,6 +378,9 @@ Inputs include these values:
 `GPTP_UCODE_HEX_P` names the generated ROM.
 
 `CLK_HZ_P` must match `axis_clk`.
+
+`gptp.ingress_latency_ns` and `gptp.egress_latency_ns` are REQUIRED of every
+board and reach `INGRESS_LAT_NS_P` / `EGRESS_LAT_NS_P`.
 
 ## Diagnostics
 
