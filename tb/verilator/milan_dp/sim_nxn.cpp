@@ -1520,7 +1520,7 @@ class NxnDatapathHarness {
 
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION 0x005B carries the SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+        ck("VERSION 0x005C carries the SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
            axi_read(A_VERSION), 0x0002005C);
 
         //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).

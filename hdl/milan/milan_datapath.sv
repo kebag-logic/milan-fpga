@@ -6553,8 +6553,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! must still see our TalkerAdvertise or it can never become Ready. [3]
   //! "ready" is the Ready/ReadyFailed pair of the same value. lstn_decl_state
   //! - THIS station's own Listener declaration for sink 0 - is a different
-  //! subject and is not this word's; the sink side is read where it belongs,
-  //! in the GET_STREAM_INFO path above.
+  //! subject and is not this word's. Nothing in this module reads it at this
+  //! head: the net stays plumbed from KL_pp_shadow for a future reader of the
+  //! sink's own declaration, and synthesis prunes it meanwhile. What the sink
+  //! side does publish is the REGISTERED Talker attribute, tk_reg_state, read
+  //! by the GET_STREAM_INFO path and by lwsrp_ta_registered, both above.
   wire [1:0]  lwsrp_lstn_reg0_w = pp_cd_srp_lstn_reg_state_w[1:0];
   assign lwsrp_listener_decl  = lwsrp_lstn_reg0_w;
   assign lwsrp_listener_reg   = (lwsrp_lstn_reg0_w != srp_pkg::SRP_DECL_IGNORE);
