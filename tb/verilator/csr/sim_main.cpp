@@ -328,7 +328,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
 void MilanCsrHarness::identification_and_capabilities() {
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0002005A);
+  ck("VERSION",       axi_read(A_VERSION), 0x0002005B);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   // CAP[8] CBS is 0: no shaper is elaborated since the general-data chain

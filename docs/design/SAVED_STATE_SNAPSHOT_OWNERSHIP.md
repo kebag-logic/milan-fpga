@@ -74,6 +74,7 @@ script refuses any other checkout. A claim marked EXECUTED comes from the run
 script at that source, graded in its results files; a claim marked DERIVED
 does not. Case and check names are the ones the run script grades.
 
+<!-- milan-feature-value:gateware_version:historic -->
 This page lands on dev `f56fa168`. Its protocol-processor pin is `6a9a1241`,
 not the examined `8f2f58fb`; the gptp-processor and verilog-axis pins are the
 examined ones. Between `36ee8a37` and `f56fa168` (#398, #401, #466, #438, #452,

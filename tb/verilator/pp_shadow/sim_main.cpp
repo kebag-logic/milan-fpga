@@ -147,6 +147,7 @@ class PpShadowHarness {
         grade_shared_control_lane();
         grade_global_anti_wedge_invariant();
         grade_a_registered_listener_as_a_controller_reads_it();
+        grade_sampling_rate_as_a_controller_sets_it();
         grade_heal_before_answer();
         grade_backend_rejection_reaches_the_processor();
 
@@ -741,8 +742,10 @@ class PpShadowHarness {
     //
     //   header @0x00   32 B, four 64-bit beats; the eight u32 words must sum to
     //                  0xFFFFFFFF or KL_aecp_desc_store refuses the whole image
-    //   index  @0x20   2 x 16 B, sorted by (config, type)
-    //   descs  @0x40   ENTITY[0] 40 B, then CONFIGURATION[0..1] 24 B each
+    //   index  @0x20   6 x 16 B, sorted by (config, type)
+    //   descs  @0x80   ENTITY[0] 40 B, then CONFIGURATION[0..1] 24 B each, the
+    //                  STREAM_INPUT, STREAM_PORT_INPUT and STREAM_OUTPUT, and
+    //                  AUDIO_UNIT[0] last
     //
     // CONFIGURATION carries TWO descriptors on purpose: index 1 can only be
     // answered correctly if the store applies elem_off + index*elem_stride, so a
@@ -750,7 +753,19 @@ class PpShadowHarness {
     // the byte-exact compare.
     static constexpr uint16_t DTY_ENTITY_C = 0x0000;
     static constexpr uint16_t DTY_CONFIG_C = 0x0001;
-    static constexpr uint16_t DTY_ABSENT_C = 0x0002;   // AUDIO_UNIT: not in this image
+    //! AUDIO_UNIT (0x0002): only index 0 is in this image, so index 7 is the
+    //! locate miss [L3] asks for
+    static constexpr uint16_t DTY_ABSENT_C = 0x0002;
+    //! AUDIO_UNIT[0], the target group [R] sets and reads the sampling rate
+    //! of. IEEE 1722.1-2021 Table 7-5 body with the rate list the shipping
+    //! image of the shape this suite elaborates carries:
+    //! endstation_arty_current.yaml's audio_unit_rates_hz [48000, 96000,
+    //! 192000] and sampling_rate_hz 48000, which the builder writes through
+    //! avdecc/aem_descriptors.py d_audio_unit (sampling_rates_offset 144)
+    static constexpr uint16_t DTY_AU_C     = 0x0002;
+    static constexpr uint32_t AU_RATES_C[3] = {
+        48000u, 96000u, 192000u};
+    static constexpr uint32_t AU_CUR_RATE_C = 48000u;
     //! STREAM_PORT_INPUT (Table 7-1 0x000E), ONE of them - the 1x1 shape's
     //! listener port, and the object GET_AUDIO_MAP's locate must find: the image
     //! is the EXISTENCE authority (index 1 answers NO_SUCH_DESCRIPTOR because
@@ -771,12 +786,14 @@ class PpShadowHarness {
     static constexpr size_t   SPI_LEN_C    = 20;                 // Table 7-23
     static constexpr size_t   STRIN_LEN_C  = 24;                 // existence is enough
     static constexpr size_t   STROUT_LEN_C = 24;                 // existence is enough
-    static constexpr uint32_t ENT_OFF_C    = 0x70;               // 5 index entries now
-    static constexpr uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x98
-    static constexpr uint32_t STRIN_OFF_C  = CFG_OFF_C + 2 * 24; // 0xC8
-    static constexpr uint32_t SPI_OFF_C    = STRIN_OFF_C + 24;   // 0xE0
-    static constexpr uint32_t STROUT_OFF_C = SPI_OFF_C + 24;     // 0xF8
-    static constexpr uint32_t IMG_END_C    = STROUT_OFF_C + 24;  // 0x110 (8-aligned)
+    static constexpr size_t   AU_LEN_C     = 144 + 4 * 3;        // Table 7-5, 3 rates
+    static constexpr uint32_t ENT_OFF_C    = 0x80;               // 6 index entries now
+    static constexpr uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0xA8
+    static constexpr uint32_t STRIN_OFF_C  = CFG_OFF_C + 2 * 24; // 0xD8
+    static constexpr uint32_t SPI_OFF_C    = STRIN_OFF_C + 24;   // 0xF0
+    static constexpr uint32_t STROUT_OFF_C = SPI_OFF_C + 24;     // 0x108
+    static constexpr uint32_t AU_OFF_C     = STROUT_OFF_C + 24;  // 0x120
+    static constexpr uint32_t IMG_END_C    = AU_OFF_C + 160;     // 0x1C0 (8-aligned)
 
     void put32be_v(std::vector<uint8_t>& v, size_t off, uint32_t x) {
         for (int i = 0; i < 4; i++) v[off + i] = static_cast<uint8_t>(x >> (8 * (3 - i)));
@@ -790,10 +807,19 @@ class PpShadowHarness {
         const size_t n = (type == DTY_ENTITY_C) ? ENT_LEN_C
                        : (type == DTY_SPI_C)    ? SPI_LEN_C
                        : (type == DTY_STRIN_C)  ? STRIN_LEN_C
-                       : (type == DTY_STROUT_C) ? STROUT_LEN_C : CFG_LEN_C;
+                       : (type == DTY_STROUT_C) ? STROUT_LEN_C
+                       : (type == DTY_AU_C)     ? AU_LEN_C : CFG_LEN_C;
         std::vector<uint8_t> d(n, 0);
         put16be_v(d, 0, type);
         put16be_v(d, 2, index);
+        if (type == DTY_AU_C) {
+            put32be_v(d, 136, AU_CUR_RATE_C);        // current_sampling_rate
+            put16be_v(d, 140, 144);                  // sampling_rates_offset
+            put16be_v(d, 142, 3);                    // sampling_rates_count
+            for (size_t k = 0; k < 3; k++)
+                put32be_v(d, 144 + 4 * k, AU_RATES_C[k]);
+            return d;
+        }
         if (type == DTY_SPI_C) {
             // a REAL Table 7-23 body, CONSISTENT with the elaborated shape: this
             // suite includes endstation_arty_current's generated header, whose
@@ -829,29 +855,37 @@ class PpShadowHarness {
         put32be_v(desc_img, 0x30 + 0x8, CFG_OFF_C);
         put16be_v(desc_img, 0x30 + 0xC, 0xFFFF);
         put16be_v(desc_img, 0x30 + 0xE, static_cast<uint16_t>(CFG_LEN_C));
-        // sorted by (config, type): 0x0005 sits between CONFIG and SPI
+        // sorted by (config, type): 0x0002 sits between CONFIG and STREAM_INPUT
         put16be_v(desc_img, 0x40 + 0x0, 0);
-        put16be_v(desc_img, 0x40 + 0x2, DTY_STRIN_C);
-        put16be_v(desc_img, 0x40 + 0x4, 1);              // STREAM_INPUT[0] only
-        put16be_v(desc_img, 0x40 + 0x6, static_cast<uint16_t>(STRIN_LEN_C));
-        put32be_v(desc_img, 0x40 + 0x8, STRIN_OFF_C);
+        put16be_v(desc_img, 0x40 + 0x2, DTY_AU_C);
+        put16be_v(desc_img, 0x40 + 0x4, 1);              // AUDIO_UNIT[0] only
+        put16be_v(desc_img, 0x40 + 0x6, static_cast<uint16_t>(AU_LEN_C));
+        put32be_v(desc_img, 0x40 + 0x8, AU_OFF_C);
         put16be_v(desc_img, 0x40 + 0xC, 0xFFFF);
-        put16be_v(desc_img, 0x40 + 0xE, 24);             // stride (8-aligned)
-        // ...and 0x0006 between STREAM_INPUT and SPI
+        put16be_v(desc_img, 0x40 + 0xE, 160);            // stride (8-aligned)
+        // ...0x0005 between AUDIO_UNIT and SPI
         put16be_v(desc_img, 0x50 + 0x0, 0);
-        put16be_v(desc_img, 0x50 + 0x2, DTY_STROUT_C);
-        put16be_v(desc_img, 0x50 + 0x4, 1);              // STREAM_OUTPUT[0] only
-        put16be_v(desc_img, 0x50 + 0x6, static_cast<uint16_t>(STROUT_LEN_C));
-        put32be_v(desc_img, 0x50 + 0x8, STROUT_OFF_C);
+        put16be_v(desc_img, 0x50 + 0x2, DTY_STRIN_C);
+        put16be_v(desc_img, 0x50 + 0x4, 1);              // STREAM_INPUT[0] only
+        put16be_v(desc_img, 0x50 + 0x6, static_cast<uint16_t>(STRIN_LEN_C));
+        put32be_v(desc_img, 0x50 + 0x8, STRIN_OFF_C);
         put16be_v(desc_img, 0x50 + 0xC, 0xFFFF);
         put16be_v(desc_img, 0x50 + 0xE, 24);             // stride (8-aligned)
+        // ...and 0x0006 between STREAM_INPUT and SPI
         put16be_v(desc_img, 0x60 + 0x0, 0);
-        put16be_v(desc_img, 0x60 + 0x2, DTY_SPI_C);
-        put16be_v(desc_img, 0x60 + 0x4, 1);              // the 1x1 listener port
-        put16be_v(desc_img, 0x60 + 0x6, static_cast<uint16_t>(SPI_LEN_C));
-        put32be_v(desc_img, 0x60 + 0x8, SPI_OFF_C);
+        put16be_v(desc_img, 0x60 + 0x2, DTY_STROUT_C);
+        put16be_v(desc_img, 0x60 + 0x4, 1);              // STREAM_OUTPUT[0] only
+        put16be_v(desc_img, 0x60 + 0x6, static_cast<uint16_t>(STROUT_LEN_C));
+        put32be_v(desc_img, 0x60 + 0x8, STROUT_OFF_C);
         put16be_v(desc_img, 0x60 + 0xC, 0xFFFF);
         put16be_v(desc_img, 0x60 + 0xE, 24);             // stride (8-aligned)
+        put16be_v(desc_img, 0x70 + 0x0, 0);
+        put16be_v(desc_img, 0x70 + 0x2, DTY_SPI_C);
+        put16be_v(desc_img, 0x70 + 0x4, 1);              // the 1x1 listener port
+        put16be_v(desc_img, 0x70 + 0x6, static_cast<uint16_t>(SPI_LEN_C));
+        put32be_v(desc_img, 0x70 + 0x8, SPI_OFF_C);
+        put16be_v(desc_img, 0x70 + 0xC, 0xFFFF);
+        put16be_v(desc_img, 0x70 + 0xE, 24);             // stride (8-aligned)
         // --- descriptors -------------------------------------------------------
         {
             auto e = desc_bytes(DTY_ENTITY_C, 0);
@@ -866,17 +900,19 @@ class PpShadowHarness {
             memcpy(&desc_img[SPI_OFF_C], s0.data(), s0.size());
             auto o0 = desc_bytes(DTY_STROUT_C, 0);
             memcpy(&desc_img[STROUT_OFF_C], o0.data(), o0.size());
+            auto a0 = desc_bytes(DTY_AU_C, 0);
+            memcpy(&desc_img[AU_OFF_C], a0.data(), a0.size());
         }
         // --- header @0x00, checksum LAST ---------------------------------------
         put32be_v(desc_img, 0x00, 0x41454D49u);          // "AEMI"
         put16be_v(desc_img, 0x04, 1);                    // layout_version
         put16be_v(desc_img, 0x06, 1);                    // n_config
-        put16be_v(desc_img, 0x08, 5);                    // n_entries
+        put16be_v(desc_img, 0x08, 6);                    // n_entries
         put16be_v(desc_img, 0x0A, 0);                    // n_names
         put32be_v(desc_img, 0x0C, 0x20);                 // index_off
         put32be_v(desc_img, 0x10, IMG_END_C);            // names_off (empty)
         put32be_v(desc_img, 0x14, IMG_END_C);            // image_bytes
-        put16be_v(desc_img, 0x18, static_cast<uint16_t>(ENT_LEN_C));  // desc_max_len
+        put16be_v(desc_img, 0x18, static_cast<uint16_t>(AU_LEN_C));   // desc_max_len
         put16be_v(desc_img, 0x1A, 0);                    // reserved
         uint32_t sum = 0;
         for (int w = 0; w < 7; w++)
@@ -899,10 +935,19 @@ class PpShadowHarness {
     size_t build_aecp(uint8_t* f, uint8_t msg_type, uint64_t target_eid,
                              uint16_t opcode, uint16_t seq,
                              const uint8_t* pld, size_t pld_len) {
+        return build_aecp_as(f, CTLR_MAC, CTLR_EID, msg_type, target_eid,
+                             opcode, seq, pld, pld_len);
+    }
+    //! the same command from a named controller: group [R] registers a SECOND
+    //! one, because an unsolicited notification never goes to its requester
+    size_t build_aecp_as(uint8_t* f, const uint8_t* sa, uint64_t ctlr_eid,
+                         uint8_t msg_type, uint64_t target_eid,
+                         uint16_t opcode, uint16_t seq,
+                         const uint8_t* pld, size_t pld_len) {
         const size_t len = 14 + 24 + pld_len;
         memset(f, 0, len);
         memcpy(f, STA_MAC, 6);                       // DA: the entity
-        memcpy(f + 6, CTLR_MAC, 6);                  // SA: the controller
+        memcpy(f + 6, sa, 6);                        // SA: the controller
         f[12] = 0x22; f[13] = 0xF0;
         f[14] = 0xFB;                                // AVTP subtype AECP
         f[15] = static_cast<uint8_t>(msg_type & 0x0F);          // sv=0, version=0
@@ -910,7 +955,7 @@ class PpShadowHarness {
         f[16] = static_cast<uint8_t>((cdl >> 8) & 0x07);        // status 0 on a command
         f[17] = static_cast<uint8_t>(cdl & 0xFF);
         put64be(f + 18, target_eid);
-        put64be(f + 26, CTLR_EID);
+        put64be(f + 26, ctlr_eid);
         put16be(f + 34, seq);
         put16be(f + 36, opcode);                     // u = 0
         if (pld_len) memcpy(f + 38, pld, pld_len);
@@ -2542,6 +2587,160 @@ class PpShadowHarness {
         const uint32_t st = axi_read(A_LWSRP_STATUS);
         printf("  [i]    T %s: LWSRP_STATUS 0x694 = 0x%08X, [2] listener registered = %u\n",
                what, st, (st >> 2) & 1u);
+    }
+
+    // ---- R. the sampling rate, as a controller sets and reads it ----------
+    // protocol-processor #51: the processor's SET_SAMPLING_RATE stored ANY
+    // rate, answered SUCCESS and announced it, although the AUDIO_UNIT's
+    // sampling_rates list is the authority on what the unit supports (Milan
+    // v1.2 5.3.3.3, 5.4.2.13; IEEE 1722.1-2021 7.4.21). This group asks the
+    // processor inside the product wiring, against AUDIO_UNIT[0] as the
+    // shipping image of this shape lists it (48000, 96000, 192000; current
+    // 48000), what a controller would see:
+    //   * 44100, a rate the list does not hold: BAD_ARGUMENTS carrying the
+    //     CURRENT 48000 (cdl 20), GET still 48000, and nothing announced to a
+    //     second registered controller;
+    //   * 96000, a listed rate: SUCCESS carrying 96000, GET 96000, and exactly
+    //     one unsolicited SET_SAMPLING_RATE carrying 96000 at the second
+    //     controller.
+    // And what the FABRIC does with either: nothing. No port of KL_pp_shadow
+    // carries a sampling rate (its banner says why) and KL_media_nco is
+    // elaborated at FS_HZ_P = 48000, so the media grid on media_lrclk_o, the
+    // one external view of it, is counted over the same window before and
+    // after each SET and must not move. An accepted rate is therefore a claim
+    // the processor makes to controllers, never an action this fabric takes.
+    // It runs after [T] and before [M2], whose reset wipes what it leaves.
+    static constexpr uint8_t  C2_MAC[6] = {
+        0x02, 0x11, 0x22, 0x33, 0x44, 0x66};
+    static constexpr uint64_t C2_EID    = 0xC0FFEE00DEADBEF0ull;
+    static constexpr int      kGridWindowCycles = 200000;   // ~96 grid toggles
+
+    void grade_sampling_rate_as_a_controller_sets_it() {
+        printf("[R] SET_SAMPLING_RATE against the shipping AUDIO_UNIT list\n");
+        ck("R1: GET_SAMPLING_RATE reads the image's current 48000",
+           get_sampling_rate(0x0501), AU_CUR_RATE_C);
+        register_c2(0x0024, 0x0502);
+        const uint32_t grid0 = media_grid_toggles();
+        printf("  [i]    R: media_lrclk_o toggles per %d cycles before any SET = %u\n",
+               kGridWindowCycles, grid0);
+
+        size_t at = tx_frames.size();
+        uint32_t carried = 0;
+        ck("R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS",
+           set_sampling_rate(44100u, 0x0503, &carried), 7u);
+        ck("R2b: ...and the refusal carries the CURRENT 48000", carried, 48000u);
+        ck("R3: GET_SAMPLING_RATE still reads 48000",
+           get_sampling_rate(0x0504), 48000u);
+        ck("R4: nothing was announced to the second controller",
+           unsolicited_rates_to_c2(at), 0u);
+        const uint32_t grid1 = media_grid_toggles();
+        printf("  [i]    R: media_lrclk_o toggles after SET(44100) = %u\n", grid1);
+        ck_true("R5: the media grid did not move", grid_same(grid0, grid1),
+                "counted over the same window");
+
+        at = tx_frames.size();
+        ck("R6: SET_SAMPLING_RATE(96000), listed, is SUCCESS",
+           set_sampling_rate(96000u, 0x0505, &carried), 0u);
+        ck("R6b: ...carrying the 96000 it stored", carried, 96000u);
+        ck("R7: GET_SAMPLING_RATE reads 96000",
+           get_sampling_rate(0x0506), 96000u);
+        uint32_t uns_rate = 0;
+        ck("R8: exactly one unsolicited SET_SAMPLING_RATE reached the second "
+           "controller", unsolicited_rates_to_c2(at, &uns_rate), 1u);
+        ck("R8b: ...announcing 96000", uns_rate, 96000u);
+        const uint32_t grid2 = media_grid_toggles();
+        printf("  [i]    R: media_lrclk_o toggles after SET(96000) = %u\n", grid2);
+        ck_true("R9: the media grid did not move for an accepted rate either",
+                grid_same(grid0, grid2), "the fabric runs 48 kHz by elaboration");
+
+        set_sampling_rate(48000u, 0x0507, &carried);  // leave it as found
+        register_c2(0x0025, 0x0508);
+    }
+
+    //! REGISTER (0x0024) or DEREGISTER (0x0025)_UNSOLICITED_NOTIFICATION
+    //! from the second controller
+    void register_c2(uint16_t opcode, uint16_t seq) {
+        uint8_t cf[128];
+        const uint8_t fl0[4] = {
+            0, 0, 0, 0};
+        const size_t cn = build_aecp_as(cf, C2_MAC, C2_EID, 0, TEST_EID, opcode,
+                                        seq, fl0, opcode == 0x0024 ? 4 : 0);
+        inject_rx(cf, cn, 400);
+        run_idle(20000);
+    }
+
+    //! the rate a SUCCESS GET_SAMPLING_RATE response carries, ~0 when none
+    uint32_t get_sampling_rate(uint16_t seq) {
+        uint8_t cf[128];
+        const uint8_t pl[4] = {
+            0x00, 0x02, 0x00, 0x00};                     // AUDIO_UNIT 0
+        const size_t at = tx_frames.size();
+        const size_t cn = build_aecp(cf, 0, TEST_EID, 0x0015, seq, pl, sizeof pl);
+        inject_rx(cf, cn, 400);
+        run_idle(20000);
+        const int k = last_aecp(at);
+        if (k < 0) return 0xFFFFFFFFu;
+        const std::vector<uint8_t>& b = tx_frames[k].bytes;
+        if (b.size() < 46 || ((b[16] >> 3) & 0x1F) != 0 || get_be(b, 34, 2) != seq)
+            return 0xFFFFFFFFu;
+        return static_cast<uint32_t>(get_be(b, 42, 4));
+    }
+
+    //! SET_SAMPLING_RATE: the response status, and the rate it carries in
+    //! `*carried`; ~0 when no well-formed cdl-20 response to `seq` egressed
+    uint32_t set_sampling_rate(uint32_t rate, uint16_t seq, uint32_t* carried) {
+        uint8_t cf[128];
+        uint8_t pl[8] = {
+            0x00, 0x02, 0x00, 0x00, 0, 0, 0, 0};         // AUDIO_UNIT 0, rate
+        for (int i = 0; i < 4; i++) pl[4 + i] = static_cast<uint8_t>(rate >> (8 * (3 - i)));
+        const size_t at = tx_frames.size();
+        const size_t cn = build_aecp(cf, 0, TEST_EID, 0x0014, seq, pl, sizeof pl);
+        inject_rx(cf, cn, 400);
+        run_idle(20000);
+        *carried = 0xFFFFFFFFu;
+        for (size_t i = at; i < tx_frames.size(); i++) {
+            const std::vector<uint8_t>& b = tx_frames[i].bytes;
+            if (classify(tx_frames[i]) != FR_AECP || b.size() < 46
+                || memcmp(&b[0], CTLR_MAC, 6) != 0 || get_be(b, 34, 2) != seq)
+                continue;
+            const size_t cdl = ((static_cast<size_t>(b[16]) & 0x7) << 8) | b[17];
+            if (cdl != 20) return 0xFFFFFFFFu;
+            *carried = static_cast<uint32_t>(get_be(b, 42, 4));
+            return (b[16] >> 3) & 0x1Fu;
+        }
+        return 0xFFFFFFFFu;
+    }
+
+    //! unsolicited SET_SAMPLING_RATE responses addressed to the second
+    //! controller past `from`; the last one's rate in `*rate`
+    uint32_t unsolicited_rates_to_c2(size_t from, uint32_t* rate = nullptr) {
+        uint32_t n = 0;
+        for (size_t i = from; i < tx_frames.size(); i++) {
+            const std::vector<uint8_t>& b = tx_frames[i].bytes;
+            if (classify(tx_frames[i]) != FR_AECP || b.size() < 46
+                || memcmp(&b[0], C2_MAC, 6) != 0
+                || get_be(b, 36, 2) != (0x8000u | 0x0014u))
+                continue;
+            n++;
+            if (rate) *rate = static_cast<uint32_t>(get_be(b, 42, 4));
+        }
+        return n;
+    }
+
+    //! toggles of media_lrclk_o over kGridWindowCycles: the media grid at the
+    //! one pin that shows it (fs/2 square, milan_datapath's banner)
+    uint32_t media_grid_toggles() {
+        dut->m_axis_mac_tx_tready = 1;
+        uint32_t n = 0;
+        uint8_t prev = dut->media_lrclk_o;
+        for (int c = 0; c < kGridWindowCycles; c++) {
+            lo(); hi();
+            if (dut->media_lrclk_o != prev) { n++; prev = dut->media_lrclk_o; }
+        }
+        return n;
+    }
+    static bool grid_same(uint32_t a, uint32_t b) {
+        return (a > b ? a - b : b - a) <= 1u;
     }
 
     // ---- M2. HEAL BEFORE ANSWER: the silicon arrangement, end to end ------
