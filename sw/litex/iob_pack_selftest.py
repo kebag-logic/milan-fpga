@@ -5,11 +5,11 @@
 
 The check runs only inside a Vivado build, after placement, so nothing else
 would notice if it stopped failing. This script sources THE REAL .TCL in
-`tclsh` with the five Vivado netlist queries it uses (get_ports, get_nets,
-get_pins, get_cells, get_property) stubbed over a small placed netlist, one
-netlist per arm. The netlists copy what Vivado placed for the AX7101 TDM8
-build: an output flop in an OLOGIC, and an input flop in an ILOGIC behind the
-ZHOLD_DELAY that opt_design inserts in front of it.
+`tclsh` with the six Vivado netlist queries it uses (get_ports, get_nets,
+get_pins, get_cells, get_property, filter) stubbed over a small placed
+netlist, one netlist per arm. The netlists copy what Vivado placed for the
+AX7101 TDM8 build: an output flop in an OLOGIC, and an input flop in an
+ILOGIC behind the ZHOLD_DELAY that opt_design inserts in front of it.
 
   - the shipping shape, every constrained port packed: exit 0, and tdm_mclk /
     tdm_din, which carry no IOB constraint, are never looked at even though
@@ -28,17 +28,22 @@ ZHOLD_DELAY that opt_design inserts in front of it.
     port and the report carries its FAIL row;
   - one hop of the traversal answering nothing while the port's register
     sits in a slice - no pin on the port's net, no data pin on the pad
-    buffer, no load on the buffer's net - and the per-port IOB read
-    answering nothing for every port: exit 1 each. These are the cases that
-    read INERT, or "0 port(s) checked", before the #475 review; a query that
-    answers nothing must not be the verdict that lets a build through.
+    buffer, no load on the buffer's net, no driver on it, nothing behind the
+    ILOGIC delay element, and a REF_NAME the tool cannot answer, which loses
+    every load of the delay partition - and the per-port IOB read answering
+    nothing for every port, or no .xdc beside the report: exit 1 each. These
+    are the cases that read INERT, or "0 port(s) checked", before the #475
+    review; a query that answers nothing must not be the verdict that lets a
+    build through.
 
 The stubs mirror the two answers Vivado gives: nothing MATCHED is an empty
 list, and a query handed no object at all raises, as it does live (Common
-17-697). That is the distinction the check now rests on.
+17-697). That is the distinction the check now rests on. They ignore
+`-quiet`, so the flag is counted in the file instead (`quiet_reads`).
 
-Every mutant of the .tcl in MUTANTS must then make at least one arm stop
-holding, which is what shows the arms can fail for the defects they name.
+Every mutant of the .tcl in MUTANTS must then be noticed by an arm that
+stops holding or by that count, which is what shows the checks here can fail
+for the defects they name.
 Needs `tclsh` (package `tcl`); exits 2 without it.
 """
 
@@ -315,6 +320,19 @@ def blinded_in(port: str) -> Netlist:
     return net
 
 
+def blinded_delay_in(port: str) -> Netlist:
+    """`port`'s flop in a slice behind the delay, whose net answers no load.
+
+    IBUF, ZHOLD_DELAY, capture flop is the shape every GMII RX input really
+    takes, so the hop behind the delay element is the one this board's
+    inputs are graded on: an empty answer there must fail exactly as an
+    empty answer on the hop in front of it does.
+    """
+    net = planted_in(port, [("FDRE", "SLICE_X0Y120")], zhold="ILOGIC_X0Y120")
+    net.blind(f"{port}_dst0/D")
+    return net
+
+
 def unconstrained() -> Netlist:
     """The shipping shape with every IOB property answering nothing."""
     net = shipping()
@@ -340,6 +358,20 @@ proc get_property {args} {
     if {[lindex $args 0] eq "-quiet" && [lindex $args 1] eq "IOB"
         && [lindex $args 2] eq "tdm_bclk"} { return "" }
     return [kl_stub_real_get_property {*}$args]
+}
+"""
+
+#: REF_NAME answered for no cell, which is how Vivado answers an unknown or
+#: renamed property: empty for `==` and for `!=` alike, with no warning and
+#: no raise. Both halves of the check's delay partition then come back empty
+#: while the loads are really there, so the flop below goes ungraded unless
+#: the partition is required to account for every load.
+BLIND_REF_NAME_FILTER = r"""
+rename filter kl_stub_real_filter
+proc filter {args} {
+    lassign [lsearch -all -inline -not -exact $args -quiet] objs want
+    if {[string match {*REF_NAME*} $want]} { return {} }
+    return [kl_stub_real_filter {*}$args]
 }
 """
 
@@ -403,6 +435,16 @@ ARMS = (
     Arm("unpacked input, and the pad buffer's net answers no load",
         blinded_in(RX), 1, RX,
         (f"FAIL  {RX}: IN, nothing answered behind {RX}_IBUF_inst",)),
+    Arm("unpacked input behind the ILOGIC delay, whose net answers no load",
+        blinded_delay_in(RX), 1, RX,
+        (f"FAIL  {RX}: IN, nothing answered behind {RX}_IBUF_inst",)),
+    Arm("unpacked output, and the pad buffer's net answers no driver",
+        blinded_out("tdm_bclk", "tdm_bclk_src/Q"), 1, "tdm_bclk",
+        ("FAIL  tdm_bclk: OUT, nothing answered behind tdm_bclk_OBUF_inst",)),
+    Arm("unpacked input, and REF_NAME answers for no cell",
+        planted_in(RX, [("FDRE", "SLICE_X0Y90")], zhold="ILOGIC_X0Y120"), 1,
+        RX, (f"FAIL  {RX}: IN, nothing answered behind {RX}_IBUF_inst",),
+        twist=BLIND_REF_NAME_FILTER),
     Arm("unpacked output whose IOB read answers nothing: it leaves the loop",
         planted_out("tdm_bclk", ("FDRE", "SLICE_X1Y168")), 1,
         twist=BLIND_ONE_IOB_READ, xdc=XDC_IOB_TRUE,
@@ -410,6 +452,8 @@ ARMS = (
     Arm("no port answers IOB TRUE, but the constraints carry it",
         unconstrained(), 1, xdc=XDC_IOB_TRUE,
         says="no port answered IOB TRUE"),
+    Arm("no port answers IOB TRUE, and no .xdc sits beside the report",
+        unconstrained(), 1, says="no .xdc file sits beside it"),
 )
 
 #: (name, original text, replacement): each must make some arm stop holding.
@@ -434,6 +478,18 @@ MUTANTS = (
      "![string is true -strict [get_property IS_SEQUENTIAL $cell]]", "0"),
     ("an input with no register taken for INERT",
      "[llength $regs] == 0 && [llength $logic] == 0", "[llength $regs] == 0"),
+    ("an empty answer behind a delay element taken for reached",
+     "if {!$reached || [llength $behind] == 0} {", "if {!$reached} {"),
+    ("the delay partition not made to account for every load",
+     "[llength $delays] + [llength $direct] != [llength $loads]", "0"),
+    ("an output pin whose net answers no driver taken for reached",
+     "if {!$reached || [llength $cells] == 0} {", "if {!$reached} {"),
+    ("an output parked by a constant taken for untraversable",
+     '$dir eq "OUT" && [llength $fixed] > 0', "0"),
+    ("a missing .xdc taken for a constraint-free build",
+     "        return -1", "        return 0"),
+    ("-quiet back on the port's net query", "set nets [get_nets -of_objects $port]",
+     "set nets [get_nets -quiet -of_objects $port]"),
 )
 
 PORTS = ("tdm_bclk", "tdm_fsync", "tdm_dout", "tdm_mclk", "tdm_din",
@@ -474,8 +530,24 @@ def run_arm(tclsh: str, check: Path, arm: Arm, work: Path) -> list[str]:
     return problems
 
 
+def quiet_reads(source: str) -> list[str]:
+    """The `-quiet` reads the check's code lines carry: exactly one is right.
+
+    The stubs ignore the flag, so no arm notices it coming back to a netlist
+    query, while the one verdict that does not fail the build rests on those
+    queries answering an absence rather than a failure.
+    """
+    code = [line for line in source.splitlines()
+            if not line.lstrip().startswith("#")]
+    found = sum(line.count("-quiet") for line in code)
+    if found == 1:
+        return []
+    return [f"the check carries {found} -quiet read(s) in its code lines, "
+            "want exactly one (the per-port IOB property)"]
+
+
 def mutant_arms(tclsh: str, work: Path) -> list[str]:
-    """Every mutant must be caught: some arm must stop holding under it."""
+    """Every mutant must be noticed: by an arm, or by the `-quiet` count."""
     failures = []
     source = CHECK_TCL.read_text(encoding="utf-8")
     for name, old, new in MUTANTS:
@@ -484,10 +556,12 @@ def mutant_arms(tclsh: str, work: Path) -> list[str]:
                             "check exactly once")
             continue
         mutant = work / "mutant.tcl"
-        mutant.write_text(source.replace(old, new), encoding="utf-8")
+        text = source.replace(old, new)
+        mutant.write_text(text, encoding="utf-8")
         caught = [a.name for a in ARMS if run_arm(tclsh, mutant, a, work)]
+        caught += ["the -quiet count"] if quiet_reads(text) else []
         print(f"  [{'KILL' if caught else 'LIVE'}] mutant '{name}': "
-              f"{len(caught)} arm(s) notice it")
+              f"{len(caught)} check(s) notice it")
         if not caught:
             failures.append(f"mutant '{name}' survives every arm")
     return failures
@@ -500,7 +574,9 @@ def main() -> int:
         print("iob_pack_selftest: tclsh not found (install the `tcl` package)",
               file=sys.stderr)
         return 2
-    failures = []
+    failures = quiet_reads(CHECK_TCL.read_text(encoding="utf-8"))
+    print(f"  [{'FAIL' if failures else 'PASS'}] one -quiet read in the "
+          "check's code lines")
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
         for arm in ARMS:

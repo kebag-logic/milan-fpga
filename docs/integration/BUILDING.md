@@ -520,11 +520,28 @@ port's row in `*_iob_pack.rpt` says what was found: a register in a slice or
 left unplaced, a pad driven or read only by logic that is not a register, a
 second fabric register on an input, a bidirectional port, or a pad the check
 could not traverse. Vivado raises Place 30-722 for the placement cases only;
-the rest are the check refusing to grade what it could not see. The fix is in
-the RTL or the constraint, never in the check. An `INERT` row is not a
-failure: that port carries no net at all, or its only driver is a constant,
-so there is nothing to pack. `IOB-PACK ERROR` says the run selected no port,
-or read the netlist two ways that disagree, and so graded nothing.
+the rest are the check refusing to grade what it could not see. For a port
+shape the check models, the fix is in the RTL or the constraint, never in the
+check; for one it does not model (the three below), it is in the check.
+
+An `INERT` row is not a failure, and exactly two structures reach it: a port
+that carries no net at all, and an output every driver of which is a constant
+cell. An input that has a net never reads `INERT`. Any hop of its traversal
+that answers nothing - the hop behind the ILOGIC delay element, which is the
+path every GMII RX pin takes, included - is a `FAIL` naming the port, and so
+is a load the check's delay partition cannot account for. `IOB-PACK ERROR`
+says the run selected no port, read the netlist two ways that disagree, or
+could not finish grading one port, and so graded nothing.
+
+Three legal port shapes are outside what the check models today, and it is
+loud rather than silent about each: a tristate output whose enable comes from
+a LUT instead of a register, and the N leg of a differential output, both
+`FAIL` a placement Vivado is content with; an `ODELAYE2` between an output
+register and its buffer would do the same, on a part neither board carries.
+No constrained port has any of those shapes. An output parked by a constant
+reads `INERT` naming the constant cell, which the 8x8 configuration's
+`tdm_dout` is the first build to take. Widening the check to those shapes is
+separate work.
 
 1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
    row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted

@@ -40,27 +40,34 @@
 #           pad is driven, or only read, by logic that is not a register, the
 #           port is bidirectional, which this check does not model, or a hop
 #           of the traversal answered nothing where the netlist must hold
-#           something - a pad whose buffer, buffer pin, net or far side
-#           cannot be found is NOT a port with nothing to pack.
+#           something - a pad whose buffer, buffer pin, net, far side, or
+#           anything behind one of the ILOGIC delay elements cannot be found
+#           is NOT a port with nothing to pack.
 #
-# That last clause is the #475 review finding, and it is why no netlist query
-# below carries `-quiet`. Vivado answers an empty list with a warning when
-# nothing MATCHED, and raises when the command itself failed: a renamed
-# property, or a name handed to `-of_objects` where an object is needed (the
-# first cut of this check did exactly that and read every input INERT).
-# `-quiet` makes those two the same empty list, so the one verdict that does
-# not fail the build would be reachable by a broken query. Without it, a
-# failed query ends the batch run, an empty answer is a real absence, and
-# INERT is only returned for a structure this file actually saw. Vivado also
-# raises when `-of_objects` is handed an EMPTY list, so every step below
-# tests its input first and grades the emptiness itself.
+# That last clause is the #475 review finding, and the rule it gives is
+# uniform. Past the no-net test below, an IN port can NEVER read INERT: an
+# empty answer on ANY hop behind the pad buffer - the hop behind a delay
+# element, and a load the delay partition did not account for, included - is
+# a FAIL naming the port. An OUT port reads INERT only when every pin this
+# file followed answered a driver and every one of those drivers is a
+# constant cell. So INERT is reachable from two structures only, each of them
+# seen rather than assumed: a port with no net, and an output whose drivers
+# are all constants.
+#
+# What holds that rule up is the grading below, not the absence of `-quiet`:
+# an unknown or renamed property is answered EMPTY by Vivado, with the flag
+# or without it, measured on this design. `-of_objects` handed a name, or an
+# empty list, DOES raise, and a raise ends the batch run rather than reading
+# as an absence (the first cut of this check handed it a name and read every
+# input INERT). So every step below tests its input first, grades the
+# emptiness itself, and passes Vivado object lists whole, never rebuilt from
+# names. The one `-quiet` left is marked where it is read, and crossed
+# against two counts that do not depend on it.
 #
 # One FAIL is a Tcl error, and a Tcl error ends the batch run: no routing, no
 # bitstream. A port with no IOB constraint (tdm_mclk, tdm_din today) is not
-# looked at. Vivado object lists are passed whole between the queries below,
-# never rebuilt from names: `-of_objects` takes objects, not names.
-# sw/litex/iob_pack_selftest.py drives this file in tclsh with the Vivado
-# netlist queries stubbed; that is its gate outside Vivado.
+# looked at. sw/litex/iob_pack_selftest.py drives this file in tclsh with the
+# Vivado netlist queries stubbed; that is its gate outside Vivado.
 
 # The cells on the far side of `pins` (their net's leaf pins facing `dir`), as
 # {reached cells}. `reached` is 0 when the pins carry no net: their far side
@@ -82,7 +89,8 @@ proc kl_iob_net_cells {pins dir} {
 # groups}: for an input, the loads that are not delay elements and the loads
 # behind those delay elements. `reached` is 0 when a hop answered nothing
 # where a placed buffer must hold something - no data pin, no net on it, no
-# driver, no load. That is a FAIL for the caller, never an INERT.
+# driver, no load, nothing behind a delay element, or a load the delay
+# partition lost. That is a FAIL for the caller, never an INERT.
 proc kl_iob_far_groups {bufs dir} {
     if {$dir eq "OUT"} {
         set pins [get_pins -of_objects $bufs \
@@ -90,11 +98,17 @@ proc kl_iob_far_groups {bufs dir} {
         if {[llength $pins] == 0} {
             return [list 0 {}]
         }
-        lassign [kl_iob_net_cells $pins OUT] reached cells
-        if {!$reached || [llength $cells] == 0} {
-            return [list 0 {}]
+        # one followed pin at a time: an OBUFT whose T answers a grounded
+        # driver must not answer for an I whose net came back empty.
+        set drivers {}
+        foreach pin $pins {
+            lassign [kl_iob_net_cells $pin OUT] reached cells
+            if {!$reached || [llength $cells] == 0} {
+                return [list 0 {}]
+            }
+            lappend drivers {*}$cells
         }
-        return [list 1 [list $cells]]
+        return [list 1 [list $drivers]]
     }
     set pins [get_pins -of_objects $bufs -filter {REF_PIN_NAME == O}]
     if {[llength $pins] == 0} {
@@ -106,6 +120,13 @@ proc kl_iob_far_groups {bufs dir} {
     }
     set delays [filter $loads {REF_NAME == ZHOLD_DELAY || REF_NAME == IDELAYE2}]
     set direct [filter $loads {REF_NAME != ZHOLD_DELAY && REF_NAME != IDELAYE2}]
+    if {[llength $delays] + [llength $direct] != [llength $loads]} {
+        # the two halves must account for every load, and they do not when
+        # the property itself answered nothing: an unknown or renamed one is
+        # empty for == and for != alike, so both halves come back empty and
+        # the loads that are really there would go ungraded.
+        return [list 0 {}]
+    }
     if {[llength $delays] == 0} {
         return [list 1 [list $direct]]
     }
@@ -115,7 +136,7 @@ proc kl_iob_far_groups {bufs dir} {
         return [list 0 {}]
     }
     lassign [kl_iob_net_cells $taps IN] reached behind
-    if {!$reached} {
+    if {!$reached || [llength $behind] == 0} {
         return [list 0 {}]
     }
     return [list 1 [list $direct $behind]]
@@ -172,7 +193,16 @@ proc kl_iob_port_verdict {port} {
         }
     }
     if {[llength $regs] == 0 && [llength $logic] == 0} {
-        return [list INERT "$dir, nothing to pack behind [join $bufs {, }]: driven by [join $fixed {, }]"]
+        # the second of the two structures INERT is returned for: every pin
+        # followed above answered a driver, and every one of them is a
+        # constant cell. An input cannot arrive here - each hop behind its
+        # pad buffer answered something or the traversal already failed - and
+        # an output with no driver at all is the ungradable case, not a pad
+        # with nothing to pack.
+        if {$dir eq "OUT" && [llength $fixed] > 0} {
+            return [list INERT "$dir, nothing to pack behind [join $bufs {, }]: driven by [join $fixed {, }]"]
+        }
+        return [list FAIL "$dir, no cell answered behind [join $bufs {, }]: this port could not be traversed"]
     }
     if {[llength $regs] == 0} {
         return [list FAIL "$dir, no register reads the pad, only: [join $logic {, }]"]
@@ -209,6 +239,7 @@ proc kl_iob_constraint_lines {report} {
 proc kl_iob_pack_check {report} {
     set rows {}
     set failed {}
+    set graded {}
     foreach port [get_ports] {
         # the only -quiet read in this file, because an empty answer is the
         # NORMAL one here: most ports carry no IOB property at all. The two
@@ -216,7 +247,14 @@ proc kl_iob_pack_check {report} {
         if {[string toupper [get_property -quiet IOB $port]] ne "TRUE"} {
             continue
         }
-        lassign [kl_iob_port_verdict $port] verdict detail
+        lappend graded $port
+        # re-raised, never swallowed: a query that fails inside the verdict
+        # ends the build either way, but a bare Tcl trace does not say which
+        # port it was grading.
+        if {[catch {kl_iob_port_verdict $port} answer]} {
+            error "IOB-PACK ERROR: grading $port ended the run: $answer"
+        }
+        lassign $answer verdict detail
         lappend rows [format "%-5s %s: %s" $verdict $port $detail]
         if {$verdict eq "FAIL"} {
             lappend failed $port
@@ -242,7 +280,18 @@ proc kl_iob_pack_check {report} {
     set constrained [get_ports -filter {IOB == TRUE || IOB == true}]
     set lines [kl_iob_constraint_lines $report]
     if {[llength $rows] != [llength $constrained]} {
-        error "IOB-PACK ERROR: [llength $rows] port(s) answered IOB TRUE one at a time, but [llength $constrained] match the same filter. The netlist did not read the same way twice, so this run graded nothing; see $report."
+        set disputed {}
+        foreach port $constrained {
+            if {[lsearch -exact $graded $port] < 0} {
+                lappend disputed $port
+            }
+        }
+        foreach port $graded {
+            if {[lsearch -exact $constrained $port] < 0} {
+                lappend disputed $port
+            }
+        }
+        error "IOB-PACK ERROR: [llength $rows] port(s) answered IOB TRUE one at a time, but [llength $constrained] match the same filter; the two reads disagree on: [join [lsort $disputed] {, }]. The netlist did not read the same way twice, so this run graded nothing; see $report."
     }
     if {[llength $rows] == 0 && $lines != 0} {
         set why "$lines set_property IOB TRUE line(s) sit in the constraints beside it"
