@@ -342,7 +342,18 @@ def d_avb_interface(gp: dict[str, int] | None = None,
     b += bytes([int(gp.get("log_sync_interval", 0)) & 0xFF,
                 int(gp.get("log_announce_interval", 0)) & 0xFF,
                 int(gp.get("log_pdelay_interval", 0)) & 0xFF])
-    b += be16(0)                        # port_number
+    #! port_number NAMES THE PORT THE gPTP PLANE ANNOUNCES (#462).  The
+    #! fabric engine holds one definition of it, OUR_PORTNUM_C, and puts
+    #! that number in the sourcePortIdentity of every message it transmits;
+    #! the builder parses it (endstation_builder.gptp_engine_port_number)
+    #! and hands it over in this dataset.  It read 0 here while the wire
+    #! carried 1 until #462, so a controller correlating this descriptor
+    #! with the gPTP port identity - GET_AVB_INFO and GET_AS_PATH consumers
+    #! do exactly that - saw two numbers for one port.  The 0 DEFAULT is
+    #! the legacy shapes' byte-exactness contract in the docstring above,
+    #! not a second answer: a dataset that states the key is a dataset the
+    #! builder resolved, and every config the builder loads states it.
+    b += be16(int(gp.get("port_number", 0)))     # port_number
     #! CONSTRAINT (1722.1-2021 §7.2.8 Table 7-13): the descriptor is 102
     #! octets and ends at base_control (offset 100).  1722.1-**2013** ended it
     #! at port_number, and this generator asserted 98 - the 2013 length - until
@@ -473,8 +484,21 @@ def d_control_identify(name: str = OBJECT_NAMES["control_identify"]) -> bytes:
     b += be16(0)                        # control_domain
     b += be16(CTRL_LINEAR_UINT8)        # control_value_type
     b += be64(CTRL_TYPE_IDENTIFY)       # control_type EUI-64
-    b += be32(3)                        # reset_time (advisory; Milan: stays
-                                        # in identify while current != 0)
+    #! reset_time 0 = NO AUTOMATIC RESET, and that is what this device does
+    #! (#463).  7.2.22 defines reset_time as the time in milliseconds after
+    #! which the control returns to its default value; this model declared
+    #! 3 while nothing in the entity ever clears the IDENTIFY value.  The
+    #! processor's SET_CONTROL writes RGN_DYN + SEL_IDENT and no timer
+    #! reads it back (protocol-processor/hdl/aecp/ucode/gen_ucode.py, the
+    #! SET_CONTROL leg), so the value stands until a controller writes 0.
+    #! NO CLAUSE REQUIRES OTHERWISE: Milan v1.2 5.3.12 makes the IDENTIFY
+    #! value volatile with 0 as its state after RESET - a power cycle, not
+    #! a countdown - and 5.4.2.17/.18 require SET_CONTROL and GET_CONTROL
+    #! and nothing that expires.  A declared 3 is therefore a promise of
+    #! behaviour the device does not have, and a controller holding the
+    #! front panel lit for 3 s and then assuming it went dark is reading
+    #! this field.
+    b += be32(0)                        # reset_time (no automatic reset)
     b += be16(104)                      # values_offset (fixed)
     b += be16(1)                        # number_of_values
     b += be16(NO_STRING) + be16(0) + be16(0)   # signal type/index/output

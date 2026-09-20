@@ -246,6 +246,16 @@ Gates (gaps item 4, generator round):
       the tap's 875 ns unevenly and inside 10 ns of it, and recalibrating
       moves neither `entity_model_id` nor the AEM overlay: a correction is
       a timestamp fact, not descriptor content.
+  37. THE TWO FIELDS THAT DESCRIBE THE DEVICE ARE TRUE OF IT (gate 37,
+      issues #462 and #463): read back out of the packed image, every
+      tracked config's AVB_INTERFACE `port_number` is the `OUR_PORTNUM_C`
+      this gate parses out of the gPTP engine generator - the number the
+      plane puts in every sourcePortIdentity - and the IDENTIFY CONTROL's
+      `reset_time` is 0, because nothing in the entity returns that control
+      to its default and 1722.1-2021 7.2.22 is what a controller reads to
+      decide whether to wait for it.  A port number planted in the overlay
+      and the pre-#463 generator restored for one build are both refused by
+      the comparison the tracked configs pass.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -405,8 +415,10 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 # obliges a changed model to take a new id, so this constant tracking the pin
 # is the gate working, not the gate being relaxed - what it proves is that the
 # PIN still wins over the hash, and the assertion below that hash != pin is
-# what would catch the two being silently reconciled.
-DEPLOYED_MODEL_ID = "0x001BC50AC1000004"
+# what would catch the two being silently reconciled. Moved ...0004 -> ...0005
+# on 2026-09-21 with the two descriptor FIELD values of #462 and #463, which
+# 6.2.2.8 counts the same way it counts a layout move.
+DEPLOYED_MODEL_ID = "0x001BC50AC1000005"
 
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
@@ -13931,7 +13943,9 @@ def test_gen_aem_store_crf_output_overlay() -> None:
     assert avb["len"] == 102, f"AVB_INTERFACE is {avb['len']} B, 7.2.8 says 102"
     assert rom[a + 76:a + 78] == b"\x00\x07"      # GPTP_GM|GPTP|SRP (Milan
                                                   # 5.3.3.5 mandates the last 2)
-    assert rom[a + 96:a + 98] == b"\x00\x00"      # port_number (unchanged)
+    # port_number is the port the gPTP plane announces, not a placeholder
+    # (#462): gate 37 owns the rule, this ROM has to carry it too.
+    assert rom[a + 96:a + 98] == eb.gptp_engine_port_number().to_bytes(2, "big")
     # THE ONE CONTROL HAS ONE PARENT, and this is the assertion that says so.
     # Milan v1.2 5.3.2 parents the "IDENTIFY" CONTROL on the CONFIGURATION -
     # "each of the descriptors above ... shall have one, and only one, parent
@@ -19918,9 +19932,16 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # list) and made the clock-source set an UNCONDITIONAL model_shape key:
     # the descriptor set is the structure 6.2.2.8 names, so every id moved,
     # and the served pin moved with it (...0003 -> ...0004) because the
-    # model this pin serves changed.
+    # model this pin serves changed,
+    # then -> 0x001BC575BCD61755 when #462 made AVB_INTERFACE port_number the
+    # port the gPTP plane announces: the number is derived from the engine and
+    # travels in the resolved gptp: section, which is a model_shape key, so
+    # 6.2.2.8 moves every id that hashes one. The served pin moved with it
+    # (...0004 -> ...0005), and it carries #463's reset_time too - that field
+    # is generator-owned, reaches no config key and so moves no hash by
+    # itself, which is why the pin bump is the thing that records it.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC53BF2977319"
+        "0x001BC575BCD61755"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -19947,14 +19968,16 @@ def _assert_pre_d8_model_ids_stay_pinned():
     # ([R-parallel] on #228), which is descriptor content per 7.2.8, and a
     # NINTH -> 0x001BC505328AA45F when #389 removed the four per-listener
     # INPUT_STREAM CLOCK_SOURCE descriptors nothing followed and put the
-    # clock-source set into model_shape unconditionally.
+    # clock-source set into model_shape unconditionally, and a TENTH ->
+    # 0x001BC557FC6ABBC8 when #462 put the gPTP engine's port number in the
+    # resolved gptp: section for AVB_INTERFACE port_number to take.
     # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move on
     # its own is arty_current's PINNED id above: it moves only by hand, with
     # the model change that obliges it (#389 was one), never with the recipe.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC505328AA45F"
+        "0x001BC557FC6ABBC8"
 
 
 def test_d10_cluster_names() -> None:
@@ -22278,6 +22301,164 @@ def test_gptp_latency_corrections_are_declared_and_carried() -> None:
         moved.unlink()
 
 
+#: Gate 37's two fields, each as (descriptor type, first octet, width): the
+#: AVB_INTERFACE port_number of 1722.1-2021 Table 7-13 and the CONTROL
+#: reset_time of Table 7-28.  Named once, because the gate reads them out of
+#: the packed image four times over and an offset restated is an offset that
+#: can disagree with itself.
+_DEVICE_FIELDS = {"port_number": (0x0009, 96, 2), "reset_time": (0x001A, 90, 4)}
+
+
+def _device_fields_of(blob: bytes) -> dict[str, int]:
+    """The two fields as the IMAGE carries them, located the way the store
+    locates a descriptor - not as the generator's local variables."""
+    out = {}
+    for field, (dtype, at, width) in _DEVICE_FIELDS.items():
+        d = image_descriptor(blob, dtype)
+        out[field] = int.from_bytes(d[at:at + width], "big")
+    return out
+
+
+def _grade_device_fields(label: str, got: dict[str, int], wire_pn: int) -> None:
+    """The gate's whole verdict on one image, in one place so the planted
+    defects below are refused by the SAME comparison the tracked configs
+    pass - a plant graded by its own private check proves nothing."""
+    assert got["port_number"] == wire_pn, (
+        f"{label}: AVB_INTERFACE port_number {got['port_number']} != the "
+        f"portNumber {wire_pn} the fabric gPTP plane transmits in every "
+        f"sourcePortIdentity (gen_gptp_ucode.py OUR_PORTNUM_C). A "
+        f"controller correlating this descriptor with the gPTP port "
+        f"identity - which GET_AVB_INFO and GET_AS_PATH consumers do - "
+        f"reads two different numbers for one port (#462)")
+    assert got["reset_time"] == 0, (
+        f"{label}: IDENTIFY CONTROL reset_time {got['reset_time']} promises "
+        f"a return to the default value after that many milliseconds "
+        f"(1722.1-2021 7.2.22). Nothing in this entity performs it: "
+        f"SET_CONTROL writes the volatile IDENTIFY row and no timer reads "
+        f"it back, so the value stands until a controller writes 0 (#463)")
+
+
+def _planted_port_number_image(wire_pn: int) -> dict[str, int]:
+    """One image built with a port number that is not the engine's, planted
+    in the OVERLAY - the artifact the descriptor emitter actually reads, so
+    the plant travels the hop the tracked configs travel."""
+    cfg = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+    overlay = eb.emit_aem_overlay(cfg)
+    overlay["gptp"]["port_number"] = wire_pn + 1
+    got = _device_fields_of(
+        eb._entity_model_image(cfg, overlay)["aem_desc.bin"])
+    assert got["port_number"] == wire_pn + 1, (
+        f"the planted port_number never reached the image (read "
+        f"{got['port_number']}), so the tracked-config arm proves nothing "
+        f"about where the emitted number comes from")
+    return got
+
+
+def _planted_reset_time_image() -> dict[str, int]:
+    """One image built by the PRE-#463 generator, restored for this build
+    alone.  Patched on `aem_assemble` because that is the name the
+    assembler calls; patching the descriptor module leaves its bound copy."""
+    import aem_assemble                                      # noqa: E402
+    real = aem_assemble.d_control_identify
+
+    def _pre_463(*a, **kw):
+        b = bytearray(real(*a, **kw))
+        b[90:94] = (3).to_bytes(4, "big")
+        return bytes(b)
+    aem_assemble.d_control_identify = _pre_463
+    try:
+        cfg = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+        got = _device_fields_of(eb._entity_model_image(
+            cfg, eb.emit_aem_overlay(cfg))["aem_desc.bin"])
+    finally:
+        aem_assemble.d_control_identify = real
+    assert got["reset_time"] == 3, (
+        f"the planted reset_time never reached the image (read "
+        f"{got['reset_time']})")
+    return got
+
+
+def _assert_planted_device_fields_are_refused(wire_pn: int) -> list[str]:
+    """Both planted defects, graded by the SAME `_grade_device_fields` the
+    tracked configs pass.  Returns the fields whose plant was caught."""
+    caught = []
+    for label, fields in (("port_number", _planted_port_number_image(wire_pn)),
+                          ("reset_time", _planted_reset_time_image())):
+        try:
+            _grade_device_fields(f"planted {label}", fields, wire_pn)
+            raise AssertionError(
+                f"gate 37: a planted {label} was accepted, so the gate "
+                f"cannot fail for the defect it claims to detect")
+        except AssertionError as e:
+            assert f"gate 37: a planted {label}" not in str(e), e
+            caught.append(label)
+    assert caught == ["port_number", "reset_time"], caught
+    return caught
+
+
+def test_descriptor_fields_name_this_device() -> None:
+    """Gate 37: the two AEM fields that describe the DEVICE, read back out
+    of the packed image (issues #462 and #463).
+
+    AVB_INTERFACE `port_number` and the IDENTIFY CONTROL's `reset_time` are
+    both single values a controller acts on, and both said something this
+    device does not do.  The descriptor named port 0 while the fabric gPTP
+    plane announces `OUR_PORTNUM_C` in the sourcePortIdentity of every
+    message it transmits.  And it declared a 3 ms return to default that
+    nothing performs: Milan v1.2 5.3.12 makes the IDENTIFY value volatile
+    with 0 as its state after RESET - a power cycle, not a countdown - and
+    5.4.2.17/.18 require SET_CONTROL and GET_CONTROL and no expiry, so the
+    value stands until a controller writes one.
+
+    THE ENGINE'S NUMBER IS PARSED HERE, out of gen_gptp_ucode.py, for gate
+    26b's reason: asking the builder for its own derivation and comparing it
+    with itself passes while both have drifted off the wire.  The two
+    planted defects go through the real emitters and are refused by the same
+    `_grade_device_fields` the tracked configs pass.
+    """
+    gen = (ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py").read_text()
+    live = [ln.split("#", 1)[0] for ln in gen.splitlines()]
+    hits = [m.group(1) for ln in live
+            for m in [re.match(r"OUR_PORTNUM_C\s*=\s*(0[xX][0-9A-Fa-f]+|\d+)"
+                               r"\s*$", ln)] if m]
+    assert len(hits) == 1, \
+        f"OUR_PORTNUM_C: {len(hits)} live matches in gen_gptp_ucode.py, need 1"
+    wire_pn = int(hits[0], 0)
+    assert eb.gptp_engine_port_number() == wire_pn, (
+        f"endstation_builder.gptp_engine_port_number() "
+        f"{eb.gptp_engine_port_number()} != this gate's own parse {wire_pn} - "
+        f"one of the two readers of gen_gptp_ucode.py has rotted")
+
+    # 1. every tracked config, whose gPTP plane is ON by #259's rule
+    for name in sorted(CONFIGS):
+        cfg = eb.load_config(CONFIGS[name])
+        assert cfg.get("gptp") is not None, (
+            f"{name}: no resolved gptp section, so this gate graded no port "
+            f"number for it - fabric ownership (#259) requires the section")
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        _grade_device_fields(name, _device_fields_of(blob), wire_pn)
+
+    # 2. the builtin (no-overlay) model takes the same number.  It is
+    #    arty_current's hand-written fixture and it states the port as a
+    #    literal, so this is the comparison that keeps the literal true.
+    import aem_specs                                         # noqa: E402
+    assert aem_specs.builtin_spec()["gptp"]["port_number"] == wire_pn, (
+        f"aem_specs.builtin_spec() states port_number "
+        f"{aem_specs.builtin_spec()['gptp']['port_number']}, the engine "
+        f"announces {wire_pn} - the no-overlay model would serve a port "
+        f"number the plane does not use")
+
+    # 3. RED: each field's defect, planted where the image is made
+    caught = _assert_planted_device_fields_are_refused(wire_pn)
+
+    print(f"  [gate 37] all {len(CONFIGS)} tracked configs (gPTP plane on) "
+          f"serve AVB_INTERFACE port_number {wire_pn} - the engine's "
+          f"OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no "
+          f"automatic reset, Milan 5.3.12); the builtin model states the "
+          f"same port; planted {' and '.join(caught)} refused")
+
+
 def test_boot_policy_follows_the_declaration() -> None:
     """Gate 35 (#398): the words the bare-metal firmware programs at boot
     come from the declaration, measured on the firmware as shipped.
@@ -22420,7 +22601,8 @@ if __name__ == "__main__":
                test_per_row_format_facts_are_per_row,
                test_builder_doc_key_map,
                test_boot_policy_follows_the_declaration,
-               test_gptp_latency_corrections_are_declared_and_carried):
+               test_gptp_latency_corrections_are_declared_and_carried,
+               test_descriptor_fields_name_this_device):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and
