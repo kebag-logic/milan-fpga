@@ -291,7 +291,13 @@ Nothing measured here bounds the split error.
 
 A one-way error of `e` leaves the SUM right.
 
-It moves the two stamps by `+e` and `-e`.
+The two constants are then wrong by `+e` and `-e`.
+
+Both published stamps move the SAME way, late by `e`.
+
+An ingress stamp under-corrected by `e` is late by `e`.
+
+An egress stamp over-corrected by `e` is late by `e` as well.
 
 **It does not move the peer delay.**
 
@@ -301,17 +307,25 @@ Both corrections enter that with the same sign.
 
 So only their sum appears.
 
+A common shift of both stamps cancels.
+
 The 800 ns bound is met by the sum alone.
 
 That is the measured quantity.
 
-**It moves the synchronized offset by half the split error.**
+**It moves the synchronized offset by the whole split error.**
 
 A Sync arrives on the ingress path only.
 
 The ingress constant alone corrects it.
 
-So the computed offset from the grandmaster carries `e/2`.
+Its receive stamp is left late by `e`.
+
+The mean link delay does not move.
+
+So it absorbs none of that.
+
+So the computed offset from the grandmaster carries `e`, not `e/2`.
 
 The LiteEth receive chain is the largest known contributor to `e`.
 

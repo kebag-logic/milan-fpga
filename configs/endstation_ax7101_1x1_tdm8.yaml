@@ -116,9 +116,9 @@ gptp:
   # Splitting it needs a second instrument the project does not have, so
   # the split is 3:1 receive:transmit - the 1000BASE-T receive DSP
   # dominates - because the RTL8211E datasheet states no latency figure to
-  # use instead. 656 + 219 = 875. The split uncertainty moves the
-  # synchronized offset by half the split error and does NOT move the peer
-  # delay; issue #488 owns the instrument that would close it.
+  # use instead. 656 + 219 = 875. The split error moves the synchronized
+  # offset by its WHOLE value (the peer delay does not move, so nothing
+  # absorbs it); issue #488 owns the instrument that would close it.
   ingress_latency_ns: 656
   egress_latency_ns: 219
 

@@ -170,7 +170,9 @@ datasheet states 1000BASE-T transmit and receive latencies, in which case
 use those and say so in the configuration comment. Record the assignment as
 an assignment. The split error does not move the peer delay - both
 corrections enter the mean-delay expression with the same sign, so only
-their sum appears - but it moves the synchronized offset by half of itself.
+their sum appears - but it moves the synchronized offset by its whole value,
+because a Sync rides the ingress path alone and the unmoved peer delay
+absorbs none of it.
 
 ### Checking the result
 
