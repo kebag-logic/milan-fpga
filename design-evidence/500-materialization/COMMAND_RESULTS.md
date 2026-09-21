@@ -42,7 +42,7 @@ commit `fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293`, the round-two one
 | `python3 -B ../reviewer-probes/r218_r3_check.py` | 0 | `R218 r3 PROBES: 12 runs, 0 not as demanded` |
 | `ooc/run_ooc.sh` (from inside `$OOC_OUT`) | 0 | 26 rows, `ooc/results_ooc.txt` |
 | `syn/yosys/ooc.sh KL_nvm_backend` (repository root, `OOC_CHPARAM` of the 1x1 shape with `N_NAME_P=30`) | 0 | `1030 LUT, 0 LUTRAM, 468 FF, 6 DSP, 114 CARRY4`, identical to the row `cal-backend-1x1-n30` |
-| `python3 -B run.py receipts` | 0 | the digest tables below |
+| `python3 -B run.py receipts` | 0 | the digest tables below, taken at `e70b057f` (the note after them) |
 
 Builds were split into four synchronous commands (every fourth build of
 `run.py`'s list) only to keep each under the session's command limit;
@@ -324,7 +324,7 @@ R218 r3 PROBES: 12 runs, 0 not as demanded
 
 | File (relative to design-evidence/500-materialization) | sha256 |
 |---|---|
-| `proposal-evidence/README.md` | `d764e00ef36af2a43b5702e00608f247ab20a0c3db30820ab8844be8e56a5589` |
+| `proposal-evidence/README.md` | `108621b3937217a0261918e2c37d696cec8b11c394250d261674bacd9f781ec7` |
 | `proposal-evidence/harness/d3_api.h` | `5295aeecaab9adea6297a58760049f0b6b97faa9c1039035a8fdc4ba2c99efc0` |
 | `proposal-evidence/harness/d3_bridge.cpp` | `d623c4164f3d62d357c1db79bbd9c6ba3beb92113f992a100919796bcb21fe65` |
 | `proposal-evidence/harness/d3_bridge.h` | `f6520e8f360689f4a4c59ccd3029305831180328458c8f3ae881950507cc23a7` |
@@ -364,15 +364,15 @@ R218 r3 PROBES: 12 runs, 0 not as demanded
 | `reviewer-probes/r218_r3_check.py` | `9b553bc613502c43fa7279c5c241fbd9e30e758f8895909bb9e2d94d1026048f` |
 | `reviewer-probes/r218_r3_probe_stage1.py` | `74bb5af41c740b5e058e680deb77ddb1c1555da44ded3b985fdaeb24c7667f4a` |
 | `reviewer-probes/results.txt` | `13bddda1f40db2404d1230c26c5ef755fb674bf3d813a1ebda98ce716a9f90be` |
-| `tickets/README.md` | `a6733221213349e58fca8926d899d6aa0c87e1baaf9e6ee2f844a3a9e922d807` |
-| `tickets/T1-processor-stage1-dynamic-state-writer.md` | `ae15be500d0b9d59b10934a37d860b76b80bc9dc7afac3506cd4d1c663b663a0` |
+| `tickets/README.md` | `b124a0241b7f8fa10a0ede78281c7d6d0efbb6501326ba74c54208885c056970` |
+| `tickets/T1-processor-stage1-dynamic-state-writer.md` | `fe78c941ce09930be4d87212a2a4ff22dadbb58b75c3def0b887092aab3bfb29` |
 | `tickets/T2-processor-stage2-names.md` | `e59370e320fde22b5879bf11eff6f332dced602ed3eab947bca0d6c80b883469` |
 | `tickets/T3-processor-stage3-channel-maps.md` | `41a768b82b5e75cbc5d4b774d48dbdcc6474c7dd0639967620fe9b8c7c1633d8` |
-| `tickets/T4-parent-glue-firmware-and-silicon-proof.md` | `15daa3fcf25e1be0cbd58122858c5da025791df02401430a480f205218fc9beb` |
+| `tickets/T4-parent-glue-firmware-and-silicon-proof.md` | `a30da6ebbbee8417ddcf836a09f3665449d2fed78313ab4a3a180d0a7dece716` |
 | `tickets/T5-output-map-record-size-at-8x8.md` | `14cdbeaedfe776baa3ed6cc7cc233fadf216cb78ad9d911a589f61bfa625c1d8` |
 | `tickets/T6-mark-tail-durable-window.md` | `9f4bd29181c70200830f481a353818b2e1e1a939bb600759c4feea20adeeb6bc` |
 | `tickets/T7-fastconnect-area-table-predates-484.md` | `cf578f71718ec4d5c7fd98bed16313866fbf713934693536c91537e9db0ea01f` |
-| `tickets/T8-processor-issue-15-port-deadline.md` | `69d49d515f312c09b5887c5d011b9fab3cd457c21e377b82c1fc29368a20710f` |
+| `tickets/T8-processor-issue-15-port-deadline.md` | `add95914a24c53fb54436b428d007d4329334e373308e95bc29332125754813e` |
 | `tickets/T9-processor-descriptor-memory-response-isolation.md` | `21aeb883111f08d89798c932bc8a3520b3759330595357c352ef41cb328ee962` |
 
 | Repository file | sha256 |
@@ -397,10 +397,17 @@ R218 r3 PROBES: 12 runs, 0 not as demanded
 | `protocol-processor/hdl/common/KL_pp_timer_service.sv` | `8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c` |
 | `protocol-processor/hdl/common/pp_pkg.sv` | `2ffdc53a71bc0ec45a15eeb9625a9a2a05ef9f17f9dd3fcd530a14eaea41ba9a` |
 
-The digests were taken at the commit that records the run,
-`43b675038a558072381bb6a36c69307a55b9825c`; the commit after it adds this
-table and changes nothing else. Every one was checked against the immutable
-Git blob with replacement objects disabled: the evidence files and the
-repository files at that commit (every path outside `design-evidence` equal
-to dev `07294a76`), the processor files at its pin `424c688f`. 69 digests,
-0 mismatches.
+The digests were taken at `e70b057f2f018f6966c9bd1ecd7877a0359c0d27`, a
+documentation revision after the run: it states S4's START/STOP completion
+rule and the three release points (the listener's live work from S4's
+release, AECP from the D3 terminal, ADP advertising from the combined
+enable) in `proposal-evidence/README.md`, in the ticket drafts T1, T4 and T8
+and in their index, and changes no executable file and no result. Against
+the digests taken where the run was recorded,
+`43b675038a558072381bb6a36c69307a55b9825c`, exactly those five files
+differ. The commit after `e70b057f` updates this table and changes nothing
+else. Every digest was checked against the immutable Git blob with
+replacement objects disabled: the evidence files and the repository files
+at `e70b057f` (every path outside `design-evidence` equal to dev
+`07294a76`), the processor files at its pin `424c688f`. 69 digests, 0
+mismatches.
