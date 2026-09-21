@@ -23,7 +23,10 @@
 >   nothing but the binding restore's preloads. A held talker event, a
 >   transaction, a timer expiry or a START/STOP request no longer holds the
 >   preload phase, and a read-only command no longer withdraws a restored
->   binding (sections 5.1 and 8.9).
+>   binding (sections 5.1 and 8.9). Its release is one of three separate
+>   release points, each stated with what runs from it: the listener's live
+>   ACMP work from S4's release, AECP from the D3 terminal, ADP advertising
+>   from the combined enable (section 8.1).
 > - **The descriptor store's roll-back reset belongs to stage 1**, not
 >   stage 2: after a fetch's response timed out, the pinned store's next
 >   fetch errs at once, and only its reset re-arms it (sections 8.6 and 10).
@@ -61,24 +64,24 @@ merged. Every evidence citation on this page names the branch, the commit and
 a path in it:
 
 - the command record, with every command, exit code and digest:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
 - how to re-run it:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/README.md`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/proposal-evidence/README.md`;
 - the run script:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/run.py`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/proposal-evidence/run.py`;
 - its graded results:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/results.txt`
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/proposal-evidence/results.txt`
   and `results.json` beside it;
 - the prototypes (the writer, the arbiter, the descriptor memory guard)
   and the amended prototypes of the pinned port and binding manager:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/prototype/`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/proposal-evidence/prototype/`;
 - the area rows and the two cost proxies:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/ooc/`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/proposal-evidence/ooc/`;
 - the ticket drafts of section 10:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/tickets/`;
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/tickets/`;
 - the round-two and round-three reviewers' own probes, rerun against this
   revision:
-  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/reviewer-probes/`.
+  `branch 500-design-evidence, commit c1ee27d81c4a1e98f9584e979b73a88acfe238b3, path design-evidence/500-materialization/reviewer-probes/`.
 
 The evidence the round-three reviews examined is commit
 `fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293` on the same branch, the round-two
@@ -86,8 +89,9 @@ reviews commit `ca8cb5943f885c22aec397ff75059e2d4791f4fb` and the round-one
 reviews commit `a21b165ac1c671d10cba7255beaf75cea0f81d18`. Their
 counterexamples are kept as named cases and mutants of this revision
 (section 16). The executable sources of this revision's run are commit
-`a78c79afebab98d53b94c034c92f7191989e8806`; the two commits after it add the
-results and the command record, and change no executable file.
+`a78c79afebab98d53b94c034c92f7191989e8806`; the commits after it add the
+results, the command record and documentation, and change no executable
+file.
 
 A section number that is a link points into another page; a plain section
 number is this page's.
@@ -288,9 +292,12 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    restore ends in one of three terminals: COMPLETE, DEFAULTS (rolled back)
    or CLOSED (an image it cannot prove). The entity enable the firmware
    requests reaches the entity only at the restore's done, as the
-   processor's F07.9 draws it ("release entity_enable"). A restore that
-   never reaches done keeps the entity dark: fail-closed, never an early
-   enable. A silent persistence device ends both walks at their deadlines
+   processor's F07.9 draws it ("release entity_enable"): ADP may then
+   advertise it. The enable gates ADP advertising, not traffic: the
+   listener's work faces and AECP dispatch have their own releases, S4's
+   and the D3 terminal (section 8.1). A restore that never reaches done
+   keeps the entity dark, never advertised and its AECP held: fail-closed,
+   never an early enable. A silent persistence device ends both walks at their deadlines
    instead: commands are served on defaults, and the port stays quarantined
    until the device ends the operation it abandoned.
 9. **An output map set its record cannot hold** is never written in part
@@ -317,10 +324,13 @@ accepted snapshot contract applies to them unchanged.** This is candidate
       arbiter's drain.
     - **S4**: a gate in front of the pinned listener's work faces owns them
       from the hard reset to the binding walk's drained terminal. It holds
-      a transaction, a talker event and a START/STOP request at their
-      producers and admits no timer expiry, so nothing but the preload
-      reaches the listener; its release starts the D3 walk and is part of
-      the restore done that releases the enable (section 8.9).
+      a transaction and a talker event at their producers (valid and ready
+      both masked), presents no START/STOP request (its valid masked; the
+      listener's completion passes, and cannot fire while the gate owns the
+      faces) and admits no timer expiry, so nothing but the preload reaches
+      the listener. Its release starts the listener's live ACMP work and the
+      D3 walk, and is part of the restore done that releases the enable
+      (sections 8.1 and 8.9).
 
     They are prerequisites of stage 1's implementation lane and of every
     stage declared shippable (tickets T8 and T9). So is the descriptor
@@ -424,11 +434,11 @@ renamed so they cannot pass for the pinned RTL.
 | Port | `KL_pp_nvm_mgr_arb` in front of `KL_pp_nvm_port`; `m_abort` (writer to arbiter) and `m0_abort` (binding manager to arbiter); `m_err_cause[1:0]` (arbiter to the owning manager, with its err) | section 6.4. Either abort abandons the READ the port serves for that manager, and the arbiter drains it. The cause is the port's (S1) |
 | Port cause (S1) | `nvm_err_cause_o[1:0]` on `KL_pp_nvm_port`, valid with its err: 1 DEVICE, 2 UNFRAMED, 3 reserved | AMENDED (T8). DEVICE: the device reported an error in any state, or ended the 8-byte header read short. UNFRAMED: the device delivered the header whole and it failed the port's magic or length gate. Both managers keep a record's default only on UNFRAMED |
 | Binding walk (S1, S3) | `KL_acmp_nvm_shadow`: `nvm_err_cause_i`, `nvm_abort_o`, `restore_cause_o[1:0]`, `RS_TMO_CYC_P` | AMENDED (T8). A zero-byte DEVICE err fails the walk whole. The read phase is bounded by the deadline; expiry fails the walk and abandons an issued read to the drain. Causes: 1 torn, 2 a device error with nothing forwarded, 3 the deadline. The preload phase is bounded by S4 |
-| Listener admission (S4) | `KL_pp_acmp_lsn_admit` in front of `KL_pp_acmp_listener`'s transaction, talker-event, START/STOP and expiry faces; `walk_done` (the binding manager's `restore_done_o`), `pre_valid`, `lsn_busy` (`dbg_busy_o`), `lsn_arm` (`act_disc_arm_o`); `own`, `released` | NEW (T8); the listener is unchanged. Owned from the HARD reset; released once, when the binding walk is at its terminal, no preload is presented, the listener is idle and its last A4 strobe has left. While owned, a transaction and a talker event are held at their producers (valid AND ready masked), a START/STOP request is not presented (that face's ready is a completion), and the expiry bus is not admitted (each listener-owner expiry counted). `released` is the binding walk's end for the D3 walk and for `restore_done_o` (section 8.9) |
+| Listener admission (S4) | `KL_pp_acmp_lsn_admit` in front of `KL_pp_acmp_listener`'s transaction, talker-event, START/STOP and expiry faces; `walk_done` (the binding manager's `restore_done_o`), `pre_valid`, `lsn_busy` (`dbg_busy_o`), `lsn_arm` (`act_disc_arm_o`); `own`, `released` | NEW (T8); the listener is unchanged. Owned from the HARD reset; released once, when the binding walk is at its terminal, no preload is presented, the listener is idle and its last A4 strobe has left. While owned, a transaction and a talker event are held at their producers (valid AND ready masked: their ready is an acceptance); a START/STOP request's valid is masked and the listener's completion (`strm_set_ready_o`, `strm_set_error_o`) passes unmasked, because it fires only for a request the listener captured and its holder stays empty from the hard reset to the release; the expiry bus is not admitted (each listener-owner expiry counted). The gate and the listener take the same hard reset, never `rb_rst`. `released` is the binding walk's end for the D3 walk and for `restore_done_o`, and the start of the listener's live work (sections 8.1 and 8.9) |
 | Descriptor memory (S2) | `KL_aecp_desc_mem_guard` between `KL_aecp_desc_store`'s memory master and the memory; `desc_debt` (guard to writer) | NEW (T9). An accepted burst owes its terminal beat (last or err). While it does, the store's next request is held and `desc_debt` is 1. The guard takes the hard reset only, never the roll-back strobe |
 | Image status | `desc_img_valid`, the store's validated-image level | AMENDED (T1): today the debug tap `dbg_img_valid_o`; the restore's image proof reads it |
 | Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state. The guard (S2) takes the hard reset only |
-| Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it |
+| Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it. It gates ADP advertising only: the side port's image-window lock keeps the top's `entity_enable_i`, as it ships, and ACMP and AECP traffic have their own releases (section 8.1) |
 | Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` and `restore_blank_o` become both walks; new `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding walk's `restore_cause_o[1:0]` | section 8.7 |
 | Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port cluster counts), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
 
@@ -602,8 +612,10 @@ own_lsn'    = reset ? 1 : drained ? 0 : own_lsn         (one-way until reset)
 txn, talker event to the listener = the producer's valid AND NOT own_lsn
 their ready to the producer       = the listener's ready AND NOT own_lsn
 START/STOP to the listener        = the engine's valid AND NOT own_lsn
+START/STOP completion to the engine = the listener's ready and error,
+                                    unmasked (0 while own_lsn: no holder)
 expiry to the listener            = the expiry AND NOT own_lsn
-bind_end    = NOT own_lsn                  (the D3 walk's go; restore_done)
+bind_end    = NOT own_lsn   (live ACMP work; the D3 walk's go; restore_done)
 ```
 
 The debounce is the binding manager's: the first change opens a window of
@@ -759,8 +771,9 @@ a new process, fresh RTL and fresh firmware, with the flash array carried.
    else (S4), which takes each preload in the cycle it is presented.
 5. Its DRAINED terminal, the gate's release (the walk done or failed, the
    listener idle, the last preload's record written and its discovery
-   armed), starts the D3 walk. From here the listener serves what waited:
-   the held ACMP commands and talker events, after the restored image.
+   armed), starts the D3 walk. From here the listener does live ACMP
+   work while the D3 walk runs, what waited first, after the restored
+   image.
 6. If the descriptor store holds no validated image, a LOCATE of ENTITY 0
    makes it walk the one the firmware loaded. An image it still cannot
    validate ends the restore CLOSED: nothing can be judged against it.
@@ -769,8 +782,9 @@ a new process, fresh RTL and fresh firmware, with the flash array carried.
    restored formats are judged again against the final maps; the names last.
    An abort rolls back (section 8.6).
 9. Restore done, for both walks: the D3 terminal COMPLETE or DEFAULTS. The
-   writer releases the state bus, and the enable bits the firmware writes
-   (step 10) reach the entity. CLOSED never reaches this step.
+   writer releases the state bus: AECP programs run, the ones held since
+   reset first. The enable bits the firmware writes (step 10) reach the ADP
+   engine. CLOSED never reaches this step.
 10. `entity_advertise`: the firmware writes the enable bits. It does so after
     its bounded wait whether or not the restore is done; the fabric holds
     them until step 9.
@@ -781,6 +795,40 @@ its first flush follows that walk. The enable is now released by the
 restore itself, so no entity enable precedes the restore of both walks, nor
 the last preload's record write and discovery arm, whatever the firmware's
 timing.
+
+**Three release points, each its own.** The restore releases three things
+at three points, and none of them stands for another (the integration
+clarification on this contract, [PR comment 5762146376](https://github.com/kebag-logic/milan-fpga/pull/503#issuecomment-5762146376)):
+
+| Point | What it releases | What runs from it |
+|---|---|---|
+| S4's release, the binding walk's drained terminal (step 5) | the listener's four work faces | LIVE ACMP work: the ACMP commands the dispatch held and later ones, ADP's talker events, the AECP engine's START/STOP requests once AECP runs, and the expiries of the timers the listener's live walks arm |
+| the D3 terminal, COMPLETE or DEFAULTS (step 9) | the state bus, and with it AECP dispatch | AECP programs, the ones held since reset first |
+| the entity enable, `(PP_CTRL[0] OR ADP_CTRL[0]) AND restore_done`, `restore_done` being S4's release AND the D3 walk's done (step 10) | the ADP engine's enable | ADP advertising: F07.9's "ADP may start" (Milan 5.6.1) |
+
+Live ACMP work after S4's release is not a late restore action. The binding
+manager's preload phase is over and never runs again before a reset: no
+preload is presented after the release, and every preload's record write
+and discovery arm precede it (graded in every L case). What the listener
+does from the release, a record write-back the binding manager persists as
+a live change, a discovery arm, an ACMP PDU, is live service on the
+restored image: a live change follows the restore and wins by coming later
+(L06, L09), and a read-only command answers the restored bindings (L04,
+L05).
+
+The entity enable is not a traffic freeze. In the pinned `KL_adp_engine.sv`
+it holds the advertise state machines in DOWN, where an ENTITY_DISCOVER is
+ignored, and nothing else: the talker-discovery state machines, which feed
+the listener's talker events, evaluate remote ENTITY_AVAILABLE on a
+separate path. Its other consumer in `protocol_processor_top.sv`, the side
+port's image-window write lock, keeps the top's `entity_enable_i`, as it
+ships. ACMP listener work waits for S4's release only, and AECP for the D3
+terminal only, whatever the enable says; a controller that already knows
+the entity's id can reach both before the entity is advertised. A CLOSED
+terminal holds AECP and the enable until a reset, and does not take the
+listener's faces back. EXECUTED, L04 at 1x1: a controller polls
+GET_RX_STATE from reset, "first taken at [243] (1745 in all), the release at
+243"; the D3 terminal follows at 3879, and "entity enabled at 3893".
 
 EXECUTED: V1b reads "enabled at 7613, D3 restore done at 7606, restore done
 at 7606" at 1x1 and "enabled at 13895, D3 restore done at 13889" at 8x8.
@@ -1371,9 +1419,24 @@ reset to the binding walk's drained terminal. The listener is unchanged.
   both masked, so the ACMP head stays in its dispatch queue, the event
   router's sticky latch stays set, and nothing is consumed that the
   listener did not see.
-- A START/STOP request is not presented. That face's ready is a completion,
-  which cannot fire without a captured request; AECP dispatch is held by
-  the writer from reset anyway.
+- A START/STOP request's VALID is masked, and the listener's completion
+  passes to the AECP engine unmasked. That face is not an acceptance
+  handshake: the engine holds its request until `strm_set_ready_o`, which
+  the listener raises once the record commit or the no-op check is done
+  (with `strm_set_error_o` when its bounded wait expires), and the listener
+  captures a presented request into its holder in any state. The holder
+  and its done and fail flags reset to 0 and fill only from a presented
+  request; the gate and the listener take the same hard reset, and neither
+  takes the roll-back. So from reset to the release the holder stays empty
+  and no completion can fire: masking the completion as well would change
+  nothing while the gate owns the faces, and a passed completion never
+  answers a request the listener did not capture. Paired masking of valid
+  and ready is for the transaction and the talker event, whose ready is an
+  acceptance. In the product the engine presents no START/STOP request
+  before the D3 terminal anyway, since the writer holds AECP dispatch from
+  reset; the evidence's producer holds one from reset (L06, L06b), and
+  every L case grades that no START/STOP request is captured while the gate
+  owns the faces and that captures and completions agree in number.
 - The timer expiry bus does not reach the listener, and every expiry of a
   listener owner that arrives is counted, never queued. The listener arms
   its timers only in the walks the gate holds off, and the timer service's
@@ -1409,18 +1472,21 @@ cycle takes what the listener finds: a request presented in the last owned
 cycle, or in the first released one, is taken in that first released cycle,
 and one presented a cycle later is taken a cycle later (L10). A request held
 from reset is taken exactly once, at the release, in the listener's own
-priority (L04). No live service is promised during the restore, and what a
-producer does with arrivals behind a held head is its own queue policy,
-unchanged. A boot that never starts the binding walk leaves the listener
-owned until reset, as it leaves AECP dispatch held; firmware change 2
-starts the walk on every path.
+priority (L04). No listener service is promised before the release, and
+what a producer does with arrivals behind a held head is its own queue
+policy, unchanged. A boot that never starts the binding walk leaves the
+listener owned until reset, as it leaves AECP dispatch held; firmware
+change 2 starts the walk on every path.
 
 **What it changes for a live change.** A BIND, UNBIND, START or STOP that
-arrives during the restore now follows the restored image instead of
+arrives before the release now follows the restored image instead of
 withdrawing it: it is served after the release, so it still wins, by coming
 later, and the binding manager persists it as it persists any live change.
 A read-only command no longer changes the saved state. A D3 roll-back
-leaves the restored bindings, which are no D3 owner (L13).
+leaves the restored bindings, which are no D3 owner (L13). What the
+listener does from the release is live service, not a late restore action,
+and it does not wait for the D3 terminal or the enable (section 8.1's three
+release points).
 
 EXECUTED at 1x1 and 8x8, each on a slot holding the bindings of the first
 and the last sink and a presentation offset. Each is graded on what the
@@ -1750,7 +1816,9 @@ The board's own figure is a measurement each stage owes.
   release, in the listener's own priorities, after the restored image: a
   live change still wins, and a read-only command no longer erases a saved
   binding. A talker-directed ACMP command queued behind a held listener one
-  waits with it.
+  waits with it. From the release the listener serves live work while the
+  D3 walk runs and before the entity is enabled: the entity enable gates
+  ADP advertising, not traffic (section 8.1).
 - An AECP command can wait for one latch window, at most 179 cycles in the
   model, before its program is dispatched.
 - The port serves two managers. A binding request can wait for one D3 record
@@ -2031,7 +2099,7 @@ The board's own figure is a measurement each stage owes.
     modelled: the guard's property, no request presented while a burst is
     owed, is what the evidence shows, and the product's path provides it by
     the guard or by a direct-wired bridge (T9).
-16. **No listener service during the restore.** S4 holds ACMP listener
+16. **No listener service during the binding walk.** S4 holds ACMP listener
     work from reset to the binding walk's drained terminal: a request is
     held, never consumed and dropped, but a producer's own queue may refuse
     arrivals behind a held head, and a talker-directed ACMP command queued
@@ -2080,8 +2148,14 @@ reviewer re-reviews the new heads and decides.
 
 | Finding | Severity and lenses | Answer | Evidence |
 |---|---|---|---|
-| R217 R3-F1: unbounded listener preload still defeats the promised command-recovery bound | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the listener's boot-owned admission S4, a prerequisite of stage 1 and of every shippable stage (T8): nothing but the preload reaches the pinned listener from the hard reset to the binding walk's drained terminal; requests held at their producers, expiries not admitted; the release starts the D3 walk and gates the enable; the listener is real and unchanged in the evidence (2, 3 rules 7, 8 and 11, 4, 5.1, 5.3, 6.2, 6.3, 8.1, 8.6, 8.8, 8.9, 10, 11, 12, 13, 14, 15 items 13, 15 and 16) | L00 to L13, L03b, L06b, L10 m1, 0 and p1 at 1x1 and 8x8; LG01 to LG05; tracked L01 and L05; R217's round-three probe, adapted (20 runs), and its own checker |
+| R217 R3-F1: unbounded listener preload still defeats the promised command-recovery bound | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the listener's boot-owned admission S4, a prerequisite of stage 1 and of every shippable stage (T8): nothing but the preload reaches the pinned listener from the hard reset to the binding walk's drained terminal; transactions and talker events held at their producers (valid and ready masked), START/STOP admission masked with its completion passed (none can fire while owned), expiries not admitted; the release starts live ACMP work and the D3 walk, and gates the enable; the listener is real and unchanged in the evidence (2, 3 rules 7, 8 and 11, 4, 5.1, 5.3, 6.2, 6.3, 8.1, 8.6, 8.8, 8.9, 10, 11, 12, 13, 14, 15 items 13, 15 and 16) | L00 to L13, L03b, L06b, L10 m1, 0 and p1 at 1x1 and 8x8; LG01 to LG05; tracked L01 and L05; R217's round-three probe, adapted (20 runs), and its own checker |
 | R218 R3-F1: stage 1 defers descriptor recovery needed for its finite-timeout acceptance | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the descriptor store's roll-back reset (or a re-walk that also returns its watchdog to zero) is stage 1's, with the dynamic-state store's (T1); the guard's debt survives it, on the hard reset only (T9); stage 2 adds no owner (T2); evidence run on a stage-1 build and a stage-1 slot (3 rule 11, 5.1, 8.6, 8.8, 10, 11, 13, 14, 15 item 14) | S1a to S1h on the stage-1 build and both full builds; ST1, killed by S1c and S1d; R218's reproduction, adapted (12 runs); DG01, DG02 |
+
+The integration clarification on this contract, [PR comment 5762146376](https://github.com/kebag-logic/milan-fpga/pull/503#issuecomment-5762146376),
+is not a finding: it asks that S4's release, the D3 terminal's release of
+AECP and the combined ADP enable be stated as separate points, with the
+live ACMP work after S4 kept apart from a late restore action. Section 8.1
+states them, and T1, T4 and T8 say the same.
 
 The round-two review findings at `40d14d92`, with the reviewers' own
 severities and lenses, as revision c answered them; the evidence names
