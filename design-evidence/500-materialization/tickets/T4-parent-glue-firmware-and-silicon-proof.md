@@ -1,6 +1,6 @@
-<!-- Draft by A151 for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
+<!-- Draft by A151, revised by A152, for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
 
-# Saved state D3 in the parent: glue, firmware order and the cold-cycle proof, per stage
+# Saved state D3 in the parent: glue, firmware and the cold-cycle proof, per stage
 
 ## Objective
 
@@ -13,24 +13,50 @@ cold power cycle driven from a controller host.
 `docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md` obligations O1 to O4;
 `REQUIREMENTS.md` section 1; issue #70.
 
+## Release conditions, per stage
+
+- No stage is DECLARED SHIPPABLE before #502 is closed: the pending bit must
+  be truthful from the first accepted live write for both classes no
+  shipped stage materializes (maps and names). A stage may be implemented
+  and merged before; it is not a shipped stage until then.
+- Stage 3 does not open before #501 records a conforming capacity decision
+  (T3).
+- A silent device during the BINDING walk keeps the entity dark and deaf
+  until processor issue 15 gives that walk a deadline (page section 8.8).
+  Each stage records that limitation in its release notes; it is fail-closed,
+  never an early enable.
+
 ## In scope, per stage
 
 1. The pin bump; `KL_pp_shadow.sv`: `pend_i = (|nvm_unflushed_o) |
-   d3_unflushed_o` plus the sticky class-6/7 bit for the classes no stage has
-   retired yet (class 7 leaves with stage 2, the bit is deleted with stage
-   3); `alarm_i` and the restore verdicts from the processor's combined
-   outputs.
-2. Stage 1 only: `milan_init` loads the AEM image before `nvm_boot`; the
-   ledger fact `firmware_boot_order`, the order block of
-   `docs/integration/BAREMETAL_FIRMWARE.md` and `nvm_boot`'s comment move with
-   it (`scripts/check_feature_status.py`).
-3. `tb/verilator/nvm_cosim`: the design's cases for the stage against the
-   shipping backend and writer (the clear rule orderings, the restore cases,
-   the tracked-glue controls), and the grant-cycle collision case.
-4. `docs/reference/REGISTER_MAP.md` PP_STAT rows: restore done, fail and blank
-   mean both walks; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section 1.7
-   and the feature ledger move only with the silicon proof.
-5. Silicon: set the stage's values from a controller host, read PP_STAT to
+   d3_unflushed_o` plus the sticky class-6/7 bit for the classes no stage
+   has retired yet (class 7 leaves with stage 2, the bit is deleted with
+   stage 3), unless #502 has already replaced its source; `alarm_i` and the
+   restore verdicts from the processor's combined outputs.
+2. Stage 1 only, the firmware (`sw/firmware/milan_baremetal/milan_baremetal.c`):
+   `milan_init` loads the AEM image before `nvm_boot`; `nvm_boot` starts the
+   restore walk on EVERY path, the persistence-disabled one included,
+   because the processor now holds AECP dispatch and the entity enable
+   until the walk's terminal; the restore wait's timeout and the enable line
+   report that the fabric holds the enable. The ledger fact
+   `firmware_boot_order`, the order block of
+   `docs/integration/BAREMETAL_FIRMWARE.md` and `nvm_boot`'s comment move
+   with it (`scripts/check_feature_status.py`).
+3. Stage 3 only: the map plane (`milan_datapath.sv` and
+   `KL_chan_map_capture.sv`) returns every port to its reset set on the
+   processor's roll-back strobe.
+4. `tb/verilator/nvm_cosim`: the design's cases for the stage against the
+   shipping backend and writer: the clear-rule orderings, the restore cases,
+   the transaction and deadline cases of page sections 8.6 and 8.8 on both
+   walks, the tracked-glue controls and the grant-cycle collision case; its
+   runner exits non-zero on any verdict failure and counts no kill from a
+   run that did not complete.
+5. `docs/reference/REGISTER_MAP.md`: PP_STAT restore done, fail and blank
+   mean both walks, a D3 roll-back reads done and fail, and PP_CTRL[0] and
+   ADP_CTRL[0] request the enable, which the fabric releases at the
+   restore's terminal. `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section
+   1.7 and the feature ledger move only with the silicon proof.
+6. Silicon: set the stage's values from a controller host, read PP_STAT to
    durable (backed 1, dirty 0, stale 0, pend 0), remove power at the outlet
    for 8 s, read every value back with GET commands; set IDENTIFY and prove it
    returns 0; a second cycle after changing a value back.
@@ -38,11 +64,10 @@ cold power cycle driven from a controller host.
 ## Acceptance
 
 The stage's co-simulation green with its mutants red; the full local bar of
-`CONTRIBUTING.md`; post-place area at both shipped shapes against the
-design's section 12 row; the silicon table of step 5 recorded on #70 with the
-build identity.
+`CONTRIBUTING.md`; post-place area at both shipped shapes reported against
+the page's section 12 row (an estimate, not a bound); the silicon table of
+step 6 recorded on #70 with the build identity.
 
 ## Dependencies
 
-The processor pin of the stage. T5 decides the 8x8 map record before stage 3
-claims 8x8 map persistence.
+The processor pin of the stage and the release conditions above.

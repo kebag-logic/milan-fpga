@@ -1,4 +1,4 @@
-<!-- Draft by A151 for the manager to file. Repository: kebag-logic/milan-fpga. Documentation only. -->
+<!-- Draft by A151. Recorded on kebag-logic/milan-fpga #495 (the review-leftovers checklist). Documentation only. -->
 
 # Docs: the saved-state page's area table for KL_nvm_backend predates the #484 contract
 

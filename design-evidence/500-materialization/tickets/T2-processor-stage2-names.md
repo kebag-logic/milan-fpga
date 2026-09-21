@@ -1,4 +1,4 @@
-<!-- Draft by A151 for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. After T1. -->
+<!-- Draft by A151, revised by A152, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. After T1. -->
 
 # Saved state, stage 2: the record writer materializes user names
 
@@ -6,13 +6,20 @@
 
 Extend `KL_aecp_nvm_writer` (T1) to the user-name records, one 64-byte record
 per writable-name ordinal at `0x80 + ordinal` (38 at the parent's 1x1 shape,
-99 at 8x8), Milan v1.2 5.3.13.
+99 at 8x8), Milan v1.2 5.3.13, inside T1's restore transaction.
 
 ## Authority
 
 kebag-logic/milan-fpga `docs/design/SAVED_STATE_MATERIALIZATION.md` sections
-3 (rule 3), 7, 8.5; the parent's saved-state page section 4.2 (the empty name
-is a value, 64 zero bytes); `07_memory_maps.md` section 5.
+3 (rule 3), 7, 8.5, 8.6 and 8.8; the parent's saved-state page section 4.2
+(the empty name is a value, 64 zero bytes); `07_memory_maps.md` section 5.
+
+## Prerequisites
+
+T1. Before this stage is DECLARED SHIPPABLE: kebag-logic/milan-fpga #502,
+truthful pending from the first accepted live write for the classes no
+shipped stage materializes. It may be implemented before; it may not be
+released as a shipped stage.
 
 ## In scope
 
@@ -22,6 +29,11 @@ is a value, 64 zero bytes); `07_memory_maps.md` section 5.
 - The restore after the descriptor store has walked the loaded image: a
   LOCATE of ENTITY 0 first if the image is not validated, then the name
   written back lane by lane.
+- The roll-back owner: `KL_aecp_desc_store` gains a soft-reset (or re-walk)
+  input driven by T1's roll-back strobe, so a pass-1 abort puts every name
+  back to the image's, and the writer's LOCATE after it proves the image
+  walked. A re-walk that cannot validate the image is the CLOSED terminal:
+  fail, never done, `own` kept, the entity never enabled.
 
 ## Acceptance
 
@@ -31,7 +43,14 @@ is a value, 64 zero bytes); `07_memory_maps.md` section 5.
   writes the name back before the image walk reddens.
 - The EMPTY name survives a power cycle as the empty name, against a
   non-empty image default.
-- Deleting the name trigger alone reddens a case.
+- Every name equals the image's default before pass 1 writes any, the first
+  and the last ordinal restored exactly, the unsaved ones unchanged.
+- A read error on the LAST name in pass 1, after names and every stage-1
+  group applied, ends in DEFAULTS with every name the image's; silence on it
+  likewise; a re-walk that cannot validate ends CLOSED; each with the mutant
+  that skips that owner's roll-back, or releases a closed restore, red.
+- Deleting the name trigger alone reddens a save test; deleting the name
+  replay alone reddens a restore check.
 
 ## Validation
 
