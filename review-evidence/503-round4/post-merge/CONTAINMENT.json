@@ -1,0 +1,43 @@
+{
+  "head": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "scripts/check_merge_containment.py",
+        "origin/500-d3-materialization-adr"
+      ],
+      "exit_code": 0,
+      "seconds": 4.613,
+      "log": "logs/01.log",
+      "original_log_sha256": "47ddc62443db987e88365e51a435b026069a836104b497872b8351f993b2977a"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_merge_containment.py",
+        "--merged-prs"
+      ],
+      "exit_code": 0,
+      "seconds": 17.788,
+      "log": "logs/02.log",
+      "original_log_sha256": "857c43db7f0b47dc5a51fd631f27ed73cf083df11dbbb1a7293b14ea497cef04"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_merge_review_integrity.py"
+      ],
+      "exit_code": 0,
+      "seconds": 31.543,
+      "log": "logs/03.log",
+      "original_log_sha256": "4940352d4818cc892f0ae0a3b512600bae8d301a0997e21ea238bcd10283ab06"
+    }
+  ],
+  "completion": {
+    "head": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+    "exit_code": 0,
+    "finished": "2026-09-21T19:37:45.036771+02:00"
+  }
+}
