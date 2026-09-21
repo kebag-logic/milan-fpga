@@ -203,6 +203,7 @@ class Build:
     glue_mut: str = ""
     arb_mut: str = ""
     fw_old_boot: bool = False
+    tracked: bool = False
     binary: Path | None = None
 
 
@@ -260,31 +261,92 @@ MUTATIONS = {
     "G03_restore_writes_are_changes": ("top",
         "  assign u_dyn_ack_w  = !snoop_off_i && !d3_own_w && ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w;",
         "  assign u_dyn_ack_w  = !snoop_off_i && (d3_own_w ? (sb_req_w && sb_we_w && dyn_sel_w) : (ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w));"),
-    "A01_arbiter_drops_a_request": ("arb",
-        "      else if (m0_req_i) begin\n        pend_r     <= 1'b1;",
-        "      else if (1'b0) begin\n        pend_r     <= 1'b1;"),
+    "M14_clear_by_index": ("writer",
+        "    assign clr_w[gs] = clr_en_w && (cg_r == grp_f(SW_C'(gs)))\n"
+        "                     && (ci_r[7:0] == 8'(gs - base_f(grp_f(SW_C'(gs)))));",
+        "    assign clr_w[gs] = clr_en_w\n"
+        "                     && (ci_r[7:0] == 8'(gs - base_f(grp_f(SW_C'(gs)))));"),
+    "M15_overflow_forgets_the_change": ("writer",
+        "  assign fl_giveup_w  = fl_err_w && (32'(retry_r) >= RETRY_MAX_P);",
+        "  assign fl_giveup_w  = (fl_err_w && (32'(retry_r) >= RETRY_MAX_P)) || fl_ovf_w;"),
+    "A01_grant_cycle_not_busy": ("arb",
+        "  assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;",
+        "  assign m0_busy_o   = p_busy_i || (own_r == O_M1);"),
 }
 
-#: mutant -> (case, variant, THE ONE CHECK that must kill it)
+#: case K15's sweep: the D3 writer released N cycles after the binding
+#: manager enters H_FL_CRC. The base build must commit both records at EVERY
+#: N and must reach the grant-cycle collision at one N at least.
+K15_SWEEP = [f"g{n}" for n in range(0, 8)]
+
+#: mutant -> (case, variant, THE ONE CHECK that must kill it, shape). The
+#: variant "*" is K15's sweep: killed when the check fails at any N.
 KILLERS = {
-    "M01_taint_ignored": ("K2_change_during_record_write", "", "no_durable_claim_over_unsaved"),
-    "M02_clear_at_latch": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved"),
-    "M03_clear_wins_same_edge": ("K5_change_on_the_done_edge", "", "same_edge_change_survives@end:0x50"),
-    "M04_clear_by_group": ("K4_second_record_in_flight", "", "value_in_slot@end:0x51"),
-    "M05_latch_ignores_program": ("K11_name_latch_waits_for_the_program", "", "written_value_was_set:0x80"),
-    "M06_identify_is_a_change": ("K14_identify_is_not_persisted", "", "identify_never_persisted"),
-    "M08_restore_skips_image_check": ("V7_names_only", "", "restored_name_survives_first_command:0x80"),
-    "M09_apply_blindly": ("V2_refused_rate", "", "refused_value_not_applied:0x02"),
-    "M10_fmt_full_judge": ("V6b_restore_coupled_pair", "", "coupled_pair_restored"),
-    "M11_no_orphan_check": ("V8_orphaning_format_reverted", "", "no_orphaned_mapping_after_restore"),
-    "M12_no_revert_before_readd": ("V9_refused_maps_revert_their_formats", "", "refused_group_falls_back_to_default:0x70"),
-    "M13_restore_applies_nothing": ("V1b_restore_everything", "", "value_restored:0x50"),
-    "G01_pend_misses_d3": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved"),
-    "G02_restore_done_without_d3": ("V1b_restore_everything", "", "entity_enabled_after_restore@boot"),
-    "G03_restore_writes_are_changes": ("V1b_restore_everything", "", "restore_sets_no_dirty@boot"),
-    "A01_arbiter_drops_a_request": ("K13_binding_and_d3_share_the_port", "", "both_records_committed"),
-    "F01_old_boot_order": ("V1b_restore_everything", "", "value_restored:0x50"),
+    "M01_taint_ignored": ("K2_change_during_record_write", "", "no_durable_claim_over_unsaved", "1x1"),
+    "M02_clear_at_latch": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
+    "M03_clear_wins_same_edge": ("K5_change_on_the_done_edge", "", "same_edge_change_survives@end:0x50", "1x1"),
+    "M04_clear_by_group": ("K4_second_record_in_flight", "", "value_in_slot@end:0x51", "1x1"),
+    "M05_latch_ignores_program": ("K11_name_latch_waits_for_the_program", "", "written_value_was_set:0x80", "1x1"),
+    "M06_identify_is_a_change": ("K14_identify_is_not_persisted", "", "identify_never_persisted", "1x1"),
+    "M08_restore_skips_image_check": ("V7_names_only", "", "restored_name_survives_first_command:0x80", "1x1"),
+    "M09_apply_blindly": ("V2_refused_rate", "", "refused_value_not_applied:0x02", "1x1"),
+    "M10_fmt_full_judge": ("V6b_restore_coupled_pair", "", "coupled_pair_restored", "1x1"),
+    "M11_no_orphan_check": ("V8_orphaning_format_reverted", "", "no_orphaned_mapping_after_restore", "1x1"),
+    "M12_no_revert_before_readd": ("V9_refused_maps_revert_their_formats", "",
+                                   "refused_group_falls_back_to_default:0x70", "1x1"),
+    "M13_restore_applies_nothing": ("V1b_restore_everything", "", "value_restored:0x50", "1x1"),
+    "M14_clear_by_index": ("K4g_second_group_in_flight", "", "value_in_slot@end:0x0a", "1x1"),
+    "M15_overflow_forgets_the_change": ("K16_map_set_larger_than_its_record", "",
+                                        "no_durable_claim_over_unsaved", "8x8"),
+    "G01_pend_misses_d3": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
+    "G02_restore_done_without_d3": ("V1b_restore_everything", "", "entity_enabled_after_restore@boot", "1x1"),
+    "G03_restore_writes_are_changes": ("V1b_restore_everything", "", "restore_sets_no_dirty@boot", "1x1"),
+    "A01_grant_cycle_not_busy": ("K15_binding_on_the_d3_grant_cycle", "*", "both_records_committed", "1x1"),
+    "F01_old_boot_order": ("V1b_restore_everything", "", "value_restored:0x50", "1x1"),
 }
+
+#: WHAT REPRODUCES TODAY. The tracked glue (d3_top.sv under D3_TRACKED, the
+#: parent as it ships at dev 07294a76) must FAIL these checks, which shows
+#: they are not vacuous: nothing is written, nothing converges, nothing comes
+#: back. Two of them are a finding about today's glue rather than the gap:
+#: it takes the class-6/7 COMMIT MARK, which the SET_NAME and ADD/REMOVE
+#: programs raise only after the live write, so the status reads durable
+#: over an applied name or map for the program's tail.
+TRACKED_CASES = ["K1_single_change_converges", "K10_name_change_converges", "K12_map_change_converges"]
+TRACKED_MUST_FAIL = [
+    ("K1_single_change_converges", "converged@end"),
+    ("K1_single_change_converges", "value_in_slot@end:0x50"),
+    ("K10_name_change_converges", "value_in_slot@end:0x80"),
+    ("K10_name_change_converges", "no_durable_claim_over_unsaved"),
+    ("K12_map_change_converges", "value_in_slot@end:0x70"),
+    ("K12_map_change_converges", "no_durable_claim_over_unsaved"),
+    ("V1b_restore_everything", "set_value_survives_power_cycle:0x50"),
+]
+#: ...and must PASS these: a dynamic-state change is reported by the store's
+#: own sticky level from the write, so today's status never reads durable
+#: over one, and every case runs to its end
+TRACKED_MUST_PASS = [
+    ("K1_single_change_converges", "no_durable_claim_over_unsaved"),
+    ("V1a_set_everything", "no_durable_claim_over_unsaved"),
+    ("V1b_restore_everything", "no_durable_claim_over_unsaved"),
+    ("*", "case_completed"),
+]
+
+#: the binding manager's state encoding the harness compares against (the
+#: bridge's H_FL_REQ = 13 and the K15 case's H_FL_CRC = 12)
+M0_STATES = {"H_FL_CRC": 12, "H_FL_REQ": 13}
+
+
+def check_m0_encoding() -> None:
+    """Refuse to run if the donor moved the states the harness names."""
+    src = (PP / "acmp/KL_acmp_nvm_shadow.sv").read_text()
+    m = re.search(r"typedef enum logic \[3:0\] \{(.*?)\} hstate_e;", src, re.S)
+    if not m:
+        raise SystemExit("KL_acmp_nvm_shadow: hstate_e not found")
+    names = re.findall(r"^\s*(H_[A-Z_]+)", m.group(1), re.M)
+    for name, code in M0_STATES.items():
+        if name not in names or names.index(name) != code:
+            raise SystemExit(f"KL_acmp_nvm_shadow: {name} is not encoding {code} ({names})")
 
 
 def mutate_text(key: str, text: str, name: str) -> str:
@@ -313,9 +375,10 @@ def host_firmware(text: str, old_boot: bool) -> str:
 
 def all_builds(shapes: list[str]) -> list[Build]:
     out = [Build(f"base-{s}", s) for s in shapes]
+    out.append(Build("tracked-1x1", "1x1", tracked=True))
     for m in MUTATIONS:
         kind = MUTATIONS[m][0]
-        b = Build(f"mut-{m}", "1x1")
+        b = Build(f"mut-{m}", KILLERS[m][3])
         if kind == "writer":
             b.rtl_mut = m
         elif kind == "top":
@@ -323,7 +386,7 @@ def all_builds(shapes: list[str]) -> list[Build]:
         else:
             b.arb_mut = m
         out.append(b)
-    out.append(Build("mut-F01_old_boot_order", "1x1", fw_old_boot=True))
+    out.append(Build("mut-F01_old_boot_order", KILLERS["F01_old_boot_order"][3], fw_old_boot=True))
     return out
 
 
@@ -360,11 +423,15 @@ def do_build(b: Build, s: Shape, jobs: int) -> Build:
     vl = ["verilator", "--cc", "--exe", "--build", "-j", str(jobs), "--top-module", "d3_top",
           "--Mdir", work / "obj", "-Wall", "-Wno-fatal", "-Werror-USERERROR", "-Wno-UNUSEDSIGNAL",
           "-Wno-UNUSEDPARAM", "--x-assign", "unique", "--x-initial", "unique"] + gparams
+    if b.tracked:
+        vl += ["+define+D3_TRACKED"]
     vl += ["-CFLAGS", f"-std=c++17 -O2 -I{HARNESS} -I{STUBS} {' '.join(defs)}",
            "-LDFLAGS", f"{work / 'host.o'} {work / 'fw.o'}"]
-    vl += DONOR_SV + [BACKEND, work / "KL_pp_nvm_mgr_arb.sv", work / "KL_aecp_nvm_writer.sv",
-                      work / "d3_top.sv", HARNESS / "d3_bridge.cpp", HARNESS / "d3_cases.cpp",
-                      "-o", "d3sim"]
+    rtl = DONOR_SV + [BACKEND, work / "KL_pp_nvm_mgr_arb.sv"]
+    if not b.tracked:
+        rtl.append(work / "KL_aecp_nvm_writer.sv")
+    vl += rtl + [work / "d3_top.sv", HARNESS / "d3_bridge.cpp", HARNESS / "d3_cases.cpp",
+                 "-o", "d3sim"]
     cmd(vl, logs / f"{b.name}-verilator.log")
     b.binary = work / "obj" / "d3sim"
     return b
@@ -383,6 +450,7 @@ class Run:
     done: bool
     out: Path
     slots_in: tuple | None = None
+    notes: dict = dataclasses.field(default_factory=dict)
 
 
 def run_case(b: Build, s: Shape, case: str, variant: str = "",
@@ -401,18 +469,21 @@ def run_case(b: Build, s: Shape, case: str, variant: str = "",
     p = subprocess.run(argv, text=True, capture_output=True)
     (out / "stdout.log").write_text(p.stdout)
     (out / "stderr.log").write_text(p.stderr)
-    obs, evts, fw, done = {}, [], [], False
+    obs, evts, fw, done, notes = {}, [], [], False, {}
     for ln in p.stdout.splitlines():
         if ln.startswith("OBS "):
             o = json.loads(ln[4:])
             obs[o["tag"]] = o
         elif ln.startswith("EVT "):
             evts.append(json.loads(ln[4:]))
+        elif ln.startswith("NOTE "):
+            n = json.loads(ln[5:])
+            notes[n["key"]] = n
         elif ln.startswith("Milan "):
             fw.append(ln)
         elif ln.startswith("CASE_DONE"):
             done = True
-    return Run(case, b.name, variant, p.returncode, obs, evts, fw, done, out, slots)
+    return Run(case, b.name, variant, p.returncode, obs, evts, fw, done, out, slots, notes)
 
 
 def blank_slot() -> bytes:
@@ -698,6 +769,12 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
             ok = valid == 1 and v is not None and (v & ((1 << (8 * width)) - 1)) == int.from_bytes(want, "big")
             g.check(f"value_restored:{rid:#04x}", ok, f"restored {v} valid {valid}, slot {want.hex()}")
         restored(0x50, "ptof0", 4)
+        #! against the value V1a SET, not against the slot: the check a
+        #! build that saves nothing (the tracked glue) must fail
+        pv, _ = g.ans("post.ptof0.value")
+        pvalid, _ = g.ans("post.ptof0.valid")
+        g.check("set_value_survives_power_cycle:0x50", pvalid == 1 and pv == 1500000,
+                f"restored {pv} valid {pvalid}, set 1500000")
         restored(0x30, "fmti0", 8)
         if s.rates and len(s.rates) > 1:
             restored(0x02, "rate", 4)
@@ -801,20 +878,73 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         valid, _ = g.ans("post.ptof0.valid")
         g.check("blank_boot_applies_nothing@boot", o.get("rs_blank") == n_rec and o.get("rs_app") == 0 and
                 valid == 0, f"blank {o.get('rs_blank')} of {n_rec}, applied {o.get('rs_app')}, ptof0 valid {valid}")
+    elif c == "K4g_second_group_in_flight":
+        g.converged("end")
+        g.value_in_slot("end", 0x50)
+        g.value_in_slot("end", 0x0A)
+    elif c == "K15_binding_on_the_d3_grant_cycle":
+        g.converged("end")
+        sl = g.tag_slots("end")
+        bind = sl.get(0x20)
+        ok = bind is not None and bind[0] & 1 == 1 and sl.get(0x50) == (1500015).to_bytes(4, "big")
+        g.check("both_records_committed", ok,
+                f"binding {bind.hex() if bind else None}, 0x50 {sl.get(0x50).hex() if sl.get(0x50) else None}, "
+                f"grant-cycle collisions {g.boot().get('collisions')}")
+    elif c == "K16_map_set_larger_than_its_record":
+        over = r.obs.get("over", {})
+        size = r.notes.get("over_size", {}).get("value")
+        chg = [cy for cy, rid, _v in g.changes() if rid == 0x70]
+        first = chg[0] if chg else None
+        ocyc = over.get("cycle", 0)
+        w = [o for o in g.ops() if o["op"] == 1 and o["rid"] == 0x70 and o["res"] == "done"
+             and first is not None and first < o["gnt"] <= ocyc]
+        cls = s.recs[0x70][2] // 8
+        ok = (size is not None and size > cls and over.get("pend") == 1 and over.get("d3_alarm") == 0
+              and over.get("backed") == 1 and not w)
+        g.check("oversized_set_stays_pending@over", ok,
+                f"{size} mappings on a {cls}-entry record; pend {over.get('pend')}, D3 alarm "
+                f"{over.get('d3_alarm')}, backed {over.get('backed')}, WRITEs of 0x70 {len(w)}")
+        g.converged("end")
+        g.value_in_slot("end", 0x70)
+    elif c == "K17a_cut_during_record_write":
+        nb = r.notes.get("cut_write_bytes", {}).get("value")
+        g.check("cut_inside_the_write@cut", nb is not None and 0 < nb < 12,
+                f"the WRITE of 0x50 had taken {nb} of 12 bytes at the cut")
+    elif c == "K18a_cut_inside_the_debounce":
+        o = r.obs.get("cut", {})
+        w = [x for x in g.ops() if x["op"] == 1 and x["rid"] == 0x50 and x["res"] == "done"
+             and bytes.fromhex(x["w"])[8:12] == (1818002).to_bytes(4, "big")]
+        g.check("pending_at_the_cut@cut", o.get("pend") == 1 and o.get("d3_unfl") == 1 and not w,
+                f"pend {o.get('pend')}, D3 unflushed {o.get('d3_unfl')}, WRITEs of the unsaved value {len(w)}")
+    elif c in ("K17b_restore_after_cut_in_write", "K18b_restore_after_cut_in_debounce"):
+        unsaved = 1717002 if c.startswith("K17") else 1818002
+        v, _ = g.ans("ptof0.value")
+        valid, _ = g.ans("ptof0.valid")
+        cut = extra.get("cut_slots", {}).get(0x50)
+        ok = valid == 1 and cut is not None and v == int.from_bytes(cut, "big") and v != unsaved
+        g.check("power_cut_loses_only_unsaved:0x50", ok,
+                f"restored {v} (valid {valid}), the cut's newest verified slot {cut.hex() if cut else None}, "
+                f"the unsaved value {unsaved}")
     return g
 
 
 # ----------------------------------------------------------------- the plan
 BASE_CASES = [
     "K1_single_change_converges", "K2_change_during_record_write", "K3_two_changes_one_debounce",
-    "K4_second_record_in_flight", "K5_change_on_the_done_edge", "K8_record_write_error_retried",
-    "K9_record_write_given_up", "K10_name_change_converges", "K11_name_latch_waits_for_the_program",
-    "K12_map_change_converges", "K13_binding_and_d3_share_the_port", "K14_identify_is_not_persisted",
+    "K4_second_record_in_flight", "K4g_second_group_in_flight", "K5_change_on_the_done_edge",
+    "K8_record_write_error_retried", "K9_record_write_given_up", "K10_name_change_converges",
+    "K11_name_latch_waits_for_the_program", "K12_map_change_converges",
+    "K13_binding_and_d3_share_the_port", "K14_identify_is_not_persisted",
 ]
 CHAINS = [("K6a_cut_after_record_before_commit", "K6b_restore_after_cut"),
           ("K7a_cut_after_ack", "K7b_restore_after_ack"),
+          ("K17a_cut_during_record_write", "K17b_restore_after_cut_in_write"),
+          ("K18a_cut_inside_the_debounce", "K18b_restore_after_cut_in_debounce"),
           ("V1a_set_everything", "V1b_restore_everything"),
           ("V6a_set_coupled_narrower_pair", "V6b_restore_coupled_pair")]
+#: cases one shape alone can express: K16 needs an output port whose stream
+#: channels outnumber its clusters (8x8: 72 against 9; 1x1: 16 against 17)
+SHAPE_CASES = {"8x8": ["K16_map_set_larger_than_its_record"]}
 CRAFTED = ["V2_refused_rate", "V3_refused_map_for_a_removed_cluster", "V4_refused_configuration_index",
            "V5_record_corrupted_after_the_load", "V7_names_only", "V8_orphaning_format_reverted",
            "V9_refused_maps_revert_their_formats"]
@@ -844,15 +974,25 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
 
 def plan(build: Build) -> list:
     """(case, variant, slots-from) for one build: base builds run everything;
-    a mutant runs the one case (and chain) its killer lives in."""
+    the tracked build runs what reproduces today; a mutant runs the one case
+    (and chain, or K15's whole sweep) its killer lives in."""
     items = []
     if build.name.startswith("base-"):
         items += [(c, "", None) for c in BASE_CASES + CRAFTED + ["V10_blank_first_boot"]]
+        items += [(c, "", None) for c in SHAPE_CASES.get(build.shape, [])]
         items += [(a, "", None) for a, _b in CHAINS] + [(b, "", a) for a, b in CHAINS]
         items += [("V1b_restore_everything", "stale", "V1a_set_everything")]
+        if build.shape == "1x1":
+            items += [("K15_binding_on_the_d3_grant_cycle", v, None) for v in K15_SWEEP]
+    elif build.tracked:
+        items += [(c, "", None) for c in TRACKED_CASES]
+        items += [("V1a_set_everything", "", None), ("V1b_restore_everything", "", "V1a_set_everything")]
     else:
         m = build.name[4:]
-        case, variant, _k = KILLERS[m]
+        case, variant, _k, _s = KILLERS[m]
+        if variant == "*":
+            items += [(case, v, None) for v in K15_SWEEP]
+            return items
         for a, b in CHAINS:
             if case == b:
                 items.append((a, "", None))
@@ -892,6 +1032,7 @@ def main() -> int:
     ap.add_argument("--jobs", type=int, default=8)
     ap.add_argument("--pool", type=int, default=4)
     args = ap.parse_args()
+    check_m0_encoding()
     shapes_wanted = args.shapes.split(",")
     shapes = {n: prep_shape(n) for n in shapes_wanted}
     builds = [b for b in all_builds(shapes_wanted) if b.shape in shapes]
@@ -946,17 +1087,50 @@ def report(allres: dict) -> None:
                     if ok == expected_fail:
                         fail += 1
                         verdict.append(f"UNEXPECTED {bname} {tag} {name} {'PASS' if ok else 'FAIL'}")
+            sweep = [(r.variant, g.boot().get("collisions", 0)) for r, g in res
+                     if r.case == "K15_binding_on_the_d3_grant_cycle"]
+            if sweep:
+                hits = [v for v, n in sweep if n > 0]
+                ok = bool(hits)
+                if not ok:
+                    fail += 1
+                verdict.append(f"PREMISE {bname} K15: the binding manager sampled busy on the D3 writer's "
+                               f"grant cycle at {', '.join(hits) if hits else 'NO release'} "
+                               f"({len(hits)} of {len(sweep)} releases) -> {'reached' if ok else 'NOT REACHED'}")
+        elif bname.startswith("tracked-"):
+            got = {}
+            for r, g in res:
+                tag = r.case + (f"~{r.variant}" if r.variant else "")
+                for name, (ok, _d) in g.checks.items():
+                    got[(tag, name)] = ok
+            for case, name in TRACKED_MUST_FAIL:
+                ok = got.get((case, name))
+                good = ok is False
+                if not good:
+                    fail += 1
+                verdict.append(f"TRACKED {case} : {name} "
+                               f"{'FAILS, as it must at the current source' if good else f'DOES NOT FAIL ({ok})'}")
+            for case, name in TRACKED_MUST_PASS:
+                keys = [k for k in got if k[1] == name and (case == "*" or k[0] == case)]
+                bad = [k for k in keys if not got[k]]
+                good = bool(keys) and not bad
+                if not good:
+                    fail += 1
+                verdict.append(f"TRACKED {case} : {name} "
+                               f"{'PASSES, as it must' if good else f'DOES NOT PASS ({bad or keys})'}")
         else:
             m = bname[4:]
-            case, variant, killer = KILLERS[m]
-            tag = case + (f"~{variant}" if variant else "")
-            killed = None
+            case, variant, killer, _s = KILLERS[m]
+            killed, where = False, None
             for r, g in res:
-                t = r.case + (f"~{r.variant}" if r.variant else "")
-                if t == tag and killer in g.checks:
-                    killed = not g.checks[killer][0]
+                if r.case != case or (variant != "*" and r.variant != variant):
+                    continue
+                if killer in g.checks and not g.checks[killer][0]:
+                    killed, where = True, r.case + (f"~{r.variant}" if r.variant else "")
+                    break
             if not killed:
                 fail += 1
+            tag = where or (case + (f"~{variant}" if variant else ""))
             verdict.append(f"MUTANT {m}: {'KILLED' if killed else 'SURVIVED'} by {tag} : {killer}")
             if m == "M13_restore_applies_nothing":
                 for r, g in res:

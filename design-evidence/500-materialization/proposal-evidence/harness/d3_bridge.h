@@ -43,8 +43,9 @@ struct Map {
 
 //! one uCPU state-bus operation inside a program
 struct UOp {
-  enum Kind { DYN_WR, NAME_WR, READ, LOCATE, GAP, MAP_ADD, MAP_REMOVE, IDENT_WR } kind;
+  enum Kind { DYN_WR, NAME_WR, READ, LOCATE, GAP, MAP_ADD, MAP_REMOVE, IDENT_WR, MARK } kind;
   unsigned sel = 0, idx = 0;       //! DYN_WR/READ: selector and descriptor index
+  unsigned cls = 0, type = 0;      //! MARK: the class and the descriptor type (idx: its index)
   uint64_t val = 0;                //! DYN_WR/NAME_WR: the data; LOCATE: the key
   uint32_t addr = 0;               //! READ: the address; NAME_WR: the lane address
   bool name = false;               //! READ: the name table
@@ -80,6 +81,9 @@ struct Log {
   uint64_t enable_cyc = 0, restore_done_cyc = 0, d3_done_cyc = 0, own_max = 0;
   uint64_t prog_waited_on_own = 0;
   unsigned mem_errs = 0;
+  //! cycles in which the binding manager sat in H_FL_REQ while the arbiter
+  //! granted the D3 writer: case K15's premise
+  unsigned collisions = 0;
 };
 extern Log evlog;
 
@@ -111,6 +115,13 @@ bool dirty_bit(unsigned slot);
 bool writer_done_now();
 //! the device face has a WRITE of `rid` open this cycle (granted, not ended)
 bool dut_dev_write_open(unsigned rid);
+//! bytes the device face has taken for an open WRITE of `rid`, or -1
+int dut_dev_write_bytes(unsigned rid);
+//! the binding manager's state (KL_acmp_nvm_shadow hs_r encoding)
+unsigned m0_state();
+//! hold prog_busy_i high whatever the uCPU does (case K15 aligns the D3
+//! writer's latch with it); releasing takes effect in the calling cycle
+void hold(bool on);
 //! the writer's change snoop (a harness knob for the stale-store control)
 void snoop(bool on);
 bool force_dyn_write(unsigned sel, unsigned idx, uint64_t val, int rid,

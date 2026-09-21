@@ -33,7 +33,10 @@
 //                the done edge wins. The OR of the bits is unflushed_o, the
 //                parent's pend_i term, so until the record is in the window
 //                the pending bit says so, and from the record's close on the
-//                backend's dirty_live does.
+//                backend's dirty_live does. A map set with more mappings
+//                than its record has entries is neither written nor
+//                forgotten: it stays dirty (pending) and is skipped by the
+//                flush scan until the next change to that port.
 //
 //                RESTORE (page section 8), after the binding walk and before
 //                the entity is enabled: every record is read through the port
@@ -85,10 +88,12 @@ module KL_aecp_nvm_writer #(
     input  wire         u_name_ack_i,  //! the descriptor store took a uCPU name write
     input  wire  [19:0] u_addr_i,      //! that access's address
     input  wire  [15:0] u_didx_i,      //! that access's descriptor index
-    input  wire         mk_stb_i,      //! AECP commit mark strobe
-    input  wire  [7:0]  mk_mark_i,     //! its class
-    input  wire  [15:0] mk_type_i,     //! the committed command's descriptor type
-    input  wire  [15:0] mk_idx_i,      //! ... and descriptor index
+    //! the map edit face's commit-one-record beat (amap_edit_req_o with
+    //! amap_edit_phase_o 5): the live map write itself, which the class-6
+    //! commit mark follows only after the rest of the program
+    input  wire         me_stb_i,
+    input  wire  [15:0] me_type_i,     //! the edited port's descriptor type
+    input  wire  [15:0] me_idx_i,      //! ... and descriptor index
 
     //! ---- quiescence ----
     input  wire         prog_busy_i,   //! a uCPU program is running, marks included
@@ -164,7 +169,7 @@ module KL_aecp_nvm_writer #(
 
     //! ---- published ----
     output logic        unflushed_o,   //! a change no record in the window carries yet
-    output logic        alarm_o,       //! sticky: a record given up, or a map set too large
+    output logic        alarm_o,       //! sticky: a record given up after RETRY_MAX_P errors
     output logic [15:0] writes_o,      //! whole-record commits completed
     output logic [15:0] dbg_slot_o,    //! observation: the slot in hand
     output logic        dbg_taint_o,
@@ -285,7 +290,7 @@ module KL_aecp_nvm_writer #(
   assign u_sel_w = u_addr_i[15:3];
   assign dyn_w   = u_dyn_ack_i && (u_addr_i[19:16] == RG_DYN_C);
   assign name_w  = u_name_ack_i;
-  assign map_w   = mk_stb_i && (mk_mark_i == 8'd6);
+  assign map_w   = me_stb_i;
 
   //! selector 7, IDENTIFY, is volatile by Milan 5.3.12 and never a change
   //! here; selector 6 is retired; an index past the shape is none
@@ -304,10 +309,10 @@ module KL_aecp_nvm_writer #(
     assign set_w[S_PTOF_C + gi] = dyn_w && (u_sel_w == 13'd5) && (u_didx_i == 16'(gi));
   end
   for (genvar gi = 0; gi < N_SPORT_IN_P; gi++) begin : g_ev_mapi
-    assign set_w[S_MAPI_C + gi] = map_w && (mk_type_i == T_SPI_C) && (mk_idx_i == 16'(gi));
+    assign set_w[S_MAPI_C + gi] = map_w && (me_type_i == T_SPI_C) && (me_idx_i == 16'(gi));
   end
   for (genvar gi = 0; gi < N_SPORT_OUT_P; gi++) begin : g_ev_mapo
-    assign set_w[S_MAPO_C + gi] = map_w && (mk_type_i == T_SPO_C) && (mk_idx_i == 16'(gi));
+    assign set_w[S_MAPO_C + gi] = map_w && (me_type_i == T_SPO_C) && (me_idx_i == 16'(gi));
   end
   for (genvar gi = 0; gi < N_NAME_P; gi++) begin : g_ev_name
     assign set_w[S_NAME_C + gi] = name_w && (u_addr_i[15:6] == 10'(gi));
@@ -496,12 +501,14 @@ module KL_aecp_nvm_writer #(
   // the descriptor field reader: value of `len` bytes at `fld_off_r` from
   // the lanes the store returns, assembled by the machine into aux_r
 
-  logic fl_done_ok_w, fl_giveup_w, fl_err_w, fl_ovf_w;
+  logic fl_done_ok_w, fl_giveup_w, fl_err_w, fl_ovf_w, map_ovf_w;
   assign fl_err_w     = ((st_r == F_STR) || (st_r == F_WAIT)) && m_err_i;
-  //! a map set larger than its record is given up like a failed record
-  assign fl_ovf_w     = (st_r == F_MAPW) && (sub_r == 4'd4) && (k_r < n_r)
-                      && (32'(ns_r) >= 32'(cplen_r[15:3]));
-  assign fl_giveup_w  = (fl_err_w && (32'(retry_r) >= RETRY_MAX_P)) || fl_ovf_w;
+  //! the live map set has more mappings than its record has entries (an
+  //! output port fans one cluster out to several stream channels): the set
+  //! cannot be represented, so it is NOT written and NOT forgotten
+  assign map_ovf_w    = (32'(ns_r) >= 32'(cplen_r[15:3]));
+  assign fl_ovf_w     = (st_r == F_MAPW) && (sub_r == 4'd4) && (k_r < n_r) && map_ovf_w;
+  assign fl_giveup_w  = fl_err_w && (32'(retry_r) >= RETRY_MAX_P);
   assign fl_done_ok_w = (st_r == F_WAIT) && m_done_i && !taint_r;
 
   // ---- the dirty vector: set wins, cleared only by an untainted done --------
@@ -518,6 +525,27 @@ module KL_aecp_nvm_writer #(
   end
   //! a change to the record in hand (the taint source)
   assign cur_ev_w = set_w[cur_r];
+
+  // ---- unrepresentable map sets: pending, and skipped until changed ---------
+  //! One bit per MAP record. An overflowing set keeps its dirty bit (so the
+  //! pending bit keeps saying "accepted and not durable") and is skipped by
+  //! the flush scan until the next change to that port re-arms it; a change
+  //! on the overflow edge wins, exactly as for the dirty bit.
+  logic [N_REC_C-1:0] skip_w, elig_w;
+  for (genvar gs = 0; gs < N_REC_C; gs++) begin : g_skip
+    if ((gs >= S_MAPI_C) && (gs < S_NAME_C)) begin : g_map
+      logic skip_r;
+      always_ff @(posedge clk_i) begin
+        if (!rst_n)                             skip_r <= 1'b0;
+        else if (set_w[gs])                     skip_r <= 1'b0;
+        else if (fl_ovf_w && (32'(cur_r) == gs)) skip_r <= 1'b1;
+      end
+      assign skip_w[gs] = skip_r;
+    end else begin : g_none
+      assign skip_w[gs] = 1'b0;
+    end
+  end
+  assign elig_w = dirty_r & ~skip_w;
 
   // ---- debounce (T-NVM-DEBOUNCE, the binding manager's coalescing) ---------
   always_ff @(posedge clk_i) begin
@@ -537,7 +565,7 @@ module KL_aecp_nvm_writer #(
           deb_cnt_r <= deb_cnt_r - 32'd1;
         end
       end
-      if ((st_r == F_RUN) && fl_arm_r && !(|dirty_r)) fl_arm_r <= 1'b0;
+      if ((st_r == F_RUN) && fl_arm_r && !(|elig_w)) fl_arm_r <= 1'b0;
     end
   end
 
@@ -938,9 +966,9 @@ module KL_aecp_nvm_writer #(
 
         // =================== STEADY STATE ===================
         F_RUN: begin
-          if (fl_arm_r && (|dirty_r)) begin
+          if (fl_arm_r && (|elig_w)) begin
             //! scan for a dirty record, one slot per cycle
-            if (dirty_r[scan_r]) begin
+            if (elig_w[scan_r]) begin
               cur_r <= scan_r; retry_r <= 8'd0; st_r <= F_ACQ;
             end
             scan_r <= (32'(scan_r) + 1 >= N_REC_C) ? '0 : scan_r + SW_C'(1);
@@ -1014,10 +1042,11 @@ module KL_aecp_nvm_writer #(
           end else if (sub_r == 4'd4) begin
             if (k_r >= n_r) begin
               pg_r <= pg_r + 16'd1; sub_r <= 4'd2;
-            end else if (32'(ns_r) >= 32'(cplen_r[15:3])) begin
+            end else if (map_ovf_w) begin
               //! more mappings than the record has entries: it cannot be
-              //! persisted, so say so loudly instead of saving part of it
-              alarm_r <= 1'b1; own_r <= 1'b0; st_r <= F_RUN;
+              //! persisted, and part of it must never be saved. The record
+              //! stays dirty (pending) and is skipped until it changes.
+              own_r <= 1'b0; st_r <= F_RUN;
             end else begin
               am_sel_r <= 2'd2; am_req_r <= 1'b1; ret2_r <= F_MAPW; sub_r <= 4'd5; st_r <= X_AM;
             end

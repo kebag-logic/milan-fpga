@@ -17,11 +17,20 @@
 //                OWNERSHIP IS PER OPERATION. The manager whose request the
 //                port accepted owns every data phase and the done or err
 //                pulse that ends it; the other manager sees none of them.
-//                Manager 0 raises a one-cycle request (its own contract) and
-//                may raise it in a cycle the port is already taken: that
-//                request is held here and issued at the next idle, while the
-//                manager waits in its data state. Manager 1 holds its request
-//                until m1_gnt_o. On a tie at an idle port manager 0 wins.
+//
+//                THE ONE RULE THAT MATTERS. Manager 0 raises a one-cycle
+//                REGISTERED request after it reads the port idle (its own
+//                contract), so the request lands one cycle after the sample.
+//                The busy it reads must therefore cover every cycle in which
+//                a request landing next cycle could not be issued: while
+//                manager 1 owns the port AND in the cycle manager 1 is
+//                granted. With that, a manager-0 request only ever meets an
+//                idle port and is issued at once; nothing is held here. The
+//                grant-cycle term is load-bearing: without it a request that
+//                lands on manager 1's grant cycle is lost and the binding
+//                manager waits for its data phase for ever (mutant A01,
+//                case K15). Manager 1 holds its request until m1_gnt_o. On a
+//                tie at an idle port manager 0 wins.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -71,41 +80,25 @@ module KL_pp_nvm_mgr_arb (
 
   typedef enum logic [1:0] { O_NONE, O_M0, O_M1 } own_e;
   own_e       own_r;
-  logic       pend_r, pend_we_r;
-  logic [7:0] pend_rid_r;
-  logic       idle_w, want0_w, iss0_w, iss1_w, end_w;
+  logic       idle_w, iss0_w, iss1_w, end_w;
 
   //! the port can take a request only in S_IDLE, which follows its done or
   //! err pulse by one cycle; ownership retires on that pulse
   assign idle_w  = (own_r == O_NONE) && !p_busy_i && !p_done_i && !p_err_i;
-  assign want0_w = m0_req_i || pend_r;
-  assign iss0_w  = idle_w && want0_w;
-  assign iss1_w  = idle_w && !want0_w && m1_req_i;
+  assign iss0_w  = idle_w && m0_req_i;
+  assign iss1_w  = idle_w && !m0_req_i && m1_req_i;
   assign end_w   = (own_r != O_NONE) && (p_done_i || p_err_i);
 
   always_ff @(posedge clk_i) begin
-    if (!rst_n) begin
-      own_r      <= O_NONE;
-      pend_r     <= 1'b0;
-      pend_we_r  <= 1'b0;
-      pend_rid_r <= 8'd0;
-    end else begin
-      if (iss0_w)      own_r <= O_M0;
-      else if (iss1_w) own_r <= O_M1;
-      else if (end_w)  own_r <= O_NONE;
-      //! a manager-0 request that meets a taken port is held, never dropped
-      if (iss0_w) pend_r <= 1'b0;
-      else if (m0_req_i) begin
-        pend_r     <= 1'b1;
-        pend_we_r  <= m0_we_i;
-        pend_rid_r <= m0_rid_i;
-      end
-    end
+    if (!rst_n)      own_r <= O_NONE;
+    else if (iss0_w) own_r <= O_M0;
+    else if (iss1_w) own_r <= O_M1;
+    else if (end_w)  own_r <= O_NONE;
   end
 
   assign p_req_o    = iss0_w || iss1_w;
-  assign p_we_o     = iss0_w ? (pend_r ? pend_we_r : m0_we_i) : m1_we_i;
-  assign p_rid_o    = iss0_w ? (pend_r ? pend_rid_r : m0_rid_i) : m1_rid_i;
+  assign p_we_o     = iss0_w ? m0_we_i : m1_we_i;
+  assign p_rid_o    = iss0_w ? m0_rid_i : m1_rid_i;
   assign p_wvalid_o = (own_r == O_M0) ? m0_wvalid_i : (own_r == O_M1) ? m1_wvalid_i : 1'b0;
   assign p_wdata_o  = (own_r == O_M1) ? m1_wdata_i : m0_wdata_i;
   assign p_rready_o = (own_r == O_M0) ? m0_rready_i : (own_r == O_M1) ? m1_rready_i : 1'b0;
@@ -113,7 +106,8 @@ module KL_pp_nvm_mgr_arb (
   assign m0_wready_o = (own_r == O_M0) && p_wready_i;
   assign m0_rvalid_o = (own_r == O_M0) && p_rvalid_i;
   assign m0_rdata_o  = p_rdata_i;
-  //! manager 0 strobes only when it reads idle; any other owner reads busy
+  //! manager 0 strobes only when it reads idle; any other owner reads busy,
+  //! and so does the cycle manager 1 is granted (the banner's one rule)
   assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;
   assign m0_done_o   = (own_r == O_M0) && p_done_i;
   assign m0_err_o    = (own_r == O_M0) && p_err_i;

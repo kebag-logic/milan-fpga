@@ -28,6 +28,12 @@
 //                unflushed level REPLACES aecp_dyn_dirty_o and the sticky
 //                class-6/7 mark bit in pend_i, and the processor's restore
 //                done is the AND of the two walks.
+//
+//                D3_TRACKED (a build define) is the glue AS IT SHIPS at dev
+//                07294a76: no D3 writer, pend_i = aecp_dyn_dirty_o OR the
+//                binding manager's unflushed sinks OR the sticky class-6/7
+//                mark bit, and the restore is the binding walk alone. It is
+//                what "what reproduces today" runs against.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -75,11 +81,15 @@ module d3_top
     output logic [63:0] ub_rdata_o,
     output logic        ub_err_o,
     output logic        own_o,
-    //! the commit mark of a map command the map model applied
+    //! the commit mark a program raises (class and command descriptor), and
+    //! the map edit face's commit-one-record beat the map model applies
     input  wire         mk_stb_i,
     input  wire  [7:0]  mk_mark_i,
     input  wire  [15:0] mk_type_i,
     input  wire  [15:0] mk_idx_i,
+    input  wire         me_stb_i,
+    input  wire  [15:0] me_type_i,
+    input  wire  [15:0] me_idx_i,
 
     //! ---- PP_CTRL[1] ----------------------------------------------------------
     input  wire         restore_go_i,
@@ -192,7 +202,12 @@ module d3_top
     output logic        dev_done_o,
     output logic        dev_err_o,
     output logic        d3_mdone_o,
-    output logic        tick_ms_o
+    output logic        tick_ms_o,
+    //! the binding manager's state (KL_acmp_nvm_shadow hs_r, read through
+    //! the hierarchy) and the arbiter's grant to the D3 writer: case K15's
+    //! premise is a cycle with both H_FL_REQ and that grant
+    output logic [3:0]  m0_state_o,
+    output logic        arb_m1_gnt_o
 );
 
   // ---- the processor's millisecond tick, a divider ------------------------
@@ -385,6 +400,7 @@ module d3_top
   );
   assign mgr_dirty_o        = mgr_dirty_w;
   assign mgr_restore_done_o = mgr_done_w;
+  assign m0_state_o         = 4'(u_nvm_shadow.hs_r);
 
   // ---- the prototype D3 record writer ------------------------------------------
   logic        m1_req_w, m1_we_w, m1_gnt_w, m1_wvalid_w, m1_wready_w;
@@ -392,7 +408,28 @@ module d3_top
   logic [7:0]  m1_rid_w, m1_wdata_w, m1_rdata_w;
   logic        d3_busy_w, d3_done_w, d3_fail_w, d3_alarm_w, d3_unfl_w;
   logic        u_dyn_ack_w, u_name_ack_w;
+  assign arb_m1_gnt_o = m1_gnt_w;
 
+`ifdef D3_TRACKED
+  //! the tracked glue has no D3 writer: nothing owns the state bus but the
+  //! uCPU, nothing answers the map faces, and nothing requests the port but
+  //! the binding manager
+  assign d3_own_w = 1'b0;
+  assign {sb_req_w, sb_we_w, sb_name_w} = 3'b000;
+  assign sb_addr_w = '0; assign sb_wdata_w = '0; assign sb_wstrb_w = '0; assign sb_didx_w = '0;
+  assign {am_req_o, mr_req_o, mr_add_o, mr_ent_v_o, fj_req_o, fj_out_o} = 6'b000000;
+  assign am_type_o = '0; assign am_idx_o = '0; assign am_map_o = '0; assign am_sel_o = '0;
+  assign am_rec_o = '0; assign mr_type_o = '0; assign mr_idx_o = '0; assign mr_cnt_o = '0;
+  assign mr_ent_o = '0; assign fj_idx_o = '0; assign fj_fmt_o = '0;
+  assign {m1_req_w, m1_we_w, m1_wvalid_w, m1_rready_w} = 4'b0000;
+  assign m1_rid_w = '0; assign m1_wdata_w = '0;
+  assign d3_busy_w = 1'b0; assign d3_done_w = mgr_done_w; assign d3_fail_w = 1'b0;
+  assign d3_alarm_w = 1'b0; assign d3_unfl_w = 1'b0;
+  assign {u_dyn_ack_w, u_name_ack_w} = 2'b00;
+  assign d3_rs_applied_o = '0; assign d3_rs_refused_o = '0; assign d3_rs_blank_o = '0;
+  assign d3_rs_reverted_o = '0; assign d3_writes_o = '0; assign d3_slot_o = '0;
+  assign d3_taint_o = 1'b0; assign d3_dirty_o = '0;
+`else
   //! the change sources are the uCPU's own accesses: the writer's restore
   //! writes never reach them, so a restore write is not a change
   assign u_dyn_ack_w  = !snoop_off_i && !d3_own_w && ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w;
@@ -420,10 +457,9 @@ module d3_top
       .u_name_ack_i     (u_name_ack_w),
       .u_addr_i         (ub_addr_i),
       .u_didx_i         (ub_didx_i),
-      .mk_stb_i         (mk_stb_i),
-      .mk_mark_i        (mk_mark_i),
-      .mk_type_i        (mk_type_i),
-      .mk_idx_i         (mk_idx_i),
+      .me_stb_i         (me_stb_i),
+      .me_type_i        (me_type_i),
+      .me_idx_i         (me_idx_i),
       .prog_busy_i      (prog_busy_i),
       .own_o            (d3_own_w),
       .sb_req_o         (sb_req_w),
@@ -489,6 +525,7 @@ module d3_top
       .dbg_taint_o      (d3_taint_o),
       .dbg_dirty_o      (d3_dirty_o)
   );
+`endif
   assign d3_alarm_o        = d3_alarm_w;
   assign d3_mdone_o        = m1_done_w;
   assign d3_unflushed_o    = d3_unfl_w;
@@ -597,7 +634,21 @@ module d3_top
   //! unflushed records. The dyn store's sticky level and the sticky class-6/7
   //! mark bit are REPLACED: a writer exists for every group they reported.
   logic pend_w, alarm_w;
+`ifdef D3_TRACKED
+  //! KL_pp_shadow at dev 07294a76, transcribed: the class-6/7 mark sets a
+  //! bit only reset clears, and the dyn store's level is passed straight in
+  logic aecp_mark_pend_r;
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      aecp_mark_pend_r <= 1'b0;
+    end else if (mk_stb_i && ((mk_mark_i == 8'd6) || (mk_mark_i == 8'd7))) begin
+      aecp_mark_pend_r <= 1'b1;
+    end
+  end
+  assign pend_w  = aecp_dyn_dirty_nc_w | (|mgr_dirty_w) | aecp_mark_pend_r;
+`else
   assign pend_w  = (|mgr_dirty_w) | d3_unfl_w;
+`endif
   assign alarm_w = mgr_alarm_w | d3_alarm_w;
   assign alarm_o = alarm_w;
 

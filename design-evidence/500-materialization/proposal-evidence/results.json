@@ -126,6 +126,43 @@
     }
    },
    {
+    "case": "K4g_second_group_in_flight",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "written_value_was_set:0x0a": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x50": {
+      "pass": true,
+      "detail": "latest 003e8fa1, newest verified slot 003e8fa1"
+     },
+     "value_in_slot@end:0x0a": {
+      "pass": true,
+      "detail": "latest 0001, newest verified slot 0001"
+     }
+    }
+   },
+   {
     "case": "K5_change_on_the_done_edge",
     "checks": {
      "case_completed": {
@@ -560,6 +597,56 @@
     }
    },
    {
+    "case": "K17a_cut_during_record_write",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "cut_inside_the_write@cut": {
+      "pass": true,
+      "detail": "the WRITE of 0x50 had taken 6 of 12 bytes at the cut"
+     }
+    }
+   },
+   {
+    "case": "K18a_cut_inside_the_debounce",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "pending_at_the_cut@cut": {
+      "pass": true,
+      "detail": "pend 1, D3 unflushed 1, WRITEs of the unsaved value 0"
+     }
+    }
+   },
+   {
     "case": "V1a_set_everything",
     "checks": {
      "case_completed": {
@@ -676,6 +763,48 @@
     }
    },
    {
+    "case": "K17b_restore_after_cut_in_write",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "power_cut_loses_only_unsaved:0x50": {
+      "pass": true,
+      "detail": "restored 1717001 (valid 1), the cut's newest verified slot 001a3309, the unsaved value 1717002"
+     }
+    }
+   },
+   {
+    "case": "K18b_restore_after_cut_in_debounce",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "power_cut_loses_only_unsaved:0x50": {
+      "pass": true,
+      "detail": "restored 1818001 (valid 1), the cut's newest verified slot 001bbd91, the unsaved value 1818002"
+     }
+    }
+   },
+   {
     "case": "V1b_restore_everything",
     "checks": {
      "case_completed": {
@@ -697,6 +826,10 @@
      "value_restored:0x50": {
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
+     },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
      },
      "value_restored:0x30": {
       "pass": true,
@@ -788,6 +921,10 @@
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
      },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
+     },
      "value_restored:0x30": {
       "pass": true,
       "detail": "restored 145524899430031360 valid 1, slot 0205022000806000"
@@ -822,7 +959,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 5014, D3 restore done at 5002, restore done at 5002"
+      "detail": "enabled at 5018, D3 restore done at 5006, restore done at 5006"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -831,6 +968,238 @@
      "restore_counts@boot": {
       "pass": true,
       "detail": "applied 8 refused 0 blank 41 of 49"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g0",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g1",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g2",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g3",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 1"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g4",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g5",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g6",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g7",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
      }
     }
    }
@@ -957,6 +1326,43 @@
      "value_in_slot@end:0x51": {
       "pass": true,
       "detail": "latest 003d0902, newest verified slot 003d0902"
+     }
+    }
+   },
+   {
+    "case": "K4g_second_group_in_flight",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "written_value_was_set:0x0a": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x50": {
+      "pass": true,
+      "detail": "latest 003e8fa1, newest verified slot 003e8fa1"
+     },
+     "value_in_slot@end:0x0a": {
+      "pass": true,
+      "detail": "latest 0001, newest verified slot 0001"
      }
     }
    },
@@ -1353,6 +1759,43 @@
     }
    },
    {
+    "case": "K16_map_set_larger_than_its_record",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 3 changes, 2 acknowledgements"
+     },
+     "written_value_was_set:0x71": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "written_value_was_set:0x70": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 120 cycles (bound 2000)"
+     },
+     "oversized_set_stays_pending@over": {
+      "pass": true,
+      "detail": "10 mappings on a 9-entry record; pend 1, D3 alarm 0, backed 1, WRITEs of 0x70 0"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x70": {
+      "pass": true,
+      "detail": "latest 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000, newest verified slot 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000"
+     }
+    }
+   },
+   {
     "case": "K6a_cut_after_record_before_commit",
     "checks": {
      "case_completed": {
@@ -1391,6 +1834,56 @@
      "latch_window_bounded": {
       "pass": true,
       "detail": "longest ownership window 10 cycles (bound 2000)"
+     }
+    }
+   },
+   {
+    "case": "K17a_cut_during_record_write",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "cut_inside_the_write@cut": {
+      "pass": true,
+      "detail": "the WRITE of 0x50 had taken 6 of 12 bytes at the cut"
+     }
+    }
+   },
+   {
+    "case": "K18a_cut_inside_the_debounce",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "pending_at_the_cut@cut": {
+      "pass": true,
+      "detail": "pend 1, D3 unflushed 1, WRITEs of the unsaved value 0"
      }
     }
    },
@@ -1507,6 +2000,48 @@
     }
    },
    {
+    "case": "K17b_restore_after_cut_in_write",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "power_cut_loses_only_unsaved:0x50": {
+      "pass": true,
+      "detail": "restored 1717001 (valid 1), the cut's newest verified slot 001a3309, the unsaved value 1717002"
+     }
+    }
+   },
+   {
+    "case": "K18b_restore_after_cut_in_debounce",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "power_cut_loses_only_unsaved:0x50": {
+      "pass": true,
+      "detail": "restored 1818001 (valid 1), the cut's newest verified slot 001bbd91, the unsaved value 1818002"
+     }
+    }
+   },
+   {
     "case": "V1b_restore_everything",
     "checks": {
      "case_completed": {
@@ -1528,6 +2063,10 @@
      "value_restored:0x50": {
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
+     },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
      },
      "value_restored:0x30": {
       "pass": true,
@@ -1615,6 +2154,10 @@
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
      },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
+     },
      "value_restored:0x30": {
       "pass": true,
       "detail": "restored 145524899430031360 valid 1, slot 0205022000806000"
@@ -1645,7 +2188,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 8056, D3 restore done at 8041, restore done at 8041"
+      "detail": "enabled at 8060, D3 restore done at 8045, restore done at 8045"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -1658,9 +2201,9 @@
     }
    }
   ],
-  "mut-A01_arbiter_drops_a_request": [
+  "mut-A01_grant_cycle_not_busy": [
    {
-    "case": "K13_binding_and_d3_share_the_port",
+    "case": "K15_binding_on_the_d3_grant_cycle~g0",
     "checks": {
      "case_completed": {
       "pass": true,
@@ -1678,9 +2221,216 @@
       "pass": true,
       "detail": "longest ownership window 10 cycles (bound 2000)"
      },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
      "both_records_committed": {
       "pass": true,
-      "detail": "binding 0300000711223344556677880102030405060708, 0x50 0013d62d"
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g1",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g2",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g3",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": false,
+      "detail": "backed 1 dirty 0 stale 0 pend 1"
+     },
+     "both_records_committed": {
+      "pass": false,
+      "detail": "binding None, 0x50 0016e36f, grant-cycle collisions 1"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g4",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g5",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g6",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
+     }
+    }
+   },
+   {
+    "case": "K15_binding_on_the_d3_grant_cycle~g7",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 1 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "both_records_committed": {
+      "pass": true,
+      "detail": "binding 0300000f15151515151515150101010101010101, 0x50 0016e36f, grant-cycle collisions 0"
      }
     }
    }
@@ -1757,6 +2507,10 @@
      "value_restored:0x50": {
       "pass": false,
       "detail": "restored 0 valid 0, slot 0016e360"
+     },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": false,
+      "detail": "restored 0 valid 0, set 1500000"
      },
      "value_restored:0x30": {
       "pass": false,
@@ -1905,6 +2659,10 @@
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
      },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
+     },
      "value_restored:0x30": {
       "pass": true,
       "detail": "restored 145524899430031360 valid 1, slot 0205022000806000"
@@ -2028,6 +2786,10 @@
      "value_restored:0x50": {
       "pass": false,
       "detail": "restored 0 valid 0, slot 0016e360"
+     },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": false,
+      "detail": "restored 0 valid 0, set 1500000"
      },
      "value_restored:0x30": {
       "pass": true,
@@ -2475,6 +3237,10 @@
       "pass": false,
       "detail": "restored 0 valid 0, slot 0016e360"
      },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": false,
+      "detail": "restored 0 valid 0, set 1500000"
+     },
      "value_restored:0x30": {
       "pass": false,
       "detail": "restored 0 valid 0, slot 0205022000806000"
@@ -2544,6 +3310,10 @@
       "pass": true,
       "detail": "restored 1500000 valid 1, slot 0016e360"
      },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": true,
+      "detail": "restored 1500000 valid 1, set 1500000"
+     },
      "value_restored:0x30": {
       "pass": true,
       "detail": "restored 145524899430031360 valid 1, slot 0205022000806000"
@@ -2578,7 +3348,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 4999, D3 restore done at 4994, restore done at 4994"
+      "detail": "enabled at 5003, D3 restore done at 4998, restore done at 4998"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -2590,10 +3360,232 @@
      }
     }
    }
+  ],
+  "mut-M14_clear_by_index": [
+   {
+    "case": "K4g_second_group_in_flight",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": false,
+      "detail": "durable at 1567725: record 0x0a latest 0001 slot None"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x50": {
+      "pass": true,
+      "detail": "latest 003e8fa1, newest verified slot 003e8fa1"
+     },
+     "value_in_slot@end:0x0a": {
+      "pass": false,
+      "detail": "latest 0001, newest verified slot None"
+     }
+    }
+   }
+  ],
+  "mut-M15_overflow_forgets_the_change": [
+   {
+    "case": "K16_map_set_larger_than_its_record",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": false,
+      "detail": "durable at 1596599: record 0x70 latest 0000000000000000000000010001000000000002000200000000000300030000000000040004000000000005000500000000000600060000000000070007000000010000000800000001000100080000 slot None"
+     },
+     "written_value_was_set:0x71": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "written_value_was_set:0x70": {
+      "pass": true,
+      "detail": "1 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 120 cycles (bound 2000)"
+     },
+     "oversized_set_stays_pending@over": {
+      "pass": false,
+      "detail": "10 mappings on a 9-entry record; pend 0, D3 alarm 0, backed 1, WRITEs of 0x70 0"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x70": {
+      "pass": true,
+      "detail": "latest 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000, newest verified slot 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000"
+     }
+    }
+   }
+  ],
+  "tracked-1x1": [
+   {
+    "case": "K1_single_change_converges",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 1 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": false,
+      "detail": "backed 1 dirty 0 stale 0 pend 1"
+     },
+     "value_in_slot@end:0x50": {
+      "pass": false,
+      "detail": "latest 0012d687, newest verified slot None"
+     }
+    }
+   },
+   {
+    "case": "K10_name_change_converges",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": false,
+      "detail": "change of 0x80 at 30182 inside a durable interval ending 30189"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": false,
+      "detail": "backed 1 dirty 0 stale 0 pend 1"
+     },
+     "value_in_slot@end:0x80": {
+      "pass": false,
+      "detail": "latest 4b313020656e74697479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, newest verified slot None"
+     }
+    }
+   },
+   {
+    "case": "K12_map_change_converges",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": false,
+      "detail": "change of 0x70 at 30155 inside a durable interval ending 30161"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": false,
+      "detail": "backed 1 dirty 0 stale 0 pend 1"
+     },
+     "value_in_slot@end:0x70": {
+      "pass": false,
+      "detail": "latest 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700100000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, newest verified slot None"
+     }
+    }
+   },
+   {
+    "case": "V1a_set_everything",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 9 changes, 1 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     }
+    }
+   },
+   {
+    "case": "V1b_restore_everything",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "rows_cleared_before_restore@boot": {
+      "pass": true,
+      "detail": "valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}"
+     },
+     "set_value_survives_power_cycle:0x50": {
+      "pass": false,
+      "detail": "restored 0 valid 0, set 1500000"
+     },
+     "value_restored:0x80": {
+      "pass": false,
+      "detail": "restored b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00GA 1x1 TDM8\\x00\\x00\\x00\\x00\\x00', slot None"
+     },
+     "restored_name_survives_first_command:0x80": {
+      "pass": false,
+      "detail": "after the first command b'Milan FPGA 1x1 TDM8\\x00\\x00\\x00\\x00\\x00'"
+     },
+     "value_restored:0xa5": {
+      "pass": false,
+      "detail": "restored b'Clock Reference Format\\x00\\x00', slot None"
+     },
+     "restored_name_survives_first_command:0xa5": {
+      "pass": false,
+      "detail": "after the first command b'Clock Reference Format\\x00\\x00'"
+     },
+     "entity_enabled_after_restore@boot": {
+      "pass": true,
+      "detail": "enabled at 219, D3 restore done at 208, restore done at 208"
+     },
+     "restore_sets_no_dirty@boot": {
+      "pass": true,
+      "detail": "0 record writes after the restore, dirty 0, flash erases 0 -> 0"
+     },
+     "restore_counts@boot": {
+      "pass": true,
+      "detail": "applied 0 refused 0 blank 0 of 49"
+     }
+    }
+   }
   ]
  },
  "verdict": [
-  "MUTANT A01_arbiter_drops_a_request: SURVIVED by K13_binding_and_d3_share_the_port : both_records_committed",
+  "PREMISE base-1x1 K15: the binding manager sampled busy on the D3 writer's grant cycle at g3 (1 of 8 releases) -> reached",
+  "MUTANT A01_grant_cycle_not_busy: KILLED by K15_binding_on_the_d3_grant_cycle~g3 : both_records_committed",
   "MUTANT F01_old_boot_order: KILLED by V1b_restore_everything : value_restored:0x50",
   "MUTANT G01_pend_misses_d3: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved",
   "MUTANT G02_restore_done_without_d3: KILLED by V1b_restore_everything : entity_enabled_after_restore@boot",
@@ -2610,7 +3602,20 @@
   "MUTANT M11_no_orphan_check: KILLED by V8_orphaning_format_reverted : no_orphaned_mapping_after_restore",
   "MUTANT M12_no_revert_before_readd: KILLED by V9_refused_maps_revert_their_formats : refused_group_falls_back_to_default:0x70",
   "MUTANT M13_restore_applies_nothing: KILLED by V1b_restore_everything : value_restored:0x50",
-  "CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required"
+  "CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required",
+  "MUTANT M14_clear_by_index: KILLED by K4g_second_group_in_flight : value_in_slot@end:0x0a",
+  "MUTANT M15_overflow_forgets_the_change: KILLED by K16_map_set_larger_than_its_record : no_durable_claim_over_unsaved",
+  "TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source",
+  "TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source",
+  "TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source",
+  "TRACKED K10_name_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source",
+  "TRACKED K12_map_change_converges : value_in_slot@end:0x70 FAILS, as it must at the current source",
+  "TRACKED K12_map_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source",
+  "TRACKED V1b_restore_everything : set_value_survives_power_cycle:0x50 FAILS, as it must at the current source",
+  "TRACKED K1_single_change_converges : no_durable_claim_over_unsaved PASSES, as it must",
+  "TRACKED V1a_set_everything : no_durable_claim_over_unsaved PASSES, as it must",
+  "TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must",
+  "TRACKED * : case_completed PASSES, as it must"
  ],
- "summary": "SUMMARY runs 81, checks 537, verdict failures 1"
+ "summary": "SUMMARY runs 114, checks 742, verdict failures 0"
 }

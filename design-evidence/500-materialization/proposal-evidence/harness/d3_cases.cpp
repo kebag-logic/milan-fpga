@@ -19,6 +19,7 @@
 #include <fstream>
 #include <functional>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -74,6 +75,22 @@ unsigned slot_of(unsigned rid) {
 }
 
 // ---- uCPU programs -------------------------------------------------------------
+const unsigned SEL_CFG = 0, SEL_RATE = 1, SEL_CLKS = 2, SEL_FMTI = 3, SEL_FMTO = 4, SEL_PTOF = 5;
+
+//! the descriptor type a dynamic-state SET names (its commit mark carries it)
+unsigned dyn_type(unsigned sel) {
+  switch (sel) {
+    case SEL_RATE: return 0x0002;       // AUDIO_UNIT
+    case SEL_CLKS: return 0x0024;       // CLOCK_DOMAIN
+    case SEL_FMTI: return 0x0005;       // STREAM_INPUT
+    case SEL_FMTO:
+    case SEL_PTOF: return 0x0006;       // STREAM_OUTPUT
+    default:       return 0x0000;       // ENTITY
+  }
+}
+
+//! a SET program: the state write, then OP_NVM_MARK class 1 (gen_ucode.py),
+//! which the D3 writer does not use and the tracked glue does not take
 void set_dyn(unsigned sel, unsigned idx, uint64_t val, unsigned width, int rid) {
   UOp w{UOp::DYN_WR};
   w.sel = sel;
@@ -81,12 +98,14 @@ void set_dyn(unsigned sel, unsigned idx, uint64_t val, unsigned width, int rid) 
   w.val = val;
   w.rid = rid;
   w.value = be(val, width);
+  UOp m{UOp::MARK};
+  m.cls = 1;
+  m.type = dyn_type(sel);
+  m.idx = (sel == SEL_CFG) ? 0 : idx;
   UOp g{UOp::GAP};
   g.gap = 3;
-  program({w, g});
+  program({w, m, g});
 }
-
-const unsigned SEL_CFG = 0, SEL_RATE = 1, SEL_CLKS = 2, SEL_FMTI = 3, SEL_FMTO = 4, SEL_PTOF = 5;
 
 void set_fmt_out(unsigned s, uint64_t f) { set_dyn(SEL_FMTO, s, f, 8, int(0x40 + s)); }
 void set_fmt_in(unsigned s, uint64_t f) { set_dyn(SEL_FMTI, s, f, 8, int(0x30 + s)); }
@@ -119,6 +138,10 @@ void set_name(unsigned ord, const std::vector<uint8_t> &v, unsigned gap = 2) {
     g.gap = gap;
     p.push_back(g);
   }
+  //! SET_NAME's OP_NVM_MARK, class 7: the tracked glue's sticky source
+  UOp m{UOp::MARK};
+  m.cls = 7;
+  p.push_back(m);
   program(p);
 }
 
@@ -246,9 +269,9 @@ void dump_log() {
   }
   std::printf("EVT {\"k\":\"boot\",\"enable\":%" PRIu64 ",\"restore_done\":%" PRIu64
               ",\"d3_done\":%" PRIu64 ",\"own_max\":%" PRIu64 ",\"prog_waited\":%" PRIu64
-              ",\"mem_errs\":%u}\n",
+              ",\"mem_errs\":%u,\"collisions\":%u}\n",
               evlog.enable_cyc, evlog.restore_done_cyc, evlog.d3_done_cyc, evlog.own_max,
-              evlog.prog_waited_on_own, evlog.mem_errs);
+              evlog.prog_waited_on_own, evlog.mem_errs, evlog.collisions);
 }
 
 // ---- stepping --------------------------------------------------------------------
@@ -495,6 +518,101 @@ void register_cases() {
     settle();
     idle(3000);
     snap("end");
+  };
+  cases["K4g_second_group_in_flight"] = [] {
+    // a change to ANOTHER GROUP (clock source, record 0x0A, index 0) lands
+    // while the WRITE of 0x50 (presentation offset, index 0) streams
+    boot();
+    set_ptof(0, 4100001u);
+    on_cycle([] {
+      if (dut_dev_write_open(0x50)) return force_dyn_write(SEL_CLKS, 0, 1u, 0x0A, be(1u, 2));
+      return false;
+    });
+    converge();
+    snap("end");
+  };
+  cases["K15_binding_on_the_d3_grant_cycle"] = [] {
+    // variant g<N>: the D3 writer is held (prog_busy) until N cycles after
+    // the binding manager starts its crc pass (H_FL_CRC, encoding 12), so
+    // across the sweep one N puts the writer's grant on the cycle the
+    // binding manager samples busy in H_FL_REQ
+    const unsigned n = unsigned(std::stoul(variant.substr(1)));
+    boot();
+    hold(true);
+    set_ptof(0, 1500015u);
+    settle();
+    Binding b;
+    b.sink = 0;
+    b.uid = 15;
+    b.teid = 0x1515151515151515ull;
+    b.ceid = 0x0101010101010101ull;
+    bind(b);
+    auto left = std::make_shared<int>(-1);
+    on_cycle([left, n] {
+      if (*left < 0 && m0_state() == 12u) *left = int(n);
+      if (*left < 0) return false;
+      if (*left == 0) {
+        hold(false);
+        return true;
+      }
+      --*left;
+      return false;
+    });
+    converge();
+    snap("end");
+  };
+  cases["K16_map_set_larger_than_its_record"] = [] {
+    // OUT port 0 takes two stream channels OUT port 1 gave up, both fed from
+    // its last cluster (fan-out): one more mapping than the port has
+    // clusters, so its record (8 bytes a cluster) cannot hold the set
+    boot();
+    const unsigned cls = map_out[0].clusters;
+    std::vector<Map> give;
+    for (const auto &m : map_out[1].cur)
+      if (m.sc < 2) give.push_back(m);
+    map_remove(true, 1, give);
+    std::vector<Map> extra;
+    const unsigned need = cls + 1 - unsigned(map_out[0].cur.size());
+    for (unsigned k = 0; k < need; ++k)
+      extra.push_back(Map{give[k].si, give[k].sc, uint16_t(cls - 1), 0});
+    map_add(true, 0, extra);
+    settle();
+    note("over_size", map_out[0].cur.size());
+    idle(3000);                                  // several debounce windows
+    snap("over");
+    map_remove(true, 0, {extra.back()});         // the controller shrinks it to fit
+    converge();
+    snap("end");
+  };
+  cases["K17a_cut_during_record_write"] = [] {
+    boot();
+    set_ptof(0, 1717001u);
+    converge();                                  // X is durable
+    set_ptof(0, 1717002u);                       // Y is accepted...
+    run_until([] { return dut_dev_write_bytes(0x50) >= 6; }, 3000000);
+    note("cut_write_bytes", uint64_t(std::max(0, dut_dev_write_bytes(0x50))));
+    snap("cut");                                 // ...and the power is cut mid-WRITE
+  };
+  cases["K17b_restore_after_cut_in_write"] = [] {
+    boot();
+    read_row(SEL_PTOF, 0, "ptof0");
+    settle();
+    snap("restored");
+  };
+  cases["K18a_cut_inside_the_debounce"] = [] {
+    boot();
+    set_ptof(0, 1818001u);
+    converge();                                  // X is durable
+    set_ptof(0, 1818002u);                       // Y is accepted...
+    settle();
+    idle(100);                                   // ...inside the 500 ms debounce
+    snap("cut");
+  };
+  cases["K18b_restore_after_cut_in_debounce"] = [] {
+    boot();
+    read_row(SEL_PTOF, 0, "ptof0");
+    settle();
+    snap("restored");
   };
 
   // ================= RESTORE =================

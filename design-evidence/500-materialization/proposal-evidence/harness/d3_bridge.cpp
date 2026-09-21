@@ -153,11 +153,24 @@ size_t pc = 0;
 enum class U { Idle, Bus, Gap, Mark } ust = U::Idle;
 unsigned ugap = 0;
 bool u_after_read = false;
+//! the commit mark a program raises (KL_aecp_ucpu eff_nvm_stb_o/mark_o,
+//! with the command's descriptor type and index beside it)
 struct MarkQ {
   bool on = false;
-  bool out = false;
+  unsigned cls = 0;
+  unsigned type = 0;
   unsigned idx = 0;
-} mark;
+} mark, pend_mark;
+//! the map edit face's commit-one-record beat (phase 5): the live map write,
+//! which the class-6 mark follows only after the program's tail (FINISH,
+//! COMMIT, COMPARE, BR_STATUS in gen_ucode.py's E_AMADD: four instructions)
+struct EditQ {
+  bool on = false;
+  unsigned type = 0;
+  unsigned idx = 0;
+} edit;
+constexpr unsigned kMapMarkTail = 4;
+bool hold_on = false;
 
 // ------------------------------------------------------------ the map model
 struct MrState {
@@ -200,11 +213,14 @@ bool fmt_supported(bool out, unsigned s, uint64_t f) {
 
 //! MODEL of the integrator's staged-command judgement of a map set: every
 //! cluster exists on the port, every stream exists, every mapped channel
-//! exists in the stream's LIVE format, one channel per cluster, no key twice,
-//! and no more mappings than the record can carry
+//! exists in the stream's LIVE format, no key twice. The KEY is the parent's
+//! (hdl/milan/milan_datapath.sv amap_edit_validate): an INPUT mapping is keyed
+//! by its cluster, so an input set never outgrows its clusters; an OUTPUT
+//! mapping is keyed by its stream channel, owned by at most one port, so one
+//! cluster may feed several stream channels and an output set MAY outgrow
+//! the record the saved-state allocation gives its port (8 bytes a cluster).
 bool map_set_valid(bool out, unsigned port, const std::vector<Map> &set) {
   const MapPort &p = out ? map_out[port] : map_in[port];
-  if (set.size() > p.clusters) return false;
   for (size_t i = 0; i < set.size(); ++i) {
     const Map &m = set[i];
     if (m.co >= p.clusters || m.cc != 0) return false;
@@ -214,6 +230,14 @@ bool map_set_valid(bool out, unsigned port, const std::vector<Map> &set) {
     for (size_t j = 0; j < i; ++j) {
       if (!out && set[j].co == m.co) return false;
       if (out && set[j].si == m.si && set[j].sc == m.sc) return false;
+    }
+    if (out) {
+      //! a stream channel another output port already feeds is not free
+      for (size_t q = 0; q < map_out.size(); ++q) {
+        if (q == port) continue;
+        for (const auto &o : map_out[q].cur)
+          if (o.si == m.si && o.sc == m.sc) return false;
+      }
     }
   }
   return true;
@@ -261,7 +285,7 @@ static void drive_ucpu() {
       u_after_read = false;
     }
   }
-  dut->prog_busy_i = (ust != U::Idle);
+  dut->prog_busy_i = (ust != U::Idle) || hold_on;
   if (ust != U::Bus || pc >= prog.size()) return;
   const UOp &o = prog[pc];
   switch (o.kind) {
@@ -343,10 +367,13 @@ static void drive_maps() {
   dut->mr_ent_rdy_i = dut->mr_req_o && mr.busy && mr.done_in < 0;
   dut->mr_done_i = mr.busy && mr.done_in == 0;
   dut->mr_ok_i = mr.ok;
-  // the commit mark of a map command
+  // the map edit beat, and the commit mark of the program in flight
+  dut->me_stb_i = edit.on;
+  dut->me_type_i = edit.type;
+  dut->me_idx_i = edit.idx;
   dut->mk_stb_i = mark.on;
-  dut->mk_mark_i = 6;
-  dut->mk_type_i = mark.out ? 0x000F : 0x000E;
+  dut->mk_mark_i = mark.cls;
+  dut->mk_type_i = mark.type;
   dut->mk_idx_i = mark.idx;
 }
 
@@ -448,6 +475,7 @@ static void sample_cycle() {
     forced.on = false;
   }
   // the uCPU's handshakes
+  edit.on = false;
   if (ust == U::Bus && pc < prog.size()) {
     UOp &o = prog[pc];
     bool done = false;
@@ -473,6 +501,12 @@ static void sample_cycle() {
         ugap = o.gap;
         done = true;
         break;
+      case UOp::MARK:
+        //! OP_NVM_MARK: one strobe cycle, after the state write it marks
+        mark = MarkQ{true, o.cls, o.type, o.idx};
+        ust = U::Mark;
+        done = true;
+        break;
       case UOp::MAP_ADD:
       case UOp::MAP_REMOVE: {
         auto &p = o.out ? map_out[o.idx] : map_in[o.idx];
@@ -489,10 +523,11 @@ static void sample_cycle() {
         }
         answers.emplace_back(o.tag.empty() ? "map_cmd" : o.tag, ok ? 1 : 0);
         if (ok) {
-          mark = MarkQ{true, o.out, o.idx};
+          edit = EditQ{true, o.out ? 0x000Fu : 0x000Eu, o.idx};
+          pend_mark = MarkQ{true, 6u, o.out ? 0x000Fu : 0x000Eu, o.idx};
           evlog.changes.push_back(Change{cyc + 1, unsigned((o.out ? 0x70 : 0x60) + o.idx),
                                          map_payload(o.out, o.idx)});
-          ust = U::Mark;
+          ugap = kMapMarkTail;
         }
         done = true;
         break;
@@ -507,7 +542,14 @@ static void sample_cycle() {
     }
   } else if (ust == U::Gap) {
     if (ugap > 0) --ugap;
-    if (ugap == 0) { ust = U::Bus; u_after_read = false; }
+    if (ugap == 0 && pend_mark.on) {
+      mark = pend_mark;
+      pend_mark.on = false;
+      ust = U::Mark;
+    } else if (ugap == 0) {
+      ust = U::Bus;
+      u_after_read = false;
+    }
   } else if (ust == U::Mark) {
     mark.on = false;
     ust = U::Bus;
@@ -547,6 +589,10 @@ static void sample_cycle() {
     mr.busy = false;
     mr.done_in = -1;
   }
+
+  //! K15's premise: the binding manager samples busy in H_FL_REQ (encoding 13,
+  //! checked against the donor's enum by run.py) in the D3 writer's grant cycle
+  if (dut->m0_state_o == 13u && dut->arb_m1_gnt_o) ++evlog.collisions;
 
   // the durable reading and the ownership window
   const unsigned durable = dut->nvm_backed_o && !dut->nvm_dirty_o && !dut->nvm_stale_o && !dut->nvm_pend_o;
@@ -660,6 +706,18 @@ bool writer_done_now() { return dut->d3_mdone_o; }
 
 bool dut_dev_write_open(unsigned rid) {
   return cur.active && cur.r.op == 1 && cur.r.rid == rid && cur.r.bytes > 0;
+}
+
+int dut_dev_write_bytes(unsigned rid) {
+  if (!(cur.active && cur.r.op == 1 && cur.r.rid == rid)) return -1;
+  return int(cur.r.bytes);
+}
+
+unsigned m0_state() { return unsigned(dut->m0_state_o); }
+
+void hold(bool on) {
+  hold_on = on;
+  dut->prog_busy_i = (ust != U::Idle) || hold_on;
 }
 
 void snoop(bool on) { snoop_on = on; }
