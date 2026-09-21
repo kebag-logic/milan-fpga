@@ -1,0 +1,13 @@
+# PR #503 final candidate validation
+
+Candidate `2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3`, live base `2d8fd62fd986ea2d6a87d284e144f023034c0944`, candidate merge tree `1fc6e7edcfc5a3e1f055ed1f73ba70614996977e`.
+
+The complete native bar passed. [Commands, results and disclosed omissions](NATIVE-VALIDATION.md); [candidate tree proof](native-candidate-proof.json). Original machine-generated receipts supply command exit codes and timings; their filesystem roots are generalized for public reproduction. Native logs are complete except for those path-root substitutions; [LOG-PROVENANCE.json](LOG-PROVENANCE.json) records original and published hashes. Other original logs remain represented by their hashes, with detailed manager/builder evidence in the sibling author archive.
+
+Placeholders: `$CANDIDATE` is a clean checkout of the candidate; `$TRUSTED_DEV` is a separate clean checkout of the live base; `$ACT_BIN` is checksum-verified act 0.2.89; `$VALIDATION_TMP` and `$TMPDIR` are fresh output directories; `$HOME` is the operator's home. The unused external submodule remains deliberately uninitialized. The other three pins match the candidate.
+
+The trusted ready-state rtl-full replica exited 0 at 18:59:09 CEST. [Hosted ready run 35628913116](https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116) succeeded at the exact head after the recorded ready transition. Its selector succeeded and explicitly printed `draft=false rtl=false run_full=false`; [actual output](HOSTED-SELECTOR.txt). Both long contexts were emitted as SKIPPED for this documentation-only change, as permitted by the repository policy. All five required fast contexts are SUCCESS. These conditional skips do not replace the separately completed full native commands.
+
+[Final mechanical preflight](FINAL-PREFLIGHT.json) passed: every required receipt, exact head, live base, clean tested tree, mergeability, seven hosted contexts and the two completed canonical positive reviews. The full private receipt is represented by its SHA-256; this public projection omits local execution paths and duplicate review bodies. The native comment's earlier next-step paragraph is historical and superseded by this final result.
+
+Limitations remain explicit: four optional tsn-gen campaign/freshness skips in the parent sweep; one existing builder physical-report arm NOT RUN; no hardware, integrated implementation or silicon claim. No maintainer authorization to merge #503 has been received. Review coverage belongs to the two reviewer-owned ledgers in the sibling reviews archive. These validation receipts are neither a review verdict nor merge authorization. The evidence branch is never merged.

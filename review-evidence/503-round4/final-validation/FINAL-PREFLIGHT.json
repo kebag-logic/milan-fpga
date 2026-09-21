@@ -1,0 +1,220 @@
+{
+  "checked_at": "2026-09-21T18:59:36.751376+02:00",
+  "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "tree": "1fc6e7edcfc5a3e1f055ed1f73ba70614996977e",
+  "changed_documentation": [
+    "docs/README.md",
+    "docs/design/SAVED_STATE_FASTCONNECT.md",
+    "docs/design/SAVED_STATE_MATERIALIZATION.md",
+    "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md"
+  ],
+  "hosted_ready_run": {
+    "conclusion": "success",
+    "createdAt": "2026-09-21T16:57:33Z",
+    "event": "pull_request",
+    "headSha": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+    "jobs": [
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "success",
+        "databaseId": 106430023372,
+        "name": "full-ci-gate",
+        "startedAt": "2026-09-21T16:57:37Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-21T16:57:39Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-21T16:57:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:45Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-21T16:57:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:45Z",
+            "conclusion": "success",
+            "name": "Print the event and pin the one SHA this run validates",
+            "number": 3,
+            "startedAt": "2026-09-21T16:57:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:46Z",
+            "conclusion": "success",
+            "name": "Assert the repository default branch is dev",
+            "number": 4,
+            "startedAt": "2026-09-21T16:57:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:48Z",
+            "conclusion": "success",
+            "name": "Hold every workflow file to its contract",
+            "number": 5,
+            "startedAt": "2026-09-21T16:57:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:50Z",
+            "conclusion": "success",
+            "name": "Decide whether this exact head needs the exhaustive gates",
+            "number": 6,
+            "startedAt": "2026-09-21T16:57:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:50Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 12,
+            "startedAt": "2026-09-21T16:57:50Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-21T16:57:51Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-09-21T16:57:50Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430023372"
+      },
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "skipped",
+        "databaseId": 106430117474,
+        "name": "Yosys shard ${{ matrix.shard }}/${{ matrix.total }}",
+        "startedAt": "2026-09-21T16:57:53Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430117474"
+      },
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "skipped",
+        "databaseId": 106430117789,
+        "name": "Physical gPTP (nightly and manual)",
+        "startedAt": "2026-09-21T16:57:53Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430117789"
+      },
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "skipped",
+        "databaseId": 106430119342,
+        "name": "Verilator shard ${{ matrix.shard }}/${{ matrix.total }}",
+        "startedAt": "2026-09-21T16:57:54Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430119342"
+      },
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "skipped",
+        "databaseId": 106430120216,
+        "name": "verilator-suites",
+        "startedAt": "2026-09-21T16:57:54Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430120216"
+      },
+      {
+        "completedAt": "2026-09-21T16:57:53Z",
+        "conclusion": "skipped",
+        "databaseId": 106430122155,
+        "name": "yosys-portability",
+        "startedAt": "2026-09-21T16:57:54Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430122155"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116"
+  },
+  "required_checks": [
+    {
+      "bucket": "pass",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628911899/job/106430111617",
+      "name": "rtl-fast",
+      "state": "SUCCESS",
+      "workflow": "rtl-fast"
+    },
+    {
+      "bucket": "skipping",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430122155",
+      "name": "yosys-portability",
+      "state": "SKIPPED",
+      "workflow": "rtl-full"
+    },
+    {
+      "bucket": "skipping",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35628913116/job/106430120216",
+      "name": "verilator-suites",
+      "state": "SKIPPED",
+      "workflow": "rtl-full"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35620300752/job/106401383424",
+      "name": "wire-accountability",
+      "state": "SUCCESS",
+      "workflow": "docs"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35620300752/job/106401383629",
+      "name": "docs-check",
+      "state": "SUCCESS",
+      "workflow": "docs"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35620300752/job/106401383152",
+      "name": "docs-check-no-git",
+      "state": "SUCCESS",
+      "workflow": "docs"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/kebag-logic/milan-fpga/actions/runs/35620300629/job/106401383293",
+      "name": "elaborate",
+      "state": "SUCCESS",
+      "workflow": "elaborate"
+    }
+  ],
+  "merge_authorized": false,
+  "note": "Mechanical checks only. A reviewer-owned clean lens ledger, disposition of all findings, absence of any other review in flight, and explicit maintainer authorization must be assessed separately. Builder gate11 physical-report omission remains disclosed. Successful skipped long contexts are permitted only for this docs-only candidate, per CONTRIBUTING; full native commands must still pass.",
+  "original_full_preflight_sha256": "611099f030a0021d996983ff5ea9c59d365ca396b019fb22359adb1165bece61",
+  "reviews": [
+    {
+      "identity": "R217",
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/503#pullrequestreview-5269026117",
+      "verdict": "POSITIVE",
+      "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+      "exit_code": 0,
+      "is_error": false
+    },
+    {
+      "identity": "R218",
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/503#pullrequestreview-5269096079",
+      "verdict": "POSITIVE",
+      "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+      "exit_code": 0,
+      "is_error": false
+    }
+  ],
+  "manager_completion_observation": "Both completed reviewer-owned ledgers were read at the exact head: R217 owns Conformance/RTL/Robustness; R218 owns Tests/Docs. Each declares no open finding in its lenses. No author or review remains in flight. This observation adds no executor review verdict or covering ledger."
+}

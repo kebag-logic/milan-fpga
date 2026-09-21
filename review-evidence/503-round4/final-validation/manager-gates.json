@@ -1,0 +1,416 @@
+{
+  "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.198,
+      "original_log_sha256": "8ff214d02993a2b1dea0268a8a96c3f7bfb2c37fd8f974de6fe8662305d256fb",
+      "source_log": "manager-gates/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 6.414,
+      "original_log_sha256": "04e034a4d13029762b7d1f320af7e81f357f2d149131ff5fd25bba2ae04a5fbc",
+      "source_log": "manager-gates/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.051,
+      "original_log_sha256": "52039414c215a5a8cf1f3ebe1b830567c059f0a4df09d097926beaa26719316d",
+      "source_log": "manager-gates/03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.163,
+      "original_log_sha256": "03fb6090ecf480889ecf446d71a663cd5618f04b5ae3ee6c812b892e06ffbc11",
+      "source_log": "manager-gates/04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.702,
+      "original_log_sha256": "eae4a29e073a4a193cd2ca995ac4dedb6cc21d2ef4f57797dac58b329aff7738",
+      "source_log": "manager-gates/05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 3.688,
+      "original_log_sha256": "5b80a54638a3a6352e2e9f0a58ecb7426105fd2078864a22162b4f34165358c2",
+      "source_log": "manager-gates/06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.918,
+      "original_log_sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7",
+      "source_log": "manager-gates/07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.557,
+      "original_log_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+      "source_log": "manager-gates/08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.404,
+      "original_log_sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835",
+      "source_log": "manager-gates/09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.036,
+      "original_log_sha256": "d05e9e56c2fe50d6d12ead777b37f5d71774f0617de60e8792c9727588273d78",
+      "source_log": "manager-gates/10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.775,
+      "original_log_sha256": "6bdf03d4c8cfef157606ee07b55af25bd7280e9c52047511580e7562ca8431f1",
+      "source_log": "manager-gates/11.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.787,
+      "original_log_sha256": "05b4b1f7887dde30cbc90bbd86df4e040d56d5c3471bc4f01b37eaac4a640ef1",
+      "source_log": "manager-gates/12.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045,
+      "original_log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+      "source_log": "manager-gates/13.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.035,
+      "original_log_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+      "source_log": "manager-gates/14.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.105,
+      "original_log_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+      "source_log": "manager-gates/15.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06,
+      "original_log_sha256": "12a6359ec4662d63ef03e7a90b45cbf2f1795ad09e4f49c9c7341b3e5115d689",
+      "source_log": "manager-gates/16.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.242,
+      "original_log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+      "source_log": "manager-gates/17.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit_code": 0,
+      "seconds": 0.383,
+      "original_log_sha256": "97264dbeef4e9f3c29b8e85d14c7c2dfb642b344fbc385e29c3668d64dfbf51a",
+      "source_log": "manager-gates/18.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.353,
+      "original_log_sha256": "96bc18435c495f5cb9ec0ca5adf87657ad82a8823248250514fc7586b048dce3",
+      "source_log": "manager-gates/19.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.283,
+      "original_log_sha256": "db0a3049eb9892365e948da7b533166ecfdfd91a39d299f34476b64e05c52a43",
+      "source_log": "manager-gates/20.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.2,
+      "original_log_sha256": "98559f819efa88daa0dc43072c319bdcefb687bb8cda41ec3ecbc9253c272e1c",
+      "source_log": "manager-gates/21.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.393,
+      "original_log_sha256": "59321f1aef997a4d5698faaa0ab436bccdd32f00a2577bed135f58dd0046927f",
+      "source_log": "manager-gates/22.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.197,
+      "original_log_sha256": "5b4da4ada78926b702a3ceac7ef8b8f3edd481897f50641078e04f7f8deeae8e",
+      "source_log": "manager-gates/23.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.264,
+      "original_log_sha256": "4e9a2d1b7ea0c08ce9f039d8e6c6fd2eff0002a5ca39ae6799016ffeb16a3e27",
+      "source_log": "manager-gates/24.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.102,
+      "original_log_sha256": "136eb537ae03b4d52fc917125d95083776d5de54fba79a68ecc4e045f561b43f",
+      "source_log": "manager-gates/25.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.141,
+      "original_log_sha256": "3a6f49d4934d59d7f40485a061148b919c747856ab9b93e71820d3c1a2485ab3",
+      "source_log": "manager-gates/26.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.807,
+      "original_log_sha256": "628ebe4486ab6af262d5bb9e5e51e672dc8cfeeb4c3f1d98b81c434d67fc9b86",
+      "source_log": "manager-gates/27.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 13.028,
+      "original_log_sha256": "1abf2ce5a4afae231cb1f15461355f756763716a4e4f8737246d1f8063f5bf66",
+      "source_log": "manager-gates/28.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 2.972,
+      "original_log_sha256": "da64ece0866e669087cf0b43b800bade958e3ced553ff88f45b888a57143ee6a",
+      "source_log": "manager-gates/29.log"
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 38.642,
+      "original_log_sha256": "b44bdd87f5929144ba826fffaf1cb04ddecb8aceae0b295f381147c9f7ec63d3",
+      "source_log": "manager-gates/30.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 11.534,
+      "original_log_sha256": "f45f1a1138f7e1017e3a51e185f1715ad443aa3182416c1c84626960def3fb31",
+      "source_log": "manager-gates/31.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 134.306,
+      "original_log_sha256": "3d5a85e429e5332327276d39d56abfbf1f086025f0c624ac103738b149c5b7e9",
+      "source_log": "manager-gates/32.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.112,
+      "original_log_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+      "source_log": "manager-gates/33.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.051,
+      "original_log_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+      "source_log": "manager-gates/34.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "2d8fd62fd986ea2d6a87d284e144f023034c0944"
+      ],
+      "exit_code": 0,
+      "seconds": 0.812,
+      "original_log_sha256": "5df73506b904d8deaadb401bcc316ceee65fd4f8d038ca0403e0e92f25a00ae8",
+      "source_log": "manager-gates/35.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.354,
+      "original_log_sha256": "5323fa60bd93e7511ee7b996a0d88869401be05df5e28e8440b2c64ee0792805",
+      "source_log": "manager-gates/36.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 4.498,
+      "original_log_sha256": "5cbb1cf9ffc7e661b24ff470d4732144e426eac08a143385eaff9e307a25a87e",
+      "source_log": "manager-gates/37.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.408,
+      "original_log_sha256": "4720c6a75ce2edc1f03ce40f83703070be69eed382593386e62652c2b1221615",
+      "source_log": "manager-gates/38.log"
+    }
+  ],
+  "completion": {
+    "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+    "exit_code": 0,
+    "finished": "2026-09-21T17:36:01.828188+02:00"
+  }
+}

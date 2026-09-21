@@ -1,0 +1,28 @@
+{
+  "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$TRUSTED_DEV/scripts/act_ci.py",
+        "--pr",
+        "503",
+        "--act-bin",
+        "$ACT_BIN",
+        "--sudo",
+        "--workflow",
+        "rtl-full"
+      ],
+      "exit_code": 0,
+      "seconds": 99.441,
+      "original_log_sha256": "19c2e986695d890c9177b166217bdf87163f83b9a508d62f542532222bb269e3"
+    }
+  ],
+  "completion": {
+    "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+    "exit_code": 0,
+    "finished": "2026-09-21T18:59:09.837369+02:00"
+  }
+}
