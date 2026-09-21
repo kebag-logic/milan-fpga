@@ -1,0 +1,8 @@
+  if (rtake) rd = Rd{true, 2, dut->mem_req_addr_o};
+BECOMES
+  if (rtake) {
+    static bool delayed = false;
+    const bool delay_now = !delayed && dut->d3_rs_applied_o != 0;
+    rd = Rd{true, delay_now ? 3100000 : 2, dut->mem_req_addr_o};
+    delayed = delayed || delay_now;
+  }

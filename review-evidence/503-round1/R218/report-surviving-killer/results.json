@@ -1,0 +1,43 @@
+{
+ "builds": {
+  "mut-M01_taint_ignored": [
+   {
+    "case": "K2_change_during_record_write",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "2 durable intervals, 2 changes, 1 acknowledgements"
+     },
+     "written_value_was_set:0x50": {
+      "pass": true,
+      "detail": "2 writes, every one a value a command left"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 10 cycles (bound 2000)"
+     },
+     "converged@end": {
+      "pass": true,
+      "detail": "backed 1 dirty 0 stale 0 pend 0"
+     },
+     "value_in_slot@end:0x50": {
+      "pass": true,
+      "detail": "latest 0021e88e, newest verified slot 0021e88e"
+     },
+     "taint_rewrites:0x50": {
+      "pass": true,
+      "detail": "2 completed writes of 0x50; the last carries 0021e88e"
+     }
+    }
+   }
+  ]
+ },
+ "verdict": [
+  "MUTANT M01_taint_ignored: SURVIVED by K2_change_during_record_write : no_durable_claim_over_unsaved"
+ ],
+ "summary": "SUMMARY runs 1, checks 7, verdict failures 1"
+}

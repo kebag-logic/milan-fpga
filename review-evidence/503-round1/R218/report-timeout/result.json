@@ -1,0 +1,125 @@
+{
+  "checks": {
+    "case_completed": [
+      true,
+      "rc 0, done True"
+    ],
+    "no_durable_claim_over_unsaved": [
+      true,
+      "1 durable intervals, 0 changes, 0 acknowledgements"
+    ],
+    "latch_window_bounded": [
+      true,
+      "longest ownership window 0 cycles (bound 2000)"
+    ],
+    "rows_cleared_before_restore@boot": [
+      true,
+      "valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}"
+    ],
+    "value_restored:0x50": [
+      true,
+      "restored 1500000 valid 1, slot 0016e360"
+    ],
+    "set_value_survives_power_cycle:0x50": [
+      true,
+      "restored 1500000 valid 1, set 1500000"
+    ],
+    "value_restored:0x30": [
+      true,
+      "restored 145524899430031360 valid 1, slot 0205022000806000"
+    ],
+    "value_restored:0x0a": [
+      true,
+      "restored 1 valid 1, slot 0001"
+    ],
+    "value_restored:0x80": [
+      true,
+      "restored b'D3 restored entity name\\x00', slot b'D3 restored entity name\\x00'"
+    ],
+    "restored_name_survives_first_command:0x80": [
+      true,
+      "after the first command b'D3 restored entity name\\x00'"
+    ],
+    "value_restored:0xa5": [
+      true,
+      "restored b'D3 restored last name\\x00\\x00\\x00', slot b'D3 restored last name\\x00\\x00\\x00'"
+    ],
+    "restored_name_survives_first_command:0xa5": [
+      true,
+      "after the first command b'D3 restored last name\\x00\\x00\\x00'"
+    ],
+    "value_restored:0x70": [
+      true,
+      "live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000.."
+    ],
+    "value_restored:0x60": [
+      true,
+      "live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000.."
+    ],
+    "entity_enabled_after_restore@boot": [
+      false,
+      "enabled at 3000105, D3 restore done at 3107345, restore done at 3107345"
+    ],
+    "restore_sets_no_dirty@boot": [
+      true,
+      "0 record writes after the restore, dirty 0, flash erases 0 -> 0"
+    ],
+    "restore_counts@boot": [
+      true,
+      "applied 8 refused 0 blank 41 of 49"
+    ]
+  },
+  "boot": {
+    "k": "boot",
+    "enable": 3000105,
+    "restore_done": 3107345,
+    "d3_done": 3107345,
+    "own_max": 0,
+    "prog_waited": 0,
+    "mem_errs": 0,
+    "collisions": 0
+  },
+  "firmware": [
+    "Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.",
+    "Milan baremetal: AEM 7352 B copied QSPI +0x00400000 -> 0xe08c3260, CRC 93742dd2.",
+    "Milan NVM: the restore walk did not sequence in time.",
+    "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe09b2260; walk done=0 fail=0 blank=0 backed=1.",
+    "Milan baremetal: fabric entity enabled; UART diagnostics ready."
+  ],
+  "restored": {
+    "tag": "restored",
+    "cycle": 6232357,
+    "ms": 6232,
+    "backed": 1,
+    "dirty": 0,
+    "stale": 0,
+    "pend": 0,
+    "unres": 0,
+    "img_valid": 1,
+    "alarm": 0,
+    "d3_alarm": 0,
+    "d3_unfl": 0,
+    "restore_done": 1,
+    "restore_fail": 0,
+    "blank": 0,
+    "d3_done": 1,
+    "d3_fail": 0,
+    "rs_app": 8,
+    "rs_ref": 0,
+    "rs_blank": 41,
+    "rs_rev": 0,
+    "d3_writes": 0,
+    "dirty_count": 0,
+    "mgr_dirty": 0,
+    "desc_valid": 1,
+    "erases": 0,
+    "programs": 0,
+    "maps_out": [
+      "00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700100000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "maps_in": [
+      "00000000000000000000000100010000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "case_exit": 0
+}

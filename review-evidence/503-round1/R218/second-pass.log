@@ -1,0 +1,6 @@
+PASS case_completed -- rc 0, done True
+PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+FAIL torn_walk_applies_nothing@boot -- ptof0 valid 1 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 1
+BOOT {'k': 'boot', 'enable': 2858, 'restore_done': 2851, 'd3_done': 2851, 'own_max': 0, 'prog_waited': 0, 'mem_errs': 0, 'collisions': 0}
+FIRMWARE ['Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.', 'Milan baremetal: AEM 7352 B copied QSPI +0x00400000 -> 0x7cb48260, CRC 93742dd2.', 'Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x7cc37260; walk done=1 fail=1 blank=0 backed=1.', 'Milan baremetal: fabric entity enabled; UART diagnostics ready.']

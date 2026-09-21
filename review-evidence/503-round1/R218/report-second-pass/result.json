@@ -1,0 +1,72 @@
+{
+  "checks": {
+    "case_completed": [
+      true,
+      "rc 0, done True"
+    ],
+    "no_durable_claim_over_unsaved": [
+      true,
+      "1 durable intervals, 0 changes, 0 acknowledgements"
+    ],
+    "latch_window_bounded": [
+      true,
+      "longest ownership window 0 cycles (bound 2000)"
+    ],
+    "torn_walk_applies_nothing@boot": [
+      false,
+      "ptof0 valid 1 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 1"
+    ]
+  },
+  "boot": {
+    "k": "boot",
+    "enable": 2858,
+    "restore_done": 2851,
+    "d3_done": 2851,
+    "own_max": 0,
+    "prog_waited": 0,
+    "mem_errs": 0,
+    "collisions": 0
+  },
+  "firmware": [
+    "Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.",
+    "Milan baremetal: AEM 7352 B copied QSPI +0x00400000 -> 0x7cb48260, CRC 93742dd2.",
+    "Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0x7cc37260; walk done=1 fail=1 blank=0 backed=1.",
+    "Milan baremetal: fabric entity enabled; UART diagnostics ready."
+  ],
+  "restored": {
+    "tag": "restored",
+    "cycle": 233980,
+    "ms": 233,
+    "backed": 1,
+    "dirty": 0,
+    "stale": 0,
+    "pend": 0,
+    "unres": 0,
+    "img_valid": 1,
+    "alarm": 0,
+    "d3_alarm": 0,
+    "d3_unfl": 0,
+    "restore_done": 1,
+    "restore_fail": 1,
+    "blank": 0,
+    "d3_done": 1,
+    "d3_fail": 1,
+    "rs_app": 1,
+    "rs_ref": 0,
+    "rs_blank": 10,
+    "rs_rev": 0,
+    "d3_writes": 0,
+    "dirty_count": 0,
+    "mgr_dirty": 0,
+    "desc_valid": 1,
+    "erases": 0,
+    "programs": 0,
+    "maps_out": [
+      "00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700070000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "maps_in": [
+      "00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700070000"
+    ]
+  },
+  "case_exit": 0
+}

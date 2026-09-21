@@ -1,0 +1,8 @@
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    FAIL case_completed -- rc 1, done False
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    FAIL identify_never_persisted -- 0 record writes, dirty None, pend None, flash programs None -> None
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    PASS no_durable_claim_over_unsaved -- 0 durable intervals, 0 changes, 0 acknowledgements
+
+MUTANT M06_identify_is_a_change: KILLED by K14_identify_is_not_persisted : identify_never_persisted
+
+SUMMARY runs 1, checks 4, verdict failures 0

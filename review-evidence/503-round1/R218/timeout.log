@@ -1,0 +1,19 @@
+PASS case_completed -- rc 0, done True
+PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+PASS set_value_survives_power_cycle:0x50 -- restored 1500000 valid 1, set 1500000
+PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+FAIL entity_enabled_after_restore@boot -- enabled at 3000105, D3 restore done at 3107345, restore done at 3107345
+PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+BOOT {'k': 'boot', 'enable': 3000105, 'restore_done': 3107345, 'd3_done': 3107345, 'own_max': 0, 'prog_waited': 0, 'mem_errs': 0, 'collisions': 0}
+FIRMWARE ['Milan baremetal: CSR ID=4d494c4e VERSION=00020059, RV32I machine mode, no MMU/cache.', 'Milan baremetal: AEM 7352 B copied QSPI +0x00400000 -> 0xe08c3260, CRC 93742dd2.', 'Milan NVM: the restore walk did not sequence in time.', 'Milan NVM: slot A VD_OK seq 1, slot B VD_BLANK seq 0; offered A seq 1 (VD_OK), 3264 B at 0xe09b2260; walk done=0 fail=0 blank=0 backed=1.', 'Milan baremetal: fabric entity enabled; UART diagnostics ready.']

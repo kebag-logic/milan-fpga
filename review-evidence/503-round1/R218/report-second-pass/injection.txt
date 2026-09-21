@@ -1,0 +1,4 @@
+  if (addr < kBase) return nullptr;
+BECOMES
+  // Arm the existing V11 fault only after pass 1 has applied a record.
+  if (addr < kBase || dut->d3_rs_applied_o == 0) return nullptr;

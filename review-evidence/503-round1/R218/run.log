@@ -1,0 +1,38 @@
+PREMISE base-1x1 K15: the binding manager sampled busy on the D3 writer's grant cycle at g3 (1 of 8 releases) -> reached
+MUTANT A01_grant_cycle_not_busy: KILLED by K15_binding_on_the_d3_grant_cycle~g3 : both_records_committed
+MUTANT F01_old_boot_order: KILLED by V1b_restore_everything : value_restored:0x50
+MUTANT G01_pend_misses_d3: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT G02_restore_done_without_d3: KILLED by V1b_restore_everything : entity_enabled_after_restore@boot
+MUTANT G03_restore_writes_are_changes: KILLED by V1b_restore_everything : restore_sets_no_dirty@boot
+MUTANT G04_blank_ignores_d3: KILLED by V7_names_only : blank_is_both_walks@boot
+MUTANT M01_taint_ignored: KILLED by K2_change_during_record_write : no_durable_claim_over_unsaved
+MUTANT M02_clear_at_latch: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT M03_clear_wins_same_edge: KILLED by K5_change_on_the_done_edge : same_edge_change_survives@end:0x50
+MUTANT M04_clear_by_group: KILLED by K4_second_record_in_flight : value_in_slot@end:0x51
+MUTANT M05_latch_ignores_program: KILLED by K11_name_latch_waits_for_the_program : written_value_was_set:0x80
+MUTANT M06_identify_is_a_change: KILLED by K14_identify_is_not_persisted : identify_never_persisted
+MUTANT M08_restore_skips_image_check: KILLED by V7_names_only : restored_name_survives_first_command:0x80
+MUTANT M09_apply_blindly: KILLED by V2_refused_rate : refused_value_not_applied:0x02
+MUTANT M10_fmt_full_judge: KILLED by V6b_restore_coupled_pair : coupled_pair_restored
+MUTANT M11_no_orphan_check: KILLED by V8_orphaning_format_reverted : no_orphaned_mapping_after_restore
+MUTANT M12_no_revert_before_readd: KILLED by V9_refused_maps_revert_their_formats : refused_group_falls_back_to_default:0x70
+MUTANT M13_restore_applies_nothing: KILLED by V1b_restore_everything : value_restored:0x50
+CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required
+MUTANT M14_clear_by_index: KILLED by K4g_second_group_in_flight : value_in_slot@end:0x0a
+MUTANT M15_overflow_forgets_the_change: KILLED by K16_map_set_larger_than_its_record : no_durable_claim_over_unsaved
+MUTANT M16_single_pass_restore: KILLED by V11_torn_read_restores_nothing : torn_walk_applies_nothing@boot
+MUTANT M17_trigger_misses_ptof: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT M18_trigger_misses_names: KILLED by K10_name_change_converges : no_durable_claim_over_unsaved
+MUTANT M19_trigger_misses_out_maps: KILLED by K12_map_change_converges : no_durable_claim_over_unsaved
+TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source
+TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED K12_map_change_converges : value_in_slot@end:0x70 FAILS, as it must at the current source
+TRACKED K12_map_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED V1b_restore_everything : set_value_survives_power_cycle:0x50 FAILS, as it must at the current source
+TRACKED K1_single_change_converges : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1a_set_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED * : case_completed PASSES, as it must
+SUMMARY runs 121, checks 778, verdict failures 0

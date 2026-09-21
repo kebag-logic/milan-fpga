@@ -1,0 +1,4 @@
+          if (sub_r != 4'd15) begin
+BECOMES
+          if (cg_r == 4'(G_CFG)) st_r <= R_ADV;
+          else if (sub_r != 4'd15) begin
