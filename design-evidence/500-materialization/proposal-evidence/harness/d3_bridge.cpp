@@ -8,12 +8,14 @@
 // three cycles after acceptance; one outstanding one-beat read) with per-byte
 // fault injection and a read response that can be HELD (late, or never:
 // silence); the descriptor store's read-only DDR (the AEMI image the
-// firmware copied, served in bursts), which can be made to fail; the uCPU (a
-// program of state-bus operations with the dispatch hold-off); and the
-// parent's map plane (the port mapping sets, the GET_AUDIO_MAP read face, the
-// edit face and the format judge), whose rules are stated where they are
-// coded, whose faces can be made silent, and which returns every port to its
-// reset set when the writer's roll-back asks (map_rst_o).
+// firmware copied, served in bursts, in order, behind a request FIFO that
+// accepts while earlier bursts are owed, as the parent's asynchronous CDC
+// FIFO does), which can be made to fail, delayed or answer one error beat;
+// the uCPU (a program of state-bus operations with the dispatch hold-off);
+// and the parent's map plane (the port mapping sets, the GET_AUDIO_MAP read
+// face, the edit face and the format judge), whose rules are stated where
+// they are coded, whose faces can be made silent, and which returns every
+// port to its reset set when the writer's roll-back asks (map_rst_o).
 #include "d3_bridge.h"
 
 #include "Vd3_top.h"
@@ -56,6 +58,11 @@ RdHold rdhold;
 FaceSilence facesil;
 bool desc_mem_fail = false;
 bool desc_fail_on_rollback = false;
+int64_t desc_delay_next = -1;
+bool desc_err_next = false;
+int64_t desc_delay_after_apply = -1;
+bool judge_shipping = false;
+bool early_enable = false;
 std::string snap_prerestore, snap_pass1, snap_terminal;
 bool lend_on = false;
 bool en_pp = false, en_adp = false;
@@ -149,12 +156,22 @@ Fault *match_fault(uint32_t off, uint8_t byte) {
 }
 
 // --------------------------------------------------- descriptor store memory
+//! one accepted burst: its first-beat latency, where it reads, the beats it
+//! still owes, and the one-shot faults a case armed on it
 struct DRd {
-  bool busy = false;
-  int delay = 0;
+  int64_t delay = 0;
   uint32_t addr = 0;
   unsigned left = 0;
-} drd;
+  bool err_first = false;
+  bool delayed = false;
+};
+std::deque<DRd> dq;
+//! the parent's request CDC FIFO depth (_AXIS_CDC_DEPTH): the memory takes a
+//! request while earlier bursts are still owed
+constexpr size_t kDescFifo = 16;
+bool desc_after_apply_used = false;
+uint64_t debt_since = 0;
+bool prev_debt = false;
 
 uint64_t desc_lane(uint32_t addr) {
   uint64_t v = 0;
@@ -224,18 +241,46 @@ uint64_t live_fmt(bool out, unsigned s) {
   return word64_of(dut->dyn_fmt_in_o, s);
 }
 
-//! MODEL of the integrator's "supported for this stream" (GSI(15) bit 0):
+//! The integrator's "supported for this stream" (GSI(15) bit 0), in two modes.
+//!
+//! SYNTHETIC (judge_shipping false, every case but the shipping-legal ones):
 //! the stream's image-default format, or a Milan Base 48 kHz AAF PCM32 format
 //! (avdecc/aem_maps.py base_channel_cover's stem) of 1, 2, 4, 6 or 8 channels
-//! no wider than the default. A CRF stream supports its default alone.
+//! no wider than the default, in EITHER direction. A CRF stream supports its
+//! default alone. This admits NARROWER OUTPUT formats, which the product
+//! refuses: it is a broadened test judge for the format/map ordering cases,
+//! not product behaviour.
+//!
+//! SHIPPING (judge_shipping true): hdl/milan/milan_datapath.sv sfv_supported_w
+//! transcribed. The proposal's base must equal the row's declared format
+//! outside channels_per_frame (qword [31:22]) and the ut bit (52), with the ut
+//! bit CLEAR; an INPUT then admits a channel count of the 1/2/4/6/8 family,
+//! an OUTPUT exactly its declared channel count (talker truth: no adaptation),
+//! and a CRF row exactly its own format.
 bool fmt_supported(bool out, unsigned s, uint64_t f) {
   const uint64_t d = out ? def_fmt_out[s] : def_fmt_in[s];
+  const unsigned ch = fmt_channels(f);
+  const bool fam = ch == 1 || ch == 2 || ch == 4 || ch == 6 || ch == 8;
+  if (judge_shipping) {
+    if (fmt_channels(d) == 0) return f == d;           // a CRF row
+    const uint64_t var = (uint64_t(0x3FF) << 22) | (uint64_t(1) << 52);
+    const bool base_ok = ((f & ~var) == (d & ~var)) && !((f >> 52) & 1u);
+    return out ? (base_ok && ch == fmt_channels(d)) : (base_ok && fam);
+  }
   if (f == d) return true;
   if (fmt_channels(d) == 0) return false;
   const uint64_t stem = f & ~((uint64_t(1) << 52) | (uint64_t(0x3FF) << 22));
+  return stem == 0x0205022000006000ull && fam && ch <= fmt_channels(d);
+}
+
+//! GSI(15) bit 1: no mapping of this direction that names stream s uses a
+//! channel the proposed format f does not have (Milan 5.4.2.7)
+bool fmt_survives(bool out, unsigned s, uint64_t f) {
   const unsigned ch = fmt_channels(f);
-  const bool base = ch == 1 || ch == 2 || ch == 4 || ch == 6 || ch == 8;
-  return stem == 0x0205022000006000ull && base && ch <= fmt_channels(d);
+  for (const auto &p : out ? map_out : map_in)
+    for (const auto &m : p.cur)
+      if (m.si == s && ch != 0 && m.sc >= ch) return false;
+  return true;
 }
 
 //! MODEL of the integrator's staged-command judgement of a map set: every
@@ -314,6 +359,25 @@ static void drive_ucpu() {
   }
   dut->prog_busy_i = (ust != U::Idle) || hold_on;
   if (ust != U::Bus || pc >= prog.size()) return;
+  if (prog[pc].kind == UOp::FMT_WR) {
+    //! SET_STREAM_FORMAT's verdict, taken when the program reaches it: the
+    //! judge in force (synthetic or shipping) and the orphan rule; accepted,
+    //! the program writes the format, refused (BAD_ARGUMENTS) it writes
+    //! nothing
+    UOp &w = prog[pc];
+    const bool ok = w.idx < (w.out ? n_so : n_si) && fmt_supported(w.out, w.idx, w.val) &&
+                    fmt_survives(w.out, w.idx, w.val);
+    answers.emplace_back(w.tag, ok ? 1 : 0);
+    answer_err.emplace_back(w.tag, ok ? 0 : 1);
+    if (ok) {
+      w.kind = UOp::DYN_WR;
+      w.sel = w.out ? 4u : 3u;
+    } else {
+      w.kind = UOp::GAP;
+      w.gap = 1;
+      w.rid = -1;
+    }
+  }
   const UOp &o = prog[pc];
   switch (o.kind) {
     case UOp::DYN_WR:
@@ -388,14 +452,7 @@ static void drive_maps() {
     unsigned bits = 0;
     if (s < (out ? n_so : n_si)) {
       if (fmt_supported(out, s, f)) bits |= 1;
-      //! bit 1: no mapping of this direction that names the stream uses a
-      //! channel the proposed format does not have (Milan 5.4.2.7)
-      bool survives = true;
-      const unsigned ch = fmt_channels(f);
-      for (const auto &p : out ? map_out : map_in)
-        for (const auto &m : p.cur)
-          if (m.si == s && ch != 0 && m.sc >= ch) survives = false;
-      if (survives) bits |= 2;
+      if (fmt_survives(out, s, f)) bits |= 2;
     }
     dut->fj_wait_i = 0;
     dut->fj_data_i = bits;
@@ -429,7 +486,7 @@ static void drive_cycle() {
   dut->restore_go_i = restore_go;
   dut->snoop_off_i = !snoop_on;
   dut->lend_bus_i = lend_on;
-  dut->en_req_i = en_pp || en_adp;
+  dut->en_req_i = en_pp || en_adp || early_enable;
   dut->mem_req_ready_i = !rd.busy;
   dut->mem_rsp_valid_i = rd.busy && rd.delay == 0 && !rd_held();
   dut->mem_rsp_data_i = rd.busy ? lane(rd.addr) : 0;
@@ -438,11 +495,15 @@ static void drive_cycle() {
   dut->mem_wr_done_i = wr.busy && wr.delay == 0;
   dut->mem_wr_err_i = dut->mem_wr_done_i && wr.err;
   dut->mem_wr_ready_i = !wr.busy;
-  dut->dm_req_ready_i = !drd.busy;
-  dut->dm_rsp_valid_i = drd.busy && drd.delay == 0;
-  dut->dm_rsp_data_i = drd.busy ? desc_lane(drd.addr) : 0;
-  dut->dm_rsp_last_i = drd.busy && drd.left == 1;
-  dut->dm_rsp_err_i = desc_mem_fail && drd.busy && drd.delay == 0;
+  //! the descriptor memory: in order, a request FIFO that accepts while
+  //! earlier bursts are owed; an error beat is its burst's last
+  const bool dv = !dq.empty() && dq.front().delay == 0;
+  const bool derr = dv && (desc_mem_fail || dq.front().err_first);
+  dut->dm_req_ready_i = dq.size() < kDescFifo;
+  dut->dm_rsp_valid_i = dv;
+  dut->dm_rsp_data_i = dv ? desc_lane(dq.front().addr) : 0;
+  dut->dm_rsp_last_i = dv && (dq.front().left == 1 || derr);
+  dut->dm_rsp_err_i = derr;
   dut->eval();
   // same-edge triggers: a case may change this cycle's inputs on a condition
   for (auto &t : cycle_triggers)
@@ -516,26 +577,66 @@ static void sample_cycle() {
       }
     }
   }
+  if (!evlog.m0_abort_cyc && dut->m0_abort_o) evlog.m0_abort_cyc = cyc;
   if (rd_held()) {
     if (dut->d3_wd_o > rdhold.wd_max) rdhold.wd_max = dut->d3_wd_o;
+    if (dut->m0_wd_o > rdhold.m0_wd_max) rdhold.m0_wd_max = dut->m0_wd_o;
     const bool by_time = rdhold.hold >= 0 && int64_t(cyc - rdhold.start) >= rdhold.hold;
     const bool by_wd = rdhold.wd_release >= 0 && int64_t(dut->d3_wd_o) >= rdhold.wd_release;
     const bool by_abort = rdhold.after_abort >= 0 && evlog.abort_cyc &&
                           int64_t(cyc) >= int64_t(evlog.abort_cyc) + rdhold.after_abort;
-    if (by_time || by_wd || by_abort) {
+    const bool by_m0_wd = rdhold.m0_wd_release >= 0 && int64_t(dut->m0_wd_o) >= rdhold.m0_wd_release;
+    const bool by_m0_abort = rdhold.after_m0_abort >= 0 && evlog.m0_abort_cyc &&
+                             int64_t(cyc) >= int64_t(evlog.m0_abort_cyc) + rdhold.after_m0_abort;
+    if (by_time || by_wd || by_abort || by_m0_wd || by_m0_abort) {
       rdhold.released = true;
       rdhold.end = cyc;
     }
   }
 
-  // descriptor store memory: one beat per cycle after a two-cycle latency
-  if (drd.busy && drd.delay == 0 && dut->dm_rsp_valid_i) {
-    drd.addr += 8;
-    if (--drd.left == 0) drd.busy = false;
-  } else if (drd.busy && drd.delay > 0) {
-    --drd.delay;
+  // descriptor store memory: the front burst, one beat per cycle after its
+  // latency (the store, and the guard, always sink a beat)
+  if (!dq.empty()) {
+    DRd &f = dq.front();
+    if (f.delay == 0 && dut->dm_rsp_valid_i) {
+      const bool e = dut->dm_rsp_err_i;
+      if (f.delayed && !evlog.desc_delay_beat) evlog.desc_delay_beat = cyc;
+      if (f.err_first && !evlog.desc_err_cyc) evlog.desc_err_cyc = cyc;
+      f.err_first = false;
+      f.addr += 8;
+      if (--f.left == 0 || e) dq.pop_front();
+    } else if (f.delay > 0) {
+      --f.delay;
+    }
   }
-  if (dtake) drd = DRd{true, 2, dut->dm_req_addr_o, unsigned(dut->dm_req_beats_o)};
+  if (dtake) {
+    DRd r;
+    r.delay = 2;
+    r.addr = dut->dm_req_addr_o;
+    r.left = unsigned(dut->dm_req_beats_o);
+    //! R217's trigger: the first request accepted once the writer has applied
+    //! a record is answered late
+    if (desc_delay_after_apply >= 0 && !desc_after_apply_used && dut->d3_rs_applied_o) {
+      desc_after_apply_used = true;
+      desc_delay_next = desc_delay_after_apply;
+    }
+    if (desc_delay_next >= 0) {
+      r.delay = desc_delay_next;
+      r.delayed = true;
+      desc_delay_next = -1;
+      evlog.desc_delay_acc = cyc;
+    }
+    if (desc_err_next) {
+      r.err_first = true;
+      desc_err_next = false;
+    }
+    dq.push_back(r);
+  }
+  //! a debt the guard held for more than 100 cycles (a burst late or silent)
+  if (dut->desc_debt_o && !prev_debt) debt_since = cyc;
+  if (!dut->desc_debt_o && prev_debt && cyc - debt_since > 100)
+    evlog.desc_debt.emplace_back(debt_since, unsigned(cyc - debt_since));
+  prev_debt = dut->desc_debt_o;
 
   // a forced same-edge write
   if (forced.on) {
@@ -682,6 +783,9 @@ static void sample_cycle() {
   }
   if (!evlog.restore_done_cyc && dut->restore_done_o) evlog.restore_done_cyc = cyc;
   if (!evlog.d3_done_cyc && dut->d3_restore_done_o) evlog.d3_done_cyc = cyc;
+  if (!evlog.mgr_done_cyc && dut->mgr_restore_done_o) evlog.mgr_done_cyc = cyc;
+  if (dut->pre_take_o) evlog.preloads.emplace_back(cyc, unsigned(dut->pre_sink_o));
+  if (early_enable && !evlog.fw_enable_cyc) evlog.fw_enable_cyc = cyc;
 
   //! the restore transaction as the model sees it
   if (dut->wr_st_we_o) evlog.rs_writes.emplace_back(cyc, "state-bus");
@@ -704,6 +808,7 @@ static void sample_cycle() {
     evlog.rs_writes.emplace_back(cyc, "roll-back");
     if (desc_fail_on_rollback) desc_mem_fail = true;
   }
+  if (!dut->map_rst_o && prev_map_rst && !evlog.rb_end_cyc) evlog.rb_end_cyc = cyc;
   prev_map_rst = dut->map_rst_o;
   if (!evlog.enable_cyc && dut->entity_en_o) evlog.enable_cyc = cyc;
   if (dut->d3_busy_o && !prev_d3_busy && snap_prerestore.empty()) snap_prerestore = snapshot_json();
@@ -962,6 +1067,12 @@ Levels levels() {
   l.d3_closed = dut->d3_restore_closed_o;
   l.d3_cause = dut->d3_rs_cause_o;
   l.entity_en = dut->entity_en_o;
+  l.mgr_done = dut->mgr_restore_done_o;
+  l.mgr_fail = dut->mgr_fail_o;
+  l.mgr_blank = dut->mgr_blank_o;
+  l.mgr_cause = dut->mgr_cause_o;
+  l.desc_debt = dut->desc_debt_o;
+  l.d3_pass = dut->d3_pass_o;
   return l;
 }
 

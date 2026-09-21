@@ -108,6 +108,22 @@ void set_dyn(unsigned sel, unsigned idx, uint64_t val, unsigned width, int rid) 
 }
 
 void set_fmt_out(unsigned s, uint64_t f) { set_dyn(SEL_FMTO, s, f, 8, int(0x40 + s)); }
+
+//! SET_STREAM_FORMAT as a program that TAKES the integrator's verdict when
+//! it runs (the judge in force and the orphan rule): accepted, it writes the
+//! format; refused, it writes nothing. The verdict is noted under `tag`.
+void set_fmt_judged(bool out, unsigned s, uint64_t f, const std::string &tag) {
+  UOp w{UOp::FMT_WR};
+  w.out = out;
+  w.idx = s;
+  w.val = f;
+  w.tag = tag;
+  w.rid = int((out ? 0x40 : 0x30) + s);
+  w.value = be(f, 8);
+  UOp g{UOp::GAP};
+  g.gap = 3;
+  program({w, g});
+}
 void set_fmt_in(unsigned s, uint64_t f) { set_dyn(SEL_FMTI, s, f, 8, int(0x30 + s)); }
 void set_ptof(unsigned s, uint32_t v) { set_dyn(SEL_PTOF, s, v, 4, int(0x50 + s)); }
 void set_rate(uint32_t v) { set_dyn(SEL_RATE, 0, v, 4, 0x02); }
@@ -234,6 +250,8 @@ void snap(const std::string &tag) {
     << ",\"d3_done\":" << l.d3_done << ",\"d3_fail\":" << l.d3_fail
     << ",\"d3_rb\":" << l.d3_rb << ",\"d3_closed\":" << l.d3_closed << ",\"d3_cause\":" << l.d3_cause
     << ",\"own\":" << l.own << ",\"entity_en\":" << l.entity_en
+    << ",\"mgr_done\":" << l.mgr_done << ",\"mgr_fail\":" << l.mgr_fail << ",\"mgr_blank\":" << l.mgr_blank
+    << ",\"mgr_cause\":" << l.mgr_cause << ",\"desc_debt\":" << l.desc_debt
     << ",\"port_busy\":" << l.port_busy
     << ",\"rs_app\":" << l.rs_app << ",\"rs_ref\":" << l.rs_ref << ",\"rs_blank\":" << l.rs_blank
     << ",\"rs_rev\":" << l.rs_rev << ",\"d3_writes\":" << l.d3_writes
@@ -274,16 +292,24 @@ void dump_log() {
   std::printf("EVT {\"k\":\"boot\",\"enable\":%" PRIu64 ",\"restore_done\":%" PRIu64
               ",\"d3_done\":%" PRIu64 ",\"own_max\":%" PRIu64 ",\"prog_waited\":%" PRIu64
               ",\"mem_errs\":%u,\"collisions\":%u,\"fw_enable\":%" PRIu64 ",\"terminal\":%" PRIu64
-              ",\"abort\":%" PRIu64 ",\"cause\":%u,\"rollback\":%" PRIu64 "}\n",
+              ",\"abort\":%" PRIu64 ",\"cause\":%u,\"rollback\":%" PRIu64 ",\"mgr_done\":%" PRIu64
+              ",\"m0_abort\":%" PRIu64 ",\"rb_end\":%" PRIu64 ",\"desc_delay_acc\":%" PRIu64
+              ",\"desc_delay_beat\":%" PRIu64 ",\"desc_err\":%" PRIu64 ",\"judge_shipping\":%d}\n",
               evlog.enable_cyc, evlog.restore_done_cyc, evlog.d3_done_cyc, evlog.own_max,
               evlog.prog_waited_on_own, evlog.mem_errs, evlog.collisions, evlog.fw_enable_cyc,
-              evlog.terminal_cyc, evlog.abort_cyc, evlog.abort_cause, evlog.rb_cyc);
+              evlog.terminal_cyc, evlog.abort_cyc, evlog.abort_cause, evlog.rb_cyc, evlog.mgr_done_cyc,
+              evlog.m0_abort_cyc, evlog.rb_end_cyc, evlog.desc_delay_acc, evlog.desc_delay_beat,
+              evlog.desc_err_cyc, int(judge_shipping));
+  for (const auto &pl : evlog.preloads)
+    std::printf("EVT {\"k\":\"pre\",\"cyc\":%" PRIu64 ",\"sink\":%u}\n", pl.first, pl.second);
+  for (const auto &db : evlog.desc_debt)
+    std::printf("EVT {\"k\":\"debt\",\"cyc\":%" PRIu64 ",\"len\":%u}\n", db.first, db.second);
   for (const auto &w : evlog.rs_writes)
     std::printf("EVT {\"k\":\"rsw\",\"cyc\":%" PRIu64 ",\"what\":\"%s\"}\n", w.first, w.second.c_str());
   std::printf("EVT {\"k\":\"hold\",\"armed\":%d,\"active\":%d,\"released\":%d,\"start\":%" PRIu64
-              ",\"end\":%" PRIu64 ",\"rid\":%u,\"pass\":%u,\"wd_max\":%" PRIu64 "}\n",
+              ",\"end\":%" PRIu64 ",\"rid\":%u,\"pass\":%u,\"wd_max\":%" PRIu64 ",\"m0_wd_max\":%" PRIu64 "}\n",
               int(rdhold.armed), int(rdhold.active), int(rdhold.released), rdhold.start, rdhold.end,
-              rdhold.rid_seen, rdhold.pass_seen, rdhold.wd_max);
+              rdhold.rid_seen, rdhold.pass_seen, rdhold.wd_max, rdhold.m0_wd_max);
   std::printf("EVT {\"k\":\"face\",\"face\":%d,\"active\":%d,\"done\":%d,\"start\":%" PRIu64 "}\n",
               facesil.face, int(facesil.active), int(facesil.done), facesil.start);
   if (!snap_prerestore.empty()) std::printf("SNAP {\"tag\":\"prerestore\",\"s\":%s}\n", snap_prerestore.c_str());
@@ -348,6 +374,15 @@ void hold_read(int rid, int pass, unsigned nth, int64_t hold, int64_t wd_release
   rdhold.hold = hold;
   rdhold.wd_release = wd_release;
   rdhold.after_abort = after_abort;
+}
+
+//! hold a BINDING walk read: released when the binding manager's own deadline
+//! count reaches `m0_wd_release`, or `after_m0_abort` cycles after it
+//! abandoned the read (seam S3); -1 for either means not that way
+void hold_binding_read(unsigned rid, int64_t m0_wd_release, int64_t after_m0_abort) {
+  hold_read(int(rid), -1, 1, -1);
+  rdhold.m0_wd_release = m0_wd_release;
+  rdhold.after_m0_abort = after_m0_abort;
 }
 
 //! the record ids the D3 writer walks, in its order (ascending id)
@@ -984,28 +1019,45 @@ void register_cases() {
     command_after_recovery();
     snap("recovered");
   };
-  // the BINDING walk has no deadline of its own (processor issue 15): its
-  // silence keeps the entity dark and deaf, and a late answer is taken
+  // the BINDING walk (revision c, seam S3): the amended binding manager bounds
+  // its read phase by its own deadline and abandons the read to the drain, so
+  // silence ends in bounded time with the walk failed and nothing preloaded;
+  // the D3 walk then meets a quarantined port and ends at its own deadline.
+  // Commands are served after both; the port stays quarantined until the
+  // device ends the abandoned read, for ever if it never does.
   cases["W13_binding_walk_silent"] = [] {
     hold_read(0x20, -1, 1, -1);
     boot();
     idle(200);
     snap("terminal");
-    read_row(SEL_PTOF, 0, "rec.ptof0");
-    idle(3000);
+    command_after_recovery();
     snap("recovered");
   };
-  cases["W14_binding_walk_late_after_fw_deadline"] = [] {
-    hold_read(0x20, -1, 1, 3100000);
+  cases["W13b_binding_late_before_deadline"] = [] {
+    // released when the binding manager's deadline count is 40 cycles short
+    hold_binding_read(0x20, kTmo - 40, -1);
     boot();
-    idle(400);
+    idle(200);
     snap("terminal");
     read_row(SEL_PTOF, 0, "post.ptof0");
     settle();
     command_after_recovery();
     snap("recovered");
   };
-  cases["W15_binding_walk_late_before_fw_deadline"] = [] {
+  cases["W13c_binding_late_after_deadline"] = [] {
+    // released 5 cycles after the binding manager abandoned the read
+    hold_binding_read(0x20, -1, 5);
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "post.ptof0");
+    settle();
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["W15_binding_answer_after_enable"] = [] {
+    // the binding read answers at 2,900,000, long after both walks ended and
+    // the entity was enabled: the drain takes it, no preload follows
     hold_read(0x20, -1, 1, 2900000);
     boot();
     idle(400);
@@ -1014,6 +1066,291 @@ void register_cases() {
     settle();
     command_after_recovery();
     snap("recovered");
+  };
+  cases["W16_binding_header_device_error"] = [] {
+    // a DEVICE error on the binding record's HEADER lane: the port's cause
+    // fails the binding walk whole instead of defaulting the sink silently
+    read_fault(0x20, 0, -1);
+    boot();
+    idle(200);
+    snap("terminal");
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["W14_enable_requested_before_the_restore"] = [] {
+    // a bench script requests the entity enable from reset: the fabric holds
+    // it until the restore of both walks is done
+    early_enable = true;
+    boot();
+    idle(200);
+    snap("terminal");
+    command_after_recovery();
+    snap("recovered");
+  };
+
+  // ================= HEADER TRANSPORT FAULTS (revision c, seam S1) ==========
+  // A DEVICE error on a record's HEADER lane (the backend's memory read of
+  // that lane fails) reaches the writer as err with nothing forwarded and the
+  // port's cause DEVICE: a transport failure, never an erased record. Each on
+  // V1a's slots unless crafted, then a GET and a SET. H1, H2, H2b and H3 are
+  // the reviewers' exact stimuli (R217 header-repeat, header-balanced,
+  // header-pass0; R218 repeat, swap, pass0); V18 is the pass-1-only one.
+  cases["H1_header_error_both_passes"] = [restore_under_fault] {
+    read_fault(0x50, 0, -1);
+    restore_under_fault();
+  };
+  cases["H2_header_errors_balance_counts"] = [restore_under_fault] {
+    read_fault(0x30, 0, -1, 0);
+    read_fault(0x50, 0, -1, 1);
+    restore_under_fault();
+  };
+  cases["H2b_header_errors_swap"] = [restore_under_fault] {
+    read_fault(0x51, 0, -1, 0);
+    read_fault(0x50, 0, -1, 1);
+    restore_under_fault();
+  };
+  cases["H3_header_error_pass0_only"] = [restore_under_fault] {
+    read_fault(0x50, 0, -1, 0);
+    restore_under_fault();
+  };
+  cases["H4_header_error_first_record"] = [restore_under_fault] {
+    read_fault(d3_ids().front(), 0, -1);
+    restore_under_fault();
+  };
+  cases["H5_header_error_map_record"] = [restore_under_fault] {
+    read_fault(0x70, 0, -1);
+    restore_under_fault();
+  };
+  cases["H6_header_error_last_name"] = [restore_under_fault] {
+    read_fault(0x80 + n_name - 1, 0, -1);
+    restore_under_fault();
+  };
+  cases["H7_header_error_last_name_pass1"] = [restore_under_fault] {
+    read_fault(0x80 + n_name - 1, 0, -1, 1);
+    restore_under_fault();
+  };
+  cases["H8_header_error_sole_saved_record"] = [restore_under_fault] {
+    // crafted: the slot holds 0x50 alone; its header fails in both passes
+    read_fault(0x50, 0, -1);
+    restore_under_fault();
+  };
+
+  // ================= THE PASSES DISAGREE WITHOUT A DEVICE ERROR ============
+  // HARNESS-ONLY at-rest changes of the window between the passes (the device
+  // answers, wrongly, with no error): only the per-record pass agreement can
+  // see them. The magic byte of a record's header is flipped, so the port
+  // refuses that header as UNFRAMED.
+  cases["V18b_header_changed_between_passes"] = [restore_under_fault] {
+    const unsigned o50 = recs[0x50].off;
+    on_cycle([o50] {
+      if (!levels().d3_pass) return false;
+      area()[o50] ^= 0x01;
+      return true;
+    });
+    restore_under_fault();
+  };
+  cases["V18c_changes_balance_counts"] = [restore_under_fault] {
+    // 0x30 unframed in pass 0 only, 0x50 in pass 1 only: one unframed record
+    // in each pass, so the counts of round two agree while the records differ
+    const unsigned o30 = recs[0x30].off, o50 = recs[0x50].off;
+    on_cycle([o30] {
+      if (!levels().mgr_done) return false;
+      area()[o30] ^= 0x01;
+      return true;
+    });
+    on_cycle([o30, o50] {
+      if (!levels().d3_pass) return false;
+      area()[o30] ^= 0x01;
+      area()[o50] ^= 0x01;
+      return true;
+    });
+    restore_under_fault();
+  };
+
+  // ================= DESCRIPTOR FAULTS (revision c) =========================
+  // The rule a value is judged by, and the image default a revert writes, are
+  // descriptor-store reads. A failed read, or the store's own 4,096-cycle
+  // watchdog answer, is a transport failure: the restore aborts (cause 6)
+  // and rolls back; it never refuses the value. V20, V21 and V22 are R217's
+  // exact stimuli (descriptor-error, descriptor-timeout, descriptor-initial-
+  // error); V17 keeps the failure of the roll-back's own re-walk.
+  cases["V20_desc_error_after_apply"] = [] {
+    // the descriptor memory fails from the first application on: the roll-
+    // back's re-walk cannot validate the image, so the restore ends CLOSED
+    on_cycle([] {
+      if (!levels().rs_app) return false;
+      desc_mem_fail = true;
+      return true;
+    });
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["V20b_desc_error_once_after_apply"] = [restore_under_fault] {
+    // ONE failing beat on the first descriptor fetch after the first
+    // application (the clock source's rule), then a healthy memory
+    on_cycle([] {
+      if (!levels().rs_app) return false;
+      desc_err_next = true;
+      return true;
+    });
+    restore_under_fault();
+  };
+  cases["V20c_desc_error_in_the_map_revert"] = [restore_under_fault] {
+    // crafted as V9: the refused OUT map's revert reads the image-default
+    // format of the stream it restored; that fetch fails once
+    on_cycle([] {
+      if (!levels().rs_ref) return false;
+      desc_err_next = true;
+      return true;
+    });
+    restore_under_fault();
+  };
+  cases["V20d_desc_error_in_the_final_revert"] = [restore_under_fault] {
+    // crafted as V8: the final re-judge reverts the restored format that
+    // orphans the reset maps; the fetch of its image default fails once
+    const unsigned first_name = slot_of(0x80);
+    on_cycle([first_name] {
+      const Levels l = levels();
+      if (!l.d3_pass || l.d3_slot != first_name) return false;
+      desc_err_next = true;
+      return true;
+    });
+    restore_under_fault();
+  };
+  cases["V21_desc_late_after_apply"] = [restore_under_fault] {
+    // the first descriptor request after an application answers 5,000
+    // cycles late: the store's own watchdog answers an error at 4,096, and
+    // the roll-back holds the owners in reset until the late burst is in
+    desc_delay_after_apply = 5000;
+    restore_under_fault();
+  };
+  cases["V21b_desc_debt_outlasts_the_store"] = [restore_under_fault] {
+    // 16,000 cycles late: longer than two of the store's own watchdogs, still
+    // inside the writer's deadline
+    desc_delay_after_apply = 16000;
+    restore_under_fault();
+  };
+  cases["V21c_desc_debt_outlasts_the_deadline"] = [] {
+    // 30,000 cycles late: longer than the writer's deadline, so the roll-back
+    // cannot prove the image in time and ends CLOSED
+    desc_delay_after_apply = 30000;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["V21d_desc_slow_within_the_store_bound"] = [restore_under_fault] {
+    // 4,000 cycles late: slow, inside the store's own watchdog, no fault
+    desc_delay_after_apply = 4000;
+    restore_under_fault();
+  };
+  cases["V22_desc_fails_before_boot"] = [] {
+    // no image can be walked at all: the restore cannot prove its image
+    desc_mem_fail = true;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["V22b_image_unproven_simple_records"] = [] {
+    // crafted: an offset and a name, records no rule fetch touches
+    desc_mem_fail = true;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["V2b_refused_clock_source"] = [] {
+    // crafted: a clock-source index past clock_sources_count; the rule is
+    // fetched and the VALUE fails it: refused, the restore completes
+    boot();
+    idle(200);
+    read_row(SEL_CLKS, 0, "post.clks");
+    settle();
+    snap("restored");
+  };
+  cases["V23_late_desc_beats_in_service"] = [] {
+    // after the restore, a locate whose fetch answers 6,000 cycles late: the
+    // store's own watchdog answers it an error at 4,096. The pinned store does
+    // not re-arm that watchdog after a fetch timed out, so the NEXT locate
+    // fails at once, before its request is presented (a pinned quirk). The
+    // one after it is presented while the late burst is still owed: it must
+    // be answered its OWN descriptor, never the late burst's bytes. Once the
+    // late burst has ended, a locate is served as usual.
+    boot();
+    idle(200);
+    desc_delay_next = 6000;
+    auto locate = [](uint16_t type, const std::string &tag) {
+      UOp l{UOp::LOCATE};
+      l.val = (uint64_t(0) << 32) | (uint64_t(type) << 16);   // index 0, configuration 0
+      l.tag = tag + ".locate";
+      UOp r{UOp::READ};
+      r.addr = 0;
+      r.tag = tag + ".lane0";
+      return std::vector<UOp>{l, r};
+    };
+    std::vector<UOp> p = locate(0x0006, "late");       // STREAM_OUTPUT 0: its burst is late
+    for (const auto &o : locate(0x0005, "next")) p.push_back(o);    // fails at once
+    for (const auto &o : locate(0x0005, "third")) p.push_back(o);   // presented while owed
+    program(p);
+    settle();
+    idle(50);
+    program(locate(0x0005, "after"));
+    settle();
+    snap("restored");
+  };
+
+  // ================= OUTPUT FORMAT, SHIPPING-LEGAL (revision c, F6) ========
+  // Under the SHIPPING judge (the product's sfv_supported_w) an output admits
+  // exactly its declared format; V1a's narrowed outputs are SYNTHETIC. The
+  // declared format is still a SET a controller makes, and its record comes
+  // back with the valid flag, which a deleted replay leaves at 0.
+  cases["V1s_a_shipping_output_format"] = [] {
+    judge_shipping = true;
+    boot();
+    set_fmt_judged(true, 0, narrower(def_fmt_out[0], 4), "set.fmto0.narrow");
+    settle();
+    set_fmt_judged(true, 0, def_fmt_out[0], "set.fmto0.declared");
+    // an INPUT takes the family: a narrower input is product-legal (its
+    // mappings on the lost channels removed first, Milan 5.4.2.7)
+    for (unsigned q = 0; q < map_in.size(); ++q) {
+      std::vector<Map> gone;
+      for (const auto &m : map_in[q].cur)
+        if (m.si == 0 && m.sc >= 2) gone.push_back(m);
+      if (!gone.empty()) map_remove(false, q, gone);
+    }
+    set_fmt_judged(false, 0, narrower(def_fmt_in[0], 2), "set.fmti0.narrow");
+    converge();
+    snap("cut");
+  };
+  cases["V1s_b_shipping_output_format_restore"] = [] {
+    judge_shipping = true;
+    boot();
+    idle(200);
+    read_row(SEL_FMTO, 0, "post.fmto0");
+    read_row(SEL_FMTI, 0, "post.fmti0");
+    settle();
+    snap("restored");
+  };
+  cases["V1s_c_shipping_refuses_a_narrower_saved_output"] = [] {
+    // crafted: 0x40 holds the 4-channel narrowing V1a saves under the
+    // synthetic judge; the shipping judge refuses it on replay
+    judge_shipping = true;
+    boot();
+    idle(200);
+    read_row(SEL_FMTO, 0, "post.fmto0");
+    settle();
+    snap("restored");
   };
 
   // ================= THE MAP RECORD'S FRAMING (page section 8.3) ===========

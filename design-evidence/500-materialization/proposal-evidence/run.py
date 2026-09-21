@@ -3,18 +3,21 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Build, run and grade the D3 co-simulation (design evidence, milan-fpga #500).
 
-What is REAL in every build: the pinned processor's KL_aecp_dyn_state,
-KL_aecp_desc_store, KL_acmp_nvm_shadow and KL_pp_nvm_port (424c688f), the
-shipping hdl/milan/KL_nvm_backend.sv and the shipping writer
-sw/firmware/milan_baremetal/milan_baremetal.c compiled for the host exactly as
-tb/verilator/nvm_cosim compiles it, with ONE counted change: milan_init loads
-the entity model before nvm_boot (the design page's section 8.2). PROTOTYPE:
-KL_aecp_nvm_writer and KL_pp_nvm_mgr_arb. MODEL: the uCPU (a bus-functional
-model with the dispatch hold-off) and the parent's map plane.
+What is REAL in every build: the pinned processor's KL_aecp_dyn_state and
+KL_aecp_desc_store (424c688f), the shipping hdl/milan/KL_nvm_backend.sv and
+the shipping writer sw/firmware/milan_baremetal/milan_baremetal.c compiled for
+the host exactly as tb/verilator/nvm_cosim compiles it, with counted changes
+(FW_SUBS, BOOT_NEW, FW_REPORT). AMENDED PROTOTYPES (revision c): the pinned
+KL_pp_nvm_port and KL_acmp_nvm_shadow with declared amendments only
+(AMENDMENTS; every action refuses a file that differs from its pinned source
+by anything else). PROTOTYPE: KL_aecp_nvm_writer, KL_pp_nvm_mgr_arb and
+KL_aecp_desc_mem_guard. The TRACKED build instantiates the PINNED port and
+binding manager, as the parent ships them. MODEL: the uCPU (a bus-functional
+model with the dispatch hold-off), the parent's map plane and the memories.
 
 Every case is graded by NAMED checks over the journal the case binary prints,
 with the repository's own scripts/nvm_klj2.py decoding every slot. Every
-mutant is killed by the ONE check this file names for it, in a run that
+mutant is killed by EVERY check this file names for it, each in a run that
 COMPLETED, or the run fails.
 
     run.py prep                 build the shape inputs (every shape)
@@ -30,6 +33,9 @@ COMPLETED, or the run fails.
                                 and requires its exit status and diagnostic
     run.py receipts             sha256 of every tracked evidence file and of
                                 the repository files the model reads
+    run.py amend                (re)write the amended prototypes from their
+                                pinned sources and declared amendments; every
+                                other action only checks them
 
 Exit status: 0 no verdict failure; 1 verdict failures (each printed); 2 the
 run was refused (a build or case missing, an empty selection).
@@ -75,9 +81,12 @@ from nvm_shape import build as shape_build                        # noqa: E402
 from check_nvm_record_space import expected_payloads              # noqa: E402
 
 PP = ROOT / "protocol-processor" / "hdl"
+#: the pinned processor modules every build compiles unchanged
 DONOR_SV = [PP / "acmp/pp_acmp_pkg.sv", PP / "aecp/KL_aecp_dyn_state.sv",
-            PP / "aecp/KL_aecp_desc_store.sv", PP / "acmp/KL_acmp_nvm_shadow.sv",
-            PP / "packet_engine/KL_pp_nvm_port.sv"]
+            PP / "aecp/KL_aecp_desc_store.sv"]
+#: the pinned port and binding manager: the TRACKED build's, unchanged
+PINNED_PORT = PP / "packet_engine/KL_pp_nvm_port.sv"
+PINNED_BIND = PP / "acmp/KL_acmp_nvm_shadow.sv"
 BACKEND = ROOT / "hdl/milan/KL_nvm_backend.sv"
 WRITER = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
 SHAPES = {"1x1": "configs/endstation_ax7101_1x1_tdm8.yaml",
@@ -111,6 +120,183 @@ FW_REPORT = [
     ('\tprintf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\\n");\n',
      '\tprintf("Milan baremetal: entity enable requested; the fabric releases it when the restore is done; UART diagnostics ready.\\n");\n'),
 ]
+
+
+#: THE AMENDED PROTOTYPES (revision c): (pinned source, amended prototype,
+#: the declared amendments). An amended file is EXACTLY its pinned source
+#: with these (text that must occur once, its replacement) applied, which
+#: check_amendments() proves before any build or run.
+PORT_BANNER = """//  File        : KL_pp_nvm_port.amended.proto.sv
+//                AMENDED PROTOTYPE (design evidence, milan-fpga #500, seam S1),
+//                NOT the pinned RTL: the pinned KL_pp_nvm_port at
+//                protocol-processor 424c688f with ONE amendment, the terminal
+//                cause nvm_err_cause_o, and the module renamed
+//                KL_pp_nvm_port_amd so the two cannot be confused. run.py
+//                refuses to build unless this file is exactly the pinned one
+//                with the amendments it declares (AMENDMENTS["port"]).
+"""
+
+AMENDMENTS = {
+    "port": (PINNED_PORT, PROTO / "KL_pp_nvm_port.amended.proto.sv", [
+        ("//  File        : KL_pp_nvm_port.sv\n", PORT_BANNER),
+        ("module KL_pp_nvm_port #(\n", "module KL_pp_nvm_port_amd #(\n"),
+        ("\n    //! ---- device face (initiator toward the side-port backend, 02 §8-free) ----\n",
+         "\n    //! AMENDMENT (#500 S1): the terminal cause, valid with nvm_err_o and 0\n"
+         "    //! otherwise. 1 DEVICE: the device reported an error in any state, or\n"
+         "    //! ended the header read short. 2 UNFRAMED: the device COMPLETED the\n"
+         "    //! 8-byte header read and the header failed the magic or length gate\n"
+         "    //! (restore), or the manager's own commit header failed it. 3 is\n"
+         "    //! reserved for a deadline (processor issue 15), never produced here.\n"
+         "    output logic [1:0]  nvm_err_cause_o,\n"
+         "\n    //! ---- device face (initiator toward the side-port backend, 02 §8-free) ----\n"),
+        ("  // ---- manager face outputs ----------------------------------------------\n",
+         "  // ---- AMENDMENT (#500 S1): the terminal cause ---------------------------\n"
+         "  //! UNFRAMED only where the FSM itself refuses a header the device\n"
+         "  //! delivered whole (S_RHWAIT: done, no err, !hdr_ok_w) or the manager\n"
+         "  //! streamed (S_WHDR's eighth byte, !hdr_ok_w). Every other err is\n"
+         "  //! DEVICE. The cause is held through S_FIN, the cycle nvm_err_o pulses.\n"
+         "  localparam logic [1:0] CAUSE_DEVICE_C   = 2'd1;\n"
+         "  localparam logic [1:0] CAUSE_UNFRAMED_C = 2'd2;\n"
+         "  logic [1:0] cause_r;\n"
+         "\n"
+         "  always_ff @(posedge clk_i) begin : nvm_port_cause\n"
+         "    if (!rst_n) begin\n"
+         "      cause_r <= 2'd0;\n"
+         "    end else if (((state_r == S_RHWAIT) && !dev_err_i && (dev_done_i || done_seen_r)\n"
+         "                  && !hdr_ok_w)\n"
+         "                 || ((state_r == S_WHDR) && nvm_wvalid_i && (hidx_r == 3'd7)\n"
+         "                     && !hdr_ok_w)) begin\n"
+         "      cause_r <= CAUSE_UNFRAMED_C;\n"
+         "    end else if ((state_r != S_FIN) && (state_r != S_IDLE)) begin\n"
+         "      cause_r <= CAUSE_DEVICE_C;\n"
+         "    end\n"
+         "  end\n"
+         "  assign nvm_err_cause_o = nvm_err_o ? cause_r : 2'd0;\n"
+         "\n"
+         "  // ---- manager face outputs ----------------------------------------------\n"),
+    ]),
+    "bind": (PINNED_BIND, PROTO / "KL_acmp_nvm_shadow.amended.proto.sv", [
+        ("//  File        : KL_acmp_nvm_shadow.sv\n",
+         "//  File        : KL_acmp_nvm_shadow.amended.proto.sv\n"
+         "//                AMENDED PROTOTYPE (design evidence, milan-fpga #500, seams\n"
+         "//                S1 and S3), NOT the pinned RTL: the pinned KL_acmp_nvm_shadow\n"
+         "//                at protocol-processor 424c688f with TWO amendments, and the\n"
+         "//                module renamed KL_acmp_nvm_shadow_amd. S1: a zero-byte err\n"
+         "//                is an empty record only when the port's cause says UNFRAMED;\n"
+         "//                a zero-byte DEVICE error fails the whole walk (processor\n"
+         "//                issue 20). S3: the READ phase of the restore walk has a\n"
+         "//                no-progress deadline, RS_TMO_CYC_P; its expiry fails the\n"
+         "//                whole walk and abandons an issued read to the arbiter's\n"
+         "//                drain (nvm_abort_o). run.py refuses to build unless this file\n"
+         "//                is exactly the pinned one with the amendments it declares\n"
+         "//                (AMENDMENTS[\"bind\"]).\n"),
+        ("module KL_acmp_nvm_shadow\n", "module KL_acmp_nvm_shadow_amd\n"),
+        ("    parameter int unsigned RETRY_MAX_P   = 2,\n",
+         "    parameter int unsigned RETRY_MAX_P   = 2,\n"
+         "    //! AMENDMENT (#500 S3): the restore walk's no-progress deadline, in\n"
+         "    //! clocks. Every READ-phase wait on the port ends within it.\n"
+         "    parameter int unsigned RS_TMO_CYC_P  = 20000,\n"),
+        ("    input  wire                        nvm_err_i,      //! one-cycle pulse: op failed\n",
+         "    input  wire                        nvm_err_i,      //! one-cycle pulse: op failed\n"
+         "    //! AMENDMENT (#500 S1): the port's terminal cause with nvm_err_i\n"
+         "    //! (KL_pp_nvm_port_amd): 1 DEVICE, 2 UNFRAMED\n"
+         "    input  wire  [1:0]                 nvm_err_cause_i,\n"
+         "    //! AMENDMENT (#500 S3): the walk abandons the read the port is\n"
+         "    //! serving (its deadline expired); the arbiter drains it\n"
+         "    output logic                       nvm_abort_o,\n"
+         "    //! AMENDMENT (#500 S3): why the walk failed: 0 none, 1 torn, 2 a\n"
+         "    //! device error with nothing forwarded, 3 the deadline\n"
+         "    output logic [1:0]                 restore_cause_o,\n"),
+        ("  // ---- restore stream terminal events ------------------------------------\n",
+         "  // ---- AMENDMENT (#500 S3): the restore walk's deadline -------------------\n"
+         "  //! Consecutive cycles of the READ phase that wait on the port\n"
+         "  //! (H_RS_REQ: the port idle; H_RS_STREAM: a byte, done or err) without\n"
+         "  //! that event. Expiry ends the WHOLE walk as a failed one, as a torn\n"
+         "  //! read does (fail, done, no preload, every uncaptured sink at its\n"
+         "  //! vendor default), and abandons an issued read to the arbiter's drain\n"
+         "  //! (nvm_abort_o). The preload phase waits on the on-chip listener and\n"
+         "  //! is not watched here.\n"
+         "  logic [31:0] rs_wd_r;\n"
+         "  logic        rs_stall_w, rs_tmo_w;\n"
+         "\n"
+         "  assign rs_stall_w = ((hs_r == H_RS_REQ) && (nvm_busy_i || nvm_done_i || nvm_err_i))\n"
+         "                    || ((hs_r == H_RS_STREAM) && !nvm_rvalid_i && !nvm_done_i && !nvm_err_i);\n"
+         "  assign rs_tmo_w    = rs_stall_w && (rs_wd_r >= 32'(RS_TMO_CYC_P - 1));\n"
+         "  assign nvm_abort_o = rs_tmo_w && (hs_r == H_RS_STREAM);\n"
+         "\n"
+         "  always_ff @(posedge clk_i) begin : rs_wd_ff\n"
+         "    if (!rst_n)          rs_wd_r <= 32'd0;\n"
+         "    else if (rs_stall_w) rs_wd_r <= rs_wd_r + 32'd1;\n"
+         "    else                 rs_wd_r <= 32'd0;\n"
+         "  end\n"
+         "\n"
+         "  // ---- restore stream terminal events ------------------------------------\n"),
+        ("  assign rs_torn_w = (hs_r == H_RS_STREAM)\n"
+         "                   && ((nvm_err_i && (rbcnt_r != 17'd0))\n"
+         "                       || (nvm_done_i && (rbcnt_r != 17'd0)\n"
+         "                           && ((rbcnt_r < 17'd8) || (rbcnt_r != rexp_total_w))));\n"
+         "  assign rs_empty_w = (hs_r == H_RS_STREAM)\n"
+         "                    && ((nvm_err_i && (rbcnt_r == 17'd0))\n"
+         "                        || (nvm_done_i && (rbcnt_r == 17'd0)));\n",
+         "  //! AMENDMENT (#500 S1, S3): a zero-byte err is an empty record ONLY\n"
+         "  //! when the port says the device answered with a header that is not a\n"
+         "  //! record (UNFRAMED); a zero-byte DEVICE error, and the deadline, fail\n"
+         "  //! the whole walk as a torn read does\n"
+         "  logic rs_dev0_w;\n"
+         "  assign rs_dev0_w = (hs_r == H_RS_STREAM) && nvm_err_i && (rbcnt_r == 17'd0)\n"
+         "                   && (nvm_err_cause_i != 2'd2);\n"
+         "  assign rs_torn_w = ((hs_r == H_RS_STREAM)\n"
+         "                      && ((nvm_err_i && (rbcnt_r != 17'd0))\n"
+         "                          || (nvm_done_i && (rbcnt_r != 17'd0)\n"
+         "                              && ((rbcnt_r < 17'd8) || (rbcnt_r != rexp_total_w)))))\n"
+         "                   || rs_dev0_w || rs_tmo_w;\n"
+         "  assign rs_empty_w = (hs_r == H_RS_STREAM)\n"
+         "                    && ((nvm_err_i && (rbcnt_r == 17'd0) && (nvm_err_cause_i == 2'd2))\n"
+         "                        || (nvm_done_i && (rbcnt_r == 17'd0)));\n"),
+        ("  // ---- flush terminal events ----------------------------------------------\n",
+         "  // ---- AMENDMENT (#500 S3): why the walk failed ---------------------------\n"
+         "  logic [1:0] rs_cause_r;\n"
+         "  always_ff @(posedge clk_i) begin : rs_cause_ff\n"
+         "    if (!rst_n)                                 rs_cause_r <= 2'd0;\n"
+         "    else if (go_take_w)                         rs_cause_r <= 2'd0;\n"
+         "    else if (rs_torn_w && (rs_cause_r == 2'd0)) rs_cause_r <= rs_tmo_w ? 2'd3\n"
+         "                                                              : (rs_dev0_w ? 2'd2 : 2'd1);\n"
+         "  end\n"
+         "  assign restore_cause_o = rs_cause_r;\n"
+         "\n"
+         "  // ---- flush terminal events ----------------------------------------------\n"),
+        ("        H_RS_REQ: begin\n"
+         "          if (!nvm_busy_i && !nvm_done_i && !nvm_err_i) begin\n",
+         "        H_RS_REQ: begin\n"
+         "          if (rs_tmo_w) begin\n"
+         "            // AMENDMENT (#500 S3): the deadline expired waiting for the port\n"
+         "            fail_r    <= 1'b1;\n"
+         "            done_r    <= 1'b1;\n"
+         "            any_rec_r <= 1'b0;\n"
+         "            hs_r      <= H_RUN;\n"
+         "          end else if (!nvm_busy_i && !nvm_done_i && !nvm_err_i) begin\n"),
+    ]),
+}
+
+
+
+def amended_text(key: str) -> str:
+    pinned, _amended, seam_list = AMENDMENTS[key]
+    text = pinned.read_text()
+    for old, new in seam_list:
+        if text.count(old) != 1:
+            raise SystemExit(f"amendment {key}: seam count {text.count(old)}: {old[:60]!r}")
+        text = text.replace(old, new)
+    return text
+
+
+def check_amendments() -> None:
+    """Refuse to go on if an amended prototype is anything but its pinned
+    source with the declared amendments."""
+    for key, (pinned, amended, _s) in AMENDMENTS.items():
+        if amended.read_text() != amended_text(key):
+            raise SystemExit(f"REFUSED: {amended.name} is not {pinned.name} with AMENDMENTS[{key!r}] only; "
+                             f"run.py amend rewrites it")
 
 
 def cmd(argv: list, log: Path, cwd: Path = ROOT) -> subprocess.CompletedProcess:
@@ -244,12 +430,22 @@ def prep_shape(name: str) -> Shape:
 class Build:
     name: str
     shape: str
-    rtl_mut: str = ""
-    glue_mut: str = ""
-    arb_mut: str = ""
+    mut: str = ""
     fw_old_boot: bool = False
     tracked: bool = False
     binary: Path | None = None
+
+
+#: every source a mutation may name: its key, the tracked file and the name
+#: its (possibly mutated) copy takes in the build tree (the module's name)
+SOURCES = {
+    "writer": (PROTO / "KL_aecp_nvm_writer.proto.sv", "KL_aecp_nvm_writer.sv"),
+    "arb": (PROTO / "KL_pp_nvm_mgr_arb.proto.sv", "KL_pp_nvm_mgr_arb.sv"),
+    "guard": (PROTO / "KL_aecp_desc_mem_guard.proto.sv", "KL_aecp_desc_mem_guard.sv"),
+    "port": (PROTO / "KL_pp_nvm_port.amended.proto.sv", "KL_pp_nvm_port_amd.sv"),
+    "bind": (PROTO / "KL_acmp_nvm_shadow.amended.proto.sv", "KL_acmp_nvm_shadow_amd.sv"),
+    "top": (HARNESS / "d3_top.sv", "d3_top.sv"),
+}
 
 
 #: every mutation: (file key, the text that must occur exactly once, its
@@ -275,12 +471,12 @@ MUTATIONS = {
         "  assign set_w[S_CFG_C] = dyn_w && (u_sel_w == 13'd0) && (u_didx_i == 16'd0);",
         "  assign set_w[S_CFG_C] = dyn_w && ((u_sel_w == 13'd0) || (u_sel_w == 13'd7)) && (u_didx_i == 16'd0);"),
     "M08_restore_skips_image_check": ("writer",
-        "          if (desc_img_valid_i) begin\n            cur_r <= '0; st_r <= R_NEXT;",
-        "          if (1'b1) begin\n            cur_r <= '0; st_r <= R_NEXT;"),
+        "          if (desc_img_valid_i) begin\n            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;",
+        "          if (1'b1) begin\n            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;"),
     "M09_apply_blindly": ("writer",
-        "        R_AUX: begin\n          // per-group value judgement, by the rule the SET program applies\n          unique case (cg_r)",
+        "        R_AUX: begin\n          // per-group value judgement, by the rule the SET program applies\n",
         "        R_AUX: begin\n          // per-group value judgement, by the rule the SET program applies\n"
-        "          if (is_scalar_w && !(cg_r == 4'(G_FMTI) || cg_r == 4'(G_FMTO))) st_r <= R_APPLY; else\n          unique case (cg_r)"),
+        "          if (is_scalar_w && !(cg_r == 4'(G_FMTI) || cg_r == 4'(G_FMTO))) st_r <= R_APPLY; else\n"),
     "M10_fmt_full_judge": ("writer",
         "                if (aux_r[0]) begin\n                  frest_r[",
         "                if (aux_r[0] && aux_r[1]) begin\n                  frest_r["),
@@ -323,8 +519,8 @@ MUTATIONS = {
         "      rpass_r <= 1'b0;\n",
         "      rpass_r <= 1'b1;\n"),
     "G04_blank_ignores_d3": ("top",
-        "  assign restore_blank_o = mgr_blank_w & d3_blank_w;",
-        "  assign restore_blank_o = mgr_blank_w;"),
+        "  assign restore_blank_o = mgr_blank_w & d3_blank_w & !restore_fail_o;",
+        "  assign restore_blank_o = mgr_blank_w & !restore_fail_o;"),
     "A01_grant_cycle_not_busy": ("arb",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1);"),
@@ -346,9 +542,28 @@ MUTATIONS = {
         "        T_CLOSED",
         "          end else begin\n            own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;\n          end\n"
         "        end\n        T_CLOSED"),
-    "X01_passes_may_disagree": ("writer",
-        "            if (rs_fr1_r == rs_fr0_r) begin",
-        "            if (1'b1) begin"),
+    #! the per-record pass agreement deleted: no check at all
+    "X01_passes_may_disagree": [
+        ("writer", "              if (rpass_r && whole0_r[cur_r]) begin", "              if (1'b0) begin"),
+        ("writer", "            end else if (!whole0_r[cur_r]) begin", "            end else if (1'b0) begin")],
+    #! round two's rule restored in its place: the passes COUNT their whole
+    #! records and must count the same
+    "X02_passes_compared_by_count": [
+        ("writer", "              if (rpass_r && whole0_r[cur_r]) begin", "              if (1'b0) begin"),
+        ("writer", "            end else if (!whole0_r[cur_r]) begin", "            end else if (1'b0) begin"),
+        ("writer", "  logic [N_REC_C-1:0] whole0_r;\n", "  logic [N_REC_C-1:0] whole0_r;\n  logic [7:0] x2c0_r, x2c1_r;\n"),
+        ("writer", "      pad_bad_r <= 1'b0; whole0_r <= '0;\n",
+         "      pad_bad_r <= 1'b0; whole0_r <= '0; x2c0_r <= '0; x2c1_r <= '0;\n"),
+        ("writer", "              whole0_r[cur_r] <= 1'b1; st_r <= R_ADV;",
+         "              whole0_r[cur_r] <= 1'b1; x2c0_r <= x2c0_r + 8'd1; st_r <= R_ADV;"),
+        ("writer", "              rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;\n            end else begin\n"
+                   "              ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; any_rec_r <= 1'b1; st_r <= R_VAL;",
+         "              rs_ref_r <= rs_ref_r + 8'd1; x2c1_r <= x2c1_r + 8'd1; st_r <= R_ADV;\n"
+         "            end else begin\n"
+         "              x2c1_r <= x2c1_r + 8'd1; ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; any_rec_r <= 1'b1; st_r <= R_VAL;"),
+        ("writer", "            //! every record agreed with pass 0 as it was read\n            st_r <= R_FIN;",
+         "            if (x2c1_r == x2c0_r) st_r <= R_FIN;\n"
+         "            else begin if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5; st_r <= R_ABORT; end")],
     "O01_own_taken_at_the_walk": [
         ("writer",
          "      taint_r <= 1'b0; own_r <= 1'b1; alarm_r <= 1'b0;",
@@ -366,6 +581,58 @@ MUTATIONS = {
     "G05_enable_not_released_by_restore": ("top",
         "  assign entity_en_o = en_req_i && rs_done_w;",
         "  assign entity_en_o = en_req_i;"),
+    # ---- revision c: what is a transport failure (seam S1) ----
+    #! round two's rule: any zero-byte err is an erased record
+    "C01_device_error_reads_as_blank": ("writer",
+        "            if ((bcnt_r == 17'd0) && !(m_err_i && (m_err_cause_i != CAUSE_UNFRAMED_C))) begin",
+        "            if (bcnt_r == 17'd0) begin"),
+    #! the port says UNFRAMED for every err: the pinned port's information
+    "C02_port_cause_collapsed": ("port",
+        "  assign nvm_err_cause_o = nvm_err_o ? cause_r : 2'd0;",
+        "  assign nvm_err_cause_o = nvm_err_o ? CAUSE_UNFRAMED_C : 2'd0;"),
+    #! the reverse: an erased or unframed header aborts like a device error
+    "C03_unframed_reads_as_device_error": ("writer",
+        "            if ((bcnt_r == 17'd0) && !(m_err_i && (m_err_cause_i != CAUSE_UNFRAMED_C))) begin",
+        "            if ((bcnt_r == 17'd0) && !m_err_i) begin"),
+    # ---- revision c: descriptor faults ----
+    #! round two's rule: a failed rule fetch is a refused value
+    "DF01_desc_error_is_a_refusal": ("writer",
+        "            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;\n            st_r <= R_ABORT;\n"
+        "          end else\n          unique case (cg_r)",
+        "            rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;\n          end else\n          unique case (cg_r)"),
+    "DF02_map_revert_read_error_ignored": ("writer",
+        "          if (((sub_r == 4'd4) || (sub_r == 4'd5) || (sub_r == 4'd6)) && sb_errq_r) begin",
+        "          if (1'b0) begin"),
+    "DF03_final_revert_read_error_ignored": ("writer",
+        "          if (((sub_r == 4'd2) || (sub_r == 4'd3) || (sub_r == 4'd4)) && sb_errq_r) begin",
+        "          if (1'b0) begin"),
+    #! an image the restore cannot prove is walked as if it were
+    "IMG01_unproven_image_continues": ("writer",
+        "          if (desc_img_valid_i && !sb_errq_r) begin\n            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;",
+        "          if (1'b1) begin\n            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;"),
+    # ---- revision c: descriptor memory response isolation (seam S2) ----
+    "DG01_guard_admits_a_request_while_owed": [
+        ("guard", "  assign m_req_valid_o = s_req_valid_i && !owed_r;", "  assign m_req_valid_o = s_req_valid_i;"),
+        ("guard", "  assign s_req_ready_o = m_req_ready_i && !owed_r;", "  assign s_req_ready_o = m_req_ready_i;")],
+    "DG02_rollback_ignores_mem_debt": ("writer",
+        "          if ((rb_cnt_r != 2'd0) && !desc_debt_i) begin rb_rst_r <= 1'b0; st_r <= B_LOC; end",
+        "          if (rb_cnt_r != 2'd0) begin rb_rst_r <= 1'b0; st_r <= B_LOC; end"),
+    # ---- revision c: the bounded binding walk (seams S1, S3) ----
+    "B01_binding_walk_no_deadline": ("bind",
+        "  assign rs_tmo_w    = rs_stall_w && (rs_wd_r >= 32'(RS_TMO_CYC_P - 1));",
+        "  assign rs_tmo_w    = 1'b0;"),
+    #! processor issue 20's defect: the binding manager ignores the cause
+    "B02_binding_device_error_reads_as_empty": [
+        ("bind", "                   && (nvm_err_cause_i != 2'd2);", "                   && 1'b0;"),
+        ("bind", "                    && ((nvm_err_i && (rbcnt_r == 17'd0) && (nvm_err_cause_i == 2'd2))",
+         "                    && ((nvm_err_i && (rbcnt_r == 17'd0))")],
+    "B03_binding_abort_not_drained": ("arb",
+        "    else if (m0_abort_i && (own_r == O_M0))      drain_r <= 1'b1;",
+        "    else if (1'b0)      drain_r <= 1'b1;"),
+    "B04_binding_unframed_reads_as_device_error": [
+        ("bind", "                   && (nvm_err_cause_i != 2'd2);", "                   && 1'b1;"),
+        ("bind", "                    && ((nvm_err_i && (rbcnt_r == 17'd0) && (nvm_err_cause_i == 2'd2))",
+         "                    && ((1'b0)")],
     # ---- the map record's framing (page section 8.3) ----
     "P01_padding_by_first_byte": ("writer",
         "            allff_r <= allff_r && (bs_rd_w == 8'hFF);",
@@ -459,11 +726,38 @@ KILLERS = {
     "R04_rollback_skips_maps": ("V16_rollback_pass1_maps", "", "rolled_back_to_defaults@terminal", "1x1"),
     "R05_closed_releases_the_entity": ("V17_rollback_cannot_validate", "", "closed_keeps_entity_dark@recovered",
                                        "1x1"),
-    "X01_passes_may_disagree": ("V18_header_error_pass1", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "X01_passes_may_disagree": ("V18b_header_changed_between_passes", "", "rolled_back_to_defaults@terminal",
+                                "1x1"),
+    "X02_passes_compared_by_count": ("V18c_changes_balance_counts", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "C01_device_error_reads_as_blank": ("H8_header_error_sole_saved_record", "", "header_fault_contained@terminal",
+                                        "1x1"),
+    "C02_port_cause_collapsed": ("H1_header_error_both_passes", "", "header_fault_contained@terminal", "1x1"),
+    "C03_unframed_reads_as_device_error": ("V10_blank_first_boot", "", "blank_boot_is_not_a_failure@boot", "1x1"),
+    "DF01_desc_error_is_a_refusal": ("V20b_desc_error_once_after_apply", "", "rolled_back_to_defaults@terminal",
+                                     "1x1"),
+    #! its garbage default is refused by the re-add judge, so the restore still
+    #! rolls back: the kill is the cause it then reports (4, not the truth, 6)
+    "DF02_map_revert_read_error_ignored": ("V20c_desc_error_in_the_map_revert", "",
+                                           "rollback_premise@terminal", "1x1"),
+    "DF03_final_revert_read_error_ignored": ("V20d_desc_error_in_the_final_revert", "",
+                                             "rolled_back_to_defaults@terminal", "1x1"),
+    "IMG01_unproven_image_continues": ("V22b_image_unproven_simple_records", "",
+                                       "closed_when_image_unproven@recovered", "1x1"),
+    "DG01_guard_admits_a_request_while_owed": ("V23_late_desc_beats_in_service", "",
+                                               "late_beats_never_served@restored", "1x1"),
+    "DG02_rollback_ignores_mem_debt": ("V21b_desc_debt_outlasts_the_store", "", "rolled_back_to_defaults@terminal",
+                                       "1x1"),
+    "B01_binding_walk_no_deadline": ("W13_binding_walk_silent", "", "binding_walk_bounded@terminal", "1x1"),
+    "B02_binding_device_error_reads_as_empty": ("W16_binding_header_device_error", "",
+                                                "binding_walk_failed@terminal", "1x1"),
+    "B03_binding_abort_not_drained": ("W13c_binding_late_after_deadline", "", "later_change_persists@recovered",
+                                      "1x1"),
+    "B04_binding_unframed_reads_as_device_error": ("V10_blank_first_boot", "", "blank_boot_is_not_a_failure@boot",
+                                                   "1x1"),
     "O01_own_taken_at_the_walk": ("K19_command_before_the_restore", "", "value_in_slot@end:0x50", "1x1"),
     "W01_no_restore_watchdog": ("W4_silent_pass1", "", "restore_terminal_bounded@terminal", "1x1"),
     "D01_abandoned_read_not_drained": ("W6_late_pass1_after_deadline", "", "later_change_persists@recovered", "1x1"),
-    "G05_enable_not_released_by_restore": ("W14_binding_walk_late_after_fw_deadline", "",
+    "G05_enable_not_released_by_restore": ("W14_enable_requested_before_the_restore", "",
                                            "entity_enabled_after_terminal@boot", "1x1"),
     "P01_padding_by_first_byte": ("V3a_map_index_0xff00", "", "map_record_verdict:0x70", "1x1"),
     "P02_padding_holes_not_refused": ("V3e_map_hole", "", "malformed_refused_untouched:0x70", "1x1"),
@@ -471,6 +765,14 @@ KILLERS = {
 for _g, _rid in GROUP_RID.items():
     KILLERS[f"TRG_{_g}"] = ("V1a_set_everything", "", f"value_in_slot@cut:{_rid:#04x}", GROUP_SHAPE[_g])
     KILLERS[f"RPL_{_g}"] = ("V1b_restore_everything", "", f"value_restored:{_rid:#04x}", GROUP_SHAPE[_g])
+#: the stream formats are killed TWICE: by V1a/V1b, whose output value is a
+#: SYNTHETIC narrowing, and by the SHIPPING-LEGAL V1s pair (the declared
+#: output format and a family-legal input format); a kill needs both
+for _g, _rid in (("fmti", 0x30), ("fmto", 0x40)):
+    KILLERS[f"TRG_{_g}"] = [KILLERS[f"TRG_{_g}"],
+                            ("V1s_a_shipping_output_format", "", f"value_in_slot@cut:{_rid:#04x}", "1x1")]
+    KILLERS[f"RPL_{_g}"] = [KILLERS[f"RPL_{_g}"],
+                            ("V1s_b_shipping_output_format_restore", "", f"value_restored:{_rid:#04x}", "1x1")]
 
 #: WHAT REPRODUCES TODAY. The tracked glue (d3_top.sv under D3_TRACKED, the
 #: parent as it ships at dev 07294a76) must FAIL these checks, which shows
@@ -505,15 +807,17 @@ M0_STATES = {"H_FL_CRC": 12, "H_FL_REQ": 13}
 
 
 def check_m0_encoding() -> None:
-    """Refuse to run if the donor moved the states the harness names."""
-    src = (PP / "acmp/KL_acmp_nvm_shadow.sv").read_text()
-    m = re.search(r"typedef enum logic \[3:0\] \{(.*?)\} hstate_e;", src, re.S)
-    if not m:
-        raise SystemExit("KL_acmp_nvm_shadow: hstate_e not found")
-    names = re.findall(r"^\s*(H_[A-Z_]+)", m.group(1), re.M)
-    for name, code in M0_STATES.items():
-        if name not in names or names.index(name) != code:
-            raise SystemExit(f"KL_acmp_nvm_shadow: {name} is not encoding {code} ({names})")
+    """Refuse to run if the donor, or its amended prototype, moved the states
+    the harness names."""
+    for path in (PINNED_BIND, SOURCES["bind"][0]):
+        src = path.read_text()
+        m = re.search(r"typedef enum logic \[3:0\] \{(.*?)\} hstate_e;", src, re.S)
+        if not m:
+            raise SystemExit(f"{path.name}: hstate_e not found")
+        names = re.findall(r"^\s*(H_[A-Z_]+)", m.group(1), re.M)
+        for name, code in M0_STATES.items():
+            if name not in names or names.index(name) != code:
+                raise SystemExit(f"{path.name}: {name} is not encoding {code} ({names})")
 
 
 def seams(name: str) -> list:
@@ -550,19 +854,23 @@ def host_firmware(text: str, old_boot: bool) -> str:
     return text
 
 
+def killers(m: str) -> list:
+    """Every (case, variant, check, shape) that must kill mutant m."""
+    k = KILLERS[m]
+    return k if isinstance(k, list) else [k]
+
+
 def all_builds(shapes: list[str]) -> list[Build]:
     out = [Build(f"base-{s}", s) for s in SHAPES]
     out.append(Build("tracked-1x1", "1x1", tracked=True))
     for m in MUTATIONS:
-        kinds = {k for k, _o, _n in seams(m)}
-        b = Build(f"mut-{m}", KILLERS[m][3])
-        if "writer" in kinds:
-            b.rtl_mut = m
-        if "top" in kinds:
-            b.glue_mut = m
-        if "arb" in kinds:
-            b.arb_mut = m
-        out.append(b)
+        unknown = {k for k, _o, _n in seams(m)} - set(SOURCES)
+        if unknown:
+            raise SystemExit(f"mutation {m} names unknown sources {unknown}")
+        shapes_of = {k[3] for k in killers(m)}
+        if len(shapes_of) != 1:
+            raise SystemExit(f"mutation {m}: its killers run at {shapes_of}, one shape is required")
+        out.append(Build(f"mut-{m}", shapes_of.pop(), mut=m))
     out.append(Build("mut-F01_old_boot_order", KILLERS["F01_old_boot_order"][3], fw_old_boot=True))
     return out
 
@@ -575,18 +883,11 @@ def do_build(b: Build, s: Shape, jobs: int) -> Build:
     (work / "generated" / "soc.h").write_text(s.header)
     fw = host_firmware(WRITER.read_text(), b.fw_old_boot)
     (work / "milan_baremetal.host.c").write_text(fw)
-    w = (PROTO / "KL_aecp_nvm_writer.proto.sv").read_text()
-    a = (PROTO / "KL_pp_nvm_mgr_arb.proto.sv").read_text()
-    t = (HARNESS / "d3_top.sv").read_text()
-    if b.rtl_mut:
-        w = mutate_text("writer", w, b.rtl_mut)
-    if b.glue_mut:
-        t = mutate_text("top", t, b.glue_mut)
-    if b.arb_mut:
-        a = mutate_text("arb", a, b.arb_mut)
-    (work / "KL_aecp_nvm_writer.sv").write_text(w)
-    (work / "KL_pp_nvm_mgr_arb.sv").write_text(a)
-    (work / "d3_top.sv").write_text(t)
+    for key, (src, dst) in SOURCES.items():
+        text = src.read_text()
+        if b.mut:
+            text = mutate_text(key, text, b.mut)
+        (work / dst).write_text(text)
     defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{ref.JOURNAL:x}u",
             f"-DNVM_HOST_AEM_OFFSET=0x{ref.AEM_OFFSET:x}u",
             f"-DNVM_HOST_IMAGE_OFF=0x{ref.IMAGE_OFF:x}u"]
@@ -605,8 +906,12 @@ def do_build(b: Build, s: Shape, jobs: int) -> Build:
     vl += ["-CFLAGS", f"-std=c++17 -O2 -I{HARNESS} -I{STUBS} {' '.join(defs)}",
            "-LDFLAGS", f"{work / 'host.o'} {work / 'fw.o'}"]
     rtl = DONOR_SV + [BACKEND, work / "KL_pp_nvm_mgr_arb.sv"]
-    if not b.tracked:
-        rtl.append(work / "KL_aecp_nvm_writer.sv")
+    if b.tracked:
+        #! the parent as it ships: the PINNED port and binding manager
+        rtl += [PINNED_PORT, PINNED_BIND]
+    else:
+        rtl += [work / "KL_pp_nvm_port_amd.sv", work / "KL_acmp_nvm_shadow_amd.sv",
+                work / "KL_aecp_desc_mem_guard.sv", work / "KL_aecp_nvm_writer.sv"]
     vl += rtl + [work / "d3_top.sv", HARNESS / "d3_bridge.cpp", HARNESS / "d3_cases.cpp",
                  "-o", "d3sim"]
     cmd(vl, logs / f"{b.name}-verilator.log")
@@ -889,6 +1194,40 @@ class Grade:
         valid, _e2 = self.ans("rec.ptof0.valid")
         self.check("command_served_after_recovery@recovered", v is not None and (v, valid) == want,
                    f"GET after recovery answered {v} valid {valid}, want {want}")
+
+    def preloads(self) -> list:
+        return [(e["cyc"], e["sink"]) for e in self.r.evts if e["k"] == "pre"]
+
+    def saved_state_kept(self, extra: dict, tag: str = "recovered") -> None:
+        """A failed restore rewrites nothing: the newest verified slot still
+        holds every record the boot slot held but 0x50 (the later SET)."""
+        cut = extra.get("cut_slots") or extra.get("crafted", {})
+        now = self.tag_slots(tag)
+        kept = {rid: v for rid, v in cut.items() if rid != 0x50}
+        lost = [f"{rid:#04x}" for rid, v in kept.items() if now.get(rid) != v]
+        self.check(f"saved_state_kept@{tag}", bool(cut) and not lost,
+                   f"{len(kept)} saved records besides 0x50, {len(lost)} changed in the newest verified slot "
+                   f"{lost[:4]}")
+
+    def closed_dark(self, name: str = "closed_keeps_entity_dark@recovered") -> None:
+        o = self.r.obs.get("recovered", {})
+        b = self.boot()
+        ans, _ = self.ans("rec.ptof0.value")
+        ok = (o.get("d3_closed") == 1 and o.get("restore_done") == 0 and o.get("restore_fail") == 1
+              and o.get("own") == 1 and o.get("entity_en") == 0 and b.get("enable", 0) == 0 and ans is None
+              and b.get("fw_enable", 0) > 0)
+        self.check(name, ok,
+                   f"closed {o.get('d3_closed')}, restore done {o.get('restore_done')} fail {o.get('restore_fail')}, "
+                   f"own {o.get('own')}, entity enabled {o.get('entity_en')} (first {b.get('enable')}), firmware "
+                   f"asked at {b.get('fw_enable')}, a GET answered {ans}, cause {b.get('cause')}")
+
+    def restore_complete(self, extra: dict) -> None:
+        cut = extra.get("cut_slots") or extra.get("crafted", {})
+        saved = {rid: v for rid, v in cut.items() if rid in self.d3_rids()}
+        bad = self.mismatches(self.r.snaps.get("terminal"), saved)
+        o = self.r.obs.get("terminal", {})
+        self.check("restore_complete@terminal", not bad and o.get("d3_done") == 1 and o.get("d3_fail") == 0,
+                   f"{len(bad)} records not as saved {bad[:2]}, D3 done {o.get('d3_done')} fail {o.get('d3_fail')}")
 
     def terminal_bounded(self, start: int, bound: int) -> None:
         term = self.boot_evt("terminal")
@@ -1236,6 +1575,14 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
                 valid == 0 and o.get("blank") == 1,
                 f"blank {o.get('rs_blank')} of {n_rec}, applied {o.get('rs_app')}, ptof0 valid {valid}, "
                 f"status blank {o.get('blank')}")
+        #! the ERASED-RECORD CONTROL of seam S1: every record, binding and D3,
+        #! is an erased header the device delivered whole (UNFRAMED): no walk
+        #! fails, no cause is reported
+        g.check("blank_boot_is_not_a_failure@boot",
+                o.get("restore_fail") == 0 and o.get("d3_fail") == 0 and o.get("mgr_fail") == 0
+                and o.get("d3_cause") == 0 and o.get("mgr_cause") == 0 and o.get("restore_done") == 1,
+                f"restore fail {o.get('restore_fail')} (D3 {o.get('d3_fail')}, binding {o.get('mgr_fail')}), "
+                f"causes D3 {o.get('d3_cause')} binding {o.get('mgr_cause')}, done {o.get('restore_done')}")
     elif c == "K4g_second_group_in_flight":
         g.converged("end")
         g.value_in_slot("end", 0x50)
@@ -1296,37 +1643,85 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         g.served_after_recovery((0, 0))
         g.converged("recovered")
         g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
-    elif c in ("V14_rollback_pass1_early", "V15_rollback_pass1_late", "V16_rollback_pass1_maps",
-               "V18_header_error_pass1"):
+    elif c in PASS1_ROLLBACK:
         # pass 1 had applied values before the fault: ROLLED BACK to defaults
+        # that are PROVEN (every row reset, every name the re-walked image's)
         g.contained(1)
         o = r.obs.get("terminal", {})
         g.check("rollback_premise@terminal", o.get("rs_app", 0) >= 1 and g.boot_evt("rollback") > 0 and
-                g.boot_evt("cause") in ((5,) if c.startswith("V18") else (1, 2)),
+                g.boot_evt("cause") in PASS1_ROLLBACK[c],
                 f"{o.get('rs_app')} records applied before the fault, roll-back at {g.boot_evt('rollback')}, "
-                f"abort cause {g.boot_evt('cause')}")
+                f"abort cause {g.boot_evt('cause')} (want {PASS1_ROLLBACK[c]})")
+        if PASS1_ROLLBACK[c] == (6,) and c != "V20c_desc_error_in_the_map_revert":
+            #! a rule or default that could not be FETCHED is no refused value
+            g.check("descriptor_fault_is_not_a_refusal@terminal", o.get("rs_ref") == 0,
+                    f"refused {o.get('rs_ref')} at the terminal, abort cause {g.boot_evt('cause')}")
+        if c in ("V20b_desc_error_once_after_apply", "V20c_desc_error_in_the_map_revert",
+                 "V20d_desc_error_in_the_final_revert"):
+            g.check("descriptor_fault_premise@terminal",
+                    0 < g.boot_evt("desc_err") <= g.boot_evt("abort"),
+                    f"the descriptor memory answered an error beat at {g.boot_evt('desc_err')}, the writer "
+                    f"aborted at {g.boot_evt('abort')}")
+        if c in ("V21_desc_late_after_apply", "V21b_desc_debt_outlasts_the_store"):
+            acc, beat = g.boot_evt("desc_delay_acc"), g.boot_evt("desc_delay_beat")
+            ab, rb_end = g.boot_evt("abort"), g.boot_evt("rb_end")
+            #! the store's own watchdog answered first (the abort), the late
+            #! burst came after it, and the owners left reset only after it
+            g.check("rollback_waited_for_the_memory@terminal",
+                    0 < acc < ab < beat < rb_end and ab - acc >= 4096,
+                    f"request accepted at {acc}, the store's error answer aborted the restore at {ab} "
+                    f"({ab - acc} cycles), the late burst came at {beat}, the owners left reset at {rb_end}")
         g.enable_after_terminal()
         g.no_restore_write_after()
         g.served_after_recovery((0, 0))
         g.converged("recovered")
         g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
-        # a failed restore rewrites nothing: the slots still hold what V1a saved
-        cut = extra.get("cut_slots", {})
-        now = g.tag_slots("recovered")
-        lost = [f"{rid:#04x}" for rid, v in cut.items() if rid != 0x50 and now.get(rid) != v]
-        g.check("saved_state_kept@recovered", bool(cut) and not lost,
-                f"{len(cut)} saved records, {len(lost)} changed in the newest verified slot {lost[:4]}")
+        g.saved_state_kept(extra)
+    # ================= HEADER TRANSPORT FAULTS (revision c, seam S1) ========
+    elif c in HEADER_PASS0 or c == "H8_header_error_sole_saved_record":
+        # the device error is met in pass 0: nothing applied, DEFAULTS
+        g.contained(0, "header_fault_contained@terminal")
+        o = r.obs.get("terminal", {})
+        g.check("header_fault_premise@terminal", o.get("rs_app") == 0 and g.boot_evt("cause") == 2
+                and g.boot_evt("rollback") == 0,
+                f"applied {o.get('rs_app')}, abort cause {g.boot_evt('cause')} (a device error), roll-back at "
+                f"{g.boot_evt('rollback')}")
+        #! a failed restore is never read as a clean blank boot, even when the
+        #! one record lost was the only one saved
+        g.check("failure_not_blank@terminal", o.get("restore_fail") == 1 and o.get("d3_fail") == 1
+                and o.get("blank") == 0,
+                f"restore fail {o.get('restore_fail')}, D3 fail {o.get('d3_fail')}, blank {o.get('blank')}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+        if c != "H8_header_error_sole_saved_record":
+            g.saved_state_kept(extra)
     elif c == "V17_rollback_cannot_validate":
-        o = r.obs.get("recovered", {})
-        b = g.boot()
-        ans, _ = g.ans("rec.ptof0.value")
-        ok = (o.get("d3_closed") == 1 and o.get("restore_done") == 0 and o.get("restore_fail") == 1
-              and o.get("own") == 1 and o.get("entity_en") == 0 and b.get("enable", 0) == 0 and ans is None
-              and b.get("fw_enable", 0) > 0)
-        g.check("closed_keeps_entity_dark@recovered", ok,
-                f"closed {o.get('d3_closed')}, restore done {o.get('restore_done')} fail {o.get('restore_fail')}, "
-                f"own {o.get('own')}, entity enabled {o.get('entity_en')} (first {b.get('enable')}), firmware "
-                f"asked at {b.get('fw_enable')}, a GET answered {ans}")
+        g.closed_dark()
+    elif c in ("V20_desc_error_after_apply", "V21c_desc_debt_outlasts_the_deadline"):
+        # a descriptor fault after an application: the roll-back cannot prove
+        # its image (the memory still failing, or its late burst outlasting
+        # the deadline), so the restore ends CLOSED, never enabled
+        g.closed_dark()
+        g.check("descriptor_fault_closes@terminal", g.boot_evt("cause") == 6 and g.boot_evt("rollback") > 0,
+                f"abort cause {g.boot_evt('cause')}, roll-back at {g.boot_evt('rollback')}")
+        if c.startswith("V21c"):
+            term, beat, ab = g.boot_evt("terminal"), g.boot_evt("desc_delay_beat"), g.boot_evt("abort")
+            g.check("closed_before_the_late_burst@terminal",
+                    0 < ab < term < beat and term - ab <= RS_TMO + 1000,
+                    f"aborted at {ab}, CLOSED at {term} ({term - ab} cycles), the late burst came at {beat}")
+    elif c in ("V22_desc_fails_before_boot", "V22b_image_unproven_simple_records"):
+        # the image cannot be proven at the start: CLOSED, nothing applied,
+        # nothing refused, never a successful restore
+        g.closed_dark()
+        o = r.obs.get("terminal", {})
+        g.check("closed_when_image_unproven@recovered",
+                g.boot_evt("cause") == 7 and o.get("rs_app") == 0 and o.get("rs_ref") == 0
+                and o.get("desc_valid") == 0 and o.get("d3_closed") == 1,
+                f"abort cause {g.boot_evt('cause')}, applied {o.get('rs_app')}, refused {o.get('rs_ref')}, "
+                f"image validated {o.get('desc_valid')}, closed {o.get('d3_closed')}")
     elif c == "V11b_torn_in_pass1_rolls_back":
         g.contained(1)
         valid, _ = g.ans("post.ptof0.valid")
@@ -1406,33 +1801,192 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         g.converged("recovered")
         g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
     elif c == "W13_binding_walk_silent":
-        o = r.obs.get("recovered", {})
-        b = g.boot()
-        ans, _ = g.ans("rec.ptof0.value")
-        timed_out = any("has not reached its terminal" in ln for ln in r.fw)
-        ok = (o.get("restore_done") == 0 and o.get("entity_en") == 0 and b.get("enable", 0) == 0
-              and o.get("own") == 1 and ans is None and b.get("fw_enable", 0) > 0 and timed_out)
-        g.check("silent_binding_walk_keeps_entity_dark@recovered", ok,
-                f"restore done {o.get('restore_done')}, entity enabled {o.get('entity_en')} (first {b.get('enable')}), "
-                f"firmware asked at {b.get('fw_enable')} and reported the timeout {timed_out}, own {o.get('own')}, "
-                f"a GET answered {ans}")
-    elif c in ("W14_binding_walk_late_after_fw_deadline", "W15_binding_walk_late_before_fw_deadline"):
+        # the binding walk's first read never answers: its own deadline ends
+        # the walk failed with nothing preloaded, the D3 walk meets the
+        # quarantined port and ends at its deadline on defaults, and commands
+        # are served; the port stays quarantined, the later SET pending
         h = g.hold()
         b = g.boot()
-        timed_out = any("has not reached its terminal" in ln for ln in r.fw)
-        after = c.startswith("W14")
-        g.check("held_premise@terminal", h.get("released") == 1 and timed_out == after
-                and (b.get("fw_enable", 0) < b.get("restore_done", 0)) == after,
-                f"binding read held from {h.get('start')} to {h.get('end')}; the firmware's wait timed out {timed_out}, "
-                f"asked for the enable at {b.get('fw_enable')}, restore done at {b.get('restore_done')}")
-        cut = extra.get("cut_slots", {})
-        saved = {rid: v for rid, v in cut.items() if rid in g.d3_rids()}
-        bad = g.mismatches(r.snaps.get("terminal"), saved)
-        g.check("restore_complete@terminal", not bad, f"{len(bad)} records not as saved {bad[:2]}")
+        o = r.obs.get("terminal", {})
+        mgr = b.get("mgr_done", 0)
+        g.check("held_premise@terminal", h.get("active") == 1 and h.get("released") == 0
+                and b.get("m0_abort", 0) > 0,
+                f"binding read held from {h.get('start')}, released {h.get('released')}, abandoned to the drain "
+                f"at {b.get('m0_abort')}")
+        g.check("binding_walk_bounded@terminal", mgr > 0 and h.get("start", 0) > 0
+                and mgr - h.get("start", 0) <= RS_TMO + 100,
+                f"silence from {h.get('start')}, the binding walk's terminal at {mgr} (bound {RS_TMO} + 100)")
+        g.check("binding_walk_failed@terminal", o.get("mgr_fail") == 1 and o.get("mgr_cause") == 3
+                and not g.preloads() and o.get("restore_fail") == 1,
+                f"binding fail {o.get('mgr_fail')} cause {o.get('mgr_cause')}, preloads {g.preloads()[:2]}, "
+                f"restore fail {o.get('restore_fail')}")
+        g.terminal_bounded(h.get("start", 0), 2 * RS_TMO + 10000)
+        g.contained(0)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        o2 = r.obs.get("recovered", {})
+        chg = [cy for cy, rid, _v in g.changes() if rid == 0x50]
+        g.check("persistence_quarantined@recovered", bool(chg) and o2.get("pend") == 1
+                and o2.get("port_busy") == 1,
+                f"a SET of 0x50 at {chg[:1]} served, pend {o2.get('pend')}, port busy {o2.get('port_busy')}: the "
+                f"device never ended the abandoned read")
+    elif c == "W13b_binding_late_before_deadline":
+        h = g.hold()
+        o = r.obs.get("terminal", {})
+        g.check("held_premise@terminal", h.get("released") == 1 and h.get("m0_wd_max", 0) >= RS_TMO - 64
+                and o.get("mgr_cause") == 0,
+                f"held from {h.get('start')} to {h.get('end')}, the binding deadline count reached "
+                f"{h.get('m0_wd_max')} of {RS_TMO}, binding cause {o.get('mgr_cause')}")
+        pre = g.preloads()
+        mgr = g.boot_evt("mgr_done")
+        g.check("binding_restored@terminal", o.get("mgr_fail") == 0 and any(s == 0 for _c, s in pre)
+                and all(cy <= mgr for cy, _s in pre),
+                f"binding fail {o.get('mgr_fail')}, preloads {pre[:2]}, the binding walk ended at {mgr}")
+        g.restore_complete(extra)
         g.enable_after_terminal()
         g.no_restore_write_after()
         g.converged("recovered")
         g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c in ("W13c_binding_late_after_deadline", "W15_binding_answer_after_enable"):
+        h = g.hold()
+        b = g.boot()
+        o = r.obs.get("terminal", {})
+        ab = b.get("m0_abort", 0)
+        if c.startswith("W13c"):
+            g.check("held_premise@terminal", h.get("released") == 1 and ab > 0 and 0 <= h.get("end", 0) - ab <= 10,
+                    f"held from {h.get('start')}, abandoned at {ab}, the response came at {h.get('end')}")
+            g.restore_complete(extra)
+        else:
+            g.check("held_premise@terminal", h.get("released") == 1 and ab > 0
+                    and h.get("end", 0) > b.get("enable", 0) > 0,
+                    f"held from {h.get('start')}, abandoned at {ab}, the entity enabled at {b.get('enable')}, "
+                    f"the response came at {h.get('end')}")
+            #! the drained read kept the port from the D3 walk: it ended at
+            #! its own deadline, on defaults
+            g.contained(0)
+            g.served_after_recovery((0, 0))
+        g.check("binding_walk_failed@terminal", o.get("mgr_fail") == 1 and o.get("mgr_cause") == 3
+                and o.get("restore_fail") == 1,
+                f"binding fail {o.get('mgr_fail')} cause {o.get('mgr_cause')}, restore fail {o.get('restore_fail')}")
+        #! the late response was drained: no binding reaches the listener
+        g.check("no_preload_after_the_binding_terminal@recovered", not g.preloads(),
+                f"preloads {g.preloads()[:3]}, the binding walk ended at {b.get('mgr_done')}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        #! the device ended the abandoned read, so the port serves again
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "W16_binding_header_device_error":
+        o = r.obs.get("terminal", {})
+        g.check("binding_walk_failed@terminal", o.get("mgr_fail") == 1 and o.get("mgr_cause") == 2
+                and not g.preloads() and o.get("restore_fail") == 1 and o.get("blank") == 0,
+                f"binding fail {o.get('mgr_fail')} cause {o.get('mgr_cause')} (a device error on the header), "
+                f"preloads {g.preloads()[:2]}, restore fail {o.get('restore_fail')}, blank {o.get('blank')}")
+        g.restore_complete(extra)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        v, _ = g.ans("rec.ptof0.value")
+        valid, _ = g.ans("rec.ptof0.valid")
+        g.check("command_served_after_recovery@recovered", (v, valid) == (1500000, 1),
+                f"GET after recovery answered {v} valid {valid}, want the restored (1500000, 1)")
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "W14_enable_requested_before_the_restore":
+        b = g.boot()
+        g.check("early_request_premise@terminal", 0 < b.get("fw_enable", 0) < b.get("restore_done", 0),
+                f"the enable requested at {b.get('fw_enable')}, restore done at {b.get('restore_done')}")
+        g.restore_complete(extra)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "V21d_desc_slow_within_the_store_bound":
+        acc, beat = g.boot_evt("desc_delay_acc"), g.boot_evt("desc_delay_beat")
+        g.check("slow_premise@terminal", 0 < acc < beat and 3900 <= beat - acc < 4096 and g.boot_evt("cause") == 0,
+                f"request accepted at {acc}, its first beat at {beat} ({beat - acc} cycles, the store's own watchdog "
+                f"4096), abort cause {g.boot_evt('cause')}")
+        g.restore_complete(extra)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "V2b_refused_clock_source":
+        valid, _ = g.ans("post.clks.valid")
+        o = r.obs.get("restored", {})
+        g.check("refused_value_not_applied:0x0a", valid == 0 and o.get("rs_ref", 0) >= 1,
+                f"clock source row valid {valid}, refused {o.get('rs_ref')}")
+        #! the rule WAS fetched: a refused value is per record, never a failure
+        g.check("value_refusal_is_not_a_failure@restored", o.get("d3_fail") == 0 and o.get("d3_rb") == 0
+                and o.get("d3_cause") == 0 and o.get("restore_fail") == 0,
+                f"D3 fail {o.get('d3_fail')}, rolled back {o.get('d3_rb')}, cause {o.get('d3_cause')}, restore "
+                f"fail {o.get('restore_fail')}")
+    elif c == "V23_late_desc_beats_in_service":
+        _v1, e1 = g.ans("late.locate")
+        acc, beat = g.boot_evt("desc_delay_acc"), g.boot_evt("desc_delay_beat")
+        g.check("late_premise@restored", e1 == 1 and 0 < acc < beat,
+                f"the first locate answered err {e1} (the store's own watchdog), its burst accepted at {acc} came at "
+                f"{beat}")
+
+        def served(tag: str) -> tuple:
+            _v, e = g.ans(f"{tag}.locate")
+            lane, _ = g.ans(f"{tag}.lane0")
+            return e, (lane >> 48) if lane is not None else None
+        e3, typ3 = served("third")
+        #! the third locate's request is PRESENTED while the late burst is owed
+        #! (the second fails at once: the pinned store's watchdog is not re-armed
+        #! after a fetch timed out); it must get its own STREAM_INPUT, never the
+        #! late STREAM_OUTPUT burst's bytes
+        e2, typ2 = served("next")
+        g.check("late_beats_never_served@restored",
+                all(e == 1 or (e == 0 and typ == 0x0005) for e, typ in ((e2, typ2), (e3, typ3)))
+                and e3 == 0 and typ3 == 0x0005,
+                f"second locate err {e2} type {typ2 if typ2 is None else hex(typ2)}; third locate err {e3} type "
+                f"{typ3 if typ3 is None else hex(typ3)} (want STREAM_INPUT 0x5, never the late burst's 0x6)")
+        e4, typ4 = served("after")
+        g.check("store_serves_after_the_late_burst@restored", e4 == 0 and typ4 == 0x0005,
+                f"after the late burst ended, a locate answered err {e4}, descriptor_type "
+                f"{typ4 if typ4 is None else hex(typ4)}")
+    # ================= OUTPUT FORMAT, SHIPPING-LEGAL (revision c, F6) =======
+    elif c == "V1s_a_shipping_output_format":
+        nar, _ = g.ans("set.fmto0.narrow")
+        dec, _ = g.ans("set.fmto0.declared")
+        inp, _ = g.ans("set.fmti0.narrow")
+        g.check("shipping_judge_verdicts@cut", nar == 0 and dec == 1 and inp == 1 and g.boot_evt("judge_shipping") == 1,
+                f"SET output 0 to a narrower format {'refused' if nar == 0 else nar}, to its declared format "
+                f"{'accepted' if dec == 1 else dec}, SET input 0 to 2 channels {'accepted' if inp == 1 else inp}; "
+                f"shipping judge {g.boot_evt('judge_shipping')}")
+        narrow = narrower(s.def_fmt_out[0], 4).to_bytes(8, "big")
+        bad = [v.hex() for _c, rid, v in g.changes() if rid == 0x40 and v == narrow]
+        g.check("refused_set_writes_nothing:0x40", not bad, f"{len(bad)} changes of 0x40 to the refused format")
+        g.converged("cut")
+        for rid in sorted({rid for _c, rid, _v in g.changes() if rid in g.d3_rids()}):
+            g.value_in_slot("cut", rid, f"value_in_slot@cut:{rid:#04x}")
+    elif c == "V1s_b_shipping_output_format_restore":
+        cut = extra["cut_slots"]
+        saved = {rid: v for rid, v in cut.items() if rid in g.d3_rids()}
+        term = r.snaps.get("terminal")
+        for rid, payload in sorted(saved.items()):
+            got = g.snap_value(term, rid) if term else None
+            want = g.want_of(rid, payload)
+            g.check(f"value_restored:{rid:#04x}", got == want,
+                    (f"{show(got, want)}" if got != want else f"live equals the slot, {len(payload)} bytes")
+                    + (" (value, valid)" if scalar_of(rid) else ""))
+        v, _ = g.ans("post.fmto0.value")
+        valid, _ = g.ans("post.fmto0.valid")
+        g.check("declared_output_format_restored_valid:0x40", (v, valid) == (s.def_fmt_out[0], 1),
+                f"GET output 0 format {v if v is None else hex(v)} valid {valid}, want the declared "
+                f"{s.def_fmt_out[0]:#x} WITH its valid flag (a deleted replay leaves it 0)")
+        o = r.obs.get("restored", {})
+        g.check("restore_counts@boot", o.get("rs_ref") == 0 and o.get("rs_app") == len(saved),
+                f"applied {o.get('rs_app')} refused {o.get('rs_ref')}; the slot holds {len(saved)}")
+    elif c == "V1s_c_shipping_refuses_a_narrower_saved_output":
+        v, _ = g.ans("post.fmto0.value")
+        valid, _ = g.ans("post.fmto0.valid")
+        o = r.obs.get("restored", {})
+        g.check("narrower_output_refused_on_replay:0x40", valid == 0 and o.get("rs_ref", 0) >= 1
+                and o.get("d3_fail") == 0,
+                f"output 0 format valid {valid} (value {v}), refused {o.get('rs_ref')}, D3 fail {o.get('d3_fail')}")
     elif c == "K19_command_before_the_restore":
         g.converged("end")
         g.value_in_slot("end", 0x50)
@@ -1473,27 +2027,48 @@ BASE_CASES = [
 ]
 #: a case that boots from the slots another case left: the power cycle
 V1A = "V1a_set_everything"
+V1SA = "V1s_a_shipping_output_format"
 DEPENDS = {"K6b_restore_after_cut": "K6a_cut_after_record_before_commit",
            "K7b_restore_after_ack": "K7a_cut_after_ack",
            "K17b_restore_after_cut_in_write": "K17a_cut_during_record_write",
            "K18b_restore_after_cut_in_debounce": "K18a_cut_inside_the_debounce",
            "V1b_restore_everything": V1A,
-           "V6b_restore_coupled_pair": "V6a_set_coupled_narrower_pair"}
+           "V6b_restore_coupled_pair": "V6a_set_coupled_narrower_pair",
+           "V1s_b_shipping_output_format_restore": V1SA}
 #: the restore transaction and its deadlines, each on V1a's slots (every
 #: group non-default)
+#: header transport faults ending in pass 0 (nothing applied) and in pass 1
+#: (rolled back), each with the abort cause it must report
+HEADER_PASS0 = ["H1_header_error_both_passes", "H2_header_errors_balance_counts", "H2b_header_errors_swap",
+                "H3_header_error_pass0_only", "H4_header_error_first_record", "H5_header_error_map_record",
+                "H6_header_error_last_name"]
+#: pass-1 aborts rolled back to proven defaults: the case and its abort cause
+PASS1_ROLLBACK = {"V14_rollback_pass1_early": (1, 2), "V15_rollback_pass1_late": (1, 2),
+                  "V16_rollback_pass1_maps": (1, 2), "V18_header_error_pass1": (2,),
+                  "H7_header_error_last_name_pass1": (2,), "V18b_header_changed_between_passes": (5,),
+                  "V18c_changes_balance_counts": (5,), "V20b_desc_error_once_after_apply": (6,),
+                  "V20c_desc_error_in_the_map_revert": (6,), "V20d_desc_error_in_the_final_revert": (6,),
+                  "V21_desc_late_after_apply": (6,), "V21b_desc_debt_outlasts_the_store": (6,)}
 TRANSACTION = ["V12_abort_pass0_early", "V13_abort_pass0_late", "V14_rollback_pass1_early",
                "V15_rollback_pass1_late", "V16_rollback_pass1_maps", "V17_rollback_cannot_validate",
-               "V18_header_error_pass1", "W1_silent_pass0", "W2_late_pass0_before_deadline",
+               "V18_header_error_pass1", "V18b_header_changed_between_passes", "V18c_changes_balance_counts",
+               *HEADER_PASS0, "H7_header_error_last_name_pass1",
+               "V20_desc_error_after_apply", "V20b_desc_error_once_after_apply", "V21_desc_late_after_apply",
+               "V21b_desc_debt_outlasts_the_store", "V21c_desc_debt_outlasts_the_deadline",
+               "V21d_desc_slow_within_the_store_bound", "V22_desc_fails_before_boot",
+               "W1_silent_pass0", "W2_late_pass0_before_deadline",
                "W3_late_pass0_after_deadline", "W4_silent_pass1", "W5_late_pass1_before_deadline",
                "W6_late_pass1_after_deadline", "W7_silent_pass1_last_name", "W8_map_face_silent_pass1",
                "W9_judge_silent_pass1", "W10_edit_face_silent_pass1", "W12_r218_read_late_after_apply",
-               "W13_binding_walk_silent", "W14_binding_walk_late_after_fw_deadline",
-               "W15_binding_walk_late_before_fw_deadline", "K19_command_before_the_restore"]
+               "W13_binding_walk_silent", "W13b_binding_late_before_deadline", "W13c_binding_late_after_deadline",
+               "W14_enable_requested_before_the_restore", "W15_binding_answer_after_enable",
+               "W16_binding_header_device_error", "K19_command_before_the_restore"]
 DEPENDS.update({c: V1A for c in TRANSACTION})
-#: the binding walk has one implementation whatever the shape: its three
-#: deadline cases run at 1x1 only
-ONLY_1X1 = {"W13_binding_walk_silent", "W14_binding_walk_late_after_fw_deadline",
-            "W15_binding_walk_late_before_fw_deadline"}
+#: the binding walk has one implementation whatever the shape: its deadline,
+#: cause and enable cases run at 1x1 only
+ONLY_1X1 = {"W13_binding_walk_silent", "W13b_binding_late_before_deadline", "W13c_binding_late_after_deadline",
+            "W14_enable_requested_before_the_restore", "W15_binding_answer_after_enable",
+            "W16_binding_header_device_error"}
 #: cases one shape alone can express: K16 needs an output port whose stream
 #: channels outnumber its clusters (8x8: 72 against 9; 1x1: 16 against 17)
 SHAPE_CASES = {"8x8": ["K16_map_set_larger_than_its_record"]}
@@ -1502,7 +2077,18 @@ V3X = ["V3a_map_index_0xff00", "V3b_map_index_0xfeff", "V3c_map_index_0xfffe", "
 CRAFTED = ["V2_refused_rate", "V3_refused_map_for_a_removed_cluster", *V3X, "V4_refused_configuration_index",
            "V5_record_corrupted_after_the_load", "V7_names_only", "V8_orphaning_format_reverted",
            "V9_refused_maps_revert_their_formats", "V11_torn_read_restores_nothing",
-           "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late"]
+           "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late",
+           "H8_header_error_sole_saved_record", "V20c_desc_error_in_the_map_revert",
+           "V20d_desc_error_in_the_final_revert", "V22b_image_unproven_simple_records", "V2b_refused_clock_source",
+           "V1s_c_shipping_refuses_a_narrower_saved_output"]
+#: cases that boot with NO slot (blank flash)
+UNSLOTTED = ["V10_blank_first_boot", "V23_late_desc_beats_in_service"]
+#: the cases whose stimulus includes a NARROWED OUTPUT format, legal only
+#: under the SYNTHETIC judge: the product admits an output's declared format
+#: alone. Every case booting from V1a's slots restores one.
+SYNTHETIC_OUTPUT = {V1A, "V1b_restore_everything", "V6a_set_coupled_narrower_pair", "V6b_restore_coupled_pair",
+                    "V8_orphaning_format_reverted", "V9_refused_maps_revert_their_formats",
+                    "V20c_desc_error_in_the_map_revert", "V20d_desc_error_in_the_final_revert"}
 #: the SYNTHETIC shape exists for the sampling-rate group alone
 SYNTH_CASES = [V1A, "V1b_restore_everything", "V2_refused_rate"]
 
@@ -1543,6 +2129,19 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
         over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0), **ptof}
     elif case in ("V11_torn_read_restores_nothing", "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late"):
         over = {0x50: (1100011).to_bytes(4, "big"), 0x80: b"V11 name".ljust(64, b"\x00")}
+    elif case == "H8_header_error_sole_saved_record":
+        over = {**ptof}
+    elif case == "V20c_desc_error_in_the_map_revert":
+        over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0), **ptof}
+    elif case == "V20d_desc_error_in_the_final_revert":
+        over = {0x40: two.to_bytes(8, "big")}
+    elif case == "V22b_image_unproven_simple_records":
+        over = {**ptof, 0x80: b"V22b name".ljust(64, b"\x00")}
+    elif case == "V2b_refused_clock_source":
+        # one past the last clock source: the rule is fetched, the value fails it
+        over = {0x0A: s.clk_count.to_bytes(2, "big")}
+    elif case == "V1s_c_shipping_refuses_a_narrower_saved_output":
+        over = {0x40: narrower(s.def_fmt_out[0], 4).to_bytes(8, "big")}
     else:
         raise SystemExit(case)
     return crafted(s, case, over), over
@@ -1567,10 +2166,10 @@ def plan(build: Build) -> list:
         return out
     items = []
     if build.name.startswith("base-") and build.shape in SHIPPED:
-        cases = BASE_CASES + CRAFTED + ["V10_blank_first_boot"] + SHAPE_CASES.get(build.shape, [])
+        cases = BASE_CASES + CRAFTED + UNSLOTTED + SHAPE_CASES.get(build.shape, [])
         cases += [a for a, _b in (("K6a_cut_after_record_before_commit", 0), ("K7a_cut_after_ack", 0),
                                   ("K17a_cut_during_record_write", 0), ("K18a_cut_inside_the_debounce", 0),
-                                  ("V6a_set_coupled_narrower_pair", 0))]
+                                  ("V6a_set_coupled_narrower_pair", 0), (V1SA, 0))]
         cases += [c for c in DEPENDS if build.shape == "1x1" or c not in ONLY_1X1]
         items += with_sources(cases)
         items += [("V1b_restore_everything", "stale", V1A)]
@@ -1583,10 +2182,10 @@ def plan(build: Build) -> list:
         items += with_sources(TRACKED_CASES + [V1A, "V1b_restore_everything"])
     else:
         m = build.name[4:]
-        case, variant, _k, _s = KILLERS[m]
-        if variant == "*":
-            return [(case, v, None) for v in K15_SWEEP]
-        items += with_sources([case])
+        ks = killers(m)
+        if ks[0][1] == "*":
+            return [(ks[0][0], v, None) for v in K15_SWEEP]
+        items += with_sources([k[0] for k in ks])
         if m == "M13_restore_applies_nothing":
             items.append(("V1b_restore_everything", "stale", V1A))
     return items
@@ -1613,7 +2212,7 @@ def execute(build: Build, s: Shape) -> list:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("action", choices=["prep", "build", "run", "controls", "receipts"])
+    ap.add_argument("action", choices=["prep", "build", "run", "controls", "receipts", "amend"])
     ap.add_argument("names", nargs="*")
     ap.add_argument("--shapes", default=",".join(SHAPES))
     ap.add_argument("--jobs", type=int, default=8)
@@ -1621,6 +2220,12 @@ def main() -> int:
     args = ap.parse_args()
     if args.action == "receipts":
         return receipts()
+    if args.action == "amend":
+        for key, (_pinned, amended, _s) in AMENDMENTS.items():
+            amended.write_text(amended_text(key))
+            print(f"wrote {amended.relative_to(HERE)}")
+        return 0
+    check_amendments()
     if args.action == "controls":
         return controls(args.pool)
     check_m0_encoding()
@@ -1739,27 +2344,33 @@ def report(allres: dict, builds: list, focused: bool) -> int:
                                f"{'PASSES, as it must' if good else f'DOES NOT PASS ({bad or keys})'}")
         else:
             m = bname[4:]
-            case, variant, killer, _s = KILLERS[m]
-            state, where, why = "SURVIVED", None, ""
-            for r, g in res:
-                if r.case != case or (variant != "*" and r.variant != variant):
-                    continue
-                t_ = r.case + (f"~{r.variant}" if r.variant else "")
-                if not g.checks.get("case_completed", (False,))[0]:
-                    #! a run that did not complete kills nothing
-                    state, where, why = "NOT COMPLETED", t_, f" ({g.checks.get('case_completed', (0, 'no run'))[1]})"
-                    continue
-                if killer not in g.checks:
-                    if state != "NOT COMPLETED":
-                        state, where, why = "KILLER ABSENT", t_, ""
-                    continue
-                if not g.checks[killer][0]:
-                    state, where, why = "KILLED", t_, f" -- {g.checks[killer][1][:140]}"
-                    break
+            states = []
+            for case, variant, killer, _s in killers(m):
+                state, where, why = "SURVIVED", None, ""
+                for r, g in res:
+                    if r.case != case or (variant != "*" and r.variant != variant):
+                        continue
+                    t_ = r.case + (f"~{r.variant}" if r.variant else "")
+                    if not g.checks.get("case_completed", (False,))[0]:
+                        #! a run that did not complete kills nothing
+                        state, where, why = ("NOT COMPLETED", t_,
+                                             f" ({g.checks.get('case_completed', (0, 'no run'))[1]})")
+                        continue
+                    if killer not in g.checks:
+                        if state != "NOT COMPLETED":
+                            state, where, why = "KILLER ABSENT", t_, ""
+                        continue
+                    if not g.checks[killer][0]:
+                        state, where, why = "KILLED", t_, f" -- {g.checks[killer][1][:140]}"
+                        break
+                tag = where or (case + (f"~{variant}" if variant else ""))
+                states.append((state, f"{tag} : {killer}{why}"))
+            #! killed only when EVERY named check killed it
+            state = "KILLED" if all(st == "KILLED" for st, _w in states) else \
+                next(st for st, _w in states if st != "KILLED")
             if state != "KILLED":
                 fail += 1
-            tag = where or (case + (f"~{variant}" if variant else ""))
-            verdict.append(f"MUTANT {m}: {state} by {tag} : {killer}{why}")
+            verdict.append(f"MUTANT {m}: {state} by " + " AND ".join(w for _st, w in states))
             if m == "M13_restore_applies_nothing":
                 for r, g in res:
                     if r.variant == "stale":
@@ -1773,6 +2384,17 @@ def report(allres: dict, builds: list, focused: bool) -> int:
                                        f"{'PASSES' if naive else 'FAILS'}, cleared-first "
                                        f"{'FAILS' if cleared is False else 'PASSES'} -> "
                                        f"{'as required' if ok else 'NOT AS REQUIRED'}")
+    #! which runs rest on the SYNTHETIC output-format judge: a narrowed output
+    #! in their stimulus is legal only there (the product admits an output's
+    #! declared format alone); the V1s cases run the SHIPPING judge
+    synth = sorted({r.case for res in allres.values() for r, _g in res
+                    if r.case in SYNTHETIC_OUTPUT or DEPENDS.get(r.case) == V1A})
+    ship = sorted({r.case for res in allres.values() for r, g in res if g.boot().get("judge_shipping") == 1})
+    if synth:
+        verdict.append(f"LABEL SYNTHETIC output-format judge (a narrowed output format, product-illegal): "
+                       f"{len(synth)} cases: {', '.join(synth)}")
+    if ship:
+        verdict.append(f"LABEL SHIPPING output-format judge (milan_datapath.sv sfv_supported_w): {', '.join(ship)}")
     total = sum(len(g.checks) for res in allres.values() for _r, g in res)
     runs = sum(len(res) for res in allres.values())
     kind = "FOCUSED" if focused else "FULL"
@@ -1851,10 +2473,12 @@ def controls(pool: int) -> int:
 # ------------------------------------------------------------------ receipts
 #: the repository files the model reads or compiles, besides the evidence
 REPO_READ = [PP / "acmp/pp_acmp_pkg.sv", PP / "aecp/KL_aecp_dyn_state.sv", PP / "aecp/KL_aecp_desc_store.sv",
-             PP / "acmp/KL_acmp_nvm_shadow.sv", PP / "packet_engine/KL_pp_nvm_port.sv", BACKEND, WRITER,
+             PINNED_BIND, PINNED_PORT, BACKEND, WRITER,
              ROOT / "scripts/nvm_klj2.py", ROOT / "scripts/nvm_shape.py", ROOT / "scripts/check_nvm_record_space.py",
              ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py", ROOT / SHAPES["1x1"], ROOT / SHAPES["8x8"],
-             ROOT / "sw/builder/endstation_builder.py"]
+             ROOT / "sw/builder/endstation_builder.py",
+             #! not read at run time: the shipping judge is transcribed from it
+             ROOT / "hdl/milan/milan_datapath.sv"]
 
 
 def receipts() -> int:

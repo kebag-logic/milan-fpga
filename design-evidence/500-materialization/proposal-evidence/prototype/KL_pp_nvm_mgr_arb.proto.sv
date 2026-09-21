@@ -34,17 +34,24 @@
 //
 //                AN ABANDONED READ IS DRAINED, NEVER HANDED ON (page section
 //                8.8). The port answers untagged: its bytes and its done or
-//                err name no operation. So when manager 1 abandons a READ the
-//                port is serving (m1_abort_i, the restore watchdog), this
-//                block keeps that operation as its OWN: it holds rready so the
-//                port can move every late byte, discards the bytes, swallows
-//                the done or err that ends it, and keeps both managers off the
+//                err name no operation. So when a manager abandons a READ the
+//                port is serving for it (m1_abort_i, the D3 restore watchdog;
+//                m0_abort_i, the binding walk's deadline, seam S3), this block
+//                keeps that operation as its OWN: it holds rready so the port
+//                can move every late byte, discards the bytes, swallows the
+//                done or err that ends it, and keeps both managers off the
 //                port until then. A late response can therefore only ever end
-//                the operation it belongs to. A device that never answers
-//                keeps the port drained for ever: every later change reads
-//                pending, never durable, and processor issue 15 is what would
-//                bound it. Only reads are abandoned; a write stream is never
+//                the operation it belongs to. The drain ends ONLY on that
+//                operation's own done or err, never on time: a device that
+//                never answers keeps the port QUARANTINED for ever, every
+//                later change reads pending and never durable, and nothing
+//                here makes the port reusable before the device ends the
+//                operation. Only reads are abandoned; a write stream is never
 //                cut here.
+//
+//                THE CAUSE (seam S1). The port's terminal cause (DEVICE or
+//                UNFRAMED, KL_pp_nvm_port_amd) reaches the manager that owns
+//                the operation with its err, like every other data phase.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -64,6 +71,9 @@ module KL_pp_nvm_mgr_arb (
     output logic       m0_busy_o,
     output logic       m0_done_o,
     output logic       m0_err_o,
+    output logic [1:0] m0_err_cause_o,   //! the port's cause with m0_err_o
+    //! manager 0 abandons the READ it was granted (its walk deadline): drain it
+    input  wire        m0_abort_i,
     //! ---- manager 1: the D3 record writer (request held until granted) ----
     input  wire        m1_req_i,
     input  wire        m1_we_i,
@@ -77,6 +87,7 @@ module KL_pp_nvm_mgr_arb (
     output logic [7:0] m1_rdata_o,
     output logic       m1_done_o,
     output logic       m1_err_o,
+    output logic [1:0] m1_err_cause_o,   //! the port's cause with m1_err_o
     //! manager 1 abandons the READ it was granted: drain it
     input  wire        m1_abort_i,
     //! ---- the port's manager face ----
@@ -91,13 +102,14 @@ module KL_pp_nvm_mgr_arb (
     input  wire [7:0]  p_rdata_i,
     input  wire        p_busy_i,
     input  wire        p_done_i,
-    input  wire        p_err_i
+    input  wire        p_err_i,
+    input  wire  [1:0] p_err_cause_i     //! the port's terminal cause (S1)
 );
 
   typedef enum logic [1:0] { O_NONE, O_M0, O_M1 } own_e;
   own_e       own_r;
   logic       idle_w, iss0_w, iss1_w, end_w;
-  //! manager 1's operation, abandoned and being drained
+  //! the owner's operation, abandoned and being drained
   logic       drain_r;
 
   //! the port can take a request only in S_IDLE, which follows its done or
@@ -114,12 +126,13 @@ module KL_pp_nvm_mgr_arb (
     else if (end_w)  own_r <= O_NONE;
   end
 
-  //! the drain starts on the abort of a manager-1 operation still open and
+  //! the drain starts on the abort of the owner's operation still open and
   //! ends with that operation's own done or err, never on time
   always_ff @(posedge clk_i) begin
     if (!rst_n)                                  drain_r <= 1'b0;
     else if (end_w)                              drain_r <= 1'b0;
     else if (m1_abort_i && (own_r == O_M1))      drain_r <= 1'b1;
+    else if (m0_abort_i && (own_r == O_M0))      drain_r <= 1'b1;
   end
 
   assign p_req_o    = iss0_w || iss1_w;
@@ -127,17 +140,18 @@ module KL_pp_nvm_mgr_arb (
   assign p_rid_o    = iss0_w ? m0_rid_i : m1_rid_i;
   assign p_wvalid_o = (own_r == O_M0) ? m0_wvalid_i : (own_r == O_M1) ? m1_wvalid_i : 1'b0;
   assign p_wdata_o  = (own_r == O_M1) ? m1_wdata_i : m0_wdata_i;
-  assign p_rready_o = (own_r == O_M0) ? m0_rready_i
+  assign p_rready_o = (own_r == O_M0) ? (drain_r || m0_rready_i)
                     : (own_r == O_M1) ? (drain_r || m1_rready_i) : 1'b0;
 
-  assign m0_wready_o = (own_r == O_M0) && p_wready_i;
-  assign m0_rvalid_o = (own_r == O_M0) && p_rvalid_i;
+  assign m0_wready_o = (own_r == O_M0) && !drain_r && p_wready_i;
+  assign m0_rvalid_o = (own_r == O_M0) && !drain_r && p_rvalid_i;
   assign m0_rdata_o  = p_rdata_i;
   //! manager 0 strobes only when it reads idle; any other owner reads busy,
   //! and so does the cycle manager 1 is granted (the banner's one rule)
   assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;
-  assign m0_done_o   = (own_r == O_M0) && p_done_i;
-  assign m0_err_o    = (own_r == O_M0) && p_err_i;
+  assign m0_done_o   = (own_r == O_M0) && !drain_r && p_done_i;
+  assign m0_err_o    = (own_r == O_M0) && !drain_r && p_err_i;
+  assign m0_err_cause_o = m0_err_o ? p_err_cause_i : 2'd0;
 
   //! a drained operation's bytes and ending reach no manager
   assign m1_gnt_o    = iss1_w;
@@ -146,6 +160,7 @@ module KL_pp_nvm_mgr_arb (
   assign m1_rdata_o  = p_rdata_i;
   assign m1_done_o   = (own_r == O_M1) && !drain_r && p_done_i;
   assign m1_err_o    = (own_r == O_M1) && !drain_r && p_err_i;
+  assign m1_err_cause_o = m1_err_o ? p_err_cause_i : 2'd0;
 
 endmodule
 

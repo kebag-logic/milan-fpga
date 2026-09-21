@@ -38,6 +38,11 @@ struct RdHold {
   int64_t hold = -1;
   int64_t wd_release = -1;
   int64_t after_abort = -1;
+  //! the same two releases keyed to the BINDING walk's deadline (seam S3):
+  //! when its watchdog reaches m0_wd_release, or after_m0_abort cycles after
+  //! it abandoned the read
+  int64_t m0_wd_release = -1;
+  int64_t after_m0_abort = -1;
   // observed
   unsigned seen = 0;
   bool active = false;
@@ -45,6 +50,7 @@ struct RdHold {
   uint64_t start = 0, end = 0;
   unsigned rid_seen = 0, pass_seen = 0;
   uint64_t wd_max = 0;      //! the writer's largest watchdog count while held
+  uint64_t m0_wd_max = 0;   //! the binding manager's largest count while held
 };
 extern RdHold rdhold;
 
@@ -65,6 +71,31 @@ extern FaceSilence facesil;
 extern bool desc_mem_fail;
 //! arm desc_mem_fail when the roll-back's scoped reset rises
 extern bool desc_fail_on_rollback;
+//! the descriptor memory (the integrator's bridge behind an asynchronous
+//! request FIFO): requests are ACCEPTED while earlier bursts are still owed
+//! and served in order, as the parent's CDC FIFO in front of pp_desc_bridge
+//! does; an error beat ends its burst (the bridge's err rides with blast).
+//! One-shot faults on it, each armed by a case:
+//!  - desc_delay_next: the first-beat latency of the next request accepted
+//!    after arming (-1 none);
+//!  - desc_err_next: the next request accepted after arming answers its
+//!    first beat with an error, and only that beat;
+//! and the reviewer R217's own trigger: desc_delay_after_apply arms
+//! desc_delay_next on the first request accepted after the D3 writer's
+//! applied count first reads non-zero.
+extern int64_t desc_delay_next;
+extern bool desc_err_next;
+extern int64_t desc_delay_after_apply;
+//! the SET_STREAM_FORMAT verdict the model applies: false = the SYNTHETIC
+//! judge (a narrower 1/2/4/6/8-channel AAF format no wider than the default
+//! is admitted in either direction, which the product does NOT do for an
+//! output), true = the SHIPPING judge transcribed from milan_datapath.sv's
+//! sfv_supported_w (an output admits exactly its declared format, an input
+//! the 1/2/4/6/8 family on the declared base, a CRF row its own format)
+extern bool judge_shipping;
+//! a bench script requests the entity enable before the restore (the enable
+//! request is held from reset): the entity must stay dark until done
+extern bool early_enable;
 
 struct Binding {
   unsigned sink = 0;
@@ -86,7 +117,10 @@ struct Map {
 
 //! one uCPU state-bus operation inside a program
 struct UOp {
-  enum Kind { DYN_WR, NAME_WR, READ, LOCATE, GAP, MAP_ADD, MAP_REMOVE, IDENT_WR, MARK } kind;
+  //! FMT_WR: SET_STREAM_FORMAT, judged when it runs (the program's
+  //! verdict): accepted it is a DYN_WR of the format, refused it writes
+  //! nothing and notes the refusal under its tag
+  enum Kind { DYN_WR, NAME_WR, READ, LOCATE, GAP, MAP_ADD, MAP_REMOVE, IDENT_WR, MARK, FMT_WR } kind;
   unsigned sel = 0, idx = 0;       //! DYN_WR/READ: selector and descriptor index
   unsigned cls = 0, type = 0;      //! MARK: the class and the descriptor type (idx: its index)
   uint64_t val = 0;                //! DYN_WR/NAME_WR: the data; LOCATE: the key
@@ -127,6 +161,16 @@ struct Log {
   std::vector<std::pair<uint64_t, uint32_t>> strobes;
   std::vector<std::pair<std::string, uint64_t>> marks;  //! named cycles
   uint64_t enable_cyc = 0, restore_done_cyc = 0, d3_done_cyc = 0, own_max = 0;
+  //! the binding walk: its terminal (done, failed or not), the cycle it
+  //! abandoned a read to the drain, and every preload it drove
+  uint64_t mgr_done_cyc = 0, m0_abort_cyc = 0;
+  std::vector<std::pair<uint64_t, unsigned>> preloads;
+  //! the roll-back: when its reset was released (after any memory debt)
+  uint64_t rb_end_cyc = 0;
+  //! the descriptor memory: a delayed request (accepted, first beat), an
+  //! injected error beat, and the cycles the guard's debt rose and fell
+  uint64_t desc_delay_acc = 0, desc_delay_beat = 0, desc_err_cyc = 0;
+  std::vector<std::pair<uint64_t, unsigned>> desc_debt;
   uint64_t prog_waited_on_own = 0;
   unsigned mem_errs = 0;
   //! cycles in which the binding manager sat in H_FL_REQ while the arbiter
@@ -141,6 +185,7 @@ struct Levels {
   unsigned d3_alarm, d3_unfl, d3_done, d3_fail, rs_app, rs_ref, rs_blank, rs_rev;
   unsigned d3_writes, d3_slot, d3_taint, mgr_dirty, port_busy, dev_busy, desc_valid, own;
   unsigned d3_rb, d3_closed, d3_cause, entity_en;
+  unsigned mgr_done, mgr_fail, mgr_blank, mgr_cause, desc_debt, d3_pass;
 };
 
 extern uint64_t cyc;

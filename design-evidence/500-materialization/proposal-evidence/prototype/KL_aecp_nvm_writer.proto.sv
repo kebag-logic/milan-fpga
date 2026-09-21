@@ -73,6 +73,21 @@
 //                drains that read, so its late bytes and its done or err
 //                never reach any manager as data.
 //
+//                WHAT IS A TRANSPORT FAILURE (revision c). The port's terminal
+//                cause (seam S1, KL_pp_nvm_port_amd) separates a DEVICE error
+//                from an UNFRAMED header the device delivered whole: a DEVICE
+//                error aborts even with nothing forwarded, an UNFRAMED header
+//                is an erased or unframed record and keeps its default. The
+//                passes must agree RECORD BY RECORD on which records came back
+//                whole; a difference aborts at that record. A descriptor read
+//                the rule or the image default needs that ends in error (the
+//                store's fetch error or its own 4,096-cycle timeout) aborts:
+//                it is never a refused value. An image the restore cannot
+//                prove at its start ends CLOSED. The roll-back holds every
+//                restorable owner in reset while the descriptor memory still
+//                owes a burst its terminal beat (seam S2, desc_debt_i), under
+//                the deadline, so no late beat enters the re-walk.
+//
 //  Model faces : the map EDIT face (mr_*) and the format JUDGE face (fj_*)
 //                are simplified stand-ins for the processor's
 //                ADD/REMOVE_AUDIO_MAPPINGS transaction face and the GSI(15)
@@ -138,6 +153,9 @@ module KL_aecp_nvm_writer #(
     input  wire  [63:0] sb_rdata_i,
     input  wire         sb_err_i,
     input  wire         desc_img_valid_i, //! the descriptor store validated its image
+    //! seam S2: the descriptor memory still owes an accepted burst its
+    //! terminal beat (KL_aecp_desc_mem_guard debt_o)
+    input  wire         desc_debt_i,
 
     //! ---- GET_AUDIO_MAP read face master (valid while own_o) ----
     output logic        am_req_o,
@@ -182,6 +200,10 @@ module KL_aecp_nvm_writer #(
     output logic        m_rready_o,
     input  wire         m_done_i,
     input  wire         m_err_i,
+    //! seam S1: the port's terminal cause with m_err_i: 1 DEVICE (a device
+    //! error or a short header read), 2 UNFRAMED (a whole header that is not
+    //! a record); KL_pp_nvm_port_amd through the arbiter
+    input  wire  [1:0]  m_err_cause_i,
     //! the writer abandons the READ the port is serving for it: the arbiter
     //! drains that operation (one cycle, only while a granted read is open)
     output logic        m_abort_o,
@@ -194,10 +216,12 @@ module KL_aecp_nvm_writer #(
     output logic        restore_busy_o,
     output logic        restore_done_o,
     output logic        restore_fail_o, //! a torn read-back, or image defaults refused
-    output logic        restore_blank_o, //! done, and no D3 record passed framing and crc
+    output logic        restore_blank_o, //! done without fail, and no D3 record passed framing and crc
     output logic        restore_rb_o,    //! done after a roll-back: every D3 group is at its default
     output logic        restore_closed_o,//! terminal without done: the roll-back could not validate
-    output logic [2:0]  rs_cause_o,      //! the first abort: 0 none, 1 torn, 2 read err, 3 watchdog, 4 edit refused, 5 passes disagree
+    //! the first abort: 0 none, 1 torn, 2 device error, 3 watchdog, 4 edit
+    //! refused, 5 passes disagree, 6 descriptor fault, 7 image not proven
+    output logic [2:0]  rs_cause_o,
     output logic [7:0]  rs_applied_o,
     output logic [7:0]  rs_refused_o,
     output logic [7:0]  rs_blank_o,
@@ -244,6 +268,7 @@ module KL_aecp_nvm_writer #(
   localparam logic [15:0] AU_RATE_OFF_C  = 16'd136, SSR_LIST_OFF_C = 16'd144,
                           CD_SRCCNT_OFF_C = 16'd74, SI_CURFMT_OFF_C = 16'd74;
   localparam int unsigned SSR_WALK_MAX_C = 8;
+  localparam logic [1:0]  CAUSE_UNFRAMED_C = 2'd2;   //! the port's cause (S1)
 
   function automatic logic [3:0] grp_f(input logic [SW_C-1:0] s);
     if (32'(s) < S_RATE_C)      return 4'(G_CFG);
@@ -410,7 +435,10 @@ module KL_aecp_nvm_writer #(
   logic [7:0]      k_r, n_r;    // loop counters (entries, lanes, pages)
   logic [7:0]      na_r, ns_r;  // default and saved map entry counts
   logic [15:0]     pg_r, npg_r;
-  logic            img_bad_r, rs_fail_r, rs_done_r, chk_done_r;
+  logic            rs_fail_r, rs_done_r, chk_done_r;
+  //! the image the restore judges against was proven at its start (a
+  //! validated descriptor store); an abort before that proof is CLOSED
+  logic            img_ok_r;
   //! the restore walks the records TWICE, reading them through the port both
   //! times: pass 0 only proves that no stream is torn, pass 1 judges and
   //! applies. A torn stream therefore aborts the walk before anything is
@@ -425,11 +453,12 @@ module KL_aecp_nvm_writer #(
   //! the saved map set's framing (page section 8.3): an unused entry is
   //! EXACTLY eight 0xFF bytes, and no entry may follow an unused one
   logic            allff_r, seen_pad_r, pad_bad_r;
-  //! records each pass read WHOLE. The port reports an error during a header
-  //! read exactly as an unframed record (err, nothing forwarded), so a pass-1
-  //! transport error on a header reads as an erased record; the two passes
-  //! must agree on how many records came back whole, or the restore aborts.
-  logic [7:0]      rs_fr0_r, rs_fr1_r;
+  //! the records pass 0 read WHOLE, one bit each. Pass 1 must read exactly
+  //! these whole again: a record whole in one pass and not in the other
+  //! aborts at that record (cause 5). With the port's cause a device error
+  //! already aborts; this catches content that differs between the passes
+  //! without one. Equal counts would not: two differences can balance.
+  logic [N_REC_C-1:0] whole0_r;
   logic [7:0]      rs_app_r, rs_ref_r, rs_blank_r, rs_rev_r;
   logic [N_STREAM_IN_P+N_STREAM_OUT_P-1:0] frest_r; // formats this restore applied
 
@@ -476,7 +505,7 @@ module KL_aecp_nvm_writer #(
   assign restore_busy_o = (st_r != W_INIT) && (st_r != W_WAITGO) && !rs_done_r && !rs_closed_r;
   assign restore_done_o = rs_done_r;
   assign restore_fail_o = rs_fail_r;
-  assign restore_blank_o = rs_done_r && !any_rec_r;
+  assign restore_blank_o = rs_done_r && !rs_fail_r && !any_rec_r;
   assign restore_rb_o     = rs_rb_r;
   assign restore_closed_o = rs_closed_r;
   assign rs_cause_o       = rs_cause_r;
@@ -661,6 +690,8 @@ module KL_aecp_nvm_writer #(
                        && (k_r < (mr_from_a_r ? na_r : ns_r));
       X_MRW:   stall_w = !mr_done_i;
       X_FJ:    stall_w = !(fj_req_r && !fj_wait_i);
+      //! the roll-back waits for the descriptor memory to owe nothing
+      B_RST:   stall_w = desc_debt_i;
       default: stall_w = 1'b0;
     endcase
   end
@@ -684,7 +715,7 @@ module KL_aecp_nvm_writer #(
       taint_r <= 1'b0; own_r <= 1'b1; alarm_r <= 1'b0; retry_r <= '0; writes_r <= '0;
       ptr_r <= '0; bcnt_r <= '0; crc_r <= '0; rcrc_r <= '0; rver_r <= '0; rrid_r <= '0;
       rplen_r <= '0; val_r <= '0; aux_r <= '0; k_r <= '0; n_r <= '0; na_r <= '0; ns_r <= '0;
-      pg_r <= '0; npg_r <= '0; img_bad_r <= 1'b0; rs_fail_r <= 1'b0; rs_done_r <= 1'b0;
+      pg_r <= '0; npg_r <= '0; img_ok_r <= 1'b0; rs_fail_r <= 1'b0; rs_done_r <= 1'b0;
       chk_done_r <= 1'b0; rs_app_r <= '0; rs_ref_r <= '0; rs_blank_r <= '0; rs_rev_r <= '0;
       frest_r <= '0; sb_req_r <= 1'b0; sb_we_r <= 1'b0; sb_name_r <= 1'b0; sb_addr_r <= '0;
       sb_wdata_r <= '0; sb_didx_r <= '0; sb_errq_r <= 1'b0; am_req_r <= 1'b0; am_sel_r <= '0;
@@ -695,7 +726,7 @@ module KL_aecp_nvm_writer #(
       rpass_r <= 1'b0;
       rs_cause_r <= '0; rb_act_r <= 1'b0; rb_rst_r <= 1'b0; rs_rb_r <= 1'b0;
       rs_closed_r <= 1'b0; rb_cnt_r <= '0; allff_r <= 1'b0; seen_pad_r <= 1'b0;
-      pad_bad_r <= 1'b0; rs_fr0_r <= '0; rs_fr1_r <= '0;
+      pad_bad_r <= 1'b0; whole0_r <= '0;
     end else if (wd_exp_w) begin
       //! a restore wait expired: every request the wait held is withdrawn,
       //! and the transaction aborts (page section 8.8)
@@ -716,7 +747,7 @@ module KL_aecp_nvm_writer #(
         // =================== RESTORE ===================
         R_IMG: begin
           if (desc_img_valid_i) begin
-            cur_r <= '0; st_r <= R_NEXT;
+            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;
           end else begin
             //! a LOCATE of ENTITY 0 makes the descriptor store walk the image
             //! the firmware loaded, so the name table holds the image before
@@ -727,21 +758,23 @@ module KL_aecp_nvm_writer #(
           end
         end
         R_IMGW: begin
-          img_bad_r <= !desc_img_valid_i;
-          cur_r <= '0; st_r <= R_NEXT;
+          if (desc_img_valid_i && !sb_errq_r) begin
+            img_ok_r <= 1'b1; cur_r <= '0; st_r <= R_NEXT;
+          end else begin
+            //! the image every value is judged against, and whose names are
+            //! the defaults, cannot be proven: CLOSED, never a restore
+            rs_fail_r <= 1'b1; rs_closed_r <= 1'b1;
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd7;
+            st_r <= T_CLOSED;
+          end
         end
         R_NEXT: begin
           if ((32'(cur_r) == N_REC_C) && !rpass_r) begin
             //! pass 0 found no torn stream: walk again, judging and applying
             rpass_r <= 1'b1; cur_r <= '0;
           end else if (32'(cur_r) == N_REC_C) begin
-            //! the passes must have read the same records whole
-            if (rs_fr1_r == rs_fr0_r) begin
-              st_r <= R_FIN;
-            end else begin
-              if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
-              st_r <= R_ABORT;
-            end
+            //! every record agreed with pass 0 as it was read
+            st_r <= R_FIN;
           end else if (rpass_r && (32'(cur_r) == S_NAME_C) && !chk_done_r) begin
             //! every format and map is back: re-judge the restored formats
             chk_done_r <= 1'b1; k_r <= 8'd0; st_r <= R_CHK;
@@ -773,28 +806,34 @@ module KL_aecp_nvm_writer #(
             bcnt_r <= bcnt_r + 17'd1;
           end
           if (m_done_i || m_err_i) begin
-            if (bcnt_r == 17'd0) begin
-              //! nothing forwarded: an erased or unframed record, no saved value
-              if (rpass_r) rs_blank_r <= rs_blank_r + 8'd1;
-              st_r <= R_ADV;
+            if ((bcnt_r == 17'd0) && !(m_err_i && (m_err_cause_i != CAUSE_UNFRAMED_C))) begin
+              //! nothing forwarded, and the device ANSWERED: an erased or
+              //! unframed record, no saved value
+              if (rpass_r && whole0_r[cur_r]) begin
+                //! pass 0 read it whole: the passes disagree
+                if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
+                st_r <= R_ABORT;
+              end else begin
+                if (rpass_r) rs_blank_r <= rs_blank_r + 8'd1;
+                st_r <= R_ADV;
+              end
             end else if (m_err_i || (bcnt_r < 17'd8) || (bcnt_r != 17'(rplen_r) + 17'd8)) begin
-              //! torn mid-record: the device face misbehaved; abort the
-              //! transaction (pass 1 rolls back what it applied)
+              //! a DEVICE error, with or without bytes forwarded, or a read torn
+              //! mid-record: a transport failure; abort the transaction (pass
+              //! 1 rolls back what it applied)
               if (rs_cause_r == 3'd0) rs_cause_r <= m_err_i ? 3'd2 : 3'd1;
               st_r <= R_ABORT;
             end else if (!rpass_r) begin
               //! pass 0 proves the stream whole and nothing else
-              rs_fr0_r <= rs_fr0_r + 8'd1; st_r <= R_ADV;
+              whole0_r[cur_r] <= 1'b1; st_r <= R_ADV;
+            end else if (!whole0_r[cur_r]) begin
+              //! whole now, not whole in pass 0: the passes disagree
+              if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
+              st_r <= R_ABORT;
             end else if ((rver_r != LAYOUT_VER_P) || (rrid_r != crid_r)
                          || (rplen_r != cplen_r) || (crc_r != rcrc_r)) begin
-              rs_fr1_r <= rs_fr1_r + 8'd1;
               rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
-            end else if (img_bad_r) begin
-              //! no validated image: nothing can be judged, so nothing applies
-              rs_fr1_r <= rs_fr1_r + 8'd1;
-              rs_ref_r <= rs_ref_r + 8'd1; any_rec_r <= 1'b1; st_r <= R_ADV;
             end else begin
-              rs_fr1_r <= rs_fr1_r + 8'd1;
               ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; any_rec_r <= 1'b1; st_r <= R_VAL;
             end
           end
@@ -809,6 +848,14 @@ module KL_aecp_nvm_writer #(
         end
         R_AUX: begin
           // per-group value judgement, by the rule the SET program applies
+          if ((sub_r != 4'd0) && sb_errq_r
+              && ((cg_r == 4'(G_CFG)) || (cg_r == 4'(G_RATE)) || (cg_r == 4'(G_CLKS)))) begin
+            //! the rule could not be FETCHED (the store's fetch error, or its
+            //! own watchdog's answer): the value was never judged, so this is
+            //! a transport failure, never a refused value
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;
+            st_r <= R_ABORT;
+          end else
           unique case (cg_r)
             4'(G_CFG): begin
               if (sub_r == 4'd0) begin
@@ -828,15 +875,11 @@ module KL_aecp_nvm_writer #(
                 sb_wdata_r <= {16'd0, ci_r, (cg_r == 4'(G_RATE)) ? T_AU_C : T_CD_C, 16'd0};
                 sub_r <= 4'd1; ret_r <= R_AUX; st_r <= X_BUS;
               end else if (sub_r == 4'd1) begin
-                if (sb_errq_r) begin
-                  rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
-                end else begin
-                  fld_off_r <= (cg_r == 4'(G_RATE)) ? AU_RATE_OFF_C : (CD_SRCCNT_OFF_C & 16'hFFF8);
-                  sb_req_r <= 1'b1; sb_we_r <= 1'b0;
-                  sb_addr_r <= {RG_DATA_C, ((cg_r == 4'(G_RATE)) ? AU_RATE_OFF_C
-                                                                 : (CD_SRCCNT_OFF_C & 16'hFFF8))};
-                  sub_r <= 4'd2; ret_r <= R_AUX; st_r <= X_BUS;
-                end
+                fld_off_r <= (cg_r == 4'(G_RATE)) ? AU_RATE_OFF_C : (CD_SRCCNT_OFF_C & 16'hFFF8);
+                sb_req_r <= 1'b1; sb_we_r <= 1'b0;
+                sb_addr_r <= {RG_DATA_C, ((cg_r == 4'(G_RATE)) ? AU_RATE_OFF_C
+                                                               : (CD_SRCCNT_OFF_C & 16'hFFF8))};
+                sub_r <= 4'd2; ret_r <= R_AUX; st_r <= X_BUS;
               end else if (sub_r == 4'd2) begin
                 if (cg_r == 4'(G_CLKS)) begin
                   //! SET_CLOCK_SOURCE: index < clock_sources_count (@74)
@@ -1001,7 +1044,11 @@ module KL_aecp_nvm_writer #(
           end
         end
         R_MVW: begin
-          if (sub_r == 4'd0) begin
+          if (((sub_r == 4'd4) || (sub_r == 4'd5) || (sub_r == 4'd6)) && sb_errq_r) begin
+            //! the image-default format to revert to could not be fetched
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;
+            st_r <= R_ABORT;
+          end else if (sub_r == 4'd0) begin
             if (k_r >= na_r) begin
               mr_add_r <= 1'b1; mr_from_a_r <= 1'b1; ret_r <= R_MD; st_r <= X_MRH;
             end else begin
@@ -1073,7 +1120,11 @@ module KL_aecp_nvm_writer #(
           end
         end
         R_CHKJ: begin
-          if (sub_r == 4'd0) begin
+          if (((sub_r == 4'd2) || (sub_r == 4'd3) || (sub_r == 4'd4)) && sb_errq_r) begin
+            //! the image-default format to revert to could not be fetched
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;
+            st_r <= R_ABORT;
+          end else if (sub_r == 4'd0) begin
             fj_out_o <= (cg_r == 4'(G_FMTO)); fj_idx_o <= ci_r; fj_fmt_r <= aux_r;
             fj_req_r <= 1'b1; sub_r <= 4'd1; ret_r <= R_CHKJ; st_r <= X_FJ;
           end else if (sub_r == 4'd1) begin
@@ -1119,8 +1170,10 @@ module KL_aecp_nvm_writer #(
           //! leaves a state nobody can vouch for: closed. rs_cause_r keeps the
           //! first abort's cause.
           rs_fail_r <= 1'b1;
-          if (rb_act_r) begin
-            rs_closed_r <= 1'b1; st_r <= T_CLOSED;
+          if (rb_act_r || !img_ok_r) begin
+            //! during the roll-back, or before the image was proven: nobody
+            //! can vouch for the state. The owners leave reset (unused).
+            rs_closed_r <= 1'b1; rb_rst_r <= 1'b0; st_r <= T_CLOSED;
           end else if (rpass_r) begin
             rb_act_r <= 1'b1; rb_rst_r <= 1'b1; rb_cnt_r <= 2'd0; st_r <= B_RST;
           end else begin
@@ -1128,10 +1181,13 @@ module KL_aecp_nvm_writer #(
           end
         end
         B_RST: begin
-          //! the scoped reset, two cycles: the dynamic-state store, the
-          //! descriptor store and the parent's map plane
-          rb_cnt_r <= rb_cnt_r + 2'd1;
-          if (rb_cnt_r == 2'd1) begin rb_rst_r <= 1'b0; st_r <= B_LOC; end
+          //! the scoped reset of the dynamic-state store, the descriptor
+          //! store and the parent's map plane: at least two cycles, and for
+          //! as long as the descriptor memory still owes an accepted burst
+          //! its terminal beat (seam S2), so no late beat enters the re-walk.
+          //! The watchdog bounds that wait (stall_w); its expiry is CLOSED.
+          if (rb_cnt_r == 2'd0) rb_cnt_r <= 2'd1;
+          if ((rb_cnt_r != 2'd0) && !desc_debt_i) begin rb_rst_r <= 1'b0; st_r <= B_LOC; end
         end
         B_LOC: begin
           //! a LOCATE of ENTITY 0 waits out the store's walk of the image

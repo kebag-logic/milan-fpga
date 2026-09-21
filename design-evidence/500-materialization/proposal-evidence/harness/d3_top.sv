@@ -7,13 +7,22 @@
 //
 //  Description : The RTL half of the D3 co-simulation. REAL, at the pinned
 //                processor revision 424c688f: KL_aecp_dyn_state (the
-//                dynamic-state store), KL_aecp_desc_store (the descriptor
+//                dynamic-state store) and KL_aecp_desc_store (the descriptor
 //                store and its writable name table, walking a real AEMI
-//                image the firmware copies into the model's DDR),
-//                KL_acmp_nvm_shadow (the binding manager) and KL_pp_nvm_port.
+//                image the firmware copies into the model's DDR).
 //                SHIPPING: hdl/milan/KL_nvm_backend.sv at dev 07294a76.
-//                PROTOTYPE: KL_aecp_nvm_writer (the D3 record writer) and
-//                KL_pp_nvm_mgr_arb (two managers, one port).
+//                AMENDED PROTOTYPES of two pinned modules (revision c), each
+//                the pinned file with declared amendments only (run.py
+//                checks it): KL_pp_nvm_port_amd, the port with its terminal
+//                cause (seam S1), and KL_acmp_nvm_shadow_amd, the binding
+//                manager consuming that cause and bounding its restore walk
+//                (seams S1 and S3). PROTOTYPE: KL_aecp_nvm_writer (the D3
+//                record writer), KL_pp_nvm_mgr_arb (two managers, one port,
+//                the drain of either manager's abandoned read) and
+//                KL_aecp_desc_mem_guard (response isolation on the
+//                descriptor store's memory face, seam S2). Under D3_TRACKED
+//                the PINNED port and binding manager are instantiated, as the
+//                parent ships them, and no guard.
 //
 //                The uCPU is a bus-functional model on the state bus
 //                (ub_*), with the dispatch hold-off the page specifies: it
@@ -52,9 +61,9 @@
 //                D3_TRACKED (a build define) is the glue AS IT SHIPS at dev
 //                07294a76: no D3 writer, pend_i = aecp_dyn_dirty_o OR the
 //                binding manager's unflushed sinks OR the sticky class-6/7
-//                mark bit, the restore is the binding walk alone, and the
-//                enable is not gated. It is what "what reproduces today"
-//                runs against.
+//                mark bit, the restore is the binding walk alone, the enable
+//                is not gated, and the port and the binding manager are the
+//                pinned ones. It is what "what reproduces today" runs against.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -254,7 +263,21 @@ module d3_top
     //! the hierarchy) and the arbiter's grant to the D3 writer: case K15's
     //! premise is a cycle with both H_FL_REQ and that grant
     output logic [3:0]  m0_state_o,
-    output logic        arb_m1_gnt_o
+    output logic        arb_m1_gnt_o,
+    //! the binding walk's verdicts (the amended manager's cause, 0 tracked),
+    //! its deadline count and its abandoned read (observation)
+    output logic        mgr_fail_o,
+    output logic        mgr_blank_o,
+    output logic [1:0]  mgr_cause_o,
+    output logic [31:0] m0_wd_o,
+    output logic        m0_abort_o,
+    //! a preload the binding manager drove and the listener took
+    output logic        pre_take_o,
+    output logic [15:0] pre_sink_o,
+    //! the port's terminal cause with its err (0 in the tracked build)
+    output logic [1:0]  p_err_cause_o,
+    //! the descriptor memory owes an accepted burst its terminal beat (S2)
+    output logic        desc_debt_o
 );
 
   // ---- the processor's millisecond tick, a divider ------------------------
@@ -357,6 +380,11 @@ module d3_top
   logic [3:0]  img_fault_nc_w;
   logic [15:0] miss_nc_w, fetch_nc_w, rowr_nc_w, dlen_nc_w;
   logic        dm_rsp_ready_nc_w;
+  //! the store's own memory master, before the guard
+  logic        s_req_valid_w, s_req_ready_w, s_rsp_valid_w, s_rsp_last_w, s_rsp_err_w;
+  logic [31:0] s_req_addr_w;
+  logic [8:0]  s_req_beats_w;
+  logic [63:0] s_rsp_data_w;
 
   KL_aecp_desc_store #(
       .DESC_BASE_P       (32'h2000_0000),
@@ -377,15 +405,15 @@ module d3_top
       .st_rvalid_o       (store_rvalid_w),
       .st_rdata_o        (store_rdata_w),
       .st_err_o          (store_err_w),
-      .mem_req_valid_o   (dm_req_valid_o),
-      .mem_req_ready_i   (dm_req_ready_i),
-      .mem_req_addr_o    (dm_req_addr_o),
-      .mem_req_beats_o   (dm_req_beats_o),
-      .mem_rsp_valid_i   (dm_rsp_valid_i),
+      .mem_req_valid_o   (s_req_valid_w),
+      .mem_req_ready_i   (s_req_ready_w),
+      .mem_req_addr_o    (s_req_addr_w),
+      .mem_req_beats_o   (s_req_beats_w),
+      .mem_rsp_valid_i   (s_rsp_valid_w),
       .mem_rsp_ready_o   (dm_rsp_ready_nc_w),
-      .mem_rsp_data_i    (dm_rsp_data_i),
-      .mem_rsp_last_i    (dm_rsp_last_i),
-      .mem_rsp_err_i     (dm_rsp_err_i),
+      .mem_rsp_data_i    (s_rsp_data_w),
+      .mem_rsp_last_i    (s_rsp_last_w),
+      .mem_rsp_err_i     (s_rsp_err_w),
       .dbg_img_valid_o   (desc_img_valid_o),
       .dbg_fault_o       (img_fault_nc_w),
       .dbg_locate_miss_o (miss_nc_w),
@@ -393,6 +421,48 @@ module d3_top
       .dbg_ro_write_o    (rowr_nc_w),
       .dbg_desc_len_o    (dlen_nc_w)
   );
+
+  // ---- the descriptor memory's response isolation (seam S2) ------------------
+  logic desc_debt_w;
+`ifdef D3_TRACKED
+  //! as the parent ships it: the store's master straight onto the memory
+  assign dm_req_valid_o = s_req_valid_w;
+  assign s_req_ready_w  = dm_req_ready_i;
+  assign dm_req_addr_o  = s_req_addr_w;
+  assign dm_req_beats_o = s_req_beats_w;
+  assign s_rsp_valid_w  = dm_rsp_valid_i;
+  assign s_rsp_data_w   = dm_rsp_data_i;
+  assign s_rsp_last_w   = dm_rsp_last_i;
+  assign s_rsp_err_w    = dm_rsp_err_i;
+  assign desc_debt_w    = 1'b0;
+`else
+  logic dm_rsp_ready_g_nc_w;
+  //! on the HARD reset only: the roll-back strobe never reaches it
+  KL_aecp_desc_mem_guard u_desc_guard (
+      .clk_i         (clk_i),
+      .rst_n         (rst_n),
+      .s_req_valid_i (s_req_valid_w),
+      .s_req_ready_o (s_req_ready_w),
+      .s_req_addr_i  (s_req_addr_w),
+      .s_req_beats_i (s_req_beats_w),
+      .s_rsp_valid_o (s_rsp_valid_w),
+      .s_rsp_ready_i (dm_rsp_ready_nc_w),
+      .s_rsp_data_o  (s_rsp_data_w),
+      .s_rsp_last_o  (s_rsp_last_w),
+      .s_rsp_err_o   (s_rsp_err_w),
+      .m_req_valid_o (dm_req_valid_o),
+      .m_req_ready_i (dm_req_ready_i),
+      .m_req_addr_o  (dm_req_addr_o),
+      .m_req_beats_o (dm_req_beats_o),
+      .m_rsp_valid_i (dm_rsp_valid_i),
+      .m_rsp_ready_o (dm_rsp_ready_g_nc_w),
+      .m_rsp_data_i  (dm_rsp_data_i),
+      .m_rsp_last_i  (dm_rsp_last_i),
+      .m_rsp_err_i   (dm_rsp_err_i),
+      .debt_o        (desc_debt_w)
+  );
+`endif
+  assign desc_debt_o = desc_debt_w;
 
   // ---- harness peeks: the rows and the name table, through the hierarchy ----
   //! pk_sel_i is the dynamic-state selector (0..5); pk_idx_i the row
@@ -435,17 +505,33 @@ module d3_top
   end
 
   logic        m0_req_w, m0_we_w, m0_wvalid_w, m0_wready_w, m0_rvalid_w, m0_rready_w;
-  logic        m0_busy_w, m0_done_w, m0_err_w;
+  logic        m0_busy_w, m0_done_w, m0_err_w, m0_abort_w;
+  logic [1:0]  m0_err_cause_w, mgr_cause_w;
   logic [7:0]  m0_rid_w, m0_wdata_w, m0_rdata_w;
   logic [N_STREAM_IN_P-1:0] mgr_dirty_w, mgr_valid_nc_w, mgr_touched_nc_w;
   logic        mgr_alarm_w, mgr_busy_w, mgr_done_w, mgr_fail_w, mgr_blank_w;
-  logic        pre_valid_nc_w, pre_sw_nc_w, pre_started_nc_w;
-  logic [15:0] pre_sink_nc_w, pre_uid_nc_w;
+  logic        pre_valid_w, pre_sw_nc_w, pre_started_nc_w;
+  logic [15:0] pre_sink_w, pre_uid_nc_w;
   logic [63:0] pre_teid_nc_w, pre_ceid_nc_w;
 
+`ifdef D3_TRACKED
+  //! the PINNED binding manager, as the parent ships it: no cause, no deadline
+  assign m0_abort_w  = 1'b0;
+  assign mgr_cause_w = 2'd0;
+  assign m0_wd_o     = 32'd0;
   KL_acmp_nvm_shadow #(
       .N_SINKS_P (N_STREAM_IN_P)
   ) u_nvm_shadow (
+`else
+  //! the AMENDED binding manager (seams S1 and S3): the cause, the deadline
+  KL_acmp_nvm_shadow_amd #(
+      .N_SINKS_P    (N_STREAM_IN_P),
+      .RS_TMO_CYC_P (D3_RS_TMO_CYC_P)
+  ) u_nvm_shadow (
+      .nvm_err_cause_i  (m0_err_cause_w),
+      .nvm_abort_o      (m0_abort_w),
+      .restore_cause_o  (mgr_cause_w),
+`endif
       .clk_i            (clk_i),
       .rst_n            (rst_n),
       .tick_i           (tick_ms_w),
@@ -458,8 +544,8 @@ module d3_top
       .cap_wr_i         (cap_wr_i),
       .cap_sink_i       (SIW_C'(cap_sink_i)),
       .cap_rec_i        (cap_rec_w),
-      .pre_valid_o      (pre_valid_nc_w),
-      .pre_sink_o       (pre_sink_nc_w),
+      .pre_valid_o      (pre_valid_w),
+      .pre_sink_o       (pre_sink_w),
       .pre_talker_eid_o (pre_teid_nc_w),
       .pre_talker_uid_o (pre_uid_nc_w),
       .pre_ctlr_eid_o   (pre_ceid_nc_w),
@@ -485,10 +571,21 @@ module d3_top
   assign mgr_dirty_o        = mgr_dirty_w;
   assign mgr_restore_done_o = mgr_done_w;
   assign m0_state_o         = 4'(u_nvm_shadow.hs_r);
+`ifndef D3_TRACKED
+  assign m0_wd_o            = u_nvm_shadow.rs_wd_r;
+`endif
+  assign mgr_fail_o         = mgr_fail_w;
+  assign mgr_blank_o        = mgr_blank_w;
+  assign mgr_cause_o        = mgr_cause_w;
+  assign m0_abort_o         = m0_abort_w;
+  //! the listener takes a preload on valid (its ready is tied 1 here)
+  assign pre_take_o         = pre_valid_w;
+  assign pre_sink_o         = pre_sink_w;
 
   // ---- the prototype D3 record writer ------------------------------------------
   logic        m1_req_w, m1_we_w, m1_gnt_w, m1_wvalid_w, m1_wready_w;
   logic        m1_rvalid_w, m1_rready_w, m1_done_w, m1_err_w;
+  logic [1:0]  m1_err_cause_w;
   logic [7:0]  m1_rid_w, m1_wdata_w, m1_rdata_w;
   logic        d3_busy_w, d3_done_w, d3_fail_w, d3_alarm_w, d3_unfl_w, d3_blank_w;
   logic        d3_rb_w, d3_closed_w, m1_abort_w;
@@ -564,6 +661,7 @@ module d3_top
       .sb_rdata_i       (st_rdata_w),
       .sb_err_i         (st_err_w),
       .desc_img_valid_i (desc_img_valid_o),
+      .desc_debt_i      (desc_debt_w),
       .am_req_o         (am_req_o),
       .am_type_o        (am_type_o),
       .am_idx_o         (am_idx_o),
@@ -600,6 +698,7 @@ module d3_top
       .m_rready_o       (m1_rready_w),
       .m_done_i         (m1_done_w),
       .m_err_i          (m1_err_w),
+      .m_err_cause_i    (m1_err_cause_w),
       .m_abort_o        (m1_abort_w),
       .rb_rst_o         (rb_rst_w),
       .restore_go_i     (mgr_done_w),
@@ -638,6 +737,7 @@ module d3_top
   // ---- two managers, one port ------------------------------------------------------
   logic        p_req_w, p_we_w, p_wvalid_w, p_rready_w, p_wready_w, p_rvalid_w;
   logic        p_busy_w, p_done_w, p_err_w;
+  logic [1:0]  p_err_cause_w;
   logic [7:0]  p_rid_w, p_wdata_w, p_rdata_w;
 
   KL_pp_nvm_mgr_arb u_arb (
@@ -655,6 +755,8 @@ module d3_top
       .m0_busy_o   (m0_busy_w),
       .m0_done_o   (m0_done_w),
       .m0_err_o    (m0_err_w),
+      .m0_err_cause_o (m0_err_cause_w),
+      .m0_abort_i  (m0_abort_w),
       .m1_req_i    (m1_req_w),
       .m1_we_i     (m1_we_w),
       .m1_rid_i    (m1_rid_w),
@@ -667,6 +769,7 @@ module d3_top
       .m1_rdata_o  (m1_rdata_w),
       .m1_done_o   (m1_done_w),
       .m1_err_o    (m1_err_w),
+      .m1_err_cause_o (m1_err_cause_w),
       .m1_abort_i  (m1_abort_w),
       .p_req_o     (p_req_w),
       .p_we_o      (p_we_w),
@@ -679,7 +782,8 @@ module d3_top
       .p_rdata_i   (p_rdata_w),
       .p_busy_i    (p_busy_w),
       .p_done_i    (p_done_w),
-      .p_err_i     (p_err_w)
+      .p_err_i     (p_err_w),
+      .p_err_cause_i (p_err_cause_w)
   );
 
   // ---- the real port: the ONE device-face initiator ------------------------------
@@ -690,7 +794,15 @@ module d3_top
   logic        b_gnt_w, b_wready_w, b_rvalid_w, b_busy_w, b_done_w, b_err_w;
   logic [7:0]  b_rdata_w;
 
+`ifdef D3_TRACKED
+  //! the PINNED port: no cause
+  assign p_err_cause_w = 2'd0;
   KL_pp_nvm_port u_nvm_port (
+`else
+  //! the AMENDED port (seam S1): its terminal cause
+  KL_pp_nvm_port_amd u_nvm_port (
+      .nvm_err_cause_o (p_err_cause_w),
+`endif
       .clk_i           (clk_i),
       .rst_n           (rst_n),
       .nvm_req_i       (p_req_w),
@@ -722,6 +834,7 @@ module d3_top
       .dev_err_i       (b_err_w)
   );
   assign port_busy_o  = p_busy_w;
+  assign p_err_cause_o = p_err_cause_w;
   assign dev_req_o    = d_req_w;
   assign dev_op_o     = d_op_w;
   assign dev_region_o = d_region_w;
@@ -774,10 +887,16 @@ module d3_top
   end
   assign restore_busy_o  = rs_busy_w;
   assign restore_done_o  = rs_done_w;
-  //! blank: NEITHER walk validated a record, so a restore that put names
-  //! back and no binding does not read "nothing restored"
-  assign restore_blank_o = mgr_blank_w & d3_blank_w;
   assign restore_fail_o  = mgr_fail_w || d3_fail_w || (rs_done_w && walk_blind_r);
+`ifdef D3_TRACKED
+  assign restore_blank_o = mgr_blank_w & d3_blank_w;
+`else
+  //! blank: NEITHER walk validated a record, so a restore that put names
+  //! back and no binding does not read "nothing restored"; and a FAILED
+  //! restore is never blank (revision c): a device error that loses the one
+  //! saved record must not read as a clean first boot
+  assign restore_blank_o = mgr_blank_w & d3_blank_w & !restore_fail_o;
+`endif
 
   //! F07.9: the restore releases entity_enable. The enable the firmware asks
   //! for reaches the entity only once both walks are done.
