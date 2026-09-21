@@ -1,0 +1,389 @@
+{
+  "head": "ab0fb23fd1a6376213a9d0e5aa61f4751ece00e4",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "candidate_tree": "7411b6742f6992759742d099d8a304f2ddac7dc7",
+  "commands": [
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.189
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 5.388
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.052
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.163
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.719
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 3.657
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.937
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.55
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.435
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.045
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.756
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.705
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.106
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.058
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.238
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.347
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.282
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.199
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.396
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.199
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.309
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.105
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.161
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.848
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 12.985
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 3.03
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 38.649
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 11.672
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 135.303
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.113
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "2d8fd62fd986ea2d6a87d284e144f023034c0944"
+      ],
+      "exit_code": 0,
+      "seconds": 0.81
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.371
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 5.378
+    },
+    {
+      "group": "manager-gates",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.424
+    },
+    {
+      "group": "builder",
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "exit_code": 0,
+      "seconds": 427.61
+    }
+  ],
+  "builder_not_run": [
+    "gate 11: existing physical utilization-report arm; report unavailable"
+  ],
+  "xvlog": "PASS: 0 first-party findings; 4 pinned-processor findings equal the existing ratchet",
+  "full_native_bar": "pending independent positive contract reviews",
+  "recorded": "2026-09-21T14:18:51.418432+02:00"
+}

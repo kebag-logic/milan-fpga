@@ -11,3 +11,5 @@ The author completed page `e67a586f92506c8623079c341e4f56a9c5ae165a` and evidenc
 The scope receipt proves that evidence changes stay under `design-evidence/500-materialization`, and that only the command record changed after the executed-run commit. Ticket drafts T1-T9 remain at the immutable evidence head. T8/T9 will be filed after contract acceptance and before any implementation lane starts; no existing processor issue is closed or amended by this proposal.
 
 The two earlier negative reviews remain open until the independent reviewers assess the integrated candidate. The complete native verification bar remains mandatory before readiness and merge. PR #503 has no merge authorization.
+
+`MANAGER-VALIDATION.md` and `.json` record the integrated candidate's 38 manager checks and full builder result, including the explicitly unrun physical-report arm. Later native/CI and independent review results belong in the PR thread.
