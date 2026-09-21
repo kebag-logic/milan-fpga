@@ -41,20 +41,20 @@ merged. Every evidence citation on this page names the branch, the commit and
 a path in it:
 
 - the command record, with every command, exit code and digest:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
 - how to re-run it:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/proposal-evidence/README.md`;
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/proposal-evidence/README.md`;
 - the run script:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/proposal-evidence/run.py`;
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/proposal-evidence/run.py`;
 - its graded results:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/proposal-evidence/results.txt`
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/proposal-evidence/results.txt`
   and `results.json` beside it;
 - the prototype writer and arbiter:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/proposal-evidence/prototype/`;
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/proposal-evidence/prototype/`;
 - the area rows and the two cost proxies:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/proposal-evidence/ooc/`;
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/proposal-evidence/ooc/`;
 - the ticket drafts of section 10:
-  `branch 500-design-evidence, commit 1a657d63dc40ce1409058307217960e86c4a3a60, path design-evidence/500-materialization/tickets/`.
+  `branch 500-design-evidence, commit ca8cb5943f885c22aec397ff75059e2d4791f4fb, path design-evidence/500-materialization/tickets/`.
 
 The evidence the round-one reviews examined is commit
 `a21b165ac1c671d10cba7255beaf75cea0f81d18` on the same branch. Its
