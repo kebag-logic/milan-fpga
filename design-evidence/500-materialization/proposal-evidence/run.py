@@ -106,14 +106,16 @@ FW_SUBS = [
     ("\t*milan_reg(offset) = value;\n\t__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\");\n",
      "\tnvm_host_csr_write(offset, value);\n"),
 ]
-#: THE ONE FIRMWARE CHANGE D3 NEEDS (page section 8.2): the entity model is
-#: in DDR before the restore walk, so the walk can judge values against it
-#: and write names back after the descriptor store has walked it
+#: FIRMWARE CHANGE 1 (page section 5.3): the entity model is in DDR before
+#: the restore walk, so the walk can prove the image, judge values against it
+#: and write names back after the descriptor store has walked it. Without it
+#: the restore cannot prove its image and ends CLOSED (F01_old_boot_order)
 BOOT_OLD = ("\tnvm_boot();\n\taem_loaded = load_aem_image();\n\tentity_advertise(aem_loaded);\n")
 BOOT_NEW = ("\taem_loaded = load_aem_image();\n\tnvm_boot();\n\tentity_advertise(aem_loaded);\n")
-#: THE SECOND FIRMWARE CHANGE (page section 5.3): the enable is released by
-#: the restore now (section 8.8), so the firmware's bounded wait REPORTS and
-#: its enable line says what it did; neither decides anything
+#: FIRMWARE CHANGE 3 (page section 5.3): the enable is released by the
+#: restore now (section 8.8), so the firmware's bounded wait REPORTS and its
+#: enable line says what it did; neither decides anything. Change 2 (the walk
+#: on every boot path) is not modelled: the model's shape always matches
 FW_REPORT = [
     ('\t\t\tprintf("Milan NVM: the restore walk did not sequence in time.\\n");\n',
      '\t\t\tprintf("Milan NVM: the restore has not reached its terminal; the fabric holds the entity enable until it does.\\n");\n'),
@@ -719,7 +721,9 @@ KILLERS = {
     "G03_restore_writes_are_changes": ("V1b_restore_everything", "", "restore_sets_no_dirty@boot", "1x1"),
     "G04_blank_ignores_d3": ("V7_names_only", "", "blank_is_both_walks@boot", "1x1"),
     "A01_grant_cycle_not_busy": ("K15_binding_on_the_d3_grant_cycle", "*", "both_records_committed", "1x1"),
-    "F01_old_boot_order": ("V1b_restore_everything", "", "value_restored:0x50", "1x1"),
+    #! the image is not in DDR when the walk starts: the restore cannot prove
+    #! it and ends CLOSED, so nothing V1a sets is saved or comes back
+    "F01_old_boot_order": ("V1b_restore_everything", "", "set_value_survives_power_cycle:0x50", "1x1"),
     "R01_no_rollback": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
     "R02_rollback_skips_dyn_store": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
     "R03_rollback_skips_desc_store": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
