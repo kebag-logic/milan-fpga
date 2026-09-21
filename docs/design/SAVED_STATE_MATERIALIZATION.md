@@ -29,7 +29,8 @@
 >   from the combined enable (section 8.1).
 > - **The descriptor store's roll-back reset belongs to stage 1**, not
 >   stage 2: after a fetch's response timed out, the pinned store's next
->   fetch errs at once, and only its reset re-arms it (sections 8.6 and 10).
+>   fetch errs at once, and the roll-back's one LOCATE is that fetch unless
+>   the store's reset re-arms the watchdog first (sections 8.6 and 10).
 >
 > The seams revision c added stay prerequisites as well:
 >
@@ -1189,10 +1190,11 @@ closed 1": the re-walk times out on the owed burst.
 **The descriptor store's reset belongs to stage 1** (round-three review
 R218 R3-F1). After a fetch's RESPONSE timed out, the pinned store answers
 without clearing its watchdog count (`KL_aecp_desc_store.sv` line 980), so
-its next fetch errs in its first cycle (line 938). Draining the memory's
-debt does not change that; only the store's reset does, or a re-walk
-request that also returns the count to zero. The roll-back's LOCATE is such
-a fetch. Revision c's stages gave stage 1 the dynamic-state store's reset
+its next fetch errs in its first cycle (line 938). That error answer clears
+the count, so in ordinary service the fetch after it succeeds (V23), but
+the roll-back proves the image by one LOCATE, and that LOCATE is the next
+fetch. Draining the memory's debt does not change that; only the store's
+reset does, or a re-walk request that also returns the count to zero. Revision c's stages gave stage 1 the dynamic-state store's reset
 alone and the descriptor store's to stage 2, for its names, so a stage-1
 implementation would end CLOSED where a finite late burst must end in
 proven defaults. Stage 1 now owns both resets (section 10, ticket T1), and
@@ -2086,9 +2088,10 @@ The board's own figure is a measurement each stage owes.
 14. **The descriptor store does not re-arm its watchdog after a fetch's
     response timed out**, so its next fetch answers an error at once (V23).
     The failure is honest, an error and never stale data, and the store is
-    not changed here (T9 records it). Inside the D3 roll-back it would end
-    a finite late burst in CLOSED; the store's roll-back reset, stage 1's
-    (section 10), is what re-arms it.
+    not changed here (T9 records it); the fetch after it succeeds. Inside
+    the D3 roll-back, whose one LOCATE is that next fetch, it would end a
+    finite late burst in CLOSED; the store's roll-back reset, stage 1's
+    (section 10), re-arms the watchdog before that LOCATE.
 15. **What the model leaves to the implementation lanes.** The listener
     and its timer service are real, but the product's producers of its
     faces are reduced to their handshakes: the dispatch queue's overflow
