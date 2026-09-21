@@ -112,6 +112,16 @@ uint64_t lane(uint32_t addr) {
   return v;
 }
 
+//! mode 1: the READ response of the lane holding record-area offset `off`
+//! comes back with mem_rsp_err (a record operation the backend aborts)
+Fault *match_read_fault(uint32_t addr) {
+  if (addr < kBase) return nullptr;
+  const uint32_t lo = addr - kBase;
+  for (auto &f : faults)
+    if (f.count != 0 && f.mode == 1 && f.off >= lo && f.off < lo + 8) return &f;
+  return nullptr;
+}
+
 Fault *match_fault(uint32_t off, uint8_t byte) {
   for (auto &f : faults) {
     if (f.count == 0 || f.off != off || f.mode != 0) continue;
@@ -395,7 +405,7 @@ static void drive_cycle() {
   dut->mem_rsp_valid_i = rd.busy && rd.delay == 0;
   dut->mem_rsp_data_i = rd.busy ? lane(rd.addr) : 0;
   dut->mem_rsp_last_i = 1;
-  dut->mem_rsp_err_i = 0;
+  dut->mem_rsp_err_i = rd.busy && rd.delay == 0 && match_read_fault(rd.addr) != nullptr;
   dut->mem_wr_done_i = wr.busy && wr.delay == 0;
   dut->mem_wr_err_i = dut->mem_wr_done_i && wr.err;
   dut->mem_wr_ready_i = !wr.busy;
@@ -454,7 +464,12 @@ static void sample_cycle() {
       if (f->count > 0) --f->count;
     }
   }
-  if (rfin) rd.busy = false;
+  if (rfin) {
+    if (Fault *f = match_read_fault(rd.addr)) {
+      if (f->count > 0) --f->count;
+    }
+    rd.busy = false;
+  }
   else if (rd.busy && rd.delay > 0) --rd.delay;
   if (rtake) rd = Rd{true, 2, dut->mem_req_addr_o};
 

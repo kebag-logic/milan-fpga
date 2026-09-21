@@ -230,6 +230,7 @@ void snap(const std::string &tag) {
     << ",\"pend\":" << l.pend << ",\"unres\":" << l.unres << ",\"img_valid\":" << l.img_valid
     << ",\"alarm\":" << l.alarm << ",\"d3_alarm\":" << l.d3_alarm << ",\"d3_unfl\":" << l.d3_unfl
     << ",\"restore_done\":" << l.restore_done << ",\"restore_fail\":" << l.restore_fail
+    << ",\"blank\":" << l.blank
     << ",\"d3_done\":" << l.d3_done << ",\"d3_fail\":" << l.d3_fail
     << ",\"rs_app\":" << l.rs_app << ",\"rs_ref\":" << l.rs_ref << ",\"rs_blank\":" << l.rs_blank
     << ",\"rs_rev\":" << l.rs_rev << ",\"d3_writes\":" << l.d3_writes
@@ -309,6 +310,13 @@ void fault(unsigned rid, unsigned byte, int count) {
   auto it = recs.find(rid);
   if (it == recs.end()) fatal("fault on a record not in the table");
   faults.push_back(Fault{it->second.off + byte, 0, 2, count});
+}
+
+//! the backend's READ of the lane holding byte `byte` of record `rid` fails
+void read_fault(unsigned rid, unsigned byte, int count) {
+  auto it = recs.find(rid);
+  if (it == recs.end()) fatal("fault on a record not in the table");
+  faults.push_back(Fault{it->second.off + byte, 1, 0, count});
 }
 
 // ---- the image-default map sets of the MODEL: the first clusters of each port
@@ -743,6 +751,16 @@ void register_cases() {
     boot();
     idle(200);
     read_row(SEL_FMTO, 0, "post.fmto0");
+    settle();
+    snap("restored");
+  };
+  cases["V11_torn_read_restores_nothing"] = [] {
+    // the slot holds two good D3 records; the backend's read of the SECOND
+    // one's payload fails (a torn stream), after the first one was read whole
+    read_fault(0x80, 8 + 16, -1);
+    boot();
+    idle(200);
+    read_row(SEL_PTOF, 0, "post.ptof0");
     settle();
     snap("restored");
   };

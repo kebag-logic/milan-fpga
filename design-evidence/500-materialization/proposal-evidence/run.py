@@ -20,7 +20,7 @@ mutant is killed by the ONE check this file names for it, or the run fails.
     run.py build [NAME...]      build co-simulations (default: every build)
     run.py run   [--builds ..]  run and grade; writes results.txt/results.json
 
-Outputs go under $D3_OUT (default /tmp/a150-d3). Nothing is written into the
+Outputs go under $D3_OUT (default /data/milan/tmp/500/d3). Nothing is written into the
 repository tree except results.txt and results.json beside this file.
 """
 from __future__ import annotations
@@ -44,7 +44,7 @@ ROOT = HERE.parents[2]
 HARNESS = HERE / "harness"
 PROTO = HERE / "prototype"
 STUBS = HARNESS / "stubs"
-OUT = Path(os.environ.get("D3_OUT", "/tmp/a150-d3"))
+OUT = Path(os.environ.get("D3_OUT", "/data/milan/tmp/500/d3"))
 
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "sw" / "firmware" / "nvm_hosttest"))
@@ -269,6 +269,12 @@ MUTATIONS = {
     "M15_overflow_forgets_the_change": ("writer",
         "  assign fl_giveup_w  = fl_err_w && (32'(retry_r) >= RETRY_MAX_P);",
         "  assign fl_giveup_w  = (fl_err_w && (32'(retry_r) >= RETRY_MAX_P)) || fl_ovf_w;"),
+    "M16_single_pass_restore": ("writer",
+        "      rpass_r <= 1'b0;\n",
+        "      rpass_r <= 1'b1;\n"),
+    "G04_blank_ignores_d3": ("top",
+        "  assign restore_blank_o = mgr_blank_w & d3_blank_w;",
+        "  assign restore_blank_o = mgr_blank_w;"),
     "A01_grant_cycle_not_busy": ("arb",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1);"),
@@ -298,9 +304,11 @@ KILLERS = {
     "M14_clear_by_index": ("K4g_second_group_in_flight", "", "value_in_slot@end:0x0a", "1x1"),
     "M15_overflow_forgets_the_change": ("K16_map_set_larger_than_its_record", "",
                                         "no_durable_claim_over_unsaved", "8x8"),
+    "M16_single_pass_restore": ("V11_torn_read_restores_nothing", "", "torn_walk_applies_nothing@boot", "1x1"),
     "G01_pend_misses_d3": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
     "G02_restore_done_without_d3": ("V1b_restore_everything", "", "entity_enabled_after_restore@boot", "1x1"),
     "G03_restore_writes_are_changes": ("V1b_restore_everything", "", "restore_sets_no_dirty@boot", "1x1"),
+    "G04_blank_ignores_d3": ("V7_names_only", "", "blank_is_both_walks@boot", "1x1"),
     "A01_grant_cycle_not_busy": ("K15_binding_on_the_d3_grant_cycle", "*", "both_records_committed", "1x1"),
     "F01_old_boot_order": ("V1b_restore_everything", "", "value_restored:0x50", "1x1"),
 }
@@ -873,11 +881,23 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         g.check("value_restored:0x80", post == want, f"restored {post[:24] if post else None}")
         g.check("restored_name_survives_first_command:0x80", after == want,
                 f"after the first command {after[:24] if after else None}")
+        o = r.obs.get("restored", {})
+        g.check("blank_is_both_walks@boot", o.get("blank") == 0 and o.get("restore_done") == 1,
+                f"a name came back and no binding did: blank {o.get('blank')}, done {o.get('restore_done')}")
+    elif c == "V11_torn_read_restores_nothing":
+        valid, _ = g.ans("post.ptof0.valid")
+        o = r.obs.get("restored", {})
+        g.check("torn_walk_applies_nothing@boot",
+                valid == 0 and o.get("restore_fail") == 1 and o.get("d3_fail") == 1 and o.get("rs_app") == 0,
+                f"ptof0 valid {valid} (its record was read whole before the torn one), restore fail "
+                f"{o.get('restore_fail')}, D3 fail {o.get('d3_fail')}, applied {o.get('rs_app')}")
     elif c == "V10_blank_first_boot":
         o = r.obs.get("restored", {})
         valid, _ = g.ans("post.ptof0.valid")
         g.check("blank_boot_applies_nothing@boot", o.get("rs_blank") == n_rec and o.get("rs_app") == 0 and
-                valid == 0, f"blank {o.get('rs_blank')} of {n_rec}, applied {o.get('rs_app')}, ptof0 valid {valid}")
+                valid == 0 and o.get("blank") == 1,
+                f"blank {o.get('rs_blank')} of {n_rec}, applied {o.get('rs_app')}, ptof0 valid {valid}, "
+                f"status blank {o.get('blank')}")
     elif c == "K4g_second_group_in_flight":
         g.converged("end")
         g.value_in_slot("end", 0x50)
@@ -947,7 +967,7 @@ CHAINS = [("K6a_cut_after_record_before_commit", "K6b_restore_after_cut"),
 SHAPE_CASES = {"8x8": ["K16_map_set_larger_than_its_record"]}
 CRAFTED = ["V2_refused_rate", "V3_refused_map_for_a_removed_cluster", "V4_refused_configuration_index",
            "V5_record_corrupted_after_the_load", "V7_names_only", "V8_orphaning_format_reverted",
-           "V9_refused_maps_revert_their_formats"]
+           "V9_refused_maps_revert_their_formats", "V11_torn_read_restores_nothing"]
 
 
 def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
@@ -967,6 +987,8 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
         over = {0x40: two.to_bytes(8, "big")}
     elif case == "V9_refused_maps_revert_their_formats":
         over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0)}
+    elif case == "V11_torn_read_restores_nothing":
+        over = {0x50: (1100011).to_bytes(4, "big"), 0x80: b"V11 name".ljust(64, b"\x00")}
     else:
         raise SystemExit(case)
     return crafted(s, case, over), over

@@ -39,10 +39,13 @@
 //                flush scan until the next change to that port.
 //
 //                RESTORE (page section 8), after the binding walk and before
-//                the entity is enabled: every record is read through the port
-//                and checked (framing, crc16, then its VALUE against the
-//                image by the rule the matching SET program applies), and
-//                only a value that passes is written back. Formats are
+//                the entity is enabled, in two passes over the port: the
+//                first only proves that no record stream is torn (a torn one
+//                aborts the walk before anything is applied), the second
+//                reads every record again and checks it (framing, crc16,
+//                then its VALUE against the image by the rule the matching
+//                SET program applies); only a value that passes is written
+//                back. Formats are
 //                judged on "supported" alone and applied before the maps;
 //                the maps of a port then REPLACE its image-default set and
 //                are judged against the restored formats; a refused set puts
@@ -162,6 +165,7 @@ module KL_aecp_nvm_writer #(
     output logic        restore_busy_o,
     output logic        restore_done_o,
     output logic        restore_fail_o, //! a torn read-back, or image defaults refused
+    output logic        restore_blank_o, //! done, and no D3 record passed framing and crc
     output logic [7:0]  rs_applied_o,
     output logic [7:0]  rs_refused_o,
     output logic [7:0]  rs_blank_o,
@@ -371,6 +375,11 @@ module KL_aecp_nvm_writer #(
   logic [7:0]      na_r, ns_r;  // default and saved map entry counts
   logic [15:0]     pg_r, npg_r;
   logic            img_bad_r, rs_fail_r, rs_done_r, chk_done_r;
+  //! the restore walks the records TWICE, reading them through the port both
+  //! times: pass 0 only proves that no stream is torn, pass 1 judges and
+  //! applies. A torn stream therefore aborts the walk before anything is
+  //! applied (the binding manager's "fail whole" rule), with no copy kept.
+  logic            rpass_r, any_rec_r;
   logic [7:0]      rs_app_r, rs_ref_r, rs_blank_r, rs_rev_r;
   logic [N_STREAM_IN_P+N_STREAM_OUT_P-1:0] frest_r; // formats this restore applied
 
@@ -417,6 +426,7 @@ module KL_aecp_nvm_writer #(
   assign restore_busy_o = (st_r != W_INIT) && (st_r != W_WAITGO) && !rs_done_r;
   assign restore_done_o = rs_done_r;
   assign restore_fail_o = rs_fail_r;
+  assign restore_blank_o = rs_done_r && !any_rec_r;
   assign rs_applied_o   = rs_app_r;
   assign rs_refused_o   = rs_ref_r;
   assign rs_blank_o     = rs_blank_r;
@@ -592,7 +602,8 @@ module KL_aecp_nvm_writer #(
       mr_req_r <= 1'b0; mr_add_r <= 1'b0; mr_from_a_r <= 1'b0; mr_okq_r <= 1'b0;
       fj_req_r <= 1'b0; fj_fmt_r <= '0; sub_r <= '0; fld_off_r <= '0; m_req_r <= 1'b0;
       m_we_r <= 1'b0; hdr_i_r <= '0; eb_r <= '0; ent_acc_r <= '0; fj_out_o <= 1'b0;
-      fj_idx_o <= '0;
+      fj_idx_o <= '0; any_rec_r <= 1'b0;
+      rpass_r <= 1'b0;
     end else begin
       // taint: a change to the record in hand after its latch
       if ((st_r == F_ACQ) && !prog_busy_i) taint_r <= 1'b0;
@@ -622,9 +633,12 @@ module KL_aecp_nvm_writer #(
           cur_r <= '0; st_r <= R_NEXT;
         end
         R_NEXT: begin
-          if (32'(cur_r) == N_REC_C) begin
+          if ((32'(cur_r) == N_REC_C) && !rpass_r) begin
+            //! pass 0 found no torn stream: walk again, judging and applying
+            rpass_r <= 1'b1; cur_r <= '0;
+          end else if (32'(cur_r) == N_REC_C) begin
             st_r <= R_FIN;
-          end else if ((32'(cur_r) == S_NAME_C) && !chk_done_r) begin
+          end else if (rpass_r && (32'(cur_r) == S_NAME_C) && !chk_done_r) begin
             //! every format and map is back: re-judge the restored formats
             chk_done_r <= 1'b1; k_r <= 8'd0; st_r <= R_CHK;
           end else begin
@@ -656,18 +670,22 @@ module KL_aecp_nvm_writer #(
           if (m_done_i || m_err_i) begin
             if (bcnt_r == 17'd0) begin
               //! nothing forwarded: an erased or unframed record, no saved value
-              rs_blank_r <= rs_blank_r + 8'd1; st_r <= R_ADV;
+              if (rpass_r) rs_blank_r <= rs_blank_r + 8'd1;
+              st_r <= R_ADV;
             end else if (m_err_i || (bcnt_r < 17'd8) || (bcnt_r != 17'(rplen_r) + 17'd8)) begin
               //! torn mid-record: the device face misbehaved; stop and say so
               rs_fail_r <= 1'b1; st_r <= R_FIN;
+            end else if (!rpass_r) begin
+              //! pass 0 proves the stream whole and nothing else
+              st_r <= R_ADV;
             end else if ((rver_r != LAYOUT_VER_P) || (rrid_r != crid_r)
                          || (rplen_r != cplen_r) || (crc_r != rcrc_r)) begin
               rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
             end else if (img_bad_r) begin
               //! no validated image: nothing can be judged, so nothing applies
-              rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
+              rs_ref_r <= rs_ref_r + 8'd1; any_rec_r <= 1'b1; st_r <= R_ADV;
             end else begin
-              ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; st_r <= R_VAL;
+              ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; any_rec_r <= 1'b1; st_r <= R_VAL;
             end
           end
         end

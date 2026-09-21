@@ -484,6 +484,10 @@
      "restored_name_survives_first_command:0x80": {
       "pass": true,
       "detail": "after the first command b'V7 names only restore\\x00\\x00\\x00'"
+     },
+     "blank_is_both_walks@boot": {
+      "pass": true,
+      "detail": "a name came back and no binding did: blank 0, done 1"
      }
     }
    },
@@ -534,6 +538,27 @@
     }
    },
    {
+    "case": "V11_torn_read_restores_nothing",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "torn_walk_applies_nothing@boot": {
+      "pass": true,
+      "detail": "ptof0 valid 0 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 0"
+     }
+    }
+   },
+   {
     "case": "V10_blank_first_boot",
     "checks": {
      "case_completed": {
@@ -550,7 +575,7 @@
      },
      "blank_boot_applies_nothing@boot": {
       "pass": true,
-      "detail": "blank 49 of 49, applied 0, ptof0 valid 0"
+      "detail": "blank 49 of 49, applied 0, ptof0 valid 0, status blank 1"
      }
     }
    },
@@ -865,7 +890,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 5004, D3 restore done at 4992, restore done at 4992"
+      "detail": "enabled at 7359, D3 restore done at 7347, restore done at 7347"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -959,7 +984,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 5018, D3 restore done at 5006, restore done at 5006"
+      "detail": "enabled at 7373, D3 restore done at 7361, restore done at 7361"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -1688,6 +1713,10 @@
      "restored_name_survives_first_command:0x80": {
       "pass": true,
       "detail": "after the first command b'V7 names only restore\\x00\\x00\\x00'"
+     },
+     "blank_is_both_walks@boot": {
+      "pass": true,
+      "detail": "a name came back and no binding did: blank 0, done 1"
      }
     }
    },
@@ -1738,6 +1767,27 @@
     }
    },
    {
+    "case": "V11_torn_read_restores_nothing",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "torn_walk_applies_nothing@boot": {
+      "pass": true,
+      "detail": "ptof0 valid 0 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 0"
+     }
+    }
+   },
+   {
     "case": "V10_blank_first_boot",
     "checks": {
      "case_completed": {
@@ -1754,7 +1804,7 @@
      },
      "blank_boot_applies_nothing@boot": {
       "pass": true,
-      "detail": "blank 145 of 145, applied 0, ptof0 valid 0"
+      "detail": "blank 145 of 145, applied 0, ptof0 valid 0, status blank 1"
      }
     }
    },
@@ -2098,7 +2148,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 8046, D3 restore done at 8031, restore done at 8031"
+      "detail": "enabled at 12936, D3 restore done at 12921, restore done at 12921"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -2188,7 +2238,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 8060, D3 restore done at 8045, restore done at 8045"
+      "detail": "enabled at 12950, D3 restore done at 12935, restore done at 12935"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -2445,7 +2495,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1566649: record 0x80 latest 443320726573746f72656420656e74697479206e616d650000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 443320726573746f4741203178312054444d38000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000; durable at 1566649: record 0xa5 latest 443320726573746f726564206c617374206e616d6500000000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 436c6f636b205265666572656e636520466f726d6174000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      "detail": "durable at 1568659: record 0x80 latest 443320726573746f72656420656e74697479206e616d650000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 443320726573746f4741203178312054444d38000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000; durable at 1568659: record 0xa5 latest 443320726573746f726564206c617374206e616d6500000000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 436c6f636b205265666572656e636520466f726d6174000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
      },
      "written_value_was_set:0x00": {
       "pass": true,
@@ -2546,7 +2596,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 2604, D3 restore done at 2587, restore done at 2587"
+      "detail": "enabled at 4959, D3 restore done at 4942, restore done at 4942"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -2569,7 +2619,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "change of 0x50 at 32284 inside a durable interval ending 4611686018427387904"
+      "detail": "change of 0x50 at 33754 inside a durable interval ending 4611686018427387904"
      },
      "latch_window_bounded": {
       "pass": true,
@@ -2697,7 +2747,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": false,
-      "detail": "enabled at 219, D3 restore done at 4992, restore done at 208"
+      "detail": "enabled at 219, D3 restore done at 7347, restore done at 208"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -2825,7 +2875,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 4944, D3 restore done at 4938, restore done at 4938"
+      "detail": "enabled at 7299, D3 restore done at 7293, restore done at 7293"
      },
      "restore_sets_no_dirty@boot": {
       "pass": false,
@@ -2834,6 +2884,37 @@
      "restore_counts@boot": {
       "pass": true,
       "detail": "applied 7 refused 0 blank 41 of 49"
+     }
+    }
+   }
+  ],
+  "mut-G04_blank_ignores_d3": [
+   {
+    "case": "V7_names_only",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "value_restored:0x80": {
+      "pass": true,
+      "detail": "restored b'V7 names only restore\\x00\\x00\\x00'"
+     },
+     "restored_name_survives_first_command:0x80": {
+      "pass": true,
+      "detail": "after the first command b'V7 names only restore\\x00\\x00\\x00'"
+     },
+     "blank_is_both_walks@boot": {
+      "pass": false,
+      "detail": "a name came back and no binding did: blank 1, done 1"
      }
     }
    }
@@ -2848,7 +2929,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1567725: record 0x50 latest 0021e88e slot 0010f447"
+      "detail": "durable at 1568763: record 0x50 latest 0021e88e slot 0010f447"
      },
      "written_value_was_set:0x50": {
       "pass": true,
@@ -2883,7 +2964,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 532028: record 0x50 latest 0012d687 slot None"
+      "detail": "durable at 533028: record 0x50 latest 0012d687 slot None"
      },
      "written_value_was_set:0x50": {
       "pass": true,
@@ -2914,7 +2995,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1567725: record 0x50 latest 004c4b42 slot 004c4b41"
+      "detail": "durable at 1568763: record 0x50 latest 004c4b42 slot 004c4b41"
      },
      "written_value_was_set:0x50": {
       "pass": true,
@@ -2941,7 +3022,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1567725: record 0x51 latest 003d0902 slot None"
+      "detail": "durable at 1568763: record 0x51 latest 003d0902 slot None"
      },
      "written_value_was_set:0x50": {
       "pass": true,
@@ -3039,6 +3120,10 @@
      "restored_name_survives_first_command:0x80": {
       "pass": false,
       "detail": "after the first command b'Milan FPGA 1x1 TDM8\\x00\\x00\\x00\\x00\\x00'"
+     },
+     "blank_is_both_walks@boot": {
+      "pass": true,
+      "detail": "a name came back and no binding did: blank 0, done 1"
      }
     }
    }
@@ -3275,7 +3360,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 4989, D3 restore done at 4984, restore done at 4984"
+      "detail": "enabled at 7344, D3 restore done at 7339, restore done at 7339"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -3348,7 +3433,7 @@
      },
      "entity_enabled_after_restore@boot": {
       "pass": true,
-      "detail": "enabled at 5003, D3 restore done at 4998, restore done at 4998"
+      "detail": "enabled at 7358, D3 restore done at 7353, restore done at 7353"
      },
      "restore_sets_no_dirty@boot": {
       "pass": true,
@@ -3371,7 +3456,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1567725: record 0x0a latest 0001 slot None"
+      "detail": "durable at 1568763: record 0x0a latest 0001 slot None"
      },
      "written_value_was_set:0x50": {
       "pass": true,
@@ -3406,7 +3491,7 @@
      },
      "no_durable_claim_over_unsaved": {
       "pass": false,
-      "detail": "durable at 1596599: record 0x70 latest 0000000000000000000000010001000000000002000200000000000300030000000000040004000000000005000500000000000600060000000000070007000000010000000800000001000100080000 slot None"
+      "detail": "durable at 1601552: record 0x70 latest 0000000000000000000000010001000000000002000200000000000300030000000000040004000000000005000500000000000600060000000000070007000000010000000800000001000100080000 slot None"
      },
      "written_value_was_set:0x71": {
       "pass": true,
@@ -3431,6 +3516,29 @@
      "value_in_slot@end:0x70": {
       "pass": true,
       "detail": "latest 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000, newest verified slot 000000000000000000000001000100000000000200020000000000030003000000000004000400000000000500050000000000060006000000000007000700000001000000080000"
+     }
+    }
+   }
+  ],
+  "mut-M16_single_pass_restore": [
+   {
+    "case": "V11_torn_read_restores_nothing",
+    "checks": {
+     "case_completed": {
+      "pass": true,
+      "detail": "rc 0, done True"
+     },
+     "no_durable_claim_over_unsaved": {
+      "pass": true,
+      "detail": "1 durable intervals, 0 changes, 0 acknowledgements"
+     },
+     "latch_window_bounded": {
+      "pass": true,
+      "detail": "longest ownership window 0 cycles (bound 2000)"
+     },
+     "torn_walk_applies_nothing@boot": {
+      "pass": false,
+      "detail": "ptof0 valid 1 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 1"
      }
     }
    }
@@ -3590,6 +3698,7 @@
   "MUTANT G01_pend_misses_d3: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved",
   "MUTANT G02_restore_done_without_d3: KILLED by V1b_restore_everything : entity_enabled_after_restore@boot",
   "MUTANT G03_restore_writes_are_changes: KILLED by V1b_restore_everything : restore_sets_no_dirty@boot",
+  "MUTANT G04_blank_ignores_d3: KILLED by V7_names_only : blank_is_both_walks@boot",
   "MUTANT M01_taint_ignored: KILLED by K2_change_during_record_write : no_durable_claim_over_unsaved",
   "MUTANT M02_clear_at_latch: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved",
   "MUTANT M03_clear_wins_same_edge: KILLED by K5_change_on_the_done_edge : same_edge_change_survives@end:0x50",
@@ -3605,6 +3714,7 @@
   "CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required",
   "MUTANT M14_clear_by_index: KILLED by K4g_second_group_in_flight : value_in_slot@end:0x0a",
   "MUTANT M15_overflow_forgets_the_change: KILLED by K16_map_set_larger_than_its_record : no_durable_claim_over_unsaved",
+  "MUTANT M16_single_pass_restore: KILLED by V11_torn_read_restores_nothing : torn_walk_applies_nothing@boot",
   "TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source",
   "TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source",
   "TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source",
@@ -3617,5 +3727,5 @@
   "TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must",
   "TRACKED * : case_completed PASSES, as it must"
  ],
- "summary": "SUMMARY runs 114, checks 742, verdict failures 0"
+ "summary": "SUMMARY runs 118, checks 763, verdict failures 0"
 }

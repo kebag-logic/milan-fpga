@@ -406,7 +406,7 @@ module d3_top
   logic        m1_req_w, m1_we_w, m1_gnt_w, m1_wvalid_w, m1_wready_w;
   logic        m1_rvalid_w, m1_rready_w, m1_done_w, m1_err_w;
   logic [7:0]  m1_rid_w, m1_wdata_w, m1_rdata_w;
-  logic        d3_busy_w, d3_done_w, d3_fail_w, d3_alarm_w, d3_unfl_w;
+  logic        d3_busy_w, d3_done_w, d3_fail_w, d3_alarm_w, d3_unfl_w, d3_blank_w;
   logic        u_dyn_ack_w, u_name_ack_w;
   assign arb_m1_gnt_o = m1_gnt_w;
 
@@ -424,6 +424,7 @@ module d3_top
   assign {m1_req_w, m1_we_w, m1_wvalid_w, m1_rready_w} = 4'b0000;
   assign m1_rid_w = '0; assign m1_wdata_w = '0;
   assign d3_busy_w = 1'b0; assign d3_done_w = mgr_done_w; assign d3_fail_w = 1'b0;
+  assign d3_blank_w = 1'b1;
   assign d3_alarm_w = 1'b0; assign d3_unfl_w = 1'b0;
   assign {u_dyn_ack_w, u_name_ack_w} = 2'b00;
   assign d3_rs_applied_o = '0; assign d3_rs_refused_o = '0; assign d3_rs_blank_o = '0;
@@ -514,6 +515,7 @@ module d3_top
       .restore_busy_o   (d3_busy_w),
       .restore_done_o   (d3_done_w),
       .restore_fail_o   (d3_fail_w),
+      .restore_blank_o  (d3_blank_w),
       .rs_applied_o     (d3_rs_applied_o),
       .rs_refused_o     (d3_rs_refused_o),
       .rs_blank_o       (d3_rs_blank_o),
@@ -670,7 +672,9 @@ module d3_top
   end
   assign restore_busy_o  = rs_busy_w;
   assign restore_done_o  = rs_done_w;
-  assign restore_blank_o = mgr_blank_w;
+  //! blank: NEITHER walk validated a record, so a restore that put names
+  //! back and no binding does not read "nothing restored"
+  assign restore_blank_o = mgr_blank_w & d3_blank_w;
   assign restore_fail_o  = mgr_fail_w || d3_fail_w || (rs_done_w && walk_blind_r);
 
   // ---- the shipping backend ----------------------------------------------------------
