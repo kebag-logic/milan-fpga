@@ -1289,6 +1289,12 @@ Nowhere. `KL_aecp_ucpu` drives `eff_nvm_stb_o` and `eff_nvm_mark_o[7:0]`, and
 the program's descriptor index onto section 4's allocation is the missing
 manager's job.
 
+That manager is proposed in
+[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500),
+which asks the contract reviews to let it trigger on the live write instead
+of the mark
+([its UNRESOLVED 1](SAVED_STATE_MATERIALIZATION.md#15-unresolved)).
+
 ## 13. Risks, stated rather than discovered later
 
 - **The firmware writer landed on a host model, not yet on the bench.** The
@@ -1300,7 +1306,8 @@ manager's job.
   eight commit marks of section 12.1 into records for the other seven items
   is the donor's open work; until it lands, an accepted image on a board is
   binding records and erased spans, and the erased-record rule is what makes
-  that image legal.
+  that image legal. Its design is proposed in
+  [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md).
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that
   price honest rather than hidden.
