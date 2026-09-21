@@ -1,4 +1,4 @@
-<!-- Draft by A151, revised by A152, for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
+<!-- Draft by A151, revised by A152 and A153, for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
 
 # Saved state D3 in the parent: glue, firmware and the cold-cycle proof, per stage
 
@@ -21,10 +21,17 @@ cold power cycle driven from a controller host.
   and merged before; it is not a shipped stage until then.
 - Stage 3 does not open before #501 records a conforming capacity decision
   (T3).
-- A silent device during the BINDING walk keeps the entity dark and deaf
-  until processor issue 15 gives that walk a deadline (page section 8.8).
-  Each stage records that limitation in its release notes; it is fail-closed,
-  never an early enable.
+- No stage is released without the processor prerequisites T8 (the
+  port's terminal cause and a bounded binding walk) and T9 (response
+  isolation on the descriptor store's memory face) in its pin: the restore
+  transaction and the AECP availability of the parent's
+  `SAVED_STATE_FASTCONNECT.md` section 9.3 depend on them.
+- Each stage's release notes state the one availability limit that stays:
+  a persistence device that never ends an operation the restore abandoned
+  keeps the port QUARANTINED until reset. Commands are served and the entity
+  is enabled on defaults with restore fail set; every later change reads
+  pending, never durable. No reuse of that port is claimed (processor issue
+  15's recovery contract is open).
 
 ## In scope, per stage
 
@@ -32,13 +39,18 @@ cold power cycle driven from a controller host.
    d3_unflushed_o` plus the sticky class-6/7 bit for the classes no stage
    has retired yet (class 7 leaves with stage 2, the bit is deleted with
    stage 3), unless #502 has already replaced its source; `alarm_i` and the
-   restore verdicts from the processor's combined outputs.
+   restore verdicts from the processor's combined outputs, with restore
+   blank reported only for a restore that did not fail (a device error that
+   loses the one saved record must not read as a clean first boot).
 2. Stage 1 only, the firmware (`sw/firmware/milan_baremetal/milan_baremetal.c`):
-   `milan_init` loads the AEM image before `nvm_boot`; `nvm_boot` starts the
-   restore walk on EVERY path, the persistence-disabled one included,
-   because the processor now holds AECP dispatch and the entity enable
-   until the walk's terminal; the restore wait's timeout and the enable line
-   report that the fabric holds the enable. The ledger fact
+   `milan_init` loads the AEM image before `nvm_boot` (MANDATORY: without it
+   the restore cannot prove its image and ends CLOSED, the entity never
+   enabled; the evidence's F01); `nvm_boot` starts the restore walk on
+   EVERY path, the persistence-disabled one included, because the processor
+   now holds AECP dispatch and the entity enable until the walk's terminal;
+   the restore wait's timeout and the enable line report that the fabric
+   holds the enable, and the boot reports the CLOSED terminal and the
+   restore causes. The ledger fact
    `firmware_boot_order`, the order block of
    `docs/integration/BAREMETAL_FIRMWARE.md` and `nvm_boot`'s comment move
    with it (`scripts/check_feature_status.py`).
@@ -52,9 +64,12 @@ cold power cycle driven from a controller host.
    runner exits non-zero on any verdict failure and counts no kill from a
    run that did not complete.
 5. `docs/reference/REGISTER_MAP.md`: PP_STAT restore done, fail and blank
-   mean both walks, a D3 roll-back reads done and fail, and PP_CTRL[0] and
-   ADP_CTRL[0] request the enable, which the fabric releases at the
-   restore's terminal. `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section
+   mean both walks (blank only without fail), a D3 roll-back reads done and
+   fail, new rows carry the closed terminal and the causes (D3: 1 torn, 2
+   device error, 3 deadline, 4 edit refused, 5 passes disagree, 6 descriptor
+   fault, 7 image not proven; binding walk: 1 torn, 2 device error with
+   nothing forwarded, 3 deadline), and PP_CTRL[0] and ADP_CTRL[0] request the
+   enable, which the fabric releases at the restore's terminal. `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section
    1.7 and the feature ledger move only with the silicon proof.
 6. Silicon: set the stage's values from a controller host, read PP_STAT to
    durable (backed 1, dirty 0, stale 0, pend 0), remove power at the outlet

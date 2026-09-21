@@ -1,0 +1,35 @@
+# r217_check.py (exit 0)
+HOLDS R217 first-pass completed: rc 0
+HOLDS R217 original-second-pass completed: rc 0
+HOLDS R217 control completed: rc 0
+HOLDS R217 header-repeat completed: rc 0
+HOLDS R217 header-balanced completed: rc 0
+HOLDS R217 header-pass0 completed: rc 0
+HOLDS R217 descriptor-error completed: rc 0
+HOLDS R217 descriptor-timeout completed: rc 0
+HOLDS R217 descriptor-initial-error completed: rc 0
+HOLDS R217 original payload fault first-pass: every row at its default True, restore fail 1, rolled back 0
+HOLDS R217 original payload fault original-second-pass: every row at its default True, restore fail 1, rolled back 1
+HOLDS R217 control: done 1 fail 0 enabled 1 applied 10
+HOLDS R217 header-repeat: every row at its default True, done 1 fail 1 (D3 1, cause 2), blank 0, applied 0, enabled 1
+HOLDS R217 header-balanced: every row at its default True, done 1 fail 1 (D3 1, cause 2), blank 0, applied 0, enabled 1
+HOLDS R217 header-pass0: every row at its default True, done 1 fail 1 (D3 1, cause 2), blank 0, applied 0, enabled 1
+HOLDS R217 descriptor-error: closed 1, done 0, enabled 0, cause 6 (the memory still fails, so the roll-back cannot prove its image)
+HOLDS R217 descriptor-timeout: every row at its default True, done 1 fail 1, rolled back 1, cause 6, enabled 1
+HOLDS R217 descriptor-initial-error: closed 1, done 0, enabled 0, cause 7, image validated 0, applied 0 refused 0
+R217 PROBES: 9 runs, 0 not as demanded
+
+# r218_check.py (exit 0)
+HOLDS R218 V18 pass0: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1137 enable 1148
+HOLDS R218 V18 repeat: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1137 enable 1148
+HOLDS R218 V18 swap: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1152 enable 1163
+HOLDS R218 V18 pass1: 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 4417 enable 4433
+HOLDS R218 original F1 trigger (V11b): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 3507 enable 3518
+HOLDS R218 original F2 trigger (W12): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 3, terminal 23954 enable 23963
+R218 PROBES: 6 runs, 0 not as demanded
+
+# R217's own check_probes.py (7d9da877), which asserts the round-two counterexamples, on the same results:
+  File "$PROBE_OUT/r217/check_probes.py", line 19, in <module>
+    assert obs['restore_done'] == 1 and obs['restore_fail'] == 0 and obs['entity_en'] == 1
+AssertionError
+exit 1

@@ -1,4 +1,4 @@
-<!-- Draft by A151, revised by A152, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. BLOCKED: its implementation lane does not open until kebag-logic/milan-fpga #501 records a conforming output-map capacity decision. -->
+<!-- Draft by A151, revised by A152 and A153, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. BLOCKED: its implementation lane does not open until kebag-logic/milan-fpga #501 records a conforming output-map capacity decision. -->
 
 # Saved state, stage 3: the record writer materializes the channel maps
 
@@ -29,7 +29,7 @@ in its place.
 
 ## Prerequisites
 
-- T2.
+- T2 (and with it T1, T8 and T9).
 - #501's decision: a conforming allocation, or an accepted-mapping limit
   with its protocol consequence (a command a controller sees refused), and
   the record-space gate and backend tables that go with it.
@@ -59,7 +59,13 @@ every legal output set fits its record (16 stream channels, 17 entries).
   reset set after reverting any format it would orphan; every restored format
   is judged again against the final maps.
 - The roll-back owner: the parent's map plane returns every port to its
-  reset set on T1's roll-back strobe (milan-fpga T4).
+  reset set on T1's roll-back strobe (milan-fpga T4), and an edit the
+  writer abandoned at its deadline is discarded by that reset, never
+  completed after it: the product's edit face runs phases 0 to 5 where the
+  evidence models one staged set, so the stage owes the case of an abort
+  in each phase.
+- A map revert reads the image-default format of the stream it restored
+  (a descriptor fetch): a failed fetch aborts (cause 6), as in T1.
 - Whatever #501 decides for a set its record cannot hold.
 
 ## Acceptance, once unblocked
