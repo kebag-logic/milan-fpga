@@ -319,3 +319,88 @@ R218 r3 PROBES: 12 runs, 0 not as demanded
   "burst debt beyond rollback deadline stays CLOSED": true
 }
 ```
+
+## Digests (`python3 -B run.py receipts`)
+
+| File (relative to design-evidence/500-materialization) | sha256 |
+|---|---|
+| `proposal-evidence/README.md` | `d764e00ef36af2a43b5702e00608f247ab20a0c3db30820ab8844be8e56a5589` |
+| `proposal-evidence/harness/d3_api.h` | `5295aeecaab9adea6297a58760049f0b6b97faa9c1039035a8fdc4ba2c99efc0` |
+| `proposal-evidence/harness/d3_bridge.cpp` | `d623c4164f3d62d357c1db79bbd9c6ba3beb92113f992a100919796bcb21fe65` |
+| `proposal-evidence/harness/d3_bridge.h` | `f6520e8f360689f4a4c59ccd3029305831180328458c8f3ae881950507cc23a7` |
+| `proposal-evidence/harness/d3_cases.cpp` | `46b18311abe04630de6460b631bc653ff782f1224b59de5808b73b04a89c7c14` |
+| `proposal-evidence/harness/d3_host.c` | `df2149af53dac5c5d61c9ae73d6ebbc3fed9ba69011a7f2faf9417c47cf6fce4` |
+| `proposal-evidence/harness/d3_top.sv` | `c6f21dbcd5112fa84e84a99e676bd53fda3b683075d2a78b01b1589110a6d7f0` |
+| `proposal-evidence/harness/stubs/command.h` | `a1582388437e74cf2c246cdc544e7a5abed9e94b655b5ba92053bdc65d6de6cc` |
+| `proposal-evidence/harness/stubs/generated/csr.h` | `67d05a5b35dc82b1033675225a3bd24e446dda43535cf11cd7c538f0e3b2491a` |
+| `proposal-evidence/harness/stubs/generated/mem.h` | `7dc2ecfb649dd841484877cedd8495068d5bcc773fb11ebf9f8bc6013f9343f8` |
+| `proposal-evidence/harness/stubs/hw/common.h` | `d56b44d934a02d0b75b0b6bd10c123abeef08d3cb3c55c1aca07527d4e787598` |
+| `proposal-evidence/harness/stubs/init.h` | `9e32c0958ab0f57feb8bfa3e7bb79ed57916f11243fc751f673fb7e805054c79` |
+| `proposal-evidence/harness/stubs/libbase/crc.h` | `e8eba505669fd27493a523d28e841b210e221c2ef6d45ddf1e7f649c426fc18e` |
+| `proposal-evidence/harness/stubs/nvm_host.h` | `f95dde646067c2bed12e5b09dbd428b2b9313780a6e83dc2a1a79c891c16b9cd` |
+| `proposal-evidence/harness/stubs/system.h` | `50cfa4347bae790a1ba511881d76f72801c3ac93a7096915475991f5527b2cfa` |
+| `proposal-evidence/ooc/d3a_shadow_proxy.sv` | `71f89c38d8017bed308e7b24991a27ddc5e345423a9eed5d071dba86b2b98148` |
+| `proposal-evidence/ooc/d3c_fabric_proxy.sv` | `5420360d9187335cf1a6beed9691a35df61bdfdf3bea54192453e67943661c87` |
+| `proposal-evidence/ooc/d3s4_listener_admit.sv` | `85b0e7c202cc71fd1fa82061c996ae0de76e427a4974c190f9c237d0815a8dc5` |
+| `proposal-evidence/ooc/ooc_measure.sh` | `d9c9ac5144439a08522297c58cabf2fafb7ff0a9ec9482b1a692c73eba22de64` |
+| `proposal-evidence/ooc/results_ooc.txt` | `6bf1633954f1f364063fb3f412a58d349932f992178f63703ca7266fb9cf5676` |
+| `proposal-evidence/ooc/run_ooc.sh` | `14995747f769c962d392ab6e280e629f0d4445ad06105c47373b3397b019832a` |
+| `proposal-evidence/prototype/KL_acmp_nvm_shadow.amended.proto.sv` | `4f1898dfc75fc2e74aea97c4f15521d597e0a40a3a0ed09560c752c30b3fc392` |
+| `proposal-evidence/prototype/KL_aecp_desc_mem_guard.proto.sv` | `052d0c9029fa3cb74e059865b31296500aa196cdb12eacb544a848967de24c0b` |
+| `proposal-evidence/prototype/KL_aecp_nvm_writer.proto.sv` | `dc5e3bd4a199f9db87b2d7fc3577400245046a6827ee76f07a66242ae13dbaf2` |
+| `proposal-evidence/prototype/KL_pp_acmp_lsn_admit.proto.sv` | `f7d23afbbdf760b21315876ab494cbf4f69f5c390af874845c9a8e1eb12affc0` |
+| `proposal-evidence/prototype/KL_pp_nvm_mgr_arb.proto.sv` | `0b9462ffd261c9477fbf8d825f5af442e7020bbc1a21455a47b21538efb21f38` |
+| `proposal-evidence/prototype/KL_pp_nvm_port.amended.proto.sv` | `d3c9d5b4f245dcd8d76178f6d60e44065628f9ac96209bd1410c8a64e5ef5a20` |
+| `proposal-evidence/results.json` | `5c74cee9ed36bf3dff53405b62d77fd4dd5b9c38679afc231f0e179cfe85dc48` |
+| `proposal-evidence/results.txt` | `be0949d71dc00aa57186b957787b47229d4387ee72478034b5759a42ee617903` |
+| `proposal-evidence/run.py` | `fad78990552064cef4b3c0b6212a7144fe63a0260f71de06a9dfaa953e69e36c` |
+| `reviewer-probes/README.md` | `9c034ff8b848af18d17e20499b5c48ed141f61c7b76b4ccb3fe9695a09249f55` |
+| `reviewer-probes/r217_check.py` | `1c88fa35a94f7813616a7ebc5ce1919a0531a946744b43165d3b631b910432fe` |
+| `reviewer-probes/r217_probes.py` | `f89be9329f26450bfb295dc14b6fd1333b290b43090741635ea40f3002d99efa` |
+| `reviewer-probes/r217_r3_check.py` | `20056c68650d592d0e9e35be77fc504bd348d29f7fccbadbac17e89de0c8458a` |
+| `reviewer-probes/r217_r3_probe_preload.py` | `f3885c9562132a2ceeb86cf8c21a5135b0f31d22b4b1be286a1cd209b13465b1` |
+| `reviewer-probes/r218_check.py` | `6971a02bc3535012cb2cffcf646b8c6c6709d7db0ef5eed95a5a55d94ce5648a` |
+| `reviewer-probes/r218_probe_headers.py` | `66f32e35567304ccab9fe82c674622015fc5874be92a3ed59e4e76289e638e89` |
+| `reviewer-probes/r218_r3_check.py` | `9b553bc613502c43fa7279c5c241fbd9e30e758f8895909bb9e2d94d1026048f` |
+| `reviewer-probes/r218_r3_probe_stage1.py` | `74bb5af41c740b5e058e680deb77ddb1c1555da44ded3b985fdaeb24c7667f4a` |
+| `reviewer-probes/results.txt` | `13bddda1f40db2404d1230c26c5ef755fb674bf3d813a1ebda98ce716a9f90be` |
+| `tickets/README.md` | `a6733221213349e58fca8926d899d6aa0c87e1baaf9e6ee2f844a3a9e922d807` |
+| `tickets/T1-processor-stage1-dynamic-state-writer.md` | `ae15be500d0b9d59b10934a37d860b76b80bc9dc7afac3506cd4d1c663b663a0` |
+| `tickets/T2-processor-stage2-names.md` | `e59370e320fde22b5879bf11eff6f332dced602ed3eab947bca0d6c80b883469` |
+| `tickets/T3-processor-stage3-channel-maps.md` | `41a768b82b5e75cbc5d4b774d48dbdcc6474c7dd0639967620fe9b8c7c1633d8` |
+| `tickets/T4-parent-glue-firmware-and-silicon-proof.md` | `15daa3fcf25e1be0cbd58122858c5da025791df02401430a480f205218fc9beb` |
+| `tickets/T5-output-map-record-size-at-8x8.md` | `14cdbeaedfe776baa3ed6cc7cc233fadf216cb78ad9d911a589f61bfa625c1d8` |
+| `tickets/T6-mark-tail-durable-window.md` | `9f4bd29181c70200830f481a353818b2e1e1a939bb600759c4feea20adeeb6bc` |
+| `tickets/T7-fastconnect-area-table-predates-484.md` | `cf578f71718ec4d5c7fd98bed16313866fbf713934693536c91537e9db0ea01f` |
+| `tickets/T8-processor-issue-15-port-deadline.md` | `69d49d515f312c09b5887c5d011b9fab3cd457c21e377b82c1fc29368a20710f` |
+| `tickets/T9-processor-descriptor-memory-response-isolation.md` | `21aeb883111f08d89798c932bc8a3520b3759330595357c352ef41cb328ee962` |
+
+| Repository file | sha256 |
+|---|---|
+| `protocol-processor/hdl/acmp/pp_acmp_pkg.sv` | `b504951db8c81134ef54030e37879431f84ea8005e38c46479c8f66dcc4bbb85` |
+| `protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv` | `c0916f98d71691f72b880b5332157beafbfe9b9dd5dc64bd351294d6edbee099` |
+| `protocol-processor/hdl/aecp/KL_aecp_desc_store.sv` | `63bb80169ed4118b1d4e6e7ddc819a71648a9801abdd4b3984b7f75801039211` |
+| `protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv` | `d159048760dbe89a9d76570bf82b16f7ce7411608340e29543205631a1a0c351` |
+| `protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv` | `194e8120bf715103645e095288cbed84e7c3f1704647c2efbe3f2585f2dd76b6` |
+| `hdl/milan/KL_nvm_backend.sv` | `d651d148f933d90dec5d8633c58adc86717bd8c8785b1c2edaf3ce5e9b9480a0` |
+| `sw/firmware/milan_baremetal/milan_baremetal.c` | `b9bf12aeefd07ce59cb3d33f3c66337ac28847c5ca69acf7faa0219895aa90a2` |
+| `scripts/nvm_klj2.py` | `eaa31c5956a6808a2bb94356cbb35e90074942134196dbf446d37b65f5a1c913` |
+| `scripts/nvm_shape.py` | `fc1f93e32cbacdded00db6464d98b3fedf57e9e6a7b3bf93265e89a5b8afbb20` |
+| `scripts/check_nvm_record_space.py` | `1883d2a55945e8aad0e897a21a81acbbbaeff0b5825839ff7f04573b31bbdc9d` |
+| `sw/firmware/nvm_hosttest/test_nvm_firmware.py` | `e3bf8ff2295e733e496f3e866e44b72099aae730ef949b39ccf2e1fea9aacb74` |
+| `configs/endstation_ax7101_1x1_tdm8.yaml` | `d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807` |
+| `configs/endstation_ax7101_8x8.yaml` | `4cdb07dd064239e6403d3428134067f31fe70a92cab886ffa85f9d6b5794edac` |
+| `sw/builder/endstation_builder.py` | `67a1262a282f2e23092b0f03c8e7bd96ba63fdef1415ab80aa7cc181b147234f` |
+| `hdl/milan/milan_datapath.sv` | `34e3000b243fa33c5badd076dc504b317a600109f456504e22d6483186cba101` |
+| `protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv` | `8a349c3ccca1e2147f69e8d2428482a84ae0d74c6b2deb20a34bdca4599f134a` |
+| `protocol-processor/hdl/acmp/rom/gen_ltn_rom.py` | `a0d1c1c7a6ddb8b573b2b03a976088e46902aee06f4d98f9e14929289c395b45` |
+| `protocol-processor/hdl/common/KL_pp_timer_service.sv` | `8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c` |
+| `protocol-processor/hdl/common/pp_pkg.sv` | `2ffdc53a71bc0ec45a15eeb9625a9a2a05ef9f17f9dd3fcd530a14eaea41ba9a` |
+
+The digests were taken at the commit that records the run,
+`43b675038a558072381bb6a36c69307a55b9825c`; the commit after it adds this
+table and changes nothing else. Every one was checked against the immutable
+Git blob with replacement objects disabled: the evidence files and the
+repository files at that commit (every path outside `design-evidence` equal
+to dev `07294a76`), the processor files at its pin `424c688f`. 69 digests,
+0 mismatches.
