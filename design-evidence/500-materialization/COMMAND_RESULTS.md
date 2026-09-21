@@ -294,7 +294,7 @@ exit 1
 | `hdl/milan/milan_datapath.sv` | `34e3000b243fa33c5badd076dc504b317a600109f456504e22d6483186cba101` |
 
 The digests were taken at the commit that records the run,
-`bf88b71f7fba6f19fe0fe9b0d218f28ad7b0327d`; the commits after it add this
+`bf88b71f22d225ac3671317ab6cc720c41c76d4e`; the commits after it add this
 table and change nothing else. Every one was checked against the immutable
 Git blob with replacement objects disabled: the evidence files at that
 commit, the repository files at dev `07294a76`, the processor files at its
