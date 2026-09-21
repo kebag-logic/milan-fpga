@@ -172,8 +172,9 @@ struct MarkQ {
   unsigned idx = 0;
 } mark, pend_mark;
 //! the map edit face's commit-one-record beat (phase 5): the live map write,
-//! which the class-6 mark follows only after the program's tail (FINISH,
-//! COMMIT, COMPARE, BR_STATUS in gen_ucode.py's E_AMADD: four instructions)
+//! which the class-6 mark follows only after the program's tail (the loop
+//! exit, then FINISH, COMMIT, SET_STATUS, COMPARE and BR_STATUS in
+//! gen_ucode.py's E_AMADD); the model spends kMapMarkTail cycles on it
 struct EditQ {
   bool on = false;
   unsigned type = 0;

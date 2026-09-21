@@ -19,7 +19,7 @@ is on the evidence branch `500-design-evidence` and is never merged.
   image is loaded before `nvm_boot`). The uCPU and the parent's map plane
   are models (`d3_bridge.cpp`).
 - `run.py`: builds every build (2 base shapes, the tracked glue under
-  `D3_TRACKED`, 21 mutants), runs every case and grades named checks. Every
+  `D3_TRACKED`, 24 mutants), runs every case and grades named checks. Every
   mutant must be killed by the one check `KILLERS` names; the tracked glue
   must fail `TRACKED_MUST_FAIL` and pass `TRACKED_MUST_PASS`.
 - `results.txt`, `results.json`: the graded run.
@@ -37,9 +37,9 @@ Yosys:
     cd design-evidence/500-materialization/proposal-evidence
     export D3_OUT=/path/to/scratch/d3          # build trees and run logs
     python3 -B run.py prep                     # the two shapes' inputs, 2 s
-    python3 -B run.py build --pool 1 --jobs 8  # 24 builds, about 2.5 min
-    python3 -B run.py run --pool 8             # 118 runs, about 1 min
+    python3 -B run.py build --pool 1 --jobs 8  # 27 builds, about 2.5 min
+    python3 -B run.py run --pool 8             # 121 runs, about 1 min
     OOC_OUT=/path/to/scratch/ooc ooc/run_ooc.sh  # 16 area rows, about 5 min
 
 `run.py run` rewrites `results.txt` and `results.json`; its last line must
-read `SUMMARY runs 118, checks 763, verdict failures 0`.
+read `SUMMARY runs 121, checks 778, verdict failures 0`.

@@ -2,15 +2,16 @@
 
 Every command the design page quotes, its exit status and the digests of what it read and wrote.
 Base of the tree: dev `07294a76e833f1831d9fcbceb8123b8380c4ae76` (protocol-processor `424c688f`).
-Scratch output (build trees, run logs) is outside the tree: `$D3_OUT`, `$OOC_OUT`.
+Scratch output (build trees, run logs) is outside the tree: `$D3_OUT`, `$OOC_OUT`. The run below started
+from an EMPTY `$D3_OUT`.
 
 ## Commands
 
 | Command (from `design-evidence/500-materialization/proposal-evidence`) | Exit | Result |
 |---|---|---|
 | `python3 -B run.py prep` | 0 | shape 1x1: 53 records; shape 8x8: 156 records |
-| `python3 -B run.py build --pool 1 --jobs 8` | 0 | 24 builds: base-1x1, base-8x8, tracked-1x1, 21 mutants |
-| `python3 -B run.py run --pool 8` | 0 | `SUMMARY runs 118, checks 763, verdict failures 0` |
+| `python3 -B run.py build --pool 1 --jobs 8` | 0 | 27 builds: base-1x1, base-8x8, tracked-1x1, 24 mutants |
+| `python3 -B run.py run --pool 8` | 0 | `SUMMARY runs 121, checks 778, verdict failures 0` |
 | `ooc/run_ooc.sh` | 0 | 16 rows, `ooc/results_ooc.txt` |
 | `syn/yosys/ooc.sh KL_nvm_backend` (repository root, `OOC_CHPARAM` of the 1x1 shape with `N_NAME_P=30`) | 0 | `1030 LUT, 0 LUTRAM, 468 FF, 6 DSP, 114 CARRY4`, identical to the row `cal-backend-1x1-n30` |
 
@@ -42,6 +43,9 @@ CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as
 MUTANT M14_clear_by_index: KILLED by K4g_second_group_in_flight : value_in_slot@end:0x0a
 MUTANT M15_overflow_forgets_the_change: KILLED by K16_map_set_larger_than_its_record : no_durable_claim_over_unsaved
 MUTANT M16_single_pass_restore: KILLED by V11_torn_read_restores_nothing : torn_walk_applies_nothing@boot
+MUTANT M17_trigger_misses_ptof: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT M18_trigger_misses_names: KILLED by K10_name_change_converges : no_durable_claim_over_unsaved
+MUTANT M19_trigger_misses_out_maps: KILLED by K12_map_change_converges : no_durable_claim_over_unsaved
 TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source
 TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source
 TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source
@@ -53,16 +57,16 @@ TRACKED K1_single_change_converges : no_durable_claim_over_unsaved PASSES, as it
 TRACKED V1a_set_everything : no_durable_claim_over_unsaved PASSES, as it must
 TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must
 TRACKED * : case_completed PASSES, as it must
-SUMMARY runs 118, checks 763, verdict failures 0
+SUMMARY runs 121, checks 778, verdict failures 0
 ```
 
 ## Digests of the evidence (sha256)
 
 | File | sha256 |
 |---|---|
-| `README.md` | `490db040dfca9f7deeb012956b13317dcdeff65bc1f51776e42a916287cb55f2` |
+| `README.md` | `5b12c3492c584922d024e8c251291d015f391708a4db2c5203ab5692b1114d04` |
 | `harness/d3_api.h` | `b5eecc8141f61235df83ae6832a565931314d454d201e0dd01e772793fd76905` |
-| `harness/d3_bridge.cpp` | `85e77dd25af7bfb3f18ebbc3b45ede6831794544a9a7181704ebc57e0c6dcaca` |
+| `harness/d3_bridge.cpp` | `35abbc83ebb6b783e37185e52029b44190a9ecf709627699e0d496644e73837c` |
 | `harness/d3_bridge.h` | `ee38975fa435248e36df55bd02d449454ec140392b43d3f9dffc191299b20f25` |
 | `harness/d3_cases.cpp` | `6f9f3a8c6bdf2218d285addb679b89e233f33f6a896ff24cb392a3a2a8ebe599` |
 | `harness/d3_host.c` | `f213221a6f4f877a380362f6b9ab81dccd144ca49438d75da1e7f76eed3ee4e9` |
@@ -82,9 +86,9 @@ SUMMARY runs 118, checks 763, verdict failures 0
 | `ooc/run_ooc.sh` | `69b39aeff320f93a77a296dd101dff46846dc6f00172f5d5f390b7d0c19af9bd` |
 | `prototype/KL_aecp_nvm_writer.proto.sv` | `8cec2d1ade635b95424f19f31fcc12d203a18f22598b79e1ea2428ba4cb43df1` |
 | `prototype/KL_pp_nvm_mgr_arb.proto.sv` | `4498fcbe9d6d90dc14ac5ce5c0d26df10f9e9ba55f9043a12279ca9d26722c6a` |
-| `run.py` | `fe5e2b457d2dee869a2769ada8e0ea5a5200a0b67336e8ddad2e3ebcb746db67` |
-| `results.txt` (output) | `ae9a45be3561a7254e48c790246bd49d2e3eff45df6c09b682b8f305aaea7a28` |
-| `results.json` (output) | `247dca711c708de189f9f146a6cb14e397cfff88f9e559bdcafae8056e755182` |
+| `run.py` | `705241f4335dc7049abbc9508c27e0a2695b0e13435833d90ddd435ce4d3f9cd` |
+| `results.txt` (output) | `0b112180e3770dc410e916327411f5852b887598bb2164e84fea99dd2beb49e2` |
+| `results.json` (output) | `7816c802c03a3ac1e50b721b8874d1789b254793dc365af5b6d8a12271945720` |
 | `ooc/results_ooc.txt` (output) | `3656422d6a7199018251ffca428b9c984a80d7737dc6d05b5e17e0006e531cad` |
 
 ## Digests of the repository files the model reads or compiles (sha256)
