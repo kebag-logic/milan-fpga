@@ -293,8 +293,9 @@ exit 1
 | `sw/builder/endstation_builder.py` | `67a1262a282f2e23092b0f03c8e7bd96ba63fdef1415ab80aa7cc181b147234f` |
 | `hdl/milan/milan_datapath.sv` | `34e3000b243fa33c5badd076dc504b317a600109f456504e22d6483186cba101` |
 
-The digests were taken at the commit that records the run (its parent adds
-nothing but this table), and every one was checked against the immutable
+The digests were taken at the commit that records the run,
+`bf88b71f7fba6f19fe0fe9b0d218f28ad7b0327d`; the commits after it add this
+table and change nothing else. Every one was checked against the immutable
 Git blob with replacement objects disabled: the evidence files at that
 commit, the repository files at dev `07294a76`, the processor files at its
 pin `424c688f`. 59 digests, 0 mismatches.
