@@ -1,0 +1,176 @@
+{
+  "base-1x1r2": [
+    "V1a_set_everything",
+    "V1b_restore_everything",
+    "V2_refused_rate",
+    "V1b_restore_everything~stale"
+  ],
+  "mut-B02_binding_device_error_reads_as_empty": [
+    "V1a_set_everything",
+    "W16_binding_header_device_error"
+  ],
+  "mut-B04_binding_unframed_reads_as_device_error": [
+    "V10_blank_first_boot"
+  ],
+  "mut-C01_device_error_reads_as_blank": [
+    "H8_header_error_sole_saved_record"
+  ],
+  "mut-C03_unframed_reads_as_device_error": [
+    "V10_blank_first_boot"
+  ],
+  "mut-D01_abandoned_read_not_drained": [
+    "V1a_set_everything",
+    "W6_late_pass1_after_deadline"
+  ],
+  "mut-DF02_map_revert_read_error_ignored": [
+    "V20c_desc_error_in_the_map_revert"
+  ],
+  "mut-DF03_final_revert_read_error_ignored": [
+    "V20d_desc_error_in_the_final_revert"
+  ],
+  "mut-F01_old_boot_order": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-G01_pend_misses_d3": [
+    "K1_single_change_converges"
+  ],
+  "mut-G02_restore_done_without_d3": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-G03_restore_writes_are_changes": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-G04_blank_ignores_d3": [
+    "V7_names_only"
+  ],
+  "mut-G05_enable_not_released_by_restore": [
+    "V1a_set_everything",
+    "W14_enable_requested_before_the_restore"
+  ],
+  "mut-IMG01_unproven_image_continues": [
+    "V22b_image_unproven_simple_records"
+  ],
+  "mut-M02_clear_at_latch": [
+    "K1_single_change_converges"
+  ],
+  "mut-M04_clear_by_group": [
+    "K4_second_record_in_flight"
+  ],
+  "mut-M06_identify_is_a_change": [
+    "K14_identify_is_not_persisted"
+  ],
+  "mut-M08_restore_skips_image_check": [
+    "V7_names_only"
+  ],
+  "mut-M09_apply_blindly": [
+    "V2_refused_rate"
+  ],
+  "mut-M10_fmt_full_judge": [
+    "V6a_set_coupled_narrower_pair",
+    "V6b_restore_coupled_pair"
+  ],
+  "mut-M11_no_orphan_check": [
+    "V8_orphaning_format_reverted"
+  ],
+  "mut-M12_no_revert_before_readd": [
+    "V9_refused_maps_revert_their_formats"
+  ],
+  "mut-M14_clear_by_index": [
+    "K4g_second_group_in_flight"
+  ],
+  "mut-M15_overflow_forgets_the_change": [
+    "K16_map_set_larger_than_its_record"
+  ],
+  "mut-M16_single_pass_restore": [
+    "V11_torn_read_restores_nothing"
+  ],
+  "mut-O01_own_taken_at_the_walk": [
+    "V1a_set_everything",
+    "K19_command_before_the_restore"
+  ],
+  "mut-P02_padding_holes_not_refused": [
+    "V3e_map_hole"
+  ],
+  "mut-R01_no_rollback": [
+    "V1a_set_everything",
+    "V15_rollback_pass1_late"
+  ],
+  "mut-R02_rollback_skips_dyn_store": [
+    "V1a_set_everything",
+    "V15_rollback_pass1_late"
+  ],
+  "mut-R03_rollback_skips_desc_store": [
+    "V1a_set_everything",
+    "V15_rollback_pass1_late"
+  ],
+  "mut-R04_rollback_skips_maps": [
+    "V1a_set_everything",
+    "V16_rollback_pass1_maps"
+  ],
+  "mut-R05_closed_releases_the_entity": [
+    "V1a_set_everything",
+    "V17_rollback_cannot_validate"
+  ],
+  "mut-RPL_clks": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-RPL_fmti": [
+    "V1a_set_everything",
+    "V1b_restore_everything",
+    "V1s_a_shipping_output_format",
+    "V1s_b_shipping_output_format_restore"
+  ],
+  "mut-RPL_mapi": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-RPL_mapo": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-RPL_name": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-RPL_ptof": [
+    "V1a_set_everything",
+    "V1b_restore_everything"
+  ],
+  "mut-TRG_cfg": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_clks": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_fmti": [
+    "V1a_set_everything",
+    "V1s_a_shipping_output_format"
+  ],
+  "mut-TRG_mapi": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_mapo": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_name": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_ptof": [
+    "V1a_set_everything"
+  ],
+  "mut-TRG_rate": [
+    "V1a_set_everything"
+  ],
+  "mut-W01_no_restore_watchdog": [
+    "V1a_set_everything",
+    "W4_silent_pass1"
+  ],
+  "mut-X01_passes_may_disagree": [
+    "V1a_set_everything",
+    "V18b_header_changed_between_passes"
+  ]
+}

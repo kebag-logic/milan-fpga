@@ -1,0 +1,20 @@
+[
+  {
+    "mode": 0,
+    "exit": 0,
+    "expected": true,
+    "output": "PASS real router + S4: held first payload, coalescing count, two sources, release backpressure, ack-edge refire, reset; takes=3 pops=3\n- router_probe.sv:56: Verilog $finish\n- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05\n- Verilator: $finish at 220ns; walltime 0.000 s; speed 3.024 ms/s\n- Verilator: cpu 0.000 s on 1 threads; allocated 4 MB\n"
+  },
+  {
+    "mode": 1,
+    "exit": 1,
+    "expected": true,
+    "output": "[35000] %Fatal: router_probe.sv:25: Assertion failed in router_probe: pop/take disagreement MODE=1\n%Error: router_probe.sv:25: Verilog $stop\nAborting...\n"
+  },
+  {
+    "mode": 2,
+    "exit": 1,
+    "expected": true,
+    "output": "[35000] %Fatal: router_probe.sv:25: Assertion failed in router_probe: pop/take disagreement MODE=2\n%Error: router_probe.sv:25: Verilog $stop\nAborting...\n"
+  }
+]

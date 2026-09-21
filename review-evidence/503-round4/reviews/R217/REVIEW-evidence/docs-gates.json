@@ -1,0 +1,195 @@
+[
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "2d8fd62fd986ea2d6a87d284e144f023034c0944"
+    ],
+    "exit": 0,
+    "tail": []
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "2d8fd62fd986ea2d6a87d284e144f023034c0944"
+    ],
+    "exit": 0,
+    "tail": [
+      "check_em_dash: 0 finding(s) over 2206 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 34/34 [2d8fd62f..HEAD]"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "documentation style: OK (22 current documents)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_archive.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "exit": 0,
+    "tail": [
+      "  PASS  unknown register fact",
+      "  PASS  boot order needs two steps",
+      "feature_status self-test: 46/46 passed",
+      "feature_status: 0 finding(s)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "exit": 0,
+    "tail": [
+      "gPTP documentation: OK (8 current pages, donor checkout verified)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_solution_docs.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_submodule_docs.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "submodule documentation: OK (4 exact gitlinks)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "exit": 0,
+    "tail": [
+      "anchor check: 144 existing cross-page fragment links reproduced"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "tail": [
+      "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "exit": 0,
+    "tail": [
+      "traceability generator controls: 5/5",
+      "traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0,
+    "tail": [
+      "baremetal-only: OK (0 findings across 824 tracked first-party file(s))"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "exit": 0,
+    "tail": [
+      "endstation_ax7101_1x1_tdm8   names= 38 records= 53 top_id=0xA5 image=  3264 B (4% of a slot) F07.8 floor= 53/256 commit<=3.07 s",
+      "endstation_ax7101_8x8        names= 99 records=156 top_id=0xE2 image=  8648 B (13% of a slot) F07.8 floor=156/256 commit<=3.18 s",
+      "",
+      "0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_port_contracts.py"
+    ],
+    "exit": 0,
+    "tail": [
+      "port contract gate: OK (3576 first-party port(s): hdl 1902, gptp-processor 124, protocol-processor 1550; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)",
+      "  review inventory: 101 open and 51 literal-bound named connection(s), 65 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)",
+      "  the ratchet can be lowered - regenerate with --write-budget; 3 recorded connection(s) gained a rationale or left"
+    ]
+  }
+]
