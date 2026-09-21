@@ -1964,7 +1964,10 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         bad = [v.hex() for _c, rid, v in g.changes() if rid == 0x40 and v == narrow]
         g.check("refused_set_writes_nothing:0x40", not bad, f"{len(bad)} changes of 0x40 to the refused format")
         g.converged("cut")
-        for rid in sorted({rid for _c, rid, _v in g.changes() if rid in g.d3_rids()}):
+        #! the two format records the case sets are ALWAYS graded, changed or
+        #! not, so a SET that never happened fails its check rather than
+        #! leaving it absent; every other record it changed besides
+        for rid in sorted({0x30, 0x40} | {rid for _c, rid, _v in g.changes() if rid in g.d3_rids()}):
             g.value_in_slot("cut", rid, f"value_in_slot@cut:{rid:#04x}")
     elif c == "V1s_b_shipping_output_format_restore":
         cut = extra["cut_slots"]
@@ -2368,7 +2371,7 @@ def report(allres: dict, builds: list, focused: bool) -> int:
                         state, where, why = "KILLED", t_, f" -- {g.checks[killer][1][:140]}"
                         break
                 tag = where or (case + (f"~{variant}" if variant else ""))
-                states.append((state, f"{tag} : {killer}{why}"))
+                states.append((state, f"{tag} : {killer} [{state}]{why}"))
             #! killed only when EVERY named check killed it
             state = "KILLED" if all(st == "KILLED" for st, _w in states) else \
                 next(st for st, _w in states if st != "KILLED")
@@ -2442,8 +2445,8 @@ CONTROLS = [
     #! V1s_a's check fails and V1a's passes
     ("partial_kill_is_survival", "mut-TRG_fmto", "1x1", {"mut-TRG_fmto": "base-1x1"},
      {"D3_CONTROL_SKIP_V1S_DECLARED": "1"}, 1,
-     ["MUTANT TRG_fmto: SURVIVED by V1a_set_everything : value_in_slot@cut:0x40 AND "
-      "V1s_a_shipping_output_format : value_in_slot@cut:0x40", "verdict failures 1"]),
+     ["MUTANT TRG_fmto: SURVIVED by V1a_set_everything : value_in_slot@cut:0x40 [SURVIVED] AND "
+      "V1s_a_shipping_output_format : value_in_slot@cut:0x40 [KILLED] -- latest None", "verdict failures 1"]),
     ("empty_selection", "no-such-build", "1x1", {}, {}, 2, ["REFUSED: no such build ['no-such-build']"]),
 ]
 

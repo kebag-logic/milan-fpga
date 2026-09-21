@@ -920,8 +920,9 @@ void register_cases() {
     restore_under_fault();
   };
   cases["V18_header_error_pass1"] = [restore_under_fault] {
-    // a transport error on a record's HEADER reads like an erased record at
-    // the port face; pass 0 read it whole, so the passes disagree
+    // a DEVICE error on 0x50's HEADER lane in pass 1 only, after records
+    // applied (R218's pass1 stimulus): at the pinned port it read like an
+    // erased record; the port's cause makes it a transport failure (cause 2)
     read_fault(0x50, 0, -1, 1);
     restore_under_fault();
   };
