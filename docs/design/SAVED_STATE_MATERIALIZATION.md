@@ -13,10 +13,22 @@
 > contract reviews accept or reject it; an implementation lane opens only on
 > an accepted page, with the tickets of section 10.
 >
-> **Revision c** answers the round-two contract reviews of this page at
-> `40d14d92` (R217 and R218, both NEGATIVE). Three seams the transaction
-> depends on are now specified, prototyped and made prerequisites of stage 1
-> and of every shippable stage (section 10):
+> **Revision d** answers the round-three contract reviews of this page at
+> `ab0fb23f` (R217 and R218, both NEGATIVE, each finding MAJOR under all
+> five lenses). Both answers are prerequisites of stage 1 and of every
+> shippable stage (section 10):
+>
+> - **S4**, the listener's boot-owned admission: from the hard reset to the
+>   binding walk's drained terminal, the pinned ACMP listener is offered
+>   nothing but the binding restore's preloads. A held talker event, a
+>   transaction, a timer expiry or a START/STOP request no longer holds the
+>   preload phase, and a read-only command no longer withdraws a restored
+>   binding (sections 5.1 and 8.9).
+> - **The descriptor store's roll-back reset belongs to stage 1**, not
+>   stage 2: after a fetch's response timed out, the pinned store's next
+>   fetch errs at once, and only its reset re-arms it (sections 8.6 and 10).
+>
+> The seams revision c added stay prerequisites as well:
 >
 > - **S1**, the port's terminal cause: a device error during a header read
 >   is told from an erased or unframed record, so it aborts the restore
@@ -25,15 +37,17 @@
 >   late beat of a burst the store abandoned never enters another burst,
 >   nor the roll-back's re-walk. With it, a failed or late descriptor read
 >   aborts the restore and is never a refused value (sections 8.6 and 8.8).
-> - **S3**, a bounded binding walk: a silent persistence device no longer
->   holds AECP for ever. Commands are served on defaults, and the port stays
->   quarantined, for ever if the device never answers (section 8.8).
+> - **S3**, a bounded binding read phase: a silent persistence device no
+>   longer holds AECP for ever. Commands are served on defaults, and the
+>   port stays quarantined, for ever if the device never answers (section
+>   8.8).
 >
 > An image the restore cannot prove ends CLOSED. The passes agree record by
 > record. The output-format evidence separates the SYNTHETIC judge from a
-> SHIPPING-legal save and replay (sections 8.2 and 8.4). Revision b answered
-> the round-one reviews at `d0256846`. Section 16 maps every finding of
-> both rounds to its answer.
+> SHIPPING-legal save and replay (sections 8.2 and 8.4). Revision c answered
+> the round-two reviews at `40d14d92`, revision b the round-one reviews at
+> `d0256846`. Section 16 maps every finding of the three rounds to its
+> answer.
 
 Source examined: dev `07294a76` (protocol-processor `424c688f`,
 gptp-processor `c1b61743`, third_party/verilog-axis `48ff7a7e`), which is
@@ -47,29 +61,33 @@ merged. Every evidence citation on this page names the branch, the commit and
 a path in it:
 
 - the command record, with every command, exit code and digest:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
 - how to re-run it:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/proposal-evidence/README.md`;
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/README.md`;
 - the run script:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/proposal-evidence/run.py`;
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/run.py`;
 - its graded results:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/proposal-evidence/results.txt`
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/results.txt`
   and `results.json` beside it;
 - the prototypes (the writer, the arbiter, the descriptor memory guard)
   and the amended prototypes of the pinned port and binding manager:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/proposal-evidence/prototype/`;
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/prototype/`;
 - the area rows and the two cost proxies:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/proposal-evidence/ooc/`;
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/proposal-evidence/ooc/`;
 - the ticket drafts of section 10:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/tickets/`;
-- the round-two reviewers' own probes, rerun against this revision:
-  `branch 500-design-evidence, commit fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293, path design-evidence/500-materialization/reviewer-probes/`.
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/tickets/`;
+- the round-two and round-three reviewers' own probes, rerun against this
+  revision:
+  `branch 500-design-evidence, commit 31f7f95ded39b28f8a122342cca4d1329d69a715, path design-evidence/500-materialization/reviewer-probes/`.
 
-The evidence the round-two reviews examined is commit
-`ca8cb5943f885c22aec397ff75059e2d4791f4fb` on the same branch, and the
-round-one reviews commit `a21b165ac1c671d10cba7255beaf75cea0f81d18`. Their
+The evidence the round-three reviews examined is commit
+`fc2e3a6211bdbca3c41718eb6e1b4b4c2a128293` on the same branch, the round-two
+reviews commit `ca8cb5943f885c22aec397ff75059e2d4791f4fb` and the round-one
+reviews commit `a21b165ac1c671d10cba7255beaf75cea0f81d18`. Their
 counterexamples are kept as named cases and mutants of this revision
-(section 16).
+(section 16). The executable sources of this revision's run are commit
+`a78c79afebab98d53b94c034c92f7191989e8806`; the two commits after it add the
+results and the command record, and change no executable file.
 
 A section number that is a link points into another page; a plain section
 number is this page's.
@@ -78,12 +96,12 @@ number is this page's.
 
 - **[1. Context](#1-context)** -- Only the binding persists; where the seven other items live and how a change is seen.
 - **[2. What reproduces at the current source](#2-what-reproduces-at-the-current-source)** -- Nothing is written, nothing comes back, and two changes read durable for a few cycles.
-- **[3. Decision](#3-decision)** -- Eleven rules: one processor-side writer, live triggers, the clear rule, a restore transaction, deadlines, the enable, three prerequisite seams.
+- **[3. Decision](#3-decision)** -- Eleven rules: one processor-side writer, live triggers, the clear rule, a restore transaction, deadlines, the enable, four prerequisite seams.
 - **[4. Who writes: three candidates](#4-who-writes-three-candidates)** -- Per-group managers, one writer, the firmware: measured and judged.
 - **[5. Interfaces](#5-interfaces)** -- What the processor, the parent and the firmware each change.
 - **[6. State machines and next-state functions](#6-state-machines-and-next-state-functions)** -- The writer, the restore transaction, the port arbiter and its drain, priorities written out.
 - **[7. The clear rule](#7-the-clear-rule)** -- When a pending source clears, and every risky ordering executed.
-- **[8. Restore](#8-restore)** -- Order, cleared-first proof, value rules, coupling, names, the transaction, deadlines.
+- **[8. Restore](#8-restore)** -- Order, cleared-first proof, value rules, coupling, names, the transaction, deadlines, the listener's admission.
 - **[9. What must not persist](#9-what-must-not-persist)** -- Lock, registry and Identify, as refusals with their clauses.
 - **[10. Stages](#10-stages)** -- Three stages, their release conditions under #501 and #502, and the tickets.
 - **[11. Alternatives rejected](#11-alternatives-rejected)** -- With their numbers.
@@ -149,9 +167,11 @@ issues #501 and #502.
 
 EXECUTED on the tracked glue: `d3_top.sv` built with `D3_TRACKED` is
 `KL_pp_shadow.sv` at the current source, transcribed, with no D3 writer, the
-enable as it ships, and the PINNED port and binding manager. The run script requires the tracked build to fail
-exactly these checks (`TRACKED_MUST_FAIL`), so they are shown not to be
-vacuous; if one does not fail it exits 1 and names it:
+enable as it ships, the PINNED port and binding manager, and the PINNED
+listener straight on its producers, with no admission gate. The run script
+requires the tracked build to fail exactly these checks
+(`TRACKED_MUST_FAIL`), so they are shown not to be vacuous; if one does not
+fail it exits 1 and names it:
 
 | Case : check | Tracked 1x1 | This design, both shapes |
 |---|---|---|
@@ -162,16 +182,29 @@ vacuous; if one does not fail it exits 1 and names it:
 | V1b : set_value_survives_power_cycle:0x50 | FAILS "restored 0 valid 0, set 1500000" | passes |
 | K10 : no_durable_claim_over_unsaved | FAILS "change of 0x80 at 30182 inside a durable interval ending 30189" | passes |
 | K12 : no_durable_claim_over_unsaved | FAILS "change of 0x70 at 30155 inside a durable interval ending 30161" | passes |
+| L01 : listener_walk_bounded@terminal | FAILS "preload offers from 235: the longest untaken 3229969 cycles, 2 withdrawn" | passes |
+| L05 : restored_binding_survives_a_read_only_command@recovered | FAILS "answered [(0, '0000000000000000')]; sink 0 in the newest verified slot 000000000000000000000000" | passes |
 
 The run script also requires the tracked glue to PASS the durability check
 on K1, V1a and V1b (`TRACKED_MUST_PASS`). A dynamic-state change is reported
 from its own write by the store's level, so today's status never reads
 durable over one.
 
-The last two rows are a finding about today's glue, not only the gap. It
-takes the class-6 and class-7 COMMIT MARKS, and the programs raise them only
-after the live write: in `protocol-processor/hdl/aecp/ucode/gen_ucode.py`,
-SET_NAME's `NVM_MARK` (line 2092) follows its last `NAME_WR` by COMPARE,
+The two L rows are the listener as it ships, and section 8.9 reads them.
+L01 is round-three review R217's counterexample: a talker event held as a
+level keeps the listener's `pre_ready_o` low, so the binding walk's preload
+phase waits, with every AECP command behind it, until something else ends
+it; in this case the case's own later GET_RX_STATE walks touched both
+waiting sinks, the manager withdrew both preloads and flushed the unbound
+records over the saved bindings. L05 is a hazard the same wiring exposes: a
+read-only GET_RX_STATE served between a sink's stored record and its
+preload writes the reset record back, the manager takes it as a live
+change, and the saved binding is flushed away.
+
+The K10 and K12 durability rows are a finding about today's glue, not only
+the gap. It takes the class-6 and class-7 COMMIT MARKS, and the programs
+raise them only after the live write: in
+`protocol-processor/hdl/aecp/ucode/gen_ucode.py`, SET_NAME's `NVM_MARK` (line 2092) follows its last `NAME_WR` by COMPARE,
 BR_STATUS and COMMIT, and ADD/REMOVE_AUDIO_MAPPINGS's (line 1792) follows
 the commit loop by FINISH, COMMIT, SET_STATUS, COMPARE and BR_STATUS.
 Between the two, the status reads durable over an applied name or map: 7
@@ -229,11 +262,12 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    sinks OR the writer's unflushed records. The dynamic-state level and the
    parent's sticky class-6/7 bit LEAVE `pend_i`: a per-record bit replaces
    each of them, stage by stage (section 10).
-7. **The restore is a transaction** (section 8.6), after the binding walk
-   and before the entity is enabled. The writer owns the state bus FROM
-   RESET, so no AECP program runs before or during the restore and the state
-   it restores into is the reset state. It first proves the image the
-   values are judged against; an image it cannot prove ends CLOSED. It
+7. **The restore is a transaction** (section 8.6), after the binding
+   walk's drained terminal (seam S4) and before the entity is enabled. The
+   writer owns the state bus FROM RESET, so no AECP program runs before or
+   during the restore and the state it restores into is the reset state. It
+   first proves the image the values are judged against; an image it
+   cannot prove ends CLOSED. It
    reads every record twice through the port: pass 0 only proves the records
    whole, pass 1 judges each value by the rule of the SET program that would
    set it and applies it with its valid flag, or leaves the image default.
@@ -246,8 +280,11 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    terminal; blank is a restore that did not fail and in which neither walk
    validated a record.
 8. **Deadlines, and the enable** (section 8.8). Every restore wait of both
-   walks is bounded (`RS_TMO_CYC_P` cycles without progress; the binding
-   walk's by seam S3); its expiry is an abort like a torn read. The D3
+   walks is bounded: the D3 walk's by `RS_TMO_CYC_P` cycles without
+   progress, the binding walk's read phase by the same deadline (seam S3)
+   and its preload phase by construction (seam S4: the listener is offered
+   nothing else, so it takes each preload in the cycle it is presented). A
+   deadline's expiry is an abort like a torn read. The D3
    restore ends in one of three terminals: COMPLETE, DEFAULTS (rolled back)
    or CLOSED (an image it cannot prove). The entity enable the firmware
    requests reaches the entity only at the restore's done, as the
@@ -266,7 +303,7 @@ accepted snapshot contract applies to them unchanged.** This is candidate
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
     timeout and the enable line report that the fabric holds the enable.
-11. **Three prerequisite seams** (sections 5.1 and 10), none of them a
+11. **Four prerequisite seams** (sections 5.1 and 10), none of them a
     pinned feature today, each prototyped in the evidence:
     - **S1**: `KL_pp_nvm_port` reports why an operation failed: DEVICE (a
       device error, or a header read the device ended short) or UNFRAMED (a
@@ -278,9 +315,16 @@ accepted snapshot contract applies to them unchanged.** This is candidate
     - **S3**: the binding manager bounds its restore walk's read phase and
       fails the walk whole at the deadline, abandoning its read to the
       arbiter's drain.
+    - **S4**: a gate in front of the pinned listener's work faces owns them
+      from the hard reset to the binding walk's drained terminal. It holds
+      a transaction, a talker event and a START/STOP request at their
+      producers and admits no timer expiry, so nothing but the preload
+      reaches the listener; its release starts the D3 walk and is part of
+      the restore done that releases the enable (section 8.9).
 
     They are prerequisites of stage 1's implementation lane and of every
-    stage declared shippable (tickets T8 and T9).
+    stage declared shippable (tickets T8 and T9). So is the descriptor
+    store's roll-back reset, which stage 1 owns (section 10).
 
 ## 4. Who writes: three candidates
 
@@ -306,11 +350,12 @@ LUT-equivalent total, the worse of the DSP and no-DSP mappings.
 
 How each figure is made. (b) is the prototype writer at its worse mapping
 plus the arbiter (2,325 + 52 LUT and 885 + 3 FF at 1x1; 3,064 + 52 LUT and
-1,106 + 3 FF at 8x8). The three prerequisite seams S1 to S3 are costed
-apart (section 12: 116 LUT and 37 FF at 1x1, 112 and 37 at 8x8), because
-they amend the port, the binding manager and the descriptor store's memory
-path, which any candidate that restores through the port and judges by
-descriptor rules would need. (a) estimates reference replication: seven copies of
+1,106 + 3 FF at 8x8). The four prerequisite seams S1 to S4 are costed
+apart (section 12: 129 LUT and 54 FF at 1x1, 126 and 54 at 8x8), because
+they amend the port and the binding manager, guard the descriptor store's
+memory path and gate the listener's faces, which any candidate that
+restores through the port and the listener and judges by descriptor rules
+would need. (a) estimates reference replication: seven copies of
 `KL_acmp_nvm_shadow` at one sink (1,323 LUT and 1,223 FF each), plus a proxy
 holding the shadows the seven groups need at the shape
 (`d3a_shadow_proxy.sv`: 258 LUT, 228 FF and 1 RAMB36 at 1x1; 218 LUT, 164
@@ -341,8 +386,8 @@ implementation.
    block-RAM tiles used on a recent build (the banner of the processor's
    `KL_aecp_desc_store`).
 3. **LUT.** (b) measures about 3.75 percent of the XC7A100T's 63,400 LUT at
-   1x1 and 4.91 percent at 8x8, out of context; with the seams S1 to S3,
-   about 3.93 and 5.09 percent. Its integrated delta remains to be
+   1x1 and 4.91 percent at 8x8, out of context; with the seams S1 to S4,
+   about 3.95 and 5.11 percent. Its integrated delta remains to be
    measured. The reference replication in (a) costs three to four times the
    writer and arbiter. The measured fabric proxy in (c) is smaller by 1,847
    LUT at 1x1 and 1,485 at 8x8. That comparison excludes firmware and
@@ -359,7 +404,8 @@ implementation.
 ### 5.1 In the processor
 
 All of this is the processor repository's (tickets T1 to T3, and the
-prerequisites T8 and T9). The seams are where the prototype needed them;
+prerequisites T8 and T9; S4 sits in `protocol_processor_top`, beside the
+listener). The seams are where the prototype needed them;
 the implementation places the writer inside `KL_aecp_engine` or beside it
 with these ports. Rows marked AMENDED change a pinned module; rows marked
 NEW add one. Neither is an existing product feature, and the evidence's
@@ -377,11 +423,12 @@ renamed so they cannot pass for the pinned RTL.
 | Format judge | the Milan-info gather face, kind 0 selector 15, with `gsi_prop_fmt_o` | the integrator's judgement of a proposed format: bit 0 supported, bit 1 no mapped channel orphaned |
 | Port | `KL_pp_nvm_mgr_arb` in front of `KL_pp_nvm_port`; `m_abort` (writer to arbiter) and `m0_abort` (binding manager to arbiter); `m_err_cause[1:0]` (arbiter to the owning manager, with its err) | section 6.4. Either abort abandons the READ the port serves for that manager, and the arbiter drains it. The cause is the port's (S1) |
 | Port cause (S1) | `nvm_err_cause_o[1:0]` on `KL_pp_nvm_port`, valid with its err: 1 DEVICE, 2 UNFRAMED, 3 reserved | AMENDED (T8). DEVICE: the device reported an error in any state, or ended the 8-byte header read short. UNFRAMED: the device delivered the header whole and it failed the port's magic or length gate. Both managers keep a record's default only on UNFRAMED |
-| Binding walk (S1, S3) | `KL_acmp_nvm_shadow`: `nvm_err_cause_i`, `nvm_abort_o`, `restore_cause_o[1:0]`, `RS_TMO_CYC_P` | AMENDED (T8). A zero-byte DEVICE err fails the walk whole. The read phase is bounded by the deadline; expiry fails the walk and abandons an issued read to the drain. Causes: 1 torn, 2 a device error with nothing forwarded, 3 the deadline |
+| Binding walk (S1, S3) | `KL_acmp_nvm_shadow`: `nvm_err_cause_i`, `nvm_abort_o`, `restore_cause_o[1:0]`, `RS_TMO_CYC_P` | AMENDED (T8). A zero-byte DEVICE err fails the walk whole. The read phase is bounded by the deadline; expiry fails the walk and abandons an issued read to the drain. Causes: 1 torn, 2 a device error with nothing forwarded, 3 the deadline. The preload phase is bounded by S4 |
+| Listener admission (S4) | `KL_pp_acmp_lsn_admit` in front of `KL_pp_acmp_listener`'s transaction, talker-event, START/STOP and expiry faces; `walk_done` (the binding manager's `restore_done_o`), `pre_valid`, `lsn_busy` (`dbg_busy_o`), `lsn_arm` (`act_disc_arm_o`); `own`, `released` | NEW (T8); the listener is unchanged. Owned from the HARD reset; released once, when the binding walk is at its terminal, no preload is presented, the listener is idle and its last A4 strobe has left. While owned, a transaction and a talker event are held at their producers (valid AND ready masked), a START/STOP request is not presented (that face's ready is a completion), and the expiry bus is not admitted (each listener-owner expiry counted). `released` is the binding walk's end for the D3 walk and for `restore_done_o` (section 8.9) |
 | Descriptor memory (S2) | `KL_aecp_desc_mem_guard` between `KL_aecp_desc_store`'s memory master and the memory; `desc_debt` (guard to writer) | NEW (T9). An accepted burst owes its terminal beat (last or err). While it does, the store's next request is held and `desc_debt` is 1. The guard takes the hard reset only, never the roll-back strobe |
 | Image status | `desc_img_valid`, the store's validated-image level | AMENDED (T1): today the debug tap `dbg_img_valid_o`; the restore's image proof reads it |
-| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` (T1), `KL_aecp_desc_store` (T2, its reset or a re-walk request: the store walks the image again and its names are the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state |
-| Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`: the restore releases `entity_enable`, as F07.9 draws it |
+| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state. The guard (S2) takes the hard reset only |
+| Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it |
 | Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` and `restore_blank_o` become both walks; new `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding walk's `restore_cause_o[1:0]` | section 8.7 |
 | Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port cluster counts), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
 
@@ -432,9 +479,10 @@ first and the third (section 14).
    starts, the restore cannot prove it and ends CLOSED.
 2. `nvm_boot` starts the restore walk on EVERY path. Today the path that
    finds the record set inconsistent with the generated shape returns before
-   the walk. With AECP dispatch held from reset and the enable released by
-   the restore, a boot that never starts the walk would leave the entity
-   dark and deaf until reset. DERIVED: the model's shape always matches, so
+   the walk. With AECP dispatch held from reset, the listener's faces owned
+   from reset (S4) and the enable released by the restore, a boot that
+   never starts the walk would leave the entity dark and deaf, ACMP
+   listener included, until reset. DERIVED: the model's shape always matches, so
    that path is never taken there; it is an acceptance item of T4.
 3. The restore wait stays bounded, but it REPORTS and decides nothing: at
    its timeout the firmware prints that the restore has not reached its
@@ -475,7 +523,7 @@ released; the CLOSED terminal never reaches it.
 | State | Leaves when | To |
 |---|---|---|
 | reset | - | WAIT-GO, `own` 1: the state bus is the restore's from reset |
-| WAIT-GO | the binding walk has ended, done or failed | IMAGE |
+| WAIT-GO | the binding walk's drained terminal, S4's release: the walk done or failed, the listener idle, the last preload written and armed | IMAGE |
 | IMAGE | the descriptor store holds a validated image, after a LOCATE of ENTITY 0 if it did not | NEXT, pass 0 |
 | IMAGE | that LOCATE errs or finds no validated image | CLOSED, cause 7: no value can be judged and the names are unproven |
 | NEXT | the last record of pass 0 | NEXT, pass 1 from the first record |
@@ -537,7 +585,7 @@ fail'       = abort OR closed' ? 1 : fail
 blank       = done AND NOT fail AND no record validated
 own'        = reset ? 1 : done' ? (the service rule) : own
 entity_en   = (PP_CTRL[0] OR ADP_CTRL[0]) AND restore_done
-restore_done = binding walk ended AND D3 done
+restore_done = bind_end AND D3 done
 
 the binding manager's walk (seams S1 and S3):
 bstall      = read phase AND (H_RS_REQ AND the port not idle
@@ -547,6 +595,15 @@ bexpire     = bstall AND bwd >= RS_TMO_CYC_P - 1
 bfail       = bexpire OR a torn read OR (port err AND nothing forwarded AND cause != UNFRAMED)
 bfail       => done, fail, no preload, every uncaptured sink at its default
 m0_abort    = bexpire AND in H_RS_STREAM (the read was issued)
+
+the listener's admission (seam S4):
+drained     = walk_done AND NOT pre_valid AND listener idle AND NOT A4 strobe
+own_lsn'    = reset ? 1 : drained ? 0 : own_lsn         (one-way until reset)
+txn, talker event to the listener = the producer's valid AND NOT own_lsn
+their ready to the producer       = the listener's ready AND NOT own_lsn
+START/STOP to the listener        = the engine's valid AND NOT own_lsn
+expiry to the listener            = the expiry AND NOT own_lsn
+bind_end    = NOT own_lsn                  (the D3 walk's go; restore_done)
 ```
 
 The debounce is the binding manager's: the first change opens a window of
@@ -651,7 +708,7 @@ detail.
 | One name change | K10 | converged@end, value_in_slot@end:0x80 | the name in the newest verified slot | - |
 | One map change | K12 | converged@end, value_in_slot@end:0x70 | the port's set in the newest verified slot | - |
 | Every group changed, first and last index (V1a) | V1a | value_in_slot@cut for each changed record | 10 records at 1x1, 12 at 8x8, 11 at the synthetic 1x1r2 | TRG_cfg, TRG_rate (1x1r2), TRG_clks, TRG_fmti, TRG_fmto, TRG_ptof, TRG_mapi, TRG_mapo, TRG_name: each deletes one group's trigger, and its record is in no slot ("newest verified slot None") |
-| A change during the record write | K2 | taint_rewrites:0x50, no_durable_claim_over_unsaved | "2 completed writes of 0x50; the last carries 0021e88e" | M01_taint_ignored ("durable at 1568748: record 0x50 latest 0021e88e slot 0010f447") |
+| A change during the record write | K2 | taint_rewrites:0x50, no_durable_claim_over_unsaved | "2 completed writes of 0x50; the last carries 0021e88e" | M01_taint_ignored ("durable at 1568763: record 0x50 latest 0021e88e slot 0010f447") |
 | Two changes to one field in one debounce window | K3 | coalesced:0x50, value_in_slot@end:0x50 | "1 writes of 0x50 for two changes in one window" | - |
 | A second record of the same group in flight | K4 | value_in_slot@end:0x51 | "latest 003d0902, newest verified slot 003d0902" | M04_clear_by_group ("newest verified slot None") |
 | A second GROUP in flight: clock source 0x0A while 0x50 streams | K4g | value_in_slot@end:0x0a | "latest 0001, newest verified slot 0001" | M14_clear_by_index ("latest 0001, newest verified slot None") |
@@ -663,7 +720,7 @@ detail.
 | The binding request on the writer's grant cycle (1x1) | K15, 8 releases | both_records_committed; the premise | collision reached at g3, 1 of 8 | A01_grant_cycle_not_busy |
 | IDENTIFY set | K14 | identify_never_persisted | "0 record writes, dirty 0, pend 0, flash programs 0 -> 0" | M06_identify_is_a_change ("1 record writes ... flash programs 0 -> 13") |
 | An output set larger than its record (8x8) | K16 | oversized_set_stays_pending@over, value_in_slot@end:0x70 | "10 mappings on a 9-entry record; pend 1, D3 alarm 0, backed 1, WRITEs of 0x70 0", then written once it fits | M15_overflow_forgets_the_change (the durable reading returns over the unsaved set) |
-| A SET waiting while the restore runs | K19 | value_in_slot@end:0x50, command_waits_for_the_restore@end | "the waiting SET was taken at [7605], the D3 terminal at 7605" | O01_own_taken_at_the_walk ("latest 001d48d7, newest verified slot 0016e360": the SET ran first and the restore overwrote it) |
+| A SET waiting while the restore runs | K19 | value_in_slot@end:0x50, command_waits_for_the_restore@end | "the waiting SET was taken at [7606], the D3 terminal at 7606" | O01_own_taken_at_the_walk ("latest 001d48d7, newest verified slot 0016e360": the SET ran first and the restore overwrote it) |
 | Power cut inside the processor debounce | K18a, K18b | pending_at_the_cut@cut, power_cut_loses_only_unsaved:0x50 | "pend 1, D3 unflushed 1"; "restored 1818001 ... the unsaved value 1818002" | - |
 | Power cut during the record write | K17a, K17b | cut_inside_the_write@cut, power_cut_loses_only_unsaved:0x50 | "had taken 6 of 12 bytes at the cut"; "restored 1717001" | - |
 | Power cut after the record, before the commit | K6a, K6b | power_cut_loses_only_unsaved:0x50 | "restored 1234567 ... the unsaved value 6000001" | - |
@@ -687,7 +744,10 @@ a new process, fresh RTL and fresh firmware, with the flash array carried.
 ### 8.1 The order
 
 1. `configure_fabric`. The writer has held the state bus since reset: no
-   AECP program is dispatched until step 9.
+   AECP program is dispatched until step 9. The admission gate (S4) has
+   owned the listener's work faces since reset: no ACMP listener command,
+   talker event, START/STOP request or timer expiry reaches the listener
+   until step 5.
 2. `load_aem_image`: the AEM image in DDR, its CRC checked.
 3. `nvm_boot`: both slots validated, the window loaded and the RELOAD
    accepted (the snapshot contract, unchanged), then the walk started through
@@ -695,8 +755,12 @@ a new process, fresh RTL and fresh firmware, with the flash array carried.
 4. The binding manager's walk: read, validate, replay to the listener. Its
    read phase is bounded by its own deadline (seam S3): a silent device, a
    DEVICE error on a header or a torn read fails the walk whole, with
-   nothing preloaded.
-5. Its end, done or failed, starts the D3 walk.
+   nothing preloaded. Its preload phase meets a listener offered nothing
+   else (S4), which takes each preload in the cycle it is presented.
+5. Its DRAINED terminal, the gate's release (the walk done or failed, the
+   listener idle, the last preload's record written and its discovery
+   armed), starts the D3 walk. From here the listener serves what waited:
+   the held ACMP commands and talker events, after the restored image.
 6. If the descriptor store holds no validated image, a LOCATE of ENTITY 0
    makes it walk the one the firmware loaded. An image it still cannot
    validate ends the restore CLOSED: nothing can be judged against it.
@@ -714,16 +778,21 @@ a new process, fresh RTL and fresh firmware, with the flash array carried.
 Obligation O3 holds for the writer: it requests nothing on the device face
 before the binding walk is done, its first requests are its own walk, and
 its first flush follows that walk. The enable is now released by the
-restore itself, so no entity enable precedes the restore of both walks
-whatever the firmware's timing.
+restore itself, so no entity enable precedes the restore of both walks, nor
+the last preload's record write and discovery arm, whatever the firmware's
+timing.
 
-EXECUTED: V1b reads "enabled at 7613, D3 restore done at 7605, restore done
-at 7605" at 1x1 and "enabled at 13895, D3 restore done at 13888" at 8x8.
+EXECUTED: V1b reads "enabled at 7613, D3 restore done at 7606, restore done
+at 7606" at 1x1 and "enabled at 13895, D3 restore done at 13889" at 8x8.
 G02_restore_done_without_d3 lets the processor report done after the binding
 walk alone, and the entity is enabled first: "enabled at 188, D3 restore done
-at 7605". G05_enable_not_released_by_restore removes the release, and an
+at 7606". G05_enable_not_released_by_restore removes the release, and an
 enable a bench script requests from reset reaches the entity before the
-restore (section 8.8, W14): "entity enabled at 9, D3 terminal at 7605".
+restore (section 8.8, W14): "entity enabled at 9, D3 terminal at 7606". The
+listener's order (section 8.9): in every L case the D3 walk starts the cycle
+after the release, and the release follows the last preload's record write
+and discovery arm, "preload record writes [236, 240], their discovery arms
+[237, 241], the release at 243, the D3 walk from 244" at 1x1.
 
 ADP advertises nothing the restore is about to change. The ADPDU carries
 the current configuration index from the dynamic state (the processor's
@@ -933,7 +1002,8 @@ whose correctness is structural:
   restore wins" had nothing left to act on and is removed.
 - **So the roll-back is a reset.** An abort in pass 1 pulses `rb_rst`, which
   resets the dynamic-state store, the descriptor store and the parent's map
-  plane (section 5.1). Each owner then holds exactly what it held before the
+  plane (section 5.1); the two stores are stage 1's owners, the map plane
+  stage 3's. Each owner then holds exactly what it held before the
   restore: every row at its reset value with its valid flag clear, every
   name the image's (the descriptor store walks the image again), every
   port's reset set. Formats and maps return together, so they are
@@ -973,7 +1043,12 @@ whose correctness is structural:
   in a slot. The binding walk: the unit of atomicity for a transport
   failure is the walk, as it already is for the binding manager, which
   rejects its own walk whole. A D3 roll-back leaves a completed binding walk
-  applied.
+  applied: its owners are the two stores and the map plane, never the
+  listener or the binding manager. EXECUTED, L13 at 1x1 and 8x8: a pass-1
+  read error on 0x50 after both bindings were restored reads, at 1x1, "the
+  D3 roll-back at 2612 (cause 2), after the binding walk's release at 243"
+  (at 8x8, 6634 after 484), and the listener then answers both restored
+  bindings and the slot still holds them.
 
 EXECUTED at 1x1 and 8x8, each on V1a's slots (every group non-default) with
 one fault, then a controller's GET and SET:
@@ -982,15 +1057,15 @@ one fault, then a controller's GET and SET:
 |---|---|---|
 | V12 | a read error in PASS 0 on fmti0 (0x30), early | "applied 0, abort cause 2, roll-back at 0"; every record at its default |
 | V13 | a read error in PASS 0 on the last name, late | the same: nothing was applied |
-| V14 | a read error in PASS 1 on fmti0, after the configuration and the clock source applied | "2 records applied before the fault, roll-back at 3597"; "0 records off their defaults"; D3 done 1 fail 1 rolled back 1 |
+| V14 | a read error in PASS 1 on fmti0, after the configuration and the clock source applied | "2 records applied before the fault, roll-back at 3598"; "0 records off their defaults"; D3 done 1 fail 1 rolled back 1 |
 | V15 | a read error in PASS 1 on the last name, after every scalar, format, map and the first name applied | "9 records applied before the fault"; "0 records off their defaults"; the slot kept: "10 saved records besides 0x50, 0 changed in the newest verified slot" |
 | V16 | a read error in PASS 1 on the OUTPUT map, after the formats and the INPUT map applied | "7 records applied"; formats and maps at their defaults together |
-| V18 | a DEVICE error on 0x50's HEADER lane in PASS 1 only (R218's pass1) | "4 records applied before the fault, roll-back at 3760, abort cause 2"; every record at its default |
+| V18 | a DEVICE error on 0x50's HEADER lane in PASS 1 only (R218's pass1) | "4 records applied before the fault, roll-back at 3761, abort cause 2"; every record at its default |
 | V11b | the reviewers' counterexample: V11's slot, the name torn in PASS 1 after 0x50 applied | "ptof0 valid 0 after the pass-1 tear"; rolled back 1 |
 | V11 | the name torn at rest: pass 0 meets it first | "applied 0, rolled back 0": nothing to roll back |
 
 After each: the entity is enabled only at the terminal ("entity enabled at
-7358, D3 terminal at 7340" in V15), no restore write follows the terminal,
+7358, D3 terminal at 7341" in V15), no restore write follows the terminal,
 the GET answers the default ("0 valid 0") and the SET persists.
 
 Header transport faults, EXECUTED at 1x1 and 8x8 on V1a's slots unless
@@ -1006,9 +1081,9 @@ reviewers' probe scripts, rerun unchanged but for their paths
 | H3 | 0x50's header in pass 0 only (both reviewers' pass0) | the same |
 | H4, H5, H6 | both passes, at the first record (0x00), a map record (0x70), the last name | the same, at that record |
 | H8 | both passes, on a slot that holds 0x50 alone | "restore fail 1, D3 fail 1, blank 0": the one saved record, lost to a device error, never reads as a clean first boot |
-| H7 | the last name's header in pass 1 only, after every other record applied | "9 records applied before the fault, roll-back at 6505, abort cause 2" |
-| V18b | no device error: 0x50's header changes at rest after pass 0 read it whole | "4 records applied before the fault, roll-back at 3778, abort cause 5" |
-| V18c | no device error: 0x30 unframed in pass 0 only, 0x50 in pass 1 only | "2 records applied before the fault, roll-back at 3573, abort cause 5": one unframed record in each pass, the counts equal |
+| H7 | the last name's header in pass 1 only, after every other record applied | "9 records applied before the fault, roll-back at 6506, abort cause 2" |
+| V18b | no device error: 0x50's header changes at rest after pass 0 read it whole | "4 records applied before the fault, roll-back at 3779, abort cause 5" |
+| V18c | no device error: 0x30 unframed in pass 0 only, 0x50 in pass 1 only | "2 records applied before the fault, roll-back at 3574, abort cause 5": one unframed record in each pass, the counts equal |
 | V10 | the control: every binding and D3 record erased | "restore fail 0 (D3 0, binding 0), causes D3 0 binding 0, done 1", blank 1 |
 
 Descriptor faults, EXECUTED at 1x1 and 8x8. V20, V21 and V22 are R217's
@@ -1016,13 +1091,13 @@ own stimuli:
 
 | Case | The fault | What it read |
 |---|---|---|
-| V20b | one error beat on the first descriptor fetch after an application: the clock source's rule | "the descriptor memory answered an error beat at 3389, the writer aborted at 3393"; "1 records applied before the fault, roll-back at 3394, abort cause 6"; refused 0; rolled back |
-| V20c | V9's slot: the refused OUT map's revert fetches the image-default format, and that fetch errs once | "2 records applied before the fault, roll-back at 3740, abort cause 6"; rolled back |
-| V20d | V8's slot: the final re-judge's revert fetch errs once | "1 records applied before the fault, roll-back at 2659, abort cause 6"; rolled back |
-| V21 | the first descriptor request after an application answers 5,000 cycles late (R217 descriptor-timeout) | "request accepted at 3386, the store's error answer aborted the restore at 7486 (4100 cycles), the late burst came at 8387, the owners left reset at 8398"; rolled back to defaults, every name the image's |
-| V21b | the same, 16,000 cycles late | "the late burst came at 19387, the owners left reset at 19398"; rolled back |
-| V21c | the same, 30,000 cycles late, past the deadline | "aborted at 7486, CLOSED at 27488 (20002 cycles), the late burst came at 33387" |
-| V21d | the same, 4,000 cycles late, inside the store's own watchdog | "its first beat at 7387 (4001 cycles ...), abort cause 0"; COMPLETE |
+| V20b | one error beat on the first descriptor fetch after an application: the clock source's rule | "the descriptor memory answered an error beat at 3390, the writer aborted at 3394"; "1 records applied before the fault, roll-back at 3395, abort cause 6"; refused 0; rolled back |
+| V20c | V9's slot: the refused OUT map's revert fetches the image-default format, and that fetch errs once | "2 records applied before the fault, roll-back at 3741, abort cause 6"; rolled back |
+| V20d | V8's slot: the final re-judge's revert fetch errs once | "1 records applied before the fault, roll-back at 2660, abort cause 6"; rolled back |
+| V21 | the first descriptor request after an application answers 5,000 cycles late (R217 descriptor-timeout) | "request accepted at 3387, the store's error answer aborted the restore at 7487 (4100 cycles), the late burst came at 8388, the owners left reset at 8399"; rolled back to defaults, every name the image's |
+| V21b | the same, 16,000 cycles late | "the late burst came at 19388, the owners left reset at 19399"; rolled back |
+| V21c | the same, 30,000 cycles late, past the deadline | "aborted at 7487, CLOSED at 27489 (20002 cycles), the late burst came at 33388" |
+| V21d | the same, 4,000 cycles late, inside the store's own watchdog | "its first beat at 7388 (4001 cycles ...), abort cause 0"; COMPLETE |
 | V20 | the descriptor memory fails from the first application on (R217 descriptor-error) | abort cause 6; the re-walk cannot validate: CLOSED, "entity enabled 0 ... a GET answered None" |
 | V22 | the descriptor memory fails from before boot (R217 descriptor-initial-error) | "abort cause 7, applied 0, refused 0, image validated 0, closed 1" |
 | V22b | the same, on a slot holding an offset and a name, records no rule fetch touches | the same: CLOSED |
@@ -1030,7 +1105,7 @@ own stimuli:
 | V23 | in service: a locate answered by the store's own watchdog, a second at once, a third presented while the late burst is owed | "second locate err 1 ...; third locate err 0 type 0x5": never the late burst's bytes; afterwards "a locate answered err 0, descriptor_type 0x5" |
 
 At 8x8 the same cases read the same verdicts at later cycles, for example
-V21's "the late burst came at 11892, the owners left reset at 11903".
+V21's "the late burst came at 11893, the owners left reset at 11904".
 
 The mutants: R01_no_rollback (a pass-1 abort ends without a roll-back, round
 one's behaviour) is killed by V15, "9 records off their defaults ... rolled
@@ -1063,9 +1138,50 @@ DG01_guard_admits_a_request_while_owed is killed by V23: "third locate err
 releases the owners without the debt, and V21b ends "D3 done 0 fail 1 ...
 closed 1": the re-walk times out on the owed burst.
 
+**The descriptor store's reset belongs to stage 1** (round-three review
+R218 R3-F1). After a fetch's RESPONSE timed out, the pinned store answers
+without clearing its watchdog count (`KL_aecp_desc_store.sv` line 980), so
+its next fetch errs in its first cycle (line 938). Draining the memory's
+debt does not change that; only the store's reset does, or a re-walk
+request that also returns the count to zero. The roll-back's LOCATE is such
+a fetch. Revision c's stages gave stage 1 the dynamic-state store's reset
+alone and the descriptor store's to stage 2, for its names, so a stage-1
+implementation would end CLOSED where a finite late burst must end in
+proven defaults. Stage 1 now owns both resets (section 10, ticket T1), and
+stage 2's names come back on the same reset.
+
+EXECUTED on R218's selector-only slot (configuration `0x00` = 0000, clock
+source `0x0A` = 0001, presentation offset `0x50` = 1500000, every other
+record erased), on the stage-1 build (`D3_STAGE1`: the two stores roll
+back, the map plane does not) and on both full builds alike; the readings
+are the stage-1 build's:
+
+| Case | The fault | What it read |
+|---|---|---|
+| S1a | none | "0 records not as saved [], D3 done 1 fail 0"; "configuration (0, 1), clock source (1, 1), ptof0 (1500000, 1)" |
+| S1b | the first rule fetch after an application answers 4,000 cycles late | "request accepted at 2443, its first beat at 6444 (4001 cycles, the store's own watchdog 4096), abort cause 0"; COMPLETE |
+| S1c | the same, 5,000 cycles late | "the store's error answer aborted the restore at 6543 (4100 cycles), the late burst came at 7444, the owners left reset at 7455"; DEFAULTS; the GET "answered 0 valid 0"; the later SET persists |
+| S1d | the same, 16,000 cycles late | "the late burst came at 18444, the owners left reset at 18455"; DEFAULTS; the GET and the SET as S1c |
+| S1e | the same, 30,000 cycles late, past the deadline | "aborted at 6543, CLOSED at 26545 (20002 cycles), the late burst came at 32444" |
+| S1f | one error beat, then a healthy memory | "1 records applied before the fault, roll-back at 2451, abort cause 6"; DEFAULTS |
+| S1g | the descriptor memory fails from before boot | "abort cause 7, applied 0, refused 0, image validated 0, closed 1" |
+| S1h | a read error on 0x50's payload in pass 1 | "2 records applied before the fault, roll-back at 2744, abort cause 2"; DEFAULTS |
+
+ST1_stage1_rollback_skips_desc_store is the stage-1 build with revision
+c's stage-1 scope, the descriptor store left out of the roll-back, and S1c
+and S1d both kill it: "D3 done 0 fail 1 rolled back 0 (want 1) closed 1 own
+1 cause 6". R218's own six-case reproduction, rerun in an adapted copy that
+adds the stage-1 build and ST1 (`reviewer-probes/`, 12 runs as demanded),
+reads the same: with the store's reset V21 and V21b end in DEFAULTS
+("terminal 8110, enable 8123"; "terminal 19110, enable 19118"), without it
+in CLOSED, and the one-error control V20b recovers either way. In every
+recovered case the guard's debt outlives the roll-back's own reset: the
+owners leave reset only after the late burst.
+
 ### 8.7 What the status says after a restore
 
-- restore done: both walks' terminal (the D3 walk COMPLETE or DEFAULTS).
+- restore done: both walks' terminal (the binding walk's drained terminal,
+  S4's release, and the D3 walk COMPLETE or DEFAULTS).
 - restore fail: either walk failed, or a blind walk (the latch
   `KL_pp_shadow` already keeps). The D3 walk fails on a device error, a
   torn read, a difference between the passes, a descriptor fault, an
@@ -1130,17 +1246,21 @@ enable, and the fabric holds that enable until done. So no restore write
 can follow the enable: every restore write precedes the terminal, and the
 enable follows it.
 
-**The binding walk (seam S3).** The pinned `KL_acmp_nvm_shadow` keeps no
-deadline; this contract makes one a prerequisite (ticket T8), prototyped as
-an amendment of that module. Its read phase is bounded by `RS_TMO_CYC_P`
-without progress. Silence fails the walk whole: done, fail, cause 3,
-nothing preloaded, every uncaptured sink at its default, and the read it
-issued is abandoned to the drain. The D3 walk then starts, meets a port the
-drain still holds, and ends at its own deadline in DEFAULTS. A silent device
-therefore keeps the entity dark for at most the two deadlines plus the
-walks, never for ever, and commands are then served on defaults with
-restore fail set, as the saved-state page's section 9.3 requires when
-persistence wedges.
+**The binding walk (seams S3 and S4).** The pinned `KL_acmp_nvm_shadow`
+keeps no deadline; this contract makes one a prerequisite (ticket T8),
+prototyped as an amendment of that module. Its read phase is bounded by
+`RS_TMO_CYC_P` without progress. Silence fails the walk whole: done, fail,
+cause 3, nothing preloaded, every uncaptured sink at its default, and the
+read it issued is abandoned to the drain. Its preload phase is bounded by
+the listener's admission (S4, section 8.9): the listener is offered nothing
+but the preloads from reset, so it takes each one in the cycle it is
+presented, and the phase ends within four cycles a sink. The D3 walk then
+starts at the drained terminal, meets a port the drain may still hold, and
+ends at its own deadline in DEFAULTS. A silent device therefore keeps the
+entity dark for at most the two deadlines plus the walks, never for ever,
+whatever the listener's producers do, and commands are then served on
+defaults with restore fail set, as the saved-state page's section 9.3
+requires when persistence wedges.
 
 **Command availability and persistence availability are two things.**
 Commands come back when both walks end. The persistence device comes back
@@ -1157,22 +1277,22 @@ named, each followed by a controller's GET and SET:
 
 | Case | What was held | What it read |
 |---|---|---|
-| W1 | pass 0: the first memory read of fmti0, for ever | "held from 955, released 0, abort cause 3"; "stall began at 955, D3 terminal at 20955"; nothing applied; the later SET "pend 1, port busy 1": the drained read never ends |
+| W1 | pass 0: the first memory read of fmti0, for ever | "held from 956, released 0, abort cause 3"; "stall began at 956, D3 terminal at 20956"; nothing applied; the later SET "pend 1, port busy 1": the drained read never ends |
 | W2 | pass 0: released when the deadline was 40 cycles away | "the watchdog reached 19960 of 20000, abort cause 0"; the restore COMPLETE |
-| W3 | pass 0: released 5 cycles after the deadline | "the writer aborted at 20954, the response came at 20959"; the drain took it, and the later SET persists |
-| W4 | pass 1: fmti0, for ever | "stall began at 3544, D3 terminal at 24201"; rolled back to defaults |
+| W3 | pass 0: released 5 cycles after the deadline | "the writer aborted at 20955, the response came at 20960"; the drain took it, and the later SET persists |
+| W4 | pass 1: fmti0, for ever | "stall began at 3545, D3 terminal at 24202"; rolled back to defaults |
 | W5 | pass 1: released 40 cycles before the deadline | "the watchdog reached 19960 of 20000"; COMPLETE |
-| W6 | pass 1: released 5 cycles after the deadline | "the writer aborted at 23543, the response came at 23548"; rolled back; the later SET persists |
-| W7 | pass 1: the last name, for ever | "stall began at 6512, D3 terminal at 27154"; rolled back |
-| W8, W9, W10 | pass 1: the GET_AUDIO_MAP face, the format judge, the edit face silent | each "abort cause 3", the terminal at most 20,666 cycles after the face fell silent, rolled back |
-| W11 | R217's counterexample: V11's slot, the first D3 read 3,500,000 cycles late | "held from 781 to 3500781"; "D3 terminal at 20781", "entity enabled at 20798"; the late response drained; the later SET persists |
-| W12 | R218's counterexample: a pass-1 read after records applied, 3,100,000 cycles late | "D3 terminal at 24201", "entity enabled at 24218"; rolled back; the response drained at 3103544 |
-| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40721", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined |
+| W6 | pass 1: released 5 cycles after the deadline | "the writer aborted at 23544, the response came at 23549"; rolled back; the later SET persists |
+| W7 | pass 1: the last name, for ever | "stall began at 6513, D3 terminal at 27155"; rolled back |
+| W8, W9, W10 | pass 1: the GET_AUDIO_MAP face, the format judge, the edit face silent | each "abort cause 3", the terminal at most 20,666 cycles after the face fell silent at 1x1 and 21,158 at 8x8, rolled back |
+| W11 | R217's counterexample: V11's slot, the first D3 read 3,500,000 cycles late | "held from 782 to 3500782"; "D3 terminal at 20782", "entity enabled at 20798"; the late response drained; the later SET persists |
+| W12 | R218's counterexample: a pass-1 read after records applied, 3,100,000 cycles late | "D3 terminal at 24202", "entity enabled at 24218"; rolled back; the response drained at 3103545 |
+| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40722", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined |
 | W13b | the binding read, released when the binding deadline was 40 cycles away | "the binding deadline count reached 19960 of 20000, binding cause 0"; "preloads [(20130, 0)]"; both walks COMPLETE |
 | W13c | the binding read, released 5 cycles after the binding manager abandoned it | "abandoned at 20061, the response came at 20066"; "binding fail 1 cause 3"; "preloads []"; the D3 walk COMPLETE; the later SET persists |
 | W15 | the binding read, released at 2,900,000, after the entity was enabled | "the entity enabled at 40733, the response came at 2900064"; "preloads []": no binding reaches the listener after enable; the D3 walk ended on defaults; the later SET persists once the drain ends |
 | W16 | a DEVICE error on the binding record's header | "binding fail 1 cause 2 (a device error on the header), preloads [], restore fail 1, blank 0"; the D3 walk COMPLETE |
-| W14 | an enable a bench script requests from reset | "the enable requested at 9, restore done at 7605"; the entity enabled after the terminal |
+| W14 | an enable a bench script requests from reset | "the enable requested at 9, restore done at 7606"; the entity enabled after the terminal |
 | V17 | V15, and the descriptor memory fails from the roll-back on | CLOSED: "closed 1, restore done 0 fail 1, own 1, entity enabled 0 ... firmware asked at 3000074, a GET answered None" |
 
 Every case above that reaches done also passes
@@ -1200,22 +1320,187 @@ seams, and what the transaction does about it.
 
 | Dependency | How it can fail | The restore's answer | Evidence |
 |---|---|---|---|
-| The image walk, a LOCATE of ENTITY 0 | a miss or an error: no validated image | CLOSED, cause 7, before any record is read | V22, V22b; IMG01 |
-| The binding walk's read phase | a DEVICE err, a torn read, silence | the walk fails whole, nothing is preloaded, its read is drained (S1, S3); the D3 walk then runs | W13, W13b, W13c, W15, W16; B01 to B04 |
-| The binding walk's preload phase | the listener never takes a preload | NOT WATCHED: an on-chip face | not modelled: the model takes every preload at once (section 14) |
+| Reset and admission | a request reaching the listener before or during the binding walk; a hard reset inside the walk | the gate owns the listener's faces from the hard reset (S4); a reset is a power cut, and the preload writes nothing, so the next boot restores the same slot | L04, L06, L09 (requests from reset), L08a, L08b; LG01 to LG05 |
+| The image walk, a LOCATE of ENTITY 0 | a miss or an error: no validated image | CLOSED, cause 7, before any record is read | V22, V22b, S1g; IMG01 |
+| The binding walk's read phase | a DEVICE err, a torn read, silence | the walk fails whole, nothing is preloaded, its read is drained (S1, S3); the D3 walk then runs | W13, W13b, W13c, W15, W16, L11, L12; B01 to B04 |
+| The binding walk's preload phase | a transaction, a talker event, a START/STOP request or a timer expiry keeps the listener's `pre_ready_o` low for as long as it keeps coming; a live walk's write-back touches a waiting sink and withdraws its restored binding | nothing but the preload reaches the listener until the walk's drained terminal (S4): each preload is taken in the cycle it is presented, the phase ends within four cycles a sink | L00 to L13 at 1x1 and 8x8; LG01 to LG05; tracked L01, L05; R217's round-three probe (section 8.9) |
+| The walk's end, the D3 walk and the enable | the D3 walk or the enable before the last preload's record write and discovery arm | the D3 walk starts on the gate's release, and restore done takes it | release_after_the_final_preload_action in every L case |
 | A D3 read, pass 0 or pass 1 | a DEVICE err, a torn read, a record whole in one pass only, silence | abort (causes 2, 1, 5, 3): pass 0 applies nothing, pass 1 rolls back | H1 to H8, V11, V11b, V12 to V18c, W1 to W7, W11, W12 |
 | A descriptor read a value rule or a revert needs | an error beat; the store's own 4,096-cycle watchdog | abort, cause 6, never a refused value | V20b, V20c, V20d, V21; DF01 to DF03 |
 | A state-bus write, the apply | DERIVED from the pinned RTL: `KL_aecp_dyn_state` has no error output and takes a write in the cycle it is presented; the descriptor store's one writable region, the names, answers no error | a stall only, which the deadline watches (cause 3) | no case: the pinned stores offer no write error to inject |
 | The edit face, a map apply | the port refuses to give up or take back its reset set; silence | abort, cause 4; cause 3 | cause 4 under DF02 (V20c: "abort cause 4"); W10 |
 | The format judge, the GET_AUDIO_MAP face | silence | abort, cause 3 | W9, W8 |
-| The roll-back and the re-walk | a burst still owed; the re-LOCATE misses or errs; either outlasting the deadline | the owners held in reset while a burst is owed; then DEFAULTS, or CLOSED | V21, V21b, V21c, V20, V17; DG02, R05 |
-| Late answers | an NVM read after its manager abandoned it; a descriptor burst after the store gave up on it | drained by the arbiter until the device ends it; held off by the guard, never served to a later request | W3, W6, W11, W12, W13c, W15; V21, V21b, V23; D01, B03, DG01 |
+| The roll-back and the re-walk | a burst still owed; the re-LOCATE misses or errs; either outlasting the deadline; the descriptor store's fetch watchdog left at its limit by a response timeout | the owners held in reset while a burst is owed; the store's own reset, stage 1's, re-arms its watchdog; then DEFAULTS, or CLOSED | V21, V21b, V21c, V20, V17, S1c to S1f; DG02, R05, ST1 |
+| Late answers and late effects | an NVM read after its manager abandoned it; a descriptor burst after the store gave up on it; a preload, a discovery arm or a held request landing after the terminal | drained by the arbiter until the device ends it; held off by the guard, never served to a later request; no preload after the release, and each held request taken once, after it | W3, W6, W11, W12, W13c, W15; V21, V21b, V23; L03b, L09, L10; D01, B03, DG01, LG02, LG03 |
 | The firmware | its wait times out; an enable is requested early | decides nothing: the restore releases the enable | W14, V17; G05 |
+| Live service | a command held through the restore | AECP after the D3 terminal; the ACMP listener after the release, what waited first, in its own priorities; a D3 roll-back leaves the restored bindings | the GET and SET after every case; the listener's GET_RX_STATE after every L case; L06, L09, L13 |
 
-The model's omissions that bear on this table: the preload phase, the edit
-face's phases 0 to 5, the product memory paths' own timing (their CDC FIFOs,
-`pp_desc_bridge`'s watchdog and poison), real flash and firmware change 2
-(section 14).
+The model's omissions that bear on this table: the edit face's phases 0 to
+5, the product memory paths' own timing (their CDC FIFOs,
+`pp_desc_bridge`'s watchdog and poison), the product's producers of the
+listener's faces (the dispatch, the event router, ADP discovery and the
+START/STOP µprogram, modelled by their handshakes), real flash and firmware
+change 2 (section 14).
+
+### 8.9 The listener's admission (seam S4)
+
+**What round three found.** The binding walk's preload phase hands each
+restored binding to the pinned `KL_pp_acmp_listener` on its preload face and
+waits for its `pre_ready_o`. The listener serves one work item at a time,
+and its X_IDLE ranks a START/STOP holder, a dispatch transaction, a pending
+timer expiry and a talker event above the preload: `pre_ready_o` is low
+while any of them is present (`KL_pp_acmp_listener.sv` line 484). Any of
+them, kept coming, keeps the walk in `H_RP_DRIVE`, with every AECP command
+held behind the restore and an idle persistence port (round-three review
+R217 R3-F1; revision c's evidence had tied `pre_ready` high). A timeout
+alone cannot mend that: when it fires, earlier sinks are preloaded and their
+discovery armed, and nothing takes the listener's records back. A second
+hazard sits in the same wiring. Every listener walk ends in a record
+write-back (X_WB) that the binding manager captures as a live change, so a
+walk served between a sink's stored record and its preload withdraws that
+sink's restored binding and flushes the reset record over the saved one. A
+read-only GET_RX_STATE is enough, and ACMP dispatch does not wait for the
+entity enable.
+
+**The mechanism.** A gate in front of the listener's four work faces,
+`KL_pp_acmp_lsn_admit` (section 5.1, ticket T8), OWNS them from the hard
+reset to the binding walk's drained terminal. The listener is unchanged.
+
+- A dispatch transaction and a talker event are HELD at their producers:
+  the valid towards the listener and the ready towards the producer are
+  both masked, so the ACMP head stays in its dispatch queue, the event
+  router's sticky latch stays set, and nothing is consumed that the
+  listener did not see.
+- A START/STOP request is not presented. That face's ready is a completion,
+  which cannot fire without a captured request; AECP dispatch is held by
+  the writer from reset anyway.
+- The timer expiry bus does not reach the listener, and every expiry of a
+  listener owner that arrives is counted, never queued. The listener arms
+  its timers only in the walks the gate holds off, and the timer service's
+  armed bits reset to 0, so none can be legitimate while the gate owns the
+  faces.
+- The gate RELEASES the faces once: when the binding manager's walk is at
+  its terminal (done, failed or not), no preload is presented, the listener
+  is idle and its last A4 discovery strobe has left. The manager never walks
+  again before a reset, so the gate never owns the faces again before one.
+  The release is the binding walk's END: the D3 walk starts on it, and the
+  restore done that releases the entity enable takes it.
+
+**Why it bounds the walk.** With nothing else admitted, the listener's
+reachable states from reset to the release are X_INIT, X_IDLE and
+X_PRELOAD. No walk runs, so no timer is armed, no holder is captured and no
+expiry is pending, and `pre_ready_o` is 1 in every X_IDLE cycle. X_INIT ends
+N+1 cycles after reset, long before a walk can reach its preloads, and
+X_PRELOAD lasts one cycle. So a preload is taken in the cycle it is
+presented, the preload phase ends within four cycles a sink plus four, and
+the release follows the manager's terminal within four cycles (two after a
+preload, one without, in the evidence). The bound is by construction, not a
+fairness claim, and nothing is released on time: no physical operation is
+abandoned and no partial binding image is left, because the preload phase
+has no failure exit to reach. At the pinned timing the manager's registered
+done already follows the last preload's record write and discovery arm, so
+the gate's two drain terms (listener idle, strobe gone) are not separately
+observable here; they keep the release independent of the two modules'
+pipeline depths, and every case grades the property itself.
+
+**The exact boundary.** A request presented at any cycle before the release
+is not accepted by the listener; its producer keeps it. The first released
+cycle takes what the listener finds: a request presented in the last owned
+cycle, or in the first released one, is taken in that first released cycle,
+and one presented a cycle later is taken a cycle later (L10). A request held
+from reset is taken exactly once, at the release, in the listener's own
+priority (L04). No live service is promised during the restore, and what a
+producer does with arrivals behind a held head is its own queue policy,
+unchanged. A boot that never starts the binding walk leaves the listener
+owned until reset, as it leaves AECP dispatch held; firmware change 2
+starts the walk on every path.
+
+**What it changes for a live change.** A BIND, UNBIND, START or STOP that
+arrives during the restore now follows the restored image instead of
+withdrawing it: it is served after the release, so it still wins, by coming
+later, and the binding manager persists it as it persists any live change.
+A read-only command no longer changes the saved state. A D3 roll-back
+leaves the restored bindings, which are no D3 owner (L13).
+
+EXECUTED at 1x1 and 8x8, each on a slot holding the bindings of the first
+and the last sink and a presentation offset. Each is graded on what the
+LISTENER took and did (its own valid AND ready, its record writes, its A4
+arms, the PDUs it sent), then on the listener's own GET_RX_STATE of both
+sinks and a controller's AECP GET and SET:
+
+| Case | The listener's faces | What it read at 1x1 |
+|---|---|---|
+| L00 | nothing held | "preload offers from 235: the longest untaken 0 cycles, 0 withdrawn, 0 left open; the walk's terminal at 241 (6 cycles after the first offer, bound 12), the listener released at 243" |
+| L01 | R217's lever: a droppable talker event (sink `0xffff`) held as a level from reset, for ever | the same bound; "the droppable talker event level held from reset: first taken at [243], 1820364 taken" |
+| L02 | the same level, dropped at cycle 100000 | the same bound; "99758 taken, the last at 100000, released at 243" |
+| L03 | the level raised the cycle after the first sink's preload | "the later preload taken at [(239, 1)], the level first taken at [243]" |
+| L03b | an EVT_TK_DISCOVERED of the first sink, raised after its preload (the discovery its A4 armed) | "popped [243], taken [243], released at 243, the listener's next record write of sink 0 at [270]" |
+| L04 | a controller polling GET_RX_STATE from reset | "first taken at [243] (1745 in all), the release at 243" |
+| L05 | ONE GET_RX_STATE, presented once the first sink's record was stored and before its preload | "taken at [243] (released 243), answered [(1, '00a1a1a1a1a10001')]; sink 0 in the newest verified slot 03000a0100a1a1a1a1a10001" |
+| L06 | a STOP of the first sink, held by the AECP engine from reset | "STOP of sink 0 completed at [248] (errors []), after its preload [(235, 0)] and the release 243; the record written stopped at [247]"; the stopped binding persisted |
+| L06b | START and STOP back to back from reset | "24960 completed, the first at [248], released 243" |
+| L07 | an expiry of the first sink's owner every cycle | "234 expiries of sink 0's owner while owned, 234 not admitted, 0 reached the listener while owned, 149757 from [243]" |
+| L08a, L08b | the power cut in the cycle the last sink's preload is taken, then the next boot | "the first sink's preload taken at 235, written at [236], armed at [237]; the last sink's taken at 239"; "3 of the 3 crafted unchanged; 0 device-face writes before it"; the next boot restores both |
+| L09 | a BIND_RX of the first sink to another talker, from reset | "BIND_RX of sink 0 taken at [243], after its preload [(235, 0)] and the release 243; answered status [0]; the restored talker written back after it []"; the new binding persisted |
+| L10 | ONE GET_RX_STATE in the last owned cycle (m1), the first released one (0) or the next (p1) | "popped at [243] and taken at [243] (want 243)" for m1 and 0; "popped at [244] and taken at [244] (want 244)" for p1 |
+| L11 | the held level, and the binding read released 40 cycles short of its deadline | "the binding deadline count reached 19960 of 20000"; "the walk's terminal at 20197 (6 cycles after the first offer, bound 12), the listener released at 20199" |
+| L12 | the held level, and the binding read silent for ever | "binding fail 1 cause 3, preloads [], done 20062, released 20063"; the D3 walk ends on defaults, the port stays quarantined |
+| L13 | a pass-1 read error on 0x50 | "the D3 roll-back at 2612 (cause 2), after the binding walk's release at 243"; both bindings kept |
+
+In every case the listener lives only in X_INIT, X_IDLE and X_PRELOAD while
+the gate owns its faces ("states while owned ['X_INIT', 'X_IDLE',
+'X_PRELOAD'], side effects 0, takes at its faces 0"). Each held request is
+popped by its producer in the cycle the listener takes it, none while
+owned. The release follows the last preload's record write and discovery
+arm, and the D3 walk starts the cycle after ("preload record writes [236,
+240], their discovery arms [237, 241], the release at 243, the D3 walk from
+244"). After the release the listener's own GET_RX_STATE answers the
+restored bindings, and the slot still holds them at the end, or holds the
+live change where the case made one. At 8x8, with sinks 0 and 8 of nine
+bound: "the walk's terminal at 482 (12 cycles after the first offer, bound
+40), the listener released at 484".
+
+The mutants, each killed in completed runs by every check named for it:
+
+- LG01_admission_deleted deletes the gate's masks: the pinned wiring. L01
+  kills it by its bound, "preload offers from 235: the longest untaken
+  3229969 cycles, 2 withdrawn": the held level starved the preload until
+  the case's own later GET_RX_STATE write-backs touched both waiting sinks,
+  the manager withdrew both preloads, and the unbound records were flushed
+  over the saved bindings. L05 kills it by the binding it erases:
+  "answered [(0, '0000000000000000')]".
+- LG02_valid_admitted_ready_masked admits the valid and masks the ready:
+  the listener consumes what its producer is told was not taken. L05 kills
+  it as it kills LG01, and L04 by "txn_pop 0 / txn_take 114747, 114747
+  while owned".
+- LG03_ready_passed_valid_masked masks the valid and passes the ready: the
+  producer pops what the listener never saw. L10 m1 reads "popped at [242]
+  and taken at [233935] (want 243)" and L03b "tk_pop 1 / tk_take 0, 1 while
+  owned".
+- LG04_expiries_admitted: L07 reads "149991 reached the listener while
+  owned".
+- LG05_start_stop_admitted: L06 reads "STOP of sink 0 completed at [14]
+  (errors []), after its preload [(235, 0)] and the release 243; the record
+  written stopped at []": the STOP reached the holder during the read
+  phase, completed as a no-op on the still unbound sink, and the preload
+  then restored the started binding over it.
+
+The tracked glue fails L01 and L05 (section 2). R217's own round-three
+probe, adapted only in its lever (the harness's own talker-event producer,
+held as the same level, where the original patched a port) and run on the
+gate and on LG01, holds as demanded (20 runs, `reviewer-probes/`). With the
+gate, the held and the finite level leave the binding walk's end, the D3
+terminal and the enable where the ready control leaves them: "binding walk
+ends at 178 (control 178), D3 terminal 7606 (control 7606), enable 7613, GET
+(1500000, 1)". With the gate deleted the counterexample comes back. The
+reviewer's own checker exits 1 on the gate's results, its two
+counterexample assertions false; on LG01's its held assertion holds again,
+the GET unanswered after 2,000,068 cycles.
+
+Cost (section 12): the gate alone measures 13 LUT and 17 FF at 1x1, 16 of
+the flops its diagnostic count of refused expiries. In front of the pinned
+listener it adds 13 LUT and 17 FF at 1x1 and 8 and 17 at 8x8 to the
+listener's existing 2,174 LUT and 1,530 FF, and 2,268 and 1,557.
 
 ## 9. What must not persist
 
@@ -1241,21 +1526,29 @@ with GET commands. Each also sets IDENTIFY and proves it comes back 0. The
 ticket texts are drafted beside this page's evidence (the tickets path
 above).
 
-**Release conditions**, as recorded on #500 when revision b was taken, and
-the three prerequisite seams revision c adds. They add gates, and change no
-allocation:
+**Release conditions**, as recorded on #500 when revision b was taken, the
+prerequisite seams revisions c and d add, and stage 1's ownership of the
+descriptor store's roll-back. They add gates, and change no allocation:
 
-- **The seams S1 to S3 are prerequisites of stage 1's implementation lane
+- **The seams S1 to S4 are prerequisites of stage 1's implementation lane
   and of every stage declared shippable** (tickets T8 and T9, processor
   repository). S1 and S3 amend the pinned `KL_pp_nvm_port` and
   `KL_acmp_nvm_shadow`; S2 adds a guard on the descriptor store's memory
-  face. Stage 1's restore consumes the port's cause and reads the
-  descriptor store, and its dispatch hold from reset is acceptable only
-  with a binding walk that ends. A stage-1 lane may start on T8's and T9's
-  reviewed interfaces; it does not merge before they land in the same pin
-  or an earlier one. The evidence's amended prototypes are design
-  evidence, not the pinned RTL, and no product change is authorized by this
-  page.
+  face; S4 adds a gate in front of the pinned `KL_pp_acmp_listener`'s work
+  faces and leaves the listener unchanged. Stage 1's restore consumes the
+  port's cause and reads the descriptor store, and its dispatch hold from
+  reset is acceptable only with a binding walk that ends, its preload phase
+  included. A stage-1 lane may start on T8's and T9's reviewed interfaces;
+  it does not merge before they land in the same pin or an earlier one. The
+  evidence's prototypes and amended prototypes are design evidence, not the
+  pinned RTL, and no product change is authorized by this page.
+- **The descriptor store's roll-back reset is stage 1's** (ticket T1), with
+  the dynamic-state store's: after a fetch's response timed out the pinned
+  store's next fetch errs at once, and only its reset, or a re-walk request
+  that also returns its watchdog to zero, lets the roll-back prove the image
+  (section 8.6). The guard's debt (S2) survives that reset; it takes the
+  hard reset only. Stage 2 adds no owner: its names come back on the same
+  reset.
 
 - **No stage is declared shippable before #502 is closed.** A shipped
   stage's proof reads the status durable, and until names and maps are
@@ -1284,13 +1577,16 @@ allocation:
 
 | Stage | Records | What lands | Silicon proof | Tickets |
 |---|---|---|---|---|
-| 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S3: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction with its deadline, its cause classification, its descriptor-fault aborts and the dynamic-state store's roll-back, the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
-| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk, the descriptor store's roll-back held while its memory owes a burst (S2); `pend_i` stops taking class 7 | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
+| 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
+| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; `pend_i` stops taking class 7 | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
 | 3. channel maps | 2 at 1x1, 16 at 8x8 | BLOCKED on #501. Once unblocked: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
 
-Stage 1 restores formats while the maps still reset: the maps come back
-empty, so nothing restored can be orphaned. Both shipped shapes list one
-sampling rate, so the rate record can only be proved at its default on the
+Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
+on the stage-1 build, which rolls back the two stores and not the map
+plane, on a slot holding stage-1 records only, and ST1 deletes the store's
+reset from it. Stage 1 restores formats while the maps still reset: the
+maps come back empty, so nothing restored can be orphaned. Both shipped
+shapes list one sampling rate, so the rate record can only be proved at its default on the
 board; V2 covers its refusal and the synthetic 1x1r2 its replay. Until stage
 3 the class-6 bit stays in `pend_i`, and until stage 2 the class-7 one,
 unless #502's correction has already replaced them.
@@ -1301,8 +1597,8 @@ shapes.
 
 Further tickets, not stages: T5 is #501; T6 is #502; T7, the saved-state
 page's area table (recorded on #495). T8 and T9 are the prerequisites
-above: T8, a new processor issue referencing issues 15 and 20, carries S1
-and S3 and closes and amends neither issue; T9, a new processor issue,
+above: T8, a new processor issue referencing issues 15 and 20, carries S1,
+S3 and S4 and closes and amends neither issue; T9, a new processor issue,
 carries S2 and also closes a pre-existing exposure of ordinary AECP service
 to a burst the descriptor store abandoned (section 8.6, V23).
 
@@ -1336,6 +1632,12 @@ to a burst the descriptor store abandoned (section 8.6, V23).
 | Re-walking the descriptor store at once after its reset | a burst it abandoned can hand its late beats to the re-walk, whose index and names are not checksummed | EXECUTED: DG02 is killed by V21b; the guard's own mutant DG01 by V23 |
 | Holding AECP dispatch through an unbounded binding walk (revision b) | a silent device held every command for ever, against the saved-state page's section 9.3 | the bounded binding walk (S3), W13; B01 is killed by W13 |
 | Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; processor issue 15's open recovery contract |
+| Waiting on the listener's `pre_ready_o` as it ships (revision c) | a held transaction, talker event, START/STOP request or expiry holds the preload phase, and with it every AECP command, for as long as it lasts | R217 R3-F1; tracked L01; LG01 is killed by L01 |
+| A preload deadline that ends the binding walk, or releases the listener, on time | when it fires, earlier sinks are preloaded and their discovery armed, and nothing takes the listener's records back: the D3 walk and the enable would follow a partial binding image | section 8.9 |
+| Ranking the preload above the listener's other sources, in an amended listener | a transaction or a talker event served in the read phase still writes a record back and withdraws a restored binding; and it amends a pinned module the admission gate leaves unchanged | tracked L05; LG01 is killed by L05 |
+| Rolling the preload phase back on a failure | once nothing else is admitted the phase has no failure exit to reach; the listener has no soft reset, and a roll-back would have to undo discovery arms already issued | section 8.9 |
+| Masking only the listener's ready, or only its valid | the producer's pop and the listener's take disagree: a request is consumed unseen, or popped and never served | LG02 and LG03, each killed |
+| Leaving the descriptor store's roll-back reset to stage 2 (revision c) | after a response timeout the pinned store's fetch watchdog stays at its limit, so draining the debt alone leaves the roll-back's LOCATE failing, and a stage-1 restore ends CLOSED where a finite late burst must end in proven defaults | ST1 is killed by S1c and S1d; R218's reproduction, adapted |
 
 The round-one table listed "Gating the entity enable on restore done in
 hardware" as rejected, because the port has no timeout. The writer's own
@@ -1358,18 +1660,24 @@ prototypes, not bounds on an integrated implementation.
 | S2, the descriptor memory guard (NEW) | 5 | 1 | 5 | 1 | 0 | 0 |
 | S1, the port's cause: the amended port, 201 LUT and 118 FF, against the pinned one | +4 | +2 | +4 | +2 | 0 | 0 |
 | S1 and S3, the binding manager: amended, 1,147/1,115 at 1x1 and 1,222/1,157 at 8x8, against pinned | +107 | +34 | +103 | +34 | 0 | 0 |
-| **(b) with the seams S1 to S3** | **2,493** | **925** | **3,228** | **1,146** | **0** | **0** |
+| S4, the listener's admission gate (NEW) | 13 | 17 | 14 | 17 | 0 | 0 |
+| S4 in place: the pinned listener with the gate in front, 2,187/1,547 at 1x1 and 2,276/1,574 at 8x8, against the listener alone | +13 | +17 | +8 | +17 | 0 | 0 |
+| **(b) with the seams S1 to S4** | **2,506** | **942** | **3,242** | **1,163** | **0** | **0** |
 | for scale, existing: the binding manager, pinned | 1,040 | 1,081 | 1,119 | 1,123 | 0 | 0 |
+| for scale, existing: `KL_pp_acmp_listener`, pinned | 2,174 | 1,530 | 2,268 | 1,557 | 0 | 0 |
 | for scale, existing: `KL_pp_nvm_port`, pinned | 197 | 116 | 197 | 116 | 0 | 0 |
 | for scale, existing: `KL_nvm_backend` | 1,051 | 476 | 1,476 | 515 | 0 | 6 |
 
 What each row covers. The writer and arbiter rows are the prototypes
-alone. The guard row is the new module alone. The rows marked + are
-INCREMENTS: the difference between an amended module and the pinned one,
-each synthesized out of context the same way, so they are estimates within
-the usual tens-of-LUT noise, not bounds. The rows marked existing are
-hardware the product already has, listed for scale and not added by this
-contract.
+alone. The guard row and the S4 gate row are the new modules alone; 16 of
+the gate's 17 flops are its diagnostic count of refused expiries, which a
+product could narrow to a sticky bit. The rows marked + are INCREMENTS: the
+difference between an amended module and the pinned one, or between the
+pinned listener with the gate in front and the listener alone, each
+synthesized out of context the same way, so they are estimates within the
+usual tens-of-LUT noise, not bounds. The S4 total takes the gate alone,
+the larger figure at 8x8. The rows marked existing are hardware the product
+already has, listed for scale and not added by this contract.
 
 Round two measured (b) at 2,311 LUT and 862 FF at 1x1 and 2,876 LUT and 987
 FF at 8x8. The writer grows by 26 FF at 1x1 and 122 at 8x8: the per-record
@@ -1393,15 +1701,18 @@ current source. Ticket T7 records it.
 Time, EXECUTED in model cycles of the processor clock: the dispatch hold-off
 of a latch lasts 10 cycles for a scalar, 114 for a name, and at most 179 for
 a port's map at 1x1 and 115 at 8x8. The whole boot restore, both walks,
-ends by cycle 7,605 after reset at 1x1 and 13,888 at 8x8 (V1b, which now
-restores every group), and the entity is enabled 8 and 7 cycles later. A
-restore that meets a silent wait ends within the deadline plus its
-roll-back: 20,657 cycles after the stall began in W4. A silent BINDING walk
-ends 19,998 cycles after its silence began, and the D3 walk 20,659 cycles
-after that, meeting the drained port (W13: "silence from 64, the binding
-walk's terminal at 20062", "D3 terminal at 40721", "entity enabled at
-40733"). The model's memory answers in 2 or 3 cycles; the product's in
-about 1.4 µs, so every figure grows on the board (UNRESOLVED 8).
+ends by cycle 7,606 after reset at 1x1 and 13,889 at 8x8 (V1b, which now
+restores every group), and the entity is enabled 7 and 6 cycles later. The
+binding walk's preload phase, the listener admitted to nothing else, lasts
+6 cycles from the first offer to the walk's terminal at 1x1 (both sinks
+bound) and 12 at 8x8 (sinks 0 and 8 of nine), and the release follows 2
+cycles later (L00). A restore that meets a silent wait ends within the
+deadline plus its roll-back: 20,657 cycles after the stall began in W4. A
+silent BINDING walk ends 19,998 cycles after its silence began, and the D3
+walk 20,660 cycles after that, meeting the drained port (W13: "silence from
+64, the binding walk's terminal at 20062", "D3 terminal at 40722", "entity
+enabled at 40733"). The model's memory answers in 2 or 3 cycles; the
+product's in about 1.4 µs, so every figure grows on the board (UNRESOLVED 8).
 
 Latency, DERIVED: the pending bit rises the cycle after the accepted write.
 The record reaches the window within `DEB_TICKS_P` (500 ms at the binding
@@ -1431,8 +1742,15 @@ The board's own figure is a measurement each stage owes.
   set.
 - No AECP program runs from reset until the restore's terminal. A command
   that arrives in that interval waits in the dispatch, at most the two
-  deadlines plus the walks; before the entity is enabled no controller has
-  been told the entity exists.
+  deadlines plus the walks, whatever the listener's producers do; before
+  the entity is enabled no controller has been told the entity exists.
+- No ACMP listener command, talker event, START/STOP request or timer
+  expiry reaches the listener from reset until the binding walk's drained
+  terminal (S4). What arrives waits at its producer and is served after the
+  release, in the listener's own priorities, after the restored image: a
+  live change still wins, and a read-only command no longer erases a saved
+  binding. A talker-directed ACMP command queued behind a held listener one
+  waits with it.
 - An AECP command can wait for one latch window, at most 179 cycles in the
   model, before its program is dispatched.
 - The port serves two managers. A binding request can wait for one D3 record
@@ -1443,7 +1761,8 @@ The board's own figure is a measurement each stage owes.
   unavailable until reset, commands do not.
 - The port reports a terminal cause and the descriptor store's memory face
   gains a guard (seams S1 and S2): processor changes, prerequisites of
-  stage 1 with S3 (tickets T8 and T9).
+  stage 1 with S3 and S4 (tickets T8 and T9). Stage 1's roll-back resets
+  the descriptor store as well as the dynamic-state store.
 - The processor's restore verdicts mean both walks; the PP_STAT and PP_CTRL
   rows of [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owe the update.
   A bench script that writes the enable without starting the restore walk
@@ -1469,17 +1788,20 @@ The board's own figure is a measurement each stage owes.
 
 - ONE process per build, one clock. REAL at the pinned processor: the
   dynamic-state store and the descriptor store walking a real AEMI image of
-  the shape. SHIPPING: `KL_nvm_backend.sv`, and the firmware
-  `milan_baremetal.c` compiled for the host through its two CSR primitives,
+  the shape; since revision d the ACMP listener, unchanged and compiled from
+  its pinned path with its ROM from the pinned generator, and the timer
+  service on its arm and expiry faces. SHIPPING: `KL_nvm_backend.sv`, and
+  the firmware `milan_baremetal.c` compiled for the host through its two CSR primitives,
   with firmware changes 1 and 3 of section 5.3 as counted substitutions.
   AMENDED PROTOTYPES of two pinned modules: the port with its terminal cause
   (S1) and the binding manager with the cause and its deadline (S1, S3).
   Each is the pinned file with declared amendments only, renamed so it
   cannot pass for the pinned RTL, and the run script refuses any other
-  difference. PROTOTYPE: the writer, the arbiter and the descriptor memory
-  guard (S2). TRANSCRIBED: the parent glue of `KL_pp_shadow.sv` with the
-  enable the restore releases, and under `D3_TRACKED` the glue as it ships,
-  with the PINNED port and binding manager and no guard.
+  difference. PROTOTYPE: the writer, the arbiter, the descriptor memory
+  guard (S2) and the listener's admission gate (S4). TRANSCRIBED: the
+  parent glue of `KL_pp_shadow.sv` with the enable the restore releases,
+  and under `D3_TRACKED` the glue as it ships, with the PINNED port and
+  binding manager, no guard and no admission gate.
 - MODELS, each stated where it is coded: the µCPU is a bus-functional model
   running programs as state-bus operations, with the dispatch hold-off and
   the commit marks after the write; the parent's map plane is C++, keyed as
@@ -1489,7 +1811,11 @@ The board's own figure is a measurement each stage owes.
   parent's asynchronous CDC FIFO does, and ends a burst at an error beat, as
   `pp_desc_bridge` does, with no watchdog of its own, so the store's is the
   only one; the edit face is one staged set, where the product has phases 0
-  to 5.
+  to 5; the producers of the listener's work faces (the dispatch head, the
+  event router's sticky presentation, the AECP engine's START/STOP request,
+  injected expiries) hold a presented request until its handshake, and the
+  listener's RX slot read, TX slot pool and PRNG answer on its faces'
+  timing.
 - THE FORMAT JUDGE has two modes. SYNTHETIC, in every case but the V1s ones:
   the stream's default, or a narrower Milan Base AAF format of 1, 2, 4, 6 or
   8 channels in either direction, which admits narrower OUTPUT formats the
@@ -1500,8 +1826,11 @@ The board's own figure is a measurement each stage owes.
 - THE ROLL-BACK'S OWNERS are modelled by their resets: the model drives the
   pinned stores' own `rst_n` from the writer's strobe, and the C++ map plane
   returns its ports to their reset sets. The product needs one soft-reset
-  input per owner (section 5.1); a store-local re-walk request would serve
-  the descriptor store equally. The guard takes the hard reset only.
+  input per owner (section 5.1); a store-local re-walk request that also
+  returns its fetch watchdog to zero would serve the descriptor store
+  equally. The guard and the admission gate take the hard reset only. The
+  STAGE-1 build (`D3_STAGE1`) rolls back the two stores and not the map
+  plane, stage 1's scope; it runs the S1 cases.
 - HARNESS-ONLY FACES, never product wiring: peeks that read every
   dynamic-state row and the name table through the hierarchy for the
   cleared-first and roll-back checks; a knob that lends the state bus to the
@@ -1510,7 +1839,9 @@ The board's own figure is a measurement each stage owes.
   ever, or are released relative to the writer's or the binding manager's
   deadline; faces made silent; a descriptor memory made to fail, delayed
   or answering one error beat; window bytes changed between the passes
-  (V18b, V18c); and a knob that requests the enable from reset (W14).
+  (V18b, V18c); a knob that requests the enable from reset (W14); expiries
+  injected on the timer bus in a cycle the timer service is quiet (L07);
+  and peeks at the listener's state, holder and pending expiries.
 - The model's reset map set is non-empty (the first clusters of each port on
   the first channels of one stream), where the shipping dynamic ports reset
   to empty. That exercises every step of section 8.4; it is not the
@@ -1531,10 +1862,17 @@ The board's own figure is a measurement each stage owes.
 - Not modelled: the real microprograms' timing (the mark tail is DERIVED
   from `gen_ucode.py`), the product's GET_AUDIO_MAP hold of two cycles a
   beat, real flash, placement, firmware change 2 (the model's shape always
-  matches), the listener's preload backpressure (the model takes every
-  preload at once, and the binding deadline covers the read phase only),
-  the edit face's phases, and the product memory paths' own timing, their
-  CDC FIFOs and `pp_desc_bridge`'s watchdog and poison.
+  matches), the product's producers of the listener's faces themselves (the
+  dispatch queue and its overflow, the event router's coalescing, ADP
+  discovery, the START/STOP µprogram), which the model reduces to their
+  handshakes, the edit face's phases, and the product memory paths' own
+  timing, their CDC FIFOs and `pp_desc_bridge`'s watchdog and poison.
+- THE LISTENER'S EVENTS ARE COUNTED. For each kind of acceptance, at the
+  listener's faces and at the producers, a run prints how many, how many
+  while the gate owned the faces, the first 16 cycles and the last one, and
+  per face the cycles a producer's pop and the listener's take disagreed;
+  record writes are runs of identical writes. A held level costs a counter,
+  not a line a cycle, and every graded property reads those counts.
 - THE RUNNER'S VERDICT IS ITS EXIT STATUS. `run.py run` exits 0 only with no
   verdict failure, 1 with each failure named, 2 when a build is missing or
   unknown; a planned case that did not run is a failure; a mutant counts as
@@ -1557,19 +1895,22 @@ The board's own figure is a measurement each stage owes.
   declared-format SET dropped, so one of its two named checks kills and the
   other does not ("MUTANT TRG_fmto: SURVIVED by ... [SURVIVED] AND ...
   [KILLED]", exit 1); an empty selection (exit 2). All eight as required.
-- TOTALS: 69 builds (the two shipped shapes, the synthetic shape, the
-  tracked glue and 65 mutants), 312 graded runs, 3,462 graded checks, 0
-  verdict failures, exit 0, from an empty output tree. Every one of the 65
-  mutants is killed by every check the run script names for it, in
-  completed runs; the vacuity control holds; the K15 premise is reached; the
-  tracked glue fails its 7 named checks and passes its 4. The round-two
+- TOTALS: 76 builds (the two shipped shapes, the synthetic shape, the
+  stage-1 build, the tracked glue and 71 mutants), 386 graded runs, 4,560
+  graded checks, 0 verdict failures, exit 0, from an empty output tree.
+  Every one of the 71 mutants is killed by every check the run script names
+  for it, in completed runs; the vacuity control holds; the K15 premise is
+  reached; the tracked glue fails its 9 named checks and passes its 4. The
   reviewers' own probe scripts, rerun in copies adapted only in their paths
   and the one seam each that moved, hold as each reviewer demanded: 9 runs
-  of R217's and 6 of R218's; R217's own counterexample checker now fails at
-  its first counterexample assertion, as it must. The command record lists
-  every command with its real exit status, and the sha256 of the 44 other
-  files the evidence commit tracks and of the 15 repository files the model
-  reads or transcribes, all 59 checked against the immutable Git blobs.
+  of R217's and 6 of R218's round-two probes, 20 of R217's and 12 of R218's
+  round-three ones. R217's own round-two and round-three counterexample
+  checkers both exit 1 at their counterexample assertions, as they must,
+  and the round-three one finds its held counterexample again on LG01. The
+  command record lists every command with its real exit status, and the
+  sha256 of the 50 other files the evidence commit tracks and of the 19
+  repository files the model reads or transcribes, all 69 checked against
+  the immutable Git blobs.
 
 ## 15. UNRESOLVED
 
@@ -1635,7 +1976,8 @@ The board's own figure is a measurement each stage owes.
    open: its criterion 2, that the port serves the next request, is
    undelivered, and its proposed amendment is unaccepted). This contract no
    longer depends on it for availability: the writer bounds its own waits,
-   and S3, a prerequisite (T8), bounds the binding walk. What stays open is
+   and S3 and S4, prerequisites (T8), bound the binding walk's read and
+   preload phases. S4 touches no port operation. What stays open is
    PERSISTENCE recovery: a read either manager abandoned keeps the port
    quarantined until its device answers, so a device that never does leaves
    every later change pending until reset. This page claims no reuse of
@@ -1669,20 +2011,33 @@ The board's own figure is a measurement each stage owes.
 12. **The writer's alarm is sticky until reset**, as the binding manager's
     is; the snapshot page's UNRESOLVED 7 (forgiveness) covers it too.
 13. **Commands before the restore's terminal wait.** Bounded by the binding
-    walk's deadline, then the D3 walk's, each per awaited event; with a
-    device that never answers, about two deadlines plus the walks (W13).
+    walk's deadline and its preload phase (S4), then the D3 walk's
+    deadline, each per awaited event; with a device that never answers,
+    about two deadlines plus the walks (W13, L12). ACMP listener commands
+    wait for the binding walk's drained terminal only (section 8.9).
 14. **The descriptor store does not re-arm its watchdog after a fetch's
     response timed out**, so its next fetch answers an error at once (V23).
-    The failure is honest, an error and never stale data; it is recorded
-    for the processor in T9, not changed here.
-15. **What the model leaves to the implementation lanes.** The binding
-    deadline covers the read phase; the preload phase waits on the
-    listener, which the model accepts at once. The product's edit face has
+    The failure is honest, an error and never stale data, and the store is
+    not changed here (T9 records it). Inside the D3 roll-back it would end
+    a finite late burst in CLOSED; the store's roll-back reset, stage 1's
+    (section 10), is what re-arms it.
+15. **What the model leaves to the implementation lanes.** The listener
+    and its timer service are real, but the product's producers of its
+    faces are reduced to their handshakes: the dispatch queue's overflow
+    policy, the event router's coalescing and ADP discovery are the
+    processor's own and stay as they are. The product's edit face has
     phases 0 to 5 where the model stages one set, so an abort inside each
     phase is stage 3's to test. The memory paths' own timing is not
     modelled: the guard's property, no request presented while a burst is
     owed, is what the evidence shows, and the product's path provides it by
     the guard or by a direct-wired bridge (T9).
+16. **No listener service during the restore.** S4 holds ACMP listener
+    work from reset to the binding walk's drained terminal: a request is
+    held, never consumed and dropped, but a producer's own queue may refuse
+    arrivals behind a held head, and a talker-directed ACMP command queued
+    behind a listener one waits with it. A boot that never starts the
+    binding walk leaves the listener owned until reset (firmware change 2
+    starts the walk on every path).
 
 ## 16. Traceability
 
@@ -1695,7 +2050,7 @@ Milan v1.2 clauses, as the saved-state page lists them
 | 5.3.7.1 | Stream Output format | `0x40`.. | 3, 8.2, 8.3, 8.4, 10 | V1s_a, V1s_b, V1s_c under the product's judge; V1b, V6b, V8, V9 under the synthetic one |
 | 5.3.7.6 | presentation time offset | `0x50`.. | 3, 7, 8.3, 10 | K1 to K9, K17, K18, V1b, V5 |
 | 5.3.8.1 | Stream Input format | `0x30`.. | 3, 8.3, 8.4, 10 | V1b, V1s_b |
-| 5.3.8.2, 5.3.8.3, 5.3.8.7 | bound state, binding parameters, started or stopped | `0x20`.. | the binding manager, amended by S1 and S3 (T8); 6.4, 8.8 | K13, K15, W13 to W16 |
+| 5.3.8.2, 5.3.8.3, 5.3.8.7 | bound state, binding parameters, started or stopped | `0x20`.. | the binding manager, amended by S1 and S3, and the listener's admission S4 (T8); 6.4, 8.8, 8.9 | K13, K15, W13 to W16, L00 to L13 |
 | 5.3.9.1, 5.3.10.1 | channel mappings in and out | `0x60` to `0x7F` | 3, 7, 8.3, 8.4, 10 | K12, K16 (containment only; #501), V1b, V3 to V3g |
 | 5.3.11.1 | clock source | `0x0A`.. | 3, 8.3, 10 | K4g, V1b, V2b |
 | 5.3.13 | user names | `0x80`.. | 3, 8.5, 10 | K10, K11, V7, V1b |
@@ -1719,15 +2074,24 @@ Issue #500's five items: who and where, section 4; the trigger and the clear
 rule, sections 6 and 7; restore, section 8; what must not persist, section
 9; stages, section 10.
 
-The round-two review findings at `40d14d92`, with the reviewers' own
+The round-three review findings at `ab0fb23f`, with the reviewers' own
 severities and lenses. Answering a finding here is not clearing it: each
 reviewer re-reviews the new heads and decides.
 
 | Finding | Severity and lenses | Answer | Evidence |
 |---|---|---|---|
+| R217 R3-F1: unbounded listener preload still defeats the promised command-recovery bound | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the listener's boot-owned admission S4, a prerequisite of stage 1 and of every shippable stage (T8): nothing but the preload reaches the pinned listener from the hard reset to the binding walk's drained terminal; requests held at their producers, expiries not admitted; the release starts the D3 walk and gates the enable; the listener is real and unchanged in the evidence (2, 3 rules 7, 8 and 11, 4, 5.1, 5.3, 6.2, 6.3, 8.1, 8.6, 8.8, 8.9, 10, 11, 12, 13, 14, 15 items 13, 15 and 16) | L00 to L13, L03b, L06b, L10 m1, 0 and p1 at 1x1 and 8x8; LG01 to LG05; tracked L01 and L05; R217's round-three probe, adapted (20 runs), and its own checker |
+| R218 R3-F1: stage 1 defers descriptor recovery needed for its finite-timeout acceptance | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the descriptor store's roll-back reset (or a re-walk that also returns its watchdog to zero) is stage 1's, with the dynamic-state store's (T1); the guard's debt survives it, on the hard reset only (T9); stage 2 adds no owner (T2); evidence run on a stage-1 build and a stage-1 slot (3 rule 11, 5.1, 8.6, 8.8, 10, 11, 13, 14, 15 item 14) | S1a to S1h on the stage-1 build and both full builds; ST1, killed by S1c and S1d; R218's reproduction, adapted (12 runs); DG01, DG02 |
+
+The round-two review findings at `40d14d92`, with the reviewers' own
+severities and lenses, as revision c answered them; the evidence names
+below are this revision's, which keeps every round-two control.
+
+| Finding | Severity and lenses | Answer | Evidence |
+|---|---|---|---|
 | R217 R2-F1, R218 F1: header errors still produce a successful partial restore; equal counts do not prove pass agreement | MAJOR; Conformance, RTL, Robustness, Tests, Docs (both) | the port's terminal cause S1, a prerequisite of stage 1 and of every shippable stage (T8), consumed by the writer and the binding manager; the passes agree record by record; a failed restore is never blank (3 rules 7 and 11, 5.1, 5.2, 6.2, 6.3, 8.6, 8.7, 10, 15 item 5) | H1 to H8, V18, V18b, V18c and the erased control V10 at 1x1 and 8x8, W16 at 1x1; C01, C02, C03, X01, X02, B02, B04; both reviewers' probes, rerun |
-| R217 R2-F2: descriptor-memory errors and timeouts bypass the restore transaction | MAJOR; Conformance, RTL, Robustness, Tests, Docs | a rule or revert fetch that fails aborts (cause 6), never a refusal; an unproven image ends CLOSED (cause 7); response isolation S2, a prerequisite (T9), and a roll-back held while the memory owes a burst; a subordinate's timeout is a fault, never progress (3 rules 7 and 11, 5.1, 6.2, 6.3, 8.3, 8.6, 8.8, 10, 15 item 14) | V20, V20b, V20c, V20d, V21, V21b, V21c, V21d, V22, V22b, V23, V17 and the refusal control V2b; DF01, DF02, DF03, IMG01, DG01, DG02; R217's probes, rerun |
-| R217 R2-F3: the stages still permit an unbounded binding-walk hold, and T8 promises incompatible recovery | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the bounded binding walk S3, a prerequisite (T8); commands served on defaults; persistence quarantined until the device answers, no reuse claimed; T8 rewritten (3 rules 8 and 11, 5.1, 6.3, 6.4, 8.1, 8.8, 10, 13, 15 items 4 and 13) | W13, W13b, W13c, W15, W16, W14; B01, B03, G05 |
+| R217 R2-F2: descriptor-memory errors and timeouts bypass the restore transaction | MAJOR; Conformance, RTL, Robustness, Tests, Docs | a rule or revert fetch that fails aborts (cause 6), never a refusal; an unproven image ends CLOSED (cause 7); response isolation S2, a prerequisite (T9), and a roll-back held while the memory owes a burst; a subordinate's timeout is a fault, never progress (3 rules 7 and 11, 5.1, 6.2, 6.3, 8.3, 8.6, 8.8, 10, 15 item 14). Its stage-1 remainder is R218 R3-F1, above | V20, V20b, V20c, V20d, V21, V21b, V21c, V21d, V22, V22b, V23, V17 and the refusal control V2b; DF01, DF02, DF03, IMG01, DG01, DG02; R217's probes, rerun |
+| R217 R2-F3: the stages still permit an unbounded binding-walk hold, and T8 promises incompatible recovery | MAJOR; Conformance, RTL, Robustness, Tests, Docs | the bounded binding walk S3, a prerequisite (T8); commands served on defaults; persistence quarantined until the device answers, no reuse claimed; T8 rewritten (3 rules 8 and 11, 5.1, 6.3, 6.4, 8.1, 8.8, 10, 13, 15 items 4 and 13). Its preload-phase remainder is R217 R3-F1, above | W13, W13b, W13c, W15, W16, W14; B01, B03, G05 |
 | R218 F6: the output-format oracle admits synthetic behavior without identifying that boundary | MINOR; Tests, Docs | the product's judge transcribed as the SHIPPING mode; every synthetic-judge case labelled; a shipping-legal save and replay graded by value and valid flag; which ordering claims rest on the synthetic judge (8.2, 8.4, 14) | V1s_a, V1s_b, V1s_c; TRG_fmto, RPL_fmto, TRG_fmti and RPL_fmti each killed by a V1s check as well as V1a's or V1b's; the partial-kill control |
 | R218 F7: permanent-silence recovery contradicts mandatory quarantine | MINOR; Docs | T8 rewritten: a device that never ends the abandoned read keeps the port quarantined for ever, and no reuse is claimed without a cancellation or device-reset acknowledgement; finite late completion and permanent silence separated (6.4, 8.8, 15 item 4) | W13 (quarantined for ever), W13c and W15 (finite late completion) |
 
