@@ -2365,7 +2365,17 @@ def grade_listener(g: Grade, r: Run, s: Shape, extra: dict) -> None:
                 f"the binding read held from {h.get('start')} to {h.get('end')}, the binding deadline count reached "
                 f"{h.get('m0_wd_max')} of {RS_TMO}")
     # ---- the D3 walk and the controller's service
-    if silent:
+    if c == "L13_d3_rollback_keeps_the_bindings":
+        #! the D3 roll-back resets its own owners only: the bindings the
+        #! binding walk restored stay in the listener and in the slot
+        g.contained(1)
+        g.check("rollback_premise@terminal", g.boot_evt("rollback") > rel > 0 and g.boot_evt("cause") in (1, 2),
+                f"the D3 roll-back at {g.boot_evt('rollback')} (cause {g.boot_evt('cause')}), after the binding "
+                f"walk's release at {rel}")
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif silent:
         h = g.hold()
         g.check("held_premise@terminal", h.get("active") == 1 and h.get("released") == 0 and b.get("m0_abort", 0) > 0,
                 f"binding read held from {h.get('start')}, never released, abandoned to the drain at {b.get('m0_abort')}")
@@ -2457,7 +2467,8 @@ LISTENER_CASES = ["L00_listener_restore_control", "L01_tk_event_held", "L02_tk_e
                   "L03_tk_event_later_sink", "L03b_tk_discovered_queued", "L04_txn_polled_held",
                   "L05_txn_read_only_in_the_window", "L06_stop_held", "L06b_start_stop_persistent",
                   "L07_expiry_spurious", "L08a_cut_in_the_preload", "L09_bind_held_live_change",
-                  "L11_tk_held_binding_near_deadline", "L12_tk_held_binding_silent"]
+                  "L11_tk_held_binding_near_deadline", "L12_tk_held_binding_silent",
+                  "L13_d3_rollback_keeps_the_bindings"]
 L10 = "L10_release_boundary"
 L10_VARIANTS = ["m1", "0", "p1"]
 DEPENDS["L08b_restore_after_the_preload_cut"] = "L08a_cut_in_the_preload"

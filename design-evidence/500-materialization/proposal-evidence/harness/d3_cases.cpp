@@ -1626,6 +1626,12 @@ void register_cases() {
     hold_binding_read(0x20, 20000 - 40, -1);
     listener_scenario();
   };
+  cases["L13_d3_rollback_keeps_the_bindings"] = [] {
+    // a read error on 0x50's payload in pass 1: the D3 walk rolls back to
+    // its defaults, and the binding walk it follows stays applied
+    read_fault(0x50, 8 + 3, -1, 1);
+    listener_scenario();
+  };
   cases["L12_tk_held_binding_silent"] = [] {
     // the held level, and the binding read silent for ever (W13's stimulus)
     lt_tkq.push_back(lt_tk_drop(0, 0));
