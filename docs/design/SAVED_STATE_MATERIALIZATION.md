@@ -174,10 +174,15 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    value latched after the last change. A change after the latch taints the
    write, and a tainted write clears nothing. A change on the done edge
    wins. Set and clear name the record by group AND index.
-5. **One device-face initiator.** The records reach the window only through
-   `KL_pp_nvm_port`, behind a two-manager arbiter (section 6.4): the
-   binding manager is manager 0, the writer manager 1. The backend sees
-   nothing new, so obligation O1 holds as written.
+5. **One device-face initiator, two arbitrated producers.** The records
+   reach the window only through `KL_pp_nvm_port`, so the backend still sees
+   one device-face initiator. The port's manager face gains an explicit
+   arbiter (section 6.4): the binding manager is manager 0, the writer
+   manager 1. Obligation O1 is untouched: it constrains the one sequential
+   CONTROL-face master (the strobe word, the image base and length, the
+   channel-map tables), and the writer writes no control-face register.
+   Obligation O3, which orders device-face initiators after the restore
+   walk, holds as well (section 8.1).
 6. **The pending source.** `pend_i` becomes the binding manager's unflushed
    sinks OR the writer's unflushed records. The dynamic-state level and the
    parent's sticky class-6/7 bit LEAVE `pend_i`: a per-record bit replaces
@@ -212,7 +217,8 @@ of the DSP and no-DSP mappings.
 | Where | seven managers in the processor, each in the image of `KL_acmp_nvm_shadow`, with a shadow each | one writer in the processor, no shadow | the parent's firmware reads values over CSRs and frames the records itself; the fabric only reports |
 | Area, 1x1 | at least 9,519 LUT, 8,789 FF, 1 RAMB36 | 2,312 LUT, 802 FF, 0 RAMB36, 0 DSP | fabric at least 530 LUT, 266 FF, 0 RAMB36; firmware not measured |
 | Area, 8x8 | at least 9,479 LUT, 8,725 FF, 3 RAMB36 | 2,925 LUT, 927 FF, 0 RAMB36, 0 DSP | fabric at least 1,631 LUT, 458 FF, 0 RAMB36 |
-| O1, one sequential writer on the device face | kept: eight managers behind the one port | kept: two managers behind the one port | the device face carries no D3 record at all, so the open vector, the attestation and the capture identity never see one: a second ownership mechanism must carry them |
+| O1, the one sequential control-face master | untouched: no manager writes the control face | untouched: the writer writes no control-face register | still the firmware alone, but its control face GROWS: a per-record snapshot handshake and a state-bus bridge must be sequenced against ARM, ATTEST and ACK, a contract change to resolve explicitly |
+| The device face, and O3 | eight producers behind the one port need an eight-way arbiter; each comes up after the restore walk | two producers behind the one port, with the arbiter of section 6.4; the writer's first flush follows its own restore walk | no D3 record crosses it, so the open vector, the attestation and the capture identity never see one: a second ownership mechanism must carry them |
 | What a controller observes | pending from the write; durable after the manager debounce, the firmware debounce and a commit | the same | pending from the write; durable after the firmware debounce and a commit |
 | Testability | seven managers to grade | the processor's own suites and the parent's co-simulation | the firmware on the host model plus a new CSR face |
 | Repository | processor | processor, a small parent glue change and one firmware reorder | both, and the processor's `07_memory_maps.md` section 5 must be amended to assign the groups to the integrator |
@@ -235,10 +241,11 @@ costs no new block RAM until that ROM overflows.
 1. **The accepted contract applies unchanged.** In (b) and (a) a D3 record
    is a record the port writes, like a binding. The open vector, the
    capture, the attestation, the acknowledgement identity and the pending
-   bit cover it with no new rule. In (c) no D3 record crosses the device
-   face: a CSR-level snapshot handshake would have to carry the clear rule
-   beside the contract, obligations O1 to O4 would have to be re-proved for
-   it, and the firmware would become a writer of processor state.
+   bit cover it with no new rule, and the control face does not change. In
+   (c) no D3 record crosses the device face: a CSR-level snapshot handshake
+   on a larger control face would have to carry the clear rule beside the
+   contract, obligations O1 to O4 would have to be re-proved for it, and
+   the firmware would become a writer of processor state.
 2. **BRAM is the binding constraint.** (b) and (c) use none. (a) needs one to
    three RAMB36 for its shadows, on a device that measured 131 of its 135
    block-RAM tiles used on a recent build (the banner of the processor's
@@ -679,7 +686,7 @@ contract (section 12).
 | Alternative | Rejected because | Evidence |
 |---|---|---|
 | (a) A manager per group, in the image of `KL_acmp_nvm_shadow` | three to four times the LUT of (b) and one to three RAMB36 on a device whose binding constraint is block RAM; seven debounces, seven retries and seven restore walks to grade | MEASURED floor, section 4 |
-| (c) The firmware materializes the records from CSR reads | D3 records would never cross the device face, so a second ownership mechanism must carry the clear rule beside the accepted contract; the firmware becomes a writer of processor state; the framing and the value rules move into firmware; the donor's F07.9 must be amended. Its fabric half is smaller by 1,782 LUT at 1x1 and 1,294 at 8x8 | MEASURED floor, section 4 |
+| (c) The firmware materializes the records from CSR reads | D3 records would never cross the device face, so a second ownership mechanism, on a larger control face, must carry the clear rule beside the accepted contract; the firmware becomes a writer of processor state; the framing and the value rules move into firmware; the donor's F07.9 must be amended. Its fabric half is smaller by 1,782 LUT at 1x1 and 1,294 at 8x8 | MEASURED floor, section 4 |
 | Triggering on the commit marks, as the tracked glue does | the marks follow the live write by the program's tail, so the status reads durable over an applied name or map | EXECUTED on the tracked glue, section 2 |
 | A shadow of every record inside (b) | 2,432 bytes of names at 1x1 and 6,336 at 8x8 alone; the live value is readable at flush, and latching it costs at most 179 cycles of dispatch hold-off | the (a) shadow rows, section 4; latch windows, section 12 |
 | Latching without the dispatch hold-off | a SET in progress is latched half old, half new | EXECUTED: M05 is killed by K11 |
@@ -754,9 +761,10 @@ The board's own figure is a measurement each stage owes.
 - The writer's alarm is sticky like the binding manager's, and joins its
   revocation of `nvm_backed`.
 - Lock, registry and IDENTIFY stay volatile.
-- Obligations O1 to O4 of the snapshot contract are unchanged; the writer
-  is one more manager behind the one initiator, and an implementation lane
-  inherits all four.
+- Obligations O1 to O4 of the snapshot contract are unchanged. The writer
+  is one more producer behind the one device-face initiator, arbitrated
+  explicitly, and it writes nothing on the control face. An implementation
+  lane inherits all four.
 
 ## 14. The executable model and its omissions
 
