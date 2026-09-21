@@ -194,7 +194,7 @@ so that the drafts this commit carries are pinned too.
 | `tickets/README.md` | `221d01c9d54eb3534f30b8a4c880344a080079aecc8070b6239a9248be3c5219` |
 | `tickets/T1-processor-stage1-dynamic-state-writer.md` | `b48affce20513f9e821ecb894266f4cdd043aebb5d8cbc74a1494b1f846ac393` |
 | `tickets/T2-processor-stage2-names.md` | `afa3f82b1b243e807f5911901c12cd875777501aa00387bca7e982818bf77735` |
-| `tickets/T3-processor-stage3-channel-maps.md` | `e5a3261db79ed4d2c5a52d081f2d4214f1e58bce4d8d0f04b41196cec6b3f6e4` |
+| `tickets/T3-processor-stage3-channel-maps.md` | `6f88b8b2d9ab7f63560224f800f3afee7ff4aed4a6377bfd462eca5768eb08a9` |
 | `tickets/T4-parent-glue-firmware-and-silicon-proof.md` | `8bd1310e51b273f59875dcb30028582f8300b79efc3cf873490006a8c7969a23` |
 | `tickets/T5-output-map-record-size-at-8x8.md` | `14cdbeaedfe776baa3ed6cc7cc233fadf216cb78ad9d911a589f61bfa625c1d8` |
 | `tickets/T6-mark-tail-durable-window.md` | `9f4bd29181c70200830f481a353818b2e1e1a939bb600759c4feea20adeeb6bc` |

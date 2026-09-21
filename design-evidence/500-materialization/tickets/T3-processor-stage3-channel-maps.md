@@ -23,7 +23,7 @@ ADD/REMOVE edit face.
 ## Authority
 
 kebag-logic/milan-fpga `docs/design/SAVED_STATE_MATERIALIZATION.md` sections
-3 (rules 3 and 8), 7.2 (K12, K16), 8.3, 8.4, 8.6, 8.8 and 10; the parent's
+3 (rules 3 and 9), 7.2 (K12, K16), 8.3, 8.4, 8.6, 8.8 and 10; the parent's
 saved-state page section 4.2 (8 bytes a cluster), and whatever #501 decides
 in its place.
 
