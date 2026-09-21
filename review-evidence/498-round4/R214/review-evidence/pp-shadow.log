@@ -1,0 +1,13 @@
+make: Entering directory '$REVIEW_TMP/pp-stage/tb/verilator/pp_shadow'
+git ls-files failed in $REVIEW_TMP/pp-stage/protocol-processor/hdl: fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+Makefile:121: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 80 programs
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall waivers.vlt -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -CFLAGS "-std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra"  sim_main.cpp -o Vpp_shadow_sim
+%Error: verilator: No input Verilog file specified on command line, see 'verilator --help' for more information
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.052 for more assistance.
+make: *** [Makefile:135: run] Error 1
+make: Leaving directory '$REVIEW_TMP/pp-stage/tb/verilator/pp_shadow'

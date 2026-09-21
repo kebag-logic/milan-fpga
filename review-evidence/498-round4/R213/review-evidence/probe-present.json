@@ -1,0 +1,236 @@
+[
+  {
+    "label": "pristine",
+    "kind": "whole",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "conditional_paste",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "conditional_paste",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "conditional_splice",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "conditional_splice",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "product_selected_splice",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "product_selected_splice",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "nested_selected_splice",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "nested_selected_splice",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "splice_inside_common_statement",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "splice_inside_common_statement",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (after translation phases 1 and 2) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "paste_inside_common_statement",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "paste_inside_common_statement",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "a preprocessor arm inside the fabric configuration step names something this file defines (['REVIEW_PASTE']): the arm a conditional selects is the one region the preprocessed-unit comparison cannot read, so what it may select is BOUNDED -- a name this file defines can be a CSR primitive, a register constant or a boot step, and a paste or a splice can spell one out of text no reader here matches"
+  },
+  {
+    "label": "dropped_external_statement",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "dropped_external_statement",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "conditional_argument",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "conditional_argument",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "a preprocessor arm inside the fabric configuration step names something this file defines (['MILAN_ADP_CTRL']): the arm a conditional selects is the one region the preprocessed-unit comparison cannot read, so what it may select is BOUNDED -- a name this file defines can be a CSR primitive, a register constant or a boot step, and a paste or a splice can spell one out of text no reader here matches"
+  },
+  {
+    "label": "debug_printf",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+    "label": "debug_printf",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x9', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "plain_splice",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+    "label": "plain_splice",
+    "kind": "preprocessor",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+    "label": "paste_outside_boot",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+    "label": "paste_outside_boot",
+    "kind": "preprocessor",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "extra_private_cast",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile unsigned int *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)']"
+  },
+  {
+    "label": "extra_private_cast",
+    "kind": "resolver",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "extra_private_store",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = (uint64_t)parsed', '*value = seconds * 1000000000ull + nanoseconds', 'NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))', 'NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))', 'NVM_STG[i] = NVM_ERASED', 'NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u', 'NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]', 'own[0] = nvm_word_read(NVM_W_OWN0 + 0u)', 'own[1] = nvm_word_read(NVM_W_OWN0 + 1u)', 'own[2] = nvm_word_read(NVM_W_OWN0 + 2u)', 'own[3] = nvm_word_read(NVM_W_OWN0 + 3u)', 'own[4] = nvm_word_read(NVM_W_OWN0 + 4u)', 'own[5] = nvm_word_read(NVM_W_OWN0 + 5u)', 'own[6] = nvm_word_read(NVM_W_OWN0 + 6u)', 'own[7] = nvm_word_read(NVM_W_OWN0 + 7u)', 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]', 'NVM_IMG[i] = src[i]', 'NVM_IMG[i] = NVM_STG[i]', '*p = 11u', 'dst[i] = src[i]']"
+  },
+  {
+    "label": "extra_private_store",
+    "kind": "resolver",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "extra_crft_advertise",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes CRFT_CTRL (CSR 0x750) from ['configure_fabric', 'entity_advertise']: the declaration owns the CRF talker, so the WHOLE firmware makes exactly one write to it and configure_fabric() makes it. This is the resolved boot-word census, resolved from the emitted operands"
+  },
+  {
+    "label": "extra_crft_advertise",
+    "kind": "resolver",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes CRFT_CTRL (CSR 0x750) from ['configure_fabric', 'entity_advertise']: the declaration owns the CRF talker, so the WHOLE firmware makes exactly one write to it and configure_fabric() makes it. This is the resolved boot-word census, resolved from the emitted operands"
+  },
+  {
+    "label": "extra_caps_advertise",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes ADP_ECAPS (CSR 0x614) from entity_advertise(): nothing reads that word -- the ADPDU carries the processor's own ADP_ENTITY_CAPS_C (#398) -- so the whole firmware writes it never. This is the resolved boot-word census"
+  },
+  {
+    "label": "extra_caps_advertise",
+    "kind": "resolver",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes ADP_ECAPS (CSR 0x614) from entity_advertise(): nothing reads that word -- the ADPDU carries the processor's own ADP_ENTITY_CAPS_C (#398) -- so the whole firmware writes it never. This is the resolved boot-word census"
+  },
+  {
+    "label": "extra_crft_command",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes CRFT_CTRL (CSR 0x750) from ['print_tod', 'configure_fabric']: the declaration owns the CRF talker, so the WHOLE firmware makes exactly one write to it and configure_fabric() makes it. This is the resolved boot-word census, resolved from the emitted operands"
+  },
+  {
+    "label": "extra_crft_command",
+    "kind": "resolver",
+    "result": "REFUSE",
+    "message": "the compiled firmware writes CRFT_CTRL (CSR 0x750) from ['print_tod', 'configure_fabric']: the declaration owns the CRF talker, so the WHOLE firmware makes exactly one write to it and configure_fabric() makes it. This is the resolved boot-word census, resolved from the emitted operands"
+  },
+  {
+    "label": "reorder_stores",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = seconds * 1000000000ull + nanoseconds', '*value = (uint64_t)parsed', 'NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))', 'NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))', 'NVM_STG[i] = NVM_ERASED', 'NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u', 'NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]', 'own[0] = nvm_word_read(NVM_W_OWN0 + 0u)', 'own[1] = nvm_word_read(NVM_W_OWN0 + 1u)', 'own[2] = nvm_word_read(NVM_W_OWN0 + 2u)', 'own[3] = nvm_word_read(NVM_W_OWN0 + 3u)', 'own[4] = nvm_word_read(NVM_W_OWN0 + 4u)', 'own[5] = nvm_word_read(NVM_W_OWN0 + 5u)', 'own[6] = nvm_word_read(NVM_W_OWN0 + 6u)', 'own[7] = nvm_word_read(NVM_W_OWN0 + 7u)', 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]', 'NVM_IMG[i] = src[i]', 'NVM_IMG[i] = NVM_STG[i]', 'dst[i] = src[i]']"
+  },
+  {
+    "label": "reorder_stores",
+    "kind": "resolver",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "README and notes",
+    "kind": "whole",
+    "result": "REFUSE",
+    "message": "the firmware's directory is pinned to ['Makefile', 'milan_baremetal.c']: a quoted include resolves against this directory FIRST, so a file dropped in here answers to a pinned include name and puts this repository's text behind it with no name changing anywhere; found ['Makefile', 'README', 'milan_baremetal.c', 'notes.txt']"
+  },
+  {
+    "label": "README and notes",
+    "kind": "include",
+    "result": "ACCEPT",
+    "message": ""
+  },
+  {
+    "label": "shadow command.h",
+    "kind": "include",
+    "result": "REFUSE",
+    "message": "a pinned include resolved to a file this repository supplies beside the firmware: ['/data/milan/tmp/498-review-R213-r4/tmp/milan-beside-8zg4w0an/command.h']. A quoted include resolves against the including file's directory FIRST, so a file there answers to a pinned name and puts this repository's text behind it with no name changing anywhere -- measured by the PATH the preprocessor resolved, in the tree it was handed"
+  },
+  {
+    "label": "equal counts but reversed boot tokens",
+    "kind": "synthetic comparison data",
+    "result": "REFUSE",
+    "message": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'load_aem_image', 'nvm_boot', 'configure_fabric', 'entity_advertise'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  }
+]

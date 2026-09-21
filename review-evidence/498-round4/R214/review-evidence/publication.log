@@ -1,0 +1,43 @@
+fabric_constants-later-write prior checker ACCEPTED
+fabric_constants-later-write REFUSED complete-loop pin
+fabric_constants-later-write complete gate 35 REFUSED
+fabric_constants-else-write REFUSED complete-loop pin
+fabric_constants-nested-write REFUSED complete-loop pin
+fabric_constants-first-value REFUSED complete-loop pin
+fabric_constants-duplicate REFUSED complete-loop pin
+fabric_constants-missing REFUSED complete-loop pin
+fabric_constants-comments-multiline ACCEPTED
+fabric_constants-spacing ACCEPTED
+Traceback (most recent call last):
+  File "$REVIEW_ROOT/sw/builder/test_builder.py", line 23715, in test_boot_policy_follows_the_declaration
+    control()
+    ~~~~~~~^^
+  File "$REVIEW_ROOT/sw/builder/test_builder.py", line 23363, in <lambda>
+    lambda: _assert_publication_loop_is_pinned(_planted_publication(soc))),
+                                               ~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "$REVIEW_ROOT/sw/builder/test_builder.py", line 23335, in _planted_publication
+    assert found and found.group(0).count(_PUBLISHED_VALUE) == 1, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 35: the publication-loop control lost its anchor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEW_ROOT/review-evidence/publication_probe.py", line 30, in grade
+    try:m.test_boot_policy_follows_the_declaration()
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_ROOT/sw/builder/test_builder.py", line 23717, in test_boot_policy_follows_the_declaration
+    assert because in str(exc), \
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 35: the publication loop substituting the CRF boot word was refused for the wrong reason: gate 35: the publication-loop control lost its anchor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEW_ROOT/review-evidence/publication_probe.py", line 54, in <module>
+    grade(name+'-spacing',replace(loop,formatted),False,True)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_ROOT/review-evidence/publication_probe.py", line 32, in grade
+    assert refuse and 'pinned complete loop' in str(e),(label,str(e));print(label,'complete gate 35 REFUSED',flush=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('fabric_constants-spacing', 'gate 35: the publication loop substituting the CRF boot word was refused for the wrong reason: gate 35: the publication-loop control lost its anchor')

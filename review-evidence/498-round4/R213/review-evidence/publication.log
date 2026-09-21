@@ -1,0 +1,24 @@
+pristine ACCEPT
+fabric_constants later_override REFUSE
+fabric_constants conditional_later_override REFUSE
+fabric_constants else_override REFUSE
+fabric_constants duplicate_loop REFUSE
+fabric_constants early_continue REFUSE
+fabric_constants changed_target REFUSE
+fabric_constants substituted_value REFUSE
+fabric_constants comments and multiline arguments ACCEPT
+fabric_constants complete gate35 REFUSE later_override
+firmware_constants later_override REFUSE
+firmware_constants conditional_later_override REFUSE
+firmware_constants else_override REFUSE
+firmware_constants duplicate_loop REFUSE
+firmware_constants early_continue REFUSE
+firmware_constants changed_target REFUSE
+firmware_constants substituted_value REFUSE
+firmware_constants comments and multiline arguments ACCEPT
+firmware_constants complete gate35 REFUSE later_override
+wait MILAN_NVM_HEARTBEAT_MS +1 REFUSE
+wait MILAN_NVM_DEBOUNCE_MS +1 REFUSE
+wait MILAN_NVM_ERASE_TIMEOUT_MS +1 REFUSE
+wait MILAN_NVM_PROGRAM_TIMEOUT_MS +1 REFUSE
+wait MILAN_NVM_RESTORE_TIMEOUT_MS +1 REFUSE

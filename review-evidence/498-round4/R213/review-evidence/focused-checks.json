@@ -1,0 +1,151 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "seconds": 3.66,
+    "log": "check-00.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "exit": 0,
+    "seconds": 0.05,
+    "log": "check-01.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "exit": 0,
+    "seconds": 0.06,
+    "log": "check-02.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.34,
+    "log": "check-03.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "07294a76e833f1831d9fcbceb8123b8380c4ae76"
+    ],
+    "exit": 0,
+    "seconds": 0.85,
+    "log": "check-04.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "exit": 0,
+    "seconds": 0.55,
+    "log": "check-05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_solution_docs.py"
+    ],
+    "exit": 0,
+    "seconds": 0.11,
+    "log": "check-06.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check",
+      "--selftest"
+    ],
+    "exit": 0,
+    "seconds": 3.04,
+    "log": "check-07.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "exit": 0,
+    "seconds": 0.19,
+    "log": "check-08.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "seconds": 2.77,
+    "log": "check-09.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "exit": 0,
+    "seconds": 1.04,
+    "log": "check-10.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "exit": 0,
+    "seconds": 1.94,
+    "log": "check-11.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.91,
+    "log": "check-12.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "exit": 0,
+    "seconds": 38.93,
+    "log": "check-13.log"
+  }
+]

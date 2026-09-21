@@ -1,0 +1,14 @@
+EXIT 0 python3 -B scripts/docs_check.py
+EXIT 0 python3 -B scripts/check_doc_style.py
+EXIT 0 python3 -B scripts/check_doc_paths.py
+EXIT 0 python3 -B scripts/gen_toc.py --check
+EXIT 0 python3 -B scripts/check_em_dash.py --base 07294a76e833f1831d9fcbceb8123b8380c4ae76
+EXIT 0 python3 -B scripts/check_feature_status.py
+EXIT 0 python3 -B scripts/check_solution_docs.py
+EXIT 0 python3 -B scripts/check_baremetal_only.py --check
+EXIT 0 python3 -B scripts/check_baremetal_only.py --selftest
+EXIT 0 python3 -B scripts/pp_srcs.py --check --selftest
+EXIT 0 python3 -B scripts/check_cpp_idiom.py
+EXIT 0 python3 -B scripts/check_py_idiom.py
+EXIT 0 python3 -B scripts/check_nvm_record_space.py
+EXIT 0 python3 -B docs/traceability/gen_module_matrix.py --check
