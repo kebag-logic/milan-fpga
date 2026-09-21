@@ -25,18 +25,18 @@ merged. Every evidence citation on this page names the branch, the commit and
 a path in it:
 
 - the command record, with every command, exit code and digest:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/COMMAND_RESULTS.md`;
 - how to re-run it:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/proposal-evidence/README.md`;
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/proposal-evidence/README.md`;
 - the run script:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/proposal-evidence/run.py`;
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/proposal-evidence/run.py`;
 - its graded results:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/proposal-evidence/results.txt`
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/proposal-evidence/results.txt`
   and `results.json` beside it;
 - the prototype writer and arbiter:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/proposal-evidence/prototype/`;
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/proposal-evidence/prototype/`;
 - the area rows and the two cost proxies:
-  `branch 500-design-evidence, commit 71394e545079993e90681249c53b564e1e0213f4, path design-evidence/500-materialization/proposal-evidence/ooc/`.
+  `branch 500-design-evidence, commit a21b165ac1c671d10cba7255beaf75cea0f81d18, path design-evidence/500-materialization/proposal-evidence/ooc/`.
 
 A section number that is a link points into another page; a plain section
 number is this page's.
