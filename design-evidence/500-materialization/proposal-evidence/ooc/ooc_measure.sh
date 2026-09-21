@@ -18,6 +18,7 @@ set -euo pipefail
 label="$1"; top="$2"; params="$3"; nodsp_flag="$4"; shift 4
 out="${OOC_OUT:-/data/milan/tmp/500/ooc}"
 mkdir -p "$out"
+out="$(cd "$out" && pwd)"
 v="$out/$label.v"; log="$out/$label.yosys.log"; json="$out/$label.json"
 # -DSYNTHESIS as syn/yosys/ooc.sh passes it (its INC list)
 # shellcheck disable=SC2086
@@ -25,7 +26,9 @@ sv2v --top="$top" ${SV2V_ARGS:--DSYNTHESIS} "$@" > "$v" 2> "$out/$label.sv2v.err
 chp=""
 for kv in $params; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done
 nodsp=""; [ "$nodsp_flag" = "1" ] && nodsp=" -nodsp"
-yosys -q -l "$log" -p "read_verilog $v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $json" > /dev/null
+# run inside $out: yosys-abc leaves an abc.history in its working directory,
+# and an incidental file must never land beside the tracked evidence
+(cd "$out" && yosys -q -l "$log" -p "read_verilog $v;$chp synth_xilinx -family xc7$nodsp -top $top -flatten; stat; write_json $json" > /dev/null)
 awk -v top="$top" -v label="$label" '
   function lram_luts(t) {
     if (t == "RAM256X1D" || t == "RAM512X1S" || t == "RAM32X8S" ||

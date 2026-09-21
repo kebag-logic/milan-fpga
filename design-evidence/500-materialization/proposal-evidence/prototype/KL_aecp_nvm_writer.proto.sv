@@ -197,7 +197,7 @@ module KL_aecp_nvm_writer #(
     output logic        restore_blank_o, //! done, and no D3 record passed framing and crc
     output logic        restore_rb_o,    //! done after a roll-back: every D3 group is at its default
     output logic        restore_closed_o,//! terminal without done: the roll-back could not validate
-    output logic [2:0]  rs_cause_o,      //! first abort: 0 none, 1 torn, 2 read err, 3 watchdog, 4 edit refused, 5 re-walk, 6 passes disagree
+    output logic [2:0]  rs_cause_o,      //! the first abort: 0 none, 1 torn, 2 read err, 3 watchdog, 4 edit refused, 5 passes disagree
     output logic [7:0]  rs_applied_o,
     output logic [7:0]  rs_refused_o,
     output logic [7:0]  rs_blank_o,
@@ -739,7 +739,7 @@ module KL_aecp_nvm_writer #(
             if (rs_fr1_r == rs_fr0_r) begin
               st_r <= R_FIN;
             end else begin
-              if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;
+              if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
               st_r <= R_ABORT;
             end
           end else if (rpass_r && (32'(cur_r) == S_NAME_C) && !chk_done_r) begin
@@ -1116,10 +1116,10 @@ module KL_aecp_nvm_writer #(
         R_ABORT: begin
           //! pass 0 applied nothing: done and fail, own released. Pass 1 may
           //! have applied anything: roll back. An abort DURING the roll-back
-          //! leaves a state nobody can vouch for: closed.
+          //! leaves a state nobody can vouch for: closed. rs_cause_r keeps the
+          //! first abort's cause.
           rs_fail_r <= 1'b1;
           if (rb_act_r) begin
-            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
             rs_closed_r <= 1'b1; st_r <= T_CLOSED;
           end else if (rpass_r) begin
             rb_act_r <= 1'b1; rb_rst_r <= 1'b1; rb_cnt_r <= 2'd0; st_r <= B_RST;
@@ -1145,7 +1145,6 @@ module KL_aecp_nvm_writer #(
             //! are the image's again: DEFAULTS, own released
             own_r <= 1'b0; rs_done_r <= 1'b1; rs_rb_r <= 1'b1; st_r <= F_RUN;
           end else begin
-            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
             rs_closed_r <= 1'b1; st_r <= T_CLOSED;
           end
         end

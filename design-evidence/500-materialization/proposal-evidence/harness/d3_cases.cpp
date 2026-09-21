@@ -835,6 +835,7 @@ void register_cases() {
     boot();
     idle(200);
     read_row(SEL_FMTO, 0, "post.fmto0");
+    read_row(SEL_PTOF, 0, "post.ptof0");
     settle();
     snap("restored");
   };

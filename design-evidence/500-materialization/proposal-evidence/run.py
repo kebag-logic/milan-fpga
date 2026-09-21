@@ -102,6 +102,15 @@ FW_SUBS = [
 #: and write names back after the descriptor store has walked it
 BOOT_OLD = ("\tnvm_boot();\n\taem_loaded = load_aem_image();\n\tentity_advertise(aem_loaded);\n")
 BOOT_NEW = ("\taem_loaded = load_aem_image();\n\tnvm_boot();\n\tentity_advertise(aem_loaded);\n")
+#: THE SECOND FIRMWARE CHANGE (page section 5.3): the enable is released by
+#: the restore now (section 8.8), so the firmware's bounded wait REPORTS and
+#: its enable line says what it did; neither decides anything
+FW_REPORT = [
+    ('\t\t\tprintf("Milan NVM: the restore walk did not sequence in time.\\n");\n',
+     '\t\t\tprintf("Milan NVM: the restore has not reached its terminal; the fabric holds the entity enable until it does.\\n");\n'),
+    ('\tprintf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\\n");\n',
+     '\tprintf("Milan baremetal: entity enable requested; the fabric releases it when the restore is done; UART diagnostics ready.\\n");\n'),
+]
 
 
 def cmd(argv: list, log: Path, cwd: Path = ROOT) -> subprocess.CompletedProcess:
@@ -294,9 +303,14 @@ MUTATIONS = {
     "G02_restore_done_without_d3": ("top",
         "  assign rs_done_w = mgr_done_w & d3_done_w;",
         "  assign rs_done_w = mgr_done_w;"),
-    "G03_restore_writes_are_changes": ("top",
-        "  assign u_dyn_ack_w  = !snoop_off_i && !d3_own_w && ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w;",
-        "  assign u_dyn_ack_w  = !snoop_off_i && (d3_own_w ? (sb_req_w && sb_we_w && dyn_sel_w) : (ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w));"),
+    #! the snoop taps the SHARED bus, strobe, address and index alike, so the
+    #! writer's own restore writes decode to their records
+    "G03_restore_writes_are_changes": [
+        ("top",
+         "  assign u_dyn_ack_w  = !snoop_off_i && !d3_own_w && ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w;",
+         "  assign u_dyn_ack_w  = !snoop_off_i && (d3_own_w ? (sb_req_w && sb_we_w && dyn_sel_w) : (ub_req_i && ub_we_i && dyn_sel_w && dyn_ready_w));"),
+        ("top", "      .u_addr_i         (ub_addr_i),", "      .u_addr_i         (st_addr_w),"),
+        ("top", "      .u_didx_i         (ub_didx_i),", "      .u_didx_i         (st_didx_w),")],
     "M14_clear_by_index": ("writer",
         "    assign clr_w[gs] = clr_en_w && (cg_r == grp_f(SW_C'(gs)))\n"
         "                     && (ci_r[7:0] == 8'(gs - base_f(grp_f(SW_C'(gs)))));",
@@ -328,10 +342,10 @@ MUTATIONS = {
         "  assign map_rst_o           = rb_rst_w;",
         "  assign map_rst_o           = 1'b0;"),
     "R05_closed_releases_the_entity": ("writer",
-        "          end else begin\n            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;\n"
-        "            rs_closed_r <= 1'b1; st_r <= T_CLOSED;\n          end\n        end\n        T_CLOSED",
-        "          end else begin\n            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;\n"
-        "            own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;\n          end\n        end\n        T_CLOSED"),
+        "          end else begin\n            rs_closed_r <= 1'b1; st_r <= T_CLOSED;\n          end\n        end\n"
+        "        T_CLOSED",
+        "          end else begin\n            own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;\n          end\n"
+        "        end\n        T_CLOSED"),
     "X01_passes_may_disagree": ("writer",
         "            if (rs_fr1_r == rs_fr0_r) begin",
         "            if (1'b1) begin"),
@@ -529,6 +543,10 @@ def host_firmware(text: str, old_boot: bool) -> str:
         raise SystemExit("the milan_init boot order seam moved")
     if not old_boot:
         text = text.replace(BOOT_OLD, BOOT_NEW)
+    for old, new in FW_REPORT:
+        if text.count(old) != 1:
+            raise SystemExit(f"firmware report seam count {text.count(old)}: {old[:50]!r}")
+        text = text.replace(old, new)
     return text
 
 
@@ -704,6 +722,15 @@ SEL_OF = {0x00: (0, 1, 2), 0x02: (1, 8, 4), 0x0A: (2, 8, 2), 0x30: (3, 16, 8), 0
           0x50: (5, 16, 4)}
 
 
+def show(got, want) -> str:
+    """A live value against the value wanted: bytes from their first
+    difference, scalars whole."""
+    if isinstance(got, bytes) and isinstance(want, bytes):
+        k = next((i for i in range(min(len(got), len(want))) if got[i] != want[i]), min(len(got), len(want)))
+        return f"live {got[k:k + 12].hex() or '(end)'} want {want[k:k + 12].hex() or '(end)'} from byte {k}"
+    return f"live {got} want {want}"
+
+
 def scalar_of(rid: int) -> tuple | None:
     """(selector, index, width) of a scalar record id, else None."""
     for base, (sel, span, width) in SEL_OF.items():
@@ -813,9 +840,7 @@ class Grade:
             got = self.snap_value(sn, rid)
             exp = self.want_of(rid, want[rid]) if rid in want else self.default_of(rid)
             if got != exp:
-                g = got.hex()[:24] if isinstance(got, bytes) else got
-                e = exp.hex()[:24] if isinstance(exp, bytes) else exp
-                bad.append(f"{rid:#04x} live {g} want {e}")
+                bad.append(f"{rid:#04x} {show(got, exp)}")
         return bad
 
     def boot_evt(self, key: str, default=0):
@@ -1069,8 +1094,8 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
             want = g.want_of(rid, payload)
             ok = got == want and (not isinstance(want, bytes) or rid < 0x80 or want != s.names[rid - 0x80])
             g.check(f"value_restored:{rid:#04x}", ok,
-                    f"live {got.hex()[:32] if isinstance(got, bytes) else got}, slot "
-                    f"{payload.hex()[:32]}{' (value, valid)' if scalar_of(rid) else ''}")
+                    (f"{show(got, want)}" if got != want else f"live equals the slot, {len(payload)} bytes")
+                    + (" (value, valid)" if scalar_of(rid) else ""))
         # and every record the slot does NOT hold is still at its default
         rest = [m for m in g.mismatches(term, saved) if int(m[:4], 16) not in saved] if term else ["no snapshot"]
         g.check("unsaved_records_keep_defaults@restored", term is not None and not rest,
@@ -1174,9 +1199,15 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         v, _ = g.ans("post.fmto0.value")
         valid, _ = g.ans("post.fmto0.valid")
         live = v if valid == 1 else s.def_fmt_out[0]
+        pv, _ = g.ans("post.ptof0.value")
+        pvalid, _ = g.ans("post.ptof0.valid")
+        #! a refused set falls back PER RECORD: the other record the slot
+        #! holds stays applied, and nothing is rolled back
         g.check("refused_group_falls_back_to_default:0x70",
-                o.get("maps_out", [None])[0] == want and live == s.def_fmt_out[0],
-                f"live OUT0 equals the default {o.get('maps_out', [None])[0] == want}, fmto0 {live:#x}")
+                o.get("maps_out", [None])[0] == want and live == s.def_fmt_out[0] and pvalid == 1
+                and pv == 1500000 and o.get("d3_rb") == 0,
+                f"live OUT0 equals the default {o.get('maps_out', [None])[0] == want}, fmto0 {live:#x}, ptof0 "
+                f"{pv} valid {pvalid}, rolled back {o.get('d3_rb')}")
     elif c == "V7_names_only":
         want = extra["crafted"][0x80]
         after = g.name_of("after.name0")
@@ -1190,10 +1221,14 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
     elif c == "V11_torn_read_restores_nothing":
         valid, _ = g.ans("post.ptof0.valid")
         o = r.obs.get("restored", {})
+        #! pass 0 refuses a slot torn AT REST before anything is applied, so
+        #! nothing is applied and nothing needs rolling back
         g.check("torn_walk_applies_nothing@boot",
-                valid == 0 and o.get("restore_fail") == 1 and o.get("d3_fail") == 1 and o.get("rs_app") == 0,
+                valid == 0 and o.get("restore_fail") == 1 and o.get("d3_fail") == 1 and o.get("rs_app") == 0
+                and o.get("d3_rb") == 0,
                 f"ptof0 valid {valid} (its record was read whole before the torn one), restore fail "
-                f"{o.get('restore_fail')}, D3 fail {o.get('d3_fail')}, applied {o.get('rs_app')}")
+                f"{o.get('restore_fail')}, D3 fail {o.get('d3_fail')}, applied {o.get('rs_app')}, rolled back "
+                f"{o.get('d3_rb')}")
     elif c == "V10_blank_first_boot":
         o = r.obs.get("restored", {})
         valid, _ = g.ans("post.ptof0.valid")
@@ -1267,7 +1302,7 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         g.contained(1)
         o = r.obs.get("terminal", {})
         g.check("rollback_premise@terminal", o.get("rs_app", 0) >= 1 and g.boot_evt("rollback") > 0 and
-                g.boot_evt("cause") in ((6,) if c.startswith("V18") else (1, 2)),
+                g.boot_evt("cause") in ((5,) if c.startswith("V18") else (1, 2)),
                 f"{o.get('rs_app')} records applied before the fault, roll-back at {g.boot_evt('rollback')}, "
                 f"abort cause {g.boot_evt('cause')}")
         g.enable_after_terminal()
@@ -1374,7 +1409,7 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         o = r.obs.get("recovered", {})
         b = g.boot()
         ans, _ = g.ans("rec.ptof0.value")
-        timed_out = any("did not sequence in time" in ln or "has not reached its terminal" in ln for ln in r.fw)
+        timed_out = any("has not reached its terminal" in ln for ln in r.fw)
         ok = (o.get("restore_done") == 0 and o.get("entity_en") == 0 and b.get("enable", 0) == 0
               and o.get("own") == 1 and ans is None and b.get("fw_enable", 0) > 0 and timed_out)
         g.check("silent_binding_walk_keeps_entity_dark@recovered", ok,
@@ -1384,7 +1419,7 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
     elif c in ("W14_binding_walk_late_after_fw_deadline", "W15_binding_walk_late_before_fw_deadline"):
         h = g.hold()
         b = g.boot()
-        timed_out = any("did not sequence in time" in ln or "has not reached its terminal" in ln for ln in r.fw)
+        timed_out = any("has not reached its terminal" in ln for ln in r.fw)
         after = c.startswith("W14")
         g.check("held_premise@terminal", h.get("released") == 1 and timed_out == after
                 and (b.get("fw_enable", 0) < b.get("restore_done", 0)) == after,
@@ -1505,7 +1540,7 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
     elif case == "V8_orphaning_format_reverted":
         over = {0x40: two.to_bytes(8, "big")}
     elif case == "V9_refused_maps_revert_their_formats":
-        over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0)}
+        over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0), **ptof}
     elif case in ("V11_torn_read_restores_nothing", "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late"):
         over = {0x50: (1100011).to_bytes(4, "big"), 0x80: b"V11 name".ljust(64, b"\x00")}
     else:
