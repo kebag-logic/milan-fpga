@@ -2433,6 +2433,13 @@ CONTROLS = [
       "verdict failures 1"]),
     ("tracked_control_absent", "tracked-1x1", "1x1", {"tracked-1x1": None}, {}, 2,
      ["REFUSED: tracked-1x1 is not built"]),
+    #! a mutant named two killers and killed by ONE is not killed: a healthy
+    #! binary in TRG_fmto's place, with V1s_a's declared-format SET dropped, so
+    #! V1s_a's check fails and V1a's passes
+    ("partial_kill_is_survival", "mut-TRG_fmto", "1x1", {"mut-TRG_fmto": "base-1x1"},
+     {"D3_CONTROL_SKIP_V1S_DECLARED": "1"}, 1,
+     ["MUTANT TRG_fmto: SURVIVED by V1a_set_everything : value_in_slot@cut:0x40 AND "
+      "V1s_a_shipping_output_format : value_in_slot@cut:0x40", "verdict failures 1"]),
     ("empty_selection", "no-such-build", "1x1", {}, {}, 2, ["REFUSED: no such build ['no-such-build']"]),
 ]
 

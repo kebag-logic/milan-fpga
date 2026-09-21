@@ -1320,7 +1320,12 @@ void register_cases() {
     boot();
     set_fmt_judged(true, 0, narrower(def_fmt_out[0], 4), "set.fmto0.narrow");
     settle();
-    set_fmt_judged(true, 0, def_fmt_out[0], "set.fmto0.declared");
+    //! D3_CONTROL_SKIP_V1S_DECLARED is the runner's own process control
+    //! (run.py controls, partial_kill_is_survival): it drops this SET, so the
+    //! case's 0x40 check fails whatever the build, and a mutant that is also
+    //! named V1a's killer must still be reported SURVIVED
+    if (!std::getenv("D3_CONTROL_SKIP_V1S_DECLARED"))
+      set_fmt_judged(true, 0, def_fmt_out[0], "set.fmto0.declared");
     // an INPUT takes the family: a narrower input is product-legal (its
     // mappings on the lost channels removed first, Milan 5.4.2.7)
     for (unsigned q = 0; q < map_in.size(); ++q) {

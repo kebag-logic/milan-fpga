@@ -31,6 +31,13 @@ rows=(
   "b-writer-8x8|KL_aecp_nvm_writer|$W88|0|$pe/prototype/KL_aecp_nvm_writer.proto.sv"
   "b-writer-8x8-nodsp|KL_aecp_nvm_writer|$W88|1|$pe/prototype/KL_aecp_nvm_writer.proto.sv"
   "b-arbiter|KL_pp_nvm_mgr_arb||0|$pe/prototype/KL_pp_nvm_mgr_arb.proto.sv"
+  # revision c's seams: the guard (S2, new), and the AMENDED port (S1) and
+  # binding manager (S1, S3), each beside its pinned row above (cal-port,
+  # cal-bindmgr-*) so the increment is the difference of the two
+  "s2-desc-guard|KL_aecp_desc_mem_guard||0|$pe/prototype/KL_aecp_desc_mem_guard.proto.sv"
+  "s1-port-amended|KL_pp_nvm_port_amd||0|$pe/prototype/KL_pp_nvm_port.amended.proto.sv"
+  "s3-bindmgr-amended-1x1|KL_acmp_nvm_shadow_amd|N_SINKS_P=2|0|$pp/acmp/pp_acmp_pkg.sv $pe/prototype/KL_acmp_nvm_shadow.amended.proto.sv"
+  "s3-bindmgr-amended-8x8|KL_acmp_nvm_shadow_amd|N_SINKS_P=9|0|$pp/acmp/pp_acmp_pkg.sv $pe/prototype/KL_acmp_nvm_shadow.amended.proto.sv"
   "a-manager-unit|KL_acmp_nvm_shadow|N_SINKS_P=1|0|$pp/acmp/pp_acmp_pkg.sv $pp/acmp/KL_acmp_nvm_shadow.sv"
   "a-shadows-1x1|d3a_shadow_proxy|N_STREAM_IN_P=2 N_STREAM_OUT_P=2 N_MAP_ENT_P=25 N_NAME_P=38|0|$here/d3a_shadow_proxy.sv"
   "a-shadows-8x8|d3a_shadow_proxy|N_STREAM_IN_P=9 N_STREAM_OUT_P=9 N_MAP_ENT_P=72 N_NAME_P=99|0|$here/d3a_shadow_proxy.sv"
