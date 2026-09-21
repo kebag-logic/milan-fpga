@@ -14,11 +14,31 @@ model with the dispatch hold-off) and the parent's map plane.
 
 Every case is graded by NAMED checks over the journal the case binary prints,
 with the repository's own scripts/nvm_klj2.py decoding every slot. Every
-mutant is killed by the ONE check this file names for it, or the run fails.
+mutant is killed by the ONE check this file names for it, in a run that
+COMPLETED, or the run fails.
 
-    run.py prep                 build the shape inputs (both shapes)
+    run.py prep                 build the shape inputs (every shape)
     run.py build [NAME...]      build co-simulations (default: every build)
-    run.py run   [--builds ..]  run and grade; writes results.txt/results.json
+    run.py run   [NAME...]      run and grade. With no NAME it is the FULL run:
+                                every build and every planned case must be
+                                there, and it writes results.txt/results.json
+                                beside this file. With NAMEs it is a FOCUSED
+                                run: it says so, names its narrower coverage
+                                and writes results-focused.* under $D3_OUT.
+    run.py controls             the process-level negative controls: each
+                                runs the real CLI on a doctored output tree
+                                and requires its exit status and diagnostic
+    run.py receipts             sha256 of every tracked evidence file and of
+                                the repository files the model reads
+
+Exit status: 0 no verdict failure; 1 verdict failures (each printed); 2 the
+run was refused (a build or case missing, an empty selection).
+
+Shapes: 1x1 and 8x8 are the SHIPPED configurations. 1x1r2 is a SYNTHETIC
+test configuration, not a shipped one: the 1x1 configuration with its
+AUDIO_UNIT listing a second sampling rate (clocking.audio_unit_rates_hz
+[48000, 96000], which the builder accepts and marks planned), so a legal
+non-default sampling rate can be saved and restored at all.
 
 Outputs go under $D3_OUT (default /data/milan/tmp/500/d3). Nothing is written into the
 repository tree except results.txt and results.json beside this file.
@@ -61,7 +81,15 @@ DONOR_SV = [PP / "acmp/pp_acmp_pkg.sv", PP / "aecp/KL_aecp_dyn_state.sv",
 BACKEND = ROOT / "hdl/milan/KL_nvm_backend.sv"
 WRITER = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
 SHAPES = {"1x1": "configs/endstation_ax7101_1x1_tdm8.yaml",
-          "8x8": "configs/endstation_ax7101_8x8.yaml"}
+          "8x8": "configs/endstation_ax7101_8x8.yaml",
+          "1x1r2": "configs/endstation_ax7101_1x1_tdm8.yaml"}
+SHIPPED = ["1x1", "8x8"]
+#: the synthetic shape: (the one line of the shipped config it replaces, its
+#: replacement, the derived file's stem). Derived at prep time, never copied.
+SYNTH = {"1x1r2": ("  audio_unit_rates_hz: [48000]\n", "  audio_unit_rates_hz: [48000, 96000]\n",
+                   "endstation_ax7101_1x1_tdm8_r2")}
+#: the D3 restore watchdog of d3_top (D3_RS_TMO_CYC_P), in model cycles
+RS_TMO = 20000
 FENCE_RW = "__asm__ volatile(\"fence rw, rw\" ::: \"memory\");"
 FW_SUBS = [
     ("static inline uint32_t milan_read(unsigned int offset)\n{\n\treturn *milan_reg(offset);\n}",
@@ -147,6 +175,14 @@ def prep_shape(name: str) -> Shape:
     cfg = ROOT / SHAPES[name]
     work = OUT / f"shape-{name}"
     work.mkdir(parents=True, exist_ok=True)
+    if name in SYNTH:
+        old, new, stem = SYNTH[name]
+        text = cfg.read_text()
+        if text.count(old) != 1:
+            raise SystemExit(f"{name}: the line it replaces occurs {text.count(old)} times in {cfg}")
+        (work / "cfg").mkdir(exist_ok=True)
+        cfg = work / "cfg" / f"{stem}.yaml"
+        cfg.write_text(text.replace(old, new))
     names, dc, spi, spo = shape_build(cfg, work / "builder")
     shp = ref.Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     donor = ref.Donor(base=ref.binding_base(), layout=ref.layout_version())
@@ -269,15 +305,6 @@ MUTATIONS = {
     "M15_overflow_forgets_the_change": ("writer",
         "  assign fl_giveup_w  = fl_err_w && (32'(retry_r) >= RETRY_MAX_P);",
         "  assign fl_giveup_w  = (fl_err_w && (32'(retry_r) >= RETRY_MAX_P)) || fl_ovf_w;"),
-    "M17_trigger_misses_ptof": ("writer",
-        "    assign set_w[S_PTOF_C + gi] = dyn_w && (u_sel_w == 13'd5) && (u_didx_i == 16'(gi));",
-        "    assign set_w[S_PTOF_C + gi] = 1'b0;"),
-    "M18_trigger_misses_names": ("writer",
-        "    assign set_w[S_NAME_C + gi] = name_w && (u_addr_i[15:6] == 10'(gi));",
-        "    assign set_w[S_NAME_C + gi] = 1'b0;"),
-    "M19_trigger_misses_out_maps": ("writer",
-        "    assign set_w[S_MAPO_C + gi] = map_w && (me_type_i == T_SPO_C) && (me_idx_i == 16'(gi));",
-        "    assign set_w[S_MAPO_C + gi] = 1'b0;"),
     "M16_single_pass_restore": ("writer",
         "      rpass_r <= 1'b0;\n",
         "      rpass_r <= 1'b1;\n"),
@@ -287,7 +314,98 @@ MUTATIONS = {
     "A01_grant_cycle_not_busy": ("arb",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1) || iss1_w;",
         "  assign m0_busy_o   = p_busy_i || (own_r == O_M1);"),
+    # ---- the restore transaction (page section 8.6) ----
+    "R01_no_rollback": ("writer",
+        "          end else if (rpass_r) begin\n            rb_act_r <= 1'b1;",
+        "          end else if (1'b0) begin\n            rb_act_r <= 1'b1;"),
+    "R02_rollback_skips_dyn_store": ("top",
+        "      .rst_n           (own_rst_n_w),",
+        "      .rst_n           (rst_n),"),
+    "R03_rollback_skips_desc_store": ("top",
+        "      .rst_n             (own_rst_n_w),",
+        "      .rst_n             (rst_n),"),
+    "R04_rollback_skips_maps": ("top",
+        "  assign map_rst_o           = rb_rst_w;",
+        "  assign map_rst_o           = 1'b0;"),
+    "R05_closed_releases_the_entity": ("writer",
+        "          end else begin\n            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;\n"
+        "            rs_closed_r <= 1'b1; st_r <= T_CLOSED;\n          end\n        end\n        T_CLOSED",
+        "          end else begin\n            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;\n"
+        "            own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;\n          end\n        end\n        T_CLOSED"),
+    "X01_passes_may_disagree": ("writer",
+        "            if (rs_fr1_r == rs_fr0_r) begin",
+        "            if (1'b1) begin"),
+    "O01_own_taken_at_the_walk": [
+        ("writer",
+         "      taint_r <= 1'b0; own_r <= 1'b1; alarm_r <= 1'b0;",
+         "      taint_r <= 1'b0; own_r <= 1'b0; alarm_r <= 1'b0;"),
+        ("writer",
+         "        W_WAITGO: if (restore_go_i) st_r <= R_IMG;",
+         "        W_WAITGO: if (restore_go_i && !prog_busy_i) begin own_r <= 1'b1; st_r <= R_IMG; end")],
+    # ---- the deadline and the drain (page section 8.8) ----
+    "W01_no_restore_watchdog": ("writer",
+        "  assign wd_exp_w  = rs_active_w && stall_w && (wd_r >= 32'(RS_TMO_CYC_P - 1));",
+        "  assign wd_exp_w  = 1'b0;"),
+    "D01_abandoned_read_not_drained": ("arb",
+        "                    : (own_r == O_M1) ? (drain_r || m1_rready_i) : 1'b0;",
+        "                    : (own_r == O_M1) ? m1_rready_i : 1'b0;"),
+    "G05_enable_not_released_by_restore": ("top",
+        "  assign entity_en_o = en_req_i && rs_done_w;",
+        "  assign entity_en_o = en_req_i;"),
+    # ---- the map record's framing (page section 8.3) ----
+    "P01_padding_by_first_byte": ("writer",
+        "            allff_r <= allff_r && (bs_rd_w == 8'hFF);",
+        "            allff_r <= (eb_r == 4'd0) ? (bs_rd_w == 8'hFF) : allff_r;"),
+    "P02_padding_holes_not_refused": ("writer",
+        "            else if (seen_pad_r) pad_bad_r  <= 1'b1;",
+        "            else if (1'b0) pad_bad_r  <= 1'b1;"),
 }
+
+#: PER-GROUP TRIGGER DELETION (the restatement of the saved-state page's mark
+#: acceptance, page section 15 item 1): each deletes one group's live-write
+#: trigger, both format directions and both map directions separately
+TRIGGER_SEAMS = {
+    "cfg":  ("  assign set_w[S_CFG_C] = dyn_w && (u_sel_w == 13'd0) && (u_didx_i == 16'd0);",
+             "  assign set_w[S_CFG_C] = 1'b0;"),
+    "rate": ("    assign set_w[S_RATE_C + gi] = dyn_w && (u_sel_w == 13'd1) && (u_didx_i == 16'(gi));",
+             "    assign set_w[S_RATE_C + gi] = 1'b0;"),
+    "clks": ("    assign set_w[S_CLKS_C + gi] = dyn_w && (u_sel_w == 13'd2) && (u_didx_i == 16'(gi));",
+             "    assign set_w[S_CLKS_C + gi] = 1'b0;"),
+    "fmti": ("    assign set_w[S_FMTI_C + gi] = dyn_w && (u_sel_w == 13'd3) && (u_didx_i == 16'(gi));",
+             "    assign set_w[S_FMTI_C + gi] = 1'b0;"),
+    "fmto": ("    assign set_w[S_FMTO_C + gi] = dyn_w && (u_sel_w == 13'd4) && (u_didx_i == 16'(gi));",
+             "    assign set_w[S_FMTO_C + gi] = 1'b0;"),
+    "ptof": ("    assign set_w[S_PTOF_C + gi] = dyn_w && (u_sel_w == 13'd5) && (u_didx_i == 16'(gi));",
+             "    assign set_w[S_PTOF_C + gi] = 1'b0;"),
+    "mapi": ("    assign set_w[S_MAPI_C + gi] = map_w && (me_type_i == T_SPI_C) && (me_idx_i == 16'(gi));",
+             "    assign set_w[S_MAPI_C + gi] = 1'b0;"),
+    "mapo": ("    assign set_w[S_MAPO_C + gi] = map_w && (me_type_i == T_SPO_C) && (me_idx_i == 16'(gi));",
+             "    assign set_w[S_MAPO_C + gi] = 1'b0;"),
+    "name": ("    assign set_w[S_NAME_C + gi] = name_w && (u_addr_i[15:6] == 10'(gi));",
+             "    assign set_w[S_NAME_C + gi] = 1'b0;"),
+}
+#: PER-GROUP REPLAY DELETION: each skips one group's restore write, and only it
+APPLY_SEAM = "        R_APPLY: begin\n          //! write the value back with its valid flag; not a change\n"
+MAP_SEAM = "            4'(G_MAPI), 4'(G_MAPO): begin\n"
+REPLAY_SEAMS = {
+    g: ("writer", APPLY_SEAM, APPLY_SEAM.replace("R_APPLY: begin", f"R_APPLY: if (cg_r == 4'(G_{G})) st_r <= R_ADV; else begin"))
+    for g, G in (("cfg", "CFG"), ("rate", "RATE"), ("clks", "CLKS"), ("fmti", "FMTI"), ("fmto", "FMTO"),
+                 ("ptof", "PTOF"))}
+REPLAY_SEAMS["mapi"] = ("writer", MAP_SEAM, MAP_SEAM.replace(": begin", ": if (cg_r == 4'(G_MAPI)) st_r <= R_ADV; else begin"))
+REPLAY_SEAMS["mapo"] = ("writer", MAP_SEAM, MAP_SEAM.replace(": begin", ": if (cg_r == 4'(G_MAPO)) st_r <= R_ADV; else begin"))
+REPLAY_SEAMS["name"] = ("writer",
+                        "              ptr_r <= '0; k_r <= 8'd0; eb_r <= '0; st_r <= R_NAMEW;",
+                        "              ptr_r <= '0; k_r <= 8'd0; eb_r <= '0; st_r <= R_ADV;")
+#: the record each group's first index lives at
+GROUP_RID = {"cfg": 0x00, "rate": 0x02, "clks": 0x0A, "fmti": 0x30, "fmto": 0x40, "ptof": 0x50,
+             "mapi": 0x60, "mapo": 0x70, "name": 0x80}
+#: the shape each group is expressible at: a legal non-default sampling rate
+#: needs two listed rates (the synthetic shape); an input map needs clusters
+GROUP_SHAPE = {g: ("1x1r2" if g == "rate" else "1x1") for g in GROUP_RID}
+for _g, (_old, _new) in TRIGGER_SEAMS.items():
+    MUTATIONS[f"TRG_{_g}"] = ("writer", _old, _new)
+for _g, _m in REPLAY_SEAMS.items():
+    MUTATIONS[f"RPL_{_g}"] = _m
 
 #: case K15's sweep: the D3 writer released N cycles after the binding
 #: manager enters H_FL_CRC. The base build must commit both records at EVERY
@@ -295,7 +413,8 @@ MUTATIONS = {
 K15_SWEEP = [f"g{n}" for n in range(0, 8)]
 
 #: mutant -> (case, variant, THE ONE CHECK that must kill it, shape). The
-#: variant "*" is K15's sweep: killed when the check fails at any N.
+#: variant "*" is K15's sweep: killed when the check fails at any N. A kill
+#: counts only in a run that COMPLETED (case_completed passes).
 KILLERS = {
     "M01_taint_ignored": ("K2_change_during_record_write", "", "no_durable_claim_over_unsaved", "1x1"),
     "M02_clear_at_latch": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
@@ -314,16 +433,30 @@ KILLERS = {
     "M15_overflow_forgets_the_change": ("K16_map_set_larger_than_its_record", "",
                                         "no_durable_claim_over_unsaved", "8x8"),
     "M16_single_pass_restore": ("V11_torn_read_restores_nothing", "", "torn_walk_applies_nothing@boot", "1x1"),
-    "M17_trigger_misses_ptof": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
-    "M18_trigger_misses_names": ("K10_name_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
-    "M19_trigger_misses_out_maps": ("K12_map_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
     "G01_pend_misses_d3": ("K1_single_change_converges", "", "no_durable_claim_over_unsaved", "1x1"),
     "G02_restore_done_without_d3": ("V1b_restore_everything", "", "entity_enabled_after_restore@boot", "1x1"),
     "G03_restore_writes_are_changes": ("V1b_restore_everything", "", "restore_sets_no_dirty@boot", "1x1"),
     "G04_blank_ignores_d3": ("V7_names_only", "", "blank_is_both_walks@boot", "1x1"),
     "A01_grant_cycle_not_busy": ("K15_binding_on_the_d3_grant_cycle", "*", "both_records_committed", "1x1"),
     "F01_old_boot_order": ("V1b_restore_everything", "", "value_restored:0x50", "1x1"),
+    "R01_no_rollback": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "R02_rollback_skips_dyn_store": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "R03_rollback_skips_desc_store": ("V15_rollback_pass1_late", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "R04_rollback_skips_maps": ("V16_rollback_pass1_maps", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "R05_closed_releases_the_entity": ("V17_rollback_cannot_validate", "", "closed_keeps_entity_dark@recovered",
+                                       "1x1"),
+    "X01_passes_may_disagree": ("V18_header_error_pass1", "", "rolled_back_to_defaults@terminal", "1x1"),
+    "O01_own_taken_at_the_walk": ("K19_command_before_the_restore", "", "value_in_slot@end:0x50", "1x1"),
+    "W01_no_restore_watchdog": ("W4_silent_pass1", "", "restore_terminal_bounded@terminal", "1x1"),
+    "D01_abandoned_read_not_drained": ("W6_late_pass1_after_deadline", "", "later_change_persists@recovered", "1x1"),
+    "G05_enable_not_released_by_restore": ("W14_binding_walk_late_after_fw_deadline", "",
+                                           "entity_enabled_after_terminal@boot", "1x1"),
+    "P01_padding_by_first_byte": ("V3a_map_index_0xff00", "", "map_record_verdict:0x70", "1x1"),
+    "P02_padding_holes_not_refused": ("V3e_map_hole", "", "malformed_refused_untouched:0x70", "1x1"),
 }
+for _g, _rid in GROUP_RID.items():
+    KILLERS[f"TRG_{_g}"] = ("V1a_set_everything", "", f"value_in_slot@cut:{_rid:#04x}", GROUP_SHAPE[_g])
+    KILLERS[f"RPL_{_g}"] = ("V1b_restore_everything", "", f"value_restored:{_rid:#04x}", GROUP_SHAPE[_g])
 
 #: WHAT REPRODUCES TODAY. The tracked glue (d3_top.sv under D3_TRACKED, the
 #: parent as it ships at dev 07294a76) must FAIL these checks, which shows
@@ -369,13 +502,19 @@ def check_m0_encoding() -> None:
             raise SystemExit(f"KL_acmp_nvm_shadow: {name} is not encoding {code} ({names})")
 
 
+def seams(name: str) -> list:
+    m = MUTATIONS[name]
+    return m if isinstance(m, list) else [m]
+
+
 def mutate_text(key: str, text: str, name: str) -> str:
-    k, old, new = MUTATIONS[name]
-    if k != key:
-        return text
-    if text.count(old) != 1:
-        raise SystemExit(f"mutation {name}: seam count {text.count(old)}")
-    return text.replace(old, new)
+    for k, old, new in seams(name):
+        if k != key:
+            continue
+        if text.count(old) != 1:
+            raise SystemExit(f"mutation {name}: seam count {text.count(old)}")
+        text = text.replace(old, new)
+    return text
 
 
 def host_firmware(text: str, old_boot: bool) -> str:
@@ -394,16 +533,16 @@ def host_firmware(text: str, old_boot: bool) -> str:
 
 
 def all_builds(shapes: list[str]) -> list[Build]:
-    out = [Build(f"base-{s}", s) for s in shapes]
+    out = [Build(f"base-{s}", s) for s in SHAPES]
     out.append(Build("tracked-1x1", "1x1", tracked=True))
     for m in MUTATIONS:
-        kind = MUTATIONS[m][0]
+        kinds = {k for k, _o, _n in seams(m)}
         b = Build(f"mut-{m}", KILLERS[m][3])
-        if kind == "writer":
+        if "writer" in kinds:
             b.rtl_mut = m
-        elif kind == "top":
+        if "top" in kinds:
             b.glue_mut = m
-        else:
+        if "arb" in kinds:
             b.arb_mut = m
         out.append(b)
     out.append(Build("mut-F01_old_boot_order", KILLERS["F01_old_boot_order"][3], fw_old_boot=True))
@@ -471,6 +610,7 @@ class Run:
     out: Path
     slots_in: tuple | None = None
     notes: dict = dataclasses.field(default_factory=dict)
+    snaps: dict = dataclasses.field(default_factory=dict)
 
 
 def run_case(b: Build, s: Shape, case: str, variant: str = "",
@@ -489,8 +629,12 @@ def run_case(b: Build, s: Shape, case: str, variant: str = "",
     p = subprocess.run(argv, text=True, capture_output=True)
     (out / "stdout.log").write_text(p.stdout)
     (out / "stderr.log").write_text(p.stderr)
-    obs, evts, fw, done, notes = {}, [], [], False, {}
+    obs, evts, fw, done, notes, snaps = {}, [], [], False, {}, {}
     for ln in p.stdout.splitlines():
+        if ln.startswith("SNAP "):
+            sn = json.loads(ln[5:])
+            snaps[sn["tag"]] = sn["s"]
+            continue
         if ln.startswith("OBS "):
             o = json.loads(ln[4:])
             obs[o["tag"]] = o
@@ -503,7 +647,7 @@ def run_case(b: Build, s: Shape, case: str, variant: str = "",
             fw.append(ln)
         elif ln.startswith("CASE_DONE"):
             done = True
-    return Run(case, b.name, variant, p.returncode, obs, evts, fw, done, out, slots, notes)
+    return Run(case, b.name, variant, p.returncode, obs, evts, fw, done, out, slots, notes, snaps)
 
 
 def blank_slot() -> bytes:
@@ -540,9 +684,32 @@ def default_out_maps(s: Shape, port: int) -> list:
     return [(st, k, k, 0) for k in range(min(cls[port], ch, 8))]
 
 
+def default_in_maps(s: Shape, port: int) -> list:
+    """The MODEL's image-default set for IN port `port` (d3_cases.cpp
+    default_maps): cluster k maps to channel k of stream port % n_si."""
+    n_si = s.params["N_STREAM_IN_P"]
+    cls = [s.recs[r][2] // 8 for r in sorted(s.recs) if 0x60 <= r < 0x70]
+    st = port % n_si
+    ch = (s.def_fmt_in[st] >> 22) & 0x3FF if (s.def_fmt_in[st] >> 56) == 0x02 else 0
+    return [(st, k, k, 0) for k in range(min(cls[port], ch))]
+
+
 def map_bytes(maps: list, clusters: int) -> bytes:
     v = b"".join(struct.pack(">HHHH", *m) for m in maps)
     return v + b"\xff" * (8 * clusters - len(v))
+
+
+#: the dynamic-state selector of each scalar group, its record base and width
+SEL_OF = {0x00: (0, 1, 2), 0x02: (1, 8, 4), 0x0A: (2, 8, 2), 0x30: (3, 16, 8), 0x40: (4, 16, 8),
+          0x50: (5, 16, 4)}
+
+
+def scalar_of(rid: int) -> tuple | None:
+    """(selector, index, width) of a scalar record id, else None."""
+    for base, (sel, span, width) in SEL_OF.items():
+        if base <= rid < base + span:
+            return sel, rid - base, width
+    return None
 
 
 # ---------------------------------------------------------------------- grading
@@ -598,6 +765,110 @@ class Grade:
                 return None
             out += v.to_bytes(8, "big")
         return out
+
+    # ---- the bridge's snapshots: every row, name and map set at one cycle
+    def d3_rids(self) -> list:
+        return sorted(r for r in self.s.recs
+                      if r != 0x01 and not 0x12 <= r < 0x1A and not 0x20 <= r < 0x30)
+
+    def snap_value(self, sn: dict, rid: int):
+        """The live value of record `rid` in snapshot `sn`: a scalar as
+        (value, valid), a map set or a name as bytes."""
+        sc = scalar_of(rid)
+        if sc:
+            sel, idx, _w = sc
+            for row in sn["rows"]:
+                if row[0] == sel and row[1] == idx:
+                    return int(row[2], 16), row[3]
+            return None
+        if 0x60 <= rid < 0x70:
+            return bytes.fromhex(sn["maps_in"][rid - 0x60])
+        if 0x70 <= rid < 0x80:
+            return bytes.fromhex(sn["maps_out"][rid - 0x70])
+        return bytes.fromhex(sn["names"][rid - 0x80])
+
+    def default_of(self, rid: int):
+        if scalar_of(rid):
+            return 0, 0
+        if 0x60 <= rid < 0x70:
+            return map_bytes(default_in_maps(self.s, rid - 0x60), self.s.recs[rid][2] // 8)
+        if 0x70 <= rid < 0x80:
+            return map_bytes(default_out_maps(self.s, rid - 0x70), self.s.recs[rid][2] // 8)
+        return self.s.names[rid - 0x80]
+
+    def want_of(self, rid: int, payload: bytes):
+        """What restoring `payload` into record `rid` leaves live."""
+        sc = scalar_of(rid)
+        if sc:
+            return int.from_bytes(payload, "big"), 1
+        return payload
+
+    def mismatches(self, sn: dict | None, want: dict) -> list:
+        """Every D3 record whose live value in `sn` is not `want[rid]` when
+        the record is in `want`, or not its reset/image default otherwise."""
+        if not sn:
+            return ["no snapshot"]
+        bad = []
+        for rid in self.d3_rids():
+            got = self.snap_value(sn, rid)
+            exp = self.want_of(rid, want[rid]) if rid in want else self.default_of(rid)
+            if got != exp:
+                g = got.hex()[:24] if isinstance(got, bytes) else got
+                e = exp.hex()[:24] if isinstance(exp, bytes) else exp
+                bad.append(f"{rid:#04x} live {g} want {e}")
+        return bad
+
+    def boot_evt(self, key: str, default=0):
+        return self.boot().get(key, default)
+
+    def rs_writes(self) -> list:
+        return [(e["cyc"], e["what"]) for e in self.r.evts if e["k"] == "rsw"]
+
+    def hold(self) -> dict:
+        for e in self.r.evts:
+            if e["k"] == "hold":
+                return e
+        return {}
+
+    def contained(self, want_rb: int, name: str = "rolled_back_to_defaults@terminal") -> None:
+        """The restore transaction ended in DEFAULTS: every D3 record at its
+        reset or image default at the terminal, done and fail, rolled back
+        iff pass 1 had begun, and the bus released."""
+        sn = self.r.snaps.get("terminal")
+        o = self.r.obs.get("terminal", {})
+        bad = self.mismatches(sn, {})
+        ok = (not bad and o.get("d3_done") == 1 and o.get("d3_fail") == 1 and o.get("d3_rb") == want_rb
+              and o.get("d3_closed") == 0 and o.get("own") == 0)
+        self.check(name, ok, f"{len(bad)} records off their defaults {bad[:2]}; D3 done {o.get('d3_done')} "
+                             f"fail {o.get('d3_fail')} rolled back {o.get('d3_rb')} (want {want_rb}) closed "
+                             f"{o.get('d3_closed')} own {o.get('own')} cause {o.get('d3_cause')}")
+
+    def enable_after_terminal(self) -> None:
+        b = self.boot()
+        en, term, done = b.get("enable", 0), b.get("terminal", 0), b.get("restore_done", 0)
+        self.check("entity_enabled_after_terminal@boot", en > 0 and term > 0 and done > 0 and en >= term and en >= done,
+                   f"entity enabled at {en}, D3 terminal at {term}, restore done at {done}, firmware asked at "
+                   f"{b.get('fw_enable')}")
+
+    def no_restore_write_after(self) -> None:
+        b = self.boot()
+        term, en = b.get("terminal", 0), b.get("enable", 0)
+        late = [(c, w) for c, w in self.rs_writes() if (term and c > term) or (en and c >= en)]
+        self.check("no_restore_write_after_terminal", term > 0 and not late,
+                   f"{len(self.rs_writes())} restore writes, the last at "
+                   f"{self.rs_writes()[-1][0] if self.rs_writes() else None}; terminal {term}, enable {en}; "
+                   f"after them {late[:3]}")
+
+    def served_after_recovery(self, want: tuple) -> None:
+        v, _e = self.ans("rec.ptof0.value")
+        valid, _e2 = self.ans("rec.ptof0.valid")
+        self.check("command_served_after_recovery@recovered", v is not None and (v, valid) == want,
+                   f"GET after recovery answered {v} valid {valid}, want {want}")
+
+    def terminal_bounded(self, start: int, bound: int) -> None:
+        term = self.boot_evt("terminal")
+        self.check("restore_terminal_bounded@terminal", term > 0 and start > 0 and term - start <= bound,
+                   f"stall began at {start}, D3 terminal at {term} (bound {bound} cycles)")
 
     # ---- the global property
     def durability(self) -> None:
@@ -776,46 +1047,57 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
                                                 f"pend {o.get('pend')}, flash programs {b0.get('programs')} -> "
                                                 f"{o.get('programs')}")
     elif c.startswith("V1b"):
-        pre = {k: g.ans(f"pre.{k}.valid")[0] for k in ("cfg", "rate", "clks", "fmti0", "ptof0")}
-        g.check("rows_cleared_before_restore@boot", all(v == 0 for v in pre.values()),
-                f"valid flags before the restore {pre}")
         cut = extra["cut_slots"]
-        def restored(rid, tag, width):
-            v, _ = g.ans(f"post.{tag}.value")
-            valid, _ = g.ans(f"post.{tag}.valid")
-            want = cut.get(rid)
-            if want is None:
-                return
-            ok = valid == 1 and v is not None and (v & ((1 << (8 * width)) - 1)) == int.from_bytes(want, "big")
-            g.check(f"value_restored:{rid:#04x}", ok, f"restored {v} valid {valid}, slot {want.hex()}")
-        restored(0x50, "ptof0", 4)
+        saved = {rid: v for rid, v in cut.items() if rid in g.d3_rids()}
+        # CLEARED FIRST (issue #70's vacuity trap), every row, name and map set,
+        # by the bridge's peeks: the rows and the map sets when the D3 walk
+        # starts, the names when its pass 1 starts (after the image walk)
+        pre, p1 = r.snaps.get("prerestore"), r.snaps.get("pass1")
+        bad = []
+        if pre is None or p1 is None:
+            bad = ["no snapshot"]
+        else:
+            bad = [m for m in g.mismatches(pre, {}) if not 0x80 <= int(m[:4], 16)]
+            bad += [m for m in g.mismatches(p1, {}) if 0x80 <= int(m[:4], 16)]
+        g.check("rows_cleared_before_restore@boot", not bad,
+                f"{len(bad)} rows, names or map sets not at their reset or image default before the restore "
+                f"{bad[:3]}")
+        # every saved record, value AND valid flag, at the D3 terminal
+        term = r.snaps.get("terminal")
+        for rid, payload in sorted(saved.items()):
+            got = g.snap_value(term, rid) if term else None
+            want = g.want_of(rid, payload)
+            ok = got == want and (not isinstance(want, bytes) or rid < 0x80 or want != s.names[rid - 0x80])
+            g.check(f"value_restored:{rid:#04x}", ok,
+                    f"live {got.hex()[:32] if isinstance(got, bytes) else got}, slot "
+                    f"{payload.hex()[:32]}{' (value, valid)' if scalar_of(rid) else ''}")
+        # and every record the slot does NOT hold is still at its default
+        rest = [m for m in g.mismatches(term, saved) if int(m[:4], 16) not in saved] if term else ["no snapshot"]
+        g.check("unsaved_records_keep_defaults@restored", term is not None and not rest,
+                f"{len(rest)} unsaved records off their defaults {rest[:3]}")
         #! against the value V1a SET, not against the slot: the check a
         #! build that saves nothing (the tracked glue) must fail
         pv, _ = g.ans("post.ptof0.value")
         pvalid, _ = g.ans("post.ptof0.valid")
         g.check("set_value_survives_power_cycle:0x50", pvalid == 1 and pv == 1500000,
                 f"restored {pv} valid {pvalid}, set 1500000")
-        restored(0x30, "fmti0", 8)
-        if s.rates and len(s.rates) > 1:
-            restored(0x02, "rate", 4)
-        if s.clk_count > 1:
-            restored(0x0A, "clks", 2)
+        # the controller's view: GET answers for the rows a controller reads
+        gets = []
+        for tag, rid in (("cfg", 0x00), ("rate", 0x02), ("clks", 0x0A), ("fmti0", 0x30),
+                         ("fmto0", 0x40), ("ptof0", 0x50), ("ptoflast", 0x50 + s.params["N_STREAM_OUT_P"] - 1)):
+            v, _ = g.ans(f"post.{tag}.value")
+            valid, _ = g.ans(f"post.{tag}.valid")
+            want = g.want_of(rid, saved[rid]) if rid in saved else (None, 0)
+            if (want[1] == 1 and (v, valid) != want) or (want[1] == 0 and valid != 0):
+                gets.append(f"{tag} {v} valid {valid}, want {want}")
+        g.check("get_answers_restored_values@restored", not gets, "; ".join(gets) if gets else
+                "cfg, rate, clock source, fmti0, fmto0, ptof0 and the last ptof answered as saved")
         for rid, tag in ((0x80, "name0"), (0x80 + s.params["N_NAME_P"] - 1, "namelast")):
-            got = g.name_of(f"post.{tag}")
             want = cut.get(rid)
-            g.check(f"value_restored:{rid:#04x}", want is not None and got == want and
-                    got != s.names[rid - 0x80],
-                    f"restored {got[:24] if got else None}, slot {want[:24] if want else None}")
             after = g.name_of(f"after.{tag}")
             g.check(f"restored_name_survives_first_command:{rid:#04x}", want is not None and after == want,
                     f"after the first command {after[:24] if after else None}")
-        for rid, key in ((0x70, "maps_out"), (0x60, "maps_in")):
-            mo = r.obs.get("restored", {}).get(key, [None])[0]
-            want = cut.get(rid)
-            if want is None:
-                continue
-            g.check(f"value_restored:{rid:#04x}", mo == want.hex(),
-                    f"live port 0 set {mo[:32] if mo else None}.., slot {want.hex()[:32]}..")
+        g.enable_after_terminal()
         b = g.boot()
         g.check("entity_enabled_after_restore@boot",
                 b.get("enable", 0) > 0 and b.get("d3_done", 0) > 0 and b.get("enable") > b.get("d3_done"),
@@ -828,8 +1110,17 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
                 o.get("erases") == b0.get("erases"),
                 f"{len(w)} record writes after the restore, dirty {o.get('dirty_count')}, flash erases "
                 f"{b0.get('erases')} -> {o.get('erases')}")
-        g.check("restore_counts@boot", o.get("rs_ref") == 0 and o.get("rs_app", 0) + o.get("rs_blank", 0) <= n_rec,
-                f"applied {o.get('rs_app')} refused {o.get('rs_ref')} blank {o.get('rs_blank')} of {n_rec}")
+        # EXACT counts: applied = the records the slot holds, blank = the rest
+        g.check("restore_counts@boot", o.get("rs_ref") == 0 and o.get("rs_app") == len(saved)
+                and o.get("rs_blank") == n_rec - len(saved),
+                f"applied {o.get('rs_app')} refused {o.get('rs_ref')} blank {o.get('rs_blank')} of {n_rec}; the "
+                f"slot holds {len(saved)}")
+    elif c == "V1a_set_everything":
+        g.converged("cut")
+        # every record the case changed is in the newest verified slot: the
+        # per-group trigger-deletion killers
+        for rid in sorted({rid for _c, rid, _v in g.changes() if rid in g.d3_rids()}):
+            g.value_in_slot("cut", rid, f"value_in_slot@cut:{rid:#04x}")
     elif c == "V2_refused_rate":
         valid, _ = g.ans("post.rate.valid")
         o = r.obs.get("restored", {})
@@ -957,6 +1248,183 @@ def grade_run(r: Run, s: Shape, extra: dict) -> Grade:
         g.check("power_cut_loses_only_unsaved:0x50", ok,
                 f"restored {v} (valid {valid}), the cut's newest verified slot {cut.hex() if cut else None}, "
                 f"the unsaved value {unsaved}")
+    # ================= THE RESTORE TRANSACTION (page section 8.6) ==========
+    elif c in ("V12_abort_pass0_early", "V13_abort_pass0_late"):
+        # pass 0 applied nothing: defaults, done and fail, NOT rolled back
+        g.contained(0, "abort_applies_nothing@terminal")
+        g.check("abort_premise@terminal", r.obs.get("terminal", {}).get("rs_app") == 0
+                and g.boot_evt("cause") in (1, 2) and g.boot_evt("rollback") == 0,
+                f"applied {r.obs.get('terminal', {}).get('rs_app')}, abort cause {g.boot_evt('cause')}, "
+                f"roll-back at {g.boot_evt('rollback')}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c in ("V14_rollback_pass1_early", "V15_rollback_pass1_late", "V16_rollback_pass1_maps",
+               "V18_header_error_pass1"):
+        # pass 1 had applied values before the fault: ROLLED BACK to defaults
+        g.contained(1)
+        o = r.obs.get("terminal", {})
+        g.check("rollback_premise@terminal", o.get("rs_app", 0) >= 1 and g.boot_evt("rollback") > 0 and
+                g.boot_evt("cause") in ((6,) if c.startswith("V18") else (1, 2)),
+                f"{o.get('rs_app')} records applied before the fault, roll-back at {g.boot_evt('rollback')}, "
+                f"abort cause {g.boot_evt('cause')}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+        # a failed restore rewrites nothing: the slots still hold what V1a saved
+        cut = extra.get("cut_slots", {})
+        now = g.tag_slots("recovered")
+        lost = [f"{rid:#04x}" for rid, v in cut.items() if rid != 0x50 and now.get(rid) != v]
+        g.check("saved_state_kept@recovered", bool(cut) and not lost,
+                f"{len(cut)} saved records, {len(lost)} changed in the newest verified slot {lost[:4]}")
+    elif c == "V17_rollback_cannot_validate":
+        o = r.obs.get("recovered", {})
+        b = g.boot()
+        ans, _ = g.ans("rec.ptof0.value")
+        ok = (o.get("d3_closed") == 1 and o.get("restore_done") == 0 and o.get("restore_fail") == 1
+              and o.get("own") == 1 and o.get("entity_en") == 0 and b.get("enable", 0) == 0 and ans is None
+              and b.get("fw_enable", 0) > 0)
+        g.check("closed_keeps_entity_dark@recovered", ok,
+                f"closed {o.get('d3_closed')}, restore done {o.get('restore_done')} fail {o.get('restore_fail')}, "
+                f"own {o.get('own')}, entity enabled {o.get('entity_en')} (first {b.get('enable')}), firmware "
+                f"asked at {b.get('fw_enable')}, a GET answered {ans}")
+    elif c == "V11b_torn_in_pass1_rolls_back":
+        g.contained(1)
+        valid, _ = g.ans("post.ptof0.valid")
+        g.check("torn_in_pass1_leaves_no_partial_restore@restored", valid == 0,
+                f"ptof0 valid {valid} after the pass-1 tear (0x50 had been applied before it)")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+    # ================= DEADLINES (page section 8.8) ==========================
+    elif c in ("W1_silent_pass0", "W4_silent_pass1", "W7_silent_pass1_last_name"):
+        h = g.hold()
+        g.check("held_premise@terminal", h.get("active") == 1 and h.get("released") == 0 and g.boot_evt("cause") == 3,
+                f"memory read of {h.get('rid', 0):#04x} in pass {h.get('pass')} held from {h.get('start')}, "
+                f"released {h.get('released')}, abort cause {g.boot_evt('cause')}")
+        g.terminal_bounded(h.get("start", 0), RS_TMO + 10000)
+        g.contained(0 if c.startswith("W1") else 1)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        # the port serves the abandoned read for ever: the later change reads
+        # pending, and the status never reads durable over it
+        o = r.obs.get("recovered", {})
+        chg = [cy for cy, rid, _v in g.changes() if rid == 0x50]
+        g.check("later_change_reported@recovered", bool(chg) and o.get("pend") == 1 and o.get("port_busy") == 1,
+                f"a SET of 0x50 at {chg[:1]}, pend {o.get('pend')}, port busy {o.get('port_busy')}")
+    elif c in ("W2_late_pass0_before_deadline", "W5_late_pass1_before_deadline"):
+        h = g.hold()
+        g.check("held_premise@terminal", h.get("released") == 1 and h.get("wd_max", 0) >= RS_TMO - 64
+                and g.boot_evt("cause") == 0,
+                f"held from {h.get('start')} to {h.get('end')}, the watchdog reached {h.get('wd_max')} of {RS_TMO}, "
+                f"abort cause {g.boot_evt('cause')}")
+        cut = extra.get("cut_slots", {})
+        saved = {rid: v for rid, v in cut.items() if rid in g.d3_rids()}
+        bad = g.mismatches(r.snaps.get("terminal"), saved)
+        o = r.obs.get("terminal", {})
+        g.check("restore_complete@terminal", not bad and o.get("d3_done") == 1 and o.get("d3_fail") == 0,
+                f"{len(bad)} records not as saved {bad[:2]}, D3 done {o.get('d3_done')} fail {o.get('d3_fail')}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c in ("W3_late_pass0_after_deadline", "W6_late_pass1_after_deadline"):
+        h = g.hold()
+        ab = g.boot_evt("abort")
+        g.check("held_premise@terminal", h.get("released") == 1 and g.boot_evt("cause") == 3 and ab > 0
+                and 0 <= h.get("end", 0) - ab <= 10,
+                f"held from {h.get('start')}, the writer aborted at {ab}, the response came at {h.get('end')}")
+        g.contained(0 if c.startswith("W3") else 1)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        # the late response ENDED the drained read, so the port is free again
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c in ("W8_map_face_silent_pass1", "W9_judge_silent_pass1", "W10_edit_face_silent_pass1"):
+        f = [e for e in r.evts if e["k"] == "face"]
+        f = f[0] if f else {}
+        g.check("face_premise@terminal", f.get("done") == 1 and g.boot_evt("cause") == 3,
+                f"face {f.get('face')} silent from {f.get('start')}, healed {f.get('done')}, abort cause "
+                f"{g.boot_evt('cause')}")
+        g.terminal_bounded(f.get("start", 0), RS_TMO + 10000)
+        g.contained(1)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c in ("W11_r217_first_read_late", "W12_r218_read_late_after_apply"):
+        h = g.hold()
+        g.check("held_premise@terminal", h.get("released") == 1 and h.get("end", 0) - h.get("start", 0) >= 3000000
+                and g.boot_evt("cause") == 3,
+                f"held from {h.get('start')} to {h.get('end')}, abort cause {g.boot_evt('cause')}")
+        g.terminal_bounded(h.get("start", 0), RS_TMO + 10000)
+        g.contained(0 if c.startswith("W11") else 1)
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.served_after_recovery((0, 0))
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "W13_binding_walk_silent":
+        o = r.obs.get("recovered", {})
+        b = g.boot()
+        ans, _ = g.ans("rec.ptof0.value")
+        timed_out = any("did not sequence in time" in ln or "has not reached its terminal" in ln for ln in r.fw)
+        ok = (o.get("restore_done") == 0 and o.get("entity_en") == 0 and b.get("enable", 0) == 0
+              and o.get("own") == 1 and ans is None and b.get("fw_enable", 0) > 0 and timed_out)
+        g.check("silent_binding_walk_keeps_entity_dark@recovered", ok,
+                f"restore done {o.get('restore_done')}, entity enabled {o.get('entity_en')} (first {b.get('enable')}), "
+                f"firmware asked at {b.get('fw_enable')} and reported the timeout {timed_out}, own {o.get('own')}, "
+                f"a GET answered {ans}")
+    elif c in ("W14_binding_walk_late_after_fw_deadline", "W15_binding_walk_late_before_fw_deadline"):
+        h = g.hold()
+        b = g.boot()
+        timed_out = any("did not sequence in time" in ln or "has not reached its terminal" in ln for ln in r.fw)
+        after = c.startswith("W14")
+        g.check("held_premise@terminal", h.get("released") == 1 and timed_out == after
+                and (b.get("fw_enable", 0) < b.get("restore_done", 0)) == after,
+                f"binding read held from {h.get('start')} to {h.get('end')}; the firmware's wait timed out {timed_out}, "
+                f"asked for the enable at {b.get('fw_enable')}, restore done at {b.get('restore_done')}")
+        cut = extra.get("cut_slots", {})
+        saved = {rid: v for rid, v in cut.items() if rid in g.d3_rids()}
+        bad = g.mismatches(r.snaps.get("terminal"), saved)
+        g.check("restore_complete@terminal", not bad, f"{len(bad)} records not as saved {bad[:2]}")
+        g.enable_after_terminal()
+        g.no_restore_write_after()
+        g.converged("recovered")
+        g.value_in_slot("recovered", 0x50, "later_change_persists@recovered")
+    elif c == "K19_command_before_the_restore":
+        g.converged("end")
+        g.value_in_slot("end", 0x50)
+        chg = [cy for cy, rid, _v in g.changes() if rid == 0x50]
+        term = g.boot_evt("terminal")
+        g.check("command_waits_for_the_restore@end", bool(chg) and term > 0 and chg[0] >= term,
+                f"the waiting SET was taken at {chg[:1]}, the D3 terminal at {term}")
+    # ================= THE MAP RECORD'S FRAMING (page section 8.3) ==========
+    elif c.startswith("V3") and c != "V3_refused_map_for_a_removed_cluster":
+        o = r.obs.get("restored", {})
+        cls = s.recs[0x70][2] // 8
+        empty = c == "V3g_map_valid_empty_set"
+        want = map_bytes([], cls) if empty else map_bytes(default_out_maps(s, 0), cls)
+        live = bytes.fromhex(o.get("maps_out", [""])[0] or "")
+        ok = (live == want and o.get("rs_app") == (2 if empty else 1) and o.get("rs_ref") == (0 if empty else 1)
+              and o.get("rs_blank") == n_rec - 2)
+        g.check("map_record_verdict:0x70", ok,
+                f"live OUT0 {'empty' if not live.strip(bytes([255])) else live.hex()[:32]} "
+                f"(want {'the empty set' if empty else 'the default set'}); applied {o.get('rs_app')} refused "
+                f"{o.get('rs_ref')} blank {o.get('rs_blank')} of {n_rec}")
+        v, _ = g.ans("post.ptof0.value")
+        valid, _ = g.ans("post.ptof0.valid")
+        g.check("other_record_applied:0x50", valid == 1 and v == 1500000, f"ptof0 {v} valid {valid}")
+        if c in ("V3d_map_sentinel_tail", "V3e_map_hole"):
+            ed = [w for w in g.rs_writes() if w[1].startswith("map")]
+            g.check("malformed_refused_untouched:0x70", not ed,
+                    f"{len(ed)} map sets staged for a malformed record {ed[:2]}")
     return g
 
 
@@ -968,27 +1436,66 @@ BASE_CASES = [
     "K11_name_latch_waits_for_the_program", "K12_map_change_converges",
     "K13_binding_and_d3_share_the_port", "K14_identify_is_not_persisted",
 ]
-CHAINS = [("K6a_cut_after_record_before_commit", "K6b_restore_after_cut"),
-          ("K7a_cut_after_ack", "K7b_restore_after_ack"),
-          ("K17a_cut_during_record_write", "K17b_restore_after_cut_in_write"),
-          ("K18a_cut_inside_the_debounce", "K18b_restore_after_cut_in_debounce"),
-          ("V1a_set_everything", "V1b_restore_everything"),
-          ("V6a_set_coupled_narrower_pair", "V6b_restore_coupled_pair")]
+#: a case that boots from the slots another case left: the power cycle
+V1A = "V1a_set_everything"
+DEPENDS = {"K6b_restore_after_cut": "K6a_cut_after_record_before_commit",
+           "K7b_restore_after_ack": "K7a_cut_after_ack",
+           "K17b_restore_after_cut_in_write": "K17a_cut_during_record_write",
+           "K18b_restore_after_cut_in_debounce": "K18a_cut_inside_the_debounce",
+           "V1b_restore_everything": V1A,
+           "V6b_restore_coupled_pair": "V6a_set_coupled_narrower_pair"}
+#: the restore transaction and its deadlines, each on V1a's slots (every
+#: group non-default)
+TRANSACTION = ["V12_abort_pass0_early", "V13_abort_pass0_late", "V14_rollback_pass1_early",
+               "V15_rollback_pass1_late", "V16_rollback_pass1_maps", "V17_rollback_cannot_validate",
+               "V18_header_error_pass1", "W1_silent_pass0", "W2_late_pass0_before_deadline",
+               "W3_late_pass0_after_deadline", "W4_silent_pass1", "W5_late_pass1_before_deadline",
+               "W6_late_pass1_after_deadline", "W7_silent_pass1_last_name", "W8_map_face_silent_pass1",
+               "W9_judge_silent_pass1", "W10_edit_face_silent_pass1", "W12_r218_read_late_after_apply",
+               "W13_binding_walk_silent", "W14_binding_walk_late_after_fw_deadline",
+               "W15_binding_walk_late_before_fw_deadline", "K19_command_before_the_restore"]
+DEPENDS.update({c: V1A for c in TRANSACTION})
+#: the binding walk has one implementation whatever the shape: its three
+#: deadline cases run at 1x1 only
+ONLY_1X1 = {"W13_binding_walk_silent", "W14_binding_walk_late_after_fw_deadline",
+            "W15_binding_walk_late_before_fw_deadline"}
 #: cases one shape alone can express: K16 needs an output port whose stream
 #: channels outnumber its clusters (8x8: 72 against 9; 1x1: 16 against 17)
 SHAPE_CASES = {"8x8": ["K16_map_set_larger_than_its_record"]}
-CRAFTED = ["V2_refused_rate", "V3_refused_map_for_a_removed_cluster", "V4_refused_configuration_index",
+V3X = ["V3a_map_index_0xff00", "V3b_map_index_0xfeff", "V3c_map_index_0xfffe", "V3d_map_sentinel_tail",
+       "V3e_map_hole", "V3f_map_index_out_of_range", "V3g_map_valid_empty_set"]
+CRAFTED = ["V2_refused_rate", "V3_refused_map_for_a_removed_cluster", *V3X, "V4_refused_configuration_index",
            "V5_record_corrupted_after_the_load", "V7_names_only", "V8_orphaning_format_reverted",
-           "V9_refused_maps_revert_their_formats", "V11_torn_read_restores_nothing"]
+           "V9_refused_maps_revert_their_formats", "V11_torn_read_restores_nothing",
+           "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late"]
+#: the SYNTHETIC shape exists for the sampling-rate group alone
+SYNTH_CASES = [V1A, "V1b_restore_everything", "V2_refused_rate"]
 
 
 def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
     cls_out0 = s.recs[0x70][2] // 8
     two = narrower(s.def_fmt_out[0], 2)
+    ptof = {0x50: (1500000).to_bytes(4, "big")}
+    ff = b"\xff" * 8
     if case == "V2_refused_rate":
         over = {0x02: (12345).to_bytes(4, "big")}
     elif case == "V3_refused_map_for_a_removed_cluster":
         over = {0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0)}
+    elif case in ("V3a_map_index_0xff00", "V3b_map_index_0xfeff", "V3c_map_index_0xfffe"):
+        si = {"V3a": 0xFF00, "V3b": 0xFEFF, "V3c": 0xFFFE}[case[:3]]
+        over = {0x70: map_bytes([(si, 0, 0, 0)], cls_out0), **ptof}
+    elif case == "V3d_map_sentinel_tail":
+        # a mapping, unused entries, and a LAST entry that is not quite one
+        pay = bytearray(map_bytes([(0, 0, 0, 0)], cls_out0))
+        pay[-1] = 0x00
+        over = {0x70: bytes(pay), **ptof}
+    elif case == "V3e_map_hole":
+        # an unused entry, then a mapping: a hole
+        over = {0x70: ff + map_bytes([(0, 0, 0, 0)], cls_out0 - 1), **ptof}
+    elif case == "V3f_map_index_out_of_range":
+        over = {0x70: map_bytes([(s.params["N_STREAM_OUT_P"], 0, 0, 0)], cls_out0), **ptof}
+    elif case == "V3g_map_valid_empty_set":
+        over = {0x70: map_bytes([], cls_out0), **ptof}
     elif case == "V4_refused_configuration_index":
         over = {0x00: (1).to_bytes(2, "big")}
     elif case == "V5_record_corrupted_after_the_load":
@@ -999,7 +1506,7 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
         over = {0x40: two.to_bytes(8, "big")}
     elif case == "V9_refused_maps_revert_their_formats":
         over = {0x40: two.to_bytes(8, "big"), 0x70: map_bytes([(0, 0, cls_out0 + 3, 0)], cls_out0)}
-    elif case == "V11_torn_read_restores_nothing":
+    elif case in ("V11_torn_read_restores_nothing", "V11b_torn_in_pass1_rolls_back", "W11_r217_first_read_late"):
         over = {0x50: (1100011).to_bytes(4, "big"), 0x80: b"V11 name".ljust(64, b"\x00")}
     else:
         raise SystemExit(case)
@@ -1007,35 +1514,46 @@ def crafted_for(s: Shape, case: str) -> tuple[tuple, dict]:
 
 
 def plan(build: Build) -> list:
-    """(case, variant, slots-from) for one build: base builds run everything;
-    the tracked build runs what reproduces today; a mutant runs the one case
-    (and chain, or K15's whole sweep) its killer lives in."""
+    """(case, variant, slots-from) for one build, every source before the
+    cases that boot from its slots. Base builds of the shipped shapes run
+    everything; the synthetic shape runs its own cases; the tracked build
+    runs what reproduces today; a mutant runs the one case its killer lives
+    in (and that case's source), or K15's whole sweep."""
+    def with_sources(cases: list, variant: str = "") -> list:
+        out, seen = [], set()
+        for cse in cases:
+            src = DEPENDS.get(cse)
+            if src and src not in seen:
+                out.append((src, "", None))
+                seen.add(src)
+            if cse not in seen or variant:
+                out.append((cse, variant, src))
+                seen.add(cse)
+        return out
     items = []
-    if build.name.startswith("base-"):
-        items += [(c, "", None) for c in BASE_CASES + CRAFTED + ["V10_blank_first_boot"]]
-        items += [(c, "", None) for c in SHAPE_CASES.get(build.shape, [])]
-        items += [(a, "", None) for a, _b in CHAINS] + [(b, "", a) for a, b in CHAINS]
-        items += [("V1b_restore_everything", "stale", "V1a_set_everything")]
+    if build.name.startswith("base-") and build.shape in SHIPPED:
+        cases = BASE_CASES + CRAFTED + ["V10_blank_first_boot"] + SHAPE_CASES.get(build.shape, [])
+        cases += [a for a, _b in (("K6a_cut_after_record_before_commit", 0), ("K7a_cut_after_ack", 0),
+                                  ("K17a_cut_during_record_write", 0), ("K18a_cut_inside_the_debounce", 0),
+                                  ("V6a_set_coupled_narrower_pair", 0))]
+        cases += [c for c in DEPENDS if build.shape == "1x1" or c not in ONLY_1X1]
+        items += with_sources(cases)
+        items += [("V1b_restore_everything", "stale", V1A)]
         if build.shape == "1x1":
             items += [("K15_binding_on_the_d3_grant_cycle", v, None) for v in K15_SWEEP]
+    elif build.name.startswith("base-"):
+        items += with_sources(SYNTH_CASES)
+        items += [("V1b_restore_everything", "stale", V1A)]
     elif build.tracked:
-        items += [(c, "", None) for c in TRACKED_CASES]
-        items += [("V1a_set_everything", "", None), ("V1b_restore_everything", "", "V1a_set_everything")]
+        items += with_sources(TRACKED_CASES + [V1A, "V1b_restore_everything"])
     else:
         m = build.name[4:]
         case, variant, _k, _s = KILLERS[m]
         if variant == "*":
-            items += [(case, v, None) for v in K15_SWEEP]
-            return items
-        for a, b in CHAINS:
-            if case == b:
-                items.append((a, "", None))
-                items.append((b, variant, a))
-                break
-        else:
-            items.append((case, variant, None))
+            return [(case, v, None) for v in K15_SWEEP]
+        items += with_sources([case])
         if m == "M13_restore_applies_nothing":
-            items.append(("V1b_restore_everything", "stale", "V1a_set_everything"))
+            items.append(("V1b_restore_everything", "stale", V1A))
     return items
 
 
@@ -1060,22 +1578,36 @@ def execute(build: Build, s: Shape) -> list:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("action", choices=["prep", "build", "run"])
+    ap.add_argument("action", choices=["prep", "build", "run", "controls", "receipts"])
     ap.add_argument("names", nargs="*")
-    ap.add_argument("--shapes", default="1x1,8x8")
+    ap.add_argument("--shapes", default=",".join(SHAPES))
     ap.add_argument("--jobs", type=int, default=8)
     ap.add_argument("--pool", type=int, default=4)
     args = ap.parse_args()
+    if args.action == "receipts":
+        return receipts()
+    if args.action == "controls":
+        return controls(args.pool)
     check_m0_encoding()
     shapes_wanted = args.shapes.split(",")
+    unknown = [n for n in shapes_wanted if n not in SHAPES]
+    if unknown:
+        print(f"REFUSED: unknown shape {unknown}")
+        return 2
     shapes = {n: prep_shape(n) for n in shapes_wanted}
     builds = [b for b in all_builds(shapes_wanted) if b.shape in shapes]
+    focused = bool(args.names) or set(shapes_wanted) != set(SHAPES)
     if args.names:
+        missing = [n for n in args.names if n not in {b.name for b in builds}]
+        if missing:
+            print(f"REFUSED: no such build {missing} at shapes {shapes_wanted}")
+            return 2
         builds = [b for b in builds if b.name in args.names]
     if args.action == "prep":
         for n, s in shapes.items():
-            print(f"shape {n}: {len(s.recs)} records, params {s.params}, rates {s.rates}, clk {s.clk_count}, "
-                  f"fmt_out {[hex(f) for f in s.def_fmt_out]}, fmt_in {[hex(f) for f in s.def_fmt_in]}")
+            kind = "SYNTHETIC" if n in SYNTH else "shipped"
+            print(f"shape {n} ({kind}): {len(s.recs)} records, params {s.params}, rates {s.rates}, clk "
+                  f"{s.clk_count}, fmt_out {[hex(f) for f in s.def_fmt_out]}, fmt_in {[hex(f) for f in s.def_fmt_in]}")
         return 0
     if args.action == "build":
         with cf.ThreadPoolExecutor(max_workers=args.pool) as ex:
@@ -1084,22 +1616,34 @@ def main() -> int:
                 b = f.result()
                 print(f"built {b.name}")
         return 0
-    # run
+    # run: every selected build must exist; nothing is skipped silently
+    absent = []
     for b in builds:
         b.binary = OUT / "build" / b.name / "obj" / "d3sim"
         if not b.binary.exists():
-            raise SystemExit(f"{b.name} is not built")
+            absent.append(b.name)
+    if absent:
+        for n in absent:
+            print(f"REFUSED: {n} is not built")
+        return 2
+    if focused:
+        print(f"FOCUSED RUN, not a full-run claim: builds {[b.name for b in builds]} at shapes {shapes_wanted}")
     allres = {}
     with cf.ThreadPoolExecutor(max_workers=args.pool) as ex:
         futs = {ex.submit(execute, b, shapes[b.shape]): b for b in builds}
         for f in cf.as_completed(futs):
             b = futs[f]
             allres[b.name] = f.result()
-    report(allres)
-    return 0
+    fail = report(allres, builds, focused)
+    return 1 if fail else 0
 
 
-def report(allres: dict) -> None:
+def report(allres: dict, builds: list, focused: bool) -> int:
+    """Write the graded results and return the number of VERDICT failures:
+    an unexpected base result, a tracked control that does not hold, a
+    mutant that was not killed by its named check in a COMPLETED run, a
+    vacuity control that does not hold, an unreached premise, or a planned
+    case that did not run."""
     lines, js = [], {"builds": {}}
     fail = 0
     for bname in sorted(allres):
@@ -1110,8 +1654,14 @@ def report(allres: dict) -> None:
                 lines.append(f"{bname:40s} {tag:48s} {'PASS' if ok else 'FAIL'} {name} -- {detail}")
             js["builds"][bname].append({"case": tag, "checks": {k: {"pass": v[0], "detail": v[1]}
                                                                 for k, v in g.checks.items()}})
-    # verdicts
     verdict = []
+    # every planned case of every selected build ran
+    for b in builds:
+        want = [c + (f"~{v}" if v else "") for c, v, _s in plan(b)]
+        got = [r.case + (f"~{r.variant}" if r.variant else "") for r, _g in allres.get(b.name, [])]
+        if sorted(want) != sorted(got):
+            fail += 1
+            verdict.append(f"INCOMPLETE {b.name}: planned {len(want)} runs, graded {len(got)}")
     for bname, res in sorted(allres.items()):
         if bname.startswith("base-"):
             for r, g in res:
@@ -1155,23 +1705,33 @@ def report(allres: dict) -> None:
         else:
             m = bname[4:]
             case, variant, killer, _s = KILLERS[m]
-            killed, where = False, None
+            state, where, why = "SURVIVED", None, ""
             for r, g in res:
                 if r.case != case or (variant != "*" and r.variant != variant):
                     continue
-                if killer in g.checks and not g.checks[killer][0]:
-                    killed, where = True, r.case + (f"~{r.variant}" if r.variant else "")
+                t_ = r.case + (f"~{r.variant}" if r.variant else "")
+                if not g.checks.get("case_completed", (False,))[0]:
+                    #! a run that did not complete kills nothing
+                    state, where, why = "NOT COMPLETED", t_, f" ({g.checks.get('case_completed', (0, 'no run'))[1]})"
+                    continue
+                if killer not in g.checks:
+                    if state != "NOT COMPLETED":
+                        state, where, why = "KILLER ABSENT", t_, ""
+                    continue
+                if not g.checks[killer][0]:
+                    state, where, why = "KILLED", t_, f" -- {g.checks[killer][1][:140]}"
                     break
-            if not killed:
+            if state != "KILLED":
                 fail += 1
             tag = where or (case + (f"~{variant}" if variant else ""))
-            verdict.append(f"MUTANT {m}: {'KILLED' if killed else 'SURVIVED'} by {tag} : {killer}")
+            verdict.append(f"MUTANT {m}: {state} by {tag} : {killer}{why}")
             if m == "M13_restore_applies_nothing":
                 for r, g in res:
                     if r.variant == "stale":
                         naive = g.checks.get("value_restored:0x50", (None,))[0]
                         cleared = g.checks.get("rows_cleared_before_restore@boot", (None,))[0]
-                        ok = naive is True and cleared is False
+                        done = g.checks.get("case_completed", (False,))[0]
+                        ok = done and naive is True and cleared is False
                         if not ok:
                             fail += 1
                         verdict.append(f"CONTROL stale store under M13: naive read-back "
@@ -1180,14 +1740,109 @@ def report(allres: dict) -> None:
                                        f"{'as required' if ok else 'NOT AS REQUIRED'}")
     total = sum(len(g.checks) for res in allres.values() for _r, g in res)
     runs = sum(len(res) for res in allres.values())
-    summary = f"SUMMARY runs {runs}, checks {total}, verdict failures {fail}"
+    kind = "FOCUSED" if focused else "FULL"
+    summary = f"SUMMARY {kind} builds {len(allres)}, runs {runs}, checks {total}, verdict failures {fail}"
     text = "\n".join(lines + [""] + verdict + ["", summary]) + "\n"
-    (HERE / "results.txt").write_text(text)
+    stem = (OUT / "results-focused") if focused else (HERE / "results")
+    stem.parent.mkdir(parents=True, exist_ok=True)
+    stem.with_suffix(".txt").write_text(text)
     js["verdict"] = verdict
     js["summary"] = summary
-    (HERE / "results.json").write_text(json.dumps(js, indent=1) + "\n")
+    stem.with_suffix(".json").write_text(json.dumps(js, indent=1) + "\n")
     print("\n".join(verdict))
     print(summary)
+    return fail
+
+
+# --------------------------------------------------------- process controls
+#: each: (name, build to run, its shape, doctored binaries {build: source},
+#: extra environment, the exit status it must end with, the diagnostics its
+#: output must contain). A source "false" is an executable that fails before
+#: any scenario; a source None leaves the build absent.
+CONTROLS = [
+    ("healthy_binary_as_mutant", "mut-M01_taint_ignored", "1x1", {"mut-M01_taint_ignored": "base-1x1"}, {}, 1,
+     ["MUTANT M01_taint_ignored: SURVIVED", "verdict failures 1"]),
+    ("binary_fails_before_the_scenario", "mut-M06_identify_is_a_change", "1x1",
+     {"mut-M06_identify_is_a_change": "false"}, {}, 1,
+     ["MUTANT M06_identify_is_a_change: NOT COMPLETED", "verdict failures 1"]),
+    ("failed_baseline_result", "base-1x1r2", "1x1r2", {"base-1x1r2": "mut-RPL_rate"}, {}, 1,
+     ["UNEXPECTED base-1x1r2 V1b_restore_everything value_restored:0x02 FAIL"]),
+    ("tracked_control_violated", "tracked-1x1", "1x1", {"tracked-1x1": "base-1x1"}, {}, 1,
+     ["TRACKED K1_single_change_converges : converged@end DOES NOT FAIL"]),
+    ("vacuity_control_violated", "mut-M13_restore_applies_nothing", "1x1",
+     {"mut-M13_restore_applies_nothing": "mut-M13_restore_applies_nothing"},
+     {"D3_CONTROL_SKIP_STALE_SEED": "1"}, 1,
+     ["CONTROL stale store under M13: naive read-back FAILS, cleared-first PASSES -> NOT AS REQUIRED",
+      "verdict failures 1"]),
+    ("tracked_control_absent", "tracked-1x1", "1x1", {"tracked-1x1": None}, {}, 2,
+     ["REFUSED: tracked-1x1 is not built"]),
+    ("empty_selection", "no-such-build", "1x1", {}, {}, 2, ["REFUSED: no such build ['no-such-build']"]),
+]
+
+
+def controls(pool: int) -> int:
+    """The runner's own verdict propagation, executed through its real CLI.
+    Each control doctors a COPY of the built binaries in a private output
+    tree and requires the exit status and the diagnostic it names."""
+    bad = 0
+    for name, build, shape, doctor, env, want_rc, want_text in CONTROLS:
+        root = OUT / "controls" / name
+        if root.exists():
+            shutil.rmtree(root)
+        for b, src in doctor.items():
+            if src is None:
+                continue
+            dst = root / "build" / b / "obj" / "d3sim"
+            dst.parent.mkdir(parents=True)
+            if src == "false":
+                dst.write_text("#!/bin/sh\nexit 1\n")
+                dst.chmod(0o755)
+            else:
+                shutil.copy2(OUT / "build" / src / "obj" / "d3sim", dst)
+        p = subprocess.run([sys.executable, "-B", str(HERE / "run.py"), "run", build, "--shapes", shape,
+                            "--pool", str(pool)], text=True, capture_output=True,
+                           env={**os.environ, **env, "D3_OUT": str(root), "PYTHONDONTWRITEBYTECODE": "1"})
+        (root / "control.log").parent.mkdir(parents=True, exist_ok=True)
+        (root / "control.log").write_text(p.stdout + p.stderr)
+        missing = [w for w in want_text if w not in p.stdout]
+        ok = p.returncode == want_rc and not missing
+        bad += not ok
+        print(f"CONTROL {name}: {'AS REQUIRED' if ok else 'NOT AS REQUIRED'} -- exit {p.returncode} "
+              f"(required {want_rc}); diagnostics {'found' if not missing else f'MISSING {missing}'}")
+    print(f"CONTROLS {len(CONTROLS)}, not as required {bad}")
+    return 1 if bad else 0
+
+
+# ------------------------------------------------------------------ receipts
+#: the repository files the model reads or compiles, besides the evidence
+REPO_READ = [PP / "acmp/pp_acmp_pkg.sv", PP / "aecp/KL_aecp_dyn_state.sv", PP / "aecp/KL_aecp_desc_store.sv",
+             PP / "acmp/KL_acmp_nvm_shadow.sv", PP / "packet_engine/KL_pp_nvm_port.sv", BACKEND, WRITER,
+             ROOT / "scripts/nvm_klj2.py", ROOT / "scripts/nvm_shape.py", ROOT / "scripts/check_nvm_record_space.py",
+             ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py", ROOT / SHAPES["1x1"], ROOT / SHAPES["8x8"],
+             ROOT / "sw/builder/endstation_builder.py"]
+
+
+def receipts() -> int:
+    """sha256 of every TRACKED file of the evidence directory (git ls-files,
+    so an ignored incidental file such as a tool's history can never enter
+    the record) but the command record itself, and of the repository files
+    the model reads."""
+    top = HERE.parent
+    p = subprocess.run(["git", "ls-files", "-z", "--", "."], cwd=top, capture_output=True)
+    if p.returncode:
+        print("REFUSED: git ls-files failed")
+        return 2
+    files = sorted(f for f in p.stdout.decode().split("\0") if f and f != "COMMAND_RESULTS.md")
+    print("| File (relative to design-evidence/500-materialization) | sha256 |")
+    print("|---|---|")
+    for f in files:
+        print(f"| `{f}` | `{hashlib.sha256((top / f).read_bytes()).hexdigest()}` |")
+    print()
+    print("| Repository file | sha256 |")
+    print("|---|---|")
+    for f in REPO_READ:
+        print(f"| `{f.relative_to(ROOT)}` | `{hashlib.sha256(f.read_bytes()).hexdigest()}` |")
+    return 0
 
 
 if __name__ == "__main__":

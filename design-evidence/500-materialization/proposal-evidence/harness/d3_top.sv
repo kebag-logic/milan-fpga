@@ -29,11 +29,32 @@
 //                class-6/7 mark bit in pend_i, and the processor's restore
 //                done is the AND of the two walks.
 //
+//                THE ENTITY ENABLE is released by the restore (processor
+//                F07.9, "release entity_enable"): the enable the firmware
+//                requests (PP_CTRL[0] OR ADP_CTRL[0]) reaches the entity only
+//                once the restore of both walks is done, entity_en_o. A
+//                restore that never reaches done keeps the entity dark.
+//
+//                THE ROLL-BACK (page section 8.6): the writer's rb_rst_o
+//                resets the dynamic-state store and the descriptor store as a
+//                reset would (the store walks the image again, so its names
+//                are the image's), and map_rst_o asks the C++ map plane for
+//                its reset sets. The product needs one soft-reset input on
+//                each owner; the model uses their rst_n.
+//
+//                HARNESS-ONLY FACES, not product wiring: lend_bus_i lends the
+//                state bus to the uCPU BFM BEFORE the restore starts (the
+//                stale-store control seeds rows through it; the writer owns
+//                the bus from reset), and the pk_* peek ports read the
+//                dynamic-state rows and the name table through the hierarchy
+//                for the cleared-first checks, without the bus.
+//
 //                D3_TRACKED (a build define) is the glue AS IT SHIPS at dev
 //                07294a76: no D3 writer, pend_i = aecp_dyn_dirty_o OR the
 //                binding manager's unflushed sinks OR the sticky class-6/7
-//                mark bit, and the restore is the binding walk alone. It is
-//                what "what reproduces today" runs against.
+//                mark bit, the restore is the binding walk alone, and the
+//                enable is not gated. It is what "what reproduces today"
+//                runs against.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -53,7 +74,9 @@ module d3_top
     parameter int unsigned MAP_ENT_MAX_P  = 17,
     parameter int unsigned IDX_ENTRIES_P  = 32,
     parameter int unsigned D3_DEB_TICKS_P = 500,
-    parameter int unsigned T_HOLD_MS_P    = 50
+    parameter int unsigned T_HOLD_MS_P    = 50,
+    //! the D3 restore watchdog, cycles: 20 ms at the model's 1 MHz
+    parameter int unsigned D3_RS_TMO_CYC_P = 20000
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
@@ -93,8 +116,23 @@ module d3_top
 
     //! ---- PP_CTRL[1] ----------------------------------------------------------
     input  wire         restore_go_i,
-    //! harness knob: hold the writer's change snoop off (stale-store control)
+    //! ---- PP_CTRL[0] OR ADP_CTRL[0]: the enable the firmware requests --------
+    input  wire         en_req_i,
+    output logic        entity_en_o,    //! the enable the entity sees
+    //! harness knob: hold the writer's change snoop off, every source of it
+    //! (the stale-store control seeds rows, names and map sets through it)
     input  wire         snoop_off_i,
+    //! harness knob: lend the state bus to the uCPU BFM before the restore
+    input  wire         lend_bus_i,
+    //! the roll-back's request to the map plane (the C++ model)
+    output logic        map_rst_o,
+    //! harness peeks (observation only)
+    input  wire  [3:0]  pk_sel_i,
+    input  wire  [15:0] pk_idx_i,
+    output logic [63:0] pk_val_o,
+    output logic        pk_v_o,
+    input  wire  [15:0] pk_lane_i,
+    output logic [63:0] pk_name_o,
 
     //! ---- the descriptor store's memory face, to the C++ DDR model --------
     output logic        dm_req_valid_o,
@@ -174,6 +212,15 @@ module d3_top
     output logic        d3_unflushed_o,
     output logic        d3_restore_done_o,
     output logic        d3_restore_fail_o,
+    output logic        d3_restore_rb_o,
+    output logic        d3_restore_closed_o,
+    output logic [2:0]  d3_rs_cause_o,
+    output logic [31:0] d3_wd_o,
+    output logic        d3_pass_o,
+    output logic        d3_abort_o,
+    output logic        d3_busy_o,
+    //! a state-bus WRITE the D3 writer made and a store took (observation)
+    output logic        wr_st_we_o,
     output logic [7:0]  d3_rs_applied_o,
     output logic [7:0]  d3_rs_refused_o,
     output logic [7:0]  d3_rs_blank_o,
@@ -239,24 +286,30 @@ module d3_top
   logic        st_ready_w, st_rvalid_w, st_err_w;
   logic [63:0] st_rdata_w;
 
-  assign st_req_w   = d3_own_w ? sb_req_w   : ub_req_i;
-  assign st_we_w    = d3_own_w ? sb_we_w    : ub_we_i;
-  assign st_name_w  = d3_own_w ? sb_name_w  : ub_name_i;
-  assign st_addr_w  = d3_own_w ? sb_addr_w  : ub_addr_i;
-  assign st_wdata_w = d3_own_w ? sb_wdata_w : ub_wdata_i;
-  assign st_wstrb_w = d3_own_w ? sb_wstrb_w : 8'hFF;
-  assign st_didx_w  = d3_own_w ? sb_didx_w  : ub_didx_i;
+  //! the writer drives the bus while it owns it, unless the harness lends
+  //! it to the BFM before the restore (lend_bus_i; the writer issues nothing
+  //! then). wr_bus_w is who drives; the snoop below still reads d3_own_w.
+  logic        wr_bus_w;
+  assign wr_bus_w   = d3_own_w && !lend_bus_i;
+  assign st_req_w   = wr_bus_w ? sb_req_w   : ub_req_i;
+  assign st_we_w    = wr_bus_w ? sb_we_w    : ub_we_i;
+  assign st_name_w  = wr_bus_w ? sb_name_w  : ub_name_i;
+  assign st_addr_w  = wr_bus_w ? sb_addr_w  : ub_addr_i;
+  assign st_wdata_w = wr_bus_w ? sb_wdata_w : ub_wdata_i;
+  assign st_wstrb_w = wr_bus_w ? sb_wstrb_w : 8'hFF;
+  assign st_didx_w  = wr_bus_w ? sb_didx_w  : ub_didx_i;
   //! KL_aecp_engine's region routing (dyn_sel_w there)
   assign dyn_sel_w  = !st_name_w && ((st_addr_w[19:16] == 4'h1) || (st_addr_w[19:16] == 4'h2));
   assign st_ready_w  = dyn_sel_w ? dyn_ready_w : store_ready_w;
   assign st_rvalid_w = dyn_rvalid_w || store_rvalid_w;
   assign st_rdata_w  = dyn_rvalid_w ? dyn_rdata_w : store_rdata_w;
   assign st_err_w    = store_rvalid_w && store_err_w;
-  assign ub_ready_o  = !d3_own_w && st_ready_w;
-  assign ub_rvalid_o = !d3_own_w && st_rvalid_w;
+  assign ub_ready_o  = !wr_bus_w && st_ready_w;
+  assign ub_rvalid_o = !wr_bus_w && st_rvalid_w;
   assign ub_rdata_o  = st_rdata_w;
   assign ub_err_o    = st_err_w;
-  assign own_o       = d3_own_w;
+  assign own_o       = wr_bus_w;
+  assign wr_st_we_o  = wr_bus_w && st_req_w && st_we_w && st_ready_w;
 
   // ---- the real dynamic-state store ----------------------------------------
   logic [N_STREAM_OUT_P*32-1:0] pt_nc_w;
@@ -264,6 +317,10 @@ module d3_top
   logic [15:0] cfg_nc_w, cs_nc_w, wr_nc_w, oob_nc_w;
   logic [7:0]  id_nc_w;
   logic        aecp_dyn_dirty_nc_w;
+
+  //! the roll-back's scoped reset (the writer's rb_rst_o); 0 in the tracked glue
+  logic rb_rst_w, own_rst_n_w;
+  assign own_rst_n_w = rst_n && !rb_rst_w;
 
   KL_aecp_dyn_state #(
       .N_STREAM_IN_P  (N_STREAM_IN_P),
@@ -273,7 +330,7 @@ module d3_top
       .N_CONTROL_P    (1)
   ) u_dyn (
       .clk_i           (clk_i),
-      .rst_n           (rst_n),
+      .rst_n           (own_rst_n_w),
       .st_req_i        (st_req_w && dyn_sel_w),
       .st_we_i         (st_we_w),
       .st_addr_i       (st_addr_w),
@@ -309,7 +366,7 @@ module d3_top
       .MEM_TIMEOUT_CYC_P (4096)
   ) u_store (
       .clk_i             (clk_i),
-      .rst_n             (rst_n),
+      .rst_n             (own_rst_n_w),
       .st_req_i          (st_req_w && !dyn_sel_w),
       .st_we_i           (st_we_w),
       .st_name_i         (st_name_w),
@@ -336,6 +393,33 @@ module d3_top
       .dbg_ro_write_o    (rowr_nc_w),
       .dbg_desc_len_o    (dlen_nc_w)
   );
+
+  // ---- harness peeks: the rows and the name table, through the hierarchy ----
+  //! pk_sel_i is the dynamic-state selector (0..5); pk_idx_i the row
+  localparam int unsigned PAUW_C = (N_AUDIO_UNIT_P > 1) ? $clog2(N_AUDIO_UNIT_P) : 1;
+  localparam int unsigned PCDW_C = (N_CLK_DOM_P > 1)    ? $clog2(N_CLK_DOM_P)    : 1;
+  localparam int unsigned PSIW_C = (N_STREAM_IN_P > 1)  ? $clog2(N_STREAM_IN_P)  : 1;
+  localparam int unsigned PSOW_C = (N_STREAM_OUT_P > 1) ? $clog2(N_STREAM_OUT_P) : 1;
+  localparam int unsigned PNLW_C = $clog2(8 * N_NAME_P);
+  always_comb begin : peek_dyn
+    pk_val_o = 64'd0;
+    pk_v_o   = 1'b0;
+    unique case (pk_sel_i)
+      4'd0: begin pk_val_o = {48'd0, u_dyn.cfg_r}; pk_v_o = u_dyn.cfg_v_r; end
+      4'd1: if (32'(pk_idx_i) < N_AUDIO_UNIT_P) begin
+              pk_val_o = {32'd0, u_dyn.rate_r[PAUW_C'(pk_idx_i)]}; pk_v_o = u_dyn.rate_v_r[PAUW_C'(pk_idx_i)]; end
+      4'd2: if (32'(pk_idx_i) < N_CLK_DOM_P) begin
+              pk_val_o = {48'd0, u_dyn.clksrc_r[PCDW_C'(pk_idx_i)]}; pk_v_o = u_dyn.clksrc_v_r[PCDW_C'(pk_idx_i)]; end
+      4'd3: if (32'(pk_idx_i) < N_STREAM_IN_P) begin
+              pk_val_o = u_dyn.fmtin_r[PSIW_C'(pk_idx_i)]; pk_v_o = u_dyn.fmtin_v_r[PSIW_C'(pk_idx_i)]; end
+      4'd4: if (32'(pk_idx_i) < N_STREAM_OUT_P) begin
+              pk_val_o = u_dyn.fmtout_r[PSOW_C'(pk_idx_i)]; pk_v_o = u_dyn.fmtout_v_r[PSOW_C'(pk_idx_i)]; end
+      4'd5: if (32'(pk_idx_i) < N_STREAM_OUT_P) begin
+              pk_val_o = {32'd0, u_dyn.ptoff_r[PSOW_C'(pk_idx_i)]}; pk_v_o = u_dyn.ptoff_v_r[PSOW_C'(pk_idx_i)]; end
+      default: ;
+    endcase
+  end
+  assign pk_name_o = (32'(pk_lane_i) < 8 * N_NAME_P) ? u_store.name_r[PNLW_C'(pk_lane_i)] : 64'd0;
 
   // ---- the real binding manager ----------------------------------------------
   localparam int unsigned SIW_C = (N_STREAM_IN_P > 1) ? $clog2(N_STREAM_IN_P) : 1;
@@ -407,6 +491,7 @@ module d3_top
   logic        m1_rvalid_w, m1_rready_w, m1_done_w, m1_err_w;
   logic [7:0]  m1_rid_w, m1_wdata_w, m1_rdata_w;
   logic        d3_busy_w, d3_done_w, d3_fail_w, d3_alarm_w, d3_unfl_w, d3_blank_w;
+  logic        d3_rb_w, d3_closed_w, m1_abort_w;
   logic        u_dyn_ack_w, u_name_ack_w;
   assign arb_m1_gnt_o = m1_gnt_w;
 
@@ -430,6 +515,9 @@ module d3_top
   assign d3_rs_applied_o = '0; assign d3_rs_refused_o = '0; assign d3_rs_blank_o = '0;
   assign d3_rs_reverted_o = '0; assign d3_writes_o = '0; assign d3_slot_o = '0;
   assign d3_taint_o = 1'b0; assign d3_dirty_o = '0;
+  assign rb_rst_w = 1'b0; assign m1_abort_w = 1'b0;
+  assign d3_rb_w = 1'b0; assign d3_closed_w = 1'b0; assign d3_rs_cause_o = '0;
+  assign d3_wd_o = '0; assign d3_pass_o = 1'b0;
 `else
   //! the change sources are the uCPU's own accesses: the writer's restore
   //! writes never reach them, so a restore write is not a change
@@ -449,7 +537,8 @@ module d3_top
       .MAP_ENT_MAX_P  (MAP_ENT_MAX_P),
       .LAYOUT_VER_P   (8'h02),
       .DEB_TICKS_P    (D3_DEB_TICKS_P),
-      .RETRY_MAX_P    (2)
+      .RETRY_MAX_P    (2),
+      .RS_TMO_CYC_P   (D3_RS_TMO_CYC_P)
   ) u_d3 (
       .clk_i            (clk_i),
       .rst_n            (rst_n),
@@ -458,7 +547,7 @@ module d3_top
       .u_name_ack_i     (u_name_ack_w),
       .u_addr_i         (ub_addr_i),
       .u_didx_i         (ub_didx_i),
-      .me_stb_i         (me_stb_i),
+      .me_stb_i         (me_stb_i && !snoop_off_i),
       .me_type_i        (me_type_i),
       .me_idx_i         (me_idx_i),
       .prog_busy_i      (prog_busy_i),
@@ -511,11 +600,16 @@ module d3_top
       .m_rready_o       (m1_rready_w),
       .m_done_i         (m1_done_w),
       .m_err_i          (m1_err_w),
+      .m_abort_o        (m1_abort_w),
+      .rb_rst_o         (rb_rst_w),
       .restore_go_i     (mgr_done_w),
       .restore_busy_o   (d3_busy_w),
       .restore_done_o   (d3_done_w),
       .restore_fail_o   (d3_fail_w),
       .restore_blank_o  (d3_blank_w),
+      .restore_rb_o     (d3_rb_w),
+      .restore_closed_o (d3_closed_w),
+      .rs_cause_o       (d3_rs_cause_o),
       .rs_applied_o     (d3_rs_applied_o),
       .rs_refused_o     (d3_rs_refused_o),
       .rs_blank_o       (d3_rs_blank_o),
@@ -525,9 +619,16 @@ module d3_top
       .writes_o         (d3_writes_o),
       .dbg_slot_o       (d3_slot_o),
       .dbg_taint_o      (d3_taint_o),
+      .dbg_wd_o         (d3_wd_o),
+      .dbg_pass_o       (d3_pass_o),
       .dbg_dirty_o      (d3_dirty_o)
   );
 `endif
+  assign map_rst_o           = rb_rst_w;
+  assign d3_restore_rb_o     = d3_rb_w;
+  assign d3_restore_closed_o = d3_closed_w;
+  assign d3_abort_o          = m1_abort_w;
+  assign d3_busy_o           = d3_busy_w;
   assign d3_alarm_o        = d3_alarm_w;
   assign d3_mdone_o        = m1_done_w;
   assign d3_unflushed_o    = d3_unfl_w;
@@ -566,6 +667,7 @@ module d3_top
       .m1_rdata_o  (m1_rdata_w),
       .m1_done_o   (m1_done_w),
       .m1_err_o    (m1_err_w),
+      .m1_abort_i  (m1_abort_w),
       .p_req_o     (p_req_w),
       .p_we_o      (p_we_w),
       .p_rid_o     (p_rid_w),
@@ -676,6 +778,14 @@ module d3_top
   //! back and no binding does not read "nothing restored"
   assign restore_blank_o = mgr_blank_w & d3_blank_w;
   assign restore_fail_o  = mgr_fail_w || d3_fail_w || (rs_done_w && walk_blind_r);
+
+  //! F07.9: the restore releases entity_enable. The enable the firmware asks
+  //! for reaches the entity only once both walks are done.
+`ifdef D3_TRACKED
+  assign entity_en_o = en_req_i;
+`else
+  assign entity_en_o = en_req_i && rs_done_w;
+`endif
 
   // ---- the shipping backend ----------------------------------------------------------
   KL_nvm_backend #(

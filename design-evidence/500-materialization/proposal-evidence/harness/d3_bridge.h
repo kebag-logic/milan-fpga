@@ -20,8 +20,51 @@ struct Fault {
   int mode;
   int kind;
   int count;
+  int pass = -1;          //! mode 1 only: the D3 pass it waits for (-1 any)
 };
 extern std::vector<Fault> faults;
+
+//! A backend memory READ response HELD BACK (the restore containment cases).
+//! It matches the nth memory read issued while the device face serves record
+//! `rid` (any record if -1) in D3 pass `pass` (-1 any), and is released after
+//! `hold` cycles (-1: never, silence), when the D3 writer's watchdog count
+//! reaches `wd_release` (just before the deadline), or `after_abort` cycles
+//! after the writer's abort (just after it). Only one hold is armed at once.
+struct RdHold {
+  bool armed = false;
+  int rid = -1;
+  int pass = -1;
+  unsigned nth = 1;
+  int64_t hold = -1;
+  int64_t wd_release = -1;
+  int64_t after_abort = -1;
+  // observed
+  unsigned seen = 0;
+  bool active = false;
+  bool released = false;
+  uint64_t start = 0, end = 0;
+  unsigned rid_seen = 0, pass_seen = 0;
+  uint64_t wd_max = 0;      //! the writer's largest watchdog count while held
+};
+extern RdHold rdhold;
+
+//! a face that stops answering from a trigger on: the GET_AUDIO_MAP read face
+//! (am), the format judge (fj) or the map edit face (mr). It is silent from
+//! the first request in D3 pass `pass` until the writer aborts (the face is
+//! then healthy again, so the entity it recovers into works)
+struct FaceSilence {
+  int face = 0;           //! 0 none, 1 am, 2 fj, 3 mr
+  int pass = 1;
+  bool active = false, done = false;
+  uint64_t start = 0;
+};
+extern FaceSilence facesil;
+
+//! the descriptor store's memory face answers every beat with an error once
+//! armed (the roll-back's re-walk then cannot validate the image)
+extern bool desc_mem_fail;
+//! arm desc_mem_fail when the roll-back's scoped reset rises
+extern bool desc_fail_on_rollback;
 
 struct Binding {
   unsigned sink = 0;
@@ -72,6 +115,11 @@ struct Change {                    //! an accepted change, for the durability or
 };
 
 struct Log {
+  //! restore writes as the model sees them: the writer's state-bus writes
+  //! taken, the map sets it staged and the model applied, and its roll-back
+  std::vector<std::pair<uint64_t, std::string>> rs_writes;
+  uint64_t fw_enable_cyc = 0, terminal_cyc = 0, abort_cyc = 0, rb_cyc = 0;
+  unsigned abort_cause = 0;
   std::vector<OpRec> ops;
   std::vector<Change> changes;
   std::vector<std::pair<uint64_t, unsigned>> durable;   //! (cycle, reading)
@@ -92,6 +140,7 @@ struct Levels {
   unsigned restore_busy, restore_done, restore_fail, blank, alarm;
   unsigned d3_alarm, d3_unfl, d3_done, d3_fail, rs_app, rs_ref, rs_blank, rs_rev;
   unsigned d3_writes, d3_slot, d3_taint, mgr_dirty, port_busy, dev_busy, desc_valid, own;
+  unsigned d3_rb, d3_closed, d3_cause, entity_en;
 };
 
 extern uint64_t cyc;
@@ -127,6 +176,16 @@ void snoop(bool on);
 bool force_dyn_write(unsigned sel, unsigned idx, uint64_t val, int rid,
                      const std::vector<uint8_t> &value);
 unsigned dirty_count();
+//! lend the state bus to the uCPU BFM before the restore (harness knob)
+void lend(bool on);
+//! the harness peeks: a dynamic-state row (value, valid) and a name
+std::pair<uint64_t, unsigned> peek_row(unsigned sel, unsigned idx);
+std::vector<uint8_t> peek_name(unsigned ord);
+//! a snapshot of every restorable row, name and map set, as one JSON object
+std::string snapshot_json();
+//! snapshots the bridge takes itself: when the D3 walk starts, when its
+//! pass 1 starts (the names after the image walk) and at its terminal
+extern std::string snap_prerestore, snap_pass1, snap_terminal;
 
 //! the uCPU: queue a program; it starts when no program runs and the writer
 //! does not own the bus, and runs to its end

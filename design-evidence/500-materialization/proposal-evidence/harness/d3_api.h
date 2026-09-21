@@ -35,6 +35,7 @@ void cosim_rtl_csr_write(unsigned word, uint32_t value);
 void cosim_rtl_restore_go(unsigned level);
 void cosim_rtl_levels(struct cosim_levels *l);
 void cosim_rtl_pp_ctrl(uint32_t value);
+void cosim_rtl_adp_ctrl(uint32_t value);
 void cosim_hook(const char *name, uint32_t value);
 
 /* host side (d3_host.c) */

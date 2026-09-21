@@ -6,11 +6,14 @@
 // WHAT IS REAL: every RTL module d3_top instantiates. WHAT IS A MODEL: the
 // main-memory bridge of the backend (one outstanding single-beat write, done
 // three cycles after acceptance; one outstanding one-beat read) with per-byte
-// fault injection; the descriptor store's read-only DDR (the AEMI image the
-// firmware copied, served in bursts); the uCPU (a program of state-bus
-// operations with the dispatch hold-off); and the parent's map plane (the
-// port mapping sets, the GET_AUDIO_MAP read face, the edit face and the
-// format judge), whose rules are stated where they are coded.
+// fault injection and a read response that can be HELD (late, or never:
+// silence); the descriptor store's read-only DDR (the AEMI image the
+// firmware copied, served in bursts), which can be made to fail; the uCPU (a
+// program of state-bus operations with the dispatch hold-off); and the
+// parent's map plane (the port mapping sets, the GET_AUDIO_MAP read face, the
+// edit face and the format judge), whose rules are stated where they are
+// coded, whose faces can be made silent, and which returns every port to its
+// reset set when the writer's roll-back asks (map_rst_o).
 #include "d3_bridge.h"
 
 #include "Vd3_top.h"
@@ -49,6 +52,14 @@ std::vector<MapPort> map_in, map_out;
 std::vector<uint64_t> def_fmt_in, def_fmt_out;
 std::vector<std::pair<std::string, uint64_t>> answers;
 std::vector<std::pair<std::string, unsigned>> answer_err;
+RdHold rdhold;
+FaceSilence facesil;
+bool desc_mem_fail = false;
+bool desc_fail_on_rollback = false;
+std::string snap_prerestore, snap_pass1, snap_terminal;
+bool lend_on = false;
+bool en_pp = false, en_adp = false;
+bool prev_map_rst = false, prev_d3_busy = false, prev_pass = false;
 
 uint8_t *area() { return nvm_host_ddr + NVM_HOST_IMAGE_OFF + 40u; }
 
@@ -118,9 +129,14 @@ Fault *match_read_fault(uint32_t addr) {
   if (addr < kBase) return nullptr;
   const uint32_t lo = addr - kBase;
   for (auto &f : faults)
-    if (f.count != 0 && f.mode == 1 && f.off >= lo && f.off < lo + 8) return &f;
+    if (f.count != 0 && f.mode == 1 && f.off >= lo && f.off < lo + 8 &&
+        (f.pass < 0 || unsigned(f.pass) == unsigned(dut->d3_pass_o)))
+      return &f;
   return nullptr;
 }
+
+//! the held read response blocks the memory bridge's answer
+static bool rd_held() { return rdhold.active && !rdhold.released; }
 
 Fault *match_fault(uint32_t off, uint8_t byte) {
   for (auto &f : faults) {
@@ -332,10 +348,20 @@ static void drive_ucpu() {
 }
 
 static void drive_maps() {
+  //! a face made silent answers nothing while the silence is active
+  if (facesil.face && !facesil.active && !facesil.done && dut->d3_pass_o == unsigned(facesil.pass) &&
+      ((facesil.face == 1 && dut->am_req_o) || (facesil.face == 2 && dut->fj_req_o) ||
+       (facesil.face == 3 && dut->mr_req_o))) {
+    facesil.active = true;
+    facesil.start = cyc;
+  }
+  const bool am_quiet = facesil.active && facesil.face == 1;
+  const bool fj_quiet = facesil.active && facesil.face == 2;
+  const bool mr_quiet = facesil.active && facesil.face == 3;
   // the GET_AUDIO_MAP read face: one hold cycle, then the answer
   dut->am_wait_i = 1;
   dut->am_data_i = 0;
-  if (dut->am_req_o) {
+  if (dut->am_req_o && !am_quiet) {
     if (am_cnt >= 1) {
       const bool out = dut->am_type_o == 0x000F;
       const unsigned port = dut->am_idx_o;
@@ -355,7 +381,7 @@ static void drive_maps() {
   // the format judge
   dut->fj_wait_i = 1;
   dut->fj_data_i = 0;
-  if (dut->fj_req_o && fj_cnt >= 1) {
+  if (dut->fj_req_o && fj_cnt >= 1 && !fj_quiet) {
     const bool out = dut->fj_out_o;
     const unsigned s = dut->fj_idx_o;
     const uint64_t f = dut->fj_fmt_o;
@@ -375,8 +401,8 @@ static void drive_maps() {
     dut->fj_data_i = bits;
   }
   // the edit face
-  dut->mr_ent_rdy_i = dut->mr_req_o && mr.busy && mr.done_in < 0;
-  dut->mr_done_i = mr.busy && mr.done_in == 0;
+  dut->mr_ent_rdy_i = dut->mr_req_o && mr.busy && mr.done_in < 0 && !mr_quiet;
+  dut->mr_done_i = mr.busy && mr.done_in == 0 && !mr_quiet;
   dut->mr_ok_i = mr.ok;
   // the map edit beat, and the commit mark of the program in flight
   dut->me_stb_i = edit.on;
@@ -402,11 +428,13 @@ static void drive_cycle() {
   dut->cap_ceid_i = cap.b.ceid;
   dut->restore_go_i = restore_go;
   dut->snoop_off_i = !snoop_on;
+  dut->lend_bus_i = lend_on;
+  dut->en_req_i = en_pp || en_adp;
   dut->mem_req_ready_i = !rd.busy;
-  dut->mem_rsp_valid_i = rd.busy && rd.delay == 0;
+  dut->mem_rsp_valid_i = rd.busy && rd.delay == 0 && !rd_held();
   dut->mem_rsp_data_i = rd.busy ? lane(rd.addr) : 0;
   dut->mem_rsp_last_i = 1;
-  dut->mem_rsp_err_i = rd.busy && rd.delay == 0 && match_read_fault(rd.addr) != nullptr;
+  dut->mem_rsp_err_i = rd.busy && rd.delay == 0 && !rd_held() && match_read_fault(rd.addr) != nullptr;
   dut->mem_wr_done_i = wr.busy && wr.delay == 0;
   dut->mem_wr_err_i = dut->mem_wr_done_i && wr.err;
   dut->mem_wr_ready_i = !wr.busy;
@@ -414,7 +442,7 @@ static void drive_cycle() {
   dut->dm_rsp_valid_i = drd.busy && drd.delay == 0;
   dut->dm_rsp_data_i = drd.busy ? desc_lane(drd.addr) : 0;
   dut->dm_rsp_last_i = drd.busy && drd.left == 1;
-  dut->dm_rsp_err_i = 0;
+  dut->dm_rsp_err_i = desc_mem_fail && drd.busy && drd.delay == 0;
   dut->eval();
   // same-edge triggers: a case may change this cycle's inputs on a condition
   for (auto &t : cycle_triggers)
@@ -472,7 +500,33 @@ static void sample_cycle() {
     rd.busy = false;
   }
   else if (rd.busy && rd.delay > 0) --rd.delay;
-  if (rtake) rd = Rd{true, 2, dut->mem_req_addr_o};
+  if (rtake) {
+    rd = Rd{true, 2, dut->mem_req_addr_o};
+    //! the held response: the nth memory read of record rid in D3 pass pass
+    //! rid -1: any record; -2: any record the D3 writer reads (not a binding)
+    const bool d3_rec = cur.r.rid < 0x20 || cur.r.rid >= 0x30;
+    if (rdhold.armed && !rdhold.active && !rdhold.released && cur.active &&
+        (rdhold.rid == -1 || (rdhold.rid == -2 && d3_rec) || (rdhold.rid >= 0 && unsigned(rdhold.rid) == cur.r.rid)) &&
+        (rdhold.pass < 0 || unsigned(rdhold.pass) == unsigned(dut->d3_pass_o))) {
+      if (++rdhold.seen == rdhold.nth) {
+        rdhold.active = true;
+        rdhold.start = cyc;
+        rdhold.rid_seen = cur.r.rid;
+        rdhold.pass_seen = dut->d3_pass_o;
+      }
+    }
+  }
+  if (rd_held()) {
+    if (dut->d3_wd_o > rdhold.wd_max) rdhold.wd_max = dut->d3_wd_o;
+    const bool by_time = rdhold.hold >= 0 && int64_t(cyc - rdhold.start) >= rdhold.hold;
+    const bool by_wd = rdhold.wd_release >= 0 && int64_t(dut->d3_wd_o) >= rdhold.wd_release;
+    const bool by_abort = rdhold.after_abort >= 0 && evlog.abort_cyc &&
+                          int64_t(cyc) >= int64_t(evlog.abort_cyc) + rdhold.after_abort;
+    if (by_time || by_wd || by_abort) {
+      rdhold.released = true;
+      rdhold.end = cyc;
+    }
+  }
 
   // descriptor store memory: one beat per cycle after a two-cycle latency
   if (drd.busy && drd.delay == 0 && dut->dm_rsp_valid_i) {
@@ -582,7 +636,8 @@ static void sample_cycle() {
     const uint64_t e = dut->mr_ent_o;
     mr.got.push_back(Map{uint16_t(e >> 48), uint16_t(e >> 32), uint16_t(e >> 16), uint16_t(e)});
   }
-  if (mr.busy && mr.done_in < 0 && mr.got.size() == dut->mr_cnt_o) {
+  if (mr.busy && mr.done_in < 0 && mr.got.size() == dut->mr_cnt_o &&
+      !(facesil.active && facesil.face == 3)) {
     //! judge the staged set whole, then apply it or nothing
     const bool out = dut->mr_type_o == 0x000F;
     const unsigned port = dut->mr_idx_o;
@@ -598,6 +653,8 @@ static void sample_cycle() {
           if (p.cur[i] == m) { p.cur.erase(p.cur.begin() + long(i)); break; }
       mr.ok = true;
     }
+    //! a map set the writer staged: a restore write
+    evlog.rs_writes.emplace_back(cyc, dut->mr_add_o ? "map-add" : "map-remove");
     mr.done_in = 1;
   } else if (mr.busy && mr.done_in > 0) {
     --mr.done_in;
@@ -625,6 +682,38 @@ static void sample_cycle() {
   }
   if (!evlog.restore_done_cyc && dut->restore_done_o) evlog.restore_done_cyc = cyc;
   if (!evlog.d3_done_cyc && dut->d3_restore_done_o) evlog.d3_done_cyc = cyc;
+
+  //! the restore transaction as the model sees it
+  if (dut->wr_st_we_o) evlog.rs_writes.emplace_back(cyc, "state-bus");
+  if (!evlog.abort_cyc && dut->d3_rs_cause_o) {
+    evlog.abort_cyc = cyc;
+    evlog.abort_cause = dut->d3_rs_cause_o;
+    //! a silenced face heals once the writer has given up on it
+    if (facesil.active) {
+      facesil.active = false;
+      facesil.done = true;
+      mr = MrState{};
+    }
+  }
+  if (dut->map_rst_o && !prev_map_rst) {
+    //! the roll-back: every port back to its reset set, nothing staged
+    for (auto &mp : map_in) mp.cur = mp.def;
+    for (auto &mp : map_out) mp.cur = mp.def;
+    mr = MrState{};
+    evlog.rb_cyc = cyc;
+    evlog.rs_writes.emplace_back(cyc, "roll-back");
+    if (desc_fail_on_rollback) desc_mem_fail = true;
+  }
+  prev_map_rst = dut->map_rst_o;
+  if (!evlog.enable_cyc && dut->entity_en_o) evlog.enable_cyc = cyc;
+  if (dut->d3_busy_o && !prev_d3_busy && snap_prerestore.empty()) snap_prerestore = snapshot_json();
+  prev_d3_busy = dut->d3_busy_o;
+  if (dut->d3_pass_o && !prev_pass && snap_pass1.empty()) snap_pass1 = snapshot_json();
+  prev_pass = dut->d3_pass_o;
+  if (!evlog.terminal_cyc && (dut->d3_restore_done_o || dut->d3_restore_closed_o)) {
+    evlog.terminal_cyc = cyc;
+    snap_terminal = snapshot_json();
+  }
 
   dut->clk_i = 1;
   dut->eval();
@@ -754,6 +843,64 @@ bool force_dyn_write(unsigned sel, unsigned idx, uint64_t val, int rid,
   return true;
 }
 
+void lend(bool on) {
+  lend_on = on;
+  dut->lend_bus_i = on;
+  dut->eval();
+}
+
+std::pair<uint64_t, unsigned> peek_row(unsigned sel, unsigned idx) {
+  dut->pk_sel_i = sel;
+  dut->pk_idx_i = idx;
+  dut->eval();
+  return {uint64_t(dut->pk_val_o), unsigned(dut->pk_v_o)};
+}
+
+std::vector<uint8_t> peek_name(unsigned ord) {
+  std::vector<uint8_t> v;
+  for (unsigned l = 0; l < 8; ++l) {
+    dut->pk_lane_i = ord * 8 + l;
+    dut->eval();
+    const uint64_t w = dut->pk_name_o;
+    for (int b = 7; b >= 0; --b) v.push_back(uint8_t(w >> (8 * b)));
+  }
+  return v;
+}
+
+static std::string hexs(const std::vector<uint8_t> &v) {
+  static const char *d = "0123456789abcdef";
+  std::string s;
+  for (uint8_t b : v) {
+    s.push_back(d[b >> 4]);
+    s.push_back(d[b & 15]);
+  }
+  return s;
+}
+
+std::string snapshot_json() {
+  //! every dynamic-state row of the persisted selectors (value, valid), every
+  //! name, every map set, at this cycle
+  const unsigned counts[6] = {1, 1, 1, n_si, n_so, n_so};   // one audio unit, one clock domain
+  std::string s = "{\"cycle\":" + std::to_string(cyc) + ",\"rows\":[";
+  bool first = true;
+  for (unsigned sel = 0; sel < 6; ++sel)
+    for (unsigned i = 0; i < counts[sel]; ++i) {
+      const auto r = peek_row(sel, i);
+      char b[96];
+      std::snprintf(b, sizeof b, "%s[%u,%u,\"%016" PRIx64 "\",%u]", first ? "" : ",", sel, i, r.first, r.second);
+      s += b;
+      first = false;
+    }
+  s += "],\"names\":[";
+  for (unsigned n = 0; n < n_name; ++n) s += (n ? ",\"" : "\"") + hexs(peek_name(n)) + "\"";
+  s += "],\"maps_out\":[";
+  for (size_t p = 0; p < map_out.size(); ++p) s += (p ? ",\"" : "\"") + hexs(map_payload(true, unsigned(p))) + "\"";
+  s += "],\"maps_in\":[";
+  for (size_t p = 0; p < map_in.size(); ++p) s += (p ? ",\"" : "\"") + hexs(map_payload(false, unsigned(p))) + "\"";
+  s += "]}";
+  return s;
+}
+
 unsigned dirty_count() {
   const unsigned n = 1 + 1 + 1 + n_si + 2 * n_so + n_spi + n_spo + n_name;
   unsigned c = 0;
@@ -811,6 +958,10 @@ Levels levels() {
   l.dev_busy = dut->dev_busy_o;
   l.desc_valid = dut->desc_img_valid_o;
   l.own = dut->own_o;
+  l.d3_rb = dut->d3_restore_rb_o;
+  l.d3_closed = dut->d3_restore_closed_o;
+  l.d3_cause = dut->d3_rs_cause_o;
+  l.entity_en = dut->entity_en_o;
   return l;
 }
 
@@ -848,11 +999,16 @@ extern "C" void cosim_rtl_csr_write(unsigned word, uint32_t value) {
 extern "C" void cosim_rtl_restore_go(unsigned level) { d3::restore_go = level; }
 
 extern "C" void cosim_rtl_pp_ctrl(uint32_t value) {
+  //! the firmware REQUESTS the enable; the entity sees entity_en_o, which the
+  //! restore releases (evlog.enable_cyc is taken from that, in sample_cycle)
   const bool en = value & 1u;
-  if (en && !d3::prev_enable && !d3::evlog.enable_cyc) d3::evlog.enable_cyc = d3::cyc;
+  if (en && !d3::prev_enable && !d3::evlog.fw_enable_cyc) d3::evlog.fw_enable_cyc = d3::cyc;
   d3::prev_enable = en;
+  d3::en_pp = en;
   d3::restore_go = (value >> 1) & 1u;
 }
+
+extern "C" void cosim_rtl_adp_ctrl(uint32_t value) { d3::en_adp = value & 1u; }
 
 extern "C" void cosim_rtl_levels(struct cosim_levels *l) {
   const auto v = d3::levels();

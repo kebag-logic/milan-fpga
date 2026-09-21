@@ -13,6 +13,9 @@
  * busy waits advance, the idle-hook loop, the console dispatch and the
  * reserved-window byte array.
  *
+ * FORWARDED as well: ADP_CTRL, whose bit 0 is ORed with PP_CTRL[0] into the
+ * enable the entity sees, so the model's gate reads the product's OR.
+ *
  * REPLACED: the repository's C model of KL_nvm_backend. Every PP_NVM_* access
  * the firmware makes is forwarded to the Verilated backend in
  * cosim_bridge.cpp, and PP_STAT is composed from the RTL the
@@ -41,6 +44,7 @@
 #define A_VERSION        0x004u
 #define A_TOD_RD_LO      0x530u
 #define A_TOD_RD_HI      0x534u
+#define A_ADP_CTRL       0x600u
 #define A_PP_CTRL        0x920u
 #define A_PP_STAT        0x924u
 #define A_PP_NVM_SEL     0x934u
@@ -254,6 +258,11 @@ void nvm_host_csr_write(unsigned int offset, uint32_t value)
 	case A_PP_CTRL:
 		pp_ctrl = value;
 		cosim_rtl_pp_ctrl(value);
+		break;
+	case A_ADP_CTRL:
+		/* ADP_CTRL[0] is ORed with PP_CTRL[0] into the entity enable */
+		csr_mem[offset / 4u] = value;
+		cosim_rtl_adp_ctrl(value);
 		break;
 	default:
 		if (offset / 4u < CSR_WORDS)

@@ -54,6 +54,25 @@
 //                a mapping. Names follow, once the descriptor store holds a
 //                validated image. A restore write is not a change.
 //
+//                THE RESTORE IS A TRANSACTION (page section 8.6). The writer
+//                owns the state bus FROM RESET (own_o resets to 1), so no AECP
+//                program runs before or during the restore and the state it
+//                restores into is exactly the reset state. Every wait of the
+//                restore is bounded by RS_TMO_CYC_P cycles without progress.
+//                A torn or failed read, an expired wait, or a refused edit is
+//                an ABORT. An abort in pass 0 has applied nothing. An abort
+//                in pass 1 ROLLS BACK: rb_rst_o resets every restorable owner
+//                (the dynamic-state store, the descriptor store, whose walk
+//                puts the image's names back, and the parent's map plane), so
+//                the state is the reset state again, and a LOCATE proves the
+//                image walked. Terminal DEFAULTS: done, fail and rolled back,
+//                own released. A roll-back that cannot validate the image is
+//                terminal CLOSED: fail, never done, own kept, so the entity
+//                is never enabled on a state nobody can vouch for. An abort
+//                with a port read in flight raises m_abort_o: the arbiter
+//                drains that read, so its late bytes and its done or err
+//                never reach any manager as data.
+//
 //  Model faces : the map EDIT face (mr_*) and the format JUDGE face (fj_*)
 //                are simplified stand-ins for the processor's
 //                ADD/REMOVE_AUDIO_MAPPINGS transaction face and the GSI(15)
@@ -80,7 +99,11 @@ module KL_aecp_nvm_writer #(
     parameter logic [7:0]  LAYOUT_VER_P   = 8'h02,
     //! T-NVM-DEBOUNCE in tick_i units, the binding manager's meaning
     parameter int unsigned DEB_TICKS_P    = 500,
-    parameter int unsigned RETRY_MAX_P    = 2
+    parameter int unsigned RETRY_MAX_P    = 2,
+    //! the restore watchdog: cycles a restore wait may make no progress
+    //! before the restore aborts (page section 8.8); the integrator sizes it
+    //! above the descriptor store's whole walk and any single record read
+    parameter int unsigned RS_TMO_CYC_P   = 20000
 ) (
     input  wire         clk_i,
     input  wire         rst_n,
@@ -159,6 +182,12 @@ module KL_aecp_nvm_writer #(
     output logic        m_rready_o,
     input  wire         m_done_i,
     input  wire         m_err_i,
+    //! the writer abandons the READ the port is serving for it: the arbiter
+    //! drains that operation (one cycle, only while a granted read is open)
+    output logic        m_abort_o,
+
+    //! ---- roll-back: every restorable owner returns to its reset state ----
+    output logic        rb_rst_o,
 
     //! ---- restore sequencing ----
     input  wire         restore_go_i,  //! level: the binding walk has completed
@@ -166,6 +195,9 @@ module KL_aecp_nvm_writer #(
     output logic        restore_done_o,
     output logic        restore_fail_o, //! a torn read-back, or image defaults refused
     output logic        restore_blank_o, //! done, and no D3 record passed framing and crc
+    output logic        restore_rb_o,    //! done after a roll-back: every D3 group is at its default
+    output logic        restore_closed_o,//! terminal without done: the roll-back could not validate
+    output logic [2:0]  rs_cause_o,      //! first abort: 0 none, 1 torn, 2 read err, 3 watchdog, 4 edit refused, 5 re-walk, 6 passes disagree
     output logic [7:0]  rs_applied_o,
     output logic [7:0]  rs_refused_o,
     output logic [7:0]  rs_blank_o,
@@ -177,6 +209,8 @@ module KL_aecp_nvm_writer #(
     output logic [15:0] writes_o,      //! whole-record commits completed
     output logic [15:0] dbg_slot_o,    //! observation: the slot in hand
     output logic        dbg_taint_o,
+    output logic [31:0] dbg_wd_o,      //! observation: the restore watchdog's count
+    output logic        dbg_pass_o,    //! observation: restore pass 1
     output logic [N_AUDIO_UNIT_P + N_CLK_DOM_P + N_STREAM_IN_P + 2*N_STREAM_OUT_P
                   + N_SPORT_IN_P + N_SPORT_OUT_P + N_NAME_P:0] dbg_dirty_o
 );
@@ -329,8 +363,10 @@ module KL_aecp_nvm_writer #(
   typedef enum logic [6:0] {
     W_INIT, W_WAITGO,
     // restore
-    R_ACQ, R_IMG, R_IMGW, R_NEXT, R_RD, R_RS, R_VAL, R_AUX, R_APPLY, R_NAMEW,
+    R_IMG, R_IMGW, R_NEXT, R_RD, R_RS, R_VAL, R_AUX, R_APPLY, R_NAMEW,
     R_MA, R_MR, R_MS, R_MV, R_MVW, R_MD, R_CHK, R_CHKJ, R_ADV, R_FIN,
+    // the restore transaction's abort, roll-back and closed terminal
+    R_ABORT, B_RST, B_LOC, B_CHK, T_CLOSED,
     // steady state and flush
     F_RUN, F_ACQ, F_LAT, F_LATN, F_MAPW, F_PAD, F_REL, F_CRC, F_REQ, F_STR, F_WAIT,
     // shared sub-sequences
@@ -380,6 +416,20 @@ module KL_aecp_nvm_writer #(
   //! applies. A torn stream therefore aborts the walk before anything is
   //! applied (the binding manager's "fail whole" rule), with no copy kept.
   logic            rpass_r, any_rec_r;
+  //! the transaction: the first abort's cause, a roll-back in progress, the
+  //! two terminals besides done, and the watchdog
+  logic [2:0]      rs_cause_r;
+  logic            rb_act_r, rb_rst_r, rs_rb_r, rs_closed_r;
+  logic [1:0]      rb_cnt_r;
+  logic [31:0]     wd_r;
+  //! the saved map set's framing (page section 8.3): an unused entry is
+  //! EXACTLY eight 0xFF bytes, and no entry may follow an unused one
+  logic            allff_r, seen_pad_r, pad_bad_r;
+  //! records each pass read WHOLE. The port reports an error during a header
+  //! read exactly as an unframed record (err, nothing forwarded), so a pass-1
+  //! transport error on a header reads as an erased record; the two passes
+  //! must agree on how many records came back whole, or the restore aborts.
+  logic [7:0]      rs_fr0_r, rs_fr1_r;
   logic [7:0]      rs_app_r, rs_ref_r, rs_blank_r, rs_rev_r;
   logic [N_STREAM_IN_P+N_STREAM_OUT_P-1:0] frest_r; // formats this restore applied
 
@@ -423,10 +473,16 @@ module KL_aecp_nvm_writer #(
   assign unflushed_o    = |dirty_r;
   assign dbg_slot_o     = 16'(cur_r);
   assign dbg_taint_o    = taint_r;
-  assign restore_busy_o = (st_r != W_INIT) && (st_r != W_WAITGO) && !rs_done_r;
+  assign restore_busy_o = (st_r != W_INIT) && (st_r != W_WAITGO) && !rs_done_r && !rs_closed_r;
   assign restore_done_o = rs_done_r;
   assign restore_fail_o = rs_fail_r;
   assign restore_blank_o = rs_done_r && !any_rec_r;
+  assign restore_rb_o     = rs_rb_r;
+  assign restore_closed_o = rs_closed_r;
+  assign rs_cause_o       = rs_cause_r;
+  assign rb_rst_o         = rb_rst_r;
+  assign dbg_wd_o         = wd_r;
+  assign dbg_pass_o       = rpass_r;
   assign rs_applied_o   = rs_app_r;
   assign rs_refused_o   = rs_ref_r;
   assign rs_blank_o     = rs_blank_r;
@@ -587,12 +643,45 @@ module KL_aecp_nvm_writer #(
   logic sb_done_w;
   assign sb_done_w = sb_req_r && (sb_we_r ? sb_ready_i : sb_rvalid_i);
 
+  // ---- the restore watchdog (page section 8.8) ------------------------------------
+  //! A restore wait that makes no progress for RS_TMO_CYC_P cycles aborts the
+  //! restore. Progress is the awaited event itself, so a slow but moving
+  //! device never trips it. Only the restore is watched: in service the
+  //! writer holds own_o only across on-chip faces, and a flush that waits on
+  //! the port holds nothing but its record's dirty bit.
+  logic rs_active_w, stall_w, wd_exp_w;
+  assign rs_active_w = !rs_done_r && !rs_closed_r && (st_r != W_INIT) && (st_r != W_WAITGO);
+  always_comb begin
+    unique case (st_r)
+      R_RD:    stall_w = !(m_req_r && m_gnt_i);
+      R_RS:    stall_w = !(m_rvalid_i || m_done_i || m_err_i);
+      X_BUS:   stall_w = !sb_done_w;
+      X_AM:    stall_w = !(am_req_r && !am_wait_i);
+      X_MRE:   stall_w = (eb_r == 4'd8) && !mr_ent_rdy_i
+                       && (k_r < (mr_from_a_r ? na_r : ns_r));
+      X_MRW:   stall_w = !mr_done_i;
+      X_FJ:    stall_w = !(fj_req_r && !fj_wait_i);
+      default: stall_w = 1'b0;
+    endcase
+  end
+  assign wd_exp_w  = rs_active_w && stall_w && (wd_r >= 32'(RS_TMO_CYC_P - 1));
+  //! only a GRANTED read is in the port: that is the one the arbiter drains
+  assign m_abort_o = wd_exp_w && (st_r == R_RS);
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n)                        wd_r <= '0;
+    else if (rs_active_w && stall_w)   wd_r <= wd_r + 32'd1;
+    else                               wd_r <= '0;
+  end
+
   // ---- the machine -------------------------------------------------------------
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       st_r <= W_INIT; ret_r <= W_INIT; ret2_r <= W_INIT;
       cur_r <= '0; scan_r <= '0; cg_r <= '0; ci_r <= '0; cplen_r <= '0; crid_r <= '0;
-      taint_r <= 1'b0; own_r <= 1'b0; alarm_r <= 1'b0; retry_r <= '0; writes_r <= '0;
+      //! own_r resets to 1: the state bus is the restore's from reset, so no
+      //! AECP program can change restorable state before the walk ends
+      taint_r <= 1'b0; own_r <= 1'b1; alarm_r <= 1'b0; retry_r <= '0; writes_r <= '0;
       ptr_r <= '0; bcnt_r <= '0; crc_r <= '0; rcrc_r <= '0; rver_r <= '0; rrid_r <= '0;
       rplen_r <= '0; val_r <= '0; aux_r <= '0; k_r <= '0; n_r <= '0; na_r <= '0; ns_r <= '0;
       pg_r <= '0; npg_r <= '0; img_bad_r <= 1'b0; rs_fail_r <= 1'b0; rs_done_r <= 1'b0;
@@ -604,6 +693,16 @@ module KL_aecp_nvm_writer #(
       m_we_r <= 1'b0; hdr_i_r <= '0; eb_r <= '0; ent_acc_r <= '0; fj_out_o <= 1'b0;
       fj_idx_o <= '0; any_rec_r <= 1'b0;
       rpass_r <= 1'b0;
+      rs_cause_r <= '0; rb_act_r <= 1'b0; rb_rst_r <= 1'b0; rs_rb_r <= 1'b0;
+      rs_closed_r <= 1'b0; rb_cnt_r <= '0; allff_r <= 1'b0; seen_pad_r <= 1'b0;
+      pad_bad_r <= 1'b0; rs_fr0_r <= '0; rs_fr1_r <= '0;
+    end else if (wd_exp_w) begin
+      //! a restore wait expired: every request the wait held is withdrawn,
+      //! and the transaction aborts (page section 8.8)
+      m_req_r <= 1'b0; sb_req_r <= 1'b0; am_req_r <= 1'b0; mr_req_r <= 1'b0;
+      fj_req_r <= 1'b0;
+      if (rs_cause_r == 3'd0) rs_cause_r <= 3'd3;
+      st_r <= R_ABORT;
     end else begin
       // taint: a change to the record in hand after its latch
       if ((st_r == F_ACQ) && !prog_busy_i) taint_r <= 1'b0;
@@ -612,10 +711,9 @@ module KL_aecp_nvm_writer #(
 
       unique case (st_r)
         W_INIT:   st_r <= W_WAITGO;
-        W_WAITGO: if (restore_go_i) st_r <= R_ACQ;
+        W_WAITGO: if (restore_go_i) st_r <= R_IMG;
 
         // =================== RESTORE ===================
-        R_ACQ: if (!prog_busy_i) begin own_r <= 1'b1; st_r <= R_IMG; end
         R_IMG: begin
           if (desc_img_valid_i) begin
             cur_r <= '0; st_r <= R_NEXT;
@@ -637,7 +735,13 @@ module KL_aecp_nvm_writer #(
             //! pass 0 found no torn stream: walk again, judging and applying
             rpass_r <= 1'b1; cur_r <= '0;
           end else if (32'(cur_r) == N_REC_C) begin
-            st_r <= R_FIN;
+            //! the passes must have read the same records whole
+            if (rs_fr1_r == rs_fr0_r) begin
+              st_r <= R_FIN;
+            end else begin
+              if (rs_cause_r == 3'd0) rs_cause_r <= 3'd6;
+              st_r <= R_ABORT;
+            end
           end else if (rpass_r && (32'(cur_r) == S_NAME_C) && !chk_done_r) begin
             //! every format and map is back: re-judge the restored formats
             chk_done_r <= 1'b1; k_r <= 8'd0; st_r <= R_CHK;
@@ -646,8 +750,9 @@ module KL_aecp_nvm_writer #(
             ci_r    <= 16'(cur_r) - base_f(grp_f(cur_r));
             crid_r  <= ridbase_f(grp_f(cur_r)) + 8'(16'(cur_r) - base_f(grp_f(cur_r)));
             cplen_r <= plen_f(grp_f(cur_r), 8'(16'(cur_r) - base_f(grp_f(cur_r))));
-            //! a live change made during the restore wins over the saved value
-            st_r <= dirty_r[cur_r] ? R_ADV : R_RD;
+            //! no record can be dirty here: own_o has been held since reset,
+            //! so no AECP program has run and no change can be pending
+            st_r <= R_RD;
           end
         end
         R_RD: begin
@@ -673,18 +778,23 @@ module KL_aecp_nvm_writer #(
               if (rpass_r) rs_blank_r <= rs_blank_r + 8'd1;
               st_r <= R_ADV;
             end else if (m_err_i || (bcnt_r < 17'd8) || (bcnt_r != 17'(rplen_r) + 17'd8)) begin
-              //! torn mid-record: the device face misbehaved; stop and say so
-              rs_fail_r <= 1'b1; st_r <= R_FIN;
+              //! torn mid-record: the device face misbehaved; abort the
+              //! transaction (pass 1 rolls back what it applied)
+              if (rs_cause_r == 3'd0) rs_cause_r <= m_err_i ? 3'd2 : 3'd1;
+              st_r <= R_ABORT;
             end else if (!rpass_r) begin
               //! pass 0 proves the stream whole and nothing else
-              st_r <= R_ADV;
+              rs_fr0_r <= rs_fr0_r + 8'd1; st_r <= R_ADV;
             end else if ((rver_r != LAYOUT_VER_P) || (rrid_r != crid_r)
                          || (rplen_r != cplen_r) || (crc_r != rcrc_r)) begin
+              rs_fr1_r <= rs_fr1_r + 8'd1;
               rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
             end else if (img_bad_r) begin
               //! no validated image: nothing can be judged, so nothing applies
+              rs_fr1_r <= rs_fr1_r + 8'd1;
               rs_ref_r <= rs_ref_r + 8'd1; any_rec_r <= 1'b1; st_r <= R_ADV;
             end else begin
+              rs_fr1_r <= rs_fr1_r + 8'd1;
               ptr_r <= '0; val_r <= '0; sub_r <= 4'd0; any_rec_r <= 1'b1; st_r <= R_VAL;
             end
           end
@@ -777,9 +887,11 @@ module KL_aecp_nvm_writer #(
               end
             end
             4'(G_MAPI), 4'(G_MAPO): begin
-              //! count the saved entries (all-0xFF is an unused entry)
+              //! count the saved entries: an unused entry is exactly eight
+              //! 0xFF bytes (section 8.3), and none may follow an unused one
               ns_r <= 8'd0; k_r <= 8'd0; ptr_r <= '0; eb_r <= '0; st_r <= R_MA;
               sub_r <= 4'd0; na_r <= 8'd0; pg_r <= 16'd0; npg_r <= 16'd0;
+              seen_pad_r <= 1'b0; pad_bad_r <= 1'b0;
             end
             default: begin
               ptr_r <= '0; k_r <= 8'd0; eb_r <= '0; st_r <= R_NAMEW;
@@ -843,22 +955,38 @@ module KL_aecp_nvm_writer #(
               eb_r <= 4'd0; na_r <= na_r + 8'd1; k_r <= k_r + 8'd1; sub_r <= 4'd4;
             end
           end else if (sub_r == 4'd6) begin
-            //! the saved set: entries of the record whose first byte pair is
-            //! not 0xFFFF; they are packed at the head by the flush
+            //! the saved set: the entries before the first unused one. An
+            //! unused entry is EXACTLY eight 0xFF bytes; any other entry is a
+            //! mapping and goes to the judge, whatever its stream index. A
+            //! mapping after an unused entry is a malformed record: refused
+            //! here, before the port's set is touched.
             if (32'(k_r) >= 32'(cplen_r[15:3])) begin
-              mr_add_r <= 1'b0; mr_from_a_r <= 1'b1; ret_r <= R_MS; st_r <= X_MRH;
+              if (pad_bad_r) begin
+                rs_ref_r <= rs_ref_r + 8'd1; st_r <= R_ADV;
+              end else begin
+                mr_add_r <= 1'b0; mr_from_a_r <= 1'b1; ret_r <= R_MS; st_r <= X_MRH;
+              end
             end else begin
-              ptr_r <= PW_C'({k_r, 3'd0}); sub_r <= 4'd7;
+              ptr_r <= PW_C'({k_r, 3'd0}); eb_r <= 4'd0; allff_r <= 1'b1; sub_r <= 4'd7;
             end
+          end else if (sub_r == 4'd7) begin
+            //! one byte of entry k a cycle
+            allff_r <= allff_r && (bs_rd_w == 8'hFF);
+            ptr_r <= ptr_r + PW_C'(1); eb_r <= eb_r + 4'd1;
+            if (eb_r == 4'd7) sub_r <= 4'd8;
           end else begin
-            if (bs_rd_w != 8'hFF) ns_r <= k_r + 8'd1;
+            if (allff_r)         seen_pad_r <= 1'b1;
+            else if (seen_pad_r) pad_bad_r  <= 1'b1;
+            else                 ns_r       <= k_r + 8'd1;
             k_r <= k_r + 8'd1; sub_r <= 4'd6;
           end
         end
         R_MS: begin
           //! the defaults are removed: ADD the saved set, judged whole
           if (!mr_okq_r) begin
-            rs_fail_r <= 1'b1; st_r <= R_ADV;
+            //! the port refused to give up its defaults: abort (roll back)
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd4;
+            st_r <= R_ABORT;
           end else begin
             mr_add_r <= 1'b1; mr_from_a_r <= 1'b0; ret_r <= R_MV; st_r <= X_MRH;
           end
@@ -920,9 +1048,13 @@ module KL_aecp_nvm_writer #(
           end
         end
         R_MD: begin
-          //! the image defaults must validate; if not, the image is broken
-          if (!mr_okq_r) rs_fail_r <= 1'b1;
-          st_r <= R_ADV;
+          //! the image defaults must validate; if not, abort (roll back)
+          if (!mr_okq_r) begin
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd4;
+            st_r <= R_ABORT;
+          end else begin
+            st_r <= R_ADV;
+          end
         end
         R_CHK: begin
           //! a restored format that orphans a mapped channel goes back to the
@@ -981,6 +1113,43 @@ module KL_aecp_nvm_writer #(
         R_FIN: begin
           own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;
         end
+        R_ABORT: begin
+          //! pass 0 applied nothing: done and fail, own released. Pass 1 may
+          //! have applied anything: roll back. An abort DURING the roll-back
+          //! leaves a state nobody can vouch for: closed.
+          rs_fail_r <= 1'b1;
+          if (rb_act_r) begin
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
+            rs_closed_r <= 1'b1; st_r <= T_CLOSED;
+          end else if (rpass_r) begin
+            rb_act_r <= 1'b1; rb_rst_r <= 1'b1; rb_cnt_r <= 2'd0; st_r <= B_RST;
+          end else begin
+            own_r <= 1'b0; rs_done_r <= 1'b1; st_r <= F_RUN;
+          end
+        end
+        B_RST: begin
+          //! the scoped reset, two cycles: the dynamic-state store, the
+          //! descriptor store and the parent's map plane
+          rb_cnt_r <= rb_cnt_r + 2'd1;
+          if (rb_cnt_r == 2'd1) begin rb_rst_r <= 1'b0; st_r <= B_LOC; end
+        end
+        B_LOC: begin
+          //! a LOCATE of ENTITY 0 waits out the store's walk of the image
+          sb_req_r <= 1'b1; sb_we_r <= 1'b0; sb_name_r <= 1'b0;
+          sb_addr_r <= {RG_LOC_C, 16'd0}; sb_wdata_r <= 64'd0;
+          ret_r <= B_CHK; st_r <= X_BUS;
+        end
+        B_CHK: begin
+          if (desc_img_valid_i && !sb_errq_r) begin
+            //! every restorable owner is at its reset state and the names
+            //! are the image's again: DEFAULTS, own released
+            own_r <= 1'b0; rs_done_r <= 1'b1; rs_rb_r <= 1'b1; st_r <= F_RUN;
+          end else begin
+            if (rs_cause_r == 3'd0) rs_cause_r <= 3'd5;
+            rs_closed_r <= 1'b1; st_r <= T_CLOSED;
+          end
+        end
+        T_CLOSED: ;   //! own_o stays 1; only a reset leaves
 
         // =================== STEADY STATE ===================
         F_RUN: begin

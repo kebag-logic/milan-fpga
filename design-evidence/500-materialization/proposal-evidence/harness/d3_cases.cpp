@@ -232,6 +232,9 @@ void snap(const std::string &tag) {
     << ",\"restore_done\":" << l.restore_done << ",\"restore_fail\":" << l.restore_fail
     << ",\"blank\":" << l.blank
     << ",\"d3_done\":" << l.d3_done << ",\"d3_fail\":" << l.d3_fail
+    << ",\"d3_rb\":" << l.d3_rb << ",\"d3_closed\":" << l.d3_closed << ",\"d3_cause\":" << l.d3_cause
+    << ",\"own\":" << l.own << ",\"entity_en\":" << l.entity_en
+    << ",\"port_busy\":" << l.port_busy
     << ",\"rs_app\":" << l.rs_app << ",\"rs_ref\":" << l.rs_ref << ",\"rs_blank\":" << l.rs_blank
     << ",\"rs_rev\":" << l.rs_rev << ",\"d3_writes\":" << l.d3_writes
     << ",\"dirty_count\":" << dirty_count() << ",\"mgr_dirty\":" << l.mgr_dirty
@@ -270,9 +273,22 @@ void dump_log() {
   }
   std::printf("EVT {\"k\":\"boot\",\"enable\":%" PRIu64 ",\"restore_done\":%" PRIu64
               ",\"d3_done\":%" PRIu64 ",\"own_max\":%" PRIu64 ",\"prog_waited\":%" PRIu64
-              ",\"mem_errs\":%u,\"collisions\":%u}\n",
+              ",\"mem_errs\":%u,\"collisions\":%u,\"fw_enable\":%" PRIu64 ",\"terminal\":%" PRIu64
+              ",\"abort\":%" PRIu64 ",\"cause\":%u,\"rollback\":%" PRIu64 "}\n",
               evlog.enable_cyc, evlog.restore_done_cyc, evlog.d3_done_cyc, evlog.own_max,
-              evlog.prog_waited_on_own, evlog.mem_errs, evlog.collisions);
+              evlog.prog_waited_on_own, evlog.mem_errs, evlog.collisions, evlog.fw_enable_cyc,
+              evlog.terminal_cyc, evlog.abort_cyc, evlog.abort_cause, evlog.rb_cyc);
+  for (const auto &w : evlog.rs_writes)
+    std::printf("EVT {\"k\":\"rsw\",\"cyc\":%" PRIu64 ",\"what\":\"%s\"}\n", w.first, w.second.c_str());
+  std::printf("EVT {\"k\":\"hold\",\"armed\":%d,\"active\":%d,\"released\":%d,\"start\":%" PRIu64
+              ",\"end\":%" PRIu64 ",\"rid\":%u,\"pass\":%u,\"wd_max\":%" PRIu64 "}\n",
+              int(rdhold.armed), int(rdhold.active), int(rdhold.released), rdhold.start, rdhold.end,
+              rdhold.rid_seen, rdhold.pass_seen, rdhold.wd_max);
+  std::printf("EVT {\"k\":\"face\",\"face\":%d,\"active\":%d,\"done\":%d,\"start\":%" PRIu64 "}\n",
+              facesil.face, int(facesil.active), int(facesil.done), facesil.start);
+  if (!snap_prerestore.empty()) std::printf("SNAP {\"tag\":\"prerestore\",\"s\":%s}\n", snap_prerestore.c_str());
+  if (!snap_pass1.empty()) std::printf("SNAP {\"tag\":\"pass1\",\"s\":%s}\n", snap_pass1.c_str());
+  if (!snap_terminal.empty()) std::printf("SNAP {\"tag\":\"terminal\",\"s\":%s}\n", snap_terminal.c_str());
 }
 
 // ---- stepping --------------------------------------------------------------------
@@ -313,10 +329,36 @@ void fault(unsigned rid, unsigned byte, int count) {
 }
 
 //! the backend's READ of the lane holding byte `byte` of record `rid` fails
-void read_fault(unsigned rid, unsigned byte, int count) {
+void read_fault(unsigned rid, unsigned byte, int count, int pass = -1) {
   auto it = recs.find(rid);
   if (it == recs.end()) fatal("fault on a record not in the table");
-  faults.push_back(Fault{it->second.off + byte, 1, 0, count});
+  faults.push_back(Fault{it->second.off + byte, 1, 0, count, pass});
+}
+
+//! hold the nth memory read of record `rid` in D3 pass `pass`: for `hold`
+//! cycles (-1 never), until the writer's watchdog reaches `wd_release`, or
+//! `after_abort` cycles after the writer aborts
+void hold_read(int rid, int pass, unsigned nth, int64_t hold, int64_t wd_release = -1,
+               int64_t after_abort = -1) {
+  rdhold = RdHold{};
+  rdhold.armed = true;
+  rdhold.rid = rid;
+  rdhold.pass = pass;
+  rdhold.nth = nth;
+  rdhold.hold = hold;
+  rdhold.wd_release = wd_release;
+  rdhold.after_abort = after_abort;
+}
+
+//! the record ids the D3 writer walks, in its order (ascending id)
+std::vector<unsigned> d3_ids() {
+  std::vector<unsigned> v;
+  for (const auto &r : recs) {
+    const unsigned id = r.first;
+    if (id == 0x01 || (id >= 0x12 && id < 0x1A) || (id >= 0x20 && id < 0x30)) continue;
+    v.push_back(id);
+  }
+  return v;
 }
 
 // ---- the image-default map sets of the MODEL: the first clusters of each port
@@ -366,21 +408,50 @@ void narrow_stream(bool out, unsigned s, unsigned ch) {
   else set_fmt_in(s, narrower(def_fmt_in[s], ch));
 }
 
+//! the last stream of a direction whose image default is an AAF format
+unsigned last_aaf(bool out) {
+  const auto &f = out ? def_fmt_out : def_fmt_in;
+  unsigned last = 0;
+  for (unsigned s = 0; s < f.size(); ++s)
+    if (fmt_channels(f[s])) last = s;
+  return last;
+}
+
 void set_everything() {
-  set_cfg(0);                                   // the only legal index: 1 configuration
+  //! EVERY materialized group the shape can express, at its first index and,
+  //! where the group has more than one, its last: the configuration index
+  //! (its one legal value, 0), the sampling rate (only a shape listing two
+  //! rates can express it), the clock source, both format directions, the
+  //! presentation offset, both map directions (a narrowed stream takes the
+  //! mappings that named its lost channels with it) and the names
+  set_cfg(0);
   if (rates.size() > 1) set_rate(rates[1]);
   if (clk_count > 1) set_clks(1);
   narrow_stream(false, 0, 2);
+  if (last_aaf(false) > 0) narrow_stream(false, last_aaf(false), 4);
+  narrow_stream(true, 0, 4);
+  if (last_aaf(true) > 0) narrow_stream(true, last_aaf(true), 4);
   set_ptof(0, 1500000u);
+  set_ptof(n_so - 1, 1500099u);
   set_name(0, name_value("D3 restored entity name"));
   set_name(n_name - 1, name_value("D3 restored last name"));
-  // OUT port 0: move channel 7 from cluster 7 to the last cluster
-  const auto &d = map_out[0].def;
-  if (!d.empty()) {
-    const Map last = d.back();
-    map_remove(true, 0, {last});
-    map_add(true, 0, {Map{last.si, last.sc, uint16_t(map_out[0].clusters - 1), 0}});
+  // OUT port 0: move its highest channel left after the narrowing (the model's
+  // default maps cluster k to channel k, and 4 channels remain) to its last
+  // cluster. Computed from the defaults: the programs above run later.
+  if (map_out[0].def.size() >= 4) {
+    const Map hi = map_out[0].def[3];
+    map_remove(true, 0, {hi});
+    map_add(true, 0, {Map{hi.si, hi.sc, uint16_t(map_out[0].clusters - 1), 0}});
   }
+}
+
+//! the command a controller sends once the entity is back: a GET of the
+//! presentation offset, then a SET, which must persist or be reported
+void command_after_recovery() {
+  read_row(SEL_PTOF, 0, "rec.ptof0");
+  settle();
+  set_ptof(0, 7777777u);
+  converge(6000);
 }
 
 void register_cases() {
@@ -527,6 +598,15 @@ void register_cases() {
     idle(3000);
     snap("end");
   };
+  cases["K19_command_before_the_restore"] = [] {
+    // a controller's SET is waiting before the restore has run (V1a's slots
+    // hold 1500000): the writer owns the state bus from reset, so the SET is
+    // dispatched after the restore, over the restored value, and it persists
+    set_ptof(0, 1919191u);
+    boot();
+    converge();
+    snap("end");
+  };
   cases["K4g_second_group_in_flight"] = [] {
     // a change to ANOTHER GROUP (clock source, record 0x0A, index 0) lands
     // while the WRITE of 0x50 (presentation offset, index 0) streams
@@ -637,32 +717,36 @@ void register_cases() {
     snap("cut");
   };
   cases["V1b_restore_everything"] = [] {
-    if (variant == "stale") {
-      // VACUITY CONTROL: rows that "survived" the cut, as a store that was
-      // never reset would hold them. Seeded with the writer's change snoop
-      // held off, because a surviving row is not a controller change.
+    //! D3_CONTROL_SKIP_STALE_SEED is the runner's own process control
+    //! (run.py controls, vacuity_control_violated): it removes the seeding,
+    //! and the runner must then refuse the vacuity control by name
+    if (variant == "stale" && !std::getenv("D3_CONTROL_SKIP_STALE_SEED")) {
+      // VACUITY CONTROL: rows and map sets that "survived" the cut, as stores
+      // that were never reset would hold them: V1a's own programs, run on the
+      // state bus the harness borrows before the restore, with the writer's
+      // change snoop held off (a surviving value is not a controller change)
+      lend(true);
       snoop(false);
-      set_fmt_in(0, narrower(def_fmt_in[0], 2));
-      set_ptof(0, 1500000u);
-      if (rates.size() > 1) set_rate(rates[1]);
-      run_until([] { return programs_idle(); }, 100000);
+      set_everything();
+      run_until([] { return programs_idle(); }, 200000);
       snoop(true);
+      lend(false);
       evlog.changes.clear();
     }
-    // every restorable row, BEFORE the restore: the reset must have cleared it
-    read_row(SEL_CFG, 0, "pre.cfg");
-    read_row(SEL_RATE, 0, "pre.rate");
-    read_row(SEL_CLKS, 0, "pre.clks");
-    read_row(SEL_FMTI, 0, "pre.fmti0");
-    read_row(SEL_PTOF, 0, "pre.ptof0");
-    run_until([] { return programs_idle(); }, 100000);
+    // every restorable row, name and map set BEFORE the restore is taken by
+    // the bridge through the peeks (SNAP prerestore, SNAP pass1): the reset
+    // must have cleared it, and the image walk must have put the names back
     boot();
     idle(200);
     read_row(SEL_CFG, 0, "post.cfg");
     read_row(SEL_RATE, 0, "post.rate");
     read_row(SEL_CLKS, 0, "post.clks");
     read_row(SEL_FMTI, 0, "post.fmti0");
+    read_row(SEL_FMTI, last_aaf(false), "post.fmtilast");
+    read_row(SEL_FMTO, 0, "post.fmto0");
+    read_row(SEL_FMTO, last_aaf(true), "post.fmtolast");
     read_row(SEL_PTOF, 0, "post.ptof0");
+    read_row(SEL_PTOF, n_so - 1, "post.ptoflast");
     read_name(0, "post.name0");
     read_name(n_name - 1, "post.namelast");
     settle();
@@ -764,6 +848,187 @@ void register_cases() {
     settle();
     snap("restored");
   };
+
+  // ================= THE RESTORE TRANSACTION (page section 8.6) =============
+  // Each restores V1a's slots, which hold a non-default value in every group,
+  // with ONE fault; then a controller's GET and SET. "Early" and "late" are
+  // record positions in the walk: fmti0 (0x30) comes after the configuration
+  // and clock-source records; the last name comes after every scalar, format,
+  // map and the first name.
+  auto restore_under_fault = [] {
+    boot();
+    idle(200);
+    snap("terminal");
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["V12_abort_pass0_early"] = [restore_under_fault] {
+    read_fault(0x30, 15, -1, 0);
+    restore_under_fault();
+  };
+  cases["V13_abort_pass0_late"] = [restore_under_fault] {
+    read_fault(0x80 + n_name - 1, 71, -1, 0);
+    restore_under_fault();
+  };
+  cases["V14_rollback_pass1_early"] = [restore_under_fault] {
+    read_fault(0x30, 15, -1, 1);
+    restore_under_fault();
+  };
+  cases["V15_rollback_pass1_late"] = [restore_under_fault] {
+    read_fault(0x80 + n_name - 1, 71, -1, 1);
+    restore_under_fault();
+  };
+  cases["V16_rollback_pass1_maps"] = [restore_under_fault] {
+    // the OUTPUT map record fails after the formats and the INPUT maps applied
+    read_fault(0x70, 8 + recs[0x70].plen - 1, -1, 1);
+    restore_under_fault();
+  };
+  cases["V18_header_error_pass1"] = [restore_under_fault] {
+    // a transport error on a record's HEADER reads like an erased record at
+    // the port face; pass 0 read it whole, so the passes disagree
+    read_fault(0x50, 0, -1, 1);
+    restore_under_fault();
+  };
+  cases["V17_rollback_cannot_validate"] = [] {
+    // as V15, and the descriptor store's memory fails from the roll-back on:
+    // its walk cannot validate the image, so nothing vouches for the state
+    read_fault(0x80 + n_name - 1, 71, -1, 1);
+    desc_fail_on_rollback = true;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["V11b_torn_in_pass1_rolls_back"] = [] {
+    // the reviewers' counterexample (R217, R218 finding 1): V11's slot, the
+    // read of the name failing in PASS 1, after 0x50 was applied
+    read_fault(0x80, 8 + 16, -1, 1);
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "post.ptof0");
+    settle();
+    snap("restored");
+  };
+
+  // ================= DEADLINES (page section 8.8) ============================
+  // A held memory response: silence (never), just before the writer's
+  // deadline (released when its watchdog is 40 cycles short, the port's
+  // header fetch still to come), or just after it (released 5 cycles after
+  // the abort).
+  constexpr int64_t kTmo = 20000;
+  cases["W1_silent_pass0"] = [restore_under_fault] {
+    hold_read(0x30, 0, 1, -1);
+    restore_under_fault();
+  };
+  cases["W2_late_pass0_before_deadline"] = [restore_under_fault] {
+    hold_read(0x30, 0, 1, -1, kTmo - 40);
+    restore_under_fault();
+  };
+  cases["W3_late_pass0_after_deadline"] = [restore_under_fault] {
+    hold_read(0x30, 0, 1, -1, -1, 5);
+    restore_under_fault();
+  };
+  cases["W4_silent_pass1"] = [restore_under_fault] {
+    hold_read(0x30, 1, 1, -1);
+    restore_under_fault();
+  };
+  cases["W5_late_pass1_before_deadline"] = [restore_under_fault] {
+    hold_read(0x30, 1, 1, -1, kTmo - 40);
+    restore_under_fault();
+  };
+  cases["W6_late_pass1_after_deadline"] = [restore_under_fault] {
+    hold_read(0x30, 1, 1, -1, -1, 5);
+    restore_under_fault();
+  };
+  cases["W7_silent_pass1_last_name"] = [restore_under_fault] {
+    hold_read(int(0x80 + n_name - 1), 1, 2, -1);
+    restore_under_fault();
+  };
+  cases["W8_map_face_silent_pass1"] = [restore_under_fault] {
+    facesil = FaceSilence{};
+    facesil.face = 1;
+    restore_under_fault();
+  };
+  cases["W9_judge_silent_pass1"] = [restore_under_fault] {
+    facesil = FaceSilence{};
+    facesil.face = 2;
+    restore_under_fault();
+  };
+  cases["W10_edit_face_silent_pass1"] = [restore_under_fault] {
+    facesil = FaceSilence{};
+    facesil.face = 3;
+    restore_under_fault();
+  };
+  cases["W11_r217_first_read_late"] = [] {
+    // R217 finding 2: V11's slot, the first D3 memory read 3,500,000 cycles late
+    hold_read(-2, 0, 1, 3500000);
+    boot();
+    idle(200);
+    snap("terminal");
+    idle(3600);
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["W12_r218_read_late_after_apply"] = [] {
+    // R218 finding 2: V1a's slots, a pass-1 read after a record applied,
+    // 3,100,000 cycles late
+    hold_read(0x30, 1, 1, 3100000);
+    boot();
+    idle(200);
+    snap("terminal");
+    idle(3200);
+    command_after_recovery();
+    snap("recovered");
+  };
+  // the BINDING walk has no deadline of its own (processor issue 15): its
+  // silence keeps the entity dark and deaf, and a late answer is taken
+  cases["W13_binding_walk_silent"] = [] {
+    hold_read(0x20, -1, 1, -1);
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["W14_binding_walk_late_after_fw_deadline"] = [] {
+    hold_read(0x20, -1, 1, 3100000);
+    boot();
+    idle(400);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "post.ptof0");
+    settle();
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["W15_binding_walk_late_before_fw_deadline"] = [] {
+    hold_read(0x20, -1, 1, 2900000);
+    boot();
+    idle(400);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "post.ptof0");
+    settle();
+    command_after_recovery();
+    snap("recovered");
+  };
+
+  // ================= THE MAP RECORD'S FRAMING (page section 8.3) ===========
+  // crafted by run.py: a map record for OUT port 0 and a presentation offset
+  // record; the case restores and reports
+  for (const char *n : {"V3a_map_index_0xff00", "V3b_map_index_0xfeff", "V3c_map_index_0xfffe",
+                        "V3d_map_sentinel_tail", "V3e_map_hole", "V3f_map_index_out_of_range",
+                        "V3g_map_valid_empty_set"}) {
+    cases[n] = [] {
+      boot();
+      idle(200);
+      read_row(SEL_PTOF, 0, "post.ptof0");
+      settle();
+      snap("restored");
+    };
+  }
   cases["V10_blank_first_boot"] = [] {
     boot();
     idle(200);
