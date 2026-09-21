@@ -1,0 +1,558 @@
+base-1x1                                 K1_single_change_converges                       PASS case_completed -- rc 0, done True
+base-1x1                                 K1_single_change_converges                       PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-1x1                                 K1_single_change_converges                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K1_single_change_converges                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-1x1                                 K1_single_change_converges                       PASS value_in_slot@end:0x50 -- latest 0012d687, newest verified slot 0012d687
+base-1x1                                 K1_single_change_converges                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 K2_change_during_record_write                    PASS case_completed -- rc 0, done True
+base-1x1                                 K2_change_during_record_write                    PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-1x1                                 K2_change_during_record_write                    PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K2_change_during_record_write                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K2_change_during_record_write                    PASS taint_rewrites:0x50 -- 2 completed writes of 0x50; the last carries 0021e88e
+base-1x1                                 K2_change_during_record_write                    PASS value_in_slot@end:0x50 -- latest 0021e88e, newest verified slot 0021e88e
+base-1x1                                 K2_change_during_record_write                    PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-1x1                                 K3_two_changes_one_debounce                      PASS case_completed -- rc 0, done True
+base-1x1                                 K3_two_changes_one_debounce                      PASS coalesced:0x50 -- 1 writes of 0x50 for two changes in one window
+base-1x1                                 K3_two_changes_one_debounce                      PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K3_two_changes_one_debounce                      PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K3_two_changes_one_debounce                      PASS value_in_slot@end:0x50 -- latest 002dc6c2, newest verified slot 002dc6c2
+base-1x1                                 K3_two_changes_one_debounce                      PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 K4_second_record_in_flight                       PASS case_completed -- rc 0, done True
+base-1x1                                 K4_second_record_in_flight                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K4_second_record_in_flight                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K4_second_record_in_flight                       PASS value_in_slot@end:0x50 -- latest 003d0901, newest verified slot 003d0901
+base-1x1                                 K4_second_record_in_flight                       PASS value_in_slot@end:0x51 -- latest 003d0902, newest verified slot 003d0902
+base-1x1                                 K4_second_record_in_flight                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 K4_second_record_in_flight                       PASS written_value_was_set:0x51 -- 1 writes, every one a value a command left
+base-1x1                                 K5_change_on_the_done_edge                       PASS case_completed -- rc 0, done True
+base-1x1                                 K5_change_on_the_done_edge                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K5_change_on_the_done_edge                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K5_change_on_the_done_edge                       PASS same_edge_change_survives@end:0x50 -- latest 004c4b42, newest verified slot 004c4b42
+base-1x1                                 K5_change_on_the_done_edge                       PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-1x1                                 K8_record_write_error_retried                    PASS case_completed -- rc 0, done True
+base-1x1                                 K8_record_write_error_retried                    PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-1x1                                 K8_record_write_error_retried                    PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K8_record_write_error_retried                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-1x1                                 K8_record_write_error_retried                    PASS retry_converges:0x50 -- 1 failed operations on 0x50, then committed
+base-1x1                                 K8_record_write_error_retried                    PASS value_in_slot@end:0x50 -- latest 007a1201, newest verified slot 007a1201
+base-1x1                                 K8_record_write_error_retried                    PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-1x1                                 K9_record_write_given_up                         PASS case_completed -- rc 0, done True
+base-1x1                                 K9_record_write_given_up                         PASS giveup_revokes:0x50 -- alarm 1 backed 0 slot None
+base-1x1                                 K9_record_write_given_up                         PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K9_record_write_given_up                         PASS no_durable_claim_over_unsaved -- 1 durable intervals, 1 changes, 0 acknowledgements
+base-1x1                                 K9_record_write_given_up                         PASS written_value_was_set:0x50 -- 3 writes, every one a value a command left
+base-1x1                                 K10_name_change_converges                        PASS case_completed -- rc 0, done True
+base-1x1                                 K10_name_change_converges                        PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-1x1                                 K10_name_change_converges                        PASS latch_window_bounded -- longest ownership window 114 cycles (bound 2000)
+base-1x1                                 K10_name_change_converges                        PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-1x1                                 K10_name_change_converges                        PASS value_in_slot@end:0x80 -- latest 4b313020656e74697479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, newest verified slot 4b313020656e74697479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+base-1x1                                 K10_name_change_converges                        PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-1x1                                 K11_name_latch_waits_for_the_program             PASS case_completed -- rc 0, done True
+base-1x1                                 K11_name_latch_waits_for_the_program             PASS latch_window_bounded -- longest ownership window 114 cycles (bound 2000)
+base-1x1                                 K11_name_latch_waits_for_the_program             PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K11_name_latch_waits_for_the_program             PASS value_in_slot@end:0x80 -- latest 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000, newest verified slot 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000
+base-1x1                                 K11_name_latch_waits_for_the_program             PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-1x1                                 K12_map_change_converges                         PASS case_completed -- rc 0, done True
+base-1x1                                 K12_map_change_converges                         PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-1x1                                 K12_map_change_converges                         PASS latch_window_bounded -- longest ownership window 179 cycles (bound 2000)
+base-1x1                                 K12_map_change_converges                         PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K12_map_change_converges                         PASS value_in_slot@end:0x70 -- latest 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700100000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, newest verified slot 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700100000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+base-1x1                                 K12_map_change_converges                         PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-1x1                                 K13_binding_and_d3_share_the_port                PASS both_records_committed -- binding 0300000711223344556677880102030405060708, 0x50 0013d62d
+base-1x1                                 K13_binding_and_d3_share_the_port                PASS case_completed -- rc 0, done True
+base-1x1                                 K13_binding_and_d3_share_the_port                PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K13_binding_and_d3_share_the_port                PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-1x1                                 K13_binding_and_d3_share_the_port                PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 K14_identify_is_not_persisted                    PASS case_completed -- rc 0, done True
+base-1x1                                 K14_identify_is_not_persisted                    PASS identify_never_persisted -- 0 record writes, dirty 0, pend 0, flash programs 0 -> 0
+base-1x1                                 K14_identify_is_not_persisted                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 K14_identify_is_not_persisted                    PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V2_refused_rate                                  PASS case_completed -- rc 0, done True
+base-1x1                                 V2_refused_rate                                  PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V2_refused_rate                                  PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V2_refused_rate                                  PASS refused_value_not_applied:0x02 -- rate row valid 0, refused 1
+base-1x1                                 V3_refused_map_for_a_removed_cluster             PASS case_completed -- rc 0, done True
+base-1x1                                 V3_refused_map_for_a_removed_cluster             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V3_refused_map_for_a_removed_cluster             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V3_refused_map_for_a_removed_cluster             PASS refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default True, refused 1
+base-1x1                                 V4_refused_configuration_index                   PASS case_completed -- rc 0, done True
+base-1x1                                 V4_refused_configuration_index                   PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V4_refused_configuration_index                   PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V4_refused_configuration_index                   PASS refused_value_not_applied:0x00 -- cfg row valid 0, refused 1
+base-1x1                                 V5_record_corrupted_after_the_load               PASS case_completed -- rc 0, done True
+base-1x1                                 V5_record_corrupted_after_the_load               PASS corrupted_record_refused:0x50 -- ptof0 valid 0, refused 1
+base-1x1                                 V5_record_corrupted_after_the_load               PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V5_record_corrupted_after_the_load               PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V5_record_corrupted_after_the_load               PASS other_records_still_applied:0x51 -- ptof1 1600000 valid 1
+base-1x1                                 V7_names_only                                    PASS case_completed -- rc 0, done True
+base-1x1                                 V7_names_only                                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V7_names_only                                    PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V7_names_only                                    PASS restored_name_survives_first_command:0x80 -- after the first command b'V7 names only restore\x00\x00\x00'
+base-1x1                                 V7_names_only                                    PASS value_restored:0x80 -- restored b'V7 names only restore\x00\x00\x00'
+base-1x1                                 V8_orphaning_format_reverted                     PASS case_completed -- rc 0, done True
+base-1x1                                 V8_orphaning_format_reverted                     PASS format_reverted:0x40 -- fmto0 0x205022002006000
+base-1x1                                 V8_orphaning_format_reverted                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V8_orphaning_format_reverted                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V8_orphaning_format_reverted                     PASS no_orphaned_mapping_after_restore -- stream 0 format 0x205022002006000 (8 channels), 0 orphaned mappings
+base-1x1                                 V9_refused_maps_revert_their_formats             PASS case_completed -- rc 0, done True
+base-1x1                                 V9_refused_maps_revert_their_formats             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V9_refused_maps_revert_their_formats             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V9_refused_maps_revert_their_formats             PASS refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default True, fmto0 0x205022002006000
+base-1x1                                 V10_blank_first_boot                             PASS blank_boot_applies_nothing@boot -- blank 49 of 49, applied 0, ptof0 valid 0
+base-1x1                                 V10_blank_first_boot                             PASS case_completed -- rc 0, done True
+base-1x1                                 V10_blank_first_boot                             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V10_blank_first_boot                             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 K6a_cut_after_record_before_commit               PASS case_completed -- rc 0, done True
+base-1x1                                 K6a_cut_after_record_before_commit               PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K6a_cut_after_record_before_commit               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 K6a_cut_after_record_before_commit               PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-1x1                                 K7a_cut_after_ack                                PASS case_completed -- rc 0, done True
+base-1x1                                 K7a_cut_after_ack                                PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-1x1                                 K7a_cut_after_ack                                PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-1x1                                 K7a_cut_after_ack                                PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS case_completed -- rc 0, done True
+base-1x1                                 V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 179 cycles (bound 2000)
+base-1x1                                 V1a_set_everything                               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 9 changes, 1 acknowledgements
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x60 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-1x1                                 V1a_set_everything                               PASS written_value_was_set:0xa5 -- 1 writes, every one a value a command left
+base-1x1                                 V6a_set_coupled_narrower_pair                    PASS case_completed -- rc 0, done True
+base-1x1                                 V6a_set_coupled_narrower_pair                    PASS latch_window_bounded -- longest ownership window 155 cycles (bound 2000)
+base-1x1                                 V6a_set_coupled_narrower_pair                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-1x1                                 V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x40 -- 1 writes, every one a value a command left
+base-1x1                                 V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-1x1                                 K6b_restore_after_cut                            PASS case_completed -- rc 0, done True
+base-1x1                                 K6b_restore_after_cut                            PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 K6b_restore_after_cut                            PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 K6b_restore_after_cut                            PASS power_cut_loses_only_unsaved:0x50 -- restored 1234567 (valid 1), the cut's newest verified slot 0012d687, the unsaved value 6000001
+base-1x1                                 K7b_restore_after_ack                            PASS case_completed -- rc 0, done True
+base-1x1                                 K7b_restore_after_ack                            PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 K7b_restore_after_ack                            PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 K7b_restore_after_ack                            PASS value_restored:0x50 -- restored 7000001 valid 1
+base-1x1                                 V1b_restore_everything                           PASS case_completed -- rc 0, done True
+base-1x1                                 V1b_restore_everything                           PASS entity_enabled_after_restore@boot -- enabled at 5004, D3 restore done at 4992, restore done at 4992
+base-1x1                                 V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V1b_restore_everything                           PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+base-1x1                                 V1b_restore_everything                           PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+base-1x1                                 V1b_restore_everything                           PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+base-1x1                                 V1b_restore_everything                           PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+base-1x1                                 V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+base-1x1                                 V1b_restore_everything                           PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+base-1x1                                 V6b_restore_coupled_pair                         PASS case_completed -- rc 0, done True
+base-1x1                                 V6b_restore_coupled_pair                         PASS coupled_pair_restored -- fmto0 145524899430031360 valid 1; OUT0 set matches the slot True
+base-1x1                                 V6b_restore_coupled_pair                         PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V6b_restore_coupled_pair                         PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V1b_restore_everything~stale                     PASS case_completed -- rc 0, done True
+base-1x1                                 V1b_restore_everything~stale                     PASS entity_enabled_after_restore@boot -- enabled at 5014, D3 restore done at 5002, restore done at 5002
+base-1x1                                 V1b_restore_everything~stale                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-1x1                                 V1b_restore_everything~stale                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-1x1                                 V1b_restore_everything~stale                     PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+base-1x1                                 V1b_restore_everything~stale                     PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+base-1x1                                 V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+base-1x1                                 V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+base-1x1                                 V1b_restore_everything~stale                     FAIL rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 1, 'ptof0': 1}
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+base-1x1                                 V1b_restore_everything~stale                     PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+base-8x8                                 K1_single_change_converges                       PASS case_completed -- rc 0, done True
+base-8x8                                 K1_single_change_converges                       PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-8x8                                 K1_single_change_converges                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K1_single_change_converges                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-8x8                                 K1_single_change_converges                       PASS value_in_slot@end:0x50 -- latest 0012d687, newest verified slot 0012d687
+base-8x8                                 K1_single_change_converges                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 K2_change_during_record_write                    PASS case_completed -- rc 0, done True
+base-8x8                                 K2_change_during_record_write                    PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-8x8                                 K2_change_during_record_write                    PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K2_change_during_record_write                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K2_change_during_record_write                    PASS taint_rewrites:0x50 -- 2 completed writes of 0x50; the last carries 0021e88e
+base-8x8                                 K2_change_during_record_write                    PASS value_in_slot@end:0x50 -- latest 0021e88e, newest verified slot 0021e88e
+base-8x8                                 K2_change_during_record_write                    PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-8x8                                 K3_two_changes_one_debounce                      PASS case_completed -- rc 0, done True
+base-8x8                                 K3_two_changes_one_debounce                      PASS coalesced:0x50 -- 1 writes of 0x50 for two changes in one window
+base-8x8                                 K3_two_changes_one_debounce                      PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K3_two_changes_one_debounce                      PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K3_two_changes_one_debounce                      PASS value_in_slot@end:0x50 -- latest 002dc6c2, newest verified slot 002dc6c2
+base-8x8                                 K3_two_changes_one_debounce                      PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 K4_second_record_in_flight                       PASS case_completed -- rc 0, done True
+base-8x8                                 K4_second_record_in_flight                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K4_second_record_in_flight                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K4_second_record_in_flight                       PASS value_in_slot@end:0x50 -- latest 003d0901, newest verified slot 003d0901
+base-8x8                                 K4_second_record_in_flight                       PASS value_in_slot@end:0x51 -- latest 003d0902, newest verified slot 003d0902
+base-8x8                                 K4_second_record_in_flight                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 K4_second_record_in_flight                       PASS written_value_was_set:0x51 -- 1 writes, every one a value a command left
+base-8x8                                 K5_change_on_the_done_edge                       PASS case_completed -- rc 0, done True
+base-8x8                                 K5_change_on_the_done_edge                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K5_change_on_the_done_edge                       PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K5_change_on_the_done_edge                       PASS same_edge_change_survives@end:0x50 -- latest 004c4b42, newest verified slot 004c4b42
+base-8x8                                 K5_change_on_the_done_edge                       PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-8x8                                 K8_record_write_error_retried                    PASS case_completed -- rc 0, done True
+base-8x8                                 K8_record_write_error_retried                    PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-8x8                                 K8_record_write_error_retried                    PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K8_record_write_error_retried                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-8x8                                 K8_record_write_error_retried                    PASS retry_converges:0x50 -- 1 failed operations on 0x50, then committed
+base-8x8                                 K8_record_write_error_retried                    PASS value_in_slot@end:0x50 -- latest 007a1201, newest verified slot 007a1201
+base-8x8                                 K8_record_write_error_retried                    PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-8x8                                 K9_record_write_given_up                         PASS case_completed -- rc 0, done True
+base-8x8                                 K9_record_write_given_up                         PASS giveup_revokes:0x50 -- alarm 1 backed 0 slot None
+base-8x8                                 K9_record_write_given_up                         PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K9_record_write_given_up                         PASS no_durable_claim_over_unsaved -- 1 durable intervals, 1 changes, 0 acknowledgements
+base-8x8                                 K9_record_write_given_up                         PASS written_value_was_set:0x50 -- 3 writes, every one a value a command left
+base-8x8                                 K10_name_change_converges                        PASS case_completed -- rc 0, done True
+base-8x8                                 K10_name_change_converges                        PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-8x8                                 K10_name_change_converges                        PASS latch_window_bounded -- longest ownership window 114 cycles (bound 2000)
+base-8x8                                 K10_name_change_converges                        PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-8x8                                 K10_name_change_converges                        PASS value_in_slot@end:0x80 -- latest 4b313020656e74697479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000, newest verified slot 4b313020656e74697479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+base-8x8                                 K10_name_change_converges                        PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-8x8                                 K11_name_latch_waits_for_the_program             PASS case_completed -- rc 0, done True
+base-8x8                                 K11_name_latch_waits_for_the_program             PASS latch_window_bounded -- longest ownership window 114 cycles (bound 2000)
+base-8x8                                 K11_name_latch_waits_for_the_program             PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K11_name_latch_waits_for_the_program             PASS value_in_slot@end:0x80 -- latest 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000, newest verified slot 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000
+base-8x8                                 K11_name_latch_waits_for_the_program             PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-8x8                                 K12_map_change_converges                         PASS case_completed -- rc 0, done True
+base-8x8                                 K12_map_change_converges                         PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+base-8x8                                 K12_map_change_converges                         PASS latch_window_bounded -- longest ownership window 115 cycles (bound 2000)
+base-8x8                                 K12_map_change_converges                         PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K12_map_change_converges                         PASS value_in_slot@end:0x70 -- latest 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700080000ffffffffffffffff, newest verified slot 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000006000600000000000700080000ffffffffffffffff
+base-8x8                                 K12_map_change_converges                         PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-8x8                                 K13_binding_and_d3_share_the_port                PASS both_records_committed -- binding 0300000711223344556677880102030405060708, 0x50 0013d62d
+base-8x8                                 K13_binding_and_d3_share_the_port                PASS case_completed -- rc 0, done True
+base-8x8                                 K13_binding_and_d3_share_the_port                PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K13_binding_and_d3_share_the_port                PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-8x8                                 K13_binding_and_d3_share_the_port                PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 K14_identify_is_not_persisted                    PASS case_completed -- rc 0, done True
+base-8x8                                 K14_identify_is_not_persisted                    PASS identify_never_persisted -- 0 record writes, dirty 0, pend 0, flash programs 0 -> 0
+base-8x8                                 K14_identify_is_not_persisted                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 K14_identify_is_not_persisted                    PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V2_refused_rate                                  PASS case_completed -- rc 0, done True
+base-8x8                                 V2_refused_rate                                  PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V2_refused_rate                                  PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V2_refused_rate                                  PASS refused_value_not_applied:0x02 -- rate row valid 0, refused 1
+base-8x8                                 V3_refused_map_for_a_removed_cluster             PASS case_completed -- rc 0, done True
+base-8x8                                 V3_refused_map_for_a_removed_cluster             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V3_refused_map_for_a_removed_cluster             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V3_refused_map_for_a_removed_cluster             PASS refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default True, refused 1
+base-8x8                                 V4_refused_configuration_index                   PASS case_completed -- rc 0, done True
+base-8x8                                 V4_refused_configuration_index                   PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V4_refused_configuration_index                   PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V4_refused_configuration_index                   PASS refused_value_not_applied:0x00 -- cfg row valid 0, refused 1
+base-8x8                                 V5_record_corrupted_after_the_load               PASS case_completed -- rc 0, done True
+base-8x8                                 V5_record_corrupted_after_the_load               PASS corrupted_record_refused:0x50 -- ptof0 valid 0, refused 1
+base-8x8                                 V5_record_corrupted_after_the_load               PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V5_record_corrupted_after_the_load               PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V5_record_corrupted_after_the_load               PASS other_records_still_applied:0x51 -- ptof1 1600000 valid 1
+base-8x8                                 V7_names_only                                    PASS case_completed -- rc 0, done True
+base-8x8                                 V7_names_only                                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V7_names_only                                    PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V7_names_only                                    PASS restored_name_survives_first_command:0x80 -- after the first command b'V7 names only restore\x00\x00\x00'
+base-8x8                                 V7_names_only                                    PASS value_restored:0x80 -- restored b'V7 names only restore\x00\x00\x00'
+base-8x8                                 V8_orphaning_format_reverted                     PASS case_completed -- rc 0, done True
+base-8x8                                 V8_orphaning_format_reverted                     PASS format_reverted:0x40 -- fmto0 0x205022002006000
+base-8x8                                 V8_orphaning_format_reverted                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V8_orphaning_format_reverted                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V8_orphaning_format_reverted                     PASS no_orphaned_mapping_after_restore -- stream 0 format 0x205022002006000 (8 channels), 0 orphaned mappings
+base-8x8                                 V9_refused_maps_revert_their_formats             PASS case_completed -- rc 0, done True
+base-8x8                                 V9_refused_maps_revert_their_formats             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V9_refused_maps_revert_their_formats             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V9_refused_maps_revert_their_formats             PASS refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default True, fmto0 0x205022002006000
+base-8x8                                 V10_blank_first_boot                             PASS blank_boot_applies_nothing@boot -- blank 145 of 145, applied 0, ptof0 valid 0
+base-8x8                                 V10_blank_first_boot                             PASS case_completed -- rc 0, done True
+base-8x8                                 V10_blank_first_boot                             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V10_blank_first_boot                             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 K6a_cut_after_record_before_commit               PASS case_completed -- rc 0, done True
+base-8x8                                 K6a_cut_after_record_before_commit               PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K6a_cut_after_record_before_commit               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 K6a_cut_after_record_before_commit               PASS written_value_was_set:0x50 -- 2 writes, every one a value a command left
+base-8x8                                 K7a_cut_after_ack                                PASS case_completed -- rc 0, done True
+base-8x8                                 K7a_cut_after_ack                                PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+base-8x8                                 K7a_cut_after_ack                                PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+base-8x8                                 K7a_cut_after_ack                                PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS case_completed -- rc 0, done True
+base-8x8                                 V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 115 cycles (bound 2000)
+base-8x8                                 V1a_set_everything                               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 8 changes, 1 acknowledgements
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+base-8x8                                 V1a_set_everything                               PASS written_value_was_set:0xe2 -- 1 writes, every one a value a command left
+base-8x8                                 V6a_set_coupled_narrower_pair                    PASS case_completed -- rc 0, done True
+base-8x8                                 V6a_set_coupled_narrower_pair                    PASS latch_window_bounded -- longest ownership window 91 cycles (bound 2000)
+base-8x8                                 V6a_set_coupled_narrower_pair                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+base-8x8                                 V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x40 -- 1 writes, every one a value a command left
+base-8x8                                 V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+base-8x8                                 K6b_restore_after_cut                            PASS case_completed -- rc 0, done True
+base-8x8                                 K6b_restore_after_cut                            PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 K6b_restore_after_cut                            PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 K6b_restore_after_cut                            PASS power_cut_loses_only_unsaved:0x50 -- restored 1234567 (valid 1), the cut's newest verified slot 0012d687, the unsaved value 6000001
+base-8x8                                 K7b_restore_after_ack                            PASS case_completed -- rc 0, done True
+base-8x8                                 K7b_restore_after_ack                            PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 K7b_restore_after_ack                            PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 K7b_restore_after_ack                            PASS value_restored:0x50 -- restored 7000001 valid 1
+base-8x8                                 V1b_restore_everything                           PASS case_completed -- rc 0, done True
+base-8x8                                 V1b_restore_everything                           PASS entity_enabled_after_restore@boot -- enabled at 8046, D3 restore done at 8031, restore done at 8031
+base-8x8                                 V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V1b_restore_everything                           PASS restore_counts@boot -- applied 7 refused 0 blank 138 of 145
+base-8x8                                 V1b_restore_everything                           PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+base-8x8                                 V1b_restore_everything                           PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+base-8x8                                 V1b_restore_everything                           PASS restored_name_survives_first_command:0xe2 -- after the first command b'D3 restored last name\x00\x00\x00'
+base-8x8                                 V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+base-8x8                                 V1b_restore_everything                           PASS value_restored:0xe2 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+base-8x8                                 V6b_restore_coupled_pair                         PASS case_completed -- rc 0, done True
+base-8x8                                 V6b_restore_coupled_pair                         PASS coupled_pair_restored -- fmto0 145524899430031360 valid 1; OUT0 set matches the slot True
+base-8x8                                 V6b_restore_coupled_pair                         PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V6b_restore_coupled_pair                         PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V1b_restore_everything~stale                     PASS case_completed -- rc 0, done True
+base-8x8                                 V1b_restore_everything~stale                     PASS entity_enabled_after_restore@boot -- enabled at 8056, D3 restore done at 8041, restore done at 8041
+base-8x8                                 V1b_restore_everything~stale                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+base-8x8                                 V1b_restore_everything~stale                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+base-8x8                                 V1b_restore_everything~stale                     PASS restore_counts@boot -- applied 7 refused 0 blank 138 of 145
+base-8x8                                 V1b_restore_everything~stale                     PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+base-8x8                                 V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+base-8x8                                 V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0xe2 -- after the first command b'D3 restored last name\x00\x00\x00'
+base-8x8                                 V1b_restore_everything~stale                     FAIL rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 1, 'ptof0': 1}
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+base-8x8                                 V1b_restore_everything~stale                     PASS value_restored:0xe2 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+mut-A01_arbiter_drops_a_request          K13_binding_and_d3_share_the_port                PASS both_records_committed -- binding 0300000711223344556677880102030405060708, 0x50 0013d62d
+mut-A01_arbiter_drops_a_request          K13_binding_and_d3_share_the_port                PASS case_completed -- rc 0, done True
+mut-A01_arbiter_drops_a_request          K13_binding_and_d3_share_the_port                PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-A01_arbiter_drops_a_request          K13_binding_and_d3_share_the_port                PASS no_durable_claim_over_unsaved -- 2 durable intervals, 1 changes, 1 acknowledgements
+mut-A01_arbiter_drops_a_request          K13_binding_and_d3_share_the_port                PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS case_completed -- rc 0, done True
+mut-F01_old_boot_order                   V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 453 cycles (bound 2000)
+mut-F01_old_boot_order                   V1a_set_everything                               FAIL no_durable_claim_over_unsaved -- durable at 1566649: record 0x80 latest 443320726573746f72656420656e74697479206e616d650000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 443320726573746f4741203178312054444d38000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000; durable at 1566649: record 0xa5 latest 443320726573746f726564206c617374206e616d6500000000000000000000000000000000000000000000000000000000000000000000000000000000000000 slot 436c6f636b205265666572656e636520466f726d6174000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x60 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+mut-F01_old_boot_order                   V1a_set_everything                               FAIL written_value_was_set:0x80 -- 1 writes; first bad 443320726573746f4741203178312054444d38000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 crc_ok=True
+mut-F01_old_boot_order                   V1a_set_everything                               FAIL written_value_was_set:0xa5 -- 1 writes; first bad 436c6f636b205265666572656e636520466f726d6174000000000000000000000000000000000000000000000000000000000000000000000000000000000000 crc_ok=True
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS case_completed -- rc 0, done True
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS entity_enabled_after_restore@boot -- enabled at 2604, D3 restore done at 2587, restore done at 2587
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL restore_counts@boot -- applied 0 refused 8 blank 41 of 49
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL restored_name_survives_first_command:0x80 -- after the first command b'Milan FPGA 1x1 TDM8\x00\x00\x00\x00\x00'
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS restored_name_survives_first_command:0xa5 -- after the first command b'Clock Reference Format\x00\x00'
+mut-F01_old_boot_order                   V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x0a -- restored 0 valid 0, slot 0001
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x30 -- restored 0 valid 0, slot 0205022000806000
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x50 -- restored 0 valid 0, slot 0016e360
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0x80 -- restored b'\x00\x00\x00\x00\x00\x00\x00\x00GA 1x1 TDM8\x00\x00\x00\x00\x00', slot b'D3 restoGA 1x1 TDM8\x00\x00\x00\x00\x00'
+mut-F01_old_boot_order                   V1b_restore_everything                           FAIL value_restored:0xa5 -- restored b'Clock Reference Format\x00\x00', slot b'Clock Reference Format\x00\x00'
+mut-G01_pend_misses_d3                   K1_single_change_converges                       PASS case_completed -- rc 0, done True
+mut-G01_pend_misses_d3                   K1_single_change_converges                       PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+mut-G01_pend_misses_d3                   K1_single_change_converges                       PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-G01_pend_misses_d3                   K1_single_change_converges                       FAIL no_durable_claim_over_unsaved -- change of 0x50 at 32284 inside a durable interval ending 4611686018427387904
+mut-G01_pend_misses_d3                   K1_single_change_converges                       FAIL value_in_slot@end:0x50 -- latest 0012d687, newest verified slot None
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS case_completed -- rc 0, done True
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 179 cycles (bound 2000)
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 9 changes, 1 acknowledgements
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x60 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1a_set_everything                               PASS written_value_was_set:0xa5 -- 1 writes, every one a value a command left
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS case_completed -- rc 0, done True
+mut-G02_restore_done_without_d3          V1b_restore_everything                           FAIL entity_enabled_after_restore@boot -- enabled at 219, D3 restore done at 4992, restore done at 208
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+mut-G02_restore_done_without_d3          V1b_restore_everything                           PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS case_completed -- rc 0, done True
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 179 cycles (bound 2000)
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 9 changes, 1 acknowledgements
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x60 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1a_set_everything                               PASS written_value_was_set:0xa5 -- 1 writes, every one a value a command left
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS case_completed -- rc 0, done True
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS entity_enabled_after_restore@boot -- enabled at 4944, D3 restore done at 4938, restore done at 4938
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 2 durable intervals, 0 changes, 1 acknowledgements
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS restore_counts@boot -- applied 7 refused 0 blank 41 of 49
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           FAIL restore_sets_no_dirty@boot -- 1 record writes after the restore, dirty 0, flash erases 0 -> 1
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0x0a -- restored 1 valid 1, slot 0001
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           FAIL value_restored:0x50 -- restored 0 valid 0, slot 0016e360
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+mut-G03_restore_writes_are_changes       V1b_restore_everything                           FAIL written_value_was_set:0x50 -- 1 writes; first bad 00000000 crc_ok=True
+mut-M01_taint_ignored                    K2_change_during_record_write                    PASS case_completed -- rc 0, done True
+mut-M01_taint_ignored                    K2_change_during_record_write                    PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+mut-M01_taint_ignored                    K2_change_during_record_write                    PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-M01_taint_ignored                    K2_change_during_record_write                    FAIL no_durable_claim_over_unsaved -- durable at 1567725: record 0x50 latest 0021e88e slot 0010f447
+mut-M01_taint_ignored                    K2_change_during_record_write                    FAIL taint_rewrites:0x50 -- 1 completed writes of 0x50; the last carries 0010f447
+mut-M01_taint_ignored                    K2_change_during_record_write                    FAIL value_in_slot@end:0x50 -- latest 0021e88e, newest verified slot 0010f447
+mut-M01_taint_ignored                    K2_change_during_record_write                    PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-M02_clear_at_latch                   K1_single_change_converges                       PASS case_completed -- rc 0, done True
+mut-M02_clear_at_latch                   K1_single_change_converges                       PASS converged@end -- backed 1 dirty 0 stale 0 pend 0
+mut-M02_clear_at_latch                   K1_single_change_converges                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-M02_clear_at_latch                   K1_single_change_converges                       FAIL no_durable_claim_over_unsaved -- durable at 532028: record 0x50 latest 0012d687 slot None
+mut-M02_clear_at_latch                   K1_single_change_converges                       PASS value_in_slot@end:0x50 -- latest 0012d687, newest verified slot 0012d687
+mut-M02_clear_at_latch                   K1_single_change_converges                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-M03_clear_wins_same_edge             K5_change_on_the_done_edge                       PASS case_completed -- rc 0, done True
+mut-M03_clear_wins_same_edge             K5_change_on_the_done_edge                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-M03_clear_wins_same_edge             K5_change_on_the_done_edge                       FAIL no_durable_claim_over_unsaved -- durable at 1567725: record 0x50 latest 004c4b42 slot 004c4b41
+mut-M03_clear_wins_same_edge             K5_change_on_the_done_edge                       FAIL same_edge_change_survives@end:0x50 -- latest 004c4b42, newest verified slot 004c4b41
+mut-M03_clear_wins_same_edge             K5_change_on_the_done_edge                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-M04_clear_by_group                   K4_second_record_in_flight                       PASS case_completed -- rc 0, done True
+mut-M04_clear_by_group                   K4_second_record_in_flight                       PASS latch_window_bounded -- longest ownership window 10 cycles (bound 2000)
+mut-M04_clear_by_group                   K4_second_record_in_flight                       FAIL no_durable_claim_over_unsaved -- durable at 1567725: record 0x51 latest 003d0902 slot None
+mut-M04_clear_by_group                   K4_second_record_in_flight                       PASS value_in_slot@end:0x50 -- latest 003d0901, newest verified slot 003d0901
+mut-M04_clear_by_group                   K4_second_record_in_flight                       FAIL value_in_slot@end:0x51 -- latest 003d0902, newest verified slot None
+mut-M04_clear_by_group                   K4_second_record_in_flight                       PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-M05_latch_ignores_program            K11_name_latch_waits_for_the_program             PASS case_completed -- rc 0, done True
+mut-M05_latch_ignores_program            K11_name_latch_waits_for_the_program             PASS latch_window_bounded -- longest ownership window 114 cycles (bound 2000)
+mut-M05_latch_ignores_program            K11_name_latch_waits_for_the_program             PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+mut-M05_latch_ignores_program            K11_name_latch_waits_for_the_program             PASS value_in_slot@end:0x80 -- latest 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000, newest verified slot 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424242424242424242424242424242420000
+mut-M05_latch_ignores_program            K11_name_latch_waits_for_the_program             FAIL written_value_was_set:0x80 -- 2 writes; first bad 4b3131207365636f6e642076616c7565204242424242424242424242424242424242424242424242424242424242424241414141414141414141414141410000 crc_ok=True
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    PASS case_completed -- rc 0, done True
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    FAIL identify_never_persisted -- 1 record writes, dirty 0, pend 0, flash programs 0 -> 13
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    PASS latch_window_bounded -- longest ownership window 8 cycles (bound 2000)
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 0 changes, 1 acknowledgements
+mut-M06_identify_is_a_change             K14_identify_is_not_persisted                    FAIL written_value_was_set:0x00 -- 1 writes; first bad 0000 crc_ok=True
+mut-M08_restore_skips_image_check        V7_names_only                                    PASS case_completed -- rc 0, done True
+mut-M08_restore_skips_image_check        V7_names_only                                    PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M08_restore_skips_image_check        V7_names_only                                    PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M08_restore_skips_image_check        V7_names_only                                    FAIL restored_name_survives_first_command:0x80 -- after the first command b'Milan FPGA 1x1 TDM8\x00\x00\x00\x00\x00'
+mut-M08_restore_skips_image_check        V7_names_only                                    FAIL value_restored:0x80 -- restored b'V7 namesGA 1x1 TDM8\x00\x00\x00\x00\x00'
+mut-M09_apply_blindly                    V2_refused_rate                                  PASS case_completed -- rc 0, done True
+mut-M09_apply_blindly                    V2_refused_rate                                  PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M09_apply_blindly                    V2_refused_rate                                  PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M09_apply_blindly                    V2_refused_rate                                  FAIL refused_value_not_applied:0x02 -- rate row valid 1, refused 0
+mut-M10_fmt_full_judge                   V6a_set_coupled_narrower_pair                    PASS case_completed -- rc 0, done True
+mut-M10_fmt_full_judge                   V6a_set_coupled_narrower_pair                    PASS latch_window_bounded -- longest ownership window 155 cycles (bound 2000)
+mut-M10_fmt_full_judge                   V6a_set_coupled_narrower_pair                    PASS no_durable_claim_over_unsaved -- 2 durable intervals, 2 changes, 1 acknowledgements
+mut-M10_fmt_full_judge                   V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x40 -- 1 writes, every one a value a command left
+mut-M10_fmt_full_judge                   V6a_set_coupled_narrower_pair                    PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+mut-M10_fmt_full_judge                   V6b_restore_coupled_pair                         PASS case_completed -- rc 0, done True
+mut-M10_fmt_full_judge                   V6b_restore_coupled_pair                         FAIL coupled_pair_restored -- fmto0 0 valid 0; OUT0 set matches the slot True
+mut-M10_fmt_full_judge                   V6b_restore_coupled_pair                         PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M10_fmt_full_judge                   V6b_restore_coupled_pair                         PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M11_no_orphan_check                  V8_orphaning_format_reverted                     PASS case_completed -- rc 0, done True
+mut-M11_no_orphan_check                  V8_orphaning_format_reverted                     FAIL format_reverted:0x40 -- fmto0 0x205022000806000
+mut-M11_no_orphan_check                  V8_orphaning_format_reverted                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M11_no_orphan_check                  V8_orphaning_format_reverted                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M11_no_orphan_check                  V8_orphaning_format_reverted                     FAIL no_orphaned_mapping_after_restore -- stream 0 format 0x205022000806000 (2 channels), 6 orphaned mappings
+mut-M12_no_revert_before_readd           V9_refused_maps_revert_their_formats             PASS case_completed -- rc 0, done True
+mut-M12_no_revert_before_readd           V9_refused_maps_revert_their_formats             PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M12_no_revert_before_readd           V9_refused_maps_revert_their_formats             PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M12_no_revert_before_readd           V9_refused_maps_revert_their_formats             FAIL refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default False, fmto0 0x205022000806000
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS case_completed -- rc 0, done True
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS latch_window_bounded -- longest ownership window 179 cycles (bound 2000)
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS no_durable_claim_over_unsaved -- 2 durable intervals, 9 changes, 1 acknowledgements
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x00 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x0a -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x30 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x50 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x60 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x70 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0x80 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1a_set_everything                               PASS written_value_was_set:0xa5 -- 1 writes, every one a value a command left
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS case_completed -- rc 0, done True
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS entity_enabled_after_restore@boot -- enabled at 4989, D3 restore done at 4984, restore done at 4984
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 0, 'ptof0': 0}
+mut-M13_restore_applies_nothing          V1b_restore_everything                           FAIL value_restored:0x0a -- restored 0 valid 0, slot 0001
+mut-M13_restore_applies_nothing          V1b_restore_everything                           FAIL value_restored:0x30 -- restored 0 valid 0, slot 0205022000806000
+mut-M13_restore_applies_nothing          V1b_restore_everything                           FAIL value_restored:0x50 -- restored 0 valid 0, slot 0016e360
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything                           PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS case_completed -- rc 0, done True
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS entity_enabled_after_restore@boot -- enabled at 4999, D3 restore done at 4994, restore done at 4994
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS latch_window_bounded -- longest ownership window 0 cycles (bound 2000)
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS no_durable_claim_over_unsaved -- 1 durable intervals, 0 changes, 0 acknowledgements
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS restore_counts@boot -- applied 8 refused 0 blank 41 of 49
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS restore_sets_no_dirty@boot -- 0 record writes after the restore, dirty 0, flash erases 0 -> 0
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0x80 -- after the first command b'D3 restored entity name\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS restored_name_survives_first_command:0xa5 -- after the first command b'D3 restored last name\x00\x00\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     FAIL rows_cleared_before_restore@boot -- valid flags before the restore {'cfg': 0, 'rate': 0, 'clks': 0, 'fmti0': 1, 'ptof0': 1}
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     FAIL value_restored:0x0a -- restored 0 valid 0, slot 0001
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0x30 -- restored 145524899430031360 valid 1, slot 0205022000806000
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0x50 -- restored 1500000 valid 1, slot 0016e360
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0x60 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0x70 -- live port 0 set 00000000000000000000000100010000.., slot 00000000000000000000000100010000..
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0x80 -- restored b'D3 restored entity name\x00', slot b'D3 restored entity name\x00'
+mut-M13_restore_applies_nothing          V1b_restore_everything~stale                     PASS value_restored:0xa5 -- restored b'D3 restored last name\x00\x00\x00', slot b'D3 restored last name\x00\x00\x00'
+
+MUTANT A01_arbiter_drops_a_request: SURVIVED by K13_binding_and_d3_share_the_port : both_records_committed
+MUTANT F01_old_boot_order: KILLED by V1b_restore_everything : value_restored:0x50
+MUTANT G01_pend_misses_d3: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT G02_restore_done_without_d3: KILLED by V1b_restore_everything : entity_enabled_after_restore@boot
+MUTANT G03_restore_writes_are_changes: KILLED by V1b_restore_everything : restore_sets_no_dirty@boot
+MUTANT M01_taint_ignored: KILLED by K2_change_during_record_write : no_durable_claim_over_unsaved
+MUTANT M02_clear_at_latch: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved
+MUTANT M03_clear_wins_same_edge: KILLED by K5_change_on_the_done_edge : same_edge_change_survives@end:0x50
+MUTANT M04_clear_by_group: KILLED by K4_second_record_in_flight : value_in_slot@end:0x51
+MUTANT M05_latch_ignores_program: KILLED by K11_name_latch_waits_for_the_program : written_value_was_set:0x80
+MUTANT M06_identify_is_a_change: KILLED by K14_identify_is_not_persisted : identify_never_persisted
+MUTANT M08_restore_skips_image_check: KILLED by V7_names_only : restored_name_survives_first_command:0x80
+MUTANT M09_apply_blindly: KILLED by V2_refused_rate : refused_value_not_applied:0x02
+MUTANT M10_fmt_full_judge: KILLED by V6b_restore_coupled_pair : coupled_pair_restored
+MUTANT M11_no_orphan_check: KILLED by V8_orphaning_format_reverted : no_orphaned_mapping_after_restore
+MUTANT M12_no_revert_before_readd: KILLED by V9_refused_maps_revert_their_formats : refused_group_falls_back_to_default:0x70
+MUTANT M13_restore_applies_nothing: KILLED by V1b_restore_everything : value_restored:0x50
+CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required
+
+SUMMARY runs 81, checks 537, verdict failures 1
