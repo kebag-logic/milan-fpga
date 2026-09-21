@@ -1192,9 +1192,8 @@ function on the edited unit. The labels here are that list's labels.
 | a `README` and a `notes.txt` beside the firmware, named by no include | the directory pin | ACCEPTS |
 | an `#ifdef MILAN_DEBUG_BOOT` printf INSIDE `milan_init()` | the conditional-reach ban | **REFUSES** |
 
-The last row is this round's own result and it is why the table exists.
-Closing the seam a reviewer measured in the first version of the `-E`
-comparison means it refuses any statement a conditional removes from a
+The last row records the instrument's remaining limitation.
+The `-E` comparison refuses any statement a conditional removes from a
 boot-path body -- it must, because a dropped arm calling a LiteX CSR
 accessor names nothing this file defines and stores to a control register in
 the product. A guarded debug `printf` inside `milan_init()` is exactly such
