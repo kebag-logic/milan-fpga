@@ -215,8 +215,8 @@ of the DSP and no-DSP mappings.
 | | (a) a manager per group | (b) one writer (DECIDED) | (c) the firmware writes |
 |---|---|---|---|
 | Where | seven managers in the processor, each in the image of `KL_acmp_nvm_shadow`, with a shadow each | one writer in the processor, no shadow | the parent's firmware reads values over CSRs and frames the records itself; the fabric only reports |
-| Area, 1x1 | at least 9,519 LUT, 8,789 FF, 1 RAMB36 | 2,312 LUT, 802 FF, 0 RAMB36, 0 DSP | fabric at least 530 LUT, 266 FF, 0 RAMB36; firmware not measured |
-| Area, 8x8 | at least 9,479 LUT, 8,725 FF, 3 RAMB36 | 2,925 LUT, 927 FF, 0 RAMB36, 0 DSP | fabric at least 1,631 LUT, 458 FF, 0 RAMB36 |
+| Area, 1x1 | reference replication: 9,519 LUT, 8,789 FF, 1 RAMB36 | 2,312 LUT, 802 FF, 0 RAMB36, 0 DSP | fabric proxy: 530 LUT, 266 FF, 0 RAMB36; firmware not measured |
+| Area, 8x8 | reference replication: 9,479 LUT, 8,725 FF, 3 RAMB36 | 2,925 LUT, 927 FF, 0 RAMB36, 0 DSP | fabric proxy: 1,631 LUT, 458 FF, 0 RAMB36 |
 | O1, the one sequential control-face master | untouched: no manager writes the control face | untouched: the writer writes no control-face register | still the firmware alone, but its control face GROWS: a per-record snapshot handshake and a state-bus bridge must be sequenced against ARM, ATTEST and ACK, a contract change to resolve explicitly |
 | The device face, and O3 | eight producers behind the one port need an eight-way arbiter; each comes up after the restore walk | two producers behind the one port, with the arbiter of section 6.4; the writer's first flush follows its own restore walk | no D3 record crosses it, so the open vector, the attestation and the capture identity never see one: a second ownership mechanism must carry them |
 | What a controller observes | pending from the write; durable after the manager debounce, the firmware debounce and a commit | the same | pending from the write; durable after the firmware debounce and a commit |
@@ -225,16 +225,19 @@ of the DSP and no-DSP mappings.
 
 How each figure is made. (b) is the prototype writer plus the arbiter
 (2,266 + 46 LUT and 800 + 2 FF at 1x1; 2,879 + 46 LUT and 925 + 2 FF at
-8x8). (a) is a FLOOR: seven copies of `KL_acmp_nvm_shadow` at one sink
+8x8). (a) estimates reference replication: seven copies of `KL_acmp_nvm_shadow` at one sink
 (1,323 LUT and 1,223 FF each), plus a proxy holding the shadows the seven
 groups need at the shape (`d3a_shadow_proxy.sv`: 258 LUT, 228 FF and 1
 RAMB36 at 1x1; 218 LUT, 164 FF and 3 RAMB36 at 8x8). Its eight-way port
-arbiter is not counted. (c) is a FLOOR too: a proxy of the fabric half
+arbiter is not counted. (c) measures a proxy of the fabric half
 (`d3c_fabric_proxy.sv`: per-record change tracking with a snapshot
 handshake, a read window over the dynamic-state rows, and a CSR bridge onto
 the state bus). Its firmware links into the BIOS, in the fixed 128 KiB
 integrated ROM (`sw/litex/milan_soc.py` sets `integrated_rom_size`), so it
-costs no new block RAM until that ROM overflows.
+costs no new block RAM until that ROM overflows. These proxies omit work
+needed for integration; they do not bound every implementation of either
+alternative. Sharing or specializing per-group managers can change (a)'s
+cost, and synthesis in context can change every row.
 
 **Why (b).** In order of weight:
 
@@ -250,12 +253,13 @@ costs no new block RAM until that ROM overflows.
    three RAMB36 for its shadows, on a device that measured 131 of its 135
    block-RAM tiles used on a recent build (the banner of the processor's
    `KL_aecp_desc_store`).
-3. **LUT.** (b) is at most 3.6 percent of the XC7A100T's 63,400 LUT at 1x1
-   and 4.6 percent at 8x8, out of context; the in-context delta is smaller.
-   (a) is three to four times that. (c)'s fabric half is smaller by 1,782
-   LUT at 1x1 and 1,294 at 8x8; that is the price of keeping one ownership
-   mechanism and of not moving the record framing and the value rules into
-   firmware.
+3. **LUT.** (b) measures about 3.65 percent of the XC7A100T's 63,400 LUT at
+   1x1 and 4.61 percent at 8x8, out of context. Its integrated delta remains
+   to be measured. The reference replication in (a) costs three to four
+   times that. The measured fabric proxy in (c) is smaller by 1,782 LUT at
+   1x1 and 1,294 at 8x8. That comparison excludes firmware and integration
+   costs; it supports the choice alongside the ownership and interface
+   arguments above.
 4. **The donor's own contract.** The processor's F07.9 puts the commit and
    the restore in the processor, and its issues 61 and 83 ask for exactly
    (b). (c) needs that contract amended first.
@@ -685,8 +689,8 @@ contract (section 12).
 
 | Alternative | Rejected because | Evidence |
 |---|---|---|
-| (a) A manager per group, in the image of `KL_acmp_nvm_shadow` | three to four times the LUT of (b) and one to three RAMB36 on a device whose binding constraint is block RAM; seven debounces, seven retries and seven restore walks to grade | MEASURED floor, section 4 |
-| (c) The firmware materializes the records from CSR reads | D3 records would never cross the device face, so a second ownership mechanism, on a larger control face, must carry the clear rule beside the accepted contract; the firmware becomes a writer of processor state; the framing and the value rules move into firmware; the donor's F07.9 must be amended. Its fabric half is smaller by 1,782 LUT at 1x1 and 1,294 at 8x8 | MEASURED floor, section 4 |
+| (a) A manager per group, in the image of `KL_acmp_nvm_shadow` | the reference replication costs three to four times the LUT of (b) and one to three RAMB36 on a device whose binding constraint is block RAM; seven debounces, seven retries and seven restore walks to grade | reference replication estimate, section 4 |
+| (c) The firmware materializes the records from CSR reads | D3 records would never cross the device face, so a second ownership mechanism, on a larger control face, must carry the clear rule beside the accepted contract; the firmware becomes a writer of processor state; the framing and the value rules move into firmware; the donor's F07.9 must be amended. Its measured fabric proxy is smaller by 1,782 LUT at 1x1 and 1,294 at 8x8, excluding firmware and integration costs | measured proxy, section 4 |
 | Triggering on the commit marks, as the tracked glue does | the marks follow the live write by the program's tail, so the status reads durable over an applied name or map | EXECUTED on the tracked glue, section 2 |
 | A shadow of every record inside (b) | 2,432 bytes of names at 1x1 and 6,336 at 8x8 alone; the live value is readable at flush, and latching it costs at most 179 cycles of dispatch hold-off | the (a) shadow rows, section 4; latch windows, section 12 |
 | Latching without the dispatch hold-off | a SET in progress is latched half old, half new | EXECUTED: M05 is killed by K11 |
@@ -834,8 +838,8 @@ The board's own figure is a measurement each stage owes.
 5. **Time on the board.** The latch windows and the restore time are model
    cycles; the product's memory latency and GET_AUDIO_MAP hold are not
    measured.
-6. **Area in context.** The rows are out-of-context upper bounds; each stage
-   owes its post-place delta at both shapes.
+6. **Area in context.** The rows are out-of-context measurements and proxy
+   estimates. Each stage owes its post-place delta at both shapes.
 7. **Today's mark-tail window** (section 2) stays until stages 2 and 3 land.
 8. **System unique id and media clock reference** have allocated records and
    no source; nothing here writes them.
