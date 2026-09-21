@@ -1,0 +1,33 @@
+{
+  "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+  "base": "2d8fd62fd986ea2d6a87d284e144f023034c0944",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$TRUSTED_DEV/scripts/act_ci.py",
+        "--pr",
+        "503",
+        "--act-bin",
+        "$ACT_BIN",
+        "--sudo",
+        "--workflow",
+        "docs",
+        "--workflow",
+        "rtl-fast",
+        "--workflow",
+        "elaborate"
+      ],
+      "exit_code": 0,
+      "seconds": 532.199,
+      "original_log_sha256": "45fbc995140acd9e60c37e0b5eacee5d3269c3a7bd9372cfa11b2f9624384e65",
+      "source_log": "act-draft-fast/01.log"
+    }
+  ],
+  "completion": {
+    "head": "2a2007cff57bd2a01254e1da7c43ec73b9d8d4b3",
+    "exit_code": 0,
+    "finished": "2026-09-21T17:47:08.174726+02:00"
+  }
+}
