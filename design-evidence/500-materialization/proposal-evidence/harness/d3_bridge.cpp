@@ -16,6 +16,11 @@
 // face, the edit face and the format judge), whose rules are stated where
 // they are coded, whose faces can be made silent, and which returns every
 // port to its reset set when the writer's roll-back asks (map_rst_o).
+// Revision d adds the PRODUCERS of the pinned listener's work faces (the
+// dispatch head, the event router's sticky presentation, the AECP engine's
+// START/STOP request, injected timer expiries), each held while its
+// handshake says so, and the listener's RX slot read (synchronous), TX slot
+// pool (a grant the cycle after the request) and PRNG (two cycles).
 #include "d3_bridge.h"
 
 #include "Vd3_top.h"
@@ -66,7 +71,217 @@ bool early_enable = false;
 std::string snap_prerestore, snap_pass1, snap_terminal;
 bool lend_on = false;
 bool en_pp = false, en_adp = false;
-bool prev_map_rst = false, prev_d3_busy = false, prev_pass = false;
+bool prev_map_rst = false, prev_rb_rst = false, prev_d3_busy = false, prev_pass = false;
+
+// ------------------------------------------- the listener's producers and models
+std::deque<LtItem> lt_txnq, lt_tkq, lt_strq;
+LtExp lt_exp;
+uint8_t lt_rxs[4][576];
+LtObs ltobs;
+//! the RX slot pool's synchronous read: the request of the previous cycle
+struct RxPend {
+  bool en = false;
+  unsigned slot = 0, addr = 0;
+} rx_pend;
+//! the TX slot pool: a grant the cycle after the request is sampled, and the
+//! bytes the listener writes into the slot it was granted
+bool tx_gnt_next = false;
+uint8_t tx_buf[64];
+//! the PRNG: a draw answered two cycles after its request
+int draw_cnt = 0;
+bool pre_offered = false;
+unsigned pre_offer_sink = 0;
+constexpr unsigned kXIdle = 1;   //! pp listener xstate_e X_IDLE
+
+bool lt_owned_now() { return dut->lt_own_o; }
+bool lt_released_now() { return dut->lt_released_o; }
+unsigned lt_state_now() { return dut->lt_state_o; }
+//! the gate's release condition (KL_pp_acmp_lsn_admit drained_w), read on its
+//! inputs: it still owns the faces and lets go at this cycle's edge
+bool lt_drained_now() {
+  return dut->lt_own_o && dut->mgr_restore_done_o && !dut->pre_valid_o && dut->lt_state_o == kXIdle &&
+         !dut->lt_arm_o;
+}
+
+//! the item a producer presents this cycle, or nullptr. A presented item is
+//! never withdrawn before its handshake: the dispatch head stays queued, the
+//! router's latch stays set and the AECP engine holds its request
+static const LtItem *lt_head(const std::deque<LtItem> &q) {
+  if (q.empty() || cyc < q.front().from) return nullptr;
+  return &q.front();
+}
+
+//! a pop: a persistent producer presents the item again unless its `until`
+//! has come (the level drops at the first pop from then on); a one-shot one
+//! goes on to its next item
+static void lt_pop(std::deque<LtItem> &q) {
+  LtItem &i = q.front();
+  ++i.pops;
+  if (i.persist && !(i.until && cyc >= i.until)) {
+    ++i.seq;
+    i.val ^= 1u;
+  } else {
+    q.pop_front();
+  }
+}
+
+static void drive_listener() {
+  const LtItem *t = lt_head(lt_txnq);
+  dut->lt_txn_valid_i = t != nullptr;
+  if (t) {
+    dut->lt_txn_msg_i = t->msg;
+    dut->lt_txn_status_i = t->status;
+    dut->lt_txn_target_i = t->target;
+    dut->lt_txn_ctlr_i = t->ctlr;
+    dut->lt_txn_seq_i = t->seq;
+    dut->lt_txn_uid_i = t->uid;
+    dut->lt_txn_slot_i = t->slot;
+  }
+  const LtItem *k = lt_head(lt_tkq);
+  dut->lt_tk_valid_i = k != nullptr;
+  if (k) {
+    dut->lt_tk_kind_i = k->kind;
+    dut->lt_tk_failed_i = k->failed;
+    dut->lt_tk_sink_i = k->sink;
+  }
+  const LtItem *q = lt_head(lt_strq);
+  dut->lt_strm_valid_i = q != nullptr;
+  if (q) {
+    dut->lt_strm_sink_i = q->sink;
+    dut->lt_strm_val_i = q->val;
+  }
+  dut->lt_exp_inj_i = lt_exp.on && cyc >= lt_exp.from && (!lt_exp.until || cyc < lt_exp.until) &&
+                      ((cyc - lt_exp.from) % lt_exp.every) == 0;
+  dut->lt_exp_owner_i = lt_exp.owner;
+  dut->lt_rxs_rd_data_i = rx_pend.en ? lt_rxs[rx_pend.slot & 3u][rx_pend.addr % 576u] : 0;
+  dut->lt_txs_gnt_i = tx_gnt_next;
+  dut->lt_draw_valid_i = draw_cnt == 1;
+  dut->lt_draw_ms_i = 1;
+}
+
+void lt_drive_now() { drive_listener(); }
+unsigned lt_exp_dropped() { return dut->lt_exp_drop_o; }
+bool pre_take_now() { return dut->pre_take_o; }
+
+//! the first kLtFirst cycles of each listener event kind and the first
+//! kLtSide side effects are kept; everything past them is counted, so a
+//! level held for millions of cycles costs a counter, not a log line a cycle
+constexpr size_t kLtFirst = 16, kLtSide = 256;
+
+static void lt_note(const char *what, bool owned) {
+  Log::LtAgg &a = evlog.ltagg[what];
+  ++a.n;
+  if (owned) ++a.n_owned;
+  a.last = cyc;
+  if (a.first.size() < kLtFirst) a.first.push_back(cyc);
+}
+
+static uint64_t be_of(const uint8_t *b, unsigned n) {
+  uint64_t v = 0;
+  for (unsigned i = 0; i < n; ++i) v = (v << 8) | b[i];
+  return v;
+}
+
+//! the listener's acceptances, record writes, arms and side effects, and the
+//! producers' pops, sampled BEFORE the edge they take effect on
+static void sample_listener() {
+  const bool owned = dut->lt_own_o;
+  bool take = false;
+  const bool txn_pop = dut->lt_txn_valid_i && dut->lt_txn_ready_o;
+  const bool tk_pop = dut->lt_tk_valid_i && dut->lt_tk_ready_o;
+  if (txn_pop != bool(dut->lt_txn_take_o)) ++evlog.mismatch_txn;
+  if (tk_pop != bool(dut->lt_tk_take_o)) ++evlog.mismatch_tk;
+  if (txn_pop) {
+    lt_note("txn_pop", owned);
+    lt_pop(lt_txnq);
+  }
+  if (dut->lt_txn_take_o) { lt_note("txn_take", owned); take = true; }
+  if (tk_pop) {
+    lt_note("tk_pop", owned);
+    lt_pop(lt_tkq);
+  }
+  if (dut->lt_tk_take_o) { lt_note("tk_take", owned); take = true; }
+  if (dut->lt_strm_take_o) { lt_note("strq_take", owned); take = true; }
+  if (dut->lt_strm_valid_i && dut->lt_strm_ready_o) {
+    lt_note(dut->lt_strm_error_o ? "strq_done_err" : "strq_done", owned);
+    lt_pop(lt_strq);
+  }
+  if (dut->lt_exp_inj_i && !dut->lt_tm_exp_o) {
+    ++lt_exp.injected;
+    if (owned) ++lt_exp.injected_owned;
+    lt_note("exp_inj", owned);
+  }
+  if (dut->lt_exp_take_o) { lt_note("exp_take", owned); take = true; }
+  if (dut->lt_recwr_o) {
+    const Log::LRec w{cyc, cyc, 1, unsigned(dut->lt_recwr_sink_o), unsigned(dut->lt_rec_bound_o),
+                      unsigned(dut->lt_rec_started_o), unsigned(dut->lt_rec_sw_o), unsigned(dut->lt_rec_sm_o),
+                      uint64_t(dut->lt_rec_teid_o)};
+    Log::LRec *l = evlog.lrec.empty() ? nullptr : &evlog.lrec.back();
+    if (l && l->sink == w.sink && l->bound == w.bound && l->started == w.started && l->sw == w.sw &&
+        l->sm == w.sm && l->teid == w.teid) {
+      l->last = cyc;
+      ++l->n;
+    } else {
+      evlog.lrec.push_back(w);
+    }
+  }
+  if (dut->lt_arm_o)
+    evlog.larm.push_back(Log::LArm{cyc, unsigned(dut->lt_act_sink_o), uint64_t(dut->lt_arm_eid_o)});
+  if (dut->lt_side_o) {
+    ++evlog.lside_n;
+    if (evlog.lside.size() < kLtSide) evlog.lside.emplace_back(cyc, unsigned(dut->lt_side_o));
+  }
+  // the RX pool's synchronous read, the TX pool's grant and bytes, the PRNG
+  rx_pend = RxPend{bool(dut->lt_rxs_rd_en_o), unsigned(dut->lt_rxs_rd_slot_o), unsigned(dut->lt_rxs_rd_addr_o)};
+  tx_gnt_next = dut->lt_txs_alloc_o;
+  if (dut->lt_txs_wr_o && dut->lt_txs_addr_o < sizeof tx_buf) tx_buf[dut->lt_txs_addr_o] = uint8_t(dut->lt_txs_data_o);
+  if (dut->lt_txreq_o)
+    evlog.ltx.push_back(Log::LTx{cyc, unsigned(tx_buf[1] & 0x0Fu), unsigned(tx_buf[2] >> 3),
+                                 unsigned(be_of(tx_buf + 38, 2)), unsigned(be_of(tx_buf + 46, 2)),
+                                 unsigned(be_of(tx_buf + 50, 2)), be_of(tx_buf + 20, 8)});
+  if (dut->lt_draw_req_o) draw_cnt = 2;
+  else if (draw_cnt > 0) --draw_cnt;
+  // the admission window as the listener lived it
+  if (owned) {
+    ltobs.states_owned |= 1u << unsigned(dut->lt_state_o);
+    if (dut->lt_side_o) ++ltobs.side_owned;
+    if (take) ++ltobs.takes_owned;
+    ltobs.drained = cyc;
+  } else if (!ltobs.release && dut->lt_released_o) {
+    ltobs.release = cyc;
+  }
+  if (ltobs.release && !ltobs.first_walk_after && cyc > ltobs.release && dut->lt_state_o != kXIdle)
+    ltobs.first_walk_after = cyc;
+  // every preload offer, from its first cycle to its take or its WITHDRAWAL
+  // (the binding manager withdraws an offer whose sink a live walk touched)
+  const bool offer_new = dut->pre_valid_o && (!pre_offered || unsigned(dut->pre_sink_o) != pre_offer_sink);
+  if (pre_offered && (offer_new || !dut->pre_valid_o)) {
+    //! the previous offer ended without a take
+    ++ltobs.pre_withdrawn;
+    const unsigned w = unsigned(cyc - ltobs.pre_offer);
+    if (w > ltobs.pre_wait_max) ltobs.pre_wait_max = w;
+    pre_offered = false;
+  }
+  if (dut->pre_valid_o && !pre_offered) {
+    ltobs.pre_offer = cyc;
+    if (!ltobs.pre_first) ltobs.pre_first = cyc;
+    pre_offer_sink = unsigned(dut->pre_sink_o);
+    pre_offered = true;
+  }
+  if (dut->pre_take_o) {
+    const unsigned w = unsigned(cyc - ltobs.pre_offer);
+    if (w > ltobs.pre_wait_max) ltobs.pre_wait_max = w;
+    pre_offered = false;
+  }
+}
+
+//! an offer still open when the case ends has waited until now
+void lt_close_offers() {
+  if (!pre_offered) return;
+  const unsigned w = unsigned(cyc - ltobs.pre_offer);
+  if (w > ltobs.pre_wait_max) ltobs.pre_wait_max = w;
+  ++ltobs.pre_open;
+}
 
 uint8_t *area() { return nvm_host_ddr + NVM_HOST_IMAGE_OFF + 40u; }
 
@@ -475,6 +690,7 @@ static void drive_cycle() {
   dut->clk_i = 0;
   drive_ucpu();
   drive_maps();
+  drive_listener();
   dut->cap_wr_i = cap.on;
   dut->cap_sink_i = cap.b.sink;
   dut->cap_bound_i = cap.b.bound;
@@ -484,6 +700,7 @@ static void drive_cycle() {
   dut->cap_teid_i = cap.b.teid;
   dut->cap_ceid_i = cap.b.ceid;
   dut->restore_go_i = restore_go;
+  if (restore_go && !evlog.go_cyc) evlog.go_cyc = cyc;
   dut->snoop_off_i = !snoop_on;
   dut->lend_bus_i = lend_on;
   dut->en_req_i = en_pp || en_adp || early_enable;
@@ -514,6 +731,7 @@ static void drive_cycle() {
 }
 
 static void sample_cycle() {
+  sample_listener();
   const bool wtake = dut->mem_wr_valid_o && dut->mem_wr_ready_i;
   const bool wfin = dut->mem_wr_done_i;
   const bool rtake = dut->mem_req_valid_o && dut->mem_req_ready_i;
@@ -784,6 +1002,7 @@ static void sample_cycle() {
   if (!evlog.restore_done_cyc && dut->restore_done_o) evlog.restore_done_cyc = cyc;
   if (!evlog.d3_done_cyc && dut->d3_restore_done_o) evlog.d3_done_cyc = cyc;
   if (!evlog.mgr_done_cyc && dut->mgr_restore_done_o) evlog.mgr_done_cyc = cyc;
+  //! a preload the LISTENER took (its own pre_ready_o), not one presented
   if (dut->pre_take_o) evlog.preloads.emplace_back(cyc, unsigned(dut->pre_sink_o));
   if (early_enable && !evlog.fw_enable_cyc) evlog.fw_enable_cyc = cyc;
 
@@ -799,16 +1018,21 @@ static void sample_cycle() {
       mr = MrState{};
     }
   }
-  if (dut->map_rst_o && !prev_map_rst) {
-    //! the roll-back: every port back to its reset set, nothing staged
-    for (auto &mp : map_in) mp.cur = mp.def;
-    for (auto &mp : map_out) mp.cur = mp.def;
-    mr = MrState{};
+  if (dut->rb_rst_o && !prev_rb_rst) {
+    //! the roll-back strobe to every restorable owner of the build
     evlog.rb_cyc = cyc;
     evlog.rs_writes.emplace_back(cyc, "roll-back");
     if (desc_fail_on_rollback) desc_mem_fail = true;
   }
-  if (!dut->map_rst_o && prev_map_rst && !evlog.rb_end_cyc) evlog.rb_end_cyc = cyc;
+  if (!dut->rb_rst_o && prev_rb_rst && !evlog.rb_end_cyc) evlog.rb_end_cyc = cyc;
+  prev_rb_rst = dut->rb_rst_o;
+  if (dut->map_rst_o && !prev_map_rst) {
+    //! the map plane's part of it: every port back to its reset set, nothing
+    //! staged (not under D3_STAGE1: the map plane is stage 3's owner)
+    for (auto &mp : map_in) mp.cur = mp.def;
+    for (auto &mp : map_out) mp.cur = mp.def;
+    mr = MrState{};
+  }
   prev_map_rst = dut->map_rst_o;
   if (!evlog.enable_cyc && dut->entity_en_o) evlog.enable_cyc = cyc;
   if (dut->d3_busy_o && !prev_d3_busy && snap_prerestore.empty()) snap_prerestore = snapshot_json();

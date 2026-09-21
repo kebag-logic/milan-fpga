@@ -4,7 +4,9 @@
 #pragma once
 
 #include <cstdint>
+#include <deque>
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -105,6 +107,74 @@ struct Binding {
   uint64_t ceid = 0;
 };
 
+// ---- the pinned listener's producers (revision d, seam S4) ------------------
+//! the listener's own entity_id (d3_top LSN_EID_C): a transaction targets it
+constexpr uint64_t kLsnEid = 0x0011223344556677ull;
+//! ACMP message types (pp_acmp_pkg)
+constexpr unsigned kBindRx = 6, kUnbindRx = 8, kGetRxState = 10;
+//! the RX slot handle that means "no payload" (pp_pkg PP_SLOT_NULL_C)
+constexpr unsigned kSlotNull = 7;
+
+//! A work item a producer presents to one of the listener's faces, from
+//! cycle `from` on; the producer pops it on its face's handshake (the gate
+//! masks that handshake while it owns the faces) and never withdraws it
+//! before. A PERSISTENT producer (`persist`) presents the same item again
+//! after every pop, as a held event level or a polling controller does,
+//! until a pop at or after cycle `until` (0: for ever). The START/STOP face's
+//! producer is the AECP engine, which holds its request until the listener
+//! completes it (a persistent one then asks the opposite value).
+struct LtItem {
+  uint64_t from = 0;
+  uint64_t until = 0;          //! a persistent item's last pop is the first from here
+  bool persist = false;
+  unsigned msg = kGetRxState, status = 0, uid = 0, slot = kSlotNull;
+  uint64_t target = kLsnEid, ctlr = 0x0C0C0C0C0C0C0C0Cull;
+  unsigned seq = 0;
+  unsigned kind = 0, failed = 0, sink = 0, val = 0;   //! TK event / START-STOP
+  //! observed
+  unsigned pops = 0;
+};
+extern std::deque<LtItem> lt_txnq, lt_tkq, lt_strq;
+//! injected expiries of owner `owner`, every `every` cycles in [from, until)
+struct LtExp {
+  bool on = false;
+  uint64_t from = 0, until = 0;
+  unsigned every = 1, owner = 32;
+  unsigned injected = 0, injected_owned = 0;
+};
+extern LtExp lt_exp;
+//! an RX slot's payload bytes (the ACMPDU a transaction's rx_slot names)
+extern uint8_t lt_rxs[4][576];
+//! what the listener lived through while the gate owned its faces, and the
+//! release as the listener saw it
+struct LtObs {
+  uint64_t release = 0;        //! the first cycle the gate reads released
+  uint64_t drained = 0;        //! the last cycle it still owned the faces
+  unsigned states_owned = 0;   //! bitmask of listener states seen while owned
+  unsigned side_owned = 0;     //! listener side effects while owned
+  unsigned takes_owned = 0;    //! txn / TK / START-STOP / expiry takes while owned
+  uint64_t pre_offer = 0;      //! the cycle the current preload was first presented
+  uint64_t pre_first = 0;      //! the walk's first preload offer
+  unsigned pre_wait_max = 0;   //! the longest a preload offer lasted untaken
+  unsigned pre_withdrawn = 0;  //! offers that ended without a take
+  unsigned pre_open = 0;       //! an offer still open when the case ended
+  uint64_t first_walk_after = 0; //! the first cycle after release the listener left X_IDLE
+};
+extern LtObs ltobs;
+bool lt_owned_now();
+bool lt_released_now();
+unsigned lt_state_now();
+//! the gate still owns the faces and releases them at this cycle's edge
+bool lt_drained_now();
+//! re-drive the listener's producers from a same-edge trigger
+void lt_drive_now();
+//! the gate's count of listener-owner expiries it did not admit
+unsigned lt_exp_dropped();
+//! the listener takes a preload at this cycle's edge (its pre_ready_o AND valid)
+bool pre_take_now();
+//! close an offer still open at the end of a case (it waited until then)
+void lt_close_offers();
+
 //! one AUDIO_MAPPING: {stream_index, stream_channel, cluster_offset,
 //! cluster_channel}, 1722.1-2021 7.4.44
 struct Map {
@@ -164,6 +234,8 @@ struct Log {
   //! the binding walk: its terminal (done, failed or not), the cycle it
   //! abandoned a read to the drain, and every preload it drove
   uint64_t mgr_done_cyc = 0, m0_abort_cyc = 0;
+  //! the firmware's restore go (PP_CTRL[1]) first read 1
+  uint64_t go_cyc = 0;
   std::vector<std::pair<uint64_t, unsigned>> preloads;
   //! the roll-back: when its reset was released (after any memory debt)
   uint64_t rb_end_cyc = 0;
@@ -176,6 +248,40 @@ struct Log {
   //! cycles in which the binding manager sat in H_FL_REQ while the arbiter
   //! granted the D3 writer: case K15's premise
   unsigned collisions = 0;
+  //! THE LISTENER (revision d). Its acceptances at its faces and the
+  //! producers' pops, per kind: how many, how many while the gate owned the
+  //! faces, the first kLtFirst cycles and the last one (a held level makes
+  //! one a cycle, so they are counted, never listed whole); and per face the
+  //! cycles in which the producer's pop and the listener's take disagreed
+  struct LtAgg {
+    uint64_t n = 0, n_owned = 0, last = 0;
+    std::vector<uint64_t> first;
+  };
+  std::map<std::string, LtAgg> ltagg;
+  unsigned mismatch_txn = 0, mismatch_tk = 0;
+  //! its record writes, one entry per RUN of identical writes (first and
+  //! last cycle, how many), its A4 discovery arms, its side effects (the
+  //! first kLtSide, and how many) and the ACMP PDUs it sent
+  struct LRec {
+    uint64_t cyc, last, n;
+    unsigned sink, bound, started, sw, sm;
+    uint64_t teid;
+  };
+  std::vector<LRec> lrec;
+  unsigned lside_n = 0;
+  struct LArm {
+    uint64_t cyc;
+    unsigned sink;
+    uint64_t eid;
+  };
+  std::vector<LArm> larm;
+  std::vector<std::pair<uint64_t, unsigned>> lside;
+  struct LTx {
+    uint64_t cyc;
+    unsigned msg, status, luid, cc, flags;
+    uint64_t teid;
+  };
+  std::vector<LTx> ltx;
 };
 extern Log evlog;
 

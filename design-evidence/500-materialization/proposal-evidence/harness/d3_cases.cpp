@@ -294,12 +294,13 @@ void dump_log() {
               ",\"mem_errs\":%u,\"collisions\":%u,\"fw_enable\":%" PRIu64 ",\"terminal\":%" PRIu64
               ",\"abort\":%" PRIu64 ",\"cause\":%u,\"rollback\":%" PRIu64 ",\"mgr_done\":%" PRIu64
               ",\"m0_abort\":%" PRIu64 ",\"rb_end\":%" PRIu64 ",\"desc_delay_acc\":%" PRIu64
-              ",\"desc_delay_beat\":%" PRIu64 ",\"desc_err\":%" PRIu64 ",\"judge_shipping\":%d}\n",
+              ",\"desc_delay_beat\":%" PRIu64 ",\"desc_err\":%" PRIu64 ",\"judge_shipping\":%d"
+              ",\"go\":%" PRIu64 ",\"bind_end\":%" PRIu64 "}\n",
               evlog.enable_cyc, evlog.restore_done_cyc, evlog.d3_done_cyc, evlog.own_max,
               evlog.prog_waited_on_own, evlog.mem_errs, evlog.collisions, evlog.fw_enable_cyc,
               evlog.terminal_cyc, evlog.abort_cyc, evlog.abort_cause, evlog.rb_cyc, evlog.mgr_done_cyc,
               evlog.m0_abort_cyc, evlog.rb_end_cyc, evlog.desc_delay_acc, evlog.desc_delay_beat,
-              evlog.desc_err_cyc, int(judge_shipping));
+              evlog.desc_err_cyc, int(judge_shipping), evlog.go_cyc, ltobs.release);
   for (const auto &pl : evlog.preloads)
     std::printf("EVT {\"k\":\"pre\",\"cyc\":%" PRIu64 ",\"sink\":%u}\n", pl.first, pl.second);
   for (const auto &db : evlog.desc_debt)
@@ -312,6 +313,38 @@ void dump_log() {
               rdhold.rid_seen, rdhold.pass_seen, rdhold.wd_max, rdhold.m0_wd_max);
   std::printf("EVT {\"k\":\"face\",\"face\":%d,\"active\":%d,\"done\":%d,\"start\":%" PRIu64 "}\n",
               facesil.face, int(facesil.active), int(facesil.done), facesil.start);
+  // the listener (revision d): its acceptances, record writes, arms, side
+  // effects, the PDUs it sent, and the admission window it lived through
+  for (const auto &e : evlog.ltagg) {
+    std::string first;
+    for (const uint64_t cy : e.second.first) first += (first.empty() ? "" : ",") + std::to_string(cy);
+    std::printf("EVT {\"k\":\"lt\",\"what\":\"%s\",\"n\":%" PRIu64 ",\"n_owned\":%" PRIu64
+                ",\"first\":[%s],\"last\":%" PRIu64 "}\n",
+                e.first.c_str(), e.second.n, e.second.n_owned, first.c_str(), e.second.last);
+  }
+  std::printf("EVT {\"k\":\"lpair\",\"txn\":%u,\"tk\":%u,\"side\":%u}\n", evlog.mismatch_txn, evlog.mismatch_tk,
+              evlog.lside_n);
+  for (const auto &w : evlog.lrec)
+    std::printf("EVT {\"k\":\"lrec\",\"cyc\":%" PRIu64 ",\"last\":%" PRIu64 ",\"n\":%" PRIu64
+                ",\"sink\":%u,\"bound\":%u,\"started\":%u,\"sw\":%u,\"sm\":%u,\"teid\":\"%016" PRIx64 "\"}\n",
+                w.cyc, w.last, w.n, w.sink, w.bound, w.started, w.sw, w.sm, w.teid);
+  for (const auto &a : evlog.larm)
+    std::printf("EVT {\"k\":\"larm\",\"cyc\":%" PRIu64 ",\"sink\":%u,\"eid\":\"%016" PRIx64 "\"}\n", a.cyc,
+                a.sink, a.eid);
+  for (const auto &s : evlog.lside)
+    std::printf("EVT {\"k\":\"lside\",\"cyc\":%" PRIu64 ",\"bits\":%u}\n", s.first, s.second);
+  for (const auto &t : evlog.ltx)
+    std::printf("EVT {\"k\":\"ltx\",\"cyc\":%" PRIu64 ",\"msg\":%u,\"status\":%u,\"luid\":%u,\"cc\":%u,"
+                "\"flags\":%u,\"teid\":\"%016" PRIx64 "\"}\n",
+                t.cyc, t.msg, t.status, t.luid, t.cc, t.flags, t.teid);
+  lt_close_offers();
+  std::printf("EVT {\"k\":\"lgate\",\"release\":%" PRIu64 ",\"drained\":%" PRIu64 ",\"states_owned\":%u,"
+              "\"side_owned\":%u,\"takes_owned\":%u,\"pre_first\":%" PRIu64 ",\"pre_wait_max\":%u,"
+              "\"pre_withdrawn\":%u,\"pre_open\":%u,\"first_walk_after\":%" PRIu64
+              ",\"exp_inj\":%u,\"exp_inj_owned\":%u,\"exp_drop\":%u}\n",
+              ltobs.release, ltobs.drained, ltobs.states_owned, ltobs.side_owned, ltobs.takes_owned,
+              ltobs.pre_first, ltobs.pre_wait_max, ltobs.pre_withdrawn, ltobs.pre_open, ltobs.first_walk_after,
+              lt_exp.injected, lt_exp.injected_owned, unsigned(lt_exp_dropped()));
   if (!snap_prerestore.empty()) std::printf("SNAP {\"tag\":\"prerestore\",\"s\":%s}\n", snap_prerestore.c_str());
   if (!snap_pass1.empty()) std::printf("SNAP {\"tag\":\"pass1\",\"s\":%s}\n", snap_pass1.c_str());
   if (!snap_terminal.empty()) std::printf("SNAP {\"tag\":\"terminal\",\"s\":%s}\n", snap_terminal.c_str());
@@ -487,6 +520,91 @@ void command_after_recovery() {
   settle();
   set_ptof(0, 7777777u);
   converge(6000);
+}
+
+// ---- the pinned listener's producers (revision d, seam S4) ------------------
+//! a GET_RX_STATE_COMMAND for `sink`: read-only, answered from its record,
+//! and still a walk that writes the record back
+LtItem lt_get(unsigned sink, uint64_t from, bool persist = false, uint64_t until = 0) {
+  LtItem i;
+  i.msg = kGetRxState;
+  i.uid = sink;
+  i.from = from;
+  i.persist = persist;
+  i.until = until;
+  i.seq = 0x4000 + sink;
+  return i;
+}
+
+//! R217 R3-F1's lever, the pinned acmp_nvm suite's evt_block_i: a talker
+//! event for a sink past the listener's sinks (0xffff), which the listener
+//! acknowledges and drops, held as a LEVEL from `from` until `until`
+LtItem lt_tk_drop(uint64_t from, uint64_t until) {
+  LtItem i;
+  i.kind = 0;
+  i.sink = 0xFFFF;
+  i.from = from;
+  i.until = until;
+  i.persist = true;
+  return i;
+}
+
+//! one talker event for `sink` (0 EVT_TK_DISCOVERED ... 3 UNREGISTERED)
+LtItem lt_tk_one(unsigned kind, unsigned sink, uint64_t from) {
+  LtItem i;
+  i.kind = kind;
+  i.sink = sink;
+  i.from = from;
+  return i;
+}
+
+//! a START_STREAMING (1) or STOP_STREAMING (0) request for `sink`, held by
+//! the AECP engine until the listener completes it
+LtItem lt_start_stop(unsigned sink, unsigned val, uint64_t from, bool persist = false, uint64_t until = 0) {
+  LtItem i;
+  i.sink = sink;
+  i.val = val;
+  i.from = from;
+  i.persist = persist;
+  i.until = until;
+  return i;
+}
+
+//! a BIND_RX_COMMAND for `sink` to `talker`, its ACMPDU in RX slot `slot`:
+//! talker_entity_id at 20, talker_unique_id at 36, flags 0 at 50 (no
+//! STREAMING_WAIT: the binding lands started)
+LtItem lt_bind(unsigned sink, uint64_t talker, unsigned tuid, unsigned slot, uint64_t from) {
+  std::memset(lt_rxs[slot], 0, sizeof lt_rxs[slot]);
+  for (unsigned b = 0; b < 8; ++b) lt_rxs[slot][20 + b] = uint8_t(talker >> (56 - 8 * b));
+  lt_rxs[slot][36] = uint8_t(tuid >> 8);
+  lt_rxs[slot][37] = uint8_t(tuid);
+  LtItem i;
+  i.msg = kBindRx;
+  i.uid = sink;
+  i.slot = slot;
+  i.from = from;
+  i.seq = 0x6000 + sink;
+  return i;
+}
+
+//! the shape's last sink, the "later" sink of the binding walk
+unsigned last_sink() { return n_si - 1; }
+
+//! a persistent producer stops at this cycle, long after every walk ended
+constexpr uint64_t kPersistEnd = 150000;
+
+//! the listener cases' scenario: boot on the slot, the terminal, then the
+//! listener's own GET_RX_STATE of the first and the last sink, then a
+//! controller's AECP GET and SET
+void listener_scenario() {
+  boot();
+  idle(200);
+  snap("terminal");
+  lt_txnq.push_back(lt_get(0, cyc));
+  lt_txnq.push_back(lt_get(last_sink(), cyc));
+  idle(50);
+  command_after_recovery();
+  snap("recovered");
 }
 
 void register_cases() {
@@ -1379,6 +1497,208 @@ void register_cases() {
     read_row(SEL_PTOF, 0, "post.ptof0");
     settle();
     snap("restored");
+  };
+
+  // ================= THE LISTENER'S ADMISSION (revision d, seam S4) =========
+  // Each boots on the slot run.py crafts for them: the bindings of the FIRST
+  // and the LAST sink, and the presentation offset 0x50. The pinned
+  // listener's work faces are driven as the case says (from reset unless
+  // named), then the terminal, the listener's own GET_RX_STATE of both
+  // sinks, and a controller's AECP GET and SET.
+  cases["L00_listener_restore_control"] = [] { listener_scenario(); };
+  cases["L01_tk_event_held"] = [] {
+    // R217 R3-F1: the droppable talker event held from reset, for ever
+    lt_tkq.push_back(lt_tk_drop(0, 0));
+    listener_scenario();
+  };
+  cases["L02_tk_event_finite"] = [] {
+    // R217 R3-F1's finite case: the same level, dropped at cycle 100000
+    lt_tkq.push_back(lt_tk_drop(0, 100000));
+    listener_scenario();
+  };
+  cases["L03_tk_event_later_sink"] = [] {
+    // the level raised the cycle after the listener took the FIRST sink's
+    // preload: it stands against the later sink's
+    on_cycle([] {
+      if (!pre_take_now()) return false;
+      lt_tkq.push_back(lt_tk_drop(cyc + 1, 0));
+      return true;
+    });
+    listener_scenario();
+  };
+  cases["L03b_tk_discovered_queued"] = [] {
+    // an EVT_TK_DISCOVERED for the first sink, raised the cycle after its
+    // preload was taken (the ADP discovery the preload's A4 armed): a queued
+    // event, held while owned and taken exactly once after
+    on_cycle([] {
+      if (!pre_take_now()) return false;
+      lt_tkq.push_back(lt_tk_one(0, 0, cyc + 1));
+      return true;
+    });
+    listener_scenario();
+  };
+  cases["L04_txn_polled_held"] = [] {
+    // a controller polling GET_RX_STATE of the first sink from reset
+    lt_txnq.push_back(lt_get(0, 0, true, kPersistEnd));
+    listener_scenario();
+  };
+  cases["L05_txn_read_only_in_the_window"] = [] {
+    // ONE GET_RX_STATE of the first sink, presented once the binding manager
+    // has stored its restored record (H_RS_STORE) and before its preload
+    on_cycle([] {
+      if (m0_state() != 4u) return false;
+      lt_txnq.push_back(lt_get(0, cyc));
+      lt_drive_now();
+      return true;
+    });
+    listener_scenario();
+  };
+  cases["L06_stop_held"] = [] {
+    // a STOP_STREAMING of the first sink, held by the AECP engine from reset
+    lt_strq.push_back(lt_start_stop(0, 0, 0));
+    listener_scenario();
+  };
+  cases["L06b_start_stop_persistent"] = [] {
+    // the AECP engine asking START and STOP of the first sink back to back
+    lt_strq.push_back(lt_start_stop(0, 0, 0, true, kPersistEnd));
+    listener_scenario();
+  };
+  cases["L07_expiry_spurious"] = [] {
+    // an expiry of the first sink's owner every cycle: none can be the
+    // listener's own while the gate owns its faces
+    lt_exp = LtExp{};
+    lt_exp.on = true;
+    lt_exp.from = 0;
+    lt_exp.until = kPersistEnd;
+    lt_exp.every = 1;
+    lt_exp.owner = 32;
+    listener_scenario();
+  };
+  cases["L08a_cut_in_the_preload"] = [] {
+    // the power is cut in the cycle the listener takes the LAST sink's
+    // preload, after the first sink's was taken, written and armed: the
+    // slots are dumped there, as the next boot finds them
+    auto takes = std::make_shared<unsigned>(0);
+    on_cycle([takes] {
+      if (!pre_take_now() || ++*takes < 2) return false;
+      dump("cut");
+      note("cut_cycle", cyc);
+      return true;
+    });
+    boot();
+    idle(50);
+    snap("after");
+  };
+  cases["L08b_restore_after_the_preload_cut"] = [] { listener_scenario(); };
+  cases["L09_bind_held_live_change"] = [] {
+    // a BIND_RX of the first sink to ANOTHER talker, presented from reset: it
+    // must win over the restored binding, by being taken after it
+    lt_txnq.push_back(lt_bind(0, 0x00BB00BB00BB0001ull, 0x0B01, 0, 0));
+    listener_scenario();
+  };
+  cases["L10_release_boundary"] = [] {
+    // ONE GET_RX_STATE of the first sink presented in the gate's last owned
+    // cycle (m1), its first released one (0) or the one after (p1)
+    const std::string v = variant;
+    on_cycle([v] {
+      if (v == "m1" && lt_drained_now()) {
+        lt_txnq.push_back(lt_get(0, cyc));
+        lt_drive_now();
+        return true;
+      }
+      if (v == "0" && lt_released_now()) {
+        lt_txnq.push_back(lt_get(0, cyc));
+        lt_drive_now();
+        return true;
+      }
+      if (v == "p1" && lt_released_now()) {
+        lt_txnq.push_back(lt_get(0, cyc + 1));
+        return true;
+      }
+      return false;
+    });
+    listener_scenario();
+  };
+  cases["L11_tk_held_binding_near_deadline"] = [] {
+    // the held level, and the binding read released when the binding walk's
+    // own deadline count is 40 cycles short (W13b's stimulus)
+    lt_tkq.push_back(lt_tk_drop(0, 0));
+    hold_binding_read(0x20, 20000 - 40, -1);
+    listener_scenario();
+  };
+  cases["L12_tk_held_binding_silent"] = [] {
+    // the held level, and the binding read silent for ever (W13's stimulus)
+    lt_tkq.push_back(lt_tk_drop(0, 0));
+    hold_read(0x20, -1, 1, -1);
+    listener_scenario();
+  };
+
+  // ================= STAGE 1 ALONE (revision d, R218 R3-F1) =================
+  // The selector-only slot of R218's reproduction (configuration 0x00 =
+  // 0000, clock source 0x0a = 0001, presentation offset 0x50 = 0016e360),
+  // every other record erased, restored under stage 1's roll-back scope
+  // (the dynamic-state store and the descriptor store) as well as the full
+  // one. The descriptor faults are keyed to the first application, R217's
+  // trigger.
+  auto stage1_fault = [] {
+    boot();
+    idle(200);
+    snap("terminal");
+    command_after_recovery();
+    snap("recovered");
+  };
+  cases["S1a_selectors_restored"] = [] {
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_CFG, 0, "post.cfg");
+    read_row(SEL_CLKS, 0, "post.clks");
+    read_row(SEL_PTOF, 0, "post.ptof0");
+    settle();
+    snap("restored");
+  };
+  cases["S1b_desc_slow_4000"] = [stage1_fault] {
+    desc_delay_after_apply = 4000;
+    stage1_fault();
+  };
+  cases["S1c_desc_late_5000"] = [stage1_fault] {
+    desc_delay_after_apply = 5000;
+    stage1_fault();
+  };
+  cases["S1d_desc_late_16000"] = [stage1_fault] {
+    desc_delay_after_apply = 16000;
+    stage1_fault();
+  };
+  cases["S1e_desc_late_30000"] = [] {
+    desc_delay_after_apply = 30000;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["S1f_desc_error_once"] = [stage1_fault] {
+    on_cycle([] {
+      if (!levels().rs_app) return false;
+      desc_err_next = true;
+      return true;
+    });
+    stage1_fault();
+  };
+  cases["S1g_image_unproven"] = [] {
+    desc_mem_fail = true;
+    boot();
+    idle(200);
+    snap("terminal");
+    read_row(SEL_PTOF, 0, "rec.ptof0");
+    idle(3000);
+    snap("recovered");
+  };
+  cases["S1h_pass1_read_error"] = [stage1_fault] {
+    // a read error on 0x50's payload in pass 1, after 0x00 and 0x0a applied
+    read_fault(0x50, 8 + 3, -1, 1);
+    stage1_fault();
   };
 }
 
