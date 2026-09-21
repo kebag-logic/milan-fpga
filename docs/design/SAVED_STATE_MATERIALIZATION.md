@@ -196,9 +196,12 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    quotes what it replaces.
 4. **The clear rule** (section 7): a record's dirty bit is set by a change
    and cleared only by the done of the whole-record WRITE that carries a
-   value latched after the last change. A change after the latch taints the
-   write, and a tainted write clears nothing. A change on the done edge
-   wins. Set and clear name the record by group AND index.
+   value latched after the last change, or when the record is given up after
+   `RETRY_MAX_P` failed writes, which raises the sticky alarm that revokes
+   `nvm_backed` (the same exception the binding manager makes). A change
+   after the latch taints the write, and a tainted write clears nothing. A
+   change on the done edge wins. Set and clear name the record by group AND
+   index.
 5. **One device-face initiator, two arbitrated producers.** The records
    reach the window only through `KL_pp_nvm_port`, so the backend still sees
    one device-face initiator. The port's manager face gains an explicit
