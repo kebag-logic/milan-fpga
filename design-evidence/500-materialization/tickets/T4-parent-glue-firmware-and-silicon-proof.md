@@ -1,4 +1,4 @@
-<!-- Draft by A151, revised by A152 and A153, for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
+<!-- Draft by A151, revised by A152, A153 and A154, for the manager to file. Repository: kebag-logic/milan-fpga. Under #70; one lane per stage, each after the matching processor pin. -->
 
 # Saved state D3 in the parent: glue, firmware and the cold-cycle proof, per stage
 
@@ -22,10 +22,11 @@ cold power cycle driven from a controller host.
 - Stage 3 does not open before #501 records a conforming capacity decision
   (T3).
 - No stage is released without the processor prerequisites T8 (the
-  port's terminal cause and a bounded binding walk) and T9 (response
-  isolation on the descriptor store's memory face) in its pin: the restore
-  transaction and the AECP availability of the parent's
-  `SAVED_STATE_FASTCONNECT.md` section 9.3 depend on them.
+  port's terminal cause, a bounded binding walk and the listener's
+  boot-owned admission) and T9 (response isolation on the descriptor
+  store's memory face) in its pin: the restore transaction and the AECP
+  availability of the parent's `SAVED_STATE_FASTCONNECT.md` section 9.3
+  depend on them.
 - Each stage's release notes state the one availability limit that stays:
   a persistence device that never ends an operation the restore abandoned
   keeps the port QUARANTINED until reset. Commands are served and the entity
@@ -47,7 +48,8 @@ cold power cycle driven from a controller host.
    the restore cannot prove its image and ends CLOSED, the entity never
    enabled; the evidence's F01); `nvm_boot` starts the restore walk on
    EVERY path, the persistence-disabled one included, because the processor
-   now holds AECP dispatch and the entity enable until the walk's terminal;
+   now holds AECP dispatch, the ACMP listener's work faces (T8's S4) and the
+   entity enable until the walk's terminal;
    the restore wait's timeout and the enable line report that the fabric
    holds the enable, and the boot reports the CLOSED terminal and the
    restore causes. The ledger fact
@@ -60,9 +62,10 @@ cold power cycle driven from a controller host.
 4. `tb/verilator/nvm_cosim`: the design's cases for the stage against the
    shipping backend and writer: the clear-rule orderings, the restore cases,
    the transaction and deadline cases of page sections 8.6 and 8.8 on both
-   walks, the tracked-glue controls and the grant-cycle collision case; its
-   runner exits non-zero on any verdict failure and counts no kill from a
-   run that did not complete.
+   walks, the listener's admission cases with the pinned listener, the
+   stage-1 descriptor cases on a stage-1 slot, the tracked-glue controls
+   and the grant-cycle collision case; its runner exits non-zero on any
+   verdict failure and counts no kill from a run that did not complete.
 5. `docs/reference/REGISTER_MAP.md`: PP_STAT restore done, fail and blank
    mean both walks (blank only without fail), a D3 roll-back reads done and
    fail, new rows carry the closed terminal and the causes (D3: 1 torn, 2

@@ -1,4 +1,4 @@
-<!-- Draft by A151, revised by A152 and A153, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. Opens only after the #500 contract (docs/design/SAVED_STATE_MATERIALIZATION.md in kebag-logic/milan-fpga) is accepted by two independent reviews, including its requested amendment of the mark-based wording (page section 15 item 1), and after its prerequisites T8 and T9. -->
+<!-- Draft by A151, revised by A152, A153 and A154, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. Opens only after the #500 contract (docs/design/SAVED_STATE_MATERIALIZATION.md in kebag-logic/milan-fpga) is accepted by two independent reviews, including its requested amendment of the mark-based wording (page section 15 item 1), and after its prerequisites T8 and T9. -->
 
 # Saved state, stage 1: one record writer for the dynamic-state selectors, with a contained restore
 
@@ -18,9 +18,10 @@ pending bit (issues 61, 63, 83).
   `docs/design/SAVED_STATE_MATERIALIZATION.md` sections 3, 5.1, 6, 7 and 8
   (8.6 the restore transaction, 8.8 deadlines and containment), and the
   executable evidence the page names (branch `500-design-evidence`: the
-  prototypes `KL_aecp_nvm_writer.proto.sv`, `KL_pp_nvm_mgr_arb.proto.sv`
-  and `KL_aecp_desc_mem_guard.proto.sv`, the amended prototypes of the port
-  and the binding manager, the run script, its results).
+  prototypes `KL_aecp_nvm_writer.proto.sv`, `KL_pp_nvm_mgr_arb.proto.sv`,
+  `KL_aecp_desc_mem_guard.proto.sv` and `KL_pp_acmp_lsn_admit.proto.sv`, the
+  amended prototypes of the port and the binding manager, the pinned
+  listener and timer service they run with, the run script, its results).
 - `docs/architecture/07_memory_maps.md` section 5 (F07.8, F07.9).
 - Milan v1.2 5.3.5.1, 5.3.7.1, 5.3.7.6, 5.3.8.1, 5.3.11.1; the configuration
   index is design-affirmative (07 section 5.1).
@@ -31,15 +32,18 @@ pending bit (issues 61, 63, 83).
   wording recorded (page section 15 item 1). Until it is, this ticket's item
   8 cannot land.
 - T8 (a new processor issue, referencing issues 15 and 20): the port's
-  terminal cause (S1) and the binding manager's bounded restore walk (S3).
+  terminal cause (S1), the binding manager's bounded read phase (S3) and
+  the listener's boot-owned admission (S4), which bounds the preload phase
+  and gives the binding walk the drained terminal this stage starts from.
   This stage's restore consumes the cause, and its dispatch hold from reset
-  is acceptable only with a binding walk that ends (the parent's
-  `SAVED_STATE_FASTCONNECT.md` section 9.3: AECP keeps being answered when
-  persistence wedges). The lane may start on T8's reviewed interface; it
-  does not merge before T8 lands in the same pin or an earlier one.
+  is acceptable only with a binding walk that ends, preload phase included
+  (the parent's `SAVED_STATE_FASTCONNECT.md` section 9.3: AECP keeps being
+  answered when persistence wedges). The lane may start on T8's reviewed
+  interface; it does not merge before T8 lands in the same pin or an
+  earlier one.
 - T9: response isolation on the descriptor store's memory face (S2). This
-  stage's value rules and its roll-back proof read the descriptor store.
-  Same rule as T8.
+  stage's value rules, its roll-back and its re-walk read the descriptor
+  store. Same rule as T8.
 - The parent's firmware change 1 (milan-fpga T4, stage 1): the AEM image
   loaded before `nvm_boot`. Without it the restore cannot prove its image
   and ends CLOSED, the entity never enabled (the evidence's F01).
@@ -61,8 +65,8 @@ pending bit (issues 61, 63, 83).
    the DRAIN of a read either manager abandons (rready held, bytes, done
    and err swallowed, no grant to either manager until the port ends that
    read); the port's cause passed to the owning manager with its err.
-3. The restore transaction for these records after the binding walk (page
-   sections 8.6 and 8.8):
+3. The restore transaction for these records after the binding walk's
+   DRAINED terminal, T8's S4 release (page sections 8.6 and 8.8):
    - the image proven first (a validated descriptor store, after a LOCATE of
      ENTITY 0 if needed); if it cannot be, the terminal is CLOSED (cause 7),
      never a restore;
@@ -78,10 +82,19 @@ pending bit (issues 61, 63, 83).
      4,096-cycle watchdog's answer) aborts (cause 6), never refuses the
      value;
    - every restore wait bounded by `RS_TMO_CYC_P` without progress;
-   - an abort in pass 1 rolls back by a scoped reset of `KL_aecp_dyn_state`
-     (a new soft-reset input), held while the descriptor memory owes a
-     burst (T9's debt), bounded by the deadline, then proves the image by a
-     LOCATE; it ends in DEFAULTS, or CLOSED when the image cannot be proven;
+   - an abort in pass 1 rolls back by a scoped reset of BOTH
+     `KL_aecp_dyn_state` and `KL_aecp_desc_store` (new soft-reset inputs;
+     for the store, a re-walk request that also returns its fetch watchdog
+     to zero serves as well), held for at least two cycles and while the
+     descriptor memory owes a burst (T9's debt: the guard takes the HARD
+     reset only, never this one), bounded by the deadline, then proves the
+     image by a LOCATE; it ends in DEFAULTS, or CLOSED when the image cannot
+     be proven. The store's reset is a STAGE-1 owner, not a stage-2 one:
+     after a fetch's response timed out, the pinned store leaves its
+     watchdog at its limit, so its next fetch errs at once, and draining the
+     debt alone leaves the roll-back's LOCATE failing (round-three review
+     R218 R3-F1). Its re-walk also puts the image's names back, which is all
+     stage 2 needs of it;
    - an abort in pass 0 ends in done and fail with nothing applied;
    - a restore write is not a change;
    - blank means done WITHOUT fail and no record validated;
@@ -91,13 +104,16 @@ pending bit (issues 61, 63, 83).
    (today it is the debug tap `dbg_img_valid_o`).
 5. The entity enable released by the restore, as F07.9 draws it: the ADP
    engine's `entity_enable_i` becomes the top's `entity_enable_i` AND
-   `restore_done_o`, so no enable precedes the terminal of both walks.
+   `restore_done_o`, where `restore_done_o` is the binding walk's drained
+   terminal (T8's S4 release) AND this restore's done, so no enable precedes
+   the terminal of both walks or the last preload's record write and
+   discovery arm.
 6. Exports: `d3_unflushed_o`; `nvm_alarm_o` both managers;
    `restore_done_o`, `restore_fail_o`, `restore_blank_o` both walks; the new
    `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding
    walk's `restore_cause_o[1:0]` (T8).
-7. The roll-back strobe `d3_rb_rst_o` exported for the stages that add
-   owners (T2 the descriptor store, T3 the parent's map plane).
+7. The roll-back strobe `d3_rb_rst_o` exported for the stage that adds an
+   owner outside the processor (T3, the parent's map plane).
 8. After the amendment is recorded: F07.9 in `07_memory_maps.md` restated
    as the page's section 15 item 1 words it (the live-write trigger, the
    untainted done, the transaction and the release of `entity_enable`).
@@ -105,8 +121,9 @@ pending bit (issues 61, 63, 83).
 ## Out of scope
 
 Names (T2), maps (T3), the parent glue and firmware (milan-fpga T4). The
-port's cause and the binding manager's amendments are T8's; the descriptor
-memory guard is T9's. Reusable port service after a device that never ends
+port's cause, the binding manager's amendments and the listener's admission
+are T8's; the descriptor memory guard is T9's. The descriptor store's
+roll-back reset is THIS stage's (item 3), not T2's. Reusable port service after a device that never ends
 an abandoned operation is processor issue 15's open recovery contract, and
 nothing here claims it.
 
@@ -146,8 +163,21 @@ nothing here claims it.
   arrived; a late burst past the deadline ends CLOSED; the image failing
   before the restore ends CLOSED (cause 7), never a restore; a descriptor
   memory failing through the roll-back ends CLOSED.
+- STAGE 1 ALONE, on a slot holding stage-1 records only (the configuration
+  index, a clock source and a presentation offset, every other record
+  erased) and with this stage's roll-back scope (the two stores, not the
+  map plane): the first rule fetch after an application answered after
+  4,000 cycles (COMPLETE), 5,000 and 16,000 cycles (DEFAULTS, the owners
+  out of reset only after the late burst, a GET answered on defaults and
+  a later SET persisting), 30,000 cycles (CLOSED), one error beat then a
+  healthy memory (DEFAULTS); an image that cannot be proven (CLOSED); a
+  pass-1 read error (DEFAULTS). Deleting the descriptor store's roll-back
+  reset reddens the 5,000- and 16,000-cycle cases (they end CLOSED); the
+  guard's debt and its own mutants (T9) stay green and red as before.
 - Deadlines: silence, a response just before and just after the deadline,
-  in both passes and on the binding walk (with T8); the entity enable never
+  in both passes and on the binding walk (with T8); the binding walk's
+  preload phase under a held and a finite listener interference, against
+  the first and the later sink (with T8's S4); the entity enable never
   precedes the terminal, including an enable requested from reset; no
   restore write after the terminal; `own` released within the deadlines
   plus the roll-back; a GET and a SET served after the recovery, the SET

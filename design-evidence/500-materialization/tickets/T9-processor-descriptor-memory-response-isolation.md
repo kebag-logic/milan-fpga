@@ -1,4 +1,4 @@
-<!-- Draft by A153 for the manager to file as a NEW processor issue (Mister-M-alt/protocol-processor-control-plane-avb-milan). A prerequisite of D3 stage 1 (kebag-logic/milan-fpga #500); it also closes a pre-existing exposure of ordinary AECP service. -->
+<!-- Draft by A153, revised by A154, for the manager to file as a NEW processor issue (Mister-M-alt/protocol-processor-control-plane-avb-milan). A prerequisite of D3 stage 1 (kebag-logic/milan-fpga #500); it also closes a pre-existing exposure of ordinary AECP service. -->
 
 # Descriptor store: a burst abandoned by its own watchdog can hand its late beats to the next request
 
@@ -31,10 +31,17 @@ STREAM_OUTPUT bytes (descriptor_type 0x6) when nothing holds its request
 (mutant DG01), its own (0x5) when the guard below does.
 
 A second, smaller pinned behaviour the case also shows: after a fetch's
-RESPONSE timed out, the store does not re-arm its watchdog (`tmo_r` stays at
-the limit), so its next fetch answers an error in its first cycle. That
-failure is honest (an error, never stale data); it is recorded, not a
-finding of this ticket.
+RESPONSE timed out, the store does not re-arm its watchdog: the
+`S_FET_RSP` timeout (`KL_aecp_desc_store.sv` line 980) answers without
+clearing `tmo_r`, so the next fetch's `S_FET_REQ` (line 938) meets the limit
+and answers an error in its first cycle. That failure is honest (an error,
+never stale data), and in ordinary service the fetch after it succeeds. In
+the D3 roll-back it is decisive: draining the debt alone leaves the
+roll-back's re-LOCATE failing at once, and the restore ends CLOSED where a
+finite late burst should end in proven defaults (round-three review R218
+R3-F1). The D3 contract therefore makes the store's own reset (or a re-walk
+request that also returns the watchdog to zero) a STAGE-1 roll-back owner,
+in T1; this ticket leaves the watchdog unchanged.
 
 ## Why D3 depends on it
 
@@ -73,12 +80,16 @@ served stale.
   answered an error or its own descriptor, never another burst's bytes;
   deleting the hold reddens it. After the late burst ends, a locate is
   served.
-- D3's roll-back cases: a rule fetch answered by the store's own watchdog
-  (the late burst after 5,000 and after 16,000 cycles, inside the D3
-  deadline) rolls back to proven defaults with the owners released only
-  after the late burst; a late burst past the D3 deadline ends CLOSED before
-  it arrives; a mutant releasing the owners without the debt reddens the
-  16,000-cycle case.
+- D3's roll-back cases, with T1's stage-1 roll-back scope (the
+  dynamic-state store AND the descriptor store): a rule fetch answered by
+  the store's own watchdog (the late burst after 5,000 and after 16,000
+  cycles, inside the D3 deadline) rolls back to proven defaults with the
+  owners released only after the late burst, on a slot holding stage-1
+  records only as well as on a full one; a late burst past the D3 deadline
+  ends CLOSED before it arrives; a mutant releasing the owners without the
+  debt reddens the 16,000-cycle case. The guard's debt survives the
+  roll-back's own reset, which this ticket requires: its reset is the hard
+  one alone.
 - The store's existing suites stay green; the guard's reset is the hard
   reset alone.
 

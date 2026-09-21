@@ -1,3 +1,5 @@
+# Round two
+
 # r217_check.py (exit 0)
 HOLDS R217 first-pass completed: rc 0
 HOLDS R217 original-second-pass completed: rc 0
@@ -20,16 +22,76 @@ HOLDS R217 descriptor-initial-error: closed 1, done 0, enabled 0, cause 7, image
 R217 PROBES: 9 runs, 0 not as demanded
 
 # r218_check.py (exit 0)
-HOLDS R218 V18 pass0: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1137 enable 1148
-HOLDS R218 V18 repeat: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1137 enable 1148
-HOLDS R218 V18 swap: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1152 enable 1163
-HOLDS R218 V18 pass1: 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 4417 enable 4433
-HOLDS R218 original F1 trigger (V11b): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 3507 enable 3518
-HOLDS R218 original F2 trigger (W12): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 3, terminal 23954 enable 23963
+HOLDS R218 V18 pass0: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1138 enable 1148
+HOLDS R218 V18 repeat: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1138 enable 1148
+HOLDS R218 V18 swap: 0 records off their defaults, D3 done 1 fail 1 rolled back 0, restore fail 1 blank 0, cause 2, terminal 1153 enable 1163
+HOLDS R218 V18 pass1: 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 4418 enable 4433
+HOLDS R218 original F1 trigger (V11b): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 2, terminal 3508 enable 3518
+HOLDS R218 original F2 trigger (W12): 0 records off their defaults, D3 done 1 fail 1 rolled back 1, restore fail 1 blank 0, cause 3, terminal 23955 enable 23963
 R218 PROBES: 6 runs, 0 not as demanded
 
 # R217's own check_probes.py (7d9da877), which asserts the round-two counterexamples, on the same results:
   File "$PROBE_OUT/r217/check_probes.py", line 19, in <module>
     assert obs['restore_done'] == 1 and obs['restore_fail'] == 0 and obs['entity_en'] == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError
 exit 1
+
+# Round three
+
+# r217_r3_check.py (exit 0)
+HOLDS R217 r3 gate: ten scenarios completed
+HOLDS R217 r3 gate-deleted: ten scenarios completed
+HOLDS R217 r3 gate control: binding walk ends at 178 (control 178), D3 terminal 7606 (control 7606), enable 7613, GET (1500000, 1)
+HOLDS R217 r3 gate held: binding walk ends at 178 (control 178), D3 terminal 7606 (control 7606), enable 7613, GET (1500000, 1)
+HOLDS R217 r3 gate finite: binding walk ends at 178 (control 178), D3 terminal 7606 (control 7606), enable 7613, GET (1500000, 1)
+HOLDS R217 r3 gate held: the level presented from reset was first taken at [178], after the release 178, 2237545 times
+HOLDS R217 r3 gate finite: the level taken 99823 times, the last at 100000 (released at 100000)
+HOLDS R217 r3 gate 4094: the descriptor response inside the store's watchdog completes
+HOLDS R217 r3 gate 4095: rolled back to defaults (cause 6), enabled, GET (0, 0)
+HOLDS R217 r3 gate 4096: rolled back to defaults (cause 6), enabled, GET (0, 0)
+HOLDS R217 r3 gate 4097: rolled back to defaults (cause 6), enabled, GET (0, 0)
+HOLDS R217 r3 gate 24090: burst debt past the roll-back deadline stays CLOSED
+HOLDS R217 r3 gate 24098: burst debt past the roll-back deadline stays CLOSED
+HOLDS R217 r3 gate 24100: burst debt past the roll-back deadline stays CLOSED
+HOLDS R217 r3 gate deleted, held: the counterexample comes back (neither walk ends, no failure, no CLOSED, port idle, ownership kept, no GET answer)
+HOLDS R217 r3 gate deleted, finite: the binding walk ends only after the release, at 100005
+R217 r3 PROBES: 20 runs, 0 not as demanded
+
+# r218_r3_check.py (exit 0)
+HOLDS R218 r3 12 runs (3 cases x 4 builds)
+HOLDS R218 r3 base-1x1 V21_desc_late_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 8110, enable 8123, request 2443, abort 6543, late beat 7444, owners out of reset 7455, 0 records off their defaults
+HOLDS R218 r3 base-1x1 V21b_desc_debt_outlasts_the_store: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 19110, enable 19118, request 2443, abort 6543, late beat 18444, owners out of reset 18455, 0 records off their defaults
+HOLDS R218 r3 base-1x1 V20b_desc_error_once_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 3108, enable 3113, request 0, abort 2450, late beat 0, owners out of reset 2453, 0 records off their defaults
+HOLDS R218 r3 mut-R03_rollback_skips_desc_store V21_desc_late_after_apply: want CLOSED; done/fail/rolled back/closed/own 0/1/0/1/1, terminal 7463, enable 0, request 2443, abort 6543, late beat 7444, owners out of reset 7455, 0 records off their defaults
+HOLDS R218 r3 mut-R03_rollback_skips_desc_store V21b_desc_debt_outlasts_the_store: want CLOSED; done/fail/rolled back/closed/own 0/1/0/1/1, terminal 18463, enable 0, request 2443, abort 6543, late beat 18444, owners out of reset 18455, 0 records off their defaults
+HOLDS R218 r3 mut-R03_rollback_skips_desc_store V20b_desc_error_once_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 2759, enable 2768, request 0, abort 2450, late beat 0, owners out of reset 2453, 0 records off their defaults
+HOLDS R218 r3 base-1x1-stage1 V21_desc_late_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 8110, enable 8123, request 2443, abort 6543, late beat 7444, owners out of reset 7455, 0 records off their defaults
+HOLDS R218 r3 base-1x1-stage1 V21b_desc_debt_outlasts_the_store: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 19110, enable 19118, request 2443, abort 6543, late beat 18444, owners out of reset 18455, 0 records off their defaults
+HOLDS R218 r3 base-1x1-stage1 V20b_desc_error_once_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 3108, enable 3113, request 0, abort 2450, late beat 0, owners out of reset 2453, 0 records off their defaults
+HOLDS R218 r3 mut-ST1_stage1_rollback_skips_desc_store V21_desc_late_after_apply: want CLOSED; done/fail/rolled back/closed/own 0/1/0/1/1, terminal 7463, enable 0, request 2443, abort 6543, late beat 7444, owners out of reset 7455, 0 records off their defaults
+HOLDS R218 r3 mut-ST1_stage1_rollback_skips_desc_store V21b_desc_debt_outlasts_the_store: want CLOSED; done/fail/rolled back/closed/own 0/1/0/1/1, terminal 18463, enable 0, request 2443, abort 6543, late beat 18444, owners out of reset 18455, 0 records off their defaults
+HOLDS R218 r3 mut-ST1_stage1_rollback_skips_desc_store V20b_desc_error_once_after_apply: want DEFAULTS; done/fail/rolled back/closed/own 1/1/1/0/0, terminal 2759, enable 2768, request 0, abort 2450, late beat 0, owners out of reset 2453, 0 records off their defaults
+R218 r3 PROBES: 12 runs, 0 not as demanded
+
+# R217's own assert_review_observations.py (3d790bc1), which asserts the round-three counterexample, on the gate's results (exit 1):
+{
+  "all ten scenarios completed": true,
+  "ready listener control completes": true,
+  "held preload blocks both walks and GET with an idle port": false,
+  "finite preload exceeds the advertised two-deadline recovery": false,
+  "4094-cycle descriptor control completes": true,
+  "4095-4097 descriptor responses cause contained rollback": true,
+  "burst debt beyond rollback deadline stays CLOSED": true
+}
+
+# ...and on LG01_admission_deleted's results (exit 1: its held assertion holds; its finite assertion names cycle 107431, which the drained release moves by two):
+{
+  "all ten scenarios completed": true,
+  "ready listener control completes": true,
+  "held preload blocks both walks and GET with an idle port": true,
+  "finite preload exceeds the advertised two-deadline recovery": false,
+  "4094-cycle descriptor control completes": true,
+  "4095-4097 descriptor responses cause contained rollback": true,
+  "burst debt beyond rollback deadline stays CLOSED": true
+}

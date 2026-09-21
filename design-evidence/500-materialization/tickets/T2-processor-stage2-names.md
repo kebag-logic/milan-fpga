@@ -1,4 +1,4 @@
-<!-- Draft by A151, revised by A152 and A153, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. After T1 (and so after T8 and T9). -->
+<!-- Draft by A151, revised by A152, A153 and A154, for the manager to file. Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan. After T1 (and so after T8 and T9). -->
 
 # Saved state, stage 2: the record writer materializes user names
 
@@ -16,11 +16,14 @@ kebag-logic/milan-fpga `docs/design/SAVED_STATE_MATERIALIZATION.md` sections
 
 ## Prerequisites
 
-T1, and with it T8 (the port's cause, the bounded binding walk) and T9
-(response isolation on the descriptor store's memory face): this stage
-RESETS the descriptor store in its roll-back, and a re-walk that took a late
-beat of an abandoned burst could validate an image with wrong names (only
-its header is checksummed). Before this stage is DECLARED SHIPPABLE:
+T1, and with it T8 (the port's cause, the bounded binding walk, the
+listener's admission) and T9 (response isolation on the descriptor store's
+memory face). T1 already resets the descriptor store in its roll-back (a
+stage-1 owner since revision d: the store's fetch watchdog needs it), and
+that reset's re-walk is what puts every name back to the image's here; a
+re-walk that took a late beat of an abandoned burst could validate an image
+with wrong names (only its header is checksummed), which T9's guard, held
+across the roll-back, prevents. Before this stage is DECLARED SHIPPABLE:
 kebag-logic/milan-fpga #502, truthful pending from the first accepted live
 write for the classes no shipped stage materializes. It may be implemented
 before; it may not be released as a shipped stage.
@@ -33,14 +36,15 @@ before; it may not be released as a shipped stage.
 - The restore after the descriptor store has walked the loaded image: a
   LOCATE of ENTITY 0 first if the image is not validated, then the name
   written back lane by lane.
-- The roll-back owner: `KL_aecp_desc_store` gains a soft-reset (or re-walk)
-  input driven by T1's roll-back strobe, so a pass-1 abort puts every name
-  back to the image's, and the writer's LOCATE after it proves the image
-  walked. T9's guard stays on the HARD reset: the soft reset never clears
-  the debt of a burst the memory still owes, and the writer holds the store
-  in reset until that debt is gone, bounded by its deadline. A re-walk that
-  cannot validate the image, or a debt that outlasts the deadline, is the
-  CLOSED terminal: fail, never done, `own` kept, the entity never enabled.
+- The roll-back of the names: no new owner. T1's scoped reset of
+  `KL_aecp_desc_store` already makes a pass-1 abort put every name back to
+  the image's, and the writer's LOCATE after it proves the image walked.
+  T9's guard stays on the HARD reset: the soft reset never clears the debt
+  of a burst the memory still owes, and the writer holds the store in reset
+  until that debt is gone, bounded by its deadline. A re-walk that cannot
+  validate the image, or a debt that outlasts the deadline, is the CLOSED
+  terminal: fail, never done, `own` kept, the entity never enabled. This
+  stage's cases below grade that the names come back, on T1's mechanism.
 
 ## Acceptance
 
@@ -57,11 +61,13 @@ before; it may not be released as a shipped stage.
   likewise; a DEVICE error on the last name's header in pass 1 likewise; a
   re-walk that cannot validate ends CLOSED; each with the mutant that skips
   that owner's roll-back, or releases a closed restore, red.
-- Around the store's own reset: a fetch answered by the store's own
+- Around the store's reset (T1's): a fetch answered by the store's own
   watchdog, its late burst arriving 5,000 and 16,000 cycles after the
-  request, rolls back with every name the image's and the store released
-  only after the burst; the burst past the deadline ends CLOSED; the mutant
-  that releases the store without the debt reddens the 16,000-cycle case.
+  request, after names were applied, rolls back with every name the
+  image's and the store released only after the burst; the burst past the
+  deadline ends CLOSED; the mutant that releases the store without the debt
+  reddens the 16,000-cycle case, and the one that leaves the store out of
+  the roll-back reddens the last-name case.
 - Deleting the name trigger alone reddens a save test; deleting the name
   replay alone reddens a restore check.
 
