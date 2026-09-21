@@ -1,0 +1,65 @@
+PREMISE base-1x1 K15: the binding manager sampled busy on the D3 writer's grant cycle at g3 (1 of 8 releases) -> reached
+MUTANT A01_grant_cycle_not_busy: KILLED by K15_binding_on_the_d3_grant_cycle~g3 : both_records_committed -- binding None, 0x50 0016e36f, grant-cycle collisions 1
+MUTANT D01_abandoned_read_not_drained: KILLED by W6_late_pass1_after_deadline : later_change_persists@recovered -- latest 0076adf1, newest verified slot 0016e360
+MUTANT F01_old_boot_order: KILLED by V1b_restore_everything : value_restored:0x50 -- live (0, 0) want (1500000, 1) (value, valid)
+MUTANT G01_pend_misses_d3: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved -- change of 0x50 at 33739 inside a durable interval ending 4611686018427387904
+MUTANT G02_restore_done_without_d3: KILLED by V1b_restore_everything : entity_enabled_after_restore@boot -- enabled at 188, D3 restore done at 7605, restore done at 177
+MUTANT G03_restore_writes_are_changes: KILLED by V1b_restore_everything : restore_sets_no_dirty@boot -- 6 record writes after the restore, dirty 0, flash erases 0 -> 1
+MUTANT G04_blank_ignores_d3: KILLED by V7_names_only : blank_is_both_walks@boot -- a name came back and no binding did: blank 1, done 1
+MUTANT G05_enable_not_released_by_restore: KILLED by W14_binding_walk_late_after_fw_deadline : entity_enabled_after_terminal@boot -- entity enabled at 3000074, D3 terminal at 3107603, restore done at 3107603, firmware asked at 3000074
+MUTANT M01_taint_ignored: KILLED by K2_change_during_record_write : no_durable_claim_over_unsaved -- durable at 1568748: record 0x50 latest 0021e88e slot 0010f447
+MUTANT M02_clear_at_latch: KILLED by K1_single_change_converges : no_durable_claim_over_unsaved -- durable at 533028: record 0x50 latest 0012d687 slot None
+MUTANT M03_clear_wins_same_edge: KILLED by K5_change_on_the_done_edge : same_edge_change_survives@end:0x50 -- latest 004c4b42, newest verified slot 004c4b41
+MUTANT M04_clear_by_group: KILLED by K4_second_record_in_flight : value_in_slot@end:0x51 -- latest 003d0902, newest verified slot None
+MUTANT M05_latch_ignores_program: KILLED by K11_name_latch_waits_for_the_program : written_value_was_set:0x80 -- 2 writes; first bad 4b3131207365636f6e642076616c75652042424242424242424242424242424242424242424242424242424242424242414141414141414141414141
+MUTANT M06_identify_is_a_change: KILLED by K14_identify_is_not_persisted : identify_never_persisted -- 1 record writes, dirty 0, pend 0, flash programs 0 -> 13
+MUTANT M08_restore_skips_image_check: KILLED by V7_names_only : restored_name_survives_first_command:0x80 -- after the first command b'Milan FPGA 1x1 TDM8\x00\x00\x00\x00\x00'
+MUTANT M09_apply_blindly: KILLED by V2_refused_rate : refused_value_not_applied:0x02 -- rate row valid 1, refused 0
+MUTANT M10_fmt_full_judge: KILLED by V6b_restore_coupled_pair : coupled_pair_restored -- fmto0 0 valid 0; OUT0 set matches the slot True
+MUTANT M11_no_orphan_check: KILLED by V8_orphaning_format_reverted : no_orphaned_mapping_after_restore -- stream 0 format 0x205022000806000 (2 channels), 6 orphaned mappings
+MUTANT M12_no_revert_before_readd: KILLED by V9_refused_maps_revert_their_formats : refused_group_falls_back_to_default:0x70 -- live OUT0 equals the default True, fmto0 0x205022002006000, ptof0 0 valid 0, rolled back 1
+MUTANT M13_restore_applies_nothing: KILLED by V1b_restore_everything : value_restored:0x50 -- live (0, 0) want (1500000, 1) (value, valid)
+CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required
+MUTANT M14_clear_by_index: KILLED by K4g_second_group_in_flight : value_in_slot@end:0x0a -- latest 0001, newest verified slot None
+MUTANT M15_overflow_forgets_the_change: KILLED by K16_map_set_larger_than_its_record : no_durable_claim_over_unsaved -- durable at 1601552: record 0x70 latest 00000000000000000000000100010000000000020002000000000003000300000000000400040000000000050005000000000
+MUTANT M16_single_pass_restore: KILLED by V11_torn_read_restores_nothing : torn_walk_applies_nothing@boot -- ptof0 valid 0 (its record was read whole before the torn one), restore fail 1, D3 fail 1, applied 1, rolled back 1
+MUTANT O01_own_taken_at_the_walk: KILLED by K19_command_before_the_restore : value_in_slot@end:0x50 -- latest 001d48d7, newest verified slot 0016e360
+MUTANT P01_padding_by_first_byte: KILLED by V3a_map_index_0xff00 : map_record_verdict:0x70 -- live OUT0 empty (want the default set); applied 2 refused 0 blank 47 of 49
+MUTANT P02_padding_holes_not_refused: KILLED by V3e_map_hole : malformed_refused_untouched:0x70 -- 3 map sets staged for a malformed record [(3631, 'map-remove'), (3653, 'map-add')]
+MUTANT R01_no_rollback: KILLED by V15_rollback_pass1_late : rolled_back_to_defaults@terminal -- 9 records off their defaults ['0x00 live (0, 1) want (0, 0)', '0x0a live (1, 1) want (0, 0)']; D3 done 1 fail 1 rolled back 0 (want 1) close
+MUTANT R02_rollback_skips_dyn_store: KILLED by V15_rollback_pass1_late : rolled_back_to_defaults@terminal -- 6 records off their defaults ['0x00 live (0, 1) want (0, 0)', '0x0a live (1, 1) want (0, 0)']; D3 done 1 fail 1 rolled back 1 (want 1) close
+MUTANT R03_rollback_skips_desc_store: KILLED by V15_rollback_pass1_late : rolled_back_to_defaults@terminal -- 1 records off their defaults ['0x80 live 443320726573746f72656420 want 4d696c616e20465047412031 from byte 0']; D3 done 1 fail 1 rolled back 
+MUTANT R04_rollback_skips_maps: KILLED by V16_rollback_pass1_maps : rolled_back_to_defaults@terminal -- 1 records off their defaults ['0x60 live ffffffffffffffffffffffff want 000000020002000000000003 from byte 16']; D3 done 1 fail 1 rolled back
+MUTANT R05_closed_releases_the_entity: KILLED by V17_rollback_cannot_validate : closed_keeps_entity_dark@recovered -- closed 0, restore done 1 fail 1, own 0, entity enabled 1 (first 6713), firmware asked at 6713, a GET answered 0
+MUTANT RPL_cfg: KILLED by V1b_restore_everything : value_restored:0x00 -- live (0, 0) want (0, 1) (value, valid)
+MUTANT RPL_clks: KILLED by V1b_restore_everything : value_restored:0x0a -- live (0, 0) want (1, 1) (value, valid)
+MUTANT RPL_fmti: KILLED by V1b_restore_everything : value_restored:0x30 -- live (0, 0) want (145524899430031360, 1) (value, valid)
+MUTANT RPL_fmto: KILLED by V1b_restore_everything : value_restored:0x40 -- live (0, 0) want (145524899438419968, 1) (value, valid)
+MUTANT RPL_mapi: KILLED by V1b_restore_everything : value_restored:0x60 -- live 000000020002000000000003 want ffffffffffffffffffffffff from byte 16
+MUTANT RPL_mapo: KILLED by V1b_restore_everything : value_restored:0x70 -- live 030000000000040004000000 want 100000ffffffffffffffffff from byte 29
+MUTANT RPL_name: KILLED by V1b_restore_everything : value_restored:0x80 -- live 4d696c616e20465047412031 want 443320726573746f72656420 from byte 0
+MUTANT RPL_ptof: KILLED by V1b_restore_everything : value_restored:0x50 -- live (0, 0) want (1500000, 1) (value, valid)
+MUTANT RPL_rate: KILLED by V1b_restore_everything : value_restored:0x02 -- live (0, 0) want (96000, 1) (value, valid)
+MUTANT TRG_cfg: KILLED by V1a_set_everything : value_in_slot@cut:0x00 -- latest 0000, newest verified slot None
+MUTANT TRG_clks: KILLED by V1a_set_everything : value_in_slot@cut:0x0a -- latest 0001, newest verified slot None
+MUTANT TRG_fmti: KILLED by V1a_set_everything : value_in_slot@cut:0x30 -- latest 0205022000806000, newest verified slot None
+MUTANT TRG_fmto: KILLED by V1a_set_everything : value_in_slot@cut:0x40 -- latest 0205022001006000, newest verified slot None
+MUTANT TRG_mapi: KILLED by V1a_set_everything : value_in_slot@cut:0x60 -- latest 00000000000000000000000100010000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, new
+MUTANT TRG_mapo: KILLED by V1a_set_everything : value_in_slot@cut:0x70 -- latest 0000000000000000000000010001000000000002000200000000000300100000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+MUTANT TRG_name: KILLED by V1a_set_everything : value_in_slot@cut:0x80 -- latest 443320726573746f72656420656e74697479206e616d650000000000000000000000000000000000000000000000000000000000000000000000000000000000, new
+MUTANT TRG_ptof: KILLED by V1a_set_everything : value_in_slot@cut:0x50 -- latest 0016e360, newest verified slot None
+MUTANT TRG_rate: KILLED by V1a_set_everything : value_in_slot@cut:0x02 -- latest 00017700, newest verified slot None
+MUTANT W01_no_restore_watchdog: KILLED by W4_silent_pass1 : restore_terminal_bounded@terminal -- stall began at 3544, D3 terminal at 0 (bound 30000 cycles)
+MUTANT X01_passes_may_disagree: KILLED by V18_header_error_pass1 : rolled_back_to_defaults@terminal -- 9 records off their defaults ['0x00 live (0, 1) want (0, 0)', '0x0a live (1, 1) want (0, 0)']; D3 done 1 fail 0 rolled back 0 (want 1) close
+TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source
+TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED K12_map_change_converges : value_in_slot@end:0x70 FAILS, as it must at the current source
+TRACKED K12_map_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED V1b_restore_everything : set_value_survives_power_cycle:0x50 FAILS, as it must at the current source
+TRACKED K1_single_change_converges : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1a_set_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED * : case_completed PASSES, as it must
+SUMMARY FULL builds 55, runs 230, checks 2524, verdict failures 0

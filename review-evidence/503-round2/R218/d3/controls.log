@@ -1,0 +1,8 @@
+CONTROL healthy_binary_as_mutant: AS REQUIRED -- exit 1 (required 1); diagnostics found
+CONTROL binary_fails_before_the_scenario: AS REQUIRED -- exit 1 (required 1); diagnostics found
+CONTROL failed_baseline_result: AS REQUIRED -- exit 1 (required 1); diagnostics found
+CONTROL tracked_control_violated: AS REQUIRED -- exit 1 (required 1); diagnostics found
+CONTROL vacuity_control_violated: AS REQUIRED -- exit 1 (required 1); diagnostics found
+CONTROL tracked_control_absent: AS REQUIRED -- exit 2 (required 2); diagnostics found
+CONTROL empty_selection: AS REQUIRED -- exit 2 (required 2); diagnostics found
+CONTROLS 7, not as required 0

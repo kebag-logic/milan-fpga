@@ -1,0 +1,28 @@
+FOCUSED RUN, not a full-run claim: builds ['base-1x1', 'base-8x8', 'base-1x1r2', 'tracked-1x1', 'mut-M01_taint_ignored', 'mut-M03_clear_wins_same_edge', 'mut-M05_latch_ignores_program', 'mut-M13_restore_applies_nothing', 'mut-A01_grant_cycle_not_busy', 'mut-R01_no_rollback', 'mut-R03_rollback_skips_desc_store', 'mut-D01_abandoned_read_not_drained', 'mut-G05_enable_not_released_by_restore', 'mut-P01_padding_by_first_byte', 'mut-P02_padding_holes_not_refused', 'mut-RPL_cfg', 'mut-RPL_rate'] at shapes ['1x1', '8x8', '1x1r2']
+PREMISE base-1x1 K15: the binding manager sampled busy on the D3 writer's grant cycle at g3 (1 of 8 releases) -> reached
+MUTANT A01_grant_cycle_not_busy: KILLED by K15_binding_on_the_d3_grant_cycle~g3 : both_records_committed -- binding None, 0x50 0016e36f, grant-cycle collisions 1
+MUTANT D01_abandoned_read_not_drained: KILLED by W6_late_pass1_after_deadline : later_change_persists@recovered -- latest 0076adf1, newest verified slot 0016e360
+MUTANT G05_enable_not_released_by_restore: KILLED by W14_binding_walk_late_after_fw_deadline : entity_enabled_after_terminal@boot -- entity enabled at 3000074, D3 terminal at 3107603, restore done at 3107603, firmware asked at 3000074
+MUTANT M01_taint_ignored: KILLED by K2_change_during_record_write : no_durable_claim_over_unsaved -- durable at 1568748: record 0x50 latest 0021e88e slot 0010f447
+MUTANT M03_clear_wins_same_edge: KILLED by K5_change_on_the_done_edge : same_edge_change_survives@end:0x50 -- latest 004c4b42, newest verified slot 004c4b41
+MUTANT M05_latch_ignores_program: KILLED by K11_name_latch_waits_for_the_program : written_value_was_set:0x80 -- 2 writes; first bad 4b3131207365636f6e642076616c75652042424242424242424242424242424242424242424242424242424242424242414141414141414141414141
+MUTANT M13_restore_applies_nothing: KILLED by V1b_restore_everything : value_restored:0x50 -- live (0, 0) want (1500000, 1) (value, valid)
+CONTROL stale store under M13: naive read-back PASSES, cleared-first FAILS -> as required
+MUTANT P01_padding_by_first_byte: KILLED by V3a_map_index_0xff00 : map_record_verdict:0x70 -- live OUT0 empty (want the default set); applied 2 refused 0 blank 47 of 49
+MUTANT P02_padding_holes_not_refused: KILLED by V3e_map_hole : malformed_refused_untouched:0x70 -- 3 map sets staged for a malformed record [(3631, 'map-remove'), (3653, 'map-add')]
+MUTANT R01_no_rollback: KILLED by V15_rollback_pass1_late : rolled_back_to_defaults@terminal -- 9 records off their defaults ['0x00 live (0, 1) want (0, 0)', '0x0a live (1, 1) want (0, 0)']; D3 done 1 fail 1 rolled back 0 (want 1) close
+MUTANT R03_rollback_skips_desc_store: KILLED by V15_rollback_pass1_late : rolled_back_to_defaults@terminal -- 1 records off their defaults ['0x80 live 443320726573746f72656420 want 4d696c616e20465047412031 from byte 0']; D3 done 1 fail 1 rolled back 
+MUTANT RPL_cfg: KILLED by V1b_restore_everything : value_restored:0x00 -- live (0, 0) want (0, 1) (value, valid)
+MUTANT RPL_rate: KILLED by V1b_restore_everything : value_restored:0x02 -- live (0, 0) want (96000, 1) (value, valid)
+TRACKED K1_single_change_converges : converged@end FAILS, as it must at the current source
+TRACKED K1_single_change_converges : value_in_slot@end:0x50 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : value_in_slot@end:0x80 FAILS, as it must at the current source
+TRACKED K10_name_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED K12_map_change_converges : value_in_slot@end:0x70 FAILS, as it must at the current source
+TRACKED K12_map_change_converges : no_durable_claim_over_unsaved FAILS, as it must at the current source
+TRACKED V1b_restore_everything : set_value_survives_power_cycle:0x50 FAILS, as it must at the current source
+TRACKED K1_single_change_converges : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1a_set_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED V1b_restore_everything : no_durable_claim_over_unsaved PASSES, as it must
+TRACKED * : case_completed PASSES, as it must
+SUMMARY FOCUSED builds 17, runs 175, checks 1565, verdict failures 0
