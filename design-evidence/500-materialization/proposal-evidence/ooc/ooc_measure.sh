@@ -16,10 +16,12 @@
 # Exit status is non-zero when sv2v or yosys fails or no stat block is found.
 set -euo pipefail
 label="$1"; top="$2"; params="$3"; nodsp_flag="$4"; shift 4
-out="${OOC_OUT:-/tmp/a150-ooc}"
+out="${OOC_OUT:-/data/milan/tmp/500/ooc}"
 mkdir -p "$out"
 v="$out/$label.v"; log="$out/$label.yosys.log"; json="$out/$label.json"
-sv2v --top="$top" "$@" > "$v" 2> "$out/$label.sv2v.err"
+# -DSYNTHESIS as syn/yosys/ooc.sh passes it (its INC list)
+# shellcheck disable=SC2086
+sv2v --top="$top" ${SV2V_ARGS:--DSYNTHESIS} "$@" > "$v" 2> "$out/$label.sv2v.err"
 chp=""
 for kv in $params; do chp="$chp chparam -set ${kv%%=*} ${kv#*=} $top;"; done
 nodsp=""; [ "$nodsp_flag" = "1" ] && nodsp=" -nodsp"
