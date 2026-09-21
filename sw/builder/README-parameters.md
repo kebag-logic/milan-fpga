@@ -156,8 +156,9 @@ line. There is no `names.clock_sources.stream`: the per-listener Stream Clock
 source it would name was retired by #389, and the key is refused.
 
 Three descriptor fields are generator-owned and have no key: AVB_INTERFACE
-`interface_flags` (`0x0007`) and `port_number` (`0`), and the IDENTIFY
-CONTROL's `reset_time` (`3`).
+`interface_flags` (`0x0007`) and `port_number` (the gPTP engine's
+`OUR_PORTNUM_C`, `1` today, derived rather than stated), and the IDENTIFY
+CONTROL's `reset_time` (`0`: nothing returns that control to its default).
 [ENDSTATION_BUILDER.md](../../docs/ENDSTATION_BUILDER.md#3-config-schema--aem-descriptor-mapping)
 section 3 rows 33a to 33c state why.
 

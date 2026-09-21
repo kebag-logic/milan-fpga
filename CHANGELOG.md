@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+- **[At 0x0002_0060 - two descriptor fields name the device](#at-0x0002_0060---two-descriptor-fields-name-the-device)** -- Image only.
 - **[Release 0x0002_0060 - saved-state pending bit widened](#release-0x0002_0060---saved-state-pending-bit-widened)** -- Pending covers more cases.
 - **[Release 0x0002_005F - saved-state snapshot ownership](#release-0x0002_005f---saved-state-snapshot-ownership)** -- Durable means in a slot.
 - **[Release 0x0002_005E - board timestamp latency](#release-0x0002_005e---board-timestamp-latency)** -- The fabric corrects its stamps.
@@ -43,6 +44,45 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/gptp_txts` closes the loop over the converted MAC.
 - `sw/litex/test_gptp_tx_timestamp.py` proves that conversion behaves.
+
+## At 0x0002_0060 - two descriptor fields name the device
+
+- The model told a controller two untrue things.
+- AVB_INTERFACE `port_number` said 0.
+- The gPTP plane announces port 1.
+- It is in every sourcePortIdentity.
+- A controller saw one port under two numbers.
+- The descriptor now takes the engine's number.
+- `gptp_engine_port_number` parses `OUR_PORTNUM_C` from the generator.
+- It derives on every load.
+- No second literal is kept.
+- The IDENTIFY CONTROL's `reset_time` said 3.
+- 7.2.22 reads that as a 3 ms return.
+- Nothing in this entity performs it.
+- `SET_CONTROL` writes the volatile IDENTIFY row.
+- No timer reads that row back.
+- Milan 5.3.12 clears the value on RESET.
+- That reset is a power cycle.
+- Milan 5.4.2.17 and .18 add no expiry.
+- So no clause required the promised reset.
+- `reset_time` is now 0: no automatic reset.
+- Both fields are descriptor content under 6.2.2.8.
+- Every tracked config's `entity_model_id` moves.
+- Four are hash-derived and rotate.
+- `endstation_arty_current`'s pin steps to `0x001BC50AC1000005`.
+- `AEM_LAYOUT_REV` stays 3.
+- No descriptor byte layout moved.
+- Each `aem_desc.bin` changes in those three fields.
+- It changes nowhere else.
+- No CSR address, width, access or meaning moves.
+- No RTL changes.
+- The processor serves the image bytes unchanged.
+- The gateware VERSION is unchanged.
+- No release step is owed.
+- `test_builder.py` gate 37 reads both emitted fields.
+- It parses the engine generator itself.
+- A planted port number is refused.
+- The pre-change `reset_time` is refused.
 
 ## Release 0x0002_0060 - saved-state pending bit widened
 

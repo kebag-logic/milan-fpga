@@ -88,10 +88,15 @@ def builtin_spec() -> dict[str, Any]:
         # builder derives them from gptp-processor/hdl/ucode/
         # gen_gptp_ucode.py and refuses a diverging config, so a drift here
         # breaks gate 10 loudly instead of shipping two clocks.
+        # port_number is the engine's OUR_PORTNUM_C (#462), written out
+        # here for the same reason and graded the same way: gate 37 reads
+        # this literal against the builder's parse of the generator, so a
+        # bumped submodule reddens it instead of serving a port number the
+        # plane does not announce.
         gptp=dict(priority1=0xF8, priority2=0xF8, clock_class=0xF8,
                   clock_accuracy=0xFE, offset_scaled_log_variance=0x436A,
                   domain=0, log_sync_interval=-3, log_announce_interval=0,
-                  log_pdelay_interval=0),
+                  log_pdelay_interval=0, port_number=1),
     )
 
 def _out_identity_offset(p):

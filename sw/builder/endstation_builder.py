@@ -3380,6 +3380,60 @@ def _engine_const(lines, pattern, what):
     return int(hits[0], 0)
 
 
+def _engine_generator_text() -> str:
+    """The pinned engine generator's source, or the refusal that says why
+    nothing downstream may guess in its absence. One copy of that message:
+    two derivations read this file now, and a second wording of "the
+    submodule is the authority" is a second thing to keep true."""
+    if not GPTP_UCODE_GENERATOR.is_file():
+        raise ConfigError(
+            "the gptp-processor submodule is not checked out, and its "
+            "generator is the authority the gPTP descriptor dataset "
+            "derives from ([R-parallel] on #228): run `git submodule "
+            "update --init gptp-processor` before loading a config")
+    return GPTP_UCODE_GENERATOR.read_text(encoding="utf-8")
+
+
+def gptp_engine_port_number(source: str | None = None) -> int:
+    """thisPort's portNumber, PARSED from the pinned engine generator.
+
+    The engine holds ONE definition of it (`OUR_PORTNUM_C`): `e_hdr` writes
+    it into the sourcePortIdentity of every message the plane transmits,
+    and the Pdelay receive guards qualify a received
+    requestingPortIdentity.portNumber against the same word. So it is the
+    port number a controller reads off the wire.
+
+    AVB_INTERFACE's `port_number` (1722.1-2021 7.2.8) names that same port,
+    and the descriptor said 0 while the engine announced 1 until issue
+    #462: a controller correlating the descriptor with the gPTP port
+    identity - which is what the GET_AVB_INFO and GET_AS_PATH consumers do
+    - read two different numbers for the one port. The descriptor follows
+    the engine, and it is DERIVED here rather than restated, for the
+    reason gptp_engine_pins() gives: a mirrored literal diverges in
+    silence on a submodule bump. `source` is for the test suite's
+    synthetic fixtures only."""
+    from_file = source is None
+    if from_file:
+        if "portnum" in _GPTP_ENGINE_PINS_CACHE:
+            return _GPTP_ENGINE_PINS_CACHE["portnum"]
+        source = _engine_generator_text()
+    lines = [ln.split("#", 1)[0].rstrip() for ln in source.splitlines()]
+    pn = _engine_const(lines,
+                       r"OUR_PORTNUM_C\s*=\s*(0[xX][0-9A-Fa-f]+|\d+)$",
+                       "OUR_PORTNUM_C")
+    if not 1 <= pn <= 0xFFFF:
+        # 802.1AS-2011 8.5.2 / IEEE 1588 portNumber is 1..65535; 0 is the
+        # "no port" encoding, so an engine announcing it would be the
+        # defect this derivation exists to surface, not a value to copy.
+        raise ConfigError(
+            f"gen_gptp_ucode.py: OUR_PORTNUM_C {pn} is not a portNumber "
+            f"(802.1AS-2011 8.5.2 numbers ports from 1), so the "
+            f"AVB_INTERFACE port_number cannot be derived from it")
+    if from_file:
+        _GPTP_ENGINE_PINS_CACHE["portnum"] = pn
+    return pn
+
+
 def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
     """The Announce dataset the fabric engine transmits, PARSED from the
     pinned generator (never restated here: a mirrored 248 or 0xF8FE436A
@@ -3392,13 +3446,7 @@ def gptp_engine_pins(source: str | None = None) -> dict[str, int]:
     if from_file:
         if "pins" in _GPTP_ENGINE_PINS_CACHE:
             return dict(_GPTP_ENGINE_PINS_CACHE["pins"])
-        if not GPTP_UCODE_GENERATOR.is_file():
-            raise ConfigError(
-                "the gptp-processor submodule is not checked out, and its "
-                "generator is the authority the gPTP descriptor dataset "
-                "derives from ([R-parallel] on #228): run `git submodule "
-                "update --init gptp-processor` before loading a config")
-        source = GPTP_UCODE_GENERATOR.read_text(encoding="utf-8")
+        source = _engine_generator_text()
     num = r"(0[xX][0-9A-Fa-f]+|\d+)"          # captured value
     anum = r"(?:0[xX][0-9A-Fa-f]+|\d+)"       # matched, not captured
     lines = [ln.split("#", 1)[0].rstrip() for ln in source.splitlines()]
@@ -3911,7 +3959,13 @@ def _load_gptp(cfg):
                     f"gptp-processor/hdl/ucode/gen_gptp_ucode.py. State "
                     f"{pins[k]} or omit the key ([R-parallel] on #228)")
             return pins[k]
+        #! The port the whole section is about (#462). Not a config key and
+        #! not a literal: `port_number` is the engine's OUR_PORTNUM_C, so
+        #! the AVB_INTERFACE descriptor names the port the gPTP plane puts
+        #! in its sourcePortIdentity. A config stating it is already
+        #! refused by _known_gp above - there is nothing here to choose.
         gptp = dict(
+            port_number=gptp_engine_port_number(),
             ingress_latency_ns=_gptp_latency_key(gp_raw,
                                                  "ingress_latency_ns"),
             egress_latency_ns=_gptp_latency_key(gp_raw,
