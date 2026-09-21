@@ -107,6 +107,15 @@
 #include <cstdint>
 #include <vector>
 
+// The ADPDU's entity_capabilities is the ENGINE's own constant. The Makefile
+// reads it out of pp_adp_pkg.sv and passes it here, so this harness cannot
+// grade the wire against a word it wrote into a CSR itself (#398, #465). A
+// build that does not supply it is a build whose expected frame would be
+// invented, so it fails here rather than defaulting to anything.
+#ifndef PP_ADP_ENTITY_CAPS_C
+#error "PP_ADP_ENTITY_CAPS_C must come from pp_adp_pkg::ADP_ENTITY_CAPS_C"
+#endif
+
 namespace {
 
 //! Everything the substitution harness owns: the Verilated model it
@@ -498,7 +507,8 @@ class PpShadowHarness {
     static constexpr uint16_t A_ADP_EIDHI   = 0x608;
     static constexpr uint16_t A_ADP_MDLLO   = 0x60C;
     static constexpr uint16_t A_ADP_MDLHI   = 0x610;
-    static constexpr uint16_t A_ADP_CAPS    = 0x614;
+    // 0x614 (ADP_CAPS) is deliberately absent: nothing in this harness reads
+    // or writes it, because nothing in the design does (#398, #465).
     static constexpr uint16_t A_ADP_TALK    = 0x618;
     static constexpr uint16_t A_ADP_LIST    = 0x61C;
     static constexpr uint16_t A_ADP_GMLO    = 0x624;
@@ -1092,7 +1102,12 @@ class PpShadowHarness {
         axi_write(A_ADP_EIDHI, static_cast<uint32_t>(TEST_EID >> 32));
         axi_write(A_ADP_MDLLO, static_cast<uint32_t>(TEST_MODEL & 0xFFFFFFFFu));
         axi_write(A_ADP_MDLHI, static_cast<uint32_t>(TEST_MODEL >> 32));
-        axi_write(A_ADP_CAPS,  0x0000C588u);          // a Milan PAAD's capabilities
+        // ADP_CAPS (0x614) is NOT provisioned (#398, #465). The engine sends
+        // pp_adp_pkg::ADP_ENTITY_CAPS_C and nothing reads that CSR, so writing
+        // it and then rebuilding the expected frame from the readback graded
+        // the wire against a value this harness had written itself. Leaving
+        // the register at its reset value is what makes the byte-exact check
+        // below evidence that the PACKAGE constant reaches the wire.
     }
 
     // ---- P. SAVED STATE: an unconfigured backend may not report a restore -
@@ -1315,7 +1330,11 @@ class PpShadowHarness {
         printf("[F] the ENTITY_AVAILABLE the processor emits, decoded byte-exact\n");
         const uint32_t talk_w = axi_read(A_ADP_TALK);
         const uint32_t list_w = axi_read(A_ADP_LIST);
-        const uint32_t caps_w = axi_read(A_ADP_CAPS);
+        // ... and the capability word from the PACKAGE, not from the CSR
+        // readback: it is pp_adp_pkg::ADP_ENTITY_CAPS_C that the engine
+        // sends, the Makefile reads it out of that file, and nothing here
+        // writes 0x614 at all (#398, #465).
+        const uint32_t caps_w = PP_ADP_ENTITY_CAPS_C;
         const uint64_t gm = (static_cast<uint64_t>(axi_read(A_ADP_GMHI)) << 32)
                           | axi_read(A_ADP_GMLO);
         const uint8_t  dom = static_cast<uint8_t>(axi_read(A_ADP_GDOM) & 0xFF);
@@ -2971,7 +2990,6 @@ class PpShadowHarness {
         axi_write(A_ADP_EIDHI, static_cast<uint32_t>(TEST_EID >> 32));
         axi_write(A_ADP_MDLLO, static_cast<uint32_t>(TEST_MODEL & 0xFFFFFFFFu));
         axi_write(A_ADP_MDLHI, static_cast<uint32_t>(TEST_MODEL >> 32));
-        axi_write(A_ADP_CAPS,  0x0000C588u);
         axi_write(A_PP_CTRL, 0x1);             // entity_enable
         // let the walk burn its watchdog into the parked fault
         for (int r = 0; r < 6; r++) run_idle(20000);

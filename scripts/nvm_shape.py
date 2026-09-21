@@ -131,8 +131,13 @@ def commit_worst_ms(image: int) -> float:
 FW_MAP_PORTS = 16
 
 #: The writer's five waits in milliseconds, which the firmware scales to
-#: nanoseconds (#398). The values are the C literals they replaced, unchanged,
-#: and each comment cites what docs/design/SAVED_STATE_FASTCONNECT.md says.
+#: nanoseconds (#398). Each comment cites what
+#: docs/design/SAVED_STATE_FASTCONNECT.md says, and those citations are
+#: BOUNDS: a bound is a range and a wait is a value, so four of these five
+#: could move with every gate green until #465. The values themselves are
+#: pinned in `sw/builder/test_builder.py` (`_WRITER_WAIT_MS`, gate 35) beside
+#: the bound each answers to, which is what makes moving one a decision
+#: rather than an edit.
 WRITER_TIMING_MS = {
     # 9.4: the heartbeat period is at most T-NVM-WRITER-ALIVE / 4 = 500 ms,
     # so four heartbeats fit the 2,000 ms liveness deadline; this is half
