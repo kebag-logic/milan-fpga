@@ -1194,6 +1194,29 @@ B03_binding_abort_not_drained by W13c: "latest 0076adf1, newest verified
 slot 0016e360". B04_binding_unframed_reads_as_device_error by the blank
 first boot V10: "restore fail 1 (D3 0, binding 1)".
 
+**Every dependency of the restore, audited once.** Each row is a wait or an
+answer the restore depends on, how it can fail at the pinned modules and the
+seams, and what the transaction does about it.
+
+| Dependency | How it can fail | The restore's answer | Evidence |
+|---|---|---|---|
+| The image walk, a LOCATE of ENTITY 0 | a miss or an error: no validated image | CLOSED, cause 7, before any record is read | V22, V22b; IMG01 |
+| The binding walk's read phase | a DEVICE err, a torn read, silence | the walk fails whole, nothing is preloaded, its read is drained (S1, S3); the D3 walk then runs | W13, W13b, W13c, W15, W16; B01 to B04 |
+| The binding walk's preload phase | the listener never takes a preload | NOT WATCHED: an on-chip face | not modelled: the model takes every preload at once (section 14) |
+| A D3 read, pass 0 or pass 1 | a DEVICE err, a torn read, a record whole in one pass only, silence | abort (causes 2, 1, 5, 3): pass 0 applies nothing, pass 1 rolls back | H1 to H8, V11, V11b, V12 to V18c, W1 to W7, W11, W12 |
+| A descriptor read a value rule or a revert needs | an error beat; the store's own 4,096-cycle watchdog | abort, cause 6, never a refused value | V20b, V20c, V20d, V21; DF01 to DF03 |
+| A state-bus write, the apply | DERIVED from the pinned RTL: `KL_aecp_dyn_state` has no error output and takes a write in the cycle it is presented; the descriptor store's one writable region, the names, answers no error | a stall only, which the deadline watches (cause 3) | no case: the pinned stores offer no write error to inject |
+| The edit face, a map apply | the port refuses to give up or take back its reset set; silence | abort, cause 4; cause 3 | cause 4 under DF02 (V20c: "abort cause 4"); W10 |
+| The format judge, the GET_AUDIO_MAP face | silence | abort, cause 3 | W9, W8 |
+| The roll-back and the re-walk | a burst still owed; the re-LOCATE misses or errs; either outlasting the deadline | the owners held in reset while a burst is owed; then DEFAULTS, or CLOSED | V21, V21b, V21c, V20, V17; DG02, R05 |
+| Late answers | an NVM read after its manager abandoned it; a descriptor burst after the store gave up on it | drained by the arbiter until the device ends it; held off by the guard, never served to a later request | W3, W6, W11, W12, W13c, W15; V21, V21b, V23; D01, B03, DG01 |
+| The firmware | its wait times out; an enable is requested early | decides nothing: the restore releases the enable | W14, V17; G05 |
+
+The model's omissions that bear on this table: the preload phase, the edit
+face's phases 0 to 5, the product memory paths' own timing (their CDC FIFOs,
+`pp_desc_bridge`'s watchdog and poison), real flash and firmware change 2
+(section 14).
+
 ## 9. What must not persist
 
 | State | Clause, as the repository quotes it | Where it lives | Why nothing here can persist it | Evidence |
