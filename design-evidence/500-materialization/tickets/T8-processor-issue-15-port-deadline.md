@@ -87,28 +87,64 @@ listener's four work faces; the listener itself is unchanged:
   AND the ready towards the producer are masked, so the ACMP head stays in
   its dispatch queue (and is not admitted to the scoreboard) and the
   router's sticky latch stays set; nothing is consumed that the listener
-  did not see. The AECP engine's START/STOP request is not presented (the
-  listener's ready on that face is a completion, which cannot fire without
-  a captured request). The timer expiry bus does not reach the listener,
-  and every expiry of a listener owner that arrives is counted: none can be
-  legitimate, because the listener arms timers only in the walks the gate
-  holds off and the timer service's armed bits reset to 0.
-- `released_o` is the binding walk's END: the D3 writer's walk starts on
-  it, and `restore_done_o` (both walks), which releases the entity enable,
-  takes it. No enable can therefore precede the last preload's record write
-  and discovery arm.
+  did not see. On those two faces ready is an acceptance, so both sides
+  are masked.
+- The AECP engine's START/STOP request has its VALID masked, and the
+  listener's completion (`strm_set_ready_o`, `strm_set_error_o`) passes to
+  the engine unmasked. That face is not an acceptance handshake: the engine
+  holds its request until the completion, which the listener raises once
+  the record commit or the no-op check is done (error when its bounded wait
+  expires), and the listener captures a presented request into its holder
+  in any state. The holder and its done and fail flags reset to 0 and fill
+  only from a presented request. The gate and the listener take the same
+  hard reset and neither takes the D3 roll-back, so from reset to the
+  release the holder stays empty and no completion can fire: a passed
+  completion never answers a request the listener did not capture, and
+  masking it as well would change nothing while the gate owns the faces.
+  In the product the engine presents no START/STOP request before the D3
+  terminal anyway, because the D3 writer holds AECP dispatch from reset.
+- The timer expiry bus does not reach the listener, and every expiry of a
+  listener owner that arrives is counted: none can be legitimate, because
+  the listener arms timers only in the walks the gate holds off and the
+  timer service's armed bits reset to 0.
+- `released_o` is the binding walk's END: the listener's live ACMP work
+  and the D3 writer's walk start on it, and `restore_done_o` (both walks),
+  which releases the entity enable, takes it. No enable can therefore
+  precede the last preload's record write and discovery arm.
 
 What follows from it: from reset to the release the listener's only
 reachable states are X_INIT, X_IDLE and X_PRELOAD, so `pre_ready_o` is 1 in
 every X_IDLE cycle and a preload is taken in the cycle it is presented. The
 preload phase lasts at most four cycles a sink plus four, the release at
 most four cycles after the manager's terminal. An ACMP command, a talker
-event or a START/STOP request that arrives during the restore is served
-after the release, ordered after the restored image: a live change still
+event or a START/STOP request that arrives before the release is served
+after it, ordered after the restored image: a live change still
 wins, by coming later, and a read-only command no longer withdraws a
 restored binding. A boot that never starts the binding walk leaves the
 listener owned until reset, as it leaves AECP dispatch; the parent's
 firmware starts the walk on every boot path (milan-fpga T4).
+
+Three release points, each its own (the integration clarification on the
+contract, milan-fpga PR #503 comment 5762146376), stated the same in T1,
+T4 and the page's section 8.1:
+
+- S4's release, the binding walk's drained terminal, releases the
+  listener's four work faces. From it the listener does LIVE ACMP work
+  while the D3 walk runs and before the entity is enabled: the held and
+  later ACMP commands, ADP's talker events, the expiries of the timers its
+  live walks arm, and START/STOP requests once AECP runs. Its record
+  write-backs, which the binding manager persists as live changes, its
+  discovery arms and its PDUs are live service on the restored image, not
+  late restore actions: no preload is presented after the release, and
+  every preload's record write and discovery arm precede it.
+- The D3 terminal, COMPLETE or DEFAULTS, releases the state bus and with it
+  AECP dispatch (T1). CLOSED releases neither it nor the enable, and does
+  not take the listener's faces back.
+- The entity enable, the top's `entity_enable_i` AND `restore_done_o`,
+  releases the ADP engine: advertising may start (F07.9). It gates nothing
+  else. In `KL_adp_engine` it holds the advertise state machines in DOWN;
+  the talker-discovery state machines, which feed the listener's talker
+  events, are a separate path. It is not a traffic freeze.
 
 ## What this ticket does NOT do, stated so no lane relies on it
 
@@ -128,7 +164,7 @@ firmware starts the walk on every boot path (milan-fpga T4).
   contract supplies a bounded terminal notification with quarantine at the
   port, the binding manager's own deadline may be replaced by it, provided
   every property above still holds.
-- S4 promises no ACMP listener service during the restore, and no
+- S4 promises no ACMP listener service before its release, and no
   fairness among the listener's sources after it: the listener's own
   priorities apply again at the release. A request is held, never
   consumed and dropped; what a producer does with arrivals behind a held
@@ -208,8 +244,12 @@ service in its harness, and the cases, each at the commit the page names:
   last owned cycle; a read-only GET_RX_STATE between a sink's store and its
   preload leaves its saved binding in NVM; a power cut inside the preload
   phase writes nothing; the release follows the last preload's record
-  write and discovery arm; deleting the gate, or masking only one side of a
-  handshake, or admitting expiries or START/STOP, reddens a case.
+  write and discovery arm; no START/STOP request is captured and no
+  completion fires while owned, and one held from reset completes once,
+  after the release; the listener serves a command after the release and
+  before the D3 terminal and the enable; deleting the gate, or masking only
+  one side of a transaction or talker-event handshake, or admitting
+  expiries or START/STOP, reddens a case.
 
 ## Cost (out-of-context estimates, the page's section 12)
 

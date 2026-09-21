@@ -18,4 +18,4 @@ by A154 after their round-three reviews. They authorize no implementation.
 
 The executable evidence these drafts cite is the commit the design page
 names; a later commit that edits only these drafts changes no measured
-source, result or digest.
+source or result, and the command record's digests are retaken at it.

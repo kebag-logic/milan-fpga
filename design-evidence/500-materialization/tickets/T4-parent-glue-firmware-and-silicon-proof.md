@@ -48,8 +48,10 @@ cold power cycle driven from a controller host.
    the restore cannot prove its image and ends CLOSED, the entity never
    enabled; the evidence's F01); `nvm_boot` starts the restore walk on
    EVERY path, the persistence-disabled one included, because the processor
-   now holds AECP dispatch, the ACMP listener's work faces (T8's S4) and the
-   entity enable until the walk's terminal;
+   now holds the ACMP listener's work faces until the binding walk's
+   drained terminal (T8's S4), AECP dispatch until the D3 walk's terminal
+   and the entity enable until both (T1), and a walk never started ends
+   none of them;
    the restore wait's timeout and the enable line report that the fabric
    holds the enable, and the boot reports the CLOSED terminal and the
    restore causes. The ledger fact
@@ -72,8 +74,13 @@ cold power cycle driven from a controller host.
    device error, 3 deadline, 4 edit refused, 5 passes disagree, 6 descriptor
    fault, 7 image not proven; binding walk: 1 torn, 2 device error with
    nothing forwarded, 3 deadline), and PP_CTRL[0] and ADP_CTRL[0] request the
-   enable, which the fabric releases at the restore's terminal. `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section
-   1.7 and the feature ledger move only with the silicon proof.
+   enable, which the fabric releases at the restore's terminal. The enable
+   starts ADP advertising and freezes no traffic: the listener's live ACMP
+   work starts at T8's S4 release and AECP at the D3 terminal, three
+   separate release points (the integration clarification on PR #503,
+   comment 5762146376; the page's section 8.1).
+   `docs/reference/MILAN_COMPLIANCE_MATRIX.md` section 1.7 and the feature
+   ledger move only with the silicon proof.
 6. Silicon: set the stage's values from a controller host, read PP_STAT to
    durable (backed 1, dirty 0, stale 0, pend 0), remove power at the outlet
    for 8 s, read every value back with GET commands; set IDENTIFY and prove it

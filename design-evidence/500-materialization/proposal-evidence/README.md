@@ -23,10 +23,15 @@ is on the evidence branch `500-design-evidence` and is never merged.
 - `prototype/KL_pp_acmp_lsn_admit.proto.sv` (seam S4, revision d): the
   boot-owned admission of the pinned ACMP listener. From the hard reset to
   the binding walk's drained terminal it admits nothing but the preload: a
-  transaction, a talker event and a START/STOP request are held at their
-  producers (valid and ready both masked), and a timer expiry is not
-  admitted and is counted. Its release is the binding walk's end for the D3
-  walk and for the restore done that releases the entity enable.
+  transaction and a talker event are held at their producers (valid and
+  ready both masked, their ready being an acceptance); a START/STOP
+  request's valid is masked and the listener's completion passes, since the
+  holder that completion answers stays empty from reset to the release; a
+  timer expiry is not admitted and is counted. Its release starts the
+  listener's live ACMP work, is the binding walk's end for the D3 walk and
+  is part of the restore done that releases the entity enable. The D3
+  terminal releases AECP, and the enable ADP advertising: three separate
+  release points, and the enable freezes no traffic.
 - AMENDED PROTOTYPES of two PINNED modules, labelled as such and renamed so
   they cannot be mistaken for the pinned RTL:
   `prototype/KL_pp_nvm_port.amended.proto.sv` (module `KL_pp_nvm_port_amd`,

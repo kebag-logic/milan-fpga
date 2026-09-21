@@ -107,7 +107,14 @@ pending bit (issues 61, 63, 83).
    `restore_done_o`, where `restore_done_o` is the binding walk's drained
    terminal (T8's S4 release) AND this restore's done, so no enable precedes
    the terminal of both walks or the last preload's record write and
-   discovery arm.
+   discovery arm. It gates ADP advertising only; the side port's
+   image-window lock keeps the top's `entity_enable_i`, as it ships. The
+   three release points stay separate (the integration clarification on
+   milan-fpga PR #503, comment 5762146376; T8 and the page's section 8.1):
+   the listener's live ACMP work from T8's S4 release, AECP dispatch from
+   this restore's terminal (`own`, item 1; COMPLETE or DEFAULTS, never
+   CLOSED), ADP advertising from the combined enable. The enable is not a
+   traffic freeze.
 6. Exports: `d3_unflushed_o`; `nvm_alarm_o` both managers;
    `restore_done_o`, `restore_fail_o`, `restore_blank_o` both walks; the new
    `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding
@@ -123,9 +130,9 @@ pending bit (issues 61, 63, 83).
 Names (T2), maps (T3), the parent glue and firmware (milan-fpga T4). The
 port's cause, the binding manager's amendments and the listener's admission
 are T8's; the descriptor memory guard is T9's. The descriptor store's
-roll-back reset is THIS stage's (item 3), not T2's. Reusable port service after a device that never ends
-an abandoned operation is processor issue 15's open recovery contract, and
-nothing here claims it.
+roll-back reset is THIS stage's (item 3), not T2's. Reusable port service
+after a device that never ends an abandoned operation is processor issue
+15's open recovery contract, and nothing here claims it.
 
 ## Acceptance
 
