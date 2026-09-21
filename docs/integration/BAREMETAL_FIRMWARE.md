@@ -204,10 +204,13 @@ census uses: exactly one write to `0x750`, from `configure_fabric()`,
 carrying the generated `MILAN_CRF_TX_CTRL_BOOT`, and none at all to `0x614`.
 Each plant is a permanent mutation. The hop that PUBLISHES those words --
 the loops in `sw/litex/milan_soc.py` that hand `boot_policy.fabric_constants`
-and `nvm_shape.firmware_constants` to `add_constant` -- is pinned line for
-line by gate 35, because a value substituted there reaches the firmware with
-every derivation gate green; the planted
-`3 if _name.endswith("CTRL_BOOT") else _value` is refused.
+and `nvm_shape.firmware_constants` to `add_constant` -- has both complete
+loop bodies pinned by gate 35 using Python's parsed syntax.
+Each derivation must appear in exactly one matching loop.
+That loop contains only the direct `soc.add_constant(_name, _value)` call.
+Comments and formatting do not change this comparison.
+The substituted CRF value is refused, as are subsequent overriding writes
+inside either loop, including overrides of the CRF word and heartbeat wait.
 
 Setting the entity-enable bits is step 5's alone: only the choke point above
 sets them.

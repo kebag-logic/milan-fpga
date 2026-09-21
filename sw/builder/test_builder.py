@@ -23292,6 +23292,8 @@ def _assert_writer_waits_generated(firmware: str,
 #: compiles against. A CRF-off config would have got a firmware that enables
 #: the talker.
 #: TWO of them, and the second carries the five waits, so both are pinned.
+#: These patterns locate mutation sites only. The verdict compares complete
+#: parsed loops below, including every body statement and any else arm.
 _PUBLICATION_LOOPS = tuple(
     re.compile(rf"for\s+_name,\s*_value\s+in\s+{derivation}\.items\(\):\s*\n"
                r"\s*soc\.add_constant\(\s*_name\s*,\s*_value\s*\)\s*\n")
@@ -23299,6 +23301,12 @@ _PUBLICATION_LOOPS = tuple(
         r"fabric_constants\(\s*_baremetal_ovl\s*,\s*_baremetal_srp\s*\)",
         r"firmware_constants\(\s*_nvm_shape\s*,\s*_nvm_donor\s*\)"))
 _PUBLISHED_VALUE = "soc.add_constant(_name, _value)"
+_PUBLICATION_FORMS = tuple(
+    ast.parse(f"for _name, _value in {derivation}.items():\n"
+              f"    {_PUBLISHED_VALUE}\n").body[0]
+    for derivation in (
+        "fabric_constants(_baremetal_ovl, _baremetal_srp)",
+        "firmware_constants(_nvm_shape, _nvm_donor)"))
 
 
 def _assert_publication_loop_is_pinned(soc: str) -> None:
@@ -23306,13 +23314,18 @@ def _assert_publication_loop_is_pinned(soc: str) -> None:
     every NAME with its own VALUE, and does nothing else to either."""
     assert re.search(r"(?m)^from boot_policy import fabric_constants$", soc), \
         "gate 35: milan_soc.py no longer publishes boot_policy.fabric_constants"
-    for loop in _PUBLICATION_LOOPS:
-        assert loop.search(soc), \
+    tree = ast.parse(soc, filename="sw/litex/milan_soc.py")
+    for expected in _PUBLICATION_FORMS:
+        loops = [node for node in ast.walk(tree)
+                 if isinstance(node, ast.For)
+                 and ast.dump(node.iter) == ast.dump(expected.iter)]
+        assert len(loops) == 1 and ast.dump(loops[0]) == ast.dump(expected), \
             "gate 35: a publication loop in sw/litex/milan_soc.py is not the " \
-            "pinned three lines. It is the hop between the derivation this " \
+            "pinned complete loop. It is the hop between the derivation this " \
             "gate grades and the generated header the firmware compiles " \
-            "against, so a value substituted here reaches the firmware with " \
-            f"every other gate green (#465); pattern {loop.pattern!r}"
+            "against: substituting a value or overwriting it with an extra " \
+            "statement changes the header (#465). Exactly one loop must " \
+            "publish each derivation, with only the direct add_constant call"
 
 
 def _planted_publication(soc: str) -> str:
@@ -23327,6 +23340,36 @@ def _planted_publication(soc: str) -> str:
                 'soc.add_constant(_name, 3 if _name.endswith("CTRL_BOOT") '
                 'else _value)') +
             soc[found.end():])
+
+
+def _planted_publication_override(soc: str, index: int, value: str) -> str:
+    """Keep the previously matched prefix, then overwrite its published value."""
+    found = _PUBLICATION_LOOPS[index].search(soc)
+    assert found, "gate 35: the publication override control lost its loop"
+    indent = re.search(r"(?m)^([ \t]*)soc\.add_constant", found.group(0))
+    assert indent, "gate 35: the publication override control lost its body"
+    extra = (f"{indent.group(1)}soc.add_constant(_name, {value}, "
+             "check_duplicate=False)\n")
+    planted = soc[:found.end()] + extra + soc[found.end():]
+    ast.parse(planted)
+    return planted
+
+
+def _publication_controls(soc: str) -> tuple:
+    """The substituted first write and the two subsequent-write escapes."""
+    reason = "not the pinned complete loop"
+    return (
+        ("the publication loop substituting the CRF boot word", reason,
+         lambda: _assert_publication_loop_is_pinned(_planted_publication(soc))),
+        ("the fabric loop overwriting the CRF boot word", reason,
+         lambda: _assert_publication_loop_is_pinned(
+             _planted_publication_override(
+                 soc, 0, '3 if _name.endswith("CTRL_BOOT") else _value'))),
+        ("the firmware loop overwriting the heartbeat wait", reason,
+         lambda: _assert_publication_loop_is_pinned(
+             _planted_publication_override(
+                 soc, 1, '300 if _name.endswith("HEARTBEAT_MS") else _value'))),
+    )
 
 # ================================================================= gate 36 ===
 #  THE BOARD'S TIMESTAMP LATENCY CORRECTIONS ARE DECLARED, CARRIED AND
@@ -23650,11 +23693,12 @@ def test_boot_policy_follows_the_declaration() -> None:
     soc = MILAN_SOC_PY.read_text(encoding="utf-8")
     waits = _assert_writer_waits_generated(firmware,
                                            nvm_shape.WRITER_TIMING_MS)
-    #: Three planted defects, each refused for the rule it breaks: the
+    #: Five planted defects, each refused for the rule it breaks: the
     #: literal wait back in the firmware, a wait MOVED inside its own bound
     #: (#465: the heartbeat at 300 ms is still under section 9.4's 500 ms
     #: maximum and was green everywhere), and a value substituted in the
-    #: publication loop (#465: the plant both PR #459 reviewers measured).
+    #: publication loop (#465: the plant both PR #459 reviewers measured),
+    #: and an extra overriding write after either loop's correct first write.
     moved = dict(nvm_shape.WRITER_TIMING_MS, MILAN_NVM_HEARTBEAT_MS=300)
     wait_controls = (
         ("the literal NVM_MS(250) planted back", "NVM_HEARTBEAT_NS",
@@ -23665,11 +23709,7 @@ def test_boot_policy_follows_the_declaration() -> None:
         ("the heartbeat moved to 300 ms, inside its own bound",
          "the pinned set is",
          lambda: _assert_writer_waits_generated(firmware, moved)),
-        ("the publication loop substituting the CRF boot word",
-         "not the pinned three lines",
-         lambda: _assert_publication_loop_is_pinned(
-             _planted_publication(soc))),
-    )
+    ) + _publication_controls(soc)
     for label, because, control in wait_controls:
         try:
             control()
@@ -23680,8 +23720,9 @@ def test_boot_policy_follows_the_declaration() -> None:
             raise AssertionError(f"gate 35: {label} was NOT refused")
     _assert_publication_loop_is_pinned(soc)
     print(f"  [gate 35] the writer's waits are generated AND pinned beside "
-          f"their bounds: {waits}; the publication loop in milan_soc.py is "
-          f"the pinned three lines; {len(wait_controls)}/{len(wait_controls)} "
+          f"their bounds: {waits}; both publication loops in milan_soc.py "
+          f"have their complete bodies pinned; "
+          f"{len(wait_controls)}/{len(wait_controls)} "
           "planted defects refused: "
           + "; ".join(label for label, *_ in wait_controls))
     cc = shutil.which("cc") or shutil.which("gcc")
