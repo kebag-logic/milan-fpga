@@ -1256,6 +1256,11 @@ UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
 scope D2 landed and the glue makes either mark sticky; what they still lack
 is a writer, which is the same UNRESOLVED 1.
 
+A writer for every NONE row is proposed on its own page,
+[Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500,
+PROPOSED): one processor-side record writer behind the same port, so this
+contract applies to its records unchanged.
+
 ## 12. The section 9.2 revocation discrepancy
 
 The
@@ -1369,7 +1374,9 @@ donor dependency of this contract that is. Not settled here and not
 only an interface: a record writer must exist for every NONE row of section
 11 before those fields can reach a slot at all. Whether it is a donor-side
 manager per group or a parent-side writer behind a second device-face
-initiator is its own scope: UNRESOLVED 1.
+initiator is its own scope: UNRESOLVED 1. Its proposal, one donor-side
+writer for every group behind the one port, is
+[Saved-state materialization, section 3](SAVED_STATE_MATERIALIZATION.md#3-decision).
 
 **No donor dependency** for the hold (KL_pp_nvm_port holds dev_req_o until
 dev_gnt_i by its own stated contract and has no grant timeout; EXECUTED with
@@ -1632,7 +1639,8 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
    sampling rate, clock source, stream formats, presentation time offset,
    channel maps or names at the current source; only bindings have a writer.
    The pending bit reports the dynamic-state fields truthfully (1 until
-   reset); making them durable needs scope D3.
+   reset); making them durable needs scope D3, which is proposed in
+   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500).
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
    `aecp_nvm_mark_o`, and either sets a sticky pending source, so the status

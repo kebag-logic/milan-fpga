@@ -69,6 +69,7 @@ Publish conflicts before continuing.
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
 | Review saved-state snapshot ownership | [Snapshot ownership, proposed](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
+| Review saved-state materialization | [Materialization, proposed](design/SAVED_STATE_MATERIALIZATION.md) |
 
 ## Verification
 
