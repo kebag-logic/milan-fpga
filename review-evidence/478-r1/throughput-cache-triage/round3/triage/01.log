@@ -1,0 +1,55 @@
+{
+  "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+  "results": [
+    {
+      "name": "01-original-warm",
+      "command": [
+        "bash",
+        "syn/yosys/run.sh",
+        "--top",
+        "KL_pp_shadow",
+        "--no-structural",
+        "--cache",
+        "$VALIDATION_STORAGE/yosys-cache-rom-probe/round3/warm-cache",
+        "--cache-seed",
+        "$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache"
+      ],
+      "exit_code": 0,
+      "seconds": 3.662,
+      "cache_hit": true
+    },
+    {
+      "name": "02-missing-ROM-cached",
+      "command": [
+        "bash",
+        "syn/yosys/run.sh",
+        "--top",
+        "KL_pp_shadow",
+        "--no-structural",
+        "--cache",
+        "$VALIDATION_STORAGE/yosys-cache-rom-probe/round3/mutant-cache",
+        "--cache-seed",
+        "$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache"
+      ],
+      "exit_code": 2,
+      "seconds": 0.362,
+      "cache_hit": false
+    },
+    {
+      "name": "03-missing-ROM-uncached",
+      "command": [
+        "bash",
+        "syn/yosys/run.sh",
+        "--top",
+        "KL_pp_shadow",
+        "--no-structural"
+      ],
+      "exit_code": 2,
+      "seconds": 0.256,
+      "cache_hit": false
+    }
+  ],
+  "source_restored": true,
+  "demonstrates_false_cached_pass": false
+}
