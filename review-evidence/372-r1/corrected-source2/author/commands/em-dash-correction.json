@@ -1,0 +1,37 @@
+{
+  "name": "em-dash-correction",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "60c5225fe5f93209bf313c51b7a722f25f9aaa7d"
+  ],
+  "command": "rtk proxy python3 scripts/check_em_dash.py --base 60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+  "cwd": "$CANDIDATE",
+  "env_delta": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "started_utc": "2026-09-22T16:45:43.811336+00:00",
+  "elapsed_seconds": 1.03482301600161,
+  "exit": 0,
+  "before": {
+    "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+    "head_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": true,
+    "status": "",
+    "changed_worktree_sha256": {}
+  },
+  "after": {
+    "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+    "head_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": true,
+    "status": "",
+    "changed_worktree_sha256": {}
+  },
+  "log": "commands/em-dash-correction.log",
+  "log_sha256": "e1a8e38a6917888750e8204162347e30a437d9b1fb001bdbcce5f3f8ae0d2cb2"
+}

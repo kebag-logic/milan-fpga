@@ -1,0 +1,174 @@
+{
+  "source_head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+  "source_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+  "scope": "Bounded correction checks only; not the manager full bar. Precommit receipts retain their actual HEAD/tree. Their recorded changed-file hashes equal the committed file bytes; scope checks verify all other parent files unchanged.",
+  "rows": [
+    {
+      "name": "docs-check",
+      "command": "rtk proxy python3 scripts/docs_check.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/docs-check.json",
+      "log": "commands/docs-check.log",
+      "log_sha256": "70b4a8d458471daf185cdf0bb2f2af99dcee48da197361ad25f94e31c2259554"
+    },
+    {
+      "name": "doc-style",
+      "command": "rtk proxy python3 scripts/check_doc_style.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/doc-style.json",
+      "log": "commands/doc-style.log",
+      "log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    {
+      "name": "doc-paths",
+      "command": "rtk proxy python3 scripts/check_doc_paths.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/doc-paths.json",
+      "log": "commands/doc-paths.log",
+      "log_sha256": "98ecae26fc0615cf55b2723d617e4f531fdbeb5cf9c068b55d22600c5963edae"
+    },
+    {
+      "name": "toc-check",
+      "command": "rtk proxy python3 scripts/gen_toc.py --check",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/toc-check.json",
+      "log": "commands/toc-check.log",
+      "log_sha256": "2a09e2bf3415d2c143c29d6c416216954388779d768e25e8f59a446e40be2337"
+    },
+    {
+      "name": "toc-anchors-corrected",
+      "command": "rtk proxy python3 scripts/gen_toc.py --verify-anchors",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/toc-anchors-corrected.json",
+      "log": "commands/toc-anchors-corrected.log",
+      "log_sha256": "97264dbeef4e9f3c29b8e85d14c7c2dfb642b344fbc385e29c3668d64dfbf51a"
+    },
+    {
+      "name": "cpp-idiom",
+      "command": "rtk proxy python3 scripts/check_cpp_idiom.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/cpp-idiom.json",
+      "log": "commands/cpp-idiom.log",
+      "log_sha256": "66b7ebd6003d7a2cadf302cac5b8dd12d1b03ee2a1356bb8af7675627ce39780"
+    },
+    {
+      "name": "sv-idiom",
+      "command": "rtk proxy python3 scripts/check_sv_idiom.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/sv-idiom.json",
+      "log": "commands/sv-idiom.log",
+      "log_sha256": "59321f1aef997a4d5698faaa0ab436bccdd32f00a2577bed135f58dd0046927f"
+    },
+    {
+      "name": "py-idiom",
+      "command": "rtk proxy python3 scripts/check_py_idiom.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/py-idiom.json",
+      "log": "commands/py-idiom.log",
+      "log_sha256": "0bf987d627ade0eeb849061747402e8689507326c6682849ebb287a4b0219ac7"
+    },
+    {
+      "name": "sh-idiom",
+      "command": "rtk proxy python3 scripts/check_sh_idiom.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/sh-idiom.json",
+      "log": "commands/sh-idiom.log",
+      "log_sha256": "5b4da4ada78926b702a3ceac7ef8b8f3edd481897f50641078e04f7f8deeae8e"
+    },
+    {
+      "name": "hygiene-corrected",
+      "command": "rtk proxy python3 scripts/check_hygiene.py --check",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/hygiene-corrected.json",
+      "log": "commands/hygiene-corrected.log",
+      "log_sha256": "228fb71e57fa4714ab0cb7878cfdb553065cb0acdff5ac8bd59e06d87a2f7963"
+    },
+    {
+      "name": "em-dash-correction",
+      "command": "rtk proxy python3 scripts/check_em_dash.py --base 60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "exit": 0,
+      "actual_head_before": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+      "actual_tree_before": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/em-dash-correction.json",
+      "log": "commands/em-dash-correction.log",
+      "log_sha256": "e1a8e38a6917888750e8204162347e30a437d9b1fb001bdbcce5f3f8ae0d2cb2"
+    },
+    {
+      "name": "whitespace-committed",
+      "command": "rtk proxy git diff --check 60c5225fe5f93209bf313c51b7a722f25f9aaa7d HEAD",
+      "exit": 0,
+      "actual_head_before": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+      "actual_tree_before": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/whitespace-committed.json",
+      "log": "commands/whitespace-committed.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "scope-final",
+      "command": "rtk proxy python3 $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/verify_scope.py",
+      "exit": 0,
+      "actual_head_before": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+      "actual_tree_before": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/scope-final.json",
+      "log": "commands/scope-final.log",
+      "log_sha256": "d8690f5804ac77b918b76efec63b40898abfb61b5c81e98183eb4f1652e72273"
+    },
+    {
+      "name": "public-measurement-audit",
+      "command": "rtk proxy python3 $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/verify_measurements.py",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/public-measurement-audit.json",
+      "log": "commands/public-measurement-audit.log",
+      "log_sha256": "de69aa68b4fc663f9a5c1e0669d85212e6c74c65860118f772b93ead108bfdb6"
+    },
+    {
+      "name": "pinned-tool-version",
+      "command": "rtk proxy $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --version",
+      "exit": 0,
+      "actual_head_before": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+      "actual_tree_before": "64182178131d03f157fe1a4ec767edee618bc6ff",
+      "committed_content_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+      "receipt": "commands/pinned-tool-version.json",
+      "log": "commands/pinned-tool-version.log",
+      "log_sha256": "46aedd5b30efdd94426c9eebbcf4a6ae7a9680526cc90ce8fec95977c2d6b12d"
+    }
+  ],
+  "collector_exceptions": "collector-exceptions.json",
+  "simulations_rerun": false
+}

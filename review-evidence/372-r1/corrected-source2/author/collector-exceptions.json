@@ -1,0 +1,27 @@
+{
+  "cause": "Concurrent receipt collectors called git write-tree, which acquires index.lock. No source defect or source change resulted. Removed that index-writing identity step from the collector.",
+  "attempts": [
+    {
+      "name": "toc-anchors",
+      "invocation": "rtk proxy python3 $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/record.py toc-anchors rtk proxy python3 scripts/gen_toc.py --verify-anchors",
+      "wrapper_exit": 1,
+      "git_write_tree_exit": 128,
+      "failed_phase": "before identity",
+      "gate_started": false,
+      "result_used": false
+    },
+    {
+      "name": "hygiene",
+      "invocation": "rtk proxy python3 $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/record.py hygiene rtk proxy python3 scripts/check_hygiene.py --check",
+      "wrapper_exit": 1,
+      "git_write_tree_exit": 128,
+      "failed_phase": "after identity",
+      "gate_started": true,
+      "raw_gate_log": "commands/hygiene.log",
+      "recorded_gate_exit": null,
+      "result_used": false
+    }
+  ],
+  "error_text": "fatal: Unable to create '$CANDIDATE/.git/index.lock': File exists.",
+  "preservation": "commands/hygiene.log is retained unmodified. The original collector is record-initial.py. No absent receipt or gate exit is reconstructed. Corrected invocations use new receipt names."
+}

@@ -1,0 +1,8 @@
+build exit=0
+run exit=0
+PROBE ap_implication_initial passed at 5
+PROBE ap_past_is_initial FAILED at 5: $past(one) is not 1
+PROBE ap_stable_initial FAILED at 5: $stable(one) is false
+PROBE ap_implication_initial passed at 15
+PROBE ap_implication_initial passed at 25
+PROBE ap_implication_initial passed at 35

@@ -1,0 +1,45 @@
+{
+  "name": "public-measurement-audit",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/verify_measurements.py"
+  ],
+  "command": "rtk proxy python3 $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-correction/verify_measurements.py",
+  "cwd": "$CANDIDATE",
+  "env_delta": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "started_utc": "2026-09-22T16:45:01.190667+00:00",
+  "elapsed_seconds": 0.7948939279885963,
+  "exit": 0,
+  "before": {
+    "head": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+    "head_tree": "64182178131d03f157fe1a4ec767edee618bc6ff",
+    "index_entries_sha256": "5b716fe252e03b033af0d965c3f559d951cfd6e824c95fe9722c9bad6b4512a8",
+    "index_matches_head": true,
+    "status": "M docs/testing/ASSERTIONS.md\n M docs/testing/TESTING.md\n M tb/verilator/README.md\n M tb/verilator/ptp_ts/mux_sva_main.cpp",
+    "changed_worktree_sha256": {
+      "docs/testing/ASSERTIONS.md": "8603f94aa240f6588fb1df1baefbb94401dd8865b66183af0d981189de07d996",
+      "docs/testing/TESTING.md": "40ea2be68e4df0ecea5f9dde94f4e89c3c7b054c49ade04194d0974ca414b21d",
+      "tb/verilator/README.md": "a116c3c135ba70469bf2ccb322687b8206e5babe19d781046094e2c0a55bbdae",
+      "tb/verilator/ptp_ts/mux_sva_main.cpp": "f55e3b5b80ece9397bf54bbbf05e21233b6f09b1d09a0bed68ec0beb6f45cfa7"
+    }
+  },
+  "after": {
+    "head": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+    "head_tree": "64182178131d03f157fe1a4ec767edee618bc6ff",
+    "index_entries_sha256": "5b716fe252e03b033af0d965c3f559d951cfd6e824c95fe9722c9bad6b4512a8",
+    "index_matches_head": true,
+    "status": "M docs/testing/ASSERTIONS.md\n M docs/testing/TESTING.md\n M tb/verilator/README.md\n M tb/verilator/ptp_ts/mux_sva_main.cpp",
+    "changed_worktree_sha256": {
+      "docs/testing/ASSERTIONS.md": "8603f94aa240f6588fb1df1baefbb94401dd8865b66183af0d981189de07d996",
+      "docs/testing/TESTING.md": "40ea2be68e4df0ecea5f9dde94f4e89c3c7b054c49ade04194d0974ca414b21d",
+      "tb/verilator/README.md": "a116c3c135ba70469bf2ccb322687b8206e5babe19d781046094e2c0a55bbdae",
+      "tb/verilator/ptp_ts/mux_sva_main.cpp": "f55e3b5b80ece9397bf54bbbf05e21233b6f09b1d09a0bed68ec0beb6f45cfa7"
+    }
+  },
+  "log": "commands/public-measurement-audit.log",
+  "log_sha256": "de69aa68b4fc663f9a5c1e0669d85212e6c74c65860118f772b93ead108bfdb6"
+}

@@ -1,0 +1,188 @@
+scope TOP.axis_mux_rr_2in_1out.u_sva present
+scope TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus present
+scope TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus present
+scope TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut present
+case R1
+  edge  0 reset                                        rst_n=0 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 0 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+  edge  1 reset                                        rst_n=0 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 1 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1
+  edge  2 reset                                        rst_n=0 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 2 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1
+  edge  3 reset                                        rst_n=0 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 3 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1
+  edge  4 released, idle                               rst_n=1 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 4 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge  5 s0 offers beat0 (grant edge)                 rst_n=1 s0v=1 s0rdy=0 m_v=0 m_rdy=1
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 5 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge  6 beat0 taken                                  rst_n=1 s0v=1 s0rdy=1 m_v=1 m_rdy=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=1
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 6 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=1
+  edge  7 beat1 stalled                                rst_n=1 s0v=1 s0rdy=0 m_v=1 m_rdy=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=1
+    edge 7 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge  8 beat1 stalled                                rst_n=1 s0v=1 s0rdy=0 m_v=1 m_rdy=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=1
+    edge 8 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge  9 RESET edge, s0 still offering beat1          rst_n=0 s0v=1 s0rdy=0 m_v=1 m_rdy=0
+    edge 9 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+  edge 10 released; s0 TVALID low, m stalled           rst_n=1 s0v=0 s0rdy=0 m_v=0 m_rdy=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge 11 idle                                         rst_n=1 s0v=0 s0rdy=0 m_v=0 m_rdy=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 11 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+  edge 12 idle, sink ready                             rst_n=1 s0v=0 s0rdy=0 m_v=0 m_rdy=1
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0
+    edge 12 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0
+errors reported by the model: 0
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0                                 7
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=1                                 1
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0                        6
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=1                        2
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0                              8
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0                                    8
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1                                    5
+calls TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1                                             8
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0                    7
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=1                    1
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0                    7
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=1                    1
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0                    7
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=1                    1
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0                     7
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=1                     1
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0              6
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=1              2
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0              6
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=1              2
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0              6
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=1              2
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0               6
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=1               2
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0              8
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0              8
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0              8
+calls TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0               8
