@@ -1,0 +1,221 @@
+﻿2026-09-22T13:20:02.5098938Z Current runner version: '2.337.0'
+2026-09-22T13:20:02.5124337Z ##[group]Runner Image Provisioner
+2026-09-22T13:20:02.5125218Z Hosted Compute Agent
+2026-09-22T13:20:02.5125904Z Version: 20260828.587
+2026-09-22T13:20:02.5126541Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T13:20:02.5127319Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T13:20:02.5128525Z Worker ID: {582ba2ef-1859-45f0-802f-2cbe8db6a399}
+2026-09-22T13:20:02.5129285Z Azure Region: eastus2
+2026-09-22T13:20:02.5129885Z ##[endgroup]
+2026-09-22T13:20:02.5132020Z ##[group]Operating System
+2026-09-22T13:20:02.5133147Z Ubuntu
+2026-09-22T13:20:02.5134209Z 24.04.5
+2026-09-22T13:20:02.5135185Z LTS
+2026-09-22T13:20:02.5136272Z ##[endgroup]
+2026-09-22T13:20:02.5137300Z ##[group]Runner Image
+2026-09-22T13:20:02.5138679Z Image: ubuntu-24.04
+2026-09-22T13:20:02.5139882Z Version: 20260920.314.1
+2026-09-22T13:20:02.5142126Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260920.314/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T13:20:02.5145115Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260920.314
+2026-09-22T13:20:02.5146744Z ##[endgroup]
+2026-09-22T13:20:02.5149168Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T13:20:02.5151730Z Contents: read
+2026-09-22T13:20:02.5152422Z Metadata: read
+2026-09-22T13:20:02.5152984Z Packages: read
+2026-09-22T13:20:02.5153508Z ##[endgroup]
+2026-09-22T13:20:02.5155664Z Secret source: Actions
+2026-09-22T13:20:02.5156656Z Cache mode: write
+2026-09-22T13:20:02.5157813Z Prepare workflow directory
+2026-09-22T13:20:02.5582439Z Prepare all required actions
+2026-09-22T13:20:02.5631105Z Getting action download info
+2026-09-22T13:20:02.8005077Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T13:20:03.0217205Z Complete job name: wire-accountability
+2026-09-22T13:20:03.0979785Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T13:20:03.0988774Z ##[group]Run actions/checkout@v4
+2026-09-22T13:20:03.0989527Z with:
+2026-09-22T13:20:03.0989989Z   repository: kebag-logic/milan-fpga
+2026-09-22T13:20:03.0993825Z   token: ***
+2026-09-22T13:20:03.0994265Z   ssh-strict: true
+2026-09-22T13:20:03.0994707Z   ssh-user: git
+2026-09-22T13:20:03.0995164Z   persist-credentials: true
+2026-09-22T13:20:03.0995665Z   clean: true
+2026-09-22T13:20:03.0996119Z   sparse-checkout-cone-mode: true
+2026-09-22T13:20:03.0996641Z   fetch-depth: 1
+2026-09-22T13:20:03.0997085Z   fetch-tags: false
+2026-09-22T13:20:03.0997817Z   show-progress: true
+2026-09-22T13:20:03.0998306Z   lfs: false
+2026-09-22T13:20:03.0998761Z   submodules: false
+2026-09-22T13:20:03.0999235Z   set-safe-directory: true
+2026-09-22T13:20:03.0999760Z   allow-unsafe-pr-checkout: false
+2026-09-22T13:20:03.1000583Z ##[endgroup]
+2026-09-22T13:20:03.1994231Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T13:20:03.1997158Z ##[group]Getting Git version info
+2026-09-22T13:20:03.1999067Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T13:20:03.2000973Z [command]/usr/bin/git version
+2026-09-22T13:20:03.2059773Z git version 2.55.0
+2026-09-22T13:20:03.2099002Z ##[endgroup]
+2026-09-22T13:20:03.2109964Z Temporarily overriding HOME='/home/runner/work/_temp/4c0c85cb-219a-4ad6-ae0e-8fa6f58195d5' before making global git config changes
+2026-09-22T13:20:03.2112663Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T13:20:03.2115108Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T13:20:03.2165562Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T13:20:03.2170552Z ##[group]Initializing the repository
+2026-09-22T13:20:03.2175555Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T13:20:03.2273772Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T13:20:03.2275580Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T13:20:03.2277144Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T13:20:03.2278511Z hint: call:
+2026-09-22T13:20:03.2279182Z hint:
+2026-09-22T13:20:03.2279755Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T13:20:03.2280372Z hint:
+2026-09-22T13:20:03.2280953Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T13:20:03.2281885Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T13:20:03.2282619Z hint:
+2026-09-22T13:20:03.2283041Z hint: 	git branch -m <name>
+2026-09-22T13:20:03.2283555Z hint:
+2026-09-22T13:20:03.2284181Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T13:20:03.2289148Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T13:20:03.2302228Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T13:20:03.2350790Z ##[endgroup]
+2026-09-22T13:20:03.2352004Z ##[group]Disabling automatic garbage collection
+2026-09-22T13:20:03.2355064Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T13:20:03.2388518Z ##[endgroup]
+2026-09-22T13:20:03.2389860Z ##[group]Setting up auth
+2026-09-22T13:20:03.2396058Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T13:20:03.2430221Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T13:20:03.2808283Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T13:20:03.2849511Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T13:20:03.3080903Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T13:20:03.3117102Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T13:20:03.3338978Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T13:20:03.3379589Z ##[endgroup]
+2026-09-22T13:20:03.3380716Z ##[group]Fetching the repository
+2026-09-22T13:20:03.3389650Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7:refs/remotes/pull/512/merge
+2026-09-22T13:20:04.4927440Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T13:20:04.4929860Z  * [new ref]         d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7 -> pull/512/merge
+2026-09-22T13:20:04.4939300Z ##[endgroup]
+2026-09-22T13:20:04.4941952Z ##[group]Determining the checkout info
+2026-09-22T13:20:04.4949800Z ##[endgroup]
+2026-09-22T13:20:04.4951849Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T13:20:04.5006016Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T13:20:04.5040474Z ##[group]Checking out the ref
+2026-09-22T13:20:04.5042989Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/512/merge
+2026-09-22T13:20:04.6421945Z Note: switching to 'refs/remotes/pull/512/merge'.
+2026-09-22T13:20:04.6423392Z 
+2026-09-22T13:20:04.6424506Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T13:20:04.6427250Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T13:20:04.6430363Z state without impacting any branches by switching back to a branch.
+2026-09-22T13:20:04.6431507Z 
+2026-09-22T13:20:04.6432210Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T13:20:04.6434608Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T13:20:04.6435619Z 
+2026-09-22T13:20:04.6436028Z   git switch -c <new-branch-name>
+2026-09-22T13:20:04.6436762Z 
+2026-09-22T13:20:04.6437306Z Or undo this operation with:
+2026-09-22T13:20:04.6438591Z 
+2026-09-22T13:20:04.6439210Z   git switch -
+2026-09-22T13:20:04.6439944Z 
+2026-09-22T13:20:04.6440925Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T13:20:04.6442268Z 
+2026-09-22T13:20:04.6443807Z HEAD is now at d2f1bbc Merge 1496558d82cf35fc98dda0e781b2a1be643c301a into 88e9276b2a220c716f64a843f7e1eb8f9265e896
+2026-09-22T13:20:04.6449292Z ##[endgroup]
+2026-09-22T13:20:04.6481540Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T13:20:04.6508658Z d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7
+2026-09-22T13:20:04.6782966Z ##[group]Run git submodule update --init gptp-processor
+2026-09-22T13:20:04.6784868Z [36;1mgit submodule update --init gptp-processor[0m
+2026-09-22T13:20:04.7031590Z shell: /usr/bin/bash -e {0}
+2026-09-22T13:20:04.7032841Z ##[endgroup]
+2026-09-22T13:20:04.7429815Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-09-22T13:20:04.7455957Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-09-22T13:20:06.0203685Z Submodule path 'gptp-processor': checked out 'c1b617435824929a790739ea8585c3fe1a328cc0'
+2026-09-22T13:20:06.0256582Z ##[group]Run python3 -m pip install --quiet pyyaml
+2026-09-22T13:20:06.0257074Z [36;1mpython3 -m pip install --quiet pyyaml[0m
+2026-09-22T13:20:06.0257893Z [36;1mpython3 scripts/check_wire_accountability.py --self-test[0m
+2026-09-22T13:20:06.0322769Z shell: /usr/bin/bash -e {0}
+2026-09-22T13:20:06.0323085Z ##[endgroup]
+2026-09-22T13:20:08.8716734Z 
+2026-09-22T13:20:08.8718989Z == endstation_arty_4x4 ==
+2026-09-22T13:20:08.8719994Z   [ok]   endstation_arty_4x4: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+2026-09-22T13:20:08.8721174Z   [ok]   endstation_arty_4x4: talker 0 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+2026-09-22T13:20:08.8722203Z   [ok]   endstation_arty_4x4: talker 1 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+2026-09-22T13:20:08.8723155Z   [ok]   endstation_arty_4x4: talker 2 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+2026-09-22T13:20:08.8724128Z   [ok]   endstation_arty_4x4: talker 3 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+2026-09-22T13:20:08.8726047Z   [note] endstation_arty_4x4: source coverage 2 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 4-channel talker consumes 2; talker(s) 2..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+2026-09-22T13:20:08.8728115Z   [ok]   endstation_arty_4x4: generated TALKER_WIRE_CHANS_C matches the framer = 4
+2026-09-22T13:20:08.8728661Z 
+2026-09-22T13:20:08.8728809Z == endstation_arty_8ch ==
+2026-09-22T13:20:08.8729440Z   [ok]   endstation_arty_8ch: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+2026-09-22T13:20:08.8817301Z   [ok]   endstation_arty_8ch: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8818656Z   [ok]   endstation_arty_8ch: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8819860Z   [ok]   endstation_arty_8ch: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8821006Z   [ok]   endstation_arty_8ch: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8823141Z   [note] endstation_arty_8ch: source coverage 1 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 1..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+2026-09-22T13:20:08.8825043Z   [ok]   endstation_arty_8ch: generated TALKER_WIRE_CHANS_C matches the framer = 8
+2026-09-22T13:20:08.8825996Z 
+2026-09-22T13:20:08.8826168Z == endstation_arty_current ==
+2026-09-22T13:20:08.8826890Z   [ok]   endstation_arty_current: audio_interface 'i2s_philips' is backed = 1 pair slot(s) supplied
+2026-09-22T13:20:08.8828182Z   [ok]   endstation_arty_current: talker 0 format 0x0205022000806000 declares 2ch, fabric emits 2ch
+2026-09-22T13:20:08.8829105Z   [ok]   endstation_arty_current: all 1 advertised talker(s) have a physical source
+2026-09-22T13:20:08.8830025Z   [ok]   endstation_arty_current: generated TALKER_WIRE_CHANS_C matches the framer = 2
+2026-09-22T13:20:08.8830556Z 
+2026-09-22T13:20:08.8830713Z == endstation_ax7101_1x1_tdm8 ==
+2026-09-22T13:20:08.8831381Z   [ok]   endstation_ax7101_1x1_tdm8: audio_interface 'tdm8' is backed = 4 pair slot(s) supplied
+2026-09-22T13:20:08.8832456Z   [ok]   endstation_ax7101_1x1_tdm8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8833651Z   [ok]   endstation_ax7101_1x1_tdm8: all 1 advertised talker(s) have a physical source
+2026-09-22T13:20:08.8834593Z   [ok]   endstation_ax7101_1x1_tdm8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+2026-09-22T13:20:08.8835145Z 
+2026-09-22T13:20:08.8835300Z == endstation_ax7101_8x8 ==
+2026-09-22T13:20:08.8835939Z   [ok]   endstation_ax7101_8x8: audio_interface 'tdm32' is backed = 16 pair slot(s) supplied
+2026-09-22T13:20:08.8836914Z   [ok]   endstation_ax7101_8x8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8838440Z   [ok]   endstation_ax7101_8x8: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8839534Z   [ok]   endstation_ax7101_8x8: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8840590Z   [ok]   endstation_ax7101_8x8: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8841638Z   [ok]   endstation_ax7101_8x8: talker 4 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8842687Z   [ok]   endstation_ax7101_8x8: talker 5 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8843740Z   [ok]   endstation_ax7101_8x8: talker 6 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8844794Z   [ok]   endstation_ax7101_8x8: talker 7 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+2026-09-22T13:20:08.8846978Z   [note] endstation_ax7101_8x8: source coverage 4 of 8 talkers - the front-end supplies 16 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 4..7 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+2026-09-22T13:20:08.8849191Z   [ok]   endstation_ax7101_8x8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+2026-09-22T13:20:08.8849524Z 
+2026-09-22T13:20:08.8849642Z == the constant reaches the wire ==
+2026-09-22T13:20:08.8850003Z   [ok]   milan_datapath declares TALKER_WIRE_CHANS_P (default 2)
+2026-09-22T13:20:08.8850398Z   [ok]   milan_datapath passes it to KL_aaf_packetizer
+2026-09-22T13:20:08.8850831Z   [ok]   KL_aaf_packetizer resets every talker's chans from the constant
+2026-09-22T13:20:08.8851300Z   [ok]   milan_datapath guards the constant against the front-end supply
+2026-09-22T13:20:08.8852326Z   [ok]   W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)
+2026-09-22T13:20:08.8853080Z   [ok]   W5: KL_pair_zero_fill instantiated over that span
+2026-09-22T13:20:08.8853810Z   [ok]   W5: the fill grid is the AUDIO clock /512 (48.000 kHz exactly), CDC'd
+2026-09-22T13:20:08.8854304Z   [ok]   W5: the packetizer bypass leg consumes the FILLED stream
+2026-09-22T13:20:08.8854777Z   [ok]   W5: the 8.3b blend arm exists (KL_pair_blend, I2S = pair slot 0)
+2026-09-22T13:20:08.8855045Z 
+2026-09-22T13:20:08.8855222Z == self-test: the gate bites in both directions ==
+2026-09-22T13:20:08.8855715Z   [ok]   arty_current (streams clean to the reference device): clean - as expected
+2026-09-22T13:20:08.8856327Z   [ok]   ax7101_8x8 (W1 closed by the master, W3 closed by the fill): clean - as expected
+2026-09-22T13:20:08.8857223Z   [ok]   ax7101_8x8 with the TDM master removed (the 07-27 fabric): findings - as expected
+2026-09-22T13:20:08.8858086Z   [ok]   datapath with the silence fill deleted: findings - as expected
+2026-09-22T13:20:08.8858497Z   self-test: PASS
+2026-09-22T13:20:08.8858632Z 
+2026-09-22T13:20:08.8858848Z ----------------------------------------------------------------------
+2026-09-22T13:20:08.8859236Z checks: 77   findings: 0
+2026-09-22T13:20:08.8859484Z RESULT: PASS
+2026-09-22T13:20:08.8976471Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T13:20:08.8978366Z Post job cleanup.
+2026-09-22T13:20:08.9840308Z [command]/usr/bin/git version
+2026-09-22T13:20:08.9885104Z git version 2.55.0
+2026-09-22T13:20:08.9924444Z Temporarily overriding HOME='/home/runner/work/_temp/08001912-6386-482a-82fa-8bc05a098e01' before making global git config changes
+2026-09-22T13:20:08.9926044Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T13:20:08.9930260Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T13:20:08.9972314Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T13:20:09.0010103Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T13:20:09.0240499Z Entering 'gptp-processor'
+2026-09-22T13:20:09.0438664Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T13:20:09.0469163Z http.https://github.com/.extraheader
+2026-09-22T13:20:09.0482041Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T13:20:09.0522920Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T13:20:09.0785512Z Entering 'gptp-processor'
+2026-09-22T13:20:09.0852602Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T13:20:09.0893675Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T13:20:09.1133851Z Entering 'gptp-processor'
+2026-09-22T13:20:09.1156890Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-09-22T13:20:09.1193661Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T13:20:09.1388512Z Cleaning up orphan processes
+2026-09-22T13:20:09.1688568Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

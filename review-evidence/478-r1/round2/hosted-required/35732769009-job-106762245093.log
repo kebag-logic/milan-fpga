@@ -1,0 +1,134 @@
+﻿2026-09-22T13:20:03.1293510Z Current runner version: '2.337.0'
+2026-09-22T13:20:03.1319092Z ##[group]Runner Image Provisioner
+2026-09-22T13:20:03.1319944Z Hosted Compute Agent
+2026-09-22T13:20:03.1320590Z Version: 20260828.587
+2026-09-22T13:20:03.1321233Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T13:20:03.1321951Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T13:20:03.1323167Z Worker ID: {25bf3606-dc5d-4529-a8af-0ac774815a02}
+2026-09-22T13:20:03.1323881Z Azure Region: westus
+2026-09-22T13:20:03.1324445Z ##[endgroup]
+2026-09-22T13:20:03.1326021Z ##[group]Operating System
+2026-09-22T13:20:03.1326651Z Ubuntu
+2026-09-22T13:20:03.1327328Z 24.04.5
+2026-09-22T13:20:03.1327839Z LTS
+2026-09-22T13:20:03.1328336Z ##[endgroup]
+2026-09-22T13:20:03.1328947Z ##[group]Runner Image
+2026-09-22T13:20:03.1329580Z Image: ubuntu-24.04
+2026-09-22T13:20:03.1330202Z Version: 20260907.300.1
+2026-09-22T13:20:03.1331454Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T13:20:03.1333290Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T13:20:03.1334353Z ##[endgroup]
+2026-09-22T13:20:03.1335638Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T13:20:03.1337723Z Contents: read
+2026-09-22T13:20:03.1338387Z Metadata: read
+2026-09-22T13:20:03.1339003Z Packages: read
+2026-09-22T13:20:03.1339570Z ##[endgroup]
+2026-09-22T13:20:03.1341659Z Secret source: Actions
+2026-09-22T13:20:03.1342807Z Cache mode: write
+2026-09-22T13:20:03.1343860Z Prepare workflow directory
+2026-09-22T13:20:03.1671376Z Prepare all required actions
+2026-09-22T13:20:03.1738500Z Getting action download info
+2026-09-22T13:20:03.5685139Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T13:20:03.7777239Z Complete job name: docs-check-no-git
+2026-09-22T13:20:03.8529133Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T13:20:03.8538406Z ##[group]Run actions/checkout@v4
+2026-09-22T13:20:03.8539138Z with:
+2026-09-22T13:20:03.8539594Z   repository: kebag-logic/milan-fpga
+2026-09-22T13:20:03.8543754Z   token: ***
+2026-09-22T13:20:03.8544195Z   ssh-strict: true
+2026-09-22T13:20:03.8544634Z   ssh-user: git
+2026-09-22T13:20:03.8545089Z   persist-credentials: true
+2026-09-22T13:20:03.8545579Z   clean: true
+2026-09-22T13:20:03.8546027Z   sparse-checkout-cone-mode: true
+2026-09-22T13:20:03.8546545Z   fetch-depth: 1
+2026-09-22T13:20:03.8546984Z   fetch-tags: false
+2026-09-22T13:20:03.8547430Z   show-progress: true
+2026-09-22T13:20:03.8547894Z   lfs: false
+2026-09-22T13:20:03.8548375Z   submodules: false
+2026-09-22T13:20:03.8548824Z   set-safe-directory: true
+2026-09-22T13:20:03.8549327Z   allow-unsafe-pr-checkout: false
+2026-09-22T13:20:03.8550105Z ##[endgroup]
+2026-09-22T13:20:03.9539243Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T13:20:03.9541457Z ##[group]Getting Git version info
+2026-09-22T13:20:03.9542521Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T13:20:03.9552881Z [command]/usr/bin/git version
+2026-09-22T13:20:03.9695886Z git version 2.55.0
+2026-09-22T13:20:03.9719923Z ##[endgroup]
+2026-09-22T13:20:03.9736102Z Temporarily overriding HOME='/home/runner/work/_temp/bac96fd7-5aa9-409b-b4cf-137833d82144' before making global git config changes
+2026-09-22T13:20:03.9738458Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T13:20:03.9741671Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T13:20:03.9800327Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T13:20:03.9804705Z ##[group]Initializing the repository
+2026-09-22T13:20:03.9809807Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T13:20:03.9923653Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T13:20:03.9925758Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T13:20:03.9927858Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T13:20:03.9929396Z hint: call:
+2026-09-22T13:20:03.9930086Z hint:
+2026-09-22T13:20:03.9931010Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T13:20:03.9931806Z hint:
+2026-09-22T13:20:03.9933316Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T13:20:03.9934420Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T13:20:03.9935223Z hint:
+2026-09-22T13:20:03.9935667Z hint: 	git branch -m <name>
+2026-09-22T13:20:03.9936209Z hint:
+2026-09-22T13:20:03.9936880Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T13:20:03.9938582Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T13:20:03.9942051Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T13:20:03.9995536Z ##[endgroup]
+2026-09-22T13:20:03.9996618Z ##[group]Disabling automatic garbage collection
+2026-09-22T13:20:03.9998962Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T13:20:04.0033070Z ##[endgroup]
+2026-09-22T13:20:04.0034368Z ##[group]Setting up auth
+2026-09-22T13:20:04.0041561Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T13:20:04.0087860Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T13:20:04.0490232Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T13:20:04.0527740Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T13:20:04.0759568Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T13:20:04.0797569Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T13:20:04.1037578Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T13:20:04.1085312Z ##[endgroup]
+2026-09-22T13:20:04.1086472Z ##[group]Fetching the repository
+2026-09-22T13:20:04.1101221Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7:refs/remotes/pull/512/merge
+2026-09-22T13:20:05.5649044Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T13:20:05.5651101Z  * [new ref]         d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7 -> pull/512/merge
+2026-09-22T13:20:05.5655593Z ##[endgroup]
+2026-09-22T13:20:05.5657221Z ##[group]Determining the checkout info
+2026-09-22T13:20:05.5658907Z ##[endgroup]
+2026-09-22T13:20:05.5665713Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T13:20:05.5725558Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T13:20:05.5759192Z ##[group]Checking out the ref
+2026-09-22T13:20:05.5763807Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/512/merge
+2026-09-22T13:20:05.7131405Z Note: switching to 'refs/remotes/pull/512/merge'.
+2026-09-22T13:20:05.7133000Z 
+2026-09-22T13:20:05.7133967Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T13:20:05.7136764Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T13:20:05.7139597Z state without impacting any branches by switching back to a branch.
+2026-09-22T13:20:05.7141399Z 
+2026-09-22T13:20:05.7142201Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T13:20:05.7144109Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T13:20:05.7144885Z 
+2026-09-22T13:20:05.7145223Z   git switch -c <new-branch-name>
+2026-09-22T13:20:05.7145995Z 
+2026-09-22T13:20:05.7146385Z Or undo this operation with:
+2026-09-22T13:20:05.7146924Z 
+2026-09-22T13:20:05.7147123Z   git switch -
+2026-09-22T13:20:05.7147443Z 
+2026-09-22T13:20:05.7148100Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T13:20:05.7149153Z 
+2026-09-22T13:20:05.7150316Z HEAD is now at d2f1bbc Merge 1496558d82cf35fc98dda0e781b2a1be643c301a into 88e9276b2a220c716f64a843f7e1eb8f9265e896
+2026-09-22T13:20:05.7154670Z ##[endgroup]
+2026-09-22T13:20:05.7196823Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T13:20:05.7223742Z d2f1bbc4bd9d8d8d02f0c1c50cec84395144bba7
+2026-09-22T13:20:05.7488198Z ##[group]Run rm -rf .git
+2026-09-22T13:20:05.7489036Z [36;1mrm -rf .git[0m
+2026-09-22T13:20:05.7489772Z [36;1mpython3 scripts/docs_check.py[0m
+2026-09-22T13:20:05.7490807Z [36;1mpython3 scripts/check_feature_status.py[0m
+2026-09-22T13:20:05.7532772Z shell: /usr/bin/bash -e {0}
+2026-09-22T13:20:05.7533553Z ##[endgroup]
+2026-09-22T13:20:10.0449223Z docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+2026-09-22T13:20:10.8212143Z feature_status: 0 finding(s)
+2026-09-22T13:20:10.8445204Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T13:20:10.8446876Z Post job cleanup.
+2026-09-22T13:20:10.9447480Z Cleaning up orphan processes
+2026-09-22T13:20:10.9805838Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
