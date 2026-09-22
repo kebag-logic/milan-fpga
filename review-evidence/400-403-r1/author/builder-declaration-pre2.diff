@@ -1,0 +1,547 @@
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index ba4d121a..bcc8033b 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+ | `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+-| `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
++| `protocol-processor` | `8452f564294300a82d56eed464276576f65f4d58` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+ 
+@@ -110,3 +110,13 @@ Imported prose never defines root runtime behavior.
+ | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
+ 
+ Track donor repairs separately.
++
++The protocol pin adopts only donor #95 / PR96.
++It exposes the generated startup VID parameter.
++[Donor completion](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/96#issuecomment-5772201653) records its independent reviews and validation.
++Later donor revisions are outside this adoption.
++
++Historical audit exceptions remain open disclosures.
++PR13/PR6 branch continuity is UNKNOWN.
++PR13/PR9 retain the negative-merge baseline.
++Parent integration does not clear these donor audit findings.
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 73e752a5..0e35fd42 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -1201,6 +1201,9 @@ module milan_csr #(
+   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
+   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [4:2]=classA queue, [5]=declare-always bypass (reset 0)
+   logic [31:0] maap_ctrl;
++  //! Firmware owns active VID, enable and claim size for the built shape.
++  localparam logic [31:0] AAF_CTRL_RST_C = 32'd0;
++  localparam logic [31:0] MAAP_CTRL_RST_C = 32'd0;
+   logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link
+   logic [31:0] ent_name_lo, ent_name_hi; //! board-name overlay chars
+   logic [31:0] lpf_ctrl;                 //! LPF_CTRL
+@@ -1536,7 +1539,7 @@ module milan_csr #(
+       adp_ctrl <= 32'h0000_0A00;   // enable=0, valid_time=10 (Milan 5.6.2 "shall be set to 10"; validity 20 s)
+       // enable=0, bypass=1 (bit1: legacy stream-whenever-enabled — the
+       // Milan probe-gated mode is opt-in until silicon-proven), VID=2
+-      aaf_ctrl <= 32'h0002_0000;   //! bypass OFF at reset (0x0018)
++      aaf_ctrl <= AAF_CTRL_RST_C;
+       acmp_lobs <= 32'h0;
+       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
+       aaf_dmhi <= 32'h0000_91E0;
+@@ -1544,7 +1547,7 @@ module milan_csr #(
+       // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}.
+       // All six words come from gen/lwsrp_csr_defaults.svh (the config).
+       lwsrp_ctrl <= LWSRP_CTRL_RST_C;
+-      maap_ctrl  <= 32'h0000_0800;
++      maap_ctrl  <= MAAP_CTRL_RST_C;
+       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until firmware qualifies it otherwise
+       ent_name_lo <= 32'h0; ent_name_hi <= 32'h0;
+       lpf_ctrl    <= 32'h1;             //! LPF on by default
+@@ -1967,7 +1970,7 @@ module milan_csr #(
+       A_ADP_TALK[10:0]:   csr_default = ADP_TALK_C;
+       A_ADP_LIST[10:0]:   csr_default = ADP_LIST_C;
+       A_ADP_DOMAIN[10:0]: csr_default = 32'd0;
+-      A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0000;
++      A_AAF_CTRL[10:0]:   csr_default = AAF_CTRL_RST_C;
+       A_AAF_DMLO[10:0]:   csr_default = 32'hF000_FE01;
+       A_AAF_DMHI[10:0]:   csr_default = 32'h0000_91E0;
+       A_LWSRP_CTRL[10:0]: csr_default = LWSRP_CTRL_RST_C;
+@@ -1978,7 +1981,7 @@ module milan_csr #(
+       A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
+       A_LINK_CTRL[10:0]:  csr_default = 32'h1;   // link assumed up at boot
+       A_LPF_CTRL[10:0]:   csr_default = 32'h1;   // playback LPF on by default
+-      A_MAAP_CTRL[10:0]:  csr_default = 32'h0000_0800;   // count=8, en=0
++      A_MAAP_CTRL[10:0]:  csr_default = MAAP_CTRL_RST_C;
+       default: begin
+         if (a >= A_CBS_BASE[10:0] && a < A_CBS_END[10:0]) begin
+           case (a[4:0])
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 98c5c1fb..2865c8ac 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -185,6 +185,8 @@ module KL_pp_shadow #(
+     //! processor sink/source array sizes (F01.5 P-N-STREAM-IN/OUT)
+     parameter int unsigned N_STREAM_IN_P  = 8,
+     parameter int unsigned N_STREAM_OUT_P = 8,
++    //! Generated product startup VID; distinct values are test fixtures only.
++    parameter logic [15:0] SRP_DOM_DEF_VID_P = 16'd2,
+     //! control-frame FIFO, bytes. One 1522 B frame fits with margin for the
+     //! serializer's lag; 4096 is one RAMB36 at 64 b.
+     parameter int unsigned RX_FIFO_BYTES_P = 4096,
+@@ -1043,6 +1045,7 @@ module KL_pp_shadow #(
+   protocol_processor_top #(
+       .N_STREAM_IN_P  (N_STREAM_IN_P),
+       .N_STREAM_OUT_P (N_STREAM_OUT_P),
++      .SRP_DOM_DEF_VID_P (SRP_DOM_DEF_VID_P),
+       .CLK_HZ_P       (CLK_HZ_P),
+       .TIM_DIV_US_P   (TIM_DIV_US_P),
+       .TIM_DIV_MS_P   (TIM_DIV_MS_P),
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 7baffefa..d62c4917 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3220,22 +3220,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! per-STREAM_OUTPUT presentation offset. SET_STREAM_INFO(ACC_LAT) is a
+   //! WRITER AGAIN (issue #67): entry k folds the processor's published
+   //! SEL_PTOFF row k when a controller has set it, and holds the Milan v1.2
+-  //! default otherwise. The default is a DEFAULT, not a zero: 0 ns would be
+-  //! a presentation time in the past and every listener would drop every
+-  //! frame as late. The CRF Media Clock Output consumes ITS OWN row through
++  //! factory default otherwise. Zero is a legal runtime offset, too.
++  //! The CRF Media Clock Output consumes ITS OWN row through
+   //! its transit entry (talker_unique_id CRF_TUID_C = N_STREAMS), so a
+   //! controller can move the CRF presentation offset by the same command.
+   //! This fold is the ONE derivation point: GET_STREAM_INFO's latency word
+   //! serves these same entries below, so the wire the talker stamps and the
+   //! answer a controller reads cannot disagree.
+-  localparam logic [31:0] PRES_DFLT_C = 32'd2_000_000;   //! 2 ms
+   always_comb begin : pres_offset_fold
+     for (int k = 0; k < ACMP_SRC_C; k++)
+       aecp_pres_offset[32*k +: 32] = pp_aecp_pt_offset_v_w[k]
+                                      ? pp_aecp_pt_offset_w[32*k +: 32]
+-                                     : PRES_DFLT_C;
++                                     : ADP_STROUT_PRES_NS_C[k];
+     for (int k = ACMP_SRC_C; k < 16; k++)
+-      aecp_pres_offset[32*k +: 32] = PRES_DFLT_C;
++      aecp_pres_offset[32*k +: 32] = ADP_STROUT_PRES_NS_C[0];
+   end
+   //! (the media clock source is LIVE (#74) - see media_clk_resolve and the
+   //!  media-clock banner at the top of this file. The CRF Media Clock Input
+@@ -5679,13 +5677,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .sid0_i         (acmpl_sid),
+     .fmt0_i         (aecp_in0_fmt),
+     .ptp_now_i      (ptp_now_w[31:0]),
+-    //! LISTENER-side presentation window, deliberately entry 0 (the
+-    //! index-0/global value, exactly what this port has always been fed):
+-    //! pres_ofs_i scales the RX monitor's LATE/EARLY acceptance window and
+-    //! is a property of OUR sink, not of any talker's transit time - the
+-    //! per-index file above is TALKER state (per STREAM_OUTPUT), so keying
+-    //! this by a talker index would conflate the two. A per-SINK window
+-    //! is future LCTX work, not a per-talker mux.
++    //! Existing listener EARLY/LATE diagnostics use output row zero.
++    //! This threshold does not gate listener payload acceptance.
+     .pres_ofs_i     (aecp_pres_offset[31:0]),
+     //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
+     //! declares these ports for a media-lock rule it does not implement
+@@ -7258,6 +7251,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       //! unanswerable exactly the way the pre-0x0027 shapes did.
+       .N_STREAM_IN_P  (ACMP_SINKS_C),
+       .N_STREAM_OUT_P (ACMP_SRC_C),
++      .SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C),
+       .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
+       .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
+       .TROM_HEX_P     (PP_TROM_HEX_P),
+diff --git a/protocol-processor b/protocol-processor
+index 424c688f..8452f564 160000
+--- a/protocol-processor
++++ b/protocol-processor
+@@ -1 +1 @@
+-Subproject commit 424c688fa2205b934a7689a58f2aa766420f2326
++Subproject commit 8452f564294300a82d56eed464276576f65f4d58
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 95ffb669..02a8fbb0 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -357,7 +357,7 @@ SRP_DEFAULTS = dict(
+     interval_frames=1,
+     rtl_table=False,                         # write the tracked hdl/ .svh
+ )
+-SRP_TSPEC_POLICIES = ("pinned", "derived")
++SRP_TSPEC_POLICIES = ("derived",)
+ 
+ #: `srp.stream_dmac_base: maap` means the stream destination addresses are
+ #: ALLOCATED AT RUN TIME by the MAAP engine rather than provisioned here. It
+@@ -406,7 +406,7 @@ OPTIONAL_BLOCKS = {
+ #: are the honest declarations that let it be pruned. This key exists so that
+ #: pruning the filter is a stated deployment property rather than a silent
+ #: change of what the port accepts.
+-RX_ADDRESS_FILTERS = ("hardware", "promiscuous")
++RX_ADDRESS_FILTERS = ("promiscuous",)
+ 
+ #: Revision of the AEM descriptor BYTE LAYOUT, an input to every hash-derived
+ #: entity_model_id (see model_shape). 1 was the IEEE 1722.1-2013 layout this
+@@ -444,7 +444,7 @@ PP_MEM_BYTES = 0x10_0000
+ PLATFORM_DEFAULTS = dict(
+     mac_address=None,                        # required: must differ per board
+     pp_mem_phys=0x4FE0_0000,
+-    rx_address_filter="hardware",            # hardware | promiscuous
++    rx_address_filter="promiscuous",         # existing reset and boot posture
+ )
+ 
+ # ------------------------------------------------------ resource estimator --
+@@ -1358,6 +1358,20 @@ def _pow2_or_zero(v, ctx):
+     return _pow2(v, ctx)
+ 
+ 
++PRESENTATION_TIME_OFFSET_NS = 2_000_000
++
++
++def _factory_offset(raw, ctx):
++    """Milan's factory value; runtime SET_STREAM_INFO remains independent."""
++    value = raw.get("presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS)
++    if type(value) is not int or value != PRESENTATION_TIME_OFFSET_NS:
++        raise ConfigError(
++            f"{ctx}.presentation_time_offset_ns must be 2000000: Milan v1.2 "
++            "5.3.7.6 requires a 2 ms factory default for every Stream Output. "
++            "Use SET_STREAM_INFO or restored PTOF for legal runtime offsets.")
++    return value
++
++
+ def _streams(lst, ctx, direction, rate_hz=48000):
+     if not isinstance(lst, list) or not lst:
+         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
+@@ -1443,6 +1457,11 @@ def _streams(lst, ctx, direction, rate_hz=48000):
+             map_mode=map_mode, map_page=map_page,
+             buffer_length_ns=s.get("buffer_length_ns", BUFLEN_DEFAULT_NS),
+         ))
++        if direction == "talker":
++            out[-1]["presentation_time_offset_ns"] = _factory_offset(s, sctx)
++        elif "presentation_time_offset_ns" in s:
++            raise ConfigError(f"{sctx}.presentation_time_offset_ns belongs "
++                              "to Stream Outputs, not listener acceptance")
+     return out
+ 
+ 
+@@ -1913,6 +1932,17 @@ def _srp_validate(s, cons):
+         raise ConfigError(f"srp.vid {s['vid']} outside 1..4094 (VID 0 is the "
+                           "priority-tagged/no-VLAN encoding - an SR stream on "
+                           "VID 0 floods UNSHAPED)")
++    if s["vid"] != 2:
++        raise ConfigError("srp.vid must be 2 at startup: Milan v1.2 "
++                          "4.2.7.2.1; runtime Domain adoption is independent")
++    for leaf, key, expected in (("join", "join_time_ms", 200),
++                                ("leave", "leave_time_ms", 5000),
++                                ("leaveall", "leaveall_time_ms", 10000)):
++        if s[key] != expected:
++            raise ConfigError(
++                f"srp.timers_ms.{leaf} must be {expected}: fixed Milan v1.2 "
++                "4.2.7.1.1 Table 4.3 profile; leaveall names the 10000 ms "
++                "lower bound of the randomized 10-15 s interval")
+     if not (isinstance(s["class_queue"], int)
+             and 0 <= s["class_queue"] < (1 << SRP_QUEUE_BITS)):
+         raise ConfigError(f"srp.class_queue {s['class_queue']} does not fit "
+@@ -1920,21 +1950,26 @@ def _srp_validate(s, cons):
+     if s["class_queue"] >= cons["num_queues"]:
+         raise ConfigError(f"srp.class_queue {s['class_queue']} >= the board's "
+                           f"{cons['num_queues']} shaper queues")
+-    if s["tspec_policy"] not in SRP_TSPEC_POLICIES:
+-        raise ConfigError(f"srp.tspec.policy '{s['tspec_policy']}' not in "
+-                          f"{SRP_TSPEC_POLICIES}")
++    if s["tspec_policy"] != "derived":
++        raise ConfigError("srp.tspec.policy must be derived: the processor "
++                          "uses wire TSpec (Milan v1.2 4.3.3.2 Table 4.4); "
++                          "pinned policy has no product consumer")
+     if not (isinstance(s["interval_frames"], int)
+             and 1 <= s["interval_frames"] <= 0xFFFF):
+         raise ConfigError(f"srp.tspec.interval_frames {s['interval_frames']} "
+                           "outside 1..65535 (TSpec MaxIntervalFrames is 16 bit)")
++    if s["interval_frames"] != 1:
++        raise ConfigError("srp.tspec.interval_frames must be 1: Milan v1.2 "
++                          "4.3.3.2 Table 4.4 fixed wire TSpec")
+     if not (isinstance(s["max_frame_bytes"], int)
+             and 1 <= s["max_frame_bytes"] <= 0xFFFF):
+         raise ConfigError(f"srp.tspec.max_frame_bytes {s['max_frame_bytes']} "
+                           "outside 1..65535 (TSpec MaxFrameSize is 16 bit)")
+     if not (isinstance(s["bandwidth_limit_pct"], int)
+-            and 1 <= s["bandwidth_limit_pct"] <= 100):
++            and 1 <= s["bandwidth_limit_pct"] <= 75):
+         raise ConfigError(f"srp.bandwidth_limit_pct {s['bandwidth_limit_pct']} "
+-                          "outside 1..100")
++                          "outside 1..75 (build-time budget, not the live "
++                          "admission ceiling; IEEE 802.1Q 34.3.1)")
+     return cls
+ 
+ 
+@@ -2875,6 +2910,17 @@ def _adp_formats(cfg):
+     fabric admits frames against."""
+     ln = []
+     a = ln.append
++    a("  //! Supported startup VID; runtime Domain adoption stays live.")
++    a(f"  localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd{cfg['srp']['vid']};")
++    offsets = [s.get("presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS)
++               for s in cfg["talkers"]]
++    if cfg["clocking"]["crf_output"]:
++        offsets.append(cfg["clocking"].get(
++            "crf_output_presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS))
++    a("  //! Factory offsets in STREAM_OUTPUT index order, including CRF.")
++    a("  //! SET_STREAM_INFO and restored PTOF override their own valid row.")
++    _sv_array(ln, "ADP_STROUT_PRES_NS_C", "[31:0]", offsets,
++             lambda v: f"32'd{v}")
+     a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
+     a("  //! the FRAMER emits, derived from the capture front-end this config")
+     a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
+@@ -3160,14 +3206,13 @@ def validate_features(
+                 "what disciplines the audio MMCM to them. Restrict "
+                 "media_clock_sources to [internal] (and clocking.crf_sink to "
+                 "false) or keep the servo.")
+-    # 2. MAAP: load-bearing exactly when the stream DMACs are allocated at
+-    #    run time rather than provisioned in this file.
+-    if not feat["maap"] and srp["stream_dmac_alloc"] == SRP_DMAC_DYNAMIC:
++    # Every supported configuration declares AAF talkers. Numeric legacy
++    # table addresses never replace their live MAAP allocation.
++    if not feat["maap"]:
+         raise ConfigError(
+-            "board.features.maap: false prunes KL_maap, but "
+-            f"srp.stream_dmac_base is '{SRP_DMAC_DYNAMIC}' = the addresses "
+-            "are claimed at run time by that engine. Provision a static "
+-            "multicast base instead, or keep MAAP.")
++            "board.features.maap: false removes the allocator required by "
++            "every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). "
++            "Numeric srp.stream_dmac_base is legacy scratch; keep MAAP.")
+     # 3. I2S playback: the i2s_philips interface's RENDER half IS
+     #    KL_i2s_playback (INTERFACES rtl note), so pruning it guts the
+     #    declared physical interface.
+@@ -3178,15 +3223,7 @@ def validate_features(
+             "- the config declares a DAC this build would not be able to "
+             "drive. Declare an interface without a local DAC render path, or "
+             "keep playback.")
+-    # 4. RX filter: the port's address-filtering policy has to say so.
+-    if not feat["rx_mac_filter"] and platform["rx_address_filter"] == "hardware":
+-        raise ConfigError(
+-            "board.features.rx_mac_filter: false prunes rx_mac_filter + its "
+-            "TCAM, but platform.rx_address_filter is 'hardware'. A pruned "
+-            "filter makes the port PROMISCUOUS (the receive stream bypasses "
+-            "address filtering), which is a change in what the "
+-            "station accepts. Declare rx_address_filter: promiscuous, or keep "
+-            "the filter.")
++    # Hardware presence is independent of the supported promiscuous policy.
+     # 5. render LPF: its ONLY consumer in milan_datapath is KL_i2s_playback
+     #    (pcm_lpf_tdata/tvalid -> i2s_player.lpf_*; pcm_lpf_active ->
+     #    KL_i2s_feed_mux, which exists to feed the same player). Keeping the
+@@ -3223,10 +3260,12 @@ def load_platform(raw: dict[str, Any] | None) -> dict[str, Any]:
+     if p["pp_mem_phys"] <= 0 or p["pp_mem_phys"] % 0x1000:
+         raise ConfigError(
+             "platform.pp_mem_phys must be a positive 4 KiB-aligned address")
+-    if p["rx_address_filter"] not in RX_ADDRESS_FILTERS:
++    if p["rx_address_filter"] != "promiscuous":
+         raise ConfigError(
+-            f"platform.rx_address_filter {p['rx_address_filter']!r} not in "
+-            f"{list(RX_ADDRESS_FILTERS)}")
++            f"platform.rx_address_filter {p['rx_address_filter']!r} is "
++            "unsupported. Migrate hardware to promiscuous: the existing "
++            "TCAM reset/boot bypass accepts all destinations. Hardware "
++            "presence remains board.features.rx_mac_filter.")
+     return p
+ 
+ 
+@@ -3795,6 +3834,8 @@ def _load_clocking(cfg, path):
+         crf_output=bool(co.get("enabled", False)),
+         crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
+                                  "clocking.crf_output.format"),
++        crf_output_presentation_time_offset_ns=_factory_offset(
++            co, "clocking.crf_output"),
+         audio_pll_hz=int(clk.get("audio_pll_hz", soc_audio_const(
+             "AUDIO_CLK_HZ", 24_576_000))),
+     )
+@@ -4862,12 +4903,15 @@ def _overlay_streams(cfg):
+     # domain clock, it is not a selectable source of it, so the CLOCK_SOURCE
+     # set (7.2.32 clock_sources) is unchanged.
+     stream_outputs = [dict(index=i, name=s["name"], kind="aaf",
+-                           channels=s["channels"], formats=s["formats"])
++                           channels=s["channels"], formats=s["formats"],
++                           presentation_time_offset_ns=s["presentation_time_offset_ns"])
+                       for i, s in enumerate(T)]
+     if n_crf_out:
+         stream_outputs.append(dict(index=len(T), name="CRF", kind="crf",
+                                    channels=0,
+-                                   formats=[clk["crf_output_format"]]))
++                                   formats=[clk["crf_output_format"]],
++                                   presentation_time_offset_ns=clk[
++                                       "crf_output_presentation_time_offset_ns"]))
+     return stream_inputs, stream_outputs
+ 
+ 
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index ea24c58c..fb79099b 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -16909,15 +16909,16 @@ def test_optional_block_gates_bite() -> None:
+          dict(maap=False),
+          lambda c: c.setdefault("srp", {}).update(stream_dmac_base="maap"),
+          True),
+-        ("MAAP pruned, static DMAC base",
+-         dict(maap=False), lambda c: None, False),
++        ("MAAP pruned, numeric legacy scratch cannot allocate talkers",
++         dict(maap=False), lambda c: None, True),
+         ("playback pruned but the interface is i2s_philips",
+          dict(i2s_playback=False, render_lpf=False),
+          lambda c: c["audio_interface"].update(kind="i2s_philips"), True),
+         ("playback+LPF pruned, TDM interface",
+          dict(i2s_playback=False, render_lpf=False), lambda c: None, False),
+         ("filter pruned but rx_address_filter is hardware",
+-         dict(rx_mac_filter=False), lambda c: None, True),
++         dict(rx_mac_filter=False), lambda c: c.setdefault("platform", {}).update(
++             rx_address_filter="hardware"), True),
+         ("filter pruned, promiscuous input declared explicitly",
+          dict(rx_mac_filter=False),
+          lambda c: c.setdefault("platform", {}).update(
+@@ -16975,7 +16976,7 @@ def test_optional_block_prune_accounting() -> None:
+     def m(c: dict[str, Any]) -> None:
+         """The whole prune this accounting arm measures: six optional
+         blocks, internal-only clocking and a promiscuous RX filter."""
+-        _prune(c, media_clock_servo=False, latency_taps=False, maap=False,
++        _prune(c, media_clock_servo=False, latency_taps=False,
+                i2s_playback=False, rx_mac_filter=False, render_lpf=False)
+         c["clocking"].update(media_clock_sources=["internal"],
+                              default_source="internal", crf_sink=False)
+@@ -16994,7 +16995,7 @@ def test_optional_block_prune_accounting() -> None:
+                              "render_lpf")) \
+         + eb.RESOURCE_COSTS["rx_filter"]["lut"] \
+         + eb.RESOURCE_COSTS["i2s_renderer"]["lut"] \
+-        + eb.RESOURCE_COSTS["maap_claim_ctx"]["lut"]
++       
+     got_lut = b["totals"]["lut"] - q["totals"]["lut"]
+     assert got_lut >= want_lut, \
+         f"pruned estimate fell by {got_lut} LUT, want at least {want_lut}"
+@@ -17002,6 +17003,8 @@ def test_optional_block_prune_accounting() -> None:
+     assert q["totals"]["ff"] < b["totals"]["ff"]
+     plan = pruned["plan"]
+     for k, (flag, param, _w) in eb.OPTIONAL_BLOCKS.items():
++        if k == "maap":
++            continue  # declared talkers require the live allocator
+         assert f"`{k}`" in plan, f"plan does not name {k}"
+         assert f"`{param}=0`" in plan, f"plan does not name {param}=0"
+         assert flag in plan, f"plan does not name {flag}"
+@@ -23068,11 +23071,13 @@ def _expected_fabric_writes(k: dict[str, int]) -> list[tuple[int, int]]:
+         (0x604, k["MILAN_ENTITY_ID_LO"]), (0x608, k["MILAN_ENTITY_ID_HI"]),
+         (0x60C, k["MILAN_MODEL_ID_LO"]), (0x610, k["MILAN_MODEL_ID_HI"]),
+         (0x108, k["MILAN_STATION_MAC_LO"]), (0x10C, k["MILAN_STATION_MAC_HI"]),
+-        (0x100, seed(0x100) | 0x8),                     # MAC_CTRL, #403
++        (0x100, seed(0x100) | 0x8),                     # MAC_CTRL allmulti
++        (0x700, 1),                                    # promiscuous miss policy
+         (0x654, (k["MILAN_SR_VID"] << 16) | 0x1),       # AAF_CTRL
+         (0x684, k["MILAN_SR_VID"]),                     # LWSRP_VID
+         (0x680, k["MILAN_LWSRP_CTRL_RESET"] | 0x3),     # LWSRP_CTRL, #400
+-        (0x6CC, ((k["MILAN_N_TALKERS"] + 1) << 8) | 0x1),  # MAAP_CTRL
++        (0x6CC, ((k["MILAN_N_TALKERS"] +
++                  int(bool(k["MILAN_CRF_TX_CTRL_BOOT"]))) << 8) | 0x1),
+         (0x750, k["MILAN_CRF_TX_CTRL_BOOT"]),           # CRFT_CTRL
+     ]
+ 
+@@ -23225,6 +23230,19 @@ def _boot_policy_controls(cc: str, firmware: str, cases: dict[str, _BootCase],
+             "ADP_CAPS write"), "ADP_CAPS (0x614)"),
+         ("the LWSRP_VID write dropped", on, None, _planted(
+             firmware, lwsrp_vid, "", "LWSRP_VID write"), "the pinned list is"),
++        ("unconditional spare MAAP address", off, None, _planted(
++            firmware, "MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT)",
++            "MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u)",
++            "spare MAAP address"), "the pinned list is"),
++        ("boot drops live SRP admission enable", on, None, _planted(
++            firmware, "MILAN_LWSRP_CTRL_RESET | 3u",
++            "MILAN_LWSRP_CTRL_RESET | 2u", "SRP enable"), "the pinned list is"),
++        ("boot drops live SRP declaration arm", on, None, _planted(
++            firmware, "MILAN_LWSRP_CTRL_RESET | 3u",
++            "MILAN_LWSRP_CTRL_RESET | 1u", "SRP declare"), "the pinned list is"),
++        ("boot silently enables station filtering", on, None, _planted(
++            firmware, "MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT)",
++            "MILAN_TCAM_CTRL, 2u)", "restrictive RX"), "the pinned list is"),
+     )
+     for n, (label, case, consts, source, because) in enumerate(controls):
+         consts = consts or boot_policy.fabric_constants(case.overlay, case.lwsrp)
+@@ -23862,6 +23880,23 @@ def test_boot_policy_follows_the_declaration() -> None:
+                 "ax7101_1x1_tdm8, crf_output off", off, work / "out")
+         finally:
+             off.unlink()
++        for bits in range(4):
++            p = _variant(CONFIGS["arty_current"], lambda c, bits=bits:
++                         c["srp"].update(enable_at_reset=bool(bits & 1),
++                                         talker_declare_at_reset=bool(bits & 2),
++                                         rtl_table=False))
++            try:
++                cases[f"reset admission {bits}"] = _boot_case(
++                    f"reset admission {bits}", p, work / "out")
++            finally:
++                p.unlink()
++        off_k = boot_policy.fabric_constants(
++            cases["ax7101_1x1_tdm8, crf_output off"].overlay,
++            cases["ax7101_1x1_tdm8, crf_output off"].lwsrp)
++        on_k = boot_policy.fabric_constants(
++            cases["ax7101_1x1_tdm8"].overlay,
++            cases["ax7101_1x1_tdm8"].lwsrp)
++        assert on_k["MILAN_MAAP_CTRL_BOOT"] - off_k["MILAN_MAAP_CTRL_BOOT"] == 256
+         for name, case in cases.items():
+             consts = boot_policy.fabric_constants(case.overlay, case.lwsrp)
+             for key in consts:
+@@ -23882,10 +23917,12 @@ def test_boot_policy_follows_the_declaration() -> None:
+ 
+ 
+ if __name__ == "__main__":
++    from test_declarations import test_declaration_contracts
++
+     if "--write-cluster-golden" in sys.argv:
+         write_cluster_names_golden()
+         sys.exit(0)
+-    for fn in (test_all_configs_build, test_baremetal_profile_contract,
++    for fn in (test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
+                test_gptp_product_default_and_legacy_option,
+                test_gptp_launch_observer_seam,
+                test_qspi_owner_transition_completed_write_prefixes,
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index 763f5b89..2de31d38 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -38,6 +38,7 @@
+ #define MILAN_LWSRP_CTRL     0x680u
+ #define MILAN_LWSRP_VID      0x684u
+ #define MILAN_MAAP_CTRL      0x6ccu
++#define MILAN_TCAM_CTRL      0x700u
+ #define MILAN_GPTP_PDELAY    0x6e4u
+ #define MILAN_AS_PARENT_LO   0x730u
+ #define MILAN_AS_PARENT_HI   0x734u
+@@ -1371,14 +1372,15 @@ static void configure_fabric(void)
+ 	milan_write(MILAN_ADP_MID_HI, MILAN_MODEL_ID_HI);
+ 	milan_write(MILAN_MAC_ADDR_LO, MILAN_STATION_MAC_LO);
+ 	milan_write(MILAN_MAC_ADDR_HI, MILAN_STATION_MAC_HI);
+-	/* Receive the link-local multicast control groups without promiscuous mode. */
+-	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | (1u << 3));
++	/* Existing promiscuous posture: bypass station selection on TCAM misses. */
++	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
++	milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
+ 
+ 	/* Fabric owns media/control. Firmware only provides the generated policy. */
+-	milan_write(MILAN_AAF_CTRL, (MILAN_SR_VID << 16) | 1u);
++	milan_write(MILAN_AAF_CTRL, MILAN_AAF_CTRL_BOOT);
+ 	milan_write(MILAN_LWSRP_VID, MILAN_SR_VID);
+ 	milan_write(MILAN_LWSRP_CTRL, MILAN_LWSRP_CTRL_RESET | 3u);
+-	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
++	milan_write(MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT);
+ 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+ 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
+ }
+diff --git a/sw/litex/boot_policy.py b/sw/litex/boot_policy.py
+index eb51bb3e..23e9a6a7 100644
+--- a/sw/litex/boot_policy.py
++++ b/sw/litex/boot_policy.py
+@@ -51,6 +51,12 @@ def fabric_constants(overlay: dict[str, Any],
+                                for s in overlay["stream_outputs"]),
+         "MILAN_SR_VID": int(reset_words["LWSRP_VID"], 16),
+         "MILAN_LWSRP_CTRL_RESET": int(reset_words["LWSRP_CTRL"], 16),
++        # Neutral hardware resets; firmware supplies this shape's policy.
++        "MILAN_AAF_CTRL_BOOT": (int(reset_words["LWSRP_VID"], 16) << 16) | 1,
++        "MILAN_MAAP_CTRL_BOOT": (len(overlay["stream_outputs"]) << 8) | 1,
++        # Existing accept-all posture, even with the filter hardware present.
++        "MILAN_MAC_CTRL_SET": 1 << 3,
++        "MILAN_TCAM_CTRL_BOOT": 1,
+         # clocking.crf_output.enabled owns the CRF talker: a declared output
+         # runs as a class-A stream, and an undeclared one leaves CRFT_CTRL[0]
+         # clear and declares nothing.

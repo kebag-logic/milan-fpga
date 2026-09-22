@@ -1,0 +1,7 @@
+[A177] INTEGRATION BLOCKER: exact authorized donor fails parent C++ warning-policy gate
+
+At authorized PP pin 8452f564294300a82d56eed464276576f65f4d58, `python3 scripts/check_cpp_idiom.py` reports `build without warnings 1 > ratchet 0`. The exact finding is `protocol-processor/tb/pp_top/Makefile:58`, added by donor PR96: its supplementary `-CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE)"` group does not repeat `-Wall -Wextra`. The common VFLAGS does contain both flags, so this is the parent's per-group policy/parser finding, not evidence of a warning-free build being disabled. `scripts/check_cpp_idiom.py:cflags_missing` explicitly requires them in EVERY group.
+
+The prior 424c688f pin lacks that supplementary group. The authorized pin is clean and reachable from the real donor main; no later donor commits were imported. The native parent PP-wrapper scenarios pass with CRF off, CRF on, and a test-only generated VID73 (402 checks each). This does not clear the independent parent policy gate.
+
+The lane may neither edit donor source, adopt another pin, nor grow a ratchet. Therefore this finding stays open for the manager's public disposition. Options are a separately reviewed donor follow-up with explicitly revised pin authorization, or a separately scoped parent checker decision about combined CFLAGS on one invocation. I will not silently exempt the donor or claim this gate passed. Raw command and finding are retained in the author evidence directory; source readiness is also awaiting the separately published PTOF acceptance conflict on #403.

@@ -1,0 +1,31 @@
+ .../endstation_arty_4x4/gen/adp_shape_defaults.svh |   5 +
+ .../endstation_arty_8ch/gen/adp_shape_defaults.svh |   5 +
+ .../gen/adp_shape_defaults.svh                     |   5 +
+ .../gen/adp_shape_defaults.svh                     |   5 +
+ .../gen/adp_shape_defaults.svh                     |   5 +
+ docs/ENDSTATION_BUILDER.md                         |  35 +++--
+ docs/diagrams/PNG_MANIFEST.json                    |   4 +-
+ docs/diagrams/submodule_boundaries.drawio          |   2 +-
+ docs/diagrams/submodule_boundaries.png             | Bin 323372 -> 323340 bytes
+ docs/diagrams/submodule_boundaries.svg             |   2 +-
+ docs/reference/REGISTER_MAP.md                     |  12 +-
+ docs/reference/SUBMODULES.md                       |  14 +-
+ hdl/common/csr/gen/lwsrp_csr_defaults.svh          |   6 +-
+ hdl/common/csr/milan_csr.sv                        |  15 +-
+ hdl/common/gen/adp_shape_defaults.svh              |   5 +
+ hdl/milan/KL_pp_shadow.sv                          |   3 +
+ hdl/milan/milan_datapath.sv                        |  28 ++--
+ protocol-processor                                 |   2 +-
+ scripts/pp_srcs.py                                 |   6 +
+ sw/builder/README-parameters.md                    |  22 ++-
+ sw/builder/endstation_builder.py                   | 129 ++++++++++------
+ sw/builder/test_builder.py                         |  68 +++++++--
+ sw/builder/test_declarations.py                    | 167 +++++++++++++++++++++
+ sw/firmware/milan_baremetal/milan_baremetal.c      |  10 +-
+ sw/litex/boot_policy.py                            |   6 +
+ tb/verilator/csr/sim_gptp.cpp                      |   7 +
+ tb/verilator/csr/sim_main.cpp                      |  92 +++++++++---
+ tb/verilator/csr/sim_win.cpp                       |   7 +
+ tb/verilator/milan_dp/sim_nxn.cpp                  |  96 ++++++++++++
+ tb/verilator/pp_shadow/sim_main.cpp                | 134 ++++++++++++++++-
+ 30 files changed, 759 insertions(+), 138 deletions(-)

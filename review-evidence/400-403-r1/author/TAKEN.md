@@ -1,0 +1,9 @@
+[A177] TAKEN
+Branch: 400-403-declaration-truth
+Base: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+Executor: A177 Codex. Independent reviewers reserved: R249 internal Codex and R250 external Opus.
+Authoritative references: REQUIREMENTS.md (REQ-CSR-01, REQ-CLS-03, REQ-MAC-02, REQ-VER-03); the pre-implementation decisions on #400 (comment 5770922734) and #403 (comment 5770922898); Milan v1.2 4.2.7.1.1, 4.2.7.2.1, 4.3.3.1/.2, 5.3.7.6 and 5.4.2.9/.10; donor #95 / PR96 completion.
+Interpreted scope: the owner-authorized single-lane #400+#403 bundle, retaining the fixed SRP profile and real generated startup-VID path, live reset versus firmware boot controls, fixed per-output 2 ms factory defaults with legal runtime/restore changes, explicit existing promiscuous posture, neutral AAF/MAAP resets and exact declared-output allocation. Only PP pin 8452f564294300a82d56eed464276576f65f4d58 is adopted after verifying real-remote main reachability. Historical donor audit exceptions remain disclosed.
+Validation plan: focused builder groups (including 18a-18d, 20a, 35 and defect-detecting controls), all-config entity/deploy shape checks, focused CSR/AAF/CRF/RX/MAAP/PP-wrapper integration with at most eight jobs and independently identified Verilator 5.050. The manager owns complete banks, trusted act, hosted evidence and final current-dev candidate gates. Source will remain committed, clean and unpublished for review.
+Material citation correction: the local consolidated Milan v1.2 specification places SET_STREAM_INFO at 5.4.2.9 and GET_STREAM_INFO at 5.4.2.10. The #403 decision cites 5.4.2.6/.7, which actually cover GET_CONFIGURATION/SET_STREAM_FORMAT. Its explicit offset behavior agrees with 5.3.7.6 and 5.4.2.9/.10; implementation and evidence will cite those matching clauses. No acceptance behavior changes.
+Blockers: none identified. Shared builder/firmware overlap with #504 remains a manager-owned merge risk. No implementation or review verdict is claimed.

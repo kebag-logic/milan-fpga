@@ -1,0 +1,133 @@
+  [ok]   I every shape-header consumer resolves = []
+  [ok]   H include resolution is unambiguous = []
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   milan_datapath includes the generated shape = True
+  [ok]   ACMP talker contexts sized by ADP_TALKER_SRC_C = True
+  [ok]   ACMP sink contexts sized by ADP_LISTENER_SINK_C = True
+  [ok]   no ADP shape threaded through the milan_csr port map = False
+  [ok]   milan_csr includes the generated shape = True
+  [ok]   0x618 word is built from ADP_TALKER_SRC_C = True
+  [ok]   0x61C word is built from ADP_LISTENER_SINK_C = True
+  [ok]   0x618 has a defaults-ROM arm = True
+  [ok]   0x61C has a defaults-ROM arm = True
+  [ok]   0x618 has NO write arm = False
+  [ok]   0x61C has NO write arm = False
+  [ok]   0x618 is NOT plain-RW = False
+  [ok]   0x61C is NOT plain-RW = False
+
+== endstation_arty_4x4  (4x4) ==
+  [ok]   endstation_arty_4x4: svh talker_stream_sources = 5
+  [ok]   endstation_arty_4x4: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_4x4: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh names its source config = 'configs/endstation_arty_4x4.yaml'
+  [ok]   endstation_arty_4x4: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_4x4: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_4x4: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_4x4: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_4x4: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_4x4: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_4x4: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_4x4: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: configs/generated copy is current = True
+  [ok]   endstation_arty_4x4: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_8ch  (4x4) ==
+  [ok]   endstation_arty_8ch: svh talker_stream_sources = 5
+  [ok]   endstation_arty_8ch: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_8ch: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh names its source config = 'configs/endstation_arty_8ch.yaml'
+  [ok]   endstation_arty_8ch: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_8ch: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_8ch: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_8ch: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_8ch: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_8ch: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_8ch: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_8ch: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: configs/generated copy is current = True
+  [ok]   endstation_arty_8ch: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_current  (1x1) ==
+  [ok]   endstation_arty_current: svh talker_stream_sources = 1
+  [ok]   endstation_arty_current: svh listener_stream_sinks = 2
+  [ok]   endstation_arty_current: svh talker_capabilities = '0x4001'
+  [ok]   endstation_arty_current: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_current: svh names its source config = 'configs/endstation_arty_current.yaml'
+  [ok]   endstation_arty_current: overlay entity_counts.talker == STREAM_OUTPUT = 1
+  [ok]   endstation_arty_current: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_arty_current: advertised talker sources == STREAM_OUTPUT count = 1
+  [ok]   endstation_arty_current: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_arty_current: generated ROM STREAM_OUTPUT descriptors = 1
+  [ok]   endstation_arty_current: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_arty_current: no CRF output -> no MEDIA_CLOCK_SOURCE claim = False
+  [ok]   endstation_arty_current: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_arty_current: configs/generated copy is current = True
+  [ok]   endstation_arty_current: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_1x1_tdm8  (1x1) ==
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_stream_sources = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_stream_sinks = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh names its source config = 'configs/endstation_ax7101_1x1_tdm8.yaml'
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.talker == STREAM_OUTPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised talker sources == STREAM_OUTPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_OUTPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: CRF talker uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_1x1_tdm8: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_1x1_tdm8: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   endstation_ax7101_8x8: svh talker_stream_sources = 9
+  [ok]   endstation_ax7101_8x8: svh listener_stream_sinks = 9
+  [ok]   endstation_ax7101_8x8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh names its source config = 'configs/endstation_ax7101_8x8.yaml'
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.talker == STREAM_OUTPUT = 9
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.listener == STREAM_INPUT = 9
+  [ok]   endstation_ax7101_8x8: advertised talker sources == STREAM_OUTPUT count = 9
+  [ok]   endstation_ax7101_8x8: advertised listener sinks == STREAM_INPUT count = 9
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_OUTPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_INPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: CRF talker uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_8x8: CRF sink uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_8x8: no deleted-plane artifact left in its gen/ include dir = []
+
+== tracked entity definition (what a build includes) ==
+  tracked shape source: configs/endstation_ax7101_1x1_tdm8.yaml
+  [ok]   tracked ADP shape names a source config = True
+  [ok]   tracked shape's source config exists (configs/endstation_ax7101_1x1_tdm8.yaml) = True
+  [ok]   tracked ADP shape == what that config generates = True
+  [ok]   owner's STREAM_OUTPUT descriptors == tracked advertised sources = 2
+  [ok]   owner's STREAM_INPUT descriptors == tracked advertised sinks = 2
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0060 -> major 2, minor 96
+  [ok]   endstation_arty_4x4: config declares no firmware_version = False
+  [ok]   endstation_arty_4x4: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_8ch: config declares no firmware_version = False
+  [ok]   endstation_arty_8ch: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_current: config declares no firmware_version = False
+  [ok]   endstation_arty_current: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_1x1_tdm8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_1x1_tdm8: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_8x8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_8x8: emitted firmware_version = '2.96.0'
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version field is 64 octets = 64
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version is zero padded past the string (7.2) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version decodes as UTF-8 (7.2.1) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version == the gateware's VERSION = '2.96.0'
+----------------------------------------------------------------------
+checks: 113   failures: 0
+RESULT: PASS

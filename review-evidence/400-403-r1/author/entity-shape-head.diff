@@ -1,0 +1,17 @@
+diff --git a/hdl/common/csr/gen/lwsrp_csr_defaults.svh b/hdl/common/csr/gen/lwsrp_csr_defaults.svh
+index 86006fab..654ec9e3 100644
+--- a/hdl/common/csr/gen/lwsrp_csr_defaults.svh
++++ b/hdl/common/csr/gen/lwsrp_csr_defaults.svh
+@@ -15,9 +15,9 @@
+ //                Same values as the full reference table
+ //                out/<cfg>/lwsrp_table.svh (one config, one pass;
+ //                test_builder gate 20a compares them).
+-//                LWSRP_CTRL[1:0] still drive admission/declaration;
+-//                the numeric timer/TSpec/queue words are legacy
+-//                diagnostic scratch, not processor configuration.
++//                LWSRP_CTRL[1:0] and accumulated latency remain live.
++//                VID is diagnostic; its processor parameter is separate.
++//                The remaining numeric fields are legacy scratch.
+ //                Include-only: no `default_nettype directive (it would
+ //                leak into the includer's scope), no include guard
+ //                (module-scope localparams - each including module

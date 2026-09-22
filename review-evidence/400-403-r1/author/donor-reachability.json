@@ -1,0 +1,53 @@
+[
+  {
+    "argv": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "rev-parse",
+      "FETCH_HEAD"
+    ],
+    "exit": 0,
+    "stdout": "f70ba36ecb634467e4b1c3f0dbf1239d1e12af57\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "merge-base",
+      "--is-ancestor",
+      "8452f564294300a82d56eed464276576f65f4d58",
+      "FETCH_HEAD"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "status",
+      "--porcelain"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "log",
+      "--oneline",
+      "424c688fa2205b934a7689a58f2aa766420f2326..8452f564294300a82d56eed464276576f65f4d58"
+    ],
+    "exit": 0,
+    "stdout": "8452f56 Merge PR #96: expose the SRP default VID parameter\nea93023 Expose the SRP Domain default VID as a top parameter and grade its binding in a second pp_top build\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,49 @@
+[
+  {
+    "case": "pp-binding-mutant2",
+    "raw_exit": 1,
+    "failures": [
+      "  [FAIL] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030049",
+      "  [FAIL] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030049",
+      "  [FAIL] #400 link cycle restores generated default got=0x00030002 exp=0x00030049"
+    ]
+  },
+  {
+    "case": "pp-adoption-mutant",
+    "raw_exit": 1,
+    "failures": [
+      "  [FAIL] #400 network Domain adoption stays live    got=0x01030049 exp=0x01030005"
+    ]
+  },
+  {
+    "case": "nxn-offset-mutant",
+    "raw_exit": 1,
+    "failures": [
+      "  [FAIL] #403 runtime GET changes only its own output   got=0x1e8480 exp=0xf4240",
+      "  [FAIL] #403 output 0 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 output 0 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 runtime GET changes only its own output   got=0x1e8480 exp=0xf4240",
+      "  [FAIL] #403 output 1 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 output 1 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 runtime GET changes only its own output   got=0x1e8480 exp=0xf4240",
+      "  [FAIL] #403 output 2 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 output 2 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 runtime GET changes only its own output   got=0x1e8480 exp=0xf4240",
+      "  [FAIL] #403 output 3 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 output 3 AAF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 runtime GET changes only its own output   got=0x1e8480 exp=0xf4240",
+      "  [FAIL] #403 output 4 CRF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #403 output 4 CRF timestamp follows 1000000 ns got=0x0 exp=0x1",
+      "  [FAIL] #67 GET_STREAM_INFO reads the folded transit entry got=0x1e8480 exp=0xb71b0",
+      "  [FAIL] #67 no refusal moved the stored offset         got=0x1e8480 exp=0xb71b0"
+    ]
+  },
+  {
+    "case": "csr-reset-mutant",
+    "raw_exit": 1,
+    "failures": [
+      "  [FAIL] AAF neutral reset VID      got=0x2 exp=0x0",
+      "  [FAIL] MAAP neutral reset count   got=0x8 exp=0x0"
+    ]
+  }
+]
