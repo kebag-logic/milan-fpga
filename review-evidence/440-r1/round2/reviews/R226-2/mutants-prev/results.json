@@ -1,0 +1,684 @@
+{
+ "tree": "/tmp/r226-2-scratch/prev",
+ "set": "closer",
+ "input_scripts_sha256_before": "fc8a31d48ea8626c938cb1658fe7314d2260b107f6e4a5c6b7f8a75c53950fe2",
+ "input_scripts_sha256_after": "fc8a31d48ea8626c938cb1658fe7314d2260b107f6e4a5c6b7f8a75c53950fe2",
+ "mutants": [
+  {
+   "id": "R15-closer-add-div",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R16-closer-add-title",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X04-closer-add-xmp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-div-raw-html-tags-plus-div-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 9,
+     "I440_failing": 1,
+     "non_I440_failing": 8,
+     "failing_names": [
+      "a type-6 block INTERRUPTS a paragraph, where a type-7 block may not",
+      "a type-6 block ends at the blank line, so the heading renders",
+      "a type-6 name that ends its line opens the block",
+      "a type-6 name a form feed follows opens the block, interrupting a paragraph",
+      "a type-6 name a line tabulation follows opens it on a line that carries more",
+      "a type-6 name in capitals opens the block",
+      "I440-T-precedence a type-1 closer cannot end type 6",
+      "a heading inside a type-6 block that closed IS a heading",
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (674/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-title-raw-html-tags-plus-title-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-xmp-raw-html-tags-plus-xmp-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-iframe",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noscript",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-plaintext",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noembed",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noframes",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-listing",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-p",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-span",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-code",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-pre2",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-b",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  }
+ ]
+}

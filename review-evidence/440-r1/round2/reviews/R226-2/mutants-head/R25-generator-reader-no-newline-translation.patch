@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -892,7 +892,7 @@
+     changed, missing, stale, refused = [], [], [], []
+ 
+     for md in targets:
+-        text = md.read_text()
++        text = md.read_bytes().decode("utf-8")
+         rel = md.relative_to(REPO)
+         notes = refusal_notes(str(rel), text)
+         for note in notes:

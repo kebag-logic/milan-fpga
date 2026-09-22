@@ -1,0 +1,41 @@
+  - [added prose em dash is refused] cannot judge: git diff: injected failure (probe B)
+  - [mirrored label of a pre-existing heading passes] cannot judge: git diff: injected failure (probe B)
+  - [new heading with an em dash is refused, label included] cannot judge: git diff: injected failure (probe B)
+  - [separator change to -- passes] cannot judge: git diff: injected failure (probe B)
+  - [em dash in the description of an exempt entry is refused] cannot judge: git diff: injected failure (probe B)
+  - [an added entry keeping the em-dash separator is refused] cannot judge: git diff: injected failure (probe B)
+  - [an entry whose anchor is not the generator's is refused] cannot judge: git diff: injected failure (probe B)
+  - [an entry indented four spaces is refused] cannot judge: git diff: injected failure (probe B)
+  - [fenced copy of a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [four-backtick fence around a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [tilde fence around a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [indented fence around a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [indented-code copy of a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [commented-out copy of a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [raw HTML copy of a mirrored label is refused] cannot judge: git diff: injected failure (probe B)
+  - [a heading that exists only in a comment authorises nothing] cannot judge: git diff: injected failure (probe B)
+  - [a page the walk refuses to read exempts nothing] cannot judge: git diff: injected failure (probe B)
+  - [a base page the walk refuses to read authorises no label] cannot judge: git diff: injected failure (probe B)
+  - [a second comment on a closing line still hides the block] cannot judge: git diff: injected failure (probe B)
+  - [an index page this generator skips is never exempt] cannot judge: git diff: injected failure (probe B)
+  - [a heading wrapped in a tight HTML block authorises nothing] cannot judge: git diff: injected failure (probe B)
+  - [a heading wrapped in a tight type-7 block under a heading authorises nothing] cannot judge: git diff: injected failure (probe B)
+  - [an entry-shaped line outside the block is not exempt] cannot judge: git diff: injected failure (probe B)
+  - [a fence marker in an old comment refuses nothing] cannot judge: git diff: injected failure (probe B)
+  - [added table row is refused] cannot judge: git diff: injected failure (probe B)
+  - [added fenced line is refused] cannot judge: git diff: injected failure (probe B)
+  - [a moved page keeps its exemption] cannot judge: git diff: injected failure (probe B)
+  - [a page marked -diff is still compared as text] cannot judge: git diff: injected failure (probe B)
+  - [a deleted page adds no line] cannot judge: git diff: injected failure (probe B)
+  - [text outside Markdown is not read] cannot judge: git diff: injected failure (probe B)
+check_em_dash: FATAL: 30 of 57 arm(s) did not hold
+A (Refusal inside em_dash_arms): main RAISED Refusal: git show: injected failure (probe A)
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/507-r2-r226/probes/refusal_in_label_rows.py", line 27, in run
+    rc = gate.main(["--selftest"])
+  File "/tmp/r226-2-scratch/head/scripts/check_em_dash.py", line 966, in main
+    problems, arms = selftest()
+                     ~~~~~~~~^^
+check_em_dash.Refusal: git show: injected failure (probe A)
+A (Refusal inside em_dash_arms): an uncaught exception makes `python3 check_em_dash.py` exit 1
+B (Refusal inside a planted control): main returned rc=2

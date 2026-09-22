@@ -1,0 +1,19 @@
+  FAIL [a comment delimiter inside a fence opens no comment]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [a short delimiter inside a longer fence is content]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [a tilde fence does not close on backticks]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [a closer carrying an info string does not close]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [an opener indented three spaces still opens, and its closer at the same indentation still closes]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [an indented closer shorter than its opener does not close]: ['fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '```' '']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '```' ' ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '```' '\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '```' ' \t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '~~~' '']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '~~~' ' ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '~~~' '\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [I440-F-valid '~~~' ' \t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']
+  FAIL [a lone tag directly under a closing fence hides the heading it wraps]
+  FAIL [a lone tag directly under an indented code line under a closing fence hides the heading it wraps]
+TOC selftest: FAIL (691/707 arm(s))
+
+exit=1

@@ -1,0 +1,48 @@
+R226-2 reproduction commands (all paths absolute; every shell command was run through `rtk proxy`).
+O=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/507-r2-r226
+S=/tmp/r226-2-scratch            (disposable; review clone never written)
+P=$S/pub/review-evidence/440-r1/reviews/R226-1/probes   (== $O/probes/r226-1-public, see SOURCE.txt)
+
+Identity and integrity
+  bash $O/probes/integrity.sh $VALIDATION_STORAGE/reviews/r226-507-r2      -> receipts/00-integrity-start.txt, receipts/99-integrity-final.txt
+  git ls-remote origin refs/heads/440-markdown-closers refs/heads/dev refs/pull/507/head   -> receipts/04-remote-identity.txt
+  git diff --name-status/--summary/--raw/--word-diff 0d43ff25..9d6109cc and b17580b9..9d6109cc -> receipts/03-identity-and-scope.txt
+  RTL-scope path scan and gitlink comparison                          -> receipts/09-rtl-scope.txt
+
+Scratch clones (read-only alternates of the review clone)
+  git clone -q --shared --no-checkout $VALIDATION_STORAGE/reviews/r226-507-r2 $S/{head,prev,base}; git checkout --detach {9d6109cc,0d43ff25,b17580b9}
+  public evidence commits fetched into $S/evidence.git (bare, alternates to lane objects): 26f9c867, 4c39e5fb, 87c0683b; extracted with git archive into $S/pub
+  archive integrity: $O/receipts/10-archive-MANIFEST-87c0683b.json (published_sha256 of 2950 round2 + R226-1 files all match)
+
+Self-tests (head, prior head, base)
+  cd $S/<tree> && python3 -B scripts/gen_toc.py --selftest; python3 -B scripts/check_em_dash.py --selftest   -> receipts/06-selftests-{head,prev,base}.txt
+
+Arm populations
+  python3 -B $O/probes/arm_population.py $S/{head,prev} $O/population/arms-{head,prev}.json
+  python3 -B $O/probes/compare_population.py $O/population/arms-prev.json $O/population/arms-head.json   -> receipts/07-arm-population-prev-vs-head.txt
+
+Renderer (synthetic fixture text only; POST /markdown; sequential; creates no GitHub object)
+  python3 -B $O/probes/r226_2_render.py $S/head $P $O/render            -> render/render-report.json, render/render.log (30 new fixtures x gfm+markdown)
+  python3 -B $O/probes/r226_2_render_positive.py $S/head $P $O/render   -> render/render-positive-report.json (6 positive controls)
+
+Mutation sensitivity (disposable copies of scripts/)
+  python3 -B $O/probes/r226_2_mutants.py $S/head $P $O/mutants-head all     -> mutants-head/{summary.tsv,results.json,*.patch,*.log}
+  python3 -B $O/probes/r226_2_mutants.py $S/prev $P $O/mutants-prev closer  -> mutants-prev/{summary.tsv,results.json,*.patch,*.log}
+
+Real-CLI end to end (real Git repositories in tempdirs)
+  python3 -B $O/probes/make_mutant_dirs.py $S/{head,prev} $S/mutdirs {head,prev}   -> e2e/mutant-dirs.txt
+  python3 -B $O/probes/r226_2_e2e.py $S/head/scripts head $O/e2e $P --render-new
+  python3 -B $O/probes/r226_2_e2e.py $S/mutdirs/<head|prev>-<R15|R16|X04>/scripts mut-<...> $O/e2e $P
+  python3 -B $O/probes/e2e_vs_oracle.py $O/e2e $P/../e2e/e2e-oracle.json head mut-head-R15 mut-head-R16 mut-head-X04 mut-prev-R15 mut-prev-R16 mut-prev-X04  -> e2e/e2e-vs-oracle.txt
+
+283-row sweep observation at head and base (oracle = R226-1 stored renders, no new requests)
+  python3 -B $P/r226_sweep.py observe $O/sweep-r2 $S/head/scripts head
+  python3 -B $P/r226_sweep.py observe $O/sweep-r2 $S/base/scripts base
+  python3 -B $P/r226_sweep.py compare $O/sweep-r2                     -> sweep-r2/{summary.json,comparison.tsv,compare.log}
+
+Focused gates at head
+  bash $O/probes/gates.sh $S/head b17580b91deb11f3441dfc5d7f9fafe539d929b8   -> receipts/08-gates-head.txt
+
+Deletion resistance and failure path
+  python3 -B $O/probes/maintenance.py $S/head $O/maintenance            -> maintenance/{results.json,maintenance.log,*.log}
+  python3 -B $O/probes/refusal_in_label_rows.py $S/head                 -> receipts/11-refusal-in-label-rows.txt

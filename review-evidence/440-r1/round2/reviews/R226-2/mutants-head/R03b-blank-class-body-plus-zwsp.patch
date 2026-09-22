@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -74,7 +74,7 @@
+ #: COLUMNS (`_indent_columns`); `delimiter blank` is the wider padding
+ #: GFM's delimiter-row scanner takes; `tag blank` is also what may follow
+ #: a type-1 or type-6 NAME, where the renderer reads widest ([R85] F1(b)).
+-_BLANK = " \t"
++_BLANK = " \t\u200b"
+ CLASSES = {
+     "blank": _BLANK,
+     "indent": " ",

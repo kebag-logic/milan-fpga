@@ -1,0 +1,12 @@
+  FAIL [a type-6 block INTERRUPTS a paragraph, where a type-7 block may not]: ['prose line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+  FAIL [a type-6 block ends at the blank line, so the heading renders]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line']
+  FAIL [a type-6 name that ends its line opens the block]: ['prose line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+  FAIL [a type-6 name a form feed follows opens the block, interrupting a paragraph]: ['prose line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+  FAIL [a type-6 name a line tabulation follows opens it on a line that carries more]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']
+  FAIL [a type-6 name in capitals opens the block]: ['prose line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+  FAIL [I440-T-precedence a type-1 closer cannot end type 6]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']
+  FAIL [a heading inside a type-6 block that closed IS a heading]
+  FAIL [the type-1 names are the renderer's four]
+TOC selftest: FAIL (674/683 arm(s))
+
+exit=1

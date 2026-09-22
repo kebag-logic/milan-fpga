@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -478,7 +478,7 @@
+     Unicode lookalikes; no character is allowed inside the closing tag.
+     #440 removes the inner-blank escape and the cross-name withholding
+     measured on PR #428 ([R85] F2, [R86] F1)."""
+-    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS), line, ASCII_FOLD))
++    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS + ("listing",)), line, ASCII_FOLD))
+ 
+ 
+ def _still_open(line: str, state: str, delim: str,

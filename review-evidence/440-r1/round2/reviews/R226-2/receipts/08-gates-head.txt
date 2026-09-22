@@ -1,0 +1,71 @@
+tree: 9d6109ccf924c03308cb8aa202ce68a435cd4f8d 1d322d866da6b8d19ccd46cfd7ef5f405e9dadb4
+merge-base(base, HEAD): b17580b91deb11f3441dfc5d7f9fafe539d929b8
+
+$ python3 -B scripts/gen_toc.py --selftest
+TOC selftest: PASS (707/707 arm(s))
+exit=0
+
+$ python3 -B scripts/gen_toc.py --check
+TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+exit=0
+
+$ python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 144 existing cross-page fragment links reproduced
+exit=0
+
+$ python3 -B scripts/gen_toc.py --sites
+ATX_HEADING_RE: single source
+BLOCK_QUOTE_RE: single source
+FENCE_RE: single source
+FOOTNOTE_DEFINITION_RE: single source
+GENERATED_RE: single source
+HEAD_RE: single source
+HTML_BLOCK_OPEN_RE: single source
+HTML_TAG_LINE_RE: single source
+LIST_ITEM_RE: single source
+RAW_HTML_OPEN_RE: single source
+SETEXT_UNDERLINE_RE: single source
+TABLE_CELL_END_RE: single source
+TABLE_CELL_RE: single source
+TABLE_DELIMITER_RE: single source
+THEMATIC_BREAK_RE: single source
+TOC_ENTRY_RE: single source
+_opens() lstrip(): single source
+_opens() strip(): single source
+_paragraph_after() strip(): single source
+_still_open() strip(): single source
+_still_open() strip(): single source
+_table_cells() lstrip(): single source
+_table_cells() strip(): single source
+_type_1_end() search(): single source
+line_kinds() lstrip(): single source
+exit=0
+
+$ python3 -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (57 arm(s))
+exit=0
+
+$ python3 -B scripts/check_em_dash.py --base b17580b91deb11f3441dfc5d7f9fafe539d929b8
+check_em_dash: 0 finding(s) over 34 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [b17580b9..HEAD]
+exit=0
+
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+exit=0
+
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+exit=0
+
+$ git diff --check b17580b91deb11f3441dfc5d7f9fafe539d929b8 HEAD
+exit=0
+
+$ git diff --check 0d43ff25d38917e77bb5c3d2ddb6473013cea3ba HEAD
+exit=0
+
+status after gates:
+(end)

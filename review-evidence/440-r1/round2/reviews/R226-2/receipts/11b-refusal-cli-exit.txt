@@ -1,0 +1,26 @@
+## disposable copy: em_dash_arms raises check_em_dash.Refusal before its first row verdict
+--- /tmp/r226-2-scratch/head/scripts/gen_toc_closer_cases.py	2026-09-22 11:43:54.165000000 +0200
++++ scripts/gen_toc_closer_cases.py	2026-09-22 12:01:23.565469324 +0200
+@@ -135,6 +135,7 @@
+         gate._commit(repo, "I440 head")
+         for name, _, findings, exemptions in rows:
+             verdict = gate.Verdict()
++            raise gate.Refusal("git show: injected failure (CLI probe)")
+             path = f"{name}.md"
+             gate.judge_page(repo, base, gate.Change(path, path), verdict)
+             if (len(verdict.findings), verdict.exempt) != (findings, exemptions):
+$ python3 -B scripts/check_em_dash.py --selftest
+Traceback (most recent call last):
+  File "/tmp/r226-2-scratch/refusal.0Ou7/scripts/check_em_dash.py", line 993, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/r226-2-scratch/refusal.0Ou7/scripts/check_em_dash.py", line 966, in main
+    problems, arms = selftest()
+                     ~~~~~~~~^^
+  File "/tmp/r226-2-scratch/refusal.0Ou7/scripts/check_em_dash.py", line 949, in selftest
+    closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
+                                   ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r226-2-scratch/refusal.0Ou7/scripts/gen_toc_closer_cases.py", line 138, in em_dash_arms
+    raise gate.Refusal("git show: injected failure (CLI probe)")
+Refusal: git show: injected failure (CLI probe)
+exit=1

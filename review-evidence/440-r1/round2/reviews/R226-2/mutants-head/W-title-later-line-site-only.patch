@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -492,7 +492,7 @@
+         if not tag:                     # type 6: a blank line ends it
+             return (TEXT if not line.strip(CLASSES["blank"])
+                     else HTML), "", tag
+-        return (TEXT if _type_1_end(line) else HTML), "", tag
++        return (TEXT if _type_1_end(line) or re.search(r"</title>", line, ASCII_FOLD) else HTML), "", tag
+     m = FENCE_RE.match(line)         # closes on the SAME character, a run
+     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+             and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer

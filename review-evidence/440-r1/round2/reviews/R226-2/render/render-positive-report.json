@@ -1,0 +1,92 @@
+[
+ {
+  "id": "R226-2-pos-I440-T-valid-pre-style-n",
+  "arm": "I440-T-valid pre/style '\\n'",
+  "source": "<pre>\n</style>\n## Probe\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "agree": true
+ },
+ {
+  "id": "R226-2-pos-I440-T-valid-pre-TEXTAREA-x",
+  "arm": "I440-T-valid pre/TEXTAREA 'x'",
+  "source": "<pre>x</TEXTAREA>\n## Probe\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "agree": true
+ },
+ {
+  "id": "R226-2-pos-I440-T-valid-style-SCRIPT-x",
+  "arm": "I440-T-valid style/SCRIPT 'x'",
+  "source": "<style>x</SCRIPT>\n## Probe\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "agree": true
+ },
+ {
+  "id": "R226-2-pos-I440-T-valid-textarea-pre-n",
+  "arm": "I440-T-valid textarea/pre '\\n'",
+  "source": "<textarea>\n</pre>\n## Probe\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 1,
+   "heading_rendered": true
+  },
+  "agree": true
+ },
+ {
+  "id": "R226-2-pos-I440-E-cross",
+  "arm": "I440-E-cross",
+  "source": "# Page\n\n<pre>\n</style>\n## Old \u2014 heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 4,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 4,
+   "heading_rendered": true
+  },
+  "agree": true
+ },
+ {
+  "id": "R226-2-pos-I440-E-cross-inline",
+  "arm": "I440-E-cross-inline",
+  "source": "# Page\n\n<pre>x</TEXTAREA>\n## Old \u2014 heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "expects_visible": true,
+  "gfm": {
+   "h2": 4,
+   "heading_rendered": true
+  },
+  "markdown": {
+   "h2": 4,
+   "heading_rendered": true
+  },
+  "agree": true
+ }
+]
