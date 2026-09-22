@@ -57,8 +57,9 @@ def _class_guards(source: str) -> tuple[list[str], list[str]]:
     Python's own whitespace, whose excess over the renderer's BLANK is
     exactly `REFUSED`, so a page that could tell the two apart is refused
     before the site is asked -- which holds the site only where the
-    renderer's class AT THAT POSITION is the blank, and
-    `gen_toc._type_1_end` says at the site why it is not held there.
+    renderer's class AT THAT POSITION is the blank. #440 removes the
+    last such sites: fence trailers read `blank`, and type-1 closers
+    match literal names with no internal character class.
     Anything else is a note and the self-test fails: a class inline, Python's
     `\d`, `\w`, `\W` or `\D`, a `str.is*()` test, or a strip with a class
     of its own ([R85] F1 and F2, [R86] F1 and F2, round 9 on PR #428).

@@ -51,8 +51,8 @@ NEST_WHEN_H3_ATLEAST = 8
 #: import printed a smaller total and exited 0 ([R86] suggestion, round 6
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
-                "provenance", "refusal")
-MIN_ARMS = 279
+                "provenance", "refusal", "I440")
+MIN_ARMS = 683
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -161,8 +161,8 @@ INDENT_CODE_COLUMNS = 4
 #: CommonMark's type-1 raw HTML block: its content is not parsed as
 #: Markdown and it survives blank lines, so a Contents block inside one
 #: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
-#: its closing tag. The name is followed by `tag blank`, `>` or the END OF
-#: THE LINE: reading `/` as one of those made `<pre/>` a type-1 block, and
+#: any literal type-1 closing tag. The opening name takes `tag blank`, `>`
+#: or the END OF THE LINE: reading `/` there made `<pre/>` a type-1 block, and
 #: leaving the line end out made `<pre` ending a line none ([R85] round 9
 #: on PR #428); narrowing the follow set to space and tab exempted `<pre`
 #: + a form feed + `>`, which the renderer opens ([R85] F1(b), round 10).
@@ -291,22 +291,19 @@ def _indent_columns(line: str) -> int:
 
 def refusals(text: str) -> list[tuple[int, int, str]]:
     """Every position this walk REFUSES to read: (line, column, character),
-    the second of the two honest answers a decision here can give. Where
-    the walk reads the renderer's own class it answers (`CLASSES`); where
-    it spells PYTHON'S whitespace instead - the fence closer #440 carries,
-    and whatever a later reader finds that this round did not - it must not
-    answer at all, and this is what stops it. Every character at which the
-    two notions disagree is REFUSED, named with its page, line, column and
-    code point, and the page obtains no provenance and so no exemption.
+    preserving the global policy even where a site now reads the exact
+    renderer class. Every character in `REFUSED` is named with its page,
+    line, column and code point. Such a page obtains no provenance and so
+    no exemption. The raw `blocks()` and `headings()` helpers do not apply
+    this policy themselves; their callers must check it.
 
     IT BINDS EVERY PAGE A DECISION IS READ FROM, or it holds nothing: the
     branch page provenance comes from AND the base page whose headings
     decide the label, which round 9 left unrefused and is the page a label
     is copied FROM (`check_em_dash.base_labels`, [R85] F1, [R86] F2, round
-    10 on PR #428). WHAT NO REFUSAL HOLDS is a position the renderer reads
-    NARROWER than the blank at, where the divergence needs no refused
-    character: the type-1 closers take a space or a tab inside the closing
-    tag where the renderer takes none (`_type_1_end`, #440).
+    10 on PR #428). #440 reads the exact fence trailer and type-1 closer
+    rules independently of this policy: spaces/tabs after a fence, and
+    no blanks inside a literal type-1 closing tag (`_type_1_end`).
 
     There are 26 and no page in the corpus carries one. THE LINE MODEL puts
     the carriage return among them: a line here is what `text.split("\n")`
@@ -315,6 +312,10 @@ def refusals(text: str) -> list[tuple[int, int, str]]:
     the generator, git in text mode in the gate - which is the real reason
     that residue could not reach the exemption, and not the one round 8
     gave ([R85] and [R86] suggestion, round 9).
+    With #440's exact trailer, a raw closing fence followed by CR stays
+    open here but ends for the renderer: WITHHOLD, not an escape. The
+    reconstructed 205-row sweep leaves five raw CR withholdings, all in
+    this refused family; after reader normalization all 205 agree.
     """
     return [(n, col, char)
             for n, line in enumerate(text.split("\n"), 1)
@@ -342,8 +343,8 @@ def blocks(text: str) -> list[str]:
     third from [R85], round 7). It is a single state machine, so the block
     already open decides what a delimiter means ([R0] round 5 F3). The
     three kinds of raw HTML block are stated where each is spelled above:
-    type 1 ends at its closing tag and survives blank lines, types 6 and 7
-    end at the first BLANK line, and type 7 alone may not interrupt a
+    type 1 ends at any literal type-1 closing tag and survives blank lines;
+    types 6 and 7 end at the first BLANK line, and type 7 alone may not interrupt a
     paragraph. None parses its content as Markdown, so a heading inside
     any of them is text.
 
@@ -469,15 +470,15 @@ def _comment_after(line: str, inside: bool) -> bool:
     return inside
 
 
-def _type_1_end(line: str, tag: str) -> bool:
-    r"""Whether this line ends the type-1 block `tag` opened. NO REFUSAL
-    HOLDS THIS SITE: the renderer ends such a block on a line carrying the
-    LITERAL `</pre>`, `</script>`, `</style>` or `</textarea>`, any of the
-    four ending any of them, so its class inside the closing tag is EMPTY
-    and the space and the tab `\s*` takes escape with no refused character
-    on the page. Reading the four names is #440's ([R85] F2, [R86] F1,
-    round 10 on PR #428)."""
-    return bool(re.search(r"</%s\s*>" % tag, line, ASCII_FOLD))
+def _type_1_end(line: str) -> bool:
+    """Whether a literal closer ends a type-1 block (CommonMark 4.6).
+
+    Any of the four names ends any type-1 block, including on its opening
+    line and inside longer text. ASCII folding admits capitals, not
+    Unicode lookalikes; no character is allowed inside the closing tag.
+    #440 removes the inner-blank escape and the cross-name withholding
+    measured on PR #428 ([R85] F2, [R86] F1)."""
+    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS), line, ASCII_FOLD))
 
 
 def _still_open(line: str, state: str, delim: str,
@@ -491,10 +492,10 @@ def _still_open(line: str, state: str, delim: str,
         if not tag:                     # type 6: a blank line ends it
             return (TEXT if not line.strip(CLASSES["blank"])
                     else HTML), "", tag
-        return (TEXT if _type_1_end(line, tag) else HTML), "", tag
+        return (TEXT if _type_1_end(line) else HTML), "", tag
     m = FENCE_RE.match(line)         # closes on the SAME character, a run
     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
-            and not m.group(2).strip():  # at least as long, nothing after it
+            and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
         return TEXT, "", ""
     return FENCE, delim, ""
 
@@ -517,7 +518,7 @@ def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
     html = RAW_HTML_OPEN_RE.match(line)
     if html:
         tag = html.group(1)
-        closed = _type_1_end(line, tag)
+        closed = _type_1_end(line)
         return HTML, (TEXT if closed else HTML), "", tag
     if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
                                           and HTML_TAG_LINE_RE.match(line)):
@@ -833,19 +834,20 @@ def selftest() -> int:
     """
     sys.modules.setdefault("gen_toc", sys.modules[__name__])
     import gen_toc_cases as cases
+    import gen_toc_closer_cases as closers
     families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
                 "guard": cases.guard_arms(), "heading": cases.heading_arms(),
                 "predecessor": cases.predecessor_arms(),
                 "provenance": cases.provenance_arms(),
-                "refusal": cases.refusal_arms()}
-    on_walk = families["walk"] + families["tag"]
+                "refusal": cases.refusal_arms(), "I440": closers.closer_arms()}
+    on_walk = families["walk"] + families["tag"] + families["I440"]
     on_page = (families["provenance"] + families["predecessor"]
                + families["heading"] + families["guard"]
                + families["refusal"])
     arms = len(on_walk) + len(on_page)
     import gen_toc_guards as guards
     notes = _tally_guards(families, arms) + _sites()[1]
-    for beside in (cases, guards):        # neither may hold a rule
+    for beside in (cases, guards, closers):  # none may hold a rule
         src = Path(beside.__file__)
         notes += _owner_guards(src.name, src.read_text(), vars(beside))
     for note in notes:

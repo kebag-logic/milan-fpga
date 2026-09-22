@@ -26,6 +26,38 @@ Then regenerate every committed output.
 
 Never hand-edit generated renders.
 
+`gen_toc.py` owns Markdown classification and Contents provenance.
+
+Closing fences accept only trailing spaces or tabs.
+This follows [CommonMark 4.5](https://spec.commonmark.org/0.31.2/#fenced-code-blocks).
+
+Type-1 HTML blocks end on any literal type-1 closer.
+The names are `pre`, `script`, `style`, and `textarea`.
+
+Any name ends any such block, including its opening line.
+
+Matching folds ASCII case and admits no internal blanks.
+See [CommonMark 4.6](https://spec.commonmark.org/0.31.2/#html-blocks).
+
+Issue #440 corrects these closing conditions only.
+
+The reconstructed 205-fixture GitHub sweep agrees after reader normalization.
+
+Raw helpers retain CR inside lines and withhold five headings.
+
+Both shipped readers normalize CR and CRLF before classification.
+
+The global 26-character refusal policy remains unchanged.
+Refusal binds both provenance and the base heading's authority.
+
+These hidden headings authorize no copied-label exemption.
+
+`I440` controls cover each closing property and shipped label decisions.
+
+Container behavior remains the separate scope of issue #437.
+
+Synthetic inputs and renderer receipts stay outside tracked Markdown.
+
 ## Module documentation
 
 The matrix derives relationships from repository sources.
