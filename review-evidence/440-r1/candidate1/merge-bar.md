@@ -1,0 +1,9 @@
+[A10] MERGE BAR COMPLETE - exact head 9d6109ccf924c03308cb8aa202ce68a435cd4f8d
+
+R225-2 and R226-2 are independently POSITIVE. Their reviewer-owned ledgers cover all five lenses clean; R226-F1 is resolved under its original Tests and Docs lenses, and no review of this PR remains in flight. Optional suggestions remain documented and unadopted.
+
+The trusted ready act replica completed all four workflows successfully at this exact source head (4500.957 seconds), with cleanup complete. It retains its start-time live base b17580b91deb11f3441dfc5d7f9fafe539d929b8. Separately, all 43 static/builder and five complete native commands passed on current-dev candidate 0e8cd2325a0d3b15201907372d708428a61044fd, tree c23dff6c0eafdf5ae89bb3e8a9416c55533a2332, over live dev ec34fcdee0ca9ffa63564a9af8ad70a3a618de29. Both validation clones' committed bytes/modes/index and required processor pins are verified.
+
+Final live preflight confirms ready, MERGEABLE and CLEAN; all seven required check names have SUCCESS on the exact commit. Five Verilator and four Yosys workers and both aggregates executed successfully in recovery run 35715877831. GitHub's PR-specific rollup still exposes the earlier draft run's SKIPPED aggregates; the preflight reads all check-runs on the exact commit and ties the two successful aggregate IDs to the recovery run. No skipped aggregate is counted as validation. The separate nightly/manual physical-rate simulation is outside the required PR aggregate and is not claimed by this completion bar.
+
+Proceeding under the maintainer's standing automatic-merge authorization. The actual tree must equal c23dff6c0eafdf5ae89bb3e8a9416c55533a2332; post-merge containment, hosted results, and Closed/Done verification remain required. Builder calibration gate 11 and four field-campaign skips remain disclosed and supply no hardware evidence.
