@@ -1,0 +1,228 @@
+{
+  "conclusion": "success",
+  "event": "push",
+  "headSha": "ec34fcdee0ca9ffa63564a9af8ad70a3a618de29",
+  "jobs": [
+    {
+      "completedAt": "2026-09-22T10:33:08Z",
+      "conclusion": "success",
+      "databaseId": 106706804293,
+      "name": "elaborate",
+      "startedAt": "2026-09-22T10:24:16Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T10:24:18Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T10:24:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:24Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T10:24:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:28Z",
+          "conclusion": "success",
+          "name": "Decide whether this head needs an elaboration",
+          "number": 3,
+          "startedAt": "2026-09-22T10:24:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:30Z",
+          "conclusion": "success",
+          "name": "Fetch the source dependencies the elaboration reads",
+          "number": 4,
+          "startedAt": "2026-09-22T10:24:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:30Z",
+          "conclusion": "success",
+          "name": "Install the pinned sv2v release",
+          "number": 5,
+          "startedAt": "2026-09-22T10:24:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:30Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 6,
+          "startedAt": "2026-09-22T10:24:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:31Z",
+          "conclusion": "success",
+          "name": "Cache the pinned pip downloads",
+          "number": 7,
+          "startedAt": "2026-09-22T10:24:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:58Z",
+          "conclusion": "success",
+          "name": "Install LiteX at the pinned revisions",
+          "number": 8,
+          "startedAt": "2026-09-22T10:24:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:24:59Z",
+          "conclusion": "success",
+          "name": "Cache the Scala toolchain",
+          "number": 9,
+          "startedAt": "2026-09-22T10:24:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:25:00Z",
+          "conclusion": "success",
+          "name": "Cache the generated CPU metadata",
+          "number": 10,
+          "startedAt": "2026-09-22T10:24:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:25:01Z",
+          "conclusion": "success",
+          "name": "Install sbt",
+          "number": 11,
+          "startedAt": "2026-09-22T10:25:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:25:07Z",
+          "conclusion": "success",
+          "name": "Place the VexiiRiscv source at the revision LiteX pins",
+          "number": 12,
+          "startedAt": "2026-09-22T10:25:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:25:07Z",
+          "conclusion": "success",
+          "name": "Apply the toolchain patch series",
+          "number": 13,
+          "startedAt": "2026-09-22T10:25:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:30:20Z",
+          "conclusion": "success",
+          "name": "Elaboration gates",
+          "number": 14,
+          "startedAt": "2026-09-22T10:25:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:30:21Z",
+          "conclusion": "success",
+          "name": "Cache the pinned Verilator build",
+          "number": 15,
+          "startedAt": "2026-09-22T10:30:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:30:21Z",
+          "conclusion": "skipped",
+          "name": "Build Verilator from source on cache miss",
+          "number": 16,
+          "startedAt": "2026-09-22T10:30:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:30:22Z",
+          "conclusion": "success",
+          "name": "Put Verilator on PATH and prove the version",
+          "number": 17,
+          "startedAt": "2026-09-22T10:30:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:05Z",
+          "conclusion": "success",
+          "name": "Standalone LiteX simulation aggregate",
+          "number": 18,
+          "startedAt": "2026-09-22T10:30:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:05Z",
+          "conclusion": "success",
+          "name": "Keep the generated CPU netlist arguments for the next run",
+          "number": 19,
+          "startedAt": "2026-09-22T10:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:05Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned Verilator build",
+          "number": 33,
+          "startedAt": "2026-09-22T10:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:05Z",
+          "conclusion": "success",
+          "name": "Post Cache the generated CPU metadata",
+          "number": 34,
+          "startedAt": "2026-09-22T10:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:06Z",
+          "conclusion": "success",
+          "name": "Post Cache the Scala toolchain",
+          "number": 35,
+          "startedAt": "2026-09-22T10:33:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:06Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned pip downloads",
+          "number": 36,
+          "startedAt": "2026-09-22T10:33:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 37,
+          "startedAt": "2026-09-22T10:33:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:06Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 38,
+          "startedAt": "2026-09-22T10:33:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T10:33:06Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 39,
+          "startedAt": "2026-09-22T10:33:06Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35715778580/job/106706804293"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35715778580"
+}

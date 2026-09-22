@@ -1,0 +1,41 @@
+{
+  "head": "ec34fcdee0ca9ffa63564a9af8ad70a3a618de29",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "$TRUSTED_DEV/scripts/check_merge_containment.py",
+        "--base",
+        "origin/dev",
+        "origin/407-carrier-script-pins"
+      ],
+      "exit_code": 0,
+      "seconds": 2.154,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/postmerge-audit/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "$TRUSTED_DEV/scripts/check_merge_containment.py",
+        "--base",
+        "origin/dev",
+        "--merged-prs"
+      ],
+      "exit_code": 0,
+      "seconds": 18.168,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/postmerge-audit/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "$TRUSTED_DEV/scripts/check_merge_review_integrity.py",
+        "--base",
+        "dev"
+      ],
+      "exit_code": 0,
+      "seconds": 32.474,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/postmerge-audit/03.log"
+    }
+  ]
+}
