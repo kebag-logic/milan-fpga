@@ -443,7 +443,9 @@ def arm_both_worker_counts_run_each_leg_once_as_the_recipe_did() -> None:
             assert case.stdout() == want, case.stdout()
             assert case.stderr() == "", case.stderr()
             logs = sorted(p.name for p in (case.dir / "obj_legs").iterdir())
-            assert logs == ["01-VL1.log", "02-VL2.log", "03-VL3.log", "04-VL4.log"], logs
+            assert logs == ["01-VL1.log", "02-VL2.log", "03-VL3.log", "04-VL4.log",
+                            "replay.log"], logs
+            assert (case.dir / "obj_legs/replay.log").read_bytes() == want
             seen[jobs] = (case.stdout(), [(r["leg"], r["argv"]) for r in
                                           sorted(starts, key=lambda r: r["leg"])])
     assert seen["1"] == seen["2"], "one worker and two did not replay the same"

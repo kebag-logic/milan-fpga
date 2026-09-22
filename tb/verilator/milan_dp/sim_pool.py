@@ -38,17 +38,23 @@ SIGINT,
 SIGTERM and SIGHUP - scripts/run_all_suites.sh's per-suite wall clock sends
 SIGTERM - kill every running leg's whole group with SIGKILL, then kill and
 reap adopted descendants as well as direct children. Every started leg is
-then replayed with what it had written, each
-unfinished or unstarted leg is named, and this process ends by the same
-signal. SIGKILL rather than SIGTERM because none of the ten legs handles a
-signal, so both end a leg the same way, and SIGKILL needs no grace period, so
+then recorded with what it had written in obj_legs/replay.log; each
+unfinished or unstarted leg is named. Available stdout receives that ordered
+transcript, but cancellation never waits for a blocked consumer. This process
+ends by the same signal. SIGKILL rather than SIGTERM because none of the ten
+legs handles a signal, so both end a leg the same way, and SIGKILL needs no
+grace period, so
 this runner reads no host clock (rule 8's wall-clock ratchet,
 scripts/test_evidence.budget item 4). A leg that exits by itself has its
 group killed too, before it is reaped, so nothing it spawned outlives it and
 its group id cannot have been reused.
 
 The captures stay in obj_legs/NN-<executable>.log, so a run killed before it
-could replay still leaves each leg's output under the leg's own name. Every
+could replay still leaves each leg's output under the leg's own name. The
+ordered transcript is also kept in obj_legs/replay.log. Nonblocking stdout
+writes preserve a byte cursor; cancellation interrupts capacity waits, then
+cleanup precedes a final attempt to write only immediately available bytes.
+The output retry interval is not a simulation deadline or a test verdict. Every
 line this runner adds starts with `sim_pool:` and matches no tally shape
 scripts/suite_tally.py reads: it adds no check and no verdict of its own.
 """
@@ -219,6 +225,63 @@ def kill_group(leg: Leg) -> None:
         pass
 
 
+class ReplayInterrupted(Exception):
+    """An output-capacity wait received a watched cancellation signal."""
+
+    def __init__(self, signo: int) -> None:
+        self.signo = signal.Signals(signo)
+        super().__init__(self.signo.name)
+
+
+class Replay:
+    """Deliver a disk transcript without blocking cancellation or losing position.
+
+    Only this owner writes stdout. Restore its shared descriptor flags before
+    any launch or exit. There is no buffered stdout write or exit-time flush.
+    The disk transcript remains complete even when cancellation stops delivery.
+    """
+
+    def __init__(self, transcript: BinaryIO, fd: int,
+                 watched: set[signal.Signals]) -> None:
+        self.transcript = transcript
+        self.fd = fd
+        self.interrupts = watched & set(INTERRUPTS)
+        self.position = 0
+
+    def wait_interrupt(self, seconds: float) -> None:
+        """Wait only for output retry or cancellation, never for a test verdict."""
+        pending = signal.sigtimedwait(self.interrupts, seconds)
+        if pending is not None:
+            raise ReplayInterrupted(pending.si_signo)
+
+    def drain(self, *, wait: bool = True) -> None:
+        """Deliver in order; after cleanup, wait=False never awaits the reader."""
+        self.transcript.flush()
+        blocking = os.get_blocking(self.fd)
+        os.set_blocking(self.fd, False)
+        try:
+            while True:
+                if wait:
+                    self.wait_interrupt(0)
+                data = os.pread(self.transcript.fileno(), 65536, self.position)
+                if not data:
+                    return
+                try:
+                    written = os.write(self.fd, data)
+                except BlockingIOError:
+                    if not wait:
+                        return
+                    self.wait_interrupt(0.05)
+                    continue
+                except BrokenPipeError:
+                    if not wait:
+                        return
+                    raise
+                self.position += written
+        finally:
+            os.set_blocking(self.fd, blocking)
+
+
 class Pool:
     """The legs, the bound, and the replay position, for one run."""
 
@@ -308,7 +371,7 @@ class Pool:
             self.out.flush()
             self.replayed += 1
 
-    def run(self, watched: set[signal.Signals]) -> signal.Signals | None:
+    def run(self, watched: set[signal.Signals], replay: Replay) -> signal.Signals | None:
         """Run eligible legs, at most `jobs` alive, replaying in recipe order as
         they finish. Returns the interrupt that ended the run early, or None.
         The watched signals stay blocked from here on and are taken with
@@ -338,6 +401,9 @@ class Pool:
                     break
                 self.reap_exited(running)
                 self.replay_ready()
+                replay.drain()
+        except ReplayInterrupted as exc:
+            interrupt = exc.signo
         finally:
             #! Normally empty. Non-empty on an interrupt, and on an exception
             #! out of this loop, which must not leave a leg running either.
@@ -380,10 +446,6 @@ def main(argv: list[str]) -> int:
         print(f"sim_pool: {exc}\n{USAGE}", file=sys.stderr)
         return 2
     frame_dump = FRAME_DUMP_VAR in os.environ
-    pool = Pool(legs, 1 if frame_dump else jobs, sys.stdout.buffer)
-    if frame_dump:
-        pool.note(f"{FRAME_DUMP_VAR} is set, so the legs run one at a time in "
-                  f"recipe order")
     #! An ignored interrupt stays ignored, as it was for the recipe's legs. A
     #! blocked signal is never discarded, so watching one would turn it back on.
     watched = {signal.SIGCHLD}
@@ -393,12 +455,24 @@ def main(argv: list[str]) -> int:
     LOG_DIR.mkdir(exist_ok=True)
     for stale in LOG_DIR.glob("*.log"):
         stale.unlink()
-    interrupt = pool.run(watched)
-    passed = all(leg.passed() for leg in legs)
-    if interrupt is not None or not passed:
-        pool.report_unstarted(interrupt)
-    if interrupt is not None:
-        return end_by(interrupt)
+    with (LOG_DIR / "replay.log").open("w+b") as transcript:
+        replay = Replay(transcript, sys.stdout.fileno(), watched)
+        pool = Pool(legs, 1 if frame_dump else jobs, transcript)
+        if frame_dump:
+            pool.note(f"{FRAME_DUMP_VAR} is set, so the legs run one at a time in "
+                      f"recipe order")
+        interrupt = pool.run(watched, replay)
+        passed = all(leg.passed() for leg in legs)
+        if interrupt is not None or not passed:
+            pool.report_unstarted(interrupt)
+        try:
+            replay.drain(wait=interrupt is None)
+        except ReplayInterrupted as exc:
+            # All owned processes have already been reaped by Pool.run.
+            interrupt = exc.signo
+        if interrupt is not None:
+            return end_by(interrupt)
+
     #! A signal that arrived after the last leg ended is still an interrupt.
     late = signal.sigpending() & set(INTERRUPTS)
     if late:

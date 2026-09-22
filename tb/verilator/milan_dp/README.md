@@ -30,6 +30,11 @@ Captures, banners and commands replay in legacy order.
 Failed, crashed or missing children fail the recipe.
 SIGINT, SIGTERM and SIGHUP terminate and reap owned descendants.
 Started children retain attributable partial logs; unstarted children are named.
+The ordered transcript also stays in `obj_legs/replay.log`.
+Blocked stdout never delays cancellation, descendant cleanup, or shutdown.
+Cancellation writes only immediately available stdout bytes after cleanup.
+Drain or inspect the disk transcript for any remaining output.
+Normal runs replay every byte, including through pipes.
 Linux subreaper support is required before any child starts.
 Run one suite invocation per working directory.
 
@@ -37,11 +42,16 @@ Run one suite invocation per working directory.
 make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
 make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
 python3 tb/verilator/milan_dp/test_sim_pool.py
+python3 tb/verilator/milan_dp/test_sim_pool_backpressure.py
 ```
 
 The runner tests use real processes with controlled shared writes.
 They cover exclusion, independent overlap, order, failures and descendant cleanup.
 They also check frame serialization, complete output and Makefile inventory.
+Backpressure controls execute both direct and actual Makefile paths.
+They cover blocked copies, final flushes, signals, and exit races.
+Their consumer stays blocked until shutdown and reaping are observed.
+Normal draining checks binary output against the complete ordered transcript.
 Runner diagnostics contribute no checks to `suite_tally.py`.
 
 | objdir | harness | shape | what it is for |
