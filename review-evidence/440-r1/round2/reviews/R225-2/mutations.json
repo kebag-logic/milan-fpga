@@ -1,0 +1,250 @@
+[
+  {
+    "variant": "old-correct",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-correct",
+        "rc": 0,
+        "log": "mutations/old-correct.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-correct",
+        "rc": 0,
+        "log": "mutations/old-correct.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "old-div",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-div",
+        "rc": 0,
+        "log": "mutations/old-div.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-div",
+        "rc": 0,
+        "log": "mutations/old-div.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "old-title",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-title",
+        "rc": 0,
+        "log": "mutations/old-title.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-title",
+        "rc": 0,
+        "log": "mutations/old-title.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "old-xmp",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-xmp",
+        "rc": 0,
+        "log": "mutations/old-xmp.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/old-xmp",
+        "rc": 0,
+        "log": "mutations/old-xmp.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "head-correct",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-correct",
+        "rc": 0,
+        "log": "mutations/head-correct.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-correct",
+        "rc": 0,
+        "log": "mutations/head-correct.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "head-div",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-div",
+        "rc": 1,
+        "log": "mutations/head-div.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-div",
+        "rc": 2,
+        "log": "mutations/head-div.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "head-title",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-title",
+        "rc": 1,
+        "log": "mutations/head-title.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-title",
+        "rc": 2,
+        "log": "mutations/head-title.check_em_dash.py.log"
+      }
+    ]
+  },
+  {
+    "variant": "head-xmp",
+    "results": [
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/gen_toc.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-xmp",
+        "rc": 1,
+        "log": "mutations/head-xmp.gen_toc.py.log"
+      },
+      {
+        "command": [
+          "rtk",
+          "proxy",
+          "python3",
+          "-B",
+          "scripts/check_em_dash.py",
+          "--selftest"
+        ],
+        "cwd": "/tmp/r225-507-r2-y1puhm64/head-xmp",
+        "rc": 2,
+        "log": "mutations/head-xmp.check_em_dash.py.log"
+      }
+    ]
+  }
+]

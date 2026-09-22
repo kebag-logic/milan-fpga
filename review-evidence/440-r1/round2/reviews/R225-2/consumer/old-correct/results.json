@@ -1,0 +1,242 @@
+{
+  "base": "a4596b58c10fadd8eafdc74032ec1f8bb9572869",
+  "head": "818828e52bb875a6e11baf6b4c0a79c0dbc19be6",
+  "raw_html_tags": [
+    "pre",
+    "script",
+    "style",
+    "textarea"
+  ],
+  "rows": [
+    {
+      "name": "div-later",
+      "base_source": "# Fixture\n\n<pre>\n</div>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "div-later.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "div-inline",
+      "base_source": "# Fixture\n\n<pre>x</div>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "div-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "title-later",
+      "base_source": "# Fixture\n\n<pre>\n</title>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "title-later.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "title-inline",
+      "base_source": "# Fixture\n\n<pre>x</title>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "title-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "xmp-later",
+      "base_source": "# Fixture\n\n<pre>\n</xmp>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "xmp-later.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "xmp-inline",
+      "base_source": "# Fixture\n\n<pre>x</xmp>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "raw HTML line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ]
+      ],
+      "findings": [
+        "xmp-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+      ],
+      "exempt": 0,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "style-later",
+      "base_source": "# Fixture\n\n<pre>\n</style>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "prose line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ],
+        [
+          2,
+          "Prior \u2014 topic",
+          "prior--topic"
+        ],
+        [
+          2,
+          "Alpha",
+          "alpha"
+        ],
+        [
+          2,
+          "Beta",
+          "beta"
+        ],
+        [
+          2,
+          "Gamma",
+          "gamma"
+        ]
+      ],
+      "findings": [],
+      "exempt": 1,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    },
+    {
+      "name": "style-inline",
+      "base_source": "# Fixture\n\n<pre>x</style>\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n",
+      "base_probe_kind": "prose line",
+      "base_headings": [
+        [
+          1,
+          "Fixture",
+          "fixture"
+        ],
+        [
+          2,
+          "Prior \u2014 topic",
+          "prior--topic"
+        ],
+        [
+          2,
+          "Alpha",
+          "alpha"
+        ],
+        [
+          2,
+          "Beta",
+          "beta"
+        ],
+        [
+          2,
+          "Gamma",
+          "gamma"
+        ]
+      ],
+      "findings": [],
+      "exempt": 1,
+      "judged": 7,
+      "head_source": "# Fixture\n\n## Contents\n\n- **[Prior \u2014 topic](#prior--topic)** -- A preserved topic.\n- **[Alpha](#alpha)** -- A preserved topic.\n- **[Beta](#beta)** -- A preserved topic.\n- **[Gamma](#gamma)** -- A preserved topic.\n\n## Prior \u2014 topic\n\n## Alpha\n\nText.\n\n## Beta\n\nText.\n\n## Gamma\n\nText.\n"
+    }
+  ],
+  "generator_write": {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--write",
+      "div-later.md",
+      "div-inline.md",
+      "title-later.md",
+      "title-inline.md",
+      "xmp-later.md",
+      "xmp-inline.md",
+      "style-later.md",
+      "style-inline.md"
+    ],
+    "rc": 0
+  },
+  "generator_check": {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check",
+      "div-later.md",
+      "div-inline.md",
+      "title-later.md",
+      "title-inline.md",
+      "xmp-later.md",
+      "xmp-inline.md",
+      "style-later.md",
+      "style-inline.md"
+    ],
+    "rc": 0
+  },
+  "cli": {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "a4596b58c10fadd8eafdc74032ec1f8bb9572869"
+    ],
+    "rc": 1
+  }
+}
