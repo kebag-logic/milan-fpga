@@ -1,0 +1,522 @@
+{
+  "hosted_baseline": {
+    "checks": 9324,
+    "failures": 0,
+    "matched": [
+      [
+        "n-checks-pass-fail",
+        181,
+        0,
+        "181 checks: 181 PASS, 0 FAIL"
+      ],
+      [
+        "n-checks-pass-fail",
+        181,
+        0,
+        "181 checks: 181 PASS, 0 FAIL"
+      ],
+      [
+        "n-checks-m-failures",
+        230,
+        0,
+        "milan_datapath: 230 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        135,
+        0,
+        "checks: 135   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1633,
+        0,
+        "checks: 1633   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1635,
+        0,
+        "checks: 1635   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        3061,
+        0,
+        "checks: 3061   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1633,
+        0,
+        "checks: 1633   failures: 0"
+      ],
+      [
+        "n-checks-m-failures",
+        230,
+        0,
+        "milan_datapath: 230 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        33,
+        0,
+        "checks: 33   failures: 0"
+      ],
+      [
+        "n-checks-m-failures",
+        227,
+        0,
+        "milan_datapath: 227 checks, 0 failures"
+      ],
+      [
+        "n-checks-m-failures",
+        139,
+        0,
+        "media_aclk: 139 checks, 0 failures"
+      ],
+      [
+        "n-checks-pass-fail",
+        6,
+        0,
+        "6 checks: 6 PASS, 0 FAIL"
+      ]
+    ],
+    "skips": [],
+    "other": [],
+    "render_records": 23,
+    "render_events": [
+      {
+        "seq": 1,
+        "event": "origin",
+        "clock": "monotonic",
+        "unit": "s"
+      },
+      {
+        "seq": 2,
+        "event": "baseline",
+        "case": "control",
+        "selected": "prebuilt"
+      },
+      {
+        "seq": 3,
+        "event": "start",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--live-only"
+      },
+      {
+        "seq": 4,
+        "event": "end",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--live-only",
+        "status": 0
+      },
+      {
+        "seq": 5,
+        "event": "start",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 6,
+        "event": "end",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 0
+      },
+      {
+        "seq": 7,
+        "event": "start",
+        "case": "prefill_target_three_events_high",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 8,
+        "event": "end",
+        "case": "prefill_target_three_events_high",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 9,
+        "event": "start",
+        "case": "prefill_target_three_events_high",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 10,
+        "event": "end",
+        "case": "prefill_target_three_events_high",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 11,
+        "event": "start",
+        "case": "recentre_pulse_ignored",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 12,
+        "event": "end",
+        "case": "recentre_pulse_ignored",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 13,
+        "event": "start",
+        "case": "recentre_pulse_ignored",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 14,
+        "event": "end",
+        "case": "recentre_pulse_ignored",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 15,
+        "event": "start",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 16,
+        "event": "end",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 17,
+        "event": "start",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 18,
+        "event": "end",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 19,
+        "event": "start",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 20,
+        "event": "end",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 21,
+        "event": "start",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "simulation",
+        "mode": "--live-only"
+      },
+      {
+        "seq": 22,
+        "event": "end",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "simulation",
+        "mode": "--live-only",
+        "status": 1
+      },
+      {
+        "seq": 23,
+        "event": "end-of-run",
+        "state": "idle"
+      }
+    ]
+  },
+  "new_source_native": {
+    "checks": 9324,
+    "failures": 0,
+    "matched": [
+      [
+        "n-checks-pass-fail",
+        181,
+        0,
+        "181 checks: 181 PASS, 0 FAIL"
+      ],
+      [
+        "n-checks-pass-fail",
+        181,
+        0,
+        "181 checks: 181 PASS, 0 FAIL"
+      ],
+      [
+        "n-checks-m-failures",
+        230,
+        0,
+        "milan_datapath: 230 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        135,
+        0,
+        "checks: 135   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1633,
+        0,
+        "checks: 1633   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1635,
+        0,
+        "checks: 1635   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        3061,
+        0,
+        "checks: 3061   failures: 0"
+      ],
+      [
+        "checks-colon-failures-colon",
+        1633,
+        0,
+        "checks: 1633   failures: 0"
+      ],
+      [
+        "n-checks-m-failures",
+        230,
+        0,
+        "milan_datapath: 230 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        33,
+        0,
+        "checks: 33   failures: 0"
+      ],
+      [
+        "n-checks-m-failures",
+        227,
+        0,
+        "milan_datapath: 227 checks, 0 failures"
+      ],
+      [
+        "n-checks-m-failures",
+        139,
+        0,
+        "media_aclk: 139 checks, 0 failures"
+      ],
+      [
+        "n-checks-pass-fail",
+        6,
+        0,
+        "6 checks: 6 PASS, 0 FAIL"
+      ]
+    ],
+    "skips": [],
+    "other": [],
+    "render_records": 23,
+    "render_events": [
+      {
+        "seq": 1,
+        "event": "origin",
+        "clock": "monotonic",
+        "unit": "s"
+      },
+      {
+        "seq": 2,
+        "event": "baseline",
+        "case": "control",
+        "selected": "prebuilt"
+      },
+      {
+        "seq": 3,
+        "event": "start",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--live-only"
+      },
+      {
+        "seq": 4,
+        "event": "end",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--live-only",
+        "status": 0
+      },
+      {
+        "seq": 5,
+        "event": "start",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 6,
+        "event": "end",
+        "case": "control",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 0
+      },
+      {
+        "seq": 7,
+        "event": "start",
+        "case": "prefill_target_three_events_high",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 8,
+        "event": "end",
+        "case": "prefill_target_three_events_high",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 9,
+        "event": "start",
+        "case": "prefill_target_three_events_high",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 10,
+        "event": "end",
+        "case": "prefill_target_three_events_high",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 11,
+        "event": "start",
+        "case": "recentre_pulse_ignored",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 12,
+        "event": "end",
+        "case": "recentre_pulse_ignored",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 13,
+        "event": "start",
+        "case": "recentre_pulse_ignored",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 14,
+        "event": "end",
+        "case": "recentre_pulse_ignored",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 15,
+        "event": "start",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 16,
+        "event": "end",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 17,
+        "event": "start",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "simulation",
+        "mode": "--render-only"
+      },
+      {
+        "seq": 18,
+        "event": "end",
+        "case": "recentre_counted_and_cleared_but_not_snapped",
+        "phase": "simulation",
+        "mode": "--render-only",
+        "status": 1
+      },
+      {
+        "seq": 19,
+        "event": "start",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "build",
+        "mode": null
+      },
+      {
+        "seq": 20,
+        "event": "end",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "build",
+        "mode": null,
+        "status": "built",
+        "returncode": 0
+      },
+      {
+        "seq": 21,
+        "event": "start",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "simulation",
+        "mode": "--live-only"
+      },
+      {
+        "seq": 22,
+        "event": "end",
+        "case": "clock_source_trigger_dropped_from_the_recentre_set",
+        "phase": "simulation",
+        "mode": "--live-only",
+        "status": 1
+      },
+      {
+        "seq": 23,
+        "event": "end-of-run",
+        "state": "idle"
+      }
+    ]
+  }
+}

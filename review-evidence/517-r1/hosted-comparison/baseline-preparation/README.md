@@ -1,0 +1,7 @@
+[A10] Attributable hosted comparison preparation for #517
+
+The original hosted dedicated worker at1496558d took1999seconds. Its authenticated artifact log SHA256 matches the preserved public archive exactly. It contains9324checks/0failures in13recognizedtallies and23complete render-phase records. The new source587 native milan_dp log has the same9324checks/0failures,13tallies,and the same23event/phase/case/status identities after removing time fields. This is a population check, not a hosted speed measurement.
+
+The RTL workflow, fast workflow, sweep/tally scripts, render mutation driver and three dependency gitlinks are byte-identical between the baseline and source. The full diff is retained: beyond #517, #464 changed AEM generator selftests/deviation metadata and docs scheduling. These are different source heads, so do not call a later historical hosted comparison a same-commit controlled benchmark. The author's controlled same-head local pairs remain separately attributed to7ab1c8d0.
+
+At new hosted completion, verify exact source TARGET_SHA, actual pinned Verilator5.050, full9324population and23complete phase events, and compare the dedicated worker step duration with1999s. Report render build/simulation totals independently. Remaining worker time includes builds, prerequisites, ordinary simulations and overhead; do not label the residual ordinary-simulation time. Report any slowdown honestly. No current source hosted run has been inspected or is claimed by this preparation. Full native bank remains running beyond its completed parent sweep.

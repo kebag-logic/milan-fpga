@@ -1,0 +1,56 @@
+{
+  "baseline": {
+    "source": "1496558d82cf35fc98dda0e781b2a1be643c301a",
+    "run": 35739098185,
+    "artifact": 10699988241,
+    "name": "suite-logs-4",
+    "zip_sha256": "e6c1b70825d7bccfd6a7eac7edcb65af6a2d66e52b927cd0ce9f496126450f8f",
+    "source_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35739098185/artifacts/10699988241",
+    "extracted_log_sha256": "08422c274d33394501443ef9289781cab9fb504df2179fed7437a2e2d814b91a",
+    "target_sha_verified": true,
+    "render_record_count": 23,
+    "suite_step_seconds": 1999,
+    "render_driver_seconds": 563.63,
+    "mutant_build_seconds": 131.12,
+    "render_simulation_seconds": 432.394,
+    "other_steps_not_fully_attributed": true
+  },
+  "source_head": "5874895eb817ed41c0f8be4eb427ad3315c29844",
+  "downloaded_objects": [
+    {
+      "path": "review-evidence/478-r1/throughput-analysis/512-hosted-milan_dp.log",
+      "blob": "9568477ad3f4610f25b1c58cc328b699003520d9",
+      "sha256": "08422c274d33394501443ef9289781cab9fb504df2179fed7437a2e2d814b91a",
+      "public_commit": "8326a88dc21a34bbcd0af7c0c0b6ecd0204704f4"
+    },
+    {
+      "path": "review-evidence/478-r1/throughput-analysis/512-render-phases.json",
+      "blob": "8a6eec5be46d66143f8ef060f1da0b2d4cec67ba",
+      "sha256": "0b4fdedc6c91c5c088bdd1a314db3b9150fa3bf517c636157cd7bd98ff3ecfa0",
+      "public_commit": "8326a88dc21a34bbcd0af7c0c0b6ecd0204704f4"
+    },
+    {
+      "path": "review-evidence/478-r1/throughput-analysis/artifact-proof.json",
+      "blob": "bf9c208b89881f0c0a0eb92a4c18a31fc2200f77",
+      "sha256": "df7179659412fe095ce726ca31aa42b3e238579746cff572d0bc425b940ecb75",
+      "public_commit": "8326a88dc21a34bbcd0af7c0c0b6ecd0204704f4"
+    },
+    {
+      "path": "review-evidence/478-r1/throughput-analysis/DECISION.md",
+      "blob": "36a93dbf61bd6861b4193ae415ee3889c5197d41",
+      "sha256": "cc3973d978317c81a9037ea7a1c1f071efb9b24fcb91856204a6a698455c956f",
+      "public_commit": "8326a88dc21a34bbcd0af7c0c0b6ecd0204704f4"
+    }
+  ],
+  "unchanged_contract_objects": {
+    ".github/workflows/rtl.yml": "8510159e3b0f1a386ad8d2adfd57f7848a5cf137",
+    ".github/workflows/rtl-fast.yml": "f7c502c9cf577777bce35eecb31c4b6d52cd8ccc",
+    "scripts/run_all_suites.sh": "2a02c7f3c02ed2fa7e1ac68420126f30f1e1f3fe",
+    "scripts/suite_tally.py": "836ea2f8e888eca9702861d3983c712f7ac21a5e",
+    "tb/verilator/milan_dp/render_mutants.py": "dbdcefc20dd98629f10e112f8fa259eeb5d0f446",
+    "protocol-processor": "424c688fa2205b934a7689a58f2aa766420f2326",
+    "gptp-processor": "c1b617435824929a790739ea8585c3fe1a328cc0",
+    "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+  },
+  "note": "Historical source differs in issue517 and issue464 generator selftest/deviation metadata; this is an attributable hosted comparison, not a same-commit controlled benchmark. Verify new actual Verilator5.050, full9324check population and complete phase records before computing worker-time delta. No current source hosted result exists yet."
+}
