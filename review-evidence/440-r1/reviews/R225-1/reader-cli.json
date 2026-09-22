@@ -1,0 +1,122 @@
+[
+  {
+    "id": "crlf",
+    "source": "# Page\n\n```\r\n```\r\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/crlf.md"
+    ],
+    "exit": 1,
+    "stdout": "  NO TOC    crlf.md  (>= 3 sections and no '## Contents')\n\n1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>\nthen WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "cr",
+    "source": "# Page\n\n```\r```\r## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/cr.md"
+    ],
+    "exit": 1,
+    "stdout": "  NO TOC    cr.md  (>= 3 sections and no '## Contents')\n\n1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>\nthen WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "html-crlf",
+    "source": "# Page\n\n<pre>\r\n</style>\r\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/html-crlf.md"
+    ],
+    "exit": 1,
+    "stdout": "  NO TOC    html-crlf.md  (>= 3 sections and no '## Contents')\n\n1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>\nthen WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "html-cr",
+    "source": "# Page\n\n<pre>\r</style>\r## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/html-cr.md"
+    ],
+    "exit": 1,
+    "stdout": "  NO TOC    html-cr.md  (>= 3 sections and no '## Contents')\n\n1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>\nthen WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "nbsp",
+    "source": "# Page\n\n```\n```\u00a0\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/nbsp.md"
+    ],
+    "exit": 0,
+    "stdout": "  NOT READ  nbsp.md:4: U+00A0 at column 4 is neither a space nor a tab, so this walk does not read the page (use a space or a tab)\nTOC gate: OK (0 page(s) carry an annotated contents list, 0 below the 3-section threshold, 1 page(s) not read)\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "ff",
+    "source": "# Page\n\n~~~\n~~~\f\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/ff.md"
+    ],
+    "exit": 0,
+    "stdout": "  NOT READ  ff.md:4: U+000C at column 4 is neither a space nor a tab, so this walk does not read the page (use a space or a tab)\nTOC gate: OK (0 page(s) carry an annotated contents list, 0 below the 3-section threshold, 1 page(s) not read)\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "inner-space",
+    "source": "# Page\n\n<pre>\n</pre >\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/inner-space.md"
+    ],
+    "exit": 0,
+    "stdout": "TOC gate: OK (0 page(s) carry an annotated contents list, 1 below the 3-section threshold)\n",
+    "stderr": "",
+    "pass_": true
+  },
+  {
+    "id": "inner-cr",
+    "source": "# Page\n\n<pre>\n</pre\r>\n## Alpha\n\n## Beta\n\n## Gamma\n\n## Delta\n",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/r225-reader-cli-7af4ktt5/scripts/gen_toc.py",
+      "--check",
+      "/tmp/r225-reader-cli-7af4ktt5/inner-cr.md"
+    ],
+    "exit": 0,
+    "stdout": "TOC gate: OK (0 page(s) carry an annotated contents list, 1 below the 3-section threshold)\n",
+    "stderr": "",
+    "pass_": true
+  }
+]

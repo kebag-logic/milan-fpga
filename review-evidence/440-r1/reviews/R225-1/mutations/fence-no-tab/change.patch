@@ -1,0 +1,11 @@
+--- head/scripts/gen_toc.py
++++ mutant/scripts/gen_toc.py
+@@ -495,7 +495,7 @@
+         return (TEXT if _type_1_end(line) else HTML), "", tag
+     m = FENCE_RE.match(line)         # closes on the SAME character, a run
+     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+-            and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
++            and not m.group(2).strip(" "):  # mutant
+         return TEXT, "", ""
+     return FENCE, delim, ""
+ 
