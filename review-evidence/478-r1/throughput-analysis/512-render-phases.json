@@ -1,0 +1,217 @@
+[
+  {
+    "seq": 1,
+    "event": "origin",
+    "t_s": 0.0,
+    "clock": "monotonic",
+    "unit": "s"
+  },
+  {
+    "seq": 2,
+    "event": "baseline",
+    "t_s": 0.001,
+    "case": "control",
+    "selected": "prebuilt"
+  },
+  {
+    "seq": 3,
+    "event": "start",
+    "t_s": 0.001,
+    "case": "control",
+    "phase": "simulation",
+    "mode": "--live-only",
+    "idle_s": 0.001
+  },
+  {
+    "seq": 4,
+    "event": "end",
+    "t_s": 84.162,
+    "case": "control",
+    "phase": "simulation",
+    "mode": "--live-only",
+    "elapsed_s": 84.161,
+    "status": 0
+  },
+  {
+    "seq": 5,
+    "event": "start",
+    "t_s": 84.162,
+    "case": "control",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "idle_s": 0.0
+  },
+  {
+    "seq": 6,
+    "event": "end",
+    "t_s": 148.416,
+    "case": "control",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "elapsed_s": 64.254,
+    "status": 0
+  },
+  {
+    "seq": 7,
+    "event": "start",
+    "t_s": 148.417,
+    "case": "prefill_target_three_events_high",
+    "phase": "build",
+    "mode": null,
+    "idle_s": 0.001
+  },
+  {
+    "seq": 8,
+    "event": "end",
+    "t_s": 183.283,
+    "case": "prefill_target_three_events_high",
+    "phase": "build",
+    "mode": null,
+    "elapsed_s": 34.866,
+    "status": "built",
+    "returncode": 0
+  },
+  {
+    "seq": 9,
+    "event": "start",
+    "t_s": 183.283,
+    "case": "prefill_target_three_events_high",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "idle_s": 0.0
+  },
+  {
+    "seq": 10,
+    "event": "end",
+    "t_s": 248.217,
+    "case": "prefill_target_three_events_high",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "elapsed_s": 64.934,
+    "status": 1
+  },
+  {
+    "seq": 11,
+    "event": "start",
+    "t_s": 248.218,
+    "case": "recentre_pulse_ignored",
+    "phase": "build",
+    "mode": null,
+    "idle_s": 0.001
+  },
+  {
+    "seq": 12,
+    "event": "end",
+    "t_s": 280.827,
+    "case": "recentre_pulse_ignored",
+    "phase": "build",
+    "mode": null,
+    "elapsed_s": 32.609,
+    "status": "built",
+    "returncode": 0
+  },
+  {
+    "seq": 13,
+    "event": "start",
+    "t_s": 280.827,
+    "case": "recentre_pulse_ignored",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "idle_s": 0.0
+  },
+  {
+    "seq": 14,
+    "event": "end",
+    "t_s": 346.167,
+    "case": "recentre_pulse_ignored",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "elapsed_s": 65.34,
+    "status": 1
+  },
+  {
+    "seq": 15,
+    "event": "start",
+    "t_s": 346.168,
+    "case": "recentre_counted_and_cleared_but_not_snapped",
+    "phase": "build",
+    "mode": null,
+    "idle_s": 0.001
+  },
+  {
+    "seq": 16,
+    "event": "end",
+    "t_s": 377.941,
+    "case": "recentre_counted_and_cleared_but_not_snapped",
+    "phase": "build",
+    "mode": null,
+    "elapsed_s": 31.773,
+    "status": "built",
+    "returncode": 0
+  },
+  {
+    "seq": 17,
+    "event": "start",
+    "t_s": 377.941,
+    "case": "recentre_counted_and_cleared_but_not_snapped",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "idle_s": 0.0
+  },
+  {
+    "seq": 18,
+    "event": "end",
+    "t_s": 448.901,
+    "case": "recentre_counted_and_cleared_but_not_snapped",
+    "phase": "simulation",
+    "mode": "--render-only",
+    "elapsed_s": 70.96,
+    "status": 1
+  },
+  {
+    "seq": 19,
+    "event": "start",
+    "t_s": 448.903,
+    "case": "clock_source_trigger_dropped_from_the_recentre_set",
+    "phase": "build",
+    "mode": null,
+    "idle_s": 0.002
+  },
+  {
+    "seq": 20,
+    "event": "end",
+    "t_s": 480.775,
+    "case": "clock_source_trigger_dropped_from_the_recentre_set",
+    "phase": "build",
+    "mode": null,
+    "elapsed_s": 31.872,
+    "status": "built",
+    "returncode": 0
+  },
+  {
+    "seq": 21,
+    "event": "start",
+    "t_s": 480.775,
+    "case": "clock_source_trigger_dropped_from_the_recentre_set",
+    "phase": "simulation",
+    "mode": "--live-only",
+    "idle_s": 0.0
+  },
+  {
+    "seq": 22,
+    "event": "end",
+    "t_s": 563.52,
+    "case": "clock_source_trigger_dropped_from_the_recentre_set",
+    "phase": "simulation",
+    "mode": "--live-only",
+    "elapsed_s": 82.745,
+    "status": 1
+  },
+  {
+    "seq": 23,
+    "event": "end-of-run",
+    "t_s": 563.63,
+    "state": "idle",
+    "idle_s": 0.11
+  }
+]
