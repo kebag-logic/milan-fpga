@@ -1,0 +1,4 @@
+  - docs/overview/FULL_FPGA_SOLUTION.md:1: [T] retired-stack term 'Linux': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (#259: the checkout is bare-metal only; history lives in git)
+  - docs/overview/FULL_FPGA_SOLUTION.md:1: [P] protected product document contains 'Linux': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (the full FPGA solution is bare-metal only)
+  - docs/overview/FULL_FPGA_SOLUTION.md:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (3 finding(s) across 1 scanned file(s))

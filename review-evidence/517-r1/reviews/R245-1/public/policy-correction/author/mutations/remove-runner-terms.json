@@ -1,0 +1,17 @@
+{
+  "label": "remove-runner-terms",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "/tmp/517-policy-mutation-m3n8l2ue/scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "cwd": "$CANDIDATE",
+  "exit": 2,
+  "elapsed_seconds": 5.079393062012969,
+  "source_sha256": "66a51849d055edd852dbda5f29d1463911181e775d0ed0edda4dd3f3ce799d0c",
+  "mutant_sha256": "9bdb7cd88370411ac35fc061112986dd8e4ab2bb87ff29bb0b34251729658cb4",
+  "expected_control": "-allowed] clean fixture flagged",
+  "detected": true
+}

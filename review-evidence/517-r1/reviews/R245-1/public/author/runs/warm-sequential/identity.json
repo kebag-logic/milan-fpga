@@ -1,0 +1,67 @@
+{
+  "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+  "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+  "tool": "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+  "tool_sha256": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+  "tool_files": {
+    "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator": "449b33d5779f94226db65fd9700c3e5e6e8ecabbf4ec0277b5fdf5d7bc63d311",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_bin": "449b33d5779f94226db65fd9700c3e5e6e8ecabbf4ec0277b5fdf5d7bc63d311",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator": "fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin": "44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd"
+  },
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "command": [
+    "make",
+    "-j1",
+    "-C",
+    "$CANDIDATE/tb/verilator/milan_dp",
+    "run"
+  ],
+  "mode": "warm",
+  "affinity": [
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103
+  ],
+  "environment": {
+    "PATH": "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin:$WORKSPACE_HOME/.codex/tmp/arg0/codex-arg0kzKO6Z:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl",
+    "VERILATOR_JOBS": "8",
+    "SIM_JOBS": "1",
+    "TMPDIR": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/runs/scratch",
+    "MAKEFLAGS": "",
+    "MFLAGS": ""
+  },
+  "limits": {
+    "9": [
+      -1,
+      -1
+    ],
+    "0": [
+      -1,
+      -1
+    ],
+    "6": [
+      219134,
+      219134
+    ],
+    "7": [
+      1024,
+      524288
+    ],
+    "3": [
+      8388608,
+      -1
+    ]
+  },
+  "cgroup": {
+    "memory.max": "12884901888\n",
+    "memory.swap.max": "max\n"
+  },
+  "submodules": "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external\n c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)\n 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)\n"
+}

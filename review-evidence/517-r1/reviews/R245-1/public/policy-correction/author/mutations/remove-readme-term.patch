@@ -1,0 +1,10 @@
+--- original/check_baremetal_only.py
++++ mutated/check_baremetal_only.py
+@@ -1491,5 +1491,7 @@
+     return 0
+ 
+ 
++del TERM_MASKS['tb/verilator/milan_dp/README.md']
++
+ if __name__ == "__main__":
+     sys.exit(main())

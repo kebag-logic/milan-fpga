@@ -1,0 +1,17 @@
+{
+  "label": "broaden-runner-term",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "/tmp/517-policy-mutation-85ur27b9/scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "cwd": "$CANDIDATE",
+  "exit": 2,
+  "elapsed_seconds": 4.591349371999968,
+  "source_sha256": "66a51849d055edd852dbda5f29d1463911181e775d0ed0edda4dd3f3ce799d0c",
+  "mutant_sha256": "f00cbba2ebb2babbdc373adae1f878e4772c32dd9cce2839a2ad860885aa2912",
+  "expected_control": "-unrelated-same-file-T] planted defect not caught",
+  "detected": true
+}

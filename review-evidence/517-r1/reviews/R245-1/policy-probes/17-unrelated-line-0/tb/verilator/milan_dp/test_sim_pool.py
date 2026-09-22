@@ -1,0 +1,2 @@
+    """The /proc status mask with the bits of `signals` set."""
+The target requires /proc

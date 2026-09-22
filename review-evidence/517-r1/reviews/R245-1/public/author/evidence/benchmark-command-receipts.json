@@ -1,0 +1,162 @@
+[
+  {
+    "name": "cold-sequential",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/runs/cold-sequential",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "--jobs",
+      "1",
+      "--temperature",
+      "cold"
+    ],
+    "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+    "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+    "exit": 0,
+    "summary": {
+      "cmd": [
+        "make",
+        "-j1",
+        "-C",
+        "$CANDIDATE/tb/verilator/milan_dp",
+        "run"
+      ],
+      "cwd": "$CANDIDATE",
+      "started_utc": 1790096639.7863965,
+      "wall_s": 1136.415,
+      "exit": 0,
+      "children_user_s": 1772.063,
+      "children_sys_s": 42.851,
+      "max_single_rss_kb": 375248
+    }
+  },
+  {
+    "name": "warm-sequential",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/runs/warm-sequential",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "--jobs",
+      "1",
+      "--temperature",
+      "warm"
+    ],
+    "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+    "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+    "exit": 0,
+    "summary": {
+      "cmd": [
+        "make",
+        "-j1",
+        "-C",
+        "$CANDIDATE/tb/verilator/milan_dp",
+        "run"
+      ],
+      "cwd": "$CANDIDATE",
+      "started_utc": 1790097788.0446854,
+      "wall_s": 987.247,
+      "exit": 0,
+      "children_user_s": 1135.808,
+      "children_sys_s": 15.007,
+      "max_single_rss_kb": 358296
+    }
+  },
+  {
+    "name": "cold-pooled",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/runs/cold-pooled",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "--jobs",
+      "2",
+      "--temperature",
+      "cold"
+    ],
+    "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+    "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+    "exit": 0,
+    "summary": {
+      "cmd": [
+        "make",
+        "-j1",
+        "-C",
+        "$CANDIDATE/tb/verilator/milan_dp",
+        "run"
+      ],
+      "cwd": "$CANDIDATE",
+      "started_utc": 1790098796.6628337,
+      "wall_s": 1099.401,
+      "exit": 0,
+      "children_user_s": 1782.825,
+      "children_sys_s": 50.438,
+      "max_single_rss_kb": 375188
+    }
+  },
+  {
+    "name": "warm-pooled",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-author-final/runs/warm-pooled",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "--jobs",
+      "2",
+      "--temperature",
+      "warm"
+    ],
+    "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+    "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+    "exit": 0,
+    "summary": {
+      "cmd": [
+        "make",
+        "-j1",
+        "-C",
+        "$CANDIDATE/tb/verilator/milan_dp",
+        "run"
+      ],
+      "cwd": "$CANDIDATE",
+      "started_utc": 1790099927.0068967,
+      "wall_s": 943.33,
+      "exit": 0,
+      "children_user_s": 1129.453,
+      "children_sys_s": 18.495,
+      "max_single_rss_kb": 358124
+    }
+  }
+]

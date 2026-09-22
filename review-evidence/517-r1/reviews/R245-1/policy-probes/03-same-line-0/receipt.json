@@ -1,0 +1,27 @@
+{
+  "label": "03-same-line-0",
+  "path": "tb/verilator/milan_dp/sim_pool.py",
+  "payload": "    if not sys.platform.startswith(\"linux\"): # Linux",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[T]",
+  "accepted": true
+}

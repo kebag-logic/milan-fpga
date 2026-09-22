@@ -1,0 +1,144 @@
+{
+  "source_head": "5874895eb817ed41c0f8be4eb427ad3315c29844",
+  "original_benchmark_head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+  "runs": [
+    {
+      "name": "cold-sequential",
+      "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "whole_seconds": 1136.415,
+      "checks": 9324,
+      "failures": 0,
+      "tallies": 13,
+      "per_leg_checks": [
+        230,
+        135,
+        1633,
+        1635,
+        3061,
+        1633,
+        230,
+        33,
+        227,
+        139
+      ],
+      "phase_records": 23,
+      "sample_count": 8764,
+      "peak_ordinary": 1,
+      "peak_group": 1,
+      "overlap_samples": 0,
+      "peak_ordinary_rss_kib": 5764,
+      "peak_aggregate_rss_kib": 2686736,
+      "max_single_rss_kib": 375248
+    },
+    {
+      "name": "cold-pooled",
+      "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "whole_seconds": 1099.401,
+      "checks": 9324,
+      "failures": 0,
+      "tallies": 13,
+      "per_leg_checks": [
+        230,
+        135,
+        1633,
+        1635,
+        3061,
+        1633,
+        230,
+        33,
+        227,
+        139
+      ],
+      "phase_records": 23,
+      "sample_count": 8444,
+      "peak_ordinary": 2,
+      "peak_group": 1,
+      "overlap_samples": 306,
+      "peak_ordinary_rss_kib": 10900,
+      "peak_aggregate_rss_kib": 2720648,
+      "max_single_rss_kib": 375188
+    },
+    {
+      "name": "warm-sequential",
+      "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "whole_seconds": 987.247,
+      "checks": 9324,
+      "failures": 0,
+      "tallies": 13,
+      "per_leg_checks": [
+        230,
+        135,
+        1633,
+        1635,
+        3061,
+        1633,
+        230,
+        33,
+        227,
+        139
+      ],
+      "phase_records": 23,
+      "sample_count": 7658,
+      "peak_ordinary": 1,
+      "peak_group": 1,
+      "overlap_samples": 0,
+      "peak_ordinary_rss_kib": 5768,
+      "peak_aggregate_rss_kib": 2573764,
+      "max_single_rss_kib": 358296
+    },
+    {
+      "name": "warm-pooled",
+      "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+      "whole_seconds": 943.33,
+      "checks": 9324,
+      "failures": 0,
+      "tallies": 13,
+      "per_leg_checks": [
+        230,
+        135,
+        1633,
+        1635,
+        3061,
+        1633,
+        230,
+        33,
+        227,
+        139
+      ],
+      "phase_records": 23,
+      "sample_count": 7255,
+      "peak_ordinary": 2,
+      "peak_group": 1,
+      "overlap_samples": 302,
+      "peak_ordinary_rss_kib": 10928,
+      "peak_aggregate_rss_kib": 2550360,
+      "max_single_rss_kib": 358124
+    }
+  ],
+  "ordinary_bodies_equal_across_all_four_runs_and_corrected_manager": true,
+  "render_named_outcomes": [
+    "[PASS] the unmutated gateware still passes the render-law leg (--live-only)",
+    "[PASS] the unmutated gateware still passes the render-law leg (--render-only)",
+    "[PASS] mutant caught (--render-only): prefill target three events high - breaks \"RENDER-INT: every PDU's first event inside the law band\"",
+    "[PASS] mutant caught (--render-only): recentre pulse ignored - breaks \"RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)\"",
+    "[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks \"RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)\"",
+    "[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks \"RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU\""
+  ],
+  "corrected_manager_banks": [
+    {
+      "ledger": "manager-builder/results.json",
+      "commands": 50,
+      "all_exit_zero": true
+    },
+    {
+      "ledger": "full-native/results.json",
+      "commands": 5,
+      "all_exit_zero": true
+    }
+  ],
+  "corrected_manager_tally": [
+    9324,
+    0
+  ],
+  "corrected_manager_render_phase_semantics_equal": true
+}

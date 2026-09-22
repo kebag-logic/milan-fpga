@@ -1,0 +1,61 @@
+Run independent milan_dp simulations in a bounded pool
+[A178 / A179 / A10]
+
+## Status
+
+Corrected source `5874895eb817ed41c0f8be4eb427ad3315c29844` passes all 50 static/builder commands and five full native groups. [Complete evidence](https://github.com/kebag-logic/milan-fpga/tree/7c2f4357167e5398524f7980ab1a09690256544f/review-evidence/517-r1/corrected-source2/manager). R245/R246 reviews, trusted act, hosted evidence/timing and final candidate remain pending. The original benchmark at 7ab1c8d0 retains that head; executable artifacts are unchanged by the host-policy correction.
+
+## Description
+
+The ten ordinary milan_dp executables previously ran sequentially. A suite-local
+runner now allows two children while keeping the five sim_nxn header writers
+exclusive and ordered. Independent legs can overlap that group. SIM_JOBS=1
+reproduces sequential execution; presence of MILAN_COUNTER_FRAME_OUT preserves
+the original whole-set order. Per-child logs replay in legacy order. Failures
+stop the recipe, and interruption terminates and reaps owned descendants.
+Build recipes, gPTP prerequisites and render mutation phases are unchanged.
+The inaccurate sim_nxn explanatory comment is corrected; executable tokens match.
+
+## How to reproduce
+
+With pinned Verilator 5.050 on PATH, compare the complete suite:
+
+```sh
+make -C tb/verilator/milan_dp clean
+make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp clean
+make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
+```
+
+## How to validate
+
+Run `python3 tb/verilator/milan_dp/test_sim_pool.py`, the existing phase controls,
+and the complete real suite with its unchanged render campaign. Preserve logs
+and use `scripts/suite_tally.py --verdict`. Controlled cold/warm and fault-test
+receipts are supplied in the author handoff for a PR evidence comment. The
+manager owns full native banks, trusted act, hosted timing/gates and candidate checks.
+
+The bare-metal checker adds only file/context-pinned workstation process references and strong positive/refusal controls; policy classes and budgets remain unchanged.
+
+## DoD
+
+Local scope and measured comparisons are recorded. R245/R246 review, manager
+validation, authorized merge and post-merge containment remain open. No author
+approval is claimed.
+
+Closes #517
+Relates to #270
+
+
+https://github.com/kebag-logic/milan-fpga/pull/524#issuecomment-5783072806
+[A10] COMPLETE SOURCE REVIEW READY
+
+Source `5874895eb817ed41c0f8be4eb427ad3315c29844`, tree `45a2a9b2b108a932db49d9ec595ff4b3f18a2b3e`, base `483a133ed08867ea0d300d2b4a027b5b48a4282f` passes all 50 static/builder commands and five complete native groups. Final committed blob/mode/index and three required submodule checks pass. The bounded two-child ordinary-simulation runner preserves exclusive ordered sim_nxn header writes and whole-set sequential frame-dump behavior. The host-process policy correction keeps benchmarked artifact bytes unchanged and all original policy restrictions. Original same-head measurements at 7ab1c8d0 report full-suite cold 1136.415 to 1099.401 seconds (3.257%) and warm 987.247 to 943.330 seconds (4.448%): one local pair per temperature, each 9324 checks/0 failures. The full corrected bank runs at the head above; original measurements are not relabeled. R245 internal Codex/R246 external Opus and the attributable hosted dedicated-worker comparison remain pending.
+
+[Exact commands, raw results and integrity](https://github.com/kebag-logic/milan-fpga/tree/7c2f4357167e5398524f7980ab1a09690256544f/review-evidence/517-r1/corrected-source2/manager). Scoped Verilator 5.050 is recorded. Physical calibration NOT RUN and field skips supply no hardware evidence. Trusted replica, new exact-head hosted results, two positive reviews, final current-dev candidate and post-merge checks remain required. External Opus availability does not waive its review.
+
+
+https://github.com/kebag-logic/milan-fpga/pull/524#issuecomment-5783078964
+[A10] CLEARED INTERNAL REVIEW STARTED: R245-1
+
+R245 Codex reconstructs source `5874895eb817ed41c0f8be4eb427ad3315c29844` from public scope, requirements, diff and evidence, applying all five lenses. R246 remains the separately required external Opus reviewer; this session does not replace it. Open findings retain the original reviewer classifications and need explicit resolution at this head. Hosted inspection is deferred until actual trusted replica invocation. Public source/native evidence is available; the manager owns later hosted verification. No source edits or merge are permitted while this review runs.

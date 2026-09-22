@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import os,time
+from pathlib import Path
+while not Path("ready").exists():time.sleep(.005)
+os.write(1,b"fast complete\n"+b"x"*262144+b"\n")

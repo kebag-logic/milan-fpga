@@ -1,0 +1,165 @@
+{
+  "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+  "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+  "status": "",
+  "sources": {
+    "tb/verilator/milan_dp/test_sim_pool.py": "fe07e1dbe0fb76fc1215beed4a5f4e975e14f38af246b0e5a5f6d27da383bada",
+    "tb/verilator/milan_dp/sim_pool.py": "de372fe49f6b6c3f3dce717a0179b6b3b3b57cac1bab08fd3fec615b80997914"
+  },
+  "checks": [
+    {
+      "name": "runner",
+      "command": [
+        "rtk",
+        "proxy",
+        "timeout",
+        "120s",
+        "python3",
+        "-u",
+        "tb/verilator/milan_dp/test_sim_pool.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 6.660239822027506
+    },
+    {
+      "name": "phase-observation",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "tb/verilator/milan_dp/test_render_phase_observation.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.1011875260155648
+    },
+    {
+      "name": "tally-controls",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/suite_tally.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.05922747400472872
+    },
+    {
+      "name": "ownership-controls",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.06044380701496266
+    },
+    {
+      "name": "docs",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 3.7638643579848576
+    },
+    {
+      "name": "contents",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.3731129279767629
+    },
+    {
+      "name": "em-dash",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.9450802700011991
+    },
+    {
+      "name": "python-idiom",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 2.8384995580126997
+    },
+    {
+      "name": "shell-idiom",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.2081200450193137
+    },
+    {
+      "name": "hygiene",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.2938764049904421
+    },
+    {
+      "name": "evidence",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit": 0,
+      "wall_seconds": 4.55397511299816
+    },
+    {
+      "name": "fail-fast",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit": 0,
+      "wall_seconds": 1.379967321001459
+    },
+    {
+      "name": "todo",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit": 0,
+      "wall_seconds": 1.2368004829913843
+    }
+  ]
+}

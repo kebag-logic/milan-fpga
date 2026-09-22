@@ -1,0 +1,52 @@
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-1-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'arms read /proc and wait on pidfds.' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-1-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'arms read /proc and wait on pidfds. # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-2-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""Children of `ppid` that are not zombies, read from /proc."""' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-2-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""Children of `ppid` that are not zombies, read from /proc.""" # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-3-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'for entry in os.listdir("/proc"):' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-3-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'for entry in os.listdir("/proc"): # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-4-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'with open("/proc/" + entry + "/stat", "rb") as fh:' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-4-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'with open("/proc/" + entry + "/stat", "rb") as fh: # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-5-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'with open("/proc/self/status") as fh:' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-5-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'with open("/proc/self/status") as fh: # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-6-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink("/proc/self/fd/0"),' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-6-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink("/proc/self/fd/0"), # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-7-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""The runner\'s children that are alive now, read from /proc."""' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-7-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""The runner\'s children that are alive now, read from /proc.""" # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-8-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'for entry in os.listdir("/proc"):' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-8-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'for entry in os.listdir("/proc"): # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-9-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'raw = Path(f"/proc/{entry}/stat").read_bytes()' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-9-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'raw = Path(f"/proc/{entry}/stat").read_bytes() # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-10-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'children = Path(f"/proc/self/task/{os.getpid()}/children").read_text().split()' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-10-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'children = Path(f"/proc/self/task/{os.getpid()}/children").read_text().split() # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-11-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""The /proc status mask with the bits of `signals` set."""' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-11-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': '"""The /proc status mask with the bits of `signals` set.""" # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-12-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'if not hasattr(os, "pidfd_open") or not Path("/proc/self/stat").is_file():' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-12-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'if not hasattr(os, "pidfd_open") or not Path("/proc/self/stat").is_file(): # /etc/fstab' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-13-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-13-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run") # /etc/fstab' (#259: no target OS or retired helper-service plane)
