@@ -1,0 +1,50 @@
+[
+  {
+    "name": "no-exclusivity",
+    "caught": true,
+    "assertion": "shared-state contention between grouped writers",
+    "arm": "arm_shared_group_is_exclusive_ordered_and_allows_independent_overlap",
+    "elapsed_s": 0.1890929479850456,
+    "sha256": "53691c434caee3013c29cd6ce9991901fcb333e7832a7d5da51e2a21bdd4a63e"
+  },
+  {
+    "name": "masked-child-exit",
+    "caught": true,
+    "assertion": "",
+    "arm": "arm_a_failing_leg_fails_the_run_and_stops_later_starts",
+    "elapsed_s": 0.11519203300122172,
+    "sha256": "13a372b4477a4e4b83334ded09087bc16d703568a2113cccbce59eea70a4bc1c"
+  },
+  {
+    "name": "lost-output",
+    "caught": true,
+    "assertion": "a capture was not replayed byte for byte",
+    "arm": "arm_every_byte_is_replayed_in_recipe_order",
+    "elapsed_s": 0.17912941801478155,
+    "sha256": "8693fc1ca30c5a5530a835a43ecfd40a0f52fb987818d802313a80f1eb9a174f"
+  },
+  {
+    "name": "three-workers",
+    "caught": true,
+    "assertion": "[] -j8 --jobserver-auth=fifo:/nonexistent: 3 legs alive at a start",
+    "arm": "arm_never_more_than_two_legs_alive",
+    "elapsed_s": 0.34472804999677464,
+    "sha256": "ab60c05953b1f1d894e0d8295d8d7abc942b4abdbfc59c591f00b6c71b7352c1"
+  },
+  {
+    "name": "parallel-frame-writers",
+    "caught": true,
+    "assertion": "[2, 1, 2, 1]",
+    "arm": "arm_the_frame_dump_variable_runs_one_leg_at_a_time",
+    "elapsed_s": 0.2537375230167527,
+    "sha256": "21411d59b32d06ab4e6ac5652f5a868d1e00fda4551bed2fffa21458c91f05ce"
+  },
+  {
+    "name": "unreaped-orphans",
+    "caught": true,
+    "assertion": "owned PID 650263 survived or was not reaped",
+    "arm": "arm_an_interrupt_kills_every_leg_and_what_it_spawned",
+    "elapsed_s": 0.11852529097814113,
+    "sha256": "cd91dd709424f782f1541a91744fbc8046e1521b29418b6e69e5ad83337f5715"
+  }
+]

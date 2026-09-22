@@ -1,0 +1,140 @@
+{
+  "head": "7ab1c8d0ad073fbc1977c455dea89b7b318d4e52",
+  "tree": "790849ab7fcf7c712c77fe051bb5fb6a45d830c2",
+  "temperature": "cold",
+  "complete_leg_bytes_equal": true,
+  "executable_bytes_equal": true,
+  "input_bytes_equal": true,
+  "legs": [
+    {
+      "command": [
+        "./obj_dir/Vmilan_dp_sim"
+      ],
+      "bytes": 20078,
+      "sha256": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+      "checks": 230,
+      "failures": 0,
+      "tally_lines": [
+        "milan_datapath: 230 checks, 0 failures"
+      ]
+    },
+    {
+      "command": [
+        "./obj_notify/Vmilan_dp_notify"
+      ],
+      "bytes": 10894,
+      "sha256": "df937448028707d7d3e1cd420950a10de1afe0aedff7242955e02690f06593b4",
+      "checks": 135,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 135   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_nxn/Vmilan_dp_nxn"
+      ],
+      "bytes": 138739,
+      "sha256": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+      "checks": 1633,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 1633   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_nxndv/Vmilan_dp_nxndv"
+      ],
+      "bytes": 138885,
+      "sha256": "4d5ae267a7c35309820447f1f2f169d3b7a04ead877cf73041e757e1633d57d3",
+      "checks": 1635,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 1635   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_nxn8/Vmilan_dp_nxn8"
+      ],
+      "bytes": 254357,
+      "sha256": "c8029961ed3df909c771e1b7e04dd18950819576f032836beb729169420226a7",
+      "checks": 3061,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 3061   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_nxn4c/Vmilan_dp_nxn4c"
+      ],
+      "bytes": 138739,
+      "sha256": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+      "checks": 1633,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 1633   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_nolpf/Vmilan_dp_nolpf"
+      ],
+      "bytes": 20078,
+      "sha256": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+      "checks": 230,
+      "failures": 0,
+      "tally_lines": [
+        "milan_datapath: 230 checks, 0 failures"
+      ]
+    },
+    {
+      "command": [
+        "./obj_prune/Vmilan_dp_prune"
+      ],
+      "bytes": 2897,
+      "sha256": "73423b3ddf2f4ef7e7447cef2a830ed13d0035871252b035d886bc2a858fa40c",
+      "checks": 33,
+      "failures": 0,
+      "tally_lines": [
+        "checks: 33   failures: 0"
+      ]
+    },
+    {
+      "command": [
+        "./obj_ax1x1/Vmilan_dp_ax1x1"
+      ],
+      "bytes": 20581,
+      "sha256": "9e667ab7e8c338d6060287d26019545e3b3bf298e7439696430cadbb876ef512",
+      "checks": 227,
+      "failures": 0,
+      "tally_lines": [
+        "milan_datapath: 227 checks, 0 failures"
+      ]
+    },
+    {
+      "command": [
+        "./obj_aclk/Vmilan_dp_aclk"
+      ],
+      "bytes": 14902,
+      "sha256": "49c891b819c8eab0da09616616909fc55001b963720760073a37c668c144dbbf",
+      "checks": 139,
+      "failures": 0,
+      "tally_lines": [
+        "media_aclk: 139 checks, 0 failures"
+      ]
+    }
+  ],
+  "whole_checks": 9324,
+  "whole_failures": 0,
+  "render_phase_records": 23,
+  "render_semantics_equal": true,
+  "sequential_seconds": 1136.415,
+  "pooled_seconds": 1099.401,
+  "seconds_saved": 37.014,
+  "percent_saved": 3.257,
+  "measurably_faster": true,
+  "timing_attribution": "Whole suite includes unchanged builds, gPTP and render; no build-speed claim."
+}
