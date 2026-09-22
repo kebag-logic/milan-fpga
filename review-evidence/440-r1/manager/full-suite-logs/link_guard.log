@@ -1,0 +1,122 @@
+make: Entering directory '$VALIDATION/tb/verilator/link_guard'
+verilator --cc --exe --build -j 0 --top-module KL_link_guard -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GDEAD_CYC_C=64 -GSETTLE_CYC_C=256 ../../../hdl/common/KL_link_guard.sv sim_main.cpp -o Vlink_guard_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/link_guard/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_link_guard.cpp VKL_link_guard___024root__0.cpp VKL_link_guard___024root__Slow.cpp VKL_link_guard___024root__0__Slow.cpp VKL_link_guard__Syms__Slow.cpp > VKL_link_guard__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_link_guard__ALL.o VKL_link_guard__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_link_guard__ALL.a    -pthread -lpthread -latomic   -o Vlink_guard_sim
+rm VKL_link_guard__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/link_guard/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.037 MB sources in 2 modules, into 0.061 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.168 s (elab=0.001, cvt=0.006, bld=5.155); cpu 0.015 s on 8 threads; allocated 16.637 MB
+./obj_dir/Vlink_guard_sim
+[PASS] unarmed alive stat
+[PASS] unarmed reinit
+[PASS] unarmed link_est
+[PASS] armed RUN reinit
+[PASS] armed RUN alive
+[PASS] armed link_est
+[PASS] rx-death reinit
+[PASS] rx-death link_est
+[PASS] rx-death state
+[PASS] rx-death bounce
+[PASS] settle still held
+[PASS] settle state
+[PASS] re-death state
+[PASS] re-death bounce
+[PASS] recovered reinit
+[PASS] recovered state
+[PASS] recovered link_est
+[PASS] tx-death reinit
+[PASS] tx-death bounce
+[PASS] tx-recover reinit
+[PASS] manual reinit
+[PASS] manual eth_rst
+[PASS] manual still held
+[PASS] manual recovered
+[PASS] manual eth released
+[PASS] manual not a bounce
+[PASS] freeze reinit
+[PASS] freeze flag
+[PASS] freeze bounce
+[PASS] unfreeze recover
+[PASS] pre-disable reinit
+[PASS] disabled reinit
+[PASS] disabled flag
+[PASS] re-enable recover
+[PASS] act idle
+[PASS] act recent
+[PASS] wobble enters hold
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble alive-burst still held
+[PASS] wobble re-death still held
+[PASS] wobble one episode
+[PASS] wobble clean release
+[PASS] wobble episode count
+[PASS] slow clock stays alive
+[PASS] slow clock no episode
+[PASS] too-slow clock is dead
+[PASS] boundary recover
+[PASS] boundary one episode
+[PASS] overlap rx-back still held
+[PASS] overlap state HOLD
+[PASS] overlap release
+[PASS] overlap one episode
+[PASS] manual link_est unaffected
+[PASS] auto holds past manual
+[PASS] manual-overlap recover
+[PASS] manual-overlap episode
+[PASS] fis in settle
+[PASS] fis back to hold
+[PASS] fis release
+[PASS] fis one episode
+[PASS] dis-in-settle releases
+[PASS] benign re-enable RUN
+[PASS] benign re-enable no bounce
+[PASS] pre-reset held
+[PASS] post-reset unarmed stat
+[PASS] post-reset reinit
+[PASS] partial-arm RUN
+[PASS] partial-arm rx death triggers
+[PASS] partial-arm bounce
+[PASS] partial-arm recover
+[PASS] ethrst RUN idle
+[PASS] ethrst port idle
+[PASS] ethrst asserted in HOLD
+[PASS] ethrst port in HOLD
+[PASS] ethrst with reinit
+[PASS] ethrst early-settle held
+[PASS] early-settle reinit held
+[PASS] ethrst released mid-settle
+[PASS] SEQ sys held after eth rel
+[PASS] ethrst clear in RUN
+[PASS] sys released last
+[PASS] re-death pre: eth clear
+[PASS] re-death pre: sys held
+[PASS] ethrst re-armed on re-death
+[PASS] re-death episode recovers
+[PASS] manual reinit sys held
+[PASS] manual reinit eth reset
+[PASS] manual reinit settled
+[PASS] pre-disable ethrst
+[PASS] disabled ethrst clear
+[PASS] stat[2] mirrors eth_rst_o
+[PASS] post-disable recovered
+[PASS] bounce saturated
+[PASS] bounce stays saturated
+[PASS] saturated still recovers
+
+104 checks: 104 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/link_guard'

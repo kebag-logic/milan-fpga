@@ -1,0 +1,114 @@
+make: Entering directory '$VALIDATION/tb/verilator/clkvalid'
+verilator --cc --exe --build -j 0 --top-module KL_ptp_clock_validity -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_fast -GQTICK_CYC_P=8 \
+  ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv sim_main.cpp -o Vclkv_fast
+make[1]: Entering directory '$VALIDATION/tb/verilator/clkvalid/obj_fast'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_ptp_clock_validity.cpp VKL_ptp_clock_validity___024root__0.cpp VKL_ptp_clock_validity___024root__Slow.cpp VKL_ptp_clock_validity___024root__0__Slow.cpp VKL_ptp_clock_validity__Syms__Slow.cpp > VKL_ptp_clock_validity__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_ptp_clock_validity__ALL.o VKL_ptp_clock_validity__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_ptp_clock_validity__ALL.a    -pthread -lpthread -latomic   -o Vclkv_fast
+rm VKL_ptp_clock_validity__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/clkvalid/obj_fast'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.039 MB sources in 2 modules, into 0.047 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.130 s (elab=0.001, cvt=0.004, bld=5.120); cpu 0.012 s on 8 threads; allocated 16.441 MB
+verilator --cc --exe --build -j 0 --top-module KL_ptp_clock_validity -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_real -GQTICK_CYC_P=25000000 \
+  ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv sim_main.cpp -o Vclkv_real
+make[1]: Entering directory '$VALIDATION/tb/verilator/clkvalid/obj_real'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_ptp_clock_validity.cpp VKL_ptp_clock_validity___024root__0.cpp VKL_ptp_clock_validity___024root__Slow.cpp VKL_ptp_clock_validity___024root__0__Slow.cpp VKL_ptp_clock_validity__Syms__Slow.cpp > VKL_ptp_clock_validity__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_ptp_clock_validity__ALL.o VKL_ptp_clock_validity__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_ptp_clock_validity__ALL.a    -pthread -lpthread -latomic   -o Vclkv_real
+rm VKL_ptp_clock_validity__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/clkvalid/obj_real'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.039 MB sources in 2 modules, into 0.047 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.146 s (elab=0.001, cvt=0.004, bld=5.137); cpu 0.011 s on 8 threads; allocated 16.430 MB
+verilator --cc --exe --build -j 0 --top-module KL_ptp_clock_validity -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_fabric -GQTICK_CYC_P=8 \
+  -GFABRIC_GPTP_P=1 ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv sim_main.cpp -o Vclkv_fabric
+make[1]: Entering directory '$VALIDATION/tb/verilator/clkvalid/obj_fabric'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_ptp_clock_validity.cpp VKL_ptp_clock_validity___024root__0.cpp VKL_ptp_clock_validity___024root__Slow.cpp VKL_ptp_clock_validity___024root__0__Slow.cpp VKL_ptp_clock_validity__Syms__Slow.cpp > VKL_ptp_clock_validity__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_ptp_clock_validity__ALL.o VKL_ptp_clock_validity__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_ptp_clock_validity__ALL.a    -pthread -lpthread -latomic   -o Vclkv_fabric
+rm VKL_ptp_clock_validity__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/clkvalid/obj_fabric'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.039 MB sources in 2 modules, into 0.053 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.155 s (elab=0.001, cvt=0.005, bld=5.145); cpu 0.012 s on 8 threads; allocated 16.555 MB
+======================================================================
+./obj_fast/Vclkv_fast 8
+== KL_ptp_clock_validity (QTICK_CYC_P=8) ==
+-- option-off is permanently ownerless (#116) --
+  [ok] reset: tu = 1                                        got=1 exp=1
+  [ok] reset: STAT[0] tu                                    got=1 exp=1
+  [ok] reset: STAT[1] sync_ok                               got=0 exp=0
+  [ok] reset: retired no-lease bit is zero                  got=0 exp=0
+  [ok] reset: STAT[3] holdover                              got=0 exp=0
+  [ok] reset: retired lease count is zero                   got=0 exp=0
+  [ok] reset: asCapable = 0                                 got=0 exp=0
+  [ok] reset: STAT[16] asCapable                            got=0 exp=0
+  [ok] reset: TUCNT = 0                                     got=0 exp=0
+  [ok] time alone cannot clear tu                           got=1 exp=1
+  [ok] owner fields stay zero with no input                 got=0 exp=0
+  [ok] fabric sync pin ignored when option is off           got=0 exp=0
+  [ok] fabric asCapable pin ignored when option is off      got=0 exp=0
+  [ok] fabric discontinuity pin ignored when option is off  got=0 exp=0
+  [ok] fabric pins cannot clear tu                          got=1 exp=1
+  [ok] GM input is ignored without a fabric owner           got=0 exp=0
+  [ok] GM input cannot clear tu                             got=1 exp=1
+  [ok] PHC step keeps tu asserted                           got=1 exp=1
+  [ok] PHC step arms holdover                               got=1 exp=1
+  [ok] holdover expires while tu remains asserted           got=1 exp=1
+  [ok] expired holdover bit clears                          got=0 exp=0
+  [ok] permanent tu counts one-second intervals, not cycles got=4 exp=4..5
+== clkvalid: checks: 22  failures: 0 ==
+----------------------------------------------------------------------
+./obj_real/Vclkv_real 25000000
+== KL_ptp_clock_validity (QTICK_CYC_P=25000000) ==
+-- option-off is permanently ownerless (#116) --
+  [ok] reset: tu = 1                                        got=1 exp=1
+  [ok] reset: STAT[0] tu                                    got=1 exp=1
+  [ok] reset: STAT[1] sync_ok                               got=0 exp=0
+  [ok] reset: retired no-lease bit is zero                  got=0 exp=0
+  [ok] reset: STAT[3] holdover                              got=0 exp=0
+  [ok] reset: retired lease count is zero                   got=0 exp=0
+  [ok] reset: asCapable = 0                                 got=0 exp=0
+  [ok] reset: STAT[16] asCapable                            got=0 exp=0
+  [ok] reset: TUCNT = 0                                     got=0 exp=0
+  [ok] time alone cannot clear tu                           got=1 exp=1
+  [ok] owner fields stay zero with no input                 got=0 exp=0
+  [ok] fabric sync pin ignored when option is off           got=0 exp=0
+  [ok] fabric asCapable pin ignored when option is off      got=0 exp=0
+  [ok] fabric discontinuity pin ignored when option is off  got=0 exp=0
+  [ok] fabric pins cannot clear tu                          got=1 exp=1
+  [ok] GM input is ignored without a fabric owner           got=0 exp=0
+  [ok] GM input cannot clear tu                             got=1 exp=1
+  [ok] shipping divider: tu still asserted with no owner    got=1 exp=1
+  [ok] shipping divider: owner fields remain zero           got=0 exp=0
+== clkvalid: checks: 19  failures: 0 ==
+----------------------------------------------------------------------
+./obj_fabric/Vclkv_fabric 8 fabric
+== KL_ptp_clock_validity (QTICK_CYC_P=8) ==
+-- fabric publication bank owns validity (#116) --
+  [ok] reset: fabric has not synchronised, tu = 1           got=1 exp=1
+  [ok] fabric mode keeps retired no-lease field zero        got=0 exp=0
+  [ok] no software sync claim exists                        got=0 exp=0
+  [ok] no software asCapable claim exists                   got=0 exp=0
+  [ok] retired lease count is zero                          got=0 exp=0
+  [ok] GM adoption raises tu before the sampling edge       got=1 exp=1
+  [ok] fabric sync clears tu after holdover (cycles)        got=12 exp=8..32
+  [ok] fabric sync is the STAT claim                        got=1 exp=1
+  [ok] fabric asCapable is live                             got=1 exp=1
+  [ok] fabric asCapable is STAT[16]                         got=1 exp=1
+  [ok] fabric sync stays valid without software             got=0 exp=0
+  [ok] fabric discontinuity raises tu before the sampling edge got=1 exp=1
+  [ok] fabric sync loss asserts tu immediately              got=1 exp=1
+  [ok] fabric asCapable loss is immediate                   got=0 exp=0
+== clkvalid: checks: 14  failures: 0 ==
+make: Leaving directory '$VALIDATION/tb/verilator/clkvalid'
