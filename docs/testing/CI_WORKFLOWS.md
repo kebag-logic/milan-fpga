@@ -1056,6 +1056,16 @@ Removing, reordering, or rewriting one is refused by name (#407).
 Script refusals also identify the first differing line.
 Legitimate command edits require matching record updates, as item 11 describes.
 
+`AEM store generator self-test` runs just before those three gates.
+It calls `python3 avdecc/gen_aem_store.py --self-test` (#464).
+The AUDIO_MAP bounds, directory and Base-format checks must each refuse.
+Each AUDIO_MAP vector must be refused by its own bound.
+The vectors mutate the self-test's own two-map fixture.
+The deployed model stays the positive control.
+No step ran this self-test before, so it rotted unseen.
+It reads first-party files only and needs no submodule.
+`CARRIER_STEP_LISTS` pins this step the same way (#407).
+
 Three caches, deliberately split. The Scala toolchain is content-addressed
 and keeps a broad fallback. The pip download cache is keyed on the pin file
 with a prefix fallback and runs only under the RTL scope, safe because the

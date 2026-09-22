@@ -381,6 +381,15 @@ jobs:
           python3 scripts/gen_toc.py --verify-anchors
           python3 scripts/gen_toc.py --check
 
+      # AEM store generator self-test (#464): the AUDIO_MAP bounds gate, the
+      # two-level directory gate and the Milan 6.4 Base-format check in
+      # avdecc/gen_aem_store.py each prove they can refuse, every AUDIO_MAP
+      # vector by the bound that names it. No step ran it, so it failed
+      # unseen once the model's map geometry changed. It reads first-party
+      # files only and needs no dependency installed above.
+      - name: AEM store generator self-test
+        run: python3 avdecc/gen_aem_store.py --self-test
+
       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
       # must equal the end-station config they claim to build (stream count,
       # queue geometry, and cache size). --self-test also proves a wrong value IS rejected.
