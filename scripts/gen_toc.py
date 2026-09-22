@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440")
-MIN_ARMS = 683
+MIN_ARMS = 707
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {

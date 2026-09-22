@@ -17,11 +17,12 @@ from types import ModuleType
 from gen_toc import FENCE, HTML, TEXT
 
 
-# Independent of REFUSED and RAW_HTML_TAGS so a narrowed population fails.
+# Independent of REFUSED and RAW_HTML_TAGS to hold both name-set boundaries.
 _CHARACTERS = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
                "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
                "\u2029\u202f\u205f\u3000")
 _NAMES = ("pre", "script", "style", "textarea")
+_OTHER_NAMES = ("div", "title", "xmp")
 _FOLDS = ("\u017fcript", "\u017ftyle", "scr\u0131pt", "scr\u0130pt")
 
 
@@ -51,6 +52,9 @@ def closer_arms() -> list[tuple[str, str, object]]:
                              f"<{opener}>{joiner}</{opener}{blank}>\n## Probe\n", _probe_kind(HTML)))
             for name in _FOLDS:
                 arms.append((f"I440-T-fold {opener}/{name} {joiner!r}",
+                             f"<{opener}>{joiner}</{name}>\n## Probe\n", _probe_kind(HTML)))
+            for name in _OTHER_NAMES:
+                arms.append((f"I440-T-other-name {opener}/{name} {joiner!r}",
                              f"<{opener}>{joiner}</{name}>\n## Probe\n", _probe_kind(HTML)))
     arms += [
         ("I440-T-embedded closer anywhere in the line",
@@ -84,6 +88,12 @@ def _label_rows() -> list[tuple[str, str, int, int]]:
         ("I440-E-cross", "<pre>\n</style>\n", 0, 1),
         ("I440-E-cross-inline", "<pre>x</TEXTAREA>\n", 0, 1),
         ("I440-E-ascii", "<script>\n</SCRIPT>\n", 0, 1),
+        ("I440-E-other-div", "<pre>\n</div>\n", 1, 0),
+        ("I440-E-other-title", "<pre>\n</title>\n", 1, 0),
+        ("I440-E-other-xmp", "<pre>\n</xmp>\n", 1, 0),
+        ("I440-E-other-div-inline", "<pre>x</div>\n", 1, 0),
+        ("I440-E-other-title-inline", "<pre>x</title>\n", 1, 0),
+        ("I440-E-other-xmp-inline", "<pre>x</xmp>\n", 1, 0),
         ("I440-E-long-s", "<script>\n</\u017fcript>\n", 1, 0),
         ("I440-E-dotless-i", "<script>\n</scr\u0131pt>\n", 1, 0),
         ("I440-E-dotted-i", "<script>x</scr\u0130pt>\n", 1, 0),

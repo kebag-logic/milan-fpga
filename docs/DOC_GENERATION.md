@@ -52,7 +52,9 @@ Refusal binds both provenance and the base heading's authority.
 
 These hidden headings authorize no copied-label exemption.
 
-`I440` controls cover each closing property and shipped label decisions.
+`I440` controls cover fence trailers and literal type-1 closer boundaries.
+
+Raw-walk and shipped-label controls reject `div`, `title`, and `xmp`.
 
 Container behavior remains the separate scope of issue #437.
 
