@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv b/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+index e7722721..83e0dfa0 100644
+--- a/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
++++ b/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+@@ -886,7 +886,7 @@ module KL_gptp_txret #(
+   // ======================================================================= //
+   //! The head entry's age. It counts, it publishes, and it retires nothing.
+   logic age_hit_w;
+-  assign age_hit_w = (n_led_r != OCC_W_C'(0)) &&
++  assign age_hit_w = 1'b0 && (n_led_r != OCC_W_C'(0)) &&
+                      (age_r == AGE_W_C'(STALL_AGE_CYC_P));
+ 
+   always_ff @(posedge clk_i) begin : diagnostics
