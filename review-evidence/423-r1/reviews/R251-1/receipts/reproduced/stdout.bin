@@ -1,0 +1,9 @@
+localedef rc=0
+linear/utf8/head-df53dfa1 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]
+linear/utf8/base-52711029 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]
+linear/latin1/head-df53dfa1 fs=iso8859-1 rc=0 | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]
+linear/latin1/base-52711029 fs=iso8859-1 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]
+merge/utf8/head-df53dfa1 fs=utf-8 rc=1 | UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'é.txt'
+merge/utf8/base-52711029 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]
+merge/latin1/head-df53dfa1 fs=iso8859-1 rc=0 | contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]
+merge/latin1/base-52711029 fs=iso8859-1 rc=1 | STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]
