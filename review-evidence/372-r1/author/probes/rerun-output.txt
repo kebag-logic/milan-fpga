@@ -1,0 +1,140 @@
+Verilator 5.050 2026-07-01 rev v5.050
+build p1/assert rc=0
+%Warning-UNUSEDSIGNAL: chk.sv:7:14: Signal is not used: 'y'
+run p1-assert/sim +mode=ok
+mode=ok done; gotError=0
+hit ai_pass 4
+CHK-FINAL TOP.dut.u_chk.fin
+rc=0
+run p1-assert/sim +mode=drop
+[0] %Error: chk.sv:15: Assertion failed in TOP.dut.u_chk.ap_hold: [SVA] ap_hold: a dropped while b low
+%Error: chk.sv:15: Verilog $stop
+Aborting...
+rc=1
+run p1-assert/sim +mode=reset_after
+mode=reset_after done; gotError=0
+hit ai_pass 5
+CHK-FINAL TOP.dut.u_chk.fin
+rc=0
+run p1-assert/sim +mode=reset_before
+mode=reset_before done; gotError=0
+hit ai_pass 4
+CHK-FINAL TOP.dut.u_chk.fin
+rc=0
+build p1/noassert rc=0
+%Warning-UNUSEDSIGNAL: chk.sv:7:14: Signal is not used: 'y'
+run p1-noassert/sim +mode=drop
+[0] %Error: chk.sv:15: Assertion failed in TOP.dut.u_chk.ap_hold: [SVA] ap_hold: a dropped while b low
+%Error: chk.sv:15: Verilog $stop
+Aborting...
+rc=1
+build p1/covuser rc=0
+%Warning-UNUSEDSIGNAL: chk.sv:7:14: Signal is not used: 'y'
+run p1-covuser/sim +mode=ok
+mode=ok done; gotError=0
+hit ai_pass 4
+hit cp_stall 3
+CHK-FINAL TOP.dut.u_chk.fin
+rc=0
+build p2/noassert rc=0
+%Warning-UNUSEDSIGNAL: chk.sv:8:14: Signal is not used: 'idle_i'
+%Warning-UNUSEDSIGNAL: chk.sv:10:14: Signal is not used: 'two_i'
+run p2-noassert/sim +mode=drop
+mode=drop done; gotError=0
+rc=0
+build p2/badbind rc=0
+run p2-badbind/sim +mode=ok
+mode=ok done; gotError=0
+rc=0
+build p3/assert rc=0
+run p3-assert/sim +mode=ok
+mode=ok done
+rc=0
+run p3-assert/sim +mode=ab
+[35] %Error: chk.sv:9: Assertion failed in TOP.dut.u_chk.am_env: [SVA] am_env: a and b together
+%Error: chk.sv:9: Verilog $stop
+Aborting...
+rc=1
+run p3-assert/sim +mode=bone
+[40] %Error: chk.sv:11: Assertion failed in TOP.dut.u_chk.combo.ac_final: [SVA] ac_final: b while one
+%Error: chk.sv:11: Verilog $stop
+Aborting...
+rc=1
+build p4/vac rc=0
+run p4-vac/sim 
+clocks=14 antecedent_cycles=4
+hit ap_comb_pass 12
+hit ap_hold_pass 12
+hit ap_plain_pass 12
+rc=0
+build p4/vacoff rc=0
+run p4-vacoff/sim 
+clocks=14 antecedent_cycles=4
+hit ap_comb_pass 12
+hit ap_hold_pass 12
+hit ap_plain_pass 12
+rc=0
+build p5/assert rc=0
+run p5-assert/sim 
+clocks=14 antecedent_cycles=4
+hit imm_assert_pass 12
+rc=0
+build p5/covuser rc=0
+run p5-covuser/sim 
+clocks=14 antecedent_cycles=4
+hit imm_assert_pass 12
+hit imm_cover_stall 4
+rc=0
+build p5/noassert rc=0
+run p5-noassert/sim 
+clocks=14 antecedent_cycles=4
+rc=0
+build p6/assert rc=0
+run p6-assert/sim 
+clocks=18 antecedent_cycles=5 nonvacuous_tb=4
+calls ap_hold 15 nonvacuous 4
+rc=0
+build p7/assert rc=0
+%Warning-DECLFILENAME: sub.sv:2:8: Filename 'sub' does not match MODULE name: 'sub_chk'
+run p7-assert/sim 
+scope TOP.dut.u_sva -> found
+scope TOP.dut.u_sva.u_a -> found
+scope TOP.dut.u_sva.u_b -> found
+scope TOP.dut.u_nope -> NULL
+witness TOP.dut.u_sva.u_a:ap_hold calls=11 nonvacuous=4
+witness TOP.dut.u_sva.u_b:ap_hold calls=11 nonvacuous=0
+witness TOP.dut.u_sva:ai_c calls=6 nonvacuous=6
+witness TOP.dut.u_sva:ai_f calls=6 nonvacuous=6
+witness TOP.dut.u_sva:ap_one calls=11 nonvacuous=11
+rc=0
+build p7/noassert rc=0
+%Warning-DECLFILENAME: sub.sv:2:8: Filename 'sub' does not match MODULE name: 'sub_chk'
+run p7-noassert/sim 
+scope TOP.dut.u_sva -> NULL
+scope TOP.dut.u_sva.u_a -> NULL
+scope TOP.dut.u_sva.u_b -> NULL
+scope TOP.dut.u_nope -> NULL
+rc=0
+build p8/assert rc=0
+run p8-assert/sim 
+isunknown(x_w)=0 x_w=0
+[35] %Error: top.sv:5: Assertion failed in TOP.top.ap_one: [SVA] ap_one a high
+%Error: top.sv:5: Verilog $stop
+Aborting...
+rc=1
+run p8-assert/sim +verilator+error+limit+1000
+isunknown(x_w)=0 x_w=0
+[35] %Error: top.sv:5: Assertion failed in TOP.top.ap_one: [SVA] ap_one a high
+-Info: top.sv:5: Verilog $stop, ignored due to +verilator+error+limit
+[35] %Error: top.sv:6: Assertion failed in TOP.top.ap_two: [SVA] ap_two a and b
+harness: error count 2 after cycle 4, stopping
+rc=3
+build p9/badbind rc=0
+%Warning-DECLFILENAME: sub.sv:2:8: Filename 'sub' does not match MODULE name: 'sub_chk'
+Vdut__Dpi.cpp
+Vdut__Dpi.h
+verilated_dpi.d
+verilated_dpi.o
+run p9-badbind/sim 
+dpi header present=1 scope=NULL
+rc=0

@@ -1,0 +1,119 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 833 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_em_dash.py --base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+check_em_dash: 0 finding(s) over 289 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [88e9276b..HEAD]
+rc=0
+=== python3 scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (57 arm(s))
+rc=0
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+=== python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (833 cited paths all resolve; 0 line anchor(s) within their file)
+rc=0
+=== python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+=== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 144 existing cross-page fragment links reproduced
+rc=0
+=== python3 scripts/check_feature_status.py --self-test
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+=== python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+=== python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+=== python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+=== python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+=== python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+=== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 831 tracked first-party file(s))
+rc=0
+=== python3 scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0
+=== python3 scripts/pp_srcs.py --check --selftest
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+rc=0
+=== python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+rc=0
+=== python3 scripts/check_rtl_source_lists.py --selftest
+
+49 checks: 49 PASS, 0 FAIL
+rc=0
+=== python3 scripts/measure_naming.py --check
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+rc=0
+=== python3 scripts/check_port_contracts.py
+  review inventory: 101 open and 51 literal-bound named connection(s), 65 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)
+  the ratchet can be lowered - regenerate with --write-budget; 3 recorded connection(s) gained a rationale or left
+rc=0
+=== python3 scripts/measure_fail_fast.py --check
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+rc=0
+=== python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 761 first-party file(s) read)
+rc=0
+=== python3 scripts/measure_test_evidence.py --check
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+rc=0
+=== python3 scripts/measure_test_evidence.py --selftest
+
+101 checks: 101 PASS, 0 FAIL
+rc=0
+=== python3 scripts/check_hygiene.py --check
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 711 file(s))
+rc=0
+=== python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+=== python3 scripts/check_cpp_idiom.py
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+=== python3 scripts/check_py_idiom.py
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+=== python3 scripts/check_sh_idiom.py
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+rc=0
+=== python3 scripts/suite_tally.py --selftest
+  ok   cli-verdict-unreadable-log       rc=2  -- a log that cannot be read is an unknown, never a pass
+selftest: PASS
+rc=0
+=== python3 scripts/suite_shards.py --selftest
+  ok   reject 'a/4'
+selftest: PASS
+rc=0
+=== env PATH=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin:$WORKSPACE_HOME/.claude/plugins/synced/8a7780b7-ff3a-4c44-8245-5a5dc4f7fed0_3577d779-62b4-4892-b622-c9c1450481ba/engineering~g2/bin python3 scripts/lint_rtl.py --check
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0

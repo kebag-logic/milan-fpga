@@ -1,0 +1,5 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=single_beats stimulus_fault=none
+scenario single_beats from cycle 4
+[5000] %Error: axis_mux_rr_2in_1out_sva.sv:133: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester: the arbiter granted the output to a source that was not offering a beat
+-Info: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:133: Verilog $stop, ignored due to +verilator+error+limit
+SVA-STOP: an assertion failed at the edge ending cycle 5 (the %Error lines above name it); the run stops at that edge
