@@ -80,3 +80,37 @@ make        # regenerates gptp_ucode.hex from the submodule, builds, runs
 ```
 
 Exit 0 = PASS; the tally line is the record.
+
+## Mutation isolation and cancellation
+
+The default `make` also owns `test_mutant_lifecycle.py` and `mutants.py`.
+The original nine mutations and six unobservable reasons remain.
+Named checks and completed failure tallies establish detection.
+Compilation failure alone never establishes detection.
+
+Every campaign gets fresh private source and build files.
+Required gPTP and axis dependency files are copied too.
+Copies contain no hardlinks or links into caller inputs.
+Git checks are read-only; caller sources are never restored.
+Committed bytes, executable modes, index records and pins must agree.
+Dirty, unknown, linked and index-hidden changes are refused.
+Only tracked files enter the private build population.
+Generated objects and images are rebuilt inside that population.
+
+Normal completion and handled INT/TERM reap owned descendants.
+Private work is removed before a completed verdict is printed.
+Stubborn descendants receive bounded escalation through stable process handles.
+Cleanup failures produce diagnostics and refuse a successful result.
+KILL may leave scratch and children; caller sources remain unchanged.
+An interrupted campaign has no completed mutation verdict.
+
+```sh
+python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+make -C tb/verilator/gptp_shadow VERILATOR_JOBS=4
+```
+
+Lifecycle fixtures execute the production drivers using command handshakes.
+They exercise source isolation and process cleanup, including nested sweeps.
+Unsafe controls restore caller mutation and must violate isolation.
+Synthetic commands establish orchestration behavior, not RTL correctness.
+The complete real `make` still owns all nine detections.

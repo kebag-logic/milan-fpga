@@ -207,6 +207,36 @@ An explicit `SUITE_TIMEOUT` still overrides selected suite deadlines locally.
 CI unsets that override for the physical job.
 Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
 
+INT/TERM cancellation instead returns 130/143 without a completed summary.
+The first signal stops later suite launches permanently.
+Selection, lock waits, preflight and suite transitions are covered.
+The driver stops and reaps its owned command subtree.
+Detached or stubborn descendants receive bounded escalation.
+Stable process handles prevent signalling reused numeric identities.
+Workstation process ownership requires pidfds and child adoption.
+Unsupported process facilities are refused before commands start.
+Cleanup allows two seconds before escalating stubborn descendants.
+Another two seconds bound reaping and terminal trap cleanup.
+These cleanup intervals do not change suite deadlines.
+Ordinary red suites still continue through the selected population.
+Masked verdicts still fail; deadline results remain unknown.
+
+Partial suite logs remain under the requested output directory.
+Prerequisite logs remain within its `preflight/` directory.
+The sweep's normal preflight owns these deterministic cancellation controls:
+
+```sh
+python3 scripts/test_suite_cancellation.py
+```
+
+Fixtures retain the production sweep, selector and tally.
+Command handshakes establish signal boundaries without timing guesses.
+Assertions distinguish reaped identities from surviving zombies.
+A foreign sibling must remain untouched throughout cancellation.
+Restoring the original continuation behavior must execute the forbidden sentinel.
+The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
+also exercise cancellation with both production drivers nested.
+
 A long mutation campaign is an explicit target, never a raised deadline.
 #367 settled that rule and this page keeps the list of such targets.
 The `milan_dp` budget is no exception to it: it covers the unchanged suite on the slower hosted runner.

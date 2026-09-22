@@ -268,6 +268,10 @@ HOST_RUNTIME_MASKS = {
     # product target. Allow only its inventory root and the stat-state
     # spelling in the runner policy paragraph, not other target paths.
     "scripts/act_ci.py": re.compile(r'(?<=Path\(")/proc(?="\))'),
+    # #523: exact workstation process-inventory declarations only. The
+    # cancellation owner and independent fixture oracle need stable identities.
+    "scripts/owned_process.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
+    "scripts/process_test_support.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
     "docs/testing/CI_WORKFLOWS.md": re.compile(
         r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
 }
@@ -838,6 +842,7 @@ def _arms_target_runtime(arm):
     arm("runtime-proc-child-caught",
         lambda r: (r / "page.md").write_text(
             "the target reads /proc/mtd\n"), True, "[R]")
+
     for label, punctuation in (("dot", "."), ("bang", "!"),
                                ("question", "?"), ("equals", "="),
                                ("hash", "#"), ("pipe", "|")):
@@ -892,6 +897,27 @@ def _arms_target_runtime(arm):
     arm("runtime-remote-shell-near-miss-clean",
         lambda r: (r / "page.md").write_text(
             "ssh build-host make lint\n"), False)
+
+
+def _arms_cancellation_process_masks(arm):
+    """#523's two exact workstation inventory lines cannot excuse product code."""
+    for filename in ("scripts/owned_process.py", "scripts/process_test_support.py"):
+        def _plant(root, text='PROC = Path("/proc")\n', name=filename):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        label = pathlib.Path(filename).stem
+        arm(label + "-exact-context", _plant, False)
+        arm(label + "-wrong-context",
+            lambda r, p=_plant: p(r, 'OTHER = Path("/proc")\n'), True, "[R]")
+        arm(label + "-second-path",
+            lambda r, p=_plant: p(r, 'PROC = Path("/proc")\nOTHER = Path("/sys")\n'), True, "[R]")
+        arm(label + "-same-line-path",
+            lambda r, p=_plant: p(r, 'PROC = Path("/proc")  # /sys\n'), True, "[R]")
+        arm(label + "-wrong-file",
+            lambda r, p=_plant: p(r, name="scripts/other.py"), True, "[R]")
+        arm(label + "-product-file",
+            lambda r, p=_plant: p(r, name=PRODUCT_DOCS[0]), True, "[R]")
 
 
 def _arms_retired_surfaces(arm):
@@ -1304,7 +1330,7 @@ def selftest() -> tuple[list[str], int]:
     """Run every fixture arm: the arms whose verdict was not the one they
     were written for, and how many ran."""
     bench = _Bench()
-    for group in (_arms_control_and_terms, _arms_target_runtime,
+    for group in (_arms_control_and_terms, _arms_target_runtime, _arms_cancellation_process_masks,
                   _arms_retired_surfaces, _arms_host_tooling_masks,
                   _arms_product_and_paths, _arms_build_configuration,
                   _arms_image_mask_and_options, _arms_parsed_configs):

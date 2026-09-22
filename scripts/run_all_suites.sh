@@ -27,6 +27,7 @@
 #   91       REFUSED: another sweep is already running in this tree.
 #   92       some suite was KILLED BY THE WALL CLOCK. Its result is UNKNOWN -
 #            it is not a failure and it is not a pass. Re-run it uncontended.
+#   130/143  cancelled by INT/TERM; partial logs, no completed summary.
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
@@ -101,6 +102,17 @@
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# A separate owner adopts and reaps the entire command subtree, even children
+# that detach or ignore TERM. Install the shell's terminal traps before any
+# selection, lock wait or preflight can start. The private argument is consumed
+# only on re-entry from that owner; it is not a supported sweep option.
+if [ "${1:-}" != "--owned-sweep" ]; then
+  exec python3 "$ROOT/scripts/owned_process.py" -- bash "$0" --owned-sweep "$@"
+fi
+shift
+trap 'echo "CANCELLED: INT; partial logs: ${OUT:-selection}" >&2; exit 130' INT
+trap 'echo "CANCELLED: TERM; partial logs: ${OUT:-selection}" >&2; exit 143' TERM
 
 WAIT=0
 OUT=""
@@ -195,7 +207,7 @@ acquire_lock() {
     done
     cleanup() { rm -rf "$LOCKDIR" "$LOCK_OWNER"; }
   fi
-  trap cleanup EXIT INT TERM
+  trap cleanup EXIT
   printf 'pid %s  host %s  started %s\n  outdir %s\n' \
          "$$" "$(uname -n)" "$(date -Is 2>/dev/null || date)" "$OUT" > "$LOCK_OWNER"
 }
@@ -213,21 +225,37 @@ suite_timeout() {
   esac
 }
 
+#! Keep partial prerequisite output even if command substitution is interrupted.
+preflight() {
+  local name="$1"
+  shift
+  "$@" > "$OUT/preflight/$name.log" 2>&1
+  local status=$?
+  cat "$OUT/preflight/$name.log"
+  return "$status"
+}
+
 #! every self-test that has to hold before a 40-minute sweep is worth
 #! starting. Each aborts with exit 2 and says which tool it distrusts; the
 #! containment self-test's exit 3, a leftover temporary tree, is reported only.
 run_preflight_gates() {
+  mkdir -p "$OUT/preflight" || exit 2
+  if ! selftest_out=$(preflight test_suite_cancellation python3 "$ROOT/scripts/test_suite_cancellation.py" 2>&1); then
+    echo "$selftest_out" >&2
+    echo "ABORTING: sweep cancellation controls failed." >&2
+    exit 2
+  fi
   # The tallying tool gets its own gate, run BEFORE the 40-minute sweep rather
   # than after: if the thing that turns logs into the headline number is broken,
   # the number it would print is worthless and there is no point measuring.
-  if ! selftest_out=$(python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); then
+  if ! selftest_out=$(preflight suite_tally python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/suite_tally.py fails its own self-test, so any check" >&2
     echo "total this sweep printed would be unreliable." >&2
     exit 2
   fi
 
-  if ! selftest_out=$(python3 "$ROOT/scripts/suite_shards.py" --selftest 2>&1); then
+  if ! selftest_out=$(preflight suite_shards python3 "$ROOT/scripts/suite_shards.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/suite_shards.py fails its own self-test, so the" >&2
     echo "selected workers cannot be trusted to cover every suite once." >&2
@@ -247,7 +275,7 @@ run_preflight_gates() {
   # stranded a required context on a change that never touched the checker.
   # Every other non-zero status still aborts.
   selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
+          preflight check_merge_containment python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
   selftest_rc=$?
   case "$selftest_rc" in
     0) ;;
@@ -275,7 +303,7 @@ run_preflight_gates() {
   # A reader who doubts this line can settle it in nine seconds:
   #   python3 scripts/check_results_fresh.py --self-test
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_results_fresh.py" --self-test 2>&1); then
+          preflight check_results_fresh python3 "$ROOT/scripts/check_results_fresh.py" --self-test 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/check_results_fresh.py fails its own self-test, so" >&2
     echo "its 'fresh' verdicts on generated evidence cannot be trusted." >&2
@@ -287,7 +315,7 @@ run_preflight_gates() {
   # pp_srcs.py - which is the property the yosys-portability aggregate depends on
   # and the one #190 broke. It builds a submodule-free tree and its own negative
   # control, needs no yosys or sv2v, and is the durable check #191 deferred (#192).
-  if ! selftest_out=$(cd "$ROOT" && bash "$ROOT/syn/yosys/check_list_hermetic.sh" 2>&1); then
+  if ! selftest_out=$(cd "$ROOT" && preflight check_list_hermetic bash "$ROOT/syn/yosys/check_list_hermetic.sh" 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: syn/yosys/check_list_hermetic.sh fails: run.sh --list no" >&2
     echo "longer stands alone, so the portability aggregate could redden on a" >&2
@@ -301,7 +329,7 @@ run_preflight_gates() {
   # does. --selftest exercises those arms and skips the xvlog one cleanly, so the
   # gate cannot rot into a green between the bench runs that use it (#132).
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/xvlog_gate.py" --selftest 2>&1); then
+          preflight xvlog_gate python3 "$ROOT/scripts/xvlog_gate.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/xvlog_gate.py fails its own self-test, so its" >&2
     echo "front-end findings cannot be trusted either." >&2
@@ -315,7 +343,7 @@ run_preflight_gates() {
   # negative control and a vacuity arm - so the detector cannot rot into a green
   # that means nothing (#180), exactly as the containment self-test above.
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_merge_review_integrity.py" --selftest 2>&1); then
+          preflight check_merge_review_integrity python3 "$ROOT/scripts/check_merge_review_integrity.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/check_merge_review_integrity.py fails its own" >&2
     echo "self-test, so its review-integrity findings cannot be trusted." >&2

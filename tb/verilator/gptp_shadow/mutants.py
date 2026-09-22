@@ -5,8 +5,8 @@
 
 WHY THIS EXISTS. A green suite and a suite that cannot go red look the same
 from the outside. Each control below plants ONE defect the design is
-supposed to refuse, requires this suite to notice, and restores the exact
-source afterwards - verified, not assumed. A control that leaves the suite
+supposed to refuse, requires this suite to notice, and writes only private
+source/build copies. Caller sources are never modified, even under KILL. A control that leaves the suite
 green is a finding about the suite, and is reported as one.
 
 WHAT IS HERE AND WHAT IS NOT. The plane's own laws: what a ledger entry is
@@ -24,19 +24,23 @@ Usage:
     python3 mutants.py            # every control
     python3 mutants.py --list     # name them and change nothing
 
-Exit 0 = every control was caught and every source restored; 1 = a control
-was not caught, or a file was left modified; 2 = the tree was not clean to
-start with, which is a refusal rather than a mutation of unknown work.
+Exit 0 = every control was caught and private work was cleaned; 1 = a control
+was not caught; 2 = input or cleanup refusal; 130/143 = handled INT/TERM.
+KILL can leave private scratch/children, but cannot modify caller source.
 """
 
 import argparse
 import re
-import subprocess
+import tempfile
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent.parent
+sys.path.insert(0, str(REPO / "scripts"))
+from owned_process import Cancelled, OwnedProcesses  # noqa: E402
+from private_inputs import InputRefused, copy_inputs  # noqa: E402
+
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 RET = PLANE / "KL_gptp_txret.sv"
 OBS = PLANE / "KL_gptp_gmii_launch.sv"
@@ -194,27 +198,6 @@ NOT_SEPARATELY_OBSERVABLE = [
     ),
 ]
 
-def tracked_clean(path: Path) -> bool:
-    """Is `path` TRACKED and unmodified?
-
-    Both halves matter. `git diff --quiet` says nothing about a file Git
-    does not know, and `git checkout --` cannot restore one. An untracked
-    file is refused rather than mutated.
-    """
-    known = subprocess.run(["git", "ls-files", "--error-unmatch", str(path)],
-                           cwd=REPO, check=False, capture_output=True)
-    if known.returncode != 0:
-        return False
-    done = subprocess.run(["git", "diff", "--quiet", "--", str(path)],
-                          cwd=REPO, check=False)
-    return done.returncode == 0
-
-
-def restore(path: Path) -> None:
-    """Put the file back exactly as Git has it. The caller re-checks."""
-    subprocess.run(["git", "checkout", "--", str(path)], cwd=REPO, check=True)
-
-
 #: This suite counts in its own shape - `N checks: X PASS, Y FAIL`, with one
 #: `FAIL <label> got ... exp ...` line per broken check - so this driver
 #: reads THAT, and the process status beside it. A driver that grepped for
@@ -222,11 +205,9 @@ def restore(path: Path) -> None:
 TALLY_RE = re.compile(r"^\d+ checks: \d+ PASS, (\d+) FAIL", re.M)
 
 
-def run_suite() -> tuple[int, str]:
-    """Build and run the suite: (exit status, its whole output)."""
-    done = subprocess.run(["make", "-s", "run"], cwd=HERE, check=False,
-                          capture_output=True, text=True)
-    return done.returncode, done.stdout + done.stderr
+def run_suite(here: Path, owner: OwnedProcesses) -> tuple[int, str]:
+    """Build in private scratch, then stop/reap all owned build descendants."""
+    return owner.run(["make", "-s", "run"], cwd=here)
 
 
 def suite_failed(status: int, output: str) -> bool:
@@ -267,27 +248,38 @@ def main() -> int:
                   f"{why}")
         return 0
 
-    for _name, path, _old, _new, _expect in MUTATIONS:
-        if not tracked_clean(path):
-            print(f"REFUSED: {path.relative_to(REPO)} is untracked or "
-                  f"already modified; a control must not mutate work in "
-                  f"progress and must be able to restore what it mutated",
-                  file=sys.stderr)
-            return 2
+    try:
+        with OwnedProcesses() as owner:
+            with tempfile.TemporaryDirectory(prefix="gptp-shadow-mutants-") as scratch:
+                private = Path(scratch)
+                copy_inputs(REPO, private, owner)
+                failures = campaign(private, owner)
+            owner.checkpoint()
+        print(f"controls: {len(MUTATIONS)}   failures: {failures}")
+        print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}")
+        return 1 if failures else 0
+    except Cancelled as exc:
+        print(f"CANCELLED: signal {exc.signum}; no mutation verdict", file=sys.stderr)
+        return 128 + exc.signum
+    except (InputRefused, OSError, RuntimeError) as exc:
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return 2
 
+
+def campaign(private: Path, owner: OwnedProcesses) -> int:
+    """Run the original mutation population against private source bytes."""
     failures = 0
-    for name, path, old, new, expect in MUTATIONS:
+    for name, original, old, new, expect in MUTATIONS:
+        owner.checkpoint()
+        path = private / original.relative_to(REPO)
+        pristine = path.read_bytes()
         if not apply_control(path, old, new):
             print(f"[FAIL] {name}: its anchor is no longer in "
-                  f"{path.relative_to(REPO)}")
+                  f"{original.relative_to(REPO)}")
             failures += 1
             continue
-        status, output = run_suite()
-        restore(path)
-        if not tracked_clean(path):
-            print(f"[FAIL] {name}: {path.relative_to(REPO)} was not restored")
-            failures += 1
-            continue
+        status, output = run_suite(private / HERE.relative_to(REPO), owner)
+        path.write_bytes(pristine)
         caught = suite_failed(status, output)
         named = any(line.startswith("FAIL " + expect)
                     for line in output.splitlines())
@@ -301,23 +293,23 @@ def main() -> int:
             print(f"[ ok ] {name}: caught, though not by \"{expect}\"; "
                   f"broke {sorted(set(broke))[:3]}")
         else:
-            print(f"[FAIL] {name}: the suite stayed green")
+            reason = "the suite stayed green" if TALLY_RE.search(output) else "no completed suite tally"
+            print(f"[FAIL] {name}: {reason} (make exit {status})")
             failures += 1
 
     #: A RECORDED REASON HAS TO STILL DESCRIBE SOMETHING. Each defect this
     #: suite cannot see is still a line in the source; if the line has gone,
     #: the reason has gone with it and the entry is a stale claim.
-    for name, path, old, _why in NOT_SEPARATELY_OBSERVABLE:
+    for name, original, old, _why in NOT_SEPARATELY_OBSERVABLE:
+        path = private / original.relative_to(REPO)
         if old not in path.read_text(encoding="utf-8"):
             print(f"[FAIL] {name}: recorded as not separately observable, "
-                  f"but its anchor is no longer in {path.relative_to(REPO)}")
+                  f"but its anchor is no longer in {original.relative_to(REPO)}")
             failures += 1
         else:
             print(f"[note] {name}: not separately observable here")
 
-    print(f"controls: {len(MUTATIONS)}   failures: {failures}")
-    print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}")
-    return 1 if failures else 0
+    return failures
 
 
 if __name__ == "__main__":
