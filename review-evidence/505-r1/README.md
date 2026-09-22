@@ -8,7 +8,8 @@ This first packet contains completed author-focused and baseline evidence.
 The 38 manager checks and complete builder test now pass.
 Builder gate 11 lacks its physical calibration report.
 All five hosted fast contexts pass at the candidate head.
-Full RTL, remaining replica and AC5 validation remain pending.
+The trusted local docs, rtl-fast and elaborate replicas pass.
+Full native RTL and measured AC5 validation remain pending.
 Independent reviews have not started.
 No merge approval is represented by this evidence branch.
 Never merge this branch.
