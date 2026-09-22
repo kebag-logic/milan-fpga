@@ -1,0 +1,27 @@
+{
+  "label": "04-wrong-file-0",
+  "path": "other.py",
+  "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[T]",
+  "accepted": true
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "name": "cold-sequential",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/runs/cold-sequential",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "--jobs",
+      "1",
+      "--temperature",
+      "cold"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "warm-sequential",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/runs/warm-sequential",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "--jobs",
+      "1",
+      "--temperature",
+      "warm"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "cold-pooled",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/runs/cold-pooled",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "--jobs",
+      "2",
+      "--temperature",
+      "cold"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "warm-pooled",
+    "argv": [
+      "rtk",
+      "proxy",
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/bench/run_suite.py",
+      "--lane",
+      "$CANDIDATE",
+      "--out",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/runs/warm-pooled",
+      "--verilator",
+      "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "--expect-head",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "--jobs",
+      "2",
+      "--temperature",
+      "warm"
+    ],
+    "exit": 0
+  }
+]

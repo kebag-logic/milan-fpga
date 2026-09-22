@@ -1,0 +1,27 @@
+{
+  "label": "04-original-checker",
+  "path": "tb/verilator/milan_dp/sim_pool.py",
+  "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": null,
+  "accepted": true
+}

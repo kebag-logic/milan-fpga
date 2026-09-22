@@ -1,0 +1,27 @@
+{
+  "label": "14-same-line-0",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "        for entry in os.listdir(\"/proc\"): # /proc",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[R]",
+  "accepted": true
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "run": "cold-sequential",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "--verdict",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/cold-sequential/milan_dp.log"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "run": "cold-sequential",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/cold-sequential",
+      "--quiet"
+    ],
+    "exit_code": 0,
+    "output": "checks: 9324   in-suite failures: 0\n"
+  },
+  {
+    "run": "warm-sequential",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "--verdict",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/warm-sequential/milan_dp.log"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "run": "warm-sequential",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/warm-sequential",
+      "--quiet"
+    ],
+    "exit_code": 0,
+    "output": "checks: 9324   in-suite failures: 0\n"
+  },
+  {
+    "run": "cold-pooled",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "--verdict",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/cold-pooled/milan_dp.log"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "run": "cold-pooled",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/cold-pooled",
+      "--quiet"
+    ],
+    "exit_code": 0,
+    "output": "checks: 9324   in-suite failures: 0\n"
+  },
+  {
+    "run": "warm-pooled",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "--verdict",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/warm-pooled/milan_dp.log"
+    ],
+    "exit_code": 0,
+    "output": ""
+  },
+  {
+    "run": "warm-pooled",
+    "command": [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/suite_tally.py",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-manager-checks/warm-pooled",
+      "--quiet"
+    ],
+    "exit_code": 0,
+    "output": "checks: 9324   in-suite failures: 0\n"
+  }
+]

@@ -1,0 +1,67 @@
+[
+  {
+    "name": "focused",
+    "argv": [
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/public/public/author/bench/checks.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/final-focused"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "additional",
+    "argv": [
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/scripts/additional_gates.py",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/final-additional"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "backpressure",
+    "argv": [
+      "timeout",
+      "90s",
+      "/usr/bin/python3",
+      "tb/verilator/milan_dp/test_sim_pool_backpressure.py",
+      "--output",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/final-backpressure"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "negative",
+    "argv": [
+      "timeout",
+      "60s",
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/scripts/restored_defect.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/final-restored-defect"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "integrity",
+    "argv": [
+      "/usr/bin/python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/scripts/integrity.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/pre-benchmark-integrity.json",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d^",
+      "ff7dac3257a321538a1fd1a310ab3190f646153d"
+    ],
+    "exit": 0
+  }
+]

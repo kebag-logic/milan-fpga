@@ -1,0 +1,5 @@
+#!/usr/bin/python3 -S
+import sys
+sys.path.insert(0, '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-copy-SIGINT-repeated')
+import fake_leg
+fake_leg.main({'out': [['out', 'L9 partial\n']], 'name': 'L9', 'ledger': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-copy-SIGINT-repeated/ledger.jsonl', 'announce': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-copy-SIGINT-repeated/announce.fifo'})

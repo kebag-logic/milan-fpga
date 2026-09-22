@@ -1,0 +1,287 @@
+{
+  "same_head": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+  "all_input_executable_and_per_leg_bytes_equal": true,
+  "all_23_render_identities_equal": true,
+  "checks": [
+    {
+      "run": "cold-sequential",
+      "head": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "whole_checks": 9324,
+      "whole_failures": 0,
+      "tallies": 13,
+      "render_phase_records": 23,
+      "per_leg_checks": {
+        "./obj_dir/Vmilan_dp_sim": 230,
+        "./obj_notify/Vmilan_dp_notify": 135,
+        "./obj_nxn/Vmilan_dp_nxn": 1633,
+        "./obj_nxndv/Vmilan_dp_nxndv": 1635,
+        "./obj_nxn8/Vmilan_dp_nxn8": 3061,
+        "./obj_nxn4c/Vmilan_dp_nxn4c": 1633,
+        "./obj_nolpf/Vmilan_dp_nolpf": 230,
+        "./obj_prune/Vmilan_dp_prune": 33,
+        "./obj_ax1x1/Vmilan_dp_ax1x1": 227,
+        "./obj_aclk/Vmilan_dp_aclk": 139
+      },
+      "per_leg_sha256": {
+        "./obj_dir/Vmilan_dp_sim": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_notify/Vmilan_dp_notify": "df937448028707d7d3e1cd420950a10de1afe0aedff7242955e02690f06593b4",
+        "./obj_nxn/Vmilan_dp_nxn": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nxndv/Vmilan_dp_nxndv": "4d5ae267a7c35309820447f1f2f169d3b7a04ead877cf73041e757e1633d57d3",
+        "./obj_nxn8/Vmilan_dp_nxn8": "c8029961ed3df909c771e1b7e04dd18950819576f032836beb729169420226a7",
+        "./obj_nxn4c/Vmilan_dp_nxn4c": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nolpf/Vmilan_dp_nolpf": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_prune/Vmilan_dp_prune": "73423b3ddf2f4ef7e7447cef2a830ed13d0035871252b035d886bc2a858fa40c",
+        "./obj_ax1x1/Vmilan_dp_ax1x1": "9e667ab7e8c338d6060287d26019545e3b3bf298e7439696430cadbb876ef512",
+        "./obj_aclk/Vmilan_dp_aclk": "49c891b819c8eab0da09616616909fc55001b963720760073a37c668c144dbbf"
+      },
+      "sampled_ordinary_peak": 1,
+      "sampled_group_peak": 1,
+      "overlap_samples": 0,
+      "leg_phase": {
+        "first_leg_seen_t": 325.057,
+        "last_leg_seen_t": 811.278,
+        "span_s": 486.221,
+        "max_alive": 1,
+        "max_group_alive": 1,
+        "group_independent_overlap_samples": 0,
+        "mean_alive": 1.0,
+        "sum_leg_life_s": 484.943,
+        "sum_leg_cpu_s": 482.24,
+        "peak_leg_rss_kb": 5764,
+        "peak_tree_rss_kb": 2721328,
+        "load1_during": [
+          2.46,
+          8.62
+        ],
+        "host_busy_mean": 0.027
+      },
+      "resources": {
+        "cmd": [
+          "make",
+          "-j1",
+          "-C",
+          "$CANDIDATE/tb/verilator/milan_dp",
+          "run"
+        ],
+        "cwd": "$CANDIDATE",
+        "started_utc": 1790109727.631797,
+        "wall_s": 1133.031,
+        "exit": 0,
+        "children_user_s": 1771.092,
+        "children_sys_s": 48.204,
+        "max_single_rss_kb": 375272
+      },
+      "disk_transcript_sha256": "9d862f509487cff9a0b03c9292f97fd039d45fd9f35e1d21d992fc1e5fdc17f4"
+    },
+    {
+      "run": "warm-sequential",
+      "head": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "whole_checks": 9324,
+      "whole_failures": 0,
+      "tallies": 13,
+      "render_phase_records": 23,
+      "per_leg_checks": {
+        "./obj_dir/Vmilan_dp_sim": 230,
+        "./obj_notify/Vmilan_dp_notify": 135,
+        "./obj_nxn/Vmilan_dp_nxn": 1633,
+        "./obj_nxndv/Vmilan_dp_nxndv": 1635,
+        "./obj_nxn8/Vmilan_dp_nxn8": 3061,
+        "./obj_nxn4c/Vmilan_dp_nxn4c": 1633,
+        "./obj_nolpf/Vmilan_dp_nolpf": 230,
+        "./obj_prune/Vmilan_dp_prune": 33,
+        "./obj_ax1x1/Vmilan_dp_ax1x1": 227,
+        "./obj_aclk/Vmilan_dp_aclk": 139
+      },
+      "per_leg_sha256": {
+        "./obj_dir/Vmilan_dp_sim": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_notify/Vmilan_dp_notify": "df937448028707d7d3e1cd420950a10de1afe0aedff7242955e02690f06593b4",
+        "./obj_nxn/Vmilan_dp_nxn": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nxndv/Vmilan_dp_nxndv": "4d5ae267a7c35309820447f1f2f169d3b7a04ead877cf73041e757e1633d57d3",
+        "./obj_nxn8/Vmilan_dp_nxn8": "c8029961ed3df909c771e1b7e04dd18950819576f032836beb729169420226a7",
+        "./obj_nxn4c/Vmilan_dp_nxn4c": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nolpf/Vmilan_dp_nolpf": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_prune/Vmilan_dp_prune": "73423b3ddf2f4ef7e7447cef2a830ed13d0035871252b035d886bc2a858fa40c",
+        "./obj_ax1x1/Vmilan_dp_ax1x1": "9e667ab7e8c338d6060287d26019545e3b3bf298e7439696430cadbb876ef512",
+        "./obj_aclk/Vmilan_dp_aclk": "49c891b819c8eab0da09616616909fc55001b963720760073a37c668c144dbbf"
+      },
+      "sampled_ordinary_peak": 1,
+      "sampled_group_peak": 1,
+      "overlap_samples": 0,
+      "leg_phase": {
+        "first_leg_seen_t": 170.218,
+        "last_leg_seen_t": 661.313,
+        "span_s": 491.095,
+        "max_alive": 1,
+        "max_group_alive": 1,
+        "group_independent_overlap_samples": 0,
+        "mean_alive": 1.0,
+        "sum_leg_life_s": 489.934,
+        "sum_leg_cpu_s": 486.91,
+        "peak_leg_rss_kb": 5764,
+        "peak_tree_rss_kb": 2596808,
+        "load1_during": [
+          3.35,
+          6.36
+        ],
+        "host_busy_mean": 0.037
+      },
+      "resources": {
+        "cmd": [
+          "make",
+          "-j1",
+          "-C",
+          "$CANDIDATE/tb/verilator/milan_dp",
+          "run"
+        ],
+        "cwd": "$CANDIDATE",
+        "started_utc": 1790110863.5287585,
+        "wall_s": 980.614,
+        "exit": 0,
+        "children_user_s": 1126.253,
+        "children_sys_s": 11.513,
+        "max_single_rss_kb": 359632
+      },
+      "disk_transcript_sha256": "9d862f509487cff9a0b03c9292f97fd039d45fd9f35e1d21d992fc1e5fdc17f4"
+    },
+    {
+      "run": "cold-pooled",
+      "head": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "whole_checks": 9324,
+      "whole_failures": 0,
+      "tallies": 13,
+      "render_phase_records": 23,
+      "per_leg_checks": {
+        "./obj_dir/Vmilan_dp_sim": 230,
+        "./obj_notify/Vmilan_dp_notify": 135,
+        "./obj_nxn/Vmilan_dp_nxn": 1633,
+        "./obj_nxndv/Vmilan_dp_nxndv": 1635,
+        "./obj_nxn8/Vmilan_dp_nxn8": 3061,
+        "./obj_nxn4c/Vmilan_dp_nxn4c": 1633,
+        "./obj_nolpf/Vmilan_dp_nolpf": 230,
+        "./obj_prune/Vmilan_dp_prune": 33,
+        "./obj_ax1x1/Vmilan_dp_ax1x1": 227,
+        "./obj_aclk/Vmilan_dp_aclk": 139
+      },
+      "per_leg_sha256": {
+        "./obj_dir/Vmilan_dp_sim": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_notify/Vmilan_dp_notify": "df937448028707d7d3e1cd420950a10de1afe0aedff7242955e02690f06593b4",
+        "./obj_nxn/Vmilan_dp_nxn": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nxndv/Vmilan_dp_nxndv": "4d5ae267a7c35309820447f1f2f169d3b7a04ead877cf73041e757e1633d57d3",
+        "./obj_nxn8/Vmilan_dp_nxn8": "c8029961ed3df909c771e1b7e04dd18950819576f032836beb729169420226a7",
+        "./obj_nxn4c/Vmilan_dp_nxn4c": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nolpf/Vmilan_dp_nolpf": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_prune/Vmilan_dp_prune": "73423b3ddf2f4ef7e7447cef2a830ed13d0035871252b035d886bc2a858fa40c",
+        "./obj_ax1x1/Vmilan_dp_ax1x1": "9e667ab7e8c338d6060287d26019545e3b3bf298e7439696430cadbb876ef512",
+        "./obj_aclk/Vmilan_dp_aclk": "49c891b819c8eab0da09616616909fc55001b963720760073a37c668c144dbbf"
+      },
+      "sampled_ordinary_peak": 2,
+      "sampled_group_peak": 1,
+      "overlap_samples": 313,
+      "leg_phase": {
+        "first_leg_seen_t": 327.659,
+        "last_leg_seen_t": 777.861,
+        "span_s": 450.202,
+        "max_alive": 2,
+        "max_group_alive": 1,
+        "group_independent_overlap_samples": 313,
+        "mean_alive": 1.089,
+        "sum_leg_life_s": 489.318,
+        "sum_leg_cpu_s": 486.12,
+        "peak_leg_rss_kb": 11080,
+        "peak_tree_rss_kb": 2696768,
+        "load1_during": [
+          6.68,
+          18.58
+        ],
+        "host_busy_mean": 0.058
+      },
+      "resources": {
+        "cmd": [
+          "make",
+          "-j1",
+          "-C",
+          "$CANDIDATE/tb/verilator/milan_dp",
+          "run"
+        ],
+        "cwd": "$CANDIDATE",
+        "started_utc": 1790111846.686506,
+        "wall_s": 1095.719,
+        "exit": 0,
+        "children_user_s": 1770.278,
+        "children_sys_s": 45.49,
+        "max_single_rss_kb": 374896
+      },
+      "disk_transcript_sha256": "9d862f509487cff9a0b03c9292f97fd039d45fd9f35e1d21d992fc1e5fdc17f4"
+    },
+    {
+      "run": "warm-pooled",
+      "head": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+      "whole_checks": 9324,
+      "whole_failures": 0,
+      "tallies": 13,
+      "render_phase_records": 23,
+      "per_leg_checks": {
+        "./obj_dir/Vmilan_dp_sim": 230,
+        "./obj_notify/Vmilan_dp_notify": 135,
+        "./obj_nxn/Vmilan_dp_nxn": 1633,
+        "./obj_nxndv/Vmilan_dp_nxndv": 1635,
+        "./obj_nxn8/Vmilan_dp_nxn8": 3061,
+        "./obj_nxn4c/Vmilan_dp_nxn4c": 1633,
+        "./obj_nolpf/Vmilan_dp_nolpf": 230,
+        "./obj_prune/Vmilan_dp_prune": 33,
+        "./obj_ax1x1/Vmilan_dp_ax1x1": 227,
+        "./obj_aclk/Vmilan_dp_aclk": 139
+      },
+      "per_leg_sha256": {
+        "./obj_dir/Vmilan_dp_sim": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_notify/Vmilan_dp_notify": "df937448028707d7d3e1cd420950a10de1afe0aedff7242955e02690f06593b4",
+        "./obj_nxn/Vmilan_dp_nxn": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nxndv/Vmilan_dp_nxndv": "4d5ae267a7c35309820447f1f2f169d3b7a04ead877cf73041e757e1633d57d3",
+        "./obj_nxn8/Vmilan_dp_nxn8": "c8029961ed3df909c771e1b7e04dd18950819576f032836beb729169420226a7",
+        "./obj_nxn4c/Vmilan_dp_nxn4c": "f6aec7dbb3a0657671a0d66eff33b59c99288a8b4a4709796c69bfae7ca9be70",
+        "./obj_nolpf/Vmilan_dp_nolpf": "d092060e166b1f2af76ede81d0fe5c01570ee22faa016a642195833e31878134",
+        "./obj_prune/Vmilan_dp_prune": "73423b3ddf2f4ef7e7447cef2a830ed13d0035871252b035d886bc2a858fa40c",
+        "./obj_ax1x1/Vmilan_dp_ax1x1": "9e667ab7e8c338d6060287d26019545e3b3bf298e7439696430cadbb876ef512",
+        "./obj_aclk/Vmilan_dp_aclk": "49c891b819c8eab0da09616616909fc55001b963720760073a37c668c144dbbf"
+      },
+      "sampled_ordinary_peak": 2,
+      "sampled_group_peak": 1,
+      "overlap_samples": 310,
+      "leg_phase": {
+        "first_leg_seen_t": 169.757,
+        "last_leg_seen_t": 613.664,
+        "span_s": 443.907,
+        "max_alive": 2,
+        "max_group_alive": 1,
+        "group_independent_overlap_samples": 310,
+        "mean_alive": 1.089,
+        "sum_leg_life_s": 482.282,
+        "sum_leg_cpu_s": 479.19,
+        "peak_leg_rss_kb": 10944,
+        "peak_tree_rss_kb": 2602376,
+        "load1_during": [
+          3.55,
+          11.68
+        ],
+        "host_busy_mean": 0.04
+      },
+      "resources": {
+        "cmd": [
+          "make",
+          "-j1",
+          "-C",
+          "$CANDIDATE/tb/verilator/milan_dp",
+          "run"
+        ],
+        "cwd": "$CANDIDATE",
+        "started_utc": 1790112945.2123566,
+        "wall_s": 933.414,
+        "exit": 0,
+        "children_user_s": 1119.28,
+        "children_sys_s": 13.172,
+        "max_single_rss_kb": 359716
+      },
+      "disk_transcript_sha256": "9d862f509487cff9a0b03c9292f97fd039d45fd9f35e1d21d992fc1e5fdc17f4"
+    }
+  ]
+}

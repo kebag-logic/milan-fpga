@@ -1,0 +1,112 @@
+[
+  {
+    "signal": "SIGTERM",
+    "argv": [
+      "make",
+      "-s",
+      "--no-print-directory",
+      "-f",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/original-make/SIGTERM/Makefile",
+      "run",
+      "CURDIR=$CANDIDATE/tb/verilator/milan_dp",
+      "VERILATOR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/original-make/SIGTERM/compiler",
+      "VERILATOR_JOBS=8",
+      "-o",
+      "ltn_rom.hex",
+      "-o",
+      "ucode.hex",
+      "-o",
+      "gptp_ucode.hex",
+      "-o",
+      "../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+      "-o",
+      "../../../hdl/common/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+      "-o",
+      "gen_divergent/gen/adp_shape_defaults.svh"
+    ],
+    "make_pid": 2124172,
+    "runner_pid": 2124275,
+    "blocked_after_signal": "anon_pipe_write",
+    "pending_signal": true,
+    "owned_pidfd_events_while_blocked": {
+      "2124280": [],
+      "2124281": []
+    },
+    "exit_after_drain": -15,
+    "owned_pidfd_events_after_drain": {
+      "2124280": [
+        [
+          4,
+          17
+        ]
+      ],
+      "2124281": [
+        [
+          6,
+          17
+        ]
+      ]
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "argv": [
+      "make",
+      "-s",
+      "--no-print-directory",
+      "-f",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/original-make/SIGINT/Makefile",
+      "run",
+      "CURDIR=$CANDIDATE/tb/verilator/milan_dp",
+      "VERILATOR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/original-make/SIGINT/compiler",
+      "VERILATOR_JOBS=8",
+      "-o",
+      "ltn_rom.hex",
+      "-o",
+      "ucode.hex",
+      "-o",
+      "gptp_ucode.hex",
+      "-o",
+      "../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+      "-o",
+      "../../../hdl/common/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+      "-o",
+      "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+      "-o",
+      "gen_divergent/gen/adp_shape_defaults.svh"
+    ],
+    "make_pid": 2124283,
+    "runner_pid": 2124361,
+    "blocked_after_signal": "anon_pipe_write",
+    "pending_signal": true,
+    "owned_pidfd_events_while_blocked": {
+      "2124363": [],
+      "2124364": []
+    },
+    "exit_after_drain": -2,
+    "owned_pidfd_events_after_drain": {
+      "2124363": [
+        [
+          4,
+          17
+        ]
+      ],
+      "2124364": [
+        [
+          6,
+          17
+        ]
+      ]
+    }
+  }
+]

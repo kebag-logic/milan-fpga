@@ -1,0 +1,5 @@
+#!/usr/bin/python3 -S
+import sys
+sys.path.insert(0, '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/dev-backpressure2/make-flush-SIGINT-child-exit')
+import fake_leg
+fake_leg.main({'out': [['out', 'L2 partial\n']], 'hold': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/dev-backpressure2/make-flush-SIGINT-child-exit/hold-L2.fifo', 'descendant_hold': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/dev-backpressure2/make-flush-SIGINT-child-exit/hold-descendant.fifo', 'descendant_session': True, 'name': 'L2', 'ledger': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/dev-backpressure2/make-flush-SIGINT-child-exit/ledger.jsonl', 'announce': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/dev-backpressure2/make-flush-SIGINT-child-exit/announce.fifo'})

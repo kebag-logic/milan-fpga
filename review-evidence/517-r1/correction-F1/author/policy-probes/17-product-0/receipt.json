@@ -1,0 +1,27 @@
+{
+  "label": "17-product-0",
+  "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+  "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[R]",
+  "accepted": true
+}

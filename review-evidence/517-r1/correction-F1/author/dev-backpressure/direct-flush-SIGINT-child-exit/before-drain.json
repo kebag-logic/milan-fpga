@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "sim_pool.py",
+    "--jobs=2",
+    "./obj_L1/VL1",
+    "./obj_L2/VL2"
+  ],
+  "signal": "SIGINT",
+  "recipe": false,
+  "flush": true,
+  "race": "child-exit",
+  "runner_pid": 2153645,
+  "runner_events": [
+    [
+      13,
+      1
+    ]
+  ],
+  "owned_events": {
+    "2153646": [
+      [
+        10,
+        17
+      ]
+    ],
+    "2153648": [
+      [
+        11,
+        17
+      ]
+    ],
+    "2153647": [
+      [
+        12,
+        17
+      ]
+    ]
+  },
+  "queued_before": 4096,
+  "queued_after": 4096,
+  "descriptor_restored": true
+}

@@ -1,0 +1,32 @@
+{
+  "signal": "SIGTERM",
+  "argv": [
+    "python3",
+    "-B",
+    "$CANDIDATE/tb/verilator/milan_dp/sim_pool.py",
+    "--jobs=2",
+    "./fast",
+    "./hold"
+  ],
+  "blocked_after_signal": "anon_pipe_write",
+  "pending_signal": true,
+  "owned_pidfd_events_while_blocked": {
+    "2108130": [],
+    "2108140": []
+  },
+  "exit_after_drain": -15,
+  "owned_pidfd_events_after_drain": {
+    "2108130": [
+      [
+        4,
+        17
+      ]
+    ],
+    "2108140": [
+      [
+        6,
+        17
+      ]
+    ]
+  }
+}

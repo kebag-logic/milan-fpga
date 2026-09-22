@@ -1,0 +1,7291 @@
+{
+  "fixtures": 20,
+  "cases": [
+    {
+      "label": "00-positive",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "00-original-checker",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "00-wrong-file-0",
+      "path": "other.py",
+      "payload": "Linux subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "00-same-line-0",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "00-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts.\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "00-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "Linux subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-T",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-R",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-S",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-H",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-K",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "00-extra-O",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "00-prefix",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linuxptp subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "01-positive",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "01-original-checker",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "01-wrong-file-0",
+      "path": "other.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "01-same-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "01-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "01-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-T",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-R",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-S",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-H",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-K",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "01-extra-O",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linux # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "01-prefix",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linuxptp",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "02-positive",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "02-original-checker",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "02-wrong-file-0",
+      "path": "other.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "02-same-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "02-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap.\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "02-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-T",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-R",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-S",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-H",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-K",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "02-extra-O",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linux subreaper: orphaned grandchildren stay ours to kill and reap. # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "02-prefix",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    \"\"\"Linuxptp subreaper: orphaned grandchildren stay ours to kill and reap.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "03-positive",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "03-original-checker",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "03-wrong-file-0",
+      "path": "other.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "03-same-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "03-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"):\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "03-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    if not sys.platform.startswith(\"linux\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-T",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-R",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-S",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-H",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-K",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "03-extra-O",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    if not sys.platform.startswith(\"linux\"): # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "04-positive",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "04-original-checker",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "04-wrong-file-0",
+      "path": "other.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "04-same-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "04-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "04-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-T",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-R",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-S",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-H",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-K",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "04-extra-O",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linux child-subreaper support\") # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "04-prefix",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "        raise OSError(\"sim_pool requires Linuxptp child-subreaper support\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "05-positive",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "05-original-checker",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "05-wrong-file-0",
+      "path": "other.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "05-same-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "05-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\")\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "05-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-T",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-R",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-S",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-H",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-K",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "05-extra-O",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/self/task/{os.getpid()}/children\") # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "05-altered-path",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "    children = Path(f\"/proc/foreign/self/task/{os.getpid()}/children\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "06-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "06-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "06-wrong-file-0",
+      "path": "other.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "06-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "06-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "06-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "06-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linux only: the # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "06-prefix",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "than a leg takes to start, at every such check, to go unseen. Linuxptp only: the",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "07-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "07-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "07-wrong-file-0",
+      "path": "other.py",
+      "payload": "arms read /proc and wait on pidfds.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "07-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "07-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds.\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "07-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "arms read /proc and wait on pidfds.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "07-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc and wait on pidfds. # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "07-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "arms read /proc/foreign and wait on pidfds.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "08-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "08-wrong-file-0",
+      "path": "other.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\"\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "08-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc.\"\"\" # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "08-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"Children of `ppid` that are not zombies, read from /proc/foreign.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "09-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "09-wrong-file-0",
+      "path": "other.py",
+      "payload": "    for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"):\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "09-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc\"): # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "09-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    for entry in os.listdir(\"/proc/foreign\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "10-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "10-wrong-file-0",
+      "path": "other.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "10-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "10-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            with open(\"/proc/foreign/\" + entry + \"/stat\", \"rb\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "11-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "11-wrong-file-0",
+      "path": "other.py",
+      "payload": "    with open(\"/proc/self/status\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh:\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    with open(\"/proc/self/status\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "11-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/self/status\") as fh: # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "11-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    with open(\"/proc/foreign/self/status\") as fh:",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"),",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "12-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"),",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "12-wrong-file-0",
+      "path": "other.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"),",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"),\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"),",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "12-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/self/fd/0\"), # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "12-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink(\"/proc/foreign/self/fd/0\"),",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "13-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "13-wrong-file-0",
+      "path": "other.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\"\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "13-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc.\"\"\" # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "13-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        \"\"\"The runner's children that are alive now, read from /proc/foreign.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "14-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "14-wrong-file-0",
+      "path": "other.py",
+      "payload": "        for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"):\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "        for entry in os.listdir(\"/proc\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "14-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc\"): # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "14-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        for entry in os.listdir(\"/proc/foreign\"):",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "15-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "15-wrong-file-0",
+      "path": "other.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "15-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes() # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "15-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "                raw = Path(f\"/proc/foreign/{entry}/stat\").read_bytes()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "16-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "16-wrong-file-0",
+      "path": "other.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split()\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "16-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/self/task/{os.getpid()}/children\").read_text().split() # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "16-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "            children = Path(f\"/proc/foreign/self/task/{os.getpid()}/children\").read_text().split()",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "17-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "17-wrong-file-0",
+      "path": "other.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "17-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc status mask with the bits of `signals` set.\"\"\" # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "17-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    \"\"\"The /proc/foreign status mask with the bits of `signals` set.\"\"\"",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file():",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "18-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file():",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "18-wrong-file-0",
+      "path": "other.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file():",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file():\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file():",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "18-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "18-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/foreign/self/stat\").is_file():",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-positive",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "19-original-checker",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": null,
+      "accepted": true
+    },
+    {
+      "label": "19-wrong-file-0",
+      "path": "other.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "19-same-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "19-unrelated-line-0",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")\nThe target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "19-product-0",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[P]",
+      "accepted": true
+    },
+    {
+      "label": "19-wrong-file-1",
+      "path": "other.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-same-line-1",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-unrelated-line-1",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")\nThe target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-product-1",
+      "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-T",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-R",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # /etc/fstab",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-S",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # PCM ring",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[S]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-H",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # hostplane",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[H]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-K",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # CONFIG_NET=y",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[K]",
+      "accepted": true
+    },
+    {
+      "label": "19-extra-O",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # --sound-card",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[O]",
+      "accepted": true
+    },
+    {
+      "label": "19-prefix",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linuxptp /proc and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": true
+    },
+    {
+      "label": "19-altered-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "        print(\"[FAIL] these arms need Linux /proc/foreign and os.pidfd_open; nothing was run\")",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": true
+    },
+    {
+      "label": "mutant-global-token",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "The target requires Linux",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": false
+    },
+    {
+      "label": "mutant-whole-line",
+      "path": "tb/verilator/milan_dp/README.md",
+      "payload": "Linux subreaper support is required before any child starts. rootfs",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": false
+    },
+    {
+      "label": "mutant-wrong-file",
+      "path": "other.py",
+      "payload": "Linux subreaper support is required before any child starts.",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": false
+    },
+    {
+      "label": "mutant-global-path",
+      "path": "tb/verilator/milan_dp/test_sim_pool.py",
+      "payload": "The target requires /proc",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 1,
+      "needle": "[R]",
+      "accepted": false
+    },
+    {
+      "label": "mutant-no-boundary",
+      "path": "tb/verilator/milan_dp/sim_pool.py",
+      "payload": "Every leg is its own session and process group, reading /dev/null. Linuxptp",
+      "setup": [
+        [
+          "git",
+          "init",
+          "-q"
+        ],
+        [
+          "git",
+          "add",
+          "--all"
+        ]
+      ],
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit": 0,
+      "expected": 1,
+      "needle": "[T]",
+      "accepted": false
+    }
+  ],
+  "mutations": [
+    {
+      "name": "global-token",
+      "defect_detected": true
+    },
+    {
+      "name": "whole-line",
+      "defect_detected": true
+    },
+    {
+      "name": "wrong-file",
+      "defect_detected": true
+    },
+    {
+      "name": "global-path",
+      "defect_detected": true
+    },
+    {
+      "name": "no-boundary",
+      "defect_detected": true
+    }
+  ],
+  "old_policy_ast_unchanged": true
+}
