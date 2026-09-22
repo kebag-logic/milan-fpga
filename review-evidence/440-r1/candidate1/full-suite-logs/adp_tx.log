@@ -1,0 +1,49 @@
+make: Entering directory '$VALIDATION/tb/verilator/adp_tx'
+verilator --cc --exe --build -j 0 --top-module adp_tx_arbiter -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv sim_main.cpp -o Vadp_tx_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/adp_tx/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/adp_tx/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 6.000 MB
+======================================================================
+./obj_dir/Vadp_tx_sim
+== adp_tx_arbiter harness ==
+--------------------------------------------------------------
+checks: 26   failures: 0   (data=4 adp=3 frames)
+RESULT: PASS
+verilator --cc --exe --build -j 0 --top-module adp_tx_arbiter -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GTO_LOG2_P=7 -Mdir obj_super \
+    ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv sim_super.cpp -o Vadp_tx_super
+make[1]: Entering directory '$VALIDATION/tb/verilator/adp_tx/obj_super'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/adp_tx/obj_super'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 6.000 MB
+======================================================================
+./obj_super/Vadp_tx_super
+== adp_tx_arbiter lock supervision (TO_LOG2_P=7 -> 128-cycle window) ==
+  [ ok ] c1: frame delivered whole                    = 6
+  [ ok ] c1: tlast on final beat only                 = 1
+  [ ok ] c1: no abort fired                           = 0
+  [ ok ] c1: no stall fired                           = 0
+  [ ok ] c2: lock held while abandoned                = 1
+  [ ok ] c2: abort verdict fired once                 = 1
+  [ ok ] c2: no stall verdict                         = 0
+  [ ok ] c2: closed + released (3+1+1 beats)          = 5
+  [ ok ] c2: injected beat closes the frame           = 1
+  [ ok ] c2: injected beat keep all-set               = 255
+  [ ok ] c2: injected beat data zeroed                = 1
+  [ ok ] c2: adp frame flowed after release           = 1
+  [ ok ] c2: lock free after service                  = 0
+  [ ok ] c3: stall verdict fired                      = 1
+  [ ok ] c3: no abort under refusal                   = 0
+  [ ok ] c3: nothing accepted while refused           = 0
+  [ ok ] c3: no lock formed under pure refusal        = 0
+  [ ok ] c3: stalled frame completed whole            = 2
+  [ ok ] c3: frame content intact                     = 1
+  [ ok ] c3: lock free after completion               = 0
+--------------------------------------------------------------
+checks: 20   failures: 0
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/adp_tx'

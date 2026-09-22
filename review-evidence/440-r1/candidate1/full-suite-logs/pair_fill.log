@@ -1,0 +1,57 @@
+make: Entering directory '$VALIDATION/tb/verilator/pair_fill'
+verilator --cc --exe --build -j 0 --top-module pair_fill_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv pair_fill_tb_top.sv sim_main.cpp -o Vpair_fill_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/pair_fill/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/pair_fill/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.016 s (elab=0.000, cvt=0.000, bld=0.016); cpu 0.001 s on 8 threads; allocated 5.996 MB
+======================================================================
+./obj_dir/Vpair_fill_sim
+[blend] slot map + collision hold
+  [ok]   B1 lone I2S: one strobe                              = 0x1
+  [ok]   B1 out slot                                          = 0x0
+  [ok]   B1 L                                                 = 0x111111
+  [ok]   B1 R                                                 = 0x222222
+  [ok]   B2 lone TDM slot 2: one strobe                       = 0x1
+  [ok]   B2 out slot == 1 + tdm slot                          = 0x3
+  [ok]   B2 L                                                 = 0x333333
+  [ok]   B3 collision: two strobes total                      = 0x2
+  [ok]   B3 first is TDM (slot 1)                             = 0x1
+  [ok]   B3 first L is TDM data                               = 0xcccccc
+  [ok]   B3 second is held I2S (slot 0)                       = 0x0
+  [ok]   B3 second L is held I2S data                         = 0xaaaaaa
+  [ok]   B4 three strobes (2 TDM + 1 I2S)                     = 0x3
+  [ok]   B4 drained I2S is the FRESH sample                   = 0xb0b0b
+  [ok]   B5 pairs_merged_o == output strobes                  = 0x7
+[fill] 5.3.7.3 silence fill, fed-tracked
+  [ok]   Z1 no fills after the first tick                     = 0x0
+  [ok]   Z1 second tick fills every slot                      = 0x8
+  [ok]   Z1 fills carry zero samples                          = 0x1
+  [ok]   Z1 fills walk slots 0..7 in order                    = 0x1
+  [ok]   Z1 fill_cnt_o                                        = 0x8
+  [ok]   Z2 live slot passes through every period             = 0xa
+  [ok]   Z2 live slot NEVER filled (any phase)                = 0x0
+  [ok]   Z3 fill_cnt_o == 8 + 10*7                            = 0x4e
+  [ok]   Z4 grace window 1 after death                        = 0x0
+  [ok]   Z4 grace window 2 after death                        = 0x0
+  [ok]   Z4 dead slot fills once both windows empty           = 0x1
+  [ok]   Z4 all 8 filled once that period                     = 0x8
+  [ok]   Z5 live strobe + full pending walk                   = 0x9
+  [ok]   Z5 the live strobe leads the walk out                = 0x1
+  [ok]   Z6 out-of-span slot passes through                   = 0x1
+  [ok]   Z6 slot preserved                                    = 0xc
+  [ok]   Z6 fill span stays 8/period                          = 0x0
+  [ok]   Z7 output silent in the decision cycle               = 0x0
+  [ok]   Z7 strobe N sampled at N+1                           = 0x1
+  [ok]   Z7 slot intact                                       = 0x2
+  [ok]   Z7 L intact                                          = 0xabc123
+  [ok]   Z7 R intact                                          = 0xcafe
+  [ok]   Z7 back-to-back: strobe N+1 at N+2                   = 0x2
+  [ok]   Z7 second slot intact                                = 0x4
+  [ok]   Z7 second L intact                                   = 0xdef45
+  [ok]   Z7 no trailing strobe                                = 0x2
+--------------------------------------------------------------
+checks: 41   failures: 0
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/pair_fill'
