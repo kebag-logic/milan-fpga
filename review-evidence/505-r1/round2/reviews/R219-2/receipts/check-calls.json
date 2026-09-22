@@ -1,0 +1,114 @@
+[
+  {
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 1,
+    "call": "python3 docs/DOC_MAP.gen.py --check",
+    "arm": "carrier-script-407 docs-check step 9 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 3,
+    "call": "python3 docs/diagrams/timesync_chain.gen.py --check",
+    "arm": "carrier-script-407 docs-check step 9 or-true-line-3"
+  },
+  {
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 1,
+    "call": "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+    "arm": "carrier-script-407 docs-check step 11 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 2,
+    "call": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check",
+    "arm": "carrier-script-407 docs-check step 12 or-true-line-2"
+  },
+  {
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 3,
+    "call": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check",
+    "arm": "carrier-script-407 docs-check step 12 or-true-line-3"
+  },
+  {
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 4,
+    "call": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check",
+    "arm": "carrier-script-407 docs-check step 12 or-true"
+  },
+  {
+    "job": "docs-check",
+    "step": 15,
+    "name": "Traceability matrix no-drift gate",
+    "line": 1,
+    "call": "python3 docs/traceability/gen_module_matrix.py --check",
+    "arm": "carrier-script-407 docs-check step 15 or-true"
+  },
+  {
+    "job": "docs-check",
+    "step": 20,
+    "name": "Bare-metal scope gate",
+    "line": 1,
+    "call": "python3 scripts/check_baremetal_only.py --check",
+    "arm": "carrier-script-407 docs-check step 20 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 26,
+    "name": "Boundary-unit naming ratchet",
+    "line": 1,
+    "call": "python3 scripts/measure_naming.py --check",
+    "arm": "carrier-script-407 docs-check step 26 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 28,
+    "name": "Fail-fast ratchet",
+    "line": 1,
+    "call": "python3 scripts/measure_fail_fast.py --check",
+    "arm": "carrier-script-407 docs-check step 28 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 30,
+    "name": "Test-evidence ratchet",
+    "line": 1,
+    "call": "python3 scripts/measure_test_evidence.py --check",
+    "arm": "carrier-script-407 docs-check step 30 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 31,
+    "name": "Mechanical hygiene ratchet",
+    "line": 1,
+    "call": "python3 scripts/check_hygiene.py --check",
+    "arm": "carrier-script-407 docs-check step 31 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 36,
+    "name": "CI event and SHA contract gate",
+    "line": 1,
+    "call": "python3 scripts/ci_events.py --check",
+    "arm": "carrier-script-407 docs-check step 36 or-true-line-1"
+  },
+  {
+    "job": "docs-check",
+    "step": 40,
+    "name": "Per-page contents gate",
+    "line": 3,
+    "call": "python3 scripts/gen_toc.py --check",
+    "arm": "carrier-script-407 docs-check step 40 or-true"
+  }
+]
