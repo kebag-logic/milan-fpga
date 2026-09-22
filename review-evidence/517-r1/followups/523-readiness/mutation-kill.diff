@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv b/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+index e772272..bc76f65 100644
+--- a/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
++++ b/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+@@ -786,7 +786,7 @@ module KL_gptp_txret #(
+       //! the whole point.
+       if (epi_start_i && demand_r)        epi_cover_r <= 1'b1;
+       //! ...and only its completion discharges anything.
+-      if (epi_done_i && epi_cover_r) begin
++      if ((epi_done_i || !epi_busy_i) && epi_cover_r) begin
+         destroyed_r <= 1'b1;
+         epi_cover_r <= 1'b0;
+       end
