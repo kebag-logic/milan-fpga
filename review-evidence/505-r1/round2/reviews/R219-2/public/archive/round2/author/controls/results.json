@@ -1,0 +1,66 @@
+{
+  "preserved_old_mutations": 833,
+  "preserved_specialized_refusals": 590,
+  "changed_functions": [
+    "_carrier_script_edits",
+    "_carrier_script_arms"
+  ],
+  "new_reason_pinned_arms": 213,
+  "new_by_lever": {
+    "or-true": 117,
+    "append-command": 56,
+    "reorder-lines": 40
+  },
+  "all_mutation_arms": 1046,
+  "carrier_mutation_arms": 456,
+  "swallowing_lines": 173,
+  "check_calls": 14,
+  "carrier_run_bodies": 56,
+  "whitespace_control_arms": 1,
+  "record_control_arms": 57,
+  "maintenance": [
+    {
+      "name": "workflow-only",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$CANDIDATE/scripts/ci_events.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/controls/maintenance"
+      ],
+      "exit": 1,
+      "last_line": "ci_events: 1 finding(s) over 1505 contract item(s)"
+    },
+    {
+      "name": "matching-record-check",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/controls/maintenance/ci_events.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/controls/maintenance"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    },
+    {
+      "name": "matching-record-selftest",
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/controls/maintenance/ci_events.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/controls/maintenance"
+      ],
+      "exit": 0,
+      "last_line": "selftest: PASS (1505 contract items, 1145 arms)"
+    }
+  ],
+  "changed_paths": [
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/ci_events.py"
+  ]
+}

@@ -1,0 +1,447 @@
+[
+  {
+    "label": "pristine-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.164,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "pristine-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 6.944,
+    "failures": 0,
+    "tail": [
+      "  ok   default-branch: push on main warns and continues",
+      "  ok   default-branch: a missing event cannot run",
+      "selftest: PASS (1505 contract items, 1144 arms)"
+    ]
+  },
+  {
+    "label": "docs-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 3.711,
+    "failures": 0,
+    "tail": [
+      "docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+    ]
+  },
+  {
+    "label": "toc-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.362,
+    "failures": 0,
+    "tail": [
+      "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+    ]
+  },
+  {
+    "label": "doc-paths",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.064,
+    "failures": 0,
+    "tail": [
+      "doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)"
+    ]
+  },
+  {
+    "label": "em-dash",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.82,
+    "failures": 0,
+    "tail": [
+      "check_em_dash: 0 finding(s) over 47 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 34/34 [b17580b9..HEAD]"
+    ]
+  },
+  {
+    "label": "python-idiom",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit_code": 2,
+    "expected": 0,
+    "seconds": 0.089,
+    "failures": 0,
+    "tail": [
+      "REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor; -424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`"
+    ]
+  },
+  {
+    "label": "M5b-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/M5b.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.163,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "M5b-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/M5b.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--selftest"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 7.161,
+    "failures": 117,
+    "tail": [
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 16 or-true-line-3] expected a finding naming \"job `elaborate` step 16 (`Put Verilator on PATH and prove the version`) script is not the canonical form: line 3 must be '/opt/verilator/bin/verilator --version'\", got [\".github/workflows/elaborate.yml: recorded writer `Put Verilator on PATH and prove the version` in job `elaborate` script is not the canonical form: line 3 must be '/opt/verilator/bin/verilator --version' (found '/opt/verilator/bin/verilator --version || true'); 4 line(s) expected, 4 found; the name is not the binding, the script is\"]",
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 17 or-true-line-1] expected a finding naming \"job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 1 must be 'scripts/run_litex_sims.sh --selftest'\", got no findings",
+      "selftest: 117 FAILURE(S)"
+    ]
+  },
+  {
+    "label": "prefix-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/prefix.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.168,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "prefix-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/prefix.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--selftest"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 6.972,
+    "failures": 56,
+    "tail": [
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 17 append-command] expected a finding naming 'job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 3 must be None', got no findings",
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 18 append-command] expected a finding naming 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) script is not the canonical form: line 2 must be None', got no findings",
+      "selftest: 56 FAILURE(S)"
+    ]
+  },
+  {
+    "label": "unordered-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/unordered.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.168,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "unordered-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/unordered.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--selftest"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 6.988,
+    "failures": 40,
+    "tail": [
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 16 reorder-lines] expected a finding naming \"job `elaborate` step 16 (`Put Verilator on PATH and prove the version`) script is not the canonical form: line 1 must be 'set -euo pipefail'\", got ['.github/workflows/elaborate.yml: recorded writer `Put Verilator on PATH and prove the version` in job `elaborate` script is not the canonical form: line 1 must be \\'set -euo pipefail\\' (found \\'echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"\\'); 4 line(s) expected, 4 found; the name is not the binding, the script is']",
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 17 reorder-lines] expected a finding naming \"job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 1 must be 'scripts/run_litex_sims.sh --selftest'\", got no findings",
+      "selftest: 40 FAILURE(S)"
+    ]
+  },
+  {
+    "label": "comparison-removed-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/comparison-removed.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.175,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "comparison-removed-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-6bstfh55/comparison-removed.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--selftest"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 6.978,
+    "failures": 400,
+    "tail": [
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 18 or-true] expected a finding naming 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) script is not the canonical form: line 1 must be \\'cp -n \"$(python3 -c \\\\\\'import pythondata_cpu_vexiiriscv as p; print(p.data_location)\\\\\\')\"/*.py ~/vexii-netlist-args/ 2>/dev/null || true\\'', got no findings",
+      "  FAIL mutation not caught: [carrier-script-407 elaborate step 18 append-command] expected a finding naming 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) script is not the canonical form: line 2 must be None', got no findings",
+      "selftest: 400 FAILURE(S)"
+    ]
+  },
+  {
+    "label": "record-enforcement-removed-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/record-enforcement-removed.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.164,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "record-enforcement-removed-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/record-enforcement-removed.py",
+      "--root",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2",
+      "--selftest"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 6.959,
+    "failures": 56,
+    "tail": [
+      "  FAIL carrier-script-407 elaborate step 17 missing record: expected 'job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) must record a canonical normalized `run` script', got []",
+      "  FAIL carrier-script-407 elaborate step 18 missing record: expected 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) must record a canonical normalized `run` script', got []",
+      "selftest: 56 FAILURE(S)"
+    ]
+  },
+  {
+    "label": "native-ac5-head",
+    "argv": [
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2/scripts/ci_events.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--check"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 0.169,
+    "failures": 1,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "  FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found",
+      "ci_events: 1 finding(s) over 1505 contract item(s)"
+    ]
+  },
+  {
+    "label": "native-ac5-base",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/base.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.164,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1393 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "native-ac5-M5b",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/M5b.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.165,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "old-M5b-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/old-M5b.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 5.796,
+    "failures": 0,
+    "tail": [
+      "  ok   default-branch: push on main warns and continues",
+      "  ok   default-branch: a missing event cannot run",
+      "selftest: PASS (1505 contract items, 931 arms)"
+    ]
+  },
+  {
+    "label": "maintenance-workflow-only",
+    "argv": [
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r219-505-r2/scripts/ci_events.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--check"
+    ],
+    "exit_code": 1,
+    "expected": 1,
+    "seconds": 0.185,
+    "failures": 1,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "  FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found 'echo reviewed'); 2 line(s) expected, 3 found",
+      "ci_events: 1 finding(s) over 1505 contract item(s)"
+    ]
+  },
+  {
+    "label": "maintenance-matching-check",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/maintenance.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--check"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 0.167,
+    "failures": 0,
+    "tail": [
+      "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "label": "maintenance-matching-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "/tmp/r219-505-r2-3kg1k690/maintenance.py",
+      "--root",
+      "/tmp/r219-505-r2-3kg1k690/inputs",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "expected": 0,
+    "seconds": 7.046,
+    "failures": 0,
+    "tail": [
+      "  ok   default-branch: push on main warns and continues",
+      "  ok   default-branch: a missing event cannot run",
+      "selftest: PASS (1505 contract items, 1145 arms)"
+    ]
+  }
+]
