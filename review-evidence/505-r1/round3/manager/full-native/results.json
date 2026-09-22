@@ -1,0 +1,58 @@
+{
+  "head": "5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "bash",
+        "scripts/run_all_suites.sh",
+        "$VALIDATION_STORAGE/407-manager-r3/full-suite-logs",
+        "--wait"
+      ],
+      "exit_code": 0,
+      "seconds": 2242.176,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/full-native/01.log"
+    },
+    {
+      "command": [
+        "bash",
+        "syn/yosys/run.sh",
+        "--results",
+        "$VALIDATION_STORAGE/407-manager-r3/yosys-results"
+      ],
+      "exit_code": 0,
+      "seconds": 649.304,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/full-native/02.log"
+    },
+    {
+      "command": [
+        "bash",
+        "-c",
+        "cd protocol-processor && bash scripts/run_suites.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 178.594,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/full-native/03.log"
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "gptp-processor",
+        "all"
+      ],
+      "exit_code": 0,
+      "seconds": 547.725,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/full-native/04.log"
+    },
+    {
+      "command": [
+        "behave",
+        "tests/features"
+      ],
+      "exit_code": 0,
+      "seconds": 1.12,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/full-native/05.log"
+    }
+  ]
+}
