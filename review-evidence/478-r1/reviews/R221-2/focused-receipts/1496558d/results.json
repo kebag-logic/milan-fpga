@@ -1,0 +1,112 @@
+[
+  {
+    "name": "test_audio_unit_rates_loader_contract",
+    "passed": true
+  },
+  {
+    "name": "test_audio_unit_shipping_rates",
+    "passed": true
+  },
+  {
+    "name": "test_pp_shadow_audio_unit_rates_match_config",
+    "passed": true
+  },
+  {
+    "name": "test_all_configs_build",
+    "passed": true
+  },
+  {
+    "name": "test_builder_doc_key_map",
+    "passed": true
+  },
+  {
+    "name": "independent loader positions and normalized duplicates",
+    "checks": 49
+  },
+  {
+    "name": "max nine",
+    "caught": true,
+    "exception": "AssertionError",
+    "detail": "gate 36a: distinct ninth entry accepted"
+  },
+  {
+    "name": "max seven",
+    "caught": true,
+    "exception": "ConfigError",
+    "detail": "clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 8 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)"
+  },
+  {
+    "name": "missing count refusal",
+    "caught": true,
+    "exception": "AssertionError",
+    "detail": "gate 36a: distinct ninth entry accepted"
+  },
+  {
+    "name": "missing duplicate refusal",
+    "caught": true,
+    "exception": "AssertionError",
+    "detail": "gate 36a: duplicate accepted"
+  },
+  {
+    "name": "missing membership refusal",
+    "caught": true,
+    "exception": "AssertionError",
+    "detail": "gate 36a: empty list accepted"
+  },
+  {
+    "name": "reverse order",
+    "caught": true,
+    "exception": "AssertionError",
+    "detail": "gate 36a: eight distinct entries must load in declared order"
+  },
+  {
+    "name": "wrong default",
+    "caught": true,
+    "exception": "ConfigError",
+    "detail": "sampling_rate_hz must appear in audio_unit_rates_hz"
+  },
+  {
+    "name": "actual value drift",
+    "caught": true,
+    "detail": "gate 36a: AU_RATES_C values [48000, 88200, 192000] != [48000, 96000, 192000]"
+  },
+  {
+    "name": "actual order drift",
+    "caught": true,
+    "detail": "gate 36a: AU_RATES_C values [96000, 48000, 192000] != [48000, 96000, 192000]"
+  },
+  {
+    "name": "actual length drift",
+    "caught": true,
+    "detail": "gate 36a: AU_RATES_C declared length 4 != 3"
+  },
+  {
+    "name": "actual initializer drift",
+    "caught": true,
+    "detail": "gate 36a: AU_RATES_C values [48000, 96000] != [48000, 96000, 192000]"
+  },
+  {
+    "name": "actual commented declaration",
+    "caught": true,
+    "detail": "gate 36a: expected one literal AU_RATES_C declaration"
+  },
+  {
+    "name": "actual duplicate declaration",
+    "caught": true,
+    "detail": "gate 36a: expected one literal AU_RATES_C declaration"
+  },
+  {
+    "name": "eight loader entries are not an eight-rate image claim",
+    "detail": "unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]"
+  },
+  {
+    "name": "exact dispatch loop",
+    "gates_seen": [
+      "test_audio_unit_rates_loader_contract",
+      "test_audio_unit_shipping_rates",
+      "test_pp_shadow_audio_unit_rates_match_config"
+    ],
+    "sentinel_failures_propagated": 3,
+    "unrelated_gates": "explicitly stubbed; not full-suite evidence"
+  }
+]
