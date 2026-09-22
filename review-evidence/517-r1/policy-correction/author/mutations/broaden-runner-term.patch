@@ -1,0 +1,10 @@
+--- original/check_baremetal_only.py
++++ mutated/check_baremetal_only.py
+@@ -1491,5 +1491,7 @@
+     return 0
+ 
+ 
++TERM_MASKS['tb/verilator/milan_dp/sim_pool.py'] = re.compile("linux", re.IGNORECASE)
++
+ if __name__ == "__main__":
+     sys.exit(main())

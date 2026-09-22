@@ -1,0 +1,13 @@
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-0-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [T] retired-stack term 'Linux': 'than a leg takes to start, at every such check, to go unseen. Linux only: the' (#259: the checkout is bare-metal only; history lives in git)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-0-extra-rootfs] caught, but not by the right class: wanted "[T] retired-stack term 'rootfs'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [T] retired-stack term 'Linux': 'than a leg takes to start, at every such check, to go unseen. Linux only: the # rootfs' (#259: the checkout is bare-metal only; history lives in git)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-13-allowed] clean fixture flagged:
+tb/verilator/milan_dp/test_sim_pool.py:1: [T] retired-stack term 'Linux': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (#259: the checkout is bare-metal only; history lives in git)
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-13-extra-rootfs] caught, but not by the right class: wanted "[T] retired-stack term 'rootfs'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [T] retired-stack term 'Linux': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run") # rootfs' (#259: the checkout is bare-metal only; history lives in git)
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run") # rootfs' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/test_sim_pool.py-13-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/test_sim_pool.py:1: [T] retired-stack term 'Linux': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run") # /etc/fstab' (#259: the checkout is bare-metal only; history lives in git)
+tb/verilator/milan_dp/test_sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run") # /etc/fstab' (#259: no target OS or retired helper-service plane)

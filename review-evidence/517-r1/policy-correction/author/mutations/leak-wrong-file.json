@@ -1,0 +1,17 @@
+{
+  "label": "leak-wrong-file",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "/tmp/517-policy-mutation-ttm8lg9b/scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "cwd": "$CANDIDATE",
+  "exit": 2,
+  "elapsed_seconds": 4.598184900009073,
+  "source_sha256": "66a51849d055edd852dbda5f29d1463911181e775d0ed0edda4dd3f3ce799d0c",
+  "mutant_sha256": "b98c3cc7776d064b6b6ae65e30e8ba01af4ab2048438f5e2ded0139904c0c647",
+  "expected_control": "-wrong-file-T] planted defect not caught",
+  "detected": true
+}

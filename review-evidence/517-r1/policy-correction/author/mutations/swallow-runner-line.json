@@ -1,0 +1,17 @@
+{
+  "label": "swallow-runner-line",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "/tmp/517-policy-mutation-og_y3g2u/scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "cwd": "$CANDIDATE",
+  "exit": 2,
+  "elapsed_seconds": 4.655404972989345,
+  "source_sha256": "66a51849d055edd852dbda5f29d1463911181e775d0ed0edda4dd3f3ce799d0c",
+  "mutant_sha256": "58feda8652e68a6a8197cfa023d11f2c77948f9ce149e99ddf424ab160b9a759",
+  "expected_control": "-extra-rootfs] planted defect not caught",
+  "detected": true
+}

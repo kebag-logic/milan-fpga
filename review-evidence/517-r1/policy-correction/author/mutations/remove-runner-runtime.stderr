@@ -1,0 +1,4 @@
+  - [sim-pool-host-tb/verilator/milan_dp/sim_pool.py-4-allowed] clean fixture flagged:
+tb/verilator/milan_dp/sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'children = Path(f"/proc/self/task/{os.getpid()}/children")' (#259: no target OS or retired helper-service plane)
+  - [sim-pool-host-tb/verilator/milan_dp/sim_pool.py-4-extra-/etc/fstab] caught, but not by the right class: wanted "surface '/etc'" in
+tb/verilator/milan_dp/sim_pool.py:1: [R] prohibited target runtime/service surface '/proc': 'children = Path(f"/proc/self/task/{os.getpid()}/children") # /etc/fstab' (#259: no target OS or retired helper-service plane)
