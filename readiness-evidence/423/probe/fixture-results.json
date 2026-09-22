@@ -1,0 +1,52 @@
+{
+  "fixture": "/tmp/milan-423-readiness-o0cri9xg",
+  "objects": {
+    "O": "85d90ec398dcf5dfcd1ccd6ecdd1fd621b6bb0bb",
+    "A": "6713d1c551a26193d535ef68898463f6f9005db3",
+    "M": "64ac7e2e8d04b741f9d1a23befb346507a346456",
+    "C": "ca8ab54754514726afbc065439a2aacbd30a0b5f",
+    "A_replay": "4a1fcaed1cf5b18670386658af2fb8856268389e",
+    "C_replay": "9cbd5dbe067a5c453fd6e1337dc33005b0a45b7f",
+    "D_extension": "aa9740e46c4c66b8d3e6cee9a8f05123d2e5f596",
+    "R_revert": "08c1aa0190bf9728d33f0ed90353aeacc275d64d"
+  },
+  "merge": {
+    "parents": [
+      "85d90ec398dcf5dfcd1ccd6ecdd1fd621b6bb0bb",
+      "6713d1c551a26193d535ef68898463f6f9005db3"
+    ],
+    "first_parent_ancestor_of_second": true,
+    "same_tree_as_second": true
+  },
+  "cases": [
+    {
+      "case": "exact_replay_then_extension",
+      "base": "aa9740e46c4c66b8d3e6cee9a8f05123d2e5f596",
+      "candidate": "ca8ab54754514726afbc065439a2aacbd30a0b5f",
+      "current_verdict": [
+        false,
+        3,
+        "paths differing: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    },
+    {
+      "case": "replay_then_exact_reversion",
+      "base": "08c1aa0190bf9728d33f0ed90353aeacc275d64d",
+      "candidate": "ca8ab54754514726afbc065439a2aacbd30a0b5f",
+      "current_verdict": [
+        false,
+        3,
+        "paths differing: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    }
+  ],
+  "claim": "This probes existing helpers only; no production change or proof adoption."
+}
