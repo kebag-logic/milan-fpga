@@ -1,0 +1,34 @@
+100:from collections.abc import Callable
+157:def _map_fixture() -> dict[str, Any]:
+192:def _selftest_map_bounds():
+290:def _selftest_map_deviations():
+325:def _selftest_two_level():
+418:def self_test() -> int:
+424:    ok = _selftest_map_deviations() and ok
+103:#: The map is AUDIO_MAP[0] since da71309c, which made the Stream Port Input
+107:KNOWN_MAP_DEVIATIONS = {
+115:def assert_no_map_deviations(M: dict[str, Any],
+65:      - name: Added-line em-dash gate
+124:      - name: Fetch the builder source dependencies
+172:      - name: End-station builder gates
+384:      # AEM store generator self-test (#464): the AUDIO_MAP bounds gate, the
+390:      - name: AEM store generator self-test
+453:  docs-check-no-git:
+1065:        {"name": "AEM store generator self-test",
+3326:def check_builder_dependencies(c: Contract, path: str, wf: YamlMap,
+6875:         "job `docs-check` must carry exactly 44 steps"),
+6889:         "job `docs-check` must carry exactly 44 steps"),
+1059:`AEM store generator self-test` runs just before those three gates.
+1281:This local replica validates the exact head tree, not GitHub's synthetic merge
+1598:Required checks use the loose policy: an intervening merge to `dev` does not
+24:python3 avdecc/gen_aem_store.py --self-test
+963:| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sampl
+249:  36a. AUDIO_UNIT RATES FIT THE PROCESSOR WALK (issue #478): a distinct
+23525:def test_audio_unit_rates_loader_contract() -> None:
+23572:def test_audio_unit_shipping_rates() -> None:
+23590:def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
+23608:def test_pp_shadow_audio_unit_rates_match_config() -> None:
+2201:def _entity_model_image(cfg, overlay):
+2221:    model = _aem.build_model(_aem.spec_from_overlay(overlay))
+3007:def rtl_firmware_version(rev: int = 0) -> str:
+3754:def _load_clocking(cfg, path):

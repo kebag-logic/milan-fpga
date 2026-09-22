@@ -1,0 +1,46 @@
+spec head=72e16c6172db723734317b105cff6c6e9168571a base=52711029f374650dc93830d5ea28e81cb5c8f410 commands=41
+results head=72e16c6172db723734317b105cff6c6e9168571a base=52711029f374650dc93830d5ea28e81cb5c8f410 n=41
+final head=72e16c6172db723734317b105cff6c6e9168571a base=52711029f374650dc93830d5ea28e81cb5c8f410 n=41
+results commands == spec commands in order: True
+all original exits zero: True
+final ledger differs at 40: original ['git', 'diff', '--check', '52711029f374650dc93830d5ea28e81cb5c8f410', '1496558d82cf35fc98dda0e781b2a1be643c301a'] exit 0 -> final ['git', 'diff', '--check', '52711029f374650dc93830d5ea28e81cb5c8f410', '72e16c6172db723734317b105cff6c6e9168571a'] exit 0 note={'log': '$VALIDATION_STORAGE/478-manager-candidate2/whitespace-correction/01.log', 'receipt_origin': 'whitespace-correction/results.json', 'receipt_row': 0}
+final ledger all exits zero: True
+01 gen_aem_store --self-test: ok-arms=20 fail-arms=0 verdict=PASS
+05 ['python3', 'scripts/ci_events.py', '--check'] tail: ['note cron `17 1 * * *` renders 01:17 UTC; the policy page states both', 'ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)']
+07 ['python3', 'scripts/ci_events.py', '--selftest'] tail: ['  ok   default-branch: a missing event cannot run', 'selftest: PASS (1513 contract items, 1150 arms)']
+13 ['python3', 'scripts/docs_check.py'] tail: ['docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]']
+36 ['python3', 'scripts/check_em_dash.py', '--base', '52711029f374650dc93830d5ea28e81cb5c8f410'] tail: ['check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [52711029..HEAD]']
+40 original stale-endpoint log bytes=0
+41 builder gate36a lines:
+   [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+   [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+   [gate 36a] arty_4x4: image advertises [48000], offset 144
+   [gate 36a] arty_8ch: image advertises [48000], offset 144
+   [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+   [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+   [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+41 builder verdict lines: ['1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:', 'ALL GATES PASS EXCEPT 1 NOT RUN']
+whitespace correction: ['git', 'diff', '--check', '52711029f374650dc93830d5ea28e81cb5c8f410', '72e16c6172db723734317b105cff6c6e9168571a'] exit 0
+whitespace correction log bytes=0
+builder-tree-integrity.json: keys=['checked_at', 'root', 'parent', 'required_submodules', 'optional_external', 'result']
+   mentions candidate=True tree=True
+   result: "PASS"
+builder-corrected-final-integrity.json: keys=['checked_at', 'root', 'parent', 'required_submodules', 'optional_external', 'result']
+   mentions candidate=True tree=True
+   result: "PASS"
+=== builder-tree-integrity.json
+gitlinks: {"external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5", "gptp-processor": "c1b617435824929a790739ea8585c3fe1a328cc0", "protocol-processor": "424c688fa2205b934a7689a58f2aa766420f2326", "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"}
+sub third_party/verilog-axis {"head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce", "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019", "files_verified": 214, "gitlinks": {}}
+sub protocol-processor {"head": "424c688fa2205b934a7689a58f2aa766420f2326", "tree": "1b073c8be20fde9bc4362f87c2dc735902d78aec", "files_verified": 222, "gitlinks": {}}
+sub gptp-processor {"head": "c1b617435824929a790739ea8585c3fe1a328cc0", "tree": "25909c4d74015a9a843513cbf36054b1dda60df5", "files_verified": 103, "gitlinks": {}}
+external: "Unused SSH-only external remains outside required local-gate population; no physical campaign evidence inferred."
+=== builder-corrected-final-integrity.json
+gitlinks: {"external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5", "gptp-processor": "c1b617435824929a790739ea8585c3fe1a328cc0", "protocol-processor": "424c688fa2205b934a7689a58f2aa766420f2326", "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"}
+sub third_party/verilog-axis {"head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce", "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019", "files_verified": 214, "gitlinks": {}}
+sub protocol-processor {"head": "424c688fa2205b934a7689a58f2aa766420f2326", "tree": "1b073c8be20fde9bc4362f87c2dc735902d78aec", "files_verified": 222, "gitlinks": {}}
+sub gptp-processor {"head": "c1b617435824929a790739ea8585c3fe1a328cc0", "tree": "25909c4d74015a9a843513cbf36054b1dda60df5", "files_verified": 103, "gitlinks": {}}
+external: "Unused SSH-only external remains outside required local-gate population; no physical campaign evidence inferred."
+third_party/verilog-axis tree=54432ffb46df72ed7c5d4bdecf4c0774bdd3a019 files=214
+protocol-processor tree=1b073c8be20fde9bc4362f87c2dc735902d78aec files=222
+gptp-processor tree=25909c4d74015a9a843513cbf36054b1dda60df5 files=103
+parent files (non-gitlink): 851

@@ -1,0 +1,65 @@
+candidate: 72e16c6172db723734317b105cff6c6e9168571a tree 93be2b5788c4b79e88bfe22fbaf985686bbdc8f2
+candidate parents: 52711029f374650dc93830d5ea28e81cb5c8f410 1496558d82cf35fc98dda0e781b2a1be643c301a
+candidate message lines: 1
+candidate subject: Validate issue478 candidate against merged PR513
+candidate trailers: []
+merge-base(dev,source): 88e9276b2a220c716f64a843f7e1eb8f9265e896 expect 88e9276b2a220c716f64a843f7e1eb8f9265e896 OK
+merge-tree --write-tree dev source: 93be2b5788c4b79e88bfe22fbaf985686bbdc8f2 vs candidate tree 93be2b5788c4b79e88bfe22fbaf985686bbdc8f2 EQUAL
+--- issue side: merge-base..source (name-status)
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+--- #513 side: merge-base..dev (name-status)
+M	.github/workflows/docs.yml
+M	avdecc/aem_maps.py
+M	avdecc/gen_aem_store.py
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/RUNNING_TESTS.md
+M	scripts/ci_events.py
+--- path intersection count: 0
+--- candidate vs source (should be exactly #513 paths)
+M	.github/workflows/docs.yml
+M	avdecc/aem_maps.py
+M	avdecc/gen_aem_store.py
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/RUNNING_TESTS.md
+M	scripts/ci_events.py
+--- candidate vs dev (should be exactly issue paths)
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+--- patch identity
+issue patch sha256 (mb..source): aec58c219738ab8c8e643283f674d8eec0879993a19629c4be7877344ed6cdda
+issue patch sha256 (dev..cand):  aec58c219738ab8c8e643283f674d8eec0879993a19629c4be7877344ed6cdda  BYTE-EQUAL
+issue patch-id --verbatim: 0301ff6eb8a220aaa1b846b520e90c56e222c21f / 0301ff6eb8a220aaa1b846b520e90c56e222c21f EQUAL
+#513 patch sha256 (mb..dev):   bcf40aee9e15ac75a9111ab14886206b4df44e2b5818a666aaa18d7af8fdd12e
+#513 patch sha256 (source..cand): bcf40aee9e15ac75a9111ab14886206b4df44e2b5818a666aaa18d7af8fdd12e  BYTE-EQUAL
+--- blob identity per changed path
+issue  docs/ENDSTATION_BUILDER.md src=b66600c8326b7eeb91fc53de111f6585c7b3d47a cand=b66600c8326b7eeb91fc53de111f6585c7b3d47a dev=47b82e9025c2bd7f869c1277567e4dfe1dee7820 mb=47b82e9025c2bd7f869c1277567e4dfe1dee7820
+issue  sw/builder/endstation_builder.py src=95ffb669ecc93ebf64b7d033911d0d2cc3e9459f cand=95ffb669ecc93ebf64b7d033911d0d2cc3e9459f dev=14a7495cc99390411503d02014963c75658a8772 mb=14a7495cc99390411503d02014963c75658a8772
+issue  sw/builder/test_builder.py src=ea24c58c32c3e86a252d097c1fea7797ae5c9c7a cand=ea24c58c32c3e86a252d097c1fea7797ae5c9c7a dev=7eb6bdd513f101197c7f3247b968c91c2f4acb6b mb=7eb6bdd513f101197c7f3247b968c91c2f4acb6b
+#513   .github/workflows/docs.yml dev=6495a1257e30aa3f8a3d9577efa93bfcb25862a3 cand=6495a1257e30aa3f8a3d9577efa93bfcb25862a3 src=f5a45401a8bb3648be2189c9c8b273707de097dd mb=f5a45401a8bb3648be2189c9c8b273707de097dd
+#513   avdecc/aem_maps.py dev=25636b2dcfcc7f400c5f7df752a008a20efb8648 cand=25636b2dcfcc7f400c5f7df752a008a20efb8648 src=ca7b47338bc4cf9a6c6d8b36ad26e428f55ad783 mb=ca7b47338bc4cf9a6c6d8b36ad26e428f55ad783
+#513   avdecc/gen_aem_store.py dev=aa8843810722469949be7d770ee5ad0cc7d046b4 cand=aa8843810722469949be7d770ee5ad0cc7d046b4 src=eaa4265b318798bd43677c89afb2864ec5482ec2 mb=eaa4265b318798bd43677c89afb2864ec5482ec2
+#513   docs/testing/CI_WORKFLOWS.md dev=2823156c81c61f74f7deec9686b828ffc9a44ebc cand=2823156c81c61f74f7deec9686b828ffc9a44ebc src=89c221da9aafe68096fdb03dc5d90941b12a9129 mb=89c221da9aafe68096fdb03dc5d90941b12a9129
+#513   docs/testing/RUNNING_TESTS.md dev=38a276ccc6d357baaa3dbdb3d25b9a0c685adee9 cand=38a276ccc6d357baaa3dbdb3d25b9a0c685adee9 src=2d623c5c9949ba79d11a35ea4da30ab7d915e048 mb=2d623c5c9949ba79d11a35ea4da30ab7d915e048
+#513   scripts/ci_events.py dev=b6cc7689689a11d0354e1159486e635c0726cf3c cand=b6cc7689689a11d0354e1159486e635c0726cf3c src=b90ae46bb2cecb2a7f9b1acc84deeb6356fbb48d mb=b90ae46bb2cecb2a7f9b1acc84deeb6356fbb48d
+--- modes of changed paths at candidate
+100644 blob 6495a1257e30aa3f8a3d9577efa93bfcb25862a3	.github/workflows/docs.yml
+100644 blob 25636b2dcfcc7f400c5f7df752a008a20efb8648	avdecc/aem_maps.py
+100644 blob aa8843810722469949be7d770ee5ad0cc7d046b4	avdecc/gen_aem_store.py
+100644 blob b66600c8326b7eeb91fc53de111f6585c7b3d47a	docs/ENDSTATION_BUILDER.md
+100644 blob 2823156c81c61f74f7deec9686b828ffc9a44ebc	docs/testing/CI_WORKFLOWS.md
+100644 blob 38a276ccc6d357baaa3dbdb3d25b9a0c685adee9	docs/testing/RUNNING_TESTS.md
+100755 blob b6cc7689689a11d0354e1159486e635c0726cf3c	scripts/ci_events.py
+100644 blob 95ffb669ecc93ebf64b7d033911d0d2cc3e9459f	sw/builder/endstation_builder.py
+100644 blob ea24c58c32c3e86a252d097c1fea7797ae5c9c7a	sw/builder/test_builder.py
+--- gitlinks and .gitmodules across mb/dev/source/candidate
+88e9276b2a220c716f64a843f7e1eb8f9265e896 gitmodules=39a5c43e90a38750bdd2c7307a04c3a7ce4300a5 external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+52711029f374650dc93830d5ea28e81cb5c8f410 gitmodules=39a5c43e90a38750bdd2c7307a04c3a7ce4300a5 external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+1496558d82cf35fc98dda0e781b2a1be643c301a gitmodules=39a5c43e90a38750bdd2c7307a04c3a7ce4300a5 external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+72e16c6172db723734317b105cff6c6e9168571a gitmodules=39a5c43e90a38750bdd2c7307a04c3a7ce4300a5 external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+--- source-issue patch vs author 099e1911 + correction 2b200948 (issue files only)
+docs/ENDSTATION_BUILDER.md author-base->author: 6530ab85cdd1b06f8fffcea06aecbefa860df46c ; mb->source: 4881f64b1c2d01a2329ac3dc176222fb903179c1
+sw/builder/endstation_builder.py author-base->author: 20932ae534a976e0c09a07934d5de6b7a90780a4 ; mb->source: 20932ae534a976e0c09a07934d5de6b7a90780a4
+sw/builder/test_builder.py author-base->author: 9becdd3d67cca827ae837b45bb2904a3a7e9c8b9 ; mb->source: 9becdd3d67cca827ae837b45bb2904a3a7e9c8b9

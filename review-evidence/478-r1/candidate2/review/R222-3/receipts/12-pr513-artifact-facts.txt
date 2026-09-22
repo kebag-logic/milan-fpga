@@ -1,0 +1,24 @@
+1. builtin model descriptor counts: {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 2, 'STREAM_OUTPUT': 1, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, 'LOCALE': 1, 'STRINGS': 1, 'STREAM_PORT_INPUT': 1, 'STREAM_PORT_OUTPUT': 1, 'AUDIO_CLUSTER': 16, 'AUDIO_MAP': 1, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   docstring says 'STREAM_INPUT x2': present=True model count=2 AGREES
+   docstring says 'CLOCK_SOURCE x2': present=True model count=2 AGREES
+   docstring says 'AUDIO_CLUSTER x16': present=True model count=16 AGREES
+   docstring says 'AUDIO_MAP x1': present=True model count=1 AGREES
+2. builtin deviations 6; KNOWN_MAP_DEVIATIONS 6; equal=True
+3. docs-check has 44 steps; the last five:
+   40 Per-page contents gate
+   41 AEM store generator self-test
+   42 Sweep/build shape gate
+   43 Deploy shape gate
+   44 Entity shape gate
+4. tracked-file search for stale spellings:
+   'exactly 43 steps': 0 hit(s)
+   'carry exactly 43': 0 hit(s)
+   'AUDIO_MAP[1] mapping': 0 hit(s)
+5. RUNNING_TESTS.md block around the added command:
+   | 
+   | ```sh
+   | python3 -c "import sys; sys.path.insert(0, 'sw/litex'); import milan_soc"
+   | python3 sw/builder/test_builder.py
+   | python3 avdecc/gen_aem_store.py --self-test
+   | python3 scripts/check_soc_sources.py
+   | python3 scripts/check_sweep_shape.py --self-test
