@@ -1,0 +1,12 @@
+head 60c5225fe5f93209bf313c51b7a722f25f9aaa7d tree 64182178131d03f157fe1a4ec767edee618bc6ff base 52711029f374650dc93830d5ea28e81cb5c8f410
+docs_check exit=0 :: python3 scripts/docs_check.py
+em_dash exit=0 :: python3 scripts/check_em_dash.py --base 52711029f374650dc93830d5ea28e81cb5c8f410
+doc_style exit=0 :: python3 scripts/check_doc_style.py
+doc_paths exit=0 :: python3 scripts/check_doc_paths.py
+gen_toc_anchors exit=0 :: python3 scripts/gen_toc.py --verify-anchors
+gen_toc_check exit=0 :: python3 scripts/gen_toc.py --check
+test_evidence exit=0 :: python3 scripts/measure_test_evidence.py --check
+sv_idiom exit=0 :: python3 scripts/check_sv_idiom.py
+cpp_idiom exit=0 :: python3 scripts/check_cpp_idiom.py
+py_idiom exit=0 :: python3 scripts/check_py_idiom.py
+hygiene exit=0 :: python3 scripts/check_hygiene.py --check

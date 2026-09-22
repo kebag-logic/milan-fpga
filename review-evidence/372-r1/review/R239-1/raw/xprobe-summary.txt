@@ -1,0 +1,16 @@
+plain build exit=0
+plain run exit=0
+PROBE x-assign: v=00000000 isunknown(v)=0 never_assigned=00000000
+PROBE first-edge $past(a)=0 (a is initialised 1)
+PROBE assume failed at 25
+PROBE assume failed at 35
+coverage-user build exit=0
+coverage-user run exit=0
+PROBE x-assign: v=00000000 isunknown(v)=0 never_assigned=00000000
+PROBE cover hit at 5
+PROBE first-edge $past(a)=0 (a is initialised 1)
+PROBE cover hit at 15
+PROBE cover hit at 25
+PROBE assume failed at 25
+PROBE cover hit at 35
+PROBE assume failed at 35

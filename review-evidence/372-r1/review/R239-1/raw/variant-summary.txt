@@ -1,0 +1,8 @@
+variant noassert-flag build exit=0
+variant bind-omitted build exit=0
+variant bind-warning build exit=2
+variant bind-instpath build exit=2
+variant noassert-flag positive run exit=0
+variant noassert-flag s1_flip_tdata run exit=3
+variant bind-omitted positive run exit=1
+variant bind-omitted s1_flip_tdata run exit=1
