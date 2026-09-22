@@ -1,0 +1,5 @@
+check_list_hermetic: PASS positive - --list printed 54 top(s)
+  from a tree holding only run.sh and scripts/yosys_shards.py
+check_list_hermetic: PASS negative-control - --list fails once
+  scripts/yosys_shards.py is removed, pinning the dependency set.
+check_list_hermetic: OK
