@@ -1,0 +1,935 @@
+$ python3 -B ci_events_M-comparison-removed.py --selftest --root <scratch 6af65a15>
+rc=1
+  ok   caught: rtl push on main, not dev
+  ok   caught: rtl no pull_request
+  ok   caught: rtl PR type missing
+  ok   caught: rtl PR type extra
+  ok   caught: rtl no workflow_dispatch
+  ok   caught: rtl dispatch with inputs
+  ok   caught: rtl no schedule
+  ok   caught: rtl two crons
+  ok   caught: rtl cron moved, page unchanged
+  ok   caught: rtl cron not daily
+  ok   caught: page states another time
+  ok   caught: page states another cron string
+  ok   caught: rtl cancel-in-progress false
+  ok   caught: rtl no concurrency block
+  ok   caught: rtl checkout overrides ref
+  ok   caught: rtl checkout ref via expression
+  ok   caught: rtl gate drops target_sha output
+  ok   caught: rtl gate prints nothing
+  ok   caught: rtl Verilator worker records nothing
+  ok   caught: rtl Yosys worker records nothing
+  ok   caught: rtl record written after the upload
+  ok   caught: rtl verilator-suites skips the verifier
+  ok   caught: rtl yosys-portability skips the verifier
+  ok   caught: rtl aggregate no longer needs the gate
+  ok   caught: rtl artifact aggregates can initialize concurrently
+  ok   caught: rtl default-branch step removed
+  ok   caught: rtl default-branch step without GH_TOKEN
+  ok   caught: rtl default-branch step reads nothing live
+  ok   caught: rtl default-branch step without the event
+  ok   caught: rtl default-branch step neutered by continue-on-error
+  ok   caught: rtl default-branch step neutered by || true
+  ok   caught: rtl default-branch decoy: observed=dev beside gh api in `if false`
+  ok   caught: rtl default-branch decoy: control flow around the live read
+  ok   caught: rtl default-branch literal observed=dev after the real call
+  ok   caught: rtl default-branch literal observed=dev after the real read
+  ok   caught: rtl default-branch gh api inside a comment only
+  ok   caught: rtl default-branch comment line in the script
+  ok   caught: rtl default-branch observed from a different command
+  ok   caught: rtl default-branch two observed assignments
+  ok   caught: rtl default-branch verifier called before the read
+  ok   caught: rtl default-branch script with an extra line
+  ok   caught: rtl default-branch script without set -euo pipefail
+  ok   caught: rtl verilator-suites drops --sha gate
+  ok   caught: rtl verilator-suites drops --sha run
+  ok   caught: rtl verilator-suites drops --sha checkout
+  ok   caught: rtl yosys-portability drops --sha gate
+  ok   caught: rtl yosys-portability drops --sha run
+  ok   caught: rtl yosys-portability drops --sha checkout
+  ok   caught: rtl verilator-suites passes an unknown --sha label
+  ok   caught: E9 assert step if: false
+  ok   caught: E10 assert step if: pull_request only
+  ok   caught: E11 assert step shell: bash -n
+  ok   caught: E12 full-ci-gate continue-on-error
+  ok   caught: E13 full-ci-gate if: not schedule
+  ok   caught: E14 assert step env GH_HOST
+  ok   caught: E14b assert step env GH_CONFIG_DIR
+  ok   caught: E17 full-ci-gate defaults.run.shell bash -n
+  ok   caught: workflow-level defaults.run.shell
+  ok   caught: assert step extra key working-directory
+  ok   caught: assert step continue-on-error
+  ok   caught: S8 verilator-suites verifier if: false
+  ok   caught: yosys-portability verifier if: pull_request only
+  ok   caught: verifier step shell: bash -n
+  ok   caught: verifier step continue-on-error
+  ok   caught: verifier step env GITHUB_SHA override
+  ok   caught: S5 verifier script reassigns GATE_SHA
+  ok   caught: R4 verifier --expect disagrees with the matrix
+  ok   caught: R4 verifier without --expect
+  ok   caught: R4 matrix grows, --expect stays
+  ok   caught: aggregate job if loosened
+  ok   caught: aggregate job if dropped
+  ok   caught: aggregate skips when its selector fails
+  ok   caught: aggregate job continue-on-error
+  ok   caught: aggregate job defaults.run.shell
+  ok   caught: O1 full-ci-gate needs a job that skips on schedule
+  ok   caught: O10 decision step if: false
+  ok   caught: O10b decision step if: pull_request only
+  ok   caught: O13 pin step if: false
+  ok   caught: O13b pin step continue-on-error
+  ok   caught: O14 assert step moved before the checkout
+  ok   caught: O6 a GITHUB_PATH step inserted before the assertion
+  ok   caught: gate pin step removed
+  ok   caught: gate pin and assert steps swapped
+  ok   caught: gate checkout without fetch-depth: 0
+  ok   caught: decision step shell: bash -n
+  ok   caught: decision step working-directory
+  ok   caught: decision step loses PR_BASE_SHA
+  ok   caught: O15 decision step PR_DRAFT forced true
+  ok   caught: O15b decision step PR_BASE_SHA rebound to this run's own SHA
+  ok   caught: O15c decision step EVENT_NAME hard-coded to pull_request
+  ok   caught: O15d assert step GH_TOKEN rebound to another token
+  ok   caught: O15e verifier step GATE_SHA rebound to its own run
+  ok   caught: O16 decision script publishes the no-op decision always
+  ok   caught: O16b decision script drops the selector's self-test
+  ok   caught: O11 full-ci-gate job env GH_HOST
+  ok   caught: O12 workflow-level env GH_HOST
+  ok   caught: O17 gate exports run_full as the literal 'false'
+  ok   caught: O17b gate stops exporting run_full at all
+  ok   caught: O17c gate exports run_full from the scope answer instead
+  ok   caught: O17d gate exports rtl as the literal 'false'
+  ok   caught: O17e gate stops exporting rtl
+  ok   caught: O17f gate exports target_sha from the run instead of the pin step
+  ok   caught: O17g gate exports no outputs map at all
+  ok   caught: O17h gate exports a surplus output
+  ok   caught: O18 a worker gates on an output nobody publishes
+  ok   caught: O18b a worker gates on if: false
+  ok   caught: O18c a worker compares the decision with a value it never takes
+  ok   caught: O18d a worker turns its own failure into a pass
+  ok   caught: O18e a worker reads the decision without needing the gate
+  ok   caught: O18f a worker parses every script instead of running it
+  ok   caught: O20 a new job depends on the gate and gates on nothing
+  ok   caught: O19 fast selector exports rtl as the literal 'false'
+  ok   caught: O19b fast selector stops exporting rtl
+  ok   caught: O19c a fast consumer gates on an output nobody publishes
+  ok   caught: O19d a fast consumer gates on if: false
+  ok   caught: O21 fast selector job if: false
+  ok   caught: O21b fast scope step if: false
+  ok   caught: O21c fast scope publishes literal rtl=false
+  ok   caught: O21d fast scope drops the selector self-test
+  ok   caught: O21e fast scope EVENT_NAME rebound to pull_request
+  ok   caught: O21f fast selector continue-on-error
+  ok   caught: O21g fast selector scope runs before checkout
+  ok   caught: O21h fast selector checkout is shallow
+  ok   caught: O21i fast workflow parses selector scripts instead of running
+  ok   caught: O22 bracket needs reference names an unpublished output
+  ok   caught: O22b all-bracket needs reference omits its dependency
+  ok   caught: O22c mixed needs reference names an unpublished output
+  ok   caught: O22d dynamic needs reference cannot evade static audit
+  ok   caught: O23 fast verdict step if: false
+  ok   caught: O23b fast verdict lint result rebound to the literal success
+  ok   caught: O23c fast verdict case widened to accept failure
+  ok   caught: O23d fast verdict step continue-on-error
+  ok   caught: O23e fast verdict step shell: bash -n
+  ok   caught: O24 fast aggregate drops bdd-conformance from its verdict
+  ok   caught: O24b a new fast job lands outside the aggregate's needs
+  ok   caught: O25 bdd-conformance job if: false
+  ok   caught: O25b bdd-conformance continue-on-error
+  ok   caught: O25c bdd-conformance defaults.run.shell bash -n
+  ok   caught: O26 a .result read from a job outside needs
+  ok   caught: O26b the bracket spelling of the same .result read
+  ok   caught: O27 verilator-lint renamed to the public name rtl-fast
+  ok   caught: O28 fast selector job-level env EVENT_NAME literal
+  ok   caught: O9 matrix total carrier is missing
+  ok   caught: O9a matrix total disagrees with the shard list
+  ok   caught: O9 verilator matrix grows, the denominator is a literal
+  ok   caught: O9b yosys denominator below its matrix size
+  ok   caught: O9c a worker name restates a stale denominator
+  ok   caught: O9d sharded matrix adds an include expansion
+  ok   caught: O9e sharded matrix excludes a worker
+  ok   caught: #444 the dedicated milan_dp worker leaves the matrix
+  ok   caught: #444 the matrix and total return to four, --expect stays
+  ok   caught: #444 ownership proof loses the dedicated milan_dp arm
+  ok   caught: #444 ownership proof widens the dedicated arm to membership
+  ok   caught: #444 the gate stops saying why the aggregates skip
+  ok   caught: rtl public name verilator-suites renamed
+  ok   caught: rtl public name yosys-portability renamed
+  ok   caught: fast push on main, not dev
+  ok   caught: fast PR type missing
+  ok   caught: fast cancel-in-progress false
+  ok   caught: fast public name rtl-fast renamed
+  ok   caught: #245 ooc.sh self-test step removed
+  ok   caught: #245 ooc.sh self-test neutralised
+  ok   caught: #245 ooc.sh self-test before the submodule fetch
+  ok   caught: #245 ooc.sh self-test fetch stops naming protocol-processor
+  ok   caught: #245 ooc.sh self-test fetch stops naming gptp-processor
+  ok   caught: #245 ooc.sh self-test disabled by if: false
+  ok   caught: #245 ooc.sh self-test failure swallowed by continue-on-error
+  ok   caught: #245 ooc.sh self-test reinterpreted by shell: bash -n
+  ok   caught: #444 the Verilator worker-result step only echoes
+  ok   caught: #444 the Verilator worker-result step also tolerates failure
+  ok   caught: #444 the Verilator worker-result step exits 0 on a failed worker
+  ok   caught: #444 the Verilator worker-result step judges workers 0 to 3 only
+  ok   caught: #444 the Verilator tally globs workers 0 to 3 only
+  ok   caught: #444 the Verilator tally is replaced by true
+  ok   caught: #444 the Yosys worker-result step only echoes
+  ok   caught: #444 the Yosys worker-result step also tolerates failure
+  ok   caught: #444 the Yosys reconcile step drops --require-structural
+  ok   caught: #444 the Verilator worker-result step carries a continuation inside its comparison
+  ok   caught: #444 the Verilator worker-result step carries a no-break space inside its comparison
+  ok   caught: #444 the Verilator worker-result step carries a line separator before its exit
+  ok   caught: #444 the Yosys worker-result step carries a continuation inside its comparison
+  ok   caught: #444 the Yosys worker-result step carries a no-break space inside its comparison
+  ok   caught: #444 the Yosys worker-result step carries a line separator before its exit
+  ok   caught: #444 the decision step carries a continuation inside its comparison
+  ok   caught: #444 the decision step carries a no-break space inside its comparison
+  ok   caught: #444 the decision step carries a line separator before its decision
+  ok   caught: #444 the decision step detects renames in its changed-path list
+  ok   caught: #444 the fast selector scope step detects renames in its changed-path list
+  ok   caught: #444 the elaborate scope step detects renames in its changed-path list
+  ok   caught: docs push on main, not dev
+  ok   caught: docs no pull_request
+  ok   caught: docs does not run --check
+  ok   caught: docs does not run --selftest
+  ok   caught: docs drops the local act runner self-test
+  ok   caught: docs disables the local act runner self-test
+  ok   caught: docs swallows a local act runner self-test failure
+  ok   caught: docs only parses the local act runner self-test
+  ok   caught: docs builder omits verilog-axis
+  ok   caught: docs builder omits protocol-processor
+  ok   caught: docs builder omits gptp-processor
+  ok   caught: docs builder initializes submodules after the call
+  ok   caught: docs builder initializes submodules before repository checkout
+  ok   caught: docs builder checkout overrides the event SHA
+  ok   caught: docs builder checkout is disabled
+  ok   caught: docs builder checkout action version drifts
+  ok   caught: docs builder replaced by env decoy
+  ok   caught: docs builder call continue-on-error
+  ok   caught: docs builder job defaults.run.shell bash -n
+  ok   caught: docs builder workflow defaults.run.shell bash -n
+  ok   caught: docs sv2v install dropped
+  ok   caught: docs sv2v version drifts off the pin
+  ok   caught: docs sv2v installed after the builder call
+  ok   caught: #261 `docs-check` job if: false
+  ok   caught: #261 `docs-check` job continue-on-error
+  ok   caught: #261 `docs-check` job needs a sibling
+  ok   caught: #261 a second job carries `docs-check`
+  ok   caught: #261 `docs-check` renamed
+  ok   caught: #261 `docs-check` renamed away while a stub takes the name
+  ok   caught: #261 `wire-accountability` job if: false
+  ok   caught: #261 `wire-accountability` job continue-on-error
+  ok   caught: #261 `wire-accountability` job needs a sibling
+  ok   caught: #261 `wire-accountability` job defaults.run.shell bash -n
+  ok   caught: #261 a second job carries `wire-accountability`
+  ok   caught: #261 `wire-accountability` renamed
+  ok   caught: #261 `wire-accountability` renamed away while a stub takes the name
+  ok   caught: #261 `docs-check-no-git` job if: false
+  ok   caught: #261 `docs-check-no-git` job continue-on-error
+  ok   caught: #261 `docs-check-no-git` job needs a sibling
+  ok   caught: #261 `docs-check-no-git` job defaults.run.shell bash -n
+  ok   caught: #261 a second job carries `docs-check-no-git`
+  ok   caught: #261 `docs-check-no-git` renamed
+  ok   caught: #261 `docs-check-no-git` renamed away while a stub takes the name
+  ok   caught: elaborate push on main, not dev
+  ok   caught: elaborate public name renamed
+  ok   caught: elaborate builder omits verilog-axis
+  ok   caught: elaborate builder omits protocol-processor
+  ok   caught: elaborate builder omits gptp-processor
+  ok   caught: elaborate builder initializes submodules before repository checkout
+  ok   caught: elaborate builder checkout overrides the event SHA
+  ok   caught: elaborate builder checkout is disabled
+  ok   caught: elaborate builder checkout moves the tree
+  ok   caught: elaborate builder replaced by env decoy
+  ok   caught: elaborate builder call continue-on-error
+  ok   caught: elaborate builder job defaults.run.shell bash -n
+  ok   caught: elaborate builder workflow defaults.run.shell bash -n
+  ok   caught: elaborate builder checkout and call both disabled
+  ok   caught: elaborate sv2v install dropped
+  ok   caught: elaborate sv2v version drifts off the pin
+  ok   caught: elaborate sv2v install disabled by if
+  ok   caught: #261 `elaborate` job if: false
+  ok   caught: #261 `elaborate` job continue-on-error
+  ok   caught: #261 `elaborate` job needs another job
+  ok   caught: #261 a second job carries `elaborate`
+  ok   caught: #261 `elaborate` renamed away while a stub takes the name
+  ok   caught: #261 docs decoy named by an expression
+  ok   caught: #261 elaborate decoy named by an expression
+  ok   caught: #261 rtl-fast decoy named by an expression
+  ok   caught: #261 rtl-full decoy named by an expression
+  ok   caught: #261 docs decoy renders a required name from its own matrix
+  ok   caught: #261 rtl-full decoy renders a required name from its own matrix
+  ok   caught: #261 docs decoy matrix value is itself an expression
+  ok   caught: #261 docs decoy name carries a `${{` the scan does not match
+  ok   caught: #261 rtl-full decoy matrix carries include
+  ok   caught: #261 elaborate decoy matrix is an expression
+  ok   caught: #261 rtl-fast decoy references a key its matrix lacks
+  ok   caught: #261 docs decoy matrix list is empty
+  ok   caught: #261 docs decoy renders another file's required name
+  ok   caught: #261 docs decoy literally named elaborate
+  ok   caught: #261 elaborate decoy literally named docs-check-no-git
+  ok   caught: #261 rtl-fast decoy literally named verilator-suites
+  ok   caught: #261 rtl-full decoy literally named docs-check
+  ok   caught: #261 a fifth workflow file carries docs-check
+  ok   caught: #261 a fifth workflow file's job id is elaborate
+  ok   caught: #261 a fifth workflow file names a job by an expression
+  ok   caught: #261 gate contract step removed
+  ok   caught: #261 gate contract step if: false
+  ok   caught: #261 gate contract step continue-on-error
+  ok   caught: #261 gate contract step swallows its exit status
+  ok   caught: #261 gate contract step moved after the decision
+  ok   caught: #261 docs-check job-level BASH_ENV
+  ok   caught: #261 wire-accountability job-level BASH_ENV
+  ok   caught: #261 elaborate job-level BASH_ENV
+  ok   caught: #261 full-ci-gate job-level BASH_ENV
+  ok   caught: #261 docs-check job-level env with a benign name
+  ok   caught: #261 docs.yml workflow-level BASH_ENV
+  ok   caught: #261 rtl.yml workflow-level BASH_ENV
+  ok   caught: #261 rtl-fast.yml workflow-level env with a benign name
+  ok   caught: #360 elaborate.yml Verilator pin drifts off the shared value
+  ok   caught: #360 rtl.yml Verilator pin drifts off the shared value
+  ok   caught: #360 rtl-fast.yml Verilator pin drifts off the shared value
+  ok   caught: #261 docs-check ci_events step-level BASH_ENV
+  ok   caught: #261 elaborate builder-call step-level BASH_ENV
+  ok   caught: #261 wire-accountability gate step-level BASH_ENV
+  ok   caught: #261 docs-check job container with BASH_ENV
+  ok   caught: #261 full-ci-gate job container with BASH_ENV
+  ok   caught: #261 elaborate job container image
+  ok   caught: #261 docs-check-no-git job services
+  ok   caught: #261 docs-check job Env spelled with a capital
+  ok   caught: #261 wire-accountability job benign key
+  ok   caught: #261 rtl-fast.yml workflow-level defaults
+  ok   caught: #261 docs-check-no-git single step shell
+  ok   caught: #261 docs-check step benign key
+  ok   caught: #261 docs-check inserted step writes GITHUB_ENV
+  ok   caught: #261 wire-accountability inserted step prepends GITHUB_PATH
+  ok   caught: #261 yosys-shards inserted step writes GITHUB_ENV
+  ok   caught: #261 docs-check existing step gains a GITHUB_ENV write
+  ok   caught: #261 docs-check inserted local action
+  ok   caught: #261 elaborate inserted third-party action
+  ok   caught: #261 rtl.yml recorded writer renamed
+  ok   caught: #261 docs.yml workflow-level env is not a mapping
+  ok   caught: #261 docs-check step env is not a mapping
+  ok   caught: #261 elaborate Install sbt script gains a PATH prepend
+  ok   caught: #261 elaborate added step under the recorded name Install sbt
+  ok   caught: #261 rtl.yml tsn-gen export rewritten to set BASH_ENV
+  ok   caught: #261 rtl-fast.yml lint step gains a hostile PATH prepend
+  ok   caught: #261 rtl.yml recorded writer duplicated
+  ok   caught: #261 wire-accountability checkout with ref
+  ok   caught: #261 docs-check-no-git checkout with repository
+  ok   caught: #261 docs-check job strategy
+  ok   caught: #261 wire-accountability job outputs
+  ok   caught: #261 rtl.yml standalone job with defaults
+  ok   caught: #261 docs.yml standalone job with defaults
+  ok   caught: #261 elaborate.yml standalone job with continue-on-error
+  ok   caught: #261 rtl-fast.yml standalone job with continue-on-error
+  ok   caught: #261 docs-check ci_events step working-directory
+  ok   caught: #261 behave step working-directory points at a decoy tree
+  ok   caught: #261 bdd-conformance other step working-directory
+  ok   caught: #295 docs ci_events gate step if: false
+  ok   caught: #295 docs ci_events gate step continue-on-error
+  ok   caught: #295 docs ci_events gate step shell
+  ok   caught: #295 docs ci_events gate step working-directory
+  ok   caught: #295 docs ci_events gate step --check || true
+  ok   caught: #295 docs ci_events gate step removed
+  ok   caught: #303 imported gPTP gate body replaced by true
+  ok   caught: #303 imported gPTP parent check removed
+  ok   caught: #303 imported gPTP donor build removed
+  ok   caught: #303 imported gPTP parent check swallows failure
+  ok   caught: #303 imported gPTP donor build swallows failure
+  ok   caught: #303 imported gPTP body moved under another name
+  ok   caught: #303 imported gPTP gate step if: false
+  ok   caught: #303 imported gPTP gate step continue-on-error
+  ok   caught: #303 imported gPTP gate step shell
+  ok   caught: #303 imported gPTP gate step working-directory
+  ok   caught: #378 em-dash gate body replaced by true
+  ok   caught: #378 em-dash gate judges from HEAD
+  ok   caught: #378 em-dash gate swallows failure
+  ok   caught: #378 em-dash gate judges from the frozen recorded base
+  ok   caught: #378 em-dash gate base branch fetch removed
+  ok   caught: #378 em-dash gate push base rewritten
+  ok   caught: #378 em-dash gate null-base refusal removed
+  ok   caught: #378 em-dash gate base fetch removed
+  ok   caught: #378 em-dash gate body moved under another name
+  ok   caught: #295 wire-accountability gate step if: false
+  ok   caught: #295 wire-accountability gate step continue-on-error
+  ok   caught: #295 wire-accountability gate step shell
+  ok   caught: #295 wire-accountability gate step working-directory
+  ok   caught: #295 wire-accountability gate step || true
+  ok   caught: #295 wire-accountability gate step removed
+  ok   caught: #295 docs-check-no-git single step if: false
+  ok   caught: #295 docs-check-no-git single step continue-on-error
+  ok   caught: #295 docs-check-no-git single step shell
+  ok   caught: #295 docs-check-no-git single step working-directory
+  ok   caught: #295 docs-check-no-git single step || true
+  ok   caught: #295 docs-check-no-git docs_check call replaced by true
+  ok   caught: #295 docs-check-no-git single step removed
+  ok   caught: #295 elaborate scope step if: false
+  ok   caught: #295 elaborate scope step continue-on-error
+  ok   caught: #295 elaborate scope step shell
+  ok   caught: #295 elaborate scope step working-directory
+  ok   caught: #295 elaborate scope step || true
+  ok   caught: #295 elaborate scope script publishes a literal rtl=false
+  ok   caught: #295 elaborate scope script drops the selector's self-test
+  ok   caught: #295 elaborate scope self-test runs after the answer is read
+  ok   caught: #295 elaborate scope step EVENT_NAME hard-coded
+  ok   caught: #295 elaborate scope step PR_BASE_SHA rebound to this run's SHA
+  ok   caught: #295 elaborate scope step removed
+  ok   caught: #295 docs-check body behind a stub of the required id
+  ok   caught: #295 wire-accountability body behind a stub of the required id
+  ok   caught: #295 docs-check-no-git body behind a stub of the required id
+  ok   caught: #295 elaborate body behind a stub of the required id
+  ok   caught: #295 duplicate docs-check mapping, last one wins
+  ok   caught: #295 duplicate wire-accountability mapping, last one wins
+  ok   caught: #295 duplicate docs-check-no-git mapping, last one wins
+  ok   caught: #295 duplicate elaborate mapping, last one wins
+  ok   caught: #295 docs-check inserted BASH_ENV writer breaks the sequence
+  ok   caught: #295 docs-check-no-git inserted BASH_ENV writer breaks the sequence
+  ok   caught: #295 wire-accountability inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #295 elaborate inserted third-party action breaks the sequence
+  ok   caught: #295 docs-check inserted step of benign content
+  ok   caught: #295 wire-accountability inserted step of benign content
+  ok   caught: #295 docs-check-no-git inserted step of benign content
+  ok   caught: #295 elaborate inserted step of benign content
+  ok   caught: #303 docs-check imported gPTP gate removed
+  ok   caught: #295 docs-check recognised step removed
+  ok   caught: #295 elaborate patch-series step removed
+  ok   caught: #295 docs-check recognised steps swapped
+  ok   caught: #295 elaborate scope and fetch steps swapped
+  ok   caught: #295 docs-check recognised step renamed
+  ok   caught: #295 docs-check non-gate step if: false
+  ok   caught: #295 elaborate patch-series step if loosened
+  ok   caught: #295 elaborate metadata cache gains restore-keys
+  ok   caught: #295 docs upload step publishes another path
+  ok   caught: #378 em-dash gate step EVENT_NAME hard-coded
+  ok   caught: #378 em-dash gate step PR_BASE_REF rebound to the recorded oid
+  ok   caught: #378 em-dash gate step PUSH_BEFORE_SHA dropped
+  ok   caught: #378 em-dash gate step env gains BASH_ENV
+  ok   caught: #378 em-dash gate step if: false
+  ok   caught: #378 em-dash gate step removed
+  ok   caught: carrier-script-407 docs-check step 2 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 4 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 5 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 6 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 7 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 8 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 9 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 10 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 11 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 12 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 13 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 14 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 15 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 16 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 17 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 18 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 19 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 20 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 21 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 22 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 23 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 24 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 25 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 26 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 27 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 28 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 29 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 30 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 31 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 32 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 33 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 34 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 35 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 36 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 37 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 38 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 39 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 40 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 41 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 42 continue-on-error
+  ok   caught: carrier-script-407 docs-check step 43 continue-on-error
+  ok   caught: carrier-script-407 wire-accountability step 2 continue-on-error
+  ok   caught: carrier-script-407 wire-accountability step 3 continue-on-error
+  ok   caught: carrier-script-407 docs-check-no-git step 2 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 2 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 3 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 4 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 7 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 10 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 11 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 12 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 13 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 15 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 16 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 17 continue-on-error
+  ok   caught: carrier-script-407 elaborate step 18 continue-on-error
+  ok   caught: #406 full-ci-gate inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 full-ci-gate inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 full-ci-gate inserted third-party action breaks the sequence
+  ok   caught: #406 full-ci-gate inserted step of benign content breaks the sequence
+  ok   caught: #406 full-ci-gate recorded step removed
+  ok   caught: #406 full-ci-gate step appended after the recorded list
+  ok   caught: #406 full-ci-gate step gains a `shell`
+  ok   caught: #406 full-ci-gate recorded steps swapped
+  ok   caught: #406 full-ci-gate recorded step renamed
+  ok   caught: #406 full-ci-gate recorded env binding rebound
+  ok   caught: #406 full-ci-gate ungated step given if: false
+  ok   caught: #406 full-ci-gate action step `with` rewritten
+  ok   caught: #406 full-ci-gate recorded `id` changed
+  ok   caught: #406 verilator-shards inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-shards inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-shards inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-shards inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-shards recorded step removed
+  ok   caught: #406 verilator-shards step appended after the recorded list
+  ok   caught: #406 verilator-shards step gains a `shell`
+  ok   caught: #406 verilator-shards recorded steps swapped
+  ok   caught: #406 verilator-shards recorded step renamed
+  ok   caught: #406 verilator-shards action step swapped under its recorded name
+  ok   caught: #406 verilator-shards recorded env binding rebound
+  ok   caught: #406 verilator-shards gated step `if` dropped
+  ok   caught: #406 verilator-shards action step `with` rewritten
+  ok   caught: #406 verilator-shards recorded `id` changed
+  ok   caught: #406 physical-gptp inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 physical-gptp inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 physical-gptp inserted third-party action breaks the sequence
+  ok   caught: #406 physical-gptp inserted step of benign content breaks the sequence
+  ok   caught: #406 physical-gptp recorded step removed
+  ok   caught: #406 physical-gptp step appended after the recorded list
+  ok   caught: #406 physical-gptp step gains a `shell`
+  ok   caught: #406 physical-gptp recorded steps swapped
+  ok   caught: #406 physical-gptp recorded step renamed
+  ok   caught: #406 physical-gptp action step swapped under its recorded name
+  ok   caught: #406 physical-gptp recorded env binding rebound
+  ok   caught: #406 physical-gptp gated step `if` dropped
+  ok   caught: #406 physical-gptp action step `with` rewritten
+  ok   caught: #406 physical-gptp recorded `id` changed
+  ok   caught: #406 verilator-suites inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-suites inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-suites inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-suites inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-suites recorded step removed
+  ok   caught: #406 verilator-suites step appended after the recorded list
+  ok   caught: #406 verilator-suites step gains a `shell`
+  ok   caught: #406 verilator-suites recorded steps swapped
+  ok   caught: #406 verilator-suites recorded step renamed
+  ok   caught: #406 verilator-suites action step swapped under its recorded name
+  ok   caught: #406 verilator-suites recorded env binding rebound
+  ok   caught: #406 verilator-suites gated step `if` dropped
+  ok   caught: #406 verilator-suites action step `with` rewritten
+  ok   caught: #406 verilator-suites recorded `id` changed
+  ok   caught: #406 verilator-suites recorded `continue-on-error` changed
+  ok   caught: #406 yosys-shards inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-shards inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-shards inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-shards inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-shards recorded step removed
+  ok   caught: #406 yosys-shards step appended after the recorded list
+  ok   caught: #406 yosys-shards step gains a `shell`
+  ok   caught: #406 yosys-shards recorded steps swapped
+  ok   caught: #406 yosys-shards recorded step renamed
+  ok   caught: #406 yosys-shards action step swapped under its recorded name
+  ok   caught: #406 yosys-shards recorded env binding rebound
+  ok   caught: #406 yosys-shards gated step `if` dropped
+  ok   caught: #406 yosys-shards action step `with` rewritten
+  ok   caught: #406 yosys-shards recorded `id` changed
+  ok   caught: #406 yosys-portability inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-portability inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-portability inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-portability inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-portability recorded step removed
+  ok   caught: #406 yosys-portability step appended after the recorded list
+  ok   caught: #406 yosys-portability step gains a `shell`
+  ok   caught: #406 yosys-portability recorded steps swapped
+  ok   caught: #406 yosys-portability recorded step renamed
+  ok   caught: #406 yosys-portability action step swapped under its recorded name
+  ok   caught: #406 yosys-portability recorded env binding rebound
+  ok   caught: #406 yosys-portability gated step `if` dropped
+  ok   caught: #406 yosys-portability action step `with` rewritten
+  ok   caught: #406 yosys-portability recorded `id` changed
+  ok   caught: #406 yosys-portability recorded `continue-on-error` changed
+  ok   caught: #406 changes inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 changes inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 changes inserted third-party action breaks the sequence
+  ok   caught: #406 changes inserted step of benign content breaks the sequence
+  ok   caught: #406 changes recorded step removed
+  ok   caught: #406 changes step appended after the recorded list
+  ok   caught: #406 changes step gains a `shell`
+  ok   caught: #406 changes recorded steps swapped
+  ok   caught: #406 changes recorded step renamed
+  ok   caught: #406 changes recorded env binding rebound
+  ok   caught: #406 changes ungated step given if: false
+  ok   caught: #406 changes action step `with` rewritten
+  ok   caught: #406 changes recorded `id` changed
+  ok   caught: #406 verilator-lint inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 verilator-lint inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 verilator-lint inserted third-party action breaks the sequence
+  ok   caught: #406 verilator-lint inserted step of benign content breaks the sequence
+  ok   caught: #406 verilator-lint recorded step removed
+  ok   caught: #406 verilator-lint step appended after the recorded list
+  ok   caught: #406 verilator-lint step gains a `shell`
+  ok   caught: #406 verilator-lint recorded steps swapped
+  ok   caught: #406 verilator-lint recorded step renamed
+  ok   caught: #406 verilator-lint action step swapped under its recorded name
+  ok   caught: #406 verilator-lint step given an env binding
+  ok   caught: #406 verilator-lint gated step `if` dropped
+  ok   caught: #406 verilator-lint action step `with` rewritten
+  ok   caught: #406 verilator-lint recorded `id` changed
+  ok   caught: #406 bdd-conformance inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 bdd-conformance inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 bdd-conformance inserted third-party action breaks the sequence
+  ok   caught: #406 bdd-conformance inserted step of benign content breaks the sequence
+  ok   caught: #406 bdd-conformance recorded step removed
+  ok   caught: #406 bdd-conformance step appended after the recorded list
+  ok   caught: #406 bdd-conformance step gains a `shell`
+  ok   caught: #406 bdd-conformance recorded steps swapped
+  ok   caught: #406 bdd-conformance recorded step renamed
+  ok   caught: #406 bdd-conformance step given an env binding
+  ok   caught: #406 bdd-conformance ungated step given if: false
+  ok   caught: #406 bdd-conformance action step given a `with`
+  ok   caught: #406 bdd-conformance recorded `working-directory` changed
+  ok   caught: #406 yosys-elaboration inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted third-party action breaks the sequence
+  ok   caught: #406 yosys-elaboration inserted step of benign content breaks the sequence
+  ok   caught: #406 yosys-elaboration recorded step removed
+  ok   caught: #406 yosys-elaboration step appended after the recorded list
+  ok   caught: #406 yosys-elaboration step gains a `shell`
+  ok   caught: #406 yosys-elaboration recorded steps swapped
+  ok   caught: #406 yosys-elaboration recorded step renamed
+  ok   caught: #406 yosys-elaboration action step swapped under its recorded name
+  ok   caught: #406 yosys-elaboration step given an env binding
+  ok   caught: #406 yosys-elaboration gated step `if` dropped
+  ok   caught: #406 yosys-elaboration action step `with` rewritten
+  ok   caught: #406 yosys-elaboration recorded `id` changed
+  ok   caught: #406 rtl-fast inserted BASH_ENV writer breaks the sequence
+  ok   caught: #406 rtl-fast inserted GITHUB_PATH prepend breaks the sequence
+  ok   caught: #406 rtl-fast inserted third-party action breaks the sequence
+  ok   caught: #406 rtl-fast inserted step of benign content breaks the sequence
+  ok   caught: #406 rtl-fast recorded step removed
+  ok   caught: #406 rtl-fast step appended after the recorded list
+  ok   caught: #406 rtl-fast step gains a `shell`
+  ok   caught: #406 rtl-fast recorded step renamed
+  ok   caught: #406 rtl-fast recorded env binding rebound
+  ok   caught: #406 rtl-fast ungated step given if: false
+  ok   caught: #406 rtl-fast run step given a `with`
+  ok   caught: #406 job appended to rtl.yml is recorded by no step list
+  ok   caught: #406 job appended to rtl-fast.yml is recorded by no step list
+  ok   caught: #406 step-pinned job respelt in its file
+  ok   caught: #406 step-pinned job also publishes the verdict's required name
+  ok   caught: #350 result cache restore step removed
+  ok   caught: #350 result cache path moved
+  ok   caught: #350 save key without the head SHA
+  ok   caught: #350 restore prefix wider than this worker's lineage
+  ok   caught: #350 restore step after the run step
+  ok   caught: #350 run step without --cache
+  ok   caught: #350 run step adds a second seed directory
+  ok   caught: #350 policy page silent on the result cache
+  ok   caught: physical job removed
+  ok   caught: physical job changed if ${{ false }}
+  ok   caught: physical job changed if ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+  ok   caught: physical job changed needs []
+  ok   caught: physical job changed timeout-minutes 180
+  ok   caught: physical job changed runs-on self-hosted
+  ok   caught: physical job changed continue-on-error True
+  ok   caught: physical step 0 changed with
+  ok   caught: physical step 1 changed run
+  ok   caught: physical step 2 changed run
+  ok   caught: physical step 4 changed run
+  ok   caught: physical step 5 changed run
+  ok   caught: physical step 6 changed run
+  ok   caught: physical step 7 changed if
+  ok   caught: physical step 7 changed run
+  ok   caught: physical step 7 changed env
+  ok   caught: physical step 8 changed with
+  ok   caught: physical version check loses pipefail
+  ok   caught: physical selection leaked into default shards
+  ok   caught: physical runs cancelled by pushes
+  ok   vacuity: a stub that finds nothing fails all 833 arms
+  ok   cannot-run: missing rtl.yml
+  ok   cannot-run: unparseable rtl.yml
+  ok   cannot-run: scalar rtl.yml
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yml) carries docs-check
+  ok   cannot-run: unparseable extra workflow file (decoy.yml)
+  ok   caught: #261 a fifth workflow file ON DISK (decoy.yaml) carries docs-check
+  ok   cannot-run: unparseable extra workflow file (decoy.yaml)
+  ok   caught: #295 duplicate `wire-accountability:` mapping ON DISK in .github/workflows/docs.yml (last one wins)
+  ok   caught: #295 duplicate `elaborate:` mapping ON DISK in .github/workflows/elaborate.yml (last one wins)
+  ok   records: four matching records with --expect 4 pass
+  ok   records: three of four shard directories are refused
+  ok   records: a surplus shard directory is refused
+  ok   records: a missing --expect cannot run
+  ok   records: a missing record is refused and named
+  ok   records: a record for another tree is refused
+  ok   records: a malformed record is refused
+  ok   records: gate/run disagreement is refused
+  ok   records: an empty source SHA is refused
+  ok   records: no shard directory at all is refused, not skipped
+  ok   records: the empty placeholder directory is refused
+  ok   records: a dropped checkout source is refused
+  ok   records: a dropped gate source is refused
+  ok   records: a lone gate source is refused
+  ok   records: no source at all is refused
+  ok   records: an unknown source label is refused
+  ok   #406 pin plant: a job whose recorded list is dropped
+  ok   #406 pin plant: a recorded list truncated to its first two steps
+  ok   #406 pin plant: an entry with its recorded `env` dropped
+  ok   #406 pin plant: a list recorded for a job the file does not declare
+  ok   #406 pin plant: an appended job with its list recorded
+  ok   carrier-script-407 docs-check step 2 missing record
+  ok   carrier-script-407 docs-check step 4 missing record
+  ok   carrier-script-407 docs-check step 5 missing record
+  ok   carrier-script-407 docs-check step 6 missing record
+  ok   carrier-script-407 docs-check step 7 missing record
+  ok   carrier-script-407 docs-check step 8 missing record
+  ok   carrier-script-407 docs-check step 9 missing record
+  ok   carrier-script-407 docs-check step 10 missing record
+  ok   carrier-script-407 docs-check step 11 missing record
+  ok   carrier-script-407 docs-check step 12 missing record
+  ok   carrier-script-407 docs-check step 13 missing record
+  ok   carrier-script-407 docs-check step 14 missing record
+  ok   carrier-script-407 docs-check step 15 missing record
+  ok   carrier-script-407 docs-check step 16 missing record
+  ok   carrier-script-407 docs-check step 17 missing record
+  ok   carrier-script-407 docs-check step 18 missing record
+  ok   carrier-script-407 docs-check step 19 missing record
+  ok   carrier-script-407 docs-check step 20 missing record
+  ok   carrier-script-407 docs-check step 21 missing record
+  ok   carrier-script-407 docs-check step 22 missing record
+  ok   carrier-script-407 docs-check step 23 missing record
+  ok   carrier-script-407 docs-check step 24 missing record
+  ok   carrier-script-407 docs-check step 25 missing record
+  ok   carrier-script-407 docs-check step 26 missing record
+  ok   carrier-script-407 docs-check step 27 missing record
+  ok   carrier-script-407 docs-check step 28 missing record
+  ok   carrier-script-407 docs-check step 29 missing record
+  ok   carrier-script-407 docs-check step 30 missing record
+  ok   carrier-script-407 docs-check step 31 missing record
+  ok   carrier-script-407 docs-check step 32 missing record
+  ok   carrier-script-407 docs-check step 33 missing record
+  ok   carrier-script-407 docs-check step 34 missing record
+  ok   carrier-script-407 docs-check step 35 missing record
+  ok   carrier-script-407 docs-check step 36 missing record
+  ok   carrier-script-407 docs-check step 37 missing record
+  ok   carrier-script-407 docs-check step 38 missing record
+  ok   carrier-script-407 docs-check step 39 missing record
+  ok   carrier-script-407 docs-check step 40 missing record
+  ok   carrier-script-407 docs-check step 41 missing record
+  ok   carrier-script-407 docs-check step 42 missing record
+  ok   carrier-script-407 docs-check step 43 missing record
+  ok   carrier-script-407 wire-accountability step 2 missing record
+  ok   carrier-script-407 wire-accountability step 3 missing record
+  ok   carrier-script-407 docs-check-no-git step 2 missing record
+  ok   carrier-script-407 elaborate step 2 missing record
+  ok   carrier-script-407 elaborate step 3 missing record
+  ok   carrier-script-407 elaborate step 4 missing record
+  ok   carrier-script-407 elaborate step 7 missing record
+  ok   carrier-script-407 elaborate step 10 missing record
+  ok   carrier-script-407 elaborate step 11 missing record
+  ok   carrier-script-407 elaborate step 12 missing record
+  ok   carrier-script-407 elaborate step 13 missing record
+  ok   carrier-script-407 elaborate step 15 missing record
+  ok   carrier-script-407 elaborate step 16 missing record
+  ok   carrier-script-407 elaborate step 17 missing record
+  ok   carrier-script-407 elaborate step 18 missing record
+  ok   carrier-script-407 script and record updated together
+  ok   canonical pins are whitespace-invariant (assert step, decision step, ownership step, the aggregates' tally and worker-result steps, fast scope step, fast verdict step, verifier step, the four documentation gate steps and the elaborate scope step; carrier-script-407 every carrier body)
+  ok   default-branch: schedule on dev passes
+  ok   default-branch: dispatch on dev passes
+  ok   default-branch: schedule on main refuses, naming main
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+  FAIL mutation not caught: [carrier-script-407 docs-check step 2 no-op] expected a finding naming "job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 2 or-true] expected a finding naming 'job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 4 must be \'python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 2 drop-command] expected a finding naming 'job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 4 must be \'python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 2 drop-flag] expected a finding naming "job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 3 must be 'python3 scripts/gen_hdl_reference.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 4 no-op] expected a finding naming "job `docs-check` step 4 (`Install the python gate dependencies`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 4 or-true] expected a finding naming "job `docs-check` step 4 (`Install the python gate dependencies`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 5 no-op] expected a finding naming "job `docs-check` step 5 (`Install diagram gate dependencies`) script is not the canonical form: line 1 must be 'sudo apt-get update -qq'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 5 or-true] expected a finding naming "job `docs-check` step 5 (`Install diagram gate dependencies`) script is not the canonical form: line 3 must be 'python3 -m pip install --quiet wavedrom==2.0.3.post3'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 5 drop-command] expected a finding naming "job `docs-check` step 5 (`Install diagram gate dependencies`) script is not the canonical form: line 3 must be 'python3 -m pip install --quiet wavedrom==2.0.3.post3'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 6 no-op] expected a finding naming "job `docs-check` step 6 (`Link health, wording, dead-reference and local-info gate`) script is not the canonical form: line 1 must be 'python3 scripts/docs_check.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 6 or-true] expected a finding naming "job `docs-check` step 6 (`Link health, wording, dead-reference and local-info gate`) script is not the canonical form: line 1 must be 'python3 scripts/docs_check.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 7 no-op] expected a finding naming "job `docs-check` step 7 (`Added-line em-dash gate`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got [".github/workflows/docs.yml: job `docs-check` step `Added-line em-dash gate` script is not the canonical form: line 1 must be 'set -euo pipefail' (found 'true'); 17 line(s) expected, 1 found; the base this step judges from and the exit status it returns are the whole gate: `--base HEAD` judges no line and a `|| true` reports none"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 7 or-true] expected a finding naming 'job `docs-check` step 7 (`Added-line em-dash gate`) script is not the canonical form: line 17 must be \'python3 scripts/check_em_dash.py --base "$base"\'', got ['.github/workflows/docs.yml: job `docs-check` step `Added-line em-dash gate` script is not the canonical form: line 17 must be \'python3 scripts/check_em_dash.py --base "$base"\' (found \'python3 scripts/check_em_dash.py --base "$base" || true\'); 17 line(s) expected, 17 found; the base this step judges from and the exit status it returns are the whole gate: `--base HEAD` judges no line and a `|| true` reports none']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 7 drop-command] expected a finding naming 'job `docs-check` step 7 (`Added-line em-dash gate`) script is not the canonical form: line 17 must be \'python3 scripts/check_em_dash.py --base "$base"\'', got ['.github/workflows/docs.yml: job `docs-check` step `Added-line em-dash gate` script is not the canonical form: line 17 must be \'python3 scripts/check_em_dash.py --base "$base"\' (found None); 17 line(s) expected, 16 found; the base this step judges from and the exit status it returns are the whole gate: `--base HEAD` judges no line and a `|| true` reports none']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 8 no-op] expected a finding naming "job `docs-check` step 8 (`Concise audience documentation gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_doc_style.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 8 or-true] expected a finding naming "job `docs-check` step 8 (`Concise audience documentation gate`) script is not the canonical form: line 4 must be 'python3 scripts/check_gptp_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 8 drop-command] expected a finding naming "job `docs-check` step 8 (`Concise audience documentation gate`) script is not the canonical form: line 4 must be 'python3 scripts/check_gptp_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 8 drop-flag] expected a finding naming "job `docs-check` step 8 (`Concise audience documentation gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_doc_style.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 9 no-op] expected a finding naming "job `docs-check` step 9 (`Audience diagram no-drift gate`) script is not the canonical form: line 1 must be 'python3 docs/DOC_MAP.gen.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 9 or-true] expected a finding naming "job `docs-check` step 9 (`Audience diagram no-drift gate`) script is not the canonical form: line 4 must be 'python3 docs/diagrams/timesync_chain.gen.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 9 drop-command] expected a finding naming "job `docs-check` step 9 (`Audience diagram no-drift gate`) script is not the canonical form: line 4 must be 'python3 docs/diagrams/timesync_chain.gen.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 9 drop-flag] expected a finding naming "job `docs-check` step 9 (`Audience diagram no-drift gate`) script is not the canonical form: line 1 must be 'python3 docs/DOC_MAP.gen.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 10 no-op] expected a finding naming "job `docs-check` step 10 (`Product solution source-fact gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_solution_docs.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 10 or-true] expected a finding naming "job `docs-check` step 10 (`Product solution source-fact gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_solution_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 10 drop-command] expected a finding naming "job `docs-check` step 10 (`Product solution source-fact gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_solution_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 10 drop-flag] expected a finding naming "job `docs-check` step 10 (`Product solution source-fact gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_solution_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 11 no-op] expected a finding naming "job `docs-check` step 11 (`Verified submodule documentation gate`) script is not the canonical form: line 1 must be 'python3 docs/diagrams/submodule_boundaries.gen.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 11 or-true] expected a finding naming "job `docs-check` step 11 (`Verified submodule documentation gate`) script is not the canonical form: line 4 must be 'python3 scripts/check_submodule_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 11 drop-command] expected a finding naming "job `docs-check` step 11 (`Verified submodule documentation gate`) script is not the canonical form: line 4 must be 'python3 scripts/check_submodule_docs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 11 drop-flag] expected a finding naming "job `docs-check` step 11 (`Verified submodule documentation gate`) script is not the canonical form: line 1 must be 'python3 docs/diagrams/submodule_boundaries.gen.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 12 no-op] expected a finding naming "job `docs-check` step 12 (`HDL timing diagram no-drift gate`) script is not the canonical form: line 1 must be 'python3 scripts/gen_wavedrom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 12 or-true] expected a finding naming "job `docs-check` step 12 (`HDL timing diagram no-drift gate`) script is not the canonical form: line 4 must be 'python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 12 drop-command] expected a finding naming "job `docs-check` step 12 (`HDL timing diagram no-drift gate`) script is not the canonical form: line 4 must be 'python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 12 drop-flag] expected a finding naming "job `docs-check` step 12 (`HDL timing diagram no-drift gate`) script is not the canonical form: line 1 must be 'python3 scripts/gen_wavedrom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 13 no-op] expected a finding naming "job `docs-check` step 13 (`Published diagram PNG gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_diagram_pngs.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 13 or-true] expected a finding naming "job `docs-check` step 13 (`Published diagram PNG gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_diagram_pngs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 13 drop-command] expected a finding naming "job `docs-check` step 13 (`Published diagram PNG gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_diagram_pngs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 13 drop-flag] expected a finding naming "job `docs-check` step 13 (`Published diagram PNG gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_diagram_pngs.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 14 no-op] expected a finding naming "job `docs-check` step 14 (`Milan feature-status consistency gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_feature_status.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 14 or-true] expected a finding naming "job `docs-check` step 14 (`Milan feature-status consistency gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_feature_status.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 14 drop-flag] expected a finding naming "job `docs-check` step 14 (`Milan feature-status consistency gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_feature_status.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 15 no-op] expected a finding naming "job `docs-check` step 15 (`Traceability matrix no-drift gate`) script is not the canonical form: line 1 must be 'python3 docs/traceability/gen_module_matrix.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 15 or-true] expected a finding naming "job `docs-check` step 15 (`Traceability matrix no-drift gate`) script is not the canonical form: line 1 must be 'python3 docs/traceability/gen_module_matrix.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 15 drop-flag] expected a finding naming "job `docs-check` step 15 (`Traceability matrix no-drift gate`) script is not the canonical form: line 1 must be 'python3 docs/traceability/gen_module_matrix.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 16 no-op] expected a finding naming "job `docs-check` step 16 (`Fetch the builder source dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor'", got ['.github/workflows/docs.yml: job `docs-check` must carry exactly one builder submodule checkout (found 0)']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 16 or-true] expected a finding naming "job `docs-check` step 16 (`Fetch the builder source dependencies`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor'", got [".github/workflows/docs.yml: job `docs-check` builder checkout must be exactly `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor` (found ['git submodule update --init third_party/verilog-axis protocol-processor gptp-processor || true'])"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 17 no-op] expected a finding naming "job `docs-check` step 17 (`Imported gPTP documentation gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_gptp_docs.py --with-submodule'", got [".github/workflows/docs.yml: job `docs-check` step `Imported gPTP documentation gate` script is not the canonical form: line 1 must be 'python3 scripts/check_gptp_docs.py --with-submodule' (found 'true'); 2 line(s) expected, 1 found; this named step is the published proof for both the parent gPTP documentation contract and the pinned donor documentation build"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 17 or-true] expected a finding naming "job `docs-check` step 17 (`Imported gPTP documentation gate`) script is not the canonical form: line 2 must be 'make -C gptp-processor docs'", got [".github/workflows/docs.yml: job `docs-check` step `Imported gPTP documentation gate` script is not the canonical form: line 2 must be 'make -C gptp-processor docs' (found 'make -C gptp-processor docs || true'); 2 line(s) expected, 2 found; this named step is the published proof for both the parent gPTP documentation contract and the pinned donor documentation build"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 17 drop-command] expected a finding naming "job `docs-check` step 17 (`Imported gPTP documentation gate`) script is not the canonical form: line 2 must be 'make -C gptp-processor docs'", got [".github/workflows/docs.yml: job `docs-check` step `Imported gPTP documentation gate` script is not the canonical form: line 2 must be 'make -C gptp-processor docs' (found None); 2 line(s) expected, 1 found; this named step is the published proof for both the parent gPTP documentation contract and the pinned donor documentation build"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 18 no-op] expected a finding naming "job `docs-check` step 18 (`Code-quality measurement self-tests`) script is not the canonical form: line 1 must be 'python3 scripts/measure_control_flow.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 18 or-true] expected a finding naming "job `docs-check` step 18 (`Code-quality measurement self-tests`) script is not the canonical form: line 2 must be 'python3 scripts/measure_cohesion.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 18 drop-command] expected a finding naming "job `docs-check` step 18 (`Code-quality measurement self-tests`) script is not the canonical form: line 2 must be 'python3 scripts/measure_cohesion.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 18 drop-flag] expected a finding naming "job `docs-check` step 18 (`Code-quality measurement self-tests`) script is not the canonical form: line 1 must be 'python3 scripts/measure_control_flow.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 19 no-op] expected a finding naming "job `docs-check` step 19 (`Install the pinned sv2v release`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got ['.github/workflows/docs.yml: job `docs-check` must install the pinned sv2v front end exactly once (found 0): dp_srcs.py refuses without a front end, so the builder gate is red on a bare runner, and a second install could shadow the pin']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 19 or-true] expected a finding naming "job `docs-check` step 19 (`Install the pinned sv2v release`) script is not the canonical form: line 9 must be 'sv2v --version'", got ['.github/workflows/docs.yml: job `docs-check` sv2v install must be exactly the pinned v0.0.12 release script (found [\'set -euo pipefail\', \'ver=v0.0.12\', \'sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\', \'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"\', \'curl -fsSL "$url" -o /tmp/sv2v.zip\', \'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -\', \'unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\', \'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v\', \'sv2v --version || true\']): an unpinned front end is a silent toolchain drift under the portability evidence']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 19 drop-command] expected a finding naming "job `docs-check` step 19 (`Install the pinned sv2v release`) script is not the canonical form: line 9 must be 'sv2v --version'", got ['.github/workflows/docs.yml: job `docs-check` sv2v install must be exactly the pinned v0.0.12 release script (found [\'set -euo pipefail\', \'ver=v0.0.12\', \'sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\', \'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"\', \'curl -fsSL "$url" -o /tmp/sv2v.zip\', \'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -\', \'unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\', \'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v\']): an unpinned front end is a silent toolchain drift under the portability evidence']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 20 no-op] expected a finding naming "job `docs-check` step 20 (`Bare-metal scope gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_baremetal_only.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 20 or-true] expected a finding naming "job `docs-check` step 20 (`Bare-metal scope gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_baremetal_only.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 20 drop-command] expected a finding naming "job `docs-check` step 20 (`Bare-metal scope gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_baremetal_only.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 20 drop-flag] expected a finding naming "job `docs-check` step 20 (`Bare-metal scope gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_baremetal_only.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 21 no-op] expected a finding naming "job `docs-check` step 21 (`End-station builder gates`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml'", got ['.github/workflows/docs.yml: job `docs-check` must call `sw/builder/test_builder.py` exactly once (found 0)']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 21 or-true] expected a finding naming "job `docs-check` step 21 (`End-station builder gates`) script is not the canonical form: line 2 must be 'python3 sw/builder/test_builder.py'", got [".github/workflows/docs.yml: job `docs-check` builder call must be exactly ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_builder.py'] (found ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_builder.py || true'])"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 21 drop-command] expected a finding naming "job `docs-check` step 21 (`End-station builder gates`) script is not the canonical form: line 2 must be 'python3 sw/builder/test_builder.py'", got ['.github/workflows/docs.yml: job `docs-check` must call `sw/builder/test_builder.py` exactly once (found 0)']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 22 no-op] expected a finding naming "job `docs-check` step 22 (`NVM record-space gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_record_space.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 22 or-true] expected a finding naming "job `docs-check` step 22 (`NVM record-space gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_nvm_record_space.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 22 drop-command] expected a finding naming "job `docs-check` step 22 (`NVM record-space gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_nvm_record_space.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 22 drop-flag] expected a finding naming "job `docs-check` step 22 (`NVM record-space gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_nvm_record_space.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 23 no-op] expected a finding naming "job `docs-check` step 23 (`Saved-state writer gate`) script is not the canonical form: line 1 must be 'python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 23 or-true] expected a finding naming "job `docs-check` step 23 (`Saved-state writer gate`) script is not the canonical form: line 1 must be 'python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 23 drop-flag] expected a finding naming "job `docs-check` step 23 (`Saved-state writer gate`) script is not the canonical form: line 1 must be 'python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 24 no-op] expected a finding naming "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 1 must be 'python3 scripts/check_soc_sources.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 24 or-true] expected a finding naming "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 7 must be 'python3 sw/litex/iob_pack_selftest.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 24 drop-command] expected a finding naming "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 7 must be 'python3 sw/litex/iob_pack_selftest.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 24 drop-flag] expected a finding naming "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 2 must be 'python3 scripts/check_soc_sources.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 25 no-op] expected a finding naming "job `docs-check` step 25 (`RTL source-list drift gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_rtl_source_lists.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 25 or-true] expected a finding naming "job `docs-check` step 25 (`RTL source-list drift gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_rtl_source_lists.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 25 drop-command] expected a finding naming "job `docs-check` step 25 (`RTL source-list drift gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_rtl_source_lists.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 25 drop-flag] expected a finding naming "job `docs-check` step 25 (`RTL source-list drift gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_rtl_source_lists.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 26 no-op] expected a finding naming "job `docs-check` step 26 (`Boundary-unit naming ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_naming.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 26 or-true] expected a finding naming "job `docs-check` step 26 (`Boundary-unit naming ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_naming.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 26 drop-command] expected a finding naming "job `docs-check` step 26 (`Boundary-unit naming ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_naming.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 26 drop-flag] expected a finding naming "job `docs-check` step 26 (`Boundary-unit naming ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_naming.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 27 no-op] expected a finding naming "job `docs-check` step 27 (`Port contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_port_contracts.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 27 or-true] expected a finding naming "job `docs-check` step 27 (`Port contract gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_port_contracts.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 27 drop-command] expected a finding naming "job `docs-check` step 27 (`Port contract gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_port_contracts.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 27 drop-flag] expected a finding naming "job `docs-check` step 27 (`Port contract gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_port_contracts.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 28 no-op] expected a finding naming "job `docs-check` step 28 (`Fail-fast ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_fail_fast.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 28 or-true] expected a finding naming "job `docs-check` step 28 (`Fail-fast ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_fail_fast.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 28 drop-command] expected a finding naming "job `docs-check` step 28 (`Fail-fast ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_fail_fast.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 28 drop-flag] expected a finding naming "job `docs-check` step 28 (`Fail-fast ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_fail_fast.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 29 no-op] expected a finding naming "job `docs-check` step 29 (`TODO ownership gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_todo_ownership.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 29 or-true] expected a finding naming "job `docs-check` step 29 (`TODO ownership gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_todo_ownership.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 29 drop-command] expected a finding naming "job `docs-check` step 29 (`TODO ownership gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_todo_ownership.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 29 drop-flag] expected a finding naming "job `docs-check` step 29 (`TODO ownership gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_todo_ownership.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 30 no-op] expected a finding naming "job `docs-check` step 30 (`Test-evidence ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_test_evidence.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 30 or-true] expected a finding naming "job `docs-check` step 30 (`Test-evidence ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_test_evidence.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 30 drop-command] expected a finding naming "job `docs-check` step 30 (`Test-evidence ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/measure_test_evidence.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 30 drop-flag] expected a finding naming "job `docs-check` step 30 (`Test-evidence ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/measure_test_evidence.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 31 no-op] expected a finding naming "job `docs-check` step 31 (`Mechanical hygiene ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/check_hygiene.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 31 or-true] expected a finding naming "job `docs-check` step 31 (`Mechanical hygiene ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/check_hygiene.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 31 drop-command] expected a finding naming "job `docs-check` step 31 (`Mechanical hygiene ratchet`) script is not the canonical form: line 2 must be 'python3 scripts/check_hygiene.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 31 drop-flag] expected a finding naming "job `docs-check` step 31 (`Mechanical hygiene ratchet`) script is not the canonical form: line 1 must be 'python3 scripts/check_hygiene.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 32 no-op] expected a finding naming "job `docs-check` step 32 (`SystemVerilog idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sv_idiom.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 32 or-true] expected a finding naming "job `docs-check` step 32 (`SystemVerilog idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sv_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 32 drop-command] expected a finding naming "job `docs-check` step 32 (`SystemVerilog idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sv_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 32 drop-flag] expected a finding naming "job `docs-check` step 32 (`SystemVerilog idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sv_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 33 no-op] expected a finding naming "job `docs-check` step 33 (`C and C++ idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_cpp_idiom.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 33 or-true] expected a finding naming "job `docs-check` step 33 (`C and C++ idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_cpp_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 33 drop-command] expected a finding naming "job `docs-check` step 33 (`C and C++ idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_cpp_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 33 drop-flag] expected a finding naming "job `docs-check` step 33 (`C and C++ idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_cpp_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 34 no-op] expected a finding naming "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 34 or-true] expected a finding naming "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_py_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 34 drop-command] expected a finding naming "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_py_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 34 drop-flag] expected a finding naming "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_py_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 35 no-op] expected a finding naming "job `docs-check` step 35 (`Shell idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sh_idiom.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 35 or-true] expected a finding naming "job `docs-check` step 35 (`Shell idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sh_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 35 drop-command] expected a finding naming "job `docs-check` step 35 (`Shell idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sh_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 35 drop-flag] expected a finding naming "job `docs-check` step 35 (`Shell idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_sh_idiom.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 36 no-op] expected a finding naming "job `docs-check` step 36 (`CI event and SHA contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/ci_events.py --check'", got ['.github/workflows/docs.yml: must run `python3 scripts/ci_events.py --check` (this gate is not a gate unless a workflow runs it)', '.github/workflows/docs.yml: must run `python3 scripts/ci_events.py --selftest` (this gate is not a gate unless a workflow runs it)', '.github/workflows/docs.yml: job `docs-check` must run `python3 scripts/ci_events.py --check` in exactly one step (found 0): this job IS the required context `docs-check`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 36 or-true] expected a finding naming "job `docs-check` step 36 (`CI event and SHA contract gate`) script is not the canonical form: line 2 must be 'python3 scripts/ci_events.py --selftest'", got [".github/workflows/docs.yml: job `docs-check`'s gate step script is not the canonical form: line 2 must be 'python3 scripts/ci_events.py --selftest' (found 'python3 scripts/ci_events.py --selftest || true'); 2 line(s) expected, 2 found; a `|| true` beside either call swallows the finding this file exists to raise while the required context stays green"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 36 drop-command] expected a finding naming "job `docs-check` step 36 (`CI event and SHA contract gate`) script is not the canonical form: line 2 must be 'python3 scripts/ci_events.py --selftest'", got ['.github/workflows/docs.yml: must run `python3 scripts/ci_events.py --selftest` (this gate is not a gate unless a workflow runs it)', ".github/workflows/docs.yml: job `docs-check`'s gate step script is not the canonical form: line 2 must be 'python3 scripts/ci_events.py --selftest' (found None); 2 line(s) expected, 1 found; a `|| true` beside either call swallows the finding this file exists to raise while the required context stays green"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 36 drop-flag] expected a finding naming "job `docs-check` step 36 (`CI event and SHA contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/ci_events.py --check'", got ['.github/workflows/docs.yml: must run `python3 scripts/ci_events.py --check` (this gate is not a gate unless a workflow runs it)', '.github/workflows/docs.yml: job `docs-check` must run `python3 scripts/ci_events.py --check` in exactly one step (found 0): this job IS the required context `docs-check`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 docs-check step 37 no-op] expected a finding naming "job `docs-check` step 37 (`Local act runner contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/act_ci.py --selftest'", got [".github/workflows/docs.yml: job `docs-check` must run `python3 scripts/act_ci.py --selftest` exactly once (found 0): the runner's refusal and cleanup controls are not a hosted gate unless the required docs context executes their negative controls"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 37 or-true] expected a finding naming "job `docs-check` step 37 (`Local act runner contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/act_ci.py --selftest'", got [".github/workflows/docs.yml: job `docs-check` must run `python3 scripts/act_ci.py --selftest` exactly once (found 0): the runner's refusal and cleanup controls are not a hosted gate unless the required docs context executes their negative controls"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 37 drop-flag] expected a finding naming "job `docs-check` step 37 (`Local act runner contract gate`) script is not the canonical form: line 1 must be 'python3 scripts/act_ci.py --selftest'", got [".github/workflows/docs.yml: job `docs-check` must run `python3 scripts/act_ci.py --selftest` exactly once (found 0): the runner's refusal and cleanup controls are not a hosted gate unless the required docs context executes their negative controls"]
+  FAIL mutation not caught: [carrier-script-407 docs-check step 38 no-op] expected a finding naming "job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_doc_paths.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 38 or-true] expected a finding naming "job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_doc_paths.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 39 no-op] expected a finding naming "job `docs-check` step 39 (`Archive integrity gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_archive.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 39 or-true] expected a finding naming "job `docs-check` step 39 (`Archive integrity gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_archive.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 39 drop-command] expected a finding naming "job `docs-check` step 39 (`Archive integrity gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_archive.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 39 drop-flag] expected a finding naming "job `docs-check` step 39 (`Archive integrity gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_archive.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 40 no-op] expected a finding naming "job `docs-check` step 40 (`Per-page contents gate`) script is not the canonical form: line 1 must be 'python3 scripts/gen_toc.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 40 or-true] expected a finding naming "job `docs-check` step 40 (`Per-page contents gate`) script is not the canonical form: line 3 must be 'python3 scripts/gen_toc.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 40 drop-command] expected a finding naming "job `docs-check` step 40 (`Per-page contents gate`) script is not the canonical form: line 3 must be 'python3 scripts/gen_toc.py --check'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 40 drop-flag] expected a finding naming "job `docs-check` step 40 (`Per-page contents gate`) script is not the canonical form: line 1 must be 'python3 scripts/gen_toc.py --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 41 no-op] expected a finding naming "job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 41 or-true] expected a finding naming "job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 41 drop-flag] expected a finding naming "job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 42 no-op] expected a finding naming "job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 42 or-true] expected a finding naming "job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 42 drop-flag] expected a finding naming "job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 43 no-op] expected a finding naming "job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 43 or-true] expected a finding naming "job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 docs-check step 43 drop-flag] expected a finding naming "job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test'", got no findings
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 2 no-op] expected a finding naming "job `wire-accountability` step 2 (`Fetch the engine authority the builder derives from`) script is not the canonical form: line 1 must be 'git submodule update --init gptp-processor'", got no findings
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 2 or-true] expected a finding naming "job `wire-accountability` step 2 (`Fetch the engine authority the builder derives from`) script is not the canonical form: line 1 must be 'git submodule update --init gptp-processor'", got no findings
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 3 no-op] expected a finding naming "job `wire-accountability` step 3 (`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml'", got ['.github/workflows/docs.yml: job `wire-accountability` must run `python3 scripts/check_wire_accountability.py --self-test` in exactly one step (found 0): this job IS the required context `wire-accountability`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 3 or-true] expected a finding naming "job `wire-accountability` step 3 (`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) script is not the canonical form: line 2 must be 'python3 scripts/check_wire_accountability.py --self-test'", got [".github/workflows/docs.yml: job `wire-accountability`'s gate step script is not the canonical form: line 2 must be 'python3 scripts/check_wire_accountability.py --self-test' (found 'python3 scripts/check_wire_accountability.py --self-test || true'); 2 line(s) expected, 2 found; this step is the whole item-00 record, so a line beside the call can swallow its exit status"]
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 3 drop-command] expected a finding naming "job `wire-accountability` step 3 (`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) script is not the canonical form: line 2 must be 'python3 scripts/check_wire_accountability.py --self-test'", got ['.github/workflows/docs.yml: job `wire-accountability` must run `python3 scripts/check_wire_accountability.py --self-test` in exactly one step (found 0): this job IS the required context `wire-accountability`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 wire-accountability step 3 drop-flag] expected a finding naming "job `wire-accountability` step 3 (`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) script is not the canonical form: line 2 must be 'python3 scripts/check_wire_accountability.py --self-test'", got ['.github/workflows/docs.yml: job `wire-accountability` must run `python3 scripts/check_wire_accountability.py --self-test` in exactly one step (found 0): this job IS the required context `wire-accountability`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 docs-check-no-git step 2 no-op] expected a finding naming "job `docs-check-no-git` step 2 (`Strip git metadata, then run the docs gate`) script is not the canonical form: line 1 must be 'rm -rf .git'", got ['.github/workflows/docs.yml: job `docs-check-no-git` must run `python3 scripts/docs_check.py` in exactly one step (found 0): this job IS the required context `docs-check-no-git`, so a job body replaced wholesale, an appended duplicate mapping (the last one wins when the file is parsed), or a removed gate step is the context green with its gate never run']
+  FAIL mutation not caught: [carrier-script-407 docs-check-no-git step 2 or-true] expected a finding naming "job `docs-check-no-git` step 2 (`Strip git metadata, then run the docs gate`) script is not the canonical form: line 3 must be 'python3 scripts/check_feature_status.py'", got [".github/workflows/docs.yml: job `docs-check-no-git`'s gate step script is not the canonical form: line 3 must be 'python3 scripts/check_feature_status.py' (found 'python3 scripts/check_feature_status.py || true'); 3 line(s) expected, 3 found; this step is the whole no-git proof, and with `rm -rf .git` gone it proves a different claim"]
+  FAIL mutation not caught: [carrier-script-407 docs-check-no-git step 2 drop-command] expected a finding naming "job `docs-check-no-git` step 2 (`Strip git metadata, then run the docs gate`) script is not the canonical form: line 3 must be 'python3 scripts/check_feature_status.py'", got [".github/workflows/docs.yml: job `docs-check-no-git`'s gate step script is not the canonical form: line 3 must be 'python3 scripts/check_feature_status.py' (found None); 3 line(s) expected, 2 found; this step is the whole no-git proof, and with `rm -rf .git` gone it proves a different claim"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 2 no-op] expected a finding naming "job `elaborate` step 2 (`Decide whether this head needs an elaboration`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got [".github/workflows/elaborate.yml: the elaborate scope step must run `python3 scripts/ci_scope.py --selftest` exactly once and before it reads the selector's answer (self-test at [], reads at []): a selector trusted without its own proof decides whether this workflow elaborates anything", ".github/workflows/elaborate.yml: the elaborate scope step script is not the canonical form: line 1 must be 'set -euo pipefail' (found 'true'); 20 line(s) expected, 1 found; this script publishes `rtl`, so a line changed here skips every elaboration gate with every pinned key still in place"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 2 or-true] expected a finding naming 'job `elaborate` step 2 (`Decide whether this head needs an elaboration`) script is not the canonical form: line 20 must be \'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"\'', got ['.github/workflows/elaborate.yml: the elaborate scope step script is not the canonical form: line 20 must be \'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"\' (found \'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT" || true\'); 20 line(s) expected, 20 found; this script publishes `rtl`, so a line changed here skips every elaboration gate with every pinned key still in place']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 2 drop-command] expected a finding naming 'job `elaborate` step 2 (`Decide whether this head needs an elaboration`) script is not the canonical form: line 20 must be \'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"\'', got [".github/workflows/elaborate.yml: the elaborate scope step must run `python3 scripts/ci_scope.py --selftest` exactly once and before it reads the selector's answer (self-test at [9], reads at []): a selector trusted without its own proof decides whether this workflow elaborates anything", '.github/workflows/elaborate.yml: the elaborate scope step script is not the canonical form: line 20 must be \'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"\' (found None); 20 line(s) expected, 19 found; this script publishes `rtl`, so a line changed here skips every elaboration gate with every pinned key still in place']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 2 drop-flag] expected a finding naming "job `elaborate` step 2 (`Decide whether this head needs an elaboration`) script is not the canonical form: line 10 must be 'python3 scripts/ci_scope.py --selftest'", got [".github/workflows/elaborate.yml: the elaborate scope step must run `python3 scripts/ci_scope.py --selftest` exactly once and before it reads the selector's answer (self-test at [], reads at [19]): a selector trusted without its own proof decides whether this workflow elaborates anything", ".github/workflows/elaborate.yml: the elaborate scope step script is not the canonical form: line 10 must be 'python3 scripts/ci_scope.py --selftest' (found 'python3 scripts/ci_scope.py'); 20 line(s) expected, 20 found; this script publishes `rtl`, so a line changed here skips every elaboration gate with every pinned key still in place"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 3 no-op] expected a finding naming "job `elaborate` step 3 (`Fetch the source dependencies the elaboration reads`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor'", got ['.github/workflows/elaborate.yml: job `elaborate` must carry exactly one builder submodule checkout (found 0)']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 3 or-true] expected a finding naming "job `elaborate` step 3 (`Fetch the source dependencies the elaboration reads`) script is not the canonical form: line 1 must be 'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor'", got [".github/workflows/elaborate.yml: job `elaborate` builder checkout must be exactly `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor` (found ['git submodule update --init third_party/verilog-axis protocol-processor gptp-processor || true'])"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 4 no-op] expected a finding naming "job `elaborate` step 4 (`Install the pinned sv2v release`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got ['.github/workflows/elaborate.yml: job `elaborate` must install the pinned sv2v front end exactly once (found 0): dp_srcs.py refuses without a front end, so the builder gate is red on a bare runner, and a second install could shadow the pin']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 4 or-true] expected a finding naming "job `elaborate` step 4 (`Install the pinned sv2v release`) script is not the canonical form: line 9 must be 'sv2v --version'", got ['.github/workflows/elaborate.yml: job `elaborate` sv2v install must be exactly the pinned v0.0.12 release script (found [\'set -euo pipefail\', \'ver=v0.0.12\', \'sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\', \'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"\', \'curl -fsSL "$url" -o /tmp/sv2v.zip\', \'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -\', \'unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\', \'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v\', \'sv2v --version || true\']): an unpinned front end is a silent toolchain drift under the portability evidence']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 4 drop-command] expected a finding naming "job `elaborate` step 4 (`Install the pinned sv2v release`) script is not the canonical form: line 9 must be 'sv2v --version'", got ['.github/workflows/elaborate.yml: job `elaborate` sv2v install must be exactly the pinned v0.0.12 release script (found [\'set -euo pipefail\', \'ver=v0.0.12\', \'sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\', \'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"\', \'curl -fsSL "$url" -o /tmp/sv2v.zip\', \'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -\', \'unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\', \'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v\']): an unpinned front end is a silent toolchain drift under the portability evidence']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 7 no-op] expected a finding naming "job `elaborate` step 7 (`Install LiteX at the pinned revisions`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 7 or-true] expected a finding naming "job `elaborate` step 7 (`Install LiteX at the pinned revisions`) script is not the canonical form: line 2 must be 'python3 -m pip install --quiet -r sw/litex/litex_pins.txt'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 7 drop-command] expected a finding naming "job `elaborate` step 7 (`Install LiteX at the pinned revisions`) script is not the canonical form: line 2 must be 'python3 -m pip install --quiet -r sw/litex/litex_pins.txt'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 10 no-op] expected a finding naming "job `elaborate` step 10 (`Install sbt`) script is not the canonical form: line 1 must be 'sbt --version >/dev/null 2>&1 && exit 0'", got [".github/workflows/elaborate.yml: recorded writer `Install sbt` in job `elaborate` script is not the canonical form: line 1 must be 'sbt --version >/dev/null 2>&1 && exit 0' (found 'true'); 4 line(s) expected, 1 found; the name is not the binding, the script is"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 10 or-true] expected a finding naming 'job `elaborate` step 10 (`Install sbt`) script is not the canonical form: line 4 must be \'echo /opt/sbt/bin >> "$GITHUB_PATH"\'', got ['.github/workflows/elaborate.yml: recorded writer `Install sbt` in job `elaborate` script is not the canonical form: line 4 must be \'echo /opt/sbt/bin >> "$GITHUB_PATH"\' (found \'echo /opt/sbt/bin >> "$GITHUB_PATH" || true\'); 4 line(s) expected, 4 found; the name is not the binding, the script is']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 10 drop-command] expected a finding naming 'job `elaborate` step 10 (`Install sbt`) script is not the canonical form: line 4 must be \'echo /opt/sbt/bin >> "$GITHUB_PATH"\'', got ['.github/workflows/elaborate.yml: recorded writer `Install sbt` in job `elaborate` script is not the canonical form: line 4 must be \'echo /opt/sbt/bin >> "$GITHUB_PATH"\' (found None); 4 line(s) expected, 3 found; the name is not the binding, the script is']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 11 no-op] expected a finding naming "job `elaborate` step 11 (`Place the VexiiRiscv source at the revision LiteX pins`) script is not the canonical form: line 1 must be 'python3 scripts/ci_litex_env.py'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 11 or-true] expected a finding naming 'job `elaborate` step 11 (`Place the VexiiRiscv source at the revision LiteX pins`) script is not the canonical form: line 3 must be \'cp -n ~/vexii-netlist-args/*.py "$(python3 -c \\\'import pythondata_cpu_vexiiriscv as p; print(p.data_location)\\\')/" 2>/dev/null || true\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 11 drop-command] expected a finding naming 'job `elaborate` step 11 (`Place the VexiiRiscv source at the revision LiteX pins`) script is not the canonical form: line 3 must be \'cp -n ~/vexii-netlist-args/*.py "$(python3 -c \\\'import pythondata_cpu_vexiiriscv as p; print(p.data_location)\\\')/" 2>/dev/null || true\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 12 no-op] expected a finding naming "job `elaborate` step 12 (`Apply the toolchain patch series`) script is not the canonical form: line 1 must be 'sw/litex/patches/apply.sh'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 12 or-true] expected a finding naming "job `elaborate` step 12 (`Apply the toolchain patch series`) script is not the canonical form: line 1 must be 'sw/litex/patches/apply.sh'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 13 no-op] expected a finding naming "job `elaborate` step 13 (`Elaboration gates`) script is not the canonical form: line 1 must be 'python3 sw/builder/test_builder.py --require-elaboration'", got ['.github/workflows/elaborate.yml: job `elaborate` must call `sw/builder/test_builder.py` exactly once (found 0)']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 13 or-true] expected a finding naming "job `elaborate` step 13 (`Elaboration gates`) script is not the canonical form: line 1 must be 'python3 sw/builder/test_builder.py --require-elaboration'", got [".github/workflows/elaborate.yml: job `elaborate` builder call must be exactly ['python3 sw/builder/test_builder.py --require-elaboration'] (found ['python3 sw/builder/test_builder.py --require-elaboration || true'])"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 15 no-op] expected a finding naming "job `elaborate` step 15 (`Build Verilator from source on cache miss`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 15 or-true] expected a finding naming "job `elaborate` step 15 (`Build Verilator from source on cache miss`) script is not the canonical form: line 9 must be 'sudo make install'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 15 drop-command] expected a finding naming "job `elaborate` step 15 (`Build Verilator from source on cache miss`) script is not the canonical form: line 9 must be 'sudo make install'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 16 no-op] expected a finding naming "job `elaborate` step 16 (`Put Verilator on PATH and prove the version`) script is not the canonical form: line 1 must be 'set -euo pipefail'", got [".github/workflows/elaborate.yml: recorded writer `Put Verilator on PATH and prove the version` in job `elaborate` script is not the canonical form: line 1 must be 'set -euo pipefail' (found 'true'); 4 line(s) expected, 1 found; the name is not the binding, the script is"]
+  FAIL mutation not caught: [carrier-script-407 elaborate step 16 or-true] expected a finding naming 'job `elaborate` step 16 (`Put Verilator on PATH and prove the version`) script is not the canonical form: line 4 must be \'/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"\'', got ['.github/workflows/elaborate.yml: recorded writer `Put Verilator on PATH and prove the version` in job `elaborate` script is not the canonical form: line 4 must be \'/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"\' (found \'/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}" || true\'); 4 line(s) expected, 4 found; the name is not the binding, the script is']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 16 drop-command] expected a finding naming 'job `elaborate` step 16 (`Put Verilator on PATH and prove the version`) script is not the canonical form: line 4 must be \'/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"\'', got ['.github/workflows/elaborate.yml: recorded writer `Put Verilator on PATH and prove the version` in job `elaborate` script is not the canonical form: line 4 must be \'/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"\' (found None); 4 line(s) expected, 3 found; the name is not the binding, the script is']
+  FAIL mutation not caught: [carrier-script-407 elaborate step 17 no-op] expected a finding naming "job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 1 must be 'scripts/run_litex_sims.sh --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 17 or-true] expected a finding naming 'job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 2 must be \'scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 17 drop-command] expected a finding naming 'job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 2 must be \'scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 17 drop-flag] expected a finding naming "job `elaborate` step 17 (`Standalone LiteX simulation aggregate`) script is not the canonical form: line 1 must be 'scripts/run_litex_sims.sh --selftest'", got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 18 no-op] expected a finding naming 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) script is not the canonical form: line 1 must be \'cp -n "$(python3 -c \\\'import pythondata_cpu_vexiiriscv as p; print(p.data_location)\\\')"/*.py ~/vexii-netlist-args/ 2>/dev/null || true\'', got no findings
+  FAIL mutation not caught: [carrier-script-407 elaborate step 18 or-true] expected a finding naming 'job `elaborate` step 18 (`Keep the generated CPU netlist arguments for the next run`) script is not the canonical form: line 1 must be \'cp -n "$(python3 -c \\\'import pythondata_cpu_vexiiriscv as p; print(p.data_location)\\\')"/*.py ~/vexii-netlist-args/ 2>/dev/null || true\'', got no findings
+selftest: 187 FAILURE(S)

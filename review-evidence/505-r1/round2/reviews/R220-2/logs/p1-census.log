@@ -1,0 +1,70 @@
+{
+ "bodies": 56,
+ "per_job": {
+  "docs-check": 41,
+  "wire-accountability": 2,
+  "docs-check-no-git": 1,
+  "elaborate": 12
+ },
+ "total_normalized_lines": 173,
+ "non_last_lines": 117,
+ "multi_command_bodies": 40,
+ "all_records_equal": true,
+ "problems": []
+}
+docs-check           step  2 lines  4 check-lines [] Build the validated HDL reference
+docs-check           step  4 lines  1 check-lines [] Install the python gate dependencies
+docs-check           step  5 lines  3 check-lines [] Install diagram gate dependencies
+docs-check           step  6 lines  1 check-lines [] Link health, wording, dead-reference and local-info gate
+docs-check           step  7 lines 17 check-lines [] Added-line em-dash gate
+docs-check           step  8 lines  4 check-lines [] Concise audience documentation gate
+docs-check           step  9 lines  4 check-lines [1, 3] Audience diagram no-drift gate
+docs-check           step 10 lines  2 check-lines [] Product solution source-fact gate
+docs-check           step 11 lines  4 check-lines [1] Verified submodule documentation gate
+docs-check           step 12 lines  4 check-lines [2, 3, 4] HDL timing diagram no-drift gate
+docs-check           step 13 lines  2 check-lines [] Published diagram PNG gate
+docs-check           step 14 lines  1 check-lines [] Milan feature-status consistency gate
+docs-check           step 15 lines  1 check-lines [1] Traceability matrix no-drift gate
+docs-check           step 16 lines  1 check-lines [] Fetch the builder source dependencies
+docs-check           step 17 lines  2 check-lines [] Imported gPTP documentation gate
+docs-check           step 18 lines  2 check-lines [] Code-quality measurement self-tests
+docs-check           step 19 lines  9 check-lines [] Install the pinned sv2v release
+docs-check           step 20 lines  2 check-lines [1] Bare-metal scope gate
+docs-check           step 21 lines  2 check-lines [] End-station builder gates
+docs-check           step 22 lines  2 check-lines [] NVM record-space gate
+docs-check           step 23 lines  1 check-lines [] Saved-state writer gate
+docs-check           step 24 lines  7 check-lines [] SoC source-list gate (Vivado would fail 40 min in without this)
+docs-check           step 25 lines  2 check-lines [] RTL source-list drift gate
+docs-check           step 26 lines  2 check-lines [1] Boundary-unit naming ratchet
+docs-check           step 27 lines  2 check-lines [] Port contract gate
+docs-check           step 28 lines  2 check-lines [1] Fail-fast ratchet
+docs-check           step 29 lines  2 check-lines [] TODO ownership gate
+docs-check           step 30 lines  2 check-lines [1] Test-evidence ratchet
+docs-check           step 31 lines  2 check-lines [1] Mechanical hygiene ratchet
+docs-check           step 32 lines  2 check-lines [] SystemVerilog idiom gate
+docs-check           step 33 lines  2 check-lines [] C and C++ idiom gate
+docs-check           step 34 lines  2 check-lines [] Python idiom gate
+docs-check           step 35 lines  2 check-lines [] Shell idiom gate
+docs-check           step 36 lines  2 check-lines [1] CI event and SHA contract gate
+docs-check           step 37 lines  1 check-lines [] Local act runner contract gate
+docs-check           step 38 lines  1 check-lines [] Doc cited-path gate
+docs-check           step 39 lines  2 check-lines [] Archive integrity gate
+docs-check           step 40 lines  3 check-lines [3] Per-page contents gate
+docs-check           step 41 lines  1 check-lines [] Sweep/build shape gate
+docs-check           step 42 lines  1 check-lines [] Deploy shape gate
+docs-check           step 43 lines  1 check-lines [] Entity shape gate
+wire-accountability  step  2 lines  1 check-lines [] Fetch the engine authority the builder derives from
+wire-accountability  step  3 lines  2 check-lines [] Advertised-vs-emitted gate (green since 2026-07-28, item 00)
+docs-check-no-git    step  2 lines  3 check-lines [] Strip git metadata, then run the docs gate
+elaborate            step  2 lines 20 check-lines [] Decide whether this head needs an elaboration
+elaborate            step  3 lines  1 check-lines [] Fetch the source dependencies the elaboration reads
+elaborate            step  4 lines  9 check-lines [] Install the pinned sv2v release
+elaborate            step  7 lines  2 check-lines [] Install LiteX at the pinned revisions
+elaborate            step 10 lines  4 check-lines [] Install sbt
+elaborate            step 11 lines  3 check-lines [] Place the VexiiRiscv source at the revision LiteX pins
+elaborate            step 12 lines  1 check-lines [] Apply the toolchain patch series
+elaborate            step 13 lines  1 check-lines [] Elaboration gates
+elaborate            step 15 lines  9 check-lines [] Build Verilator from source on cache miss
+elaborate            step 16 lines  4 check-lines [] Put Verilator on PATH and prove the version
+elaborate            step 17 lines  2 check-lines [] Standalone LiteX simulation aggregate
+elaborate            step 18 lines  1 check-lines [] Keep the generated CPU netlist arguments for the next run

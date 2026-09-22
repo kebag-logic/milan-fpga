@@ -1,0 +1,26 @@
+== head
+  full-ci-gate   step 2 (Print the event and pin the one SHA this run validates): lines=8 accepted=['or-true-line-1', 'or-true-line-2', 'or-true-line-3', 'or-true-line-4', 'or-true-line-5', 'or-true-line-6', 'or-true-line-7', 'or-true-line-8']
+  full-ci-gate   step 3 (Assert the repository default branch is dev): lines=3 accepted=none
+  full-ci-gate   step 4 (Hold every workflow file to its contract): lines=2 accepted=none
+  full-ci-gate   step 5 (Decide whether this exact head needs the exhaustive gates): lines=26 accepted=none
+  physical-gptp  step 2 (Fetch RTL dependencies): lines=3 accepted=none
+  physical-gptp  step 3 (Record the tree this worker validates): lines=9 accepted=none
+  physical-gptp  step 5 (Build Verilator from source on cache miss): lines=9 accepted=none
+  physical-gptp  step 6 (Put Verilator on PATH and prove the version): lines=4 accepted=none
+  physical-gptp  step 7 (Prove physical suite selection): lines=4 accepted=none
+  physical-gptp  step 8 (Run the physical gPTP suite with its own deadline): lines=5 accepted=none
+  changes        step 2 (Classify the change conservatively): lines=19 accepted=none
+  rtl-fast       step 1 (Require every applicable fast gate to pass): lines=12 accepted=none
+== base
+  full-ci-gate   step 2 (Print the event and pin the one SHA this run validates): lines=8 accepted=['or-true-line-1', 'or-true-line-2', 'or-true-line-3', 'or-true-line-4', 'or-true-line-5', 'or-true-line-6', 'or-true-line-7', 'or-true-line-8']
+  full-ci-gate   step 3 (Assert the repository default branch is dev): lines=3 accepted=none
+  full-ci-gate   step 4 (Hold every workflow file to its contract): lines=2 accepted=none
+  full-ci-gate   step 5 (Decide whether this exact head needs the exhaustive gates): lines=26 accepted=none
+  physical-gptp  step 2 (Fetch RTL dependencies): lines=3 accepted=none
+  physical-gptp  step 3 (Record the tree this worker validates): lines=9 accepted=none
+  physical-gptp  step 5 (Build Verilator from source on cache miss): lines=9 accepted=none
+  physical-gptp  step 6 (Put Verilator on PATH and prove the version): lines=4 accepted=none
+  physical-gptp  step 7 (Prove physical suite selection): lines=4 accepted=none
+  physical-gptp  step 8 (Run the physical gPTP suite with its own deadline): lines=5 accepted=none
+  changes        step 2 (Classify the change conservatively): lines=19 accepted=none
+  rtl-fast       step 1 (Require every applicable fast gate to pass): lines=12 accepted=none

@@ -1,0 +1,888 @@
+{
+ "summary": {
+  "bodies": 56,
+  "per_job": {
+   "docs-check": 41,
+   "wire-accountability": 2,
+   "docs-check-no-git": 1,
+   "elaborate": 12
+  },
+  "total_normalized_lines": 173,
+  "non_last_lines": 117,
+  "multi_command_bodies": 40,
+  "all_records_equal": true,
+  "problems": []
+ },
+ "census": [
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 2,
+   "name": "Build the validated HDL reference",
+   "lines": [
+    "set -euo pipefail",
+    "python3 -m pip install --quiet --require-hashes -r tools/hdl_reference/requirements.txt",
+    "python3 scripts/gen_hdl_reference.py --selftest",
+    "python3 scripts/gen_hdl_reference.py --output \"$RUNNER_TEMP/milan-hdl-reference\""
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 4,
+   "name": "Install the python gate dependencies",
+   "lines": [
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 5,
+   "name": "Install diagram gate dependencies",
+   "lines": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends librsvg2-bin",
+    "python3 -m pip install --quiet wavedrom==2.0.3.post3"
+   ],
+   "n_lines": 3,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 6,
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "lines": [
+    "python3 scripts/docs_check.py"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 7,
+   "name": "Added-line em-dash gate",
+   "lines": [
+    "set -euo pipefail",
+    "case \"$EVENT_NAME\" in",
+    "pull_request)",
+    "if [ -z \"$PR_BASE_REF\" ]; then",
+    "echo \"the pull_request event names no base branch\"; exit 2",
+    "fi",
+    "git fetch --quiet origin \"$PR_BASE_REF\"",
+    "base=\"$(git merge-base HEAD FETCH_HEAD || true)\"",
+    ";;",
+    "push) base=\"$PUSH_BEFORE_SHA\" ;;",
+    "*) echo \"a $EVENT_NAME event carries no base to judge from\"; exit 2 ;;",
+    "esac",
+    "if [ -z \"$base\" ] || [ \"$base\" = 0000000000000000000000000000000000000000 ]; then",
+    "echo \"the $EVENT_NAME event names no base commit\"; exit 2",
+    "fi",
+    "git cat-file -e \"$base^{commit}\" 2>/dev/null || git fetch --quiet --depth=1 origin \"$base\"",
+    "python3 scripts/check_em_dash.py --base \"$base\""
+   ],
+   "n_lines": 17,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 8,
+   "name": "Concise audience documentation gate",
+   "lines": [
+    "python3 scripts/check_doc_style.py",
+    "python3 scripts/check_doc_style.py --selftest",
+    "python3 scripts/check_gptp_docs.py",
+    "python3 scripts/check_gptp_docs.py --selftest"
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 9,
+   "name": "Audience diagram no-drift gate",
+   "lines": [
+    "python3 docs/DOC_MAP.gen.py --check",
+    "python3 docs/DOC_MAP.gen.py --selftest",
+    "python3 docs/diagrams/timesync_chain.gen.py --check",
+    "python3 docs/diagrams/timesync_chain.gen.py --selftest"
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1,
+    3
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 10,
+   "name": "Product solution source-fact gate",
+   "lines": [
+    "python3 scripts/check_solution_docs.py",
+    "python3 scripts/check_solution_docs.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 11,
+   "name": "Verified submodule documentation gate",
+   "lines": [
+    "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+    "python3 docs/diagrams/submodule_boundaries.gen.py --selftest",
+    "python3 scripts/check_submodule_docs.py",
+    "python3 scripts/check_submodule_docs.py --selftest"
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 12,
+   "name": "HDL timing diagram no-drift gate",
+   "lines": [
+    "python3 scripts/gen_wavedrom.py --selftest",
+    "python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check",
+    "python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check",
+    "python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check"
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 13,
+   "name": "Published diagram PNG gate",
+   "lines": [
+    "python3 scripts/check_diagram_pngs.py",
+    "python3 scripts/check_diagram_pngs.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 14,
+   "name": "Milan feature-status consistency gate",
+   "lines": [
+    "python3 scripts/check_feature_status.py --self-test"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 15,
+   "name": "Traceability matrix no-drift gate",
+   "lines": [
+    "python3 docs/traceability/gen_module_matrix.py --check"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 16,
+   "name": "Fetch the builder source dependencies",
+   "lines": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 17,
+   "name": "Imported gPTP documentation gate",
+   "lines": [
+    "python3 scripts/check_gptp_docs.py --with-submodule",
+    "make -C gptp-processor docs"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 18,
+   "name": "Code-quality measurement self-tests",
+   "lines": [
+    "python3 scripts/measure_control_flow.py --selftest",
+    "python3 scripts/measure_cohesion.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 19,
+   "name": "Install the pinned sv2v release",
+   "lines": [
+    "set -euo pipefail",
+    "ver=v0.0.12",
+    "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+    "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+    "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+    "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+    "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+    "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+    "sv2v --version"
+   ],
+   "n_lines": 9,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 20,
+   "name": "Bare-metal scope gate",
+   "lines": [
+    "python3 scripts/check_baremetal_only.py --check",
+    "python3 scripts/check_baremetal_only.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 21,
+   "name": "End-station builder gates",
+   "lines": [
+    "python3 -m pip install --quiet pyyaml",
+    "python3 sw/builder/test_builder.py"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 22,
+   "name": "NVM record-space gate",
+   "lines": [
+    "python3 scripts/check_nvm_record_space.py",
+    "python3 scripts/check_nvm_record_space.py --self-test"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 23,
+   "name": "Saved-state writer gate",
+   "lines": [
+    "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 24,
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "lines": [
+    "python3 scripts/check_soc_sources.py",
+    "python3 scripts/check_soc_sources.py --selftest",
+    "command -v tclsh >/dev/null || {",
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends tcl",
+    "}",
+    "python3 sw/litex/iob_pack_selftest.py"
+   ],
+   "n_lines": 7,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 25,
+   "name": "RTL source-list drift gate",
+   "lines": [
+    "python3 scripts/check_rtl_source_lists.py",
+    "python3 scripts/check_rtl_source_lists.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 26,
+   "name": "Boundary-unit naming ratchet",
+   "lines": [
+    "python3 scripts/measure_naming.py --check",
+    "python3 scripts/measure_naming.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 27,
+   "name": "Port contract gate",
+   "lines": [
+    "python3 scripts/check_port_contracts.py",
+    "python3 scripts/check_port_contracts.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 28,
+   "name": "Fail-fast ratchet",
+   "lines": [
+    "python3 scripts/measure_fail_fast.py --check",
+    "python3 scripts/measure_fail_fast.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 29,
+   "name": "TODO ownership gate",
+   "lines": [
+    "python3 scripts/check_todo_ownership.py",
+    "python3 scripts/check_todo_ownership.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 30,
+   "name": "Test-evidence ratchet",
+   "lines": [
+    "python3 scripts/measure_test_evidence.py --check",
+    "python3 scripts/measure_test_evidence.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 31,
+   "name": "Mechanical hygiene ratchet",
+   "lines": [
+    "python3 scripts/check_hygiene.py --check",
+    "python3 scripts/check_hygiene.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 32,
+   "name": "SystemVerilog idiom gate",
+   "lines": [
+    "python3 scripts/check_sv_idiom.py",
+    "python3 scripts/check_sv_idiom.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 33,
+   "name": "C and C++ idiom gate",
+   "lines": [
+    "python3 scripts/check_cpp_idiom.py",
+    "python3 scripts/check_cpp_idiom.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 34,
+   "name": "Python idiom gate",
+   "lines": [
+    "python3 scripts/check_py_idiom.py",
+    "python3 scripts/check_py_idiom.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 35,
+   "name": "Shell idiom gate",
+   "lines": [
+    "python3 scripts/check_sh_idiom.py",
+    "python3 scripts/check_sh_idiom.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 36,
+   "name": "CI event and SHA contract gate",
+   "lines": [
+    "python3 scripts/ci_events.py --check",
+    "python3 scripts/ci_events.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    1
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 37,
+   "name": "Local act runner contract gate",
+   "lines": [
+    "python3 scripts/act_ci.py --selftest"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 38,
+   "name": "Doc cited-path gate",
+   "lines": [
+    "python3 scripts/check_doc_paths.py"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 39,
+   "name": "Archive integrity gate",
+   "lines": [
+    "python3 scripts/check_archive.py",
+    "python3 scripts/check_archive.py --selftest"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 40,
+   "name": "Per-page contents gate",
+   "lines": [
+    "python3 scripts/gen_toc.py --selftest",
+    "python3 scripts/gen_toc.py --verify-anchors",
+    "python3 scripts/gen_toc.py --check"
+   ],
+   "n_lines": 3,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": [
+    3
+   ]
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 41,
+   "name": "Sweep/build shape gate",
+   "lines": [
+    "python3 scripts/check_sweep_shape.py --self-test"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 42,
+   "name": "Deploy shape gate",
+   "lines": [
+    "python3 scripts/check_deploy_shape.py --self-test"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check",
+   "step": 43,
+   "name": "Entity shape gate",
+   "lines": [
+    "python3 scripts/check_entity_shape.py --self-test"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "wire-accountability",
+   "step": 2,
+   "name": "Fetch the engine authority the builder derives from",
+   "lines": [
+    "git submodule update --init gptp-processor"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "wire-accountability",
+   "step": 3,
+   "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+   "lines": [
+    "python3 -m pip install --quiet pyyaml",
+    "python3 scripts/check_wire_accountability.py --self-test"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/docs.yml",
+   "job": "docs-check-no-git",
+   "step": 2,
+   "name": "Strip git metadata, then run the docs gate",
+   "lines": [
+    "rm -rf .git",
+    "python3 scripts/docs_check.py",
+    "python3 scripts/check_feature_status.py"
+   ],
+   "n_lines": 3,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 2,
+   "name": "Decide whether this head needs an elaboration",
+   "lines": [
+    "set -euo pipefail",
+    "# ci_scope.py arrives with PR #176. Until that lands this file may",
+    "# not exist, and the safe answer to \"is this change RTL relevant\"",
+    "# when the classifier is absent is yes.",
+    "if [ ! -f scripts/ci_scope.py ]; then",
+    "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\"",
+    "echo \"no scripts/ci_scope.py yet: elaborating unconditionally\"",
+    "exit 0",
+    "fi",
+    "python3 scripts/ci_scope.py --selftest",
+    "if [ \"$EVENT_NAME\" != pull_request ]; then",
+    "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\"",
+    "exit 0",
+    "fi",
+    "if [ -n \"$PR_BASE_SHA\" ] && git cat-file -e \"$PR_BASE_SHA^{commit}\" 2>/dev/null; then",
+    "git diff --no-renames --name-only \"$PR_BASE_SHA\" \"$GITHUB_SHA\" > \"$RUNNER_TEMP/changed\"",
+    "else",
+    "git ls-files > \"$RUNNER_TEMP/changed\"",
+    "fi",
+    "echo \"rtl=$(python3 scripts/ci_scope.py < \"$RUNNER_TEMP/changed\")\" >> \"$GITHUB_OUTPUT\""
+   ],
+   "n_lines": 20,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 3,
+   "name": "Fetch the source dependencies the elaboration reads",
+   "lines": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 4,
+   "name": "Install the pinned sv2v release",
+   "lines": [
+    "set -euo pipefail",
+    "ver=v0.0.12",
+    "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+    "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+    "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+    "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+    "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+    "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+    "sv2v --version"
+   ],
+   "n_lines": 9,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 7,
+   "name": "Install LiteX at the pinned revisions",
+   "lines": [
+    "python3 -m pip install --quiet pyyaml",
+    "python3 -m pip install --quiet -r sw/litex/litex_pins.txt"
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 10,
+   "name": "Install sbt",
+   "lines": [
+    "sbt --version >/dev/null 2>&1 && exit 0",
+    "curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz",
+    "sudo tar xzf /tmp/sbt.tgz -C /opt",
+    "echo /opt/sbt/bin >> \"$GITHUB_PATH\""
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 11,
+   "name": "Place the VexiiRiscv source at the revision LiteX pins",
+   "lines": [
+    "python3 scripts/ci_litex_env.py",
+    "mkdir -p ~/vexii-netlist-args",
+    "cp -n ~/vexii-netlist-args/*.py \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/\" 2>/dev/null || true"
+   ],
+   "n_lines": 3,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 12,
+   "name": "Apply the toolchain patch series",
+   "lines": [
+    "sw/litex/patches/apply.sh"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 13,
+   "name": "Elaboration gates",
+   "lines": [
+    "python3 sw/builder/test_builder.py --require-elaboration"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 15,
+   "name": "Build Verilator from source on cache miss",
+   "lines": [
+    "set -euo pipefail",
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3",
+    "git clone --depth 1 --branch \"$VERILATOR_VERSION\" https://github.com/verilator/verilator.git /tmp/verilator-src",
+    "cd /tmp/verilator-src",
+    "autoconf",
+    "./configure --prefix=/opt/verilator",
+    "make -j\"$(nproc)\"",
+    "sudo make install"
+   ],
+   "n_lines": 9,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 16,
+   "name": "Put Verilator on PATH and prove the version",
+   "lines": [
+    "set -euo pipefail",
+    "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"",
+    "/opt/verilator/bin/verilator --version",
+    "/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\""
+   ],
+   "n_lines": 4,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 17,
+   "name": "Standalone LiteX simulation aggregate",
+   "lines": [
+    "scripts/run_litex_sims.sh --selftest",
+    "scripts/run_litex_sims.sh \"$RUNNER_TEMP/litex-sim-logs\""
+   ],
+   "n_lines": 2,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  },
+  {
+   "path": ".github/workflows/elaborate.yml",
+   "job": "elaborate",
+   "step": 18,
+   "name": "Keep the generated CPU netlist arguments for the next run",
+   "lines": [
+    "cp -n \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')\"/*.py ~/vexii-netlist-args/ 2>/dev/null || true"
+   ],
+   "n_lines": 1,
+   "record_equal": true,
+   "independent_equals_module_normalize": true,
+   "has_check_flag_lines": []
+  }
+ ]
+}

@@ -1,0 +1,192 @@
+{
+ "head": [
+  {
+   "job": "full-ci-gate",
+   "step": 2,
+   "name": "Print the event and pin the one SHA this run validates",
+   "lines": 8,
+   "accepted_with_check_green": [
+    "or-true-line-1",
+    "or-true-line-2",
+    "or-true-line-3",
+    "or-true-line-4",
+    "or-true-line-5",
+    "or-true-line-6",
+    "or-true-line-7",
+    "or-true-line-8"
+   ]
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 3,
+   "name": "Assert the repository default branch is dev",
+   "lines": 3,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 4,
+   "name": "Hold every workflow file to its contract",
+   "lines": 2,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 5,
+   "name": "Decide whether this exact head needs the exhaustive gates",
+   "lines": 26,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 2,
+   "name": "Fetch RTL dependencies",
+   "lines": 3,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 3,
+   "name": "Record the tree this worker validates",
+   "lines": 9,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 5,
+   "name": "Build Verilator from source on cache miss",
+   "lines": 9,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 6,
+   "name": "Put Verilator on PATH and prove the version",
+   "lines": 4,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 7,
+   "name": "Prove physical suite selection",
+   "lines": 4,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 8,
+   "name": "Run the physical gPTP suite with its own deadline",
+   "lines": 5,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "changes",
+   "step": 2,
+   "name": "Classify the change conservatively",
+   "lines": 19,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "rtl-fast",
+   "step": 1,
+   "name": "Require every applicable fast gate to pass",
+   "lines": 12,
+   "accepted_with_check_green": []
+  }
+ ],
+ "base": [
+  {
+   "job": "full-ci-gate",
+   "step": 2,
+   "name": "Print the event and pin the one SHA this run validates",
+   "lines": 8,
+   "accepted_with_check_green": [
+    "or-true-line-1",
+    "or-true-line-2",
+    "or-true-line-3",
+    "or-true-line-4",
+    "or-true-line-5",
+    "or-true-line-6",
+    "or-true-line-7",
+    "or-true-line-8"
+   ]
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 3,
+   "name": "Assert the repository default branch is dev",
+   "lines": 3,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 4,
+   "name": "Hold every workflow file to its contract",
+   "lines": 2,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "full-ci-gate",
+   "step": 5,
+   "name": "Decide whether this exact head needs the exhaustive gates",
+   "lines": 26,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 2,
+   "name": "Fetch RTL dependencies",
+   "lines": 3,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 3,
+   "name": "Record the tree this worker validates",
+   "lines": 9,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 5,
+   "name": "Build Verilator from source on cache miss",
+   "lines": 9,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 6,
+   "name": "Put Verilator on PATH and prove the version",
+   "lines": 4,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 7,
+   "name": "Prove physical suite selection",
+   "lines": 4,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "physical-gptp",
+   "step": 8,
+   "name": "Run the physical gPTP suite with its own deadline",
+   "lines": 5,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "changes",
+   "step": 2,
+   "name": "Classify the change conservatively",
+   "lines": 19,
+   "accepted_with_check_green": []
+  },
+  {
+   "job": "rtl-fast",
+   "step": 1,
+   "name": "Require every applicable fast gate to pass",
+   "lines": 12,
+   "accepted_with_check_green": []
+  }
+ ]
+}

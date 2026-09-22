@@ -1,0 +1,628 @@
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index bf026a1d..b90ae46b 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -862,68 +862,233 @@ EM_DASH_STEP_ENV = {
+ #: anything else on the step is a surplus key refused by name. The seven
+ #: RTL jobs' lists are RTL_STEP_LISTS (#406), and STEP_LISTS is the union
+ #: the rule reads.
++#: Each carrier run entry also records its normalized script (#407).
++#: These are reviewed constants, never read from the workflow at check time.
++#: A legitimate script edit explicitly updates this entry; mutation arms
++#: derive automatically from the live body, independently of this record.
++#: The specialized gate, setup and environment-writer checks remain independent.
+ CARRIER_STEP_LISTS = {
+     (DOCS, "docs-check"): (
+         {"uses": "actions/checkout@v4",
+          "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+-        {"name": "Build the validated HDL reference"},
++        {"name": "Build the validated HDL reference",
++         "run": (
++             'set -euo pipefail',
++             'python3 -m pip install --quiet --require-hashes -r '
++             'tools/hdl_reference/requirements.txt',
++             'python3 scripts/gen_hdl_reference.py --selftest',
++             'python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"',
++         )},
+         {"name": "Upload the HDL reference HTML",
+          "uses": "actions/upload-artifact@v4",
+          "with": {"name": "hdl-reference-html-${{ github.sha }}",
+                   "path": "${{ runner.temp }}/milan-hdl-reference/index.html",
+                   "if-no-files-found": "error",
+                   "retention-days": 14}},
+-        {"name": "Install the python gate dependencies"},
+-        {"name": "Install diagram gate dependencies"},
+-        {"name": "Link health, wording, dead-reference and local-info gate"},
+-        {"name": EM_DASH_GATE_NAME, "env": EM_DASH_STEP_ENV},
+-        {"name": "Concise audience documentation gate"},
+-        {"name": "Audience diagram no-drift gate"},
+-        {"name": "Product solution source-fact gate"},
+-        {"name": "Verified submodule documentation gate"},
+-        {"name": "HDL timing diagram no-drift gate"},
+-        {"name": "Published diagram PNG gate"},
+-        {"name": "Milan feature-status consistency gate"},
+-        {"name": "Traceability matrix no-drift gate"},
+-        {"name": "Fetch the builder source dependencies"},
+-        {"name": IMPORTED_GPTP_GATE_NAME},
+-        {"name": "Code-quality measurement self-tests"},
+-        {"name": "Install the pinned sv2v release"},
+-        {"name": "Bare-metal scope gate"},
+-        {"name": "End-station builder gates"},
+-        {"name": "NVM record-space gate"},
+-        {"name": "Saved-state writer gate"},
++        {"name": "Install the python gate dependencies",
++         "run": (
++             'python3 -m pip install --quiet pyyaml',
++         )},
++        {"name": "Install diagram gate dependencies",
++         "run": (
++             'sudo apt-get update -qq',
++             'sudo apt-get install -y --no-install-recommends librsvg2-bin',
++             'python3 -m pip install --quiet wavedrom==2.0.3.post3',
++         )},
++        {"name": "Link health, wording, dead-reference and local-info gate",
++         "run": (
++             'python3 scripts/docs_check.py',
++         )},
++        {"name": EM_DASH_GATE_NAME, "env": EM_DASH_STEP_ENV,
++         "run": CANONICAL_EM_DASH_GATE_SCRIPT},
++        {"name": "Concise audience documentation gate",
++         "run": (
++             'python3 scripts/check_doc_style.py',
++             'python3 scripts/check_doc_style.py --selftest',
++             'python3 scripts/check_gptp_docs.py',
++             'python3 scripts/check_gptp_docs.py --selftest',
++         )},
++        {"name": "Audience diagram no-drift gate",
++         "run": (
++             'python3 docs/DOC_MAP.gen.py --check',
++             'python3 docs/DOC_MAP.gen.py --selftest',
++             'python3 docs/diagrams/timesync_chain.gen.py --check',
++             'python3 docs/diagrams/timesync_chain.gen.py --selftest',
++         )},
++        {"name": "Product solution source-fact gate",
++         "run": (
++             'python3 scripts/check_solution_docs.py',
++             'python3 scripts/check_solution_docs.py --selftest',
++         )},
++        {"name": "Verified submodule documentation gate",
++         "run": (
++             'python3 docs/diagrams/submodule_boundaries.gen.py --check',
++             'python3 docs/diagrams/submodule_boundaries.gen.py --selftest',
++             'python3 scripts/check_submodule_docs.py',
++             'python3 scripts/check_submodule_docs.py --selftest',
++         )},
++        {"name": "HDL timing diagram no-drift gate",
++         "run": (
++             'python3 scripts/gen_wavedrom.py --selftest',
++             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json '
++             '--background=white --check',
++             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json '
++             '--background=white --check',
++             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white '
++             '--check',
++         )},
++        {"name": "Published diagram PNG gate",
++         "run": (
++             'python3 scripts/check_diagram_pngs.py',
++             'python3 scripts/check_diagram_pngs.py --selftest',
++         )},
++        {"name": "Milan feature-status consistency gate",
++         "run": (
++             'python3 scripts/check_feature_status.py --self-test',
++         )},
++        {"name": "Traceability matrix no-drift gate",
++         "run": (
++             'python3 docs/traceability/gen_module_matrix.py --check',
++         )},
++        {"name": "Fetch the builder source dependencies",
++         "run": (BUILDER_COMMAND,)},
++        {"name": IMPORTED_GPTP_GATE_NAME,
++         "run": CANONICAL_IMPORTED_GPTP_GATE_SCRIPT},
++        {"name": "Code-quality measurement self-tests",
++         "run": (
++             'python3 scripts/measure_control_flow.py --selftest',
++             'python3 scripts/measure_cohesion.py --selftest',
++         )},
++        {"name": "Install the pinned sv2v release",
++         "run": SV2V_INSTALL},
++        {"name": "Bare-metal scope gate",
++         "run": (
++             'python3 scripts/check_baremetal_only.py --check',
++             'python3 scripts/check_baremetal_only.py --selftest',
++         )},
++        {"name": "End-station builder gates",
++         "run": BUILDER_RUNS[DOCS]},
++        {"name": "NVM record-space gate",
++         "run": (
++             'python3 scripts/check_nvm_record_space.py',
++             'python3 scripts/check_nvm_record_space.py --self-test',
++         )},
++        {"name": "Saved-state writer gate",
++         "run": (
++             'python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test',
++         )},
+         {"name": "SoC source-list gate (Vivado would fail 40 min in "
+-                 "without this)"},
+-        {"name": "RTL source-list drift gate"},
+-        {"name": "Boundary-unit naming ratchet"},
+-        {"name": "Port contract gate"},
+-        {"name": "Fail-fast ratchet"},
+-        {"name": "TODO ownership gate"},
+-        {"name": "Test-evidence ratchet"},
+-        {"name": "Mechanical hygiene ratchet"},
+-        {"name": "SystemVerilog idiom gate"},
+-        {"name": "C and C++ idiom gate"},
+-        {"name": "Python idiom gate"},
+-        {"name": "Shell idiom gate"},
+-        {"name": "CI event and SHA contract gate"},
+-        {"name": "Local act runner contract gate"},
+-        {"name": "Doc cited-path gate"},
+-        {"name": "Archive integrity gate"},
+-        {"name": "Per-page contents gate"},
+-        {"name": "Sweep/build shape gate"},
+-        {"name": "Deploy shape gate"},
+-        {"name": "Entity shape gate"},
++                 "without this)",
++         "run": (
++             'python3 scripts/check_soc_sources.py',
++             'python3 scripts/check_soc_sources.py --selftest',
++             'command -v tclsh >/dev/null || {',
++             'sudo apt-get update -qq',
++             'sudo apt-get install -y --no-install-recommends tcl',
++             '}',
++             'python3 sw/litex/iob_pack_selftest.py',
++         )},
++        {"name": "RTL source-list drift gate",
++         "run": (
++             'python3 scripts/check_rtl_source_lists.py',
++             'python3 scripts/check_rtl_source_lists.py --selftest',
++         )},
++        {"name": "Boundary-unit naming ratchet",
++         "run": (
++             'python3 scripts/measure_naming.py --check',
++             'python3 scripts/measure_naming.py --selftest',
++         )},
++        {"name": "Port contract gate",
++         "run": (
++             'python3 scripts/check_port_contracts.py',
++             'python3 scripts/check_port_contracts.py --selftest',
++         )},
++        {"name": "Fail-fast ratchet",
++         "run": (
++             'python3 scripts/measure_fail_fast.py --check',
++             'python3 scripts/measure_fail_fast.py --selftest',
++         )},
++        {"name": "TODO ownership gate",
++         "run": (
++             'python3 scripts/check_todo_ownership.py',
++             'python3 scripts/check_todo_ownership.py --selftest',
++         )},
++        {"name": "Test-evidence ratchet",
++         "run": (
++             'python3 scripts/measure_test_evidence.py --check',
++             'python3 scripts/measure_test_evidence.py --selftest',
++         )},
++        {"name": "Mechanical hygiene ratchet",
++         "run": (
++             'python3 scripts/check_hygiene.py --check',
++             'python3 scripts/check_hygiene.py --selftest',
++         )},
++        {"name": "SystemVerilog idiom gate",
++         "run": (
++             'python3 scripts/check_sv_idiom.py',
++             'python3 scripts/check_sv_idiom.py --selftest',
++         )},
++        {"name": "C and C++ idiom gate",
++         "run": (
++             'python3 scripts/check_cpp_idiom.py',
++             'python3 scripts/check_cpp_idiom.py --selftest',
++         )},
++        {"name": "Python idiom gate",
++         "run": (
++             'python3 scripts/check_py_idiom.py',
++             'python3 scripts/check_py_idiom.py --selftest',
++         )},
++        {"name": "Shell idiom gate",
++         "run": (
++             'python3 scripts/check_sh_idiom.py',
++             'python3 scripts/check_sh_idiom.py --selftest',
++         )},
++        {"name": "CI event and SHA contract gate",
++         "run": CANONICAL_DOCS_GATE_SCRIPT},
++        {"name": "Local act runner contract gate",
++         "run": (ACT_CI_SELFTEST,)},
++        {"name": "Doc cited-path gate",
++         "run": (
++             'python3 scripts/check_doc_paths.py',
++         )},
++        {"name": "Archive integrity gate",
++         "run": (
++             'python3 scripts/check_archive.py',
++             'python3 scripts/check_archive.py --selftest',
++         )},
++        {"name": "Per-page contents gate",
++         "run": (
++             'python3 scripts/gen_toc.py --selftest',
++             'python3 scripts/gen_toc.py --verify-anchors',
++             'python3 scripts/gen_toc.py --check',
++         )},
++        {"name": "Sweep/build shape gate",
++         "run": (
++             'python3 scripts/check_sweep_shape.py --self-test',
++         )},
++        {"name": "Deploy shape gate",
++         "run": (
++             'python3 scripts/check_deploy_shape.py --self-test',
++         )},
++        {"name": "Entity shape gate",
++         "run": (
++             'python3 scripts/check_entity_shape.py --self-test',
++         )},
+     ),
+     (DOCS, "wire-accountability"): (
+         {"uses": "actions/checkout@v4"},
+-        {"name": "Fetch the engine authority the builder derives from"},
++        {"name": "Fetch the engine authority the builder derives from",
++         "run": (
++             'git submodule update --init gptp-processor',
++         )},
+         {"name": "Advertised-vs-emitted gate (green since 2026-07-28, "
+-                 "item 00)"},
++                 "item 00)",
++         "run": CANONICAL_WIRE_GATE_SCRIPT},
+     ),
+     (DOCS, "docs-check-no-git"): (
+         {"uses": "actions/checkout@v4"},
+-        {"name": "Strip git metadata, then run the docs gate"},
++        {"name": "Strip git metadata, then run the docs gate",
++         "run": CANONICAL_NO_GIT_GATE_SCRIPT},
+     ),
+     (ELABORATE, "elaborate"): (
+         {"uses": "actions/checkout@v4",
+@@ -931,10 +1096,13 @@ CARRIER_STEP_LISTS = {
+         {"name": "Decide whether this head needs an elaboration",
+          "id": ELAB_SCOPE_STEP_ID,
+          "env": {"EVENT_NAME": "${{ github.event_name }}",
+-                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"}},
++                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"},
++         "run": CANONICAL_ELAB_SCOPE_SCRIPT},
+         {"name": "Fetch the source dependencies the elaboration reads",
+-         "if": BUILDER_IF},
+-        {"name": "Install the pinned sv2v release", "if": BUILDER_IF},
++         "if": BUILDER_IF,
++         "run": (BUILDER_COMMAND,)},
++        {"name": "Install the pinned sv2v release", "if": BUILDER_IF,
++         "run": SV2V_INSTALL},
+         {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
+          "with": {"python-version": "3.12"}},
+         {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
+@@ -943,7 +1111,11 @@ CARRIER_STEP_LISTS = {
+                   "key": "elaborate-pip-${{ runner.os }}-"
+                          "${{ hashFiles('sw/litex/litex_pins.txt') }}",
+                   "restore-keys": "elaborate-pip-${{ runner.os }}-"}},
+-        {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF},
++        {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF,
++         "run": (
++             'python3 -m pip install --quiet pyyaml',
++             'python3 -m pip install --quiet -r sw/litex/litex_pins.txt',
++         )},
+         {"name": "Cache the Scala toolchain", "uses": "actions/cache@v4",
+          "if": BUILDER_IF,
+          "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n",
+@@ -956,11 +1128,22 @@ CARRIER_STEP_LISTS = {
+                          "'sw/litex/milan_soc.py', 'sw/litex/build.sh', "
+                          "'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', "
+                          "'sw/litex/patches/**') }}"}},
+-        {"name": "Install sbt", "if": BUILDER_IF},
++        {"name": "Install sbt", "if": BUILDER_IF,
++         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate", 'Install sbt')]},
+         {"name": "Place the VexiiRiscv source at the revision LiteX pins",
+-         "if": BUILDER_IF},
+-        {"name": "Apply the toolchain patch series", "if": BUILDER_IF},
+-        {"name": "Elaboration gates", "if": BUILDER_IF},
++         "if": BUILDER_IF,
++         "run": (
++             'python3 scripts/ci_litex_env.py',
++             'mkdir -p ~/vexii-netlist-args',
++             'cp -n ~/vexii-netlist-args/*.py "$(python3 -c \'import pythondata_cpu_vexiiriscv as p;'
++             ' print(p.data_location)\')/" 2>/dev/null || true',
++         )},
++        {"name": "Apply the toolchain patch series", "if": BUILDER_IF,
++         "run": (
++             'sw/litex/patches/apply.sh',
++         )},
++        {"name": "Elaboration gates", "if": BUILDER_IF,
++         "run": BUILDER_RUNS[ELABORATE]},
+         # Verilator, for the aggregate's converted-versus-source MAC
+         # comparison (#360). Same cache key and same three steps as rtl.yml,
+         # and BEFORE the aggregate: the PATH entry the third one appends is
+@@ -972,12 +1155,35 @@ CARRIER_STEP_LISTS = {
+                          "${{ runner.os }}"}},
+         {"name": "Build Verilator from source on cache miss",
+          "if": "${{ steps.scope.outputs.rtl == 'true' && "
+-               "steps.cache-verilator.outputs.cache-hit != 'true' }}"},
++               "steps.cache-verilator.outputs.cache-hit != 'true' }}",
++         "run": (
++             'set -euo pipefail',
++             'sudo apt-get update -qq',
++             'sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison '
++             'libfl2 libfl-dev help2man perl python3',
++             'git clone --depth 1 --branch "$VERILATOR_VERSION" '
++             'https://github.com/verilator/verilator.git /tmp/verilator-src',
++             'cd /tmp/verilator-src',
++             'autoconf',
++             './configure --prefix=/opt/verilator',
++             'make -j"$(nproc)"',
++             'sudo make install',
++         )},
+         {"name": "Put Verilator on PATH and prove the version",
+-         "if": BUILDER_IF},
+-        {"name": "Standalone LiteX simulation aggregate", "if": BUILDER_IF},
++         "if": BUILDER_IF,
++         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate",
++                                  "Put Verilator on PATH and prove the version")]},
++        {"name": "Standalone LiteX simulation aggregate", "if": BUILDER_IF,
++         "run": (
++             'scripts/run_litex_sims.sh --selftest',
++             'scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"',
++         )},
+         {"name": "Keep the generated CPU netlist arguments for the next run",
+-         "if": "${{ always() && steps.scope.outputs.rtl == 'true' }}"},
++         "if": "${{ always() && steps.scope.outputs.rtl == 'true' }}",
++         "run": (
++             'cp -n "$(python3 -c \'import pythondata_cpu_vexiiriscv as p; '
++             'print(p.data_location)\')"/*.py ~/vexii-netlist-args/ 2>/dev/null || true',
++         )},
+     ),
+ }
+ #: The fast workflow's selector job and the step that computes its answer,
+@@ -1774,8 +1980,8 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
+                              "`restore-keys`")
+ #: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
+ #: from #295): the two shard workers, the two exhaustive aggregates,
+-#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, held exactly
+-#: as CARRIER_STEP_LISTS holds the four non-RTL carriers -- count, order,
++#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, sharing
++#: CARRIER_STEP_LISTS' sequence and shape pins -- count, order,
+ #: identity, exact key set, env bindings, recorded `if` verbatim, recorded
+ #: `with` exactly -- and, where a step records one, its `id`, its
+ #: `continue-on-error` and its `working-directory`. The workers'
+@@ -1783,6 +1989,7 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
+ #: `with` is the one #350 pins, read from its constants rather than
+ #: restated. The cost is stated on the policy page: a legitimate step change
+ #: in any of these jobs is refused until its entry here changes with it.
++#: Unlike the carriers, these lists do not record every script (#439).
+ VERILATOR_CACHE_WITH = {
+     "path": "/opt/verilator",
+     "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+@@ -1806,9 +2013,9 @@ ALWAYS_IF = VERIFY_STEP_IF
+ #: shard pair to the matrix.
+ TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
+ SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
+-#: The seven RTL jobs #406 pins, in the shape CARRIER_STEP_LISTS records the
+-#: four carriers in. WHICH jobs owe an entry is decided by neither this table
+-#: nor any other constant in this file: check_sequence_pin_coverage reads
++#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields,
++#: without their per-body script records. WHICH jobs owe an entry is decided
++#: by neither this table nor any other constant: check_sequence_pin_coverage reads
+ #: rtl.yml and rtl-fast.yml for their job lists and holds every job either
+ #: declares against a RECORDED step list, so a job dropped from here is
+ #: refused as a job whose whole step list nothing records, and a job appended
+@@ -3364,13 +3571,34 @@ def step_found_label(step: Any) -> str:
+     return step_label(step)
+ 
+ 
++def check_carrier_script(c: Contract, path: str, what: str, step: YamlMap,
++                         entry: YamlMap) -> None:
++    """Compare one carrier body with its recorded normalized script (#407).
++
++    A missing record is a finding, never permission to stop checking a body.
++    Sequence and key checks still own identity and execution conditions.
++    """
++    canonical = entry.get("run")
++    recorded = (isinstance(canonical, tuple) and bool(canonical)
++                and all(isinstance(line, str) for line in canonical))
++    c.item(recorded, path,
++           f"{what} must record a canonical normalized `run` script")
++    if not recorded:
++        return
++    lines = normalize_script(step["run"])
++    c.item(tuple(lines) == canonical, path,
++           f"{what} script is not the canonical form: "
++           + script_difference(lines, canonical))
++
++
+ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
+                         spec: Sequence[YamlMap] | None = None) -> None:
+     """A job's whole step list, pinned the way item 4 pins the gate job's
+     (#295, closing [R4] round 6 on PR #293, for the four carriers; #406 for
+     the seven RTL jobs): count, order, each step's identity, key set, env
+     bindings, recorded `if`, recorded `with`, and the `id`,
+-    `continue-on-error` and `working-directory` a step records. The
++    `continue-on-error` and `working-directory` a step records. The four
++    non-RTL carriers also pin every normalized run body (#407). The
+     declared allowlists hold what a step says; only this holds WHICH steps
+     the job runs, so an inserted `run:` step writing `BASH_ENV=...` to
+     `$GITHUB_ENV`, one prepending `$GITHUB_PATH`, an inserted `uses:` of
+@@ -3420,6 +3648,8 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
+             continue
+         pinned_step_keys(c, path, what, at,
+                          StepShape(carrier_entry_keys(entry), entry.get("env", {})))
++        if path in (DOCS, ELABORATE) and "uses" not in entry:
++            check_carrier_script(c, path, what, at, entry)
+         if "id" in entry:
+             c.item(at.get("id") == entry["id"], path, f"{what} `id` must be "
+                    f"`{entry['id']}` (found {at.get('id')!r}): the pinned "
+@@ -3457,7 +3687,7 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
+ def check_docs(c: Contract, wf: YamlMap) -> None:
+     """Everything docs.yml owes: triggers, one carrier per public name, the
+     builder setup, both ci_events runs, the act self-test, and each
+-    carrier's gate step and pinned step list."""
++    carrier's gate step, pinned step list and scripts."""
+     check_push_and_pr(c, DOCS, wf, exact_types=False)
+     check_public_names(c, DOCS, wf)
+     check_required_context_carriers(c, DOCS, wf, held_by_builder=("docs-check",))
+@@ -3512,7 +3742,7 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
+ 
+ def check_elaborate(c: Contract, wf: YamlMap) -> None:
+     """Everything elaborate.yml owes: trigger, its one carrier, the builder
+-    setup, the scope step and the pinned step list."""
++    setup, the scope step and the pinned step list and scripts."""
+     check_push_and_pr(c, ELABORATE, wf, exact_types=False)
+     check_public_names(c, ELABORATE, wf)
+     check_required_context_carriers(c, ELABORATE, wf,
+@@ -7188,6 +7418,75 @@ def _physical_gptp_arms() -> list[Arm]:
+     return arms
+ 
+ 
++def _carrier_run_steps(world: World) -> Iterator[tuple[str, str, int, YamlMap]]:
++    """Read carrier run steps from live workflows, independently of pins."""
++    for path in (DOCS, ELABORATE):
++        for jid in PUBLIC_NAMES[path]:
++            for at, step in enumerate(_job_steps(world, path, jid)):
++                if isinstance(step.get("run"), str):
++                    yield path, jid, at, step
++
++
++def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
++    """Script mutations and their first differing line, where applicable.
++
++    Every normalized line gets a swallowed-call arm, including non-last
++    bounded checks and the AC5 Python idiom call. Keep the original last-line
++    arm's identity. Appended commands and reordered distinct lines prove
++    length and order matter; proof/check flags are removed only where present.
++    """
++    edits = [("no-op", "true", 1),
++             ("or-true", "\n".join((*lines[:-1], lines[-1] + " || true")),
++              len(lines))]
++    if len(lines) > 1:
++        edits.append(("drop-command", "\n".join(lines[:-1]), len(lines)))
++    for n, line in enumerate(lines[:-1]):
++        edited = list(lines)
++        edited[n] = line + " || true"
++        edits.append((f"or-true-line-{n + 1}", "\n".join(edited), n + 1))
++    edits.append(("append-command", "\n".join((*lines, "echo appended")),
++                  len(lines) + 1))
++    for n in range(len(lines) - 1):
++        if lines[n] != lines[n + 1]:
++            edited = list(lines)
++            edited[n], edited[n + 1] = edited[n + 1], edited[n]
++            edits.append(("reorder-lines", "\n".join(edited), n + 1))
++            break
++    for n, line in enumerate(lines):
++        changed, count = re.subn(r" --(?:self-test|selftest|check)(?= |$)",
++                                 "", line, count=1)
++        if count:
++            edited = list(lines)
++            edited[n] = changed
++            edits.append(("drop-flag", "\n".join(edited), n + 1))
++            break
++    return edits
++
++
++def _carrier_script_arms(pristine: World) -> list[Arm]:
++    """Reason-pin every carrier body, including its name and differing line.
++
++    Read the live steps so deleting a canonical record cannot retire its
++    mutation arms. Specialized findings cannot satisfy these body reasons.
++    Existing key checks own the continue-on-error refusal.
++    """
++    arms = []
++    for path, jid, at, step in _carrier_run_steps(pristine):
++        lines = normalize_script(step["run"])
++        what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
++        label = f"carrier-script-407 {jid} step {at + 1}"
++        for lever, run, differing in _carrier_script_edits(lines):
++            expected = lines[differing - 1] if differing <= len(lines) else None
++            arms.append((f"{label} {lever}",
++                         _m_step_key_at(path, jid, at, "run", run),
++                         f"{what} script is not the canonical form: "
++                         f"line {differing} must be {expected!r}"))
++        arms.append((f"{label} continue-on-error",
++                     _m_step_key_at(path, jid, at, "continue-on-error", True),
++                     f"{what} must carry no `continue-on-error`"))
++    return arms
++
++
+ def _mutations(pristine: World) -> list[Arm]:
+     """(name, mutate(parsed_world), expected finding fragment), every arm.
+ 
+@@ -7223,6 +7522,7 @@ def _mutations(pristine: World) -> list[Arm]:
+             + _carrier_gate_step_arms()
+             + _elab_scope_and_presence_arms()
+             + _carrier_step_list_arms()
++            + _carrier_script_arms(pristine)
+             + _sequence_pin_arms(pristine)
+             + _result_cache_arms()
+             + _physical_gptp_arms())
+@@ -7517,6 +7817,42 @@ def _selftest_step_list_pins(pristine: World) -> tuple[list[str], int]:
+     return problems, arms
+ 
+ 
++def _selftest_carrier_script_pins(pristine: World) -> tuple[list[str], int]:
++    """Deleting a carrier script record refuses; updating it is the remedy."""
++    problems, arms = [], 0
++    for path, jid, at, step in _carrier_run_steps(pristine):
++        spec = copy.deepcopy(CARRIER_STEP_LISTS[(path, jid)])
++        spec[at].pop("run", None)
++        c = Contract()
++        check_carrier_steps(c, path, pristine[path], jid, spec)
++        want = (f"job `{jid}` step {at + 1} (`{step['name']}`) must record "
++                "a canonical normalized `run` script")
++        label = f"carrier-script-407 {jid} step {at + 1} missing record"
++        arms += 1
++        if any(want in f for f in c.findings):
++            print(f"  ok   {label}")
++        else:
++            problems.append(f"{label}: expected {want!r}, got {c.findings}")
++
++    # A reviewed edit may change a script together with its canonical entry.
++    # Exercise the comparison with that new pair, not an exemption flag.
++    world = copy.deepcopy(pristine)
++    path, jid = DOCS, "docs-check"
++    ss = _job_steps(world, path, jid)
++    at = next(n for n, s in enumerate(ss) if s.get("name") == "Python idiom gate")
++    ss[at]["run"] += "\necho checked\n"
++    spec = copy.deepcopy(CARRIER_STEP_LISTS[(path, jid)])
++    spec[at]["run"] = (*spec[at]["run"], "echo checked")
++    c = Contract()
++    check_carrier_steps(c, path, world[path], jid, spec)
++    arms += 1
++    if c.findings:
++        problems.append("carrier-script-407 updated record: " + "; ".join(c.findings))
++    else:
++        print("  ok   carrier-script-407 script and record updated together")
++    return problems, arms
++
++
+ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
+     """The canonical pin is whitespace-invariant: re-indenting and continuing
+     the same lines differently is the same script and must pass. Returns
+@@ -7574,6 +7910,9 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
+         if s.get("id") == ELAB_SCOPE_STEP_ID:
+             s["run"] = "\n".join("   " + l if l.strip() else ""
+                                   for l in s["run"].splitlines()) + "\n"
++    for _, _, _, step in _carrier_run_steps(world):
++        step["run"] = "\n\n".join(" \t" + line for line in
++                                   normalize_script(step["run"])) + "\n"
+     if check(world).findings:
+         problems.append("whitespace-only reformatting of the canonical scripts "
+                         f"was refused: {check(world).findings}")
+@@ -7583,7 +7922,7 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
+               "worker-result steps, fast scope step, fast verdict step, "
+               "verifier "
+               "step, the four documentation gate steps and the elaborate "
+-              "scope step)")
++              "scope step; carrier-script-407 every carrier body)")
+     return problems, 1
+ 
+ 
+@@ -7665,6 +8004,7 @@ def selftest(root: pathlib.Path) -> int:
+                         _selftest_on_disk(root),
+                         _selftest_records(),
+                         _selftest_step_list_pins(pristine),
++                        _selftest_carrier_script_pins(pristine),
+                         _selftest_whitespace(pristine),
+                         _selftest_default_branch()):
+         problems.extend(found)

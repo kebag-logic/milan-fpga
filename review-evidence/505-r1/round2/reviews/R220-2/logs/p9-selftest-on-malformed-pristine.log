@@ -1,0 +1,11 @@
+$ python3 -B scripts/ci_events.py --check --root <scratch: idiom body replaced by run: " ">
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None); 2 line(s) expected, 0 found
+ci_events: 1 finding(s) over 1505 contract item(s)
+rc=1
+$ python3 -B scripts/ci_events.py --selftest --root <same scratch>
+  File "/tmp/r220-2-p9-6W1C/scripts/ci_events.py", line 7439, in _carrier_script_edits
+    ("or-true", "\n".join((*lines[:-1], lines[-1] + " || true")),
+                                        ~~~~~^^^^
+IndexError: list index out of range
+rc=1
