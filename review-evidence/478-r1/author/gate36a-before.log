@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "sw/builder"); import test_builder as t; t.test_audio_unit_rates_loader_contract()
+                                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$CANDIDATE/sw/builder/test_builder.py", line 23565, in test_audio_unit_rates_loader_contract
+    raise AssertionError(f"gate 36a: {label} accepted")
+AssertionError: gate 36a: distinct ninth entry accepted

@@ -1,0 +1,7 @@
+[A156] IMPLEMENTATION DETAILS / FOCUSED EVIDENCE
+
+Gate 36a checks the legal eight-entry boundary directly through `_load_clocking`, the contract named in acceptance. It uses eight distinct, deliberately unsorted values with the current rate last. This does not widen the downstream stream-format or runtime-rate contract. Negative cases use `load_config`; the ninth-entry fixture has nine distinct values, so duplicate rejection cannot supply its failure. Existing omitted-list defaults and current-rate membership are retained.
+
+The pp_shadow drift gate lives in `sw/builder/test_builder.py`. It reads the existing literal `AU_RATES_C` declaration, checks its declared array length and ordered values against `configs/endstation_arty_current.yaml`, and rejects independent value, order, declared-length, shortened-initializer and commented-declaration controls. No pp_shadow source, Makefile or image is changed; no rate header is generated.
+
+Focused gates 36a, 32 and 25a/b/c pass. Gate 36a failed on the original loader for accepting the distinct ninth entry. In-memory mutations raising the maximum to nine, lowering it to seven, and removing duplicate rejection each fail the focused test. All five config bytes and packed AEM images are SHA-256 identical to the pre-edit base b17580b91deb11f3441dfc5d7f9fafe539d929b8: arty_current advertises [48000, 96000, 192000]; the other four advertise [48000]. The complete builder run and xvlog are still in progress; broader manager gates are not claimed here.

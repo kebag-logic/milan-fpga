@@ -1,0 +1,19 @@
+test_audio_unit_rates_loader_contract
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_audio_unit_shipping_rates
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+test_pp_shadow_audio_unit_rates_match_config
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+test_builder_doc_key_map
+  [gate 32] 109 loader keys == 109 keys across 60 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 17 untaken loader arms, where a key read is not recorded: endstation_builder.py:1435 endstation_builder.py:1510 endstation_builder.py:1514 endstation_builder.py:1877 endstation_builder.py:1881 endstation_builder.py:3109 endstation_builder.py:3207 endstation_builder.py:3307 endstation_builder.py:3539 endstation_builder.py:3548 endstation_builder.py:3596 endstation_builder.py:3616 endstation_builder.py:3653 endstation_builder.py:4001 endstation_builder.py:4097 endstation_builder.py:4124 endstation_builder.py:4284
+test_schema_12_keys_reach_the_image
+  [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 10 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C40236BA0E -> 0x123456C40236BA0E: OUI only); 10/10 single-key mutants named alone
+test_schema_12_refusals
+  [gate 25b] 19 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+test_schema_11_configs_accepted_unchanged
+  [gate 25c] 5 tracked configs declare 1.2.0 and load, re-declared 1.1.0, to the same argv, model id and image bytes; 2.0.0 refused
