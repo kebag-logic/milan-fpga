@@ -1,0 +1,17 @@
+{
+  "cwd": "$CANDIDATE",
+  "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+  "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "commands": [
+    [
+      "python3",
+      "-I",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-512/scripts/act_ci.py",
+      "--pr",
+      "521",
+      "--act-bin",
+      "$VALIDATION_TOOLS/act-0.2.89/act",
+      "--sudo"
+    ]
+  ]
+}
