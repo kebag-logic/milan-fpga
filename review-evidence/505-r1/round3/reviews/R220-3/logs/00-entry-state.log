@@ -1,0 +1,30 @@
+# entry state 2026-09-22T08:48:14Z
+HEAD 5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7
+tree 2ec2d2e9931d250dacb945643cf3a444ec0e9a91
+parents: 5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7 ad62493186576144f9fa1568babad012bc9ad8ca
+ad624931 parents: ad62493186576144f9fa1568babad012bc9ad8ca 6af65a151663e1301f1983a6c9d22650a0b35da9
+6af65a15 parents: 6af65a151663e1301f1983a6c9d22650a0b35da9 b17580b91deb11f3441dfc5d7f9fafe539d929b8
+status-porcelain-v2:
+ls-files -s sha256: 2cd50841eb5eafaca9edfcf8295b251e124e9c3ca7370403bb94803a0d25d2a8  -
+ls-files -v flags (non-H):
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor
+-424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor
+-48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+pycache:
+--- diff --raw ad624931..HEAD (full tree incl gitlinks)
+:100644 100644 00b1b852 89c221da M	docs/testing/CI_WORKFLOWS.md
+--- diff --raw b17580b9..HEAD
+:100644 100644 53e27972 89c221da M	docs/testing/CI_WORKFLOWS.md
+:100755 100755 bf026a1d b90ae46b M	scripts/ci_events.py
+--- ls-tree gitlinks HEAD vs ad624931
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+--- tracked file count HEAD: 854; gitlinks: 4

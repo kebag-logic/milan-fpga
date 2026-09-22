@@ -1,0 +1,13 @@
+rev=5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7
+[pristine] exit=0
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ 1 file changed, 4 deletions(-)
+[e1-delete-if-block] exit=0
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+[e2-exit1-true] exit=0
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+[e3-drop-target-sha] exit=0
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+[c1-carrier-or-true] exit=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1505 contract item(s)

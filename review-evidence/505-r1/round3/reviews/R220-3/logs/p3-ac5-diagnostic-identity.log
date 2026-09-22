@@ -1,0 +1,61 @@
+# command: bash probes/p3_ac5_identity.sh /tmp/r220-3-scratch/evidence /tmp/r220-3-scratch/p2 $VALIDATION_STORAGE/reviews/r220-505-r3
+# p3: AC5 diagnostic at head vs recorded act receipts (A10, measured at 6af65a15 / scratch 66ba2106)
+evidence checkout: 11bc477524657ae0863f1b014c995904fc377471
+blob 741394320950b936aefd7c497d91de25f783bfef ac5-act/01.log
+blob 95788f429deccb49cb05f9da8a744a2051082025 ac5-act/02.log
+blob dc0656cee72ede8530a9336cf43c0ab2bdf0480a ac5/mutation.diff
+blob 2df1aaf50389f298fce4a0cc7a7b6cc34b083b3c ac5/input.json
+head finding : .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found
+01.log:1902 finding BYTE-IDENTICAL to head
+02.log:37 finding BYTE-IDENTICAL to head
+--- act verdict lines around the finding
+[docs/docs-check         ]   ✅  Success - Main Python idiom gate [5.686308123s]
+[docs/docs-check         ]   | ci_events: 1 finding(s) over 1505 contract item(s)
+[docs/docs-check         ]   ❌  Failure - Main CI event and SHA contract gate [213.85194ms]
+[docs/docs-check         ] 🏁  Job failed
+[rtl-full/full-ci-gate]   | ci_events: 1 finding(s) over 1505 contract item(s)
+[rtl-full/full-ci-gate]   ❌  Failure - Main Hold every workflow file to its contract [748.738445ms]
+[rtl-full/full-ci-gate] 🏁  Job failed
+[rtl-full/verilator-suites                  ]   |   FAIL expected 5 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+[rtl-full/verilator-suites                  ]   | one or more Verilator workers ended: skipped
+[rtl-full/verilator-suites                  ] 🏁  Job failed
+[rtl-full/yosys-portability                 ]   |   FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+[rtl-full/yosys-portability                 ]   | one or more Yosys workers ended: skipped
+[rtl-full/yosys-portability                 ] 🏁  Job failed
+--- head verdict line
+ci_events: 1 finding(s) over 1505 contract item(s)
+--- recorded mutation.diff
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index f5a45401..feb41892 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -320,7 +320,7 @@ jobs:
+       # are AST-based, so a construct inside a string cannot be a finding.
+       - name: Python idiom gate
+         run: |
+-          python3 scripts/check_py_idiom.py
++          python3 scripts/check_py_idiom.py || true
+           python3 scripts/check_py_idiom.py --selftest
+ 
+       # Rule 13: backtick substitution, a cd with no failure path where there
+--- head docs.yml line of the AC5 call
+323:          python3 scripts/check_py_idiom.py
+--- published verifier on the archive
+AC5 expected-failure observations present; manually inspect raw step/job context before accepting.
+exit=0
+--- recorded exit codes
+66ba210630ff7f412e5706427b3ea976ebee3ba2 [1, 1]
+{
+  "head": "66ba210630ff7f412e5706427b3ea976ebee3ba2",
+  "exit_code": 1,
+  "finished": "2026-09-22T06:38:44.871782+02:00"
+}
+
+--- act-ci verdict lines
+ac5-act/01.log:2019:act-ci: docs: FAILED (1)
+ac5-act/02.log:169:act-ci: rtl-full: FAILED (1)
+act-draft-fast/01.log:3679:act-ci: docs: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9
+act-draft-fast/01.log:26138:act-ci: rtl-fast: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9
+act-draft-fast/01.log:26693:act-ci: elaborate: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9
+--- scratch PR #506 state
+{"closedAt":"2026-09-22T04:41:18Z","headRefOid":"66ba210630ff7f412e5706427b3ea976ebee3ba2","isDraft":true,"mergedAt":null,"number":506,"state":"CLOSED"}

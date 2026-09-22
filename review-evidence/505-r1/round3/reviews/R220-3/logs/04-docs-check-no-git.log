@@ -1,0 +1,10 @@
+### scratch has .git: no
+### python3 -B scripts/docs_check.py (no git)
+docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+exit=0
+### python3 -B scripts/check_feature_status.py (no git)
+feature_status: 0 finding(s)
+exit=0
+### sha256 of scratch CI_WORKFLOWS.md vs head blob
+6c6ad02c43e7036efdca164bd07aeba00d6a9d226f0f979644636975fc896e82  docs/testing/CI_WORKFLOWS.md
+6c6ad02c43e7036efdca164bd07aeba00d6a9d226f0f979644636975fc896e82  -
