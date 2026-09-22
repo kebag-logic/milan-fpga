@@ -1,0 +1,89 @@
+[R240] POSITIVE - exact head 60c5225fe5f93209bf313c51b7a722f25f9aaa7d
+
+R240-1 external cleared-context source review of kebag-logic/milan-fpga #372 / PR #518. Tree: `64182178131d03f157fe1a4ec767edee618bc6ff`. All five lenses are CLEAN for the settled, bounded simulation-only rollout. No BLOCKER, MAJOR, MINOR or SUGGESTION remains from this review. Merge and issue completion still require the manager gates described below.
+
+The review independently reconstructed the contract from AGENTS.md, CONTRIBUTING.md, docs/README.md, REQUIREMENTS.md, the public issue and its [settled scope decision](https://github.com/kebag-logic/milan-fpga/issues/372#issuecomment-5776353888), architecture/interface documentation, source history/diff, and executable evidence. No author private reasoning, other reviewer report, other agent, hardware, installation, privilege, container, act execution or candidate act host self-test was used. No source fix, commit, push, public comment or metadata change was made. The supplied tool selector was inspected strictly as an installed tool.
+
+The candidate contains the identical issue patch from author `5bbf2953ea747403217aeeda020df6a6e5ff27f9`, integrated over `52711029f374650dc93830d5ea28e81cb5c8f410`. The 12 changed paths contain only assertion/test code, its reader disposition and documentation. The original `sim_main.cpp` and `run` recipe are byte-identical to that base; product RTL, firmware, workflow/owner inventory, budgets and processor pins are unchanged. Evidence: `source.diff`, `source-scope.json`, and initial/final integrity receipts.
+
+[R240] PASS Conformance - `tb/common/sva/axis_stream_source_sva.sv:67`, `tb/common/sva/axis_mux_rr_2in_1out_sva.sv:121`, `tb/verilator/ptp_ts/Makefile:72` - settled acceptance criteria satisfied by the direct bound mux simulation.
+
+Authority/evidence: REQ-VER-01/02/04, issue decision 5776353888, the existing mux contract and [Arm IHI0051A section 2.2](https://documentation-service.arm.com/static/642583d7314e245d086bc8c9). A transfer requires valid and ready together; a stalled offer persists, with its payload, through the accepting edge. The reusable four source properties implement that obligation separately for stimulus s0/s1 and DUT m. The mux checker adds state, grant, packet ownership, reset and forwarding laws; the scoreboard owns round-robin order. The three issue acceptance criteria have executable evidence: the representative module is bound and passes, each claimed property has a named failing control, and ASSERTIONS.md supplies reusable instructions. The original ptp_ts instance remains unbound. Verification: `focused-default.log`, `campaign-raw/`, `receipt-audit-details.json`. Impact/required outcome: no conformance defect found; retain the stated standalone scope and complete the remaining merge gates.
+
+[R240] PASS RTL - `hdl/common/axis_mux_rr_2in_1out.sv:10`, `tb/common/sva/axis_mux_rr_2in_1out_bind.sv:31`, `tb/common/sva/axis_mux_rr_2in_1out_sva.sv:135`, `tb/verilator/ptp_ts/mux_sva_main.cpp:671` - actual module binding and sampled ownership/reset behavior checked.
+
+Authority/evidence: the existing single-clock mux interface/FSM, CONTRIBUTING section 1, docs/overview/ARCHITECTURE.md section 7 and [Verilator v5.050 language support](https://github.com/verilator/verilator/blob/v5.050/docs/guide/languages.rst). Both builds use the real product module as top, with the bind resolving its parameter and enum names in that module's scope. Generated `elaboration/w8/` and `elaboration/w64/` scope tables contain `u_sva`, `u_s0_stimulus`, `u_s1_stimulus` and `u_m_dut`. All four scope checks pass in each executable. No checker drives the DUT. Clocked protocol/ownership laws abandon attempts overlapping reset; the reset-release law remains enabled and checks the following sample. Four startup reset edges guard initial past state. Deferred immediate laws check settled forwarding; the harness samples transfers before the rising evaluation and advances source state afterward. Verification: both clean builds, all 14 DUT mutants, reset-guard removal and four randomized-initial-state runs. Impact/required outcome: no RTL/checker integration defect found; source RTL and pins remain untouched.
+
+[R240] PASS Robustness - `tb/verilator/ptp_ts/mux_sva_main.cpp:187`, `:612`, `:773`, `:821`, `:875`, `:903`; `tb/verilator/ptp_ts/sva_campaign.py:193` - stall, reset, ordering, width and lost-coverage boundaries exercised.
+
+Authority/evidence: the frozen issue scenario/control list and CODE_QUALITY Rule 8. Both input ports, simultaneous offers, single/multiple beats, valid gaps, four-cycle middle-beat stalls, five-cycle TLAST stalls, reset during middle/TLAST stalls, resumed traffic and seeded mixed traffic run at widths 8 and 64. Waiting sources retain offers; reset discards a started packet and reoffers an unstarted packet. Port counts exclude abandoned reset-overlapping attempts. The malformed-width row rejects width 12 by the checker's own guard message. The disabled-assertion and mistyped-bind positive controls fail scope checks; the mirrored-port positive control fails per-port witness equality; the unused-output-path control fails because its required witness is absent. Verification: `campaign-raw/`, `independent-controls/commands.json`, `extra-controls.log`. Ten additional complete runs use boundary seeds, four randomize initial state, and ten malformed-argument runs return usage exit 2. Impact/required outcome: no false pass found for the reviewed boundaries; the evidence remains finite simulation over these widths and scenarios.
+
+[R240] PASS Tests - `tb/verilator/ptp_ts/mux_sva_main.cpp:354`, `:641`, `:952`; `tb/verilator/ptp_ts/sva_campaign.py:248`, `:289`, `:372`, `:450`; `scripts/measure_test_evidence.py:620` - independent accepted-beat oracle, named detection and accounting verified.
+
+Authority/evidence: CONTRIBUTING section 3, CODE_QUALITY Rule 8, issue decision 5776353888 and the unchanged suite_tally/run_all_suites contracts. The scoreboard queues only accepted input beats, compares delivered data/keep/last against those queues, checks packet continuity and end-of-scenario drainage, and independently grades saturated packet alternation. It reads neither mux state nor checker internals. Mutation text is used to plant defects, never to derive expected beat values. Every claimed assertion has a successfully built, intended-name failure control. A detection requires exit 3 plus the exact property path; an injected source fault also needs its injection marker. Compile failures, unrelated names, usage errors, signals and timeouts are rejected as detection. The width-12 build refusal is counted separately as an elaboration-control row. Verification: `receipt-audit-details.json`, the normal tally/negative logs, independent parser rejection cases, three extra scratch controls, and passing `evidence-check`/`evidence-selftest` receipts. Impact/required outcome: no test/accounting defect found; keep campaign verdict checks distinct from DUT checks and assertion evaluations.
+
+[R240] PASS Docs - `docs/testing/ASSERTIONS.md:1`, `:44`, `:139`, `:272`; `docs/testing/TESTING.md:443`; `tb/verilator/README.md:51`; public PR #518 body and candidate1 receipts - documented scope, reproduction and evidence attribution checked against execution.
+
+Authority/evidence: docs/README.md authority order, issue decision 5776353888, REQUIREMENTS.md timestamp scope note and [v5.050 assertion options](https://github.com/verilator/verilator/blob/v5.050/docs/guide/exe_verilator.rst). The guide identifies obligations, naming, bind connections, explicit enablement, reset/past handling, non-vacuity, detection criteria, raw-log separation and reproduction. It explains that 15 witness pairs use equality, two use floors and four immediate laws require positive activity; assertion pass actions are not check counts. Single-clock, two-state, zero-delay simulation establishes neither four-state X behavior, CDC correctness, timing closure, formal proof nor whole-product coverage. Generated legacy scope tables independently confirm its mux has no bound checker. Verification: source review, executed missing/disabled/mirrored/unused controls, exact count audit and downloaded public evidence. Impact/required outcome: no documentation finding; pending manager gates and hardware limitations remain explicit.
+
+**Focused execution and count attribution**
+
+`tool-identity.json` independently records `Verilator 5.050 2026-07-01 rev v5.050`, selector/package hashes and 123 matching installed non-manual files. Four absent package man pages are recorded. No shared tool was replaced. The [pinned manual](https://github.com/verilator/verilator/blob/v5.050/docs/guide/exe_verilator.rst) and executed disabled control agree on assertion enablement; the builds still pass `--assert` explicitly.
+
+The default focused invocation exited 0 in 106.096 seconds in this review clone. `suite_tally.py --verdict` accepted its raw log, and the full parser found exactly four tallies, no failure markers and no unparsed count lines:
+
+| Owner/leg | Checks | Attribution |
+|---|---:|---|
+| Original ptp_ts | 92 | Unchanged harness and recipe |
+| Direct mux, width 8 | 170 | 120 packet-completion verdicts plus 50 fixed graded checks |
+| Direct mux, width 64 | 171 | 121 packet-completion verdicts plus the same 50 fixed checks |
+| Detection campaign | 62 | Campaign/control verdicts, including expected negative behavior |
+| Total | 495 | Zero failures; four tallies |
+
+The 50 fixed harness checks comprise four checker-scope checks, eight reset checks across four reset invocations, sixteen scenario-close checks, one round-robin-order check and 21 witness checks. The one-check width difference comes from completed packets around the seeded reset, not assertion-evaluation counts. At width 8, s0/s1/m stalled-attempt witnesses are 563/608/172; at width 64 they are 625/689/228. All 21 pairs in each build are non-vacuous and meet their specified equality/floor/presence relation. For example the TLAST-release witnesses equal 120 and 121 completed packets. Assertion pass calls themselves add zero to the headline.
+
+The 62 rows decompose into 2 clean runs, 16 source-fault detections, 14 DUT-mutant detections, 1 independent scoreboard/order row, 1 elaboration refusal, 4 lost-coverage positive refusals and 24 fault non-detection controls. All 30 assertion-detection rows contain the required property name. In the mirrored-bind fault controls, the opposite source's assertion can fire; the expected source path is correctly rejected. The disabled/missing-bind controls also reject expected detection. These are campaign checks, not 62 passing DUT behaviors. Raw negative transcripts remain under `campaign-raw/`; only the verdict table enters the normal suite log.
+
+The ordinary inventory contains ptp_ts once among 55 default suites, assigned to shard 2 in the five-shard partition. Existing scripts/workflows and suite ownership are unchanged. The public manager's full-sweep ptp_ts log independently tallies the same 495 checks. The reader-disposition gate and its self-test pass; no budget was widened.
+
+**Additional independent controls**
+
+`extra_controls.py` records argv, exits and logs under `independent-controls/`. Its three scratch builds use the repository's build recipe, eight jobs, the original harness and only management-directory mutant copies.
+
+| Control | Build/run result | Observed discriminating evidence |
+|---|---|---|
+| Force only TKEEP witness flags to zero | Build 0; run 1 | All scopes still present and assertions quiet; exactly the three TKEEP witness verdicts fail |
+| Remove source-checker reset disable guards | Build 0; run 3 | Legal reset while stalled fails TVALID/payload assertions at cycle 11; the original checker passes the scenario |
+| Flip bit 63 of s1 output data with assertions disabled | Build 0; run 1 | Scoreboard reports an unaccepted output beat and undelivered accepted beats; no assertion fires. Missing-scope failures also occur as expected and are not the claimed scoreboard evidence |
+
+Eight constructed parser controls reject exit 0, scoreboard exit 1, usage exit 2, signal -11, timeout 124, unnamed stop, wrong instance and a property-prefix collision. A matching named exit-3 control is accepted. The extra runs and controls are reviewer evidence and are not added to the 495 suite tally.
+
+Execution exception: the first default invocation inherited the unchanged legacy recipe's `-j 0`; its new assertion/campaign builds used `-j 8`. This did not honor the requested job cap for the initial legacy build. The legacy leg was then rerun with its otherwise identical VFLAGS explicitly capped at eight jobs and again passed all 92 checks (`legacy-bounded.json`, `legacy-bounded.log`, `rerun_legacy_bounded.py`). That later run does not erase the initial execution exception. All independent scratch builds used eight jobs.
+
+**Public evidence and manager gates**
+
+Read-only review of the [immutable candidate1 packet](https://github.com/kebag-logic/milan-fpga/tree/eb06904188529a6004b8a557768b010fd1652101/review-evidence/372-r1/candidate1) confirms the 45-row composed static/builder ledger and five terminal native commands identify this source against base `52711029f374650dc93830d5ea28e81cb5c8f410`. `capture_receipts.py` compares each final builder row to its explicitly selected original/correction row. Row 43 (zero-based) uses the separately executed correct base/head whitespace endpoints. The stale original receipt remains available and is not treated as that measurement. This review independently repeated the exact candidate whitespace check successfully.
+
+The native receipts report parent 55/55 suites with 2,118,667 checks and zero failures, Yosys exit 0, pinned PP 14,903 checks with zero failures, gPTP all exit 0, and behave 14 features/316 scenarios/1,515 steps passed. These are inspected manager executions, not R240 executions. Four field/freshness skips contribute zero checks. Builder gate 11 says NOT RUN because the physical calibration report is absent; it provides no hardware proof. Earlier author and superseded results retain their own identities. Downloaded receipt hashes describe the published bytes; composition hashes naming pre-publication bytes must not be confused with path-neutralized downloads.
+
+The captured hosted snapshot (`public/hosted-checks.json`, `public/hosted-runs.json`) reports exact-head rtl-fast, docs-check, docs-check-no-git and wire-accountability success. All four Yosys workers and Verilator workers 0/2/3 are successful; Verilator workers 1/4 and elaborate are still running. Physical gPTP is skipped. The final protected long-gate aggregates are not established by that snapshot. No start or skipped job is counted as executed long-gate evidence.
+
+The manager still owns trusted act evidence, completed required hosted contexts, the other independent review, final validation against the live dev tip in queue, explicit merge authorization, no review remaining in flight, containment/post-merge checks and Closed/Done. Base advancement does not reattribute source evidence to a later merge candidate. This source-review verdict supplies no hardware, shipping-DUT assertion coverage, formal or timing sign-off.
+
+**Reviewer-owned completion ledger**
+
+| Lens | Covering round / result | Exact covered head |
+|---|---|---|
+| Conformance | R240-1 CLEAN | 60c5225fe5f93209bf313c51b7a722f25f9aaa7d |
+| RTL | R240-1 CLEAN | 60c5225fe5f93209bf313c51b7a722f25f9aaa7d |
+| Robustness | R240-1 CLEAN | 60c5225fe5f93209bf313c51b7a722f25f9aaa7d |
+| Tests | R240-1 CLEAN | 60c5225fe5f93209bf313c51b7a722f25f9aaa7d |
+| Docs | R240-1 CLEAN | 60c5225fe5f93209bf313c51b7a722f25f9aaa7d |
+
+No defect was moved to another issue to obtain this result. Subsequent changes must be assessed against each lens's artifact scope.
+
+Final integrity: 857 ordinary parent files plus four gitlinks match the specified commit, including every blob, file kind and executable mode; the index tree equals `64182178131d03f157fe1a4ec767edee618bc6ff`. Required submodules are registered, at their pins, and independently byte/kind/mode/index verified: verilog-axis `48ff7a7e2ef782cf778d47910cf85835c64b1bce` (214 files), protocol-processor `424c688fa2205b934a7689a58f2aa766420f2326` (222 files), and gptp-processor `c1b617435824929a790739ea8585c3fe1a328cc0` (103 files). Parent and required-submodule status are clean. Evidence: `initial-integrity.json`, `final-integrity.json`, `integrity.py`. Object replacement is disabled during verification.
+
+Reproduction scripts and exact command/exit/hash receipts reside beside this report: `verify_tool.py`, `run_receipt.py`, `rerun_legacy_bounded.py`, `extra_controls.py`, `capture_receipts.py`, `fetch_public_evidence.py` and `integrity.py`. Execute them through `rtk proxy python3`; the captured argv identify this review clone and permitted tool selector. The manager can publish the factual report and raw evidence after path neutralization. R240 did not self-publish.
+
+R240-1 FINISHED

@@ -1,0 +1,21 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=multi_beats stimulus_fault=none
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut is elaborated with its assertions
+scenario multi_beats from cycle 4
+  [FAIL] a beat that no source handed over (cycle 28, data 0xa5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 29, data 0x100a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 30, data 0x200a5 keep 0x1 last 1)
+  [FAIL] an output packet leaves the mux intact and in its source's order
+  [FAIL] a beat that no source handed over (cycle 32, data 0x1000000a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 33, data 0x1000100a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 34, data 0x1000200a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 35, data 0x1000300a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 36, data 0x1000400a5 keep 0xff last 0)
+  [FAIL] a beat that no source handed over (cycle 37, data 0x1000500a5 keep 0x3 last 1)
+  [FAIL] an output packet leaves the mux intact and in its source's order
+  [FAIL] multi_beats: every accepted beat left the mux
+witness grading needs every scenario (+scenario= selected one; +grade_witnesses grades it anyway)
+== ptp_ts mux sva w64: checks: 22   failures: 16 ==
+RESULT: FAIL

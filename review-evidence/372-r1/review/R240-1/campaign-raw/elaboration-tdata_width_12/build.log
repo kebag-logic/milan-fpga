@@ -1,0 +1,9 @@
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --cc --exe --build -j 8 --assert --top-module axis_mux_rr_2in_1out -GTDATA_WIDTH=12 -Wall -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DAXIS_MUX_TDATA_WIDTH=12" -Mdir $VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj $VALIDATION_STORAGE/reviews/r240-372-r1/hdl/common/axis_mux_rr_2in_1out.sv ../../common/sva/axis_stream_source_sva.sv ../../common/sva/axis_mux_rr_2in_1out_sva.sv $VALIDATION_STORAGE/reviews/r240-372-r1/tb/common/sva/axis_mux_rr_2in_1out_bind.sv mux_sva_main.cpp -o Vmux_sva
+%Warning-USERERROR: ../../common/sva/axis_stream_source_sva.sv:54:5: axis_stream_source_sva: TDATA_WIDTH_P=12 is not a whole, non-zero number of bytes
+                                                                   : ... note: In instance 'axis_mux_rr_2in_1out.u_sva.u_m_dut'
+   54 |     $error("axis_stream_source_sva: TDATA_WIDTH_P=%0d is not a whole, non-zero number of bytes",
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+make[1]: *** [Makefile:80: mux-sva-build] Error 1

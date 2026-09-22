@@ -1,0 +1,5 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=multi_beats stimulus_fault=none
+scenario multi_beats from cycle 4
+[29000] %Error: axis_mux_rr_2in_1out_sva.sv:141: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake: the output changed owner before the owning packet's TLAST beat was taken
+-Info: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:141: Verilog $stop, ignored due to +verilator+error+limit
+SVA-STOP: an assertion failed at the edge ending cycle 29 (the %Error lines above name it); the run stops at that edge

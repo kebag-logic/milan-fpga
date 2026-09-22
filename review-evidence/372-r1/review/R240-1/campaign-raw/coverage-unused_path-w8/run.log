@@ -1,0 +1,30 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=single_beats stimulus_fault=none
+scenario single_beats from cycle 4
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake    nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake    nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake   nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake          nonvacuous=0 harness=0 (equal)
+  [FAIL] witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake         nonvacuous=0 harness=0 (equal)
+  [FAIL] witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake         nonvacuous=0 harness=0 (equal)
+  [FAIL] witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake
+witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake         nonvacuous=0 harness=0 (equal)
+  [FAIL] witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake
+witness TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal                                  nonvacuous=25 harness=25 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner                         nonvacuous=4 harness=4 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast                   nonvacuous=8 harness=8 (equal)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake             nonvacuous=0 harness=0 (at least)
+  [FAIL] witness TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake
+witness TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester                      nonvacuous=8 harness=8 (at least)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ai_grants_mutually_exclusive                    nonvacuous=16 harness=8 (both above zero)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ai_ready_only_for_owner_and_ready_sink          nonvacuous=16 harness=8 (both above zero)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ai_tvalid_forwarded                             nonvacuous=16 harness=8 (both above zero)
+witness TOP.axis_mux_rr_2in_1out.u_sva.ai_payload_forwarded_on_transfer                nonvacuous=16 harness=8 (both above zero)
+== ptp_ts mux sva w8: checks: 37   failures: 5 ==
+RESULT: FAIL

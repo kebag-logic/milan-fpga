@@ -1,0 +1,832 @@
+{
+  "focused_scan": [
+    495,
+    0,
+    [
+      [
+        "n-checks-m-failures",
+        92,
+        0,
+        "ptp_ts: 92 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        170,
+        0,
+        "== ptp_ts mux sva w8: checks: 170   failures: 0 =="
+      ],
+      [
+        "checks-colon-failures-colon",
+        171,
+        0,
+        "== ptp_ts mux sva w64: checks: 171   failures: 0 =="
+      ],
+      [
+        "checks-colon-failures-colon",
+        62,
+        0,
+        "== ptp_ts sva campaign: checks: 62   failures: 0 =="
+      ]
+    ],
+    [],
+    []
+  ],
+  "ordinary_suites": 55,
+  "five_shard_owner": 2,
+  "campaign_rows": [
+    [
+      "clean-w8",
+      "passes, no property fails"
+    ],
+    [
+      "clean-w64",
+      "passes, no property fails"
+    ],
+    [
+      "stimulus-s0_drop_tvalid-w8",
+      "stopped by u_s0_stimulus.ap_tvalid_held_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tdata-w8",
+      "stopped by u_s0_stimulus.ap_tdata_stable_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tkeep-w8",
+      "stopped by u_s0_stimulus.ap_tkeep_stable_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tlast-w8",
+      "stopped by u_s0_stimulus.ap_tlast_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_drop_tvalid-w8",
+      "stopped by u_s1_stimulus.ap_tvalid_held_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tdata-w8",
+      "stopped by u_s1_stimulus.ap_tdata_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tkeep-w8",
+      "stopped by u_s1_stimulus.ap_tkeep_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tlast-w8",
+      "stopped by u_s1_stimulus.ap_tlast_stable_until_handshake"
+    ],
+    [
+      "stimulus-s0_drop_tvalid-w64",
+      "stopped by u_s0_stimulus.ap_tvalid_held_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tdata-w64",
+      "stopped by u_s0_stimulus.ap_tdata_stable_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tkeep-w64",
+      "stopped by u_s0_stimulus.ap_tkeep_stable_until_handshake"
+    ],
+    [
+      "stimulus-s0_flip_tlast-w64",
+      "stopped by u_s0_stimulus.ap_tlast_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_drop_tvalid-w64",
+      "stopped by u_s1_stimulus.ap_tvalid_held_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tdata-w64",
+      "stopped by u_s1_stimulus.ap_tdata_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tkeep-w64",
+      "stopped by u_s1_stimulus.ap_tkeep_stable_until_handshake"
+    ],
+    [
+      "stimulus-s1_flip_tlast-w64",
+      "stopped by u_s1_stimulus.ap_tlast_stable_until_handshake"
+    ],
+    [
+      "mutant-tvalid_waits_for_tready-w64",
+      "stopped by forwarding_laws.ai_tvalid_forwarded"
+    ],
+    [
+      "mutant-tdata_hidden_while_stalled-w8",
+      "stopped by u_m_dut.ap_tdata_stable_until_handshake"
+    ],
+    [
+      "mutant-tkeep_hidden_while_stalled-w64",
+      "stopped by u_m_dut.ap_tkeep_stable_until_handshake"
+    ],
+    [
+      "mutant-tlast_hidden_while_stalled-w8",
+      "stopped by u_m_dut.ap_tlast_stable_until_handshake"
+    ],
+    [
+      "mutant-released_while_tlast_stalled-w64",
+      "stopped by u_m_dut.ap_tvalid_held_until_handshake; the same edge also failed u_m_dut.ap_tdata_stable_until_handshake, u_m_dut.ap_tkeep_stable_until_handshake, u_m_dut.ap_tlast_stable_until_handshake, ap_owner_held_until_tlast_handshake"
+    ],
+    [
+      "mutant-released_before_tlast_s0-w8",
+      "stopped by ap_owner_held_until_tlast_handshake"
+    ],
+    [
+      "mutant-released_before_tlast_s1-w64",
+      "stopped by ap_owner_held_until_tlast_handshake"
+    ],
+    [
+      "mutant-kept_after_tlast-w8",
+      "stopped by ap_owner_released_after_tlast"
+    ],
+    [
+      "mutant-reset_ignored-w64",
+      "stopped by ap_reset_releases_owner"
+    ],
+    [
+      "mutant-illegal_state_reached-w64",
+      "stopped by ap_state_legal"
+    ],
+    [
+      "mutant-granted_without_request-w8",
+      "stopped by ap_grant_only_to_requester"
+    ],
+    [
+      "mutant-both_sources_ready-w64",
+      "stopped by forwarding_laws.ai_grants_mutually_exclusive; the same edge also failed forwarding_laws.ai_ready_only_for_owner_and_ready_sink"
+    ],
+    [
+      "mutant-ready_ignores_sink-w8",
+      "stopped by forwarding_laws.ai_ready_only_for_owner_and_ready_sink"
+    ],
+    [
+      "mutant-tkeep_from_other_source-w64",
+      "stopped by forwarding_laws.ai_payload_forwarded_on_transfer"
+    ],
+    [
+      "scoreboard-round_robin_inverted-w8",
+      "no property fails; the scoreboard's check does: simultaneous_offers: saturated sources alternate packet by packet"
+    ],
+    [
+      "elaboration-tdata_width_12",
+      "refused at elaboration by its own message: 'axis_stream_source_sva: TDATA_WIDTH_P=12 is not a whole, non-zero number of bytes'"
+    ],
+    [
+      "coverage-assertions_disabled-w64",
+      "rebuilt; the harness refuses the run, failing 'checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions'"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s0_drop_tvalid",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s0_flip_tdata",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s0_flip_tkeep",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s0_flip_tlast",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s1_drop_tvalid",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s1_flip_tdata",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s1_flip_tkeep",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-assertions_disabled-w64-s1_flip_tlast",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8",
+      "rebuilt; the harness refuses the run, failing 'checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions'"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s0_drop_tvalid",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s0_flip_tdata",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s0_flip_tkeep",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s0_flip_tlast",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s1_drop_tvalid",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s1_flip_tdata",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s1_flip_tkeep",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_target_mistyped-w8-s1_flip_tlast",
+      "injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64",
+      "rebuilt; the harness refuses the run, failing 'witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake'"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s0_drop_tvalid",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s0_flip_tdata",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s0_flip_tkeep",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s0_flip_tlast",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s1_drop_tvalid",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s1_flip_tdata",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s1_flip_tkeep",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-bind_ports_swapped-w64-s1_flip_tlast",
+      "injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake): the detection check fails, as it must"
+    ],
+    [
+      "coverage-unused_path-w8",
+      "the clean build; the harness refuses the run, failing 'witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake'"
+    ]
+  ],
+  "property_controls": [
+    {
+      "row": "mutant-tvalid_waits_for_tready-w64",
+      "expected": "forwarding_laws.ai_tvalid_forwarded",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_tvalid_forwarded"
+      ],
+      "binary_sha256": "8f1abe746c36ba20568f50a77362d4d9cbb29abc8d9cf07c89976a995b6ebf3c"
+    },
+    {
+      "row": "mutant-tdata_hidden_while_stalled-w8",
+      "expected": "u_m_dut.ap_tdata_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake"
+      ],
+      "binary_sha256": "0aaf0723bb5b98153ae41bf341b9552e62d146e2aeffddbfed4920e569b48913"
+    },
+    {
+      "row": "mutant-tkeep_hidden_while_stalled-w64",
+      "expected": "u_m_dut.ap_tkeep_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake"
+      ],
+      "binary_sha256": "d3a6bd75282286fb9f6968d2e8b2e69de36efbbc914f945222f8f85918fd12da"
+    },
+    {
+      "row": "mutant-tlast_hidden_while_stalled-w8",
+      "expected": "u_m_dut.ap_tlast_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake"
+      ],
+      "binary_sha256": "61e9ebb8b153a0388bb9d9c3821db0520bcaf424e887ea04b062ac8404f1ea54"
+    },
+    {
+      "row": "mutant-released_while_tlast_stalled-w64",
+      "expected": "u_m_dut.ap_tvalid_held_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake",
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake",
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake",
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake",
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake"
+      ],
+      "binary_sha256": "b7c44d4f1612f5de27605c89c31f516af68f7019597f2e73f5303fa993d35d7b"
+    },
+    {
+      "row": "mutant-released_before_tlast_s0-w8",
+      "expected": "ap_owner_held_until_tlast_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake"
+      ],
+      "binary_sha256": "30017204c07e5efc95f74ede625172bc893fd0dcbfc07b3f2ca97320342d4b45"
+    },
+    {
+      "row": "mutant-released_before_tlast_s1-w64",
+      "expected": "ap_owner_held_until_tlast_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake"
+      ],
+      "binary_sha256": "8c3d52b41391cb075bb55e848f38c86f508c69b900b9c5c1d8bc8e54890c201b"
+    },
+    {
+      "row": "mutant-kept_after_tlast-w8",
+      "expected": "ap_owner_released_after_tlast",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast"
+      ],
+      "binary_sha256": "d8ae12e3bf12ec4f3cb49daca52d38ff0efa1b29322515671c9f9629e4da5cae"
+    },
+    {
+      "row": "mutant-reset_ignored-w64",
+      "expected": "ap_reset_releases_owner",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner"
+      ],
+      "binary_sha256": "d456f1c6f589da46bc584575db8a90402566548f70e6b95bba6c080d1ffcf857"
+    },
+    {
+      "row": "mutant-illegal_state_reached-w64",
+      "expected": "ap_state_legal",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal"
+      ],
+      "binary_sha256": "93ea682966f14c55fe970e326d770a73cbc8650221162d3bf19bad6b2e2dee94"
+    },
+    {
+      "row": "mutant-granted_without_request-w8",
+      "expected": "ap_grant_only_to_requester",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester"
+      ],
+      "binary_sha256": "04fda78b23db538342017a0d563bc791e6c8854c6450721344cd50673ae3c7b8"
+    },
+    {
+      "row": "mutant-both_sources_ready-w64",
+      "expected": "forwarding_laws.ai_grants_mutually_exclusive",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_grants_mutually_exclusive",
+        "TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_ready_only_for_owner_and_ready_sink"
+      ],
+      "binary_sha256": "510a35e7022561d73344c5a2b0472e1ecbfdee0399ea6bf868b8446a0dbe0fa1"
+    },
+    {
+      "row": "mutant-ready_ignores_sink-w8",
+      "expected": "forwarding_laws.ai_ready_only_for_owner_and_ready_sink",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_ready_only_for_owner_and_ready_sink"
+      ],
+      "binary_sha256": "04d12ba23c57e4a3a4edefcc9fb53406e5ab34d04cee7cb0d34678908b97f9d7"
+    },
+    {
+      "row": "mutant-tkeep_from_other_source-w64",
+      "expected": "forwarding_laws.ai_payload_forwarded_on_transfer",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_payload_forwarded_on_transfer"
+      ],
+      "binary_sha256": "3cecdfcaeb562157433c6d11f72daa9a757b8720fc91a30b64d8943d6e4a7f0b"
+    },
+    {
+      "row": "scoreboard-round_robin_inverted-w8",
+      "expected": "independent scoreboard",
+      "assertion_paths": [],
+      "binary_sha256": "ae9f295e7a220a342d9d154c4c33d576d9afa35dd6ee7a0fb3dc4407e9081f96"
+    },
+    {
+      "row": "stimulus-s0_drop_tvalid-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tdata-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tkeep-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tlast-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_drop_tvalid-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tdata-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tkeep-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tlast-w8",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_drop_tvalid-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tdata-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tkeep-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s0_flip_tlast-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_drop_tvalid-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tdata-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tkeep-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake"
+      ]
+    },
+    {
+      "row": "stimulus-s1_flip_tlast-w64",
+      "expected": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+      "assertion_paths": [
+        "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake"
+      ]
+    }
+  ],
+  "elaboration": [
+    {
+      "width": 8,
+      "witnesses": [
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+          "seen": 563,
+          "port_count": 563,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+          "seen": 563,
+          "port_count": 563,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+          "seen": 563,
+          "port_count": 563,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+          "seen": 563,
+          "port_count": 563,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+          "seen": 608,
+          "port_count": 608,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+          "seen": 608,
+          "port_count": 608,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+          "seen": 608,
+          "port_count": 608,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+          "seen": 608,
+          "port_count": 608,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake",
+          "seen": 172,
+          "port_count": 172,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake",
+          "seen": 172,
+          "port_count": 172,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake",
+          "seen": 172,
+          "port_count": 172,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake",
+          "seen": 172,
+          "port_count": 172,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal",
+          "seen": 1081,
+          "port_count": 1081,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner",
+          "seen": 10,
+          "port_count": 10,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast",
+          "seen": 120,
+          "port_count": 120,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake",
+          "seen": 787,
+          "port_count": 379,
+          "bound": "at least"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester",
+          "seen": 123,
+          "port_count": 123,
+          "bound": "at least"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_grants_mutually_exclusive",
+          "seen": 1514,
+          "port_count": 677,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_ready_only_for_owner_and_ready_sink",
+          "seen": 1514,
+          "port_count": 677,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_tvalid_forwarded",
+          "seen": 1468,
+          "port_count": 674,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_payload_forwarded_on_transfer",
+          "seen": 1098,
+          "port_count": 500,
+          "bound": "both above zero"
+        }
+      ],
+      "binary_sha256": "3e0f2e8e65ba98e4e7c63fa8235cf1eb6e1c028861d3036df21b8ab5ac9a321f"
+    },
+    {
+      "width": 64,
+      "witnesses": [
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+          "seen": 625,
+          "port_count": 625,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+          "seen": 625,
+          "port_count": 625,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+          "seen": 625,
+          "port_count": 625,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+          "seen": 625,
+          "port_count": 625,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+          "seen": 689,
+          "port_count": 689,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+          "seen": 689,
+          "port_count": 689,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+          "seen": 689,
+          "port_count": 689,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+          "seen": 689,
+          "port_count": 689,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake",
+          "seen": 228,
+          "port_count": 228,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake",
+          "seen": 228,
+          "port_count": 228,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake",
+          "seen": 228,
+          "port_count": 228,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake",
+          "seen": 228,
+          "port_count": 228,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal",
+          "seen": 1192,
+          "port_count": 1192,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner",
+          "seen": 12,
+          "port_count": 12,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast",
+          "seen": 121,
+          "port_count": 121,
+          "bound": "equal"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake",
+          "seen": 896,
+          "port_count": 403,
+          "bound": "at least"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester",
+          "seen": 123,
+          "port_count": 123,
+          "bound": "at least"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_grants_mutually_exclusive",
+          "seen": 1668,
+          "port_count": 723,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_ready_only_for_owner_and_ready_sink",
+          "seen": 1668,
+          "port_count": 723,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_tvalid_forwarded",
+          "seen": 1689,
+          "port_count": 754,
+          "bound": "both above zero"
+        },
+        {
+          "path": "TOP.axis_mux_rr_2in_1out.u_sva.ai_payload_forwarded_on_transfer",
+          "seen": 1201,
+          "port_count": 524,
+          "bound": "both above zero"
+        }
+      ],
+      "binary_sha256": "e2d09c9d35e27a40c61dc2b7cce8383ed672b40c67454664b9df2dca75fcdffb"
+    }
+  ],
+  "legacy_checker_absent": true,
+  "manager_focused_scan": [
+    495,
+    0,
+    [
+      [
+        "n-checks-m-failures",
+        92,
+        0,
+        "ptp_ts: 92 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        170,
+        0,
+        "== ptp_ts mux sva w8: checks: 170   failures: 0 =="
+      ],
+      [
+        "checks-colon-failures-colon",
+        171,
+        0,
+        "== ptp_ts mux sva w64: checks: 171   failures: 0 =="
+      ],
+      [
+        "checks-colon-failures-colon",
+        62,
+        0,
+        "== ptp_ts sva campaign: checks: 62   failures: 0 =="
+      ]
+    ],
+    [],
+    []
+  ],
+  "manager_composition_verified": true,
+  "campaign_breakdown": {
+    "clean": 2,
+    "stimulus": 16,
+    "dut_mutant": 14,
+    "scoreboard": 1,
+    "elaboration": 1,
+    "coverage_refusal": 4,
+    "coverage_fault_non_detection": 24
+  }
+}

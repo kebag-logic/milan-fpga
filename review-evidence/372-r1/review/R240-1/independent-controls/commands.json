@@ -1,0 +1,363 @@
+[
+  {
+    "name": "seed-w8-0",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=0"
+    ],
+    "exit": 0,
+    "seconds": 0.03158520700526424
+  },
+  {
+    "name": "seed-w8-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=1"
+    ],
+    "exit": 0,
+    "seconds": 0.027023807997466065
+  },
+  {
+    "name": "seed-w8-2",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=2"
+    ],
+    "exit": 0,
+    "seconds": 0.04223561499384232
+  },
+  {
+    "name": "seed-w8-4294967295",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=4294967295"
+    ],
+    "exit": 0,
+    "seconds": 0.023084291999111883
+  },
+  {
+    "name": "seed-w8-18446744073709551615",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=18446744073709551615"
+    ],
+    "exit": 0,
+    "seconds": 0.01791547200991772
+  },
+  {
+    "name": "random-initial-state-w8-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+verilator+rand+reset+2",
+      "+verilator+seed+1"
+    ],
+    "exit": 0,
+    "seconds": 0.01802611800667364
+  },
+  {
+    "name": "random-initial-state-w8-17",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+verilator+rand+reset+2",
+      "+verilator+seed+17"
+    ],
+    "exit": 0,
+    "seconds": 0.02076625599875115
+  },
+  {
+    "name": "bad-argument-w8-0",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+scenario=absent"
+    ],
+    "exit": 2,
+    "seconds": 0.018165175992180593
+  },
+  {
+    "name": "bad-argument-w8-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+stimulus_fault=s2_flip_tdata"
+    ],
+    "exit": 2,
+    "seconds": 0.019140087999403477
+  },
+  {
+    "name": "bad-argument-w8-2",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=-1"
+    ],
+    "exit": 2,
+    "seconds": 0.019469170991214924
+  },
+  {
+    "name": "bad-argument-w8-3",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=18446744073709551616"
+    ],
+    "exit": 2,
+    "seconds": 0.02149345600628294
+  },
+  {
+    "name": "bad-argument-w8-4",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=1x"
+    ],
+    "exit": 2,
+    "seconds": 0.02278628500062041
+  },
+  {
+    "name": "seed-w64-0",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=0"
+    ],
+    "exit": 0,
+    "seconds": 0.030223916997783817
+  },
+  {
+    "name": "seed-w64-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=1"
+    ],
+    "exit": 0,
+    "seconds": 0.018606858007842675
+  },
+  {
+    "name": "seed-w64-2",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=2"
+    ],
+    "exit": 0,
+    "seconds": 0.01870247200713493
+  },
+  {
+    "name": "seed-w64-4294967295",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=4294967295"
+    ],
+    "exit": 0,
+    "seconds": 0.022060407005483285
+  },
+  {
+    "name": "seed-w64-18446744073709551615",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=18446744073709551615"
+    ],
+    "exit": 0,
+    "seconds": 0.021182911994401366
+  },
+  {
+    "name": "random-initial-state-w64-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+verilator+rand+reset+2",
+      "+verilator+seed+1"
+    ],
+    "exit": 0,
+    "seconds": 0.02248739599599503
+  },
+  {
+    "name": "random-initial-state-w64-17",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+verilator+rand+reset+2",
+      "+verilator+seed+17"
+    ],
+    "exit": 0,
+    "seconds": 0.02709493499423843
+  },
+  {
+    "name": "bad-argument-w64-0",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+scenario=absent"
+    ],
+    "exit": 2,
+    "seconds": 0.021457462004036643
+  },
+  {
+    "name": "bad-argument-w64-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+stimulus_fault=s2_flip_tdata"
+    ],
+    "exit": 2,
+    "seconds": 0.022972022998146713
+  },
+  {
+    "name": "bad-argument-w64-2",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=-1"
+    ],
+    "exit": 2,
+    "seconds": 0.030900780999218114
+  },
+  {
+    "name": "bad-argument-w64-3",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=18446744073709551616"
+    ],
+    "exit": 2,
+    "seconds": 0.01621617400087416
+  },
+  {
+    "name": "bad-argument-w64-4",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=1x"
+    ],
+    "exit": 2,
+    "seconds": 0.01438694100943394
+  },
+  {
+    "name": "one-witness-lost-build",
+    "argv": [
+      "rtk",
+      "proxy",
+      "make",
+      "--no-print-directory",
+      "-C",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts",
+      "mux-sva-build",
+      "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "MUX_SVA_WIDTH=64",
+      "MUX_SVA_OBJ=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/one-witness-lost/obj",
+      "SVA_DIR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/one-witness-lost/sva",
+      "MUX_SVA_DUT=$VALIDATION_STORAGE/reviews/r240-372-r1/hdl/common/axis_mux_rr_2in_1out.sv",
+      "MUX_SVA_ASSERT=--assert"
+    ],
+    "exit": 0,
+    "seconds": 5.085456283006351
+  },
+  {
+    "name": "one-witness-lost-run",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/one-witness-lost/obj/Vmux_sva"
+    ],
+    "exit": 1,
+    "seconds": 0.019369893008843064
+  },
+  {
+    "name": "reset-guard-removed-build",
+    "argv": [
+      "rtk",
+      "proxy",
+      "make",
+      "--no-print-directory",
+      "-C",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts",
+      "mux-sva-build",
+      "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "MUX_SVA_WIDTH=64",
+      "MUX_SVA_OBJ=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/reset-guard-removed/obj",
+      "SVA_DIR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/reset-guard-removed/sva",
+      "MUX_SVA_DUT=$VALIDATION_STORAGE/reviews/r240-372-r1/hdl/common/axis_mux_rr_2in_1out.sv",
+      "MUX_SVA_ASSERT=--assert"
+    ],
+    "exit": 0,
+    "seconds": 5.067809063999448
+  },
+  {
+    "name": "reset-guard-removed-run",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/reset-guard-removed/obj/Vmux_sva",
+      "+verilator+error+limit+1000",
+      "+scenario=reset_while_stalled"
+    ],
+    "exit": 3,
+    "seconds": 0.020363140996778384
+  },
+  {
+    "name": "scoreboard-high-bit-build",
+    "argv": [
+      "rtk",
+      "proxy",
+      "make",
+      "--no-print-directory",
+      "-C",
+      "$VALIDATION_STORAGE/reviews/r240-372-r1/tb/verilator/ptp_ts",
+      "mux-sva-build",
+      "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "MUX_SVA_WIDTH=64",
+      "MUX_SVA_OBJ=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/scoreboard-high-bit/obj",
+      "SVA_DIR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/scoreboard-high-bit/sva",
+      "MUX_SVA_DUT=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/scoreboard-high-bit/axis_mux_rr_2in_1out.sv",
+      "MUX_SVA_ASSERT=--no-assert"
+    ],
+    "exit": 0,
+    "seconds": 5.057442220000667
+  },
+  {
+    "name": "scoreboard-high-bit-run",
+    "argv": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/independent-controls/scoreboard-high-bit/obj/Vmux_sva",
+      "+scenario=multi_beats"
+    ],
+    "exit": 1,
+    "seconds": 0.019437233000644483
+  }
+]
