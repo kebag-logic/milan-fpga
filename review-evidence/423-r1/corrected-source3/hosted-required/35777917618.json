@@ -1,0 +1,507 @@
+{
+  "conclusion": "success",
+  "event": "pull_request",
+  "headSha": "4671e582cfa4bba4809b9e3a354ce5b6eb967f99",
+  "jobs": [
+    {
+      "completedAt": "2026-09-22T20:05:01Z",
+      "conclusion": "success",
+      "databaseId": 106915734900,
+      "name": "docs-check-no-git",
+      "startedAt": "2026-09-22T20:04:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T20:04:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T20:04:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T20:04:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:00Z",
+          "conclusion": "success",
+          "name": "Strip git metadata, then run the docs gate",
+          "number": 3,
+          "startedAt": "2026-09-22T20:04:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:00Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 6,
+          "startedAt": "2026-09-22T20:05:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:00Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-09-22T20:05:00Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35777917618/job/106915734900"
+    },
+    {
+      "completedAt": "2026-09-22T20:04:58Z",
+      "conclusion": "success",
+      "databaseId": 106915735125,
+      "name": "wire-accountability",
+      "startedAt": "2026-09-22T20:04:51Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T20:04:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T20:04:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T20:04:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:55Z",
+          "conclusion": "success",
+          "name": "Fetch the engine authority the builder derives from",
+          "number": 3,
+          "startedAt": "2026-09-22T20:04:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:56Z",
+          "conclusion": "success",
+          "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+          "number": 4,
+          "startedAt": "2026-09-22T20:04:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:56Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 8,
+          "startedAt": "2026-09-22T20:04:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:04:56Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-09-22T20:04:56Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35777917618/job/106915735125"
+    },
+    {
+      "completedAt": "2026-09-22T20:11:35Z",
+      "conclusion": "success",
+      "databaseId": 106915735157,
+      "name": "docs-check",
+      "startedAt": "2026-09-22T20:04:52Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T20:04:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T20:04:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:02Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T20:04:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:07Z",
+          "conclusion": "success",
+          "name": "Build the validated HDL reference",
+          "number": 3,
+          "startedAt": "2026-09-22T20:05:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:09Z",
+          "conclusion": "success",
+          "name": "Upload the HDL reference HTML",
+          "number": 4,
+          "startedAt": "2026-09-22T20:05:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:09Z",
+          "conclusion": "success",
+          "name": "Install the python gate dependencies",
+          "number": 5,
+          "startedAt": "2026-09-22T20:05:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:28Z",
+          "conclusion": "success",
+          "name": "Install diagram gate dependencies",
+          "number": 6,
+          "startedAt": "2026-09-22T20:05:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:31Z",
+          "conclusion": "success",
+          "name": "Link health, wording, dead-reference and local-info gate",
+          "number": 7,
+          "startedAt": "2026-09-22T20:05:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:32Z",
+          "conclusion": "success",
+          "name": "Added-line em-dash gate",
+          "number": 8,
+          "startedAt": "2026-09-22T20:05:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:33Z",
+          "conclusion": "success",
+          "name": "Concise audience documentation gate",
+          "number": 9,
+          "startedAt": "2026-09-22T20:05:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:35Z",
+          "conclusion": "success",
+          "name": "Audience diagram no-drift gate",
+          "number": 10,
+          "startedAt": "2026-09-22T20:05:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:38Z",
+          "conclusion": "success",
+          "name": "Product solution source-fact gate",
+          "number": 11,
+          "startedAt": "2026-09-22T20:05:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:39Z",
+          "conclusion": "success",
+          "name": "Verified submodule documentation gate",
+          "number": 12,
+          "startedAt": "2026-09-22T20:05:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:40Z",
+          "conclusion": "success",
+          "name": "HDL timing diagram no-drift gate",
+          "number": 13,
+          "startedAt": "2026-09-22T20:05:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:47Z",
+          "conclusion": "success",
+          "name": "Published diagram PNG gate",
+          "number": 14,
+          "startedAt": "2026-09-22T20:05:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:47Z",
+          "conclusion": "success",
+          "name": "Milan feature-status consistency gate",
+          "number": 15,
+          "startedAt": "2026-09-22T20:05:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:48Z",
+          "conclusion": "success",
+          "name": "Traceability matrix no-drift gate",
+          "number": 16,
+          "startedAt": "2026-09-22T20:05:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:52Z",
+          "conclusion": "success",
+          "name": "Fetch the builder source dependencies",
+          "number": 17,
+          "startedAt": "2026-09-22T20:05:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:53Z",
+          "conclusion": "success",
+          "name": "Imported gPTP documentation gate",
+          "number": 18,
+          "startedAt": "2026-09-22T20:05:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:53Z",
+          "conclusion": "success",
+          "name": "Code-quality measurement self-tests",
+          "number": 19,
+          "startedAt": "2026-09-22T20:05:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:05:54Z",
+          "conclusion": "success",
+          "name": "Install the pinned sv2v release",
+          "number": 20,
+          "startedAt": "2026-09-22T20:05:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:06:09Z",
+          "conclusion": "success",
+          "name": "Bare-metal scope gate",
+          "number": 21,
+          "startedAt": "2026-09-22T20:05:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:09:03Z",
+          "conclusion": "success",
+          "name": "End-station builder gates",
+          "number": 22,
+          "startedAt": "2026-09-22T20:06:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:09:27Z",
+          "conclusion": "success",
+          "name": "NVM record-space gate",
+          "number": 23,
+          "startedAt": "2026-09-22T20:09:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:06Z",
+          "conclusion": "success",
+          "name": "Saved-state writer gate",
+          "number": 24,
+          "startedAt": "2026-09-22T20:09:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:08Z",
+          "conclusion": "success",
+          "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+          "number": 25,
+          "startedAt": "2026-09-22T20:10:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:11Z",
+          "conclusion": "success",
+          "name": "RTL source-list drift gate",
+          "number": 26,
+          "startedAt": "2026-09-22T20:10:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:12Z",
+          "conclusion": "success",
+          "name": "Boundary-unit naming ratchet",
+          "number": 27,
+          "startedAt": "2026-09-22T20:10:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:16Z",
+          "conclusion": "success",
+          "name": "Port contract gate",
+          "number": 28,
+          "startedAt": "2026-09-22T20:10:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:19Z",
+          "conclusion": "success",
+          "name": "Fail-fast ratchet",
+          "number": 29,
+          "startedAt": "2026-09-22T20:10:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:21Z",
+          "conclusion": "success",
+          "name": "TODO ownership gate",
+          "number": 30,
+          "startedAt": "2026-09-22T20:10:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:33Z",
+          "conclusion": "success",
+          "name": "Test-evidence ratchet",
+          "number": 31,
+          "startedAt": "2026-09-22T20:10:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:33Z",
+          "conclusion": "success",
+          "name": "Mechanical hygiene ratchet",
+          "number": 32,
+          "startedAt": "2026-09-22T20:10:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:34Z",
+          "conclusion": "success",
+          "name": "SystemVerilog idiom gate",
+          "number": 33,
+          "startedAt": "2026-09-22T20:10:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:36Z",
+          "conclusion": "success",
+          "name": "C and C++ idiom gate",
+          "number": 34,
+          "startedAt": "2026-09-22T20:10:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:41Z",
+          "conclusion": "success",
+          "name": "Python idiom gate",
+          "number": 35,
+          "startedAt": "2026-09-22T20:10:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:42Z",
+          "conclusion": "success",
+          "name": "Shell idiom gate",
+          "number": 36,
+          "startedAt": "2026-09-22T20:10:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:49Z",
+          "conclusion": "success",
+          "name": "CI event and SHA contract gate",
+          "number": 37,
+          "startedAt": "2026-09-22T20:10:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:52Z",
+          "conclusion": "success",
+          "name": "Local act runner contract gate",
+          "number": 38,
+          "startedAt": "2026-09-22T20:10:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:52Z",
+          "conclusion": "success",
+          "name": "Doc cited-path gate",
+          "number": 39,
+          "startedAt": "2026-09-22T20:10:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:52Z",
+          "conclusion": "success",
+          "name": "Archive integrity gate",
+          "number": 40,
+          "startedAt": "2026-09-22T20:10:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:53Z",
+          "conclusion": "success",
+          "name": "Per-page contents gate",
+          "number": 41,
+          "startedAt": "2026-09-22T20:10:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:10:53Z",
+          "conclusion": "success",
+          "name": "AEM store generator self-test",
+          "number": 42,
+          "startedAt": "2026-09-22T20:10:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:11:03Z",
+          "conclusion": "success",
+          "name": "Sweep/build shape gate",
+          "number": 43,
+          "startedAt": "2026-09-22T20:10:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:11:04Z",
+          "conclusion": "success",
+          "name": "Deploy shape gate",
+          "number": 44,
+          "startedAt": "2026-09-22T20:11:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:11:32Z",
+          "conclusion": "success",
+          "name": "Entity shape gate",
+          "number": 45,
+          "startedAt": "2026-09-22T20:11:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:11:33Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 90,
+          "startedAt": "2026-09-22T20:11:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T20:11:33Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 91,
+          "startedAt": "2026-09-22T20:11:33Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35777917618/job/106915735157"
+    }
+  ],
+  "name": "docs",
+  "status": "completed",
+  "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35777917618"
+}
