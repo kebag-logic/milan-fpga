@@ -1,0 +1,122 @@
+make: Entering directory '$VALIDATION/tb/verilator/media_nco'
+verilator --cc --exe --build -j 0 --top-module media_nco_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM +incdir+../../../hdl/common -CFLAGS "-std=c++17 -O2 -I$VALIDATION/tb/verilator/media_nco -Wall -Wextra" media_nco_wrap.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv sim_main.cpp -o Vmedia_nco_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/media_nco/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/media_nco/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.006); cpu 0.001 s on 8 threads; allocated 6.023 MB
+======================================================================
+./obj_dir/Vmedia_nco_sim
+======================================================================
+KL_media_nco - steerable media sample grid
+======================================================================
+   A: DIV 2083 REM 16000, LSB 0.0100 ppm, authority +/-199.96 ppm
+   B: DIV 1041 REM 32000, LSB 0.0200 ppm, authority +/-319.90 ppm
+
+-- 1. trim = 0 is bit-for-bit the VERSION 0x0040 divider --
+   A(100 MHz): 288 ticks in 600000 clocks, 0 mismatches
+   B( 50 MHz): 576 ticks in 600000 clocks, 0 mismatches
+
+-- 2/3/4. A(100MHz): rate, phase and period across the trim range --
+   A(100MHz) trim      +0 ->    +0.1066 ppm (spec    -0.0000, d +0.1066)  periods [2083..2084]  drift 0.3333
+   A(100MHz) trim      +1 ->    +0.1066 ppm (spec    -0.0100, d +0.1166)  periods [2083..2084]  drift 0.3646
+   A(100MHz) trim      -1 ->    +0.1066 ppm (spec    +0.0100, d +0.0966)  periods [2083..2084]  drift 0.6666
+   A(100MHz) trim     +10 ->    +0.1066 ppm (spec    -0.1000, d +0.2066)  periods [2083..2084]  drift 0.6460
+   A(100MHz) trim     -10 ->    +0.1066 ppm (spec    +0.1000, d +0.0066)  periods [2083..2084]  drift 0.6663
+   A(100MHz) trim    +100 ->    -0.8528 ppm (spec    -1.0000, d +0.1472)  periods [2083..2084]  drift 0.6625
+   A(100MHz) trim    -100 ->    +1.0660 ppm (spec    +1.0000, d +0.0660)  periods [2083..2084]  drift 0.6625
+   A(100MHz) trim   +1000 ->    -9.8067 ppm (spec    -9.9999, d +0.1932)  periods [2083..2084]  drift 0.6250
+   A(100MHz) trim   -1000 ->   +10.0201 ppm (spec   +10.0001, d +0.0200)  periods [2083..2084]  drift 0.6250
+   A(100MHz) trim   +8000 ->   -80.1535 ppm (spec   -79.9936, d -0.1599)  periods [2083..2084]  drift 0.5000
+   A(100MHz) trim   -8000 ->   +80.0597 ppm (spec   +80.0064, d +0.0533)  periods [2083..2084]  drift 0.6667
+   A(100MHz) trim  +16000 ->  -160.0810 ppm (spec  -159.9744, d -0.1066)  periods [2083..2084]  drift 0.6667
+   A(100MHz) trim  -16000 ->  +160.0256 ppm (spec  +160.0256, d +0.0000)  periods [2083..2083]  drift 0.0000
+   A(100MHz) trim  +32000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [2084..2084]  drift 0.0000
+   A(100MHz) trim  -32000 ->  +319.9958 ppm (spec  +320.1024, d -0.1067)  periods [2082..2083]  drift 0.6667
+
+-- 6. A(100MHz): sign convention (trim > 0 SLOWS the grid) --
+   ppm(+1000) = -9.8067, ppm(0) = +0.1066, ppm(-1000) = +10.0201
+
+-- 5. A(100MHz): trim LSB calibration --
+   measured 0.0099983 ppm/LSB over +/-32000, spec secant 0.0100000, nominal 1e6/100000000 = 0.0100000
+
+-- 2/3/4. B( 50MHz): rate, phase and period across the trim range --
+   B( 50MHz) trim      +0 ->    -0.2132 ppm (spec    -0.0000, d -0.2132)  periods [1041..1042]  drift 0.6667
+   B( 50MHz) trim      +1 ->    -0.2132 ppm (spec    -0.0200, d -0.1932)  periods [1041..1042]  drift 0.6666
+   B( 50MHz) trim      -1 ->    -0.2132 ppm (spec    +0.0200, d -0.2332)  periods [1041..1042]  drift 0.3646
+   B( 50MHz) trim     +10 ->    -0.2132 ppm (spec    -0.2000, d -0.0132)  periods [1041..1042]  drift 0.6663
+   B( 50MHz) trim     -10 ->    -0.2132 ppm (spec    +0.2000, d -0.4132)  periods [1041..1042]  drift 0.6460
+   B( 50MHz) trim    +100 ->    -2.1319 ppm (spec    -2.0000, d -0.1319)  periods [1041..1042]  drift 0.6687
+   B( 50MHz) trim    -100 ->    +1.7055 ppm (spec    +2.0000, d -0.2945)  periods [1041..1042]  drift 0.6646
+   B( 50MHz) trim   +1000 ->   -20.0396 ppm (spec   -19.9996, d -0.0400)  periods [1041..1042]  drift 0.6875
+   B( 50MHz) trim   -1000 ->   +19.6140 ppm (spec   +20.0004, d -0.3864)  periods [1041..1042]  drift 0.6458
+   B( 50MHz) trim   +4000 ->   -80.1535 ppm (spec   -79.9936, d -0.1599)  periods [1041..1042]  drift 0.7500
+   B( 50MHz) trim   -4000 ->   +79.7399 ppm (spec   +80.0064, d -0.2665)  periods [1041..1042]  drift 0.5833
+   B( 50MHz) trim   +8000 ->  -160.0810 ppm (spec  -159.9744, d -0.1066)  periods [1041..1042]  drift 0.8333
+   B( 50MHz) trim   -8000 ->  +159.7057 ppm (spec  +160.0256, d -0.3199)  periods [1041..1042]  drift 0.5000
+   B( 50MHz) trim  +16000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [1042..1042]  drift 0.0000
+   B( 50MHz) trim  -16000 ->  +320.3158 ppm (spec  +320.1024, d +0.2133)  periods [1041..1042]  drift 0.3333
+
+-- 6. B( 50MHz): sign convention (trim > 0 SLOWS the grid) --
+   ppm(+1000) = -20.0396, ppm(0) = -0.2132, ppm(-1000) = +19.6140
+
+-- 5. B( 50MHz): trim LSB calibration --
+   measured 0.0200067 ppm/LSB over +/-16000, spec secant 0.0200000, nominal 1e6/50000000 = 0.0200000
+
+-- 7. A(100MHz): trim beyond +/-TRIM_MAX_P saturates --
+   A(100MHz) trim  +32000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [2084..2084]  drift 0.0000
+   A(100MHz) trim  +64000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [2084..2084]  drift 0.0000
+   A(100MHz) trim  -32000 ->  +319.9958 ppm (spec  +320.1024, d -0.1067)  periods [2082..2083]  drift 0.6667
+   A(100MHz) trim  -64000 ->  +319.9958 ppm (spec  +320.1024, d -0.1067)  periods [2082..2083]  drift 0.6667
+
+-- 7. B( 50MHz): trim beyond +/-TRIM_MAX_P saturates --
+   B( 50MHz) trim  +16000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [1042..1042]  drift 0.0000
+   B( 50MHz) trim  +32000 ->  -319.8976 ppm (spec  -319.8976, d +0.0000)  periods [1042..1042]  drift 0.0000
+   B( 50MHz) trim  -16000 ->  +320.3158 ppm (spec  +320.1024, d +0.2133)  periods [1041..1042]  drift 0.3333
+   B( 50MHz) trim  -32000 ->  +320.3158 ppm (spec  +320.1024, d +0.2133)  periods [1041..1042]  drift 0.3333
+
+-- 8. A(100MHz): live trim change keeps the grid continuous --
+   1440 ticks across two live trim steps, periods [2083..2084]
+
+-- 8. B( 50MHz): live trim change keeps the grid continuous --
+   2880 ticks across two live trim steps, periods [1041..1042]
+
+-- 9. A(100MHz): servo path (u in 1/16 ppm -> trim in LSB) --
+   A(100MHz) u      +0 (1/16 ppm) -> trim      +0 LSB,   -0.0000 ppm (measured   +0.1066)
+   A(100MHz) u     +16 (1/16 ppm) -> trim    -100 LSB,   +1.0000 ppm (measured   +1.0660)
+   A(100MHz) u     -16 (1/16 ppm) -> trim    +100 LSB,   -1.0000 ppm (measured   -0.8528)
+   A(100MHz) u    +160 (1/16 ppm) -> trim   -1000 LSB,  +10.0001 ppm (measured  +10.0201)
+   A(100MHz) u    -160 (1/16 ppm) -> trim   +1000 LSB,   -9.9999 ppm (measured   -9.8067)
+   A(100MHz) u   +1600 (1/16 ppm) -> trim  -10000 LSB, +100.0100 ppm (measured +100.2099)
+   A(100MHz) u   -1600 (1/16 ppm) -> trim  +10000 LSB,  -99.9900 ppm (measured  -99.9767)
+   A(100MHz) u   +3200 (1/16 ppm) -> trim  -20000 LSB, +200.0400 ppm (measured +200.0133)
+   A(100MHz) u   -3200 (1/16 ppm) -> trim  +20000 LSB, -199.9600 ppm (measured -200.0399)
+   A(100MHz) u   +8000 (1/16 ppm) -> trim  -32000 LSB, +320.1024 ppm (measured +319.9958)
+   A(100MHz) u   -8000 (1/16 ppm) -> trim  +32000 LSB, -319.8976 ppm (measured -319.8976)
+   A(100MHz) u  +32767 (1/16 ppm) -> trim  -32000 LSB, +320.1024 ppm (measured +319.9958)
+   A(100MHz) u  -32768 (1/16 ppm) -> trim  +32000 LSB, -319.8976 ppm (measured -319.8976)
+   sign: u=+1600 -> +100.2099 ppm, u=0 -> +0.1066, u=-1600 -> -99.9767
+   gate: u=+3200 with servo_en=0 -> +0.1066 ppm, servo_en=1 -> +200.0133
+
+-- 9. B( 50MHz): servo path (u in 1/16 ppm -> trim in LSB) --
+   B( 50MHz) u      +0 (1/16 ppm) -> trim      +0 LSB,   -0.0000 ppm (measured   -0.2132)
+   B( 50MHz) u     +16 (1/16 ppm) -> trim     -50 LSB,   +1.0000 ppm (measured   +1.0660)
+   B( 50MHz) u     -16 (1/16 ppm) -> trim     +50 LSB,   -1.0000 ppm (measured   -0.8528)
+   B( 50MHz) u    +160 (1/16 ppm) -> trim    -500 LSB,  +10.0001 ppm (measured  +10.0201)
+   B( 50MHz) u    -160 (1/16 ppm) -> trim    +500 LSB,   -9.9999 ppm (measured   -9.8067)
+   B( 50MHz) u   +1600 (1/16 ppm) -> trim   -5000 LSB, +100.0100 ppm (measured +100.2099)
+   B( 50MHz) u   -1600 (1/16 ppm) -> trim   +5000 LSB,  -99.9900 ppm (measured  -99.9767)
+   B( 50MHz) u   +3200 (1/16 ppm) -> trim  -10000 LSB, +200.0400 ppm (measured +200.0133)
+   B( 50MHz) u   -3200 (1/16 ppm) -> trim  +10000 LSB, -199.9600 ppm (measured -200.3596)
+   B( 50MHz) u   +8000 (1/16 ppm) -> trim  -16000 LSB, +320.1024 ppm (measured +320.3158)
+   B( 50MHz) u   -8000 (1/16 ppm) -> trim  +16000 LSB, -319.8976 ppm (measured -319.8976)
+   B( 50MHz) u  +32767 (1/16 ppm) -> trim  -16000 LSB, +320.1024 ppm (measured +320.3158)
+   B( 50MHz) u  -32768 (1/16 ppm) -> trim  +16000 LSB, -319.8976 ppm (measured -319.8976)
+   sign: u=+1600 -> +100.2099 ppm, u=0 -> -0.2132, u=-1600 -> -99.9767
+   gate: u=+3200 with servo_en=0 -> -0.2132 ppm, servo_en=1 -> +200.0133
+
+======================================================================
+media_nco: 248 checks: 248 PASS, 0 FAIL
+======================================================================
+make: Leaving directory '$VALIDATION/tb/verilator/media_nco'

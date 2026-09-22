@@ -1,0 +1,14 @@
+make: Entering directory '$VALIDATION/tb/verilator/gptp_plane'
+verilator --cc --exe --build -j 0 --top-module gptp_plane_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$VALIDATION/tb/verilator/gptp_plane -Wall -Wextra" gptp_plane_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_plane_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/gptp_plane/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/gptp_plane/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 5.980 MB
+./obj_dir/Vgptp_plane_sim
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000
+29 checks: 29 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/gptp_plane'
