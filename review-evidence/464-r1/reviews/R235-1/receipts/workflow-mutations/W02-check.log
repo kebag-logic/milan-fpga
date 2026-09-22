@@ -1,0 +1,4 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 must be the step named `AEM store generator self-test` (found `Sweep/build shape gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind
+  FAIL .github/workflows/docs.yml: job `docs-check` step 42 must be the step named `Sweep/build shape gate` (found `AEM store generator self-test`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind
+ci_events: 2 finding(s) over 1505 contract item(s)

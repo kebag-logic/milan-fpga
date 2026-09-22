@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/r235-464/bmut/B4/avdecc/gen_aem_store.py", line 104, in <module>
+    from aem_assemble import (CHMAP_PHYS_DEPTH, NAMED, OVERLAYS, ROM_SIZE,
+  File "/tmp/r235-464/bmut/B4/avdecc/aem_assemble.py", line 636, in <module>
+    _M = build_model(builtin_spec())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B4/avdecc/aem_assemble.py", line 583, in build_model
+    smap = static_map_tables(spec, base_of, len(si), len(so))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B4/avdecc/aem_maps.py", line 402, in static_map_tables
+    out_addr, out_rows, out_moff, out_dev = _direction_tables(outputs, maps,
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B4/avdecc/aem_maps.py", line 305, in _direction_tables
+    bm, rows = _static_map_of(p, tag, maps)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B4/avdecc/aem_maps.py", line 166, in _static_map_of
+    raise ValueError(
+ValueError: STREAM_PORT_OUTPUT[0] base_map=0 names an AUDIO_MAP this model does not define (it defines 1: 0..0) - 7.2.13 base_map addresses a descriptor that must exist

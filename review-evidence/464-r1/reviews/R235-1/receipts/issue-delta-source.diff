@@ -1,0 +1,371 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index f5a45401a8bb3648be2189c9c8b273707de097dd..6495a1257e30aa3f8a3d9577efa93bfcb25862a3 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -381,6 +381,15 @@ jobs:
+           python3 scripts/gen_toc.py --verify-anchors
+           python3 scripts/gen_toc.py --check
+ 
++      # AEM store generator self-test (#464): the AUDIO_MAP bounds gate, the
++      # two-level directory gate and the Milan 6.4 Base-format check in
++      # avdecc/gen_aem_store.py each prove they can refuse, every AUDIO_MAP
++      # vector by the bound that names it. No step ran it, so it failed
++      # unseen once the model's map geometry changed. It reads first-party
++      # files only and needs no dependency installed above.
++      - name: AEM store generator self-test
++        run: python3 avdecc/gen_aem_store.py --self-test
++
+       # Build-shape gate: the milan_soc.py command line sweep.sh/build.sh compose
+       # must equal the end-station config they claim to build (stream count,
+       # queue geometry, and cache size). --self-test also proves a wrong value IS rejected.
+diff --git a/avdecc/aem_maps.py b/avdecc/aem_maps.py
+index ca7b47338bc4cf9a6c6d8b36ad26e428f55ad783..25636b2dcfcc7f400c5f7df752a008a20efb8648 100644
+--- a/avdecc/aem_maps.py
++++ b/avdecc/aem_maps.py
+@@ -99,8 +99,13 @@ SMAP_MAX_ROWS = 62
+ #: Down-declaring is NOT the fix (USER, commit e103d8e: the device declares
+ #: what it IS); the map has to be built from min(clusters, widest advertised
+ #: channels) or the talker has to grow.
++#:
++#: The map is AUDIO_MAP[0] since da71309c, which made the Stream Port Input
++#: dynamic (Milan v1.2 5.3.3.9) and densely renumbered the one static map
++#: that remained. The six mappings, the stream and the format are the ones
++#: first measured; only the descriptor index changed (#464).
+ KNOWN_MAP_DEVIATIONS = {
+-    "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,%d,%d,0): stream_channel "
++    "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,%d,%d,0): stream_channel "
+     "%d >= 2, the widest channels_per_frame stream 0 advertises "
+     "(['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1" % (c, c, c)
+     for c in range(2, 8)
+diff --git a/avdecc/gen_aem_store.py b/avdecc/gen_aem_store.py
+index eaa4265b318798bd43677c89afb2864ec5482ec2..aa8843810722469949be7d770ee5ad0cc7d046b4 100644
+--- a/avdecc/gen_aem_store.py
++++ b/avdecc/gen_aem_store.py
+@@ -6,9 +6,9 @@ gen_aem_store.py - generate descriptor bytes and a legacy SVH rendering.
+ 
+ The end-station builder supplies the current model through an overlay. The
+ default compatibility model contains ENTITY, CONFIGURATION, AUDIO_UNIT,
+-STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x3,
++STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x2,
+ CLOCK_DOMAIN, CONTROL (IDENTIFY), LOCALE, STRINGS, STREAM_PORT_IN/OUT,
+-AUDIO_CLUSTER x16, AUDIO_MAP x2.
++AUDIO_CLUSTER x16, AUDIO_MAP x1.
+ 
+ The historical JSON snapshot declares eight AUDIO_UNIT external ports but no
+ EXTERNAL_PORT descriptors. The compatibility model keeps both counts at zero
+@@ -64,6 +64,9 @@ See static_map_tables() for the clause behind each bound.
+ 
+   python3 avdecc/gen_aem_store.py --self-test   # prove the gate bites
+ 
++The docs-check job runs that self-test (#464). Nothing did before, so it
++failed unseen once the model's AUDIO_MAP geometry changed under it.
++
+ 
+ WHERE THE CODE LIVES (2026-09-03).  This module passed 2 400 lines and Rule 12
+ (docs/development/CODE_QUALITY.md) refuses a module over a thousand, so it is
+@@ -94,6 +97,7 @@ than part of it.
+ """
+ import argparse
+ import json
++from collections.abc import Callable
+ from pathlib import Path
+ from typing import Any
+ 
+@@ -150,31 +154,74 @@ __all__ = [
+     "spec_from_overlay", "static_map_tables", "two_level_directory",
+ ]
+ 
++def _map_fixture() -> dict[str, Any]:
++    """The geometry the AUDIO_MAP bounds vectors mutate: one static map a side.
++
++    The deployed model cannot host them. Milan v1.2 5.3.3.9 makes its Stream
++    Port Input dynamic, so it has no input AUDIO_MAP, and since da71309c its
++    one static map is the output port's, at index 0. Vectors written against
++    the older two-map deployed shape then indexed a map that no longer
++    existed, or landed on the output map and were refused by another bound
++    (#464). The gate still bounds any static input map a spec or overlay
++    declares, so the vectors declare the geometry they bound, here:
++
++      STREAM_INPUT   0 = AAF (FORMATS, up to 8 channels), 1 = the CRF sink
++      STREAM_OUTPUT  0 = AAF (OUT_FORMATS, 2 channels)
++      AUDIO_MAP[0]   serves STREAM_PORT_INPUT[0],  8 clusters from 0
++      AUDIO_MAP[1]   serves STREAM_PORT_OUTPUT[0], 8 clusters from 8
++
++    Every field that bounds no mapping is the deployed model's. Each call
++    returns fresh objects, so one vector's mutation cannot reach the next.
++    """
++    spec = builtin_spec()
++    spec.update(
++        stream_inputs=[
++            dict(name="AAF in", kind="aaf", formats=list(FORMATS),
++                 buffer=2126000),
++            dict(name="CRF in", kind="crf", formats=list(CRF_FORMATS),
++                 buffer=2126000)],
++        stream_outputs=[dict(name="AAF out", formats=list(OUT_FORMATS))],
++        ports_in=[dict(clusters=8, base_cluster=0, maps=1, base_map=0)],
++        ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=1)],
++        audio_maps=[[[0, ch, ch, 0] for ch in range(8)],
++                    [[0, ch, ch, 0] for ch in range(8)]],
++        cluster_names_in=None, cluster_names_out=None)
++    return spec
++
++
+ def _selftest_map_bounds():
+     """The AUDIO_MAP bounds gate: every vector is a model that must be refused.
+ 
+-    Methodology R2 - a check that cannot fail is not a check - so the arm
+-    ends by proving the recorded-deviation allowlist is load-bearing too.
++    Methodology R2 - a check that cannot fail is not a check. Each vector
++    mutates a fresh _map_fixture() and must be refused by ITS OWN bound: the
++    refusal has to carry the text that bound raises, so a model some other
++    check refuses first fails the vector instead of passing it.
+     """
+     ok = [True]
+ 
+-    def refuses(name: str, mutate: Callable[[dict[str, Any]], None]) -> None:
+-        """Assert `mutate`'s model is REFUSED by build_model()."""
+-        spec = builtin_spec()
++    def mutated(mutate: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
++        """A fresh _map_fixture() with `mutate` applied."""
++        spec = _map_fixture()
+         mutate(spec)
++        return spec
++
++    def refuses(name: str, mutate: Callable[[dict[str, Any]], None],
++                cause: str) -> None:
++        """Assert `mutate`'s model is REFUSED by build_model() for `cause`."""
+         try:
+-            build_model(spec)
++            build_model(mutated(mutate))
+         except ValueError as e:
+-            print(f"  [ok  ] {name}\n         -> {str(e)[:150]}")
++            if cause in str(e):
++                print(f"  [ok  ] {name}\n         -> {str(e)[:150]}")
++                return
++            ok[0] = False
++            print(f"  [FAIL] {name}: refused, but not for {cause!r} - {e}")
+             return
+         ok[0] = False
+         print(f"  [FAIL] {name}: built without complaint")
+ 
+-    def accepts(name: str,
+-                mutate: Callable[[dict[str, Any]], None] = lambda s: None) -> None:
+-        """Assert `mutate`'s model still BUILDS - the gate's negative control."""
+-        spec = builtin_spec()
+-        mutate(spec)
++    def accepts(name: str, spec: dict[str, Any]) -> None:
++        """Assert `spec` still BUILDS - the gate's negative control."""
+         try:
+             build_model(spec)
+             print(f"  [ok  ] {name}")
+@@ -183,8 +230,10 @@ def _selftest_map_bounds():
+             print(f"  [FAIL] {name}: refused - {e}")
+ 
+     print("=== gen_aem_store AUDIO_MAP bounds gate self-test ===")
+-    # POSITIVE control first: the gate must not refuse what ships.
+-    accepts("the deployed model still builds")
++    # POSITIVE controls first: the gate must not refuse what ships, nor the
++    # fixture every vector below mutates, or each refusal would be vacuous.
++    accepts("the deployed model still builds", builtin_spec())
++    accepts("the two-map fixture the vectors mutate builds", _map_fixture())
+ 
+     def global_index(s: dict[str, Any]) -> None:
+         """Rewrite the output map with GLOBAL cluster indices - defect A."""
+@@ -193,19 +242,25 @@ def _selftest_map_bounds():
+         #! The output port's clusters are 8..15 globally and 0..7 relative.
+         s["audio_maps"][1] = [[0, c, 8 + c, 0] for c in range(8)]
+     refuses("global cluster index where 7.2.19 wants a port-relative offset",
+-            global_index)
++            global_index, "cluster_offset 8 >= this port's number_of_clusters")
+     refuses("base_map naming an AUDIO_MAP the model does not define",
+-            lambda s: s["ports_out"][0].update(base_map=7))
++            lambda s: s["ports_out"][0].update(base_map=7),
++            "base_map=7 names an AUDIO_MAP this model does not define")
+     refuses("number_of_maps != 1 on a static port (pages it cannot answer)",
+-            lambda s: s["ports_out"][0].update(maps=2))
++            lambda s: s["ports_out"][0].update(maps=2),
++            "declares number_of_maps=2")
+     refuses("cluster_channel past the cluster's channel_count (7.2.16)",
+-            lambda s: s["audio_maps"][0].__setitem__(0, [0, 0, 0, 1]))
++            lambda s: s["audio_maps"][0].__setitem__(0, [0, 0, 0, 1]),
++            "cluster_channel 1 >= channel_count")
+     refuses("stream_index past the descriptors this direction has (7.2.13)",
+-            lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]))
++            lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]),
++            "stream_index 9 >= the 2 stream descriptors")
+     refuses("INPUT: two mappings onto the SAME cluster channel (7.2.19)",
+-            lambda s: s["audio_maps"][0].__setitem__(1, [0, 0, 0, 0]))
++            lambda s: s["audio_maps"][0].__setitem__(1, [0, 0, 0, 0]),
++            "for a STREAM_PORT_INPUT")
+     refuses("a mapping onto the CRF sink, which carries no audio channels",
+-            lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]))
++            lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]),
++            "advertises no audio format with channels")
+     #! 7.2.19's two directions are DIFFERENT rules, and this pair is the
+     #! negative control for that: the first version of this gate applied the
+     #! INPUT rule to both and would have refused the second model, which the
+@@ -213,35 +268,58 @@ def _selftest_map_bounds():
+     refuses("OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "
+             "\"across the entire Configuration\")",
+             lambda s: s["audio_maps"].__setitem__(
+-                1, [[0, 0, 0, 0], [0, 0, 1, 0]]))
++                1, [[0, 0, 0, 0], [0, 0, 1, 0]]),
++            "for a STREAM_PORT_OUTPUT")
+     accepts("OUTPUT: the same cluster_offset twice IS allowed (7.2.19 "
+             "\"there may be multiple entries for each mapping_cluster_"
+             "offset\")",
+-            lambda s: s["audio_maps"].__setitem__(
+-                1, [[0, 0, 0, 0], [0, 1, 0, 0]]))
++            mutated(lambda s: s["audio_maps"].__setitem__(
++                1, [[0, 0, 0, 0], [0, 1, 0, 0]])))
++    #! 63 distinct stream channels onto the output port's clusters break no
++    #! refusing bound but the count: the OUTPUT rule lets a cluster_offset
++    #! repeat, and a stream_channel past the format is recorded, not raised.
++    #! An input map cannot show that, since its eight cluster channels are
++    #! spent before the count is reached.
+     refuses("more mappings in one AUDIO_MAP than Table 7-32 allows (62)",
+             lambda s: s["audio_maps"].__setitem__(
+-                0, [[0, c % 8, c, 0] for c in range(63)]))
++                1, [[0, c, c % 8, 0] for c in range(63)]),
++            "has 63 mappings")
++    return ok[0]
++
+ 
+-    # ...and the recorded deviation is exactly the recorded one, no more.
++def _selftest_map_deviations():
++    """The deployed model's recorded deviations, held exact both ways.
++
++    The recorded list must name every deviation the model carries and
++    nothing it no longer carries, so neither a new deviation nor a stale or
++    widened allowlist passes. The empty-allowlist arm proves the list is
++    load-bearing.
++    """
++    ok = True
+     M = build_model(builtin_spec())
+     got = M["SMAP"]["DEVIATIONS"]
+     try:
+         assert_no_map_deviations(M)
+-        print(f"  [ok  ] the {len(got)} open stream_channel deviation(s) are "
+-              "exactly the recorded ones")
+     except ValueError as e:
+-        ok[0] = False
++        ok = False
+         print(f"  [FAIL] a NEW deviation appeared: {e}")
++    stale = sorted(set(KNOWN_MAP_DEVIATIONS) - set(got))
++    if stale:
++        ok = False
++        print("  [FAIL] recorded deviation(s) the deployed model does not "
++              "carry:\n  " + "\n  ".join(stale))
++    if ok:
++        print(f"  [ok  ] the {len(got)} open stream_channel deviation(s) are "
++              "exactly the recorded ones")
+     # ...and that allowlist is not vacuous either: drop it and it must fail.
+     try:
+         assert_no_map_deviations(M, allow=set())
+-        ok[0] = False
++        ok = False
+         print("  [FAIL] the deviation allowlist is not asserting anything")
+     except ValueError:
+         print("  [ok  ] with an empty allowlist the deviation FAILS "
+               "(the list is load-bearing)")
+-    return ok[0]
++    return ok
+ 
+ 
+ def _selftest_two_level():
+@@ -343,6 +421,7 @@ def self_test() -> int:
+     to build silently, and the deployed model passing is not evidence that the
+     gate bites - only a refused model is."""
+     ok = _selftest_map_bounds()
++    ok = _selftest_map_deviations() and ok
+     ok = _selftest_two_level() and ok
+     ok = _selftest_base_formats() and ok
+     print("\ngen_aem_store self-test:", "PASS" if ok else "FAIL")
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 89c221da9aafe68096fdb03dc5d90941b12a9129..2823156c81c61f74f7deec9686b828ffc9a44ebc 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1056,6 +1056,16 @@ Removing, reordering, or rewriting one is refused by name (#407).
+ Script refusals also identify the first differing line.
+ Legitimate command edits require matching record updates, as item 11 describes.
+ 
++`AEM store generator self-test` runs just before those three gates.
++It calls `python3 avdecc/gen_aem_store.py --self-test` (#464).
++The AUDIO_MAP bounds, directory and Base-format checks must each refuse.
++Each AUDIO_MAP vector must be refused by its own bound.
++The vectors mutate the self-test's own two-map fixture.
++The deployed model stays the positive control.
++No step ran this self-test before, so it rotted unseen.
++It reads first-party files only and needs no submodule.
++`CARRIER_STEP_LISTS` pins this step the same way (#407).
++
+ Three caches, deliberately split. The Scala toolchain is content-addressed
+ and keeps a broad fallback. The pip download cache is keyed on the pin file
+ with a prefix fallback and runs only under the RTL scope, safe because the
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 2d623c5c9949ba79d11a35ea4da30ab7d915e048..38a276ccc6d357baaa3dbdb3d25b9a0c685adee9 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -21,6 +21,7 @@ Start with an import and the builder's generated-artifact tests:
+ ```sh
+ python3 -c "import sys; sys.path.insert(0, 'sw/litex'); import milan_soc"
+ python3 sw/builder/test_builder.py
++python3 avdecc/gen_aem_store.py --self-test
+ python3 scripts/check_soc_sources.py
+ python3 scripts/check_sweep_shape.py --self-test
+ python3 scripts/check_deploy_shape.py --selftest
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index b90ae46bb2cecb2a7f9b1acc84deeb6356fbb48d..b6cc7689689a11d0354e1159486e635c0726cf3c 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -1062,6 +1062,10 @@ CARRIER_STEP_LISTS = {
+              'python3 scripts/gen_toc.py --verify-anchors',
+              'python3 scripts/gen_toc.py --check',
+          )},
++        {"name": "AEM store generator self-test",
++         "run": (
++             'python3 avdecc/gen_aem_store.py --self-test',
++         )},
+         {"name": "Sweep/build shape gate",
+          "run": (
+              'python3 scripts/check_sweep_shape.py --self-test',
+@@ -6868,7 +6872,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
+          _m_insert_step(DOCS, "docs-check",
+                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+-         "job `docs-check` must carry exactly 43 steps"),
++         "job `docs-check` must carry exactly 44 steps"),
+         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
+          _m_insert_step(DOCS, "docs-check-no-git",
+                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+@@ -6882,7 +6886,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `elaborate` must carry exactly 18 steps"),
+         ("#295 docs-check inserted step of benign content",
+          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
+-         "job `docs-check` must carry exactly 43 steps"),
++         "job `docs-check` must carry exactly 44 steps"),
+         ("#295 wire-accountability inserted step of benign content",
+          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
+          "job `wire-accountability` must carry exactly 3 steps"),
+@@ -6895,10 +6899,10 @@ def _carrier_step_list_arms() -> list[Arm]:
+         ("#303 docs-check imported gPTP gate removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check",
+                                  "check_gptp_docs.py --with-submodule")),
+-         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
++         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         ("#295 docs-check recognised step removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
+-         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
++         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         ("#295 elaborate patch-series step removed",
+          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
+          "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
+@@ -6944,7 +6948,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
+         ("#378 em-dash gate step removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
+-         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
++         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+     ]
+ 
+ 

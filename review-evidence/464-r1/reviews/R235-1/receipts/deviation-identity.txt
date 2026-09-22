@@ -1,0 +1,16 @@
+base recorded: 6  head recorded: 6
+1. head == base with AUDIO_MAP[1]->[0] only: True
+2. every string differs from its base twin in exactly one character: True
+3. deployed deviations (list): 6  distinct: 6
+   model - recorded: []
+   recorded - model: []
+   exact both ways: True
+   g.KNOWN_MAP_DEVIATIONS is aem_maps.KNOWN_MAP_DEVIATIONS set-equal: True
+4. fixture deviations: 6
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,3,3,0): stream_channel 3 >= 2, the widest channels_per
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,4,4,0): stream_channel 4 >= 2, the widest channels_per
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,5,5,0): stream_channel 5 >= 2, the widest channels_per
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,6,6,0): stream_channel 6 >= 2, the widest channels_per
+    STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,7,7,0): stream_channel 7 >= 2, the widest channels_per
+   fixture deviations intersect recorded set: []

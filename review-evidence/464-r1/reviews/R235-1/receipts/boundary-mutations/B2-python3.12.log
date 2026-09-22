@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/r235-464/bmut/B2/avdecc/gen_aem_store.py", line 104, in <module>
+    from aem_assemble import (CHMAP_PHYS_DEPTH, NAMED, OVERLAYS, ROM_SIZE,
+  File "/tmp/r235-464/bmut/B2/avdecc/aem_assemble.py", line 636, in <module>
+    _M = build_model(builtin_spec())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B2/avdecc/aem_assemble.py", line 583, in build_model
+    smap = static_map_tables(spec, base_of, len(si), len(so))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B2/avdecc/aem_maps.py", line 402, in static_map_tables
+    out_addr, out_rows, out_moff, out_dev = _direction_tables(outputs, maps,
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B2/avdecc/aem_maps.py", line 310, in _direction_tables
+    deviation = _map_row_bounds(where, row, p, side)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B2/avdecc/aem_maps.py", line 190, in _map_row_bounds
+    raise ValueError(
+ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,7,7,0): cluster_offset 7 >= this port's number_of_clusters 8. 1722.1-2021 Table 7-33: mapping_cluster_offset is "The offset from the base_cluster of the STREAM_PORT_INPUT or STREAM_PORT_OUTPUT" - PORT-RELATIVE (this port's base_cluster is 8), not a global AUDIO_CLUSTER index

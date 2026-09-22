@@ -1,0 +1,38 @@
+=== gen_aem_store AUDIO_MAP bounds gate self-test ===
+  [ok  ] the deployed model still builds
+  [ok  ] the two-map fixture the vectors mutate builds
+  [ok  ] global cluster index where 7.2.19 wants a port-relative offset
+         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,8,0): cluster_offset 8 >= this port's number_of_clusters 8. 1722.1-2021 Table 7-33: mapping_cluster_of
+  [ok  ] base_map naming an AUDIO_MAP the model does not define
+         -> STREAM_PORT_OUTPUT[0] base_map=7 names an AUDIO_MAP this model does not define (it defines 2: 0..1) - 7.2.13 base_map addresses a descriptor that must
+  [ok  ] number_of_maps != 1 on a static port (pages it cannot answer)
+         -> STREAM_PORT_OUTPUT[0] declares number_of_maps=2; the static GET_AUDIO_MAP path serves map_index 0 only, so any other count advertises pages the entity
+  [ok  ] cluster_channel past the cluster's channel_count (7.2.16)
+         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,0,1): cluster_channel 1 >= channel_count 1 of the AUDIO_CLUSTER at base_cluster+0 (7.2.16 Table 7-27 ch
+Traceback (most recent call last):
+  File "/tmp/r235-464/mut/M04/avdecc/gen_aem_store.py", line 449, in <module>
+    raise SystemExit(self_test())
+                     ~~~~~~~~~^^
+  File "/tmp/r235-464/mut/M04/avdecc/gen_aem_store.py", line 423, in self_test
+    ok = _selftest_map_bounds()
+  File "/tmp/r235-464/mut/M04/avdecc/gen_aem_store.py", line 255, in _selftest_map_bounds
+    refuses("stream_index past the descriptors this direction has (7.2.13)",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "stream_index 9 >= the 2 stream descriptors")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M04/avdecc/gen_aem_store.py", line 212, in refuses
+    build_model(mutated(mutate))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M04/avdecc/aem_assemble.py", line 583, in build_model
+    smap = static_map_tables(spec, base_of, len(si), len(so))
+  File "/tmp/r235-464/mut/M04/avdecc/aem_maps.py", line 401, in static_map_tables
+    in_addr, in_rows, in_moff, in_dev = _direction_tables(inputs, maps, base_of)
+                                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M04/avdecc/aem_maps.py", line 310, in _direction_tables
+    deviation = _map_row_bounds(where, row, p, side)
+  File "/tmp/r235-464/mut/M04/avdecc/aem_maps.py", line 224, in _map_row_bounds
+    chans = [fmt_channels(f) for f in side.stream_specs[si]["formats"]]
+                                      ~~~~~~~~~~~~~~~~~^^^^
+IndexError: list index out of range

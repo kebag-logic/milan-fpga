@@ -1,0 +1,24 @@
+=== gen_aem_store AUDIO_MAP bounds gate self-test ===
+  [ok  ] the deployed model still builds
+  [ok  ] the two-map fixture the vectors mutate builds
+Traceback (most recent call last):
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 449, in <module>
+    raise SystemExit(self_test())
+                     ~~~~~~~~~^^
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 423, in self_test
+    ok = _selftest_map_bounds()
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 244, in _selftest_map_bounds
+    refuses("global cluster index where 7.2.19 wants a port-relative offset",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            global_index, "cluster_offset 8 >= this port's number_of_clusters")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 212, in refuses
+    build_model(mutated(mutate))
+                ~~~~~~~^^^^^^^^
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 205, in mutated
+    mutate(spec)
+    ~~~~~~^^^^^^
+  File "/tmp/r235-464/mut/S02/avdecc/gen_aem_store.py", line 243, in global_index
+    s["audio_maps"][1] = [[0, c, 8 + c, 0] for c in range(8)]
+    ~~~~~~~~~~~~~~~^^^
+IndexError: list assignment index out of range

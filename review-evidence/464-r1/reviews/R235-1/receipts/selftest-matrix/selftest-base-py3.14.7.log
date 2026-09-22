@@ -1,0 +1,20 @@
+=== gen_aem_store AUDIO_MAP bounds gate self-test ===
+  [ok  ] the deployed model still builds
+Traceback (most recent call last):
+  File "/tmp/r235-464/base/avdecc/gen_aem_store.py", line 370, in <module>
+    raise SystemExit(self_test())
+                     ~~~~~~~~~^^
+  File "/tmp/r235-464/base/avdecc/gen_aem_store.py", line 345, in self_test
+    ok = _selftest_map_bounds()
+  File "/tmp/r235-464/base/avdecc/gen_aem_store.py", line 195, in _selftest_map_bounds
+    refuses("global cluster index where 7.2.19 wants a port-relative offset",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            global_index)
+            ^^^^^^^^^^^^^
+  File "/tmp/r235-464/base/avdecc/gen_aem_store.py", line 164, in refuses
+    mutate(spec)
+    ~~~~~~^^^^^^
+  File "/tmp/r235-464/base/avdecc/gen_aem_store.py", line 194, in global_index
+    s["audio_maps"][1] = [[0, c, 8 + c, 0] for c in range(8)]
+    ~~~~~~~~~~~~~~~^^^
+IndexError: list assignment index out of range

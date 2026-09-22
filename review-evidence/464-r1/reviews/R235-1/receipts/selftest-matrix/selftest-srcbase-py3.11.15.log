@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/r235-464/srcbase/avdecc/gen_aem_store.py", line 370, in <module>
+    raise SystemExit(self_test())
+                     ^^^^^^^^^^^
+  File "/tmp/r235-464/srcbase/avdecc/gen_aem_store.py", line 345, in self_test
+    ok = _selftest_map_bounds()
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/srcbase/avdecc/gen_aem_store.py", line 161, in _selftest_map_bounds
+    def refuses(name: str, mutate: Callable[[dict[str, Any]], None]) -> None:
+                                   ^^^^^^^^
+NameError: name 'Callable' is not defined. Did you mean: 'callable'?

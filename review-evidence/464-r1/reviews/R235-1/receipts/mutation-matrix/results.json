@@ -1,0 +1,1000 @@
+[
+ {
+  "id": "P00",
+  "desc": "pristine minimal tree (harness control)",
+  "expect": "control",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M01",
+  "desc": "Table 7-33 cluster_offset bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M02",
+  "desc": "cluster_offset bound off-by-one loosened (>= -> >)",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M03",
+  "desc": "7.2.16 cluster_channel bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M04",
+  "desc": "7.2.13 stream_index bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list index out of range"
+    ]
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list index out of range"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M05",
+  "desc": "CRF no-channel refusal removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - max() iterable "
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - max() iterable "
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M06",
+  "desc": "7.2.19 INPUT duplicate rule removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M07",
+  "desc": "7.2.19 OUTPUT duplicate rule removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M08",
+  "desc": "7.2.13 number_of_maps bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M09",
+  "desc": "7.2.13 base_map bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list index out of range"
+    ]
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list index out of range"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M10",
+  "desc": "Table 7-32 mapping-count bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M11",
+  "desc": "Table 7-32 maximum loosened 62 -> 63",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M12",
+  "desc": "INPUT duplicate rule applied to both directions",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M13",
+  "desc": "OUTPUT duplicate rule applied to both directions",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] "
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] "
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M14",
+  "desc": "allowlist reverted to the stale AUDIO_MAP[1] index",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:",
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:",
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M15",
+  "desc": "allowlist widened by one entry (range(1, 8))",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M16",
+  "desc": "allowlist narrowed by one entry (range(3, 8))",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M17",
+  "desc": "assert_no_map_deviations neutered",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M18",
+  "desc": "stream_channel deviation no longer recorded",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:",
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:",
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M19",
+  "desc": "every port treated as dynamic (static gate bypassed)",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: built without complaint",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): built without complaint",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: built without complaint",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint",
+     "[FAIL] recorded deviation(s) the deployed model does not carry:",
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: built without complaint",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): built without complaint",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: built without complaint",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): built without complaint",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint",
+     "[FAIL] recorded deviation(s) the deployed model does not carry:",
+     "[FAIL] the deviation allowlist is not asserting anything"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "M20",
+  "desc": "any static STREAM_PORT_INPUT map refused",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the two-map fixture the vectors mutate builds: refused - STREAM_PORT_INPUT[0]: static input map refused",
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: refused, but not for 'base_map=7 names an AUDIO_MAP this model does not define' - STREA",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): refused, but not for 'declares number_of_maps=2' - STREAM_PORT_INPUT[0]: static ",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): refused, but not for 'cluster_channel 1 >= channel_count' - STREAM_PORT_INPUT[0]: st",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): refused, but not for 'stream_index 9 >= the 2 stream descriptors' - STREAM_PORT_",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0]: static input",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - STREAM_PORT_INP",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0]: static input map ref"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the two-map fixture the vectors mutate builds: refused - STREAM_PORT_INPUT[0]: static input map refused",
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: refused, but not for 'base_map=7 names an AUDIO_MAP this model does not define' - STREA",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): refused, but not for 'declares number_of_maps=2' - STREAM_PORT_INPUT[0]: static ",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): refused, but not for 'cluster_channel 1 >= channel_count' - STREAM_PORT_INPUT[0]: st",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): refused, but not for 'stream_index 9 >= the 2 stream descriptors' - STREAM_PORT_",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0]: static input",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - STREAM_PORT_INP",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0]: static input map ref"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "D01",
+  "desc": "deployed model gains one new deviation (forward check only)",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "D02",
+  "desc": "deployed model loses one deviation (reverse check only)",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] recorded deviation(s) the deployed model does not carry:"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "S01",
+  "desc": "fixture shared across vectors (first copy reused)",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] ",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping "
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] ",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping "
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "S02",
+  "desc": "vectors mutate the deployed geometry instead of the fixture",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list assignment index out of range"
+    ]
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [],
+    "crash": [
+     "IndexError: list assignment index out of range"
+    ]
+   }
+  }
+ },
+ {
+  "id": "S03",
+  "desc": "cause oracle removed (any ValueError accepted)",
+  "expect": "control",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "S04",
+  "desc": "reverse exactness (stale) check removed",
+  "expect": "control",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "S05",
+  "desc": "62-mapping vector reverted to the base geometry",
+  "expect": "control",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "S06",
+  "desc": "fixture-acceptance arm removed",
+  "expect": "control",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X1",
+  "desc": "S03 no oracle + M05 CRF refusal removed",
+  "expect": "undetected",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X2",
+  "desc": "S04 no reverse check + M15 widened allowlist",
+  "expect": "undetected",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X3",
+  "desc": "S03 no oracle + S05 base 62-vector + M10 count bound removed",
+  "expect": "undetected",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X4",
+  "desc": "S05 base 62-vector (oracle kept) + M10 count bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping "
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping "
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X5",
+  "desc": "S03 no oracle (new 62-vector geometry) + M10 count bound removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X6",
+  "desc": "S03 no oracle + M13 OUTPUT rule applied to both",
+  "expect": "undetected",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "X7",
+  "desc": "S06 fixture-acceptance arm removed + M20 static inputs refused",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: refused, but not for 'base_map=7 names an AUDIO_MAP this model does not define' - STREA",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): refused, but not for 'declares number_of_maps=2' - STREAM_PORT_INPUT[0]: static ",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): refused, but not for 'cluster_channel 1 >= channel_count' - STREAM_PORT_INPUT[0]: st",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): refused, but not for 'stream_index 9 >= the 2 stream descriptors' - STREAM_PORT_",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0]: static input",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - STREAM_PORT_INP",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0]: static input map ref"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - STR",
+     "[FAIL] base_map naming an AUDIO_MAP the model does not define: refused, but not for 'base_map=7 names an AUDIO_MAP this model does not define' - STREA",
+     "[FAIL] number_of_maps != 1 on a static port (pages it cannot answer): refused, but not for 'declares number_of_maps=2' - STREAM_PORT_INPUT[0]: static ",
+     "[FAIL] cluster_channel past the cluster's channel_count (7.2.16): refused, but not for 'cluster_channel 1 >= channel_count' - STREAM_PORT_INPUT[0]: st",
+     "[FAIL] stream_index past the descriptors this direction has (7.2.13): refused, but not for 'stream_index 9 >= the 2 stream descriptors' - STREAM_PORT_",
+     "[FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0]: static input",
+     "[FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - STREAM_PORT_INP",
+     "[FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPU",
+     "[FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_POR",
+     "[FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0]: static input map ref"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P01",
+  "desc": "directory contiguity assertion removed",
+  "expect": "observe",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P02",
+  "desc": "directory zero-based ascending assertion removed",
+  "expect": "observe",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 0,
+    "fails": [],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P03",
+  "desc": "two-level equivalence check neutered",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] an off-by-one level-1 row base was accepted"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] an off-by-one level-1 row base was accepted"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P04",
+  "desc": "NAMED structural equivalence check neutered",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a mask bit on the unnamed STRINGS type was accepted"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a mask bit on the unnamed STRINGS type was accepted"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P05",
+  "desc": "whole two_level_directory layout assertions removed",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a shuffled directory entry (contiguity): accepted without complaint",
+     "[FAIL] same-type entries out of index order: accepted without complaint",
+     "[FAIL] an off-by-one level-1 row base was accepted"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] a shuffled directory entry (contiguity): accepted without complaint",
+     "[FAIL] same-type entries out of index order: accepted without complaint",
+     "[FAIL] an off-by-one level-1 row base was accepted"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P06",
+  "desc": "Base-family cover ignores the ut bit",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6] unadvertised - Milan 6.4 wants the whole family"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6] unadvertised - Milan 6.4 wants the whole family"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P07",
+  "desc": "FORMATS loses its ut entry",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6, 8] unadvertised - Milan 6.4 wants the whole family"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6, 8] unadvertised - Milan 6.4 wants the whole family"
+    ],
+    "crash": []
+   }
+  }
+ },
+ {
+  "id": "P08",
+  "desc": "Base-family cover always reports the whole family",
+  "expect": "caught",
+  "invalid": null,
+  "runs": {
+   "3.14": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the family check passes without the ut entry - it has stopped being able to say no"
+    ],
+    "crash": []
+   },
+   "3.12": {
+    "rc": 1,
+    "fails": [
+     "[FAIL] the family check passes without the ut entry - it has stopped being able to say no"
+    ],
+    "crash": []
+   }
+  }
+ }
+]

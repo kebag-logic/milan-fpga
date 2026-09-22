@@ -1,0 +1,5 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: working-directory
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 gen_aem_store.py --self-test'); 1 line(s) expected, 1 found
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) may carry only the keys ['continue-on-error', 'env', 'id', 'if', 'name', 'run', 'uses', 'with'] (surplus: ['working-directory']): `shell` chooses the interpreter the script runs under and `working-directory` the tree it reads
+ci_events: 3 finding(s) over 1513 contract item(s)
