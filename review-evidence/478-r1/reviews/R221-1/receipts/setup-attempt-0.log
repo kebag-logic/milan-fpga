@@ -1,0 +1,23 @@
+PRISTINE: test_audio_unit_rates_loader_contract
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+PRISTINE: test_audio_unit_shipping_rates
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/probes.py", line 230, in <module>
+    focused()
+    ~~~~~~~^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/probes.py", line 76, in focused
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/candidate/sw/builder/test_builder.py", line 23576, in test_audio_unit_shipping_rates
+    cfg = eb.load_config(path)
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/candidate/sw/builder/endstation_builder.py", line 4215, in load_config
+    gptp = _load_gptp(cfg)
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/candidate/sw/builder/endstation_builder.py", line 3961, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/candidate/sw/builder/endstation_builder.py", line 3452, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/candidate/sw/builder/endstation_builder.py", line 3392, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
