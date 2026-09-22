@@ -42,7 +42,7 @@ if (control / "mutation.json").exists():
     data["private"] = str(root)
     # Write both required dependencies, including modes. A link back to the
     # caller would corrupt the independently measured input snapshot.
-    for name in ("gptp-processor", "third_party/verilog-axis"):
+    for name in ("gptp-processor/hdl", "third_party/verilog-axis/rtl"):
         target = root / name / "probe.txt"
         target.write_text("private dependency write\n")
         target.chmod(0o700)

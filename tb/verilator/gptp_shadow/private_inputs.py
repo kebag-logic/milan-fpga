@@ -9,7 +9,9 @@ import stat
 from pathlib import Path
 
 FIRST_PARTY = ("hdl", "tb/common", "tb/verilator/gptp_shadow")
-DEPENDENCIES = ("gptp-processor", "third_party/verilog-axis")
+# Match the Makefile: engine/generator sources and axis RTL only. Vendor
+# documentation links are not build inputs and never enter the private tree.
+DEPENDENCIES = {"gptp-processor": ("hdl",), "third_party/verilog-axis": ("rtl",)}
 
 
 class InputRefused(Exception):
@@ -94,4 +96,4 @@ def copy_inputs(repo: Path, target: Path, owner: object) -> None:
             raise InputRefused(f"required dependency is not at its pin: {name}")
         if Path(_git(root, owner, "rev-parse", "--show-toplevel").strip()) != root:
             raise InputRefused(f"required dependency has no checkout: {name}")
-        _copy_tree(root, target / name, owner, revision, ())
+        _copy_tree(root, target / name, owner, revision, DEPENDENCIES[name])

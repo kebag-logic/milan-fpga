@@ -64,8 +64,8 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     for path in {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}:
         install(root, str(path.relative_to(ROOT)))
     git(root, "init", "-q")
-    for name in ("gptp-processor", "third_party/verilog-axis"):
-        write(root / name / "probe.txt", "pinned dependency\n")
+    for name, source_dir in (("gptp-processor", "hdl"), ("third_party/verilog-axis", "rtl")):
+        write(root / name / source_dir / "probe.txt", "pinned dependency\n")
         git(root / name, "init", "-q")
         commit(root / name)
     commit(root)
@@ -127,7 +127,7 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
     private = Path(data["private"])
     if not unsafe:
         assert private != root and snapshot(root) == before
-        for relative in (SOURCE, "gptp-processor/probe.txt", "third_party/verilog-axis/probe.txt"):
+        for relative in (SOURCE, "gptp-processor/hdl/probe.txt", "third_party/verilog-axis/rtl/probe.txt"):
             assert not (root / relative).samefile(private / relative)
     probe.signal(signum)
     status, output = probe.finish()
@@ -175,11 +175,11 @@ def refusal(parent: Path, kind: str) -> None:
         directory.symlink_to(saved, target_is_directory=True)
     elif kind == "dependency":
         dependency = root / "gptp-processor"
-        git(dependency, "update-index", "--skip-worktree", "probe.txt")
-        write(dependency / "probe.txt", "caller dependency work\n")
+        git(dependency, "update-index", "--skip-worktree", "hdl/probe.txt")
+        write(dependency / "hdl/probe.txt", "caller dependency work\n")
     elif kind == "off-pin":
         dependency = root / "gptp-processor"
-        write(dependency / "probe.txt", "different revision\n")
+        write(dependency / "hdl/probe.txt", "different revision\n")
         commit(dependency)
     elif kind == "pin-index":
         git(root, "update-index", "--force-remove", "gptp-processor")
