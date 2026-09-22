@@ -1,0 +1,13 @@
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+index 22fa1baeeb81e6e1c2e0780ddaae6f03aa6c8c69..70651784ac0a8ac2dd3dd2be46229117fcd64c60 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -56,7 +56,7 @@ run: fixture-guards ltn_rom.hex ucode.hex
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vpp_top_sim
+ 	./obj_dir/Vpp_top_sim
+ 	$(VERILATOR) $(VFLAGS) "+define+PP_TOP_SRP_DOM_DEF_VID=16'h$(SRP_VID_FIXTURE)" \
+-	    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE)" \
++	    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra" \
+ 	    --Mdir obj_vid $(SRCS) $(CPP) -o Vpp_top_vid
+ 	./obj_vid/Vpp_top_vid
+ 	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \

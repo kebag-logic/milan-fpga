@@ -1,0 +1,29 @@
+# Copyrighted standards documents (IEEE / AVnu) — never commit
+*.pdf
+
+# Editor / OS noise
+*.swp
+*~
+.DS_Store
+
+# Diagram build intermediates
+*.bkp
+*.dtmp
+.venv-wavedrom/
+
+# HDL simulation build artifacts (see hdl/README.md)
+obj_dir/
+obj_*/
+*.vcd
+*.fst
+# HDL sim/synth generated artifacts
+ucode.hex
+*.rpt
+*.log
+ltn_rom.hex
+image.bin
+image.map
+
+# Python bytecode from the generators (gen_ucode.py, gen_desc_image.py)
+__pycache__/
+*.pyc

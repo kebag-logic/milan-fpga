@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="760" viewBox="0 0 1360 760" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#2c3038"/>
+    </marker>
+    <marker id="ahr" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#a03030"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1360" height="760" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
+
+  <text x="24" y="34" font-size="19" font-weight="bold" fill="#16181d">The two state machines an operator can actually see</text>
+  <text x="24" y="56" font-size="12.5" fill="#4a5058">Left: the advertise machine, readable live at snapshot word 31. Right: the listener binding machine, which a controller reads as probing_status in GET_STREAM_INFO.</text>
+
+  <line x1="678" y1="76" x2="678" y2="700" stroke="#dde2e9" stroke-width="1"/>
+
+  <!-- =================== LEFT: ADP advertise SM =================== -->
+  <rect x="24" y="80" width="626" height="28" rx="4" fill="#e6f4ea" stroke="#2f7d46" stroke-width="1"/>
+  <text x="337" y="99" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">ADP advertise machine — one per AVB interface (KL_adp_engine)</text>
+
+  <rect x="150" y="126" width="290" height="58" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="295" y="148" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">0 · DOWN</text>
+  <text x="295" y="167" font-size="11" text-anchor="middle" fill="#4a5058">nothing on the wire from this interface</text>
+
+  <rect x="150" y="226" width="290" height="58" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="295" y="248" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">1 · DRAW</text>
+  <text x="295" y="267" font-size="11" text-anchor="middle" fill="#4a5058">drawing the randomised anti-storm delay</text>
+
+  <rect x="150" y="326" width="290" height="58" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="295" y="348" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">2 · DELAY</text>
+  <text x="295" y="367" font-size="11" text-anchor="middle" fill="#4a5058">delay timer armed; still silent</text>
+
+  <rect x="150" y="426" width="290" height="58" rx="7" fill="#dff0e6" stroke="#2f7d46" stroke-width="2"/>
+  <text x="295" y="448" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">3 · WAITING</text>
+  <text x="295" y="467" font-size="11" text-anchor="middle" fill="#4a5058">advertising — this is the healthy resting state</text>
+
+  <line x1="295" y1="184" x2="295" y2="221" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+  <text x="305" y="207" font-size="10.5" fill="#4a5058">entity_enable rises with the link up</text>
+
+  <line x1="295" y1="284" x2="295" y2="321" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+  <text x="305" y="307" font-size="10.5" fill="#4a5058">the draw lands; arm the delay timer</text>
+
+  <line x1="295" y1="384" x2="295" y2="421" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+  <text x="305" y="407" font-size="10.5" fill="#4a5058">expiry — SEND, then available_index++</text>
+
+  <!-- WAITING -> DRAW return, right side -->
+  <path d="M440,440 L600,440 L600,240 L445,240" fill="none" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+  <text x="612" y="390" font-size="10.5" fill="#4a5058" transform="rotate(-90 612 390)">every 5 s · DISCOVER · GM_CHANGE</text>
+
+  <!-- -> DOWN return, left side -->
+  <path d="M150,455 L70,455 L70,170 L145,170" fill="none" stroke="#a03030" stroke-width="1.6" marker-end="url(#ahr)"/>
+  <text x="58" y="316" font-size="10.5" fill="#a03030" transform="rotate(-90 58 316)">link down · or entity_enable falls</text>
+
+  <rect x="24" y="518" width="626" height="98" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="42" y="540" font-size="12" font-weight="bold" fill="#16181d">The two ways out are not the same, and controllers can tell</text>
+  <text x="42" y="561" font-size="11" fill="#4a5058">Link down goes quietly to DOWN and sends NOTHING — Milan §5.6.3.5.6.</text>
+  <text x="42" y="579" font-size="11" fill="#4a5058">Deasserting entity_enable_i is the shutdown: it emits ENTITY_DEPARTING and</text>
+  <text x="42" y="597" font-size="11" fill="#4a5058">resets available_index to 0. There is no separate shutdown port.</text>
+
+  <!-- =================== RIGHT: ACMP listener states =================== -->
+  <rect x="706" y="80" width="630" height="28" rx="4" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1"/>
+  <text x="1021" y="99" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#16181d">Milan listener binding machine — one per Stream Input (KL_pp_acmp_listener)</text>
+
+  <rect x="706" y="126" width="630" height="42" rx="6" fill="#f2f5f9" stroke="#8894a6" stroke-width="1.2"/>
+  <text x="722" y="152" font-size="11.5" font-weight="bold" fill="#16181d">0 · UNBOUND</text>
+  <text x="900" y="152" font-size="11" fill="#4a5058">no binding</text>
+  <text x="1320" y="152" font-size="11" text-anchor="end" fill="#4a5058">probing_status 0 DISABLED</text>
+
+  <rect x="706" y="176" width="630" height="42" rx="6" fill="#fdf6e8" stroke="#b5741f" stroke-width="1.2"/>
+  <text x="722" y="202" font-size="11.5" font-weight="bold" fill="#16181d">1 · PRB_W_AVAIL</text>
+  <text x="900" y="202" font-size="11" fill="#4a5058">bound; waiting for ADP to discover the talker</text>
+  <text x="1320" y="202" font-size="11" text-anchor="end" fill="#4a5058">1 PASSIVE</text>
+
+  <rect x="706" y="226" width="630" height="42" rx="6" fill="#fdf0e3" stroke="#b5741f" stroke-width="1.2"/>
+  <text x="722" y="252" font-size="11.5" font-weight="bold" fill="#16181d">2 · PRB_W_DELAY</text>
+  <text x="900" y="252" font-size="11" fill="#4a5058">talker seen; anti-storm delay before probing</text>
+  <text x="1320" y="252" font-size="11" text-anchor="end" fill="#4a5058">2 ACTIVE</text>
+
+  <rect x="706" y="276" width="630" height="42" rx="6" fill="#fdf0e3" stroke="#b5741f" stroke-width="1.2"/>
+  <text x="722" y="302" font-size="11.5" font-weight="bold" fill="#16181d">3 · PRB_W_RESP</text>
+  <text x="900" y="302" font-size="11" fill="#4a5058">probe 1 sent, awaiting the response</text>
+  <text x="1320" y="302" font-size="11" text-anchor="end" fill="#4a5058">2 ACTIVE</text>
+
+  <rect x="706" y="326" width="630" height="42" rx="6" fill="#fdf0e3" stroke="#b5741f" stroke-width="1.2"/>
+  <text x="722" y="352" font-size="11.5" font-weight="bold" fill="#16181d">4 · PRB_W_RESP2</text>
+  <text x="900" y="352" font-size="11" fill="#4a5058">the one permitted exact-duplicate retry is out</text>
+  <text x="1320" y="352" font-size="11" text-anchor="end" fill="#4a5058">2 ACTIVE</text>
+
+  <rect x="706" y="376" width="630" height="42" rx="6" fill="#fff0f0" stroke="#a03030" stroke-width="1.2"/>
+  <text x="722" y="402" font-size="11.5" font-weight="bold" fill="#16181d">5 · PRB_W_RETRY</text>
+  <text x="900" y="402" font-size="11" fill="#4a5058">both probes failed or errored; backing off</text>
+  <text x="1320" y="402" font-size="11" text-anchor="end" fill="#4a5058">2 ACTIVE</text>
+
+  <rect x="706" y="426" width="630" height="42" rx="6" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.2"/>
+  <text x="722" y="452" font-size="11.5" font-weight="bold" fill="#16181d">6 · SETTLED_NO_RSV</text>
+  <text x="900" y="452" font-size="11" fill="#4a5058">SRP settled; no matching talker attribute yet</text>
+  <text x="1320" y="452" font-size="11" text-anchor="end" fill="#4a5058">3 COMPLETED</text>
+
+  <rect x="706" y="476" width="630" height="42" rx="6" fill="#dff0e6" stroke="#2f7d46" stroke-width="2"/>
+  <text x="722" y="502" font-size="11.5" font-weight="bold" fill="#16181d">7 · SETTLED_RSV_OK</text>
+  <text x="900" y="502" font-size="11" fill="#4a5058">matching talker attribute registered — streaming</text>
+  <text x="1320" y="502" font-size="11" text-anchor="end" fill="#4a5058">3 COMPLETED</text>
+
+  <rect x="706" y="546" width="630" height="118" rx="7" fill="#fffdf5" stroke="#a06400" stroke-width="1.2"/>
+  <text x="722" y="568" font-size="12" font-weight="bold" fill="#16181d">Read this list as a vocabulary, not as a path</text>
+  <text x="722" y="589" font-size="11" fill="#4a5058">Fourteen events act on these eight states and most cells are not a step down</text>
+  <text x="722" y="607" font-size="11" fill="#4a5058">the list — a bind to a NEW source lands in PRB_W_RESP from anywhere, and an</text>
+  <text x="722" y="625" font-size="11" fill="#4a5058">unbind lands in UNBOUND from anywhere. The authoritative artifact is the full</text>
+  <text x="722" y="643" font-size="11" fill="#4a5058">matrix F05.3 in 05_acmp_engine.md; the matrix itself lives in a ROM image.</text>
+
+  <text x="24" y="700" font-size="11.5" fill="#4a5058">Milan renames the ACMP commands: BIND_RX is IEEE's CONNECT_RX, UNBIND_RX is DISCONNECT_RX, PROBE_TX is CONNECT_TX. Milan naming is used throughout this repository.</text>
+  <text x="24" y="722" font-size="11.5" fill="#4a5058">The talker half has no state machine at all: Milan makes the talker stateless, so DISCONNECT_TX always answers SUCCESS and changes nothing.</text>
+  <text x="24" y="744" font-size="11.5" fill="#4a5058">Bindings survive a power cycle. On boot a restored binding starts in PRB_W_AVAIL and re-probes — it does not resume as if nothing happened.</text>
+</svg>

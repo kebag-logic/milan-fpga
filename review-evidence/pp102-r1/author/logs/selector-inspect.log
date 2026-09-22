@@ -1,0 +1,6 @@
+selector $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator resolved $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator mode 0o100755
+sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+#!/bin/sh
+exec env VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator "$@"
+
+inherited tool env {'PATH': '$WORKSPACE_HOME/.codex/tmp/arg0/codex-arg0Kgk9LS:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl'}

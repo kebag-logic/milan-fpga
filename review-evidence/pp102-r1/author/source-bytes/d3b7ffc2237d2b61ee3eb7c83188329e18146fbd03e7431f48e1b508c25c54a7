@@ -1,0 +1,260 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+//---------------------------------------------------------------------------//
+//  File        : srp_stream_fsms_wrap.sv
+//  Project     : IEEE 1722.1 protocol processor — srp_stream_fsms suite
+//
+//  Description : Harness wrap binding KL_srp_talker_fsm (M = 8 sources) and
+//                KL_srp_listener_fsm (N = 8 sinks) the way the SRP engine
+//                integrates them: one decoder event bus and one cadence
+//                fan out to both, timer-service slot blocks are disjoint
+//                (talker 16..23 owner 0x40+, listener 24..31 owner 0x60+),
+//                and the encoder-intake / VLAN-user / timer-arm faces stay
+//                separate so the harness can observe and back-pressure each
+//                side independently (integration muxes them; ops are
+//                single-cycle with disjoint slot ranges).
+//---------------------------------------------------------------------------//
+`default_nettype none
+
+module srp_stream_fsms_wrap #(
+    parameter int unsigned N_STREAMS_P = 8
+) (
+    input  wire         clk_i,
+    input  wire         rst_n,
+    input  wire         p2p_i,
+    input  wire  [47:0] own_mac_i,
+
+    // shared decoder event bus (fans to both modules)
+    input  wire         evt_valid_i,
+    input  wire         evt_msrp_i,
+    input  wire  [7:0]  evt_attr_type_i,
+    input  wire  [63:0] evt_stream_id_i,
+    input  wire  [47:0] evt_da_i,
+    input  wire  [15:0] evt_vid_i,
+    input  wire  [2:0]  evt_mrp_event_i,
+    input  wire  [1:0]  evt_fourpacked_i,
+    input  wire  [31:0] evt_acc_latency_i,
+    input  wire  [63:0] evt_failure_system_id_i,
+    input  wire  [7:0]  evt_failure_code_i,
+
+    // shared cadence + timebase + expiry bus
+    input  wire         join_tick_i,
+    input  wire         periodic_tick_i,
+    input  wire         leaveall_rx_i,
+    input  wire         leaveall_own_i,
+    input  wire  [31:0] now_ms_i,
+    input  wire         exp_valid_i,
+    input  wire  [6:0]  exp_slot_i,
+
+    // talker DA-gate + admission
+    input  wire         gate_valid_i,
+    output logic        gate_ready_o,
+    input  wire         gate_open_i,
+    input  wire  [2:0]  gate_src_i,
+    input  wire  [63:0] gate_stream_id_i,
+    input  wire  [47:0] gate_da_i,
+    input  wire  [11:0] gate_vid_i,
+    input  wire  [15:0] gate_max_frame_i,
+    input  wire  [15:0] gate_max_interval_i,
+    input  wire  [2:0]  gate_prio_i,
+    input  wire         gate_rank_i,
+    input  wire  [31:0] gate_acc_lat_i,
+    input  wire  [N_STREAMS_P-1:0] sr_admitted_i,
+
+    // listener settle/teardown
+    input  wire         ctl_valid_i,
+    output logic        ctl_ready_o,
+    input  wire         ctl_settle_i,
+    input  wire  [2:0]  ctl_sink_i,
+    input  wire  [63:0] ctl_stream_id_i,
+    input  wire  [47:0] ctl_da_i,
+    input  wire  [11:0] ctl_vid_i,
+
+    // talker faces
+    output logic         t_txop_done_o,
+    output logic         t_ev_valid_o,
+    input  wire          t_ev_ready_i,
+    output logic         t_ev_app_o,
+    output logic [7:0]   t_ev_attr_type_o,
+    output logic [2:0]   t_ev_event_o,
+    output logic [1:0]   t_ev_fourpack_o,
+    output logic [271:0] t_ev_value_o,
+    output logic         t_user_valid_o,
+    output logic         t_user_join_o,
+    output logic [11:0]  t_user_vid_o,
+    input  wire          t_user_ready_i,
+    output logic         t_arm_valid_o,
+    output logic         t_arm_cancel_o,
+    output logic [6:0]   t_arm_slot_o,
+    output logic [7:0]   t_arm_owner_o,
+    output logic [31:0]  t_arm_deadline_ms_o,
+    output logic [N_STREAMS_P-1:0]       t_lstn_reg_change_o,
+    output logic [N_STREAMS_P-1:0][1:0]  t_tk_decl_state_o,
+    output logic [N_STREAMS_P-1:0][1:0]  t_lstn_reg_state_o,
+    output logic [N_STREAMS_P-1:0]       t_active_o,
+    output logic [N_STREAMS_P-1:0][7:0]  t_msrp_fail_code_o,
+    output logic [N_STREAMS_P-1:0][63:0] t_msrp_fail_bridge_o,
+    output logic [N_STREAMS_P-1:0][3:0]  t_dbg_app_state_o,
+    output logic [N_STREAMS_P-1:0][1:0]  t_dbg_reg_state_o,
+
+    // listener faces
+    output logic         l_txop_done_o,
+    output logic         l_ev_valid_o,
+    input  wire          l_ev_ready_i,
+    output logic         l_ev_app_o,
+    output logic [7:0]   l_ev_attr_type_o,
+    output logic [2:0]   l_ev_event_o,
+    output logic [1:0]   l_ev_fourpack_o,
+    output logic [271:0] l_ev_value_o,
+    output logic         l_user_valid_o,
+    output logic         l_user_join_o,
+    output logic [11:0]  l_user_vid_o,
+    input  wire          l_user_ready_i,
+    output logic         l_arm_valid_o,
+    output logic         l_arm_cancel_o,
+    output logic [6:0]   l_arm_slot_o,
+    output logic [7:0]   l_arm_owner_o,
+    output logic [31:0]  l_arm_deadline_ms_o,
+    output logic [N_STREAMS_P-1:0]       l_evt_tk_registered_o,
+    output logic [N_STREAMS_P-1:0]       l_evt_tk_unregistered_o,
+    output logic [N_STREAMS_P-1:0][1:0]  l_tk_reg_state_o,
+    output logic [N_STREAMS_P-1:0][1:0]  l_lstn_decl_state_o,
+    output logic [N_STREAMS_P-1:0][31:0] l_acc_latency_o,
+    output logic [N_STREAMS_P-1:0][7:0]  l_msrp_fail_code_o,
+    output logic [N_STREAMS_P-1:0][63:0] l_msrp_fail_bridge_o,
+    output logic [N_STREAMS_P-1:0][3:0]  l_dbg_app_state_o,
+    output logic [N_STREAMS_P-1:0][1:0]  l_dbg_reg_state_o
+);
+
+  KL_srp_talker_fsm #(
+      .N_SOURCES_P (N_STREAMS_P),
+      .LEAVE_MS_P  (5000),
+      .SLOT_BASE_P (16),
+      .SLOT_AW_P   (7),
+      .OWNER_BASE_P(8'h40)
+  ) u_talker (
+      .clk_i              (clk_i),
+      .rst_n              (rst_n),
+      .own_mac_i          (own_mac_i),
+      .p2p_i              (p2p_i),
+      .gate_valid_i       (gate_valid_i),
+      .gate_ready_o       (gate_ready_o),
+      .gate_open_i        (gate_open_i),
+      .gate_src_i         (gate_src_i),
+      .gate_stream_id_i   (gate_stream_id_i),
+      .gate_da_i          (gate_da_i),
+      .gate_vid_i         (gate_vid_i),
+      .gate_max_frame_i   (gate_max_frame_i),
+      .gate_max_interval_i(gate_max_interval_i),
+      .gate_prio_i        (gate_prio_i),
+      .gate_rank_i        (gate_rank_i),
+      .gate_acc_lat_i     (gate_acc_lat_i),
+      .sr_admitted_i      (sr_admitted_i),
+      .evt_valid_i        (evt_valid_i),
+      .evt_msrp_i         (evt_msrp_i),
+      .evt_attr_type_i    (evt_attr_type_i),
+      .evt_stream_id_i    (evt_stream_id_i),
+      .evt_da_i           (evt_da_i),
+      .evt_vid_i          (evt_vid_i),
+      .evt_mrp_event_i    (evt_mrp_event_i),
+      .evt_fourpacked_i   (evt_fourpacked_i),
+      .join_tick_i        (join_tick_i),
+      .periodic_tick_i    (periodic_tick_i),
+      .leaveall_rx_i      (leaveall_rx_i),
+      .leaveall_own_i     (leaveall_own_i),
+      .txop_done_o        (t_txop_done_o),
+      .ev_valid_o         (t_ev_valid_o),
+      .ev_ready_i         (t_ev_ready_i),
+      .ev_app_o           (t_ev_app_o),
+      .ev_attr_type_o     (t_ev_attr_type_o),
+      .ev_event_o         (t_ev_event_o),
+      .ev_fourpack_o      (t_ev_fourpack_o),
+      .ev_value_o         (t_ev_value_o),
+      .user_valid_o       (t_user_valid_o),
+      .user_join_o        (t_user_join_o),
+      .user_vid_o         (t_user_vid_o),
+      .user_ready_i       (t_user_ready_i),
+      .now_ms_i           (now_ms_i),
+      .arm_valid_o        (t_arm_valid_o),
+      .arm_cancel_o       (t_arm_cancel_o),
+      .arm_slot_o         (t_arm_slot_o),
+      .arm_owner_o        (t_arm_owner_o),
+      .arm_deadline_ms_o  (t_arm_deadline_ms_o),
+      .exp_valid_i        (exp_valid_i),
+      .exp_slot_i         (exp_slot_i),
+      .lstn_reg_change_o  (t_lstn_reg_change_o),
+      .tk_decl_state_o    (t_tk_decl_state_o),
+      .lstn_reg_state_o   (t_lstn_reg_state_o),
+      .active_o           (t_active_o),
+      .msrp_fail_code_o   (t_msrp_fail_code_o),
+      .msrp_fail_bridge_o (t_msrp_fail_bridge_o),
+      .dbg_app_state_o    (t_dbg_app_state_o),
+      .dbg_reg_state_o    (t_dbg_reg_state_o)
+  );
+
+  KL_srp_listener_fsm #(
+      .N_SINKS_P   (N_STREAMS_P),
+      .LEAVE_MS_P  (5000),
+      .SLOT_BASE_P (24),
+      .SLOT_AW_P   (7),
+      .OWNER_BASE_P(8'h60)
+  ) u_listener (
+      .clk_i                  (clk_i),
+      .rst_n                  (rst_n),
+      .p2p_i                  (p2p_i),
+      .ctl_valid_i            (ctl_valid_i),
+      .ctl_ready_o            (ctl_ready_o),
+      .ctl_settle_i           (ctl_settle_i),
+      .ctl_sink_i             (ctl_sink_i),
+      .ctl_stream_id_i        (ctl_stream_id_i),
+      .ctl_da_i               (ctl_da_i),
+      .ctl_vid_i              (ctl_vid_i),
+      .evt_valid_i            (evt_valid_i),
+      .evt_msrp_i             (evt_msrp_i),
+      .evt_attr_type_i        (evt_attr_type_i),
+      .evt_stream_id_i        (evt_stream_id_i),
+      .evt_da_i               (evt_da_i),
+      .evt_vid_i              (evt_vid_i),
+      .evt_mrp_event_i        (evt_mrp_event_i),
+      .evt_acc_latency_i      (evt_acc_latency_i),
+      .evt_failure_system_id_i(evt_failure_system_id_i),
+      .evt_failure_code_i     (evt_failure_code_i),
+      .join_tick_i            (join_tick_i),
+      .periodic_tick_i        (periodic_tick_i),
+      .leaveall_rx_i          (leaveall_rx_i),
+      .leaveall_own_i         (leaveall_own_i),
+      .txop_done_o            (l_txop_done_o),
+      .ev_valid_o             (l_ev_valid_o),
+      .ev_ready_i             (l_ev_ready_i),
+      .ev_app_o               (l_ev_app_o),
+      .ev_attr_type_o         (l_ev_attr_type_o),
+      .ev_event_o             (l_ev_event_o),
+      .ev_fourpack_o          (l_ev_fourpack_o),
+      .ev_value_o             (l_ev_value_o),
+      .user_valid_o           (l_user_valid_o),
+      .user_join_o            (l_user_join_o),
+      .user_vid_o             (l_user_vid_o),
+      .user_ready_i           (l_user_ready_i),
+      .now_ms_i               (now_ms_i),
+      .arm_valid_o            (l_arm_valid_o),
+      .arm_cancel_o           (l_arm_cancel_o),
+      .arm_slot_o             (l_arm_slot_o),
+      .arm_owner_o            (l_arm_owner_o),
+      .arm_deadline_ms_o      (l_arm_deadline_ms_o),
+      .exp_valid_i            (exp_valid_i),
+      .exp_slot_i             (exp_slot_i),
+      .evt_tk_registered_o    (l_evt_tk_registered_o),
+      .evt_tk_unregistered_o  (l_evt_tk_unregistered_o),
+      .tk_reg_state_o         (l_tk_reg_state_o),
+      .lstn_decl_state_o      (l_lstn_decl_state_o),
+      .acc_latency_o          (l_acc_latency_o),
+      .msrp_fail_code_o       (l_msrp_fail_code_o),
+      .msrp_fail_bridge_o     (l_msrp_fail_bridge_o),
+      .dbg_app_state_o        (l_dbg_app_state_o),
+      .dbg_reg_state_o        (l_dbg_reg_state_o)
+  );
+
+endmodule : srp_stream_fsms_wrap
+`default_nettype wire

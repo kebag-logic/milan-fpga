@@ -1,0 +1,270 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# The consumption contract (hdl/README.md): the consumer's submodule pin moves
+# only to a commit whose gates are green HERE first. Verilator is pinned and
+# built from source — distro packages have failed the reference platform twice
+# (5.020 cannot build datapath harnesses; 5.032 reads back zeros).
+name: hdl
+on: [push, pull_request]
+
+env:
+  VERILATOR_VERSION: v5.050
+
+jobs:
+  docs-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link, matrix, wavedrom and staleness gates
+        run: |
+          python3 -m pip install wavedrom
+          python3 scripts/check-links.py
+          python3 scripts/check-matrix.py
+          python3 scripts/render-wavedrom.py --check
+          make stale
+
+  suites:
+    runs-on: ubuntu-latest
+    steps:
+      # Full main history, not the default depth-1: the nvm_port figure gate
+      # compares its matrix injections with historical implementations.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+      - name: Build Verilator ${{ env.VERILATOR_VERSION }}
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y git help2man perl \
+            python3 make g++ libfl2 libfl-dev zlib1g zlib1g-dev autoconf flex bison
+          git clone --depth 1 --branch $VERILATOR_VERSION \
+            https://github.com/verilator/verilator ~/verilator-src
+          cd ~/verilator-src && autoconf && ./configure --prefix "$HOME/verilator"
+          make -j"$(nproc)" && make install
+      - name: Lint (zero tolerance) + every suite
+        run: |
+          export PATH="$HOME/verilator/bin:$PATH"
+          verilator --version
+          ./scripts/lint_hdl.sh
+          ./scripts/run_suites.sh
+      - name: Traceability matrix no-drift + untested budget 0
+        run: python3 scripts/gen_matrix.py --check
+
+      # Out of run_suites.sh on purpose: too slow for the per-suite loop, and
+      # it prints its own derived build count rather than quoting one here --
+      # that number was stale in this file for two rounds. "Run it by hand
+      # after a change" is the discipline that let the nvm_port figures go
+      # stale in four consecutive reviews, so it gates here instead, where
+      # Verilator is already built.
+      - name: nvm_port README figures agree with the tree
+        run: |
+          export PATH="$HOME/verilator/bin:$PATH"
+          # PR #13 was squash-merged. Its review lineage is therefore absent
+          # from main, but remains available through GitHub's durable pull ref.
+          git fetch --no-tags origin refs/pull/13/head
+          make -C tb/nvm_port figures
+
+  portability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yosys + sv2v
+        run: |
+          sudo apt-get update && sudo apt-get install -y yosys
+          curl -sL https://github.com/zachjs/sv2v/releases/latest/download/sv2v-Linux.zip \
+            -o /tmp/sv2v.zip && sudo apt-get install -y unzip
+          unzip -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install /tmp/sv2v/*/sv2v /usr/local/bin/
+      - name: Elaborate every top off-vendor
+        run: ./syn/yosys/run.sh
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# protocol_processor_top end-to-end suite — exit 0 = PASS.
+#
+# Two builds of one bench. The first overrides nothing and runs every
+# section; the second overrides P-SRP-DOM-DEF-VID with SRP_VID_FIXTURE and
+# runs section DV alone (README). The SRP engine's own default is 2 as well,
+# so only a value the child cannot produce shows a dropped or misbound
+# top-level connection. Each binary prints its own build's count; the last
+# line is the one canonical tally, summed over both builds.
+VERILATOR ?= verilator
+HDL        = ../../hdl
+TOP        = pp_top_wrap
+# verification only: Milan 4.2.7.2.1 fixes the product value at 2. README
+# section DV says why this pattern
+SRP_VID_FIXTURE = 5A3C
+
+VFLAGS = --cc --exe --build -j 0 \
+         --top-module $(TOP) \
+         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+         -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
+
+SRCS = $(HDL)/common/pp_pkg.sv $(HDL)/srp/srp_pkg.sv \
+       $(HDL)/acmp/pp_acmp_pkg.sv $(HDL)/adp/pp_adp_pkg.sv \
+       $(HDL)/common/KL_pp_prng.sv $(HDL)/common/KL_pp_timer_service.sv \
+       $(HDL)/packet_engine/KL_pp_rx_validator.sv \
+       $(HDL)/packet_engine/KL_pp_rx_slots.sv \
+       $(HDL)/packet_engine/KL_pp_normalizer.sv \
+       $(HDL)/packet_engine/KL_pp_dispatch.sv \
+       $(HDL)/packet_engine/KL_pp_tx_slots.sv \
+       $(HDL)/packet_engine/KL_pp_release_merge.sv \
+       $(HDL)/packet_engine/KL_pp_tx_arbiter.sv \
+       $(HDL)/packet_engine/KL_pp_scoreboard.sv \
+       $(HDL)/packet_engine/KL_pp_event_router.sv \
+       $(HDL)/packet_engine/KL_pp_originator.sv \
+       $(HDL)/packet_engine/KL_pp_trace_ring.sv \
+       $(HDL)/packet_engine/KL_pp_side_port.sv \
+       $(HDL)/packet_engine/KL_pp_nvm_port.sv \
+       $(HDL)/aecp/ucpu_pkg.sv $(HDL)/aecp/KL_aecp_ucpu.sv \
+       $(HDL)/aecp/KL_aecp_desc_store.sv $(HDL)/aecp/KL_aecp_dyn_state.sv $(HDL)/aecp/KL_aecp_engine.sv $(HDL)/aecp/KL_aecp_resp_buf.sv \
+       $(HDL)/aecp/KL_aecp_notify.sv $(HDL)/aecp/KL_aecp_ca_originator.sv \
+       $(HDL)/adp/KL_adp_engine.sv \
+       $(HDL)/acmp/KL_pp_acmp_listener.sv $(HDL)/acmp/KL_acmp_talker.sv \
+       $(HDL)/acmp/KL_acmp_nvm_shadow.sv \
+       $(HDL)/maap/KL_pp_maap.sv \
+       $(HDL)/srp/KL_srp_decoder.sv $(HDL)/srp/KL_srp_domain.sv \
+       $(HDL)/srp/KL_srp_vlan.sv $(HDL)/srp/KL_srp_admission.sv \
+       $(HDL)/srp/KL_srp_talker_fsm.sv $(HDL)/srp/KL_srp_listener_fsm.sv \
+       $(HDL)/srp/KL_srp_encoder.sv $(HDL)/srp/KL_srp_top.sv \
+       $(HDL)/top/KL_mrp_strip.sv $(HDL)/top/protocol_processor_top.sv \
+       pp_top_wrap.sv
+CPP  = sim_main.cpp
+
+run: fixture-guards ltn_rom.hex ucode.hex
+	@rm -f obj_dir/build_tally.txt
+	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vpp_top_sim
+	./obj_dir/Vpp_top_sim
+	$(VERILATOR) $(VFLAGS) "+define+PP_TOP_SRP_DOM_DEF_VID=16'h$(SRP_VID_FIXTURE)" \
+	    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE)" \
+	    --Mdir obj_vid $(SRCS) $(CPP) -o Vpp_top_vid
+	./obj_vid/Vpp_top_vid
+	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+	    obj_dir/build_tally.txt
+
+# Compile the actual bench with four fixture settings in a temporary model dir.
+# No simulation or source mutation; bad fixtures must fail for the named guards.
+fixture-guards: fixture-guards-test
+	@python3 fixture_guards.py --verilator "$(VERILATOR)" --cxx "$(CXX)" -- \
+	    $(filter-out --exe --build,$(VFLAGS)) $(SRCS)
+
+fixture-guards-test:
+	@python3 -B -m unittest -v test_fixture_guards.py
+
+ltn_rom.hex: $(HDL)/acmp/rom/gen_ltn_rom.py
+	python3 $< -o $@
+
+ucode.hex: $(HDL)/aecp/ucode/gen_ucode.py
+	python3 $< -o $@
+
+clean:
+	rm -rf obj_dir obj_vid ltn_rom.hex ucode.hex
+
+.PHONY: run fixture-guards fixture-guards-test clean
+#!/usr/bin/env bash
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Verilator --lint-only over every module under hdl/, each elaborated as a top
+# WITH the whole tree visible (hierarchical modules need their children).
+# ZERO tolerance — greenfield; a waiver is a justified lint_off pragma in RTL.
+
+# Strict mode, with every status this script EXPECTS to be non-zero marked
+# where it is read. One of them is subtle: the verdict `grep`s take $out from a
+# HERE-STRING, not a pipe, because under `pipefail` a `grep -q` that matches
+# early closes the pipe, the `echo` feeding it dies of SIGPIPE, and the
+# pipeline reports non-zero - so `elif echo "$out" | grep -q ...` would report
+# `LINT OK` for a module that DID warn. A here-string has no such inversion.
+set -euo pipefail
+cd "$(dirname "$0")/.." || exit 1   # every path below is relative to the repo root
+
+# THE VERDICT IS THE TOOL'S EXIT STATUS, NOT THE ABSENCE OF A STRING IN ITS
+# OUTPUT. This script used to decide PASS by grepping verilator's combined
+# output for `%Warning`/`%Error` and nothing else - so a verilator that was
+# absent, unrunnable or crashing produced no such line, and the script printed
+# `LINT OK` for every one of the forty modules and exited 0. Reproduced by
+# putting a program that always fails on PATH as `verilator`: forty OK lines,
+# exit 0, lint never ran. A gate whose tool is missing must refuse, not pass.
+command -v verilator >/dev/null 2>&1 || {
+  echo "REFUSED: verilator is not on PATH, so nothing was linted. This is not a pass." >&2
+  exit 2
+}
+
+pkgs=$(find hdl -name '*_pkg.sv' | sort)
+all=$(find hdl -name '*.sv' ! -name '*_pkg.sv' | sort)
+rc=0
+# $all and $pkgs are find's newline-separated lists, and the split into one
+# word per file is what verilator is being handed.
+for f in $all; do  # shellcheck disable=SC2086 # deliberate word split of the file list
+  # A .sv file that declares no module (a bare interface, a header) is skipped
+  # on the next line; `grep` finding nothing there is expected, so `pipefail`
+  # must not end the lint at it.
+  top=$(grep -oEm1 '^\s*module\s+\w+' "$f" | awk '{print $2}') || top=""
+  [ -n "$top" ] || continue
+  if ! out=$(verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+             -Wno-UNUSEDPARAM --top-module "$top" $pkgs $all 2>&1); then  # shellcheck disable=SC2086 # deliberate: the whole tree is passed as one argument per file
+    # verilator itself failed. Not the same thing as a lint finding, and not
+    # a pass either: say which it is.
+    echo "LINT ERROR $top ($f): verilator exited non-zero"
+    echo "$out" | tail -5
+    rc=1
+  elif grep -qE '%(Warning|Error)' <<<"$out"; then
+    echo "LINT FAIL $top ($f)"
+    # The verdict is already taken; `head` closing this pipe early is expected.
+    grep -E '%(Warning|Error)' <<<"$out" | head -5 || true
+    rc=1
+  else
+    echo "LINT OK  $top"
+  fi
+done
+exit "$rc"
+#!/usr/bin/env bash
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Run every Verilator suite under tb/ (glob — never a hand-kept list).
+# Exit = number of failing suites; exit 90 if any PASSing suite's tally line
+# is unreadable (a suite whose check count cannot be read is unproven).
+
+# Strict mode, and it does NOT disarm the sweep. This script's job is to run
+# every suite and count the red ones, so each status it is built to survive was
+# checked against `set -e`: a failing suite is read by an `if`, and the two
+# `[ ... ] && exit` verdicts at the bottom are AND-OR lists - errexit acts on
+# neither. The one expected failure `pipefail` WOULD have turned into a crash
+# mid-sweep is the tally read, and that line now says so.
+set -euo pipefail
+cd "$(dirname "$0")/.." || exit 1   # every path below is relative to the repo root
+fails=0; unreadable=0; total=0
+
+# The uPC map is written down twice (gen_ucode.py's entry points and the
+# engine's UPC_*_C localparams) and a mismatch does NOT fail to elaborate: the
+# uCPU starts in the ROM fill and answers a well-formed response carrying
+# garbage. Gate it before any suite runs, because every suite would pass.
+if ! python3 scripts/check_upc_map.py; then
+  echo "FAIL check_upc_map (the engine dispatches where no program lives)"
+  exit 1
+fi
+
+for d in tb/*/; do
+  [ -f "$d/Makefile" ] || continue
+  name=$(basename "$d")
+  log=$(mktemp)
+  if (cd "$d" && make) >"$log" 2>&1; then
+    # A suite that passed with no tally line is the UNREADABLE verdict below,
+    # not a crash: under `pipefail` the empty `grep` is a failing pipeline, so
+    # its status is consumed here and the emptiness of $tally is what is read.
+    tally=$(grep -Eo '[0-9]+ checks: [0-9]+ PASS, [0-9]+ FAIL' "$log" | tail -1) || tally=""
+    if [ -z "$tally" ]; then
+      echo "UNREADABLE $name (passed but no tally line)"; unreadable=1
+    else
+      n=${tally%% *}; total=$((total + n))
+      echo "PASS $name ($tally)"
+    fi
+  else
+    echo "FAIL $name"; tail -5 "$log" | sed 's/^/    /'; fails=$((fails + 1))
+  fi
+  rm -f "$log"
+done
+echo "suites: $total checks total, $fails failing"
+[ "$fails" -gt 0 ] && exit "$fails"
+[ "$unreadable" -gt 0 ] && exit 90
+exit 0

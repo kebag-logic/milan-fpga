@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="980" viewBox="0 0 1360 980" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#2f7d46"/>
+    </marker>
+    <marker id="ahn" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#a03030"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1360" height="980" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
+
+  <text x="24" y="34" font-size="19" font-weight="bold" fill="#16181d">Bring-up ladder — telling working from broken, one question at a time</text>
+  <text x="24" y="56" font-size="12.5" fill="#4a5058">Walk it top to bottom. Every "word N" is a 32-bit read of the side-port snapshot window at word address 0x20000 + N. Ask the questions in this order: a later one is meaningless while an earlier one is still no.</text>
+
+  <!-- STEP 1 -->
+  <rect x="24" y="96" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="120" font-size="13" font-weight="bold" fill="#16181d">1 · Is the processor even running?</text>
+  <text x="42" y="142" font-size="11.5" fill="#4a5058">Read word 2 twice, a second apart. It is a free-running</text>
+  <text x="42" y="159" font-size="11.5" fill="#4a5058">millisecond timebase, and word 0 must read 0x4B4C5050.</text>
+  <text x="42" y="182" font-size="11.5" fill="#2f7d46">yes ↓   ·   no →</text>
+
+  <rect x="612" y="96" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="120" font-size="12.5" font-weight="bold" fill="#16181d">Nothing above this line matters yet.</text>
+  <text x="630" y="142" font-size="11.5" fill="#4a5058">A frozen word 2 means clk_i is not running or rst_n is still asserted; remember rst_n is SYNCHRONOUS, so it needs</text>
+  <text x="630" y="159" font-size="11.5" fill="#4a5058">a running clock to take effect. A wrong word 0 means the side port itself is mis-wired — check that host_addr_i is a</text>
+  <text x="630" y="176" font-size="11.5" fill="#4a5058">WORD address, not a byte address.</text>
+
+  <!-- STEP 2 -->
+  <rect x="24" y="210" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="234" font-size="13" font-weight="bold" fill="#16181d">2 · Are both gates up?</text>
+  <text x="42" y="256" font-size="11.5" fill="#4a5058">Word 3 bit 0 is entity_enable_i, bit 1 is link_up_i.</text>
+  <text x="42" y="273" font-size="11.5" fill="#4a5058">Bit 2 says the PRNG has taken its one seed.</text>
+  <text x="42" y="296" font-size="11.5" fill="#2f7d46">both set ↓   ·   either clear →</text>
+
+  <rect x="612" y="210" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="234" font-size="12.5" font-weight="bold" fill="#16181d">This is silence BY DESIGN, not a fault.</text>
+  <text x="630" y="256" font-size="11.5" fill="#4a5058">Milan §5.6.1 holds the advertise machine in DOWN until entity_enable_i, because the entity must already be able to</text>
+  <text x="630" y="273" font-size="11.5" fill="#4a5058">answer commands before it announces itself. The PRNG seeds ONCE, on the first link_up_i rise — so bit 2 stays clear</text>
+  <text x="630" y="290" font-size="11.5" fill="#4a5058">until the link has come up at least once.</text>
+
+  <!-- STEP 3 -->
+  <rect x="24" y="324" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="348" font-size="13" font-weight="bold" fill="#16181d">3 · Is ENTITY_AVAILABLE on the wire?</text>
+  <text x="42" y="370" font-size="11.5" fill="#4a5058">82 bytes to 91:E0:F0:01:00:00, EtherType 0x22F0,</text>
+  <text x="42" y="387" font-size="11.5" fill="#4a5058">subtype 0xFA. Capture it, do not infer it.</text>
+  <text x="42" y="410" font-size="11.5" fill="#2f7d46">yes ↓   ·   no →</text>
+
+  <rect x="612" y="324" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="348" font-size="12.5" font-weight="bold" fill="#16181d">Word 31 bits [1:0] name the advertise state.</text>
+  <text x="630" y="370" font-size="11.5" fill="#4a5058">0 DOWN — gated off, go back to question 2.   1 DRAW — waiting for its randomised delay from the PRNG.</text>
+  <text x="630" y="387" font-size="11.5" fill="#4a5058">2 DELAY — the delay timer is armed.   3 WAITING — it has already sent one and is counting to the next.</text>
+  <text x="630" y="404" font-size="11.5" fill="#4a5058">Word 26 bits [15:0] count ADP frames the TX arbiter actually granted. Rising there but nothing on the wire is a MAC problem.</text>
+
+  <!-- STEP 4 -->
+  <rect x="24" y="438" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="462" font-size="13" font-weight="bold" fill="#16181d">4 · Does a controller list the entity?</text>
+  <text x="42" y="484" font-size="11.5" fill="#4a5058">Hive or la_avdecc should show it within the</text>
+  <text x="42" y="501" font-size="11.5" fill="#4a5058">advertise cadence — 5 s plus a 0 to 4 s draw.</text>
+  <text x="42" y="524" font-size="11.5" fill="#2f7d46">yes ↓   ·   no →</text>
+
+  <rect x="612" y="438" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="462" font-size="12.5" font-weight="bold" fill="#16181d">If the frame is on the wire, suspect the listener, not the entity.</text>
+  <text x="630" y="484" font-size="11.5" fill="#4a5058">A raw-socket tool must JOIN the 91:E0:F0:01:00:00 group or the kernel never delivers the frame to it.</text>
+  <text x="630" y="501" font-size="11.5" fill="#4a5058">In the other direction, words 4, 5 and 6 count what this processor threw away: DA, EtherType, subtype, version,</text>
+  <text x="630" y="518" font-size="11.5" fill="#4a5058">length, and RX-pool overrun. A rising DA count while a controller is talking means it is addressing someone else.</text>
+
+  <!-- STEP 5 -->
+  <rect x="24" y="552" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="576" font-size="13" font-weight="bold" fill="#16181d">5 · Does READ_DESCRIPTOR return anything?</text>
+  <text x="42" y="598" font-size="11.5" fill="#4a5058">Open the entity in a controller and read the</text>
+  <text x="42" y="615" font-size="11.5" fill="#4a5058">ENTITY descriptor.</text>
+  <text x="42" y="638" font-size="11.5" fill="#2f7d46">yes ↓   ·   NO_SUCH_DESCRIPTOR everywhere →</text>
+
+  <rect x="612" y="552" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="576" font-size="12.5" font-weight="bold" fill="#16181d">The entity model is in YOUR memory, and it is probably not there.</text>
+  <text x="630" y="598" font-size="11.5" fill="#4a5058">Word 34 bit 0 is image-valid: 0 means the magic, layout version or checksum at DESC_BASE_P did not agree, so</text>
+  <text x="630" y="615" font-size="11.5" fill="#4a5058">nothing is served rather than garbage being served. Word 33 bits [15:0] count locate misses. A late load heals it</text>
+  <text x="630" y="632" font-size="11.5" fill="#4a5058">without a reset. Word 32 counts commands accepted and responses emitted; words 35 and 36 name a response-memory fault.</text>
+
+  <!-- STEP 6 -->
+  <rect x="24" y="666" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="690" font-size="13" font-weight="bold" fill="#16181d">6 · Does BIND_RX stick?</text>
+  <text x="42" y="712" font-size="11.5" fill="#4a5058">Bind a sink from the controller and watch</text>
+  <text x="42" y="729" font-size="11.5" fill="#4a5058">word 28 bits [31:24] — one bit per sink.</text>
+  <text x="42" y="752" font-size="11.5" fill="#2f7d46">yes ↓   ·   no →</text>
+
+  <rect x="612" y="666" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="690" font-size="12.5" font-weight="bold" fill="#16181d">A binding that never settles is usually a talker that was never discovered.</text>
+  <text x="630" y="712" font-size="11.5" fill="#4a5058">The listener probes only a talker it has SEEN advertise with a matching grandmaster and gPTP domain. Word 14 bits</text>
+  <text x="630" y="729" font-size="11.5" fill="#4a5058">[31:16] carry this station's own Listener declaration, two bits per sink; word 13 bits [15:0] carry the talker attribute</text>
+  <text x="630" y="746" font-size="11.5" fill="#4a5058">as registered from the network. Both zero means SRP never saw the other end.</text>
+
+  <!-- STEP 7 -->
+  <rect x="24" y="780" width="520" height="100" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.4"/>
+  <text x="42" y="804" font-size="13" font-weight="bold" fill="#16181d">7 · Does the talker declare and get bandwidth?</text>
+  <text x="42" y="826" font-size="11.5" fill="#4a5058">Word 12: bits [23:16] active, bits [31:24] admitted.</text>
+  <text x="42" y="843" font-size="11.5" fill="#4a5058">Word 11 is the summed granted idleSlope in bit/s.</text>
+  <text x="42" y="866" font-size="11.5" fill="#2f7d46">all set — the plane is healthy   ·   no →</text>
+
+  <rect x="612" y="780" width="704" height="100" rx="7" fill="#fff2f2" stroke="#a03030" stroke-width="1.2"/>
+  <text x="630" y="804" font-size="12.5" font-weight="bold" fill="#16181d">A source with no destination address can never declare.</text>
+  <text x="630" y="826" font-size="11.5" fill="#4a5058">The talker gate opens only on a MAAP allocation, and the allocator lives outside this repository. With the maap_*</text>
+  <text x="630" y="843" font-size="11.5" fill="#4a5058">face tied off, acmp_declaring_o is structurally 0 and PROBE_TX answers TALKER_DEST_MAC_FAILED — the honest answer.</text>
+  <text x="630" y="860" font-size="11.5" fill="#4a5058">If it declares but is not admitted, word 3 bit 4 is the port-ceiling refusal and word 11 shows what did fit.</text>
+
+  <!-- vertical yes arrows -->
+  <line x1="180" y1="196" x2="180" y2="205" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="180" y1="310" x2="180" y2="319" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="180" y1="424" x2="180" y2="433" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="180" y1="538" x2="180" y2="547" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="180" y1="652" x2="180" y2="661" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="180" y1="766" x2="180" y2="775" stroke="#2f7d46" stroke-width="1.8" marker-end="url(#ah)"/>
+
+  <!-- horizontal no arrows -->
+  <line x1="548" y1="146" x2="607" y2="146" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="260" x2="607" y2="260" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="374" x2="607" y2="374" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="488" x2="607" y2="488" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="602" x2="607" y2="602" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="716" x2="607" y2="716" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+  <line x1="548" y1="830" x2="607" y2="830" stroke="#a03030" stroke-width="1.8" marker-end="url(#ahn)"/>
+
+  <text x="24" y="920" font-size="11.5" fill="#4a5058">Every drop in this processor is counted; none is silent. Counters saturate rather than wrap, so 0xFFFF means "at least that many", not "none".</text>
+  <text x="24" y="942" font-size="11.5" fill="#4a5058">The complete word map, with bit positions, is in the operator guide. The snapshot window is read-only — reading it can never change behaviour.</text>
+  <text x="24" y="964" font-size="11.5" fill="#4a5058">Word 15 also exposes the scoreboard and the trace ring; the trace ring itself is a second window, at word address 0x40000.</text>
+</svg>

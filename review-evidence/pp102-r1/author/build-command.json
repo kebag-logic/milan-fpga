@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "make",
+    "-j1",
+    "-C",
+    "tb/pp_top",
+    "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+    "VFLAGS=--cc --exe --build -j 8           --top-module $(TOP)           -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL           -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM           -CFLAGS \"-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra\"",
+    "run"
+  ],
+  "environment_overrides": {
+    "MAKEFLAGS": "-j1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/pp102-author/tmp"
+  }
+}

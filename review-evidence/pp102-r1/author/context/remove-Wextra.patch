@@ -1,0 +1,11 @@
+--- corrected/Makefile
++++ disposable/Makefile
+@@ -56,7 +56,7 @@
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vpp_top_sim
+ 	./obj_dir/Vpp_top_sim
+ 	$(VERILATOR) $(VFLAGS) "+define+PP_TOP_SRP_DOM_DEF_VID=16'h$(SRP_VID_FIXTURE)" \
+-	    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra" \
++	    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall" \
+ 	    --Mdir obj_vid $(SRCS) $(CPP) -o Vpp_top_vid
+ 	./obj_vid/Vpp_top_vid
+ 	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \

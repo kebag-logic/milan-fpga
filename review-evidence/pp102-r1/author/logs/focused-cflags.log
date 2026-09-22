@@ -1,0 +1,14 @@
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor; -424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+Verified parent inputs: [{"path": "scripts/check_cpp_idiom.py", "git_blob": "1d9ccd7fa1fded549f8988149397ff10bc12b0d5", "sha256": "a059f01c0f8f69edb7de540004ce27b168c4e8d53a5c79c0238b0d5bb9f5f228", "size": 49510}, {"path": "scripts/code_quality_scope.py", "git_blob": "4603080a48d97e1e45f8b787273a2b459b1aebe6", "sha256": "4497818d6444cc1ea7aefc002d1b32675f206e07988cbf6b19708b08409de14b", "size": 4090}]
+original cflags_missing = ['-Wall', '-Wextra']
+corrected cflags_missing = []
+removed -Wall in disposable copy: ['-Wall']
+removed -Wextra in disposable copy: ['-Wextra']
+Parent warning-flag selftest controls:
+[PASS] a build with no warning flags is a finding
+[PASS] a build with both warning flags is not a finding
+[PASS] a flag enabled for only one of several builds is a finding
+[PASS] a Makefile with no -CFLAGS is not judged
+[PASS] a -CFLAGS group continued across lines is one group
+[PASS] an escaped quote inside a -CFLAGS group does not end it
+[PASS] a -CFLAGS mentioned in a comment is not a build line

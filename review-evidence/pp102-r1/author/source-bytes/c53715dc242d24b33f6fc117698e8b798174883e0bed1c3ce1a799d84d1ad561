@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="960" viewBox="0 0 1300 960" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#2c3038"/>
+    </marker>
+    <marker id="ahm" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#6b46a5"/>
+    </marker>
+    <marker id="ahr" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#a03030"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1300" height="960" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
+
+  <text x="24" y="34" font-size="19" font-weight="bold" fill="#16181d">READ_DESCRIPTOR — the AECP path through the integrator's main memory</text>
+  <text x="24" y="56" font-size="12" fill="#4a5058">The entity model and the response buffer are NOT on chip. Both live in the integrator's memory at compile-time bases, reached over two independent masters.</text>
+
+  <!-- lane headers -->
+  <rect x="24" y="76" width="330" height="26" rx="4" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1"/>
+  <text x="189" y="94" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#16181d">on the wire / packet engine</text>
+
+  <rect x="382" y="76" width="440" height="26" rx="4" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1"/>
+  <text x="602" y="94" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#16181d">inside KL_aecp_engine</text>
+
+  <rect x="850" y="76" width="426" height="26" rx="4" fill="#f6eeff" stroke="#6b46a5" stroke-width="1"/>
+  <text x="1063" y="94" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#16181d">integrator main memory (this repository does not know it is DDR3)</text>
+
+  <!-- lane separators -->
+  <line x1="368" y1="76" x2="368" y2="740" stroke="#dde2e9" stroke-width="1"/>
+  <line x1="836" y1="76" x2="836" y2="740" stroke="#dde2e9" stroke-width="1"/>
+
+  <!-- STEP 1 -->
+  <rect x="24" y="120" width="330" height="56" rx="6" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1.3"/>
+  <text x="42" y="141" font-size="11.5" font-weight="bold" fill="#16181d">1 · command lands in an RX slot</text>
+  <text x="42" y="159" font-size="10.5" fill="#4a5058">validator → KL_pp_rx_slots → normalizer → dispatch</text>
+
+  <!-- STEP 2 -->
+  <rect x="382" y="120" width="440" height="56" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="141" font-size="11.5" font-weight="bold" fill="#16181d">2 · pop the AECP head, decode the opcode</text>
+  <text x="400" y="159" font-size="10.5" fill="#4a5058">0x0004 READ_DESCRIPTOR → a µPC entry; r15/r14/r13 preloaded at dispatch</text>
+  <line x1="354" y1="148" x2="377" y2="148" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+
+  <!-- STEP 3 -->
+  <rect x="382" y="196" width="440" height="70" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="217" font-size="11.5" font-weight="bold" fill="#16181d">3 · µCPU issues DESC_ADDR — a LOCATE, never a branch</text>
+  <text x="400" y="235" font-size="10.5" fill="#4a5058">key = {configuration_index, descriptor_type, descriptor_index}</text>
+  <text x="400" y="252" font-size="10.5" fill="#4a5058">the µprogram tests the outcome with BRANCH_IF_STATUS</text>
+  <line x1="602" y1="176" x2="602" y2="191" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- memory: header + index map -->
+  <rect x="850" y="196" width="426" height="70" rx="6" fill="#f6eeff" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="868" y="217" font-size="11.5" font-weight="bold" fill="#16181d">image header + index map, at DESC_BASE_P</text>
+  <text x="868" y="235" font-size="10.5" fill="#4a5058">magic + layout version + checksum, probed once after reset;</text>
+  <text x="868" y="252" font-size="10.5" fill="#4a5058">the index map is walked ONCE into a small on-chip table</text>
+  <line x1="828" y1="231" x2="845" y2="231" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- STEP 4 -->
+  <rect x="382" y="286" width="440" height="70" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="307" font-size="11.5" font-weight="bold" fill="#16181d">4 · KL_aecp_desc_store fetches ONE descriptor</text>
+  <text x="400" y="325" font-size="10.5" fill="#4a5058">a single burst into the DESC_LINE_BYTES_P line buffer, then every</text>
+  <text x="400" y="342" font-size="10.5" fill="#4a5058">later read is served from that buffer — one memory latency per command</text>
+
+  <rect x="850" y="286" width="426" height="70" rx="6" fill="#f6eeff" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="868" y="307" font-size="11.5" font-weight="bold" fill="#16181d">descriptor image — desc_mem_* master, READ ONLY</text>
+  <text x="868" y="325" font-size="10.5" fill="#4a5058">one outstanding request, responses in order, rsp_last on the last beat</text>
+  <text x="868" y="342" font-size="10.5" fill="#4a5058">a beat carries its lowest byte address in bits [63:56] (wire order)</text>
+  <line x1="828" y1="321" x2="845" y2="321" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+  <line x1="602" y1="266" x2="602" y2="281" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- STEP 5 -->
+  <rect x="382" y="376" width="440" height="70" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="397" font-size="11.5" font-weight="bold" fill="#16181d">5 · COPY_BUFFER walks the descriptor into the response</text>
+  <text x="400" y="415" font-size="10.5" fill="#4a5058">it advances by BYTES COPIED, not by the 8-byte lane it read, so a</text>
+  <text x="400" y="432" font-size="10.5" fill="#4a5058">length that is not a multiple of 8 stops mid-lane and stays exact</text>
+  <line x1="602" y1="356" x2="602" y2="371" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- STEP 6 -->
+  <rect x="382" y="466" width="440" height="70" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="487" font-size="11.5" font-weight="bold" fill="#16181d">6 · KL_aecp_resp_buf gathers bytes into 64-bit lanes</text>
+  <text x="400" y="505" font-size="10.5" fill="#4a5058">byte addresses arrive NON-DECREASING from byte 12 upward — that is</text>
+  <text x="400" y="522" font-size="10.5" fill="#4a5058">the one rule the µCPU must obey; writes below byte 12 are dropped</text>
+
+  <rect x="850" y="466" width="426" height="70" rx="6" fill="#f6eeff" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="868" y="487" font-size="11.5" font-weight="bold" fill="#16181d">response buffer — resp_mem_* master, READ + WRITE</text>
+  <text x="868" y="505" font-size="10.5" fill="#4a5058">the integrator must RESERVE this region; nothing else may write it</text>
+  <text x="868" y="522" font-size="10.5" fill="#4a5058">big-endian lanes; a byte whose wr_strb bit is 0 is never modified</text>
+  <line x1="828" y1="501" x2="845" y2="501" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+  <line x1="602" y1="446" x2="602" y2="461" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- STEP 7 -->
+  <rect x="382" y="556" width="440" height="70" rx="6" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="400" y="577" font-size="11.5" font-weight="bold" fill="#16181d">7 · the frame builder reads the sealed payload back</text>
+  <text x="400" y="595" font-size="10.5" fill="#4a5058">ONE read burst; it owns the real 24-byte AECPDU header and</text>
+  <text x="400" y="612" font-size="10.5" fill="#4a5058">synthesises it — response byte 12+k is AECPDU byte 24+k</text>
+  <path d="M845,571 L828,571" fill="none" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+  <line x1="602" y1="536" x2="602" y2="551" stroke="#6b46a5" stroke-width="1.6" marker-end="url(#ahm)"/>
+
+  <!-- STEP 8 -->
+  <rect x="24" y="556" width="330" height="70" rx="6" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1.3"/>
+  <text x="42" y="577" font-size="11.5" font-weight="bold" fill="#16181d">8 · byte-exact AECPDU on TX lane 0</text>
+  <text x="42" y="595" font-size="10.5" fill="#4a5058">unicast back to the requester's src_mac,</text>
+  <text x="42" y="612" font-size="10.5" fill="#4a5058">zero-padded to the 60-octet Ethernet minimum</text>
+  <line x1="377" y1="591" x2="359" y2="591" stroke="#2c3038" stroke-width="1.6" marker-end="url(#ah)"/>
+
+  <!-- shortcut: echoed payload -->
+  <rect x="24" y="286" width="330" height="86" rx="6" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+  <text x="42" y="307" font-size="11.5" font-weight="bold" fill="#16181d">the short circuit: an ECHOED payload</text>
+  <text x="42" y="325" font-size="10.5" fill="#4a5058">An opcode this engine does not implement is</text>
+  <text x="42" y="342" font-size="10.5" fill="#4a5058">answered NOT_IMPLEMENTED with the command</text>
+  <text x="42" y="359" font-size="10.5" fill="#4a5058">echoed straight out of its RX slot — no memory.</text>
+  <path d="M189,372 L189,551" fill="none" stroke="#2f7d46" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+  <text x="200" y="462" font-size="10.5" fill="#2f7d46">no memory round trip</text>
+
+  <!-- ============= failure band ============= -->
+  <rect x="24" y="672" width="1252" height="150" rx="8" fill="#fff2f2" stroke="#a03030" stroke-width="1.3"/>
+  <text x="42" y="695" font-size="12.5" font-weight="bold" fill="#16181d">What the wire shows when the memory system does not cooperate — every path is bounded, none of them hangs</text>
+
+  <rect x="42" y="708" width="396" height="96" rx="6" fill="#fff" stroke="#a03030" stroke-width="1"/>
+  <text x="58" y="729" font-size="11" font-weight="bold" fill="#16181d">software never loaded the image</text>
+  <text x="58" y="747" font-size="10.5" fill="#4a5058">magic / version / checksum disagree, so</text>
+  <text x="58" y="764" font-size="10.5" fill="#4a5058">nothing is served. Every locate answers</text>
+  <text x="58" y="781" font-size="10.5" fill="#a03030">NO_SUCH_DESCRIPTOR</text>
+  <text x="58" y="798" font-size="10" fill="#4a5058">A late load heals it — no reset needed.</text>
+
+  <rect x="452" y="708" width="396" height="96" rx="6" fill="#fff" stroke="#a03030" stroke-width="1"/>
+  <text x="468" y="729" font-size="11" font-weight="bold" fill="#16181d">desc_mem_* absent or wedged</text>
+  <text x="468" y="747" font-size="10.5" fill="#4a5058">req_ready tied 0 is LEGAL wiring. The store's</text>
+  <text x="468" y="764" font-size="10.5" fill="#4a5058">watchdog fires and degrades the locate:</text>
+  <text x="468" y="781" font-size="10.5" fill="#a03030">NO_SUCH_DESCRIPTOR</text>
+  <text x="468" y="798" font-size="10" fill="#4a5058">never a garbage descriptor on the wire.</text>
+
+  <rect x="862" y="708" width="396" height="96" rx="6" fill="#fff" stroke="#a03030" stroke-width="1"/>
+  <text x="878" y="729" font-size="11" font-weight="bold" fill="#16181d">resp_mem_* absent, wedged or erroring</text>
+  <text x="878" y="747" font-size="10.5" fill="#4a5058">The TX slot is already allocated and there is</text>
+  <text x="878" y="764" font-size="10.5" fill="#4a5058">no abort arc, so the builder REWRITES it as a</text>
+  <text x="878" y="781" font-size="10.5" fill="#a03030">60-byte ENTITY_MISBEHAVING</text>
+  <text x="878" y="798" font-size="10" fill="#4a5058">built entirely from registers.</text>
+
+  <text x="42" y="852" font-size="11" fill="#16181d">All three faults are counted. The side-port snapshot window is where an integrator sees WHICH channel failed and how often — see the operator guide.</text>
+  <text x="42" y="876" font-size="11" fill="#4a5058">Latency is affordable by design: IEEE 1722.1-2021 §9.2.1.1 gives a controller 100 ms before it retries, against roughly one microsecond per memory access.</text>
+  <text x="42" y="900" font-size="11" fill="#4a5058">Modules: hdl/aecp/KL_aecp_engine.sv · KL_aecp_ucpu.sv · KL_aecp_desc_store.sv · KL_aecp_resp_buf.sv</text>
+  <text x="42" y="924" font-size="11" fill="#4a5058">Suites that prove this path end to end: tb/desc_store, tb/resp_buf, tb/ucpu and scenario A + section B of tb/pp_top.</text>
+</svg>
