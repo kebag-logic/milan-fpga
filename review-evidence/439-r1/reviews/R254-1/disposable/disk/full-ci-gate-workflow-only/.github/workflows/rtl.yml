@@ -1,0 +1,468 @@
+name: rtl-full
+true:
+  push:
+    branches:
+    - dev
+  pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
+    - converted_to_draft
+  workflow_dispatch: null
+  schedule:
+  - cron: 17 1 * * *
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref
+    }}-${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    && 'physical' || 'default' }}
+  cancel-in-progress: true
+env:
+  VERILATOR_VERSION: v5.050
+  YOSYS_VERSION: v0.66
+  TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+jobs:
+  full-ci-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run_full: ${{ steps.gate.outputs.run_full }}
+      rtl: ${{ steps.gate.outputs.rtl }}
+      target_sha: ${{ steps.target.outputs.target_sha }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Print the event and pin the one SHA this run validates
+      id: target
+      run: 'set -euo pipefail
+
+        echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA"
+
+        head="$(git rev-parse HEAD)"
+
+        if [ "$head" != "$GITHUB_SHA" ]; then
+
+        echo "checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA" >&2
+
+        exit 1
+
+        fi
+
+        echo "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
+        echo R254_disk_maintenance'
+    - name: Assert the repository default branch is dev
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: "set -euo pipefail\nobserved=\"$(gh api \"repos/$GITHUB_REPOSITORY\" --jq\
+        \ .default_branch 2>/dev/null || echo unreadable)\"\npython3 scripts/ci_events.py\
+        \ --require-default-branch \\\n  --event \"$GITHUB_EVENT_NAME\" --observed\
+        \ \"$observed\"\n"
+    - name: Hold every workflow file to its contract
+      run: 'python3 -m pip install --quiet pyyaml
+
+        python3 scripts/ci_events.py --check
+
+        '
+    - name: Decide whether this exact head needs the exhaustive gates
+      id: gate
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_DRAFT: ${{ github.event.pull_request.draft }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: "set -euo pipefail\npython3 scripts/ci_scope.py --selftest\n\nif [ \"$EVENT_NAME\"\
+        \ != pull_request ]; then\n  echo \"rtl=true\" >> \"$GITHUB_OUTPUT\"\n  echo\
+        \ \"run_full=true\" >> \"$GITHUB_OUTPUT\"\n  echo \"Non-PR event: exhaustive\
+        \ validation required.\"\n  exit 0\nfi\n\nif [ -n \"$PR_BASE_SHA\" ] \\\n\
+        \   && git cat-file -e \"$PR_BASE_SHA^{commit}\" 2>/dev/null; then\n  git\
+        \ diff --no-renames --name-only \"$PR_BASE_SHA\" \"$GITHUB_SHA\" \\\n    >\
+        \ \"$RUNNER_TEMP/changed-files\"\nelse\n  git ls-files > \"$RUNNER_TEMP/changed-files\"\
+        \nfi\n\necho \"Changed files:\"\nsed 's/^/  /' \"$RUNNER_TEMP/changed-files\"\
+        \nrtl=\"$(python3 scripts/ci_scope.py < \"$RUNNER_TEMP/changed-files\")\"\n\
+        run_full=false\nif [ \"$PR_DRAFT\" = false ] && [ \"$rtl\" = true ]; then\n\
+        \  run_full=true\nfi\necho \"rtl=$rtl\" >> \"$GITHUB_OUTPUT\"\necho \"run_full=$run_full\"\
+        \ >> \"$GITHUB_OUTPUT\"\necho \"draft=$PR_DRAFT rtl=$rtl run_full=$run_full\"\
+        \nif [ \"$rtl\" = false ]; then\n  echo \"docs-only: every changed path is\
+        \ a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under\
+        \ docs/ that no skipped gate reads unless docs-check reads it too; the exhaustive\
+        \ workers and both required aggregates skip\"\nfi\n"
+  verilator-shards:
+    name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        total:
+        - 5
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fetch RTL dependencies
+      run: git submodule update --init third_party/verilog-axis protocol-processor
+        gptp-processor
+    - name: Record the tree this worker validates
+      env:
+        TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+      run: "set -euo pipefail\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"\
+        $GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then\n  echo \"\
+        checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be\
+        \ one SHA\" >&2\n  exit 1\nfi\nmkdir -p \"$RUNNER_TEMP/suite-logs\"\nprintf\
+        \ '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/suite-logs/TARGET_SHA\"\necho \"\
+        target_sha=$GITHUB_SHA\"\n"
+    - name: Cache the pinned Verilator build
+      id: cache-verilator
+      uses: actions/cache@v4
+      with:
+        path: /opt/verilator
+        key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+    - name: Build Verilator from source on cache miss
+      if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+      run: "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends\
+        \ \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\n\
+        git clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git\
+        \ /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\n\
+        make -j\"$(nproc)\"\nsudo make install\n"
+    - name: Put Verilator on PATH and prove the version
+      run: 'echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+
+        /opt/verilator/bin/verilator --version
+
+        /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+
+        '
+    - name: Prove specialized suite ownership
+      env:
+        SHARD: ${{ matrix.shard }}
+        SHARDS: ${{ matrix.total }}
+      run: "set -euo pipefail\npython3 scripts/suite_shards.py --selftest\nscripts/run_all_suites.sh\
+        \ --shard \"$SHARD/$SHARDS\" --list \\\n  > \"$RUNNER_TEMP/owned-suites\"\n\
+        echo \"Shard $SHARD owns:\"\nsed 's/^/  /' \"$RUNNER_TEMP/owned-suites\"\n\
+        case \"$SHARD\" in\n  1) grep -Fx tsn_fuzz \"$RUNNER_TEMP/owned-suites\" ;;\n\
+        \  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;\n  4) test \"\
+        $(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;\nesac\n"
+    - name: Cache the pinned Yosys build for the netlist-level suite owner
+      if: ${{ matrix.shard == 3 }}
+      id: cache-yosys
+      uses: actions/cache@v4
+      with:
+        path: /opt/yosys
+        key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+    - name: Build Yosys from source on cache miss
+      if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+      run: "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends\
+        \ \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\n\
+        git clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git\
+        \ /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1\
+        \ abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL\
+        \ := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\n\
+        make -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src\
+        \ install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo\
+        \ tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore\
+        \ are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    - name: Install the pinned Yosys and prove the version
+      if: ${{ matrix.shard == 3 }}
+      run: 'set -euo pipefail
+
+        sudo apt-get update -qq
+
+        sudo apt-get install -y --no-install-recommends libjemalloc2
+
+        sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+
+        test -x /opt/yosys/bin/yosys-abc
+
+        echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+
+        yosys -V
+
+        yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+
+        '
+    - name: Install sv2v for the netlist-level suite owner
+      if: ${{ matrix.shard == 3 }}
+      run: "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\n\
+        url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\
+        \ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\"\
+        \ | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755\
+        \ \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\n\
+        sv2v --version\n"
+    - name: Build the pinned tsn-gen field oracle on its suite owner
+      if: ${{ matrix.shard == 1 }}
+      run: "set -euo pipefail\ngit clone --filter=blob:none \\\n  https://github.com/kebag-logic/tsn-gen.git\
+        \ \"$RUNNER_TEMP/tsn-gen\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" checkout \"$TSN_GEN_REV\"\
+        \ngit -C \"$RUNNER_TEMP/tsn-gen\" submodule update \\\n  --init --depth 1\
+        \ --recursive external/rapidyaml\ncmake -S \"$RUNNER_TEMP/tsn-gen\" -B \"\
+        $RUNNER_TEMP/tsn-gen/build\" \\\n  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF\n\
+        cmake --build \"$RUNNER_TEMP/tsn-gen/build\" \\\n  --target packet_gen --parallel\n\
+        test -x \"$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen\"\necho \"TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen\"\
+        \ >> \"$GITHUB_ENV\"\n"
+    - name: Run this exhaustive suite shard
+      run: "scripts/run_all_suites.sh \"$RUNNER_TEMP/suite-logs\" \\\n  --shard \"\
+        ${{ matrix.shard }}/${{ matrix.total }}\"\n"
+    - name: Upload this shard's suite logs
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: suite-logs-${{ matrix.shard }}
+        path: ${{ runner.temp }}/suite-logs
+        if-no-files-found: error
+        retention-days: 3
+  physical-gptp:
+    name: Physical gPTP (nightly and manual)
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name ==
+      'schedule' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fetch RTL dependencies
+      run: 'set -euo pipefail
+
+        git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+        python3 -m pip install --quiet pyyaml
+
+        '
+    - name: Record the tree this worker validates
+      env:
+        TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+      run: "set -euo pipefail\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"\
+        $GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then\n  echo \"\
+        checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be\
+        \ one SHA\" >&2\n  exit 1\nfi\nmkdir -p \"$RUNNER_TEMP/physical-gptp-logs\"\
+        \nprintf '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA\"\
+        \necho \"target_sha=$GITHUB_SHA\"\n"
+    - name: Cache the pinned Verilator build
+      id: cache-verilator
+      uses: actions/cache@v4
+      with:
+        path: /opt/verilator
+        key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+    - name: Build Verilator from source on cache miss
+      if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+      run: "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends\
+        \ \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\n\
+        git clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git\
+        \ /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\n\
+        make -j\"$(nproc)\"\nsudo make install\n"
+    - name: Put Verilator on PATH and prove the version
+      run: 'set -euo pipefail
+
+        echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+
+        /opt/verilator/bin/verilator --version
+
+        /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+
+        '
+    - name: Prove physical suite selection
+      run: 'set -euo pipefail
+
+        python3 scripts/suite_shards.py --selftest
+
+        selected="$(scripts/run_all_suites.sh --physical-gptp --list)"
+
+        test "$selected" = milan_dp_gptp
+
+        '
+    - name: Run the physical gPTP suite with its own deadline
+      run: "set -euo pipefail\n/usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x'\
+        \ \\\n  env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \\\n  scripts/run_all_suites.sh\
+        \ \"$RUNNER_TEMP/physical-gptp-logs\" --physical-gptp\npython3 scripts/suite_tally.py\
+        \ \"$RUNNER_TEMP/physical-gptp-logs\" --quiet \\\n  --expect-suite-root tb/verilator\
+        \ --physical-gptp\nmkdir -p \"$RUNNER_TEMP/physical-gptp-logs/controls\"\n\
+        cp tb/verilator/milan_dp/obj_ax1x1gptp/*control.log \\\n  \"$RUNNER_TEMP/physical-gptp-logs/controls/\"\
+        \n"
+    - name: Upload the physical suite evidence
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: physical-gptp-logs
+        path: ${{ runner.temp }}/physical-gptp-logs
+        if-no-files-found: error
+        retention-days: 3
+  verilator-suites:
+    name: verilator-suites
+    if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full
+      != 'false') }}
+    needs:
+    - full-ci-gate
+    - verilator-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download every shard's logs
+      id: download-logs
+      continue-on-error: true
+      uses: actions/download-artifact@v4
+      with:
+        pattern: suite-logs-*
+        path: ${{ runner.temp }}/all-suite-logs
+    - name: Require every shard to have validated this run's SHA
+      if: ${{ always() }}
+      env:
+        GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+      run: "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\n\
+        python3 scripts/ci_events.py --require-target-sha --expect 5 \\\n  --sha gate=\"\
+        $GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse\
+        \ HEAD)\" -- \"${roots[@]}\"\n"
+    - name: Prove exhaustive ownership and tally every log
+      if: ${{ always() }}
+      run: "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\n\
+        if [ \"${#roots[@]}\" -eq 0 ]; then\n  mkdir -p \"$RUNNER_TEMP/all-suite-logs/none\"\
+        \n  roots=(\"$RUNNER_TEMP/all-suite-logs/none\")\nfi\npython3 scripts/suite_tally.py\
+        \ \"${roots[@]}\" --quiet \\\n  --expect-suite-root tb/verilator\n"
+    - name: Require every Verilator worker to pass
+      if: ${{ always() }}
+      env:
+        SHARD_RESULT: ${{ needs.verilator-shards.result }}
+      run: "if [ \"$SHARD_RESULT\" != success ]; then\n  echo \"one or more Verilator\
+        \ workers ended: $SHARD_RESULT\" >&2\n  exit 1\nfi\necho \"verilator-suites:\
+        \ every worker succeeded at $GITHUB_SHA\"\n"
+  yosys-shards:
+    name: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+        - 0
+        - 1
+        - 2
+        - 3
+        total:
+        - 4
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fetch RTL dependencies
+      run: git submodule update --init third_party/verilog-axis protocol-processor
+        gptp-processor
+    - name: Record the tree this worker validates
+      env:
+        TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+      run: "set -euo pipefail\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"\
+        $GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then\n  echo \"\
+        checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be\
+        \ one SHA\" >&2\n  exit 1\nfi\nmkdir -p \"$RUNNER_TEMP/yosys-results\"\nprintf\
+        \ '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/yosys-results/TARGET_SHA\"\necho\
+        \ \"target_sha=$GITHUB_SHA\"\n"
+    - name: Cache the pinned Yosys build
+      id: cache-yosys
+      uses: actions/cache@v4
+      with:
+        path: /opt/yosys
+        key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+    - name: Build Yosys from source on cache miss
+      if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+      run: "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends\
+        \ \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\n\
+        git clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git\
+        \ /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1\
+        \ abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL\
+        \ := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\n\
+        make -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src\
+        \ install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo\
+        \ tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore\
+        \ are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    - name: Install the pinned Yosys and prove the version
+      run: 'set -euo pipefail
+
+        sudo apt-get update -qq
+
+        sudo apt-get install -y --no-install-recommends libjemalloc2
+
+        sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+
+        test -x /opt/yosys/bin/yosys-abc
+
+        echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+
+        yosys -V
+
+        yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+
+        '
+    - name: Install the pinned sv2v release
+      run: "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\n\
+        url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\
+        \ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\"\
+        \ | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755\
+        \ \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\n\
+        sv2v --version\n"
+    - name: Restore the portability result cache seeded from dev
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/yosys-result-cache
+        key: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-${{ github.sha
+          }}
+        restore-keys: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard
+          }}-
+    - name: Run this weighted portability shard
+      run: "syn/yosys/run.sh --shard \"${{ matrix.shard }}/${{ matrix.total }}\" \\\
+        \n  --results \"$RUNNER_TEMP/yosys-results\" \\\n  --cache \"$RUNNER_TEMP/yosys-result-cache\"\
+        \n"
+    - name: Upload per-top and structural evidence
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: yosys-results-${{ matrix.shard }}
+        path: ${{ runner.temp }}/yosys-results
+        if-no-files-found: error
+        retention-days: 3
+  yosys-portability:
+    name: yosys-portability
+    if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full
+      != 'false') }}
+    needs:
+    - full-ci-gate
+    - yosys-shards
+    - verilator-suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download every shard's evidence
+      id: download-results
+      continue-on-error: true
+      uses: actions/download-artifact@v4
+      with:
+        pattern: yosys-results-*
+        path: ${{ runner.temp }}/all-yosys-results
+    - name: Require every shard to have validated this run's SHA
+      if: ${{ always() }}
+      env:
+        GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+      run: "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)\n\
+        python3 scripts/ci_events.py --require-target-sha --expect 4 \\\n  --sha gate=\"\
+        $GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse\
+        \ HEAD)\" -- \"${roots[@]}\"\n"
+    - name: Reconcile the live inventory and structural gates
+      if: ${{ always() }}
+      run: "set -euo pipefail\nsyn/yosys/run.sh --list > \"$RUNNER_TEMP/expected-yosys-tops\"\
+        \nshopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)\n\
+        if [ \"${#roots[@]}\" -eq 0 ]; then\n  mkdir -p \"$RUNNER_TEMP/all-yosys-results/none\"\
+        \n  roots=(\"$RUNNER_TEMP/all-yosys-results/none\")\nfi\npython3 scripts/yosys_tally.py\
+        \ \"${roots[@]}\" \\\n  --expected \"$RUNNER_TEMP/expected-yosys-tops\" \\\
+        \n  --require-structural\n"
+    - name: Require every Yosys worker to pass
+      if: ${{ always() }}
+      env:
+        SHARD_RESULT: ${{ needs.yosys-shards.result }}
+      run: "if [ \"$SHARD_RESULT\" != success ]; then\n  echo \"one or more Yosys\
+        \ workers ended: $SHARD_RESULT\" >&2\n  exit 1\nfi\necho \"yosys-portability:\
+        \ every worker succeeded at $GITHUB_SHA\"\n"

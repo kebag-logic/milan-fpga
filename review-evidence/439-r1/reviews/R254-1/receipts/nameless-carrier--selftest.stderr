@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 8430, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 8423, in main
+    return selftest(args.root)
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 8295, in selftest
+    for found, arms in (_selftest_arms(pristine),
+                        ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 7786, in _selftest_arms
+    misses = _run_mutations(real, pristine)
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 7771, in _run_mutations
+    for name, mutate, want in _mutations(pristine):
+                              ~~~~~~~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 7759, in _mutations
+    + _carrier_script_arms(pristine)
+      ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py", line 7644, in _carrier_script_arms
+    what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
+                                          ~~~~^^^^^^^^
+KeyError: 'name'

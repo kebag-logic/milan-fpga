@@ -1,0 +1,62 @@
+[
+  {
+    "label": "mutation-omit-call",
+    "argv": [
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-author/mutate_validator.py",
+      "omit-call"
+    ],
+    "exit": 1,
+    "failures": 1407,
+    "new_content_failures": 946,
+    "live_check": "mutated live check: items=1399 findings=[]"
+  },
+  {
+    "label": "mutation-omit-seven-jobs",
+    "argv": [
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-author/mutate_validator.py",
+      "omit-seven-jobs"
+    ],
+    "exit": 1,
+    "failures": 911,
+    "new_content_failures": 911,
+    "live_check": "mutated live check: items=1515 findings=[]"
+  },
+  {
+    "label": "mutation-omit-sha-step",
+    "argv": [
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-author/mutate_validator.py",
+      "omit-sha-step"
+    ],
+    "exit": 1,
+    "failures": 35,
+    "new_content_failures": 35,
+    "live_check": "mutated live check: items=1587 findings=[]"
+  },
+  {
+    "label": "mutation-accept-content-drift-corrected",
+    "argv": [
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-author/mutate_validator.py",
+      "accept-content-drift"
+    ],
+    "exit": 1,
+    "failures": 1236,
+    "new_content_failures": 832,
+    "live_check": "mutated live check: items=1589 findings=[]"
+  },
+  {
+    "label": "mutation-accept-missing-record-corrected",
+    "argv": [
+      "python3",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-author/mutate_validator.py",
+      "accept-missing-record"
+    ],
+    "exit": 1,
+    "failures": 171,
+    "new_content_failures": 114,
+    "live_check": "mutated live check: items=1589 findings=[]"
+  }
+]

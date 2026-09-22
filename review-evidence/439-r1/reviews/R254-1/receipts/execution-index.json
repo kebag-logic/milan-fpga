@@ -1,0 +1,102 @@
+[
+  {
+    "script": "scripts/review_probes.original.py",
+    "exit": 1,
+    "stdout": "receipts/original-probes.stdout",
+    "stderr": "receipts/original-probes.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/review_probes.second.py",
+    "exit": 1,
+    "stdout": "receipts/second-probes.stdout",
+    "stderr": "receipts/second-probes.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/review_probes.py",
+    "exit": 0,
+    "stdout": "receipts/probes.stdout",
+    "stderr": "receipts/probes.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/cli_controls.original.py",
+    "exit": 1,
+    "stdout": "receipts/original-cli.stdout",
+    "stderr": "receipts/original-cli.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/cli_controls.second.py",
+    "exit": 1,
+    "stdout": "receipts/second-cli.stdout",
+    "stderr": "receipts/second-cli.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/cli_controls.py",
+    "exit": 0,
+    "stdout": "receipts/cli.stdout",
+    "stderr": "receipts/cli.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/disk_controls.py",
+    "exit": 0,
+    "stdout": "receipts/disk.stdout",
+    "stderr": "receipts/disk.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/focused_gates.py",
+    "exit": 0,
+    "stdout": "receipts/gates.stdout",
+    "stderr": "receipts/gates.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/malformed_controls.py",
+    "exit": 0,
+    "stdout": "receipts/malformed.stdout",
+    "stderr": "receipts/malformed.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  },
+  {
+    "script": "scripts/exact_base.py",
+    "exit": 0,
+    "stdout": "receipts/exact-base.stdout",
+    "stderr": "receipts/exact-base.stderr",
+    "arguments": [
+      "<checkout>",
+      "<evidence-dir>"
+    ]
+  }
+]

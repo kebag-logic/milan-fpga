@@ -1,0 +1,62 @@
+[
+  {
+    "label": "blank-carrier--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/blank-carrier"
+    ],
+    "exit": 1,
+    "classification": "retained optional diagnostic limitation; fail closed, not passing source gate"
+  },
+  {
+    "label": "blank-carrier--selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py",
+      "--selftest",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/blank-carrier"
+    ],
+    "exit": 1,
+    "classification": "retained optional diagnostic limitation; fail closed, not passing source gate"
+  },
+  {
+    "label": "nameless-carrier--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/nameless-carrier"
+    ],
+    "exit": 1,
+    "classification": "retained optional diagnostic limitation; fail closed, not passing source gate"
+  },
+  {
+    "label": "nameless-carrier--selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r254-439-r1/scripts/ci_events.py",
+      "--selftest",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/nameless-carrier"
+    ],
+    "exit": 1,
+    "classification": "retained optional diagnostic limitation; fail closed, not passing source gate"
+  }
+]

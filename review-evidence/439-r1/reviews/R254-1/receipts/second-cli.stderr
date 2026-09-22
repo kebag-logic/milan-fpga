@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/scripts/cli_controls.py", line 49, in <module>
+    for result in pool.map(mutant,mutants):receipts.extend(result)
+                  ~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/scripts/cli_controls.py", line 45, in mutant
+    assert b['exit']==1 and own,(name,b)
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('accept-truncation', {'label': 'accept-truncation--selftest', 'argv': ['rtk', 'proxy', 'python3', '-B', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/mutants/accept-truncation.py', '--selftest', '--root', '$VALIDATION_STORAGE/reviews/r254-439-r1'], 'exit': 1, 'seconds': 14.06, 'stdout_sha256': 'bf163f675cf9c57f9147619e449f3a2b5c057c4fd199e8aeb7d040c830b51911', 'stdout': 'receipts/cli/accept-truncation--selftest.stdout', 'stderr': 'receipts/cli/accept-truncation--selftest.stderr', 'new_failures': [], 'new_failure_count': 0})

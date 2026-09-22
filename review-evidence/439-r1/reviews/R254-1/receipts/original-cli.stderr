@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/scripts/cli_controls.py", line 18, in <module>
+    mutants={name:once(comparison,'c.item('+expr+', path,') for name,expr in exprs.items()}
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/scripts/cli_controls.py", line 7, in once
+    assert source.count(old)==1,(old,source.count(old))
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('c.item(tuple(lines) == canonical, path,', 3)

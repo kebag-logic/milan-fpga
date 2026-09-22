@@ -1,0 +1,86 @@
+[
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "seconds": 3.787,
+    "stdout": "receipts/gates/1.stdout",
+    "stderr": "receipts/gates/1.stderr"
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.377,
+    "stdout": "receipts/gates/2.stdout",
+    "stderr": "receipts/gates/2.stderr"
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "exit": 0,
+    "seconds": 0.404,
+    "stdout": "receipts/gates/3.stdout",
+    "stderr": "receipts/gates/3.stderr"
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "seconds": 2.811,
+    "stdout": "receipts/gates/4.stdout",
+    "stderr": "receipts/gates/4.stderr"
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+    ],
+    "exit": 0,
+    "seconds": 0.996,
+    "stdout": "receipts/gates/5.stdout",
+    "stderr": "receipts/gates/5.stderr"
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "git",
+      "diff",
+      "--check",
+      "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+      "f01f237d4b48c7b1ed59c80aca51430901791624"
+    ],
+    "exit": 0,
+    "seconds": 0.028,
+    "stdout": "receipts/gates/6.stdout",
+    "stderr": "receipts/gates/6.stderr"
+  }
+]
