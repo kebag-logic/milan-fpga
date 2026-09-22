@@ -1,0 +1,43 @@
+{
+  "replace": "label == TEXT and after == HELD",
+  "with": "label != TEXT or after == HELD",
+  "shipped_selftests": [
+    {
+      "gate": "gen_toc.py",
+      "exit": 0,
+      "output": "TOC selftest: PASS (754/754 arm(s))\n"
+    },
+    {
+      "gate": "check_em_dash.py",
+      "exit": 0,
+      "output": "check_em_dash selftest: PASS (99 arm(s))\n"
+    }
+  ],
+  "controls": {
+    "head": {
+      "fenced-marker-indented-closer": [
+        "Old",
+        "Real"
+      ],
+      "comment-marker-indented-closer": [
+        "Old",
+        "Real"
+      ],
+      "HTML-marker-indented-closer": [
+        "Old",
+        "Real"
+      ]
+    },
+    "mutant": {
+      "fenced-marker-indented-closer": [
+        "Real"
+      ],
+      "comment-marker-indented-closer": [
+        "Real"
+      ],
+      "HTML-marker-indented-closer": [
+        "Real"
+      ]
+    }
+  }
+}
