@@ -1,0 +1,43 @@
+{
+  "head": "28e350b99ac240a750326b762c6d029f0653362c",
+  "tree": "d17c117db03128e444b7b44742fe82f10746cb28",
+  "inventory_command": [
+    "bash",
+    "syn/yosys/run.sh",
+    "--list"
+  ],
+  "inventory_exit": 0,
+  "inventory_unchanged": true,
+  "inventory_count": 54,
+  "inventory_sha256": "b4dac195717f5ae65883ae65293f3f9d21267efd0b38a7b03115c4374f9f827a",
+  "changed_files": [
+    "docs/testing/CI_WORKFLOWS.md",
+    "syn/yosys/README.md",
+    "syn/yosys/cache_selftest.py",
+    "syn/yosys/result_cache.py",
+    "syn/yosys/rom_cache_selftest.py",
+    "syn/yosys/run.sh"
+  ],
+  "changed_file_sha256": {
+    "docs/testing/CI_WORKFLOWS.md": "65f044eb8a6ef51ca1ed8cfe1b7e632e526e93a2547f45c53b0fcdfed7ea03f9",
+    "syn/yosys/README.md": "ae47ac2e7d51232daf2bfbc94e065dce314b639cbf98e1d05aa4a1c4da8e1a55",
+    "syn/yosys/cache_selftest.py": "e4adb2988a997d77828c49c3519b55fb10dd81db41c530bccbe97ab45abcfd19",
+    "syn/yosys/result_cache.py": "14df4806552e8e04a60eb2857bc5d70ac88e869233d4717b5d4cf722a7fcc771",
+    "syn/yosys/rom_cache_selftest.py": "8e6479bb6ad6d759b41e03c072b73d49f3912830d59a792bc8551bd01d8bc0ad",
+    "syn/yosys/run.sh": "849d34debed52d8b31b20679429cfc1f00ad4d656f8a80905255db5e55e188ec"
+  },
+  "status": "",
+  "diff_scope_command": [
+    "git",
+    "diff",
+    "--exit-code",
+    "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "--",
+    "hdl",
+    "protocol-processor",
+    "gptp-processor",
+    ".github",
+    "scripts/*.budget"
+  ],
+  "diff_scope_exit": 0
+}

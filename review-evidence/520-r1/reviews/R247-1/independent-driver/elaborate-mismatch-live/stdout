@@ -1,0 +1,10 @@
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [note] cdc_pulse              cache entry refused, running live: refused 7844c3341d89 in $WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-mismatch-seed: recorded rom_sha256 differs from the current one
+  [PASS] cdc_pulse              cells=7
+  [note] cdc_handshake          cache entry refused, running live: refused 2367dd83b023 in $WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-mismatch-seed: recorded rom_sha256 differs from the current one
+  [PASS] cdc_handshake          cells=26
+--------------------------------------------------------------
+tops: 2   pass: 2   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

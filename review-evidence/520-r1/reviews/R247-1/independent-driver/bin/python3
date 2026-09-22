@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+
+import json, os, shutil, subprocess, sys
+from pathlib import Path
+a=sys.argv[1:];real=os.environ['R247_PYTHON'];folder=Path(os.environ['R247_LOGDIR'])
+name=Path(a[0]).name if a else ''
+def log(event):
+    with (folder/'events.jsonl').open('a') as f:f.write(json.dumps(event)+'\n')
+if name in ('gen_ltn_rom.py','gen_ucode.py','gen_gptp_ucode.py'):
+    image=Path(a[a.index('-o')+1]);action=os.environ.get('R247_ACTION','') if image.name==os.environ.get('R247_IMAGE') else ''
+    log({'generator':name,'action':action})
+    if action=='failed':sys.exit(19)
+    r=subprocess.run([real,*a]);
+    if r.returncode:sys.exit(r.returncode)
+    if action=='empty':image.write_bytes(b'')
+    if action=='missing':image.unlink()
+    if action=='wrong-name':image.rename(image.with_name(image.name+'.wrong'))
+    sys.exit(0)
+if name=='result_cache.py':
+    log({'operation':a[1],'arguments':a[2:]})
+    if a[1]=='rom-digest' and os.environ.get('R247_ACTION')=='digest-failed':sys.exit(17)
+if a and a[0]=='-' and len(a)==2 and a[1].endswith('.stat.json'):
+    p=Path(a[1]);
+    if p.exists():shutil.copyfile(p,folder/p.name)
+os.execv(real,[real,*a])

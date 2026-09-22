@@ -1,0 +1,22 @@
+{
+  "command": [
+    "$VALIDATION_STORAGE/reviews/r247-520-r1/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/live-bank/cache-selftest.w633_92t/rom/invalid-ltn_rom.hex-failed-False",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake"
+  ],
+  "mutation": [
+    "ltn_rom.hex",
+    "failed"
+  ],
+  "exit": 2,
+  "seconds": 0.222,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: ACMP transition-ROM generation failed\n",
+  "events": []
+}

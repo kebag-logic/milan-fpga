@@ -1,0 +1,49 @@
+[
+  {
+    "name": "01-original-warm",
+    "command": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--top",
+      "KL_pp_shadow",
+      "--no-structural",
+      "--cache",
+      "$VALIDATION_STORAGE/yosys-cache-rom-probe/round2/warm-cache",
+      "--cache-seed",
+      "$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache"
+    ],
+    "exit_code": 0,
+    "seconds": 3.718,
+    "cache_hit": true
+  },
+  {
+    "name": "02-malformed-ROM-cached",
+    "command": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--top",
+      "KL_pp_shadow",
+      "--no-structural",
+      "--cache",
+      "$VALIDATION_STORAGE/yosys-cache-rom-probe/round2/mutant-cache",
+      "--cache-seed",
+      "$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache"
+    ],
+    "exit_code": 0,
+    "seconds": 3.554,
+    "cache_hit": true
+  },
+  {
+    "name": "03-malformed-ROM-uncached",
+    "command": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--top",
+      "KL_pp_shadow",
+      "--no-structural"
+    ],
+    "exit_code": 0,
+    "seconds": 163.383,
+    "cache_hit": false
+  }
+]

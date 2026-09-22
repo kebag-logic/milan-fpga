@@ -1,0 +1,37 @@
+#!/usr/bin/python3
+
+import hashlib, json, os, shutil, subprocess, sys
+from pathlib import Path
+args = sys.argv[1:]
+real = os.environ['R247_REAL_PYTHON']
+folder = Path(os.environ['R247_ARTIFACTS'])
+name = Path(args[0]).name if args else ''
+def event(data):
+    with (folder / 'events.jsonl').open('a') as f: f.write(json.dumps(data) + '\n')
+if name in ('gen_ltn_rom.py', 'gen_ucode.py', 'gen_gptp_ucode.py'):
+    p = subprocess.run([real, *args])
+    if p.returncode: sys.exit(p.returncode)
+    dest = Path(args[args.index('-o') + 1])
+    if dest.name == 'ucode.hex' and os.environ.get('R247_CHANGE') == '1':
+        dest.write_bytes(b'INVALID_ROM_DATA\n')
+    shutil.copyfile(dest, folder / dest.name)
+    event({'generator': name, 'image': dest.name, 'sha256': hashlib.sha256(dest.read_bytes()).hexdigest()})
+    sys.exit(0)
+if name == 'result_cache.py':
+    if args[1] == 'rom-digest':
+        p = subprocess.run([real, *args], capture_output=True, text=True)
+        value = os.environ.get('R247_FROZEN_DIGEST', p.stdout.strip())
+        event({'operation':'rom-digest', 'actual':p.stdout.strip(), 'effective':value, 'exit':p.returncode})
+        sys.stdout.write(value + '\n'); sys.stderr.write(p.stderr); sys.exit(p.returncode)
+    if args[1] in ('lookup', 'store'):
+        fields = dict(zip(args[2::2], args[3::2]))
+        staged = Path(fields['--sv2v-file'])
+        shutil.copyfile(staged, folder / staged.name)
+        event({'operation':args[1], 'fields':fields, 'sv2v_sha256':hashlib.sha256(staged.read_bytes()).hexdigest()})
+if args and args[0] == '-' and len(args) == 2 and args[1].endswith('.stat.json'):
+    stat = Path(args[1])
+    if stat.exists():
+        shutil.copyfile(stat, folder / stat.name)
+        verilog = stat.with_name(stat.name.replace('.stat.json', '.v'))
+        shutil.copyfile(verilog, folder / verilog.name)
+os.execv(real, [real, *args])
