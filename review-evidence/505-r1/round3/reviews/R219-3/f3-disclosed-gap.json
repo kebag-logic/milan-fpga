@@ -1,0 +1,62 @@
+[
+  {
+    "label": "delete-mismatch-assertion",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"\n",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "replace-exit-1-with-true",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\n  echo \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\n  true\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"\n",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-1",
+    "script": "set -euo pipefail || true\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-2",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\" || true\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-3",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\" || true\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-4",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then || true\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-5",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2 || true\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-6",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1 || true\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-7",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi || true\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"",
+    "checked": 1505,
+    "findings": []
+  },
+  {
+    "label": "swallow-normalized-line-8",
+    "script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\necho \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\nexit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\" || true",
+    "checked": 1505,
+    "findings": []
+  }
+]

@@ -1,0 +1,169 @@
+act-ci: validation base b17580b91deb11f3441dfc5d7f9fafe539d929b8 (live dev tip; matches the recorded base oid)
+act-ci: PR #506 synchronize exact head 66ba210630ff7f412e5706427b3ea976ebee3ba2
+act-ci: base b17580b91deb11f3441dfc5d7f9fafe539d929b8 (live dev tip; recorded base oid b17580b91deb11f3441dfc5d7f9fafe539d929b8), draft=true
+act-ci: credentials=none docker-socket=none caches=ephemeral
+act-ci: action actions/cache@v4 materialised at 0057852bfaa89a56745cba8c7296529d2fc39830
+act-ci: action actions/checkout@v4 materialised at 11d5960a326750d5838078e36cf38b85af677262
+act-ci: action actions/download-artifact@v4 materialised at d3f86a106a0bac45b974a628896c90dbdf5c8093
+act-ci: action actions/upload-artifact@v4 materialised at ea165f8d65b6e75b540449e92b4886f43607fa02
+act-ci: running rtl-full (.github/workflows/rtl.yml)
+time="2026-09-22T06:38:27+02:00" level=info msg="Using docker host 'unix:///var/run/docker.sock', and daemon socket '-'"
+time="2026-09-22T06:38:27+02:00" level=info msg="Start server on http://172.21.0.1:59661"
+[rtl-full/full-ci-gate] ⭐ Run Set up job
+[rtl-full/full-ci-gate] 🚀  Start image=catthehacker/ubuntu:full-latest
+[rtl-full/full-ci-gate]   🐳  docker pull image=catthehacker/ubuntu:full-latest platform= username= forcePull=false
+[rtl-full/full-ci-gate]   🐳  docker create image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/full-ci-gate]   🐳  docker run image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[rtl-full/full-ci-gate]   ✅  Success - Set up job
+[rtl-full/full-ci-gate] ⭐ Run Main actions/checkout@v4
+[rtl-full/full-ci-gate]   🐳  docker cp src=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2/. dst=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/full-ci-gate]   ✅  Success - Main actions/checkout@v4 [1.054995523s]
+[rtl-full/full-ci-gate] ⭐ Run Main Print the event and pin the one SHA this run validates
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/target] user= workdir=
+[rtl-full/full-ci-gate]   | event=pull_request ref=refs/pull/506/merge sha=66ba210630ff7f412e5706427b3ea976ebee3ba2
+[rtl-full/full-ci-gate]   ✅  Success - Main Print the event and pin the one SHA this run validates [64.004755ms]
+[rtl-full/full-ci-gate]   ⚙  ::set-output:: target_sha=66ba210630ff7f412e5706427b3ea976ebee3ba2
+[rtl-full/full-ci-gate] ⭐ Run Main Assert the repository default branch is dev
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/2] user= workdir=
+[rtl-full/full-ci-gate]   | default_branch=unreadable expected=dev event=pull_request (informational)
+[rtl-full/full-ci-gate]   | default-branch: WARNING, 'unreadable' is not 'dev'; this pull_request run continues, the next scheduled or dispatched run will refuse
+[rtl-full/full-ci-gate]   ✅  Success - Main Assert the repository default branch is dev [196.147614ms]
+[rtl-full/full-ci-gate] ⭐ Run Main Hold every workflow file to its contract
+[rtl-full/full-ci-gate]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/3] user= workdir=
+[rtl-full/full-ci-gate]   |   note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+[rtl-full/full-ci-gate]   |   FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found
+[rtl-full/full-ci-gate]   | ci_events: 1 finding(s) over 1505 contract item(s)
+[rtl-full/full-ci-gate]   ❌  Failure - Main Hold every workflow file to its contract [748.738445ms]
+[rtl-full/full-ci-gate] exitcode '1': failure
+[rtl-full/full-ci-gate] ⭐ Run Complete job
+[rtl-full/full-ci-gate] Cleaning up container for job full-ci-gate
+[rtl-full/full-ci-gate]   ✅  Success - Complete job
+[rtl-full/full-ci-gate] 🏁  Job failed
+[rtl-full/verilator-suites                  ] ⭐ Run Set up job
+[rtl-full/verilator-suites                  ] 🚀  Start image=catthehacker/ubuntu:full-latest
+[rtl-full/verilator-suites                  ]   🐳  docker pull image=catthehacker/ubuntu:full-latest platform= username= forcePull=false
+[rtl-full/verilator-suites                  ]   🐳  docker create image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/verilator-suites                  ]   🐳  docker run image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[rtl-full/verilator-suites                  ]   ✅  Success - Set up job
+[rtl-full/verilator-suites                  ]   ☁  git clone 'https://github.com/actions/download-artifact' # ref=v4
+[rtl-full/verilator-suites                  ] ⭐ Run Main actions/checkout@v4
+[rtl-full/verilator-suites                  ]   🐳  docker cp src=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2/. dst=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/verilator-suites                  ]   ✅  Success - Main actions/checkout@v4 [977.791666ms]
+[rtl-full/verilator-suites                  ] ⭐ Run Main Download every shard's logs
+[rtl-full/verilator-suites                  ]   🐳  docker cp src=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/state/66ba210630ff7f412e5706427b3ea976ebee3ba2/actions/actions-download-artifact@v4/ dst=/var/run/act/actions/actions-download-artifact@v4/
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[chown -R 1001:1001 /var/run/act/actions/actions-download-artifact@v4/] user=0 workdir=
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[/usr/local/bin/node /var/run/act/actions/actions-download-artifact@v4/dist/index.js] user= workdir=
+[rtl-full/verilator-suites                  ]   | (node:49) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[rtl-full/verilator-suites                  ]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+2026/09/22 06:38:33 http: panic serving 172.21.0.2:50016: open /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/state/66ba210630ff7f412e5706427b3ea976ebee3ba2/artifacts/rtl-full/1: no such file or directory
+goroutine 3548 [running]:
+net/http.(*conn).serve.func1()
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:1943 +0xd3
+panic({0xe69060?, 0xc00053ee70?})
+	/opt/hostedtoolcache/go/1.25.0/x64/src/runtime/panic.go:783 +0x132
+github.com/nektos/act/pkg/artifacts.(*artifactV4Routes).listArtifacts(0xc000427ae0, 0xc0001bda18)
+	/home/runner/work/act/act/pkg/artifacts/artifacts_v4.go:372 +0x525
+github.com/nektos/act/pkg/artifacts.RoutesV4.func3({0x113b568?, 0xc0001f80f0?}, 0xc00048eaf0?, {0x0?, 0x41c057?, 0x0?})
+	/home/runner/work/act/act/pkg/artifacts/artifacts_v4.go:168 +0x38
+github.com/julienschmidt/httprouter.(*Router).ServeHTTP(0xc000089380, {0x113b568, 0xc0001f80f0}, 0xc0003c3b80)
+	/home/runner/go/pkg/mod/github.com/julienschmidt/httprouter@v1.3.0/router.go:387 +0x815
+net/http.serverHandler.ServeHTTP({0x1138728?}, {0x113b568?, 0xc0001f80f0?}, 0x1?)
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:3340 +0x8e
+net/http.(*conn).serve(0xc0000cc630, {0x113dab8, 0xc0000b4360})
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:2109 +0x665
+created by net/http.(*Server).Serve in goroutine 29
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:3493 +0x485
+[rtl-full/verilator-suites                  ]   ❗  ::error::Unable to download artifact(s): Failed to ListArtifacts: Unable to make request: ECONNRESET%0AIf you are using self-hosted runners, please make sure your runner has access to all GitHub endpoints: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#communication-between-self-hosted-runners-and-github
+[rtl-full/verilator-suites                  ] Failed but continue next step
+[rtl-full/verilator-suites                  ]   ❌  Failure - Main Download every shard's logs [374.143534ms]
+[rtl-full/verilator-suites                  ] ⭐ Run Main Require every shard to have validated this run's SHA
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/2] user= workdir=
+[rtl-full/verilator-suites                  ]   | target-sha: 2 finding(s); refusing this evidence
+[rtl-full/verilator-suites                  ]   |   FAIL expected 5 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+[rtl-full/verilator-suites                  ]   |   FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+[rtl-full/verilator-suites                  ]   ❌  Failure - Main Require every shard to have validated this run's SHA [152.904408ms]
+[rtl-full/verilator-suites                  ] exitcode '1': failure
+[rtl-full/verilator-suites                  ] ⭐ Run Main Prove exhaustive ownership and tally every log
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/3] user= workdir=
+[rtl-full/verilator-suites                  ]   | suite_tally: no *.log under /tmp/all-suite-logs/none -- nothing to tally, which is an unknown, not a zero
+[rtl-full/verilator-suites                  ]   ❌  Failure - Main Prove exhaustive ownership and tally every log [92.061934ms]
+[rtl-full/verilator-suites                  ] exitcode '2': failure
+[rtl-full/verilator-suites                  ] ⭐ Run Main Require every Verilator worker to pass
+[rtl-full/verilator-suites                  ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/4] user= workdir=
+[rtl-full/verilator-suites                  ]   | one or more Verilator workers ended: skipped
+[rtl-full/verilator-suites                  ]   ❌  Failure - Main Require every Verilator worker to pass [63.088652ms]
+[rtl-full/verilator-suites                  ] exitcode '1': failure
+[rtl-full/verilator-suites                  ] ⭐ Run Complete job
+[rtl-full/verilator-suites                  ] Cleaning up container for job verilator-suites
+[rtl-full/verilator-suites                  ]   ✅  Success - Complete job
+[rtl-full/verilator-suites                  ] 🏁  Job failed
+[rtl-full/yosys-portability                 ] ⭐ Run Set up job
+[rtl-full/yosys-portability                 ] 🚀  Start image=catthehacker/ubuntu:full-latest
+[rtl-full/yosys-portability                 ]   🐳  docker pull image=catthehacker/ubuntu:full-latest platform= username= forcePull=false
+[rtl-full/yosys-portability                 ]   🐳  docker create image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/yosys-portability                 ]   🐳  docker run image=catthehacker/ubuntu:full-latest platform= entrypoint=["tail" "-f" "/dev/null"] cmd=[] network="milan-act-ci-cfadf31f4b1ea9c2965ea854d7fe59bb"
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[node --no-warnings -e console.log(process.execPath)] user= workdir=
+[rtl-full/yosys-portability                 ]   ✅  Success - Set up job
+[rtl-full/yosys-portability                 ]   ☁  git clone 'https://github.com/actions/download-artifact' # ref=v4
+[rtl-full/yosys-portability                 ] ⭐ Run Main actions/checkout@v4
+[rtl-full/yosys-portability                 ]   🐳  docker cp src=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2/. dst=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[chown -R 1001:1001 /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/candidate/66ba210630ff7f412e5706427b3ea976ebee3ba2] user=0 workdir=
+[rtl-full/yosys-portability                 ]   ✅  Success - Main actions/checkout@v4 [949.557864ms]
+[rtl-full/yosys-portability                 ] ⭐ Run Main Download every shard's evidence
+[rtl-full/yosys-portability                 ]   🐳  docker cp src=/tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/state/66ba210630ff7f412e5706427b3ea976ebee3ba2/actions/actions-download-artifact@v4/ dst=/var/run/act/actions/actions-download-artifact@v4/
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[chown -R 1001:1001 /var/run/act/actions/actions-download-artifact@v4/] user=0 workdir=
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[/usr/local/bin/node /var/run/act/actions/actions-download-artifact@v4/dist/index.js] user= workdir=
+[rtl-full/yosys-portability                 ]   | (node:49) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+[rtl-full/yosys-portability                 ]   | (Use `node --trace-deprecation ...` to show where the warning was created)
+2026/09/22 06:38:36 http: panic serving 172.21.0.2:50022: open /tmp/milan-act-ci-c2b9e0c068665a9703d52e6c31aeecfd/state/66ba210630ff7f412e5706427b3ea976ebee3ba2/artifacts/rtl-full/1: no such file or directory
+goroutine 5476 [running]:
+net/http.(*conn).serve.func1()
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:1943 +0xd3
+panic({0xe69060?, 0xc0004f31a0?})
+	/opt/hostedtoolcache/go/1.25.0/x64/src/runtime/panic.go:783 +0x132
+github.com/nektos/act/pkg/artifacts.(*artifactV4Routes).listArtifacts(0xc000427ae0, 0xc0001bda18)
+	/home/runner/work/act/act/pkg/artifacts/artifacts_v4.go:372 +0x525
+github.com/nektos/act/pkg/artifacts.RoutesV4.func3({0x113b568?, 0xc00048a0f0?}, 0xc0001aaeb0?, {0x0?, 0x41c057?, 0x0?})
+	/home/runner/work/act/act/pkg/artifacts/artifacts_v4.go:168 +0x38
+github.com/julienschmidt/httprouter.(*Router).ServeHTTP(0xc000089380, {0x113b568, 0xc00048a0f0}, 0xc0000d9040)
+	/home/runner/go/pkg/mod/github.com/julienschmidt/httprouter@v1.3.0/router.go:387 +0x815
+net/http.serverHandler.ServeHTTP({0x1138728?}, {0x113b568?, 0xc00048a0f0?}, 0x1?)
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:3340 +0x8e
+net/http.(*conn).serve(0xc0004025a0, {0x113dab8, 0xc0000b4360})
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:2109 +0x665
+created by net/http.(*Server).Serve in goroutine 29
+	/opt/hostedtoolcache/go/1.25.0/x64/src/net/http/server.go:3493 +0x485
+[rtl-full/yosys-portability                 ]   ❗  ::error::Unable to download artifact(s): Failed to ListArtifacts: Unable to make request: ECONNRESET%0AIf you are using self-hosted runners, please make sure your runner has access to all GitHub endpoints: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners#communication-between-self-hosted-runners-and-github
+[rtl-full/yosys-portability                 ] Failed but continue next step
+[rtl-full/yosys-portability                 ]   ❌  Failure - Main Download every shard's evidence [359.900769ms]
+[rtl-full/yosys-portability                 ] ⭐ Run Main Require every shard to have validated this run's SHA
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/2] user= workdir=
+[rtl-full/yosys-portability                 ]   | target-sha: 2 finding(s); refusing this evidence
+[rtl-full/yosys-portability                 ]   |   FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+[rtl-full/yosys-portability                 ]   |   FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+[rtl-full/yosys-portability                 ]   ❌  Failure - Main Require every shard to have validated this run's SHA [151.922797ms]
+[rtl-full/yosys-portability                 ] exitcode '1': failure
+[rtl-full/yosys-portability                 ] ⭐ Run Main Reconcile the live inventory and structural gates
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/3] user= workdir=
+[rtl-full/yosys-portability                 ]   | Yosys evidence: expected=54 observed=0 errors=1
+[rtl-full/yosys-portability                 ]   | ERROR: no Yosys result files found
+[rtl-full/yosys-portability                 ]   ❌  Failure - Main Reconcile the live inventory and structural gates [170.569584ms]
+[rtl-full/yosys-portability                 ] exitcode '1': failure
+[rtl-full/yosys-portability                 ] ⭐ Run Main Require every Yosys worker to pass
+[rtl-full/yosys-portability                 ]   🐳  docker exec cmd=[bash -e /var/run/act/workflow/4] user= workdir=
+[rtl-full/yosys-portability                 ]   | one or more Yosys workers ended: skipped
+[rtl-full/yosys-portability                 ]   ❌  Failure - Main Require every Yosys worker to pass [62.981201ms]
+[rtl-full/yosys-portability                 ] exitcode '1': failure
+[rtl-full/yosys-portability                 ] ⭐ Run Complete job
+[rtl-full/yosys-portability                 ] Cleaning up container for job yosys-portability
+[rtl-full/yosys-portability                 ]   ✅  Success - Complete job
+[rtl-full/yosys-portability                 ] 🏁  Job failed
+Error: Job 'full-ci-gate' failed
+act-ci: rtl-full: FAILED (1)
