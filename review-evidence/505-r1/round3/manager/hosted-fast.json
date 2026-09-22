@@ -1,0 +1,156 @@
+{
+  "headRefOid": "5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7",
+  "isDraft": true,
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T08:05:44Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214877/job/106662662046",
+      "name": "docs-check",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "docs"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T08:06:28Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215058/job/106662662406",
+      "name": "elaborate",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "elaborate"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:39Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215148/job/106662663601",
+      "name": "changes",
+      "startedAt": "2026-09-22T07:57:25Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-fast"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:40Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662663893",
+      "name": "full-ci-gate",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:41Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662748432",
+      "name": "Verilator shard ${{ matrix.shard }}/${{ matrix.total }}",
+      "startedAt": "2026-09-22T07:57:41Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:31Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214877/job/106662661706",
+      "name": "wire-accountability",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "docs"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:35Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215148/job/106662663409",
+      "name": "bdd-conformance",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-fast"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:41Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662747872",
+      "name": "Physical gPTP (nightly and manual)",
+      "startedAt": "2026-09-22T07:57:41Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:33Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214877/job/106662661889",
+      "name": "docs-check-no-git",
+      "startedAt": "2026-09-22T07:57:24Z",
+      "status": "COMPLETED",
+      "workflowName": "docs"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:58:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215148/job/106662742497",
+      "name": "verilator-lint",
+      "startedAt": "2026-09-22T07:57:42Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-fast"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:41Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662748048",
+      "name": "Yosys shard ${{ matrix.shard }}/${{ matrix.total }}",
+      "startedAt": "2026-09-22T07:57:41Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T08:03:57Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215148/job/106662742572",
+      "name": "yosys-elaboration",
+      "startedAt": "2026-09-22T07:57:43Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-fast"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:41Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662748284",
+      "name": "verilator-suites",
+      "startedAt": "2026-09-22T07:57:41Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T08:04:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702215148/job/106664498942",
+      "name": "rtl-fast",
+      "startedAt": "2026-09-22T08:04:02Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-fast"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-22T07:57:41Z",
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/kebag-logic/milan-fpga/actions/runs/35702214940/job/106662750038",
+      "name": "yosys-portability",
+      "startedAt": "2026-09-22T07:57:41Z",
+      "status": "COMPLETED",
+      "workflowName": "rtl-full"
+    }
+  ]
+}
