@@ -1,0 +1,390 @@
+make: Entering directory '$VALIDATION/tb/verilator/avtp_rxmon'
+verilator --cc --exe --build -j 0 --top-module avtp_rxmon_wrap -GCLK_FREQ_HZ_P=10000 +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v avtp_rxmon_wrap.sv sim_main.cpp -o Vavtp_rxmon_wrap_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/avtp_rxmon/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/avtp_rxmon/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vavtp_rxmon_wrap_sim
+== KL_avtp_rx_monitor harness (scaled clk: 100 ms = 1000 cyc) ==
+
+[1] unbound: matched-sid frame counts nothing
+  [ ok ] frames_rx 0                              = 0
+  [ ok ] not locked                               = 0
+
+[2] bind resets and arms (Milan Table 5.6)
+  [ ok ] counters clear after bind                = 0
+
+[3] first valid PDU locks (seq seeded, settle armed)
+  [ ok ] MEDIA_LOCKED 1                           = 1
+  [ ok ] locked level                             = 1
+  [ ok ] FRAMES_RX 1                              = 1
+  [ ok ] last_ts captured                         = 1
+
+[4] settle window: a sequence step is absorbed, not counted
+  [ ok ] SEQ_NUM_MISMATCH 0 in settle             = 0
+  [ ok ] FRAMES_RX 4                              = 4
+
+[5] drain the settle window (8 post-lock PDUs)
+  [ ok ] still no mismatch                        = 0
+
+[6] single loss: mismatch, NOT interrupted (lost=1)
+  [ ok ] SEQ_NUM_MISMATCH 1                       = 1
+  [ ok ] STREAM_INTERRUPTED 0                     = 0
+
+[7] double loss: mismatch AND interrupted (lost=2)
+  [ ok ] SEQ_NUM_MISMATCH 2                       = 2
+  [ ok ] STREAM_INTERRUPTED 1                     = 1
+
+[8] duplicate: lost=255 counts as interruption (reference math)
+  [ ok ] SEQ_NUM_MISMATCH 3                       = 3
+  [ ok ] STREAM_INTERRUPTED 2                     = 2
+
+[9] tu bit counts TIMESTAMP_UNCERTAIN
+  [ ok ] TIMESTAMP_UNCERTAIN 1                    = 1
+
+[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else
+  [ ok ] UNSUPPORTED_FORMAT 4                     = 4
+  [ ok ] FRAMES_RX unchanged                      = 13
+  [ ok ] no mismatch across bad-format PDUs       = 3
+
+[11] VLAN-tagged PDU parses identically
+  [ ok ] FRAMES_RX +2                             = 15
+  [ ok ] still locked                             = 1
+
+[12] 100 ms silence unlocks (MEDIA_UNLOCKED)
+  [ ok ] MEDIA_UNLOCKED 1                         = 1
+  [ ok ] unlocked level                           = 0
+
+[13] relock: MEDIA_LOCKED again, settle re-armed
+  [ ok ] MEDIA_LOCKED 2                           = 2
+  [ ok ] post-relock step absorbed                = 3
+
+[14] unbind -> rebind resets everything
+  [ ok ] unbind does NOT reset                    = 2
+  [ ok ] rebind resets MEDIA_LOCKED               = 0
+  [ ok ] rebind resets FRAMES_RX                  = 0
+  [ ok ] rebind resets mismatch                   = 0
+  [ ok ] rebind drops lock                        = 0
+
+[16] depacketizer: untagged payload byte-exact to the PCM port
+  [ ok ] PCM 64 bytes                             = 64
+  [ ok ] PCM tlast                                = 1
+  [ ok ] PCM payload byte-exact (rot-2)           = 1
+  [ ok ] depkt pdus counted                       = 1
+
+[17] depacketizer: tagged payload byte-exact (rot-6)
+  [ ok ] PCM 64 bytes (tagged)                    = 64
+  [ ok ] PCM payload byte-exact (rot-6)           = 1
+
+[18] depacketizer: rejected PDU emits nothing
+  [ ok ] no PCM for rejected PDU                  = 0
+
+[15] wrong stream_id never reaches the monitor
+  [ ok ] foreign sid: frames_rx unchanged         = 2
+
+[23] LATE/EARLY/MEDIA_RESET (task #20: real media-clock counters)
+  [ ok ] no late/early so far                     = 0
+  [ ok ] LATE counted                             = 1
+  [ ok ] EARLY counted                            = 1
+  [ ok ] on-time counts neither                   = 2
+  [ ok ] MEDIA_RESET counted                      = 1
+  [ ok ] bind clears media counters               = 0
+
+[19] depacketizer backpressure: FIFO drops whole frames, tap never stalls
+  [ ok ] drops counted                            = 1
+
+[20] tiny data_len=2: hold-only beat, zero-padded tail
+  [ ok ] one padded beat (8 B)                    = 8
+  [ ok ] payload bytes                            = 1
+  [ ok ] zero pad                                 = 1
+  [ ok ] tlast on padded beat                     = 1
+
+[21] truncated committed frame resyncs; next PDU clean
+  [ ok ] post-truncation PDU intact               = 64
+  [ ok ] post-truncation byte-exact               = 1
+
+[21b] pulse-after-tlast runt must NOT pre-approve the next PDU
+  [ ok ] stray pulse did not commit reject        = 0
+
+[22] exact-fit frame (payload ends at frame end)
+  [ ok ] exact-fit PCM 64 bytes                   = 64
+  [ ok ] exact-fit tlast                          = 1
+
+[26] MEDIA_LOCKED is source-agnostic and FREE-WHEELS (task #25,
+     Milan 5.3.8.10 + 4.4.2.3 + 1722-2016 E.2.1)
+  [ ok ] [26a] external+unconverged: LOCKS on the PDU = 1
+  [ ok ] [26b] lock counted once                  = 1
+  [ ok ] [26c] convergence lost: STAYS locked (free-wheel) = 1
+  [ ok ] [26d] no MEDIA_UNLOCKED for it           = 0
+  [ ok ] [26e] clock-source churn: STAYS locked   = 1
+  [ ok ] [26e2] ...and counts nothing             = 0
+  [ ok ] [26f] stream keeps flowing locked        = 1
+  [ ok ] [26g] internal: locks on first PDU w/o servo = 1
+
+[27] FAMILY change while locked: unsupported counts, relock on match
+  [ ok ] [27a] locked on 8ch stream               = 1
+  [ ok ] [27b] mismatch counts UNSUPPORTED        = 1
+  [ ok ] [27c] mismatched frames not counted as RX = 1
+  [ ok ] [27d] silence unlocks                    = 0
+  [ ok ] [27e] matching PDU relocks               = 1
+  [ ok ] [27f] RX counts again                    = 2
+
+[28] channel FREEDOM (Milan BAF Section 4 + USER 08-07: accept
+     EVERY channel count, route only the mapped subset)
+  [ ok ] [28a] 2ch-wire ACCEPTED under 8ch fmt    = 1
+  [ ok ] [28b] no UNSUPPORTED for adapted PDU     = 0
+  [ ok ] [28c] 8ch-wire accepted                  = 2
+  [ ok ] [28d] 0ch rejected                       = 1
+  [ ok ] [28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family) = 3
+  [ ok ] [28f] ...and no UNSUPPORTED for it       = 1
+
+[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +
+     Milan 6.3: base formats are non-sparse). A sustained sp=1
+     stream is legal 1722 but off-profile here — the listener's
+     DELIBERATE behavior is reject-and-count (UNSUPPORTED_FORMAT
+     per PDU, no FRAMES_RX, no lock, no PCM), through the REAL
+     parser->monitor->depacketizer wiring.
+  [ ok ] [29a] 10 sparse PDUs all UNSUPPORTED     = 10
+  [ ok ] [29b] no FRAMES_RX from a sparse stream  = 0
+  [ ok ] [29c] sparse stream never locks          = 0
+  [ ok ] [29d] no PCM from a sparse stream        = 0
+  [ ok ] [29e] non-sparse resumes clean (locks)   = 1
+  [ ok ] [29f] FRAMES_RX resumes                  = 1
+
+[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /
+     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).
+  [ ok ] [30a1] mr 0->1 toggle ticks MEDIA_RESET  = 1
+  [ ok ] [30a2] HELD mr counts nothing more       = 1
+  [ ok ] [30a3] mr 1->0 toggle ticks again        = 2
+  [ ok ] [30a] mr-toggled PDUs accepted           = 4
+  [ ok ] [30b] mr toggle breaks no lock/seq       = 0
+  [ ok ] [30c1] rejected PDU's mr counts no reset = 2
+  [ ok ] [30c2] the same toggle counts once it is ACCEPTED = 3
+  [ ok ] [30d] unbound mr toggle counts nothing   = 3
+  [ ok ] [30e] bind zeroes MEDIA_RESET            = 0
+  [ ok ] [30f] first PDU of an era SEEDS, never counts = 0
+  [ ok ] [30g] the next real toggle counts        = 1
+
+[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016
+     4.4.3.4: unsupported version -> "shall discard the AVTPDU").
+  [ ok ] [31a] version!=0 NOT counted (discarded whole) = 2
+
+[31b] lock + live seq tracking hold across interleaved
+      version!=0 PDUs carrying wild sequence numbers
+  [ ok ] [31b] lock holds across version!=0 PDUs  = 1
+  [ ok ] [31b] SEQ_NUM_MISMATCH stays frozen      = 0
+  [ ok ] [31b] STREAM_INTERRUPTED stays frozen    = 0
+  [ ok ] [31b] only the version-0 PDUs counted    = 13
+
+======================================================================
+KL_avtp_rx_monitor: 97 checks, 0 failures
+verilator --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap -GCLK_FREQ_HZ_P=100000 +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_nx ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v avtp_rxmon_nx_wrap.sv sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/avtp_rxmon/obj_nx'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/avtp_rxmon/obj_nx'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_nx/Vavtp_rxmon_nx_sim
+== NxN RX stack harness (N=4, NXN P1/P2/P3 + Table 5.6 IV) ==
+
+[G1] P2 golden: unbound frame counts nothing
+  [ ok ] frames_rx 0                                    = 0
+  [ ok ] not locked                                     = 0
+
+[G2] P2 golden: bind resets and arms (Milan Table 5.6)
+  [ ok ] counters clear after bind                      = 0
+
+[G3] P2 golden: first valid PDU locks, seq seeded
+  [ ok ] MEDIA_LOCKED 1 (event counter: immediate)      = 1
+  [ ok ] locked level                                   = 1
+  [ ok ] FRAMES_RX still 0 before the interval closes   = 0
+  [ ok ] FRAMES_RX 1 after the interval closes          = 1
+  [ ok ] last_ts captured                               = 1
+  [ ok ] wire_chans follows the wire                    = 8
+
+[G4] P2 golden: settle absorbs a step, then mismatch counts
+  [ ok ] no mismatch through settle                     = 0
+  [ ok ] STREAM_INTERRUPTED 0 (lost=1)                  = 0
+  [ ok ] SEQ_NUM_MISMATCH 1 (interval commit)           = 1
+  [ ok ] STREAM_INTERRUPTED 1 (event, pre-tick)         = 1
+  [ ok ] SEQ_NUM_MISMATCH 2 (second interval)           = 2
+
+[G5] P2 golden: tu + format compare (counts nothing else)
+  [ ok ] TIMESTAMP_UNCERTAIN 1                          = 1
+  [ ok ] UNSUPPORTED_FORMAT 1 for a 2-reject interval   = 1
+  [ ok ] FRAMES_RX unchanged by rejects                 = 13
+  [ ok ] no mismatch across bad-format PDUs             = 2
+
+[G6] P2 golden: 100 ms silence unlocks (ms-grid watchdog)
+  [ ok ] MEDIA_UNLOCKED 1                               = 1
+  [ ok ] unlocked level                                 = 0
+  [ ok ] relock: MEDIA_LOCKED 2                         = 2
+
+[G7] P2 golden: unbind keeps, rebind resets
+  [ ok ] unbind does NOT reset                          = 2
+  [ ok ] rebind resets MEDIA_LOCKED                     = 0
+  [ ok ] rebind resets FRAMES_RX                        = 0
+  [ ok ] rebind drops lock                              = 0
+  [ ok ] pre-bind pending flag wiped, not committed     = 0
+
+[G8] P2 golden: LATE/EARLY/MEDIA_RESET at stream 0
+  [ ok ] LATE counted                                   = 1
+  [ ok ] EARLY counted                                  = 1
+  [ ok ] MEDIA_RESET counted                            = 1
+  [ ok ] MEDIA_RESET counts the return toggle too       = 2
+
+[T1] P1: stream-0 payload reaches fabric render byte-exact
+  [ ok ] render payload 64 bytes                        = 64
+  [ ok ] render tlast                                   = 1
+  [ ok ] render payload byte-exact                      = 1
+  [ ok ] render selector = stream 0                     = 0
+  [ ok ] accept idx = 0                                 = 0
+
+[I1] P2 isolation: arm stream 1 (table + LCTX FMT), s0 noise
+  [ ok ] s0 events landed (FRX +2 frames, coalesced)    = 8
+  [ ok ] s1 LCTX FRX still 0                            = 0
+  [ ok ] s1 LCTX SEQ_MM still 0                         = 0
+  [ ok ] s1 LCTX TU still 0                             = 0
+  [ ok ] s1 LCTX UNSUP still 0                          = 0
+  [ ok ] s1 LCTX MEDIA_LOCKED still 0                   = 0
+
+[I2] P2 isolation: stream-1 PDUs count in s1's LCTX only
+  [ ok ] s1 LCTX FRX = 2 (2 PDUs, coalesced law)        = 2
+  [ ok ] s1 LCTX MEDIA_LOCKED = 1                       = 1
+  [ ok ] s1 LCTX TU = 1                                 = 1
+  [ ok ] s1 LCTX DEPKT pdus = 2 (NULL discards post-depkt) = 2
+  [ ok ] s0 legacy FRX untouched                        = 8
+  [ ok ] s0 legacy ML untouched                         = 1
+  [ ok ] s1 w8 wire_chans = 8                           = 8
+
+[R1] P3: s1 NULL by default - monitor counts, no render
+  [ ok ] NULL route: no render bytes                    = 0
+  [ ok ] NULL route: s1 LCTX FRX advanced               = 3
+
+[R2] P3: reserved route bit is inert, render stays s0
+  [ ok ] retired bit emitted no s1 render PDU           = 1
+  [ ok ] render tap PDU was s0                          = 0
+  [ ok ] s1 DEPKT pdus accumulated (2 initial + 1 NULL + 1 retired) = 4
+
+[R3] P3: RENDER-lowest-wins + render switch
+  [ ok ] lowest-indexed RENDER wins (sel=0)             = 0
+  [ ok ] render_sel moves to 1                          = 1
+  [ ok ] render tap follows s1                          = 1
+  [ ok ] wire_chans follows the RENDER stream           = 2
+
+[E1] P1 eviction: unbind + retarget s1's table entry
+  [ ok ] s1 CNT reset on rebind                         = 0
+  [ ok ] evicted sid does not count                     = 0
+  [ ok ] new sid counts                                 = 1
+
+[M13] TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (Milan 1.3 5.3.8.10;
+      1722.1-2021 Table 7-157 per-frame tv tallies, appended
+      LCTX words 26/27; per-frame BY DEFINITION - the TV+TNV ==
+      FRAMES_RX identity belongs to 1722.1's per-frame reading
+      and deliberately breaks against Milan interval FRAMES_RX)
+  [ ok ] [M13a] TV follows the [E1] frame               = 1
+  [ ok ] [M13b] TNV still 0                             = 0
+  [ ok ] [M13c] tv=0 PDU -> TNV=1 (per-frame: immediate) = 1
+  [ ok ] [M13d] TV holds                                = 1
+  [ ok ] [M13e] TV+TNV = accepted frames (3)            = 3
+  [ ok ] [M13e2] FRAMES_RX equals the tallies (coalesced law) = 3
+  [ ok ] [M13f] unsupported-format PDU counts neither tally = 3
+  [ ok ] [M13g] bind-zero walk clears TV (w26)          = 0
+  [ ok ] [M13h] bind-zero walk clears TNV (w27)         = 0
+
+[IV] Table 5.6 observation-interval semantics (stream 2)
+  [ ok ] [IV0] settle-drain committed (FRX = 9 frames, coalesced) = 9
+
+[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)
+  [ ok ] [IV1a] uncommitted before the tick             = 9
+  [ ok ] [IV1b] FRAMES_RX += the burst's 6 frames (coalesced) = 15
+
+[IV2] SEQ_NUM_MISMATCH vs STREAM_INTERRUPTED: 3 gaps, one
+      interval -> SM +1 (was +3) while SI +3 (per-event)
+  [ ok ] [IV2a] SI = 3 immediately (Table 5.6: 'each time') = 3
+  [ ok ] [IV2b] SM uncommitted before the tick          = 0
+  [ ok ] [IV2c] SM +1 for 3 gaps in one interval        = 1
+  [ ok ] [IV2d] SI still 3 (no interval inflation)      = 3
+
+[IV3] TIMESTAMP_UNCERTAIN: 4 tu PDUs, one interval -> +1
+  [ ok ] [IV3] TU +1 for 4 tu frames                    = 1
+
+[IV4] UNSUPPORTED_FORMAT: 5 rejects, one interval -> +1
+  [ ok ] [IV4a] UF +1 for 5 rejects                     = 1
+  [ ok ] [IV4b] rejects never advance FRAMES_RX         = 22
+
+[IV5] one event per interval, two intervals -> +2 (still a
+      counter, not a one-shot)
+  [ ok ] [IV5] TU +2 across two intervals               = 3
+
+[IV6] MEDIA_RESET: 2 mr toggles, one interval -> +1 (was +2)
+  [ ok ] [IV6a] uncommitted before the tick             = 0
+  [ ok ] [IV6b] MEDIA_RESET +1 for 2 toggles in one interval = 1
+  [ ok ] [IV6c] 6 HELD-mr frames tick nothing           = 1
+
+[IV8] LATE_TIMESTAMP / EARLY_TIMESTAMP: the last two Table 5.6
+      interval counters. Both are 'incremented at the end of every
+      observation interval during which a Stream Data AVTPDU has
+      been received with an AVTP timestamp field that was in the
+      past / too far in the future to process', so a BURST inside
+      one interval is +1 - the same law as FRX/SM/TU/UF/MR.
+  [ ok ] [IV8a] LATE uncommitted before the tick        = 0
+  [ ok ] [IV8b] LATE +1 for a 5-PDU burst               = 1
+  [ ok ] [IV8c] EARLY untouched by LATE PDUs            = 0
+  [ ok ] [IV8d] LATE +2 across two intervals            = 3
+  [ ok ] [IV8e] EARLY +1 for a 4-PDU burst              = 1
+  [ ok ] [IV8f] LATE untouched by EARLY PDUs            = 3
+  [ ok ] [IV8g] on-time PDUs move neither               = 4
+
+[IV9] MEDIA_LOCKED / MEDIA_UNLOCKED are PER-EVENT ('incremented
+      each time ...'), and Table 5.6's lock invariant holds across
+      lock / silence-unlock / rebind churn: either ML=MU (not
+      synchronized) or ML=MU+1 (synchronized).
+  [ ok ] [IV9a] bind zeroes both                        = 0
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 1
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 1
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 2
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 2
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9b] MEDIA_LOCKED is immediate (per-event)   = 3
+  [ ok ] [IV9c] synchronized => ML = MU+1               = 1
+  [ ok ] [IV9d] MEDIA_UNLOCKED is immediate (per-event) = 3
+  [ ok ] [IV9e] not synchronized => ML = MU             = 1
+  [ ok ] [IV9f] rebind never strands MU above ML (24 phases) = -1
+      (worst illegal-pair run seen: 1 cyc, limit 128)
+  [ ok ] [IV9g] the 'at any time' invariant never breached for good = 0
+
+[IV7] back-to-back PDUs across EVERY interval-drain phase: the
+      commit verdict must beat each frame's tlast (walker yield;
+      the 8x8 stress case lost 1 of 2 accepted frames without it)
+  [ ok ] [IV7] no accept verdict missed across 40 drain phases = 0
+
+[DV] gh #60 F2+F4: per-context dirty vector; TV silent, TNV
+     armed. The old port was a stream-0 SCALAR that pulsed on
+     EVERY accepted PDU - a healthy stream pushed GET_COUNTERS
+     1/s forever off its own TV tally. Option (c): TV joins the
+     FRAMES_RX exclusion (task-21 narrowing), TNV stays an
+     anomaly, and every context owns its own bit.
+  [ ok ] [DV1] s1's lock pulses bit 1 exactly once      = 1
+  [ ok ] [DV1] and no other bit                         = 0
+  [ ok ] [DV1b] s2's lock pulses bit 2 exactly once     = 1
+  [ ok ] [DV1b] and no other bit                        = 0
+  [ ok ] [DV2] healthy tv=1 streaming is SILENT on every bit = 0
+  [ ok ] [DV3] a tv=0 PDU pulses s2's bit at the accept = 1
+  [ ok ] [DV3] no cross-context leak                    = 0
+  [ ok ] [DV4] no pulse before the interval commit      = 0
+  [ ok ] [DV4b] the TU interval commit pulses s1's bit  = 1
+  [ ok ] [DV4c] s2's healthy interval stays silent      = 0
+  [ ok ] [DV5] s0's lock event pulses bit 0             = 1
+  [ ok ] [DV5b] healthy s0 tv=1 traffic is SILENT (the flipped law) = 0
+
+======================================================================
+NxN RX stack: 118 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/avtp_rxmon'
