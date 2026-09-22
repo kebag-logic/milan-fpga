@@ -699,12 +699,29 @@ BUILDER_IF = "${{ steps.scope.outputs.rtl == 'true' }}"
 BUILDER_RUNS = {
     DOCS: (
         "python3 -m pip install --quiet pyyaml",
-        "python3 sw/builder/test_builder.py",
+        "python3 sw/builder/test_builder.py --require-rv32",
     ),
     ELABORATE: (
-        "python3 sw/builder/test_builder.py --require-elaboration",
+        "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
     ),
 }
+#: #504: reviewed cache inputs and unconditional verification on hits and misses.
+RV32_CACHE_WITH = {
+    "path": "~/br-milan-rv32/host",
+    "key": "rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-"
+           "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-"
+           "${{ hashFiles('scripts/ci_rv32_sdk.py') }}",
+}
+RV32_INSTALL = (
+    "set -euo pipefail",
+    "python3 scripts/ci_rv32_sdk_selftest.py",
+    'python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"',
+)
+RV32_ABSENT = (
+    "set -euo pipefail",
+    "python3 sw/builder/test_firmware_compiler.py --selftest",
+    'python3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"',
+)
 BUILDER_CHECKOUTS = {
     # Full history since #378: the em-dash gate derives its base by
     # merge-base against the base branch, which a depth-1 checkout cannot
@@ -966,6 +983,12 @@ CARRIER_STEP_LISTS = {
              'python3 scripts/check_baremetal_only.py --check',
              'python3 scripts/check_baremetal_only.py --selftest',
          )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Compiler-absent firmware controls",
+         "run": RV32_ABSENT},
         {"name": "End-station builder gates",
          "run": BUILDER_RUNS[DOCS]},
         {"name": "NVM record-space gate",
@@ -1146,6 +1169,10 @@ CARRIER_STEP_LISTS = {
          "run": (
              'sw/litex/patches/apply.sh',
          )},
+        {"name": "Cache the pinned RV32 SDK", "if": BUILDER_IF,
+         "uses": "actions/cache@v4", "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK", "if": BUILDER_IF,
+         "run": RV32_INSTALL},
         {"name": "Elaboration gates", "if": BUILDER_IF,
          "run": BUILDER_RUNS[ELABORATE]},
         # Verilator, for the aggregate's converted-versus-source MAC
@@ -6872,7 +6899,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 44 steps"),
+         "job `docs-check` must carry exactly 47 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -6883,10 +6910,10 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 elaborate inserted third-party action breaks the sequence",
          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
-         "job `elaborate` must carry exactly 18 steps"),
+         "job `elaborate` must carry exactly 20 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 44 steps"),
+         "job `docs-check` must carry exactly 47 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -6895,26 +6922,26 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
-         "job `elaborate` must carry exactly 18 steps"),
+         "job `elaborate` must carry exactly 20 steps"),
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
-         "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
+         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
         ("#295 docs-check recognised steps swapped",
-         _m_swap_steps(DOCS, "docs-check", 37, 38),
-         "job `docs-check` step 39 must be the step named `Archive integrity gate`"),
+         _m_swap_steps(DOCS, "docs-check", 40, 41),
+         "job `docs-check` step 42 must be the step named `Archive integrity gate`"),
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
-         "job `docs-check` step 38 must be the step named `Doc cited-path gate`"),
+         "job `docs-check` step 41 must be the step named `Doc cited-path gate`"),
         ("#295 docs-check non-gate step if: false",
          _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
          "(`Bare-metal scope gate`) must carry no `if`"),
@@ -6948,7 +6975,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
     ]
 
 
@@ -7467,6 +7494,37 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
     return edits
 
 
+def _rv32_sdk_arms() -> list[Arm]:
+    """#504: missing provenance inputs, adoption guards and provisioning refuse."""
+    arms = []
+    for path, jid, count in ((DOCS, "docs-check", 47),
+                             (ELABORATE, "elaborate", 20)):
+        for label, key, value in (
+                ("digest", "key", RV32_CACHE_WITH["key"].replace(
+                    "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
+                ("OS", "key", RV32_CACHE_WITH["key"].replace("${{ runner.os }}", "")),
+                ("architecture", "key", RV32_CACHE_WITH["key"].replace("${{ runner.arch }}", "")),
+                ("revision", "key", RV32_CACHE_WITH["key"].replace("sdk-v1", "sdk-v0")),
+                ("installer bytes", "key", "rv32-sdk-v1"),
+                ("fallback", "restore-keys", "rv32-sdk-"),
+                ("selector path", "path", "~/unselected-sdk")):
+            arms.append((f"RV32 {jid} wrong cache {label}",
+                         _m_with_key(path, jid, "Cache the pinned RV32 SDK", key, value),
+                         "(`Cache the pinned RV32 SDK`) `with` must be exactly"))
+        arms.append((f"RV32 {jid} installation removed",
+                     lambda w, p=path, j=jid: _strip_steps(w, p, j, "ci_rv32_sdk.py"),
+                     f"job `{jid}` must carry exactly {count} steps"))
+        arms.append((f"RV32 {jid} verification skipped on cache hit",
+                     _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
+                     "(`Install and verify the pinned RV32 SDK`)"))
+        builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
+        arms.append((f"RV32 {jid} allows a stood-down compiler",
+                     _m_step_key_any(path, jid, BUILDER_CALL, "run",
+                                     "\n".join(BUILDER_RUNS[path]).replace(" --require-rv32", "")),
+                     f"(`{builder_name}`) script is not the canonical form"))
+    return arms
+
+
 def _carrier_script_arms(pristine: World) -> list[Arm]:
     """Reason-pin every carrier body, including its name and differing line.
 
@@ -7515,6 +7573,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _shard_and_fast_arms()
             + _aggregate_script_arms()
             + _docs_builder_arms()
+            + _rv32_sdk_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()

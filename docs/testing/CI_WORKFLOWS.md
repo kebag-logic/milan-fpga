@@ -1039,6 +1039,64 @@ without sv2v turns the builder gate red rather than green, and the mutation
 suite drops the install, drifts its version, moves it after the call, and
 disables its condition.
 
+Both builder jobs provision the selected RV32 SDK (#504).
+The selection is Bootlin `riscv32-ilp32d--glibc--stable-2025.08-1`, GCC 14.3.0.
+The [installer](../../scripts/ci_rv32_sdk.py) pins its official URL and SHA256:
+`d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f`.
+Verification precedes extraction and execution of `relocate-sdk.sh`.
+The destination is `$HOME/br-milan-rv32/host`, the existing selector location.
+Prepending `PATH` alone cannot override that absolute selector.
+This SDK supplies verification tools, not product build settings.
+Its ILP32D default does not change the shipping CPU contract.
+
+Both caches bind the complete digest, runner OS, and architecture.
+They also bind installer revision `1` and installer source bytes.
+Neither cache accepts prefix fallbacks.
+Every hit verifies provenance and files before running cached tools.
+The receipt binds provenance, destination, files, modes, and symlinks.
+Missing, malformed, stale, and corrupt receipts fail closed.
+Existing directories without receipts are refused, never overwritten.
+Logs identify the compiler realpath, version, target, and relocated sysroot.
+GitHub cache scoping supplies trust; receipts detect cache drift.
+Receipts are not independent signatures over hostile cache contents.
+
+Both builder calls pass `--require-rv32`.
+A missing compiler therefore fails, rather than weakening hosted coverage.
+An alternate compiler cannot satisfy the required selector adoption.
+Elaboration provisioning retains its existing RTL scope guard.
+`docs-check` additionally runs the explicitly weaker compiler-absent control.
+It executes gate 1b with every cross candidate hidden.
+Host compilers answer version and target probes only.
+Firmware compilation through a host compiler is refused.
+Every text refusal remains active; declined instruments report `NOT RUN`.
+The existing AEM generator self-test remains scheduled unchanged.
+`ci_events.py` pins new steps, cache inputs, order, and guards.
+Its mutation controls remove adoption and provenance requirements independently.
+
+Reproduce focused controls without changing the workstation compiler:
+
+```sh
+python3 scripts/ci_rv32_sdk_selftest.py
+python3 sw/builder/test_firmware_compiler.py --selftest
+sdk_trial=$(mktemp -d)
+python3 scripts/ci_rv32_sdk.py --destination "$sdk_trial/host"
+python3 scripts/ci_rv32_sdk.py --destination "$sdk_trial/host"
+python3 sw/builder/test_firmware_compiler.py \
+  --sdk-destination "$sdk_trial/host" --audit "$sdk_trial/compiler.jsonl"
+python3 sw/builder/test_firmware_compiler.py \
+  --absent --audit "$sdk_trial/absent.jsonl"
+```
+
+The local SDK run logs its exact `argv[0]` substitution.
+It preserves every remaining compiler argument and subprocess option.
+That measurement proves local compatibility, not hosted selector adoption.
+The hosted builder uses its ordinary selector without substitution.
+The full builder, native banks, and trusted act remain required.
+Exact-head hosted acceptance remains separate from local installer evidence.
+For offline reproduction, add `--archive <verified-download.tar.xz>` when installing.
+The installer still checks the pinned digest.
+An absent run with `--require-rv32` must fail explicitly.
+
 The `docs-check` job ends with three shape gates, in this order:
 `Sweep/build shape gate` (`scripts/check_sweep_shape.py --self-test`),
 `Deploy shape gate` (`scripts/check_deploy_shape.py --self-test`, wired by

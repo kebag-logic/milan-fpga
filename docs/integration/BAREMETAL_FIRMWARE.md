@@ -291,7 +291,7 @@ directory is outside this measurement, and the CONTENTS behind each resolved
 third-party name stay trusted rather than read.
 
 Both instruments take the census's RV32 compiler, so both stand down where
-there is none -- which is every hosted runner today. That is why neither
+there is none. #504 provisions both hosted builder consumers. Neither
 REPLACES a refusal: the text rules they measure beside are in force on every
 machine, unchanged, and gate 1b's verdict says in its first clause whether
 the instruments graded with them. The section "Instruments added beside the
@@ -1156,11 +1156,12 @@ strictly more than it did before; with none it refuses exactly what it did
 before, and says which instruments did not grade. The refusals are unchanged
 on every machine, including the hosted runners.
 
-The reason is where the instruments can run at all. Every one of them takes
-the census's RV32 compiler, and no hosted runner this repository uses has
-one, so a retirement that lifted a refusal where the instrument runs would
-lift it nowhere a merge is graded -- and would leave it lifted on the one
-machine the author sees. The first head of PR #498 retired them
+Every instrument requires the census's RV32 compiler.
+At #498, hosted runners lacked that compiler.
+#504 provisions both builder jobs with the selected Bootlin SDK.
+See the [installation and cache contract](../testing/CI_WORKFLOWS.md#elaboration).
+Compiler availability alone does not authorize text-rule retirement.
+The first head of PR #498 retired them
 unconditionally and a phase-2 token splice,
 `milan_\`+newline+`write(ADP_CTRL, 1u)`, advertised the entity before the AEM
 verdict and PASSED the complete gate on the hosted runners.
@@ -1171,10 +1172,10 @@ verdict and PASSED the complete gate on the hosted runners.
 | the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may reach one beside the firmware | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
 | the resolver's store census: every store the compiler emits, classified by the address it RESOLVES to, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, and a store behind a brace-less `if` that the text store set cannot see at all (#495) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
 
-**The two preconditions of retirement**, neither of which this change meets:
+**The two preconditions of retirement** remain separate acceptance obligations:
 
 1. an RV32-capable compiler on the hosted runners, so the instrument answers
-   where a merge is graded. No workflow file is touched here;
+   where a merge is graded. #504 owns installation and hosted evidence;
 2. an instrument-level acceptance for each refusal being retired: the
    instrument, asked on its own about the edit that refusal costs, must
    accept it. Gate 1b measures that on every run where a compiler answers,
@@ -1231,8 +1232,9 @@ already expanded. Retiring the remaining store-recognition families still
 requires #162's Makefile half. No further refusal family is deleted until a
 replacement rejects the recorded escapes by measurement.
 
-**What a runner with no RV32 compiler gets**, stated here because it is what
-the hosted runners get. The `-E` comparison, the `-H` resolution measurement
+**What a runner with no RV32 compiler gets** remains explicitly weaker.
+The compiler-absent CI control keeps this path executable.
+The `-E` comparison, the `-H` resolution measurement
 and the resolved store census all take the census's compiler, so its
 stand-down stands them down too, and the instrument-level measurements above
 go with them.
@@ -1257,12 +1259,13 @@ gap is the same one this gate has always had on such a runner: a cast with no
 behind a brace-less `if` (#495), and the verifier's CFG and CRC provenance
 need the same compile and are simply not measured there.
 
-**Installing an RV32-capable compiler in the workflows is follow-up work and
-is not claimed here.** It is the first precondition above: it would put every
-hosted run on the instruments, close the two gaps in the paragraph before
-this one where a merge is graded, and make a retirement mean something. It
-belongs in one lane with the retirement itself, which is the remaining scope
-of #408 and #409.
+**#504 installs the selected compiler without retiring any text refusal.**
+Both hosted builder calls require the RV32 instruments to execute.
+The pinned Bootlin glibc SDK retains the existing `__errno_location` residual.
+No additional C-library residual is accepted.
+Local mapped-prefix trials establish compatibility only.
+Fresh hosted installation and trusted act need their own evidence.
+Text-rule retirement remains the separate scope of #408 and #409.
 
 ## Saved state: the flash writer
 

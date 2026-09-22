@@ -3850,8 +3850,8 @@ def test_baremetal_profile_contract() -> None:
     #: the boot-path comparison, `-H` for the include-resolution
     #: measurement, and the emitted assembly for the resolved store census.
     #: So a machine with no RV32-capable compiler stands all three down at
-    #: once -- and that is every hosted runner this repository uses today,
-    #: not a hypothetical box.
+    #: once. #504 provisions the two hosted builder jobs; the deliberately
+    #: compiler-absent control continues to exercise this weaker path.
     #:
     #: Which is why NOTHING IS RETIRED HERE. At PR #498's first head six
     #: text refusals were retired onto these instruments; on a runner with
@@ -3868,8 +3868,8 @@ def test_baremetal_profile_contract() -> None:
     #: run with a compiler refuses strictly MORE than `dev`, a run without
     #: one refuses exactly what `dev` refuses and says which instruments did
     #: not grade. Retirement is the remaining scope of #408 and #409 and
-    #: belongs in one later lane together with installing an RV32-capable
-    #: compiler on the hosted runners. What it would buy is measured on
+    #: remains separate from #504's hosted compiler installation. What it
+    #: would buy is measured on
     #: every live run, in the instrument-level acceptance table beside the
     #: mutations, rather than claimed.
     def instruments_stood_down() -> bool:
@@ -3972,6 +3972,17 @@ def test_baremetal_profile_contract() -> None:
     #: Decided ONCE, here: a run that probed the compiler twice could report
     #: one arm and grade with the other.
     instruments_down = instruments_stood_down()
+    if "--require-rv32" in sys.argv:
+        assert not instruments_down, \
+            "--require-rv32: the hosted firmware instruments must run"
+        assert census_used["compiler"] == census_compilers[0], \
+            "--require-rv32: the provisioned absolute SDK selector must be adopted"
+    if not instruments_down:
+        compiler = census_used["compiler"]
+        version = subprocess.run([compiler, "--version"], check=True,
+                                 capture_output=True, text=True).stdout.splitlines()[0]
+        print(f"  [gate 1b] compiler argv[0]={compiler} "
+              f"version={version} driver={census_used['flags']}")
     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
     #: #241).
     #:
