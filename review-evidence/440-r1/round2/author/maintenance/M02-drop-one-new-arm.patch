@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc_closer_cases.py
++++ b/scripts/gen_toc_closer_cases.py
+@@ -70,7 +70,7 @@
+         ("I440-F-precedence a type-1 closer cannot end a fence",
+          "```\n</pre>\n## Probe\n", _probe_kind(FENCE)),
+     ]
+-    return arms
++    return [arm for arm in arms if arm[0] != "I440-T-other-name pre/div '\\n'"]
+ 
+ 
+ def _label_rows() -> list[tuple[str, str, int, int]]:

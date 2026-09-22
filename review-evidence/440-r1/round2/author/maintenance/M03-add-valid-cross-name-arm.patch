@@ -1,0 +1,10 @@
+--- a/scripts/gen_toc_closer_cases.py
++++ b/scripts/gen_toc_closer_cases.py
+@@ -70,6 +70,7 @@
+         ("I440-F-precedence a type-1 closer cannot end a fence",
+          "```\n</pre>\n## Probe\n", _probe_kind(FENCE)),
+     ]
++    arms.append(("maintenance positive cross-name", '<pre>\n</style>\n## Probe\n', _probe_kind(TEXT)))
+     return arms
+ 
+ 

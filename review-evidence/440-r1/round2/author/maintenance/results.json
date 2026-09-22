@@ -1,0 +1,91 @@
+{
+ "input_tree_sha256_before": "03c8a8d9df7a2779e5eb0348fcadd1c5d11da0ac40b8b22d6624264c532c75cb",
+ "input_tree_sha256_after": "03c8a8d9df7a2779e5eb0348fcadd1c5d11da0ac40b8b22d6624264c532c75cb",
+ "mutants": [
+  {
+   "id": "M01-empty-new-population",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "GUARD 683 arm(s) in all, below the 707 recorded"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "M02-drop-one-new-arm",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "GUARD 706 arm(s) in all, below the 707 recorded"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (705/706 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "M03-add-valid-cross-name-arm",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (708/708 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  }
+ ]
+}
