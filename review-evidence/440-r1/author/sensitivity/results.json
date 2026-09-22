@@ -1,0 +1,312 @@
+[
+  {
+    "id": "I440-M01-fence-python-strip",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 52,
+        "example": [
+          "  FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 0,
+        "I440_failures": 0,
+        "example": []
+      }
+    ]
+  },
+  {
+    "id": "I440-M02-fence-wide-named-class",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 4,
+        "example": [
+          "  FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 0,
+        "I440_failures": 0,
+        "example": []
+      }
+    ]
+  },
+  {
+    "id": "I440-M03-fence-no-tab",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 4,
+        "example": [
+          "  FAIL [I440-F-valid '```' '\\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+          "  FAIL [I440-F-valid '```' ' \\t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 1,
+        "example": [
+          "  - [I440-E-fence-tab] findings/exempt expected 0/1, got 1/0: ['I440-E-fence-tab.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M04-inner-blanks",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 32,
+        "example": [
+          "  FAIL [I440-T-inner pre '\\n' ' ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' '\\t']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 8,
+        "example": [
+          "  - [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-space] copied label was not judged against the base heading"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M05-matching-name-only",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 49,
+        "example": [
+          "  FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 2,
+        "example": [
+          "  - [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M06-unicode-fold",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 32,
+        "example": [
+          "  FAIL [I440-T-fold pre/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 6,
+        "example": [
+          "  - [I440-E-long-s] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-long-s] copied label was not judged against the base heading"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M07-case-sensitive",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 33,
+        "example": [
+          "  FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 2,
+        "example": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M08-drop-opening-line-close",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 32,
+        "example": [
+          "  FAIL [I440-T-valid pre/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 1,
+        "example": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M09-drop-later-close",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 33,
+        "example": [
+          "  FAIL [I440-T-valid pre/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 2,
+        "example": [
+          "  - [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M10-anchor-closer",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 33,
+        "example": [
+          "  FAIL [I440-T-valid pre/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 1,
+        "example": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "I440-M11-restore-old-type1",
+    "commands": [
+      {
+        "script": "gen_toc.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 1,
+        "I440_failures": 105,
+        "example": [
+          "  FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      {
+        "script": "check_em_dash.py",
+        "arguments": [
+          "--selftest"
+        ],
+        "exit": 2,
+        "I440_failures": 10,
+        "example": [
+          "  - [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-space] copied label was not judged against the base heading"
+        ]
+      }
+    ]
+  }
+]

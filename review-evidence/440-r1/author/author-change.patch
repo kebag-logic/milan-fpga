@@ -1,0 +1,411 @@
+diff --git a/docs/DOC_GENERATION.md b/docs/DOC_GENERATION.md
+index 2660b83b..4ee58f38 100644
+--- a/docs/DOC_GENERATION.md
++++ b/docs/DOC_GENERATION.md
+@@ -26,6 +26,38 @@ Then regenerate every committed output.
+ 
+ Never hand-edit generated renders.
+ 
++`gen_toc.py` owns Markdown classification and Contents provenance.
++
++Closing fences accept only trailing spaces or tabs.
++This follows [CommonMark 4.5](https://spec.commonmark.org/0.31.2/#fenced-code-blocks).
++
++Type-1 HTML blocks end on any literal type-1 closer.
++The names are `pre`, `script`, `style`, and `textarea`.
++
++Any name ends any such block, including its opening line.
++
++Matching folds ASCII case and admits no internal blanks.
++See [CommonMark 4.6](https://spec.commonmark.org/0.31.2/#html-blocks).
++
++Issue #440 corrects these closing conditions only.
++
++The reconstructed 205-fixture GitHub sweep agrees after reader normalization.
++
++Raw helpers retain CR inside lines and withhold five headings.
++
++Both shipped readers normalize CR and CRLF before classification.
++
++The global 26-character refusal policy remains unchanged.
++Refusal binds both provenance and the base heading's authority.
++
++These hidden headings authorize no copied-label exemption.
++
++`I440` controls cover each closing property and shipped label decisions.
++
++Container behavior remains the separate scope of issue #437.
++
++Synthetic inputs and renderer receipts stay outside tracked Markdown.
++
+ ## Module documentation
+ 
+ The matrix derives relationships from repository sources.
+diff --git a/scripts/check_em_dash.py b/scripts/check_em_dash.py
+index 9cab6c27..641432e7 100755
+--- a/scripts/check_em_dash.py
++++ b/scripts/check_em_dash.py
+@@ -945,7 +945,9 @@ def selftest() -> tuple[list[str], int]:
+         except Refusal:
+             pass
+     found, more = _base_derivation_arms()
+-    return problems + found, arms + more
++    from gen_toc_closer_cases import em_dash_arms
++    closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
++    return problems + found + closer_problems, arms + more + closer_arms
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+diff --git a/scripts/gen_toc.py b/scripts/gen_toc.py
+index b7aa6531..d9a46e5d 100644
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -51,8 +51,8 @@ NEST_WHEN_H3_ATLEAST = 8
+ #: import printed a smaller total and exited 0 ([R86] suggestion, round 6
+ #: on PR #428). The floor rises with the corpus.
+ ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
+-                "provenance", "refusal")
+-MIN_ARMS = 279
++                "provenance", "refusal", "I440")
++MIN_ARMS = 683
+ 
+ #: Pages that are deliberately TOC-free, with the reason.
+ SKIP = {
+@@ -161,8 +161,8 @@ INDENT_CODE_COLUMNS = 4
+ #: CommonMark's type-1 raw HTML block: its content is not parsed as
+ #: Markdown and it survives blank lines, so a Contents block inside one
+ #: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
+-#: its closing tag. The name is followed by `tag blank`, `>` or the END OF
+-#: THE LINE: reading `/` as one of those made `<pre/>` a type-1 block, and
++#: any literal type-1 closing tag. The opening name takes `tag blank`, `>`
++#: or the END OF THE LINE: reading `/` there made `<pre/>` a type-1 block, and
+ #: leaving the line end out made `<pre` ending a line none ([R85] round 9
+ #: on PR #428); narrowing the follow set to space and tab exempted `<pre`
+ #: + a form feed + `>`, which the renderer opens ([R85] F1(b), round 10).
+@@ -291,22 +291,19 @@ def _indent_columns(line: str) -> int:
+ 
+ def refusals(text: str) -> list[tuple[int, int, str]]:
+     """Every position this walk REFUSES to read: (line, column, character),
+-    the second of the two honest answers a decision here can give. Where
+-    the walk reads the renderer's own class it answers (`CLASSES`); where
+-    it spells PYTHON'S whitespace instead - the fence closer #440 carries,
+-    and whatever a later reader finds that this round did not - it must not
+-    answer at all, and this is what stops it. Every character at which the
+-    two notions disagree is REFUSED, named with its page, line, column and
+-    code point, and the page obtains no provenance and so no exemption.
++    preserving the global policy even where a site now reads the exact
++    renderer class. Every character in `REFUSED` is named with its page,
++    line, column and code point. Such a page obtains no provenance and so
++    no exemption. The raw `blocks()` and `headings()` helpers do not apply
++    this policy themselves; their callers must check it.
+ 
+     IT BINDS EVERY PAGE A DECISION IS READ FROM, or it holds nothing: the
+     branch page provenance comes from AND the base page whose headings
+     decide the label, which round 9 left unrefused and is the page a label
+     is copied FROM (`check_em_dash.base_labels`, [R85] F1, [R86] F2, round
+-    10 on PR #428). WHAT NO REFUSAL HOLDS is a position the renderer reads
+-    NARROWER than the blank at, where the divergence needs no refused
+-    character: the type-1 closers take a space or a tab inside the closing
+-    tag where the renderer takes none (`_type_1_end`, #440).
++    10 on PR #428). #440 reads the exact fence trailer and type-1 closer
++    rules independently of this policy: spaces/tabs after a fence, and
++    no blanks inside a literal type-1 closing tag (`_type_1_end`).
+ 
+     There are 26 and no page in the corpus carries one. THE LINE MODEL puts
+     the carriage return among them: a line here is what `text.split("\n")`
+@@ -315,6 +312,10 @@ def refusals(text: str) -> list[tuple[int, int, str]]:
+     the generator, git in text mode in the gate - which is the real reason
+     that residue could not reach the exemption, and not the one round 8
+     gave ([R85] and [R86] suggestion, round 9).
++    With #440's exact trailer, a raw closing fence followed by CR stays
++    open here but ends for the renderer: WITHHOLD, not an escape. The
++    reconstructed 205-row sweep leaves five raw CR withholdings, all in
++    this refused family; after reader normalization all 205 agree.
+     """
+     return [(n, col, char)
+             for n, line in enumerate(text.split("\n"), 1)
+@@ -342,8 +343,8 @@ def blocks(text: str) -> list[str]:
+     third from [R85], round 7). It is a single state machine, so the block
+     already open decides what a delimiter means ([R0] round 5 F3). The
+     three kinds of raw HTML block are stated where each is spelled above:
+-    type 1 ends at its closing tag and survives blank lines, types 6 and 7
+-    end at the first BLANK line, and type 7 alone may not interrupt a
++    type 1 ends at any literal type-1 closing tag and survives blank lines;
++    types 6 and 7 end at the first BLANK line, and type 7 alone may not interrupt a
+     paragraph. None parses its content as Markdown, so a heading inside
+     any of them is text.
+ 
+@@ -469,15 +470,15 @@ def _comment_after(line: str, inside: bool) -> bool:
+     return inside
+ 
+ 
+-def _type_1_end(line: str, tag: str) -> bool:
+-    r"""Whether this line ends the type-1 block `tag` opened. NO REFUSAL
+-    HOLDS THIS SITE: the renderer ends such a block on a line carrying the
+-    LITERAL `</pre>`, `</script>`, `</style>` or `</textarea>`, any of the
+-    four ending any of them, so its class inside the closing tag is EMPTY
+-    and the space and the tab `\s*` takes escape with no refused character
+-    on the page. Reading the four names is #440's ([R85] F2, [R86] F1,
+-    round 10 on PR #428)."""
+-    return bool(re.search(r"</%s\s*>" % tag, line, ASCII_FOLD))
++def _type_1_end(line: str) -> bool:
++    """Whether a literal closer ends a type-1 block (CommonMark 4.6).
++
++    Any of the four names ends any type-1 block, including on its opening
++    line and inside longer text. ASCII folding admits capitals, not
++    Unicode lookalikes; no character is allowed inside the closing tag.
++    #440 removes the inner-blank escape and the cross-name withholding
++    measured on PR #428 ([R85] F2, [R86] F1)."""
++    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS), line, ASCII_FOLD))
+ 
+ 
+ def _still_open(line: str, state: str, delim: str,
+@@ -491,10 +492,10 @@ def _still_open(line: str, state: str, delim: str,
+         if not tag:                     # type 6: a blank line ends it
+             return (TEXT if not line.strip(CLASSES["blank"])
+                     else HTML), "", tag
+-        return (TEXT if _type_1_end(line, tag) else HTML), "", tag
++        return (TEXT if _type_1_end(line) else HTML), "", tag
+     m = FENCE_RE.match(line)         # closes on the SAME character, a run
+     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+-            and not m.group(2).strip():  # at least as long, nothing after it
++            and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
+         return TEXT, "", ""
+     return FENCE, delim, ""
+ 
+@@ -517,7 +518,7 @@ def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
+     html = RAW_HTML_OPEN_RE.match(line)
+     if html:
+         tag = html.group(1)
+-        closed = _type_1_end(line, tag)
++        closed = _type_1_end(line)
+         return HTML, (TEXT if closed else HTML), "", tag
+     if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
+                                           and HTML_TAG_LINE_RE.match(line)):
+@@ -833,19 +834,20 @@ def selftest() -> int:
+     """
+     sys.modules.setdefault("gen_toc", sys.modules[__name__])
+     import gen_toc_cases as cases
++    import gen_toc_closer_cases as closers
+     families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
+                 "guard": cases.guard_arms(), "heading": cases.heading_arms(),
+                 "predecessor": cases.predecessor_arms(),
+                 "provenance": cases.provenance_arms(),
+-                "refusal": cases.refusal_arms()}
+-    on_walk = families["walk"] + families["tag"]
++                "refusal": cases.refusal_arms(), "I440": closers.closer_arms()}
++    on_walk = families["walk"] + families["tag"] + families["I440"]
+     on_page = (families["provenance"] + families["predecessor"]
+                + families["heading"] + families["guard"]
+                + families["refusal"])
+     arms = len(on_walk) + len(on_page)
+     import gen_toc_guards as guards
+     notes = _tally_guards(families, arms) + _sites()[1]
+-    for beside in (cases, guards):        # neither may hold a rule
++    for beside in (cases, guards, closers):  # none may hold a rule
+         src = Path(beside.__file__)
+         notes += _owner_guards(src.name, src.read_text(), vars(beside))
+     for note in notes:
+diff --git a/scripts/gen_toc_cases.py b/scripts/gen_toc_cases.py
+index e24d03b4..e056d6cb 100644
+--- a/scripts/gen_toc_cases.py
++++ b/scripts/gen_toc_cases.py
+@@ -759,11 +759,11 @@ def guard_arms() -> list[tuple[str, str, object]]:
+     short = {name: arms for name, arms in plenty.items() if name != "tag"}
+     here = Path(__file__)
+     return [
+-        ("the family names are the seven the runner scores, spelled here "
++        ("the family names are the eight the runner scores, spelled here "
+          "and not read from the constant the guard reads", "",
+          lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
+                                     "predecessor", "provenance",
+-                                    "refusal")),
++                                    "refusal", "I440")),
+         ("the tally guard passes a full set of families", "",
+          lambda t: _tally_guards(plenty, whole) == []),
+         ("it names a family dropped from the runner's import", "",
+@@ -824,10 +824,9 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
+          lambda t: HTML_BLOCK_TAGS == _TYPE_6_SPELLED),
+         ("the shipped walk carries no decision site of its own", "",
+          lambda t: _class_guards(Path(gen_toc_file()).read_text())[1] == []),
+-        ("the shipped walk carries decision sites in both kinds", "",
++        ("the shipped walk carries only single-source decision sites", "",
+          lambda t: {site.split(": ")[1] for site in _class_guards(
+-             Path(gen_toc_file()).read_text())[0]} == {"single source",
+-                                                       "refusal"}),
++             Path(gen_toc_file()).read_text())[0]} == {"single source"}),
+         ("a class spelled inline in an expression is refused", "",
+          lambda t: len(_notes(pattern='"[ \\t]+"')) == 1),
+         ("so is a blank quantified in one", "",
+@@ -909,10 +908,8 @@ def gen_toc_file() -> str:
+ def refusal_arms() -> list[tuple[str, str, object]]:
+     """What the walk REFUSES to read, and what a page carrying one gets.
+ 
+-    The second honest answer a decision site can give, and what holds the
+-    fence closer of #440 and the positions nobody has found yet. It does
+-    NOT hold the type-1 closers, whose class the renderer reads narrower
+-    than the blank (`gen_toc._type_1_end`, [R85] F2, [R86] F1, round 10).
++    The global policy survives #440's exact closing rules. These arms
++    hold refusal independently of the raw walk's delimiter decisions.
+     A page carrying a character at which Python's whitespace and the
+     renderer's disagree is named with its line, its column and its code
+     point and obtains no provenance, so no label copied from it can be
+diff --git a/scripts/gen_toc_closer_cases.py b/scripts/gen_toc_closer_cases.py
+new file mode 100644
+index 00000000..778f4df6
+--- /dev/null
++++ b/scripts/gen_toc_closer_cases.py
+@@ -0,0 +1,137 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""I440 controls: literal HTML closers, fence trailers, and copied labels.
++
++Only fixtures and expected answers live here; gen_toc owns every Markdown
++decision. Character rows reconstruct the population in PR #428 R85-8 and
++R86-9: Python whitespace outside space/tab/LF, plus valid blank controls,
++inner blanks, ASCII capitals, Unicode folds and cross-name closers. The
++raw walk keeps CR inside a line; shipped text readers normalize it first.
++These controls preserve that boundary and the existing refusal policy.
++"""
++import tempfile
++from pathlib import Path
++from types import ModuleType
++
++from gen_toc import FENCE, HTML, TEXT
++
++
++# Independent of REFUSED and RAW_HTML_TAGS so a narrowed population fails.
++_CHARACTERS = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
++               "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
++               "\u2029\u202f\u205f\u3000")
++_NAMES = ("pre", "script", "style", "textarea")
++_FOLDS = ("\u017fcript", "\u017ftyle", "scr\u0131pt", "scr\u0130pt")
++
++
++def _probe_kind(expected: str) -> object:
++    """The probe heading's block kind, immediately before the final LF."""
++    return lambda kinds: kinds[-2] == expected
++
++
++def closer_arms() -> list[tuple[str, str, object]]:
++    """I440 raw-walk arms, graded before refusal can mask a wrong closer."""
++    arms = []
++    for fence in ("```", "~~~"):
++        for trailer in ("", " ", "\t", " \t "):
++            arms.append((f"I440-F-valid {fence!r} {trailer!r}",
++                         f"{fence}\n{fence}{trailer}\n## Probe\n", _probe_kind(TEXT)))
++        for trailer in _CHARACTERS + "x":
++            arms.append((f"I440-F-invalid {fence!r} U+{ord(trailer):04X}",
++                         f"{fence}\n{fence}{trailer}\n## Probe\n", _probe_kind(FENCE)))
++    for opener in _NAMES:
++        for joiner in ("\n", "x"):
++            for closer in _NAMES:
++                for name in (closer, closer.upper()):
++                    arms.append((f"I440-T-valid {opener}/{name} {joiner!r}",
++                                 f"<{opener}>{joiner}</{name}>\n## Probe\n", _probe_kind(TEXT)))
++            for blank in (*_CHARACTERS, " ", "\t", "  ", " \t "):
++                arms.append((f"I440-T-inner {opener} {joiner!r} {blank!r}",
++                             f"<{opener}>{joiner}</{opener}{blank}>\n## Probe\n", _probe_kind(HTML)))
++            for name in _FOLDS:
++                arms.append((f"I440-T-fold {opener}/{name} {joiner!r}",
++                             f"<{opener}>{joiner}</{name}>\n## Probe\n", _probe_kind(HTML)))
++    arms += [
++        ("I440-T-embedded closer anywhere in the line",
++         "<pre>\ntext </sTyLe> tail\n## Probe\n", _probe_kind(TEXT)),
++        ("I440-T-prefix longer names are no closer",
++         "<pre>\n</prelude>\n## Probe\n", _probe_kind(HTML)),
++        ("I440-T-slash blank after slash is no closer",
++         "<pre>\n</ pre>\n## Probe\n", _probe_kind(HTML)),
++        ("I440-T-reset a subsequent block still needs its own closer",
++         "<pre></style>\n<script>\n## Probe\n", _probe_kind(HTML)),
++        ("I440-T-precedence a type-1 closer cannot end type 6",
++         "<div>\n</pre>\n## Probe\n", _probe_kind(HTML)),
++        ("I440-F-precedence a type-1 closer cannot end a fence",
++         "```\n</pre>\n## Probe\n", _probe_kind(FENCE)),
++    ]
++    return arms
++
++
++def _label_rows() -> list[tuple[str, str, int, int]]:
++    """(ID, prefix before old heading, findings, exemptions) after unwrap.
++
++    Findings count the copied LABEL, with the heading retained by Git's
++    diff. Refused base characters add a named refusal finding. CR rows
++    pass through real Git text reads and therefore use normalized lines.
++    """
++    return [
++        ("I440-E-space", "<pre>\n</pre >\n", 1, 0),
++        ("I440-E-tab", "<pre>\n</pre\t>\n", 1, 0),
++        ("I440-E-inline", "<pre>x</pre >\n", 1, 0),
++        ("I440-E-inline-tab", "<pre>x</pre\t>\n", 1, 0),
++        ("I440-E-cross", "<pre>\n</style>\n", 0, 1),
++        ("I440-E-cross-inline", "<pre>x</TEXTAREA>\n", 0, 1),
++        ("I440-E-ascii", "<script>\n</SCRIPT>\n", 0, 1),
++        ("I440-E-long-s", "<script>\n</\u017fcript>\n", 1, 0),
++        ("I440-E-dotless-i", "<script>\n</scr\u0131pt>\n", 1, 0),
++        ("I440-E-dotted-i", "<script>x</scr\u0130pt>\n", 1, 0),
++        ("I440-E-fence-ff", "```\n```\f\n", 2, 0),
++        ("I440-E-fence-nbsp", "~~~\n~~~\u00a0\n", 2, 0),
++        ("I440-E-inner-ff", "<pre>\n</pre\f>\n", 2, 0),
++        ("I440-E-fence-tab", "```\n```\t\n", 0, 1),
++        ("I440-E-fence-crlf", "```\r\n```\r\n", 0, 1),
++        # Git's LF-delimited diff adds the heading even though its text
++        # reader normalizes CR and the copied label is correctly exempt.
++        ("I440-E-fence-cr", "```\r```\r", 1, 1),
++        ("I440-E-inner-cr", "<pre>\n</pre\r>\n", 1, 0),
++    ]
++
++
++def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:
++    """Exercise the shipped gate on real base/head commits, one row per page.
++
++    The head has legitimate generated navigation. Only the base's actual
++    headings can authorize its label, so a wrong closer cannot hide behind
++    missing provenance. No alternate Markdown parser or gate lives here.
++    """
++    rows, problems = _label_rows(), []
++    heading = "## Old \u2014 heading\n"
++    tail = "\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
++    navigation = ("## Contents\n\n"
++                  "- **[Old \u2014 heading](#old--heading)** -- Copied.\n"
++                  "- **[Alpha](#alpha)** -- What alpha holds.\n"
++                  "- **[Beta](#beta)** -- What beta holds.\n"
++                  "- **[Gamma](#gamma)** -- What gamma holds.\n\n")
++    with tempfile.TemporaryDirectory(prefix="i440.emdash.") as tmp:
++        repo = Path(tmp)
++        gate._fixture_git(repo, "init", "-q", "--initial-branch=main")
++        for name, prefix, _, _ in rows:
++            (repo / f"{name}.md").write_bytes(("# Page\n\n" + prefix + heading + tail).encode("utf-8"))
++        base = gate._commit(repo, "I440 base")
++        for name, _, _, _ in rows:
++            (repo / f"{name}.md").write_text("# Page\n\n" + navigation + heading + tail, encoding="utf-8")
++        gate._commit(repo, "I440 head")
++        for name, _, findings, exemptions in rows:
++            verdict = gate.Verdict()
++            path = f"{name}.md"
++            gate.judge_page(repo, base, gate.Change(path, path), verdict)
++            if (len(verdict.findings), verdict.exempt) != (findings, exemptions):
++                problems.append(f"[{name}] findings/exempt expected {findings}/{exemptions}, "
++                                f"got {len(verdict.findings)}/{verdict.exempt}: {verdict.findings}")
++            if findings and not exemptions and not any("mirrors no heading" in note for note in verdict.findings):
++                problems.append(f"[{name}] copied label was not judged against the base heading")
++            if findings == 2 and not any("at column" in note for note in verdict.findings):
++                problems.append(f"[{name}] base character refusal was not named")
++    return problems, len(rows)
+diff --git a/scripts/gen_toc_guards.py b/scripts/gen_toc_guards.py
+index 922ecc32..f94e196b 100644
+--- a/scripts/gen_toc_guards.py
++++ b/scripts/gen_toc_guards.py
+@@ -57,8 +57,9 @@ def _class_guards(source: str) -> tuple[list[str], list[str]]:
+     Python's own whitespace, whose excess over the renderer's BLANK is
+     exactly `REFUSED`, so a page that could tell the two apart is refused
+     before the site is asked -- which holds the site only where the
+-    renderer's class AT THAT POSITION is the blank, and
+-    `gen_toc._type_1_end` says at the site why it is not held there.
++    renderer's class AT THAT POSITION is the blank. #440 removes the
++    last such sites: fence trailers read `blank`, and type-1 closers
++    match literal names with no internal character class.
+     Anything else is a note and the self-test fails: a class inline, Python's
+     `\d`, `\w`, `\W` or `\D`, a `str.is*()` test, or a strip with a class
+     of its own ([R85] F1 and F2, [R86] F1 and F2, round 9 on PR #428).
