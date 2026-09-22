@@ -1,0 +1,25 @@
+ac5-act/01.log: sha256=bb475313cef010be... manifest-match=yes
+ac5-act/02.log: sha256=4dbfe8488b726032... manifest-match=yes
+ac5-act/results.json: sha256=a9ab5b70d1da6bde... manifest-match=yes
+act-draft-fast/01.log: sha256=300b1cf8e45561d8... manifest-match=yes
+ac5/mutation.diff: sha256=328e2e7af864c925... manifest-match=yes
+binding: ['act-ci: validation base b17580b91deb11f3441dfc5d7f9fafe539d929b8 (live dev tip; matches the recorded base oid)', 'act-ci: PR #506 synchronize exact head 66ba210630ff7f412e5706427b3ea976ebee3ba2']
+docs: Python idiom gate: ['Success']
+docs: CI event and SHA contract gate: ['Failure']
+docs: contract findings: ["FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"]
+docs: later docs-check steps executed after the refusal: []
+docs: job docs/docs-check: ['Job failed']
+docs: job docs/wire-accountability: ['Job succeeded']
+docs: job docs/docs-check-no-git: ['Job succeeded']
+docs verdict: ['act-ci: docs: FAILED (1)']
+rtl: gate contract step: ['Failure']
+rtl: gate findings: ["FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"]
+rtl: job rtl-full/full-ci-gate: ['Job failed'] | FAIL lines: 1
+rtl: job rtl-full/verilator-suites: ['Job failed'] | FAIL lines: 2
+rtl: job rtl-full/yosys-portability: ['Job failed'] | FAIL lines: 2
+rtl: worker/physical jobs that produced any log line: none (not run after the failed selector)
+rtl: aggregate SHA verifier: ['FAIL expected 5 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip', 'FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip']
+rtl verdict: ['act-ci: rtl-full: FAILED (1)']
+normal head binding: ['act-ci: PR #505 synchronize exact head 6af65a151663e1301f1983a6c9d22650a0b35da9']
+normal: docs-check contract gate: ['Success'] | Python idiom: ['Success']
+normal verdicts: ['act-ci: docs: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9', 'act-ci: rtl-fast: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9', 'act-ci: elaborate: PASS at 6af65a151663e1301f1983a6c9d22650a0b35da9']

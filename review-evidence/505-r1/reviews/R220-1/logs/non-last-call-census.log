@@ -1,0 +1,47 @@
+non-last lines in multi-command bodies: 117
+non-last lines that are a gate/tool call (python3/scripts/make/sw): 45
+   docs-check step 2 line 2: python3 -m pip install --quiet --require-hashes -r tools/hdl_reference/requirements.txt
+   docs-check step 2 line 3: python3 scripts/gen_hdl_reference.py --selftest
+   docs-check step 8 line 1: python3 scripts/check_doc_style.py
+   docs-check step 8 line 2: python3 scripts/check_doc_style.py --selftest
+   docs-check step 8 line 3: python3 scripts/check_gptp_docs.py
+   docs-check step 9 line 1: python3 docs/DOC_MAP.gen.py --check
+   docs-check step 9 line 2: python3 docs/DOC_MAP.gen.py --selftest
+   docs-check step 9 line 3: python3 docs/diagrams/timesync_chain.gen.py --check
+   docs-check step 10 line 1: python3 scripts/check_solution_docs.py
+   docs-check step 11 line 1: python3 docs/diagrams/submodule_boundaries.gen.py --check
+   docs-check step 11 line 2: python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+   docs-check step 11 line 3: python3 scripts/check_submodule_docs.py
+   docs-check step 12 line 1: python3 scripts/gen_wavedrom.py --selftest
+   docs-check step 12 line 2: python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+   docs-check step 12 line 3: python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+   docs-check step 13 line 1: python3 scripts/check_diagram_pngs.py
+   docs-check step 17 line 1: python3 scripts/check_gptp_docs.py --with-submodule
+   docs-check step 18 line 1: python3 scripts/measure_control_flow.py --selftest
+   docs-check step 20 line 1: python3 scripts/check_baremetal_only.py --check
+   docs-check step 21 line 1: python3 -m pip install --quiet pyyaml
+   docs-check step 22 line 1: python3 scripts/check_nvm_record_space.py
+   docs-check step 24 line 1: python3 scripts/check_soc_sources.py
+   docs-check step 24 line 2: python3 scripts/check_soc_sources.py --selftest
+   docs-check step 25 line 1: python3 scripts/check_rtl_source_lists.py
+   docs-check step 26 line 1: python3 scripts/measure_naming.py --check
+   docs-check step 27 line 1: python3 scripts/check_port_contracts.py
+   docs-check step 28 line 1: python3 scripts/measure_fail_fast.py --check
+   docs-check step 29 line 1: python3 scripts/check_todo_ownership.py
+   docs-check step 30 line 1: python3 scripts/measure_test_evidence.py --check
+   docs-check step 31 line 1: python3 scripts/check_hygiene.py --check
+   docs-check step 32 line 1: python3 scripts/check_sv_idiom.py
+   docs-check step 33 line 1: python3 scripts/check_cpp_idiom.py
+   docs-check step 34 line 1: python3 scripts/check_py_idiom.py
+   docs-check step 35 line 1: python3 scripts/check_sh_idiom.py
+   docs-check step 36 line 1: python3 scripts/ci_events.py --check
+   docs-check step 39 line 1: python3 scripts/check_archive.py
+   docs-check step 40 line 1: python3 scripts/gen_toc.py --selftest
+   docs-check step 40 line 2: python3 scripts/gen_toc.py --verify-anchors
+   wire-accountability step 3 line 1: python3 -m pip install --quiet pyyaml
+   docs-check-no-git step 2 line 2: python3 scripts/docs_check.py
+   elaborate step 2 line 10: python3 scripts/ci_scope.py --selftest
+   elaborate step 7 line 1: python3 -m pip install --quiet pyyaml
+   elaborate step 11 line 1: python3 scripts/ci_litex_env.py
+   elaborate step 15 line 8: make -j"$(nproc)"
+   elaborate step 17 line 1: scripts/run_litex_sims.sh --selftest

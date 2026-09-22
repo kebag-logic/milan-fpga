@@ -1,0 +1,26 @@
+[PASS] appended line overwriting a later gate's script: 1 finding(s)
+         .github/workflows/docs.yml: job `docs-check` step 4 (`Install the python gate dependencies`) script is not the canonical form: line 2 must be None (found "printf 'import sys\\nsys.exit(0)\\n' > scripts/check_py_idiom.py"); 1 line(s) expected, 2 found
+[PASS] Python idiom lines reordered: 1 finding(s)
+         .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py --selftest'); 2 line(s) expected, 2 found
+[PASS] SoC gate selftest moved inside the tclsh fallback block: 1 finding(s)
+         .github/workflows/docs.yml: job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 6 must be '}' (found 'python3 sw/litex/iob_pack_selftest.py'); 7 line(s) expected, 7 found
+[PASS] middle command of Per-page contents gate swallowed: 1 finding(s)
+         .github/workflows/docs.yml: job `docs-check` step 40 (`Per-page contents gate`) script is not the canonical form: line 2 must be 'python3 scripts/gen_toc.py --verify-anchors' (found 'python3 scripts/gen_toc.py --verify-anchors || true'); 3 line(s) expected, 3 
+[PASS] NBSP between words: 1 finding(s)
+         .github/workflows/docs.yml: job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_doc_paths.py' (found '<<refused>> line 1 column 8 carries U+00A0 NO-BREAK SPACE; a pinned script may separate w
+[PASS] CRLF line endings: 1 finding(s)
+         .github/workflows/elaborate.yml: job `elaborate` step 7 (`Install LiteX at the pinned revisions`) script is not the canonical form: line 1 must be 'python3 -m pip install --quiet pyyaml' (found '<<refused>> line 1 column 38 carries U+000D an unnamed character;
+[PASS] empty body: 1 finding(s)
+         .github/workflows/elaborate.yml: job `elaborate` step 12 (`Apply the toolchain patch series`) script is not the canonical form: line 1 must be 'sw/litex/patches/apply.sh' (found None); 1 line(s) expected, 0 found
+[PASS] non-string run value: 1 finding(s)
+         .github/workflows/docs.yml: job `wire-accountability` step 2 must be the step named `Fetch the engine authority the builder derives from` (found `Fetch the engine authority the builder derives from`): the position is the contract -- the steps before this one d
+[PASS] comment line appended: 2 finding(s)
+         .github/workflows/docs.yml: job `docs-check-no-git`'s gate step script is not the canonical form: line 4 must be None (found '# harmless note'); 3 line(s) expected, 4 found; this step is the whole no-git proof, and with `rm -rf .git` gone it proves a different
+         .github/workflows/docs.yml: job `docs-check-no-git` step 2 (`Strip git metadata, then run the docs gate`) script is not the canonical form: line 4 must be None (found '# harmless note'); 3 line(s) expected, 4 found
+[PASS] extra blanks inside a quoted word (pre-existing normalization equivalence): 0 finding(s)
+[PASS] malformed production record (list record) fails closed: 1 finding(s)
+[PASS] malformed production record (empty tuple record) fails closed: 1 finding(s)
+[PASS] malformed production record (non-str element) fails closed: 1 finding(s)
+[PASS] malformed production record (raw string record) fails closed: 1 finding(s)
+[PASS] production record for elaborate step 13 deleted: --check findings=1; arms still derived=3; body arms now missing=2 ['carrier-script-407 elaborate step 13 no-op', 'carrier-script-407 elaborate step 13 or-true']
+ALL PASS

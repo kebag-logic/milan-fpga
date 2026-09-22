@@ -1,0 +1,13 @@
+[real] selftest rc=0; last line: selftest: PASS (1505 contract items, 931 arms); failure lines: 0
+[prefix] selftest rc=0; last line: selftest: PASS (1505 contract items, 931 arms); failure lines: 0
+[sorted] selftest rc=0; last line: selftest: PASS (1505 contract items, 931 arms); failure lines: 0
+[removed] selftest rc=1; last line: selftest: 243 FAILURE(S); failure lines: 244
+      FAIL mutation not caught: [carrier-script-407 docs-check step 2 no-op] expected a finding naming "job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 1 must be 'set -euo
+      FAIL mutation not caught: [carrier-script-407 docs-check step 2 or-true] expected a finding naming 'job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 4 must be \'pytho
+      FAIL mutation not caught: [carrier-script-407 docs-check step 2 drop-command] expected a finding naming 'job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 4 must be \'
+      FAIL mutation not caught: [carrier-script-407 docs-check step 2 drop-flag] expected a finding naming "job `docs-check` step 2 (`Build the validated HDL reference`) script is not the canonical form: line 3 must be 'pyth
+      FAIL mutation not caught: [carrier-script-407 docs-check step 4 no-op] expected a finding naming "job `docs-check` step 4 (`Install the python gate dependencies`) script is not the canonical form: line 1 must be 'pytho
+M5b ignore a trailing '|| true' on every line but the last: complete selftest rc=0; selftest: PASS (1505 contract items, 931 arms)
+M10 ignore line 1 when a body has more than one line: complete selftest rc=1; selftest: 12 FAILURE(S)
+real checker on AC5 tamper: 1 finding(s)
+M5b checker on pristine: 0 finding(s); on AC5 tamper: 0 finding(s)

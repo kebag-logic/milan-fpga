@@ -1,0 +1,56 @@
+non-last lines: 117; real checker refuses all 117
+M5b (complete --selftest PASS) still refuses 63 via specialized pins; accepts 54:
+    docs-check step 2 line 1: set -euo pipefail
+    docs-check step 2 line 2: python3 -m pip install --quiet --require-hashes -r tools/hdl_reference/requirements.txt
+    docs-check step 2 line 3: python3 scripts/gen_hdl_reference.py --selftest
+    docs-check step 5 line 1: sudo apt-get update -qq
+    docs-check step 5 line 2: sudo apt-get install -y --no-install-recommends librsvg2-bin
+    docs-check step 8 line 1: python3 scripts/check_doc_style.py
+    docs-check step 8 line 2: python3 scripts/check_doc_style.py --selftest
+    docs-check step 8 line 3: python3 scripts/check_gptp_docs.py
+    docs-check step 9 line 1: python3 docs/DOC_MAP.gen.py --check
+    docs-check step 9 line 2: python3 docs/DOC_MAP.gen.py --selftest
+    docs-check step 9 line 3: python3 docs/diagrams/timesync_chain.gen.py --check
+    docs-check step 10 line 1: python3 scripts/check_solution_docs.py
+    docs-check step 11 line 1: python3 docs/diagrams/submodule_boundaries.gen.py --check
+    docs-check step 11 line 2: python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+    docs-check step 11 line 3: python3 scripts/check_submodule_docs.py
+    docs-check step 12 line 1: python3 scripts/gen_wavedrom.py --selftest
+    docs-check step 12 line 2: python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+    docs-check step 12 line 3: python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+    docs-check step 13 line 1: python3 scripts/check_diagram_pngs.py
+    docs-check step 18 line 1: python3 scripts/measure_control_flow.py --selftest
+    docs-check step 20 line 1: python3 scripts/check_baremetal_only.py --check
+    docs-check step 22 line 1: python3 scripts/check_nvm_record_space.py
+    docs-check step 24 line 1: python3 scripts/check_soc_sources.py
+    docs-check step 24 line 2: python3 scripts/check_soc_sources.py --selftest
+    docs-check step 24 line 3: command -v tclsh >/dev/null || {
+    docs-check step 24 line 4: sudo apt-get update -qq
+    docs-check step 24 line 5: sudo apt-get install -y --no-install-recommends tcl
+    docs-check step 24 line 6: }
+    docs-check step 25 line 1: python3 scripts/check_rtl_source_lists.py
+    docs-check step 26 line 1: python3 scripts/measure_naming.py --check
+    docs-check step 27 line 1: python3 scripts/check_port_contracts.py
+    docs-check step 28 line 1: python3 scripts/measure_fail_fast.py --check
+    docs-check step 29 line 1: python3 scripts/check_todo_ownership.py
+    docs-check step 30 line 1: python3 scripts/measure_test_evidence.py --check
+    docs-check step 31 line 1: python3 scripts/check_hygiene.py --check
+    docs-check step 32 line 1: python3 scripts/check_sv_idiom.py
+    docs-check step 33 line 1: python3 scripts/check_cpp_idiom.py
+    docs-check step 34 line 1: python3 scripts/check_py_idiom.py
+    docs-check step 35 line 1: python3 scripts/check_sh_idiom.py
+    docs-check step 39 line 1: python3 scripts/check_archive.py
+    docs-check step 40 line 1: python3 scripts/gen_toc.py --selftest
+    docs-check step 40 line 2: python3 scripts/gen_toc.py --verify-anchors
+    elaborate step 7 line 1: python3 -m pip install --quiet pyyaml
+    elaborate step 11 line 1: python3 scripts/ci_litex_env.py
+    elaborate step 11 line 2: mkdir -p ~/vexii-netlist-args
+    elaborate step 15 line 1: set -euo pipefail
+    elaborate step 15 line 2: sudo apt-get update -qq
+    elaborate step 15 line 3: sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+    elaborate step 15 line 4: git clone --depth 1 --branch "$VERILATOR_VERSION" https://github.com/verilator/verilator.git /tmp/verilator-src
+    elaborate step 15 line 5: cd /tmp/verilator-src
+    elaborate step 15 line 6: autoconf
+    elaborate step 15 line 7: ./configure --prefix=/opt/verilator
+    elaborate step 15 line 8: make -j"$(nproc)"
+    elaborate step 17 line 1: scripts/run_litex_sims.sh --selftest
