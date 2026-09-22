@@ -1,0 +1,377 @@
+{
+  "conclusion": "success",
+  "event": "pull_request",
+  "headSha": "1496558d82cf35fc98dda0e781b2a1be643c301a",
+  "jobs": [
+    {
+      "completedAt": "2026-09-22T13:20:26Z",
+      "conclusion": "success",
+      "databaseId": 106762254257,
+      "name": "bdd-conformance",
+      "startedAt": "2026-09-22T13:20:03Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T13:20:04Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T13:20:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:07Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T13:20:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:10Z",
+          "conclusion": "success",
+          "name": "Fetch the processor model inputs",
+          "number": 3,
+          "startedAt": "2026-09-22T13:20:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:12Z",
+          "conclusion": "success",
+          "name": "Install behave",
+          "number": 4,
+          "startedAt": "2026-09-22T13:20:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:13Z",
+          "conclusion": "success",
+          "name": "Run the specification-facing suite",
+          "number": 5,
+          "startedAt": "2026-09-22T13:20:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:13Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 10,
+          "startedAt": "2026-09-22T13:20:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:13Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 11,
+          "startedAt": "2026-09-22T13:20:13Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956/job/106762254257"
+    },
+    {
+      "completedAt": "2026-09-22T13:20:18Z",
+      "conclusion": "success",
+      "databaseId": 106762254530,
+      "name": "changes",
+      "startedAt": "2026-09-22T13:20:04Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T13:20:05Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T13:20:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:13Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T13:20:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:16Z",
+          "conclusion": "success",
+          "name": "Classify the change conservatively",
+          "number": 3,
+          "startedAt": "2026-09-22T13:20:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:16Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 6,
+          "startedAt": "2026-09-22T13:20:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:16Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 7,
+          "startedAt": "2026-09-22T13:20:16Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956/job/106762254530"
+    },
+    {
+      "completedAt": "2026-09-22T13:20:51Z",
+      "conclusion": "success",
+      "databaseId": 106762370296,
+      "name": "verilator-lint",
+      "startedAt": "2026-09-22T13:20:21Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T13:20:23Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T13:20:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:25Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T13:20:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:26Z",
+          "conclusion": "success",
+          "name": "Fetch RTL dependencies",
+          "number": 3,
+          "startedAt": "2026-09-22T13:20:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:27Z",
+          "conclusion": "success",
+          "name": "Cache the pinned Verilator build",
+          "number": 4,
+          "startedAt": "2026-09-22T13:20:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:27Z",
+          "conclusion": "skipped",
+          "name": "Build Verilator from source on cache miss",
+          "number": 5,
+          "startedAt": "2026-09-22T13:20:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:49Z",
+          "conclusion": "success",
+          "name": "Run the ratcheted whole-tree lint gate",
+          "number": 6,
+          "startedAt": "2026-09-22T13:20:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:49Z",
+          "conclusion": "success",
+          "name": "Prove protocol-processor source lists are derived",
+          "number": 7,
+          "startedAt": "2026-09-22T13:20:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:49Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned Verilator build",
+          "number": 13,
+          "startedAt": "2026-09-22T13:20:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:49Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 14,
+          "startedAt": "2026-09-22T13:20:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:49Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-09-22T13:20:49Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956/job/106762370296"
+    },
+    {
+      "completedAt": "2026-09-22T13:27:54Z",
+      "conclusion": "success",
+      "databaseId": 106762370597,
+      "name": "yosys-elaboration",
+      "startedAt": "2026-09-22T13:20:22Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T13:20:24Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T13:20:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:28Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-09-22T13:20:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:31Z",
+          "conclusion": "success",
+          "name": "Fetch RTL dependencies",
+          "number": 3,
+          "startedAt": "2026-09-22T13:20:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:33Z",
+          "conclusion": "success",
+          "name": "Cache the pinned Yosys build",
+          "number": 4,
+          "startedAt": "2026-09-22T13:20:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:33Z",
+          "conclusion": "skipped",
+          "name": "Build Yosys from source on cache miss",
+          "number": 5,
+          "startedAt": "2026-09-22T13:20:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:33Z",
+          "conclusion": "success",
+          "name": "Install the pinned Yosys and prove the version",
+          "number": 6,
+          "startedAt": "2026-09-22T13:20:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:20:33Z",
+          "conclusion": "success",
+          "name": "Install the pinned sv2v release",
+          "number": 7,
+          "startedAt": "2026-09-22T13:20:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:21:06Z",
+          "conclusion": "success",
+          "name": "Elaborate the integration-heavy tops",
+          "number": 8,
+          "startedAt": "2026-09-22T13:20:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:31Z",
+          "conclusion": "success",
+          "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+          "number": 9,
+          "startedAt": "2026-09-22T13:21:06Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:50Z",
+          "conclusion": "success",
+          "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+          "number": 10,
+          "startedAt": "2026-09-22T13:27:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:52Z",
+          "conclusion": "success",
+          "name": "Prove the result cache refuses a planted entry",
+          "number": 11,
+          "startedAt": "2026-09-22T13:27:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:52Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned Yosys build",
+          "number": 21,
+          "startedAt": "2026-09-22T13:27:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 22,
+          "startedAt": "2026-09-22T13:27:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-09-22T13:27:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956/job/106762370597"
+    },
+    {
+      "completedAt": "2026-09-22T13:28:00Z",
+      "conclusion": "success",
+      "databaseId": 106765161063,
+      "name": "rtl-fast",
+      "startedAt": "2026-09-22T13:27:57Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-09-22T13:27:58Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-09-22T13:27:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:58Z",
+          "conclusion": "success",
+          "name": "Require every applicable fast gate to pass",
+          "number": 2,
+          "startedAt": "2026-09-22T13:27:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-22T13:27:58Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 3,
+          "startedAt": "2026-09-22T13:27:58Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956/job/106765161063"
+    }
+  ],
+  "name": "rtl-fast",
+  "status": "completed",
+  "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35732768956"
+}
