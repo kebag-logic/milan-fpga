@@ -1,0 +1,53 @@
+W00 accept          MET     pristine hard-linked copy
+     --check rc=0
+W01 refuse          MET     new step removed (record kept)
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 44 steps, in the recorded order (found 43): an inserted step of ANY content runs before every later step and can set their inherited environm
+W02 refuse          MET     new step moved after the sweep shape gate
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 must be the step named `AEM store generator self-test` (found `Sweep/build shape gate`): the position is the contract -- the steps before this one decid
+W03 refuse          MET     new step renamed
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 must be the step named `AEM store generator self-test` (found `AEM store self-test`): the position is the contract -- the steps before this one decide w
+W04 refuse          MET     new step gains if: false
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `if` (found False): it decides whether or how the script runs
+W05 refuse          MET     new step gains continue-on-error: true
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `continue-on-error` (found True): it decides whether or how the script runs
+W06 refuse          MET     --self-test flag dropped (store would be regenerated instead)
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 avdecc/
+W07 refuse          MET     call swallowed with || true
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 avdecc/
+W08 refuse          MET     working-directory redirect
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: working-directory
+W09 refuse          MET     step env PYTHONPATH added
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: env
+W10 refuse          MET     step shell override
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `shell` (found 'bash {0}'): it decides whether or how the script runs
+W11 accept          MET     whitespace-only reformat to a block scalar
+     --check rc=0
+W12 refuse          MET     trailing '; true' appended on the same line
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 avdecc/
+W13 selftest-refuse MET     step AND record removed together (step-count arms still say 44)
+     --check rc=0 --selftest rc=1
+W14 refuse          MET     record removed, step kept
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 must be the step named `Sweep/build shape gate` (found `AEM store generator self-test`): the position is the contract -- the steps before this one decid
+W15 refuse          MET     step duplicated
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 44 steps, in the recorded order (found 45): an inserted step of ANY content runs before every later step and can set their inherited environm
+W16 refuse          MET     third-party action inserted before the step
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 44 steps, in the recorded order (found 45): an inserted step of ANY content runs before every later step and can set their inherited environm
+W17 refuse          MET     record's script altered (workflow unchanged)
+     --check rc=1
+     finding: FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test --x' (found 'python3 avd
+
+TALLY: MET=18 NOT-MET=0 INVALID=0 plants=18

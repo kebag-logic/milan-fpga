@@ -1,0 +1,29 @@
+=== gen_aem_store AUDIO_MAP bounds gate self-test ===
+  [ok  ] the deployed model still builds
+  [ok  ] the two-map fixture the vectors mutate builds
+  [ok  ] global cluster index where 7.2.19 wants a port-relative offset
+         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,8,0): cluster_offset 8 >= this port's number_of_clusters 8. 1722.1-2021 Table 7-33: mapping_cluster_of
+Traceback (most recent call last):
+  File "/tmp/r235-464/mut/M09/avdecc/gen_aem_store.py", line 449, in <module>
+    raise SystemExit(self_test())
+                     ^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M09/avdecc/gen_aem_store.py", line 423, in self_test
+    ok = _selftest_map_bounds()
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M09/avdecc/gen_aem_store.py", line 246, in _selftest_map_bounds
+    refuses("base_map naming an AUDIO_MAP the model does not define",
+  File "/tmp/r235-464/mut/M09/avdecc/gen_aem_store.py", line 212, in refuses
+    build_model(mutated(mutate))
+  File "/tmp/r235-464/mut/M09/avdecc/aem_assemble.py", line 583, in build_model
+    smap = static_map_tables(spec, base_of, len(si), len(so))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M09/avdecc/aem_maps.py", line 402, in static_map_tables
+    out_addr, out_rows, out_moff, out_dev = _direction_tables(outputs, maps,
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M09/avdecc/aem_maps.py", line 305, in _direction_tables
+    bm, rows = _static_map_of(p, tag, maps)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/mut/M09/avdecc/aem_maps.py", line 170, in _static_map_of
+    rows = maps[bm]
+           ~~~~^^^^
+IndexError: list index out of range

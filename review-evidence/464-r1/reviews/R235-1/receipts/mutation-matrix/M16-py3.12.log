@@ -1,0 +1,41 @@
+=== gen_aem_store AUDIO_MAP bounds gate self-test ===
+  [ok  ] the deployed model still builds
+  [ok  ] the two-map fixture the vectors mutate builds
+  [ok  ] global cluster index where 7.2.19 wants a port-relative offset
+         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,8,0): cluster_offset 8 >= this port's number_of_clusters 8. 1722.1-2021 Table 7-33: mapping_cluster_of
+  [ok  ] base_map naming an AUDIO_MAP the model does not define
+         -> STREAM_PORT_OUTPUT[0] base_map=7 names an AUDIO_MAP this model does not define (it defines 2: 0..1) - 7.2.13 base_map addresses a descriptor that must
+  [ok  ] number_of_maps != 1 on a static port (pages it cannot answer)
+         -> STREAM_PORT_OUTPUT[0] declares number_of_maps=2; the static GET_AUDIO_MAP path serves map_index 0 only, so any other count advertises pages the entity
+  [ok  ] cluster_channel past the cluster's channel_count (7.2.16)
+         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,0,1): cluster_channel 1 >= channel_count 1 of the AUDIO_CLUSTER at base_cluster+0 (7.2.16 Table 7-27 ch
+  [ok  ] stream_index past the descriptors this direction has (7.2.13)
+         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): stream_index 9 >= the 2 stream descriptors this direction has (7.2.13)
+  [ok  ] INPUT: two mappings onto the SAME cluster channel (7.2.19)
+         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,0,0): 1722.1-2021 7.2.19 for a STREAM_PORT_INPUT - "There is at most one entry for each mapping_cluster
+  [ok  ] a mapping onto the CRF sink, which carries no audio channels
+         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream 1 ('CRF in') advertises no audio format with channels (CRF carries a clock, not channels),
+  [ok  ] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "across the entire Configuration")
+         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,1,0): 1722.1-2021 7.2.19 for a STREAM_PORT_OUTPUT - "There is at most one entry for each mapping_strea
+  [ok  ] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 "there may be multiple entries for each mapping_cluster_offset")
+  [ok  ] more mappings in one AUDIO_MAP than Table 7-32 allows (62)
+         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] has 63 mappings; 1722.1-2021 Table 7-32: "The maximum value of this field is 62 for this version of AEM"
+  [FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:
+  STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  [ok  ] with an empty allowlist the deviation FAILS (the list is load-bearing)
+
+=== two-level directory gate self-test ===
+  [ok  ] a shuffled directory entry (contiguity)
+         -> descriptor type 0x0005 rows are not contiguous in the directory (row 4 re-opens a run closed at row 1) - the two-level accessor needs one run per type
+  [ok  ] same-type entries out of index order
+         -> type 0x0005 descriptor_index not zero-based ascending: row 3 carries index 1, expected 0
+  [ok  ] an off-by-one level-1 row base is refused
+         -> two-level directory diverges from the linear scan at type 0x0005 index 0: linear (1, 574, 154), two-level (1, 728, 146)
+  [ok  ] a mask bit on an unnamed type is refused
+         -> structural name lookup diverges from the NAMED table at type 0x000D index 0 name_index 0: table (0, 0), structural (1, 1563)
+
+=== Milan 6.4 Base format family (builtin model) ===
+  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)
+  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing
+
+gen_aem_store self-test: FAIL

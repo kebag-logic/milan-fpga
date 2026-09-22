@@ -1,0 +1,26 @@
+base builtin: ports_in [{'clusters': 8, 'base_cluster': 0, 'maps': 0, 'base_map': 0, 'map_mode': 'dynamic', 'map_page': 8}]
+base builtin: ports_out [{'clusters': 8, 'base_cluster': 8, 'maps': 1, 'base_map': 0}]
+base builtin: n audio_maps 1
+global_index                             VECTOR-APPLY IndexError: list assignment index out of range
+base_map=7                               REFUSED OWN-CAUSE: STREAM_PORT_OUTPUT[0] base_map=7 names an AUDIO_MAP this model does not define (it defines 1: 0..0) - 7.2.13 base_map ad
+maps=2                                   REFUSED OWN-CAUSE: STREAM_PORT_OUTPUT[0] declares number_of_maps=2; the static GET_AUDIO_MAP path serves map_index 0 only, so any other cou
+cluster_channel                          REFUSED OWN-CAUSE: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,0,0,1): cluster_channel 1 >= channel_count 1 of the AUDIO_CLUSTER at base_
+stream_index                             REFUSED OWN-CAUSE: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): stream_index 9 >= the 1 stream descriptors this direction has (7.2
+INPUT dup                                REFUSED OTHER-CAUSE: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,0,0,0): 1722.1-2021 7.2.19 for a STREAM_PORT_OUTPUT - "There is at most on
+CRF sink                                 REFUSED OTHER-CAUSE: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream_index 1 >= the 1 stream descriptors this direction has (7.2
+OUTPUT dup                               VECTOR-APPLY IndexError: list assignment index out of range
+OUTPUT same cluster_offset (accept)      VECTOR-APPLY IndexError: list assignment index out of range
+63 mappings                              REFUSED OWN-CAUSE: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] has 63 mappings; 1722.1-2021 Table 7-32: "The maximum value of this field is 62 for t
+deployed deviations: 6; recorded: 6; new(not recorded): 6; stale(recorded, absent): 6
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,2,2,0): stream_channel 2 >= 2, the widest ch
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,3,3,0): stream_channel 3 >= 2, the widest ch
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,4,4,0): stream_channel 4 >= 2, the widest ch
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,5,5,0): stream_channel 5 >= 2, the widest ch
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,6,6,0): stream_channel 6 >= 2, the widest ch
+  model: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,7,7,0): stream_channel 7 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,2,2,0): stream_channel 2 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,3,3,0): stream_channel 3 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,4,4,0): stream_channel 4 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,5,5,0): stream_channel 5 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,6,6,0): stream_channel 6 >= 2, the widest ch
+  recorded: STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,7,7,0): stream_channel 7 >= 2, the widest ch

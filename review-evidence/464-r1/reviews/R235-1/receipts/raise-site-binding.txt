@@ -1,0 +1,20 @@
+global cluster index   oracle=MATCH  raised aem_maps.py:190 in _map_row_bounds()  guard 189: if co >= port["clusters"]:
+base_map=7             oracle=MATCH  raised aem_maps.py:166 in _static_map_of()  guard 165: if not 0 <= bm < len(maps):
+maps=2                 oracle=MATCH  raised aem_maps.py:159 in _static_map_of()  guard 158: if port["maps"] != 1:
+cluster_channel        oracle=MATCH  raised aem_maps.py:199 in _map_row_bounds()  guard 198: if cc >= SMAP_CLUSTER_CHANNELS:
+stream_index           oracle=MATCH  raised aem_maps.py:205 in _map_row_bounds()  guard 204: if si >= side.n_streams:
+INPUT dup              oracle=MATCH  raised aem_maps.py:259 in _map_duplicate_rule()  guard 258: if (co, cc) in seen:
+CRF sink               oracle=MATCH  raised aem_maps.py:227 in _map_row_bounds()  guard 226: if not chans:
+OUTPUT dup             oracle=MATCH  raised aem_maps.py:273 in _map_duplicate_rule()  guard 272: if (si, sc) in cfg_stream_ch:
+63 mappings            oracle=MATCH  raised aem_maps.py:172 in _static_map_of()  guard 171: if len(rows) > SMAP_MAX_ROWS:
+
+ValueError raise sites scanned in avdecc/*.py: 34
+  cluster_offset ... >= this port's number_of_clusters       raise sites carrying it: 1 [('aem_maps.py', 190)]
+  base_map= ... names an AUDIO_MAP this model does not define raise sites carrying it: 1 [('aem_maps.py', 166)]
+  declares number_of_maps=                                   raise sites carrying it: 1 [('aem_maps.py', 159)]
+  cluster_channel ... >= channel_count                       raise sites carrying it: 1 [('aem_maps.py', 199)]
+  stream_index ... >= the ... stream descriptors             raise sites carrying it: 1 [('aem_maps.py', 205)]
+  for a STREAM_PORT_INPUT                                    raise sites carrying it: 1 [('aem_maps.py', 259)]
+  advertises no audio format with channels                   raise sites carrying it: 1 [('aem_maps.py', 227)]
+  for a STREAM_PORT_OUTPUT                                   raise sites carrying it: 1 [('aem_maps.py', 273)]
+  has ... mappings                                           raise sites carrying it: 1 [('aem_maps.py', 172)]

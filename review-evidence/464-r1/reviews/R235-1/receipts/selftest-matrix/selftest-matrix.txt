@@ -1,0 +1,18 @@
+head     py3.14.7   rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+head     py3.12.13  rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+head     py3.11.15  rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+base     py3.14.7   rc=1 ok=1 FAIL=0 | IndexError: list assignment index out of range
+base     py3.12.13  rc=1 ok=0 FAIL=0 | NameError: name 'Callable' is not defined. Did you mean: 'callable'?
+base     py3.11.15  rc=1 ok=0 FAIL=0 | NameError: name 'Callable' is not defined. Did you mean: 'callable'?
+src      py3.14.7   rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+src      py3.12.13  rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+src      py3.11.15  rc=0 ok=20 FAIL=0 | gen_aem_store self-test: PASS
+srcbase  py3.14.7   rc=1 ok=1 FAIL=0 | IndexError: list assignment index out of range
+srcbase  py3.12.13  rc=1 ok=0 FAIL=0 | NameError: name 'Callable' is not defined. Did you mean: 'callable'?
+srcbase  py3.11.15  rc=1 ok=0 FAIL=0 | NameError: name 'Callable' is not defined. Did you mean: 'callable'?
+b7d0     py3.14.7   rc=0 ok=19 FAIL=0 | gen_aem_store self-test: PASS
+b7d0     py3.12.13  rc=0 ok=19 FAIL=0 | gen_aem_store self-test: PASS
+b7d0     py3.11.15  rc=0 ok=19 FAIL=0 | gen_aem_store self-test: PASS
+da71     py3.14.7   rc=1 ok=1 FAIL=0 | IndexError: list assignment index out of range
+da71     py3.12.13  rc=1 ok=1 FAIL=0 | IndexError: list assignment index out of range
+da71     py3.11.15  rc=1 ok=1 FAIL=0 | IndexError: list assignment index out of range

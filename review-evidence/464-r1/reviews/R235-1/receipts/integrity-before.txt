@@ -1,0 +1,71 @@
+label: before
+head: a769d9dbc937fb324c4726e60dee5b2f7ad349e3
+tree: 31ddc6b5615ff91ceed7a6b52afca61c5fb9653d
+index-ls-files-s-sha256: 7c7d301f4e41038cd2d42061cefdf66f18badd0b85235239233ab207b0788a04
+index-entry-count: 855
+head-ls-tree-r-sha256: 80ea97fe58eca8137190b0baec375b0bcd297659b1d2f6145fae277875243718
+head-ls-tree-entry-count: 855
+index-vs-head-diff: 0 entries
+worktree-vs-index-diff: 0 entries
+untracked-count: 0
+ignored-count: 0
+gitlinks (mode 160000):
+  160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+  160000 c1b617435824929a790739ea8585c3fe1a328cc0 0	gptp-processor
+  160000 424c688fa2205b934a7689a58f2aa766420f2326 0	protocol-processor
+  160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule status:
+  -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+   c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+   424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+   48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+status --porcelain=v2 --ignored=no:
+  # branch.oid a769d9dbc937fb324c4726e60dee5b2f7ad349e3
+  # branch.head (detached)
+non-regular-mode entries in index (mode != 100644):
+  100755 06921fc42cbf57381eed3abe39dbf88bd8efef6b avdecc/milan_controller.py
+  100755 12cebb8890127e0f57349b4cefe0a2f6a708fb8c docs/history/v1/diagrams/perf_campaign_chart.py
+  160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  160000 c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor
+  160000 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor
+  100755 794794b12a43e37a551b732fb51b2890ebc93a2a scripts/act_ci.py
+  100755 18b6b56501dc536ba1ecdd0ab4d35c41303f99fb scripts/area_baseline.py
+  100755 cc9f0ffccf7ce89d7f03a02e7a84e74d40c76e06 scripts/baremetal_uart_smoke.py
+  100755 641432e7ef65a3eeb3841e1b55f9c795b36dc2c7 scripts/check_em_dash.py
+  100755 9da08386de180a2b74e7ed13412625b485562540 scripts/check_merge_containment.py
+  100755 48d58fdce59cf651cd8ccf9515925108c3671bda scripts/check_merge_review_integrity.py
+  100755 cb0437ac2786c633dc15a53540e947ab1c3b113b scripts/check_nvm_record_space.py
+  100755 3ae17a2303be110aba4696cd186f7d9ecaa8c08e scripts/check_results_fresh.py
+  100755 56a6e33d1ecea07829b7ec41de723ce7da3b5df1 scripts/check_soc_sources.py
+  100755 209b84d287d7742b0a92e85cad90d531b3d3ca9e scripts/check_sweep_shape.py
+  100755 a5b78c365d59d08e6ee96cd4a3490520333b4bfd scripts/check_tied_inputs.sh
+  100755 b6cc7689689a11d0354e1159486e635c0726cf3c scripts/ci_events.py
+  100755 e75164f2719fb2fd2d0ed45a2690f45d63eccd1f scripts/lint_rtl.py
+  100755 1d8d084c34da9e709ff4d503fc41cbecdd814a90 scripts/pp_srcs.py
+  100755 2a02c7f3c02ed2fa7e1ac68420126f30f1e1f3fe scripts/run_all_suites.sh
+  100755 21cdf933dd22d6824a4a46aa43d6331881ac8b14 scripts/run_litex_sims.sh
+  100755 56d93dbd1ffada4be44f51e98d38f8b2f87b45b5 scripts/verify_la_avdecc_counters.sh
+  100755 3730ed1a94fe29cc118c298777cb71497fb8dec3 scripts/xvlog_gate.py
+  100755 72c7201ff35c71c51dd3a0aec491cb4fe8bbac26 sw/firmware/nvm_hosttest/test_nvm_firmware.py
+  100755 462302d0d86954617b1b396d82c55d1ab794ddc1 sw/litex/build.sh
+  100755 9aef889b9399c9e9c5c082bb6348878249c685b6 sw/litex/deploy.sh
+  100755 c2fef6637bf273ef382276f0bc499d58127786f0 sw/litex/iob_pack_selftest.py
+  100755 7bbc7ce17813de47206af77f1cdaa910e5cb0729 sw/litex/patches/apply.sh
+  100755 f191c5098164dcf23d3409276e4ef7c5fade3008 sw/litex/sweep.sh
+  100755 66e473a6b397a3822b24605261c41011560c345c sw/litex/sweep_extra.sh
+  100755 520004314776f20974fd6d3e46f388cb0a7c0649 sw/litex/test_cpu_memory_port_cdc.py
+  100755 033a10f36c249f11ac874805f9d9f3c0978ab811 syn/ooc/ooc_tcl_selftest.py
+  100755 b9e28a7dc0bcebe2b5c51584b20000408bb1fb55 syn/yosys/bench/bench_selftest.py
+  100755 19f638b1215484b0d5c6b05849de52fc700c6355 syn/yosys/bench/yosys_bench.py
+  100755 3c32c4d3a45ffa6e4298aec84a624b0b9e861cf4 syn/yosys/cache_selftest.py
+  100755 392dfe82e43ba5d583170e9c721f364132e47cd2 syn/yosys/check_list_hermetic.sh
+  100755 963c8eb6b339aaabf17f5b83f32543bd983db94d syn/yosys/check_tap_purity.sh
+  100755 f2822ba07d852dbd55b4b9dfb97af6d76976b90a syn/yosys/ooc.sh
+  100755 b10b8229213d01681691267f687785570586160d syn/yosys/result_cache.py
+  100755 afa791331c918c6879ef24cb9b12aa3512cb464c syn/yosys/run.sh
+  100755 feedeb221782711aae170b668fa866d8a800f60f tb/tools/avdecc_ctl.py
+  100755 a37ce32932fc262786455305e718a1c9623e2936 tb/tools/check_tu_on_wire.sh
+  100755 63251fd1edbd11c21488aaae32b8dc12097f3d0b tb/tools/crf_vs_phc.py
+  100755 601c94f22012d3a66664f29564486ddfed15b7e2 tb/tools/hive_compliance.py
+  100755 366322bf1d34e839bd3c87d39b36e9867f6738e9 tb/tools/hive_compliance_clusters.py
+  160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis

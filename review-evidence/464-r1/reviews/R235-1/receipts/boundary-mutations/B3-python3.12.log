@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/r235-464/bmut/B3/avdecc/gen_aem_store.py", line 104, in <module>
+    from aem_assemble import (CHMAP_PHYS_DEPTH, NAMED, OVERLAYS, ROM_SIZE,
+  File "/tmp/r235-464/bmut/B3/avdecc/aem_assemble.py", line 636, in <module>
+    _M = build_model(builtin_spec())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B3/avdecc/aem_assemble.py", line 583, in build_model
+    smap = static_map_tables(spec, base_of, len(si), len(so))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B3/avdecc/aem_maps.py", line 402, in static_map_tables
+    out_addr, out_rows, out_moff, out_dev = _direction_tables(outputs, maps,
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B3/avdecc/aem_maps.py", line 310, in _direction_tables
+    deviation = _map_row_bounds(where, row, p, side)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/r235-464/bmut/B3/avdecc/aem_maps.py", line 205, in _map_row_bounds
+    raise ValueError(
+ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,0,0,0): stream_index 0 >= the 1 stream descriptors this direction has (7.2.13)

@@ -1,0 +1,5 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: env
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) env must be exactly empty; surplus: PYTHONPATH (a GH_HOST or GH_CONFIG_DIR redirects gh away from this repository)
+  FAIL .github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) `env` names ['PYTHONPATH'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']: a step-level `BASH_ENV` reaches that step's shell the same way
+ci_events: 3 finding(s) over 1513 contract item(s)

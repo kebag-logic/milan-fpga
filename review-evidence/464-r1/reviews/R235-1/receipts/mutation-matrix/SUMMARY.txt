@@ -1,0 +1,120 @@
+P00  control    MET            pristine minimal tree (harness control)
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+M01  caught     MET            Table 7-33 cluster_offset bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint
+M02  caught     MET            cluster_offset bound off-by-one loosened (>= -> >)
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for "cluster_offset 8 >= this port's number_of_clusters" - STR
+M03  caught     MET            7.2.16 cluster_channel bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint
+M04  caught     MET            7.2.13 stream_index bound removed
+     py3.14 rc=1 FAIL=0 crash=IndexError: list index out of range; py3.12 rc=1 FAIL=0 crash=IndexError: list index out of range
+M05  caught     MET            CRF no-channel refusal removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - max() iterable 
+M06  caught     MET            7.2.19 INPUT duplicate rule removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint
+M07  caught     MET            7.2.19 OUTPUT duplicate rule removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "across the entire Configuration"): built without complaint
+M08  caught     MET            7.2.13 number_of_maps bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint
+M09  caught     MET            7.2.13 base_map bound removed
+     py3.14 rc=1 FAIL=0 crash=IndexError: list index out of range; py3.12 rc=1 FAIL=0 crash=IndexError: list index out of range
+M10  caught     MET            Table 7-32 mapping-count bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint
+M11  caught     MET            Table 7-32 maximum loosened 62 -> 63
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint
+M12  caught     MET            INPUT duplicate rule applied to both directions
+     py3.14 rc=1 FAIL=2; py3.12 rc=1 FAIL=2
+     first FAIL: [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "across the entire Configuration"): built without complaint
+M13  caught     MET            OUTPUT duplicate rule applied to both directions
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] 
+M14  caught     MET            allowlist reverted to the stale AUDIO_MAP[1] index
+     py3.14 rc=1 FAIL=2; py3.12 rc=1 FAIL=2
+     first FAIL: [FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:
+M15  caught     MET            allowlist widened by one entry (range(1, 8))
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] recorded deviation(s) the deployed model does not carry:
+M16  caught     MET            allowlist narrowed by one entry (range(3, 8))
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:
+M17  caught     MET            assert_no_map_deviations neutered
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] the deviation allowlist is not asserting anything
+M18  caught     MET            stream_channel deviation no longer recorded
+     py3.14 rc=1 FAIL=2; py3.12 rc=1 FAIL=2
+     first FAIL: [FAIL] recorded deviation(s) the deployed model does not carry:
+M19  caught     MET            every port treated as dynamic (static gate bypassed)
+     py3.14 rc=1 FAIL=11; py3.12 rc=1 FAIL=11
+     first FAIL: [FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint
+M20  caught     MET            any static STREAM_PORT_INPUT map refused
+     py3.14 rc=1 FAIL=11; py3.12 rc=1 FAIL=11
+     first FAIL: [FAIL] the two-map fixture the vectors mutate builds: refused - STREAM_PORT_INPUT[0]: static input map refused
+D01  caught     MET            deployed model gains one new deviation (forward check only)
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:
+D02  caught     MET            deployed model loses one deviation (reverse check only)
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] recorded deviation(s) the deployed model does not carry:
+S01  caught     MET            fixture shared across vectors (first copy reused)
+     py3.14 rc=1 FAIL=4; py3.12 rc=1 FAIL=4
+     first FAIL: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] 
+S02  caught     MET            vectors mutate the deployed geometry instead of the fixture
+     py3.14 rc=1 FAIL=0 crash=IndexError: list assignment index out of range; py3.12 rc=1 FAIL=0 crash=IndexError: list assignment index out of range
+S03  control    MET            cause oracle removed (any ValueError accepted)
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+S04  control    MET            reverse exactness (stale) check removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+S05  control    MET            62-mapping vector reverted to the base geometry
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+S06  control    MET            fixture-acceptance arm removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+X1   undetected MET            S03 no oracle + M05 CRF refusal removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+X2   undetected MET            S04 no reverse check + M15 widened allowlist
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+X3   undetected MET            S03 no oracle + S05 base 62-vector + M10 count bound removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+X4   caught     MET            S05 base 62-vector (oracle kept) + M10 count bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping 
+X5   caught     MET            S03 no oracle (new 62-vector geometry) + M10 count bound removed
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint
+X6   undetected MET            S03 no oracle + M13 OUTPUT rule applied to both
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+X7   caught     MET            S06 fixture-acceptance arm removed + M20 static inputs refused
+     py3.14 rc=1 FAIL=10; py3.12 rc=1 FAIL=10
+     first FAIL: [FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for "cluster_offset 8 >= this port's number_of_clusters" - STR
+P01  observe    NOT-DETECTED   directory contiguity assertion removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+P02  observe    NOT-DETECTED   directory zero-based ascending assertion removed
+     py3.14 rc=0 FAIL=0; py3.12 rc=0 FAIL=0
+P03  caught     MET            two-level equivalence check neutered
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] an off-by-one level-1 row base was accepted
+P04  caught     MET            NAMED structural equivalence check neutered
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] a mask bit on the unnamed STRINGS type was accepted
+P05  caught     MET            whole two_level_directory layout assertions removed
+     py3.14 rc=1 FAIL=3; py3.12 rc=1 FAIL=3
+     first FAIL: [FAIL] a shuffled directory entry (contiguity): accepted without complaint
+P06  caught     MET            Base-family cover ignores the ut bit
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6] unadvertised - Milan 6.4 wants the whole family
+P07  caught     MET            FORMATS loses its ut entry
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6, 8] unadvertised - Milan 6.4 wants the whole family
+P08  caught     MET            Base-family cover always reports the whole family
+     py3.14 rc=1 FAIL=1; py3.12 rc=1 FAIL=1
+     first FAIL: [FAIL] the family check passes without the ut entry - it has stopped being able to say no
+
+TALLY: {"MET": 42, "NOT-DETECTED": 2}  mutants=44
