@@ -1,0 +1,1299 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index c8d45084..7e7968ab 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -205,6 +205,50 @@ flowchart LR
+    the release that added `git patch-id --verbatim`; an older Git is refused
+    by name before any verdict, and so is the script's self-test.
+ 
++   Ancestry and linear replay prove historical landing.
++   Later reversions do not revoke those existing proofs.
++   Linear retention policy belongs to Issue #514.
++
++   [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
++   adds one final fallback after every existing arm declines:
++
++   - **G1, exact shape:** exactly one source-only merge, two ordered parents.
++     The second parent's sole parent must be the first.
++     The merge tree must equal the second parent's tree.
++     Additional merges, distant parents, octopus and resolution work remain excluded.
++   - **H, historical replay:** every non-merge source commit needs a distinct replay.
++     Existing whitespace-exact patch identities and touched-path postimages must match.
++   - **T, current retention:** require exactly one merge base.
++     Examine raw entries on the source's net-changed paths, unfolding renames.
++     Identity requires matching mode, kind and object ID, including absence.
++     Otherwise, tip and source must both be regular blobs.
++     The ancestor must be absent or a regular blob.
++     Regular modes are `100644` and `100755`.
++     Tip mode must equal source mode.
++     Alternatively, source mode must equal ancestor mode.
++     Raw three-way merge must finish without conflicts.
++     Its output must equal tip bytes exactly.
++     Attributes, drivers, textconv and normalization provide no proof.
++     Symlinks, gitlinks and other types require exact tip/source identity.
++
++   G1/H rejection preserves the existing verdict.
++   Historical replay without T reports `UNKNOWN`, naming unproved current paths.
++   Measurement failures also remain `UNKNOWN`; neither result clears containment.
++   Exit codes remain 0/1/2, plus self-test cleanup status 3.
++   Actual gPTP processor PR62 and published adjacent extension remain unresolved.
++   This arm cannot prove arbitrary later semantic rewrites preserve work.
++   Repeated-block controls provide bounded evidence, without a general alignment proof.
++   The default self-test owns these controls and guard mutations.
++
++   Reproduce the decision's patch hashes from exact raw diffs:
++
++   ```bash
++   git diff --no-ext-diff --no-textconv --no-renames <parent> <commit>
++   ```
++
++   Hash those output bytes with SHA-256.
++   The decision records both original/replay pairs and their hashes.
++
+    It exits non-zero and names the count when commits are left behind. Replayed
+    against the two merge points in step 6 it reports **3** stranded commits for
+    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
+diff --git a/scripts/check_merge_containment.py b/scripts/check_merge_containment.py
+index 9da08386..62e8a328 100755
+--- a/scripts/check_merge_containment.py
++++ b/scripts/check_merge_containment.py
+@@ -41,19 +41,20 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
+    Anything this tool cannot measure is an UNKNOWN and fails, the same rule
+    ``scripts/suite_tally.py`` enforces on the sweep.
+ 
+-THE ONE CASE IT STILL GETS WRONG, AND IN WHICH DIRECTION
+---------------------------------------------------------
+-A branch squash-merged as **two or more** commits, whose paths were then edited
+-again on the base, reads ``STRANDED`` although nothing is missing: the squash
+-left no matching patch-id, and the later edit means the paths no longer agree,
+-so neither equivalence test can prove the work landed.
+-
+-That is a false **alarm**, not a false pass -- the direction that costs a
+-reader a minute rather than costing them a regression -- and the verdict names
+-the differing paths so it can be settled by looking.  It cannot be fixed by
+-comparing harder: once the base has moved on, "these changes were applied and
+-then superseded" and "these changes were never applied" are the same tree.
+-Deciding it needs the merge commit, which only the sweep has.
++HISTORICAL REPLAY AND CURRENT RETENTION
++---------------------------------------
++Ancestry and the existing linear patch arm certify historical landing. Later
++reversions do not revoke those proofs; changing that policy belongs to #514.
++The final fallback (#423) admits exactly one source-only two-parent merge:
++P2's only parent is P1, and the merge tree equals P2's tree. Every non-merge
++commit still needs a distinct whitespace-exact replay with matching postimages.
++It additionally requires current retention: exact raw entries, or a regular-
++blob three-way merge producing precisely the tip bytes under the mode rule in
++CONTRIBUTING.md. Overlap, later reversions and unmeasurable retention are
++UNKNOWN/nonzero, with unproved paths named. No semantic intent is inferred.
++Multiple merges, distant/reversed parents and resolution work stay excluded.
++A multi-commit squash followed by edits can still read STRANDED: the checker
++cannot prove all legitimate later rewrites. Neither refusal is a waiver.
+ 
+ WHY EXIT CODES AND BARE NUMBERS
+ -------------------------------
+@@ -68,6 +69,9 @@ import subprocess
+ import sys
+ from pathlib import Path
+ 
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++from merge_containment_replay import replay_verdict  # noqa: E402
++
+ USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
+ 
+ #! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run ·
+@@ -86,14 +90,14 @@ MINIMUM_GIT = "2.39.0"
+ 
+ 
+ def _git(*args):
+-    """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
++    """Return (rc, stdout) without normalizing newlines or undecodable bytes."""
+     #! Replacement objects rewrite the commit graph for every plumbing command.
+     #! A local refs/replace entry can otherwise make a stranded branch appear
+     #! to be an ancestor of the base.  Containment must measure stored commits,
+     #! not a caller-specific alternate history.
+     p = subprocess.run(("git", "--no-replace-objects") + args,
+-                       capture_output=True, text=True)
+-    return p.returncode, p.stdout.rstrip("\n")
++                       capture_output=True)
++    return p.returncode, p.stdout.decode("utf-8", "surrogateescape").rstrip("\n")
+ 
+ 
+ def verbatim_patch_id_error() -> str | None:
+@@ -152,9 +156,9 @@ def _verbatim_patch_id(commit):
+     if rc != 0:
+         return (None, f"git show could not read {commit}")
+     p = subprocess.run(("git", "--no-replace-objects", "patch-id",
+-                        "--verbatim"), input=patch, capture_output=True,
+-                       text=True)
+-    fields = p.stdout.strip().split()
++                        "--verbatim"), input=patch.encode("utf-8", "surrogateescape"),
++                       capture_output=True)
++    fields = p.stdout.decode("ascii").strip().split()
+     if p.returncode != 0 or len(fields) != 2:
+         return (None, f"git patch-id could not measure {commit}")
+     return (fields[0], None)
+@@ -520,10 +524,9 @@ def contained(branch: str,
+               base: str) -> tuple[bool | None, int | None, str | None]:
+     """(is_contained, commits_ahead, note_or_error).
+ 
+-    ``is_contained`` is True when ``base`` already has this branch's work --
+-    either because every commit is an ancestor, or because the content landed
+-    by another route (squash, rebase).  None means the question could not be
+-    answered, which is a finding, never a pass.
++    True means an existing landing proof or the bounded retained replay.
++    None includes historical replay with unproved current retention, and
++    measurement failure. Neither is a pass.
+     """
+     graft_error = active_graft_error()
+     if graft_error:
+@@ -568,14 +571,11 @@ def contained(branch: str,
+     if verdict is not None:
+         return verdict
+ 
+-    #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
+-    #! this is real, and there is one case that reads STRANDED without being
+-    #! so: a multi-commit squash whose paths were later edited on base. No
+-    #! patch-id matches (the squash collapsed them) and the paths no longer
+-    #! agree (the later edit), so neither arm above can prove it landed. That
+-    #! is a false ALARM rather than a false pass -- the safe direction -- and
+-    #! naming the paths is what lets a reader settle it in one look instead of
+-    #! learning to ignore the check.
++    verdict = replay_verdict(branch, base, ahead, _git, _linear_patches_contained)
++    if verdict is not None:
++        return verdict
++
++    #! Name differing paths when no arm can prove landing or retention.
+     differing = []
+     if have_merge_base:
+         differing, enumeration_error = _differing_paths(branch, base)
+@@ -911,8 +911,8 @@ def _report(targets, base):
+         print("  step 7.")
+     if unknown:
+         print()
+-        print(f"{unknown} ref(s) could not be resolved, so the question was")
+-        print("  not answered. An unknown is not a pass.")
++        print(f"{unknown} tip(s) lack a containment proof; see UNKNOWN above.")
++        print("  Unresolved history or current retention is not a pass.")
+     return RC_FINDING if (stranded or unknown) else RC_OK
+ 
+ 
+diff --git a/scripts/merge_containment_replay.py b/scripts/merge_containment_replay.py
+new file mode 100644
+index 00000000..d9c77a29
+--- /dev/null
++++ b/scripts/merge_containment_replay.py
+@@ -0,0 +1,158 @@
++"""The final, bounded redundant-merge replay proof (#423).
++
++G1 admits one content-free merge with a direct, ordered parent relation.
++H is supplied by the checker's existing distinct whitespace-exact replay
++helper. T measures raw current entries, then a conflict-free no-op re-merge.
++This is a byte-level criterion, not a judgment about later edits' intent.
++"""
++
++import subprocess
++import tempfile
++from collections.abc import Callable
++from pathlib import Path
++
++Git = Callable[..., tuple[int, str]]
++Replay = Callable[[str, str], tuple[bool | None, str | None]]
++REGULAR_MODES = ("100644", "100755")
++
++
++class _MeasurementError(Exception):
++    """A measurement failed; it cannot supply containment evidence."""
++
++
++def _measure(git, *args):
++    rc, output = git(*args)
++    if rc != 0:
++        raise _MeasurementError(f"git {args[0]} failed (exit {rc})")
++    return output
++
++
++def _git_bytes(*args):
++    result = subprocess.run(("git", "--no-replace-objects", *args),
++                            capture_output=True)
++    return result.returncode, result.stdout
++
++
++def _redundant_merge_shape(branch, base, git):
++    """G1: one merge; P2's sole parent is P1; tree(M) equals tree(P2)."""
++    rows = _measure(git, "rev-list", "--min-parents=2", "--parents",
++                    f"{base}..{branch}").splitlines()
++    if len(rows) != 1:
++        return False
++    fields = rows[0].split()
++    if len(fields) != 3:
++        return False
++    merge, first, second = fields
++    parents = _measure(git, "rev-list", "--parents", "--max-count=1",
++                       second).split()
++    if not parents or parents[0] != second:
++        raise _MeasurementError(f"could not read parents of {second}")
++    if parents[1:] != [first]:
++        return False
++    merge_tree = _measure(git, "rev-parse", "--verify", merge + "^{tree}")
++    second_tree = _measure(git, "rev-parse", "--verify", second + "^{tree}")
++    if not merge_tree or not second_tree:
++        raise _MeasurementError(f"could not read trees of {merge}")
++    return merge_tree == second_tree
++
++
++def _tree_entry(commit, path):
++    """Read one literal entry; only empty successful output means absence."""
++    raw = _measure(_git_bytes, "--literal-pathspecs", "ls-tree", "-z",
++                   "--full-tree", commit, "--", path)
++    if not raw:
++        return None
++    try:
++        record, terminator = raw.split(b"\0")
++        metadata, name = record.split(b"\t", 1)
++        mode, kind, oid = metadata.decode("ascii").split()
++    except (ValueError, UnicodeError) as exc:
++        raise _MeasurementError("invalid ls-tree entry") from exc
++    if (terminator or name != path.encode("utf-8", "surrogateescape")
++            or len(oid) not in (40, 64)
++            or any(char not in "0123456789abcdef" for char in oid)):
++        raise _MeasurementError("invalid ls-tree path or object ID")
++    return mode, kind, oid
++
++
++def _merge_is_noop(original, tip, branch):
++    """Merge raw bytes with no drivers/normalization; compare exact output."""
++    blobs = [b"" if entry is None else
++             _measure(_git_bytes, "cat-file", "blob", entry[2])
++             for entry in (tip, original, branch)]
++    with tempfile.TemporaryDirectory(prefix="containment-merge-") as directory:
++        paths = [Path(directory) / name for name in ("tip", "base", "branch")]
++        for path, data in zip(paths, blobs):
++            path.write_bytes(data)
++        #! merge-file reads blobs, not attributes or merge drivers. Force its
++        #! conflict style so caller configuration cannot change that option.
++        #! Invalid configuration can still make Git refuse the measurement.
++        rc, merged = _git_bytes("-c", "merge.conflictStyle=merge", "merge-file",
++                                "-p", "-q", *map(str, paths))
++    if rc < 0 or rc > 127:
++        raise _MeasurementError(f"raw merge-file failed (exit {rc})")
++    return rc == 0 and merged == blobs[0]
++
++
++def _entry_retained(original, tip, branch):
++    """Identity includes absence; merging permits only regular blob entries."""
++    if tip == branch:
++        return True
++    if tip is None or branch is None:
++        return False
++    if not all(entry is None or (entry[0] in REGULAR_MODES
++                                and entry[1] == "blob")
++               for entry in (original, tip, branch)):
++        return False
++    if not (tip[0] == branch[0]
++            or (original is not None and original[0] == branch[0])):
++        return False
++    return _merge_is_noop(original, tip, branch)
++
++
++def _retained_at_tip(branch, base, git):
++    """T: return every unproved path, with measurement errors attributed."""
++    bases = _measure(git, "merge-base", "--all", base, branch).split()
++    if len(bases) != 1:
++        raise _MeasurementError("retention needs exactly one merge base")
++    ancestor = bases[0]
++    raw = _measure(_git_bytes, "diff", "--no-ext-diff", "--no-textconv",
++                   "--ignore-submodules=none", "--name-only", "--no-renames",
++                   "-z", ancestor, branch)
++    if not raw or not raw.endswith(b"\0"):
++        raise _MeasurementError("retention has no measurable changed-path set")
++    unproved = []
++    for name in raw[:-1].split(b"\0"):
++        path = name.decode("utf-8", "surrogateescape")
++        try:
++            entries = [_tree_entry(commit, path)
++                       for commit in (ancestor, base, branch)]
++            if not _entry_retained(*entries):
++                unproved.append(repr(path))
++        except (_MeasurementError, OSError) as exc:
++            unproved.append(f"{path!r} ({exc})")
++    return unproved
++
++
++def replay_verdict(branch: str, base: str, ahead: int, git: Git,
++                   replay: Replay) -> tuple[bool | None, int | None, str] | None:
++    """G1 + H + T, called only after the pre-existing arms decline."""
++    historical = False
++    try:
++        if not _redundant_merge_shape(branch, base, git):
++            return None
++        historical, error = replay(branch, base)
++        if historical is None:
++            raise _MeasurementError(error)
++        if not historical:
++            return None
++        unproved = _retained_at_tip(branch, base, git)
++    except (_MeasurementError, OSError) as exc:
++        context = "historical replay proved; " if historical else ""
++        return (None, None, f"{context}redundant-merge proof unmeasurable: {exc}")
++    if unproved:
++        return (None, None, f"historical whitespace-exact replay in {base}; "
++                "current retention unproved on: " + ", ".join(unproved))
++    return (True, ahead, f"historical whitespace-exact replay across one "
++            f"redundant merge; raw no-op retention at {base} "
++            f"({ahead} not ancestors)")
+diff --git a/scripts/merge_containment_selftest.py b/scripts/merge_containment_selftest.py
+index 4db83748..738704f3 100644
+--- a/scripts/merge_containment_selftest.py
++++ b/scripts/merge_containment_selftest.py
+@@ -103,6 +103,8 @@ def _fixture_cases(fx):
+     #! Imported here, not at the top: the content half imports `_write` back
+     #! out of this module, and no case ever runs outside this call.
+     from merge_containment_selftest_content import content_cases
++    from merge_containment_selftest_replay import replay_cases
++    from merge_containment_selftest_retention import retention_cases
+ 
+     with scratch(fx.leftovers) as td:
+         cwd = os.getcwd()
+@@ -129,6 +131,8 @@ def _fixture_cases(fx):
+                 _deleted_origin_cases(fx)
+             fx.remote = None
+             content_cases(fx)
++            replay_cases(fx)
++            retention_cases(fx)
+         finally:
+             os.chdir(cwd)
+ 
+diff --git a/scripts/merge_containment_selftest_mutations.py b/scripts/merge_containment_selftest_mutations.py
+new file mode 100644
+index 00000000..39e82811
+--- /dev/null
++++ b/scripts/merge_containment_selftest_mutations.py
+@@ -0,0 +1,66 @@
++"""Kill the ten public #423 guard mutations against production sources.
++
++Each replica changes only the named guard, then runs the real CLI in the
++current fixture repository. Both its exit and its verdict word are asserted;
++the tree guard's STRANDED-to-UNKNOWN change intentionally keeps exit 1.
++"""
++
++import subprocess
++import sys
++from pathlib import Path
++
++from merge_containment_selftest_scratch import scratch
++
++
++# (name, exact source edits, public fixture numbers and mutated expectations)
++MUTATIONS = (
++    ("merge-count", (("if len(rows) != 1:", "if not rows:"),),
++     {3: (0, "contained")}),
++    ("parent-count", (("if len(fields) != 3:", "if len(fields) < 3:"),
++                      ("merge, first, second = fields", "merge, first, second = fields[:3]")),
++     {25: (0, "contained")}),
++    ("direct-parent", (("if parents[1:] != [first]:", "if False:"),),
++     {28: (0, "contained")}),
++    ("merge-tree", (("return merge_tree == second_tree", "return True"),),
++     {21: (1, "UNKNOWN"), 22: (0, "contained")}),
++    ("historical-proof", (("historical, error = replay(branch, base)", "historical, error = True, None"),),
++     {index: (1, "UNKNOWN") for index in range(17, 21)}),
++    ("retention-proof", (("unproved = _retained_at_tip(branch, base, git)", "unproved = []"),),
++     {index: (0, "contained") for index in range(6, 17)}),
++    ("exact-only", (("return _merge_is_noop(original, tip, branch)", "return False"),),
++     {1: (1, "UNKNOWN"), 2: (1, "UNKNOWN")}),
++    ("mode-rule", (("if not (tip[0] == branch[0]\n"
++                    "            or (original is not None and original[0] == branch[0])):",
++                    "if False:"),),
++     {10: (0, "contained")}),
++    ("tip-byte-equality", (("return rc == 0 and merged == blobs[0]", "return rc == 0"),),
++     {14: (0, "contained")}),
++    ("merge-error", (("raise _MeasurementError(f\"raw merge-file failed (exit {rc})\")", "return True"),),
++     {11: (0, "contained")}),
++)
++
++
++def mutation_cases(fx: object, index: int) -> None:
++    """Run each applicable weakened replica against this public fixture."""
++    source_dir = Path(__file__).resolve().parent
++    checker = (source_dir / "check_merge_containment.py").read_text()
++    original = (source_dir / "merge_containment_replay.py").read_text()
++    for name, edits, cases in MUTATIONS:
++        if index not in cases:
++            continue
++        mutated = original
++        for before, after in edits:
++            if mutated.count(before) != 1:
++                raise RuntimeError(f"mutation {name}: guard no longer has one source location")
++            mutated = mutated.replace(before, after)
++        with scratch(fx.leftovers) as directory:
++            target = Path(directory)
++            (target / "checker.py").write_text(checker)
++            (target / "merge_containment_replay.py").write_text(mutated)
++            result = subprocess.run((sys.executable, "-B", "-I", str(target / "checker.py"),
++                                     "--no-fetch", "--base", "main", "pr"),
++                                    capture_output=True, text=True)
++        lines = [line.split() for line in result.stdout.splitlines() if line.strip()]
++        actual = (result.returncode, lines[0][0] if lines else result.stderr.strip())
++        fx.case(f"mutation-{name}-{index:02d}", actual, cases[index],
++                "weakened production guard changes the verdict, including its words")
+diff --git a/scripts/merge_containment_selftest_replay.py b/scripts/merge_containment_selftest_replay.py
+new file mode 100644
+index 00000000..79b62201
+--- /dev/null
++++ b/scripts/merge_containment_selftest_replay.py
+@@ -0,0 +1,592 @@
++"""Real-Git replay histories from the public #423 R242 matrix.
++
++The 31 expectations are the settled decision's outcomes, including its
++conservative refusals and the unchanged linear historical policy. Builders
++adapt the published factual fixtures; they do not implement the predicate.
++Run through check_merge_containment.py --selftest (the existing owner).
++"""
++
++import os
++import subprocess
++from pathlib import Path
++
++from merge_containment_selftest_scratch import scratch
++from merge_containment_selftest_mutations import mutation_cases
++
++MOD = "".join(f"line {i:02d}\n" for i in range(1, 41))
++
++ADDED = ('def stage(work, tag, mutate=None):\n    """Stage one suite."""\n'
++         '    return work / tag\n\n\n'
++         'def build(suite):\n    """Build one suite."""\n    return suite\n\n\n'
++         'def main():\n    return 0\n')
++
++
++class _History:
++    """Deterministic fixture Git with checked commands and isolated config."""
++
++    def __init__(self):
++        self.tick = 1790000000
++
++    def _git(self, *args):
++        self.tick += 60
++        env = dict(os.environ, GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
++                   GIT_AUTHOR_NAME="Fixture", GIT_AUTHOR_EMAIL="fixture@example.invalid",
++                   GIT_COMMITTER_NAME="Fixture", GIT_COMMITTER_EMAIL="fixture@example.invalid",
++                   GIT_AUTHOR_DATE=f"@{self.tick} +0000", GIT_COMMITTER_DATE=f"@{self.tick} +0000",
++                   LC_ALL="C")
++        result = subprocess.run(("git", "-c", "commit.gpgsign=false", "-c",
++                                 "core.autocrlf=false", *args), env=env,
++                                capture_output=True, text=True, errors="surrogateescape")
++        if result.returncode != 0:
++            raise RuntimeError(f"fixture git {args}: {result.stderr}")
++        return result.stdout.strip()
++
++    def _write(self, path, text, mode=None):
++        dest = Path(path)
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        dest.write_bytes(text if isinstance(text, bytes) else text.encode())
++        if mode is not None:
++            dest.chmod(mode)
++
++    def _read(self, path):
++        return Path(path).read_text()
++
++    def _commit(self, message):
++        self._git("add", "-A")
++        self._git("commit", "-q", "-m", message)
++        return self._git("rev-parse", "HEAD")
++
++    def _replace_line(self, path, old, new):
++        text = self._read(path)
++        if old not in text:
++            raise RuntimeError(f"fixture missing text in {path}")
++        self._write(path, text.replace(old, new, 1))
++
++    def _seed(self):
++        """O, the PR61-like incoming commit A, redundant merge M, PR62-like C."""
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        self._write('added.py', ADDED)
++        a = self._commit('A original (PR61-like)')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'M redundant merge of incoming', 'incoming')
++        m = self._git('rev-parse', 'HEAD')
++        self._replace_line('added.py', '    return work / tag\n', '    return work / f"suite_{tag}"\n')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C original (PR62-like)')
++        return dict(O=o, A=a, M=m, C=c)
++
++    def _replay(self, ids, with_c=True, c_mutator=None):
++        """Target history: A', redundant M', C' on a side branch, merge M2'."""
++        self._git('checkout', '-q', 'main')
++        self._git('checkout', '-q', '-b', 'replay-a', ids['O'])
++        self._git('cherry-pick', ids['A'])
++        self._git('commit', '-q', '--amend', '-m', "A' replay")
++        self._git('checkout', '-q', 'main')
++        self._git('merge', '-q', '--no-ff', '-m', "M' replayed redundant merge", 'replay-a')
++        if not with_c:
++            return
++        self._git('checkout', '-q', '-b', 'replay-c', 'main')
++        if c_mutator is None:
++            self._git('cherry-pick', ids['C'])
++            self._git('commit', '-q', '--amend', '-m', "C' replay")
++        else:
++            c_mutator()
++            self._commit("C' altered replay")
++        self._git('checkout', '-q', 'main')
++        self._git('merge', '-q', '--no-ff', '-m', "M2' replayed PR merge", 'replay-c')
++
++    def _later(self, msg, fn):
++        self._git('checkout', '-q', 'main')
++        fn()
++        return self._commit(msg)
++
++    def _far_extension(self):
++        self._replace_line('mod.txt', 'line 35\n', 'line 35 later extension\n')
++
++    def _s_positive(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L far extension of a touched file', self._far_extension)
++
++    def _s_positive_two_later(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L far extension', self._far_extension)
++        self._later('L2 unrelated new file', lambda: self._write('new.txt', 'new\n'))
++
++    def _s_pr62_faithful(self):
++        ids = self._seed()
++        self._replay(ids)
++
++        def rewrite() -> None:
++            """Change the branch-added signature after its exact replay."""
++            self._replace_line('added.py',
++                               'def stage(work, tag, mutate=None):\n',
++                               'def stage(work: Path, tag: str, mutate=None) -> Path:\n')
++            self._far_extension()
++        self._later('L annotate a PR-introduced line (0ac3e2c-like) + far edit', rewrite)
++
++    def _s_adjacent_extension(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L extension adjacent to the replayed hunk',
++                    lambda: self._replace_line('mod.txt', 'line 05 changed by A\n',
++                                               'line 05 changed by A\nline 05b later extension\n'))
++
++    def _s_no_later(self):
++        ids = self._seed()
++        self._replay(ids)
++
++    def __revert_c(self):
++        self._git('checkout', '-q', 'main')
++        self._git('revert', '--no-edit', 'main^2')
++
++    def _s_revert_all(self):
++        ids = self._seed()
++        self._replay(ids)
++        self.__revert_c()
++        self._git('revert', '--no-edit', self._git('rev-parse', 'main~2^2'))
++
++    def _s_revert_c(self):
++        ids = self._seed()
++        self._replay(ids)
++        self.__revert_c()
++
++    def _s_revert_partial_hunk(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L restore only the A hunk of mod.txt',
++                    lambda: self._replace_line('mod.txt', 'line 05 changed by A\n', 'line 05\n'))
++
++    def _s_revert_plus_extension(self):
++        ids = self._seed()
++        self._replay(ids)
++        self.__revert_c()
++        self._later('L far extension after revert', self._far_extension)
++
++    def _s_revert_then_reapply(self):
++        ids = self._seed()
++        self._replay(ids)
++        self.__revert_c()
++        self._git('revert', '--no-edit', 'HEAD')
++
++    def _s_omit_linear(self):
++        ids = self._seed()
++        self._replay(ids, with_c=False)
++        self._later('L far extension', self._far_extension)
++
++    def _s_omit_partial(self):
++        ids = self._seed()
++
++        def only_added() -> None:
++            """Replay only the added-file part of C."""
++            self._replace_line('added.py', '    return work / tag\n', '    return work / f"suite_{tag}"\n')
++        self._replay(ids, c_mutator=only_added)
++        self._later('L far extension', self._far_extension)
++
++    def _s_whitespace(self):
++        ids = self._seed()
++
++        def spaced() -> None:
++            """Replay C with deliberately different whitespace."""
++            self._replace_line('added.py', '    return work / tag\n', '    return work /  f"suite_{tag}"\n')
++            self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        self._replay(ids, c_mutator=spaced)
++        self._later('L far extension', self._far_extension)
++
++    def __seed_resolution(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        self._write('added.py', ADDED)
++        a = self._commit('A original')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '--no-commit', 'incoming')
++        self._write('resolution.txt', 'resolution work only in the merge\n')
++        self._git('add', '-A')
++        self._git('commit', '-q', '-m', 'M merge WITH resolution work')
++        m = self._git('rev-parse', 'HEAD')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C original')
++        return dict(O=o, A=a, M=m, C=c)
++
++    def _s_resolution_missing(self):
++        ids = self.__seed_resolution()
++        self._replay(ids)
++        self._later('L far extension', self._far_extension)
++
++    def _s_resolution_present(self):
++        ids = self.__seed_resolution()
++        self._replay(ids)
++        self._later('L resolution content landed separately',
++                    lambda: self._write('resolution.txt', 'resolution work only in the merge\n'))
++        self._later('L far extension', self._far_extension)
++
++    def _s_octopus(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'in1')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        self._git('checkout', '-q', '-b', 'in2', o)
++        self._write('added.py', ADDED)
++        a2 = self._commit('A2')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'octopus', 'in1', 'in2')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        for x in (a, a2, c):
++            self._git('cherry-pick', x)
++        self._later('L far extension', self._far_extension)
++
++    def _s_octopus_absorbed(self):
++        """Octopus whose tree equals its second parent: only the count refuses."""
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        self._write('keep.txt', 'keep A\n')
++        a = self._commit('A')
++        self._git('checkout', '-q', '-b', 'side', o)
++        self._write('keep.txt', 'keep A\n')
++        x = self._commit('X (its change is also inside A)')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'octopus absorbing X', 'incoming', 'side')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', '-b', 'replay-x', o)
++        self._git('cherry-pick', x)
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('merge', '-q', '--no-ff', '-m', 'merge X replay', 'replay-x')
++        self._git('cherry-pick', c)
++        self._later('L far extension', self._far_extension)
++
++    def _s_disabling_rewrite(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L rewrite a PR-introduced line to disable it',
++                    lambda: self._replace_line('added.py',
++                                               'def main():\n    return 0\n',
++                                               "def main():\n    raise SystemExit('disabled')\n"))
++
++    def _s_unrelated_parent(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '--orphan', 'unrelated')
++        self._git('rm', '-q', '-rf', '.')
++        self._write('u.txt', 'unrelated history\n')
++        u = self._commit('U unrelated root')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '--allow-unrelated-histories', '-m', 'merge unrelated root', 'unrelated')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._write('u.txt', 'unrelated history\n')
++        self._commit('u.txt landed linearly')
++        self._git('cherry-pick', c)
++        self._later('L far extension', self._far_extension)
++
++    def __seed_multi(self, redundant_second=True):
++        ids = self._seed()
++        self._git('checkout', '-q', '-b', 'side2', ids['C'])
++        self._replace_line('mod.txt', 'line 30\n', 'line 30 changed by D\n')
++        d = self._commit('D')
++        self._git('checkout', '-q', 'pr')
++        if not redundant_second:
++            self._git('checkout', '-q', '-b', 'side3', ids['M'])
++            self._write('x.txt', 'x\n')
++            self._commit('X diverging from M')
++            self._git('checkout', '-q', 'pr')
++            self._git('merge', '-q', '--no-ff', '-m', 'M2 non-redundant', 'side3')
++        else:
++            self._git('merge', '-q', '--no-ff', '-m', 'M2 second redundant merge', 'side2')
++        self._replace_line('added.py', 'def main():\n    return 0\n', 'def main():\n    return 1\n')
++        e = self._commit('E')
++        return (ids, d, e)
++
++    def _s_multi_redundant(self):
++        ids, d, e = self.__seed_multi()
++        self._replay(ids)
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', d)
++        self._git('cherry-pick', e)
++        self._later('L far extension', self._far_extension)
++
++    def _s_mixed_merges(self):
++        ids, d, e = self.__seed_multi(redundant_second=False)
++        self._replay(ids)
++        self._git('checkout', '-q', 'main')
++        self._write('x.txt', 'x\n')
++        self._commit('X landed')
++        self._git('cherry-pick', e)
++        self._later('L far extension', self._far_extension)
++
++    def _s_distance_two(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A1\n')
++        a1 = self._commit('A1')
++        self._write('added.py', ADDED)
++        a2 = self._commit('A2')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'M of a two-commit branch', 'incoming')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        for x in (a1, a2, c):
++            self._git('cherry-pick', x)
++        self._later('L far extension', self._far_extension)
++
++    def _s_evil_byte(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '--no-commit', 'incoming')
++        self._replace_line('mod.txt', 'line 10\n', 'line 10 \n')
++        self._git('add', '-A')
++        self._git('commit', '-q', '-m', 'M with a one-byte evil change')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('cherry-pick', c)
++        self._later('L far extension', self._far_extension)
++
++    def _s_reversed_parents(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._replace_line('mod.txt', 'line 03\n', 'line 03 base\n')
++        o2 = self._commit('O2')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        tree = self._git('rev-parse', a + '^{tree}')
++        m = self._git('commit-tree', tree, '-p', a, '-p', o2, '-m', 'M: incoming first, its parent second')
++        self._git('checkout', '-q', '-b', 'pr', m)
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('cherry-pick', c)
++        self._later('L far extension', self._far_extension)
++
++    def _s_linear_revert_control(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'pr')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('cherry-pick', c)
++        self._git('revert', '--no-edit', 'HEAD')
++        self._git('revert', '--no-edit', 'HEAD~2')
++
++    def _s_linear_extension_control(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'pr')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._later('L adjacent extension',
++                    lambda: self._replace_line('mod.txt', 'line 05 changed by A\n', 'line 05 changed by A\nline 05b\n'))
++
++    def _s_mode_loss(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._write('tool.sh', '#!/bin/sh\necho tool\n', 493)
++        a = self._commit('A adds an executable')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'M redundant', 'incoming')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('cherry-pick', c)
++        self._later('L drops the executable bit', lambda: os.chmod('tool.sh', 420))
++
++    def _s_binary_later_edit(self):
++        self._git('init', '-q', '-b', 'main')
++        self._write('mod.txt', MOD)
++        self._write('keep.txt', 'keep\n')
++        self._write('data.bin', b'\x00\x01head\x00' + b'\x00' * 64 + b'tail\x00\n')
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._write('data.bin', b'\x00\x01HEAD\x00' + b'\x00' * 64 + b'tail\x00\n')
++        a = self._commit('A edits a binary')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'M redundant', 'incoming')
++        self._replace_line('mod.txt', 'line 20\n', 'line 20 changed by C\n')
++        c = self._commit('C')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        self._git('cherry-pick', c)
++        self._later('L edits the binary elsewhere',
++                    lambda: self._write('data.bin', b'\x00\x01HEAD\x00' + b'\x00' * 64 + b'TAIL\x00\n'))
++
++    def _s_delete_later(self):
++        ids = self._seed()
++        self._replay(ids)
++        self._later('L deletes a touched file', lambda: os.remove('mod.txt'))
++
++    def _s_hostile_config(self):
++        ids = self._seed()
++        self._replay(ids)
++        self.__revert_c()
++        self._git('revert', '--no-edit', self._git('rev-parse', 'main~2^2'))
++        self._later("L attributes asking for an 'ours' merge driver",
++                    lambda: self._write('.gitattributes', '* merge=ours diff=quiet\n'))
++        self._git('config', 'merge.ours.driver', 'true')
++        self._git('config', 'merge.ours.name', 'always keep ours')
++        self._git('config', 'diff.quiet.textconv', 'true')
++
++    def _s_repeated_block(self):
++        self._git('init', '-q', '-b', 'main')
++        block = 'a\nb\nc\nold\nd\ne\nf\n'
++        sep = ''.join((f'separator-{i}\n' for i in range(10)))
++        self._write('rep.txt', block + sep + block)
++        self._write('mod.txt', MOD)
++        o = self._commit('O base')
++        self._git('checkout', '-q', '-b', 'incoming')
++        self._replace_line('mod.txt', 'line 05\n', 'line 05 changed by A\n')
++        a = self._commit('A')
++        self._git('checkout', '-q', '-b', 'pr', o)
++        self._git('merge', '-q', '--no-ff', '-m', 'M redundant', 'incoming')
++        self._write('rep.txt', (block + sep + block).replace('old', 'new', 1))
++        c = self._commit('C edits the FIRST block')
++        self._git('checkout', '-q', 'main')
++        self._git('cherry-pick', a)
++        before, after = self._read('rep.txt').rsplit('old', 1)
++        self._write('rep.txt', before + 'new' + after)
++        self._commit("C' edits the SECOND block (same verbatim patch-id)")
++        self._later('L far extension', self._far_extension)
++
++
++SCENARIOS = (
++    ('positive-replay-far-extension', "_s_positive",
++     (0, 'contained')),
++    ('positive-replay-two-later-commits', "_s_positive_two_later",
++     (0, 'contained')),
++    ('two-redundant-merges', "_s_multi_redundant",
++     (1, 'STRANDED')),
++    ('control-replay-no-later-edit', "_s_no_later",
++     (0, 'contained')),
++    ('control-revert-then-reapply', "_s_revert_then_reapply",
++     (0, 'contained')),
++    ('pr62-faithful-later-rewrite', "_s_pr62_faithful",
++     (1, 'UNKNOWN')),
++    ('later-disabling-rewrite', "_s_disabling_rewrite",
++     (1, 'UNKNOWN')),
++    ('published-shape-adjacent-extension', "_s_adjacent_extension",
++     (1, 'UNKNOWN')),
++    ('later-deletion-of-touched-file', "_s_delete_later",
++     (1, 'UNKNOWN')),
++    ('later-exec-bit-loss', "_s_mode_loss",
++     (1, 'UNKNOWN')),
++    ('later-binary-edit', "_s_binary_later_edit",
++     (1, 'UNKNOWN')),
++    ('exact-revert-whole-replay', "_s_revert_all",
++     (1, 'UNKNOWN')),
++    ('exact-revert-pr-commit', "_s_revert_c",
++     (1, 'UNKNOWN')),
++    ('partial-revert-one-hunk', "_s_revert_partial_hunk",
++     (1, 'UNKNOWN')),
++    ('revert-plus-far-extension', "_s_revert_plus_extension",
++     (1, 'UNKNOWN')),
++    ('revert-under-hostile-merge-config', "_s_hostile_config",
++     (1, 'UNKNOWN')),
++    ('omitted-linear-commit', "_s_omit_linear",
++     (1, 'STRANDED')),
++    ('omitted-part-of-a-commit', "_s_omit_partial",
++     (1, 'STRANDED')),
++    ('whitespace-different-postimage', "_s_whitespace",
++     (1, 'STRANDED')),
++    ('repeated-block-other-location', "_s_repeated_block",
++     (1, 'STRANDED')),
++    ('merge-resolution-work-missing', "_s_resolution_missing",
++     (1, 'STRANDED')),
++    ('merge-resolution-work-present', "_s_resolution_present",
++     (1, 'STRANDED')),
++    ('merge-one-byte-evil-change', "_s_evil_byte",
++     (1, 'STRANDED')),
++    ('octopus-merge', "_s_octopus",
++     (1, 'STRANDED')),
++    ('octopus-absorbed-third-parent', "_s_octopus_absorbed",
++     (1, 'STRANDED')),
++    ('unrelated-parent-merge', "_s_unrelated_parent",
++     (1, 'STRANDED')),
++    ('redundant-plus-nonredundant-merge', "_s_mixed_merges",
++     (1, 'STRANDED')),
++    ('first-parent-is-grandparent', "_s_distance_two",
++     (1, 'STRANDED')),
++    ('reversed-parent-order', "_s_reversed_parents",
++     (1, 'STRANDED')),
++    ('linear-control-exact-revert', "_s_linear_revert_control",
++     (0, 'contained')),
++    ('linear-control-adjacent-extension', "_s_linear_extension_control",
++     (0, 'contained')),
++)
++
++
++def replay_cases(fx: object) -> None:
++    """Execute the public matrix through the production CLI and aggregator."""
++    for index, (name, builder, expected) in enumerate(SCENARIOS, 1):
++        with scratch(fx.leftovers) as directory:
++            cwd = os.getcwd()
++            try:
++                os.chdir(directory)
++                history = _History()
++                getattr(history, builder)()
++                rc, output = fx.run(["--no-fetch", "--base", "main", "pr"])
++                lines = [line.split() for line in output.splitlines() if line.strip()]
++                actual = (rc, lines[0][0] if lines else "no verdict")
++                fx.case(f"replay-{index:02d}-{name}", actual, expected,
++                        "settled public matrix: exit AND verdict")
++                if index in (1, 2):
++                    fx.case(f"replay-{index:02d}-proof", "raw no-op retention" in output,
++                            True, "the new arm proves retention after real historical replay")
++                if expected[1] == "UNKNOWN":
++                    fx.case(f"replay-{index:02d}-evidence",
++                            "historical whitespace-exact replay" in output
++                            and "current retention unproved on:" in output,
++                            True, "historical landing is distinguished from unproved paths")
++                mutation_cases(fx, index)
++            finally:
++                os.chdir(cwd)
+diff --git a/scripts/merge_containment_selftest_retention.py b/scripts/merge_containment_selftest_retention.py
+new file mode 100644
+index 00000000..1e95a499
+--- /dev/null
++++ b/scripts/merge_containment_selftest_retention.py
+@@ -0,0 +1,258 @@
++"""Bounded real-history controls for the #423 raw-retention boundary.
++
++All successes traverse the shipped CLI with real distinct replay commits.
++Fault injection targets only plumbing failures, never supplies a proof.
++Repeated-block probes exercise selected alignments, not all possible merges.
++"""
++
++import os
++import subprocess
++from pathlib import Path
++from unittest.mock import patch
++
++import merge_containment_replay as proof
++from merge_containment_selftest_replay import MOD, _History
++from merge_containment_selftest_scratch import scratch
++
++
++def _raw(*args, data):
++    result = subprocess.run(("git", "--no-replace-objects", *args),
++                            input=data, capture_output=True)
++    if result.returncode != 0:
++        raise RuntimeError(f"fixture git {args}: {result.stderr!r}")
++    return result.stdout.strip().decode("ascii")
++
++
++def _tree(entries):
++    records = []
++    for name, entry in entries.items():
++        if entry is None:
++            continue
++        mode, data = entry
++        kind = {"160000": "commit", "040000": "tree"}.get(mode, "blob")
++        oid = data if kind != "blob" else _raw("hash-object", "-w", "--stdin", data=data)
++        records.append(f"{mode} {kind} {oid}\t".encode()
++                       + name.encode("utf-8", "surrogateescape") + b"\0")
++    return _raw("mktree", "-z", data=b"".join(records))
++
++
++def _commit(history, tree, parents, label):
++    args = ["commit-tree", tree, "-m", label]
++    for parent in parents:
++        args.extend(("-p", parent))
++    return history._git(*args)
++
++
++def _history(history, path, entries):
++    """One real redundant merge; two replay commits; a later tip edit."""
++    original, source, current = entries
++    control = MOD.encode()
++    changed = control.replace(b"line 05", b"source 05")
++    extended = changed.replace(b"line 35", b"later 35")
++    initial_tree = _tree({path: original, "control": ("100644", control)})
++    initial = _commit(history, initial_tree, [], "initial")
++    a_tree = _tree({path: source, "control": ("100644", control)})
++    a = _commit(history, a_tree, [initial], "source A")
++    merge = _commit(history, a_tree, [initial, a], "redundant merge")
++    source_tree = _tree({path: source, "control": ("100644", changed)})
++    branch = _commit(history, source_tree, [merge], "source C")
++    replay_a = _commit(history, a_tree, [initial], "replay A")
++    replay_c = _commit(history, source_tree, [replay_a], "replay C")
++    tip_tree = _tree({path: current, "control": ("100644", extended)})
++    tip = _commit(history, tip_tree, [replay_c], "later extension")
++    history._git("update-ref", "refs/heads/pr", branch)
++    history._git("update-ref", "refs/heads/main", tip)
++    return initial, branch, tip
++
++
++def _check(fx, name, expected, path=None):
++    rc, output = fx.run(["--no-fetch", "--base", "main", "pr"])
++    lines = [line.split() for line in output.splitlines() if line.strip()]
++    fx.case("retention-" + name, (rc, lines[0][0] if lines else "no verdict"),
++            expected, "real Git history: exit AND verdict")
++    if expected == (0, "contained"):
++        fx.case("retention-" + name + "-proof", "raw no-op retention" in output,
++                True, "acceptance requires both historical replay and raw retention")
++    if path is not None:
++        fx.case("retention-" + name + "-path", repr(path) in output, True,
++                "the unproved literal path is named without decoding loss")
++
++
++def _text_entries(original, source, current):
++    return tuple(("100644", data) for data in (original, source, current))
++
++
++def _entry_cases(history):
++    """File types, absence and modes are independent of blob similarity."""
++    old = MOD.encode()
++    source = old.replace(b"line 05", b"source 05")
++    extended = source.replace(b"line 35", b"later 35")
++    empty_tree = _tree({})
++    oid1 = _commit(history, empty_tree, [], "gitlink 1")
++    oid2 = _commit(history, empty_tree, [oid1], "gitlink 2")
++    oid3 = _commit(history, empty_tree, [oid2], "gitlink 3")
++    child_tree = _tree({"child": ("100644", source)})
++    regular = ("100644", source)
++    return (
++        ("symlink-identical", (("120000", b"old"), ("120000", b"new"), ("120000", b"new")), True),
++        ("symlink-changed", (("120000", b"old"), ("120000", b"new"), ("120000", b"later")), False),
++        ("symlink-to-file", (("120000", b"old"), ("120000", source), regular), False),
++        ("file-to-symlink", (("100644", old), regular, ("120000", source)), False),
++        ("file-to-tree", (("100644", old), regular, ("040000", child_tree)), False),
++        ("gitlink-identical", (("160000", oid1), ("160000", oid2), ("160000", oid2)), True),
++        ("gitlink-changed", (("160000", oid1), ("160000", oid2), ("160000", oid3)), False),
++        ("gitlink-to-file", (("160000", oid1), ("160000", oid2), regular), False),
++        ("mode-lost", (("100644", old), ("100755", source), ("100644", extended)), False),
++        ("mode-retained", (("100644", old), ("100755", source), ("100755", extended)), True),
++        ("later-mode-only", (("100644", old), regular, ("100755", extended)), True),
++        ("addition-identical", (None, regular, regular), True),
++        ("addition-edited", (None, regular, ("100644", extended)), False),
++        ("deletion-retained", (("100644", old), None, None), True),
++        ("deletion-restored", (("100644", old), None, ("100644", old)), False),
++    )
++
++
++def _path_and_format_cases(fx, history):
++    old = MOD.encode()
++    source = old.replace(b"line 05", b"source 05")
++    extended = source.replace(b"line 35", b"later 35")
++    for path in (":(exclude)magic", "tab\tnewline\nend\n", "crlf\r\npath", "raw-\udcff"):
++        _history(history, path, _text_entries(old, source, extended))
++        _check(fx, "literal-" + ascii(path), (0, "contained"))
++        _history(history, path, _text_entries(old, source, old + b"extension\n"))
++        _check(fx, "literal-revert-" + ascii(path), (1, "UNKNOWN"), path)
++    crlf = tuple(data.replace(b"\n", b"\r\n") for data in (old, source, extended))
++    _history(history, "crlf", _text_entries(*crlf))
++    _check(fx, "crlf-exact", (0, "contained"))
++    _history(history, "crlf", _text_entries(crlf[0], crlf[1], extended))
++    _check(fx, "crlf-normalized-tip", (1, "UNKNOWN"), "crlf")
++    # Invalid UTF-8 blob bytes also stay raw; only NUL makes Git call it binary.
++    non_utf8 = tuple(data + b"\xff\n" for data in (old, source, extended))
++    _history(history, "raw-bytes", _text_entries(*non_utf8))
++    _check(fx, "raw-blob-bytes", (0, "contained"))
++
++
++def _alignment_cases(fx, history):
++    """Sixteen real histories: partial deletions/edits in repeated blocks."""
++    for repeats in (2, 3, 5, 8):
++        old = b"a\nb\nc\n" * repeats + b"end\n"
++        for deleting in (False, True):
++            lines = old.splitlines(keepends=True)
++            first, second = 1, 3 * (repeats - 1) + 1
++            source = b"".join((b"" if deleting else b"changed\n")
++                              if i in (first, second) else line
++                              for i, line in enumerate(lines))
++            restored = b"".join((b"" if deleting else b"changed\n")
++                                if i == second else line
++                                for i, line in enumerate(lines)) + b"append\n"
++            for current, accepted in ((source + b"append\n", True), (restored, False)):
++                name = f"blocks-{repeats}-{deleting}-{accepted}"
++                _history(history, "repeated", _text_entries(old, source, current))
++                expected = (0, "contained") if accepted else (1, "UNKNOWN")
++                _check(fx, name, expected, None if accepted else "repeated")
++
++
++def _hostile_cases(fx, history):
++    history._git("config", "merge.ours.driver", "touch driver-ran; true")
++    history._git("config", "diff.quiet.textconv", "touch textconv-ran; true")
++    history._git("config", "filter.quiet.clean", "touch filter-ran; cat")
++    history._git("config", "merge.renormalize", "true")
++    history._git("config", "merge.conflictStyle", "diff3")
++    history._git("config", "core.autocrlf", "true")
++    history._git("config", "core.filemode", "false")
++    history._git("config", "diff.algorithm", "patience")
++    Path(".gitattributes").write_text("* merge=ours diff=quiet filter=quiet text eol=lf\n")
++    old = MOD.encode()
++    source = old.replace(b"line 05", b"source 05")
++    for current, accepted in ((source.replace(b"line 35", b"later 35"), True),
++                              (old + b"extension\n", False)):
++        _history(history, "hostile", _text_entries(old, source, current))
++        _check(fx, f"hostile-{accepted}", (0, "contained") if accepted else (1, "UNKNOWN"))
++    fx.case("retention-hostile-no-drivers",
++            any(Path(name).exists() for name in ("driver-ran", "textconv-ran", "filter-ran")),
++            False, "raw measurements never invoked configured drivers or filters")
++    # Git validates each configured style before applying the final override.
++    # An invalid value is therefore an unmeasurable command, even for retained
++    # bytes. The decision requires UNKNOWN on measurement failure.
++    _history(history, "hostile", _text_entries(old, source, source.replace(b"line 35", b"later 35")))
++    history._git("config", "merge.conflictStyle", "invalid-style")
++    _check(fx, "invalid-config", (1, "UNKNOWN"), "hostile")
++    Path(".gitattributes").unlink()
++
++
++def _fault_cases(fx, history):
++    """Real missing objects plus injected malformed/failed Git measurements."""
++    old = MOD.encode()
++    source = old.replace(b"line 05", b"source 05")
++    _history(history, "fault", _text_entries(old, source, source.replace(b"line 35", b"later 35")))
++    raw_git = proof._git_bytes
++    failures = (("ls-tree", (128, b"")), ("ls-tree", (0, b"malformed\0")),
++                ("diff", (128, b"")), ("diff", (0, b"")),
++                ("cat-file", (128, b"")), ("merge-file", (129, b"")),
++                ("merge-file", (-9, b"")))
++    for index, (command, result) in enumerate(failures):
++        def fail(*args: str) -> tuple[int, bytes]:
++            """Fail only the targeted raw measurement."""
++            return result if command in args else raw_git(*args)
++        with patch.object(proof, "_git_bytes", fail):
++            _check(fx, f"command-{command}-{index}", (1, "UNKNOWN"))
++    with patch.object(proof, "_git_bytes", side_effect=OSError("planted execution error")):
++        _check(fx, "execution-error", (1, "UNKNOWN"))
++    with patch.object(proof.tempfile, "TemporaryDirectory", side_effect=OSError("planted storage error")):
++        _check(fx, "temporary-storage-error", (1, "UNKNOWN"), "fault")
++    _graph_fault_cases(fx)
++    oid = history._git("rev-parse", "main:fault")
++    object_path = Path(".git/objects") / oid[:2] / oid[2:]
++    raw = object_path.read_bytes()
++    try:
++        object_path.unlink()
++        _check(fx, "missing-blob", (1, "UNKNOWN"))
++    finally:
++        object_path.write_bytes(raw)
++    _check(fx, "restored-blob", (0, "contained"))
++
++
++def _graph_fault_cases(fx):
++    git = fx.mc._git
++    conditions = (
++        (lambda args: args[:3] == ("rev-list", "--min-parents=2", "--parents"), (128, "")),
++        (lambda args: args[:3] == ("rev-list", "--parents", "--max-count=1"), (128, "")),
++        (lambda args: args[:2] == ("merge-base", "--all"), (128, "")),
++        (lambda args: args[:2] == ("merge-base", "--all"), (0, "")),
++        (lambda args: args[:2] == ("merge-base", "--all"), (0, "a\nb")),
++    )
++    for index, (condition, result) in enumerate(conditions):
++        def fail(*args: str) -> tuple[int, str]:
++            """Fail only the targeted graph measurement."""
++            return result if condition(args) else git(*args)
++        with patch.object(fx.mc, "_git", fail):
++            _check(fx, f"graph-error-{index}", (1, "UNKNOWN"))
++
++
++def retention_cases(fx: object) -> None:
++    """Exercise the bounded controls under the default self-test owner."""
++    for object_format in ("sha1", "sha256"):
++        with scratch(fx.leftovers) as directory:
++            cwd = os.getcwd()
++            try:
++                os.chdir(directory)
++                history = _History()
++                history._git("init", "-q", "-b", "main", "--object-format=" + object_format)
++                if object_format == "sha256":
++                    old = MOD.encode()
++                    source = old.replace(b"line 05", b"source 05")
++                    _history(history, "format", _text_entries(old, source, source + b"append\n"))
++                    _check(fx, "sha256", (0, "contained"))
++                    _history(history, "format", _text_entries(old, source, old + b"append\n"))
++                    _check(fx, "sha256-revert", (1, "UNKNOWN"), "format")
++                    continue
++                for name, entries, accepted in _entry_cases(history):
++                    _history(history, "entry", entries)
++                    expected = (0, "contained") if accepted else (1, "UNKNOWN")
++                    _check(fx, name, expected, None if accepted else "entry")
++                _path_and_format_cases(fx, history)
++                _alignment_cases(fx, history)
++                _fault_cases(fx, history)
++                _hostile_cases(fx, history)
++            finally:
++                os.chdir(cwd)

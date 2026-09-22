@@ -1,0 +1,195 @@
+diff --git a/tb/mutation_verdict.py b/tb/mutation_verdict.py
+index 40410be..e25b17e 100644
+--- a/tb/mutation_verdict.py
++++ b/tb/mutation_verdict.py
+@@ -35,19 +35,25 @@ def reports_failure(out: str) -> tuple[str, bool]:
+     return "the harness printed no tally and no FAIL line", False
+ 
+ 
+-def verdict(rc: object, out: str, timeout_s: int) -> str:
+-    """'pass', 'caught', 'skipped', or why this run is not evidence."""
++def verdict(rc: int, out: str) -> str:
++    """'pass', 'caught', 'skipped', or why this run is not evidence.
++
++    There is deliberately no host deadline here. Both harnesses bound their
++    own waits in DUT CYCLES - the gasket harness so that a wedged gasket
++    fails the suite instead of hanging it, and tsngen with an explicit tick
++    ceiling on every wait - so a mutant that livelocks the design still
++    returns, and returns a verdict. A wall-clock deadline would only add a
++    second, machine-dependent answer to a question the DUT already answers.
++    """
+     if "SKIP:" in out:
+         return "skipped"
+     reason, failed = reports_failure(out)
+-    if rc == "TIMEOUT":
+-        return f"TIMEOUT after {timeout_s}s - a hang is not a catch"
+     if rc == 0 and not failed:
+         return "pass"
+     if rc == 0 and failed:
+         return f"exited 0 but {reason} - a masked verdict is not evidence"
+     if failed:
+         return "caught"
+-    if isinstance(rc, int) and rc < 0:
++    if rc < 0:
+         return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
+     return f"exited {rc} with no harness verdict - an abort is not a catch"
+diff --git a/tb/tsngen/mutants.py b/tb/tsngen/mutants.py
+index 1c97f59..5361f01 100644
+--- a/tb/tsngen/mutants.py
++++ b/tb/tsngen/mutants.py
+@@ -32,9 +32,7 @@ there is nothing to prove and the arm says so rather than inventing a pass.
+ 
+ from __future__ import annotations
+ 
+-import os
+ import shutil
+-import signal
+ import subprocess
+ import sys
+ import tempfile
+@@ -46,10 +44,6 @@ sys.path.insert(0, str((HERE / "../").resolve()))
+ 
+ from mutation_verdict import verdict  # noqa: E402
+ 
+-#: One scenario run takes a few seconds; a mutant still running well past that
+-#: is livelocked, and is reported as a hang rather than counted as a catch.
+-MUTANT_RUN_TIMEOUT_S = 600
+-
+ #: the engine sources the suite elaborates, in the Makefile's order
+ SOURCES = (
+     "ucpu/gptp_ucpu_pkg.sv", "ucpu/KL_gptp_ucpu.sv",
+@@ -111,32 +105,26 @@ def build(suite):
+ 
+ 
+ def run_harness(suite):
+-    """(rc, stdout) of the staged run_tsngen.py; rc is "TIMEOUT" when killed."""
+-    proc = subprocess.Popen([sys.executable, "run_tsngen.py"], cwd=suite,
+-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+-                            text=True, start_new_session=True)
+-    try:
+-        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
+-        return proc.returncode, out
+-    except subprocess.TimeoutExpired:
+-        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+-        out, _ = proc.communicate()
+-        return "TIMEOUT", out
+-    finally:
+-        if proc.poll() is None:
+-            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+-            proc.wait()
++    """(rc, stdout) of the staged run_tsngen.py.
++
++    No host deadline: tsngen_main.cpp puts an explicit tick ceiling on every
++    wait, so a mutant that stops the engine advancing still returns a verdict
++    rather than hanging.
++    """
++    out = subprocess.run([sys.executable, "run_tsngen.py"], cwd=suite,
++                         capture_output=True, text=True)
++    return out.returncode, out.stdout + out.stderr
++
+ 
+ 
+ def main():
+     passes = fails = 0
+-    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+     with tempfile.TemporaryDirectory(prefix="tsngen-mutants-") as td:
+         work = Path(td)
+ 
+         # -- positive control: the real RTL must still pass -------------------
+         suite = stage(work, "clean")
+-        answer = verdict(*run_harness(suite), MUTANT_RUN_TIMEOUT_S) \
++        answer = verdict(*run_harness(suite)) \
+             if build(suite) else "did not compile"
+         if answer == "skipped":
+             print("SKIP: the suite itself skips here (no tsn-gen checkout), "
+@@ -168,7 +156,7 @@ def main():
+                 print(f"[FAIL] mutation {name!r} did not compile; a mutant "
+                       f"that cannot build proves nothing about the harness")
+                 continue
+-            answer = verdict(*run_harness(suite), MUTANT_RUN_TIMEOUT_S)
++            answer = verdict(*run_harness(suite))
+             if answer == "caught":
+                 passes += 1
+                 print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+diff --git a/tb/verilator/gaskets/mutants.py b/tb/verilator/gaskets/mutants.py
+index 8fc5da3..def1288 100644
+--- a/tb/verilator/gaskets/mutants.py
++++ b/tb/verilator/gaskets/mutants.py
+@@ -33,8 +33,6 @@ mutants, and that is a change to sim_main.cpp rather than to this file.
+ 
+ from __future__ import annotations
+ 
+-import os
+-import signal
+ import subprocess
+ import sys
+ import tempfile
+@@ -46,11 +44,6 @@ sys.path.insert(0, str((HERE / "../../").resolve()))
+ 
+ from mutation_verdict import verdict  # noqa: E402
+ 
+-#: The harness runs in well under a second; a mutant still running after this
+-#: many seconds is livelocked - which is what a wedged gasket looks like - and
+-#: is reported as a hang rather than counted as a catch.
+-MUTANT_RUN_TIMEOUT_S = 120
+-
+ #: the four sources the suite builds, mutated copies and all
+ SOURCES = ("bench_afifo.sv", "bench_mii_tx.sv", "bench_mii_rx.sv")
+ TOP_SV = "gasket_tb_top.sv"
+@@ -100,25 +93,15 @@ def build(srcdir, workdir, tag):
+ 
+ 
+ def run_harness(exe):
+-    """(rc, stdout); rc is "TIMEOUT" when the run had to be killed.
++    """(rc, stdout) of one harness run.
+ 
+-    The harness is its own process group, so the kill reaches anything it
+-    spawned and nothing outlives the temporary directory.
++    No host deadline: sim_main.cpp bounds its own waits in DUT cycles, so a
++    wedged gasket FAILS the suite rather than hanging it - which is the very
++    property the first mutant below exercises.
+     """
+-    proc = subprocess.Popen([str(exe)], stdout=subprocess.PIPE,
+-                            stderr=subprocess.STDOUT, text=True,
+-                            start_new_session=True)
+-    try:
+-        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
+-        return proc.returncode, out
+-    except subprocess.TimeoutExpired:
+-        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+-        out, _ = proc.communicate()
+-        return "TIMEOUT", out
+-    finally:
+-        if proc.poll() is None:
+-            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+-            proc.wait()
++    out = subprocess.run([str(exe)], capture_output=True, text=True)
++    return out.returncode, out.stdout + out.stderr
++
+ 
+ 
+ def stage(work, tag, mutate=None):
+@@ -136,13 +119,12 @@ def stage(work, tag, mutate=None):
+ 
+ def main():
+     passes = fails = 0
+-    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+     with tempfile.TemporaryDirectory(prefix="gasket-mutants-") as td:
+         work = Path(td)
+ 
+         # -- positive control: the real RTL must still pass -------------------
+         exe = build(stage(work, "clean"), work, "clean")
+-        answer = verdict(*run_harness(exe), MUTANT_RUN_TIMEOUT_S) \
++        answer = verdict(*run_harness(exe)) \
+             if exe else "did not compile"
+         if answer == "pass":
+             passes += 1
+@@ -171,7 +153,7 @@ def main():
+                 print(f"[FAIL] mutation {name!r} did not compile; a mutant "
+                       f"that cannot build proves nothing about the harness")
+                 continue
+-            answer = verdict(*run_harness(exe), MUTANT_RUN_TIMEOUT_S)
++            answer = verdict(*run_harness(exe))
+             if answer == "caught":
+                 passes += 1
+                 print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
