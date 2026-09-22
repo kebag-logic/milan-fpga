@@ -1,0 +1,12 @@
+# base ec34fcde vs head d81a3027 builder artifact manifests 2026-09-22T14:12:27+02:00
+base manifest sha256: 2304061affaf693ce4767a90d2464a93bf0548f0063d267a8a295d5c13c944d5
+head manifest sha256: 2304061affaf693ce4767a90d2464a93bf0548f0063d267a8a295d5c13c944d5
+RESULT: manifests byte-identical
+arty_4x4 | image files: ['aem_desc.bin', 'aem_desc.json', 'aem_desc.map'] | build files: 10 | tracked files build() rewrote: ['configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh', 'configs/generated/sweep_opts_arty.sh']
+arty_8ch | image files: ['aem_desc.bin', 'aem_desc.json', 'aem_desc.map'] | build files: 10 | tracked files build() rewrote: ['configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh', 'configs/generated/sweep_opts_arty.sh']
+arty_current | image files: ['aem_desc.bin', 'aem_desc.json', 'aem_desc.map'] | build files: 10 | tracked files build() rewrote: ['configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh', 'configs/generated/sweep_opts_arty.sh', 'hdl/common/csr/gen/lwsrp_csr_defaults.svh']
+ax7101_1x1_tdm8 | image files: ['aem_desc.bin', 'aem_desc.json', 'aem_desc.map'] | build files: 10 | tracked files build() rewrote: ['configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh', 'configs/generated/sweep_opts_ax7101.sh']
+ax7101_8x8 | image files: ['aem_desc.bin', 'aem_desc.json', 'aem_desc.map'] | build files: 10 | tracked files build() rewrote: ['configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh', 'configs/generated/sweep_opts_ax7101.sh']
+configs/ identical base vs head: yes
+avdecc/ hdl/ tb/ sw/litex/ sw/firmware/ and all gitlinks identical base vs head: yes
+tracked files rewritten by build() equal HEAD on both sides: base 0 changes, head 0 changes

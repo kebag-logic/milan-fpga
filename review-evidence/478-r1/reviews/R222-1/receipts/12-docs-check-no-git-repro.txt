@@ -1,0 +1,10 @@
+# docs-check-no-git reproduction: git archive extract, no .git, no submodule contents; commands exactly as .github/workflows/docs.yml docs-check-no-git 2026-09-22T14:03:22+02:00
+## d81a3027: .git present: no; protocol-processor entries: 0
+docs_check.py exit=1
+check_feature_status.py exit=0
+1:docs/ENDSTATION_BUILDER.md:963: broken link -> ../protocol-processor/docs/architecture/07_memory_maps.md
+docs_check: 1 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+## ec34fcde: .git present: no; protocol-processor entries: 0
+docs_check.py exit=0
+check_feature_status.py exit=0
+docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]

@@ -1,0 +1,21 @@
+# head scratch d81a302760b84f32d2aa019643f57682bb6e052c 2026-09-22T14:12:15+02:00
+root=/tmp/r222-478-scratch/head builder=/tmp/r222-478-scratch/head/sw/builder/endstation_builder.py
+--- test_audio_unit_rates_loader_contract
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+RESULT test_audio_unit_rates_loader_contract: PASS
+--- test_audio_unit_shipping_rates
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+RESULT test_audio_unit_shipping_rates: PASS
+--- test_pp_shadow_audio_unit_rates_match_config
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+RESULT test_pp_shadow_audio_unit_rates_match_config: PASS
+--- test_builder_doc_key_map
+  [gate 32] 109 loader keys == 109 keys across 60 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 17 untaken loader arms, where a key read is not recorded: endstation_builder.py:1435 endstation_builder.py:1510 endstation_builder.py:1514 endstation_builder.py:1877 endstation_builder.py:1881 endstation_builder.py:3109 endstation_builder.py:3207 endstation_builder.py:3307 endstation_builder.py:3539 endstation_builder.py:3548 endstation_builder.py:3596 endstation_builder.py:3616 endstation_builder.py:3653 endstation_builder.py:4001 endstation_builder.py:4097 endstation_builder.py:4124 endstation_builder.py:4284
+RESULT test_builder_doc_key_map: PASS
+SKIPPED=[]
+exit=0

@@ -1,0 +1,25 @@
+{
+  "head": "2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7",
+  "tree": "568c5db2804f789015708358ad2a2d9c842c7cff",
+  "parent": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "parent_tree": "4903a00f30752bc86a99e9bf112ff5ad01827c5d",
+  "branch": "478-audio-unit-rate-bound",
+  "source_lane": "$CANDIDATE",
+  "label": "16-toc-check",
+  "command": [
+    "rtk",
+    "proxy",
+    "python3",
+    "scripts/gen_toc.py",
+    "--check"
+  ],
+  "command_shell": "rtk proxy python3 scripts/gen_toc.py --check",
+  "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-link-author/scratch/git",
+  "state": "corrected committed tree",
+  "expected_exit": 0,
+  "exit_code": 0,
+  "started_utc": "2026-09-22T12:11:23.562703+00:00",
+  "finished_utc": "2026-09-22T12:11:23.931144+00:00",
+  "stdout": "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)\n",
+  "stderr": ""
+}

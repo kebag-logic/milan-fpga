@@ -1,0 +1,87 @@
+{
+  "utc": "2026-09-22T12:08:36.639334+00:00",
+  "starting_head": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "starting_tree": "4903a00f30752bc86a99e9bf112ff5ad01827c5d",
+  "taken_url": "https://github.com/kebag-logic/milan-fpga/pull/512#issuecomment-5776196827",
+  "commands": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "d81a302760b84f32d2aa019643f57682bb6e052c\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "478-audio-unit-rate-bound\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "4903a00f30752bc86a99e9bf112ff5ad01827c5d\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "ls-tree",
+        "HEAD",
+        "protocol-processor",
+        "gptp-processor",
+        "third_party/verilog-axis",
+        "external"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5\texternal\n160000 commit c1b617435824929a790739ea8585c3fe1a328cc0\tgptp-processor\n160000 commit 424c688fa2205b934a7689a58f2aa766420f2326\tprotocol-processor\n160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce\tthird_party/verilog-axis\n",
+      "stderr": ""
+    }
+  ],
+  "edit": {
+    "file": "docs/ENDSTATION_BUILDER.md",
+    "old": "../protocol-processor/docs/architecture/07_memory_maps.md",
+    "new": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/424c688fa2205b934a7689a58f2aa766420f2326/docs/architecture/07_memory_maps.md",
+    "occurrences": 1,
+    "anchor_preserved": "#31-descriptor-tree",
+    "before_sha256": "9352133e96e0002f2ec5896273eba9a4b285e8435e18d78c2ec98ca1b0fb3ef8",
+    "after_sha256": "02cca6bed78832c711d978f30f534d50c74b4ae29a95c6b3700832b5070259b7"
+  }
+}
