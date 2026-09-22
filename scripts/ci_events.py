@@ -864,8 +864,9 @@ EM_DASH_STEP_ENV = {
 #: the rule reads.
 #: Each carrier run entry also records its normalized script (#407).
 #: These are reviewed constants, never read from the workflow at check time.
-#: A legitimate script edit updates this entry beside a mutation arm; the
-#: specialized gate, setup and environment-writer checks remain independent.
+#: A legitimate script edit explicitly updates this entry; mutation arms
+#: derive automatically from the live body, independently of this record.
+#: The specialized gate, setup and environment-writer checks remain independent.
 CARRIER_STEP_LISTS = {
     (DOCS, "docs-check"): (
         {"uses": "actions/checkout@v4",
@@ -1979,8 +1980,8 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
                              "`restore-keys`")
 #: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
 #: from #295): the two shard workers, the two exhaustive aggregates,
-#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, held exactly
-#: as CARRIER_STEP_LISTS holds the four non-RTL carriers -- count, order,
+#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, sharing
+#: CARRIER_STEP_LISTS' sequence and shape pins -- count, order,
 #: identity, exact key set, env bindings, recorded `if` verbatim, recorded
 #: `with` exactly -- and, where a step records one, its `id`, its
 #: `continue-on-error` and its `working-directory`. The workers'
@@ -1988,6 +1989,7 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
 #: `with` is the one #350 pins, read from its constants rather than
 #: restated. The cost is stated on the policy page: a legitimate step change
 #: in any of these jobs is refused until its entry here changes with it.
+#: Unlike the carriers, these lists do not record every script (#439).
 VERILATOR_CACHE_WITH = {
     "path": "/opt/verilator",
     "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
@@ -2011,9 +2013,9 @@ ALWAYS_IF = VERIFY_STEP_IF
 #: shard pair to the matrix.
 TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
 SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
-#: The seven RTL jobs #406 pins, in the shape CARRIER_STEP_LISTS records the
-#: four carriers in. WHICH jobs owe an entry is decided by neither this table
-#: nor any other constant in this file: check_sequence_pin_coverage reads
+#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields,
+#: without their per-body script records. WHICH jobs owe an entry is decided
+#: by neither this table nor any other constant: check_sequence_pin_coverage reads
 #: rtl.yml and rtl-fast.yml for their job lists and holds every job either
 #: declares against a RECORDED step list, so a job dropped from here is
 #: refused as a job whose whole step list nothing records, and a job appended
@@ -7428,15 +7430,28 @@ def _carrier_run_steps(world: World) -> Iterator[tuple[str, str, int, YamlMap]]:
 def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
     """Script mutations and their first differing line, where applicable.
 
-    Every body has a no-op and swallowed-call arm. Multi-command bodies
-    also lose their last command; a proof/check flag is removed only where
-    one exists. No fabricated flag makes a single-command gate look covered.
+    Every normalized line gets a swallowed-call arm, including non-last
+    bounded checks and the AC5 Python idiom call. Keep the original last-line
+    arm's identity. Appended commands and reordered distinct lines prove
+    length and order matter; proof/check flags are removed only where present.
     """
     edits = [("no-op", "true", 1),
              ("or-true", "\n".join((*lines[:-1], lines[-1] + " || true")),
               len(lines))]
     if len(lines) > 1:
         edits.append(("drop-command", "\n".join(lines[:-1]), len(lines)))
+    for n, line in enumerate(lines[:-1]):
+        edited = list(lines)
+        edited[n] = line + " || true"
+        edits.append((f"or-true-line-{n + 1}", "\n".join(edited), n + 1))
+    edits.append(("append-command", "\n".join((*lines, "echo appended")),
+                  len(lines) + 1))
+    for n in range(len(lines) - 1):
+        if lines[n] != lines[n + 1]:
+            edited = list(lines)
+            edited[n], edited[n + 1] = edited[n + 1], edited[n]
+            edits.append(("reorder-lines", "\n".join(edited), n + 1))
+            break
     for n, line in enumerate(lines):
         changed, count = re.subn(r" --(?:self-test|selftest|check)(?= |$)",
                                  "", line, count=1)
@@ -7461,10 +7476,11 @@ def _carrier_script_arms(pristine: World) -> list[Arm]:
         what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
         label = f"carrier-script-407 {jid} step {at + 1}"
         for lever, run, differing in _carrier_script_edits(lines):
+            expected = lines[differing - 1] if differing <= len(lines) else None
             arms.append((f"{label} {lever}",
                          _m_step_key_at(path, jid, at, "run", run),
                          f"{what} script is not the canonical form: "
-                         f"line {differing} must be {lines[differing - 1]!r}"))
+                         f"line {differing} must be {expected!r}"))
         arms.append((f"{label} continue-on-error",
                      _m_step_key_at(path, jid, at, "continue-on-error", True),
                      f"{what} must carry no `continue-on-error`"))

@@ -641,15 +641,18 @@ is exactly these twelve things:
     `uses` steps retain their recorded `with` mappings.
 
     Mutation arms derive from live carrier steps, independently of records.
-    Each body faces replacement, swallowed-call, and `continue-on-error` controls.
-    Multi-command bodies additionally lose a command.
+    Each body faces replacement, appended-command, and `continue-on-error` controls.
+    Every normalized line gets a trailing `|| true` control.
+    These include bounded `--check` calls and the AC5 idiom call.
+    Multi-command bodies additionally lose a command and reorder distinct lines.
     Bodies carrying proof/check flags additionally lose a flag.
     Python gates, bounded ratchets, builder gates, and reference builds participate.
     A checker returning no findings fails every mutation arm.
     Whitespace reformatting and matching record updates remain accepted.
 
-    The maintenance cost is deliberate: every legitimate script edit updates
-    its canonical entry beside a mutation entry, within the same commit.
+    Every legitimate script edit explicitly updates its canonical entry.
+    Both edits belong in the same commit.
+    Mutation arms derive automatically from the live body, independently.
     Never regenerate expected scripts during checking from candidate workflows.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
@@ -889,10 +892,18 @@ hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 judging from the frozen recorded base, swallowing its exit status, its push
 base rewritten, its base-branch fetch, its null-base refusal and its
 by-SHA fetch removed, and its body moved under another recorded
-name; the imported gPTP gate removed, replaced by
+name; every recognized non-RTL carrier body (#407) replaced by `true`,
+given an appended command, and made `continue-on-error`;
+every normalized line separately given `|| true`, including non-last calls;
+multi-command bodies stripped of their last command and distinct lines swapped;
+an existing proof/check flag removed wherever present;
+each missing canonical script record refused by name;
+a script and its canonical record updated together, accepted;
+the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
-reformatting of all ten canonical scripts that must still pass; and the
+reformatting of every carrier body and the specialized canonical scripts
+that must still pass; and the
 decision itself for every event class.
 
 ## One authoritative SHA
@@ -1038,9 +1049,10 @@ run only prints, so the gate needs no LiteX, but loading the config reads the
 gPTP engine generator, so it needs the `gptp-processor` checkout above and
 fails, never passes, without it. `--self-test` grades the tracked `deploy.sh`
 first and then proves its planted drifts are rejected. `CARRIER_STEP_LISTS`
-records all three steps by name and position, so removing or reordering one
-is refused naming it; like the other recognised steps, their commands are not
-pinned yet (#407).
+records all three steps by name, position, and canonical script.
+Removing, reordering, or rewriting one is refused by name (#407).
+Script refusals also identify the first differing line.
+Legitimate command edits require matching record updates, as item 11 describes.
 
 Three caches, deliberately split. The Scala toolchain is content-addressed
 and keeps a broad fallback. The pip download cache is keyed on the pin file
