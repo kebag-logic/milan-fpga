@@ -13,10 +13,10 @@
 //      packet; nothing leaves that was not handed over; and when both sources
 //      offer back-to-back packets the output alternates between them.
 //   2. WITNESSES: every checker instance must be elaborated (its DPI scope
-//      exists), and every property must report non-vacuous passes. Where the
-//      antecedent is visible on the ports, the count must EQUAL the count
-//      this harness took from the ports itself; where it involves the mux's
-//      internal state, the port-visible events that imply it are a floor.
+//      exists), and every property must report non-vacuous passes. Of the
+//      21 witness pairs, 15 must equal this harness's port counts, 2 use
+//      those counts as floors, and 4 immediate laws require only presence:
+//      both counts above zero. See docs/testing/ASSERTIONS.md.
 //   3. The assertions themselves stop the simulation on a violation.
 //
 // The AXI4-Stream source rules on s0/s1 are THIS harness's obligations

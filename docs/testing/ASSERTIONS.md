@@ -82,8 +82,11 @@ campaign row named.
   the model then prints `Verilog $stop` and exits 1. With
   `+verilator+error+limit+<n>` it continues, so every assertion failing at
   that edge is reported.
-- **`disable iff (!rst_n)` abandons an attempt at either end.** An attempt
-  that starts during reset, or completes during it, neither fails nor passes.
+- **Reset affects the two edges differently in the measured 5.050 setup.**
+  For `disable iff (!rst_n) a |=> b`, an attempt completing on a reset edge
+  is skipped: neither action runs. An attempt starting on a reset edge
+  passes vacuously when the next edge is out of reset: its pass action runs
+  with witness flag 0.
 - **A pass action runs at every passing edge, vacuous or not.**
   `$assertvacuousoff` changes nothing. Counting pass actions therefore counts
   clock edges, not checks.
@@ -146,14 +149,19 @@ campaign row named.
 
 ### Reset and past state
 
+The reset and first-edge results come from the
+[R239-1 pinned 5.050 probes and receipts](https://github.com/kebag-logic/milan-fpga/tree/7795e487048867fde07a224ec1a5885acfb4375b/review-evidence/372-r1/review/R239-1).
+
 - A protocol law on a synchronously reset interface is a concurrent property
   sampled at the rising edge, with `disable iff (!rst_n)`. A source may then
   drop a stalled beat into reset without failing it.
 - A law about reset itself has no `disable iff`. `ap_reset_releases_owner` is
   `!rst_n |=> owner_none_i`.
-- `|=>`, `$past` and `$stable` compare one edge with the previous one. At the
-  first edge after time zero the "previous" value is the variable's initial
-  value, which is 0 by default in this tool. Hold reset for the first edges,
+- `|=>` delays an obligation by one edge; `$past` and `$stable` use previous
+  samples. In the measured Verilator 5.050 two-state setup, the first-edge
+  previous value is 0, regardless of the signal's declared initial value.
+  A probe with `one = 1'b1` held constant fails both `$past(one) == 1'b1`
+  and `$stable(one)` at that first edge. Hold reset for the first edges,
   as every harness here does.
 - A combinational law that holds at every settled point, reset included, is a
   deferred immediate assertion (`assert final`) in an `always_comb` block.
@@ -176,16 +184,23 @@ else
   $error("TVALID fell before TREADY took the beat (IHI0051A 2.2)");
 ```
 
+- Keep `rst_n` inside the witness flag's `$past`, beside the antecedent.
+  In the pinned 5.050 probe, a stalled offer on a reset edge produces a
+  vacuous pass action at the next running edge. `$past(stalled_w)` alone
+  would incorrectly count that as non-vacuous; testing current `rst_n`
+  would not exclude it. `$past(rst_n && stalled_w)` reports flag 0,
+  matching the reset-qualified antecedent used by the tool.
 - The import is `context`, so the harness finds its ledger through the
   calling scope (`svPutUserData`), with no global state.
 - The harness looks each expected checker scope up by name at start-up. A
   missing scope is a failed check: the bind is missing or mistyped, or
   `--no-assert` compiled every call out.
-- The harness counts the same antecedents from the ports itself. Where the
-  antecedent is visible on the ports the two counts must be equal. Where it
-  involves internal state, the port-visible events that imply it are a floor.
-  For an immediate assertion, which re-evaluates whenever an input moves,
-  both counts must merely be above zero.
+- The harness compares 21 witness pairs with its own port counts: 15 require
+  equality. Two use a floor: `ap_owner_held_until_tlast_handshake` and
+  `ap_grant_only_to_requester` also involve internal state, so port-visible
+  events give a lower bound. Four immediate laws require presence only:
+  both counts must be above zero, without an equality or floor comparison,
+  because these assertions re-evaluate whenever an input moves.
 - Only the flagged calls are counted, and none of them is added to the
   suite's check total. The tally counts graded verdicts, never assertion
   evaluations or clock edges.
@@ -275,9 +290,8 @@ SVA-STOP: an assertion failed at the edge ending cycle 6 (the %Error lines above
   observed, so nothing here shows that an X cannot propagate.
 - **CDC correctness.** The checker samples one clock. No crossing is modelled
   or checked.
-- **A formal proof.** Only simulation ran. The properties avoid unsupported
-  constructs, but no formal tool has read them; a formal flow would compile
-  out the DPI witness calls and turn the stimulus instances into assumptions.
+- **A formal proof.** Only simulation ran. No formal tool has read these
+  properties.
 - **Timing closure.** The simulation is cycle-based and zero-delay.
 - **Coverage of the product.** One module carries assertions. The mux
   instance inside `ptp_ts_top` is not bound: the original `run` leg is
