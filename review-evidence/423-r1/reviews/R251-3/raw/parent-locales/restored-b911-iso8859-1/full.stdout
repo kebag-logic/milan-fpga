@@ -1,0 +1,457 @@
+  ok   default-development-base   the retired development branch name cannot return silently
+  ok   self-containment           a commit is contained in itself
+  ok   ancestor-plumbing-error    a failed ancestry command is UNKNOWN, never not-ancestor
+  ok   missing-ref                a ref that cannot be resolved is UNKNOWN, never contained
+  ok   missing-base               ...and so is a base that cannot be resolved
+  ok   quiet-git-traced           the trace saw the commit, the push's receive-pack, the fetch
+  ok   quiet-git-no-housekeeping  ...and none of them started maintenance or gc (#438)
+  ok   cleanup-recorded           a failed removal is recorded with its path, not raised
+  ok   cleanup-keeps-arm-error    ...and an arm's own exception still propagates past it
+  ok   cleanup-verdict-rc         every arm passed, a tree was left: the cleanup exit code
+  ok   cleanup-verdict-words      ...worded as housekeeping, never as a failed or untrusted check
+  ok   cleanup-under-failure      a failed arm is still exit 1, the status the sweep aborts on
+  ok   stranded-count             a linear child is one commit ahead of its parent
+  ok   contained-backwards        ...and the parent is contained in the child
+  ok   e2e-stranded-rc            a stranded branch exits non-zero through main()
+  ok   e2e-stranded-count         ...and prints the real count, not a placeholder
+  ok   e2e-stranded-word          ...and says STRANDED
+  ok   default-base-e2e           the implicit CLI base is origin/dev
+  ok   implicit-hex-branch-rc     the checked-out hex branch keeps its refs/heads identity
+  ok   implicit-hex-branch-word   ...rather than becoming its contained object-name twin
+  ok   e2e-contained-rc           a contained branch exits 0
+  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass
+  ok   e2e-unknown-word           ...and says UNKNOWN
+  ok   e2e-unknown-flag           an unrecognised flag is refused, never read as a branch
+  ok   e2e-revision-branch        a revision expression cannot hide the branch tip
+  ok   e2e-revision-base          a revision expression cannot replace the exact base
+  ok   e2e-duplicate-base         a repeated base option is refused
+  ok   e2e-duplicate-no-fetch     a repeated no-fetch option is refused
+  ok   e2e-sweep-operand          a merged sweep cannot silently ignore a branch operand
+  ok   git-minimum-current        the Git running this self-test has patch-id --verbatim
+  ok   git-minimum-named          a Git without --verbatim is refused naming the minimum
+  ok   git-minimum-version        ...and the version actually found
+  ok   git-minimum-e2e-rc         ...and main() cannot run instead of answering UNKNOWN
+  ok   git-minimum-e2e-silent     ...and prints no verdict at all
+  ok   git-minimum-e2e-stderr     ...and main() prints that refusal on stderr
+  ok   git-minimum-selftest-rc    --selftest itself stops at the refusal before any arm runs
+  ok   git-minimum-any-status     a patch-id failing with another status is refused the same way
+  ok   git-minimum-restored       the real Git measures the stranded fixture again
+  ok   fresh-fixture-local        the local branch is deliberately stale at base
+  ok   fresh-fixture-remote       the fetched branch has three later commits
+  ok   fresh-local-ref-rc         fetch checks origin/work, not the stale local branch
+  ok   fresh-local-ref-word       ...and reports the work on the fetched tip
+  ok   full-oid-branch-rc         a hex-named origin branch cannot replace an object ID
+  ok   full-oid-branch-word       ...and the immutable stranded object is measured
+  ok   full-oid-base-rc           a hex-named origin branch cannot replace the base OID
+  ok   full-oid-base-word         ...and the immutable base object is measured
+  ok   full-oid-local-collision-branch-rc local branch and tag names cannot obscure a branch OID
+  ok   full-oid-local-collision-branch-word ...and the immutable branch object remains measured
+  ok   full-oid-local-collision-base-rc local branch and tag names cannot obscure a base OID
+  ok   full-oid-local-collision-base-word ...and the immutable base object remains measured
+  ok   deleted-tag-remote-rc      a tag cannot stand in for a deleted origin branch
+  ok   deleted-tag-remote-word    ...and the qualified missing branch is UNKNOWN
+  ok   deleted-tag-short-rc       a short tag cannot stand in for a missing branch
+  ok   deleted-tag-short-word     ...and the fetched namespace remains authoritative
+  ok   offline-tag-branch-rc      an offline short branch cannot fall through to a tag
+  ok   offline-tag-branch-word    ...and the missing local branch remains UNKNOWN
+  ok   offline-tag-base-rc        an offline short base cannot fall through to a tag
+  ok   offline-tag-base-word      ...and the missing local base remains UNKNOWN
+  ok   deleted-tag-base-rc        a tag cannot stand in for a deleted base branch
+  ok   deleted-tag-base-word      ...and the missing fetched base is UNKNOWN
+  ok   deleted-explicit-base-rc   a stale explicit local base cannot replace origin
+  ok   deleted-explicit-base-word ...and normal mode keeps the missing origin base
+  ok   ambiguous-remote-normal-rc an ambiguous non-origin remote shorthand is refused
+  ok   ambiguous-remote-offline-rc ...and offline mode keeps the remote shorthand typed
+  ok   ambiguous-remote-offline-word ...so a same-spelled local branch cannot replace it
+  ok   missing-remote-tracking-rc a configured remote shorthand stays non-origin even when its tracking ref is missing
+  ok   missing-remote-offline-rc  offline remote shorthand keeps its missing identity
+  ok   missing-remote-offline-word ...instead of falling back to a slash-named branch
+  ok   missing-remote-base-rc     a missing configured remote base is refused before fetch
+  ok   missing-remote-base-offline-rc offline mode keeps a missing remote base typed
+  ok   missing-remote-base-offline-word ...rather than using a slash-named local base
+  ok   slash-remote-normal-rc     a slash-bearing configured remote stays non-origin
+  ok   slash-remote-offline-rc    offline slash-bearing remote shorthand stays typed
+  ok   slash-remote-offline-word  ...instead of using a same-spelled local branch
+  ok   slash-remote-base-rc       a slash-bearing remote base is refused before fetch
+  ok   slash-remote-base-offline-rc offline slash-bearing remote base stays typed
+  ok   slash-remote-base-offline-word ...instead of using a same-spelled local base
+  ok   overlapping-remote-prefix-rc overlapping configured remote prefixes are ambiguous
+  ok   explicit-origin-overlap-rc an explicit origin ref stays refreshable despite a configured prefix collision
+  ok   explicit-origin-overlap-word ...and the fetched origin branch is measured
+  ok   merged-live-tip-rc         the merged sweep ignores the frozen head OID
+  ok   merged-live-tip-word       ...and assesses origin/work instead
+  ok   merged-recreated-lineage   lineage alone cannot see exact-head recreation
+  ok   merged-recreated-event     a durable deletion event prevents false success
+  ok   merged-recreated-word      ...and the lost ref identity is UNKNOWN
+  ok   timeline-delete-parser     the GitHub timeline parser preserves deletion proof
+  ok   merged-list-order          the sweep selects PRs by merge time
+  ok   merged-list-complete-query ...after requesting a bounded complete candidate set
+  ok   merged-list-truncation     ...and possible candidate truncation is not a pass
+  ok   merged-fork-rc             a fork head cannot borrow origin's same-name ref
+  ok   merged-fork-word           ...and the unrefreshable live tip is UNKNOWN
+  ok   merged-reused-rc           a recreated same-name branch cannot false-pass
+  ok   merged-reused-word         ...and failed continuity is UNKNOWN
+  ok   local-ahead-fixture        only the local tip carries the unpushed commit
+  ok   local-ahead-rc             a fetched remote cannot hide unpushed local work
+  ok   local-ahead-word           ...and the local tip is named in the finding
+  ok   origin-spelling-local      origin/name still checks an unpushed local tip
+  ok   origin-spelling-label      ...and identifies the local source
+  ok   other-remote-full-rc       an unrefreshed full remote ref is refused
+  ok   other-remote-short-rc      ...and so is its short spelling
+  ok   other-remote-base-rc       an unrefreshed base ref is refused too
+  ok   deleted-remote-rc          a deleted remote tip cannot fall back to stale local
+  ok   deleted-remote-word        ...and the missing origin tip is UNKNOWN
+  ok   deleted-remote-label       ...while the missing source is named
+  ok   shallow-offline-rc         offline mode refuses incomplete history
+  ok   shallow-deepened-rc        normal mode deepens before measuring containment
+  ok   ambiguous-ref-rc           a tag and branch sharing one name cannot false-pass
+  ok   ambiguous-ref-word         ...and the typed short name measures the branch
+  ok   replacement-ref-fixture    the fixture installs a replacement ancestry edge
+  ok   replacement-ref-rc         replacement ancestry cannot create containment
+  ok   replacement-ref-path       ...and the raw stranded path is reported
+  ok   legacy-graft-fixture       the fixture locates Git's active graft file
+  ok   legacy-graft-rc            legacy graft ancestry is refused before a verdict
+  ok   legacy-graft-direct        the containment predicate cannot trust grafts either
+  ok   squash-base-advanced       unrelated base work does not hide a squash merge
+  ok   squash-path-equivalence    ...through the path-scoped content check
+  ok   net-zero-history-rc        a branch with no net tree change is already contained
+  ok   net-zero-history-word      ...and the conservative proof is named
+  ok   path-enumeration-error-rc  a failed path measurement exits non-zero
+  ok   path-enumeration-error-word ...and is UNKNOWN rather than STRANDED
+  ok   path-comparison-error-rc   a failed path comparison exits non-zero
+  ok   path-comparison-error-word ...and is UNKNOWN rather than STRANDED
+  ok   rename-source-remains      a copied destination cannot hide a missing deletion
+  ok   literal-pathspec-name      an exclude-shaped filename remains part of the comparison
+  ok   linear-patch-fallback      patch equivalence handles a linear rebase
+  ok   linear-patch-word          ...through the patch-id fallback
+  ok   whitespace-fixture         git cherry equates different whitespace content
+  ok   whitespace-exact-rc        verbatim patch IDs refuse different content
+  ok   whitespace-exact-path      ...and the differing path is reported
+  ok   hunk-position-fixture      verbatim patch IDs omit the different hunk positions
+  ok   hunk-postimage-rc          different repeated locations cannot false-pass
+  ok   hunk-postimage-path        ...and the differing path is reported
+  ok   textconv-path-raw          raw diff sees content hidden by textconv
+  ok   textconv-path-rc           textconv cannot create path-equivalence containment
+  ok   textconv-path-name         ...and the raw differing path is reported
+  ok   textconv-patch-raw         raw patch IDs include content hidden by textconv
+  ok   textconv-patch-rc          textconv cannot create patch-equivalence containment
+  ok   textconv-patch-name        ...and the hidden file is reported
+  ok   submodule-pin-raw          raw diff includes a gitlink despite ignore configuration
+  ok   submodule-pin-rc           an ignored submodule pin cannot false-pass
+  ok   submodule-pin-name         ...and the missing gitlink path is reported
+  ok   merge-fixture-count        the fixture contains one unique merge commit
+  ok   merge-fixture-cherry       git cherry hides that merge behind equivalent commits
+  ok   merge-resolution-rc        a merge commit cannot disappear from the patch fallback
+  ok   merge-resolution-path      ...and its unique path is reported as stranded
+  ok   replay-01-positive-replay-far-extension settled public matrix: exit AND verdict
+  ok   replay-01-proof            the new arm proves retention after real historical replay
+  ok   mutation-exact-only-01     weakened production guard changes the verdict, including its words
+  ok   replay-02-positive-replay-two-later-commits settled public matrix: exit AND verdict
+  ok   replay-02-proof            the new arm proves retention after real historical replay
+  ok   mutation-exact-only-02     weakened production guard changes the verdict, including its words
+  ok   replay-03-two-redundant-merges settled public matrix: exit AND verdict
+  ok   mutation-merge-count-03    weakened production guard changes the verdict, including its words
+  ok   replay-04-control-replay-no-later-edit settled public matrix: exit AND verdict
+  ok   replay-05-control-revert-then-reapply settled public matrix: exit AND verdict
+  ok   replay-06-pr62-faithful-later-rewrite settled public matrix: exit AND verdict
+  ok   replay-06-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-06 weakened production guard changes the verdict, including its words
+  ok   replay-07-later-disabling-rewrite settled public matrix: exit AND verdict
+  ok   replay-07-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-07 weakened production guard changes the verdict, including its words
+  ok   replay-08-published-shape-adjacent-extension settled public matrix: exit AND verdict
+  ok   replay-08-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-08 weakened production guard changes the verdict, including its words
+  ok   replay-09-later-deletion-of-touched-file settled public matrix: exit AND verdict
+  ok   replay-09-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-09 weakened production guard changes the verdict, including its words
+  ok   replay-10-later-exec-bit-loss settled public matrix: exit AND verdict
+  ok   replay-10-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-10 weakened production guard changes the verdict, including its words
+  ok   mutation-mode-rule-10      weakened production guard changes the verdict, including its words
+  ok   replay-11-later-binary-edit settled public matrix: exit AND verdict
+  ok   replay-11-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-11 weakened production guard changes the verdict, including its words
+  ok   mutation-merge-error-11    weakened production guard changes the verdict, including its words
+  ok   replay-12-exact-revert-whole-replay settled public matrix: exit AND verdict
+  ok   replay-12-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-12 weakened production guard changes the verdict, including its words
+  ok   replay-13-exact-revert-pr-commit settled public matrix: exit AND verdict
+  ok   replay-13-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-13 weakened production guard changes the verdict, including its words
+  ok   replay-14-partial-revert-one-hunk settled public matrix: exit AND verdict
+  ok   replay-14-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-14 weakened production guard changes the verdict, including its words
+  ok   mutation-tip-byte-equality-14 weakened production guard changes the verdict, including its words
+  ok   replay-15-revert-plus-far-extension settled public matrix: exit AND verdict
+  ok   replay-15-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-15 weakened production guard changes the verdict, including its words
+  ok   replay-16-revert-under-hostile-merge-config settled public matrix: exit AND verdict
+  ok   replay-16-evidence         historical landing is distinguished from unproved paths
+  ok   mutation-retention-proof-16 weakened production guard changes the verdict, including its words
+  ok   replay-17-omitted-linear-commit settled public matrix: exit AND verdict
+  ok   mutation-historical-proof-17 weakened production guard changes the verdict, including its words
+  ok   replay-18-omitted-part-of-a-commit settled public matrix: exit AND verdict
+  ok   mutation-historical-proof-18 weakened production guard changes the verdict, including its words
+  ok   replay-19-whitespace-different-postimage settled public matrix: exit AND verdict
+  ok   mutation-historical-proof-19 weakened production guard changes the verdict, including its words
+  ok   replay-20-repeated-block-other-location settled public matrix: exit AND verdict
+  ok   mutation-historical-proof-20 weakened production guard changes the verdict, including its words
+  ok   replay-21-merge-resolution-work-missing settled public matrix: exit AND verdict
+  ok   mutation-merge-tree-21     weakened production guard changes the verdict, including its words
+  ok   replay-22-merge-resolution-work-present settled public matrix: exit AND verdict
+  ok   mutation-merge-tree-22     weakened production guard changes the verdict, including its words
+  ok   replay-23-merge-one-byte-evil-change settled public matrix: exit AND verdict
+  ok   replay-24-octopus-merge    settled public matrix: exit AND verdict
+  ok   replay-25-octopus-absorbed-third-parent settled public matrix: exit AND verdict
+  ok   mutation-parent-count-25   weakened production guard changes the verdict, including its words
+  ok   replay-26-unrelated-parent-merge settled public matrix: exit AND verdict
+  ok   replay-27-redundant-plus-nonredundant-merge settled public matrix: exit AND verdict
+  ok   replay-28-first-parent-is-grandparent settled public matrix: exit AND verdict
+  ok   mutation-direct-parent-28  weakened production guard changes the verdict, including its words
+  ok   replay-29-reversed-parent-order settled public matrix: exit AND verdict
+  ok   replay-30-linear-control-exact-revert settled public matrix: exit AND verdict
+  ok   replay-31-linear-control-adjacent-extension settled public matrix: exit AND verdict
+  ok   retention-symlink-identical real Git history: exit AND verdict
+  ok   retention-symlink-identical-proof acceptance requires both historical replay and raw retention
+  ok   retention-symlink-changed  real Git history: exit AND verdict
+  ok   retention-symlink-changed-path the unproved literal path is named without decoding loss
+  ok   retention-symlink-to-file  real Git history: exit AND verdict
+  ok   retention-symlink-to-file-path the unproved literal path is named without decoding loss
+  ok   retention-file-to-symlink  real Git history: exit AND verdict
+  ok   retention-file-to-symlink-path the unproved literal path is named without decoding loss
+  ok   retention-file-to-tree     real Git history: exit AND verdict
+  ok   retention-file-to-tree-path the unproved literal path is named without decoding loss
+  ok   retention-gitlink-identical real Git history: exit AND verdict
+  ok   retention-gitlink-identical-proof acceptance requires both historical replay and raw retention
+  ok   retention-gitlink-changed  real Git history: exit AND verdict
+  ok   retention-gitlink-changed-path the unproved literal path is named without decoding loss
+  ok   retention-gitlink-to-file  real Git history: exit AND verdict
+  ok   retention-gitlink-to-file-path the unproved literal path is named without decoding loss
+  ok   retention-mode-lost        real Git history: exit AND verdict
+  ok   retention-mode-lost-path   the unproved literal path is named without decoding loss
+  ok   retention-mode-retained    real Git history: exit AND verdict
+  ok   retention-mode-retained-proof acceptance requires both historical replay and raw retention
+  ok   retention-later-mode-only  real Git history: exit AND verdict
+  ok   retention-later-mode-only-proof acceptance requires both historical replay and raw retention
+  ok   retention-addition-identical real Git history: exit AND verdict
+  ok   retention-addition-identical-proof acceptance requires both historical replay and raw retention
+  ok   retention-addition-edited  real Git history: exit AND verdict
+  ok   retention-addition-edited-path the unproved literal path is named without decoding loss
+  ok   retention-deletion-retained real Git history: exit AND verdict
+  ok   retention-deletion-retained-proof acceptance requires both historical replay and raw retention
+  ok   retention-deletion-restored real Git history: exit AND verdict
+  ok   retention-deletion-restored-path the unproved literal path is named without decoding loss
+  ok   retention-literal-':(exclude)magic' real Git history: exit AND verdict
+  ok   retention-literal-':(exclude)magic'-proof acceptance requires both historical replay and raw retention
+  ok   retention-literal-revert-':(exclude)magic' real Git history: exit AND verdict
+  ok   retention-literal-revert-':(exclude)magic'-path the unproved literal path is named without decoding loss
+  ok   retention-literal-'tab\tnewline\nend\n' real Git history: exit AND verdict
+  ok   retention-literal-'tab\tnewline\nend\n'-proof acceptance requires both historical replay and raw retention
+  ok   retention-literal-revert-'tab\tnewline\nend\n' real Git history: exit AND verdict
+  ok   retention-literal-revert-'tab\tnewline\nend\n'-path the unproved literal path is named without decoding loss
+  ok   retention-literal-'crlf\r\npath' real Git history: exit AND verdict
+  ok   retention-literal-'crlf\r\npath'-proof acceptance requires both historical replay and raw retention
+  ok   retention-literal-revert-'crlf\r\npath' real Git history: exit AND verdict
+  ok   retention-literal-revert-'crlf\r\npath'-path the unproved literal path is named without decoding loss
+  ok   retention-literal-'raw-\udcff' real Git history: exit AND verdict
+  ok   retention-literal-'raw-\udcff'-proof acceptance requires both historical replay and raw retention
+  ok   retention-literal-revert-'raw-\udcff' real Git history: exit AND verdict
+  FAIL retention-literal-revert-'raw-\udcff'-path the unproved literal path is named without decoding loss
+       got False, expected True
+  ok   retention-crlf-exact       real Git history: exit AND verdict
+  ok   retention-crlf-exact-proof acceptance requires both historical replay and raw retention
+  ok   retention-crlf-normalized-tip real Git history: exit AND verdict
+  ok   retention-crlf-normalized-tip-path the unproved literal path is named without decoding loss
+  ok   retention-raw-blob-bytes   real Git history: exit AND verdict
+  ok   retention-raw-blob-bytes-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-2-False-True real Git history: exit AND verdict
+  ok   retention-blocks-2-False-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-2-False-False real Git history: exit AND verdict
+  ok   retention-blocks-2-False-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-2-True-True real Git history: exit AND verdict
+  ok   retention-blocks-2-True-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-2-True-False real Git history: exit AND verdict
+  ok   retention-blocks-2-True-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-3-False-True real Git history: exit AND verdict
+  ok   retention-blocks-3-False-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-3-False-False real Git history: exit AND verdict
+  ok   retention-blocks-3-False-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-3-True-True real Git history: exit AND verdict
+  ok   retention-blocks-3-True-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-3-True-False real Git history: exit AND verdict
+  ok   retention-blocks-3-True-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-5-False-True real Git history: exit AND verdict
+  ok   retention-blocks-5-False-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-5-False-False real Git history: exit AND verdict
+  ok   retention-blocks-5-False-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-5-True-True real Git history: exit AND verdict
+  ok   retention-blocks-5-True-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-5-True-False real Git history: exit AND verdict
+  ok   retention-blocks-5-True-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-8-False-True real Git history: exit AND verdict
+  ok   retention-blocks-8-False-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-8-False-False real Git history: exit AND verdict
+  ok   retention-blocks-8-False-False-path the unproved literal path is named without decoding loss
+  ok   retention-blocks-8-True-True real Git history: exit AND verdict
+  ok   retention-blocks-8-True-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-blocks-8-True-False real Git history: exit AND verdict
+  ok   retention-blocks-8-True-False-path the unproved literal path is named without decoding loss
+  ok   retention-command-ls-tree-0 real Git history: exit AND verdict
+  ok   retention-command-ls-tree-1 real Git history: exit AND verdict
+  ok   retention-command-diff-2   real Git history: exit AND verdict
+  ok   retention-command-diff-3   real Git history: exit AND verdict
+  ok   retention-command-cat-file-4 real Git history: exit AND verdict
+  ok   retention-command-merge-file-5 real Git history: exit AND verdict
+  ok   retention-command-merge-file-6 real Git history: exit AND verdict
+  ok   retention-execution-error  real Git history: exit AND verdict
+  ok   retention-temporary-storage-error real Git history: exit AND verdict
+  ok   retention-temporary-storage-error-path the unproved literal path is named without decoding loss
+  ok   retention-graph-error-0    real Git history: exit AND verdict
+  ok   retention-graph-error-1    real Git history: exit AND verdict
+  ok   retention-graph-error-2    real Git history: exit AND verdict
+  ok   retention-graph-error-3    real Git history: exit AND verdict
+  ok   retention-graph-error-4    real Git history: exit AND verdict
+  ok   retention-missing-blob     real Git history: exit AND verdict
+  ok   retention-restored-blob    real Git history: exit AND verdict
+  ok   retention-restored-blob-proof acceptance requires both historical replay and raw retention
+  ok   retention-hostile-True     real Git history: exit AND verdict
+  ok   retention-hostile-True-proof acceptance requires both historical replay and raw retention
+  ok   retention-hostile-False    real Git history: exit AND verdict
+  ok   retention-hostile-no-drivers raw measurements never invoked configured drivers or filters
+  ok   retention-invalid-config   real Git history: exit AND verdict
+  ok   retention-invalid-config-path the unproved literal path is named without decoding loss
+  ok   retention-sha256           real Git history: exit AND verdict
+  ok   retention-sha256-proof     acceptance requires both historical replay and raw retention
+  ok   retention-sha256-revert    real Git history: exit AND verdict
+  ok   retention-sha256-revert-path the unproved literal path is named without decoding loss
+  ok   locale-utf-8-process       fresh Python completed the raw-name controls
+  ok   locale-utf-8-population    encoding witness plus CLI, path, entry and patch controls
+  ok   locale-utf-8-filesystem-encoding actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-utf-8-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-process       fresh Python completed the raw-name controls
+  ok   locale-ascii-population    encoding witness plus CLI, path, entry and patch controls
+  ok   locale-ascii-filesystem-encoding actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-ascii-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-process   fresh Python completed the raw-name controls
+  ok   locale-iso8859-1-population encoding witness plus CLI, path, entry and patch controls
+  ok   locale-iso8859-1-filesystem-encoding actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-linear-missing actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-linear-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-merge-reverted actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-unproved-path actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-merge-retained actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-retention-proof actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-postimage actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-entry actual filesystem encoding and literal Git filename bytes
+  ok   locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes actual filesystem encoding and literal Git filename bytes
+selftest: 1 FAILURE(S)

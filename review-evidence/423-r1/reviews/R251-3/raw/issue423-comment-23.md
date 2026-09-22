@@ -1,0 +1,4 @@
+https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5782352102
+[A10] F3 CORRECTED SOURCE VALIDATION STARTED
+
+Source `4671e582cfa4bba4809b9e3a354ce5b6eb967f99`, tree `afc8eadb3e9f6611dfb62347580b49dc721d25c0`, actual base `52711029f374650dc93830d5ea28e81cb5c8f410` now runs all 49 static/builder commands and five complete native groups in separate verified clones. Only the diagnostic expectation in the raw-filename test changes since the previous source. The original fixture bytes, verdict and exact-path assertions remain. Scoped Verilator 5.050 is retained and Yosys is uncached. Initial tracked bytes/modes/index and three required processor/AXIS pins verify. The earlier source results keep their original head; no result is relabeled. PR #519 remains draft until these full banks pass. Independent F3 resolution, external R244 review, trusted act, new hosted evidence and final current-dev candidate remain pending.

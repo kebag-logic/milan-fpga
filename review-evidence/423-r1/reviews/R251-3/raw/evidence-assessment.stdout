@@ -1,0 +1,36 @@
+PASS: manager 49+5 receipts bound to source/base; prior 31-case evidence and donor object identity accepted; all 455 names/order and original 145 controls preserved in both current parents
+[
+  {
+    "restoration": "patch-inverse",
+    "actual_failed_assertions": [
+      "locale-iso8859-1-c3a92e747874-patch-bytes",
+      "locale-iso8859-1-7261772dff-patch-bytes",
+      "locale-iso8859-1-e282ac2e747874-patch-bytes",
+      "locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes"
+    ],
+    "count": 4
+  },
+  {
+    "restoration": "retention-decoder",
+    "actual_failed_assertions": [
+      "locale-ascii-process",
+      "locale-iso8859-1-process"
+    ],
+    "count": 2
+  },
+  {
+    "restoration": "returned-name",
+    "actual_failed_assertions": [
+      "locale-iso8859-1-process"
+    ],
+    "count": 1
+  },
+  {
+    "restoration": "shared-decoder",
+    "actual_failed_assertions": [
+      "locale-ascii-process",
+      "locale-iso8859-1-process"
+    ],
+    "count": 2
+  }
+]

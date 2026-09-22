@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5772003744
+[A10] READINESS MEASUREMENT - no implementation
+
+Reconstructed the public history. Merge f27b45500cb02a5277b5cb32cef408658c1f914e has exactly two parents, 7fa64e99490b4648797374d3fdb1fedf08145e91 and 9790ac736e6d10301ad814ffdf73dbe37b59768b; the first is the second's parent, and the merge tree equals the second tree. This is the narrow no-fast-forward shape, not arbitrary merge-resolution equivalence. The current unchanged trusted checker still reports three stranded commits at both the issue's original f0f1c055 base and live donor main.
+
+A minimal offline Git fixture now reproduces the failure. It also exposes a constraint on the tempting shortcut: simply admitting that structural merge before the existing historical linear-patch proof accepts both an exact replay with a later extension AND an exact replay followed by a later exact revert. The existing public checker refuses both merge-shaped fixtures. Thus topology equivalence alone does not satisfy proposed AC3's later-reversion requirement. No such shortcut, test relaxation or new containment claim was adopted.
+
+Portable fixture, exact topology, current outputs and original/published hashes: https://github.com/kebag-logic/milan-fpga/tree/6181e900cd9f7ae618e1603e2ea867a5bb4d41a6/readiness-evidence/423 . Run the fixture against the unchanged trusted checker as documented. The safe criterion and the retention/history policy boundary still need the issue's independent readiness/design review before implementation. Status remains Backlog; no executor or implementation branch is assigned.

@@ -1,0 +1,14 @@
+--- R251-2/run_public_examples.py
++++ R251-3/run_public_examples.py
+@@ -12,9 +12,9 @@
+ a=p.parse_args()
+ root=Path(__file__).resolve().parents[1]
+ a.output.mkdir(parents=True,exist_ok=True)
+-original=(root/'public/review/R244-interrupted/locale_transport_probe.sh').read_text()
++original=(root/'public/original-locale-probe.sh').read_text()
+ adapted=original.replace('HEAD_SHA=df53dfa116b34816db0193230ad9833e67bf46dd',
+-                         'HEAD_SHA=b911c11671cae329a99f5e413133b4bf6357fa7f').replace('head-df53dfa1','head-b911c116')
++                         'HEAD_SHA=4671e582cfa4bba4809b9e3a354ce5b6eb967f99').replace('head-df53dfa1','head-4671e582')
+ script=a.output/'locale_transport_probe-corrected.sh'
+ script.write_text(adapted)
+ env=dict(os.environ,PYTHONUTF8='0',PYTHONCOERCECLOCALE='0',PYTHONDONTWRITEBYTECODE='1',
