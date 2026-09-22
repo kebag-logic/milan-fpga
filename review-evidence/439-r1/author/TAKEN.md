@@ -1,0 +1,9 @@
+[A181] TAKEN
+Branch: 439-rtl-script-content-pins
+Base: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+Executor: A181; independent reviewers reserved: internal R254 Codex and external R255 Opus (availability pending).
+Authoritative references: REQ-VER-01/02/04; CONTRIBUTING.md; docs/README.md; CI_WORKFLOWS.md items 4, 7, 11, 12 and One authoritative SHA; #407 landed comparison; scope decision https://github.com/kebag-logic/milan-fpga/issues/439#issuecomment-5772547851; assignment https://github.com/kebag-logic/milan-fpga/issues/439#issuecomment-5782501927.
+Interpreted scope: record and compare every recognized run body in the seven RTL jobs plus full-ci-gate's named SHA-pin step. Preserve sequence/membership authority, specialized checks, current normalization, workflows, carriers, budgets and existing self-test populations. Use the existing normalized-script comparator, with controls derived from live steps requiring its own job/step/first-line diagnostics; exercise missing/empty/stale records, per-line edits, matching maintenance, and wiring removal.
+Validation: pristine and corrected python3 scripts/ci_events.py --check and --selftest; focused negative/positive/mutation controls; relevant docs, em-dash (explicit base), contents, Python idiom, evidence, fail-fast and TODO gates. Pristine results: 1513 contract items, 1150 self-test arms, both exit 0. Jobs bounded to eight. Preserve raw outputs, failures, exact argv/exits and integrity manifests in the authorized management evidence directory.
+Source remains clean at handoff and unpublished. Manager owns full local/native banks, trusted act, hosted evidence, current-dev/#504 integration, reviews and merge/containment. Only public PR521 diff was consulted to identify distinct non-RTL SDK hunks.
+Blockers: none for source implementation; remote dev ref absent locally, so supplied exact base is used without moving another checkout.
