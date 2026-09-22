@@ -1,0 +1,55 @@
+{
+ "arms_b17580b9": 590,
+ "duplicate_labels_b17580b9": [],
+ "arms_6af65a15": 833,
+ "duplicate_labels_6af65a15": [],
+ "arms_ad624931": 1046,
+ "duplicate_labels_ad624931": [],
+ "b17580b9_arms_missing_at_head": [],
+ "b17580b9_arms_with_changed_want": [],
+ "6af65a15_arms_missing_at_head": [],
+ "6af65a15_arms_with_changed_want": [],
+ "b17580b9_arms_with_changed_effect": [],
+ "6af65a15_arms_with_changed_effect": [],
+ "new_at_r1": 243,
+ "new_at_head": 213,
+ "new_at_head_by_lever": {
+  "append-command": 56,
+  "or-true": 117,
+  "reorder-lines": 40
+ },
+ "new_at_r1_by_lever": {
+  "continue-on-error": 56,
+  "drop-command": 40,
+  "drop-flag": 35,
+  "no-op": 56,
+  "or-true": 56
+ },
+ "expected_new_population": 213,
+ "line_swallow_arms_expected": 173,
+ "line_swallow_arms_present": 173,
+ "ac5_arm": {
+  "name": "carrier-script-407 docs-check step 34 or-true-line-1",
+  "present": true,
+  "want": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py'",
+  "edited_run": "python3 scripts/check_py_idiom.py || true\npython3 scripts/check_py_idiom.py --selftest",
+  "present_at_r1": false
+ },
+ "head_arm_misses_real_checker": [],
+ "problems": []
+}
+bounded --check lines:
+  docs-check step 9 line 1: carrier-script-407 docs-check step 9 or-true-line-1 head=True r1=False
+  docs-check step 9 line 3: carrier-script-407 docs-check step 9 or-true-line-3 head=True r1=False
+  docs-check step 11 line 1: carrier-script-407 docs-check step 11 or-true-line-1 head=True r1=False
+  docs-check step 12 line 2: carrier-script-407 docs-check step 12 or-true-line-2 head=True r1=False
+  docs-check step 12 line 3: carrier-script-407 docs-check step 12 or-true-line-3 head=True r1=False
+  docs-check step 12 line 4: carrier-script-407 docs-check step 12 or-true head=True r1=True
+  docs-check step 15 line 1: carrier-script-407 docs-check step 15 or-true head=True r1=True
+  docs-check step 20 line 1: carrier-script-407 docs-check step 20 or-true-line-1 head=True r1=False
+  docs-check step 26 line 1: carrier-script-407 docs-check step 26 or-true-line-1 head=True r1=False
+  docs-check step 28 line 1: carrier-script-407 docs-check step 28 or-true-line-1 head=True r1=False
+  docs-check step 30 line 1: carrier-script-407 docs-check step 30 or-true-line-1 head=True r1=False
+  docs-check step 31 line 1: carrier-script-407 docs-check step 31 or-true-line-1 head=True r1=False
+  docs-check step 36 line 1: carrier-script-407 docs-check step 36 or-true-line-1 head=True r1=False
+  docs-check step 40 line 3: carrier-script-407 docs-check step 40 or-true head=True r1=True

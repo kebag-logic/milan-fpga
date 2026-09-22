@@ -1,0 +1,778 @@
+{
+ "6af65a15 pristine": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 0,
+  "selftest_tail": [
+   "selftest: PASS (1505 contract items, 931 arms)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": []
+ },
+ "6af65a15 M5b-nonlast-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 0,
+  "selftest_tail": [
+   "selftest: PASS (1505 contract items, 931 arms)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": []
+ },
+ "6af65a15 M5a-any-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 54 FAILURE(S)"
+  ],
+  "arms_not_caught": 54,
+  "not_caught_by_lever": {
+   "or-true": 54
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 4 or-true",
+   "carrier-script-407 docs-check step 5 or-true",
+   "carrier-script-407 docs-check step 6 or-true",
+   "carrier-script-407 docs-check step 7 or-true",
+   "carrier-script-407 docs-check step 8 or-true"
+  ]
+ },
+ "6af65a15 M5c-last-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 54 FAILURE(S)"
+  ],
+  "arms_not_caught": 54,
+  "not_caught_by_lever": {
+   "or-true": 54
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 4 or-true",
+   "carrier-script-407 docs-check step 5 or-true",
+   "carrier-script-407 docs-check step 6 or-true",
+   "carrier-script-407 docs-check step 7 or-true",
+   "carrier-script-407 docs-check step 8 or-true"
+  ]
+ },
+ "6af65a15 M-check-lines-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 3 FAILURE(S)"
+  ],
+  "arms_not_caught": 3,
+  "not_caught_by_lever": {
+   "or-true": 3
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 12 or-true",
+   "carrier-script-407 docs-check step 15 or-true",
+   "carrier-script-407 docs-check step 40 or-true"
+  ]
+ },
+ "6af65a15 M-ac5-idiom-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 1 FAILURE(S)"
+  ],
+  "arms_not_caught": 1,
+  "not_caught_by_lever": {
+   "or-true": 1
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 34 or-true"
+  ]
+ },
+ "6af65a15 M4-prefix-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 0,
+  "selftest_tail": [
+   "selftest: PASS (1505 contract items, 931 arms)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": []
+ },
+ "6af65a15 M1-order-insensitive": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 0,
+  "selftest_tail": [
+   "selftest: PASS (1505 contract items, 931 arms)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": []
+ },
+ "6af65a15 M-truncation-accepted": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 40 FAILURE(S)"
+  ],
+  "arms_not_caught": 40,
+  "not_caught_by_lever": {
+   "drop-command": 40
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 5 drop-command",
+   "carrier-script-407 docs-check step 7 drop-command",
+   "carrier-script-407 docs-check step 8 drop-command",
+   "carrier-script-407 docs-check step 9 drop-command",
+   "carrier-script-407 docs-check step 10 drop-command"
+  ]
+ },
+ "6af65a15 M-first-line-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 96 FAILURE(S)"
+  ],
+  "arms_not_caught": 96,
+  "not_caught_by_lever": {
+   "drop-command": 40,
+   "drop-flag": 16,
+   "or-true": 40
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 2 drop-flag",
+   "carrier-script-407 docs-check step 5 or-true",
+   "carrier-script-407 docs-check step 5 drop-command",
+   "carrier-script-407 docs-check step 7 or-true"
+  ]
+ },
+ "6af65a15 M-length-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 107 FAILURE(S)"
+  ],
+  "arms_not_caught": 107,
+  "not_caught_by_lever": {
+   "drop-flag": 35,
+   "no-op": 16,
+   "or-true": 56
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 drop-flag",
+   "carrier-script-407 docs-check step 4 no-op",
+   "carrier-script-407 docs-check step 4 or-true",
+   "carrier-script-407 docs-check step 5 or-true",
+   "carrier-script-407 docs-check step 6 no-op"
+  ]
+ },
+ "6af65a15 M-flags-ignored": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 35 FAILURE(S)"
+  ],
+  "arms_not_caught": 35,
+  "not_caught_by_lever": {
+   "drop-flag": 35
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 drop-flag",
+   "carrier-script-407 docs-check step 8 drop-flag",
+   "carrier-script-407 docs-check step 9 drop-flag",
+   "carrier-script-407 docs-check step 10 drop-flag",
+   "carrier-script-407 docs-check step 11 drop-flag",
+   "carrier-script-407 docs-check step 12 drop-flag"
+  ]
+ },
+ "6af65a15 M-noop-accepted": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 56,
+  "not_caught_by_lever": {
+   "no-op": 56
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 no-op",
+   "carrier-script-407 docs-check step 4 no-op",
+   "carrier-script-407 docs-check step 5 no-op",
+   "carrier-script-407 docs-check step 6 no-op",
+   "carrier-script-407 docs-check step 7 no-op",
+   "carrier-script-407 docs-check step 8 no-op"
+  ]
+ },
+ "6af65a15 M-comparison-removed": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 187 FAILURE(S)"
+  ],
+  "arms_not_caught": 187,
+  "not_caught_by_lever": {
+   "drop-command": 40,
+   "drop-flag": 35,
+   "no-op": 56,
+   "or-true": 56
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 no-op",
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 2 drop-flag",
+   "carrier-script-407 docs-check step 4 no-op",
+   "carrier-script-407 docs-check step 4 or-true"
+  ]
+ },
+ "6af65a15 M-record-enforcement-removed": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [
+   "  FAIL carrier-script-407 docs-check step 2 missing record: expected 'job `docs-check` step 2 (`Build the validated HDL reference`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 4 missing record: expected 'job `docs-check` step 4 (`Install the python gate dependencies`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 5 missing record: expected 'job `docs-check` step 5 (`Install diagram gate dependencies`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 6 missing record: expected 'job `docs-check` step 6 (`Link health, wording, dead-reference and local-info gate`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 7 missing record: expected 'job `docs-check` step 7 (`Added-line em-dash gate`) must record a canonical normalized `run` script', got []"
+  ],
+  "other_failure_count": 56,
+  "not_caught_sample": []
+ },
+ "6af65a15 M-elaborate-skipped": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1481 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 46 FAILURE(S)"
+  ],
+  "arms_not_caught": 34,
+  "not_caught_by_lever": {
+   "drop-command": 8,
+   "drop-flag": 2,
+   "no-op": 12,
+   "or-true": 12
+  },
+  "ac5_arm_named": false,
+  "other_failures": [
+   "  FAIL carrier-script-407 elaborate step 2 missing record: expected 'job `elaborate` step 2 (`Decide whether this head needs an elaboration`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 3 missing record: expected 'job `elaborate` step 3 (`Fetch the source dependencies the elaboration reads`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 4 missing record: expected 'job `elaborate` step 4 (`Install the pinned sv2v release`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 7 missing record: expected 'job `elaborate` step 7 (`Install LiteX at the pinned revisions`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 10 missing record: expected 'job `elaborate` step 10 (`Install sbt`) must record a canonical normalized `run` script', got []"
+  ],
+  "other_failure_count": 12,
+  "not_caught_sample": [
+   "carrier-script-407 elaborate step 2 no-op",
+   "carrier-script-407 elaborate step 2 or-true",
+   "carrier-script-407 elaborate step 2 drop-command",
+   "carrier-script-407 elaborate step 2 drop-flag",
+   "carrier-script-407 elaborate step 3 no-op",
+   "carrier-script-407 elaborate step 3 or-true"
+  ]
+ },
+ "ad624931 pristine": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 0,
+  "selftest_tail": [
+   "selftest: PASS (1505 contract items, 1144 arms)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": []
+ },
+ "ad624931 M5b-nonlast-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 117 FAILURE(S)"
+  ],
+  "arms_not_caught": 117,
+  "not_caught_by_lever": {
+   "or-true": 117
+  },
+  "ac5_arm_named": true,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true-line-1",
+   "carrier-script-407 docs-check step 2 or-true-line-2",
+   "carrier-script-407 docs-check step 2 or-true-line-3",
+   "carrier-script-407 docs-check step 5 or-true-line-1",
+   "carrier-script-407 docs-check step 5 or-true-line-2",
+   "carrier-script-407 docs-check step 7 or-true-line-1"
+  ]
+ },
+ "ad624931 M5a-any-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 171 FAILURE(S)"
+  ],
+  "arms_not_caught": 171,
+  "not_caught_by_lever": {
+   "or-true": 171
+  },
+  "ac5_arm_named": true,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 or-true-line-1",
+   "carrier-script-407 docs-check step 2 or-true-line-2",
+   "carrier-script-407 docs-check step 2 or-true-line-3",
+   "carrier-script-407 docs-check step 4 or-true",
+   "carrier-script-407 docs-check step 5 or-true"
+  ]
+ },
+ "ad624931 M5c-last-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 54 FAILURE(S)"
+  ],
+  "arms_not_caught": 54,
+  "not_caught_by_lever": {
+   "or-true": 54
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 4 or-true",
+   "carrier-script-407 docs-check step 5 or-true",
+   "carrier-script-407 docs-check step 6 or-true",
+   "carrier-script-407 docs-check step 7 or-true",
+   "carrier-script-407 docs-check step 8 or-true"
+  ]
+ },
+ "ad624931 M-check-lines-or-true": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 14 FAILURE(S)"
+  ],
+  "arms_not_caught": 14,
+  "not_caught_by_lever": {
+   "or-true": 14
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 9 or-true-line-1",
+   "carrier-script-407 docs-check step 9 or-true-line-3",
+   "carrier-script-407 docs-check step 11 or-true-line-1",
+   "carrier-script-407 docs-check step 12 or-true",
+   "carrier-script-407 docs-check step 12 or-true-line-2",
+   "carrier-script-407 docs-check step 12 or-true-line-3"
+  ]
+ },
+ "ad624931 M-ac5-idiom-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "arms_not_caught": 2,
+  "not_caught_by_lever": {
+   "or-true": 2
+  },
+  "ac5_arm_named": true,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 34 or-true",
+   "carrier-script-407 docs-check step 34 or-true-line-1"
+  ]
+ },
+ "ad624931 M4-prefix-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 56,
+  "not_caught_by_lever": {
+   "append-command": 56
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 append-command",
+   "carrier-script-407 docs-check step 4 append-command",
+   "carrier-script-407 docs-check step 5 append-command",
+   "carrier-script-407 docs-check step 6 append-command",
+   "carrier-script-407 docs-check step 7 append-command",
+   "carrier-script-407 docs-check step 8 append-command"
+  ]
+ },
+ "ad624931 M1-order-insensitive": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 40 FAILURE(S)"
+  ],
+  "arms_not_caught": 40,
+  "not_caught_by_lever": {
+   "reorder-lines": 40
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 reorder-lines",
+   "carrier-script-407 docs-check step 5 reorder-lines",
+   "carrier-script-407 docs-check step 7 reorder-lines",
+   "carrier-script-407 docs-check step 8 reorder-lines",
+   "carrier-script-407 docs-check step 9 reorder-lines",
+   "carrier-script-407 docs-check step 10 reorder-lines"
+  ]
+ },
+ "ad624931 M-truncation-accepted": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 40 FAILURE(S)"
+  ],
+  "arms_not_caught": 40,
+  "not_caught_by_lever": {
+   "drop-command": 40
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 5 drop-command",
+   "carrier-script-407 docs-check step 7 drop-command",
+   "carrier-script-407 docs-check step 8 drop-command",
+   "carrier-script-407 docs-check step 9 drop-command",
+   "carrier-script-407 docs-check step 10 drop-command"
+  ]
+ },
+ "ad624931 M-first-line-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 229 FAILURE(S)"
+  ],
+  "arms_not_caught": 229,
+  "not_caught_by_lever": {
+   "append-command": 56,
+   "drop-command": 40,
+   "drop-flag": 16,
+   "or-true": 117
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 2 or-true-line-2",
+   "carrier-script-407 docs-check step 2 or-true-line-3",
+   "carrier-script-407 docs-check step 2 append-command",
+   "carrier-script-407 docs-check step 2 drop-flag"
+  ]
+ },
+ "ad624931 M-length-only": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 264 FAILURE(S)"
+  ],
+  "arms_not_caught": 264,
+  "not_caught_by_lever": {
+   "drop-flag": 35,
+   "no-op": 16,
+   "or-true": 173,
+   "reorder-lines": 40
+  },
+  "ac5_arm_named": true,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 or-true-line-1",
+   "carrier-script-407 docs-check step 2 or-true-line-2",
+   "carrier-script-407 docs-check step 2 or-true-line-3",
+   "carrier-script-407 docs-check step 2 reorder-lines",
+   "carrier-script-407 docs-check step 2 drop-flag"
+  ]
+ },
+ "ad624931 M-flags-ignored": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 56,
+  "not_caught_by_lever": {
+   "drop-flag": 35,
+   "reorder-lines": 21
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 drop-flag",
+   "carrier-script-407 docs-check step 8 reorder-lines",
+   "carrier-script-407 docs-check step 8 drop-flag",
+   "carrier-script-407 docs-check step 9 reorder-lines",
+   "carrier-script-407 docs-check step 9 drop-flag",
+   "carrier-script-407 docs-check step 10 reorder-lines"
+  ]
+ },
+ "ad624931 M-noop-accepted": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 56,
+  "not_caught_by_lever": {
+   "no-op": 56
+  },
+  "ac5_arm_named": false,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 no-op",
+   "carrier-script-407 docs-check step 4 no-op",
+   "carrier-script-407 docs-check step 5 no-op",
+   "carrier-script-407 docs-check step 6 no-op",
+   "carrier-script-407 docs-check step 7 no-op",
+   "carrier-script-407 docs-check step 8 no-op"
+  ]
+ },
+ "ad624931 M-comparison-removed": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 400 FAILURE(S)"
+  ],
+  "arms_not_caught": 400,
+  "not_caught_by_lever": {
+   "append-command": 56,
+   "drop-command": 40,
+   "drop-flag": 35,
+   "no-op": 56,
+   "or-true": 173,
+   "reorder-lines": 40
+  },
+  "ac5_arm_named": true,
+  "other_failures": [],
+  "other_failure_count": 0,
+  "not_caught_sample": [
+   "carrier-script-407 docs-check step 2 no-op",
+   "carrier-script-407 docs-check step 2 or-true",
+   "carrier-script-407 docs-check step 2 drop-command",
+   "carrier-script-407 docs-check step 2 or-true-line-1",
+   "carrier-script-407 docs-check step 2 or-true-line-2",
+   "carrier-script-407 docs-check step 2 or-true-line-3"
+  ]
+ },
+ "ad624931 M-record-enforcement-removed": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 56 FAILURE(S)"
+  ],
+  "arms_not_caught": 0,
+  "not_caught_by_lever": {},
+  "ac5_arm_named": false,
+  "other_failures": [
+   "  FAIL carrier-script-407 docs-check step 2 missing record: expected 'job `docs-check` step 2 (`Build the validated HDL reference`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 4 missing record: expected 'job `docs-check` step 4 (`Install the python gate dependencies`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 5 missing record: expected 'job `docs-check` step 5 (`Install diagram gate dependencies`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 6 missing record: expected 'job `docs-check` step 6 (`Link health, wording, dead-reference and local-info gate`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 docs-check step 7 missing record: expected 'job `docs-check` step 7 (`Added-line em-dash gate`) must record a canonical normalized `run` script', got []"
+  ],
+  "other_failure_count": 56,
+  "not_caught_sample": []
+ },
+ "ad624931 M-elaborate-skipped": {
+  "check_rc": 0,
+  "check_tail": [
+   "ci_events: OK (1481 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "selftest_rc": 1,
+  "selftest_tail": [
+   "selftest: 111 FAILURE(S)"
+  ],
+  "arms_not_caught": 99,
+  "not_caught_by_lever": {
+   "append-command": 12,
+   "drop-command": 8,
+   "drop-flag": 2,
+   "no-op": 12,
+   "or-true": 57,
+   "reorder-lines": 8
+  },
+  "ac5_arm_named": false,
+  "other_failures": [
+   "  FAIL carrier-script-407 elaborate step 2 missing record: expected 'job `elaborate` step 2 (`Decide whether this head needs an elaboration`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 3 missing record: expected 'job `elaborate` step 3 (`Fetch the source dependencies the elaboration reads`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 4 missing record: expected 'job `elaborate` step 4 (`Install the pinned sv2v release`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 7 missing record: expected 'job `elaborate` step 7 (`Install LiteX at the pinned revisions`) must record a canonical normalized `run` script', got []",
+   "  FAIL carrier-script-407 elaborate step 10 missing record: expected 'job `elaborate` step 10 (`Install sbt`) must record a canonical normalized `run` script', got []"
+  ],
+  "other_failure_count": 12,
+  "not_caught_sample": [
+   "carrier-script-407 elaborate step 2 no-op",
+   "carrier-script-407 elaborate step 2 or-true",
+   "carrier-script-407 elaborate step 2 drop-command",
+   "carrier-script-407 elaborate step 2 or-true-line-1",
+   "carrier-script-407 elaborate step 2 or-true-line-2",
+   "carrier-script-407 elaborate step 2 or-true-line-3"
+  ]
+ }
+}

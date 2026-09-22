@@ -1,0 +1,28 @@
+S0 pristine HEAD
+   check: rc=0 ['ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)'] fails=0
+   selftest: rc=0 ['selftest: PASS (1505 contract items, 1144 arms)'] fails=0
+S1 workflow-only edit
+   check: rc=1 ['ci_events: 1 finding(s) over 1505 contract item(s)'] fails=1
+      FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found 'python3 scripts/check_py_idiom.py --list-rules'); 2 line(s) expected, 3 found
+   selftest: rc=1 ['selftest: 6 FAILURE(S)'] fails=6
+      FAIL pristine tree is not clean: .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found 'python3 scripts/check_py_idiom.py --list-rules'); 2 line(s) expected, 3 found
+      FAIL mutation not caught: [carrier-script-407 docs-check step 34 or-true] expected a finding naming "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be 'python3 scripts/check_py_idiom.py --list-rules'", got [".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found 'python3 s
+S2 workflow edit + record update
+   check: rc=0 ['ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)'] fails=0
+   selftest: rc=0 ['selftest: PASS (1505 contract items, 1145 arms)'] fails=0
+S3 record-only edit
+   check: rc=1 ['ci_events: 1 finding(s) over 1505 contract item(s)'] fails=1
+      FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py --strict' (found 'python3 scripts/check_py_idiom.py'); 2 line(s) expected, 2 found
+S4 whitespace-only reformat
+   check: rc=0 ['ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)'] fails=0
+S5 elaborate edit + record
+   check: rc=0 ['ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)'] fails=0
+   selftest: rc=0 ['selftest: PASS (1505 contract items, 1144 arms)'] fails=0
+S6 AC5 tamper at b17580b9
+   check: rc=0 ['ci_events: OK (1393 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)'] fails=0
+S6 AC5 tamper at 6af65a15
+   check: rc=1 ['ci_events: 1 finding(s) over 1505 contract item(s)'] fails=1
+      FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found
+S6 AC5 tamper at ad624931
+   check: rc=1 ['ci_events: 1 finding(s) over 1505 contract item(s)'] fails=1
+      FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found

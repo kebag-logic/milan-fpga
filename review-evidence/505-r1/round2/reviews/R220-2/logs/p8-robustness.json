@@ -1,0 +1,215 @@
+{
+ "cases": [
+  {
+   "case": "NBSP inside a word gap",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found '<<refused>> line 1 column 8 carries U+00A0",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found '<<refused>> line 1 column 8 carries U+00A0 NO-BREAK SPACE; a pinned script may separate word"
+   ],
+   "ok": true
+  },
+  {
+   "case": "CRLF line endings",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found '<<refused>> line 1 column 34 carries U+000D an unnamed character; a pinned script may separa"
+   ],
+   "ok": true
+  },
+  {
+   "case": "U+2028 line separator",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found '<<refused>> line 1 column 34 carries U+2028 LINE SEPARATOR; a pinned script may separate wor"
+   ],
+   "ok": true
+  },
+  {
+   "case": "empty body",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None)",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None); 2 line(s) expected, 0 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "whitespace-only body",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None)",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None); 2 line(s) expected, 0 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "comment line appended",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found '# note')",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 3 must be None (found '# note'); 2 line(s) expected, 3 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "set +e prepended",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'set +e')",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'set +e'); 2 line(s) expected, 3 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "line duplicated",
+   "expect": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 2 must be",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 2 must be 'python3 scripts/check_py_idiom.py --selftest' (found 'python3 scripts/check_py_idiom.py'); 2 line(s) expected, 3 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "swallowed middle command (SoC line 4)",
+   "expect": "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 4 must be",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 4 must be 'sudo apt-get update -qq' (found 'sudo apt-get update -qq || true'); 7 line(s) expected, 7"
+   ],
+   "ok": true
+  },
+  {
+   "case": "command moved into the tclsh block",
+   "expect": "job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 2 must be",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 24 (`SoC source-list gate (Vivado would fail 40 min in without this)`) script is not the canonical form: line 2 must be 'python3 scripts/check_soc_sources.py --selftest' (found 'command -v tclsh >/dev/null || {"
+   ],
+   "ok": true
+  },
+  {
+   "case": "non-string run (list)",
+   "expect": "job `docs-check` step 34 must be the step named `Python idiom gate`",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 must be the step named `Python idiom gate` (found `Python idiom gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+   ],
+   "ok": true
+  },
+  {
+   "case": "run key removed",
+   "expect": "job `docs-check` step 34 must be the step named `Python idiom gate`",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 must be the step named `Python idiom gate` (found `Python idiom gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+   ],
+   "ok": true
+  },
+  {
+   "case": "tabs and continuation (same script)",
+   "expect": null,
+   "refused": false,
+   "matched": false,
+   "findings": [],
+   "ok": true
+  },
+  {
+   "case": "elaborate: patch series swallowed",
+   "expect": "job `elaborate` step 12 (`Apply the toolchain patch series`) script is not the canonical form: line 1",
+   "refused": true,
+   "matched": true,
+   "findings": [
+    ".github/workflows/elaborate.yml: job `elaborate` step 12 (`Apply the toolchain patch series`) script is not the canonical form: line 1 must be 'sw/litex/patches/apply.sh' (found 'sw/litex/patches/apply.sh || true'); 1 line(s) expected, 1 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: list not tuple",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: empty tuple",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: non-string element",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: raw string",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: missing",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: not normalized (double space)",
+   "expect": "script is not the canonical form: line 1 must be 'python3  scripts/check_py_idiom.py'",
+   "findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3  scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py'); 2 line(s) expected, 2 found"
+   ],
+   "ok": true
+  },
+  {
+   "case": "record: elaborate missing",
+   "expect": "must record a canonical normalized `run` script",
+   "findings": [
+    ".github/workflows/elaborate.yml: job `elaborate` step 13 (`Elaboration gates`) must record a canonical normalized `run` script"
+   ],
+   "ok": true
+  }
+ ],
+ "generator": [
+  {
+   "case": "whitespace-only live body",
+   "outcome": "raised IndexError: list index out of range",
+   "check_findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found None); 2 line(s) expected, 0 foun"
+   ]
+  },
+  {
+   "case": "live run step without name",
+   "outcome": "raised KeyError: 'name'",
+   "check_findings": [
+    ".github/workflows/docs.yml: job `docs-check` step 34 must be the step named `Python idiom gate` (found an unnamed step): the position is the contract -- the steps before this one decide what it reads,"
+   ]
+  }
+ ],
+ "all_ok": true
+}
