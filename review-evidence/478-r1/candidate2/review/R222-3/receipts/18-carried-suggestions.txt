@@ -1,0 +1,15 @@
+tb/verilator/pp_shadow/sim_main.cpp cand=98523e1bbb9674b3548738753d61c47476e30636 src=98523e1bbb9674b3548738753d61c47476e30636
+avdecc/aem_specs.py cand=7a6378d5acf8134cdf29ddcf57a876bebed9829a src=7a6378d5acf8134cdf29ddcf57a876bebed9829a
+docs/ENDSTATION_BUILDER.md cand=b66600c8326b7eeb91fc53de111f6585c7b3d47a src=b66600c8326b7eeb91fc53de111f6585c7b3d47a
+    static constexpr uint32_t AU_RATES_C[3] = {
+        48000u, 96000u, 192000u};
+    static constexpr uint32_t AU_CUR_RATE_C = 48000u;
+    static constexpr size_t   AU_LEN_C     = 144 + 4 * 3;        // Table 7-5, 3 rates
+            put16be_v(d, 142, 3);                    // sampling_rates_count
+            for (size_t k = 0; k < 3; k++)
+---
+    rates_hz = [int(r) for r in ovl["sampling_rates_hz"]]
+    if any(hz not in (48000, 96000, 192000) for hz in rates_hz):
+        raise ValueError(f"unsupported sampling rates {rates_hz}")
+---
+| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sample_rates` list; defaults to `[sampling_rate_hz]`. Order is preserved, and the current rate must appear. Duplicate entries and lists exceeding eight entries raise `ConfigError`. The maxi

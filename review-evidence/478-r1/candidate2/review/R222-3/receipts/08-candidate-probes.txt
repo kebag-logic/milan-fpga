@@ -1,0 +1,121 @@
+python 3.14.7 (/usr/bin/python3)
+cand root @ 72e16c6172db723734317b105cff6c6e9168571a tree 93be2b5788c4b79e88bfe22fbaf985686bbdc8f2
+dev root @ 52711029f374650dc93830d5ea28e81cb5c8f410 tree 31ddc6b5615ff91ceed7a6b52afca61c5fb9653d
+src root @ 1496558d82cf35fc98dda0e781b2a1be643c301a tree e8d797554a935c5514e25be9e1dda119f4f8c999
+candidate MAX_AUDIO_UNIT_RATES = 8
+
+== A: pristine candidate (in-process)
+A1 gate 36a loader contract                                    expect PASS got PASS MATCH    
+A2 gate 36a shipping images                                    expect PASS got PASS MATCH    
+A3 gate 36a pp_shadow AU_RATES_C vs YAML                       expect PASS got PASS MATCH    
+A4 gate 32 builder doc key map                                 expect PASS got PASS MATCH    
+
+== B: candidate gate 36a against the DEV (52711029) builder
+dev builder has MAX_AUDIO_UNIT_RATES: False
+B1 loader contract vs dev builder                              expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+B2 shipping images vs dev builder                              expect PASS got PASS MATCH    
+B3 pp_shadow comparison vs dev builder                         expect PASS got PASS MATCH    
+
+== C: candidate builder mutants (loaded separately)
+C1 bound 8 -> 9                                                expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+C2 bound 8 -> 7                                                expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 7 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)
+C3 '>' -> '>=' in the count test                               expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 8 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)
+C4 duplicate refusal removed                                   expect FAIL got FAIL MATCH    AssertionError: gate 36a: duplicate accepted
+C5 duplicate test on raw (pre-int) values                      expect FAIL got FAIL MATCH    AssertionError: gate 36a: duplicate after integer conversion accepted
+C6 rates stored sorted                                         expect FAIL got FAIL MATCH    AssertionError: gate 36a: eight distinct entries must load in declared order
+C7 omitted list defaults to [48000] always                     expect FAIL got FAIL MATCH    ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+C8 duplicate test before count test (equivalent)               expect PASS got PASS MATCH    
+C9 current-rate membership removed                             expect FAIL got FAIL MATCH    AssertionError: gate 36a: empty list accepted
+C10 count refusal no longer names L10                          expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry refused for another cause: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (rule, protocol-processor/
+C11 count refusal removed                                      expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+C12 count refusal truncates instead of refusing                expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+
+== E: real shipping YAML mutants through the candidate image path
+E1 arty_current list shortened -> shipping arm                 expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current shipping rate declaration changed
+E2 arty_current list reordered -> shipping arm                 expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current shipping rate declaration changed
+E3 arty_current duplicate appended -> shipping arm             expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+E4 arty_4x4 advertises 96000 too -> shipping arm               expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_4x4 shipping rate declaration changed
+
+== F: loader versus packed image (candidate builder / dev builder)
+F1 eight distinct (gate 36a's legal eight)
+    cand: loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 4
+    dev : loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 4
+F2 nine distinct
+    cand: load_config ConfigError: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (L10, protocol-processor/docs/
+    dev : loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 22050]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 4
+F3 nine copies of 48000
+    cand: load_config ConfigError: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (L10, protocol-processor/docs/
+    dev : loaded [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]; image offset 144 count 9 rates [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+F4 [48000, '48000']
+    cand: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    dev : loaded [48000, 48000]; image offset 144 count 2 rates [48000, 48000]
+F5 [48000, 48000.5]
+    cand: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    dev : loaded [48000, 48000]; image offset 144 count 2 rates [48000, 48000]
+F6 base rates reordered [192000, 48000, 96000]
+    cand: loaded [192000, 48000, 96000]; image offset 144 count 3 rates [192000, 48000, 96000]
+    dev : loaded [192000, 48000, 96000]; image offset 144 count 3 rates [192000, 48000, 96000]
+F7 omitted list, current 96000
+    cand: loaded [96000]; image offset 144 count 1 rates [96000]
+    dev : loaded [96000]; image offset 144 count 1 rates [96000]
+F8 empty list
+    cand: load_config ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+    dev : load_config ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+F11 eight copies of 48000
+    cand: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    dev : loaded [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]; image offset 144 count 8 rates [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+
+== G: #513 dependency path (fresh interpreters, empty bytecode cache)
+G1a loader arm: status PASS  files opened 21
+    #513 paths opened: ['avdecc/aem_maps.py', 'avdecc/gen_aem_store.py']
+    issue paths opened: ['sw/builder/endstation_builder.py', 'sw/builder/test_builder.py']
+    avdecc files opened: ['avdecc/aem_assemble.py', 'avdecc/aem_descriptors.py', 'avdecc/aem_emit.py', 'avdecc/aem_maps.py', 'avdecc/aem_specs.py', 'avdecc/gen_aem_store.py']
+G1b shipping arm: status PASS  files opened 30
+    #513 paths opened: ['avdecc/aem_maps.py', 'avdecc/gen_aem_store.py']
+    issue paths opened: ['sw/builder/endstation_builder.py', 'sw/builder/test_builder.py']
+    avdecc files opened: ['avdecc/aem_assemble.py', 'avdecc/aem_descriptors.py', 'avdecc/aem_emit.py', 'avdecc/aem_maps.py', 'avdecc/aem_specs.py', 'avdecc/gen_aem_store.py', 'avdecc/gen_aemi_image.py']
+G1c pp_shadow arm: status PASS  files opened 16
+    #513 paths opened: []
+    issue paths opened: ['sw/builder/endstation_builder.py', 'sw/builder/test_builder.py']
+    avdecc files opened: ['avdecc/aem_descriptors.py']
+G1d AEM store self-test: status PASS  files opened 7
+    #513 paths opened: ['avdecc/aem_maps.py', 'avdecc/gen_aem_store.py']
+    issue paths opened: []
+    avdecc files opened: ['avdecc/aem_assemble.py', 'avdecc/aem_descriptors.py', 'avdecc/aem_emit.py', 'avdecc/aem_maps.py', 'avdecc/aem_specs.py', 'avdecc/gen_aem_store.py']
+    arms ok 20 fail 0 tail ['gen_aem_store self-test: PASS']
+G1a loader arm passes fresh                                    expect PASS got PASS MATCH    
+G1b shipping arm passes fresh                                  expect PASS got PASS MATCH    
+G1c pp_shadow arm passes fresh                                 expect PASS got PASS MATCH    
+G1d self-test passes fresh (20 arms)                           expect PASS got PASS MATCH    
+G1e self-test opens no issue path                              expect PASS got PASS MATCH    
+G1f pp_shadow arm opens no #513 path                           expect PASS got PASS MATCH    
+G1g self-test under python3.12 (stdlib only)                   expect PASS got PASS MATCH     arms 20/0
+G2 AUDIO_UNIT sampling_rates_offset field 144 -> 148 -> audio_unit_shipping_rates expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current AUDIO_UNIT rate offset/count changed
+G2 AUDIO_UNIT sampling_rates_offset field 144 -> 148 -> self-test expect PASS got PASS MATCH     arms 20/0
+G3 AUDIO_UNIT rate words emitted in reverse -> audio_unit_shipping_rates expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current image rates [192000, 96000, 48000] != [48000, 96000, 192000]
+G4 revert avdecc/aem_maps.py to the source (pre-#513) blob -> all gate 36a arms expect PASS got PASS MATCH    
+G4 revert avdecc/aem_maps.py to the source (pre-#513) blob -> self-test expect FAIL got FAIL MATCH    exit 1 arms 19/2
+G5 revert avdecc/gen_aem_store.py to the source (pre-#513) blob -> all gate 36a arms expect PASS got PASS MATCH    
+G5 revert avdecc/gen_aem_store.py to the source (pre-#513) blob -> self-test expect FAIL got FAIL MATCH    IndexError: list assignment index out of range arms 1/0
+G6 KNOWN_MAP_DEVIATIONS widened by one stale entry -> all gate 36a arms expect PASS got PASS MATCH    
+G6 KNOWN_MAP_DEVIATIONS widened by one stale entry -> self-test expect FAIL got FAIL MATCH    exit 1 arms 19/1
+
+== H: CI carrier of gate 36a on the combined tree
+docs-check steps: 44
+  step 16: Fetch the builder source dependencies
+  step 21: End-station builder gates
+  step 41: AEM store generator self-test
+  builder step run: ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_builder.py']
+  builder step keys: ['name', 'run']
+H1 submodule fetch precedes the builder step                   expect PASS got PASS MATCH    
+H2 builder step (gate 36a) precedes the #513 self-test step    expect PASS got PASS MATCH    
+H3 ci_events --check, pristine candidate                       expect PASS got PASS MATCH    rc 0: ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+H4 builder step (gate 36a carrier) removed -> ci_events        expect FAIL got FAIL MATCH    rc 1:   FAIL .github/workflows/docs.yml: job `docs-check` must call `sw/builder/test_builder.py` exactly once (found 0)
+H5 builder call made non-failing -> ci_events                  expect FAIL got FAIL MATCH    rc 1:   FAIL .github/workflows/docs.yml: job `docs-check` builder call must be exactly ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_bu
+H6 #513 self-test step removed -> ci_events                    expect FAIL got FAIL MATCH    rc 1:   FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 44 steps, in the recorded order (found 43): an inserted step of ANY content run
+
+graded mismatches: 0
+cand scratch tracked changes after probes: 0
+dev scratch tracked changes after probes: 0
+src scratch tracked changes after probes: 0
+exit 0

@@ -1,0 +1,23 @@
+  [deploy-shape] deploy.sh builds endstation_ax7101_1x1_tdm8.yaml from configs/generated/sweep_opts_ax7101.sh: its design argv is that fragment's OPTS token for token, every design flag is emit_soc_argv of the config, and --audio-interface-render 8 keeps tdm_dout_o alive
+  [deploy-shape] deploy-only additions: --entity-gen-dir configs/generated/endstation_ax7101_1x1_tdm8, --build, --uart-baudrate 115200 (repeats the shared shape)
+deploy shape gate: OK
+  [selftest] OK: deploy.sh launches the 42 tokens of sweep_opts_ax7101.sh verbatim, --audio-interface-render 8 among them
+  [selftest] the hand-kept option string of #453 is restored - expecting REJECT:
+  [selftest] OK: 7 drift(s) reported
+  [selftest] the derived string is filtered on its way to the launcher - expecting REJECT:
+  [selftest] OK: 3 drift(s) reported
+  [selftest] a design flag is hand-appended after the shared shape - expecting REJECT:
+  [selftest] OK: 2 drift(s) reported
+  [selftest] another board's fragment is sourced - expecting REJECT:
+  [selftest] OK: 2 drift(s) reported
+  [selftest] another board's fragment is sourced with the provenance check neutered - expecting REJECT:
+  [selftest] OK: 16 drift(s) reported
+  [selftest] the sourced fragment defines no shape - expecting REJECT:
+  [selftest] OK: 1 drift(s) reported
+exit 0
+--- pristine (no self-test)
+  [deploy-shape] deploy.sh builds endstation_ax7101_1x1_tdm8.yaml from configs/generated/sweep_opts_ax7101.sh: its design argv is that fragment's OPTS token for token, every design flag is emit_soc_argv of the config, and --audio-interface-render 8 keeps tdm_dout_o alive
+  [deploy-shape] deploy-only additions: --entity-gen-dir configs/generated/endstation_ax7101_1x1_tdm8, --build, --uart-baudrate 115200 (repeats the shared shape)
+deploy shape gate: OK
+exit 0
+0

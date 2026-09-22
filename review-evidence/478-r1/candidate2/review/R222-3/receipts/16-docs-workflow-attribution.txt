@@ -1,0 +1,131 @@
+== docs-check: 44 steps
+   1 actions/checkout@v4: action (hosted-only)
+   2 Build the validated HDL reference: set -euo pipefail                                                              -> install/plumbing (not a gate)
+   2 Build the validated HDL reference: python3 -m pip install --quiet --require-hashes \                              -> install/plumbing (not a gate)
+   2 Build the validated HDL reference: -r tools/hdl_reference/requirements.txt                                        -> NOT REPRODUCED on the candidate
+   2 Build the validated HDL reference: python3 scripts/gen_hdl_reference.py --selftest                                -> NOT REPRODUCED on the candidate
+   2 Build the validated HDL reference: python3 scripts/gen_hdl_reference.py \                                         -> NOT REPRODUCED on the candidate
+   2 Build the validated HDL reference: --output "$RUNNER_TEMP/milan-hdl-reference"                                    -> install/plumbing (not a gate)
+   3 Upload the HDL reference HTML: action (hosted-only)
+   4 Install the python gate dependencies: python3 -m pip install --quiet pyyaml                                          -> install/plumbing (not a gate)
+   5 Install diagram gate dependencies: sudo apt-get update -qq                                                        -> install/plumbing (not a gate)
+   5 Install diagram gate dependencies: sudo apt-get install -y --no-install-recommends librsvg2-bin                   -> install/plumbing (not a gate)
+   5 Install diagram gate dependencies: python3 -m pip install --quiet wavedrom==2.0.3.post3                           -> install/plumbing (not a gate)
+   6 Link health, wording, dead-reference and local-info gate: python3 scripts/docs_check.py                                                  -> M+R
+   7 Added-line em-dash gate: set -euo pipefail                                                              -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: case "$EVENT_NAME" in                                                          -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: pull_request)                                                                  -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: if [ -z "$PR_BASE_REF" ]; then                                                 -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: echo "the pull_request event names no base branch"; exit 2                     -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: fi                                                                             -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: git fetch --quiet origin "$PR_BASE_REF"                                        -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: base="$(git merge-base HEAD FETCH_HEAD || true)"                               -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: ;;                                                                             -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: push) base="$PUSH_BEFORE_SHA" ;;                                               -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: *) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;         -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: esac                                                                           -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; t -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: echo "the $EVENT_NAME event names no base commit"; exit 2                      -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: fi                                                                             -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 or -> install/plumbing (not a gate)
+   7 Added-line em-dash gate: python3 scripts/check_em_dash.py --base "$base"                                -> R+M: --base 52711029 (= merge-base with dev, what a PR event derives)
+   8 Concise audience documentation gate: python3 scripts/check_doc_style.py                                             -> M+R
+   8 Concise audience documentation gate: python3 scripts/check_doc_style.py --selftest                                  -> M+R
+   8 Concise audience documentation gate: python3 scripts/check_gptp_docs.py                                             -> R
+   8 Concise audience documentation gate: python3 scripts/check_gptp_docs.py --selftest                                  -> R
+   9 Audience diagram no-drift gate: python3 docs/DOC_MAP.gen.py --check                                            -> R
+   9 Audience diagram no-drift gate: python3 docs/DOC_MAP.gen.py --selftest                                         -> R
+   9 Audience diagram no-drift gate: python3 docs/diagrams/timesync_chain.gen.py --check                            -> R
+   9 Audience diagram no-drift gate: python3 docs/diagrams/timesync_chain.gen.py --selftest                         -> R
+  10 Product solution source-fact gate: python3 scripts/check_solution_docs.py                                         -> M+R
+  10 Product solution source-fact gate: python3 scripts/check_solution_docs.py --selftest                              -> R
+  11 Verified submodule documentation gate: python3 docs/diagrams/submodule_boundaries.gen.py --check                      -> R
+  11 Verified submodule documentation gate: python3 docs/diagrams/submodule_boundaries.gen.py --selftest                   -> R
+  11 Verified submodule documentation gate: python3 scripts/check_submodule_docs.py                                        -> M+R
+  11 Verified submodule documentation gate: python3 scripts/check_submodule_docs.py --selftest                             -> R
+  12 HDL timing diagram no-drift gate: python3 scripts/gen_wavedrom.py --selftest                                     -> NOT REPRODUCED on the candidate
+  12 HDL timing diagram no-drift gate: python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --back -> NOT REPRODUCED on the candidate
+  12 HDL timing diagram no-drift gate: python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --backgrou -> NOT REPRODUCED on the candidate
+  12 HDL timing diagram no-drift gate: python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background -> NOT REPRODUCED on the candidate
+  13 Published diagram PNG gate: python3 scripts/check_diagram_pngs.py                                          -> R
+  13 Published diagram PNG gate: python3 scripts/check_diagram_pngs.py --selftest                               -> R
+  14 Milan feature-status consistency gate: python3 scripts/check_feature_status.py --self-test                            -> R
+  15 Traceability matrix no-drift gate: python3 docs/traceability/gen_module_matrix.py --check                         -> M+R
+  16 Fetch the builder source dependencies: git submodule update --init third_party/verilog-axis protocol-processor gptp-p -> NOT REPRODUCED on the candidate
+  17 Imported gPTP documentation gate: python3 scripts/check_gptp_docs.py --with-submodule                            -> NOT REPRODUCED on the candidate
+  17 Imported gPTP documentation gate: make -C gptp-processor docs                                                    -> NOT REPRODUCED on the candidate
+  18 Code-quality measurement self-tests: python3 scripts/measure_control_flow.py --selftest                             -> M
+  18 Code-quality measurement self-tests: python3 scripts/measure_cohesion.py --selftest                                 -> M
+  19 Install the pinned sv2v release: set -euo pipefail                                                              -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: ver=v0.0.12                                                                    -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00        -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"   -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: curl -fsSL "$url" -o /tmp/sv2v.zip                                             -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -                               -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v                                         -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \          -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: /usr/local/bin/sv2v                                                            -> install/plumbing (not a gate)
+  19 Install the pinned sv2v release: sv2v --version                                                                 -> install/plumbing (not a gate)
+  20 Bare-metal scope gate: python3 scripts/check_baremetal_only.py --check                                -> M+R
+  20 Bare-metal scope gate: python3 scripts/check_baremetal_only.py --selftest                             -> M+R
+  21 End-station builder gates: python3 -m pip install --quiet pyyaml                                          -> install/plumbing (not a gate)
+  21 End-station builder gates: python3 sw/builder/test_builder.py                                             -> M + R: gate 36a's three arms and gate 32 only (full builder is M)
+  22 NVM record-space gate: python3 scripts/check_nvm_record_space.py                                      -> M
+  22 NVM record-space gate: python3 scripts/check_nvm_record_space.py --self-test                          -> NOT REPRODUCED on the candidate
+  23 Saved-state writer gate: python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test              -> M
+  24 SoC source-list gate (Vivado would fail 40 min in without this): python3 scripts/check_soc_sources.py                                           -> M+R
+  24 SoC source-list gate (Vivado would fail 40 min in without this): python3 scripts/check_soc_sources.py --selftest                                -> NOT REPRODUCED on the candidate
+  24 SoC source-list gate (Vivado would fail 40 min in without this): command -v tclsh >/dev/null || {                                               -> NOT REPRODUCED on the candidate
+  24 SoC source-list gate (Vivado would fail 40 min in without this): sudo apt-get update -qq                                                        -> install/plumbing (not a gate)
+  24 SoC source-list gate (Vivado would fail 40 min in without this): sudo apt-get install -y --no-install-recommends tcl                            -> install/plumbing (not a gate)
+  24 SoC source-list gate (Vivado would fail 40 min in without this): }                                                                              -> NOT REPRODUCED on the candidate
+  24 SoC source-list gate (Vivado would fail 40 min in without this): python3 sw/litex/iob_pack_selftest.py                                          -> R
+  25 RTL source-list drift gate: python3 scripts/check_rtl_source_lists.py                                      -> M+R
+  25 RTL source-list drift gate: python3 scripts/check_rtl_source_lists.py --selftest                           -> R
+  26 Boundary-unit naming ratchet: python3 scripts/measure_naming.py --check                                      -> M
+  26 Boundary-unit naming ratchet: python3 scripts/measure_naming.py --selftest                                   -> NOT REPRODUCED on the candidate
+  27 Port contract gate: python3 scripts/check_port_contracts.py                                        -> M
+  27 Port contract gate: python3 scripts/check_port_contracts.py --selftest                             -> NOT REPRODUCED on the candidate
+  28 Fail-fast ratchet: python3 scripts/measure_fail_fast.py --check                                   -> M
+  28 Fail-fast ratchet: python3 scripts/measure_fail_fast.py --selftest                                -> NOT REPRODUCED on the candidate
+  29 TODO ownership gate: python3 scripts/check_todo_ownership.py                                        -> M+R
+  29 TODO ownership gate: python3 scripts/check_todo_ownership.py --selftest                             -> NOT REPRODUCED on the candidate
+  30 Test-evidence ratchet: python3 scripts/measure_test_evidence.py --check                               -> M
+  30 Test-evidence ratchet: python3 scripts/measure_test_evidence.py --selftest                            -> NOT REPRODUCED on the candidate
+  31 Mechanical hygiene ratchet: python3 scripts/check_hygiene.py --check                                       -> M+R
+  31 Mechanical hygiene ratchet: python3 scripts/check_hygiene.py --selftest                                    -> NOT REPRODUCED on the candidate
+  32 SystemVerilog idiom gate: python3 scripts/check_sv_idiom.py                                              -> M
+  32 SystemVerilog idiom gate: python3 scripts/check_sv_idiom.py --selftest                                   -> NOT REPRODUCED on the candidate
+  33 C and C++ idiom gate: python3 scripts/check_cpp_idiom.py                                             -> M
+  33 C and C++ idiom gate: python3 scripts/check_cpp_idiom.py --selftest                                  -> NOT REPRODUCED on the candidate
+  34 Python idiom gate: python3 scripts/check_py_idiom.py                                              -> M+R
+  34 Python idiom gate: python3 scripts/check_py_idiom.py --selftest                                   -> NOT REPRODUCED on the candidate
+  35 Shell idiom gate: python3 scripts/check_sh_idiom.py                                              -> M
+  35 Shell idiom gate: python3 scripts/check_sh_idiom.py --selftest                                   -> NOT REPRODUCED on the candidate
+  36 CI event and SHA contract gate: python3 scripts/ci_events.py --check                                           -> M+R
+  36 CI event and SHA contract gate: python3 scripts/ci_events.py --selftest                                        -> M+R
+  37 Local act runner contract gate: python3 scripts/act_ci.py --selftest                                           -> NOT REPRODUCED on the candidate
+  38 Doc cited-path gate: python3 scripts/check_doc_paths.py                                             -> M+R
+  39 Archive integrity gate: python3 scripts/check_archive.py                                               -> M+R
+  39 Archive integrity gate: python3 scripts/check_archive.py --selftest                                    -> NOT REPRODUCED on the candidate
+  40 Per-page contents gate: python3 scripts/gen_toc.py --selftest                                          -> R
+  40 Per-page contents gate: python3 scripts/gen_toc.py --verify-anchors                                    -> M+R
+  40 Per-page contents gate: python3 scripts/gen_toc.py --check                                             -> M+R
+  41 AEM store generator self-test: python3 avdecc/gen_aem_store.py --self-test                                    -> M+R
+  42 Sweep/build shape gate: python3 scripts/check_sweep_shape.py --self-test                               -> M
+  43 Deploy shape gate: python3 scripts/check_deploy_shape.py --self-test                              -> R
+  44 Entity shape gate: python3 scripts/check_entity_shape.py --self-test                              -> R
+== wire-accountability: 3 steps
+   1 actions/checkout@v4: action (hosted-only)
+   2 Fetch the engine authority the builder derives from: git submodule update --init gptp-processor                                     -> NOT REPRODUCED on the candidate
+   3 Advertised-vs-emitted gate (green since 2026-07-28, item 00): python3 -m pip install --quiet pyyaml                                          -> install/plumbing (not a gate)
+   3 Advertised-vs-emitted gate (green since 2026-07-28, item 00): python3 scripts/check_wire_accountability.py --self-test                       -> R
+== docs-check-no-git: 2 steps
+   1 actions/checkout@v4: action (hosted-only)
+   2 Strip git metadata, then run the docs gate: rm -rf .git                                                                    -> install/plumbing (not a gate)
+   2 Strip git metadata, then run the docs gate: python3 scripts/docs_check.py                                                  -> M+R
+   2 Strip git metadata, then run the docs gate: python3 scripts/check_feature_status.py                                        -> M+R
+gate command lines: M+R 22, M only 12, R only 19, not reproduced 27
+scripts/gen_hdl_reference.py blob cand=3d478efd2c91f3d8ac4ba0e522ea6b31d9196f49 dev=3d478efd2c91f3d8ac4ba0e522ea6b31d9196f49 src=3d478efd2c91f3d8ac4ba0e522ea6b31d9196f49; refs to issue/#513 paths: 0
+scripts/gen_wavedrom.py blob cand=fd8b5645f155ded6ecb3aba6b5f0928ed94b46cf dev=fd8b5645f155ded6ecb3aba6b5f0928ed94b46cf src=fd8b5645f155ded6ecb3aba6b5f0928ed94b46cf; refs to issue/#513 paths: 0
+scripts/act_ci.py blob cand=794794b12a43e37a551b732fb51b2890ebc93a2a dev=794794b12a43e37a551b732fb51b2890ebc93a2a src=794794b12a43e37a551b732fb51b2890ebc93a2a; refs to issue/#513 paths: 0
