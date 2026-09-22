@@ -1,0 +1,405 @@
+{
+ "git": "git version 2.55.0",
+ "head": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+ "pr62_merge_commit_f5ba2db6_present": false,
+ "commits": {
+  "7fa64e99490b4648797374d3fdb1fedf08145e91": {
+   "parents": [
+    "96755aeaf8b4a818068123f936e4cb4fba820a99",
+    "f4cf33340de4dcaa129553439b16314db6da62eb"
+   ],
+   "tree": "c174fbb20efe7ccc91d43173421d45fe4d473911"
+  },
+  "9790ac736e6d10301ad814ffdf73dbe37b59768b": {
+   "parents": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+  },
+  "f27b45500cb02a5277b5cb32cef408658c1f914e": {
+   "parents": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91",
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+   ],
+   "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+  },
+  "3db86812096830fada2f5f276fa5f4d9f37d1d14": {
+   "parents": [
+    "f27b45500cb02a5277b5cb32cef408658c1f914e"
+   ],
+   "tree": "df933eb87527e1a91218e668a3558b5a6013940b"
+  },
+  "20927af74752620b2ad0f973e8be3203994b5547": {
+   "parents": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+  },
+  "377b8c428b226a796adde099fe07152151fd6c5d": {
+   "parents": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91",
+    "20927af74752620b2ad0f973e8be3203994b5547"
+   ],
+   "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+  },
+  "5602e70bb4cf70c2e0e39e846e26925e27659e32": {
+   "parents": [
+    "377b8c428b226a796adde099fe07152151fd6c5d"
+   ],
+   "tree": "df933eb87527e1a91218e668a3558b5a6013940b"
+  },
+  "676d2f6be46b2775b8a008800d394c9855a5efc3": {
+   "parents": [
+    "377b8c428b226a796adde099fe07152151fd6c5d",
+    "5602e70bb4cf70c2e0e39e846e26925e27659e32"
+   ],
+   "tree": "df933eb87527e1a91218e668a3558b5a6013940b"
+  }
+ },
+ "patches": {
+  "9790ac736e6d10301ad814ffdf73dbe37b59768b": {
+   "replay": "20927af74752620b2ad0f973e8be3203994b5547",
+   "variants_equal": true,
+   "issue_sha256": "d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3",
+   "issue_sha256_matches_variant": [
+    "diff (default)"
+   ],
+   "variants": {
+    "diff --binary --full-index": "5086a88d73ddd4bfe2d1bb37e20e396da4b056effceecd803d7684aaca3a122e",
+    "diff (default)": "d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3",
+    "show --format= --binary --full-index": "5086a88d73ddd4bfe2d1bb37e20e396da4b056effceecd803d7684aaca3a122e",
+    "diff-tree -p --no-commit-id --binary --full-index": "5086a88d73ddd4bfe2d1bb37e20e396da4b056effceecd803d7684aaca3a122e"
+   },
+   "verbatim_patch_id": [
+    "922d71f23f48e749579ba1c1c0ed9d0eb39e8c5e",
+    "922d71f23f48e749579ba1c1c0ed9d0eb39e8c5e"
+   ]
+  },
+  "3db86812096830fada2f5f276fa5f4d9f37d1d14": {
+   "replay": "5602e70bb4cf70c2e0e39e846e26925e27659e32",
+   "variants_equal": true,
+   "issue_sha256": "fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f",
+   "issue_sha256_matches_variant": [
+    "diff (default)"
+   ],
+   "variants": {
+    "diff --binary --full-index": "412c6cb1037425cc41cec3b3583756c3f917992641bdf0be8dcc0b25e18c3f5c",
+    "diff (default)": "fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f",
+    "show --format= --binary --full-index": "412c6cb1037425cc41cec3b3583756c3f917992641bdf0be8dcc0b25e18c3f5c",
+    "diff-tree -p --no-commit-id --binary --full-index": "412c6cb1037425cc41cec3b3583756c3f917992641bdf0be8dcc0b25e18c3f5c"
+   },
+   "verbatim_patch_id": [
+    "f21aa8a0a2d115963ecab6ad166551e08c820b32",
+    "f21aa8a0a2d115963ecab6ad166551e08c820b32"
+   ]
+  }
+ },
+ "targets": {
+  "issue-base f0f1c055": {
+   "target": "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+   "merge_bases": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "range_with_parents": [
+    "3db86812096830fada2f5f276fa5f4d9f37d1d14 f27b45500cb02a5277b5cb32cef408658c1f914e",
+    "f27b45500cb02a5277b5cb32cef408658c1f914e 7fa64e99490b4648797374d3fdb1fedf08145e91 9790ac736e6d10301ad814ffdf73dbe37b59768b",
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b 7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "G_shape": [
+    true,
+    null
+   ],
+   "H_linear_replay": [
+    true,
+    null
+   ],
+   "T_retained": [
+    false,
+    [
+     "tb/tsngen/mutants.py",
+     "tb/verilator/gaskets/mutants.py"
+    ]
+   ],
+   "tir_map": {
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b": "20927af74752620b2ad0f973e8be3203994b5547",
+    "f27b45500cb02a5277b5cb32cef408658c1f914e": "377b8c428b226a796adde099fe07152151fd6c5d",
+    "3db86812096830fada2f5f276fa5f4d9f37d1d14": "5602e70bb4cf70c2e0e39e846e26925e27659e32"
+   },
+   "paths": {
+    "tb/mutation_verdict.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+     ],
+     "tip_equals_head": true,
+     "merge_file_noop": null,
+     "later_commits": []
+    },
+    "tb/tsngen/Makefile": {
+     "merge_base": [
+      "100644",
+      "blob",
+      "946eee06d9d9526abf0c2b83e325a2908ea9351d"
+     ],
+     "tip": [
+      "100644",
+      "blob",
+      "3f34608c8a6b71e0a1da9cf22dfb326ecb31bc1b"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "219478fd638cf865c28d57567479e1d38b51db46"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      true,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/tsngen/mutants.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "36d0e141fb2a9cf5b3b6a5ba1859b8648e76f785"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "5361f01e16ec3d57b936e654d1f4364f891c5d33"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      false,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/verilator/gaskets/Makefile": {
+     "merge_base": [
+      "100644",
+      "blob",
+      "a44897e3c131cb617740877a789761b3b6046357"
+     ],
+     "tip": [
+      "100644",
+      "blob",
+      "c98135a4c163f95a3e797430c7e5d1a843dbfa71"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "bd1a2d3094699f2dffcf7a4eba7a35c3d74b9b16"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      true,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/verilator/gaskets/mutants.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "37ecf1c1ecc5fb40e334ca92ee94f53da81d41e8"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "def12883e09df81ecc9047d375a0246d3a856338"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      false,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    }
+   },
+   "cli": {
+    "trusted": {
+     "rc": 1,
+     "stdout": "  STRANDED   3db86812096830fada2f5f276fa5f4d9f37d1d14: 3 commit(s) not in f0f1c055ee5226f08e656c27cb1bf4c355be11ae  [paths differing: bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/MANAGER.md, docs/SOURCE_EVIDENCE.md, docs/TEST_DEVELOPER.md]\n\n1 branch tip(s) have work that f0f1c055ee5226f08e656c27cb1bf4c355be11ae does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+     "stderr": ""
+    },
+    "prototype": {
+     "rc": 1,
+     "stdout": "  UNKNOWN    3db86812096830fada2f5f276fa5f4d9f37d1d14: replayed whitespace-exactly in f0f1c055ee5226f08e656c27cb1bf4c355be11ae history, but retention at f0f1c055ee5226f08e656c27cb1bf4c355be11ae is NOT proven -- re-merging would change or conflict on: tb/tsngen/mutants.py, tb/verilator/gaskets/mutants.py\n\n1 ref(s) could not be resolved, so the question was\n  not answered. An unknown is not a pass.\n",
+     "stderr": ""
+    }
+   }
+  },
+  "live-main c1b61743": {
+   "target": "c1b617435824929a790739ea8585c3fe1a328cc0",
+   "merge_bases": [
+    "7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "range_with_parents": [
+    "3db86812096830fada2f5f276fa5f4d9f37d1d14 f27b45500cb02a5277b5cb32cef408658c1f914e",
+    "f27b45500cb02a5277b5cb32cef408658c1f914e 7fa64e99490b4648797374d3fdb1fedf08145e91 9790ac736e6d10301ad814ffdf73dbe37b59768b",
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b 7fa64e99490b4648797374d3fdb1fedf08145e91"
+   ],
+   "G_shape": [
+    true,
+    null
+   ],
+   "H_linear_replay": [
+    true,
+    null
+   ],
+   "T_retained": [
+    false,
+    [
+     "tb/tsngen/mutants.py",
+     "tb/verilator/gaskets/mutants.py"
+    ]
+   ],
+   "tir_map": {
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b": "20927af74752620b2ad0f973e8be3203994b5547",
+    "f27b45500cb02a5277b5cb32cef408658c1f914e": "377b8c428b226a796adde099fe07152151fd6c5d",
+    "3db86812096830fada2f5f276fa5f4d9f37d1d14": "5602e70bb4cf70c2e0e39e846e26925e27659e32"
+   },
+   "paths": {
+    "tb/mutation_verdict.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+     ],
+     "tip_equals_head": true,
+     "merge_file_noop": null,
+     "later_commits": []
+    },
+    "tb/tsngen/Makefile": {
+     "merge_base": [
+      "100644",
+      "blob",
+      "946eee06d9d9526abf0c2b83e325a2908ea9351d"
+     ],
+     "tip": [
+      "100644",
+      "blob",
+      "3f34608c8a6b71e0a1da9cf22dfb326ecb31bc1b"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "219478fd638cf865c28d57567479e1d38b51db46"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      true,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/tsngen/mutants.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "36d0e141fb2a9cf5b3b6a5ba1859b8648e76f785"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "5361f01e16ec3d57b936e654d1f4364f891c5d33"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      false,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/verilator/gaskets/Makefile": {
+     "merge_base": [
+      "100644",
+      "blob",
+      "a44897e3c131cb617740877a789761b3b6046357"
+     ],
+     "tip": [
+      "100644",
+      "blob",
+      "c98135a4c163f95a3e797430c7e5d1a843dbfa71"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "bd1a2d3094699f2dffcf7a4eba7a35c3d74b9b16"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      true,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    },
+    "tb/verilator/gaskets/mutants.py": {
+     "merge_base": null,
+     "tip": [
+      "100644",
+      "blob",
+      "37ecf1c1ecc5fb40e334ca92ee94f53da81d41e8"
+     ],
+     "head": [
+      "100644",
+      "blob",
+      "def12883e09df81ecc9047d375a0246d3a856338"
+     ],
+     "tip_equals_head": false,
+     "merge_file_noop": [
+      false,
+      null
+     ],
+     "later_commits": [
+      "0ac3e2c3902ec2f0c08099ae454fcb5c34209096 Rule 11/12: clear the debt donor main brought"
+     ]
+    }
+   },
+   "cli": {
+    "trusted": {
+     "rc": 1,
+     "stdout": "  STRANDED   3db86812096830fada2f5f276fa5f4d9f37d1d14: 3 commit(s) not in c1b617435824929a790739ea8585c3fe1a328cc0  [paths differing: README.md, bench/arty/bench_arty_top.sv, bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/HDL_DEVELOPER.md]\n\n1 branch tip(s) have work that c1b617435824929a790739ea8585c3fe1a328cc0 does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+     "stderr": ""
+    },
+    "prototype": {
+     "rc": 1,
+     "stdout": "  UNKNOWN    3db86812096830fada2f5f276fa5f4d9f37d1d14: replayed whitespace-exactly in c1b617435824929a790739ea8585c3fe1a328cc0 history, but retention at c1b617435824929a790739ea8585c3fe1a328cc0 is NOT proven -- re-merging would change or conflict on: tb/tsngen/mutants.py, tb/verilator/gaskets/mutants.py\n\n1 ref(s) could not be resolved, so the question was\n  not answered. An unknown is not a pass.\n",
+     "stderr": ""
+    }
+   }
+  }
+ }
+}

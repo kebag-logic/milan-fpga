@@ -1,0 +1,52 @@
+{
+  "fixture": "/tmp/milan-423-readiness-87ovqeu2",
+  "objects": {
+    "O": "0bd7eed60d1a1f990e6166a38fe51d5e67e02e13",
+    "A": "032f084f721737536c9851946d48f1942a57c544",
+    "M": "92998133e152b3e1712c5efae38bf14a0ba1351a",
+    "C": "6e117ad46fa16c0600de18bf2180b075af95971b",
+    "A_replay": "45005c51e44aacba3d75c9842ae8e7843e095232",
+    "C_replay": "8891fb83a1791bf0b6e1bb4a4b988a4916c2657e",
+    "D_extension": "134d74c10d1c0f1abaa1dc8a53e15a5c141758de",
+    "R_revert": "34b79c030117f42432eae6c2b3212751b43d1012"
+  },
+  "merge": {
+    "parents": [
+      "0bd7eed60d1a1f990e6166a38fe51d5e67e02e13",
+      "032f084f721737536c9851946d48f1942a57c544"
+    ],
+    "first_parent_ancestor_of_second": true,
+    "same_tree_as_second": true
+  },
+  "cases": [
+    {
+      "case": "exact_replay_then_extension",
+      "base": "134d74c10d1c0f1abaa1dc8a53e15a5c141758de",
+      "candidate": "6e117ad46fa16c0600de18bf2180b075af95971b",
+      "current_verdict": [
+        null,
+        null,
+        "replayed whitespace-exactly in 134d74c10d1c0f1abaa1dc8a53e15a5c141758de history, but retention at 134d74c10d1c0f1abaa1dc8a53e15a5c141758de is NOT proven -- re-merging would change or conflict on: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    },
+    {
+      "case": "replay_then_exact_reversion",
+      "base": "34b79c030117f42432eae6c2b3212751b43d1012",
+      "candidate": "6e117ad46fa16c0600de18bf2180b075af95971b",
+      "current_verdict": [
+        null,
+        null,
+        "replayed whitespace-exactly in 34b79c030117f42432eae6c2b3212751b43d1012 history, but retention at 34b79c030117f42432eae6c2b3212751b43d1012 is NOT proven -- re-merging would change or conflict on: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    }
+  ],
+  "claim": "This probes existing helpers only; no production change or proof adoption."
+}

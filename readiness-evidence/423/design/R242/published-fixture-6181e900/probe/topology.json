@@ -1,0 +1,52 @@
+[
+  {
+    "commit": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+    "parents": [
+      "f27b45500cb02a5277b5cb32cef408658c1f914e"
+    ],
+    "tree": "df933eb87527e1a91218e668a3558b5a6013940b",
+    "subject": "The mutation arms bound their waits in DUT cycles, not host time, because both harnesses already do"
+  },
+  {
+    "commit": "9790ac736e6d10301ad814ffdf73dbe37b59768b",
+    "parents": [
+      "7fa64e99490b4648797374d3fdb1fedf08145e91"
+    ],
+    "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7",
+    "subject": "The returning verification layer proves its own assertions can fail: the gasket and tsngen suites gain mutation arms, and each records what it still cannot reach"
+  },
+  {
+    "commit": "f27b45500cb02a5277b5cb32cef408658c1f914e",
+    "parents": [
+      "7fa64e99490b4648797374d3fdb1fedf08145e91",
+      "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+    ],
+    "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7",
+    "subject": "Merge pull request #61 from Mister-M-alt/arm-tsngen-and-gaskets-suites"
+  },
+  {
+    "commit": "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+    "parents": [
+      "bacf812178ea0e0ca843b5c332dd62414f701fad",
+      "a6d78cb13f54345119ea555d1ef6edfee4dc1825"
+    ],
+    "tree": "0f138d51d04050fef43ae1a9d70ecb45a216fa0c",
+    "subject": "Merge pull request #65 from Mister-M-alt/64-correct-media-ptp-tx-flags"
+  },
+  {
+    "commit": "5602e70bb4cf70c2e0e39e846e26925e27659e32",
+    "parents": [
+      "377b8c428b226a796adde099fe07152151fd6c5d"
+    ],
+    "tree": "df933eb87527e1a91218e668a3558b5a6013940b",
+    "subject": "Mutation arms bound their waits in DUT cycles"
+  },
+  {
+    "commit": "20927af74752620b2ad0f973e8be3203994b5547",
+    "parents": [
+      "7fa64e99490b4648797374d3fdb1fedf08145e91"
+    ],
+    "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7",
+    "subject": "Arm the gasket and tsngen suites with mutation campaigns"
+  }
+]

@@ -1,0 +1,33 @@
+ok   positive-replay-far-extension          trusted rc=1 proto rc=0 G=True H=True T=True :: contained  refs/heads/pr  [whitespace-exact replay across one redundant no-fast-forward merge, and re-merging it into refs/heads/main changes nothing 
+ok   positive-replay-two-later-commits      trusted rc=1 proto rc=0 G=True H=True T=True :: contained  refs/heads/pr  [whitespace-exact replay across one redundant no-fast-forward merge, and re-merging it into refs/heads/main changes nothing 
+ok   two-redundant-merges                   trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   control-replay-no-later-edit           trusted rc=0 proto rc=0 G=True H=True T=True :: contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]
+ok   control-revert-then-reapply            trusted rc=0 proto rc=0 G=True H=True T=True :: contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]
+ok   pr62-faithful-later-rewrite            trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   later-disabling-rewrite                trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   published-shape-adjacent-extension     trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   later-deletion-of-touched-file         trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   later-exec-bit-loss                    trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   later-binary-edit                      trusted rc=1 proto rc=1 G=True H=True T=None :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly across one redundant merge, but retention at refs/heads/main is unmeasurable: data.bin: git merg
+ok   exact-revert-whole-replay              trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   exact-revert-pr-commit                 trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   partial-revert-one-hunk                trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   revert-plus-far-extension              trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   revert-under-hostile-merge-config      trusted rc=1 proto rc=1 G=True H=True T=False :: UNKNOWN    refs/heads/pr: replayed whitespace-exactly in refs/heads/main history, but retention at refs/heads/main is NOT proven -- re-merging would c
+ok   omitted-linear-commit                  trusted rc=1 proto rc=1 G=True H=False T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]
+ok   omitted-part-of-a-commit               trusted rc=1 proto rc=1 G=True H=False T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   whitespace-different-postimage         trusted rc=1 proto rc=1 G=True H=False T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]
+ok   repeated-block-other-location          trusted rc=1 proto rc=1 G=True H=False T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]
+ok   merge-resolution-work-missing          trusted rc=1 proto rc=1 G=False H=True T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]
+ok   merge-resolution-work-present          trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   merge-one-byte-evil-change             trusted rc=1 proto rc=1 G=False H=False T=False :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   octopus-merge                          trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   octopus-absorbed-third-parent          trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   unrelated-parent-merge                 trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   redundant-plus-nonredundant-merge      trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   first-parent-is-grandparent            trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   reversed-parent-order                  trusted rc=1 proto rc=1 G=False H=True T=True :: STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]
+ok   linear-control-exact-revert            trusted rc=0 proto rc=0 G=False H=True T=False :: contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]
+ok   linear-control-adjacent-extension      trusted rc=0 proto rc=0 G=False H=True T=False :: contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+RESULT PASS
+rc=0
