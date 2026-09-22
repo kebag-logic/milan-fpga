@@ -1,0 +1,151 @@
+[
+  {
+    "name": "mutation-term",
+    "driver_head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "kind": "mutation",
+    "signal": "SIGTERM",
+    "argv": [
+      "/usr/bin/python3",
+      "$VALIDATION_STORAGE/523-readiness/mutation-term/tb/verilator/gptp_shadow/mutants.py"
+    ],
+    "handshake": {
+      "pid": 1913561,
+      "pgid": 1913542,
+      "grandchild": 1913562,
+      "mutant_applied": true
+    },
+    "exit_code": -15,
+    "before": {
+      "tb/verilator/gptp_shadow/mutants.py": {
+        "sha256": "49f8e733d6400715176a1309047906d0b791b58f1cbeed22392b7355f66a89c0",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": {
+        "sha256": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": {
+        "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": {
+        "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+        "mode": 420
+      }
+    },
+    "after": {
+      "tb/verilator/gptp_shadow/mutants.py": {
+        "sha256": "49f8e733d6400715176a1309047906d0b791b58f1cbeed22392b7355f66a89c0",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": {
+        "sha256": "69b78520fdf9db01c1cdbb7995c2ad77583832732fa0918928e0ed3b1ca4c868",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": {
+        "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": {
+        "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+        "mode": 420
+      }
+    },
+    "changed_paths": [
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv"
+    ],
+    "next_suite_executed": false,
+    "limit": "Synthetic make/preflight fixtures exercise original orchestration, not RTL correctness"
+  },
+  {
+    "name": "mutation-kill",
+    "driver_head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "kind": "mutation",
+    "signal": "SIGKILL",
+    "argv": [
+      "/usr/bin/python3",
+      "$VALIDATION_STORAGE/523-readiness/mutation-kill/tb/verilator/gptp_shadow/mutants.py"
+    ],
+    "handshake": {
+      "pid": 1913588,
+      "pgid": 1913569,
+      "grandchild": 1913589,
+      "mutant_applied": true
+    },
+    "exit_code": -9,
+    "before": {
+      "tb/verilator/gptp_shadow/mutants.py": {
+        "sha256": "49f8e733d6400715176a1309047906d0b791b58f1cbeed22392b7355f66a89c0",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": {
+        "sha256": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": {
+        "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": {
+        "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+        "mode": 420
+      }
+    },
+    "after": {
+      "tb/verilator/gptp_shadow/mutants.py": {
+        "sha256": "49f8e733d6400715176a1309047906d0b791b58f1cbeed22392b7355f66a89c0",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": {
+        "sha256": "69b78520fdf9db01c1cdbb7995c2ad77583832732fa0918928e0ed3b1ca4c868",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": {
+        "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+        "mode": 420
+      },
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": {
+        "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+        "mode": 420
+      }
+    },
+    "changed_paths": [
+      "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv"
+    ],
+    "next_suite_executed": false,
+    "limit": "Synthetic make/preflight fixtures exercise original orchestration, not RTL correctness"
+  },
+  {
+    "name": "sweep-term",
+    "driver_head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "kind": "sweep",
+    "signal": "SIGTERM",
+    "argv": [
+      "/bin/bash",
+      "$VALIDATION_STORAGE/523-readiness/sweep-term/scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/523-readiness/sweep-term/suite-logs"
+    ],
+    "handshake": {
+      "pid": 1913619,
+      "pgid": 1913618,
+      "grandchild": 1913620,
+      "mutant_applied": false
+    },
+    "exit_code": 1,
+    "before": {
+      "scripts/run_all_suites.sh": {
+        "sha256": "0322ee71447d1e0da4736caa2e852c82acf9522affd31072eb9c6478ce491f7a",
+        "mode": 493
+      }
+    },
+    "after": {
+      "scripts/run_all_suites.sh": {
+        "sha256": "0322ee71447d1e0da4736caa2e852c82acf9522affd31072eb9c6478ce491f7a",
+        "mode": 493
+      }
+    },
+    "changed_paths": [],
+    "next_suite_executed": true,
+    "limit": "Synthetic make/preflight fixtures exercise original orchestration, not RTL correctness"
+  }
+]

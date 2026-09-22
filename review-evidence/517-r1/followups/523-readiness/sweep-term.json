@@ -1,0 +1,33 @@
+{
+  "name": "sweep-term",
+  "driver_head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "kind": "sweep",
+  "signal": "SIGTERM",
+  "argv": [
+    "/bin/bash",
+    "$VALIDATION_STORAGE/523-readiness/sweep-term/scripts/run_all_suites.sh",
+    "$VALIDATION_STORAGE/523-readiness/sweep-term/suite-logs"
+  ],
+  "handshake": {
+    "pid": 1913619,
+    "pgid": 1913618,
+    "grandchild": 1913620,
+    "mutant_applied": false
+  },
+  "exit_code": 1,
+  "before": {
+    "scripts/run_all_suites.sh": {
+      "sha256": "0322ee71447d1e0da4736caa2e852c82acf9522affd31072eb9c6478ce491f7a",
+      "mode": 493
+    }
+  },
+  "after": {
+    "scripts/run_all_suites.sh": {
+      "sha256": "0322ee71447d1e0da4736caa2e852c82acf9522affd31072eb9c6478ce491f7a",
+      "mode": 493
+    }
+  },
+  "changed_paths": [],
+  "next_suite_executed": true,
+  "limit": "Synthetic make/preflight fixtures exercise original orchestration, not RTL correctness"
+}
