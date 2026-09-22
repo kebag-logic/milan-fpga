@@ -1,0 +1,61 @@
+make: Entering directory '$VALIDATION/tb/verilator/tcam_csr'
+verilator --cc --exe --build -j 8 --top-module tcam_csr_wrap -Wno-fatal -Werror-USERERROR \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+  ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv wrap.sv \
+  sim_main.cpp -o Vtcw
+%Warning-PINMISSING: wrap.sv:46:37: Instance has missing pin: 'addr_filter_en_i'
+   46 |   rx_mac_filter #(.TDATA_WIDTH(64)) f (
+      |                                     ^
+                     ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:57:37: ... Location of port declaration
+   57 |     input  wire                     addr_filter_en_i,  
+      |                                     ^~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: wrap.sv:46:37: Instance has missing pin: 'promisc_i'
+   46 |   rx_mac_filter #(.TDATA_WIDTH(64)) f (
+      |                                     ^
+                     ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:58:37: ... Location of port declaration
+   58 |     input  wire                     promisc_i,         
+      |                                     ^~~~~~~~~
+%Warning-PINMISSING: wrap.sv:46:37: Instance has missing pin: 'allmulti_i'
+   46 |   rx_mac_filter #(.TDATA_WIDTH(64)) f (
+      |                                     ^
+                     ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:59:37: ... Location of port declaration
+   59 |     input  wire                     allmulti_i,        
+      |                                     ^~~~~~~~~~
+%Warning-PINMISSING: wrap.sv:46:37: Instance has missing pin: 'station_mac_i'
+   46 |   rx_mac_filter #(.TDATA_WIDTH(64)) f (
+      |                                     ^
+                     ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:60:37: ... Location of port declaration
+   60 |     input  wire [47:0]              station_mac_i,     
+      |                                     ^~~~~~~~~~~~~
+%Warning-PINMISSING: wrap.sv:46:37: Instance has missing pin: 'mc_hash_i'
+   46 |   rx_mac_filter #(.TDATA_WIDTH(64)) f (
+      |                                     ^
+                     ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:61:37: ... Location of port declaration
+   61 |     input  wire [63:0]              mc_hash_i,         
+      |                                     ^~~~~~~~~
+make[1]: Entering directory '$VALIDATION/tb/verilator/tcam_csr/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtcam_csr_wrap.cpp Vtcam_csr_wrap___024root__0.cpp Vtcam_csr_wrap___024root__Slow.cpp Vtcam_csr_wrap___024root__0__Slow.cpp Vtcam_csr_wrap__Syms__Slow.cpp > Vtcam_csr_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vtcam_csr_wrap__ALL.o Vtcam_csr_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vtcam_csr_wrap__ALL.a    -pthread -lpthread -latomic   -o Vtcw
+rm Vtcam_csr_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/tcam_csr/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.110 MB sources in 4 modules, into 0.115 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 4.961 s (elab=0.001, cvt=0.009, bld=4.943); cpu 0.021 s on 8 threads; allocated 611.285 MB
+./obj_dir/Vtcw
+    f0 b0: s_tvalid=1 s_tready=1 m_tvalid=0 dropped=1
+    f0 b1: s_tvalid=1 s_tready=1 m_tvalid=0 dropped=1
+    f0 b2: s_tvalid=1 s_tready=1 m_tvalid=0 dropped=1
+    f0 b3: s_tvalid=1 s_tready=1 m_tvalid=0 dropped=1
+    f1 b0: s_tvalid=1 s_tready=1 m_tvalid=1 dropped=0
+    f1 b1: s_tvalid=1 s_tready=1 m_tvalid=1 dropped=0
+    f1 b2: s_tvalid=1 s_tready=1 m_tvalid=1 dropped=0
+    f1 b3: s_tvalid=1 s_tready=1 m_tvalid=1 dropped=0
+filtered-frame beats out=0 (exp 0), other=4 (exp 4)
+tcam_csr: 2 checks, 0 failures
+make: Leaving directory '$VALIDATION/tb/verilator/tcam_csr'
