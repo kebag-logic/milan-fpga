@@ -1,0 +1,60 @@
+=================== 5771798067
+[A158] REVIEW READY - isolated author evidence for manager handoff
+
+Commit: `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`.
+Base: `b17580b91deb11f3441dfc5d7f9fafe539d929b8`.
+Changed: six files covering two closer decisions, I440 controls, runner wiring, directly affected guard expectations and authoritative prose. No RTL/workflow/builder/version/budget/gitlink edit. Existing Unicode-fold controls and all runtime provenance/refusal logic remain unchanged.
+
+Validation: `python3 -B scripts/gen_toc.py --selftest` 683/683; `--check` 105 TOCs; `--verify-anchors` 144 links; `--sites` 25 single-source sites. `python3 -B scripts/check_em_dash.py --selftest` 51/51; `--base b17580b91deb11f3441dfc5d7f9fafe539d929b8` zero findings on 32 added lines. `docs_check.py` and its selftest, `check_doc_paths.py`, `check_doc_style.py`, `check_py_idiom.py` and its selftest, `check_hygiene.py --check`, `check_rtl_source_lists.py`, `git diff --check`, scope/source guards and per-page comparison all pass. Exact commands and complete stdout/exit receipts are in `commands.jsonl` and `logs/`.
+
+Acceptance criteria: exact fence and literal type-1 rules implemented; every changed property fails behavioral mutation controls; all historical characters, CR, inner blanks, Unicode folds, valid controls and cross-name rows are measured on both base/head against GitHub gfm. Head normalized helper agreement is 205/205; 100 rows remain globally refused. Raw head has zero escapes and five explicitly bounded CR withholdings that the actual readers normalize. Exact shipped-gate page comparisons reject hidden labels and preserve legitimate cross-name labels. All 163 tracked pages retain headings and generated Contents; 105 retain provenance. No directly affected tracked parser correction was needed.
+
+Sensitivity: 11/11 disposable-copy mutants fail I440 behavior; fence widening is masked by existing shipped refusal and therefore held by raw arms. Unicode and other type-1 mutations also fail the shipped gate controls. Exact patches/results and source hashes are published with the renderer evidence in issue comments 5771717445 and 5771717582.
+
+Open limitations: the historical instrument could not be obtained from its public references, so this is a documented population reconstruction. #437's container limitations remain out of scope. CR normalization and the independent LF-based Git diff boundary are stated explicitly. No open author-scope implementation question remains.
+
+Manager-owned checks not run: complete native RTL/lint/elaboration/processor/builder/Yosys/behave gates, trusted act, hosted CI, independent reviews, candidate merge validation and containment. No full milan_dp sweep. This evidence is not an independent review verdict or the full completion bar. A10 owns publication and orchestration; R225 and R226 remain assigned for later cleared-context review.
+
+Final state: one committed author head, clean tracked files and initialized submodules; unchanged uninitialized `external`; no push/PR/review/merge/subagent action.
+
+=================== 5771802182
+[A10] MANAGER VALIDATION / SCHEDULE
+
+Frozen draft head 0d43ff25d38917e77bb5c3d2ddb6473013cea3ba, live dev b17580b91deb11f3441dfc5d7f9fafe539d929b8. A158 finished successfully before source publication; A159 now owns PR505's separate revision lane. This PR's assigned R225/R226 reviews have not started. Donor PR96 is the sole active review round.
+
+42 static/document/lint/Vivado parsing commands have passed in an isolated validation clone; the full builder is continuing there. A second isolated clone runs the complete parent sweep, Yosys, both processor suites and behave sequentially. These fixture-mutating command groups never share a checkout. Native jobs are limited to eight CPUs each.
+
+The clean live-dev act runner was started immediately after PR creation, before inspecting hosted runs, for docs, rtl-fast and elaborate. The candidate head and draft state stay frozen until it completes. Full readiness and merger claims wait for finished local/native/hosted evidence and independent review. No physical acceptance is claimed.
+
+Author receipts are directly browsable at https://github.com/kebag-logic/milan-fpga/tree/4d9e15fa501c279ecd871ca53e95c3fb6a354532/review-evidence/440-r1 . This archive is never merged and retains original/published hashes for path-neutralized files.
+
+=================== 5772050614
+[A10] Manager and builder validation passed at `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`.
+
+All 43 recorded commands returned zero, including TOC, em-dash and documentation self-tests, mandatory ratchets, Vivado parsing gate, and full builder test. The existing physical calibration report gate 11 remains NOT RUN; no hardware result is claimed. Validation checkout remained clean.
+
+[Commands and complete receipts](https://github.com/kebag-logic/milan-fpga/tree/13afff1ccf95d8e7970d6d9d499e2f27e0510381/review-evidence/440-r1) are archived separately from the implementation. All hosted fast contexts passed. Exhaustive native checks and the trusted draft local replica are still running; draft skipped long contexts do not count as exhaustive evidence. Independent review has not started.
+
+=================== 5772151603
+[A10] Trusted draft workflow replication passed at `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`.
+
+The clean live-dev host runner executed `docs`, `rtl-fast` and `elaborate` from the candidate with no forwarded host credential. All three returned PASS; the invocation completed with exit 0 after 2358.694 seconds and released its resources. [Complete replica receipts](https://github.com/kebag-logic/milan-fpga/tree/88e1065d8e49d0f9d23bc850ffe19b5c566d7bf9/review-evidence/440-r1/manager/act-draft-fast).
+
+This is local evidence for the draft head. All hosted fast contexts also passed. Mandatory exhaustive native validation is still running, and ready-head exhaustive hosted and local replicas remain required before merge. No review has started yet.
+
+=================== 5772419785
+[A10] COMPLETE NATIVE VALIDATION PASS
+
+Exact head `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`; all five full-native commands returned zero, completing the earlier 43-command manager/builder bar. Results: 55 parent suites and 2,118,264 checks with zero in-suite failures; full Yosys portability/structural gates; protocol-processor 14,903 checks; gPTP make all; 14 BDD features, 316 scenarios and 1,515 steps. All three validation/source checkouts remain clean at the same head with the required submodule pins intact.
+
+[Complete receipts and integrity record](https://github.com/kebag-logic/milan-fpga/tree/ada8bf7b1cb74cc89e5a451bb2dcd659722ffa28/review-evidence/440-r1). The four declared field-campaign/freshness skips ran nothing and contribute zero checks. Physical builder calibration gate 11 remains NOT RUN. No physical acceptance is claimed.
+
+Trusted draft docs/rtl-fast/elaborate replication and all hosted fast contexts have also passed. R225/R226 will start after the currently active PR505 round completes. Scheduling: retain priority for #407's ready-head replica, which releases the shared CI lane for #464/#504; this PR stays draft until that request is queued. Its all-four ready replica and exhaustive hosted contexts remain mandatory before any merge.
+
+=================== 5772565104
+[A10] READY VALIDATION / INDEPENDENT REVIEW START
+
+Frozen head `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`, current dev `b17580b91deb11f3441dfc5d7f9fafe539d929b8`. Complete native, manager/builder and draft replicas passed with [public receipts](https://github.com/kebag-logic/milan-fpga/tree/ada8bf7b1cb74cc89e5a451bb2dcd659722ffa28/review-evidence/440-r1). The PR is now ready and the trusted all-four local replica request has been started; it will acquire the global lock after PR505's current draft invocation cleans up. Hosted exhaustive contexts remain required and are not yet claimed PASS.
+
+Both PR505 re-reviews have finished; that lane has a separate Docs correction queued. R225-1 (cold internal Codex) and R226-1 (external Opus) now independently review this head from public authority and evidence, covering all five lenses. No author approval counts and no merge will occur while a review remains in flight. The candidate/head tree is `c0e67508d3b753c21a28a243d365c4c37ed86d43`; it must be checked against live dev again before merge.
+

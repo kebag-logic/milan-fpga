@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -101,7 +101,7 @@
+ #: walked (`refusals()`), on EITHER side a decision is read from, which
+ #: holds a position whose only divergence from the renderer is WHICH
+ #: whitespace it takes. An arm derives the set from the Unicode database.
+-REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
++REFUSED = ("\v\f\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
+            "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
+            "\u2029\u202f\u205f\u3000")
+ #: The two functions the walk answers through. `_class_guards()` follows

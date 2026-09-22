@@ -1,0 +1,931 @@
+{
+ "input_tree_sha256_before": "fc8a31d48ea8626c938cb1658fe7314d2260b107f6e4a5c6b7f8a75c53950fe2",
+ "input_tree_sha256_after": "fc8a31d48ea8626c938cb1658fe7314d2260b107f6e4a5c6b7f8a75c53950fe2",
+ "mutants": [
+  {
+   "id": "R00-base-semantics-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 158,
+     "I440_failing": 157,
+     "non_I440_failing": 1,
+     "first_I440": [
+      "FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000D]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "FAIL [the shipped walk carries only single-source decision sites]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (525/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 10,
+     "I440_failing": 10,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+      "- [I440-E-space] copied label was not judged against the base heading",
+      "- [I440-E-tab] findings/exempt expected 1/0, got 0/1: []"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 10 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R01-trailer-plus-ff",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 5,
+     "I440_failing": 2,
+     "non_I440_failing": 3,
+     "first_I440": [
+      "FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '~~~' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "FAIL [the shipped walk carries no decision site of its own]",
+      "FAIL [the walk carries the number of decision sites recorded here]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (678/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R02-trailer-plus-nbsp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 5,
+     "I440_failing": 2,
+     "non_I440_failing": 3,
+     "first_I440": [
+      "FAIL [I440-F-invalid '```' U+00A0]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '~~~' U+00A0]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "FAIL [the shipped walk carries no decision site of its own]",
+      "FAIL [the walk carries the number of decision sites recorded here]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (678/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R03a-trailer-plus-zwsp-inline",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 3,
+     "I440_failing": 0,
+     "non_I440_failing": 3,
+     "first_I440": [],
+     "first_other": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "FAIL [the shipped walk carries no decision site of its own]",
+      "FAIL [the walk carries the number of decision sites recorded here]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (680/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R03b-blank-class-body-plus-zwsp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "FAIL [the renderer's classes are the ones spelled here, and not read from the table the walk reads]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R04-trailer-python-rstrip",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 53,
+     "I440_failing": 52,
+     "non_I440_failing": 1,
+     "first_I440": [
+      "FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000D]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "FAIL [the shipped walk carries only single-source decision sites]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (630/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R05-trailer-first-char-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "FAIL [a closer carrying an info string does not close]: ['fenced line', 'fenced line', 'prose line', 'fenced line', 'fenced line', 'fenced line']"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R06-trailer-space-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-F-valid '```' '\\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+      "FAIL [I440-F-valid '```' ' \\t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+      "FAIL [I440-F-valid '~~~' '\\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (679/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-fence-tab] findings/exempt expected 0/1, got 1/0: ['I440-E-fence-tab.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R07-trailer-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 56,
+     "I440_failing": 54,
+     "non_I440_failing": 2,
+     "first_I440": [
+      "FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+      "FAIL [I440-F-invalid '```' U+000D]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "FAIL [a closer carrying an info string does not close]: ['fenced line', 'fenced line', 'prose line', 'fenced line', 'fenced line', 'fenced line']",
+      "FAIL [the walk carries the number of decision sites recorded here]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (627/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R08-length-exact-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R09-length-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 2,
+     "I440_failing": 0,
+     "non_I440_failing": 2,
+     "first_I440": [],
+     "first_other": [
+      "FAIL [a short delimiter inside a longer fence is content]: ['fenced line', 'fenced line', 'prose line', 'fenced line', 'fenced line', 'fenced line']",
+      "FAIL [an indented closer shorter than its opener does not close]: ['fenced line', 'fenced line', 'prose line', 'fenced line', 'fenced line', 'fenced line']"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (681/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "- [four-backtick fence around a mirrored label is refused] no finding names 'added fenced line':"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R10-fence-char-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "first_I440": [],
+     "first_other": [
+      "FAIL [a tilde fence does not close on backticks]: ['fenced line', 'fenced line', 'prose line', 'fenced line', 'fenced line', 'fenced line']"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R11-fence-ended-by-type1-closer",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-F-precedence a type-1 closer cannot end a fence]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R12-closer-word-boundary",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 240,
+     "I440_failing": 240,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-inner pre '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-inner pre '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-inner pre '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (443/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 10,
+     "I440_failing": 10,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+      "- [I440-E-space] copied label was not judged against the base heading",
+      "- [I440-E-tab] findings/exempt expected 1/0, got 0/1: []"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 10 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R13-closer-attributes",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 241,
+     "I440_failing": 241,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-inner pre '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-inner pre '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-inner pre '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (442/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+      "- [I440-E-space] copied label was not judged against the base heading",
+      "- [I440-E-tab] findings/exempt expected 1/0, got 0/1: []"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 8 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R14-closer-drop-textarea",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 16,
+     "I440_failing": 16,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-valid pre/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (667/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R15-closer-add-div",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R16-closer-add-title",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R17-closer-end-of-line",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R18-closer-lower-or-upper-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R19-closer-ascii-case-sensitive",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 33,
+     "I440_failing": 33,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (650/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+      "- [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R20-closer-unicode-fold",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 33,
+     "I440_failing": 32,
+     "non_I440_failing": 1,
+     "first_I440": [
+      "FAIL [I440-T-fold pre/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-fold pre/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [I440-T-fold pre/scr\u0131pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+     ],
+     "first_other": [
+      "FAIL [a type-1 block is not closed by a name only a Unicode fold matches]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (650/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 6,
+     "I440_failing": 6,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-long-s] findings/exempt expected 1/0, got 0/1: []",
+      "- [I440-E-long-s] copied label was not judged against the base heading",
+      "- [I440-E-dotless-i] findings/exempt expected 1/0, got 0/1: []"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 6 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R21-closer-optional-slash",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 288,
+     "I440_failing": 282,
+     "non_I440_failing": 6,
+     "first_I440": [
+      "FAIL [I440-T-valid pre/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [
+      "FAIL [a raw HTML block's content is not Markdown]: ['raw HTML line', 'prose line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [a type-1 name in capitals opens one that its lowercase closing tag ends]: ['raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+      "FAIL [a type-1 block is not closed by a name only a Unicode fold matches]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (395/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 15,
+     "I440_failing": 14,
+     "non_I440_failing": 1,
+     "first_I440": [
+      "- [I440-E-inline] findings/exempt expected 1/0, got 0/1: []",
+      "- [I440-E-inline] copied label was not judged against the base heading",
+      "- [I440-E-inline-tab] findings/exempt expected 1/0, got 0/1: []"
+     ],
+     "first_other": [
+      "- [raw HTML copy of a mirrored label is refused] no finding names 'added raw HTML line':"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 15 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R22-type6-ended-by-type1-closer",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-precedence a type-1 closer cannot end type 6]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (682/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R23-closer-requires-opener-name-prefix",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 49,
+     "I440_failing": 49,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+      "FAIL [I440-T-valid pre/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+     ],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: FAIL (634/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 3,
+     "I440_failing": 3,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+      "- [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+      "- [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 3 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R24-gate-git-reader-no-newline-translation",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 3,
+     "I440_failing": 3,
+     "non_I440_failing": 0,
+     "first_I440": [
+      "- [I440-E-fence-crlf] findings/exempt expected 0/1, got 3/0: ['I440-E-fence-crlf.md:3: U+000D at column 4 is neither a space nor a tab, so this walk does not read the page (use a space or a tab), so no Contents label copied from it is exempt', 'I440-E-fence-crlf.md:4: U+000D at column 4 is neither a space nor a tab, so this walk does not read the page (use a space or a tab), so no Contents label copied from it is exempt', 'I440-E-fence-crlf.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+      "- [I440-E-fence-cr] findings/exempt expected 1/1, got 4/0: ['I440-E-fence-cr.md:3: U+000D at column 4 is neither a space nor a tab, so this walk does not read the page (use a space or a tab), so no Contents label copied from it is exempt', 'I440-E-fence-cr.md:3: U+000D at column 8 is neither a space nor a tab, so this walk does not read the page (use a space or a tab), so no Contents label copied from it is exempt', 'I440-E-fence-cr.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block', 'I440-E-fence-cr.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']",
+      "- [I440-E-inner-cr] findings/exempt expected 1/0, got 2/0: ['I440-E-inner-cr.md:4: U+000D at column 6 is neither a space nor a tab, so this walk does not read the page (use a space or a tab), so no Contents label copied from it is exempt', 'I440-E-inner-cr.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [],
+     "summary": [
+      "check_em_dash: FATAL: 3 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R25-generator-reader-no-newline-translation",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R26-base-side-refusal-dropped",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "TOC selftest: PASS (683/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing_lines": 12,
+     "I440_failing": 6,
+     "non_I440_failing": 6,
+     "first_I440": [
+      "- [I440-E-fence-ff] findings/exempt expected 2/0, got 1/0: ['I440-E-fence-ff.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+      "- [I440-E-fence-ff] base character refusal was not named",
+      "- [I440-E-fence-nbsp] findings/exempt expected 2/0, got 1/0: ['I440-E-fence-nbsp.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+     ],
+     "first_other": [
+      "- [a base page the walk refuses to read authorises no label] expected 2 finding(s), got 0:",
+      "- [a base page the walk refuses to read authorises no label] no finding names 'REFUSED_BASE.md':",
+      "- [a base page the walk refuses to read authorises no label] no finding names 'U+00A0 at column':"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 12 of 51 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R27-refused-drops-cr",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing_lines": 2,
+     "I440_failing": 0,
+     "non_I440_failing": 2,
+     "first_I440": [],
+     "first_other": [
+      "FAIL [the refused characters are exactly Python's whitespace less the space, the tab and the line feed]",
+      "FAIL [a carriage return is one of them]"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (681/683 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing_lines": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "first_I440": [],
+     "first_other": [],
+     "summary": [
+      "check_em_dash selftest: PASS (51 arm(s))"
+     ]
+    }
+   }
+  }
+ ]
+}
