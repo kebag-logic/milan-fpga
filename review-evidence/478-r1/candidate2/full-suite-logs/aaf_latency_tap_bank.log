@@ -1,0 +1,68 @@
+make: Entering directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank'
+verilator --cc --exe --build -j 0 --top-module KL_aaf_latency_tap_bank -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GTIMEOUT_C=64 -GENABLE_P=1 --Mdir obj_dir_en ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv sim_main.cpp -o Vtap_bank_sim
+make[1]: Entering directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank/obj_dir_en'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank/obj_dir_en'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 5.996 MB
+./obj_dir_en/Vtap_bank_sim
+[PASS] init tx samples
+[PASS] init tx min d0 rails high
+[PASS] init rx min d2 rails high
+[PASS] init tx epoch
+[PASS] init reserved half tx
+[PASS] init reserved half rx
+[PASS] init reserved half tx
+[PASS] init reserved half rx
+[PASS] init reserved half tx
+[PASS] init reserved half rx
+[PASS] TX last d0 (cap->sof)
+[PASS] TX last d1 (sof->eof)
+[PASS] TX last d2 (eof->mac)
+[PASS] TX samples
+[PASS] TX min d0 tracks
+[PASS] TX max d2 tracks
+[PASS] TX reserved half stays zero
+[PASS] TX 1-beat last d0
+[PASS] TX 1-beat last d1 is zero
+[PASS] TX 1-beat last d2
+[PASS] TX samples after 2
+[PASS] TX min d1 now zero
+[PASS] TX max d1 keeps 3
+[PASS] RECOUPLE-1 mid-frame beats are not SOF
+[PASS] RECOUPLE-1 sample completed
+[PASS] RECOUPLE-2 epoch is the post-pulse value
+[PASS] RX last d0 (sof->accept)
+[PASS] RX last d1 (accept->depkt)
+[PASS] RX last d2 (depkt->fabric render)
+[PASS] RX samples
+[PASS] RX epoch
+[PASS] RX traffic left TX samples alone
+[PASS] RX reserved half stays zero
+[PASS] RECOUPLE-3 last d0 moved
+[PASS] RECOUPLE-3 max d0 took the larger
+[PASS] RECOUPLE-3 min d0 kept the smaller
+[PASS] RECOUPLE-3 reserved half still zero
+[PASS] disabled: samples frozen
+[PASS] disabled: last frozen
+
+39 checks: 39 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 --top-module KL_aaf_latency_tap_bank -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GTIMEOUT_C=64 -GENABLE_P=0 --Mdir obj_dir_pr ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv sim_prune.cpp -o Vtap_bank_prune
+make[1]: Entering directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank/obj_dir_pr'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank/obj_dir_pr'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 6.172 MB
+./obj_dir_pr/Vtap_bank_prune
+[PASS] pruned: zero out of reset
+[PASS] pruned: TX activity leaves zero
+[PASS] pruned: RX activity leaves zero
+[PASS] pruned: tx min d0 is zero, not 0xFFFF
+[PASS] pruned: rx min d2 is zero, not 0xFFFF
+[PASS] pruned: clear leaves zero
+[PASS] pruned: disabled leaves zero
+
+7 checks: 7 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/aaf_latency_tap_bank'
