@@ -65,6 +65,7 @@ for having actually produced an answer.  That is the whole reason those two
 are used rather than reading ``git log`` output.
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -90,14 +91,14 @@ MINIMUM_GIT = "2.39.0"
 
 
 def _git(*args):
-    """Return (rc, stdout) without normalizing newlines or undecodable bytes."""
+    """Decode bytes reversibly with the encoding subprocess uses for paths."""
     #! Replacement objects rewrite the commit graph for every plumbing command.
     #! A local refs/replace entry can otherwise make a stranded branch appear
     #! to be an ancestor of the base.  Containment must measure stored commits,
     #! not a caller-specific alternate history.
     p = subprocess.run(("git", "--no-replace-objects") + args,
                        capture_output=True)
-    return p.returncode, p.stdout.decode("utf-8", "surrogateescape").rstrip("\n")
+    return p.returncode, os.fsdecode(p.stdout).rstrip("\n")
 
 
 def verbatim_patch_id_error() -> str | None:
@@ -156,7 +157,7 @@ def _verbatim_patch_id(commit):
     if rc != 0:
         return (None, f"git show could not read {commit}")
     p = subprocess.run(("git", "--no-replace-objects", "patch-id",
-                        "--verbatim"), input=patch.encode("utf-8", "surrogateescape"),
+                        "--verbatim"), input=os.fsencode(patch),
                        capture_output=True)
     fields = p.stdout.decode("ascii").strip().split()
     if p.returncode != 0 or len(fields) != 2:

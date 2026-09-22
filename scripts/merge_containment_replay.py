@@ -6,6 +6,7 @@ helper. T measures raw current entries, then a conflict-free no-op re-merge.
 This is a byte-level criterion, not a judgment about later edits' intent.
 """
 
+import os
 import subprocess
 import tempfile
 from collections.abc import Callable
@@ -68,7 +69,7 @@ def _tree_entry(commit, path):
         mode, kind, oid = metadata.decode("ascii").split()
     except (ValueError, UnicodeError) as exc:
         raise _MeasurementError("invalid ls-tree entry") from exc
-    if (terminator or name != path.encode("utf-8", "surrogateescape")
+    if (terminator or name != os.fsencode(path)
             or len(oid) not in (40, 64)
             or any(char not in "0123456789abcdef" for char in oid)):
         raise _MeasurementError("invalid ls-tree path or object ID")
@@ -123,7 +124,7 @@ def _retained_at_tip(branch, base, git):
         raise _MeasurementError("retention has no measurable changed-path set")
     unproved = []
     for name in raw[:-1].split(b"\0"):
-        path = name.decode("utf-8", "surrogateescape")
+        path = os.fsdecode(name)
         try:
             entries = [_tree_entry(commit, path)
                        for commit in (ancestor, base, branch)]

@@ -105,6 +105,7 @@ def _fixture_cases(fx):
     from merge_containment_selftest_content import content_cases
     from merge_containment_selftest_replay import replay_cases
     from merge_containment_selftest_retention import retention_cases
+    from merge_containment_selftest_locale import locale_cases
 
     with scratch(fx.leftovers) as td:
         cwd = os.getcwd()
@@ -133,6 +134,7 @@ def _fixture_cases(fx):
             content_cases(fx)
             replay_cases(fx)
             retention_cases(fx)
+            locale_cases(fx)
         finally:
             os.chdir(cwd)
 

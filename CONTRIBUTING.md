@@ -239,6 +239,11 @@ flowchart LR
    This arm cannot prove arbitrary later semantic rewrites preserve work.
    Repeated-block controls provide bounded evidence, without a general alignment proof.
    The default self-test owns these controls and guard mutations.
+   Git filenames retain their original bytes across filesystem encodings.
+   Fresh UTF-8, ASCII and Latin-1 processes exercise filename transport.
+   Latin-1 uses installed data or a disposable `localedef` output.
+   Missing locale support is reported as `NOT RUN`.
+   That notice supplies no Latin-1 validation evidence.
 
    Reproduce the decision's patch hashes from exact raw diffs:
 
