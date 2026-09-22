@@ -1,0 +1,2994 @@
+{
+ "tree": "/tmp/r226-2-scratch/head",
+ "set": "all",
+ "input_scripts_sha256_before": "03c8a8d9df7a2779e5eb0348fcadd1c5d11da0ac40b8b22d6624264c532c75cb",
+ "input_scripts_sha256_after": "03c8a8d9df7a2779e5eb0348fcadd1c5d11da0ac40b8b22d6624264c532c75cb",
+ "mutants": [
+  {
+   "id": "R00-base-semantics-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 158,
+     "I440_failing": 157,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-F-invalid '```' U+000B",
+      "I440-F-invalid '```' U+000C",
+      "I440-F-invalid '```' U+000D",
+      "I440-F-invalid '```' U+001C",
+      "I440-F-invalid '```' U+001D",
+      "I440-F-invalid '```' U+001E",
+      "I440-F-invalid '```' U+001F",
+      "I440-F-invalid '```' U+0085",
+      "I440-F-invalid '```' U+00A0",
+      "I440-F-invalid '```' U+1680",
+      "I440-F-invalid '```' U+2000",
+      "I440-F-invalid '```' U+2001",
+      "I440-F-invalid '```' U+2002",
+      "I440-F-invalid '```' U+2003",
+      "I440-F-invalid '```' U+2004",
+      "I440-F-invalid '```' U+2005",
+      "I440-F-invalid '```' U+2006",
+      "I440-F-invalid '```' U+2007",
+      "I440-F-invalid '```' U+2008",
+      "I440-F-invalid '```' U+2009",
+      "I440-F-invalid '```' U+200A",
+      "I440-F-invalid '```' U+2028",
+      "I440-F-invalid '```' U+2029",
+      "I440-F-invalid '```' U+202F",
+      "I440-F-invalid '```' U+205F",
+      "I440-F-invalid '```' U+3000",
+      "I440-F-invalid '~~~' U+000B",
+      "I440-F-invalid '~~~' U+000C",
+      "I440-F-invalid '~~~' U+000D",
+      "I440-F-invalid '~~~' U+001C",
+      "I440-F-invalid '~~~' U+001D",
+      "I440-F-invalid '~~~' U+001E",
+      "I440-F-invalid '~~~' U+001F",
+      "I440-F-invalid '~~~' U+0085",
+      "I440-F-invalid '~~~' U+00A0",
+      "I440-F-invalid '~~~' U+1680",
+      "I440-F-invalid '~~~' U+2000",
+      "I440-F-invalid '~~~' U+2001",
+      "I440-F-invalid '~~~' U+2002",
+      "I440-F-invalid '~~~' U+2003",
+      "I440-F-invalid '~~~' U+2004",
+      "I440-F-invalid '~~~' U+2005",
+      "I440-F-invalid '~~~' U+2006",
+      "I440-F-invalid '~~~' U+2007",
+      "I440-F-invalid '~~~' U+2008",
+      "I440-F-invalid '~~~' U+2009",
+      "I440-F-invalid '~~~' U+200A",
+      "I440-F-invalid '~~~' U+2028",
+      "I440-F-invalid '~~~' U+2029",
+      "I440-F-invalid '~~~' U+202F",
+      "I440-F-invalid '~~~' U+205F",
+      "I440-F-invalid '~~~' U+3000",
+      "I440-T-valid pre/script '\\n'",
+      "I440-T-valid pre/SCRIPT '\\n'",
+      "I440-T-valid pre/style '\\n'",
+      "I440-T-valid pre/STYLE '\\n'",
+      "I440-T-valid pre/textarea '\\n'",
+      "I440-T-valid pre/TEXTAREA '\\n'",
+      "I440-T-inner pre '\\n' '\\x0b'",
+      "I440-T-inner pre '\\n' '\\x0c'",
+      "I440-T-inner pre '\\n' '\\r'",
+      "I440-T-inner pre '\\n' ' '",
+      "I440-T-inner pre '\\n' '\\t'",
+      "I440-T-inner pre '\\n' '  '",
+      "I440-T-inner pre '\\n' ' \\t '",
+      "I440-T-valid pre/script 'x'",
+      "I440-T-valid pre/SCRIPT 'x'",
+      "I440-T-valid pre/style 'x'",
+      "I440-T-valid pre/STYLE 'x'",
+      "I440-T-valid pre/textarea 'x'",
+      "I440-T-valid pre/TEXTAREA 'x'",
+      "I440-T-inner pre 'x' '\\x0b'",
+      "I440-T-inner pre 'x' '\\x0c'",
+      "I440-T-inner pre 'x' '\\r'",
+      "I440-T-inner pre 'x' ' '",
+      "I440-T-inner pre 'x' '\\t'",
+      "I440-T-inner pre 'x' '  '",
+      "I440-T-inner pre 'x' ' \\t '",
+      "I440-T-valid script/pre '\\n'",
+      "I440-T-valid script/PRE '\\n'",
+      "I440-T-valid script/style '\\n'",
+      "I440-T-valid script/STYLE '\\n'",
+      "I440-T-valid script/textarea '\\n'",
+      "I440-T-valid script/TEXTAREA '\\n'",
+      "I440-T-inner script '\\n' '\\x0b'",
+      "I440-T-inner script '\\n' '\\x0c'",
+      "I440-T-inner script '\\n' '\\r'",
+      "I440-T-inner script '\\n' ' '",
+      "I440-T-inner script '\\n' '\\t'",
+      "I440-T-inner script '\\n' '  '",
+      "I440-T-inner script '\\n' ' \\t '",
+      "I440-T-valid script/pre 'x'",
+      "I440-T-valid script/PRE 'x'",
+      "I440-T-valid script/style 'x'",
+      "I440-T-valid script/STYLE 'x'",
+      "I440-T-valid script/textarea 'x'",
+      "I440-T-valid script/TEXTAREA 'x'",
+      "I440-T-inner script 'x' '\\x0b'",
+      "I440-T-inner script 'x' '\\x0c'",
+      "I440-T-inner script 'x' '\\r'",
+      "I440-T-inner script 'x' ' '",
+      "I440-T-inner script 'x' '\\t'",
+      "I440-T-inner script 'x' '  '",
+      "I440-T-inner script 'x' ' \\t '",
+      "I440-T-valid style/pre '\\n'",
+      "I440-T-valid style/PRE '\\n'",
+      "I440-T-valid style/script '\\n'",
+      "I440-T-valid style/SCRIPT '\\n'",
+      "I440-T-valid style/textarea '\\n'",
+      "I440-T-valid style/TEXTAREA '\\n'",
+      "I440-T-inner style '\\n' '\\x0b'",
+      "I440-T-inner style '\\n' '\\x0c'",
+      "I440-T-inner style '\\n' '\\r'",
+      "I440-T-inner style '\\n' ' '",
+      "I440-T-inner style '\\n' '\\t'",
+      "I440-T-inner style '\\n' '  '",
+      "I440-T-inner style '\\n' ' \\t '",
+      "I440-T-valid style/pre 'x'",
+      "I440-T-valid style/PRE 'x'",
+      "I440-T-valid style/script 'x'",
+      "I440-T-valid style/SCRIPT 'x'",
+      "I440-T-valid style/textarea 'x'",
+      "I440-T-valid style/TEXTAREA 'x'",
+      "I440-T-inner style 'x' '\\x0b'",
+      "I440-T-inner style 'x' '\\x0c'",
+      "I440-T-inner style 'x' '\\r'",
+      "I440-T-inner style 'x' ' '",
+      "I440-T-inner style 'x' '\\t'",
+      "I440-T-inner style 'x' '  '",
+      "I440-T-inner style 'x' ' \\t '",
+      "I440-T-valid textarea/pre '\\n'",
+      "I440-T-valid textarea/PRE '\\n'",
+      "I440-T-valid textarea/script '\\n'",
+      "I440-T-valid textarea/SCRIPT '\\n'",
+      "I440-T-valid textarea/style '\\n'",
+      "I440-T-valid textarea/STYLE '\\n'",
+      "I440-T-inner textarea '\\n' '\\x0b'",
+      "I440-T-inner textarea '\\n' '\\x0c'",
+      "I440-T-inner textarea '\\n' '\\r'",
+      "I440-T-inner textarea '\\n' ' '",
+      "I440-T-inner textarea '\\n' '\\t'",
+      "I440-T-inner textarea '\\n' '  '",
+      "I440-T-inner textarea '\\n' ' \\t '",
+      "I440-T-valid textarea/pre 'x'",
+      "I440-T-valid textarea/PRE 'x'",
+      "I440-T-valid textarea/script 'x'",
+      "I440-T-valid textarea/SCRIPT 'x'",
+      "I440-T-valid textarea/style 'x'",
+      "I440-T-valid textarea/STYLE 'x'",
+      "I440-T-inner textarea 'x' '\\x0b'",
+      "I440-T-inner textarea 'x' '\\x0c'",
+      "I440-T-inner textarea 'x' '\\r'",
+      "I440-T-inner textarea 'x' ' '",
+      "I440-T-inner textarea 'x' '\\t'",
+      "I440-T-inner textarea 'x' '  '",
+      "I440-T-inner textarea 'x' ' \\t '",
+      "I440-T-embedded closer anywhere in the line",
+      "the shipped walk carries only single-source decision sites"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (549/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 10,
+     "I440_failing": 10,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-space",
+      "I440-E-space",
+      "I440-E-tab",
+      "I440-E-tab",
+      "I440-E-inline",
+      "I440-E-inline",
+      "I440-E-inline-tab",
+      "I440-E-inline-tab",
+      "I440-E-cross",
+      "I440-E-cross-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 10 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R01-trailer-plus-ff",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 2,
+     "non_I440_failing": 3,
+     "failing_names": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "I440-F-invalid '```' U+000C",
+      "I440-F-invalid '~~~' U+000C",
+      "the shipped walk carries no decision site of its own",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R02-trailer-plus-nbsp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 2,
+     "non_I440_failing": 3,
+     "failing_names": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "I440-F-invalid '```' U+00A0",
+      "I440-F-invalid '~~~' U+00A0",
+      "the shipped walk carries no decision site of its own",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R03a-trailer-plus-zwsp-inline",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 3,
+     "I440_failing": 0,
+     "non_I440_failing": 3,
+     "failing_names": [
+      "GUARD _still_open() strip() strips a class of its own",
+      "the shipped walk carries no decision site of its own",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (704/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R03b-blank-class-body-plus-zwsp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "the renderer's classes are the ones spelled here, and not read from the table the walk reads"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R04-trailer-python-rstrip",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 53,
+     "I440_failing": 52,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-F-invalid '```' U+000B",
+      "I440-F-invalid '```' U+000C",
+      "I440-F-invalid '```' U+000D",
+      "I440-F-invalid '```' U+001C",
+      "I440-F-invalid '```' U+001D",
+      "I440-F-invalid '```' U+001E",
+      "I440-F-invalid '```' U+001F",
+      "I440-F-invalid '```' U+0085",
+      "I440-F-invalid '```' U+00A0",
+      "I440-F-invalid '```' U+1680",
+      "I440-F-invalid '```' U+2000",
+      "I440-F-invalid '```' U+2001",
+      "I440-F-invalid '```' U+2002",
+      "I440-F-invalid '```' U+2003",
+      "I440-F-invalid '```' U+2004",
+      "I440-F-invalid '```' U+2005",
+      "I440-F-invalid '```' U+2006",
+      "I440-F-invalid '```' U+2007",
+      "I440-F-invalid '```' U+2008",
+      "I440-F-invalid '```' U+2009",
+      "I440-F-invalid '```' U+200A",
+      "I440-F-invalid '```' U+2028",
+      "I440-F-invalid '```' U+2029",
+      "I440-F-invalid '```' U+202F",
+      "I440-F-invalid '```' U+205F",
+      "I440-F-invalid '```' U+3000",
+      "I440-F-invalid '~~~' U+000B",
+      "I440-F-invalid '~~~' U+000C",
+      "I440-F-invalid '~~~' U+000D",
+      "I440-F-invalid '~~~' U+001C",
+      "I440-F-invalid '~~~' U+001D",
+      "I440-F-invalid '~~~' U+001E",
+      "I440-F-invalid '~~~' U+001F",
+      "I440-F-invalid '~~~' U+0085",
+      "I440-F-invalid '~~~' U+00A0",
+      "I440-F-invalid '~~~' U+1680",
+      "I440-F-invalid '~~~' U+2000",
+      "I440-F-invalid '~~~' U+2001",
+      "I440-F-invalid '~~~' U+2002",
+      "I440-F-invalid '~~~' U+2003",
+      "I440-F-invalid '~~~' U+2004",
+      "I440-F-invalid '~~~' U+2005",
+      "I440-F-invalid '~~~' U+2006",
+      "I440-F-invalid '~~~' U+2007",
+      "I440-F-invalid '~~~' U+2008",
+      "I440-F-invalid '~~~' U+2009",
+      "I440-F-invalid '~~~' U+200A",
+      "I440-F-invalid '~~~' U+2028",
+      "I440-F-invalid '~~~' U+2029",
+      "I440-F-invalid '~~~' U+202F",
+      "I440-F-invalid '~~~' U+205F",
+      "I440-F-invalid '~~~' U+3000",
+      "the shipped walk carries only single-source decision sites"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (654/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R05-trailer-first-char-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "a closer carrying an info string does not close"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R06-trailer-space-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-F-valid '```' '\\t'",
+      "I440-F-valid '```' ' \\t '",
+      "I440-F-valid '~~~' '\\t'",
+      "I440-F-valid '~~~' ' \\t '"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (703/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-fence-tab"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R07-trailer-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 56,
+     "I440_failing": 54,
+     "non_I440_failing": 2,
+     "failing_names": [
+      "a closer carrying an info string does not close",
+      "I440-F-invalid '```' U+000B",
+      "I440-F-invalid '```' U+000C",
+      "I440-F-invalid '```' U+000D",
+      "I440-F-invalid '```' U+001C",
+      "I440-F-invalid '```' U+001D",
+      "I440-F-invalid '```' U+001E",
+      "I440-F-invalid '```' U+001F",
+      "I440-F-invalid '```' U+0085",
+      "I440-F-invalid '```' U+00A0",
+      "I440-F-invalid '```' U+1680",
+      "I440-F-invalid '```' U+2000",
+      "I440-F-invalid '```' U+2001",
+      "I440-F-invalid '```' U+2002",
+      "I440-F-invalid '```' U+2003",
+      "I440-F-invalid '```' U+2004",
+      "I440-F-invalid '```' U+2005",
+      "I440-F-invalid '```' U+2006",
+      "I440-F-invalid '```' U+2007",
+      "I440-F-invalid '```' U+2008",
+      "I440-F-invalid '```' U+2009",
+      "I440-F-invalid '```' U+200A",
+      "I440-F-invalid '```' U+2028",
+      "I440-F-invalid '```' U+2029",
+      "I440-F-invalid '```' U+202F",
+      "I440-F-invalid '```' U+205F",
+      "I440-F-invalid '```' U+3000",
+      "I440-F-invalid '```' U+0078",
+      "I440-F-invalid '~~~' U+000B",
+      "I440-F-invalid '~~~' U+000C",
+      "I440-F-invalid '~~~' U+000D",
+      "I440-F-invalid '~~~' U+001C",
+      "I440-F-invalid '~~~' U+001D",
+      "I440-F-invalid '~~~' U+001E",
+      "I440-F-invalid '~~~' U+001F",
+      "I440-F-invalid '~~~' U+0085",
+      "I440-F-invalid '~~~' U+00A0",
+      "I440-F-invalid '~~~' U+1680",
+      "I440-F-invalid '~~~' U+2000",
+      "I440-F-invalid '~~~' U+2001",
+      "I440-F-invalid '~~~' U+2002",
+      "I440-F-invalid '~~~' U+2003",
+      "I440-F-invalid '~~~' U+2004",
+      "I440-F-invalid '~~~' U+2005",
+      "I440-F-invalid '~~~' U+2006",
+      "I440-F-invalid '~~~' U+2007",
+      "I440-F-invalid '~~~' U+2008",
+      "I440-F-invalid '~~~' U+2009",
+      "I440-F-invalid '~~~' U+200A",
+      "I440-F-invalid '~~~' U+2028",
+      "I440-F-invalid '~~~' U+2029",
+      "I440-F-invalid '~~~' U+202F",
+      "I440-F-invalid '~~~' U+205F",
+      "I440-F-invalid '~~~' U+3000",
+      "I440-F-invalid '~~~' U+0078",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (651/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R08-length-exact-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R09-length-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 2,
+     "I440_failing": 0,
+     "non_I440_failing": 2,
+     "failing_names": [
+      "a short delimiter inside a longer fence is content",
+      "an indented closer shorter than its opener does not close"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (705/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "four-backtick fence around a mirrored label is refused"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R10-fence-char-ignored",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 0,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "a tilde fence does not close on backticks"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R11-fence-ended-by-type1-closer",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-F-precedence a type-1 closer cannot end a fence"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R12-closer-word-boundary",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 240,
+     "I440_failing": 240,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-inner pre '\\n' '\\x0b'",
+      "I440-T-inner pre '\\n' '\\x0c'",
+      "I440-T-inner pre '\\n' '\\r'",
+      "I440-T-inner pre '\\n' '\\x1c'",
+      "I440-T-inner pre '\\n' '\\x1d'",
+      "I440-T-inner pre '\\n' '\\x1e'",
+      "I440-T-inner pre '\\n' '\\x1f'",
+      "I440-T-inner pre '\\n' '\\x85'",
+      "I440-T-inner pre '\\n' '\\xa0'",
+      "I440-T-inner pre '\\n' '\\u1680'",
+      "I440-T-inner pre '\\n' '\\u2000'",
+      "I440-T-inner pre '\\n' '\\u2001'",
+      "I440-T-inner pre '\\n' '\\u2002'",
+      "I440-T-inner pre '\\n' '\\u2003'",
+      "I440-T-inner pre '\\n' '\\u2004'",
+      "I440-T-inner pre '\\n' '\\u2005'",
+      "I440-T-inner pre '\\n' '\\u2006'",
+      "I440-T-inner pre '\\n' '\\u2007'",
+      "I440-T-inner pre '\\n' '\\u2008'",
+      "I440-T-inner pre '\\n' '\\u2009'",
+      "I440-T-inner pre '\\n' '\\u200a'",
+      "I440-T-inner pre '\\n' '\\u2028'",
+      "I440-T-inner pre '\\n' '\\u2029'",
+      "I440-T-inner pre '\\n' '\\u202f'",
+      "I440-T-inner pre '\\n' '\\u205f'",
+      "I440-T-inner pre '\\n' '\\u3000'",
+      "I440-T-inner pre '\\n' ' '",
+      "I440-T-inner pre '\\n' '\\t'",
+      "I440-T-inner pre '\\n' '  '",
+      "I440-T-inner pre '\\n' ' \\t '",
+      "I440-T-inner pre 'x' '\\x0b'",
+      "I440-T-inner pre 'x' '\\x0c'",
+      "I440-T-inner pre 'x' '\\r'",
+      "I440-T-inner pre 'x' '\\x1c'",
+      "I440-T-inner pre 'x' '\\x1d'",
+      "I440-T-inner pre 'x' '\\x1e'",
+      "I440-T-inner pre 'x' '\\x1f'",
+      "I440-T-inner pre 'x' '\\x85'",
+      "I440-T-inner pre 'x' '\\xa0'",
+      "I440-T-inner pre 'x' '\\u1680'",
+      "I440-T-inner pre 'x' '\\u2000'",
+      "I440-T-inner pre 'x' '\\u2001'",
+      "I440-T-inner pre 'x' '\\u2002'",
+      "I440-T-inner pre 'x' '\\u2003'",
+      "I440-T-inner pre 'x' '\\u2004'",
+      "I440-T-inner pre 'x' '\\u2005'",
+      "I440-T-inner pre 'x' '\\u2006'",
+      "I440-T-inner pre 'x' '\\u2007'",
+      "I440-T-inner pre 'x' '\\u2008'",
+      "I440-T-inner pre 'x' '\\u2009'",
+      "I440-T-inner pre 'x' '\\u200a'",
+      "I440-T-inner pre 'x' '\\u2028'",
+      "I440-T-inner pre 'x' '\\u2029'",
+      "I440-T-inner pre 'x' '\\u202f'",
+      "I440-T-inner pre 'x' '\\u205f'",
+      "I440-T-inner pre 'x' '\\u3000'",
+      "I440-T-inner pre 'x' ' '",
+      "I440-T-inner pre 'x' '\\t'",
+      "I440-T-inner pre 'x' '  '",
+      "I440-T-inner pre 'x' ' \\t '",
+      "I440-T-inner script '\\n' '\\x0b'",
+      "I440-T-inner script '\\n' '\\x0c'",
+      "I440-T-inner script '\\n' '\\r'",
+      "I440-T-inner script '\\n' '\\x1c'",
+      "I440-T-inner script '\\n' '\\x1d'",
+      "I440-T-inner script '\\n' '\\x1e'",
+      "I440-T-inner script '\\n' '\\x1f'",
+      "I440-T-inner script '\\n' '\\x85'",
+      "I440-T-inner script '\\n' '\\xa0'",
+      "I440-T-inner script '\\n' '\\u1680'",
+      "I440-T-inner script '\\n' '\\u2000'",
+      "I440-T-inner script '\\n' '\\u2001'",
+      "I440-T-inner script '\\n' '\\u2002'",
+      "I440-T-inner script '\\n' '\\u2003'",
+      "I440-T-inner script '\\n' '\\u2004'",
+      "I440-T-inner script '\\n' '\\u2005'",
+      "I440-T-inner script '\\n' '\\u2006'",
+      "I440-T-inner script '\\n' '\\u2007'",
+      "I440-T-inner script '\\n' '\\u2008'",
+      "I440-T-inner script '\\n' '\\u2009'",
+      "I440-T-inner script '\\n' '\\u200a'",
+      "I440-T-inner script '\\n' '\\u2028'",
+      "I440-T-inner script '\\n' '\\u2029'",
+      "I440-T-inner script '\\n' '\\u202f'",
+      "I440-T-inner script '\\n' '\\u205f'",
+      "I440-T-inner script '\\n' '\\u3000'",
+      "I440-T-inner script '\\n' ' '",
+      "I440-T-inner script '\\n' '\\t'",
+      "I440-T-inner script '\\n' '  '",
+      "I440-T-inner script '\\n' ' \\t '",
+      "I440-T-inner script 'x' '\\x0b'",
+      "I440-T-inner script 'x' '\\x0c'",
+      "I440-T-inner script 'x' '\\r'",
+      "I440-T-inner script 'x' '\\x1c'",
+      "I440-T-inner script 'x' '\\x1d'",
+      "I440-T-inner script 'x' '\\x1e'",
+      "I440-T-inner script 'x' '\\x1f'",
+      "I440-T-inner script 'x' '\\x85'",
+      "I440-T-inner script 'x' '\\xa0'",
+      "I440-T-inner script 'x' '\\u1680'",
+      "I440-T-inner script 'x' '\\u2000'",
+      "I440-T-inner script 'x' '\\u2001'",
+      "I440-T-inner script 'x' '\\u2002'",
+      "I440-T-inner script 'x' '\\u2003'",
+      "I440-T-inner script 'x' '\\u2004'",
+      "I440-T-inner script 'x' '\\u2005'",
+      "I440-T-inner script 'x' '\\u2006'",
+      "I440-T-inner script 'x' '\\u2007'",
+      "I440-T-inner script 'x' '\\u2008'",
+      "I440-T-inner script 'x' '\\u2009'",
+      "I440-T-inner script 'x' '\\u200a'",
+      "I440-T-inner script 'x' '\\u2028'",
+      "I440-T-inner script 'x' '\\u2029'",
+      "I440-T-inner script 'x' '\\u202f'",
+      "I440-T-inner script 'x' '\\u205f'",
+      "I440-T-inner script 'x' '\\u3000'",
+      "I440-T-inner script 'x' ' '",
+      "I440-T-inner script 'x' '\\t'",
+      "I440-T-inner script 'x' '  '",
+      "I440-T-inner script 'x' ' \\t '",
+      "I440-T-inner style '\\n' '\\x0b'",
+      "I440-T-inner style '\\n' '\\x0c'",
+      "I440-T-inner style '\\n' '\\r'",
+      "I440-T-inner style '\\n' '\\x1c'",
+      "I440-T-inner style '\\n' '\\x1d'",
+      "I440-T-inner style '\\n' '\\x1e'",
+      "I440-T-inner style '\\n' '\\x1f'",
+      "I440-T-inner style '\\n' '\\x85'",
+      "I440-T-inner style '\\n' '\\xa0'",
+      "I440-T-inner style '\\n' '\\u1680'",
+      "I440-T-inner style '\\n' '\\u2000'",
+      "I440-T-inner style '\\n' '\\u2001'",
+      "I440-T-inner style '\\n' '\\u2002'",
+      "I440-T-inner style '\\n' '\\u2003'",
+      "I440-T-inner style '\\n' '\\u2004'",
+      "I440-T-inner style '\\n' '\\u2005'",
+      "I440-T-inner style '\\n' '\\u2006'",
+      "I440-T-inner style '\\n' '\\u2007'",
+      "I440-T-inner style '\\n' '\\u2008'",
+      "I440-T-inner style '\\n' '\\u2009'",
+      "I440-T-inner style '\\n' '\\u200a'",
+      "I440-T-inner style '\\n' '\\u2028'",
+      "I440-T-inner style '\\n' '\\u2029'",
+      "I440-T-inner style '\\n' '\\u202f'",
+      "I440-T-inner style '\\n' '\\u205f'",
+      "I440-T-inner style '\\n' '\\u3000'",
+      "I440-T-inner style '\\n' ' '",
+      "I440-T-inner style '\\n' '\\t'",
+      "I440-T-inner style '\\n' '  '",
+      "I440-T-inner style '\\n' ' \\t '",
+      "I440-T-inner style 'x' '\\x0b'",
+      "I440-T-inner style 'x' '\\x0c'",
+      "I440-T-inner style 'x' '\\r'",
+      "I440-T-inner style 'x' '\\x1c'",
+      "I440-T-inner style 'x' '\\x1d'",
+      "I440-T-inner style 'x' '\\x1e'",
+      "I440-T-inner style 'x' '\\x1f'",
+      "I440-T-inner style 'x' '\\x85'",
+      "I440-T-inner style 'x' '\\xa0'",
+      "I440-T-inner style 'x' '\\u1680'",
+      "I440-T-inner style 'x' '\\u2000'",
+      "I440-T-inner style 'x' '\\u2001'",
+      "I440-T-inner style 'x' '\\u2002'",
+      "I440-T-inner style 'x' '\\u2003'",
+      "I440-T-inner style 'x' '\\u2004'",
+      "I440-T-inner style 'x' '\\u2005'",
+      "I440-T-inner style 'x' '\\u2006'",
+      "I440-T-inner style 'x' '\\u2007'",
+      "I440-T-inner style 'x' '\\u2008'",
+      "I440-T-inner style 'x' '\\u2009'",
+      "I440-T-inner style 'x' '\\u200a'",
+      "I440-T-inner style 'x' '\\u2028'",
+      "I440-T-inner style 'x' '\\u2029'",
+      "I440-T-inner style 'x' '\\u202f'",
+      "I440-T-inner style 'x' '\\u205f'",
+      "I440-T-inner style 'x' '\\u3000'",
+      "I440-T-inner style 'x' ' '",
+      "I440-T-inner style 'x' '\\t'",
+      "I440-T-inner style 'x' '  '",
+      "I440-T-inner style 'x' ' \\t '",
+      "I440-T-inner textarea '\\n' '\\x0b'",
+      "I440-T-inner textarea '\\n' '\\x0c'",
+      "I440-T-inner textarea '\\n' '\\r'",
+      "I440-T-inner textarea '\\n' '\\x1c'",
+      "I440-T-inner textarea '\\n' '\\x1d'",
+      "I440-T-inner textarea '\\n' '\\x1e'",
+      "I440-T-inner textarea '\\n' '\\x1f'",
+      "I440-T-inner textarea '\\n' '\\x85'",
+      "I440-T-inner textarea '\\n' '\\xa0'",
+      "I440-T-inner textarea '\\n' '\\u1680'",
+      "I440-T-inner textarea '\\n' '\\u2000'",
+      "I440-T-inner textarea '\\n' '\\u2001'",
+      "I440-T-inner textarea '\\n' '\\u2002'",
+      "I440-T-inner textarea '\\n' '\\u2003'",
+      "I440-T-inner textarea '\\n' '\\u2004'",
+      "I440-T-inner textarea '\\n' '\\u2005'",
+      "I440-T-inner textarea '\\n' '\\u2006'",
+      "I440-T-inner textarea '\\n' '\\u2007'",
+      "I440-T-inner textarea '\\n' '\\u2008'",
+      "I440-T-inner textarea '\\n' '\\u2009'",
+      "I440-T-inner textarea '\\n' '\\u200a'",
+      "I440-T-inner textarea '\\n' '\\u2028'",
+      "I440-T-inner textarea '\\n' '\\u2029'",
+      "I440-T-inner textarea '\\n' '\\u202f'",
+      "I440-T-inner textarea '\\n' '\\u205f'",
+      "I440-T-inner textarea '\\n' '\\u3000'",
+      "I440-T-inner textarea '\\n' ' '",
+      "I440-T-inner textarea '\\n' '\\t'",
+      "I440-T-inner textarea '\\n' '  '",
+      "I440-T-inner textarea '\\n' ' \\t '",
+      "I440-T-inner textarea 'x' '\\x0b'",
+      "I440-T-inner textarea 'x' '\\x0c'",
+      "I440-T-inner textarea 'x' '\\r'",
+      "I440-T-inner textarea 'x' '\\x1c'",
+      "I440-T-inner textarea 'x' '\\x1d'",
+      "I440-T-inner textarea 'x' '\\x1e'",
+      "I440-T-inner textarea 'x' '\\x1f'",
+      "I440-T-inner textarea 'x' '\\x85'",
+      "I440-T-inner textarea 'x' '\\xa0'",
+      "I440-T-inner textarea 'x' '\\u1680'",
+      "I440-T-inner textarea 'x' '\\u2000'",
+      "I440-T-inner textarea 'x' '\\u2001'",
+      "I440-T-inner textarea 'x' '\\u2002'",
+      "I440-T-inner textarea 'x' '\\u2003'",
+      "I440-T-inner textarea 'x' '\\u2004'",
+      "I440-T-inner textarea 'x' '\\u2005'",
+      "I440-T-inner textarea 'x' '\\u2006'",
+      "I440-T-inner textarea 'x' '\\u2007'",
+      "I440-T-inner textarea 'x' '\\u2008'",
+      "I440-T-inner textarea 'x' '\\u2009'",
+      "I440-T-inner textarea 'x' '\\u200a'",
+      "I440-T-inner textarea 'x' '\\u2028'",
+      "I440-T-inner textarea 'x' '\\u2029'",
+      "I440-T-inner textarea 'x' '\\u202f'",
+      "I440-T-inner textarea 'x' '\\u205f'",
+      "I440-T-inner textarea 'x' '\\u3000'",
+      "I440-T-inner textarea 'x' ' '",
+      "I440-T-inner textarea 'x' '\\t'",
+      "I440-T-inner textarea 'x' '  '",
+      "I440-T-inner textarea 'x' ' \\t '"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (467/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 10,
+     "I440_failing": 10,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-space",
+      "I440-E-space",
+      "I440-E-tab",
+      "I440-E-tab",
+      "I440-E-inline",
+      "I440-E-inline",
+      "I440-E-inline-tab",
+      "I440-E-inline-tab",
+      "I440-E-inner-cr",
+      "I440-E-inner-cr"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 10 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R13-closer-attributes",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 241,
+     "I440_failing": 241,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-inner pre '\\n' '\\x0b'",
+      "I440-T-inner pre '\\n' '\\x0c'",
+      "I440-T-inner pre '\\n' '\\r'",
+      "I440-T-inner pre '\\n' '\\x1c'",
+      "I440-T-inner pre '\\n' '\\x1d'",
+      "I440-T-inner pre '\\n' '\\x1e'",
+      "I440-T-inner pre '\\n' '\\x1f'",
+      "I440-T-inner pre '\\n' '\\x85'",
+      "I440-T-inner pre '\\n' '\\xa0'",
+      "I440-T-inner pre '\\n' '\\u1680'",
+      "I440-T-inner pre '\\n' '\\u2000'",
+      "I440-T-inner pre '\\n' '\\u2001'",
+      "I440-T-inner pre '\\n' '\\u2002'",
+      "I440-T-inner pre '\\n' '\\u2003'",
+      "I440-T-inner pre '\\n' '\\u2004'",
+      "I440-T-inner pre '\\n' '\\u2005'",
+      "I440-T-inner pre '\\n' '\\u2006'",
+      "I440-T-inner pre '\\n' '\\u2007'",
+      "I440-T-inner pre '\\n' '\\u2008'",
+      "I440-T-inner pre '\\n' '\\u2009'",
+      "I440-T-inner pre '\\n' '\\u200a'",
+      "I440-T-inner pre '\\n' '\\u2028'",
+      "I440-T-inner pre '\\n' '\\u2029'",
+      "I440-T-inner pre '\\n' '\\u202f'",
+      "I440-T-inner pre '\\n' '\\u205f'",
+      "I440-T-inner pre '\\n' '\\u3000'",
+      "I440-T-inner pre '\\n' ' '",
+      "I440-T-inner pre '\\n' '\\t'",
+      "I440-T-inner pre '\\n' '  '",
+      "I440-T-inner pre '\\n' ' \\t '",
+      "I440-T-inner pre 'x' '\\x0b'",
+      "I440-T-inner pre 'x' '\\x0c'",
+      "I440-T-inner pre 'x' '\\r'",
+      "I440-T-inner pre 'x' '\\x1c'",
+      "I440-T-inner pre 'x' '\\x1d'",
+      "I440-T-inner pre 'x' '\\x1e'",
+      "I440-T-inner pre 'x' '\\x1f'",
+      "I440-T-inner pre 'x' '\\x85'",
+      "I440-T-inner pre 'x' '\\xa0'",
+      "I440-T-inner pre 'x' '\\u1680'",
+      "I440-T-inner pre 'x' '\\u2000'",
+      "I440-T-inner pre 'x' '\\u2001'",
+      "I440-T-inner pre 'x' '\\u2002'",
+      "I440-T-inner pre 'x' '\\u2003'",
+      "I440-T-inner pre 'x' '\\u2004'",
+      "I440-T-inner pre 'x' '\\u2005'",
+      "I440-T-inner pre 'x' '\\u2006'",
+      "I440-T-inner pre 'x' '\\u2007'",
+      "I440-T-inner pre 'x' '\\u2008'",
+      "I440-T-inner pre 'x' '\\u2009'",
+      "I440-T-inner pre 'x' '\\u200a'",
+      "I440-T-inner pre 'x' '\\u2028'",
+      "I440-T-inner pre 'x' '\\u2029'",
+      "I440-T-inner pre 'x' '\\u202f'",
+      "I440-T-inner pre 'x' '\\u205f'",
+      "I440-T-inner pre 'x' '\\u3000'",
+      "I440-T-inner pre 'x' ' '",
+      "I440-T-inner pre 'x' '\\t'",
+      "I440-T-inner pre 'x' '  '",
+      "I440-T-inner pre 'x' ' \\t '",
+      "I440-T-inner script '\\n' '\\x0b'",
+      "I440-T-inner script '\\n' '\\x0c'",
+      "I440-T-inner script '\\n' '\\r'",
+      "I440-T-inner script '\\n' '\\x1c'",
+      "I440-T-inner script '\\n' '\\x1d'",
+      "I440-T-inner script '\\n' '\\x1e'",
+      "I440-T-inner script '\\n' '\\x1f'",
+      "I440-T-inner script '\\n' '\\x85'",
+      "I440-T-inner script '\\n' '\\xa0'",
+      "I440-T-inner script '\\n' '\\u1680'",
+      "I440-T-inner script '\\n' '\\u2000'",
+      "I440-T-inner script '\\n' '\\u2001'",
+      "I440-T-inner script '\\n' '\\u2002'",
+      "I440-T-inner script '\\n' '\\u2003'",
+      "I440-T-inner script '\\n' '\\u2004'",
+      "I440-T-inner script '\\n' '\\u2005'",
+      "I440-T-inner script '\\n' '\\u2006'",
+      "I440-T-inner script '\\n' '\\u2007'",
+      "I440-T-inner script '\\n' '\\u2008'",
+      "I440-T-inner script '\\n' '\\u2009'",
+      "I440-T-inner script '\\n' '\\u200a'",
+      "I440-T-inner script '\\n' '\\u2028'",
+      "I440-T-inner script '\\n' '\\u2029'",
+      "I440-T-inner script '\\n' '\\u202f'",
+      "I440-T-inner script '\\n' '\\u205f'",
+      "I440-T-inner script '\\n' '\\u3000'",
+      "I440-T-inner script '\\n' ' '",
+      "I440-T-inner script '\\n' '\\t'",
+      "I440-T-inner script '\\n' '  '",
+      "I440-T-inner script '\\n' ' \\t '",
+      "I440-T-inner script 'x' '\\x0b'",
+      "I440-T-inner script 'x' '\\x0c'",
+      "I440-T-inner script 'x' '\\r'",
+      "I440-T-inner script 'x' '\\x1c'",
+      "I440-T-inner script 'x' '\\x1d'",
+      "I440-T-inner script 'x' '\\x1e'",
+      "I440-T-inner script 'x' '\\x1f'",
+      "I440-T-inner script 'x' '\\x85'",
+      "I440-T-inner script 'x' '\\xa0'",
+      "I440-T-inner script 'x' '\\u1680'",
+      "I440-T-inner script 'x' '\\u2000'",
+      "I440-T-inner script 'x' '\\u2001'",
+      "I440-T-inner script 'x' '\\u2002'",
+      "I440-T-inner script 'x' '\\u2003'",
+      "I440-T-inner script 'x' '\\u2004'",
+      "I440-T-inner script 'x' '\\u2005'",
+      "I440-T-inner script 'x' '\\u2006'",
+      "I440-T-inner script 'x' '\\u2007'",
+      "I440-T-inner script 'x' '\\u2008'",
+      "I440-T-inner script 'x' '\\u2009'",
+      "I440-T-inner script 'x' '\\u200a'",
+      "I440-T-inner script 'x' '\\u2028'",
+      "I440-T-inner script 'x' '\\u2029'",
+      "I440-T-inner script 'x' '\\u202f'",
+      "I440-T-inner script 'x' '\\u205f'",
+      "I440-T-inner script 'x' '\\u3000'",
+      "I440-T-inner script 'x' ' '",
+      "I440-T-inner script 'x' '\\t'",
+      "I440-T-inner script 'x' '  '",
+      "I440-T-inner script 'x' ' \\t '",
+      "I440-T-inner style '\\n' '\\x0b'",
+      "I440-T-inner style '\\n' '\\x0c'",
+      "I440-T-inner style '\\n' '\\r'",
+      "I440-T-inner style '\\n' '\\x1c'",
+      "I440-T-inner style '\\n' '\\x1d'",
+      "I440-T-inner style '\\n' '\\x1e'",
+      "I440-T-inner style '\\n' '\\x1f'",
+      "I440-T-inner style '\\n' '\\x85'",
+      "I440-T-inner style '\\n' '\\xa0'",
+      "I440-T-inner style '\\n' '\\u1680'",
+      "I440-T-inner style '\\n' '\\u2000'",
+      "I440-T-inner style '\\n' '\\u2001'",
+      "I440-T-inner style '\\n' '\\u2002'",
+      "I440-T-inner style '\\n' '\\u2003'",
+      "I440-T-inner style '\\n' '\\u2004'",
+      "I440-T-inner style '\\n' '\\u2005'",
+      "I440-T-inner style '\\n' '\\u2006'",
+      "I440-T-inner style '\\n' '\\u2007'",
+      "I440-T-inner style '\\n' '\\u2008'",
+      "I440-T-inner style '\\n' '\\u2009'",
+      "I440-T-inner style '\\n' '\\u200a'",
+      "I440-T-inner style '\\n' '\\u2028'",
+      "I440-T-inner style '\\n' '\\u2029'",
+      "I440-T-inner style '\\n' '\\u202f'",
+      "I440-T-inner style '\\n' '\\u205f'",
+      "I440-T-inner style '\\n' '\\u3000'",
+      "I440-T-inner style '\\n' ' '",
+      "I440-T-inner style '\\n' '\\t'",
+      "I440-T-inner style '\\n' '  '",
+      "I440-T-inner style '\\n' ' \\t '",
+      "I440-T-inner style 'x' '\\x0b'",
+      "I440-T-inner style 'x' '\\x0c'",
+      "I440-T-inner style 'x' '\\r'",
+      "I440-T-inner style 'x' '\\x1c'",
+      "I440-T-inner style 'x' '\\x1d'",
+      "I440-T-inner style 'x' '\\x1e'",
+      "I440-T-inner style 'x' '\\x1f'",
+      "I440-T-inner style 'x' '\\x85'",
+      "I440-T-inner style 'x' '\\xa0'",
+      "I440-T-inner style 'x' '\\u1680'",
+      "I440-T-inner style 'x' '\\u2000'",
+      "I440-T-inner style 'x' '\\u2001'",
+      "I440-T-inner style 'x' '\\u2002'",
+      "I440-T-inner style 'x' '\\u2003'",
+      "I440-T-inner style 'x' '\\u2004'",
+      "I440-T-inner style 'x' '\\u2005'",
+      "I440-T-inner style 'x' '\\u2006'",
+      "I440-T-inner style 'x' '\\u2007'",
+      "I440-T-inner style 'x' '\\u2008'",
+      "I440-T-inner style 'x' '\\u2009'",
+      "I440-T-inner style 'x' '\\u200a'",
+      "I440-T-inner style 'x' '\\u2028'",
+      "I440-T-inner style 'x' '\\u2029'",
+      "I440-T-inner style 'x' '\\u202f'",
+      "I440-T-inner style 'x' '\\u205f'",
+      "I440-T-inner style 'x' '\\u3000'",
+      "I440-T-inner style 'x' ' '",
+      "I440-T-inner style 'x' '\\t'",
+      "I440-T-inner style 'x' '  '",
+      "I440-T-inner style 'x' ' \\t '",
+      "I440-T-inner textarea '\\n' '\\x0b'",
+      "I440-T-inner textarea '\\n' '\\x0c'",
+      "I440-T-inner textarea '\\n' '\\r'",
+      "I440-T-inner textarea '\\n' '\\x1c'",
+      "I440-T-inner textarea '\\n' '\\x1d'",
+      "I440-T-inner textarea '\\n' '\\x1e'",
+      "I440-T-inner textarea '\\n' '\\x1f'",
+      "I440-T-inner textarea '\\n' '\\x85'",
+      "I440-T-inner textarea '\\n' '\\xa0'",
+      "I440-T-inner textarea '\\n' '\\u1680'",
+      "I440-T-inner textarea '\\n' '\\u2000'",
+      "I440-T-inner textarea '\\n' '\\u2001'",
+      "I440-T-inner textarea '\\n' '\\u2002'",
+      "I440-T-inner textarea '\\n' '\\u2003'",
+      "I440-T-inner textarea '\\n' '\\u2004'",
+      "I440-T-inner textarea '\\n' '\\u2005'",
+      "I440-T-inner textarea '\\n' '\\u2006'",
+      "I440-T-inner textarea '\\n' '\\u2007'",
+      "I440-T-inner textarea '\\n' '\\u2008'",
+      "I440-T-inner textarea '\\n' '\\u2009'",
+      "I440-T-inner textarea '\\n' '\\u200a'",
+      "I440-T-inner textarea '\\n' '\\u2028'",
+      "I440-T-inner textarea '\\n' '\\u2029'",
+      "I440-T-inner textarea '\\n' '\\u202f'",
+      "I440-T-inner textarea '\\n' '\\u205f'",
+      "I440-T-inner textarea '\\n' '\\u3000'",
+      "I440-T-inner textarea '\\n' ' '",
+      "I440-T-inner textarea '\\n' '\\t'",
+      "I440-T-inner textarea '\\n' '  '",
+      "I440-T-inner textarea '\\n' ' \\t '",
+      "I440-T-inner textarea 'x' '\\x0b'",
+      "I440-T-inner textarea 'x' '\\x0c'",
+      "I440-T-inner textarea 'x' '\\r'",
+      "I440-T-inner textarea 'x' '\\x1c'",
+      "I440-T-inner textarea 'x' '\\x1d'",
+      "I440-T-inner textarea 'x' '\\x1e'",
+      "I440-T-inner textarea 'x' '\\x1f'",
+      "I440-T-inner textarea 'x' '\\x85'",
+      "I440-T-inner textarea 'x' '\\xa0'",
+      "I440-T-inner textarea 'x' '\\u1680'",
+      "I440-T-inner textarea 'x' '\\u2000'",
+      "I440-T-inner textarea 'x' '\\u2001'",
+      "I440-T-inner textarea 'x' '\\u2002'",
+      "I440-T-inner textarea 'x' '\\u2003'",
+      "I440-T-inner textarea 'x' '\\u2004'",
+      "I440-T-inner textarea 'x' '\\u2005'",
+      "I440-T-inner textarea 'x' '\\u2006'",
+      "I440-T-inner textarea 'x' '\\u2007'",
+      "I440-T-inner textarea 'x' '\\u2008'",
+      "I440-T-inner textarea 'x' '\\u2009'",
+      "I440-T-inner textarea 'x' '\\u200a'",
+      "I440-T-inner textarea 'x' '\\u2028'",
+      "I440-T-inner textarea 'x' '\\u2029'",
+      "I440-T-inner textarea 'x' '\\u202f'",
+      "I440-T-inner textarea 'x' '\\u205f'",
+      "I440-T-inner textarea 'x' '\\u3000'",
+      "I440-T-inner textarea 'x' ' '",
+      "I440-T-inner textarea 'x' '\\t'",
+      "I440-T-inner textarea 'x' '  '",
+      "I440-T-inner textarea 'x' ' \\t '",
+      "I440-T-prefix longer names are no closer"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (466/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-space",
+      "I440-E-space",
+      "I440-E-tab",
+      "I440-E-tab",
+      "I440-E-inline",
+      "I440-E-inline",
+      "I440-E-inline-tab",
+      "I440-E-inline-tab"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 8 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R14-closer-drop-textarea",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 16,
+     "I440_failing": 16,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-valid pre/textarea '\\n'",
+      "I440-T-valid pre/TEXTAREA '\\n'",
+      "I440-T-valid pre/textarea 'x'",
+      "I440-T-valid pre/TEXTAREA 'x'",
+      "I440-T-valid script/textarea '\\n'",
+      "I440-T-valid script/TEXTAREA '\\n'",
+      "I440-T-valid script/textarea 'x'",
+      "I440-T-valid script/TEXTAREA 'x'",
+      "I440-T-valid style/textarea '\\n'",
+      "I440-T-valid style/TEXTAREA '\\n'",
+      "I440-T-valid style/textarea 'x'",
+      "I440-T-valid style/TEXTAREA 'x'",
+      "I440-T-valid textarea/textarea '\\n'",
+      "I440-T-valid textarea/TEXTAREA '\\n'",
+      "I440-T-valid textarea/textarea 'x'",
+      "I440-T-valid textarea/TEXTAREA 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (691/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-cross-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 1 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R15-closer-add-div",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/div '\\n'",
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name script/div '\\n'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name style/div '\\n'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name textarea/div '\\n'",
+      "I440-T-other-name textarea/div 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div",
+      "I440-E-other-div",
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R16-closer-add-title",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name textarea/title '\\n'",
+      "I440-T-other-name textarea/title 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title",
+      "I440-E-other-title",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R17-closer-end-of-line",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-embedded closer anywhere in the line"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R18-closer-lower-or-upper-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-embedded closer anywhere in the line"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R19-closer-ascii-case-sensitive",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 33,
+     "I440_failing": 33,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-valid pre/PRE '\\n'",
+      "I440-T-valid pre/SCRIPT '\\n'",
+      "I440-T-valid pre/STYLE '\\n'",
+      "I440-T-valid pre/TEXTAREA '\\n'",
+      "I440-T-valid pre/PRE 'x'",
+      "I440-T-valid pre/SCRIPT 'x'",
+      "I440-T-valid pre/STYLE 'x'",
+      "I440-T-valid pre/TEXTAREA 'x'",
+      "I440-T-valid script/PRE '\\n'",
+      "I440-T-valid script/SCRIPT '\\n'",
+      "I440-T-valid script/STYLE '\\n'",
+      "I440-T-valid script/TEXTAREA '\\n'",
+      "I440-T-valid script/PRE 'x'",
+      "I440-T-valid script/SCRIPT 'x'",
+      "I440-T-valid script/STYLE 'x'",
+      "I440-T-valid script/TEXTAREA 'x'",
+      "I440-T-valid style/PRE '\\n'",
+      "I440-T-valid style/SCRIPT '\\n'",
+      "I440-T-valid style/STYLE '\\n'",
+      "I440-T-valid style/TEXTAREA '\\n'",
+      "I440-T-valid style/PRE 'x'",
+      "I440-T-valid style/SCRIPT 'x'",
+      "I440-T-valid style/STYLE 'x'",
+      "I440-T-valid style/TEXTAREA 'x'",
+      "I440-T-valid textarea/PRE '\\n'",
+      "I440-T-valid textarea/SCRIPT '\\n'",
+      "I440-T-valid textarea/STYLE '\\n'",
+      "I440-T-valid textarea/TEXTAREA '\\n'",
+      "I440-T-valid textarea/PRE 'x'",
+      "I440-T-valid textarea/SCRIPT 'x'",
+      "I440-T-valid textarea/STYLE 'x'",
+      "I440-T-valid textarea/TEXTAREA 'x'",
+      "I440-T-embedded closer anywhere in the line"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (674/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-cross-inline",
+      "I440-E-ascii"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R20-closer-unicode-fold",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 33,
+     "I440_failing": 32,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "a type-1 block is not closed by a name only a Unicode fold matches",
+      "I440-T-fold pre/\u017fcript '\\n'",
+      "I440-T-fold pre/\u017ftyle '\\n'",
+      "I440-T-fold pre/scr\u0131pt '\\n'",
+      "I440-T-fold pre/scr\u0130pt '\\n'",
+      "I440-T-fold pre/\u017fcript 'x'",
+      "I440-T-fold pre/\u017ftyle 'x'",
+      "I440-T-fold pre/scr\u0131pt 'x'",
+      "I440-T-fold pre/scr\u0130pt 'x'",
+      "I440-T-fold script/\u017fcript '\\n'",
+      "I440-T-fold script/\u017ftyle '\\n'",
+      "I440-T-fold script/scr\u0131pt '\\n'",
+      "I440-T-fold script/scr\u0130pt '\\n'",
+      "I440-T-fold script/\u017fcript 'x'",
+      "I440-T-fold script/\u017ftyle 'x'",
+      "I440-T-fold script/scr\u0131pt 'x'",
+      "I440-T-fold script/scr\u0130pt 'x'",
+      "I440-T-fold style/\u017fcript '\\n'",
+      "I440-T-fold style/\u017ftyle '\\n'",
+      "I440-T-fold style/scr\u0131pt '\\n'",
+      "I440-T-fold style/scr\u0130pt '\\n'",
+      "I440-T-fold style/\u017fcript 'x'",
+      "I440-T-fold style/\u017ftyle 'x'",
+      "I440-T-fold style/scr\u0131pt 'x'",
+      "I440-T-fold style/scr\u0130pt 'x'",
+      "I440-T-fold textarea/\u017fcript '\\n'",
+      "I440-T-fold textarea/\u017ftyle '\\n'",
+      "I440-T-fold textarea/scr\u0131pt '\\n'",
+      "I440-T-fold textarea/scr\u0130pt '\\n'",
+      "I440-T-fold textarea/\u017fcript 'x'",
+      "I440-T-fold textarea/\u017ftyle 'x'",
+      "I440-T-fold textarea/scr\u0131pt 'x'",
+      "I440-T-fold textarea/scr\u0130pt 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (674/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 6,
+     "I440_failing": 6,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-long-s",
+      "I440-E-long-s",
+      "I440-E-dotless-i",
+      "I440-E-dotless-i",
+      "I440-E-dotted-i",
+      "I440-E-dotted-i"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 6 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R21-closer-optional-slash",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 300,
+     "I440_failing": 294,
+     "non_I440_failing": 6,
+     "failing_names": [
+      "a raw HTML block's content is not Markdown",
+      "a type-1 name in capitals opens one that its lowercase closing tag ends",
+      "a type-1 block is not closed by a name only a Unicode fold matches",
+      "a type-1 tag is read before the type-7 grammar, so its block survives a blank line",
+      "I440-T-valid pre/pre '\\n'",
+      "I440-T-valid pre/PRE '\\n'",
+      "I440-T-valid pre/script '\\n'",
+      "I440-T-valid pre/SCRIPT '\\n'",
+      "I440-T-valid pre/style '\\n'",
+      "I440-T-valid pre/STYLE '\\n'",
+      "I440-T-valid pre/textarea '\\n'",
+      "I440-T-valid pre/TEXTAREA '\\n'",
+      "I440-T-inner pre '\\n' '\\r'",
+      "I440-T-inner pre '\\n' '\\x1c'",
+      "I440-T-inner pre '\\n' '\\x1d'",
+      "I440-T-inner pre '\\n' '\\x1e'",
+      "I440-T-inner pre '\\n' '\\x1f'",
+      "I440-T-inner pre '\\n' '\\x85'",
+      "I440-T-inner pre '\\n' '\\xa0'",
+      "I440-T-inner pre '\\n' '\\u1680'",
+      "I440-T-inner pre '\\n' '\\u2000'",
+      "I440-T-inner pre '\\n' '\\u2001'",
+      "I440-T-inner pre '\\n' '\\u2002'",
+      "I440-T-inner pre '\\n' '\\u2003'",
+      "I440-T-inner pre '\\n' '\\u2004'",
+      "I440-T-inner pre '\\n' '\\u2005'",
+      "I440-T-inner pre '\\n' '\\u2006'",
+      "I440-T-inner pre '\\n' '\\u2007'",
+      "I440-T-inner pre '\\n' '\\u2008'",
+      "I440-T-inner pre '\\n' '\\u2009'",
+      "I440-T-inner pre '\\n' '\\u200a'",
+      "I440-T-inner pre '\\n' '\\u2028'",
+      "I440-T-inner pre '\\n' '\\u2029'",
+      "I440-T-inner pre '\\n' '\\u202f'",
+      "I440-T-inner pre '\\n' '\\u205f'",
+      "I440-T-inner pre '\\n' '\\u3000'",
+      "I440-T-fold pre/\u017fcript '\\n'",
+      "I440-T-fold pre/\u017ftyle '\\n'",
+      "I440-T-fold pre/scr\u0131pt '\\n'",
+      "I440-T-fold pre/scr\u0130pt '\\n'",
+      "I440-T-inner pre 'x' '\\x0b'",
+      "I440-T-inner pre 'x' '\\x0c'",
+      "I440-T-inner pre 'x' '\\r'",
+      "I440-T-inner pre 'x' '\\x1c'",
+      "I440-T-inner pre 'x' '\\x1d'",
+      "I440-T-inner pre 'x' '\\x1e'",
+      "I440-T-inner pre 'x' '\\x1f'",
+      "I440-T-inner pre 'x' '\\x85'",
+      "I440-T-inner pre 'x' '\\xa0'",
+      "I440-T-inner pre 'x' '\\u1680'",
+      "I440-T-inner pre 'x' '\\u2000'",
+      "I440-T-inner pre 'x' '\\u2001'",
+      "I440-T-inner pre 'x' '\\u2002'",
+      "I440-T-inner pre 'x' '\\u2003'",
+      "I440-T-inner pre 'x' '\\u2004'",
+      "I440-T-inner pre 'x' '\\u2005'",
+      "I440-T-inner pre 'x' '\\u2006'",
+      "I440-T-inner pre 'x' '\\u2007'",
+      "I440-T-inner pre 'x' '\\u2008'",
+      "I440-T-inner pre 'x' '\\u2009'",
+      "I440-T-inner pre 'x' '\\u200a'",
+      "I440-T-inner pre 'x' '\\u2028'",
+      "I440-T-inner pre 'x' '\\u2029'",
+      "I440-T-inner pre 'x' '\\u202f'",
+      "I440-T-inner pre 'x' '\\u205f'",
+      "I440-T-inner pre 'x' '\\u3000'",
+      "I440-T-inner pre 'x' ' '",
+      "I440-T-inner pre 'x' '\\t'",
+      "I440-T-inner pre 'x' '  '",
+      "I440-T-inner pre 'x' ' \\t '",
+      "I440-T-fold pre/\u017fcript 'x'",
+      "I440-T-fold pre/\u017ftyle 'x'",
+      "I440-T-fold pre/scr\u0131pt 'x'",
+      "I440-T-fold pre/scr\u0130pt 'x'",
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-valid script/pre '\\n'",
+      "I440-T-valid script/PRE '\\n'",
+      "I440-T-valid script/script '\\n'",
+      "I440-T-valid script/SCRIPT '\\n'",
+      "I440-T-valid script/style '\\n'",
+      "I440-T-valid script/STYLE '\\n'",
+      "I440-T-valid script/textarea '\\n'",
+      "I440-T-valid script/TEXTAREA '\\n'",
+      "I440-T-inner script '\\n' '\\r'",
+      "I440-T-inner script '\\n' '\\x1c'",
+      "I440-T-inner script '\\n' '\\x1d'",
+      "I440-T-inner script '\\n' '\\x1e'",
+      "I440-T-inner script '\\n' '\\x1f'",
+      "I440-T-inner script '\\n' '\\x85'",
+      "I440-T-inner script '\\n' '\\xa0'",
+      "I440-T-inner script '\\n' '\\u1680'",
+      "I440-T-inner script '\\n' '\\u2000'",
+      "I440-T-inner script '\\n' '\\u2001'",
+      "I440-T-inner script '\\n' '\\u2002'",
+      "I440-T-inner script '\\n' '\\u2003'",
+      "I440-T-inner script '\\n' '\\u2004'",
+      "I440-T-inner script '\\n' '\\u2005'",
+      "I440-T-inner script '\\n' '\\u2006'",
+      "I440-T-inner script '\\n' '\\u2007'",
+      "I440-T-inner script '\\n' '\\u2008'",
+      "I440-T-inner script '\\n' '\\u2009'",
+      "I440-T-inner script '\\n' '\\u200a'",
+      "I440-T-inner script '\\n' '\\u2028'",
+      "I440-T-inner script '\\n' '\\u2029'",
+      "I440-T-inner script '\\n' '\\u202f'",
+      "I440-T-inner script '\\n' '\\u205f'",
+      "I440-T-inner script '\\n' '\\u3000'",
+      "I440-T-fold script/\u017fcript '\\n'",
+      "I440-T-fold script/\u017ftyle '\\n'",
+      "I440-T-fold script/scr\u0131pt '\\n'",
+      "I440-T-fold script/scr\u0130pt '\\n'",
+      "I440-T-inner script 'x' '\\x0b'",
+      "I440-T-inner script 'x' '\\x0c'",
+      "I440-T-inner script 'x' '\\r'",
+      "I440-T-inner script 'x' '\\x1c'",
+      "I440-T-inner script 'x' '\\x1d'",
+      "I440-T-inner script 'x' '\\x1e'",
+      "I440-T-inner script 'x' '\\x1f'",
+      "I440-T-inner script 'x' '\\x85'",
+      "I440-T-inner script 'x' '\\xa0'",
+      "I440-T-inner script 'x' '\\u1680'",
+      "I440-T-inner script 'x' '\\u2000'",
+      "I440-T-inner script 'x' '\\u2001'",
+      "I440-T-inner script 'x' '\\u2002'",
+      "I440-T-inner script 'x' '\\u2003'",
+      "I440-T-inner script 'x' '\\u2004'",
+      "I440-T-inner script 'x' '\\u2005'",
+      "I440-T-inner script 'x' '\\u2006'",
+      "I440-T-inner script 'x' '\\u2007'",
+      "I440-T-inner script 'x' '\\u2008'",
+      "I440-T-inner script 'x' '\\u2009'",
+      "I440-T-inner script 'x' '\\u200a'",
+      "I440-T-inner script 'x' '\\u2028'",
+      "I440-T-inner script 'x' '\\u2029'",
+      "I440-T-inner script 'x' '\\u202f'",
+      "I440-T-inner script 'x' '\\u205f'",
+      "I440-T-inner script 'x' '\\u3000'",
+      "I440-T-inner script 'x' ' '",
+      "I440-T-inner script 'x' '\\t'",
+      "I440-T-inner script 'x' '  '",
+      "I440-T-inner script 'x' ' \\t '",
+      "I440-T-fold script/\u017fcript 'x'",
+      "I440-T-fold script/\u017ftyle 'x'",
+      "I440-T-fold script/scr\u0131pt 'x'",
+      "I440-T-fold script/scr\u0130pt 'x'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-valid style/pre '\\n'",
+      "I440-T-valid style/PRE '\\n'",
+      "I440-T-valid style/script '\\n'",
+      "I440-T-valid style/SCRIPT '\\n'",
+      "I440-T-valid style/style '\\n'",
+      "I440-T-valid style/STYLE '\\n'",
+      "I440-T-valid style/textarea '\\n'",
+      "I440-T-valid style/TEXTAREA '\\n'",
+      "I440-T-inner style '\\n' '\\r'",
+      "I440-T-inner style '\\n' '\\x1c'",
+      "I440-T-inner style '\\n' '\\x1d'",
+      "I440-T-inner style '\\n' '\\x1e'",
+      "I440-T-inner style '\\n' '\\x1f'",
+      "I440-T-inner style '\\n' '\\x85'",
+      "I440-T-inner style '\\n' '\\xa0'",
+      "I440-T-inner style '\\n' '\\u1680'",
+      "I440-T-inner style '\\n' '\\u2000'",
+      "I440-T-inner style '\\n' '\\u2001'",
+      "I440-T-inner style '\\n' '\\u2002'",
+      "I440-T-inner style '\\n' '\\u2003'",
+      "I440-T-inner style '\\n' '\\u2004'",
+      "I440-T-inner style '\\n' '\\u2005'",
+      "I440-T-inner style '\\n' '\\u2006'",
+      "I440-T-inner style '\\n' '\\u2007'",
+      "I440-T-inner style '\\n' '\\u2008'",
+      "I440-T-inner style '\\n' '\\u2009'",
+      "I440-T-inner style '\\n' '\\u200a'",
+      "I440-T-inner style '\\n' '\\u2028'",
+      "I440-T-inner style '\\n' '\\u2029'",
+      "I440-T-inner style '\\n' '\\u202f'",
+      "I440-T-inner style '\\n' '\\u205f'",
+      "I440-T-inner style '\\n' '\\u3000'",
+      "I440-T-fold style/\u017fcript '\\n'",
+      "I440-T-fold style/\u017ftyle '\\n'",
+      "I440-T-fold style/scr\u0131pt '\\n'",
+      "I440-T-fold style/scr\u0130pt '\\n'",
+      "I440-T-inner style 'x' '\\x0b'",
+      "I440-T-inner style 'x' '\\x0c'",
+      "I440-T-inner style 'x' '\\r'",
+      "I440-T-inner style 'x' '\\x1c'",
+      "I440-T-inner style 'x' '\\x1d'",
+      "I440-T-inner style 'x' '\\x1e'",
+      "I440-T-inner style 'x' '\\x1f'",
+      "I440-T-inner style 'x' '\\x85'",
+      "I440-T-inner style 'x' '\\xa0'",
+      "I440-T-inner style 'x' '\\u1680'",
+      "I440-T-inner style 'x' '\\u2000'",
+      "I440-T-inner style 'x' '\\u2001'",
+      "I440-T-inner style 'x' '\\u2002'",
+      "I440-T-inner style 'x' '\\u2003'",
+      "I440-T-inner style 'x' '\\u2004'",
+      "I440-T-inner style 'x' '\\u2005'",
+      "I440-T-inner style 'x' '\\u2006'",
+      "I440-T-inner style 'x' '\\u2007'",
+      "I440-T-inner style 'x' '\\u2008'",
+      "I440-T-inner style 'x' '\\u2009'",
+      "I440-T-inner style 'x' '\\u200a'",
+      "I440-T-inner style 'x' '\\u2028'",
+      "I440-T-inner style 'x' '\\u2029'",
+      "I440-T-inner style 'x' '\\u202f'",
+      "I440-T-inner style 'x' '\\u205f'",
+      "I440-T-inner style 'x' '\\u3000'",
+      "I440-T-inner style 'x' ' '",
+      "I440-T-inner style 'x' '\\t'",
+      "I440-T-inner style 'x' '  '",
+      "I440-T-inner style 'x' ' \\t '",
+      "I440-T-fold style/\u017fcript 'x'",
+      "I440-T-fold style/\u017ftyle 'x'",
+      "I440-T-fold style/scr\u0131pt 'x'",
+      "I440-T-fold style/scr\u0130pt 'x'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-valid textarea/pre '\\n'",
+      "I440-T-valid textarea/PRE '\\n'",
+      "I440-T-valid textarea/script '\\n'",
+      "I440-T-valid textarea/SCRIPT '\\n'",
+      "I440-T-valid textarea/style '\\n'",
+      "I440-T-valid textarea/STYLE '\\n'",
+      "I440-T-valid textarea/textarea '\\n'",
+      "I440-T-valid textarea/TEXTAREA '\\n'",
+      "I440-T-inner textarea '\\n' '\\r'",
+      "I440-T-inner textarea '\\n' '\\x1c'",
+      "I440-T-inner textarea '\\n' '\\x1d'",
+      "I440-T-inner textarea '\\n' '\\x1e'",
+      "I440-T-inner textarea '\\n' '\\x1f'",
+      "I440-T-inner textarea '\\n' '\\x85'",
+      "I440-T-inner textarea '\\n' '\\xa0'",
+      "I440-T-inner textarea '\\n' '\\u1680'",
+      "I440-T-inner textarea '\\n' '\\u2000'",
+      "I440-T-inner textarea '\\n' '\\u2001'",
+      "I440-T-inner textarea '\\n' '\\u2002'",
+      "I440-T-inner textarea '\\n' '\\u2003'",
+      "I440-T-inner textarea '\\n' '\\u2004'",
+      "I440-T-inner textarea '\\n' '\\u2005'",
+      "I440-T-inner textarea '\\n' '\\u2006'",
+      "I440-T-inner textarea '\\n' '\\u2007'",
+      "I440-T-inner textarea '\\n' '\\u2008'",
+      "I440-T-inner textarea '\\n' '\\u2009'",
+      "I440-T-inner textarea '\\n' '\\u200a'",
+      "I440-T-inner textarea '\\n' '\\u2028'",
+      "I440-T-inner textarea '\\n' '\\u2029'",
+      "I440-T-inner textarea '\\n' '\\u202f'",
+      "I440-T-inner textarea '\\n' '\\u205f'",
+      "I440-T-inner textarea '\\n' '\\u3000'",
+      "I440-T-fold textarea/\u017fcript '\\n'",
+      "I440-T-fold textarea/\u017ftyle '\\n'",
+      "I440-T-fold textarea/scr\u0131pt '\\n'",
+      "I440-T-fold textarea/scr\u0130pt '\\n'",
+      "I440-T-inner textarea 'x' '\\x0b'",
+      "I440-T-inner textarea 'x' '\\x0c'",
+      "I440-T-inner textarea 'x' '\\r'",
+      "I440-T-inner textarea 'x' '\\x1c'",
+      "I440-T-inner textarea 'x' '\\x1d'",
+      "I440-T-inner textarea 'x' '\\x1e'",
+      "I440-T-inner textarea 'x' '\\x1f'",
+      "I440-T-inner textarea 'x' '\\x85'",
+      "I440-T-inner textarea 'x' '\\xa0'",
+      "I440-T-inner textarea 'x' '\\u1680'",
+      "I440-T-inner textarea 'x' '\\u2000'",
+      "I440-T-inner textarea 'x' '\\u2001'",
+      "I440-T-inner textarea 'x' '\\u2002'",
+      "I440-T-inner textarea 'x' '\\u2003'",
+      "I440-T-inner textarea 'x' '\\u2004'",
+      "I440-T-inner textarea 'x' '\\u2005'",
+      "I440-T-inner textarea 'x' '\\u2006'",
+      "I440-T-inner textarea 'x' '\\u2007'",
+      "I440-T-inner textarea 'x' '\\u2008'",
+      "I440-T-inner textarea 'x' '\\u2009'",
+      "I440-T-inner textarea 'x' '\\u200a'",
+      "I440-T-inner textarea 'x' '\\u2028'",
+      "I440-T-inner textarea 'x' '\\u2029'",
+      "I440-T-inner textarea 'x' '\\u202f'",
+      "I440-T-inner textarea 'x' '\\u205f'",
+      "I440-T-inner textarea 'x' '\\u3000'",
+      "I440-T-inner textarea 'x' ' '",
+      "I440-T-inner textarea 'x' '\\t'",
+      "I440-T-inner textarea 'x' '  '",
+      "I440-T-inner textarea 'x' ' \\t '",
+      "I440-T-fold textarea/\u017fcript 'x'",
+      "I440-T-fold textarea/\u017ftyle 'x'",
+      "I440-T-fold textarea/scr\u0131pt 'x'",
+      "I440-T-fold textarea/scr\u0130pt 'x'",
+      "I440-T-other-name textarea/div 'x'",
+      "I440-T-other-name textarea/title 'x'",
+      "I440-T-other-name textarea/xmp 'x'",
+      "I440-T-slash blank after slash is no closer",
+      "I440-T-reset a subsequent block still needs its own closer",
+      "a lone tag directly under a type-1 block's closing tag hides the heading it wraps",
+      "a lone tag directly under an indented code line under a type-1 block's closing tag hides the heading it wraps"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (407/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 21,
+     "I440_failing": 20,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "raw HTML copy of a mirrored label is refused",
+      "I440-E-inline",
+      "I440-E-inline",
+      "I440-E-inline-tab",
+      "I440-E-inline-tab",
+      "I440-E-cross",
+      "I440-E-ascii",
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline",
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline",
+      "I440-E-long-s",
+      "I440-E-long-s",
+      "I440-E-dotless-i",
+      "I440-E-dotless-i",
+      "I440-E-dotted-i",
+      "I440-E-dotted-i",
+      "I440-E-inner-cr",
+      "I440-E-inner-cr"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 21 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R22-type6-ended-by-type1-closer",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 1,
+     "I440_failing": 1,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-precedence a type-1 closer cannot end type 6"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (706/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R23-closer-requires-opener-name-prefix",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 49,
+     "I440_failing": 49,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-valid pre/script '\\n'",
+      "I440-T-valid pre/SCRIPT '\\n'",
+      "I440-T-valid pre/style '\\n'",
+      "I440-T-valid pre/STYLE '\\n'",
+      "I440-T-valid pre/textarea '\\n'",
+      "I440-T-valid pre/TEXTAREA '\\n'",
+      "I440-T-valid pre/script 'x'",
+      "I440-T-valid pre/SCRIPT 'x'",
+      "I440-T-valid pre/style 'x'",
+      "I440-T-valid pre/STYLE 'x'",
+      "I440-T-valid pre/textarea 'x'",
+      "I440-T-valid pre/TEXTAREA 'x'",
+      "I440-T-valid script/script '\\n'",
+      "I440-T-valid script/SCRIPT '\\n'",
+      "I440-T-valid script/style '\\n'",
+      "I440-T-valid script/STYLE '\\n'",
+      "I440-T-valid script/textarea '\\n'",
+      "I440-T-valid script/TEXTAREA '\\n'",
+      "I440-T-valid script/script 'x'",
+      "I440-T-valid script/SCRIPT 'x'",
+      "I440-T-valid script/style 'x'",
+      "I440-T-valid script/STYLE 'x'",
+      "I440-T-valid script/textarea 'x'",
+      "I440-T-valid script/TEXTAREA 'x'",
+      "I440-T-valid style/script '\\n'",
+      "I440-T-valid style/SCRIPT '\\n'",
+      "I440-T-valid style/style '\\n'",
+      "I440-T-valid style/STYLE '\\n'",
+      "I440-T-valid style/textarea '\\n'",
+      "I440-T-valid style/TEXTAREA '\\n'",
+      "I440-T-valid style/script 'x'",
+      "I440-T-valid style/SCRIPT 'x'",
+      "I440-T-valid style/style 'x'",
+      "I440-T-valid style/STYLE 'x'",
+      "I440-T-valid style/textarea 'x'",
+      "I440-T-valid style/TEXTAREA 'x'",
+      "I440-T-valid textarea/script '\\n'",
+      "I440-T-valid textarea/SCRIPT '\\n'",
+      "I440-T-valid textarea/style '\\n'",
+      "I440-T-valid textarea/STYLE '\\n'",
+      "I440-T-valid textarea/textarea '\\n'",
+      "I440-T-valid textarea/TEXTAREA '\\n'",
+      "I440-T-valid textarea/script 'x'",
+      "I440-T-valid textarea/SCRIPT 'x'",
+      "I440-T-valid textarea/style 'x'",
+      "I440-T-valid textarea/STYLE 'x'",
+      "I440-T-valid textarea/textarea 'x'",
+      "I440-T-valid textarea/TEXTAREA 'x'",
+      "I440-T-embedded closer anywhere in the line"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (658/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 3,
+     "I440_failing": 3,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-cross",
+      "I440-E-cross-inline",
+      "I440-E-ascii"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 3 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R24-gate-git-reader-no-newline-translation",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 3,
+     "I440_failing": 3,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-fence-crlf",
+      "I440-E-fence-cr",
+      "I440-E-inner-cr"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 3 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R25-generator-reader-no-newline-translation",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R26-base-side-refusal-dropped",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 12,
+     "I440_failing": 6,
+     "non_I440_failing": 6,
+     "failing_names": [
+      "a base page the walk refuses to read authorises no label",
+      "a base page the walk refuses to read authorises no label",
+      "a base page the walk refuses to read authorises no label",
+      "a base page the walk refuses to read authorises no label",
+      "a base page the walk refuses to read authorises no label",
+      "a base page the walk refuses to read authorises no label",
+      "I440-E-fence-ff",
+      "I440-E-fence-ff",
+      "I440-E-fence-nbsp",
+      "I440-E-fence-nbsp",
+      "I440-E-inner-ff",
+      "I440-E-inner-ff"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 12 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "R27-refused-drops-cr",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 2,
+     "I440_failing": 0,
+     "non_I440_failing": 2,
+     "failing_names": [
+      "the refused characters are exactly Python's whitespace less the space, the tab and the line feed",
+      "a carriage return is one of them"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (705/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-raw-html-tags-plus-title-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 9,
+     "I440_failing": 8,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name textarea/title '\\n'",
+      "I440-T-other-name textarea/title 'x'",
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (698/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title",
+      "I440-E-other-title",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X02-closer-any-ascii-tag-name",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 25,
+     "I440_failing": 25,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/div '\\n'",
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name pre/xmp '\\n'",
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-other-name script/div '\\n'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name script/xmp '\\n'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-other-name style/div '\\n'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name style/xmp '\\n'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-other-name textarea/div '\\n'",
+      "I440-T-other-name textarea/title '\\n'",
+      "I440-T-other-name textarea/xmp '\\n'",
+      "I440-T-other-name textarea/div 'x'",
+      "I440-T-other-name textarea/title 'x'",
+      "I440-T-other-name textarea/xmp 'x'",
+      "I440-T-prefix longer names are no closer"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (682/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 12,
+     "I440_failing": 12,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div",
+      "I440-E-other-div",
+      "I440-E-other-title",
+      "I440-E-other-title",
+      "I440-E-other-xmp",
+      "I440-E-other-xmp",
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline",
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 12 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X03-length-strictly-longer",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 16,
+     "I440_failing": 8,
+     "non_I440_failing": 8,
+     "failing_names": [
+      "a comment delimiter inside a fence opens no comment",
+      "a short delimiter inside a longer fence is content",
+      "a tilde fence does not close on backticks",
+      "a closer carrying an info string does not close",
+      "an opener indented three spaces still opens, and its closer at the same indentation still closes",
+      "an indented closer shorter than its opener does not close",
+      "I440-F-valid '```' ''",
+      "I440-F-valid '```' ' '",
+      "I440-F-valid '```' '\\t'",
+      "I440-F-valid '```' ' \\t '",
+      "I440-F-valid '~~~' ''",
+      "I440-F-valid '~~~' ' '",
+      "I440-F-valid '~~~' '\\t'",
+      "I440-F-valid '~~~' ' \\t '",
+      "a lone tag directly under a closing fence hides the heading it wraps",
+      "a lone tag directly under an indented code line under a closing fence hides the heading it wraps"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (691/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 3,
+     "I440_failing": 3,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-fence-tab",
+      "I440-E-fence-crlf",
+      "I440-E-fence-cr"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 3 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X04-closer-add-xmp",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/xmp '\\n'",
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-other-name script/xmp '\\n'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-other-name style/xmp '\\n'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-other-name textarea/xmp '\\n'",
+      "I440-T-other-name textarea/xmp 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-xmp",
+      "I440-E-other-xmp",
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/div '\\n'",
+      "I440-T-other-name script/div '\\n'",
+      "I440-T-other-name style/div '\\n'",
+      "I440-T-other-name textarea/div '\\n'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div",
+      "I440-E-other-div"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name textarea/div 'x'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-div-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/div '\\n'",
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name script/div '\\n'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name style/div '\\n'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name textarea/div '\\n'",
+      "I440-T-other-name textarea/div 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div",
+      "I440-E-other-div",
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-div-raw-html-tags-plus-div-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 17,
+     "I440_failing": 9,
+     "non_I440_failing": 8,
+     "failing_names": [
+      "a type-6 block INTERRUPTS a paragraph, where a type-7 block may not",
+      "a type-6 block ends at the blank line, so the heading renders",
+      "a type-6 name that ends its line opens the block",
+      "a type-6 name a form feed follows opens the block, interrupting a paragraph",
+      "a type-6 name a line tabulation follows opens it on a line that carries more",
+      "a type-6 name in capitals opens the block",
+      "I440-T-other-name pre/div '\\n'",
+      "I440-T-other-name pre/div 'x'",
+      "I440-T-other-name script/div '\\n'",
+      "I440-T-other-name script/div 'x'",
+      "I440-T-other-name style/div '\\n'",
+      "I440-T-other-name style/div 'x'",
+      "I440-T-other-name textarea/div '\\n'",
+      "I440-T-other-name textarea/div 'x'",
+      "I440-T-precedence a type-1 closer cannot end type 6",
+      "a heading inside a type-6 block that closed IS a heading",
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (690/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-div",
+      "I440-E-other-div",
+      "I440-E-other-div-inline",
+      "I440-E-other-div-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name textarea/title '\\n'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title",
+      "I440-E-other-title"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name textarea/title 'x'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-title-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name textarea/title '\\n'",
+      "I440-T-other-name textarea/title 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title",
+      "I440-E-other-title",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-title-raw-html-tags-plus-title-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 9,
+     "I440_failing": 8,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/title '\\n'",
+      "I440-T-other-name pre/title 'x'",
+      "I440-T-other-name script/title '\\n'",
+      "I440-T-other-name script/title 'x'",
+      "I440-T-other-name style/title '\\n'",
+      "I440-T-other-name style/title 'x'",
+      "I440-T-other-name textarea/title '\\n'",
+      "I440-T-other-name textarea/title 'x'",
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (698/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-title",
+      "I440-E-other-title",
+      "I440-E-other-title-inline",
+      "I440-E-other-title-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-later-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/xmp '\\n'",
+      "I440-T-other-name script/xmp '\\n'",
+      "I440-T-other-name style/xmp '\\n'",
+      "I440-T-other-name textarea/xmp '\\n'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-xmp",
+      "I440-E-other-xmp"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-opening-line-site-only",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 5,
+     "I440_failing": 4,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-other-name textarea/xmp 'x'",
+      "the walk carries the number of decision sites recorded here"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (702/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 2,
+     "I440_failing": 2,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 2 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "W-xmp-literal-alternation-no-RAW_HTML_TAGS",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 8,
+     "I440_failing": 8,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-T-other-name pre/xmp '\\n'",
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-other-name script/xmp '\\n'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-other-name style/xmp '\\n'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-other-name textarea/xmp '\\n'",
+      "I440-T-other-name textarea/xmp 'x'"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (699/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-xmp",
+      "I440-E-other-xmp",
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "X01-xmp-raw-html-tags-plus-xmp-both-sites",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 1,
+     "failing": 9,
+     "I440_failing": 8,
+     "non_I440_failing": 1,
+     "failing_names": [
+      "I440-T-other-name pre/xmp '\\n'",
+      "I440-T-other-name pre/xmp 'x'",
+      "I440-T-other-name script/xmp '\\n'",
+      "I440-T-other-name script/xmp 'x'",
+      "I440-T-other-name style/xmp '\\n'",
+      "I440-T-other-name style/xmp 'x'",
+      "I440-T-other-name textarea/xmp '\\n'",
+      "I440-T-other-name textarea/xmp 'x'",
+      "the type-1 names are the renderer's four"
+     ],
+     "summary": [
+      "TOC selftest: FAIL (698/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 2,
+     "failing": 4,
+     "I440_failing": 4,
+     "non_I440_failing": 0,
+     "failing_names": [
+      "I440-E-other-xmp",
+      "I440-E-other-xmp",
+      "I440-E-other-xmp-inline",
+      "I440-E-other-xmp-inline"
+     ],
+     "summary": [
+      "check_em_dash: FATAL: 4 of 57 arm(s) did not hold"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-iframe",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noscript",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-plaintext",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noembed",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-noframes",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-listing",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-p",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-span",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-code",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-pre2",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  },
+  {
+   "id": "Z-closer-add-b",
+   "runs": {
+    "gen_toc.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "TOC selftest: PASS (707/707 arm(s))"
+     ]
+    },
+    "check_em_dash.py": {
+     "exit": 0,
+     "failing": 0,
+     "I440_failing": 0,
+     "non_I440_failing": 0,
+     "failing_names": [],
+     "summary": [
+      "check_em_dash selftest: PASS (57 arm(s))"
+     ]
+    }
+   }
+  }
+ ]
+}

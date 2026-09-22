@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -166,7 +166,7 @@
+ #: leaving the line end out made `<pre` ending a line none ([R85] round 9
+ #: on PR #428); narrowing the follow set to space and tab exempted `<pre`
+ #: + a form feed + `>`, which the renderer opens ([R85] F1(b), round 10).
+-RAW_HTML_TAGS = ("pre", "script", "style", "textarea")
++RAW_HTML_TAGS = ("pre", "script", "style", "textarea", "div")
+ RAW_HTML_OPEN_RE = re.compile(r"^%s{0,3}<(%s)(?:%s|>|$)"
+                               % (_cc("indent"), "|".join(RAW_HTML_TAGS),
+                                  _cc("tag blank")), ASCII_FOLD)

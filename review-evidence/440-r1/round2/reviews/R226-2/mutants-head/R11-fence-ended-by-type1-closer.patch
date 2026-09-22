@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -497,6 +497,8 @@
+     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+             and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
+         return TEXT, "", ""
++    if _type_1_end(line):
++        return TEXT, "", ""
+     return FENCE, delim, ""
+ 
+ 

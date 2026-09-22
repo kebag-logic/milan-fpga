@@ -1,0 +1,24 @@
+head E01-inner-space-script label_finding=True heading_finding=False refusal=False n=1
+head E02-inner-tab-textarea label_finding=True heading_finding=False refusal=False n=1
+head E03-cross-textarea-PRE label_finding=False heading_finding=False refusal=False n=0
+head E04-cross-opening-style-Script label_finding=False heading_finding=False refusal=False n=0
+head E05-fence-longer-tab label_finding=False heading_finding=False refusal=False n=0
+head E06-fence-space-x label_finding=True heading_finding=False refusal=False n=1
+head E07-fence-zwsp-unrefused label_finding=True heading_finding=False refusal=False n=1
+head E08-fence-vt-refused label_finding=True heading_finding=False refusal=True n=2
+head E09-inner-zwsp-unrefused label_finding=True heading_finding=False refusal=False n=1
+head E10-crlf-cross label_finding=False heading_finding=False refusal=False n=0
+head E11-lone-cr-cross label_finding=False heading_finding=True refusal=False n=1
+head E12-ascii-mixed-same label_finding=False heading_finding=False refusal=False n=0
+head E13-unicode-long-s-style label_finding=True heading_finding=False refusal=False n=1
+head E14-non-type1-name-div label_finding=True heading_finding=False refusal=False n=1
+head E15-non-type1-name-title label_finding=True heading_finding=False refusal=False n=1
+head E16-inner-opening-line label_finding=True heading_finding=False refusal=False n=1
+head E17-fence-not-ended-by-type1 label_finding=True heading_finding=False refusal=False n=1
+head E18-eof-closer-then-heading-nolf label_finding=False heading_finding=False refusal=False n=0
+head E19-non-type1-name-xmp label_finding=True heading_finding=False refusal=False n=1
+head E20-non-type1-name-div-opening-line label_finding=True heading_finding=False refusal=False n=1
+head E21-non-type1-name-title-opening-line label_finding=True heading_finding=False refusal=False n=1
+head E22-non-type1-name-xmp-opening-line label_finding=True heading_finding=False refusal=False n=1
+head CLI {'exit': 1, 'summary': ['check_em_dash: 17 finding(s) over 156 added line(s) in 22 changed Markdown page(s), 7 mirrored label(s) exempt, arms 57/57 [02ae47b2..HEAD]']} head toc --check exit 0
+oracle-new {"E19-non-type1-name-xmp": {"markdown": {"h2": 0, "old_heading_rendered": false}, "gfm": {"h2": 0, "old_heading_rendered": false}}, "E20-non-type1-name-div-opening-line": {"markdown": {"h2": 0, "old_heading_rendered": false}, "gfm": {"h2": 0, "old_heading_rendered": false}}, "E21-non-type1-name-title-opening-line": {"markdown": {"h2": 0, "old_heading_rendered": false}, "gfm": {"h2": 0, "old_heading_rendered": false}}, "E22-non-type1-name-xmp-opening-line": {"markdown": {"h2": 0, "old_heading_rendered": false}, "gfm": {"h2": 0, "old_heading_rendered": false}}}

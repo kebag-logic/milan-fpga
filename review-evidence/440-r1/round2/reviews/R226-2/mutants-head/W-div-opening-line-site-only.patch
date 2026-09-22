@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -518,7 +518,7 @@
+     html = RAW_HTML_OPEN_RE.match(line)
+     if html:
+         tag = html.group(1)
+-        closed = _type_1_end(line)
++        closed = _type_1_end(line) or bool(re.search(r"</div>", line, ASCII_FOLD))
+         return HTML, (TEXT if closed else HTML), "", tag
+     if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
+                                           and HTML_TAG_LINE_RE.match(line)):

@@ -1,0 +1,12 @@
+--- a/scripts/check_em_dash.py
++++ b/scripts/check_em_dash.py
+@@ -225,8 +225,7 @@
+     if change.base_path is None:
+         return set(), []
+     text = git(repo, "show", f"{base}:{change.base_path}")
+-    notes = [f"{note}, so no Contents label copied from it is exempt"
+-             for note in refusal_notes(change.base_path, text)]
++    notes = []
+     if notes:
+         return set(), notes
+     return {label(raw) for _, raw, _ in headings(text)}, notes
