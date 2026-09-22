@@ -1,0 +1,42 @@
+{
+  "name": "commit-correction",
+  "argv": [
+    "rtk",
+    "proxy",
+    "git",
+    "commit",
+    "-m",
+    "docs: correct pinned assertion semantics and witness grading"
+  ],
+  "command": "rtk proxy git commit -m 'docs: correct pinned assertion semantics and witness grading'",
+  "cwd": "$CANDIDATE",
+  "env_delta": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "started_utc": "2026-09-22T16:45:23.286161+00:00",
+  "elapsed_seconds": 0.034125156002119184,
+  "exit": 0,
+  "before": {
+    "head": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+    "head_tree": "64182178131d03f157fe1a4ec767edee618bc6ff",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": false,
+    "status": "M  docs/testing/ASSERTIONS.md\nM  docs/testing/TESTING.md\nM  tb/verilator/README.md\nM  tb/verilator/ptp_ts/mux_sva_main.cpp",
+    "changed_worktree_sha256": {
+      "docs/testing/ASSERTIONS.md": "8603f94aa240f6588fb1df1baefbb94401dd8865b66183af0d981189de07d996",
+      "docs/testing/TESTING.md": "40ea2be68e4df0ecea5f9dde94f4e89c3c7b054c49ade04194d0974ca414b21d",
+      "tb/verilator/README.md": "a116c3c135ba70469bf2ccb322687b8206e5babe19d781046094e2c0a55bbdae",
+      "tb/verilator/ptp_ts/mux_sva_main.cpp": "f55e3b5b80ece9397bf54bbbf05e21233b6f09b1d09a0bed68ec0beb6f45cfa7"
+    }
+  },
+  "after": {
+    "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+    "head_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": true,
+    "status": "",
+    "changed_worktree_sha256": {}
+  },
+  "log": "commands/commit-correction.log",
+  "log_sha256": "8fb7324617ee58f7531b54f2ac253567817ece8e6d6bc8b130a2530ad4c0783b"
+}

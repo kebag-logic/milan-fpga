@@ -1,0 +1,470 @@
+{
+  "attribution": "Unchanged R239-1 public measurements at source 60c5225fe5f93209bf313c51b7a722f25f9aaa7d, pinned Verilator 5.050. No probe, positive harness or campaign was rerun by A175.",
+  "evidence_commit": "7795e487048867fde07a224ec1a5885acfb4375b",
+  "tree_fetch_argv": [
+    "rtk",
+    "proxy",
+    "gh",
+    "api",
+    "repos/kebag-logic/milan-fpga/git/trees/7795e487048867fde07a224ec1a5885acfb4375b?recursive=1"
+  ],
+  "tree_fetch_exit": 0,
+  "downloaded_git_blob_matches": [
+    {
+      "path": "REPORT.md",
+      "git_blob": "e37a3d631740563f1cf4d21360656029b78de827",
+      "sha256": "173d3d3fa0565b4afd245526a3b997558334fec24921c30edf3070da38e9d4f5"
+    },
+    {
+      "path": "raw/MANIFEST.sha256",
+      "git_blob": "4e2421831e4b2e7d0a07359d5c7f18f24d9c285d",
+      "sha256": "8e38dd111586232b0f70a2384292860f5a78ea9c7e14364e4692ddd6fbdbff44"
+    },
+    {
+      "path": "raw/focused-witness-and-tallies.txt",
+      "git_blob": "54ddfb5a2dbdb30926c8d01e5443c8525d5bef63",
+      "sha256": "55f5f4f75c033b6c088c4d6fc61b1f519af47da0451497f3f4497d2423bfe6c8"
+    },
+    {
+      "path": "raw/pastprobe-build.log",
+      "git_blob": "e11d188223b1ffee62c7faf1ab458ae37017ab57",
+      "sha256": "3a8ef7878dac963f966bf1b3042abae1d0a18e169a3f93e6624d5931360a8e72"
+    },
+    {
+      "path": "raw/pastprobe-run.log",
+      "git_blob": "0e625b891cac83e54f70c0043d351ad1cc43bd27",
+      "sha256": "a4c89d7ae033c56dcee5dd74f204e9e86060baf4c0f4f51eed08094575afb6ba"
+    },
+    {
+      "path": "raw/pastprobe-summary.txt",
+      "git_blob": "ff445d6d9628a4f5550ecdc97f6917c3727bca09",
+      "sha256": "d267271397838863e041a4e48d7f05f484c739eafb20a74d1122edb137fb0acd"
+    },
+    {
+      "path": "raw/probe-reset-R1.log",
+      "git_blob": "0f85a3325465730088c2a312bb942a8e9b5a9b5f",
+      "sha256": "287835cccd868bd4e99fa55629ee8aa9e8d4441db2c51c2e5c66cc6814fb1b1e"
+    },
+    {
+      "path": "raw/probe-reset-R2.log",
+      "git_blob": "883277b7dd273f27d4a290d2ad6f07f5342f9268",
+      "sha256": "9850f7fb6c2350f34d1e93b0f55689b9b2800101a107e15e67df44e27d643823"
+    },
+    {
+      "path": "raw/probe-reset-R3.log",
+      "git_blob": "4b22e68ed542db49c6c47f9ebf24a652040b7d82",
+      "sha256": "333494f4c8cad700a1e7dbde5851b3e7f5cd9310ec64c21c488ecfaab5381bcc"
+    },
+    {
+      "path": "raw/tool-identity.txt",
+      "git_blob": "007f5989d54abc86f0b5a01fd5dc25613cf28d5a",
+      "sha256": "83c7dc9bde01c706161723b095fa308990c43d7bcc5d71f04f1ee9a6f32d5bff"
+    },
+    {
+      "path": "raw/tool-mtree.txt",
+      "git_blob": "424007781b4ba4e71fd21e623451e218938a1587",
+      "sha256": "542544dde33b38f7036e408265b40bd2a44321c5ec439daed15cfe0fd03d4e35"
+    },
+    {
+      "path": "raw/tool-package-chain.txt",
+      "git_blob": "95ba262b4780a46ca922bb83b7316336a362ce72",
+      "sha256": "bc6dd2bc1c0fa0a0c8276d3f2869ef595fc9fc1bad9c182d7efaf206ea643664"
+    },
+    {
+      "path": "raw/verilator-v5.050-Changes.txt",
+      "git_blob": "38bae16274d750cc2518aca6a2fd03440b4727a6",
+      "sha256": "564834e1d8c2d6f375509adf0f1989d4afdc624a306692e5ad7154f3cc38701d"
+    },
+    {
+      "path": "scripts/README.md",
+      "git_blob": "ffa4031d2e12ce5152a5305231b27bf8c07c7227",
+      "sha256": "0d9faae939d283a1940708f002b1c358d0ff9165dfec928271f0d03b08fceafa"
+    },
+    {
+      "path": "scripts/probes/build_probe.sh",
+      "git_blob": "354405ada4d365de8768dc5cd58179d81ece1f7c",
+      "sha256": "896f5a7e56c917c4bdb0f502756f0e87cf07188e677cadd81638d7c9f74fb7cb"
+    },
+    {
+      "path": "scripts/probes/pastprobe.sv",
+      "git_blob": "631ed487481330effc3478d0a4b96ebc6053eac3",
+      "sha256": "ac9e7cb7e076ada14bc5e37882a899c44baef9b24c3b9456f3ee12651fff4647"
+    },
+    {
+      "path": "scripts/probes/probe_reset.cpp",
+      "git_blob": "6c4edf066206ba9238a887a2372ee31e593b14b2",
+      "sha256": "042f727236013764106024793fed87220e991b6d3cf70adc6f7730b83728e7d7"
+    },
+    {
+      "path": "scripts/run_static_subset.sh",
+      "git_blob": "c8a915108b523c392389b816d2411e17d9824c85",
+      "sha256": "29d0c88708fd5376f45dfe4355a8341b9c5fd899463b26c017f5c3c76b44bb79"
+    }
+  ],
+  "reset_R1_lines": [
+    {
+      "line": 104,
+      "text": "  edge  9 RESET edge, s0 still offering beat1          rst_n=0 s0v=1 s0rdy=0 m_v=1 m_rdy=0"
+    },
+    {
+      "line": 105,
+      "text": "    edge 9 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=0"
+    },
+    {
+      "line": 106,
+      "text": "  edge 10 released; s0 TVALID low, m stalled           rst_n=1 s0v=0 s0rdy=0 m_v=0 m_rdy=0"
+    },
+    {
+      "line": 107,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal flag=1"
+    },
+    {
+      "line": 108,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner flag=1"
+    },
+    {
+      "line": 109,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake flag=0"
+    },
+    {
+      "line": 110,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast flag=0"
+    },
+    {
+      "line": 111,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake flag=0"
+    },
+    {
+      "line": 112,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake flag=0"
+    },
+    {
+      "line": 113,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake flag=0"
+    },
+    {
+      "line": 114,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake flag=0"
+    },
+    {
+      "line": 115,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake flag=0"
+    },
+    {
+      "line": 116,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake flag=0"
+    },
+    {
+      "line": 117,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake flag=0"
+    },
+    {
+      "line": 118,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake flag=0"
+    },
+    {
+      "line": 119,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake flag=0"
+    },
+    {
+      "line": 120,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake flag=0"
+    },
+    {
+      "line": 121,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake flag=0"
+    },
+    {
+      "line": 122,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake flag=0"
+    },
+    {
+      "line": 123,
+      "text": "    edge 10 pass-action TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester flag=0"
+    }
+  ],
+  "pastprobe_recorded_build_exit": 0,
+  "pastprobe_recorded_run_exit": 0,
+  "pastprobe_log": "PROBE ap_implication_initial passed at 5\nPROBE ap_past_is_initial FAILED at 5: $past(one) is not 1\nPROBE ap_stable_initial FAILED at 5: $stable(one) is false\nPROBE ap_implication_initial passed at 15\nPROBE ap_implication_initial passed at 25\nPROBE ap_implication_initial passed at 35\n- $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r239/scripts/probes/pastprobe.sv:12: Verilog $finish\n- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01\n- Verilator: $finish at 35ps; walltime 0.000 s; speed 733.568 ns/s\n- Verilator: cpu 0.000 s on 1 threads; allocated 7 MB\n",
+  "witness_groups": [
+    {
+      "width": 8,
+      "checks": 170,
+      "failures": 0,
+      "relations": {
+        "equal": 15,
+        "at least": 2,
+        "both above zero": 4
+      },
+      "rows": [
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+          "nonvacuous": 563,
+          "harness": 563,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+          "nonvacuous": 563,
+          "harness": 563,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 563,
+          "harness": 563,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+          "nonvacuous": 563,
+          "harness": 563,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+          "nonvacuous": 608,
+          "harness": 608,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+          "nonvacuous": 608,
+          "harness": 608,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 608,
+          "harness": 608,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+          "nonvacuous": 608,
+          "harness": 608,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake",
+          "nonvacuous": 172,
+          "harness": 172,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake",
+          "nonvacuous": 172,
+          "harness": 172,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 172,
+          "harness": 172,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake",
+          "nonvacuous": 172,
+          "harness": 172,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal",
+          "nonvacuous": 1081,
+          "harness": 1081,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner",
+          "nonvacuous": 10,
+          "harness": 10,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast",
+          "nonvacuous": 120,
+          "harness": 120,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake",
+          "nonvacuous": 787,
+          "harness": 379,
+          "relation": "at least"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester",
+          "nonvacuous": 123,
+          "harness": 123,
+          "relation": "at least"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_grants_mutually_exclusive",
+          "nonvacuous": 1514,
+          "harness": 677,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_ready_only_for_owner_and_ready_sink",
+          "nonvacuous": 1514,
+          "harness": 677,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_tvalid_forwarded",
+          "nonvacuous": 1468,
+          "harness": 674,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_payload_forwarded_on_transfer",
+          "nonvacuous": 1098,
+          "harness": 500,
+          "relation": "both above zero"
+        }
+      ]
+    },
+    {
+      "width": 64,
+      "checks": 171,
+      "failures": 0,
+      "relations": {
+        "equal": 15,
+        "at least": 2,
+        "both above zero": 4
+      },
+      "rows": [
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake",
+          "nonvacuous": 625,
+          "harness": 625,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake",
+          "nonvacuous": 625,
+          "harness": 625,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 625,
+          "harness": 625,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake",
+          "nonvacuous": 625,
+          "harness": 625,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake",
+          "nonvacuous": 689,
+          "harness": 689,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake",
+          "nonvacuous": 689,
+          "harness": 689,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 689,
+          "harness": 689,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake",
+          "nonvacuous": 689,
+          "harness": 689,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake",
+          "nonvacuous": 228,
+          "harness": 228,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake",
+          "nonvacuous": 228,
+          "harness": 228,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tkeep_stable_until_handshake",
+          "nonvacuous": 228,
+          "harness": 228,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tlast_stable_until_handshake",
+          "nonvacuous": 228,
+          "harness": 228,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_state_legal",
+          "nonvacuous": 1192,
+          "harness": 1192,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_reset_releases_owner",
+          "nonvacuous": 12,
+          "harness": 12,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast",
+          "nonvacuous": 121,
+          "harness": 121,
+          "relation": "equal"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_held_until_tlast_handshake",
+          "nonvacuous": 896,
+          "harness": 403,
+          "relation": "at least"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester",
+          "nonvacuous": 123,
+          "harness": 123,
+          "relation": "at least"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_grants_mutually_exclusive",
+          "nonvacuous": 1668,
+          "harness": 723,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_ready_only_for_owner_and_ready_sink",
+          "nonvacuous": 1668,
+          "harness": 723,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_tvalid_forwarded",
+          "nonvacuous": 1689,
+          "harness": 754,
+          "relation": "both above zero"
+        },
+        {
+          "name": "TOP.axis_mux_rr_2in_1out.u_sva.ai_payload_forwarded_on_transfer",
+          "nonvacuous": 1201,
+          "harness": 524,
+          "relation": "both above zero"
+        }
+      ]
+    }
+  ],
+  "tool_selector_sha256": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+  "upstream_changelog_receipt": "The redundant full upstream changelog is omitted from this portable evidence packet.\nPrimary fixed-version source: https://github.com/verilator/verilator/blob/v5.050/Changes\nOriginal bytes: 288248\nOriginal SHA256: 71f0d60715572b45f69b65e791412305f086c487306f3d88357de6c7df1c7bce\nR239 inspected that source for the v5.038 assertion-default change, cited at line875 in the report. This file is a source-reference receipt, not the original changelog.\n",
+  "original_changelog_digest_is_not_receipt_digest": true
+}

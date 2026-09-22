@@ -1,0 +1,38 @@
+{
+  "name": "whitespace-committed",
+  "argv": [
+    "rtk",
+    "proxy",
+    "git",
+    "diff",
+    "--check",
+    "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+    "HEAD"
+  ],
+  "command": "rtk proxy git diff --check 60c5225fe5f93209bf313c51b7a722f25f9aaa7d HEAD",
+  "cwd": "$CANDIDATE",
+  "env_delta": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "started_utc": "2026-09-22T16:45:43.770464+00:00",
+  "elapsed_seconds": 0.022089169011451304,
+  "exit": 0,
+  "before": {
+    "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+    "head_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": true,
+    "status": "",
+    "changed_worktree_sha256": {}
+  },
+  "after": {
+    "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+    "head_tree": "600468436fb9435a6b15c41db0156e5304848cb6",
+    "index_entries_sha256": "ab53b8913bb0ba2a72bc4840222025b15110cf9a6bc762e5794d857b3107f901",
+    "index_matches_head": true,
+    "status": "",
+    "changed_worktree_sha256": {}
+  },
+  "log": "commands/whitespace-committed.log",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
