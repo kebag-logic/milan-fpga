@@ -1,0 +1,459 @@
+﻿2026-09-22T18:41:34.5302922Z Current runner version: '2.337.0'
+2026-09-22T18:41:34.5331691Z ##[group]Runner Image Provisioner
+2026-09-22T18:41:34.5332612Z Hosted Compute Agent
+2026-09-22T18:41:34.5333356Z Version: 20260828.587
+2026-09-22T18:41:34.5334209Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T18:41:34.5335078Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T18:41:34.5335777Z Worker ID: {120b40c7-9afc-456b-9aed-e2ffe5557d1c}
+2026-09-22T18:41:34.5336491Z Azure Region: eastus2
+2026-09-22T18:41:34.5337158Z ##[endgroup]
+2026-09-22T18:41:34.5338993Z ##[group]Operating System
+2026-09-22T18:41:34.5339729Z Ubuntu
+2026-09-22T18:41:34.5340273Z 24.04.5
+2026-09-22T18:41:34.5340785Z LTS
+2026-09-22T18:41:34.5341383Z ##[endgroup]
+2026-09-22T18:41:34.5341936Z ##[group]Runner Image
+2026-09-22T18:41:34.5342606Z Image: ubuntu-24.04
+2026-09-22T18:41:34.5343196Z Version: 20260920.314.1
+2026-09-22T18:41:34.5344753Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260920.314/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T18:41:34.5346329Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260920.314
+2026-09-22T18:41:34.5347415Z ##[endgroup]
+2026-09-22T18:41:34.5348628Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T18:41:34.5350903Z Contents: read
+2026-09-22T18:41:34.5351542Z Metadata: read
+2026-09-22T18:41:34.5352199Z Packages: read
+2026-09-22T18:41:34.5352822Z ##[endgroup]
+2026-09-22T18:41:34.5355289Z Secret source: Actions
+2026-09-22T18:41:34.5356349Z Cache mode: write
+2026-09-22T18:41:34.5357452Z Prepare workflow directory
+2026-09-22T18:41:34.5762564Z Prepare all required actions
+2026-09-22T18:41:34.5812276Z Getting action download info
+2026-09-22T18:41:34.8424500Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T18:41:35.0767509Z Complete job name: full-ci-gate
+2026-09-22T18:41:35.1543322Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T18:41:35.1552475Z ##[group]Run actions/checkout@v4
+2026-09-22T18:41:35.1553224Z with:
+2026-09-22T18:41:35.1553863Z   fetch-depth: 0
+2026-09-22T18:41:35.1554336Z   repository: kebag-logic/milan-fpga
+2026-09-22T18:41:35.1558354Z   token: ***
+2026-09-22T18:41:35.1558793Z   ssh-strict: true
+2026-09-22T18:41:35.1559234Z   ssh-user: git
+2026-09-22T18:41:35.1559677Z   persist-credentials: true
+2026-09-22T18:41:35.1560203Z   clean: true
+2026-09-22T18:41:35.1560680Z   sparse-checkout-cone-mode: true
+2026-09-22T18:41:35.1561203Z   fetch-tags: false
+2026-09-22T18:41:35.1561652Z   show-progress: true
+2026-09-22T18:41:35.1562105Z   lfs: false
+2026-09-22T18:41:35.1562564Z   submodules: false
+2026-09-22T18:41:35.1563016Z   set-safe-directory: true
+2026-09-22T18:41:35.1563766Z   allow-unsafe-pr-checkout: false
+2026-09-22T18:41:35.1564583Z env:
+2026-09-22T18:41:35.1565026Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:41:35.1565523Z   YOSYS_VERSION: v0.66
+2026-09-22T18:41:35.1566096Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:41:35.1566753Z ##[endgroup]
+2026-09-22T18:41:35.2601661Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T18:41:35.2604698Z ##[group]Getting Git version info
+2026-09-22T18:41:35.2605878Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T18:41:35.2607564Z [command]/usr/bin/git version
+2026-09-22T18:41:35.2738638Z git version 2.55.0
+2026-09-22T18:41:35.2767641Z ##[endgroup]
+2026-09-22T18:41:35.2784316Z Temporarily overriding HOME='/home/runner/work/_temp/418a1c84-90c4-492b-b228-9c5c44309153' before making global git config changes
+2026-09-22T18:41:35.2786198Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T18:41:35.2790560Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:41:35.2849079Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T18:41:35.2852963Z ##[group]Initializing the repository
+2026-09-22T18:41:35.2858922Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:41:35.2985639Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T18:41:35.2987764Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T18:41:35.2989840Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T18:41:35.2991378Z hint: call:
+2026-09-22T18:41:35.3002880Z hint:
+2026-09-22T18:41:35.3011831Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T18:41:35.3012801Z hint:
+2026-09-22T18:41:35.3014099Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T18:41:35.3015733Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T18:41:35.3017007Z hint:
+2026-09-22T18:41:35.3017785Z hint: 	git branch -m <name>
+2026-09-22T18:41:35.3018605Z hint:
+2026-09-22T18:41:35.3019852Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T18:41:35.3021976Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T18:41:35.3025744Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T18:41:35.3067268Z ##[endgroup]
+2026-09-22T18:41:35.3068368Z ##[group]Disabling automatic garbage collection
+2026-09-22T18:41:35.3071882Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T18:41:35.3106937Z ##[endgroup]
+2026-09-22T18:41:35.3107970Z ##[group]Setting up auth
+2026-09-22T18:41:35.3115795Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T18:41:35.3158134Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T18:41:35.3575362Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T18:41:35.3611418Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T18:41:35.3841199Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T18:41:35.3878832Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T18:41:35.4106388Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T18:41:35.4146959Z ##[endgroup]
+2026-09-22T18:41:35.4148303Z ##[group]Fetching the repository
+2026-09-22T18:41:35.4157878Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +4d2246ba4bb7921e3f86b35a6add253fb4c15809:refs/remotes/pull/522/merge
+2026-09-22T18:41:42.4960403Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T18:41:42.4976328Z  * [new branch]        116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+2026-09-22T18:41:42.4985083Z  * [new branch]        117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+2026-09-22T18:41:42.4986701Z  * [new branch]        120-sound-card-option                    -> origin/120-sound-card-option
+2026-09-22T18:41:42.4988079Z  * [new branch]        129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+2026-09-22T18:41:42.4989508Z  * [new branch]        129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+2026-09-22T18:41:42.4991231Z  * [new branch]        130-prune-behavioural                    -> origin/130-prune-behavioural
+2026-09-22T18:41:42.4992703Z  * [new branch]        145-rebased-on-170                       -> origin/145-rebased-on-170
+2026-09-22T18:41:42.4995882Z  * [new branch]        154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+2026-09-22T18:41:42.5000122Z  * [new branch]        159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+2026-09-22T18:41:42.5003777Z  * [new branch]        159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+2026-09-22T18:41:42.5007807Z  * [new branch]        160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit -> origin/160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit
+2026-09-22T18:41:42.5011703Z  * [new branch]        162-boot-gate-instruments                -> origin/162-boot-gate-instruments
+2026-09-22T18:41:42.5015490Z  * [new branch]        163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+2026-09-22T18:41:42.5018399Z  * [new branch]        167-shard-github-verilator-ci            -> origin/167-shard-github-verilator-ci
+2026-09-22T18:41:42.5020951Z  * [new branch]        207-gptp-drop-counters-csr               -> origin/207-gptp-drop-counters-csr
+2026-09-22T18:41:42.5022859Z  * [new branch]        211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+2026-09-22T18:41:42.5024921Z  * [new branch]        219-pathtrace-cap-edge                   -> origin/219-pathtrace-cap-edge
+2026-09-22T18:41:42.5028782Z  * [new branch]        246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+2026-09-22T18:41:42.5032119Z  * [new branch]        260-pps-output                           -> origin/260-pps-output
+2026-09-22T18:41:42.5033412Z  * [new branch]        270-shorten-ci-feedback                  -> origin/270-shorten-ci-feedback
+2026-09-22T18:41:42.5036095Z  * [new branch]        286-yosys-single-process-bench           -> origin/286-yosys-single-process-bench
+2026-09-22T18:41:42.5040601Z  * [new branch]        287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real -> origin/287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real
+2026-09-22T18:41:42.5047925Z  * [new branch]        292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid -> origin/292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid
+2026-09-22T18:41:42.5055686Z  * [new branch]        295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check -> origin/295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check
+2026-09-22T18:41:42.5061916Z  * [new branch]        296-documentation-audience-guides-wavedrom -> origin/296-documentation-audience-guides-wavedrom
+2026-09-22T18:41:42.5065142Z  * [new branch]        297-test-aggregate-standalone-litex-simulations -> origin/297-test-aggregate-standalone-litex-simulations
+2026-09-22T18:41:42.5068633Z  * [new branch]        300-tooling-replace-the-legacy-teroshdl-dependency-graph -> origin/300-tooling-replace-the-legacy-teroshdl-dependency-graph
+2026-09-22T18:41:42.5071615Z  * [new branch]        303-rework-fpga-gptp-docs                -> origin/303-rework-fpga-gptp-docs
+2026-09-22T18:41:42.5073414Z  * [new branch]        304-docs-archive-the-closed-throughput-campaign -> origin/304-docs-archive-the-closed-throughput-campaign
+2026-09-22T18:41:42.5077992Z  * [new branch]        309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way -> origin/309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way
+2026-09-22T18:41:42.5082058Z  * [new branch]        311-workflow-align-clean-review-verdict-syntax-with-integrity-audit -> origin/311-workflow-align-clean-review-verdict-syntax-with-integrity-audit
+2026-09-22T18:41:42.5085289Z  * [new branch]        312-docs-compliance-matrix-and-hygiene   -> origin/312-docs-compliance-matrix-and-hygiene
+2026-09-22T18:41:42.5087483Z  * [new branch]        314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows -> origin/314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows
+2026-09-22T18:41:42.5090072Z  * [new branch]        315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path -> origin/315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path
+2026-09-22T18:41:42.5094004Z  * [new branch]        316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger -> origin/316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger
+2026-09-22T18:41:42.5096657Z  * [new branch]        317-make-consumer-filenames              -> origin/317-make-consumer-filenames
+2026-09-22T18:41:42.5098142Z  * [new branch]        334-harden-act-ci-sigint-cleanup         -> origin/334-harden-act-ci-sigint-cleanup
+2026-09-22T18:41:42.5099603Z  * [new branch]        337-act-action-cache-serialisation       -> origin/337-act-action-cache-serialisation
+2026-09-22T18:41:42.5101082Z  * [new branch]        337-live-boundary-negative-control       -> origin/337-live-boundary-negative-control
+2026-09-22T18:41:42.5102740Z  * [new branch]        340-repair-act-ci-trusted-runner         -> origin/340-repair-act-ci-trusted-runner
+2026-09-22T18:41:42.5104567Z  * [new branch]        345-rule12-idiom-gates-wiring            -> origin/345-rule12-idiom-gates-wiring
+2026-09-22T18:41:42.5106627Z  * [new branch]        350-yosys-result-cache                   -> origin/350-yosys-result-cache
+2026-09-22T18:41:42.5109378Z  * [new branch]        351-check-merge-containment-git-minimum  -> origin/351-check-merge-containment-git-minimum
+2026-09-22T18:41:42.5112118Z  * [new branch]        358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+2026-09-22T18:41:42.5114879Z  * [new branch]        358-gptp-latency-correction              -> origin/358-gptp-latency-correction
+2026-09-22T18:41:42.5117375Z  * [new branch]        359-ax7101-boot-stall                    -> origin/359-ax7101-boot-stall
+2026-09-22T18:41:42.5121031Z  * [new branch]        360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay -> origin/360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay
+2026-09-22T18:41:42.5125061Z  * [new branch]        362-build-hash-seed                      -> origin/362-build-hash-seed
+2026-09-22T18:41:42.5126443Z  * [new branch]        363-docs-clock-domains                   -> origin/363-docs-clock-domains
+2026-09-22T18:41:42.5127787Z  * [new branch]        365-ax1x1-simulation-baseline            -> origin/365-ax1x1-simulation-baseline
+2026-09-22T18:41:42.5129244Z  * [new branch]        366-flashpair-first-boot-restart         -> origin/366-flashpair-first-boot-restart
+2026-09-22T18:41:42.5130661Z  * [new branch]        367-ax1x1-gptp-on-simulation             -> origin/367-ax1x1-gptp-on-simulation
+2026-09-22T18:41:42.5131996Z  * [new branch]        372-bound-axis-assertions                -> origin/372-bound-axis-assertions
+2026-09-22T18:41:42.5134228Z  * [new branch]        372-review-evidence                      -> origin/372-review-evidence
+2026-09-22T18:41:42.5135969Z  * [new branch]        373-testing-submodule-command            -> origin/373-testing-submodule-command
+2026-09-22T18:41:42.5137466Z  * [new branch]        374-link-guard-settle-comments           -> origin/374-link-guard-settle-comments
+2026-09-22T18:41:42.5139082Z  * [new branch]        375-latency-scratch-wording              -> origin/375-latency-scratch-wording
+2026-09-22T18:41:42.5140484Z  * [new branch]        376-act-selftest-zombie-drain            -> origin/376-act-selftest-zombie-drain
+2026-09-22T18:41:42.5141941Z  * [new branch]        377-one-dut-acceptance-docs              -> origin/377-one-dut-acceptance-docs
+2026-09-22T18:41:42.5143258Z  * [new branch]        378-em-dash-gate                         -> origin/378-em-dash-gate
+2026-09-22T18:41:42.5144945Z  * [new branch]        386-tdm-render-setpoint                  -> origin/386-tdm-render-setpoint
+2026-09-22T18:41:42.5146379Z  * [new branch]        389-truthful-clock-sources               -> origin/389-truthful-clock-sources
+2026-09-22T18:41:42.5147732Z  * [new branch]        390-ring-one-grid                        -> origin/390-ring-one-grid
+2026-09-22T18:41:42.5149139Z  * [new branch]        398-boot-policy-declarations             -> origin/398-boot-policy-declarations
+2026-09-22T18:41:42.5150724Z  * [new branch]        399-clock-plan-declarations              -> origin/399-clock-plan-declarations
+2026-09-22T18:41:42.5152237Z  * [new branch]        400-403-declaration-truth                -> origin/400-403-declaration-truth
+2026-09-22T18:41:42.5153897Z  * [new branch]        400-403-review-evidence                  -> origin/400-403-review-evidence
+2026-09-22T18:41:42.5155457Z  * [new branch]        401-descriptor-name-declarations         -> origin/401-descriptor-name-declarations
+2026-09-22T18:41:42.5157147Z  * [new branch]        402-build-sh-sources-generated-argv      -> origin/402-build-sh-sources-generated-argv
+2026-09-22T18:41:42.5158686Z  * [new branch]        404-builder-doc-key-map                  -> origin/404-builder-doc-key-map
+2026-09-22T18:41:42.5160269Z  * [new branch]        406-pin-rtl-job-step-lists               -> origin/406-pin-rtl-job-step-lists
+2026-09-22T18:41:42.5161615Z  * [new branch]        407-ac5-probe                            -> origin/407-ac5-probe
+2026-09-22T18:41:42.5162934Z  * [new branch]        407-carrier-script-pins                  -> origin/407-carrier-script-pins
+2026-09-22T18:41:42.5164607Z  * [new branch]        408-409-465-boot-gate                    -> origin/408-409-465-boot-gate
+2026-09-22T18:41:42.5166108Z  * [new branch]        410-origin-probe-call-value-eval         -> origin/410-origin-probe-call-value-eval
+2026-09-22T18:41:42.5167872Z  * [new branch]        411-clarify-ptp-scratch-and-test-readback -> origin/411-clarify-ptp-scratch-and-test-readback
+2026-09-22T18:41:42.5169477Z  * [new branch]        412-em-dash-residue                      -> origin/412-em-dash-residue
+2026-09-22T18:41:42.5170965Z  * [new branch]        413-type7-html-heading-exemption         -> origin/413-type7-html-heading-exemption
+2026-09-22T18:41:42.5173330Z  * [new branch]        418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+2026-09-22T18:41:42.5175790Z  * [new branch]        419-design-evidence                      -> origin/419-design-evidence
+2026-09-22T18:41:42.5177219Z  * [new branch]        419-snapshot-ownership-adr               -> origin/419-snapshot-ownership-adr
+2026-09-22T18:41:42.5178725Z  * [new branch]        422-strict-gptp-tx-flags                 -> origin/422-strict-gptp-tx-flags
+2026-09-22T18:41:42.5180152Z  * [new branch]        423-readiness-evidence                   -> origin/423-readiness-evidence
+2026-09-22T18:41:42.5181645Z  * [new branch]        423-retained-redundant-replay            -> origin/423-retained-redundant-replay
+2026-09-22T18:41:42.5183124Z  * [new branch]        423-review-evidence                      -> origin/423-review-evidence
+2026-09-22T18:41:42.5184953Z  * [new branch]        424-integrate-nvm-completion-ownership   -> origin/424-integrate-nvm-completion-ownership
+2026-09-22T18:41:42.5186650Z  * [new branch]        426-complete-review-histories            -> origin/426-complete-review-histories
+2026-09-22T18:41:42.5188419Z  * [new branch]        437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+2026-09-22T18:41:42.5189900Z  * [new branch]        437-review-evidence                      -> origin/437-review-evidence
+2026-09-22T18:41:42.5191407Z  * [new branch]        438-containment-selftest-cleanup         -> origin/438-containment-selftest-cleanup
+2026-09-22T18:41:42.5192909Z  * [new branch]        440-markdown-closers                     -> origin/440-markdown-closers
+2026-09-22T18:41:42.5194550Z  * [new branch]        440-review-evidence                      -> origin/440-review-evidence
+2026-09-22T18:41:42.5196021Z  * [new branch]        444-milan-dp-shard-and-ci-trims          -> origin/444-milan-dp-shard-and-ci-trims
+2026-09-22T18:41:42.5197613Z  * [new branch]        445-render-phase-observation             -> origin/445-render-phase-observation
+2026-09-22T18:41:42.5199080Z  * [new branch]        447-tdm-master-render                    -> origin/447-tdm-master-render
+2026-09-22T18:41:42.5200433Z  * [new branch]        452-bclk-iob-packable                    -> origin/452-bclk-iob-packable
+2026-09-22T18:41:42.5201830Z  * [new branch]        452-tdm8-fsync-launch-edge               -> origin/452-tdm8-fsync-launch-edge
+2026-09-22T18:41:42.5203294Z  * [new branch]        453-deploy-render-interface              -> origin/453-deploy-render-interface
+2026-09-22T18:41:42.5205111Z  * [new branch]        462-463-descriptor-truth                 -> origin/462-463-descriptor-truth
+2026-09-22T18:41:42.5206501Z  * [new branch]        464-aem-store-selftest                   -> origin/464-aem-store-selftest
+2026-09-22T18:41:42.5207817Z  * [new branch]        464-review-evidence                      -> origin/464-review-evidence
+2026-09-22T18:41:42.5209389Z  * [new branch]        466-deploy-shape-in-docs-check           -> origin/466-deploy-shape-in-docs-check
+2026-09-22T18:41:42.5210862Z  * [new branch]        471-472-srp-status-words                 -> origin/471-472-srp-status-words
+2026-09-22T18:41:42.5212223Z  * [new branch]        475-fail-unpacked-iob                    -> origin/475-fail-unpacked-iob
+2026-09-22T18:41:42.5213870Z  * [new branch]        478-audio-unit-rate-bound                -> origin/478-audio-unit-rate-bound
+2026-09-22T18:41:42.5215250Z  * [new branch]        478-review-evidence                      -> origin/478-review-evidence
+2026-09-22T18:41:42.5216644Z  * [new branch]        484-snapshot-ownership-impl              -> origin/484-snapshot-ownership-impl
+2026-09-22T18:41:42.5218027Z  * [new branch]        498-review-evidence                      -> origin/498-review-evidence
+2026-09-22T18:41:42.5219396Z  * [new branch]        500-d3-materialization-adr               -> origin/500-d3-materialization-adr
+2026-09-22T18:41:42.5220772Z  * [new branch]        500-design-evidence                      -> origin/500-design-evidence
+2026-09-22T18:41:42.5222075Z  * [new branch]        503-review-evidence                      -> origin/503-review-evidence
+2026-09-22T18:41:42.5223410Z  * [new branch]        504-hosted-rv32-compiler                 -> origin/504-hosted-rv32-compiler
+2026-09-22T18:41:42.5225272Z  * [new branch]        504-readiness-evidence                   -> origin/504-readiness-evidence
+2026-09-22T18:41:42.5227189Z  * [new branch]        504-review-evidence                      -> origin/504-review-evidence
+2026-09-22T18:41:42.5228535Z  * [new branch]        505-review-evidence                      -> origin/505-review-evidence
+2026-09-22T18:41:42.5229923Z  * [new branch]        517-bounded-simulation-pool              -> origin/517-bounded-simulation-pool
+2026-09-22T18:41:42.5231309Z  * [new branch]        517-review-evidence                      -> origin/517-review-evidence
+2026-09-22T18:41:42.5232610Z  * [new branch]        520-review-evidence                      -> origin/520-review-evidence
+2026-09-22T18:41:42.5234211Z  * [new branch]        520-yosys-rom-cache-identity             -> origin/520-yosys-rom-cache-identity
+2026-09-22T18:41:42.5235928Z  * [new branch]        69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+2026-09-22T18:41:42.5237373Z  * [new branch]        70-firmware-flash-writer                 -> origin/70-firmware-flash-writer
+2026-09-22T18:41:42.5238886Z  * [new branch]        70-flat-names-allocation                 -> origin/70-flat-names-allocation
+2026-09-22T18:41:42.5240149Z  * [new branch]        70-nvm-backend                           -> origin/70-nvm-backend
+2026-09-22T18:41:42.5241368Z  * [new branch]        70-nvm-persistence                       -> origin/70-nvm-persistence
+2026-09-22T18:41:42.5243062Z  * [new branch]        74-media-clock-select-crf-and-align-the-audio-grid -> origin/74-media-clock-select-crf-and-align-the-audio-grid
+2026-09-22T18:41:42.5245130Z  * [new branch]        75-lwsrp-restart-bound                   -> origin/75-lwsrp-restart-bound
+2026-09-22T18:41:42.5246578Z  * [new branch]        chore/cpp-core-guidelines-idiom          -> origin/chore/cpp-core-guidelines-idiom
+2026-09-22T18:41:42.5247831Z  * [new branch]        dev                                      -> origin/dev
+2026-09-22T18:41:42.5248893Z  * [new branch]        finish-259-116                           -> origin/finish-259-116
+2026-09-22T18:41:42.5249987Z  * [new branch]        main                                     -> origin/main
+2026-09-22T18:41:42.5251279Z  * [new branch]        pin-gptp-processor-to-donor-main         -> origin/pin-gptp-processor-to-donor-main
+2026-09-22T18:41:42.5252867Z  * [new branch]        pp46-lstn-reg-state-whole-project        -> origin/pp46-lstn-reg-state-whole-project
+2026-09-22T18:41:42.5254703Z  * [new branch]        pp51-sampling-rate-whole-project         -> origin/pp51-sampling-rate-whole-project
+2026-09-22T18:41:42.5256422Z  * [new branch]        pp90-nvm-exports-whole-project           -> origin/pp90-nvm-exports-whole-project
+2026-09-22T18:41:42.5257854Z  * [new branch]        repin-gptp-09af9fc                       -> origin/repin-gptp-09af9fc
+2026-09-22T18:41:42.5259272Z  * [new branch]        repin-gptp-after-donor-rewrite           -> origin/repin-gptp-after-donor-rewrite
+2026-09-22T18:41:42.5260666Z  * [new branch]        repin-gptp-bacf812                       -> origin/repin-gptp-bacf812
+2026-09-22T18:41:42.5262000Z  * [new branch]        shape-include-ambiguity                  -> origin/shape-include-ambiguity
+2026-09-22T18:41:42.5263383Z  * [new branch]        validation/478-candidate2                -> origin/validation/478-candidate2
+2026-09-22T18:41:42.5264880Z  * [new ref]           4d2246ba4bb7921e3f86b35a6add253fb4c15809 -> pull/522/merge
+2026-09-22T18:41:42.5266931Z ##[endgroup]
+2026-09-22T18:41:42.5267731Z ##[group]Determining the checkout info
+2026-09-22T18:41:42.5268623Z ##[endgroup]
+2026-09-22T18:41:42.5269127Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T18:41:42.5270701Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T18:41:42.5272493Z ##[group]Checking out the ref
+2026-09-22T18:41:42.5273326Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/522/merge
+2026-09-22T18:41:42.6758957Z Note: switching to 'refs/remotes/pull/522/merge'.
+2026-09-22T18:41:42.6760155Z 
+2026-09-22T18:41:42.6760826Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T18:41:42.6762520Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T18:41:42.6764441Z state without impacting any branches by switching back to a branch.
+2026-09-22T18:41:42.6765482Z 
+2026-09-22T18:41:42.6766105Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T18:41:42.6767330Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T18:41:42.6768028Z 
+2026-09-22T18:41:42.6768334Z   git switch -c <new-branch-name>
+2026-09-22T18:41:42.6768790Z 
+2026-09-22T18:41:42.6769033Z Or undo this operation with:
+2026-09-22T18:41:42.6769432Z 
+2026-09-22T18:41:42.6769653Z   git switch -
+2026-09-22T18:41:42.6770207Z 
+2026-09-22T18:41:42.6770736Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T18:41:42.6771545Z 
+2026-09-22T18:41:42.6772453Z HEAD is now at 4d2246ba Merge 28e350b99ac240a750326b762c6d029f0653362c into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T18:41:42.6784401Z ##[endgroup]
+2026-09-22T18:41:42.6832208Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T18:41:42.6860103Z 4d2246ba4bb7921e3f86b35a6add253fb4c15809
+2026-09-22T18:41:42.7172598Z ##[group]Run set -euo pipefail
+2026-09-22T18:41:42.7173333Z [36;1mset -euo pipefail[0m
+2026-09-22T18:41:42.7174503Z [36;1mecho "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA"[0m
+2026-09-22T18:41:42.7175425Z [36;1mhead="$(git rev-parse HEAD)"[0m
+2026-09-22T18:41:42.7176103Z [36;1mif [ "$head" != "$GITHUB_SHA" ]; then[0m
+2026-09-22T18:41:42.7176964Z [36;1m  echo "checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA" >&2[0m
+2026-09-22T18:41:42.7177784Z [36;1m  exit 1[0m
+2026-09-22T18:41:42.7178237Z [36;1mfi[0m
+2026-09-22T18:41:42.7178806Z [36;1mecho "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T18:41:42.7477677Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:41:42.7478314Z env:
+2026-09-22T18:41:42.7478780Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:41:42.7479361Z   YOSYS_VERSION: v0.66
+2026-09-22T18:41:42.7479993Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:41:42.7480735Z ##[endgroup]
+2026-09-22T18:41:42.7592630Z event=pull_request ref=refs/pull/522/merge sha=4d2246ba4bb7921e3f86b35a6add253fb4c15809
+2026-09-22T18:41:42.7690791Z ##[group]Run set -euo pipefail
+2026-09-22T18:41:42.7691449Z [36;1mset -euo pipefail[0m
+2026-09-22T18:41:42.7692497Z [36;1mobserved="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"[0m
+2026-09-22T18:41:42.7694172Z [36;1mpython3 scripts/ci_events.py --require-default-branch \[0m
+2026-09-22T18:41:42.7695143Z [36;1m  --event "$GITHUB_EVENT_NAME" --observed "$observed"[0m
+2026-09-22T18:41:42.7757845Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:41:42.7758410Z env:
+2026-09-22T18:41:42.7758843Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:41:42.7759390Z   YOSYS_VERSION: v0.66
+2026-09-22T18:41:42.7759987Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:41:42.7765560Z   GH_TOKEN: ***
+2026-09-22T18:41:42.7766048Z ##[endgroup]
+2026-09-22T18:41:43.3741767Z default_branch=dev expected=dev event=pull_request (informational)
+2026-09-22T18:41:43.3742560Z default-branch: OK
+2026-09-22T18:41:43.3876763Z ##[group]Run python3 -m pip install --quiet pyyaml
+2026-09-22T18:41:43.3877243Z [36;1mpython3 -m pip install --quiet pyyaml[0m
+2026-09-22T18:41:43.3877630Z [36;1mpython3 scripts/ci_events.py --check[0m
+2026-09-22T18:41:43.3943874Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:41:43.3944209Z env:
+2026-09-22T18:41:43.3944463Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:41:43.3944766Z   YOSYS_VERSION: v0.66
+2026-09-22T18:41:43.3945109Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:41:43.3945503Z ##[endgroup]
+2026-09-22T18:41:44.6772238Z   note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+2026-09-22T18:41:44.6774167Z ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+2026-09-22T18:41:44.6910412Z ##[group]Run set -euo pipefail
+2026-09-22T18:41:44.6910798Z [36;1mset -euo pipefail[0m
+2026-09-22T18:41:44.6911120Z [36;1mpython3 scripts/ci_scope.py --selftest[0m
+2026-09-22T18:41:44.6911443Z [36;1m[0m
+2026-09-22T18:41:44.6911685Z [36;1mif [ "$EVENT_NAME" != pull_request ]; then[0m
+2026-09-22T18:41:44.6912109Z [36;1m  echo "rtl=true" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T18:41:44.6912441Z [36;1m  echo "run_full=true" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T18:41:44.6912814Z [36;1m  echo "Non-PR event: exhaustive validation required."[0m
+2026-09-22T18:41:44.6913156Z [36;1m  exit 0[0m
+2026-09-22T18:41:44.6913374Z [36;1mfi[0m
+2026-09-22T18:41:44.6913917Z [36;1m[0m
+2026-09-22T18:41:44.6914149Z [36;1mif [ -n "$PR_BASE_SHA" ] \[0m
+2026-09-22T18:41:44.6914809Z [36;1m   && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then[0m
+2026-09-22T18:41:44.6915296Z [36;1m  git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \[0m
+2026-09-22T18:41:44.6915734Z [36;1m    > "$RUNNER_TEMP/changed-files"[0m
+2026-09-22T18:41:44.6916022Z [36;1melse[0m
+2026-09-22T18:41:44.6916311Z [36;1m  git ls-files > "$RUNNER_TEMP/changed-files"[0m
+2026-09-22T18:41:44.6916657Z [36;1mfi[0m
+2026-09-22T18:41:44.6916861Z [36;1m[0m
+2026-09-22T18:41:44.6917067Z [36;1mecho "Changed files:"[0m
+2026-09-22T18:41:44.6917373Z [36;1msed 's/^/  /' "$RUNNER_TEMP/changed-files"[0m
+2026-09-22T18:41:44.6917802Z [36;1mrtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"[0m
+2026-09-22T18:41:44.6918203Z [36;1mrun_full=false[0m
+2026-09-22T18:41:44.6918494Z [36;1mif [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then[0m
+2026-09-22T18:41:44.6918828Z [36;1m  run_full=true[0m
+2026-09-22T18:41:44.6919055Z [36;1mfi[0m
+2026-09-22T18:41:44.6919287Z [36;1mecho "rtl=$rtl" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T18:41:44.6919613Z [36;1mecho "run_full=$run_full" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T18:41:44.6919986Z [36;1mecho "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"[0m
+2026-09-22T18:41:44.6920334Z [36;1mif [ "$rtl" = false ]; then[0m
+2026-09-22T18:41:44.6921242Z [36;1m  echo "docs-only: every changed path is a top-level *.md, under LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no skipped gate reads unless docs-check reads it too; the exhaustive workers and both required aggregates skip"[0m
+2026-09-22T18:41:44.6922143Z [36;1mfi[0m
+2026-09-22T18:41:44.6984728Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:41:44.6985000Z env:
+2026-09-22T18:41:44.6985236Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:41:44.6985496Z   YOSYS_VERSION: v0.66
+2026-09-22T18:41:44.6985778Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:41:44.6986112Z   EVENT_NAME: pull_request
+2026-09-22T18:41:44.6986354Z   PR_DRAFT: false
+2026-09-22T18:41:44.6986626Z   PR_BASE_SHA: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T18:41:44.6986936Z ##[endgroup]
+2026-09-22T18:41:47.9652788Z   ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+2026-09-22T18:41:47.9653927Z   ok   ['README.md', 'AGENTS.md']: rtl=False
+2026-09-22T18:41:47.9654589Z   ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+2026-09-22T18:41:47.9655486Z   ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+2026-09-22T18:41:47.9656435Z   ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T18:41:47.9657187Z   ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T18:41:47.9657953Z   ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+2026-09-22T18:41:47.9658724Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-09-22T18:41:47.9659433Z   ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+2026-09-22T18:41:47.9660115Z   ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+2026-09-22T18:41:47.9660884Z   ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+2026-09-22T18:41:47.9661738Z   ok   ['docs/traceability/untested.budget']: rtl=True
+2026-09-22T18:41:47.9662369Z   ok   ['docs/notes.txt']: rtl=True
+2026-09-22T18:41:47.9663787Z   ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+2026-09-22T18:41:47.9664559Z   ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+2026-09-22T18:41:47.9665222Z   ok   ['cdc_census.drawio']: rtl=True
+2026-09-22T18:41:47.9665815Z   ok   ['cdc_census.svg']: rtl=True
+2026-09-22T18:41:47.9666602Z   ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T18:41:47.9667681Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-09-22T18:41:47.9668737Z   ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-09-22T18:41:47.9669472Z   ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-09-22T18:41:47.9670083Z   ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+2026-09-22T18:41:47.9670931Z   ok   ['LICENSE']: rtl=True
+2026-09-22T18:41:47.9671394Z   ok   ['notes.rst']: rtl=True
+2026-09-22T18:41:47.9671944Z   ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+2026-09-22T18:41:47.9672633Z   ok   ['requirements.txt']: rtl=True
+2026-09-22T18:41:47.9673171Z   ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+2026-09-22T18:41:47.9674031Z   ok   ['scripts/lint_rtl.py']: rtl=True
+2026-09-22T18:41:47.9674608Z   ok   ['.github/workflows/rtl.yml']: rtl=True
+2026-09-22T18:41:47.9675260Z   ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+2026-09-22T18:41:47.9675854Z   ok   []: rtl=True
+2026-09-22T18:41:47.9676288Z   ok   ['gptp-processor']: rtl=True
+2026-09-22T18:41:47.9676828Z   ok   ['protocol-processor']: rtl=True
+2026-09-22T18:41:47.9677373Z   ok   ['external']: rtl=True
+2026-09-22T18:41:47.9677874Z   ok   ['third_party/verilog-axis']: rtl=True
+2026-09-22T18:41:47.9678423Z   ok   ['.gitmodules']: rtl=True
+2026-09-22T18:41:47.9678935Z   ok   ['docs/x.md', 'gptp-processor']: rtl=True
+2026-09-22T18:41:47.9679569Z   ok   submodule rule names protocol-processor
+2026-09-22T18:41:47.9680170Z   ok   submodule rule names gptp-processor
+2026-09-22T18:41:47.9680726Z   ok   submodule rule names external
+2026-09-22T18:41:47.9681318Z   ok   submodule rule names third_party/verilog-axis
+2026-09-22T18:41:47.9681896Z   ok   submodule rule names .gitmodules
+2026-09-22T18:41:47.9682861Z   ok   gate-read page docs/reference/REGISTER_MAP.md (named at tests/steps/counters_contract_steps.py:38) is relevant
+2026-09-22T18:41:47.9684536Z   ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+2026-09-22T18:41:47.9686048Z   ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+2026-09-22T18:41:47.9687452Z   ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9688621Z   ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9689828Z   ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9691105Z   ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9692477Z   ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9694069Z   ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9695270Z   ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9696425Z   ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9697666Z   ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9698813Z   ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+2026-09-22T18:41:47.9700088Z   ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9701708Z   ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9702962Z   ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T18:41:47.9704184Z   ok   a new reader spelt as a comment naming it names nothing
+2026-09-22T18:41:47.9704946Z   ok   a new reader spelt as a message naming it names nothing
+2026-09-22T18:41:47.9705715Z   ok   a new reader spelt as a reader docs-check runs too names nothing
+2026-09-22T18:41:47.9706565Z   ok   mutation: gptp-processor filed as docs-only is rejected
+2026-09-22T18:41:47.9707431Z   ok   mutation: protocol-processor filed as docs-only is rejected
+2026-09-22T18:41:47.9708236Z   ok   mutation: external filed as docs-only is rejected
+2026-09-22T18:41:47.9709308Z   ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+2026-09-22T18:41:47.9710131Z   ok   mutation: .gitmodules filed as docs-only is rejected
+2026-09-22T18:41:47.9710975Z   ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+2026-09-22T18:41:47.9711755Z   ok   mutation: LICENSE filed as docs-only is rejected
+2026-09-22T18:41:47.9712432Z   ok   mutation: .rst filed as docs-only is rejected
+2026-09-22T18:41:47.9713096Z   ok   mutation: docs/ filed as docs-only is rejected
+2026-09-22T18:41:47.9714120Z   ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+2026-09-22T18:41:47.9715089Z   ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+2026-09-22T18:41:47.9715914Z   ok   mutation: tb/ filed as docs-only is rejected
+2026-09-22T18:41:47.9716555Z   ok   mutation: .py filed as docs-only is rejected
+2026-09-22T18:41:47.9717215Z   ok   mutation: .json filed as docs-only is rejected
+2026-09-22T18:41:47.9717878Z   ok   mutation: .svg filed as docs-only is rejected
+2026-09-22T18:41:47.9718748Z   ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+2026-09-22T18:41:47.9719910Z   ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+2026-09-22T18:41:47.9721028Z   ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+2026-09-22T18:41:47.9722223Z   ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+2026-09-22T18:41:47.9723431Z   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+2026-09-22T18:41:47.9725007Z   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+2026-09-22T18:41:47.9725904Z selftest: PASS
+2026-09-22T18:41:47.9764217Z Changed files:
+2026-09-22T18:41:47.9776863Z   docs/testing/CI_WORKFLOWS.md
+2026-09-22T18:41:47.9777414Z   syn/yosys/README.md
+2026-09-22T18:41:47.9777853Z   syn/yosys/cache_selftest.py
+2026-09-22T18:41:47.9778332Z   syn/yosys/result_cache.py
+2026-09-22T18:41:47.9778813Z   syn/yosys/rom_cache_selftest.py
+2026-09-22T18:41:47.9779291Z   syn/yosys/run.sh
+2026-09-22T18:41:48.0211474Z draft=false rtl=true run_full=true
+2026-09-22T18:41:48.0334555Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T18:41:48.0336092Z Post job cleanup.
+2026-09-22T18:41:48.1208675Z [command]/usr/bin/git version
+2026-09-22T18:41:48.1254984Z git version 2.55.0
+2026-09-22T18:41:48.1300406Z Temporarily overriding HOME='/home/runner/work/_temp/311e3808-e96b-4b6b-b729-cf8abbae76c5' before making global git config changes
+2026-09-22T18:41:48.1302066Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T18:41:48.1307239Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:41:48.1348362Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T18:41:48.1384752Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T18:41:48.1643376Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T18:41:48.1669815Z http.https://github.com/.extraheader
+2026-09-22T18:41:48.1680972Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T18:41:48.1717681Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T18:41:48.2018712Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T18:41:48.2045805Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T18:41:48.2440393Z Evaluate and set job outputs
+2026-09-22T18:41:48.2446828Z Set output 'run_full'
+2026-09-22T18:41:48.2448959Z Set output 'rtl'
+2026-09-22T18:41:48.2449591Z Set output 'target_sha'
+2026-09-22T18:41:48.2450401Z Cleaning up orphan processes
+2026-09-22T18:41:48.2726918Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
